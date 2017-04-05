@@ -1,90 +1,101 @@
 <h2>Webhooks</h2> Webhook teknologi tilbyr mulighet for integrering third-party web services i Uni Economy.
 <br/>
 <br/>
-<table class="webhookTable">
-    <tr>
-        <td class="col1">
-            <label>
-                Objektiv
-                <uni-select [config]="objectiveSelectConfig"
-                            [items]="objectiveNames"
-                            (valueChange)="onObjectiveSelectForNewSubscription($event)">
-                </uni-select>
-            </label>
-        </td>
-        <td class="col2">
-            <label>
-                Handling
-                <uni-select [config]="actionSelectConfig"
-                            [items]="actionNames"
-                            (valueChange)="onActionSelectForNewSubscription($event)">
-                </uni-select>
-            </label>
-        </td>
-        <td class="col3">
-            <label>
-                URL
-                <input type="text" id="url" [(ngModel)]="subscription.Url" (change)="urlChange($event)">
-            </label>
-        </td>
-        <td class="col4">
-            <label>
-                Beskrivelse
-                <input type="text" id="description" [(ngModel)]="subscription.Name" (change)="descriptionChange($event)">
-            </label>
-        </td>
-        <td class="col5">
-            <button class="new-webhook" (click)="onSubmit()" [disabled]="isSubmitDisabled()">Legg til</button>
-        </td>
-    </tr>
-</table>
-<br/>
-<h3>Eksisterende webhook integrasjoner</h3>
-<table class="webhookTable">
-    <tr *ngFor="let item of subscriptions">
-        <td class="col1">
-            <label>
-                Objektiv
-                <uni-select [config]="objectiveSelectConfig"
-                            [items]="objectiveNames"
-                            (valueChange)="onObjectiveSelectForExistingSubscription(item, $event)"
-                            [value]="this.getObjectiveName(item.ObjectiveId)">
-                </uni-select>
-            </label>
-        </td>
-        <td class="col2">
-            <label>
-                Handling
-                <uni-select [config]="actionSelectConfig"
-                            [items]="actionNames"
-                            (valueChange)="onActionSelectForExistingSubscription(item, $event)"
-                            [value]="this.getActionName(item.ActionId)">
-                </uni-select>
-            </label>
-        </td>
-        <td class="col3">
-            <label>
-                URL
-                <input type="text" [(ngModel)]="item.Url" (blur)="updateSubscription(item)">
-            </label>
-        </td>
-        <td class="col4">
-            <label>
-                Beskrivelse
-                <input type="text" [(ngModel)]="item.Name" (blur)="updateSubscription(item)">
-            </label>
-        </td>
-        <td class="col5">
+<section class="application">
+    <div *ngIf="!isEnabled">
+        <div class="enable-webhooks">
+            Du har ikke aktivert web hooks for dette selskapet.
+            <br/>
+            <button class="new-webhook" (click)="enableWebHooks()">Aktiver</button>
+        </div>
+    </div>
+    <div *ngIf="isEnabled">
+        <table class="webhookTable">
             <tr>
-                <td class="col5a">
-                    <input type="checkbox" id="{{item.id}}" [ngModel]="item.Enabled" (ngModelChange)="onToggle(item)">
-                    <label attr.for="{{item.id}}" class="toggle"> </label>
+                <td class="col1">
+                    <label>
+                        Objektiv
+                        <uni-select [config]="objectiveSelectConfig"
+                                    [items]="objectiveNames"
+                                    (valueChange)="onObjectiveSelectForNewSubscription($event)">
+                        </uni-select>
+                    </label>
                 </td>
-                <td class="col5b">
-                    <button class="delete-webhook" (click)="onDeleteSubscription(item.id) "></button>
+                <td class="col2">
+                    <label>
+                        Handling
+                        <uni-select [config]="actionSelectConfig"
+                                    [items]="actionNames"
+                                    (valueChange)="onActionSelectForNewSubscription($event)">
+                        </uni-select>
+                    </label>
+                </td>
+                <td class="col3">
+                    <label>
+                        URL
+                        <input type="text" id="url" [(ngModel)]="subscription.Url" (change)="urlChange($event)">
+                    </label>
+                </td>
+                <td class="col4">
+                    <label>
+                        Beskrivelse
+                        <input type="text" id="description" [(ngModel)]="subscription.Name" (change)="descriptionChange($event)">
+                    </label>
+                </td>
+                <td class="col5">
+                    <button class="new-webhook" (click)="onSubmit()" [disabled]="isSubmitDisabled()">Legg til</button>
                 </td>
             </tr>
-        </td>
-    </tr>
-</table>
+        </table>
+        <br/>
+        <h3>Eksisterende webhook integrasjoner</h3>
+        <table class="webhookTable">
+            <tr *ngFor="let item of subscriptions">
+                <td class="col1">
+                    <label>
+                        Objektiv
+                        <uni-select [config]="objectiveSelectConfig"
+                                    [items]="objectiveNames"
+                                    (valueChange)="onObjectiveSelectForExistingSubscription(item, $event)"
+                                    [value]="this.getObjectiveName(item.ObjectiveId)">
+                        </uni-select>
+                    </label>
+                </td>
+                <td class="col2">
+                    <label>
+                        Handling
+                        <uni-select [config]="actionSelectConfig"
+                                    [items]="actionNames"
+                                    (valueChange)="onActionSelectForExistingSubscription(item, $event)"
+                                    [value]="this.getActionName(item.ActionId)">
+                        </uni-select>
+                    </label>
+                </td>
+                <td class="col3">
+                    <label>
+                        URL
+                        <input type="text" [(ngModel)]="item.Url" (blur)="updateSubscription(item)">
+                    </label>
+                </td>
+                <td class="col4">
+                    <label>
+                        Beskrivelse
+                        <input type="text" [(ngModel)]="item.Name" (blur)="updateSubscription(item)">
+                    </label>
+                </td>
+                <td class="col5">
+                    <tr>
+                        <td class="col5a">
+                            <input type="checkbox" id="{{item.id}}" [ngModel]="item.Enabled" (ngModelChange)="onToggle(item)">
+                            <label attr.for="{{item.id}}" class="toggle"> </label>
+                        </td>
+                        <td class="col5b">
+                            <button class="delete-webhook" (click)="onDeleteSubscription(item.id) "></button>
+                        </td>
+                    </tr>
+                </td>
+            </tr>
+        </table>
+    </div>
+</section>
 <uni-confirm-modal></uni-confirm-modal>

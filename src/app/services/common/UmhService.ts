@@ -26,6 +26,19 @@ export interface IUmhSubscription {
     ActionId?: string;
 }
 
+export interface IUmhSubscriber {
+    id?: string;
+    Name?: string;
+    SubscriptionIds?: string[];
+    ClusterIds?: string[];
+}
+
+export interface IUmhCluster {
+    id?: string;
+    Name?: string;
+    NativeObjectKey?: string;
+}
+
 @Injectable()
 export class UmhService {
     constructor(private uniHttp: UniHttp) {
@@ -66,5 +79,27 @@ export class UmhService {
         return this.uniHttp.asDELETE()
             .sendToUrl(AppConfig.UNI_MESSAGE_HUB_URL + 'subscribers/' + subscriberId
                                                     + '/subscriptions/' + subscriptionId);
+    }
+
+    public createSubscriber(subscriber: IUmhSubscriber): Observable<IUmhSubscriber> {
+        return this.uniHttp.asPOST()
+            .withBody(subscriber)
+            .sendToUrl(AppConfig.UNI_MESSAGE_HUB_URL + 'subscribers');
+    }
+
+    public getSubscriber(subscriberId: string): Observable<IUmhSubscription> {
+        return this.uniHttp.asGET()
+            .sendToUrl(AppConfig.UNI_MESSAGE_HUB_URL + 'subscribers/' + subscriberId);
+    }
+
+    public getCluster(clusterId: string): Observable<IUmhSubscription> {
+        return this.uniHttp.asGET()
+            .sendToUrl(AppConfig.UNI_MESSAGE_HUB_URL + 'clusters/' + clusterId);
+    }
+    
+    public createCluster(cluster: IUmhCluster): Observable<IUmhSubscriber> {
+        return this.uniHttp.asPOST()
+            .withBody(cluster)
+            .sendToUrl(AppConfig.UNI_MESSAGE_HUB_URL + 'clusters');
     }
 }

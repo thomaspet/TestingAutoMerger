@@ -928,10 +928,10 @@ export class BusinessRelation extends UniEntity {
     public StatusCode: number;
     public UpdatedAt: Date;
     public UpdatedBy: string;
+    public BankAccounts: Array<BankAccount>;
     public Addresses: Array<Address>;
     public Phones: Array<Phone>;
     public Emails: Array<Email>;
-    public BankAccounts: Array<BankAccount>;
     public InvoiceAddress: Address;
     public ShippingAddress: Address;
     public DefaultPhone: Phone;
@@ -3219,6 +3219,7 @@ export class VatTypeSetup extends UniEntity {
     public CreatedAt: Date;
     public CreatedBy: string;
     public Deleted: boolean;
+    public DirectJournalEntryOnly: boolean;
     public ID: number;
     public IncomingAccountNumber: number;
     public IsCompensated: boolean;
@@ -4204,6 +4205,7 @@ export class VatType extends UniEntity {
     public CreatedAt: Date;
     public CreatedBy: string;
     public Deleted: boolean;
+    public DirectJournalEntryOnly: boolean;
     public ID: number;
     public IncomingAccountID: number;
     public InUse: boolean;
@@ -4227,7 +4229,6 @@ export class VatType extends UniEntity {
     public VatCodeGroup: VatCodeGroup;
     public VatReportReferences: Array<VatReportReference>;
     public CustomFields: any;
-    public DirectJournalEntryOnly: boolean;
 }
 
 
@@ -4498,11 +4499,16 @@ export class ContactSearchServiceResponse extends UniEntity {
 
 
 export class InvoicesAndRemindersReadyToRemind extends UniEntity {
+    public CurrencyCodeCode: string;
+    public CurrencyCodeID: number;
+    public CurrencyCodeShortCode: string;
+    public CurrencyExchangeRate: number;
     public CustomerID: number;
     public CustomerInvoiceID: number;
     public CustomerInvoiceReminderID: number;
     public CustomerName: string;
     public CustomerNumber: number;
+    public DontSendReminders: boolean;
     public DueDate: Date;
     public EmailAddress: string;
     public Fee: number;
@@ -4510,8 +4516,10 @@ export class InvoicesAndRemindersReadyToRemind extends UniEntity {
     public InvoiceNumber: number;
     public ReminderNumber: number;
     public RestAmount: number;
+    public RestAmountCurrency: number;
     public StatusCode: number;
     public TaxInclusiveAmount: number;
+    public TaxInclusiveAmountCurrency: number;
 }
 
 
@@ -4934,32 +4942,6 @@ export class JournalEntryData extends UniEntity {
 
 export class JournalEntryPaymentData extends UniEntity {
     public PaymentData: Payment;
-}
-
-
-export class ValidationResult extends UniEntity {
-    public Messages: Array<ValidationMessage>;
-}
-
-
-export class ValidationMessage extends UniEntity {
-    public EntityID: number;
-    public EntityType: string;
-    public ID: number;
-    public Level: ValidationLevel;
-    public Message: string;
-    public PropertyName: string;
-    public EntityValidationRule: EntityValidationRule;
-    public ComplexValidationRule: ComplexValidationRule;
-}
-
-
-export class JournalEntryCalculationSummary extends UniEntity {
-    public Differance: number;
-    public IncomingVat: number;
-    public OutgoingVat: number;
-    public SumCredit: number;
-    public SumDebet: number;
 }
 
 

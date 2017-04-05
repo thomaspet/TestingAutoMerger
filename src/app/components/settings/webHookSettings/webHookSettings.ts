@@ -1,10 +1,11 @@
-import {Component, ViewChild} from '@angular/core';
+import {Component, ViewChild, ChangeDetectorRef} from '@angular/core';
 import {UniSelect, ISelectConfig} from 'uniform-ng2/main';
 
-import {UmhService, IUmhAction, IUmhObjective, IUmhSubscription} from '../../../services/common/UmhService';
+import {UmhService, IUmhAction, IUmhObjective, IUmhSubscription, IUmhSubscriber} from '../../../services/common/UmhService';
 import {AuthService} from '../../../../framework/core/authService';
 import {UniConfirmModal, ConfirmActions} from '../../../../framework/modals/confirm';
-import {CompanyService} from '../../../services/services';
+import {CompanyService, ErrorService} from '../../../services/services';
+import {Company} from '../../../unientities';
 
 @Component({
     selector: 'webhook-settings',
@@ -12,78 +13,43 @@ import {CompanyService} from '../../../services/services';
 })
 
 export class WebHookSettings {
-    //@ViewChild(UniForm) public form: UniForm;
     @ViewChild(UniConfirmModal) private confirmModal: UniConfirmModal;
     @ViewChild(UniSelect)
 
     private actionSelectConfig: ISelectConfig;
     private objectiveSelectConfig: ISelectConfig;
-    private objectives: Array<IUmhObjective>;
-    private actions: Array<IUmhAction>;
+    private objectives: Array<IUmhObjective> = [];
+    private actions: Array<IUmhAction> = [];
     private noFilter: string;
 
     private subscription: IUmhSubscription;
     private subscriptions: Array<IUmhSubscription>;
 
-    public objectiveNames: string[];
-    public actionNames: string[];
+    public objectiveNames: string[] = [];
+    public actionNames: string[] = [];
     public isDirty: boolean = false;
+
+    private company: Company;
+    private isEnabled: boolean = false;
 
     public constructor(
         private umhSerivce: UmhService,
         private companyService: CompanyService,
-        private authService: AuthService) {
+        private authService: AuthService,
+        private cdr: ChangeDetectorRef,
+        private errorService: ErrorService
+        ) {
+    }
 
+    public ngOnInit() {
         this.noFilter = 'ffffffff-ffff-ffff-ffff-ffffffffffff';
 
+        this.initActions();
+        this.initObjectives();
         this.initSubscription();
 
-        this.umhSerivce.getActions().subscribe(
-            data => {
-                    this.actionNames = [];
-                    this.actions = [];
-
-                    const action: IUmhAction = {
-                         id: this.noFilter,
-                         Name: 'All'
-                    };
-                    this.actionNames.push('All');
-
-                    action.id = this.noFilter;
-                    action.Name = 'All';
-                    this.actions.push(action);
-
-                    for (var i = 0; i < data.length; ++i) {
-                        this.actionNames.push(data[i].Name);
-                        this.actions.push(data[i]);
-                    }
-               },
-                err => console.log(err)
-        );
-
-        this.umhSerivce.getObjectives().subscribe(
-            data => {
-                    this.objectiveNames = [];
-                    this.objectives = [];
-
-                    this.objectiveNames.push('All');
-
-                    const objective: IUmhObjective = {
-                        id: this.noFilter,
-                        Name : 'All'
-                    }
-                    this.objectives.push(objective);
-
-                    for (var i = 0; i < data.length; ++i) {
-                        this.objectiveNames.push(data[i].Name);
-                        this.objectives.push(data[i]);
-                    }
-            },
-            err => console.log(err)
-        );
-
         this.objectiveSelectConfig = {
-            displayProperty: 'id',
+            //displayProperty: 'id',
             // searchable: false,
             // template: (item) => {
             //     return (item.ID + ' - ' + item.PartName);
@@ -91,12 +57,17 @@ export class WebHookSettings {
         };
 
         this.actionSelectConfig = {
-            displayProperty: 'PartName',
+            //displayProperty: 'id',
             // searchable: false,
             // template: (item) => {
             //     return (item.ID + ' - ' + item.PartName);
             // }
         };
+    }
+
+    public ngAfterViewInit() {
+        this.isEnabled = this.company !== undefined && this.company.WebHookSubscriberId !== null;
+        this.cdr.detectChanges();
     }
 
     public canDeactivate(): boolean|Promise<boolean> {
@@ -120,6 +91,46 @@ export class WebHookSettings {
         });
     }
 
+    private initActions() {
+        this.umhSerivce.getActions().subscribe(
+            data => {
+                this.actionNames.push('All');
+
+                const action: IUmhAction = {
+                        id: this.noFilter,
+                        Name: 'All'
+                };
+                this.actions.push(action);
+
+                for (var i = 0; i < data.length; ++i) {
+                    this.actionNames.push(data[i].Name);
+                    this.actions.push(data[i]);
+                }
+            },
+            err => this.errorService.handle(err)
+        );
+    }
+
+    private initObjectives() {
+        this.umhSerivce.getObjectives().subscribe(
+            data => {
+                this.objectiveNames.push('All');
+
+                const objective: IUmhObjective = {
+                    id: this.noFilter,
+                    Name : 'All'
+                }
+                this.objectives.push(objective);
+
+                for (var i = 0; i < data.length; ++i) {
+                    this.objectiveNames.push(data[i].Name);
+                    this.objectives.push(data[i]);
+                }
+            },
+            err => this.errorService.handle(err)
+        );
+    }
+
     private initSubscription() {
         this.subscription = {
             AppModuleId: this.noFilter,
@@ -134,19 +145,29 @@ export class WebHookSettings {
             company => {
                 this.subscription.SubscriberId = company.WebHookSubscriberId;
                 this.subscription.ClusterId = company.Key;
+                this.company = company;
 
                 // get list of subscriptions
                 this.initList();
+
+                this.ngAfterViewInit();
             },
-            err => console.log(err)
+            err => this.errorService.handle(err)
         );
     }
 
     private initList() {
-        this.umhSerivce.getSubscriptions(this.subscription.SubscriberId).subscribe(
-            subscriptions => this.subscriptions = subscriptions,
-            err => console.log(err)
-        );
+        if (this.company.WebHookSubscriberId !== null) {
+            this.umhSerivce.getSubscriber(this.subscription.SubscriberId).subscribe(
+                res => {
+                    this.umhSerivce.getSubscriptions(this.subscription.SubscriberId).subscribe(
+                        subscriptions => this.subscriptions = subscriptions,
+                        err => this.errorService.handle(err)
+                    );
+                },
+                err => {} // nothing to do
+            );
+        }
     }
 
     private onSubmit() {
@@ -154,15 +175,55 @@ export class WebHookSettings {
             res => {
                 this.isDirty = false;
                 this.initSubscription();
-                console.log(res);
             },
-            err => {
-                // @TODO: remove this line after ret value is fixed in UmhAction
-                this.initSubscription();
-                err => console.error("@TODO check umh return value");
-            }
+            err => this.errorService.handle(err)
         );
     }
+
+    private enableWebHooks() {
+        this.checkCluster();
+        this.assignSubscriberToCompany();
+    }
+
+    // create new subscriber and attach to company
+    private assignSubscriberToCompany() {
+        let newSubscriber: IUmhSubscriber = {
+            Name: this.company.Name,
+            ClusterIds: [this.company.Key]
+        }
+
+        this.umhSerivce.createSubscriber(newSubscriber).subscribe(
+            res => {
+                this.company.WebHookSubscriberId = res.id;
+                this.companyService.AssignToWebHookSubscriber(this.company.ID, this.company.WebHookSubscriberId).subscribe(
+                    res2 => {
+                        this.initSubscription();
+                    },
+                    err2 => this.errorService.handle(err2)
+                );
+            },
+            err => this.errorService.handle(err)
+        );
+    }
+
+    // for backward compatibility reason
+    private checkCluster() {
+        this.umhSerivce.getCluster(this.company.Key).subscribe(
+            res => {
+                // nothing to do
+            },
+            err => {
+                this.umhSerivce.createCluster({
+                    id: this.company.Key,
+                    NativeObjectKey: this.company.Key,
+                    Name: this.company.Name
+                }).subscribe(
+                    res2 => {},
+                    err2 => this.errorService.handle(err2));
+            } 
+        );
+    }
+
     private urlChange(event) {
         this.isDirty = true;
     }
@@ -230,20 +291,15 @@ export class WebHookSettings {
         this.umhSerivce.deleteSubscription(this.subscription.SubscriberId, subscriptionId).subscribe(
             res => {
                 this.initList();
-                console.log(res);
             },
-            err => {
-                // @TODO: remove this line after ret value is fixed in UmhAction
-                this.initSubscription();
-                err => console.error("@TODO check umh return value");
-            }
+            err => this.errorService.handle(err)
         );
     }
 
     private updateSubscription(subscription: IUmhSubscription) {
         this.umhSerivce.updateSubscription(this.subscription.SubscriberId, subscription).subscribe(
-            res => console.log(res),
-            err => console.error("@TODO check umh return value")
+            res => {},
+            err => this.errorService.handle(err)
         );
     }
 
