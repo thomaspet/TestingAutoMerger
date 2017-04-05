@@ -39,8 +39,8 @@
                 (navigate)="onNavigateDays($event)"
             ></daybrowser>
 
-            <workeditor [attr.aria-busy]="busy" [timesheet]="timeSheet" (rowDeleted)="flagUnsavedChanged(false, true)"
-                (valueChanged)="flagUnsavedChanged(false, true)" >
+            <workeditor [attr.aria-busy]="busy" [timesheet]="timeSheet" (rowDeleted)="onEditChanged(true)"
+                (valueChanged)="onEditChanged(true)" >
             </workeditor>
 
         </section>

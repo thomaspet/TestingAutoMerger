@@ -4,7 +4,12 @@ import * as moment from 'moment';
 @Component({
     selector: 'daybrowser',
     template: `<article class="daybrowser centered" >
-        <header><span (click)="onOpenCalendar()">{{day.date|isotime:'UMMMM YYYY'}}</span>
+        <header>
+            <span class="subtitle">
+                <time [attr.datetime]="">{{fromNow()}}</time>
+            </span>
+            <span class="monthbutton" (click)="onOpenCalendar()">{{day.date|isotime:'UMMMM YYYY'}}</span>
+            <span class="subtitle">Uke {{day.isoWeek}}</span>
             <div class="popup-calendar" *ngIf="calendarOpen" >
                 <unitable-calendar 
                 (clickOutside)="onCalBlur()" (dateChange)="onCalendarDateChange($event)" 
@@ -16,9 +21,10 @@ import * as moment from 'moment';
             <tr>
                 <td (click)="onNavigate('left')" class="arrow"><div class="arrow-left"></div></td>
                 <td><table><tr>
-                    <td [class.is-active]="day.selected" *ngFor="let day of days" (click)="onClick(day)">
+                    <td [class.is-active]="day.selected" [class.is-weekend]="day.isWeekend" 
+                    *ngFor="let day of days" (click)="onClick(day)">
                         <span class="small">{{day.date|isotime:'Udddd'}}</span>
-                        <span [class.circle]="day.isToday" class="big">{{day.date|isotime:'D'}}.</span>
+                        <span [class.circle]="day.isToday" class="big">{{day.date|isotime:'D'}}</span>
                         <span class="small">{{day.counter|min2hours:'decimal-'}}</span>
                     </td>
                     </tr></table>
@@ -42,7 +48,19 @@ export class DayBrowser {
     @Output() public navigate: EventEmitter<INavDirection> = new EventEmitter();
 
     constructor(private changeDetectorRef: ChangeDetectorRef) {
-        this.days = this.initWeek( new Date() );
+        this.days = this.initWeekByDay( new Day(new Date() ) ); // new Date() );
+    }
+
+    public fromNow() {
+        var dt = this.day.mDate;
+        var now = moment();
+        dt.add(now.hours(), 'hours');
+        dt.add(now.minutes(), 'minutes');
+        dt.add(now.seconds(), 'seconds');
+        if (now.isSame(dt, 'day')) {
+            return 'I dag';
+        }
+        return dt.fromNow();
     }
 
     public get current(): Day {
@@ -102,7 +120,7 @@ export class DayBrowser {
             this.days[match] = day;
             this.checkDaySums();
         } else {            
-            this.days = this.initWeek(undefined, day);
+            this.days = this.initWeekByDay(day);
         }
         this.refresh();
     }
@@ -146,25 +164,22 @@ export class DayBrowser {
         this.refresh();
     }
 
-    private initWeek(date?: Date, day?: Day): Array<Day> {
+    private initWeekByDay(day: Day): Array<Day> {
         var wk = [];        
-        var startDate = day ? day.mDate : moment(date).startOf('day');
-        var orgDate = startDate.clone();
-        startDate = startDate.add('days', -4);
-        this.weekNumber = startDate.isoWeek();
-        this.numDayCounter = 0;
+        var weekDay = day.mDate;
+        var orgDate = weekDay.clone();
+        weekDay.add('days', -orgDate.isoWeekday());
+        this.weekNumber = weekDay.isoWeek();
         for (var i = 0; i < 7; i++) {
-            let md = startDate.add('days', 1);
-            let isSame = md.isSame(orgDate);
-            let dd = new Day(md.toDate(), isSame);            
-            this.day = isSame ? day || dd : this.day;
-            wk.push( isSame ? day || dd : dd );
+            weekDay.add('days', 1);
+            let isSame = weekDay.isSame(orgDate);
+            let dd = new Day(weekDay.toDate(), isSame);            
+            wk.push( isSame ? day : dd );
         }
-        if (day) {
-            this.numDayCounter++;
-            day.updated = true;
-            this.emitRequestSums(wk[0].date, wk[wk.length - 1].date);
-        }
+        this.day = day;
+        day.updated = true;
+        this.numDayCounter = 1;
+        this.emitRequestSums(wk[0].date, wk[wk.length - 1].date);
         return wk; 
     }
 
@@ -174,9 +189,14 @@ export class Day {
     public date: Date;
     public updated: boolean = false;
     public isToday: boolean = false;
+    public isWeekend: boolean = false;
+    public isoWeek: number = 0;
     constructor(date?: Date, public selected: boolean = false, public counter: number = 0) {
         this.date = Day.removeTime(date ||  new Date());
-        this.isToday = moment(this.date).isSame(moment(), 'day');
+        let dt = moment(this.date);
+        this.isToday = dt.isSame(moment(), 'day');
+        this.isWeekend = dt.isoWeekday() > 5;
+        this.isoWeek = dt.isoWeek();
     }
     public get mDate(): moment.Moment {
         return moment(this.date);

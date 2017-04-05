@@ -48,6 +48,7 @@ export class RegtimeBalance {
         if (this.eventcfg && checkSave) {
             this.eventcfg.askSave().then( () => {
                 this.onDayClick(item, false);
+                this.eventcfg.askReload();
             });
             return;
         }

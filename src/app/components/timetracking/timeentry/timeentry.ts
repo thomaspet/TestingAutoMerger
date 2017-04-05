@@ -1,7 +1,7 @@
 import {Component, ViewChild} from '@angular/core';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {View} from '../../../models/view/view';
-import {WorkRelation, WorkItem, Worker, WorkBalance} from '../../../unientities';
+import {WorkRelation, WorkItem, Worker, WorkBalance, LocalDate} from '../../../unientities';
 import {WorkerService, IFilter} from '../../../services/timetracking/workerService';
 import {exportToFile, arrayToCsv, safeInt, trimLength} from '../utils/utils';
 import {TimesheetService, TimeSheet} from '../../../services/timetracking/timesheetService';
@@ -178,7 +178,6 @@ export class TimeEntry {
         obs.subscribe((ts: TimeSheet) => {
             this.workRelations = this.timesheetService.workRelations;
             this.timeSheet = ts;
-            this.loadFlex(ts.currentRelation);
             this.loadItems();
             this.updateToolbar( !workerid ? this.service.user.name : '', this.workRelations );
         }, err => this.errorService.handle(err));
@@ -219,6 +218,7 @@ export class TimeEntry {
     }
 
     private loadItems(date?: Date) {
+        this.workEditor.EmptyRowDetails.Date = new LocalDate(date);        
         if (this.timeSheet.currentRelation && this.timeSheet.currentRelation.ID) {
             var obs: any;
             var dt: Date;
@@ -233,11 +233,25 @@ export class TimeEntry {
                 if (this.workEditor) { this.workEditor.closeEditor(); }
                 this.dayBrowser.current = new Day(dt, true, this.timeSheet.totals.Minutes);
                 this.flagUnsavedChanged(true, false);
+                this.suggestTime();
                 this.busy = false;
             }, err => this.errorService.handle(err));
         } else {
             alert('Current worker/user has no workrelations!');
         }
+    }
+
+    public onEditChanged(rowDeleted: boolean) {
+        this.suggestTime();
+        this.flagUnsavedChanged(false, true);
+    }
+
+    private suggestTime() {
+        var def = moment().hours(8).minutes(0).seconds(0).toDate();
+        if (this.timeSheet && this.timeSheet.items && this.timeSheet.items.length > 0) {
+            def = this.timeSheet.items[this.timeSheet.items.length - 1].EndTime;
+        }
+        this.workEditor.EmptyRowDetails.StartTime = def;
     }
 
     public onVacationSaved() {
@@ -249,6 +263,7 @@ export class TimeEntry {
     }
 
     private loadFlex(rel: WorkRelation) {
+        console.log('loadFlex');
         this.regtimeBalance.refresh(rel);
     }
 

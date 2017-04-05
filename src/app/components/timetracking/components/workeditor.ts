@@ -5,7 +5,7 @@ import {ToastService, ToastType} from '../../../../framework/uniToast/toastServi
 import {ErrorService, BrowserStorageService} from '../../../services/services';
 import {safeDec, filterInput, getDeepValue} from '../utils/utils';
 import {Observable} from 'rxjs/Observable';
-import {WorkType, WorkItem} from '../../../unientities';
+import {WorkType, WorkItem, LocalDate} from '../../../unientities';
 import * as moment from 'moment';
 
 interface ICurrent {
@@ -35,9 +35,14 @@ export class WorkEditor {
     private timeSheet: TimeSheet = new TimeSheet();
     private workTypes: Array<WorkType> = [];
     private visibleColumns: Array<string>;
+    private defaultRow: { Date: LocalDate, StartTime?: Date } = { Date: new LocalDate() };
 
     public get numberOfVisibleColumns(): number {
         return this.visibleColumns.length;
+    }
+
+    public get EmptyRowDetails(): { Date: LocalDate, StartTime?: Date } {
+        return this.defaultRow;
     }
 
     constructor(
@@ -128,6 +133,17 @@ export class WorkEditor {
             }
         }
 
+        // Brand new row?
+        if (this.timeSheet.items.length <= rowIndex) {
+            if (event.field !== 'Date') { 
+                this.timeSheet.setItemValue(new ValueItem('Date', newRow.Date, rowIndex, undefined, undefined, true));
+            }
+            if (event.field !== 'StartTime') {
+                this.timeSheet.setItemValue(new ValueItem('StartTime', newRow.StartTime, rowIndex
+                , undefined, undefined, true));
+            }
+        }
+
         if (this.timeSheet.setItemValue(change)) {
             this.valueChanged.emit(change);
             let xRow = this.timeSheet.items[rowIndex];
@@ -185,7 +201,7 @@ export class WorkEditor {
         cfg.setChangeCallback( x => this.onEditChange(x) );
         cfg.autoScrollIfNewCellCloseToBottom = true;
 
-        // cfg.defaultRowData = { Date: new LocalDate(), StartTime: new Date() };
+        cfg.defaultRowData = this.defaultRow;
 
         if (!this.visibleColumns) {
             this.visibleColumns = [];
@@ -193,6 +209,13 @@ export class WorkEditor {
         } else {
             var map = this.visibleColumns;
             cfg.columns.forEach( x => x.visible = map.findIndex( y => y === x.field) >= 0 );
+        }
+
+        // Is lunch-column visible?
+        let lunchCol = cfg.columns.find( x => x.field === 'LunchInMinutes');
+        if (lunchCol && this.timeSheet) {
+            // If not, lets turn of lunch-calculations
+            this.timeSheet.allowLunchCalculations = lunchCol.visible;
         }
 
         return cfg;

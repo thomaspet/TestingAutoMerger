@@ -53,6 +53,7 @@ export class TimeTableReport {
             if (this.eventcfg && checkSave) {
                 this.eventcfg.askSave().then( () => {
                     this.onDayClick(day, false);
+                    this.eventcfg.askReload();
                 });
                 return;
             }

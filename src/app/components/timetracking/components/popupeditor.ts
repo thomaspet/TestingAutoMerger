@@ -1,8 +1,9 @@
 import {Component, Input, ChangeDetectionStrategy, ChangeDetectorRef
     , HostListener, ViewChild} from '@angular/core';
 import {TimeSheet, TimesheetService, ErrorService} from '../../../services/services';
-import {WorkRelation} from '../../../unientities';
+import {WorkRelation, LocalDate} from '../../../unientities';
 import {WorkEditor} from './workeditor';
+import * as moment from 'moment';
 
 @Component({
     selector: 'uni-time-modal',
@@ -12,7 +13,8 @@ import {WorkEditor} from './workeditor';
                 <button (click)="close('cancel')" class="closeBtn"></button>
                 <article class="modal-content" [attr.aria-busy]="busy" >
                     <h3>{{date|isotime:'Udddd DD.MM.YYYY'}}</h3>
-                    <workeditor [timesheet]="timesheet" ></workeditor>
+                    <workeditor [timesheet]="timesheet" (rowDeleted)="onEditChanged(true)"
+                        (valueChanged)="onEditChanged(false)"></workeditor>
                     <span class="total">Totalsum: {{timesheet?.totals?.Minutes|min2hours:'decimal'}}</span>
                     <footer>                         
                         <button (click)="close('ok')" class="good">Lagre</button>
@@ -51,25 +53,36 @@ export class UniTimeModal {
     }
 
     private save() {
-        this.busy = true;
-        this.timesheet.saveItems(true).subscribe( x => {
-            this.isOpen = false;
-            this.busy = false;
-            this.onClose(true);
-            this.refresh();
-        },  err => {
-            this.busy = false;
-            this.errorService.handle(err);
-            this.refresh();
+        this.goBusy(true);
+        this.timesheet.saveItems(true)
+            .finally(() => this.goBusy(false))
+            .subscribe( x => {
+                this.isOpen = false;
+                this.onClose(true);
+            },  err => {
+                this.errorService.handle(err);
         });
+    }
+
+    private goBusy(busy: boolean = true) {
+        this.busy = busy;
+        this.refresh();
     }
 
     private onClose: (ok: boolean) => void = () => {};
 
-    @HostListener('window:keydown', ['$event']) 
+    @HostListener('keydown', ['$event']) 
     public keyHandler(event: KeyboardEvent) {
-        if (event.keyCode === 27 && this.isOpen) {
-            this.close('cancel');            
+        if (!this.isOpen) { return; }
+        switch (event.keyCode) {
+            case 27: // ESC
+                this.close('cancel');
+                break;
+            case 83: // S
+                if (event.ctrlKey) {
+                    this.close('ok');
+                }
+                break;
         }
     }
 
@@ -79,19 +92,37 @@ export class UniTimeModal {
             this.timesheet.items = [];
         }
         this.date = date;
-        this.busy = true;
-        this.refresh();
+        this.suggestTime();
+        this.goBusy(true);
         ts.loadItemsByPeriod(date, date).subscribe( 
             x => { 
-                this.busy = false;
                 this.timesheet = ts;
-                this.refresh();
+                this.suggestTime();
+                this.goBusy(false);
             });        
         this.isOpen = true;
         return new Promise((resolve, reject) => {
             this.onClose = ok => resolve(ok);            
         });
     }
+
+    public onEditChanged(rowDeleted: boolean) {
+        this.suggestTime();
+    }
+
+    private suggestTime() {
+        let defDate = this.date;
+        let def = moment(this.date).hours(8).minutes(0).seconds(0).toDate();
+        let ts = this.timesheet;
+        if (ts && ts.items && ts.items.length > 0) {
+            def = ts.items[ts.items.length - 1].EndTime;
+            defDate = ts.items[ts.items.length - 1].Date;
+            let converted = <any>defDate;
+            defDate = converted.toDate ? converted.toDate() : defDate;
+        }
+        this.editor.EmptyRowDetails.Date = new LocalDate(defDate);
+        this.editor.EmptyRowDetails.StartTime = def;
+    }    
 
     private refresh() {
         if (this.changeDetectorRef) {
