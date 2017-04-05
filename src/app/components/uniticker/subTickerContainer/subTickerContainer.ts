@@ -1,5 +1,5 @@
 import {Component, ViewChild, Input, OnInit, OnChanges, SimpleChanges, Output, EventEmitter} from '@angular/core';
-import {Ticker, TickerGroup, TickerColumn} from '../../../services/common/uniTickerService';
+import {Ticker, TickerGroup, TickerColumn, ITickerActionOverride} from '../../../services/common/uniTickerService';
 import {UniTickerService} from '../../../services/services';
 
 @Component({
@@ -7,10 +7,11 @@ import {UniTickerService} from '../../../services/services';
     templateUrl: './subTickerContainer.html'
 })
 export class UniSubTickerContainer implements OnChanges {
-    @Input() subTickers: Array<Ticker>;
-    @Input() parentTicker: Ticker;
-    @Input() parentModel: any;
+    @Input() private subTickers: Array<Ticker>;
+    @Input() private parentTicker: Ticker;
+    @Input() private parentModel: any;
     @Input() private expanded: boolean = false;
+    @Input() private actionOverrides: Array<ITickerActionOverride>;
 
     @Output() close: EventEmitter<any> = new EventEmitter<any>();
 
@@ -26,10 +27,10 @@ export class UniSubTickerContainer implements OnChanges {
                 this.selectedSubTicker = this.subTickers[0];
             }
         }
+    }
 
-        if (changes['parentModel'] && this.parentModel) {
-
-        }
+    private getParentTickerColumns() {
+        return this.parentTicker.Columns.filter(x => x.Type !== 'dontdisplay');
     }
 
     private onSelectSubTicker(subTicker: Ticker) {

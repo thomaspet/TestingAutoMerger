@@ -6,20 +6,17 @@ import {StatusService, StatisticsService, ErrorService} from '../../../services/
 declare const _; // lodash
 
 @Component({
-    selector: 'uni-ticker-filters',
-    templateUrl: './tickerFilters.html'
+    selector: 'uni-ticker-filters-nav-bar',
+    templateUrl: './tickerFiltersNavBar.html'
 })
-export class UniTickerFilters {
+export class UniTickerFiltersNavBar {
     @Input() private filters: Array<TickerFilter>;
     @Input() private ticker: Ticker;
     @Input() private expanded: boolean = false;
     @Input() private selectedFilter: TickerFilter;
-    @Input() private showPredefinedFilters: boolean = true;
     @Input() private expressionFilters: Array<IExpressionFilterValue> = [];
 
     @Output() filterSelected: EventEmitter<TickerFilter> = new EventEmitter<TickerFilter>();
-    @Output() filterChanged: EventEmitter<TickerFilter> = new EventEmitter<TickerFilter>();
-    @Output() close: EventEmitter<any> = new EventEmitter<any>();
 
     private selectedMainModel: ApiModel;
     private operators: Array<any>;
@@ -110,74 +107,7 @@ export class UniTickerFilters {
             );
         }
     }
-
-    private getModelName() {
-
-        if (this.selectedMainModel) {
-            return this.selectedMainModel.TranslatedName ? this.selectedMainModel.TranslatedName: this.selectedMainModel.Name;
-        }
-
-        if (this.ticker.ApiModel) {
-            return this.ticker.ApiModel.TranslatedName ? this.ticker.ApiModel.TranslatedName: this.ticker.ApiModel.Name;
-        }
-
-        return this.ticker.Model;
-    }
-
-    public setStandardSearch() {
-        alert('Ikke implementert - dette krever at serverside funksjonalitet er på plass');
-    }
-
-    private onFilterChanged(updatedFilter) {
-        this.selectedFilter = _.cloneDeep(updatedFilter);
-        this.filterChanged.emit(updatedFilter);
-    }
-
-    private getFilterHumanReadable(fieldFilter: TickerFieldFilter) {
-
-        let filter: string = '';
-
-        // TODO: Get translated name when that is available through the API
-        if (fieldFilter.Field.toLocaleLowerCase() === 'statuscode') {
-            filter += 'Status ';
-        } else {
-            filter += fieldFilter.Field + ' ';
-        }
-
-        let operatorReadable = this.operators.find(x => x.operator === fieldFilter.Operator);
-        filter += (operatorReadable ? operatorReadable.verb : fieldFilter.Operator) + ' ';
-
-        // replace with statuscode if field == statuscode
-        if (fieldFilter.Field.toLowerCase().endsWith('statuscode')) {
-            let status = this.statusService.getStatusText(+fieldFilter.Value);
-            filter += (status ? status : fieldFilter.Value);
-        } else if (fieldFilter.Value.toLowerCase() === 'getdate()') {
-            filter += 'dagens dato';
-        } else {
-            filter += fieldFilter.Value;
-        }
-
-        filter += ' ';
-
-        return filter;
-    }
-
-    private onModelSelected(mainModel) {
-        this.selectedMainModel = mainModel;
-    }
-
     private stopPropagation() {
         event.stopPropagation();
-    }
-
-    private closeFilters() {
-        this.filterChanged.emit(_.cloneDeep(this.selectedFilter));
-
-        this.close.emit();
-        this.stopPropagation();
-    }
-
-    private onFieldAdded(event) {
-        this.filterChanged.emit(_.cloneDeep(this.selectedFilter));
     }
 }

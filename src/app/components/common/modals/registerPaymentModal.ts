@@ -54,8 +54,9 @@ export class RegisterPaymentForm {
         this.companySettingsService.Get(1, ['AgioGainAccount', 'AgioLossAccount', 'BankChargeAccount', 'BaseCurrencyCode'])
             .subscribe((data: CompanySettings) => {
                 this.companySettings = data;
-                if (this.companySettings.BaseCurrencyCodeID == this.config.model.CurrencyCodeID)
+                if (this.companySettings.BaseCurrencyCodeID == this.config.model.CurrencyCodeID) {
                     this.isMainCurrency = true;
+                }
 
                 this.setupForm();
             }, err => this.errorService.handle(err));
@@ -353,6 +354,7 @@ export class RegisterPaymentModal {
 
     public confirm(invoiceId: number, title: string, currencyCode: CurrencyCode, invoiceCurrencyExchangeRate: number, invoicePaymentData: InvoicePaymentData): Promise<any> {
         return new Promise((resolve, reject) => {
+
             this.invoiceID = invoiceId;
             this.config.title = title;
             this.config.model = invoicePaymentData;

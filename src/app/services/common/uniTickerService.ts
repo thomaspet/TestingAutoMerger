@@ -127,7 +127,11 @@ export class UniTickerService { //extends BizHttp<UniQueryDefinition> {
                                     if (t.Actions) {
                                         t.Actions.forEach(action => {
                                             action.Type = action.Type ? action.Type.toLowerCase() : '';
-                                            action.ParameterProperty = action.ParameterProperty ? action.ParameterProperty : '';
+                                            action.Options =
+                                                action.Options ? action.Options : new TickerActionOptions();
+
+                                            action.Options.ParameterProperty =
+                                                action.Options.ParameterProperty ? action.Options.ParameterProperty : '';
 
                                             if (typeof action.DisplayInActionBar !== 'boolean') {
                                                 action.DisplayInActionBar = true;
@@ -143,6 +147,9 @@ export class UniTickerService { //extends BizHttp<UniQueryDefinition> {
                                             }
                                             if (typeof action.ExecuteWithoutSelection !== 'boolean') {
                                                 action.ExecuteWithoutSelection = false;
+                                            }
+                                            if (typeof action.ExecuteWithoutSelection !== 'boolean') {
+                                                action.NeedsActionOverride = false;
                                             }
                                         });
                                     }
@@ -275,7 +282,7 @@ export class UniTickerService { //extends BizHttp<UniQueryDefinition> {
                     let model = this.modelService.getModel(ticker.Model);
                     let uniEntityClass = allModels[ticker.Model];
 
-                    if (action.Type && action.Type.toLowerCase() === 'new') {
+                    if (action.Type === 'new') {
                         // get url for new entity, navigate
                         let url: string = model && model.DetailsUrl ? model.DetailsUrl : '';
 
@@ -285,7 +292,7 @@ export class UniTickerService { //extends BizHttp<UniQueryDefinition> {
                         } else {
                             throw Error('Could not navigate, no URL specified for model ' + ticker.Model);
                         }
-                    } else if (action.Type && action.Type.toLowerCase() === 'details') {
+                    } else if (action.Type === 'details') {
                         let rowId: number = null;
                         let urlIdProperty: string = 'ID';
 
@@ -293,9 +300,9 @@ export class UniTickerService { //extends BizHttp<UniQueryDefinition> {
                         if (!selectedRows || selectedRows.length !== 1) {
                             throw Error('Could not navigate, not possible to find ID to navigate to');
                         } else {
-                            if (action.ParameterProperty !== '') {
-                                rowId = selectedRows[0][action.ParameterProperty.replace('.', '')];
-                                urlIdProperty = action.ParameterProperty.toLowerCase();
+                            if (action.Options.ParameterProperty !== '') {
+                                rowId = selectedRows[0][action.Options.ParameterProperty.replace('.', '')];
+                                urlIdProperty = action.Options.ParameterProperty.toLowerCase();
                             } else {
                                 rowId = selectedRows[0]['ID'];
                             }
@@ -311,10 +318,10 @@ export class UniTickerService { //extends BizHttp<UniQueryDefinition> {
                             throw Error('Could not navigate, no URL specified for model ' + ticker.Model);
                         }
 
-                    } else if (action.Type && action.Type.toLowerCase() === 'action') {
+                    } else if (action.Type === 'action') {
                         console.error('actions with Type = "action" are not impelmented yet', action, ticker, selectedRows);
 
-                    } else if (action.Type && action.Type.toLowerCase() === 'transition') {
+                    } else if (action.Type === 'transition') {
                         if (!uniEntityClass) {
                             throw Error('Cannot find unientity class for model ' + ticker.Model + ', cannot run transition');
                         } else if (!uniEntityClass.RelativeUrl || uniEntityClass.RelativeUrl === '') {
@@ -323,7 +330,7 @@ export class UniTickerService { //extends BizHttp<UniQueryDefinition> {
 
                         // check that we can find the ID of the model - and that we have at least one
                         if (!selectedRows || selectedRows.length === 0) {
-                            throw Error('No row selected, cannot execute transition ' + action.Transition);
+                            throw Error('No row selected, cannot execute transition ' + action.Options.Transition);
                         }
 
                         let service = new BizHttp<any>(this.uniHttp, this.authService);
@@ -334,13 +341,13 @@ export class UniTickerService { //extends BizHttp<UniQueryDefinition> {
                         // is probably not optimal to run requests one-by-one either.
                         let requests = [];
                         selectedRows.forEach(row => {
-                            requests.push(service.Transition(row['ID'], row, action.Transition));
+                            requests.push(service.Transition(row['ID'], row, action.Options.Transition));
 
-                            if (!row._links.transitions[action.Transition]) {
-                                reject(`Cannot execute transition ${action.Transition} for ID ${row['ID']}, transition is not available for this item`);
+                            if (!row._links.transitions[action.Options.Transition]) {
+                                reject(`Cannot execute transition ${action.Options.Transition} for ID ${row['ID']}, transition is not available for this item`);
                             }
 
-                            console.log(`Transition ${action.Transition} queued for ID ${row['ID']}`);
+                            console.log(`Transition ${action.Options.Transition} queued for ID ${row['ID']}`);
                         });
 
                         Observable
@@ -349,7 +356,7 @@ export class UniTickerService { //extends BizHttp<UniQueryDefinition> {
                                 resolve();
                             },
                             err => {
-                                reject(`Error executing transition ${action.Transition}`);
+                                reject(`Error executing transition ${action.Options.Transition}`);
                                 this.errorService.handle(err);
                             }
                         );
@@ -455,8 +462,19 @@ export class UniTickerService { //extends BizHttp<UniQueryDefinition> {
                 if (model && model.DetailsUrl) {
                     url = model.DetailsUrl;
 
-                    if (data['ID']) {
-                        url = url.replace(':ID', data['ID']);
+                    if (column.LinkNavigationProperty) {
+                        let linkNavigationPropertyAlias = column.LinkNavigationProperty.replace('.', '');
+                        if (data[linkNavigationPropertyAlias]) {
+                            url = url.replace(':ID', data[linkNavigationPropertyAlias]);
+                        } else {
+                            // we dont have enough data to link to the external model, just show
+                            // the property as a normal field
+                            url = '';
+                        }
+                    } else {
+                        if (data['ID']) {
+                            url = url.replace(':ID', data['ID']);
+                        }
                     }
                 } else {
                     console.error(`${ticker.Model} not found, or no details url specified for model`);
@@ -866,16 +884,30 @@ export class TickerFilter {
 export class TickerAction {
     public Name: string;
     public Code: string;
+    public Type: string;
     public ConfirmBeforeExecuteMessage?: string;
     public ExecuteWithMultipleSelections?: boolean;
     public ExecuteWithoutSelection?: boolean;
-    public Type: string;
-    public Action?: string;
-    public Transition?: string;
     public DisplayInContextMenu?: boolean = true;
     public DisplayInActionBar?: boolean = true;
     public DisplayForSubTickers?: boolean = true;
+    public NeedsActionOverride?: boolean = false;
+    public Options: TickerActionOptions;
+}
+
+export class TickerActionOptions {
     public ParameterProperty?: string;
+    public Action?: string;
+    public Transition?: string;
+    public ReportName?: string;
+}
+
+export interface ITickerActionOverride {
+    Code: string;
+    CheckActionIsDisabled?: (selectedRows: Array<any>) => boolean;
+    BeforeExecuteActionHandler?: (selectedRows: Array<any>) => Promise<boolean> | boolean;
+    ExecuteActionHandler?: (selectedRows: Array<any>) => Promise<any>;
+    AfterExecuteActionHandler?: (selectedRows: Array<any>) => Promise<any>;
 }
 
 export class TickerHistory {

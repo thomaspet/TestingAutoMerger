@@ -81,7 +81,9 @@
                 "Type": "details",
                 "DisplayInContextMenu": true,
                 "DisplayInActionBar": true,
-                "ParameterProperty": "JournalEntryID"
+                "Options": {
+                    "ParameterProperty": "JournalEntryID"
+                }
             }
         ],
         "ParentFilter": {
@@ -225,33 +227,41 @@
                 "Name": "Tildel",
                 "Code": "supplierinvoice_assign",
                 "Type": "transition",
-                "Transition": "assign",
                 "DisplayInContextMenu": true,
-                "DisplayInActionBar": false
+                "DisplayInActionBar": false,
+                "Options": {
+                    "Transition": "assign"
+                }
             },
             {
                 "Name": "Godkjenn",
                 "Code": "supplierinvoice_approve",
                 "Type": "transition",
-                "Transition": "approve",
                 "DisplayInContextMenu": true,
-                "DisplayInActionBar": false
+                "DisplayInActionBar": false,
+                "Options": {
+                    "Transition": "approve"
+                }
             },
             {
                 "Name": "Bokfør",
                 "Code": "supplierinvoice_journal",
                 "Type": "transition",
-                "Transition": "journal",
                 "DisplayInContextMenu": true,
-                "DisplayInActionBar": false
+                "DisplayInActionBar": false,
+                "Options": {
+                    "Transition": "journal"
+                }
             },
             {
                 "Name": "Til betalingsliste",
                 "Code": "supplierinvoice_to_payment",
                 "Type": "transition",
-                "Transition": "sendForPayment",
                 "DisplayInContextMenu": true,
-                "DisplayInActionBar": false
+                "DisplayInActionBar": false,
+                "Options": {
+                    "Transition": "sendForPayment"
+                }
             }
         ],
         "SubTickersCodes": ["supplierinvoice_details", "journalentryline_list"],

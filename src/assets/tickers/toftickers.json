@@ -6,7 +6,7 @@
         "IsTopLevelTicker": true,
         "Group": "Salg",
         "Model": "CustomerInvoice",
-        "Expand": "Customer.Info",
+        "Expand": "Customer.Info,CurrencyCode,InvoiceReference",
         "OrderBy": "ID DESC",
         "Columns": [
             {
@@ -38,10 +38,58 @@
                 "Format": "DatePassed"
             },
             {
+                "Header": "Valuta",
+                "Field": "CurrencyCode.Code",
+                "Width": "70px",
+                "DefaultHidden": true
+            },
+            {
                 "Header": "Sum inkl mva",
-                "Field": "TaxInclusiveAmount",
+                "Field": "TaxInclusiveAmountCurrency",
                 "Format": "NumberPositiveNegative",
                 "Width": "150px"
+            },
+            {
+                "Header": "Restsum",
+                "Field": "RestAmountCurrency",
+                "Format": "NumberPositiveNegative",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "Kreditert",
+                "Field": "CreditedAmountCurrency",
+                "Format": "NumberPositiveNegative",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "Sum inkl mva [BASECURRENCY]",
+                "Field": "TaxInclusiveAmount",
+                "Format": "NumberPositiveNegative",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "Restsum [BASECURRENCY]",
+                "Field": "RestAmount",
+                "Format": "NumberPositiveNegative",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "Kreditert [BASECURRENCY]",
+                "Field": "CreditedAmount",
+                "Format": "NumberPositiveNegative",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "Fakturaref.",
+                "Field": "InvoiceReference.InvoiceNumber",
+                "DefaultHidden": true,
+                "Type": "link",
+                "LinkNavigationProperty": "InvoiceReferenceID"
+            },
+            {
+                "Field": "CustomerInvoice.InvoiceType",
+                "DefaultHidden": true,
+                "Type": "dontdisplay"
             },
             {
                 "Header": "Status",
@@ -78,9 +126,59 @@
                 "Name": "Fakturer",
                 "Code": "invoice_invoice",
                 "Type": "transition",
-                "Transition": "invoice",
                 "DisplayInContextMenu": true,
-                "DisplayInActionBar": false
+                "DisplayInActionBar": false,
+                "Options": {
+                    "Transition": "invoice"
+                }
+            },
+            {
+                "Name": "Registrer betaling",
+                "Code": "invoice_registerpayment",
+                "Type": "action",
+                "DisplayInContextMenu": true,
+                "DisplayInActionBar": false,
+                "NeedsActionOverride": true
+            },
+            {
+                "Name": "Lag kreditnota",
+                "Code": "invoice_createcreditnote",
+                "Type": "action",
+                "DisplayInContextMenu": true,
+                "DisplayInActionBar": false,
+                "NeedsActionOverride": true
+            },
+            {
+                "Name": "Krediter kreditnota",
+                "Code": "invoice_creditcreditnote",
+                "Type": "transition",
+                "DisplayInContextMenu": true,
+                "DisplayInActionBar": false,
+                "NeedsActionOverride": true,
+                "Options": {
+                    "Transition": "invoice"
+                }
+            },
+            {
+                "Name": "Skriv ut",
+                "Code": "invoice_print",
+                "Type": "print",
+                "ExecuteWithMultipleSelections": false,
+                "DisplayInContextMenu": true,
+                "DisplayInActionBar": false,
+                "NeedsActionOverride": true,
+                "Options": {
+                    "ReportName": "Faktura id"
+                }
+            },
+            {
+                "Name": "Send på e-post",
+                "Code": "invoice_sendemail",
+                "Type": "action",
+                "ExecuteWithMultipleSelections": false,
+                "DisplayInContextMenu": true,
+                "DisplayInActionBar": false,
+                "NeedsActionOverride": true
             }
         ],
         "SubTickersCodes": ["invoice_details", "invoice_items"],
@@ -374,9 +472,22 @@
                 "Format": "DatePassed"
             },
             {
-                "Field": "TaxInclusiveAmount",
+                "Header": "Valuta",
+                "Field": "CurrencyCode.Code",
+                "Width": "70px",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "Sum inkl mva",
+                "Field": "TaxInclusiveAmountCurrency",
                 "Format": "NumberPositiveNegative",
                 "Width": "150px"
+            },
+            {
+                "Header": "Sum inkl mva [BASECURRENCY]",
+                "Field": "TaxInclusiveAmount",
+                "Format": "NumberPositiveNegative",
+                "DefaultHidden": true
             },
             {
                 "Header": "Status",
@@ -413,25 +524,31 @@
                 "Name": "Overfør til ordre",
                 "Code": "quote_transfer_order",
                 "Type": "transition",
-                "Transition": "toOrder",
                 "DisplayInContextMenu": true,
-                "DisplayInActionBar": false
+                "DisplayInActionBar": false,
+                "Options": {
+                    "Transition": "toOrder"
+                }
             },
             {
                 "Name": "Overfør til faktura",
                 "Code": "quote_transfer_invoice",
                 "Type": "transition",
-                "Transition": "toInvoice",
                 "DisplayInContextMenu": true,
-                "DisplayInActionBar": false
+                "DisplayInActionBar": false,
+                "Options": {
+                    "Transition": "toInvoice"
+                }
             },
             {
                 "Name": "Avslutt",
                 "Code": "quote_transfer_complete",
                 "Type": "transition",
-                "Transition": "complete",
                 "DisplayInContextMenu": true,
-                "DisplayInActionBar": false
+                "DisplayInActionBar": false,
+                "Options": {
+                    "Transition": "complete"
+                }
             }
         ],
         "SubTickersCodes": ["quote_details", "quote_items"],
@@ -684,9 +801,20 @@
                 "Field": "OrderDate"
             },
             {
-                "Field": "TaxInclusiveAmount",
+                "Field": "CurrencyCode.Code",
+                "Width": "70px",
+                "DefaultHidden": true
+            },
+            {
+                "Field": "TaxInclusiveAmountCurrency",
                 "Format": "NumberPositiveNegative",
                 "Width": "150px"
+            },
+            {
+                "Header": "Sum inkl mva [BASECURRENCY]",
+                "Field": "TaxInclusiveAmount",
+                "Format": "NumberPositiveNegative",
+                "DefaultHidden": true
             },
             {
                 "Header": "Status",

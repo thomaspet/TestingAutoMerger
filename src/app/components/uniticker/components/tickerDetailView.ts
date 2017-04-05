@@ -13,6 +13,10 @@ export class UniTickerDetailView {
     constructor(private tickerService: UniTickerService) {
     }
 
+    private getVisibleColumns() {
+        return this.ticker.Columns.filter(x => x.Type !== 'dontdisplay');
+    }
+
     public getFieldValue(column: TickerColumn, model: any) {
         return this.tickerService.getFieldValue(column, model, this.ticker);
     }
