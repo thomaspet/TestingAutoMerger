@@ -2,15 +2,47 @@ import {IUniWidget} from './uniWidget';
 
 export class CanvasHelper {
     public canvasGrid: boolean[][];
+    private numColumns: number;
+    private numRows: number;
 
     constructor() {
+        this.createGrid(12);
+    }
+
+    public createGrid(numColumns: number): void {
+        this.numColumns = numColumns;
+        this.numRows = Math.ceil(9 * (12 / numColumns));
+
         this.canvasGrid = [];
-        for (let y = 0; y < 9; y++) {
+        for (let y = 0; y < this.numRows; y++) {
             let row = [];
-            for (let x = 0; x < 12; x++) {
+            for (let x = 0; x < this.numColumns; x++) {
                 row.push(false);
             }
+
             this.canvasGrid.push(row);
+        }
+    }
+
+    public activateLayout(widgets: IUniWidget[], targetCols) {
+        this.createGrid(targetCols);
+        let overflow: IUniWidget[] = [];
+
+        widgets.forEach((widget: IUniWidget) => {
+            if (widget.x <= (targetCols - widget.width)) {
+                this.reserveGridSpace(widget);
+            } else {
+                overflow.push(widget);
+            }
+        });
+
+        if (overflow.length) {
+            overflow.forEach((w: IUniWidget) => {
+                const position = this.getNextAvailablePosition(w);
+                w.x = position.x;
+                w.y = position.y;
+                this.reserveGridSpace(w);
+            });
         }
     }
 
@@ -38,8 +70,8 @@ export class CanvasHelper {
     }
 
     public getNextAvailablePosition(widget: IUniWidget): {x: number, y: number} {
-        for (let rowIndex = 0; rowIndex <= 9 - (widget.height); rowIndex++) {
-            for (let cellIndex = 0; cellIndex <= (12 - widget.width); cellIndex++) {
+        for (let rowIndex = 0; rowIndex <= this.numRows - (widget.height); rowIndex++) {
+            for (let cellIndex = 0; cellIndex <= (this.numColumns - widget.width); cellIndex++) {
                 if (!this.canvasGrid[rowIndex][cellIndex]) {
                     const collision = this.findCollision(
                         rowIndex,

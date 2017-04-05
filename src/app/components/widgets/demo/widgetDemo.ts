@@ -81,11 +81,9 @@ export class UniWidgetDemo {
     };
 
     constructor() {
-        this.addWidget('shortcut');
-    }
-
-    public onWidgetsChange(widgets) {
-        this.widgets = widgets;
+        this.widgets = [
+            JSON.parse(JSON.stringify(this.mockWidgets['shortcut']))
+        ];
     }
 
     private addWidget(type: string) {
@@ -93,7 +91,7 @@ export class UniWidgetDemo {
         // instead of a reference to the object in mockWidgets.
         // Because that caused x/y values to be equal for all widgets
         let newWidget = JSON.parse(JSON.stringify(this.mockWidgets[type]));
-        this.widgets = [...this.widgets, newWidget];
+        this.widgetCanvas.addWidget(newWidget);
     }
 
 }

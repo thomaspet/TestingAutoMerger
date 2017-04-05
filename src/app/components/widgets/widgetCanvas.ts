@@ -1,7 +1,6 @@
 import {
     Component,
     Input,
-    Output,
     ViewChild,
     ViewChildren,
     QueryList,
@@ -28,6 +27,12 @@ interface IGridAnchor {
     y: number;
 }
 
+interface IWidgetLayout {
+    large: IUniWidget[];
+    medium?: IUniWidget[];
+    small?: IUniWidget[];
+}
+
 @Component({
     selector: 'uni-widget-canvas',
     templateUrl: './widgetCanvas.html',
@@ -43,17 +48,15 @@ export class UniWidgetCanvas {
     @Input()
     private widgets: IUniWidget[];
 
-    @Output()
-    private widgetsChange: EventEmitter<IUniWidget[]> = new EventEmitter<IUniWidget[]>();
-
-    private canvasHelper: CanvasHelper;
-
+    private layout: IWidgetLayout;
     private editMode: boolean;
-    private mouseMove: EventEmitter<MouseEvent> = new EventEmitter<MouseEvent>();
-    private drawAnchorCell: EventEmitter<IUniWidget> = new EventEmitter<IUniWidget>();
-
+    private currentSize: string;
     private gridUnitInPx: number;
     private marginInPx: number;
+
+    private canvasHelper: CanvasHelper;
+    private mouseMove: EventEmitter<MouseEvent> = new EventEmitter<MouseEvent>();
+    private drawAnchorCell: EventEmitter<IUniWidget> = new EventEmitter<IUniWidget>();
 
     private gridAnchor: IGridAnchor;
 
@@ -65,49 +68,63 @@ export class UniWidgetCanvas {
         this.marginInPx = 10;
 
         Observable.fromEvent(window, 'resize')
-            .skip(1)
             .throttleTime(200)
             .subscribe(event => {
                 if (this.widgets) {
-                    this.widgets.forEach((widget: IUniWidget) => {
-                        this.gridUnitInPx = this.canvas.nativeElement.clientWidth / 12;
-                        this.setWidgetPosition(widget);
-                    });
-
-                    this.cdr.markForCheck();
+                    this.drawLayout();
                 }
             });
     }
 
     public ngOnChanges() {
         if (this.widgets) {
-            this.gridUnitInPx = this.canvas.nativeElement.clientWidth / 12;
-            this.widgets.forEach(widget => this.addWidget(widget));
-            this.cdr.markForCheck();
+            // This is where we would GET from layout endpoint
+            this.layout = {
+                large: JSON.parse(JSON.stringify(this.widgets)),
+                medium: JSON.parse(JSON.stringify(this.widgets)),
+                small: JSON.parse(JSON.stringify(this.widgets))
+            };
+
+            this.drawLayout();
         }
     }
 
-    private addWidget(widget: IUniWidget) {
-        widget._editMode = this.editMode;
+    private drawLayout() {
+        let size;
+        let numCols;
 
-        // If widget already has x:y coordinates, just position it and return
-        if (widget.x >= 0 && widget.y >= 0) {
-            this.setWidgetPosition(widget);
-            return;
+        if (window.innerWidth <= 480) {
+            size = 'small';
+            numCols = 4;
+        } else if (window.innerWidth <= 768) {
+            size = 'medium';
+            numCols = 8;
+        } else {
+            size = 'large';
+            numCols = 12;
         }
 
-        // If not, get next available position
+        if (size !== this.currentSize) {
+            this.currentSize = size;
+            this.canvasHelper.activateLayout(this.layout[size], numCols);
+        }
+
+        this.gridUnitInPx = this.canvas.nativeElement.clientWidth / numCols;
+        this.layout[size].forEach(w => this.setWidgetPosition(w));
+        this.cdr.markForCheck();
+    }
+
+    public addWidget(widget: IUniWidget) {
+        widget._editMode = this.editMode;
+
         const position = this.canvasHelper.getNextAvailablePosition(widget);
         if (position) {
             widget.x = position.x;
             widget.y = position.y;
-            this.widgetsChange.next(this.widgets);
+            this.layout[this.currentSize].push(widget);
             this.setWidgetPosition(widget);
         } else {
             this.toastService.addToast('Det er ikke plass til denne widgeten', ToastType.warn, 10);
-            this.widgets.pop();
-            this.widgetsChange.next(this.widgets);
-            return;
         }
     }
 
