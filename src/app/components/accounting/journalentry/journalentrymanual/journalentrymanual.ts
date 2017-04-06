@@ -1,6 +1,7 @@
 import {Component, Input, SimpleChange, ViewChild, OnInit, OnChanges, Output, EventEmitter} from '@angular/core';
 import {JournalEntryProfessional} from '../components/journalentryprofessional/journalentryprofessional';
-import {SupplierInvoice, Dimensions, FinancialYear, ValidationResult, ValidationMessage, ValidationLevel, VatDeduction, CompanySettings} from '../../../../unientities';
+import {SupplierInvoice, Dimensions, FinancialYear, ValidationLevel, VatDeduction, CompanySettings} from '../../../../unientities';
+import {ValidationMessage, ValidationResult} from '../../../../models/validationResult';
 import {JournalEntryData} from '../../../../models/models';
 import {JournalEntrySimpleCalculationSummary} from '../../../../models/accounting/JournalEntrySimpleCalculationSummary';
 import {JournalEntryAccountCalculationSummary} from '../../../../models/accounting/JournalEntryAccountCalculationSummary';
