@@ -88,7 +88,6 @@
             },
             {
                 "Field": "CustomerInvoice.InvoiceType",
-                "DefaultHidden": true,
                 "Type": "dontdisplay"
             },
             {
@@ -436,6 +435,10 @@
                 "Header": "Kommentar",
                 "Field": "Comment",
                 "Size": "medium"
+            },
+            {
+                "Field": "CustomerInvoice.InvoiceType",
+                "Type": "dontdisplay"
             }
         ]
     },

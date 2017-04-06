@@ -437,7 +437,7 @@ export class UniTicker {
     }
 
     private afterExecuteAction(action: TickerAction, actionOverride: ITickerActionOverride, selectedRows: Array<any>) {
-        if (actionOverride.AfterExecuteActionHandler !== undefined) {
+        if (actionOverride && actionOverride.AfterExecuteActionHandler !== undefined) {
             actionOverride.AfterExecuteActionHandler(selectedRows);
         }
     }
