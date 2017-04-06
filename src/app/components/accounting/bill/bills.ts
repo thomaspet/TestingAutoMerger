@@ -60,7 +60,7 @@ export class BillsView {
     private startupPage: number = 0;
 
     public filters: Array<IFilter> = [
-        { label: 'Innboks', name: 'Inbox', route: 'filetags/incomingmail/0', onDataReady: (data) => this.onInboxDataReady(data), isSelected: true, hotCounter: true },
+        { label: 'Innboks', name: 'Inbox', route: 'filetags/incomingmail|incomingehf/0', onDataReady: (data) => this.onInboxDataReady(data), isSelected: true, hotCounter: true },
         { label: 'Kladd', name: 'Draft', filter: 'isnull(statuscode,30101) eq 30101', isSelected: false, passiveCounter: true },
         { label: 'Tildelt', name: 'ForApproval', filter: 'statuscode eq 30102', passiveCounter: true },
         { label: 'Godkjent', name: 'Approved', filter: 'statuscode eq 30103', passiveCounter: true },
@@ -141,11 +141,10 @@ export class BillsView {
             params.set('filter', searchFilter);
         }
         this.currentFilter = filter;
-        var obs = obs = this.supplierInvoiceService.getInvoiceList(params);
         if (filter.route) {
             this.hasQueriedInboxCount = filter.name === 'Inbox';
-            obs = this.supplierInvoiceService.fetch(filter.route);
         }
+        let obs = filter.route ?  this.supplierInvoiceService.fetch(filter.route) : this.supplierInvoiceService.getInvoiceList(params);
         obs.subscribe((result) => {
             if (filter.onDataReady) {
                 filter.onDataReady(result);

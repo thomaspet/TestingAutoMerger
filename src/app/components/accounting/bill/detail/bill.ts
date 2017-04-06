@@ -26,7 +26,8 @@ import {
     BankAccountService,
     ErrorService,
     PageStateService,
-    checkGuid
+    checkGuid,
+    EHFService
 } from '../../../../services/services';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {UniFieldLayout} from 'uniform-ng2/main';
@@ -116,7 +117,8 @@ export class BillView {
         private location: Location,
         private errorService: ErrorService,
         private pageStateService: PageStateService,
-        private bankAccountService: BankAccountService) {
+        private bankAccountService: BankAccountService,
+        private ehfService: EHFService) {
             this.actions = this.rootActions;
     }
 
@@ -262,6 +264,30 @@ export class BillView {
         this.createNewSupplierButton();
     }
 
+    /// =============================
+
+    ///     FILES AND EHF
+
+    /// =============================
+
+    private runEHF(files: Array<any>): Promise<boolean> {
+        return new Promise( (resolve, reject) => {
+            if (files && files.length > 0) {
+                let firstFile = files[0];
+                this.userMsg(lang.ehf_running, null, null, true);
+                this.ehfService.Get(`?action=parse&fileID=${firstFile.ID}`)
+                    .subscribe( (invoice: SupplierInvoice) => {
+                        this.toast.clear();
+                        this.current.next(invoice);
+
+                        resolve(true);
+                    }, (err) => {
+                        this.errorService.handle(err);
+                        resolve(false);
+                    });
+            }
+        });
+    }
 
     /// =============================
 
@@ -284,7 +310,13 @@ export class BillView {
         this.files = files;
         if (files && files.length) {
             if (!this.hasValidSupplier()) {
-                this.runOcr(files);
+                // OCR OR EHF?
+                let firstFile = files[0];
+                if (firstFile.Name.endsWith('.ehf')) {
+                    this.runEHF(files);
+                } else {
+                    this.runOcr(files);
+                }
             }
             this.checkNewFiles(files);
         }

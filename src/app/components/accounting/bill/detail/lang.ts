@@ -61,6 +61,9 @@ export const billViewLanguage = {
     create_supplier: 'Opprette ny leverandør',
     org_number: 'Organisasjonsnr.',
 
+    ehf: 'Kjør EHF-tolk',
+    ehf_running: 'Kjører EHF-tolk av dokumentet. Vent litt..',
+
     create_bankaccount_accept: 'Opprett konto',
     create_bankaccount_reject: 'Ikke opprett konto',
     create_bankaccount_title: 'Vil du opprette bankkonto',
