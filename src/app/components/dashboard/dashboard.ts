@@ -45,120 +45,6 @@ export class Dashboard {
     private builder = new WidgetDatasetBuilder();
 
     private widgets: any[] = [];
-    private temp = [
-        {
-            width: 3,
-            height: 3,
-            widgetType: 'list',
-            config: {
-                header: 'Siste transaksjoner',
-                items: [
-                    {
-                        user: 'Frode',
-                        action: 'endret', //enum
-                        module: 'Tilbud 1',
-                        timestamp: new Date('2015'),
-                        link: '/sales/quotes/7'
-                    },
-                    {
-                        user: 'Chiotis',
-                        action: 'opprettet', //enum
-                        module: 'Ansatt 1',
-                        timestamp: new Date('2016'),
-                        link: '/salary/employees/1/personal-details'
-                    },
-                    {
-                        user: 'Frode',
-                        action: 'endret', //enum
-                        module: 'Tilbud 1',
-                        timestamp: new Date('2015'),
-                        link: '/sales/quotes/7'
-                    },
-                    {
-                        user: 'Chiotis',
-                        action: 'opprettet', //enum
-                        module: 'Ansatt 1',
-                        timestamp: new Date('2018'),
-                        link: '/salary/employees/1/personal-details'
-                    },
-                    {
-                        user: '',
-                        action: '', //enum
-                        module: ' Bilag 1-2016',
-                        timestamp: new Date(2017, 2, 25),
-                        link: '/sales/quotes/7'
-                    },
-                    {
-                        user: 'Chiotis',
-                        action: 'opprettet', //enum
-                        module: 'Ansatt 1',
-                        timestamp: new Date(),
-                        link: '/salary/employees/1/personal-details'
-                    },
-                    {
-                        user: 'Frode',
-                        action: 'endret', //enum
-                        module: 'Tilbud 1',
-                        timestamp: new Date('2015'),
-                        link: '/sales/quotes/7'
-                    },
-                    {
-                        user: 'Chiotis',
-                        action: 'opprettet', //enum
-                        module: 'Ansatt 1',
-                        timestamp: new Date(2017, 2, 20),
-                        link: '/salary/employees/1/personal-details'
-                    },
-                    {
-                        user: 'Frode',
-                        action: 'endret', //enum
-                        module: 'Tilbud 1',
-                        timestamp: new Date('2015'),
-                        link: '/sales/quotes/7'
-                    },
-                    {
-                        user: '',
-                        action: '', //enum
-                        module: ' Bilag 1-2016',
-                        timestamp: new Date(2017, 2, 21),
-                        link: '/salary/employees/1/personal-details'
-                    },
-
-                ]
-            }
-        },
-        {
-            width: 4,
-            height: 3,
-            x: 3,
-            widgetType: 'chart',
-            config: {
-                header: 'Ansatte per avdeling',
-                chartType: 'pie',
-                labels: ['Utvikling', 'Salg', 'Konsulent', 'Kundeservice', 'Teknisk', 'Administrasjon'],
-                dataset: [
-                    {
-                        data: [22, 8, 6, 16, 4, 10],
-                        backgroundColor: ['#7293cb', '#6b4c9a', '#e1974c', '#84ba5b', '#ff0000', '#ffff00'],
-                        label: 'Ansatte',
-                        borderColor: '#fff',
-                    }
-                ],
-                options: {
-                    cutoutPercentage: 85,
-                    animation: {
-                        animateScale: true
-                    },
-                    legend: {
-                        position: 'left'
-                    }
-                },
-                title: 'Driftsresultat',
-                drilldown: false,
-                chartID: 487515
-            }
-        }
-    ]
 
     constructor(
         private tabService: TabService,
@@ -440,6 +326,19 @@ export class Dashboard {
                 y: 0,
                 widgetType: 'shortcut', // TODO: enum
                 config: {
+                    label: 'FAKTURA',
+                    description: 'Fakturaoversikt',
+                    icon: 'globe',
+                    link: '/sales/invoices'
+                }
+            },
+            {
+                width: 1,
+                height: 1,
+                x: 3,
+                y: 0,
+                widgetType: 'shortcut', // TODO: enum
+                config: {
                     label: 'KUNDER',
                     description: 'Kundeoversikt',
                     icon: 'user',
@@ -449,7 +348,7 @@ export class Dashboard {
             {
                 width: 1,
                 height: 1,
-                x: 3,
+                x: 4,
                 y: 0,
                 widgetType: 'shortcut', // TODO: enum
                 config: {
@@ -460,29 +359,28 @@ export class Dashboard {
                 }
             },
             {
-                width: 1,
+                width: 3,
                 height: 1,
-                x: 4,
+                x: 5,
                 y: 0,
-                widgetType: 'shortcut', // TODO: enum
+                widgetType: 'clock',
                 config: {
-                    label: 'BANK',
-                    description: 'Innbetaling',
-                    icon: 'home',
-                    link: '/bank/customerbatches'
+                    dateColor: '#7698bd',
+                    showSeconds: false
                 }
             },
             {
                 width: 1,
                 height: 1,
-                x: 5,
-                y: 0,
+                x: 8,
+                y: 4,
                 widgetType: 'notification', // TODO: enum
                 config: {
                     label: 'epost',
                     description: 'Uleste eposter',
                     icon: 'globe',
                     link: '/sales/quotes',
+                    endpoint: '',
                     amount: 14,
                     class: 'uni-widget-notification-orange'
                 }
@@ -490,14 +388,15 @@ export class Dashboard {
             {
                 width: 1,
                 height: 1,
-                x: 6,
-                y: 0,
+                x: 9,
+                y: 4,
                 widgetType: 'notification', // TODO: enum
                 config: {
                     label: 'ehf',
                     description: 'Uleste eposter',
                     icon: 'bell',
                     link: '/sales/quotes',
+                    endpoint: '',
                     amount: 3,
                     class: 'uni-widget-notification-orange'
                 }
@@ -505,14 +404,15 @@ export class Dashboard {
             {
                 width: 1,
                 height: 1,
-                x: 7,
-                y: 0,
+                x: 10,
+                y: 4,
                 widgetType: 'notification', // TODO: enum
                 config: {
                     label: 'pdf',
                     description: 'Uleste eposter',
                     icon: 'search',
                     link: '/sales/quotes',
+                    endpoint: '',
                     amount: 9,
                     class: 'uni-widget-notification-orange'
                 }
@@ -520,14 +420,15 @@ export class Dashboard {
             {
                 width: 1,
                 height: 1,
-                x: 8,
-                y: 0,
+                x: 11,
+                y: 4,
                 widgetType: 'notification', // TODO: enum
                 config: {
                     label: 'utlegg',
                     description: 'Uleste eposter',
                     icon: 'paperclip',
                     link: '/sales/quotes',
+                    endpoint: '',
                     amount: 21,
                     class: 'uni-widget-notification-orange'
                 }
@@ -535,14 +436,15 @@ export class Dashboard {
             {
                 width: 1,
                 height: 1,
-                x: 9,
-                y: 0,
+                x: 8,
+                y: 5,
                 widgetType: 'notification', // TODO: enum
                 config: {
                     label: 'varsler',
                     description: 'Uleste eposter',
                     icon: 'bell',
                     link: '/sales/quotes',
+                    endpoint: '',
                     amount: 6,
                     class: 'uni-widget-notification-lite-blue'
                 }
@@ -550,8 +452,8 @@ export class Dashboard {
             {
                 width: 1,
                 height: 1,
-                x: 10,
-                y: 0,
+                x: 9,
+                y: 5,
                 widgetType: 'notification', // TODO: enum
                 config: {
                     label: 'utlegg',
@@ -572,7 +474,7 @@ export class Dashboard {
                     header: 'Driftsresultater',
                     chartType: 'line',
                     labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
-                    colors: ['#84ba5b'],
+                    colors: ['#ab6857'],
                     dataEndpoint: ['/api/statistics?model=JournalEntryLine&select=month(financialdate),sum(amount)&join=journalentryline.accountid eq account.id&filter=account.accountnumber ge 3000 and account.accountnumber le 9999 &range=monthfinancialdate'],
                     dataKey: ['sumamount'],
                     multiplyValue: -1,
@@ -598,19 +500,91 @@ export class Dashboard {
                 y: 1,
                 widgetType: 'chart',
                 config: {
-                    header: 'Tilbud og faktura - 2017',
+                    header: 'Tilbud, ordre og faktura - 2016',
                     chartType: 'bar',
                     labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
-                    colors: ['#7293cb', '#e1974c'],
-                    dataEndpoint: ['/api/statistics?model=CustomerQuote&select=sum(TaxExclusiveAmount),month(QuoteDate),year(QuoteDate)&range=monthquotedate', '/api/statistics?model=CustomerInvoice&select=sum(TaxExclusiveAmount),month(InvoiceDate),year(InvoiceDate)&filter=month(invoicedate) ge 1 and year(invoicedate) eq 2016&range=monthinvoicedate'],
-                    dataKey: ['sumTaxExclusiveAmount', 'sumTaxExclusiveAmount'],
+                    colors: ['#7293cb', '#e1974c', '#84ba5b'],
+                    dataEndpoint: ['/api/statistics?model=CustomerQuote&select=sum(TaxExclusiveAmount),month(QuoteDate),year(QuoteDate)&range=monthquotedate', '/api/statistics?model=CustomerOrder&select=sum(TaxExclusiveAmount),month(OrderDate),year(OrderDate)&range=monthorderdate', '/api/statistics?model=CustomerInvoice&select=sum(TaxExclusiveAmount),month(InvoiceDate),year(InvoiceDate)&filter=month(invoicedate) ge 1 and year(invoicedate) eq 2016&range=monthinvoicedate'],
+                    dataKey: ['sumTaxExclusiveAmount', 'sumTaxExclusiveAmount', 'sumTaxExclusiveAmount'],
                     dataset: [],
                     options: {},
-                    title: ['Tilbud', 'Faktura'],
+                    title: ['Tilbud', 'Ordre', 'Faktura'],
                     drilldown: false,
                     chartID: 458751
                 }
             },
+            {
+                width: 4,
+                height: 3,
+                x: 0,
+                y: 4,
+                widgetType: 'chart',
+                config: {
+                    header: 'Antall ansatte per stilling',
+                    chartType: 'pie',
+                    labels: [],
+                    colors: [],
+                    dataEndpoint: ['/api/statistics?skip=0&top=50&model=Employee&select=Employee.ID as EmployeeID,BusinessRelationInfo.Name as BusinessRelationInfoName,Employments.JobName as EmploymentsJobName,Employments.Standard as EmploymentsStandard&expand=BusinessRelationInfo,Employments&distinct=false'],
+                    dataKey: ['EmploymentsJobName'],
+                    maxNumberOfLabels: 7,
+                    useIf: 'EmploymentsStandard',
+                    dataset: [],
+                    options: {
+                        cutoutPercentage: 85,
+                        animation: {
+                            animateScale: true
+                        },
+                        legend: {
+                            position: 'left'
+                        }
+                    },
+                    title: [],
+                    drilldown: false,
+                    chartID: 845715
+                }
+            },
+            {
+                width: 4,
+                height: 3,
+                x: 4,
+                y: 4,
+                widgetType: 'chart',
+                config: {
+                    header: 'Utestående per kunde',
+                    chartType: 'pie',
+                    labels: [],
+                    colors: [],
+                    dataEndpoint: ['/api/statistics?skip=0&top=50&model=Customer&select=Info.Name as InfoName,CustomerInvoices.RestAmount as CustomerInvoicesRestAmount,CustomerInvoices.TaxExclusiveAmount as CustomerInvoicesTaxExclusiveAmount,CustomerInvoices.StatusCode as CustomerInvoicesStatusCode&expand=Info,CustomerInvoices&distinct=false'],
+                    dataKey: ['InfoName', 'CustomerInvoicesRestAmount'],
+                    maxNumberOfLabels: 7,
+                    useIf: '',
+                    dataset: [],
+                    options: {
+                        cutoutPercentage: 85,
+                        animation: {
+                            animateScale: true
+                        },
+                        legend: {
+                            position: 'top'
+                        }
+                    },
+                    title: [],
+                    drilldown: false,
+                    chartID: 845721
+                }
+            },
+            {
+                width: 4,
+                height: 4,
+                x: 8,
+                y: 0,
+                widgetType: 'rss',
+                config: {
+                    header: 'Nyheter fra kundesenteret',
+                    dataEndpoint: "/api/biz/rss/1",
+                    RSSType: 1 // DOCUMENTATION: https://unimicro.atlassian.net/wiki/pages/viewpage.action?spaceKey=UE&title=RssListe
+                }
+            }
         ]
 
 

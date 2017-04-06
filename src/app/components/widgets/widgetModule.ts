@@ -7,7 +7,6 @@ import { UniWidget, WidgetContainer } from './uniWidget';
 import { WidgetDataService } from './widgetDataService';
 import {UNI_WIDGETS} from './widgets/barrel';
 
-
 @NgModule({
     imports: [
         CommonModule,

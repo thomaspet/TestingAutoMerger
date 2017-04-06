@@ -1,6 +1,7 @@
 ﻿interface IWidgetDatasetBuilder {
     buildSingleColorDataset(data: any, borderColor: ChartColorEnum, color: string, label: string, key: string, chartType: string, multiplyValue?: number): any;
     buildMultiColorDataset(data: any, key: string, borderColor: ChartColorEnum): any;
+    buildWithDynamicLabels(data: any, key: string[], useIf: string, maxNumberOfLabels?: number): any;
     getBarChartColors(amount: number): string[];
     getLineChartColors(amount: number): string[];
     getMonths(): string[];
@@ -56,8 +57,9 @@ export class WidgetDatasetBuilder implements IWidgetDatasetBuilder {
     }
 
     //Mainly used for pie- and doughnut-charts
-    public buildMultiColorDataset(data: any, key: string, borderColor: ChartColorEnum) {
+    public buildMultiColorDataset(data: any, key: string, borderColor: ChartColorEnum, complex: any = {}) {
         let myData = [];
+      
         for (let i = 0; i < data.length; i++) {
             if (data[i][key] === null) {
                 myData.push(0);
@@ -71,6 +73,75 @@ export class WidgetDatasetBuilder implements IWidgetDatasetBuilder {
             backgroundColor: this.LINE_CHART_COLORS.slice(0, data.length),
             label: '',
             borderColor: this.LINE_CHART_COLORS[borderColor]
+        }
+    }
+
+    //Returns dataset AND labels for pie and doughnuts
+    public buildWithDynamicLabels(data: any, key: string[], useIf: string, maxNumberOfLabels: number = 7) {
+        let myData = [];
+        let myLabels = [];
+        let myCounter = {};
+        let use: boolean = true;
+
+        //If number of labels is the value
+        if (key.length === 1) {
+            data.forEach((item) => {
+                use = useIf !== '' ? item[useIf] : true;
+                if (item[key[0]] !== null) {
+                    if (myLabels.indexOf(item[key[0]].toUpperCase()) === -1 && use) {
+                        myLabels.push(item[key[0]].toUpperCase());
+                        myCounter[item[key[0]].toUpperCase()] = 1;
+                    } else if (use) {
+                        myCounter[item[key[0]].toUpperCase()]++;
+                    }
+                }
+            })
+        } else if (key.length === 2) {
+            data.forEach((item) => {
+                use = useIf !== '' ? item[useIf] : true;
+                if (item[key[0]] !== null && item[key[1]] !== null && item[key[1]] !== 0) {
+                    if (myLabels.indexOf(item[key[0]].toUpperCase()) === -1 && use) {
+                        myLabels.push(item[key[0]].toUpperCase());
+                        myCounter[item[key[0]].toUpperCase()] = item[key[1]];
+                    } else if (use) {
+                        myCounter[item[key[0]].toUpperCase()] += item[key[1]];
+                    }
+                }
+            })
+        }
+
+        //No space for infinite amount of labels. If bigger then maxNumberOfLabels, find the most frequent, and sum the rest up as "OTHER"
+        if (myLabels.length > maxNumberOfLabels) {
+            //Get sorted list of keys, biggest to lowest
+            let sorted = Object.keys(myCounter).sort((a, b) => { return myCounter[b] - myCounter[a] });
+            let restTotal = 0;
+            myLabels = [];
+
+            for (var i = 0; i < sorted.length; i++) {
+                if (i < maxNumberOfLabels) {
+                    myData.push(myCounter[sorted[i]]);
+                    myLabels.push(sorted[i]);
+                } else {
+                    restTotal += myCounter[sorted[i]];
+                }
+            }
+
+            myLabels.push('RESTERENDE');
+            myData.push(restTotal);
+        } else {
+            myLabels.forEach((key: string) => {
+                myData.push(myCounter[key]);
+            })
+        }
+
+        return {
+            dataset: {
+                data: myData,
+                backgroundColor: this.BAR_CHART_COLORS.slice(0, data.length),
+                label: '',
+                borderColor: this.LINE_CHART_COLORS[8]
+            },
+            labels: myLabels
         }
     }
 
