@@ -47,6 +47,8 @@ import {PayrollrunDetails} from './payrollrun/payrollrunDetails';
 import {PayrollrunList} from './payrollrun/payrollrunList';
 import {PostingsummaryModal} from './payrollrun/postingsummaryModal';
 import {PostingsummaryModalContent} from './payrollrun/postingsummaryModalContent';
+import {PaycheckSending} from './payrollrun/sending/paycheckSending';
+import {PaycheckSendingModal, PaycheckSendingModalContent} from './payrollrun/sending/paycheckSendingModal';
 
 import {SalaryTransactionSelectionList} from './salarytrans/salarytransactionSelectionList';
 import {SalarytransFilterContent} from './salarytrans/salarytransFilter';
@@ -139,6 +141,9 @@ import {CanDeactivateGuard} from '../../canDeactivateGuard';
         PayrollrunList,
         PostingsummaryModal,
         PostingsummaryModalContent,
+        PaycheckSending,
+        PaycheckSendingModal,
+        PaycheckSendingModalContent,
 
         // Salarytrans
         SalaryTransactionSelectionList,
@@ -181,7 +186,8 @@ import {CanDeactivateGuard} from '../../canDeactivateGuard';
         SelectAmeldingTypeModalContent,
         SalaryTransactionSupplementsModalContent,
         SalarybalancelineModalContent,
-        SalarybalanceLine
+        SalarybalanceLine,
+        PaycheckSendingModalContent
     ],
     providers: [
         CanDeactivateGuard
@@ -228,6 +234,7 @@ import {CanDeactivateGuard} from '../../canDeactivateGuard';
         PayrollrunList,
         PostingsummaryModal,
         PostingsummaryModalContent,
+        PaycheckSending,
 
         // Salarytrans
         SalaryTransactionSelectionList,

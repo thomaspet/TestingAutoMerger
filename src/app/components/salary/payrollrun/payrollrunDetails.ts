@@ -29,6 +29,7 @@ import {
     JournalEntryService
 } from '../../../services/services';
 import { IPosterWidget } from '../../common/poster/poster';
+import { PaycheckSendingModal } from './sending/paycheckSendingModal';
 
 declare var _;
 import * as moment from 'moment';
@@ -58,6 +59,8 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
     private disableFilter: boolean;
     private saveActions: IUniSaveAction[] = [];
     @ViewChild(PreviewModal) public previewModal: PreviewModal;
+    private activeFinancialYear: FinancialYear;
+    @ViewChild(PaycheckSendingModal) private paycheckSendingModal: PaycheckSendingModal;
     private activeYear: number;
 
     private employees: Employee[];
@@ -234,6 +237,12 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
                             label: 'Til utbetaling',
                             action: this.sendPaymentList.bind(this),
                             main: payrollRun ? payrollRun.StatusCode > 1 : false,
+                            disabled: payrollRun ? payrollRun.StatusCode < 1 : true
+                        },
+                        {
+                            label: 'Send lønnslipp',
+                            action: this.sendPaychecks.bind(this),
+                            main: false,
                             disabled: payrollRun ? payrollRun.StatusCode < 1 : true
                         },
                         {
@@ -854,6 +863,10 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
         this.vacationPayModal.openModal();
     }
 
+    public openPaycheckSendingModal() {
+        this.paycheckSendingModal.openModal();
+    }
+
     public canPost(): boolean {
         if (this.payrollrun$.getValue()) {
             if (this.payrollrun$.getValue().StatusCode === 1) {
@@ -923,6 +936,11 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
             (err) => {
                 this.errorService.handle(err);
             });
+    }
+
+    public sendPaychecks(done) {
+        this.openPaycheckSendingModal();
+        done('');
     }
 
     public resetSettling() {

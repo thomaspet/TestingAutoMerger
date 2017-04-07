@@ -1,0 +1,18 @@
+<article class='modal-content'>
+    <h1>Send/Skriv ut lønnslipp</h1>
+    <footer>
+        <paycheck-sending [runID]="config.runID"></paycheck-sending>
+        <button *ngIf="config?.actions?.send" (click)="config?.actions?.send?.method()" class="good">
+            {{config?.actions?.send?.text}}
+        </button>
+        <button *ngIf="config?.actions?.print" (click)="config?.actions?.print?.method()" class="good">
+            {{config?.actions?.print?.text}}
+        </button>
+        <button *ngIf="config?.actions?.printall" (click)="config?.actions?.printall?.method()" class="good">
+            {{config?.actions.printall?.text}}
+        </button>
+        <button *ngIf="config?.actions?.cancel" (click)="config?.actions?.cancel?.method()" class="bad">
+            {{config?.actions.cancel?.text}}
+        </button>
+    </footer>
+</article>
