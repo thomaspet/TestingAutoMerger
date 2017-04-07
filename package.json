@@ -46,7 +46,7 @@
     "rxjs": "5.2.0",
     "tslib": "1.6.0",
     "uniform-ng2": "^0.0.50",
-    "unisearch-ng2": "0.0.21",
+    "unisearch-ng2": "0.0.22",
     "unitable-ng2": "0.0.10",
     "zone.js": "^0.8.4"
   },
