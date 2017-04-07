@@ -13,7 +13,7 @@
                 "Header": "Fakturanr",
                 "Field": "InvoiceNumber",
                 "Width": "100px",
-                "Type": "text",
+                "Type": "link",
                 "FilterOperator": "eq"
             },
             {
@@ -270,7 +270,7 @@
             },
             {
                 "Name": "Purret",
-                "Code": "Remnided",
+                "Code": "invoices_reminded",
                 "UseAllCriterias": true,
                 "FilterGroups": [{
                     "UseAllCriterias": true,
@@ -285,7 +285,7 @@
             },
             {
                 "Name": "Sendt til inkasso",
-                "Code": "Remnided",
+                "Code": "invoices_sentforcollection",
                 "UseAllCriterias": true,
                 "FilterGroups": [{
                     "UseAllCriterias": true,
@@ -406,7 +406,8 @@
         "Columns": [
             {
                 "Header": "Fakturanr",
-                "Field": "InvoiceNumber"
+                "Field": "InvoiceNumber",
+                "Type": "link"
             },
             {
                 "Header": "Kundenavn",
@@ -507,12 +508,12 @@
         "IsTopLevelTicker": true,
         "Group": "Salg",
         "Model": "CustomerQuote",
-        "Expand": "Customer.Info",
+        "Expand": "Customer.Info,CurrencyCode",
         "Columns": [
             {
                 "Field": "QuoteNumber",
                 "Width": "100px",
-                "Type": "text"
+                "Type": "link"
             },
             {
                 "Field": "Customer.CustomerNumber",
@@ -763,7 +764,7 @@
             {
                 "Header": "Tilbudsnr",
                 "Field": "QuoteNumber",
-                "Type": "text"
+                "Type": "link"
             },
             {
                 "Header": "Kundenavn",
@@ -843,7 +844,7 @@
         "IsTopLevelTicker": true,
         "Group": "Salg",
         "Model": "CustomerOrder",
-        "Expand": "Customer.Info",
+        "Expand": "Customer.Info,CurrencyCode",
         "Columns": [
             {
                 "Field": "OrderNumber",
