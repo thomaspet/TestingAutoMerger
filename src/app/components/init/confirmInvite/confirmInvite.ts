@@ -92,7 +92,7 @@ export class ConfirmInvite {
                     this.errorMessage = 'Noe gikk galt ved verifiseringen. Vennligst prøv igjen';
                     try {
                         let messages = JSON.parse(error._body).Messages;
-                        if (messages.length > 0) {
+                        if (messages.length) {
                             messages.forEach(element => {
                                 if ( element.PropertyName === 'UserName' 
                                 && (element.Message === 'Username must be unique')){
