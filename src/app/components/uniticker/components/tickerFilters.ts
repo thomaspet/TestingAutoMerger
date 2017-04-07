@@ -176,7 +176,7 @@ export class UniTickerFilters {
             if (fieldFilter.Field.toLocaleLowerCase() === 'statuscode') {
                 filter += 'Status ';
             } else {
-                let filteredColumn = this.ticker.Columns.find(x => x.Field === fieldFilter.Field);
+                let filteredColumn = this.ticker.Columns.find(x => x.SelectableFieldName === fieldFilter.Field);
 
                 if (filteredColumn) {
                     filter += filteredColumn.Header + ' ';

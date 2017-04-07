@@ -93,10 +93,12 @@
                 "LinkNavigationProperty": "InvoiceReferenceID"
             },
             {
+                "Header": "Fakturatype",
                 "Field": "CustomerInvoice.InvoiceType",
                 "Type": "dontdisplay"
             },
             {
+                "Header": "Purrestatus",
                 "Field": "CustomerInvoice.CollectorStatusCode",
                 "Type": "dontdisplay"
             },
@@ -487,7 +489,13 @@
                 "Size": "medium"
             },
             {
+                "Header": "Fakturatype",
                 "Field": "CustomerInvoice.InvoiceType",
+                "Type": "dontdisplay"
+            },
+            {
+                "Header": "Purrestatus",
+                "Field": "CustomerInvoice.CollectorStatusCode",
                 "Type": "dontdisplay"
             }
         ]
