@@ -62,7 +62,7 @@ export class ConfirmInvite {
                             }
                         },
                         (error) => {
-                            this.errorMessage = 'Invitasjonen har utgått eller er ikke gyldig. Vennligst be administrator invitere deg på nytt.'
+                            this.errorMessage = 'Invitasjonen er ikke gyldig. Vennligst be administrator invitere deg på nytt.'
                         }
                     );
             }
@@ -91,9 +91,14 @@ export class ConfirmInvite {
                 (error) => {
                     this.errorMessage = 'Noe gikk galt ved verifiseringen. Vennligst prøv igjen';
                     try {
-                        let modelState = JSON.parse(error.json().Message).modelState;
-                        if (modelState[''][0].length) {
-                            this.errorMessage = modelState[''][0]
+                        let messages = JSON.parse(error._body).Messages;
+                        if (messages.length) {
+                            messages.forEach(element => {
+                                if ( element.PropertyName === 'UserName' 
+                                && (element.Message === 'Username must be unique')){
+                                    this.errorMessage = 'Brukernavnet er ikke unikt. Vennligst velg et annet';
+                                }
+                            });
                         }
                     } catch (e) {}
 
