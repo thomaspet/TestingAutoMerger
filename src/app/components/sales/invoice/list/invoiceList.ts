@@ -434,7 +434,14 @@ export class InvoiceList implements OnInit {
             .setWidth('8%')
             .setFilterable(false)
             .setTemplate((dataItem) => {
-                return this.customerInvoiceService.getStatusText(dataItem.StatusCode, dataItem.InvoiceType);
+                let statusText: string = this.customerInvoiceService.getStatusText(dataItem.StatusCode, dataItem.InvoiceType);
+                if (dataItem.CollectorStatusCode === 42501) {
+                    statusText = 'Purret';
+                }
+                if (dataItem.CollectorStatusCode === 42502) {
+                    statusText = 'Inkasso';
+                }
+                return statusText;
             });
 
         // Setup table

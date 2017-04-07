@@ -45,6 +45,14 @@ import {
 import * as moment from 'moment';
 declare const _;
 
+export enum CollectorStatus {
+    Reminded = 42501,
+    SendtToDebtCollection = 42502,
+    FactoringRegistered = 42503,
+    SentToFactoring = 42504,
+    Completed = 42502
+}
+
 @Component({
     selector: 'uni-invoice',
     templateUrl: './invoice.html'
@@ -200,6 +208,21 @@ export class InvoiceDetails {
             }
 
         }, err => this.errorService.handle(err));
+    }
+
+    private getCollectorStatusText(status: CollectorStatus): string {
+        let statusText: string = '';
+        switch (status) {
+            case CollectorStatus.Reminded: {
+                statusText = 'Purret';
+                break;
+            }
+            case CollectorStatus.SendtToDebtCollection: {
+                statusText = 'Sent til inkasso';
+                break;
+            }
+        }
+        return statusText;
     }
 
     private setupContextMenuItems() {
@@ -582,28 +605,62 @@ export class InvoiceDetails {
         });
     }
 
-    private getSendtToDebtCollectionSubStatus(): Promise<any> {
-        let reminderStopSubStatus: any = null;
-        let reminderStoppedByText = '';
-        let reminderStoppedTimeStamp: Date = null;
+    private getCollectionSubStatus(colStatus: CollectorStatus): Promise<any> {
 
-        return new Promise((resolve, reject) => {
-            this.statisticsService.GetAll(`model=AuditLog&orderby=AuditLog.CreatedAt desc&filter=AuditLog.EntityID eq ${this.invoiceID} and EntityType eq 'CustomerInvoice' and Field eq 'CollectorStatusCode' and NewValue eq '42502'&select=User.DisplayName as Username,Auditlog.CreatedAt as Date&join=AuditLog.CreatedBy eq User.GlobalIdentity ` )
-            .map(data => data.Data ? data.Data : [])
-            .subscribe(brdata => {
-                if (brdata && brdata.length > 0) {
-                    reminderStoppedByText = `Aktivert av ${brdata[0]['Username']} ${moment(new Date(brdata[0]['Date'])).fromNow()}`;
-                    reminderStoppedTimeStamp = new Date(brdata[0]['Date']);
+        let subStatux: any = null;
+        let statusText = '';
+        let statusTimeStamp: Date = null;
+        let subStatuses: Array<UniStatusTrack.StatusTrack> = [];
 
-                    reminderStopSubStatus = {
-                        title: reminderStoppedByText,
-                        state: UniStatusTrack.States.Active,
-                        timestamp: reminderStoppedTimeStamp
-                    };
-                    resolve(reminderStopSubStatus);
-                }
-            }, err => reject(err));
-        });
+        switch (colStatus) {
+            case CollectorStatus.Reminded: {
+                return new Promise((resolve, reject) => {
+                    this.statisticsService.GetAll(`model=CustomerInvoiceReminder&orderby=CustomerInvoiceReminder.ReminderNumber desc&filter=CustomerInvoiceReminder.CustomerInvoiceID eq ${this.invoiceID}&select=CustomerInvoiceReminder.CreatedAt as Date,CustomerInvoiceReminder.ReminderNumber as ReminderNumber,CustomerInvoiceReminder.DueDate as DueDate ` )
+                    .map(data => data.Data ? data.Data : [])
+                    .subscribe(brdata => {
+                        if (brdata && brdata.length > 0) {
+                                brdata.forEach(element => {
+                                let pastDue: boolean = new Date(element['DueDate']) < new Date();
+                                let pastDueText = pastDue ? 'forfalt for' : 'forfall om';
+                                statusText = `${element['ReminderNumber']}. purring, ${pastDueText} ${moment(new Date(element['DueDate'])).fromNow()}`;
+                                statusTimeStamp = new Date(element['Date']);
+                                subStatux = {
+                                    title: statusText,
+                                    state: UniStatusTrack.States.Active,
+                                    timestamp: statusTimeStamp
+                                };
+                                subStatuses.push(subStatux);
+                            });
+                            resolve(subStatuses);
+                        }
+                    }, err => reject(err));
+                });
+                break;
+            }
+
+            case CollectorStatus.SendtToDebtCollection: {
+                return new Promise((resolve, reject) => {
+                    this.statisticsService.GetAll(`model=AuditLog&orderby=AuditLog.CreatedAt desc&filter=AuditLog.EntityID eq ${this.invoiceID} and EntityType eq 'CustomerInvoice' and Field eq 'CollectorStatusCode' and NewValue eq '42502'&select=User.DisplayName as Username,Auditlog.CreatedAt as Date&join=AuditLog.CreatedBy eq User.GlobalIdentity ` )
+                    .map(data => data.Data ? data.Data : [])
+                    .subscribe(brdata => {
+                        if (brdata && brdata.length > 0) {
+                            brdata.forEach(element => {
+                                statusText = `Sent av ${element['Username']} ${moment(new Date(element['Date'])).fromNow()}`;
+                                statusTimeStamp = new Date(element['Date']);
+                                subStatux = {
+                                    title: statusText,
+                                    state: UniStatusTrack.States.Active,
+                                    timestamp: statusTimeStamp
+                                };
+                                subStatuses.push(subStatux);
+                            });
+                            resolve(subStatuses);
+                        }
+                    }, err => reject(err));
+                });
+                break;
+            }
+        }
     }
 
 
@@ -644,7 +701,7 @@ export class InvoiceDetails {
             });
         });
 
-        if (this.invoice.DontSendReminders && this.invoice.CollectorStatusCode !== 42502) {
+        if (this.invoice.DontSendReminders) {
 
             this.getReminderStoppedSubStatus().then(substatus => {
                 statustrack.push({
@@ -657,16 +714,22 @@ export class InvoiceDetails {
             }).catch(err => this.errorService.handle(err));
         }
 
-        if (this.invoice.CollectorStatusCode === 42502) {
-            this.getSendtToDebtCollectionSubStatus().then(substatus => {
-                statustrack.push({
-                    title: 'Sendt til inkasso',
-                    state: UniStatusTrack.States.Obsolete,
-                    code: 0,
-                    forceSubstatus: true,
-                    substatusList: substatus ? [substatus] : []
-                });
-            }).catch(err => this.errorService.handle(err));
+
+
+        if (this.invoice.CollectorStatusCode > 42500 && this.invoice.CollectorStatusCode < 42505 && !this.invoice.DontSendReminders) {
+            console.log('CollectorStatusCode', this.invoice.CollectorStatusCode);
+            let statusText = this.getCollectorStatusText(this.invoice.CollectorStatusCode);
+            if (statusText !== '') {
+                this.getCollectionSubStatus(this.invoice.CollectorStatusCode).then(substatus => {
+                    statustrack.push({
+                        title: statusText,
+                        state: UniStatusTrack.States.Obsolete,
+                        code: 0,
+                        forceSubstatus: true,
+                        substatusList: substatus ? substatus : []
+                    });
+                }).catch(err => this.errorService.handle(err));
+            }
         }
 
         return statustrack;
