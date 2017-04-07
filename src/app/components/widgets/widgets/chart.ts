@@ -60,25 +60,17 @@ export class UniChartWidget {
                         if (this.widget.config.labels.length < 1) {
                             const builderResult = this.builder.buildWithDynamicLabels(
                                 item.Data,
-                                this.widget.config.dataKey,
-                                this.widget.config.useIf,
-                                this.widget.config.maxNumberOfLabels
+                                this.widget.config
                             );
 
                             this.datasets.push(builderResult.dataset);
                             this.labels = builderResult.labels;
-
                         } else {
                             this.datasets.push(this.builder.buildSingleColorDataset(
                                 item.Data,
-                                ChartColorEnum.White,
-                                this.widget.config.colors[i],
-                                this.widget.config.title[i],
-                                this.widget.config.dataKey[i],
-                                this.widget.config.chartType,
-                                this.widget.config.multiplyValue || 1
+                                i,
+                                this.widget.config
                             ));
-
                             this.labels = this.widget.config.labels;
                         }
                     });

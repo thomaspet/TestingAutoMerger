@@ -1,11 +1,6 @@
 ﻿interface IWidgetDatasetBuilder {
-    buildSingleColorDataset(data: any, borderColor: ChartColorEnum, color: string, label: string, key: string, chartType: string, multiplyValue?: number): any;
-    buildMultiColorDataset(data: any, key: string, borderColor: ChartColorEnum): any;
-    buildWithDynamicLabels(data: any, key: string[], useIf: string, maxNumberOfLabels?: number): any;
-    getBarChartColors(amount: number): string[];
-    getLineChartColors(amount: number): string[];
-    getMonths(): string[];
-    getMonthsShort(): string[];
+    buildSingleColorDataset(data: any, index: number, config: any): any;
+    buildWithDynamicLabels(data: any, config: any): any;
     getMonthsOutOfOrder(startIndex: number, amount: number): string[];
     getMonthsShortOutOfOrder(startIndex: number, amount: number): string[];
 }
@@ -33,92 +28,69 @@ export class WidgetDatasetBuilder implements IWidgetDatasetBuilder {
     public QUARTERS_SHORT = ['Q1', 'Q2', 'Q3', 'Q4'];
 
     //Mainly used for bar- line- and point-charts.. 
-    public buildSingleColorDataset(data: any, borderColor: ChartColorEnum, color: string, label: string, key: string, chartType: string, multiplyValue: number = 1) {
+    public buildSingleColorDataset(data: any, index: number, config: any) {
         let chartColorArray = this.LINE_CHART_COLORS;
         let myData = [];
-        if (chartType === 'bar') {
-            chartColorArray = this.BAR_CHART_COLORS;
-        }
 
         for (let i = 0; i < data.length; i++) {
-            if (data[i][key] === null) {
+            if (data[i][config.dataKey[index]] === null) {
                 myData.push(0);
             } else {
-                myData.push(data[i][key] * multiplyValue);
+                myData.push(data[i][config.dataKey[index]] * config.multiplyValue);
             }
         }
 
         return {
             data: myData,
-            backgroundColor: color,
-            label: label,
-            borderColor: chartColorArray[borderColor]
-        }
-    }
-
-    //Mainly used for pie- and doughnut-charts
-    public buildMultiColorDataset(data: any, key: string, borderColor: ChartColorEnum, complex: any = {}) {
-        let myData = [];
-      
-        for (let i = 0; i < data.length; i++) {
-            if (data[i][key] === null) {
-                myData.push(0);
-            } else {
-                myData.push(data[i][key]);
-            }
-        }
-
-        return {
-            data: myData,
-            backgroundColor: this.LINE_CHART_COLORS.slice(0, data.length),
-            label: '',
-            borderColor: this.LINE_CHART_COLORS[borderColor]
+            backgroundColor: config.colors[index],
+            label: config.title[index],
+            borderColor: this.BAR_CHART_COLORS[ChartColorEnum.White],
         }
     }
 
     //Returns dataset AND labels for pie and doughnuts
-    public buildWithDynamicLabels(data: any, key: string[], useIf: string, maxNumberOfLabels: number = 7) {
+    public buildWithDynamicLabels(data: any, config: any) {
         let myData = [];
         let myLabels = [];
         let myCounter = {};
         let use: boolean = true;
 
         //If number of labels is the value
-        if (key.length === 1) {
+        if (config.dataKey.length === 1) {
             data.forEach((item) => {
-                use = useIf !== '' ? item[useIf] : true;
-                if (item[key[0]] !== null) {
-                    if (myLabels.indexOf(item[key[0]].toUpperCase()) === -1 && use) {
-                        myLabels.push(item[key[0]].toUpperCase());
-                        myCounter[item[key[0]].toUpperCase()] = 1;
+                use = config.useIf !== '' ? item[config.useIf] : true;
+                if (item[config.dataKey[0]] !== null) {
+                    if (myLabels.indexOf(item[config.dataKey[0]].toUpperCase()) === -1 && use) {
+                        myLabels.push(item[config.dataKey[0]].toUpperCase());
+                        myCounter[item[config.dataKey[0]].toUpperCase()] = 1;
                     } else if (use) {
-                        myCounter[item[key[0]].toUpperCase()]++;
+                        myCounter[item[config.dataKey[0]].toUpperCase()]++;
                     }
                 }
             })
-        } else if (key.length === 2) {
+        } else if (config.dataKey.length === 2) {
             data.forEach((item) => {
-                use = useIf !== '' ? item[useIf] : true;
-                if (item[key[0]] !== null && item[key[1]] !== null && item[key[1]] !== 0) {
-                    if (myLabels.indexOf(item[key[0]].toUpperCase()) === -1 && use) {
-                        myLabels.push(item[key[0]].toUpperCase());
-                        myCounter[item[key[0]].toUpperCase()] = item[key[1]];
+                use = config.useIf !== '' ? item[config.useIf] : true;
+                if (item[config.dataKey[0]] !== null && item[config.dataKey[1]] !== null && item[config.dataKey[1]] !== 0) {
+                    if (myLabels.indexOf(item[config.dataKey[0]].toUpperCase()) === -1 && use) {
+                        myLabels.push(item[config.dataKey[0]].toUpperCase());
+                        myCounter[item[config.dataKey[0]].toUpperCase()] = item[config.dataKey[1]];
                     } else if (use) {
-                        myCounter[item[key[0]].toUpperCase()] += item[key[1]];
+                        myCounter[item[config.dataKey[0]].toUpperCase()] += item[config.dataKey[1]];
                     }
                 }
             })
         }
 
         //No space for infinite amount of labels. If bigger then maxNumberOfLabels, find the most frequent, and sum the rest up as "OTHER"
-        if (myLabels.length > maxNumberOfLabels) {
+        if (myLabels.length > config.maxNumberOfLabels) {
             //Get sorted list of keys, biggest to lowest
             let sorted = Object.keys(myCounter).sort((a, b) => { return myCounter[b] - myCounter[a] });
             let restTotal = 0;
             myLabels = [];
 
             for (var i = 0; i < sorted.length; i++) {
-                if (i < maxNumberOfLabels) {
+                if (i < config.maxNumberOfLabels) {
                     myData.push(myCounter[sorted[i]]);
                     myLabels.push(sorted[i]);
                 } else {
@@ -134,6 +106,12 @@ export class WidgetDatasetBuilder implements IWidgetDatasetBuilder {
             })
         }
 
+        if (config.addDataValueToLabel) {
+            for (var i = 0; i < myLabels.length; i++) {
+                myLabels[i] = myLabels[i] + ' - ' + myData[i];
+            }
+        }
+
         return {
             dataset: {
                 data: myData,
@@ -143,22 +121,6 @@ export class WidgetDatasetBuilder implements IWidgetDatasetBuilder {
             },
             labels: myLabels
         }
-    }
-
-    public getBarChartColors(amount: number) {
-        return this.BAR_CHART_COLORS.slice(0, amount);
-    }
-
-    public getLineChartColors(amount: number) {
-        return this.LINE_CHART_COLORS.slice(0, amount);
-    }
-
-    public getMonths() {
-        return this.MONTHS;
-    }
-
-    public getMonthsShort() {
-        return this.MONTHS_SHORT;
     }
 
     public getMonthsOutOfOrder(startIndex: number, amount: number) {

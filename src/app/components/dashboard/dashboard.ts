@@ -506,6 +506,7 @@ export class Dashboard {
                     colors: ['#7293cb', '#e1974c', '#84ba5b'],
                     dataEndpoint: ['/api/statistics?model=CustomerQuote&select=sum(TaxExclusiveAmount),month(QuoteDate),year(QuoteDate)&range=monthquotedate', '/api/statistics?model=CustomerOrder&select=sum(TaxExclusiveAmount),month(OrderDate),year(OrderDate)&range=monthorderdate', '/api/statistics?model=CustomerInvoice&select=sum(TaxExclusiveAmount),month(InvoiceDate),year(InvoiceDate)&filter=month(invoicedate) ge 1 and year(invoicedate) eq 2016&range=monthinvoicedate'],
                     dataKey: ['sumTaxExclusiveAmount', 'sumTaxExclusiveAmount', 'sumTaxExclusiveAmount'],
+                    multiplyValue: 1,
                     dataset: [],
                     options: {},
                     title: ['Tilbud', 'Ordre', 'Faktura'],
@@ -528,6 +529,7 @@ export class Dashboard {
                     dataKey: ['EmploymentsJobName'],
                     maxNumberOfLabels: 7,
                     useIf: 'EmploymentsStandard',
+                    addDataValueToLabel: true, //Only recommended if you are using tooltips callback
                     dataset: [],
                     options: {
                         cutoutPercentage: 85,
@@ -536,7 +538,16 @@ export class Dashboard {
                         },
                         legend: {
                             position: 'left'
-                        }
+                        },
+                        tooltips: {
+                            callbacks: {
+                                label: (item, data) => {
+                                    let total = data.datasets[item.datasetIndex].data.reduce((previousValue, currentValue) => { return previousValue + currentValue });
+                                    let currentValue = data.datasets[item.datasetIndex].data[item.index];
+                                    return Math.floor(((currentValue / total) * 100) + 0.5) + "%";
+                                }
+                            }
+                        },
                     },
                     title: [],
                     drilldown: false,
@@ -558,14 +569,14 @@ export class Dashboard {
                     dataKey: ['InfoName', 'CustomerInvoicesRestAmount'],
                     maxNumberOfLabels: 7,
                     useIf: '',
+                    addDataValueToLabel: false,
                     dataset: [],
                     options: {
-                        cutoutPercentage: 85,
                         animation: {
                             animateScale: true
                         },
                         legend: {
-                            position: 'top'
+                            position: 'bottom'
                         }
                     },
                     title: [],
