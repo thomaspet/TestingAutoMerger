@@ -27,7 +27,8 @@
             <div *ngIf="ticker.Type !== 'table'">
                 <uni-ticker-detail-view
                     [ticker]="ticker"
-                    [model]="model">
+                    [model]="model"
+                    [columnOverrides]="columnOverrides">
                 </uni-ticker-detail-view>
             </div>
         </section>

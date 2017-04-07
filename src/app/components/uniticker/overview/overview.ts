@@ -1,4 +1,4 @@
-import {Component, ViewChild} from '@angular/core';
+import {Component, ViewChild, ChangeDetectionStrategy} from '@angular/core';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {UniTabs} from '../../layout/uniTabs/uniTabs';
 import {UniTickerService, PageStateService} from '../../../services/services';
@@ -13,7 +13,8 @@ declare const _; // lodash
 
 @Component({
     selector: 'uni-ticker-overview',
-    templateUrl: './overview.html'
+    templateUrl: './overview.html',
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class UniTickerOverview {
     @ViewChild(UniTickerContainer) private tickerContainer: UniTickerContainer;

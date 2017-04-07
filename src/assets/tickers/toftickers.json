@@ -13,12 +13,14 @@
                 "Header": "Fakturanr",
                 "Field": "InvoiceNumber",
                 "Width": "100px",
-                "Type": "text"
+                "Type": "text",
+                "FilterOperator": "eq"
             },
             {
                 "Header": "Kundenr",
                 "Field": "Customer.CustomerNumber",
-                "Type": "text"
+                "Type": "text",
+                "FilterOperator": "eq"
             },
             {
                 "Header": "Kundenavn",
@@ -26,11 +28,13 @@
                 "Width": "250px",
                 "Type": "link",
                 "ExternalModel": "Customer",
-                "LinkNavigationProperty": "Customer.ID"
+                "LinkNavigationProperty": "Customer.ID",
+                "FilterOperator": "contains"
             },
             {
                 "Header": "Fakturadato",
-                "Field": "InvoiceDate"
+                "Field": "InvoiceDate",
+                "FilterOperator": "gt"
             },
             {
                 "Header": "Forfallsdato",
@@ -47,13 +51,15 @@
                 "Header": "Sum inkl mva",
                 "Field": "TaxInclusiveAmountCurrency",
                 "Format": "NumberPositiveNegative",
-                "Width": "150px"
+                "Width": "150px",
+                "FilterOperator": "gt"
             },
             {
                 "Header": "Restsum",
                 "Field": "RestAmountCurrency",
                 "Format": "NumberPositiveNegative",
-                "DefaultHidden": true
+                "DefaultHidden": true,
+                "FilterOperator": "gt"
             },
             {
                 "Header": "Kreditert",
@@ -88,6 +94,10 @@
             },
             {
                 "Field": "CustomerInvoice.InvoiceType",
+                "Type": "dontdisplay"
+            },
+            {
+                "Field": "CustomerInvoice.CollectorStatusCode",
                 "Type": "dontdisplay"
             },
             {
@@ -230,7 +240,7 @@
                     "UseAllCriterias": true,
                     "FieldFilters": [
                     {
-                        "Field": "RestAmount",
+                        "Field": "RestAmountCurrency",
                         "Operator": "ne",
                         "Value": "0"
                     },
@@ -252,6 +262,36 @@
                         "Field": "StatusCode",
                         "Operator": "eq",
                         "Value": "42003"
+                    }
+                ]}
+                ]
+            },
+            {
+                "Name": "Purret",
+                "Code": "Remnided",
+                "UseAllCriterias": true,
+                "FilterGroups": [{
+                    "UseAllCriterias": true,
+                    "FieldFilters": [
+                    {
+                        "Field": "CollectorStatusCode",
+                        "Operator": "eq",
+                        "Value": "42501"
+                    }
+                ]}
+                ]
+            },
+            {
+                "Name": "Sendt til inkasso",
+                "Code": "Remnided",
+                "UseAllCriterias": true,
+                "FilterGroups": [{
+                    "UseAllCriterias": true,
+                    "FieldFilters": [
+                    {
+                        "Field": "CollectorStatusCode",
+                        "Operator": "eq",
+                        "Value": "42502"
                     }
                 ]}
                 ]
@@ -332,6 +372,16 @@
                 "Field": "SumTotalIncVat",
                 "Format": "NumberPositiveNegative",
                 "Width": "150px"
+            }
+        ],
+        "Action": [
+            {
+                "Name": "Eksporter",
+                "Code": "export_invoiceitems",
+                "Type": "export",
+                "ExecuteWithMultipleSelections": true,
+                "ExecuteWithoutSelection": true,
+                "DisplayInActionBar": true
             }
         ]
     },

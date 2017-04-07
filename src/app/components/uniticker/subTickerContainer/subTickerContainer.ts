@@ -1,10 +1,11 @@
-import {Component, ViewChild, Input, OnInit, OnChanges, SimpleChanges, Output, EventEmitter} from '@angular/core';
-import {Ticker, TickerGroup, TickerColumn, ITickerActionOverride} from '../../../services/common/uniTickerService';
+import {Component, ViewChild, Input, OnInit, OnChanges, SimpleChanges, Output, EventEmitter, ChangeDetectionStrategy} from '@angular/core';
+import {Ticker, TickerGroup, TickerColumn, ITickerActionOverride, ITickerColumnOverride} from '../../../services/common/uniTickerService';
 import {UniTickerService} from '../../../services/services';
 
 @Component({
     selector: 'uni-sub-ticker-container',
-    templateUrl: './subTickerContainer.html'
+    templateUrl: './subTickerContainer.html',
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class UniSubTickerContainer implements OnChanges {
     @Input() private subTickers: Array<Ticker>;
@@ -12,6 +13,7 @@ export class UniSubTickerContainer implements OnChanges {
     @Input() private parentModel: any;
     @Input() private expanded: boolean = false;
     @Input() private actionOverrides: Array<ITickerActionOverride>;
+    @Input() private columnOverrides: Array<ITickerColumnOverride> = [];
 
     @Output() close: EventEmitter<any> = new EventEmitter<any>();
 
@@ -55,6 +57,6 @@ export class UniSubTickerContainer implements OnChanges {
     }
 
     public getFieldValue(column: TickerColumn, model: any) {
-        return this.tickerService.getFieldValue(column, model, this.parentTicker);
+        return this.tickerService.getFieldValue(column, model, this.parentTicker, this.columnOverrides);
     }
 }

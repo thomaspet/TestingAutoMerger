@@ -1,4 +1,4 @@
-import {Component, ViewChild, Input, Output, EventEmitter, SimpleChanges} from '@angular/core';
+import {Component, ViewChild, Input, Output, EventEmitter, SimpleChanges, ChangeDetectionStrategy, ChangeDetectorRef} from '@angular/core';
 import {Ticker, TickerFilter, TickerFieldFilter, UniTickerService, IExpressionFilterValue} from '../../../services/common/uniTickerService';
 import {ApiModel} from '../../../services/common/apiModelService';
 import {StatusService, StatisticsService, ErrorService} from '../../../services/services';
@@ -7,7 +7,8 @@ declare const _; // lodash
 
 @Component({
     selector: 'uni-ticker-filters-nav-bar',
-    templateUrl: './tickerFiltersNavBar.html'
+    templateUrl: './tickerFiltersNavBar.html',
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class UniTickerFiltersNavBar {
     @Input() private filters: Array<TickerFilter>;
@@ -26,7 +27,8 @@ export class UniTickerFiltersNavBar {
         private uniTickerService: UniTickerService,
         private statusService: StatusService,
         private statisticsService: StatisticsService,
-        private errorService: ErrorService) {
+        private errorService: ErrorService,
+        private cdr: ChangeDetectorRef) {
         this.operators = uniTickerService.getOperators();
     }
 
@@ -44,6 +46,8 @@ export class UniTickerFiltersNavBar {
         this.selectedFilter = filter;
 
         this.filterSelected.emit(filter);
+
+        this.cdr.markForCheck();
         this.stopPropagation();
     }
 
@@ -102,12 +106,16 @@ export class UniTickerFiltersNavBar {
                             let filter = this.filters[i];
                             filter.CurrentCount = counters['FilterCount' + i];
                         }
+
+                        this.cdr.markForCheck();
                     }
                 }, err => this.errorService.handle(err)
             );
         }
     }
     private stopPropagation() {
-        event.stopPropagation();
+        if (event) {
+            event.stopPropagation();
+        }
     }
 }
