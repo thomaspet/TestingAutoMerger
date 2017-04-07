@@ -84,11 +84,15 @@ export class UniSave {
                 activeElement.blur();
             }
 
-            this.onSave(this.mainAction());
+            // Give components a chance to update disabled state
+            // because there might be changes triggered by ctrl+s (table blur etc)
+            setTimeout(() => {
+                this.onSave(this.mainAction());
 
-            if (activeElement && activeElement.focus) {
-                activeElement.focus();
-            }
+                if (activeElement && activeElement.focus) {
+                    activeElement.focus();
+                }
+            });
         }
     }
 
