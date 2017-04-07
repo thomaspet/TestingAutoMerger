@@ -92,18 +92,27 @@ export class AMeldingView implements OnInit {
         ];
     }
 
-    public ngOnInit() {
+    public ngOnInit() {        
+        this.loadYearData();        
+        this.yearService.selectedYear$.subscribe(year => {            
+            this.clearAMelding();
+            this.loadYearData();
+        });
+    }
+
+    private loadYearData()
+    {
         this.yearService
-            .getActiveYear()
-            .do(year => this.activeYear = year)
-            .switchMap(financialYear => this._payrollService.getLatestSettledPeriod(1, financialYear))
-            .subscribe((period) => {
-                this.currentPeriod = period;
-                this.getSumsInPeriod();
-                this.currentMonth = moment.months()[this.currentPeriod - 1];
-                this.getAMeldingForPeriod();
-                this.updateToolbar();
-            }, err => this.errorService.handle(err));
+        .getActiveYear()
+        .do(year => this.activeYear = year)
+        .switchMap(financialYear => this._payrollService.getLatestSettledPeriod(1, financialYear))
+        .subscribe((period) => {     
+            this.currentPeriod = period;            
+            this.currentMonth = moment.months()[this.currentPeriod - 1];
+            this.getSumsInPeriod();
+            this.getAMeldingForPeriod();
+            this.updateToolbar();
+        }, err => this.errorService.handle(err));
     }
 
     public prevPeriod() {
@@ -168,7 +177,7 @@ export class AMeldingView implements OnInit {
     }
 
     public setAMelding(amelding: AmeldingData) {
-        this.showView = '';
+        this.showView = '';        
         this._ameldingService.getAMeldingWithFeedback(amelding.ID)
         .subscribe((ameldingAndFeedback) => {
             this.currentAMelding =  ameldingAndFeedback;
@@ -215,11 +224,13 @@ export class AMeldingView implements OnInit {
             }, err => this.errorService.handle(err));
     }
 
-    private updateToolbar() {
+    private updateToolbar() {                
         this.toolbarConfig = {
             title: `Periode ${this.currentPeriod}`,
             subheads: [{
-                title: this.currentMonth
+                title: (this.currentMonth ? 
+                    this.currentMonth.charAt(0).toUpperCase() + this.currentMonth.slice(1) : '?')  
+                    + ' ' + this.activeYear
             },
             {
                 title: this.currentAMelding ? 'A-melding ' + this.currentAMelding.ID : null
@@ -234,17 +245,15 @@ export class AMeldingView implements OnInit {
     private getStatusTrackConfig() {
         let statustrack: UniStatusTrack.IStatus[] = [];
         let activeStatus = this.currentAMelding ? (this.currentAMelding.status ? this.currentAMelding.status : 1) : 0;
-
         this._ameldingService.internalAmeldingStatus.forEach((amldStatus, indx) => {
             let _state: UniStatusTrack.States;
             let _substatuses: UniStatusTrack.IStatus[] = [];
-
             if (amldStatus.Code > activeStatus) {
                 _state = UniStatusTrack.States.Future;
             } else if (amldStatus.Code < activeStatus) {
                 _state = UniStatusTrack.States.Completed;
             } else if (amldStatus.Code === activeStatus) {
-
+                
                 if (this.currentAMelding.ID === this.aMeldingerInPeriod[this.aMeldingerInPeriod.length - 1].ID) {
                     _state = UniStatusTrack.States.Active;
                 } else {
@@ -252,7 +261,7 @@ export class AMeldingView implements OnInit {
                     _state = UniStatusTrack.States.Obsolete;
                 }
 
-                this.aMeldingerInPeriod.forEach(amelding => {
+                this.aMeldingerInPeriod.forEach(amelding => {                    
                     _substatuses.push({
                         title: 'A-melding ' + amelding.ID,
                         state: amelding.ID === this.currentAMelding.ID ? UniStatusTrack.States.Active : UniStatusTrack.States.Obsolete,
@@ -282,7 +291,7 @@ export class AMeldingView implements OnInit {
     private updateAMeldingerInPeriod(newAMelding) {
         let regenerated: boolean;
 
-        this.aMeldingerInPeriod.forEach(amelding => {
+        this.aMeldingerInPeriod.forEach(amelding => {            
             if (amelding.ID === newAMelding.ID) {
                 amelding = newAMelding;
                 regenerated = true;
@@ -295,9 +304,12 @@ export class AMeldingView implements OnInit {
     }
 
     private getSumUpForAmelding() {
+                
+
         this._ameldingService.getAmeldingSumUp(this.currentAMelding.ID)
         .subscribe((response) => {
             this.currentSumUp = response;
+            
             if (this.currentAMelding.ID !== this.aMeldingerInPeriod[this.aMeldingerInPeriod.length - 1].ID) {
                 let statusTextObject: any = this.getDataFromFeedback(this.currentAMelding, 1);
                 if (statusTextObject) {
@@ -425,6 +437,7 @@ export class AMeldingView implements OnInit {
     }
 
     private setStatusForPeriod() {
+        
         // Only the last (highest ID) amelding for the period can set this status
         if (this.currentAMelding.ID === this.aMeldingerInPeriod[this.aMeldingerInPeriod.length - 1].ID) {
 
@@ -562,9 +575,13 @@ export class AMeldingView implements OnInit {
     private clearAMelding() {
         this.currentAMelding = undefined;
         this.currentSumUp = {};
-        this.clarifiedDate = '';
+        this.clarifiedDate = '';        
         this.submittedDate = '';
         this.feedbackObtained = false;
+
+        this.aMeldingerInPeriod = [];
+        this.currentSumsInPeriod = undefined;
+        this.currentSumUp = undefined;        
     }
 
     private spinner<T>(source: Observable<T>): Observable<T> {

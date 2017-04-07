@@ -49,6 +49,10 @@ export class AmeldingSummaryView {
         if (this.currentSumUp && this.currentAMelding) {
             this.mapData();
         }
+        else{
+            this.entitiesWithData = [];
+        }
+        
     }
 
     private mapData() {
