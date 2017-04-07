@@ -310,7 +310,7 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
 
         let DblPaymentsInvoiceNo: Set<string> = new Set();
         journalDataEntries.forEach(row => {
-            if (journalDataEntries.filter(entry => entry.InvoiceNumber === row.InvoiceNumber).length > 1) {
+            if (journalDataEntries.filter(entry => entry.InvoiceNumber === row.InvoiceNumber && entry.InvoiceNumber).length > 1) {
                 DblPaymentsInvoiceNo.add(row.InvoiceNumber);
             }
         });
