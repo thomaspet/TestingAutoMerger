@@ -27,6 +27,7 @@ import * as moment from 'moment';
 
 export class AMeldingView implements OnInit {
     private busy: boolean = true;
+    private initialized: boolean;
     private currentPeriod: number;
     private currentMonth: string;
     private currentSumsInPeriod: any[] = [];
@@ -178,7 +179,9 @@ export class AMeldingView implements OnInit {
 
     public setAMelding(amelding: AmeldingData) {
         this.showView = '';        
-        this._ameldingService.getAMeldingWithFeedback(amelding.ID)
+        this._ameldingService
+        .getAMeldingWithFeedback(amelding.ID)
+        .finally(() => this.initialized = true)
         .subscribe((ameldingAndFeedback) => {
             this.currentAMelding =  ameldingAndFeedback;
             this.getDataFromFeedback(this.currentAMelding, 0);
@@ -430,6 +433,7 @@ export class AMeldingView implements OnInit {
                     if (this.aMeldingerInPeriod.length > 0) {
                         this.setAMelding(this.aMeldingerInPeriod[this.aMeldingerInPeriod.length - 1]);
                     } else {
+                        this.initialized = true;
                         this.updateToolbar();
                         this.updateSaveActions();
                     }
