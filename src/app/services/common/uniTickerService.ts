@@ -718,16 +718,18 @@ export class UniTickerService { //extends BizHttp<UniQueryDefinition> {
         // move it to the top of the "stack"
         if (currentHistoryItem) {
             existingHistory = existingHistory.filter(x =>
-                !(x.Ticker.Code === ticker.Code
-                && ((!x.TickerFilter && !filter)
-                || (x.TickerFilter && filter && x.TickerFilter.Code === filter.Code)))
+                !(x.TickerCode === ticker.Code
+                && ((!x.TickerFilterCode && !filter)
+                || (x.TickerFilterCode && filter && x.TickerFilterCode === filter.Code)))
             );
         }
 
         // add the search history to the start of the array ("top of the stack")
         let newHistoryItem: TickerHistory = {
-            Ticker: ticker,
-            TickerFilter: filter,
+            TickerCode: ticker.Code,
+            TickerName: ticker.Name,
+            TickerFilterCode: filter ? filter.Code : null,
+            TickerFilterName: filter ? filter.Name : null,
             Url: url
         };
 
@@ -763,11 +765,11 @@ export class UniTickerService { //extends BizHttp<UniQueryDefinition> {
 
             if (filter) {
                 return array.find(
-                    x => x.Ticker.Code === ticker.Code
-                        && x.TickerFilter && x.TickerFilter.Code === filter.Code);
+                    x => x.TickerCode === ticker.Code
+                        && x.TickerFilterCode && x.TickerFilterCode === filter.Code);
             } else {
                 return array.find(
-                    x => x.Ticker.Code === ticker.Code && !x.TickerFilter);
+                    x => x.TickerCode === ticker.Code && !x.TickerFilterCode);
             }
         }
 
@@ -777,9 +779,9 @@ export class UniTickerService { //extends BizHttp<UniQueryDefinition> {
     public deleteSearchHistoryItem(ticker: Ticker, filter: TickerFilter) {
         let existingHistory = this.getSearchHistoryItems();
 
-        existingHistory = existingHistory.filter(x => !(x.Ticker.Code === ticker.Code
-                    && ((!x.TickerFilter && !filter)
-                    || (x.TickerFilter && filter && x.TickerFilter.Code === filter.Code)))
+        existingHistory = existingHistory.filter(x => !(x.TickerCode === ticker.Code
+                    && ((!x.TickerFilterCode && !filter)
+                    || (x.TickerFilterCode && filter && x.TickerFilterCode === filter.Code)))
             );
 
         this.storageService.save(this.TICKER_LOCALSTORAGE_KEY, JSON.stringify(existingHistory), true);
@@ -976,6 +978,8 @@ export interface ITickerActionOverride {
 
 export class TickerHistory {
     public Url: string;
-    public Ticker: Ticker;
-    public TickerFilter: TickerFilter;
+    public TickerCode: string;
+    public TickerName: string;
+    public TickerFilterCode: string;
+    public TickerFilterName: string;
 }

@@ -85,9 +85,9 @@ export class UniTickerOverview {
         // filter is used)
         this.router.navigateByUrl(search.Url);
 
-        if (this.selectedTicker && this.selectedTicker.Code === search.Ticker.Code) {
+        if (this.selectedTicker && this.selectedTicker.Code === search.TickerCode) {
             setTimeout(() => {
-                this.showTicker(search.Ticker.Code);
+                this.showTicker(search.TickerCode);
             });
         }
     }

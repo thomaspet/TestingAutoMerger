@@ -99,7 +99,7 @@ export class InvoiceList2 implements OnInit {
             );
 
         this.tabService.addTab({
-            url: '/sales/invoices2',
+            url: '/sales/invoices',
             name: 'Faktura',
             active: true,
             moduleID: UniModules.Invoices

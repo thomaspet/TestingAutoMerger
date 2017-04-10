@@ -36,7 +36,7 @@ export class UniTickerSearchHistory {
     }
 
     private getSearchText(search: TickerHistory) {
-        return search.Ticker.Name + (search.TickerFilter ? ': ' + search.TickerFilter.Name : '');
+        return search.TickerName + (search.TickerFilterName ? ': ' + search.TickerFilterName : '');
     }
 }
 
