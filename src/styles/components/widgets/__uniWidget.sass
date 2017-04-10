@@ -222,3 +222,19 @@
         top: 38%;
         transform: translateY(-50%);
 
+// Background image
+uni-dashboard
+    display: block
+    position: absolute
+    top: 2rem // To account for the tab strip
+    left: 0
+    right: 0
+    bottom: 3rem // To account for the bottom toolbar
+    overflow: auto // To allow scroll
+    padding-top: 2rem
+    background-size: cover
+    background-attachment: fixed
+    background-image: url('http://www.funchap.com/wp-content/uploads/2014/03/baby-elephant-on-road.jpg') // Dummy 🐘 here - Perhaps the easiest way to do this dynamically is to add `background-image` as an inline style prop to the uni-dashboard-tag?
+
+    uni-widget
+        margin-bottom: 1rem // To add padding to the bottom.
