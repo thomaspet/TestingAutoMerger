@@ -102,7 +102,8 @@ export class BillView {
     private rootActions: IUniSaveAction[] = [
             { label: lang.tool_save, action: (done) => this.save(done), main: true, disabled: true },
             { label: lang.tool_delete, action: (done) => this.tryDelete(done), main: false, disabled: true },
-            { label: lang.ocr, action: (done) => this.runOcr(this.files).then(() => done()), main: false, disabled: false }
+            { label: lang.ocr, action: (done) => this.runOcr(this.files).then(() => done()), main: false, disabled: false },
+            { label: lang.ehf, action: (done) => this.runEHF(this.files).then(() => done()), main: false, disabled: false }
         ];
 
     constructor(
