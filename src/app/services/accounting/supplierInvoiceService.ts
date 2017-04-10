@@ -107,13 +107,15 @@ export class SupplierInvoiceService extends BizHttp<SupplierInvoice> {
     public getInvoiceList(urlSearchParams: URLSearchParams): Observable<any> {
         var flds = this.selectBuilder('ID', 'StatusCode',
             'Supplier.SupplierNumber', 'Info.Name', 'PaymentDueDate', 'InvoiceDate',
-            'InvoiceNumber', 'BankAccount.AccountNumber', 'PaymentInformation', 'TaxInclusiveAmount',
+            'InvoiceNumber', 'BankAccount.AccountNumber', 'PaymentInformation',
+            'TaxInclusiveAmount', 'TaxInclusiveAmountCurrency',
             'PaymentID', 'JournalEntry.JournalEntryNumber',
             'RestAmount', 'Project.Name', 'Project.Projectnumber', 'Department.Name',
-            'Department.DepartmentNumber');
+            'Department.DepartmentNumber',
+            'CurrencyCodeID', 'CurrencyCode.Code');
         var route = '?model=SupplierInvoice' +
             '&select=' + flds +
-            '&expand=supplier.info,journalentry,dimensions.project,dimensions.department,bankaccount' +
+            '&expand=supplier.info,journalentry,dimensions.project,dimensions.department,bankaccount,CurrencyCode' +
             '&orderby=id desc' +
             '&filter=( isnull(deleted,0) eq 0 )';
 

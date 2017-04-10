@@ -2,11 +2,15 @@ import {ViewChild, Component, SimpleChanges} from '@angular/core';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
 import {ToastService, ToastType} from '../../../../../framework/uniToast/toastService';
 import {Router, ActivatedRoute} from '@angular/router';
-import {safeInt, roundTo, safeDec, filterInput, trimLength, createFormField, FieldSize, ControlTypes} from '../../../timetracking/utils/utils';
-import {Supplier, SupplierInvoice, JournalEntryLineDraft, StatusCodeSupplierInvoice, BankAccount, LocalDate, InvoicePaymentData} from '../../../../unientities';
+import {Observable} from 'rxjs/Observable';
+import {safeInt, roundTo, safeDec, filterInput, trimLength,
+    createFormField, FieldSize, ControlTypes} from '../../../timetracking/utils/utils';
+import {Supplier, SupplierInvoice, JournalEntryLineDraft,
+    StatusCodeSupplierInvoice, BankAccount, LocalDate,
+    InvoicePaymentData, CurrencyCode, CompanySettings} from '../../../../unientities';
 import {UniStatusTrack} from '../../../common/toolbar/statustrack';
 import {IUniSaveAction} from '../../../../../framework/save/save';
-import {UniForm} from 'uniform-ng2/main';
+import {UniForm, FieldType} from 'uniform-ng2/main';
 import {SupplierDetailsModal} from '../../../common/supplier/details/supplierDetailModal';
 import {RegisterPaymentModal} from '../../../common/modals/registerPaymentModal';
 import {Location} from '@angular/common';
@@ -24,10 +28,12 @@ import {
     UniCacheService,
     VatTypeService,
     BankAccountService,
+    CurrencyCodeService,
+    CurrencyService,
+    CompanySettingsService,
     ErrorService,
     PageStateService,
-    checkGuid,
-    EHFService
+    checkGuid
 } from '../../../../services/services';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {UniFieldLayout} from 'uniform-ng2/main';
@@ -62,8 +68,8 @@ export class BillView {
 
     public busy: boolean = true;
     public toolbarConfig: any;
-    public formConfig: BehaviorSubject<any> = new BehaviorSubject({autofocus: true});
-    public fields: BehaviorSubject<UniFieldLayout[]>;
+    public formConfig: BehaviorSubject<any> = new BehaviorSubject({ autofocus: true });
+    public fields$: BehaviorSubject<UniFieldLayout[]>;
     public current: BehaviorSubject<SupplierInvoice> = new BehaviorSubject(new SupplierInvoice());
     public currentSupplierID: number = 0;
     public collapseSimpleJournal: boolean = false;
@@ -78,6 +84,9 @@ export class BillView {
     private supplierIsReadOnly: boolean = false;
     private commentsConfig: any;
 
+    private currencyCodes: Array<CurrencyCode>;
+    private companySettings: CompanySettings;
+
     @ViewChild(UniForm) public uniForm: UniForm;
     @ViewChild(SupplierDetailsModal) private supplierDetailsModal: SupplierDetailsModal;
     @ViewChild(BankAccountModal) public bankAccountModal: BankAccountModal;
@@ -89,8 +98,8 @@ export class BillView {
 
     private tabLabel: string;
     public tabs: Array<ITab> = [
-        { label: lang.tab_invoice, name: 'head', isHidden: true},
-        { label: lang.tab_document, name: 'docs', isSelected: true},
+        { label: lang.tab_invoice, name: 'head', isHidden: true },
+        { label: lang.tab_document, name: 'docs', isSelected: true },
         { label: lang.tab_journal, name: 'journal', isHidden: true },
         { label: lang.tab_items, name: 'items', isHidden: true },
         { label: lang.tab_history, name: 'history' }
@@ -100,11 +109,10 @@ export class BillView {
     public actions: IUniSaveAction[];
 
     private rootActions: IUniSaveAction[] = [
-            { label: lang.tool_save, action: (done) => this.save(done), main: true, disabled: true },
-            { label: lang.tool_delete, action: (done) => this.tryDelete(done), main: false, disabled: true },
-            { label: lang.ocr, action: (done) => this.runOcr(this.files).then(() => done()), main: false, disabled: false },
-            { label: lang.ehf, action: (done) => this.runEHF(this.files).then(() => done()), main: false, disabled: false }
-        ];
+        { label: lang.tool_save, action: (done) => this.save(done), main: true, disabled: true },
+        { label: lang.tool_delete, action: (done) => this.tryDelete(done), main: false, disabled: true },
+        { label: lang.ocr, action: (done) => this.runOcr(this.files).then(() => done()), main: false, disabled: false }
+    ];
 
     constructor(
         private tabService: TabService,
@@ -119,8 +127,10 @@ export class BillView {
         private errorService: ErrorService,
         private pageStateService: PageStateService,
         private bankAccountService: BankAccountService,
-        private ehfService: EHFService) {
-            this.actions = this.rootActions;
+        private companySettingsService: CompanySettingsService,
+        private currencyCodeService: CurrencyCodeService,
+        private currencyService: CurrencyService) {
+        this.actions = this.rootActions;
     }
 
     public ngOnInit() {
@@ -133,14 +143,33 @@ export class BillView {
     }
 
     private initFromRoute() {
-        this.route.params.subscribe( (params: any) => {
+        this.route.params.subscribe((params: any) => {
             var id = params.id;
+
             if (safeInt(id) > 0) {
-                this.updateTabInfo(id);
-                this.fetchInvoice(id, true);
+                Observable.forkJoin(
+                    this.companySettingsService.Get(1),
+                    this.currencyCodeService.GetAll(null)
+                ).subscribe((res) => {
+                    this.companySettings = res[0];
+                    this.currencyCodes = res[1];
+
+                    this.updateTabInfo(id);
+                    this.fetchInvoice(id, true);
+                    this.extendFormConfig();
+                }, err => this.errorService.handle(err));
             } else {
-                this.newInvoice(true);
-                this.checkPath();
+                Observable.forkJoin(
+                    this.companySettingsService.Get(1),
+                    this.currencyCodeService.GetAll(null)
+                ).subscribe((res) => {
+                    this.companySettings = res[0];
+                    this.currencyCodes = res[1];
+
+                    this.newInvoice(true);
+                    this.checkPath();
+                    this.extendFormConfig();
+                }, err => this.errorService.handle(err));
             }
 
             this.commentsConfig = {
@@ -149,6 +178,19 @@ export class BillView {
             };
         });
 
+    }
+    public extendFormConfig() {
+        let fields: UniFieldLayout[] = this.fields$.getValue();
+
+        let currencyCode: UniFieldLayout = fields.find(x => x.Property === 'CurrencyCodeID');
+        currencyCode.Options = {
+            source: this.currencyCodes,
+            valueProperty: 'ID',
+            displayProperty: 'Code',
+            debounceTime: 200
+        };
+
+        this.fields$.next(fields);
     }
 
     private updateTabInfo(id?: number | string, label?: string) {
@@ -169,10 +211,9 @@ export class BillView {
     private initForm() {
         var supIdCol = createFormField('SupplierID', lang.col_supplier, ControlTypes.AutocompleteInput, FieldSize.Full);
         supIdCol.Options = {
-            source: this.supplierInvoiceService.getStatQuery('?model=supplier&orderby=Info.Name&select=id as ID,SupplierNumber as SupplierNumber,Info.Name&expand=info'),
             template: (data) => {
                 let current: SupplierInvoice = this.current.getValue();
-                if (data === undefined && (current && current.Supplier && current.Supplier.Info) ) {
+                if (data === undefined && (current && current.Supplier && current.Supplier.Info)) {
                     data = { SupplierNumber: current.Supplier.SupplierNumber, InfoName: current.Supplier.Info.Name };
                 }
                 if (data && data.InfoName) {
@@ -182,7 +223,18 @@ export class BillView {
                 }
             },
             getDefaultData: () => {
-                return this.supplierInvoiceService.getStatQuery('?model=supplier&orderby=Info.Name&select=id as ID,SupplierNumber as SupplierNumber,Info.Name&expand=info&filter=ID eq ' + this.currentSupplierID);
+                let current: SupplierInvoice = this.current.getValue();
+                if (current.Supplier) {
+                    return Observable.of(
+                        {
+                            ID: current.Supplier.ID,
+                            SupplierNumber: current.Supplier.SupplierNumber,
+                            InfoName: current.Supplier.Info.Name
+                        }
+                    );
+                } else {
+                    return Observable.empty();
+                }
             },
             search: (txt: string) => {
                 let filter = `contains(info.name,'${txt}')`;
@@ -191,14 +243,23 @@ export class BillView {
             valueProperty: 'ID'
         };
 
-        var sumCol = createFormField('TaxInclusiveAmount', lang.col_total, ControlTypes.TextInput, FieldSize.Double);
+        var sumCol = createFormField('TaxInclusiveAmountCurrency', lang.col_total, ControlTypes.TextInput, FieldSize.Double);
+        sumCol.Classes += ' combofield';
         sumCol.Options = {
             events: {
                 enter: () => {
-                    this.focusJournalEntries(); //not working
+                    this.focusJournalEntries(); // not working
                 }
             },
             decimalLength: 2
+        };
+
+        var currencyCodeCol = createFormField('CurrencyCodeID', lang.col_currency_code, FieldType.DROPDOWN, FieldSize.Double);
+        currencyCodeCol.Options = {
+            source: this.currencyCodes,
+            valueProperty: 'ID',
+            displayValue: 'Code',
+            debounceTime: 200,
         };
 
         let bankAccountCol = createFormField('BankAccountID', lang.col_bank, ControlTypes.MultivalueInput, FieldSize.Double);
@@ -233,7 +294,7 @@ export class BillView {
                                     this.errorService.handle(err);
                                     reject('Feil ved lagring av bankkonto');
                                 }
-                            );
+                                );
                         } else {
                             throw new Error('Du kan ikke endre en bankkonto herfra');
                         }
@@ -249,45 +310,23 @@ export class BillView {
             createFormField('InvoiceNumber', lang.col_invoice, undefined, FieldSize.Double),
             bankAccountCol,
             createFormField('PaymentID', lang.col_kid, ControlTypes.TextInput, FieldSize.Double),
-            sumCol
+            sumCol,
+            currencyCodeCol
         ];
 
-        // this.fields = list;
-        this.fields = new BehaviorSubject(list);
+        this.fields$ = new BehaviorSubject(list);
     }
 
     private focusJournalEntries() {
-        // todo: ask Jorge how to fetch new value from the damned "TaxInclusiveAmount" ?
+        // todo: ask Jorge how to fetch new value from the damned "TaxInclusiveAmountCurrency" ?
         this.simpleJournalentry.focus();
     }
 
     public onFormReady(event) {
-        this.createNewSupplierButton();
-    }
-
-    /// =============================
-
-    ///     FILES AND EHF
-
-    /// =============================
-
-    private runEHF(files: Array<any>): Promise<boolean> {
-        return new Promise( (resolve, reject) => {
-            if (files && files.length > 0) {
-                let firstFile = files[0];
-                this.userMsg(lang.ehf_running, null, null, true);
-                this.ehfService.Get(`?action=parse&fileID=${firstFile.ID}`)
-                    .subscribe( (invoice: SupplierInvoice) => {
-                        this.toast.clear();
-                        this.current.next(invoice);
-
-                        resolve(true);
-                    }, (err) => {
-                        this.errorService.handle(err);
-                        resolve(false);
-                    });
-            }
-        });
+        setTimeout(() =>
+            this.createNewSupplierButton(),
+            1000
+        );
     }
 
     /// =============================
@@ -311,13 +350,7 @@ export class BillView {
         this.files = files;
         if (files && files.length) {
             if (!this.hasValidSupplier()) {
-                // OCR OR EHF?
-                let firstFile = files[0];
-                if (firstFile.Name.endsWith('.ehf')) {
-                    this.runEHF(files);
-                } else {
-                    this.runOcr(files);
-                }
+                this.runOcr(files);
             }
             this.checkNewFiles(files);
         }
@@ -331,7 +364,7 @@ export class BillView {
         let firstFile = files[0];
         const current = this.current.getValue();
         if (!current.ID) {
-            if (this.unlinkedFiles.findIndex( x => x === firstFile.ID ) < 0) {
+            if (this.unlinkedFiles.findIndex(x => x === firstFile.ID) < 0) {
                 this.unlinkedFiles.push(firstFile.ID);
                 if (this.hasStartupFileID !== firstFile.ID) {
                     this.tagFileStatus(firstFile.ID, 0);
@@ -346,14 +379,14 @@ export class BillView {
     }
 
     private runOcr(files: Array<any>): Promise<boolean> {
-        return new Promise( (resolve, reject) => {
+        return new Promise((resolve, reject) => {
             if (files && files.length > 0) {
                 let firstFile = files[0];
                 this.userMsg(lang.ocr_running, null, null, true);
                 this.supplierInvoiceService.fetch(`files/${firstFile.ID}?action=ocranalyse`)
-                    .subscribe( (result: IOcrServiceResult) => {
+                    .subscribe((result: IOcrServiceResult) => {
                         this.toast.clear();
-                        this.handleOcrResult( new OcrValuables(result) );
+                        this.handleOcrResult(new OcrValuables(result));
                         resolve(true);
                     }, (err) => {
                         this.errorService.handle(err);
@@ -368,7 +401,7 @@ export class BillView {
             if (!this.hasValidSupplier()) {
                 var orgNo = filterInput(ocr.Orgno);
                 this.supplierService.GetAll(`filter=contains(OrgNumber,'${orgNo}')`, ['Info.BankAccounts'])
-                    .subscribe( (result: Supplier[]) => {
+                    .subscribe((result: Supplier[]) => {
                         if (result && result.length > 0) {
                             let supplier = result[0];
 
@@ -383,25 +416,25 @@ export class BillView {
                                         `${lang.create_bankaccount_info} ${supplier.Info.Name}`,
                                         `${lang.create_bankaccount_title} ${ocr.BankAccount}?`,
                                         false,
-                                        {accept: `${lang.create_bankaccount_accept}`, reject: lang.create_bankaccount_reject}
+                                        { accept: `${lang.create_bankaccount_accept}`, reject: lang.create_bankaccount_reject }
                                     ).then((userChoice: ConfirmActions) => {
-                                            if (userChoice === ConfirmActions.ACCEPT) {
-                                                let newBankAccount = new BankAccount();
-                                                newBankAccount.AccountNumber = ocr.BankAccount;
-                                                newBankAccount.BusinessRelationID = supplier.BusinessRelationID;
-                                                newBankAccount.BankAccountType = 'supplier';
+                                        if (userChoice === ConfirmActions.ACCEPT) {
+                                            let newBankAccount = new BankAccount();
+                                            newBankAccount.AccountNumber = ocr.BankAccount;
+                                            newBankAccount.BusinessRelationID = supplier.BusinessRelationID;
+                                            newBankAccount.BankAccountType = 'supplier';
 
-                                                this.bankAccountService.Post(newBankAccount)
-                                                    .subscribe((savedBankAccount: BankAccount) => {
-                                                        supplier.Info.BankAccounts.push(savedBankAccount);
-                                                        this.setFormValue('BankAccountID', savedBankAccount.ID);
+                                            this.bankAccountService.Post(newBankAccount)
+                                                .subscribe((savedBankAccount: BankAccount) => {
+                                                    supplier.Info.BankAccounts.push(savedBankAccount);
+                                                    this.setFormValue('BankAccountID', savedBankAccount.ID);
 
-                                                        this.setSupplier(supplier);
-                                                    },
-                                                    err => this.errorService.handle(err)
+                                                    this.setSupplier(supplier);
+                                                },
+                                                err => this.errorService.handle(err)
                                                 );
-                                            }
-                                        });
+                                        }
+                                    });
                                 }
                             }
 
@@ -416,18 +449,18 @@ export class BillView {
         this.setFormValue('InvoiceNumber', ocr.InvoiceNumber);
         this.setFormValue('InvoiceDate', moment(ocr.InvoiceDate).format('L'), true);
         this.setFormValue('PaymentDueDate', moment(ocr.PaymentDueDate).format('L'), true);
-        this.setFormValue('TaxInclusiveAmount', safeDec(ocr.TaxInclusiveAmount).toFixed(2));
+        this.setFormValue('TaxInclusiveAmountCurrency', safeDec(ocr.TaxInclusiveAmount).toFixed(2)); //TODO: Implement OCR currency
     }
 
     private findSupplierViaPhonebook(orgNo: string, askUser: boolean, bankAccount?: string) {
-        this.supplierInvoiceService.fetch('business-relations/?action=search-data-hotel&searchText=' + orgNo).subscribe( x => {
+        this.supplierInvoiceService.fetch('business-relations/?action=search-data-hotel&searchText=' + orgNo).subscribe(x => {
             if (x.Data && x.Data.entries && x.Data.entries.length > 0) {
                 var item = x.Data.entries[0];
                 var title = `${lang.create_supplier} '${item.navn}' ?`;
                 var msg = `${item.foretningsadr || ''} ${item.forradrpostnr || ''} ${item.forradrpoststed || ''}. ${lang.org_number}: ${item.orgnr}`;
                 this.toast.clear();
                 if (askUser) {
-                    this.confirmModal.confirm(msg, title, false, { warning: lang.org_not_found}, ).then( (userChoice: ConfirmActions) => {
+                    this.confirmModal.confirm(msg, title, false, { warning: lang.org_not_found }).then((userChoice: ConfirmActions) => {
                         if (userChoice === ConfirmActions.ACCEPT) {
                             this.createSupplier(item.orgnr, item.navn, item.foretningsadr, item.forradrpostnr, item.forradrpoststed, bankAccount);
                         }
@@ -458,7 +491,7 @@ export class BillView {
             sup.Info.DefaultBankAccount = <any>{ AccountNumber: bankAccount, BankAccountType: 'supplier' };
         }
 
-        this.supplierService.Post(sup).subscribe( x => {
+        this.supplierService.Post(sup).subscribe(x => {
             this.fetchNewSupplier(x.ID, true);
         }, err => this.errorService.handle(err));
     }
@@ -490,9 +523,44 @@ export class BillView {
         let changedProperties = Object.keys(change);
         changedProperties.forEach((property: string) => _.set(model, property, change[property].currentValue));
         this.current.next(model);
-        if (model.SupplierID !== this.currentSupplierID) {
+
+        if (change['SupplierID']) {
             this.fetchNewSupplier(model.SupplierID);
         }
+
+        if (change['InvoiceDate']) {
+            if (model.CurrencyCodeID && model.CurrencyCodeID !== this.companySettings.BaseCurrencyCodeID) {
+                let currencyDate: LocalDate = model.InvoiceDate ? model.InvoiceDate : new LocalDate();
+                this.currencyService.getCurrencyExchangeRate(model.CurrencyCodeID, this.companySettings.BaseCurrencyCodeID, currencyDate)
+                    .subscribe(res => {
+                        let ExchangeRate = res;
+                        model.CurrencyExchangeRate = res.ExchangeRate;
+                        this.flagUnsavedChanged();
+                    }, err => this.errorService.handle(err)
+                    );
+            }
+        }
+
+        if (change['CurrencyCodeID']) {
+            if (model.CurrencyCodeID) {
+                this.currencyCodeService.Get(model.CurrencyCodeID)
+                    .subscribe(res => {
+                        model.CurrencyCode = res;
+                        this.flagUnsavedChanged();
+                    }, err => this.errorService.handle(err)
+                    );
+            }
+            if (model.InvoiceDate) {
+                this.currencyService.getCurrencyExchangeRate(model.CurrencyCodeID, this.companySettings.BaseCurrencyCodeID, model.InvoiceDate)
+                    .subscribe(res => {
+                        let ExchangeRate = res;
+                        model.CurrencyExchangeRate = res.ExchangeRate;
+                        this.flagUnsavedChanged();
+                    }, err => this.errorService.handle(err)
+                    );
+            }
+        }
+
         this.flagUnsavedChanged();
     }
 
@@ -505,8 +573,8 @@ export class BillView {
 
     private fetchNewSupplier(id: number, updateCombo = false) {
         if (id) {
-            this.supplierService.Get(id, ['Info', 'Info.BankAccounts', 'Info.DefaultBankAccount'])
-                .subscribe( (result: Supplier) => this.setSupplier(result, updateCombo));
+            this.supplierService.Get(id, ['Info', 'Info.BankAccounts', 'Info.DefaultBankAccount', 'CurrencyCode'])
+                .subscribe((result: Supplier) => this.setSupplier(result, updateCombo));
         }
     }
 
@@ -529,6 +597,23 @@ export class BillView {
                 .setValue(result.Info.DefaultBankAccount.AccountNumber);
         }
 
+        if (result.CurrencyCodeID) {
+            current.CurrencyCodeID = result.CurrencyCodeID;
+            this.uniForm.field('CurrencyCodeID').Component.control
+                .setValue(result.CurrencyCode.Code);
+
+            this.currencyCodeService.Get(result.CurrencyCodeID)
+                .subscribe(res => {
+                    current.CurrencyCode = res;
+                }, err => this.errorService.handle(err)
+                );
+        }
+        else {
+            current.CurrencyCodeID = this.companySettings.BaseCurrencyCodeID;
+            this.uniForm.field('CurrencyCodeID').Component.control
+                .setValue(result.CurrencyCodeID);
+        }
+
         // make uniform update itself to show correct values for bankaccount
         this.current.next(current);
 
@@ -538,7 +623,7 @@ export class BillView {
 
     private fetchHistoryCount(supplierId: number) {
         let current: SupplierInvoice = this.current.getValue();
-        if (current.StatusCode >= StatusCodeSupplierInvoice.Payed ) {
+        if (current.StatusCode >= StatusCodeSupplierInvoice.Payed) {
             return;
         }
         if (!supplierId) {
@@ -546,16 +631,16 @@ export class BillView {
             return;
         }
         if (this.historyView) {
-            let tab = this.tabs.find( x => x.name === 'history');
+            let tab = this.tabs.find(x => x.name === 'history');
             if (tab) {
                 this.historyView.getNumberOfInvoices(supplierId, current.ID)
-                    .subscribe( x => this.setHistoryCounter(x) );
+                    .subscribe(x => this.setHistoryCounter(x));
             }
         }
     }
 
     private setHistoryCounter(value: number) {
-        let tab = this.tabs.find( x => x.name === 'history');
+        let tab = this.tabs.find(x => x.name === 'history');
         if (tab) {
             tab.count = value;
         }
@@ -582,18 +667,19 @@ export class BillView {
         this.files = undefined;
         this.setHistoryCounter(0);
         this.busy = false;
+
         if (!isInitial) {
             this.hasStartupFileID = false;
             this.uniForm.field('SupplierID').Component.control.setValue(0);
         }
-        try { if (this.uniForm) { this.uniForm.editMode(); } } catch (err) {}
+        try { if (this.uniForm) { this.uniForm.editMode(); } } catch (err) { }
 
     }
 
     private flagUnsavedChanged(reset = false) {
         this.flagActionBar(actionBar.save, !reset);
         if (!reset) {
-            this.actions.forEach( x => x.main = false );
+            this.actions.forEach(x => x.main = false);
             this.actions[actionBar.save].main = true;
         }
         this.hasUnsavedChanges = !reset;
@@ -607,12 +693,12 @@ export class BillView {
         var it: any = this.current.getValue();
         if (it && it._links) {
             var list: IUniSaveAction[] = [];
-            this.rootActions.forEach( x => list.push(x) );
+            this.rootActions.forEach(x => list.push(x));
             var hasBilag = (!!(it.JournalEntry && it.JournalEntry.JournalEntryNumber));
             let filter = ((it.StatusCode === 30105 && hasBilag) ? ['journal'] : undefined);
             this.addActions(it._links.transitions, list, true, ['assign', 'approve', 'journal', 'pay'], filter);
             if (it._links.actions && it._links.actions.smartbooking) {
-                if (it.StatusCode < StatusCodeSupplierInvoice.Journaled ) {
+                if (it.StatusCode < StatusCodeSupplierInvoice.Journaled) {
                     list.push(this.newAction(
                         workflowLabels.smartbooking,
                         'smartbooking',
@@ -649,20 +735,20 @@ export class BillView {
         for (key in linkNode) {
             if (linkNode.hasOwnProperty(key)) {
 
-                isFiltered = filters ? (filters.findIndex( x => x === key ) >= 0) : false;
+                isFiltered = filters ? (filters.findIndex(x => x === key) >= 0) : false;
                 if (!isFiltered) {
                     ix++;
                     setAsMain = mainFirst ? ix <= 1 : false;
                     // prioritized main?
                     if (priorities) {
-                        let ixPri = priorities.findIndex(x => x === key );
+                        let ixPri = priorities.findIndex(x => x === key);
                         if (ixPri >= 0 && (ixPri < ixFound || ixFound < 0)) {
                             ixFound = ixPri;
                             setAsMain = true;
                         }
                     }
                     // reset main?
-                    if (setAsMain) { list.forEach( x => x.main = false); }
+                    if (setAsMain) { list.forEach(x => x.main = false); }
 
                     let itemKey = key;
                     let label = this.mapActionLabel(itemKey);
@@ -674,7 +760,7 @@ export class BillView {
     }
 
     private handleAction(key: string, label: string, href: string, done: any) {
-        this.checkSave().then( x => {
+        this.checkSave().then(x => {
             if (x) {
                 this.handleActionAfterCheckSave(key, label, href, done);
             } else {
@@ -688,29 +774,29 @@ export class BillView {
         switch (key) {
             case 'journal':
                 this.confirmModal.confirm(
-                    lang.ask_journal_msg + current.TaxInclusiveAmount.toFixed(2) + '?',
+                    lang.ask_journal_msg + current.TaxInclusiveAmountCurrency.toFixed(2) + '?',
                     lang.ask_journal_title + current.Supplier.Info.Name, false,
-                    { warning: lang.warning_action_not_reversable }).then( (result: ConfirmActions) => {
+                    { warning: lang.warning_action_not_reversable }).then((result: ConfirmActions) => {
 
-                    if (result === ConfirmActions.ACCEPT) {
-                        this.busy = true;
-                        this.tryJournal(href).then((status: ILocalValidation) => {
-                            this.busy = false;
-                            this.hasUnsavedChanges = false;
-                            done(lang.save_success);
-                        }).catch((err: ILocalValidation) => {
-                            this.busy = false;
-                            done(err.errorMessage);
-                            this.userMsg(err.errorMessage, lang.warning, 10);
-                        });
-                    } else {
-                        done();
-                    }
-                });
+                        if (result === ConfirmActions.ACCEPT) {
+                            this.busy = true;
+                            this.tryJournal(href).then((status: ILocalValidation) => {
+                                this.busy = false;
+                                this.hasUnsavedChanges = false;
+                                done(lang.save_success);
+                            }).catch((err: ILocalValidation) => {
+                                this.busy = false;
+                                done(err.errorMessage);
+                                this.userMsg(err.errorMessage, lang.warning, 10);
+                            });
+                        } else {
+                            done();
+                        }
+                    });
                 return true;
 
             case 'smartbooking':
-                this.supplierInvoiceService.Action(current.ID, key).subscribe( (result) => {
+                this.supplierInvoiceService.Action(current.ID, key).subscribe((result) => {
                     this.userMsg(JSON.stringify(result));
                     done('ok');
                 }, (err) => {
@@ -730,11 +816,11 @@ export class BillView {
                     lang.ask_archive,
                     false,
                     { warning: lang.warning_action_not_reversable })
-                .then( (result: ConfirmActions) => {
-                    if (result === ConfirmActions.ACCEPT) {
-                        return this.RunActionOnCurrent(key, done);
-                    } else { done(); }
-                });
+                    .then((result: ConfirmActions) => {
+                        if (result === ConfirmActions.ACCEPT) {
+                            return this.RunActionOnCurrent(key, done);
+                        } else { done(); }
+                    });
                 return true;
 
             default:
@@ -742,26 +828,26 @@ export class BillView {
         }
     }
 
-    private RunActionOnCurrent(action: string, done?: (msg) => {}, successMsg?: string ): boolean {
+    private RunActionOnCurrent(action: string, done?: (msg) => {}, successMsg?: string): boolean {
         let current = this.current.getValue();
         this.busy = true;
         this.supplierInvoiceService.PostAction(current.ID, action)
-        .finally(() => this.busy = false)
-        .subscribe( () => {
-            this.fetchInvoice(current.ID, true);
-            if (done) { done(successMsg); }
-        }, (err) => {
-            this.errorService.handle(err);
-            done(trimLength(err, 100, true));
-        });
+            .finally(() => this.busy = false)
+            .subscribe(() => {
+                this.fetchInvoice(current.ID, true);
+                if (done) { done(successMsg); }
+            }, (err) => {
+                this.errorService.handle(err);
+                done(trimLength(err, 100, true));
+            });
         return true;
     }
 
     private tryJournal(url: string): Promise<ILocalValidation> {
 
-        return new Promise( (resolve, reject) => {
+        return new Promise((resolve, reject) => {
 
-            this.UpdateSuppliersJournalEntry().then( result => {
+            this.UpdateSuppliersJournalEntry().then(result => {
                 let current = this.current.getValue();
                 var validation = this.hasValidDraftLines(true);
                 if (!validation.success) {
@@ -769,7 +855,7 @@ export class BillView {
                     return;
                 }
 
-                this.supplierInvoiceService.journal(current.ID).subscribe( x => {
+                this.supplierInvoiceService.journal(current.ID).subscribe(x => {
                     this.fetchInvoice(current.ID, false);
                     resolve(result);
                     this.userMsg(lang.journaled_ok, null, 6, true);
@@ -781,7 +867,7 @@ export class BillView {
 
 
             }).catch((err: ILocalValidation) => {
-                reject( err );
+                reject(err);
             });
 
         });
@@ -802,10 +888,10 @@ export class BillView {
         this.currentFileID = 0;
         this.files = undefined;
         this.setHistoryCounter(0);
-        return new Promise( (resolve, reject) => {
+        return new Promise((resolve, reject) => {
             this.supplierInvoiceService.Get(
                 id,
-                ['Supplier.Info.BankAccounts', 'JournalEntry.DraftLines.Account,JournalEntry.DraftLines.VatType']
+                ['Supplier.Info.BankAccounts', 'JournalEntry.DraftLines.Account,JournalEntry.DraftLines.VatType', 'CurrencyCode']
             ).subscribe(result => {
                 if (flagBusy) { this.busy = false; }
                 if (result.Supplier === null) { result.Supplier = new Supplier(); };
@@ -874,8 +960,8 @@ export class BillView {
     public tryDelete(done) {
         let current = this.current.getValue();
         this.confirmModal.confirm(
-            lang.ask_delete + (current.InvoiceNumber  || '') + '?',
-            this.getSupplierName()).then( x => {
+            lang.ask_delete + (current.InvoiceNumber || '') + '?',
+            this.getSupplierName()).then(x => {
                 if (x === ConfirmActions.ACCEPT) {
                     return this.delete(done);
                 } else {
@@ -913,15 +999,15 @@ export class BillView {
         return new Promise((resolve, reject) => {
 
             var reload = () => {
-                this.fetchInvoice(this.currentSupplierID, (!!done) )
-                .then(() => {
-                    resolve({ success: true});
-                    if (done) { done(lang.save_success); }
-                })
-                .catch((msg) => {
-                    reject( { success: false, errorMessage: msg });
-                    if (done) { done(msg); }
-                });
+                this.fetchInvoice(this.currentSupplierID, (!!done))
+                    .then(() => {
+                        resolve({ success: true });
+                        if (done) { done(lang.save_success); }
+                    })
+                    .catch((msg) => {
+                        reject({ success: false, errorMessage: msg });
+                        if (done) { done(msg); }
+                    });
             };
 
             var obs: any;
@@ -935,7 +1021,7 @@ export class BillView {
                 this.currentSupplierID = result.ID;
                 this.hasUnsavedChanges = false;
                 if (this.unlinkedFiles.length > 0) {
-                    this.linkFiles(this.currentSupplierID, this.unlinkedFiles, 'SupplierInvoice', 40001).then( () => {
+                    this.linkFiles(this.currentSupplierID, this.unlinkedFiles, 'SupplierInvoice', 40001).then(() => {
                         this.hasStartupFileID = false;
                         this.currentFileID = 0;
                         this.unlinkedFiles = [];
@@ -953,7 +1039,7 @@ export class BillView {
                     this.userMsg(lang.save_error);
                 }
                 if (done) { done(lang.save_error + ': ' + msg); }
-                reject({ success: false, errorMessage: msg});
+                reject({ success: false, errorMessage: msg });
             });
         });
     }
@@ -965,7 +1051,7 @@ export class BillView {
         current.InvoiceDate = current.InvoiceDate || new LocalDate();
         // Ensure dates are set
         if (current.JournalEntry && current.JournalEntry.DraftLines) {
-            current.JournalEntry.DraftLines.forEach( x => {
+            current.JournalEntry.DraftLines.forEach(x => {
                 let orig = x.FinancialDate;
                 x.FinancialDate = x.FinancialDate || current.DeliveryDate || current.InvoiceDate;
                 if (x.FinancialDate !== orig) {
@@ -988,6 +1074,26 @@ export class BillView {
             current.BankAccount = null;
         }
 
+        // set CurrencyID
+        if (current.CurrencyCodeID && current.JournalEntry.DraftLines) {
+            current.JournalEntry.DraftLines.forEach(x => {
+                let orig = x.CurrencyCodeID;
+                x.CurrencyCodeID = x.CurrencyCodeID || current.CurrencyCodeID;
+                if (x.CurrencyCodeID !== orig) {
+                    changesMade = true;
+                }
+            });
+        }
+        // set CurrencyExchangeRate
+        if (current.CurrencyExchangeRate && current.JournalEntry.DraftLines) {
+            current.JournalEntry.DraftLines.forEach(x => {
+                let orig = x.CurrencyExchangeRate;
+                x.CurrencyExchangeRate = x.CurrencyExchangeRate || current.CurrencyExchangeRate;
+                if (x.CurrencyExchangeRate !== orig) {
+                    changesMade = true;
+                }
+            });
+        }
         return changesMade;
     }
 
@@ -996,14 +1102,14 @@ export class BillView {
         return new Promise((resolve, reject) => {
             let current = this.current.getValue();
             var completeAccount = (item: JournalEntryLineDraft, addToList = false) => {
-                if (item.Amount !== current.TaxInclusiveAmount * -1) {
+                if (item.AmountCurrency !== current.TaxInclusiveAmountCurrency * -1) {
                     item.FinancialDate = item.FinancialDate || current.DeliveryDate || current.InvoiceDate;
-                    item.Amount = current.TaxInclusiveAmount * -1;
+                    item.AmountCurrency = current.TaxInclusiveAmountCurrency * -1;
                     item.Description = item.Description || (lang.headliner_invoice.toLowerCase() + ' ' + current.InvoiceNumber);
                     if (addToList) {
-                         current.JournalEntry.DraftLines.push(item);
+                        current.JournalEntry.DraftLines.push(item);
                     }
-                    this.save().then(x => resolve(x)).catch( x => reject(x));
+                    this.save().then(x => resolve(x)).catch(x => reject(x));
                 } else {
                     resolve({ success: true });
                 }
@@ -1013,19 +1119,19 @@ export class BillView {
                 var supplierId = safeInt(current.Supplier.SupplierNumber);
                 var item: JournalEntryLineDraft;
                 let items = current.JournalEntry.DraftLines;
-                item = items.find( x => x.Account ? x.Account.AccountNumber === current.Supplier.SupplierNumber : false);
+                item = items.find(x => x.Account ? x.Account.AccountNumber === current.Supplier.SupplierNumber : false);
                 if (!item) {
                     item = new JournalEntryLineDraft();
                     checkGuid(item);
                     this.supplierInvoiceService
                         .getStatQuery(`?model=account&select=ID as AccountID&filter=AccountNumber eq ${supplierId}`)
-                        .subscribe( result => {
+                        .subscribe(result => {
                             item.AccountID = result[0].AccountID;
                             completeAccount(item, true);
                             return;
                         }, (err) => {
                             this.errorService.handle(err);
-                            reject({ success: false, errorMessage: lang.err_supplieraccount_not_found});
+                            reject({ success: false, errorMessage: lang.err_supplieraccount_not_found });
                         });
                     return;
                 }
@@ -1033,7 +1139,7 @@ export class BillView {
                 return;
             }
 
-            reject({ success: false, errorMessage: lang.err_missing_journalEntries});
+            reject({ success: false, errorMessage: lang.err_missing_journalEntries });
         });
     }
 
@@ -1042,8 +1148,8 @@ export class BillView {
         const title = lang.ask_register_payment + current.InvoiceNumber;
 
         const invoiceData: InvoicePaymentData = {
-            Amount: current.RestAmount,
-            AmountCurrency: current.RestAmountCurrency,
+            Amount: roundTo(current.RestAmount),
+            AmountCurrency: roundTo(current.RestAmountCurrency),
             BankChargeAmount: 0,
             CurrencyCodeID: current.CurrencyCodeID,
             CurrencyExchangeRate: 0,
@@ -1053,19 +1159,25 @@ export class BillView {
             AgioAmount: 0
         };
 
-        this.registerPaymentModal.confirm(current.ID, title, current.CurrencyCode, current.CurrencyExchangeRate, invoiceData).then((res) => {
-            this.busy = true;
-            this.supplierInvoiceService.ActionWithBody(res.id, res.model, 'payInvoice')
-            .finally(() => this.busy = false)
-            .subscribe((journalEntry) => {
-                this.fetchInvoice(current.ID, true);
-                this.userMsg(lang.payment_ok, null, null, true);
-                done('Betaling registrert');
-            }, (error) => {
-                this.errorService.handle(error);
-                done('Betaling feilet');
+        this.registerPaymentModal.confirm(current.ID, title, current.CurrencyCode, current.CurrencyExchangeRate,
+            'SupplierInvoice', invoiceData).then((res) => {
+                if (res.status === ConfirmActions.ACCEPT) {
+                    this.busy = true;
+
+                    this.supplierInvoiceService.ActionWithBody(res.id, res.model, 'payInvoice')
+                        .finally(() => this.busy = false)
+                        .subscribe((journalEntry) => {
+                            this.fetchInvoice(current.ID, true);
+                            this.userMsg(lang.payment_ok, null, null, true);
+                            done('Betaling registrert');
+                        }, (error) => {
+                            this.errorService.handle(error);
+                            done('Betaling feilet');
+                        });
+                } else {
+                    done();
+                }
             });
-        });
     }
 
 
@@ -1075,11 +1187,11 @@ export class BillView {
         if (current.JournalEntry && current.JournalEntry.DraftLines) {
             let items = current.JournalEntry.DraftLines;
             var sum = 0, maxSum = 0, minSum = 0, itemSum = 0;
-            items.forEach( x => {
-                itemSum = x.Amount || 0;
+            items.forEach(x => {
+                itemSum = x.AmountCurrency || 0;
                 maxSum = itemSum > maxSum ? itemSum : maxSum;
                 minSum = itemSum < minSum ? itemSum : minSum;
-                sum += x.Amount;
+                sum += x.AmountCurrency;
             });
             sum = roundTo(sum);
             if (sum === 0 && (maxSum || minSum)) {
@@ -1109,17 +1221,17 @@ export class BillView {
         if (!this.hasUnsavedChanges) { return Promise.resolve(true); }
 
         return new Promise((resolve, reject) => {
-            this.confirmModal.confirm('Lagre endringer før du fortsetter?', 'Advarsel', true).then( x => {
+            this.confirmModal.confirm('Lagre endringer før du fortsetter?', 'Advarsel', true).then(x => {
                 if (x === ConfirmActions.ACCEPT) {
                     this.busy = true;
-                    this.save().then( () => {
+                    this.save().then(() => {
                         resolve(true);
                         this.busy = false;
-                    }).catch( err => {
+                    }).catch(err => {
                         resolve(false);
                         this.busy = false;
                     });
-                } else if (x === ConfirmActions.REJECT ) {
+                } else if (x === ConfirmActions.REJECT) {
                     resolve(true); // no!, ignore saving
                 } else {
                     resolve(false); // cancel, stop action
@@ -1166,13 +1278,13 @@ export class BillView {
         var stConfig = this.getStatustrackConfig();
         var jnr = doc && doc.JournalEntry && doc.JournalEntry.JournalEntryNumber ? doc.JournalEntry.JournalEntryNumber : undefined;
         this.toolbarConfig = {
-            title: doc && doc.Supplier && doc.Supplier.Info ? `${ trimLength(doc.Supplier.Info.Name,20)}` : lang.headliner_new,
+            title: doc && doc.Supplier && doc.Supplier.Info ? `${trimLength(doc.Supplier.Info.Name, 20)}` : lang.headliner_new,
             subheads: [
-                {title: doc && doc.InvoiceNumber ? `${lang.headliner_invoice} ${doc.InvoiceNumber}` : ''},
-                {title: doc && doc.Supplier ? `${lang.headliner_supplier} ${doc.Supplier.SupplierNumber}` : ''},
+                { title: doc && doc.InvoiceNumber ? `${lang.headliner_invoice} ${doc.InvoiceNumber}` : '' },
+                { title: doc && doc.Supplier ? `${lang.headliner_supplier} ${doc.Supplier.SupplierNumber}` : '' },
                 {
                     title: jnr ? `(${lang.headliner_journal} ${jnr})` : `(${lang.headliner_journal_not})`,
-                    link: jnr ?  `#/accounting/transquery/details;JournalEntryNumber=${jnr}` : undefined
+                    link: jnr ? `#/accounting/transquery/details;JournalEntryNumber=${jnr}` : undefined
                 }
             ],
             statustrack: stConfig,
@@ -1232,13 +1344,13 @@ export class BillView {
     }
 
     private linkFiles(ID: any, fileIDs: Array<any>, entityType: string, flagFileStatus?: any): Promise<any> {
-        return new Promise( (resolve, reject) => {
-            fileIDs.forEach( fileID => {
+        return new Promise((resolve, reject) => {
+            fileIDs.forEach(fileID => {
                 var route = `files/${fileID}?action=link&entitytype=${entityType}&entityid=${ID}`;
                 if (flagFileStatus) {
                     this.tagFileStatus(fileID, flagFileStatus);
                 }
-                this.supplierInvoiceService.send(route).subscribe( x => resolve(x) );
+                this.supplierInvoiceService.send(route).subscribe(x => resolve(x));
             });
         });
     }
@@ -1252,11 +1364,11 @@ export class BillView {
 
     private tagFileStatus(fileID: number, flagFileStatus: number, tag = 'incomingmail') {
         this.supplierInvoiceService.send(
-                `filetags/${fileID}`,
-                undefined ,
-                undefined,
-                { FileID: fileID, TagName: 'incomingmail', Status: flagFileStatus }
-            ).subscribe(null, err => this.errorService.handle(err));
+            `filetags/${fileID}`,
+            undefined,
+            undefined,
+            { FileID: fileID, TagName: 'incomingmail', Status: flagFileStatus }
+        ).subscribe(null, err => this.errorService.handle(err));
     }
 
     private showErrMsg(msg: string, lookForMsg = false): string {
@@ -1299,7 +1411,6 @@ export class BillView {
                 });
             }
         }
-
     }
 
     private userMsg(msg: string, title?: string, delay = 3, isGood = false) {

@@ -427,6 +427,7 @@ export class CustomerInvoiceReminder extends UniEntity {
     public Deleted: boolean;
     public Description: string;
     public DueDate: LocalDate;
+    public EmailAddress: string;
     public ID: number;
     public RemindedDate: LocalDate;
     public ReminderFee: number;
@@ -507,6 +508,7 @@ export class CustomerInvoice extends UniEntity {
     public DeliveryName: string;
     public DeliveryTerm: string;
     public DontSendReminders: boolean;
+    public EmailAddress: string;
     public FreeTxt: string;
     public ID: number;
     public InternalNote: string;
@@ -631,6 +633,7 @@ export class CustomerOrder extends UniEntity {
     public DeliveryDate: LocalDate;
     public DeliveryMethod: string;
     public DeliveryTerm: string;
+    public EmailAddress: string;
     public FreeTxt: string;
     public ID: number;
     public InternalNote: string;
@@ -743,6 +746,7 @@ export class CustomerQuote extends UniEntity {
     public DeliveryDate: LocalDate;
     public DeliveryMethod: string;
     public DeliveryTerm: string;
+    public EmailAddress: string;
     public FreeTxt: string;
     public ID: number;
     public InquiryReference: number;

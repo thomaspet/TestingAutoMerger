@@ -1,4 +1,4 @@
-import {Component, Type, Input, Output, ViewChild, EventEmitter, SimpleChanges} from '@angular/core';
+import {Component, Type, Input, Output, ViewChild, EventEmitter, SimpleChanges, Pipe} from '@angular/core';
 import {UniModal} from '../../../../framework/modals/modal';
 import {UniForm} from 'uniform-ng2/main';
 import {FieldType} from 'uniform-ng2/main';
@@ -6,6 +6,7 @@ import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {ConfirmActions} from '../../../../framework/modals/confirm';
 import {InvoicePaymentData, CompanySettings, Account, CustomerInvoice, CurrencyCode} from '../../../unientities';
 import {CompanySettingsService, ErrorService, AccountService, UniSearchConfigGeneratorService } from '../../../services/services';
+import {roundTo, safeDec, safeInt, trimLength, capitalizeSentence} from '../../timetracking/utils/utils';
 import {Observable} from 'rxjs/Observable';
 
 @Component({
@@ -14,7 +15,20 @@ import {Observable} from 'rxjs/Observable';
         <article class='modal-content register-payment-modal' *ngIf="config">
             <h1 *ngIf='config.title'>{{config.title}}</h1>
             <uni-form [config]="formConfig$" [fields]="fields$" [model]="model$" (changeEvent)="onChange($event)"></uni-form>
-            <footer>
+            <span *ngIf='config.invoiceCurrencyExchangeRate && !isMainCurrency'>
+                <table class="invoice-currency-table">
+                    <tr>
+                        <td>Faktura-valutakurs:</td>
+                        <td>{{config.invoiceCurrencyExchangeRate}}</td>
+                    </tr>
+                    <tr *ngIf="paymentCurrencyExchangeRate">
+                        <td>Betaling-valutakurs:</td>
+                        <td>{{paymentCurrencyExchangeRate}}</td>
+                    </tr>
+                </table>
+            </span>
+
+             <footer>
                 <button *ngIf="config?.actions?.accept" (click)="config?.actions?.accept?.method()" class="good">
                     {{config?.actions?.accept?.text}}
                 </button>
@@ -43,6 +57,7 @@ export class RegisterPaymentForm {
     private bankChargeAccount: Account;
     private companySettings: CompanySettings;
     private isMainCurrency: boolean = false;
+    private paymentCurrencyExchangeRate: number;
 
     constructor(
         private companySettingsService: CompanySettingsService,
@@ -58,7 +73,9 @@ export class RegisterPaymentForm {
                     this.isMainCurrency = true;
                 }
 
+                this.config.model.BankChargeAccountID = this.companySettings.BankChargeAccountID;
                 this.setupForm();
+                this.paymentCurrencyExchangeRate = this.config.invoiceCurrencyExchangeRate;
             }, err => this.errorService.handle(err));
         this.model$.next(this.config.model);
     }
@@ -77,9 +94,11 @@ export class RegisterPaymentForm {
         }
         if (changes['Amount'] || changes['AmountCurrency'] || changes['BankChargeAmount']) {
             let model: InvoicePaymentData = this.model$.getValue();
+            this.calculatePaymentCurrencyExchangeRate(model);
             this.calculateAgio(model);
             this.model$.next(model);
         }
+
     }
 
     private SetAgioAccount(model: InvoicePaymentData, previousValue: number) {
@@ -90,7 +109,7 @@ export class RegisterPaymentForm {
         }
 
         if (!model.AgioAccountID || (Math.sign(model.AgioAmount) != Math.sign(previousValue))) {
-            if (model.AgioAmount > 0)
+            if (model.AgioAmount < 0)
                 model.AgioAccountID = this.companySettings.AgioGainAccountID;
             else
                 model.AgioAccountID = this.companySettings.AgioLossAccountID;
@@ -98,13 +117,60 @@ export class RegisterPaymentForm {
     }
 
     private calculateAgio(model: InvoicePaymentData) {
+        if (this.config.entityName === 'CustomerInvoice') {
+            this.calculateAgio4CustomerInvoice(model);
+        }
+        else
+            this.calculateAgio4SupplierInvoice(model);
+    }
+    private calculateAgio4CustomerInvoice(model: InvoicePaymentData) {
         let previousAgioAmount = model.AgioAmount;
 
-        //TODO? Use a service with calculation on backend!!!
-        let ledgerLineAmount = model.AmountCurrency * this.config.invoiceCurrencyExchangeRate; //Calculated in the same exchange rate as the invoice
+        let ledgerLineAmount = roundTo(model.AmountCurrency * this.config.invoiceCurrencyExchangeRate); //Calculated in the same exchange rate as the invoice
+        let agioSmallDeltaAmount = roundTo(this.calculateAgio4SmallDeltaPayment(model));
 
-        model.AgioAmount = (-model.Amount + model.BankChargeAmount + ledgerLineAmount) * -1;
+        model.AgioAmount = roundTo((model.Amount - model.BankChargeAmount - ledgerLineAmount + agioSmallDeltaAmount) * -1);
         this.SetAgioAccount(model, previousAgioAmount);
+    }
+
+    private calculateAgio4SupplierInvoice(model: InvoicePaymentData) {
+        let previousAgioAmount = model.AgioAmount;
+
+        let ledgerLineAmount = roundTo(model.AmountCurrency * this.config.invoiceCurrencyExchangeRate); //Calculated in the same exchange rate as the invoice
+        model.AgioAmount = roundTo((-model.Amount + model.BankChargeAmount + ledgerLineAmount) * -1);
+        this.SetAgioAccount(model, previousAgioAmount);
+    }
+    private calculatePaymentCurrencyExchangeRate(model: InvoicePaymentData) {
+        if (model.Amount && model.AmountCurrency)
+            this.paymentCurrencyExchangeRate = roundTo(model.Amount / model.AmountCurrency, 4);
+    }
+
+    private calculateAgio4SmallDeltaPayment(model: InvoicePaymentData):number {
+        //Only relevant for customer invoice
+        let agioAmount = 0;
+
+        //Find the exceptable delta value in currency - based on invoice CurrencyExchangeRate
+        var acceptableDelta4CustomerPaymentCurrency = roundTo(this.companySettings.AcceptableDelta4CustomerPayment / model.CurrencyExchangeRate);
+        let deltaPaid = roundTo(Math.abs(this.config.invoiceRestAmountCurrency - model.AmountCurrency));
+
+        if (this.config.invoiceRestAmountCurrency > model.AmountCurrency &&
+            deltaPaid <= acceptableDelta4CustomerPaymentCurrency) {
+            //Pay LESS then invoice - but within delta
+            let delta = roundTo(this.config.invoiceRestAmountCurrency - model.AmountCurrency);
+            let ledgerlineAmount = roundTo(deltaPaid * this.config.invoiceCurrencyExchangeRate);
+            let paymentlineAmount = roundTo(deltaPaid * this.paymentCurrencyExchangeRate);
+            agioAmount = paymentlineAmount - ledgerlineAmount;
+        }
+
+        if (this.config.invoiceRestAmountCurrency < model.AmountCurrency &&
+            deltaPaid <= acceptableDelta4CustomerPaymentCurrency) {
+            //Pay MORE then invoice - but within delta
+            let delta = roundTo(this.config.invoiceRestAmountCurrency - model.AmountCurrency);
+            let ledgerlineAmount = roundTo(deltaPaid * this.config.invoiceCurrencyExchangeRate);
+            let paymentlineAmount = roundTo(deltaPaid * this.paymentCurrencyExchangeRate);
+            agioAmount = ledgerlineAmount - paymentlineAmount;
+        }
+        return roundTo(agioAmount);
     }
 
     private getFields() {
@@ -259,7 +325,7 @@ export class RegisterPaymentForm {
                 EntityType: 'InvoicePaymentData',
                 Property: 'BankChargeAmount',
                 Placement: 1,
-                Hidden: false,
+                Hidden: this.config.entityName === 'CustomerInvoice', //Hide if invoice is CustomerInvoice
                 FieldType: FieldType.NUMERIC,
                 ReadOnly: false,
                 LookupField: false,
@@ -288,7 +354,7 @@ export class RegisterPaymentForm {
                 EntityType: 'InvoicePaymentData',
                 Property: 'BankChargeAccountID',
                 Placement: 1,
-                Hidden: false,
+                Hidden: this.config.entityName === 'CustomerInvoice', //Hide if invoice is CustomerInvoice,
                 FieldType: FieldType.UNI_SEARCH,
                 ReadOnly: false,
                 LookupField: false,
@@ -352,7 +418,8 @@ export class RegisterPaymentModal {
         };
     }
 
-    public confirm(invoiceId: number, title: string, currencyCode: CurrencyCode, invoiceCurrencyExchangeRate: number, invoicePaymentData: InvoicePaymentData): Promise<any> {
+    public confirm(invoiceId: number, title: string, currencyCode: CurrencyCode, invoiceCurrencyExchangeRate: number,
+        entityName: string, invoicePaymentData: InvoicePaymentData): Promise<any> {
         return new Promise((resolve, reject) => {
 
             this.invoiceID = invoiceId;
@@ -360,6 +427,8 @@ export class RegisterPaymentModal {
             this.config.model = invoicePaymentData;
             this.config.currencyCode = currencyCode;
             this.config.invoiceCurrencyExchangeRate = invoiceCurrencyExchangeRate;
+            this.config.entityName = entityName;
+            this.config.invoiceRestAmountCurrency = invoicePaymentData.AmountCurrency;
 
             this.config.actions.accept = {
                 text: 'Registrer betaling',
