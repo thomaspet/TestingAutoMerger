@@ -5,10 +5,6 @@ export class CanvasHelper {
     private numColumns: number;
     private numRows: number;
 
-    // constructor() {
-    //     this.resetGrid(12);
-    // }
-
     public resetGrid(numColumns?: number): void {
         this.numColumns = numColumns || this.numColumns;
         this.numRows = Math.ceil(9 * (12 / this.numColumns));

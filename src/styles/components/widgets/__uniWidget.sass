@@ -1,3 +1,7 @@
+uni-widget-canvas
+    displa: block
+    width: 100%
+
 .canvas-cell,
 .grid-anchor
     display: block
@@ -16,7 +20,8 @@
         border: 2px solid $uni-color-bad
 
 .widget-canvas
-    @include unigrid-flush(14)
+    width: 87.5%
+    max-width: 1380px
     margin: 0 auto
     padding: 0
     display: block
@@ -35,20 +40,15 @@
             z-index: #{map-get($zindex, base) + 1}
             opacity: 0.8
 
-
-
 .canvas-toolbar
     display: block
     width: 100%
     height: 3rem
-    padding: 1rem 2rem
+    padding: 0.7rem 2rem
     box-sizing: border-box
     background-color: $uni-color-scale4
     position: fixed
     bottom: 0
-
-    &.edit-mode
-        background-color: $uni-color-negative
 
     .edit-toggle,
     .edit-toggle:hover,
@@ -56,8 +56,12 @@
         @extend %toolbarButton
         background: unicon-settings(#fff) no-repeat center
         background-size: 1.2rem auto
+        margin-top: 0.3rem
         border: none
         float: right
+
+    button:not(.edit-toggle)
+        box-shadow: darken($uni-color-scale4, 10%) 0px 1px 1px 0px
 
     .canvas-save
         float: right
@@ -70,6 +74,25 @@
     .canvas-hard-reset
         margin: 0
 
+uni-multilevel-select
+    display: inline-block
+    width: 15rem
+    position: absolute
+    left: calc(50% - 7.5rem)
+
+// Background image
+uni-dashboard
+    display: block
+    position: absolute
+    top: 2rem // To account for the tab strip
+    left: 0
+    right: 0
+    bottom: 3rem // To account for the bottom toolbar
+    overflow: auto // To allow scroll
+    padding-top: 2rem
+    background-size: cover
+    background-attachment: fixed
+    background-image: url('assets/dashboard.jpg')
 
 
 .uni-widget-tile-content
@@ -221,20 +244,3 @@
         position: relative;
         top: 38%;
         transform: translateY(-50%);
-
-// Background image
-uni-dashboard
-    display: block
-    position: absolute
-    top: 2rem // To account for the tab strip
-    left: 0
-    right: 0
-    bottom: 3rem // To account for the bottom toolbar
-    overflow: auto // To allow scroll
-    padding-top: 2rem
-    background-size: cover
-    background-attachment: fixed
-    background-image: url('http://www.funchap.com/wp-content/uploads/2014/03/baby-elephant-on-road.jpg') // Dummy 🐘 here - Perhaps the easiest way to do this dynamically is to add `background-image` as an inline style prop to the uni-dashboard-tag?
-
-    uni-widget
-        margin-bottom: 1rem // To add padding to the bottom.

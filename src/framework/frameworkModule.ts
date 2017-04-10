@@ -20,6 +20,8 @@ import {UniNotifications} from './notifications/notifications';
 import {UniComments} from './comments/comments';
 import {CommentService} from './comments/commentService';
 
+import {UniMultiLevelSelect} from './controls/multiLevelSelect';
+
 @NgModule({
     imports: [
         CommonModule,
@@ -41,6 +43,7 @@ import {CommentService} from './comments/commentService';
         UniNotifications,
         UniComments,
         WidgetPoster,
+        UniMultiLevelSelect
     ],
     entryComponents: [
         UniConfirmContent
@@ -68,7 +71,8 @@ import {CommentService} from './comments/commentService';
         UniToastList,
         UniNotifications,
         UniComments,
-        WidgetPoster
+        WidgetPoster,
+        UniMultiLevelSelect
     ]
 })
 export class UniFrameworkModule {

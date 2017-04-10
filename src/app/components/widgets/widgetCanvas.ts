@@ -14,9 +14,6 @@ import {UniWidget, IUniWidget} from './uniWidget';
 import {CanvasHelper} from './canvasHelper';
 import {ToastService, ToastType} from '../../../framework/uniToast/toastService';
 
-import * as util from 'util';
-declare const _;
-
 interface IGridCell {
     available: boolean;
     class: string;
@@ -53,10 +50,11 @@ export class UniWidgetCanvas {
 
     private layout: IWidgetLayout;
     private widgetBackup: IUniWidget[];
+    private unsavedChanges: boolean;
     private editMode: boolean;
     private currentSize: string;
     private gridUnitInPx: number;
-    private marginInPx: number;
+    private widgetMargin: number;
 
     private canvasHelper: CanvasHelper;
     private mouseMove: EventEmitter<MouseEvent> = new EventEmitter<MouseEvent>();
@@ -64,25 +62,28 @@ export class UniWidgetCanvas {
 
     private gridAnchor: IGridAnchor;
 
+    private widgetSelectorItems: any[];
+
     constructor(
         private cdr: ChangeDetectorRef,
         private toastService: ToastService
     ) {
         this.canvasHelper = new CanvasHelper();
-        this.marginInPx = 10;
+        this.widgetMargin = 10;
 
         Observable.fromEvent(window, 'resize')
             .throttleTime(200)
             .subscribe(event => {
                 if (this.widgets) {
                     if (this.editMode) {
-                        // TODO: find a better way to handle resize during editmode..
-                        this.cancelEdit();
+                        this.save();
                     }
 
                     this.drawLayout();
                 }
             });
+
+        this.initWidgetSelector();
     }
 
     public ngOnChanges() {
@@ -105,10 +106,10 @@ export class UniWidgetCanvas {
         let size;
         let numCols;
 
-        if (window.innerWidth <= 480) {
+        if (window.innerWidth <= 768) { // 480
             size = 'small';
             numCols = 4;
-        } else if (window.innerWidth <= 768) {
+        } else if (window.innerWidth <= 1200) { // 768
             size = 'medium';
             numCols = 8;
         } else {
@@ -121,23 +122,32 @@ export class UniWidgetCanvas {
             this.canvasHelper.activateLayout(this.layout[size], numCols);
         }
 
-        this.gridUnitInPx = this.canvas.nativeElement.clientWidth / numCols;
-        this.layout[size].forEach(w => this.setWidgetPosition(w));
+        const width = this.canvas.nativeElement.clientWidth;
+        this.gridUnitInPx = width / numCols;
+
+        this.layout[size].forEach((w: IUniWidget) => this.setWidgetPosition(w));
         this.cdr.markForCheck();
     }
 
     public addWidget(widget: IUniWidget) {
-        widget._editMode = this.editMode;
+        this.toastService.addToast(
+            'Ikke implementert',
+            ToastType.warn,
+            15,
+            'Oppretting av nye widgets er ikke implementert enda. Vi jobber med saken, så prøv igjen senere!'
+        );
 
-        const position = this.canvasHelper.getNextAvailablePosition(widget);
-        if (position) {
-            widget.x = position.x;
-            widget.y = position.y;
-            this.layout[this.currentSize].push(widget);
-            this.setWidgetPosition(widget);
-        } else {
-            this.toastService.addToast('Det er ikke plass til denne widgeten', ToastType.warn, 10);
-        }
+        // widget._editMode = this.editMode;
+
+        // const position = this.canvasHelper.getNextAvailablePosition(widget);
+        // if (position) {
+        //     widget.x = position.x;
+        //     widget.y = position.y;
+        //     this.layout[this.currentSize].push(widget);
+        //     this.setWidgetPosition(widget);
+        // } else {
+        //     this.toastService.addToast('Det er ikke plass til denne widgeten', ToastType.warn, 10);
+        // }
     }
 
     private setWidgetPosition(widget: IUniWidget) {
@@ -164,8 +174,15 @@ export class UniWidgetCanvas {
     }
 
     public cancelEdit() {
-        this.layout[this.currentSize] = this.widgetBackup;
-        this.layout[this.currentSize].forEach(w => this.setWidgetPosition(w));
+        if (this.unsavedChanges) {
+            this.layout[this.currentSize] = this.widgetBackup;
+            this.layout[this.currentSize].forEach(w => this.setWidgetPosition(w));
+
+            this.canvasHelper.resetGrid();
+            this.drawLayout();
+        }
+
+        this.unsavedChanges = false;
         this.toggleEditMode();
      }
 
@@ -183,15 +200,28 @@ export class UniWidgetCanvas {
         };
 
         this.canvasHelper.resetGrid();
+        this.unsavedChanges = false;
         this.drawLayout();
         this.toggleEditMode();
     }
 
     public save() {
-        if (this.layout) {
-            localStorage.setItem('dashboard_widget_layout', JSON.stringify(this.layout));
-            this.toastService.addToast('Layout lagret', ToastType.good, 5);
+        if (!this.layout || !this.unsavedChanges) {
+            this.toggleEditMode();
+            return;
         }
+
+        const stringified = JSON.stringify(this.layout, (key, value) => {
+            if (key === '_editMode') {
+                return false;
+            }
+            return value;
+        });
+
+        localStorage.setItem('dashboard_widget_layout', stringified);
+        this.unsavedChanges = false;
+        this.toastService.addToast('Layout lagret', ToastType.good, 5);
+        this.toggleEditMode();
     }
 
     public startDrag(event: MouseEvent, widget: IUniWidget) {
@@ -267,6 +297,8 @@ export class UniWidgetCanvas {
                 widget.x = this.gridAnchor.x;
                 widget.y = this.gridAnchor.y;
             }
+
+            this.unsavedChanges = true;
         }
 
         this.setWidgetPosition(widget);
@@ -281,6 +313,52 @@ export class UniWidgetCanvas {
 
     private deepCopyWidgets(widgets: IUniWidget[]): IUniWidget[] {
         return widgets.map(w => Object.assign({}, w));
+    }
+
+    private initWidgetSelector() {
+        this.widgetSelectorItems = [
+            {
+                label: 'Snarveier',
+                value: [
+                    {label: 'Tilbud', value: 'tilbudConfig'},
+                    {label: 'Ordre', value: 'ordreConfig'},
+                    {label: 'Kunder', value: 'kunderConfig'},
+                    {label: 'Timer', value: 'timerConfig'},
+                    {label: 'Tilbud', value: 'tilbudConfig'},
+                    {label: 'Ordre', value: 'ordreConfig'},
+                    {label: 'Kunder', value: 'kunderConfig'},
+                    {label: 'Timer', value: 'timerConfig'},
+                    {label: 'Tilbud', value: 'tilbudConfig'},
+                    {label: 'Ordre', value: 'ordreConfig'},
+                    {label: 'Kunder', value: 'kunderConfig'},
+                    {label: 'Timer', value: 'timerConfig'},
+                ]
+            },
+            {
+                label: 'Tellere',
+                value: [
+                    {label: 'Epost', value: 'epostConfig'},
+                    {label: 'EHF', value: 'ehfConfig'},
+                    {label: 'PDF', value: 'pdfConfig'},
+                    {label: 'Utlegg', value: 'utleggConfig'},
+                ]
+            },
+            {
+                label: 'Diagram',
+                value: [
+                    {label: 'Driftsresultater', value: 'driftsResultatConfig'},
+                    {label: 'Tilbud og faktura', value: 'tofConfig'}
+                ]
+            },
+            {
+                label: 'Klokke',
+                value: 'klokkeConfig'
+            },
+            {
+                label: 'Nyheter',
+                value: 'rssConfig'
+            }
+        ];
     }
 
 }

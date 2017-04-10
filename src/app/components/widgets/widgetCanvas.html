@@ -1,4 +1,6 @@
-<section #canvas class="widget-canvas" [ngClass]="{'edit-mode': editMode}" (mousemove)="onMouseMove($event)">
+<section #canvas class="widget-canvas"
+         [ngClass]="{'edit-mode': editMode}"
+         (mousemove)="onMouseMove($event)">
     <section class="canvas-guide" *ngIf="editMode">
         <ng-template ngFor let-row let-rowIndex="index" [ngForOf]="canvasHelper.canvasGrid">
             <span *ngFor="let cell of row; let cellIndex = index"
@@ -6,8 +8,8 @@
                     [ngStyle]="{
                         top:  rowIndex * gridUnitInPx + 'px',
                         left: cellIndex * gridUnitInPx + 'px',
-                        width:  gridUnitInPx - marginInPx + 'px',
-                        height: gridUnitInPx - marginInPx + 'px'
+                        width:  gridUnitInPx - widgetMargin + 'px',
+                        height: gridUnitInPx - widgetMargin + 'px'
                     }">
             </span>
         </ng-template>
@@ -18,8 +20,8 @@
           [ngStyle]="{
               top:  gridAnchor.top + 'px',
               left: gridAnchor.left + 'px',
-              width:  gridUnitInPx - marginInPx + 'px',
-              height: gridUnitInPx - marginInPx + 'px'
+              width:  gridUnitInPx - widgetMargin + 'px',
+              height: gridUnitInPx - widgetMargin + 'px'
           }">
     </span>
 
@@ -29,8 +31,8 @@
                     [ngStyle]="{
                         top:  widget._position.top + 'px',
                         left: widget._position.left + 'px',
-                        width:  (gridUnitInPx * widget.width) - marginInPx + 'px',
-                        height: (gridUnitInPx * widget.height) - marginInPx + 'px'
+                        width:  (gridUnitInPx * widget.width) - widgetMargin + 'px',
+                        height: (gridUnitInPx * widget.height) - widgetMargin + 'px'
                     }">
         </uni-widget>
     </ng-template>
@@ -43,6 +45,13 @@
         <button (click)="hardReset()" class="bad canvas-hard-reset">
             Tilbakestill alt
         </button>
+
+        <uni-multilevel-select [placeholder]="'Legg til widget'"
+                               [items]="widgetSelectorItems"
+                               (select)="addWidget($event)"
+                               class="drop-up">
+        </uni-multilevel-select>
+
 
         <button (click)="cancelEdit()" class="bad canvas-cancel">
             Avbryt

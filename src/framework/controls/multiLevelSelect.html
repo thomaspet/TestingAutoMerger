@@ -1,0 +1,25 @@
+<article (clickOutside)="close()" (keydown.esc)="close()">
+    <input type="text"
+           class="uni-multilevel-input"
+           [placeholder]="placeholder"
+           (click)="toggle()"
+           readonly />
+
+    <section class="uni-multilevel-dropdown">
+        <ul [attr.aria-expanded]="isExpanded">
+            <li *ngFor="let item of items"
+                [ngClass]="{'has-sublist': isSublist(item.value)}"
+                (click)="onItemClick(item)">
+                {{item.label}}
+                <ul class="uni-multilevel-sublist" *ngIf="isSublist(item.value)">
+                    <li *ngFor="let subItem of item?.value"
+                        (click)="onItemClick(subItem)">
+                        {{subItem.label}}
+                    </li>
+                </ul>
+
+            </li>
+        </ul>
+    </section>
+
+</article>
