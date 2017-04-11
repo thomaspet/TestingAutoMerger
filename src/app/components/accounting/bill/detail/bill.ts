@@ -209,6 +209,7 @@ export class BillView {
     }
 
     private initForm() {
+
         var supIdCol = createFormField('SupplierID', lang.col_supplier, ControlTypes.AutocompleteInput, FieldSize.Full);
         supIdCol.Options = {
             template: (data) => {
@@ -225,19 +226,27 @@ export class BillView {
             getDefaultData: () => {
                 let current: SupplierInvoice = this.current.getValue();
                 if (current.Supplier) {
-                    return Observable.of(
-                        {
-                            ID: current.Supplier.ID,
-                            SupplierNumber: current.Supplier.SupplierNumber,
-                            InfoName: current.Supplier.Info.Name
-                        }
-                    );
+                    if (current.Supplier.Info) {
+                        return Observable.of(
+                            {
+                                ID: current.Supplier.ID,
+                                SupplierNumber: current.Supplier.SupplierNumber,
+                                InfoName: current.Supplier.Info.Name
+                            }
+                        );
+                    } else {
+                        return Observable.empty();
+                    }
                 } else {
                     return Observable.empty();
                 }
             },
             search: (txt: string) => {
+                if (!txt) {
+                    txt = '';
+                }
                 let filter = `contains(info.name,'${txt}')`;
+
                 return this.supplierInvoiceService.getStatQuery('?model=supplier&orderby=Info.Name&select=id as ID,SupplierNumber as SupplierNumber,Info.Name&expand=info&filter=' + filter);
             },
             valueProperty: 'ID'
@@ -323,10 +332,6 @@ export class BillView {
     }
 
     public onFormReady(event) {
-        setTimeout(() =>
-            this.createNewSupplierButton(),
-            1000
-        );
     }
 
     /// =============================
@@ -668,9 +673,14 @@ export class BillView {
         this.setHistoryCounter(0);
         this.busy = false;
 
+        if (this.uniForm) {
+            this.uniForm.field('SupplierID').Component.control.setValue(0);
+            this.fields$.next(this.fields$.getValue());
+            this.createNewSupplierButton();
+        }
+
         if (!isInitial) {
             this.hasStartupFileID = false;
-            this.uniForm.field('SupplierID').Component.control.setValue(0);
         }
         try { if (this.uniForm) { this.uniForm.editMode(); } } catch (err) { }
 
@@ -903,6 +913,8 @@ export class BillView {
                 this.loadActionsFromEntity();
                 this.checkLockStatus();
                 this.fetchHistoryCount(result.SupplierID);
+
+                this.createNewSupplierButton();
                 resolve('');
             }, (err) => {
                 this.errorService.handle(err);
@@ -1075,7 +1087,7 @@ export class BillView {
         }
 
         // set CurrencyID
-        if (current.CurrencyCodeID && current.JournalEntry.DraftLines) {
+        if (current.CurrencyCodeID && current.JournalEntry && current.JournalEntry.DraftLines) {
             current.JournalEntry.DraftLines.forEach(x => {
                 let orig = x.CurrencyCodeID;
                 x.CurrencyCodeID = x.CurrencyCodeID || current.CurrencyCodeID;
@@ -1085,7 +1097,7 @@ export class BillView {
             });
         }
         // set CurrencyExchangeRate
-        if (current.CurrencyExchangeRate && current.JournalEntry.DraftLines) {
+        if (current.CurrencyExchangeRate && current.JournalEntry && current.JournalEntry.DraftLines) {
             current.JournalEntry.DraftLines.forEach(x => {
                 let orig = x.CurrencyExchangeRate;
                 x.CurrencyExchangeRate = x.CurrencyExchangeRate || current.CurrencyExchangeRate;
@@ -1384,33 +1396,41 @@ export class BillView {
 
     private createNewSupplierButton() {
         var frm: any = this.uniForm;
-        if (frm && frm.elementRef && frm.elementRef.nativeElement) {
-            var el = frm.elementRef.nativeElement.getElementsByClassName('uni-autocomplete-searchBtn');
-            if (el && el.length > 0) {
-                var btn = el[0];
-                var sibling = btn.cloneNode(true);
-                sibling.className = 'good tiny';
-                sibling.innerHTML = lang.btn_new_supplier;
-                sibling.addEventListener('click', () => {
-                    if (!this.supplierIsReadOnly) {
-                        this.supplierDetailsModal.open();
+
+        setTimeout(() => {
+            if (frm && frm.elementRef && frm.elementRef.nativeElement) {
+                let elNewSupplierBtn = frm.elementRef.nativeElement.getElementsByClassName('good tiny');
+                console.log('elNewSupplierBtn:', elNewSupplierBtn);
+
+                if (!elNewSupplierBtn || elNewSupplierBtn.length === 0) {
+                    let el = frm.elementRef.nativeElement.getElementsByClassName('uni-autocomplete-searchBtn');
+                    if (el && el.length > 0) {
+                        let btn = el[0];
+                        let sibling = btn.cloneNode(true);
+                        sibling.className = 'good tiny';
+                        sibling.innerHTML = lang.btn_new_supplier;
+                        sibling.addEventListener('click', () => {
+                            if (!this.supplierIsReadOnly) {
+                                this.supplierDetailsModal.open();
+                            }
+                        });
+                        let dropDown = btn.nextSibling;
+                        btn.parentElement.insertBefore(sibling, dropDown);
                     }
-                });
-                var dropDown = btn.nextSibling;
-                btn.parentElement.insertBefore(sibling, dropDown);
-            }
-            // Create keyboard-shortcut (F3)
-            el = frm.elementRef.nativeElement.getElementsByTagName('input');
-            if (el && el.length > 0) {
-                el[0].addEventListener('keydown', (event) => {
-                    if (event.which === 114 && (!this.supplierIsReadOnly)) {
-                        this.supplierDetailsModal.open();
-                        event.preventDefault();
-                        event.stopPropagation();
+                    // Create keyboard-shortcut (F3)
+                    el = frm.elementRef.nativeElement.getElementsByTagName('input');
+                    if (el && el.length > 0) {
+                        el[0].addEventListener('keydown', (event) => {
+                            if (event.which === 114 && (!this.supplierIsReadOnly)) {
+                                this.supplierDetailsModal.open();
+                                event.preventDefault();
+                                event.stopPropagation();
+                            }
+                        });
                     }
-                });
+                }
             }
-        }
+        }, 250);
     }
 
     private userMsg(msg: string, title?: string, delay = 3, isGood = false) {
