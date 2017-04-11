@@ -718,7 +718,6 @@ export class InvoiceDetails {
 
 
         if (this.invoice.CollectorStatusCode > 42500 && this.invoice.CollectorStatusCode < 42505 && !this.invoice.DontSendReminders) {
-            console.log('CollectorStatusCode', this.invoice.CollectorStatusCode);
             let statusText = this.getCollectorStatusText(this.invoice.CollectorStatusCode);
             if (statusText !== '') {
                 this.getCollectionSubStatus(this.invoice.CollectorStatusCode).then(substatus => {
