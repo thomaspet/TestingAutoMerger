@@ -1,5 +1,4 @@
-[
-    {
+[{
         "Name": "Arbeidsforhold",
         "Code": "employment_list",
         "Type": "Table",
@@ -7,8 +6,7 @@
         "IsTopLevelTicker": true,
         "Model": "Employment",
         "Expand": "SubEntity.BusinessRelationInfo,Dimensions.Department,Dimensions.Project",
-        "Columns": [
-            {
+        "Columns": [{
                 "Header": "Stillingskode",
                 "Field": "JobCode",
                 "Type": "text"
@@ -54,19 +52,17 @@
             "Operator": "eq",
             "Value": "ID"
         },
-        "Actions": [ 
-            {
-                "Name": "Vis arbeidsforhold",
-                "Code": "open_employment",
-                "Type": "details",
-                "DisplayInContextMenu": true,
-                "DisplayInActionBar": true,
-                "Options": {
-                    "ParameterProperties": ["Employment.EmployeeID", "ID"]
-                }
+        "Actions": [{
+            "Name": "Vis arbeidsforhold",
+            "Code": "open_employment",
+            "Type": "details",
+            "DisplayInContextMenu": true,
+            "DisplayInActionBar": true,
+            "Options": {
+                "ParameterProperties": ["Employment.EmployeeID", "ID"]
             }
-        ],
-        "SubTickersCodes": ["employment_details"]
+        }],
+        "SubTickersCodes": ["employment_details", "leave_items"]
     },
     {
         "Name": "Arbeidsforhold",
@@ -75,8 +71,7 @@
         "Group": "Lønn",
         "Model": "Employment",
         "Expand": "SubEntity.BusinessRelationInfo,Dimensions.Department,Dimensions.Project",
-        "Columns": [
-            {
+        "Columns": [{
                 "Header": "Stillingskode",
                 "Field": "JobCode",
                 "Type": "text"
@@ -153,5 +148,64 @@
             "Operator": "eq",
             "Value": "ID"
         }
+    },
+    {
+        "Name": "Permisjoner",
+        "Type": "Table",
+        "Code": "leave_items",
+        "IsTopLevelTicker": true,
+        "Group": "Lønn",
+        "Model": "EmployeeLeave",
+        "Expand": "Employment",
+        "SubTickers": [],
+        "Filters": [],
+        "Columns": [{
+                "Header": "Kommentar",
+                "Field": "Description"
+            },
+            {
+                "Header": "Startdato",
+                "Field": "FromDate",
+                "Width": "8rem"
+            },
+            {
+                "Header": "Tildato",
+                "Field": "ToDate",
+                "Width": "8rem"
+            },
+            {
+                "Header": "Prosent",
+                "Field": "LeavePercent",
+                "Format": "percent",
+                "Width": "8rem"
+            },
+            {
+                "Header": "Type",
+                "Field": "LeaveType",
+                "Width": "8rem"
+            },
+            {
+                "Header": "Arbeidsforhold",
+                "Field": "Employment.ID",
+                "Format": "text",
+                "Width": "16rem",
+                "SubFields": [{
+                    "Field": "Employment.JobName"
+                }]
+            }
+        ],
+        "ParentFilter": {
+            "Field": "EmploymentID",
+            "Operator": "eq",
+            "Value": "ID"
+        },
+        "Actions": [{
+            "Name": "Eksporter",
+            "Code": "export_leaveitems",
+            "Type": "export",
+            "ExecuteWithMultipleSelections": true,
+            "ExecuteWithoutSelection": true,
+            "DisplayInActionBar": true
+        }]
     }
 ]
