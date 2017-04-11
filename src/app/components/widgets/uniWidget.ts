@@ -17,7 +17,8 @@ import {
     UniRSSWidget,
     UniListWidget,
     UniClockWidget,
-    UniTripleVerticalWidget
+    UniTripleVerticalWidget,
+    UniCompanyLogoWidget
 } from './widgets/barrel';
 
 export interface IUniWidget {
@@ -66,6 +67,7 @@ export class UniWidget {
         'list': UniListWidget,
         'clock': UniClockWidget,
         'tripleVertical': UniTripleVerticalWidget 
+        'companyLogo': UniCompanyLogoWidget
     };
 
     private widgetComponent: ComponentRef<any>;

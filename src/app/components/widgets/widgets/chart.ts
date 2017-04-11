@@ -8,17 +8,20 @@ import * as Chart from 'chart.js';
 @Component({
     selector: 'uni-chart',
     template: `
-        <figure style="margin: 0; color: white; text-align: center; background-color: #fff; max-height: 100%; height: 100%;">
+        <figure #chartContainer style="margin: 0; color: white; text-align: center; background-color: #fff; max-height: 100%; height: 100%;">
             <div class="uni-dashboard-chart-header"> {{ widget.config.header }}</div>
-            <div style="padding: 20px;">
+            <section style="padding: 20px;">
                 <canvas #chartElement> </canvas>
-            </div>
+            </section>
         </figure>`
 })
 
 export class UniChartWidget {
     @ViewChild('chartElement')
     private chartElement: ElementRef;
+
+    @ViewChild('chartContainer')
+    private container: ElementRef;
 
     private builder: WidgetDatasetBuilder = new WidgetDatasetBuilder();
     public widget: IUniWidget;
@@ -27,7 +30,18 @@ export class UniChartWidget {
     private labels: string[];
     private datasets: any[] = [];
 
-    constructor(private widgetDataService: WidgetDataService) {}
+    constructor(
+        private widgetDataService: WidgetDataService,
+        private el: ElementRef
+    ) {
+        Observable.fromEvent(window, 'resize')
+            .throttleTime(100)
+            .subscribe(res => {
+                const height = this.container.nativeElement.clientHeight - 64;
+                this.chartElement.nativeElement.style.height = height + 'px';
+            });
+    }
+
 
     public ngAfterViewInit() {
         if (this.widget) {

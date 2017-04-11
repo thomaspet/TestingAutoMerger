@@ -605,8 +605,14 @@ export class Dashboard {
                     dataEndpoint: "/api/biz/rss/1",
                     RSSType: 1 // DOCUMENTATION: https://unimicro.atlassian.net/wiki/pages/viewpage.action?spaceKey=UE&title=RssListe
                 }
+            },
+            {
+                width: 2,
+                height: 1,
+                widgetType: 'companyLogo',
+                config: {}
             }
-        ]
+        ];
 
 
     }

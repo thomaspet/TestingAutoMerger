@@ -209,6 +209,13 @@ uni-dashboard
 .dashboard-notification-icon-bell
     background-image: unicon-bell(rgba(255,255,255,.3))
 
+.uni-widget-notification-tile
+    position: relative
+    p
+        position: absolute
+        left: 2rem
+        bottom: 1.5rem
+
 .uni-widget-notification-orange
     background-color: #dc9346
     &:hover
@@ -219,10 +226,14 @@ uni-dashboard
     &:hover
         background-color: #597a9e
 
+uni-clock,
+.uni-widget-clock
+    border-radius: inherit
+
 .uni-widget-clock
     width: 100%
     height: 100%
-    background-color: #fff;
+    background-color: #fff
 
     div
         float: left
@@ -232,27 +243,32 @@ uni-dashboard
 
 .uni-widget-clock-date
     width: 33.33333%
+    border-top-left-radius: inherit
+    border-bottom-left-radius: inherit
+
 
 .uni-widget-clock-time
     width: 66.66666%
     color: #000
+    // border-top-right-radius: inherit
+    // border-bottom-left-radius: inherit
 
     span
         font-size: 4rem
         display: inline
         vertical-align: middle
-        position: relative;
-        top: 38%;
-        transform: translateY(-50%);
+        position: relative
+        top: 38%
+        transform: translateY(-50%)
 
 .uni-triple-verical-widget
     height: 100%
-    
+
     section
         height: calc(100% - 24px)
         color: #000
         background-color: #fff
-       
+
         section
             height: 33.3333%
             border-bottom: 1px solid #85898b
@@ -280,5 +296,19 @@ uni-dashboard
 
 .uni-triple-verical-widget-value
     margin: 0
-    margin-top: 10px
-    font-size: 3rem
+    font-size: 2rem
+
+.widget-logo-wrapper
+    display: block
+    width: 100%
+    height: 100%
+    background-color: $uni-color-negative
+    border-radius: pxToRem(3)
+
+
+    uni-image,
+    uni-image > article,
+    img
+        height: 100%
+        max-width: 100%
+        cursor: default
