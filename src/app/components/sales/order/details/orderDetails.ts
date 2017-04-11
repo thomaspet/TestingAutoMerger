@@ -709,6 +709,18 @@ export class OrderDetails {
             if (item.Dimensions && item.Dimensions.ID === 0) {
                 item.Dimensions['_createguid'] = this.customerOrderService.getNewGuid();
             }
+
+            if (item.VatType) {
+                item.VatType = null;
+            }
+
+            if (item.Product) {
+                item.Product = null;
+            }
+
+            if (item.Account) {
+                item.Account = null;
+            }
         });
 
         return new Promise((resolve, reject) => {

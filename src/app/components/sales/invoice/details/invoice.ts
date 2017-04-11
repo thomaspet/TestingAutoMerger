@@ -908,6 +908,10 @@ export class InvoiceDetails {
             if (item.Product) {
                 item.Product = null;
             }
+
+            if (item.Account) {
+                item.Account = null;
+            }
         });
 
         if (!this.invoice.CreditDays) {
