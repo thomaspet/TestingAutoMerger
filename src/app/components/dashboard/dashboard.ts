@@ -366,7 +366,7 @@ export class Dashboard {
                 widgetType: 'clock',
                 config: {
                     dateColor: '#7698bd',
-                    showSeconds: false
+                    showSeconds: true
                 }
             },
             {
@@ -493,25 +493,35 @@ export class Dashboard {
                     chartID: 487515
                 }
             },
+            //{
+            //    width: 4,
+            //    height: 3,
+            //    x: 4,
+            //    y: 1,
+            //    widgetType: 'chart',
+            //    config: {
+            //        header: 'Tilbud, ordre og faktura - 2016',
+            //        chartType: 'bar',
+            //        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+            //        colors: ['#7293cb', '#e1974c', '#84ba5b'],
+            //        dataEndpoint: ['/api/statistics?model=CustomerQuote&select=sum(TaxExclusiveAmount),month(QuoteDate),year(QuoteDate)&range=monthquotedate', '/api/statistics?model=CustomerOrder&select=sum(TaxExclusiveAmount),month(OrderDate),year(OrderDate)&range=monthorderdate', '/api/statistics?model=CustomerInvoice&select=sum(TaxExclusiveAmount),month(InvoiceDate),year(InvoiceDate)&filter=month(invoicedate) ge 1 and year(invoicedate) eq 2016&range=monthinvoicedate'],
+            //        dataKey: ['sumTaxExclusiveAmount', 'sumTaxExclusiveAmount', 'sumTaxExclusiveAmount'],
+            //        multiplyValue: 1,
+            //        dataset: [],
+            //        options: {},
+            //        title: ['Tilbud', 'Ordre', 'Faktura'],
+            //        drilldown: false,
+            //        chartID: 458751
+            //    }
+            //},
             {
                 width: 4,
                 height: 3,
                 x: 4,
                 y: 1,
-                widgetType: 'chart',
+                widgetType: 'tripleVertical',
                 config: {
-                    header: 'Tilbud, ordre og faktura - 2016',
-                    chartType: 'bar',
-                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
-                    colors: ['#7293cb', '#e1974c', '#84ba5b'],
-                    dataEndpoint: ['/api/statistics?model=CustomerQuote&select=sum(TaxExclusiveAmount),month(QuoteDate),year(QuoteDate)&range=monthquotedate', '/api/statistics?model=CustomerOrder&select=sum(TaxExclusiveAmount),month(OrderDate),year(OrderDate)&range=monthorderdate', '/api/statistics?model=CustomerInvoice&select=sum(TaxExclusiveAmount),month(InvoiceDate),year(InvoiceDate)&filter=month(invoicedate) ge 1 and year(invoicedate) eq 2016&range=monthinvoicedate'],
-                    dataKey: ['sumTaxExclusiveAmount', 'sumTaxExclusiveAmount', 'sumTaxExclusiveAmount'],
-                    multiplyValue: 1,
-                    dataset: [],
-                    options: {},
-                    title: ['Tilbud', 'Ordre', 'Faktura'],
-                    drilldown: false,
-                    chartID: 458751
+                    header: 'Nøkkeltall'
                 }
             },
             {

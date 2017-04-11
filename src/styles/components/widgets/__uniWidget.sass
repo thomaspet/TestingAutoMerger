@@ -244,3 +244,41 @@ uni-dashboard
         position: relative;
         top: 38%;
         transform: translateY(-50%);
+
+.uni-triple-verical-widget
+    height: 100%
+    
+    section
+        height: calc(100% - 24px)
+        color: #000
+        background-color: #fff
+       
+        section
+            height: 33.3333%
+            border-bottom: 1px solid #85898b
+
+            div
+                width: 33.3333%
+                float: left
+                height: 100%
+                max-height: 100%
+
+                h2
+                    font-size: 2rem
+                    margin-bottom: 0
+                    margin-top: 10px
+                    font-weight: 100
+
+                canvas
+                    width: 90%
+                    height: 70%
+                    max-height: 70%
+                    margin-top: 10%
+
+        &:last-of-type
+            border: none
+
+.uni-triple-verical-widget-value
+    margin: 0
+    margin-top: 10px
+    font-size: 3rem

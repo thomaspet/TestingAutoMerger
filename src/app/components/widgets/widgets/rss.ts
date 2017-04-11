@@ -16,7 +16,7 @@ import { WidgetDataService } from '../widgetDataService';
                         <p style="margin: 0; text-align: left; font-size: 0.8rem">{{ item.PubDate | date: 'dd.MM.yyyy' }}</p>
                         <p style="margin: 0; padding: 0; font-size: 1rem; font-weight: bold; color: black; text-align: left;"> {{ item.Title  }} </p>
                         <p style="margin: 0; font-size: 0.8rem; text-align: left; line-height: 1.6em;"> {{ item.desc }} </p>
-                        <a target="_black" [href]="item.link" style="margin: 0; float: left; font-size: 0.9rem; text-decoration: none;">Les mer</a>
+                        <a target="_black" [href]="item.Link" style="margin: 0; float: left; font-size: 0.9rem; text-decoration: none;">Les mer</a>
                     </div>
                     <div style="clear: both"></div>
                 </li>

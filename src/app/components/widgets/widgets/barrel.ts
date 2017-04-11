@@ -4,6 +4,7 @@ import {UniChartWidget} from './chart';
 import {UniRSSWidget} from './rss';
 import { UniListWidget } from './list';
 import { UniClockWidget } from './clock';
+import { UniTripleVerticalWidget } from './tripleVertical';
 
 export const UNI_WIDGETS = [
     UniShortcutWidget,
@@ -11,7 +12,8 @@ export const UNI_WIDGETS = [
     UniChartWidget,
     UniRSSWidget,
     UniListWidget,
-    UniClockWidget
+    UniClockWidget,
+    UniTripleVerticalWidget
 ];
 
 export * from './shortcut';
@@ -20,3 +22,4 @@ export * from './chart';
 export * from './rss';
 export * from './list';
 export * from './clock';
+export * from './tripleVertical';
