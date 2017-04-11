@@ -1,18 +1,14 @@
 /// <reference path="../../../../typings/modules/chart.js/index.d.ts" />
-import {Component, EventEmitter, ViewChild} from '@angular/core';
+import {Component, ViewChild} from '@angular/core';
 import {TabService, UniModules} from '../layout/navbar/tabstrip/tabService';
 import {UniHttp} from '../../../framework/core/http/http';
 import {Router} from '@angular/router';
 import {ErrorService, CompanySettingsService} from '../../services/services';
 import {AuthService} from '../../../framework/core/authService';
-import { Company } from '../../unientities';
-import { WidgetDatasetBuilder, ChartColorEnum } from '../widgets/widgetDatasetBuilder';
-import { WidgetDataService } from '../widgets/widgetDataService';
+import {WidgetDataService} from '../widgets/widgetDataService';
+import {UniWidgetCanvas} from '../widgets/widgetCanvas';
 
-import * as moment from 'moment';
 import * as Chart from 'chart.js';
-import {UniImage} from '../../../framework/uniImage/uniImage';
-import {CompanySettings} from '../../unientities';
 
 export interface IChartDataSet {
     label: string;
@@ -27,23 +23,11 @@ export interface IChartDataSet {
     selector: 'uni-dashboard',
     templateUrl: './dashboard.html'
 })
-
 export class Dashboard {
-    @ViewChild(UniImage) private logoImage: UniImage;
+    @ViewChild(UniWidgetCanvas)
+    private widgetCanvas: UniWidgetCanvas;
 
     public welcomeHidden: boolean = JSON.parse(localStorage.getItem('welcomeHidden'));
-    public transactionList = [];
-    public myTransactionList = [];
-    public journalEntryList = [];
-    public inboxList = [];
-    public emptyInboxMessage = '';
-    public user: any;
-    public current: CompanySettings;
-    public months: string[] = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-    private colors: string[] = ['#7293cb', '#e1974c', '#84ba5b', '#d35e60', '#808585'];
-    private loadReload: EventEmitter<Company> = new EventEmitter<Company>();
-    private builder = new WidgetDatasetBuilder();
-
     private widgets: any[] = [];
 
     constructor(
@@ -60,238 +44,15 @@ export class Dashboard {
         // Avoid compile error. Seems to be something weird with the chart.js typings file
         (<any> Chart).defaults.global.maintainAspectRatio = false;
 
-        this.authService.companyChange.subscribe(
-            company => this.loadReload.emit()
-            /* No error handling neccesary */
-        );
+        this.authService.companyChange
+            .subscribe(change => {
+                this.widgetCanvas.refreshWidgets();
+            });
 
         this.widgets = this.fakeLayout();
     }
 
-    //For 12 month charts
-    private twelveMonthChartData(data: any, label: string, bgColor: string, bdColor: string, chartType: string, dataValue: string, multiplyValue: number = 1): IChartDataSet {
-        var numberOfMonths = 6;
-        var currentMonth = new Date().getMonth();
-        var myChartLabels = [];
-        var myMonths = [];
-        var myData = [];
-
-        var totalLabel = 0;
-        for (var i = 0; i < data.length; i++) {
-            if (data[i][dataValue] === null) {
-                myData.push(0);
-            } else {
-                myData.push(data[i][dataValue] * multiplyValue);
-            }
-            totalLabel += myData[i];
-        }
-        totalLabel = ~~totalLabel;
-        totalLabel = this.format(totalLabel);
-
-        return {
-            label: 'Total: ' + totalLabel,
-            labels: this.months,
-            chartType: chartType,
-            backgroundColor: bgColor,
-            borderColor: bdColor,
-            data: myData
-        }
-    }
-
-    //Data for dashboards lists
-    private generateLastTenList(data: any, isJournalEntry: boolean, myTransactions?: boolean) {
-        if (!data || !data.length) {
-            return;
-        }
-
-        if (isJournalEntry) {
-            for (var i = 0; i < data.length; i++) {
-                var mydate = moment.utc(data[i].RegisteredDate).toDate();
-                data[i].time = moment(mydate).fromNow();
-                data[i].url = '/accounting/transquery/details;journalEntryNumber=' + data[i].JournalEntryNumber;
-            }
-            this.journalEntryList = data;
-        } else {
-            for (var i = 0; i < data.length; i++) {
-                var mydate = moment.utc(data[i].AuditLogCreatedAt).toDate();
-                data[i].time = moment(mydate).fromNow();
-                data[i].UserDisplayName = this.CapitalizeDisplayName(this.removeLastNameIfAny(data[i].UserDisplayName));
-
-                if (i !== 0 && new Date(data[i].AuditLogCreatedAt).getSeconds() - new Date(data[i - 1].AuditLogCreatedAt).getSeconds() < 3 && data[i].AuditLogEntityType === data[i - 1].AuditLogEntityType) {
-                    data.splice(i, 1);
-                    i--;
-                }
-
-            }
-            if (data.length > 10) {
-                data.splice(9, data.length - 10);
-            }
-            if (myTransactions) {
-                this.myTransactionList = data;
-            } else {
-                this.transactionList = data;
-            }
-
-        }
-    }
-
-    //Generates a new Chart
-    private chartGenerator(elementID: string, data: IChartDataSet) {
-        let myElement = document.getElementById(elementID);
-
-        let chartSettings: Chart.ChartSettings = {
-
-        }
-
-        let myChart = new Chart(<any> myElement, {
-            type: data.chartType,
-            data: {
-                labels: data.labels,
-                datasets: [
-                    {
-                        data: data.data,
-                        backgroundColor: data.backgroundColor,
-                        label: data.label,
-                        borderColor: data.borderColor
-                    }
-                ]
-            }
-        });
-    }
-
-    //Returns first name of user..
-    private removeLastNameIfAny(str: string) {
-        if (str.indexOf(' ') === -1) {
-            return str;
-        } else {
-            return str.substr(0, str.indexOf(' '));
-        }
-    }
-
-    //Capitalize first letter in every word in string (Stack Overflow solution)
-    private CapitalizeDisplayName(str: string) {
-        return str.replace(/\w\S*/g, function (txt) { return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase(); });
-    }
-
-    //Formats number
-    private format(num) {
-        var n = num.toString(), p = n.indexOf('.');
-        return n.replace(/\d(?=(?:\d{3})+(?:\.|$))/g, function ($0, i) {
-            return p < 0 || i < p ? ($0 + ' ') : $0;
-        });
-    }
-
-    /********************************************************************
-     SHOULD BE MOVED TO SERVICE, BUT VS WONT LET ME CREATE NEW FILES
-     *********************************************************************/
-
-    //Gets 10 last transactions
-    public getTransactions() {
-        return this.http
-            .asGET()
-            .usingEmptyDomain()
-            .withEndPoint(
-                "/api/statistics?model=AuditLog&select=id,entitytype,entityid,field,User.displayname,createdat,updatedat&filter=field eq 'updatedby' and ( not contains(entitytype,'item') ) &join=auditlog.createdby eq user.globalidentity&top=50&orderby=id desc"
-            )
-            .send()
-            .map(response => response.json());
-    }
-
-    //Gets 10 last transactions of current logged in user (Currently error, donno y)
-    public getMyTransactions() {
-        return this.http
-            .asGET()
-            .usingEmptyDomain()
-            .withEndPoint(
-                "/api/statistics?model=AuditLog&select=id,entitytype,field,entityid,User.displayname,createdat,updatedat&filter=createdby eq '"
-                + this.user.GlobalIdentity
-                + "' and ( not contains(entitytype,'item') ) and ( field eq 'updatedby' )&join=auditlog.createdby eq user.globalidentity&top=60&orderby=id desc"
-            )
-            .send()
-            .map(response => response.json());
-    }
-
-    //Gets user info objcet
-    public getMyUserInfo() {
-        return this.http
-            .asGET()
-            .usingBusinessDomain()
-            .withEndPoint('users?action=current-session')
-            .send()
-            .map(response => response.json());
-    }
-
-    //Gets sum invoiced current year (Query needs improving)
-    public getInvoicedData() {
-        return this.http
-            .asGET()
-            .usingEmptyDomain()
-            .withEndPoint('/api/statistics?model=CustomerInvoice&select=sum(TaxExclusiveAmount),month(InvoiceDate),year(InvoiceDate)&filter=month(invoicedate) ge 1 and year(invoicedate) eq 2016&range=monthinvoicedate')
-            .send()
-            .map(response => response.json());
-    }
-
-    //Gets ordre sum current year (Query needs improving)
-    public getOrdreData() {
-        return this.http
-            .asGET()
-            .usingEmptyDomain()
-            .withEndPoint('/api/statistics?model=CustomerOrder&select=sum(TaxExclusiveAmount),month(OrderDate),year(OrderDate)&range=monthorderdate')
-            .send()
-            .map(response => response.json());
-    }
-
-    //Gets quote sum current year (Query needs improving)
-    public getQuoteData() {
-        return this.http
-            .asGET()
-            .usingEmptyDomain()
-            .withEndPoint('/api/statistics?model=CustomerQuote&select=sum(TaxExclusiveAmount),month(QuoteDate),year(QuoteDate)&range=monthquotedate')
-            .send()
-            .map(response => response.json());
-    }
-
-    //Gets 10 last journal entries
-    public getLastJournalEntry() {
-        return this.http
-            .asGET()
-            .usingBusinessDomain()
-            .withEndPoint('journalentrylines?skip=0&top=10&expand=VatType,Account&orderby=id desc')
-            .send()
-            .map(response => response.json());
-    }
-
-    //Gets operating profis/loss data
-    public getOperatingData() {
-        return this.http
-            .asGET()
-            .usingEmptyDomain()
-            .withEndPoint('/api/statistics?model=JournalEntryLine&select=month(financialdate),sum(amount)&join=journalentryline.accountid eq account.id&filter=account.accountnumber ge 3000 and account.accountnumber le 9999 &range=monthfinancialdate')
-            .send()
-            .map(response => response.json());
-    }
-
-    //Gets assets data
-    public getAssets() {
-        return this.http
-            .asGET()
-            .usingEmptyDomain()
-            .withEndPoint('/api/statistics?model=journalentryline&select=sum(amount),accountgroup.name&filter=accountgroup.maingroupid eq 2&join=journalentryline.accountid eq account.id and account.accountgroupid eq accountgroup.id&top=50')
-            .send()
-            .map(response => response.json());
-    }
-
-    public getMail() {
-        return this.http
-            .asGET()
-            .usingEmptyDomain()
-            .withEndPoint("/api/statistics?skip=0&top=10&model=FileTag&select=FileTag.TagName as FileTagTagName,FileTag.ID as FileTagID,FileTag.Status as FileTagStatus,File.UpdatedBy as FileUpdatedBy,File.UpdatedAt as FileUpdatedAt,File.StorageReference as FileStorageReference,File.StatusCode as FileStatusCode,File.Size as FileSize,File.PermaLink as FilePermaLink,File.Pages as FilePages,File.OCRData as FileOCRData,File.Name as FileName,File.Md5 as FileMd5,File.ID as FileID,File.Description as FileDescription,File.Deleted as FileDeleted,File.CreatedBy as FileCreatedBy,File.CreatedAt as FileCreatedAt,File.ContentType as FileContentType&expand=File&orderby=File.ID desc&filter=FileTag.Status eq 0 and FileTag.TagName eq 'IncomingMail'")
-            .send()
-            .map(response => response.json())
-    }
-
     public fakeLayout() {
-
         return [
             {
                 width: 1,

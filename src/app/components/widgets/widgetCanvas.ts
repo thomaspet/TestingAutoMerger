@@ -102,6 +102,12 @@ export class UniWidgetCanvas {
         }
     }
 
+    public refreshWidgets() {
+        this.layout[this.currentSize] = this.deepCopyWidgets(this.layout[this.currentSize]);
+        this.canvasHelper.resetGrid();
+        this.drawLayout();
+    }
+
     private drawLayout() {
         let size;
         let numCols;

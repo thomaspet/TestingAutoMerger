@@ -5,23 +5,23 @@ import { WidgetDataService } from '../widgetDataService';
 @Component({
     selector: 'uni-rss',
     template: `
-        <div style="height: 100%; background-color: #fff;">
-            <div class="uni-dashboard-chart-header" style="color: #fff; text-align: center"> {{ widget.config.header }}</div>
-            <ul style="list-style: none; height: calc(100% - 24px); overflow-y: scroll; margin: 0;">
-                <li *ngFor="let item of items" style="margin-top: 10px;">
-                    <div style="float: left; width: 200px; ">
-                        <img [src]="item.Image" style="max-width: 100%; max-height: 100%; object-fit: contain;" height="160" width="160" >
-                    </div>
-                    <div style="float: left; width: calc(100% - 201px)">
-                        <p style="margin: 0; text-align: left; font-size: 0.8rem">{{ item.PubDate | date: 'dd.MM.yyyy' }}</p>
-                        <p style="margin: 0; padding: 0; font-size: 1rem; font-weight: bold; color: black; text-align: left;"> {{ item.Title  }} </p>
-                        <p style="margin: 0; font-size: 0.8rem; text-align: left; line-height: 1.6em;"> {{ item.desc }} </p>
-                        <a target="_black" [href]="item.Link" style="margin: 0; float: left; font-size: 0.9rem; text-decoration: none;">Les mer</a>
-                    </div>
-                    <div style="clear: both"></div>
-                </li>
-            </ul>
-        </div>`
+        <div class="uni-dashboard-chart-header" style="color: #fff; text-align: center"> {{ widget.config.header }}</div>
+        <ul style="list-style: none; height: calc(100% - 24px); overflow-y: scroll; margin: 0;">
+            <li *ngFor="let item of items" style="margin-top: 10px;">
+                <aside class="image-container">
+                    <img [src]="item.Image">
+                </aside>
+
+                <article>
+                    <p style="margin: 0; text-align: left; font-size: 0.8rem">{{ item.PubDate | date: 'dd.MM.yyyy' }}</p>
+                    <p style="margin: 0; padding: 0; font-size: 1rem; font-weight: bold; color: black; text-align: left;"> {{ item.Title  }} </p>
+                    <p style="margin: 0; font-size: 0.8rem; text-align: left; line-height: 1.6em;"> {{ item.desc }} </p>
+                    <a target="_black" [href]="item.Link" style="margin: 0; float: left; font-size: 0.9rem; text-decoration: none;">Les mer</a>
+                </article>
+                <div style="clear: both"></div>
+            </li>
+        </ul>
+   `
 })
 
 export class UniRSSWidget {
@@ -47,7 +47,7 @@ export class UniRSSWidget {
                     if (!item.Image) {
                         item.Image = 'https://cdn.shopify.com/s/files/1/0863/0000/products/batman_5_0615c5e4-b844-4e01-b60b-6ac2acec5d0d_compact.jpg?v=1490102355';
                     }
-                    
+
                 })
                 this.items = data.Items;
             },
