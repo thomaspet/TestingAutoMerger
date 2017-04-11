@@ -1,27 +1,22 @@
-import {ViewChild, Component, Input, Output, EventEmitter, Pipe, PipeTransform, SimpleChanges} from '@angular/core';
-import {FinancialYear, VatType, SupplierInvoice, JournalEntryLineDraft,
-    JournalEntry, Account, StatusCodeSupplierInvoice} from '../../../../../unientities';
-import {ICopyEventDetails, IConfig as ITableConfig, Column, ColumnType, IChangeEvent,
-    ITypeSearch, Editable, ILookupDetails, IStartEdit} from '../../../../timetracking/utils/editable/editable';
+import { ViewChild, Component, Input, Output, EventEmitter, Pipe, PipeTransform} from '@angular/core';
+import {FinancialYear, VatType, SupplierInvoice, JournalEntryLineDraft, JournalEntry, Account, StatusCodeSupplierInvoice} from '../../../../../unientities';
+import {ICopyEventDetails, IConfig as ITableConfig, Column, ColumnType, IChangeEvent, ITypeSearch, Editable, ILookupDetails, IStartEdit} from '../../../../timetracking/utils/editable/editable';
 import {ToastService, ToastType} from '../../../../../../framework/uniToast/toastService';
-import {roundTo, safeDec, safeInt, trimLength, capitalizeSentence} from '../../../../timetracking/utils/utils';
+import {roundTo, safeDec, safeInt, trimLength} from '../../../../timetracking/utils/utils';
 import {Lookupservice} from '../../../../timetracking/utils/lookup';
 import {
     FinancialYearService,
     ErrorService,
     checkGuid
 } from '../../../../../services/services';
+import {BehaviorSubject} from "rxjs";
 
 @Component({
     selector: 'bill-simple-journalentry',
     templateUrl: './simple.html',
 })
 export class BillSimpleJournalEntryView {
-    @Input() public set supplierinvoice(value: SupplierInvoice) {
-        this.current = value;
-        this.initFromInvoice(this.current);
-        this.calcRemainder();
-    }
+    @Input() public supplierinvoice: BehaviorSubject<SupplierInvoice>;
     @Output() public valueChange: EventEmitter<any> = new EventEmitter();
 
     @ViewChild(Editable) private editable: Editable;
@@ -50,15 +45,21 @@ export class BillSimpleJournalEntryView {
     }
 
     public ngOnInit() {
+        this.supplierinvoice.subscribe((value: SupplierInvoice) => {
+            this.current = _.cloneDeep(value); // we need to refresh current to view actual data
+            this.initFromInvoice(this.current);
+            this.calcRemainder();
+        });
     }
 
     private initFromInvoice(invoice: SupplierInvoice) {
         this.hasMultipleEntries = false;
         this.analyzeEntries(invoice);
         this.journalEntryNumber = invoice && invoice.JournalEntry ? invoice.JournalEntry.JournalEntryNumber : undefined;
-        if (this.editable) {
-            this.editable.closeEditor();
-        }
+        // these lines avoid focus work properly when we jump from Fakturabelop to the table
+        // if (this.editable) {
+        //    this.editable.closeEditor();
+        // }
     }
 
     public clear() {

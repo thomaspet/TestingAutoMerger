@@ -32,7 +32,7 @@
             <article class="collapsable no-topmargin no-horzmargins" [ngClass]="{'-is-open': !collapseSimpleJournal}">
                 <h4 class="no-topmargin" (click)="collapseSimpleJournal = !collapseSimpleJournal">Kontering</h4>
                 <div class="collapsable-content">
-                    <bill-simple-journalentry class="no-topmargin" [supplierinvoice]="(current | async)" (valueChange)="onEntryChange($event)" ></bill-simple-journalentry>
+                    <bill-simple-journalentry class="no-topmargin" [supplierinvoice]="current" (valueChange)="onEntryChange($event)" ></bill-simple-journalentry>
                 </div>
             </article>
         </aside>

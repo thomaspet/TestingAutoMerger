@@ -252,12 +252,11 @@ export class BillView {
             valueProperty: 'ID'
         };
 
-        var sumCol = createFormField('TaxInclusiveAmountCurrency', lang.col_total, ControlTypes.TextInput, FieldSize.Double);
-        sumCol.Classes += ' combofield';
+        var sumCol = createFormField('TaxInclusiveAmount', lang.col_total, ControlTypes.NumericInput, FieldSize.Double);
         sumCol.Options = {
             events: {
-                enter: () => {
-                    this.focusJournalEntries(); // not working
+                enter: (x) => {
+                    this.focusJournalEntries();
                 }
             },
             decimalLength: 2
@@ -273,18 +272,17 @@ export class BillView {
 
         let bankAccountCol = createFormField('BankAccountID', lang.col_bank, ControlTypes.MultivalueInput, FieldSize.Double);
         bankAccountCol.Options = {
-            entity: 'BankAccount',
+            entity: BankAccount,
             listProperty: 'Supplier.Info.BankAccounts',
             displayValue: 'AccountNumber',
             linkProperty: 'ID',
             storeResultInProperty: 'BankAccountID',
             editor: (bankaccount: BankAccount) => new Promise((resolve, reject) => {
                 let current: SupplierInvoice = this.current.getValue();
-                if (!bankaccount) {
-                    bankaccount = new BankAccount();
+                if (!bankaccount.ID) {
                     bankaccount['_createguid'] = this.bankAccountService.getNewGuid();
                     bankaccount.BankAccountType = 'supplier';
-                    bankaccount.BusinessRelationID = current.Supplier.BusinessRelationID;
+                    bankaccount.BusinessRelationID = current.Supplier && current.Supplier.BusinessRelationID;
                     bankaccount.ID = 0;
                 }
 
