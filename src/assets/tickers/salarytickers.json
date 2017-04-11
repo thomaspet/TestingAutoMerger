@@ -1,4 +1,129 @@
-[{
+[
+    {
+        "Name": "Ansatt",
+        "Code": "employee_list",
+        "Type": "Table",
+        "IsTopLevelTicker": true,
+        "Group": "Lønn",
+        "Model": "Employee",
+        "Expand": "Employment,BusinessRelationInfo.InvoiceAddress,BusinessrelationInfo.DefaultPhone,BusinessRelationInfo.DefaultEmail,BusinessRelationInfo.DefaultBankAccount",
+        "Columns": [
+            {
+                "Header": "Ansattnr",
+                "Field": "EmployeeNumber"
+            },
+            {
+                "Header": "Navn",
+                "Field": "BusinessRelationInfo.Name",
+                "Type": "link",
+                "LinkNavigationProperty": "ID"
+            },
+            {
+                "Header": "Fødselsnummer",
+                "Field": "SocialSecurityNumber",
+                "Type": "text"
+            },
+            {
+                "Header": "Fødselsdato",
+                "Field": "BirthDate"
+            },
+            {
+                "Header": "Kontonummer",
+                "Field": "BusinessRelationInfo.DefaultBankAccount.AccountNumber"
+            },
+            {
+                "Header": "Adresse",
+                "Field": "BusinessRelationInfo.InvoiceAddress.AddressLine1",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "Epost",
+                "Field": "BusinessRelationInfo.DefaultEmail.EmailAddress",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "Telefon",
+                "Field": "BusinessRelationInfo.DefaultPhone.Number",
+                "DefaultHidden": true
+            }
+        ],
+        "Actions": [
+            {
+                "Name": "Ny ansatt",
+                "Code": "new_employee",
+                "ExecuteWithoutSelection": true,
+                "Type": "new",
+                "DisplayForSubTickers": false
+            },
+            {
+                "Name": "Vis ansatt",
+                "Code": "open_employee",
+                "Type": "details",
+                "DisplayInContextMenu": true,
+                "DisplayInActionBar": true
+            }
+        ],
+        "ParentFilter": {
+            "Field": "ID",
+            "Operator": "eq",
+            "Value": "ID"
+        },
+        "SubTickersCodes": [
+            "employee_details",
+            "employment_list"
+        ]
+    },
+    {
+        "Name": "Ansatt",
+        "Code": "employee_details",
+        "Type": "Details",
+        "Group": "Lønn",
+        "Model": "Employee",
+        "Expand": "Employment,BusinessRelationInfo.InvoiceAddress,BusinessrelationInfo.DefaultPhone,BusinessRelationInfo.DefaultEmail,BusinessRelationInfo.DefaultBankAccount",
+        "Columns": [
+            {
+                "Header": "Ansattnr",
+                "Field": "EmployeeNumber",
+                "Type": "number"
+            },
+            {
+                "Header": "Navn",
+                "Field": "BusinessRelationInfo.Name",
+                "Type": "text"
+            },
+            {
+                "Header": "Fødselsnummer",
+                "Field": "SocialSecurityNumber",
+                "Type": "text"
+            },
+            {
+                "Header": "Fødselsdato",
+                "Field": "BirthDate"
+            },
+            {
+                "Header": "Kontonummer",
+                "Field": "BusinessRelationInfo.DefaultBankAccount.AccountNumber"
+            },
+            {
+                "Header": "Adresse",
+                "Field": "BusinessRelationInfo.InvoiceAddress.AddressLine1"
+            },
+            {
+                "Header": "Epost",
+                "Field": "BusinessRelationInfo.DefaultEmail.EmailAddress"
+            },
+            {
+                "Header": "Telefon",
+                "Field": "BusinessRelationInfo.DefaultPhone.Number"
+            }
+        ],
+        "ParentFilter": {
+            "Field": "ID",
+            "Operator": "eq",
+            "Value": "ID"
+        }
+    },
+    {
         "Name": "Arbeidsforhold",
         "Code": "employment_list",
         "Type": "Table",
