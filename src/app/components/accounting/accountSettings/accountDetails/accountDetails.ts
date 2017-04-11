@@ -4,6 +4,8 @@ import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import 'rxjs/add/observable/forkJoin';
 import {UniForm, UniFieldLayout, FieldType} from 'uniform-ng2/main';
 import {Account, VatType, AccountGroup} from '../../../../unientities';
+import {ToastService, ToastType, ToastTime} from '../../../../../framework/uniToast/toastService';
+
 import {
     ErrorService,
     AccountGroupService,
@@ -35,7 +37,8 @@ export class AccountDetails implements OnInit {
         private currencyCodeService: CurrencyCodeService,
         private vatTypeService: VatTypeService,
         private accountGroupService: AccountGroupService,
-        private errorService: ErrorService
+        private errorService: ErrorService,
+        private toastService: ToastService
     ) {}
 
     public ngOnInit() {
@@ -106,13 +109,22 @@ export class AccountDetails implements OnInit {
             events: {
                 blur: () => {
                     let account = this.account$.getValue();
-                    if ((!account.ID || account.ID === 0 || !account.AccountGroupID) && account.AccountNumber.toString().length > 3) {
+                    if ((!account.ID || account.ID === 0 || !account.AccountGroupID) && account.AccountNumber && account.AccountNumber.toString().length > 3) {
                         let expectedAccountGroupNo =  account.AccountNumber.toString().substring(0, 3);
 
                         let defaultAccountGroup = this.accountGroups.find(x => x.GroupNumber === expectedAccountGroupNo);
 
                         if (defaultAccountGroup) {
                             account.AccountGroupID = defaultAccountGroup.ID;
+                        } else {
+                            let defaultAccountGroup =
+                                this.accountGroups
+                                    .concat()
+                                    .sort((a, b) => b.GroupNumber.localeCompare(a.GroupNumber))
+                                    .find(x => x.GroupNumber < expectedAccountGroupNo);
+                            if (defaultAccountGroup) {
+                                account.AccountGroupID = defaultAccountGroup.ID;
+                            }
                         }
 
                         this.account$.next(account);
@@ -143,6 +155,17 @@ export class AccountDetails implements OnInit {
         // Doing this to prevent "Foreignkey does not match parent ID" error:
         if (account.AccountGroup && account.AccountGroupID !== account.AccountGroup.ID) {
             account.AccountGroup = null;
+        }
+
+        if (!account.AccountNumber || !account.AccountName || !account.AccountGroupID) {
+            this.toastService.addToast(
+                'Kan ikke lagre, mangler informasjon',
+                ToastType.bad,
+                ToastTime.medium,
+                'Du må velge minimum kontonummer, navn og velge en kontogruppe før du kan lagre');
+
+            completeEvent('Lagring feilet');
+            return;
         }
 
         if (account.ID && account.ID > 0) {
@@ -420,7 +443,7 @@ export class AccountDetails implements OnInit {
                     FieldType: FieldType.CHECKBOX,
                     ReadOnly: false,
                     LookupField: false,
-                    Label: 'Forholdsvismoms',
+                    Label: 'Forholdsmessig mva',
                     Description: '',
                     HelpText: '',
                     FieldSet: 0,
