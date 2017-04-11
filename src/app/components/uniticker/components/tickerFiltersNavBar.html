@@ -1,0 +1,12 @@
+<header class="horizontal_nav no-print">
+    <ul>
+        <li *ngFor="let filter of filters"
+            (click)="onFilterSelected(filter)"
+            [class.active]="filter.IsActive">
+            <a>
+                {{filter.Name}}
+                <span *ngIf="filter.CurrentCount" class="tab_counter tab_counter_passive"> {{filter.CurrentCount}}</span>
+            </a>
+        </li>
+    </ul>
+</header>

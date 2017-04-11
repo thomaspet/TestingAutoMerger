@@ -161,65 +161,62 @@ export class AccountReportFilterModal {
                 {
                     text: 'Ok',
                     class: 'good',
-                    method: () => {
-                        this.modal.getContent().then((component: AccountReportFilterForm) => {
-
-                            // set parametervalues
-                            for (const parameter of <CustomReportDefinitionParameter[]>this.modalConfig.report.parameters) {
-                                switch (parameter.Name) {
-                                    case 'OrderBy':
-                                        switch (component.model$.getValue()['OrderBy']) {
-                                            case 'AccountNrAndDate':
-                                                parameter.value = 'Financialdate';
-                                                break;
-                                            case 'AccountNrAndJournalNr':
-                                                parameter.value = 'JournalEntryNumber';
-                                                break;
-                                            case 'AccountNameAndDate':
-                                                parameter.value = 'Financialdate';
-                                                break;
-                                            case 'AccountNameAndJournalNr':
-                                                parameter.value = 'JournalEntryNumber';
-                                                break;
-                                            default:
-                                                parameter.value = 'JournalEntryNumber';
-                                                break;
-                                        }
-                                        break;
-                                    default:
-                                        parameter.value = component.model$.getValue()[parameter.Name];
-                                        break;
-                                }
-                            }
-
-                            // add custom parameters
-                            let accountLastYearParam = new CustomReportDefinitionParameter();
-                            accountLastYearParam.Name = 'PeriodAccountLastYear';
-                            accountLastYearParam.value = component.model$.getValue().PeriodAccountYear - 1;
-                            this.modalConfig.report.parameters.push(accountLastYearParam);
-
-                            let orderByGroupParam = new CustomReportDefinitionParameter();
-                            orderByGroupParam.Name = 'OrderByGroup';
-                            switch (component.model$.getValue()['OrderBy']) {
-                                case 'AccountNrAndDate':
-                                case 'AccountNrAndJournalNr':
-                                    orderByGroupParam.value = 'number';
-                                    break;
-                                case 'AccountNameAndDate':
-                                case 'AccountNameAndJournalNr':
-                                    orderByGroupParam.value = 'name';
+                    method: (model$) => {
+                        // set parametervalues
+                        for (const parameter of <CustomReportDefinitionParameter[]>this.modalConfig.report.parameters) {
+                            switch (parameter.Name) {
+                                case 'OrderBy':
+                                    switch (model$.getValue()['OrderBy']) {
+                                        case 'AccountNrAndDate':
+                                            parameter.value = 'Financialdate';
+                                            break;
+                                        case 'AccountNrAndJournalNr':
+                                            parameter.value = 'JournalEntryNumber';
+                                            break;
+                                        case 'AccountNameAndDate':
+                                            parameter.value = 'Financialdate';
+                                            break;
+                                        case 'AccountNameAndJournalNr':
+                                            parameter.value = 'JournalEntryNumber';
+                                            break;
+                                        default:
+                                            parameter.value = 'JournalEntryNumber';
+                                            break;
+                                    }
                                     break;
                                 default:
-                                    orderByGroupParam.value = 'default';
+                                    parameter.value = model$.getValue()[parameter.Name];
                                     break;
                             }
-                            this.modalConfig.report.parameters.push(orderByGroupParam);
+                        }
+
+                        // add custom parameters
+                        let accountLastYearParam = new CustomReportDefinitionParameter();
+                        accountLastYearParam.Name = 'PeriodAccountLastYear';
+                        accountLastYearParam.value = model$.getValue().PeriodAccountYear - 1;
+                        this.modalConfig.report.parameters.push(accountLastYearParam);
+
+                        let orderByGroupParam = new CustomReportDefinitionParameter();
+                        orderByGroupParam.Name = 'OrderByGroup';
+                        switch (model$.getValue()['OrderBy']) {
+                            case 'AccountNrAndDate':
+                            case 'AccountNrAndJournalNr':
+                                orderByGroupParam.value = 'number';
+                                break;
+                            case 'AccountNameAndDate':
+                            case 'AccountNameAndJournalNr':
+                                orderByGroupParam.value = 'name';
+                                break;
+                            default:
+                                orderByGroupParam.value = 'default';
+                                break;
+                        }
+                        this.modalConfig.report.parameters.push(orderByGroupParam);
 
 
-                            // add custom parameters
-                            this.modal.close();
-                            this.previewModal.open(this.modalConfig.report);
-                        });
+                        // add custom parameters
+                        this.modal.close();
+                        this.previewModal.open(this.modalConfig.report);
                     }
                 },
                 {

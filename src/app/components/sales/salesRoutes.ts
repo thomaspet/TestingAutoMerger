@@ -8,6 +8,7 @@ import {QuoteList} from './quote/list/quoteList';
 import {QuoteDetails} from './quote/details/quoteDetails';
 
 import {InvoiceList} from './invoice/list/invoiceList';
+import {InvoiceList2} from './invoice/list/invoiceList2';
 import {InvoiceDetails} from './invoice/details/invoice';
 
 import {OrderList} from './order/list/orderList';
@@ -33,8 +34,12 @@ export const salesRoutes: Routes = [
     },
 
     {
-        path: 'invoices',
+        path: 'invoicesold',
         component: InvoiceList
+    },
+    {
+        path: 'invoices',
+        component: InvoiceList2
     },
     {
         path: 'invoices/:id',

@@ -1,0 +1,14 @@
+<section *ngIf="paychecksEmail">
+    <b>{{paychecksEmail.length}} lønnslipper kan sendes på epost</b>
+    <uni-table [resource]="paychecksEmail" [config]="paycheckTableConfig">
+    </uni-table>
+    <br/><br/>
+</section>
+
+<section *ngIf="paychecksPrint">
+    <b>{{paychecksPrint.length}} lønnslipper kan skrives ut</b>
+    <uni-table [resource]="paychecksPrint" [config]="paycheckPrintTableConfig">
+    </uni-table>
+    <br/><br/>
+</section>
+<report-preview-modal></report-preview-modal>

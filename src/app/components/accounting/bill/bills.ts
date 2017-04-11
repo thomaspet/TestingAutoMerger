@@ -7,6 +7,7 @@ import {URLSearchParams} from '@angular/http';
 import {ActivatedRoute} from '@angular/router';
 import {Router} from '@angular/router';
 import {UniConfirmModal, ConfirmActions} from '../../../../framework/modals/confirm';
+import {StatusCodeSupplierInvoice, CompanySettings} from '../../../unientities'; 
 import {safeInt} from '../../timetracking/utils/utils';
 
 import {
@@ -15,7 +16,8 @@ import {
     SupplierInvoiceService,
     IStatTotal,
     ErrorService,
-    PageStateService
+    PageStateService,
+    CompanySettingsService
 } from '../../../services/services';
 
 import * as moment from 'moment';
@@ -59,8 +61,11 @@ export class BillsView {
     private hasQueriedTotals: boolean = false;
     private startupPage: number = 0;
 
+    private companySettings: CompanySettings;
+    private baseCurrencyCode: string;
+
     public filters: Array<IFilter> = [
-        { label: 'Innboks', name: 'Inbox', route: 'filetags/incomingmail/0', onDataReady: (data) => this.onInboxDataReady(data), isSelected: true, hotCounter: true },
+        { label: 'Innboks', name: 'Inbox', route: 'filetags/incomingmail|incomingehf/0', onDataReady: (data) => this.onInboxDataReady(data), isSelected: true, hotCounter: true },
         { label: 'Kladd', name: 'Draft', filter: 'isnull(statuscode,30101) eq 30101', isSelected: false, passiveCounter: true },
         { label: 'Tildelt', name: 'ForApproval', filter: 'statuscode eq 30102', passiveCounter: true },
         { label: 'Godkjent', name: 'Approved', filter: 'statuscode eq 30103', passiveCounter: true },
@@ -80,38 +85,47 @@ export class BillsView {
         private toast: ToastService,
         private route: ActivatedRoute,
         private router: Router,
-        settingsService: SettingsService,
+        private settingsService: SettingsService,
         private errorService: ErrorService,
+        private companySettingsService: CompanySettingsService,
         private pageStateService: PageStateService
     ) {
 
-            this.viewSettings = settingsService.getViewSettings('economy.bills.settings');
-            tabService.addTab({ name: 'Fakturamottak', url: '/accounting/bills', moduleID: UniModules.Bills, active: true });
-            this.checkPath();
+        this.viewSettings = settingsService.getViewSettings('economy.bills.settings');
+        tabService.addTab({ name: 'Fakturamottak', url: '/accounting/bills', moduleID: UniModules.Bills, active: true });
+        this.checkPath();
     }
 
     public ngOnInit() {
+        this.companySettingsService.Get(1)
+            .subscribe(settings => {
+                this.companySettings = settings;
+                if (this.companySettings && this.companySettings.BaseCurrencyCode) {
+                    this.baseCurrencyCode = this.companySettings.BaseCurrencyCode.Code;
+                }
+                if (this.startupWithSearchText) {
+                    this.refreshWihtSearchText(this.filterInput(this.startupWithSearchText));
+                } else {
+                    this.refreshList(this.currentFilter, true);
+                }
 
-        if (this.startupWithSearchText) {
-            this.refreshWihtSearchText(this.filterInput(this.startupWithSearchText));
-        } else {
-            this.refreshList(this.currentFilter, true);
-        }
+                this.searchControl.valueChanges
+                    .debounceTime(300)
+                    .subscribe((value: string) => {
+                        var v = this.filterInput(value);
+                        this.startupWithSearchText = v;
+                        this.refreshWihtSearchText(v);
+                    });
 
-        this.searchControl.valueChanges
-            .debounceTime(300)
-            .subscribe((value: string) => {
-                var v = this.filterInput(value);
-                this.startupWithSearchText = v;
-                this.refreshWihtSearchText(v);
-        });
+            }, err => this.errorService.handle(err)
+            );
     }
 
     private refreshWihtSearchText(value: string) {
-        var allFilter = this.filters.find( x => x.name === 'All');
+        var allFilter = this.filters.find(x => x.name === 'All');
         if (value || value === '') {
             var sFilter = this.createFilters(value, 'Info.Name', 'TaxInclusiveAmount', 'InvoiceNumber', 'ID');
-            if (this.currentFilter.name !== allFilter.name ) { this.preSearchFilter = this.currentFilter; }
+            if (this.currentFilter.name !== allFilter.name) { this.preSearchFilter = this.currentFilter; }
             this.onFilterClick(allFilter, sFilter);
         } else {
             if (this.preSearchFilter) {
@@ -122,7 +136,7 @@ export class BillsView {
 
     private createFilters(value: string, ...args: any[]): string {
         var result = '';
-        args.forEach( (x, i) => {
+        args.forEach((x, i) => {
             result += (i > 0 ? ' or ' : '') + `startswith(${x},'${value}')`;
         });
         return result;
@@ -141,11 +155,10 @@ export class BillsView {
             params.set('filter', searchFilter);
         }
         this.currentFilter = filter;
-        var obs = obs = this.supplierInvoiceService.getInvoiceList(params);
         if (filter.route) {
             this.hasQueriedInboxCount = filter.name === 'Inbox';
-            obs = this.supplierInvoiceService.fetch(filter.route);
         }
+        let obs = filter.route ?  this.supplierInvoiceService.fetch(filter.route) : this.supplierInvoiceService.getInvoiceList(params);
         obs.subscribe((result) => {
             if (filter.onDataReady) {
                 filter.onDataReady(result);
@@ -175,7 +188,7 @@ export class BillsView {
     private makeSearchTotals() {
         var sum = 0;
         if (this.listOfInvoices && this.listOfInvoices.length > 0) {
-            this.listOfInvoices.forEach( x => {
+            this.listOfInvoices.forEach(x => {
                 sum += x.TaxInclusiveAmount || 0;
             });
             this.searchTotals.grandTotal = sum;
@@ -192,7 +205,7 @@ export class BillsView {
         }
         this.hasQueriedInboxCount = true;
         var route = '?model=filetag&select=count(id)&filter=tagname eq \'IncomingMail\' and status eq 0 and deleted eq 0 and file.deleted eq 0&join=filetag.fileid eq file.id';
-        this.supplierInvoiceService.getStatQuery(route).subscribe( data => {
+        this.supplierInvoiceService.getStatQuery(route).subscribe(data => {
             var filter = this.getInboxFilter();
             if (filter && data && data.length > 0) {
                 filter.count = data[0].countid;
@@ -201,7 +214,7 @@ export class BillsView {
     }
 
     private getInboxFilter(): IFilter {
-        return this.filters.find( x => x.name === 'Inbox');
+        return this.filters.find(x => x.name === 'Inbox');
     }
 
     private removeNullItems(data: Array<any>) {
@@ -233,14 +246,14 @@ export class BillsView {
     private refreshTotals() {
         this.supplierInvoiceService.getInvoiceListGroupedTotals().subscribe((result: Array<IStatTotal>) => {
             this.hasQueriedTotals = true;
-            this.filters.forEach(x => { if (x.name !== 'Inbox') { x.count = 0; x.total = 0; } } );
+            this.filters.forEach(x => { if (x.name !== 'Inbox') { x.count = 0; x.total = 0; } });
             var count = 0;
             var total = 0;
             result.forEach(x => {
                 count += x.countid;
                 total += x.sumTaxInclusiveAmount;
                 var statusCode = x.SupplierInvoiceStatusCode ? x.SupplierInvoiceStatusCode.toString() : '0';
-                var ix = this.filters.findIndex( y => y.filter ? y.filter.indexOf(statusCode) > 0 : false);
+                var ix = this.filters.findIndex(y => y.filter ? y.filter.indexOf(statusCode) > 0 : false);
                 if (ix >= 0) {
                     this.filters[ix].count += x.countid;
                     this.filters[ix].total += x.sumTaxInclusiveAmount;
@@ -255,21 +268,17 @@ export class BillsView {
 
     private createTableConfig(filter: IFilter): UniTableConfig {
         var cols = [
-            new UniTableColumn('ID', 'Nr.', UniTableColumnType.Number).setWidth('5%').setFilterOperator('startswith'),
-            new UniTableColumn('StatusCode', 'Status', UniTableColumnType.Number).setVisible(!!filter.showStatus).setAlignment('center')
-            .setTemplate((dataItem) => {
-                return this.supplierInvoiceService.getStatusText(dataItem.StatusCode);
-            }).setWidth('8%'),
+            new UniTableColumn('InvoiceNumber', 'Fakturanr').setWidth('8%'),
             new UniTableColumn('SupplierSupplierNumber', 'Lev.nr.').setVisible(false).setWidth('4em'),
             new UniTableColumn('InfoName', 'Leverandør', UniTableColumnType.Text).setFilterOperator('startswith').setWidth('15em'),
             new UniTableColumn('InvoiceDate', 'Fakturadato', UniTableColumnType.LocalDate).setWidth('10%').setFilterOperator('eq'),
             new UniTableColumn('PaymentDueDate', 'Forfall', UniTableColumnType.LocalDate).setWidth('10%')
                 .setFilterOperator('eq')
-                .setConditionalCls(item =>
-                    moment(item.PaymentDueDate).isBefore(moment()) ? 'supplier-invoice-table-payment-overdue' : 'supplier-invoice-table-payment-ok'
-                )
-                .setFormat('DD.MM.YYYY'),
-            new UniTableColumn('InvoiceNumber', 'Fakturanr').setWidth('8%'),
+                .setConditionalCls((item) => {
+                    const paid = item.StatusCode === StatusCodeSupplierInvoice.Payed;
+                    return (paid || moment(item.PaymentDueDate).isBefore(moment()))
+                        ? 'supplier-invoice-table-payment-overdue' : 'supplier-invoice-table-payment-ok';
+                }),
             new UniTableColumn('BankAccountAccountNumber', 'Bankgiro').setWidth('10%'),
             new UniTableColumn('PaymentID', 'KID/Melding').setWidth('10%')
                 .setTemplate((item) => item.PaymentInformation || item.PaymentID),
@@ -279,16 +288,23 @@ export class BillsView {
                     var key = item.JournalEntryJournalEntryNumber;
                     if (key) { return `<a href="#/accounting/transquery/details;JournalEntryNumber=${key}">${key}</a>`; }
                 }),
-            new UniTableColumn('TaxInclusiveAmount', 'Beløp', UniTableColumnType.Money).setWidth('7em')
+            new UniTableColumn('CurrencyCodeCode', 'Valuta', UniTableColumnType.Text)
+                .setWidth('5%')
+                .setFilterOperator('eq')
+                .setVisible(false),
+            new UniTableColumn('TaxInclusiveAmountCurrency', 'Beløp', UniTableColumnType.Money).setWidth('7em')
                 .setFilterOperator('contains')
                 .setConditionalCls(item =>
-                    item.TaxInclusiveAmount >= 0 ? 'supplier-invoice-table-plus' : 'supplier-invoice-table-minus'
+                    item.TaxInclusiveAmountCurrency >= 0 ? 'supplier-invoice-table-plus' : 'supplier-invoice-table-minus'
                 ),
             new UniTableColumn('ProjectName', 'Prosjektnavn').setVisible(false),
             new UniTableColumn('ProjectProjectNumber', 'ProsjektNr.').setVisible(false),
             new UniTableColumn('DepartmentName', 'Avdelingsnavn').setVisible(false),
             new UniTableColumn('DepartmentDepartmentNumber', 'Avd.nr.').setVisible(false),
-
+            new UniTableColumn('StatusCode', 'Status', UniTableColumnType.Number).setVisible(!!filter.showStatus).setAlignment('center')
+                .setTemplate((dataItem) => {
+                    return this.supplierInvoiceService.getStatusText(dataItem.StatusCode);
+                }).setWidth('8%'),
         ];
         return new UniTableConfig(false, true).setSearchable(false).setColumns(cols).setPageSize(12).setColumnMenuVisible(true);
     }
@@ -312,10 +328,10 @@ export class BillsView {
         if (this.currentFilter.name === 'Inbox') {
             var fileId = row.ID;
             if (fileId) {
-                this.confirmModal.confirm('Slett aktuell fil: ' + row.Name, 'Sletting av fil').then( x => {
+                this.confirmModal.confirm('Slett aktuell fil: ' + row.Name, 'Sletting av fil').then(x => {
 
                     if (x === ConfirmActions.ACCEPT) {
-                        this.supplierInvoiceService.send('files/' + fileId, undefined, 'DELETE').subscribe( (result) => {
+                        this.supplierInvoiceService.send('files/' + fileId, undefined, 'DELETE').subscribe((result) => {
                             this.toast.addToast('Filen er slettet', ToastType.good, 2);
                         }, (err) => {
                             this.errorService.handle(err);
@@ -335,13 +351,13 @@ export class BillsView {
 
     public onFilterClick(filter: IFilter, searchFilter?: string) {
         this.filters.forEach(f => f.isSelected = false);
-        this.refreshList(filter, !this.hasQueriedTotals , searchFilter);
+        this.refreshList(filter, !this.hasQueriedTotals, searchFilter);
         filter.isSelected = true;
         if (searchFilter) {
             this.pageStateService.setPageState('search', this.startupWithSearchText);
         } else {
             this.pageStateService.setPageState('filter', filter.name);
-            this.viewSettings.setProp('defaultFilter', filter.name );
+            this.viewSettings.setProp('defaultFilter', filter.name);
         }
     }
 
@@ -350,7 +366,7 @@ export class BillsView {
     private checkPath() {
         var params = this.pageStateService.getPageState();
         if (params.filter) {
-            this.currentFilter = this.filters.find( x => x.name === params.filter);
+            this.currentFilter = this.filters.find(x => x.name === params.filter);
             if (this.currentFilter) {
                 this.filters.forEach(x => x.isSelected = false);
                 this.currentFilter.isSelected = true;
@@ -358,7 +374,7 @@ export class BillsView {
         }
         if (params.search) {
             this.startupWithSearchText = params.search;
-            this.searchControl.setValue(this.startupWithSearchText, { emitEvent: false});
+            this.searchControl.setValue(this.startupWithSearchText, { emitEvent: false });
         }
         if (params.page) {
             this.startupPage = safeInt(params.page);
@@ -366,8 +382,8 @@ export class BillsView {
 
         // Default-filter?
         if (this.currentFilter === undefined) {
-            var name = this.viewSettings.getProp('defaultFilter', 'Inbox' );
-            this.filters.forEach( x => {
+            var name = this.viewSettings.getProp('defaultFilter', 'Inbox');
+            this.filters.forEach(x => {
                 if (x.name === name) {
                     this.currentFilter = x;
                     x.isSelected = true;

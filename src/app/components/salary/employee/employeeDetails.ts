@@ -3,7 +3,7 @@ import { Observable } from 'rxjs/Observable';
 import { Router, ActivatedRoute, NavigationEnd } from '@angular/router';
 import {
     Employee, Employment, EmployeeLeave, SalaryTransaction, Project, Dimensions,
-    Department, SubEntity, SalaryTransactionSupplement, EmployeeTaxCard, 
+    Department, SubEntity, SalaryTransactionSupplement, EmployeeTaxCard,
     WageType, EmployeeCategory
 } from '../../../unientities';
 import { TabService, UniModules } from '../../layout/navbar/tabstrip/tabService';
@@ -18,7 +18,7 @@ import { UniConfirmModal, ConfirmActions } from '../../../../framework/modals/co
 import {
     EmployeeService, EmploymentService, EmployeeLeaveService, DepartmentService, ProjectService,
     SalaryTransactionService, UniCacheService, SubEntityService, EmployeeTaxCardService, ErrorService,
-    NumberFormat, WageTypeService, SalarySumsService, YearService, BankAccountService, EmployeeCategoryService,    
+    NumberFormat, WageTypeService, SalarySumsService, YearService, BankAccountService, EmployeeCategoryService,
 } from '../../../services/services';
 declare var _;
 @Component({
@@ -47,6 +47,7 @@ export class EmployeeDetails extends UniView implements OnDestroy {
     private wageTypes: WageType[] = [];
     private activeYear: number;
     private categories: EmployeeCategory[];
+    private savedNewEmployee: boolean;
 
     public categoryFilter: any[] = [];
     public tagConfig: any = {
@@ -143,18 +144,18 @@ export class EmployeeDetails extends UniView implements OnDestroy {
             },
             valueProperty: 'ID',
             template: (obj: Employee) =>
-                obj 
-                ? `${obj.EmployeeNumber} - ${obj.BusinessRelationInfo ? obj.BusinessRelationInfo.Name : ''}`
-                : '',
+                obj
+                    ? `${obj.EmployeeNumber} - ${obj.BusinessRelationInfo ? obj.BusinessRelationInfo.Name : ''}`
+                    : '',
             search: (query) => this.employeeService
                 .GetAll(
-                    `filter=startswith(EmployeeNumber, '${query}') `
-                    + `or (BusinessRelationID gt 0 and contains(BusinessRelationInfo.Name, '${query}'))`
-                    + `&top50`, ['BusinessrelationInfo'])
+                `filter=startswith(EmployeeNumber, '${query}') `
+                + `or (BusinessRelationID gt 0 and contains(BusinessRelationInfo.Name, '${query}'))`
+                + `&top50`, ['BusinessrelationInfo'])
                 .debounceTime(200)
         };
 
-        this.yearService.getActiveYear() 
+        this.yearService.getActiveYear()
             .subscribe((year) => {
                 this.activeYear = year;
             }, err => this.errorService.handle(err));
@@ -364,14 +365,21 @@ export class EmployeeDetails extends UniView implements OnDestroy {
 
     public canDeactivate(): Observable<boolean> {
         return Observable
-            .of(!super.isDirty())
+            .of(!super.isDirty() || this.savedNewEmployee)
             .switchMap(result => {
                 return result
                     ? Observable.of(result)
                     : Observable
                         .fromPromise(
-                        this.confirmModal.confirm('Du har ulagrede endringer, ønsker du å forkaste disse?'))
-                        .map((response: ConfirmActions) => response === ConfirmActions.ACCEPT);
+                        this.confirmModal.confirmSave())
+                        .map((response: ConfirmActions) => {
+                            if (response === ConfirmActions.ACCEPT) {
+                                this.saveAll((m) => { }, false);
+                                return true;
+                            } else {
+                                return response === ConfirmActions.REJECT;
+                            }
+                        });
             })
             .map(canDeactivate => {
                 canDeactivate
@@ -618,18 +626,27 @@ export class EmployeeDetails extends UniView implements OnDestroy {
 
     private getTaxObservable(): Observable<EmployeeTaxCard> {
         return this.getFinancialYearObs()
-                .switchMap(financialYear => this.employeeTaxCardService
-                    .GetTaxCard(this.employeeID, this.activeYear))
-                .switchMap(taxCard => {
-                    return taxCard
-                        ? Observable.of(taxCard)
-                        : this.employeeTaxCardService
-                            .GetNewEntity(null, 'EmployeeTaxCard')
-                            .map((response: EmployeeTaxCard) => {
-                                response.EmployeeID = this.employeeID;
-                                return response;
-                            });
-                });
+            .switchMap(financialYear => this.employeeTaxCardService
+                .GetTaxCard(this.employeeID, this.activeYear))
+            .switchMap(taxCard => {
+                return taxCard
+                    ? Observable.of(taxCard)
+                    : this.employeeTaxCardService
+                        .GetNewEntity(null, 'EmployeeTaxCard')
+                        .map((response: EmployeeTaxCard) => {
+                            response.EmployeeID = this.employeeID;
+                            return response;
+                        });
+            })
+            .map(taxCard => {
+                if (!taxCard.TaxPercentage) {
+                    taxCard.TaxPercentage = undefined;
+                }
+                if (!taxCard.NonTaxableAmount) {
+                    taxCard.NonTaxableAmount = undefined;
+                }
+                return taxCard;
+            });
     }
 
     private getEmployments() {
@@ -639,8 +656,8 @@ export class EmployeeDetails extends UniView implements OnDestroy {
             }, err => this.errorService.handle(err));
     }
 
-    private getEmploymentsObservable(): Observable<Employment[]> {
-        return this.employments
+    private getEmploymentsObservable(cacheFirst: boolean = false): Observable<Employment[]> {
+        return cacheFirst && this.employments
             ? Observable.of(this.employments)
             : this.employmentService.GetAll('filter=EmployeeID eq ' + this.employeeID, ['Dimensions'])
                 .map(employments => {
@@ -660,7 +677,7 @@ export class EmployeeDetails extends UniView implements OnDestroy {
             this.getProjectsObservable(),
             this.getDepartmentsObservable(),
             this.getWageTypesObservable(),
-            this.getEmploymentsObservable())
+            this.getEmploymentsObservable(true))
             .subscribe((response: [SalaryTransaction[], Project[], Department[], WageType[], Employment[]]) => {
                 let [transes, projects, departments, wageTypes, employments] = response;
 
@@ -758,17 +775,20 @@ export class EmployeeDetails extends UniView implements OnDestroy {
         }
     }
 
-    private saveAll(done: (message: string) => void) {
+    private saveAll(done: (message: string) => void, refreshEmp: boolean = true) {
         this.saveEmployee().subscribe(
             (employee) => {
 
-                if (!this.employeeID) {
+                if (!this.employeeID && refreshEmp) {
                     super.updateState('employee', this.employee, false);
 
                     done('Lagring fullført');
 
                     let childRoute = this.router.url.split('/').pop();
-                    this.router.navigateByUrl(this.url + employee.ID + '/' + childRoute);
+                    this.savedNewEmployee = true;
+                    this.router.navigateByUrl(this.url + employee.ID + '/' + childRoute).then(value => {
+                        this.savedNewEmployee = false;
+                    });
                     return;
                 }
 
@@ -776,7 +796,10 @@ export class EmployeeDetails extends UniView implements OnDestroy {
                 // because response will not contain any new email/address/phone.
                 // Anders is looking for a better way to solve this..
                 this.employeeService.get(this.employeeID).subscribe((emp) => {
-                    super.updateState('employee', emp, false);
+                    if (refreshEmp) {
+                        super.updateState('employee', emp, false);
+                    }
+
                     // super.updateState('employee', employee, false);
 
                     this.saveStatus = {
@@ -786,22 +809,22 @@ export class EmployeeDetails extends UniView implements OnDestroy {
                     };
 
                     if (super.isDirty('employments')) {
-                        this.saveEmployments(done);
+                        this.saveEmployments(done, refreshEmp);
                         this.saveStatus.numberOfRequests++;
                     }
 
                     if (super.isDirty('recurringPosts')) {
-                        this.saveRecurringPosts(done);
+                        this.saveRecurringPosts(done, refreshEmp);
                         this.saveStatus.numberOfRequests++;
                     }
 
                     if (super.isDirty('employeeLeave')) {
-                        this.saveEmployeeLeave(done);
+                        this.saveEmployeeLeave(done, refreshEmp);
                         this.saveStatus.numberOfRequests++;
                     }
 
                     if (super.isDirty('employeeTaxCard')) {
-                        this.saveTax(done);
+                        this.saveTax(done, refreshEmp);
                         this.saveStatus.numberOfRequests++;
                     }
 
@@ -881,45 +904,44 @@ export class EmployeeDetails extends UniView implements OnDestroy {
             brInfo.Emails = brInfo.Emails.filter(email => email !== brInfo.DefaultEmail);
         }
 
-        console.log("SENT", this.employee);
-
         return (this.employee.ID > 0)
             ? this.employeeService.Put(this.employee.ID, this.employee)
             : this.employeeService.Post(this.employee);
     }
 
-    private saveTax(done: (message: string) => void) {
-        super.getStateSubject('employeeTaxCard').take(1)
-            .subscribe((employeeTaxCard: EmployeeTaxCard) => {
+    private saveTax(done: (message: string) => void, updateTaxCard: boolean = true) {
+        super.getStateSubject('employeeTaxCard')
+            .take(1)
+            .switchMap((employeeTaxCard: EmployeeTaxCard) => {
                 if (employeeTaxCard.Year !== this.activeYear) {
                     employeeTaxCard.ID = undefined;
                     employeeTaxCard.Year = this.activeYear;
                 }
 
-                if (employeeTaxCard) {
-                    let saveObs = employeeTaxCard.ID
+                if (employeeTaxCard && updateTaxCard) {
+                    return employeeTaxCard.ID
                         ? this.employeeTaxCardService.Put(employeeTaxCard.ID, employeeTaxCard)
                         : this.employeeTaxCardService.Post(employeeTaxCard);
-
-                    saveObs
-                        .finally(() => {
-                            this.saveStatus.completeCount++;
-                            this.checkForSaveDone(done);
-                        })
-                        .subscribe(
-                        updatedTaxCard => super.updateState('employeeTaxCard', updatedTaxCard, false),
-                        err => {
-                            this.errorService.handle(err);
-                            this.saveStatus.hasErrors = true;
-                        });
                 } else {
-                    this.saveStatus.completeCount++;
-                    this.checkForSaveDone(done);
+                    return Observable.of(undefined);
                 }
+            })
+            .finally(() => {
+                this.saveStatus.completeCount++;
+                this.checkForSaveDone(done);
+            })
+            .subscribe(updatedTaxCard => {
+                if (updatedTaxCard) {
+                    super.updateState('employeeTaxCard', updatedTaxCard, false);
+                }
+            },
+            err => {
+                this.errorService.handle(err);
+                this.saveStatus.hasErrors = true;
             });
     }
 
-    private saveEmployments(done) {
+    private saveEmployments(done, updateEmployments: boolean = true) {
         super.getStateSubject('employments').take(1).subscribe((employments: Employment[]) => {
             let changes = [];
             let hasStandard = false;
@@ -952,14 +974,17 @@ export class EmployeeDetails extends UniView implements OnDestroy {
             employee.Employments = changes;
 
             this.employeeService.Put(employee.ID, employee)
-                .finally(() => this.checkForSaveDone(done))
+                .finally(() => {
+                    this.saveStatus.completeCount++;
+                    this.checkForSaveDone(done);
+                })
                 .subscribe(
                 (res) => {
-                    this.saveStatus.completeCount++;
-                    this.getEmployments();
+                    if (updateEmployments) {
+                        this.getEmployments();
+                    }
                 },
                 (err) => {
-                    this.saveStatus.completeCount++;
                     this.saveStatus.hasErrors = true;
 
                     let toastHeader = 'Noe gikk galt ved lagring av arbeidsforhold';
@@ -970,97 +995,99 @@ export class EmployeeDetails extends UniView implements OnDestroy {
         }, err => this.errorService.handle(err));
     }
 
-    private saveRecurringPosts(done) {
-        super.getStateSubject('recurringPosts').take(1).subscribe((recurringPosts: SalaryTransaction[]) => {
-            let changeCount = 0;
-            let saveCount = 0;
-            let hasErrors = false;
+    private saveRecurringPosts(done, updatePosts: boolean = true) {
+        super.getStateSubject('recurringPosts')
+            .take(1)
+            .subscribe((recurringPosts: SalaryTransaction[]) => {
+                let changeCount = 0;
+                let saveCount = 0;
+                let hasErrors = false;
 
-            recurringPosts
-                .forEach((post, index) => {
-                    if (post['_isDirty'] || post.Deleted) {
-                        changeCount++;
+                recurringPosts
+                    .forEach((post, index) => {
+                        if (post['_isDirty'] || post.Deleted) {
+                            changeCount++;
 
-                        post.IsRecurringPost = true;
-                        post.EmployeeID = this.employee.ID;
-                        post.EmployeeNumber = this.employee.EmployeeNumber;
+                            post.IsRecurringPost = true;
+                            post.EmployeeID = this.employee.ID;
+                            post.EmployeeNumber = this.employee.EmployeeNumber;
 
-                        if (post.Supplements) {
-                            post.Supplements
-                                .filter(x => !x.ID)
-                                .forEach((supplement: SalaryTransactionSupplement) => {
-                                    supplement['_createguid'] = this.salaryTransService.getNewGuid();
-                                });
-                        }
-
-                        if (post.Dimensions && !post.DimensionsID) {
-                            if (Object.keys(post.Dimensions)
-                                .filter(x => x.indexOf('ID') > -1)
-                                .some(key => post.Dimensions[key])) {
-                                post.Dimensions['_createguid'] = this.salaryTransService.getNewGuid();
-                            } else {
-                                post.Dimensions = null;
+                            if (post.Supplements) {
+                                post.Supplements
+                                    .filter(x => !x.ID)
+                                    .forEach((supplement: SalaryTransactionSupplement) => {
+                                        supplement['_createguid'] = this.salaryTransService.getNewGuid();
+                                    });
                             }
 
-                        }
-
-                        let source = (post.ID > 0)
-                            ? this.salaryTransService.Put(post.ID, post)
-                            : this.salaryTransService.Post(post);
-
-                        source
-                            .map(trans => {
-                                return Observable.forkJoin(
-                                    Observable.of(trans),
-                                    this.getProjectsObservable(),
-                                    this.getDepartmentsObservable(),
-                                    this.getDimension(trans));
-                            })
-                            .switchMap(x => x)
-                            .map((response: [SalaryTransaction, Project[], Department[], Dimensions]) => {
-                                let [trans, projects, departments, dimensions] = response;
-                                trans.Dimensions = dimensions;
-
-                                if (trans.Dimensions) {
-                                    trans['_Project'] = projects
-                                        .find(x => x.ID === trans.Dimensions.ProjectID);
-                                    trans['_Department'] = departments
-                                        .find(x => x.ID === trans.Dimensions.DepartmentID);
+                            if (post.Dimensions && !post.DimensionsID) {
+                                if (Object.keys(post.Dimensions)
+                                    .filter(x => x.indexOf('ID') > -1)
+                                    .some(key => post.Dimensions[key])) {
+                                    post.Dimensions['_createguid'] = this.salaryTransService.getNewGuid();
+                                } else {
+                                    post.Dimensions = null;
                                 }
-                                return trans;
-                            })
-                            .finally(() => {
-                                saveCount++;
-                                if (saveCount === changeCount) {
-                                    this.saveStatus.completeCount++;
-                                    if (hasErrors) {
-                                        this.saveStatus.hasErrors = true;
+
+                            }
+                            let source = (post.ID > 0)
+                                ? this.salaryTransService.Put(post.ID, post)
+                                : this.salaryTransService.Post(post);
+
+                            source
+                                .switchMap(trans => {
+                                    return Observable.forkJoin(
+                                        Observable.of(trans),
+                                        this.getProjectsObservable(),
+                                        this.getDepartmentsObservable(),
+                                        this.getDimension(trans),
+                                        this.getWageTypesObservable());
+                                })
+                                .map((response: [SalaryTransaction, Project[], Department[], Dimensions, WageType[]]) => {
+                                    let [trans, projects, departments, dimensions, wageTypes] = response;
+                                    trans.Dimensions = dimensions;
+                                    if (trans.Dimensions) {
+                                        trans['_Project'] = projects
+                                            .find(x => x.ID === trans.Dimensions.ProjectID);
+                                        trans['_Department'] = departments
+                                            .find(x => x.ID === trans.Dimensions.DepartmentID);
                                     }
+                                    trans['_WageType'] = wageTypes.find(wt => wt.ID === trans.WageTypeID);
+                                    return trans;
+                                })
+                                .finally(() => {
+                                    saveCount++;
+                                    if (saveCount === changeCount) {
+                                        this.saveStatus.completeCount++;
+                                        if (hasErrors) {
+                                            this.saveStatus.hasErrors = true;
+                                        }
+                                        if (updatePosts) {
+                                            super.updateState('recurringPosts',
+                                                recurringPosts.filter(x => !x.Deleted),
+                                                false);
+                                        }
 
-                                    super.updateState('recurringPosts',
-                                        recurringPosts.filter(x => !x.Deleted),
-                                        false);
-
-                                    this.checkForSaveDone(done);
+                                        this.checkForSaveDone(done);
+                                    }
+                                })
+                                .subscribe(
+                                (res: SalaryTransaction) => {
+                                    recurringPosts[index] = res;
+                                },
+                                (err) => {
+                                    hasErrors = true;
+                                    recurringPosts[index].Deleted = false;
+                                    let toastHeader =
+                                        `Feil ved lagring av faste poster linje ${post['_originalIndex'] + 1}`;
+                                    let toastBody = (err.json().Messages) ? err.json().Messages[0].Message : '';
+                                    this.toastService.addToast(toastHeader, ToastType.bad, 0, toastBody);
+                                    this.errorService.handle(err);
                                 }
-                            })
-                            .subscribe(
-                            (res: SalaryTransaction) => {
-                                recurringPosts[index] = res;
-                            },
-                            (err) => {
-                                hasErrors = true;
-                                recurringPosts[index].Deleted = false;
-                                let toastHeader =
-                                    `Feil ved lagring av faste poster linje ${post['_originalIndex'] + 1}`;
-                                let toastBody = (err.json().Messages) ? err.json().Messages[0].Message : '';
-                                this.toastService.addToast(toastHeader, ToastType.bad, 0, toastBody);
-                                this.errorService.handle(err);
-                            }
-                            );
-                    }
-                });
-        }, err => this.errorService.handle(err));
+                                );
+                        }
+                    });
+            }, err => this.errorService.handle(err));
     }
 
     private getDimension(post: SalaryTransaction): Observable<Dimensions> {
@@ -1080,7 +1107,7 @@ export class EmployeeDetails extends UniView implements OnDestroy {
         return Observable.of(null);
     }
 
-    private saveEmployeeLeave(done) {
+    private saveEmployeeLeave(done, updateEmployeeLeave: boolean = true) {
         super.getStateSubject('employeeLeave').take(1).subscribe((employeeLeave: EmployeeLeave[]) => {
             let changeCount = 0;
             let saveCount = 0;
@@ -1102,7 +1129,7 @@ export class EmployeeDetails extends UniView implements OnDestroy {
                             // if not, update employeeLeave cache and set dirty to false
                             if (hasErrors) {
                                 this.saveStatus.hasErrors = true;
-                            } else {
+                            } else if (updateEmployeeLeave) {
                                 super.updateState('employeeLeave', employeeLeave, false);
                             }
                             this.checkForSaveDone(done); // check if all save functions are finished

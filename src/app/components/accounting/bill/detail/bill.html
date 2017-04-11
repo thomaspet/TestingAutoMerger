@@ -20,29 +20,23 @@
 
 
 <section class="application split-tabs-parent" [attr.aria-busy]="busy" >
-
     <section class="split-tabs">
-
         <aside>
             <uni-form
                 [config]='formConfig'
-                [fields]='fields'
+                [fields]='fields$'
                 [model]='current'
                 (changeEvent)="onFormChange($event)"
                 (readyEvent)="onFormReady($event)">
             </uni-form>
-
             <article class="collapsable no-topmargin no-horzmargins" [ngClass]="{'-is-open': !collapseSimpleJournal}">
                 <h4 class="no-topmargin" (click)="collapseSimpleJournal = !collapseSimpleJournal">Kontering</h4>
                 <div class="collapsable-content">
                     <bill-simple-journalentry class="no-topmargin" [supplierinvoice]="(current | async)" (valueChange)="onEntryChange($event)" ></bill-simple-journalentry>
                 </div>
             </article>
-
         </aside>
-
         <div [hidden]="!tabs[1].isSelected">
-
             <div *ngIf="!(current | async)?.ID">
                 <uni-image [singleImage]="true" [uploadWithoutEntity]="'true'" [fileIDs]="fileIds"
                     (fileListReady)="onFileListReady($event)"
@@ -53,34 +47,16 @@
                 (fileListReady)="onFileListReady($event)"
                 (imageClicked)="onImageClicked($event)" >
             </uni-image>
-
         </div>
-
-        <!--
-        <div [hidden]="!tabs[2].isSelected">
-            <h3>Bilagslinjer</h3>
-        </div>
-
-        <div [hidden]="!tabs[3].isSelected">
-            <h3>Varelinjer</h3>
-        </div>
-        -->
 
         <div [hidden]="!tabs[4].isSelected">
             <uni-bill-history [isActive]="tabs[4].isSelected" [supplierID]="(current | async)?.SupplierID" [parentID]="(current | async)?.ID" >
             </uni-bill-history>
         </div>
-
     </section>
-
 </section>
-
 <register-payment-modal></register-payment-modal>
-
 <supplier-detail-modal (change)="onSupplierModalChanged($event)" ></supplier-detail-modal>
-
 <uni-confirm-modal></uni-confirm-modal>
-
 <bankaccount-modal></bankaccount-modal>
-
 <image-modal></image-modal>

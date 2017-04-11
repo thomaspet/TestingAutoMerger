@@ -1,6 +1,5 @@
 {
-    "Modules": [
-        {
+    "Modules": [{
             "Name": "Sales",
             "Translated": "Salg",
             "Models": [
@@ -212,8 +211,7 @@
             ]
         }
     ],
-    "Models": [
-        {
+    "Models": [{
             "Name": "CustomerInvoice",
             "Translated": "Faktura",
             "Url": "/sales/invoices/:ID"
@@ -267,6 +265,20 @@
             "Name": "Worker",
             "Translated": "Timefører",
             "Url": "/timetracking/workers/:ID"
+        },
+        {
+            "Name": "Employee",
+            "Translated": "Ansatt",
+            "Url": "/salary/employees/:ID"
+        },
+        {
+            "Name": "Employment",
+            "Translated": "Arbeidsforhold",
+            "Url": "salary/employees/:employmentemployeeid/employments;EmploymentID=:id"
+        },
+        {
+            "Name": "EmployeeLeave",
+            "Translated": "Permisjoner"
         }
     ]
 }

@@ -1,0 +1,8 @@
+<div>
+    <uni-form [config]="config$"
+            [fields]="fields$"
+            [model]="model$"
+            (changeEvent)="onFieldFilterChange($event)"
+            *ngIf="fieldFilter">
+    </uni-form>
+</div>

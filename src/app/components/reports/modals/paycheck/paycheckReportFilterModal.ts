@@ -113,7 +113,7 @@ export class PaycheckReportFilterModalContent implements OnInit, OnDestroy {
             if (employees) {
                 let filteredEmployees = employees
                     .filter(emp => emp.EmployeeNumber <= model.ToEmpNo && emp.EmployeeNumber >= model.FromEmpNo);
-                
+
                 params['TransFilter'] = `PayrollRunID eq ${model.RunID} `
                     + (filteredEmployees.length
                         ? 'and (' + filteredEmployees.map(emp => 'EmployeeID eq ' + emp.ID).join(' or ') + ')'
@@ -145,7 +145,7 @@ export class PaycheckReportFilterModalContent implements OnInit, OnDestroy {
                 Property: 'RunID',
                 Options: {
                     getDefaultData: () => Observable.of([defaultRun]),
-                    search: (query) => this.payrollRunService.GetAll(`filter=year(PayDate) eq ${this.currentYear} and (startswith(ID, '${query}') or contains(Description, '${query}'))&top=50`),
+                    search: (query) => this.payrollRunService.GetAll(`filter=year(PayDate) eq ${this.currentYear} and (startswith(ID, '${query}') or contains(Description, '${query}'))&top=50&orderby=PayDate DESC`),
                     valueProperty: 'ID',
                     template: (obj: PayrollRun) => obj ? `${obj.ID} - ${obj.Description}` : '',
                     events: {

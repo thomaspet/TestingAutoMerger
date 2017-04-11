@@ -1,7 +1,9 @@
 import { Injectable } from '@angular/core';
 import { BizHttp } from '../../../../framework/core/http/BizHttp';
 import { UniHttp } from '../../../../framework/core/http/http';
-import { PayrollRun, VacationPayInfo, TaxDrawFactor, EmployeeCategory, VacationPayList } from '../../../unientities';
+import { 
+    PayrollRun, VacationPayInfo, TaxDrawFactor, EmployeeCategory, VacationPayList,
+    Employee } from '../../../unientities';
 import { Observable } from 'rxjs/Observable';
 import { ErrorService } from '../../common/errorService';
 import {FieldType} from 'uniform-ng2/main';
@@ -208,6 +210,16 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
             .withEndPoint(this.relativeURL + `/${id}?action=employeesonrun&expand=${expands.join(',')}`)
             .send()
             .map(response => response.json());
+    }
+
+    public emailPaychecks(emps: Employee[], runID: number) {
+        console.log('ansatte som skal sendes', emps);
+        return this.http
+            .asPUT()
+            .usingBusinessDomain()
+            .withEndPoint(this.relativeURL + '/' + runID + '?action=email-paychecks')
+            .withBody(emps)
+            .send();
     }
 
     public layout(layoutID: string) {

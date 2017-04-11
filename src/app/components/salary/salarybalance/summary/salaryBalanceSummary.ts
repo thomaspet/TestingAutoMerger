@@ -85,7 +85,7 @@ export class SalaryBalanceSummary implements OnInit, OnChanges {
 
     private createConfig() {
         const nameCol = new UniTableColumn('Description', 'Navn trekk', UniTableColumnType.Text);
-        const startDateCol = new UniTableColumn('Date', 'Startdato', UniTableColumnType.LocalDate)
+        const startDateCol = new UniTableColumn('Date', 'Dato', UniTableColumnType.LocalDate)
             .setWidth('7rem');
         const sumCol = new UniTableColumn('Amount', 'Beløp', UniTableColumnType.Money);
         const payRunCol = new UniTableColumn('_payrollrunID', 'Lønnsavregning', UniTableColumnType.Number)

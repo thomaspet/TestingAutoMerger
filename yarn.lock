@@ -1209,7 +1209,7 @@ es6-promise@^3.1.2:
   version "3.3.1"
   resolved "https://registry.yarnpkg.com/es6-promise/-/es6-promise-3.3.1.tgz#a08cdde84ccdbf34d027a1451bc91d4bcd28a613"
 
-es6-shim@^0.35.0:
+es6-shim@^0.35.0, es6-shim@^0.35.3:
   version "0.35.3"
   resolved "https://registry.yarnpkg.com/es6-shim/-/es6-shim-0.35.3.tgz#9bfb7363feffff87a6cdb6cd93e405ec3c4b6f26"
 
@@ -4113,9 +4113,9 @@ unc-path-regex@^0.1.0:
   version "0.1.2"
   resolved "https://registry.yarnpkg.com/unc-path-regex/-/unc-path-regex-0.1.2.tgz#e73dd3d7b0d7c5ed86fbac6b0ae7d8c6a69d50fa"
 
-uniform-ng2@^0.0.50:
-  version "0.0.50"
-  resolved "https://registry.yarnpkg.com/uniform-ng2/-/uniform-ng2-0.0.50.tgz#2a7ac3814dae2eec06e36364e643dc40b290f5b6"
+uniform-ng2@^0.0.53:
+  version "0.0.53"
+  resolved "https://registry.yarnpkg.com/uniform-ng2/-/uniform-ng2-0.0.53.tgz#cb07200063392b1fbc749587624c38386ebd1edc"
   dependencies:
     "@angular/common" "4.0.0-rc.4"
     "@angular/compiler" "4.0.0-rc.4"
@@ -4125,6 +4125,7 @@ uniform-ng2@^0.0.50:
     "@angular/platform-browser" "4.0.0-rc.4"
     "@angular/platform-browser-dynamic" "4.0.0-rc.4"
     core-js "2.4.1"
+    es6-shim "^0.35.3"
     lodash "^4.17.2"
     moment "^2.13.0"
     reflect-metadata "0.1.10"
@@ -4162,9 +4163,9 @@ unisearch-ng2@0.0.20:
     tslib "1.6.0"
     zone.js "0.8.4"
 
-unisearch-ng2@0.0.21:
-  version "0.0.21"
-  resolved "https://registry.yarnpkg.com/unisearch-ng2/-/unisearch-ng2-0.0.21.tgz#24a4c2f8be78b38c36cf8578acff0977f40b5c7b"
+unisearch-ng2@0.0.23:
+  version "0.0.23"
+  resolved "https://registry.yarnpkg.com/unisearch-ng2/-/unisearch-ng2-0.0.23.tgz#e0a0e39bd3905aa3b3b125b7c5e21f706a8fb2ab"
   dependencies:
     "@angular/common" "4.0.0-rc.4"
     "@angular/compiler" "4.0.0-rc.4"
@@ -4180,9 +4181,9 @@ unisearch-ng2@0.0.21:
     tslib "1.6.0"
     zone.js "0.8.4"
 
-unitable-ng2@0.0.10:
-  version "0.0.10"
-  resolved "https://registry.yarnpkg.com/unitable-ng2/-/unitable-ng2-0.0.10.tgz#d376e46ce951e44a3c987f2855c11b1ced2fa285"
+unitable-ng2@0.0.12:
+  version "0.0.12"
+  resolved "https://registry.yarnpkg.com/unitable-ng2/-/unitable-ng2-0.0.12.tgz#c6ae6589242328498c882d5dd5ad5a706d87cd7b"
   dependencies:
     "@angular/common" "4.0.0-rc.4"
     "@angular/compiler" "4.0.0-rc.4"

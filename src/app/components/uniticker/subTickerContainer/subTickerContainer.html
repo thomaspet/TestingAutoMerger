@@ -10,14 +10,16 @@
                         [header]="subTicker.Name"
                         [ticker]="subTicker"
                         [parentModel]="parentModel"
-                        [parentTicker]="parentTicker">
+                        [parentTicker]="parentTicker"
+                        [actionOverrides]="actionOverrides"
+                        [columnOverrides]="columnOverrides">
                     </uni-ticker>
                 </ng-template>
             </div>
         </div>
         <div class="sub-ticker-container" *ngIf="!expanded">
             <dl class="sub-ticker-summary">
-                <ng-template ngFor let-column [ngForOf]="parentTicker.Columns">
+                <ng-template ngFor let-column [ngForOf]="getParentTickerColumns()">
                     <dd>{{column.Header}}</dd>
                     <dt [innerHtml]="getFieldValue(column, parentModel) | safehtml"></dt>
                 </ng-template>

@@ -1,5 +1,5 @@
 <section *ngIf="ticker && model">
-    <div *ngFor="let column of ticker.Columns"
+    <div *ngFor="let column of getVisibleColumns()"
         class="ticker-field"
         [class.small]="!column.Size || column.Size === 'small'"
         [class.medium]="column.Size === 'medium'">

@@ -79,6 +79,7 @@ export class SalarybalanceDetail extends UniView {
                 .subscribe((salarybalance: SalaryBalance) => {
                     this.salarybalance$.next(salarybalance);
                     this.salarybalanceID = salarybalance.ID;
+                    this.updateFields();
                 }, err => this.errorService.handle(err));
         });
     }
@@ -111,7 +112,6 @@ export class SalarybalanceDetail extends UniView {
                 this.employees = employees;
                 this.suppliers = suppliers;
 
-                this.updateFields();
                 return response;
             }, err => this.errorService.handle(err));
     }
@@ -168,6 +168,13 @@ export class SalarybalanceDetail extends UniView {
         let accountField: UniFieldLayout = this.findByPropertyName('Supplier.Info.DefaultBankAccount.AccountNumber');
         accountField.Hidden = !(this.salarybalance$.getValue().InstalmentType === SalBalType.Contribution)
             && !(this.salarybalance$.getValue().InstalmentType === SalBalType.Outlay);
+        
+        let amountField: UniFieldLayout = this.findByPropertyName('Amount');
+        amountField.Label = this.salarybalance$.getValue().InstalmentType === SalBalType.Advance ? 'Beløp' : 'Saldo';
+        amountField.Hidden = this.salarybalanceID > 0;
+
+        let createpaymentField: UniFieldLayout = this.findByPropertyName('CreatePayment');
+        createpaymentField.Hidden = this.salarybalanceID > 0;
 
         this.fields$.next(this.fields$.getValue());
     }

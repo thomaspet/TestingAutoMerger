@@ -1,26 +1,32 @@
-import {Component, ViewChild, Input, SimpleChanges, Output, EventEmitter, ChangeDetectionStrategy} from '@angular/core';
+import {Component, ViewChild, Input, SimpleChanges, Output, EventEmitter, ChangeDetectorRef, ChangeDetectionStrategy} from '@angular/core';
 import {URLSearchParams, Http} from '@angular/http';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {UniTabs} from '../../layout/uniTabs/uniTabs';
 import {UniQueryDefinition} from '../../../unientities';
 import {Router, ActivatedRoute, RouterLink} from '@angular/router';
-import {Ticker, TickerGroup, TickerAction, TickerFilter, TickerColumn, IExpressionFilterValue} from '../../../services/common/uniTickerService';
+import {Ticker, TickerGroup, TickerAction, TickerActionOptions, TickerFilter, TickerColumn, IExpressionFilterValue, ITickerActionOverride, ITickerColumnOverride} from '../../../services/common/uniTickerService';
 import {StatisticsService, StatusService} from '../../../services/services';
 import {UniHttp} from '../../../../framework/core/http/http';
 import {ToastService, ToastType, ToastTime} from '../../../../framework/uniToast/toastService';
-import {ErrorService, UniTickerService, ApiModelService} from '../../../services/services';
+import {ErrorService, UniTickerService, ApiModelService, ReportDefinitionService} from '../../../services/services';
 import {UniTable, UniTableColumn, IContextMenuItem, UniTableColumnType, UniTableConfig, ITableFilter} from 'unitable-ng2/main';
 import {Observable} from 'rxjs/Observable';
 import {ImageModal} from '../../common/modals/ImageModal';
 import {UniConfirmModal, ConfirmActions} from '../../../../framework/modals/confirm';
+import {PreviewModal} from '../../reports/modals/preview/previewModal';
+import {BrowserStorageService} from '../../../services/common/browserStorageService';
+
+
 import * as moment from 'moment';
 import {saveAs} from 'file-saver';
 
 const PAPERCLIP = '📎'; // It might look empty in your editor, but this is the unicode paperclip
+const TICKER_COLUMN_VISIBILITY_STORAGE_KEY = 'TickerColumnVisibility';
 
 @Component({
     selector: 'uni-ticker',
-    templateUrl: './ticker.html'
+    templateUrl: './ticker.html',
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class UniTicker {
     @Input() private ticker: Ticker;
@@ -33,11 +39,15 @@ export class UniTicker {
     @Input() private header: string;
     @Input() private parentTicker: Ticker;
     @Input() private expressionFilters: Array<IExpressionFilterValue> = [];
+    @Input() private actionOverrides: Array<ITickerActionOverride> = [];
+    @Input() public columnOverrides: Array<ITickerColumnOverride> = [];
 
     @Output() private rowSelected: EventEmitter<any> = new EventEmitter<any>();
+
     @ViewChild(UniTable) unitable: UniTable;
     @ViewChild(UniConfirmModal) private confirmModal: UniConfirmModal;
     @ViewChild(ImageModal) private imageModal: ImageModal;
+    @ViewChild(PreviewModal) private previewModal: PreviewModal;
 
     private model: any;
 
@@ -60,17 +70,20 @@ export class UniTicker {
         private errorService: ErrorService,
         private uniTickerService: UniTickerService,
         private modelService: ApiModelService,
-        private http: Http) {
+        private http: Http,
+        private reportDefinitionService: ReportDefinitionService,
+        private storageService: BrowserStorageService,
+        private cdr: ChangeDetectorRef) {
 
         this.statusService
             .loadStatusCache()
             .then(() => {
                 this.prefetchDataLoaded = true;
+                this.cdr.markForCheck();
             });
 
         this.lookupFunction = (urlParams: URLSearchParams) => {
                 let params = this.getSearchParams(urlParams);
-
                 if (this.ticker.Model) {
                     return this.statisticsService
                         .GetAllByUrlSearchParams(params)
@@ -224,6 +237,8 @@ export class UniTicker {
                     // retrieving more than one row
                     this.loadDetailTickerData();
                 }
+
+                this.cdr.markForCheck();
             });
         }
     }
@@ -238,14 +253,18 @@ export class UniTicker {
                 } else {
                     this.model = null;
                 }
+
+                this.cdr.markForCheck();
             });
     }
 
     private letUniTableHandleIsOwnClicks() {
-        event.stopPropagation();
+        if (event) {
+            event.stopPropagation();
+        }
     }
 
-    private getTickerActions() : Array<TickerAction> {
+    private getTickerActions(): Array<TickerAction> {
         return this.ticker.UseParentTickerActions && this.parentTicker && this.parentTicker.Actions ?
             this.parentTicker.Actions :
             this.ticker.Actions ? this.ticker.Actions : [];
@@ -266,8 +285,6 @@ export class UniTicker {
             throw Error(`No Type defined for action ${action.Name}`);
         }
 
-        let actionType = action.Type;
-
         let allowMultipleRows =
             action.ExecuteWithMultipleSelections !== undefined ? action.ExecuteWithMultipleSelections : false;
         let allowNoRows =
@@ -275,8 +292,16 @@ export class UniTicker {
 
         if (this.ticker.Type === 'details') {
            if (this.model) {
+               // if this is a detailticker, "simulate" that the user has selected a row
+               // or used the contextmenu in the table to simplify the code below
                this.selectedRow = this.model;
+               selectedRows.push(this.model);
            }
+        }
+
+        let rowIdentifier = 'ID';
+        if ((action.Type === 'details' || action.Type === 'print') && action.Options.ParameterProperty !== '') {
+            rowIdentifier = action.Options.ParameterProperty;
         }
 
         if (!allowNoRows && selectedRows.length === 0 && !this.selectedRow) {
@@ -284,11 +309,6 @@ export class UniTicker {
                 let allRows: Array<any> = this.unitable.getTableData();
                 let hasMultipleIDs = false;
                 let lastID = null;
-
-                let rowIdentifier = 'ID';
-                if (action.Type === 'details' && action.ParameterProperty !== '') {
-                    rowIdentifier = action.ParameterProperty;
-                }
 
                 for (let i = 0; i < allRows.length && !hasMultipleIDs; i++) {
                     let row = allRows[i];
@@ -329,34 +349,105 @@ export class UniTicker {
             }
         }
 
-        if (actionType === 'export') {
-            this.exportToExcel(() => {});
-        } else {
-            this.uniTickerService
-                .executeAction(
-                    action,
-                    this.ticker,
-                    selectedRows && selectedRows.length > 0 ? selectedRows : [this.selectedRow]
-                ).then(() => {
-                    if (action.Type
-                        && (action.Type === 'transition' || action.Type === 'action')) {
-                        this.toastService.addToast(
-                            `Ferdig med å kjøre oppgaven ${action.Name}`,
-                            ToastType.good,
-                            ToastTime.short,
-                            '');
+        this.startExecuteAction(action, selectedRows);
+    }
 
-                        // refresh table data after actions/transitions are executed
-                        if (this.unitable) {
-                            this.unitable.refreshTableData();
-                        } else {
-                            this.loadDetailTickerData();
-                        }
-                    }
-                })
-                .catch((err) => {
-                    this.errorService.handle(err);
+    private startExecuteAction(action: TickerAction, selectedRows: Array<any> ) {
+
+        let actionOverride = this.actionOverrides.find(x => x.Code === action.Code);
+
+        if (actionOverride) {
+            if (actionOverride.BeforeExecuteActionHandler !== undefined) {
+                // if BeforeExecuteActionHandler is specified, check that it returns true
+                // or a promise that resolves to true before executing the action
+                Promise.resolve(actionOverride.BeforeExecuteActionHandler(selectedRows))
+                    .then((result: boolean) => {
+                       if (result) {
+                           this.executeAction(action, actionOverride, selectedRows);
+                       }
+                    });
+            } else {
+                this.executeAction(action, actionOverride, selectedRows);
+            }
+        } else {
+            this.executeAction(action, null, selectedRows);
+        }
+    }
+
+    private executeAction (action: TickerAction, actionOverride: ITickerActionOverride, selectedRows: Array<any> ) {
+
+        if (actionOverride && actionOverride.ExecuteActionHandler !== undefined) {
+            // execute overridden executionhandler instead of the standard actionhandling
+            actionOverride.ExecuteActionHandler(selectedRows)
+                .then(() => {
+                    // refresh table data after actions/transitions are executed
+                    this.reloadData();
+
+                    // execute AfterExecuteActionHandler if it is specified
+                    this.afterExecuteAction(action, actionOverride, selectedRows);
                 });
+        } else {
+            let actionType = action.Type;
+            let rowIdentifier = 'ID';
+            if ((action.Type === 'details' || action.Type === 'print') && action.Options.ParameterProperty !== '') {
+                rowIdentifier = action.Options.ParameterProperty;
+            }
+
+            if (actionType === 'export') {
+                this.exportToExcel(() => {});
+            } else if (actionType === 'print') {
+                if (!action.Options.ReportName) {
+                    throw Error('Cannot use action print without specifying Options.ReportName in action ' + action.Name);
+                }
+
+                this.reportDefinitionService.getReportByName(action.Options.ReportName).subscribe((report) => {
+                    if (report) {
+                        this.previewModal.openWithId(report, this.selectedRow ? this.selectedRow[rowIdentifier] : selectedRows[0][rowIdentifier]);
+
+                        // execute AfterExecuteActionHandler if it is specified
+                        this.afterExecuteAction(action, actionOverride, selectedRows);
+                    }
+                });
+            } else {
+                this.uniTickerService
+                    .executeAction(
+                        action,
+                        this.ticker,
+                        selectedRows && selectedRows.length > 0 ? selectedRows : [this.selectedRow]
+                    ).then(() => {
+                        if (action.Type
+                            && (action.Type === 'transition' || action.Type === 'action')) {
+                            this.toastService.addToast(
+                                `Ferdig med å kjøre oppgaven ${action.Name}`,
+                                ToastType.good,
+                                ToastTime.short,
+                                '');
+
+                            // refresh table data after actions/transitions are executed
+                            this.reloadData();
+
+                            // execute AfterExecuteActionHandler if it is specified
+                            this.afterExecuteAction(action, actionOverride, selectedRows);
+                        }
+                    })
+                    .catch((err) => {
+                        this.errorService.handle(err);
+                    });
+            }
+        }
+    }
+
+    private reloadData() {
+        if (this.unitable) {
+            this.unitable.refreshTableData();
+        } else {
+            this.loadDetailTickerData();
+        }
+    }
+
+    private afterExecuteAction(action: TickerAction, actionOverride: ITickerActionOverride, selectedRows: Array<any>) {
+        if (actionOverride && actionOverride.AfterExecuteActionHandler !== undefined) {
+            actionOverride.AfterExecuteActionHandler(selectedRows);
         }
     }
 
@@ -410,100 +501,120 @@ export class UniTicker {
                 let columns: Array<UniTableColumn> = [];
                 let selects: Array<string> = [];
 
+                let visibleColumns = JSON.parse(this.storageService.get(this.getColumnVisibilityStorageKey()));
+
                 for (let i = 0; i < this.ticker.Columns.length; i++) {
                     let field = this.ticker.Columns[i];
 
-                    let colType = UniTableColumnType.Text;
-
-                    if (field.Type !== '') {
-                        switch (field.Type) {
-                            case 'number':
-                                colType = UniTableColumnType.Number;
-                                break;
-                            case 'money':
-                                colType = UniTableColumnType.Money;
-                                break;
-                            case 'percent':
-                                colType = UniTableColumnType.Percent;
-                                break;
-                            case 'boolean':
-                                colType = UniTableColumnType.Boolean;
-                                break;
-                            case 'date':
-                            case 'datetime':
-                            case 'localdate':
-                                colType = UniTableColumnType.LocalDate;
-                                break;
-                            case 'attachment':
-                                colType = UniTableColumnType.Text;
-                        }
-                    }
-
-                    let col = new UniTableColumn(field.SelectableFieldName, field.Header, colType);
-                    col.alias = field.Alias;
-                    col.width = field.Width;
-                    col.sumFunction = field.SumFunction;
-
-                    if (field.SelectableFieldName.toLowerCase().endsWith('statuscode')) {
-                        col.template = (rowModel) => this.statusCodeToText(rowModel[field.Alias]);
-                    }
-
-                    if (field.Type === 'external-link') {
-                        col.setTemplate(row => {
-                            if (row[col.alias] && row[col.alias] !== '') {
-                                return `<a href="${row[col.alias]}" target="_blank">${row[col.alias]}</a>`;
-                            }
-                            return '';
-                        });
-                    } else if (field.Type === 'attachment') {
-                        col.setTemplate(line => line.Attachments ? PAPERCLIP : '')
-                            .setOnCellClick(line =>
-                                this.imageModal.open(
-                                    field.ExternalModel ? field.ExternalModel : this.ticker.Model,
-                                    line.JournalEntryID)
-                            );
-                    }
-
-                    if (field.Type === 'link' || field.Type === 'mailto' || (field.SubFields && field.SubFields.length > 0)) {
-                        col.setTemplate(row => {
-                            // use the tickerservice to get and format value and subfield values
-                            return this.uniTickerService.getFieldValue(field, row, this.ticker);
-                        });
-                    }
-
-                    if (field.Format && field.Format !== '') {
-                        // TODO Sett opp flere fornuftige ferdigformater her - f.eks. "NumberPositiveNegative", etc
-                        switch (field.Format) {
-                            case 'NumberPositiveNegative':
-                                col.setConditionalCls(row => row[field.Alias] >= 0 ?
-                                    'number-good'
-                                    : 'number-bad'
-                                );
-                                break;
-                            case 'DatePassed':
-                                col.setConditionalCls(row =>
-                                    moment(row[field.Alias]).isBefore(moment()) ?
-                                        'date-bad'
-                                        : 'date-good'
-                                );
-                                break;
-                            case 'json':
-                                col.setTemplate(row => JSON.stringify(row));
-                                break;
-                        }
-                    }
-
-                    if (field.DefaultHidden) {
-                        col.setVisible(false);
-                    }
-
-                    columns.push(col);
                     selects.push(field.SelectableFieldName + ' as ' + field.Alias);
 
                     if (field.SubFields) {
                         field.SubFields.forEach(subField => {
                             selects.push(subField.SelectableFieldName + ' as ' + subField.Alias);
                         });
+                    }
+
+                    if (field.Type !== 'dontdisplay') {
+                        let colType = UniTableColumnType.Text;
+
+                        if (field.Type !== '') {
+                            switch (field.Type) {
+                                case 'number':
+                                    colType = UniTableColumnType.Number;
+                                    break;
+                                case 'money':
+                                    colType = UniTableColumnType.Money;
+                                    break;
+                                case 'percent':
+                                    colType = UniTableColumnType.Percent;
+                                    break;
+                                case 'boolean':
+                                    colType = UniTableColumnType.Boolean;
+                                    break;
+                                case 'date':
+                                case 'datetime':
+                                case 'localdate':
+                                    colType = UniTableColumnType.LocalDate;
+                                    break;
+                                case 'attachment':
+                                    colType = UniTableColumnType.Text;
+                            }
+                        }
+
+                        let col = new UniTableColumn(field.SelectableFieldName, field.Header, colType);
+                        col.alias = field.Alias;
+                        col.width = field.Width;
+                        col.sumFunction = field.SumFunction;
+
+
+                        let columnOverride = this.columnOverrides.find(x => x.Field === field.Field);
+
+                        if (columnOverride) {
+                            col.setTemplate(row => {
+                                // use the tickerservice to get and format value based on override template
+                                return this.uniTickerService.getFieldValue(field, row, this.ticker, this.columnOverrides);
+                            });
+                        } else {
+                            // set up templates based on rules for e.g. fieldname
+                            if (field.SelectableFieldName.toLowerCase().endsWith('statuscode')) {
+                                col.template = (rowModel) => this.statusCodeToText(rowModel[field.Alias]);
+                            }
+                        }
+
+                        if (field.Type === 'external-link') {
+                            col.setTemplate(row => {
+                                if (row[col.alias] && row[col.alias] !== '') {
+                                    return `<a href="${row[col.alias]}" target="_blank">${row[col.alias]}</a>`;
+                                }
+                                return '';
+                            });
+                        } else if (field.Type === 'attachment') {
+                            col.setTemplate(line => line.Attachments ? PAPERCLIP : '')
+                               .setOnCellClick(line =>
+                                    this.imageModal.open(
+                                        field.ExternalModel ? field.ExternalModel : this.ticker.Model,
+                                        line.JournalEntryID)
+                               );
+                        }
+
+                        if (field.Type === 'link' || field.Type === 'mailto' || (field.SubFields && field.SubFields.length > 0)) {
+                            col.setTemplate(row => {
+                                // use the tickerservice to get and format value and subfield values
+                                return this.uniTickerService.getFieldValue(field, row, this.ticker, this.columnOverrides);
+                            });
+                        }
+
+                        if (field.Format && field.Format !== '') {
+                            // TODO Sett opp flere fornuftige ferdigformater her - f.eks. "NumberPositiveNegative", etc
+                            switch (field.Format) {
+                                case 'NumberPositiveNegative':
+                                    col.setConditionalCls(row => row[field.Alias] >= 0 ?
+                                        'number-good'
+                                        : 'number-bad'
+                                    );
+                                    break;
+                                case 'DatePassed':
+                                    col.setConditionalCls(row =>
+                                        moment(row[field.Alias]).isBefore(moment()) ?
+                                            'date-bad'
+                                            : 'date-good'
+                                    );
+                                    break;
+                                case 'json':
+                                    col.setTemplate(row => JSON.stringify(row));
+                                    break;
+                            }
+                        }
+
+                        if (visibleColumns && visibleColumns.length > 0) {
+                            if (!visibleColumns.find(x => x === field.SelectableFieldName)) {
+                                col.setVisible(false);
+                            }
+                        } else if (field.DefaultHidden) {
+                            col.setVisible(false);
+                        }
+
+                        columns.push(col);
                     }
                 }
 
@@ -530,17 +641,21 @@ export class UniTicker {
                         st.Type === 'details'
                         || st.Type === 'action'
                         || st.Type === 'transition'
+                        || st.Type === 'print'
                     );
 
                 actionsWithDetailNavigation.forEach(st => {
-                    let paramSelect = 'ID as ID';
-                    if (st.ParameterProperty !== '') {
-                        paramSelect = `${st.ParameterProperty} as ${st.ParameterProperty.replace('.', '')}`;
+                    let paramSelects = ['ID as ID'];
+                    if (st.Options.ParameterProperty !== '') {
+                        paramSelects = 
+                            [`${st.Options.ParameterProperty} as ${st.Options.ParameterProperty.replace('.', '')}`];
+                    } else if (st.Options.ParameterProperties && st.Options.ParameterProperties.length) {
+                        paramSelects = st.Options.ParameterProperties.map(prop => {
+                            return `${prop} as ${prop.replace('.', '')}`;
+                        });
                     }
 
-                    if (!selects.find(x => x === paramSelect)) {
-                        selects.push(paramSelect);
-                    }
+                    selects = [...selects, ...paramSelects.filter(param => !selects.some(x => x === param))];
                 });
 
                 let linkFieldsWithNavigationProperty =
@@ -551,6 +666,18 @@ export class UniTicker {
                     if (!selects.find(x => x === paramSelect)) {
                         selects.push(paramSelect);
                     }
+                });
+
+                let linkFieldWithNavigationProprties = this.ticker.Columns
+                    .filter(x => x.Type === 'link' 
+                        && x.LinkNavigationProperties 
+                        && x.LinkNavigationProperties.length);
+                
+                linkFieldWithNavigationProprties.forEach(field => {
+                    let paramSelects = field.LinkNavigationProperties.map(prop => {
+                        return `${prop} as ${prop.replace('.', '')}`;
+                    });
+                    selects = [...selects, ...paramSelects.filter(param => !selects.some(x => x === param))];
                 });
 
                 let linkFieldsWithoutNavigationProperty =
@@ -569,48 +696,41 @@ export class UniTicker {
                 if (this.ticker.Actions) {
                     this.ticker.Actions.forEach(action => {
                         if (action.DisplayInContextMenu) {
-
-                            if (action.Type === 'transition' && !action.Transition) {
-                                throw Error('Cannot add action with Type = transition without specifying which Transition to execute');
+                            if (action.Type === 'transition' && !action.Options.Transition) {
+                                throw Error('Cannot add action with Type = transition without specifying which Transition to execute, action: ' + action.Code);
                             }
 
-                            contextMenuItems.push({
-                                label: action.Name,
-                                action: (rowModel) => {
-                                    this.uniTickerService
-                                        .executeAction(action, this.ticker, [rowModel])
-                                        .then(() => {
-                                            if (action.Type === 'transition' || action.Type === 'action') {
-                                                this.toastService.addToast(
-                                                    `Ferdig med å kjøre oppgaven ${action.Name}`,
-                                                    ToastType.good,
-                                                    ToastTime.short,
-                                                    '');
+                            let actionOverride = this.actionOverrides.find(x => action.Code === x.Code);
+                            if (action.NeedsActionOverride && !actionOverride) {
+                                console.log(`Action ${action.Code} needs an ActionOverride to function correctly, and that is not specified`);
+                            } else if (action.Type === 'action' && !actionOverride) {
+                                console.log(`Action ${action.Code} not available because of missing action override`);
+                            } else {
+                                contextMenuItems.push({
+                                    label: action.Name,
+                                    action: (rowModel) => {
+                                        this.startExecuteAction(action, [rowModel]);
+                                    },
+                                    disabled: (rowModel) => {
 
-                                                // refresh table data after actions/transitions are executed
-                                                if (this.unitable) {
-                                                    this.unitable.refreshTableData();
+                                        if (actionOverride && actionOverride.CheckActionIsDisabled !== undefined) {
+                                            return actionOverride.CheckActionIsDisabled([rowModel]);
+                                        }
+
+                                        if (action.Type === 'transition') {
+                                            if (!rowModel._links) {
+                                                throw Error('Cannot setup transition action, hateoas is not retrieved');
+                                            } else {
+                                                if (!rowModel._links.transitions[action.Options.Transition]) {
+                                                    return true;
                                                 }
                                             }
-                                        })
-                                        .catch((err) => {
-                                            this.errorService.handle(err);
-                                        });
-                                },
-                                disabled: (rowModel) => {
-                                    if (action.Type === 'transition') {
-                                        if (!rowModel._links) {
-                                            throw Error('Cannot setup transition action, hateoas is not retrieved');
-                                        } else {
-                                            if (!rowModel._links.transitions[action.Transition]) {
-                                                return true;
-                                            }
                                         }
-                                    }
 
-                                    return false;
-                                }
-                            });
+                                        return false;
+                                    }
+                                });
+                            }
                         }
                     });
                 }
@@ -661,5 +781,21 @@ export class UniTicker {
                 err => this.errorService.handle(err));
 
         completeEvent('Eksport kjørt');
+    }
+
+    private onColumnVisibilityChange(columns) {
+        let visibleColumns: Array<string> = [];
+
+        columns.forEach(x => {
+            if (x.visible) {
+                visibleColumns.push(x.field);
+            }
+        });
+
+        this.storageService.save(this.getColumnVisibilityStorageKey(), JSON.stringify(visibleColumns));
+    }
+
+    private getColumnVisibilityStorageKey() {
+        return TICKER_COLUMN_VISIBILITY_STORAGE_KEY + '_' + this.ticker.Code;
     }
 }

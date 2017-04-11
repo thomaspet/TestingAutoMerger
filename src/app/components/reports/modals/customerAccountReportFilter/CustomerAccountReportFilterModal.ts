@@ -146,52 +146,50 @@ export class CustomerAccountReportFilterModal {
                 {
                     text: 'Ok',
                     class: 'good',
-                    method: () => {
-                        this.modal.getContent().then((component: CustomerAccountReportFilterForm) => {
-                            for (const parameter of <CustomReportDefinitionParameter[]>this.modalConfig.report.parameters) {
-                                switch (parameter.Name) {
-                                    case 'ShowLastYear':
-                                    case 'ShowFilter':
-                                    case 'ShowFrontPage':
-                                    case 'FromAccountNumber':
-                                    case 'ToAccountNumber':
-                                    case 'FromPeriodNo':
-                                    case 'ToPeriodNo':
-                                    case 'PeriodAccountYear':
-                                        parameter.value = component.model$.getValue()[parameter.Name];
-                                        break;
-                                    case 'PeriodAccountLastYear':
-                                        parameter.value = component.model$.getValue()['PeriodAccountYear'] - 1;
-                                        break;
-                                    case 'OrderBy':
-                                        switch (component.model$.getValue()['OrderBy']) {
-                                            case 'CustomerNrAndJournalNr':
-                                            case 'CustomerNameAndJournalNr':
-                                                parameter.value = 'JournalEntryNumber';
-                                                break;
-                                            case 'CustomerNrAndDate':
-                                            case 'CustomerNameAndDate':
-                                                parameter.value = 'FinancialDate';
-                                                break;
-                                        }
-                                        break;
-                                    case 'OrderByGroup':
-                                        switch (component.model$.getValue()['OrderBy']) {
-                                            case 'CustomerNameAndJournalNr':
-                                            case 'CustomerNameAndDate':
-                                                parameter.value = 'name';
-                                                break;
-                                            default:
-                                                parameter.value = 'journalentrynumber';
-                                                break;
-                                        }
-                                        break;
-                                }
+                    method: (model$) => {
+                        for (const parameter of <CustomReportDefinitionParameter[]>this.modalConfig.report.parameters) {
+                            switch (parameter.Name) {
+                                case 'ShowLastYear':
+                                case 'ShowFilter':
+                                case 'ShowFrontPage':
+                                case 'FromAccountNumber':
+                                case 'ToAccountNumber':
+                                case 'FromPeriodNo':
+                                case 'ToPeriodNo':
+                                case 'PeriodAccountYear':
+                                    parameter.value = model$.getValue()[parameter.Name];
+                                    break;
+                                case 'PeriodAccountLastYear':
+                                    parameter.value = model$.getValue()['PeriodAccountYear'] - 1;
+                                    break;
+                                case 'OrderBy':
+                                    switch (model$.getValue()['OrderBy']) {
+                                        case 'CustomerNrAndJournalNr':
+                                        case 'CustomerNameAndJournalNr':
+                                            parameter.value = 'JournalEntryNumber';
+                                            break;
+                                        case 'CustomerNrAndDate':
+                                        case 'CustomerNameAndDate':
+                                            parameter.value = 'FinancialDate';
+                                            break;
+                                    }
+                                    break;
+                                case 'OrderByGroup':
+                                    switch (model$.getValue()['OrderBy']) {
+                                        case 'CustomerNameAndJournalNr':
+                                        case 'CustomerNameAndDate':
+                                            parameter.value = 'name';
+                                            break;
+                                        default:
+                                            parameter.value = 'journalentrynumber';
+                                            break;
+                                    }
+                                    break;
                             }
+                        }
 
-                            this.modal.close();
-                            this.previewModal.open(this.modalConfig.report);
-                        });
+                        this.modal.close();
+                        this.previewModal.open(this.modalConfig.report);
                     }
                 },
                 {

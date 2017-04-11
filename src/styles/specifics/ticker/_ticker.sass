@@ -27,6 +27,7 @@ uni-ticker
         background-repeat: no-repeat
         background-position: center right 1rem
         background-size: 1rem auto
+        display: none // hide for now - this is not used now, so it just takes up a lot of space in the top
 
     .ticker-data
         margin-top: 1.5rem
@@ -55,9 +56,9 @@ uni-ticker
 
     .data-container
         background-color: white
-        height: calc(100vh - #{pxToRem(325)} - 2.35rem)
+        height: calc(100vh - #{pxToRem(250)} - 2.35rem)
         border-radius: 0 0 pxToRem(7) pxToRem(7)
-        padding: 1rem 1rem 5rem
+        padding: 1rem 1rem 0rem
         box-sizing: border-box
         overflow-y: auto
 
@@ -115,7 +116,7 @@ uni-sub-ticker-container
         opacity: 0
 
     .sub-ticker-container
-        height: calc(100vh - #{pxToRem(325)})
+        height: calc(100vh - #{pxToRem(250)})
         display: inline-block
         width: 100%
         font-weight: normal

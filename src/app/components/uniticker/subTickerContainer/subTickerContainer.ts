@@ -1,16 +1,19 @@
-import {Component, ViewChild, Input, OnInit, OnChanges, SimpleChanges, Output, EventEmitter} from '@angular/core';
-import {Ticker, TickerGroup, TickerColumn} from '../../../services/common/uniTickerService';
+import {Component, ViewChild, Input, OnInit, OnChanges, SimpleChanges, Output, EventEmitter, ChangeDetectionStrategy} from '@angular/core';
+import {Ticker, TickerGroup, TickerColumn, ITickerActionOverride, ITickerColumnOverride} from '../../../services/common/uniTickerService';
 import {UniTickerService} from '../../../services/services';
 
 @Component({
     selector: 'uni-sub-ticker-container',
-    templateUrl: './subTickerContainer.html'
+    templateUrl: './subTickerContainer.html',
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class UniSubTickerContainer implements OnChanges {
-    @Input() subTickers: Array<Ticker>;
-    @Input() parentTicker: Ticker;
-    @Input() parentModel: any;
+    @Input() private subTickers: Array<Ticker>;
+    @Input() private parentTicker: Ticker;
+    @Input() private parentModel: any;
     @Input() private expanded: boolean = false;
+    @Input() private actionOverrides: Array<ITickerActionOverride>;
+    @Input() private columnOverrides: Array<ITickerColumnOverride> = [];
 
     @Output() close: EventEmitter<any> = new EventEmitter<any>();
 
@@ -26,10 +29,10 @@ export class UniSubTickerContainer implements OnChanges {
                 this.selectedSubTicker = this.subTickers[0];
             }
         }
+    }
 
-        if (changes['parentModel'] && this.parentModel) {
-
-        }
+    private getParentTickerColumns() {
+        return this.parentTicker.Columns.filter(x => x.Type !== 'dontdisplay');
     }
 
     private onSelectSubTicker(subTicker: Ticker) {
@@ -54,6 +57,6 @@ export class UniSubTickerContainer implements OnChanges {
     }
 
     public getFieldValue(column: TickerColumn, model: any) {
-        return this.tickerService.getFieldValue(column, model, this.parentTicker);
+        return this.tickerService.getFieldValue(column, model, this.parentTicker, this.columnOverrides);
     }
 }

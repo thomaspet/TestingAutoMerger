@@ -1,3 +1,336 @@
 [
-
+    {
+        "Name": "Ansatt",
+        "Code": "employee_list",
+        "Type": "Table",
+        "IsTopLevelTicker": true,
+        "Group": "Lønn",
+        "Model": "Employee",
+        "Expand": "Employment,BusinessRelationInfo.InvoiceAddress,BusinessrelationInfo.DefaultPhone,BusinessRelationInfo.DefaultEmail,BusinessRelationInfo.DefaultBankAccount",
+        "Columns": [
+            {
+                "Header": "Ansattnr",
+                "Field": "EmployeeNumber"
+            },
+            {
+                "Header": "Navn",
+                "Field": "BusinessRelationInfo.Name",
+                "Type": "link",
+                "LinkNavigationProperty": "ID"
+            },
+            {
+                "Header": "Fødselsnummer",
+                "Field": "SocialSecurityNumber",
+                "Type": "text"
+            },
+            {
+                "Header": "Fødselsdato",
+                "Field": "BirthDate"
+            },
+            {
+                "Header": "Kontonummer",
+                "Field": "BusinessRelationInfo.DefaultBankAccount.AccountNumber"
+            },
+            {
+                "Header": "Adresse",
+                "Field": "BusinessRelationInfo.InvoiceAddress.AddressLine1",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "Epost",
+                "Field": "BusinessRelationInfo.DefaultEmail.EmailAddress",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "Telefon",
+                "Field": "BusinessRelationInfo.DefaultPhone.Number",
+                "DefaultHidden": true
+            }
+        ],
+        "Actions": [
+            {
+                "Name": "Ny ansatt",
+                "Code": "new_employee",
+                "ExecuteWithoutSelection": true,
+                "Type": "new",
+                "DisplayForSubTickers": false
+            },
+            {
+                "Name": "Vis ansatt",
+                "Code": "open_employee",
+                "Type": "details",
+                "DisplayInContextMenu": true,
+                "DisplayInActionBar": true
+            }
+        ],
+        "ParentFilter": {
+            "Field": "ID",
+            "Operator": "eq",
+            "Value": "ID"
+        },
+        "SubTickersCodes": [
+            "employee_details",
+            "employment_list"
+        ]
+    },
+    {
+        "Name": "Ansatt",
+        "Code": "employee_details",
+        "Type": "Details",
+        "Group": "Lønn",
+        "Model": "Employee",
+        "Expand": "Employment,BusinessRelationInfo.InvoiceAddress,BusinessrelationInfo.DefaultPhone,BusinessRelationInfo.DefaultEmail,BusinessRelationInfo.DefaultBankAccount",
+        "Columns": [
+            {
+                "Header": "Ansattnr",
+                "Field": "EmployeeNumber",
+                "Type": "number"
+            },
+            {
+                "Header": "Navn",
+                "Field": "BusinessRelationInfo.Name",
+                "Type": "text"
+            },
+            {
+                "Header": "Fødselsnummer",
+                "Field": "SocialSecurityNumber",
+                "Type": "text"
+            },
+            {
+                "Header": "Fødselsdato",
+                "Field": "BirthDate"
+            },
+            {
+                "Header": "Kontonummer",
+                "Field": "BusinessRelationInfo.DefaultBankAccount.AccountNumber"
+            },
+            {
+                "Header": "Adresse",
+                "Field": "BusinessRelationInfo.InvoiceAddress.AddressLine1"
+            },
+            {
+                "Header": "Epost",
+                "Field": "BusinessRelationInfo.DefaultEmail.EmailAddress"
+            },
+            {
+                "Header": "Telefon",
+                "Field": "BusinessRelationInfo.DefaultPhone.Number"
+            }
+        ],
+        "ParentFilter": {
+            "Field": "ID",
+            "Operator": "eq",
+            "Value": "ID"
+        }
+    },
+    {
+        "Name": "Arbeidsforhold",
+        "Code": "employment_list",
+        "Type": "Table",
+        "Group": "Lønn",
+        "IsTopLevelTicker": true,
+        "Model": "Employment",
+        "Expand": "SubEntity.BusinessRelationInfo,Dimensions.Department,Dimensions.Project",
+        "Columns": [{
+                "Header": "Stillingskode",
+                "Field": "JobCode",
+                "Type": "text"
+            },
+            {
+                "Header": "Stillingsnavn",
+                "Field": "JobName",
+                "Type": "link",
+                "LinkNavigationProperties": ["Employment.EmployeeID", "ID"]
+            },
+            {
+                "Header": "Stillingsprosent",
+                "Field": "WorkPercent",
+                "Type": "percent"
+            },
+            {
+                "Header": "Standard",
+                "Field": "Standard"
+            },
+            {
+                "Header": "StartDato",
+                "Field": "StartDate"
+            },
+            {
+                "Header": "SluttDato",
+                "Field": "EndDate"
+            },
+            {
+                "Header": "Virksomhet",
+                "Field": "SubEntity.BusinessRelationInfo.Name"
+            },
+            {
+                "Header": "Månedslønn",
+                "Field": "MonthRate"
+            },
+            {
+                "Field": "EmployeeID",
+                "Type": "dontdisplay"
+            }
+        ],
+        "ParentFilter": {
+            "Field": "EmployeeID",
+            "Operator": "eq",
+            "Value": "ID"
+        },
+        "Actions": [{
+            "Name": "Vis arbeidsforhold",
+            "Code": "open_employment",
+            "Type": "details",
+            "DisplayInContextMenu": true,
+            "DisplayInActionBar": true,
+            "Options": {
+                "ParameterProperties": ["Employment.EmployeeID", "ID"]
+            }
+        }],
+        "SubTickersCodes": ["employment_details", "leave_items"]
+    },
+    {
+        "Name": "Arbeidsforhold",
+        "Code": "employment_details",
+        "Type": "Detail",
+        "Group": "Lønn",
+        "Model": "Employment",
+        "Expand": "SubEntity.BusinessRelationInfo,Dimensions.Department,Dimensions.Project",
+        "Columns": [{
+                "Header": "Stillingskode",
+                "Field": "JobCode",
+                "Type": "text"
+            },
+            {
+                "Header": "Stillingsnavn",
+                "Field": "JobName",
+                "Type": "text"
+            },
+            {
+                "Header": "Stillingsprosent",
+                "Field": "WorkPercent",
+                "Type": "percent"
+            },
+            {
+                "Header": "Standard",
+                "Field": "Standard"
+            },
+            {
+                "Header": "StartDato",
+                "Field": "StartDate"
+            },
+            {
+                "Header": "SluttDato",
+                "Field": "EndDate"
+            },
+            {
+                "Header": "Virksomhet",
+                "Field": "SubEntity.BusinessRelationInfo.Name"
+            },
+            {
+                "Header": "Månedslønn",
+                "Field": "MonthRate"
+            },
+            {
+                "Header": "Timelønn",
+                "Field": "HourRate"
+            },
+            {
+                "Header": "Fri sats",
+                "Field": "UserDefinedRate"
+            },
+            {
+                "Header": "Hovedbokskonto",
+                "Field": "LedgerAccount"
+            },
+            {
+                "Header": "Timer pr uke full stilling",
+                "Field": "HoursPerWeek"
+            },
+            {
+                "Header": "Ansienitet",
+                "Field": "SeniorityDate"
+            },
+            {
+                "Header": "Lønnsjustering",
+                "Field": "LastSalaryChangeDate"
+            },
+            {
+                "Header": "Sist endret %",
+                "Field": "LastWorkPercentChangeDate"
+            },
+            {
+                "Header": "Prosjekt",
+                "Field": "Dimensions.Project.Name"
+            },
+            {
+                "Header": "Avdeling",
+                "Field": "Dimensions.Department.Name"
+            }
+        ],
+        "ParentFilter": {
+            "Field": "ID",
+            "Operator": "eq",
+            "Value": "ID"
+        }
+    },
+    {
+        "Name": "Permisjoner",
+        "Type": "Table",
+        "Code": "leave_items",
+        "IsTopLevelTicker": true,
+        "Group": "Lønn",
+        "Model": "EmployeeLeave",
+        "Expand": "Employment",
+        "SubTickers": [],
+        "Filters": [],
+        "Columns": [{
+                "Header": "Kommentar",
+                "Field": "Description"
+            },
+            {
+                "Header": "Startdato",
+                "Field": "FromDate",
+                "Width": "8rem"
+            },
+            {
+                "Header": "Tildato",
+                "Field": "ToDate",
+                "Width": "8rem"
+            },
+            {
+                "Header": "Prosent",
+                "Field": "LeavePercent",
+                "Format": "percent",
+                "Width": "8rem"
+            },
+            {
+                "Header": "Type",
+                "Field": "LeaveType",
+                "Width": "8rem"
+            },
+            {
+                "Header": "Arbeidsforhold",
+                "Field": "Employment.ID",
+                "Format": "text",
+                "Width": "16rem",
+                "SubFields": [{
+                    "Field": "Employment.JobName"
+                }]
+            }
+        ],
+        "ParentFilter": {
+            "Field": "EmploymentID",
+            "Operator": "eq",
+            "Value": "ID"
+        },
+        "Actions": [{
+            "Name": "Eksporter",
+            "Code": "export_leaveitems",
+            "Type": "export",
+            "ExecuteWithMultipleSelections": true,
+            "ExecuteWithoutSelection": true,
+            "DisplayInActionBar": true
+        }]
+    }
 ]

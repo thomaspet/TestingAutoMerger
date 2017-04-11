@@ -2,7 +2,7 @@ import {Component, ViewChild, Input, SimpleChanges, Output, EventEmitter} from '
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {UniTabs} from '../../layout/uniTabs/uniTabs';
 import {Router, ActivatedRoute, RouterLink} from '@angular/router';
-import {Ticker, TickerGroup, TickerAction, TickerFilter, TickerColumn, IExpressionFilterValue} from '../../../services/common/uniTickerService';
+import {Ticker, TickerGroup, TickerAction, TickerFilter, TickerColumn, IExpressionFilterValue, ITickerActionOverride, ITickerColumnOverride} from '../../../services/common/uniTickerService';
 import {UniTicker} from '../ticker/ticker';
 import {UniSubTickerContainer} from '../subTickerContainer/subTickerContainer';
 import {UniTickerFilters} from '../components/tickerFilters';
@@ -19,7 +19,11 @@ export class UniTickerContainer {
     @Input() private ticker: Ticker;
     @Input() private showActions: boolean;
     @Input() private showFilters: boolean;
+    @Input() private showFiltersAsNavbar: boolean = false;
     @Input() private showSubTickers: boolean = false;
+    @Input() private actionOverrides: Array<ITickerActionOverride> = [];
+    @Input() private columnOverrides: Array<ITickerColumnOverride> = [];
+
     @Output() private urlPropertiesChanged: EventEmitter<any> = new EventEmitter<any>();
 
     @ViewChild(UniTicker) private uniTicker: UniTicker;
@@ -28,7 +32,6 @@ export class UniTickerContainer {
 
     private expanded: string = 'ticker';
     public selectedFilter: TickerFilter;
-
 
     private selectedRow: any;
     private expressionFilters: Array<IExpressionFilterValue> = [];
@@ -69,23 +72,6 @@ export class UniTickerContainer {
             } else {
                 this.setExpanded('ticker');
             }
-
-            // we need the data to be loaded before setting this, so let the data be loaded
-            // and set the selected row / expand afterwards if needed
-            /*
-            KE: AVVENT DENNE - MULIG DET LØSER SEG SELV MED NY STICKY ROUTER
-            if (pageState.selected) {
-                setTimeout(() => {
-                    if (pageState.selected && pageState.selected !== '') {
-                        this.uniTicker.setSelectedRow(pageState.selected);
-
-                    } else {
-                        this.selectedRow = null;
-                    }
-                });
-            }*/
-
-
         }
     }
 
@@ -107,11 +93,6 @@ export class UniTickerContainer {
 
     private onRowSelected(selectedRow: any) {
         this.selectedRow = selectedRow;
-
-        if (selectedRow && selectedRow._originalIndex) {
-            this.pageStateService.setPageState('selected', selectedRow._originalIndex);
-            this.urlPropertiesChanged.emit();
-        }
 
         if (this.ticker.SubTickers && this.ticker.SubTickers.length > 0 && this.selectedRow) {
             this.setExpanded('subticker');

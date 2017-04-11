@@ -49,8 +49,11 @@ export class AltinnIntegrationService extends BizHttp<Altinn> {
             .map(response => response.json());
     }
 
-    public sendTaxRequestAction(option: string, empId: number = 0): Observable<AltinnReceipt> {
-        return this.PostAction(1, 'sendtaxrequest', 'option=' + option + '&empId=' + empId);
+    public sendTaxRequestAction(
+        option: string, 
+        empId: number = 0, 
+        empsAndChanged: boolean = false): Observable<AltinnReceipt> {
+        return this.PostAction(1, 'sendtaxrequest', 'option=' + option + '&empId=' + empId + '&requestAllChanges=' + empsAndChanged);
     }
 
     public readTaxCard(authData: AltinnAuthenticationData, receiptID: number): Observable<string> {

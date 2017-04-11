@@ -1,7 +1,7 @@
 import { Component, OnInit, ViewChild, Type, Input } from '@angular/core';
 import { UniModal } from '../../../../../framework/modals/modal';
 import { ReportDefinition, ReportDefinitionParameter, PayrollRun } from '../../../../unientities';
-import { ReportDefinitionParameterService, YearService, ErrorService, 
+import { ReportDefinitionParameterService, YearService, ErrorService,
     PayrollrunService } from '../../../../services/services';
 import { PreviewModal } from '../preview/previewModal';
 import { UniFieldLayout, FieldType } from 'uniform-ng2/main';
@@ -11,7 +11,7 @@ import { Observable } from 'rxjs/Observable';
 type ModalConfig = {
     report: any,
     title: string,
-    actions: { text: string, class?: string, method: () => void }[]
+    actions: { text: string, class?: string, method: (any) => void }[]
 }
 
 @Component({
@@ -38,7 +38,7 @@ export class SalaryPaymentListReportFilterModalContent implements OnInit {
             .finally(() => subscription.unsubscribe())
             .subscribe(payrollRun => {
                 this.fields$.next(this.getLayout(payrollRun));
-                this.model$.next({ RunID: payrollRun.ID });
+                this.model$.next({ RunID: payrollRun ? payrollRun.ID : 0 });
             });
     }
 
@@ -80,14 +80,12 @@ export class SalaryPaymentListReportFilterModal implements OnInit {
                 {
                     text: 'Ok',
                     class: 'good',
-                    method: () => {
-                        this.modal.getContent().then((component: SalaryPaymentListReportFilterModalContent) => {
-                            this.modal.close();
-                            this.previewModal.openWithId(
-                                this.modalConfig.report, 
-                                component.model$.getValue().RunID,
-                                 'RunID');
-                        });
+                    method: (model$) => {
+                        this.modal.close();
+                        this.previewModal.openWithId(
+                            this.modalConfig.report,
+                            model$.getValue().RunID,
+                                'RunID');
                     }
                 },
                 {

@@ -427,6 +427,7 @@ export class CustomerInvoiceReminder extends UniEntity {
     public Deleted: boolean;
     public Description: string;
     public DueDate: LocalDate;
+    public EmailAddress: string;
     public ID: number;
     public RemindedDate: LocalDate;
     public ReminderFee: number;
@@ -507,6 +508,7 @@ export class CustomerInvoice extends UniEntity {
     public DeliveryName: string;
     public DeliveryTerm: string;
     public DontSendReminders: boolean;
+    public EmailAddress: string;
     public FreeTxt: string;
     public ID: number;
     public InternalNote: string;
@@ -631,6 +633,7 @@ export class CustomerOrder extends UniEntity {
     public DeliveryDate: LocalDate;
     public DeliveryMethod: string;
     public DeliveryTerm: string;
+    public EmailAddress: string;
     public FreeTxt: string;
     public ID: number;
     public InternalNote: string;
@@ -743,6 +746,7 @@ export class CustomerQuote extends UniEntity {
     public DeliveryDate: LocalDate;
     public DeliveryMethod: string;
     public DeliveryTerm: string;
+    public EmailAddress: string;
     public FreeTxt: string;
     public ID: number;
     public InquiryReference: number;
@@ -928,10 +932,10 @@ export class BusinessRelation extends UniEntity {
     public StatusCode: number;
     public UpdatedAt: Date;
     public UpdatedBy: string;
+    public BankAccounts: Array<BankAccount>;
     public Addresses: Array<Address>;
     public Phones: Array<Phone>;
     public Emails: Array<Email>;
-    public BankAccounts: Array<BankAccount>;
     public InvoiceAddress: Address;
     public ShippingAddress: Address;
     public DefaultPhone: Phone;
@@ -995,14 +999,14 @@ export class AGACalculation extends UniEntity {
     public StatusCode: number;
     public UpdatedAt: Date;
     public UpdatedBy: string;
-    public freeAmountUsed: Array<FreeAmountUsed>;
     public agaTax: Array<AGATax>;
     public agaDraw: Array<AGADraw>;
-    public agaPension: Array<AGAPension>;
-    public foreignerWithPercent: Array<ForeignerWithPercent>;
-    public drawForeignerWithPercent: Array<DrawForeignerWithPercent>;
-    public foreignerWithAmount: Array<ForeignerWithAmount>;
     public payrollRun: PayrollRun;
+    public freeAmountUsed: Array<FreeAmountUsed>;
+    public foreignerWithAmount: Array<ForeignerWithAmount>;
+    public foreignerWithPercent: Array<ForeignerWithPercent>;
+    public agaPension: Array<AGAPension>;
+    public drawForeignerWithPercent: Array<DrawForeignerWithPercent>;
     public Dimensions: Dimensions;
     public CustomFields: any;
 }
@@ -1898,20 +1902,20 @@ export class CompanySettings extends UniEntity {
     public VatLockedDate: LocalDate;
     public VatReportFormID: number;
     public WebAddress: string;
+    public BaseCurrencyCode: CurrencyCode;
+    public CompanyBankAccount: BankAccount;
+    public DefaultProductInvoiceReminder: Product;
+    public CustomerInvoiceReminderSettings: CustomerInvoiceReminderSettings;
     public DefaultAddress: Address;
     public DefaultPhone: Phone;
     public DefaultEmail: Email;
     public SupplierAccount: Account;
     public CustomerAccount: Account;
     public BankAccounts: Array<BankAccount>;
-    public CompanyBankAccount: BankAccount;
     public TaxBankAccount: BankAccount;
     public SalaryBankAccount: BankAccount;
     public SettlementVatAccount: Account;
     public DefaultSalesAccount: Account;
-    public CustomerInvoiceReminderSettings: CustomerInvoiceReminderSettings;
-    public DefaultProductInvoiceReminder: Product;
-    public BaseCurrencyCode: CurrencyCode;
     public AgioGainAccount: Account;
     public AgioLossAccount: Account;
     public BankChargeAccount: Account;
@@ -3219,6 +3223,7 @@ export class VatTypeSetup extends UniEntity {
     public CreatedAt: Date;
     public CreatedBy: string;
     public Deleted: boolean;
+    public DirectJournalEntryOnly: boolean;
     public ID: number;
     public IncomingAccountNumber: number;
     public IsCompensated: boolean;
@@ -4204,6 +4209,7 @@ export class VatType extends UniEntity {
     public CreatedAt: Date;
     public CreatedBy: string;
     public Deleted: boolean;
+    public DirectJournalEntryOnly: boolean;
     public ID: number;
     public IncomingAccountID: number;
     public InUse: boolean;
@@ -4227,7 +4233,6 @@ export class VatType extends UniEntity {
     public VatCodeGroup: VatCodeGroup;
     public VatReportReferences: Array<VatReportReference>;
     public CustomFields: any;
-    public DirectJournalEntryOnly: boolean;
 }
 
 
@@ -4498,11 +4503,16 @@ export class ContactSearchServiceResponse extends UniEntity {
 
 
 export class InvoicesAndRemindersReadyToRemind extends UniEntity {
+    public CurrencyCodeCode: string;
+    public CurrencyCodeID: number;
+    public CurrencyCodeShortCode: string;
+    public CurrencyExchangeRate: number;
     public CustomerID: number;
     public CustomerInvoiceID: number;
     public CustomerInvoiceReminderID: number;
     public CustomerName: string;
     public CustomerNumber: number;
+    public DontSendReminders: boolean;
     public DueDate: Date;
     public EmailAddress: string;
     public Fee: number;
@@ -4510,8 +4520,10 @@ export class InvoicesAndRemindersReadyToRemind extends UniEntity {
     public InvoiceNumber: number;
     public ReminderNumber: number;
     public RestAmount: number;
+    public RestAmountCurrency: number;
     public StatusCode: number;
     public TaxInclusiveAmount: number;
+    public TaxInclusiveAmountCurrency: number;
 }
 
 
@@ -4934,32 +4946,6 @@ export class JournalEntryData extends UniEntity {
 
 export class JournalEntryPaymentData extends UniEntity {
     public PaymentData: Payment;
-}
-
-
-export class ValidationResult extends UniEntity {
-    public Messages: Array<ValidationMessage>;
-}
-
-
-export class ValidationMessage extends UniEntity {
-    public EntityID: number;
-    public EntityType: string;
-    public ID: number;
-    public Level: ValidationLevel;
-    public Message: string;
-    public PropertyName: string;
-    public EntityValidationRule: EntityValidationRule;
-    public ComplexValidationRule: ComplexValidationRule;
-}
-
-
-export class JournalEntryCalculationSummary extends UniEntity {
-    public Differance: number;
-    public IncomingVat: number;
-    public OutgoingVat: number;
-    public SumCredit: number;
-    public SumDebet: number;
 }
 
 

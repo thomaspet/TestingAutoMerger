@@ -1,0 +1,23 @@
+// Support adding two input fields side-by-side
+uni-field.combofield.combofield,
+uni-field.combofield.combofield + uni-field //.combofield.combofield specificity hack to get it to override the set width - we want them to be half the width of a regular input each.
+    width: calc(50% - 1rem)
+
+    // If we have a width class set - half it.
+    &.half-width
+        width: calc(25% - 1rem)
+
+    &.quarter-width
+        width: calc(12.5% - 1rem)
+
+// Remove the margin, border radius and border between the two inputs.
+.combofield
+    margin-right: 0
+    input
+        border-radius: pxToRem(3) 0 0 pxToRem(3)
+
+    & + uni-field
+        margin-left: 0
+        input
+            border-left-width: 0
+            border-radius: 0 pxToRem(3) pxToRem(3) 0

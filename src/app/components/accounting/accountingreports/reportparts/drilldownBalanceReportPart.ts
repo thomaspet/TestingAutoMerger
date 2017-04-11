@@ -62,7 +62,7 @@ export class DrilldownBalanceReportPart implements OnChanges {
             if (summaryData.expanded) {
                 let index = this.flattenedTreeSummaryList.indexOf(summaryData);
                 if (summaryData.children.length > 0) {
-                    let childrenWithData = summaryData.children.filter(x => x.rowCount > 0);
+                    let childrenWithData = summaryData.children.filter(x => x.rowCount > 0 || x.amountIBPeriod1 !== 0 || x.amountIBPeriod2 !== 0);
                     this.flattenedTreeSummaryList = this.flattenedTreeSummaryList.slice( 0, index + 1 ).concat( childrenWithData ).concat( this.flattenedTreeSummaryList.slice( index + 1 ) );
                 }
             } else {
@@ -74,7 +74,7 @@ export class DrilldownBalanceReportPart implements OnChanges {
     }
 
     private getChildrenWithDataDeep(summaryData: BalanceSummaryData) {
-        let children = summaryData.children.filter(x => x.rowCount > 0);
+        let children = summaryData.children.filter(x => x.rowCount > 0 || x.amountIBPeriod1 !== 0 || x.amountIBPeriod2 !== 0);
 
         children.forEach(child => {
             children = children.concat(this.getChildrenWithDataDeep(child));
@@ -148,7 +148,11 @@ export class DrilldownBalanceReportPart implements OnChanges {
                             accountSummaryData.rowCount = accountJournalEntryData.CountEntries;
                         }
 
-                        if (accountSummaryData.rowCount !== 0) {
+                        // only show account if we have any data - i.e. either the IB has a value, or there are
+                        // transactions in the periods
+                        if (accountSummaryData.rowCount !== 0
+                            || accountSummaryData.amountIBPeriod1 !== 0
+                            || accountSummaryData.amountIBPeriod2 !== 0) {
                             if (this.shouldSkipGroupLevel(summaryData.number)) {
                                 accountSummaryData.parent = summaryData.parent;
                                 summaryData.parent.children.push(accountSummaryData);

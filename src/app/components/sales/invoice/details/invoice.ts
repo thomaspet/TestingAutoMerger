@@ -26,7 +26,9 @@ import {UniConfirmModal, ConfirmActions} from '../../../../../framework/modals/c
 import {CompanySettingsService} from '../../../../services/services';
 import {ActivateAPModal} from '../../../common/modals/activateAPModal';
 import {ReminderSendingModal} from '../../reminder/sending/reminderSendingModal';
+import {roundTo, safeDec, safeInt, trimLength, capitalizeSentence} from '../../../timetracking/utils/utils';
 import {
+    StatisticsService,
     CustomerInvoiceService,
     CustomerInvoiceItemService,
     BusinessRelationService,
@@ -43,6 +45,14 @@ import {
 } from '../../../../services/services';
 import * as moment from 'moment';
 declare const _;
+
+export enum CollectorStatus {
+    Reminded = 42501,
+    SendtToDebtCollection = 42502,
+    FactoringRegistered = 42503,
+    SentToFactoring = 42504,
+    Completed = 42502
+}
 
 @Component({
     selector: 'uni-invoice',
@@ -121,7 +131,8 @@ export class InvoiceDetails {
         private customerInvoiceReminderService: CustomerInvoiceReminderService,
         private currencyCodeService: CurrencyCodeService,
         private currencyService: CurrencyService,
-        private reportService: ReportService
+        private reportService: ReportService,
+        private statisticsService: StatisticsService
     ) {
         // set default tab title, this is done to set the correct current module to make the breadcrumb correct
         this.tabService.addTab({ url: '/sales/invoices/', name: 'Faktura', active: true, moduleID: UniModules.Invoices });
@@ -198,6 +209,21 @@ export class InvoiceDetails {
             }
 
         }, err => this.errorService.handle(err));
+    }
+
+    private getCollectorStatusText(status: CollectorStatus): string {
+        let statusText: string = '';
+        switch (status) {
+            case CollectorStatus.Reminded: {
+                statusText = 'Purret';
+                break;
+            }
+            case CollectorStatus.SendtToDebtCollection: {
+                statusText = 'Sent til inkasso';
+                break;
+            }
+        }
+        return statusText;
     }
 
     private setupContextMenuItems() {
@@ -552,9 +578,99 @@ export class InvoiceDetails {
         this.tradeItemHelper.calculateDiscount(item, newCurrencyRate);
     }
 
+
+
+
+
+    private getReminderStoppedSubStatus(): Promise<any> {
+        let reminderStopSubStatus: any = null;
+        let reminderStoppedByText = '';
+        let reminderStoppedTimeStamp: Date = null;
+
+        return new Promise((resolve, reject) => {
+            this.statisticsService.GetAll(`model=AuditLog&orderby=AuditLog.CreatedAt desc&filter=AuditLog.EntityID eq ${this.invoiceID} and EntityType eq 'CustomerInvoice' and Field eq 'DontSendReminders' and NewValue eq 'true'&select=User.DisplayName as Username,Auditlog.CreatedAt as Date&join=AuditLog.CreatedBy eq User.GlobalIdentity ` )
+            .map(data => data.Data ? data.Data : [])
+            .subscribe(brdata => {
+                if (brdata && brdata.length > 0) {
+                    reminderStoppedByText = `Aktivert av ${brdata[0]['Username']} ${moment(new Date(brdata[0]['Date'])).fromNow()}`;
+                    reminderStoppedTimeStamp = new Date(brdata[0]['Date']);
+
+                    reminderStopSubStatus = {
+                        title: reminderStoppedByText,
+                        state: UniStatusTrack.States.Active,
+                        timestamp: reminderStoppedTimeStamp
+                    };
+                    resolve(reminderStopSubStatus);
+                }
+            }, err => reject(err));
+        });
+    }
+
+    private getCollectionSubStatus(colStatus: CollectorStatus): Promise<any> {
+
+        let subStatux: any = null;
+        let statusText = '';
+        let statusTimeStamp: Date = null;
+        let subStatuses: Array<UniStatusTrack.StatusTrack> = [];
+
+        switch (colStatus) {
+            case CollectorStatus.Reminded: {
+                return new Promise((resolve, reject) => {
+                    this.statisticsService.GetAll(`model=CustomerInvoiceReminder&orderby=CustomerInvoiceReminder.ReminderNumber desc&filter=CustomerInvoiceReminder.CustomerInvoiceID eq ${this.invoiceID}&select=CustomerInvoiceReminder.CreatedAt as Date,CustomerInvoiceReminder.ReminderNumber as ReminderNumber,CustomerInvoiceReminder.DueDate as DueDate ` )
+                    .map(data => data.Data ? data.Data : [])
+                    .subscribe(brdata => {
+                        if (brdata && brdata.length > 0) {
+                                brdata.forEach(element => {
+                                let pastDue: boolean = new Date(element['DueDate']) < new Date();
+                                let pastDueText = pastDue ? 'forfalt for' : 'forfall om';
+                                statusText = `${element['ReminderNumber']}. purring, ${pastDueText} ${moment(new Date(element['DueDate'])).fromNow()}`;
+                                statusTimeStamp = new Date(element['Date']);
+                                subStatux = {
+                                    title: statusText,
+                                    state: UniStatusTrack.States.Active,
+                                    timestamp: statusTimeStamp
+                                };
+                                subStatuses.push(subStatux);
+                            });
+                            resolve(subStatuses);
+                        }
+                    }, err => reject(err));
+                });
+                break;
+            }
+
+            case CollectorStatus.SendtToDebtCollection: {
+                return new Promise((resolve, reject) => {
+                    this.statisticsService.GetAll(`model=AuditLog&orderby=AuditLog.CreatedAt desc&filter=AuditLog.EntityID eq ${this.invoiceID} and EntityType eq 'CustomerInvoice' and Field eq 'CollectorStatusCode' and NewValue eq '42502'&select=User.DisplayName as Username,Auditlog.CreatedAt as Date&join=AuditLog.CreatedBy eq User.GlobalIdentity ` )
+                    .map(data => data.Data ? data.Data : [])
+                    .subscribe(brdata => {
+                        if (brdata && brdata.length > 0) {
+                            brdata.forEach(element => {
+                                statusText = `Sent av ${element['Username']} ${moment(new Date(element['Date'])).fromNow()}`;
+                                statusTimeStamp = new Date(element['Date']);
+                                subStatux = {
+                                    title: statusText,
+                                    state: UniStatusTrack.States.Active,
+                                    timestamp: statusTimeStamp
+                                };
+                                subStatuses.push(subStatux);
+                            });
+                            resolve(subStatuses);
+                        }
+                    }, err => reject(err));
+                });
+                break;
+            }
+        }
+    }
+
+
+
     private getStatustrackConfig() {
         let statustrack: UniStatusTrack.IStatus[] = [];
+        let substatuses: UniStatusTrack.IStatus[] = [];
         let activeStatus = 0;
+        let testStatus = 2;
         if (this.invoice) {
             activeStatus = this.invoice.StatusCode || 1;
         }
@@ -585,6 +701,36 @@ export class InvoiceDetails {
                 code: status.Code
             });
         });
+
+        if (this.invoice.DontSendReminders) {
+
+            this.getReminderStoppedSubStatus().then(substatus => {
+                statustrack.push({
+                    title: 'Purrestoppet',
+                    state: UniStatusTrack.States.Obsolete,
+                    code: 0,
+                    forceSubstatus: true,
+                    substatusList: substatus ? [substatus] : []
+                });
+            }).catch(err => this.errorService.handle(err));
+        }
+
+
+
+        if (this.invoice.CollectorStatusCode > 42500 && this.invoice.CollectorStatusCode < 42505 && !this.invoice.DontSendReminders) {
+            let statusText = this.getCollectorStatusText(this.invoice.CollectorStatusCode);
+            if (statusText !== '') {
+                this.getCollectionSubStatus(this.invoice.CollectorStatusCode).then(substatus => {
+                    statustrack.push({
+                        title: statusText,
+                        state: UniStatusTrack.States.Obsolete,
+                        code: 0,
+                        forceSubstatus: true,
+                        substatusList: substatus ? substatus : []
+                    });
+                }).catch(err => this.errorService.handle(err));
+            }
+        }
 
         return statustrack;
     }
@@ -762,6 +908,10 @@ export class InvoiceDetails {
             if (item.Product) {
                 item.Product = null;
             }
+
+            if (item.Account) {
+                item.Account = null;
+            }
         });
 
         if (!this.invoice.CreditDays) {
@@ -933,21 +1083,22 @@ export class InvoiceDetails {
     }
 
     private payInvoice(done) {
-        const title = `Register betaling, Faktura ${this.invoice.InvoiceNumber || ''}, ${this.invoice.CustomerName || ''}`;
+        const title = `Register betaling, Kunde-faktura ${this.invoice.InvoiceNumber || ''}, ${this.invoice.CustomerName || ''}`;
 
         const invoicePaymentData: InvoicePaymentData = {
-            Amount: this.invoice.RestAmount,
-            AmountCurrency: this.invoice.CurrencyCodeID == this.companySettings.BaseCurrencyCodeID ? this.invoice.RestAmount : this.invoice.RestAmountCurrency,
+            Amount: roundTo(this.invoice.RestAmount),
+            AmountCurrency: this.invoice.CurrencyCodeID == this.companySettings.BaseCurrencyCodeID ? roundTo(this.invoice.RestAmount) : roundTo(this.invoice.RestAmountCurrency),
             BankChargeAmount: 0,
             CurrencyCodeID: this.invoice.CurrencyCodeID,
             CurrencyExchangeRate: 0,
             PaymentDate: new LocalDate(Date()),
             AgioAccountID: null,
-            BankChargeAccountID: this.companySettings.BankChargeAccountID,
+            BankChargeAccountID: 0,
             AgioAmount: 0
         };
 
-        this.registerPaymentModal.confirm(this.invoice.ID, title, this.invoice.CurrencyCode, this.invoice.CurrencyExchangeRate, invoicePaymentData).then(res => {
+        this.registerPaymentModal.confirm(this.invoice.ID, title, this.invoice.CurrencyCode, this.invoice.CurrencyExchangeRate,
+            'CustomerInvoice', invoicePaymentData).then(res => {
             if (res.status === ConfirmActions.ACCEPT) {
                 this.customerInvoiceService.ActionWithBody(res.id, res.model, 'payInvoice').subscribe((journalEntry) => {
                     this.toastService.addToast('Faktura er betalt. Bilagsnummer: ' + journalEntry.JournalEntryNumber, ToastType.good, 5);

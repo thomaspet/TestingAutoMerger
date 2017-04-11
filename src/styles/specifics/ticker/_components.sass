@@ -78,7 +78,7 @@ uni-ticker-filters
         @extend %ticker-headers
 
     .filter-container
-        height: calc(100vh - #{pxToRem(325)})
+        height: calc(100vh - #{pxToRem(250)})
         background-color: $uni-color-scale5
         color: $uni-color-negative
         border-radius: 0 pxToRem(7) pxToRem(7) 0
@@ -140,7 +140,7 @@ uni-ticker-filters
 
         .rule-setup
             float: left
-            width: calc(100% - 19rem)
+            width: calc(100%)
             height: 100%
             display: inline-block
 
@@ -234,6 +234,40 @@ uni-ticker-field-filter-editor
 
         &.field-select
             width: 20%
+
+    .uniSelect_dropdown_list
+        li
+            color: $uni-color-positive
+
+    button
+        margin-top: 0
+
+
+uni-ticker-field-filter-editor-simple
+    .collapsable-content
+        flex-wrap: nowrap !important
+
+    form
+        height: pxToRem(15)
+
+    uni-field
+        width: 35%
+        margin-right: .1rem
+        margin-left: .1rem
+        padding-bottom: 0
+
+        &.delete-button
+            width: pxToRem(60)
+
+        button
+            padding-left: .5rem
+            padding-right: .5rem
+
+        &.operator-select
+            width: 20%
+
+        &.field-select
+            width: 35%
 
     .uniSelect_dropdown_list
         li

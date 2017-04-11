@@ -135,7 +135,7 @@ export class UniCompanyDropdown {
             template: (item) => typeof item === 'number' ? item.toString() : item,
             searchable: false            
         };
-
+        
         this.loadCompanyData();
         this.authService.companyChange.subscribe((company) => {
             this.activeCompany = company;
@@ -183,19 +183,8 @@ export class UniCompanyDropdown {
     }
 
     private loadCompanyData() {
-        this.altInnService.clearAltinnAuthenticationDataFromLocalstorage();
-        Observable.forkJoin(
-            this.companySettingsService.Get(1, ['DefaultPhone']),
-            this.financialYearService.GetAll(null)
-        ).subscribe(
-            (res) => {
-                this.companySettings = res[0];
-                this.financialYears = res[1];                
-                this.selectDefaultYear(this.financialYears, this.companySettings);
-                this.cdr.markForCheck(); // not sure where this should be
-            },
-            err => this.errorService.handle(err)
-            );
+        this.altInnService.clearAltinnAuthenticationDataFromLocalstorage();        
+        this.loadYears();  
     }
 
     private getYearComboSelection(curYear): string[]     { 
@@ -205,13 +194,28 @@ export class UniCompanyDropdown {
             '...']; 
     }
 
+    private loadYears() {        
+        Observable.forkJoin(
+            this.companySettingsService.Get(1, ['DefaultPhone']),
+            this.financialYearService.GetAll(null)
+        ).subscribe(
+            (res) => {                
+                this.companySettings = res[0];
+                this.financialYears = res[1];                
+                this.selectDefaultYear(this.financialYears, this.companySettings);
+                this.cdr.markForCheck(); // not sure where this should be
+            },
+            err => this.errorService.handle(err)
+            );
+    }
     
 
     private companySelected(selectedCompany): void {
         this.close();
         if (selectedCompany !== this.activeCompany) {
+            this.yearService.clearActiveYear();
             this.authService.setActiveCompany(selectedCompany);
-            this.router.navigateByUrl('/');
+            this.router.navigateByUrl('/');            
         }
     }
 
@@ -256,9 +260,7 @@ export class UniCompanyDropdown {
 
     private yearIsSelected(selYear: string): void{
         let yr = parseInt(selYear);
-        if (yr) {
-            //this.activeYear = yr;
-            //this.selectYear = this.getYearComboSelection();
+        if (yr) {            
             this.yearService.setSelectedYear(yr);
             let found = this.financialYears.find(val => val.Year === yr);
             if (found) {
@@ -279,9 +281,7 @@ export class UniCompanyDropdown {
     private yearSelected(selectedYear: FinancialYear): void {        
         this.close();
         this.financialYearService.setActiveYear(selectedYear);    
-        this.yearService.setSelectedYear(selectedYear.Year);    
-        //this.activeYear = selectedYear.Year;
-        //this.selectYear = this.getYearComboSelection();
+        this.yearService.setSelectedYear(selectedYear.Year);            
     }
 
     private close() {

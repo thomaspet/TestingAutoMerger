@@ -12,8 +12,10 @@ import {CustomerDetailsModal} from './customer/customerDetails/customerDetailsMo
 import {CustomerDetails} from './customer/customerDetails/customerDetails';
 import {CustomerList} from './customer/list/customerList';
 import {ReportsModule} from '../reports/reportsModule';
+import {UniTickerModule} from '../uniticker/uniTickerModule';
 
 import {InvoiceList} from './invoice/list/invoiceList';
+import {InvoiceList2} from './invoice/list/invoiceList2';
 import {OrderDetails} from './order/details/orderDetails';
 import {TradeItemHelper} from './salesHelper/tradeItemHelper';
 import {OrderList} from './order/list/orderList';
@@ -66,6 +68,7 @@ import {UniSearchModule} from 'unisearch-ng2';
         LayoutModule,
         AppCommonModule,
         ReportsModule,
+        UniTickerModule,
 
         // Route module
         UniSearchModule
@@ -84,6 +87,7 @@ import {UniSearchModule} from 'unisearch-ng2';
         TradeItemTable,
 
         InvoiceList,
+        InvoiceList2,
         InvoiceDetails,
 
         OrderDetails,
@@ -124,6 +128,7 @@ import {UniSearchModule} from 'unisearch-ng2';
         CustomerDetails,
         CustomerList,
         InvoiceList,
+        InvoiceList2,
         InvoiceDetails,
         OrderDetails,
         OrderList,

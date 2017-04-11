@@ -1,0 +1,9 @@
+
+<uni-ticker-container
+    [showSubTickers]="showSubTickers"
+    [showFiltersAsNavbar]="showFiltersAsNavbar"
+    [showFilters]="!selectedTicker || (selectedTicker && !selectedTicker.DisableFiltering)"
+    [ticker]="selectedTicker"
+    [actionOverrides]="actionOverrides"
+    [columnOverrides]="columnOverrides">
+</uni-ticker-container>

@@ -101,44 +101,42 @@ export class BalanceReportFilterModal {
                 {
                     text: 'Ok',
                     class: 'good',
-                    method: () => {
-                        this.modal.getContent().then((component: BalanceReportFilterForm) => {
-                            for (const parameter of <AttilasCustomReportDefinitionParameter[]>this.modalConfig.report.parameters) {
-                                if (parameter.Name === 'odatafilter') {
-                                    parameter.value = `Period.AccountYear eq '${component.model$.getValue().journalYear}'`
-                                        + ` and Period.No ge ${component.model$.getValue().fromPeriod}`
-                                        + ` and Period.No le ${component.model$.getValue().toPeriod}`;
-                                } else if (parameter.Name === 'includezerobalancecustomer') {
-                                    parameter.value = component.model$.getValue().includezerobalance;
-                                } else if (parameter.Name === 'includezerobalancesupplier') {
-                                    parameter.value = component.model$.getValue().includezerobalance;
-                                } else if (parameter.Name === 'orderby') {
-                                    parameter.value = component.model$.getValue().orderBy;
-                                }
+                    method: (model$) => {
+                        for (const parameter of <AttilasCustomReportDefinitionParameter[]>this.modalConfig.report.parameters) {
+                            if (parameter.Name === 'odatafilter') {
+                                parameter.value = `Period.AccountYear eq '${model$.getValue().journalYear}'`
+                                    + ` and Period.No ge ${model$.getValue().fromPeriod}`
+                                    + ` and Period.No le ${model$.getValue().toPeriod}`;
+                            } else if (parameter.Name === 'includezerobalancecustomer') {
+                                parameter.value = model$.getValue().includezerobalance;
+                            } else if (parameter.Name === 'includezerobalancesupplier') {
+                                parameter.value = model$.getValue().includezerobalance;
+                            } else if (parameter.Name === 'orderby') {
+                                parameter.value = model$.getValue().orderBy;
                             }
+                        }
 
-                            // add custom parameters - these are used in ODATA in the data retrieval, but
-                            // are also sent to the report as individual parameters to make it easier to
-                            // use them in the report
-                            let accountYearParam = new AttilasCustomReportDefinitionParameter();
-                            accountYearParam.Name = 'PeriodAccountYear';
-                            accountYearParam.value = component.model$.getValue().journalYear;
+                        // add custom parameters - these are used in ODATA in the data retrieval, but
+                        // are also sent to the report as individual parameters to make it easier to
+                        // use them in the report
+                        let accountYearParam = new AttilasCustomReportDefinitionParameter();
+                        accountYearParam.Name = 'PeriodAccountYear';
+                        accountYearParam.value = model$.getValue().journalYear;
 
-                            let periodFromParam = new AttilasCustomReportDefinitionParameter();
-                            periodFromParam.Name = 'PeriodFrom';
-                            periodFromParam.value = component.model$.getValue().fromPeriod;
+                        let periodFromParam = new AttilasCustomReportDefinitionParameter();
+                        periodFromParam.Name = 'PeriodFrom';
+                        periodFromParam.value = model$.getValue().fromPeriod;
 
-                            let periodToParam = new AttilasCustomReportDefinitionParameter();
-                            periodToParam.Name = 'PeriodTo';
-                            periodToParam.value = component.model$.getValue().toPeriod;
+                        let periodToParam = new AttilasCustomReportDefinitionParameter();
+                        periodToParam.Name = 'PeriodTo';
+                        periodToParam.value = model$.getValue().toPeriod;
 
-                            this.modalConfig.report.parameters.push(accountYearParam);
-                            this.modalConfig.report.parameters.push(periodFromParam);
-                            this.modalConfig.report.parameters.push(periodToParam);
+                        this.modalConfig.report.parameters.push(accountYearParam);
+                        this.modalConfig.report.parameters.push(periodFromParam);
+                        this.modalConfig.report.parameters.push(periodToParam);
 
-                            this.modal.close();
-                            this.previewModal.open(this.modalConfig.report);
-                        });
+                        this.modal.close();
+                        this.previewModal.open(this.modalConfig.report);
                     }
                 },
                 {

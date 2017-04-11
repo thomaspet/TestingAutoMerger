@@ -38,7 +38,7 @@
         </article>
 
         <article class="amelding_poster_widget">
-            <ul class="amelding_poster_events">
+            <ul class="amelding_poster_events" *ngIf="initialized">
                 <li [className]="clarifiedDate ? 'success' : 'warn'">
                     {{clarifiedDate ? 'Generert' : 'Ikke generert'}}
                     <time *ngIf="clarifiedDate">{{clarifiedDate}}</time>

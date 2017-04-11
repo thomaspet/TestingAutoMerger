@@ -20,7 +20,8 @@ declare var _;
             <uni-form [config]="config$"
                       [fields]="fields$"
                       [model]="employment$"
-                      (changeEvent)="onFormChange($event)">
+                      (changeEvent)="onFormChange($event)"
+                      (readyEvent)="onFormReady($event)">
             </uni-form>
         </section>
     `
@@ -34,6 +35,8 @@ export class EmploymentDetails implements OnChanges {
     @Input() private departments: Department[];
 
     @Output() private employmentChange: EventEmitter<Employment> = new EventEmitter<Employment>();
+
+    private focusJobCode: boolean;
 
     private config$: BehaviorSubject<any> = new BehaviorSubject({});
     private fields$: BehaviorSubject<UniFieldLayout[]> = new BehaviorSubject([]);
@@ -58,6 +61,15 @@ export class EmploymentDetails implements OnChanges {
         }
 
         if (change['employment'] && change['employment'].currentValue) {
+            let currEmployment: Employment = change['employment'].currentValue;
+            let prevEmployment: Employment = change['employment'].previousValue;
+            if (!currEmployment.ID && ( !prevEmployment || currEmployment.ID !== prevEmployment.ID)) {
+                if (this.form) {
+                    this.form.field('JobCode').focus();
+                } else {
+                    this.focusJobCode = true;
+                }
+            }
             this.employment$.next(change['employment'].currentValue);
         }
 
@@ -109,7 +121,7 @@ export class EmploymentDetails implements OnChanges {
             let ledgerAccountField = layout.Fields.find(field => field.Property === 'LedgerAccount');
             let accountObs: Observable<Account> = this.employment && this.employment.LedgerAccount
                 ? this.accountService.GetAll(`filter=AccountNumber eq ${this.employment.LedgerAccount}` + '&top=1')
-                : Observable.of([{ AccountName: '', AccountNumber: null }]);
+                : Observable.of([undefined]);
             ledgerAccountField.Options = {
                 getDefaultData: () => accountObs,
                 search: (query: string) => {
@@ -155,5 +167,12 @@ export class EmploymentDetails implements OnChanges {
 
     private onFormChange(value: SimpleChanges) {
         this.employmentChange.emit(this.employment$.getValue());
+    }
+
+    private onFormReady(value) {
+        if (this.focusJobCode) {
+            this.form.field('JobCode').focus();
+            this.focusJobCode = false;
+        }
     }
 }

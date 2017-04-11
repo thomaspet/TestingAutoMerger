@@ -1,9 +1,12 @@
-import { Component, HostListener, ChangeDetectorRef, ChangeDetectionStrategy } from '@angular/core';
+import { Component, HostListener, ChangeDetectorRef, ChangeDetectionStrategy, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
 import { UniHttp } from '../core/http/http';
-import { ErrorService } from '../../app/services/services';
-import { Notification, NotificationStatus } from '../../app/unientities';
+import { ErrorService, CompanyService } from '../../app/services/services';
+import { Notification, NotificationStatus, Company } from '../../app/unientities';
 import { Observable } from 'rxjs/Observable';
+import { AuthService } from '../core/authService';
+import {UniConfirmModal, ConfirmActions} from '../modals/confirm';
+
 import * as moment from 'moment';
 import {
     accountingRouteMap,
@@ -24,17 +27,29 @@ import {
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class UniNotifications {
+    @ViewChild(UniConfirmModal)
+    private confirmModal: UniConfirmModal;
+
     private isOpen: boolean;
     private notifications: Notification[] = [];
     private unreadCount: number;
+    private companies: Company[];
 
     constructor(
         private http: UniHttp,
         private errorService: ErrorService,
         private router: Router,
-        private cdr: ChangeDetectorRef
+        private cdr: ChangeDetectorRef,
+        private authService: AuthService,
+        private companyService: CompanyService
     ) {
         this.getNotifications();
+
+        this.companyService.GetAll(null).subscribe(
+            res => this.companies = res,
+            err => this.errorService.handle(err)
+        );
+
         // if (typeof (OneSignal) !== 'undefined') {
         //     OneSignal.on('notificationDisplay', (event) => {
         //         this.getNotifications();
@@ -78,6 +93,34 @@ export class UniNotifications {
     }
 
     public onNotificationClick(notification: Notification): void {
+        if (notification.StatusCode === NotificationStatus.New) {
+            this.markAsRead(notification);
+        }
+
+        this.close();
+
+        if (notification.CompanyKey === this.authService.getCompanyKey()) {
+            this.routeToNotification(notification);
+            return;
+        }
+
+        // Change companies before routing
+        this.confirmModal.confirm(
+            `
+            Navigering til denne varselen vil føre til endring av aktivt selskap.
+            Ulagrede endringer vil blir forkastet. Ønsker du å fortsette?
+            `,
+            'Bytte selskap'
+        ).then((res) => {
+            if (res === ConfirmActions.ACCEPT) {
+                const company = this.companies.find(c => c.Key === notification.CompanyKey);
+                this.authService.setActiveCompany(company);
+                this.routeToNotification(notification);
+            }
+        });
+    }
+
+    private routeToNotification(notification: Notification) {
         const entityType = notification.EntityType;
         let route = '';
 
@@ -93,12 +136,6 @@ export class UniNotifications {
 
         route = route.replace(/:id/i, notification.EntityID.toString());
         this.router.navigateByUrl(route);
-
-        if (notification.StatusCode === NotificationStatus.New) {
-            this.markAsRead(notification);
-        }
-
-        this.close();
     }
 
     public toggleReadStatus(notification: Notification): void {

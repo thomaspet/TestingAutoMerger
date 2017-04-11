@@ -1,11 +1,4 @@
-<uni-toolbar
-    [config]="toolbarconfig"
-    [contextmenu]="contextMenuItems"
-    [saveactions]="saveActions"
-    [statustrack]="getStatustrackConfig()"
-    [tags]="categoryFilter"
-    [tagConfig]="tagConfig"
-    (tagsChange)="filterChange($event)">
+<uni-toolbar [config]="toolbarconfig" [contextmenu]="contextMenuItems" [saveactions]="saveActions" [statustrack]="getStatustrackConfig()" [tags]="categoryFilter" [tagConfig]="tagConfig" (tagsChange)="filterChange($event)">
 </uni-toolbar>
 
 <uni-poster [widgets]="payrollrunWidgets" *ngIf="payrollrunWidgets"></uni-poster>
@@ -25,3 +18,4 @@
 <control-modal (updatePayrollRun)="this.getPayrollRun()"></control-modal>
 <postingsummary-modal (updatePayrollRun)="this.getPayrollRun()"></postingsummary-modal>
 <vacationpay-modal (updatePayrollRun)="this.getSalaryTransactions()" (recalc)="this.updateTranses()"></vacationpay-modal>
+<paycheck-sending-modal></paycheck-sending-modal>

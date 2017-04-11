@@ -7,6 +7,7 @@ import {URLSearchParams} from '@angular/http';
 import {PaymentRelationsModal} from './relationModal';
 import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
 import {UniConfirmModal, ConfirmActions} from '../../../../framework/modals/confirm';
+import {saveAs} from 'file-saver';
 import * as moment from 'moment';
 
 @Component({

@@ -1,0 +1,11 @@
+<uni-toolbar [config]="{title: 'Faktura', omitFinalCrumb: true}"></uni-toolbar>
+
+<uni-ticker-wrapper
+    [tickerCode]="tickercode"
+    [showFiltersAsNavbar]="true"
+    [actionOverrides]="actionOverrides"
+    [columnOverrides]="columnOverrides">
+</uni-ticker-wrapper>
+
+<send-email-modal></send-email-modal>
+<register-payment-modal (changed)="onRegisteredPayment($event)"></register-payment-modal>

@@ -1,7 +1,10 @@
-import {Component, Type, ViewChild, Input, AfterViewInit, OnChanges, Output, EventEmitter} from '@angular/core';
-import {UniModal} from '../../../../../framework/modals/modal';
-import {AltinnAuthenticationData} from '../../../../models/AltinnAuthenticationData';
-import {AltinnIntegrationService,ErrorService} from '../../../../../app/services/services';
+import {
+    Component, Type, ViewChild, Input, AfterViewInit, OnChanges, Output, EventEmitter,
+    OnInit
+} from '@angular/core';
+import { UniModal } from '../../../../../framework/modals/modal';
+import { AltinnAuthenticationData } from '../../../../models/AltinnAuthenticationData';
+import { AltinnIntegrationService, ErrorService } from '../../../../../app/services/services';
 
 
 @Component({
@@ -9,11 +12,11 @@ import {AltinnIntegrationService,ErrorService} from '../../../../../app/services
     templateUrl: './altinnResponseModalContent.html',
     providers: [AltinnIntegrationService]
 })
-export class AltinnResponseModalContent {
+export class AltinnResponseModalContent implements OnInit {
     @Input()
-    private config: { close: () => void, update: () => void };
+    private config: AltinnResponseModalConfig;
 
-    private responseMessage: string = '';
+    private responseMessage: string;
 
     public busy: boolean;
 
@@ -21,15 +24,14 @@ export class AltinnResponseModalContent {
 
     }
 
-    public open(receiptID: number, authData: AltinnAuthenticationData) {
-        this._altinnService.readTaxCard(authData, receiptID).subscribe((responseMessage: string) => {
-            this.responseMessage = responseMessage;
-            this.config.update();
-        }, err => this.errorService.handle(err));
-    }
-
-    public close() {
-        this.responseMessage = '';
+    public ngOnInit() {
+        let context = this.config.context();
+        this._altinnService
+            .readTaxCard(context.auth, context.receiptID)
+            .subscribe((responseMessage: string) => {
+                this.responseMessage = responseMessage;
+                this.config.update();
+            }, err => this.errorService.handle(err));
     }
 
     public setResponseMessage(message) {
@@ -37,14 +39,26 @@ export class AltinnResponseModalContent {
     }
 }
 
+type AltinnModalContext = {
+    receiptID: number,
+    auth: AltinnAuthenticationData
+};
+
+type AltinnResponseModalConfig = {
+    close: () => void,
+    update: () => void,
+    context: () => AltinnModalContext
+};
+
 @Component({
     selector: 'altinn-response-modal',
     template: '<uni-modal [type]="type" [config]="config"></uni-modal>'
 })
 export class AltinnResponseModal implements OnChanges, AfterViewInit {
-    public config: { close: () => void, update: () => void };
+    public config: AltinnResponseModalConfig;
     public type: Type<any> = AltinnResponseModalContent;
     private ready: boolean = false;
+    private context: AltinnModalContext;
 
     @Input() private responseMessage: string = '';
 
@@ -57,13 +71,11 @@ export class AltinnResponseModal implements OnChanges, AfterViewInit {
         this.config = {
             close: () => {
                 this.modal.close();
-                this.modal.getContent().then((component: AltinnResponseModalContent) => {
-                    component.close();
-                });
             },
             update: () => {
                 this.updateTax.emit(true);
-            }
+            },
+            context: () => this.context
         };
     }
 
@@ -76,10 +88,11 @@ export class AltinnResponseModal implements OnChanges, AfterViewInit {
     }
 
     public openModal(receiptID: number, auth: AltinnAuthenticationData) {
+        this.context = {
+            receiptID: receiptID,
+            auth: auth
+        };
         this.modal.open();
-        this.modal.getContent().then((component: AltinnResponseModalContent) => {
-            component.open(receiptID, auth);
-        });
     }
 
     public ngAfterViewInit() {

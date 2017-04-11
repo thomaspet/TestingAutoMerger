@@ -1,5 +1,5 @@
-import {Component, ViewChild, Input, Output, EventEmitter, SimpleChanges} from '@angular/core';
-import {Ticker, TickerFilter, TickerFieldFilter, UniTickerService, IExpressionFilterValue} from '../../../services/common/uniTickerService';
+import {Component, ViewChild, Input, Output, EventEmitter, SimpleChanges, ChangeDetectionStrategy, ChangeDetectorRef} from '@angular/core';
+import {Ticker, TickerFilter, TickerFieldFilter, TickerFilterGroup, UniTickerService, IExpressionFilterValue} from '../../../services/common/uniTickerService';
 import {ApiModel} from '../../../services/common/apiModelService';
 import {StatusService, StatisticsService, ErrorService} from '../../../services/services';
 
@@ -7,18 +7,22 @@ declare const _; // lodash
 
 @Component({
     selector: 'uni-ticker-filters',
-    templateUrl: './tickerFilters.html'
+    templateUrl: './tickerFilters.html',
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class UniTickerFilters {
     @Input() private filters: Array<TickerFilter>;
     @Input() private ticker: Ticker;
     @Input() private expanded: boolean = false;
     @Input() private selectedFilter: TickerFilter;
+    @Input() private showPredefinedFilters: boolean = true;
     @Input() private expressionFilters: Array<IExpressionFilterValue> = [];
 
     @Output() filterSelected: EventEmitter<TickerFilter> = new EventEmitter<TickerFilter>();
     @Output() filterChanged: EventEmitter<TickerFilter> = new EventEmitter<TickerFilter>();
     @Output() close: EventEmitter<any> = new EventEmitter<any>();
+
+    private hideTreeForNowBecauseWeDontKnowWhatToUseItFor: boolean = true;
 
     private selectedMainModel: ApiModel;
     private operators: Array<any>;
@@ -28,7 +32,8 @@ export class UniTickerFilters {
         private uniTickerService: UniTickerService,
         private statusService: StatusService,
         private statisticsService: StatisticsService,
-        private errorService: ErrorService) {
+        private errorService: ErrorService,
+        private cdr: ChangeDetectorRef) {
         this.operators = uniTickerService.getOperators();
     }
 
@@ -55,6 +60,35 @@ export class UniTickerFilters {
             if (changes['ticker'].previousValue && changes['ticker'].previousValue.Code !== this.ticker.Code) {
                 this.didLoadFilterCounters = false;
             }
+        }
+
+        if (changes['filters'] && this.ticker) {
+            this.filters.forEach((filter) => {
+                if (!filter.FilterGroups) {
+                    filter.FilterGroups = [];
+                }
+
+                let newFilterGroup = new TickerFilterGroup();
+                newFilterGroup.FieldFilters = [];
+                newFilterGroup.UseAllCriterias = true;
+
+                // create an extra filtergroup for each Columns
+                this.ticker.Columns.forEach((column) => {
+                    if (column.FilterOperator) {
+                        let newFieldFilter = new TickerFieldFilter();
+                        newFieldFilter.Field = column.SelectableFieldName;
+                        newFieldFilter.Operator = column.FilterOperator;
+                        newFieldFilter.Value = '';
+                        newFilterGroup.FieldFilters.push(newFieldFilter);
+                    }
+                });
+
+                filter.FilterGroups.unshift(newFilterGroup);
+            });
+        }
+
+        if (this.ticker) {
+            this.selectedMainModel = this.ticker.ApiModel;
         }
 
         if (!this.didLoadFilterCounters && this.ticker && this.filters) {
@@ -104,6 +138,8 @@ export class UniTickerFilters {
                             let filter = this.filters[i];
                             filter.CurrentCount = counters['FilterCount' + i];
                         }
+
+                        this.cdr.markForCheck();
                     }
                 }, err => this.errorService.handle(err)
             );
@@ -133,30 +169,37 @@ export class UniTickerFilters {
     }
 
     private getFilterHumanReadable(fieldFilter: TickerFieldFilter) {
-
         let filter: string = '';
 
-        // TODO: Get translated name when that is available through the API
-        if (fieldFilter.Field.toLocaleLowerCase() === 'statuscode') {
-            filter += 'Status ';
-        } else {
-            filter += fieldFilter.Field + ' ';
+        if (fieldFilter.Value && fieldFilter.Value !== '') {
+            // TODO: Get translated name when that is available through the API
+            if (fieldFilter.Field.toLocaleLowerCase() === 'statuscode') {
+                filter += 'Status ';
+            } else {
+                let filteredColumn = this.ticker.Columns.find(x => x.SelectableFieldName === fieldFilter.Field);
+
+                if (filteredColumn) {
+                    filter += filteredColumn.Header + ' ';
+                } else {
+                    filter += fieldFilter.Field + ' ';
+                }
+            }
+
+            let operatorReadable = this.operators.find(x => x.operator === fieldFilter.Operator);
+            filter += (operatorReadable ? operatorReadable.verb : fieldFilter.Operator) + ' ';
+
+            // replace with statuscode if field == statuscode
+            if (fieldFilter.Field.toLowerCase().endsWith('statuscode')) {
+                let status = this.statusService.getStatusText(+fieldFilter.Value);
+                filter += (status ? status : fieldFilter.Value);
+            } else if (fieldFilter.Value.toLowerCase() === 'getdate()') {
+                filter += 'dagens dato';
+            } else {
+                filter += fieldFilter.Value;
+            }
+
+            filter += ' ';
         }
-
-        let operatorReadable = this.operators.find(x => x.operator === fieldFilter.Operator);
-        filter += (operatorReadable ? operatorReadable.verb : fieldFilter.Operator) + ' ';
-
-        // replace with statuscode if field == statuscode
-        if (fieldFilter.Field.toLowerCase().endsWith('statuscode')) {
-            let status = this.statusService.getStatusText(+fieldFilter.Value);
-            filter += (status ? status : fieldFilter.Value);
-        } else if (fieldFilter.Value.toLowerCase() === 'getdate()') {
-            filter += 'dagens dato';
-        } else {
-            filter += fieldFilter.Value;
-        }
-
-        filter += ' ';
 
         return filter;
     }
@@ -166,7 +209,9 @@ export class UniTickerFilters {
     }
 
     private stopPropagation() {
-        event.stopPropagation();
+        if (event) {
+            event.stopPropagation();
+        }
     }
 
     private closeFilters() {

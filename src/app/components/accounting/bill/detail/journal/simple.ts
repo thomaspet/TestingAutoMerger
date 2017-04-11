@@ -1,6 +1,8 @@
-import {ViewChild, Component, Input, Output, EventEmitter, Pipe, PipeTransform} from '@angular/core';
-import {FinancialYear, VatType, SupplierInvoice, JournalEntryLineDraft, JournalEntry, Account, StatusCodeSupplierInvoice} from '../../../../../unientities';
-import {ICopyEventDetails, IConfig as ITableConfig, Column, ColumnType, IChangeEvent, ITypeSearch, Editable, ILookupDetails, IStartEdit} from '../../../../timetracking/utils/editable/editable';
+import {ViewChild, Component, Input, Output, EventEmitter, Pipe, PipeTransform, SimpleChanges} from '@angular/core';
+import {FinancialYear, VatType, SupplierInvoice, JournalEntryLineDraft,
+    JournalEntry, Account, StatusCodeSupplierInvoice} from '../../../../../unientities';
+import {ICopyEventDetails, IConfig as ITableConfig, Column, ColumnType, IChangeEvent,
+    ITypeSearch, Editable, ILookupDetails, IStartEdit} from '../../../../timetracking/utils/editable/editable';
 import {ToastService, ToastType} from '../../../../../../framework/uniToast/toastService';
 import {roundTo, safeDec, safeInt, trimLength, capitalizeSentence} from '../../../../timetracking/utils/utils';
 import {Lookupservice} from '../../../../timetracking/utils/lookup';
@@ -15,7 +17,7 @@ import {
     templateUrl: './simple.html',
 })
 export class BillSimpleJournalEntryView {
-    @Input() public set supplierinvoice(value: SupplierInvoice ) {
+    @Input() public set supplierinvoice(value: SupplierInvoice) {
         this.current = value;
         this.initFromInvoice(this.current);
         this.calcRemainder();
@@ -48,7 +50,6 @@ export class BillSimpleJournalEntryView {
     }
 
     public ngOnInit() {
-
     }
 
     private initFromInvoice(invoice: SupplierInvoice) {
@@ -87,7 +88,7 @@ export class BillSimpleJournalEntryView {
 
     private newEntry(sum = 0): JournalEntryLineDraft {
         var entry = new JournalEntryLineDraft();
-        entry.Amount = sum;
+        entry.AmountCurrency = sum;
         var acc = new Account();
         acc.AccountNumber = 0;
         acc.AccountName = '';
@@ -98,11 +99,11 @@ export class BillSimpleJournalEntryView {
 
     private calcRemainder(): number {
         var sumItems = 0;
-        var total: number = this.current && this.current.TaxInclusiveAmount ? this.current.TaxInclusiveAmount : 0;
+        var total: number = this.current && this.current.TaxInclusiveAmountCurrency ? this.current.TaxInclusiveAmountCurrency : 0;
         var sumVat: number = 0;
         if (total) {
-            this.costItems.forEach( x => {
-                var value = safeDec(x.Amount);
+            this.costItems.forEach(x => {
+                var value = safeDec(x.AmountCurrency);
                 if (x.VatType && x.VatType.VatPercent) {
                     sumVat += roundTo((value * x.VatType.VatPercent) / (100 + x.VatType.VatPercent));
                 }
@@ -142,7 +143,7 @@ export class BillSimpleJournalEntryView {
                 }
             });
 
-            if (numberOfCostAccounts > 0 ) {
+            if (numberOfCostAccounts > 0) {
                 if (numberOfCostAccounts > 1) {
                     this.hasMultipleEntries = true;
                 }
@@ -173,17 +174,17 @@ export class BillSimpleJournalEntryView {
                         route: 'vattypes',
                         select: 'VatCode,Name,VatPercent,ID', visualKey: 'VatCode', visualKeyType: ColumnType.Text,
                         model: 'vattype',
-                        render: x => (`${x.VatCode}: ${x.VatPercent}% - ${trimLength(x.Name,12)}`)
+                        render: x => (`${x.VatCode}: ${x.VatPercent}% - ${trimLength(x.Name, 12)}`)
                     }
                 ),
                 new Column('Description'),
-                new Column('Amount'),
+                new Column('AmountCurrency'),
                 new Column('delete', '', ColumnType.Action)
             ],
             events: {
 
                 onChange: (event: IChangeEvent) => {
-                    return this.lookup.checkAsyncLookup(event, (e) => this.updateChange(e), (e) => this.asyncValidationFailed(e) ) || this.updateChange(event);
+                    return this.lookup.checkAsyncLookup(event, (e) => this.updateChange(e), (e) => this.asyncValidationFailed(e)) || this.updateChange(event);
                 },
 
                 onStartEdit: (info: IStartEdit) => {
@@ -193,12 +194,16 @@ export class BillSimpleJournalEntryView {
                         if (info.columnDefinition.name === 'Description') {
                             info.value = this.costItems[info.row].Description;
                         }
+                        if (info.columnDefinition.name === 'AmountCurrency') {
+                            info.value = this.costItems[info.row].AmountCurrency;
+                        }
+
                         this.calcRemainder();
                     }
                 },
 
                 onTypeSearch: details => {
-                    if (details.columnDefinition.name === 'Amount') {
+                    if (details.columnDefinition.name === 'AmountCurrency') {
                         this.createGrossValueData(details);
                     } else {
                         this.lookup.onTypeSearch(details);
@@ -226,8 +231,8 @@ export class BillSimpleJournalEntryView {
                         case 'Description':
                             row.Description = rowAbove.Description;
                             break;
-                        case 'Amount':
-                            row.Amount = rowAbove.Amount;
+                        case 'AmountCurrency':
+                            row.AmountCurrency = rowAbove.AmountCurrency;
                             break;
                     }
                     details.copyAbove = false;
@@ -241,8 +246,8 @@ export class BillSimpleJournalEntryView {
     }
 
     private checkRowSum(row: JournalEntryLineDraft, rowIndex: number) {
-        if ((!row.Amount) && (this.sumRemainder)) {
-            row.Amount = this.sumRemainder;
+        if ((!row.AmountCurrency) && (this.sumRemainder)) {
+            row.AmountCurrency = this.sumRemainder;
         }
         if ((!row.Description) && (this.current && this.current.Supplier && this.current.Supplier.Info)) {
             row.Description = this.current.Supplier.SupplierNumber + ' - ' + this.current.Supplier.Info.Name + ' - ' + 'fakturanr.' + this.current.InvoiceNumber;
@@ -269,7 +274,7 @@ export class BillSimpleJournalEntryView {
     }
 
     private raiseUpdateEvent(actualRowIndex: number, item: any, cargo: any) {
-        if (actualRowIndex >= 0 ) {
+        if (actualRowIndex >= 0) {
             this.valueChange.emit({ rowIndex: actualRowIndex, item: item, details: cargo });
         }
     }
@@ -285,7 +290,7 @@ export class BillSimpleJournalEntryView {
             this.raiseUpdateEvent(rowIndex, line, { action: 'deleted' });
             if (!line.ID) {
                 this.current.JournalEntry.DraftLines.splice(actualRowIndex, 1);
-                this.costItems.forEach( x => { if (x['_rowIndex'] > actualRowIndex ) { x['_rowIndex']--; } } );
+                this.costItems.forEach(x => { if (x['_rowIndex'] > actualRowIndex) { x['_rowIndex']--; } });
             }
         }
         this.ensureWeHaveSingleEntry();
@@ -312,7 +317,7 @@ export class BillSimpleJournalEntryView {
 
         var isLastRow = change.row >= this.costItems.length - 1;
 
-        if (change.row > this.costItems.length - 1 ) {
+        if (change.row > this.costItems.length - 1) {
             line = new JournalEntryLineDraft();
         } else {
             line = this.costItems[change.row];
@@ -327,8 +332,8 @@ export class BillSimpleJournalEntryView {
                     line.AccountID = change.lookupValue.ID;
                     line.VatTypeID = change.lookupValue.VatTypeID;
                     line.VatType = change.lookupValue.VatType;
-                    if ((!line.VatType) && line.VatTypeID ) {
-                        this.lookup.getSingle<VatType>('vattypes', line.VatTypeID).subscribe( x => {
+                    if ((!line.VatType) && line.VatTypeID) {
+                        this.lookup.getSingle<VatType>('vattypes', line.VatTypeID).subscribe(x => {
                             line.VatType = x;
                             line.VatPercent = x.VatPercent;
                             this.checkRowSum(line, change.row);
@@ -355,18 +360,18 @@ export class BillSimpleJournalEntryView {
                 line.Description = change.value;
                 break;
 
-            case 'Amount':
-                if (typeof(change.value) === 'object') {
-                    line.Amount = change.value.sum;
+            case 'AmountCurrency':
+                if (typeof (change.value) === 'object') {
+                    line.AmountCurrency = change.value.sum;
                 } else {
-                    line.Amount = roundTo(change.value);
+                    line.AmountCurrency = roundTo(change.value);
                 }
                 change.reloadAfterEdit = true;
-                if (change.row > 0 && (!this.sumRemainder) ) {
+                if (change.row > 0 && (!this.sumRemainder)) {
                     this.calcRemainder();
                     this.autoBalanceFirstRow();
                 }
-                if (line.Amount !== this.current.TaxInclusiveAmount) {
+                if (line.AmountCurrency !== this.current.TaxInclusiveAmountCurrency) {
                     line['_setByUser'] = true;
                 }
                 break;
@@ -385,10 +390,10 @@ export class BillSimpleJournalEntryView {
     private autoBalanceFirstRow() {
         if (this.sumRemainder) {
             let line = this.costItems[0];
-            var sum = line.Amount || 0;
+            var sum = line.AmountCurrency || 0;
             let adjustedValue = roundTo(sum + (this.sumRemainder || 0));
             if (!line['_setByUser']) {
-                line.Amount = adjustedValue;
+                line.AmountCurrency = adjustedValue;
                 this.calcRemainder();
             }
         }
@@ -399,7 +404,7 @@ export class BillSimpleJournalEntryView {
             return;
         }
         // No match: take first item in dropdown-list ?
-        var droplistItems = this.editable.getDropListItems({ col: event.col, row: event.row});
+        var droplistItems = this.editable.getDropListItems({ col: event.col, row: event.row });
         if (droplistItems && droplistItems.length > 0 && event.columnDefinition) {
             var lk: ILookupDetails = event.columnDefinition.lookup;
             let item = droplistItems[0];
@@ -432,7 +437,7 @@ export class BillSimpleJournalEntryView {
                 // todo: locate ideally matching year
                 this.financialYearID = this.financialYears[0].ID;
             }
-            entry.FinancialYearID =  this.financialYearID;
+            entry.FinancialYearID = this.financialYearID;
         }
     }
 
@@ -441,7 +446,7 @@ export class BillSimpleJournalEntryView {
 // PIPES
 
 @Pipe({
-  name: 'account'
+    name: 'account'
 })
 export class AccountPipe implements PipeTransform {
 
@@ -455,7 +460,7 @@ export class AccountPipe implements PipeTransform {
 }
 
 @Pipe({
-  name: 'vatcode'
+    name: 'vatcode'
 })
 export class VatCodePipe implements PipeTransform {
 
@@ -468,13 +473,13 @@ export class VatCodePipe implements PipeTransform {
 }
 
 @Pipe({
-  name: 'trimtext'
+    name: 'trimtext'
 })
 export class TrimTextPipe implements PipeTransform {
 
     public transform(value: any, format?: string) {
         if (value) {
-            return trimLength(value, format ? safeInt(format) : 10 );
+            return trimLength(value, format ? safeInt(format) : 10);
         }
     }
 }

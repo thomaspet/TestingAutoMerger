@@ -25,6 +25,7 @@ export const billViewLanguage = {
     col_due: 'Forfallsdato',
     col_kid: 'KID',
     col_bank: 'Bankkonto',
+    col_currency_code: 'Valuta',
 
     tool_save: 'Lagre endringer',
     tool_delete: 'Slett',
@@ -40,7 +41,7 @@ export const billViewLanguage = {
 
     journaled_ok: 'Bokføring fullført',
     payment_ok: 'Betaling registrert',
-    ask_register_payment: 'Registrere betaling for faktura ',
+    ask_register_payment: 'Registrere betaling for leverandør-faktura: ',
     ready_for_payment: 'Status endret til "Klar for betaling"',
 
     err_missing_journalEntries: 'Kontering mangler!',
@@ -60,6 +61,9 @@ export const billViewLanguage = {
     org_not_found: '(aktuelt orgnr. ble ikke funnet blant dine eksisterende leverandører)',
     create_supplier: 'Opprette ny leverandør',
     org_number: 'Organisasjonsnr.',
+
+    ehf: 'Kjør EHF-tolk',
+    ehf_running: 'Kjører EHF-tolk av dokumentet. Vent litt..',
 
     create_bankaccount_accept: 'Opprett konto',
     create_bankaccount_reject: 'Ikke opprett konto',
