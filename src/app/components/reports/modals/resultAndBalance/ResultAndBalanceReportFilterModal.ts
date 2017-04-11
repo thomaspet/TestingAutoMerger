@@ -166,76 +166,74 @@ export class ResultAndBalanceReportFilterModal {
                 {
                     text: 'Ok',
                     class: 'good',
-                    method: () => {
-                        this.modal.getContent().then((component: ResultAndBalanceReportFilterForm) => {
-                            for (const parameter of <CustomReportDefinitionParameter[]>this.modalConfig.report.parameters) {
-                                switch (parameter.Name) {
-                                    case 'odatafilter':
-                                        parameter.value = `Period.AccountYear eq '${component.model$.getValue().ReportYear}'`
-                                            + ` and Period.No ge ${component.model$.getValue().fromPeriod}`
-                                            + ` and Period.No le ${component.model$.getValue().toPeriod}`
-                                            + ` and isnull(Project.ProjectNumber\,0) ge ${component.model$.getValue().fromProjectNo}`
-                                            + ` and isnull(Project.ProjectNumber\,0) le ${component.model$.getValue().toProjectNo}`
-                                            + ` and isnull(Department.DepartmentNumber\,0) ge ${component.model$.getValue().fromDepartmentNo}`
-                                            + ` and isnull(Department.DepartmentNumber\,0) le ${component.model$.getValue().toDepartmentNo}`;
-                                        break;
-                                    case 'ReportYear':
-                                    case 'showLastYear':
-                                    case 'reportFor':
-                                    case 'showFrontPage':
-                                    case 'resultfirstgroup':
-                                    case 'resultlastgroup':
-                                    case 'balancefirstgroup':
-                                    case 'balancelastgroup':
-                                        parameter.value = component.model$.getValue()[parameter.Name];
-                                        break;
-                                    case 'ReportLastYear':
-                                        parameter.value = component.model$.getValue()['ReportYear'] - 1;
-                                        break;
-                                }
+                    method: (model$) => {
+                        for (const parameter of <CustomReportDefinitionParameter[]>this.modalConfig.report.parameters) {
+                            switch (parameter.Name) {
+                                case 'odatafilter':
+                                    parameter.value = `Period.AccountYear eq '${model$.getValue().ReportYear}'`
+                                        + ` and Period.No ge ${model$.getValue().fromPeriod}`
+                                        + ` and Period.No le ${model$.getValue().toPeriod}`
+                                        + ` and isnull(Project.ProjectNumber\,0) ge ${model$.getValue().fromProjectNo}`
+                                        + ` and isnull(Project.ProjectNumber\,0) le ${model$.getValue().toProjectNo}`
+                                        + ` and isnull(Department.DepartmentNumber\,0) ge ${model$.getValue().fromDepartmentNo}`
+                                        + ` and isnull(Department.DepartmentNumber\,0) le ${model$.getValue().toDepartmentNo}`;
+                                    break;
+                                case 'ReportYear':
+                                case 'showLastYear':
+                                case 'reportFor':
+                                case 'showFrontPage':
+                                case 'resultfirstgroup':
+                                case 'resultlastgroup':
+                                case 'balancefirstgroup':
+                                case 'balancelastgroup':
+                                    parameter.value = model$.getValue()[parameter.Name];
+                                    break;
+                                case 'ReportLastYear':
+                                    parameter.value = model$.getValue()['ReportYear'] - 1;
+                                    break;
                             }
+                        }
 
-                            // Add report parameters
-                            let periodFromParam = new CustomReportDefinitionParameter();
-                            periodFromParam.Name = 'PeriodFrom';
-                            periodFromParam.value = component.model$.getValue().fromPeriod;
+                        // Add report parameters
+                        let periodFromParam = new CustomReportDefinitionParameter();
+                        periodFromParam.Name = 'PeriodFrom';
+                        periodFromParam.value = model$.getValue().fromPeriod;
 
-                            let periodToParam = new CustomReportDefinitionParameter();
-                            periodToParam.Name = 'PeriodTo';
-                            periodToParam.value = component.model$.getValue().toPeriod;
+                        let periodToParam = new CustomReportDefinitionParameter();
+                        periodToParam.Name = 'PeriodTo';
+                        periodToParam.value = model$.getValue().toPeriod;
 
-                            //Project
-                            let projectNoFromParam = new CustomReportDefinitionParameter();
-                            projectNoFromParam.Name = 'ProjectNoFrom';
-                            projectNoFromParam.value = component.model$.getValue().fromProjectNo;
+                        //Project
+                        let projectNoFromParam = new CustomReportDefinitionParameter();
+                        projectNoFromParam.Name = 'ProjectNoFrom';
+                        projectNoFromParam.value = model$.getValue().fromProjectNo;
 
-                            let projectNoToParam = new CustomReportDefinitionParameter();
-                            projectNoToParam.Name = 'ProjectNoTo';
-                            projectNoToParam.value = component.model$.getValue().toProjectNo;
+                        let projectNoToParam = new CustomReportDefinitionParameter();
+                        projectNoToParam.Name = 'ProjectNoTo';
+                        projectNoToParam.value = model$.getValue().toProjectNo;
 
-                            let departmentNoFromParam = new CustomReportDefinitionParameter();
-                            departmentNoFromParam.Name = 'DepartmentNoFrom';
-                            departmentNoFromParam.value = component.model$.getValue().fromDepartmentNo;
+                        let departmentNoFromParam = new CustomReportDefinitionParameter();
+                        departmentNoFromParam.Name = 'DepartmentNoFrom';
+                        departmentNoFromParam.value = model$.getValue().fromDepartmentNo;
 
-                            let departmentNoToParam = new CustomReportDefinitionParameter();
-                            departmentNoToParam.Name = 'DepartmentNoTo';
-                            departmentNoToParam.value = component.model$.getValue().toDepartmentNo;
+                        let departmentNoToParam = new CustomReportDefinitionParameter();
+                        departmentNoToParam.Name = 'DepartmentNoTo';
+                        departmentNoToParam.value = model$.getValue().toDepartmentNo;
 
-                            let unallocatedParam = new CustomReportDefinitionParameter();
-                            unallocatedParam.Name = 'showUnallocated';
-                            unallocatedParam.value = component.model$.getValue().showUnallocated;
+                        let unallocatedParam = new CustomReportDefinitionParameter();
+                        unallocatedParam.Name = 'showUnallocated';
+                        unallocatedParam.value = model$.getValue().showUnallocated;
 
-                            this.modalConfig.report.parameters.push(periodFromParam);
-                            this.modalConfig.report.parameters.push(periodToParam);
-                            this.modalConfig.report.parameters.push(projectNoFromParam);
-                            this.modalConfig.report.parameters.push(projectNoToParam);
-                            this.modalConfig.report.parameters.push(departmentNoFromParam);
-                            this.modalConfig.report.parameters.push(departmentNoToParam);
-                            this.modalConfig.report.parameters.push(unallocatedParam);
+                        this.modalConfig.report.parameters.push(periodFromParam);
+                        this.modalConfig.report.parameters.push(periodToParam);
+                        this.modalConfig.report.parameters.push(projectNoFromParam);
+                        this.modalConfig.report.parameters.push(projectNoToParam);
+                        this.modalConfig.report.parameters.push(departmentNoFromParam);
+                        this.modalConfig.report.parameters.push(departmentNoToParam);
+                        this.modalConfig.report.parameters.push(unallocatedParam);
 
-                            this.modal.close();
-                            this.previewModal.open(this.modalConfig.report);
-                        });
+                        this.modal.close();
+                        this.previewModal.open(this.modalConfig.report);
                     }
                 },
                 {

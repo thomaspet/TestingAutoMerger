@@ -140,30 +140,27 @@ export class BalanceGeneralLedgerFilterModal {
                 {
                     text: 'Ok',
                     class: 'good',
-                    method: () => {
-                        this.modal.getContent().then((component: BalanceGeneralLedgerFilterForm) => {
+                    method: (model$) => {
+                        // set parametervalues
+                        for (const parameter of <AttilasCustomReportDefinitionParameter[]>this.modalConfig.report.parameters) {
+                            parameter.value = model$.getValue()[parameter.Name];
+                        }
 
-                            // set parametervalues
-                            for (const parameter of <AttilasCustomReportDefinitionParameter[]>this.modalConfig.report.parameters) {
-                                parameter.value = component.model$.getValue()[parameter.Name];
-                            }
+                        // add custom parameters
+                        let accountLastYearParam = new AttilasCustomReportDefinitionParameter();
+                        accountLastYearParam.Name = 'PeriodAccountLastYear';
+                        accountLastYearParam.value = model$.getValue().PeriodAccountYear - 1;
+                        this.modalConfig.report.parameters.push(accountLastYearParam);
 
-                            // add custom parameters
-                            let accountLastYearParam = new AttilasCustomReportDefinitionParameter();
-                            accountLastYearParam.Name = 'PeriodAccountLastYear';
-                            accountLastYearParam.value = component.model$.getValue().PeriodAccountYear - 1;
-                            this.modalConfig.report.parameters.push(accountLastYearParam);
+                        let filterCorrectionsParam = new AttilasCustomReportDefinitionParameter();
+                        filterCorrectionsParam.Name = 'FilterCorrections';
+                        filterCorrectionsParam.value = model$.getValue().IncludeCorrections ? '' : ' and isnull(OriginalReferencePostID,0) eq 0 and isnull(ReferenceCreditPostID,0) eq 0 ';
+                        this.modalConfig.report.parameters.push(filterCorrectionsParam);
 
-                            let filterCorrectionsParam = new AttilasCustomReportDefinitionParameter();
-                            filterCorrectionsParam.Name = 'FilterCorrections';
-                            filterCorrectionsParam.value = component.model$.getValue().IncludeCorrections ? '' : ' and isnull(OriginalReferencePostID,0) eq 0 and isnull(ReferenceCreditPostID,0) eq 0 ';
-                            this.modalConfig.report.parameters.push(filterCorrectionsParam);
+                        console.log('filterCorrectionsParam', filterCorrectionsParam);
 
-                            console.log('filterCorrectionsParam', filterCorrectionsParam);
-
-                            this.modal.close();
-                            this.previewModal.open(this.modalConfig.report);
-                        });
+                        this.modal.close();
+                        this.previewModal.open(this.modalConfig.report);
                     }
                 },
                 {

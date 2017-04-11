@@ -11,7 +11,7 @@ import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 type ModalConfig = {
     report: any,
     title: string,
-    actions: { text: string, class?: string, method: () => void }[]
+    actions: { text: string, class?: string, method: (any) => void }[]
 };
 
 @Component({
@@ -32,7 +32,7 @@ export class VacationPayBaseReportFilterModalContent implements OnInit {
         this.config$.next(this.config);
         this.fields$.next(this.getLayout(this.config.report.parameters));
         let subscription = this.yearService
-            .selectedYear$            
+            .selectedYear$
             .finally(() => subscription.unsubscribe())
             .subscribe(year => {
                 this.model$.next({ Yer: year - 1 });
@@ -71,14 +71,12 @@ export class VacationPayBaseReportFilterModal implements OnInit {
                 {
                     text: 'Ok',
                     class: 'good',
-                    method: () => {
-                        this.modal.getContent().then((component: VacationPayBaseReportFilterModalContent) => {
-                            this.modal.close();
-                            this.previewModal.openWithId(
-                                this.modalConfig.report, 
-                                component.model$.getValue()[this.modalConfig.report.parameters[0].Name],
-                                 this.modalConfig.report.parameters[0].Name);
-                        });
+                    method: (model$) => {
+                        this.modal.close();
+                        this.previewModal.openWithId(
+                            this.modalConfig.report,
+                            model$.getValue()[this.modalConfig.report.parameters[0].Name],
+                                this.modalConfig.report.parameters[0].Name);
                     }
                 },
                 {
