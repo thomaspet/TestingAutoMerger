@@ -348,16 +348,30 @@ export class UniTickerService { //extends BizHttp<UniQueryDefinition> {
                     } else if (action.Type === 'details') {
                         let rowId: number = null;
                         let urlIdProperty: string = 'ID';
+                        let propValuePairs: {prop: string, value: any} [] = [{prop: urlIdProperty, value: rowId}];
 
                         // check that we can find the ID of the model - and that we have only one
                         if (!selectedRows || selectedRows.length !== 1) {
                             throw Error('Could not navigate, not possible to find ID to navigate to');
                         } else {
                             if (action.Options.ParameterProperty !== '') {
-                                rowId = selectedRows[0][action.Options.ParameterProperty.replace('.', '')];
-                                urlIdProperty = action.Options.ParameterProperty.toLowerCase();
+                                propValuePairs = [
+                                    {
+                                        prop: action.Options.ParameterProperty.toLowerCase(),
+                                        value: selectedRows[0][action.Options.ParameterProperty.replace('.', '')]
+                                    }
+                                ];
+                            } else if (action.Options.ParameterProperties 
+                                && action.Options.ParameterProperties.length) {
+                                propValuePairs = [];
+                                action.Options.ParameterProperties.forEach(prop => {
+                                    propValuePairs.push({
+                                        prop: prop.toLowerCase().replace('.', ''),
+                                        value: selectedRows[0][prop.replace('.', '')]
+                                    });
+                                });
                             } else {
-                                rowId = selectedRows[0]['ID'];
+                                propValuePairs[0].value = selectedRows[0]['ID'];
                             }
                         }
 
@@ -365,7 +379,9 @@ export class UniTickerService { //extends BizHttp<UniQueryDefinition> {
                         let url: string = model && model.DetailsUrl ? model.DetailsUrl : '';
 
                         if (url && url !== '') {
-                            url = url.replace(`:${urlIdProperty}`, rowId.toString());
+                            propValuePairs.forEach(pair => {
+                                url = url.replace(`:${pair.prop}`, pair.value.toString());
+                            });
                             this.router.navigateByUrl(url);
                         } else {
                             throw Error('Could not navigate, no URL specified for model ' + ticker.Model);
@@ -509,6 +525,10 @@ export class UniTickerService { //extends BizHttp<UniQueryDefinition> {
                             // the property as a normal field
                             url = '';
                         }
+                    } else if (column.LinkNavigationProperties && column.LinkNavigationProperties.length) {
+                        column.LinkNavigationProperties.forEach(prop => {
+                            url = url.replace(`:${prop.toLowerCase().replace('.', '')}`, data[prop.replace('.', '')]);
+                        });
                     } else {
                         if (data['ID']) {
                             url = url.replace(':ID', data['ID']);
@@ -532,6 +552,10 @@ export class UniTickerService { //extends BizHttp<UniQueryDefinition> {
                             // the property as a normal field
                             url = '';
                         }
+                    } else if (column.LinkNavigationProperties && column.LinkNavigationProperties.length) {
+                        column.LinkNavigationProperties.forEach(prop => {
+                            url = url.replace(`:${prop.toLowerCase().replace('.', '')}`, data[prop.replace('.', '')]);
+                        });
                     } else {
                         if (data['ID']) {
                             url = url.replace(':ID', data['ID']);
@@ -921,6 +945,7 @@ export class TickerColumn {
     public Alias?: string;
     public ExternalModel?: string;
     public LinkNavigationProperty?: string;
+    public LinkNavigationProperties?: string[];
     public FilterOperator?: string;
     public SubFields?: Array<TickerColumn>;
 }
@@ -963,6 +988,7 @@ export class TickerAction {
 
 export class TickerActionOptions {
     public ParameterProperty?: string;
+    public ParameterProperties?: string[];
     public Action?: string;
     public Transition?: string;
     public ReportName?: string;

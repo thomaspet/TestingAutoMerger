@@ -1,3 +1,157 @@
 [
-
+    {
+        "Name": "Arbeidsforhold",
+        "Code": "employment_list",
+        "Type": "Table",
+        "Group": "Lønn",
+        "IsTopLevelTicker": true,
+        "Model": "Employment",
+        "Expand": "SubEntity.BusinessRelationInfo,Dimensions.Department,Dimensions.Project",
+        "Columns": [
+            {
+                "Header": "Stillingskode",
+                "Field": "JobCode",
+                "Type": "text"
+            },
+            {
+                "Header": "Stillingsnavn",
+                "Field": "JobName",
+                "Type": "link",
+                "LinkNavigationProperties": ["Employment.EmployeeID", "ID"]
+            },
+            {
+                "Header": "Stillingsprosent",
+                "Field": "WorkPercent",
+                "Type": "percent"
+            },
+            {
+                "Header": "Standard",
+                "Field": "Standard"
+            },
+            {
+                "Header": "StartDato",
+                "Field": "StartDate"
+            },
+            {
+                "Header": "SluttDato",
+                "Field": "EndDate"
+            },
+            {
+                "Header": "Virksomhet",
+                "Field": "SubEntity.BusinessRelationInfo.Name"
+            },
+            {
+                "Header": "Månedslønn",
+                "Field": "MonthRate"
+            },
+            {
+                "Field": "EmployeeID",
+                "Type": "dontdisplay"
+            }
+        ],
+        "ParentFilter": {
+            "Field": "EmployeeID",
+            "Operator": "eq",
+            "Value": "ID"
+        },
+        "Actions": [ 
+            {
+                "Name": "Vis arbeidsforhold",
+                "Code": "open_employment",
+                "Type": "details",
+                "DisplayInContextMenu": true,
+                "DisplayInActionBar": true,
+                "Options": {
+                    "ParameterProperties": ["Employment.EmployeeID", "ID"]
+                }
+            }
+        ],
+        "SubTickersCodes": ["employment_details"]
+    },
+    {
+        "Name": "Arbeidsforhold",
+        "Code": "employment_details",
+        "Type": "Detail",
+        "Group": "Lønn",
+        "Model": "Employment",
+        "Expand": "SubEntity.BusinessRelationInfo,Dimensions.Department,Dimensions.Project",
+        "Columns": [
+            {
+                "Header": "Stillingskode",
+                "Field": "JobCode",
+                "Type": "text"
+            },
+            {
+                "Header": "Stillingsnavn",
+                "Field": "JobName",
+                "Type": "text"
+            },
+            {
+                "Header": "Stillingsprosent",
+                "Field": "WorkPercent",
+                "Type": "percent"
+            },
+            {
+                "Header": "Standard",
+                "Field": "Standard"
+            },
+            {
+                "Header": "StartDato",
+                "Field": "StartDate"
+            },
+            {
+                "Header": "SluttDato",
+                "Field": "EndDate"
+            },
+            {
+                "Header": "Virksomhet",
+                "Field": "SubEntity.BusinessRelationInfo.Name"
+            },
+            {
+                "Header": "Månedslønn",
+                "Field": "MonthRate"
+            },
+            {
+                "Header": "Timelønn",
+                "Field": "HourRate"
+            },
+            {
+                "Header": "Fri sats",
+                "Field": "UserDefinedRate"
+            },
+            {
+                "Header": "Hovedbokskonto",
+                "Field": "LedgerAccount"
+            },
+            {
+                "Header": "Timer pr uke full stilling",
+                "Field": "HoursPerWeek"
+            },
+            {
+                "Header": "Ansienitet",
+                "Field": "SeniorityDate"
+            },
+            {
+                "Header": "Lønnsjustering",
+                "Field": "LastSalaryChangeDate"
+            },
+            {
+                "Header": "Sist endret %",
+                "Field": "LastWorkPercentChangeDate"
+            },
+            {
+                "Header": "Prosjekt",
+                "Field": "Dimensions.Project.Name"
+            },
+            {
+                "Header": "Avdeling",
+                "Field": "Dimensions.Department.Name"
+            }
+        ],
+        "ParentFilter": {
+            "Field": "ID",
+            "Operator": "eq",
+            "Value": "ID"
+        }
+    }
 ]

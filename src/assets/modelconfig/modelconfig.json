@@ -267,6 +267,11 @@
             "Name": "Worker",
             "Translated": "Timefører",
             "Url": "/timetracking/workers/:ID"
+        },
+        {
+            "Name": "Employment",
+            "Translated": "Arbeidsforhold",
+            "Url": "salary/employees/:employmentemployeeid/employments;EmploymentID=:id"
         }
     ]
 }

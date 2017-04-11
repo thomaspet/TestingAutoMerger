@@ -645,14 +645,17 @@ export class UniTicker {
                     );
 
                 actionsWithDetailNavigation.forEach(st => {
-                    let paramSelect = 'ID as ID';
+                    let paramSelects = ['ID as ID'];
                     if (st.Options.ParameterProperty !== '') {
-                        paramSelect = `${st.Options.ParameterProperty} as ${st.Options.ParameterProperty.replace('.', '')}`;
+                        paramSelects = 
+                            [`${st.Options.ParameterProperty} as ${st.Options.ParameterProperty.replace('.', '')}`];
+                    } else if (st.Options.ParameterProperties && st.Options.ParameterProperties.length) {
+                        paramSelects = st.Options.ParameterProperties.map(prop => {
+                            return `${prop} as ${prop.replace('.', '')}`;
+                        });
                     }
 
-                    if (!selects.find(x => x === paramSelect)) {
-                        selects.push(paramSelect);
-                    }
+                    selects = [...selects, ...paramSelects.filter(param => !selects.some(x => x === param))];
                 });
 
                 let linkFieldsWithNavigationProperty =
@@ -663,6 +666,18 @@ export class UniTicker {
                     if (!selects.find(x => x === paramSelect)) {
                         selects.push(paramSelect);
                     }
+                });
+
+                let linkFieldWithNavigationProprties = this.ticker.Columns
+                    .filter(x => x.Type === 'link' 
+                        && x.LinkNavigationProperties 
+                        && x.LinkNavigationProperties.length);
+                
+                linkFieldWithNavigationProprties.forEach(field => {
+                    let paramSelects = field.LinkNavigationProperties.map(prop => {
+                        return `${prop} as ${prop.replace('.', '')}`;
+                    });
+                    selects = [...selects, ...paramSelects.filter(param => !selects.some(x => x === param))];
                 });
 
                 let linkFieldsWithoutNavigationProperty =
