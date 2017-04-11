@@ -1,5 +1,6 @@
 import {Injectable} from '@angular/core';
 import {fromByteArray} from 'base64-js';
+import {AppConfig} from '../../../app/AppConfig';
 declare var Stimulsoft;
 
 @Injectable()
@@ -16,6 +17,7 @@ export class StimulsoftReportWrapper {
     {
         if (template && reportData && caller)
         {
+            //Stimulsoft.Base.StiLicense.key = AppConfig.STIMULSOFT_LICENSE; // Needed for newer versions
             const report = this.generateReport(template, reportData, parameters);
 
             if (report) {
@@ -38,6 +40,7 @@ export class StimulsoftReportWrapper {
 
     public printReport(template: string, reportData: Object, parameters: Array<any>, saveReport: boolean, format: string) {
         if (template && reportData) {
+            //Stimulsoft.Base.StiLicense.key = AppConfig.STIMULSOFT_LICENSE; // Needed for newer versions
             Stimulsoft.Base.StiFontCollection.addOpentypeFontFile('assets/SourceSansPro-Regular.otf', 'Source Sans Pro');
 
             const report = this.generateReport(template, reportData, parameters);
