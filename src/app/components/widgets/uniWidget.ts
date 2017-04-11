@@ -66,7 +66,7 @@ export class UniWidget {
         'rss': UniRSSWidget,
         'list': UniListWidget,
         'clock': UniClockWidget,
-        'tripleVertical': UniTripleVerticalWidget 
+        'tripleVertical': UniTripleVerticalWidget,
         'companyLogo': UniCompanyLogoWidget
     };
 
