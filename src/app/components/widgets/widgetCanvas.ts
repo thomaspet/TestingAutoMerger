@@ -112,16 +112,18 @@ export class UniWidgetCanvas {
         let size;
         let numCols;
 
-        if (window.innerWidth <= 768) { // 480
+        if (window.innerWidth <= 768) {
             size = 'small';
             numCols = 4;
-        } else if (window.innerWidth <= 1200) { // 768
+        } else if (window.innerWidth <= 1200) {
             size = 'medium';
             numCols = 8;
         } else {
             size = 'large';
             numCols = 12;
         }
+
+        this.widgetMargin = window.innerWidth <= 1500 ? 10 : 13;
 
         if (size !== this.currentSize) {
             this.currentSize = size;
