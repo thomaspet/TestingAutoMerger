@@ -33,7 +33,8 @@ import {
     CompanySettingsService,
     ErrorService,
     PageStateService,
-    checkGuid
+    checkGuid,
+    EHFService
 } from '../../../../services/services';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {UniFieldLayout} from 'uniform-ng2/main';
@@ -111,7 +112,7 @@ export class BillView {
     private rootActions: IUniSaveAction[] = [
         { label: lang.tool_save, action: (done) => this.save(done), main: true, disabled: true },
         { label: lang.tool_delete, action: (done) => this.tryDelete(done), main: false, disabled: true },
-        { label: lang.ocr, action: (done) => this.runOcr(this.files).then(() => done()), main: false, disabled: false }
+        { label: lang.converter, action: (done) => this.runConverter(this.files).then(() => done()), main: false, disabled: false },
     ];
 
     constructor(
@@ -129,7 +130,8 @@ export class BillView {
         private bankAccountService: BankAccountService,
         private companySettingsService: CompanySettingsService,
         private currencyCodeService: CurrencyCodeService,
-        private currencyService: CurrencyService) {
+        private currencyService: CurrencyService,
+        private ehfService: EHFService) {
         this.actions = this.rootActions;
     }
 
@@ -334,6 +336,42 @@ export class BillView {
 
     /// =============================
 
+    ///     OCR AND EHF
+
+    /// =============================
+
+    private runConverter(files: Array<any>): Promise<boolean> {
+        return new Promise((resolve, reject) => {
+            if (files && files.length > 0) {
+                let firstFile = files[0];
+                if (firstFile.ContentType == "application/xml") {
+                    this.runEHF(firstFile);
+                } else {
+                    this.runOcr(firstFile);
+                }
+            }
+        });
+    }
+
+    /// =============================
+
+    ///     FILES AND EHF
+
+    /// =============================
+
+    private runEHF(file: any) {
+        this.userMsg(lang.ehf_running, null, null, true);
+        this.ehfService.Get(`?action=parse&fileID=${file.ID}`)
+            .subscribe( (invoice: SupplierInvoice) => {
+                this.toast.clear();
+                this.current.next(invoice);
+            }, (err) => {
+                this.errorService.handle(err);
+            });
+    }
+
+    /// =============================
+
     ///     FILES AND OCR
 
     /// =============================
@@ -353,7 +391,7 @@ export class BillView {
         this.files = files;
         if (files && files.length) {
             if (!this.hasValidSupplier()) {
-                this.runOcr(files);
+                this.runConverter(files);
             }
             this.checkNewFiles(files);
         }
@@ -381,22 +419,15 @@ export class BillView {
         return (current && current.SupplierID) ? true : false;
     }
 
-    private runOcr(files: Array<any>): Promise<boolean> {
-        return new Promise((resolve, reject) => {
-            if (files && files.length > 0) {
-                let firstFile = files[0];
-                this.userMsg(lang.ocr_running, null, null, true);
-                this.supplierInvoiceService.fetch(`files/${firstFile.ID}?action=ocranalyse`)
-                    .subscribe((result: IOcrServiceResult) => {
-                        this.toast.clear();
-                        this.handleOcrResult(new OcrValuables(result));
-                        resolve(true);
-                    }, (err) => {
-                        this.errorService.handle(err);
-                        resolve(false);
-                    });
-            }
-        });
+    private runOcr(file: any) {
+        this.userMsg(lang.ocr_running, null, null, true);
+        this.supplierInvoiceService.fetch(`files/${file.ID}?action=ocranalyse`)
+            .subscribe((result: IOcrServiceResult) => {
+                this.toast.clear();
+                this.handleOcrResult(new OcrValuables(result));
+            }, (err) => {
+                this.errorService.handle(err);
+            });
     }
 
     private handleOcrResult(ocr: OcrValuables) {

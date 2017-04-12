@@ -56,14 +56,14 @@ export const billViewLanguage = {
     ask_delete: 'Vil du virkelig slette faktura ',
     delete_canceled: 'Sletting avbrutt',
 
-    ocr: 'Kjør OCR-tolk',
+    converter: 'Kjør tolk (OCR/EHF)',
+
     ocr_running: 'Kjører OCR-tolkning av dokumentet og leter etter gjenkjennbare verdier. Vent litt..',
     org_not_found: '(aktuelt orgnr. ble ikke funnet blant dine eksisterende leverandører)',
     create_supplier: 'Opprette ny leverandør',
     org_number: 'Organisasjonsnr.',
 
-    ehf: 'Kjør EHF-tolk',
-    ehf_running: 'Kjører EHF-tolk av dokumentet. Vent litt..',
+    ehf_running: 'Kjører EHF-tolkning av dokumentet. Vent litt..',
 
     create_bankaccount_accept: 'Opprett konto',
     create_bankaccount_reject: 'Ikke opprett konto',
