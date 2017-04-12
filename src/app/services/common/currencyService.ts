@@ -22,7 +22,7 @@ export class CurrencyService extends BizHttp<Currency> {
             `toCurrencyCodeID=${toCurrencyCodeID}&currencyDate=${currencyDate.toString()}`);
     }
 
-    public getCurrencyExchangeRate(fromCurrencyCodeID: number, toCurrencyCodeID: number, currencyDate: LocalDate): Observable<any> {
+    public getCurrencyExchangeRate(fromCurrencyCodeID: number = 1, toCurrencyCodeID: number = 1, currencyDate: LocalDate): Observable<any> {
         return this.GetAction(
             null,
             'get-currency-exchange-rate',

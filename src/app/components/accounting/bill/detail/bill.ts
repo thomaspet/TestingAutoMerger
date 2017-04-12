@@ -254,17 +254,20 @@ export class BillView {
             valueProperty: 'ID'
         };
 
-        var sumCol = createFormField('TaxInclusiveAmount', lang.col_total, ControlTypes.NumericInput, FieldSize.Double);
+        var sumCol = createFormField('TaxInclusiveAmountCurrency', lang.col_total, ControlTypes.NumericInput, FieldSize.Double);
+        sumCol.Classes += ' combofield';
         sumCol.Options = {
             events: {
                 enter: (x) => {
                     this.focusJournalEntries();
                 }
             },
-            decimalLength: 2
+            decimalLength: 2,
+            decimalSeparator: ','
         };
 
         var currencyCodeCol = createFormField('CurrencyCodeID', lang.col_currency_code, FieldType.DROPDOWN, FieldSize.Double);
+        currencyCodeCol.Classes += ' combofield';
         currencyCodeCol.Options = {
             source: this.currencyCodes,
             valueProperty: 'ID',
@@ -535,9 +538,11 @@ export class BillView {
         let current = this.current.getValue();
         current[colName] = value;
         var fld: any = this.uniForm.field(colName);
-        fld.Component.control.setValue(value, { emitEvent: true });
-        if (callInputChange) {
-            fld.Component.inputChange();
+        if (fld) { // update in form just if is part of the form
+            fld.Component.control.setValue(value, {emitEvent: true});
+            if (callInputChange) {
+                fld.Component.inputChange();
+            }
         }
         this.current.next(current);
         this.flagUnsavedChanged();

@@ -46,9 +46,11 @@ export class BillSimpleJournalEntryView {
 
     public ngOnInit() {
         this.supplierinvoice.subscribe((value: SupplierInvoice) => {
-            this.current = _.cloneDeep(value); // we need to refresh current to view actual data
-            this.initFromInvoice(this.current);
-            this.calcRemainder();
+            if (!_.isEqual(this.current, value)) {
+                this.current = _.cloneDeep(value); // we need to refresh current to view actual data
+                this.initFromInvoice(this.current);
+                this.calcRemainder();
+            }
         });
     }
 
@@ -140,6 +142,7 @@ export class BillSimpleJournalEntryView {
                         firstLine = lines[index];
                     }
                     x['_rowIndex'] = index; // save original index
+                    console.log(this.costItems);
                     this.costItems.push(x);
                 }
             });
@@ -189,6 +192,9 @@ export class BillSimpleJournalEntryView {
                 },
 
                 onStartEdit: (info: IStartEdit) => {
+                    if (info.row === -1) {
+                        return;
+                    }
                     if (this.isReadOnly) {
                         info.cancel = true;
                     } else {
@@ -196,7 +202,7 @@ export class BillSimpleJournalEntryView {
                             info.value = this.costItems[info.row].Description;
                         }
                         if (info.columnDefinition.name === 'AmountCurrency') {
-                            info.value = this.costItems[info.row].AmountCurrency;
+                            info.value = this.costItems[info.row].AmountCurrency + '';
                         }
 
                         this.calcRemainder();
@@ -212,7 +218,6 @@ export class BillSimpleJournalEntryView {
                 },
 
                 onCopyCell: (details: ICopyEventDetails) => {
-                    debugger;
                     if (details.position.row <= 0) { return; }
                     var row = this.costItems[details.position.row];
                     var rowAbove = this.costItems[details.position.row - 1];
@@ -291,6 +296,7 @@ export class BillSimpleJournalEntryView {
             this.raiseUpdateEvent(rowIndex, line, { action: 'deleted' });
             if (!line.ID) {
                 this.current.JournalEntry.DraftLines.splice(actualRowIndex, 1);
+                this.supplierinvoice.next(this.current);
                 this.costItems.forEach(x => { if (x['_rowIndex'] > actualRowIndex) { x['_rowIndex']--; } });
             }
         }
@@ -309,6 +315,7 @@ export class BillSimpleJournalEntryView {
             checkGuid(this.current.JournalEntry);
             checkGuid(row);
             this.checkJournalYear(this.current.JournalEntry);
+            this.supplierinvoice.next(this.current);
         }
         return actualRowIndex;
     }
@@ -323,8 +330,6 @@ export class BillSimpleJournalEntryView {
         } else {
             line = this.costItems[change.row];
         }
-
-        this.enrollNewRow(line);
 
         switch (change.columnDefinition.name) {
             case 'Account.AccountNumber':
@@ -380,6 +385,9 @@ export class BillSimpleJournalEntryView {
 
         change.updateCell = false;
 
+        this.enrollNewRow(line);
+
+        // TODO: removed this addEmpty row since that is checked in other places also
         if (isLastRow) {
             this.addEmptyRowAtBottom();
         }
