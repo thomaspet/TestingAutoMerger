@@ -1,6 +1,7 @@
 import {Injectable} from '@angular/core';
 import {fromByteArray} from 'base64-js';
 import {AppConfig} from '../../../app/AppConfig';
+import {saveAs} from 'file-saver';
 declare var Stimulsoft;
 
 @Injectable()
@@ -84,7 +85,6 @@ export class StimulsoftReportWrapper {
                 }
 
                 const fileName = (report.reportAlias === null || report.reportAlias.length === 0)  ? report.reportName : report.reportAlias;
-                const obj: any = Object;
                 var data: any;
 
                 // Export
@@ -100,7 +100,8 @@ export class StimulsoftReportWrapper {
                 }
                 // Save or return
                 if (saveReport) {
-                    obj.saveAs(data, fileName + '.' + format, mimetype);
+                    let blob = new Blob([new Int8Array(data)], { type: mimetype });
+                    saveAs(blob, fileName + '.' + format);
                 } else {
                     switch (format) {
                         case 'html':
