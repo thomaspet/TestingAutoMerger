@@ -1,5 +1,4 @@
-[
-    {
+[{
         "Name": "Ansatt",
         "Code": "employee_list",
         "Type": "Table",
@@ -7,8 +6,7 @@
         "Group": "Lønn",
         "Model": "Employee",
         "Expand": "Employment,BusinessRelationInfo.InvoiceAddress,BusinessrelationInfo.DefaultPhone,BusinessRelationInfo.DefaultEmail,BusinessRelationInfo.DefaultBankAccount",
-        "Columns": [
-            {
+        "Columns": [{
                 "Header": "Ansattnr",
                 "Field": "EmployeeNumber"
             },
@@ -47,8 +45,7 @@
                 "DefaultHidden": true
             }
         ],
-        "Actions": [
-            {
+        "Actions": [{
                 "Name": "Ny ansatt",
                 "Code": "new_employee",
                 "ExecuteWithoutSelection": true,
@@ -80,8 +77,7 @@
         "Group": "Lønn",
         "Model": "Employee",
         "Expand": "Employment,BusinessRelationInfo.InvoiceAddress,BusinessrelationInfo.DefaultPhone,BusinessRelationInfo.DefaultEmail,BusinessRelationInfo.DefaultBankAccount",
-        "Columns": [
-            {
+        "Columns": [{
                 "Header": "Ansattnr",
                 "Field": "EmployeeNumber",
                 "Type": "number"
@@ -332,6 +328,120 @@
             "ExecuteWithoutSelection": true,
             "DisplayInActionBar": true
         }]
+    },
+    {
+        "Name": "Lønnsavregning",
+        "Code": "payrollrun_list",
+        "Type": "Table",
+        "IsTopLevelTicker": true,
+        "Group": "Lønn",
+        "Model": "PayrollRun",
+        "Expand": "",
+        "Columns": [{
+                "Header": "Nr",
+                "Field": "ID",
+                "Width": "8rem",
+                "Type": "link",
+                "LinkNavigationProperty": "ID"
+            },
+            {
+                "Header": "Beskrivelse",
+                "Field": "Description",
+                "Type": "link",
+                "LinkNavigationProperty": "ID"
+            },
+            {
+                "Header": "Utbetalingsdato",
+                "Field": "PayDate",
+                "Type": "localdate",
+                "Width": "8rem"
+            },
+            {
+                "Header": "Fra dato",
+                "Field": "FromDate",
+                "Type": "localdate",
+                "Width": "8rem"
+            },
+            {
+                "Header": "Til dato",
+                "Field": "ToDate",
+                "Type": "localdate",
+                "Width": "8rem"
+            },
+            {
+                "Header": "Fritekst",
+                "Field": "FreeText",
+                "DefaultHidden": true
+            }
+        ],
+        "Actions": [{
+                "Name": "Ny lønnsavregning",
+                "Code": "new_payrollrun",
+                "ExecuteWithoutSelection": true,
+                "Type": "new",
+                "DisplayForSubTickers": false
+            },
+            {
+                "Name": "Vis lønnsavregning",
+                "Code": "open_payrollrun",
+                "Type": "details",
+                "DisplayInContextMenu": true,
+                "DisplayInActionBar": true
+            }
+        ],
+        "ParentFilter": {
+            "Field": "ID",
+            "Operator": "eq",
+            "Value": "ID"
+        },
+        "SubTickersCodes": [
+            "payrollrun_details",
+            "salarytransaction_list"
+        ]
+    },
+    {
+        "Name": "Lønnsavregning",
+        "Code": "payrollrun_details",
+        "Type": "Details",
+        "Group": "Lønn",
+        "Model": "PayrollRun",
+        "UseParentTickerActions": true,
+        "Expand": "",
+        "Columns": [{
+                "Header": "Nr",
+                "Field": "ID",
+                "Type": "text"
+            },
+            {
+                "Header": "Beskrivelse",
+                "Field": "Description",
+                "Type": "text"
+            },
+            {
+                "Header": "Fra dato",
+                "Field": "FromDate",
+                "Type": "localdate"
+            },
+            {
+                "Header": "til dato",
+                "Field": "ToDate",
+                "Type": "localdate"
+            },
+            {
+                "Header": "Utbetalingsdato",
+                "Field": "PayDate",
+                "Type": "localdate"
+            },
+            {
+                "Header": "Fritekst",
+                "Field": "FreeText"
+            }
+        ],
+        "ParentFilter": {
+            "Field": "ID",
+            "Operator": "eq",
+            "Value": "ID"
+        }
     },
     {
         "Name": "Lønnspost",

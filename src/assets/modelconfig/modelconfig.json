@@ -279,6 +279,11 @@
         {
             "Name": "EmployeeLeave",
             "Translated": "Permisjoner"
+        },
+        {
+            "Name": "PayrollRun",
+            "Translated": "Lønnsavregninger",
+            "Url": "/salary/payrollrun/:ID"
         }
     ]
 }
