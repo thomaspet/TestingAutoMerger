@@ -66,7 +66,7 @@
         "ParentFilter": {
             "Field": "ID",
             "Operator": "eq",
-            "Value": "ID"
+            "Value": "EmployeeID"
         },
         "SubTickersCodes": [
             "employee_details",
@@ -332,5 +332,173 @@
             "ExecuteWithoutSelection": true,
             "DisplayInActionBar": true
         }]
+    },
+    {
+        "Name": "Lønnspost",
+        "Code": "salarytransaction_list",
+        "Type": "Table",
+        "IsTopLevelTicker": true,
+        "Group": "Lønn",
+        "Model": "SalaryTransaction",
+        "Expand": "Wagetype,Employment,Dimensions.Project,Dimensions.Department",
+        "Columns": [
+            {
+                "Header": "Lønnsart",
+                "Field": "WageTypeNumber",
+                "Width": "5rem"
+            },
+            {
+                "Header": "Lønnsavregning",
+                "Field": "PayrollRunID"
+            },
+            {
+                "Header": "Ansattnr",
+                "Field": "EmployeeNumber",
+                "Width": "5rem"
+            },
+            {
+                "Header": "Tekst",
+                "Field": "Text"
+            },
+            {
+                "Header": "Arbeidsforhold",
+                "Field": "Employment.ID",
+                "Type": "text",
+                "SubFields": [
+                    {
+                        "Field": "Employment.JobName"
+                    }
+                ]
+            },
+            {
+                "Header": "Fra dato",
+                "Field": "FromDate",
+                "Width": "6rem"
+            },
+            {
+                "Header": "Til dato",
+                "Field": "ToDate",
+                "Width": "6rem"
+            },
+            {
+                "Header": "Konto",
+                "Field": "Account",
+                "Width": "5rem"
+            },
+            {
+                "Header": "Sats",
+                "Field": "Rate",
+                "Type": "money"
+            },
+            {
+                "Header": "Sum",
+                "Field": "Sum",
+                "Type": "money"
+            },
+            {
+                "Header": "Utbetales",
+                "Field": "Wagetype.Base_Payment",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "Prosjekt",
+                "Field": "Dimensions.Project.Name",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "Avdeling",
+                "Field": "Dimensions.Department.Name",
+                "DefaultHidden": true
+            }
+        ],
+        "Actions": [],
+        "ParentFilter": {
+            "Field": "PayrollRunID",
+            "Operator": "eq",
+            "Value": "ID"
+        },
+        "SubTickersCodes": ["salarytransaction_details","employee_list"]
+    },
+    {
+        "Name": "Lønnspost",
+        "Code": "salarytransaction_details",
+        "Type": "Details",
+        "Group": "Lønn",
+        "Model": "SalaryTransaction",
+        "Expand": "Wagetype,Employment,Dimensions.Project,Dimensions.Department",
+        "Joins": "SalaryTransaction.ID eq FileEntityLink.EntityID",
+        "Columns": [
+            {
+                "Header": "Lønnsart",
+                "Field": "WageTypeNumber",
+                "Type": "text"
+            },
+            {
+                "Header": "Lønnsavregning",
+                "Field": "PayrollRunID",
+                "Type": "text"
+            },
+            {
+                "Header": "Ansattnr",
+                "Field": "EmployeeNumber",
+                "Type": "text"
+            },
+            {
+                "Header": "Tekst",
+                "Field": "Text"
+            },
+            {
+                "Header": "Arbeidsforhold",
+                "Field": "Employment.ID",
+                "Type": "text",
+                "SubFields": [
+                    {
+                        "Field": "Employment.JobName"
+                    }
+                ]
+            },
+            {
+                "Header": "Fra dato",
+                "Field": "FromDate"
+            },
+            {
+                "Header": "Til dato",
+                "Field": "ToDate"
+            },
+            {
+                "Header": "Konto",
+                "Field": "Account",
+                "Width": "5rem"
+            },
+            {
+                "Header": "Sats",
+                "Field": "Rate",
+                "Type": "money"
+            },
+            {
+                "Header": "Sum",
+                "Field": "Sum",
+                "Type": "money"
+            },
+            {
+                "Header": "Utbetales",
+                "Field": "Wagetype.Base_Payment"
+            },
+            {
+                "Header": "Prosjekt",
+                "Field": "Dimensions.Project.Name"
+            },
+            {
+                "Header": "Avdeling",
+                "Field": "Dimensions.Department.Name"
+            }
+        ],
+        "Actions": [],
+        "ParentFilter": {
+            "Field": "ID",
+            "Operator": "eq",
+            "Value": "ID"
+        },
+        "SubTickersCodes": []
     }
 ]
