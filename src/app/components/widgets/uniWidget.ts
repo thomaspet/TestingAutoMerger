@@ -7,9 +7,7 @@ import {
     EventEmitter,
     ViewChild,
     ComponentFactoryResolver,
-    ComponentRef,
-    ChangeDetectionStrategy,
-    ChangeDetectorRef
+    ComponentRef
 } from '@angular/core';
 
 // Import known widgets. Loading third party stuff needs to be solved
@@ -58,8 +56,7 @@ export class WidgetContainer {
                 *ngIf="widget?._editMode">
             Remove
         </button>
-    `,
-    changeDetection: ChangeDetectionStrategy.OnPush
+    `
 })
 export class UniWidget {
     @ViewChild(WidgetContainer)
@@ -85,10 +82,7 @@ export class UniWidget {
 
     private widgetComponent: ComponentRef<any>;
 
-    constructor(
-        private componentFactoryResolver: ComponentFactoryResolver,
-        private cdr: ChangeDetectorRef
-    ) {}
+    constructor(private componentFactoryResolver: ComponentFactoryResolver) {}
 
     public ngOnChanges() {
         if (this.widget) {
@@ -99,7 +93,6 @@ export class UniWidget {
     public setEditMode(editMode) {
         this.widget._editMode = editMode;
         this.widgetComponent.instance.widget = this.widget;
-        this.cdr.markForCheck();
     }
 
     private loadWidget() {
