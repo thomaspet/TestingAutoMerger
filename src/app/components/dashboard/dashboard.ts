@@ -375,13 +375,15 @@ export class Dashboard {
                 widgetType: 'list',
                 config: {
                     header: 'Siste transaksjoner',
-                    dataEndPoint: "/api/statistics?model=AuditLog&select=id,entitytype,entityid,field,User.displayname,createdat,updatedat&filter=field eq 'updatedby' and ( not contains(entitytype,'item') ) &join=auditlog.createdby eq user.globalidentity&top=10&orderby=id desc",
+                    dataEndPoint: "/api/statistics?model=AuditLog&select=id,entitytype,transaction,route,action,entityid,User.ID,field,User.displayname,createdat,updatedat&filter=field eq 'updatedby' and ( not contains(entitytype,'item') ) &join=auditlog.createdby eq user.globalidentity&top=50&orderby=id desc",
                     listItemKeys: {
                         username: 'UserDisplayName',
                         module: 'AuditLogEntityType',
                         action: 'AuditLogField',
                         moduleID: 'AuditLogEntityID',
-                        time: 'AuditLogCreatedAt'
+                        time: 'AuditLogCreatedAt',
+                        uniqueID: 'AuditLogTransaction',
+                        numberToDisplay: 10
                     }
                 }
             },

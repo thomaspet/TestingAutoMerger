@@ -22,7 +22,7 @@ interface IListItem {
                         <li *ngFor="let item of myListItems" style="font-size: 0.8rem; padding: 2px 10px;">
                             <strong>{{ item.username }}</strong>
                             {{ item.action }}
-                            <a (click)="onClickNavigate()" style="cursor: pointer;"> {{ item.module }} {{ item.moduleID }} </a>
+                            <a (click)="onClickNavigate(item)" style="cursor: pointer;"> {{ item.module }} </a>
                             <time style="float: right; margin: 0;"> {{ item.time }} </time>
                         </li>
                     </ol>
@@ -46,29 +46,45 @@ export class UniListWidget {
         //})
     }
 
-    loadListWidget() {
+    private loadListWidget() {
         this.widgetDataService.getData(this.widget.config.dataEndPoint)
             .subscribe(data => { this.myListItems = this.formatListData(data.Data) }, err => console.log(err));
     }
 
-    formatListData(list: any[]) {
+    private formatListData(list: any[]) {
+        if (!list) return;
+        let myNewList = [];
         list.forEach((item) => {
             item.username = this.CapitalizeDisplayName(this.removeLastNameIfAny(item[this.widget.config.listItemKeys.username]));
-            item.module = item[this.widget.config.listItemKeys.module];
-            item.action = item[this.widget.config.listItemKeys.action];
-            item.moduleID = item[this.widget.config.listItemKeys.moduleID];
+            this.translateModuleName(item);
+            //item.action = item[this.widget.config.listItemKeys.action];
+            item.action = 'endret'
+            //item.moduleID = item[this.widget.config.listItemKeys.moduleID];
 
             var mydate = moment.utc(item[this.widget.config.listItemKeys.time]).toDate();
             item.time = moment(mydate).subtract(1, 'm').fromNow();
+
+            if (this.widget.config.listItemKeys.uniqueID) {
+                if (myNewList.length > 0) {
+                    if (myNewList[myNewList.length - 1][this.widget.config.listItemKeys.uniqueID] !== item[this.widget.config.listItemKeys.uniqueID]) {
+                        myNewList.push(item);
+                    }
+                } else {
+                    myNewList.push(item);
+                }
+            } else {
+                myNewList.push(item);
+            }
+
+            
         })
-        return list;
+        return myNewList.slice(0, this.widget.config.listItemKeys.numberToDisplay);
     }
 
-    onClickNavigate() {
+    private onClickNavigate(item: any) {
+        console.log(item);
         if (!this.widget._editMode) {
-            //Helpfunction to find link based on module and ID?
-            var link = '/sales/customer';
-            this.router.navigateByUrl(link);
+            this.router.navigateByUrl(item.link);
         }
     }
 
@@ -84,6 +100,173 @@ export class UniListWidget {
     //Capitalize first letter in every word in string (Stack Overflow solution)
     private CapitalizeDisplayName(str: string) {
         return str.replace(/\w\S*/g, function (txt) { return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase(); });
+    }
+
+    //While translations are not available backend..
+    private translateModuleName(item: any) {
+        let addressRoute;
+        let changedModule;
+        let url;
+        switch (item[this.widget.config.listItemKeys.module]) {
+            case 'CustomerQuote':
+                item.module = 'Tilbud' + ' ' + item[this.widget.config.listItemKeys.moduleID];
+                item.link = '/sales/quotes/' + item[this.widget.config.listItemKeys.moduleID];
+                break;
+            case 'CustomerOrder':
+                item.module = 'Ordre' + ' ' + item[this.widget.config.listItemKeys.moduleID];
+                item.link = '/sales/orders/' + item[this.widget.config.listItemKeys.moduleID];
+                break;
+            case 'CustomerInvoice':
+                item.module = 'Faktura' + ' ' + item[this.widget.config.listItemKeys.moduleID];
+                item.link = '/sales/invoices/' + item[this.widget.config.listItemKeys.moduleID];
+                break;
+            case 'JournalEntryLine':
+                item.module = 'Bilagslinje' + ' ' + item[this.widget.config.listItemKeys.moduleID];
+                item.link = '/sales/quotes/' + item[this.widget.config.listItemKeys.moduleID];
+                break;
+            case 'SupplierInvoice':
+                item.module = 'Leverandørfaktura' + ' ' + item[this.widget.config.listItemKeys.moduleID];
+                item.link = '/accounting/bill/' + item[this.widget.config.listItemKeys.moduleID];
+                break;
+            case 'NumberSeries':
+                item.module = 'Nummerserie' + ' ' + item[this.widget.config.listItemKeys.moduleID];
+                item.link = '/sales/quotes/' + item[this.widget.config.listItemKeys.moduleID];
+                break;
+            case 'AccountGroup':
+                item.module = 'Kontogruppe' + ' ' + item[this.widget.config.listItemKeys.moduleID];
+                item.link = '/sales/quotes/' + item[this.widget.config.listItemKeys.moduleID];
+                break;
+            case 'Employee':
+                item.module = 'Ansatt ' + item[this.widget.config.listItemKeys.moduleID];
+                item.link = '/salary/employees/' + item[this.widget.config.listItemKeys.moduleID] + '/personal-details';
+                break;
+            case 'Employment':
+                item.module = 'Arbeidsforhold ' + item[this.widget.config.listItemKeys.moduleID];
+                item.link = '/salary/employees/' + item[this.widget.config.listItemKeys.moduleID] + '/employments';
+                break;
+            case 'BankAccount':
+                if (item.AuditLogRoute) {
+                    addressRoute = item.AuditLogRoute.split('/');
+                    item.module = 'Bankkonto på Ansatt ' + addressRoute[addressRoute.length - 1];
+                    item.link = '/salary/employees/' + addressRoute[addressRoute.length - 1] + '/personal-details';
+                } else {
+                    item.module = 'en Bankkonto';
+                    item.link = '/';
+                }
+                
+                break;
+            case 'Customer':
+                item.module = 'Kunde' + ' ' + item[this.widget.config.listItemKeys.moduleID];
+                item.link = '/sales/customer/' + item[this.widget.config.listItemKeys.moduleID];
+                break;
+            case 'Product':
+                item.module = 'Produkt' + ' ' + item[this.widget.config.listItemKeys.moduleID];
+                item.link = '/products/' + item[this.widget.config.listItemKeys.moduleID];
+                break;
+            case 'SalaryTransaction':
+                item.module = 'SalaryTransaction' + ' ' + item[this.widget.config.listItemKeys.moduleID];
+                item.link = '/sales/quotes/' + item[this.widget.config.listItemKeys.moduleID];
+                break;
+            case 'PayrollRun':
+                item.module = 'Lønnsavregning' + ' ' + item[this.widget.config.listItemKeys.moduleID];
+                item.link = '/sales/quotes/' + item[this.widget.config.listItemKeys.moduleID];
+                break;
+            case 'Account':
+                item.module = 'Konto' + ' ' + item[this.widget.config.listItemKeys.moduleID];
+                item.link = '/accounting/accountsettings';
+                break;
+            case 'Address':
+                if (item.AuditLogRoute) {
+                    addressRoute = item.AuditLogRoute.split('/');
+                    changedModule = 'Kunde';
+                    url = 'customer';
+                    if (addressRoute[addressRoute.length - 2] === 'suppliers') {
+                        changedModule = 'Leverandør';
+                        url = addressRoute[addressRoute.length - 2];
+                    }
+                    item.module = 'Adresse på ' + changedModule + ' ' + addressRoute[addressRoute.length - 1];
+                    item.link = '/sales/' + url + '/' + addressRoute[addressRoute.length - 1];
+                } else {
+                    item.module = 'en Adresse';
+                    item.link = '/';
+                }
+                break;
+            case 'Dimensions':
+                item.module = 'Dimensions' + ' ' + item[this.widget.config.listItemKeys.moduleID];
+                item.link = '/dimensions/project';
+                break;
+            case 'File':
+                item.module = 'File' + ' ' + item[this.widget.config.listItemKeys.moduleID];
+                item.link = '/accounting/bills?filter=Inbox';
+                break;
+            case 'CompanySettings':
+                item.module = 'Innstillinger';
+                item.link = '/sales/quotes/' + item[this.widget.config.listItemKeys.moduleID];
+                break;
+            case 'Project':
+                item.module = 'Prosjekt' + ' ' + item[this.widget.config.listItemKeys.moduleID];
+                item.link = '/dimensions/project/' + item[this.widget.config.listItemKeys.moduleID];
+                break;
+            case 'Department':
+                item.module = 'Avdeling' + ' ' + item[this.widget.config.listItemKeys.moduleID];
+                item.link = '/dimensions/department/' + item[this.widget.config.listItemKeys.moduleID];
+                break;
+            case 'User':
+                item.module = 'Bruker' + ' ' + item[this.widget.config.listItemKeys.moduleID];
+                item.link = '/settings/user';
+                break;
+            case 'Altinn':
+                item.module = 'innstillinger for Altinn';
+                item.link = '/settings/altinn';
+                break;
+            case 'SubEntity':
+                item.module = 'innstillinger for Lønn';
+                item.link = '/settings/aga-and-subentities';
+                break;
+            case 'CompanySalary':
+                item.module = 'innstillinger for Lønn';
+                item.link = '/settings/aga-and-subentities';
+                break;
+            case 'VatType':
+                item.module = 'innstillinger for MVA';
+                item.link = '/accounting/vatsettings';
+                break;
+
+            case 'BusinessRelation':
+                if (item.AuditLogRoute) {
+                    addressRoute = item.AuditLogRoute.split('/');
+                    changedModule = 'Kunde';
+                    url = 'customer';
+                    if (addressRoute[addressRoute.length - 2] === 'suppliers') {
+                        changedModule = 'Leverandør';
+                        url = addressRoute[addressRoute.length - 2];
+                    }
+                    item.module = 'informasjon på ' + changedModule + ' ' + addressRoute[addressRoute.length - 1];
+                    item.link = '/sales/' + url + '/' + addressRoute[addressRoute.length - 1];
+                } else {
+                    item.module = 'en relasjon';
+                    item.link = '/';
+                }
+                
+                break;
+
+            case 'Supplier':
+                item.module = 'Leverandør ' + item[this.widget.config.listItemKeys.moduleID];
+                item.link = '/suppliers/' + item[this.widget.config.listItemKeys.moduleID];
+                break;
+
+            case 'WorkRelation':
+                item.module = 'Stilling ' + item[this.widget.config.listItemKeys.moduleID];
+                item.link = '/timetracking/workers/' + item[this.widget.config.listItemKeys.moduleID];
+                break;
+            case 'WorkType':
+                item.module = 'Timeart ' + item[this.widget.config.listItemKeys.moduleID];
+                item.link = '/timetracking/worktypes/' + item[this.widget.config.listItemKeys.moduleID];
+                break;
+            default:
+                item.module = 'noe';
+                item.link = '/';
+        }
     }
 
 }
