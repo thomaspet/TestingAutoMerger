@@ -255,7 +255,7 @@ export class SalarybalanceService extends BizHttp<SalaryBalance> {
                         Property: 'Amount',
                         Placement: 1,
                         Hidden: false,
-                        FieldType: FieldType.TEXT,
+                        FieldType: FieldType.NUMERIC,
                         ReadOnly: false,
                         LookupField: false,
                         Label: 'Beløp',
