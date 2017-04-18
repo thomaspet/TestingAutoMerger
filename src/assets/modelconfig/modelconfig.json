@@ -1,5 +1,6 @@
 {
-    "Modules": [{
+    "Modules": [
+        {
             "Name": "Sales",
             "Translated": "Salg",
             "Models": [
@@ -211,7 +212,8 @@
             ]
         }
     ],
-    "Models": [{
+    "Models": [
+        {
             "Name": "CustomerInvoice",
             "Translated": "Faktura",
             "Url": "/sales/invoices/:ID"
@@ -279,6 +281,11 @@
         {
             "Name": "EmployeeLeave",
             "Translated": "Permisjoner"
+        },
+        {
+            "Name": "WageType",
+            "Translated": "Lønnsart",
+            "Url": "salary/wagetypes/:ID"
         },
         {
             "Name": "PayrollRun",
