@@ -311,6 +311,7 @@ export class UserRole extends UniEntity {
     public Deleted: boolean;
     public ID: number;
     public SharedRoleId: number;
+    public SharedRoleName: string;
     public UpdatedAt: Date;
     public UpdatedBy: string;
     public UserID: number;
@@ -922,6 +923,7 @@ export class BusinessRelation extends UniEntity {
     public CreatedAt: Date;
     public CreatedBy: string;
     public DefaultBankAccountID: number;
+    public DefaultContactID: number;
     public DefaultEmailID: number;
     public DefaultPhoneID: number;
     public Deleted: boolean;
@@ -932,18 +934,18 @@ export class BusinessRelation extends UniEntity {
     public StatusCode: number;
     public UpdatedAt: Date;
     public UpdatedBy: string;
-    public BankAccounts: Array<BankAccount>;
+    public DefaultContact: Contact;
+    public Contacts: Array<Contact>;
     public Addresses: Array<Address>;
     public Phones: Array<Phone>;
     public Emails: Array<Email>;
+    public BankAccounts: Array<BankAccount>;
     public InvoiceAddress: Address;
     public ShippingAddress: Address;
     public DefaultPhone: Phone;
     public DefaultEmail: Email;
     public DefaultBankAccount: BankAccount;
     public CustomFields: any;
-    public Contacts: Array<Contact>;
-    public DefaultContactID: number;
 }
 
 
@@ -1257,7 +1259,6 @@ export class SalaryBalance extends UniEntity {
 
     public CreatedAt: Date;
     public CreatedBy: string;
-    public CreatePayment: boolean;
     public Deleted: boolean;
     public EmployeeID: number;
     public FromDate: Date;
@@ -2292,6 +2293,7 @@ export class Task extends UniEntity {
     public SharedRoleId: number;
     public SharedTransitionId: number;
     public StatusCode: number;
+    public Title: string;
     public Type: TaskType;
     public UpdatedAt: Date;
     public UpdatedBy: string;
@@ -5004,9 +5006,29 @@ export class AGADetails extends UniEntity {
 
 export class Totals extends UniEntity {
 }
+<<<<<<< HEAD
+
+
+export class RssList extends UniEntity {
+    public Items: string;
+    public Url: string;
+    public Items: Array<RssItem>;
+}
+
+
+export class RssItem extends UniEntity {
+    public Description: string;
+    public PubDate: string;
+    public Title: string;
+}
 
 
 export enum WorkBalanceTypeEnum{
+=======
+
+
+export enum WorkBalanceTypeEnum{
+>>>>>>> develop
     Hours = 1,
     Flex = 11,
     Overtime = 12,

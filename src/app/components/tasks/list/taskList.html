@@ -1,0 +1,62 @@
+<uni-toolbar [config]="{title: 'Dine oppgaver og godkjenninger', omitFinalCrumb: true}"></uni-toolbar>
+
+<section class="application">
+    <!-- DO NOT REMOVE this uncommented section !!
+    <div>
+        <input type="checkbox" id="filterCompleted" [ngModel]="filterCompleted" (ngModelChange)="onStatusFilterChange()">
+        <label attr.for="filterCompleted" class="toggle"> </label>
+
+        <label>
+            Fullført
+        </label>
+        <input type="checkbox" id="aaaa" [ngModel]="filterCompleted" (ngModelChange)="onStatusFilterChange()">
+        <label attr.for="aaaa" class="toggle"> </label>
+    </div>
+    -->
+    <table class="taskView">
+        <tr>
+            <td>
+                <table class="taskList">
+                    <tr *ngFor="let item of tasks" (click)="onRowSelected(item)">
+                        <table class="taskListEmbedded">
+                            <tr>
+                                <td>
+                                    {{item.Title}}
+                                </td>
+                            </tr>
+                            <hr/>
+                        </table>
+                    </tr>
+                </table>
+            </td>
+            <td>
+                <task-details [selectedTask]="selectedTask">
+                </task-details>
+            </td>
+        </tr>
+    </table>
+    <table class="addTask">
+        <tr>
+            <td class="title">
+                <label>
+                    Legg til oppgave
+                    <input type="text">
+                </label>
+            </td>
+            <td class="users">
+                <label>
+                    Tilordne til
+                    <uni-select [config]="userSelectConfig"
+                                [items]="users"
+                                (valueChange)="onUserSelect($event)">
+                    </uni-select>
+                </label>
+            </td>
+            <td class="add">
+                <label>
+                    <button class="add-task">Legg til</button>
+                </label>
+            </td>
+        </tr>
+    </table>
+</section>

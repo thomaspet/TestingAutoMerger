@@ -9,7 +9,7 @@ export const AppConfig = ({
 
     UNI_PUSH_ADAPTER_URL: null,
 
-    UNI_MESSAGE_HUB_URL: 'https://test-unimessagehub.unieconomy.no/',
+    UNI_MESSAGE_HUB_URL: 'https://test-unimessagehub.unieconomy.no/api/application-domains/69038259-dda8-44fc-9b88-714b90b3eb6f/',
 
     UNI_JOB_SERVER_URL: 'https://devapi-unijobserver.azurewebsites.net/api/',
 

@@ -35,6 +35,7 @@ import {AdminModule} from './components/admin/adminModule';
 import {CurrencyModule} from './components/currency/currencyModule';
 import {UniTickerModule} from './components/uniticker/uniTickerModule';
 import {TranslationsModule} from './components/translations/module';
+import {TasksModule} from './components/tasks/tasksModule';
 
 // TODO: REVISIT SERVICES (we probably dont need all to be singletons)
 import {AccountingServicesModule} from './services/accountingServicesModule';
@@ -44,6 +45,7 @@ import {SalaryServicesModule} from './services/salaryServicesModule';
 import {TimeTrackingServicesModule} from './services/timetrackingServicesModule';
 import {SalesServicesModule} from './services/salesServicesModule';
 import {AdminServicesModule} from './services/adminServicesModule';
+import {TaskServicesModule} from './services/taskServicesModule';
 
 import {CanDeactivateGuard} from './canDeactivateGuard';
 
@@ -72,7 +74,8 @@ if (window.ENV === 'production') {
         SalesServicesModule.forRoot(),
         TimeTrackingServicesModule.forRoot(),
         AdminServicesModule.forRoot(),
-
+        TaskServicesModule.forRoot(),
+        
         // routes
         APP_ROUTES,
 
@@ -94,7 +97,8 @@ if (window.ENV === 'production') {
         AdminModule,
         CurrencyModule,
         UniTickerModule,
-        TranslationsModule
+        TranslationsModule,
+        TasksModule
     ],
     declarations: [
         App,
