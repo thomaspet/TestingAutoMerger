@@ -1,6 +1,6 @@
 import {Component, ViewChild} from '@angular/core';
 import {Router} from '@angular/router';
-import {BankAccount, Payment, PaymentCode, PaymentBatch} from '../../../unientities';
+import {BankAccount, Payment, PaymentCode, PaymentBatch, LocalDate} from '../../../unientities';
 import {Observable} from 'rxjs/Observable';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {IToolbarConfig} from '../../common/toolbar/toolbar';
@@ -285,7 +285,7 @@ export class PaymentList {
             ).then((action) => {
                 if (action === ConfirmActions.ACCEPT) {
                     rowsWithOldDates.forEach(x => {
-                        x.PaymentDate = moment().toDate();
+                        x.PaymentDate = new LocalDate(moment().toDate());
                         x._isDirty = true;
                         this.table.updateRow(x._originalIndex, x);
                     });
