@@ -4,21 +4,12 @@ import {ProductList} from './components/common/product/list/productList';
 import {ProductDetails} from './components/common/product/details/productDetails';
 import {AuthGuard} from './authGuard';
 
-// Widget demo
-import {UniWidgetDemo} from './components/widgets/demo/widgetDemo';
-
 export const routes = ([
     {
         path: '',
         pathMatch: 'full',
         component: Dashboard,
         canActivate: [AuthGuard]
-    },
-
-    // Widget demo
-    {
-        path: 'widgets',
-        component: UniWidgetDemo
     },
 
     {
