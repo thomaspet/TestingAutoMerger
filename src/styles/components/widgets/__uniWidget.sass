@@ -74,6 +74,34 @@ uni-widget-canvas
     .canvas-hard-reset
         margin: 0
 
+uni-widget
+    .widget-remove-btn
+        @extend %hideText
+        position: absolute
+        top: -10px
+        right: -10px
+        height: 2rem
+        width: 2rem
+        padding: 0
+        margin: 0
+        box-shadow: none
+        border: none
+        background: transparent unicon-close($uni-color-bad) center no-repeat
+        background-size: .8rem
+
+        background-color: $uni-color-scale9
+        border-radius: 99rem
+        z-index: 999
+
+        &:hover
+            background-color: #fff
+
+        visibility: hidden
+
+uni-widget:hover .widget-remove-btn
+    visibility: visible
+
+
 uni-multilevel-select
     display: inline-block
     width: 15rem

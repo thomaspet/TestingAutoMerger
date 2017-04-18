@@ -49,7 +49,7 @@ export class UniWidgetCanvas {
     private widgets: IUniWidget[];
 
     private layout: IWidgetLayout;
-    private widgetBackup: IUniWidget[];
+    private layoutBackup: IWidgetLayout;
     private unsavedChanges: boolean;
     private editMode: boolean;
     private currentSize: string;
@@ -133,7 +133,24 @@ export class UniWidgetCanvas {
         const width = this.canvas.nativeElement.clientWidth;
         this.gridUnitInPx = width / numCols;
 
-        this.layout[size].forEach((w: IUniWidget) => this.setWidgetPosition(w));
+        const unpositioned = [];
+        this.layout[size].forEach((w: IUniWidget) => {
+            if (w.x >= 0 && w.y >= 0) {
+                this.setWidgetPosition(w);
+            } else {
+                unpositioned.push(w);
+            }
+        });
+
+        unpositioned.forEach((w: IUniWidget) => {
+            const pos = this.canvasHelper.getNextAvailablePosition(w);
+            if (pos) {
+                w.x = pos.x;
+                w.y = pos.y;
+                this.setWidgetPosition(w);
+            }
+        });
+
         this.cdr.markForCheck();
     }
 
@@ -170,20 +187,25 @@ export class UniWidgetCanvas {
 
     public toggleEditMode() {
         this.editMode = !this.editMode;
-        this.widgetElements.forEach(widget => widget.setEditMode(this.editMode));
 
         if (this.editMode) {
-            this.widgetBackup = this.deepCopyWidgets(this.layout[this.currentSize]);
+            this.layoutBackup = {
+                small: this.deepCopyWidgets(this.layout.small),
+                medium: this.deepCopyWidgets(this.layout.medium),
+                large: this.deepCopyWidgets(this.layout.large)
+            };
         } else {
-            this.widgetBackup = undefined;
+            this.layoutBackup = undefined;
         }
+
+        this.widgetElements.forEach(widget => widget.setEditMode(this.editMode));
 
         this.cdr.markForCheck();
     }
 
     public cancelEdit() {
         if (this.unsavedChanges) {
-            this.layout[this.currentSize] = this.widgetBackup;
+            this.layout = this.layoutBackup;
             this.layout[this.currentSize].forEach(w => this.setWidgetPosition(w));
 
             this.canvasHelper.resetGrid();
@@ -200,7 +222,6 @@ export class UniWidgetCanvas {
         }
 
         localStorage.removeItem('dashboard_widget_layout');
-
         this.layout = {
             small: this.deepCopyWidgets(this.widgets),
             medium: this.deepCopyWidgets(this.widgets),
@@ -209,6 +230,7 @@ export class UniWidgetCanvas {
 
         this.canvasHelper.resetGrid();
         this.unsavedChanges = false;
+        this.cdr.markForCheck();
         this.drawLayout();
         this.toggleEditMode();
     }
@@ -317,6 +339,13 @@ export class UniWidgetCanvas {
         if (this.editMode) {
             this.mouseMove.next(event);
         }
+    }
+
+    public onWidgetRemoved(widget: IUniWidget, index: number) {
+        this.layout.large.splice(index, 1);
+        this.layout.medium.splice(index, 1);
+        this.layout.small.splice(index, 1);
+        this.unsavedChanges = true;
     }
 
     private deepCopyWidgets(widgets: IUniWidget[]): IUniWidget[] {

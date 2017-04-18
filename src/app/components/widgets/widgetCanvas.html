@@ -25,8 +25,9 @@
           }">
     </span>
 
-    <ng-template ngFor let-widget [ngForOf]="layout[currentSize] || []">
+    <ng-template ngFor let-widget [ngForOf]="layout[currentSize] || []" let-i="index">
         <uni-widget [widget]="widget"
+                    (widgetRemoved)="onWidgetRemoved($event, i)"
                     (mousedown)="startDrag($event, widget)"
                     [ngStyle]="{
                         top:  widget._position.top + 'px',
@@ -35,6 +36,7 @@
                         height: (gridUnitInPx * widget.height) - widgetMargin + 'px'
                     }">
         </uni-widget>
+
     </ng-template>
 </section>
 

@@ -3,9 +3,13 @@ import {
     ViewContainerRef,
     Component,
     Input,
+    Output,
+    EventEmitter,
     ViewChild,
     ComponentFactoryResolver,
-    ComponentRef
+    ComponentRef,
+    ChangeDetectionStrategy,
+    ChangeDetectorRef
 } from '@angular/core';
 
 // Import known widgets. Loading third party stuff needs to be solved
@@ -49,14 +53,23 @@ export class WidgetContainer {
     selector: 'uni-widget',
     template: `
         <template widget-container></template>
-    `
+        <button class="widget-remove-btn"
+                (click)="removeWidget()"
+                *ngIf="widget?._editMode">
+            Remove
+        </button>
+    `,
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class UniWidget {
+    @ViewChild(WidgetContainer)
+    private widgetContainer: WidgetContainer;
+
     @Input()
     public widget: IUniWidget;
 
-    @ViewChild(WidgetContainer)
-    private widgetContainer: WidgetContainer;
+    @Output()
+    public widgetRemoved: EventEmitter<IUniWidget> = new EventEmitter();
 
     // This could be moved somewhere else?
     private widgetMap: any = {
@@ -72,7 +85,10 @@ export class UniWidget {
 
     private widgetComponent: ComponentRef<any>;
 
-    constructor(private componentFactoryResolver: ComponentFactoryResolver) {}
+    constructor(
+        private componentFactoryResolver: ComponentFactoryResolver,
+        private cdr: ChangeDetectorRef
+    ) {}
 
     public ngOnChanges() {
         if (this.widget) {
@@ -83,6 +99,7 @@ export class UniWidget {
     public setEditMode(editMode) {
         this.widget._editMode = editMode;
         this.widgetComponent.instance.widget = this.widget;
+        this.cdr.markForCheck();
     }
 
     private loadWidget() {
@@ -94,6 +111,10 @@ export class UniWidget {
 
         this.widgetComponent = viewContainerRef.createComponent(componentFactory);
         this.widgetComponent.instance.widget = this.widget;
+    }
+
+    public removeWidget() {
+        this.widgetRemoved.next(this.widget);
     }
 
 }
