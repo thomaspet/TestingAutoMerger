@@ -355,16 +355,34 @@ export class Dashboard {
                     chartID: 845721
                 }
             },
+            // {
+            //     width: 4,
+            //     height: 4,
+            //     x: 8,
+            //     y: 0,
+            //     widgetType: 'rss',
+            //     config: {
+            //         header: 'Nyheter fra kundesenteret',
+            //         dataEndpoint: "/api/biz/rss/1",
+            //         RSSType: 1 // DOCUMENTATION: https://unimicro.atlassian.net/wiki/pages/viewpage.action?spaceKey=UE&title=RssListe
+            //     }
+            // },
             {
                 width: 4,
-                height: 4,
+                height: 3,
                 x: 8,
-                y: 0,
-                widgetType: 'rss',
+                y: 1,
+                widgetType: 'list',
                 config: {
-                    header: 'Nyheter fra kundesenteret',
-                    dataEndpoint: "/api/biz/rss/1",
-                    RSSType: 1 // DOCUMENTATION: https://unimicro.atlassian.net/wiki/pages/viewpage.action?spaceKey=UE&title=RssListe
+                    header: 'Siste transaksjoner',
+                    dataEndPoint: "/api/statistics?model=AuditLog&select=id,entitytype,entityid,field,User.displayname,createdat,updatedat&filter=field eq 'updatedby' and ( not contains(entitytype,'item') ) &join=auditlog.createdby eq user.globalidentity&top=10&orderby=id desc",
+                    listItemKeys: {
+                        username: 'UserDisplayName',
+                        module: 'AuditLogEntityType',
+                        action: 'AuditLogField',
+                        moduleID: 'AuditLogEntityID',
+                        time: 'AuditLogCreatedAt'
+                    }
                 }
             },
             {

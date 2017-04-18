@@ -53,7 +53,7 @@ export class UniListWidget {
 
     formatListData(list: any[]) {
         list.forEach((item) => {
-            item.username = item[this.widget.config.listItemKeys.username];
+            item.username = this.CapitalizeDisplayName(this.removeLastNameIfAny(item[this.widget.config.listItemKeys.username]));
             item.module = item[this.widget.config.listItemKeys.module];
             item.action = item[this.widget.config.listItemKeys.action];
             item.moduleID = item[this.widget.config.listItemKeys.moduleID];
