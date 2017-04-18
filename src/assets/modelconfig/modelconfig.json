@@ -1,6 +1,5 @@
 {
-    "Modules": [
-        {
+    "Modules": [{
             "Name": "Sales",
             "Translated": "Salg",
             "Models": [
@@ -212,8 +211,7 @@
             ]
         }
     ],
-    "Models": [
-        {
+    "Models": [{
             "Name": "CustomerInvoice",
             "Translated": "Faktura",
             "Url": "/sales/invoices/:ID"
@@ -291,6 +289,10 @@
             "Name": "PayrollRun",
             "Translated": "Lønnsavregninger",
             "Url": "/salary/payrollrun/:ID"
+        },
+        {
+            "Name": "SalaryTransaction",
+            "Translated": "Lønnsposter"
         }
     ]
 }

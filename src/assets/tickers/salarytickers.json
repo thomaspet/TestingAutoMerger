@@ -1,14 +1,12 @@
-[
-    {
+[{
         "Name": "Ansatt",
         "Code": "employee_list",
         "Type": "Table",
         "IsTopLevelTicker": true,
         "Group": "Lønn",
         "Model": "Employee",
-        "Expand": "Employment,BusinessRelationInfo.InvoiceAddress,BusinessrelationInfo.DefaultPhone,BusinessRelationInfo.DefaultEmail,BusinessRelationInfo.DefaultBankAccount",
-        "Columns": [
-            {
+        "Expand": "BusinessRelationInfo.InvoiceAddress,BusinessrelationInfo.DefaultPhone,BusinessRelationInfo.DefaultEmail,BusinessRelationInfo.DefaultBankAccount",
+        "Columns": [{
                 "Header": "Ansattnr",
                 "Field": "EmployeeNumber",
                 "Width": "5rem"
@@ -50,8 +48,7 @@
                 "DefaultHidden": true
             }
         ],
-        "Actions": [
-            {
+        "Actions": [{
                 "Name": "Ny ansatt",
                 "Code": "new_employee",
                 "ExecuteWithoutSelection": true,
@@ -84,11 +81,10 @@
         "Model": "Employee",
         "UseParentTickerActions": true,
         "Expand": "Employment,BusinessRelationInfo.InvoiceAddress,BusinessrelationInfo.DefaultPhone,BusinessRelationInfo.DefaultEmail,BusinessRelationInfo.DefaultBankAccount",
-        "Columns": [
-            {
+        "Columns": [{
                 "Header": "Ansattnr",
                 "Field": "EmployeeNumber",
-                "Type": "number"
+                "Type": "text"
             },
             {
                 "Header": "Navn",
@@ -134,9 +130,8 @@
         "Type": "Table",
         "Group": "Lønn",
         "Model": "Employment",
-        "Expand": "SubEntity.BusinessRelationInfo,Dimensions.Department,Dimensions.Project",
-        "Columns": [
-            {
+        "Expand": "SubEntity.BusinessRelationInfo,Dimensions.Department,Dimensions.Project,Employee",
+        "Columns": [{
                 "Header": "Stillingskode",
                 "Field": "JobCode",
                 "Type": "text",
@@ -149,7 +144,16 @@
                 "LinkNavigationProperties": [
                     "Employment.EmployeeID",
                     "ID"
-                ]
+                ],
+                "Width": "14rem"
+            },
+            {
+                "Header": "Ansattnr",
+                "Field": "Employee.EmployeeNumber",
+                "Type": "link",
+                "ExternalModel": "Employee",
+                "LinkNavigationProperty": "Employee.ID",
+                "Width": "7rem"
             },
             {
                 "Header": "Stillingsprosent",
@@ -158,18 +162,15 @@
             },
             {
                 "Header": "Standard",
-                "Field": "Standard",
-                "Width": "6rem"
+                "Field": "Standard"
             },
             {
                 "Header": "StartDato",
-                "Field": "StartDate",
-                "Width": "6rem"
+                "Field": "StartDate"
             },
             {
                 "Header": "SluttDato",
-                "Field": "EndDate",
-                "Width": "6rem"
+                "Field": "EndDate"
             },
             {
                 "Header": "Virksomhet",
@@ -189,21 +190,19 @@
             "Operator": "eq",
             "Value": "ID"
         },
-        "Actions": [
-            {
-                "Name": "Vis arbeidsforhold",
-                "Code": "open_employment",
-                "Type": "details",
-                "DisplayInContextMenu": true,
-                "DisplayInActionBar": true,
-                "Options": {
-                    "ParameterProperties": [
-                        "Employment.EmployeeID",
-                        "ID"
-                    ]
-                }
+        "Actions": [{
+            "Name": "Vis arbeidsforhold",
+            "Code": "open_employment",
+            "Type": "details",
+            "DisplayInContextMenu": true,
+            "DisplayInActionBar": true,
+            "Options": {
+                "ParameterProperties": [
+                    "Employment.EmployeeID",
+                    "ID"
+                ]
             }
-        ],
+        }],
         "SubTickersCodes": [
             "employment_details",
             "leave_items"
@@ -215,9 +214,8 @@
         "Type": "Details",
         "Group": "Lønn",
         "Model": "Employment",
-        "Expand": "SubEntity.BusinessRelationInfo,Dimensions.Department,Dimensions.Project",
-        "Columns": [
-            {
+        "Expand": "SubEntity.BusinessRelationInfo,Dimensions.Department,Dimensions.Project,Employee",
+        "Columns": [{
                 "Header": "Stillingskode",
                 "Field": "JobCode",
                 "Type": "text"
@@ -230,6 +228,13 @@
                     "Employment.EmployeeID",
                     "ID"
                 ]
+            },
+            {
+                "Header": "Ansattnr",
+                "Field": "Employee.EmployeeNumber",
+                "Type": "link",
+                "ExternalModel": "Employee",
+                "LinkNavigationProperty": "Employee.ID"
             },
             {
                 "Header": "Stillingsprosent",
@@ -302,21 +307,19 @@
             "Operator": "eq",
             "Value": "ID"
         },
-        "Actions": [
-            {
-                "Name": "Vis arbeidsforhold",
-                "Code": "open_employment",
-                "Type": "details",
-                "DisplayInContextMenu": true,
-                "DisplayInActionBar": true,
-                "Options": {
-                    "ParameterProperties": [
-                        "Employment.EmployeeID",
-                        "ID"
-                    ]
-                }
+        "Actions": [{
+            "Name": "Vis arbeidsforhold",
+            "Code": "open_employment",
+            "Type": "details",
+            "DisplayInContextMenu": true,
+            "DisplayInActionBar": true,
+            "Options": {
+                "ParameterProperties": [
+                    "Employment.EmployeeID",
+                    "ID"
+                ]
             }
-        ]
+        }]
     },
     {
         "Name": "Permisjoner",
@@ -327,8 +330,7 @@
         "Model": "EmployeeLeave",
         "Expand": "Employment",
         "Filters": [],
-        "Columns": [
-            {
+        "Columns": [{
                 "Header": "Kommentar",
                 "Field": "Description"
             },
@@ -358,11 +360,9 @@
                 "Field": "Employment.ID",
                 "Format": "text",
                 "Width": "16rem",
-                "SubFields": [
-                    {
-                        "Field": "Employment.JobName"
-                    }
-                ]
+                "SubFields": [{
+                    "Field": "Employment.JobName"
+                }]
             }
         ],
         "ParentFilter": {
@@ -370,16 +370,14 @@
             "Operator": "eq",
             "Value": "ID"
         },
-        "Actions": [
-            {
-                "Name": "Eksporter",
-                "Code": "export_leaveitems",
-                "Type": "export",
-                "ExecuteWithMultipleSelections": true,
-                "ExecuteWithoutSelection": true,
-                "DisplayInActionBar": true
-            }
-        ]
+        "Actions": [{
+            "Name": "Eksporter",
+            "Code": "export_leaveitems",
+            "Type": "export",
+            "ExecuteWithMultipleSelections": true,
+            "ExecuteWithoutSelection": true,
+            "DisplayInActionBar": true
+        }]
     },
     {
         "Name": "Lønnsart",
@@ -391,8 +389,7 @@
         "Expand": "",
         "OrderBy": "WageTypeNumber",
         "SubTickersCodes": ["wagetype_details"],
-        "Columns": [
-            {
+        "Columns": [{
                 "Header": "Nr",
                 "Field": "WageTypeNumber",
                 "Format": "text",
@@ -445,8 +442,7 @@
                 "DefaultHidden": true
             }
         ],
-        "Actions": [
-            {
+        "Actions": [{
                 "Name": "Ny lønnsart",
                 "Code": "new_wagetype",
                 "ExecuteWithoutSelection": true,
@@ -475,8 +471,7 @@
         "Group": "Lønn",
         "Model": "WageType",
         "Expand": "",
-        "Columns": [
-            {
+        "Columns": [{
                 "Header": "Nr",
                 "Field": "WageTypeNumber",
                 "Format": "text"
@@ -550,8 +545,7 @@
         "Group": "Lønn",
         "Model": "PayrollRun",
         "Expand": "",
-        "Columns": [
-            {
+        "Columns": [{
                 "Header": "Nr",
                 "Field": "ID",
                 "Width": "8rem",
@@ -588,8 +582,7 @@
                 "DefaultHidden": true
             }
         ],
-        "Actions": [
-            {
+        "Actions": [{
                 "Name": "Ny lønnsavregning",
                 "Code": "new_payrollrun",
                 "ExecuteWithoutSelection": true,
@@ -622,8 +615,7 @@
         "Model": "PayrollRun",
         "UseParentTickerActions": true,
         "Expand": "",
-        "Columns": [
-            {
+        "Columns": [{
                 "Header": "Nr",
                 "Field": "ID",
                 "Type": "text"
@@ -639,7 +631,7 @@
                 "Type": "localdate"
             },
             {
-                "Header": "til dato",
+                "Header": "Til dato",
                 "Field": "ToDate",
                 "Type": "localdate"
             },
@@ -667,8 +659,7 @@
         "Group": "Lønn",
         "Model": "SalaryTransaction",
         "Expand": "Wagetype,Employment,Dimensions.Project,Dimensions.Department",
-        "Columns": [
-            {
+        "Columns": [{
                 "Header": "Lønnsart",
                 "Field": "WageTypeNumber",
                 "Width": "5rem"
@@ -690,11 +681,9 @@
                 "Header": "Arbeidsforhold",
                 "Field": "Employment.ID",
                 "Type": "text",
-                "SubFields": [
-                    {
-                        "Field": "Employment.JobName"
-                    }
-                ]
+                "SubFields": [{
+                    "Field": "Employment.JobName"
+                }]
             },
             {
                 "Header": "Fra dato",
@@ -757,8 +746,7 @@
         "Model": "SalaryTransaction",
         "Expand": "Wagetype,Employment,Dimensions.Project,Dimensions.Department",
         "Joins": "SalaryTransaction.ID eq FileEntityLink.EntityID",
-        "Columns": [
-            {
+        "Columns": [{
                 "Header": "Lønnsart",
                 "Field": "WageTypeNumber",
                 "Type": "text"
@@ -781,11 +769,9 @@
                 "Header": "Arbeidsforhold",
                 "Field": "Employment.ID",
                 "Type": "text",
-                "SubFields": [
-                    {
-                        "Field": "Employment.JobName"
-                    }
-                ]
+                "SubFields": [{
+                    "Field": "Employment.JobName"
+                }]
             },
             {
                 "Header": "Fra dato",
