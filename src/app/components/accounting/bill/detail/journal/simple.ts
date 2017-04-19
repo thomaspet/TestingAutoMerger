@@ -9,7 +9,9 @@ import {
     ErrorService,
     checkGuid
 } from '../../../../../services/services';
-import {BehaviorSubject} from "rxjs";
+import {BehaviorSubject} from 'rxjs';
+
+declare const _; // lodash
 
 @Component({
     selector: 'bill-simple-journalentry',
@@ -142,7 +144,7 @@ export class BillSimpleJournalEntryView {
                         firstLine = lines[index];
                     }
                     x['_rowIndex'] = index; // save original index
-                    console.log(this.costItems);
+
                     this.costItems.push(x);
                 }
             });

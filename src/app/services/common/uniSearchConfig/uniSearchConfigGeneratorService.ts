@@ -1,10 +1,10 @@
 import {Injectable} from '@angular/core';
 import {IUniSearchConfig} from 'unisearch-ng2/src/UniSearch/IUniSearchConfig';
-import {Customer, UniEntity, Account} from '../../../unientities';
+import {Customer, UniEntity, Account, Supplier} from '../../../unientities';
 import {Observable} from 'rxjs/Observable';
 import {UniSearchCustomerConfigGeneratorHelper} from './uniSearchCustomerConfigGeneratorHelper';
 import {UniSearchAccountConfigGeneratorHelper} from './uniSearchAccountConfigGeneratorHelper';
-
+import {UniSearchSupplierConfigGeneratorHelper} from './uniSearchSupplierConfigGeneratorHelper';
 
 export const MAX_RESULTS = 50;
 
@@ -12,7 +12,8 @@ export const MAX_RESULTS = 50;
 export class UniSearchConfigGeneratorService {
 
     constructor(
-        private customerGenerator: UniSearchCustomerConfigGeneratorHelper,
+        public customerGenerator: UniSearchCustomerConfigGeneratorHelper,
+        public supplierGenerator: UniSearchSupplierConfigGeneratorHelper,
         private accountGenerator: UniSearchAccountConfigGeneratorHelper
     ) {}
 
@@ -23,6 +24,7 @@ export class UniSearchConfigGeneratorService {
     ): IUniSearchConfig {
         switch (classType) {
             case Customer: return this.customerGenerator.generate(expands, newItemModalFn);
+            case Supplier: return this.supplierGenerator.generate(expands, newItemModalFn);
             case Account: return this.accountGenerator.generateOnlyMainAccountsConfig(expands, newItemModalFn);
         }
     }

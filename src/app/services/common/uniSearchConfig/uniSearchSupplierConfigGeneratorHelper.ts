@@ -1,9 +1,9 @@
 import {Injectable} from '@angular/core';
-import {UniEntity, Customer, BusinessRelation, Address, Phone, Email} from '../../../unientities';
+import {UniEntity, Supplier, BusinessRelation, Address, Phone, Email} from '../../../unientities';
 import {Observable} from 'rxjs/Observable';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {StatisticsService} from '../statisticsService';
-import {CustomerService} from '../../sales/customerService';
+import {SupplierService} from '../../accounting/supplierService';
 import {ErrorService} from '../errorService';
 import {IntegrationServerCaller} from '../integrationServerCaller';
 import {MAX_RESULTS} from './uniSearchConfigGeneratorService';
@@ -25,11 +25,11 @@ class CustomStatisticsResultItem {
 }
 
 @Injectable()
-export class UniSearchCustomerConfigGeneratorHelper {
+export class UniSearchSupplierConfigGeneratorHelper {
 
     constructor(
         private statisticsService: StatisticsService,
-        private customerService: CustomerService,
+        private supplierService: SupplierService,
         private errorService: ErrorService,
         private integrationServerCaller: IntegrationServerCaller
     ) {}
@@ -41,15 +41,15 @@ export class UniSearchCustomerConfigGeneratorHelper {
         return {
             lookupFn: searchTerm => this
                 .statisticsService
-                .GetAllUnwrapped(this.generateCustomerStatisticsQuery(searchTerm))
+                .GetAllUnwrapped(this.generateSupplierStatisticsQuery(searchTerm))
                 .catch((err, obs) => this.errorService.handleRxCatch(err, obs)),
             expandOrCreateFn: (newOrExistingItem: CustomStatisticsResultItem) => {
                 if (newOrExistingItem.ID) {
-                    return this.customerService.Get(newOrExistingItem.ID, expands)
+                    return this.supplierService.Get(newOrExistingItem.ID, expands)
                         .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
                 } else {
-                    return this.customerService.Post(this.customStatisticsObjToCustomer(newOrExistingItem))
-                        .switchMap(item => this.customerService.Get(item.ID, expands))
+                    return this.supplierService.Post(this.customStatisticsObjToSupplier(newOrExistingItem))
+                        .switchMap(item => this.supplierService.Get(item.ID, expands))
                         .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
                 }
             },
@@ -62,7 +62,7 @@ export class UniSearchCustomerConfigGeneratorHelper {
                 `${item.PostalCode || ''} ${item.City || ''}`,
                 item.OrgNumber
             ],
-            inputTemplateFn: item => `${item.CustomerNumber || ''}${item.Info && item.Info.Name ? ' ' + item.Info.Name : ''}`,
+            inputTemplateFn: item => `${item.SupplierNumber || ''}${item.Info && item.Info.Name ? ' ' + item.Info.Name : ''}`,
             newItemModalFn: newItemModalFn,
             externalLookupFn: query =>
                 this.integrationServerCaller
@@ -76,28 +76,29 @@ export class UniSearchCustomerConfigGeneratorHelper {
         };
     }
 
-    private generateCustomerStatisticsQuery(searchTerm: string): string {
-        const model = 'Customer';
+    private generateSupplierStatisticsQuery(searchTerm: string): string {
+        const model = 'Supplier';
         const expand = 'Info.Phones,Info.Addresses,Info.Emails';
         const startNumber = this.getNumberFromStartOfString(searchTerm);
         let filter = `contains(Info.Name,'${searchTerm}')`;
         let orderBy = 'Info.Name';
         if (startNumber) {
-            filter = ['Customer.OrgNumber', 'Customer.CustomerNumber', 'Phones.Number']
+            filter = ['Supplier.OrgNumber', 'Supplier.SupplierNumber', 'Phones.Number']
                 .map(x => `startswith(${x},'${startNumber}')`).join(' or ');
-            orderBy = 'Customer.CustomerNumber';
+            orderBy = 'Supplier.SupplierNumber';
         }
         const select = [
-            'Customer.ID as ID',
+            'Supplier.ID as ID',
             'Info.Name as Name',
-            'Customer.OrgNumber as OrgNumber',
+            'Supplier.OrgNumber as OrgNumber',
+            'Supplier.SupplierNumber as SupplierNumber',
             'Phones.Number as PhoneNumber',
             'Addresses.AddressLine1 as AddressLine1',
             'Addresses.PostalCode as PostalCode',
             'Addresses.City as City',
             'Addresses.CountryCode as CountryCode',
             'Emails.EmailAddress as EmailAddress',
-            'Customer.WebUrl as WebUrl'
+            'Supplier.WebUrl as WebUrl'
         ].join(',');
         const skip = 0;
         const top = MAX_RESULTS;
@@ -127,13 +128,13 @@ export class UniSearchCustomerConfigGeneratorHelper {
         };
     }
 
-    public customStatisticsObjToCustomer(statObj: CustomStatisticsResultItem): Customer {
-        const customer = new Customer();
-        customer.OrgNumber = statObj.OrgNumber;
-        customer.WebUrl = statObj.WebUrl;
-        customer.Info = new BusinessRelation();
-        customer.Info.Name = statObj.Name;
-        customer.Info.Addresses = [];
+    public customStatisticsObjToSupplier(statObj: CustomStatisticsResultItem): Supplier {
+        const supplier = new Supplier();
+        supplier.OrgNumber = statObj.OrgNumber;
+        supplier.WebUrl = statObj.WebUrl;
+        supplier.Info = new BusinessRelation();
+        supplier.Info.Name = statObj.Name;
+        supplier.Info.Addresses = [];
 
         if (statObj.AddressLine1 || statObj.City || statObj.CountryCode || statObj.PostalCode) {
 
@@ -143,25 +144,25 @@ export class UniSearchCustomerConfigGeneratorHelper {
             address.City = statObj.City;
             address.CountryCode = statObj.CountryCode;
 
-            customer.Info.InvoiceAddress = address;
-            customer.Info.ShippingAddress = address;
+            supplier.Info.InvoiceAddress = address;
+            supplier.Info.ShippingAddress = address;
 
-            customer.Info.Addresses.push(address);
+            supplier.Info.Addresses.push(address);
         }
 
         if (statObj.PhoneNumber) {
             const phone = new Phone();
             phone.Number = statObj.PhoneNumber;
-            customer.Info.DefaultPhone = phone;
+            supplier.Info.DefaultPhone = phone;
         }
 
         if (statObj.EmailAddress) {
             const mail = new Email();
             mail.EmailAddress = statObj.EmailAddress;
-            customer.Info.DefaultEmail = mail;
+            supplier.Info.DefaultEmail = mail;
         }
 
-        return customer;
+        return supplier;
     }
 
     private getNumberFromStartOfString(str: string): number {

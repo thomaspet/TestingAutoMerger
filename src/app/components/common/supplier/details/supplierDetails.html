@@ -3,11 +3,6 @@
 </uni-toolbar>
 
 <header class="supplier_poster" *ngIf="(supplier$|async)">
-    <!-- Widget poster -->
-    <section class="poster_overview">
-        <external-search [searchText]="searchText" (selectEvent)="addSearchInfo($event)" *ngIf="(supplier$|async)?.ID == 0"></external-search>
-    </section>
-
     <div class="horizontal_nav" *ngIf="(supplier$|async)?.ID">
         <ul>
             <li>

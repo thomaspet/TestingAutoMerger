@@ -636,7 +636,6 @@ export class InvoiceDetails {
                         }
                     }, err => reject(err));
                 });
-                break;
             }
 
             case CollectorStatus.SendtToDebtCollection: {
@@ -659,12 +658,9 @@ export class InvoiceDetails {
                         }
                     }, err => reject(err));
                 });
-                break;
             }
         }
     }
-
-
 
     private getStatustrackConfig() {
         let statustrack: UniStatusTrack.IStatus[] = [];
