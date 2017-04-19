@@ -3,6 +3,7 @@ import {fromByteArray} from 'base64-js';
 import {AppConfig} from '../../../app/AppConfig';
 import {saveAs} from 'file-saver';
 declare var Stimulsoft;
+declare var APP_VERSION;
 
 @Injectable()
 export class StimulsoftReportWrapper {
@@ -10,7 +11,7 @@ export class StimulsoftReportWrapper {
     constructor() {
         // Load stimulsoft
         const scriptTag: HTMLScriptElement = document.createElement('script');
-        scriptTag.setAttribute('src', 'stimulsoft.reports.js')
+        scriptTag.setAttribute('src', 'stimulsoft.reports.js?v=' + APP_VERSION);
         document.head.appendChild(scriptTag);
     }
 
