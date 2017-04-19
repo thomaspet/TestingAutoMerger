@@ -14,56 +14,57 @@ interface IKeyNumberObject {
 }
 
 @Component({
-    selector: 'uni-triple-vertical-widget',
+    selector: 'uni-kpi-widget',
     template: `
-                <div class="uni-triple-verical-widget">
-                    <div class="uni-dashboard-chart-header"> {{ widget.config.header }}</div>
-                    <section>
+        <div class="uni-kpi-widget">
+            <div class="uni-dashboard-chart-header"> {{ widget.config.header }}</div>
+            <section>
 
-                        <section>
-                            <div>  
-                                <h2>Lønnsomhet</h2>
-                                <p class="uni-triple-verical-widget-value" [ngStyle]="{'color': profitability.textColor}">{{ profitability.value }}</p>
-                            </div>
-                            <div> 
-                                <p [ngStyle]="{'color': profitability.textColor}">{{ profitability.grade }} </p>
-                            </div>
-                            <div> 
-                                <canvas id="784574"> </canvas>
-                            </div>
-                        </section>
+                <section>
+                    <div>
+                        <h2>Lønnsomhet</h2>
+                        <p class="uni-kpi-widget-value" [ngStyle]="{'color': profitability.textColor}">{{ profitability.value }}</p>
+                    </div>
+                    <div>
+                        <p [ngStyle]="{'color': profitability.textColor}">{{ profitability.grade }} </p>
+                    </div>
+                    <div>
+                        <canvas id="784574"> </canvas>
+                    </div>
+                </section>
 
-                        <section>
-                            <div>  
-                                <h2>Likviditet</h2>
-                                <p class="uni-triple-verical-widget-value" [ngStyle]="{'color': liquidity.textColor}">{{ liquidity.value }}</p>
-                            </div>
-                            <div> 
-                                <p [ngStyle]="{'color': liquidity.textColor}">{{ liquidity.grade }} </p>
-                            </div>
-                            <div> 
-                                <canvas id="151468"> </canvas>
-                            </div>
-                        </section>
+                <section>
+                    <div>
+                        <h2>Likviditet</h2>
+                        <p class="uni-kpi-widget-value" [ngStyle]="{'color': liquidity.textColor}">{{ liquidity.value }}</p>
+                    </div>
+                    <div>
+                        <p [ngStyle]="{'color': liquidity.textColor}">{{ liquidity.grade }} </p>
+                    </div>
+                    <div>
+                        <canvas id="151468"> </canvas>
+                    </div>
+                </section>
 
-                        <section>
-                            <div>  
-                                <h2>Soliditet</h2>
-                                <p class="uni-triple-verical-widget-value" [ngStyle]="{'color': solidity.textColor}">{{ solidity.value }}</p>
-                            </div>
-                            <div> 
-                                <p [ngStyle]="{'color': solidity.textColor}">{{ solidity.grade }} </p>
-                            </div>
-                            <div> 
-                                <canvas id="124515"> </canvas>
-                            </div>
-                        </section>
+                <section>
+                    <div>
+                        <h2>Soliditet</h2>
+                        <p class="uni-kpi-widget-value" [ngStyle]="{'color': solidity.textColor}">{{ solidity.value }}</p>
+                    </div>
+                    <div>
+                        <p [ngStyle]="{'color': solidity.textColor}">{{ solidity.grade }} </p>
+                    </div>
+                    <div>
+                        <canvas id="124515"> </canvas>
+                    </div>
+                </section>
 
-                    </section>
-                </div>`
+            </section>
+        </div>
+    `
 })
 
-export class UniTripleVerticalWidget {
+export class UniKPIWidget {
 
     public widget: IUniWidget;
     public liquidity: IKeyNumberObject = {
@@ -99,12 +100,12 @@ export class UniTripleVerticalWidget {
         this.financialYearService.getActiveYear()
             .subscribe((year: number) => {
                 this.widgetDataService.getData('/api/statistics?skip=0&top=50&model=JournalEntryLine&select=sum(casewhen(Account.AccountNumber%20ge%201400%20and%20Account.AccountNumber%20le%201999,Amount,0))%20as%20sumOmlopsmidler,sum(casewhen(Account.AccountNumber%20ge%202300%20and%20Account.AccountNumber%20le%202999,Amount,0))%20as%20sumkortsiktiggjeld,sum(casewhen(Account.AccountNumber%20ge%201000%20and%20Account.AccountNumber%20le%201999,Amount,0))%20as%20sumTK,sum(casewhen(Account.AccountNumber%20ge%202000%20and%20Account.AccountNumber%20le%202099,Amount,0))%20as%20sumEK,sum(casewhen(Account.AccountNumber%20ge%203000%20and%20Account.AccountNumber%20le%208299 and Period.AccountYear eq ' + year + ',Amount,0))%20as%20resultat&expand=Account,Period&distinct=false')
-                    .subscribe((data) => { this.loadTripleVerticalWidget(data.Data[0]); }, err => console.log(err));
+                    .subscribe((data) => { this.loadKPIWidget(data.Data[0]); }, err => console.log(err));
             });
-        
+
     }
 
-    loadTripleVerticalWidget(data: any) {
+    loadKPIWidget(data: any) {
         if (data.sumTK) {
             this.profitability.value = (((data.resultat * -1) * 100) / data.sumTK | 1).toFixed(1);
             this.findData(this.profitability, [1, 5, 9, 15]);

@@ -19,7 +19,7 @@ import {
     UniRSSWidget,
     UniListWidget,
     UniClockWidget,
-    UniTripleVerticalWidget,
+    UniKPIWidget,
     UniCompanyLogoWidget
 } from './widgets/barrel';
 
@@ -76,7 +76,7 @@ export class UniWidget {
         'rss': UniRSSWidget,
         'list': UniListWidget,
         'clock': UniClockWidget,
-        'tripleVertical': UniTripleVerticalWidget,
+        'kpi': UniKPIWidget,
         'companyLogo': UniCompanyLogoWidget
     };
 

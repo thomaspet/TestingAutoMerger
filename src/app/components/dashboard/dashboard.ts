@@ -49,10 +49,10 @@ export class Dashboard {
                 this.widgetCanvas.refreshWidgets();
             });
 
-        this.widgets = this.fakeLayout();
+        this.widgets = this.initLayout();
     }
 
-    public fakeLayout() {
+    public initLayout() {
         return [
             {
                 width: 1,
@@ -254,11 +254,10 @@ export class Dashboard {
                     chartID: 487515
                 }
             },
-            //{
+
+            // {
             //    width: 4,
             //    height: 3,
-            //    x: 4,
-            //    y: 1,
             //    widgetType: 'chart',
             //    config: {
             //        header: 'Tilbud, ordre og faktura - 2016',
@@ -274,13 +273,14 @@ export class Dashboard {
             //        drilldown: false,
             //        chartID: 458751
             //    }
-            //},
+            // },
+
             {
                 width: 4,
                 height: 3,
                 x: 4,
                 y: 1,
-                widgetType: 'tripleVertical',
+                widgetType: 'kpi',
                 config: {
                     header: 'Nøkkeltall'
                 }
@@ -292,39 +292,31 @@ export class Dashboard {
                 y: 4,
                 widgetType: 'chart',
                 config: {
-                    header: 'Antall ansatte per stilling',
+                    header: 'Ansatte per stillingskode',
                     chartType: 'pie',
                     labels: [],
                     colors: [],
-                    dataEndpoint: ['/api/statistics?skip=0&top=50&model=Employee&select=Employee.ID as EmployeeID,BusinessRelationInfo.Name as BusinessRelationInfoName,Employments.JobName as EmploymentsJobName,Employments.Standard as EmploymentsStandard&expand=BusinessRelationInfo,Employments&distinct=false'],
-                    dataKey: ['EmploymentsJobName'],
+                    dataEndpoint: [
+                        '/api/statistics?model=Employee&select=count(ID) as Count,Employments.JobName as JobName&expand=Employments'
+                    ],
+                    labelKey: 'JobName',
+                    valueKey: 'Count',
                     maxNumberOfLabels: 7,
-                    useIf: 'EmploymentsStandard',
-                    addDataValueToLabel: true, //Only recommended if you are using tooltips callback
+                    useIf: '',
+                    addDataValueToLabel: false,
                     dataset: [],
                     options: {
-                        cutoutPercentage: 85,
+                        cutoutPercentage: 80,
                         animation: {
                             animateScale: true
                         },
                         legend: {
                             position: 'left'
                         },
-                        tooltips: {
-                            callbacks: {
-                                label: (item, data) => {
-                                    let total = data.datasets[item.datasetIndex].data.reduce((previousValue, currentValue) => { return previousValue + currentValue });
-                                    let currentValue = data.datasets[item.datasetIndex].data[item.index];
-                                    return Math.floor(((currentValue / total) * 100) + 0.5) + "%";
-                                }
-                            }
-                        },
-                    },
-                    title: [],
-                    drilldown: false,
-                    chartID: 845715
+                    }
                 }
             },
+
             {
                 width: 4,
                 height: 3,
@@ -336,8 +328,11 @@ export class Dashboard {
                     chartType: 'pie',
                     labels: [],
                     colors: [],
-                    dataEndpoint: ['/api/statistics?skip=0&top=50&model=Customer&select=Info.Name as InfoName,CustomerInvoices.RestAmount as CustomerInvoicesRestAmount,CustomerInvoices.TaxExclusiveAmount as CustomerInvoicesTaxExclusiveAmount,CustomerInvoices.StatusCode as CustomerInvoicesStatusCode&expand=Info,CustomerInvoices&distinct=false'],
-                    dataKey: ['InfoName', 'CustomerInvoicesRestAmount'],
+                    dataEndpoint: [
+                        '/api/statistics?model=Customer&select=Info.Name as Name,isnull(sum(CustomerInvoices.RestAmount),0) as RestAmount&expand=Info,CustomerInvoices&having=sum(CustomerInvoices.RestAmount) gt 0'
+                    ],
+                    valueKey: 'RestAmount',
+                    labelKey: 'Name',
                     maxNumberOfLabels: 7,
                     useIf: '',
                     addDataValueToLabel: false,
@@ -349,12 +344,10 @@ export class Dashboard {
                         legend: {
                             position: 'bottom'
                         }
-                    },
-                    title: [],
-                    drilldown: false,
-                    chartID: 845721
+                    }
                 }
             },
+
             // {
             //     width: 4,
             //     height: 4,
@@ -367,6 +360,7 @@ export class Dashboard {
             //         RSSType: 1 // DOCUMENTATION: https://unimicro.atlassian.net/wiki/pages/viewpage.action?spaceKey=UE&title=RssListe
             //     }
             // },
+
             {
                 width: 4,
                 height: 3,

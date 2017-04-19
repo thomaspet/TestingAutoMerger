@@ -13,6 +13,8 @@ import {Observable} from 'rxjs/Observable';
 import {UniWidget, IUniWidget} from './uniWidget';
 import {CanvasHelper} from './canvasHelper';
 import {ToastService, ToastType} from '../../../framework/uniToast/toastService';
+import {WIDGET_CONFIGS} from './configs/presetConfigs';
+declare const _;
 
 interface IGridCell {
     available: boolean;
@@ -154,25 +156,27 @@ export class UniWidgetCanvas {
         this.cdr.markForCheck();
     }
 
-    public addWidget(widget: IUniWidget) {
-        this.toastService.addToast(
-            'Ikke implementert',
-            ToastType.warn,
-            15,
-            'Oppretting av nye widgets er ikke implementert enda. Vi jobber med saken, så prøv igjen senere!'
-        );
+    public addWidget(configPath) {
+        const widget = _.get(WIDGET_CONFIGS, configPath);
+        if (!widget) {
+            return;
+        }
 
-        // widget._editMode = this.editMode;
+        widget._editMode = this.editMode;
 
-        // const position = this.canvasHelper.getNextAvailablePosition(widget);
-        // if (position) {
-        //     widget.x = position.x;
-        //     widget.y = position.y;
-        //     this.layout[this.currentSize].push(widget);
-        //     this.setWidgetPosition(widget);
-        // } else {
-        //     this.toastService.addToast('Det er ikke plass til denne widgeten', ToastType.warn, 10);
-        // }
+        const position = this.canvasHelper.getNextAvailablePosition(widget);
+        if (position) {
+            widget.x = position.x;
+            widget.y = position.y;
+
+            this.layout.small.push(widget);
+            this.layout.medium.push(widget);
+            this.layout.large.push(widget);
+            this.unsavedChanges = true;
+            this.setWidgetPosition(widget);
+        } else {
+            this.toastService.addToast('Det er ikke plass til denne widgeten', ToastType.warn, 10);
+        }
     }
 
     private setWidgetPosition(widget: IUniWidget) {
@@ -345,6 +349,8 @@ export class UniWidgetCanvas {
         this.layout.large.splice(index, 1);
         this.layout.medium.splice(index, 1);
         this.layout.small.splice(index, 1);
+
+        this.canvasHelper.releaseGridSpace(widget);
         this.unsavedChanges = true;
     }
 
@@ -357,43 +363,46 @@ export class UniWidgetCanvas {
             {
                 label: 'Snarveier',
                 value: [
-                    {label: 'Tilbud', value: 'tilbudConfig'},
-                    {label: 'Ordre', value: 'ordreConfig'},
-                    {label: 'Kunder', value: 'kunderConfig'},
-                    {label: 'Timer', value: 'timerConfig'},
-                    {label: 'Tilbud', value: 'tilbudConfig'},
-                    {label: 'Ordre', value: 'ordreConfig'},
-                    {label: 'Kunder', value: 'kunderConfig'},
-                    {label: 'Timer', value: 'timerConfig'},
-                    {label: 'Tilbud', value: 'tilbudConfig'},
-                    {label: 'Ordre', value: 'ordreConfig'},
-                    {label: 'Kunder', value: 'kunderConfig'},
-                    {label: 'Timer', value: 'timerConfig'},
+                    {label: 'Tilbud', value: 'shortcuts.quotes'},
+                    {label: 'Ordre', value: 'shortcuts.orders'},
+                    {label: 'Fakura', value: 'shortcuts.invoices'},
+                    {label: 'Kunder', value: 'shortcuts.customers'},
+                    {label: 'Timer', value: 'shortcuts.hours'},
                 ]
             },
-            {
-                label: 'Tellere',
-                value: [
-                    {label: 'Epost', value: 'epostConfig'},
-                    {label: 'EHF', value: 'ehfConfig'},
-                    {label: 'PDF', value: 'pdfConfig'},
-                    {label: 'Utlegg', value: 'utleggConfig'},
-                ]
-            },
+            // {
+            //     label: 'Tellere',
+            //     value: [
+            //         {label: 'Epost', value: ''},
+            //         {label: 'EHF', value: ''},
+            //         {label: 'PDF', value: ''},
+            //         {label: 'Utlegg', value: ''},
+            //     ]
+            // },
             {
                 label: 'Diagram',
                 value: [
-                    {label: 'Driftsresultater', value: 'driftsResultatConfig'},
-                    {label: 'Tilbud og faktura', value: 'tofConfig'}
+                    {label: 'Driftsresultater', value: 'charts.operatingProfits'},
+                    {label: 'Nøkkeltall', value: 'charts.kpi'},
+                    {label: 'Utestående per kunde', value: 'charts.outstandingInvoices'},
+                    {label: 'Ansatte per stillingskode', value: 'charts.employeesPerJobCode'},
                 ]
             },
             {
                 label: 'Klokke',
-                value: 'klokkeConfig'
+                value: 'clock'
             },
             {
                 label: 'Nyheter',
-                value: 'rssConfig'
+                value: 'rss'
+            },
+            {
+                label: 'Firmalogo',
+                value: 'companyLogo'
+            },
+            {
+                label: 'Siste endringer',
+                value: 'lastTransactions'
             }
         ];
     }

@@ -45,7 +45,11 @@ export class UniChartWidget {
 
     public ngAfterViewInit() {
         if (this.widget) {
-            this.loadChartWidget();
+            if (this.widget.config.chartType === 'pie') {
+                this.loadPieWidget();
+            } else {
+                this.loadChartWidget();
+            }
         }
     }
 
@@ -53,6 +57,23 @@ export class UniChartWidget {
         if (this.chartElement && this.widget) {
             this.drawChart();
         }
+    }
+
+    private loadPieWidget() {
+        if (this.myChart) {
+            this.myChart.destroy();
+        }
+
+        this.widgetDataService.getData(this.widget.config.dataEndpoint[0]).subscribe(res => {
+            if (!res.Success) {
+                return;
+            }
+
+            const builderResult = this.builder.buildPieDataset(res.Data, this.widget.config);
+            this.labels = builderResult.labels;
+            this.datasets = builderResult.dataset;
+            this.drawChart();
+        });
     }
 
     private loadChartWidget() {
@@ -67,32 +88,23 @@ export class UniChartWidget {
         });
 
         Observable.forkJoin(obs).subscribe(
-            (data: any) => {
-                // Failcheck in case http call fails.. needed???
-                if (data[0].Success) {
-                    data.forEach((item: any, i) => {
-                        if (this.widget.config.labels.length < 1) {
-                            const builderResult = this.builder.buildWithDynamicLabels(
-                                item.Data,
-                                this.widget.config
-                            );
+            (res: any) => {
+                res.forEach((item: any, i) => {
+                    if (item.Success) {
+                        this.datasets.push(this.builder.buildSingleColorDataset(
+                            item.Data,
+                            i,
+                            this.widget.config
+                        ));
 
-                            this.datasets.push(builderResult.dataset);
-                            this.labels = builderResult.labels;
-                        } else {
-                            this.datasets.push(this.builder.buildSingleColorDataset(
-                                item.Data,
-                                i,
-                                this.widget.config
-                            ));
-                            this.labels = this.widget.config.labels;
-                        }
-                    });
-                }
+                        this.labels = this.widget.config.labels;
+                    }
+                });
+
                 this.drawChart();
             },
-                err => console.log(err)
-            );
+            err => console.log(err)
+        );
     }
 
     private drawChart() {
@@ -102,7 +114,6 @@ export class UniChartWidget {
         myElement.style.height = ((100 * this.widget.height + (this.widget.height - 1) * 20) - 64) + 'px';
         myElement.style.maxHeight = ((100 * this.widget.height + (this.widget.height - 1) * 20) - 64) + 'px';
 
-        // Draws new chart to the canvas
         this.myChart = new Chart(<any>myElement, {
             type: this.widget.config.chartType,
             data: {

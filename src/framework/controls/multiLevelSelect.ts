@@ -42,7 +42,7 @@ export class UniMultiLevelSelect {
             return;
         }
 
-        this.select.next(item);
+        this.select.next(item.value);
         this.close();
     }
 
