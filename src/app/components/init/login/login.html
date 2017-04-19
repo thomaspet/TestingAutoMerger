@@ -21,6 +21,7 @@
             <a [routerLink]="['../reset-password']">Glemt passord</a>
         </p>
     </section>
+    <p class='validation info' *ngIf="infoMessage.length">{{infoMessage}}</p>
 
     <uni-select [config]="selectConfig"
                 [items]="availableCompanies"

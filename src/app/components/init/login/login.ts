@@ -20,6 +20,7 @@ export class Login {
     private working: boolean;
     private loginSuccess: boolean  = false;
     private errorMessage: string = '';
+    private infoMessage: string = '';
 
     private availableCompanies: any[];
     private selectConfig: ISelectConfig;
@@ -74,17 +75,26 @@ export class Login {
 
                 if (response.status !== 200) {
                     this.loginSuccess = false;
-                    this.errorMessage = 'Du har ingen selskaper. Midlertidig fix: gå til signup og lag ett.';
+                    this.infoMessage =
+                     'Du har ikke tilgang til noen selskaper. Kontakt din administrator.';
                     return;
                 }
 
                 this.availableCompanies = response.json();
-                if (this.availableCompanies.length === 1) {
-                    this.onCompanySelected(this.availableCompanies[0]);
-                } else {
-                    setTimeout(() => {
-                        this.select.focus();
-                    });
+                try {
+                    if (this.availableCompanies.length === 1) {
+                        this.onCompanySelected(this.availableCompanies[0]);
+                    } else if (this.availableCompanies.length > 1) {
+                        setTimeout(() => {
+                            this.select.focus();
+                        });
+                    } else {
+                        this.infoMessage = 
+                        'Du har ikke tilgang til noen selskaper. Kontakt din administrator.';
+                    }
+                } catch (exception) {
+                    this.infoMessage = 
+                    'Du har ikke tilgang til noen selskaper. Kontakt din administrator.';
                 }
             });
     }
