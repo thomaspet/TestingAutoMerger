@@ -99,7 +99,7 @@ export class HamburgerMenu {
                 componentListHeader: 'Nøkkeltall',
                 componentListUrl: '/',
                 componentList: [
-                    {componentName: 'Nøkkeltall', componentUrl: '/', moduleID: UniModules.Dashboard},
+                    {componentName: 'Skrivebord', componentUrl: '/', moduleID: UniModules.Dashboard},
                     {componentName: 'Brukerinnstillinger', componentUrl: '/settings/user', hidden: true},
                     {componentName: 'Firmainnstillinger', componentUrl: '/settings/company', hidden: true},
                     {componentName: 'Aga-innstillinger', componentUrl: '/settings/aga-and-subentities', hidden: true},

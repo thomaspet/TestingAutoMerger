@@ -31,7 +31,7 @@ export class UniClockWidget {
             this.day = date.format('dddd');
             this.date = date.format('Do MMM');
             this.time = this.widget.config.showSeconds
-                ? date.format('HH:MM:ss') : date.format('HH:MM');
+                ? date.format('HH:mm:ss') : date.format('HH:mm');
 
             cdr.markForCheck();
         }, 1000);

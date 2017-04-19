@@ -39,7 +39,7 @@ export class Dashboard {
         private companySettingsService: CompanySettingsService,
         private widgetDataService: WidgetDataService
     ) {
-        this.tabService.addTab({ name: 'Nøkkeltall', url: '/', active: true, moduleID: UniModules.Dashboard });
+        this.tabService.addTab({ name: 'Skrivebord', url: '/', active: true, moduleID: UniModules.Dashboard });
 
         // Avoid compile error. Seems to be something weird with the chart.js typings file
         (<any> Chart).defaults.global.maintainAspectRatio = false;
