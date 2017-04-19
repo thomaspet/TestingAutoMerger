@@ -860,7 +860,7 @@ export class EmployeeDetails extends UniView implements OnDestroy {
 
         if (brInfo.BankAccounts) {
             brInfo.BankAccounts.forEach(bankaccount => {
-                if (bankaccount.ID === 0 && !bankaccount['_createguid']) {
+                if (bankaccount.ID === 0 || !bankaccount.ID) {
                     bankaccount['_createguid'] = this.bankaccountService.getNewGuid();
                 }
             });

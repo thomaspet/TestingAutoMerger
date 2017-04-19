@@ -485,7 +485,7 @@ export class SupplierDetails implements OnInit {
 
         let defaultBankAccount: UniFieldLayout = fields.find(x => x.Property === 'Info.DefaultBankAccount');
         defaultBankAccount.Options = {
-            entity: 'BankAccount',
+            entity: BankAccount,
             listProperty: 'Info.BankAccounts',
             displayValue: 'AccountNumber',
             linkProperty: 'ID',

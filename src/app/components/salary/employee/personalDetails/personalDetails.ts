@@ -311,7 +311,7 @@ export class PersonalDetails extends UniView {
         };
         let defaultBankAccount: UniFieldLayout = this.findByProperty(fields, 'BusinessRelationInfo.DefaultBankAccount');
         defaultBankAccount.Options = {
-            entity: 'BankAccount',
+            entity: BankAccount,
             listProperty: 'BusinessRelationInfo.BankAccounts',
             displayValue: 'AccountNumber',
             linkProperty: 'ID',
