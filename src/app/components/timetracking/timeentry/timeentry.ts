@@ -37,6 +37,7 @@ interface ITab {
 })
 export class TimeEntry {
     public busy: boolean = true;
+    public missingWorker: boolean = false;
     public userName: string = '';
     public workRelations: Array<WorkRelation> = [];
     private timeSheet: TimeSheet = new TimeSheet();
@@ -173,14 +174,35 @@ export class TimeEntry {
         });
     }
 
-    private initWorker(workerid?: number) {
-        var obs = workerid ? this.timesheetService.initWorker(workerid) : this.timesheetService.initUser();
+    private initWorker(workerid?: number, autoCreate = false) {
+        var obs = workerid ? this.timesheetService.initWorker(workerid) : 
+            this.timesheetService.initUser(undefined, autoCreate);
         obs.subscribe((ts: TimeSheet) => {
             this.workRelations = this.timesheetService.workRelations;
+            if ((!this.workRelations) || (this.workRelations.length === 0)) {
+                this.initNewUser();
+                return;
+            }
             this.timeSheet = ts;
             this.loadItems();
             this.updateToolbar( !workerid ? this.service.user.name : '', this.workRelations );
-        }, err => this.errorService.handle(err));
+        }, err => { 
+            this.errorService.handle(err);
+        });
+    }
+
+    private initNewUser() {
+
+        this.confirmModal.confirm('Aktivere din bruker for timeføring på denne klienten?', 
+            `Velkommen, ${this.service.user.name}!`)
+            .then( (userChoice: ConfirmActions)  => {
+                if (userChoice === ConfirmActions.ACCEPT) {
+                    this.initWorker(undefined, true);
+                } else {
+                    this.busy = false;
+                    this.missingWorker = true;
+                }
+            });
     }
 
     private updateToolbar(name?: string, workRelations?: Array<WorkRelation> ) {

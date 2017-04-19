@@ -329,12 +329,19 @@ export class TimesheetService {
 
     constructor(public workerService: WorkerService) {}
 
-    public initUser(userid= 0): Observable<TimeSheet> {
+    public initUser(userid = 0, autoCreate = false): Observable<TimeSheet> {
         if (userid === 0) {
             var p = this.workerService.getCurrentUserId();
-            return Observable.fromPromise(p).mergeMap((id: number) => this.initUser(id));
+            return Observable.fromPromise(p).mergeMap((id: number) => this.initUser(id, autoCreate));
         } else {
-           return this.workerService.getRelationsForUser(userid).mergeMap((list: WorkRelation[]) => {
+            var result;
+            if (autoCreate) {
+                result = this.workerService.getRelationsForUser(userid);
+            } else {
+                let route = `workrelations?expand=worker&filter=worker.userid eq ${userid}&hateoas=false`;
+                result = this.workerService.get<Observable<WorkRelation[]>>(route);
+            }
+            return result.mergeMap((list: WorkRelation[]) => {
                var first = list[0];
                var ts = this.newTimeSheet(first);
                this.workRelations = list;
@@ -404,7 +411,8 @@ export class TimesheetService {
                     .month(dt.month()).date(dt.date()).toDate(), true);
             }
             if (item.EndTime) {
-                item.EndTime = toIso(moment(item.EndTime).year(dt.year()).month(dt.month()).date(dt.date()).toDate(), true);
+                item.EndTime = toIso(moment(item.EndTime).year(dt.year())
+                    .month(dt.month()).date(dt.date()).toDate(), true);
             }
         }
     }

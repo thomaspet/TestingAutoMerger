@@ -1,6 +1,6 @@
 <uni-toolbar class="no-print" [config]="toolbarConfig" [saveactions]="actions"></uni-toolbar>
 
-<aside class="horizontal_nav no-print">
+<aside class="horizontal_nav no-print" [hidden]="missingWorker">
     <ul>
         <li *ngFor="let tab of tabs">
             <a (click)="onTabClick(tab)" [ngClass]="{'router-link-active': tab.isSelected}">
@@ -33,8 +33,8 @@
             <vacation *ngIf="tabs[4].activated" (saved)="onVacationSaved()" [workrelationid]="timeSheet.currentRelation.ID"></vacation>
         </section>
 
-        <section [hidden]="!tabs[0].isSelected">
-
+        <section [hidden]="missingWorker || !tabs[0].isSelected">
+            
             <daybrowser (clickday)="onClickDay($event)" (requestsums)="onRequestDaySums($event)" 
                 (navigate)="onNavigateDays($event)"
             ></daybrowser>
