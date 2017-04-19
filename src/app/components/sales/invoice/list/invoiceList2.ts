@@ -10,7 +10,7 @@ import {SendEmail} from '../../../../models/sendEmail';
 import {ToastService, ToastType} from '../../../../../framework/uniToast/toastService';
 import {ISummaryConfig} from '../../../common/summary/summary';
 import {UniConfirmModal, ConfirmActions} from '../../../../../framework/modals/confirm';
-import {ITickerActionOverride, TickerAction} from '../../../../services/common/uniTickerService';
+import {ITickerActionOverride, TickerAction, ITickerColumnOverride} from '../../../../services/common/uniTickerService';
 import * as moment from 'moment';
 import {
     CustomerInvoiceService,
@@ -54,6 +54,22 @@ export class InvoiceList2 implements OnInit {
         }
     ];
 
+    private columnOverrides: Array<ITickerColumnOverride> = [
+        {
+            Field: 'StatusCode',
+            Template: (dataItem) => {
+                let statusText: string = this.customerInvoiceService.getStatusText(dataItem.CustomerInvoiceStatusCode, dataItem.CustomerInvoiceInvoiceType);
+                if (dataItem.CustomerInvoiceCollectorStatusCode === 42501) {
+                    statusText = 'Purret';
+                }
+                if (dataItem.CustomerInvoiceCollectorStatusCode === 42502) {
+                    statusText = 'Inkasso';
+                }
+                return statusText;
+            }
+        }
+    ];
+
     private tickercode: string = 'invoice_list';
 
     private companySettings: CompanySettings;
@@ -83,7 +99,7 @@ export class InvoiceList2 implements OnInit {
             );
 
         this.tabService.addTab({
-            url: '/sales/invoices2',
+            url: '/sales/invoices',
             name: 'Faktura',
             active: true,
             moduleID: UniModules.Invoices

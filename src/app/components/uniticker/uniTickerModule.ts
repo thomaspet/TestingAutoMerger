@@ -31,6 +31,7 @@ import {UniTickerFilterEditor} from './components/tickerFilterEditor';
 import {UniTickerFieldFilterEditor} from './components/tickerFieldFilterEditor';
 import {UniTickerDetailView} from './components/tickerDetailView';
 import {UniTickerSearchHistory} from './components/searchHistory';
+import {UniTickerFieldFilterEditorSimple} from './components/tickerFieldFilterEditorSimple';
 
 @NgModule({
     imports: [
@@ -73,7 +74,8 @@ import {UniTickerSearchHistory} from './components/searchHistory';
         UniTickerFilterEditor,
         UniTickerDetailView,
         UniTickerSearchHistory,
-        UniTickerFieldFilterEditor
+        UniTickerFieldFilterEditor,
+        UniTickerFieldFilterEditorSimple
     ],
     entryComponents: [
 
@@ -92,7 +94,8 @@ import {UniTickerSearchHistory} from './components/searchHistory';
         UniTickerFilterEditor,
         UniTickerDetailView,
         UniTickerSearchHistory,
-        UniTickerFieldFilterEditor
+        UniTickerFieldFilterEditor,
+        UniTickerFieldFilterEditorSimple
     ]
 })
 export class UniTickerModule {}

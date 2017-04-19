@@ -1,11 +1,11 @@
-<div class="compact-journalentry" >
+<div class="compact-journalentry">
 
-    <table editable [config]="tableConfig" class="compact-journalentry-table" [class.editable]="!isReadOnly" >
+    <table editable [config]="tableConfig" class="compact-journalentry-table" [class.editable]="!isReadOnly">
         <thead>
             <tr>
                 <th class="left accountname">Konto</th>
                 <th class="center vattype">Mva.</th>
-                <th>Tekst</th>            
+                <th>Tekst</th>
                 <th class="right sumcol">Sum</th>
                 <th class="actions"></th>
             </tr>
@@ -14,8 +14,8 @@
             <tr *ngFor="let item of costItems; let i=index">
                 <td>{{item.Account | account }}</td>
                 <td class="center">{{item.VatType | vatcode }}</td>
-                <td>{{item.Description | trimtext:'14' }}</td>
-                <td class="right">{{item.Amount | unicurrency }}</td>
+                <td>{{item.Description | trimtext:'15' }}</td>
+                <td class="right">{{item.AmountCurrency | unicurrency }} {{current?.CurrencyCode?.ShortCode}}</td>
                 <td class='actions'><button (click)="onRowActionClicked(i, item)"></button></td>
             </tr>
         </tbody>
@@ -24,16 +24,22 @@
     <table *ngIf="!journalEntryNumber" class="compact-summary">
         <tr>
             <td>Differanse</td>
-            <td [class.warning]="sumRemainder">{{ sumRemainder | unicurrency}}</td>
+            <td [class.warning]="sumRemainder">{{ sumRemainder | unicurrency}} {{current?.CurrencyCode?.ShortCode}}</td>
             <td>Sum Mva</td>
-            <td>{{ sumVat | unicurrency}}</td>
+            <td>{{ sumVat | unicurrency}} {{current?.CurrencyCode?.ShortCode}}</td>
+        </tr>
+        <tr *ngIf="current.CurrencyExchangeRate">
+            <td>Valutakurs: {{current.CurrencyExchangeRate}}</td>
         </tr>
     </table>
 
     <footer *ngIf="journalEntryNumber">
         <table class="compact-summary">
             <tr>
-                <td>Sum Mva: {{ sumVat | unicurrency}}</td>
+                <td>Sum Mva: {{ sumVat | unicurrency}} {{current?.CurrencyCode?.ShortCode}}</td>
+            </tr>
+            <tr *ngIf="current.CurrencyExchangeRate">
+                <td>Valutakurs: {{current.CurrencyExchangeRate}}</td>
             </tr>
         </table>
     </footer>

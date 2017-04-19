@@ -8,7 +8,12 @@ import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import { ReplaySubject } from 'rxjs/ReplaySubject';
 import { Observable } from 'rxjs/Observable';
 import { UniFieldLayout } from 'uniform-ng2/main';
-import { SalaryBalance, SalBalType, WageType, Employee, Supplier, SalBalDrawType, StdWageType } from '../../../../unientities';
+import { 
+    SalaryBalance, SalBalType, WageType, Employee, Supplier, SalBalDrawType, StdWageType
+} from '../../../../unientities';
+import {
+    ToastService, ToastType, ToastTime
+} from '../../../../../framework/uniToast/toastService';
 
 @Component({
     selector: 'salarybalance-details',
@@ -37,6 +42,7 @@ export class SalarybalanceDetail extends UniView {
         private wagetypeService: WageTypeService,
         private employeeService: EmployeeService,
         private supplierService: SupplierService,
+        private toastService: ToastService,
         public cacheService: UniCacheService,
         private errorService: ErrorService
     ) {
@@ -96,7 +102,21 @@ export class SalarybalanceDetail extends UniView {
         if (changes['SupplierID']) {
             model.Supplier = this.suppliers.find(supp => supp.ID === model.SupplierID);
         }
-
+        
+        let previousAmount = changes['Amount'] ? changes['Amount'].previousValue : null;
+        let currentAmount = changes['Amount'] ? changes['Amount'].currentValue : null;
+        if (previousAmount !== currentAmount) {
+            if (currentAmount > 0 && this.salarybalance$.getValue().InstalmentType === SalBalType.Advance) {
+                this.toastService.addToast('Feil i beløp', 
+                    ToastType.warn, ToastTime.medium, 
+                    'Du prøver å føre et forskudd med et positivt beløp');
+            } else if (currentAmount < 0 && this.salarybalance$.getValue().InstalmentType !== SalBalType.Advance) {
+                this.toastService.addToast('Feil i beløp', 
+                    ToastType.warn, ToastTime.medium, 
+                    'Du prøver å føre et trekk med negativt beløp');
+            }
+        }
+        
         super.updateState('salarybalance', model, true);
     }
 

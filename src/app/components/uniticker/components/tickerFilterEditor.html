@@ -6,13 +6,12 @@
     <div *ngIf="!filter.Filter || filter.Filter.length === 0">
         <div *ngFor="let group of filter.FilterGroups" class="field-filter-group">
             <div *ngFor="let fieldFilter of group.FieldFilters" class="field-filter-item">
-                <uni-ticker-field-filter-editor
+                <uni-ticker-field-filter-editor-simple
                     [ticker]="ticker"
                     [fieldFilter]="fieldFilter"
-                    [mainModel]="mainModel"
                     (fieldFilterChanged)="onChangeFieldFilter($event, group)"
                     (fieldFilterDeleted)="onDeleteFieldFilter(fieldFilter, group)">
-                </uni-ticker-field-filter-editor>
+                </uni-ticker-field-filter-editor-simple>
             </div>
             <div class="add-field-filter">
                 <a (click)="addFieldFilter(group)">+ Legg til kriterie</a>

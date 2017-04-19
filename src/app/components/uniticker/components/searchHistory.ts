@@ -1,11 +1,12 @@
-import {Component, Input, SimpleChanges, Output, EventEmitter} from '@angular/core';
+import {Component, Input, SimpleChanges, Output, EventEmitter, ChangeDetectionStrategy} from '@angular/core';
 import {Ticker, TickerAction, TickerHistory, TickerFilter, UniTickerService} from '../../../services/common/uniTickerService';
 import {Router, ActivatedRoute} from '@angular/router';
 
 
 @Component({
     selector: 'uni-ticker-search-history',
-    templateUrl: './searchHistory.html'
+    templateUrl: './searchHistory.html',
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class UniTickerSearchHistory {
     @Input() private lastSearch: TickerHistory;
@@ -35,7 +36,7 @@ export class UniTickerSearchHistory {
     }
 
     private getSearchText(search: TickerHistory) {
-        return search.Ticker.Name + (search.TickerFilter ? ': ' + search.TickerFilter.Name : '');
+        return search.TickerName + (search.TickerFilterName ? ': ' + search.TickerFilterName : '');
     }
 }
 

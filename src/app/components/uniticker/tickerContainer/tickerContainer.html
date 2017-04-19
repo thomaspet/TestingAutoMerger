@@ -29,7 +29,8 @@
         [expanded]="expanded === 'ticker'"
         [expressionFilters]="expressionFilters"
         [class]="expanded === 'ticker' ? 'expanded' : ''"
-        [actionOverrides]="actionOverrides">
+        [actionOverrides]="actionOverrides"
+        [columnOverrides]="columnOverrides">
     </uni-ticker>
     <uni-sub-ticker-container
         *ngIf="showSubTickers && ticker.SubTickers && ticker.SubTickers.length > 0"
@@ -40,6 +41,7 @@
         [subTickers]="ticker.SubTickers"
         [expanded]="expanded === 'subticker'"
         [class]="expanded === 'subticker' ? 'expanded' : ''"
-        [actionOverrides]="actionOverrides">
+        [actionOverrides]="actionOverrides"
+        [columnOverrides]="columnOverrides">
     </uni-sub-ticker-container>
 </section>

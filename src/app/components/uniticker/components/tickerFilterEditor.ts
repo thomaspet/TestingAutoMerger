@@ -1,4 +1,4 @@
-import {Component, ViewChild, Input, Output, EventEmitter, SimpleChanges} from '@angular/core';
+import {Component, ViewChild, Input, Output, EventEmitter, SimpleChanges, ChangeDetectionStrategy} from '@angular/core';
 import {Ticker, TickerFilter, TickerFilterGroup, TickerFieldFilter} from '../../../services/common/uniTickerService';
 import {Observable} from 'rxjs/Observable';
 
@@ -6,7 +6,8 @@ declare const _; // lodash
 
 @Component({
     selector: 'uni-ticker-filter-editor',
-    templateUrl: './tickerFilterEditor.html'
+    templateUrl: './tickerFilterEditor.html',
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class UniTickerFilterEditor {
     @Input() private ticker: Ticker;
@@ -72,9 +73,9 @@ export class UniTickerFilterEditor {
     private addFieldFilter(group: TickerFilterGroup) {
         group.FieldFilters.push({
             Path: this.ticker.Model,
-            Field: 'ID',
+            Field: null,
             Operator: 'eq',
-            Value: '',
+            Value: null,
             Value2: null,
             QueryGroup: group.QueryGroup
         });

@@ -198,7 +198,6 @@ export class AccountDetailsReport {
                 searchParams.AccountID = account.ID;
                 searchParams.AccountNumber = account.AccountNumber;
                 this.searchParams$.next(searchParams);
-                //this.form.
 
                 this.loadData();
             } else {

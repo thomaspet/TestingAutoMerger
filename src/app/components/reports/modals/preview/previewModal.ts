@@ -1,4 +1,4 @@
-import {Component, ViewChild, Output, EventEmitter, Type, Input} from '@angular/core';
+import {Component, ViewChild, Output, EventEmitter, Type, Input, ChangeDetectorRef} from '@angular/core';
 import {Http} from '@angular/http';
 import {ReportDefinition, CompanySettings, User} from '../../../../unientities';
 import {UniModal} from '../../../../../framework/modals/modal';
@@ -46,7 +46,8 @@ export class PreviewModal {
         private userService: UserService,
         private toastService: ToastService,
         private companySettingsService: CompanySettingsService,
-        private errorService: ErrorService
+        private errorService: ErrorService,
+        private cdr: ChangeDetectorRef
     ) {
 
         this.companySettingsService.Get(1)
@@ -125,5 +126,6 @@ export class PreviewModal {
         this.reportService.generateReportHtml(report, this.modalConfig);
         this.modal.open();
 
+        this.cdr.markForCheck();
     }
 }

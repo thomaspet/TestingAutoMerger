@@ -13,12 +13,14 @@
                 "Header": "Fakturanr",
                 "Field": "InvoiceNumber",
                 "Width": "100px",
-                "Type": "text"
+                "Type": "link",
+                "FilterOperator": "eq"
             },
             {
                 "Header": "Kundenr",
                 "Field": "Customer.CustomerNumber",
-                "Type": "text"
+                "Type": "text",
+                "FilterOperator": "eq"
             },
             {
                 "Header": "Kundenavn",
@@ -26,11 +28,13 @@
                 "Width": "250px",
                 "Type": "link",
                 "ExternalModel": "Customer",
-                "LinkNavigationProperty": "Customer.ID"
+                "LinkNavigationProperty": "Customer.ID",
+                "FilterOperator": "contains"
             },
             {
                 "Header": "Fakturadato",
-                "Field": "InvoiceDate"
+                "Field": "InvoiceDate",
+                "FilterOperator": "gt"
             },
             {
                 "Header": "Forfallsdato",
@@ -47,13 +51,15 @@
                 "Header": "Sum inkl mva",
                 "Field": "TaxInclusiveAmountCurrency",
                 "Format": "NumberPositiveNegative",
-                "Width": "150px"
+                "Width": "150px",
+                "FilterOperator": "gt"
             },
             {
                 "Header": "Restsum",
                 "Field": "RestAmountCurrency",
                 "Format": "NumberPositiveNegative",
-                "DefaultHidden": true
+                "DefaultHidden": true,
+                "FilterOperator": "gt"
             },
             {
                 "Header": "Kreditert",
@@ -87,7 +93,13 @@
                 "LinkNavigationProperty": "InvoiceReferenceID"
             },
             {
+                "Header": "Fakturatype",
                 "Field": "CustomerInvoice.InvoiceType",
+                "Type": "dontdisplay"
+            },
+            {
+                "Header": "Purrestatus",
+                "Field": "CustomerInvoice.CollectorStatusCode",
                 "Type": "dontdisplay"
             },
             {
@@ -230,7 +242,7 @@
                     "UseAllCriterias": true,
                     "FieldFilters": [
                     {
-                        "Field": "RestAmount",
+                        "Field": "RestAmountCurrency",
                         "Operator": "ne",
                         "Value": "0"
                     },
@@ -252,6 +264,36 @@
                         "Field": "StatusCode",
                         "Operator": "eq",
                         "Value": "42003"
+                    }
+                ]}
+                ]
+            },
+            {
+                "Name": "Purret",
+                "Code": "invoices_reminded",
+                "UseAllCriterias": true,
+                "FilterGroups": [{
+                    "UseAllCriterias": true,
+                    "FieldFilters": [
+                    {
+                        "Field": "CollectorStatusCode",
+                        "Operator": "eq",
+                        "Value": "42501"
+                    }
+                ]}
+                ]
+            },
+            {
+                "Name": "Sendt til inkasso",
+                "Code": "invoices_sentforcollection",
+                "UseAllCriterias": true,
+                "FilterGroups": [{
+                    "UseAllCriterias": true,
+                    "FieldFilters": [
+                    {
+                        "Field": "CollectorStatusCode",
+                        "Operator": "eq",
+                        "Value": "42502"
                     }
                 ]}
                 ]
@@ -333,6 +375,16 @@
                 "Format": "NumberPositiveNegative",
                 "Width": "150px"
             }
+        ],
+        "Action": [
+            {
+                "Name": "Eksporter",
+                "Code": "export_invoiceitems",
+                "Type": "export",
+                "ExecuteWithMultipleSelections": true,
+                "ExecuteWithoutSelection": true,
+                "DisplayInActionBar": true
+            }
         ]
     },
     {
@@ -354,7 +406,8 @@
         "Columns": [
             {
                 "Header": "Fakturanr",
-                "Field": "InvoiceNumber"
+                "Field": "InvoiceNumber",
+                "Type": "link"
             },
             {
                 "Header": "Kundenavn",
@@ -437,7 +490,13 @@
                 "Size": "medium"
             },
             {
+                "Header": "Fakturatype",
                 "Field": "CustomerInvoice.InvoiceType",
+                "Type": "dontdisplay"
+            },
+            {
+                "Header": "Purrestatus",
+                "Field": "CustomerInvoice.CollectorStatusCode",
                 "Type": "dontdisplay"
             }
         ]
@@ -449,12 +508,12 @@
         "IsTopLevelTicker": true,
         "Group": "Salg",
         "Model": "CustomerQuote",
-        "Expand": "Customer.Info",
+        "Expand": "Customer.Info,CurrencyCode",
         "Columns": [
             {
                 "Field": "QuoteNumber",
                 "Width": "100px",
-                "Type": "text"
+                "Type": "link"
             },
             {
                 "Field": "Customer.CustomerNumber",
@@ -522,6 +581,17 @@
                 "Type": "export",
                 "ExecuteWithMultipleSelections": true,
                 "ExecuteWithoutSelection": true
+            },
+            {
+                "Name": "Skriv ut",
+                "Code": "quote_print",
+                "Type": "print",
+                "ExecuteWithMultipleSelections": false,
+                "DisplayInContextMenu": true,
+                "DisplayInActionBar": false,
+                "Options": {
+                    "ReportName": "Tilbud id"
+                }
             },
             {
                 "Name": "Overfør til ordre",
@@ -705,7 +775,7 @@
             {
                 "Header": "Tilbudsnr",
                 "Field": "QuoteNumber",
-                "Type": "text"
+                "Type": "link"
             },
             {
                 "Header": "Kundenavn",
@@ -785,7 +855,7 @@
         "IsTopLevelTicker": true,
         "Group": "Salg",
         "Model": "CustomerOrder",
-        "Expand": "Customer.Info",
+        "Expand": "Customer.Info,CurrencyCode",
         "Columns": [
             {
                 "Field": "OrderNumber",
@@ -809,6 +879,7 @@
                 "DefaultHidden": true
             },
             {
+                "Header": "Sum inkl mva",
                 "Field": "TaxInclusiveAmountCurrency",
                 "Format": "NumberPositiveNegative",
                 "Width": "150px"
@@ -831,11 +902,34 @@
         },
         "Actions": [
             {
+                "Name": "Ny ordre",
+                "Code": "new_order",
+                "ExecuteWithoutSelection": true,
+                "Type": "new"
+            },{
                 "Name": "Åpne ordre",
                 "Code": "open_order",
                 "Type": "details",
                 "DisplayInContextMenu": true,
                 "DisplayInActionBar": true
+            },            
+            {
+                "Name": "Eksporter",
+                "Code": "export_quotes",
+                "Type": "export",
+                "ExecuteWithMultipleSelections": true,
+                "ExecuteWithoutSelection": true
+            },
+            {
+                "Name": "Skriv ut",
+                "Code": "order_print",
+                "Type": "print",
+                "ExecuteWithMultipleSelections": false,
+                "DisplayInContextMenu": true,
+                "DisplayInActionBar": false,
+                "Options": {
+                    "ReportName": "Ordre id"
+                }
             }
         ],
         "SubTickersCodes": ["order_details", "order_items"],

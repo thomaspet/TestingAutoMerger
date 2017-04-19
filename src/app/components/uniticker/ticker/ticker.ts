@@ -1,10 +1,10 @@
-import {Component, ViewChild, Input, SimpleChanges, Output, EventEmitter, ChangeDetectionStrategy} from '@angular/core';
+import {Component, ViewChild, Input, SimpleChanges, Output, EventEmitter, ChangeDetectorRef, ChangeDetectionStrategy} from '@angular/core';
 import {URLSearchParams, Http} from '@angular/http';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {UniTabs} from '../../layout/uniTabs/uniTabs';
 import {UniQueryDefinition} from '../../../unientities';
 import {Router, ActivatedRoute, RouterLink} from '@angular/router';
-import {Ticker, TickerGroup, TickerAction, TickerActionOptions, TickerFilter, TickerColumn, IExpressionFilterValue, ITickerActionOverride} from '../../../services/common/uniTickerService';
+import {Ticker, TickerGroup, TickerAction, TickerActionOptions, TickerFilter, TickerColumn, IExpressionFilterValue, ITickerActionOverride, ITickerColumnOverride} from '../../../services/common/uniTickerService';
 import {StatisticsService, StatusService} from '../../../services/services';
 import {UniHttp} from '../../../../framework/core/http/http';
 import {ToastService, ToastType, ToastTime} from '../../../../framework/uniToast/toastService';
@@ -25,7 +25,8 @@ const TICKER_COLUMN_VISIBILITY_STORAGE_KEY = 'TickerColumnVisibility';
 
 @Component({
     selector: 'uni-ticker',
-    templateUrl: './ticker.html'
+    templateUrl: './ticker.html',
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class UniTicker {
     @Input() private ticker: Ticker;
@@ -39,6 +40,7 @@ export class UniTicker {
     @Input() private parentTicker: Ticker;
     @Input() private expressionFilters: Array<IExpressionFilterValue> = [];
     @Input() private actionOverrides: Array<ITickerActionOverride> = [];
+    @Input() public columnOverrides: Array<ITickerColumnOverride> = [];
 
     @Output() private rowSelected: EventEmitter<any> = new EventEmitter<any>();
 
@@ -70,17 +72,18 @@ export class UniTicker {
         private modelService: ApiModelService,
         private http: Http,
         private reportDefinitionService: ReportDefinitionService,
-        private storageService: BrowserStorageService) {
+        private storageService: BrowserStorageService,
+        private cdr: ChangeDetectorRef) {
 
         this.statusService
             .loadStatusCache()
             .then(() => {
                 this.prefetchDataLoaded = true;
+                this.cdr.markForCheck();
             });
 
         this.lookupFunction = (urlParams: URLSearchParams) => {
                 let params = this.getSearchParams(urlParams);
-
                 if (this.ticker.Model) {
                     return this.statisticsService
                         .GetAllByUrlSearchParams(params)
@@ -234,6 +237,8 @@ export class UniTicker {
                     // retrieving more than one row
                     this.loadDetailTickerData();
                 }
+
+                this.cdr.markForCheck();
             });
         }
     }
@@ -248,14 +253,18 @@ export class UniTicker {
                 } else {
                     this.model = null;
                 }
+
+                this.cdr.markForCheck();
             });
     }
 
     private letUniTableHandleIsOwnClicks() {
-        event.stopPropagation();
+        if (event) {
+            event.stopPropagation();
+        }
     }
 
-    private getTickerActions() : Array<TickerAction> {
+    private getTickerActions(): Array<TickerAction> {
         return this.ticker.UseParentTickerActions && this.parentTicker && this.parentTicker.Actions ?
             this.parentTicker.Actions :
             this.ticker.Actions ? this.ticker.Actions : [];
@@ -537,8 +546,19 @@ export class UniTicker {
                         col.width = field.Width;
                         col.sumFunction = field.SumFunction;
 
-                        if (field.SelectableFieldName.toLowerCase().endsWith('statuscode')) {
-                            col.template = (rowModel) => this.statusCodeToText(rowModel[field.Alias]);
+
+                        let columnOverride = this.columnOverrides.find(x => x.Field === field.Field);
+
+                        if (columnOverride) {
+                            col.setTemplate(row => {
+                                // use the tickerservice to get and format value based on override template
+                                return this.uniTickerService.getFieldValue(field, row, this.ticker, this.columnOverrides);
+                            });
+                        } else {
+                            // set up templates based on rules for e.g. fieldname
+                            if (field.SelectableFieldName.toLowerCase().endsWith('statuscode')) {
+                                col.template = (rowModel) => this.statusCodeToText(rowModel[field.Alias]);
+                            }
                         }
 
                         if (field.Type === 'external-link') {
@@ -550,17 +570,17 @@ export class UniTicker {
                             });
                         } else if (field.Type === 'attachment') {
                             col.setTemplate(line => line.Attachments ? PAPERCLIP : '')
-                                .setOnCellClick(line =>
+                               .setOnCellClick(line =>
                                     this.imageModal.open(
                                         field.ExternalModel ? field.ExternalModel : this.ticker.Model,
                                         line.JournalEntryID)
-                                );
+                               );
                         }
 
                         if (field.Type === 'link' || field.Type === 'mailto' || (field.SubFields && field.SubFields.length > 0)) {
                             col.setTemplate(row => {
                                 // use the tickerservice to get and format value and subfield values
-                                return this.uniTickerService.getFieldValue(field, row, this.ticker);
+                                return this.uniTickerService.getFieldValue(field, row, this.ticker, this.columnOverrides);
                             });
                         }
 
@@ -625,14 +645,17 @@ export class UniTicker {
                     );
 
                 actionsWithDetailNavigation.forEach(st => {
-                    let paramSelect = 'ID as ID';
+                    let paramSelects = ['ID as ID'];
                     if (st.Options.ParameterProperty !== '') {
-                        paramSelect = `${st.Options.ParameterProperty} as ${st.Options.ParameterProperty.replace('.', '')}`;
+                        paramSelects = 
+                            [`${st.Options.ParameterProperty} as ${st.Options.ParameterProperty.replace('.', '')}`];
+                    } else if (st.Options.ParameterProperties && st.Options.ParameterProperties.length) {
+                        paramSelects = st.Options.ParameterProperties.map(prop => {
+                            return `${prop} as ${prop.replace('.', '')}`;
+                        });
                     }
 
-                    if (!selects.find(x => x === paramSelect)) {
-                        selects.push(paramSelect);
-                    }
+                    selects = [...selects, ...paramSelects.filter(param => !selects.some(x => x === param))];
                 });
 
                 let linkFieldsWithNavigationProperty =
@@ -643,6 +666,18 @@ export class UniTicker {
                     if (!selects.find(x => x === paramSelect)) {
                         selects.push(paramSelect);
                     }
+                });
+
+                let linkFieldWithNavigationProprties = this.ticker.Columns
+                    .filter(x => x.Type === 'link' 
+                        && x.LinkNavigationProperties 
+                        && x.LinkNavigationProperties.length);
+                
+                linkFieldWithNavigationProprties.forEach(field => {
+                    let paramSelects = field.LinkNavigationProperties.map(prop => {
+                        return `${prop} as ${prop.replace('.', '')}`;
+                    });
+                    selects = [...selects, ...paramSelects.filter(param => !selects.some(x => x === param))];
                 });
 
                 let linkFieldsWithoutNavigationProperty =

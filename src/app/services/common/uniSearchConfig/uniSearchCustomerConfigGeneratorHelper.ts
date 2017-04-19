@@ -127,12 +127,13 @@ export class UniSearchCustomerConfigGeneratorHelper {
         };
     }
 
-    private customStatisticsObjToCustomer(statObj: CustomStatisticsResultItem): Customer {
+    public customStatisticsObjToCustomer(statObj: CustomStatisticsResultItem): Customer {
         const customer = new Customer();
         customer.OrgNumber = statObj.OrgNumber;
         customer.WebUrl = statObj.WebUrl;
         customer.Info = new BusinessRelation();
         customer.Info.Name = statObj.Name;
+        customer.Info.Addresses = [];
 
         if (statObj.AddressLine1 || statObj.City || statObj.CountryCode || statObj.PostalCode) {
 
@@ -144,6 +145,8 @@ export class UniSearchCustomerConfigGeneratorHelper {
 
             customer.Info.InvoiceAddress = address;
             customer.Info.ShippingAddress = address;
+
+            customer.Info.Addresses.push(address);
         }
 
         if (statObj.PhoneNumber) {

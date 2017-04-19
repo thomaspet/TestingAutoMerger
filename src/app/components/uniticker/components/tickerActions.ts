@@ -1,10 +1,11 @@
-import {Component, ViewChild, Input, Output, EventEmitter, SimpleChanges} from '@angular/core';
+import {Component, ViewChild, Input, Output, EventEmitter, SimpleChanges, ChangeDetectionStrategy} from '@angular/core';
 import {Ticker, TickerAction, ITickerActionOverride} from '../../../services/common/uniTickerService';
 import { IContextMenuItem } from 'unitable-ng2/main';
 
 @Component({
     selector: 'uni-ticker-actions',
-    templateUrl: './tickerActions.html'
+    templateUrl: './tickerActions.html',
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class UniTickerActions {
     @Input() private ticker: Ticker;

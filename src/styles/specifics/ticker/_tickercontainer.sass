@@ -35,12 +35,32 @@ uni-ticker-container
         position: relative
         top: 3rem
         right: -.5rem
+        height: 2.5rem
+        width: 2.5rem
+        padding: 0
+        box-shadow: none
+        border: none
+        background: transparent unicon-close($uni-color-positive) center no-repeat
+        background-size: .8rem
+        margin-top: -2.5rem
+        float: right
+
+        &:hover
+            background-color: $uni-color-scale8
+            border-radius: 99rem
+            background-size: .8rem
+
+    .openBtn
+        @extend %hideText
+        position: relative
+        top: 3rem
+        right: -.5rem
         height: 2rem
         width: 2rem
         padding: 0
         box-shadow: none
         border: none
-        background: transparent unicon-close($uni-color-positive) center no-repeat
+        background: transparent unicon-search($uni-color-positive) center no-repeat
         background-size: .8rem
         margin-top: -2.5rem
         float: right

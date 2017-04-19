@@ -109,7 +109,8 @@ export class HamburgerMenu {
                     {componentName: 'Oversikt', componentUrl: '/tickers', moduleID: UniModules.UniTicker},
                     {componentName: 'Regnskapsoversikt', componentUrl: '/accounting/accountingreports', moduleID: UniModules.AccountingReports},
                     {componentName: 'Rapporter', componentUrl: '/reports', moduleID: UniModules.Reports},
-                    {componentName: 'Uttrekk', componentUrl: '/uniqueries', moduleID: UniModules.UniQuery}
+                    {componentName: 'Uttrekk', componentUrl: '/uniqueries', moduleID: UniModules.UniQuery},
+                    {componentName: 'Oppgaver', componentUrl: '/tasks', moduleID: UniModules.Tasks}
                 ]
             },
             {

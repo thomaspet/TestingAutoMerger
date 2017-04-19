@@ -33,12 +33,12 @@ export class Employments extends UniView {
         super(router.url, cacheService);
 
         this.tableConfig = new UniTableConfig(false)
-        .setColumnMenuVisible(false)
-        .setColumns([
-            new UniTableColumn('ID', 'Nr', UniTableColumnType.Number).setWidth('4rem'),
-            new UniTableColumn('JobName', 'Stillingsnavn'),
-            new UniTableColumn('JobCode', 'Stillingskode')
-        ]);
+            .setColumnMenuVisible(false)
+            .setColumns([
+                new UniTableColumn('ID', 'Nr', UniTableColumnType.Number).setWidth('4rem'),
+                new UniTableColumn('JobName', 'Stillingsnavn'),
+                new UniTableColumn('JobCode', 'Stillingskode')
+            ]);
 
         // Update cache key and (re)subscribe when param changes (different employee selected)
         route.parent.params.subscribe((paramsChange) => {
@@ -56,11 +56,13 @@ export class Employments extends UniView {
 
             super.getStateSubject('departments')
                 .subscribe(departments => this.departments = departments, err => this.errorService.handle(err));
+        });
 
+        route.params.subscribe((paramsChange) => {
             super.getStateSubject('employments')
                 .subscribe((employments) => {
                     this.employments = employments || [];
-                    setTimeout(() => this.focusRow());
+                    setTimeout(() => this.focusRow(+paramsChange['EmploymentID']));
                 }, err => this.errorService.handle(err));
         });
     }
@@ -74,9 +76,22 @@ export class Employments extends UniView {
         }
     }
 
-    private focusRow() {
+    private focusRow(employmentID: number) {
+        if (isNaN(employmentID)) {
+            employmentID = undefined;
+        }
+
+        if (employmentID === 0) {
+            this.newEmployment();
+            return;
+        }
+
         if (this.selectedIndex === undefined && this.employments.length) {
-            let focusIndex = this.employments.findIndex(employment => employment.Standard);
+
+            let focusIndex = this.employments.findIndex(employment => employmentID !== undefined 
+                ? employment.ID === employmentID 
+                : employment.Standard);
+                
             if (focusIndex === -1) {
                 focusIndex = 0;
             }

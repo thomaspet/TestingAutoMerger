@@ -26,6 +26,7 @@ import {UniConfirmModal, ConfirmActions} from '../../../../../framework/modals/c
 import {CompanySettingsService} from '../../../../services/services';
 import {ActivateAPModal} from '../../../common/modals/activateAPModal';
 import {ReminderSendingModal} from '../../reminder/sending/reminderSendingModal';
+import {roundTo, safeDec, safeInt, trimLength, capitalizeSentence} from '../../../timetracking/utils/utils';
 import {
     StatisticsService,
     CustomerInvoiceService,
@@ -635,7 +636,6 @@ export class InvoiceDetails {
                         }
                     }, err => reject(err));
                 });
-                break;
             }
 
             case CollectorStatus.SendtToDebtCollection: {
@@ -658,12 +658,9 @@ export class InvoiceDetails {
                         }
                     }, err => reject(err));
                 });
-                break;
             }
         }
     }
-
-
 
     private getStatustrackConfig() {
         let statustrack: UniStatusTrack.IStatus[] = [];
@@ -717,7 +714,6 @@ export class InvoiceDetails {
 
 
         if (this.invoice.CollectorStatusCode > 42500 && this.invoice.CollectorStatusCode < 42505 && !this.invoice.DontSendReminders) {
-            console.log('CollectorStatusCode', this.invoice.CollectorStatusCode);
             let statusText = this.getCollectorStatusText(this.invoice.CollectorStatusCode);
             if (statusText !== '') {
                 this.getCollectionSubStatus(this.invoice.CollectorStatusCode).then(substatus => {
@@ -908,6 +904,10 @@ export class InvoiceDetails {
             if (item.Product) {
                 item.Product = null;
             }
+
+            if (item.Account) {
+                item.Account = null;
+            }
         });
 
         if (!this.invoice.CreditDays) {
@@ -1079,21 +1079,22 @@ export class InvoiceDetails {
     }
 
     private payInvoice(done) {
-        const title = `Register betaling, Faktura ${this.invoice.InvoiceNumber || ''}, ${this.invoice.CustomerName || ''}`;
+        const title = `Register betaling, Kunde-faktura ${this.invoice.InvoiceNumber || ''}, ${this.invoice.CustomerName || ''}`;
 
         const invoicePaymentData: InvoicePaymentData = {
-            Amount: this.invoice.RestAmount,
-            AmountCurrency: this.invoice.CurrencyCodeID == this.companySettings.BaseCurrencyCodeID ? this.invoice.RestAmount : this.invoice.RestAmountCurrency,
+            Amount: roundTo(this.invoice.RestAmount),
+            AmountCurrency: this.invoice.CurrencyCodeID == this.companySettings.BaseCurrencyCodeID ? roundTo(this.invoice.RestAmount) : roundTo(this.invoice.RestAmountCurrency),
             BankChargeAmount: 0,
             CurrencyCodeID: this.invoice.CurrencyCodeID,
             CurrencyExchangeRate: 0,
             PaymentDate: new LocalDate(Date()),
             AgioAccountID: null,
-            BankChargeAccountID: this.companySettings.BankChargeAccountID,
+            BankChargeAccountID: 0,
             AgioAmount: 0
         };
 
-        this.registerPaymentModal.confirm(this.invoice.ID, title, this.invoice.CurrencyCode, this.invoice.CurrencyExchangeRate, invoicePaymentData).then(res => {
+        this.registerPaymentModal.confirm(this.invoice.ID, title, this.invoice.CurrencyCode, this.invoice.CurrencyExchangeRate,
+            'CustomerInvoice', invoicePaymentData).then(res => {
             if (res.status === ConfirmActions.ACCEPT) {
                 this.customerInvoiceService.ActionWithBody(res.id, res.model, 'payInvoice').subscribe((journalEntry) => {
                     this.toastService.addToast('Faktura er betalt. Bilagsnummer: ' + journalEntry.JournalEntryNumber, ToastType.good, 5);

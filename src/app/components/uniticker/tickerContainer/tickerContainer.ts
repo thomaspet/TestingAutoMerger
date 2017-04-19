@@ -2,7 +2,7 @@ import {Component, ViewChild, Input, SimpleChanges, Output, EventEmitter} from '
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {UniTabs} from '../../layout/uniTabs/uniTabs';
 import {Router, ActivatedRoute, RouterLink} from '@angular/router';
-import {Ticker, TickerGroup, TickerAction, TickerFilter, TickerColumn, IExpressionFilterValue, ITickerActionOverride} from '../../../services/common/uniTickerService';
+import {Ticker, TickerGroup, TickerAction, TickerFilter, TickerColumn, IExpressionFilterValue, ITickerActionOverride, ITickerColumnOverride} from '../../../services/common/uniTickerService';
 import {UniTicker} from '../ticker/ticker';
 import {UniSubTickerContainer} from '../subTickerContainer/subTickerContainer';
 import {UniTickerFilters} from '../components/tickerFilters';
@@ -22,6 +22,7 @@ export class UniTickerContainer {
     @Input() private showFiltersAsNavbar: boolean = false;
     @Input() private showSubTickers: boolean = false;
     @Input() private actionOverrides: Array<ITickerActionOverride> = [];
+    @Input() private columnOverrides: Array<ITickerColumnOverride> = [];
 
     @Output() private urlPropertiesChanged: EventEmitter<any> = new EventEmitter<any>();
 

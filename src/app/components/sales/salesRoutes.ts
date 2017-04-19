@@ -34,11 +34,11 @@ export const salesRoutes: Routes = [
     },
 
     {
-        path: 'invoices',
+        path: 'invoicesold',
         component: InvoiceList
     },
     {
-        path: 'invoices2',
+        path: 'invoices',
         component: InvoiceList2
     },
     {

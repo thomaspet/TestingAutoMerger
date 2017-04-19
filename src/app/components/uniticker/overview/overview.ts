@@ -1,4 +1,4 @@
-import {Component, ViewChild} from '@angular/core';
+import {Component, ViewChild, ChangeDetectionStrategy, ChangeDetectorRef} from '@angular/core';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {UniTabs} from '../../layout/uniTabs/uniTabs';
 import {UniTickerService, PageStateService} from '../../../services/services';
@@ -13,7 +13,8 @@ declare const _; // lodash
 
 @Component({
     selector: 'uni-ticker-overview',
-    templateUrl: './overview.html'
+    templateUrl: './overview.html',
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class UniTickerOverview {
     @ViewChild(UniTickerContainer) private tickerContainer: UniTickerContainer;
@@ -46,7 +47,8 @@ export class UniTickerOverview {
         private router: Router,
         private route: ActivatedRoute,
         private pageStateService: PageStateService,
-        private location: Location) {
+        private location: Location,
+        private cdr: ChangeDetectorRef) {
 
         this.tabService.addTab({ name: 'Oversikt', url: '/tickers/overview', moduleID: UniModules.UniTicker, active: true });
 
@@ -83,9 +85,9 @@ export class UniTickerOverview {
         // filter is used)
         this.router.navigateByUrl(search.Url);
 
-        if (this.selectedTicker && this.selectedTicker.Code === search.Ticker.Code) {
+        if (this.selectedTicker && this.selectedTicker.Code === search.TickerCode) {
             setTimeout(() => {
-                this.showTicker(search.Ticker.Code);
+                this.showTicker(search.TickerCode);
             });
         }
     }
@@ -128,6 +130,8 @@ export class UniTickerOverview {
 
                     this.toolbarConfig.contextmenu = contextMenuItems;
                     this.toolbarConfig = _.cloneDeep(this.toolbarConfig);
+
+                    this.cdr.markForCheck();
                 });
         } else {
             if (selectedTickerCode) {
@@ -147,6 +151,8 @@ export class UniTickerOverview {
 
         let url = this.location.path(false);
         this.updateTabService(url);
+
+        this.cdr.markForCheck();
     }
 
     private exportToExcel(completeEvent) {

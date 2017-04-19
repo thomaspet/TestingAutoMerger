@@ -40,6 +40,7 @@ import {UniSearchConfigGeneratorService} from './common/uniSearchConfig/uniSearc
 import {UmhService} from './common/UmhService';
 import {UniSearchAccountConfigGeneratorHelper} from './common/uniSearchConfig/uniSearchAccountConfigGeneratorHelper';
 import {UniSearchCustomerConfigGeneratorHelper} from './common/uniSearchConfig/uniSearchCustomerConfigGeneratorHelper';
+import {UniSearchSupplierConfigGeneratorHelper} from './common/uniSearchConfig/uniSearchSupplierConfigGeneratorHelper';
 import {CurrencyOverridesService} from './common/currencyOverridesService';
 import {ApiModelService} from './common/apiModelService';
 import {YearService} from './common/yearService';
@@ -131,6 +132,7 @@ export class CommonServicesModule {
 				UniSearchConfigGeneratorService,
 				UniSearchAccountConfigGeneratorHelper,
         		UniSearchCustomerConfigGeneratorHelper,
+                UniSearchSupplierConfigGeneratorHelper,
 				CurrencyOverridesService,
 				CurrencyCodeService,
 				UniTickerService,

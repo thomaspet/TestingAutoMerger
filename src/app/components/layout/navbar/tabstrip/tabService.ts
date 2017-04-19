@@ -66,7 +66,9 @@ export enum UniModules {
     PaymentList     = 900,
 
     CurrencyExchange = 1000,
-    CurrencyOverride = 1001
+    CurrencyOverride = 1001,
+
+    Tasks = 1100
 }
 
 @Injectable()

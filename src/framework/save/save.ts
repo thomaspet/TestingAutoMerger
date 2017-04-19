@@ -1,4 +1,4 @@
-import {Component, Input, Output, EventEmitter} from '@angular/core';
+import {Component, Input, Output, EventEmitter, SimpleChanges} from '@angular/core';
 import * as moment from 'moment';
 
 export interface IUniSaveAction {
@@ -31,14 +31,14 @@ export interface IUniSaveAction {
             <div *ngIf="actions.length > 1" role="group" class="comboButton">
                 <button class="comboButton_btn"
                         type="button"
-                        (click)="onSave(mainAction())"
+                        (click)="onSave(main)"
                         [attr.aria-busy]="busy"
-                        [disabled]="mainAction().disabled">{{mainAction().label}}</button>
+                        [disabled]="main.disabled">{{main.label}}</button>
                 <button class="comboButton_more"
                         (click)="open = !open"
                         aria-owns="saveActionMenu"
                         [attr.aria-expanded]="open"
-                        [disabled]="mainAction.disabled">More options</button>
+                        [disabled]="main.disabled">More options</button>
 
                 <ul class="comboButton_moreList" [attr.aria-expanded]="open" role="menu" id="saveActionMenu">
                     <li *ngFor="let action of actions"
@@ -62,6 +62,13 @@ export class UniSave {
     private open: boolean = false;
     private busy: boolean = false;
     private status: {message: string, when: Date};
+    private main: IUniSaveAction;
+
+    public ngOnChanges(changes: SimpleChanges) {
+        if (changes['actions']) {
+            this.main = this.mainAction();
+        }
+    }
 
     public mainAction() {
         let _declaredMain = this.actions.filter(action => action.main);
@@ -84,11 +91,15 @@ export class UniSave {
                 activeElement.blur();
             }
 
-            this.onSave(this.mainAction());
+            // Give components a chance to update disabled state
+            // because there might be changes triggered by ctrl+s (table blur etc)
+            setTimeout(() => {
+                this.onSave(this.mainAction());
 
-            if (activeElement && activeElement.focus) {
-                activeElement.focus();
-            }
+                if (activeElement && activeElement.focus) {
+                    activeElement.focus();
+                }
+            });
         }
     }
 

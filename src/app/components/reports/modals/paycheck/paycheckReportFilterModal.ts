@@ -113,7 +113,7 @@ export class PaycheckReportFilterModalContent implements OnInit, OnDestroy {
             if (employees) {
                 let filteredEmployees = employees
                     .filter(emp => emp.EmployeeNumber <= model.ToEmpNo && emp.EmployeeNumber >= model.FromEmpNo);
-                
+
                 params['TransFilter'] = `PayrollRunID eq ${model.RunID} `
                     + (filteredEmployees.length
                         ? 'and (' + filteredEmployees.map(emp => 'EmployeeID eq ' + emp.ID).join(' or ') + ')'

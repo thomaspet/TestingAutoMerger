@@ -3,7 +3,7 @@
         <span class="filter-header">Filter</span>
         <div class="filter-container" *ngIf="expanded" (click)="stopPropagation()">
             <button (click)="closeFilters()" class="closeBtn"></button>
-            <div class="model-tree">
+            <div class="model-tree" *ngIf="!hideTreeForNowBecauseWeDontKnowWhatToUseItFor">
                 <model-tree-view
                     [header]="'Modeller/felter'"
                     [mainModelName]="ticker.Model"
@@ -11,7 +11,6 @@
                     (fieldAdded)="onFieldAdded($event)"
                     (modelSelected)="onModelSelected($event)">
                 </model-tree-view>
-
             </div>
             <div class="rule-setup">
                 <h2>Finn {{getModelName()}} hvor:</h2>
@@ -30,6 +29,7 @@
             </div>
         </div>
         <div class="filter-container" *ngIf="!expanded">
+            <button class="openBtn"></button>
             <div class="filter-summary">
                 <h3>Viser</h3>
                 <ul>
@@ -57,10 +57,10 @@
                     <ul *ngIf="selectedFilter.FilterGroups?.length > 0">
                         <ng-template ngFor let-group [ngForOf]="selectedFilter.FilterGroups" let-i="index" let-lastGroup="last">
                             <ng-template ngFor let-fieldFilter [ngForOf]="group.FieldFilters" let-i="index" let-lastFilter="last">
-                                <li class="field-filter">
+                                <li class="field-filter" *ngIf="fieldFilter.Value !== ''">
                                     {{getFilterHumanReadable(fieldFilter)}}
                                 </li>
-                                <li *ngIf="!lastFilter" class="field-filter">
+                                <li *ngIf="!lastFilter && fieldFilter.Value !== ''" class="field-filter">
                                     <i>{{ group.UseAllCriterias ? 'og' : 'eller' }}</i>
                                 </li>
                             </ng-template>

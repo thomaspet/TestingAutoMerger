@@ -146,34 +146,32 @@ export class PostingJournalReportFilterModal {
                 {
                     text: 'Ok',
                     class: 'good',
-                    method: () => {
-                        this.modal.getContent().then((component: PostingJournalReportFilterForm) => {
-                            for (const parameter of <CustomReportDefinitionParameter[]>this.modalConfig.report.parameters) {
-                                switch (parameter.Name) {
-                                    case 'PeriodAccountYear':
-                                    case 'FromJournalEntryNumber':
-                                    case 'ToJournalEntryNumber':
-                                    case 'FromPeriod':
-                                    case 'ToPeriod':
-                                    case 'ShowFilter':
-                                        parameter.value = component.model$.getValue()[parameter.Name];
-                                        break;
-                                    case 'OrderBy':
-                                        switch (component.model$.getValue().OrderBy) {
-                                            case 'date':
-                                                parameter.value = 'Financialdate';
-                                                break;
-                                            case 'accountnumber':
-                                                parameter.value = 'Account.AccountNumber';
-                                                break;
-                                        }
-                                        break;
-                                }
+                    method: (model$) => {
+                        for (const parameter of <CustomReportDefinitionParameter[]>this.modalConfig.report.parameters) {
+                            switch (parameter.Name) {
+                                case 'PeriodAccountYear':
+                                case 'FromJournalEntryNumber':
+                                case 'ToJournalEntryNumber':
+                                case 'FromPeriod':
+                                case 'ToPeriod':
+                                case 'ShowFilter':
+                                    parameter.value = model$.getValue()[parameter.Name];
+                                    break;
+                                case 'OrderBy':
+                                    switch (model$.getValue().OrderBy) {
+                                        case 'date':
+                                            parameter.value = 'Financialdate';
+                                            break;
+                                        case 'accountnumber':
+                                            parameter.value = 'Account.AccountNumber';
+                                            break;
+                                    }
+                                    break;
                             }
+                        }
 
-                            this.modal.close();
-                            this.previewModal.open(this.modalConfig.report);
-                        });
+                        this.modal.close();
+                        this.previewModal.open(this.modalConfig.report);
                     }
                 },
                 {

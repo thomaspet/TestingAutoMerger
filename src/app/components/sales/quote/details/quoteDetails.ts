@@ -701,6 +701,18 @@ export class QuoteDetails {
             if (item.Dimensions && item.Dimensions.ID === 0) {
                 item.Dimensions['_createguid'] = this.customerQuoteItemService.getNewGuid();
             }
+
+            if (item.VatType) {
+                item.VatType = null;
+            }
+
+            if (item.Product) {
+                item.Product = null;
+            }
+
+            if (item.Account) {
+                item.Account = null;
+            }
         });
 
         return new Promise((resolve, reject) => {
