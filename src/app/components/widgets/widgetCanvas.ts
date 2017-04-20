@@ -14,6 +14,7 @@ import {UniWidget, IUniWidget} from './uniWidget';
 import {CanvasHelper} from './canvasHelper';
 import {ToastService, ToastType} from '../../../framework/uniToast/toastService';
 import {WIDGET_CONFIGS} from './configs/presetConfigs';
+import * as $ from 'jquery';
 declare const _;
 
 interface IGridCell {
@@ -260,11 +261,13 @@ export class UniWidgetCanvas {
 
     public startDrag(event: MouseEvent, widget: IUniWidget) {
         event.preventDefault();
-        const elemBounds = event.srcElement.closest('uni-widget').getBoundingClientRect();
+        let widgetElement = $(event.srcElement || event.target).closest('uni-widget')[0];
+
+        const elemBounds = widgetElement.getBoundingClientRect();
         const canvasBounds = this.canvas.nativeElement.getBoundingClientRect();
 
-        let offsetX = event.x - elemBounds.left;
-        let offsetY = event.y - elemBounds.top;
+        let offsetX = event.clientX - elemBounds.left;
+        let offsetY = event.clientY - elemBounds.top;
 
         this.canvasHelper.releaseGridSpace(widget);
 
