@@ -17,6 +17,7 @@ import {ErrorService} from '../../../services/services';
 import {UniConfirmModal, ConfirmActions} from '../../../../framework/modals/confirm';
 import {WorkEditor} from '../components/workeditor';
 import {DayBrowser, Day, ITimeSpan, INavDirection} from '../components/daybrowser';
+import {TeamworkReport, Team} from '../components/teamworkreport';
 import * as moment from 'moment';
 
 type colName = 'Date' | 'StartTime' | 'EndTime' | 'WorkTypeID' | 'LunchInMinutes' |
@@ -44,6 +45,7 @@ export class TimeEntry {
     private currentFilter: IFilter;
     public currentBalance: WorkBalanceDto;
     public incomingBalance: WorkBalance;
+    public teams: Array<Team>;
 
     @ViewChild(RegtimeTotals) private regtimeTotals: RegtimeTotals;
     @ViewChild(TimeTableReport) private regtimeTools: TimeTableReport;
@@ -51,6 +53,7 @@ export class TimeEntry {
     @ViewChild(RegtimeBalance) private regtimeBalance: RegtimeBalance;
     @ViewChild(WorkEditor) private workEditor: WorkEditor;
     @ViewChild(DayBrowser) private dayBrowser: DayBrowser;
+    @ViewChild(TeamworkReport) private teamreport: TeamworkReport;
 
     public preSaveConfig: IPreSaveConfig = { 
         askSave: () => this.checkSave(false),
@@ -71,6 +74,7 @@ export class TimeEntry {
             { name: 'vacation', label: 'Ferie', activate: (ts: any, filter: any) => {
                 this.tabs[4].activated = true; } },
             ];
+    public tabPositions: Array<number> = [0, 1, 2, 3, 4];
 
     public toolbarConfig: any = {
         title: 'Registrering av timer',
@@ -90,7 +94,7 @@ export class TimeEntry {
     ) {
 
         this.filters = service.getIntervalItems();
-        this.initTab();
+        this.initApplicationTab();
 
         route.queryParams.first().subscribe((item: { workerId; workRelationId; }) => {
             if (item.workerId) {
@@ -99,10 +103,13 @@ export class TimeEntry {
                 this.init();
             }
         });
+        
+        this.initTabPositions();
 
+        this.approvalCheck();
     }
 
-    private initTab() {
+    private initApplicationTab() {
         this.tabService.addTab({ name: view.label, url: view.url, moduleID: UniModules.Timesheets });
     }
 
@@ -169,7 +176,7 @@ export class TimeEntry {
         return new Promise((resolve, reject) => {
             this.checkSave(true).then( () => {
                 resolve(true);
-                this.initTab();
+                this.initApplicationTab();
             }, () => resolve(false) );
         });
     }
@@ -428,7 +435,40 @@ export class TimeEntry {
         });
     }
 
+    public mapTabPosition(index: number) {
+        return this.tabPositions[index];
+    }
+
+    private initTabPositions() {
+        var positions = [];
+        this.tabs.forEach( (x, i) => positions.push(i) );
+        this.tabPositions = positions;
+    }
+
+    private approvalCheck() {
+        this.timesheetService.workerService.get('teams?action=my-teams')
+            .subscribe( (result: Array<Team>) => {
+                if (result && result.length > 0) {
+                    this.teams = result;
+                    let newKey = this.tabs.length;
+                    let newPos = 2;
+                    this.tabs.push({ 
+                        name: 'approval', label: 'Godkjenning', counter: this.teams.length,
+                        activate: (ts: any, filter: any) => {
+                            if (!this.teamreport.isInitialized) {
+                                this.teamreport.initialize(<any>this.teams);
+                            }
+                        }
+                    });
+                    this.tabPositions.splice(newPos, 0, newKey);
+                }
+            });
+    }
+
+
 }
+
+// tslint:disable:variable-name
 
 class WorkBalanceDto extends WorkBalance {
     public LastDayExpected: number;

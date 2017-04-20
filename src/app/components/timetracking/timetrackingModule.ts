@@ -34,6 +34,7 @@ import {CanDeactivateGuard} from '../../canDeactivateGuard';
 import {WorkEditor} from './components/workeditor';
 import {DayBrowser} from './components/daybrowser';
 import {UniTimeModal} from './components/popupeditor';
+import {TeamworkReport} from './components/teamworkreport';
 
 @NgModule({
     imports: [
@@ -74,7 +75,8 @@ import {UniTimeModal} from './components/popupeditor';
         WorkBalancesView,
         WorkEditor,
         DayBrowser,
-        UniTimeModal        
+        UniTimeModal,
+        TeamworkReport
     ],  
     providers: [
         Lookupservice,
