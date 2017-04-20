@@ -227,19 +227,6 @@ export class UniKPIWidget {
                 },
                 animation: {
                     onComplete: function () {
-                        // setTimeout(() => {
-                        //     const c = canvas.nativeElement;
-                        //     const context = c.getContext('2d');
-
-                        //     context.strokeStyle = '#85898b';
-                        //     context.lineWidth = 3;
-                        //     context.beginPath();
-                        //     context.moveTo((c.width / 100) * arrowX, (c.height / 100) * arrowY);
-                        //     context.lineTo(c.width / 2, c.height);
-                        //     context.stroke();
-                        //     context.save();
-                        // });
-
                         const c = canvas.nativeElement;
                         const context = c.getContext('2d');
 
