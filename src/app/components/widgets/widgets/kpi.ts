@@ -1,4 +1,4 @@
-﻿import { Component } from '@angular/core';
+﻿import { Component, ViewChild, ElementRef } from '@angular/core';
 import { IUniWidget } from '../uniWidget';
 import { WidgetDataService } from '../widgetDataService';
 import { FinancialYearService } from '../../../services/services';
@@ -29,7 +29,7 @@ interface IKeyNumberObject {
                         <p [ngStyle]="{'color': profitability.textColor}">{{ profitability.grade }} </p>
                     </div>
                     <div>
-                        <canvas id="784574"> </canvas>
+                        <canvas #profitabilityCanvas> </canvas>
                     </div>
                 </section>
 
@@ -42,7 +42,7 @@ interface IKeyNumberObject {
                         <p [ngStyle]="{'color': liquidity.textColor}">{{ liquidity.grade }} </p>
                     </div>
                     <div>
-                        <canvas id="151468"> </canvas>
+                        <canvas #liquidityCanvas> </canvas>
                     </div>
                 </section>
 
@@ -55,7 +55,7 @@ interface IKeyNumberObject {
                         <p [ngStyle]="{'color': solidity.textColor}">{{ solidity.grade }} </p>
                     </div>
                     <div>
-                        <canvas id="124515"> </canvas>
+                        <canvas #solidityCanvas> </canvas>
                     </div>
                 </section>
 
@@ -65,14 +65,23 @@ interface IKeyNumberObject {
 })
 
 export class UniKPIWidget {
+    @ViewChild('profitabilityCanvas')
+    private profitabilityCanvas: ElementRef;
+
+    @ViewChild('liquidityCanvas')
+    private liquidityCanvas: ElementRef;
+
+    @ViewChild('solidityCanvas')
+    private solidityCanvas: ElementRef;
 
     public widget: IUniWidget;
+
     public liquidity: IKeyNumberObject = {
         value: '-',
-        grade: '-',
+        grade: 'Ikke tilgjengelig',
         arrowX: 0,
         arrowY: 0,
-        textColor: '',
+        textColor: '#85898b',
         id: '151468'
     };
 
@@ -81,107 +90,128 @@ export class UniKPIWidget {
         grade: 'Ikke tilgjengelig',
         arrowX: 0,
         arrowY: 0,
-        textColor: '',
+        textColor: '#85898b',
         id: '124515'
-    }
+    };
 
     public profitability: IKeyNumberObject = {
-        value: '',
-        grade: '',
+        value: '-',
+        grade: 'Ikke tilgjengelig',
         arrowX: 0,
         arrowY: 0,
-        textColor: '-',
+        textColor: '#85898b',
         id: '784574'
+    };
+
+    constructor(
+        private widgetDataService: WidgetDataService,
+        private financialYearService: FinancialYearService
+    ) {}
+
+    public ngAfterViewInit() {
+        this.financialYearService.getActiveYear().subscribe((year: number) => {
+            this.widgetDataService.getData('/api/statistics?skip=0&top=50&model=JournalEntryLine&select=sum(casewhen(Account.AccountNumber%20ge%201400%20and%20Account.AccountNumber%20le%201999,Amount,0))%20as%20sumOmlopsmidler,sum(casewhen(Account.AccountNumber%20ge%202300%20and%20Account.AccountNumber%20le%202999,Amount,0))%20as%20sumkortsiktiggjeld,sum(casewhen(Account.AccountNumber%20ge%201000%20and%20Account.AccountNumber%20le%201999,Amount,0))%20as%20sumTK,sum(casewhen(Account.AccountNumber%20ge%202000%20and%20Account.AccountNumber%20le%202099,Amount,0))%20as%20sumEK,sum(casewhen(Account.AccountNumber%20ge%203000%20and%20Account.AccountNumber%20le%208299 and Period.AccountYear eq ' + year + ',Amount,0))%20as%20resultat&expand=Account,Period&distinct=false')
+                .subscribe(
+                    (data) => {
+                        this.initLiquidityIndicator(data.Data[0]);
+                        this.initProfitabilityIndicator(data.Data[0]);
+                        this.initSolidityIndicator(data.Data[0]);
+                    },
+                    err => console.log(err)
+                );
+        });
     }
 
-    constructor(private widgetDataService: WidgetDataService, private financialYearService: FinancialYearService) { }
-
-    ngAfterViewInit() {
-        this.financialYearService.getActiveYear()
-            .subscribe((year: number) => {
-                this.widgetDataService.getData('/api/statistics?skip=0&top=50&model=JournalEntryLine&select=sum(casewhen(Account.AccountNumber%20ge%201400%20and%20Account.AccountNumber%20le%201999,Amount,0))%20as%20sumOmlopsmidler,sum(casewhen(Account.AccountNumber%20ge%202300%20and%20Account.AccountNumber%20le%202999,Amount,0))%20as%20sumkortsiktiggjeld,sum(casewhen(Account.AccountNumber%20ge%201000%20and%20Account.AccountNumber%20le%201999,Amount,0))%20as%20sumTK,sum(casewhen(Account.AccountNumber%20ge%202000%20and%20Account.AccountNumber%20le%202099,Amount,0))%20as%20sumEK,sum(casewhen(Account.AccountNumber%20ge%203000%20and%20Account.AccountNumber%20le%208299 and Period.AccountYear eq ' + year + ',Amount,0))%20as%20resultat&expand=Account,Period&distinct=false')
-                    .subscribe((data) => { this.loadKPIWidget(data.Data[0]); }, err => console.log(err));
-            });
-
-    }
-
-    loadKPIWidget(data: any) {
+    public initSolidityIndicator(data) {
         if (data.sumTK) {
-            this.profitability.value = (((data.resultat * -1) * 100) / data.sumTK | 1).toFixed(1);
-            this.findData(this.profitability, [1, 5, 9, 15]);
-
             this.solidity.value = ((data.sumEK * 100) / data.sumTK).toFixed(1);
-            this.findData(this.solidity, [3, 10, 18, 40]);
-        } else {
-            this.solidity.value = '-';
-            this.solidity.grade = 'Ikke tilgjengelig';
-            this.solidity.textColor = "#85898b";
+            this.checkNumbers(this.solidity, [3, 10, 18, 40]);
 
-            this.profitability.value = '-';
-            this.profitability.grade = 'Ikke tilgjengelig';
-            this.profitability.textColor = "#85898b";
+            this.drawIndicator(
+                this.solidityCanvas,
+                this.solidity.arrowX,
+                this.solidity.arrowY
+            );
         }
+    }
 
+    public initProfitabilityIndicator(data) {
+        if (data.sumTK) {
+            this.profitability.value = (((data.resultat * -1) * 100) / data.sumTK || 1).toFixed(1);
+            this.checkNumbers(this.profitability, [1, 5, 9, 15]);
+
+            this.drawIndicator(
+                this.profitabilityCanvas,
+                this.profitability.arrowX,
+                this.profitability.arrowY
+            );
+        }
+    }
+
+
+    public initLiquidityIndicator(data) {
         if (data.sumkortsiktiggjeld) {
             this.liquidity.value = (data.sumOmlopsmidler / (data.sumkortsiktiggjeld * -1)).toFixed(1);
-            this.findData(this.liquidity, [0.5, 1, 1.5, 2]);
-        } else {
+            this.checkNumbers(this.liquidity, [0.5, 1, 1.5, 2]);
 
-            this.liquidity.value = '-';
-            this.liquidity.grade = 'Ikke tilgjengelig';
-            this.liquidity.textColor = "#85898b";
+            this.drawIndicator(
+                this.liquidityCanvas,
+                this.liquidity.arrowX,
+                this.liquidity.arrowY
+            );
         }
     }
 
-    findData(object: IKeyNumberObject, values: number[]) {
-        let number = parseInt(object.value);
-        if (number < values[0]) {
-            object.grade = 'Ikke tilfredstillende';
-            object.textColor = "#d65e63";
-            object.arrowX = 15;
-            object.arrowY = 90;
-        } else if (number >= values[0] && number < values[1]) {
-            object.grade = 'Svak';
-            object.textColor = "#ebb5ab";
-            object.arrowX = 20;
-            object.arrowY = 60;
-        } else if (number >= values[1] && number < values[2]) {
-            object.grade = 'Tilfredstillende';
-            object.textColor = "#b9d49d";
-            object.arrowX = 35;
-            object.arrowY = 40;
-        } else if (number >= values[2] && number < values[3]) {
-            object.grade = 'God';
-            object.textColor = "#9bc57d";
-            object.arrowX = 60;
-            object.arrowY = 40;
+    public checkNumbers(kpiObject: IKeyNumberObject, breakpoints: number[]) {
+        let keyNumber = parseInt(kpiObject.value);
+
+        if (keyNumber < breakpoints[0]) {
+            kpiObject.grade = 'Ikke tilfredstillende';
+            kpiObject.textColor = '#d65e63';
+            kpiObject.arrowX = 15;
+            kpiObject.arrowY = 90;
+        } else if (keyNumber >= breakpoints[0] && keyNumber < breakpoints[1]) {
+            kpiObject.grade = 'Svak';
+            kpiObject.textColor = '#ebb5ab';
+            kpiObject.arrowX = 20;
+            kpiObject.arrowY = 60;
+        } else if (keyNumber >= breakpoints[1] && keyNumber < breakpoints[2]) {
+            kpiObject.grade = 'Tilfredstillende';
+            kpiObject.textColor = '#b9d49d';
+            kpiObject.arrowX = 35;
+            kpiObject.arrowY = 40;
+        } else if (keyNumber >= breakpoints[2] && keyNumber < breakpoints[3]) {
+            kpiObject.grade = 'God';
+            kpiObject.textColor = '#9bc57d';
+            kpiObject.arrowX = 60;
+            kpiObject.arrowY = 40;
         } else {
-            object.grade = 'Meget god';
-            object.textColor = "#77b655";
-            object.arrowX = 85;
-            object.arrowY = 70;
+            kpiObject.grade = 'Meget god';
+            kpiObject.textColor = '#77b655';
+            kpiObject.arrowX = 85;
+            kpiObject.arrowY = 70;
         }
-        this.drawChart(object.id, object.arrowX, object.arrowY);
     }
 
-    drawChart(id: any, x, y) {
-        let el = document.getElementById(id);
+    public drawIndicator(canvas: ElementRef, arrowX: number, arrowY: number) {
+        if (!canvas || !canvas.nativeElement) {
+            console.log('too soon?');
+            return;
+        }
 
-        let mychart = new Chart(<any>el, {
+        new Chart(canvas.nativeElement, {
             type: 'doughnut',
             data: {
-                datasets: [
-                    {
-                        data: [2, 3, 4, 5, 6],
-                        backgroundColor: [
-                            "#d65e63",
-                            "#ebb5ab",
-                            "#b9d49d",
-                            "#9bc57d",
-                            "#77b655"
-                        ],
-                    }
-                ]
+                datasets: [{
+                    data: [2, 3, 4, 5, 6],
+                    backgroundColor: [
+                        '#d65e63',
+                        '#ebb5ab',
+                        '#b9d49d',
+                        '#9bc57d',
+                        '#77b655'
+                    ],
+                }]
             },
             options: {
                 rotation: 1 * Math.PI,
@@ -197,19 +227,32 @@ export class UniKPIWidget {
                 },
                 animation: {
                     onComplete: function () {
-                        var c: any = document.getElementById(id);
-                        var ctx = c.getContext('2d');
-                        ctx.strokeStyle = "#85898b";
-                        ctx.lineWidth = 3;
-                        ctx.beginPath();
-                        ctx.moveTo((c.width / 100) * x, (c.height / 100) * y);
-                        ctx.lineTo(c.width / 2, c.height);
-                        ctx.stroke();
-                        ctx.save();
+                        // setTimeout(() => {
+                        //     const c = canvas.nativeElement;
+                        //     const context = c.getContext('2d');
+
+                        //     context.strokeStyle = '#85898b';
+                        //     context.lineWidth = 3;
+                        //     context.beginPath();
+                        //     context.moveTo((c.width / 100) * arrowX, (c.height / 100) * arrowY);
+                        //     context.lineTo(c.width / 2, c.height);
+                        //     context.stroke();
+                        //     context.save();
+                        // });
+
+                        const c = canvas.nativeElement;
+                        const context = c.getContext('2d');
+
+                        context.strokeStyle = '#85898b';
+                        context.lineWidth = 3;
+                        context.beginPath();
+                        context.moveTo((c.width / 100) * arrowX, (c.height / 100) * arrowY);
+                        context.lineTo(c.width / 2, c.height);
+                        context.stroke();
+                        context.save();
                     }
                 }
             }
-
         });
     }
 }
