@@ -101,7 +101,7 @@ export class JournalEntryManual implements OnChanges, OnInit {
     }
 
     public ngOnChanges(changes: { [propName: string]: SimpleChange }) {
-        if (changes['journalEntryID']) {
+        if (changes['journalEntryID'] || changes['editmode']) {
             this.loadData();
         }
 
@@ -133,23 +133,8 @@ export class JournalEntryManual implements OnChanges, OnInit {
                     action: (completeEvent) => this.postJournalEntryData(completeEvent),
                     main: true,
                     disabled: !this.isDirty
-                },
-                {
-                    label: 'Tøm listen',
-                    action: (completeEvent) => this.removeJournalEntryData(completeEvent),
-                    main: false,
-                    disabled: false
                 }
             ];
-
-            if (this.journalEntryID && !this.isDirty) {
-                newActions.push({
-                    label: 'Rediger bilag',
-                    action: (completeEvent) => this.unlockJournalEntry(completeEvent),
-                    main: false,
-                    disabled: !this.disabled
-                });
-            }
 
             this.saveactions = newActions;
         }
@@ -287,11 +272,9 @@ export class JournalEntryManual implements OnChanges, OnInit {
     public addJournalEntryData(data: JournalEntryData) {
         data.SameOrNew = '1';
         this.isDirty = true;
-
         if (this.journalEntryProfessional) {
             this.journalEntryProfessional.addJournalEntryLine(data);
         }
-
         this.setupSaveConfig();
     }
 
@@ -503,19 +486,16 @@ export class JournalEntryManual implements OnChanges, OnInit {
         });
     }
 
-    private removeJournalEntryData(completeCallback) {
+    public removeJournalEntryData() {
         if (this.journalEntryProfessional) {
             this.journalEntryProfessional.removeJournalEntryData((msg: string) => {
                 if (msg) {
-                    completeCallback(msg);
                     this.clearJournalEntryInfo();
                     this.dataCleared.emit();
 
                     setTimeout(() => {
                         this.setupSaveConfig();
                     });
-                } else {
-                    completeCallback('');
                 }
             }, this.isDirty);
         }
