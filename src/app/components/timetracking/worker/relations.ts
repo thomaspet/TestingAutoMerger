@@ -197,7 +197,9 @@ export class View {
                 createFormField('Description', 'Beskrivelse', ControlTypes.TextInput, FieldSize.Double),
                 createFormField('StartDate', 'Startdato', ControlTypes.LocalDate),
                 createFormField('EndTime', 'Sluttdato', ControlTypes.LocalDate),
-                createFormField('IsActive', 'Aktiv', ControlTypes.CheckboxInput)
+                createFormField('IsActive', 'Aktiv', ControlTypes.CheckboxInput),
+                createFormField('TeamID', 'Team', ControlTypes.SelectInput, FieldSize.Double
+                    , false, 0, undefined, undefined, this.getTeamCombo()),                
             ],
         };
 
@@ -213,4 +215,15 @@ export class View {
             debounceTime: 250,
         };
     }
+
+    private getTeamCombo(): any {
+        return {
+            source: this.workerService.get('teams?hateoas=false'),
+            template: (obj) => `${obj.ID} - ${obj.Name}`,
+            valueProperty: 'ID',
+            displayProperty: 'Name',
+            debounceTime: 250,
+        };
+    }
+    
 }

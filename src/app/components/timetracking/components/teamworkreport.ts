@@ -47,7 +47,7 @@ import {LocalDate, WorkRelation, FlexDetail} from '../../../unientities';
                     </thead>
                     <tbody>
                         <tr *ngFor="let member of report?.Members">                            
-                            <td>{{member.Name}}</td>
+                            <td>{{member.Name}} <span class="subtitle">{{member.WorkRelation?.WorkPercentage}}% - {{member.WorkRelation?.Description}}</span></td>
                             
                             <td [class.bad]="member?.TotalBalance < 0">{{member.TotalBalance | min2hours:'decimal0'}}</td>
                             
