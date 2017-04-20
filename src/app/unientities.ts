@@ -146,12 +146,31 @@ export class WorkItem extends UniEntity {
     public TransferedToPayroll: boolean;
     public UpdatedAt: Date;
     public UpdatedBy: string;
+    public WorkItemGroupID: number;
     public WorkRelationID: number;
     public WorkTypeID: number;
     public WorkRelation: WorkRelation;
     public Worktype: WorkType;
     public CustomerOrder: CustomerOrder;
     public Dimensions: Dimensions;
+    public CustomFields: any;
+}
+
+
+export class WorkItemGroup extends UniEntity {
+    public static RelativeUrl = 'workitemgroups';
+    public static EntityType = 'WorkItemGroup';
+
+    public CreatedAt: Date;
+    public CreatedBy: string;
+    public Deleted: boolean;
+    public ID: number;
+    public StatusCode: number;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public WorkRelationID: number;
+    public WorkRelation: WorkRelation;
+    public Items: Array<WorkRelation>;
     public CustomFields: any;
 }
 
@@ -217,14 +236,17 @@ export class WorkRelation extends UniEntity {
     public IsPrivate: boolean;
     public StartDate: Date;
     public StatusCode: number;
+    public TeamID: number;
     public UpdatedAt: Date;
     public UpdatedBy: string;
     public WorkerID: number;
     public WorkPercentage: number;
     public WorkProfileID: number;
+    public Worker: Worker;
     public WorkProfile: WorkProfile;
     public Employment: Employment;
     public Items: Array<WorkItem>;
+    public Team: Team;
     public CustomFields: any;
 }
 
@@ -1001,14 +1023,14 @@ export class AGACalculation extends UniEntity {
     public StatusCode: number;
     public UpdatedAt: Date;
     public UpdatedBy: string;
+    public freeAmountUsed: Array<FreeAmountUsed>;
     public agaTax: Array<AGATax>;
     public agaDraw: Array<AGADraw>;
-    public payrollRun: PayrollRun;
-    public freeAmountUsed: Array<FreeAmountUsed>;
-    public foreignerWithAmount: Array<ForeignerWithAmount>;
-    public foreignerWithPercent: Array<ForeignerWithPercent>;
     public agaPension: Array<AGAPension>;
+    public foreignerWithPercent: Array<ForeignerWithPercent>;
     public drawForeignerWithPercent: Array<DrawForeignerWithPercent>;
+    public foreignerWithAmount: Array<ForeignerWithAmount>;
+    public payrollRun: PayrollRun;
     public Dimensions: Dimensions;
     public CustomFields: any;
 }
@@ -1903,20 +1925,20 @@ export class CompanySettings extends UniEntity {
     public VatLockedDate: LocalDate;
     public VatReportFormID: number;
     public WebAddress: string;
-    public BaseCurrencyCode: CurrencyCode;
-    public CompanyBankAccount: BankAccount;
-    public DefaultProductInvoiceReminder: Product;
-    public CustomerInvoiceReminderSettings: CustomerInvoiceReminderSettings;
     public DefaultAddress: Address;
     public DefaultPhone: Phone;
     public DefaultEmail: Email;
     public SupplierAccount: Account;
     public CustomerAccount: Account;
     public BankAccounts: Array<BankAccount>;
+    public CompanyBankAccount: BankAccount;
     public TaxBankAccount: BankAccount;
     public SalaryBankAccount: BankAccount;
     public SettlementVatAccount: Account;
     public DefaultSalesAccount: Account;
+    public CustomerInvoiceReminderSettings: CustomerInvoiceReminderSettings;
+    public DefaultProductInvoiceReminder: Product;
+    public BaseCurrencyCode: CurrencyCode;
     public AgioGainAccount: Account;
     public AgioLossAccount: Account;
     public BankChargeAccount: Account;
@@ -2274,8 +2296,10 @@ export class Approval extends UniEntity {
     public TaskID: number;
     public UpdatedAt: Date;
     public UpdatedBy: string;
+    public UserID: number;
     public Thresholds: Array<TransitionThresholdApproval>;
     public Task: Task;
+    public User: User;
     public CustomFields: any;
 }
 
@@ -2394,6 +2418,52 @@ export class UniQueryDefinition extends UniEntity {
     public UserID: number;
     public UniQueryFilters: Array<UniQueryFilter>;
     public UniQueryFields: Array<UniQueryField>;
+    public CustomFields: any;
+}
+
+
+export class Team extends UniEntity {
+    public static RelativeUrl = 'teams';
+    public static EntityType = 'Team';
+
+    public CreatedAt: Date;
+    public CreatedBy: string;
+    public Deleted: boolean;
+    public Depth: number;
+    public DimensionsID: number;
+    public ID: number;
+    public Lft: number;
+    public Name: string;
+    public ParentID: number;
+    public Rght: number;
+    public StatusCode: number;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public Dimensions: Dimensions;
+    public Positions: Array<TeamPosition>;
+    public CustomFields: any;
+}
+
+
+export class TeamPosition extends UniEntity {
+    public static RelativeUrl = 'teampositions';
+    public static EntityType = 'TeamPosition';
+
+    public ApproveOrder: number;
+    public CreatedAt: Date;
+    public CreatedBy: string;
+    public Deleted: boolean;
+    public FromDate: LocalDate;
+    public ID: number;
+    public Position: TeamPositionEnum;
+    public RelatedSharedRoleId: number;
+    public StatusCode: number;
+    public TeamID: number;
+    public ToDate: LocalDate;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public UserID: number;
+    public Team: Team;
     public CustomFields: any;
 }
 
@@ -2789,6 +2859,7 @@ export class Language extends UniEntity {
     public Name: string;
     public UpdatedAt: Date;
     public UpdatedBy: string;
+    public Translations: Array<Translation>;
     public CustomFields: any;
 }
 
@@ -3497,9 +3568,9 @@ export class JournalEntry extends UniEntity {
     public StatusCode: number;
     public UpdatedAt: Date;
     public UpdatedBy: string;
+    public DraftLines: Array<JournalEntryLineDraft>;
     public FinancialYear: FinancialYear;
     public Lines: Array<JournalEntryLine>;
-    public DraftLines: Array<JournalEntryLineDraft>;
     public CustomFields: any;
 }
 
@@ -4809,6 +4880,36 @@ export class CurrencyRateData extends UniEntity {
 }
 
 
+export class TeamReport extends UniEntity {
+    public FromDate: LocalDate;
+    public ToDate: LocalDate;
+    public Team: Team;
+    public Members: Array<MemberDetails>;
+}
+
+
+export class MemberDetails extends UniEntity {
+    public ExpectedMinutes: number;
+    public MinutesWorked: number;
+    public Name: string;
+    public ReportBalance: number;
+    public TotalBalance: number;
+    public WorkRelation: WorkRelation;
+    public TimeOff: Array<FlexDetail>;
+    public MissingDays: Array<FlexDetail>;
+}
+
+
+export class TeamPositionDto extends UniEntity {
+    public Position: TeamPositionEnum;
+    public PositionName: string;
+}
+
+
+export class IEnumerable extends UniEntity {
+}
+
+
 export class EHFActivate extends UniEntity {
     public contactemail: string;
     public contactname: string;
@@ -5006,7 +5107,6 @@ export class AGADetails extends UniEntity {
 
 export class Totals extends UniEntity {
 }
-<<<<<<< HEAD
 
 
 export class RssList extends UniEntity {
@@ -5018,17 +5118,13 @@ export class RssList extends UniEntity {
 
 export class RssItem extends UniEntity {
     public Description: string;
+    public Link: string;
     public PubDate: string;
     public Title: string;
 }
 
 
 export enum WorkBalanceTypeEnum{
-=======
-
-
-export enum WorkBalanceTypeEnum{
->>>>>>> develop
     Hours = 1,
     Flex = 11,
     Overtime = 12,
@@ -5362,6 +5458,16 @@ export enum Operator{
 export enum TaskType{
     Task = 0,
     Approval = 1,
+}
+
+
+export enum TeamPositionEnum{
+    NoPosition = 0,
+    Member = 1,
+    ReadAll = 10,
+    WriteAll = 11,
+    Approve = 12,
+    Manager = 20,
 }
 
 

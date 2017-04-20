@@ -10,9 +10,27 @@
 .taskListEmbedded
     width: 100%
     cursor: pointer
+    table-layout: fixed
+    height: 50px
 
 .taskListEmbedded tr:hover
     background: lighten($uni-color-scale6, 34%)
+
+.taskListEmbedded hr
+    width: 100%
+
+.taskListEmbedded td.infoCol
+    width: 60%
+
+.taskListEmbedded td.buttonCol1
+    width: 20%
+
+.taskListEmbedded td.buttonCol2
+    width: 20%
+    text-align: center
+
+.taskListEmbedded button
+    background-color: $uni-color-c2a
 
 .addTask
     width: 50%
