@@ -140,7 +140,7 @@ uni-dashboard
         position: absolute
         right: 8%
         bottom: 40%
-        font-size: 4.6rem
+        font-size: 3.7rem
         font-weight: 500
 
     p
@@ -236,6 +236,12 @@ uni-dashboard
 
 .dashboard-notification-icon-bell
     background-image: unicon-bell(rgba(255,255,255,.3))
+
+.dashboard-notification-icon-home
+    background-image: unicon-home(rgba(255,255,255,.3))
+
+.dashboard-notification-icon-settings
+    background-image: unicon-settings(rgba(255,255,255,.3))
 
 .uni-widget-notification-tile
     position: relative
@@ -368,3 +374,35 @@ uni-rss
 
     article
         width: 70%
+
+.positive-negative-widget
+    width: 100%
+    height: 100%
+    border-radius: 3px
+    padding-top: 1rem
+    box-sizing: border-box
+    text-align: center
+
+    background-color: #9bc57d
+    &:hover
+        cursor: pointer
+        background-color: #77b655
+
+    &.negative
+        background-color: #d65f63
+        &:hover
+            background-color: #df4d52
+
+    .title
+        display: block
+        margin: 0
+        margin-top: -3%
+        color: #fefefe
+        font-size: 1em
+
+    .value
+        display: block
+        margin: 0
+        margin-top: 6%
+        color: #fefefe
+        font-size: 2em

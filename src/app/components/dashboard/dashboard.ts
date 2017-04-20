@@ -137,12 +137,12 @@ export class Dashboard {
                 y: 4,
                 widgetType: 'notification', // TODO: enum
                 config: {
-                    label: 'epost',
+                    label: 'innboks',
                     description: 'Uleste eposter',
-                    icon: 'globe',
-                    link: '/sales/quotes',
-                    endpoint: '',
-                    amount: 14,
+                    icon: 'home',
+                    link: '/accounting/bills?filter=Inbox',
+                    dataEndpoint: "/api/statistics?skip=0&model=FileTag&select=count(ID) as count&expand=File&filter=FileTag.Status eq 0 and FileTag.TagName eq 'IncomingMail'",
+                    amount: 0,
                     class: 'uni-widget-notification-orange'
                 }
             },
@@ -154,11 +154,11 @@ export class Dashboard {
                 widgetType: 'notification', // TODO: enum
                 config: {
                     label: 'ehf',
-                    description: 'Uleste eposter',
-                    icon: 'bell',
-                    link: '/sales/quotes',
-                    endpoint: '',
-                    amount: 3,
+                    description: 'Innkommende ehf',
+                    icon: 'globe',
+                    link: '/accounting/bills?filter=Inbox',
+                    dataEndpoint: "/api/statistics?skip=0&model=FileTag&select=count(ID) as count&expand=File&filter=FileTag.Status eq 0 and FileTag.TagName eq 'IncomingEHF'",
+                    amount: 0,
                     class: 'uni-widget-notification-orange'
                 }
             },
@@ -169,15 +169,31 @@ export class Dashboard {
                 y: 4,
                 widgetType: 'notification', // TODO: enum
                 config: {
-                    label: 'pdf',
-                    description: 'Uleste eposter',
-                    icon: 'search',
-                    link: '/sales/quotes',
-                    endpoint: '',
-                    amount: 9,
+                    label: 'tildelte',
+                    description: 'Tildelte faktura',
+                    icon: 'paperclip',
+                    link: '/accounting/bills?filter=ForApproval&page=1',
+                    dataEndpoint: "/api/statistics/?model=SupplierInvoice&select=count(ID) as count&filter=( isnull(deleted,0) eq 0 ) and ( statuscode eq 30102 )",
+                    amount: 0,
                     class: 'uni-widget-notification-orange'
                 }
             },
+            //{
+            //    width: 1,
+            //    height: 1,
+            //    x: 11,
+            //    y: 4,
+            //    widgetType: 'notification', // TODO: enum
+            //    config: {
+            //        label: 'prosjekter',
+            //        description: 'Antall aktive prosjekter',
+            //        icon: 'settings',
+            //        link: '/dimensions/project',
+            //        dataEndpoint: "/api/statistics?model=Project&select=count(ID) as count",
+            //        amount: 0,
+            //        class: 'uni-widget-notification-orange'
+            //    }
+            //},
             {
                 width: 1,
                 height: 1,
@@ -185,45 +201,30 @@ export class Dashboard {
                 y: 4,
                 widgetType: 'notification', // TODO: enum
                 config: {
-                    label: 'utlegg',
-                    description: 'Uleste eposter',
-                    icon: 'paperclip',
-                    link: '/sales/quotes',
-                    endpoint: '',
-                    amount: 21,
-                    class: 'uni-widget-notification-orange'
+                    label: 'varsler',
+                    description: 'Uleste varlser',
+                    icon: 'bell',
+                    link: '/',
+                    dataEndpoint: "/api/statistics?model=Notification&select=count(ID) as count&filter=StatusCode eq 900010 and RecipientID eq '<userID>'",
+                    amount: 0,
+                    class: 'uni-widget-notification-lite-blue'
                 }
             },
             {
-                width: 1,
+                width: 2,
                 height: 1,
                 x: 8,
                 y: 5,
-                widgetType: 'notification', // TODO: enum
-                config: {
-                    label: 'varsler',
-                    description: 'Uleste eposter',
-                    icon: 'bell',
-                    link: '/sales/quotes',
-                    endpoint: '',
-                    amount: 6,
-                    class: 'uni-widget-notification-lite-blue'
-                }
+                widgetType: 'flex', // TODO: enum
+                config: {}
             },
             {
-                width: 1,
+                width: 2,
                 height: 1,
-                x: 9,
+                x: 10,
                 y: 5,
-                widgetType: 'notification', // TODO: enum
-                config: {
-                    label: 'utlegg',
-                    description: 'Uleste eposter',
-                    icon: 'paperclip',
-                    link: '/sales/quotes',
-                    amount: 1,
-                    class: 'uni-widget-notification-lite-blue'
-                }
+                widgetType: 'overdue', // TODO: enum
+                config: {}
             },
             {
                 width: 4,
@@ -249,9 +250,7 @@ export class Dashboard {
                             position: 'top'
                         }
                     },
-                    title: ['Driftsresultat'],
-                    drilldown: false,
-                    chartID: 487515
+                    title: ['Driftsresultat']
                 }
             },
 
@@ -269,9 +268,7 @@ export class Dashboard {
             //        multiplyValue: 1,
             //        dataset: [],
             //        options: {},
-            //        title: ['Tilbud', 'Ordre', 'Faktura'],
-            //        drilldown: false,
-            //        chartID: 458751
+            //        title: ['Tilbud', 'Ordre', 'Faktura']
             //    }
             // },
 

@@ -4,8 +4,10 @@ import {UniChartWidget} from './chart';
 import {UniRSSWidget} from './rss';
 import { UniListWidget } from './list';
 import { UniClockWidget } from './clock';
+import { UniCompanyLogoWidget } from './companyLogo';
+import { UniOverdueInvoiceWidget } from './overdueInvoice'
 import { UniKPIWidget } from './kpi';
-import {UniCompanyLogoWidget} from './companyLogo';
+import { UniFlexWidget } from './flex';
 
 export const UNI_WIDGETS = [
     UniShortcutWidget,
@@ -14,8 +16,10 @@ export const UNI_WIDGETS = [
     UniRSSWidget,
     UniListWidget,
     UniClockWidget,
+    UniCompanyLogoWidget,
+    UniOverdueInvoiceWidget,
     UniKPIWidget,
-    UniCompanyLogoWidget
+    UniFlexWidget
 ];
 
 export * from './shortcut';
@@ -26,3 +30,5 @@ export * from './list';
 export * from './clock';
 export * from './kpi';
 export * from './companyLogo';
+export * from './overdueInvoice';
+export * from './flex';
