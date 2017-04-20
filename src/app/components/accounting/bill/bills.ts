@@ -7,7 +7,7 @@ import {URLSearchParams} from '@angular/http';
 import {ActivatedRoute} from '@angular/router';
 import {Router} from '@angular/router';
 import {UniConfirmModal, ConfirmActions} from '../../../../framework/modals/confirm';
-import {StatusCodeSupplierInvoice, CompanySettings} from '../../../unientities'; 
+import {StatusCodeSupplierInvoice, CompanySettings} from '../../../unientities';
 import {safeInt} from '../../timetracking/utils/utils';
 
 import {
@@ -65,7 +65,7 @@ export class BillsView {
     private baseCurrencyCode: string;
 
     public filters: Array<IFilter> = [
-        { label: 'Innboks', name: 'Inbox', route: 'filetags/incomingmail|incomingehf/0', onDataReady: (data) => this.onInboxDataReady(data), isSelected: true, hotCounter: true },
+        { label: 'Innboks', name: 'Inbox', route: 'filetags/IncomingMail|IncomingEHF/0', onDataReady: (data) => this.onInboxDataReady(data), isSelected: true, hotCounter: true },
         { label: 'Kladd', name: 'Draft', filter: 'isnull(statuscode,30101) eq 30101', isSelected: false, passiveCounter: true },
         { label: 'Tildelt', name: 'ForApproval', filter: 'statuscode eq 30102', passiveCounter: true },
         { label: 'Godkjent', name: 'Approved', filter: 'statuscode eq 30103', passiveCounter: true },
@@ -204,7 +204,7 @@ export class BillsView {
             return false;
         }
         this.hasQueriedInboxCount = true;
-        var route = '?model=filetag&select=count(id)&filter=tagname eq \'IncomingMail\' and status eq 0 and deleted eq 0 and file.deleted eq 0&join=filetag.fileid eq file.id';
+        var route = '?model=filetag&select=count(id)&filter=(tagname eq \'IncomingMail\' or tagname eq \'IncomingEHF\') and status eq 0 and deleted eq 0 and file.deleted eq 0&join=filetag.fileid eq file.id';
         this.supplierInvoiceService.getStatQuery(route).subscribe(data => {
             var filter = this.getInboxFilter();
             if (filter && data && data.length > 0) {

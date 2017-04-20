@@ -32,7 +32,10 @@
             (pageChange)="onPageChange($event)">
         </uni-table>
 
-        <div class="right total">
+        <div class="right total" *ngIf="this.currentFilter.name === 'Inbox'">
+            {{currentFilter.label}} ({{currentFilter.count}} stk.)
+        </div>
+        <div class="right total" *ngIf="this.currentFilter.name !== 'Inbox'">
             Sum {{currentFilter.label}} ({{currentFilter.count}} stk.) : {{totals.grandTotal | unicurrency}}
         </div>
 

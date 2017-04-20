@@ -314,10 +314,10 @@ export class BillView {
         return new Promise((resolve, reject) => {
             if (files && files.length > 0) {
                 let firstFile = files[0];
-                if (firstFile.ContentType == "application/xml") {
-                    this.runEHF(firstFile);
-                } else {
+                if (this.isOCR(firstFile)) {
                     this.runOcr(firstFile);
+                } else {
+                    this.runEHF(firstFile);
                 }
             }
         });
@@ -460,9 +460,13 @@ export class BillView {
 
         current.PaymentID = ocr.PaymentID;
         current.InvoiceNumber = ocr.InvoiceNumber;
-        current.InvoiceDate = new LocalDate(moment(ocr.InvoiceDate).toDate());
-        current.PaymentDueDate = new LocalDate(moment(ocr.PaymentDueDate).toDate());
         current.TaxInclusiveAmountCurrency = +safeDec(ocr.TaxInclusiveAmount).toFixed(2);
+        if (ocr.InvoiceDate) {
+            current.InvoiceDate = new LocalDate(moment(ocr.InvoiceDate).toDate());
+        }
+        if (ocr.PaymentDueDate) {
+            current.PaymentDueDate = new LocalDate(moment(ocr.PaymentDueDate).toDate());
+        }
 
         this.current.next(current);
 
@@ -1361,12 +1365,15 @@ export class BillView {
         }
     }
 
-    private tagFileStatus(fileID: number, flagFileStatus: number, tag = 'incomingmail') {
+    private tagFileStatus(fileID: number, flagFileStatus: number) {
+        var file = this.files.find(x => x.ID == fileID);
+        var tag = this.isOCR(file) ? 'IncomingMail' : 'IncomingEHF';
+
         this.supplierInvoiceService.send(
             `filetags/${fileID}`,
             undefined,
             undefined,
-            { FileID: fileID, TagName: 'incomingmail', Status: flagFileStatus }
+            { FileID: fileID, TagName: tag, Status: flagFileStatus }
         ).subscribe(null, err => this.errorService.handle(err));
     }
 
@@ -1387,5 +1394,16 @@ export class BillView {
             isGood ? ToastType.good : ToastType.bad, delay,
             msg
         );
+    }
+
+    private isOCR(file): Boolean {
+        if (file.ContentType) {
+            if (file.ContentType == 'application/xml') { return false; }
+            if (file.ContentType.startsWith('image')) { return true; }
+        }
+        if (file.Extension && file.Extension == '.xml') { return false; }
+        var ocrformats = ["pdf", "png", "jpeg", "jpg", "gif", "tiff"];
+        var ending = file.Name.split('.').pop();
+        return ocrformats.indexOf(ending) >= 0;
     }
 }
