@@ -229,23 +229,6 @@ export class InvoiceDetails {
     private setupContextMenuItems() {
         this.contextMenuItems = [
             {
-                label: 'Skriv ut',
-                action: () => this.saveAndPrint(),
-                disabled: () => !this.invoice.ID
-            },
-            {
-                label: this.companySettings.APActivated && this.companySettings.APGuid ? 'Send EHF' : 'Aktiver og send EHF',
-                action: () => this.sendEHFAction(),
-                disabled: () => {
-                    return this.invoice.StatusCode !== StatusCodeCustomerInvoice.Invoiced;
-                }
-            },
-            {
-                label: 'Send på epost',
-                action: () => this.sendEmailAction(),
-                disabled: () => !this.invoice.ID
-            },
-            {
                 label: 'Send purring',
                 action: () => this.sendReminderAction(),
                 disabled: () => this.invoice.DontSendReminders || this.invoice.StatusCode === StatusCode.Completed
@@ -839,6 +822,7 @@ export class InvoiceDetails {
         const transitions = (this.invoice['_links'] || {}).transitions;
         const id = this.invoice.ID;
         const status = this.invoice.StatusCode;
+        const printStatus = this.invoice.PrintStatus;
 
         if (!this.invoice.InvoiceNumber) {
             this.saveActions.push({
@@ -862,6 +846,27 @@ export class InvoiceDetails {
             action: done => this.transition(done),
             disabled: id > 0 && !transitions['invoice'] && !transitions['credit'],
             main: !id || transitions['invoice'] || transitions['credit']
+        });
+
+        this.saveActions.push({
+            label: 'Skriv ut',
+            action: (done) => this.print(this.invoiceID),
+            disabled: false,
+            main: !printStatus && status === StatusCodeCustomerInvoice.Invoiced
+        });
+
+        this.saveActions.push({
+            label: 'Send på epost',
+            action: () => this.sendEmailAction(),
+            disabled: false,
+            main: printStatus === 200 && status === StatusCodeCustomerInvoice.Invoiced
+        });
+
+        this.saveActions.push({
+            label: 'Send EHF',
+            action: () => this.sendEHFAction(),
+            disabled: false,
+            main: printStatus === 100 && status === StatusCodeCustomerInvoice.Invoiced
         });
 
         this.saveActions.push({

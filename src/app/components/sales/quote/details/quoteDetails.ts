@@ -103,33 +103,6 @@ export class QuoteDetails {
 
     public ngOnInit() {
         this.setSums();
-        this.contextMenuItems = [
-            {
-                label: 'Skriv ut',
-                action: () => this.saveAndPrint(),
-                disabled: () => !this.quote.ID
-            },
-            {
-                label: 'Send på epost',
-                action: () => {
-                    let sendemail = new SendEmail();
-                    sendemail.EntityType = 'CustomerQuote';
-                    sendemail.EntityID = this.quote.ID;
-                    sendemail.CustomerID = this.quote.CustomerID;
-                    sendemail.Subject = 'Tilbud ' + (this.quote.QuoteNumber ? 'nr. ' + this.quote.QuoteNumber : 'kladd');
-                    sendemail.Message = 'Vedlagt finner du Tilbud ' + (this.quote.QuoteNumber ? 'nr. ' + this.quote.QuoteNumber : 'kladd');
-
-                    this.sendEmailModal.openModal(sendemail);
-
-                    if (this.sendEmailModal.Changed.observers.length === 0) {
-                        this.sendEmailModal.Changed.subscribe((email) => {
-                            this.reportService.generateReportSendEmail('Tilbud id', email);
-                        });
-                    }
-                },
-                disabled: () => !this.quote.ID
-            }
-        ];
 
         // Subscribe and debounce recalc on table changes
         this.recalcDebouncer.debounceTime(500).subscribe((quoteitems) => {
@@ -634,6 +607,8 @@ export class QuoteDetails {
 
     private updateSaveActions() {
         const transitions = (this.quote['_links'] || {}).transitions;
+        const printStatus = this.quote.PrintStatus;
+
         this.saveActions = [];
 
         this.saveActions.push({
@@ -641,6 +616,35 @@ export class QuoteDetails {
             action: (done) => this.saveQuoteAsRegistered(done),
             disabled: transitions && !transitions['register'],
             main: !transitions || transitions['register']
+        });
+
+        this.saveActions.push({
+            label: 'Skriv ut',
+            action: (done) => this.saveAndPrint(),
+            main:  this.quote.QuoteNumber > 0 && !printStatus,
+            disabled: false
+        });
+
+        this.saveActions.push({
+            label: 'Send på epost',
+            action: () => {
+                let sendemail = new SendEmail();
+                sendemail.EntityType = 'CustomerQuote';
+                sendemail.EntityID = this.quote.ID;
+                sendemail.CustomerID = this.quote.CustomerID;
+                sendemail.EmailAddress = this.quote.EmailAddress;
+                sendemail.Subject = 'Tilbud ' + (this.quote.QuoteNumber ? 'nr. ' + this.quote.QuoteNumber : 'kladd');
+                sendemail.Message = 'Vedlagt finner du Tilbud ' + (this.quote.QuoteNumber ? 'nr. ' + this.quote.QuoteNumber : 'kladd');
+
+                this.sendEmailModal.openModal(sendemail);
+                if (this.sendEmailModal.Changed.observers.length === 0) {
+                        this.sendEmailModal.Changed.subscribe((email) => {
+                        this.reportService.generateReportSendEmail('Tilbud id', email);
+                    });
+                }
+            },
+            main: printStatus === 200,
+            disabled: false
         });
 
         this.saveActions.push({
@@ -655,7 +659,7 @@ export class QuoteDetails {
                 });
             },
             disabled: !this.quote.ID,
-            main: this.quote.ID > 0 && this.quote.StatusCode !== StatusCodeCustomerQuote.Draft
+            main: this.quote.ID > 0 && this.quote.StatusCode !== StatusCodeCustomerQuote.Draft && printStatus === 100
         });
 
         if (!this.quote.ID) {

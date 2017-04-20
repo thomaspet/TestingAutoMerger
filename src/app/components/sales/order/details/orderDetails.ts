@@ -130,34 +130,6 @@ export class OrderDetails {
 
     public ngOnInit() {
         this.setSums();
-        this.contextMenuItems = [
-            {
-                label: 'Skriv ut',
-                action: () => this.saveAndPrint(),
-                disabled: () => !this.order.ID
-            },
-            {
-                label: 'Send på epost',
-                action: () => {
-                    let sendemail = new SendEmail();
-                    sendemail.EntityType = 'CustomerOrder';
-                    sendemail.EntityID = this.order.ID;
-                    sendemail.CustomerID = this.order.CustomerID;
-                    sendemail.EmailAddress = this.order.EmailAddress;
-                    sendemail.Subject = 'Ordre ' + (this.order.OrderNumber ? 'nr. ' + this.order.OrderNumber : 'kladd');
-                    sendemail.Message = 'Vedlagt finner du Ordre ' + (this.order.OrderNumber ? 'nr. ' + this.order.OrderNumber : 'kladd');
-
-                    this.sendEmailModal.openModal(sendemail);
-
-                    if (this.sendEmailModal.Changed.observers.length === 0) {
-                        this.sendEmailModal.Changed.subscribe((email) => {
-                            this.reportService.generateReportSendEmail('Ordre id', email);
-                        });
-                    }
-                },
-                disabled: () => !this.order.ID
-            }
-        ];
 
         // Subscribe and debounce recalc on table changes
         this.recalcDebouncer.debounceTime(500).subscribe((orderItems) => {
@@ -619,6 +591,8 @@ export class OrderDetails {
 
     private updateSaveActions() {
         const transitions = (this.order['_links'] || {}).transitions;
+        const printStatus = this.order.PrintStatus;
+
         this.saveActions = [];
 
         this.saveActions.push({
@@ -637,22 +611,39 @@ export class OrderDetails {
                 }
             },
             disabled: transitions && !transitions['register'],
-            main: !transitions || transitions['register']
+            main: (!transitions || transitions['register']) && !printStatus
+        });
+
+
+
+        this.saveActions.push({
+            label: 'Skriv ut',
+            action: (done) => this.saveAndPrint(),
+            main:  this.order.OrderNumber > 0 && !printStatus,
+            disabled: false
         });
 
         this.saveActions.push({
-            label: 'Lagre',
-            action: (done) => {
-                this.saveOrder().then(res => {
-                    done('Lagring fullført');
-                    this.orderID = res.ID;
-                    this.refreshOrder();
-                }).catch(error => {
-                    this.handleSaveError(error, done);
-                });
+            label: 'Send på epost',
+            action: () => {
+                let sendemail = new SendEmail();
+                sendemail.EntityType = 'CustomerOrder';
+                sendemail.EntityID = this.order.ID;
+                sendemail.CustomerID = this.order.CustomerID;
+                sendemail.EmailAddress = this.order.EmailAddress;
+                sendemail.Subject = 'Ordre ' + (this.order.OrderNumber ? 'nr. ' + this.order.OrderNumber : 'kladd');
+                sendemail.Message = 'Vedlagt finner du Ordre ' + (this.order.OrderNumber ? 'nr. ' + this.order.OrderNumber : 'kladd');
+
+                this.sendEmailModal.openModal(sendemail);
+                if (this.sendEmailModal.Changed.observers.length === 0) {
+                        this.sendEmailModal.Changed.subscribe((email) => {
+                        this.reportService.generateReportSendEmail('Ordre id', email);
+                    });
+                }
             },
-            main: true,
-            disabled: !this.order.ID
+            main: printStatus === 200,
+            disabled: false
+
         });
 
         if (!this.order.ID) {
@@ -671,6 +662,21 @@ export class OrderDetails {
                 disabled: false
             });
         }
+
+        this.saveActions.push({
+            label: 'Lagre',
+            action: (done) => {
+                this.saveOrder().then(res => {
+                    done('Lagring fullført');
+                    this.orderID = res.ID;
+                    this.refreshOrder();
+                }).catch(error => {
+                    this.handleSaveError(error, done);
+                });
+            },
+            main: this.order.ID && printStatus === 100,
+            disabled: !this.order.ID
+        });
 
         this.saveActions.push({
             label: 'Lagre og overfør til faktura',
