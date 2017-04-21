@@ -2,11 +2,12 @@ import {Injectable, SimpleChange} from '@angular/core';
 import {BizHttp} from '../../../framework/core/http/BizHttp';
 import {BankAccount} from '../../unientities';
 import {UniHttp} from '../../../framework/core/http/http';
+import {ToastService, ToastTime, ToastType} from "../../../framework/uniToast/toastService";
 
 @Injectable()
 export class BankAccountService extends BizHttp<BankAccount> {
 
-    constructor(http: UniHttp) {
+    constructor(http: UniHttp, public toastr: ToastService) {
         super(http);
 
         //TODO: should resolve this from configuration based on type (ISupplierInvoice)? Frank is working on something..
@@ -19,12 +20,23 @@ export class BankAccountService extends BizHttp<BankAccount> {
     }
 
     public deleteRemovedBankAccounts(bc: SimpleChange) {
-        if (bc && Array.isArray(bc.previousValue)) {
-            bc.previousValue.filter(ba => bc.currentValue.indexOf(ba) === -1).map(ba => {
-                if (ba.ID > 0) {
-                    this.Remove(ba.ID, 'BankAccount').subscribe(() => {});
-                }
-            });
-        }
+        return new Promise((resolve,reject) => {
+            if (bc && Array.isArray(bc.previousValue)) {
+                bc.previousValue.filter(ba => bc.currentValue.indexOf(ba) === -1).map(ba => {
+                    if (ba.ID > 0) {
+                        this.Remove(ba.ID, 'BankAccount')
+                            .subscribe(() => {
+                                this.toastr.addToast('Account Removed', ToastType.good, ToastTime.short);
+                                resolve(true);
+                            }, (error) => {
+                                this.toastr.addToast('Error removing account', ToastType.bad, ToastTime.short, error.json().Message);
+                                reject(ba);
+                            });
+                    } else {
+                        resolve(false);
+                    }
+                });
+            }
+        });
     }
 }

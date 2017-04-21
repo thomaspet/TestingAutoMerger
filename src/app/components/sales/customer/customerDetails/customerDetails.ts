@@ -134,8 +134,10 @@ export class CustomerDetails {
     private expandOptions: Array<string> = [
         'Info',
         'Info.Phones',
+        'Info.DefaultPhone',
         'Info.Addresses',
         'Info.Emails',
+        'Info.DefaultEmail',
         'Info.ShippingAddress',
         'Info.InvoiceAddress',
         'Dimensions',
@@ -463,7 +465,8 @@ export class CustomerDetails {
             listProperty: 'Info.Phones',
             displayValue: 'Number',
             linkProperty: 'ID',
-            storeResultInProperty: 'Info.DefaultPhoneID',
+            storeResultInProperty: 'Info.DefaultPhone',
+            storeIdInProperty: 'Info.DefaultPhoneID',
             editor: (value) => new Promise((resolve) => {
                 if (!value) {
                     value = new Phone();
@@ -486,7 +489,8 @@ export class CustomerDetails {
             listProperty: 'Info.Addresses',
             displayValue: 'AddressLine1',
             linkProperty: 'ID',
-            storeResultInProperty: 'Info.InvoiceAddressID',
+            storeResultInProperty: 'Info.InvoiceAddress',
+            storeIdInProperty: 'Info.InvoiceAddressID',
             editor: (value) => new Promise((resolve) => {
                 if (!value) {
                     value = new Address();
@@ -515,7 +519,8 @@ export class CustomerDetails {
             listProperty: 'Info.Emails',
             displayValue: 'EmailAddress',
             linkProperty: 'ID',
-            storeResultInProperty: 'Info.DefaultEmailID',
+            storeResultInProperty: 'Info.DefaultEmail',
+            storeIdInProperty: 'Info.DefaultEmailID',
             editor: (value) => new Promise((resolve) => {
                 if (!value) {
                     value = new Email();
@@ -537,7 +542,8 @@ export class CustomerDetails {
             listProperty: 'Info.Addresses',
             displayValue: 'AddressLine1',
             linkProperty: 'ID',
-            storeResultInProperty: 'Info.ShippingAddressID',
+            storeIdInProperty: 'Info.ShippingAddressID',
+            storeResultInProperty: 'Info.ShippingAddress',
             editor: (value) => new Promise((resolve) => {
                 if (!value) {
                     value = new Address();

@@ -69,6 +69,9 @@ export class BankAccountForm {
     }
 
     public lookupBankAccountNumber() {
+        if (!this.model$.getValue()) {
+            this.model$.next(this.config.model);
+        }
         let model = this.model$.getValue();
         if (model) {
             let accountNumber = model.AccountNumber;
@@ -117,8 +120,14 @@ export class BankAccountForm {
             minLength: 1,
             debounceTime: 200,
             search: (searchValue: string): any => {
+                if (!searchValue) {
+                    searchValue = '';
+                }
                 if (this.accounts) {
-                    return [this.accounts.filter((account) => account.AccountNumber.toString().startsWith(searchValue) || account.AccountName.toLowerCase().indexOf(searchValue.toLowerCase()) >= 0)];
+                    return [this.accounts.filter((account) => {
+                        return (account && account.AccountNumber && account.AccountNumber.toString().startsWith(searchValue))
+                            || (account && account.AccountName && account.AccountName.toLowerCase().indexOf(searchValue.toLowerCase()) >= 0);
+                    })];
                 } else {
                     return this.accounts;
                 }
@@ -231,7 +240,7 @@ export class BankAccountForm {
 @Component({
     selector: 'bankaccount-modal',
     template: `
-        <uni-modal [type]="type" [config]="modalConfig"></uni-modal>
+        <uni-modal [type]="type" [config]="modalConfig" (close)="onClose($event)"></uni-modal>
         <uni-confirm-modal></uni-confirm-modal>
     `
 })
@@ -243,6 +252,7 @@ export class BankAccountModal {
     private modalConfig: any = {};
 
     private type: Type<any> = BankAccountForm;
+    private rejector: any;
 
     constructor(private toastService: ToastService) {
     }
@@ -252,6 +262,12 @@ export class BankAccountModal {
 
         if (this.modalConfig.model.Account) {
             this.modalConfig.model.Account = null;
+        }
+    }
+
+    public onClose(fromClose) {
+        if (fromClose) {
+            this.rejector();
         }
     }
 
@@ -278,6 +294,7 @@ export class BankAccountModal {
 
     public confirm(bankaccount: BankAccount, accountVisible: boolean = true): Promise<any> {
         return new Promise((resolve, reject) => {
+            this.rejector = reject;
             this.modalConfig.model = bankaccount;
             this.modalConfig.accountVisible = accountVisible;
             this.modalConfig.validaccountnumber = !!bankaccount.AccountNumber;
@@ -311,7 +328,13 @@ export class BankAccountModal {
                             if (response === ConfirmActions.ACCEPT) {
                                 resolve({status: ConfirmActions.ACCEPT, model: this.modalConfig.model});
                                 this.close();
+                            } else {
+                                reject();
+                                this.close();
                             }
+                        }).catch(() => {
+                            reject();
+                            this.close();
                         });
                     } else {
                         resolve({status: ConfirmActions.ACCEPT, model: this.modalConfig.model});
@@ -333,7 +356,7 @@ export class BankAccountModal {
                 if (!bankaccount.IBAN && bankaccount.AccountNumber && bankaccount.AccountNumber.length === 11) {
                     form.lookupBankAccountNumber();
                 }
-            });
+            }).catch(value => console.log(value));
         });
     }
 }

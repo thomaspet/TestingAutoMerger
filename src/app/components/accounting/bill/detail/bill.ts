@@ -249,7 +249,8 @@ export class BillView {
             listProperty: 'Supplier.Info.BankAccounts',
             displayValue: 'AccountNumber',
             linkProperty: 'ID',
-            storeResultInProperty: 'BankAccountID',
+            storeResultInProperty: 'BankAccount',
+            storeIdInProperty: 'BankAccountID',
             editor: (bankaccount: BankAccount) => new Promise((resolve, reject) => {
                 let current: SupplierInvoice = this.current.getValue();
 

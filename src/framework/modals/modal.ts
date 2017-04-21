@@ -11,7 +11,7 @@ import {ComponentCreator} from '../core/dynamic/UniComponentCreator';
     template: `
         <dialog class='uniModal' [attr.open]='isOpen'>
             <article class="uniModal_bounds">
-                <button (click)='close()' class='closeBtn'></button>
+                <button (click)='close(true)' class='closeBtn'></button>
                 <div #modalContainer></div>
             </article>
         </dialog>
@@ -35,7 +35,7 @@ export class UniModal implements AfterViewInit {
     constructor(public creator: ComponentCreator<any>, private elementRef: ElementRef) {
         document.addEventListener('keyup', (e: any) => {
             if (e.keyCode === 27) {
-                this.close();
+                this.close(true);
             }
         });
 
@@ -76,10 +76,10 @@ export class UniModal implements AfterViewInit {
         });
     }
 
-    public close() {
+    public close(fromClose = false) {
         if (!this.isOpen) { return; }
         this.isOpen = false;
-        this.closeEvent.emit();
+        this.closeEvent.emit(fromClose);
         this.container.clear();
         this.componentIsResolved = false;
     }

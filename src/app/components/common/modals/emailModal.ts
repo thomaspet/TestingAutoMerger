@@ -12,7 +12,7 @@ import {BehaviorSubject} from 'rxjs/BehaviorSubject';
     template: `
         <article class="modal-content email-modal">
            <h1 *ngIf="config.title">{{config.title}}</h1>
-           <uni-form [config]="formConfig$" [fields]="fields$" [model]="model$"></uni-form>
+           <uni-form [config]="formConfig$" [fields]="fields$" [model]="model$" (changeEvent)="onChange($event)"></uni-form>
            <footer>
                 <button *ngFor="let action of config.actions; let i=index" (click)="action.method()" [ngClass]="action.class" type="button">
                     {{action.text}}
@@ -27,6 +27,10 @@ export class EmailForm {
     private model$: BehaviorSubject<Email> = new BehaviorSubject(null);
     private fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
     private formConfig$: BehaviorSubject<any> = new BehaviorSubject({});
+
+    private onChange(event) {
+        console.log(event);
+    }
 
     public ngOnInit() {
         this.model$.next(this.config.model);
@@ -48,7 +52,7 @@ export class EmailForm {
                 Property: 'EmailAddress',
                 Placement: 1,
                 Hidden: false,
-                FieldType: FieldType.EMAIL,
+                FieldType: FieldType.TEXT,
                 ReadOnly: false,
                 LookupField: false,
                 Label: 'Epostadresse',

@@ -195,7 +195,8 @@ export class TofDeliveryForm {
             listProperty: 'Customer.Info.Addresses',
             displayValue: 'AddressLine1',
             linkProperty: 'ID',
-            storeResultInProperty: '_shippingAddressID',
+            storeResultInProperty: '_shippingAddress',
+            storeIdInProperty: '_shippingAddressID',
             editor: (value) => new Promise((resolve) => {
                 if (!value) {
                     value = new Address();

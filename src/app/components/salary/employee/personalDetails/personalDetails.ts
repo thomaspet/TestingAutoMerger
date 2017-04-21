@@ -35,9 +35,13 @@ export class PersonalDetails extends UniView {
     public busy: boolean;
     public expands: any = [
         'BusinessRelationInfo.Addresses',
+        'BusinessRelationInfo.InvoiceAddress',
         'BusinessRelationInfo.Emails',
+        'BusinessRelationInfo.DefaultEmail',
         'BusinessRelationInfo.Phones',
+        'BusinessRelationInfo.DefaultPhone',
         'BusinessRelationInfo.BankAccounts',
+        'BusinessRelationInfo.DefaultBankAccount',
     ];
     public config$: BehaviorSubject<any> = new BehaviorSubject({});
     public fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
@@ -228,9 +232,10 @@ export class PersonalDetails extends UniView {
             listProperty: 'BusinessRelationInfo.Phones',
             displayValue: 'Number',
             linkProperty: 'ID',
-            storeResultInProperty: 'BusinessRelationInfo.DefaultPhoneID',
+            storeResultInProperty: 'BusinessRelationInfo.DefaultPhone',
+            storeIdInProperty: 'BusinessRelationInfo.DefaultPhoneID',
             editor: (value) => new Promise((resolve) => {
-                if (!value) {
+                if (!value || !value.ID) {
                     value = new Phone();
                     value.ID = 0;
                 }
@@ -252,16 +257,16 @@ export class PersonalDetails extends UniView {
         };
 
         let multiValueEmail: UniFieldLayout = this.findByProperty(fields, 'BusinessRelationInfo.DefaultEmail');
-
         let emailModalSubscription;
         multiValueEmail.Options = {
             entity: Email,
             listProperty: 'BusinessRelationInfo.Emails',
             displayValue: 'EmailAddress',
             linkProperty: 'ID',
-            storeResultInProperty: 'BusinessRelationInfo.DefaultEmailID',
+            storeResultInProperty: 'BusinessRelationInfo.DefaultEmail',
+            storeIdInProperty: 'BusinessRelationInfo.DefaultEmailID',
             editor: (value) => new Promise((resolve) => {
-                if (!value) {
+                if (!value || !value.ID) {
                     value = new Email();
                     value.ID = 0;
                 }
@@ -284,9 +289,10 @@ export class PersonalDetails extends UniView {
             listProperty: 'BusinessRelationInfo.Addresses',
             displayValue: 'AddressLine1',
             linkProperty: 'ID',
-            storeResultInProperty: 'BusinessRelationInfo.InvoiceAddressID',
+            storeResultInProperty: 'BusinessRelationInfo.InvoiceAddress',
+            storeIdInProperty: 'BusinessRelationInfo.InvoiceAddressID',
             editor: (value) => new Promise((resolve) => {
-                if (!value) {
+                if (!value || !value.ID) {
                     value = new Address();
                     value.ID = 0;
                 }
@@ -315,9 +321,10 @@ export class PersonalDetails extends UniView {
             listProperty: 'BusinessRelationInfo.BankAccounts',
             displayValue: 'AccountNumber',
             linkProperty: 'ID',
-            storeResultInProperty: 'BusinessRelationInfo.DefaultBankAccountID',
+            storeResultInProperty: 'BusinessRelationInfo.DefaultBankAccount',
+            storeIdInProperty: 'BusinessRelationInfo.DefaultBankAccountID',
             editor: (bankaccount: BankAccount) => new Promise((resolve) => {
-                if (!bankaccount) {
+                if (!bankaccount || !bankaccount.ID) {
                     bankaccount = new BankAccount();
                     bankaccount['_createguid'] = this.bankaccountService.getNewGuid();
                     bankaccount.BankAccountType = 'employee';

@@ -77,6 +77,8 @@ export class SupplierDetails implements OnInit {
         'Info.Phones',
         'Info.Addresses',
         'Info.Emails',
+        'Info.DefaultPhone',
+        'Info.DefaultEmail',
         'Info.ShippingAddress',
         'Info.InvoiceAddress',
         'Dimensions',
@@ -380,39 +382,58 @@ export class SupplierDetails implements OnInit {
         };
 
         // MultiValue
-        let phones: UniFieldLayout = fields.find(x => x.Property === 'Info.DefaultPhone');
+        let phones: UniFieldLayout = fields.find(x => x.Property === 'Info.Phones');
 
         phones.Options = {
             entity: Phone,
             listProperty: 'Info.Phones',
             displayValue: 'Number',
             linkProperty: 'ID',
-            storeResultInProperty: 'Info.DefaultPhoneID',
-            editor: (value) => new Promise((resolve) => {
-                if (!value) {
+            storeResultInProperty: 'Info.DefaultPhone',
+            storeIdInProperty: 'Info.DefaultPhoneID',
+            editor: (value) => new Promise((resolve, reject) => {
+                if ((value && !value.ID) || !value) {
                     value = new Phone();
                     value.ID = 0;
                 }
 
+
                 this.phoneModal.openModal(value);
 
+                const modalSubscription = this.phoneModal.modal.closeEvent.subscribe(fromClose => {
+                    if (fromClose) {
+                        reject();
+                    }
+                    modalSubscription.unsubscribe();
+                });
                 this.phoneChanged = this.phoneModal.Changed.subscribe(modalval => {
                     this.phoneChanged.unsubscribe();
                     resolve(modalval);
+                    if (modalSubscription) {
+                        modalSubscription.unsubscribe();
+                    }
+                });
+                const canceled = this.phoneModal.Canceled.subscribe(modalval => {
+                    canceled.unsubscribe();
+                    reject(modalval);
+                    if (modalSubscription) {
+                        modalSubscription.unsubscribe();
+                    }
                 });
             })
         };
 
-        let invoiceaddress: UniFieldLayout = fields.find(x => x.Property === 'Info.InvoiceAddress');
+        let invoiceaddress: UniFieldLayout = fields.find(x => x.Label === 'Fakturaadresse');
 
         invoiceaddress.Options = {
             entity: Address,
             listProperty: 'Info.Addresses',
             displayValue: 'AddressLine1',
             linkProperty: 'ID',
-            storeResultInProperty: 'Info.InvoiceAddressID',
-            editor: (value) => new Promise((resolve) => {
-                if (!value) {
+            storeResultInProperty: 'Info.InvoiceAddress',
+            storeIdInProperty: 'Info.InvoiceAddressID',
+            editor: (value) => new Promise((resolve, reject) => {
+                if (!value || !value.ID) {
                     value = new Address();
                     value.ID = 0;
                 }
@@ -422,48 +443,83 @@ export class SupplierDetails implements OnInit {
                 if (this.addressChanged) {
                     this.addressChanged.unsubscribe();
                 }
-
+                const modalSubscription = this.addressModal.modal.closeEvent.subscribe(fromClose => {
+                    if (fromClose) {
+                        reject();
+                    }
+                    modalSubscription.unsubscribe();
+                });
                 this.addressChanged = this.addressModal.Changed.subscribe(modalval => {
                     resolve(modalval);
+                    this.addressChanged.unsubscribe();
+                    if (modalSubscription) {
+                        modalSubscription.unsubscribe();
+                    }
                 });
+                const canceled = this.addressModal.Canceled.subscribe(modalval => {
+                    canceled.unsubscribe();
+                    reject(modalval);
+                    if (modalSubscription) {
+                        modalSubscription.unsubscribe();
+                    }
+                });
+
             }),
             display: (address: Address) => {
                 return this.addressService.displayAddress(address);
             }
         };
 
-        let emails: UniFieldLayout = fields.find(x => x.Property === 'Info.DefaultEmail');
+        let emails: UniFieldLayout = fields.find(x => x.Property === 'Info.Emails');
 
         emails.Options = {
             entity: Email,
             listProperty: 'Info.Emails',
             displayValue: 'EmailAddress',
             linkProperty: 'ID',
-            storeResultInProperty: 'Info.DefaultEmailID',
-            editor: (value) => new Promise((resolve) => {
-                if (!value) {
+            storeResultInProperty: 'Info.DefaultEmail',
+            storeIdInProperty: 'Info.DefaultEmailID',
+            editor: (value) => new Promise((resolve, reject) => {
+                if ((value && !value.ID) || !value) {
                     value = new Email();
                     value.ID = 0;
                 }
 
                 this.emailModal.openModal(value);
+                const modalSubscription = this.emailModal.modal.closeEvent.subscribe(fromClose => {
+                    if (fromClose) {
+                        reject();
+                    }
+                    modalSubscription.unsubscribe();
 
+                });
                 this.emailChanged = this.emailModal.Changed.subscribe(modalval => {
                     this.emailChanged.unsubscribe();
                     resolve(modalval);
+                    if (modalSubscription) {
+                        modalSubscription.unsubscribe();
+                    }
+                });
+                const canceled = this.emailModal.Canceled.subscribe(modalval => {
+                    canceled.unsubscribe();
+                    reject(modalval);
+                    if (modalSubscription) {
+                        modalSubscription.unsubscribe();
+                    }
                 });
             })
         };
 
-        let shippingaddress: UniFieldLayout = fields.find(x => x.Property === 'Info.ShippingAddress');
+        let shippingaddress: UniFieldLayout = fields.find(x => x.Label === 'Leveringsadresse');
         shippingaddress.Options = {
             entity: Address,
             listProperty: 'Info.Addresses',
             displayValue: 'AddressLine1',
             linkProperty: 'ID',
-            storeResultInProperty: 'Info.ShippingAddressID',
-            editor: (value) => new Promise((resolve) => {
-                if (!value) {
+            storeResultInProperty: 'Info.ShippingAddress',
+            storeIdInProperty: 'Info.ShippingAddressID',
+            editor: (value) => new Promise((resolve, reject) => {
+                if ((value && !value.ID) || !value) {
                     value = new Address();
                     value.ID = 0;
                 }
@@ -473,25 +529,43 @@ export class SupplierDetails implements OnInit {
                 if (this.addressChanged) {
                     this.addressChanged.unsubscribe();
                 }
-
-                this.addressChanged = this.addressModal.Changed.subscribe(modalval => {
-                    resolve(modalval);
+                const modalSubscription = this.addressModal.modal.closeEvent.subscribe(fromClose => {
+                    if (fromClose) {
+                        reject();
+                    }
+                    modalSubscription.unsubscribe();
                 });
+                this.addressChanged = this.addressModal.Changed.subscribe(modalval => {
+                    this.addressChanged.unsubscribe();
+                    resolve(modalval);
+                    if (modalSubscription) {
+                        modalSubscription.unsubscribe();
+                    }
+                });
+                const canceled = this.addressModal.Canceled.subscribe(modalval => {
+                    canceled.unsubscribe();
+                    reject(modalval);
+                    if (modalSubscription) {
+                        modalSubscription.unsubscribe();
+                    }
+                });
+
             }),
             display: (address: Address) => {
                 return this.addressService.displayAddress(address);
             }
         };
 
-        let defaultBankAccount: UniFieldLayout = fields.find(x => x.Property === 'Info.DefaultBankAccount');
+        let defaultBankAccount: UniFieldLayout = fields.find(x => x.Property === 'Info.BankAccounts');
         defaultBankAccount.Options = {
             entity: BankAccount,
             listProperty: 'Info.BankAccounts',
             displayValue: 'AccountNumber',
             linkProperty: 'ID',
-            storeResultInProperty: 'Info.DefaultBankAccountID',
-            editor: (bankaccount: BankAccount) => new Promise((resolve) => {
-                if (!bankaccount) {
+            storeResultInProperty: 'Info.DefaultBankAccount',
+            storeIdInProperty: 'Info.DefaultBankAccountID',
+            editor: (bankaccount: BankAccount) => new Promise((resolve, reject) => {
+                if ((bankaccount && !bankaccount.ID) || !bankaccount) {
                     bankaccount = new BankAccount();
                     bankaccount['_createguid'] = this.bankaccountService.getNewGuid();
                     bankaccount.BankAccountType = 'supplier';
@@ -501,7 +575,11 @@ export class SupplierDetails implements OnInit {
                 this.bankAccountModal.confirm(bankaccount, false).then((res) => {
                     if (res.status === ConfirmActions.ACCEPT) {
                         resolve(res.model);
+                    } else {
+                        reject(null);
                     }
+                }).catch(() => {
+                    reject();
                 });
             })
         };
@@ -815,7 +893,7 @@ export class SupplierDetails implements OnInit {
                 {
                     ComponentLayoutID: 3,
                     EntityType: 'Supplier',
-                    Property: 'Info.InvoiceAddress',
+                    Property: 'Info.Addresses',
                     Placement: 1,
                     Hidden: false,
                     FieldType: FieldType.MULTIVALUE,
@@ -843,7 +921,7 @@ export class SupplierDetails implements OnInit {
                 {
                     ComponentLayoutID: 3,
                     EntityType: 'Supplier',
-                    Property: 'Info.ShippingAddress',
+                    Property: 'Info.Addresses',
                     Placement: 1,
                     Hidden: false,
                     FieldType: FieldType.MULTIVALUE,
@@ -871,7 +949,7 @@ export class SupplierDetails implements OnInit {
                 {
                     ComponentLayoutID: 3,
                     EntityType: 'Supplier',
-                    Property: 'Info.DefaultEmail',
+                    Property: 'Info.Emails',
                     Placement: 1,
                     Hidden: false,
                     FieldType: FieldType.MULTIVALUE,
@@ -899,7 +977,7 @@ export class SupplierDetails implements OnInit {
                 {
                     ComponentLayoutID: 3,
                     EntityType: 'Supplier',
-                    Property: 'Info.DefaultPhone',
+                    Property: 'Info.Phones',
                     Placement: 1,
                     Hidden: false,
                     FieldType: FieldType.MULTIVALUE,
@@ -970,7 +1048,7 @@ export class SupplierDetails implements OnInit {
                 {
                     ComponentLayoutID: 3,
                     EntityType: 'Supplier',
-                    Property: 'Info.DefaultBankAccount',
+                    Property: 'Info.BankAccounts',
                     Placement: 4,
                     Hidden: false,
                     FieldType: FieldType.MULTIVALUE,
