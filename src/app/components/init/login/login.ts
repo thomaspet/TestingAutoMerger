@@ -1,10 +1,11 @@
-import {Component, ViewChild} from '@angular/core';
+import {Component, ViewChild, ElementRef} from '@angular/core';
 import {FormControl, Validators} from '@angular/forms';
 import {Router} from '@angular/router';
 import {AuthService} from '../../../../framework/core/authService';
 import {UniHttp} from '../../../../framework/core/http/http';
 import {UniSelect, ISelectConfig} from 'uniform-ng2/main';
 import {Logger} from '../../../../framework/core/logger';
+import * as $ from 'jquery';
 
 @Component({
     selector: 'uni-login',
@@ -13,6 +14,12 @@ import {Logger} from '../../../../framework/core/logger';
 export class Login {
     @ViewChild(UniSelect)
     private select: UniSelect;
+
+    @ViewChild('loginForm')
+    private loginForm: ElementRef;
+
+    @ViewChild('companySelector')
+    private companySelector: ElementRef;
 
     private usernameControl: FormControl = new FormControl('', Validators.required);
     private passwordControl: FormControl = new FormControl('', Validators.required);
@@ -73,6 +80,10 @@ export class Login {
             .send()
             .subscribe(response => {
                 this.working = false;
+
+                $(this.loginForm.nativeElement).fadeOut(300, () => {
+                    $(this.companySelector.nativeElement).fadeIn(300);
+                });
 
                 if (response.status !== 200) {
                     this.loginSuccess = false;

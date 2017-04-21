@@ -1,5 +1,5 @@
 <article class="authentication-component">
-	<section [hidden]="loginSuccess">
+    <section #loginForm>
         <p>Ny konto? <a [routerLink]="['../signup']">Registrer deg</a><br></p>
 
         <form (submit)="login($event)">
@@ -20,13 +20,15 @@
         </form>
         <p><a [routerLink]="['../reset-password']">Glemt passord?</a></p>
     </section>
-    <p class='validation info' *ngIf="infoMessage.length">{{infoMessage}}</p>
 
-    <label *ngIf="loginSuccess" class="company-select">
-        Velg selskap
-        <uni-select [config]="selectConfig"
-                    [items]="availableCompanies"
-                    (valueChange)="onCompanySelected($event)">
-        </uni-select>
-    </label>
+    <section #companySelector style="display: none">
+        <p class='validation info' *ngIf="infoMessage.length">{{infoMessage}}</p>
+        <label *ngIf="loginSuccess" class="company-select">
+            Velg selskap
+            <uni-select [config]="selectConfig"
+                        [items]="availableCompanies"
+                        (valueChange)="onCompanySelected($event)">
+            </uni-select>
+        </label>
+    </section>
 </article>
