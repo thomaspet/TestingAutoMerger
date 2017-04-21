@@ -2,6 +2,8 @@ import {Component} from '@angular/core';
 
 @Component({
     selector: 'uni-init',
-    template: '<router-outlet></router-outlet>'
+    templateUrl: './init.html'
 })
-export class UniInit {}
+export class UniInit {
+
+}

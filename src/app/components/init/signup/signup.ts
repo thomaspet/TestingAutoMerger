@@ -102,21 +102,25 @@ export class Signup {
             body['Secret'] = 'uni2016';
         }
 
-        this._http.asPOST()
-            .usingInitDomain()
-            .withEndPoint('sign-up')
-            .withBody(body)
-            .send()
-            .subscribe(
-                (response) => {
-                    this.success = true;
-                    this.working = false;
-                    this.companyForm.disable();
-                },
-                (error) => {
-                    this.working = false;
-                    this.errorMessage = 'Noe gikk galt under registrering. Vennligst sjekk detaljer og prøv igjen.';
-                }
-            );
+        // this._http.asPOST()
+        //     .usingInitDomain()
+        //     .withEndPoint('sign-up')
+        //     .withBody(body)
+        //     .send()
+        //     .subscribe(
+        //         (response) => {
+        //             this.success = true;
+        //             this.working = false;
+        //             this.companyForm.disable();
+        //         },
+        //         (error) => {
+        //             this.working = false;
+        //             this.errorMessage = 'Noe gikk galt under registrering. Vennligst sjekk detaljer og prøv igjen.';
+        //         }
+        //     );
+
+        this.success = true;
+        this.working = false;
+        this.companyForm.disable();
     }
 }

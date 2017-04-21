@@ -12,15 +12,20 @@ import {Logger} from '../../../../framework/core/logger';
 
 export class ConfirmInvite {
     private confirmInviteForm: FormGroup;
-    private passwordsMatching: boolean = false;
     private errorMessage: string = '';
     private validInvite: boolean = false;
     private busy: boolean = false;
 
     private verificationCode: string;
+    private invalidUsernameMsg: string;
+    private passwordMismatch: boolean;
 
-
-    constructor(private uniHttp: UniHttp, private route: ActivatedRoute, private router: Router, private logger: Logger) {
+    constructor(
+        private uniHttp: UniHttp,
+        private route: ActivatedRoute,
+        private router: Router,
+        private logger: Logger
+    ) {
         this.route.params.subscribe(params => {
             this.verificationCode = params['guid'];
 
@@ -31,20 +36,23 @@ export class ConfirmInvite {
                 Validators.maxLength(16)
             ]);
 
+            let userNameValidators = Validators.compose([
+                (control) => this.usernameValidator(control),
+                Validators.required
+            ]);
+
             this.confirmInviteForm = new FormGroup({
                 displayName: new FormControl('', Validators.required),
-                username: new FormControl('', Validators.required),
+                username: new FormControl('', userNameValidators),
                 password: new FormControl('', passwordValidators),
                 confirmPassword: new FormControl('', passwordValidators)
             });
 
-            this.confirmInviteForm.controls['password'].valueChanges.subscribe((value) => {
-                this.passwordsMatching = (value === this.confirmInviteForm.controls['confirmPassword'].value);
-            });
+            this.confirmInviteForm.controls['password'].valueChanges
+                .subscribe(change => this.checkForPasswordMismatch());
 
-            this.confirmInviteForm.controls['confirmPassword'].valueChanges.subscribe((value) => {
-                this.passwordsMatching = (value === this.confirmInviteForm.controls['password'].value);
-            });
+            this.confirmInviteForm.controls['confirmPassword'].valueChanges
+                .subscribe(change => this.checkForPasswordMismatch());
 
             if (this.verificationCode) {
                 // Gets the full user-verification object to see if it is valid
@@ -69,7 +77,15 @@ export class ConfirmInvite {
         });
     }
 
-    private submitUser() {
+    private checkForPasswordMismatch() {
+        const p1 = this.confirmInviteForm.controls['password'];
+        const p2 = this.confirmInviteForm.controls['confirmPassword'];
+
+        // Dont validate password match before both are valid to avoid spamming the user
+        this.passwordMismatch = p1.valid && p2.valid && p1.value !== p2.value;
+    }
+
+    public submitUser() {
         const displayName = this.confirmInviteForm.controls['displayName'].value;
         const username = this.confirmInviteForm.controls['username'].value;
         const password = this.confirmInviteForm.controls['password'].value;
@@ -94,7 +110,7 @@ export class ConfirmInvite {
                         let messages = JSON.parse(error._body).Messages;
                         if (messages.length) {
                             messages.forEach(element => {
-                                if ( element.PropertyName === 'UserName' 
+                                if ( element.PropertyName === 'UserName'
                                 && (element.Message === 'Username must be unique')){
                                     this.errorMessage = 'Brukernavnet er ikke unikt. Vennligst velg et annet';
                                 }
@@ -106,5 +122,16 @@ export class ConfirmInvite {
                     this.logger.exception(error);
                 }
             );
+    }
+
+    private usernameValidator(control) {
+        const invalid = /[^a-zæøåA-ZÆØÅ]/g.test(control.value);
+        if (invalid) {
+            this.invalidUsernameMsg = 'Brukernavn kan kun inneholde bokstaver';
+            return {'usernameValidator': true};
+        } else {
+            this.invalidUsernameMsg = '';
+            return null;
+        }
     }
 }

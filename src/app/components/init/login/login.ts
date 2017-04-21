@@ -56,6 +56,7 @@ export class Login {
                 this.working = false;
                 this.usernameControl.enable();
                 this.passwordControl.enable();
+
                 this.errorMessage = 'Noe gikk galt. Vennligst sjekk brukernavn og passord, og prøv igjen.';
                 this.logger.exception(error);
             }
@@ -89,11 +90,11 @@ export class Login {
                             this.select.focus();
                         });
                     } else {
-                        this.infoMessage = 
+                        this.infoMessage =
                         'Du har ikke tilgang til noen selskaper. Kontakt din administrator.';
                     }
                 } catch (exception) {
-                    this.infoMessage = 
+                    this.infoMessage =
                     'Du har ikke tilgang til noen selskaper. Kontakt din administrator.';
                 }
             });

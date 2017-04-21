@@ -1,37 +1,35 @@
 ﻿<article class="authentication-component">
-    <img src="../../../../assets/uni-logo.png" alt="Uni Economy logo">
+    <small *ngIf="errorMessage.length" class="validation error">{{errorMessage}}</small>
+    <small class="validation bad" *ngIf="invalidUsernameMsg?.length">{{invalidUsernameMsg}}</small>
+    <small class="validation bad" *ngIf="passwordMismatch">Passord må være like</small>
 
-    <form [formGroup]="confirmInviteForm" (ngSubmit)="submitUser()" #f="ngForm">
-        <small *ngIf="errorMessage.length" class="validation error">{{errorMessage}}</small>
-
-        <label>
-            Navn
+    <form *ngIf="validInvite" [formGroup]="confirmInviteForm" (ngSubmit)="submitUser()" #f="ngForm">
+        <label>Navn
             <input type="text" formControlName="displayName" [disabled]="!validInvite">
         </label>
 
-        <label>
-            Brukernavn
+        <label>Brukernavn
             <input type="text" formControlName="username" [disabled]="!validInvite">
         </label>
 
-        <label>
-            Passord
+        <label>Passord
             <input type="password" formControlName="password" [disabled]="!validInvite">
         </label>
 
-        <label>
-            Bekreft passord
+        <label>Bekreft passord
             <input type="password" formControlName="confirmPassword" [disabled]="!validInvite">
         </label>
+
         <button type="submit" class="c2a"
                 [attr.aria-busy]="busy"
-                [disabled]="!f.form.valid || !passwordsMatching || busy || !validInvite">
+                [disabled]="!f.form.valid || passwordMismatch || busy || !validInvite">
             Opprett bruker
         </button>
 
-        <p *ngIf="!f.form.valid">Passord må bestå av mellom 8 og 16 tegn.</p>
-        <p *ngIf="!f.form.valid">Passord må inneholde 3 av 4 av: <br>
-            Stor bokstav, liten bokstav, nummer, symbol.</p>
-        <p *ngIf="f.form.valid && !passwordsMatching">Passord må være like</p>
+        <p>Passord må bestå av mellom 8 og 16 tegn</p>
+        <p>
+            Passord må inneholde 3 av 4 av<br>
+            <small>stor bokstav, liten bokstav, nummer, symbol</small>
+        </p>
     </form>
 </article>
