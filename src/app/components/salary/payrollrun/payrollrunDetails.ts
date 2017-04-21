@@ -3,7 +3,7 @@ import { ActivatedRoute, Router, NavigationEnd } from '@angular/router';
 import {
     PayrollRun, SalaryTransaction, Employee, SalaryTransactionSupplement, WageType, Account, EmployeeTaxCard,
     CompanySalary, CompanySalaryPaymentInterval, Project, Department, TaxDrawFactor, FinancialYear, EmployeeCategory,
-    JournalEntry
+    JournalEntry, LocalDate
 } from '../../../unientities';
 import { Observable } from 'rxjs/Observable';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
@@ -723,24 +723,24 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
     private suggestFromToDates(latest: PayrollRun, companysalary: CompanySalary, payrollRun: PayrollRun) {
         if (!latest) {
             // First payrollrun for the year
-            let todate: Date;
-            let fromdate = new Date(this.activeYear, 0, 1);
-            payrollRun.FromDate = fromdate;
+            let todate: LocalDate;
+            let fromdate: LocalDate = new LocalDate(new Date(this.activeYear, 0, 1));
+            payrollRun.FromDate = fromdate.toDate();
 
             switch (companysalary.PaymentInterval) {
                 case CompanySalaryPaymentInterval.Pr14Days:
-                    todate = new Date(this.activeYear, 0, 14);
-                    payrollRun.ToDate = todate;
+                    todate = new LocalDate(new Date(this.activeYear, 0, 14));
+                    payrollRun.ToDate = todate.toDate();
                     break;
 
                 case CompanySalaryPaymentInterval.Weekly:
-                    todate = new Date(this.activeYear, 0, 7);
-                    payrollRun.ToDate = todate;
+                    todate = new LocalDate(new Date(this.activeYear, 0, 7));
+                    payrollRun.ToDate = todate.toDate();
                     break;
 
                 default: // Monthly
-                    todate = new Date(this.activeYear, 0, 31);
-                    payrollRun.ToDate = todate;
+                    todate = new LocalDate(new Date(this.activeYear, 0, 31));
+                    payrollRun.ToDate = todate.toDate();
                     break;
             }
         } else {
@@ -748,22 +748,22 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
             let lastFromdate = lastTodate.clone();
             lastFromdate.add(1, 'days');
             
-            payrollRun.FromDate = lastFromdate.toDate();
+            payrollRun.FromDate = new LocalDate(lastFromdate.toDate()).toDate();
 
             switch (companysalary.PaymentInterval) {
                 case CompanySalaryPaymentInterval.Pr14Days:
                     lastTodate.add(14, 'days');
-                    payrollRun.ToDate = lastTodate.toDate();
+                    payrollRun.ToDate = new LocalDate(lastTodate.toLocaleString()).toDate();
                     break;
 
                 case CompanySalaryPaymentInterval.Weekly:
                     lastTodate.add(7, 'days');
-                    payrollRun.ToDate = lastTodate.toDate();
+                    payrollRun.ToDate = new LocalDate(lastTodate.toLocaleString()).toDate();
                     break;
 
                 default:
                     lastTodate = lastFromdate.clone().endOf('month');
-                    payrollRun.ToDate = lastTodate.toDate();
+                    payrollRun.ToDate = new LocalDate(lastTodate.toLocaleString()).toDate();
                     break;
             }
         }
