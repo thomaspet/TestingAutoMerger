@@ -650,6 +650,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
 
         let amountCol = new UniTableColumn('Amount', `Beløp (${this.companySettings.BaseCurrencyCode.Code})`, UniTableColumnType.Money)
             .setSkipOnEnterKeyNavigation(true)
+            .setVisible(false)
             .setEditable(false)
             .setWidth('90px');
         let amountCurrencyCol = new UniTableColumn('AmountCurrency', 'Beløp', UniTableColumnType.Money).setWidth('90px');
@@ -677,6 +678,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
         let CurrencyCodeCol = new UniTableColumn('CurrencyCode', 'Valuta', UniTableColumnType.Select)
             .setWidth('90px')
             .setTemplate(row => row && row.CurrencyCode && row.CurrencyCode.Code)
+            .setVisible(false)
             .setEditorOptions({
                 itemTemplate: rowModel => rowModel.Code,
                 resource: this.currencyCodeService.GetAll(null)
