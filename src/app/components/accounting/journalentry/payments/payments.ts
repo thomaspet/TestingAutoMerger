@@ -12,7 +12,7 @@ import {
 } from '../../../../services/services';
 
 import * as moment from 'moment';
-import {JournalEntryData} from '../../../../models/accounting/JournalEntryData';
+import {JournalEntryData} from '../../../../models/models';
 
 @Component({
     selector: 'payments',
