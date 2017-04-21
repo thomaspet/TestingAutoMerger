@@ -172,6 +172,11 @@ export class SalarybalanceView extends UniView {
     }
 
     private saveSalarybalance(done: (message: string) => void) {
+
+        if (!this.salarybalance.ID) {
+            this.salarybalance.ID = 0;
+        }
+
         let saver = this.salarybalance.ID
             ? this.salarybalanceService.Put(this.salarybalance.ID, this.salarybalance)
             : this.salarybalanceService.Post(this.salarybalance);
