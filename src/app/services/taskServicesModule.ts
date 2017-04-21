@@ -1,7 +1,9 @@
 import {NgModule, ModuleWithProviders} from '@angular/core';
 import {TaskService} from './tasks/taskService';
+import {ApprovalService} from './tasks/approvalService';
 
 export * from './tasks/taskService';
+export * from './tasks/approvalService';
 
 @NgModule()
 export class TaskServicesModule {
@@ -9,7 +11,8 @@ export class TaskServicesModule {
         return {
             ngModule: TaskServicesModule,
             providers: [
-                TaskService
+                TaskService,
+                ApprovalService
             ]
         };
     }

@@ -9,8 +9,8 @@ import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {IToolbarConfig} from './../../common/toolbar/toolbar';
 import {UniSelect, ISelectConfig} from 'uniform-ng2/main';
 import {ErrorService, JobService} from '../../../services/services';
-import {Task, TaskStatus, TaskType} from '../../../unientities';
-import {TaskService, UserService} from '../../../services/services';
+import {Task, TaskStatus, TaskType, ApprovalStatus} from '../../../unientities';
+import {TaskService, ApprovalService, UserService} from '../../../services/services';
 import {TaskDetails} from '../details/taskDetails';
 
 @Component({
@@ -34,6 +34,7 @@ export class TaskList implements OnInit {
     constructor(
         private tabService: TabService,
         private taskService: TaskService,
+        private approvalService: ApprovalService,
         private userService: UserService,
         private errorService: ErrorService
     ) {
@@ -62,6 +63,9 @@ export class TaskList implements OnInit {
             user => {
                 this.newTask.UserID = user.ID;
                 this.newTask.EntityID = user.ID;
+
+                this.markMyTasks();
+                this.filterIrrelevantTasks();
             },
             err => this.errorService.handle(err)
         );
@@ -80,17 +84,73 @@ export class TaskList implements OnInit {
         );
     }
 
-    private initTaskList(filter: string = '') {
-        this.taskService.GetAll(filter).subscribe(
+    private initTaskList(filter: string = 'filter=StatusCode ne 50030') {
+        filter += '&orderby=ID desc';
+        this.taskService.GetAll(filter, ['approvals']).subscribe(
             tasks => {
                 this.tasks = tasks;
                 this.initNewTask();
-/// dummy data TODO remove
-//this.testData();       
-
             },
             err => this.errorService.handle(err)
         )
+    }
+
+    private markMyTasks() {
+        if (this.tasks !== undefined) {
+            for (var i = 0; i < this.tasks.length; ++i) {
+                this.tasks[i].myTask = 
+                        (
+                                (this.tasks[i].Type === TaskType.Task) 
+                            && 
+                                (this.tasks[i].UserID === this.newTask.UserID)
+                        ) 
+                    || 
+                        (
+                            (this.tasks[i].Type === TaskType.Approval) 
+                                && 
+                            (this.isCurrentUserAnApprover(this.tasks[i]))
+                        );
+            }
+        }
+    }
+
+    private isCurrentUserAnApprover(task: any): boolean {
+        var approver = false;
+
+        var i = 0;
+             
+        while (i < task.Approvals.length && !approver) {
+            if (task.Approvals[i].UserID === this.newTask.UserID) {
+                task.approvalId = task.Approvals[i].ID;
+                task.approvalIndex = i;
+                approver = true;
+            } else {
+                ++i;
+            }
+        }
+        return approver;
+    }
+
+    // to be called after 'markMyTasks' !!
+    private filterIrrelevantTasks() {
+        if (this.tasks !== undefined) {
+            for (var i = 0; i < this.tasks.length; ++i) {
+                if ((this.tasks[i].Type === TaskType.Approval) && !this.isActionRequiredByMe(this.tasks[i])) {
+                    this.tasks.splice(i, 1);
+                    --i;
+                }
+            }
+        }
+    }
+
+    private isActionRequiredByMe(task: any): boolean {
+
+        var actionRequired = task.myTask 
+                && task.Approvals[task.approvalIndex].StatusCode === ApprovalStatus.Active;
+        if (task.myTask) {
+        console.log(task.ID + ' req: ' + actionRequired +  ' my: ' + task.myTask + ' index: ' + task.approvalIndex + ' statusCode: ' + task.Approvals[task.approvalIndex].StatusCode);
+        }
+        return actionRequired;
     }
 
     private onRowSelected(task: any) {
@@ -118,54 +178,65 @@ export class TaskList implements OnInit {
     }
 
     private addTask() {
-        this.userService.getCurrentUser().subscribe(
-            user => {
-                this.newTask.CreatedAt = new Date;
-                this.newTask.UserID = user.ID;
-                this.newTask.StatusCode = TaskStatus.Pending;
-                this.newTask.User = user;
+        this.newTask.CreatedAt = new Date;
+        this.newTask.StatusCode = TaskStatus.Pending;
 
-                this.taskService.Post(this.newTask).subscribe(
-                    res2 => this.initTaskList(),
-                    err => this.errorService.handle(err));
-            },
-            err => this.errorService.handle(err)
-        );
+        this.taskService.Post(this.newTask).subscribe(
+            res2 => this.initTaskList(),
+            err => this.errorService.handle(err));
     }
 
     private getButtonText(task: Task): string {
-        let text = 'Start';
+        let text = '';
 
-        if (task.StatusCode === TaskStatus.Active) {
+        if (task.Type === TaskType.Task) {
             text = 'Fullfør';
-        } else if (task.StatusCode === TaskStatus.Complete) {
+        } else if (task.Type === TaskType.Approval) {
             text = 'Avvis';
         }
         return text;
     }
 
-    private onStatusChange(task: Task) {
-        let action: string;
+    private onComplete(task: Task) {
+        this.taskService.PostAction(task.ID, 'complete').subscribe(
+            res => this.initTaskList(),
+            err => this.errorService.handle(err)
+        );
+    }
 
-        switch (task.StatusCode) {
-            case TaskStatus.Pending:
-                action = 'activate';
-                break;
-            case TaskStatus.Active:
-                action = 'complete';
-                break;
-            case TaskStatus.Complete:
-                action = 'activate';
-                break;
-            default:
-                break;
+    private onApprove(task: any) {
+        this.approvalService.PostAction(task.approvalId, 'approve').subscribe(
+            res => this.updateTaskAfterApproval(task),
+            err => this.errorService.handle(err)
+        );
+    }
+
+    private onReject(task: any) {
+        this.approvalService.PostAction(task.approvalId, 'reject').subscribe(
+            res => this.initTaskList(),
+            err => this.errorService.handle(err)
+        );
+    }
+
+    private updateTaskAfterApproval(task: Task) {
+        var approvedByAll = true;
+        var i = 0;
+
+        while (i < task.Approvals.length && approvedByAll) {
+            if (task.Approvals[i].UserID !== this.newTask.UserID) {
+                approvedByAll = task.Approvals[i].StatusCode === ApprovalStatus.Approved; 
+            }
+            ++i;
         }
 
-        if (action !== undefined) {
-            this.taskService.PostAction(task.ID, action).subscribe(
-                res => this.initTaskList(),
+        if (approvedByAll) {
+            task.UserID = this.newTask.UserID;
+
+            this.taskService.Put(task.ID, task).subscribe(
+                res => this.onComplete(task),
                 err => this.errorService.handle(err)
             );
+            
         }
     }
 
@@ -175,34 +246,5 @@ export class TaskList implements OnInit {
 
     private isApproval(task: Task) {
         return task.Type === TaskType.Approval && task.StatusCode === TaskStatus.Active;
-    }
-
-    private onApprove(task: Task) {
-
-    }
-
-    // @TODO: remove this method if you can gather real data from server (questions? -> Attila) 
-    private testData() {
-        this.tasks = [{
-            ID: 1,
-            Title: 'Task  1 pending',
-            StatusCode: TaskStatus.Pending,
-            Type: TaskType.Task,
-            UserID: 4
-        },
-        {
-            ID: 2,
-            Title: 'Task  2 active',
-            StatusCode: TaskStatus.Active,
-            Type: TaskType.Task,
-            UserID: 1
-        },
-        {
-            ID: 3,
-            Title: 'Task  3 completed',
-            StatusCode: TaskStatus.Complete,
-            Type: TaskType.Task,
-            UserID: 4
-        }];
     }
 }

@@ -1,8 +1,11 @@
 <uni-toolbar [config]="{title: 'Dine oppgaver og godkjenninger', omitFinalCrumb: true}"></uni-toolbar>
 
 <section class="application">
-    <!-- DO NOT REMOVE this uncommented section !!
     <div>
+        <input type="radio" name="taskType" value="Oppgaver">
+        <input type="radio" name="taskType" value="Godkjenninger">
+        <input type="radio" name="taskType" value="Begge">
+        <!-- DO NOT REMOVE this uncommented section !!
         <input type="checkbox" id="filterCompleted" [ngModel]="filterCompleted" (ngModelChange)="onStatusFilterChange()">
         <label attr.for="filterCompleted" class="toggle"> </label>
 
@@ -11,8 +14,8 @@
         </label>
         <input type="checkbox" id="aaaa" [ngModel]="filterCompleted" (ngModelChange)="onStatusFilterChange()">
         <label attr.for="aaaa" class="toggle"> </label>
+        -->
     </div>
-    -->
     <table class="taskView">
         <tr>
             <td>
@@ -24,10 +27,11 @@
                                     {{item.Title}}
                                 </td>
                                 <td class="buttonCol1">
-                                    <button *ngIf="isApproval(item)" (click)="onApprove(item)">Godkjenn</button>
+                                    <button class="task-approve" *ngIf="isApproval(item)" (click)="onApprove(item)" [disabled]="!item.myTask">Godkjenn</button>
                                 </td>
                                 <td class="buttonCol2">
-                                    <button *ngIf='!isCompleted(item)' (click)="onStatusChange(item)">{{ getButtonText(item) }}</button>
+                                    <button class="task-complete" *ngIf='!isCompleted(item) && !isApproval(item)' (click)="onComplete(item)" [disabled]="!item.myTask">Fullfør</button>
+                                    <button class="task-reject" *ngIf='!isCompleted(item) && isApproval(item)' (click)="onReject(item)" [disabled]="!item.myTask">Avvis</button>
                                     <label *ngIf='isCompleted(item)'>
                                         Fullført
                                     </label>
