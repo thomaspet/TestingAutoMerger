@@ -125,7 +125,7 @@ export class ConfirmInvite {
     }
 
     private usernameValidator(control) {
-        const invalid = /[^a-zæøåA-ZÆØÅ]/g.test(control.value);
+        const invalid = /[^a-zæøåA-ZÆØÅ0-9]/g.test(control.value);
         if (invalid) {
             this.invalidUsernameMsg = 'Brukernavn kan kun inneholde bokstaver';
             return {'usernameValidator': true};
