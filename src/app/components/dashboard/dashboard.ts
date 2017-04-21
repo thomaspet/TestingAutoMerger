@@ -199,8 +199,7 @@ export class Dashboard {
                     description: 'Uleste varlser',
                     icon: 'bell',
                     link: '/',
-                    dataEndpoint: "/api/statistics?model=Notification&select=count(ID) as count&filter=StatusCode eq 900010 and RecipientID eq '<userID>'",
-                    // dataEndpoint: '/api/biz/notifications?action=count',
+                    dataEndpoint: '/api/biz/notifications?action=count',
                     valueKey: 'Count',
                     class: 'uni-widget-notification-lite-blue'
                 }
@@ -360,7 +359,7 @@ export class Dashboard {
                 y: 1,
                 widgetType: 'list',
                 config: {
-                    header: 'Siste transaksjoner',
+                    header: 'Siste endringer',
                     dataEndPoint: "/api/statistics?model=AuditLog&select=id,entitytype,transaction,route,action,entityid,User.ID,field,User.displayname,createdat,updatedat&filter=field eq 'updatedby' and ( not contains(entitytype,'item') ) &join=auditlog.createdby eq user.globalidentity&top=50&orderby=id desc",
                     listItemKeys: {
                         username: 'UserDisplayName',

@@ -10,7 +10,7 @@ import * as moment from 'moment';
     selector: 'uni-flex',
     template: `
         <div class="positive-negative-widget"
-             [ngClass]="positive ? 'positive' : 'negative'"
+             [ngClass]="negative ? 'negative' : 'positive'"
              (click)="onClickNavigate()"
              title="Totalsum flexiid">
 
@@ -23,7 +23,7 @@ export class UniFlexWidget {
     public widget: IUniWidget;
 
     private displayValue: string;
-    private positive: boolean;
+    private negative: boolean;
 
     constructor(
         private widgetDataService: WidgetDataService,
@@ -37,6 +37,8 @@ export class UniFlexWidget {
         this.timesheetService.initUser().subscribe((timesheet) => {
             if (timesheet && timesheet.currentRelation) {
                 this.getFlexBalance(timesheet.currentRelation.ID);
+            } else {
+                this.displayValue = '0';
             }
         });
     }
@@ -59,7 +61,7 @@ export class UniFlexWidget {
                 const minutes = res.Minutes - (res.LastDayActual - res.LastDayExpected);
                 const hours  = (minutes / 60);
                 this.displayValue = hours.toFixed(1) + ' timer';
-                this.positive = hours >= 0;
+                this.negative = hours < 0;
             }
         );
     }
