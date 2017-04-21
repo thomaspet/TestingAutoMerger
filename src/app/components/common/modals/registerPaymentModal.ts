@@ -282,7 +282,11 @@ export class RegisterPaymentForm {
                 UpdatedAt: null,
                 CreatedBy: null,
                 UpdatedBy: null,
-                CustomFields: null
+                CustomFields: null,
+                Options: {
+                    decimalLength: 2,
+                    decimalSeparator: ','
+                }
             },
             {
                 ComponentLayoutID: 1,
@@ -310,7 +314,11 @@ export class RegisterPaymentForm {
                 UpdatedAt: null,
                 CreatedBy: null,
                 UpdatedBy: null,
-                CustomFields: null
+                CustomFields: null,
+                Options: {
+                    decimalLength: 2,
+                    decimalSeparator: ','
+                }
             },
             {
                 ComponentLayoutID: 1,
@@ -318,7 +326,7 @@ export class RegisterPaymentForm {
                 Property: 'AgioAmount',
                 Placement: 1,
                 Hidden: this.isMainCurrency, //Hide if it is main currency
-                FieldType: FieldType.NUMERIC, //TODO? Must use TEXT for now since NUMERIC does not fire the change event for negative numbers.
+                FieldType: FieldType.NUMERIC,
                 ReadOnly: false,
                 LookupField: false,
                 Label: 'Agiobeløp [' + this.companySettings.BaseCurrencyCode.Code + ']',
@@ -340,6 +348,10 @@ export class RegisterPaymentForm {
                 UpdatedBy: null,
                 CustomFields: null,
                 Sectionheader: '',
+                Options: {
+                    decimalLength: 2,
+                    decimalSeparator: ','
+                }
             },
             {
                 ComponentLayoutID: 1,
@@ -401,6 +413,10 @@ export class RegisterPaymentForm {
                 UpdatedBy: null,
                 CustomFields: null,
                 Sectionheader: '',
+                Options: {
+                    decimalLength: 2,
+                    decimalSeparator: ','
+                }
             },
             {
                 ComponentLayoutID: 1,
