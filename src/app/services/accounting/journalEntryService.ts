@@ -41,7 +41,7 @@ import {AuthService} from '../../../framework/core/authService';
 export class JournalEntryService extends BizHttp<JournalEntry> {
     private JOURNAL_ENTRIES_SESSIONSTORAGE_KEY: string = 'JournalEntryDrafts';
     private JOURNAL_ENTRY_SETTINGS_LOCALSTORAGE_KEY: string = 'JournalEntrySettings';
-    private companySettings: CompanySettings = <any>{};
+    private companySettings: CompanySettings;
 
     constructor(
         http: UniHttp,
@@ -62,6 +62,7 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
     }
 
     private populateCache() {
+        this.companySettings = <any>{};
         this.companySettingsService.Get(1, ['BaseCurrencyCode']).subscribe(
             companySettings => this.companySettings = companySettings,
             err => this.errorService.handle(err)
