@@ -214,44 +214,7 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
                         },
                     };
 
-                    this.saveActions = [
-                        {
-                            label: 'Lagre',
-                            action: this.saveAll.bind(this),
-                            main: payrollRun ? payrollRun.StatusCode < 1 : true,
-                            disabled: true
-                        },
-                        {
-                            label: 'Kontroller',
-                            action: this.openControlModal.bind(this),
-                            main: false,
-                            disabled: payrollRun ? payrollRun.StatusCode > 0 : true
-                        },
-                        {
-                            label: 'Avregn',
-                            action: this.runSettling.bind(this),
-                            main: false,
-                            disabled: payrollRun && this.payrollrunID ? payrollRun.StatusCode > 0 : true
-                        },
-                        {
-                            label: 'Til utbetaling',
-                            action: this.sendPaymentList.bind(this),
-                            main: payrollRun ? payrollRun.StatusCode > 1 : false,
-                            disabled: payrollRun ? payrollRun.StatusCode < 1 : true
-                        },
-                        {
-                            label: 'Send lønnslipp',
-                            action: this.sendPaychecks.bind(this),
-                            main: false,
-                            disabled: payrollRun ? payrollRun.StatusCode < 1 : true
-                        },
-                        {
-                            label: 'Bokfør',
-                            action: this.openPostingSummaryModal.bind(this),
-                            main: payrollRun ? payrollRun.StatusCode === 1 : false,
-                            disabled: payrollRun ? payrollRun.StatusCode !== 1 : true
-                        }
-                    ];
+                    this.saveActions = this.getSaveActions(payrollRun);
 
                     this.checkDirty();
                     if (changedPayroll) {
@@ -369,6 +332,47 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
                 }
             }
         });
+    }
+
+    private getSaveActions(payrollRun: PayrollRun): IUniSaveAction[] {
+        return [
+                        {
+                            label: 'Lagre',
+                            action: this.saveAll.bind(this),
+                            main: payrollRun ? payrollRun.StatusCode < 1 : true,
+                            disabled: true
+                        },
+                        {
+                            label: 'Kontroller',
+                            action: this.openControlModal.bind(this),
+                            main: false,
+                            disabled: payrollRun ? payrollRun.StatusCode > 0 : true
+                        },
+                        {
+                            label: 'Avregn',
+                            action: this.runSettling.bind(this),
+                            main: false,
+                            disabled: payrollRun && this.payrollrunID ? payrollRun.StatusCode > 0 : true
+                        },
+                        {
+                            label: 'Til utbetaling',
+                            action: this.sendPaymentList.bind(this),
+                            main: payrollRun ? payrollRun.StatusCode > 1 : false,
+                            disabled: payrollRun ? payrollRun.StatusCode < 1 : true
+                        },
+                        {
+                            label: 'Send lønnslipp',
+                            action: this.sendPaychecks.bind(this),
+                            main: false,
+                            disabled: payrollRun ? payrollRun.StatusCode < 1 : true
+                        },
+                        {
+                            label: 'Bokfør',
+                            action: this.openPostingSummaryModal.bind(this),
+                            main: payrollRun ? payrollRun.StatusCode === 1 : false,
+                            disabled: payrollRun ? payrollRun.StatusCode !== 1 : true
+                        }
+                    ];
     }
 
     public ngOnDestroy() {
@@ -800,9 +804,10 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
     }
 
     private checkDirty() {
-        if (this.saveActions && this.saveActions.length && this.payrollrun$.getValue() && !this.payrollrun$.getValue().StatusCode) {
-            let saveButton = this.saveActions.find(x => x.label === 'Lagre');
-            let calculateButton = this.saveActions.find(x => x.label === 'Avregn');
+        let saveActions = _.cloneDeep(this.saveActions);
+        if (saveActions && saveActions.length && this.payrollrun$.getValue() && !this.payrollrun$.getValue().StatusCode) {
+            let saveButton = saveActions.find(x => x.label === 'Lagre');
+            let calculateButton = saveActions.find(x => x.label === 'Avregn');
             if (super.isDirty() || (this.payrollrun$.getValue() && !this.payrollrun$.getValue().Description)) {
                 saveButton.disabled = false;
                 saveButton.main = true;
@@ -814,6 +819,7 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
                     calculateButton.main = true;
                 }
             }
+            this.saveActions = saveActions;
         }
     }
 
