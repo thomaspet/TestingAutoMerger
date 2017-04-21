@@ -170,7 +170,7 @@ export class InvoiceList2 implements OnInit {
                             AgioAmount: 0
                         };
 
-                        return this.registerPaymentModal.confirm(rowModel.ID, title, rowModel.CurrencyCode, rowModel.CurrencyExchangeRate, invoiceData).then(res => {
+                        return this.registerPaymentModal.confirm(rowModel.ID, title, rowModel.CurrencyCode, rowModel.CurrencyExchangeRate, 'CustomerInvoice', invoiceData).then(res => {
                             if (res.status === ConfirmActions.ACCEPT) {
                                 this.customerInvoiceService.ActionWithBody(res.id, res.model, 'payInvoice').subscribe((journalEntry) => {
                                     this.toastService.addToast('Faktura er betalt. Bilagsnummer: ' + journalEntry.JournalEntryNumber, ToastType.good, 5);
