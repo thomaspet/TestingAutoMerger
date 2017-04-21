@@ -237,7 +237,14 @@ export class BillsView {
             new UniTableColumn('ID', 'Nr.', UniTableColumnType.Number).setWidth('4rem').setFilterOperator('startswith'),
             new UniTableColumn('Name', 'Filnavn').setWidth('18rem').setFilterOperator('startswith'),
             new UniTableColumn('Description', 'Tekst').setFilterOperator('contains'),
-            new UniTableColumn('Size', 'Størrelse', UniTableColumnType.Number).setWidth('6rem').setFilterOperator('startswith'),
+            new UniTableColumn('Size', 'Størrelse', UniTableColumnType.Number).setVisible(false).setWidth('6rem').setFilterOperator('startswith'),
+            new UniTableColumn('Source', 'Kilde', UniTableColumnType.Lookup).setWidth('6rem').setFilterOperator('startswith').setTemplate((rowModel) => {
+                switch(rowModel.FileTags[0].TagName) {
+                    case 'IncomingMail': return 'Epost';
+                    case 'IncomingEHF': return 'EHF';
+                }
+                return '';
+            }),
         ];
         var cfg = new UniTableConfig(false, true).setSearchable(false).setColumns(cols).setPageSize(12).setColumnMenuVisible(true).setDeleteButton(true);
         this.tableConfig = cfg;
