@@ -148,7 +148,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
             });
         }
 
-        // if the disabled input is changed and the table is loaded, reload it (should hide addrow)
+        // if the disabled input is changed and the table is loaded, reload it (should hide )
         if (changes['disabled'] && this.table) {
             this.setupUniTable();
         }
@@ -263,6 +263,29 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 this.showImageForJournalEntry.emit(newRow);
             }
         });
+    }
+
+    private clearPostPostMarking(rowModel: JournalEntryData): JournalEntryData {
+        if (rowModel.PostPostJournalEntryLine) {
+            if (rowModel.PostPostJournalEntryLine.AccountID !== rowModel.DebitAccountID
+                && rowModel.PostPostJournalEntryLine.SubAccountID !== rowModel.DebitAccountID
+                && rowModel.PostPostJournalEntryLine.AccountID !== rowModel.CreditAccountID
+                && rowModel.PostPostJournalEntryLine.SubAccountID !== rowModel.CreditAccountID) {
+
+                this.toastService.addToast(
+                    'Postmarkering fjernet pga endret konto',
+                    ToastType.warn,
+                    ToastTime.medium,
+                    `Postmarkeringen mot bilag ${rowModel.PostPostJournalEntryLine.JournalEntryNumber} ble fjernet pga konto ble endret`
+                );
+
+                // if neither account is related to the PostPostJournalEntryLine, remove the connection
+                rowModel.PostPostJournalEntryLineID = null;
+                rowModel.PostPostJournalEntryLine = null;
+            }
+        }
+
+        return rowModel;
     }
 
     private calculateNetAmountAndNetAmountCurrency(rowModel: JournalEntryData): JournalEntryData {
@@ -549,7 +572,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
 
         let financialDateCol = new UniTableColumn('FinancialDate', 'Dato', UniTableColumnType.LocalDate).setWidth('110px');
 
-        let invoiceNoCol = new UniTableColumn('CustomerInvoice', 'Fakturanr', UniTableColumnType.Lookup)
+        let invoiceNoCol = new UniTableColumn('CustomerInvoice', 'Faktura', UniTableColumnType.Lookup)
             .setDisplayField('InvoiceNumber')
             .setWidth('10%')
             .setEditorOptions({
@@ -561,6 +584,9 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                         + `&expand=JournalEntry,JournalEntry.Lines,JournalEntry.Lines.Account,JournalEntry.Lines.SubAccount,CurrencyCode`);
                 }
             });
+
+        let invoiceNoTextCol = new UniTableColumn('InvoiceNumber', 'Fakturanr', UniTableColumnType.Text).setWidth('80px')
+            .setVisible(false);
 
         let debitAccountCol = new UniTableColumn('DebitAccount', 'Debet', UniTableColumnType.Lookup)
             .setDisplayField('DebitAccount.AccountNumber')
@@ -672,7 +698,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                     || (row.CreditAccount && row.CreditAccount.UseDeductivePercent))) {
                     return false;
                 }
-                return true;
+                return row.StatusCode ? false : true;
             });
 
         let CurrencyCodeCol = new UniTableColumn('CurrencyCode', 'Valuta', UniTableColumnType.Select)
@@ -786,6 +812,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
             columns = [
                 sameOrNewCol,
                 financialDateCol,
+                invoiceNoTextCol,
                 debitAccountCol,
                 debitVatTypeCol,
                 creditAccountCol,
@@ -913,10 +940,12 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                     row = this.setDebitAccountProperties(row);
                     row = this.setVatDeductionPercent(row);
                     row = this.calculateNetAmountAndNetAmountCurrency(row);
+                    row = this.clearPostPostMarking(row);
                 } else if (event.field === 'CreditAccount') {
                     row = this.setCreditAccountProperties(row);
                     row = this.setVatDeductionPercent(row);
                     row = this.calculateNetAmountAndNetAmountCurrency(row);
+                    row = this.clearPostPostMarking(row);
                 } else if (event.field === 'DebitVatType') {
                     row = this.setDebitVatTypeProperties(row);
                     row = this.calculateNetAmountAndNetAmountCurrency(row);
@@ -1448,6 +1477,15 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
         completeCallback('Listen er tømt');
     }
 
+    public updateJournalEntryLine(data) {
+        this.table.updateRow(data._originalIndex, data);
+
+        setTimeout(() => {
+            this.journalEntryLines = this.table.getTableData();
+            this.dataChanged.emit(this.journalEntryLines);
+        });
+    }
+
     private addJournalEntryLines(lines: JournalEntryData[]) {
         let newItems = this.table.getTableData();
 
@@ -1469,6 +1507,21 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
 
         this.dataChanged.emit(this.journalEntryLines);
     }
+
+    /*
+    KE: This requires rewriting the paymentmodal, so for now, let the user fix his own agiostuff...
+    public updateMaybeAgioJournalEntryDataLine(data: JournalEntryData) {
+        const isBaseCurrency = data.CurrencyID === this.companySettings.BaseCurrencyCodeID;
+        if ( isBaseCurrency ) {
+            data.CurrencyExchangeRate = 1;
+            this.updateJournalEntryLine(data);
+        } else {
+            this.showAgioDialog(data)
+                .then(journalEntryData => {
+                    this.updateJournalEntryLine(journalEntryData);
+                });
+        }
+    }*/
 
     public addMaybeAgioJournalEntryLine(data: JournalEntryData) {
         const isBaseCurrency = data.CurrencyID === this.companySettings.BaseCurrencyCodeID;

@@ -18,55 +18,64 @@
 
         <uni-summary [configs]="summary" *ngIf="itemsSummaryData" [attr.aria-busy]="busy"></uni-summary>
 
-        <table class="account_summary_info" *ngIf="itemAccountInfoData && currentFinancialYear">
-            <tr>
-                <th class="first_col"></th>
-                <th class="other_cols">Debet</th>
-                <th class="other_cols">Kredit</th>
-            </tr>
-            <tr>
-                <td>Kontonavn</td>
-                <td>{{ itemAccountInfoData.debitAccount ? itemAccountInfoData.debitAccount.AccountName : '(Ikke valgt)' }}</td>
-                <td>{{ itemAccountInfoData.creditAccount? itemAccountInfoData.creditAccount.AccountName : '(Ikke valgt)' }}</td>
-            </tr>
-            <tr *ngIf="(itemAccountInfoData.debitAccount && itemAccountInfoData.debitAccount.UseDeductivePercent) || (itemAccountInfoData.creditAccount && itemAccountInfoData.creditAccount.UseDeductivePercent)">
-                <td>Fradragsprosent MVA</td>
-                <td>{{ itemAccountInfoData.debitAccount && itemAccountInfoData.debitAccount.UseDeductivePercent ? itemAccountInfoData.deductionPercent + '%' : '' }}</td>
-                <td>{{ itemAccountInfoData.creditAccount && itemAccountInfoData.creditAccount.UseDeductivePercent ? itemAccountInfoData.deductionPercent + '%' : '' }}</td>
-            </tr>
-            <tr *ngIf="itemAccountInfoData.deductionPercent && ((itemAccountInfoData.debitAccount && itemAccountInfoData.debitAccount.UseDeductivePercent) || (itemAccountInfoData.creditAccount && itemAccountInfoData.creditAccount.UseDeductivePercent))">
-                <td>Fradragsprosent MVA</td>
-                <td>{{ itemAccountInfoData.debitAccount && itemAccountInfoData.debitAccount.UseDeductivePercent ? itemAccountInfoData.deductionPercent + '%' : '' }}</td>
-                <td>{{ itemAccountInfoData.creditAccount && itemAccountInfoData.creditAccount.UseDeductivePercent ? itemAccountInfoData.deductionPercent + '%' : '' }}</td>
-            </tr>
-            <tr>
-                <td>Saldo ({{currentFinancialYear.Year}})</td>
-                <td>{{ getFormattedNumber(itemAccountInfoData.debitOriginalBalance) }}</td>
-                <td>{{ getFormattedNumber(itemAccountInfoData.creditOriginalBalance) }}</td>
-            </tr>
-            <tr>
-                <td>Nettobeløp</td>
-                <td>{{ getFormattedNumber(itemAccountInfoData.debitNetChangeCurrentLine) }}</td>
-                <td>{{ getFormattedNumber(itemAccountInfoData.creditNetChangeCurrentLine) }}</td>
-            </tr>
-            <tr>
-                <td>Inng. mva</td>
-                <td>{{ getFormattedNumber(itemAccountInfoData.debitIncomingVatCurrentLine) }}</td>
-                <td>{{ getFormattedNumber(itemAccountInfoData.creditIncomingVatCurrentLine) }}</td>
-            </tr>
-            <tr>
-                <td>Utg. mva</td>
-                <td>{{ getFormattedNumber(itemAccountInfoData.debitOutgoingVatCurrentLine) }}</td>
-                <td>{{ getFormattedNumber(itemAccountInfoData.creditOutgoingVatCurrentLine) }}</td>
-            </tr>
-            <tr>
-                <td>Ny saldo</td>
-                <td>{{ getFormattedNumber(itemAccountInfoData.debitNewBalance) }}</td>
-                <td>{{ getFormattedNumber(itemAccountInfoData.creditNewBalance) }}</td>
-            </tr>
-        </table>
+        <section class="account_summary_container">
+            <table class="account_summary_info" *ngIf="itemAccountInfoData && currentFinancialYear">
+                <tr>
+                    <th class="first_col"></th>
+                    <th class="other_cols">Debet</th>
+                    <th class="other_cols">Kredit</th>
+                </tr>
+                <tr>
+                    <td>Kontonavn</td>
+                    <td>{{ itemAccountInfoData.debitAccount ? itemAccountInfoData.debitAccount.AccountName : '(Ikke valgt)' }}</td>
+                    <td>{{ itemAccountInfoData.creditAccount? itemAccountInfoData.creditAccount.AccountName : '(Ikke valgt)' }}</td>
+                </tr>
+                <tr *ngIf="itemAccountInfoData.deductionPercent && ((itemAccountInfoData.debitAccount && itemAccountInfoData.debitAccount.UseDeductivePercent) || (itemAccountInfoData.creditAccount && itemAccountInfoData.creditAccount.UseDeductivePercent))">
+                    <td>Fradragsprosent MVA</td>
+                    <td>{{ itemAccountInfoData.debitAccount && itemAccountInfoData.debitAccount.UseDeductivePercent ? itemAccountInfoData.deductionPercent + '%' : '' }}</td>
+                    <td>{{ itemAccountInfoData.creditAccount && itemAccountInfoData.creditAccount.UseDeductivePercent ? itemAccountInfoData.deductionPercent + '%' : '' }}</td>
+                </tr>
+                <tr>
+                    <td>Saldo ({{currentFinancialYear.Year}})</td>
+                    <td>{{ getFormattedNumber(itemAccountInfoData.debitOriginalBalance) }}</td>
+                    <td>{{ getFormattedNumber(itemAccountInfoData.creditOriginalBalance) }}</td>
+                </tr>
+                <tr>
+                    <td>Nettobeløp</td>
+                    <td>{{ getFormattedNumber(itemAccountInfoData.debitNetChangeCurrentLine) }}</td>
+                    <td>{{ getFormattedNumber(itemAccountInfoData.creditNetChangeCurrentLine) }}</td>
+                </tr>
+                <tr>
+                    <td>Inng. mva</td>
+                    <td>{{ getFormattedNumber(itemAccountInfoData.debitIncomingVatCurrentLine) }}</td>
+                    <td>{{ getFormattedNumber(itemAccountInfoData.creditIncomingVatCurrentLine) }}</td>
+                </tr>
+                <tr>
+                    <td>Utg. mva</td>
+                    <td>{{ getFormattedNumber(itemAccountInfoData.debitOutgoingVatCurrentLine) }}</td>
+                    <td>{{ getFormattedNumber(itemAccountInfoData.creditOutgoingVatCurrentLine) }}</td>
+                </tr>
+                <tr>
+                    <td>Ny saldo</td>
+                    <td>{{ getFormattedNumber(itemAccountInfoData.debitNewBalance) }}</td>
+                    <td>{{ getFormattedNumber(itemAccountInfoData.creditNewBalance) }}</td>
+                </tr>
+            </table>
+        </section>
+         <section class="openposts_container">
+             <p *ngIf="openPostRetrievingDataInProgress">Henter åpne poster...</p>
+             <p *ngIf="openPostsForSelectedRow && openPostsForSelectedRow.length === 0">
+                 Ingen åpne poster funnet for valgt rad
+             </p>
+             <uni-table
+                *ngIf="openPostsForSelectedRow && openPostsForSelectedRow.length > 0"
+                [resource]="openPostsForSelectedRow"
+                [config]="openPostTableConfig"
+                (rowSelectionChanged)="openPostSelected($event)">
+             </uni-table>
+        </section>
 
-        <p *ngIf="validationResult && validationResult.Messages.length > 0">
+        <div class="validation_messages_container" *ngIf="validationResult && validationResult.Messages.length > 0">
             <strong *ngFor="let message of validationResult.Messages"
                 class="journalEntry_validation validation {{getValidationLevelCss(message.Level)}}"
                     [ngClass]="{
@@ -76,7 +85,7 @@
                 }">
                 {{message.Message}}
             </strong>
-        </p>
+        </div>
     </div>
 </section>
 

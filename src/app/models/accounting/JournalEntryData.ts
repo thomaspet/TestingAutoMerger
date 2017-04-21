@@ -1,5 +1,5 @@
 import {
-    JournalEntry, Account, VatType, Dimensions, Payment, Accrual, JournalEntryLineDraft, LocalDate,
+    JournalEntry, Account, VatType, Dimensions, Payment, Accrual, JournalEntryLineDraft, JournalEntryLine, LocalDate,
     CurrencyCode, CustomerInvoice
 } from '../../unientities';
 
@@ -65,6 +65,9 @@ export class JournalEntryData {
     JournalEntryDataAccrualID: number;
 
     CustomerOrderID: number;
+
+    PostPostJournalEntryLineID: number;
+    PostPostJournalEntryLine: JournalEntryLine;
 }
 
 export class JournalEntryPaymentData {

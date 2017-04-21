@@ -69,30 +69,33 @@ export class BankAccountForm {
     }
 
     public lookupBankAccountNumber() {
-        let accountNumber = this.model$.getValue().AccountNumber;
-        if (accountNumber.length === 11) {
-            this.busy = true;
-            this.toastService.addToast('Henter inn informasjon om banken, vennligst vent', ToastType.warn);
-            this.bankService.getIBANUpsertBank(accountNumber)
-            .finally(() => this.busy = false)
-            .subscribe((bankdata: BankData) => {
-                this.config.model.IBAN = bankdata.IBAN;
-                this.config.model.Bank = bankdata.Bank;
-                this.config.model.BankID = bankdata.Bank.ID;
-                this.config.validaccountnumber = true;
-                this.model$.next(this.config.model);
-                if (this.form.field('AccountID')) {
-                    this.form.field('AccountID').focus();
-                }
-                this.toastService.clear();
-                this.toastService.addToast('Informasjon om banken er innhentet', ToastType.good, 5);
-            },
-            (error) => {
-                this.toastService.clear();
-                this.errorService.handleWithMessage(error, 'Ugyldig kontonummer ' + accountNumber + ' endre eller avbryt');
-            });
-        } else {
-            this.toastService.addToast('Kontonummer må ha 11 siffer', ToastType.warn, 10);
+        let model = this.model$.getValue();
+        if (model) {
+            let accountNumber = model.AccountNumber;
+            if (accountNumber.length === 11) {
+                this.busy = true;
+                this.toastService.addToast('Henter inn informasjon om banken, vennligst vent', ToastType.warn);
+                this.bankService.getIBANUpsertBank(accountNumber)
+                .finally(() => this.busy = false)
+                .subscribe((bankdata: BankData) => {
+                    this.config.model.IBAN = bankdata.IBAN;
+                    this.config.model.Bank = bankdata.Bank;
+                    this.config.model.BankID = bankdata.Bank.ID;
+                    this.config.validaccountnumber = true;
+                    this.model$.next(this.config.model);
+                    if (this.form.field('AccountID')) {
+                        this.form.field('AccountID').focus();
+                    }
+                    this.toastService.clear();
+                    this.toastService.addToast('Informasjon om banken er innhentet', ToastType.good, 5);
+                },
+                (error) => {
+                    this.toastService.clear();
+                    this.errorService.handleWithMessage(error, 'Ugyldig kontonummer ' + accountNumber + ' endre eller avbryt');
+                });
+            } else {
+                this.toastService.addToast('Kontonummer må ha 11 siffer', ToastType.warn, 10);
+            }
         }
     }
 

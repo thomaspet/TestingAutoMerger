@@ -242,8 +242,7 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
         let amount: number = journalEntryData.Amount;
         let amountCurrency: number = journalEntryData.AmountCurrency;
 
-        if (hasDebitAccount)
-        {
+        if (hasDebitAccount) {
             let debitAccount = journalEntryData.DebitAccount;
             let debitVatType = journalEntryData.DebitVatTypeID ? journalEntryData.DebitVatType : null;
 
@@ -259,6 +258,7 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
             draftLine.Description = journalEntryData.Description;
             draftLine.Dimensions = journalEntryData.Dimensions;
             draftLine.FinancialDate = journalEntryData.FinancialDate;
+            draftLine.InvoiceNumber = journalEntryData.InvoiceNumber;
             draftLine.RegisteredDate = new LocalDate(Date());
             draftLine.VatDate = journalEntryData.FinancialDate;
             draftLine.VatTypeID = journalEntryData.DebitVatTypeID;
@@ -277,6 +277,7 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
             // Add connection to invoice(s) if the account relates to a postpost account.
             // This will enable automatic postpost marking later in the booking process
             if (draftLine.Account.UsePostPost) {
+                draftLine.PostPostJournalEntryLineID = journalEntryData.PostPostJournalEntryLineID;
                 draftLine.CustomerInvoiceID = journalEntryData.CustomerInvoiceID;
                 draftLine.SupplierInvoiceID = journalEntryData.SupplierInvoiceID;
             }
@@ -284,8 +285,7 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
             lines.push(draftLine);
         }
 
-        if (hasCreditAccount)
-        {
+        if (hasCreditAccount) {
             let creditAccount = journalEntryData.CreditAccount;
             let creditVatType = journalEntryData.CreditVatType;
 
@@ -301,6 +301,7 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
             draftLine.Description = journalEntryData.Description;
             draftLine.Dimensions = journalEntryData.Dimensions;
             draftLine.FinancialDate = journalEntryData.FinancialDate;
+            draftLine.InvoiceNumber = journalEntryData.InvoiceNumber;
             draftLine.RegisteredDate = new LocalDate(Date());
             draftLine.VatDate = journalEntryData.FinancialDate;
             draftLine.VatTypeID = journalEntryData.CreditVatTypeID;
@@ -319,6 +320,7 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
             // Add connection to invoice(s) if the account relates to a postpost account.
             // This will enable automatic postpost marking later in the booking process
             if (draftLine.Account.UsePostPost) {
+                draftLine.PostPostJournalEntryLineID = journalEntryData.PostPostJournalEntryLineID;
                 draftLine.CustomerInvoiceID = journalEntryData.CustomerInvoiceID;
                 draftLine.SupplierInvoiceID = journalEntryData.SupplierInvoiceID;
             }
@@ -522,7 +524,7 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
     public getJournalEntryDataByJournalEntryID(journalEntryID: number): Observable<JournalEntryData[]> {
         return Observable.forkJoin(this.journalEntryLineDraftService.GetAll(
             `filter=JournalEntryID eq ${journalEntryID}&orderby=JournalEntryID,ID`,
-            ['Account.TopLevelAccountGroup', 'VatType', 'Dimensions.Department', 'Dimensions.Project', 'Accrual']),
+            ['Account.TopLevelAccountGroup', 'VatType', 'Dimensions.Department', 'Dimensions.Project', 'Accrual', 'CurrencyCode']),
             this.statisticsService.GetAll(`model=FileEntityLink&filter=EntityType eq 'JournalEntry' and EntityID eq ${journalEntryID}&select=FileID`)
         ).map(responses => {
             let draftLines: Array<JournalEntryLineDraft> = responses[0];
@@ -583,11 +585,11 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
     }
 
     private getJournalEntryDataFromJournalEntryLineDraft(line: JournalEntryLineDraft, jed: JournalEntryData): JournalEntryData {
-        if (!jed)
-        {
+        if (!jed) {
             jed = new JournalEntryData();
             jed.FinancialDate = line.FinancialDate;
             jed.Amount = line.Amount;
+            jed.InvoiceNumber = line.InvoiceNumber;
             jed.AmountCurrency = line.AmountCurrency;
             jed.CurrencyID = line.CurrencyCodeID;
             jed.CurrencyCode = line.CurrencyCodeID ? line.CurrencyCode : null;
@@ -600,22 +602,23 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
             jed.StatusCode = line.StatusCode;
             jed.JournalEntryDraftIDs = [];
             jed.JournalEntryDrafts = [];
+            jed.CurrencyID = line.CurrencyCodeID;
+            jed.CurrencyCode = line.CurrencyCode;
         }
 
-        if (jed.Dimensions == null && line.Dimensions != null)
+        if (jed.Dimensions == null && line.Dimensions != null) {
             jed.Dimensions = line.Dimensions;
+        }
 
         jed.JournalEntryDraftIDs.push(line.ID);
         jed.JournalEntryDrafts.push(line);
 
-        if (line.AccrualID)
-        {
+        if (line.AccrualID) {
             jed.JournalEntryDataAccrualID = line.AccrualID;
             jed.JournalEntryDataAccrual = line.Accrual;
         }
 
-        if (line.Amount > 0 || line.AmountCurrency > 0)
-        {
+        if (line.Amount > 0 || line.AmountCurrency > 0) {
             jed.DebitAccountID = line.AccountID;
             jed.DebitAccount = line.AccountID ? line.Account : null;
             jed.DebitVatTypeID = line.VatTypeID;
@@ -625,9 +628,7 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
             jed.VatDeductionPercent = jed.VatDeductionPercent
                 ? jed.VatDeductionPercent
                 : line.VatDeductionPercent;
-        }
-        else
-        {
+        } else {
             jed.CreditAccountID = line.AccountID;
             jed.CreditAccount = line.AccountID ? line.Account : null;
             jed.CreditVatTypeID = line.VatTypeID;
@@ -639,29 +640,18 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
                 : line.VatDeductionPercent;
         }
 
-        if (jed.CreditAccountID && jed.DebitAccountID && jed.Amount < 0)
-        {
+        if (jed.CreditAccountID && jed.DebitAccountID && jed.Amount < 0) {
             jed.Amount = jed.Amount * -1;
             jed.AmountCurrency = jed.AmountCurrency * -1;
         }
 
-        if (jed.CreditAccountID && jed.DebitAccountID && jed.AmountCurrency < 0)
-        {
+        if (jed.CreditAccountID && jed.DebitAccountID && jed.AmountCurrency < 0) {
             jed.Amount = jed.Amount * -1;
             jed.AmountCurrency = jed.AmountCurrency * -1;
         }
 
         return jed;
     }
-
-    /*public getJournalEntryDataByJournalEntryID(journalEntryID: number): Observable<any> {
-        return this.http
-            .asGET()
-            .usingBusinessDomain()
-            .withEndPoint(this.relativeURL + '?action=get-journal-entry-data&journalEntryID=' + journalEntryID)
-            .send()
-            .map(response => response.json());
-    }*/
 
     public creditJournalEntry(journalEntryNumber: string): Observable<any> {
         return this.http

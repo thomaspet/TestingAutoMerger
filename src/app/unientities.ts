@@ -3701,6 +3701,7 @@ export class JournalEntryLineDraft extends UniEntity {
     public Accrual: Accrual;
     public CustomerOrder: CustomerOrder;
     public CustomFields: any;
+    public PostPostJournalEntryLineID: number;
 }
 
 
@@ -5107,7 +5108,6 @@ export class AGADetails extends UniEntity {
 
 export class Totals extends UniEntity {
 }
-
 
 export class RssList extends UniEntity {
     public Items: string;
