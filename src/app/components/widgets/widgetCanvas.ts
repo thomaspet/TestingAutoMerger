@@ -14,6 +14,8 @@ import {UniWidget, IUniWidget} from './uniWidget';
 import {CanvasHelper} from './canvasHelper';
 import {ToastService, ToastType} from '../../../framework/uniToast/toastService';
 import {WIDGET_CONFIGS} from './configs/presetConfigs';
+import {AuthService} from '../../../framework/core/authService';
+
 import * as $ from 'jquery';
 declare const _;
 
@@ -69,10 +71,15 @@ export class UniWidgetCanvas {
 
     constructor(
         private cdr: ChangeDetectorRef,
-        private toastService: ToastService
+        private toastService: ToastService,
+        private authService: AuthService
     ) {
         this.canvasHelper = new CanvasHelper();
         this.widgetMargin = 10;
+
+        this.authService.companyChange.subscribe(change => {
+            this.refreshWidgets();
+        });
 
         Observable.fromEvent(window, 'resize')
             .throttleTime(200)
@@ -91,7 +98,7 @@ export class UniWidgetCanvas {
 
     public ngOnChanges() {
         if (this.widgets) {
-            this.layout = JSON.parse(localStorage.getItem('dashboard_widget_layout'));
+            this.layout = JSON.parse(localStorage.getItem('widget_layout_dashboard'));
 
             if (!this.layout) {
                 this.layout = {

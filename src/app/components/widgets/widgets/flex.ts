@@ -34,29 +34,32 @@ export class UniFlexWidget {
     ) {}
 
     public ngAfterViewInit() {
-        this.timesheetService.initUser().subscribe(
-            timesheet => {
-                const relationID = timesheet.currentRelation.ID;
-                this.timesheetService.getFlexBalance(relationID).subscribe(
-                    (res: any) => {
-                        if (res.WorkRelation && res.WorkRelation.EndTime) {
-                            var et = moment(res.WorkRelation.EndTime);
-                            if (et.year() > 1980) {
-                                if (et.hour() > 12) { et = moment(et.add(1, 'days').format('YYYY-MM-DD')); }
-                                if (et.year() > 1980 && et < moment(res.BalanceDate)) {
-                                    res.LastDayExpected = 0;
-                                    res.LastDayActual = 0;
-                                    res.relationIsClosed = true;
-                                }
-                            }
-                        }
+        this.timesheetService.initUser().subscribe((timesheet) => {
+            if (timesheet && timesheet.currentRelation) {
+                this.getFlexBalance(timesheet.currentRelation.ID);
+            }
+        });
+    }
 
-                        const minutes = res.Minutes - (res.LastDayActual - res.LastDayExpected);
-                        const hours  = (minutes / 60);
-                        this.displayValue = hours.toFixed(1) + ' timer';
-                        this.positive = hours >= 0;
+    private getFlexBalance(relationID) {
+        this.timesheetService.getFlexBalance(relationID).subscribe(
+            (res: any) => {
+                if (res.WorkRelation && res.WorkRelation.EndTime) {
+                    var et = moment(res.WorkRelation.EndTime);
+                    if (et.year() > 1980) {
+                        if (et.hour() > 12) { et = moment(et.add(1, 'days').format('YYYY-MM-DD')); }
+                        if (et.year() > 1980 && et < moment(res.BalanceDate)) {
+                            res.LastDayExpected = 0;
+                            res.LastDayActual = 0;
+                            res.relationIsClosed = true;
+                        }
                     }
-                );
+                }
+
+                const minutes = res.Minutes - (res.LastDayActual - res.LastDayExpected);
+                const hours  = (minutes / 60);
+                this.displayValue = hours.toFixed(1) + ' timer';
+                this.positive = hours >= 0;
             }
         );
     }

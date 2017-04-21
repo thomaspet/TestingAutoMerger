@@ -14,7 +14,7 @@ import {
 // for all appfrontend, not just widgets.
 import {
     UniShortcutWidget,
-    UniNotificationWidget,
+    UniCounterWidget,
     UniChartWidget,
     UniRSSWidget,
     UniListWidget,
@@ -73,7 +73,7 @@ export class UniWidget {
     // This could be moved somewhere else?
     private widgetMap: any = {
         'shortcut': UniShortcutWidget,
-        'notification': UniNotificationWidget,
+        'counter': UniCounterWidget,
         'chart': UniChartWidget,
         'rss': UniRSSWidget,
         'list': UniListWidget,

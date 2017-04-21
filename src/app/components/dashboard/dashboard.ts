@@ -4,8 +4,6 @@ import {TabService, UniModules} from '../layout/navbar/tabstrip/tabService';
 import {UniHttp} from '../../../framework/core/http/http';
 import {Router} from '@angular/router';
 import {ErrorService, CompanySettingsService} from '../../services/services';
-import {AuthService} from '../../../framework/core/authService';
-import {WidgetDataService} from '../widgets/widgetDataService';
 import {UniWidgetCanvas} from '../widgets/widgetCanvas';
 
 import * as Chart from 'chart.js';
@@ -35,20 +33,12 @@ export class Dashboard {
         private http: UniHttp,
         private router: Router,
         private errorService: ErrorService,
-        private authService: AuthService,
         private companySettingsService: CompanySettingsService,
-        private widgetDataService: WidgetDataService
     ) {
         this.tabService.addTab({ name: 'Skrivebord', url: '/', active: true, moduleID: UniModules.Dashboard });
 
         // Avoid compile error. Seems to be something weird with the chart.js typings file
         (<any> Chart).defaults.global.maintainAspectRatio = false;
-
-        this.authService.companyChange
-            .subscribe(change => {
-                this.widgetCanvas.refreshWidgets();
-            });
-
         this.widgets = this.initLayout();
     }
 
@@ -135,13 +125,14 @@ export class Dashboard {
                 height: 1,
                 x: 8,
                 y: 4,
-                widgetType: 'notification', // TODO: enum
+                widgetType: 'counter', // TODO: enum
                 config: {
                     label: 'innboks',
                     description: 'Uleste eposter',
                     icon: 'home',
                     link: '/accounting/bills?filter=Inbox',
                     dataEndpoint: "/api/statistics?skip=0&model=FileTag&select=count(ID) as count&expand=File&filter=FileTag.Status eq 0 and FileTag.TagName eq 'IncomingMail'",
+                    valueKey: 'Data[0].count',
                     amount: 0,
                     class: 'uni-widget-notification-orange'
                 }
@@ -151,13 +142,14 @@ export class Dashboard {
                 height: 1,
                 x: 9,
                 y: 4,
-                widgetType: 'notification', // TODO: enum
+                widgetType: 'counter', // TODO: enum
                 config: {
                     label: 'ehf',
                     description: 'Innkommende ehf',
                     icon: 'globe',
                     link: '/accounting/bills?filter=Inbox',
                     dataEndpoint: "/api/statistics?skip=0&model=FileTag&select=count(ID) as count&expand=File&filter=FileTag.Status eq 0 and FileTag.TagName eq 'IncomingEHF'",
+                    valueKey: 'Data[0].count',
                     amount: 0,
                     class: 'uni-widget-notification-orange'
                 }
@@ -167,46 +159,49 @@ export class Dashboard {
                 height: 1,
                 x: 10,
                 y: 4,
-                widgetType: 'notification', // TODO: enum
+                widgetType: 'counter', // TODO: enum
                 config: {
                     label: 'tildelte',
                     description: 'Tildelte faktura',
                     icon: 'paperclip',
                     link: '/accounting/bills?filter=ForApproval&page=1',
                     dataEndpoint: "/api/statistics/?model=SupplierInvoice&select=count(ID) as count&filter=( isnull(deleted,0) eq 0 ) and ( statuscode eq 30102 )",
+                    valueKey: 'Data[0].count',
                     amount: 0,
                     class: 'uni-widget-notification-orange'
                 }
             },
-            //{
+            // {
             //    width: 1,
             //    height: 1,
             //    x: 11,
             //    y: 4,
-            //    widgetType: 'notification', // TODO: enum
+            //    widgetType: 'counter', // TODO: enum
             //    config: {
             //        label: 'prosjekter',
             //        description: 'Antall aktive prosjekter',
             //        icon: 'settings',
             //        link: '/dimensions/project',
             //        dataEndpoint: "/api/statistics?model=Project&select=count(ID) as count",
+            //        valueKey: 'Data[0].count',
             //        amount: 0,
             //        class: 'uni-widget-notification-orange'
             //    }
-            //},
+            // },
             {
                 width: 1,
                 height: 1,
                 x: 11,
                 y: 4,
-                widgetType: 'notification', // TODO: enum
+                widgetType: 'counter', // TODO: enum
                 config: {
                     label: 'varsler',
                     description: 'Uleste varlser',
                     icon: 'bell',
                     link: '/',
                     dataEndpoint: "/api/statistics?model=Notification&select=count(ID) as count&filter=StatusCode eq 900010 and RecipientID eq '<userID>'",
-                    amount: 0,
+                    // dataEndpoint: '/api/biz/notifications?action=count',
+                    valueKey: 'Count',
                     class: 'uni-widget-notification-lite-blue'
                 }
             },
