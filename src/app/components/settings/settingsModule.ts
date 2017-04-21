@@ -24,6 +24,8 @@ import {FreeamountModal, FreeamountModalContent} from './agaAndSubEntitySettings
 import {WebHookSettings} from './webHookSettings/webHookSettings';
 import {CommonServicesModule} from '../../services/commonServicesModule';
 
+import {RoleSelector} from './users/roleSelector';
+
 @NgModule({
     imports: [
         CommonModule,
@@ -55,7 +57,8 @@ import {CommonServicesModule} from '../../services/commonServicesModule';
         GrantsModalContent,
         FreeamountModal,
         FreeamountModalContent,
-        WebHookSettings
+        WebHookSettings,
+        RoleSelector
     ],
     entryComponents: [
         GrantsModalContent,
@@ -76,7 +79,8 @@ import {CommonServicesModule} from '../../services/commonServicesModule';
         GrantsModal,
         GrantsModalContent,
         FreeamountModal,
-        FreeamountModalContent
+        FreeamountModalContent,
+        RoleSelector
     ]
 })
 export class SettingsModule {
