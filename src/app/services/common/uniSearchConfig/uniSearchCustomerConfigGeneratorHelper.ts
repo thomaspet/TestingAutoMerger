@@ -97,7 +97,8 @@ export class UniSearchCustomerConfigGeneratorHelper {
             'Addresses.City as City',
             'Addresses.CountryCode as CountryCode',
             'Emails.EmailAddress as EmailAddress',
-            'Customer.WebUrl as WebUrl'
+            'Customer.WebUrl as WebUrl',
+            'Customer.CustomerNumber as CustomerNumber'
         ].join(',');
         const skip = 0;
         const top = MAX_RESULTS;
