@@ -23,9 +23,9 @@ export class TofDetailsForm {
     @Input() public entityType: string;
     @Input() public entity: any;
     @Input() public currencyCodes: Array<CurrencyCode>;
-
     @Output() public entityChange: EventEmitter<any> = new EventEmitter();
 
+    public tabbedPastLastField: EventEmitter<any> = new EventEmitter();
     private entity$: BehaviorSubject<any> = new BehaviorSubject({});
     private formConfig$: BehaviorSubject<any> = new BehaviorSubject({autofocus: false});
     private fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
@@ -289,7 +289,12 @@ export class TofDetailsForm {
                     UpdatedAt: null,
                     CreatedBy: null,
                     UpdatedBy: null,
-                    CustomFields: null
+                    CustomFields: null,
+                    Options: {
+                        events: {
+                            tab: (event) => this.tabbedPastLastField.emit(event)
+                        }
+                    }
                 }
             ];
 

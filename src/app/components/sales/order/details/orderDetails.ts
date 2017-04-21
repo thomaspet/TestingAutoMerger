@@ -203,6 +203,10 @@ export class OrderDetails {
         });
     }
 
+    private ngAfterViewInit() {
+         this.tofHead.detailsForm.tabbedPastLastField.subscribe((event) => this.tradeItemTable.focusFirstRow());
+    }
+
     @HostListener('keydown', ['$event'])
     public onKeyDown(event: KeyboardEvent) {
         const key = event.which || event.keyCode;

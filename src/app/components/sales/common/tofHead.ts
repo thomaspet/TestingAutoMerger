@@ -1,6 +1,7 @@
 import {Component, Input, Output, ViewChild, EventEmitter, OnChanges, SimpleChanges} from '@angular/core';
 import {CurrencyCode} from '../../../unientities';
 import {TofCustomerCard} from './customerCard';
+import {TofDetailsForm} from './detailsForm';
 declare var _;
 
 @Component({
@@ -9,7 +10,7 @@ declare var _;
 })
 export class TofHead implements OnChanges {
     @ViewChild(TofCustomerCard) private customerCard: TofCustomerCard;
-
+    @ViewChild(TofDetailsForm) public detailsForm: TofDetailsForm;
     @Input() public entityName: string;
     @Input() public readonly: boolean;
     @Input() private data: any; // type?

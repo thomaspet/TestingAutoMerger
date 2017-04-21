@@ -207,8 +207,11 @@ export class InvoiceDetails {
                     this.refreshInvoice(invoice);
                 }, err => this.errorService.handle(err));
             }
-
         }, err => this.errorService.handle(err));
+    }
+
+    private ngAfterViewInit() {
+         this.tofHead.detailsForm.tabbedPastLastField.subscribe((event) => this.tradeItemTable.focusFirstRow());
     }
 
     private getCollectorStatusText(status: CollectorStatus): string {
