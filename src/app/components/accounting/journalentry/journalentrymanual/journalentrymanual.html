@@ -13,8 +13,7 @@
                                     [defaultVisibleColumns]="journalEntrySettings.DefaultVisibleFields"
                                     [financialYears]="financialYears"
                                     [currentFinancialYear]="currentFinancialYear"
-                                    [vatDeductions]="vatDeductions"
-                                    [companySettings]="companySettings">
+                                    [vatDeductions]="vatDeductions">
         </journal-entry-professional>
 
         <uni-summary [configs]="summary" *ngIf="itemsSummaryData" [attr.aria-busy]="busy"></uni-summary>

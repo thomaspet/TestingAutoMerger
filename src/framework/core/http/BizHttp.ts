@@ -123,6 +123,11 @@ export class BizHttp<T> {
         }
     }
 
+    public GetOneByQuery(query: string, expand?: string[]): Observable<any> {
+        return this.GetAll(query, expand)
+            .map(result => result && result.length && result[0]);
+    }
+
     public GetAllByUrlSearchParams<T>(params: URLSearchParams): Observable<any> {
         // use default orderby for service if no orderby is specified
         if (!params.get('orderby') && this.DefaultOrderBy !== null) {

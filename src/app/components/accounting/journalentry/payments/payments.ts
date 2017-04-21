@@ -2,7 +2,7 @@ import {Component, ViewChild} from '@angular/core';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
 import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig} from 'unitable-ng2/main';
 import {URLSearchParams} from '@angular/http';
-import {CustomerInvoice, JournalEntryData, Account, CompanySettings, LocalDate} from '../../../../unientities';
+import {CustomerInvoice, Account, CompanySettings, LocalDate} from '../../../../unientities';
 import {JournalEntryManual} from  '../journalentrymanual/journalentrymanual';
 import {
     ErrorService,
@@ -12,6 +12,7 @@ import {
 } from '../../../../services/services';
 
 import * as moment from 'moment';
+import {JournalEntryData} from '../../../../models/accounting/JournalEntryData';
 
 @Component({
     selector: 'payments',
@@ -38,7 +39,7 @@ export class Payments {
     ) {
         this.tabService.addTab({ name: 'Innbetalinger', url: '/accounting/journalentry/payments', moduleID: UniModules.Payments, active: true });
 
-        this.companySettingsService.Get(1, ['CompanyBankAccount', 'CompanyBankAccount.Account'])
+        this.companySettingsService.Get(1, ['BaseCurrencyCode', 'CompanyBankAccount', 'CompanyBankAccount.Account'])
             .subscribe((data: CompanySettings) => {
                 if (data && data.CompanyBankAccount && data.CompanyBankAccount.Account) {
                     this.defaultBankAccount = data.CompanyBankAccount.Account;
@@ -64,6 +65,9 @@ export class Payments {
                 let newJournalEntry: JournalEntryData = new JournalEntryData();
                 newJournalEntry.InvoiceNumber = invoice.InvoiceNumber;
                 newJournalEntry.CustomerInvoiceID = invoice.ID;
+                newJournalEntry.CustomerInvoice = invoice;
+                newJournalEntry.CurrencyID = invoice.CurrencyCodeID;
+                newJournalEntry.CurrencyCode = invoice.CurrencyCode;
                 newJournalEntry.FinancialDate = new LocalDate(moment().toDate());
                 newJournalEntry.Description = 'Innbetaling';
 
@@ -73,6 +77,7 @@ export class Payments {
 
                         if (line.Account.UsePostPost) {
                             newJournalEntry.Amount = line.RestAmount;
+                            newJournalEntry.AmountCurrency = line.RestAmountCurrency;
 
                             if (line.SubAccount) {
                                 newJournalEntry.CreditAccountID = line.SubAccountID;
@@ -105,7 +110,7 @@ export class Payments {
     private setupInvoiceTable() {
         this.lookupFunction = (urlParams: URLSearchParams) => {
             urlParams = urlParams || new URLSearchParams();
-            urlParams.set('expand', 'Customer,JournalEntry,JournalEntry.Lines,JournalEntry.Lines.Account,JournalEntry.Lines.SubAccount');
+            urlParams.set('expand', 'Customer,JournalEntry,JournalEntry.Lines,JournalEntry.Lines.Account,JournalEntry.Lines.SubAccount,CurrencyCode');
 
             if (urlParams.get('orderby') === null) {
                 urlParams.set('orderby', 'PaymentDueDate');
@@ -143,13 +148,20 @@ export class Payments {
         var dueDateCol = new UniTableColumn('PaymentDueDate', 'Forfallsdato', UniTableColumnType.LocalDate)
             .setWidth('8%').setFilterOperator('eq');
 
-        var taxInclusiveAmountCol = new UniTableColumn('TaxInclusiveAmount', 'Totalsum', UniTableColumnType.Number)
+        var taxInclusiveAmountCurrencyCol = new UniTableColumn('TaxInclusiveAmountCurrency', 'Totalsum', UniTableColumnType.Number)
             .setWidth('8%')
             .setFilterOperator('eq')
             .setFormat('{0:n}')
             .setCls('column-align-right');
 
-        var restAmountCol = new UniTableColumn('RestAmount', 'Restsum', UniTableColumnType.Number)
+        var restAmountCurrencyCol = new UniTableColumn('RestAmountCurrency', 'Restsum', UniTableColumnType.Number)
+            .setWidth('10%')
+            .setFilterOperator('eq')
+            .setFormat('{0:n}')
+            .setCls('column-align-right');
+
+        var currencyCodeCol = new UniTableColumn('CurrencyCode', `Valuta`, UniTableColumnType.Number)
+            .setTemplate(row => row && row.CurrencyCode && row.CurrencyCode.Code)
             .setWidth('10%')
             .setFilterOperator('eq')
             .setFormat('{0:n}')
@@ -174,6 +186,6 @@ export class Payments {
             .setSearchable(true)
             .setMultiRowSelect(true)
             .setColumns([invoiceNumberCol, customerNumberCol, customerNameCol, invoiceDateCol, dueDateCol,
-                taxInclusiveAmountCol, restAmountCol, creditedAmountCol, statusCol]);
+                taxInclusiveAmountCurrencyCol, restAmountCurrencyCol, currencyCodeCol, creditedAmountCol, statusCol]);
     }
 }

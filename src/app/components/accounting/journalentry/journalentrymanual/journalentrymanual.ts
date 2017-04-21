@@ -1,7 +1,7 @@
 import {Component, Input, SimpleChange, ViewChild, OnInit, OnChanges, Output, EventEmitter} from '@angular/core';
 import {JournalEntryProfessional} from '../components/journalentryprofessional/journalentryprofessional';
-import {SupplierInvoice, Dimensions, FinancialYear, ValidationLevel, VatDeduction, CompanySettings} from '../../../../unientities';
-import {ValidationMessage, ValidationResult} from '../../../../models/validationResult';
+import {Dimensions, FinancialYear, ValidationLevel, VatDeduction, CompanySettings} from '../../../../unientities';
+import {ValidationResult} from '../../../../models/validationResult';
 import {JournalEntryData} from '../../../../models/models';
 import {JournalEntrySimpleCalculationSummary} from '../../../../models/accounting/JournalEntrySimpleCalculationSummary';
 import {JournalEntryAccountCalculationSummary} from '../../../../models/accounting/JournalEntryAccountCalculationSummary';
@@ -17,8 +17,7 @@ import {
     ErrorService,
     JournalEntryService,
     FinancialYearService,
-    VatDeductionService,
-    CompanySettingsService
+    VatDeductionService
 } from '../../../../services/services';
 
 export enum JournalEntryMode {
@@ -71,7 +70,6 @@ export class JournalEntryManual implements OnChanges, OnInit {
         private errorService: ErrorService,
         private toastService: ToastService,
         private vatDeductionService: VatDeductionService,
-        private companySettingsService: CompanySettingsService
     ) {
     }
 
@@ -81,8 +79,7 @@ export class JournalEntryManual implements OnChanges, OnInit {
         Observable.forkJoin(
             this.financialYearService.GetAll(null),
             this.financialYearService.getActiveFinancialYear(),
-            this.vatDeductionService.GetAll(null),
-            this.companySettingsService.Get(1)
+            this.vatDeductionService.GetAll(null)
         ).subscribe(data => {
                 this.financialYears = data[0];
                 this.currentFinancialYear = data[1];
@@ -273,7 +270,7 @@ export class JournalEntryManual implements OnChanges, OnInit {
         data.SameOrNew = '1';
         this.isDirty = true;
         if (this.journalEntryProfessional) {
-            this.journalEntryProfessional.addJournalEntryLine(data);
+            this.journalEntryProfessional.addMaybeAgioJournalEntryLine(data);
         }
         this.setupSaveConfig();
     }
@@ -507,22 +504,28 @@ export class JournalEntryManual implements OnChanges, OnInit {
     }
 
     private setSums() {
-        this.summary = [{
-                value: this.itemsSummaryData ? this.numberFormat.asMoney(this.itemsSummaryData.SumDebet || 0) : null,
-                title: 'Sum debet',
-            }, {
-                value: this.itemsSummaryData ? this.numberFormat.asMoney(this.itemsSummaryData.SumCredit || 0) : null,
-                title: 'Sum kreditt',
-            }, {
-                value: this.itemsSummaryData ? this.numberFormat.asMoney(this.itemsSummaryData.Differance || 0) : null,
-                title: 'Differanse',
-            }, {
-                value: this.itemsSummaryData ? this.numberFormat.asMoney(this.itemsSummaryData.IncomingVat || 0) : null,
-                title: 'Inng.mva',
-            }, {
-                value: this.itemsSummaryData ? this.numberFormat.asMoney(this.itemsSummaryData.OutgoingVat || 0) : null,
-                title: 'Utg.mva',
-            }];
+        const showCurrencyCode = !this.itemsSummaryData.IsOnlyCompanyCurrencyCode;
+        this.summary = <ISummaryConfig[]>[{
+            value: this.itemsSummaryData ? this.numberFormat.asMoney(this.itemsSummaryData.SumDebet || 0) : null,
+            title: 'Sum debet',
+            description: showCurrencyCode && this.itemsSummaryData.BaseCurrencyCodeCode
+        }, {
+            value: this.itemsSummaryData ? this.numberFormat.asMoney(this.itemsSummaryData.SumCredit || 0) : null,
+            title: 'Sum kreditt',
+            description: showCurrencyCode && this.itemsSummaryData.BaseCurrencyCodeCode
+        }, {
+            value: this.itemsSummaryData ? this.numberFormat.asMoney(this.itemsSummaryData.Differance || 0) : null,
+            title: 'Differanse',
+            description: showCurrencyCode && this.itemsSummaryData.BaseCurrencyCodeCode
+        }, {
+            value: this.itemsSummaryData ? this.numberFormat.asMoney(this.itemsSummaryData.IncomingVat || 0) : null,
+            title: 'Inng.mva',
+            description: showCurrencyCode && this.itemsSummaryData.BaseCurrencyCodeCode
+        }, {
+            value: this.itemsSummaryData ? this.numberFormat.asMoney(this.itemsSummaryData.OutgoingVat || 0) : null,
+            title: 'Utg.mva',
+            description: showCurrencyCode && this.itemsSummaryData.BaseCurrencyCodeCode
+        }];
     }
 
     private getValidationLevelCss(validationLevel) {

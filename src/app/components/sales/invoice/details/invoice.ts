@@ -1101,7 +1101,7 @@ export class InvoiceDetails {
         this.registerPaymentModal.confirm(this.invoice.ID, title, this.invoice.CurrencyCode, this.invoice.CurrencyExchangeRate,
             'CustomerInvoice', invoicePaymentData).then(res => {
             if (res.status === ConfirmActions.ACCEPT) {
-                this.customerInvoiceService.ActionWithBody(res.id, res.model, 'payInvoice').subscribe((journalEntry) => {
+                this.customerInvoiceService.ActionWithBody(res.id, <CustomerInvoice>res.model, 'payInvoice').subscribe((journalEntry) => {
                     this.toastService.addToast('Faktura er betalt. Bilagsnummer: ' + journalEntry.JournalEntryNumber, ToastType.good, 5);
                     done('Betaling registrert');
                     this.customerInvoiceService.Get(this.invoice.ID, this.expandOptions).subscribe((invoice) => {
