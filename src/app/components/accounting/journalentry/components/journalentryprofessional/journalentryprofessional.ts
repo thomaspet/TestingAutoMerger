@@ -1061,6 +1061,9 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
         debRow.CustomerInvoice = invoice;
         debRow.SameOrNew = journalEntryData.SameOrNew;
         debRow.JournalEntryNo = journalEntryData.JournalEntryNo;
+        debRow.InvoiceNumber = journalEntryData.InvoiceNumber;
+        debRow.CustomerInvoice = journalEntryData.CustomerInvoice;
+        debRow.CustomerInvoiceID = journalEntryData.CustomerInvoiceID;
         debRow.FinancialDate = journalEntryData.FinancialDate;
         debRow.Dimensions = journalEntryData.Dimensions;
         debRow.Description = journalEntryData.Description;
