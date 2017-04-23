@@ -110,16 +110,15 @@ export class UniAssignModal {
        
         if (src === 'ok') {
             if (this.selectedUsers.length === 0) { return; }
-            this.goBusy();
             this.okclicked.emit(this.currentDetails);            
             return;
         } 
         this.isOpen = false;
         this.onClose(false);
         this.refresh();
-    }
+    }    
     
-    private goBusy(busy: boolean = true) {
+    public goBusy(busy: boolean = true) {
         this.busy = busy;
         this.refresh();
     }

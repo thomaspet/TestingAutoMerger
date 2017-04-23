@@ -344,6 +344,7 @@ export class BillView {
             .subscribe( (invoice: SupplierInvoice) => {
                 this.toast.clear();
                 this.current.next(invoice);
+                this.flagUnsavedChanged();
             }, (err) => {
                 this.errorService.handle(err);
             });
@@ -404,6 +405,7 @@ export class BillView {
             .subscribe((result: IOcrServiceResult) => {
                 this.toast.clear();
                 this.handleOcrResult(new OcrValuables(result));
+                this.flagUnsavedChanged();
             }, (err) => {
                 this.errorService.handle(err);
             });
@@ -780,10 +782,14 @@ export class BillView {
     public onAssignClickOk(details: AssignDetails) {
         let id = this.currentID;
         if (!id) { return; }
+        this.assignModal.goBusy(true);
         this.supplierInvoiceService.assign(id, details)
-            .subscribe( x => {
+            .finally( () => this.assignModal.goBusy(false) )
+            .subscribe( x => {                
                 this.assignModal.close();
                 this.fetchInvoice(id, true);
+            }, (err) => {
+                this.errorService.handle(err);
             });
     }
 
