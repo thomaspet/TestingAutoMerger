@@ -997,7 +997,7 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
                                 : (res.amountGrossCurrency * (1 + vattype.VatPercent / 100)) * deductionpercent / 100
                             : res.amountGrossCurrency * deductionpercent / 100 / (1 + vattype.VatPercent / 100);
 
-                    if (res.amountGrossCurrency !== 100) {
+                    if (deductionpercent !== 100) {
                         res.amountNetCurrency += vattype.ReversedTaxDutyVat ?
                             res.amountGrossCurrency * (100 - deductionpercent) / 100 + (res.amountGrossCurrency * vattype.VatPercent / 100) * ((100 - deductionpercent) / 100)
                                         : res.amountGrossCurrency - res.amountNetCurrency - res.amountNetCurrency * vattype.VatPercent / 100;
