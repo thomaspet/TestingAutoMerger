@@ -19,7 +19,7 @@ import {
     JournalEntryService,
     FinancialYearService,
     VatDeductionService,
-    CompanySettingsService
+    CompanySettingsService,
     JournalEntryLineService
 } from '../../../../services/services';
 
@@ -60,7 +60,7 @@ export class JournalEntryManual implements OnChanges, OnInit {
     private itemAccountInfoData: JournalEntryAccountCalculationSummary = new JournalEntryAccountCalculationSummary();
     private accountBalanceInfoData: Array<AccountBalanceInfo> = new Array<AccountBalanceInfo>();
 
-    private lastRetrievedOpenPostsForAccountID: number = null;
+    private lastRetrievedOpenPostsRowIndex: number = null;
     private lastRetrievedOpenPostsExpectedPositive: boolean = null;
     private openPostsForSelectedRow: Array<JournalEntryLine> = null;
     private openPostTableConfig: UniTableConfig = null;
@@ -135,7 +135,7 @@ export class JournalEntryManual implements OnChanges, OnInit {
         this.accountBalanceInfoData = new Array<AccountBalanceInfo>();
         this.itemAccountInfoData = new JournalEntryAccountCalculationSummary();
         this.openPostsForSelectedRow = null;
-        this.lastRetrievedOpenPostsForAccountID = null;
+        this.lastRetrievedOpenPostsRowIndex = null;
         this.lastRetrievedOpenPostsExpectedPositive = null;
         this.isDirty = false;
     }
@@ -481,11 +481,9 @@ export class JournalEntryManual implements OnChanges, OnInit {
             }
 
             if (ledgerAccountID) {
-                if (ledgerAccountID !== this.lastRetrievedOpenPostsForAccountID
-                    || expectPositiveAmount !== this.lastRetrievedOpenPostsExpectedPositive) {
-
+                if (ledgerAccountID !== this.lastRetrievedOpenPostsRowIndex) {
                     this.openPostRetrievingDataInProgress = true;
-                    this.lastRetrievedOpenPostsForAccountID = ledgerAccountID;
+                    this.lastRetrievedOpenPostsRowIndex = this.currentJournalEntryData['_originalIndex'];
                     this.lastRetrievedOpenPostsExpectedPositive = expectPositiveAmount;
                     this.openPostsForSelectedRow = null;
 
@@ -515,12 +513,12 @@ export class JournalEntryManual implements OnChanges, OnInit {
                 }
             } else {
                 this.openPostsForSelectedRow = null;
-                this.lastRetrievedOpenPostsForAccountID = null;
+                this.lastRetrievedOpenPostsRowIndex = null;
                 this.lastRetrievedOpenPostsExpectedPositive = null;
             }
         } else {
             this.openPostsForSelectedRow = null;
-            this.lastRetrievedOpenPostsForAccountID = null;
+            this.lastRetrievedOpenPostsRowIndex = null;
             this.lastRetrievedOpenPostsExpectedPositive = null;
         }
     }

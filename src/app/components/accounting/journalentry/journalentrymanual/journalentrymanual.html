@@ -67,12 +67,14 @@
              <p *ngIf="openPostsForSelectedRow && openPostsForSelectedRow.length === 0">
                  Ingen åpne poster funnet for valgt rad
              </p>
-             <uni-table
-                *ngIf="openPostsForSelectedRow && openPostsForSelectedRow.length > 0"
-                [resource]="openPostsForSelectedRow"
-                [config]="openPostTableConfig"
-                (rowSelectionChanged)="openPostSelected($event)">
-             </uni-table>
+             <div class="openposts_wrapper"
+                *ngIf="openPostsForSelectedRow && openPostsForSelectedRow.length > 0">
+                <uni-table
+                    [resource]="openPostsForSelectedRow"
+                    [config]="openPostTableConfig"
+                    (rowSelectionChanged)="openPostSelected($event)">
+                </uni-table>
+             </div>
         </section>
 
         <div class="validation_messages_container" *ngIf="validationResult && validationResult.Messages.length > 0">

@@ -1,6 +1,7 @@
 @import 'journalentryProfessional'
 @import 'payments'
 @import 'bill'
+@import 'selectjournalentrylinemodal'
 
 journal-entry > h2
     display: block
@@ -44,9 +45,12 @@ journal-entry-manual
     .openposts_container
         float: left
         width: calc(60% - 1rem)
-        height: pxToRem(170)    // should reaaaally do something more elegant here, I'll discuss with jlom once it is merged - works for now
-        overflow-y: scroll
         padding-left: 1rem
+
+        .openposts_wrapper
+            width: 100%
+            height: pxToRem(170)    // should reaaaally do something more elegant here, I'll discuss with jlom once it is merged - works for now
+            overflow-y: scroll
 
         uni-table
             font-size: 0.8rem

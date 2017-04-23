@@ -18,6 +18,7 @@ import {
     Project,
     Department,
     CustomerInvoice,
+    JournalEntryLine,
     CompanySettings,
     FinancialYear,
     LocalDate,
@@ -37,6 +38,7 @@ import {
     VatTypeService,
     AccountService,
     JournalEntryService,
+    JournalEntryLineService,
     DepartmentService,
     ProjectService,
     CustomerInvoiceService,
@@ -49,6 +51,7 @@ import * as moment from 'moment';
 import {CurrencyCodeService} from '../../../../../services/common/currencyCodeService';
 import {CurrencyService} from '../../../../../services/common/currencyService';
 import {RegisterPaymentModal} from '../../../../common/modals/registerPaymentModal';
+import {SelectJournalEntryLineModal} from '../selectJournalEntryLineModal';
 import {INumberFormat} from 'unitable-ng2/src/unitable/config/unitableColumn';
 import {UniMath} from '../../../../../../framework/core/uniMath';
 const PAPERCLIP = '📎'; // It might look empty in your editor, but this is the unicode paperclip
@@ -73,6 +76,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
     @ViewChild(AddPaymentModal) private addPaymentModal: AddPaymentModal;
     @ViewChild(UniConfirmModal) private confirmModal: UniConfirmModal;
     @ViewChild(RegisterPaymentModal) private registerPaymentModal: RegisterPaymentModal;
+    @ViewChild(SelectJournalEntryLineModal) private selectJournalEntryLineModal: SelectJournalEntryLineModal;
 
     private companySettings: CompanySettings;
     private columnsThatMustAlwaysShow: string[] = ['AmountCurrency'];
@@ -119,7 +123,8 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
         private numberFormatService: NumberFormat,
         private currencyCodeService: CurrencyCodeService,
         private currencyService: CurrencyService,
-        private companySettingsService: CompanySettingsService
+        private companySettingsService: CompanySettingsService,
+        private journalEntryLineService: JournalEntryLineService
     ) {
 
     }
@@ -275,7 +280,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 this.toastService.addToast(
                     'Postmarkering fjernet pga endret konto',
                     ToastType.warn,
-                    ToastTime.medium,
+                    ToastTime.short,
                     `Postmarkeringen mot bilag ${rowModel.PostPostJournalEntryLine.JournalEntryNumber} ble fjernet pga konto ble endret`
                 );
 
@@ -548,6 +553,78 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
             }
         }
         return rowModel;
+    }
+
+    private setInvoiceNumberProperties(row: JournalEntryData) {
+        // get journalentryline with restamount ne 0 and invoicenumber eq row.InvoiceNumber
+        // (and if account is defined, filter on account)
+        if (row.InvoiceNumber && row.InvoiceNumber !== '') {
+            let filter = `expand=Account,SubAccount,CurrencyCode&filter=InvoiceNumber eq '${row.InvoiceNumber}' and RestAmount ne 0`;
+
+            if (row.DebitAccount || row.CreditAccount) {
+                let accountFilter = '';
+                if (row.DebitAccount && row.DebitAccount.UsePostPost) {
+                    accountFilter += `AccountID eq ${row.DebitAccountID}`;
+                }
+                if (row.CreditAccount && row.CreditAccount.UsePostPost) {
+                    accountFilter +=
+                        (accountFilter !== '' ? ' or ' : '') + `AccountID eq ${row.CreditAccountID}`;
+                }
+
+                if (accountFilter !== '') {
+                    filter += ` and (${accountFilter})`;
+                }
+            }
+
+            this.journalEntryLineService.GetAll(filter)
+                .subscribe(rows => {
+                    // if no lines are found: dont do anything else
+                    if (rows.length === 1) {
+                        let copyFromJournalEntryLine = rows[0];
+                        this.setRowValuesBasedOnExistingJournalEntryLine(row, copyFromJournalEntryLine);
+
+                        this.updateJournalEntryLine(row);
+                    } else if (rows.length > 1) {
+                        // if multiple lines are found: show modal with lines that can be selected
+                        this.selectJournalEntryLineModal
+                            .openModal(rows)
+                            .then((selectedLine) => {
+                                this.setRowValuesBasedOnExistingJournalEntryLine(row, selectedLine);
+                                this.updateJournalEntryLine(row);
+
+                                // reset focus after modal closes
+                                this.table.focusRow(row['_originalIndex']);
+                            });
+                    }
+                }, err => {
+                    this.errorService.handle(err);
+                });
+        }
+
+    }
+
+    private setRowValuesBasedOnExistingJournalEntryLine(row: JournalEntryData, copyFromJournalEntryLine: JournalEntryLine) {
+        // if one line is found: update accounts, amount and text
+        let account = copyFromJournalEntryLine.SubAccount ? copyFromJournalEntryLine.SubAccount : copyFromJournalEntryLine.Account;
+
+        let restAmount = copyFromJournalEntryLine.RestAmount;
+        if (restAmount > 0) {
+            row.CreditAccountID = account.ID;
+            row.CreditAccount = account;
+        } else {
+            row.DebitAccountID = account.ID;
+            row.DebitAccount = account;
+        }
+
+        row.Amount = Math.abs(copyFromJournalEntryLine.RestAmount);
+        row.NetAmount = Math.abs(copyFromJournalEntryLine.RestAmount);
+        row.AmountCurrency = Math.abs(copyFromJournalEntryLine.RestAmountCurrency);
+        row.NetAmountCurrency = Math.abs(copyFromJournalEntryLine.RestAmountCurrency);
+
+        row.PostPostJournalEntryLineID = copyFromJournalEntryLine.ID;
+        row.PostPostJournalEntryLine = copyFromJournalEntryLine;
+        row.CurrencyID = copyFromJournalEntryLine.CurrencyCodeID;
+        row.CurrencyCode = copyFromJournalEntryLine.CurrencyCode;
     }
 
     private setupUniTable() {
@@ -872,7 +949,17 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
             .setColumnMenuVisible(true)
             .setAutoScrollIfNewCellCloseToBottom(true)
             .setChangeCallback((event) => {
-                let row = <JournalEntryData> event.rowModel;
+                let rowModel = <JournalEntryData> event.rowModel;
+
+                // get row from table - it may have been updated after the editor got it
+                // because some of the events sometimes are async. Therefore, get the row
+                // from the table, and reapply the changes made by this event
+                let row = this.table.getRow(rowModel['_originalIndex']);
+
+                row[event.field] = rowModel[event.field];
+                // for some reason unitable returns rows as empty, but it is not,
+                // so just set it to false
+                row['_isEmpty'] = false;
 
                 if (this.journalEntryID && !row.JournalEntryID) {
                     row.JournalEntryID = this.journalEntryID;
@@ -964,6 +1051,12 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                     if (row.CurrencyID !== this.companySettings.BaseCurrencyCodeID) {
                         rowOrPromise = this.showAgioDialog(row);
                     }
+                } else if (event.field === 'InvoiceNumber') {
+                    // this function runs some async lookups and updates the data directly
+                    // if it needs to. It could use the promisestuff, but it doesnt work so well
+                    // when it changes the accountnumbers (the editor is opened, but focus is
+                    // lost, so it is really annoying in most cases)
+                    this.setInvoiceNumberProperties(row);
                 }
 
                 // Return the updated row to the table
@@ -978,6 +1071,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                         if (row.JournalEntryDataAccrual && row.JournalEntryDataAccrual.AccrualAmount !== row.NetAmountCurrency) {
                             row.JournalEntryDataAccrual.AccrualAmount = row.NetAmountCurrency;
                         }
+
                         return row;
                     });
             });
@@ -1099,7 +1193,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
         agioRow.CurrencyID = this.companySettings.BaseCurrencyCode.ID;
         agioRow.CurrencyExchangeRate = 1;
 
-        return new Promise((resolve)=> {
+        return new Promise((resolve) => {
             this.accountService.Get(invoicePaymentData.AgioAccountID)
                 .subscribe(
                     agioAccount => {

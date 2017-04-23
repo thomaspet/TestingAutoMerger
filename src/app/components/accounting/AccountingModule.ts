@@ -23,6 +23,7 @@ import {JournalEntryManual} from './journalentry/journalentrymanual/journalentry
 import {CheckListVat} from './vatreport/checkList/checkList';
 import {VatReportJournalEntry} from './vatreport/JournalEntry/vatReportJournalEntry';
 import {CreateCorrectedVatReportForm} from './vatreport/modals/createCorrectedVatReport';
+import {SelectJournalEntryLineModal, SelectJournalEntryLineTable} from './journalentry/components/selectJournalEntryLineModal';
 import {HistoricVatReportTable} from './vatreport/modals/historicVatReports';
 import {ReceiptVat} from './vatreport/receipt/receipt';
 import {VatSummaryPerPost} from './vatreport/reportSummary/reportSummary';
@@ -46,6 +47,7 @@ import {DimensionsOverviewReportPart}  from './accountingreports/reportparts/dim
 import {DrilldownBalanceReportPart}  from './accountingreports/reportparts/drilldownBalanceReportPart';
 import {CreateCorrectedVatReportModal} from './vatreport/modals/createCorrectedVatReport';
 import {HistoricVatReportModal} from './vatreport/modals/historicVatReports';
+
 import {BillsView} from './bill/bills';
 import {BillView} from './bill/detail/bill';
 import {BillSimpleJournalEntryView, AccountPipe, VatCodePipe, TrimTextPipe} from './bill/detail/journal/simple';
@@ -107,6 +109,7 @@ import {TimetrackingModule} from '../timetracking/timetrackingModule';
         BillView,
         BillSimpleJournalEntryView, BillHistoryView,
         AccountPipe, VatCodePipe, TrimTextPipe,
+        SelectJournalEntryLineModal, SelectJournalEntryLineTable,
         UniAssignModal,
 
         // vatreport
@@ -141,7 +144,8 @@ import {TimetrackingModule} from '../timetracking/timetrackingModule';
     entryComponents: [
         HistoricVatReportTable,
         CreateCorrectedVatReportForm,
-        AccountDetailsReport
+        AccountDetailsReport,
+        SelectJournalEntryLineTable
     ],
     exports: [
         AccountSettings,
@@ -161,6 +165,8 @@ import {TimetrackingModule} from '../timetracking/timetrackingModule';
         JournalEntries,
         Payments,
         BillsView,
+        SelectJournalEntryLineModal,
+        SelectJournalEntryLineTable,
 
         // vatreport
         CheckListVat,
