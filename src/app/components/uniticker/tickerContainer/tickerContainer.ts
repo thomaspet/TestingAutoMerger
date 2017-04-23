@@ -60,8 +60,16 @@ export class UniTickerContainer {
 
             if (pageState.filter && pageState.filter !== '' && this.ticker && this.ticker.Filters) {
                 this.selectedFilter = this.ticker.Filters.find(x => x.Code === pageState.filter);
+
+                if (!this.selectedFilter) {
+                    this.selectedFilter = this.ticker.Filters[0];
+                }
             } else {
                 this.selectedFilter = null;
+
+                if (this.ticker && this.ticker.Filters && this.ticker.Filters.length > 0) {
+                    this.selectedFilter = this.ticker.Filters[0];
+                }
             }
 
             // set expand based on what was expanded - but dont expand subticker, because
