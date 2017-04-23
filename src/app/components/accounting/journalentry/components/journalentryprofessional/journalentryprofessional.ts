@@ -331,6 +331,8 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
     private calculateAmount(rowModel: JournalEntryData): JournalEntryData {
         if (rowModel.AmountCurrency) {
             rowModel.Amount = rowModel.AmountCurrency * rowModel.CurrencyExchangeRate;
+        } else {
+            rowModel.Amount = null;
         }
 
         return rowModel;
@@ -385,7 +387,9 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
             }
         } else {
             rowModel.AmountCurrency = null;
+            rowModel.Amount = null;
         }
+
         return rowModel;
     }
 
@@ -757,10 +761,10 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
             .setEditable(false)
             .setWidth('90px');
         let amountCurrencyCol = new UniTableColumn('AmountCurrency', 'Beløp', UniTableColumnType.Money).setWidth('90px');
-        let netAmountCol = new UniTableColumn('NetAmountCurrency', 'Netto', UniTableColumnType.Text).setWidth('90px')
+        let netAmountCol = new UniTableColumn('NetAmountCurrency', 'Netto', UniTableColumnType.Money).setWidth('90px')
             .setSkipOnEnterKeyNavigation(true)
-            .setAlignment('right')
-            .setTemplate((row: JournalEntryData) => {
+            /*  KE: We should display a tooltip if editing is not possible, but currently this causes problems, so ignore this for now
+                .setTemplate((row: JournalEntryData) => {
                 if (row['NetAmountCurrency'] && row.VatDeductionPercent && row.VatDeductionPercent !== 0
                     && ((row.DebitAccount && row.DebitAccount.UseDeductivePercent)
                     || (row.CreditAccount && row.CreditAccount.UseDeductivePercent))) {
@@ -768,7 +772,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 } else if (row['NetAmountCurrency']) {
                     return this.numberFormatService.asMoney(row['NetAmountCurrency']);
                 }
-            })
+            })*/
             .setEditable((row: JournalEntryData) => {
                 if (row.VatDeductionPercent && row.VatDeductionPercent !== 0
                     && ((row.DebitAccount && row.DebitAccount.UseDeductivePercent)
