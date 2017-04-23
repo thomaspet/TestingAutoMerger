@@ -1,13 +1,12 @@
 import {Injectable} from '@angular/core';
 import {BizHttp} from '../../../framework/core/http/BizHttp';
-import {SupplierInvoice, StatusCodeSupplierInvoice} from '../../unientities';
+import {SupplierInvoice, StatusCodeSupplierInvoice, Team, User} from '../../unientities';
 import {UniHttp} from '../../../framework/core/http/http';
 import {InvoicePaymentData} from '../../models/sales/InvoicePaymentData';
 import {Observable} from 'rxjs/Observable';
 import {URLSearchParams} from '@angular/http';
 import {ErrorService} from '../common/errorService';
-import * as moment from 'moment';
-
+import {UserService} from '../common/userService';
 
 @Injectable()
 export class SupplierInvoiceService extends BizHttp<SupplierInvoice> {
@@ -25,7 +24,7 @@ export class SupplierInvoiceService extends BizHttp<SupplierInvoice> {
         { Code: 90001, Text: 'Avvist', isPrimary: false }
     ];
 
-    constructor(http: UniHttp, private errorService: ErrorService) {
+    constructor(http: UniHttp, private errorService: ErrorService, private userService: UserService) {
         super(http);
 
         this.relativeURL = SupplierInvoice.RelativeUrl;
@@ -41,11 +40,31 @@ export class SupplierInvoiceService extends BizHttp<SupplierInvoice> {
         return statusType ? statusType.Text : 'Udefinert';
     };
 
-    public assign(supplierInvoiceId: number) {
+    public getTeamsAndUsers(): Observable<{ teams: Array<Team>, users: Array<User>} >  {
+
+        var obsTeams = this.http.asGET().usingBusinessDomain()
+            .withEndPoint('teams/?expand=positions&hateoas=false&orderby=name&filter=positions.position ge 12').send()
+            .map(response => response.json());
+
+        var obsUsers = this.http.asGET().usingBusinessDomain()
+            .withEndPoint('users/?hateoas=false?orderby=displayname&filter=statuscode eq 110001').send()
+            .map(response => response.json());
+        
+        return Observable.forkJoin( obsTeams, obsUsers )
+            .switchMap( result => {
+                 return Observable.of({
+                     teams: result[0],
+                     users: result[1]
+                });
+            });
+    }
+
+    public assign(supplierInvoiceId: number, details: IAssignDetails): Observable<boolean> {
         return this.http
             .asPOST()
             .usingBusinessDomain()
-            .withEndPoint(`${this.relativeURL}/${supplierInvoiceId}?action=assign`)
+            .withBody(details)
+            .withEndPoint(`${this.relativeURL}/${supplierInvoiceId}?action=assign-to`)
             .send()
             .map(response => response.json());
     }
@@ -136,6 +155,7 @@ export class SupplierInvoiceService extends BizHttp<SupplierInvoice> {
     }
 
     public getInvoiceListGroupedTotals(): Observable<Array<IStatTotal>> {
+        // tslint:disable-next-line:max-line-length
         var route = '?model=supplierinvoice&select=count(id),statuscode,sum(TaxInclusiveAmount),sum(RestAmount)&filter=isnull(deleted,0) eq 0';
         return this.http.asGET().usingStatisticsDomain()
         .withEndPoint(route).send()
@@ -185,4 +205,10 @@ export interface IStatTotal {
     SupplierInvoiceStatusCode: number;
     sumTaxInclusiveAmount: number;
     sumRestAmount: number;
+}
+
+export interface IAssignDetails {
+    Message: string;
+    TeamIDs: Array<number>;
+    UserIDs: Array<number>;
 }

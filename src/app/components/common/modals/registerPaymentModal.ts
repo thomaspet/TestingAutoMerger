@@ -17,7 +17,7 @@ import {UniMath} from '../../../../framework/core/uniMath';
 export interface RegisterPaymentModalResult {
     status: ConfirmActions;
     model: InvoicePaymentData;
-    id: Number;
+    id: number;
 };
 
 

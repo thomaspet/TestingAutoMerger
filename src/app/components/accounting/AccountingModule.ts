@@ -50,6 +50,7 @@ import {BillsView} from './bill/bills';
 import {BillView} from './bill/detail/bill';
 import {BillSimpleJournalEntryView, AccountPipe, VatCodePipe, TrimTextPipe} from './bill/detail/journal/simple';
 import {BillHistoryView} from './bill/detail/history/history';
+import {UniAssignModal} from './bill/detail/approvemodal';
 
 import {AccountSettings} from './accountSettings/accountSettings';
 import {DimensionList} from './accountSettings/dimensionList/dimensionList';
@@ -106,6 +107,7 @@ import {TimetrackingModule} from '../timetracking/timetrackingModule';
         BillView,
         BillSimpleJournalEntryView, BillHistoryView,
         AccountPipe, VatCodePipe, TrimTextPipe,
+        UniAssignModal,
 
         // vatreport
         CheckListVat,

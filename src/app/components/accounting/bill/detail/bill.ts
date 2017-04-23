@@ -11,7 +11,6 @@ import {Supplier, SupplierInvoice, JournalEntryLineDraft,
 import {UniStatusTrack} from '../../../common/toolbar/statustrack';
 import {IUniSaveAction} from '../../../../../framework/save/save';
 import {UniForm, FieldType} from 'uniform-ng2/main';
-import {SupplierDetailsModal} from '../../../common/supplier/details/supplierDetailModal';
 import {RegisterPaymentModal} from '../../../common/modals/registerPaymentModal';
 import {Location} from '@angular/common';
 import {BillSimpleJournalEntryView} from './journal/simple';
@@ -23,6 +22,8 @@ import {BankAccountModal} from '../../../common/modals/modals';
 import {ImageModal} from '../../../common/modals/ImageModal';
 import {UniImageSize} from '../../../../../framework/uniImage/uniImage';
 import {IUniSearchConfig} from 'unisearch-ng2/src/UniSearch/IUniSearchConfig';
+import {UniAssignModal, AssignDetails} from './approvemodal';
+
 import {
     SupplierInvoiceService,
     SupplierService,
@@ -98,7 +99,9 @@ export class BillView {
     @ViewChild(UniConfirmModal) private confirmModal: UniConfirmModal;
     @ViewChild(BillHistoryView) private historyView: BillHistoryView;
     @ViewChild(ImageModal) public imageModal: ImageModal;
+    @ViewChild(UniAssignModal) private assignModal: UniAssignModal;
 
+    // tslint:disable:max-line-length
     private supplierExpandOptions: Array<string> = ['Info', 'Info.BankAccounts', 'Info.DefaultBankAccount', 'CurrencyCode'];
 
     private tabLabel: string;
@@ -147,6 +150,11 @@ export class BillView {
 
     public canDeactivate() {
         return this.checkSave();
+    }
+
+    private get currentID(): number {
+        let current = this.current.getValue();
+        return (current ? current.ID : 0);        
     }
 
     private initFromRoute() {
@@ -270,7 +278,7 @@ export class BillView {
                             this.bankAccountService.Post(changedBankaccount)
                                 .subscribe((savedBankAccount: BankAccount) => {
                                     current.BankAccountID = savedBankAccount.ID;
-                                    this.current.next(current); //if we update current we emit the new value
+                                    this.current.next(current); // if we update current we emit the new value
                                     resolve(savedBankAccount);
                                 },
                                 err => {
@@ -457,7 +465,7 @@ export class BillView {
         }
 
 
-       let current = this.current.getValue();
+        let current = this.current.getValue();
 
         current.PaymentID = ocr.PaymentID;
         current.InvoiceNumber = ocr.InvoiceNumber;
@@ -471,7 +479,7 @@ export class BillView {
 
         this.current.next(current);
 
-        //TODO: Implement OCR currency
+        // TODO: Implement OCR currency
     }
 
     private findSupplierViaPhonebook(orgNo: string, askUser: boolean, bankAccount?: string) {
@@ -534,9 +542,9 @@ export class BillView {
         if (change['InvoiceDate']) {
             if (model.CurrencyCodeID && model.CurrencyCodeID !== this.companySettings.BaseCurrencyCodeID) {
                 let currencyDate: LocalDate = model.InvoiceDate ? model.InvoiceDate : new LocalDate();
-                this.currencyService.getCurrencyExchangeRate(model.CurrencyCodeID, this.companySettings.BaseCurrencyCodeID, currencyDate)
+                this.currencyService.getCurrencyExchangeRate(model.CurrencyCodeID, 
+                    this.companySettings.BaseCurrencyCodeID, currencyDate)
                     .subscribe(res => {
-                        let ExchangeRate = res;
                         model.CurrencyExchangeRate = res.ExchangeRate;
                         this.current.next(model);
                         this.flagUnsavedChanged();
@@ -558,7 +566,6 @@ export class BillView {
             if (model.InvoiceDate) {
                 this.currencyService.getCurrencyExchangeRate(model.CurrencyCodeID, this.companySettings.BaseCurrencyCodeID, model.InvoiceDate)
                     .subscribe(res => {
-                        let ExchangeRate = res;
                         model.CurrencyExchangeRate = res.ExchangeRate;
                         this.current.next(model);
                         this.flagUnsavedChanged();
@@ -770,9 +777,24 @@ export class BillView {
         });
     }
 
+    public onAssignClickOk(details: AssignDetails) {
+        let id = this.currentID;
+        if (!id) { return; }
+        this.supplierInvoiceService.assign(id, details)
+            .subscribe( x => {
+                this.assignModal.close();
+                this.fetchInvoice(id, true);
+            });
+    }
+
     private handleActionAfterCheckSave(key: string, label: string, href: string, done: any): boolean {
         let current = this.current.getValue();
         switch (key) {
+            case 'assign':
+                this.assignModal.open(); 
+                done();
+                break;
+
             case 'journal':
                 this.confirmModal.confirm(
                     lang.ask_journal_msg + current.TaxInclusiveAmountCurrency.toFixed(2) + '?',
@@ -884,7 +906,6 @@ export class BillView {
     }
 
     private fetchInvoice(id: number | string, flagBusy: boolean): Promise<any> {
-        let current = this.current.getValue();
         if (flagBusy) { this.busy = true; }
         this.currentFileID = 0;
         this.files = undefined;
@@ -1367,7 +1388,7 @@ export class BillView {
     }
 
     private tagFileStatus(fileID: number, flagFileStatus: number) {
-        var file = this.files.find(x => x.ID == fileID);
+        var file = this.files.find(x => x.ID === fileID);
         var tag = this.isOCR(file) ? 'IncomingMail' : 'IncomingEHF';
 
         this.supplierInvoiceService.send(
@@ -1399,11 +1420,11 @@ export class BillView {
 
     private isOCR(file): Boolean {
         if (file.ContentType) {
-            if (file.ContentType == 'application/xml') { return false; }
+            if (file.ContentType === 'application/xml') { return false; }
             if (file.ContentType.startsWith('image')) { return true; }
         }
-        if (file.Extension && file.Extension == '.xml') { return false; }
-        var ocrformats = ["pdf", "png", "jpeg", "jpg", "gif", "tiff"];
+        if (file.Extension && file.Extension === '.xml') { return false; }
+        var ocrformats = ['pdf', 'png', 'jpeg', 'jpg', 'gif', 'tiff'];
         var ending = file.Name.split('.').pop();
         return ocrformats.indexOf(ending) >= 0;
     }
