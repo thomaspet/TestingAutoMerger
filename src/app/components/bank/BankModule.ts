@@ -10,6 +10,7 @@ import {LayoutModule} from '../layout/layoutModule';
 import {UniFrameworkModule} from '../../../framework/frameworkModule';
 import {UniTableModule} from 'unitable-ng2/main';
 import {AppCommonModule} from '../common/appCommonModule';
+import {AppPipesModule} from '../../pipes/appPipesModule';
 
 // routes
 import {bankRoutes} from './bankRoutes';
@@ -39,6 +40,7 @@ import {CanDeactivateGuard} from '../../canDeactivateGuard';
 
         LayoutModule,
         AppCommonModule,
+        AppPipesModule,
     ],
     declarations: [
         BankComponent,

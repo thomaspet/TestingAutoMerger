@@ -1,5 +1,5 @@
 import {Component} from '@angular/core';
-import {UniTabs, IUniTabsRoute} from '../layout/uniTabs/uniTabs';
+import {IUniTabsRoute} from '../layout/uniTabs/uniTabs';
 
 @Component({
     selector: 'uni-bank-component',

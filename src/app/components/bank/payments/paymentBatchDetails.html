@@ -6,7 +6,7 @@
             <a (click)="goToNextBatch()" class="next">Neste</a>
             <a (click)="deleteBatch()" class="trash" *ngIf="!paymentBatch.PaymentReceiptFileID">Slett betalingsbunt</a>
         </nav>
-        <span>Totalbeløp: {{paymentBatch.TotalAmount}}. Antall: {{paymentBatch.NumberOfPayments}}</span>
+        <span>Totalbeløp: {{paymentBatch.TotalAmount  | unicurrency}} {{companySettings?.BaseCurrencyCode?.ShortCode}}   Antall betalinger: {{paymentBatch.NumberOfPayments}}</span>
         <div class="file-buttons">
             <button (click)="createPaymentFile()" *ngIf="!paymentBatch.PaymentFileID">Opprett betalingsfil</button>
             <button (click)="downloadPaymentFile()" *ngIf="paymentBatch.PaymentFileID">Last ned betalingsfil</button>
