@@ -21,7 +21,7 @@ export class AccountService extends BizHttp<Account> {
 
     public searchAccounts(filter: string, top: number = 500, orderby = 'AccountNumber') {
         filter = (filter ? filter + ' and ' : '') + `Account.Deleted eq 'false' and isnull(VatType.Deleted,'false') eq 'false'`;
-        return this.statisticsService.GetAll(`model=Account&top=${top}&filter=${filter}&orderby=${orderby}&expand=VatType,TopLevelAccountGroup&select=Account.ID as AccountID,Account.AccountID as MainAccountID,Account.AccountNumber as AccountAccountNumber,Account.AccountName as AccountAccountName,Account.UsePostPost as AccountUsePostPost,VatType.ID as VatTypeID,VatType.VatCode as VatTypeVatCode,VatType.Name as VatTypeName,TopLevelAccountGroup.GroupNumber,VatType.VatPercent as VatTypeVatPercent,VatType.ReversedTaxDutyVat as VatTypeReversedTaxDutyVat,VatType.IncomingAccountID as VatTypeIncomingAccountID,VatType.OutgoingAccountID as VatTypeOutgoingAccountID,VatType.DirectJournalEntryOnly as VatTypeDirectJournalEntryOnly,Account.CustomerID as AccountCustomerID,Account.SupplierID as AccountSupplierID,Account.UseDeductivePercent as AccountUseDeductivePercent`)
+        return this.statisticsService.GetAll(`model=Account&top=${top}&filter=${filter}&orderby=${orderby}&expand=VatType,TopLevelAccountGroup&select=Account.ID as AccountID,Account.AccountID as MainAccountID,Account.AccountNumber as AccountAccountNumber,Account.AccountName as AccountAccountName,Account.UsePostPost as AccountUsePostPost,Account.Locked as AccountLocked,Account.LockManualPosts as AccountLockManualPosts,VatType.ID as VatTypeID,VatType.VatCode as VatTypeVatCode,VatType.Name as VatTypeName,TopLevelAccountGroup.GroupNumber,VatType.VatPercent as VatTypeVatPercent,VatType.ReversedTaxDutyVat as VatTypeReversedTaxDutyVat,VatType.IncomingAccountID as VatTypeIncomingAccountID,VatType.OutgoingAccountID as VatTypeOutgoingAccountID,VatType.DirectJournalEntryOnly as VatTypeDirectJournalEntryOnly,Account.CustomerID as AccountCustomerID,Account.SupplierID as AccountSupplierID,Account.UseDeductivePercent as AccountUseDeductivePercent`)
             .map(x => x.Data ? x.Data : [])
             .map(x => this.mapStatisticsToAccountObjects(x));
     }
@@ -41,6 +41,8 @@ export class AccountService extends BizHttp<Account> {
             account.SupplierID = data.AccountSupplierID;
             account.UseDeductivePercent = data.AccountUseDeductivePercent;
             account.UsePostPost = data.AccountUsePostPost;
+            account.Locked = data.AccountLocked;
+            account.LockManualPosts = data.AccountLockManualPosts;
 
             if (data.TopLevelAccountGroupGroupNumber) {
                 account.TopLevelAccountGroup = new AccountGroup();

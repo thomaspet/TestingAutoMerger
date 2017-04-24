@@ -378,6 +378,33 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
             result.Messages.push(message);
         }
 
+        let rowsWithInvalidAccounts =
+            journalDataEntries.filter(x =>
+                (x.DebitAccount && (x.DebitAccount.Locked || x.DebitAccount.LockManualPosts))
+                || (x.CreditAccount && (x.CreditAccount.Locked || x.CreditAccount.LockManualPosts))
+            );
+
+        if (rowsWithInvalidAccounts.length > 0) {
+            rowsWithInvalidAccounts.forEach(row => {
+                let errorMsg = 'Kan ikke føre bilag på kontonr ';
+                if (row.DebitAccount && (row.DebitAccount.Locked || row.DebitAccount.LockManualPosts)) {
+                    errorMsg += row.DebitAccount.AccountNumber;
+                    errorMsg += ', kontoen er sperret' + (row.DebitAccount.LockManualPosts ? ' for manuelle føringer' : '');
+                } else if (row.CreditAccount && (row.CreditAccount.Locked || row.CreditAccount.LockManualPosts)) {
+                    errorMsg += row.CreditAccount.AccountNumber;
+                    errorMsg += ', kontoen er sperret' + (row.CreditAccount.LockManualPosts ? ' for manuelle føringer' : '');
+                }
+
+                // only notify once about each locked account
+                if (!result.Messages.find(x => x.Message === errorMsg)) {
+                    let message = new ValidationMessage();
+                    message.Level = ValidationLevel.Error;
+                    message.Message = errorMsg;
+                    result.Messages.push(message);
+                }
+            });
+        }
+
         if (companySettings && companySettings.AccountingLockedDate) {
             let invalidDates = journalDataEntries.filter(x => !x.StatusCode && x.FinancialDate
                 && moment(x.FinancialDate).isSameOrBefore(moment(companySettings.AccountingLockedDate)));

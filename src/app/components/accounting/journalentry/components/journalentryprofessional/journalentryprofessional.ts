@@ -786,6 +786,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
             .setWidth('90px')
             .setTemplate(row => row && row.CurrencyCode && row.CurrencyCode.Code)
             .setVisible(false)
+            .setSkipOnEnterKeyNavigation(true)
             .setEditorOptions({
                 itemTemplate: rowModel => rowModel.Code,
                 resource: this.currencyCodeService.GetAll(null)
