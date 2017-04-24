@@ -1,9 +1,9 @@
 ﻿// tslint:disable:max-line-length
-import {Component, ViewChild} from '@angular/core';
+import {Component, ViewChild, ViewChildren, QueryList} from '@angular/core';
 import {TabService} from '../../layout/navbar/tabstrip/tabService';
 import {UniHttp} from '../../../../framework/core/http/http';
 import {UniField, FieldType} from 'uniform-ng2/main';
-import {UniTableConfig, UniTableColumn, UniTableColumnType} from 'unitable-ng2/main';
+import {UniTableConfig, UniTableColumn, UniTableColumnType, UniTable} from 'unitable-ng2/main';
 import {ErrorService, UserService, GuidService} from '../../../services/services';
 import {Team, User, TeamPosition} from '../../../unientities';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
@@ -16,7 +16,7 @@ import {Observable} from 'rxjs/Observable';
 })
 export class Teams {
     @ViewChild(UniConfirmModal) private confirmModal: UniConfirmModal;
-    // @ViewChild(UniTable) private uniTable: UniTable;
+    @ViewChildren(UniTable) private uniTables: QueryList<UniTable>;
     
     public teams: Team[];
     public users: User[] = [];
@@ -78,6 +78,9 @@ export class Teams {
                 x['PositionType'] = pos;
             });
         }
+        if (this.uniTables) { 
+            this.uniTables.last.blur(); 
+        }
         this.deletables = [];
         this.current = t;
         this.formModel$.next(this.current);
@@ -90,7 +93,7 @@ export class Teams {
         if (index >= 0) {
             var item = this.current.Positions[index];
             this.current.Positions.splice(index, 1);
-            if (item.ID) {                
+            if (item && item.ID) {                
                 item.Deleted = true;
                 this.hasUnsavedChanges = true;
                 this.deletables.push(item);
@@ -132,6 +135,12 @@ export class Teams {
         localItem._originalIndex = rowIndex;
         return localItem;
     } 
+
+    public canDeactivate() {
+        return new Promise((resolve, reject) => {
+            this.checkSave(true).then( ok => resolve(ok) );
+        });
+    }    
 
     private checkSave(ask: boolean): Promise<boolean> {        
         return new Promise( (resolve, reject) => {

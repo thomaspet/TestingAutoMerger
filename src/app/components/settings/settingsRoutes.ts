@@ -49,7 +49,8 @@ export const settingsRoutes: Routes = [{
         },
         {
             path: 'teams',
-            component: Teams
+            component: Teams,
+            canDeactivate: [CanDeactivateGuard]
         }        
     ]
 }];
