@@ -378,6 +378,7 @@ export class UniWidgetCanvas {
                     {label: 'Fakura', value: 'shortcuts.invoices'},
                     {label: 'Kunder', value: 'shortcuts.customers'},
                     {label: 'Timer', value: 'shortcuts.hours'},
+                    {label: 'Regnskap', value: 'shortcuts.accounting'},
                 ]
             },
             // {

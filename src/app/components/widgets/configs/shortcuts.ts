@@ -59,4 +59,16 @@ export const SHORTCUTS = {
         }
     },
 
+    accounting: {
+        width: 1,
+        height: 1,
+        widgetType: 'shortcut', // TODO: enum
+        config: {
+            label: 'REGNSKAP',
+            description: 'Bilagsføring',
+            icon: 'globe',
+            link: '/accounting/journalentry'
+        }
+    }
+
 };
