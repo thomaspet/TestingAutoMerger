@@ -26,7 +26,7 @@ import {UniConfirmModal, ConfirmActions} from '../../../../../framework/modals/c
 import {CompanySettingsService} from '../../../../services/services';
 import {ActivateAPModal} from '../../../common/modals/activateAPModal';
 import {ReminderSendingModal} from '../../reminder/sending/reminderSendingModal';
-import {roundTo, safeDec, safeInt, trimLength, capitalizeSentence} from '../../../timetracking/utils/utils';
+import {roundTo, safeDec, safeInt, trimLength, capitalizeSentence} from '../../../common/utils/utils';
 import {
     StatisticsService,
     CustomerInvoiceService,

@@ -3,11 +3,11 @@ import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {View} from '../../../models/view/view';
 import {WorkRelation, WorkItem, Worker, WorkBalance, LocalDate} from '../../../unientities';
 import {WorkerService, IFilter} from '../../../services/timetracking/workerService';
-import {exportToFile, arrayToCsv, safeInt, trimLength} from '../utils/utils';
+import {exportToFile, arrayToCsv, safeInt, trimLength} from '../../common/utils/utils';
 import {TimesheetService, TimeSheet} from '../../../services/timetracking/timesheetService';
-import {IsoTimePipe} from '../utils/pipes';
+import {IsoTimePipe} from '../../common/utils/pipes';
 import {IUniSaveAction} from '../../../../framework/save/save';
-import {Lookupservice} from '../utils/lookup';
+import {Lookupservice} from '../../../services/services';
 import {RegtimeTotals} from './totals/totals';
 import {TimeTableReport} from './timetable/timetable';
 import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
@@ -55,7 +55,7 @@ export class TimeEntry {
     @ViewChild(DayBrowser) private dayBrowser: DayBrowser;
     @ViewChild(TeamworkReport) private teamreport: TeamworkReport;
 
-    public preSaveConfig: IPreSaveConfig = { 
+    public preSaveConfig: IPreSaveConfig = {
         askSave: () => this.checkSave(false),
         askReload: () => this.reset(false)
     };
@@ -81,7 +81,7 @@ export class TimeEntry {
         omitFinalCrumb: true
     };
 
-    public filters: Array<IFilter>;   
+    public filters: Array<IFilter>;
 
     constructor(
         private tabService: TabService,
@@ -103,7 +103,7 @@ export class TimeEntry {
                 this.init();
             }
         });
-        
+
         this.initTabPositions();
 
         this.approvalCheck();
@@ -182,7 +182,7 @@ export class TimeEntry {
     }
 
     private initWorker(workerid?: number, autoCreate = false) {
-        var obs = workerid ? this.timesheetService.initWorker(workerid) : 
+        var obs = workerid ? this.timesheetService.initWorker(workerid) :
             this.timesheetService.initUser(undefined, autoCreate);
         obs.subscribe((ts: TimeSheet) => {
             this.workRelations = this.timesheetService.workRelations;
@@ -193,14 +193,14 @@ export class TimeEntry {
             this.timeSheet = ts;
             this.loadItems();
             this.updateToolbar( !workerid ? this.service.user.name : '', this.workRelations );
-        }, err => { 
+        }, err => {
             this.errorService.handle(err);
         });
     }
 
     private initNewUser() {
 
-        this.confirmModal.confirm('Aktivere din bruker for timeføring på denne klienten?', 
+        this.confirmModal.confirm('Aktivere din bruker for timeføring på denne klienten?',
             `Velkommen, ${this.service.user.name}!`)
             .then( (userChoice: ConfirmActions)  => {
                 if (userChoice === ConfirmActions.ACCEPT) {
@@ -247,12 +247,12 @@ export class TimeEntry {
     }
 
     private loadItems(date?: Date) {
-        this.workEditor.EmptyRowDetails.Date = new LocalDate(date);        
+        this.workEditor.EmptyRowDetails.Date = new LocalDate(date);
         if (this.timeSheet.currentRelation && this.timeSheet.currentRelation.ID) {
             var obs: any;
             var dt: Date;
-            if (!!date) { 
-                obs = this.timeSheet.loadItemsByPeriod(date, date); 
+            if (!!date) {
+                obs = this.timeSheet.loadItemsByPeriod(date, date);
                 dt = date;
             } else {
                 obs = this.timeSheet.loadItems(this.currentFilter.interval);
@@ -452,7 +452,7 @@ export class TimeEntry {
                     this.teams = result;
                     let newKey = this.tabs.length;
                     let newPos = 2;
-                    this.tabs.push({ 
+                    this.tabs.push({
                         name: 'approval', label: 'Godkjenning', counter: this.teams.length,
                         activate: (ts: any, filter: any) => {
                             if (!this.teamreport.isInitialized) {

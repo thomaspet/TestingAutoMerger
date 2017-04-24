@@ -44,6 +44,7 @@ import {UniSearchSupplierConfigGeneratorHelper} from './common/uniSearchConfig/u
 import {CurrencyOverridesService} from './common/currencyOverridesService';
 import {ApiModelService} from './common/apiModelService';
 import {YearService} from './common/yearService';
+import {Lookupservice} from './common/lookupService';
 
 export * from './common/altinnAuthenticationService';
 export * from './common/altinnIntegrationService';
@@ -86,6 +87,7 @@ export * from './common/uniSearchConfig/uniSearchConfigGeneratorService';
 export * from './common/currencyOverridesService';
 export * from './common/apiModelService';
 export * from './common/yearService';
+export * from './common/lookupService';
 
 @NgModule({})
 export class CommonServicesModule {
@@ -129,15 +131,16 @@ export class CommonServicesModule {
                 DimensionService,
                 EmailService,
                 UmhService,
-				UniSearchConfigGeneratorService,
-				UniSearchAccountConfigGeneratorHelper,
-        		UniSearchCustomerConfigGeneratorHelper,
+                UniSearchConfigGeneratorService,
+                UniSearchAccountConfigGeneratorHelper,
+                UniSearchCustomerConfigGeneratorHelper,
                 UniSearchSupplierConfigGeneratorHelper,
-				CurrencyOverridesService,
-				CurrencyCodeService,
-				UniTickerService,
+                CurrencyOverridesService,
+                CurrencyCodeService,
+                UniTickerService,
                 ApiModelService,
-                YearService
+                YearService,
+                Lookupservice
             ]
         };
     }

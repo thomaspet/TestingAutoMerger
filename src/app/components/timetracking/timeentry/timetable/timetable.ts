@@ -1,7 +1,7 @@
 import {Component, ViewChild, Input} from '@angular/core';
 import {TimeSheet, TimesheetService} from '../../../../services/timetracking/timesheetService';
 import {WorkerService, IFilter} from '../../../../services/timetracking/workerService';
-import {safeInt} from '../../utils/utils';
+import {safeInt} from '../../../common/utils/utils';
 import {ErrorService} from '../../../../services/services';
 import {UniTimeModal} from '../../components/popupeditor';
 import {IPreSaveConfig} from '../timeentry';
@@ -47,7 +47,7 @@ export class TimeTableReport {
         this.onFilterClick( this.currentFilter );
     }
 
-    public onDayClick(day: Date, checkSave: boolean = true) {        
+    public onDayClick(day: Date, checkSave: boolean = true) {
         if (day) {
 
             if (this.eventcfg && checkSave) {
@@ -59,11 +59,11 @@ export class TimeTableReport {
             }
 
             this.timeModal.open(this.timesheet.currentRelation, day).then( x => {
-                if (x) { 
+                if (x) {
                     this.onFilterClick( this.currentFilter );
                     if (this.eventcfg && this.eventcfg.askReload) { this.eventcfg.askReload(); }
                 }
-            });    
+            });
         }
     }
 
@@ -184,11 +184,11 @@ export class TimeTableReport {
         this.busy = true;
         var query = 'model=workitem';
         var filter = this.workerService.getIntervalFilter(this.currentFilter.interval);
-        query += this.createArg('select', 'WorkRelation.WorkerId,BusinessRelation.Name,WorkRelation.Description' 
+        query += this.createArg('select', 'WorkRelation.WorkerId,BusinessRelation.Name,WorkRelation.Description'
             + ',Date,WorkType.SystemType,min(starttime),max(endtime),sum(minutes),sum(lunchinminutes)');
-        query += this.createArg('filter', 'workrelationid eq ' + this.timesheet.currentRelation.ID 
+        query += this.createArg('filter', 'workrelationid eq ' + this.timesheet.currentRelation.ID
             + ' and ( not setornull(deleted) )' + (filter ? ' and ( ' +  filter + ' )' : ''));
-        query += this.createArg('join', 'workitem.worktypeid eq worktype.id and workitem.workrelationid' 
+        query += this.createArg('join', 'workitem.worktypeid eq worktype.id and workitem.workrelationid'
             + ' eq workrelation.id and workrelation.workerid eq worker.id'
             + ' and worker.businessrelationid eq businessrelation.id');
         query += this.createArg('orderby', 'date');

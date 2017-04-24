@@ -1,10 +1,10 @@
 import {Component, ViewChild} from '@angular/core';
 import {View} from '../../../models/view/view';
-import {createFormField, FieldSize, ControlTypes} from '../utils/utils';
+import {createFormField, FieldSize, ControlTypes} from '../../common/utils/utils';
 import {IViewConfig} from '../genericview/list';
 import {WorkType} from '../../../unientities';
 import {GenericDetailview} from '../genericview/detail';
-import {SYSTEMTYPES} from '../utils/pipes';
+import {SYSTEMTYPES} from '../../common/utils/pipes';
 import {UniModules} from '../../layout/navbar/tabstrip/tabService';
 
 export var view = new View('worktypes', 'Timeart', 'WorktypeDetailview', true, '', WorktypeDetailview);

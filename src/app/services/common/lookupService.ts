@@ -1,8 +1,8 @@
-import {UniHttp} from '../../../../framework/core/http/http';
+import {UniHttp} from '../../../framework/core/http/http';
 import {Injectable} from '@angular/core';
 import {Observable} from 'rxjs/Observable';
-import {IChangeEvent, ColumnType, ITypeSearch} from './editable/editable';
-import {safeInt} from './utils';
+import {IChangeEvent, ColumnType, ITypeSearch} from '../../components/common/utils/editable/editable';
+import {safeInt} from '../../components/common/utils/utils';
 
 @Injectable()
 export class Lookupservice {

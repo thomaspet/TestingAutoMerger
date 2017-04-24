@@ -1,7 +1,7 @@
 import {Component} from '@angular/core';
 import {TimeSheet, TimesheetService} from '../../../../services/timetracking/timesheetService';
 import {WorkerService, IFilter} from '../../../../services/timetracking/workerService';
-import {ICol, Column, ColumnType} from '../../utils/editable/interfaces';
+import {ICol, Column, ColumnType} from '../../../common/utils/editable/interfaces';
 import {ErrorService} from '../../../../services/services';
 
 interface IStatSource {

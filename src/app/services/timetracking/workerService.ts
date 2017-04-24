@@ -5,7 +5,7 @@ import {UniHttp} from '../../../framework/core/http/http';
 import {Observable} from 'rxjs/Observable';
 import {UserService} from '../common/userService';
 import {URLSearchParams} from '@angular/http';
-import {toIso, capitalizeFirstLetter} from '../../components/timetracking/utils/utils';
+import {toIso, capitalizeFirstLetter} from '../../components/common/utils/utils';
 import {ErrorService} from '../common/errorService';
 import * as moment from 'moment';
 
@@ -126,13 +126,13 @@ export class WorkerService extends BizHttp<Worker> {
             case ItemInterval.yesterday:
                 return "date eq '" + toIso(this.getLastWorkDay()) + "'";
             case ItemInterval.thisWeek:
-                return "date ge '" + toIso(moment().startOf('week').toDate()) + "' and date le '" + 
+                return "date ge '" + toIso(moment().startOf('week').toDate()) + "' and date le '" +
                 toIso(moment().endOf('week').toDate()) + "'";
             case ItemInterval.thisMonth:
-                return "date ge '" + toIso(moment().startOf('month').toDate()) + "' and date le '" + 
+                return "date ge '" + toIso(moment().startOf('month').toDate()) + "' and date le '" +
                 toIso(moment().endOf('month').toDate()) + "'";
             case ItemInterval.lastTwoMonths:
-                return "date ge '" + toIso(moment().add(-1, 'month').startOf('month').toDate()) + "' and date le '" + 
+                return "date ge '" + toIso(moment().add(-1, 'month').startOf('month').toDate()) + "' and date le '" +
                 toIso(moment().endOf('month').toDate()) + "'";
             case ItemInterval.thisYear:
                 return "date ge '" + toIso(moment().startOf('year').toDate()) + "' and date le '" +
@@ -149,9 +149,9 @@ export class WorkerService extends BizHttp<Worker> {
             case ItemInterval.yesterday:
                 return this.getLastWorkDay();
             case ItemInterval.thisWeek:
-                return moment().startOf('week').toDate(); 
+                return moment().startOf('week').toDate();
             case ItemInterval.thisMonth:
-                return moment().startOf('month').toDate(); 
+                return moment().startOf('month').toDate();
             case ItemInterval.lastTwoMonths:
                 return moment().add(-1, 'month').startOf('month').toDate();
             case ItemInterval.thisYear:
@@ -159,12 +159,12 @@ export class WorkerService extends BizHttp<Worker> {
             default:
                 return new Date();
         }
-    }    
+    }
 
     public getIntervalItems(): Array<IFilter> {
         return [
             { name: 'today', label: 'I dag', isSelected: true, interval: ItemInterval.today },
-            { name: 'yesterday', label: this.getLastWorkDayName(), 
+            { name: 'yesterday', label: this.getLastWorkDayName(),
                 isSelected: false, interval: ItemInterval.yesterday },
             { name: 'week', label: 'Denne uke', interval: ItemInterval.thisWeek},
             { name: 'month', label: 'Denne måned', interval: ItemInterval.thisMonth},
@@ -194,8 +194,8 @@ export class WorkerService extends BizHttp<Worker> {
         if (intervalFilter.length > 0) {
             filter += ' and ( ' + intervalFilter + ' )';
         }
-        return this.GET('workitems', { filter: filter, hateoas: 'false', 
-            expand: 'WorkType,Dimensions,Dimensions.Project,Dimensions.Department,CustomerOrder', 
+        return this.GET('workitems', { filter: filter, hateoas: 'false',
+            expand: 'WorkType,Dimensions,Dimensions.Project,Dimensions.Department,CustomerOrder',
             orderBy: 'StartTime' });
     }
 
@@ -222,9 +222,9 @@ export class WorkerService extends BizHttp<Worker> {
 
     public queryWithUrlParams(
         params?: URLSearchParams, route = 'worktypes', expand?: string, hateoas: boolean = false): Observable<any> {
-        if (expand) { 
+        if (expand) {
             if (params === undefined) { params = new URLSearchParams(); }
-            params.append('expand', expand); 
+            params.append('expand', expand);
         }
         if (hateoas === false ) {
             if (params === undefined) { params = new URLSearchParams(); }

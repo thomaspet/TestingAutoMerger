@@ -8,7 +8,7 @@ import {ActivatedRoute} from '@angular/router';
 import {Router} from '@angular/router';
 import {UniConfirmModal, ConfirmActions} from '../../../../framework/modals/confirm';
 import {StatusCodeSupplierInvoice, CompanySettings} from '../../../unientities';
-import {safeInt} from '../../timetracking/utils/utils';
+import {safeInt} from '../../common/utils/utils';
 
 import {
     SettingsService,

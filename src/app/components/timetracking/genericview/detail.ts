@@ -6,7 +6,7 @@ import {IUniSaveAction} from '../../../../framework/save/save';
 import {UniForm} from 'uniform-ng2/main';
 import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
 import {IViewConfig} from './list';
-import {getDeepValue, trimLength} from '../utils/utils';
+import {getDeepValue, trimLength} from '../../common/utils/utils';
 import {ErrorService} from '../../../services/services';
 import {UniConfirmModal, ConfirmActions} from '../../../../framework/modals/confirm';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';

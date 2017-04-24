@@ -63,11 +63,6 @@ import {VatTypeDetails} from './vatsettings/vattypedetails/vattypedetails';
 import {VatTypeList} from './vatsettings/vattypelist/vatTypeList';
 import {VatDeductionSettings} from './vatsettings/vatdeductions/vatdeductionsettings';
 
-
-// REVISIT: Must be refactored! This causes duplicate code when lazy loading
-import {TimetrackingModule} from '../timetracking/timetrackingModule';
-// import {SettingsModule} from '../settings/settingsModule';
-
 @NgModule({
     imports: [
         CommonModule,
@@ -82,7 +77,6 @@ import {TimetrackingModule} from '../timetracking/timetrackingModule';
         LayoutModule,
         AppCommonModule,
         AppPipesModule,
-        TimetrackingModule,
 
         RouterModule.forChild(accountingRoutes)
     ],

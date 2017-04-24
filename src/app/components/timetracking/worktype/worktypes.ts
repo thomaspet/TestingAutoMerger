@@ -2,7 +2,7 @@ import {Component} from '@angular/core';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {View} from '../../../models/view/view';
 import {UniTableColumn, UniTableColumnType, UniTableConfig} from 'unitable-ng2/main';
-import {WorkTypeSystemTypePipe} from '../utils/pipes';
+import {WorkTypeSystemTypePipe} from '../../common/utils/pipes';
 import {IViewConfig} from '../genericview/list';
 
 export var view = new View('worktypes', 'Timearter', 'WorktypeListview', false, 'worktype', WorktypeListview);

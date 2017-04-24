@@ -16,11 +16,7 @@ import {TimeEntry} from './timeentry/timeentry';
 import {TimeTableReport} from './timeentry/timetable/timetable';
 import {RegtimeTotals} from './timeentry/totals/totals';
 import {RegtimeBalance} from './timeentry/balance/balance';
-import {Editable} from './utils/editable/editable';
-import {Lookupservice} from './utils/lookup';
-import {IsoTimePipe} from './utils/pipes';
-import {MinutesToHoursPipe} from './utils/pipes';
-import {WorkTypeSystemTypePipe} from './utils/pipes';
+
 import {View} from './worker/relations';
 import {WorkerDetailview} from './worker/worker';
 import {WorkerListview} from './worker/workers';
@@ -60,10 +56,6 @@ import {TeamworkReport} from './components/teamworkreport';
         TimeTableReport,
         RegtimeTotals,
         RegtimeBalance,
-        Editable,
-        IsoTimePipe,
-        MinutesToHoursPipe,
-        WorkTypeSystemTypePipe,
         View,
         WorkerDetailview,
         WorkerListview,
@@ -77,9 +69,8 @@ import {TeamworkReport} from './components/teamworkreport';
         DayBrowser,
         UniTimeModal,
         TeamworkReport
-    ],  
+    ],
     providers: [
-        Lookupservice,
         CanDeactivateGuard
     ],
     exports: [
@@ -89,10 +80,6 @@ import {TeamworkReport} from './components/teamworkreport';
         TimeEntry,
         TimeTableReport,
         RegtimeTotals,
-        Editable,
-        IsoTimePipe,
-        MinutesToHoursPipe,
-        WorkTypeSystemTypePipe,
         View,
         WorkerDetailview,
         WorkerListview,

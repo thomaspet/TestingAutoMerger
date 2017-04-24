@@ -4,7 +4,7 @@ import {ToastService, ToastType} from '../../../../../framework/uniToast/toastSe
 import {Router, ActivatedRoute} from '@angular/router';
 import {Observable} from 'rxjs/Observable';
 import {safeInt, roundTo, safeDec, filterInput, trimLength,
-    createFormField, FieldSize, ControlTypes} from '../../../timetracking/utils/utils';
+    createFormField, FieldSize, ControlTypes} from '../../../common/utils/utils';
 import {Supplier, SupplierInvoice, JournalEntryLineDraft,
     StatusCodeSupplierInvoice, BankAccount, LocalDate,
     InvoicePaymentData, CurrencyCode, CompanySettings} from '../../../../unientities';
@@ -154,7 +154,7 @@ export class BillView {
 
     private get currentID(): number {
         let current = this.current.getValue();
-        return (current ? current.ID : 0);        
+        return (current ? current.ID : 0);
     }
 
     private initFromRoute() {
@@ -544,7 +544,7 @@ export class BillView {
         if (change['InvoiceDate']) {
             if (model.CurrencyCodeID && model.CurrencyCodeID !== this.companySettings.BaseCurrencyCodeID) {
                 let currencyDate: LocalDate = model.InvoiceDate ? model.InvoiceDate : new LocalDate();
-                this.currencyService.getCurrencyExchangeRate(model.CurrencyCodeID, 
+                this.currencyService.getCurrencyExchangeRate(model.CurrencyCodeID,
                     this.companySettings.BaseCurrencyCodeID, currencyDate)
                     .subscribe(res => {
                         model.CurrencyExchangeRate = res.ExchangeRate;
@@ -785,7 +785,7 @@ export class BillView {
         this.assignModal.goBusy(true);
         this.supplierInvoiceService.assign(id, details)
             .finally( () => this.assignModal.goBusy(false) )
-            .subscribe( x => {                
+            .subscribe( x => {
                 this.assignModal.close();
                 this.fetchInvoice(id, true);
             }, (err) => {
@@ -797,7 +797,7 @@ export class BillView {
         let current = this.current.getValue();
         switch (key) {
             case 'assign':
-                this.assignModal.open(); 
+                this.assignModal.open();
                 done();
                 break;
 

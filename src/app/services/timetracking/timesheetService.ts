@@ -2,7 +2,7 @@ import {Injectable} from '@angular/core';
 import {WorkItem, WorkRelation, WorkBalance} from '../../unientities';
 import {WorkerService, ItemInterval} from './workerService';
 import {Observable} from 'rxjs/Observable';
-import {parseTime, toIso, parseDate, ChangeMap, safeInt, safeDec} from '../../components/timetracking/utils/utils';
+import {parseTime, toIso, parseDate, ChangeMap, safeInt, safeDec} from '../../components/common/utils/utils';
 import {Dimension} from '../common/dimensionService';
 import {URLSearchParams} from '@angular/http';
 import * as moment from 'moment';

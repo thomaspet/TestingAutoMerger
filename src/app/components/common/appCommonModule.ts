@@ -54,6 +54,11 @@ import {SupplierDetailsModal} from './supplier/details/supplierDetailModal';
 import {SupplierDetails} from './supplier/details/supplierDetails';
 import {SupplierList} from './supplier/list/supplierList';
 
+import {Editable} from './utils/editable/editable';
+import {IsoTimePipe} from './utils/pipes';
+import {MinutesToHoursPipe} from './utils/pipes';
+import {WorkTypeSystemTypePipe} from './utils/pipes';
+
 import {routes as AppCommonRoutes} from './appCommonRoutes';
 
 @NgModule({
@@ -132,7 +137,12 @@ import {routes as AppCommonRoutes} from './appCommonRoutes';
         ReminderRuleDetails,
 
         ContactDetails,
-        Contacts
+        Contacts,
+
+        Editable,
+        IsoTimePipe,
+        MinutesToHoursPipe,
+        WorkTypeSystemTypePipe,
     ],
     entryComponents: [
         AddressForm,
@@ -213,7 +223,12 @@ import {routes as AppCommonRoutes} from './appCommonRoutes';
         ReminderSettingsModal,
 
         ContactDetails,
-        Contacts
+        Contacts,
+
+        Editable,
+        IsoTimePipe,
+        MinutesToHoursPipe,
+        WorkTypeSystemTypePipe,
     ]
 })
 export class AppCommonModule {

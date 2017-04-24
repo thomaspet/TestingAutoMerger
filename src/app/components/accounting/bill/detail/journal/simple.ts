@@ -1,15 +1,15 @@
 import { ViewChild, Component, Input, Output, EventEmitter, Pipe, PipeTransform} from '@angular/core';
 import {FinancialYear, VatType, SupplierInvoice, JournalEntryLineDraft, JournalEntry, Account, StatusCodeSupplierInvoice} from '../../../../../unientities';
-import {ICopyEventDetails, IConfig as ITableConfig, Column, ColumnType, IChangeEvent, ITypeSearch, Editable, ILookupDetails, IStartEdit} from '../../../../timetracking/utils/editable/editable';
+import {ICopyEventDetails, IConfig as ITableConfig, Column, ColumnType, IChangeEvent, ITypeSearch, Editable, ILookupDetails, IStartEdit} from '../../../../common/utils/editable/editable';
 import {ToastService, ToastType} from '../../../../../../framework/uniToast/toastService';
-import {roundTo, safeDec, safeInt, trimLength} from '../../../../timetracking/utils/utils';
-import {Lookupservice} from '../../../../timetracking/utils/lookup';
+import {roundTo, safeDec, safeInt, trimLength} from '../../../../common/utils/utils';
+import {Lookupservice} from '../../../../../services/services';
 import {
     FinancialYearService,
     ErrorService,
     checkGuid
 } from '../../../../../services/services';
-import {BehaviorSubject} from 'rxjs';
+import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 
 declare const _; // lodash
 
