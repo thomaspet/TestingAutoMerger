@@ -342,12 +342,47 @@ export class BillView {
         this.userMsg(lang.ehf_running, null, null, true);
         this.ehfService.Get(`?action=parse&fileID=${file.ID}`)
             .subscribe( (invoice: SupplierInvoice) => {
-                this.toast.clear();
                 this.current.next(invoice);
+                this.toast.clear();
+                this.handleEHFResult(invoice);
                 this.flagUnsavedChanged();
             }, (err) => {
                 this.errorService.handle(err);
             });
+    }
+
+    private handleEHFResult(invoice: SupplierInvoice) {
+        // Supplier
+        if (!invoice.SupplierID && invoice.Supplier) {
+            var title = `${lang.create_supplier} '${invoice.InvoiceReceiverName}' ?`;
+            var msg = `${invoice.InvoiceAddressLine1 || ''} ${invoice.InvoicePostalCode || ''}. ${lang.org_number}: ${invoice.Supplier.OrgNumber}`;
+            this.toast.clear();
+            this.confirmModal.confirm(msg, title, false, { warning: lang.org_not_found }).then((userChoice: ConfirmActions) => {
+                if (userChoice === ConfirmActions.ACCEPT) {
+                    this.supplierService.Post(invoice.Supplier).subscribe(x => {
+                        this.fetchNewSupplier(x.ID, true);
+                    }, err => this.errorService.handle(err));
+                }
+            });
+        } else if (!invoice.BankAccountID && invoice.BankAccount) {
+            this.confirmModal.confirm(
+                `${lang.create_bankaccount_info} ${invoice.InvoiceReceiverName}`,
+                `${lang.create_bankaccount_title} ${invoice.BankAccount.AccountNumber}?`,
+                false,
+                { accept: `${lang.create_bankaccount_accept}`, reject: lang.create_bankaccount_reject }
+            ).then((userChoice: ConfirmActions) => {
+                if (userChoice === ConfirmActions.ACCEPT) {
+                    this.bankAccountService.Post(invoice.BankAccount)
+                        .subscribe((savedBankAccount: BankAccount) => {
+                            let current = this.current.getValue();
+                            current.BankAccountID = savedBankAccount.ID;
+                            this.current.next(current);
+                        },
+                        err => this.errorService.handle(err)
+                    );
+                }
+            });
+        }
     }
 
     /// =============================
