@@ -1,0 +1,41 @@
+﻿<section class="splitview">
+
+    <nav class ="splitview_list">
+        <uni-table
+                [config]="teamTableConfig"
+                [resource]="teams"
+                (rowSelected)="onTeamSelected($event)">
+        </uni-table>
+    </nav>
+
+    <main class="splitview_detail">
+
+       <table [attr.aria-busy]="busy" class='button-toolbar'><tr>
+            <td>
+            <button class="good" (click)="onAddNew()">Nytt team</button>
+            <button [disabled]="!hasUnsavedChanges" class="good" (click)="onSaveClicked()">Lagre</button>
+            <button [hidden]="!(current?.ID)" class="bad" (click)="onDelete()">Slett team</button>
+            </td>                
+            <td></td><td></td>
+       </tr></table>
+        
+       <uni-form
+            [config]="formConfig$"
+            [fields]="formFields$"
+            [model]="formModel$"
+            (changeEvent)="onFormChange($event)"
+            (focusEvent)="onFormFocus($event)"
+            >
+       </uni-form>
+            
+       <uni-table 
+            [config]="positionTableConfig"
+            [resource]="current?.Positions"
+            (rowDeleted)="onPositionDeleted($event)">
+       </uni-table>
+
+       
+    </main>
+
+</section>
+<uni-confirm-modal></uni-confirm-modal>

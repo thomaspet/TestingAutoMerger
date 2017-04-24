@@ -63,6 +63,7 @@ export class Settings {
             { name: 'Integrasjoner', path: 'webhooks' },
             { name: 'Min Bruker', path: 'user' },
             { name: 'Brukere', path: 'users' },
+            { name: 'Team', path: 'teams' },
             { name: 'Altinn', path: 'altinn' }
         ];
     }

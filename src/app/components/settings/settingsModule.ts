@@ -17,6 +17,7 @@ import {SubEntityList} from './agaAndSubEntitySettings/subEntityList';
 import {AltinnSettings} from './altinnSettings/altinnSettings';
 import {CompanySettingsComponent} from './companySettings/companySettings';
 import {Users} from './users/users';
+import {Teams} from './teams/teams';
 import {UserSettings} from './userSettings/userSettings';
 
 import {GrantsModal, GrantsModalContent} from './agaAndSubEntitySettings/modals/grantsModal';
@@ -51,6 +52,7 @@ import {RoleSelector} from './users/roleSelector';
         AltinnSettings,
         CompanySettingsComponent,
         Users,
+        Teams,
         UserSettings,
 
         GrantsModal,
