@@ -2,8 +2,8 @@ import {Component, Input, Output, EventEmitter} from '@angular/core';
 import {WorkerService} from '../../../../services/timetracking/workerService';
 import {WorkTimeOff, LocalDate} from '../../../../unientities';
 import {Router} from '@angular/router';
-import {createFormField, FieldSize, ControlTypes} from '../../utils/utils';
-import {ChangeMap} from '../../utils/changeMap';
+import {createFormField, FieldSize, ControlTypes} from '../../../common/utils/utils';
+import {ChangeMap} from '../../../common/utils/utils';
 import {Observable} from 'rxjs/Observable';
 import {IResult} from '../../genericview/detail';
 import {ErrorService} from '../../../../services/services';
@@ -179,7 +179,7 @@ export class View {
         item.TimeoffType = item.TimeoffType || 2; // Vacation
         item.FromDate = item.FromDate || today;
         item.ToDate = item.ToDate || item.FromDate || today;
-        item.WorkRelationID = item.WorkRelationID || this.parentId;        
+        item.WorkRelationID = item.WorkRelationID || this.parentId;
     }
 
     private loadList() {

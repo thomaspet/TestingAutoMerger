@@ -1,6 +1,7 @@
 import {Routes} from '@angular/router';
 import {CanDeactivateGuard} from '../../canDeactivateGuard';
 
+import {UniSales} from './sales';
 import {Customer} from './customer/customer';
 import {routes as CustomerRoutes} from './customer/customerRoutes';
 
@@ -18,6 +19,11 @@ import {Reminder} from './reminder/reminder';
 import {routes as ReminderRoutes} from './reminder/reminderRoutes';
 
 export const salesRoutes: Routes = [
+    {
+        path: '',
+        pathMatch: 'full',
+        component: UniSales
+    },
     {
         path: 'customer',
         component: Customer,

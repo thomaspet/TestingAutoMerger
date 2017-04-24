@@ -3,7 +3,7 @@ import {UniTableConfig, UniTableColumn, UniTableColumnType, UniTable} from 'unit
 import {TimesheetService, TimeSheet, ValueItem} from '../../../services/timetracking/timesheetService';
 import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
 import {ErrorService, BrowserStorageService} from '../../../services/services';
-import {safeDec, filterInput, getDeepValue} from '../utils/utils';
+import {safeDec, filterInput, getDeepValue} from '../../common/utils/utils';
 import {Observable} from 'rxjs/Observable';
 import {WorkType, WorkItem, LocalDate} from '../../../unientities';
 import * as moment from 'moment';
@@ -116,7 +116,7 @@ export class WorkEditor {
         if (rowIndex > 0) {
             let rowAbove: WorkItem = this.timeSheet.items[rowIndex - 1];
             let cellAboveValue = getDeepValue(rowAbove, event.field);
-            if (change.value === cellAboveValue) {                
+            if (change.value === cellAboveValue) {
                 change.isParsed = true;
                 switch (event.field) {
                     case 'StartTime':
@@ -127,7 +127,7 @@ export class WorkEditor {
                     case 'Dimensions.ProjectID':
                     case 'Dimensions.DepartmentID':
                         let fn = event.field.substr(0, event.field.length - 2);
-                        change.lookupValue = getDeepValue(rowAbove, fn) || change.lookupValue; 
+                        change.lookupValue = getDeepValue(rowAbove, fn) || change.lookupValue;
                         break;
                 }
             }
@@ -135,7 +135,7 @@ export class WorkEditor {
 
         // Brand new row?
         if (this.timeSheet.items.length <= rowIndex) {
-            if (event.field !== 'Date') { 
+            if (event.field !== 'Date') {
                 this.timeSheet.setItemValue(new ValueItem('Date', newRow.Date, rowIndex, undefined, undefined, true));
             }
             if (event.field !== 'StartTime') {

@@ -2,9 +2,11 @@ import {Component, ViewChild} from '@angular/core';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
 import {JournalEntryManual} from '../journalentrymanual/journalentrymanual';
 import {Router, ActivatedRoute} from '@angular/router';
-import {JournalEntryService, JournalEntryLineService} from '../../../../services/services';
+import {JournalEntryService, ErrorService, JournalEntryLineService} from '../../../../services/services';
 import {UniConfirmModal, ConfirmActions} from '../../../../../framework/modals/confirm';
-
+import {IContextMenuItem} from 'unitable-ng2/main';
+import {IToolbarConfig} from '../../../common/toolbar/toolbar';
+import {ToastService, ToastType} from '../../../../../framework/uniToast/toastService';
 
 @Component({
     selector: 'journalentries',
@@ -14,23 +16,29 @@ export class JournalEntries {
     @ViewChild(JournalEntryManual) private journalEntryManual;
     @ViewChild(UniConfirmModal) private confirmModal: UniConfirmModal;
 
-    private toolbarConfig = {
+    private contextMenuItems: IContextMenuItem[] = [];
+
+    private toolbarConfig: IToolbarConfig = {
         title: 'Bilagsregistrering',
         navigation: {
             prev: () => this.showPrevious(),
             next: () => this.showNext(),
             add:  () => this.add()
-        }
+        },
+        contextmenu: this.contextMenuItems
     };
 
     private currentJournalEntryNumber: string;
     private currentJournalEntryID: number;
     public editmode: boolean = false;
 
+
     constructor(
         private route: ActivatedRoute,
         private tabService: TabService,
         private router: Router,
+        private toastService: ToastService,
+        private errorService: ErrorService,
         private journalEntryService: JournalEntryService,
         private journalEntryLineService: JournalEntryLineService) {
         this.tabService.addTab({ name: 'Bilagsregistrering', url: '/accounting/journalentry/manual', moduleID: UniModules.Accounting, active: true });
@@ -101,8 +109,45 @@ export class JournalEntries {
                 this.currentJournalEntryNumber = null;
                 this.currentJournalEntryID = 0;
             }
+            this.setupToolBarconfig();
         });
     }
+
+     private setupToolBarconfig() {
+
+        this.contextMenuItems = [
+            {
+                label: 'Rediger',
+                action: () => this.editJournalEntry(),
+                disabled: () => this.editmode === true || !this.currentJournalEntryID
+            },
+            {
+                label: 'Krediter',
+                action: () => this.creditJournalEntry(),
+                disabled: () => this.editmode === true || !this.currentJournalEntryID
+            },
+            {
+                label: 'Tøm listen',
+                action: () => this.journalEntryManual.removeJournalEntryData(),
+                disabled: () => false
+            }
+        ];
+
+        let toolbarConfig: IToolbarConfig = {
+            title: 'Bilagsregistrering',
+            navigation: {
+                prev: () => this.showPrevious(),
+                next: () => this.showNext(),
+                add:  () => this.add()
+            },
+            contextmenu: this.contextMenuItems
+        };
+
+        this.toolbarConfig = toolbarConfig;
+
+
+    }
+
 
     private showPrevious() {
         new Promise((resolve) => {
@@ -215,6 +260,27 @@ export class JournalEntries {
             this.router.navigateByUrl(`/accounting/journalentry/manual`);
         }
     }
+
+    private editJournalEntry() {
+        if (!this.journalEntryManual.isDirty) {
+            this.editmode = true;
+        }
+    }
+
+     private creditJournalEntry() {
+        this.confirmModal.confirm('Vil du kreditere hele dette bilaget?', `Kreditere bilag ${this.currentJournalEntryNumber}?`, false, { accept: 'Krediter', reject: 'Avbryt'}, ).then( (userChoice: ConfirmActions) => {
+            if (userChoice === ConfirmActions.ACCEPT) {
+                this.journalEntryService.creditJournalEntry(this.currentJournalEntryNumber)
+                    .subscribe((res) => {
+                        this.toastService.addToast('Kreditering utført', ToastType.good, 5);
+                        this.journalEntryManual.loadData();
+                    },
+                    err => this.errorService.handle(err)
+                );
+            }
+        });
+    }
+
 
     private onDataCleared() {
 

@@ -1,23 +1,25 @@
 <section class="authentication-component">
-    <img src="../../../../assets/uni-logo.png" alt="Uni Economy logo">
-
     <small class="validation error" *ngIf="errorMessage.length">{{errorMessage}}</small>
     <small class="validation good" *ngIf="success">Vi setter nå opp kontoen din. En epost blir automatisk sendt ut når alt er klart.</small>
 
-    <h1>Nytt selskap</h1>
-    <form *ngIf="companyForm" [formGroup]="companyForm" (ngSubmit)="checkEmail()" #f="ngForm">
-        <label>
-            Epost
-            <input type="email" formControlName="Email" placeholder="Epost" [disabled]="emailChecked || working">
-        </label>
-        <label>
-            Firmanavn
-            <input type="text" formControlName="CompanyName" placeholder="Firmanavn" [disabled]="emailChecked || working">
-        </label>
-        <button type="submit" class="c2a" *ngIf="!emailChecked" [attr.aria-busy]="working" [disabled]="!f.form.valid || working">
-            Opprett selskap
-        </button>
-    </form>
+    <section [hidden]="emailChecked && !existingUser">
+        <h1>Nytt selskap</h1>
+        <form *ngIf="companyForm" [formGroup]="companyForm" (ngSubmit)="checkEmail()" #f="ngForm">
+            <label>
+                Epost
+                <input type="email" formControlName="Email" placeholder="Epost" [disabled]="emailChecked || working">
+            </label>
+            <label>
+                Firmanavn
+                <input type="text" formControlName="CompanyName" placeholder="Firmanavn" [disabled]="emailChecked || working">
+            </label>
+            <button type="submit" class="c2a" *ngIf="!emailChecked" [attr.aria-busy]="working" [disabled]="!f.form.valid || working">
+                Opprett selskap
+            </button>
+        </form>
+
+    </section>
+
 
     <section *ngIf="userForm">
         <h1>Brukerdetaljer</h1>

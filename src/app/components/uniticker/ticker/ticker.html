@@ -14,7 +14,7 @@
                 [isSubTicker]="!!parentModel">
             </uni-ticker-actions>
         </section>
-        <section class="data-container" (click)="letUniTableHandleIsOwnClicks()">
+        <section class="data-container" (click)="letUniTableHandleIsOwnClicks($event)">
             <uni-table
                 *ngIf="ticker.Type === 'table'"
                 [resource]="lookupFunction"

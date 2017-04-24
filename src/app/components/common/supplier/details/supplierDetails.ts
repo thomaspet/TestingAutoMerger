@@ -25,7 +25,8 @@ import {
     BankAccountService,
     ErrorService,
     UniQueryDefinitionService,
-    CurrencyCodeService
+    CurrencyCodeService,
+    UniSearchConfigGeneratorService
 } from '../../../../services/services';
 
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
@@ -47,7 +48,8 @@ export class SupplierDetails implements OnInit {
     @ViewChild(UniConfirmModal) private confirmModal: UniConfirmModal;
     @ViewChild(LedgerAccountReconciliation) private ledgerAccountReconciliation: LedgerAccountReconciliation;
 
-    private supplierID: number;
+    public supplierID: number;
+    public allowSearchSupplier: boolean = true;
     private config$: BehaviorSubject<any> = new BehaviorSubject({autofocus: true});
     private fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
     private addressChanged: any;
@@ -75,6 +77,8 @@ export class SupplierDetails implements OnInit {
         'Info.Phones',
         'Info.Addresses',
         'Info.Emails',
+        'Info.DefaultPhone',
+        'Info.DefaultEmail',
         'Info.ShippingAddress',
         'Info.InvoiceAddress',
         'Dimensions',
@@ -119,7 +123,8 @@ export class SupplierDetails implements OnInit {
                 private toastService: ToastService,
                 private uniQueryDefinitionService: UniQueryDefinitionService,
                 private errorService: ErrorService,
-                private currencyCodeService: CurrencyCodeService) {
+                private currencyCodeService: CurrencyCodeService,
+                private uniSearchConfigGeneratorService: UniSearchConfigGeneratorService) {
     }
 
     public ngOnInit() {
@@ -141,10 +146,24 @@ export class SupplierDetails implements OnInit {
         if (changes['Info.DefaultBankAccountID']) {
             this.bankaccountService.deleteRemovedBankAccounts(changes['Info.DefaultBankAccountID']);
         }
+
+        if (changes['_SupplierSearchResult']) {
+            let searchResult = changes['_SupplierSearchResult'].currentValue;
+
+            if (searchResult) {
+                let supplier = this.supplier$.getValue();
+                supplier = searchResult;
+                this.supplier$.next(supplier);
+
+                this.showHideNameProperties();
+            }
+        }
     }
 
     public resetViewToNewSupplierState() {
-        this.supplierID = null;
+        this.supplierID = 0;
+        this.allowSearchSupplier = false;
+
         this.setup();
     }
 
@@ -174,22 +193,6 @@ export class SupplierDetails implements OnInit {
 
     public addSupplier() {
         this.router.navigateByUrl('/suppliers/0');
-    }
-
-    public ready() {
-        this.formIsInitialized = true;
-        const supplier = this.supplier$.getValue();
-        if (supplier.ID === 0) {
-            this.form.field('Info.Name')
-                .Component
-                .control
-                .valueChanges
-                .debounceTime(300)
-                .distinctUntilChanged()
-                .subscribe((data) => {
-                    this.searchText = data;
-                });
-        }
     }
 
     private setTabTitle() {
@@ -290,7 +293,8 @@ export class SupplierDetails implements OnInit {
 
                 this.setTabTitle();
                 this.extendFormConfig();
-                setTimeout(() => this.ready());
+                this.showHideNameProperties();
+                this.formIsInitialized = true;
             }, err => this.errorService.handle(err));
 
         } else {
@@ -305,10 +309,7 @@ export class SupplierDetails implements OnInit {
                 this.setDefaultContact(supplier);
                 this.supplier$.next(supplier);
                 this.setTabTitle();
-
-                setTimeout(() => {
-                    this.ready();
-                });
+                this.showHideNameProperties();
             }, err => this.errorService.handle(err));
         }
     }
@@ -321,72 +322,32 @@ export class SupplierDetails implements OnInit {
         }
     }
 
-    public addSearchInfo(selectedSearchInfo: SearchResultItem) {
+    public showHideNameProperties() {
+        let fields: UniFieldLayout[] = this.fields$.getValue();
+
         let supplier = this.supplier$.getValue();
-        if (supplier !== null) {
+        let supplierSearchResult: UniFieldLayout = fields.find(x => x.Property === '_SupplierSearchResult');
+        let supplierName: UniFieldLayout = fields.find(x => x.Property === 'Info.Name');
 
-            supplier.Info.Name = selectedSearchInfo.navn;
-            supplier.OrgNumber = selectedSearchInfo.orgnr;
+        if (!this.allowSearchSupplier || this.supplierID > 0 || (supplier && supplier.Info.Name !== null && supplier.Info.Name !== '')) {
+            supplierSearchResult.Hidden = true;
+            supplierName.Hidden = false;
 
-            supplier.Info.Addresses = [];
-            supplier.Info.Phones = [];
-            supplier.Info.Emails = [];
-            supplier.Info.InvoiceAddress = null;
-            supplier.Info.ShippingAddress = null;
-            supplier.Info.DefaultPhone = null;
-
-            let businessaddressPromise = this.addressService.businessAddressFromSearch(selectedSearchInfo);
-            let postaladdressPromise = this.addressService.postalAddressFromSearch(selectedSearchInfo);
-            let phonePromise = this.phoneService.phoneFromSearch(selectedSearchInfo);
-            let mobilePromise = this.phoneService.mobileFromSearch(selectedSearchInfo);
-
-            Promise.all([businessaddressPromise, postaladdressPromise, phonePromise, mobilePromise]).then(results => {
-                let businessaddress: any = results[0];
-                let postaladdress: any = results[1];
-                let phone: any = results[2];
-                let mobile: any = results[3];
-
-                if (postaladdress) {
-                    if (!supplier.Info.Addresses.find(x => x === postaladdress)) {
-                        supplier.Info.Addresses.push(postaladdress);
-                    }
-                    supplier.Info.InvoiceAddress = postaladdress;
+            setTimeout(() => {
+                if (this.form.field('Info.Name')) {
+                    this.form.field('Info.Name').focus();
                 }
-
-                if (businessaddress) {
-                    if (!supplier.Info.Addresses.find(x => x === businessaddress)) {
-                        supplier.Info.Addresses.push(businessaddress);
-                    }
-                    supplier.Info.ShippingAddress = businessaddress;
-                } else if (postaladdress) {
-                    supplier.Info.ShippingAddress = postaladdress;
-                }
-
-                if (mobile) {
-                    supplier.Info.Phones.unshift(mobile);
-                }
-
-                if (phone) {
-                    supplier.Info.Phones.unshift(phone);
-                    supplier.Info.DefaultPhone = phone;
-                } else if (mobile) {
-                    supplier.Info.DefaultPhone = mobile;
-                }
-
-                // set ID to make multivalue editors work with the new values...
-                supplier.Info.DefaultPhoneID = 0;
-                supplier.Info.InvoiceAddressID = 0;
-                supplier.Info.ShippingAddressID = 0;
-
-                this.supplier$.next(supplier);
-
-                setTimeout(() => {
-                    this.ready();
-                });
             });
+        } else {
+            supplierSearchResult.Hidden = false;
+            supplierName.Hidden = true;
 
+            setTimeout(() => {
+                if (this.form.field('_SupplierSearchResult')) {
+                    this.form.field('_SupplierSearchResult').focus();
+                }
+            });
         }
-        this.form.field('Info.Name').focus();
     }
 
     public extendFormConfig() {
@@ -421,39 +382,58 @@ export class SupplierDetails implements OnInit {
         };
 
         // MultiValue
-        let phones: UniFieldLayout = fields.find(x => x.Property === 'Info.DefaultPhone');
+        let phones: UniFieldLayout = fields.find(x => x.Property === 'Info.Phones');
 
         phones.Options = {
             entity: Phone,
             listProperty: 'Info.Phones',
             displayValue: 'Number',
             linkProperty: 'ID',
-            storeResultInProperty: 'Info.DefaultPhoneID',
-            editor: (value) => new Promise((resolve) => {
-                if (!value) {
+            storeResultInProperty: 'Info.DefaultPhone',
+            storeIdInProperty: 'Info.DefaultPhoneID',
+            editor: (value) => new Promise((resolve, reject) => {
+                if ((value && !value.ID) || !value) {
                     value = new Phone();
                     value.ID = 0;
                 }
 
+
                 this.phoneModal.openModal(value);
 
+                const modalSubscription = this.phoneModal.modal.closeEvent.subscribe(fromClose => {
+                    if (fromClose) {
+                        reject();
+                    }
+                    modalSubscription.unsubscribe();
+                });
                 this.phoneChanged = this.phoneModal.Changed.subscribe(modalval => {
                     this.phoneChanged.unsubscribe();
                     resolve(modalval);
+                    if (modalSubscription) {
+                        modalSubscription.unsubscribe();
+                    }
+                });
+                const canceled = this.phoneModal.Canceled.subscribe(modalval => {
+                    canceled.unsubscribe();
+                    reject(modalval);
+                    if (modalSubscription) {
+                        modalSubscription.unsubscribe();
+                    }
                 });
             })
         };
 
-        let invoiceaddress: UniFieldLayout = fields.find(x => x.Property === 'Info.InvoiceAddress');
+        let invoiceaddress: UniFieldLayout = fields.find(x => x.Label === 'Fakturaadresse');
 
         invoiceaddress.Options = {
             entity: Address,
             listProperty: 'Info.Addresses',
             displayValue: 'AddressLine1',
             linkProperty: 'ID',
-            storeResultInProperty: 'Info.InvoiceAddressID',
-            editor: (value) => new Promise((resolve) => {
-                if (!value) {
+            storeResultInProperty: 'Info.InvoiceAddress',
+            storeIdInProperty: 'Info.InvoiceAddressID',
+            editor: (value) => new Promise((resolve, reject) => {
+                if (!value || !value.ID) {
                     value = new Address();
                     value.ID = 0;
                 }
@@ -463,48 +443,83 @@ export class SupplierDetails implements OnInit {
                 if (this.addressChanged) {
                     this.addressChanged.unsubscribe();
                 }
-
+                const modalSubscription = this.addressModal.modal.closeEvent.subscribe(fromClose => {
+                    if (fromClose) {
+                        reject();
+                    }
+                    modalSubscription.unsubscribe();
+                });
                 this.addressChanged = this.addressModal.Changed.subscribe(modalval => {
                     resolve(modalval);
+                    this.addressChanged.unsubscribe();
+                    if (modalSubscription) {
+                        modalSubscription.unsubscribe();
+                    }
                 });
+                const canceled = this.addressModal.Canceled.subscribe(modalval => {
+                    canceled.unsubscribe();
+                    reject(modalval);
+                    if (modalSubscription) {
+                        modalSubscription.unsubscribe();
+                    }
+                });
+
             }),
             display: (address: Address) => {
                 return this.addressService.displayAddress(address);
             }
         };
 
-        let emails: UniFieldLayout = fields.find(x => x.Property === 'Info.DefaultEmail');
+        let emails: UniFieldLayout = fields.find(x => x.Property === 'Info.Emails');
 
         emails.Options = {
             entity: Email,
             listProperty: 'Info.Emails',
             displayValue: 'EmailAddress',
             linkProperty: 'ID',
-            storeResultInProperty: 'Info.DefaultEmailID',
-            editor: (value) => new Promise((resolve) => {
-                if (!value) {
+            storeResultInProperty: 'Info.DefaultEmail',
+            storeIdInProperty: 'Info.DefaultEmailID',
+            editor: (value) => new Promise((resolve, reject) => {
+                if ((value && !value.ID) || !value) {
                     value = new Email();
                     value.ID = 0;
                 }
 
                 this.emailModal.openModal(value);
+                const modalSubscription = this.emailModal.modal.closeEvent.subscribe(fromClose => {
+                    if (fromClose) {
+                        reject();
+                    }
+                    modalSubscription.unsubscribe();
 
+                });
                 this.emailChanged = this.emailModal.Changed.subscribe(modalval => {
                     this.emailChanged.unsubscribe();
                     resolve(modalval);
+                    if (modalSubscription) {
+                        modalSubscription.unsubscribe();
+                    }
+                });
+                const canceled = this.emailModal.Canceled.subscribe(modalval => {
+                    canceled.unsubscribe();
+                    reject(modalval);
+                    if (modalSubscription) {
+                        modalSubscription.unsubscribe();
+                    }
                 });
             })
         };
 
-        let shippingaddress: UniFieldLayout = fields.find(x => x.Property === 'Info.ShippingAddress');
+        let shippingaddress: UniFieldLayout = fields.find(x => x.Label === 'Leveringsadresse');
         shippingaddress.Options = {
             entity: Address,
             listProperty: 'Info.Addresses',
             displayValue: 'AddressLine1',
             linkProperty: 'ID',
-            storeResultInProperty: 'Info.ShippingAddressID',
-            editor: (value) => new Promise((resolve) => {
-                if (!value) {
+            storeResultInProperty: 'Info.ShippingAddress',
+            storeIdInProperty: 'Info.ShippingAddressID',
+            editor: (value) => new Promise((resolve, reject) => {
+                if ((value && !value.ID) || !value) {
                     value = new Address();
                     value.ID = 0;
                 }
@@ -514,25 +529,43 @@ export class SupplierDetails implements OnInit {
                 if (this.addressChanged) {
                     this.addressChanged.unsubscribe();
                 }
-
-                this.addressChanged = this.addressModal.Changed.subscribe(modalval => {
-                    resolve(modalval);
+                const modalSubscription = this.addressModal.modal.closeEvent.subscribe(fromClose => {
+                    if (fromClose) {
+                        reject();
+                    }
+                    modalSubscription.unsubscribe();
                 });
+                this.addressChanged = this.addressModal.Changed.subscribe(modalval => {
+                    this.addressChanged.unsubscribe();
+                    resolve(modalval);
+                    if (modalSubscription) {
+                        modalSubscription.unsubscribe();
+                    }
+                });
+                const canceled = this.addressModal.Canceled.subscribe(modalval => {
+                    canceled.unsubscribe();
+                    reject(modalval);
+                    if (modalSubscription) {
+                        modalSubscription.unsubscribe();
+                    }
+                });
+
             }),
             display: (address: Address) => {
                 return this.addressService.displayAddress(address);
             }
         };
 
-        let defaultBankAccount: UniFieldLayout = fields.find(x => x.Property === 'Info.DefaultBankAccount');
+        let defaultBankAccount: UniFieldLayout = fields.find(x => x.Property === 'Info.BankAccounts');
         defaultBankAccount.Options = {
-            entity: 'BankAccount',
+            entity: BankAccount,
             listProperty: 'Info.BankAccounts',
             displayValue: 'AccountNumber',
             linkProperty: 'ID',
-            storeResultInProperty: 'Info.DefaultBankAccountID',
-            editor: (bankaccount: BankAccount) => new Promise((resolve) => {
-                if (!bankaccount) {
+            storeResultInProperty: 'Info.DefaultBankAccount',
+            storeIdInProperty: 'Info.DefaultBankAccountID',
+            editor: (bankaccount: BankAccount) => new Promise((resolve, reject) => {
+                if ((bankaccount && !bankaccount.ID) || !bankaccount) {
                     bankaccount = new BankAccount();
                     bankaccount['_createguid'] = this.bankaccountService.getNewGuid();
                     bankaccount.BankAccountType = 'supplier';
@@ -542,7 +575,11 @@ export class SupplierDetails implements OnInit {
                 this.bankAccountModal.confirm(bankaccount, false).then((res) => {
                     if (res.status === ConfirmActions.ACCEPT) {
                         resolve(res.model);
+                    } else {
+                        reject(null);
                     }
+                }).catch(() => {
+                    reject();
                 });
             })
         };
@@ -555,8 +592,12 @@ export class SupplierDetails implements OnInit {
         setTimeout(() => {
             let supplier = this.supplier$.getValue();
             // add createGuid for new entities and remove duplicate entities
+            if (!supplier.Info.Emails) {
+                supplier.Info.Emails = [];
+            }
+
             supplier.Info.Emails.forEach(email => {
-                if (email.ID === 0) {
+                if (email.ID === 0 || !email.ID) {
                     email['_createguid'] = this.supplierService.getNewGuid();
                 }
             });
@@ -565,8 +606,11 @@ export class SupplierDetails implements OnInit {
                 supplier.Info.Emails = supplier.Info.Emails.filter(x => x !== supplier.Info.DefaultEmail);
             }
 
+            if (!supplier.Info.Phones) {
+                supplier.Info.Phones = [];
+            }
             supplier.Info.Phones.forEach(phone => {
-                if (phone.ID === 0) {
+                if (phone.ID === 0 || !phone.ID) {
                     phone['_createguid'] = this.supplierService.getNewGuid();
                 }
             });
@@ -575,8 +619,11 @@ export class SupplierDetails implements OnInit {
                 supplier.Info.Phones = supplier.Info.Phones.filter(x => x !== supplier.Info.DefaultPhone);
             }
 
+            if (!supplier.Info.Addresses) {
+                supplier.Info.Addresses = [];
+            }
             supplier.Info.Addresses.forEach(address => {
-                if (address.ID === 0) {
+                if (address.ID === 0 || !address.ID) {
                     address['_createguid'] = this.supplierService.getNewGuid();
                 }
             });
@@ -589,23 +636,23 @@ export class SupplierDetails implements OnInit {
                 supplier.Info.Addresses = supplier.Info.Addresses.filter(x => x !== supplier.Info.InvoiceAddress);
             }
 
-            if (supplier.Info.DefaultPhone === null && supplier.Info.DefaultPhoneID === 0) {
+            if (!supplier.Info.DefaultPhone && supplier.Info.DefaultPhoneID === 0) {
                 supplier.Info.DefaultPhoneID = null;
             }
 
-            if (supplier.Info.DefaultEmail === null && supplier.Info.DefaultEmailID === 0) {
+            if (!supplier.Info.DefaultEmail && supplier.Info.DefaultEmailID === 0) {
                 supplier.Info.DefaultEmailID = null;
             }
 
-            if (supplier.Info.ShippingAddress === null && supplier.Info.ShippingAddressID === 0) {
+            if (!supplier.Info.ShippingAddress && supplier.Info.ShippingAddressID === 0) {
                 supplier.Info.ShippingAddressID = null;
             }
 
-            if (supplier.Info.InvoiceAddress === null && supplier.Info.InvoiceAddressID === 0) {
+            if (!supplier.Info.InvoiceAddress && supplier.Info.InvoiceAddressID === 0) {
                 supplier.Info.InvoiceAddressID = null;
             }
 
-            if (supplier.Dimensions !== null && (!supplier.Dimensions.ID || supplier.Dimensions.ID === 0)) {
+            if (supplier.Dimensions && (!supplier.Dimensions.ID || supplier.Dimensions.ID === 0)) {
                 supplier.Dimensions['_createguid'] = this.supplierService.getNewGuid();
             }
 
@@ -613,13 +660,13 @@ export class SupplierDetails implements OnInit {
                 supplier.Info.DefaultBankAccount = null;
             }
 
-            if (supplier.Info.DefaultBankAccount !== null && (!supplier.Info.DefaultBankAccount.ID || supplier.Info.DefaultBankAccount.ID === 0)) {
+            if (supplier.Info.DefaultBankAccount && (!supplier.Info.DefaultBankAccount.ID || supplier.Info.DefaultBankAccount.ID === 0)) {
                 supplier.Info.DefaultBankAccount['_createguid'] = this.supplierService.getNewGuid();
             }
 
             if (supplier.Info.BankAccounts) {
                 supplier.Info.BankAccounts.forEach(bankaccount => {
-                    if (bankaccount.ID === 0 && !bankaccount['_createguid']) {
+                    if (bankaccount.ID === 0 || !bankaccount.ID) {
                         bankaccount['_createguid'] = this.bankaccountService.getNewGuid();
                     }
                 });
@@ -632,6 +679,21 @@ export class SupplierDetails implements OnInit {
 
             if (supplier.Info.DefaultBankAccount) {
                 supplier.Info.DefaultBankAccount.BankAccountType = 'supplier';
+            }
+
+            if (!supplier.Info.Contacts) {
+                supplier.Info.Contacts = [];
+            }
+
+            supplier.Info.Contacts.forEach(contact => {
+                if (contact.ID === 0 || !contact.ID) {
+                    contact['_createguid'] = this.supplierService.getNewGuid();
+                }
+            });
+
+            if (supplier.Info.Contacts.filter(x => !x.ID && x.Info.Name === '')) {
+                // remove new contacts where name is not set, probably an empty row anyway
+                supplier.Info.Contacts = supplier.Info.Contacts.filter(x => !(!x.ID && x.Info.Name === ''));
             }
 
             if (this.supplierID > 0) {
@@ -692,6 +754,48 @@ export class SupplierDetails implements OnInit {
         }
     }
 
+    private getSupplierLookupOptions() {
+        let uniSearchConfig = this.uniSearchConfigGeneratorService.generate(
+            Supplier,
+            <[string]>this.expandOptions,
+            () => {
+                let supplier = this.supplier$.getValue();
+
+                let searchInfo = <any>this.form.field('_SupplierSearchResult');
+                if (searchInfo) {
+                    if (searchInfo.component && searchInfo.component.input) {
+                        supplier.Info.Name = searchInfo.component.input.value;
+                    }
+                }
+
+                if (!supplier.Info.Name) {
+                    supplier.Info.Name = '';
+                }
+
+                this.supplier$.next(supplier);
+                this.showHideNameProperties();
+
+                return Observable.from([supplier]);
+            });
+
+        uniSearchConfig.expandOrCreateFn = (newOrExistingItem: any) => {
+            if (newOrExistingItem.ID) {
+                // If an existing customer is selected, navigate to that customer instead
+                // of populating the fields for a new customer
+                this.router.navigateByUrl(`/sales/suppliers/${newOrExistingItem.ID}`);
+                return Observable.empty();
+            } else {
+                let supplierData = this.uniSearchConfigGeneratorService
+                            .supplierGenerator
+                            .customStatisticsObjToSupplier(newOrExistingItem);
+
+                return Observable.from([supplierData]);
+            }
+        };
+
+        return uniSearchConfig;
+    }
+
     // TODO: change to 'ComponentLayout' when object respects the interface
     private getComponentLayout(): any {
         return {
@@ -706,6 +810,30 @@ export class SupplierDetails implements OnInit {
             ID: 1,
             CustomFields: null,
             Fields: [
+                {
+                    ComponentLayoutID: 1,
+                    EntityType: 'Supplier',
+                    Property: '_SupplierSearchResult',
+                    Placement: 1,
+                    Hidden: true,
+                    FieldType: FieldType.UNI_SEARCH,
+                    ReadOnly: false,
+                    LookupField: false,
+                    Label: 'Navn',
+                    Description: null,
+                    HelpText: null,
+                    FieldSet: 0,
+                    Section: 0,
+                    Placeholder: null,
+                    LineBreak: null,
+                    Combo: null,
+                    Sectionheader: '',
+                    hasLineBreak: false,
+                    Validations: [],
+                    Options: {
+                        uniSearchConfig: this.getSupplierLookupOptions()
+                    }
+                },
                 {
                     ComponentLayoutID: 3,
                     EntityType: 'BusinessRelation',
@@ -765,7 +893,7 @@ export class SupplierDetails implements OnInit {
                 {
                     ComponentLayoutID: 3,
                     EntityType: 'Supplier',
-                    Property: 'Info.InvoiceAddress',
+                    Property: 'Info.Addresses',
                     Placement: 1,
                     Hidden: false,
                     FieldType: FieldType.MULTIVALUE,
@@ -793,7 +921,7 @@ export class SupplierDetails implements OnInit {
                 {
                     ComponentLayoutID: 3,
                     EntityType: 'Supplier',
-                    Property: 'Info.ShippingAddress',
+                    Property: 'Info.Addresses',
                     Placement: 1,
                     Hidden: false,
                     FieldType: FieldType.MULTIVALUE,
@@ -821,7 +949,7 @@ export class SupplierDetails implements OnInit {
                 {
                     ComponentLayoutID: 3,
                     EntityType: 'Supplier',
-                    Property: 'Info.DefaultEmail',
+                    Property: 'Info.Emails',
                     Placement: 1,
                     Hidden: false,
                     FieldType: FieldType.MULTIVALUE,
@@ -849,7 +977,7 @@ export class SupplierDetails implements OnInit {
                 {
                     ComponentLayoutID: 3,
                     EntityType: 'Supplier',
-                    Property: 'Info.DefaultPhone',
+                    Property: 'Info.Phones',
                     Placement: 1,
                     Hidden: false,
                     FieldType: FieldType.MULTIVALUE,
@@ -920,7 +1048,7 @@ export class SupplierDetails implements OnInit {
                 {
                     ComponentLayoutID: 3,
                     EntityType: 'Supplier',
-                    Property: 'Info.DefaultBankAccount',
+                    Property: 'Info.BankAccounts',
                     Placement: 4,
                     Hidden: false,
                     FieldType: FieldType.MULTIVALUE,

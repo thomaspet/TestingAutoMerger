@@ -4,14 +4,13 @@ import {ToastService, ToastType} from '../../../../../framework/uniToast/toastSe
 import {Router, ActivatedRoute} from '@angular/router';
 import {Observable} from 'rxjs/Observable';
 import {safeInt, roundTo, safeDec, filterInput, trimLength,
-    createFormField, FieldSize, ControlTypes} from '../../../timetracking/utils/utils';
+    createFormField, FieldSize, ControlTypes} from '../../../common/utils/utils';
 import {Supplier, SupplierInvoice, JournalEntryLineDraft,
     StatusCodeSupplierInvoice, BankAccount, LocalDate,
     InvoicePaymentData, CurrencyCode, CompanySettings} from '../../../../unientities';
 import {UniStatusTrack} from '../../../common/toolbar/statustrack';
 import {IUniSaveAction} from '../../../../../framework/save/save';
 import {UniForm, FieldType} from 'uniform-ng2/main';
-import {SupplierDetailsModal} from '../../../common/supplier/details/supplierDetailModal';
 import {RegisterPaymentModal} from '../../../common/modals/registerPaymentModal';
 import {Location} from '@angular/common';
 import {BillSimpleJournalEntryView} from './journal/simple';
@@ -22,6 +21,9 @@ import {BillHistoryView} from './history/history';
 import {BankAccountModal} from '../../../common/modals/modals';
 import {ImageModal} from '../../../common/modals/ImageModal';
 import {UniImageSize} from '../../../../../framework/uniImage/uniImage';
+import {IUniSearchConfig} from 'unisearch-ng2/src/UniSearch/IUniSearchConfig';
+import {UniAssignModal, AssignDetails} from './approvemodal';
+
 import {
     SupplierInvoiceService,
     SupplierService,
@@ -33,7 +35,9 @@ import {
     CompanySettingsService,
     ErrorService,
     PageStateService,
-    checkGuid
+    checkGuid,
+    EHFService,
+    UniSearchConfigGeneratorService
 } from '../../../../services/services';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {UniFieldLayout} from 'uniform-ng2/main';
@@ -86,15 +90,19 @@ export class BillView {
 
     private currencyCodes: Array<CurrencyCode>;
     private companySettings: CompanySettings;
+    private uniSearchConfig: IUniSearchConfig;
 
     @ViewChild(UniForm) public uniForm: UniForm;
-    @ViewChild(SupplierDetailsModal) private supplierDetailsModal: SupplierDetailsModal;
     @ViewChild(BankAccountModal) public bankAccountModal: BankAccountModal;
     @ViewChild(RegisterPaymentModal) private registerPaymentModal: RegisterPaymentModal;
     @ViewChild(BillSimpleJournalEntryView) private simpleJournalentry: BillSimpleJournalEntryView;
     @ViewChild(UniConfirmModal) private confirmModal: UniConfirmModal;
     @ViewChild(BillHistoryView) private historyView: BillHistoryView;
     @ViewChild(ImageModal) public imageModal: ImageModal;
+    @ViewChild(UniAssignModal) private assignModal: UniAssignModal;
+
+    // tslint:disable:max-line-length
+    private supplierExpandOptions: Array<string> = ['Info', 'Info.BankAccounts', 'Info.DefaultBankAccount', 'CurrencyCode'];
 
     private tabLabel: string;
     public tabs: Array<ITab> = [
@@ -111,7 +119,7 @@ export class BillView {
     private rootActions: IUniSaveAction[] = [
         { label: lang.tool_save, action: (done) => this.save(done), main: true, disabled: true },
         { label: lang.tool_delete, action: (done) => this.tryDelete(done), main: false, disabled: true },
-        { label: lang.ocr, action: (done) => this.runOcr(this.files).then(() => done()), main: false, disabled: false }
+        { label: lang.converter, action: (done) => this.runConverter(this.files).then(() => done()), main: false, disabled: false },
     ];
 
     constructor(
@@ -129,7 +137,9 @@ export class BillView {
         private bankAccountService: BankAccountService,
         private companySettingsService: CompanySettingsService,
         private currencyCodeService: CurrencyCodeService,
-        private currencyService: CurrencyService) {
+        private currencyService: CurrencyService,
+        private ehfService: EHFService,
+        private uniSearchConfigGeneratorService: UniSearchConfigGeneratorService) {
         this.actions = this.rootActions;
     }
 
@@ -140,6 +150,11 @@ export class BillView {
 
     public canDeactivate() {
         return this.checkSave();
+    }
+
+    private get currentID(): number {
+        let current = this.current.getValue();
+        return (current ? current.ID : 0);
     }
 
     private initFromRoute() {
@@ -204,66 +219,31 @@ export class BillView {
         }
     }
 
-    private renderCombo(data: { SupplierNumber: number, InfoName: string }) {
-        return data ? `${data.SupplierNumber} - ${data.InfoName}` : '';
-    }
-
     private initForm() {
+        this.uniSearchConfig = this.uniSearchConfigGeneratorService.generate(
+            Supplier,
+            <[string]>this.supplierExpandOptions);
 
-        var supIdCol = createFormField('SupplierID', lang.col_supplier, ControlTypes.AutocompleteInput, FieldSize.Full);
+        var supIdCol = createFormField('SupplierID', lang.col_supplier, FieldType.UNI_SEARCH, FieldSize.Full);
         supIdCol.Options = {
-            template: (data) => {
-                let current: SupplierInvoice = this.current.getValue();
-                if (data === undefined && (current && current.Supplier && current.Supplier.Info)) {
-                    data = { SupplierNumber: current.Supplier.SupplierNumber, InfoName: current.Supplier.Info.Name };
-                }
-                if (data && data.InfoName) {
-                    return this.renderCombo(data);
-                } else {
-                    return '';
-                }
-            },
-            getDefaultData: () => {
-                let current: SupplierInvoice = this.current.getValue();
-                if (current.Supplier) {
-                    if (current.Supplier.Info) {
-                        return Observable.of(
-                            {
-                                ID: current.Supplier.ID,
-                                SupplierNumber: current.Supplier.SupplierNumber,
-                                InfoName: current.Supplier.Info.Name
-                            }
-                        );
-                    } else {
-                        return Observable.empty();
-                    }
-                } else {
-                    return Observable.empty();
-                }
-            },
-            search: (txt: string) => {
-                if (!txt) {
-                    txt = '';
-                }
-                let filter = `contains(info.name,'${txt}')`;
-
-                return this.supplierInvoiceService.getStatQuery('?model=supplier&orderby=Info.Name&select=id as ID,SupplierNumber as SupplierNumber,Info.Name&expand=info&filter=' + filter);
-            },
+            uniSearchConfig: this.uniSearchConfig,
             valueProperty: 'ID'
         };
 
-        var sumCol = createFormField('TaxInclusiveAmountCurrency', lang.col_total, ControlTypes.TextInput, FieldSize.Double);
+        var sumCol = createFormField('TaxInclusiveAmountCurrency', lang.col_total, ControlTypes.NumericInput, FieldSize.Double);
         sumCol.Classes += ' combofield';
         sumCol.Options = {
             events: {
-                enter: () => {
-                    this.focusJournalEntries(); // not working
+                enter: (x) => {
+                    this.focusJournalEntries();
                 }
             },
-            decimalLength: 2
+            decimalLength: 2,
+            decimalSeparator: ','
         };
 
         var currencyCodeCol = createFormField('CurrencyCodeID', lang.col_currency_code, FieldType.DROPDOWN, FieldSize.Double);
+        currencyCodeCol.Classes += ' combofield';
         currencyCodeCol.Options = {
             source: this.currencyCodes,
             valueProperty: 'ID',
@@ -273,18 +253,20 @@ export class BillView {
 
         let bankAccountCol = createFormField('BankAccountID', lang.col_bank, ControlTypes.MultivalueInput, FieldSize.Double);
         bankAccountCol.Options = {
-            entity: 'BankAccount',
+            entity: BankAccount,
             listProperty: 'Supplier.Info.BankAccounts',
             displayValue: 'AccountNumber',
             linkProperty: 'ID',
-            storeResultInProperty: 'BankAccountID',
+            storeResultInProperty: 'BankAccount',
+            storeIdInProperty: 'BankAccountID',
             editor: (bankaccount: BankAccount) => new Promise((resolve, reject) => {
                 let current: SupplierInvoice = this.current.getValue();
-                if (!bankaccount) {
-                    bankaccount = new BankAccount();
+
+                if (!bankaccount.ID) {
                     bankaccount['_createguid'] = this.bankAccountService.getNewGuid();
                     bankaccount.BankAccountType = 'supplier';
-                    bankaccount.BusinessRelationID = current.Supplier.BusinessRelationID;
+                    bankaccount.BusinessRelationID =
+                        current.Supplier ? current.Supplier.BusinessRelationID : null;
                     bankaccount.ID = 0;
                 }
 
@@ -296,7 +278,7 @@ export class BillView {
                             this.bankAccountService.Post(changedBankaccount)
                                 .subscribe((savedBankAccount: BankAccount) => {
                                     current.BankAccountID = savedBankAccount.ID;
-                                    this.current.next(current); //if we update current we emit the new value
+                                    this.current.next(current); // if we update current we emit the new value
                                     resolve(savedBankAccount);
                                 },
                                 err => {
@@ -331,7 +313,76 @@ export class BillView {
         this.simpleJournalentry.focus();
     }
 
-    public onFormReady(event) {
+    /// =============================
+
+    ///     OCR AND EHF
+
+    /// =============================
+
+    private runConverter(files: Array<any>): Promise<boolean> {
+        return new Promise((resolve, reject) => {
+            if (files && files.length > 0) {
+                let firstFile = files[0];
+                if (this.isOCR(firstFile)) {
+                    this.runOcr(firstFile);
+                } else {
+                    this.runEHF(firstFile);
+                }
+            }
+        });
+    }
+
+    /// =============================
+
+    ///     FILES AND EHF
+
+    /// =============================
+
+    private runEHF(file: any) {
+        this.userMsg(lang.ehf_running, null, null, true);
+        this.ehfService.Get(`?action=parse&fileID=${file.ID}`)
+            .subscribe( (invoice: SupplierInvoice) => {
+                this.current.next(invoice);
+                this.toast.clear();
+                this.handleEHFResult(invoice);
+                this.flagUnsavedChanged();
+            }, (err) => {
+                this.errorService.handle(err);
+            });
+    }
+
+    private handleEHFResult(invoice: SupplierInvoice) {
+        // Supplier
+        if (!invoice.SupplierID && invoice.Supplier) {
+            var title = `${lang.create_supplier} '${invoice.InvoiceReceiverName}' ?`;
+            var msg = `${invoice.InvoiceAddressLine1 || ''} ${invoice.InvoicePostalCode || ''}. ${lang.org_number}: ${invoice.Supplier.OrgNumber}`;
+            this.toast.clear();
+            this.confirmModal.confirm(msg, title, false, { warning: lang.org_not_found }).then((userChoice: ConfirmActions) => {
+                if (userChoice === ConfirmActions.ACCEPT) {
+                    this.supplierService.Post(invoice.Supplier).subscribe(x => {
+                        this.fetchNewSupplier(x.ID, true);
+                    }, err => this.errorService.handle(err));
+                }
+            });
+        } else if (!invoice.BankAccountID && invoice.BankAccount) {
+            this.confirmModal.confirm(
+                `${lang.create_bankaccount_info} ${invoice.InvoiceReceiverName}`,
+                `${lang.create_bankaccount_title} ${invoice.BankAccount.AccountNumber}?`,
+                false,
+                { accept: `${lang.create_bankaccount_accept}`, reject: lang.create_bankaccount_reject }
+            ).then((userChoice: ConfirmActions) => {
+                if (userChoice === ConfirmActions.ACCEPT) {
+                    this.bankAccountService.Post(invoice.BankAccount)
+                        .subscribe((savedBankAccount: BankAccount) => {
+                            let current = this.current.getValue();
+                            current.BankAccountID = savedBankAccount.ID;
+                            this.current.next(current);
+                        },
+                        err => this.errorService.handle(err)
+                    );
+                }
+            });
+        }
     }
 
     /// =============================
@@ -355,7 +406,7 @@ export class BillView {
         this.files = files;
         if (files && files.length) {
             if (!this.hasValidSupplier()) {
-                this.runOcr(files);
+                this.runConverter(files);
             }
             this.checkNewFiles(files);
         }
@@ -383,22 +434,16 @@ export class BillView {
         return (current && current.SupplierID) ? true : false;
     }
 
-    private runOcr(files: Array<any>): Promise<boolean> {
-        return new Promise((resolve, reject) => {
-            if (files && files.length > 0) {
-                let firstFile = files[0];
-                this.userMsg(lang.ocr_running, null, null, true);
-                this.supplierInvoiceService.fetch(`files/${firstFile.ID}?action=ocranalyse`)
-                    .subscribe((result: IOcrServiceResult) => {
-                        this.toast.clear();
-                        this.handleOcrResult(new OcrValuables(result));
-                        resolve(true);
-                    }, (err) => {
-                        this.errorService.handle(err);
-                        resolve(false);
-                    });
-            }
-        });
+    private runOcr(file: any) {
+        this.userMsg(lang.ocr_running, null, null, true);
+        this.supplierInvoiceService.fetch(`files/${file.ID}?action=ocranalyse`)
+            .subscribe((result: IOcrServiceResult) => {
+                this.toast.clear();
+                this.handleOcrResult(new OcrValuables(result));
+                this.flagUnsavedChanged();
+            }, (err) => {
+                this.errorService.handle(err);
+            });
     }
 
     private handleOcrResult(ocr: OcrValuables) {
@@ -415,7 +460,9 @@ export class BillView {
                                     .find(x => x.AccountNumber === ocr.BankAccount);
 
                                 if (bankAccount) {
-                                    this.setFormValue('BankAccountID', bankAccount.ID);
+                                    let current = this.current.getValue();
+                                    current.BankAccountID = bankAccount.ID;
+                                    this.current.next(current);
                                 } else {
                                     this.confirmModal.confirm(
                                         `${lang.create_bankaccount_info} ${supplier.Info.Name}`,
@@ -432,7 +479,10 @@ export class BillView {
                                             this.bankAccountService.Post(newBankAccount)
                                                 .subscribe((savedBankAccount: BankAccount) => {
                                                     supplier.Info.BankAccounts.push(savedBankAccount);
-                                                    this.setFormValue('BankAccountID', savedBankAccount.ID);
+
+                                                    let current = this.current.getValue();
+                                                    current.BankAccountID = bankAccount.ID;
+                                                    this.current.next(current);
 
                                                     this.setSupplier(supplier);
                                                 },
@@ -450,11 +500,23 @@ export class BillView {
                     }, err => this.errorService.handle(err));
             }
         }
-        this.setFormValue('PaymentID', ocr.PaymentID);
-        this.setFormValue('InvoiceNumber', ocr.InvoiceNumber);
-        this.setFormValue('InvoiceDate', moment(ocr.InvoiceDate).format('L'), true);
-        this.setFormValue('PaymentDueDate', moment(ocr.PaymentDueDate).format('L'), true);
-        this.setFormValue('TaxInclusiveAmountCurrency', safeDec(ocr.TaxInclusiveAmount).toFixed(2)); //TODO: Implement OCR currency
+
+
+        let current = this.current.getValue();
+
+        current.PaymentID = ocr.PaymentID;
+        current.InvoiceNumber = ocr.InvoiceNumber;
+        current.TaxInclusiveAmountCurrency = +safeDec(ocr.TaxInclusiveAmount).toFixed(2);
+        if (ocr.InvoiceDate) {
+            current.InvoiceDate = new LocalDate(moment(ocr.InvoiceDate).toDate());
+        }
+        if (ocr.PaymentDueDate) {
+            current.PaymentDueDate = new LocalDate(moment(ocr.PaymentDueDate).toDate());
+        }
+
+        this.current.next(current);
+
+        // TODO: Implement OCR currency
     }
 
     private findSupplierViaPhonebook(orgNo: string, askUser: boolean, bankAccount?: string) {
@@ -501,22 +563,6 @@ export class BillView {
         }, err => this.errorService.handle(err));
     }
 
-
-    private setFormValue(colName: string, value: any, callInputChange = false) {
-        let current = this.current.getValue();
-        current[colName] = value;
-        var fld: any = this.uniForm.field(colName);
-        fld.Component.control.setValue(value, { emitEvent: true });
-        if (callInputChange) {
-            fld.Component.inputChange();
-        }
-        this.current.next(current);
-        this.flagUnsavedChanged();
-    }
-
-    ///////////////////////
-
-
     public onSaveDraftForImage() {
         this.save((msg) => {
             this.userMsg(lang.add_image_now, lang.fyi, 3, true);
@@ -525,9 +571,6 @@ export class BillView {
 
     public onFormChange(change: SimpleChanges) {
         let model = this.current.getValue();
-        let changedProperties = Object.keys(change);
-        changedProperties.forEach((property: string) => _.set(model, property, change[property].currentValue));
-        this.current.next(model);
 
         if (change['SupplierID']) {
             this.fetchNewSupplier(model.SupplierID);
@@ -536,10 +579,11 @@ export class BillView {
         if (change['InvoiceDate']) {
             if (model.CurrencyCodeID && model.CurrencyCodeID !== this.companySettings.BaseCurrencyCodeID) {
                 let currencyDate: LocalDate = model.InvoiceDate ? model.InvoiceDate : new LocalDate();
-                this.currencyService.getCurrencyExchangeRate(model.CurrencyCodeID, this.companySettings.BaseCurrencyCodeID, currencyDate)
+                this.currencyService.getCurrencyExchangeRate(model.CurrencyCodeID,
+                    this.companySettings.BaseCurrencyCodeID, currencyDate)
                     .subscribe(res => {
-                        let ExchangeRate = res;
                         model.CurrencyExchangeRate = res.ExchangeRate;
+                        this.current.next(model);
                         this.flagUnsavedChanged();
                     }, err => this.errorService.handle(err)
                     );
@@ -551,6 +595,7 @@ export class BillView {
                 this.currencyCodeService.Get(model.CurrencyCodeID)
                     .subscribe(res => {
                         model.CurrencyCode = res;
+                        this.current.next(model);
                         this.flagUnsavedChanged();
                     }, err => this.errorService.handle(err)
                     );
@@ -558,27 +603,25 @@ export class BillView {
             if (model.InvoiceDate) {
                 this.currencyService.getCurrencyExchangeRate(model.CurrencyCodeID, this.companySettings.BaseCurrencyCodeID, model.InvoiceDate)
                     .subscribe(res => {
-                        let ExchangeRate = res;
                         model.CurrencyExchangeRate = res.ExchangeRate;
+                        this.current.next(model);
                         this.flagUnsavedChanged();
                     }, err => this.errorService.handle(err)
                     );
             }
         }
 
-        this.flagUnsavedChanged();
-    }
-
-    public onSupplierModalChanged(supplier: Supplier) {
-        if (supplier && supplier.ID) {
-            this.fetchNewSupplier(supplier.ID, true);
-            this.flagUnsavedChanged();
+        // need to push an update if the currency changes to make the journal entry grid update itself
+        if (change['TaxInclusiveAmountCurrency']) {
+            this.current.next(model);
         }
+
+        this.flagUnsavedChanged();
     }
 
     private fetchNewSupplier(id: number, updateCombo = false) {
         if (id) {
-            this.supplierService.Get(id, ['Info', 'Info.BankAccounts', 'Info.DefaultBankAccount', 'CurrencyCode'])
+            this.supplierService.Get(id, this.supplierExpandOptions)
                 .subscribe((result: Supplier) => this.setSupplier(result, updateCombo));
         }
     }
@@ -587,39 +630,23 @@ export class BillView {
         let current: SupplierInvoice = this.current.getValue();
         this.currentSupplierID = result.ID;
         current.Supplier = result;
+
         if (current.SupplierID !== result.ID) {
             current.SupplierID = result.ID;
-        }
-        if (updateCombo) {
-            this.uniForm.field('SupplierID').Component.control
-                .setValue(this.renderCombo({ SupplierNumber: result.SupplierNumber, InfoName: result.Info.Name }));
         }
 
         if (!current.BankAccountID && result.Info.DefaultBankAccountID ||
             (current.BankAccount && current.BankAccount.BusinessRelationID !== result.BusinessRelationID)) {
             current.BankAccountID = result.Info.DefaultBankAccountID;
-            this.uniForm.field('BankAccountID').Component.control
-                .setValue(result.Info.DefaultBankAccount.AccountNumber);
         }
 
         if (result.CurrencyCodeID) {
             current.CurrencyCodeID = result.CurrencyCodeID;
-            this.uniForm.field('CurrencyCodeID').Component.control
-                .setValue(result.CurrencyCode.Code);
-
-            this.currencyCodeService.Get(result.CurrencyCodeID)
-                .subscribe(res => {
-                    current.CurrencyCode = res;
-                }, err => this.errorService.handle(err)
-                );
-        }
-        else {
+        } else {
             current.CurrencyCodeID = this.companySettings.BaseCurrencyCodeID;
-            this.uniForm.field('CurrencyCodeID').Component.control
-                .setValue(result.CurrencyCodeID);
         }
 
-        // make uniform update itself to show correct values for bankaccount
+        // make uniform update itself to show correct values for bankaccount/currency
         this.current.next(current);
 
         this.setupToolbar();
@@ -654,7 +681,19 @@ export class BillView {
     private newInvoice(isInitial: boolean) {
         let current = new SupplierInvoice();
         current.StatusCode = 0;
+        current.SupplierID = null;
+
         this.current.next(current);
+
+        if (this.uniSearchConfig) {
+            this.uniSearchConfig.initialItem$.next(null);
+        } else {
+            setTimeout(() => {
+                if (this.uniSearchConfig) {
+                    this.uniSearchConfig.initialItem$.next(null);
+                }
+            });
+        }
 
         this.tabLabel = lang.title_new;
         this.currentSupplierID = 0;
@@ -673,17 +712,10 @@ export class BillView {
         this.setHistoryCounter(0);
         this.busy = false;
 
-        if (this.uniForm) {
-            this.uniForm.field('SupplierID').Component.control.setValue(0);
-            this.fields$.next(this.fields$.getValue());
-            this.createNewSupplierButton();
-        }
-
         if (!isInitial) {
             this.hasStartupFileID = false;
         }
         try { if (this.uniForm) { this.uniForm.editMode(); } } catch (err) { }
-
     }
 
     private flagUnsavedChanged(reset = false) {
@@ -691,7 +723,10 @@ export class BillView {
         if (!reset) {
             this.actions.forEach(x => x.main = false);
             this.actions[actionBar.save].main = true;
+
+            this.actions = this.actions.concat();
         }
+
         this.hasUnsavedChanges = !reset;
     }
 
@@ -779,9 +814,28 @@ export class BillView {
         });
     }
 
+    public onAssignClickOk(details: AssignDetails) {
+        let id = this.currentID;
+        if (!id) { return; }
+        this.assignModal.goBusy(true);
+        this.supplierInvoiceService.assign(id, details)
+            .finally( () => this.assignModal.goBusy(false) )
+            .subscribe( x => {
+                this.assignModal.close();
+                this.fetchInvoice(id, true);
+            }, (err) => {
+                this.errorService.handle(err);
+            });
+    }
+
     private handleActionAfterCheckSave(key: string, label: string, href: string, done: any): boolean {
         let current = this.current.getValue();
         switch (key) {
+            case 'assign':
+                this.assignModal.open();
+                done();
+                break;
+
             case 'journal':
                 this.confirmModal.confirm(
                     lang.ask_journal_msg + current.TaxInclusiveAmountCurrency.toFixed(2) + '?',
@@ -893,7 +947,6 @@ export class BillView {
     }
 
     private fetchInvoice(id: number | string, flagBusy: boolean): Promise<any> {
-        let current = this.current.getValue();
         if (flagBusy) { this.busy = true; }
         this.currentFileID = 0;
         this.files = undefined;
@@ -914,7 +967,8 @@ export class BillView {
                 this.checkLockStatus();
                 this.fetchHistoryCount(result.SupplierID);
 
-                this.createNewSupplierButton();
+                this.uniSearchConfig.initialItem$.next(result.Supplier);
+
                 resolve('');
             }, (err) => {
                 this.errorService.handle(err);
@@ -1374,12 +1428,15 @@ export class BillView {
         }
     }
 
-    private tagFileStatus(fileID: number, flagFileStatus: number, tag = 'incomingmail') {
+    private tagFileStatus(fileID: number, flagFileStatus: number) {
+        var file = this.files.find(x => x.ID === fileID);
+        var tag = this.isOCR(file) ? 'IncomingMail' : 'IncomingEHF';
+
         this.supplierInvoiceService.send(
             `filetags/${fileID}`,
             undefined,
             undefined,
-            { FileID: fileID, TagName: 'incomingmail', Status: flagFileStatus }
+            { FileID: fileID, TagName: tag, Status: flagFileStatus }
         ).subscribe(null, err => this.errorService.handle(err));
     }
 
@@ -1394,50 +1451,22 @@ export class BillView {
         return txt;
     }
 
-    private createNewSupplierButton() {
-        var frm: any = this.uniForm;
-
-        setTimeout(() => {
-            if (frm && frm.elementRef && frm.elementRef.nativeElement) {
-                let elNewSupplierBtn = frm.elementRef.nativeElement.getElementsByClassName('good tiny');
-                console.log('elNewSupplierBtn:', elNewSupplierBtn);
-
-                if (!elNewSupplierBtn || elNewSupplierBtn.length === 0) {
-                    let el = frm.elementRef.nativeElement.getElementsByClassName('uni-autocomplete-searchBtn');
-                    if (el && el.length > 0) {
-                        let btn = el[0];
-                        let sibling = btn.cloneNode(true);
-                        sibling.className = 'good tiny';
-                        sibling.innerHTML = lang.btn_new_supplier;
-                        sibling.addEventListener('click', () => {
-                            if (!this.supplierIsReadOnly) {
-                                this.supplierDetailsModal.open();
-                            }
-                        });
-                        let dropDown = btn.nextSibling;
-                        btn.parentElement.insertBefore(sibling, dropDown);
-                    }
-                    // Create keyboard-shortcut (F3)
-                    el = frm.elementRef.nativeElement.getElementsByTagName('input');
-                    if (el && el.length > 0) {
-                        el[0].addEventListener('keydown', (event) => {
-                            if (event.which === 114 && (!this.supplierIsReadOnly)) {
-                                this.supplierDetailsModal.open();
-                                event.preventDefault();
-                                event.stopPropagation();
-                            }
-                        });
-                    }
-                }
-            }
-        }, 250);
-    }
-
     private userMsg(msg: string, title?: string, delay = 3, isGood = false) {
         this.toast.addToast(
             title || (isGood ? lang.fyi : lang.warning),
             isGood ? ToastType.good : ToastType.bad, delay,
             msg
         );
+    }
+
+    private isOCR(file): Boolean {
+        if (file.ContentType) {
+            if (file.ContentType === 'application/xml') { return false; }
+            if (file.ContentType.startsWith('image')) { return true; }
+        }
+        if (file.Extension && file.Extension === '.xml') { return false; }
+        var ocrformats = ['pdf', 'png', 'jpeg', 'jpg', 'gif', 'tiff'];
+        var ending = file.Name.split('.').pop();
+        return ocrformats.indexOf(ending) >= 0;
     }
 }

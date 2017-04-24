@@ -25,28 +25,30 @@ export class PaymentBatches {
     private selectedPaymentBatchID: number;
     private currentRow: any;
 
-    constructor(private router: Router,
-                private statisticsService: StatisticsService,
-                private paymentBatchService: PaymentBatchService,
-                private errorService: ErrorService,
-                private tabService: TabService,
-                private toastService: ToastService,
-                private fileService: FileService) {
+    constructor(
+        private router: Router,
+        private statisticsService: StatisticsService,
+        private paymentBatchService: PaymentBatchService,
+        private errorService: ErrorService,
+        private tabService: TabService,
+        private toastService: ToastService,
+        private fileService: FileService) {
 
         this.tabService.addTab({
             name: 'Utbetalinger',
             url: '/bank/batches',
             moduleID: UniModules.PaymentBatches,
-            active: true }
+            active: true
+        }
         );
     }
 
     public ngOnInit() {
         this.toolbarconfig = {
-                title: 'Utbetalinger',
-                subheads: [],
-                navigation: {}
-            };
+            title: 'Utbetalinger',
+            subheads: [],
+            navigation: {}
+        };
 
         this.setupTable();
 
@@ -65,9 +67,16 @@ export class PaymentBatches {
             .subscribe(paymentBatch => {
                 this.toastService.addToast('Kvitteringsfil tolket og behandlet', ToastType.good, 10,
                     'Betalinger og bilag er oppdatert');
+                this.paymentBatchUpdated(null);
             },
             err => this.errorService.handle(err)
-        );
+            );
+    }
+
+    private paymentBatchUpdated(paymentBatch: PaymentBatch) {
+        if (this.table) {
+            this.table.refreshTableData();
+        }
     }
 
     private paymentBatchNavigate(direction: number) {
@@ -95,7 +104,7 @@ export class PaymentBatches {
                 this.table.refreshTableData();
             },
             err => this.errorService.handle(err)
-        );
+            );
     }
 
     private onRowSelected(row) {
@@ -122,19 +131,19 @@ export class PaymentBatches {
         };
 
         // Define columns to use in the table
-        let dateCol = new UniTableColumn('CreatedAt', 'Dato',  UniTableColumnType.LocalDate)
+        let dateCol = new UniTableColumn('CreatedAt', 'Dato', UniTableColumnType.LocalDate)
             .setWidth('110px');
 
-        let totalAmountCol = new UniTableColumn('TotalAmount', 'Totalbeløp',  UniTableColumnType.Money)
+        let totalAmountCol = new UniTableColumn('TotalAmount', 'Totalbeløp', UniTableColumnType.Money)
             .setFilterOperator('contains')
             .setWidth('140px');
 
-        let numberOfPaymentsCol = new UniTableColumn('NumberOfPayments', 'Antall',  UniTableColumnType.Text)
+        let numberOfPaymentsCol = new UniTableColumn('NumberOfPayments', 'Antall', UniTableColumnType.Text)
             .setFilterable(false)
             .setWidth('70px');
 
-        let statusCodeCol = new UniTableColumn('StatusCode', 'Status',  UniTableColumnType.Text)
-            .setTemplate(data => this.paymentBatchService.getStatusText(data.StatusCode,false))
+        let statusCodeCol = new UniTableColumn('StatusCode', 'Status', UniTableColumnType.Text)
+            .setTemplate(data => this.paymentBatchService.getStatusText(data.StatusCode, false))
             .setFilterable(false);
 
         // Setup table

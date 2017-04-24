@@ -7,9 +7,6 @@
 <uni-poster [widgets]="customerWidgets" *ngIf="customerWidgets && (customer$|async)?.ID"></uni-poster>
 
 <header class="customer_poster">
-    <section class="poster_overview">
-        <external-search [searchText]="searchText" (selectEvent)="addSearchInfo($event)" *ngIf="showSearch(customerID)"></external-search>
-    </section>
 
     <div class="horizontal_nav" *ngIf="(customer$|async)?.ID">
         <ul>
@@ -39,7 +36,8 @@
     <uni-form *ngIf="activeTab === 'details'"
               [config]="config$"
               [fields]="fields$"
-              [model]="customer$">
+              [model]="customer$"
+              (changeEvent)="onChange($event)">
     </uni-form>
     <article class="collapsable" [ngClass]="{'-is-open': showContactSection}" *ngIf="activeTab === 'details' && (customer$|async)?.ID">
         <h4 (click)="showContactSection = !showContactSection">Kontakter</h4>

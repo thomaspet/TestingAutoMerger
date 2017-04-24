@@ -1,7 +1,7 @@
 import {Component, Input, SimpleChange, ViewChild, OnInit, OnChanges, Output, EventEmitter} from '@angular/core';
 import {JournalEntryProfessional} from '../components/journalentryprofessional/journalentryprofessional';
-import {SupplierInvoice, Dimensions, FinancialYear, ValidationLevel, VatDeduction, CompanySettings} from '../../../../unientities';
-import {ValidationMessage, ValidationResult} from '../../../../models/validationResult';
+import {Dimensions, FinancialYear, ValidationLevel, VatDeduction, CompanySettings, JournalEntryLine} from '../../../../unientities';
+import {ValidationResult} from '../../../../models/validationResult';
 import {JournalEntryData} from '../../../../models/models';
 import {JournalEntrySimpleCalculationSummary} from '../../../../models/accounting/JournalEntrySimpleCalculationSummary';
 import {JournalEntryAccountCalculationSummary} from '../../../../models/accounting/JournalEntryAccountCalculationSummary';
@@ -10,6 +10,7 @@ import {IUniSaveAction} from '../../../../../framework/save/save';
 import {ISummaryConfig} from '../../../common/summary/summary';
 import {Observable} from 'rxjs/Observable';
 import {ToastService, ToastType, ToastTime} from '../../../../../framework/uniToast/toastService';
+import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig} from 'unitable-ng2/main';
 import {UniConfirmModal, ConfirmActions} from '../../../../../framework/modals/confirm';
 import {
     JournalEntrySettings,
@@ -18,7 +19,8 @@ import {
     JournalEntryService,
     FinancialYearService,
     VatDeductionService,
-    CompanySettingsService
+    CompanySettingsService,
+    JournalEntryLineService
 } from '../../../../services/services';
 
 export enum JournalEntryMode {
@@ -41,6 +43,7 @@ export class JournalEntryManual implements OnChanges, OnInit {
     @Output() public dataCleared: EventEmitter<any> = new EventEmitter<any>();
 
     @ViewChild(UniConfirmModal) private confirmModal: UniConfirmModal;
+    @ViewChild(UniTable) private openPostsTable: UniTable;
     @ViewChild(JournalEntryProfessional) private journalEntryProfessional: JournalEntryProfessional;
 
     private hasLoadedData: boolean = false;
@@ -57,6 +60,12 @@ export class JournalEntryManual implements OnChanges, OnInit {
     private itemAccountInfoData: JournalEntryAccountCalculationSummary = new JournalEntryAccountCalculationSummary();
     private accountBalanceInfoData: Array<AccountBalanceInfo> = new Array<AccountBalanceInfo>();
 
+    private lastRetrievedOpenPostsRowIndex: number = null;
+    private lastRetrievedOpenPostsExpectedPositive: boolean = null;
+    private openPostsForSelectedRow: Array<JournalEntryLine> = null;
+    private openPostTableConfig: UniTableConfig = null;
+    private openPostRetrievingDataInProgress: boolean = false;
+
     public validationResult: ValidationResult;
     public summary: ISummaryConfig[] = [];
     public journalEntrySettings: JournalEntrySettings;
@@ -71,7 +80,9 @@ export class JournalEntryManual implements OnChanges, OnInit {
         private errorService: ErrorService,
         private toastService: ToastService,
         private vatDeductionService: VatDeductionService,
-        private companySettingsService: CompanySettingsService
+        private companySettingsService: CompanySettingsService,
+        private journalEntryLineService: JournalEntryLineService
+
     ) {
     }
 
@@ -81,8 +92,7 @@ export class JournalEntryManual implements OnChanges, OnInit {
         Observable.forkJoin(
             this.financialYearService.GetAll(null),
             this.financialYearService.getActiveFinancialYear(),
-            this.vatDeductionService.GetAll(null),
-            this.companySettingsService.Get(1)
+            this.vatDeductionService.GetAll(null)
         ).subscribe(data => {
                 this.financialYears = data[0];
                 this.currentFinancialYear = data[1];
@@ -98,10 +108,12 @@ export class JournalEntryManual implements OnChanges, OnInit {
             },
             err => this.errorService.handle(err)
         );
+
+        this.setupOpenPostUniTable();
     }
 
     public ngOnChanges(changes: { [propName: string]: SimpleChange }) {
-        if (changes['journalEntryID']) {
+        if (changes['journalEntryID'] || changes['editmode']) {
             this.loadData();
         }
 
@@ -122,6 +134,9 @@ export class JournalEntryManual implements OnChanges, OnInit {
         this.currentJournalEntryData = null;
         this.accountBalanceInfoData = new Array<AccountBalanceInfo>();
         this.itemAccountInfoData = new JournalEntryAccountCalculationSummary();
+        this.openPostsForSelectedRow = null;
+        this.lastRetrievedOpenPostsRowIndex = null;
+        this.lastRetrievedOpenPostsExpectedPositive = null;
         this.isDirty = false;
     }
 
@@ -133,23 +148,8 @@ export class JournalEntryManual implements OnChanges, OnInit {
                     action: (completeEvent) => this.postJournalEntryData(completeEvent),
                     main: true,
                     disabled: !this.isDirty
-                },
-                {
-                    label: 'Tøm listen',
-                    action: (completeEvent) => this.removeJournalEntryData(completeEvent),
-                    main: false,
-                    disabled: false
                 }
             ];
-
-            if (this.journalEntryID && !this.isDirty) {
-                newActions.push({
-                    label: 'Rediger bilag',
-                    action: (completeEvent) => this.unlockJournalEntry(completeEvent),
-                    main: false,
-                    disabled: !this.disabled
-                });
-            }
 
             this.saveactions = newActions;
         }
@@ -287,11 +287,9 @@ export class JournalEntryManual implements OnChanges, OnInit {
     public addJournalEntryData(data: JournalEntryData) {
         data.SameOrNew = '1';
         this.isDirty = true;
-
         if (this.journalEntryProfessional) {
-            this.journalEntryProfessional.addJournalEntryLine(data);
+            this.journalEntryProfessional.addMaybeAgioJournalEntryLine(data);
         }
-
         this.setupSaveConfig();
     }
 
@@ -377,6 +375,8 @@ export class JournalEntryManual implements OnChanges, OnInit {
             this.validateJournalEntryData(data);
             this.calculateItemSums(data);
 
+            this.getOpenPostsForRow();
+
             this.setupSaveConfig();
         });
     }
@@ -399,6 +399,127 @@ export class JournalEntryManual implements OnChanges, OnInit {
                             this.journalEntryService.calculateJournalEntryAccountSummaryLocal(data, this.accountBalanceInfoData, this.vatDeductions, this.currentJournalEntryData);
                     });
             }
+        }
+
+        this.getOpenPostsForRow();
+    }
+
+    private openPostSelected(selectedRow: any) {
+        if (selectedRow) {
+            let selectedLine: JournalEntryLine = selectedRow.rowModel;
+
+            if (this.currentJournalEntryData) {
+                if (selectedLine['_rowSelected']) {
+                    this.currentJournalEntryData.AmountCurrency = Math.abs(selectedLine.RestAmountCurrency);
+                    this.currentJournalEntryData.NetAmountCurrency = Math.abs(selectedLine.RestAmountCurrency);
+                    this.currentJournalEntryData.Amount = Math.abs(selectedLine.RestAmount);
+                    this.currentJournalEntryData.NetAmount = Math.abs(selectedLine.RestAmount);
+                    this.currentJournalEntryData.CurrencyID = selectedLine.CurrencyCodeID;
+                    this.currentJournalEntryData.CurrencyCode = selectedLine.CurrencyCode;
+                    this.currentJournalEntryData.CurrencyExchangeRate = selectedLine.CurrencyExchangeRate;
+                    this.currentJournalEntryData.PostPostJournalEntryLineID = selectedLine.ID;
+                    this.currentJournalEntryData.PostPostJournalEntryLine = selectedLine;
+                    this.currentJournalEntryData.InvoiceNumber = selectedLine.InvoiceNumber;
+
+                    this.journalEntryProfessional.updateJournalEntryLine(this.currentJournalEntryData);
+
+                    this.toastService.addToast(
+                        `Linje markert mot ${selectedLine.JournalEntryNumber}`,
+                        ToastType.good,
+                        ToastTime.short,
+                        `Beløp oppdatert til ${this.currentJournalEntryData.AmountCurrency}`
+                    );
+
+                    // unselect other rows if a new row is selected
+                    let allrows = this.openPostsTable.getTableData();
+                    allrows.forEach(row => {
+                        if (row.ID !== selectedLine.ID && row['_rowSelected']) {
+                            row['_rowSelected'] = false;
+                            this.openPostsTable.updateRow(row._originalIndex, row);
+
+                            this.toastService.addToast(
+                                `Fjernet markering for annen linje`,
+                                ToastType.good,
+                                ToastTime.short,
+                                `Fjernet markering på bilagsnr ${row.JournalEntryNumber}`
+                            );
+                        }
+                    });
+                } else {
+                    this.currentJournalEntryData.PostPostJournalEntryLineID = null;
+                    this.journalEntryProfessional.updateJournalEntryLine(this.currentJournalEntryData);
+                }
+            }
+        } else {
+            this.toastService.addToast(
+                'Du kan bare velge en rad',
+                ToastType.warn,
+                ToastTime.medium,
+                'Det er ikke mulig å velge flere rader, lag heller flere bilagslinjer og koble hver rad til en åpen post'
+            );
+        }
+    }
+
+    private getOpenPostsForRow() {
+        if (this.currentJournalEntryData) {
+            let ledgerAccountID = null;
+            let expectPositiveAmount: boolean;
+
+            if (this.currentJournalEntryData.StatusCode) {
+                // this row is already saved, post post marking is not possible, so dont
+                // get any data from the API
+            } else {
+                if (this.currentJournalEntryData.DebitAccount
+                    && this.currentJournalEntryData.DebitAccount.AccountID) {
+                    ledgerAccountID = this.currentJournalEntryData.DebitAccountID;
+                    expectPositiveAmount = false;
+                } else if (this.currentJournalEntryData.CreditAccount
+                    && this.currentJournalEntryData.CreditAccount.AccountID) {
+                    ledgerAccountID = this.currentJournalEntryData.CreditAccountID;
+                    expectPositiveAmount = true;
+                }
+            }
+
+            if (ledgerAccountID) {
+                if (ledgerAccountID !== this.lastRetrievedOpenPostsRowIndex) {
+                    this.openPostRetrievingDataInProgress = true;
+                    this.lastRetrievedOpenPostsRowIndex = this.currentJournalEntryData['_originalIndex'];
+                    this.lastRetrievedOpenPostsExpectedPositive = expectPositiveAmount;
+                    this.openPostsForSelectedRow = null;
+
+                    this.journalEntryLineService.GetAll(
+                        `expand=CurrencyCode&orderby=ID desc&filter=SubAccountID eq ${ledgerAccountID} and RestAmountCurrency ${expectPositiveAmount ? 'gt' : 'lt'} 0`)
+                        .subscribe(lines => {
+                            let line: JournalEntryLine = null;
+                            if (this.currentJournalEntryData.PostPostJournalEntryLineID) {
+                                line = lines.find(x => x.ID === this.currentJournalEntryData.PostPostJournalEntryLineID);
+                            } else if (this.currentJournalEntryData.CustomerInvoiceID) {
+                                line = lines.find(x => x.CustomerInvoiceID === this.currentJournalEntryData.CustomerInvoiceID);
+                            } else if (this.currentJournalEntryData.SupplierInvoiceID) {
+                                line = lines.find(x => x.SupplierInvoiceID === this.currentJournalEntryData.SupplierInvoiceID);
+                            }
+
+                            if (line) {
+                                line['_rowSelected'] = true;
+                            }
+
+                            this.openPostsForSelectedRow = lines;
+                            this.openPostRetrievingDataInProgress = false;
+                        }, err => {
+                            this.openPostRetrievingDataInProgress = false;
+                            this.errorService.handle(err);
+                        }
+                    );
+                }
+            } else {
+                this.openPostsForSelectedRow = null;
+                this.lastRetrievedOpenPostsRowIndex = null;
+                this.lastRetrievedOpenPostsExpectedPositive = null;
+            }
+        } else {
+            this.openPostsForSelectedRow = null;
+            this.lastRetrievedOpenPostsRowIndex = null;
+            this.lastRetrievedOpenPostsExpectedPositive = null;
         }
     }
 
@@ -503,19 +624,16 @@ export class JournalEntryManual implements OnChanges, OnInit {
         });
     }
 
-    private removeJournalEntryData(completeCallback) {
+    public removeJournalEntryData() {
         if (this.journalEntryProfessional) {
             this.journalEntryProfessional.removeJournalEntryData((msg: string) => {
                 if (msg) {
-                    completeCallback(msg);
                     this.clearJournalEntryInfo();
                     this.dataCleared.emit();
 
                     setTimeout(() => {
                         this.setupSaveConfig();
                     });
-                } else {
-                    completeCallback('');
                 }
             }, this.isDirty);
         }
@@ -527,22 +645,28 @@ export class JournalEntryManual implements OnChanges, OnInit {
     }
 
     private setSums() {
-        this.summary = [{
-                value: this.itemsSummaryData ? this.numberFormat.asMoney(this.itemsSummaryData.SumDebet || 0) : null,
-                title: 'Sum debet',
-            }, {
-                value: this.itemsSummaryData ? this.numberFormat.asMoney(this.itemsSummaryData.SumCredit || 0) : null,
-                title: 'Sum kreditt',
-            }, {
-                value: this.itemsSummaryData ? this.numberFormat.asMoney(this.itemsSummaryData.Differance || 0) : null,
-                title: 'Differanse',
-            }, {
-                value: this.itemsSummaryData ? this.numberFormat.asMoney(this.itemsSummaryData.IncomingVat || 0) : null,
-                title: 'Inng.mva',
-            }, {
-                value: this.itemsSummaryData ? this.numberFormat.asMoney(this.itemsSummaryData.OutgoingVat || 0) : null,
-                title: 'Utg.mva',
-            }];
+        const showCurrencyCode = !this.itemsSummaryData.IsOnlyCompanyCurrencyCode;
+        this.summary = <ISummaryConfig[]>[{
+            value: this.itemsSummaryData ? this.numberFormat.asMoney(this.itemsSummaryData.SumDebet || 0) : null,
+            title: 'Sum debet',
+            description: showCurrencyCode && this.itemsSummaryData.BaseCurrencyCodeCode
+        }, {
+            value: this.itemsSummaryData ? this.numberFormat.asMoney(this.itemsSummaryData.SumCredit || 0) : null,
+            title: 'Sum kreditt',
+            description: showCurrencyCode && this.itemsSummaryData.BaseCurrencyCodeCode
+        }, {
+            value: this.itemsSummaryData ? this.numberFormat.asMoney(this.itemsSummaryData.Differance || 0) : null,
+            title: 'Differanse',
+            description: showCurrencyCode && this.itemsSummaryData.BaseCurrencyCodeCode
+        }, {
+            value: this.itemsSummaryData ? this.numberFormat.asMoney(this.itemsSummaryData.IncomingVat || 0) : null,
+            title: 'Inng.mva',
+            description: showCurrencyCode && this.itemsSummaryData.BaseCurrencyCodeCode
+        }, {
+            value: this.itemsSummaryData ? this.numberFormat.asMoney(this.itemsSummaryData.OutgoingVat || 0) : null,
+            title: 'Utg.mva',
+            description: showCurrencyCode && this.itemsSummaryData.BaseCurrencyCodeCode
+        }];
     }
 
     private getValidationLevelCss(validationLevel) {
@@ -560,5 +684,35 @@ export class JournalEntryManual implements OnChanges, OnInit {
         }
 
         return '';
+    }
+
+    private setupOpenPostUniTable() {
+        let columns = [
+            new UniTableColumn('JournalEntryNumber', 'Bilagsnr', UniTableColumnType.Text),
+            new UniTableColumn('JournalEntryType.Name', 'Type', UniTableColumnType.Text)
+                .setTemplate(x => x.JournalEntryTypeName)
+                .setVisible(false),
+            new UniTableColumn('FinancialDate', 'Dato', UniTableColumnType.LocalDate),
+            new UniTableColumn('InvoiceNumber', 'Fakturanr', UniTableColumnType.Text),
+            new UniTableColumn('DueDate', 'Forfall', UniTableColumnType.DateTime),
+            new UniTableColumn('Amount', 'Beløp', UniTableColumnType.Money),
+            new UniTableColumn('AmountCurrency', 'V-Beløp', UniTableColumnType.Money)
+                .setVisible(false),
+            new UniTableColumn('CurrencyCodeCode', 'Valuta', UniTableColumnType.Text)
+                .setVisible(false),
+            new UniTableColumn('CurrencyExchangeRate', 'V-Kurs', UniTableColumnType.Number)
+                .setVisible(false),
+            new UniTableColumn('RestAmount', 'Restbeløp', UniTableColumnType.Money),
+            new UniTableColumn('RestAmountCurrency', 'V-Restbeløp', UniTableColumnType.Money)
+                .setVisible(false),
+            new UniTableColumn('Description', 'Beskrivelse', UniTableColumnType.Text),
+            new UniTableColumn('StatusCode', 'Status', UniTableColumnType.Text)
+                .setTemplate(x => this.journalEntryLineService.getStatusText(x.StatusCode))
+        ];
+
+        this.openPostTableConfig = new UniTableConfig(false, false, 100)
+            .setColumns(columns)
+            .setMultiRowSelect(true)
+            .setColumnMenuVisible(true);
     }
 }

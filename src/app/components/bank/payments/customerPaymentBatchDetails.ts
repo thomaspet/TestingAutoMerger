@@ -1,7 +1,8 @@
 import {Component, ViewChild, Input, EventEmitter, Output, OnChanges} from '@angular/core';
 import {Router} from '@angular/router';
-import {PaymentService, PaymentBatchService, ErrorService, FileService, StatisticsService} from '../../../services/services';
-import {PaymentBatch} from '../../../unientities';
+import {PaymentService, PaymentBatchService, ErrorService, FileService,
+    StatisticsService, CompanySettingsService} from '../../../services/services';
+import {PaymentBatch, CompanySettings} from '../../../unientities';
 import {Observable} from 'rxjs/Observable';
 import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig} from 'unitable-ng2/main';
 import {URLSearchParams} from '@angular/http';
@@ -29,18 +30,27 @@ export class CustomerPaymentBatchDetails implements OnChanges {
     private paymentBatch: PaymentBatch;
     private paymentTableConfig: UniTableConfig;
     private lookupFunction: (urlParams: URLSearchParams) => any;
-    private restAmounts: any;
+    private restAmountsCurrency: any;
+    private companySettings: CompanySettings;
 
-    constructor(private router: Router,
-                private paymentService: PaymentService,
-                private paymentBatchService: PaymentBatchService,
-                private errorService: ErrorService,
-                private toastService: ToastService,
-                private fileService: FileService,
-                private statisticsService: StatisticsService) {}
+    constructor(
+        private router: Router,
+        private paymentService: PaymentService,
+        private paymentBatchService: PaymentBatchService,
+        private errorService: ErrorService,
+        private toastService: ToastService,
+        private fileService: FileService,
+        private statisticsService: StatisticsService,
+        private companySettingsService: CompanySettingsService) { }
 
     public ngOnInit() {
-        this.setupPaymentTable();
+        this.companySettingsService.Get(1)
+            .subscribe(data => {
+                this.companySettings = data;
+                this.setupPaymentTable();
+            },
+            err => this.errorService.handle(err)
+            );
     }
 
     public ngOnChanges() {
@@ -69,7 +79,7 @@ export class CustomerPaymentBatchDetails implements OnChanges {
                 `Er du sikker på at du vil fjerne innbetalingsfilen?`,
                 'Bekreft fjerning',
                 false,
-                {accept: 'Fjern', reject: 'Avbryt'}
+                { accept: 'Fjern', reject: 'Avbryt' }
             ).then((action) => {
                 if (action === ConfirmActions.ACCEPT) {
                     this.deletePaymentBatch.emit(this.paymentBatch);
@@ -87,7 +97,7 @@ export class CustomerPaymentBatchDetails implements OnChanges {
             `Er du sikker på at du vil kjøre innbetaling på denne innbetalingsfilen?`,
             'Bekreft kjøring',
             false,
-            {accept: 'Ok', reject: 'Avbryt'}
+            { accept: 'Ok', reject: 'Avbryt' }
         ).then((action) => {
             if (action === ConfirmActions.ACCEPT) {
                 this.paymentBatchService.completeCustomerPayment(this.paymentBatch.ID)
@@ -113,26 +123,26 @@ export class CustomerPaymentBatchDetails implements OnChanges {
         } else {
             this.fileService
                 .downloadFile(this.paymentBatch.PaymentFileID, 'application/xml')
-                    .subscribe((blob) => {
-                        this.toastService.addToast('Innbetalingsfil hentet', ToastType.good, 5);
-                        // download file so the user can open it
-                        saveAs(blob, `payments_${this.paymentBatch.ID}.xml`);
-                    },
-                    err => {
-                        this.errorService.handleWithMessage(err, 'Feil ved henting av innbetalingsfil');
-                    }
+                .subscribe((blob) => {
+                    this.toastService.addToast('Innbetalingsfil hentet', ToastType.good, 5);
+                    // download file so the user can open it
+                    saveAs(blob, `payments_${this.paymentBatch.ID}.xml`);
+                },
+                err => {
+                    this.errorService.handleWithMessage(err, 'Feil ved henting av innbetalingsfil');
+                }
                 );
         }
     }
 
     private loadRestAmounts(done) {
         this.statisticsService.GetAll(
-                `model=Tracelink&filter=DestinationEntityName%20eq%20'Payment'%20and%20SourceEntityName%20eq%20'CustomerInvoice'%20and%20Payment.PaymentBatchId%20eq%20${this.paymentBatchID}&join=Tracelink.SourceInstanceId%20eq%20CustomerInvoice.ID%20as%20CustomerInvoice%20and%20Tracelink.DestinationInstanceId%20eq%20Payment.ID&select=Tracelink.DestinationInstanceId%20as%20PaymentId,CustomerInvoice.RestAmount%20as%20RestAmount`
-            ).map(x => x.Data ? x.Data : []).subscribe((restamounts) => {
-                this.restAmounts = restamounts;
+            `model=Tracelink&filter=DestinationEntityName%20eq%20'Payment'%20and%20SourceEntityName%20eq%20'CustomerInvoice'%20and%20Payment.PaymentBatchId%20eq%20${this.paymentBatchID}&join=Tracelink.SourceInstanceId%20eq%20CustomerInvoice.ID%20as%20CustomerInvoice%20and%20Tracelink.DestinationInstanceId%20eq%20Payment.ID&select=Tracelink.DestinationInstanceId%20as%20PaymentId,CustomerInvoice.RestAmountCurrency%20as%20RestAmountCurrency`
+        ).map(x => x.Data ? x.Data : []).subscribe((restamountsCurrency) => {
+            this.restAmountsCurrency = restamountsCurrency;
 
-                done();
-            });
+            done();
+        });
     }
 
     private loadPaymentBatchData(done) {
@@ -142,7 +152,7 @@ export class CustomerPaymentBatchDetails implements OnChanges {
                 this.loadRestAmounts(done);
             },
             err => this.errorService.handle(err)
-        );
+            );
     }
 
     private save() {
@@ -152,7 +162,7 @@ export class CustomerPaymentBatchDetails implements OnChanges {
         let requests = [];
 
         tableData.forEach(x => {
-            if (x.StatusCode != 44004) {
+            if (x.StatusCode !== 44004) {
                 requests.push(this.paymentService.Put(x.ID, x));
             }
         });
@@ -177,7 +187,7 @@ export class CustomerPaymentBatchDetails implements OnChanges {
                 params = new URLSearchParams();
             }
 
-            params.set('expand', 'ToBankAccount,FromBankAccount,PaymentCode,BusinessRelation');
+            params.set('expand', 'ToBankAccount,FromBankAccount,PaymentCode,BusinessRelation,CurrencyCode');
             params.set('filter', `PaymentBatchID eq ${this.paymentBatchID}`);
 
             if (!params.get('orderby')) {
@@ -193,7 +203,7 @@ export class CustomerPaymentBatchDetails implements OnChanges {
             .setEditorOptions({
                 itemTemplate: (selectedItem) => {
                     return (selectedItem.CustomerID ? 'Kunde: ' : selectedItem.SupplierID ? 'Leverandør: ' : selectedItem.EmployeeID ? 'Ansatt: ' : '')
-                            + selectedItem.BusinessRelationName;
+                        + selectedItem.BusinessRelationName;
                 },
                 lookupFunction: (query: string) => {
                     return this.statisticsService.GetAll(
@@ -201,12 +211,23 @@ export class CustomerPaymentBatchDetails implements OnChanges {
                     ).map(x => x.Data ? x.Data : []);
                 }
             });
-        let amountCol = new UniTableColumn('Amount', 'Beløp', UniTableColumnType.Money);
-        let restAmountCol = new UniTableColumn('RestAmount', 'Restbeløp', UniTableColumnType.Money)
+
+        let currencyCodeCol = new UniTableColumn('CurrencyCode', 'Valuta', UniTableColumnType.Text, false)
+            .setDisplayField('CurrencyCode.Code')
+            .setWidth('5%')
+            .setVisible(false);
+        let amountCurrencyCol = new UniTableColumn('AmountCurrency', 'Beløp', UniTableColumnType.Money);
+
+        let amountCol = new UniTableColumn('Amount', `Beløp (${this.companySettings.BaseCurrencyCode.Code})`, UniTableColumnType.Money)
+            .setVisible(false)
+            .setEditable(false);
+
+
+        let restAmountCurrencyCol = new UniTableColumn('RestAmountCurrency', 'Restbeløp', UniTableColumnType.Money)
             .setTemplate((payment) => {
-                if (this.restAmounts == null) { return 0; }
-                let restamount = this.restAmounts.find((restamount) => restamount.PaymentId == payment.ID);
-                return restamount ? restamount.RestAmount : 0;
+                if (this.restAmountsCurrency === null) { return 0; }
+                let restamountCurrency = this.restAmountsCurrency.find((restamountCurrency) => restamountCurrency.PaymentId === payment.ID);
+                return restamountCurrency ? restamountCurrency.RestAmountCurrency : 0;
             });
         let fromAccountCol = new UniTableColumn('FromBankAccount', 'Konto fra', UniTableColumnType.Lookup)
             .setDisplayField('FromBankAccount.AccountNumber');
@@ -217,7 +238,7 @@ export class CustomerPaymentBatchDetails implements OnChanges {
             .setConditionalCls(payment => moment(payment.DueDate).isBefore(moment()) ? 'payment-due' : '').setVisible(false);
         let descriptionCol = new UniTableColumn('Description', 'Beskrivelse', UniTableColumnType.Text).setVisible(false);
 
-        let statusCodeCol = new UniTableColumn('StatusCode', 'Status',  UniTableColumnType.Text)
+        let statusCodeCol = new UniTableColumn('StatusCode', 'Status', UniTableColumnType.Text)
             .setTemplate(data => this.paymentService.getStatusText(data.StatusCode))
             .setFilterable(false);
 
@@ -225,7 +246,9 @@ export class CustomerPaymentBatchDetails implements OnChanges {
         invoiceNoCol.editable = true;
         payToCol.editable = false;
         amountCol.editable = false;
-        restAmountCol.editable = false;
+        amountCurrencyCol.editable = false;
+        restAmountCurrencyCol.editable = false;
+        currencyCodeCol.editable = false;
         fromAccountCol.editable = false;
         toAccountCol.editable = false;
         paymentIDCol.editable = false;
@@ -242,8 +265,10 @@ export class CustomerPaymentBatchDetails implements OnChanges {
                 fromAccountCol,
                 toAccountCol,
                 paymentIDCol,
+                currencyCodeCol,
+                amountCurrencyCol,
                 amountCol,
-                restAmountCol,
+                restAmountCurrencyCol,
                 statusCodeCol,
                 dueDateCol,
                 descriptionCol

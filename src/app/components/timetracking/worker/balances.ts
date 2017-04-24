@@ -3,9 +3,9 @@ import {WorkerService} from '../../../services/timetracking/workerService';
 import {WorkBalance, WorkRelation} from '../../../unientities';
 import {ErrorService} from '../../../services/services';
 import {UniTableColumn, UniTableColumnType, UniTableConfig, UniTable} from 'unitable-ng2/main';
-import {MinutesToHoursPipe} from '../utils/pipes';
-import {ChangeMap} from '../utils/changeMap';
-import {safeDec, safeInt} from '../utils/utils';
+import {MinutesToHoursPipe} from '../../common/utils/pipes';
+import {ChangeMap} from '../../common/utils/changeMap';
+import {safeDec, safeInt} from '../../common/utils/utils';
 import {Observable} from 'rxjs/Observable';
 import {UniConfirmModal, ConfirmActions} from '../../../../framework/modals/confirm';
 

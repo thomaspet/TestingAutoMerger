@@ -3,8 +3,8 @@
     <span class="sub-ticker-header">Detaljer</span>
     <div *ngIf="parentModel">
         <div class="sub-ticker-container" *ngIf="expanded">
-            <button (click)="closeSubtickers()" class="closeBtn"></button>
-            <div class="sub-ticker-container-expanded" (click)="stopPropagation()">
+            <button (click)="closeSubtickers($event)" class="closeBtn"></button>
+            <div class="sub-ticker-container-expanded" (click)="stopPropagation($event)">
                 <ng-template ngFor let-subTicker [ngForOf]="subTickers">
                     <uni-ticker
                         [header]="subTicker.Name"

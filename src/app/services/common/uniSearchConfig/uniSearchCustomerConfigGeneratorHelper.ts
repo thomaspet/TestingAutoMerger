@@ -97,7 +97,8 @@ export class UniSearchCustomerConfigGeneratorHelper {
             'Addresses.City as City',
             'Addresses.CountryCode as CountryCode',
             'Emails.EmailAddress as EmailAddress',
-            'Customer.WebUrl as WebUrl'
+            'Customer.WebUrl as WebUrl',
+            'Customer.CustomerNumber as CustomerNumber'
         ].join(',');
         const skip = 0;
         const top = MAX_RESULTS;
@@ -127,12 +128,13 @@ export class UniSearchCustomerConfigGeneratorHelper {
         };
     }
 
-    private customStatisticsObjToCustomer(statObj: CustomStatisticsResultItem): Customer {
+    public customStatisticsObjToCustomer(statObj: CustomStatisticsResultItem): Customer {
         const customer = new Customer();
         customer.OrgNumber = statObj.OrgNumber;
         customer.WebUrl = statObj.WebUrl;
         customer.Info = new BusinessRelation();
         customer.Info.Name = statObj.Name;
+        customer.Info.Addresses = [];
 
         if (statObj.AddressLine1 || statObj.City || statObj.CountryCode || statObj.PostalCode) {
 
@@ -144,6 +146,8 @@ export class UniSearchCustomerConfigGeneratorHelper {
 
             customer.Info.InvoiceAddress = address;
             customer.Info.ShippingAddress = address;
+
+            customer.Info.Addresses.push(address);
         }
 
         if (statObj.PhoneNumber) {

@@ -3,7 +3,7 @@ import {BizHttp} from '../../../framework/core/http/BizHttp';
 import {VatType} from '../../unientities';
 import {UniHttp} from '../../../framework/core/http/http';
 import {AuthService} from '../../../framework/core/authService';
-import {Observable} from 'rxjs';
+import {Observable} from 'rxjs/Observable';
 
 @Injectable()
 export class VatTypeService extends BizHttp<VatType> {

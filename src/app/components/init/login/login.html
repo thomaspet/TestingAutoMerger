@@ -1,7 +1,7 @@
 <article class="authentication-component">
-	<img src="../../../../assets/uni-logo.png" alt="Uni Economy logo">
+    <section #loginForm>
+        <p>Ny konto? <a [routerLink]="['../signup']">Registrer deg</a><br></p>
 
-	<section [hidden]="loginSuccess">
         <form (submit)="login($event)">
             <small class="validation error" *ngIf="errorMessage.length">{{errorMessage}}</small>
             <label>
@@ -14,16 +14,21 @@
                 <input type="password" [disabled]="working" [formControl]="passwordControl" placeholder="Passord">
             </label>
 
-            <button class="c2a" [attr.aria-busy]="working" [disabled]="working">Logg inn</button>
+            <button class="c2a" [attr.aria-busy]="working" [disabled]="working">
+                LOGG INN
+            </button>
         </form>
-        <p *ngIf="!loginSuccess">
-            <a [routerLink]="['../signup']">Opprett nytt selskap</a><br>
-            <a [routerLink]="['../reset-password']">Glemt passord</a>
-        </p>
+        <p><a [routerLink]="['../reset-password']">Glemt passord?</a></p>
     </section>
 
-    <uni-select [config]="selectConfig"
-                [items]="availableCompanies"
-                (valueChange)="onCompanySelected($event)">
-    </uni-select>
+    <section #companySelector style="display: none">
+        <p class='validation info' *ngIf="infoMessage.length">{{infoMessage}}</p>
+        <label *ngIf="loginSuccess" class="company-select">
+            Velg selskap
+            <uni-select [config]="selectConfig"
+                        [items]="availableCompanies"
+                        (valueChange)="onCompanySelected($event)">
+            </uni-select>
+        </label>
+    </section>
 </article>

@@ -51,20 +51,26 @@ export class Settings {
         private userService: UserService,
         private errorService: ErrorService,
         private http: UniHttp) {
-        this.tabService.addTab({ name: 'Innstillinger', url: '/settings/company', moduleID: UniModules.Settings, active: true });
+        this.tabService.addTab({
+             name: 'Innstillinger',
+             url: '/settings/company',
+             moduleID: UniModules.Settings,
+             active: true
+        });
         this.childRoutes = [
             { name: 'Firma', path: 'company' },
             { name: 'Lønn', path: 'aga-and-subentities' },
             { name: 'Integrasjoner', path: 'webhooks' },
-            { name: 'Bruker', path: 'user' },
-            { name: 'Roller', path: 'users' },
+            { name: 'Min Bruker', path: 'user' },
+            { name: 'Brukere', path: 'users' },
             { name: 'Altinn', path: 'altinn' }
         ];
     }
 
     private toolbarconfig: IToolbarConfig = {
-        title: 'Innstillinger'
+                title: 'Innstillinger'
     };
+
 
     public ngOnInit() {
         Observable.forkJoin(

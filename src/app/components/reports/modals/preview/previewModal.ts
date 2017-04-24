@@ -39,6 +39,7 @@ export class PreviewModal {
     private reportDefinition: ReportDefinition;
     private companySettings: CompanySettings;
     private user: User;
+    private modalDoneHandler: (msg: string) => void;
 
     constructor(
         private reportService: ReportService,
@@ -95,6 +96,7 @@ export class PreviewModal {
                         this.modal.getContent().then(() => {
                             this.reportService.generateReportPdf(this.reportDefinition);
                             this.printed.emit();
+                            if (this.modalDoneHandler) { this.modalDoneHandler('Dokument ble skrevet ut!'); }
                             this.modal.close();
                         });
                     }
@@ -103,6 +105,7 @@ export class PreviewModal {
                     text: 'Lukk',
                     method: () => {
                         this.modal.getContent().then(() => {
+                            if (this.modalDoneHandler) { this.modalDoneHandler('Utskriftsvindu ble lukket!'); }
                             this.modal.close();
                         });
                     }
@@ -111,15 +114,16 @@ export class PreviewModal {
         };
     }
 
-    public openWithId(report: Report, id: number, name: string = 'Id') {
+    public openWithId(report: Report, id: number, name: string = 'Id', doneHandler: (msg: string) => void = null) {
         var idparam = new ReportParameter();
         idparam.Name = name;
         idparam.value = id.toString();
         report.parameters = [idparam];
-        this.open(report);
+        this.open(report, null, doneHandler);
     }
 
-    public open(report: Report, parameters = null) {
+    public open(report: Report, parameters = null, doneHandler: (msg: string) => void = null) {
+        this.modalDoneHandler = doneHandler;
         this.modalConfig.title = report.Name;
         this.modalConfig.report = null;
         this.reportDefinition = report;

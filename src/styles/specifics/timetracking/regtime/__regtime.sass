@@ -2,7 +2,7 @@
     .no-print, .no-print *
         display: none !important
 
-.regtimecontainer 
+.regtimecontainer
     margin-bottom: 4rem
     margin-top: 0.6rem
 
@@ -35,7 +35,7 @@
     tr > td:last-of-type
         width: 18em
         text-align: right
-        font-weight: bold
+        font-weight: 600
 
     tr > td:nth-last-of-type(2)
         text-align: right
@@ -141,15 +141,15 @@
 .timeentriesTable td.sum
     height: 2rem
     border-top: 1px solid #000 !important
-    font-weight: bold
+    font-weight: 600
 
 tr.sum td
     border-bottom: 2px solid lighten($uni-color-scale6, 20%) !important
-    font-weight: bold
+    font-weight: 600
     padding-bottom: 0.4em
 
 .timeentriesTable td.sumright
-    font-weight: bold
+    font-weight: 600
     border-left: 1px solid $uni-color-scale6
 
 
@@ -164,7 +164,7 @@ tr.sum td
     text-align: center
 
 .timeentriesTable td.right
-    text-align: right    
+    text-align: right
 
 .timeentriesTable td:first-of-type
     border-left: 0
@@ -174,7 +174,7 @@ tr.sum td
 
 .alternateRow
     background-color: lighten(mix($uni-color-scale9, $navbarBackground, 50%), 26%)
-    
+
 .alternateRow td
     border-color: $uni-color-scale8
 
@@ -189,13 +189,13 @@ tr.sum td
     margin: 0 0 0 pxToRem(7)
     padding: 0 pxToRem(7) 0 pxToRem(7)
     background: lighten($uni-color-scale6, 34%) unicon-trash($uni-color-scale3) center center no-repeat
-    background-size: 0.9rem    
+    background-size: 0.9rem
     box-shadow: none
     height: 1em
 
 .timeentriesTable tr:hover td.timeSheet_actions button
     background: lighten($uni-color-scale6, 34%) unicon-trash(red) center center no-repeat
-    background-size: 0.8rem  
+    background-size: 0.8rem
     box-shadow: 0 pxToRem(1) pxToRem(1) $uni-color-scale7
 
 .flex-table
@@ -215,7 +215,7 @@ tr.sum td
     td.sum
         text-align: right
         width: 6rem
-        font-weight: bold
+        font-weight: 600
         border-left: 1px solid $uni-color-scale7
 
     td.grandtotal
@@ -223,7 +223,7 @@ tr.sum td
 
 div.bad
     color: $uni-color-bad
-    
+
 .minus
 	color: $uni-color-minus
 .plus
@@ -310,7 +310,7 @@ uni-time-modal
 
     dialog.uniModal .total
         float: left
-        font-weight: bold
+        font-weight: 600
 
     button
         width: 6rem
@@ -321,3 +321,15 @@ uni-time-modal
 
     dialog.uniModal .closeBtn
         right: pxToRem(20)
+
+timeentry uni-toolbar h1
+    @media screen and (max-width: 1000px)
+        display: none
+
+uni-feedback
+    @media screen and (max-width: 1000px)
+        display: none
+
+uni-breadcrumbs
+    @media screen and (max-width: 1000px)
+        display: none

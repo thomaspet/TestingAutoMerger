@@ -103,33 +103,6 @@ export class QuoteDetails {
 
     public ngOnInit() {
         this.setSums();
-        this.contextMenuItems = [
-            {
-                label: 'Skriv ut',
-                action: () => this.saveAndPrint(),
-                disabled: () => !this.quote.ID
-            },
-            {
-                label: 'Send på epost',
-                action: () => {
-                    let sendemail = new SendEmail();
-                    sendemail.EntityType = 'CustomerQuote';
-                    sendemail.EntityID = this.quote.ID;
-                    sendemail.CustomerID = this.quote.CustomerID;
-                    sendemail.Subject = 'Tilbud ' + (this.quote.QuoteNumber ? 'nr. ' + this.quote.QuoteNumber : 'kladd');
-                    sendemail.Message = 'Vedlagt finner du Tilbud ' + (this.quote.QuoteNumber ? 'nr. ' + this.quote.QuoteNumber : 'kladd');
-
-                    this.sendEmailModal.openModal(sendemail);
-
-                    if (this.sendEmailModal.Changed.observers.length === 0) {
-                        this.sendEmailModal.Changed.subscribe((email) => {
-                            this.reportService.generateReportSendEmail('Tilbud id', email);
-                        });
-                    }
-                },
-                disabled: () => !this.quote.ID
-            }
-        ];
 
         // Subscribe and debounce recalc on table changes
         this.recalcDebouncer.debounceTime(500).subscribe((quoteitems) => {
@@ -213,6 +186,10 @@ export class QuoteDetails {
             }
 
         });
+    }
+
+    private ngAfterViewInit() {
+         this.tofHead.detailsForm.tabbedPastLastField.subscribe((event) => this.tradeItemTable.focusFirstRow());
     }
 
     @HostListener('keydown', ['$event'])
@@ -634,6 +611,8 @@ export class QuoteDetails {
 
     private updateSaveActions() {
         const transitions = (this.quote['_links'] || {}).transitions;
+        const printStatus = this.quote.PrintStatus;
+
         this.saveActions = [];
 
         this.saveActions.push({
@@ -641,6 +620,35 @@ export class QuoteDetails {
             action: (done) => this.saveQuoteAsRegistered(done),
             disabled: transitions && !transitions['register'],
             main: !transitions || transitions['register']
+        });
+
+        this.saveActions.push({
+            label: 'Skriv ut',
+            action: (done) => this.saveAndPrint(done),
+            main:  this.quote.QuoteNumber > 0 && !printStatus,
+            disabled: false
+        });
+
+        this.saveActions.push({
+            label: 'Send på epost',
+            action: (done) => {
+                let sendemail = new SendEmail();
+                sendemail.EntityType = 'CustomerQuote';
+                sendemail.EntityID = this.quote.ID;
+                sendemail.CustomerID = this.quote.CustomerID;
+                sendemail.EmailAddress = this.quote.EmailAddress;
+                sendemail.Subject = 'Tilbud ' + (this.quote.QuoteNumber ? 'nr. ' + this.quote.QuoteNumber : 'kladd');
+                sendemail.Message = 'Vedlagt finner du Tilbud ' + (this.quote.QuoteNumber ? 'nr. ' + this.quote.QuoteNumber : 'kladd');
+
+                this.sendEmailModal.openModal(sendemail);
+                if (this.sendEmailModal.Changed.observers.length === 0) {
+                        this.sendEmailModal.Changed.subscribe((email) => {
+                        this.reportService.generateReportSendEmail('Tilbud id', email, null, done);
+                    });
+                }
+            },
+            main: printStatus === 200,
+            disabled: false
         });
 
         this.saveActions.push({
@@ -655,7 +663,7 @@ export class QuoteDetails {
                 });
             },
             disabled: !this.quote.ID,
-            main: this.quote.ID > 0 && this.quote.StatusCode !== StatusCodeCustomerQuote.Draft
+            main: this.quote.ID > 0 && this.quote.StatusCode !== StatusCodeCustomerQuote.Draft && printStatus === 100
         });
 
         if (!this.quote.ID) {
@@ -808,23 +816,24 @@ export class QuoteDetails {
         });
     }
 
-    private saveAndPrint() {
+    private saveAndPrint(doneHandler: (msg: string) => void = null) {
         if (this.isDirty) {
             this.saveQuote().then(quote => {
                 this.isDirty = false;
-                this.print(quote.ID);
+                this.print(quote.ID, doneHandler);
             }).catch(error => {
+                if (doneHandler) { doneHandler('En feil oppstod ved utskrift av tilbud!'); }
                 this.errorService.handle(error);
             });
         } else {
-            this.print(this.quote.ID);
+            this.print(this.quote.ID, doneHandler);
         }
     }
 
-    private print(id) {
+    private print(id, doneHandler: (msg: string) => void = null) {
         this.reportDefinitionService.getReportByName('Tilbud id').subscribe((report) => {
             if (report) {
-                this.previewModal.openWithId(report, id);
+                this.previewModal.openWithId(report, id, 'Id', doneHandler);
             }
         });
     }

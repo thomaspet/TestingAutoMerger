@@ -1,5 +1,5 @@
 import {IToolbarConfig} from './../../../common/toolbar/toolbar';
-import {Component, Input, ViewChild, Output, EventEmitter} from '@angular/core';
+import {Component, Input, ViewChild, Output, EventEmitter, SimpleChanges} from '@angular/core';
 import {Router, ActivatedRoute} from '@angular/router';
 import {Observable} from 'rxjs/Observable';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
@@ -27,7 +27,8 @@ import {
     ErrorService,
     NumberFormat,
     CustomerInvoiceReminderSettingsService,
-    CurrencyCodeService
+    CurrencyCodeService,
+    UniSearchConfigGeneratorService
 } from '../../../../services/services';
 declare var _;
 
@@ -36,7 +37,6 @@ declare var _;
     templateUrl: './customerDetails.html'
 })
 export class CustomerDetails {
-    @Input() public customerID: any;
     @Input() public modalMode: boolean;
     @Output() public customerUpdated: EventEmitter<Customer> = new EventEmitter<Customer>();
     @ViewChild(UniForm) public form: UniForm;
@@ -47,7 +47,9 @@ export class CustomerDetails {
     @ViewChild(LedgerAccountReconciliation) private ledgerAccountReconciliation: LedgerAccountReconciliation;
     @ViewChild(ReminderSettings) public reminderSettings: ReminderSettings;
 
-    private config$: BehaviorSubject<any> = new BehaviorSubject({autofocus: true});
+    private customerID: any;
+    private allowSearchCustomer: boolean = true;
+    private config$: BehaviorSubject<any> = new BehaviorSubject({autofocus: false});
     private fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
     private addressChanged: any;
     private emailChanged: any;
@@ -132,8 +134,10 @@ export class CustomerDetails {
     private expandOptions: Array<string> = [
         'Info',
         'Info.Phones',
+        'Info.DefaultPhone',
         'Info.Addresses',
         'Info.Emails',
+        'Info.DefaultEmail',
         'Info.ShippingAddress',
         'Info.InvoiceAddress',
         'Dimensions',
@@ -172,30 +176,24 @@ export class CustomerDetails {
         private errorService: ErrorService,
         private numberFormat: NumberFormat,
         private customerInvoiceReminderSettingsService: CustomerInvoiceReminderSettingsService,
-        private currencyCodeService: CurrencyCodeService
+        private currencyCodeService: CurrencyCodeService,
+        private uniSearchConfigGeneratorService: UniSearchConfigGeneratorService
     ) {}
 
     public ngOnInit() {
         if (!this.modalMode) {
             this.route.params.subscribe((params) => {
-                this.customerID = +params['id'];
+                if (params['id'] === 'new') {
+                    this.customerID = 0;
+                } else {
+                    this.customerID = +params['id'];
+                }
+
                 this.setup();
 
                 this.uniQueryDefinitionService.getReferenceByModuleId(UniModules.Customers)
                     .subscribe(links => this.reportLinks = links, err => this.errorService.handle(err));
             });
-        }
-    }
-
-    public ready() {
-        if (this.customer$.getValue().ID === 0) {
-            this.form.field('Info.Name')
-                .Component
-                .control
-                .valueChanges
-                .debounceTime(300)
-                .distinctUntilChanged()
-                .subscribe(data => this.searchText = data);
         }
     }
 
@@ -297,7 +295,8 @@ export class CustomerDetails {
     }
 
     public openInModalMode(id?: number) {
-        this.customerID = id;
+        this.customerID = id ? id : 0;
+        this.allowSearchCustomer = false;
         this.setup();
     }
 
@@ -352,14 +351,10 @@ export class CustomerDetails {
 
                 this.setTabTitle();
                 this.extendFormConfig();
+                this.showHideNameProperties();
                 this.updateCustomerWidgets();
 
                 this.formIsInitialized = true;
-
-                setTimeout(() => {
-                   this.ready();
-                });
-
             }, err => this.errorService.handle(err));
         } else {
             Observable.forkJoin(
@@ -386,12 +381,10 @@ export class CustomerDetails {
                     customer.CustomerInvoiceReminderSettings['_createguid'] = this.customerInvoiceReminderSettingsService.getNewGuid();
                 }
 
+                this.showHideNameProperties();
+
                 this.setTabTitle();
                 this.updateCustomerWidgets();
-
-                setTimeout(() => {
-                    this.ready();
-                });
             }, err => this.errorService.handle(err));
         }
     }
@@ -427,73 +420,14 @@ export class CustomerDetails {
         }
     }
 
-    public addSearchInfo(selectedSearchInfo: SearchResultItem) {
-        let customer = this.customer$.getValue();
-        if (customer !== null) {
-
-            customer.Info.Name = selectedSearchInfo.navn;
-            customer.OrgNumber = selectedSearchInfo.orgnr;
-
-            customer.Info.Addresses = [];
-            customer.Info.Phones = [];
-            customer.Info.Emails = [];
-            customer.Info.InvoiceAddress = null;
-            customer.Info.ShippingAddress = null;
-            customer.Info.DefaultPhone = null;
-
-            var businessaddressPromise = this.addressService.businessAddressFromSearch(selectedSearchInfo);
-            var postaladdressPromise = this.addressService.postalAddressFromSearch(selectedSearchInfo);
-            var phonePromise = this.phoneService.phoneFromSearch(selectedSearchInfo);
-            var mobilePromise = this.phoneService.mobileFromSearch(selectedSearchInfo);
-
-            Promise.all([businessaddressPromise, postaladdressPromise, phonePromise, mobilePromise]).then(results => {
-                let businessaddress: any = results[0];
-                let postaladdress: any = results[1];
-                let phone: any = results[2];
-                let mobile: any = results[3];
-
-                if (postaladdress) {
-                    if (!customer.Info.Addresses.find(x => x === postaladdress)) {
-                        customer.Info.Addresses.push(postaladdress);
-                    }
-                    customer.Info.InvoiceAddress = postaladdress;
-                }
-
-                if (businessaddress) {
-                    if (!customer.Info.Addresses.find(x => x === businessaddress)) {
-                        customer.Info.Addresses.push(businessaddress);
-                    }
-                    customer.Info.ShippingAddress = businessaddress;
-                } else if (postaladdress) {
-                    customer.Info.ShippingAddress = postaladdress;
-                }
-
-                if (mobile) {
-                    customer.Info.Phones.unshift(mobile);
-                }
-
-                if (phone) {
-                    customer.Info.Phones.unshift(phone);
-                    customer.Info.DefaultPhone = phone;
-                } else if (mobile) {
-                    customer.Info.DefaultPhone = mobile;
-                }
-
-                // set ID to make multivalue editors work with the new values...
-                customer.Info.DefaultPhoneID = 0;
-                customer.Info.InvoiceAddressID = 0;
-                customer.Info.ShippingAddressID = 0;
-
-                this.customer$.next(customer);
-                setTimeout(() => {
-                   this.ready();
-                });
-            });
-        }
-    }
-
     public extendFormConfig() {
         let fields: UniFieldLayout[] = this.fields$.getValue();
+
+        let customerSearchResult: UniFieldLayout = fields.find(x => x.Property === '_CustomerSearchResult');
+        customerSearchResult.Hidden = this.customerID > 0;
+
+        let customerName: UniFieldLayout = fields.find(x => x.Property === 'Info.Name');
+        customerName.Hidden = this.customerID === 0;
 
         let currencyCode: UniFieldLayout = fields.find(x => x.Property === 'CurrencyCodeID');
         currencyCode.Options = {
@@ -531,7 +465,8 @@ export class CustomerDetails {
             listProperty: 'Info.Phones',
             displayValue: 'Number',
             linkProperty: 'ID',
-            storeResultInProperty: 'Info.DefaultPhoneID',
+            storeResultInProperty: 'Info.DefaultPhone',
+            storeIdInProperty: 'Info.DefaultPhoneID',
             editor: (value) => new Promise((resolve) => {
                 if (!value) {
                     value = new Phone();
@@ -554,7 +489,8 @@ export class CustomerDetails {
             listProperty: 'Info.Addresses',
             displayValue: 'AddressLine1',
             linkProperty: 'ID',
-            storeResultInProperty: 'Info.InvoiceAddressID',
+            storeResultInProperty: 'Info.InvoiceAddress',
+            storeIdInProperty: 'Info.InvoiceAddressID',
             editor: (value) => new Promise((resolve) => {
                 if (!value) {
                     value = new Address();
@@ -583,7 +519,8 @@ export class CustomerDetails {
             listProperty: 'Info.Emails',
             displayValue: 'EmailAddress',
             linkProperty: 'ID',
-            storeResultInProperty: 'Info.DefaultEmailID',
+            storeResultInProperty: 'Info.DefaultEmail',
+            storeIdInProperty: 'Info.DefaultEmailID',
             editor: (value) => new Promise((resolve) => {
                 if (!value) {
                     value = new Email();
@@ -605,7 +542,8 @@ export class CustomerDetails {
             listProperty: 'Info.Addresses',
             displayValue: 'AddressLine1',
             linkProperty: 'ID',
-            storeResultInProperty: 'Info.ShippingAddressID',
+            storeIdInProperty: 'Info.ShippingAddressID',
+            storeResultInProperty: 'Info.ShippingAddress',
             editor: (value) => new Promise((resolve) => {
                 if (!value) {
                     value = new Address();
@@ -630,13 +568,46 @@ export class CustomerDetails {
         this.fields$.next(fields);
     }
 
+    public showHideNameProperties() {
+        let fields: UniFieldLayout[] = this.fields$.getValue();
+
+        let customer = this.customer$.getValue();
+        let customerSearchResult: UniFieldLayout = fields.find(x => x.Property === '_CustomerSearchResult');
+        let customerName: UniFieldLayout = fields.find(x => x.Property === 'Info.Name');
+
+        if (!this.allowSearchCustomer || this.customerID > 0 || (customer && customer.Info.Name !== null && customer.Info.Name !== '')) {
+            customerSearchResult.Hidden = true;
+            customerName.Hidden = false;
+
+            setTimeout(() => {
+                if (this.form.field('Info.Name')) {
+                    this.form.field('Info.Name').focus();
+                }
+            });
+        } else {
+            customerSearchResult.Hidden = false;
+            customerName.Hidden = true;
+
+            setTimeout(() => {
+                if (this.form.field('_CustomerSearchResult')) {
+                    this.form.field('_CustomerSearchResult').focus();
+                }
+            });
+        }
+    }
+
     public saveCustomer(completeEvent: any) {
         // small timeout to allow uniform and unitable to update the sources before saving
         setTimeout(() => {
             let customer = this.customer$.getValue();
+
             // add createGuid for new entities and remove duplicate entities
+            if (!customer.Info.Emails) {
+                customer.Info.Emails = [];
+            }
+
             customer.Info.Emails.forEach(email => {
-                if (email.ID === 0) {
+                if (email.ID === 0 || !email.ID) {
                     email['_createguid'] = this.customerService.getNewGuid();
                 }
             });
@@ -645,8 +616,12 @@ export class CustomerDetails {
                 customer.Info.Emails = customer.Info.Emails.filter(x => x !== customer.Info.DefaultEmail);
             }
 
+            if (!customer.Info.Phones) {
+                customer.Info.Phones = [];
+            }
+
             customer.Info.Phones.forEach(phone => {
-                if (phone.ID === 0) {
+                if (phone.ID === 0 || !phone.ID) {
                     phone['_createguid'] = this.customerService.getNewGuid();
                 }
             });
@@ -655,8 +630,12 @@ export class CustomerDetails {
                 customer.Info.Phones = customer.Info.Phones.filter(x => x !== customer.Info.DefaultPhone);
             }
 
+            if (!customer.Info.Addresses) {
+                customer.Info.Addresses = [];
+            }
+
             customer.Info.Addresses.forEach(address => {
-                if (address.ID === 0) {
+                if (address.ID === 0 || !address.ID) {
                     address['_createguid'] = this.customerService.getNewGuid();
                 }
             });
@@ -669,34 +648,44 @@ export class CustomerDetails {
                 customer.Info.Addresses = customer.Info.Addresses.filter(x => x !== customer.Info.InvoiceAddress);
             }
 
-            if (customer.Info.DefaultPhone === null && customer.Info.DefaultPhoneID === 0) {
+            if (!customer.Info.DefaultPhone && customer.Info.DefaultPhoneID === 0) {
                 customer.Info.DefaultPhoneID = null;
             }
 
-            if (customer.Info.DefaultEmail === null && customer.Info.DefaultEmailID === 0) {
+            if (!customer.Info.DefaultEmail && customer.Info.DefaultEmailID === 0) {
                 customer.Info.DefaultEmailID = null;
             }
 
-            if (customer.Info.ShippingAddress === null && customer.Info.ShippingAddressID === 0) {
+            if (!customer.Info.ShippingAddress && customer.Info.ShippingAddressID === 0) {
                 customer.Info.ShippingAddressID = null;
             }
 
-            if (customer.Info.InvoiceAddress === null && customer.Info.InvoiceAddressID === 0) {
+            if (!customer.Info.InvoiceAddress && customer.Info.InvoiceAddressID === 0) {
                 customer.Info.InvoiceAddressID = null;
             }
 
-            if (customer.Dimensions !== null && (!customer.Dimensions.ID || customer.Dimensions.ID === 0)) {
+            if (customer.Dimensions && (!customer.Dimensions.ID || customer.Dimensions.ID === 0)) {
                 customer.Dimensions['_createguid'] = this.customerService.getNewGuid();
             }
 
+            if (!customer.Info.Contacts) {
+                customer.Info.Contacts = [];
+            }
+
+            customer.Info.Contacts.forEach(contact => {
+                if (contact.ID === 0 || !contact.ID) {
+                    contact['_createguid'] = this.customerService.getNewGuid();
+                }
+            });
+
             if (customer.Info.Contacts.filter(x => !x.ID && x.Info.Name === '')) {
                 // remove new contacts where name is not set, probably an empty row anyway
-                customer.Info.Contacts = customer.Info.Contacts.filter(x => !(!x.ID && x.Info.Name === ''))
+                customer.Info.Contacts = customer.Info.Contacts.filter(x => !(!x.ID && x.Info.Name === ''));
             }
 
             if ((customer.CustomerInvoiceReminderSettingsID === 0 ||
                 !customer.CustomerInvoiceReminderSettingsID) &&
-                !this.reminderSettings.isDirty) {
+                (this.reminderSettings && !this.reminderSettings.isDirty)) {
                     customer.CustomerInvoiceReminderSettings = null;
             }
 
@@ -759,6 +748,62 @@ export class CustomerDetails {
         }
     }
 
+    private getCustomerLookupOptions() {
+        let uniSearchConfig = this.uniSearchConfigGeneratorService.generate(
+            Customer,
+            <[string]>this.expandOptions,
+            () => {
+                let customer = this.customer$.getValue();
+
+                let searchInfo = <any>this.form.field('_CustomerSearchResult');
+                if (searchInfo) {
+                    if (searchInfo.component && searchInfo.component.input) {
+                        customer.Info.Name = searchInfo.component.input.value;
+                    }
+                }
+
+                if (!customer.Info.Name) {
+                    customer.Info.Name = '';
+                }
+
+                this.customer$.next(customer);
+                this.showHideNameProperties();
+
+                return Observable.from([customer]);
+            });
+
+        uniSearchConfig.expandOrCreateFn = (newOrExistingItem: any) => {
+            if (newOrExistingItem.ID) {
+                // If an existing customer is selected, navigate to that customer instead
+                // of populating the fields for a new customer
+                this.router.navigateByUrl(`/sales/customer/${newOrExistingItem.ID}`);
+                return Observable.empty();
+            } else {
+                let customerData = this.uniSearchConfigGeneratorService
+                            .customerGenerator
+                            .customStatisticsObjToCustomer(newOrExistingItem);
+
+                return Observable.from([customerData]);
+            }
+        };
+
+        return uniSearchConfig;
+    }
+
+    private onChange(changes: SimpleChanges) {
+        if (changes['_CustomerSearchResult']) {
+            let searchResult = changes['_CustomerSearchResult'].currentValue;
+
+            if (searchResult) {
+                let customer = this.customer$.getValue();
+                customer = searchResult;
+                this.customer$.next(customer);
+
+                this.showHideNameProperties();
+            }
+        }
+    }
+
     // TODO: remove later on when backend is fixed - Info.InvoiceAddress vs InvoiceAddress
     private getComponentLayout(): any {
         return {
@@ -773,6 +818,30 @@ export class CustomerDetails {
             ID: 1,
             CustomFields: null,
             Fields: [
+                {
+                    ComponentLayoutID: 1,
+                    EntityType: 'Customer',
+                    Property: '_CustomerSearchResult',
+                    Placement: 1,
+                    Hidden: true,
+                    FieldType: FieldType.UNI_SEARCH,
+                    ReadOnly: false,
+                    LookupField: false,
+                    Label: 'Navn',
+                    Description: null,
+                    HelpText: null,
+                    FieldSet: 0,
+                    Section: 0,
+                    Placeholder: null,
+                    LineBreak: null,
+                    Combo: null,
+                    Sectionheader: '',
+                    hasLineBreak: false,
+                    Validations: [],
+                    Options: {
+                        uniSearchConfig: this.getCustomerLookupOptions()
+                    }
+                },
                 {
                     ComponentLayoutID: 3,
                     EntityType: 'BusinessRelation',

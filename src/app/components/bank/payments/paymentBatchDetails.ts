@@ -1,7 +1,8 @@
 import {Component, ViewChild, Input, EventEmitter, Output, OnChanges} from '@angular/core';
 import {Router} from '@angular/router';
-import {PaymentService, PaymentBatchService, ErrorService, FileService, StatisticsService} from '../../../services/services';
-import {PaymentBatch} from '../../../unientities';
+import {PaymentService, PaymentBatchService, ErrorService, FileService,
+    StatisticsService, CompanySettingsService} from '../../../services/services';
+import {PaymentBatch, CompanySettings} from '../../../unientities';
 import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig} from 'unitable-ng2/main';
 import {URLSearchParams} from '@angular/http';
 import {PaymentRelationsModal} from './relationModal';
@@ -29,17 +30,26 @@ export class PaymentBatchDetails implements OnChanges {
     private paymentTableConfig: UniTableConfig;
     private lookupFunction: (urlParams: URLSearchParams) => any;
     private receiptFilesVisible: boolean = false;
+    private companySettings: CompanySettings;
 
-    constructor(private router: Router,
-                private paymentService: PaymentService,
-                private paymentBatchService: PaymentBatchService,
-                private errorService: ErrorService,
-                private toastService: ToastService,
-                private fileService: FileService,
-                private statisticsService: StatisticsService) {}
+    constructor(
+        private router: Router,
+        private paymentService: PaymentService,
+        private paymentBatchService: PaymentBatchService,
+        private errorService: ErrorService,
+        private toastService: ToastService,
+        private fileService: FileService,
+        private statisticsService: StatisticsService,
+        private companySettingsService: CompanySettingsService) { }
 
     public ngOnInit() {
-        this.setupPaymentTable();
+        this.companySettingsService.Get(1)
+            .subscribe(data => {
+                this.companySettings = data;
+                this.setupPaymentTable();
+            },
+            err => this.errorService.handle(err)
+            );
     }
 
     public ngOnChanges() {
@@ -47,7 +57,6 @@ export class PaymentBatchDetails implements OnChanges {
             if (this.table) {
                 this.table.refreshTableData();
             }
-
             this.loadPaymentBatchData();
         }
     }
@@ -68,7 +77,7 @@ export class PaymentBatchDetails implements OnChanges {
                 `Er du sikker på at du vil tilbakestille bunten? Betalingene vil da legges tilbake i betalingslisten`,
                 'Bekreft tilbakestilling',
                 false,
-                {accept: 'Tilbakestill bunt', reject: 'Avbryt'}
+                { accept: 'Tilbakestill bunt', reject: 'Avbryt' }
             ).then((action) => {
                 if (action === ConfirmActions.ACCEPT) {
                     this.deletePaymentBatch.emit(this.paymentBatch);
@@ -85,9 +94,13 @@ export class PaymentBatchDetails implements OnChanges {
             .subscribe(paymentBatch => {
                 this.toastService.addToast('Kvitteringsfil tolket og behandlet', ToastType.good, 10,
                     'Betalinger og bilag er oppdatert');
+                this.table.refreshTableData();
+                this.paymentBatchUpdated.emit(paymentBatch);
             },
-            err => this.errorService.handle
-        );
+            err => {
+                this.errorService.handle(err);
+            }
+            );
     }
 
     private createPaymentFile() {
@@ -99,18 +112,18 @@ export class PaymentBatchDetails implements OnChanges {
 
                     this.fileService
                         .downloadFile(updatedPaymentBatch.PaymentFileID, 'application/xml')
-                            .subscribe((blob) => {
-                                this.toastService.addToast('Utbetalingsfil hentet', ToastType.good, 5);
+                        .subscribe((blob) => {
+                            this.toastService.addToast('Utbetalingsfil hentet', ToastType.good, 5);
 
-                                // download file so the user can open it
-                                saveAs(blob, `payments_${updatedPaymentBatch.ID}.xml`);
+                            // download file so the user can open it
+                            saveAs(blob, `payments_${updatedPaymentBatch.ID}.xml`);
 
-                                // reload data to display buttons correctly after generating the file
-                                this.loadPaymentBatchData();
-                            },
-                            err => {
-                                this.errorService.handle(err);
-                            }
+                            // reload data to display buttons correctly after generating the file
+                            this.loadPaymentBatchData();
+                        },
+                        err => {
+                            this.errorService.handle(err);
+                        }
                         );
                 } else {
                     this.toastService.addToast('Fant ikke utbetalingsfil, ingen PaymentFileID definert', ToastType.bad, 0);
@@ -131,14 +144,14 @@ export class PaymentBatchDetails implements OnChanges {
         } else {
             this.fileService
                 .downloadFile(this.paymentBatch.PaymentFileID, 'application/xml')
-                    .subscribe((blob) => {
-                        this.toastService.addToast('Utbetalingsfil hentet', ToastType.good, 5);
-                        // download file so the user can open it
-                        saveAs(blob, `payments_${this.paymentBatch.ID}.xml`);
-                    },
-                    err => {
-                        this.errorService.handleWithMessage(err, 'Feil ved henting av utbetalingsfil');
-                    }
+                .subscribe((blob) => {
+                    this.toastService.addToast('Utbetalingsfil hentet', ToastType.good, 5);
+                    // download file so the user can open it
+                    saveAs(blob, `payments_${this.paymentBatch.ID}.xml`);
+                },
+                err => {
+                    this.errorService.handleWithMessage(err, 'Feil ved henting av utbetalingsfil');
+                }
                 );
         }
     }
@@ -153,55 +166,7 @@ export class PaymentBatchDetails implements OnChanges {
                 this.paymentBatch = data;
             },
             err => this.errorService.handle(err)
-        );
-    }
-
-    private setupCustomerPayentTable() {
-        let invoiceNoCol = new UniTableColumn('InvoiceNumber', 'Fakturanr', UniTableColumnType.Text);
-        let restCol = new UniTableColumn('RestAmount', 'Restbeløp', UniTableColumnType.Money)
-            .setTemplate(data => data.BusinessRelation ? data.BusinessRelation.Name : '')
-            .setEditorOptions({
-                itemTemplate: (selectedItem) => {
-                    return 100;
-                },
-                lookupFunction: (query: string) => {
-                    return this.statisticsService.GetAll(
-                        `model=Tracelink&select=CustomerInvoice.RestAmount&join=CustomerInvoice on .ID eq CustomerInvoice.ID CustomerInvoice&filter=TraceLink.Deleted eq 'false' and DestinationEntityName eq 'Payment' and DestinationInstanceID eq `
-                    ).map(x => x.Data ? x.Data : []);
-                }
-            });
-
-        let payToCol = new UniTableColumn('BusinessRelation', 'Betales til', UniTableColumnType.Lookup)
-            .setTemplate(data => data.BusinessRelation ? data.BusinessRelation.Name : '');
-        let amountCol = new UniTableColumn('Amount', 'Beløp', UniTableColumnType.Money);
-        let fromAccountCol = new UniTableColumn('FromBankAccount', 'Konto fra', UniTableColumnType.Lookup)
-            .setDisplayField('FromBankAccount.AccountNumber');
-        let toAccountCol = new UniTableColumn('ToBankAccount', 'Konto til', UniTableColumnType.Lookup)
-            .setDisplayField('ToBankAccount.AccountNumber');
-        let paymentIDCol = new UniTableColumn('PaymentID', 'KID', UniTableColumnType.Text);
-        let descriptionCol = new UniTableColumn('Description', 'Beskrivelse', UniTableColumnType.Text).setVisible(false);
-
-        // Setup table
-        this.paymentTableConfig = new UniTableConfig(false, true, 15)
-            .setColumns([
-                invoiceNoCol,
-                payToCol,
-                fromAccountCol,
-                toAccountCol,
-                paymentIDCol,
-                amountCol,
-                restCol,
-                descriptionCol
-            ])
-            .setContextMenu([
-                {
-                    action: (item) => this.paymentRelationsModal.openModal(item.ID),
-                    disabled: (item) => false,
-                    label: 'Vis relasjoner'
-                }
-            ])
-            .setColumnMenuVisible(true)
-            .setSearchable(false);
+            );
     }
 
     private setupPaymentTable() {
@@ -212,7 +177,7 @@ export class PaymentBatchDetails implements OnChanges {
                 params = new URLSearchParams();
             }
 
-            params.set('expand', 'ToBankAccount,FromBankAccount,PaymentCode,BusinessRelation');
+            params.set('expand', 'ToBankAccount,FromBankAccount,PaymentCode,BusinessRelation,CurrencyCode');
             params.set('filter', `PaymentBatchID eq ${this.paymentBatchID}`);
 
             if (!params.get('orderby')) {
@@ -225,7 +190,16 @@ export class PaymentBatchDetails implements OnChanges {
         let paymentDateCol = new UniTableColumn('PaymentDate', 'Betalingsdato', UniTableColumnType.LocalDate);
         let payToCol = new UniTableColumn('BusinessRelation', 'Betales til', UniTableColumnType.Lookup)
             .setTemplate(data => data.BusinessRelation ? data.BusinessRelation.Name : '');
-        let amountCol = new UniTableColumn('Amount', 'Beløp', UniTableColumnType.Money);
+        let currencyCodeCol = new UniTableColumn('CurrencyCode', 'Valuta', UniTableColumnType.Text, false)
+            .setDisplayField('CurrencyCode.Code')
+            .setWidth('5%')
+            .setVisible(false);
+        let amountCurrencyCol = new UniTableColumn('AmountCurrency', 'Beløp', UniTableColumnType.Money);
+
+        let amountCol = new UniTableColumn('Amount', `Beløp (${this.companySettings.BaseCurrencyCode.Code})`, UniTableColumnType.Money)
+            .setVisible(false)
+            .setEditable(false);
+
         let fromAccountCol = new UniTableColumn('FromBankAccount', 'Konto fra', UniTableColumnType.Lookup)
             .setDisplayField('FromBankAccount.AccountNumber');
         let toAccountCol = new UniTableColumn('ToBankAccount', 'Konto til', UniTableColumnType.Lookup)
@@ -236,6 +210,13 @@ export class PaymentBatchDetails implements OnChanges {
         let paymentCodeCol = new UniTableColumn('PaymentCode', 'Type', UniTableColumnType.Lookup)
             .setDisplayField('PaymentCode.Name').setVisible(false);
         let descriptionCol = new UniTableColumn('Description', 'Beskrivelse', UniTableColumnType.Text).setVisible(false);
+        let statusCol = new UniTableColumn('StatusCode', 'Status', UniTableColumnType.Number)
+            .setEditable(false)
+            .setVisible(false)
+            .setTemplate((p) => {
+                return this.paymentService.getStatusText(p.StatusCode);
+            });
+
 
         // Setup table
         this.paymentTableConfig = new UniTableConfig(false, true, 15)
@@ -245,10 +226,13 @@ export class PaymentBatchDetails implements OnChanges {
                 fromAccountCol,
                 toAccountCol,
                 paymentIDCol,
+                currencyCodeCol,
+                amountCurrencyCol,
                 amountCol,
                 dueDateCol,
                 paymentCodeCol,
-                descriptionCol
+                descriptionCol,
+                statusCol
             ])
             .setContextMenu([
                 {

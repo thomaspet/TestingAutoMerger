@@ -51,6 +51,7 @@ export class HamburgerMenu {
     public static getParentApp(moduleID): any {
         let _series = moduleID + '';
         let _seriesIndex = +_series.slice(0, 1) - 1;
+        console.log(moduleID, this.getAvailableComponents()[_seriesIndex]);
         return this.getAvailableComponents()[_seriesIndex];
     }
 
@@ -99,7 +100,7 @@ export class HamburgerMenu {
                 componentListHeader: 'Nøkkeltall',
                 componentListUrl: '/',
                 componentList: [
-                    {componentName: 'Nøkkeltall', componentUrl: '/', moduleID: UniModules.Dashboard},
+                    {componentName: 'Skrivebord', componentUrl: '/', moduleID: UniModules.Dashboard},
                     {componentName: 'Brukerinnstillinger', componentUrl: '/settings/user', hidden: true},
                     {componentName: 'Firmainnstillinger', componentUrl: '/settings/company', hidden: true},
                     {componentName: 'Aga-innstillinger', componentUrl: '/settings/aga-and-subentities', hidden: true},
@@ -109,7 +110,8 @@ export class HamburgerMenu {
                     {componentName: 'Oversikt', componentUrl: '/tickers', moduleID: UniModules.UniTicker},
                     {componentName: 'Regnskapsoversikt', componentUrl: '/accounting/accountingreports', moduleID: UniModules.AccountingReports},
                     {componentName: 'Rapporter', componentUrl: '/reports', moduleID: UniModules.Reports},
-                    {componentName: 'Uttrekk', componentUrl: '/uniqueries', moduleID: UniModules.UniQuery}
+                    {componentName: 'Uttrekk', componentUrl: '/uniqueries', moduleID: UniModules.UniQuery},
+                    {componentName: 'Oppgaver', componentUrl: '/tasks', moduleID: UniModules.Tasks}
                 ]
             },
             {

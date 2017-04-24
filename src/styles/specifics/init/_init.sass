@@ -1,13 +1,94 @@
-.authentication-component
-    @include unigrid-flush(4)
-    margin: 0 auto
+uni-init
+    display: block
+    position: absolute
+    top: 0
+    left: 0
+    right: 0
+    bottom: 0
+    overflow: auto
+    padding-top: 2rem
+    background-size: cover
+    background-attachment: fixed
+    background-image: url('assets/dashboard.jpg')
 
-    img
+    .init-container
+        display: flex
+        flex-flow: row wrap-reverse
+        max-width: 960px
+        min-height: 30rem
+        margin: 10vh auto
+        padding: 0
+
+        @media (max-height: 700px)
+            margin: 0 auto
+
+        @media (max-width: 767px)
+            margin: 0 2rem
+
+            .marketing-content
+                flex: 1 0 100%
+                h1
+                    font-size: 2rem
+                    padding-bottom: .5rem
+                p
+                    font-size: 1rem
+                    padding: 0
+
+            .view-content
+                flex: 1 0 100%
+                margin-bottom: 1rem
+
+
+    .marketing-content
+        order: 1
+        flex: 1 0 460px
         display: block
-        margin: 0 auto 3rem auto
+        box-sizing: border-box
+        height: auto
+        background-color: $uni-color-c2a
+        color: $uni-color-negative
+        padding: 2rem 3.5rem
 
+        h1
+            font-size: 3rem
+            padding-bottom: 1rem
+
+        p
+            padding: .5rem 0
+            color: $uni-color-negative
+            font-size: 1.5rem
+            font-weight: 200
+
+    .view-content
+        order: 2
+        flex: 1 0 306px
+        display: block
+        box-sizing: border-box
+        height: auto
+        background-color: $uni-color-negative
+        padding: 0 3rem .5rem 3rem
+
+        img
+            display: block
+            margin: 1rem auto
+
+        input
+            height: 2rem
+
+        button
+            height: 2rem
+            margin-top: 2rem
+
+        .company-select
+            display: block
+            margin-top:  4rem
+
+            input
+                margin-top: .5rem
+
+
+.authentication-component
     form
-
         label
             width: 100%
             display: inline-block
@@ -27,7 +108,7 @@
         button
             width: 100%
             padding: 0
-            margin: .5rem 0
+            margin: 1rem 0 .5rem 0
 
         .company_select
             margin: .5rem auto

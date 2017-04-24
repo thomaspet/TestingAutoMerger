@@ -16,9 +16,13 @@ export class EmployeeService extends BizHttp<Employee> {
 
     private defaultExpands: any = [
         'BusinessRelationInfo.Addresses',
+        'BusinessRelationInfo.InvoiceAddress',
         'BusinessRelationInfo.Emails',
+        'BusinessRelationInfo.DefaultEmail',
         'BusinessRelationInfo.Phones',
-        'BusinessRelationInfo.BankAccounts'
+        'BusinessRelationInfo.DefaultPhone',
+        'BusinessRelationInfo.BankAccounts',
+        'BusinessRelationInfo.DefaultBankAccount'
     ];
     public debounceTime: number = 500;
 

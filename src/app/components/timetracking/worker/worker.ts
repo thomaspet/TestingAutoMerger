@@ -1,6 +1,6 @@
 import {Component, ViewChild} from '@angular/core';
 import {View} from '../../../models/view/view';
-import {createFormField, FieldSize, ControlTypes} from '../utils/utils';
+import {createFormField, FieldSize, ControlTypes} from '../../common/utils/utils';
 import {IViewConfig} from '../genericview/list';
 import {Worker, WorkRelation} from '../../../unientities';
 import {GenericDetailview, IAfterSaveInfo, IResult} from '../genericview/detail';

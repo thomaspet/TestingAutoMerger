@@ -40,4 +40,13 @@ export class UserService extends BizHttp<User> {
         this.currentUser = undefined;
         return super.Put(id, entity);
     }
+
+    public getRolesByUserId(id: number) {
+        return this.http.asGET()
+            .usingBusinessDomain()
+            .withEndPoint('userroles?filter=UserID eq ' + id +
+                '&expand=SharedRole')
+            .send()
+            .map(res => res.json());
+    }
 }

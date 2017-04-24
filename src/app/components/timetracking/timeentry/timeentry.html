@@ -1,11 +1,11 @@
 <uni-toolbar class="no-print" [config]="toolbarConfig" [saveactions]="actions"></uni-toolbar>
 
-<aside class="horizontal_nav no-print">
+<aside class="horizontal_nav no-print" [hidden]="missingWorker">
     <ul>
-        <li *ngFor="let tab of tabs">
-            <a (click)="onTabClick(tab)" [ngClass]="{'router-link-active': tab.isSelected}">
-                {{tab.label}}
-                <span class='tab_counter' *ngIf="tab.counter">{{tab.counter}}</span>
+        <li *ngFor="let tab of tabPositions">
+            <a (click)="onTabClick(tabs[tab])" [ngClass]="{'router-link-active': tabs[tab]?.isSelected}">
+                {{tabs[tab].label}}
+                <span class='tab_counter' *ngIf="tabs[tab]?.counter">{{tabs[tab].counter}}</span>
             </a>
         </li>
     </ul>
@@ -17,24 +17,8 @@
 
     <section class="regtime_tabs">
 
-        <section [hidden]="!tabs[1].isSelected">
-            <timetracking-timetable [eventcfg]="preSaveConfig"></timetracking-timetable>
-        </section>
-
-        <section [hidden]="!tabs[2].isSelected">
-            <regtimetotals></regtimetotals>
-        </section>
-
-        <section [hidden]="!tabs[3].isSelected">
-            <regtimebalance [eventcfg]="preSaveConfig" [workrelation]="this.timeSheet?.currentRelation" (valueChange)="onBalanceChanged($event)" ></regtimebalance>
-        </section>
-
-        <section [hidden]="!tabs[4].isSelected">
-            <vacation *ngIf="tabs[4].activated" (saved)="onVacationSaved()" [workrelationid]="timeSheet.currentRelation.ID"></vacation>
-        </section>
-
-        <section [hidden]="!tabs[0].isSelected">
-
+        <section [hidden]="missingWorker || !tabs[0].isSelected">
+            
             <daybrowser (clickday)="onClickDay($event)" (requestsums)="onRequestDaySums($event)" 
                 (navigate)="onNavigateDays($event)"
             ></daybrowser>
@@ -44,6 +28,28 @@
             </workeditor>
 
         </section>
+
+        <section [hidden]="!tabs[1].isSelected">
+            <timetracking-timetable [eventcfg]="preSaveConfig"></timetracking-timetable>
+        </section>
+
+        <section [hidden]="!tabs[2].isSelected">
+            <regtimetotals></regtimetotals>
+        </section>        
+
+        <section [hidden]="!tabs[3].isSelected">
+            <regtimebalance [eventcfg]="preSaveConfig" [workrelation]="this.timeSheet?.currentRelation" (valueChange)="onBalanceChanged($event)" ></regtimebalance>
+        </section>
+
+        <section [hidden]="!tabs[4].isSelected">
+            <vacation *ngIf="tabs[4].activated" (saved)="onVacationSaved()" [workrelationid]="timeSheet.currentRelation.ID"></vacation>
+        </section>
+
+        <div *ngIf="this.mapTabPosition(5)">
+            <section [hidden]="!tabs[5].isSelected">
+                <teamwork-report></teamwork-report>
+            </section>        
+        </div>
 
     </section>
 

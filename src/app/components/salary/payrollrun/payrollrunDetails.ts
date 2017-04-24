@@ -3,7 +3,7 @@ import { ActivatedRoute, Router, NavigationEnd } from '@angular/router';
 import {
     PayrollRun, SalaryTransaction, Employee, SalaryTransactionSupplement, WageType, Account, EmployeeTaxCard,
     CompanySalary, CompanySalaryPaymentInterval, Project, Department, TaxDrawFactor, FinancialYear, EmployeeCategory,
-    JournalEntry
+    JournalEntry, LocalDate
 } from '../../../unientities';
 import { Observable } from 'rxjs/Observable';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
@@ -214,44 +214,7 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
                         },
                     };
 
-                    this.saveActions = [
-                        {
-                            label: 'Lagre',
-                            action: this.saveAll.bind(this),
-                            main: payrollRun ? payrollRun.StatusCode < 1 : true,
-                            disabled: true
-                        },
-                        {
-                            label: 'Kontroller',
-                            action: this.openControlModal.bind(this),
-                            main: false,
-                            disabled: payrollRun ? payrollRun.StatusCode > 0 : true
-                        },
-                        {
-                            label: 'Avregn',
-                            action: this.runSettling.bind(this),
-                            main: false,
-                            disabled: payrollRun && this.payrollrunID ? payrollRun.StatusCode > 0 : true
-                        },
-                        {
-                            label: 'Til utbetaling',
-                            action: this.sendPaymentList.bind(this),
-                            main: payrollRun ? payrollRun.StatusCode > 1 : false,
-                            disabled: payrollRun ? payrollRun.StatusCode < 1 : true
-                        },
-                        {
-                            label: 'Send lønnslipp',
-                            action: this.sendPaychecks.bind(this),
-                            main: false,
-                            disabled: payrollRun ? payrollRun.StatusCode < 1 : true
-                        },
-                        {
-                            label: 'Bokfør',
-                            action: this.openPostingSummaryModal.bind(this),
-                            main: payrollRun ? payrollRun.StatusCode === 1 : false,
-                            disabled: payrollRun ? payrollRun.StatusCode !== 1 : true
-                        }
-                    ];
+                    this.saveActions = this.getSaveActions(payrollRun);
 
                     this.checkDirty();
                     if (changedPayroll) {
@@ -369,6 +332,47 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
                 }
             }
         });
+    }
+
+    private getSaveActions(payrollRun: PayrollRun): IUniSaveAction[] {
+        return [
+                        {
+                            label: 'Lagre',
+                            action: this.saveAll.bind(this),
+                            main: payrollRun ? payrollRun.StatusCode < 1 : true,
+                            disabled: true
+                        },
+                        {
+                            label: 'Kontroller',
+                            action: this.openControlModal.bind(this),
+                            main: false,
+                            disabled: payrollRun ? payrollRun.StatusCode > 0 : true
+                        },
+                        {
+                            label: 'Avregn',
+                            action: this.runSettling.bind(this),
+                            main: false,
+                            disabled: payrollRun && this.payrollrunID ? payrollRun.StatusCode > 0 : true
+                        },
+                        {
+                            label: 'Til utbetaling',
+                            action: this.sendPaymentList.bind(this),
+                            main: payrollRun ? payrollRun.StatusCode > 1 : false,
+                            disabled: payrollRun ? payrollRun.StatusCode < 1 : true
+                        },
+                        {
+                            label: 'Send lønnslipp',
+                            action: this.sendPaychecks.bind(this),
+                            main: false,
+                            disabled: payrollRun ? payrollRun.StatusCode < 1 : true
+                        },
+                        {
+                            label: 'Bokfør',
+                            action: this.openPostingSummaryModal.bind(this),
+                            main: payrollRun ? payrollRun.StatusCode === 1 : false,
+                            disabled: payrollRun ? payrollRun.StatusCode !== 1 : true
+                        }
+                    ];
     }
 
     public ngOnDestroy() {
@@ -719,24 +723,24 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
     private suggestFromToDates(latest: PayrollRun, companysalary: CompanySalary, payrollRun: PayrollRun) {
         if (!latest) {
             // First payrollrun for the year
-            let todate: Date;
-            let fromdate = new Date(this.activeYear, 0, 1);
-            payrollRun.FromDate = fromdate;
+            let todate: LocalDate;
+            let fromdate: LocalDate = new LocalDate(new Date(this.activeYear, 0, 1));
+            payrollRun.FromDate = fromdate.toDate();
 
             switch (companysalary.PaymentInterval) {
                 case CompanySalaryPaymentInterval.Pr14Days:
-                    todate = new Date(this.activeYear, 0, 14);
-                    payrollRun.ToDate = todate;
+                    todate = new LocalDate(new Date(this.activeYear, 0, 14));
+                    payrollRun.ToDate = todate.toDate();
                     break;
 
                 case CompanySalaryPaymentInterval.Weekly:
-                    todate = new Date(this.activeYear, 0, 7);
-                    payrollRun.ToDate = todate;
+                    todate = new LocalDate(new Date(this.activeYear, 0, 7));
+                    payrollRun.ToDate = todate.toDate();
                     break;
 
                 default: // Monthly
-                    todate = new Date(this.activeYear, 0, 31);
-                    payrollRun.ToDate = todate;
+                    todate = new LocalDate(new Date(this.activeYear, 0, 31));
+                    payrollRun.ToDate = todate.toDate();
                     break;
             }
         } else {
@@ -744,22 +748,22 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
             let lastFromdate = lastTodate.clone();
             lastFromdate.add(1, 'days');
             
-            payrollRun.FromDate = lastFromdate.toDate();
+            payrollRun.FromDate = new LocalDate(lastFromdate.toDate()).toDate();
 
             switch (companysalary.PaymentInterval) {
                 case CompanySalaryPaymentInterval.Pr14Days:
                     lastTodate.add(14, 'days');
-                    payrollRun.ToDate = lastTodate.toDate();
+                    payrollRun.ToDate = new LocalDate(lastTodate.toLocaleString()).toDate();
                     break;
 
                 case CompanySalaryPaymentInterval.Weekly:
                     lastTodate.add(7, 'days');
-                    payrollRun.ToDate = lastTodate.toDate();
+                    payrollRun.ToDate = new LocalDate(lastTodate.toLocaleString()).toDate();
                     break;
 
                 default:
                     lastTodate = lastFromdate.clone().endOf('month');
-                    payrollRun.ToDate = lastTodate.toDate();
+                    payrollRun.ToDate = new LocalDate(lastTodate.toLocaleString()).toDate();
                     break;
             }
         }
@@ -800,9 +804,10 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
     }
 
     private checkDirty() {
-        if (this.saveActions && this.saveActions.length && this.payrollrun$.getValue() && !this.payrollrun$.getValue().StatusCode) {
-            let saveButton = this.saveActions.find(x => x.label === 'Lagre');
-            let calculateButton = this.saveActions.find(x => x.label === 'Avregn');
+        let saveActions = _.cloneDeep(this.saveActions);
+        if (saveActions && saveActions.length && this.payrollrun$.getValue() && !this.payrollrun$.getValue().StatusCode) {
+            let saveButton = saveActions.find(x => x.label === 'Lagre');
+            let calculateButton = saveActions.find(x => x.label === 'Avregn');
             if (super.isDirty() || (this.payrollrun$.getValue() && !this.payrollrun$.getValue().Description)) {
                 saveButton.disabled = false;
                 saveButton.main = true;
@@ -814,6 +819,7 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
                     calculateButton.main = true;
                 }
             }
+            this.saveActions = saveActions;
         }
     }
 

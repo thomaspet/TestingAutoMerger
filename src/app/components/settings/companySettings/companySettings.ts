@@ -278,18 +278,43 @@ export class CompanySettingsComponent implements OnInit {
     }
 
     public companySettingsChange(changes: SimpleChanges) {
+        console.log(this.company$.getValue());
         this.isDirty = true;
 
-        if (changes['CompanyBankAccountID']) {
-            this.bankaccountService.deleteRemovedBankAccounts(changes['CompanyBankAccountID']);
+        if (changes['CompanyBankAccount']) {
+            this.bankaccountService.deleteRemovedBankAccounts(changes['CompanyBankAccount'])
+                .catch((ba: BankAccount) => {
+                    let field: UniFieldLayout = this.fields$
+                        .getValue().find(x => x.Property === 'CompanyBankAccount');
+                    let list = _.get(this.company$.getValue(), field.Options.listProperty);
+                    ba['_mode'] = 0;
+                    list.push(ba);
+                    this.company$.next(this.company$.getValue());
+                });
         }
 
-        if (changes['TaxBankAccountID']) {
-            this.bankaccountService.deleteRemovedBankAccounts(changes['TaxBankAccountID']);
+        if (changes['TaxBankAccount']) {
+            this.bankaccountService.deleteRemovedBankAccounts(changes['TaxBankAccount'])
+                .catch((ba: BankAccount) => {
+                    let field: UniFieldLayout = this.fields$
+                        .getValue().find(x => x.Property === 'TaxBankAccount');
+                    let list = _.get(this.company$.getValue(), field.Options.listProperty);
+                    ba['_mode'] = 0;
+                    list.push(ba);
+                    this.company$.next(this.company$.getValue());
+                });
         }
 
-        if (changes['SalaryBankAccountID']) {
-            this.bankaccountService.deleteRemovedBankAccounts(changes['SalaryBankAccountID']);
+        if (changes['SalaryBankAccount']) {
+            this.bankaccountService.deleteRemovedBankAccounts(changes['SalaryBankAccount'])
+                .catch((ba: BankAccount) => {
+                    let field: UniFieldLayout = this.fields$
+                        .getValue().find(x => x.Property === 'SalaryBankAccount');
+                    let list = _.get(this.company$.getValue(), field.Options.listProperty);
+                    ba['_mode'] = 0;
+                    list.push(ba);
+                    this.company$.next(this.company$.getValue());
+                });
         }
 
         if (changes['OrganizationNumber']) {
@@ -329,14 +354,26 @@ export class CompanySettingsComponent implements OnInit {
         }
 
         if (company.CompanyBankAccount) {
+            if (!company.CompanyBankAccount.ID) {
+                company.CompanyBankAccount['_createguid'] = this.bankaccountService.getNewGuid();
+                company.CompanyBankAccount.BankAccountType = 'company';
+            }
             company.BankAccounts = company.BankAccounts.filter(x => x !== company.CompanyBankAccount);
         }
 
         if (company.TaxBankAccount) {
+            if (!company.TaxBankAccount.ID) {
+                company.TaxBankAccount['_createguid'] = this.bankaccountService.getNewGuid();
+                company.TaxBankAccount.BankAccountType = 'bankaccount';
+            }
             company.BankAccounts = company.BankAccounts.filter(x => x !== company.TaxBankAccount);
         }
 
         if (company.SalaryBankAccount) {
+            if (!company.SalaryBankAccount.ID) {
+                company.SalaryBankAccount['_createguid'] = this.bankaccountService.getNewGuid();
+                company.SalaryBankAccount.BankAccountType = 'salarybank';
+            }
             company.BankAccounts = company.BankAccounts.filter(x => x !== company.SalaryBankAccount);
         }
 
@@ -384,7 +421,8 @@ export class CompanySettingsComponent implements OnInit {
             listProperty: 'Addresses',
             displayValue: 'AddressLine1',
             linkProperty: 'ID',
-            storeResultInProperty: 'DefaultAddressID',
+            storeResultInProperty: 'DefaultAddress',
+            storeIdInProperty: 'DefaultAddressID',
             editor: (value) => new Promise((resolve) => {
                 if (!value) {
                     value = new Address();
@@ -415,7 +453,8 @@ export class CompanySettingsComponent implements OnInit {
             listProperty: 'Phones',
             displayValue: 'Number',
             linkProperty: 'ID',
-            storeResultInProperty: 'DefaultPhoneID',
+            storeResultInProperty: 'DefaultPhone',
+            storeIdInProperty: 'DefaultPhoneID',
             editor: (value) => new Promise((resolve) => {
                 if (!value) {
                     value = new Phone();
@@ -440,7 +479,8 @@ export class CompanySettingsComponent implements OnInit {
             listProperty: 'Emails',
             displayValue: 'EmailAddress',
             linkProperty: 'ID',
-            storeResultInProperty: 'DefaultEmailID',
+            storeResultInProperty: 'DefaultEmail',
+            storeIdInProperty: 'DefaultEmailID',
             editor: (value) => new Promise((resolve) => {
                 if (!value) {
                     value = new Email();
@@ -537,13 +577,13 @@ export class CompanySettingsComponent implements OnInit {
         };
 
         let companyBankAccount: UniFieldLayout = fields.find(x => x.Property === 'CompanyBankAccount');
-        companyBankAccount.Options = this.getBankAccountOptions('CompanyBankAccountID', 'company');
+        companyBankAccount.Options = this.getBankAccountOptions('CompanyBankAccount', 'company');
 
         let taxBankAccount: UniFieldLayout = fields.find(x => x.Property === 'TaxBankAccount');
-        taxBankAccount.Options = this.getBankAccountOptions('TaxBankAccountID', 'tax');
+        taxBankAccount.Options = this.getBankAccountOptions('TaxBankAccount', 'tax');
 
         let salaryBankAccount: UniFieldLayout = fields.find(x => x.Property === 'SalaryBankAccount');
-        salaryBankAccount.Options = this.getBankAccountOptions('SalaryBankAccountID', 'salary');
+        salaryBankAccount.Options = this.getBankAccountOptions('SalaryBankAccount', 'salary');
 
         this.fields$.next(fields);
     }
@@ -555,9 +595,10 @@ export class CompanySettingsComponent implements OnInit {
             displayValue: 'AccountNumber',
             linkProperty: 'ID',
             storeResultInProperty: storeResultInProperty,
-            editor: (bankaccount: BankAccount) => new Promise((resolve) => {
-                if (!bankaccount) {
-                    bankaccount = new BankAccount();
+            storeIdInProperty: storeResultInProperty + 'ID',
+            editor: (bankaccount: BankAccount) => new Promise((resolve, reject) => {
+                if (!bankaccount || !bankaccount.ID) {
+                    bankaccount = bankaccount || new BankAccount();
                     bankaccount['_createguid'] = this.bankaccountService.getNewGuid();
                     bankaccount.BankAccountType = bankAccountType;
                     bankaccount.CompanySettingsID = this.company$.getValue().ID;
@@ -566,18 +607,18 @@ export class CompanySettingsComponent implements OnInit {
 
                 this.bankAccountModal.confirm(bankaccount).then(res => {
                     if (res.status === ConfirmActions.ACCEPT) {
-                        let bankaccount = res.model;
+                        let localBankaccount = res.model;
 
                         // update BankAccounts list only active is updated directly
                         this.company$.getValue().BankAccounts.forEach((ba, i) => {
-                            if ((ba.ID && ba.ID == bankaccount.ID) || (ba['_createdguid'] && ba['_createguid'] == bankaccount._createguid)) {
-                                this.company$.getValue().BankAccounts[i] = bankaccount;
+                            if ((ba.ID && ba.ID === localBankaccount.ID) || (ba['_createdguid'] && ba['_createguid'] === localBankaccount._createguid)) {
+                                this.company$.getValue().BankAccounts[i] = localBankaccount;
                             }
                         });
 
-                        resolve(bankaccount);
+                        resolve(localBankaccount);
                     }
-                });
+                }).catch(() => reject());
             })
         };
     }

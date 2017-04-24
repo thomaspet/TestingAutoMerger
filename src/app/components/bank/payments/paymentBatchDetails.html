@@ -6,12 +6,12 @@
             <a (click)="goToNextBatch()" class="next">Neste</a>
             <a (click)="deleteBatch()" class="trash" *ngIf="!paymentBatch.PaymentReceiptFileID">Slett betalingsbunt</a>
         </nav>
-        <span>Totalbeløp: {{paymentBatch.TotalAmount}}. Antall: {{paymentBatch.NumberOfPayments}}</span>
+        <span>Totalbeløp: {{paymentBatch.TotalAmount  | unicurrency}} {{companySettings?.BaseCurrencyCode?.ShortCode}}   Antall betalinger: {{paymentBatch.NumberOfPayments}}</span>
         <div class="file-buttons">
             <button (click)="createPaymentFile()" *ngIf="!paymentBatch.PaymentFileID">Opprett betalingsfil</button>
             <button (click)="downloadPaymentFile()" *ngIf="paymentBatch.PaymentFileID">Last ned betalingsfil</button>
             <button (click)="toggleReceiptFilesVisible()" *ngIf="paymentBatch.StatusCode === 45005">{{ !receiptFilesVisible ? 'Vis kvitteringsfiler' : 'Skjul kvitteringsfiler' }}</button>
-            <uni-upload-file-button [buttonText]="'Last opp kvitteringsfil'" (fileUploaded)="receiptFileUploaded($event)" *ngIf="paymentBatch.PaymentFileID && paymentBatch.StatusCode !== 45005"></uni-upload-file-button>
+            <uni-upload-file-button [buttonText]="'Registrer kvitteringsfil'" (fileUploaded)="receiptFileUploaded($event)" *ngIf="paymentBatch.PaymentFileID && paymentBatch.StatusCode !== 45005"></uni-upload-file-button>
         </div>
         <section *ngIf="receiptFilesVisible">
             <uni-attachments [entity]="'PaymentBatch'" [entityID]="paymentBatch?.ID" [downloadAsAttachment]="downloadFilesAsAttachments" [headerText]="'Kvitteringsfiler tilknyttet denne bunten'"></uni-attachments>

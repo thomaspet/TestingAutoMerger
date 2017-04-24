@@ -1,0 +1,33 @@
+.warn
+    color: $uni-color-warn
+
+.bad
+    color: $uni-color-bad
+
+.teamreport
+    width: 100%
+    border-collapse: collapse
+
+    td
+        border: 1px solid $uni-color-scale7
+        border-collapse: collapse
+        padding: pxToRem(5)
+
+    th
+        border: 0
+        font-weight: 600
+
+        &.groupheader
+            border-bottom: 1px solid $uni-color-scale7
+
+        &.left-border
+            border-left: 1px solid $uni-color-scale7
+
+    tr td:nth-child(n+2)
+        text-align: center
+
+    .subtitle
+        font-size: 9pt
+        color: $uni-color-good
+        margin-left: 1em
+

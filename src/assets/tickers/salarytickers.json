@@ -1,22 +1,22 @@
-[
-    {
+[{
         "Name": "Ansatt",
         "Code": "employee_list",
         "Type": "Table",
         "IsTopLevelTicker": true,
         "Group": "Lønn",
         "Model": "Employee",
-        "Expand": "Employment,BusinessRelationInfo.InvoiceAddress,BusinessrelationInfo.DefaultPhone,BusinessRelationInfo.DefaultEmail,BusinessRelationInfo.DefaultBankAccount",
-        "Columns": [
-            {
+        "Expand": "BusinessRelationInfo.InvoiceAddress,BusinessrelationInfo.DefaultPhone,BusinessRelationInfo.DefaultEmail,BusinessRelationInfo.DefaultBankAccount",
+        "Columns": [{
                 "Header": "Ansattnr",
-                "Field": "EmployeeNumber"
+                "Field": "EmployeeNumber",
+                "Width": "5rem"
             },
             {
                 "Header": "Navn",
                 "Field": "BusinessRelationInfo.Name",
                 "Type": "link",
-                "LinkNavigationProperty": "ID"
+                "LinkNavigationProperty": "ID",
+                "Width": "10rem"
             },
             {
                 "Header": "Fødselsnummer",
@@ -29,7 +29,8 @@
             },
             {
                 "Header": "Kontonummer",
-                "Field": "BusinessRelationInfo.DefaultBankAccount.AccountNumber"
+                "Field": "BusinessRelationInfo.DefaultBankAccount.AccountNumber",
+                "Width": "8rem"
             },
             {
                 "Header": "Adresse",
@@ -47,8 +48,7 @@
                 "DefaultHidden": true
             }
         ],
-        "Actions": [
-            {
+        "Actions": [{
                 "Name": "Ny ansatt",
                 "Code": "new_employee",
                 "ExecuteWithoutSelection": true,
@@ -66,7 +66,7 @@
         "ParentFilter": {
             "Field": "ID",
             "Operator": "eq",
-            "Value": "ID"
+            "Value": "EmployeeID"
         },
         "SubTickersCodes": [
             "employee_details",
@@ -79,12 +79,12 @@
         "Type": "Details",
         "Group": "Lønn",
         "Model": "Employee",
+        "UseParentTickerActions": true,
         "Expand": "Employment,BusinessRelationInfo.InvoiceAddress,BusinessrelationInfo.DefaultPhone,BusinessRelationInfo.DefaultEmail,BusinessRelationInfo.DefaultBankAccount",
-        "Columns": [
-            {
+        "Columns": [{
                 "Header": "Ansattnr",
                 "Field": "EmployeeNumber",
-                "Type": "number"
+                "Type": "text"
             },
             {
                 "Header": "Navn",
@@ -126,21 +126,34 @@
     {
         "Name": "Arbeidsforhold",
         "Code": "employment_list",
+        "IsTopLevelTicker": true,
         "Type": "Table",
         "Group": "Lønn",
-        "IsTopLevelTicker": true,
         "Model": "Employment",
-        "Expand": "SubEntity.BusinessRelationInfo,Dimensions.Department,Dimensions.Project",
+        "Expand": "SubEntity.BusinessRelationInfo,Dimensions.Department,Dimensions.Project,Employee",
         "Columns": [{
                 "Header": "Stillingskode",
                 "Field": "JobCode",
-                "Type": "text"
+                "Type": "text",
+                "Width": "7rem"
             },
             {
                 "Header": "Stillingsnavn",
                 "Field": "JobName",
                 "Type": "link",
-                "LinkNavigationProperties": ["Employment.EmployeeID", "ID"]
+                "LinkNavigationProperties": [
+                    "Employment.EmployeeID",
+                    "ID"
+                ],
+                "Width": "14rem"
+            },
+            {
+                "Header": "Ansattnr",
+                "Field": "Employee.EmployeeNumber",
+                "Type": "link",
+                "ExternalModel": "Employee",
+                "LinkNavigationProperty": "Employee.ID",
+                "Width": "7rem"
             },
             {
                 "Header": "Stillingsprosent",
@@ -184,18 +197,24 @@
             "DisplayInContextMenu": true,
             "DisplayInActionBar": true,
             "Options": {
-                "ParameterProperties": ["Employment.EmployeeID", "ID"]
+                "ParameterProperties": [
+                    "Employment.EmployeeID",
+                    "ID"
+                ]
             }
         }],
-        "SubTickersCodes": ["employment_details", "leave_items"]
+        "SubTickersCodes": [
+            "employment_details",
+            "leave_items"
+        ]
     },
     {
         "Name": "Arbeidsforhold",
         "Code": "employment_details",
-        "Type": "Detail",
+        "Type": "Details",
         "Group": "Lønn",
         "Model": "Employment",
-        "Expand": "SubEntity.BusinessRelationInfo,Dimensions.Department,Dimensions.Project",
+        "Expand": "SubEntity.BusinessRelationInfo,Dimensions.Department,Dimensions.Project,Employee",
         "Columns": [{
                 "Header": "Stillingskode",
                 "Field": "JobCode",
@@ -204,7 +223,18 @@
             {
                 "Header": "Stillingsnavn",
                 "Field": "JobName",
-                "Type": "text"
+                "Type": "link",
+                "LinkNavigationProperties": [
+                    "Employment.EmployeeID",
+                    "ID"
+                ]
+            },
+            {
+                "Header": "Ansattnr",
+                "Field": "Employee.EmployeeNumber",
+                "Type": "link",
+                "ExternalModel": "Employee",
+                "LinkNavigationProperty": "Employee.ID"
             },
             {
                 "Header": "Stillingsprosent",
@@ -266,13 +296,30 @@
             {
                 "Header": "Avdeling",
                 "Field": "Dimensions.Department.Name"
+            },
+            {
+                "Field": "EmployeeID",
+                "Type": "dontdisplay"
             }
         ],
         "ParentFilter": {
             "Field": "ID",
             "Operator": "eq",
             "Value": "ID"
-        }
+        },
+        "Actions": [{
+            "Name": "Vis arbeidsforhold",
+            "Code": "open_employment",
+            "Type": "details",
+            "DisplayInContextMenu": true,
+            "DisplayInActionBar": true,
+            "Options": {
+                "ParameterProperties": [
+                    "Employment.EmployeeID",
+                    "ID"
+                ]
+            }
+        }]
     },
     {
         "Name": "Permisjoner",
@@ -282,7 +329,6 @@
         "Group": "Lønn",
         "Model": "EmployeeLeave",
         "Expand": "Employment",
-        "SubTickers": [],
         "Filters": [],
         "Columns": [{
                 "Header": "Kommentar",
@@ -332,5 +378,443 @@
             "ExecuteWithoutSelection": true,
             "DisplayInActionBar": true
         }]
+    },
+    {
+        "Name": "Lønnsart",
+        "Type": "Table",
+        "Code": "wagetype_list",
+        "IsTopLevelTicker": true,
+        "Group": "Lønn",
+        "Model": "WageType",
+        "Expand": "",
+        "OrderBy": "WageTypeNumber",
+        "SubTickersCodes": ["wagetype_details"],
+        "Columns": [{
+                "Header": "Nr",
+                "Field": "WageTypeNumber",
+                "Format": "text",
+                "Width": "5rem"
+            },
+            {
+                "Header": "Navn",
+                "Field": "WageTypeName"
+            },
+            {
+                "Header": "Type lønnsart",
+                "Field": "SpecialAgaRule",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "Hovedbokskonto",
+                "Field": "AccountNumber",
+                "Format": "text",
+                "Width": "8.5rem"
+            },
+            {
+                "Header": "Utbetales",
+                "Field": "Base_Payment",
+                "Width": "5.5rem"
+            },
+            {
+                "Header": "År",
+                "Field": "ValidYear",
+                "Format": "text",
+                "Width": "5rem"
+            },
+            {
+                "Header": "Motkonto kredit",
+                "Field": "Accountnumber_balance",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "Inntektstype",
+                "Field": "IncomeType",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "Fordel",
+                "Field": "Benefit",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "Beskrivelse",
+                "Field": "Description",
+                "DefaultHidden": true
+            }
+        ],
+        "Actions": [{
+                "Name": "Ny lønnsart",
+                "Code": "new_wagetype",
+                "ExecuteWithoutSelection": true,
+                "Type": "new",
+                "DisplayForSubTickers": false
+            },
+            {
+                "Name": "Eksporter",
+                "Code": "export_wagetypes",
+                "Type": "export",
+                "ExecuteWithMultipleSelections": true,
+                "ExecuteWithoutSelection": true,
+                "DisplayInActionBar": true
+            }
+        ],
+        "ParentFilter": {
+            "Field": "ID",
+            "Operator": "eq",
+            "Value": "WagetypeID"
+        }
+    },
+    {
+        "Name": "Lønnsart",
+        "Type": "Details",
+        "Code": "wagetype_details",
+        "Group": "Lønn",
+        "Model": "WageType",
+        "Expand": "",
+        "Columns": [{
+                "Header": "Nr",
+                "Field": "WageTypeNumber",
+                "Format": "text"
+            },
+            {
+                "Header": "Navn",
+                "Field": "WageTypeName"
+            },
+            {
+                "Header": "Type lønnsart",
+                "Field": "SpecialAgaRule"
+            },
+            {
+                "Header": "Hovedbokskonto",
+                "Field": "AccountNumber",
+                "Format": "text"
+            },
+            {
+                "Header": "År",
+                "Field": "ValidYear",
+                "Format": "text"
+            },
+            {
+                "Header": "Motkonto kredit",
+                "Field": "Accountnumber_balance"
+            },
+            {
+                "Header": "Inntektstype",
+                "Field": "IncomeType"
+            },
+            {
+                "Header": "Fordel",
+                "Field": "Benefit"
+            },
+            {
+                "Header": "Beskrivelse",
+                "Field": "Description"
+            },
+            {
+                "Header": "Med i grunnlag for feriepenger",
+                "Field": "Base_Vacation"
+            },
+            {
+                "Header": "Med i grunnlag for aga",
+                "Field": "Base_EmploymentTax"
+            },
+            {
+                "Header": "Med i grunnlag for pensjon",
+                "Field": "Base_div1"
+            },
+            {
+                "Header": "Utbetales",
+                "Field": "Base_Payment"
+            },
+            {
+                "Header": "Skjul på lønnslipp",
+                "Field": "HideFromPaycheck"
+            }
+        ],
+        "ParentFilter": {
+            "Field": "ID",
+            "Operator": "eq",
+            "Value": "ID"
+        }
+    },
+    {
+        "Name": "Lønnsavregning",
+        "Code": "payrollrun_list",
+        "Type": "Table",
+        "IsTopLevelTicker": true,
+        "Group": "Lønn",
+        "Model": "PayrollRun",
+        "Expand": "",
+        "Columns": [{
+                "Header": "Nr",
+                "Field": "ID",
+                "Width": "8rem",
+                "Type": "link",
+                "LinkNavigationProperty": "ID"
+            },
+            {
+                "Header": "Beskrivelse",
+                "Field": "Description",
+                "Type": "link",
+                "LinkNavigationProperty": "ID"
+            },
+            {
+                "Header": "Utbetalingsdato",
+                "Field": "PayDate",
+                "Type": "localdate",
+                "Width": "8rem"
+            },
+            {
+                "Header": "Fra dato",
+                "Field": "FromDate",
+                "Type": "localdate",
+                "Width": "8rem"
+            },
+            {
+                "Header": "Til dato",
+                "Field": "ToDate",
+                "Type": "localdate",
+                "Width": "8rem"
+            },
+            {
+                "Header": "Fritekst",
+                "Field": "FreeText",
+                "DefaultHidden": true
+            }
+        ],
+        "Actions": [{
+                "Name": "Ny lønnsavregning",
+                "Code": "new_payrollrun",
+                "ExecuteWithoutSelection": true,
+                "Type": "new",
+                "DisplayForSubTickers": false
+            },
+            {
+                "Name": "Vis lønnsavregning",
+                "Code": "open_payrollrun",
+                "Type": "details",
+                "DisplayInContextMenu": true,
+                "DisplayInActionBar": true
+            }
+        ],
+        "ParentFilter": {
+            "Field": "ID",
+            "Operator": "eq",
+            "Value": "ID"
+        },
+        "SubTickersCodes": [
+            "payrollrun_details",
+            "salarytransaction_list"
+        ]
+    },
+    {
+        "Name": "Lønnsavregning",
+        "Code": "payrollrun_details",
+        "Type": "Details",
+        "Group": "Lønn",
+        "Model": "PayrollRun",
+        "UseParentTickerActions": true,
+        "Expand": "",
+        "Columns": [{
+                "Header": "Nr",
+                "Field": "ID",
+                "Type": "text"
+            },
+            {
+                "Header": "Beskrivelse",
+                "Field": "Description",
+                "Type": "text"
+            },
+            {
+                "Header": "Fra dato",
+                "Field": "FromDate",
+                "Type": "localdate"
+            },
+            {
+                "Header": "Til dato",
+                "Field": "ToDate",
+                "Type": "localdate"
+            },
+            {
+                "Header": "Utbetalingsdato",
+                "Field": "PayDate",
+                "Type": "localdate"
+            },
+            {
+                "Header": "Fritekst",
+                "Field": "FreeText"
+            }
+        ],
+        "ParentFilter": {
+            "Field": "ID",
+            "Operator": "eq",
+            "Value": "ID"
+        }
+    },
+    {
+        "Name": "Lønnspost",
+        "Code": "salarytransaction_list",
+        "Type": "Table",
+        "IsTopLevelTicker": true,
+        "Group": "Lønn",
+        "Model": "SalaryTransaction",
+        "Expand": "Wagetype,Employment,Dimensions.Project,Dimensions.Department",
+        "Columns": [{
+                "Header": "Lønnsart",
+                "Field": "WageTypeNumber",
+                "Width": "5rem"
+            },
+            {
+                "Header": "Lønnsavregning",
+                "Field": "PayrollRunID"
+            },
+            {
+                "Header": "Ansattnr",
+                "Field": "EmployeeNumber",
+                "Width": "5rem"
+            },
+            {
+                "Header": "Tekst",
+                "Field": "Text"
+            },
+            {
+                "Header": "Arbeidsforhold",
+                "Field": "Employment.ID",
+                "Type": "text",
+                "SubFields": [{
+                    "Field": "Employment.JobName"
+                }]
+            },
+            {
+                "Header": "Fra dato",
+                "Field": "FromDate",
+                "Width": "6rem"
+            },
+            {
+                "Header": "Til dato",
+                "Field": "ToDate",
+                "Width": "6rem"
+            },
+            {
+                "Header": "Konto",
+                "Field": "Account",
+                "Width": "5rem"
+            },
+            {
+                "Header": "Sats",
+                "Field": "Rate",
+                "Type": "money"
+            },
+            {
+                "Header": "Sum",
+                "Field": "Sum",
+                "Type": "money"
+            },
+            {
+                "Header": "Utbetales",
+                "Field": "Wagetype.Base_Payment",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "Prosjekt",
+                "Field": "Dimensions.Project.Name",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "Avdeling",
+                "Field": "Dimensions.Department.Name",
+                "DefaultHidden": true
+            }
+        ],
+        "Actions": [],
+        "ParentFilter": {
+            "Field": "PayrollRunID",
+            "Operator": "eq",
+            "Value": "ID"
+        },
+        "SubTickersCodes": [
+            "salarytransaction_details",
+            "employee_list",
+            "wagetype_list"
+        ]
+    },
+    {
+        "Name": "Lønnspost",
+        "Code": "salarytransaction_details",
+        "Type": "Details",
+        "Group": "Lønn",
+        "Model": "SalaryTransaction",
+        "Expand": "Wagetype,Employment,Dimensions.Project,Dimensions.Department",
+        "Joins": "SalaryTransaction.ID eq FileEntityLink.EntityID",
+        "Columns": [{
+                "Header": "Lønnsart",
+                "Field": "WageTypeNumber",
+                "Type": "text"
+            },
+            {
+                "Header": "Lønnsavregning",
+                "Field": "PayrollRunID",
+                "Type": "text"
+            },
+            {
+                "Header": "Ansattnr",
+                "Field": "EmployeeNumber",
+                "Type": "text"
+            },
+            {
+                "Header": "Tekst",
+                "Field": "Text"
+            },
+            {
+                "Header": "Arbeidsforhold",
+                "Field": "Employment.ID",
+                "Type": "text",
+                "SubFields": [{
+                    "Field": "Employment.JobName"
+                }]
+            },
+            {
+                "Header": "Fra dato",
+                "Field": "FromDate"
+            },
+            {
+                "Header": "Til dato",
+                "Field": "ToDate"
+            },
+            {
+                "Header": "Konto",
+                "Field": "Account",
+                "Width": "5rem"
+            },
+            {
+                "Header": "Sats",
+                "Field": "Rate",
+                "Type": "money"
+            },
+            {
+                "Header": "Sum",
+                "Field": "Sum",
+                "Type": "money"
+            },
+            {
+                "Header": "Utbetales",
+                "Field": "Wagetype.Base_Payment"
+            },
+            {
+                "Header": "Prosjekt",
+                "Field": "Dimensions.Project.Name"
+            },
+            {
+                "Header": "Avdeling",
+                "Field": "Dimensions.Department.Name"
+            }
+        ],
+        "Actions": [],
+        "ParentFilter": {
+            "Field": "ID",
+            "Operator": "eq",
+            "Value": "ID"
+        },
+        "SubTickersCodes": []
     }
 ]

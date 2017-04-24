@@ -4,6 +4,7 @@ import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {HttpModule} from '@angular/http';
 import {RouterModule} from '@angular/router';
 
+import {WidgetModule} from '../widgets/widgetModule';
 import {UniTableModule} from 'unitable-ng2/main';
 import {UniFormModule} from 'uniform-ng2/main';
 import {UniFrameworkModule} from '../../../framework/frameworkModule';
@@ -90,6 +91,7 @@ import {CanDeactivateGuard} from '../../canDeactivateGuard';
 
         RouterModule.forChild(salaryRoutes),
 
+        WidgetModule,
         UniTableModule,
         UniFormModule,
         UniFrameworkModule,

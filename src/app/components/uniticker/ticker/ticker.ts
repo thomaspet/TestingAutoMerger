@@ -258,7 +258,7 @@ export class UniTicker {
             });
     }
 
-    private letUniTableHandleIsOwnClicks() {
+    private letUniTableHandleIsOwnClicks(event) {
         if (event) {
             event.stopPropagation();
         }
@@ -647,7 +647,7 @@ export class UniTicker {
                 actionsWithDetailNavigation.forEach(st => {
                     let paramSelects = ['ID as ID'];
                     if (st.Options.ParameterProperty !== '') {
-                        paramSelects = 
+                        paramSelects =
                             [`${st.Options.ParameterProperty} as ${st.Options.ParameterProperty.replace('.', '')}`];
                     } else if (st.Options.ParameterProperties && st.Options.ParameterProperties.length) {
                         paramSelects = st.Options.ParameterProperties.map(prop => {
@@ -669,10 +669,10 @@ export class UniTicker {
                 });
 
                 let linkFieldWithNavigationProprties = this.ticker.Columns
-                    .filter(x => x.Type === 'link' 
-                        && x.LinkNavigationProperties 
+                    .filter(x => x.Type === 'link'
+                        && x.LinkNavigationProperties
                         && x.LinkNavigationProperties.length);
-                
+
                 linkFieldWithNavigationProprties.forEach(field => {
                     let paramSelects = field.LinkNavigationProperties.map(prop => {
                         return `${prop} as ${prop.replace('.', '')}`;

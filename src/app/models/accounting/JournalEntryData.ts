@@ -1,14 +1,22 @@
-import {JournalEntry, Account, VatType, Dimensions, Payment, Accrual, JournalEntryLineDraft, LocalDate} from '../../unientities';
+import {
+    JournalEntry, Account, VatType, Dimensions, Payment, Accrual, JournalEntryLineDraft, JournalEntryLine, LocalDate,
+    CurrencyCode, CustomerInvoice
+} from '../../unientities';
 
 export class JournalEntryData {
+    SameOrNewDetails: any // TODO: find out what type this actually is;
     JournalEntryID: number;
     JournalEntryLineID: number;
     JournalEntryDraftLineID: number;
+
+    NetAmount: number;
+    NetAmountCurrency: number;
 
     JournalEntryNo: string;
     SupplierInvoiceNo: string;
 
     Amount: number;
+    AmountCurrency: number;
 
     DebitAccountID: number;
     DebitAccountNumber: number;
@@ -22,6 +30,8 @@ export class JournalEntryData {
     CreditVatTypeID: number;
     CreditVatType: VatType;
 
+    CustomerInvoice: CustomerInvoice;
+
     VatDeductionPercent: number;
 
     Description: string;
@@ -33,7 +43,8 @@ export class JournalEntryData {
     InvoiceNumber: string;
 
     CurrencyID: number;
-    CurrencyCode: string;
+    CurrencyCode: CurrencyCode;
+    CurrencyExchangeRate: number;
 
     DimensionsID: number;
     Dimensions: Dimensions;
@@ -49,10 +60,14 @@ export class JournalEntryData {
 
     JournalEntryPaymentData: JournalEntryPaymentData;
 
+
     JournalEntryDataAccrual: Accrual;
     JournalEntryDataAccrualID: number;
 
     CustomerOrderID: number;
+
+    PostPostJournalEntryLineID: number;
+    PostPostJournalEntryLine: JournalEntryLine;
 }
 
 export class JournalEntryPaymentData {

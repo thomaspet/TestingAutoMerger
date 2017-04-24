@@ -67,7 +67,7 @@ export class SalaryTransactionSupplementList implements OnInit {
     private getConfig(): UniTableConfig {
         const employeeCol = new UniTableColumn('', 'Ansatt', UniTableColumnType.Text, false)
             .setTemplate((rowModel: SalaryTransactionSupplement) =>
-                `${rowModel['_Employee'].EmployeeNumber}.${rowModel['_Employee'].BusinessRelationInfo.Name}`);
+                `${rowModel['_Employee'].EmployeeNumber} - ${rowModel['_Employee'].BusinessRelationInfo.Name}`);
         const wageTypeCol = new UniTableColumn('_WageTypeNumber', 'Lønnsart', UniTableColumnType.Number, false)
             .setWidth('5.5rem');
         const textCol = new UniTableColumn('_Text', 'Tekst', UniTableColumnType.Text, false);

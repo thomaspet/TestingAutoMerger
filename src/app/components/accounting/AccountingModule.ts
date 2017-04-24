@@ -12,6 +12,7 @@ import {UniTableModule} from 'unitable-ng2/main';
 import {UniFormModule} from 'uniform-ng2/main';
 import {AppCommonModule} from '../common/appCommonModule';
 import {AppPipesModule} from '../../pipes/appPipesModule';
+import {WidgetModule} from '../widgets/widgetModule';
 
 // routes
 import {accountingRoutes} from './accountingRoutes';
@@ -23,6 +24,7 @@ import {JournalEntryManual} from './journalentry/journalentrymanual/journalentry
 import {CheckListVat} from './vatreport/checkList/checkList';
 import {VatReportJournalEntry} from './vatreport/JournalEntry/vatReportJournalEntry';
 import {CreateCorrectedVatReportForm} from './vatreport/modals/createCorrectedVatReport';
+import {SelectJournalEntryLineModal, SelectJournalEntryLineTable} from './journalentry/components/selectJournalEntryLineModal';
 import {HistoricVatReportTable} from './vatreport/modals/historicVatReports';
 import {ReceiptVat} from './vatreport/receipt/receipt';
 import {VatSummaryPerPost} from './vatreport/reportSummary/reportSummary';
@@ -46,10 +48,12 @@ import {DimensionsOverviewReportPart}  from './accountingreports/reportparts/dim
 import {DrilldownBalanceReportPart}  from './accountingreports/reportparts/drilldownBalanceReportPart';
 import {CreateCorrectedVatReportModal} from './vatreport/modals/createCorrectedVatReport';
 import {HistoricVatReportModal} from './vatreport/modals/historicVatReports';
+
 import {BillsView} from './bill/bills';
 import {BillView} from './bill/detail/bill';
 import {BillSimpleJournalEntryView, AccountPipe, VatCodePipe, TrimTextPipe} from './bill/detail/journal/simple';
 import {BillHistoryView} from './bill/detail/history/history';
+import {UniAssignModal} from './bill/detail/approvemodal';
 
 import {AccountSettings} from './accountSettings/accountSettings';
 import {DimensionList} from './accountSettings/dimensionList/dimensionList';
@@ -59,11 +63,6 @@ import {VatSettings} from './vatsettings/vatsettings';
 import {VatTypeDetails} from './vatsettings/vattypedetails/vattypedetails';
 import {VatTypeList} from './vatsettings/vattypelist/vatTypeList';
 import {VatDeductionSettings} from './vatsettings/vatdeductions/vatdeductionsettings';
-
-
-// REVISIT: Must be refactored! This causes duplicate code when lazy loading
-import {TimetrackingModule} from '../timetracking/timetrackingModule';
-// import {SettingsModule} from '../settings/settingsModule';
 
 @NgModule({
     imports: [
@@ -78,8 +77,8 @@ import {TimetrackingModule} from '../timetracking/timetrackingModule';
 
         LayoutModule,
         AppCommonModule,
+        WidgetModule,
         AppPipesModule,
-        TimetrackingModule,
 
         RouterModule.forChild(accountingRoutes)
     ],
@@ -106,6 +105,8 @@ import {TimetrackingModule} from '../timetracking/timetrackingModule';
         BillView,
         BillSimpleJournalEntryView, BillHistoryView,
         AccountPipe, VatCodePipe, TrimTextPipe,
+        SelectJournalEntryLineModal, SelectJournalEntryLineTable,
+        UniAssignModal,
 
         // vatreport
         CheckListVat,
@@ -139,7 +140,8 @@ import {TimetrackingModule} from '../timetracking/timetrackingModule';
     entryComponents: [
         HistoricVatReportTable,
         CreateCorrectedVatReportForm,
-        AccountDetailsReport
+        AccountDetailsReport,
+        SelectJournalEntryLineTable
     ],
     exports: [
         AccountSettings,
@@ -159,6 +161,8 @@ import {TimetrackingModule} from '../timetracking/timetrackingModule';
         JournalEntries,
         Payments,
         BillsView,
+        SelectJournalEntryLineModal,
+        SelectJournalEntryLineTable,
 
         // vatreport
         CheckListVat,

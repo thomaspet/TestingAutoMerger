@@ -424,7 +424,7 @@ export class EmploymentService extends BizHttp<Employment> {
                     Section: 1,
                     Placeholder: null,
                     Options: {
-                        decimals: 1
+                        decimalLength: 1
                     },
                     LineBreak: null,
                     Combo: null,

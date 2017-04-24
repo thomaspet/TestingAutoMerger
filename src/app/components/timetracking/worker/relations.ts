@@ -2,8 +2,8 @@ import {Component, Input, Output, EventEmitter} from '@angular/core';
 import {WorkerService} from '../../../services/timetracking/workerService';
 import {WorkRelation} from '../../../unientities';
 import {Router} from '@angular/router';
-import {createFormField, FieldSize, ControlTypes} from '../utils/utils';
-import {ChangeMap} from '../utils/changeMap';
+import {createFormField, FieldSize, ControlTypes} from '../../common/utils/utils';
+import {ChangeMap} from '../../common/utils/changeMap';
 import {Observable} from 'rxjs/Observable';
 import {IResult} from '../genericview/detail';
 import {ErrorService} from '../../../services/services';
@@ -197,7 +197,9 @@ export class View {
                 createFormField('Description', 'Beskrivelse', ControlTypes.TextInput, FieldSize.Double),
                 createFormField('StartDate', 'Startdato', ControlTypes.LocalDate),
                 createFormField('EndTime', 'Sluttdato', ControlTypes.LocalDate),
-                createFormField('IsActive', 'Aktiv', ControlTypes.CheckboxInput)
+                createFormField('IsActive', 'Aktiv', ControlTypes.CheckboxInput),
+                createFormField('TeamID', 'Team', ControlTypes.SelectInput, FieldSize.Double
+                    , false, 0, undefined, undefined, this.getTeamCombo()),
             ],
         };
 
@@ -213,4 +215,15 @@ export class View {
             debounceTime: 250,
         };
     }
+
+    private getTeamCombo(): any {
+        return {
+            source: this.workerService.get('teams?hateoas=false'),
+            template: (obj) => `${obj.ID} - ${obj.Name}`,
+            valueProperty: 'ID',
+            displayProperty: 'Name',
+            debounceTime: 250,
+        };
+    }
+
 }

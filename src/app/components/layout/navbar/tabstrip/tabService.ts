@@ -17,13 +17,14 @@ export enum UniModules {
     UniQuery        = 103,
     UniTicker       = 104,
 
-    Customers       = 200,
-    Quotes          = 201,
-    Orders          = 202,
-    Invoices        = 203,
-    Products        = 204,
-    Reminders       = 205,
-    Contacts        = 206,
+    Sales           = 200,
+    Customers       = 201,
+    Quotes          = 202,
+    Orders          = 203,
+    Invoices        = 204,
+    Products        = 205,
+    Reminders       = 206,
+    Contacts        = 207,
 
     Accounting      = 300,
     Transquery      = 301,
@@ -42,13 +43,14 @@ export enum UniModules {
     PaymentBatches  = 452,
     Incomming       = 453,
 
-    Employees       = 500,
-    Wagetypes       = 501,
-    Payrollrun      = 502,
-    Amelding        = 503,
-    Categories      = 504,
-    Salarybalances  = 505,
-    Supplements     = 506,
+    Salary          = 500,
+    Employees       = 501,
+    Wagetypes       = 502,
+    Payrollrun      = 503,
+    Amelding        = 504,
+    Categories      = 505,
+    Salarybalances  = 506,
+    Supplements     = 507,
 
     WorkProfiles    = 600,
     Workers         = 601,
@@ -66,7 +68,9 @@ export enum UniModules {
     PaymentList     = 900,
 
     CurrencyExchange = 1000,
-    CurrencyOverride = 1001
+    CurrencyOverride = 1001,
+
+    Tasks = 1100
 }
 
 @Injectable()
@@ -164,7 +168,7 @@ export class TabService {
         } else {
             // If closing the last open tab -> go to dashboard? Creates "bug" if dashboard is last tab
             if (this._tabs.length === 0) {
-                return { name: 'Nøkkeltall', url: '/', moduleID: 0 };
+                return { name: 'Skrivebord', url: '/', moduleID: 100 };
             } else {
                 return this._tabs[this._tabs.length - 1];
             }

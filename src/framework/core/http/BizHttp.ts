@@ -90,7 +90,7 @@ export class BizHttp<T> {
         }
     }
 
-    protected invalidateCache(): void {
+    public invalidateCache(): void {
         this.cache = [];
     }
 
@@ -121,6 +121,11 @@ export class BizHttp<T> {
                     return res.json();
                 });
         }
+    }
+
+    public GetOneByQuery(query: string, expand?: string[]): Observable<any> {
+        return this.GetAll(query, expand)
+            .map(result => result && result.length && result[0]);
     }
 
     public GetAllByUrlSearchParams<T>(params: URLSearchParams): Observable<any> {

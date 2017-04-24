@@ -860,7 +860,7 @@ export class EmployeeDetails extends UniView implements OnDestroy {
 
         if (brInfo.BankAccounts) {
             brInfo.BankAccounts.forEach(bankaccount => {
-                if (bankaccount.ID === 0 && !bankaccount['_createguid']) {
+                if (bankaccount.ID === 0 || !bankaccount.ID) {
                     bankaccount['_createguid'] = this.bankaccountService.getNewGuid();
                 }
             });
@@ -972,6 +972,15 @@ export class EmployeeDetails extends UniView implements OnDestroy {
             // Save employments by using complex put on employee
             let employee = _.cloneDeep(this.employee);
             employee.Employments = changes;
+
+            employee.Employments.forEach(employment => {
+                const keys = Object.keys(employment);
+                keys.forEach(key => {
+                    if (employment[key] === undefined) {
+                        employment[key] = null; // don't know why undefined values are not mapped in the http call
+                    }
+                });
+            });
 
             this.employeeService.Put(employee.ID, employee)
                 .finally(() => {

@@ -1,6 +1,7 @@
 @import 'journalentryProfessional'
 @import 'payments'
 @import 'bill'
+@import 'selectjournalentrylinemodal'
 
 journal-entry > h2
     display: block
@@ -41,10 +42,48 @@ journal-entry-manual
             text-decoration: none
             font-size: small
 
+    .openposts_container
+        float: left
+        width: calc(60% - 1rem)
+        padding-left: 1rem
+
+        .openposts_wrapper
+            width: 100%
+            height: pxToRem(170)    // should reaaaally do something more elegant here, I'll discuss with jlom once it is merged - works for now
+            overflow-y: scroll
+
+        uni-table
+            font-size: 0.8rem
+
+            th
+                text-overflow: clip
+                padding: pxToRem(2) pxToRem(5) pxToRem(2) pxToRem(5)
+                height: 1.5rem
+
+            td
+                text-overflow: clip
+                padding: pxToRem(2) pxToRem(5) pxToRem(2) pxToRem(5)
+                height: 1.8rem
+
+            unitable-pagination
+                margin: .5rem 0
+
+                button
+                    width: 1.5rem
+                    height: 1.2rem
+                    background-size: .4rem .4rem
+
+                    &.pagination_page
+                        font-size: 0.8rem
+
+    .account_summary_container
+        float: left
+        width: 40%
+
     .account_summary_info
         background-color: $uni-color-scale9
         font-size: smaller
-        width: 40%
+        width: 100%
         line-height: pxToRem(17)
         padding-top: pxToRem(10)
         padding-left: pxToRem(10)
@@ -110,6 +149,9 @@ journal-entry-manual.runassubcomponent
     width: calc(100% - 2rem) !important
     margin-left: 1rem
     margin-right: 1rem
+
+.validation_messages_container
+    clear: both
 
 .journal-entry-validation
     width: calc(45%) - 2rem

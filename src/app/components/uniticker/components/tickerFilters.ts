@@ -41,7 +41,7 @@ export class UniTickerFilters {
 
     }
 
-    public onFilterSelected(filter: TickerFilter) {
+    public onFilterSelected(filter: TickerFilter, event) {
         this.filters.forEach(x => {
             x.IsActive = false;
         });
@@ -51,7 +51,7 @@ export class UniTickerFilters {
         this.selectedFilter = filter;
 
         this.filterSelected.emit(filter);
-        this.stopPropagation();
+        this.stopPropagation(event);
     }
 
     private ngOnChanges(changes: SimpleChanges) {
@@ -208,17 +208,17 @@ export class UniTickerFilters {
         this.selectedMainModel = mainModel;
     }
 
-    private stopPropagation() {
+    private stopPropagation(event) {
         if (event) {
             event.stopPropagation();
         }
     }
 
-    private closeFilters() {
+    private closeFilters(event) {
         this.filterChanged.emit(_.cloneDeep(this.selectedFilter));
 
         this.close.emit();
-        this.stopPropagation();
+        this.stopPropagation(event);
     }
 
     private onFieldAdded(event) {

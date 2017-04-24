@@ -3,11 +3,11 @@ import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {View} from '../../../models/view/view';
 import {WorkRelation, WorkItem, Worker, WorkBalance, LocalDate} from '../../../unientities';
 import {WorkerService, IFilter} from '../../../services/timetracking/workerService';
-import {exportToFile, arrayToCsv, safeInt, trimLength} from '../utils/utils';
+import {exportToFile, arrayToCsv, safeInt, trimLength} from '../../common/utils/utils';
 import {TimesheetService, TimeSheet} from '../../../services/timetracking/timesheetService';
-import {IsoTimePipe} from '../utils/pipes';
+import {IsoTimePipe} from '../../common/utils/pipes';
 import {IUniSaveAction} from '../../../../framework/save/save';
-import {Lookupservice} from '../utils/lookup';
+import {Lookupservice} from '../../../services/services';
 import {RegtimeTotals} from './totals/totals';
 import {TimeTableReport} from './timetable/timetable';
 import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
@@ -17,6 +17,7 @@ import {ErrorService} from '../../../services/services';
 import {UniConfirmModal, ConfirmActions} from '../../../../framework/modals/confirm';
 import {WorkEditor} from '../components/workeditor';
 import {DayBrowser, Day, ITimeSpan, INavDirection} from '../components/daybrowser';
+import {TeamworkReport, Team} from '../components/teamworkreport';
 import * as moment from 'moment';
 
 type colName = 'Date' | 'StartTime' | 'EndTime' | 'WorkTypeID' | 'LunchInMinutes' |
@@ -37,12 +38,14 @@ interface ITab {
 })
 export class TimeEntry {
     public busy: boolean = true;
+    public missingWorker: boolean = false;
     public userName: string = '';
     public workRelations: Array<WorkRelation> = [];
     private timeSheet: TimeSheet = new TimeSheet();
     private currentFilter: IFilter;
     public currentBalance: WorkBalanceDto;
     public incomingBalance: WorkBalance;
+    public teams: Array<Team>;
 
     @ViewChild(RegtimeTotals) private regtimeTotals: RegtimeTotals;
     @ViewChild(TimeTableReport) private regtimeTools: TimeTableReport;
@@ -50,8 +53,9 @@ export class TimeEntry {
     @ViewChild(RegtimeBalance) private regtimeBalance: RegtimeBalance;
     @ViewChild(WorkEditor) private workEditor: WorkEditor;
     @ViewChild(DayBrowser) private dayBrowser: DayBrowser;
+    @ViewChild(TeamworkReport) private teamreport: TeamworkReport;
 
-    public preSaveConfig: IPreSaveConfig = { 
+    public preSaveConfig: IPreSaveConfig = {
         askSave: () => this.checkSave(false),
         askReload: () => this.reset(false)
     };
@@ -70,13 +74,14 @@ export class TimeEntry {
             { name: 'vacation', label: 'Ferie', activate: (ts: any, filter: any) => {
                 this.tabs[4].activated = true; } },
             ];
+    public tabPositions: Array<number> = [0, 1, 2, 3, 4];
 
     public toolbarConfig: any = {
         title: 'Registrering av timer',
         omitFinalCrumb: true
     };
 
-    public filters: Array<IFilter>;   
+    public filters: Array<IFilter>;
 
     constructor(
         private tabService: TabService,
@@ -89,7 +94,7 @@ export class TimeEntry {
     ) {
 
         this.filters = service.getIntervalItems();
-        this.initTab();
+        this.initApplicationTab();
 
         route.queryParams.first().subscribe((item: { workerId; workRelationId; }) => {
             if (item.workerId) {
@@ -99,9 +104,12 @@ export class TimeEntry {
             }
         });
 
+        this.initTabPositions();
+
+        this.approvalCheck();
     }
 
-    private initTab() {
+    private initApplicationTab() {
         this.tabService.addTab({ name: view.label, url: view.url, moduleID: UniModules.Timesheets });
     }
 
@@ -168,19 +176,40 @@ export class TimeEntry {
         return new Promise((resolve, reject) => {
             this.checkSave(true).then( () => {
                 resolve(true);
-                this.initTab();
+                this.initApplicationTab();
             }, () => resolve(false) );
         });
     }
 
-    private initWorker(workerid?: number) {
-        var obs = workerid ? this.timesheetService.initWorker(workerid) : this.timesheetService.initUser();
+    private initWorker(workerid?: number, autoCreate = false) {
+        var obs = workerid ? this.timesheetService.initWorker(workerid) :
+            this.timesheetService.initUser(undefined, autoCreate);
         obs.subscribe((ts: TimeSheet) => {
             this.workRelations = this.timesheetService.workRelations;
+            if ((!this.workRelations) || (this.workRelations.length === 0)) {
+                this.initNewUser();
+                return;
+            }
             this.timeSheet = ts;
             this.loadItems();
             this.updateToolbar( !workerid ? this.service.user.name : '', this.workRelations );
-        }, err => this.errorService.handle(err));
+        }, err => {
+            this.errorService.handle(err);
+        });
+    }
+
+    private initNewUser() {
+
+        this.confirmModal.confirm('Aktivere din bruker for timeføring på denne klienten?',
+            `Velkommen, ${this.service.user.name}!`)
+            .then( (userChoice: ConfirmActions)  => {
+                if (userChoice === ConfirmActions.ACCEPT) {
+                    this.initWorker(undefined, true);
+                } else {
+                    this.busy = false;
+                    this.missingWorker = true;
+                }
+            });
     }
 
     private updateToolbar(name?: string, workRelations?: Array<WorkRelation> ) {
@@ -218,12 +247,12 @@ export class TimeEntry {
     }
 
     private loadItems(date?: Date) {
-        this.workEditor.EmptyRowDetails.Date = new LocalDate(date);        
+        this.workEditor.EmptyRowDetails.Date = new LocalDate(date);
         if (this.timeSheet.currentRelation && this.timeSheet.currentRelation.ID) {
             var obs: any;
             var dt: Date;
-            if (!!date) { 
-                obs = this.timeSheet.loadItemsByPeriod(date, date); 
+            if (!!date) {
+                obs = this.timeSheet.loadItemsByPeriod(date, date);
                 dt = date;
             } else {
                 obs = this.timeSheet.loadItems(this.currentFilter.interval);
@@ -406,7 +435,40 @@ export class TimeEntry {
         });
     }
 
+    public mapTabPosition(index: number) {
+        return this.tabPositions[index];
+    }
+
+    private initTabPositions() {
+        var positions = [];
+        this.tabs.forEach( (x, i) => positions.push(i) );
+        this.tabPositions = positions;
+    }
+
+    private approvalCheck() {
+        this.timesheetService.workerService.get('teams?action=my-teams')
+            .subscribe( (result: Array<Team>) => {
+                if (result && result.length > 0) {
+                    this.teams = result;
+                    let newKey = this.tabs.length;
+                    let newPos = 2;
+                    this.tabs.push({
+                        name: 'approval', label: 'Godkjenning', counter: this.teams.length,
+                        activate: (ts: any, filter: any) => {
+                            if (!this.teamreport.isInitialized) {
+                                this.teamreport.initialize(<any>this.teams);
+                            }
+                        }
+                    });
+                    this.tabPositions.splice(newPos, 0, newKey);
+                }
+            });
+    }
+
+
 }
+
+// tslint:disable:variable-name
 
 class WorkBalanceDto extends WorkBalance {
     public LastDayExpected: number;

@@ -130,34 +130,6 @@ export class OrderDetails {
 
     public ngOnInit() {
         this.setSums();
-        this.contextMenuItems = [
-            {
-                label: 'Skriv ut',
-                action: () => this.saveAndPrint(),
-                disabled: () => !this.order.ID
-            },
-            {
-                label: 'Send på epost',
-                action: () => {
-                    let sendemail = new SendEmail();
-                    sendemail.EntityType = 'CustomerOrder';
-                    sendemail.EntityID = this.order.ID;
-                    sendemail.CustomerID = this.order.CustomerID;
-                    sendemail.EmailAddress = this.order.EmailAddress;
-                    sendemail.Subject = 'Ordre ' + (this.order.OrderNumber ? 'nr. ' + this.order.OrderNumber : 'kladd');
-                    sendemail.Message = 'Vedlagt finner du Ordre ' + (this.order.OrderNumber ? 'nr. ' + this.order.OrderNumber : 'kladd');
-
-                    this.sendEmailModal.openModal(sendemail);
-
-                    if (this.sendEmailModal.Changed.observers.length === 0) {
-                        this.sendEmailModal.Changed.subscribe((email) => {
-                            this.reportService.generateReportSendEmail('Ordre id', email);
-                        });
-                    }
-                },
-                disabled: () => !this.order.ID
-            }
-        ];
 
         // Subscribe and debounce recalc on table changes
         this.recalcDebouncer.debounceTime(500).subscribe((orderItems) => {
@@ -229,6 +201,10 @@ export class OrderDetails {
                 );
             }
         });
+    }
+
+    private ngAfterViewInit() {
+         this.tofHead.detailsForm.tabbedPastLastField.subscribe((event) => this.tradeItemTable.focusFirstRow());
     }
 
     @HostListener('keydown', ['$event'])
@@ -619,6 +595,8 @@ export class OrderDetails {
 
     private updateSaveActions() {
         const transitions = (this.order['_links'] || {}).transitions;
+        const printStatus = this.order.PrintStatus;
+
         this.saveActions = [];
 
         this.saveActions.push({
@@ -637,22 +615,39 @@ export class OrderDetails {
                 }
             },
             disabled: transitions && !transitions['register'],
-            main: !transitions || transitions['register']
+            main: (!transitions || transitions['register']) && !printStatus
+        });
+
+
+
+        this.saveActions.push({
+            label: 'Skriv ut',
+            action: (done) => this.saveAndPrint(done),
+            main:  this.order.OrderNumber > 0 && !printStatus,
+            disabled: false
         });
 
         this.saveActions.push({
-            label: 'Lagre',
+            label: 'Send på epost',
             action: (done) => {
-                this.saveOrder().then(res => {
-                    done('Lagring fullført');
-                    this.orderID = res.ID;
-                    this.refreshOrder();
-                }).catch(error => {
-                    this.handleSaveError(error, done);
-                });
+                let sendemail = new SendEmail();
+                sendemail.EntityType = 'CustomerOrder';
+                sendemail.EntityID = this.order.ID;
+                sendemail.CustomerID = this.order.CustomerID;
+                sendemail.EmailAddress = this.order.EmailAddress;
+                sendemail.Subject = 'Ordre ' + (this.order.OrderNumber ? 'nr. ' + this.order.OrderNumber : 'kladd');
+                sendemail.Message = 'Vedlagt finner du Ordre ' + (this.order.OrderNumber ? 'nr. ' + this.order.OrderNumber : 'kladd');
+
+                this.sendEmailModal.openModal(sendemail);
+                if (this.sendEmailModal.Changed.observers.length === 0) {
+                        this.sendEmailModal.Changed.subscribe((email) => {
+                        this.reportService.generateReportSendEmail('Ordre id', email, null, done);
+                    });
+                }
             },
-            main: true,
-            disabled: !this.order.ID
+            main: printStatus === 200,
+            disabled: false
+
         });
 
         if (!this.order.ID) {
@@ -671,6 +666,21 @@ export class OrderDetails {
                 disabled: false
             });
         }
+
+        this.saveActions.push({
+            label: 'Lagre',
+            action: (done) => {
+                this.saveOrder().then(res => {
+                    done('Lagring fullført');
+                    this.orderID = res.ID;
+                    this.refreshOrder();
+                }).catch(error => {
+                    this.handleSaveError(error, done);
+                });
+            },
+            main: this.order.ID && printStatus === 100,
+            disabled: !this.order.ID
+        });
 
         this.saveActions.push({
             label: 'Lagre og overfør til faktura',
@@ -813,22 +823,25 @@ export class OrderDetails {
         });
     }
 
-    private saveAndPrint() {
+    private saveAndPrint(doneHandler: (msg: string) => void = null) {
         if (this.isDirty) {
             this.saveOrder().then(order => {
                 this.isDirty = false;
-                this.print(order.ID);
+                this.print(order.ID, doneHandler);
             }).catch(error => {
+                if (doneHandler) { doneHandler('En feil oppstod ved utskrift av ordre!'); }
                 this.errorService.handle(error);
             });
         } else {
-            this.print(this.order.ID);
+            this.print(this.order.ID, doneHandler);
         }
     }
 
-    private print(id) {
+    private print(id, doneHandler: (msg: string) => void = null) {
         this.reportDefinitionService.getReportByName('Ordre id').subscribe((report) => {
-            this.previewModal.openWithId(report, id);
+            this.previewModal.openWithId(report, id, 'Id', doneHandler);
+        }, (err) => {
+            if (doneHandler) { doneHandler('En feil oppstod ved utskrift av ordre!'); }
         });
     }
 

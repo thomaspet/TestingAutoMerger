@@ -1,6 +1,6 @@
 import {Component, ViewChild} from '@angular/core';
 import {Router} from '@angular/router';
-import {BankAccount, Payment, PaymentCode, PaymentBatch, LocalDate} from '../../../unientities';
+import {BankAccount, Payment, PaymentCode, PaymentBatch, LocalDate, CompanySettings} from '../../../unientities';
 import {Observable} from 'rxjs/Observable';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {IToolbarConfig} from '../../common/toolbar/toolbar';
@@ -10,6 +10,7 @@ import {ISummaryConfig} from '../../common/summary/summary';
 import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
 import {PaymentRelationsModal} from './relationModal';
 import {BankAccountModal} from '../../common/modals/modals';
+import {BankPaymentSummaryData} from '../../../models/accounting/BankPaymentSummaryData';
 import {UniConfirmModal, ConfirmActions} from '../../../../framework/modals/confirm';
 import {
     NumberFormat,
@@ -21,7 +22,8 @@ import {
     PaymentService,
     PaymentBatchService,
     FileService,
-    CompanySettingsService
+    CompanySettingsService,
+    CurrencyService,
 } from '../../../services/services';
 import {saveAs} from 'file-saver';
 import * as moment from 'moment';
@@ -42,37 +44,43 @@ export class PaymentList {
     private actions: IUniSaveAction[];
     private paymentCodes: PaymentCode[];
     private paymentCodeFilterValue: number = 0;
+    private companySettings: CompanySettings;
 
     private summary: ISummaryConfig[] = [];
-    private summaryData = {
+    private summaryData: BankPaymentSummaryData = {
         SumPayments: 0,
         SumDue: 0,
         SumChecked: 0
     };
 
-    constructor(private router: Router,
-                private errorService: ErrorService,
-                private statisticsService: StatisticsService,
-                private tabService: TabService,
-                private toastService: ToastService,
-                private numberFormatService: NumberFormat,
-                private bankAccountService: BankAccountService,
-                private businessRelationService: BusinessRelationService,
-                private paymentCodeService: PaymentCodeService,
-                private paymentService: PaymentService,
-                private paymentBatchService: PaymentBatchService,
-                private fileService: FileService,
-                private companySettingsService: CompanySettingsService) {
+    constructor(
+        private router: Router,
+        private errorService: ErrorService,
+        private statisticsService: StatisticsService,
+        private tabService: TabService,
+        private toastService: ToastService,
+        private numberFormatService: NumberFormat,
+        private bankAccountService: BankAccountService,
+        private businessRelationService: BusinessRelationService,
+        private paymentCodeService: PaymentCodeService,
+        private paymentService: PaymentService,
+        private paymentBatchService: PaymentBatchService,
+        private fileService: FileService,
+        private companySettingsService: CompanySettingsService,
+        private currencyService: CurrencyService) {
 
-        this.tabService.addTab({ name: 'Betalinger', url: '/bank/payments', moduleID: UniModules.Payment, active: true });
+        this.tabService.addTab({
+            name: 'Betalinger', url: '/bank/payments',
+            moduleID: UniModules.Payment, active: true
+        });
     }
 
     public ngOnInit() {
         this.toolbarconfig = {
-                title: 'Utbetalingsliste',
-                subheads: [],
-                navigation: {}
-            };
+            title: 'Utbetalingsliste',
+            subheads: [],
+            navigation: {}
+        };
 
         this.paymentCodeService.GetAll(null)
             .subscribe(data => {
@@ -83,13 +91,19 @@ export class PaymentList {
                 this.paymentCodes = data;
             },
             err => this.errorService.handle(err)
-        );
+            );
 
-        this.setupPaymentTable();
-        this.setSums();
-        this.updateSaveActions();
+        this.companySettingsService.Get(1)
+            .subscribe(data => {
+                this.companySettings = data;
+                this.setupPaymentTable();
+                this.setSums();
+                this.updateSaveActions();
 
-        this.loadData();
+                this.loadData();
+            },
+            err => this.errorService.handle(err)
+            );
     }
 
     private paymentChangeCallback(event) {
@@ -97,14 +111,23 @@ export class PaymentList {
 
         data._isDirty = true;
 
+        let rowOrPromise: Promise<any> | any;
+
         if (event.field === 'BusinessRelation') {
             // do some mapping because we use statistics to retrieve the data
+
             if (data.BusinessRelation) {
+                let previousId = data.BusinessRelationID;
                 data.BusinessRelation.Name = data.BusinessRelation.BusinessRelationName;
                 data.BusinessRelation.ID = data.BusinessRelation.BusinessRelationID;
                 data.BusinessRelationID = data.BusinessRelation.BusinessRelationID;
-                data.ToBankAccountID = null;
-                data.ToBankAccount = null;
+
+                //Empty the toBank control if new business is selected
+                if (data.BusinessRelation.BusinessRelationID === null ||
+                    data.BusinessRelationID !== previousId) {
+                    data.ToBankAccountID = null;
+                    data.ToBankAccount = null;
+                }
             } else {
                 data.BusinessRelationID = null;
                 data.ToBankAccountID = null;
@@ -122,6 +145,27 @@ export class PaymentList {
             } else {
                 data.ToBankAccountID = null;
             }
+        } else if (event.field === 'AmountCurrency') {
+            if (data.CurrencyCodeID === this.companySettings.BaseCurrencyCodeID &&
+                (data.CurrencyExchangeRate === null || data.CurrencyExchangeRate === 0)) {
+                data.CurrencyExchangeRate = 1;
+                data.Amount = data.AmountCurrency * data.CurrencyExchangeRate;
+            }
+            else if (data.CurrencyCodeID !== this.companySettings.BaseCurrencyCodeID &&
+                (data.CurrencyExchangeRate === null || data.CurrencyExchangeRate === 0)) {
+                rowOrPromise = this.getExternalCurrencyExchangeRate(data)
+                    .then(row => this.calculateAmount(row));
+            }
+            else {
+                data.Amount = data.AmountCurrency * data.CurrencyExchangeRate;
+
+            }
+        } else if (event.field === 'PaymentDate') {
+            if (data.CurrencyCodeID !== this.companySettings.BaseCurrencyCodeID) {
+                rowOrPromise = this.getExternalCurrencyExchangeRate(data)
+                    .then(row => this.calculateAmount(row));
+            }
+
         } else if (event.field === 'PaymentCode') {
             if (data.PaymentCode) {
                 data.PaymentCodeID = data.PaymentCode.ID;
@@ -130,7 +174,53 @@ export class PaymentList {
             }
         }
 
-        return data;
+        // Return the updated row to the table
+        return Promise.resolve(rowOrPromise || data)
+            .then(row => {
+                if (data.CurrencyCodeID === null ||
+                    (data.CurrencyCodeID === this.companySettings.BaseCurrencyCodeID &&
+                        (data.CurrencyExchangeRate === null || data.CurrencyExchangeRate === 0))) {
+                    row.CurrencyCode = this.companySettings.BaseCurrencyCode;
+                    row.CurrencyID = this.companySettings.BaseCurrencyCode.ID;
+                    row.CurrencyExchangeRate = 1;
+                }
+                return row;
+            });
+    };
+
+    private calculateAmount(rowModel: Payment): Payment {
+        if (rowModel.AmountCurrency) {
+            rowModel.Amount = rowModel.AmountCurrency * rowModel.CurrencyExchangeRate;
+        } else {
+            rowModel.Amount = null;
+        }
+
+        return rowModel;
+    }
+
+
+    private getExternalCurrencyExchangeRate(rowModel: Payment): Promise<Payment> {
+        let rowDate = rowModel.PaymentDate || new LocalDate();
+        return new Promise(done => {
+            if (rowModel.CurrencyCodeID === this.companySettings.BaseCurrencyCodeID &&
+                (rowModel.CurrencyExchangeRate === null || rowModel.CurrencyExchangeRate === 0)) {
+                rowModel.CurrencyExchangeRate = 1;
+                done(rowModel);
+            } else {
+                let currencyDate = moment(rowDate).isAfter(moment()) ? new LocalDate() : rowDate;
+                this.currencyService.getCurrencyExchangeRate(
+                    rowModel.CurrencyCodeID,
+                    this.companySettings.BaseCurrencyCodeID,
+                    currencyDate
+                )
+                    .map(e => e.ExchangeRate)
+                    .finally(() => done(rowModel))
+                    .subscribe(
+                    newExchangeRate => rowModel.CurrencyExchangeRate = newExchangeRate,
+                    err => this.errorService.handle(err)
+                    )
+            }
+        });
     }
 
     private onPaymentCodeFilterChange(newValue: number) {
@@ -150,7 +240,7 @@ export class PaymentList {
                 true
             ).then((action) => {
                 if (action === ConfirmActions.ACCEPT) {
-                    this.save((status) => {}, () => {
+                    this.save((status) => { }, () => {
                         this.paymentCodeFilterValue = newValue;
                         this.loadData();
                     });
@@ -168,20 +258,21 @@ export class PaymentList {
     }
 
     private loadData() {
-        let paymentCodeFilter = this.paymentCodeFilterValue.toString() !== '0' ? ` and PaymentCodeID eq ${this.paymentCodeFilterValue}` : '';
+        let paymentCodeFilter = this.paymentCodeFilterValue.toString() !== '0' ?
+            ` and PaymentCodeID eq ${this.paymentCodeFilterValue}` : '';
 
-        this.paymentService.GetAll(`filter=IsCustomerPayment eq false and StatusCode eq 44001${paymentCodeFilter}&orderby=DueDate ASC`, ['ToBankAccount', 'ToBankAccount.CompanySettings', 'FromBankAccount', 'BusinessRelation', 'PaymentCode'])
+        this.paymentService.GetAll(`filter=IsCustomerPayment eq false and StatusCode eq 44001${paymentCodeFilter}&orderby=DueDate ASC`,
+            ['ToBankAccount', 'ToBankAccount.CompanySettings', 'FromBankAccount',
+                'BusinessRelation', 'PaymentCode', 'CurrencyCode'])
             .subscribe(data => {
                 this.pendingPayments = data;
-
-                // let unitable update its datasource before calculating
                 setTimeout(() => {
                     this.calculateSums();
                 });
 
             },
             err => this.errorService.handle(err)
-        );
+            );
     }
 
     private save(doneHandler: (status: string) => any, nextAction: () => any) {
@@ -281,7 +372,7 @@ export class PaymentList {
                 `Det er ${rowsWithOldDates.length} rader som har betalingsdato tilbake i tid. Vil du sette dagens dato automatisk?`,
                 'Ugyldig betalingsdato',
                 false,
-                {accept: 'Sett dagens dato', reject: 'Avbryt og sett dato manuelt'}
+                { accept: 'Sett dagens dato', reject: 'Avbryt og sett dato manuelt' }
             ).then((action) => {
                 if (action === ConfirmActions.ACCEPT) {
                     rowsWithOldDates.forEach(x => {
@@ -307,7 +398,7 @@ export class PaymentList {
                 'Er du sikker på at du vil utbetale de valgte ' + selectedRows.length + ' betalinger?',
                 'Bekreft utbetaling',
                 false,
-                {accept: 'Send til betaling', reject: 'Avbryt'}
+                { accept: 'Send til betaling', reject: 'Avbryt' }
             ).then((action) => {
                 if (action === ConfirmActions.ACCEPT) {
 
@@ -333,16 +424,16 @@ export class PaymentList {
 
                                         this.fileService
                                             .downloadFile(updatedPaymentBatch.PaymentFileID, 'application/xml')
-                                                .subscribe((blob) => {
-                                                    doneHandler('Utbetalingsfil hentet');
+                                            .subscribe((blob) => {
+                                                doneHandler('Utbetalingsfil hentet');
 
-                                                    // download file so the user can open it
-                                                    saveAs(blob, `payments_${updatedPaymentBatch.ID}.xml`);
-                                                },
-                                                err => {
-                                                    doneHandler('Feil ved henting av utbetalingsfil');
-                                                    this.errorService.handle(err)
-                                                }
+                                                // download file so the user can open it
+                                                saveAs(blob, `payments_${updatedPaymentBatch.ID}.xml`);
+                                            },
+                                            err => {
+                                                doneHandler('Feil ved henting av utbetalingsfil');
+                                                this.errorService.handle(err);
+                                            }
                                             );
                                     } else {
                                         this.toastService.addToast('Fant ikke utbetalingsfil, ingen PaymentFileID definert', ToastType.bad, 0);
@@ -367,7 +458,7 @@ export class PaymentList {
         });
     }
 
-    private deleteSelected(doneHandler: (string) => any) {
+    private deleteSelected(doneHandler: (status: string) => any) {
         let selectedRows = this.table.getSelectedRows();
 
         if (selectedRows.length === 0) {
@@ -400,39 +491,39 @@ export class PaymentList {
         }
 
         this.confirmModal.confirm(
-                'Er du sikker på at du vil slette ' + selectedRows.length + ' betalinger?',
-                'Bekreft sletting',
-                false
-            ).then((action) => {
-                if (action === ConfirmActions.ACCEPT) {
-                    let requests = [];
-                    selectedRows.forEach(x => {
-                        requests.push(this.paymentService.Remove(x.ID, x));
+            'Er du sikker på at du vil slette ' + selectedRows.length + ' betalinger?',
+            'Bekreft sletting',
+            false
+        ).then((action) => {
+            if (action === ConfirmActions.ACCEPT) {
+                let requests = [];
+                selectedRows.forEach(x => {
+                    requests.push(this.paymentService.Remove(x.ID, x));
+                });
+
+                Observable.forkJoin(requests)
+                    .subscribe(resp => {
+                        this.toastService.addToast('Betalinger slettet', ToastType.good, 5);
+                        doneHandler('Betalinger slettet');
+
+                        // refresh data after save
+                        this.loadData();
+
+                    }, (err) => {
+                        doneHandler('Feil ved sletting av data');
+                        this.errorService.handle(err);
                     });
-
-                    Observable.forkJoin(requests)
-                        .subscribe(resp => {
-                            this.toastService.addToast('Betalinger slettet', ToastType.good, 5);
-                            doneHandler('Betalinger slettet');
-
-                            // refresh data after save
-                            this.loadData();
-
-                        }, (err) => {
-                            doneHandler('Feil ved sletting av data');
-                            this.errorService.handle(err);
-                        });
-                } else if (action === ConfirmActions.REJECT) {
-                    doneHandler('Sletting avbrutt');
-                }
-            });
+            } else if (action === ConfirmActions.REJECT) {
+                doneHandler('Sletting avbrutt');
+            }
+        });
     }
 
     private setSums() {
         this.summary = [{
-                value: this.summaryData ? this.numberFormatService.asMoney(this.summaryData.SumPayments) : null,
-                title: 'Totalt til betaling',
-            }, {
+            value: this.summaryData ? this.numberFormatService.asMoney(this.summaryData.SumPayments) : null,
+            title: 'Totalt til betaling',
+        }, {
                 value: this.summaryData ? this.numberFormatService.asMoney(this.summaryData.SumDue) : null,
                 title: 'Totalt forfalt',
             }, {
@@ -448,7 +539,6 @@ export class PaymentList {
         this.summaryData.SumPayments = 0;
 
         let payments = this.table.getTableData();
-
         payments.forEach(x => {
             this.summaryData.SumPayments += x.Amount;
             if (moment(x.DueDate).isBefore(moment())) {
@@ -483,7 +573,7 @@ export class PaymentList {
             .setEditorOptions({
                 itemTemplate: (selectedItem) => {
                     return (selectedItem.CustomerID ? 'Kunde: ' : selectedItem.SupplierID ? 'Leverandør: ' : selectedItem.EmployeeID ? 'Ansatt: ' : '')
-                            + selectedItem.BusinessRelationName;
+                        + selectedItem.BusinessRelationName;
                 },
                 lookupFunction: (query: string) => {
                     return this.statisticsService.GetAll(
@@ -491,7 +581,19 @@ export class PaymentList {
                     ).map(x => x.Data ? x.Data : []);
                 }
             });
-        let amountCol = new UniTableColumn('Amount', 'Beløp', UniTableColumnType.Money);
+
+        let currencyCodeCol = new UniTableColumn('CurrencyCode', 'Valuta', UniTableColumnType.Text, false)
+            .setDisplayField('CurrencyCode.Code')
+            .setWidth('5%')
+            .setVisible(false);
+
+        let amountCurrencyCol = new UniTableColumn('AmountCurrency', 'Beløp', UniTableColumnType.Money);
+
+        let amountCol = new UniTableColumn('Amount', `Beløp (${this.companySettings.BaseCurrencyCode.Code})`, UniTableColumnType.Money)
+            .setSkipOnEnterKeyNavigation(true)
+            .setVisible(false)
+            .setEditable(false);
+
         let fromAccountCol = new UniTableColumn('FromBankAccount', 'Konto fra', UniTableColumnType.Lookup)
             .setDisplayField('FromBankAccount.AccountNumber')
             .setEditorOptions({
@@ -519,7 +621,7 @@ export class PaymentList {
                 },
                 addNewButtonVisible: true,
                 addNewButtonText: 'Legg til bankkonto',
-                addNewButtonCallback:  (text) => {
+                addNewButtonCallback: (text) => {
                     return new Promise((resolve, reject) => {
                         let bankaccount = new BankAccount();
                         bankaccount.AccountNumber = text;
@@ -576,6 +678,8 @@ export class PaymentList {
                 fromAccountCol,
                 toAccountCol,
                 paymentIDCol,
+                currencyCodeCol,
+                amountCurrencyCol,
                 amountCol,
                 dueDateCol,
                 paymentCodeCol,
@@ -626,7 +730,7 @@ export class PaymentList {
         });
     }
 
-    public canDeactivate(): boolean|Promise<boolean> {
+    public canDeactivate(): boolean | Promise<boolean> {
         // find dirty elements
         let tableData = this.table.getTableData();
         let dirtyRows = [];
@@ -647,7 +751,7 @@ export class PaymentList {
                 true
             ).then((action) => {
                 if (action === ConfirmActions.ACCEPT) {
-                    this.save((status) => {}, () => {
+                    this.save((status) => { }, () => {
                         resolve(true);
                     });
                 } else if (action === ConfirmActions.REJECT) {

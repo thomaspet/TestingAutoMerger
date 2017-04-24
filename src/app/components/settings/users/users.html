@@ -9,4 +9,34 @@
 </form>
 
 <h3>Brukere</h3>
-<uni-table [config]="tableConfig" [resource]="users"></uni-table>
+<section class="splitview">
+    <nav class ="splitview_list">
+        <uni-table *ngIf="users?.length"
+                [config]="userTableConfig"
+                [resource]="users"
+                (rowSelected)="onUserSelected($event)">
+        </uni-table>
+    </nav>
+
+    <main class= "splitview_detail">
+        <uni-form
+            [config]="formConfig$"
+            [fields]="formFields$"
+            [model]="formModel$"
+            (changeEvent)="onFormChange($event)">
+        </uni-form>
+
+        <uni-role-selector *ngIf="roles"
+            [role]="roles"
+            (roleSelected)="onRoleAdded($event)">
+        </uni-role-selector>
+
+       <uni-table *ngIf="userRoles?.length"
+                  [config]="roleTableConfig"
+                  [resource]="userRoles"
+                  (rowDeleted)="onRoleDeleted($event)">
+       </uni-table>
+    </main>
+</section>
+
+<uni-confirm-modal></uni-confirm-modal>

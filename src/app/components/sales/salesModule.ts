@@ -46,6 +46,8 @@ import {TradeItemTable} from './common/tradeItemTable';
 import {CanDeactivateGuard} from '../../canDeactivateGuard';
 import {UniSearchModule} from 'unisearch-ng2';
 
+import {WidgetModule} from '../widgets/widgetModule';
+
 @NgModule({
     imports: [
         CommonModule,
@@ -65,6 +67,7 @@ import {UniSearchModule} from 'unisearch-ng2';
         UniFrameworkModule,
 
         // App Modules
+        WidgetModule,
         LayoutModule,
         AppCommonModule,
         ReportsModule,

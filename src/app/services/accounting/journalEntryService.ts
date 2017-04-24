@@ -1,6 +1,6 @@
 import {Injectable} from '@angular/core';
 import {Account, VatType, Dimensions, FinancialYear, VatDeduction} from '../../unientities';
-import {JournalEntryData, JournalEntryExtended} from '../../models/accounting/journalEntryData';
+import {JournalEntryData, JournalEntryExtended} from '../../models/models';
 import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/observable/from';
 import 'rxjs/add/operator/mergeMap';
@@ -18,7 +18,9 @@ import {JournalEntryLineDraftService} from './journalEntryLineDraftService';
 
 class JournalEntryLineCalculation {
     amountGross: number;
+    amountGrossCurrency: number;
     amountNet: number;
+    amountNetCurrency: number;
     taxBasisAmount: number;
     outgoingVatAmount: number;
     incomingVatAmount: number;
@@ -30,17 +32,41 @@ export class JournalEntrySettings {
 }
 
 import * as moment from 'moment';
+import {CompanySettingsService} from '../common/companySettingsService';
+import {ErrorService} from '../common/errorService';
+import {UniMath} from '../../../framework/core/uniMath';
+import {AuthService} from '../../../framework/core/authService';
 
 @Injectable()
 export class JournalEntryService extends BizHttp<JournalEntry> {
     private JOURNAL_ENTRIES_SESSIONSTORAGE_KEY: string = 'JournalEntryDrafts';
     private JOURNAL_ENTRY_SETTINGS_LOCALSTORAGE_KEY: string = 'JournalEntrySettings';
+    private companySettings: CompanySettings;
 
-    constructor(http: UniHttp, private storageService: BrowserStorageService, private statisticsService: StatisticsService, private journalEntryLineDraftService: JournalEntryLineDraftService) {
+    constructor(
+        http: UniHttp,
+        private storageService: BrowserStorageService,
+        private statisticsService: StatisticsService,
+        private journalEntryLineDraftService: JournalEntryLineDraftService,
+        private errorService: ErrorService,
+        private companySettingsService: CompanySettingsService,
+        private authService: AuthService
+    ) {
         super(http);
         this.relativeURL = JournalEntry.RelativeUrl;
         this.entityType = JournalEntry.EntityType;
         this.DefaultOrderBy = null;
+
+        this.populateCache();
+        this.authService.authentication$.subscribe(() => this.populateCache());
+    }
+
+    private populateCache() {
+        this.companySettings = <any>{};
+        this.companySettingsService.Get(1, ['BaseCurrencyCode']).subscribe(
+            companySettings => this.companySettings = companySettings,
+            err => this.errorService.handle(err)
+        );
     }
 
     public getJournalEntrySettings(mode: number): JournalEntrySettings {
@@ -207,85 +233,96 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
         return journalEntries;
     }
 
-    private createJournalEntryDraftLines(line: JournalEntryData, je: JournalEntryExtended): Array<JournalEntryLineDraft> {
+    private createJournalEntryDraftLines(journalEntryData: JournalEntryData, je: JournalEntryExtended): Array<JournalEntryLineDraft> {
         let lines = new Array<JournalEntryLineDraft>();
 
-        let hasDebitAccount: boolean = line.DebitAccountID ? true : false;
-        let hasCreditAccount: boolean = line.CreditAccountID ? true : false;
+        let hasDebitAccount: boolean = journalEntryData.DebitAccountID ? true : false;
+        let hasCreditAccount: boolean = journalEntryData.CreditAccountID ? true : false;
 
-        let amount: number = line.Amount;
+        let amount: number = journalEntryData.Amount;
+        let amountCurrency: number = journalEntryData.AmountCurrency;
 
-        if (hasDebitAccount)
-        {
-            let debitAccount = line.DebitAccount;
-            let debitVatType = line.DebitVatTypeID ? line.DebitVatType : null;
+        if (hasDebitAccount) {
+            let debitAccount = journalEntryData.DebitAccount;
+            let debitVatType = journalEntryData.DebitVatTypeID ? journalEntryData.DebitVatType : null;
 
             let draftLine: JournalEntryLineDraft = new JournalEntryLineDraft();
 
             draftLine.Account = debitAccount;
             draftLine.AccountID = debitAccount.ID;
             draftLine.Amount = amount;
-            draftLine.Description = line.Description;
-            draftLine.Dimensions = line.Dimensions;
-            draftLine.FinancialDate = line.FinancialDate;
+            draftLine.AmountCurrency = amountCurrency;
+            draftLine.CurrencyExchangeRate = journalEntryData.CurrencyExchangeRate;
+            draftLine.CurrencyCode = journalEntryData.CurrencyCode;
+            draftLine.CurrencyCodeID = journalEntryData.CurrencyCode.ID;
+            draftLine.Description = journalEntryData.Description;
+            draftLine.Dimensions = journalEntryData.Dimensions;
+            draftLine.FinancialDate = journalEntryData.FinancialDate;
+            draftLine.InvoiceNumber = journalEntryData.InvoiceNumber;
             draftLine.RegisteredDate = new LocalDate(Date());
-            draftLine.VatDate = line.FinancialDate;
-            draftLine.VatTypeID = line.DebitVatTypeID;
+            draftLine.VatDate = journalEntryData.FinancialDate;
+            draftLine.VatTypeID = journalEntryData.DebitVatTypeID;
             draftLine.VatType = debitVatType;
-            draftLine.CustomerOrderID = line.CustomerOrderID;
-            draftLine.VatDeductionPercent = line.VatDeductionPercent && debitAccount.UseDeductivePercent
-                                    ? line.VatDeductionPercent
+            draftLine.CustomerOrderID = journalEntryData.CustomerOrderID;
+            draftLine.VatDeductionPercent = journalEntryData.VatDeductionPercent && debitAccount.UseDeductivePercent
+                                    ? journalEntryData.VatDeductionPercent
                                     : 0;
 
-            if (line.JournalEntryDataAccrual
+            if (journalEntryData.JournalEntryDataAccrual
                 && debitAccount.TopLevelAccountGroup
                 && debitAccount.TopLevelAccountGroup.GroupNumber >= 3) {
-                draftLine.Accrual = line.JournalEntryDataAccrual;
+                draftLine.Accrual = journalEntryData.JournalEntryDataAccrual;
             }
 
             // Add connection to invoice(s) if the account relates to a postpost account.
             // This will enable automatic postpost marking later in the booking process
             if (draftLine.Account.UsePostPost) {
-                draftLine.CustomerInvoiceID = line.CustomerInvoiceID;
-                draftLine.SupplierInvoiceID = line.SupplierInvoiceID;
+                draftLine.PostPostJournalEntryLineID = journalEntryData.PostPostJournalEntryLineID;
+                draftLine.CustomerInvoiceID = journalEntryData.CustomerInvoiceID;
+                draftLine.SupplierInvoiceID = journalEntryData.SupplierInvoiceID;
             }
 
             lines.push(draftLine);
         }
 
-        if (hasCreditAccount)
-        {
-            let creditAccount = line.CreditAccount;
-            let creditVatType = line.CreditVatType;
+        if (hasCreditAccount) {
+            let creditAccount = journalEntryData.CreditAccount;
+            let creditVatType = journalEntryData.CreditVatType;
 
             let draftLine: JournalEntryLineDraft = new JournalEntryLineDraft();
 
             draftLine.Account = creditAccount;
             draftLine.AccountID = creditAccount.ID;
-            draftLine.Amount = amount * -1;
-            draftLine.Description = line.Description;
-            draftLine.Dimensions = line.Dimensions;
-            draftLine.FinancialDate = line.FinancialDate;
+            draftLine.Amount =  journalEntryData.Amount * -1;
+            draftLine.AmountCurrency = journalEntryData.AmountCurrency * -1;
+            draftLine.CurrencyExchangeRate = journalEntryData.CurrencyExchangeRate;
+            draftLine.CurrencyCodeID = journalEntryData.CurrencyID;
+            draftLine.CurrencyCode = journalEntryData.CurrencyCode;
+            draftLine.Description = journalEntryData.Description;
+            draftLine.Dimensions = journalEntryData.Dimensions;
+            draftLine.FinancialDate = journalEntryData.FinancialDate;
+            draftLine.InvoiceNumber = journalEntryData.InvoiceNumber;
             draftLine.RegisteredDate = new LocalDate(Date());
-            draftLine.VatDate = line.FinancialDate;
-            draftLine.VatTypeID = line.CreditVatTypeID;
+            draftLine.VatDate = journalEntryData.FinancialDate;
+            draftLine.VatTypeID = journalEntryData.CreditVatTypeID;
             draftLine.VatType = creditVatType;
-            draftLine.CustomerOrderID = line.CustomerOrderID;
-            draftLine.VatDeductionPercent = line.VatDeductionPercent && creditAccount.UseDeductivePercent
-                                    ? line.VatDeductionPercent
+            draftLine.CustomerOrderID = journalEntryData.CustomerOrderID;
+            draftLine.VatDeductionPercent = journalEntryData.VatDeductionPercent && creditAccount.UseDeductivePercent
+                                    ? journalEntryData.VatDeductionPercent
                                     : 0;
 
-            if (line.JournalEntryDataAccrual
+            if (journalEntryData.JournalEntryDataAccrual
                 && creditAccount.TopLevelAccountGroup
                 && creditAccount.TopLevelAccountGroup.GroupNumber >= 3) {
-                draftLine.Accrual = line.JournalEntryDataAccrual;
+                draftLine.Accrual = journalEntryData.JournalEntryDataAccrual;
             }
 
             // Add connection to invoice(s) if the account relates to a postpost account.
             // This will enable automatic postpost marking later in the booking process
             if (draftLine.Account.UsePostPost) {
-                draftLine.CustomerInvoiceID = line.CustomerInvoiceID;
-                draftLine.SupplierInvoiceID = line.SupplierInvoiceID;
+                draftLine.PostPostJournalEntryLineID = journalEntryData.PostPostJournalEntryLineID;
+                draftLine.CustomerInvoiceID = journalEntryData.CustomerInvoiceID;
+                draftLine.SupplierInvoiceID = journalEntryData.SupplierInvoiceID;
             }
 
             lines.push(draftLine);
@@ -341,6 +378,33 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
             result.Messages.push(message);
         }
 
+        let rowsWithInvalidAccounts =
+            journalDataEntries.filter(x =>
+                (x.DebitAccount && (x.DebitAccount.Locked || x.DebitAccount.LockManualPosts))
+                || (x.CreditAccount && (x.CreditAccount.Locked || x.CreditAccount.LockManualPosts))
+            );
+
+        if (rowsWithInvalidAccounts.length > 0) {
+            rowsWithInvalidAccounts.forEach(row => {
+                let errorMsg = 'Kan ikke føre bilag på kontonr ';
+                if (row.DebitAccount && (row.DebitAccount.Locked || row.DebitAccount.LockManualPosts)) {
+                    errorMsg += row.DebitAccount.AccountNumber;
+                    errorMsg += ', kontoen er sperret' + (row.DebitAccount.LockManualPosts ? ' for manuelle føringer' : '');
+                } else if (row.CreditAccount && (row.CreditAccount.Locked || row.CreditAccount.LockManualPosts)) {
+                    errorMsg += row.CreditAccount.AccountNumber;
+                    errorMsg += ', kontoen er sperret' + (row.CreditAccount.LockManualPosts ? ' for manuelle føringer' : '');
+                }
+
+                // only notify once about each locked account
+                if (!result.Messages.find(x => x.Message === errorMsg)) {
+                    let message = new ValidationMessage();
+                    message.Level = ValidationLevel.Error;
+                    message.Message = errorMsg;
+                    result.Messages.push(message);
+                }
+            });
+        }
+
         if (companySettings && companySettings.AccountingLockedDate) {
             let invalidDates = journalDataEntries.filter(x => !x.StatusCode && x.FinancialDate
                 && moment(x.FinancialDate).isSameOrBefore(moment(companySettings.AccountingLockedDate)));
@@ -374,7 +438,7 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
 
         sortedJournalEntries.forEach(entry => {
             if (lastJournalEntryNo !== entry.JournalEntryNo) {
-                if (this.round(currentSumDebit, 2) !== this.round(currentSumCredit * -1, 2)) {
+                if (UniMath.round(currentSumDebit, 2) !== UniMath.round(currentSumCredit * -1, 2)) {
                     let message = new ValidationMessage();
                     message.Level = ValidationLevel.Error;
                     message.Message = `Bilag ${lastJournalEntryNo} går ikke i balanse. Sum debet og sum kredit må være lik`;
@@ -455,7 +519,7 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
             lastJournalEntryFinancialDate = entry.FinancialDate;
         });
 
-        if (this.round(currentSumDebit, 2) !== this.round(currentSumCredit * -1, 2)) {
+        if (UniMath.round(currentSumDebit, 2) !== UniMath.round(currentSumCredit * -1, 2)) {
             let message = new ValidationMessage();
             message.Level = ValidationLevel.Error;
             message.Message = `Bilag ${lastJournalEntryNo} går ikke i balanse. Sum debet og sum kredit må være lik`;
@@ -463,10 +527,6 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
         }
 
         return result;
-    }
-
-    private round(value, decimals) {
-        return Number(Math.round(Number.parseFloat(value + 'e' + decimals)) + 'e-' + decimals);
     }
 
     public validateJournalEntryData(journalDataEntries: Array<JournalEntryData>): Observable<any> {
@@ -488,10 +548,10 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
             .map(response => response.json());
     }
 
-    public getJournalEntryDataByJournalEntryID(journalEntryID: number): Observable<any> {
+    public getJournalEntryDataByJournalEntryID(journalEntryID: number): Observable<JournalEntryData[]> {
         return Observable.forkJoin(this.journalEntryLineDraftService.GetAll(
             `filter=JournalEntryID eq ${journalEntryID}&orderby=JournalEntryID,ID`,
-            ['Account.TopLevelAccountGroup', 'VatType', 'Dimensions.Department', 'Dimensions.Project', 'Accrual']),
+            ['Account.TopLevelAccountGroup', 'VatType', 'Dimensions.Department', 'Dimensions.Project', 'Accrual', 'CurrencyCode']),
             this.statisticsService.GetAll(`model=FileEntityLink&filter=EntityType eq 'JournalEntry' and EntityID eq ${journalEntryID}&select=FileID`)
         ).map(responses => {
             let draftLines: Array<JournalEntryLineDraft> = responses[0];
@@ -506,6 +566,7 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
                    x => x.JournalEntryID === line.JournalEntryID
                         && x.FinancialDate === line.FinancialDate
                         && x.Amount === line.Amount * -1
+                        && x.AmountCurrency === line.AmountCurrency * -1
                         && x.JournalEntryDraftIDs.length === 1
                         && line.StatusCode === x.StatusCode
                         && !(x.JournalEntryDataAccrualID && line.AccrualID));
@@ -526,6 +587,14 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
                 }
             });
 
+            // make the AmountCurrencys absolute - we are setting debit/credit accounts
+            // based on positive/negative AmountCurrencys, so the actual AmountCurrency should be positive
+            journalEntryDataObjects.forEach(entry => {
+                if (entry.AmountCurrency < 0) {
+                    entry.AmountCurrency = Math.abs(entry.AmountCurrency);
+                }
+            });
+
             // add fileids if any files are connected to the journalentries
             let fileIdList = [];
             if (fileList) {
@@ -543,11 +612,15 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
     }
 
     private getJournalEntryDataFromJournalEntryLineDraft(line: JournalEntryLineDraft, jed: JournalEntryData): JournalEntryData {
-        if (!jed)
-        {
+        if (!jed) {
             jed = new JournalEntryData();
             jed.FinancialDate = line.FinancialDate;
             jed.Amount = line.Amount;
+            jed.InvoiceNumber = line.InvoiceNumber;
+            jed.AmountCurrency = line.AmountCurrency;
+            jed.CurrencyID = line.CurrencyCodeID;
+            jed.CurrencyCode = line.CurrencyCodeID ? line.CurrencyCode : null;
+            jed.CurrencyExchangeRate = line.CurrencyExchangeRate;
             jed.JournalEntryID = line.JournalEntryID;
             jed.JournalEntryNo = line.JournalEntryNumber;
             jed.Description = line.Description;
@@ -556,22 +629,23 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
             jed.StatusCode = line.StatusCode;
             jed.JournalEntryDraftIDs = [];
             jed.JournalEntryDrafts = [];
+            jed.CurrencyID = line.CurrencyCodeID;
+            jed.CurrencyCode = line.CurrencyCode;
         }
 
-        if (jed.Dimensions == null && line.Dimensions != null)
+        if (jed.Dimensions == null && line.Dimensions != null) {
             jed.Dimensions = line.Dimensions;
+        }
 
         jed.JournalEntryDraftIDs.push(line.ID);
         jed.JournalEntryDrafts.push(line);
 
-        if (line.AccrualID)
-        {
+        if (line.AccrualID) {
             jed.JournalEntryDataAccrualID = line.AccrualID;
             jed.JournalEntryDataAccrual = line.Accrual;
         }
 
-        if (line.Amount > 0)
-        {
+        if (line.Amount > 0 || line.AmountCurrency > 0) {
             jed.DebitAccountID = line.AccountID;
             jed.DebitAccount = line.AccountID ? line.Account : null;
             jed.DebitVatTypeID = line.VatTypeID;
@@ -581,9 +655,7 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
             jed.VatDeductionPercent = jed.VatDeductionPercent
                 ? jed.VatDeductionPercent
                 : line.VatDeductionPercent;
-        }
-        else
-        {
+        } else {
             jed.CreditAccountID = line.AccountID;
             jed.CreditAccount = line.AccountID ? line.Account : null;
             jed.CreditVatTypeID = line.VatTypeID;
@@ -595,22 +667,18 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
                 : line.VatDeductionPercent;
         }
 
-        if (jed.CreditAccountID && jed.DebitAccountID && jed.Amount < 0)
-        {
+        if (jed.CreditAccountID && jed.DebitAccountID && jed.Amount < 0) {
             jed.Amount = jed.Amount * -1;
+            jed.AmountCurrency = jed.AmountCurrency * -1;
+        }
+
+        if (jed.CreditAccountID && jed.DebitAccountID && jed.AmountCurrency < 0) {
+            jed.Amount = jed.Amount * -1;
+            jed.AmountCurrency = jed.AmountCurrency * -1;
         }
 
         return jed;
     }
-
-    /*public getJournalEntryDataByJournalEntryID(journalEntryID: number): Observable<any> {
-        return this.http
-            .asGET()
-            .usingBusinessDomain()
-            .withEndPoint(this.relativeURL + '?action=get-journal-entry-data&journalEntryID=' + journalEntryID)
-            .send()
-            .map(response => response.json());
-    }*/
 
     public creditJournalEntry(journalEntryNumber: string): Observable<any> {
         return this.http
@@ -656,7 +724,7 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
         return this.statisticsService.GetAll(`model=JournalEntryLine` +
             `&expand=Account.TopLevelAccountGroup,SubAccount,Period` +
             `&filter=${filter}` +
-            `&select=sum(JournalEntryLine.Amount) as SumAmount,JournalEntryLine.AccountID as AccountID,JournalEntryLine.SubAccountID as SubAccountID`)
+            `&select=sum(JournalEntryLine.AmountCurrency) as SumAmountCurrency,JournalEntryLine.AccountID as AccountID,JournalEntryLine.SubAccountID as SubAccountID`)
             .map(data => {
                 let accountBalances: Array<AccountBalanceInfo> = previousList;
 
@@ -664,7 +732,7 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
                     data.Data.forEach(row => {
                         let accountBalance: AccountBalanceInfo = new AccountBalanceInfo();
                         accountBalance.accountID = row.SubAccountID ? row.SubAccountID : row.AccountID;
-                        accountBalance.balance = row.SumAmount;
+                        accountBalance.balance = row.SumAmountCurrency;
 
                         accountBalances.push(accountBalance);
                     });
@@ -675,7 +743,6 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
     }
 
     public calculateJournalEntryAccountSummaryLocal(journalDataEntries: Array<JournalEntryData>, accountBalances: Array<AccountBalanceInfo>, vatdeductions: Array<VatDeduction>, currentLine: JournalEntryData): JournalEntryAccountCalculationSummary {
-
         let sum: JournalEntryAccountCalculationSummary = {
             debitAccount: currentLine ? currentLine.DebitAccount : null,
             debitOriginalBalance: 0,
@@ -710,13 +777,13 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
             sum.debitOriginalBalance = originalBalance ? originalBalance.balance : 0;
 
             if (currentLine.DebitVatTypeID) {
-                sum.debitNetChangeCurrentLine += currentLine['NetAmount'];
+                sum.debitNetChangeCurrentLine += currentLine.NetAmount;
 
                 var lineCalc =
                     this.calculateJournalEntryData(
                         currentLine.DebitAccount,
                         currentLine.DebitVatType,
-                        currentLine.Amount,
+                        currentLine.AmountCurrency,
                         null,
                         currentLine
                     );
@@ -724,7 +791,7 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
                 sum.debitIncomingVatCurrentLine = lineCalc.incomingVatAmount;
                 sum.debitOutgoingVatCurrentLine = lineCalc.outgoingVatAmount;
             } else {
-                sum.debitNetChangeCurrentLine += currentLine['Amount'];
+                sum.debitNetChangeCurrentLine += currentLine.Amount;
             }
 
             accountsToCheck.push(currentLine.DebitAccount.ID);
@@ -735,13 +802,13 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
             sum.creditOriginalBalance = originalBalance ? originalBalance.balance : 0;
 
             if (currentLine.CreditVatTypeID) {
-                sum.creditNetChangeCurrentLine += currentLine['NetAmount'] * -1;
+                sum.creditNetChangeCurrentLine += currentLine.NetAmount * -1;
 
                 var lineCalc =
                     this.calculateJournalEntryData(
                         currentLine.CreditAccount,
                         currentLine.CreditVatType,
-                        currentLine.Amount,
+                        currentLine.AmountCurrency,
                         null,
                         currentLine
                     );
@@ -749,7 +816,7 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
                 sum.creditIncomingVatCurrentLine = lineCalc.incomingVatAmount * -1;
                 sum.creditOutgoingVatCurrentLine = lineCalc.outgoingVatAmount * -1;
             } else {
-                sum.creditNetChangeCurrentLine += currentLine['Amount'] * -1;
+                sum.creditNetChangeCurrentLine += currentLine.Amount * -1;
             }
 
             accountsToCheck.push(currentLine.CreditAccount.ID);
@@ -767,16 +834,16 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
             if (entry.DebitAccount && currentLine.DebitAccount
                 && entry.DebitAccount.ID === currentLine.DebitAccount.ID) {
                 if (entry.DebitVatTypeID) {
-                    debitNetChange += entry['NetAmount'];
+                    debitNetChange += entry.NetAmount;
                 } else {
-                    debitNetChange += entry['Amount'];
+                    debitNetChange += entry.Amount;
                 }
             } else if (entry.CreditAccount && currentLine.DebitAccount
                 && entry.CreditAccount.ID === currentLine.DebitAccount.ID) {
                 if (entry.CreditVatTypeID) {
-                    debitNetChange += entry['NetAmount'] * -1;
+                    debitNetChange += entry.NetAmount * -1;
                 } else {
-                    debitNetChange += entry['Amount'] * -1;
+                    debitNetChange += entry.Amount * -1;
                 }
             }
 
@@ -785,19 +852,18 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
             if (entry.CreditAccount && currentLine.CreditAccount
                 && entry.CreditAccount.ID === currentLine.CreditAccount.ID) {
                 if (entry.CreditVatTypeID) {
-                    creditNetChange += entry['NetAmount'] * -1;
+                    creditNetChange += entry.NetAmount * -1;
                 } else {
-                    creditNetChange += entry['Amount'] * -1;
+                    creditNetChange += entry.Amount * -1;
                 }
             } else if (entry.DebitAccount && currentLine.CreditAccount
                 && entry.DebitAccount.ID === currentLine.CreditAccount.ID) {
                 if (entry.DebitVatTypeID) {
-                    creditNetChange += entry['NetAmount'];
+                    creditNetChange += entry.NetAmount;
                 } else {
-                    creditNetChange += entry['Amount'];
+                    creditNetChange += entry.Amount;
                 }
             }
-
             sum.debitNetChange += debitNetChange;
             sum.creditNetChange += creditNetChange;
 
@@ -850,7 +916,10 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
             SumCreditNet: 0,
             SumDebet: 0,
             SumDebetNet: 0,
-            Differance: 0
+            Differance: 0,
+            IsOnlyCompanyCurrencyCode: journalDataEntries
+                .every(x => x.CurrencyID === this.companySettings.BaseCurrencyCodeID),
+            BaseCurrencyCodeCode: this.companySettings.BaseCurrencyCode && this.companySettings.BaseCurrencyCode.Code
         };
 
         if (journalDataEntries) {
@@ -858,14 +927,14 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
                 let debitData = this.calculateJournalEntryData(
                     entry.DebitAccount,
                     entry.DebitVatType,
-                    entry.Amount,
+                    entry.AmountCurrency,
                     null,
                     entry
                 );
                 let creditData =  this.calculateJournalEntryData(
                     entry.CreditAccount,
                     entry.CreditVatType,
-                    entry.Amount * -1,
+                    entry.AmountCurrency * -1,
                     null,
                     entry
                 );
@@ -907,25 +976,30 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
 
         sum.SumCredit = sum.SumCredit * -1;
         sum.OutgoingVat = sum.OutgoingVat * -1;
-        sum.Differance = sum.SumDebet - sum.SumCredit;
+        sum.Differance = UniMath.round(sum.SumDebet - sum.SumCredit);
 
         return sum;
     }
 
-    public calculateJournalEntryData(account: Account, vattype: VatType, grossAmount: number, netAmount: number, journalEntryData: JournalEntryData): JournalEntryLineCalculation {
-
+    public calculateJournalEntryData(account: Account, vattype: VatType, grossAmountCurrency: number, netAmountCurrency: number, journalEntryData: JournalEntryData): JournalEntryLineCalculation {
+        // grossAmountCurrency == med moms, netAmout == uten moms
         let res: JournalEntryLineCalculation = {
             amountGross: 0,
+            amountGrossCurrency: 0,
             amountNet: 0,
+            amountNetCurrency: 0,
             taxBasisAmount: 0,
             incomingVatAmount: 0,
             outgoingVatAmount: 0
         };
 
-        if (!grossAmount && !netAmount) {
+        if (!grossAmountCurrency && !netAmountCurrency) {
             return res;
         }
 
+        let incomingVatAmountCurrency = 0;
+        let outgoingVatAmountCurrency = 0;
+        let taxBasisAmountCurrency = 0;
         if (account) {
             if (vattype && !vattype.DirectJournalEntryOnly) {
                 let deductionpercent =
@@ -940,62 +1014,62 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
                     deductionpercent = 100;
                 }
 
-                if (grossAmount) {
-                    res.amountGross = grossAmount;
+                if (grossAmountCurrency) {
+                    res.amountGrossCurrency = grossAmountCurrency;
 
-                    res.amountNet =
+                    res.amountNetCurrency =
                         vattype.ReversedTaxDutyVat ?
                             vattype.IncomingAccountID && vattype.OutgoingAccountID ?
-                                (res.amountGross * deductionpercent / 100)
-                                : (res.amountGross * (1 + vattype.VatPercent / 100)) * deductionpercent / 100
-                            : res.amountGross * deductionpercent / 100 / (1 + vattype.VatPercent / 100);
+                                (res.amountGrossCurrency * deductionpercent / 100)
+                                : (res.amountGrossCurrency * (1 + vattype.VatPercent / 100)) * deductionpercent / 100
+                            : res.amountGrossCurrency * deductionpercent / 100 / (1 + vattype.VatPercent / 100);
 
-                    if (res.amountGross !== 100) {
-                        res.amountNet += vattype.ReversedTaxDutyVat ?
-                            res.amountGross * (100 - deductionpercent) / 100 + (res.amountGross * vattype.VatPercent / 100) * ((100 - deductionpercent) / 100)
-                                        : res.amountGross - res.amountNet - res.amountNet * vattype.VatPercent / 100;
+                    if (deductionpercent !== 100) {
+                        res.amountNetCurrency += vattype.ReversedTaxDutyVat ?
+                            res.amountGrossCurrency * (100 - deductionpercent) / 100 + (res.amountGrossCurrency * vattype.VatPercent / 100) * ((100 - deductionpercent) / 100)
+                                        : res.amountGrossCurrency - res.amountNetCurrency - res.amountNetCurrency * vattype.VatPercent / 100;
                     }
-                } else if (netAmount) {
-                    res.amountNet = netAmount;
+                } else if (netAmountCurrency) {
+                    res.amountNetCurrency = netAmountCurrency;
 
                     if (deductionpercent > 0 && deductionpercent < 100) {
-                        console.error('calculateJournalEntryData called for netAmount with deduction percent set, this is not supported');
+                        console.error('calculateJournalEntryData called for netAmountCurrency with deduction percent set, this is not supported');
                     }
 
-                    res.amountGross = vattype.ReversedTaxDutyVat ?
+                    res.amountGrossCurrency = vattype.ReversedTaxDutyVat ?
                         vattype.IncomingAccountID && vattype.OutgoingAccountID ?
-                            res.amountNet
-                            : res.amountNet / (1 + (vattype.VatPercent / 100))
-                        : res.amountNet * (1 + (vattype.VatPercent / 100));
+                            res.amountNetCurrency
+                            : res.amountNetCurrency / (1 + (vattype.VatPercent / 100))
+                        : res.amountNetCurrency * (1 + (vattype.VatPercent / 100));
                 }
 
                 let taxBasisAmount =
                     vattype.ReversedTaxDutyVat ?
-                            res.amountGross
-                            : res.amountGross / (1 + vattype.VatPercent / 100);
+                            res.amountGrossCurrency
+                            : res.amountGrossCurrency / (1 + vattype.VatPercent / 100);
 
                 if (vattype.ReversedTaxDutyVat) {
                     if (vattype.OutgoingAccountID) {
-                        res.outgoingVatAmount += -1 * (taxBasisAmount * vattype.VatPercent / 100);
+                        outgoingVatAmountCurrency += -1 * (taxBasisAmount * vattype.VatPercent / 100);
                     } else if (vattype.IncomingAccountID) {
-                        res.incomingVatAmount += (-1 * (taxBasisAmount * vattype.VatPercent / 100)) * (deductionpercent / 100);
+                        incomingVatAmountCurrency += (-1 * (taxBasisAmount * vattype.VatPercent / 100)) * (deductionpercent / 100);
                     }
                 }
 
                 if (!(vattype.ReversedTaxDutyVat && !vattype.IncomingAccountID)) {
                     if (vattype.IncomingAccountID) {
-                        res.incomingVatAmount += ((taxBasisAmount * vattype.VatPercent) / 100) * (deductionpercent / 100);
+                        incomingVatAmountCurrency += ((taxBasisAmount * vattype.VatPercent) / 100) * (deductionpercent / 100);
                     } else if (vattype.OutgoingAccountID) {
-                        res.outgoingVatAmount += (taxBasisAmount * vattype.VatPercent) / 100;
+                        outgoingVatAmountCurrency += (taxBasisAmount * vattype.VatPercent) / 100;
                     }
                 }
             } else {
-                if (grossAmount) {
-                    res.amountGross = grossAmount;
-                    res.amountNet = grossAmount;
-                } else if (netAmount) {
-                    res.amountGross = netAmount;
-                    res.amountNet = netAmount;
+                if (grossAmountCurrency) {
+                    res.amountGrossCurrency = grossAmountCurrency;
+                    res.amountNetCurrency = grossAmountCurrency;
+                } else if (netAmountCurrency) {
+                    res.amountGrossCurrency = netAmountCurrency;
+                    res.amountNetCurrency = netAmountCurrency;
                 }
 
                 if (vattype && vattype.DirectJournalEntryOnly) {
@@ -1009,6 +1083,12 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
                 }
             }
         }
+
+        res.incomingVatAmount = incomingVatAmountCurrency * journalEntryData.CurrencyExchangeRate;
+        res.outgoingVatAmount = outgoingVatAmountCurrency * journalEntryData.CurrencyExchangeRate;
+        res.taxBasisAmount = taxBasisAmountCurrency * journalEntryData.CurrencyExchangeRate;
+        res.amountGross = UniMath.round(res.amountGrossCurrency * journalEntryData.CurrencyExchangeRate);
+        res.amountNet = UniMath.round(res.amountNetCurrency * journalEntryData.CurrencyExchangeRate);
 
         return res;
     }

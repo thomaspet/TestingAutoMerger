@@ -2,7 +2,7 @@ import {Component, Input, Output, EventEmitter, ViewChild} from '@angular/core';
 import {TimesheetService} from '../../../../services/timetracking/timesheetService';
 import {WorkRelation, WorkBalance} from '../../../../unientities';
 import {ErrorService} from '../../../../services/services';
-import {roundTo} from '../../utils/utils';
+import {roundTo} from '../../../common/utils/utils';
 import {UniTimeModal} from '../../components/popupeditor';
 import {IPreSaveConfig} from '../timeentry';
 import * as moment from 'moment';
@@ -44,7 +44,7 @@ export class RegtimeBalance {
         this.reloadBalance(this.current, details);
     }
 
-    public onDayClick(item: IDetail, checkSave: boolean = true) {        
+    public onDayClick(item: IDetail, checkSave: boolean = true) {
         if (this.eventcfg && checkSave) {
             this.eventcfg.askSave().then( () => {
                 this.onDayClick(item, false);
@@ -53,8 +53,8 @@ export class RegtimeBalance {
             return;
         }
         this.timeModal.open(this.current, item.Date).then( x => {
-            if (x) { 
-                this.onShowDetails(this.hasDetails); 
+            if (x) {
+                this.onShowDetails(this.hasDetails);
                 if (this.eventcfg && this.eventcfg.askReload) { this.eventcfg.askReload(); }
             }
         });

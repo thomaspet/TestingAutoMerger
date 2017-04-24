@@ -26,7 +26,7 @@ import {UniConfirmModal, ConfirmActions} from '../../../../../framework/modals/c
 import {CompanySettingsService} from '../../../../services/services';
 import {ActivateAPModal} from '../../../common/modals/activateAPModal';
 import {ReminderSendingModal} from '../../reminder/sending/reminderSendingModal';
-import {roundTo, safeDec, safeInt, trimLength, capitalizeSentence} from '../../../timetracking/utils/utils';
+import {roundTo, safeDec, safeInt, trimLength, capitalizeSentence} from '../../../common/utils/utils';
 import {
     StatisticsService,
     CustomerInvoiceService,
@@ -207,8 +207,11 @@ export class InvoiceDetails {
                     this.refreshInvoice(invoice);
                 }, err => this.errorService.handle(err));
             }
-
         }, err => this.errorService.handle(err));
+    }
+
+    private ngAfterViewInit() {
+         this.tofHead.detailsForm.tabbedPastLastField.subscribe((event) => this.tradeItemTable.focusFirstRow());
     }
 
     private getCollectorStatusText(status: CollectorStatus): string {
@@ -229,23 +232,6 @@ export class InvoiceDetails {
     private setupContextMenuItems() {
         this.contextMenuItems = [
             {
-                label: 'Skriv ut',
-                action: () => this.saveAndPrint(),
-                disabled: () => !this.invoice.ID
-            },
-            {
-                label: this.companySettings.APActivated && this.companySettings.APGuid ? 'Send EHF' : 'Aktiver og send EHF',
-                action: () => this.sendEHFAction(),
-                disabled: () => {
-                    return this.invoice.StatusCode !== StatusCodeCustomerInvoice.Invoiced;
-                }
-            },
-            {
-                label: 'Send på epost',
-                action: () => this.sendEmailAction(),
-                disabled: () => !this.invoice.ID
-            },
-            {
                 label: 'Send purring',
                 action: () => this.sendReminderAction(),
                 disabled: () => this.invoice.DontSendReminders || this.invoice.StatusCode === StatusCode.Completed
@@ -253,7 +239,7 @@ export class InvoiceDetails {
         ];
     }
 
-    private sendEHFAction() {
+    private sendEHFAction(doneHandler: (msg: string) => void = null) {
         if (this.companySettings.APActivated && this.companySettings.APGuid) {
             this.sendEHF();
         } else {
@@ -264,12 +250,14 @@ export class InvoiceDetails {
                     this.ehfService.Activate(activate).subscribe((ok) => {
                         if (ok) {
                             this.toastService.addToast('Aktivering', ToastType.good, 3, 'EHF aktivert');
-                            this.sendEHF();
+                            this.sendEHF(doneHandler);
                         } else {
                             this.toastService.addToast('Aktivering feilet!', ToastType.bad, 5, 'Noe galt skjedde ved aktivering');
+                            if (doneHandler) { doneHandler('Feil oppstod ved aktivering!'); }
                         }
                     },
                         (err) => {
+                            if (doneHandler) { doneHandler('Feil oppstod ved aktivering!'); }
                             this.errorService.handle(err);
                         });
                 });
@@ -277,7 +265,7 @@ export class InvoiceDetails {
         }
     }
 
-    private sendEmailAction() {
+    private sendEmailAction(doneHandler: (msg: string) => void = null) {
         let sendemail = new SendEmail();
         sendemail.EntityType = 'CustomerInvoice';
         sendemail.EntityID = this.invoice.ID;
@@ -285,12 +273,14 @@ export class InvoiceDetails {
         sendemail.Subject = 'Faktura ' + (this.invoice.InvoiceNumber ? 'nr. ' + this.invoice.InvoiceNumber : 'kladd');
         sendemail.Message = 'Vedlagt finner du Faktura ' + (this.invoice.InvoiceNumber ? 'nr. ' + this.invoice.InvoiceNumber : 'kladd');
         this.sendEmailModal.openModal(sendemail);
-
         if (this.sendEmailModal.Changed.observers.length === 0) {
             this.sendEmailModal.Changed.subscribe((email) => {
-                this.reportService.generateReportSendEmail('Faktura id', email);
+                this.reportService.generateReportSendEmail('Faktura id', email, null, doneHandler);
+            }, (err) => {
+                if (doneHandler) { doneHandler('Feil oppstod ved sending av faktura på epost!'); }
             });
         }
+
     }
 
     private sendReminderAction() {
@@ -518,12 +508,14 @@ export class InvoiceDetails {
 
     }
 
-    private sendEHF() {
+    private sendEHF(doneHandler: (msg: string) => void = null) {
         this.customerInvoiceService.PutAction(this.invoice.ID, 'send-ehf').subscribe(
             () => {
                 this.toastService.addToast('EHF sendt', ToastType.good, 3, 'Til ' + this.invoice.Customer.Info.Name);
+                if (doneHandler) { doneHandler('EHF sendt'); }
             },
             (err) => {
+                if (doneHandler) { doneHandler('En feil oppstod ved sending av EHF!'); }
                 this.errorService.handle(err);
             });
     }
@@ -636,7 +628,6 @@ export class InvoiceDetails {
                         }
                     }, err => reject(err));
                 });
-                break;
             }
 
             case CollectorStatus.SendtToDebtCollection: {
@@ -659,12 +650,9 @@ export class InvoiceDetails {
                         }
                     }, err => reject(err));
                 });
-                break;
             }
         }
     }
-
-
 
     private getStatustrackConfig() {
         let statustrack: UniStatusTrack.IStatus[] = [];
@@ -843,6 +831,7 @@ export class InvoiceDetails {
         const transitions = (this.invoice['_links'] || {}).transitions;
         const id = this.invoice.ID;
         const status = this.invoice.StatusCode;
+        const printStatus = this.invoice.PrintStatus;
 
         if (!this.invoice.InvoiceNumber) {
             this.saveActions.push({
@@ -866,6 +855,27 @@ export class InvoiceDetails {
             action: done => this.transition(done),
             disabled: id > 0 && !transitions['invoice'] && !transitions['credit'],
             main: !id || transitions['invoice'] || transitions['credit']
+        });
+
+        this.saveActions.push({
+            label: 'Skriv ut',
+            action: (done) => this.print(this.invoiceID, done),
+            disabled: false,
+            main: !printStatus && status === StatusCodeCustomerInvoice.Invoiced
+        });
+
+        this.saveActions.push({
+            label: 'Send på epost',
+            action: (done) => this.sendEmailAction(done),
+            disabled: false,
+            main: printStatus === 200 && status === StatusCodeCustomerInvoice.Invoiced
+        });
+
+        this.saveActions.push({
+            label: 'Send EHF',
+            action: (done) => this.sendEHFAction(done),
+            disabled: false,
+            main: printStatus === 100 && status === StatusCodeCustomerInvoice.Invoiced
         });
 
         this.saveActions.push({
@@ -1049,24 +1059,29 @@ export class InvoiceDetails {
         });
     }
 
-    private saveAndPrint() {
+    private saveAndPrint(doneHandler: (msg: string) => void = null) {
         if (this.isDirty) {
             this.saveInvoice().then((invoice) => {
                 this.isDirty = false;
-                this.print(invoice.ID);
+                this.print(invoice.ID, doneHandler);
             }).catch(error => {
                 this.errorService.handle(error);
+                if (doneHandler) { doneHandler('En feil oppstod ved lagring og skriv ut av faktura!'); }
             });
         } else {
-            this.print(this.invoice.ID);
+            this.print(this.invoice.ID, doneHandler);
         }
     }
 
-    private print(id) {
+    private print(id, doneHandler: (msg: string) => void = null) {
         this.reportDefinitionService.getReportByName('Faktura id').subscribe((report) => {
-            this.previewModal.openWithId(report, id);
+            this.previewModal.openWithId(report, id, 'Id', doneHandler);
+        }, err => {
+            this.errorService.handle(err);
+            if (doneHandler) { doneHandler('En feil ved utskrift av faktura'); }
+        });
 
-        }, err => this.errorService.handle(err));
+
     }
 
     private creditInvoice(done) {
@@ -1100,7 +1115,7 @@ export class InvoiceDetails {
         this.registerPaymentModal.confirm(this.invoice.ID, title, this.invoice.CurrencyCode, this.invoice.CurrencyExchangeRate,
             'CustomerInvoice', invoicePaymentData).then(res => {
             if (res.status === ConfirmActions.ACCEPT) {
-                this.customerInvoiceService.ActionWithBody(res.id, res.model, 'payInvoice').subscribe((journalEntry) => {
+                this.customerInvoiceService.ActionWithBody(res.id, <CustomerInvoice>res.model, 'payInvoice').subscribe((journalEntry) => {
                     this.toastService.addToast('Faktura er betalt. Bilagsnummer: ' + journalEntry.JournalEntryNumber, ToastType.good, 5);
                     done('Betaling registrert');
                     this.customerInvoiceService.Get(this.invoice.ID, this.expandOptions).subscribe((invoice) => {

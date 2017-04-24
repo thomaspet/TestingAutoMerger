@@ -1,7 +1,6 @@
 // angular
 import {Injectable} from '@angular/core';
 import {Observable} from 'rxjs/Observable';
-//import {Observable} from 'rxjs/Rx';
 
 // app
 import {AppConfig} from '../../../AppConfig';
@@ -64,7 +63,7 @@ export class JobService {
 
     public modifySchedule(jobName: string, id: string, cronExp: string): Observable<any> {
         return this.uniHttp.asPUT()
-            .sendToUrl(AppConfig.UNI_JOB_SERVER_URL 
+            .sendToUrl(AppConfig.UNI_JOB_SERVER_URL
                 + 'job-schedules?job=' + jobName + '&scheduleId=' + id  + '&cronExpression=' + cronExp);
     }
 
@@ -75,8 +74,8 @@ export class JobService {
 
     public create(job: Job, zipfile: Uint8Array) {
 
-    } 
-    
+    }
+
     public delete(id: number) {
 
     }
@@ -91,7 +90,7 @@ export class JobService {
     }
 
     public schedule(id: number) {
-        
+
     }
 
     public getHistory(id: number): Observable<Job> {
@@ -109,7 +108,7 @@ export class JobService {
     public getQueued(num: number = 10): Observable<Array<Job>> {
         return null;
     }
-    
+
     // triggers
     public getTriggers(jobId: number): Observable<Array<Trigger>> {
         return null;
@@ -120,7 +119,7 @@ export class JobService {
     }
 
     public createTrigger(jobId: number, trigger: Trigger) {
-        
+
     }
 
     public modifyTrigger(jobId: number, trigger: Trigger) {

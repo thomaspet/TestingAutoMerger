@@ -18,7 +18,6 @@
     </ul>
 </aside>
 
-
 <section class="application split-tabs-parent" [attr.aria-busy]="busy" >
     <section class="split-tabs">
         <aside>
@@ -26,13 +25,12 @@
                 [config]='formConfig'
                 [fields]='fields$'
                 [model]='current'
-                (changeEvent)="onFormChange($event)"
-                (readyEvent)="onFormReady($event)">
+                (changeEvent)="onFormChange($event)">
             </uni-form>
             <article class="collapsable no-topmargin no-horzmargins" [ngClass]="{'-is-open': !collapseSimpleJournal}">
                 <h4 class="no-topmargin" (click)="collapseSimpleJournal = !collapseSimpleJournal">Kontering</h4>
                 <div class="collapsable-content">
-                    <bill-simple-journalentry class="no-topmargin" [supplierinvoice]="(current | async)" (valueChange)="onEntryChange($event)" ></bill-simple-journalentry>
+                    <bill-simple-journalentry class="no-topmargin" [supplierinvoice]="current" (valueChange)="onEntryChange($event)" ></bill-simple-journalentry>
                 </div>
             </article>
         </aside>
@@ -56,7 +54,7 @@
     </section>
 </section>
 <register-payment-modal></register-payment-modal>
-<supplier-detail-modal (change)="onSupplierModalChanged($event)" ></supplier-detail-modal>
 <uni-confirm-modal></uni-confirm-modal>
 <bankaccount-modal></bankaccount-modal>
 <image-modal></image-modal>
+<uni-assign-modal (okclicked)="onAssignClickOk($event)"></uni-assign-modal>

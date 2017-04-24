@@ -279,6 +279,20 @@
         {
             "Name": "EmployeeLeave",
             "Translated": "Permisjoner"
+        },
+        {
+            "Name": "WageType",
+            "Translated": "Lønnsart",
+            "Url": "salary/wagetypes/:ID"
+        },
+        {
+            "Name": "PayrollRun",
+            "Translated": "Lønnsavregninger",
+            "Url": "/salary/payrollrun/:ID"
+        },
+        {
+            "Name": "SalaryTransaction",
+            "Translated": "Lønnsposter"
         }
     ]
 }

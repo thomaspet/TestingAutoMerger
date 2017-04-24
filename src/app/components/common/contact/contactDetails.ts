@@ -62,8 +62,10 @@ export class ContactDetails {
     private expandOptions: Array<string> = [
         'Info',
         'Info.Phones',
+        'Info.DefaultPhone',
         'Info.Addresses',
         'Info.Emails',
+        'Info.DefaultEmail',
         'Info.ShippingAddress',
         'Info.InvoiceAddress',
         'ParentBusinessRelation'
@@ -72,7 +74,9 @@ export class ContactDetails {
     private expandOptionsNewEntity: Array<string> = [
         'Info',
         'Info.Phones',
+        'Info.DefaultPhone',
         'Info.Addresses',
+        'Info.DefaultEmail',
         'Info.Emails',
         'Info.ShippingAddress',
         'Info.InvoiceAddress'
@@ -276,7 +280,8 @@ export class ContactDetails {
             listProperty: 'Info.Phones',
             displayValue: 'Number',
             linkProperty: 'ID',
-            storeResultInProperty: 'Info.DefaultPhoneID',
+            storeResultInProperty: 'Info.DefaultPhone',
+            storeIdInProperty: 'Info.DefaultPhoneID',
             editor: (value) => new Promise((resolve) => {
                 if (!value) {
                     value = new Phone();
@@ -299,7 +304,8 @@ export class ContactDetails {
             listProperty: 'Info.Addresses',
             displayValue: 'AddressLine1',
             linkProperty: 'ID',
-            storeResultInProperty: 'Info.InvoiceAddressID',
+            storeResultInProperty: 'Info.InvoiceAddress',
+            storeIdInProperty: 'Info.InvoiceAddressID',
             editor: (value) => new Promise((resolve) => {
                 if (!value) {
                     value = new Address();
@@ -328,7 +334,8 @@ export class ContactDetails {
             listProperty: 'Info.Emails',
             displayValue: 'EmailAddress',
             linkProperty: 'ID',
-            storeResultInProperty: 'Info.DefaultEmailID',
+            storeIdInProperty: 'Info.DefaultEmailID',
+            storeResultInProperty: 'Info.DefaultEmail',
             editor: (value) => new Promise((resolve) => {
                 if (!value) {
                     value = new Email();
@@ -350,7 +357,8 @@ export class ContactDetails {
             listProperty: 'Info.Addresses',
             displayValue: 'AddressLine1',
             linkProperty: 'ID',
-            storeResultInProperty: 'Info.ShippingAddressID',
+            storeResultInProperty: 'Info.ShippingAddress',
+            storeIdInProperty: 'Info.ShippingAddressID',
             editor: (value) => new Promise((resolve) => {
                 if (!value) {
                     value = new Address();

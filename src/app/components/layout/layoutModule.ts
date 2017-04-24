@@ -16,6 +16,7 @@ import {UniFormModule} from 'uniform-ng2/main';
 import { UniNumberFormatPipe } from '../../pipes/uniNumberFormatPipe';
 import { YearModal, YearModalContent } from "./navbar/userinfo/companyDropdown/modals/yearModal";
 
+
 @NgModule({
     imports: [
         CommonModule,
