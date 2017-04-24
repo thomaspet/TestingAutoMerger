@@ -57,7 +57,7 @@ export class WidgetDatasetBuilder {
         }
 
         sorted.forEach((item) => {
-            labels.push(item[config.labelKey].slice(0, 40) || '');
+            labels.push((item[config.labelKey] || '').slice(0, 40));
             dataset.push(item[config.valueKey]);
         });
 
