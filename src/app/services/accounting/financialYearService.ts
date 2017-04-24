@@ -25,7 +25,7 @@ export class FinancialYearService extends BizHttp<FinancialYear> {
         this.entityType = FinancialYear.EntityType;
         this.DefaultOrderBy = null;
         this.lastSelectedYear = new ReplaySubject<FinancialYear>(1);
-        
+
         this.lastSelectedFinancialYear$ = this.lastSelectedYear.asObservable().map(financialYear => {
                 if (!financialYear) {
                     financialYear = new FinancialYear();
@@ -38,7 +38,7 @@ export class FinancialYearService extends BizHttp<FinancialYear> {
             .map(financialYear => financialYear.Year);
 
         this.lastSelectedFinancialYear$
-            .subscribe(financialYear => 
+            .subscribe(financialYear =>
             localStorage.setItem(this.ACTIVE_FINANCIAL_YEAR_LOCALSTORAGE_KEY, JSON.stringify(financialYear)));
     }
 
@@ -57,7 +57,7 @@ export class FinancialYearService extends BizHttp<FinancialYear> {
     }
 
     public getActiveYear(): Observable<number> {
-        return this.getActiveFinancialYear().map(x => x.Year);
+        return this.getActiveFinancialYear().map(x => x && x.Year);
     }
 
     public getActiveFinancialYear(): Observable<FinancialYear> {

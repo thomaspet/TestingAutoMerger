@@ -233,7 +233,7 @@ export class UniWidgetCanvas {
             return;
         }
 
-        localStorage.removeItem('dashboard_widget_layout');
+        localStorage.removeItem('widget_layout_dashboard');
         this.layout = {
             small: this.deepCopyWidgets(this.widgets),
             medium: this.deepCopyWidgets(this.widgets),
@@ -260,7 +260,7 @@ export class UniWidgetCanvas {
             return value;
         });
 
-        localStorage.setItem('dashboard_widget_layout', stringified);
+        localStorage.setItem('widget_layout_dashboard', stringified);
         this.unsavedChanges = false;
         this.toastService.addToast('Layout lagret', ToastType.good, 5);
         this.toggleEditMode();
