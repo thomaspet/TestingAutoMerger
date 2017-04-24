@@ -17,8 +17,8 @@ interface IListItem {
     selector: 'uni-widget-list',
     template: `
                 <div style="background-color:white; height: 100%;">
-                    <div class="uni-dashboard-chart-header"> {{ widget.config.header }}</div>
-                    <ol *ngIf="myListItems" style="list-style: none; padding: 0; margin: 0; color: black; text-align: left; overflow-y: auto; max-height: calc(100% - 25px);">
+                    <div class="uni-dashboard-chart-header"> <span> {{ widget.config.header }} </span></div>
+                    <ol *ngIf="myListItems" style="list-style: none; padding: 0; margin: 10px 0 0 0; color: black; text-align: left; overflow-y: auto; max-height: calc(100% - 35px);">
                         <li *ngFor="let item of myListItems" style="font-size: 0.8rem; padding: 2px 10px;">
                             <strong>{{ item.username }}</strong>
                             {{ item.action }}
@@ -141,8 +141,19 @@ export class UniListWidget {
                 item.link = '/salary/employees/' + item[this.widget.config.listItemKeys.moduleID] + '/personal-details';
                 break;
             case 'Employment':
-                item.module = 'Arbeidsforhold ' + item[this.widget.config.listItemKeys.moduleID];
-                item.link = '/salary/employees/' + item[this.widget.config.listItemKeys.moduleID] + '/employments';
+                if (item.AuditLogRoute) {
+                    addressRoute = item.AuditLogRoute.split('/');
+                    if (addressRoute[addressRoute.length - 1] !== 'EmployeeLeave') {
+                        item.module = 'Arbeidsforhold  på Ansatt ' + addressRoute[addressRoute.length - 1];
+                        item.link = '/salary/employees/' + addressRoute[addressRoute.length - 1] + '/employments';
+                    } else {
+                        item.module = 'et arbeidsforhold';
+                        item.link = '/salary/employees';
+                    }
+                } else {
+                    item.module = 'et arbeidsforhold';
+                    item.link = '/salary/employees';
+                }
                 break;
             case 'BankAccount':
                 if (item.AuditLogRoute) {

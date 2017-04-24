@@ -7,17 +7,17 @@ import * as Chart from 'chart.js';
 interface IKeyNumberObject {
     value: string;
     grade: string;
+    class: string;
     arrowX: number;
     arrowY: number;
     textColor: string;
-    id: string;
 }
 
 @Component({
     selector: 'uni-kpi-widget',
     template: `
         <div class="uni-kpi-widget">
-            <div class="uni-dashboard-chart-header"> {{ widget.config.header }}</div>
+            <div class="uni-dashboard-chart-header"> <span> {{ widget.config.header }} </span></div>
             <section>
 
                 <section>
@@ -26,6 +26,7 @@ interface IKeyNumberObject {
                         <p class="uni-kpi-widget-value" [ngStyle]="{'color': profitability.textColor}">{{ profitability.value }}</p>
                     </div>
                     <div>
+                        <a class="uni-kpi-widget-chevron" [ngClass]="profitability.class">link</a>
                         <p [ngStyle]="{'color': profitability.textColor}">{{ profitability.grade }} </p>
                     </div>
                     <div>
@@ -39,6 +40,7 @@ interface IKeyNumberObject {
                         <p class="uni-kpi-widget-value" [ngStyle]="{'color': liquidity.textColor}">{{ liquidity.value }}</p>
                     </div>
                     <div>
+                        <a class="uni-kpi-widget-chevron" [ngClass]="liquidity.class">link</a>
                         <p [ngStyle]="{'color': liquidity.textColor}">{{ liquidity.grade }} </p>
                     </div>
                     <div>
@@ -52,6 +54,7 @@ interface IKeyNumberObject {
                         <p class="uni-kpi-widget-value" [ngStyle]="{'color': solidity.textColor}">{{ solidity.value }}</p>
                     </div>
                     <div>
+                        <a class="uni-kpi-widget-chevron" [ngClass]="solidity.class">link</a>
                         <p [ngStyle]="{'color': solidity.textColor}">{{ solidity.grade }} </p>
                     </div>
                     <div>
@@ -79,28 +82,28 @@ export class UniKPIWidget {
     public liquidity: IKeyNumberObject = {
         value: '-',
         grade: 'Ikke tilgjengelig',
+        class: '',
         arrowX: 0,
         arrowY: 0,
-        textColor: '#85898b',
-        id: '151468'
+        textColor: '#85898b'
     };
 
     public solidity: IKeyNumberObject = {
         value: '-',
         grade: 'Ikke tilgjengelig',
+        class: '',
         arrowX: 0,
         arrowY: 0,
-        textColor: '#85898b',
-        id: '124515'
+        textColor: '#85898b'
     };
 
     public profitability: IKeyNumberObject = {
         value: '-',
         grade: 'Ikke tilgjengelig',
+        class: '',
         arrowX: 0,
         arrowY: 0,
-        textColor: '#85898b',
-        id: '784574'
+        textColor: '#85898b'
     };
 
     constructor(
@@ -166,27 +169,32 @@ export class UniKPIWidget {
         let keyNumber = parseInt(kpiObject.value);
 
         if (keyNumber < breakpoints[0]) {
-            kpiObject.grade = 'Ikke tilfredstillende';
+            kpiObject.grade = 'Ikke tilfredst.';
+            kpiObject.class = 'kpi-widget-level1';
             kpiObject.textColor = '#d65e63';
             kpiObject.arrowX = 15;
             kpiObject.arrowY = 90;
         } else if (keyNumber >= breakpoints[0] && keyNumber < breakpoints[1]) {
             kpiObject.grade = 'Svak';
+            kpiObject.class = 'kpi-widget-level2';
             kpiObject.textColor = '#ebb5ab';
             kpiObject.arrowX = 20;
             kpiObject.arrowY = 60;
         } else if (keyNumber >= breakpoints[1] && keyNumber < breakpoints[2]) {
             kpiObject.grade = 'Tilfredstillende';
+            kpiObject.class = 'kpi-widget-level3';
             kpiObject.textColor = '#b9d49d';
             kpiObject.arrowX = 35;
             kpiObject.arrowY = 40;
         } else if (keyNumber >= breakpoints[2] && keyNumber < breakpoints[3]) {
             kpiObject.grade = 'God';
+            kpiObject.class = 'kpi-widget-level4';
             kpiObject.textColor = '#9bc57d';
             kpiObject.arrowX = 60;
             kpiObject.arrowY = 40;
         } else {
             kpiObject.grade = 'Meget god';
+            kpiObject.class = 'kpi-widget-level5';
             kpiObject.textColor = '#77b655';
             kpiObject.arrowX = 85;
             kpiObject.arrowY = 70;
@@ -195,7 +203,6 @@ export class UniKPIWidget {
 
     public drawIndicator(canvas: ElementRef, arrowX: number, arrowY: number) {
         if (!canvas || !canvas.nativeElement) {
-            console.log('too soon?');
             return;
         }
 
