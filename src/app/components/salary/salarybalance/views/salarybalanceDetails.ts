@@ -106,14 +106,14 @@ export class SalarybalanceDetail extends UniView {
         let previousAmount = changes['Amount'] ? changes['Amount'].previousValue : null;
         let currentAmount = changes['Amount'] ? changes['Amount'].currentValue : null;
         if (previousAmount !== currentAmount) {
-            if (currentAmount > 0 && this.salarybalance$.getValue().InstalmentType === SalBalType.Advance) {
+            if (currentAmount < 0 && this.salarybalance$.getValue().InstalmentType === SalBalType.Advance) {
                 this.toastService.addToast('Feil i beløp', 
                     ToastType.warn, ToastTime.medium, 
-                    'Du prøver å føre et forskudd med et positivt beløp');
-            } else if (currentAmount < 0 && this.salarybalance$.getValue().InstalmentType !== SalBalType.Advance) {
+                    'Du prøver å føre et forskudd med et negativt beløp');
+            } else if (currentAmount > 0 && this.salarybalance$.getValue().InstalmentType !== SalBalType.Advance) {
                 this.toastService.addToast('Feil i beløp', 
                     ToastType.warn, ToastTime.medium, 
-                    'Du prøver å føre et trekk med negativt beløp');
+                    'Du prøver å føre et trekk med positivt beløp');
             }
         }
         
@@ -174,7 +174,7 @@ export class SalarybalanceDetail extends UniView {
 
         let percentField: UniFieldLayout = this.findByPropertyName('InstalmentPercent');
         percentField.Hidden = this.salarybalance$.getValue().InstalmentType === SalBalType.Advance;
-        percentField.ReadOnly = this.salarybalance$.getValue().Instalment !== null ? true : false;
+        percentField.ReadOnly = !!this.salarybalance$.getValue().Instalment ? true : false;
 
         let supplierField: UniFieldLayout = this.findByPropertyName('SupplierID');
         supplierField.Options.source = this.suppliers;
