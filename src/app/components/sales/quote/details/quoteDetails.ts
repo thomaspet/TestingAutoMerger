@@ -624,14 +624,14 @@ export class QuoteDetails {
 
         this.saveActions.push({
             label: 'Skriv ut',
-            action: (done) => this.saveAndPrint(),
+            action: (done) => this.saveAndPrint(done),
             main:  this.quote.QuoteNumber > 0 && !printStatus,
             disabled: false
         });
 
         this.saveActions.push({
             label: 'Send på epost',
-            action: () => {
+            action: (done) => {
                 let sendemail = new SendEmail();
                 sendemail.EntityType = 'CustomerQuote';
                 sendemail.EntityID = this.quote.ID;
@@ -643,7 +643,7 @@ export class QuoteDetails {
                 this.sendEmailModal.openModal(sendemail);
                 if (this.sendEmailModal.Changed.observers.length === 0) {
                         this.sendEmailModal.Changed.subscribe((email) => {
-                        this.reportService.generateReportSendEmail('Tilbud id', email);
+                        this.reportService.generateReportSendEmail('Tilbud id', email, null, done);
                     });
                 }
             },
@@ -816,23 +816,24 @@ export class QuoteDetails {
         });
     }
 
-    private saveAndPrint() {
+    private saveAndPrint(doneHandler: (msg: string) => void = null) {
         if (this.isDirty) {
             this.saveQuote().then(quote => {
                 this.isDirty = false;
-                this.print(quote.ID);
+                this.print(quote.ID, doneHandler);
             }).catch(error => {
+                if (doneHandler) { doneHandler('En feil oppstod ved utskrift av tilbud!'); }
                 this.errorService.handle(error);
             });
         } else {
-            this.print(this.quote.ID);
+            this.print(this.quote.ID, doneHandler);
         }
     }
 
-    private print(id) {
+    private print(id, doneHandler: (msg: string) => void = null) {
         this.reportDefinitionService.getReportByName('Tilbud id').subscribe((report) => {
             if (report) {
-                this.previewModal.openWithId(report, id);
+                this.previewModal.openWithId(report, id, 'Id', doneHandler);
             }
         });
     }

@@ -622,14 +622,14 @@ export class OrderDetails {
 
         this.saveActions.push({
             label: 'Skriv ut',
-            action: (done) => this.saveAndPrint(),
+            action: (done) => this.saveAndPrint(done),
             main:  this.order.OrderNumber > 0 && !printStatus,
             disabled: false
         });
 
         this.saveActions.push({
             label: 'Send på epost',
-            action: () => {
+            action: (done) => {
                 let sendemail = new SendEmail();
                 sendemail.EntityType = 'CustomerOrder';
                 sendemail.EntityID = this.order.ID;
@@ -641,7 +641,7 @@ export class OrderDetails {
                 this.sendEmailModal.openModal(sendemail);
                 if (this.sendEmailModal.Changed.observers.length === 0) {
                         this.sendEmailModal.Changed.subscribe((email) => {
-                        this.reportService.generateReportSendEmail('Ordre id', email);
+                        this.reportService.generateReportSendEmail('Ordre id', email, null, done);
                     });
                 }
             },
@@ -823,22 +823,25 @@ export class OrderDetails {
         });
     }
 
-    private saveAndPrint() {
+    private saveAndPrint(doneHandler: (msg: string) => void = null) {
         if (this.isDirty) {
             this.saveOrder().then(order => {
                 this.isDirty = false;
-                this.print(order.ID);
+                this.print(order.ID, doneHandler);
             }).catch(error => {
+                if (doneHandler) { doneHandler('En feil oppstod ved utskrift av ordre!'); }
                 this.errorService.handle(error);
             });
         } else {
-            this.print(this.order.ID);
+            this.print(this.order.ID, doneHandler);
         }
     }
 
-    private print(id) {
+    private print(id, doneHandler: (msg: string) => void = null) {
         this.reportDefinitionService.getReportByName('Ordre id').subscribe((report) => {
-            this.previewModal.openWithId(report, id);
+            this.previewModal.openWithId(report, id, 'Id', doneHandler);
+        }, (err) => {
+            if (doneHandler) { doneHandler('En feil oppstod ved utskrift av ordre!'); }
         });
     }
 

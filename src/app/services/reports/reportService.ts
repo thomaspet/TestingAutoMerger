@@ -96,9 +96,10 @@ export class ReportService extends BizHttp<string> {
                     .printReport(this.report.templateJson, this.report.dataSources, this.report.parameters, false, 'pdf'));
     }
 
-    public generateReportSendEmail(name: string, sendemail: SendEmail, parameters = null) {
+    public generateReportSendEmail(name: string, sendemail: SendEmail, parameters = null, doneHandler: (msg: string) => void = null) {
         if (sendemail.EmailAddress.indexOf('@') <= 0) {
             this.toastService.addToast('Sending av epost feilet', ToastType.bad, 3, 'Grunnet manglende epostadresse');
+            if (doneHandler) { doneHandler('Sending av epost feilet grunnet manglende epostadresse'); }
         } else {
             this.emailtoast = this.toastService.addToast('Sender epost til ' + sendemail.EmailAddress, ToastType.warn, 0, sendemail.Subject);
 
@@ -110,17 +111,17 @@ export class ReportService extends BizHttp<string> {
                 this.report = <Report>report;
                 this.target = null;
                 this.sendemail = sendemail;
-                this.generateReport();
+                this.generateReport(doneHandler);
             }, err => this.errorService.handle(err));
         }
     }
 
-    private generateReport() {
+    private generateReport(doneHandler: (msg: string) => void = null) {
         Observable.forkJoin([
             this.generateReportObservable(),
             this.getDataSourcesObservable()
         ]).subscribe(res => {
-            this.onDataFetched(this.report.dataSources);
+            this.onDataFetched(this.report.dataSources, doneHandler);
         });
     }
 
@@ -142,7 +143,7 @@ export class ReportService extends BizHttp<string> {
             .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
     }
 
-    private onDataFetched(dataSources: any) {
+    private onDataFetched(dataSources: any, doneHandler: (msg: string) => void = null) {
         // uncomment this line to get the actual JSON being sent to the report - quite usefull when developing reports..
         // console.log('DATA: ', JSON.stringify(dataSources));
 
@@ -168,7 +169,11 @@ export class ReportService extends BizHttp<string> {
                 this.emailService.ActionWithBody(null, body, 'send', RequestMethod.Post).subscribe(() => {
                     this.toastService.removeToast(this.emailtoast);
                     this.toastService.addToast('Epost sendt', ToastType.good, 3);
-                }, err => this.errorService.handle(err));
+                    if (doneHandler) { doneHandler('Epost sendt'); }
+                }, err => {
+                    if (doneHandler) { doneHandler('Feil oppstod ved sending av epost'); }
+                    this.errorService.handle(err);
+                });
             }
         }
     }
