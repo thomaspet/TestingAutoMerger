@@ -85,6 +85,7 @@ export class TaskList implements OnInit {
     }
 
     private initTaskList(filter: string = 'filter=StatusCode ne 50030') {
+        this.taskService.invalidateCache();
         filter += '&orderby=ID desc';
         this.taskService.GetAll(filter, ['approvals']).subscribe(
             tasks => {
@@ -160,11 +161,10 @@ export class TaskList implements OnInit {
     private onStatusFilterChange() {
         this.filterCompleted = !this.filterCompleted;
 
+        // @TODO filters
         if (this.filterCompleted) {
-            alert('check');
             this.initTaskList('');
         } else {
-            alert('uncheck');
             this.initTaskList('');
         }
     }

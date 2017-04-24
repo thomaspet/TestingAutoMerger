@@ -90,7 +90,7 @@ export class BizHttp<T> {
         }
     }
 
-    protected invalidateCache(): void {
+    public invalidateCache(): void {
         this.cache = [];
     }
 
