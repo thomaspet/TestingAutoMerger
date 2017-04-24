@@ -11,7 +11,7 @@
             <button (click)="createPaymentFile()" *ngIf="!paymentBatch.PaymentFileID">Opprett betalingsfil</button>
             <button (click)="downloadPaymentFile()" *ngIf="paymentBatch.PaymentFileID">Last ned betalingsfil</button>
             <button (click)="toggleReceiptFilesVisible()" *ngIf="paymentBatch.StatusCode === 45005">{{ !receiptFilesVisible ? 'Vis kvitteringsfiler' : 'Skjul kvitteringsfiler' }}</button>
-            <uni-upload-file-button [buttonText]="'Last opp kvitteringsfil'" (fileUploaded)="receiptFileUploaded($event)" *ngIf="paymentBatch.PaymentFileID && paymentBatch.StatusCode !== 45005"></uni-upload-file-button>
+            <uni-upload-file-button [buttonText]="'Registrer kvitteringsfil'" (fileUploaded)="receiptFileUploaded($event)" *ngIf="paymentBatch.PaymentFileID && paymentBatch.StatusCode !== 45005"></uni-upload-file-button>
         </div>
         <section *ngIf="receiptFilesVisible">
             <uni-attachments [entity]="'PaymentBatch'" [entityID]="paymentBatch?.ID" [downloadAsAttachment]="downloadFilesAsAttachments" [headerText]="'Kvitteringsfiler tilknyttet denne bunten'"></uni-attachments>
