@@ -3,6 +3,7 @@ import {CompanySettingsComponent} from './companySettings/companySettings';
 import {AgaAndSubEntitySettings} from './agaAndSubEntitySettings/agaAndSubEntitySettings';
 import {UserSettings} from './userSettings/userSettings';
 import {Users} from './users/users';
+import {Teams} from './teams/teams';
 import {AltinnSettings} from './altinnSettings/altinnSettings';
 import {WebHookSettings} from './webHookSettings/webHookSettings';
 import {Settings} from './settings';
@@ -45,6 +46,10 @@ export const settingsRoutes: Routes = [{
             path: 'altinn',
             component: AltinnSettings,
             canDeactivate: [CanDeactivateGuard]
-        }
+        },
+        {
+            path: 'teams',
+            component: Teams
+        }        
     ]
 }];
