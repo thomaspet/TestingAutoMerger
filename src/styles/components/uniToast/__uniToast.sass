@@ -26,13 +26,10 @@ uni-toast
     padding: 0 1rem
     text-align: left
     border-radius: 5px
-    color: $uni-color-negative
+    color: white !important
 
     &:hover
         box-shadow: 0 0 1rem rgba(161,170,188,.6)
-
-    &:focus
-        color: white
 
     &:before
         display: inline-block
@@ -41,19 +38,16 @@ uni-toast
         margin: 0 .5rem 0 .25rem
 
     &.good
-        color: white
         background-color: transparentize($uni-color-good, .1)
         &:before
             content: '\2713'
 
     &.bad
-        color: white
         background-color: transparentize($uni-color-bad, .1)
         &:before
             content: '\2A09'
 
     &.warn
-        color: white
         background-color: transparentize($uni-color-warn, .1)
         &:before
             content: '\26A0'
