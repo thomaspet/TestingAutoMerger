@@ -35,25 +35,18 @@ export class UniSubTickerContainer implements OnChanges {
         return this.parentTicker.Columns.filter(x => x.Type !== 'dontdisplay');
     }
 
-    private onSelectSubTicker(subTicker: Ticker) {
-        this.subTickers.forEach(x => {
-            x.IsActive = false;
-        });
-
-        subTicker.IsActive = true;
-
-        this.stopPropagation();
-
-        this.selectedSubTicker = subTicker;
+    private stopPropagation(event) {
+        if (event) {
+            event.stopPropagation();
+        }
     }
 
-    private stopPropagation() {
-        event.stopPropagation();
-    }
-
-    private closeSubtickers() {
+    private closeSubtickers(event) {
         this.close.emit();
-        this.stopPropagation();
+
+        if (event) {
+            event.stopPropagation();
+        }
     }
 
     public getFieldValue(column: TickerColumn, model: any) {

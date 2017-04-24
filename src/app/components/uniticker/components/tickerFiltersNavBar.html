@@ -1,7 +1,7 @@
 <header class="horizontal_nav no-print">
     <ul>
         <li *ngFor="let filter of filters"
-            (click)="onFilterSelected(filter)"
+            (click)="onFilterSelected(filter, $event)"
             [class.active]="filter.IsActive">
             <a>
                 {{filter.Name}}

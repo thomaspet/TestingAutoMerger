@@ -72,8 +72,10 @@ export class UniTickerActions {
         }
     }
 
-    private onActionClicked(action: TickerAction) {
+    private onActionClicked(action: TickerAction, event) {
         this.executeAction.emit(action);
-        event.stopPropagation();
+        if (event) {
+            event.stopPropagation();
+        }
     }
 }

@@ -36,7 +36,7 @@ export class UniTickerFiltersNavBar {
 
     }
 
-    public onFilterSelected(filter: TickerFilter) {
+    public onFilterSelected(filter: TickerFilter, event) {
         this.filters.forEach(x => {
             x.IsActive = false;
         });
@@ -48,7 +48,7 @@ export class UniTickerFiltersNavBar {
         this.filterSelected.emit(filter);
 
         this.cdr.markForCheck();
-        this.stopPropagation();
+        this.stopPropagation(event);
     }
 
     private ngOnChanges(changes: SimpleChanges) {
@@ -113,7 +113,7 @@ export class UniTickerFiltersNavBar {
             );
         }
     }
-    private stopPropagation() {
+    private stopPropagation(event) {
         if (event) {
             event.stopPropagation();
         }
