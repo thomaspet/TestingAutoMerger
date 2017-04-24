@@ -90,7 +90,9 @@ export class UniListWidget {
 
     //Returns first name of user..
     private removeLastNameIfAny(str: string) {
-        if (str.indexOf(' ') === -1) {
+        if (!str) {
+            return str;
+        } else if (str.indexOf(' ') === -1) {
             return str;
         } else {
             return str.substr(0, str.indexOf(' '));
