@@ -199,7 +199,7 @@ export class PaymentList {
     }
 
 
-    private getExternalCurrencyExchangeRate(rowModel: Payment): Promise<JournalEntryData> {
+    private getExternalCurrencyExchangeRate(rowModel: Payment): Promise<Payment> {
         let rowDate = rowModel.PaymentDate || new LocalDate();
         return new Promise(done => {
             if (rowModel.CurrencyCodeID === this.companySettings.BaseCurrencyCodeID &&
