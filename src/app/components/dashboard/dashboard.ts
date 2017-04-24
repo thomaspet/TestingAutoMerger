@@ -26,7 +26,7 @@ export class Dashboard {
     private widgetCanvas: UniWidgetCanvas;
 
     public welcomeHidden: boolean = JSON.parse(localStorage.getItem('welcomeHidden'));
-    private widgets: any[] = [];
+    private layout: any[] = [];
 
     constructor(
         private tabService: TabService,
@@ -39,7 +39,7 @@ export class Dashboard {
 
         // Avoid compile error. Seems to be something weird with the chart.js typings file
         (<any> Chart).defaults.global.maintainAspectRatio = false;
-        this.widgets = this.initLayout();
+        this.layout = this.initLayout();
     }
 
     public initLayout() {
@@ -49,12 +49,12 @@ export class Dashboard {
                 height: 1,
                 x: 0,
                 y: 0,
-                widgetType: 'shortcut', // TODO: enum
+                widgetType: 'shortcut',
                 config: {
                     label: 'Regnskap',
-                    description: 'Regnskapsmodul',
+                    description: 'Regnskap',
                     icon: 'accounting',
-                    link: '/sales/quotes'
+                    link: '/accounting'
                 }
             },
             {
@@ -62,12 +62,12 @@ export class Dashboard {
                 height: 1,
                 x: 1,
                 y: 0,
-                widgetType: 'shortcut', // TODO: enum
+                widgetType: 'shortcut',
                 config: {
-                    label: 'Lønn',
-                    description: 'Lønnsmodulen',
-                    icon: 'payroll',
-                    link: '/sales/orders'
+                    label: 'Salg',
+                    description: 'Salg',
+                    icon: 'user',
+                    link: '/sales'
                 }
             },
             {
@@ -75,12 +75,12 @@ export class Dashboard {
                 height: 1,
                 x: 2,
                 y: 0,
-                widgetType: 'shortcut', // TODO: enum
+                widgetType: 'shortcut',
                 config: {
-                    label: 'Bank',
-                    description: 'Bankmodulen',
-                    icon: 'bank',
-                    link: '/sales/invoices'
+                    label: 'Lønn',
+                    description: 'Lønn',
+                    icon: 'payroll',
+                    link: '/salary'
                 }
             },
             {
@@ -88,12 +88,12 @@ export class Dashboard {
                 height: 1,
                 x: 3,
                 y: 0,
-                widgetType: 'shortcut', // TODO: enum
+                widgetType: 'shortcut',
                 config: {
-                    label: 'Kunder',
-                    description: 'Kundeoversikt',
-                    icon: 'user',
-                    link: '/sales/customer'
+                    label: 'Bank',
+                    description: 'Bank',
+                    icon: 'bank',
+                    link: '/bank'
                 }
             },
             {
@@ -101,9 +101,9 @@ export class Dashboard {
                 height: 1,
                 x: 4,
                 y: 0,
-                widgetType: 'shortcut', // TODO: enum
+                widgetType: 'shortcut',
                 config: {
-                    label: 'Timer',
+                    label: 'TIMER',
                     description: 'Timeføring',
                     icon: 'hourreg',
                     link: '/timetracking/timeentry'

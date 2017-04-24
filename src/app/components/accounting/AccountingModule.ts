@@ -12,6 +12,7 @@ import {UniTableModule} from 'unitable-ng2/main';
 import {UniFormModule} from 'uniform-ng2/main';
 import {AppCommonModule} from '../common/appCommonModule';
 import {AppPipesModule} from '../../pipes/appPipesModule';
+import {WidgetModule} from '../widgets/widgetModule';
 
 // routes
 import {accountingRoutes} from './accountingRoutes';
@@ -76,6 +77,7 @@ import {VatDeductionSettings} from './vatsettings/vatdeductions/vatdeductionsett
 
         LayoutModule,
         AppCommonModule,
+        WidgetModule,
         AppPipesModule,
 
         RouterModule.forChild(accountingRoutes)

@@ -51,6 +51,7 @@ export class HamburgerMenu {
     public static getParentApp(moduleID): any {
         let _series = moduleID + '';
         let _seriesIndex = +_series.slice(0, 1) - 1;
+        console.log(moduleID, this.getAvailableComponents()[_seriesIndex]);
         return this.getAvailableComponents()[_seriesIndex];
     }
 

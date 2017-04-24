@@ -1,9 +1,53 @@
-import {IUniWidget} from './uniWidget';
+import {IUniWidget, IWidgetLayout} from './widgetCanvas';
 
 export class CanvasHelper {
     public canvasGrid: boolean[][];
     private numColumns: number;
     private numRows: number;
+
+    public getLayout(name: string): IWidgetLayout {
+        if (!name || !name.length) {
+            return;
+        }
+
+        try {
+            const layoutStore = JSON.parse(localStorage.getItem('uni_widget_layouts'));
+            if (layoutStore[name]) {
+                return layoutStore[name];
+            }
+        } catch (e) {}
+    }
+
+    public saveLayout(name: string, layout: IWidgetLayout) {
+        if (!name || !name.length) {
+            return;
+        }
+
+        let layoutStore;
+        try {
+            layoutStore = JSON.parse(localStorage.getItem('uni_widget_layouts'));
+        } catch (e) {}
+
+        if (!layoutStore) {
+            layoutStore = {};
+        }
+
+        layout['_editMode'] = false;
+        layoutStore[name] = layout;
+        localStorage.setItem('uni_widget_layouts', JSON.stringify(layoutStore));
+    }
+
+    public removeLayout(name: string) {
+        if (!name || !name.length) {
+            return;
+        }
+
+        try {
+            const layoutStore = JSON.parse(localStorage.getItem('uni_widget_layouts'));
+            delete layoutStore[name];
+            localStorage.setItem('uni_widget_layouts', JSON.stringify(layoutStore));
+        } catch (e) {}
+    }
 
     public resetGrid(numColumns?: number): void {
         this.numColumns = numColumns || this.numColumns;

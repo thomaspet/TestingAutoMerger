@@ -1,5 +1,6 @@
 import {Routes} from '@angular/router';
 
+import {UniAccounting} from './accounting';
 import {JournalEntry} from './journalentry/journalentry';
 import {Transquery} from './transquery/transquery';
 import {AccountSettings} from './accountSettings/accountSettings';
@@ -20,7 +21,7 @@ export const accountingRoutes: Routes = [
     {
         path: '',
         pathMatch: 'full',
-        redirectTo: 'journalentry'
+        component: UniAccounting
     },
     {
         path: 'journalentry',

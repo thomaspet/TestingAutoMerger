@@ -76,7 +76,7 @@ if (window.ENV === 'production') {
         TimeTrackingServicesModule.forRoot(),
         AdminServicesModule.forRoot(),
         TaskServicesModule.forRoot(),
-        
+
         // routes
         APP_ROUTES,
 
@@ -92,6 +92,7 @@ if (window.ENV === 'production') {
         // COMMON MODULES
         LayoutModule,
         AppCommonModule,
+        WidgetModule,
         UniQueryModule,
         ReportsModule,
         InitModule,
@@ -100,7 +101,6 @@ if (window.ENV === 'production') {
         UniTickerModule,
         TranslationsModule,
         TasksModule,
-        WidgetModule,
         DashboardModule
     ],
     declarations: [

@@ -18,7 +18,8 @@ import {UNI_WIDGETS} from './widgets/barrel';
         ...UNI_WIDGETS
     ],
     entryComponents: [
-        ...UNI_WIDGETS
+        ...UNI_WIDGETS,
+        UniWidgetCanvas
     ],
     providers: [
         WidgetDataService

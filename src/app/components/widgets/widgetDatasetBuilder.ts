@@ -34,7 +34,7 @@ export class WidgetDatasetBuilder {
 
         return {
             data: myData,
-            backgroundColor: config.backgroundColors[index],
+            backgroundColor: (config.backgroundColors || [])[index] || 'transparent',
             label: config.title[index],
             borderColor: config.colors[index]
         };

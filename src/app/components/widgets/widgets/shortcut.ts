@@ -8,7 +8,7 @@ import {IUniWidget} from '../uniWidget';
         <div *ngIf="widget"
              class="uni-widget-shortcut-tile uni-widget-tile-content"
              (click)="onClickNavigate()">
-            <a class="{{ widget.config.icon !== '' ? getIconClass() : 'dashboard-shortcut-icon-fallback' }}">Link</a><br />
+            <a *ngIf="widget?.config?.icon" [ngClass]="getIconClass()"></a><br />
             <a class="uni-shortcut-link">{{ widget.config.label }}</a>
         </div>
     `,

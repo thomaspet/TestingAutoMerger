@@ -19,6 +19,8 @@ import {AuthService} from '../../../framework/core/authService';
 import * as $ from 'jquery';
 declare const _;
 
+export {IUniWidget} from './uniWidget';
+
 interface IGridCell {
     available: boolean;
     class: string;
@@ -32,7 +34,7 @@ interface IGridAnchor {
     y: number;
 }
 
-interface IWidgetLayout {
+export interface IWidgetLayout {
     large: IUniWidget[];
     medium?: IUniWidget[];
     small?: IUniWidget[];
@@ -51,7 +53,10 @@ export class UniWidgetCanvas {
     private widgetElements: QueryList<UniWidget>;
 
     @Input()
-    private widgets: IUniWidget[];
+    private defaultLayout: IUniWidget[];
+
+    @Input()
+    private layoutName: string;
 
     private layout: IWidgetLayout;
     private layoutBackup: IWidgetLayout;
@@ -84,7 +89,7 @@ export class UniWidgetCanvas {
         Observable.fromEvent(window, 'resize')
             .throttleTime(200)
             .subscribe(event => {
-                if (this.widgets) {
+                if (this.defaultLayout) {
                     if (this.editMode) {
                         this.save();
                     }
@@ -97,14 +102,15 @@ export class UniWidgetCanvas {
     }
 
     public ngOnChanges() {
-        if (this.widgets) {
-            this.layout = JSON.parse(localStorage.getItem('widget_layout_dashboard'));
+        if (this.defaultLayout) {
+            this.layout = this.canvasHelper.getLayout(this.layoutName);
+            // console.log(typeof this.layout);
 
             if (!this.layout) {
                 this.layout = {
-                    large: this.deepCopyWidgets(this.widgets),
-                    medium: this.deepCopyWidgets(this.widgets),
-                    small: this.deepCopyWidgets(this.widgets),
+                    large: this.deepCopyWidgets(this.defaultLayout),
+                    medium: this.deepCopyWidgets(this.defaultLayout),
+                    small: this.deepCopyWidgets(this.defaultLayout),
                 };
             }
 
@@ -233,11 +239,11 @@ export class UniWidgetCanvas {
             return;
         }
 
-        localStorage.removeItem('widget_layout_dashboard');
+        this.canvasHelper.removeLayout(this.layoutName);
         this.layout = {
-            small: this.deepCopyWidgets(this.widgets),
-            medium: this.deepCopyWidgets(this.widgets),
-            large: this.deepCopyWidgets(this.widgets)
+            small: this.deepCopyWidgets(this.defaultLayout),
+            medium: this.deepCopyWidgets(this.defaultLayout),
+            large: this.deepCopyWidgets(this.defaultLayout)
         };
 
         this.canvasHelper.resetGrid();
@@ -253,14 +259,7 @@ export class UniWidgetCanvas {
             return;
         }
 
-        const stringified = JSON.stringify(this.layout, (key, value) => {
-            if (key === '_editMode') {
-                return false;
-            }
-            return value;
-        });
-
-        localStorage.setItem('widget_layout_dashboard', stringified);
+        this.canvasHelper.saveLayout(this.layoutName, this.layout);
         this.unsavedChanges = false;
         this.toastService.addToast('Layout lagret', ToastType.good, 5);
         this.toggleEditMode();
