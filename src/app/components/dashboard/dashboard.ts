@@ -51,9 +51,9 @@ export class Dashboard {
                 y: 0,
                 widgetType: 'shortcut', // TODO: enum
                 config: {
-                    label: 'TILBUD',
-                    description: 'Tilbudsoversikt',
-                    icon: 'paperclip',
+                    label: 'Regnskap',
+                    description: 'Regnskapsmodul',
+                    icon: 'accounting',
                     link: '/sales/quotes'
                 }
             },
@@ -64,9 +64,9 @@ export class Dashboard {
                 y: 0,
                 widgetType: 'shortcut', // TODO: enum
                 config: {
-                    label: 'ORDRE',
-                    description: 'Ordreoversikt',
-                    icon: 'chat',
+                    label: 'Lønn',
+                    description: 'Lønnsmodulen',
+                    icon: 'payroll',
                     link: '/sales/orders'
                 }
             },
@@ -77,9 +77,9 @@ export class Dashboard {
                 y: 0,
                 widgetType: 'shortcut', // TODO: enum
                 config: {
-                    label: 'FAKTURA',
-                    description: 'Fakturaoversikt',
-                    icon: 'globe',
+                    label: 'Bank',
+                    description: 'Bankmodulen',
+                    icon: 'bank',
                     link: '/sales/invoices'
                 }
             },
@@ -90,7 +90,7 @@ export class Dashboard {
                 y: 0,
                 widgetType: 'shortcut', // TODO: enum
                 config: {
-                    label: 'KUNDER',
+                    label: 'Kunder',
                     description: 'Kundeoversikt',
                     icon: 'user',
                     link: '/sales/customer'
@@ -103,9 +103,9 @@ export class Dashboard {
                 y: 0,
                 widgetType: 'shortcut', // TODO: enum
                 config: {
-                    label: 'TIMER',
+                    label: 'Timer',
                     description: 'Timeføring',
-                    icon: 'calender',
+                    icon: 'hourreg',
                     link: '/timetracking/timeentry'
                 }
             },
@@ -127,9 +127,9 @@ export class Dashboard {
                 y: 4,
                 widgetType: 'counter', // TODO: enum
                 config: {
-                    label: 'innboks',
+                    label: 'Innboks',
                     description: 'Uleste eposter',
-                    icon: 'home',
+                    icon: 'letter',
                     link: '/accounting/bills?filter=Inbox',
                     dataEndpoint: "/api/statistics?skip=0&model=FileTag&select=count(ID) as count&expand=File&filter=FileTag.Status eq 0 and FileTag.TagName eq 'IncomingMail'",
                     valueKey: 'Data[0].count',
@@ -144,9 +144,9 @@ export class Dashboard {
                 y: 4,
                 widgetType: 'counter', // TODO: enum
                 config: {
-                    label: 'ehf',
-                    description: 'Innkommende ehf',
-                    icon: 'globe',
+                    label: 'EHF',
+                    description: 'Innkommende ehfs',
+                    icon: 'ehf',
                     link: '/accounting/bills?filter=Inbox',
                     dataEndpoint: "/api/statistics?skip=0&model=FileTag&select=count(ID) as count&expand=File&filter=FileTag.Status eq 0 and FileTag.TagName eq 'IncomingEHF'",
                     valueKey: 'Data[0].count',
@@ -161,9 +161,9 @@ export class Dashboard {
                 y: 4,
                 widgetType: 'counter', // TODO: enum
                 config: {
-                    label: 'tildelte',
+                    label: 'Tildelte',
                     description: 'Tildelte faktura',
-                    icon: 'paperclip',
+                    icon: 'pdf',
                     link: '/accounting/bills?filter=ForApproval&page=1',
                     dataEndpoint: "/api/statistics/?model=SupplierInvoice&select=count(ID) as count&filter=( isnull(deleted,0) eq 0 ) and ( statuscode eq 30102 )",
                     valueKey: 'Data[0].count',
@@ -171,23 +171,6 @@ export class Dashboard {
                     class: 'uni-widget-notification-orange'
                 }
             },
-            // {
-            //    width: 1,
-            //    height: 1,
-            //    x: 11,
-            //    y: 4,
-            //    widgetType: 'counter', // TODO: enum
-            //    config: {
-            //        label: 'prosjekter',
-            //        description: 'Antall aktive prosjekter',
-            //        icon: 'settings',
-            //        link: '/dimensions/project',
-            //        dataEndpoint: "/api/statistics?model=Project&select=count(ID) as count",
-            //        valueKey: 'Data[0].count',
-            //        amount: 0,
-            //        class: 'uni-widget-notification-orange'
-            //    }
-            // },
             {
                 width: 1,
                 height: 1,
@@ -195,9 +178,9 @@ export class Dashboard {
                 y: 4,
                 widgetType: 'counter', // TODO: enum
                 config: {
-                    label: 'varsler',
+                    label: 'Varsler',
                     description: 'Uleste varlser',
-                    icon: 'bell',
+                    icon: 'notification',
                     link: '/',
                     dataEndpoint: '/api/biz/notifications?action=count',
                     valueKey: 'Count',
@@ -229,43 +212,21 @@ export class Dashboard {
                 config: {
                     header: 'Driftsresultater',
                     chartType: 'line',
-                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
-                    colors: ['#ab6857'],
+                    labels: ['Jan', '', '', 'Apr', '', '', 'Jul', '', 'Sep', '', '', 'Dec'],
+                    colors: ['#7293cb'],
+                    backgroundColors: ['transparent'],
                     dataEndpoint: ['/api/statistics?model=JournalEntryLine&select=month(financialdate),sum(amount)&join=journalentryline.accountid eq account.id&filter=account.accountnumber ge 3000 and account.accountnumber le 9999 &range=monthfinancialdate'],
                     dataKey: ['sumamount'],
                     multiplyValue: -1,
                     dataset: [],
+                    fill: 'none',
                     options: {
                         showLines: true,
-                        animation: {
-                            animateScale: true
-                        },
-                        legend: {
-                            position: 'top'
-                        }
+                        bezierCurve: false
                     },
                     title: ['Driftsresultat']
                 }
             },
-
-            // {
-            //    width: 4,
-            //    height: 3,
-            //    widgetType: 'chart',
-            //    config: {
-            //        header: 'Tilbud, ordre og faktura - 2016',
-            //        chartType: 'bar',
-            //        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
-            //        colors: ['#7293cb', '#e1974c', '#84ba5b'],
-            //        dataEndpoint: ['/api/statistics?model=CustomerQuote&select=sum(TaxExclusiveAmount),month(QuoteDate),year(QuoteDate)&range=monthquotedate', '/api/statistics?model=CustomerOrder&select=sum(TaxExclusiveAmount),month(OrderDate),year(OrderDate)&range=monthorderdate', '/api/statistics?model=CustomerInvoice&select=sum(TaxExclusiveAmount),month(InvoiceDate),year(InvoiceDate)&filter=month(invoicedate) ge 1 and year(invoicedate) eq 2016&range=monthinvoicedate'],
-            //        dataKey: ['sumTaxExclusiveAmount', 'sumTaxExclusiveAmount', 'sumTaxExclusiveAmount'],
-            //        multiplyValue: 1,
-            //        dataset: [],
-            //        options: {},
-            //        title: ['Tilbud', 'Ordre', 'Faktura']
-            //    }
-            // },
-
             {
                 width: 4,
                 height: 3,
@@ -302,7 +263,7 @@ export class Dashboard {
                             animateScale: true
                         },
                         legend: {
-                            position: 'left'
+                            position: 'bottom'
                         },
                     }
                 }
@@ -338,20 +299,6 @@ export class Dashboard {
                     }
                 }
             },
-
-            // {
-            //     width: 4,
-            //     height: 4,
-            //     x: 8,
-            //     y: 0,
-            //     widgetType: 'rss',
-            //     config: {
-            //         header: 'Nyheter fra kundesenteret',
-            //         dataEndpoint: "/api/biz/rss/1",
-            //         RSSType: 1 // DOCUMENTATION: https://unimicro.atlassian.net/wiki/pages/viewpage.action?spaceKey=UE&title=RssListe
-            //     }
-            // },
-
             {
                 width: 4,
                 height: 3,

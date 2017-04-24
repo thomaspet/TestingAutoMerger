@@ -9,7 +9,7 @@ import * as Chart from 'chart.js';
     selector: 'uni-chart',
     template: `
         <figure #chartContainer style="margin: 0; color: white; text-align: center; background-color: #fff; max-height: 100%; height: 100%;">
-            <div class="uni-dashboard-chart-header"> {{ widget.config.header }}</div>
+            <div class="uni-dashboard-chart-header"> <span> {{ widget.config.header }} </span></div>
             <section style="padding: 20px;">
                 <canvas #chartElement> </canvas>
             </section>

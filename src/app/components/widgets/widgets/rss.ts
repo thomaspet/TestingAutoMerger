@@ -5,8 +5,8 @@ import { WidgetDataService } from '../widgetDataService';
 @Component({
     selector: 'uni-rss',
     template: `
-        <div class="uni-dashboard-chart-header" style="color: #fff; text-align: center"> {{ widget.config.header }}</div>
-        <ul style="list-style: none; height: calc(100% - 24px); overflow-y: scroll; margin: 0;">
+        <div class="uni-dashboard-chart-header" style="color: #fff; text-align: center"> <span> {{ widget.config.header }} </span></div>
+        <ul style="list-style: none; height: calc(100% - 35px); overflow-y: scroll; margin: 0;">
             <li *ngFor="let item of items" style="margin-top: 10px;">
                 <aside class="image-container">
                     <img [src]="item.Image">

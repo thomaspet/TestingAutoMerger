@@ -163,6 +163,12 @@ uni-dashboard
     width: 100%
     background-color: #06457a
     border-radius: 2px
+    height: 35px
+
+    span
+        display: inline-block
+        vertical-align: middle
+        line-height: 35px
 
 .uni-widget-shortcut-tile
     text-align: center
@@ -178,7 +184,7 @@ uni-dashboard
     display: inline-block
     height: 2.5rem
     width: 2.5rem
-    background-size: 2.5rem
+    background-size: contain
     background-position: center center
     background-repeat: no-repeat
     position: relative
@@ -190,7 +196,7 @@ uni-dashboard
     display: inline-block
     height: 6.5rem
     width: 6.5rem
-    background-size: 6.5rem
+    background-size: contain
     background-position: center center
     background-repeat: no-repeat
     position: relative
@@ -219,6 +225,21 @@ uni-dashboard
 .dashboard-shortcut-icon-paperclip
     background-image: unicon-paperclip(rgba(255,255,255,1))
 
+.dashboard-shortcut-icon-hourreg
+    background-image: unicon-hourreg(rgba(255,255,255,1))
+	
+.dashboard-shortcut-icon-accounting
+    background-image: unicon-accounting(rgba(255,255,255,1))
+
+.dashboard-shortcut-icon-payroll
+    background-image: unicon-payroll(rgba(255,255,255,1))
+
+.dashboard-shortcut-icon-bank
+    background-image: unicon-bank(rgba(255,255,255,1))
+
+.dashboard-shortcut-icon-invoice
+    background-image: unicon-invoice(rgba(255,255,255,1))
+
 .dashboard-shortcut-icon-chat
     background-image: unicon-chat(rgba(255,255,255,1))
 
@@ -231,6 +252,9 @@ uni-dashboard
 .dashboard-notification-icon-globe
     background-image: unicon-globe(rgba(255,255,255,.3))
 
+.dashboard-notification-icon-letter
+    background-image: unicon-letter(rgba(255,255,255,.3))
+
 .dashboard-notification-icon-search
     background-image: unicon-search(rgba(255,255,255,.3))
 
@@ -242,6 +266,35 @@ uni-dashboard
 
 .dashboard-notification-icon-settings
     background-image: unicon-settings(rgba(255,255,255,.3))
+
+.dashboard-notification-icon-ehf
+    background-image: unicon-ehf(rgba(255,255,255,.3))
+
+.dashboard-notification-icon-pdf
+    background-image: unicon-pdf(rgba(255,255,255,.3))
+
+.dashboard-notification-icon-notification
+    background-image: unicon-notification(rgba(255,255,255,.3))
+
+.kpi-widget-level1
+    background-image: unicon-arrow(rgba(214,94,99, 1))
+    transform: rotate(45deg)
+
+.kpi-widget-level2
+    background-image: unicon-arrow(rgba(235,181,171, 1))
+    transform: rotate(35deg)
+
+.kpi-widget-level3
+    background-image: unicon-arrow(rgba(185,212,157, 1))
+    transform: rotate(25deg)
+
+.kpi-widget-level4
+    background-image: unicon-arrow(rgba(155,197,125, 1))
+    transform: rotate(10deg)
+
+.kpi-widget-level5
+    background-image: unicon-arrow(rgba(119,182,85, 1))
+    
 
 .uni-widget-notification-tile
     position: relative
@@ -295,6 +348,12 @@ uni-clock,
         top: 38%
         transform: translateY(-50%)
 
+        &:first-of-type
+            color: $uni-color-scale2
+
+        &:last-of-type
+            color: $uni-color-scale6
+
     &.long-time span
         font-size: 3rem
 
@@ -302,7 +361,7 @@ uni-clock,
     height: 100%
 
     section
-        height: calc(100% - 24px)
+        height: calc(100% - 35px)
         color: #000
         background-color: #fff
 
@@ -317,7 +376,7 @@ uni-clock,
                 max-height: 100%
 
                 h2
-                    font-size: 1.6rem
+                    font-size: 1.4rem
                     margin-bottom: 0
                     margin-top: 10px
                     font-weight: 100
@@ -334,6 +393,18 @@ uni-clock,
 .uni-kpi-widget-value
     margin: 0
     font-size: 2rem
+
+.uni-kpi-widget-chevron
+    @extend %hideText
+    display: inline-block
+    height: 1.2rem
+    width: 1.2rem
+    background-size: 1.2rem
+    background-position: center center
+    background-repeat: no-repeat
+    position: relative
+    top: 1.2rem
+    border-bottom-color: transparent
 
 .widget-logo-wrapper
     display: block

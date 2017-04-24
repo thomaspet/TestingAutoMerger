@@ -34,9 +34,9 @@ export class WidgetDatasetBuilder {
 
         return {
             data: myData,
-            backgroundColor: config.colors[index],
+            backgroundColor: config.backgroundColors[index],
             label: config.title[index],
-            borderColor: this.BAR_CHART_COLORS[ChartColorEnum.White],
+            borderColor: config.colors[index]
         };
     }
 
@@ -57,7 +57,7 @@ export class WidgetDatasetBuilder {
         }
 
         sorted.forEach((item) => {
-            labels.push(item[config.labelKey] || '');
+            labels.push(item[config.labelKey].slice(0, 40) || '');
             dataset.push(item[config.valueKey]);
         });
 

@@ -13,6 +13,7 @@ import * as moment from 'moment';
 
             <div class="uni-widget-clock-time" [ngClass]="{'long-time': widget?.config?.showSeconds}">
                 <span>{{time}}</span>
+                <span>{{sec}}</span>
             </div>
         </div>`
 })
@@ -24,14 +25,15 @@ export class UniClockWidget {
     private day: string;
     private date: string;
     private time: string;
+    private sec: string;
 
     constructor(cdr: ChangeDetectorRef) {
         this.updateInterval = setInterval(() => {
             const date = moment();
-            this.day = date.format('dddd');
+            this.day = date.format('dddd').replace(/\w\S*/g, (txt) => { return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase(); });;
             this.date = date.format('Do MMM');
-            this.time = this.widget.config.showSeconds
-                ? date.format('HH:mm:ss') : date.format('HH:mm');
+            this.time = date.format('HH:mm');
+            this.sec = this.widget.config.showSeconds ? date.format(':ss') : '';
 
             cdr.markForCheck();
         }, 1000);
