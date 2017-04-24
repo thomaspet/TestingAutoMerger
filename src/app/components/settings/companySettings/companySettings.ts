@@ -597,8 +597,8 @@ export class CompanySettingsComponent implements OnInit {
             storeResultInProperty: storeResultInProperty,
             storeIdInProperty: storeResultInProperty + 'ID',
             editor: (bankaccount: BankAccount) => new Promise((resolve, reject) => {
-                if (!bankaccount) {
-                    bankaccount = new BankAccount();
+                if (!bankaccount || !bankaccount.ID) {
+                    bankaccount = bankaccount || new BankAccount();
                     bankaccount['_createguid'] = this.bankaccountService.getNewGuid();
                     bankaccount.BankAccountType = bankAccountType;
                     bankaccount.CompanySettingsID = this.company$.getValue().ID;
