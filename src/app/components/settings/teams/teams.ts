@@ -113,6 +113,10 @@ export class Teams {
         var rowIndex = event.originalIndex;
         var value = event.rowModel[event.field];
 
+        if (!value) {
+            return event.rowModel;
+        }
+
         this.hasUnsavedChanges = true;
         
         // New row ?
