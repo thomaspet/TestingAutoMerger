@@ -1,0 +1,35 @@
+.uniListWidget
+    background: #fff
+    height: 100%
+    text-align: left
+
+    ol
+        font-size: .85rem
+        letter-spacing: 0
+        color: $uni-color-positive
+        max-height: calc(100% - 35px - .5rem)
+        overflow-y: auto
+        margin: 0
+        padding: .5rem 0 0
+
+    li
+        padding: 0 1rem
+        line-height: 2rem
+
+        &:before
+            display: none
+
+        a
+            border-bottom: pxToRem(1) solid transparentize($uni-color-scale9, .3)
+            cursor: pointer
+
+            &:hover,
+            &:focus
+                border-bottom-color: $uni-color-c2a
+
+        time
+            float: right
+            color: $uni-color-scale5
+
+        &:nth-of-type(even)
+            background: transparentize($uni-color-scale9, .5)

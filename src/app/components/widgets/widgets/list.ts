@@ -16,17 +16,29 @@ interface IListItem {
 @Component({
     selector: 'uni-widget-list',
     template: `
-                <div style="background-color:white; height: 100%;">
-                    <div class="uni-dashboard-chart-header"> <span> {{ widget.config.header }} </span></div>
-                    <ol *ngIf="myListItems" style="list-style: none; padding: 0; margin: 10px 0 0 0; color: black; text-align: left; overflow-y: auto; max-height: calc(100% - 35px);">
-                        <li *ngFor="let item of myListItems" style="font-size: 0.8rem; padding: 2px 10px;">
+                <article class="uniListWidget">
+                    <h1 class="uni-dashboard-chart-header">
+                        {{ widget.config.header }}
+                    </h1>
+
+                    <ol *ngIf="myListItems">
+                        <li *ngFor="let item of myListItems">
+
                             <strong>{{ item.username }}</strong>
+
                             {{ item.action }}
-                            <a (click)="onClickNavigate(item)" style="cursor: pointer;"> {{ item.module }} </a>
-                            <time style="float: right; margin: 0;"> {{ item.time }} </time>
+
+                            <a (click)="onClickNavigate(item)">
+                                {{ item.module }}
+                            </a>
+
+
+                            <time>
+                                {{ item.time }}
+                            </time>
                         </li>
                     </ol>
-                </div>
+                </article>
             `
 })
 
@@ -76,7 +88,7 @@ export class UniListWidget {
                 myNewList.push(item);
             }
 
-            
+
         })
         return myNewList.slice(0, this.widget.config.listItemKeys.numberToDisplay);
     }
@@ -166,7 +178,7 @@ export class UniListWidget {
                     item.module = 'en Bankkonto';
                     item.link = '/';
                 }
-                
+
                 break;
             case 'Customer':
                 item.module = 'Kunde' + ' ' + item[this.widget.config.listItemKeys.moduleID];
@@ -260,7 +272,7 @@ export class UniListWidget {
                     item.module = 'en relasjon';
                     item.link = '/';
                 }
-                
+
                 break;
 
             case 'Supplier':
