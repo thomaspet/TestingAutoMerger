@@ -31,7 +31,21 @@ export class UniSales {
                 height: 1,
                 x: 0,
                 y: 0,
-                widgetType: 'shortcut', // TODO: enum
+                widgetType: 'shortcut',
+                config: {
+                    label: 'Kunder',
+                    description: 'Kundeoversikt',
+                    icon: '',
+                    link: '/sales/customer'
+                }
+            },
+
+            {
+                width: 1,
+                height: 1,
+                x: 1,
+                y: 0,
+                widgetType: 'shortcut',
                 config: {
                     label: 'Tilbud',
                     description: 'Tilbudsoversikt',
@@ -42,9 +56,9 @@ export class UniSales {
             {
                 width: 1,
                 height: 1,
-                x: 1,
+                x: 2,
                 y: 0,
-                widgetType: 'shortcut', // TODO: enum
+                widgetType: 'shortcut',
                 config: {
                     label: 'Ordre',
                     description: 'Ordreoversikt',
@@ -55,9 +69,9 @@ export class UniSales {
             {
                 width: 1,
                 height: 1,
-                x: 2,
+                x: 3,
                 y: 0,
-                widgetType: 'shortcut', // TODO: enum
+                widgetType: 'shortcut',
                 config: {
                     label: 'Faktura',
                     description: 'Fakturaoversikt',
@@ -69,35 +83,37 @@ export class UniSales {
             {
                 width: 1,
                 height: 1,
-                x: 3,
+                x: 4,
                 y: 0,
-                widgetType: 'shortcut', // TODO: enum
+                widgetType: 'shortcut',
                 config: {
-                    label: 'Kunder',
-                    description: 'Kundeoversikt',
+                    label: 'Produkter',
+                    description: 'Produkter',
                     icon: '',
-                    link: '/sales/customer'
+                    link: '/products'
                 }
             },
 
             {
-                width: 3,
+                width: 1,
                 height: 1,
-                x: 4,
+                x: 5,
                 y: 0,
-                widgetType: 'clock',
+                widgetType: 'shortcut',
                 config: {
-                    dateColor: '#7698bd',
-                    showSeconds: true
+                    label: 'Purring',
+                    description: 'Purring',
+                    icon: '',
+                    link: '/sales/reminders/ready'
                 }
             },
 
             {
                 width: 2,
                 height: 1,
-                x: 7,
+                x: 6,
                 y: 0,
-                widgetType: 'overdue', // TODO: enum
+                widgetType: 'overdue',
                 config: {}
             },
 
