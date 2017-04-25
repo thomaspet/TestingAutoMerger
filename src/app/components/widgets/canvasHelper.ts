@@ -32,9 +32,15 @@ export class CanvasHelper {
             layoutStore = {};
         }
 
-        layout['_editMode'] = false;
         layoutStore[name] = layout;
-        localStorage.setItem('uni_widget_layouts', JSON.stringify(layoutStore));
+
+        let stringified = JSON.stringify(layoutStore, (key, value) => {
+            if (key === '_editMode') {
+                return false;
+            }
+            return value;
+        });
+        localStorage.setItem('uni_widget_layouts', stringified);
     }
 
     public removeLayout(name: string) {
