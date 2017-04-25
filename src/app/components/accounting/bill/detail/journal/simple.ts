@@ -10,6 +10,7 @@ import {
     checkGuid
 } from '../../../../../services/services';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
+import {UniMath} from '../../../../../../framework/core/uniMath';
 
 declare const _; // lodash
 
@@ -282,6 +283,20 @@ export class BillSimpleJournalEntryView {
     }
 
     private raiseUpdateEvent(actualRowIndex: number, item: any, cargo: any) {
+        // set correct basecurrencyamounts
+        if (this.current.JournalEntry && this.current.JournalEntry.DraftLines) {
+            this.current.JournalEntry.DraftLines.forEach(line => {
+                if (line.CurrencyExchangeRate && line.CurrencyExchangeRate !== 1) {
+                    line.Amount = UniMath.round(line.AmountCurrency * line.CurrencyExchangeRate);
+                } else {
+                    line.CurrencyExchangeRate = 1;
+                    line.Amount = line.AmountCurrency;
+                }
+            });
+        }
+
+        this.supplierinvoice.next(this.current);
+
         if (actualRowIndex >= 0) {
             this.valueChange.emit({ rowIndex: actualRowIndex, item: item, details: cargo });
         }

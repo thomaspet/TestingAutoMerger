@@ -23,6 +23,7 @@ import {ImageModal} from '../../../common/modals/ImageModal';
 import {UniImageSize} from '../../../../../framework/uniImage/uniImage';
 import {IUniSearchConfig} from 'unisearch-ng2/src/UniSearch/IUniSearchConfig';
 import {UniAssignModal, AssignDetails} from './approvemodal';
+import {UniMath} from '../../../../../framework/core/uniMath';
 
 import {
     SupplierInvoiceService,
@@ -591,6 +592,9 @@ export class BillView {
                     this.companySettings.BaseCurrencyCodeID, currencyDate)
                     .subscribe(res => {
                         model.CurrencyExchangeRate = res.ExchangeRate;
+
+                        this.updateJournalEntryAmountsWhenCurrencyChanges(model);
+
                         this.current.next(model);
                         this.flagUnsavedChanged();
                     }, err => this.errorService.handle(err)
@@ -606,16 +610,22 @@ export class BillView {
                         this.current.next(model);
                         this.flagUnsavedChanged();
                     }, err => this.errorService.handle(err)
-                    );
+                );
             }
+
             if (model.InvoiceDate) {
                 this.currencyService.getCurrencyExchangeRate(model.CurrencyCodeID, this.companySettings.BaseCurrencyCodeID, model.InvoiceDate)
                     .subscribe(res => {
                         model.CurrencyExchangeRate = res.ExchangeRate;
+                        this.updateJournalEntryAmountsWhenCurrencyChanges(model);
+
                         this.current.next(model);
                         this.flagUnsavedChanged();
                     }, err => this.errorService.handle(err)
-                    );
+                );
+            } else {
+                this.updateJournalEntryAmountsWhenCurrencyChanges(model);
+                this.current.next(model);
             }
         }
 
@@ -625,6 +635,22 @@ export class BillView {
         }
 
         this.flagUnsavedChanged();
+    }
+
+    private updateJournalEntryAmountsWhenCurrencyChanges(model: SupplierInvoice) {
+        if (model.JournalEntry && model.JournalEntry.DraftLines) {
+            model.JournalEntry.DraftLines.forEach(line => {
+                line.CurrencyCodeID = model.CurrencyCodeID;
+
+                if (!line.CurrencyCodeID || line.CurrencyCodeID === this.companySettings.BaseCurrencyCodeID) {
+                    line.CurrencyExchangeRate = 1;
+                } else {
+                    line.CurrencyExchangeRate = model.CurrencyExchangeRate;
+                }
+
+                line.Amount = UniMath.round(line.AmountCurrency * line.CurrencyExchangeRate);
+            });
+        }
     }
 
     private fetchNewSupplier(id: number, updateCombo = false) {
@@ -690,6 +716,8 @@ export class BillView {
         let current = new SupplierInvoice();
         current.StatusCode = 0;
         current.SupplierID = null;
+        current.CurrencyCodeID = this.companySettings.BaseCurrencyCodeID;
+        current.CurrencyExchangeRate = 1;
 
         this.current.next(current);
 
