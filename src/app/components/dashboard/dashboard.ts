@@ -66,7 +66,7 @@ export class Dashboard {
                 config: {
                     label: 'Salg',
                     description: 'Salg',
-                    icon: 'user',
+                    icon: 'sale',
                     link: '/sales'
                 }
             },
