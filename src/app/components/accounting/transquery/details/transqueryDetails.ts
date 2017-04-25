@@ -26,6 +26,13 @@ import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 
 const PAPERCLIP = '📎'; // It might look empty in your editor, but this is the unicode paperclip
 
+interface SearchParams {
+    JournalEntryNumberNumeric: number,
+    AccountID: number,
+    AccountNumber: number,
+    AccountYear: number
+}
+
 @Component({
     selector: 'transquery-details',
     templateUrl: './transqueryDetails.html',
@@ -43,7 +50,7 @@ export class TransqueryDetails implements OnInit {
     public summary: ISummaryConfig[] = [];
     private lastFilterString: string;
 
-    private searchParams$: BehaviorSubject<any> = new BehaviorSubject({});
+    private searchParams$: BehaviorSubject<SearchParams> = new BehaviorSubject({});
     private config$: BehaviorSubject<any> = new BehaviorSubject({});
     private fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
 
@@ -88,7 +95,8 @@ export class TransqueryDetails implements OnInit {
             this.activeFinancialYear = data[1];
 
             // set default value for filtering
-            let searchParams = {
+            let searchParams: SearchParams = {
+                JournalEntryNumberNumeric: null,
                 AccountID: null,
                 AccountNumber: null,
                 AccountYear: null
@@ -122,12 +130,15 @@ export class TransqueryDetails implements OnInit {
             filters.push(this.configuredFilter);
         }
 
+
         if (filters && filters.length > 0) {
             let newFilters = [];
             let splitFilters = filters[0].split(' and ');
 
             splitFilters.forEach(x => {
-                if (!x.startsWith('Period.AccountYear eq ') && !x.startsWith('Account.ID eq ')) {
+                if (!x.startsWith('Period.AccountYear eq ') &&
+                    !x.startsWith('Account.ID eq ') &&
+                    !x.startsWith('JournalEntryNumberNumeric eq ')) {
                     newFilters.push(x);
                 }
             });
@@ -146,6 +157,10 @@ export class TransqueryDetails implements OnInit {
 
             if (searchParams.AccountID) {
                 filters.push(`Account.ID eq ${searchParams.AccountID}`);
+            }
+
+            if (searchParams.JournalEntryNumberNumeric) {
+                filters.push(`JournalEntryNumberNumeric eq ${searchParams.JournalEntryNumberNumeric}`);
             }
 
         }
@@ -593,6 +608,54 @@ export class TransqueryDetails implements OnInit {
                 {
                     ComponentLayoutID: 1,
                     EntityType: 'JournalEntryLine',
+                    Property: 'JournalEntryNumberNumeric',
+                    Placement: 4,
+                    Hidden: false,
+                    FieldType: FieldType.AUTOCOMPLETE,
+                    ReadOnly: false,
+                    LookupField: false,
+                    Label: 'Filtrer på bilagsnr',
+                    Description: '',
+                    HelpText: '',
+                    FieldSet: 0,
+                    Section: 0,
+                    Placeholder: null,
+                    LineBreak: null,
+                    Combo: null,
+                    Legend: '',
+                    StatusCode: 0,
+                    ID: 1,
+                    Deleted: false,
+                    CreatedAt: null,
+                    UpdatedAt: null,
+                    CreatedBy: null,
+                    UpdatedBy: null,
+                    CustomFields: null,
+                    Options: {
+                        search: (query: string) => {
+                            const searchParams = this.searchParams$.getValue();
+                            const isNumber = !isNaN(<any>query);
+                            if (!query) {
+                                return this.journalEntryService.GetAll('top=20')
+                                    .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
+                            } else if (isNumber) {
+                                return this.journalEntryService.GetAll(
+                                    `filter=startswith(JournalEntryNumberNumeric, '${query}') and FinancialYear.Year eq '${searchParams.AccountYear}'&top=20`,
+                                    ['FinancialYear']
+                                ).catch((err, obs) => this.errorService.handleRxCatch(err, obs));
+                            } else {
+                                return Observable.of([]);
+                            }
+                        },
+                        displayProperty: 'JournalEntryNumberNumeric',
+                        valueProperty: 'JournalEntryNumberNumeric',
+                        minLength: 1,
+                        debounceTime: 200
+                    }
+                },
+                {
+                    ComponentLayoutID: 1,
+                    EntityType: 'JournalEntryLine',
                     Property: 'AccountID',
                     Placement: 4,
                     Hidden: false,
@@ -626,11 +689,18 @@ export class TransqueryDetails implements OnInit {
                             }
                             return Observable.of([]);
                         },
-                        search: (query: string) => this.accountService.searchAccounts(`( ( AccountNumber eq '${query}') or (Visible eq 'true' and (startswith(AccountNumber,'${query}') or contains(AccountName,'${query}') ) ) ) and isnull(AccountID,0) eq 0`),
+                        search: (query: string) => {
+                            const isNumber = !isNaN(<any>query);
+                            if (isNumber) {
+                                return this.accountService.searchAccounts(`( ( AccountNumber eq '${query}') or (Visible eq 'true' and (startswith(AccountNumber,'${query}') ) ) ) and isnull(AccountID,0) eq 0`);
+                            } else {
+                                return this.accountService.searchAccounts(`( Visible eq 'true' and contains(AccountName,'${query}') ) and isnull(AccountID,0) eq 0`);
+                            }
+                        },
                         displayProperty: 'AccountName',
                         valueProperty: 'ID',
                         template: (account: Account) => account ? `${account.AccountNumber}: ${account.AccountName}` : '',
-                        minLength: 1,
+                        minLength: 0,
                         debounceTime: 200
                     }
                 },
