@@ -521,7 +521,7 @@ export class CustomerDetails {
             linkProperty: 'ID',
             storeResultInProperty: 'Info.DefaultEmail',
             storeIdInProperty: 'Info.DefaultEmailID',
-            editor: (value) => new Promise((resolve) => {
+            editor: (value) => new Promise((resolve, reject) => {
                 if (!value) {
                     value = new Email();
                     value.ID = 0;
@@ -529,9 +529,26 @@ export class CustomerDetails {
 
                 this.emailModal.openModal(value);
 
+                const modalSubscription = this.emailModal.modal.closeEvent.subscribe(fromClose => {
+                    if (fromClose) {
+                        reject();
+                    }
+                    modalSubscription.unsubscribe();
+
+                });
                 this.emailChanged = this.emailModal.Changed.subscribe(modalval => {
                     this.emailChanged.unsubscribe();
                     resolve(modalval);
+                    if (modalSubscription) {
+                        modalSubscription.unsubscribe();
+                    }
+                });
+                const canceled = this.emailModal.Canceled.subscribe(modalval => {
+                    canceled.unsubscribe();
+                    reject(modalval);
+                    if (modalSubscription) {
+                        modalSubscription.unsubscribe();
+                    }
                 });
             })
         };

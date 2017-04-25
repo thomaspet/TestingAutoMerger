@@ -480,12 +480,13 @@ export class SupplierDetails implements OnInit {
             storeResultInProperty: 'Info.DefaultEmail',
             storeIdInProperty: 'Info.DefaultEmailID',
             editor: (value) => new Promise((resolve, reject) => {
-                if ((value && !value.ID) || !value) {
+                if (!value) {
                     value = new Email();
                     value.ID = 0;
                 }
 
                 this.emailModal.openModal(value);
+
                 const modalSubscription = this.emailModal.modal.closeEvent.subscribe(fromClose => {
                     if (fromClose) {
                         reject();
