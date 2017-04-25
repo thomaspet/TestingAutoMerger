@@ -59,17 +59,29 @@ export class UniAccounting {
                 y: 0,
                 widgetType: 'shortcut',
                 config: {
-                    label: 'Kontoplan',
-                    description: 'Kontoplan',
+                    label: 'Forespørsel bilag',
+                    description: 'Forespørsel bilag',
                     icon: '',
-                    link: '/accounting/accountsettings'
+                    link: '/accounting/transquery/details'
                 }
             },
-
             {
                 width: 1,
                 height: 1,
                 x: 3,
+                y: 0,
+                widgetType: 'shortcut',
+                config: {
+                    label: 'Regnskaps- oversikt',
+                    description: 'Regnskaps- oversikt',
+                    icon: '',
+                    link: '/accounting/accountingreports/result'
+                }
+            },
+            {
+                width: 1,
+                height: 1,
+                x: 4,
                 y: 0,
                 widgetType: 'shortcut',
                 config: {
@@ -79,11 +91,36 @@ export class UniAccounting {
                     link: '/accounting/vatreport'
                 }
             },
-
+            {
+                width: 1,
+                height: 1,
+                x: 5,
+                y: 0,
+                widgetType: 'shortcut',
+                config: {
+                    label: 'Kontoplan',
+                    description: 'Kontoplan',
+                    icon: '',
+                    link: '/accounting/accountsettings'
+                }
+            },
+            {
+                width: 1,
+                height: 1,
+                x: 6,
+                y: 0,
+                widgetType: 'shortcut',
+                config: {
+                    label: 'Leverandører',
+                    description: 'Leverandører',
+                    icon: '',
+                    link: '/suppliers'
+                }
+            },
             {
                 width: 3,
                 height: 1,
-                x: 4,
+                x: 7,
                 y: 0,
                 widgetType: 'clock',
                 config: {
@@ -95,7 +132,7 @@ export class UniAccounting {
             {
                 width: 1,
                 height: 1,
-                x: 7,
+                x: 10,
                 y: 0,
                 widgetType: 'counter', // TODO: enum
                 config: {
@@ -112,7 +149,7 @@ export class UniAccounting {
             {
                 width: 1,
                 height: 1,
-                x: 8,
+                x: 11,
                 y: 0,
                 widgetType: 'counter', // TODO: enum
                 config: {
@@ -129,7 +166,7 @@ export class UniAccounting {
             {
                 width: 1,
                 height: 1,
-                x: 9,
+                x: 12,
                 y: 0,
                 widgetType: 'counter', // TODO: enum
                 config: {
