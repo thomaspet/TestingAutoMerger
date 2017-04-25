@@ -35,7 +35,7 @@ import * as moment from 'moment';
 import {CompanySettingsService} from '../common/companySettingsService';
 import {ErrorService} from '../common/errorService';
 import {UniMath} from '../../../framework/core/uniMath';
-import {AuthService} from '../../../framework/core/authService';
+import {AuthService, IAuthDetails} from '../../../framework/core/authService';
 
 @Injectable()
 export class JournalEntryService extends BizHttp<JournalEntry> {
@@ -58,7 +58,11 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
         this.DefaultOrderBy = null;
 
         this.populateCache();
-        this.authService.authentication$.subscribe(() => this.populateCache());
+        this.authService.authentication$.subscribe((auth: IAuthDetails) => {
+            if (auth && auth.token) {
+                this.populateCache();
+            }
+        });
     }
 
     private populateCache() {

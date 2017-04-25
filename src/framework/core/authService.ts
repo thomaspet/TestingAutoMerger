@@ -136,13 +136,16 @@ export class AuthService {
      * Removes web token from localStorage and memory, then redirects to /login
      */
     public clearAuthAndGotoLogin(): void {
+        if (this.isAuthenticated()) {
+            this.authentication$.next({token: undefined, activeCompany: undefined});
+        }
+
         localStorage.removeItem('jwt');
         localStorage.removeItem('activeCompany');
         localStorage.removeItem('activeFinancialYear');
         this.jwt = undefined;
         this.jwtDecoded = undefined;
         this.activeCompany = undefined;
-        this.authentication$.next({token: undefined, activeCompany: undefined});
         this.router.navigateByUrl('init/login');
     }
 
