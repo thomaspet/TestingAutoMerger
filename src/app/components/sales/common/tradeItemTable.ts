@@ -39,6 +39,7 @@ export class TradeItemTable {
     @Output() public itemsChange: EventEmitter<any> = new EventEmitter();
 
     private vatTypes: VatType[] = [];
+    private foreignVatType: VatType;
     private accounts: Account[] = [];
     private tableConfig: UniTableConfig;
     private tableData: any[];
@@ -63,6 +64,7 @@ export class TradeItemTable {
         this.vatTypeService.GetAll('filter=OutputVat eq true').subscribe(
             (vattypes) => {
                 this.vatTypes = vattypes;
+                this.foreignVatType = this.vatTypes.find(vt => vt.VatCode === '52');
                 this.initTableConfig();
             },
             err => this.errorService.handle(err)
@@ -87,6 +89,17 @@ export class TradeItemTable {
         this.table.focusRow(0);
     }
 
+    public updateAllItemVatCodes(currencyCodeID) {
+        if (this.foreignVatType) {
+            let isBaseCurrencyUsed: Boolean = (currencyCodeID === this.settings.BaseCurrencyCodeID) ? true : false;
+            this.items.forEach(item => {
+                item.VatTypeID = isBaseCurrencyUsed ? item.Product.VatTypeID : this.foreignVatType.ID;
+                item.VatType = isBaseCurrencyUsed ? item.Product.VatType : this.foreignVatType;
+            });
+        }
+    }
+
+
     private initTableConfig() {
         // Columns
         const productCol = new UniTableColumn('Product', 'Varenr', UniTableColumnType.Lookup)
@@ -97,7 +110,9 @@ export class TradeItemTable {
                     return this.productService.GetAll(
                         `filter=contains(Name,'${query}') or contains(PartName,'${query}')&top=20`,
                         ['VatType', 'Account', 'Dimensions', 'Dimensions.Project', 'Dimensions.Department']
-                    ).catch((err, obs) => this.errorService.handleRxCatch(err, obs));
+                    )
+
+                    .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
                 }
             });
 
@@ -226,6 +241,13 @@ export class TradeItemTable {
                 if (updatedRow.VatTypeID && !updatedRow.VatType) {
                     updatedRow.VatType = this.vatTypes.find(vt => vt.ID === updatedRow.VatTypeID);
                 }
+
+                if(this.currencyCodeID !== this.settings.BaseCurrencyCodeID && this.foreignVatType) {
+                    updatedRow.VatType = this.foreignVatType;
+                    updatedRow.VatTypeID = this.foreignVatType.ID;
+                }
+
+
                 const index = updatedRow['_originalIndex'];
 
                 if (index >= 0) {

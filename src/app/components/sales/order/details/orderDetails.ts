@@ -96,7 +96,7 @@ export class OrderDetails {
     private printStatusPrinted: string = '200';
 
     private customerExpandOptions: string[] = ['Info', 'Info.Addresses', 'Info.InvoiceAddress', 'Info.ShippingAddress', 'Dimensions', 'Dimensions.Project', 'Dimensions.Department'];
-    private expandOptions: Array<string> = ['Items', 'Items.Product', 'Items.VatType',
+    private expandOptions: Array<string> = ['Items', 'Items.Product.VatType', 'Items.VatType',
         'Items.Dimensions', 'Items.Dimensions.Project', 'Items.Dimensions.Department', 'Items.Account',
         'Customer', 'Customer.Info', 'Customer.Info.Addresses', 'Customer.Dimensions', 'Customer.Dimensions.Project', 'Customer.Dimensions.Department'];
 
@@ -277,6 +277,7 @@ export class OrderDetails {
         if ((!this.currencyCodeID && order.CurrencyCodeID)
             || this.currencyCodeID !== order.CurrencyCodeID) {
             this.currencyCodeID = order.CurrencyCodeID;
+            this.tradeItemTable.updateAllItemVatCodes(this.currencyCodeID);
             shouldGetCurrencyRate = true;
         }
 

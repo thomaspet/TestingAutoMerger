@@ -107,7 +107,7 @@ export class InvoiceDetails {
     private currencyExchangeRate: number;
 
     private customerExpandOptions: string[] = ['Info', 'Info.Addresses', 'Dimensions', 'Dimensions.Project', 'Dimensions.Department'];
-    private expandOptions: Array<string> = ['Items', 'Items.Product', 'Items.VatType', 'Items.Account',
+    private expandOptions: Array<string> = ['Items', 'Items.Product.VatType', 'Items.VatType', 'Items.Account',
         'Items.Dimensions', 'Items.Dimensions.Project', 'Items.Dimensions.Department',
         'Customer', 'InvoiceReference', 'JournalEntry', 'CurrencyCode'].concat(this.customerExpandOptions.map(option => 'Customer.' + option));
 
@@ -386,6 +386,7 @@ export class InvoiceDetails {
         if ((!this.currencyCodeID && invoice.CurrencyCodeID)
             || this.currencyCodeID !== invoice.CurrencyCodeID) {
             this.currencyCodeID = invoice.CurrencyCodeID;
+            this.tradeItemTable.updateAllItemVatCodes(this.currencyCodeID);
             shouldGetCurrencyRate = true;
         }
 

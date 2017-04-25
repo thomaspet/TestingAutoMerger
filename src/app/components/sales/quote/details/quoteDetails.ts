@@ -76,7 +76,7 @@ export class QuoteDetails {
     private contextMenuItems: IContextMenuItem[] = [];
     public summary: ISummaryConfig[] = [];
     private customerExpandOptions: string[] = ['Info', 'Info.Addresses', 'Info.InvoiceAddress', 'Info.ShippingAddress', 'Dimensions', 'Dimensions.Project', 'Dimensions.Department'];
-    private expandOptions: Array<string> = ['Items', 'Items.Product', 'Items.VatType', 'Items.Account',
+    private expandOptions: Array<string> = ['Items', 'Items.Product.VatType', 'Items.VatType', 'Items.Account',
         'Items.Dimensions', 'Items.Dimensions.Project', 'Items.Dimensions.Department', 'Customer'
     ].concat(this.customerExpandOptions.map(option => 'Customer.' + option));
 
@@ -286,6 +286,7 @@ export class QuoteDetails {
         if ((!this.currencyCodeID && quote.CurrencyCodeID)
             || this.currencyCodeID !== quote.CurrencyCodeID) {
             this.currencyCodeID = quote.CurrencyCodeID;
+            this.tradeItemTable.updateAllItemVatCodes(this.currencyCodeID);
             shouldGetCurrencyRate = true;
         }
 
