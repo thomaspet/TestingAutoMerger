@@ -417,7 +417,7 @@ export class LedgerAccountReconciliation {
                         x.Markings.push(baseLine);
                         this.table.updateRow(x._originalIndex, x);
 
-                        baseLine.Markings.push(x);
+                        baseLine.Markings.push(_.cloneDeep(x));
                     } else {
                         // the base line is already full marked - no point in trying to do more here
                         // but we will keep the row marked, in case the user wants to mark it against
