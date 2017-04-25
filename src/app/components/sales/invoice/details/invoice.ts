@@ -241,7 +241,7 @@ export class InvoiceDetails {
 
     private sendEHFAction(doneHandler: (msg: string) => void = null) {
         if (this.companySettings.APActivated && this.companySettings.APGuid) {
-            this.sendEHF();
+            this.askSendEHF(doneHandler);
         } else {
             this.activateAPModal.openModal();
 
@@ -250,7 +250,7 @@ export class InvoiceDetails {
                     this.ehfService.Activate(activate).subscribe((ok) => {
                         if (ok) {
                             this.toastService.addToast('Aktivering', ToastType.good, 3, 'EHF aktivert');
-                            this.sendEHF(doneHandler);
+                            this.askSendEHF(doneHandler);
                         } else {
                             this.toastService.addToast('Aktivering feilet!', ToastType.bad, 5, 'Noe galt skjedde ved aktivering');
                             if (doneHandler) { doneHandler('Feil oppstod ved aktivering!'); }
@@ -506,6 +506,25 @@ export class InvoiceDetails {
                 );
         }
 
+    }
+
+    private askSendEHF(doneHandler: (msg: string) => void = null) {
+        if (this.invoice.PrintStatus == 300) {
+            this.confirmModal.confirm(
+                `Er du sikker på at du vil sende EHF på nytt?`,
+                'Vennligst bekreft',
+                false,
+                { accept: 'Ja', reject: 'Avbryt' }
+            ).then(response => {
+                if (response === ConfirmActions.ACCEPT) {
+                    this.sendEHF(doneHandler);
+                } else {
+                    doneHandler('');
+                }
+            });
+        } else {
+            this.sendEHF(doneHandler);
+        }
     }
 
     private sendEHF(doneHandler: (msg: string) => void = null) {
