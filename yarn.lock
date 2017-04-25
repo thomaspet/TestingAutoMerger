@@ -4134,9 +4134,9 @@ unc-path-regex@^0.1.0:
   version "0.1.2"
   resolved "https://registry.yarnpkg.com/unc-path-regex/-/unc-path-regex-0.1.2.tgz#e73dd3d7b0d7c5ed86fbac6b0ae7d8c6a69d50fa"
 
-uniform-ng2@0.0.80:
-  version "0.0.80"
-  resolved "https://registry.yarnpkg.com/uniform-ng2/-/uniform-ng2-0.0.80.tgz#a99d83fb113b1e6bd8c512d117965851a6b72f68"
+uniform-ng2@0.0.82:
+  version "0.0.82"
+  resolved "https://registry.yarnpkg.com/uniform-ng2/-/uniform-ng2-0.0.82.tgz#5ad447c9229de65015e39dd59cfd6aec55af1ec9"
   dependencies:
     "@angular/common" "4.0.0-rc.4"
     "@angular/compiler" "4.0.0-rc.4"
