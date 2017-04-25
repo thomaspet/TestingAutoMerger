@@ -59,8 +59,8 @@ export class UniAccounting {
                 y: 0,
                 widgetType: 'shortcut',
                 config: {
-                    label: 'Forespørsel bilag',
-                    description: 'Forespørsel bilag',
+                    label: 'ForespÃ¸rsel bilag',
+                    description: 'ForespÃ¸rsel bilag',
                     icon: '',
                     link: '/accounting/transquery/details'
                 }
@@ -118,6 +118,7 @@ export class UniAccounting {
                 }
             },
             {
+                width: 1,
                 height: 1,
                 x: 6,
                 y: 0,
@@ -133,7 +134,6 @@ export class UniAccounting {
                 width: 1,
                 height: 1,
                 x: 7,
-                x: 10,
                 y: 0,
                 widgetType: 'counter', // TODO: enum
                 config: {
@@ -150,7 +150,7 @@ export class UniAccounting {
             {
                 width: 1,
                 height: 1,
-                x: 11,
+                x: 8,
                 y: 0,
                 widgetType: 'counter', // TODO: enum
                 config: {
@@ -167,7 +167,7 @@ export class UniAccounting {
             {
                 width: 1,
                 height: 1,
-                x: 12,
+                x: 9,
                 y: 0,
                 widgetType: 'counter', // TODO: enum
                 config: {
@@ -240,20 +240,7 @@ export class UniAccounting {
                         numberToDisplay: 10
                     }
                 }
-            },
-
-            {
-                width: 3,
-                height: 1,
-                x: 0,
-                y: 4,
-                widgetType: 'clock',
-                config: {
-                    dateColor: '#7698bd',
-                    showSeconds: true
-                }
-            },
-
+            }
         ];
     }
 
