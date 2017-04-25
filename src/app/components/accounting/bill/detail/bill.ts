@@ -577,6 +577,14 @@ export class BillView {
         }
 
         if (change['InvoiceDate']) {
+            let creditdays = model.Supplier.CreditDays;
+            if (!creditdays) { creditdays = this.companySettings.CustomerCreditDays; }
+            if (creditdays) {
+                model.PaymentDueDate = <any>new LocalDate(
+                        moment(model.InvoiceDate).add(creditdays, 'days').toDate());
+                this.current.next(model);
+            }
+
             if (model.CurrencyCodeID && model.CurrencyCodeID !== this.companySettings.BaseCurrencyCodeID) {
                 let currencyDate: LocalDate = model.InvoiceDate ? model.InvoiceDate : new LocalDate();
                 this.currencyService.getCurrencyExchangeRate(model.CurrencyCodeID,
