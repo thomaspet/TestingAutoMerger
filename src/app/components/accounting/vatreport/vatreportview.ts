@@ -110,11 +110,21 @@ export class VatReportView implements OnInit, OnDestroy {
                 _state = UniStatusTrack.States.Active;
             }
 
-            statustrack.push({
-                title: status.Text,
-                state: _state,
-                code: status.Code
-            });
+            let addStatus: boolean = true;
+
+            if (status.Code === StatusCodeVatReport.Rejected) {
+                if (activeStatus !== status.Code) {
+                    addStatus = false;
+                }
+            }
+
+            if (addStatus) {
+                statustrack.push({
+                    title: status.Text,
+                    state: _state,
+                    code: status.Code
+                });
+            }
         });
         return statustrack;
     }
