@@ -54,8 +54,9 @@ export class UniSearchSupplierConfigGeneratorHelper {
                 }
             },
             initialItem$: new BehaviorSubject(null),
-            tableHeader: ['Navn', 'Tlf', 'Adresse', 'Poststed', 'Org.Nr'],
+            tableHeader: ['Leverandørnr', 'Navn', 'Tlf', 'Adresse', 'Poststed', 'Org.Nr'],
             rowTemplateFn: item => [
+                item.SupplierNumber,
                 item.Name,
                 item.PhoneNumber,
                 item.AddressLine1,
@@ -78,7 +79,7 @@ export class UniSearchSupplierConfigGeneratorHelper {
 
     private generateSupplierStatisticsQuery(searchTerm: string): string {
         const model = 'Supplier';
-        const expand = 'Info.Phones,Info.Addresses,Info.Emails';
+        const expand = 'Info.DefaultPhone,Info.InvoiceAddress,Info.DefaultEmail,Info.Phones';
         const startNumber = this.getNumberFromStartOfString(searchTerm);
         let filter = `contains(Info.Name,'${searchTerm}')`;
         let orderBy = 'Info.Name';
@@ -92,12 +93,12 @@ export class UniSearchSupplierConfigGeneratorHelper {
             'Info.Name as Name',
             'Supplier.OrgNumber as OrgNumber',
             'Supplier.SupplierNumber as SupplierNumber',
-            'Phones.Number as PhoneNumber',
-            'Addresses.AddressLine1 as AddressLine1',
-            'Addresses.PostalCode as PostalCode',
-            'Addresses.City as City',
-            'Addresses.CountryCode as CountryCode',
-            'Emails.EmailAddress as EmailAddress',
+            'DefaultPhone.Number as PhoneNumber',
+            'InvoiceAddress.AddressLine1 as AddressLine1',
+            'InvoiceAddress.PostalCode as PostalCode',
+            'InvoiceAddress.City as City',
+            'InvoiceAddress.CountryCode as CountryCode',
+            'DefaultEmail.EmailAddress as EmailAddress',
             'Supplier.WebUrl as WebUrl'
         ].join(',');
         const skip = 0;
@@ -107,6 +108,7 @@ export class UniSearchSupplierConfigGeneratorHelper {
             + `&filter=${filter}`
             + `&select=${select}`
             + `&orderby=${orderBy}`
+            + `&distinct=true`
             + `&skip=${skip}`
             + `&top=${top}`;
     }
