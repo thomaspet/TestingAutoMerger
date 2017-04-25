@@ -59,8 +59,8 @@ export class UniAccounting {
                 y: 0,
                 widgetType: 'shortcut',
                 config: {
-                    label: 'Forespørsel bilag',
-                    description: 'Forespørsel bilag',
+                    label: 'Foresp�rsel bilag',
+                    description: 'Foresp�rsel bilag',
                     icon: '',
                     link: '/accounting/transquery/details'
                 }
@@ -118,20 +118,21 @@ export class UniAccounting {
                 }
             },
             {
-                width: 3,
                 height: 1,
-                x: 7,
+                x: 6,
                 y: 0,
-                widgetType: 'clock',
+                widgetType: 'shortcut',
                 config: {
-                    dateColor: '#7698bd',
-                    showSeconds: true
+                    label: 'Leverandører',
+                    description: 'Leverandører',
+                    icon: '',
+                    link: '/suppliers'
                 }
             },
-
             {
                 width: 1,
                 height: 1,
+                x: 7,
                 x: 10,
                 y: 0,
                 widgetType: 'counter', // TODO: enum
@@ -240,6 +241,19 @@ export class UniAccounting {
                     }
                 }
             },
+
+            {
+                width: 3,
+                height: 1,
+                x: 0,
+                y: 4,
+                widgetType: 'clock',
+                config: {
+                    dateColor: '#7698bd',
+                    showSeconds: true
+                }
+            },
+
         ];
     }
 
