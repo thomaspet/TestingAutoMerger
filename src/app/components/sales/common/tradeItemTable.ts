@@ -236,7 +236,9 @@ export class TradeItemTable {
             .setDefaultRowData(this.defaultTradeItem)
             .setDeleteButton(!this.readonly)
             .setChangeCallback((rowModel) => {
+
                 const updatedRow = this.tradeItemHelper.tradeItemChangeCallback(rowModel, this.currencyCodeID, this.currencyExchangeRate);
+                updatedRow['_isDirty'] = true;
 
                 if (updatedRow.VatTypeID && !updatedRow.VatType) {
                     updatedRow.VatType = this.vatTypes.find(vt => vt.ID === updatedRow.VatTypeID);
@@ -246,7 +248,6 @@ export class TradeItemTable {
                     updatedRow.VatType = this.foreignVatType;
                     updatedRow.VatTypeID = this.foreignVatType.ID;
                 }
-
 
                 const index = updatedRow['_originalIndex'];
 

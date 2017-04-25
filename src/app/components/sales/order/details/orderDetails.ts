@@ -135,6 +135,14 @@ export class OrderDetails {
         this.recalcDebouncer.debounceTime(500).subscribe((orderItems) => {
             if (orderItems.length) {
                 this.recalcItemSums(orderItems);
+                let dirtyItems = orderItems.filter(x => x._isDirty);
+
+                if (dirtyItems.length > 0) {
+                    if (!this.isDirty) {
+                        this.isDirty = true;
+                        this.updateSaveActions();
+                    }
+                }
             }
         });
 
@@ -262,6 +270,7 @@ export class OrderDetails {
 
     public onOrderChange(order) {
         this.isDirty = true;
+        this.updateSaveActions();
         let shouldGetCurrencyRate: boolean = false;
 
         // update quotes currencycodeid if the customer changed
@@ -634,7 +643,7 @@ export class OrderDetails {
         this.saveActions.push({
             label: 'Skriv ut',
             action: (done) => this.saveAndPrint(done),
-            main:  this.order.OrderNumber > 0 && !printStatus,
+            main:  this.order.OrderNumber > 0 && !printStatus && !this.isDirty,
             disabled: false
         });
 
@@ -656,7 +665,7 @@ export class OrderDetails {
                     });
                 }
             },
-            main: printStatus === 200,
+            main: printStatus === 200 && !this.isDirty,
             disabled: false
 
         });
@@ -689,7 +698,7 @@ export class OrderDetails {
                     this.handleSaveError(error, done);
                 });
             },
-            main: this.order.ID && printStatus === 100,
+            main: this.isDirty || (this.order.ID && printStatus === 100),
             disabled: !this.order.ID
         });
 

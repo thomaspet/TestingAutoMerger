@@ -108,6 +108,15 @@ export class QuoteDetails {
         this.recalcDebouncer.debounceTime(500).subscribe((quoteitems) => {
             if (quoteitems.length) {
                 this.recalcItemSums(quoteitems);
+
+                let dirtyItems = quoteitems.filter(x => x['_isDirty']);
+
+                if (dirtyItems.length > 0) {
+                    if (!this.isDirty) {
+                        this.isDirty = true;
+                        this.updateSaveActions();
+                    }
+                }
             }
         });
 
@@ -270,7 +279,7 @@ export class QuoteDetails {
 
     public onQuoteChange(quote: CustomerQuote) {
         this.isDirty = true;
-
+        this.updateSaveActions();
         let shouldGetCurrencyRate: boolean = false;
 
         // update quotes currencycodeid if the customer changed
@@ -626,7 +635,7 @@ export class QuoteDetails {
         this.saveActions.push({
             label: 'Skriv ut',
             action: (done) => this.saveAndPrint(done),
-            main:  this.quote.QuoteNumber > 0 && !printStatus,
+            main:  this.quote.QuoteNumber > 0 && !printStatus && !this.isDirty,
             disabled: false
         });
 
@@ -648,7 +657,7 @@ export class QuoteDetails {
                     });
                 }
             },
-            main: printStatus === 200,
+            main: printStatus === 200 && !this.isDirty,
             disabled: false
         });
 
@@ -664,7 +673,7 @@ export class QuoteDetails {
                 });
             },
             disabled: !this.quote.ID,
-            main: this.quote.ID > 0 && this.quote.StatusCode !== StatusCodeCustomerQuote.Draft && printStatus === 100
+            main: this.isDirty || (this.quote.ID > 0 && this.quote.StatusCode !== StatusCodeCustomerQuote.Draft && printStatus === 100)
         });
 
         if (!this.quote.ID) {

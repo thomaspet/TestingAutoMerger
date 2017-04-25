@@ -357,6 +357,7 @@ export class InvoiceDetails {
         const isDifferent = (a, b) => a.toString() !== b.toString();
 
         this.isDirty = true;
+        this.updateSaveActions();
         let shouldGetCurrencyRate: boolean = false;
 
         // update invoices currencycodeid if the customer changed
@@ -590,10 +591,6 @@ export class InvoiceDetails {
         this.tradeItemHelper.calculateDiscount(item, newCurrencyRate);
     }
 
-
-
-
-
     private getReminderStoppedSubStatus(): Promise<any> {
         let reminderStopSubStatus: any = null;
         let reminderStoppedByText = '';
@@ -744,6 +741,8 @@ export class InvoiceDetails {
     }
 
     private refreshInvoice(invoice: CustomerInvoice) {
+
+        this.isDirty = false;
         if (!invoice.CreditDays && invoice.Customer) {
             invoice.CreditDays = invoice.CreditDays
                 || invoice.Customer.CreditDays
@@ -847,6 +846,7 @@ export class InvoiceDetails {
 
     // Save actions
     private updateSaveActions() {
+        if (!this.invoice) { return; }
         this.saveActions = [];
         const transitions = (this.invoice['_links'] || {}).transitions;
         const id = this.invoice.ID;
@@ -859,6 +859,19 @@ export class InvoiceDetails {
                 action: done => this.saveAsDraft(done),
                 disabled: false
             });
+        } else {
+            if (this.isDirty && id) {
+                    this.saveActions.push({
+                    label: 'Lagre endringer',
+                    action: done => this.saveInvoice(done).then(res => {
+                        this.customerInvoiceService.Get(this.invoice.ID, this.expandOptions).subscribe((refreshed) => {
+                            this.refreshInvoice(refreshed);
+                        });
+                    }) ,
+                    disabled: false,
+                    main: true
+                });
+            }
         }
 
         if (this.invoice.InvoiceType === InvoiceTypes.Invoice) {
@@ -866,7 +879,7 @@ export class InvoiceDetails {
                 label: 'Krediter faktura',
                 action: (done) => this.creditInvoice(done),
                 disabled: !status || status === StatusCodeCustomerInvoice.Draft,
-                main: status === StatusCodeCustomerInvoice.Paid
+                main: status === StatusCodeCustomerInvoice.Paid && !this.isDirty
             });
         }
 
@@ -874,35 +887,35 @@ export class InvoiceDetails {
             label: (this.invoice.InvoiceType === InvoiceTypes.CreditNote) ? 'Krediter' : 'Fakturer',
             action: done => this.transition(done),
             disabled: id > 0 && !transitions['invoice'] && !transitions['credit'],
-            main: !id || transitions['invoice'] || transitions['credit']
+            main: (!id && this.isDirty) || transitions['invoice'] || transitions['credit']
         });
 
         this.saveActions.push({
             label: 'Skriv ut',
             action: (done) => this.print(this.invoiceID, done),
             disabled: false,
-            main: !printStatus && status === StatusCodeCustomerInvoice.Invoiced
+            main: !printStatus && status === StatusCodeCustomerInvoice.Invoiced && !this.isDirty
         });
 
         this.saveActions.push({
             label: 'Send på epost',
             action: (done) => this.sendEmailAction(done),
             disabled: false,
-            main: printStatus === 200 && status === StatusCodeCustomerInvoice.Invoiced
+            main: printStatus === 200 && status === StatusCodeCustomerInvoice.Invoiced && !this.isDirty
         });
 
         this.saveActions.push({
             label: 'Send EHF',
             action: (done) => this.sendEHFAction(done),
             disabled: false,
-            main: printStatus === 100 && status === StatusCodeCustomerInvoice.Invoiced
+            main: printStatus === 100 && status === StatusCodeCustomerInvoice.Invoiced && !this.isDirty
         });
 
         this.saveActions.push({
             label: 'Registrer betaling',
             action: (done) => this.payInvoice(done),
             disabled: !transitions || !transitions['pay'],
-            main: id > 0 && transitions['pay']
+            main: id > 0 && transitions['pay'] && !this.isDirty
         });
 
         this.saveActions.push({
@@ -918,7 +931,7 @@ export class InvoiceDetails {
         });
     }
 
-    private saveInvoice(): Promise<CustomerInvoice> {
+    private saveInvoice(doneHandler: (msg: string) => void = null): Promise<CustomerInvoice> {
         this.invoice.Items = this.invoiceItems;
 
         // Prep new orderlines for complex put
@@ -977,6 +990,8 @@ export class InvoiceDetails {
                 ? this.customerInvoiceService.Put(this.invoice.ID, this.invoice)
                 : this.customerInvoiceService.Post(this.invoice);
 
+
+
             // If a currency other than basecurrency is used, and any lines contains VAT,
             // validate that this is correct before resolving the promise
             if (this.invoice.CurrencyCodeID !== this.companySettings.BaseCurrencyCodeID) {
@@ -996,10 +1011,16 @@ export class InvoiceDetails {
                         }
                     });
                 } else {
-                    request.subscribe(res => resolve(res), err => reject(err));
+                    request.subscribe(res => {
+                        resolve(res)
+                        if (doneHandler) { doneHandler('Fakturaen ble lagret'); }
+                    }, err => reject(err));
                 }
             } else {
-                request.subscribe(res => resolve(res), err => reject(err));
+                request.subscribe(res => {
+                    resolve(res);
+                    if (doneHandler) { doneHandler('Fakturaen ble lagret'); }
+                }, err => reject(err));
             }
         });
     }
