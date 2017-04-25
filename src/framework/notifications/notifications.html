@@ -23,13 +23,14 @@
             </p>
 
             <article class="notification_body"
-                (click)="onNotificationClick(notification)">
+                (click)="onNotificationClick(notification)"
+                title="{{notification.Message}}">
 
                 <header>{{notification.CompanyName}}</header>
                 <p>
                     {{getNotificationText(notification)}}
                 </p>
-                <footer><small>{{getNotificationTime(notification)}}</small></footer>
+                <footer><small>{{getNotificationTime(notification)}} av {{notification.SenderDisplayName}}</small></footer>
             </article>
 
             <button class="notification_deleteBtn"

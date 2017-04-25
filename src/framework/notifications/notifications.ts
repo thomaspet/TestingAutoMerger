@@ -132,6 +132,8 @@ export class UniNotifications {
             route = '/salary/' + salaryRouteMap[entityType];
         } else if (timetrackingRouteMap[entityType]) {
             route = '/timetracking/' + timetrackingRouteMap[entityType];
+        } else if (notification.EntityType == 'File' && notification.SenderDisplayName == 'Uni Micro AP') {
+            route = '/accounting/bill/0?fileid=:id';
         }
 
         route = route.replace(/:id/i, notification.EntityID.toString());
@@ -203,7 +205,13 @@ export class UniNotifications {
             text += 'Du har blitt nevnt i en kommentar på ';
         }
 
-        text += `${notification.EntityType}/${notification.EntityID}`;
+        if (notification.EntityType === 'File' && notification.SenderDisplayName === 'Uni Micro AP') {
+            text += `${notification.EntityType}/${notification.EntityID} - Inngående EHF`;
+        }
+        else {
+            text += `${notification.EntityType}/${notification.EntityID}`;
+        }
+
         return text;
     }
 
