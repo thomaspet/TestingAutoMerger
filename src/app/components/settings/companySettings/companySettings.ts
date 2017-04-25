@@ -257,7 +257,7 @@ export class CompanySettingsComponent implements OnInit {
     }
 
     public canDeactivate(): boolean|Promise<boolean> {
-        if (!this.isDirty && !this.reminderSettings.isDirty) {
+        if (!this.isDirty && (!this.reminderSettings || !this.reminderSettings.isDirty)) {
            return true;
         }
 
@@ -278,7 +278,6 @@ export class CompanySettingsComponent implements OnInit {
     }
 
     public companySettingsChange(changes: SimpleChanges) {
-        console.log(this.company$.getValue());
         this.isDirty = true;
 
         if (changes['CompanyBankAccount']) {
