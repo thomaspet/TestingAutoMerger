@@ -954,7 +954,7 @@ export class BillView {
         return new Promise((resolve, reject) => {
             this.supplierInvoiceService.Get(
                 id,
-                ['Supplier.Info.BankAccounts', 'JournalEntry.DraftLines.Account,JournalEntry.DraftLines.VatType', 'CurrencyCode']
+                ['Supplier.Info.BankAccounts', 'JournalEntry.DraftLines.Account,JournalEntry.DraftLines.VatType', 'CurrencyCode', 'BankAccount']
             ).subscribe(result => {
                 if (flagBusy) { this.busy = false; }
                 if (result.Supplier === null) { result.Supplier = new Supplier(); };
