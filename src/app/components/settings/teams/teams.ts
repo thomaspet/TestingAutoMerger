@@ -238,7 +238,7 @@ export class Teams {
                     .setTemplate(rowModel => rowModel['Name'])
             ]);
 
-        this.positionTableConfig = new UniTableConfig(true, true, 6)
+        this.positionTableConfig = new UniTableConfig(true, true, 20)
             .setSearchable(false)
             .setColumns([
                 new UniTableColumn('UserID', 'Bruker', UniTableColumnType.Lookup)

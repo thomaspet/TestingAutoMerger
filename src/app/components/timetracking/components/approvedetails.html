@@ -1,0 +1,38 @@
+<table class="flex-detail">
+    <thead>
+        <tr>
+            <th>Uke</th>
+            <th class="s1">Mandag</th>
+            <th class="s1">Tirsdag</th>
+            <th class="s1">Onsdag</th>
+            <th class="s1">Torsdag</th>
+            <th class="s1">Fredag</th>
+            <th class="s1">Lørdag</th>
+            <th class="s1">Søndag</th>
+            <th>Sum</th>
+        </tr>
+    </thead>
+    <tbody [attr.aria-busy]="busy">
+        <tr *ngFor="let week of groupedWeeks.weeks" >
+            <td>Uke {{week.week}} - {{week.year}}</td>
+            <td class="clickablecell" *ngFor="let item of week?.items; let i=index" [class.today]="item.IsToday" (click)="onDayClick(item)" >
+                <span class="datebox">{{item.Date | date:'dd.MMM'}}</span>
+                <span [class.minus]="item.Sum<0">{{item.Sum | min2hours:'decimal0'}}</span>
+            </td>
+            <td class="sum" [class.minus]="week.sum<0">{{week.sum | min2hours:'decimal'}}</td>
+        </tr>
+        <tr>
+            <td colspan="8">Sum</td><td class="sum" [class.minus]="groupedWeeks.sum<0">{{groupedWeeks.sum | min2hours:'decimal'}}</td>
+        </tr>
+        <tr *ngIf="currentBalance?.Previous">
+            <td colspan="8">+ {{currentBalance?.Previous.Description}} (pr.{{currentBalance?.Previous.BalanceDate|date:'dd.MM.yy'}})</td>
+            <td class="sum" [class.minus]="currentBalance?.Previous.Minutes<0">{{currentBalance?.Previous.Minutes|min2hours:'decimal'}}</td>
+        </tr>
+        <tr *ngIf="currentBalance?.Previous">
+            <td colspan="8">Sum totalt (inklusiv i dag)</td>
+            <td class="sum" [class.minus]="currentBalance.Minutes<0">{{currentBalance.Minutes|min2hours:'decimal'}}</td>                    
+        </tr>
+    </tbody>
+</table>
+
+<uni-time-modal></uni-time-modal>

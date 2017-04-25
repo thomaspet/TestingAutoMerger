@@ -1,69 +1,50 @@
-import {Component, Input, Output, EventEmitter, ViewChild} from '@angular/core';
-import {TimesheetService} from '../../../../services/timetracking/timesheetService';
-import {WorkRelation, WorkBalance} from '../../../../unientities';
-import {ErrorService} from '../../../../services/services';
-import {roundTo} from '../../../common/utils/utils';
-import {UniTimeModal} from '../../components/popupeditor';
-import {IPreSaveConfig} from '../timeentry';
+import {Component, ViewChild, Input, ChangeDetectionStrategy, ChangeDetectorRef} from '@angular/core';
+import {TimesheetService} from '../../../services/timetracking/timesheetService';
+import {ToastService} from '../../../../framework/uniToast/toastService';
+import {ErrorService} from '../../../services/services';
+import {WorkBalance, WorkRelation} from '../../../unientities';
+import {UniTimeModal} from './popupeditor';
+import {roundTo} from '../../common/utils/utils';
 import * as moment from 'moment';
 
 @Component({
-    selector: 'regtimebalance',
-    templateUrl: './balance.html'
+    selector: 'approve-details',
+    templateUrl: './approvedetails.html',
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class RegtimeBalance {
+export class ApproveDetails {
+    @ViewChild(UniTimeModal) private timeModal: UniTimeModal;
     @Input() public set workrelation(value: WorkRelation ) {
+        this.busy = true;
         this.current = value;
         this.reloadBalance(value);
     }
-    @Input() public eventcfg: IPreSaveConfig;
-    @Output() public valueChange: EventEmitter<any> = new EventEmitter();
-    @ViewChild(UniTimeModal) private timeModal: UniTimeModal;
+
     public busy: boolean = true;
     private current: WorkRelation;
     public currentBalance: WorkBalanceDto;
-    public incomingBalance: WorkBalance;
-    public isDetailView: boolean = false;
-    private hasDetails: boolean = false;
     private groupedWeeks: IDetails = { weeks: [], sum: 0 };
 
     constructor(
+        private changeDetectorRef: ChangeDetectorRef,
         private timesheetService: TimesheetService,
-        private errorService: ErrorService
-    ) {
+        private errorService: ErrorService,
+        private toast: ToastService) {
 
-    }
-
-    public refresh(rel?: WorkRelation) {
-        if (rel) { this.current = rel; }
-        this.reloadBalance(this.current);
-    }
-
-    public onShowDetails(details: boolean = true) {
-        this.busy = true;
-        this.reloadBalance(this.current, details);
     }
 
     public onDayClick(item: IDetail, checkSave: boolean = true) {
-        if (this.eventcfg && checkSave) {
-            this.eventcfg.askSave().then( () => {
-                this.onDayClick(item, false);
-                this.eventcfg.askReload();
-            });
-            return;
-        }
         this.timeModal.open(this.current, item.Date).then( x => {
             if (x) {
-                this.onShowDetails(this.hasDetails);
-                if (this.eventcfg && this.eventcfg.askReload) { this.eventcfg.askReload(); }
+                this.reloadBalance(this.current);
             }
         });
-    }
+    }    
 
-    private reloadBalance(rel: WorkRelation, details: boolean = false) {
+    private reloadBalance(rel: WorkRelation, details: boolean = true) {
         var workRelationId = rel ? rel.ID : 0;
         if (!workRelationId) {
-            this.valueChange.emit(0);
+            // this.valueChange.emit(0);
             this.currentBalance = new WorkBalanceDto();
             this.busy = false;
         } else {
@@ -71,8 +52,6 @@ export class RegtimeBalance {
                 this.busy = false;
                 let prevBalance = this.currentBalance;
                 this.currentBalance = x;
-                this.hasDetails = details;
-                this.isDetailView = details;
 
                 if (details) {
                     this.groupedWeeks = this.groupIntoWeeks(x.Details);
@@ -106,8 +85,9 @@ export class RegtimeBalance {
                     this.currentBalance.actualHours = roundTo( preActual / 60, 1);
                     this.currentBalance.offHours = roundTo( x.ValidTimeOff / 60, 1);
 
-                    this.valueChange.emit(this.currentBalance.hours);
+                    // this.valueChange.emit(this.currentBalance.hours);
                 }
+                this.refresh();
 
             }, (err) => {
                 console.log('Unable to fetch balance');
@@ -149,10 +129,17 @@ export class RegtimeBalance {
         wk.week = md.isoWeek();
         wk.key = wk.year + '-' + wk.week;
         return wk;
-    }
+    }    
+
+    private refresh() {
+        this.changeDetectorRef.markForCheck();
+    }    
 
 
 }
+
+
+
 
 interface IDetails {
     weeks: Array<Week>;
@@ -220,8 +207,8 @@ class Week {
 }
 
 // tslint:disable:variable-name
-class WorkBalanceDto extends WorkBalance {    
-    public LastDayExpected: number;
+class WorkBalanceDto extends WorkBalance {
+    public LastDayExpected: number;    
     public LastDayActual: number;
     public expectedHours: number;
     public actualHours: number;
