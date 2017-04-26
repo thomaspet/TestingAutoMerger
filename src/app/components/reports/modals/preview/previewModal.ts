@@ -127,9 +127,10 @@ export class PreviewModal {
         this.modalConfig.title = report.Name;
         this.modalConfig.report = null;
         this.reportDefinition = report;
-        this.reportService.generateReportHtml(report, this.modalConfig);
         this.modal.open();
 
-        this.cdr.markForCheck();
+        this.reportService.generateReportHtml(report, this.modalConfig, () => {
+            this.cdr.markForCheck();
+        });
     }
 }
