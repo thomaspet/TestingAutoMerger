@@ -69,22 +69,22 @@ export class ReportService extends BizHttp<string> {
     // Generate report
     //
 
-    public generateReportHtml(report: ReportDefinition, target: any) {
+    public generateReportHtml(report: ReportDefinition, target: any, doneHandler: (msg: string) => void = null) {
         this.format = 'html';
         this.report = <Report>report;
         this.target = target;
         this.sendemail = null;
 
-        this.generateReport();
+        this.generateReport(doneHandler);
     }
 
-    public generateReportPdf(report: ReportDefinition) {
+    public generateReportPdf(report: ReportDefinition, doneHandler: (msg: string) => void = null) {
         this.format = 'pdf';
         this.report = <Report>report;
         this.target = null;
         this.sendemail = null;
 
-        this.generateReport();
+        this.generateReport(doneHandler);
     }
 
     public generateReportPdfFile(report: ReportDefinition): Observable<string> {
@@ -149,6 +149,7 @@ export class ReportService extends BizHttp<string> {
 
         if (this.target) {
             this.reportGenerator.showReport(this.report.templateJson, dataSources, this.report.parameters, this.target);
+            if (doneHandler) { doneHandler(); }
         } else {
             var attachment = this.reportGenerator.printReport(this.report.templateJson, dataSources, this.report.parameters, !this.sendemail, this.format);
 
