@@ -48,7 +48,7 @@
     "uniform-ng2": "0.0.82",
     "unisearch-ng2": "0.0.23",
     "unitable-ng2": "0.0.12",
-    "zone.js": "^0.8.4"
+    "zone.js": "0.8.5"
   },
   "devDependencies": {
     "@ngtools/webpack": "^1.2.14",
