@@ -456,13 +456,24 @@ export class BillView {
                         if (result && result.length > 0) {
                             let supplier = result[0];
 
-                            if (ocr.BankAccount) {
-                                let bankAccount = supplier.Info.BankAccounts
-                                    .find(x => x.AccountNumber === ocr.BankAccount);
+                            if (ocr.BankAccountCandidates.length > 0) {
+                                let bankAccount: BankAccount;
+
+                                for (let i = 0; i < ocr.BankAccountCandidates.length && !bankAccount; i++) {
+                                    let candidate = ocr.BankAccountCandidates[i];
+
+                                    let existingAccount = supplier.Info.BankAccounts
+                                        .find(x => x.AccountNumber === candidate);
+
+                                    if (existingAccount) {
+                                        bankAccount = existingAccount;
+                                    }
+                                }
 
                                 if (bankAccount) {
                                     let current = this.current.getValue();
                                     current.BankAccountID = bankAccount.ID;
+                                    current.BankAccount = bankAccount;
                                     this.current.next(current);
                                 } else {
                                     this.confirmModal.confirm(
@@ -482,7 +493,8 @@ export class BillView {
                                                     supplier.Info.BankAccounts.push(savedBankAccount);
 
                                                     let current = this.current.getValue();
-                                                    current.BankAccountID = bankAccount.ID;
+                                                    current.BankAccountID = savedBankAccount.ID;
+                                                    current.BankAccount = savedBankAccount;
                                                     this.current.next(current);
 
                                                     this.setSupplier(supplier);
@@ -496,7 +508,7 @@ export class BillView {
 
                             this.setSupplier(supplier);
                         } else {
-                            this.findSupplierViaPhonebook(orgNo, true, ocr.BankAccount);
+                            this.findSupplierViaPhonebook(orgNo, true, ocr.BankAccountCandidates.length > 0 ? ocr.BankAccountCandidates[0] : null);
                         }
                     }, err => this.errorService.handle(err));
             }
@@ -672,6 +684,7 @@ export class BillView {
         if (!current.BankAccountID && result.Info.DefaultBankAccountID ||
             (current.BankAccount && current.BankAccount.BusinessRelationID !== result.BusinessRelationID)) {
             current.BankAccountID = result.Info.DefaultBankAccountID;
+            current.BankAccount = result.Info.DefaultBankAccount;
         }
 
         if (result.CurrencyCodeID) {
