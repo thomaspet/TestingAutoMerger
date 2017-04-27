@@ -887,7 +887,7 @@ export class InvoiceDetails {
             label: (this.invoice.InvoiceType === InvoiceTypes.CreditNote) ? 'Krediter' : 'Fakturer',
             action: done => this.transition(done),
             disabled: id > 0 && !transitions['invoice'] && !transitions['credit'],
-            main: (!id && this.isDirty) || transitions['invoice'] || transitions['credit']
+            main: !id || (transitions && (transitions['invoice'] || transitions['credit']))
         });
 
         this.saveActions.push({
