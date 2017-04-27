@@ -616,6 +616,8 @@ export class CompanySettingsComponent implements OnInit {
                         });
 
                         resolve(localBankaccount);
+                    } else {
+                        reject(null);
                     }
                 }).catch(() => reject());
             })

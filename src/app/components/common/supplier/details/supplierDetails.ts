@@ -567,7 +567,7 @@ export class SupplierDetails implements OnInit {
             storeIdInProperty: 'Info.DefaultBankAccountID',
             editor: (bankaccount: BankAccount) => new Promise((resolve, reject) => {
                 if ((bankaccount && !bankaccount.ID) || !bankaccount) {
-                    bankaccount = new BankAccount();
+                    bankaccount = bankaccount || new BankAccount();
                     bankaccount['_createguid'] = this.bankaccountService.getNewGuid();
                     bankaccount.BankAccountType = 'supplier';
                     bankaccount.ID = 0;

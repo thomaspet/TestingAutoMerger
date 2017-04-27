@@ -54,10 +54,12 @@ export class BankAccountForm {
 
     public ngOnInit() {
         this.model$.next(this.config.model);
-        this.accountService.GetAll('filter=AccountNumber lt 3000 and Visible eq true&orderby=AccountNumber').subscribe((accounts) => {
+        this.fields$.next(this.extendFields());
+
+        /*this.accountService.GetAll('filter=AccountNumber lt 3000 and Visible eq true&orderby=AccountNumber').subscribe((accounts) => {
             this.accounts = accounts;
-            this.fields$.next(this.extendFields());
-       }, err => this.errorService.handle(err));
+
+       }, err => this.errorService.handle(err));*/
     }
 
     public change(changes: SimpleChanges) {
@@ -113,27 +115,66 @@ export class BankAccountForm {
 
         let accountID = <any>fields.find(x => x.Property === 'AccountID');
         accountID.Options = {
-            source: this.accounts,
+            getDefaultData: () => this.getDefaultAccountData(),
             displayProperty: 'AccountName',
             valueProperty: 'ID',
             template: (account: Account) => account ? `${account.AccountNumber} - ${account.AccountName}` : '',
             minLength: 1,
             debounceTime: 200,
-            search: (searchValue: string): any => {
-                if (!searchValue) {
-                    searchValue = '';
+            search: (searchValue: string) => this.accountSearch(searchValue),
+            events: {
+                    select: (model: BankAccount) => {
+                        this.updateAccount(model);
+                    }
                 }
-                if (this.accounts) {
-                    return [this.accounts.filter((account) => {
-                        return (account && account.AccountNumber && account.AccountNumber.toString().startsWith(searchValue))
-                            || (account && account.AccountName && account.AccountName.toLowerCase().indexOf(searchValue.toLowerCase()) >= 0);
-                    })];
-                } else {
-                    return this.accounts;
-                }
-            }
         };
+
         return fields;
+    }
+
+    private updateAccount(model: BankAccount) {
+        if (model && model.AccountID) {
+            this.accountService.Get(model.AccountID)
+                .subscribe(account => {
+                    if (account) {
+                        let mainModel = this.model$.getValue();
+                        mainModel.Account = account;
+                        this.model$.next(mainModel);
+                    }
+                },
+                err => this.errorService.handle(err)
+            );
+        }
+    }
+
+    private getDefaultAccountData() {
+        let model = this.model$.getValue();
+        if (model && model.Account ) {
+            return Observable.of([model.Account]);
+        } else {
+            return Observable.of([]);
+        }
+    }
+
+    private accountSearch(searchValue: string): Observable<any> {
+
+        let filter = `Visible eq 'true' and isnull(AccountID,0) eq 0`;
+        if (searchValue === '') {
+            filter += ' and AccountNumber lt 3000';
+        } else {
+            let copyPasteFilter = '';
+
+            if (searchValue.indexOf(':') > 0) {
+                let accountNumberPart = searchValue.split(':')[0].trim();
+                let accountNamePart =  searchValue.split(':')[1].trim();
+
+                copyPasteFilter = ` or (AccountNumber eq '${accountNumberPart}' and AccountName eq '${accountNamePart}')`;
+            }
+
+            filter += ` and (startswith(AccountNumber\,'${searchValue}') or contains(AccountName\,'${searchValue}')${copyPasteFilter} )`;
+        }
+
+        return this.accountService.searchAccounts(filter, searchValue !== '' ? 100 : 500);
     }
 
     private setupForm() {
