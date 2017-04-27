@@ -300,10 +300,6 @@ export class BankAccountModal {
 
     public close() {
         this.modal.close();
-
-        if (this.modalConfig.model.Account) {
-            this.modalConfig.model.Account = null;
-        }
     }
 
     public onClose(fromClose) {
