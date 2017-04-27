@@ -14,7 +14,7 @@ import * as moment from 'moment';
              (click)="onClickNavigate()"
              title="Totalsum flexiid">
 
-            <span class="title">timesaldo</span>
+            <span class="title">Timesaldo</span>
             <span class="value">{{displayValue}}</span>
         </div>
     `
