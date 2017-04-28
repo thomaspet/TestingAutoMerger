@@ -590,7 +590,7 @@ export class BillView {
         }
 
         if (change['InvoiceDate']) {
-            let creditdays = model.Supplier.CreditDays;
+            let creditdays = model.Supplier ? model.Supplier.CreditDays : null;
             if (!creditdays) { creditdays = this.companySettings.CustomerCreditDays; }
             if (creditdays) {
                 model.PaymentDueDate = <any>new LocalDate(
@@ -641,8 +641,8 @@ export class BillView {
             }
         }
 
-        // need to push an update if the currency changes to make the journal entry grid update itself
-        if (change['TaxInclusiveAmountCurrency']) {
+        // need to push an update if other fields changes to make the journal entry grid update itself
+        if (change['TaxInclusiveAmountCurrency'] || change['InvoiceNumber'] || change['PaymentID'] || change['BankAccount']) {
             this.current.next(model);
         }
 
