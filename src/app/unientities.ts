@@ -170,7 +170,7 @@ export class WorkItemGroup extends UniEntity {
     public UpdatedBy: string;
     public WorkRelationID: number;
     public WorkRelation: WorkRelation;
-    public Items: Array<WorkRelation>;
+    public Items: Array<WorkItem>;
     public CustomFields: any;
 }
 
@@ -509,7 +509,6 @@ export class CustomerInvoice extends UniEntity {
     public static EntityType = 'CustomerInvoice';
 
     public AmountRegards: string;
-    public Attachments: string;
     public BankAccountID: number;
     public CollectorStatusCode: number;
     public Comment: string;
@@ -641,7 +640,6 @@ export class CustomerOrder extends UniEntity {
     public static RelativeUrl = 'orders';
     public static EntityType = 'CustomerOrder';
 
-    public Attachments: string;
     public Comment: string;
     public CreatedAt: Date;
     public CreatedBy: string;
@@ -754,7 +752,6 @@ export class CustomerQuote extends UniEntity {
     public static RelativeUrl = 'quotes';
     public static EntityType = 'CustomerQuote';
 
-    public Attachments: string;
     public Comment: string;
     public CreatedAt: Date;
     public CreatedBy: string;
@@ -2772,6 +2769,24 @@ export class AccountVisibilityGroup extends UniEntity {
 }
 
 
+export class Agreement extends UniEntity {
+    public static RelativeUrl = 'agreements';
+    public static EntityType = 'Agreement';
+
+    public AppliesTo: number;
+    public CreatedAt: Date;
+    public CreatedBy: string;
+    public Deleted: boolean;
+    public ID: number;
+    public Name: string;
+    public Template: string;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public ValidFrom: Date;
+    public CustomFields: any;
+}
+
+
 export class CurrencyCode extends UniEntity {
     public static RelativeUrl = 'currencycodes';
     public static EntityType = 'CurrencyCode';
@@ -3568,9 +3583,9 @@ export class JournalEntry extends UniEntity {
     public StatusCode: number;
     public UpdatedAt: Date;
     public UpdatedBy: string;
-    public DraftLines: Array<JournalEntryLineDraft>;
     public FinancialYear: FinancialYear;
     public Lines: Array<JournalEntryLine>;
+    public DraftLines: Array<JournalEntryLineDraft>;
     public CustomFields: any;
 }
 
@@ -3605,6 +3620,7 @@ export class JournalEntryLine extends UniEntity {
     public OriginalJournalEntryPost: number;
     public OriginalReferencePostID: number;
     public PeriodID: number;
+    public PostPostJournalEntryLineID: number;
     public ReferenceCreditPostID: number;
     public ReferenceOriginalPostID: number;
     public RegisteredDate: LocalDate;
@@ -3674,6 +3690,7 @@ export class JournalEntryLineDraft extends UniEntity {
     public JournalEntryNumberNumeric: number;
     public JournalEntryTypeID: number;
     public PeriodID: number;
+    public PostPostJournalEntryLineID: number;
     public RegisteredDate: LocalDate;
     public Signature: string;
     public StatusCode: number;
@@ -3701,7 +3718,6 @@ export class JournalEntryLineDraft extends UniEntity {
     public Accrual: Accrual;
     public CustomerOrder: CustomerOrder;
     public CustomFields: any;
-    public PostPostJournalEntryLineID: number;
 }
 
 
@@ -3982,7 +3998,6 @@ export class SupplierInvoice extends UniEntity {
     public static EntityType = 'SupplierInvoice';
 
     public AmountRegards: string;
-    public Attachments: string;
     public BankAccountID: number;
     public Comment: string;
     public CreatedAt: Date;
@@ -4962,6 +4977,13 @@ export class JournalEntryLineCouple extends UniEntity {
 }
 
 
+export class AssignmentDetails extends UniEntity {
+    public Message: string;
+    public TeamIDs: string;
+    public UserIDs: string;
+}
+
+
 export class VatReportMessage extends UniEntity {
     public Level: ValidationLevel;
     public Message: string;
@@ -5108,6 +5130,7 @@ export class AGADetails extends UniEntity {
 
 export class Totals extends UniEntity {
 }
+
 
 export class RssList extends UniEntity {
     public Items: string;

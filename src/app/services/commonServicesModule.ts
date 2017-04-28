@@ -45,6 +45,7 @@ import {CurrencyOverridesService} from './common/currencyOverridesService';
 import {ApiModelService} from './common/apiModelService';
 import {YearService} from './common/yearService';
 import {Lookupservice} from './common/lookupService';
+import {AgreementService} from './common/agreementService';
 
 export * from './common/altinnAuthenticationService';
 export * from './common/altinnIntegrationService';
@@ -88,6 +89,7 @@ export * from './common/currencyOverridesService';
 export * from './common/apiModelService';
 export * from './common/yearService';
 export * from './common/lookupService';
+export * from './common/agreementService';
 
 @NgModule({})
 export class CommonServicesModule {
@@ -140,7 +142,8 @@ export class CommonServicesModule {
                 UniTickerService,
                 ApiModelService,
                 YearService,
-                Lookupservice
+                Lookupservice,
+                AgreementService
             ]
         };
     }
