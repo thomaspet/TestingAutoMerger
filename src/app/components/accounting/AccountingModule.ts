@@ -28,7 +28,6 @@ import {SelectJournalEntryLineModal, SelectJournalEntryLineTable} from './journa
 import {HistoricVatReportTable} from './vatreport/modals/historicVatReports';
 import {ReceiptVat} from './vatreport/receipt/receipt';
 import {VatSummaryPerPost} from './vatreport/reportSummary/reportSummary';
-import {TransqueryList} from './transquery/list/transqueryList';
 import {TransqueryDetails} from './transquery/details/transqueryDetails';
 import {Transquery} from './transquery/transquery';
 import {JournalEntries} from './journalentry/journalentries/journalentries';
@@ -121,7 +120,6 @@ import {VatDeductionSettings} from './vatsettings/vatdeductions/vatdeductionsett
 
         // transquery
         Transquery,
-        TransqueryList,
         TransqueryDetails,
 
         // accounting reports
@@ -177,7 +175,6 @@ import {VatDeductionSettings} from './vatsettings/vatdeductions/vatdeductionsett
 
         // transquery
         Transquery,
-        TransqueryList,
         TransqueryDetails,
 
         // accounting reports

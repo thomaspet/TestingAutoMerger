@@ -135,8 +135,6 @@ export class HamburgerMenu {
                     {componentName: 'Fakturamottak', componentUrl: '/accounting/bills', moduleID: UniModules.Bills},
                     {componentName: 'Betaling', componentUrl: '/accounting/journalentry/payments', hidden: true},
                     {componentName: 'Regnskapsoversikt', componentUrl: '/accounting/accountingreports', moduleID: UniModules.AccountingReports},
-                    // KE: This is not really needed anymore - I'll just hide it for now, but the components should be removed when BA has approved new solution
-                    // {componentName: 'Forespørsel på konto', componentUrl: '/accounting/transquery', moduleID: UniModules.Transquery},
                     {componentName: 'Forespørsel på bilag', componentUrl: '/accounting/transquery/details', moduleID: UniModules.TransqueryDetails},
                     {componentName: 'Forespørsel på konto', componentUrl: '/accounting/accountquery', moduleID: UniModules.AccountQuery},
                     {componentName: 'Kontoplan', componentUrl: '/accounting/accountsettings', moduleID: UniModules.Accountsettings},
