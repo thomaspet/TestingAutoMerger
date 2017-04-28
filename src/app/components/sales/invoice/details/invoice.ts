@@ -243,11 +243,9 @@ export class InvoiceDetails {
         if (this.companySettings.APActivated && this.companySettings.APGuid) {
             this.askSendEHF(doneHandler);
         } else {
-            this.activateAPModal.openModal();
-
-            if (this.activateAPModal.Changed.observers.length === 0) {
-                this.activateAPModal.Changed.subscribe((activate) => {
-                    this.ehfService.Activate(activate).subscribe((ok) => {
+            this.activateAPModal.confirm().then((result) => {
+                if (result.status === ConfirmActions.ACCEPT) {
+                    this.ehfService.Activate(result.model).subscribe((ok) => {
                         if (ok) {
                             this.toastService.addToast('Aktivering', ToastType.good, 3, 'EHF aktivert');
                             this.askSendEHF(doneHandler);
@@ -256,12 +254,12 @@ export class InvoiceDetails {
                             if (doneHandler) { doneHandler('Feil oppstod ved aktivering!'); }
                         }
                     },
-                        (err) => {
-                            if (doneHandler) { doneHandler('Feil oppstod ved aktivering!'); }
-                            this.errorService.handle(err);
-                        });
-                });
-            }
+                    (err) => {
+                        if (doneHandler) { doneHandler('Feil oppstod ved aktivering!'); }
+                        this.errorService.handle(err);
+                    });
+                }
+            });
         }
     }
 

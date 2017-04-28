@@ -13,7 +13,7 @@ import {
     BankAccount, Municipal, Address, Phone, Email, AccountVisibilityGroup, Company
 } from '../../../unientities';
 import {BankAccountModal} from '../../common/modals/modals';
-import {AddressModal, EmailModal, PhoneModal} from '../../common/modals/modals';
+import {AddressModal, EmailModal, PhoneModal, ActivateAPModal} from '../../common/modals/modals';
 import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
 import {SearchResultItem} from '../../common/externalSearch/externalSearch';
 import {AuthService} from '../../../../framework/core/authService';
@@ -38,7 +38,8 @@ import {
     CompanyService,
     UniSearchConfigGeneratorService,
     CurrencyService,
-    FinancialYearService
+    FinancialYearService,
+    EHFService
 } from '../../../services/services';
 declare var _;
 
@@ -54,6 +55,7 @@ export class CompanySettingsComponent implements OnInit {
     @ViewChild(PhoneModal) public phoneModal: PhoneModal;
     @ViewChild(ReminderSettings) public reminderSettings: ReminderSettings;
     @ViewChild(UniConfirmModal) private confirmModal: UniConfirmModal;
+    @ViewChild(ActivateAPModal) private activateAPModal: ActivateAPModal;
 
     private defaultExpands: any = [
         'DefaultAddress',
@@ -145,7 +147,8 @@ export class CompanySettingsComponent implements OnInit {
         private errorService: ErrorService,
         private uniSearchConfigGeneratorService: UniSearchConfigGeneratorService,
         private currencyService: CurrencyService,
-        private financialYearService: FinancialYearService
+        private financialYearService: FinancialYearService,
+        private ehfService: EHFService
 
     ) {
     }
@@ -1448,6 +1451,17 @@ export class CompanySettingsComponent implements OnInit {
                 Sectionheader: 'Øredifferanse ved innbetaling',
                 hasLineBreak: false,
                 Validations: []
+            },
+            {
+                ComponentLayoutID: 1,
+                EntityType: 'CompanySettings',
+                FieldType: FieldType.BUTTON,
+                Label: 'Aktiver EHF',
+                Sectionheader: 'EHF',
+                Section: 5,
+                Options: {
+                    click: () => this.activateAP()
+                }
             }
         ]);
 
@@ -1481,6 +1495,22 @@ export class CompanySettingsComponent implements OnInit {
             .setModelField('ForceSupplierInvoiceApproval')
             .setType(UNI_CONTROL_DIRECTIVES[FieldType.CHECKBOX]);
         */
+    }
+
+    private activateAP() {
+        this.activateAPModal.confirm().then((result) => {
+            if (result.status === ConfirmActions.ACCEPT) {
+                this.ehfService.Activate(result.model).subscribe((ok) => {
+                    if (ok) {
+                        this.toastService.addToast('Aktivering', ToastType.good, 3, 'EHF aktivert');
+                    } else {
+                        this.toastService.addToast('Aktivering feilet!', ToastType.bad, 5, 'Noe galt skjedde ved aktivering');
+                    }
+                }, (err) => {
+                    this.errorService.handle(err);
+                });
+            }
+        });
     }
 
     //#region Test data

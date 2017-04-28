@@ -1,6 +1,14 @@
-import {Component} from '@angular/core';
+import {Component, ViewChild} from '@angular/core';
 import {TabService, UniModules} from '../layout/navbar/tabstrip/tabService';
 import {UniWidgetCanvas, IUniWidget} from '../widgets/widgetCanvas';
+import {ToastService, ToastType, ToastTime} from '../../../framework/uniToast/toastService';
+import {UniConfirmModal, ConfirmActions} from '../../../framework/modals/confirm';
+import {CompanySettings} from '../../unientities';
+import {
+    ErrorService,
+    EHFService,
+    CompanySettingsService
+} from '../../services/services';
 
 @Component({
     selector: 'uni-sales',
@@ -11,9 +19,14 @@ import {UniWidgetCanvas, IUniWidget} from '../widgets/widgetCanvas';
     `,
 })
 export class UniSales {
-    private widgetLayout: IUniWidget[];
+    private widgetLayout: IUniWidget[] = [];
+    private companySettings: CompanySettings;
 
-    constructor(tabService: TabService) {
+    constructor(tabService: TabService,
+        private toastService: ToastService,
+        private errorService: ErrorService,
+        private ehfService: EHFService,
+        private companySettingsService: CompanySettingsService) {
         tabService.addTab({
              name: 'Salg',
              url: '/sales',
@@ -21,7 +34,10 @@ export class UniSales {
              active: true
         });
 
-        this.widgetLayout = this.getDefaultLayout();
+        this.companySettingsService.Get(1).subscribe((settings) => {
+            this.companySettings = settings;
+            this.widgetLayout = this.getDefaultLayout();
+        });
     }
 
     private getDefaultLayout(): IUniWidget[] {
@@ -39,7 +55,6 @@ export class UniSales {
                     link: '/sales/customer'
                 }
             },
-
             {
                 width: 1,
                 height: 1,
