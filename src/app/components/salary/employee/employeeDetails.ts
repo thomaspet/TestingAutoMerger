@@ -4,7 +4,7 @@ import { Router, ActivatedRoute, NavigationEnd } from '@angular/router';
 import {
     Employee, Employment, EmployeeLeave, SalaryTransaction, Project, Dimensions,
     Department, SubEntity, SalaryTransactionSupplement, EmployeeTaxCard,
-    WageType, EmployeeCategory
+    WageType, EmployeeCategory, BusinessRelation
 } from '../../../unientities';
 import { TabService, UniModules } from '../../layout/navbar/tabstrip/tabService';
 import { ToastService, ToastType } from '../../../../framework/uniToast/toastService';
@@ -599,10 +599,19 @@ export class EmployeeDetails extends UniView implements OnDestroy {
     }
 
     private getEmployee() {
-        this.employeeService.get(this.employeeID).subscribe((employee: Employee) => {
-            this.employee = employee;
-            super.updateState('employee', employee, false);
-        }, err => this.errorService.handle(err));
+        this.employeeService
+            .get(this.employeeID)
+            .map(employee => {
+                if (!employee.BusinessRelationID && !employee.BusinessRelationInfo) {
+                    employee.BusinessRelationInfo = new BusinessRelation();
+                    employee.BusinessRelationInfo['_createguid'] = this.employeeService.getNewGuid();
+                }
+                return employee;
+            })
+            .subscribe((employee: Employee) => {
+                this.employee = employee;
+                super.updateState('employee', employee, false);
+            }, err => this.errorService.handle(err));
     }
 
     private getEmployeeCategories() {

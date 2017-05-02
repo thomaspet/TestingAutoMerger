@@ -91,7 +91,7 @@ export class EmployeeService extends BizHttp<Employee> {
             .send();
     }
 
-    public get(id: number | string, expand: string[] = null) {
+    public get(id: number | string, expand: string[] = null): Observable<Employee> {
         if (id === 0) {
             if (expand) {
                 return super.GetNewEntity(expand);
