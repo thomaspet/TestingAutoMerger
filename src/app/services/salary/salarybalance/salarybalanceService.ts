@@ -50,7 +50,7 @@ export class SalarybalanceService extends BizHttp<SalaryBalance> {
         }
     }
 
-    public getAll(empID: number) {
+    public getAll(empID: number): Observable<SalaryBalance[]> {
         return super.GetAll(`filter=${empID ? 'EmployeeID eq ' + empID : ''}&orderBy=EmployeeID ASC&expand=Transactions`);
     }
 

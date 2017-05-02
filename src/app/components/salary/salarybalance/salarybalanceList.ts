@@ -5,6 +5,12 @@ import { SalarybalanceService, ErrorService } from '../../../services/services';
 import { SalaryBalance, SalBalType } from '../../../unientities';
 import { TabService, UniModules } from '../../layout/navbar/tabstrip/tabService';
 import { SalarybalancelineModal } from './modals/salarybalancelinemodal';
+import { Observable } from 'rxjs/Observable';
+
+type BalanceActionFormattedType = {
+    salaryBalanceID: number,
+    balance: number
+};
 
 @Component({
     selector: 'salarybalances',
@@ -26,28 +32,44 @@ export class SalarybalanceList implements OnInit {
         route.params.subscribe(params => {
             let empID: number = +params['empID'] || 0;
             this.tabSer
-            .addTab({
-                name: 'Saldo',
-                url: 'salary/salarybalances' + (empID ? `;empID=${empID}` : ''),
-                moduleID: UniModules.Salarybalances,
-                active: true
-            });
+                .addTab({
+                    name: 'Saldo',
+                    url: 'salary/salarybalances' + (empID ? `;empID=${empID}` : ''),
+                    moduleID: UniModules.Salarybalances,
+                    active: true
+                });
 
             this._salarybalanceService.getAll(empID)
-                .subscribe((salarybalances: SalaryBalance[]) => {
-                    if (salarybalances) {
-                        salarybalances.forEach((salarybalance, index) => {
-                            if (salarybalance.InstalmentType === SalBalType.Advance 
-                                || salarybalance.InstalmentType === SalBalType.Garnishment 
+                .switchMap((salaryBalances: SalaryBalance[]) => {
+                    let obsList: Observable<BalanceActionFormattedType>[] = [];
+                    if (salaryBalances) {
+                        salaryBalances.forEach((salarybalance: SalaryBalance, index) => {
+                            if (salarybalance.InstalmentType === SalBalType.Advance
+                                || salarybalance.InstalmentType === SalBalType.Garnishment
                                 || salarybalance.InstalmentType === SalBalType.Outlay) {
-                                    this._salarybalanceService.getBalance(salarybalance.ID)
-                                        .subscribe(balance => {
-                                            salarybalance['_balance'] = balance;
-                                            this.salarybalances = salarybalances;
-                                        });
+                                obsList
+                                    .push(this._salarybalanceService
+                                        .getBalance(salarybalance.ID)
+                                        .map(balance => {
+                                            return { salaryBalanceID: salarybalance.ID, balance: balance };
+                                        }));
                             }
                         });
                     }
+                    return Observable.forkJoin([Observable.of(salaryBalances), Observable.forkJoin(obsList)]);
+                })
+                .map((result: [SalaryBalance[], BalanceActionFormattedType[]]) => {
+                    let [salaryBalances, balanceList] = result;
+                    balanceList.map(balance => {
+                        let indx = salaryBalances.findIndex(sal => sal.ID === balance.salaryBalanceID);
+                        if (indx >= 0) {
+                            salaryBalances[indx]['_balance'] = balance.balance;
+                        }
+                    });
+                    return salaryBalances;
+                })
+                .subscribe((salarybalances: SalaryBalance[]) => {
+                    this.salarybalances = salarybalances;
                 });
         });
     }
@@ -68,7 +90,7 @@ export class SalarybalanceList implements OnInit {
         });
 
         const balanceCol = new UniTableColumn('_balance', 'Saldo', UniTableColumnType.Money);
-        
+
         let contextMenu = {
             label: 'Legg til manuell post',
             action: (salbal) => {
