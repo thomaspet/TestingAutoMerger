@@ -4166,7 +4166,7 @@ unique-string@^1.0.0:
   dependencies:
     crypto-random-string "^1.0.0"
 
-unisearch-ng2@0.0.23:
+unisearch-ng2@0.0.23, unisearch-ng2@^0.0.23:
   version "0.0.23"
   resolved "https://registry.yarnpkg.com/unisearch-ng2/-/unisearch-ng2-0.0.23.tgz#e0a0e39bd3905aa3b3b125b7c5e21f706a8fb2ab"
   dependencies:
@@ -4184,9 +4184,9 @@ unisearch-ng2@0.0.23:
     tslib "1.6.0"
     zone.js "0.8.4"
 
-unitable-ng2@0.0.12:
-  version "0.0.12"
-  resolved "https://registry.yarnpkg.com/unitable-ng2/-/unitable-ng2-0.0.12.tgz#c6ae6589242328498c882d5dd5ad5a706d87cd7b"
+unitable-ng2@0.1.0:
+  version "0.1.0"
+  resolved "https://registry.yarnpkg.com/unitable-ng2/-/unitable-ng2-0.1.0.tgz#1da74b779a8ba9bcd859ccd8d96577e48ff07530"
   dependencies:
     "@angular/common" "4.0.0-rc.4"
     "@angular/compiler" "4.0.0-rc.4"
@@ -4202,6 +4202,7 @@ unitable-ng2@0.0.12:
     rxjs "5.2.0"
     systemjs "0.19.31"
     tslib "1.6.0"
+    unisearch-ng2 "^0.0.23"
     zone.js "0.8.4"
 
 unpipe@~1.0.0:
