@@ -1074,7 +1074,7 @@ export class EmployeeDetails extends UniView implements OnDestroy {
                                         if (updatePosts) {
                                             super.updateState('recurringPosts',
                                                 recurringPosts.filter(x => !x.Deleted),
-                                                false);
+                                                recurringPosts.some(trans => trans['_isDirty']));
                                         }
 
                                         this.checkForSaveDone(done);
