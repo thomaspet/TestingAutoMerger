@@ -6,11 +6,15 @@ import {CanDeactivateGuard} from '../../canDeactivateGuard';
 // module
 import {UniTasks} from './tasks';
 import {TaskList} from './list/taskList';
-
+import {TaskDetails} from './details/taskDetails';
 export const childRoutes = [
     {
         path: '',
         component: TaskList
+    },
+    {
+        path: '',
+        component: TaskDetails
     }
 ];
 
