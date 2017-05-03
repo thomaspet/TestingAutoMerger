@@ -19,7 +19,7 @@ type BalanceActionFormattedType = {
 export class SalarybalanceList implements OnInit {
 
     private tableConfig: UniTableConfig;
-    private salarybalances: SalaryBalance[];
+    private salarybalances: SalaryBalance[] = [];
     @ViewChild(SalarybalancelineModal) private salarybalanceModal: SalarybalancelineModal;
 
     constructor(
