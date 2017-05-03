@@ -92,7 +92,8 @@ export class JournalEntryManual implements OnChanges, OnInit {
         Observable.forkJoin(
             this.financialYearService.GetAll(null),
             this.financialYearService.getActiveFinancialYear(),
-            this.vatDeductionService.GetAll(null)
+            this.vatDeductionService.GetAll(null),
+            this.companySettingsService.Get(1)
         ).subscribe(data => {
                 this.financialYears = data[0];
                 this.currentFinancialYear = data[1];
@@ -412,8 +413,8 @@ export class JournalEntryManual implements OnChanges, OnInit {
                 if (selectedLine['_rowSelected']) {
                     this.currentJournalEntryData.AmountCurrency = Math.abs(selectedLine.RestAmountCurrency);
                     this.currentJournalEntryData.NetAmountCurrency = Math.abs(selectedLine.RestAmountCurrency);
-                    this.currentJournalEntryData.Amount = Math.abs(selectedLine.RestAmount);
-                    this.currentJournalEntryData.NetAmount = Math.abs(selectedLine.RestAmount);
+                    this.currentJournalEntryData.Amount = Math.abs(selectedLine.RestAmountCurrency * selectedLine.CurrencyExchangeRate);
+                    this.currentJournalEntryData.NetAmount = Math.abs(selectedLine.RestAmountCurrency * selectedLine.CurrencyExchangeRate);
                     this.currentJournalEntryData.CurrencyID = selectedLine.CurrencyCodeID;
                     this.currentJournalEntryData.CurrencyCode = selectedLine.CurrencyCode;
                     this.currentJournalEntryData.CurrencyExchangeRate = selectedLine.CurrencyExchangeRate;
@@ -445,6 +446,10 @@ export class JournalEntryManual implements OnChanges, OnInit {
                             );
                         }
                     });
+
+                    if (this.currentJournalEntryData.CurrencyID !== this.companySettings.BaseCurrencyCodeID) {
+                        this.journalEntryProfessional.showAgioDialogPostPost(this.currentJournalEntryData);
+                    }
                 } else {
                     this.currentJournalEntryData.PostPostJournalEntryLineID = null;
                     this.journalEntryProfessional.updateJournalEntryLine(this.currentJournalEntryData);

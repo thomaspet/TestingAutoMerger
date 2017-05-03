@@ -349,25 +349,35 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
         let result: ValidationResult = new ValidationResult();
         result.Messages = [];
 
-        let DblPaymentsInvoiceNo: Set<string> = new Set();
+        let dblPaymentsInvoiceNo: Array<string> = [];
         journalDataEntries.forEach(row => {
-            if (journalDataEntries.filter(entry => entry.InvoiceNumber === row.InvoiceNumber && entry.InvoiceNumber).length > 1) {
-                DblPaymentsInvoiceNo.add(row.InvoiceNumber);
+            if (row.InvoiceNumber) {
+                let duplicatePayments = journalDataEntries.filter(entry =>
+                    entry.InvoiceNumber === row.InvoiceNumber && entry.InvoiceNumber
+                    && ((entry.DebitAccount && entry.DebitAccount.UsePostPost)
+                    || (entry.CreditAccount && entry.CreditAccount.UsePostPost))
+                );
+
+                if (duplicatePayments.length > 1) {
+                    if (!dblPaymentsInvoiceNo.find(x => x === row.InvoiceNumber)) {
+                        dblPaymentsInvoiceNo.push(row.InvoiceNumber);
+                    }
+                }
             }
         });
 
-        if (DblPaymentsInvoiceNo.size > 0) {
+        if (dblPaymentsInvoiceNo.length > 0) {
             let invPaymValidation = new ValidationMessage();
             let subMsg: string = '';
-            DblPaymentsInvoiceNo.forEach(invoiceNo => {
+            dblPaymentsInvoiceNo.forEach(invoiceNo => {
                 subMsg += invoiceNo + ', ';
             });
 
             invPaymValidation.Level = ValidationLevel.Warning;
-            let subNoMsg = DblPaymentsInvoiceNo.size > 1 ? ' numrene ' : ' nr ';
+            let subNoMsg = dblPaymentsInvoiceNo.length > 1 ? 'numrene ' : 'nr ';
 
-            invPaymValidation.Message = 'Faktura ' + subNoMsg +
-                subMsg.substring(0, subMsg.length - 2) + ' har flere betalinger.';
+            invPaymValidation.Message =
+                'Faktura' + subNoMsg + subMsg.substring(0, subMsg.length - 2) + ' har flere betalinger.';
 
             result.Messages.push(invPaymValidation);
         }
@@ -524,9 +534,10 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
         });
 
         if (UniMath.round(currentSumDebit, 2) !== UniMath.round(currentSumCredit * -1, 2)) {
+            let diff = UniMath.round((UniMath.round(currentSumDebit, 2) - UniMath.round(currentSumCredit * -1, 2)), 2);
             let message = new ValidationMessage();
             message.Level = ValidationLevel.Error;
-            message.Message = `Bilag ${lastJournalEntryNo} går ikke i balanse. Sum debet og sum kredit må være lik`;
+            message.Message = `Bilag ${lastJournalEntryNo} går ikke i balanse. Sum debet og sum kredit må være lik (differanse: ${diff})`;
             result.Messages.push(message);
         }
 

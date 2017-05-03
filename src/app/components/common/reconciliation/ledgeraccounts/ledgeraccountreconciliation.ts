@@ -111,6 +111,24 @@ export class LedgerAccountReconciliation {
             let isSelected = rowModel._rowSelected;
 
             if (isSelected) {
+
+                let currentMarkingsWithDifferentCurrencyCode =
+                    this.currentMarkingSession.filter(x => x.CurrencyCodeID !== rowModel.CurrencyCodeID);
+
+                if (currentMarkingsWithDifferentCurrencyCode.length > 0) {
+                    this.toastService.addToast(
+                        'Kan ikke markere rader med forskjellig valuta',
+                        ToastType.bad,
+                        ToastTime.medium,
+                        'Du kan bare markere rader som har samme valuta. Lag eventuelt motposteringer for å få riktig valuta og agiopostering'
+                    );
+
+                    rowModel._rowSelected = false;
+                    this.table.updateRow(rowModel._originalIndex, rowModel);
+
+                    return;
+                }
+
                 let currentSessionSum = 0;
                 this.currentMarkingSession.forEach(x => {
                     currentSessionSum += x.RestAmount;
