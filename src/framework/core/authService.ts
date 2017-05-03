@@ -92,6 +92,8 @@ export class AuthService {
      */
     public setActiveCompany(activeCompany: any): void {
         localStorage.setItem('activeCompany', JSON.stringify(activeCompany));
+        localStorage.setItem('lastActiveCompanyKey', this.activeCompany.Key);
+
         this.activeCompany = activeCompany;
         this.authentication$.next({token: this.jwt, activeCompany: activeCompany});
         this.companyChange.emit(this.activeCompany);
