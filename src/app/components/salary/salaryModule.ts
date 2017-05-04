@@ -79,6 +79,7 @@ import {SalarybalanceLine} from './salarybalance/salarybalanceLine';
 import {SalarybalancelineModal, SalarybalancelineModalContent} from './salarybalance/modals/salarybalancelinemodal';
 
 import {SalaryTransactionSupplementList} from './salaryTransactionSupplement/salaryTransactionSupplementsList';
+import {UniSearchModule} from 'unisearch-ng2';
 
 import {CanDeactivateGuard} from '../../canDeactivateGuard';
 
@@ -100,6 +101,9 @@ import {CanDeactivateGuard} from '../../canDeactivateGuard';
         AppCommonModule,
         AppPipesModule,
         ReportsModule,
+
+        UniSearchModule
+
     ],
     declarations: [
         UniSalary,

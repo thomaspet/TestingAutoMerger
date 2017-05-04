@@ -18,7 +18,8 @@ import {
 	BankAccountService,
 	BusinessRelationService,
     ErrorService,
-	UniCacheService
+	UniCacheService,
+    UniSearchConfigGeneratorService
 } from '../../../../services/services';
 declare var _;
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
@@ -57,7 +58,7 @@ export class PersonalDetails extends UniView {
     @ViewChild(AddressModal) public addressModal: AddressModal;
 
     @ViewChild(BankAccountModal) public bankAccountModal: BankAccountModal;
-    private employee: Employee;
+    private employeeID: number;
 
     constructor(
         private employeeService: EmployeeService,
@@ -68,7 +69,8 @@ export class PersonalDetails extends UniView {
         private errorService: ErrorService,
         private employeeTaxCardService: EmployeeTaxCardService,
         private bankaccountService: BankAccountService,
-        private businessRelationService: BusinessRelationService
+        private businessRelationService: BusinessRelationService,
+        private uniSearchConfigGeneratorService: UniSearchConfigGeneratorService
     ) {
 
         super(router.url, cacheService);
@@ -83,6 +85,12 @@ export class PersonalDetails extends UniView {
 
         // (re)subscribe when param changes (different tab)
         route.parent.params.subscribe((paramsChange) => {
+            if (paramsChange['id'] === 0 || paramsChange['id'] === 'new') {
+                this.employeeID = 0;
+            } else {
+                this.employeeID = +paramsChange['id'];
+            }
+
             super.updateCacheKey(this.router.url);
             super.getStateSubject('employee')
                 .map(employee => {
@@ -90,9 +98,13 @@ export class PersonalDetails extends UniView {
                     return employee;
                 })
                 .subscribe(
-                employee => this.employee$.next(employee),
+                employee => {
+                    this.employee$.next(employee);
+                    this.showHideNameProperties();
+                },
                 err => this.errorService.handle(err)
                 );
+
             super.getStateSubject('employeeTaxCard')
                 .map((taxCard: EmployeeTaxCard) => {
                     taxCard['_lastUpdated'] = taxCard.UpdatedAt || taxCard.CreatedAt;
@@ -111,6 +123,7 @@ export class PersonalDetails extends UniView {
                         this.getLayout();
                     }, err => this.errorService.handle(err));
             }
+
             if (!this.taxFields$.getValue().length) {
                 Observable.combineLatest(
                     super.getStateSubject('taxCardModalCallback'),
@@ -186,7 +199,6 @@ export class PersonalDetails extends UniView {
                 }];
                 this.fields$.next(layout.Fields);
                 this.extendFormConfig();
-
             }
             , err => this.errorService.handle(err)
         );
@@ -195,7 +207,12 @@ export class PersonalDetails extends UniView {
 
     public onFormReady(value) {
         // TODO: Cache focused field and reset to this?
-        this.uniform.field('BusinessRelationInfo.Name').focus();
+        if (this.employeeID > 0) {
+            this.uniform.field('BusinessRelationInfo.Name').focus();
+        } else {
+            this.uniform.field('_EmployeeSearchResult').focus();
+        }
+        
     }
 
     public onFormChange(changes: SimpleChanges) {
@@ -208,6 +225,16 @@ export class PersonalDetails extends UniView {
             );
         }
 
+        if (changes['_EmployeeSearchResult']) {
+            let searchResult = changes['_EmployeeSearchResult'].currentValue;
+            if (searchResult) {
+                employee = searchResult;
+                this.employee$.next(employee);
+
+                this.showHideNameProperties();
+            }
+        }
+
         setTimeout(() => {
             this.updateInfoFromSSN();
         });
@@ -218,6 +245,42 @@ export class PersonalDetails extends UniView {
 
     public onTaxFormChange(changes: SimpleChanges) {
         super.updateState('employeeTaxCard', this.employeeTaxCard$.getValue(), true);
+    }
+
+    public showHideNameProperties() {
+        let fields: UniFieldLayout[] = this.fields$.getValue();
+
+        let employee = this.employee$.getValue();
+        let employeeSearchResult: UniFieldLayout = fields.find(x => x.Property === '_EmployeeSearchResult');
+        let employeeName: UniFieldLayout = fields.find(x => x.Property === 'BusinessRelationInfo.Name');
+        
+        if (this.employeeID > 0 || (employee && employee.BusinessRelationInfo && employee.BusinessRelationInfo.Name !== null && employee.BusinessRelationInfo.Name !== '')) {
+            if (employeeSearchResult) {
+                employeeSearchResult.Hidden = true;
+            }
+            if (employeeName) {
+                employeeName.Hidden = false;
+            }
+
+            setTimeout(() => {
+                if (this.uniform.field('BusinessRelationInfo.Name')) {
+                    this.uniform.field('BusinessRelationInfo.Name').focus();
+                }
+            });
+        } else {
+            if(employeeSearchResult) {
+                employeeSearchResult.Hidden = false;
+            }
+            if(employeeName) {
+                employeeName.Hidden = true;
+            }
+
+            setTimeout(() => {
+                if (this.uniform.field('_CustomerSearchResult')) {
+                    this.uniform.field('_CustomerSearchResult').focus();
+                }
+            });
+        }
     }
 
     private extendFormConfig() {
@@ -336,7 +399,59 @@ export class PersonalDetails extends UniView {
                 });
             })
         };
+
+        let employeeNameField: UniFieldLayout = this.findByProperty(fields, 'BusinessRelationInfo.Name');
+        employeeNameField.Hidden = this.employeeID === 0;
+
+        let employeeSearchField: UniFieldLayout = this.findByProperty(fields, '_EmployeeSearchResult');
+        employeeSearchField.Hidden = this.employeeID > 0;
+        employeeSearchField.Options = {
+            uniSearchConfig: this.getEmployeeLookupOptions()
+        }
+
         this.fields$.next(fields);
+    }
+
+    private getEmployeeLookupOptions() {
+        let uniSearchConfig = this.uniSearchConfigGeneratorService.generate(
+            Employee,
+            <[string]>this.expands,
+            () => {
+                let employee = this.employee$.getValue();
+
+                let searchInfo = <any>this.uniform.field('_EmployeeSearchResult');
+                if (searchInfo) {
+                    if (searchInfo.component && searchInfo.component.input) {
+                        employee.BusinessRelationInfo.Name = searchInfo.component.input.value;
+                    }
+                }
+
+                if (!employee.BusinessRelationInfo.Name) {
+                    employee.BusinessRelationInfo.Name = '';
+                }
+
+                this.employee$.next(employee);
+                this.showHideNameProperties();
+
+                return Observable.from([employee]);
+            });
+
+        uniSearchConfig.expandOrCreateFn = (newOrExistingItem: any) => {
+            if (newOrExistingItem.ID) {
+                // If an existing employee is selected, navigate to that employee instead
+                // of populating the fields for a new employee
+                this.router.navigateByUrl(`/salary/employees/${newOrExistingItem.ID}`);
+                return Observable.empty();
+            } else {
+                let employeeData = this.uniSearchConfigGeneratorService
+                            .employeeGenerator
+                            .customStatisticsObjToEmployee(newOrExistingItem);
+
+                return Observable.from([employeeData]);
+            }
+        };
+
+        return uniSearchConfig;
     }
 
     private findByProperty(fields, name): UniFieldLayout {

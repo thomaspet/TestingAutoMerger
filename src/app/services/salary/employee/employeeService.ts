@@ -161,6 +161,26 @@ export class EmployeeService extends BizHttp<Employee> {
                 },
                 {
                     ComponentLayoutID: 1,
+                    EntityType: 'Employee',
+                    Property: '_EmployeeSearchResult',
+                    Placement: 1,
+                    Hidden: true,
+                    FieldType: FieldType.UNI_SEARCH,
+                    ReadOnly: false,
+                    LookupField: false,
+                    Label: 'Navn',
+                    Description: null,
+                    HelpText: null,
+                    FieldSet: 0,
+                    Section: 0,
+                    Placeholder: null,
+                    LineBreak: null,
+                    Combo: null,
+                    Sectionheader: '',
+                    Options: null
+                },
+                {
+                    ComponentLayoutID: 1,
 
                     EntityType: 'Employee',
                     Property: 'SocialSecurityNumber',
