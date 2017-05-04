@@ -47,6 +47,7 @@ import {ApiModelService} from './common/apiModelService';
 import {YearService} from './common/yearService';
 import {Lookupservice} from './common/lookupService';
 import {AgreementService} from './common/agreementService';
+import {ModulusService} from './common/modulusService';
 
 export * from './common/altinnAuthenticationService';
 export * from './common/altinnIntegrationService';
@@ -91,6 +92,7 @@ export * from './common/apiModelService';
 export * from './common/yearService';
 export * from './common/lookupService';
 export * from './common/agreementService';
+export * from './common/modulusService';
 
 @NgModule({})
 export class CommonServicesModule {
@@ -145,7 +147,8 @@ export class CommonServicesModule {
                 ApiModelService,
                 YearService,
                 Lookupservice,
-                AgreementService
+                AgreementService,
+                ModulusService
             ]
         };
     }

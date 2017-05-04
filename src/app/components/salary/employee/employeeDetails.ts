@@ -19,6 +19,7 @@ import {
     EmployeeService, EmploymentService, EmployeeLeaveService, DepartmentService, ProjectService,
     SalaryTransactionService, UniCacheService, SubEntityService, EmployeeTaxCardService, ErrorService,
     NumberFormat, WageTypeService, SalarySumsService, YearService, BankAccountService, EmployeeCategoryService,
+    ModulusService
 } from '../../../services/services';
 declare var _;
 @Component({
@@ -123,7 +124,8 @@ export class EmployeeDetails extends UniView implements OnDestroy {
         private wageTypeService: WageTypeService,
         private yearService: YearService,
         private bankaccountService: BankAccountService,
-        private employeeCategoryService: EmployeeCategoryService
+        private employeeCategoryService: EmployeeCategoryService,
+        private modulusService: ModulusService
     ) {
         super(router.url, cacheService);
 
@@ -507,7 +509,7 @@ export class EmployeeDetails extends UniView implements OnDestroy {
 
         // SSN ok?
         alerts[2] = {
-            text: checks.hasSSN ? 'Personnummer ok' : 'Personnummer mangler',
+            text: checks.hasSSN ? 'Fødselsnummer ok' : 'Fødselsnummer mangler',
             class: checks.hasSSN ? 'success' : 'error'
         };
     }
@@ -545,7 +547,7 @@ export class EmployeeDetails extends UniView implements OnDestroy {
     // Dummy check to see is user has Tax Card, social security number and account number
     private employeeBoolChecks(employee: Employee): { hasSSN: boolean, hasAccountNumber: boolean } {
         return {
-            hasSSN: employee.SocialSecurityNumber !== null && employee.SocialSecurityNumber !== '',
+            hasSSN: this.modulusService.validSSN(employee.SocialSecurityNumber),
             hasAccountNumber: employee.BusinessRelationInfo.DefaultBankAccountID !== null
         };
     }
