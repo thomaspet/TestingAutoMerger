@@ -969,6 +969,12 @@ export class EmployeeDetails extends UniView implements OnDestroy {
                     if (!employment.DimensionsID && employment.Dimensions) {
                         employment.Dimensions['_createguid'] = this.employmentService.getNewGuid();
                     }
+                    
+                    employment.MonthRate = employment.MonthRate || 0;
+                    employment.HourRate = employment.HourRate || 0;
+                    employment.UserDefinedRate = employment.UserDefinedRate || 0;
+                    employment.WorkPercent = employment.WorkPercent || 0;
+                    employment.HoursPerWeek = employment.HoursPerWeek || 0;
 
                     changes.push(employment);
                 }
