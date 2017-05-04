@@ -1,8 +1,9 @@
-<uni-toolbar [config]="toolbarconfig"></uni-toolbar>
+﻿<uni-toolbar [config]="toolbarconfig"></uni-toolbar>
 
 <section class=" application">
     <section class="splitview">
         <nav class="splitview_list">
+            <uni-upload-file-button class="receipt-file-upload-button" [buttonText]="'Registrer innbetalingsfil'" (fileUploaded)="fileUploaded($event)"></uni-upload-file-button>
             <uni-table
                 [resource]="lookupFunction"
                 [config]="paymentBatchTableConfig"
@@ -19,9 +20,10 @@
             </customer-payment-batch-details>
             <div *ngIf="!selectedPaymentBatchID">
                 <h2>Opplasting av innbetalingsfil</h2>
-                <div class="payment-batch-uploader">
-                    <uni-attachments class="upload-no-batch" [showFileList]="false" [uploadWithoutEntity]="true" (fileUploaded)="fileUploaded($event)" [headerText]="'Registrer innbetalingsfil'"></uni-attachments>
-                </div>
+                <p>
+                    For å laste opp en fil med innbetalinger kan du klikke på knappen 'Registrer innbetalingsfil'.
+                    Dette kan være fil av type OCR-Giro (Nets) eller Camt054C (ISO20022). 
+                </p>
             </div>
         </main>
     </section>
