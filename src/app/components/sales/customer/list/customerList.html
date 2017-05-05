@@ -1,5 +1,11 @@
-<uni-toolbar [config]="toolbarconfig"></uni-toolbar>
-<section class="application">
-    <button class="new-button" (click)="createCustomer()">Ny kunde</button>
-    <uni-table [resource]="lookupFunction" [config]="customerTable" (rowSelected)="onRowSelected($event)"></uni-table>
-</section>
+<uni-toolbar [config]="{title: 'Kunde', omitFinalCrumb: true}"></uni-toolbar>
+
+<uni-ticker-wrapper
+    [tickerCode]="tickercode"
+    [showFiltersAsNavbar]="true"
+    [actionOverrides]="actionOverrides"
+    [columnOverrides]="columnOverrides">
+</uni-ticker-wrapper>
+
+
+

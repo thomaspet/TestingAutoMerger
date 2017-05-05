@@ -511,27 +511,37 @@
         "Expand": "Customer.Info,CurrencyCode",
         "Columns": [
             {
+                "Header": "Tilbudnr",
                 "Field": "QuoteNumber",
                 "Width": "100px",
-                "Type": "link"
+                "Type": "link",
+                "FilterOperator": "eq"
             },
             {
+                "Header": "Kundenr",
                 "Field": "Customer.CustomerNumber",
-                "Type": "text"
+                "Type": "text",
+                "FilterOperator": "eq"
             },
             {
+                "Header": "Kundenavn",
                 "Field": "Customer.Info.Name",
                 "Width": "250px",
                 "Type": "link",
                 "ExternalModel": "Customer",
-                "LinkNavigationProperty": "Customer.ID"
+                "LinkNavigationProperty": "Customer.ID",
+                "FilterOperator": "contains"
             },
             {
-                "Field": "QuoteDate"
+                "Header": "Tilbudsdato",
+                "Field": "QuoteDate",
+                "FilterOperator": "gt"
             },
             {
+                "Header": "Gyldig til",
                 "Field": "ValidUntilDate",
-                "Format": "DatePassed"
+                "Format": "DatePassed",
+                "FilterOperator": "gt"
             },
             {
                 "Header": "Valuta",
@@ -588,10 +598,18 @@
                 "Type": "print",
                 "ExecuteWithMultipleSelections": false,
                 "DisplayInContextMenu": true,
-                "DisplayInActionBar": false,
+                "DisplayInActionBar": true,
                 "Options": {
                     "ReportName": "Tilbud id"
                 }
+            },
+            {
+                "Name": "Send på epost",
+                "Code": "quote_sendemail",
+                "Type": "details",
+                "DisplayInContextMenu": true,
+                "ExecuteWithMultipleSelections": false,
+                "DisplayInActionBar": false
             },
             {
                 "Name": "Overfør til ordre",
@@ -618,7 +636,7 @@
                 "Code": "quote_transfer_complete",
                 "Type": "transition",
                 "DisplayInContextMenu": true,
-                "DisplayInActionBar": false,
+                "DisplayInActionBar": true,
                 "Options": {
                     "Transition": "complete"
                 }
@@ -858,22 +876,31 @@
         "Expand": "Customer.Info,CurrencyCode",
         "Columns": [
             {
+                "Header": "Ordrenr",
                 "Field": "OrderNumber",
                 "Width": "100px",
-                "Type": "text"
+                "Type": "text",
+                "FilterOperator": "eq"
             },
             {
+                "Header": "Kundenr",
                 "Field": "Customer.CustomerNumber",
-                "Type": "text"
+                "Type": "text",
+                "FilterOperator": "eq"
             },
             {
+                "Header": "Kundenavn",
                 "Field": "Customer.Info.Name",
-                "Width": "250px"
+                "Width": "250px",
+                "FilterOperator": "contains"
             },
             {
-                "Field": "OrderDate"
+                "Header": "Ordredato",
+                "Field": "OrderDate",
+                "FilterOperator": "gt"
             },
             {
+                "Header": "Valuta",
                 "Field": "CurrencyCode.Code",
                 "Width": "70px",
                 "DefaultHidden": true
@@ -882,7 +909,8 @@
                 "Header": "Sum inkl mva",
                 "Field": "TaxInclusiveAmountCurrency",
                 "Format": "NumberPositiveNegative",
-                "Width": "150px"
+                "Width": "150px",
+                "FilterOperator": "gt"
             },
             {
                 "Header": "Sum inkl mva [BASECURRENCY]",
@@ -907,18 +935,28 @@
                 "ExecuteWithoutSelection": true,
                 "Type": "new"
             },{
-                "Name": "Åpne ordre",
+                "Name": "Rediger",
                 "Code": "open_order",
                 "Type": "details",
                 "DisplayInContextMenu": true,
                 "DisplayInActionBar": true
-            },            
+            },
             {
-                "Name": "Eksporter",
-                "Code": "export_quotes",
-                "Type": "export",
-                "ExecuteWithMultipleSelections": true,
-                "ExecuteWithoutSelection": true
+                "Name": "Avslutt",
+                "Code": "order_finish",
+                "Type": "transition",
+                "DisplayInContextMenu": true,
+                "DisplayInActionBar": true,
+                "Options": {
+                    "Transition": "complete"
+                }
+            },
+            {
+                "Name": "Send på epost",
+                "Code": "order_sendemail",
+                "Type": "details",
+                "DisplayInContextMenu": true,
+                "DisplayInActionBar": true
             },
             {
                 "Name": "Skriv ut",
