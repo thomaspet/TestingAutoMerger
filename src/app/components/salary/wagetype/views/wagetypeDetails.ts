@@ -76,7 +76,8 @@ export class WagetypeDetail extends UniView {
         { ID: StdWageType.HolidayPayWithTaxDeduction, Name: 'Feriepenger med skattetrekk' },
         { ID: StdWageType.HolidayPayThisYear, Name: 'Feriepenger i år' },
         { ID: StdWageType.HolidayPayLastYear, Name: 'Feriepenger forrige år' },
-        { ID: StdWageType.AdvancePayment, Name: 'Forskudd' }
+        { ID: StdWageType.AdvancePayment, Name: 'Forskudd' },
+        { ID: StdWageType.HolidayPayEarlierYears, Name: 'Feriepenger tidligere år' }
     ];
 
     private specialAgaRule: { ID: SpecialAgaRule, Name: string }[] = [
