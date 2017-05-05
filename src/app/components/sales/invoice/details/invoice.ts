@@ -756,12 +756,16 @@ export class InvoiceDetails {
         this.newInvoiceItem = <any>this.tradeItemHelper.getDefaultTradeItemData(invoice);
         this.readonly = invoice.StatusCode && invoice.StatusCode !== StatusCodeCustomerInvoice.Draft;
         this.invoiceItems = invoice.Items;
+
         this.invoice = _.cloneDeep(invoice);
         this.recalcDebouncer.next(invoice.Items);
         this.updateTabTitle();
         this.updateToolbar();
         this.updateSaveActions();
     }
+
+
+
 
     private updateTabTitle() {
         let tabTitle = '';

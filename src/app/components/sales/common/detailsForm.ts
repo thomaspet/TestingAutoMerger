@@ -43,21 +43,62 @@ export class TofDetailsForm {
             this.initFormFields();
         }
 
-        if (changes['readonly'] && this.form) {
-            setTimeout(() => {
-                if (this.readonly) {
-                    this.form.readMode();
-                } else {
-                    this.form.editMode();
-                }
-            });
+        if ((changes['readonly'] || changes['entity']) && this.form) {
+            this.setEntityAccessability();
         }
     }
 
     public onFormReady() {
-        if (this.readonly) {
-            this.form.readMode();
-        }
+        this.setEntityAccessability();
+    }
+
+    public setEntityAccessability() {
+        setTimeout(() => {
+            if (!this.entity) {
+                this.form.readMode();
+            } else {
+
+                if (this.entityType === 'CustomerInvoice') {
+                    this.form.editMode();
+                    switch (this.entity.StatusCode) {
+                        case null:
+                            break;
+                        case 42001:
+                            break;
+                        case 42002:
+                            this.setFieldsReadonly(['InvoiceDate', 'CurrencyCodeID']);
+                            break;
+                        case 42003:
+                            this.setFieldsReadonly(['InvoiceDate', 'PaymentDueDate', 'CurrencyCodeID']);
+                            break;
+                        default:
+                            this.form.readMode();
+                            break;
+
+                    }
+                } else {
+                    if (this.readonly) { this.form.readMode(); }
+                    else { this.form.editMode(); }
+
+                }
+            }
+        });
+    }
+
+    public setFieldsReadonly(fieldPropertyNames: Array<string>) {
+         setTimeout(() => {
+            let fields = this.fields$.getValue();
+            if (fieldPropertyNames) {
+                fieldPropertyNames.forEach(fieldPropertyName => {
+                    fields.forEach(field => {
+                        if (field['Property'] === fieldPropertyName) {
+                            field['ReadOnly'] = true;
+                        }
+                    });
+                });
+            }
+            this.fields$.next(fields);
+        });
     }
 
     public onFormChange(changes: SimpleChanges) {
