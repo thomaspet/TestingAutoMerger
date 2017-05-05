@@ -631,7 +631,6 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
             jed = new JournalEntryData();
             jed.FinancialDate = line.FinancialDate;
             jed.Amount = line.Amount;
-            jed.InvoiceNumber = line.InvoiceNumber;
             jed.AmountCurrency = line.AmountCurrency;
             jed.CurrencyID = line.CurrencyCodeID;
             jed.CurrencyCode = line.CurrencyCodeID ? line.CurrencyCode : null;
@@ -639,8 +638,6 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
             jed.JournalEntryID = line.JournalEntryID;
             jed.JournalEntryNo = line.JournalEntryNumber;
             jed.Description = line.Description;
-            jed.CustomerInvoiceID = line.CustomerInvoiceID;
-            jed.SupplierInvoiceID = line.SupplierInvoiceID;
             jed.StatusCode = line.StatusCode;
             jed.JournalEntryDraftIDs = [];
             jed.JournalEntryDrafts = [];
@@ -648,7 +645,19 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
             jed.CurrencyCode = line.CurrencyCode;
         }
 
-        if (jed.Dimensions == null && line.Dimensions != null) {
+        if (!jed.CustomerInvoiceID && line.CustomerInvoiceID) {
+            jed.CustomerInvoiceID = line.CustomerInvoiceID;
+        }
+
+        if (!jed.SupplierInvoiceID && line.SupplierInvoiceID) {
+            jed.SupplierInvoiceID = line.SupplierInvoiceID;
+        }
+
+        if (!jed.InvoiceNumber && line.InvoiceNumber) {
+            jed.InvoiceNumber = line.InvoiceNumber;
+        }
+
+        if (!jed.Dimensions && line.Dimensions) {
             jed.Dimensions = line.Dimensions;
         }
 
