@@ -336,43 +336,43 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
 
     private getSaveActions(payrollRun: PayrollRun): IUniSaveAction[] {
         return [
-                        {
-                            label: 'Lagre',
-                            action: this.saveAll.bind(this),
-                            main: payrollRun ? payrollRun.StatusCode < 1 : true,
-                            disabled: true
-                        },
-                        {
-                            label: 'Kontroller',
-                            action: this.openControlModal.bind(this),
-                            main: false,
-                            disabled: payrollRun ? payrollRun.StatusCode > 0 : true
-                        },
-                        {
-                            label: 'Avregn',
-                            action: this.runSettling.bind(this),
-                            main: false,
-                            disabled: payrollRun && this.payrollrunID ? payrollRun.StatusCode > 0 : true
-                        },
-                        {
-                            label: 'Til utbetaling',
-                            action: this.sendPaymentList.bind(this),
-                            main: payrollRun ? payrollRun.StatusCode > 1 : false,
-                            disabled: payrollRun ? payrollRun.StatusCode < 1 : true
-                        },
-                        {
-                            label: 'Send lønnslipp',
-                            action: this.sendPaychecks.bind(this),
-                            main: false,
-                            disabled: payrollRun ? payrollRun.StatusCode < 1 : true
-                        },
-                        {
-                            label: 'Bokfør',
-                            action: this.openPostingSummaryModal.bind(this),
-                            main: payrollRun ? payrollRun.StatusCode === 1 : false,
-                            disabled: payrollRun ? payrollRun.StatusCode !== 1 : true
-                        }
-                    ];
+            {
+                label: 'Lagre',
+                action: this.saveAll.bind(this),
+                main: payrollRun ? payrollRun.StatusCode < 1 : true,
+                disabled: true
+            },
+            {
+                label: 'Kontroller',
+                action: this.openControlModal.bind(this),
+                main: false,
+                disabled: payrollRun ? payrollRun.StatusCode > 0 : true
+            },
+            {
+                label: 'Avregn',
+                action: this.runSettling.bind(this),
+                main: false,
+                disabled: payrollRun && this.payrollrunID ? payrollRun.StatusCode > 0 : true
+            },
+            {
+                label: 'Til utbetaling',
+                action: this.sendPaymentList.bind(this),
+                main: payrollRun ? payrollRun.StatusCode > 1 : false,
+                disabled: payrollRun ? payrollRun.StatusCode < 1 : true
+            },
+            {
+                label: 'Send lønnslipp',
+                action: this.sendPaychecks.bind(this),
+                main: false,
+                disabled: payrollRun ? payrollRun.StatusCode < 1 : true
+            },
+            {
+                label: 'Bokfør',
+                action: this.openPostingSummaryModal.bind(this),
+                main: payrollRun ? payrollRun.StatusCode === 1 : false,
+                disabled: payrollRun ? payrollRun.StatusCode !== 1 : true
+            }
+        ];
     }
 
     public ngOnDestroy() {
@@ -470,7 +470,7 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
         let employeeFilterTable: string[] = [];
 
         this.yearService
-            .getActiveYear()            
+            .getActiveYear()
             .switchMap(financialYear => {
                 employees.forEach(employee => {
                     employeeFilterTable.push('EmployeeID eq ' + employee.ID);
@@ -638,7 +638,7 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
                         }
                         this.tagConfig.readOnly = transes.some(trans => !trans.IsRecurringPost);
                         this.tagConfig.toolTip = this.tagConfig.readOnly
-                            ? 'Låst på grunn av variable poster' 
+                            ? 'Låst på grunn av variable poster'
                             : '';
                     }),
                 this.getProjectsObservable(),
@@ -747,7 +747,7 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
             let lastTodate = moment(latest.ToDate);
             let lastFromdate = lastTodate.clone();
             lastFromdate.add(1, 'days');
-            
+
             payrollRun.FromDate = new LocalDate(lastFromdate.toDate()).toDate();
 
             switch (companysalary.PaymentInterval) {
@@ -912,10 +912,10 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
     }
 
     public runSettling(done: (message: string) => void) {
-        this.payrollrunService.runSettling(this.payrollrunID)
+        this.payrollrunService.runSettling(this.payrollrunID, done)
             .finally(() => this.busy = false)
             .subscribe((bResponse: boolean) => {
-                if (bResponse === true) {
+                if (bResponse) {
                     this.getPayrollRun();
                     this.getSalaryTransactions();
                     done('Avregnet');
