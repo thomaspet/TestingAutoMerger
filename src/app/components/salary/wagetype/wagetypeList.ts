@@ -19,6 +19,7 @@ export class WagetypeList implements OnInit {
     private tableConfig: UniTableConfig;
     private wageTypes$: Observable<WageType>;
     private contextMenuItems: IContextMenuItem[] = [];
+    private busy: boolean;
 
     constructor(
         private _router: Router,
@@ -40,8 +41,11 @@ export class WagetypeList implements OnInit {
     }
 
     public ngOnInit() {
-
-        this.wageTypes$ = this._wageTypeService.GetAll('orderBy=WageTypeNumber ASC')
+        this.busy = true;
+        this.wageTypes$ = 
+        this._wageTypeService
+            .GetAll('orderBy=WageTypeNumber ASC')
+            .finally(() => this.busy = false)
             .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
 
         const idCol = new UniTableColumn('WageTypeNumber', 'Nr', UniTableColumnType.Number);
