@@ -31,6 +31,7 @@ import {
 import {JournalEntryData} from '../../../../../models/models';
 import {JournalEntryMode} from '../../journalentrymanual/journalentrymanual';
 import {AccrualModal} from '../../../../common/modals/accrualModal';
+import {NewAccountModal} from '../../../NewAccountModal';
 import {ToastService, ToastType, ToastTime} from '../../../../../../framework/uniToast/toastService';
 import {AddPaymentModal} from '../../../../common/modals/addPaymentModal';
 import {UniConfirmModal, ConfirmActions} from '../../../../../../framework/modals/confirm';
@@ -73,6 +74,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
     @Input() public vatDeductions: Array<VatDeduction>;
     @ViewChild(UniTable) private table: UniTable;
     @ViewChild(AccrualModal) private accrualModal: AccrualModal;
+    @ViewChild(NewAccountModal) private newAccountModal: NewAccountModal;
     @ViewChild(AddPaymentModal) private addPaymentModal: AddPaymentModal;
     @ViewChild(UniConfirmModal) private confirmModal: UniConfirmModal;
     @ViewChild(RegisterPaymentModal) private registerPaymentModal: RegisterPaymentModal;
@@ -84,6 +86,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
     private paymentModalValueChanged: any;
     private accrualModalValueChanged: any;
     private accrualModalValueDeleted: any;
+    private createdNewAccount: any;
 
     @Output() public dataChanged: EventEmitter<JournalEntryData[]> = new EventEmitter<JournalEntryData[]>();
     @Output() public dataLoaded: EventEmitter<JournalEntryData[]> = new EventEmitter<JournalEntryData[]>();
@@ -182,7 +185,6 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
         }
 
         this.journalEntryLines = data;
-
         setTimeout(() => {
             if (this.table) {
                 this.table.blur();
@@ -703,6 +705,11 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 },
                 lookupFunction: (searchValue) => {
                     return this.accountSearch(searchValue);
+                },
+                addNewButtonVisible: true,
+                addNewButtonText: 'Opprett ny reskontro',
+                addNewButtonCallback: (text) => {
+                    return this.openNewAccountModal(this.table.getCurrentRow(), text);
                 }
             });
 
@@ -744,6 +751,11 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 },
                 lookupFunction: (searchValue) => {
                     return this.accountSearch(searchValue);
+                },
+                addNewButtonVisible: true,
+                addNewButtonText: 'Opprett ny reskontro',
+                addNewButtonCallback: (text) => {
+                    return this.openNewAccountModal(this.table.getCurrentRow(), text);
                 }
             });
 
@@ -1363,6 +1375,24 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
             }
         });
     }
+
+
+    private openNewAccountModal(item: any, searchCritera: string): Promise<Account> {
+
+        return new Promise((resolve, reject) => {
+
+            if (this.createdNewAccount) {
+                this.createdNewAccount.unsubscribe();
+            }
+
+            this.createdNewAccount = this.newAccountModal.CreatedAccount.subscribe(acc => {
+                resolve(acc);
+            });
+
+            this.newAccountModal.searchCriteria = searchCritera;
+            this.newAccountModal.openModal();
+        }
+    };
 
     private openAccrual(item: JournalEntryData) {
 

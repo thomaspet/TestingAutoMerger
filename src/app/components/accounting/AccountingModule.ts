@@ -47,13 +47,12 @@ import {DimensionsOverviewReportPart}  from './accountingreports/reportparts/dim
 import {DrilldownBalanceReportPart}  from './accountingreports/reportparts/drilldownBalanceReportPart';
 import {CreateCorrectedVatReportModal} from './vatreport/modals/createCorrectedVatReport';
 import {HistoricVatReportModal} from './vatreport/modals/historicVatReports';
-
+import {NewAccountModal, NewAccountForm} from './NewAccountModal';
 import {BillsView} from './bill/bills';
 import {BillView} from './bill/detail/bill';
 import {BillSimpleJournalEntryView, AccountPipe, VatCodePipe, TrimTextPipe} from './bill/detail/journal/simple';
 import {BillHistoryView} from './bill/detail/history/history';
 import {UniAssignModal} from './bill/detail/approvemodal';
-
 import {AccountSettings} from './accountSettings/accountSettings';
 import {DimensionList} from './accountSettings/dimensionList/dimensionList';
 import {AccountList} from './accountSettings/accountList/accountList';
@@ -62,6 +61,7 @@ import {VatSettings} from './vatsettings/vatsettings';
 import {VatTypeDetails} from './vatsettings/vattypedetails/vattypedetails';
 import {VatTypeList} from './vatsettings/vattypelist/vatTypeList';
 import {VatDeductionSettings} from './vatsettings/vatdeductions/vatdeductionsettings';
+import {UniSearchModule} from 'unisearch-ng2';
 
 @NgModule({
     imports: [
@@ -78,7 +78,7 @@ import {VatDeductionSettings} from './vatsettings/vatdeductions/vatdeductionsett
         AppCommonModule,
         WidgetModule,
         AppPipesModule,
-
+        UniSearchModule,
         RouterModule.forChild(accountingRoutes)
     ],
     declarations: [
@@ -93,6 +93,9 @@ import {VatDeductionSettings} from './vatsettings/vatdeductions/vatdeductionsett
         VatTypeDetails,
         VatTypeList,
         VatDeductionSettings,
+
+        NewAccountModal,
+        NewAccountForm,
 
         // journalentry
         JournalEntryProfessional,
@@ -139,14 +142,15 @@ import {VatDeductionSettings} from './vatsettings/vatdeductions/vatdeductionsett
         HistoricVatReportTable,
         CreateCorrectedVatReportForm,
         AccountDetailsReport,
-        SelectJournalEntryLineTable
+        SelectJournalEntryLineTable,
+        NewAccountForm
     ],
     exports: [
         AccountSettings,
         DimensionList,
         AccountList,
         AccountDetails,
-
+        NewAccountModal,
         VatSettings,
         VatTypeDetails,
         VatTypeList,

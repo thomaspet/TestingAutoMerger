@@ -53,7 +53,6 @@ import {ModelTreeRelationNode} from './modeltreeview/relationNode';
 import {SupplierDetailsModal} from './supplier/details/supplierDetailModal';
 import {SupplierDetails} from './supplier/details/supplierDetails';
 import {SupplierList} from './supplier/list/supplierList';
-
 import {Editable} from './utils/editable/editable';
 import {IsoTimePipe} from './utils/pipes';
 import {MinutesToHoursPipe} from './utils/pipes';
