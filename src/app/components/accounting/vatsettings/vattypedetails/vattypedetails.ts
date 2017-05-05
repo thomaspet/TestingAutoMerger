@@ -25,7 +25,7 @@ export class VatTypeDetails implements OnChanges, OnInit {
     @ViewChild(UniTable) public unitable: UniTable;
 
     public vatType$: BehaviorSubject<VatType> = new BehaviorSubject(null);
-    public config$: BehaviorSubject<any> = new BehaviorSubject({autofocus: true});
+    public config$: BehaviorSubject<any> = new BehaviorSubject({});
     private fields$: BehaviorSubject<UniFieldLayout[]> = new BehaviorSubject([]);
 
     private accounts: Account[];

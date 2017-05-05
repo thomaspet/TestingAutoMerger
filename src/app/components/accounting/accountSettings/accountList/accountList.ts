@@ -1,4 +1,4 @@
-import {Component, Output, EventEmitter, ViewChild} from '@angular/core';
+import {Component, Output, EventEmitter, ViewChild, ElementRef} from '@angular/core';
 import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig} from 'unitable-ng2/main';
 import {URLSearchParams} from '@angular/http';
 import {Account} from '../../../../unientities';
@@ -15,12 +15,19 @@ export class AccountList {
     private accountTable: UniTableConfig;
     private lookupFunction: (urlParams: URLSearchParams) => any;
 
-    constructor(private accountService: AccountService,private errorService: ErrorService) {
-
-    }
+    constructor(
+        private accountService: AccountService,
+        private errorService: ErrorService,
+        private elementRef: ElementRef
+    ) {}
 
     public ngOnInit() {
         this.setupTable();
+    }
+
+    public ngAfterViewInit() {
+        const input = this.elementRef.nativeElement.querySelector('input');
+        input.focus();
     }
 
     private onRowSelected (event) {
