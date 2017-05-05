@@ -115,7 +115,7 @@ export class VacationpayModalContent {
             vacationPayInfoList.push(vacationPayInfo);
         });
 
-        this._payrollrunService.createVacationPay(this.vacationBaseYear, this.config.payrollRunID, vacationPayInfoList)
+        this._vacationpaylineService.createVacationPay(this.vacationBaseYear, this.config.payrollRunID, vacationPayInfoList)
             .finally(() => this.busy = false)
             .subscribe((response) => {
                 this.config.submit(this.dueToHolidayChanged);
@@ -148,7 +148,7 @@ export class VacationpayModalContent {
 
     private getVacationpayData() {
         this.basicamountBusy = true;
-        this._payrollrunService.getVacationpayBasis(this.vacationBaseYear, this.config.payrollRunID)
+        this._vacationpaylineService.getVacationpayBasis(this.vacationBaseYear, this.config.payrollRunID)
             .subscribe((vpBasis) => {
                 if (vpBasis) {
                     this.vacationpayBasis = vpBasis.VacationPay.map(x => {

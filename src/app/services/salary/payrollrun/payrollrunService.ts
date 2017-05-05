@@ -172,24 +172,6 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
             .map(response => response.json());
     }
 
-    public getVacationpayBasis(year: number, payrun: number): Observable<VacationPayList> {
-        return this.http
-            .asGET()
-            .usingBusinessDomain()
-            .withEndPoint(this.relativeURL + '/' + payrun + '?action=vacationpay-list&year=' + year)
-            .send()
-            .map(response => response.json());
-    }
-
-    public createVacationPay(year: number, payrun: number, payList: VacationPayInfo[]) {
-        return this.http
-            .asPUT()
-            .usingBusinessDomain()
-            .withEndPoint(this.relativeURL + '/' + payrun + '?action=vacationpay-from-vacationpayinfo-list&year=' + year)
-            .withBody(payList)
-            .send();
-    }
-
     public saveCategoryOnRun(id: number, category: EmployeeCategory) {
         if (id && category) {
             let saveObs = category.ID ? this.http.asPUT() : this.http.asPOST();
