@@ -426,6 +426,7 @@ export class CustomerDetails {
         let customerSearchResult: UniFieldLayout = fields.find(x => x.Property === '_CustomerSearchResult');
         customerSearchResult.Hidden = this.customerID > 0;
 
+
         let customerName: UniFieldLayout = fields.find(x => x.Property === 'Info.Name');
         customerName.Hidden = this.customerID === 0;
 
@@ -617,6 +618,20 @@ export class CustomerDetails {
         // small timeout to allow uniform and unitable to update the sources before saving
         setTimeout(() => {
             let customer = this.customer$.getValue();
+
+            // if the user has typed something in Name for a new customer, but has not
+            // selected something from the list or clicked F3, the searchbox is still active,
+            // so we need to get the value from there
+            if (!customer.ID || customer.ID === 0) {
+                if (!customer.Info.Name || customer.Info.Name === '') {
+                    let searchInfo = <any>this.form.field('_CustomerSearchResult');
+                    if (searchInfo) {
+                        if (searchInfo.component && searchInfo.component.input) {
+                            customer.Info.Name = searchInfo.component.input.value;
+                        }
+                    }
+                }
+            }
 
             // add createGuid for new entities and remove duplicate entities
             if (!customer.Info.Emails) {

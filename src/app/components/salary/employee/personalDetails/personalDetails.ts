@@ -100,7 +100,7 @@ export class PersonalDetails extends UniView {
                 .subscribe(
                 employee => {
                     this.employee$.next(employee);
-                    this.showHideNameProperties();
+                    this.showHideNameProperties(false);
                 },
                 err => this.errorService.handle(err)
                 );
@@ -208,11 +208,16 @@ export class PersonalDetails extends UniView {
     public onFormReady(value) {
         // TODO: Cache focused field and reset to this?
         if (this.employeeID > 0) {
-            this.uniform.field('BusinessRelationInfo.Name').focus();
+            if (this.uniform.field('BusinessRelationInfo.Name')) {
+                this.uniform.field('BusinessRelationInfo.Name').focus();
+            }
         } else {
-            this.uniform.field('_EmployeeSearchResult').focus();
+            if (this.uniform.field('_EmployeeSearchResult')) {
+                this.uniform.field('_EmployeeSearchResult').focus();
+            } else {
+                this.uniform.field('BusinessRelationInfo.Name').focus();
+            }
         }
-        
     }
 
     public onFormChange(changes: SimpleChanges) {
@@ -231,7 +236,22 @@ export class PersonalDetails extends UniView {
                 employee = searchResult;
                 this.employee$.next(employee);
 
-                this.showHideNameProperties();
+                this.showHideNameProperties(true);
+            }
+        }
+
+        // if the user has typed something in Name for a new employee, but has not
+        // selected something from the list or clicked F3, the searchbox is still active,
+        // so we need to get the value from there
+        if (!employee.ID || employee.ID === 0) {
+            if (!employee.BusinessRelationInfo.Name || employee.BusinessRelationInfo.Name === '') {
+                let searchInfo = <any>this.uniform.field('_EmployeeSearchResult');
+                if (searchInfo) {
+                    if (searchInfo.component && searchInfo.component.input) {
+                        employee.BusinessRelationInfo.Name = searchInfo.component.input.value;
+                        this.showHideNameProperties(false);
+                    }
+                }
             }
         }
 
@@ -247,13 +267,13 @@ export class PersonalDetails extends UniView {
         super.updateState('employeeTaxCard', this.employeeTaxCard$.getValue(), true);
     }
 
-    public showHideNameProperties() {
+    public showHideNameProperties(doUpdateFocus: boolean) {
         let fields: UniFieldLayout[] = this.fields$.getValue();
 
         let employee = this.employee$.getValue();
         let employeeSearchResult: UniFieldLayout = fields.find(x => x.Property === '_EmployeeSearchResult');
         let employeeName: UniFieldLayout = fields.find(x => x.Property === 'BusinessRelationInfo.Name');
-        
+
         if (this.employeeID > 0 || (employee && employee.BusinessRelationInfo && employee.BusinessRelationInfo.Name !== null && employee.BusinessRelationInfo.Name !== '')) {
             if (employeeSearchResult) {
                 employeeSearchResult.Hidden = true;
@@ -262,24 +282,28 @@ export class PersonalDetails extends UniView {
                 employeeName.Hidden = false;
             }
 
-            setTimeout(() => {
-                if (this.uniform.field('BusinessRelationInfo.Name')) {
-                    this.uniform.field('BusinessRelationInfo.Name').focus();
-                }
-            });
+            if (doUpdateFocus) {
+                setTimeout(() => {
+                    if (this.uniform.field('BusinessRelationInfo.Name')) {
+                        this.uniform.field('BusinessRelationInfo.Name').focus();
+                    }
+                });
+            }
         } else {
-            if(employeeSearchResult) {
+            if (employeeSearchResult) {
                 employeeSearchResult.Hidden = false;
             }
-            if(employeeName) {
+            if (employeeName) {
                 employeeName.Hidden = true;
             }
 
-            setTimeout(() => {
-                if (this.uniform.field('_CustomerSearchResult')) {
-                    this.uniform.field('_CustomerSearchResult').focus();
-                }
-            });
+            if (doUpdateFocus) {
+                setTimeout(() => {
+                    if (this.uniform.field('_EmployeeSearchResult')) {
+                        this.uniform.field('_EmployeeSearchResult').focus();
+                    }
+                });
+            }
         }
     }
 
@@ -407,7 +431,9 @@ export class PersonalDetails extends UniView {
         employeeSearchField.Hidden = this.employeeID > 0;
         employeeSearchField.Options = {
             uniSearchConfig: this.getEmployeeLookupOptions()
-        }
+        };
+
+        this.showHideNameProperties(false);
 
         this.fields$.next(fields);
     }

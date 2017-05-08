@@ -592,6 +592,21 @@ export class SupplierDetails implements OnInit {
         // small timeout to allow uniform and unitable to update the sources before saving
         setTimeout(() => {
             let supplier = this.supplier$.getValue();
+
+            // if the user has typed something in Name for a new supplier, but has not
+            // selected something from the list or clicked F3, the searchbox is still active,
+            // so we need to get the value from there
+            if (!supplier.ID || supplier.ID === 0) {
+                if (!supplier.Info.Name || supplier.Info.Name === '') {
+                    let searchInfo = <any>this.form.field('_SupplierSearchResult');
+                    if (searchInfo) {
+                        if (searchInfo.component && searchInfo.component.input) {
+                            supplier.Info.Name = searchInfo.component.input.value;
+                        }
+                    }
+                }
+            }
+
             // add createGuid for new entities and remove duplicate entities
             if (!supplier.Info.Emails) {
                 supplier.Info.Emails = [];
