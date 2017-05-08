@@ -242,8 +242,8 @@ export class WorkRelation extends UniEntity {
     public WorkerID: number;
     public WorkPercentage: number;
     public WorkProfileID: number;
-    public Worker: Worker;
     public WorkProfile: WorkProfile;
+    public Worker: Worker;
     public Employment: Employment;
     public Items: Array<WorkItem>;
     public Team: Team;
@@ -4245,8 +4245,8 @@ export class BankAccount extends UniEntity {
     public StatusCode: number;
     public UpdatedAt: Date;
     public UpdatedBy: string;
-    public Bank: Bank;
     public Account: Account;
+    public Bank: Bank;
     public BusinessRelation: BusinessRelation;
     public CompanySettings: CompanySettings;
     public CustomFields: any;
@@ -4558,9 +4558,9 @@ export class WorkBalanceDto extends UniEntity {
     public ValidFrom: Date;
     public ValidTimeOff: number;
     public WorkRelationID: number;
+    public WorkRelation: WorkRelation;
     public Previous: BalanceInfo;
     public Details: Array<FlexDetail>;
-    public WorkRelation: WorkRelation;
     public CustomFields: any;
 }
 
@@ -4957,6 +4957,7 @@ export class JournalEntryLinePostPostData extends UniEntity {
     public FinancialDate: Date;
     public ID: number;
     public InvoiceNumber: string;
+    public JournalEntryID: number;
     public JournalEntryNumber: string;
     public JournalEntryNumberNumeric: number;
     public JournalEntryTypeName: string;
@@ -5383,6 +5384,7 @@ export enum StdWageType{
     HolidayPayLastYear = 4,
     HolidayPayWithTaxDeduction = 5,
     AdvancePayment = 6,
+    HolidayPayEarlierYears = 7,
 }
 
 

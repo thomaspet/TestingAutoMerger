@@ -275,6 +275,9 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
                 label: 'Generer feriepenger',
                 action: () => {
                     this.openVacationPayModal();
+                },
+                disabled: (rowModel) => {
+                    return this.payrollrun$.getValue() && this.payrollrunID ? this.payrollrun$.getValue().StatusCode > 0 : false;
                 }
             },
             {

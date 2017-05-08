@@ -9,6 +9,7 @@ import { VacationpaySettingModal } from './vacationPaySettingModal';
 import { ToastService, ToastType } from '../../../../../framework/uniToast/toastService';
 import { Observable } from 'rxjs/Observable';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
+import {UniConfirmModal, ConfirmActions} from '../../../../../framework/modals/confirm';
 
 declare var _;
 
@@ -37,6 +38,7 @@ export class VacationpayModalContent {
     private vacationBaseYear: number;
     private financialYearEntity: number;
     public dueToHolidayChanged: boolean = false;
+    @ViewChild(UniConfirmModal) private confirmModal: UniConfirmModal;
 
     constructor(
         private _salarytransService: SalaryTransactionService,
@@ -102,24 +104,29 @@ export class VacationpayModalContent {
     }
 
     public createVacationPayments() {
-        this.busy = true;
-        let vacationPayInfoList: VacationPayInfo[] = [];
-        let selectedVacationPayLines = this.table.getSelectedRows();
-        selectedVacationPayLines.forEach((vacationPay: VacationPayLine) => {
-            let vacationPayInfo: VacationPayInfo = {
-                EmployeeID: vacationPay.Employee.ID,
-                Withdrawal: vacationPay.Withdrawal,
-                ManualVacationPayBase: vacationPay.ManualVacationPayBase
-            };
+        this.confirmModal.confirm(`Overfører feriepengeposter til lønnsavregning ${this.config.payrollRunID}. Totalsum kr ${this.totalPayout}`,'Opprette feriepengeposter',true)
+        .then( (x: ConfirmActions) => {
+            if (x === ConfirmActions.ACCEPT) {
+                this.busy = true;
+                let vacationPayInfoList: VacationPayInfo[] = [];
+                let selectedVacationPayLines = this.table.getSelectedRows();
+                selectedVacationPayLines.forEach((vacationPay: VacationPayLine) => {
+                    let vacationPayInfo: VacationPayInfo = {
+                        EmployeeID: vacationPay.Employee.ID,
+                        Withdrawal: vacationPay.Withdrawal,
+                        ManualVacationPayBase: vacationPay.ManualVacationPayBase
+                    };
 
-            vacationPayInfoList.push(vacationPayInfo);
+                    vacationPayInfoList.push(vacationPayInfo);
+                });
+
+                this._vacationpaylineService.createVacationPay(this.vacationBaseYear, this.config.payrollRunID, vacationPayInfoList)
+                    .finally(() => this.busy = false)
+                    .subscribe((response) => {
+                        this.config.submit(this.dueToHolidayChanged);
+                    }, err => this.errorService.handle(err));
+            }
         });
-
-        this._vacationpaylineService.createVacationPay(this.vacationBaseYear, this.config.payrollRunID, vacationPayInfoList)
-            .finally(() => this.busy = false)
-            .subscribe((response) => {
-                this.config.submit(this.dueToHolidayChanged);
-            }, err => this.errorService.handle(err));
     }
 
     public closeModal() {
