@@ -1,6 +1,10 @@
 import { ErrorHandler, Inject } from '@angular/core';
 import { ErrorService } from './services/services';
-import { WrappedError } from '@angular/core/src/facade/errors';
+
+
+type WrappedError = {
+    originalError: string
+}
 
 declare const Raygun;
 
