@@ -84,6 +84,7 @@ export class SalarybalanceDetail extends UniView {
                 })
                 .subscribe((salarybalance: SalaryBalance) => {
                     this.salarybalance$.next(salarybalance);
+                    if(!salarybalance.FromDate) { salarybalance.FromDate = new Date(); }  
                     this.salarybalanceID = salarybalance.ID;
                     this.updateFields();
                 }, err => this.errorService.handle(err));
