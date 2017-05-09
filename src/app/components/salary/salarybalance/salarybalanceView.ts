@@ -37,7 +37,7 @@ export class SalarybalanceView extends UniView {
         super(router.url, cacheService);
 
         this.childRoutes = [
-            {name: 'Detaljer', path: 'details'}
+            { name: 'Detaljer', path: 'details' }
         ];
 
         this.saveActions = [{
@@ -100,11 +100,20 @@ export class SalarybalanceView extends UniView {
                             'Du har ulagrede endringer, ønsker du å lagre disse før du fortsetter?',
                             'Lagre endringer?', true, { accept: 'Lagre', reject: 'Forkast' }))
                         .map((response: ConfirmActions) => {
-                            if ( response === ConfirmActions.ACCEPT) {
+                            if (response === ConfirmActions.ACCEPT) {
                                 this.saveSalarybalance((m) => { });
                                 return true;
+                            } else if (response === ConfirmActions.REJECT) {
+                                if (!this.salarybalanceID) {
+                                    let tabIndex = this.tabService.tabs
+                                        .findIndex(x => x.moduleID === UniModules.Salarybalances);
+                                    this.tabService.removeTab(
+                                        this.tabService.tabs[tabIndex],
+                                        tabIndex);
+                                }
+                                return true;
                             } else {
-                                return response === ConfirmActions.REJECT;
+                                return false;
                             }
                         });
             })
@@ -164,7 +173,7 @@ export class SalarybalanceView extends UniView {
     private getSalarybalance() {
         this.salarybalanceService.getSalarybalance(this.salarybalanceID,
             ['Transactions', 'Employee', 'Employee.BusinessRelationInfo',
-            'Supplier', 'Supplier.Info', 'Supplier.Info.DefaultBankAccount'])
+                'Supplier', 'Supplier.Info', 'Supplier.Info.DefaultBankAccount'])
             .subscribe((salbal: SalaryBalance) => {
                 this.salarybalance = salbal;
                 super.updateState('salarybalance', salbal, false);
@@ -173,25 +182,15 @@ export class SalarybalanceView extends UniView {
 
     private saveSalarybalance(done: (message: string) => void) {
 
-        if (!this.salarybalance.ID) {
-            this.salarybalance.ID = 0;
-        }
-
-        let saver = this.salarybalance.ID
-            ? this.salarybalanceService.Put(this.salarybalance.ID, this.salarybalance)
-            : this.salarybalanceService.Post(this.salarybalance);
-
-        saver.subscribe((salbal: SalaryBalance) => {
-            super.updateState('salarybalance', this.salarybalance, false);
-            let childRoute = this.router.url.split('/').pop();
-            this.router.navigateByUrl(this.url + salbal.ID + '/' + childRoute);
-            done('lagring fullført');
-            this.saveActions[0].disabled = true;
-        },
-            (error) => {
-                done('Lagring feilet');
-                this.errorService.handle(error);
-            });
+        this.salarybalanceService
+            .save(this.salarybalance)
+            .subscribe((salbal: SalaryBalance) => {
+                super.updateState('salarybalance', salbal, false);
+                let childRoute = this.router.url.split('/').pop();
+                this.router.navigateByUrl(this.url + salbal.ID + '/' + childRoute);
+                done('Lagring fullført');
+                this.saveActions[0].disabled = true;
+            }, err => done('Lagring feilet'));
     }
 
     private updateTabStrip(salarybalanceID: number) {
