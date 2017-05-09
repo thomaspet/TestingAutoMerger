@@ -119,9 +119,7 @@ export class GenericDetailview {
     public onReady(event) {
         this.loadCurrent(this.ID);
         // Auto open first secion:
-        if (this.form && this.form.section(1)) {
-            this.form.section(1).toggle();
-        }
+        this.form.section(1).then(s => s.toggle());
     }
 
     public onDelete() {

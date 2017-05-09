@@ -30,6 +30,7 @@ import {
 } from '../../../../services/services';
 
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
+import {UniField} from "uniform-ng2/src/uniform";
 
 declare const _; // lodash
 
@@ -332,21 +333,11 @@ export class SupplierDetails implements OnInit {
         if (!this.allowSearchSupplier || this.supplierID > 0 || (supplier && supplier.Info.Name !== null && supplier.Info.Name !== '')) {
             supplierSearchResult.Hidden = true;
             supplierName.Hidden = false;
-
-            setTimeout(() => {
-                if (this.form.field('Info.Name')) {
-                    this.form.field('Info.Name').focus();
-                }
-            });
+            this.form.field('Info.Name').then(f => f.focus());
         } else {
             supplierSearchResult.Hidden = false;
             supplierName.Hidden = true;
-
-            setTimeout(() => {
-                if (this.form.field('_SupplierSearchResult')) {
-                    this.form.field('_SupplierSearchResult').focus();
-                }
-            });
+            this.form.field('_SupplierSearchResult').then(f => f.focus());
         }
     }
 
@@ -598,12 +589,13 @@ export class SupplierDetails implements OnInit {
             // so we need to get the value from there
             if (!supplier.ID || supplier.ID === 0) {
                 if (!supplier.Info.Name || supplier.Info.Name === '') {
-                    let searchInfo = <any>this.form.field('_SupplierSearchResult');
-                    if (searchInfo) {
-                        if (searchInfo.component && searchInfo.component.input) {
-                            supplier.Info.Name = searchInfo.component.input.value;
-                        }
-                    }
+                    this.form.field('_SupplierSearchResult').then((searchInfo: UniField) => {
+                        searchInfo.Component.then(c => {
+                            if (c.input) {
+                                supplier.Info.Name = c.input.value;
+                            }
+                        });
+                    });
                 }
             }
 
@@ -776,21 +768,17 @@ export class SupplierDetails implements OnInit {
             <[string]>this.expandOptions,
             () => {
                 let supplier = this.supplier$.getValue();
+                this.form.field('_SupplierSearchResult').then((searchInfo: UniField) => {
+                    searchInfo.Component.then(c => {
+                        supplier.Info.Name = c.input.value;
+                        if (!supplier.Info.Name) {
+                            supplier.Info.Name = '';
+                        }
+                        this.supplier$.next(supplier);
+                        this.showHideNameProperties();
+                    });
 
-                let searchInfo = <any>this.form.field('_SupplierSearchResult');
-                if (searchInfo) {
-                    if (searchInfo.component && searchInfo.component.input) {
-                        supplier.Info.Name = searchInfo.component.input.value;
-                    }
-                }
-
-                if (!supplier.Info.Name) {
-                    supplier.Info.Name = '';
-                }
-
-                this.supplier$.next(supplier);
-                this.showHideNameProperties();
-
+                });
                 return Observable.from([supplier]);
             });
 

@@ -65,7 +65,7 @@ export class EmploymentDetails implements OnChanges {
             let prevEmployment: Employment = change['employment'].previousValue;
             if (!currEmployment.ID && ( !prevEmployment || currEmployment.ID !== prevEmployment.ID)) {
                 if (this.form) {
-                    this.form.field('JobCode').focus();
+                    this.form.field('JobCode').then(f => f.focus());
                 } else {
                     this.focusJobCode = true;
                 }
@@ -158,7 +158,7 @@ export class EmploymentDetails implements OnChanges {
                         this.employment$.next(employment);
 
                         setTimeout(() => {
-                            this.form.field('WorkPercent').focus();
+                            this.form.field('WorkPercent').then(f => f.focus());
                         }, 50);
                     }
                 }, err => this.errorService.handle(err));
@@ -171,7 +171,7 @@ export class EmploymentDetails implements OnChanges {
 
     private onFormReady(value) {
         if (this.focusJobCode) {
-            this.form.field('JobCode').focus();
+            this.form.field('JobCode').then(f => f.focus());
             this.focusJobCode = false;
         }
     }

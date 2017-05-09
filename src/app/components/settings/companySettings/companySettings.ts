@@ -205,21 +205,19 @@ export class CompanySettingsComponent implements OnInit {
                 }
 
                 this.extendFormConfig();
-
-                setTimeout(() => {
-                    if (this.showExternalSearch) {
-                        this.form.field('CompanyName')
-                            .Component
-                            .control
+                if (this.showExternalSearch) {
+                    this.form.field('CompanyName')
+                        .then(f => f.Component)
+                        .then(c => {
+                            c.control
                             .valueChanges
                             .debounceTime(300)
                             .distinctUntilChanged()
                             .subscribe((data) => {
                                 this.searchText = data;
                             });
-                    }
-                });
-
+                        });
+                }
             },
             err => this.errorService.handle(err)
             );

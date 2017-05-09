@@ -1041,22 +1041,22 @@ export class BillView {
 
                 case StatusCodeSupplierInvoice.ToPayment:
                     this.uniForm.readMode();
-                    this.uniForm.field('BankAccountID').editMode();
-                    this.uniForm.field('PaymentID').editMode();
+                    this.uniForm.field('BankAccountID').then(f => f.editMode());
+                    this.uniForm.field('PaymentID').then(f => f.editMode());
                     return;
 
                 case StatusCodeSupplierInvoice.Journaled:
                     this.uniForm.readMode();
-                    this.uniForm.field('PaymentDueDate').editMode();
-                    this.uniForm.field('BankAccountID').editMode();
-                    this.uniForm.field('PaymentID').editMode();
+                    this.uniForm.field('PaymentDueDate').then(f => f.editMode());
+                    this.uniForm.field('BankAccountID').then(f => f.editMode());
+                    this.uniForm.field('PaymentID').then(f => f.editMode());
                     return;
 
                 case StatusCodeSupplierInvoice.ForApproval:
                     this.uniForm.readMode();
                     this.supplierIsReadOnly = false;
-                    this.uniForm.field('PaymentID').editMode();
-                    this.uniForm.field('PaymentDueDate').editMode();
+                    this.uniForm.field('PaymentID').then(f => f.editMode());
+                    this.uniForm.field('PaymentDueDate').then(f => f.editMode());
                     return;
             }
         }

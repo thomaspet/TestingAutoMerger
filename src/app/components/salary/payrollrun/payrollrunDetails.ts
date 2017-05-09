@@ -980,7 +980,7 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
         if (!this.payrollrun$.getValue().PayDate) {
             this._toastService
                 .addToast('Utbetalingsdato mangler', ToastType.bad, 3, 'Du må angi utbetalingsdato før du kan lagre');
-            this.uniform.field('PayDate').focus();
+            this.uniform.field('PayDate').then(f => f.focus());
             done('');
             return;
         }

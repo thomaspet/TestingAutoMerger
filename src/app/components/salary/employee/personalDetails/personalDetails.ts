@@ -208,15 +208,13 @@ export class PersonalDetails extends UniView {
     public onFormReady(value) {
         // TODO: Cache focused field and reset to this?
         if (this.employeeID > 0) {
-            if (this.uniform.field('BusinessRelationInfo.Name')) {
-                this.uniform.field('BusinessRelationInfo.Name').focus();
-            }
+            this.uniform.field('BusinessRelationInfo.Name').then(f => f.focus());
         } else {
-            if (this.uniform.field('_EmployeeSearchResult')) {
-                this.uniform.field('_EmployeeSearchResult').focus();
-            } else {
-                this.uniform.field('BusinessRelationInfo.Name').focus();
-            }
+            this.uniform.field('_EmployeeSearchResult')
+                .then(f => f.focus())
+                .catch(() => {
+                    this.uniform.field('BusinessRelationInfo.Name').then(f => f.focus());
+                });
         }
     }
 
@@ -245,20 +243,16 @@ export class PersonalDetails extends UniView {
         // so we need to get the value from there
         if (!employee.ID || employee.ID === 0) {
             if (!employee.BusinessRelationInfo.Name || employee.BusinessRelationInfo.Name === '') {
-                let searchInfo = <any>this.uniform.field('_EmployeeSearchResult');
-                if (searchInfo) {
-                    if (searchInfo.component && searchInfo.component.input) {
-                        employee.BusinessRelationInfo.Name = searchInfo.component.input.value;
-                        this.showHideNameProperties(false);
-                    }
-                }
+                this.uniform.field('_EmployeeSearchResult').then(f => {
+                    f.Component.then(c => {
+                        employee.BusinessRelationInfo.Name = c.input.value;
+                    });
+                });
             }
         }
-
         setTimeout(() => {
             this.updateInfoFromSSN();
         });
-
         this.employee$.next(employee);
         super.updateState('employee', employee, true);
     }
@@ -267,7 +261,7 @@ export class PersonalDetails extends UniView {
         super.updateState('employeeTaxCard', this.employeeTaxCard$.getValue(), true);
     }
 
-    public showHideNameProperties(doUpdateFocus: boolean) {
+    public showHideNameProperties(doUpdateFocus: boolean = false) {
         let fields: UniFieldLayout[] = this.fields$.getValue();
 
         let employee = this.employee$.getValue();
@@ -283,11 +277,7 @@ export class PersonalDetails extends UniView {
             }
 
             if (doUpdateFocus) {
-                setTimeout(() => {
-                    if (this.uniform.field('BusinessRelationInfo.Name')) {
-                        this.uniform.field('BusinessRelationInfo.Name').focus();
-                    }
-                });
+                this.uniform.field('BusinessRelationInfo.Name').then(f => f.focus());
             }
         } else {
             if (employeeSearchResult) {
@@ -298,11 +288,7 @@ export class PersonalDetails extends UniView {
             }
 
             if (doUpdateFocus) {
-                setTimeout(() => {
-                    if (this.uniform.field('_EmployeeSearchResult')) {
-                        this.uniform.field('_EmployeeSearchResult').focus();
-                    }
-                });
+                this.uniform.field('_EmployeeSearchResult').then(f => f.focus());
             }
         }
     }
@@ -445,19 +431,16 @@ export class PersonalDetails extends UniView {
             () => {
                 let employee = this.employee$.getValue();
 
-                let searchInfo = <any>this.uniform.field('_EmployeeSearchResult');
-                if (searchInfo) {
-                    if (searchInfo.component && searchInfo.component.input) {
-                        employee.BusinessRelationInfo.Name = searchInfo.component.input.value;
-                    }
-                }
-
-                if (!employee.BusinessRelationInfo.Name) {
-                    employee.BusinessRelationInfo.Name = '';
-                }
-
-                this.employee$.next(employee);
-                this.showHideNameProperties();
+                this.uniform.field('_EmployeeSearchResult').then(searchInfo => {
+                    searchInfo.Component.then(c => {
+                        employee.BusinessRelationInfo.Name = c.input.value;
+                        if (!employee.BusinessRelationInfo.Name) {
+                            employee.BusinessRelationInfo.Name = '';
+                        }
+                        this.employee$.next(employee);
+                        this.showHideNameProperties();
+                    });
+                });
 
                 return Observable.from([employee]);
             });

@@ -596,21 +596,11 @@ export class CustomerDetails {
         if (!this.allowSearchCustomer || this.customerID > 0 || (customer && customer.Info.Name !== null && customer.Info.Name !== '')) {
             customerSearchResult.Hidden = true;
             customerName.Hidden = false;
-
-            setTimeout(() => {
-                if (this.form.field('Info.Name')) {
-                    this.form.field('Info.Name').focus();
-                }
-            });
+            this.form.field('Info.Name').then(f => f.focus());
         } else {
             customerSearchResult.Hidden = false;
             customerName.Hidden = true;
-
-            setTimeout(() => {
-                if (this.form.field('_CustomerSearchResult')) {
-                    this.form.field('_CustomerSearchResult').focus();
-                }
-            });
+            this.form.field('_CustomerSearchResult').then(f => f.focus());
         }
     }
 
@@ -624,12 +614,9 @@ export class CustomerDetails {
             // so we need to get the value from there
             if (!customer.ID || customer.ID === 0) {
                 if (!customer.Info.Name || customer.Info.Name === '') {
-                    let searchInfo = <any>this.form.field('_CustomerSearchResult');
-                    if (searchInfo) {
-                        if (searchInfo.component && searchInfo.component.input) {
-                            customer.Info.Name = searchInfo.component.input.value;
-                        }
-                    }
+                    this.form.field('_CustomerSearchResult').then(searchInfo => {
+                        searchInfo.Component.then(c => customer.Info.Name = c.input.value);
+                    });
                 }
             }
 
@@ -787,20 +774,15 @@ export class CustomerDetails {
             () => {
                 let customer = this.customer$.getValue();
 
-                let searchInfo = <any>this.form.field('_CustomerSearchResult');
-                if (searchInfo) {
-                    if (searchInfo.component && searchInfo.component.input) {
-                        customer.Info.Name = searchInfo.component.input.value;
+                this.form.field('_CustomerSearchResult').then(searchInfo => {
+                    searchInfo.Component.then(c => customer.Info.Name = c.input.value)
+                    if (!customer.Info.Name) {
+                        customer.Info.Name = '';
                     }
-                }
 
-                if (!customer.Info.Name) {
-                    customer.Info.Name = '';
-                }
-
-                this.customer$.next(customer);
-                this.showHideNameProperties();
-
+                    this.customer$.next(customer);
+                    this.showHideNameProperties();
+                });
                 return Observable.from([customer]);
             });
 
