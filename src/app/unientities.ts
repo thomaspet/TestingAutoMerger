@@ -1360,11 +1360,13 @@ export class VacationPayLine extends UniEntity {
     public ManualVacationPayBase: number;
     public PaidVacationPay: number;
     public Rate: number;
+    public Rate60: number;
     public StatusCode: number;
     public SystemVacationPayBase: number;
     public UpdatedAt: Date;
     public UpdatedBy: string;
     public VacationPay: number;
+    public VacationPay60: number;
     public Withdrawal: number;
     public Year: number;
     public Employee: Employee;
@@ -2221,7 +2223,7 @@ export class StatusCategory extends UniEntity {
 
 
 export class Transition extends UniEntity {
-    public static RelativeUrl = '';
+    public static RelativeUrl = 'transitions';
     public static EntityType = 'Transition';
 
     public Controller: string;
@@ -4245,8 +4247,8 @@ export class BankAccount extends UniEntity {
     public StatusCode: number;
     public UpdatedAt: Date;
     public UpdatedBy: string;
-    public Account: Account;
     public Bank: Bank;
+    public Account: Account;
     public BusinessRelation: BusinessRelation;
     public CompanySettings: CompanySettings;
     public CustomFields: any;
@@ -4725,6 +4727,19 @@ export class SalaryTransactionPeriodSums extends UniEntity {
 }
 
 
+export class VacationPayList extends UniEntity {
+    public VacationPay: Array<VacationPayLine>;
+}
+
+
+export class VacationPayInfo extends UniEntity {
+    public EmployeeID: number;
+    public ManualVacationPayBase: number;
+    public Withdrawal: number;
+    public employee: Employee;
+}
+
+
 export class SalaryTransactionPay extends UniEntity {
     public CompanyAddress: string;
     public CompanyBankAccountID: number;
@@ -4755,18 +4770,6 @@ export class PostingSummary extends UniEntity {
     public SubEntity: SubEntity;
     public PayrollRun: PayrollRun;
     public PostList: Array<JournalEntryLine>;
-}
-
-
-export class VacationPayList extends UniEntity {
-    public VacationPay: Array<VacationPayLine>;
-}
-
-
-export class VacationPayInfo extends UniEntity {
-    public EmployeeID: number;
-    public ManualVacationPayBase: number;
-    public Withdrawal: number;
 }
 
 
