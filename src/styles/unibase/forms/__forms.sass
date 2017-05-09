@@ -1,4 +1,8 @@
+$labelLength: 15rem
+$inputHeight: 2rem
+
 @import 'labels'
+@import 'inputButtons'
 @import 'textInputs'
 @import 'checkboxes'
 @import 'formSection'
@@ -7,21 +11,28 @@
 @import 'linebreaks'
 @import 'select'
 @import 'validation'
+@import 'helpText'
 
-uni-form form
-    width: 100%
-    flex-basis: 100%
-    display: flex
-    flex-wrap: wrap
-
-    *
-        box-sizing: border-box
+uni-form *
+    box-sizing: border-box
 
 uni-field
-    @include unigrid(4,2,2)
+    width: 100%
     display: block
-    padding-bottom: 1rem
+    padding: 0 .2rem 1rem
     margin-top: 0
+
+    label > span
+        display: inline-block
+        line-height: $inputHeight
+        width: $labelLength
+
+        & + *
+            width: calc(100% - #{$labelLength})
+            float: right
+
+.collapsable.-is-open>.collapsable-content
+    justify-content: space-between
 
 uni-button-input button
     margin: 1.5rem 0 0

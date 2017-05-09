@@ -1,0 +1,40 @@
+label
+    position: relative
+
+    .helpTextToggle
+        @extend %unbutton
+        position: absolute
+        top: 0rem
+        left: $labelLength - 2rem
+        width: 1.5rem
+        height: 1.5rem
+        background-color: $uni-color-scale8
+        border-radius: 9rem
+
+        text-indent: 100%
+        white-space: nowrap
+        overflow: hidden
+        font-size: 0
+
+        &:hover,
+        &:focus
+            background-color: $uni-color-scale4
+
+            & + .helpText
+                display: block
+
+
+    .helpText
+        width: 20rem
+        position: absolute
+        bottom: calc(100% + 1rem)
+        left: 3rem
+        max-height: 25rem
+        overflow-y: auto
+        z-index: map-get($zindex, toolbar)
+        background: transparentize($uni-color-scale1, .1)
+        color: $uni-color-negative
+        -webkit-backdrop-filter: blur(.3rem)
+        padding: 1rem
+        border-radius: pxToRem(3)
+        display: none
