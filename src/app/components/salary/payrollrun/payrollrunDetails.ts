@@ -447,21 +447,37 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
     private updatePosterSelection() {
         this._employeeService.GetAll('filter=deleted eq false')
             .subscribe((employees: Employee[]) => {
-                let posterSelection = {
-                    type: 'alerts',
-                    config: {
-                        alerts: [
-                            {
-                                text: this.employees.length + ' ansatte i lønnsavregningen',
-                                class: 'success'
-                            },
-                            {
-                                text: (employees.length - this.employees.length) + ' ansatte utelatt på grunn av utvalg',
-                                class: 'error'
-                            }
-                        ]
-                    }
-                };
+                let posterSelection: IPosterWidget = { type: 'alerts', config: {} };
+                if (employees.length - this.employees.length === 0) {
+                    posterSelection = {
+                        type: 'alerts',
+                        config: {
+                            alerts: [
+                                {
+                                    text: employees.length + ' ansatte i lønnsavregningen',
+                                    class: 'success'
+                                }
+                            ]
+                        }
+                    };
+                } else {
+                    posterSelection = {
+                        type: 'alerts',
+                        config: {
+                            alerts: [
+                                {
+                                    text: employees.length + ' ansatte i lønnsavregningen',
+                                    class: 'success'
+                                },
+                                {
+                                    text: (this.employees.length - employees.length) + ' ansatte utelatt på grunn av utvalg',
+                                    class: 'success'
+                                }
+                            ]
+                        }
+                    };
+                }
+                
 
                 this.payrollrunWidgets[2] = posterSelection;
             });
