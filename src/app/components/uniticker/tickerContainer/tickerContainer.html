@@ -3,6 +3,7 @@
     [ticker]="ticker"
     [filters]="ticker.Filters"
     [selectedFilter]="selectedFilter"
+    [expressionFilters]="expressionFilters"
     (filterSelected)="onFilterSelected($event)">
 </uni-ticker-filters-nav-bar>
 
@@ -28,8 +29,10 @@
         [selectedFilter]="selectedFilter"
         [expanded]="expanded === 'ticker'"
         [expressionFilters]="expressionFilters"
-        [class]="expanded === 'ticker' ? 'expanded' : ''"
+        [class.expanded]="expanded === 'ticker' "
+        [class.nofilter]="!showFilters"
         [actionOverrides]="actionOverrides"
+        [useUniTableFilter]="useUniTableFilter"
         [columnOverrides]="columnOverrides">
     </uni-ticker>
     <uni-sub-ticker-container

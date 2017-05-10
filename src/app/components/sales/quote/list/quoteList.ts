@@ -25,18 +25,23 @@ export class QuoteList implements OnInit {
     @ViewChild(SendEmailModal) private sendEmailModal: SendEmailModal;
 
     private actionOverrides: Array<ITickerActionOverride> = [
-
-        {
-            Code: 'quote_print',
-            AfterExecuteActionHandler: (selectedRows) => this.onAfterPrintInvoice(selectedRows)
-        },
         {
             Code: 'quote_sendemail',
             ExecuteActionHandler: (selectedRows) => this.onSendEmail(selectedRows)
         }
     ];
 
-    private columnOverrides: Array<ITickerColumnOverride> = [ ];
+    private columnOverrides: Array<ITickerColumnOverride> = [
+
+ {
+            Field: 'StatusCode',
+            Template: (dataItem) => {
+                let statusText: string = this.customerQuoteService.getStatusText(dataItem.CustomerQuoteStatusCode);
+                return statusText;
+            }
+        }
+
+     ];
 
     private tickercode: string = 'quote_list';
 
@@ -100,21 +105,5 @@ export class QuoteList implements OnInit {
             }
         });
     }
-
-    private onAfterPrintInvoice(selectedRows: Array<any>): Promise<any> {
-        return new Promise((resolve, reject) => {
-            let quote = selectedRows[0];
-            this.customerQuoteService
-                .setPrintStatus(quote.ID, this.printStatusPrinted)
-                    .subscribe((printStatus) => {
-                        resolve();
-                    }, err => {
-                        reject(err);
-                        this.errorService.handle(err);
-                    }
-                );
-        });
-    }
-
 
 }

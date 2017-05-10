@@ -24,18 +24,21 @@ export class OrderList implements OnInit {
     @ViewChild(SendEmailModal) private sendEmailModal: SendEmailModal;
 
     private actionOverrides: Array<ITickerActionOverride> = [
-
-        {
-            Code: 'order_print',
-            AfterExecuteActionHandler: (selectedRows) => this.onAfterPrintOrder(selectedRows)
-        },
         {
             Code: 'order_sendemail',
             ExecuteActionHandler: (selectedRows) => this.onSendEmail(selectedRows)
         }
     ];
 
-    private columnOverrides: Array<ITickerColumnOverride> = [ ];
+    private columnOverrides: Array<ITickerColumnOverride> = [
+    {
+            Field: 'StatusCode',
+            Template: (dataItem) => {
+                let statusText: string = this.customerOrderService.getStatusText(dataItem.CustomerOrderStatusCode);
+                return statusText;
+            }
+        }
+     ];
 
     private tickercode: string = 'order_list';
 
@@ -99,21 +102,4 @@ export class OrderList implements OnInit {
             }
         });
     }
-
-    private onAfterPrintOrder(selectedRows: Array<any>): Promise<any> {
-        return new Promise((resolve, reject) => {
-            let order = selectedRows[0];
-            this.customerOrderService
-                .setPrintStatus(order.ID, this.printStatusPrinted)
-                    .subscribe((printStatus) => {
-                        resolve();
-                    }, err => {
-                        reject(err);
-                        this.errorService.handle(err);
-                    }
-                );
-        });
-    }
-
-
 }
