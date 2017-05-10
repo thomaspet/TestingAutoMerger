@@ -542,7 +542,7 @@ export class CompanySettingsComponent implements OnInit {
             debounceTime: 200
         };
 
- let currentAccountYear: UniFieldLayout = fields.find(x => x.Property === 'CurrentAccountingYear');
+        let currentAccountYear: UniFieldLayout = fields.find(x => x.Property === 'CurrentAccountingYear');
         currentAccountYear.Options = {
             source: this.accountYears,
             valueProperty: 'Year',
@@ -584,6 +584,11 @@ export class CompanySettingsComponent implements OnInit {
 
         let salaryBankAccount: UniFieldLayout = fields.find(x => x.Property === 'SalaryBankAccount');
         salaryBankAccount.Options = this.getBankAccountOptions('SalaryBankAccount', 'salary');
+
+        let settings = this.company$.getValue();
+        let apActivated: UniFieldLayout = fields.find(x => x.Property === 'APActivated');
+        apActivated.Label = settings.APActivated ? 'Reaktiver' : 'Aktiver';
+        apActivated.Options.class = settings.APActivated ? 'good' : '';
 
         this.fields$.next(fields);
     }
@@ -1453,8 +1458,9 @@ export class CompanySettingsComponent implements OnInit {
             {
                 ComponentLayoutID: 1,
                 EntityType: 'CompanySettings',
+                Property: 'APActivated',
                 FieldType: FieldType.BUTTON,
-                Label: 'Aktiver EHF',
+                Label: 'Aktiver',
                 Sectionheader: 'EHF',
                 Section: 5,
                 Options: {

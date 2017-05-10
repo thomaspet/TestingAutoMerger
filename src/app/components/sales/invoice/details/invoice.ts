@@ -909,7 +909,7 @@ export class InvoiceDetails {
         this.saveActions.push({
             label: 'Send EHF',
             action: (done) => this.sendEHFAction(done),
-            disabled: false,
+            disabled: status < StatusCodeCustomerInvoice.Invoiced,
             main: printStatus === 100 && status === StatusCodeCustomerInvoice.Invoiced && !this.isDirty
         });
 
