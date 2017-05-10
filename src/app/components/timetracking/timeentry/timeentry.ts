@@ -12,7 +12,7 @@ import {RegtimeTotals} from './totals/totals';
 import {TimeTableReport} from './timetable/timetable';
 import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
 import {RegtimeBalance} from './balance/balance';
-import {ActivatedRoute} from '@angular/router';
+import {ActivatedRoute, Router} from '@angular/router';
 import {ErrorService} from '../../../services/services';
 import {UniConfirmModal, ConfirmActions} from '../../../../framework/modals/confirm';
 import {WorkEditor} from '../components/workeditor';
@@ -90,10 +90,11 @@ export class TimeEntry {
         private lookup: Lookupservice,
         private toast: ToastService,
         private route: ActivatedRoute,
-        private errorService: ErrorService
+        private errorService: ErrorService,
+        private router: Router
     ) {
 
-        this.filters = service.getIntervalItems();
+        this.filters = service.getIntervalItems();        
         this.initApplicationTab();
 
         route.queryParams.first().subscribe((item: { workerId; workRelationId; }) => {
@@ -175,8 +176,7 @@ export class TimeEntry {
     public canDeactivate() {
         return new Promise((resolve, reject) => {
             this.checkSave(true).then( () => {
-                resolve(true);
-                this.initApplicationTab();
+                resolve(true);           
             }, () => resolve(false) );
         });
     }
@@ -205,9 +205,13 @@ export class TimeEntry {
             .then( (userChoice: ConfirmActions)  => {
                 if (userChoice === ConfirmActions.ACCEPT) {
                     this.initWorker(undefined, true);
+                    this.initApplicationTab();
                 } else {
                     this.busy = false;
-                    this.missingWorker = true;
+                    this.missingWorker = true;                    
+                    this.tabService.removeTabs({ 
+                        name: view.label, url: view.url, moduleID: UniModules.Timesheets });
+                    this.router.navigateByUrl('/');
                 }
             });
     }
