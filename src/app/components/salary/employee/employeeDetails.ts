@@ -885,23 +885,28 @@ export class EmployeeDetails extends UniView implements OnDestroy {
             brInfo.DefaultBankAccount.BankAccountType = 'employee';
         }
 
-        brInfo.Emails.forEach((email) => {
-            if (!email.ID) {
-                email['_createguid'] = this.employeeService.getNewGuid();
-            }
-        });
+        if (brInfo.Emails) {
+            brInfo.Emails.forEach((email) => {
+                if (!email.ID) {
+                    email['_createguid'] = this.employeeService.getNewGuid();
+                }
+            });
+        }
+        if (brInfo.Phones) {
+            brInfo.Phones.forEach((phone) => {
+                if (!phone.ID) {
+                    phone['_createguid'] = this.employeeService.getNewGuid();
+                }
+            });
+        }
 
-        brInfo.Phones.forEach((phone) => {
-            if (!phone.ID) {
-                phone['_createguid'] = this.employeeService.getNewGuid();
-            }
-        });
-
-        brInfo.Addresses.forEach((address) => {
-            if (!address.ID) {
-                address['_createguid'] = this.employeeService.getNewGuid();
-            }
-        });
+        if (brInfo.Addresses) {
+            brInfo.Addresses.forEach((address) => {
+                if (!address.ID) {
+                    address['_createguid'] = this.employeeService.getNewGuid();
+                }
+            });
+        }
 
         if (brInfo.InvoiceAddress && brInfo.InvoiceAddress['_createguid']) {
             brInfo.Addresses = brInfo.Addresses.filter(address => address !== brInfo.InvoiceAddress);
@@ -914,7 +919,7 @@ export class EmployeeDetails extends UniView implements OnDestroy {
         if (brInfo.DefaultEmail && brInfo.DefaultEmail['_createguid']) {
             brInfo.Emails = brInfo.Emails.filter(email => email !== brInfo.DefaultEmail);
         }
-
+        
         return (this.employee.ID > 0)
             ? this.employeeService.Put(this.employee.ID, this.employee)
             : this.employeeService.Post(this.employee);
@@ -971,7 +976,7 @@ export class EmployeeDetails extends UniView implements OnDestroy {
                     if (!employment.DimensionsID && employment.Dimensions) {
                         employment.Dimensions['_createguid'] = this.employmentService.getNewGuid();
                     }
-                    
+
                     employment.MonthRate = employment.MonthRate || 0;
                     employment.HourRate = employment.HourRate || 0;
                     employment.UserDefinedRate = employment.UserDefinedRate || 0;
