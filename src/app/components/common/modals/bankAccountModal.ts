@@ -186,7 +186,8 @@ export class BankAccountForm {
                 EntityType: 'BankAccount',
                 Property: 'AccountNumber',
                 FieldType: FieldType.TEXT,
-                Label: 'Kontonummer',
+                Label: 'Kontonummer',                
+                Section: 0
             },
             {
                 EntityType: 'BankAccount',
@@ -194,7 +195,8 @@ export class BankAccountForm {
                 FieldType: FieldType.TEXT,
                 ReadOnly: true,
                 LineBreak: !this.config.accountVisible,
-                Label: 'IBAN'
+                Label: 'IBAN',
+                Section: 0
             },
             {
                 EntityType: 'BankAccount',
@@ -203,7 +205,8 @@ export class BankAccountForm {
                 Label: 'Hovedbokskonto',
                 Classes: 'large-field',
                 LineBreak: true,
-                Hidden: !this.config.accountVisible
+                Hidden: !this.config.accountVisible,
+                Section: 0
             },
             // Bank section
             {
@@ -212,7 +215,8 @@ export class BankAccountForm {
                 FieldType: FieldType.TEXT,
                 ReadOnly: true,
                 Label: 'Banknavn',
-                Classes: 'large-field'
+                Classes: 'large-field',
+                Section: 0
             },
             {
                 EntityType: 'Bank',
@@ -221,6 +225,7 @@ export class BankAccountForm {
                 ReadOnly: true,
                 Label: 'BIC',
                 Classes: 'small-field',
+                Section: 0
             },
             {
                 EntityType: 'Bank',
@@ -229,7 +234,8 @@ export class BankAccountForm {
                 ReadOnly: true,
                 Label: 'Hjemmeside',
                 Classes: 'large-field',
-                LineBreak: true
+                LineBreak: true,
+                Section: 0
             },
             {
                 EntityType: 'Bank',
@@ -238,7 +244,8 @@ export class BankAccountForm {
                 FieldType: FieldType.TEXT,
                 ReadOnly: true,
                 Label: 'Adresse',
-                Classes: 'large-field'
+                Classes: 'large-field',
+                Section: 0
             },
             {
                 EntityType: 'Bank',
@@ -246,7 +253,8 @@ export class BankAccountForm {
                 FieldType: FieldType.TEXT,
                 ReadOnly: true,
                 Label: 'Postnr',
-                Classes: 'small-field'
+                Classes: 'small-field',
+                Section: 0
             },
             {
                 EntityType: 'Bank',
@@ -255,7 +263,8 @@ export class BankAccountForm {
                 ReadOnly: true,
                 Label: 'Poststed',
                 Classes: 'large-field',
-                LineBreak: true
+                LineBreak: true,
+                Section: 0
             },
             {
                 EntityType: 'Bank',
@@ -263,7 +272,8 @@ export class BankAccountForm {
                 FieldType: FieldType.TEXT,
                 ReadOnly: true,
                 Classes: 'large-field',
-                Label: 'E-post'
+                Label: 'E-post',
+                Section: 0
             },
             {
                 EntityType: 'Bank',
@@ -271,7 +281,8 @@ export class BankAccountForm {
                 FieldType: FieldType.TEXT,
                 ReadOnly: true,
                 Label: 'Telefonnummer',
-                LineBreak: true
+                LineBreak: true,
+                Section: 0
             }
         ];
     }
