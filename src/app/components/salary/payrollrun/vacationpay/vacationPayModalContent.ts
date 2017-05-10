@@ -39,6 +39,7 @@ export class VacationpayModalContent {
     private financialYearEntity: number;
     public dueToHolidayChanged: boolean = false;
     @ViewChild(UniConfirmModal) private confirmModal: UniConfirmModal;
+    private percentPayout: number = 100;
 
     constructor(
         private _salarytransService: SalaryTransactionService,
@@ -70,6 +71,7 @@ export class VacationpayModalContent {
                 let vacationHeaderModel = this.vacationHeaderModel$.getValue();
                 vacationHeaderModel.VacationpayYear = 1;
                 vacationHeaderModel.SixthWeek = true;
+                vacationHeaderModel.PercentPayout = this.percentPayout;
                 this.vacationHeaderModel$.next(vacationHeaderModel);
                 this.setCurrentBasicAmountAndYear();
 
@@ -149,6 +151,14 @@ export class VacationpayModalContent {
                 }
                 this.calcWithdrawal(vacationPay);
             });
+        }
+
+        if (value['PercentPayout']) {
+            let percent : number = parseFloat(value['PercentPayout'].currentValue);
+            if (isNaN(percent) || percent > 100 || percent < 1) {
+                percent= 100;
+            }
+            this.percentPayout = this.vacationHeaderModel$.getValue().PercentPayout = percent
         }
 
         this.setCurrentBasicAmountAndYear();
@@ -258,6 +268,7 @@ export class VacationpayModalContent {
             labelProperty: 'name',
             valueProperty: 'id'
         };
+        vpRadioField.LineBreak = true;
 
         var basicAmountField = new UniFieldLayout();
         basicAmountField.FieldSet = 0;
@@ -280,7 +291,17 @@ export class VacationpayModalContent {
         sixthWeekField.Label = 'Inkluder 6.ferieuke';
         sixthWeekField.Options = null;
 
-        this.fields$.next([vpRadioField, basicAmountField, sixthWeekField]);
+        var percentField = new UniFieldLayout();
+        percentField.FieldSet = 0;
+        percentField.Section = 0;
+        percentField.Combo = 0;
+        percentField.FieldType = FieldType.TEXT;
+        percentField.EntityType = 'vacationHeaderModel';
+        percentField.Property = 'PercentPayout';
+        percentField.Label = '% utbetaling av feriepenger';
+        percentField.Options = null;
+
+        this.fields$.next([vpRadioField, basicAmountField, sixthWeekField, percentField]);
     }
 
     private createTableConfig() {
@@ -346,6 +367,7 @@ export class VacationpayModalContent {
         let vacationpay = Math.round(vacBase * rowModel['_Rate'] / 100);
         rowModel['_VacationPay'] = vacationpay;
         let withdrawal = Math.round(vacationpay - rowModel['PaidVacationPay']);
+        withdrawal = Math.round(withdrawal * this.percentPayout / 100);
         rowModel['Withdrawal'] = withdrawal;
     }
 }
