@@ -1,9 +1,8 @@
 <header class="horizontal_nav no-print">
     <ul>
         <li *ngFor="let filter of filters"
-            (click)="onFilterSelected(filter, $event)"
-            [class.active]="filter.IsActive">
-            <a>
+            (click)="onFilterSelected(filter, $event)">
+            <a [class.router-link-active]="filter.IsActive">
                 {{filter.Name}}
                 <span *ngIf="filter.CurrentCount" class="tab_counter tab_counter_passive"> {{filter.CurrentCount}}</span>
             </a>
