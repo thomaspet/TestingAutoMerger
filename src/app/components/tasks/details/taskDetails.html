@@ -1,14 +1,38 @@
-<section class="application" *ngIf="selectedTask?.ID">
+<section *ngIf="selectedTask?.ID">
     <ul class="task-comment-list">
         <li *ngFor="let comment of comments">
-            {{comment.Text}}
+            <main>
+                <header>
+                    <strong>{{comment.Author?.DisplayName}}</strong>
+                    <span style="float:right">{{getTimeFromNow(comment.CreatedAt)}}</span>
+
+                    <p> {{comment.Text}}</p>
+
+
+                </header>
+            </main>
         </li>
     </ul>
 
     <section class="task-comment-reply">
-        <input type="text" placeholder="Reply" [(ngModel)]="commentText">
+        <input type="text" placeholder="Reply" size="50" [(ngModel)]="commentText">
         <button class="add-comment" (click)="addComment()">
             Legg til
         </button>
     </section>
 </section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

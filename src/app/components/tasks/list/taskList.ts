@@ -1,5 +1,5 @@
 // angular
-import {Component, OnInit, ViewChild} from '@angular/core';
+import {Component, OnInit, ViewChild, Output, EventEmitter} from '@angular/core';
 import {Router} from '@angular/router';
 import {URLSearchParams} from '@angular/http';
 
@@ -21,11 +21,14 @@ export class TaskList implements OnInit {
     @ViewChild(UniSelect)
     private userSelectDropdown: UniSelect;
 
+    @Output()
+    private taskSelected: EventEmitter<Task> = new EventEmitter();
+
     private tasks: any[];
     private selectedTask: Task = new Task();
 
     private newTask: Task = new Task();
-    
+
     private users: any[];
     private userSelectConfig: ISelectConfig;
 
@@ -99,16 +102,16 @@ export class TaskList implements OnInit {
     private markMyTasks() {
         if (this.tasks !== undefined) {
             for (var i = 0; i < this.tasks.length; ++i) {
-                this.tasks[i].myTask = 
+                this.tasks[i].myTask =
                         (
-                                (this.tasks[i].Type === TaskType.Task) 
-                            && 
+                                (this.tasks[i].Type === TaskType.Task)
+                            &&
                                 (this.tasks[i].UserID === this.newTask.UserID)
-                        ) 
-                    || 
+                        )
+                    ||
                         (
-                            (this.tasks[i].Type === TaskType.Approval) 
-                                && 
+                            (this.tasks[i].Type === TaskType.Approval)
+                                &&
                             (this.isCurrentUserAnApprover(this.tasks[i]))
                         );
             }
@@ -119,7 +122,7 @@ export class TaskList implements OnInit {
         var approver = false;
 
         var i = 0;
-             
+
         while (i < task.Approvals.length && !approver) {
             if (task.Approvals[i].UserID === this.newTask.UserID) {
                 task.approvalId = task.Approvals[i].ID;
@@ -146,13 +149,14 @@ export class TaskList implements OnInit {
 
     private isActionRequiredByMe(task: any): boolean {
 
-        var actionRequired = task.myTask 
+        var actionRequired = task.myTask
                 && task.Approvals[task.approvalIndex].StatusCode === ApprovalStatus.Active;
         return actionRequired;
     }
 
     private onRowSelected(task: any) {
         this.selectedTask = task;
+        this.taskSelected.next(task);
     }
 
     private onStatusFilterChange() {
@@ -221,7 +225,7 @@ export class TaskList implements OnInit {
 
         while (i < task.Approvals.length && approvedByAll) {
             if (task.Approvals[i].UserID !== this.newTask.UserID) {
-                approvedByAll = task.Approvals[i].StatusCode === ApprovalStatus.Approved; 
+                approvedByAll = task.Approvals[i].StatusCode === ApprovalStatus.Approved;
             }
             ++i;
         }
@@ -233,7 +237,7 @@ export class TaskList implements OnInit {
                 res => this.onComplete(task),
                 err => this.errorService.handle(err)
             );
-            
+
         }
     }
 

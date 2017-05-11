@@ -7,28 +7,12 @@ import {CanDeactivateGuard} from '../../canDeactivateGuard';
 import {UniTasks} from './tasks';
 import {TaskList} from './list/taskList';
 import {TaskDetails} from './details/taskDetails';
-export const childRoutes = [
-    {
-        path: '',
-        component: TaskList
-    },
-    {
-        path: '',
-        component: TaskDetails
-    }
-];
 
 const tasksRoutes: Routes = [
     {
         path: 'tasks',
         component: UniTasks,
         canActivate: [AuthGuard],
-        children: [{
-            path: '',
-            canActivateChild: [AuthGuard],
-            children: childRoutes
-        }],
-
     }
 ];
 

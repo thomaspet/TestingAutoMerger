@@ -2,6 +2,7 @@
 import {Component, Input} from '@angular/core';
 import {ErrorService} from '../../../services/services';
 import {CommentService} from '../../../../framework/comments/commentService';
+import * as moment from 'moment';
 @Component({
     selector: 'task-details',
     templateUrl: './taskDetails.html'
@@ -21,7 +22,14 @@ export class TaskDetails {
     public ngOnChanges() {
         if (this.selectedTask && this.selectedTask.ID) {
             this.getComments();
+
         }
+    }
+
+    private getTimeFromNow(createdAt: Date): string {
+        return (createdAt)
+        ? moment(createdAt).fromNow()
+        : '';
     }
 
     private getComments() {
