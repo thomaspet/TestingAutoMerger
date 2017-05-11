@@ -190,7 +190,10 @@ export class SalarybalanceView extends UniView {
                 this.router.navigateByUrl(this.url + salbal.ID + '/' + childRoute);
                 done('Lagring fullført');
                 this.saveActions[0].disabled = true;
-            }, err => done('Lagring feilet'));
+            }, err => {
+                this.errorService.handle(err);
+                done('Lagring feilet');
+            });
     }
 
     private updateTabStrip(salarybalanceID: number) {

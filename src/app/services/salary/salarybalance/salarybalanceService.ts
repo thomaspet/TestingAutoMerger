@@ -60,9 +60,9 @@ export class SalarybalanceService extends BizHttp<SalaryBalance> {
                     .map((lines) => {
                         salbal.Transactions = lines;
                         return salbal;
-                    }) : Observable.of(salbal)
-            )
-            .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
+                    })
+                : Observable.of(salbal)
+            );
     }
 
     public getInstalment(salarybalance: SalaryBalance) {
