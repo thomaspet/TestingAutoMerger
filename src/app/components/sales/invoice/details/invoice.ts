@@ -161,14 +161,26 @@ export class InvoiceDetails {
                     this.companySettingsService.Get(1),
                     this.currencyCodeService.GetAll(null)
                 ).subscribe((res) => {
+                    this.companySettings = res[3];
+
                     let invoice = <CustomerInvoice>res[0];
                     invoice.OurReference = res[1].DisplayName;
-                    invoice.InvoiceDate = <any>new LocalDate(); // TODO: Remove <any> when backend is ready
-                    invoice.PaymentDueDate = null;
+                    invoice.InvoiceDate = new LocalDate();
+
                     if (res[2]) {
                         invoice = this.tofHelper.mapCustomerToEntity(res[2], invoice);
+
+                        invoice.CreditDays = invoice.CreditDays
+                            || invoice.Customer.CreditDays
+                            || this.companySettings.CustomerCreditDays;
+
+                        invoice.PaymentDueDate = new LocalDate(
+                            moment(invoice.InvoiceDate).add(invoice.CreditDays, 'days').toDate()
+                        );
+                    } else {
+                        invoice.PaymentDueDate = null;
                     }
-                    this.companySettings = res[3];
+
 
                     if (!invoice.CurrencyCodeID) {
                         invoice.CurrencyCodeID = this.companySettings.BaseCurrencyCodeID;
@@ -359,25 +371,32 @@ export class InvoiceDetails {
         let shouldGetCurrencyRate: boolean = false;
 
         // update invoices currencycodeid if the customer changed
-        if (this.didCustomerChange(invoice)) {
+        let customerChanged: boolean = this.didCustomerChange(invoice);
+        if (customerChanged) {
             if (invoice.Customer.CurrencyCodeID) {
                 invoice.CurrencyCodeID = invoice.Customer.CurrencyCodeID;
             } else {
                 invoice.CurrencyCodeID = this.companySettings.BaseCurrencyCodeID;
             }
             shouldGetCurrencyRate = true;
+            invoice.CreditDays = null;
         }
 
         if (invoice.Customer) {
-            invoice.CreditDays = invoice.CreditDays
+            let oldCreditDays = invoice.CreditDays;
+            invoice.CreditDays =
+                invoice.CreditDays
                 || invoice.Customer.CreditDays
                 || this.companySettings.CustomerCreditDays;
 
             if (invoice.InvoiceDate) {
-                if (isDifferent(this.invoice.InvoiceDate, invoice.InvoiceDate)) {
-                    invoice.PaymentDueDate = <any>new LocalDate(
+                if (!invoice.PaymentDueDate
+                    || customerChanged
+                    || isDifferent(this.invoice.InvoiceDate, invoice.InvoiceDate)
+                    || isDifferent(oldCreditDays, invoice.CreditDays)) {
+                    invoice.PaymentDueDate = new LocalDate(
                         moment(invoice.InvoiceDate).add(invoice.CreditDays, 'days').toDate()
-                    ); // TODO: Remove <any> when backend is ready
+                    );
                 }
             }
         }
@@ -543,7 +562,7 @@ export class InvoiceDetails {
         return invoice.Customer
             && (!this.invoice
                 || (invoice.Customer && !this.invoice.Customer)
-                || (invoice.Customer && this.invoice.Customer && invoice.Customer.ID !== this.invoice.Customer.ID))
+                || (invoice.Customer && this.invoice.Customer && invoice.Customer.ID !== this.invoice.Customer.ID));
     }
 
     private getUpdatedCurrencyExchangeRate(invoice: CustomerInvoice): Observable<number> {
@@ -972,7 +991,7 @@ export class InvoiceDetails {
         }
 
         if (!this.invoice.PaymentDueDate) {
-            this.invoice.PaymentDueDate = <any>new LocalDate(
+            this.invoice.PaymentDueDate = new LocalDate(
                 moment(this.invoice.InvoiceDate).add(this.invoice.CreditDays, 'days').toDate()
             );
         }

@@ -13,7 +13,7 @@
                 "Field": "Customer.CustomerNumber",
                 "Type": "text",
                 "Width": "120px",
-                "FilterOperator": "eq"
+                "FilterOperator": "startswith"
             },
             {
                 "Header": "Navn",
