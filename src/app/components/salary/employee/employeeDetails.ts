@@ -203,7 +203,7 @@ export class EmployeeDetails extends UniView implements OnDestroy {
                         type: 'text',
                         size: 'small',
                         config: {
-                            topText: [{ text: 'Ingen aktive stillingsforhold' }]
+                            topText: [{ text: 'Ingen aktive arbeidsforhold' }]
                         }
                     }
                 ];
@@ -460,10 +460,10 @@ export class EmployeeDetails extends UniView implements OnDestroy {
             config: {
                 topText: [{ text: '', class: 'large' }],
                 mainText: { text: '' },
-                bottomText: [{ text: '' }]
+                bottomText: [{ text: 'Ingen aktive arbeidsforhold' }]
             }
         };
-
+        
         // Add employments
         if (employments.length > 0) {
             var standardIndex = 0;
@@ -477,6 +477,7 @@ export class EmployeeDetails extends UniView implements OnDestroy {
                     standardIndex = i;
                 }
             }
+
             if (actives > 0) {
                 employmentWidget.config.topText[0].text = employments[standardIndex].JobName;
 
@@ -486,9 +487,11 @@ export class EmployeeDetails extends UniView implements OnDestroy {
                 if (actives > 1) {
                     employmentWidget.config.bottomText[0].text = '+' + (actives - 1) +
                         (actives > 2 ? ' stillinger' : ' stilling');
+                } else {
+                    employmentWidget.config.bottomText[0].text = '';
                 }
             } else {
-                employmentWidget.config.bottomText[0].text = 'Ingen aktive stillingsforhold';
+                employmentWidget.config.bottomText[0].text = 'Ingen aktive arbeidsforhold';
             }
 
         }
