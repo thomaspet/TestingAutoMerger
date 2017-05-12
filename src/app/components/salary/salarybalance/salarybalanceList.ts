@@ -1,7 +1,7 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { UniTableConfig, UniTableColumnType, UniTableColumn } from 'unitable-ng2/main';
-import { SalarybalanceService, ErrorService } from '../../../services/services';
+import { SalarybalanceService, ErrorService, NumberFormat } from '../../../services/services';
 import { SalaryBalance, SalBalType } from '../../../unientities';
 import { TabService, UniModules } from '../../layout/navbar/tabstrip/tabService';
 import { SalarybalancelineModal } from './modals/salarybalancelinemodal';
@@ -27,7 +27,8 @@ export class SalarybalanceList implements OnInit {
         private route: ActivatedRoute,
         private tabSer: TabService,
         private _salarybalanceService: SalarybalanceService,
-        private errorService: ErrorService
+        private errorService: ErrorService,
+        private numberService: NumberFormat
     ) {
         route.params.subscribe(params => {
             let empID: number = +params['empID'] || 0;
@@ -89,7 +90,11 @@ export class SalarybalanceList implements OnInit {
             return this._salarybalanceService.getInstalment(salarybalance).Name;
         });
 
-        const balanceCol = new UniTableColumn('_balance', 'Saldo', UniTableColumnType.Money);
+        const balanceCol = new UniTableColumn('_balance', 'Saldo', UniTableColumnType.Money)
+            .setTemplate((salBal: SalaryBalance) => 
+                salBal['_balance'] || salBal['_balance'] === 0 
+                    ? this.numberService.asMoney(salBal['_balance'])
+                    : '');
 
         let contextMenu = {
             label: 'Legg til manuell post',
