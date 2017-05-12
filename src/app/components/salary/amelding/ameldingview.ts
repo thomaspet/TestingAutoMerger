@@ -8,7 +8,7 @@ import {IContextMenuItem} from 'unitable-ng2/main';
 import {IUniSaveAction} from '../../../../framework/save/save';
 import {SelectAmeldingTypeModal, IAmeldingTypeEvent} from './modals/selectAmeldingTypeModal';
 import {AltinnAuthenticationDataModal} from '../../common/modals/AltinnAuthenticationDataModal';
-import {IToolbarConfig} from '../../common/toolbar/toolbar';
+import {IToolbarConfig, IAutoCompleteConfig} from '../../common/toolbar/toolbar';
 import {UniStatusTrack} from '../../common/toolbar/statustrack';
 import {
     PayrollrunService,
@@ -58,6 +58,7 @@ export class AMeldingView implements OnInit {
     private periodStatus: string;
     private alleAvvikStatuser: any[] = [];
     private activeYear: number;
+    private periodeSearch: IAutoCompleteConfig;
 
     constructor(
         private _tabService: TabService,
@@ -71,6 +72,22 @@ export class AMeldingView implements OnInit {
         private errorService: ErrorService
     ) {
         this._tabService.addTab({name: 'A-Melding', url: 'salary/amelding', moduleID: UniModules.Amelding, active: true});
+
+        this.periodeSearch = {
+            events: {
+                select: (model, value: any) => {
+                    if (value) {
+                        this.gotoPeriod(value.period);
+                    }
+                }
+            },
+            valueProperty: 'month',
+            template: (obj: any) =>
+                obj
+                    ? `${obj.period} - ${obj.name}`
+                    : '',
+            search: (query) => Observable.of(_ameldingService.periodsInYear())
+        };
 
         this.contextMenuItems = [
             {
@@ -135,6 +152,16 @@ export class AMeldingView implements OnInit {
                 this.getSumsInPeriod();
                 this.currentMonth = moment.months()[this.currentPeriod - 1];
             }
+            this.clearAMelding();
+            this.getAMeldingForPeriod();
+        }
+    }
+
+    public gotoPeriod(period: number) {
+        if (!isNaN(period) && (period >= 1 && period <= 12)) {
+            this.currentPeriod = period;
+            this.getSumsInPeriod();
+            this.currentMonth = moment.months()[this.currentPeriod - 1];
             this.clearAMelding();
             this.getAMeldingForPeriod();
         }
