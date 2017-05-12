@@ -31,8 +31,13 @@ export class App {
     ) {
         // prohibit dropping of files unless otherwise specified
         document.addEventListener('dragover', function( event ) {
-              event.preventDefault();
-              event.dataTransfer.dropEffect = 'none';
+            if (event.toElement && event.toElement.className === 'uni-image-upload') {
+                event.preventDefault();
+                event.dataTransfer.dropEffect = 'copy';
+            } else {
+                event.preventDefault();
+                event.dataTransfer.dropEffect = 'none';
+            }
         }, false);
         document.addEventListener('drop', function( event ) {
             event.preventDefault();

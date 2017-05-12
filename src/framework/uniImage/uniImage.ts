@@ -51,7 +51,8 @@ export interface IUploadConfig {
                 </li>
                 <li *ngIf="!readonly && !uploadConfig?.isDisabled" [attr.aria-busy]="uploading">
                     <label class="uni-image-upload"
-                           [attr.aria-disabled]="uploadConfig?.isDisabled || uploading">
+                           [attr.aria-disabled]="uploadConfig?.isDisabled || uploading"
+                           (drop)="onDrop($event, dropData)">
                         <input type="file"
                             (change)="uploadFileChange($event)"
                             [attr.aria-disabled]="uploadConfig?.isDisabled"
@@ -331,6 +332,21 @@ export class UniImage {
         } else {
             return str;
         }
+    }
+
+    private onDrop(event, dropData) {
+        let transfer = this.getTransfer(event);
+        if (!transfer) {
+            return;
+        }
+
+        for (let i = 0; i < transfer.files.length; i++) {
+            this.uploadFile(transfer.files[i]);
+        }
+    }
+
+    protected getTransfer(event: any): any {
+        return event.dataTransfer ? event.dataTransfer : event.originalEvent.dataTransfer; // jQuery fix;
     }
 
     public uploadFileChange(event) {
