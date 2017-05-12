@@ -61,15 +61,15 @@ export enum UniModules {
     Projects        = 700,
     Departments     = 701,
 
-    Jobs            = 800,
-    Translations    = 801,
-    Models          = 802,
-    Roles           = 803,
+    CurrencyExchange = 800,
+    CurrencyOverride = 801,
 
-    PaymentList     = 900,
+    Jobs            = 900,
+    Translations    = 901,
+    Models          = 902,
+    Roles           = 903,
 
-    CurrencyExchange = 1000,
-    CurrencyOverride = 1001,
+    PaymentList     = 1000,
 
     Tasks = 1100
 }

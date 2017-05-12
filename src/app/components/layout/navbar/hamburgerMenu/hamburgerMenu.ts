@@ -50,7 +50,7 @@ export class HamburgerMenu {
     // Get the corresponding parent app to a given module.
     public static getParentApp(moduleID): any {
         let _series = moduleID + '';
-        let _seriesIndex = +_series.slice(0, 1) - 1;
+        let _seriesIndex = +_series.substring(0, _series.length - 2) - 1;
         return this.getAvailableComponents()[_seriesIndex];
     }
 
