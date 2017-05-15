@@ -95,6 +95,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
     @Output() public columnVisibilityChange: EventEmitter<Array<string>> = new EventEmitter<Array<string>>();
     @Output() public rowSelected: EventEmitter<JournalEntryData> = new EventEmitter<JournalEntryData>();
 
+    private predefinedDescriptions: Array<any>;
     private projects: Project[];
     private departments: Department[];
     private vattypes: VatType[];
@@ -134,6 +135,34 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
 
     public ngOnInit() {
         this.setupJournalEntryTable();
+
+        //set predefinedDescriptions manually, should be retrieved from API
+        this.predefinedDescriptions = [
+            {
+                Code: 1,
+                Description: 'Inngående faktura'
+            },
+            {
+                Code: 2,
+                Description: 'Utgående faktura'
+            },
+            {
+                Code: 3,
+                Description: 'Bank'
+            },
+            {
+                Code: 4,
+                Description: 'Kontantkjøp, betalt av firma'
+            },
+            {
+                Code: 5,
+                Description: 'Kontaktkjøp, betalt av ansatte, eiere'
+            },
+            {
+                Code: 6,
+                Description: 'Korrigeringsbilag'
+            }
+        ];
     }
 
     public ngOnChanges(changes: SimpleChanges) {
@@ -867,7 +896,18 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 }
             });
 
-        let descriptionCol = new UniTableColumn('Description', 'Beskrivelse', UniTableColumnType.Text);
+        let descriptionCol = new UniTableColumn('Description', 'Beskrivelse', UniTableColumnType.Typeahead)
+            .setEditorOptions({
+                lookupFunction: (searchValue) => {
+                    return Observable.of(this.predefinedDescriptions.filter(x => x.Code.toString().indexOf(searchValue) === 0));
+                },
+                itemTemplate: (item) => {
+                    return (item.Code + ': ' + item.Description);
+                },
+                itemValue: (item) => {
+                    return item ? item.Description : '';
+                }
+            });
 
         let fileCol = new UniTableColumn('ID', PAPERCLIP, UniTableColumnType.Text, false).setFilterOperator('contains')
             .setTemplate(line => line.FileIDs && line.FileIDs.length > 0 ? PAPERCLIP : '')
