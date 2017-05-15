@@ -137,7 +137,7 @@ export class UniImage {
     ) {
         // Subscribe to authentication/activeCompany changes
         authService.authentication$.subscribe((authDetails) => {
-            this.token = authDetails.token;
+            this.token = authDetails.filesToken;
             this.activeCompany = authDetails.activeCompany;
         });
     }
@@ -385,7 +385,7 @@ export class UniImage {
             data.append('EntityType', this.entity);
         }
         if (this.entityID) {
-            data.append('EntityID', this.entityID);
+            data.append('EntityID', this.entityID.toString());
         }
         data.append('Caption', ''); // where should we get this from the user?
         data.append('File', file);

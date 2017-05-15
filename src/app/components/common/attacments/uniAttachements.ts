@@ -92,7 +92,7 @@ export class UniAttachments {
         authService: AuthService) {
         // Subscribe to authentication/activeCompany changes
         authService.authentication$.subscribe((authDetails) => {
-            this.token = authDetails.token;
+            this.token = authDetails.filesToken;
             this.activeCompany = authDetails.activeCompany;
         } /* don't need error handling */);
     }
