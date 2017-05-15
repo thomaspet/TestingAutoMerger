@@ -238,8 +238,8 @@ export class SalaryTransactionSelectionList extends UniView implements AfterView
         let employee: Employee = this.employeeList[this.selectedIndex];
         let taxCard = this.getTaxcard(employee);
         let error = 
-            `Gå til <a href="/#/salary/employees/${employee.ID}"> ansattkortet ${employee.BusinessRelationInfo 
-            ? 'for' + employee.BusinessRelationInfo.Name 
+            `Gå til <a href="/#/salary/employees/${employee.ID}"> ${employee.BusinessRelationInfo 
+            ? + employee.BusinessRelationInfo.Name 
             : ''}</a> for å legge inn `;
         let noBankAccounts = !employee.BusinessRelationID || !employee.BusinessRelationInfo.DefaultBankAccountID;
         let noTax = !taxCard || !taxCard.TaxTable && !taxCard.TaxPercentage;

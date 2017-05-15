@@ -454,7 +454,7 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
                         config: {
                             alerts: [
                                 {
-                                    text: employees.length + ' ansatte i lønnsavregningen',
+                                    text: this.EmployeeSumText(employees.length, 'i lønnsavregningen'),
                                     class: 'success'
                                 }
                             ]
@@ -466,22 +466,28 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
                         config: {
                             alerts: [
                                 {
-                                    text: employees.length + ' ansatte i lønnsavregningen',
+                                    text: this.EmployeeSumText(employees.length, 'i lønnsavregningen'),
                                     class: 'success'
                                 },
                                 {
-                                    text: (this.employees.length - employees.length) + ' ansatte utelatt på grunn av utvalg',
+                                    text: this.EmployeeSumText(this.employees.length - employees.length, 
+                                        'utelatt på grunn av utvalg'),
                                     class: 'success'
                                 }
                             ]
                         }
                     };
-                }
-                
+                }                
 
                 this.payrollrunWidgets[2] = posterSelection;
             });
+    }
 
+    private EmployeeSumText(count: number, postText: string): string
+    {
+        if(count === 1) {return count + ' ansatt ' + postText;  }
+        
+        return count + ' ansatte ' + postText;
     }
 
     private updateTax(employees: Employee[]) {
