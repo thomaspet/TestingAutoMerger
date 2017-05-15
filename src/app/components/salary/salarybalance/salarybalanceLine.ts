@@ -1,4 +1,4 @@
-import { Component, OnInit,  ViewChild, Input } from '@angular/core';
+import { Component, OnInit,  ViewChild, Input, Output, EventEmitter } from '@angular/core';
 import { UniTable, UniTableConfig, UniTableColumn, UniTableColumnType } from 'unitable-ng2/main';
 import { ErrorService, SalaryBalanceLineService } from '../../../services/services';
 import { SalaryBalance, SalaryBalanceLine } from '../../../unientities';
@@ -16,6 +16,8 @@ export class SalarybalanceLine implements OnInit {
     private salarybalancelineTable: UniTableConfig;
     @Input() private salarybalance: SalaryBalance;
     private salarybalanceLines: SalaryBalanceLine[] = [];
+    @Output() public linesSaved: EventEmitter<any> = new EventEmitter<any>();
+    private busy: boolean;
 
     constructor(
         private _salarybalancelineService: SalaryBalanceLineService,
@@ -30,6 +32,7 @@ export class SalarybalanceLine implements OnInit {
     }
 
     public saveSalarybalanceLines() {
+        this.busy = true;
         this.salarybalanceLines = this.table.getTableData();
         let saveObservables: Observable<any>[] = [];
         this.salarybalanceLines.forEach((salarybalanceline: SalaryBalanceLine) => {
@@ -40,7 +43,11 @@ export class SalarybalanceLine implements OnInit {
         });
 
         Observable.forkJoin(saveObservables)
+            .finally(() => {
+                this.busy = false;
+            })
             .subscribe(allSaved => {
+                this.linesSaved.emit(true);
                 this._toastService.addToast('Trekk lagret', ToastType.good, ToastTime.short);
             },
             err => this.errorService.handle(err));

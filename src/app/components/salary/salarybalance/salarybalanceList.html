@@ -3,4 +3,4 @@
     <button (click)="createSalarybalance()" class="new-button">Nytt forskudd/trekk</button>
     <uni-table [resource]="salarybalances" [config]="tableConfig" (rowSelected)="rowSelected($event)"></uni-table>
 </article>
-<salarybalanceline-modal></salarybalanceline-modal>
+<salarybalanceline-modal (linesSavedPleaseUpdate)="this.setData()"></salarybalanceline-modal>

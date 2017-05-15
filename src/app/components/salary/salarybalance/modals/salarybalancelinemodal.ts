@@ -1,4 +1,4 @@
-import { Component, ViewChild, Type, Input } from '@angular/core';
+import { Component, ViewChild, Type, Input, Output, EventEmitter } from '@angular/core';
 import { UniModal } from '../../../../../framework/modals/modal';
 import { SalaryBalanceLine, SalaryBalance } from '../../../../unientities';
 
@@ -9,7 +9,7 @@ type ModalContext = {
 
 type ModalConfig = {
     cancel: () => void,
-    submit: (line: SalaryBalanceLine) => void,
+    submit: () => void,
     context: ModalContext
 };
 
@@ -42,13 +42,15 @@ export class SalarybalancelineModal {
     private modalConfig: ModalConfig;
     private context: ModalContext;
     public type: Type<any> = SalarybalancelineModalContent;
+    @Output() public linesSavedPleaseUpdate: EventEmitter<any> = new EventEmitter<any>();
 
     constructor() {
         this.modalConfig = {
             cancel: () => {
                 this.modal.close();
             },
-            submit: (line: SalaryBalanceLine) => {
+            submit: () => {
+                this.linesSavedPleaseUpdate.emit(true);
                 this.modal.close();
             },
             context: this.context

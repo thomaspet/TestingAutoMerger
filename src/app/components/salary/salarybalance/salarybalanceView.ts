@@ -8,6 +8,8 @@ import { TabService, UniModules } from '../../layout/navbar/tabstrip/tabService'
 import { Observable } from 'rxjs/Observable';
 import { SalaryBalance } from '../../../unientities';
 import { UniConfirmModal, ConfirmActions } from '../../../../framework/modals/confirm';
+import { IContextMenuItem } from 'unitable-ng2/main';
+import { SalarybalancelineModal } from './modals/salarybalancelinemodal';
 
 @Component({
     selector: 'uni-salarybalance-view',
@@ -21,10 +23,12 @@ export class SalarybalanceView extends UniView {
     private saveActions: IUniSaveAction[];
     private toolbarConfig: IToolbarConfig;
     private childRoutes: any[];
+    private contextMenuItems: IContextMenuItem[] = [];
 
     public busy: boolean;
 
     @ViewChild(UniConfirmModal) public confirmModal: UniConfirmModal;
+    @ViewChild(SalarybalancelineModal) private salarybalanceModal: SalarybalancelineModal;
 
     constructor(
         private route: ActivatedRoute,
@@ -46,6 +50,18 @@ export class SalarybalanceView extends UniView {
             main: true,
             disabled: true
         }];
+
+        this.contextMenuItems = [
+            {
+                label: 'Legg til manuell post',
+                action: () => {
+                    this.openSalarybalancelineModal();
+                },
+                disabled: (rowModel) => {
+                    return this.salarybalanceID < 1 || !this.salarybalance;
+                }
+            }
+        ];
 
         this.route.params.subscribe((params) => {
             this.salarybalanceID = +params['id'];
@@ -168,6 +184,10 @@ export class SalarybalanceView extends UniView {
                 }, err => this.errorService.handle(err));
             }
         });
+    }
+
+    public openSalarybalancelineModal() {
+        this.salarybalanceModal.openModal(this.salarybalance, false);
     }
 
     private getSalarybalance() {

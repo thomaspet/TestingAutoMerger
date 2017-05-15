@@ -1,5 +1,5 @@
 <article class="modal-content" [attr.aria-busy]="busy" *ngIf="config">
-    <salarybalanceline *ngIf="salarybalance" [salarybalance]="salarybalance"></salarybalanceline>
+    <salarybalanceline *ngIf="salarybalance" [salarybalance]="salarybalance" (linesSaved)="config.submit()"></salarybalanceline>
     <footer>
         <button class="bad" (click)="config.cancel()">Lukk</button>
     </footer>
