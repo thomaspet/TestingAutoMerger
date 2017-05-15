@@ -10,6 +10,7 @@ import { ErrorService } from '../../common/errorService';
 import { FieldType } from 'uniform-ng2/main';
 import { ToastService, ToastTime, ToastType } from '../../../../framework/uniToast/toastService';
 import { SalaryTransactionService } from '../salarytransaction/salaryTransactionService';
+import { ITag } from '../../../components/common/toolbar/tags';
 
 @Injectable()
 export class PayrollrunService extends BizHttp<PayrollRun> {
@@ -172,7 +173,7 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
             .map(response => response.json());
     }
 
-    public saveCategoryOnRun(id: number, category: EmployeeCategory) {
+    public saveCategoryOnRun(id: number, category: EmployeeCategory): Observable<EmployeeCategory> {
         if (id && category) {
             let saveObs = category.ID ? this.http.asPUT() : this.http.asPOST();
             return saveObs
@@ -185,12 +186,24 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
         return Observable.of(null);
     }
 
-    public deleteCategoryOnRun(id: number, catID: number) {
+    public savePayrollTag(runID, category: EmployeeCategory): Observable<ITag> {
+        return this.saveCategoryOnRun(runID, category)
+            .filter(cat => !!cat)
+            .map(cat => { return {title: cat.Name, linkID: cat.ID}; });
+    }
+
+    public deleteCategoryOnRun(id: number, catID: number): Observable<boolean> {
         return this.http
             .asDELETE()
             .usingBusinessDomain()
             .withEndPoint(this.relativeURL + '/' + id + '/category/' + catID)
             .send();
+    }
+
+    public deletePayrollTag(runID, tag: ITag): Observable<boolean> {
+        return ((tag && tag.linkID)
+            ? this.deleteCategoryOnRun(runID, tag.linkID)
+            : Observable.of(false));
     }
 
     public getCategoriesOnRun(id: number) {

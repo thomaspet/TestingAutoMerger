@@ -10,6 +10,7 @@ import { TabService, UniModules } from '../../layout/navbar/tabstrip/tabService'
 import { ToastService, ToastType } from '../../../../framework/uniToast/toastService';
 import { IUniSaveAction } from '../../../../framework/save/save';
 import { IToolbarConfig, IAutoCompleteConfig } from '../../common/toolbar/toolbar';
+import { IUniTagsConfig, ITag } from '../../common/toolbar/tags';
 import { IPosterWidget } from '../../common/poster/poster';
 import { UniHttp } from '../../../../framework/core/http/http';
 import { UniView } from '../../../../framework/core/uniView';
@@ -50,11 +51,18 @@ export class EmployeeDetails extends UniView implements OnDestroy {
     private categories: EmployeeCategory[];
     private savedNewEmployee: boolean;
 
-    public categoryFilter: any[] = [];
-    public tagConfig: any = {
+    public categoryFilter: ITag[] = [];
+    public tagConfig: IUniTagsConfig = {
         description: 'Utvalg ',
         helpText: 'Kategorier på ansatt: ',
-        truncate: 20
+        truncate: 20,
+        autoCompleteConfig: {
+            template: (obj: EmployeeCategory) => obj ? obj.Name : '',
+            valueProperty: 'Name',
+            saveCallback: (cat: EmployeeCategory) => this.employeeService.saveEmployeeTag(this.employeeID, cat),
+            deleteCallback: (tag) => this.employeeService.deleteEmployeeTag(this.employeeID, tag),
+            search: (query, ignoreFilter) => this.employeeCategoryService.searchCategories(query, ignoreFilter)
+        }
     };
 
     @ViewChild(TaxCardModal) public taxCardModal: TaxCardModal;
@@ -1188,35 +1196,9 @@ export class EmployeeDetails extends UniView implements OnDestroy {
 
     private populateCategoryFilters(categories) {
         this.categoryFilter = categories.map(x => {
-            return { id: x.ID, title: x.Name };
+            return { linkID: x.ID, title: x.Name };
         });
         this.tagConfig.description = this.categoryFilter.length ? 'Utvalg: ' : 'Utvalg';
-    }
-
-    public filterChange(tags: any[]) {
-        let filter = tags.filter(x => !x.id).map(x => `Name eq '${x.title}'`).join(' or ');
-        let categoryObs = filter ? this.employeeCategoryService.GetAll('filter=' + filter) : Observable.of([]);
-
-        categoryObs.switchMap((response: EmployeeCategory[]) => {
-            let categoriesToDelete = this.categories
-                .filter(x => !tags.some(y => y.id === x.ID))
-                .map(x => x.ID);
-
-            let categoriesToAdd = response;
-            let saveObs: Observable<any>[] = categoriesToAdd
-                .map(x => this.employeeService
-                    .saveEmployeeCategory(this.employeeID, x)
-                    .catch((err, obs) => this.errorService.handleRxCatch(err, obs)))
-                .concat(categoriesToDelete
-                    .map(x => this.employeeService
-                        .deleteEmployeeCategory(this.employeeID, x)
-                        .catch((err, obs) => this.errorService.handleRxCatch(err, obs))));
-
-            return saveObs.length ? Observable.forkJoin(saveObs) : Observable.of(null);
-        })
-            .subscribe(
-            x => this.getEmployeeCategories(),
-            err => this.errorService.handle(err));
     }
 
 }

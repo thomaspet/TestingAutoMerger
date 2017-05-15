@@ -3,16 +3,12 @@ import { BizHttp } from '../../../../framework/core/http/BizHttp';
 import { UniHttp } from '../../../../framework/core/http/http';
 import { Employee, Operator, EmployeeCategory } from '../../../unientities';
 import { Observable } from 'rxjs/Observable';
-import { Subject } from 'rxjs/Subject';
 import {ErrorService} from '../../common/errorService';
+import { ITag } from '../../../components/common/toolbar/tags';
 import {FieldType} from 'uniform-ng2/main';
 
 @Injectable()
 export class EmployeeService extends BizHttp<Employee> {
-
-    private employee: Subject<Employee> = new Subject<Employee>();
-
-    public employee$: Observable<Employee> = this.employee.asObservable();
 
     private defaultExpands: any = [
         'BusinessRelationInfo.Addresses',
@@ -26,21 +22,13 @@ export class EmployeeService extends BizHttp<Employee> {
     ];
     public debounceTime: number = 500;
 
-    constructor(http: UniHttp, private errorService: ErrorService) {
+    constructor(
+        http: UniHttp, 
+        private errorService: ErrorService) {
         super(http);
         this.relativeURL = Employee.RelativeUrl;
         this.entityType = Employee.EntityType;
         this.defaultExpand = ['BusinessRelationInfo'];
-    }
-
-    public refreshEmployee(employee: Employee) {
-        this.employee.next(employee);
-    }
-
-    public refreshEmployeeID(id: number) {
-        this.Get(id, this.defaultExpands).subscribe((emp: Employee) => {
-            this.employee.next(emp);
-        }, err => this.errorService.handle(err));
     }
 
     public getEmployeeCategories(employeeID: number): Observable<EmployeeCategory[]> {
@@ -57,7 +45,7 @@ export class EmployeeService extends BizHttp<Employee> {
         // .send({expand: '', filter: 'EmployeeNumber eq ' + id});
     }
 
-    public saveEmployeeCategory(employeeID: number, category: EmployeeCategory) {
+    public saveEmployeeCategory(employeeID: number, category: EmployeeCategory): Observable<EmployeeCategory> {
         if (employeeID && category) {
             
             let endpoint = this.relativeURL
@@ -78,7 +66,13 @@ export class EmployeeService extends BizHttp<Employee> {
         return Observable.of(null);
     }
 
-    public deleteEmployeeCategory(employeeID: number, categoryID: number) {
+    public saveEmployeeTag(employeeID, category: EmployeeCategory): Observable<ITag> {
+        return this.saveEmployeeCategory(employeeID, category)
+            .filter(cat => !!cat)
+            .map(cat => { return {title: cat.Name, linkID: cat.ID}; });
+    }
+
+    public deleteEmployeeCategory(employeeID: number, categoryID: number): Observable<boolean> {
         return this.http
             .asDELETE()
             .usingBusinessDomain()
@@ -89,6 +83,12 @@ export class EmployeeService extends BizHttp<Employee> {
             + '/category/'
             + categoryID)
             .send();
+    }
+
+    public deleteEmployeeTag(employeeID: number, tag: ITag): Observable<boolean> {
+        return (tag && tag.linkID 
+            ? this.deleteEmployeeCategory(employeeID, tag.linkID) 
+            : Observable.of(false));
     }
 
     public get(id: number | string, expand: string[] = null): Observable<Employee> {

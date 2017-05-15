@@ -14,6 +14,7 @@ import { VacationpayModal } from './vacationpay/vacationPayModal';
 import { UniForm } from 'uniform-ng2/main';
 import { IContextMenuItem } from 'unitable-ng2/main';
 import { IToolbarConfig } from '../../common/toolbar/toolbar';
+import { IUniTagsConfig, ITag } from '../../common/toolbar/tags';
 import { UniStatusTrack } from '../../common/toolbar/statustrack';
 import { ToastService, ToastType, ToastTime } from '../../../../framework/uniToast/toastService';
 import { SalaryTransactionSelectionList } from '../salarytrans/salarytransactionSelectionList';
@@ -72,11 +73,18 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
     private categories: EmployeeCategory[];
     private journalEntry: JournalEntry;
 
-    public categoryFilter: any[] = [];
-    public tagConfig: any = {
+    public categoryFilter: ITag[] = [];
+    public tagConfig: IUniTagsConfig = {
         description: 'Utvalg ',
         helpText: 'Ansatte i følgende kategorier er med i denne lønnsavregningen:',
-        truncate: 20
+        truncate: 20,
+        autoCompleteConfig: {
+            template: (obj: EmployeeCategory) => obj ? obj.Name : '',
+            valueProperty: 'Name',
+            search: (query, ignoreFilter) => this.employeeCategoryService.searchCategories(query, ignoreFilter),
+            saveCallback: (cat: EmployeeCategory) => this.payrollrunService.savePayrollTag(this.payrollrunID, cat),
+            deleteCallback: (tag) => this.payrollrunService.deletePayrollTag(this.payrollrunID, tag)
+        }
     };
 
     private payrollrunWidgets: IPosterWidget[] = [
@@ -470,14 +478,14 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
                                     class: 'success'
                                 },
                                 {
-                                    text: this.EmployeeSumText(this.employees.length - employees.length, 
+                                    text: this.EmployeeSumText(employees.length - this.employees.length, 
                                         'utelatt på grunn av utvalg'),
                                     class: 'success'
                                 }
                             ]
                         }
                     };
-                }                
+                }
 
                 this.payrollrunWidgets[2] = posterSelection;
             });
@@ -1042,7 +1050,7 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
 
     private populateCategoryFilters() {
         this.categoryFilter = [];
-        this.categories.map(x => this.categoryFilter.push({ id: x.ID, title: x.Name }));
+        this.categories.map(x => this.categoryFilter.push({ linkID: x.ID, title: x.Name }));
         this.tagConfig.description = this.categoryFilter.length ? 'Utvalg: ' : 'Utvalg';
     }
 
@@ -1113,32 +1121,7 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
     }
 
     public filterChange(tags: any[]) {
-        let filter = tags.filter(x => !x.id).map(x => `Name eq '${x.title}'`).join(' or ');
-        let categoryObs = filter ? this.employeeCategoryService.GetAll('filter=' + filter) : Observable.of([]);
-
-        categoryObs.switchMap((response: EmployeeCategory[]) => {
-            let categoriesToDelete = this.categories
-                .filter(x => !tags.some(y => y.id === x.ID))
-                .map(x => x.ID);
-
-            let categoriesToAdd = response;
-            let saveObs: Observable<any>[] = categoriesToAdd
-                .map(x => this.payrollrunService
-                    .saveCategoryOnRun(this.payrollrunID, x)
-                    .catch((err, obs) => this.errorService.handleRxCatch(err, obs)))
-                .concat(categoriesToDelete
-                    .map(x => this.payrollrunService
-                        .deleteCategoryOnRun(this.payrollrunID, x)
-                        .catch((err, obs) => this.errorService.handleRxCatch(err, obs))));
-
-            return saveObs.length ? Observable.forkJoin(saveObs) : Observable.of(null);
-        })
-            .subscribe(
-            x => {
-                this.getEmployeeCategories();
-                this.getEmployees();
-                this.getSalaryTransactions();
-            },
-            err => this.errorService.handle(err));
+        this.getEmployees();
+        this.getSalaryTransactions();
     }
 }

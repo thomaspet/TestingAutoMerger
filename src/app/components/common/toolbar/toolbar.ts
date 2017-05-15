@@ -4,6 +4,7 @@ import { UniStatusTrack } from '../../common/toolbar/statustrack';
 import { IContextMenuItem } from 'unitable-ng2/main';
 import { UniFieldLayout, FieldType } from 'uniform-ng2/main';
 import { Observable } from 'rxjs/Observable';
+import { IUniTagsConfig, ITag } from './tags';
 
 export interface IToolbarConfig {
     title?: string;
@@ -50,10 +51,10 @@ export interface IAutoCompleteConfig {
 })
 export class UniToolbar {
     @Input()
-    public tags: any;
+    public tags: ITag[];
 
     @Input()
-    public tagConfig: any;
+    public tagConfig: IUniTagsConfig;
 
     @Input()
     public config: IToolbarConfig;
