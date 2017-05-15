@@ -4,6 +4,7 @@
   "scripts": {
     "sass.watch": "gulp sass.watch",
     "build.vendors": "webpack --config config/vendors.webpack.js",
+    "build.vendors.withSourcemaps": "webpack --config config/vendors.webpack.js --env.sourcemaps",
     "postinstall": "webpack --config config/vendors.webpack.js",
     "entities": "gulp entities",
     "build.dev": "gulp sass && gulp app-config-dev && webpack --config config/dev.webpack.js",
