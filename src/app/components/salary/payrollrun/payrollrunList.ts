@@ -31,7 +31,6 @@ export class PayrollrunList implements OnInit {
             .switchMap(year => this.payrollService
                 .GetAll('orderby=ID Desc' + (year ? '&filter=year(PayDate) eq ' + year : ''))
                 .finally(() => this.busy = false))
-            .do(runs => console.log('Got runs: ', runs))
             .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
 
         var idCol = new UniTableColumn('ID', 'Nr', UniTableColumnType.Number)
