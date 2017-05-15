@@ -180,6 +180,13 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
                             err => this.errorService.handle(err));
                     }
                 })
+                .do((payrollRun: PayrollRun) => {
+                    let oldValue = this.payrollrun$.getValue();
+                    if (!oldValue 
+                        || (oldValue.StatusCode !== payrollRun.StatusCode || oldValue.ID !== payrollRun.ID)) {
+                        this.toggleReadOnlyOnCategories(this.salaryTransactions, payrollRun);
+                    }
+                })
                 .subscribe((payrollRun: PayrollRun) => {
                     if (payrollRun['_IncludeRecurringPosts'] === undefined) {
                         payrollRun['_IncludeRecurringPosts'] = !payrollRun.ExcludeRecurringPosts;
@@ -240,7 +247,7 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
             employeesSubject
                 .subscribe((employees: Employee[]) => {
                     this.employees = employees;
-                    this.updatePosterSelection();
+                    this.updatePosterSelection(employees.length);
                 });
 
             super.getStateSubject('salaryTransactions')
@@ -452,49 +459,38 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
         }
     }
 
-    private updatePosterSelection() {
+    private updatePosterSelection(numberOfEmpsInSelection: number) {
         this._employeeService.GetAll('filter=deleted eq false')
             .subscribe((employees: Employee[]) => {
-                let posterSelection: IPosterWidget = { type: 'alerts', config: {} };
-                if (employees.length - this.employees.length === 0) {
-                    posterSelection = {
-                        type: 'alerts',
-                        config: {
-                            alerts: [
-                                {
-                                    text: this.EmployeeSumText(employees.length, 'i lønnsavregningen'),
-                                    class: 'success'
-                                }
-                            ]
+                let posterSelection = {
+                    type: 'alerts',
+                    config: {
+                        alerts: [
+                            {
+                                text: this.EmployeeSumText(numberOfEmpsInSelection, 'i lønnsavregningen'),
+                                class: 'success'
+                            }
+                        ]
+                    }
+                };
+
+                if (employees.length - numberOfEmpsInSelection > 0) {
+                    posterSelection.config.alerts.push(
+                        {
+                            text: this.EmployeeSumText(employees.length - numberOfEmpsInSelection,
+                                'utelatt på grunn av utvalg'),
+                            class: 'success'
                         }
-                    };
-                } else {
-                    posterSelection = {
-                        type: 'alerts',
-                        config: {
-                            alerts: [
-                                {
-                                    text: this.EmployeeSumText(employees.length, 'i lønnsavregningen'),
-                                    class: 'success'
-                                },
-                                {
-                                    text: this.EmployeeSumText(employees.length - this.employees.length, 
-                                        'utelatt på grunn av utvalg'),
-                                    class: 'success'
-                                }
-                            ]
-                        }
-                    };
+                    );
                 }
 
                 this.payrollrunWidgets[2] = posterSelection;
             });
     }
 
-    private EmployeeSumText(count: number, postText: string): string
-    {
-        if(count === 1) {return count + ' ansatt ' + postText;  }
-        
+    private EmployeeSumText(count: number, postText: string): string {
+        if (count === 1) { return count + ' ansatt ' + postText; }
+
         return count + ' ansatte ' + postText;
     }
 
@@ -662,17 +658,15 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
                 .forkJoin(
                 this._salaryTransactionService
                     .GetAll(
-                    'filter=' + salaryTransactionFilter + '&orderBy=IsRecurringPost DESC',
+                    'filter=' + salaryTransactionFilter + '&orderBy=IsRecurringPost DESC,SalaryBalanceID DESC',
                     ['WageType.SupplementaryInformations', 'employment', 'Supplements'
                         , 'Dimensions', 'Files'])
                     .do((transes: SalaryTransaction[]) => {
                         if (this.selectionList) {
                             this.selectionList.updateSums();
                         }
-                        this.tagConfig.readOnly = transes.some(trans => !trans.IsRecurringPost);
-                        this.tagConfig.toolTip = this.tagConfig.readOnly
-                            ? 'Låst på grunn av variable poster'
-                            : '';
+
+                        this.toggleReadOnlyOnCategories(transes, this.payrollrun$.getValue());
                     }),
                 this.getProjectsObservable(),
                 this.getDepartmentsObservable())
@@ -704,7 +698,6 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
         if (this.payrollrunID) {
             this.payrollrunService.get(this.payrollrunID).
                 subscribe((payroll: PayrollRun) => {
-                    this.payrollrun$.next(payroll);
                     if (payroll) {
                         payroll.StatusCode < 1 ? this.disableFilter = false : this.disableFilter = true;
                     }
@@ -878,6 +871,22 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
             };
         });
         return statustrack;
+    }
+
+    private toggleReadOnlyOnCategories(transes: SalaryTransaction[], run: PayrollRun) {
+        transes = transes || [];
+        let anyEditableTranses = transes
+            .some(trans => !trans.IsRecurringPost && !trans.SalaryBalanceID);
+        let runIsCalculated = run && run.StatusCode >= 1;
+        this.tagConfig.readOnly = anyEditableTranses || runIsCalculated;
+
+        if (runIsCalculated) {
+            this.tagConfig.toolTip = 'Låst fordi lønnsavregningen er avregnet';
+        } else if (anyEditableTranses) {
+            this.tagConfig.toolTip = 'Låst på grunn av variable poster';
+        } else {
+            this.tagConfig.toolTip = '';
+        }
     }
 
     public newPayrollrun() {
