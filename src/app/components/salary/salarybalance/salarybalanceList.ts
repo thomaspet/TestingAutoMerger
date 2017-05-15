@@ -90,7 +90,8 @@ export class SalarybalanceList implements OnInit {
             return this._salarybalanceService.getInstalment(salarybalance).Name;
         });
 
-        const balanceCol = new UniTableColumn('_balance', 'Saldo', UniTableColumnType.Money)
+        const balanceCol = new UniTableColumn('_balance', 'Saldo', UniTableColumnType.Text)
+            .setAlignment('right')
             .setTemplate((salBal: SalaryBalance) => 
                 salBal['_balance'] || salBal['_balance'] === 0 
                     ? this.numberService.asMoney(salBal['_balance'])
