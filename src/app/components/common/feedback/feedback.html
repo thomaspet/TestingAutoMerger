@@ -1,12 +1,14 @@
 <section (clickOutside)="close()">
     <article [attr.aria-expanded]="expanded"
-        class="uniFeedback_dropdown"
-        [class.-is-successful]="success">
+        class="uniFeedback_dropdown">
         <form (ngSubmit)="submit()">
             <small class="validation error" *ngIf="error">
                 Noe gikk galt under sending. Vennligst prøv igjen.
             </small>
 
+            <h1>
+                Tilbakemelding
+            </h1>
             <label>
                 Tittel
                 <input #title autocomplete="off" type="text" [formControl]="titleControl" placeholder="Tittel" id="feedback_title" />
@@ -24,5 +26,5 @@
             </button>
         </form>
     </article>
-    <button class="c2a uniFeedback_toggle" (click)="toggle()">Gi din tilbakemelding</button>
+    <button class="c2a uniFeedback_toggle" (click)="toggle()" title="Gi din tilbakemelding!"></button>
 </section>

@@ -2,6 +2,7 @@ import {Component, ChangeDetectorRef, ChangeDetectionStrategy} from '@angular/co
 import {Http, Headers} from '@angular/http';
 import {FormControl} from '@angular/forms';
 import {AuthService} from '../../../../framework/core/authService';
+import {ToastService, ToastType, ToastTime} from '../../../../framework/uniToast/toastService';
 import {AppConfig} from '../../../AppConfig';
 import {ErrorService} from '../../../services/services';
 import * as moment from 'moment';
@@ -16,7 +17,6 @@ export class UniFeedback {
     private expanded: boolean = false;
     private busy: boolean = false;
     private error: boolean = false;
-    private success: boolean = false;
 
     private headers: Headers;
     private titleControl: FormControl;
@@ -26,6 +26,7 @@ export class UniFeedback {
         private http: Http,
         private authService: AuthService,
         private errorService: ErrorService,
+        private toastService: ToastService,
         private cdr: ChangeDetectorRef
     ) {
         this.initForm();
@@ -75,13 +76,7 @@ export class UniFeedback {
                 GitRev: 'https://github.com/unimicro/AppFrontend/commit/' + APP_VERSION
             }
         };
-        let setSuccessClass = () => {
-            this.success = true;
-            setTimeout(() => {
-                this.success = false;
-                this.expanded = false;
-            }, 4000);
-        };
+
 
         this.busy = true;
 
@@ -94,8 +89,15 @@ export class UniFeedback {
                 this.initForm();
                 this.error = false;
                 this.busy = false;
-                setSuccessClass();
+                this.expanded = false;
                 this.cdr.markForCheck();
+
+                this.toastService.addToast(
+                    'Tilbakemelding registrert',
+                    ToastType.good,
+                    ToastTime.short,
+                    'Takk for din tilbakemelding!'
+                );
             },
             (error) => {
                 this.errorService.handle(error);

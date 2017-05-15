@@ -12,6 +12,7 @@ import {UniTabStrip} from './navbar/tabstrip/tabStrip';
 import {UniCompanyDropdown} from './navbar/userinfo/companyDropdown/companyDropdown';
 import {UniFrameworkModule} from '../../../framework/frameworkModule';
 import {UniTabs} from './uniTabs/uniTabs';
+import {UniFeedback} from '../common/feedback/feedback';
 import {UniFormModule} from 'uniform-ng2/main';
 import { UniNumberFormatPipe } from '../../pipes/uniNumberFormatPipe';
 import { YearModal, YearModalContent } from "./navbar/userinfo/companyDropdown/modals/yearModal";
@@ -37,7 +38,8 @@ import { YearModal, YearModalContent } from "./navbar/userinfo/companyDropdown/m
         UniTabStrip,
         UniCompanyDropdown,
         YearModal,
-        YearModalContent,        
+        YearModalContent,
+        UniFeedback
     ],
     providers: [
         UniNumberFormatPipe
@@ -54,7 +56,8 @@ import { YearModal, YearModalContent } from "./navbar/userinfo/companyDropdown/m
         UniTabStrip,
         UniCompanyDropdown,
         YearModal,
-        YearModalContent,        
+        YearModalContent,
+        UniFeedback
     ]
 })
 export class LayoutModule {

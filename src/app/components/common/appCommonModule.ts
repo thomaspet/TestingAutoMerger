@@ -5,7 +5,6 @@ import {HttpModule} from '@angular/http';
 import {RouterModule} from '@angular/router';
 import {ContextMenu} from './contextMenu/contextMenu';
 import {ExternalSearch} from './externalSearch/externalSearch';
-import {UniFeedback} from './feedback/feedback';
 import {ProductDetails} from './product/details/productDetails';
 import {ProductList} from './product/list/productList';
 import {AddressForm} from './modals/addressModal';
@@ -80,7 +79,6 @@ import {routes as AppCommonRoutes} from './appCommonRoutes';
         DepartmentDetails,
         ContextMenu,
         ExternalSearch,
-        UniFeedback,
         ProductDetails,
         ProductList,
         AddressForm,
@@ -169,7 +167,6 @@ import {routes as AppCommonRoutes} from './appCommonRoutes';
         DepartmentDetails,
         ContextMenu,
         ExternalSearch,
-        UniFeedback,
         ProductDetails,
         ProductList,
         AddressForm,
