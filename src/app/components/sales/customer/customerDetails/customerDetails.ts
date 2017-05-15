@@ -30,6 +30,7 @@ import {
     CurrencyCodeService,
     UniSearchConfigGeneratorService
 } from '../../../../services/services';
+import {UniField} from "uniform-ng2/src/uniform";
 declare var _;
 
 @Component({
@@ -596,11 +597,21 @@ export class CustomerDetails {
         if (!this.allowSearchCustomer || this.customerID > 0 || (customer && customer.Info.Name !== null && customer.Info.Name !== '')) {
             customerSearchResult.Hidden = true;
             customerName.Hidden = false;
-            this.form.field('Info.Name').then(f => f.focus());
+            this.fields$.next(fields);
+            setTimeout(() => {
+                if (this.form.field('Info.Name')) {
+                    this.form.field('Info.Name').focus();
+                }
+            }, 200);
         } else {
             customerSearchResult.Hidden = false;
             customerName.Hidden = true;
-            this.form.field('_CustomerSearchResult').then(f => f.focus());
+            this.fields$.next(fields);
+            setTimeout(() => {
+                if (this.form.field('_CustomerSearchResult')) {
+                    this.form.field('_CustomerSearchResult').focus();
+                }
+            }, 200);
         }
     }
 
@@ -614,9 +625,12 @@ export class CustomerDetails {
             // so we need to get the value from there
             if (!customer.ID || customer.ID === 0) {
                 if (!customer.Info.Name || customer.Info.Name === '') {
-                    this.form.field('_CustomerSearchResult').then(searchInfo => {
-                        searchInfo.Component.then(c => customer.Info.Name = c.input.value);
-                    });
+                    const searchInfo = this.form.field('_CustomerSearchResult')
+                    if (searchInfo) {
+                        if (searchInfo.component && searchInfo.component.input) {
+                            customer.Info.Name = searchInfo.component.input.value;
+                        }
+                    }
                 }
             }
 
@@ -773,16 +787,14 @@ export class CustomerDetails {
             <[string]>this.expandOptions,
             () => {
                 let customer = this.customer$.getValue();
-
-                this.form.field('_CustomerSearchResult').then(searchInfo => {
-                    searchInfo.Component.then(c => customer.Info.Name = c.input.value)
-                    if (!customer.Info.Name) {
-                        customer.Info.Name = '';
-                    }
-
-                    this.customer$.next(customer);
-                    this.showHideNameProperties();
-                });
+                const searchInfo = this.form.field('_CustomerSearchResult');
+                const cmp = searchInfo.component;
+                customer.Info.Name = cmp.input.value;
+                if (!customer.Info.Name) {
+                    customer.Info.Name = '';
+                }
+                this.customer$.next(customer);
+                this.showHideNameProperties();
                 return Observable.from([customer]);
             });
 

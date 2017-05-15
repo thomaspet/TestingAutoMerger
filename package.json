@@ -16,7 +16,8 @@
     "start.test": "gulp app-config-test-env && gulp sass && concurrently \"npm run sass.watch\" \"webpack-dev-server --inline --port 3000\" ",
     "start.local": "gulp app-config-local && gulp sass &&  concurrently \"npm run sass.watch\" \"webpack-dev-server --inline --port 3000\" ",
     "start.pilot": "gulp app-config-pilot && gulp sass &&  concurrently \"npm run sass.watch\" \"webpack-dev-server --config config/prod.webpack.js --inline --port 3000\" ",
-    "start.typecheck": "gulp app-config-dev && gulp sass && concurrently \"npm run sass.watch\" \"webpack-dev-server --inline --port 3000 --env.typecheck\" "
+    "start.typecheck": "gulp app-config-dev && gulp sass && concurrently \"npm run sass.watch\" \"webpack-dev-server --inline --port 3000 --env.typecheck\" ",
+    "build.vendors.withSourcemaps": "webpack --config config/vendors.webpack.js --env.sourcemaps"
   },
   "license": "MIT",
   "dependencies": {
@@ -46,7 +47,7 @@
     "reflect-metadata": "0.1.10",
     "rxjs": "5.2.0",
     "tslib": "1.6.0",
-    "uniform-ng2": "0.0.84",
+    "uniform-ng2": "0.0.91",
     "unisearch-ng2": "0.0.23",
     "unitable-ng2": "0.1.11",
     "zone.js": "0.8.5"

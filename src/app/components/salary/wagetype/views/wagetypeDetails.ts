@@ -222,10 +222,10 @@ export class WagetypeDetail extends UniView {
             debounceTime: 500,
             events: {
                 tab: (event) => {
-                    this.uniform.field('StandardWageTypeFor').then(f => f.focus());
+                    this.uniform.field('StandardWageTypeFor').focus();
                 },
                 shift_tab: (event) => {
-                    this.uniform.field('AccountNumber').then(f => f.focus());
+                    this.uniform.field('AccountNumber').focus();
                 }
             }
         };
@@ -246,14 +246,14 @@ export class WagetypeDetail extends UniView {
             events: {
                 tab: (event) => {
                     if (this.wageType$.getValue().Base_Payment) {
-                        this.uniform.field('GetRateFrom').then(f => f.focus());
+                        this.uniform.field('GetRateFrom').focus();
                     } else {
-                        this.uniform.field('AccountNumber_balance').then(f => f.focus());
+                        this.uniform.field('AccountNumber_balance').focus();
                     }
 
                 },
                 shift_tab: (event) => {
-                    this.uniform.field('taxtype').then(f => f.focus());
+                    this.uniform.field('taxtype').focus();
                 }
             }
         };
@@ -318,10 +318,10 @@ export class WagetypeDetail extends UniView {
                     this.showBenefitAndDescriptionAsReadonly = false;
                     this.wageType$.getValue().Description = '';
                     this.wageType$.getValue().Benefit = '';
-                    this.uniform.field('Benefit').then(f => f.focus());
+                    this.uniform.field('Benefit').focus();
                 },
                 shift_tab: (event) => {
-                    this.uniform.field('RateFactor').then(f => f.focus());
+                    this.uniform.field('RateFactor').focus();
                 }
             }
         };
@@ -342,7 +342,7 @@ export class WagetypeDetail extends UniView {
                     this.wageType$.getValue().Description = '';
                 },
                 shift_tab: (event) => {
-                    this.uniform.field('IncomeType').then(f => f.focus());
+                    this.uniform.field('IncomeType').focus();
                 }
             }
         };
@@ -361,10 +361,10 @@ export class WagetypeDetail extends UniView {
                     if (this.supplementPackages.length > 0) {
                         this.findByProperty('SupplementPackage').Hidden = false;
                     }
-                    this.uniform.field('SpecialTaxAndContributionsRule').then(f => f.focus());
+                    this.uniform.field('SpecialTaxAndContributionsRule').focus();
                 },
                 shift_tab: (event) => {
-                    this.uniform.field('Benefit').then(f => f.focus());
+                    this.uniform.field('Benefit').focus();
                 }
             }
         };

@@ -207,15 +207,13 @@ export class CompanySettingsComponent implements OnInit {
                 this.extendFormConfig();
                 if (this.showExternalSearch) {
                     this.form.field('CompanyName')
-                        .then(f => f.Component)
-                        .then(c => {
-                            c.control
-                            .valueChanges
-                            .debounceTime(300)
-                            .distinctUntilChanged()
-                            .subscribe((data) => {
-                                this.searchText = data;
-                            });
+                        .component
+                        .control
+                        .valueChanges
+                        .debounceTime(300)
+                        .distinctUntilChanged()
+                        .subscribe((data) => {
+                            this.searchText = data;
                         });
                 }
             },

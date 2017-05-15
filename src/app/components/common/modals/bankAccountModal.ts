@@ -88,9 +88,7 @@ export class BankAccountForm {
                     this.config.model.BankID = bankdata.Bank.ID;
                     this.config.validaccountnumber = true;
                     this.model$.next(this.config.model);
-                    this.form.field('AccountID')
-                        .then(f => f.focus())
-                        .catch(()=>{});
+                    this.form.field('AccountID').focus();
                     this.toastService.clear();
                     this.toastService.addToast('Informasjon om banken er innhentet', ToastType.good, 5);
                 },
@@ -186,7 +184,7 @@ export class BankAccountForm {
                 EntityType: 'BankAccount',
                 Property: 'AccountNumber',
                 FieldType: FieldType.TEXT,
-                Label: 'Kontonummer',                
+                Label: 'Kontonummer',
                 Section: 0
             },
             {
