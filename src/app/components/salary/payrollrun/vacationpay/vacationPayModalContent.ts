@@ -306,6 +306,22 @@ export class VacationpayModalContent {
 
     private createTableConfig() {
         var nrCol = new UniTableColumn('Employee.EmployeeNumber', 'Nr', UniTableColumnType.Text, false).setWidth('4rem');
+        var over60Col = new UniTableColumn('','', UniTableColumnType.Custom)
+        .setCls('icon-column')
+        .setTemplate((rowModel: VacationPayLine) => {
+            let msg = '';
+            if (rowModel.Age > 59) {
+                msg = 'Ansatt er over 60 år'
+                return '{#<em class="over-sixty title="'
+                + msg
+                + '" role="presentation">'
+                + msg
+                + '</em>#}';
+            } else {
+                return "{#<em role='presentation'></em>#}# ";
+            }
+        })
+        .setWidth('2rem');
         var nameCol = new UniTableColumn('Employee.BusinessRelationInfo.Name', 'Navn', UniTableColumnType.Text, false);
         var systemGrunnlagCol = new UniTableColumn('SystemVacationPayBase', 'Gr.lag system', UniTableColumnType.Money, false).setWidth('8rem');
         var manuellGrunnlagCol = new UniTableColumn('ManualVacationPayBase', 'Gr.lag manuelt', UniTableColumnType.Money).setWidth('8rem');
@@ -335,9 +351,10 @@ export class VacationpayModalContent {
         var earlierPayCol = new UniTableColumn('PaidVacationPay', 'Tidl utbetalt', UniTableColumnType.Money, false).setWidth('7rem');
         var payoutCol = new UniTableColumn('Withdrawal', 'Utbetales', UniTableColumnType.Money).setWidth('6rem');
 
+
         this.tableConfig = new UniTableConfig()
             .setColumns([
-                nrCol, nameCol, systemGrunnlagCol, manuellGrunnlagCol, 
+                nrCol, over60Col, nameCol, systemGrunnlagCol, manuellGrunnlagCol, 
                 rateCol, sixthCol, vacationPayCol, earlierPayCol, payoutCol])
             .setPageable(false)
             .setMultiRowSelect(true)
