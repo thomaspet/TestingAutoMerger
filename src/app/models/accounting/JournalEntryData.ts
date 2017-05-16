@@ -41,6 +41,7 @@ export class JournalEntryData {
     CustomerInvoiceID: number;
     SupplierInvoiceID: number;
     InvoiceNumber: string;
+    DueDate: LocalDate;
 
     CurrencyID: number;
     CurrencyCode: CurrencyCode;

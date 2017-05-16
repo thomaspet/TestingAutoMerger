@@ -50,7 +50,7 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
         private journalEntryLineDraftService: JournalEntryLineDraftService,
         private errorService: ErrorService,
         private companySettingsService: CompanySettingsService,
-        private authService: AuthService
+        public authService: AuthService
     ) {
         super(http);
         this.relativeURL = JournalEntry.RelativeUrl;
@@ -264,6 +264,7 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
             draftLine.FinancialDate = journalEntryData.FinancialDate;
             draftLine.InvoiceNumber = journalEntryData.InvoiceNumber;
             draftLine.RegisteredDate = new LocalDate(Date());
+
             draftLine.VatDate = journalEntryData.FinancialDate;
             draftLine.VatTypeID = journalEntryData.DebitVatTypeID;
             draftLine.VatType = debitVatType;
@@ -284,6 +285,7 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
                 draftLine.PostPostJournalEntryLineID = journalEntryData.PostPostJournalEntryLineID;
                 draftLine.CustomerInvoiceID = journalEntryData.CustomerInvoiceID;
                 draftLine.SupplierInvoiceID = journalEntryData.SupplierInvoiceID;
+                draftLine.DueDate = journalEntryData.DueDate;
             }
 
             lines.push(draftLine);
@@ -327,6 +329,7 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
                 draftLine.PostPostJournalEntryLineID = journalEntryData.PostPostJournalEntryLineID;
                 draftLine.CustomerInvoiceID = journalEntryData.CustomerInvoiceID;
                 draftLine.SupplierInvoiceID = journalEntryData.SupplierInvoiceID;
+                draftLine.DueDate = journalEntryData.DueDate;
             }
 
             lines.push(draftLine);
@@ -659,6 +662,10 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
 
         if (!jed.Dimensions && line.Dimensions) {
             jed.Dimensions = line.Dimensions;
+        }
+
+        if (!jed.DueDate && line.DueDate) {
+            jed.DueDate = line.DueDate;
         }
 
         jed.JournalEntryDraftIDs.push(line.ID);

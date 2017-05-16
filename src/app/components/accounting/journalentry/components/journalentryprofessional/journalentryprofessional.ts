@@ -716,6 +716,9 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
         let invoiceNoTextCol = new UniTableColumn('InvoiceNumber', 'Fakturanr', UniTableColumnType.Text).setWidth('80px')
             .setVisible(false);
 
+        let dueDateCol = new UniTableColumn('DueDate', 'Forfall', UniTableColumnType.LocalDate).setWidth('80px')
+            .setVisible(false);
+
         let debitAccountCol = new UniTableColumn('DebitAccount', 'Debet', UniTableColumnType.Lookup)
             .setDisplayField('DebitAccount.AccountNumber')
             .setTemplate((rowModel) => {
@@ -963,6 +966,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 sameOrNewCol,
                 financialDateCol,
                 invoiceNoTextCol,
+                dueDateCol,
                 debitAccountCol,
                 debitVatTypeCol,
                 creditAccountCol,
