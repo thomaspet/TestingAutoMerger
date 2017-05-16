@@ -5,9 +5,10 @@ import {Project} from '../../../../../unientities';
 import {FieldType} from 'uniform-ng2/main';
 import {IUniSaveAction} from '../../../../../../framework/save/save';
 import {UniFieldLayout} from 'uniform-ng2/main';
-import {TabService} from '../../../../layout/navbar/tabstrip/tabService';
+import {TabService, UniModules} from '../../../../layout/navbar/tabstrip/tabService';
 import {ToastService, ToastType} from '../../../../../../framework/uniToast/toastService';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
+import {IToolbarConfig} from './../../../../common/toolbar/toolbar';
 
 @Component({
     selector: 'Project-dimensions-details',
@@ -26,6 +27,15 @@ export class ProjectDetails implements OnInit {
             disabled: false
         }
     ];
+
+    private toolbarconfig: IToolbarConfig = {
+        title: 'Prosjekt',
+        navigation: {
+            prev: () => this.previous(),
+            next: () => this.next(),
+            add: () => this.add()
+        }
+    };
 
     constructor(
         private projectService: ProjectService,
@@ -58,7 +68,10 @@ export class ProjectDetails implements OnInit {
         this.project$.next(project);
         const tabTitle = project.ID ? 'Prosjekt ' + project.Name : 'Prosjekt (nytt)';
         const ID = project.ID ? project.ID : 'new';
-        this.tabService.addTab({url: '/dimensions/project/' + ID, name: tabTitle, active: true, moduleID: 22});
+        this.tabService.addTab({url: '/dimensions/project/' + ID, name: tabTitle, active: true, moduleID: UniModules.Projects});
+
+        this.toolbarconfig.title = project.ID ? project.Name : 'Nytt prosjekt';
+        this.toolbarconfig.subheads = project.ID ? [{title: 'Prosjektnr. ' + project.ProjectNumber}] : [];
     }
 
     public next() {

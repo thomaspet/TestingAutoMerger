@@ -181,6 +181,7 @@ export class HamburgerMenu {
             {
                 componentListName: 'Dimensjoner',
                 componentListHeader: 'Dimensjoner',
+                componentListUrl: '/dimensions',
                 componentList: [
                     {componentName: 'Prosjekt', componentUrl: '/dimensions/project', moduleID: UniModules.Projects},
                     {componentName: 'Avdeling', componentUrl: '/dimensions/department', moduleID: UniModules.Departments}

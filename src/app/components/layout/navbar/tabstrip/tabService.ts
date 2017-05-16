@@ -58,8 +58,9 @@ export enum UniModules {
     WorkTypes       = 602,
     Timesheets      = 603,
 
-    Projects        = 700,
-    Departments     = 701,
+    Dimensions      = 700,
+    Projects        = 701,
+    Departments     = 702,
 
     CurrencyExchange = 800,
     CurrencyOverride = 801,
@@ -81,7 +82,7 @@ export class TabService {
     public currentActiveTab: IUniTab;
     public currentActiveIndex: number = 0;
 
-    private const SKEY: string = 'navbarTabs';
+    private SKEY: string = 'navbarTabs';
 
     constructor(private router: Router) {
         this._tabs = this.getMemStore();
@@ -109,7 +110,7 @@ export class TabService {
      * https://unimicro.atlassian.net/wiki/pages/viewpage.action?spaceKey=AD&title=TabService
      */
 
-    public addTab(newTab: IUniTab) {        
+    public addTab(newTab: IUniTab) {
         var duplicate = false;
         var moduleCheck = { index: 0, exists: false}
         this._tabs.forEach((tab, i) => {
@@ -128,8 +129,8 @@ export class TabService {
 
         if (moduleCheck.exists) {
             newTab.active = true;
-            this._tabs[moduleCheck.index] = newTab;            
-            this.updateMemStore();                        
+            this._tabs[moduleCheck.index] = newTab;
+            this.updateMemStore();
             this.currentActiveIndex = moduleCheck.index;
             duplicate = true;
         }
@@ -137,7 +138,7 @@ export class TabService {
         if (!duplicate) {
             newTab.active = true;
             this._tabs.push(newTab);
-            this.updateMemStore();            
+            this.updateMemStore();
             this.currentActiveIndex = this._tabs.length - 1;
         }
 
@@ -161,9 +162,9 @@ export class TabService {
 
     public removeTabs(tabsToRemove: IUniTab)
     {
-        this._tabs.forEach((tab, i) => {            
-            if(tab.name === tabsToRemove.name && 
-                tab.url === tabsToRemove.url && 
+        this._tabs.forEach((tab, i) => {
+            if(tab.name === tabsToRemove.name &&
+                tab.url === tabsToRemove.url &&
                 tab.moduleID === tabsToRemove.moduleID) {
                 this.removeTab(tab, i);
             }
@@ -173,39 +174,39 @@ export class TabService {
 
     // Removes tab and returns the new tab to be activated
     public removeTab(tabToRemove: IUniTab, index: number): IUniTab {
-        this._tabs.splice(index, 1);        
+        this._tabs.splice(index, 1);
         this.currentActiveIndex = this._tabs.length - 1;
-        
+
         // If the closed tab is not the active one
         if (!tabToRemove.active) {
             return this.currentActiveTab;
         } else {
             // If closing the last open tab -> go to dashboard? Creates "bug" if dashboard is last tab
-            if (this._tabs.length === 0) {                
+            if (this._tabs.length === 0) {
                 return { name: 'Skrivebord', url: '/', moduleID: UniModules.Dashboard };
             } else {
                 return this._tabs[this._tabs.length - 1];
             }
         }
-        
+
         this.updateMemStore();
     }
 
 
      public removeAllTabs() {
         this._tabs = [];
-        this.clearMemStore();        
+        this.clearMemStore();
     }
 
-    private getMemStore(){        
-        return JSON.parse(localStorage.getItem(this.SKEY)) || [];        
+    private getMemStore(){
+        return JSON.parse(localStorage.getItem(this.SKEY)) || [];
     }
 
-    private updateMemStore() {        
+    private updateMemStore() {
         localStorage.setItem(this.SKEY, JSON.stringify(this._tabs));
     }
 
-    private clearMemStore() {        
+    private clearMemStore() {
         localStorage.removeItem(this.SKEY);
     }
 
