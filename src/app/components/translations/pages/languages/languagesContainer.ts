@@ -1,4 +1,4 @@
-import {Component} from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 import {Store} from '@ngrx/store';
 import * as languageActions from '../../language/actions';
 import *  as fromLanguage from '../../language/reducer';
@@ -8,6 +8,7 @@ import {TranslationsState} from '../../reducers';
 import {IToolbarConfig} from '../../../common/toolbar/toolbar';
 import {IUniSaveAction} from '../../../../../framework/save/save';
 import {UniModules, TabService} from '../../../layout/navbar/tabstrip/tabService';
+import {Router} from '@angular/router';
 
 /**
  * Containers are called also smart components
@@ -26,7 +27,7 @@ import {UniModules, TabService} from '../../../layout/navbar/tabstrip/tabService
 @Component({
     selector: 'uni-languages-container',
     template: `
-        <uni-toolbar [config]="toolbarConfig" 
+        <uni-toolbar [config]="toolbarConfig"
                      [saveactions]="saveActions">
         </uni-toolbar>
         <section class="application">
@@ -36,11 +37,11 @@ import {UniModules, TabService} from '../../../layout/navbar/tabstrip/tabService
         </section>
     `
 })
-export class LanguagesContainer {
+export class LanguagesContainer implements OnInit {
     private languages$: Observable<{}>;
     private toolbarConfig: IToolbarConfig;
     private saveActions: IUniSaveAction[];
-    constructor(private tabService: TabService, private store: Store<TranslationsState>) {}
+    constructor(private tabService: TabService, private router: Router, private store: Store<TranslationsState>) {}
 
     public ngOnInit() {
         this.toolbarConfig = {
@@ -71,7 +72,6 @@ export class LanguagesContainer {
             payload: new Language()
         });
         done('');
-
     }
 
     private getLanguages() {
