@@ -2691,6 +2691,86 @@ export class NumberSeriesTask extends UniEntity {
     public CustomFields: any;
 }
 
+export class PredefinedDescription extends UniEntity {
+    public static RelativeUrl = 'predefineddescriptions';
+    public static EntityType = 'PredefinedDescription';
+
+    public CreatedAt: Date;
+    public CreatedBy: string;
+    public Deleted: boolean;
+    public ID: number;
+
+    public Code: string;
+    public Description: string;
+    public Type: number;
+}
+
+export class NumberSeriesInvalidOverlap extends UniEntity {
+    public static RelativeUrl = 'number-series-invalid-overlaps';
+    public static EntityType = 'NumberSeriesInvalidOverlap';
+
+    public CreatedAt: Date;
+    public CreatedBy: string;
+    public Deleted: boolean;
+    public ID: number;
+    public NumberSerieTypeAID: number;
+    public NumberSerieTypeBID: number;
+    public StatusCode: number;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public NumberSerieTypeA: NumberSeriesType;
+    public NumberSerieTypeB: NumberSeriesType;
+    public CustomFields: any;
+}
+
+
+export class NumberSeries extends UniEntity {
+    public static RelativeUrl = 'number-series';
+    public static EntityType = 'NumberSeries';
+
+    public AccountYear: number;
+    public CreatedAt: Date;
+    public CreatedBy: string;
+    public Deleted: boolean;
+    public Disabled: boolean;
+    public Empty: boolean;
+    public FromNumber: number;
+    public ID: number;
+    public Name: string;
+    public NextNumber: number;
+    public NumberLock: boolean;
+    public NumberSeriesTaskID: number;
+    public NumberSeriesTypeID: number;
+    public StatusCode: number;
+    public ToNumber: number;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public UseNumbersFromNumberSeriesID: number;
+    public NumberSeriesType: NumberSeriesType;
+    public UseNumbersFromNumberSeries: NumberSeries;
+    public NumberSeriesTask: NumberSeriesTask;
+    public CustomFields: any;
+}
+
+
+export class NumberSeriesType extends UniEntity {
+    public static RelativeUrl = 'number-series-types';
+    public static EntityType = 'NumberSeriesType';
+
+    public CreatedAt: Date;
+    public CreatedBy: string;
+    public Deleted: boolean;
+    public EntityType: string;
+    public ID: number;
+    public Name: string;
+    public StatusCode: number;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public Yearly: boolean;
+    public CustomFields: any;
+}
+
+
 
 export class NumberSeriesInvalidOverlap extends UniEntity {
     public static RelativeUrl = 'number-series-invalid-overlaps';

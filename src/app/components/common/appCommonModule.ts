@@ -56,6 +56,7 @@ import {Editable} from './utils/editable/editable';
 import {IsoTimePipe} from './utils/pipes';
 import {MinutesToHoursPipe} from './utils/pipes';
 import {WorkTypeSystemTypePipe} from './utils/pipes';
+import {PredefinedDescriptionList} from './predefinedDescriptions/predefinedDescriptionList';
 
 import {routes as AppCommonRoutes} from './appCommonRoutes';
 
@@ -75,6 +76,7 @@ import {routes as AppCommonRoutes} from './appCommonRoutes';
         UniDimensions,
         ProjectList,
         ProjectDetails,
+        PredefinedDescriptionList,
         DepartmentList,
         DepartmentDetails,
         ContextMenu,
@@ -163,6 +165,7 @@ import {routes as AppCommonRoutes} from './appCommonRoutes';
         UniDimensions,
         ProjectList,
         ProjectDetails,
+        PredefinedDescriptionList,
         DepartmentList,
         DepartmentDetails,
         ContextMenu,

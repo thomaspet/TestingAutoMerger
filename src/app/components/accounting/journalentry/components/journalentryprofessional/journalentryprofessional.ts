@@ -26,7 +26,8 @@ import {
     BusinessRelation,
     BankAccount,
     VatDeduction,
-    InvoicePaymentData
+    InvoicePaymentData,
+    PredefinedDescription
 } from '../../../../../unientities';
 import {JournalEntryData} from '../../../../../models/models';
 import {JournalEntryMode} from '../../journalentrymanual/journalentrymanual';
@@ -46,11 +47,13 @@ import {
     CompanySettingsService,
     ErrorService,
     StatisticsService,
-    NumberFormat
+    NumberFormat,
+    PredefinedDescriptionService
 } from '../../../../../services/services';
 import * as moment from 'moment';
 import {CurrencyCodeService} from '../../../../../services/common/currencyCodeService';
 import {CurrencyService} from '../../../../../services/common/currencyService';
+import {}
 import {RegisterPaymentModal} from '../../../../common/modals/registerPaymentModal';
 import {SelectJournalEntryLineModal} from '../selectJournalEntryLineModal';
 import {INumberFormat} from 'unitable-ng2/src/unitable/config/unitableColumn';
@@ -128,7 +131,8 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
         private currencyCodeService: CurrencyCodeService,
         private currencyService: CurrencyService,
         private companySettingsService: CompanySettingsService,
-        private journalEntryLineService: JournalEntryLineService
+        private journalEntryLineService: JournalEntryLineService,
+        private predefinedDescriptionService: PredefinedDescriptionService
     ) {
 
     }
@@ -136,33 +140,6 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
     public ngOnInit() {
         this.setupJournalEntryTable();
 
-        //set predefinedDescriptions manually, should be retrieved from API
-        this.predefinedDescriptions = [
-            {
-                Code: 1,
-                Description: 'Inngående faktura'
-            },
-            {
-                Code: 2,
-                Description: 'Utgående faktura'
-            },
-            {
-                Code: 3,
-                Description: 'Bank'
-            },
-            {
-                Code: 4,
-                Description: 'Kontantkjøp, betalt av firma'
-            },
-            {
-                Code: 5,
-                Description: 'Kontaktkjøp, betalt av ansatte, eiere'
-            },
-            {
-                Code: 6,
-                Description: 'Korrigeringsbilag'
-            }
-        ];
     }
 
     public ngOnChanges(changes: SimpleChanges) {
@@ -240,7 +217,8 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
             this.projectService.GetAll(null),
             this.vatTypeService.GetAll('orderby=VatCode'),
             this.accountService.GetAll('filter=AccountNumber eq 1920'),
-            this.companySettingsService.Get(1)
+            this.companySettingsService.Get(1),
+            this.predefinedDescriptionService.GetAll('filter=Type eq 1')
         ).subscribe(
             (data) => {
                 this.departments = data[0];
@@ -258,6 +236,10 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 }
 
                 this.companySettings = data[4];
+
+                if (data[5]) {
+                        this.predefinedDescriptions = data[5];
+                }
 
                 this.setupUniTable();
                 this.dataLoaded.emit(this.journalEntryLines);
@@ -539,6 +521,52 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
         if (project) {
             rowModel.Dimensions.Project = project;
             rowModel.Dimensions.ProjectID = project.ID;
+        }
+        return rowModel;
+    }
+
+    private setDescriptionProperties(rowModel: JournalEntryData): JournalEntryData {
+
+        let journalEntryLineDescription = rowModel.Description;
+        if (journalEntryLineDescription == null) { return rowModel; }
+        let macroCodesInDescription: Array<string> = [];
+
+        for (var i = 0; i < journalEntryLineDescription.length; i++) {
+            if (journalEntryLineDescription[i] === '[') {
+                for (var i2 = i ; i2 < journalEntryLineDescription.length; i2 ++) {
+                    if (journalEntryLineDescription[i2] === '[') { i = i2; }
+                    if (journalEntryLineDescription[i2] === ']') {
+                       macroCodesInDescription.push(journalEntryLineDescription.substring(i + 1, i2));
+                       i = i2;
+                       break;
+                    }
+                }
+            }
+        }
+
+        if (macroCodesInDescription.length > 0) {
+
+            macroCodesInDescription.forEach(macroCode => {
+
+                let macroCodeObjectProperties = macroCode.split('.');
+                let lastObjectProperty: any = null;
+
+                if (macroCodeObjectProperties != null) {
+                    macroCodeObjectProperties.forEach(property => {
+                        if (lastObjectProperty === null) {
+                            lastObjectProperty = rowModel[property];
+                        } else { lastObjectProperty = lastObjectProperty[property]; }
+                    });
+
+                    if (lastObjectProperty != null) {
+                        let replaceValue = lastObjectProperty.toString();
+                        if (replaceValue) {
+                            journalEntryLineDescription = journalEntryLineDescription.replace(('[' + macroCode + ']'), replaceValue);
+                            rowModel.Description = journalEntryLineDescription;
+                        }
+                    }
+                }
+            });
         }
         return rowModel;
     }
@@ -1123,6 +1151,8 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                     row = this.setDepartmentProperties(row);
                 } else if (event.field === 'Dimensions.Project') {
                     row = this.setProjectProperties(row);
+                } else if (event.field === 'Description') {
+                    row = this.setDescriptionProperties(row);
                 } else if (event.field === 'CustomerInvoice') {
                     row = this.setCustomerInvoiceProperties(row);
                     if (row.CurrencyID !== this.companySettings.BaseCurrencyCodeID) {
@@ -1252,6 +1282,8 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
             res(updatedRow);
         });
     }
+
+
 
     private showAgioDialog(journalEntryRow: JournalEntryData): Promise<JournalEntryData> {
         const customerInvoice = journalEntryRow.CustomerInvoice;

@@ -38,6 +38,7 @@ export enum UniModules {
     AccountingReports = 307,
     Suppliers       = 308,
     AccountQuery    = 309,
+    PredefinedDescription = 310,
 
     Bank            = 450,
     Payment         = 451,

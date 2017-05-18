@@ -6,6 +6,7 @@ import {CustomerInvoice, Account, CompanySettings, LocalDate} from '../../../../
 import {JournalEntryManual} from  '../journalentrymanual/journalentrymanual';
 import {IContextMenuItem} from 'unitable-ng2/main';
 import {IToolbarConfig} from '../../../common/toolbar/toolbar';
+import {Router} from '@angular/router';
 import {
     ErrorService,
     CustomerInvoiceService,
@@ -36,7 +37,8 @@ export class Payments {
         private customerInvoiceService: CustomerInvoiceService,
         private accountService: AccountService,
         private companySettingsService: CompanySettingsService,
-        private errorService: ErrorService
+        private errorService: ErrorService,
+        private router: Router
     ) {
         this.tabService.addTab({ name: 'Innbetalinger', url: '/accounting/journalentry/payments', moduleID: UniModules.Payments, active: true });
 
@@ -63,8 +65,14 @@ export class Payments {
             {
                 label: 'Tøm listen',
                 action: () => this.journalEntryManual.removeJournalEntryData(),
-                disabled: () => false
+                disabled: () => false,
+            },
+            {
+                    action: (item) => this.openPredefinedDescriptions(),
+                    disabled: (item) => false,
+                    label: 'Faste tekster'
             }
+
         ];
 
         let toolbarConfig: IToolbarConfig = {
@@ -73,6 +81,10 @@ export class Payments {
         };
 
         this.toolbarConfig = toolbarConfig;
+    }
+
+    private openPredefinedDescriptions() {
+        this.router.navigate(['./predefined-descriptions']);
     }
 
     private onRowSelectionChanged(invoice: CustomerInvoice) {

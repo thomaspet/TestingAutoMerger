@@ -130,6 +130,11 @@ export class JournalEntries {
                 label: 'Tøm listen',
                 action: () => this.journalEntryManual.removeJournalEntryData(),
                 disabled: () => false
+            },
+            {
+                    action: (item) => this.openPredefinedDescriptions(),
+                    disabled: (item) => false,
+                    label: 'Faste tekster'
             }
         ];
 
@@ -148,6 +153,9 @@ export class JournalEntries {
 
     }
 
+    private openPredefinedDescriptions() {
+        this.router.navigate(['./predefined-descriptions']);
+    }
 
     private showPrevious() {
         new Promise((resolve) => {

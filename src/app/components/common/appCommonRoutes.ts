@@ -7,6 +7,7 @@ import {routes as DimensionRoutes} from './dimensions/dimensionsRoutes';
 import {SupplierDetails} from './supplier/details/supplierDetails';
 import {SupplierList} from './supplier/list/supplierList';
 import {ContactDetails} from './contact/contactDetails';
+import {PredefinedDescriptionList} from './predefinedDescriptions/predefinedDescriptionList';
 
 const commonRoutes: Routes = [
     {
@@ -31,6 +32,11 @@ const commonRoutes: Routes = [
     {
         path: 'contacts/:id',
         component: ContactDetails,
+        canDeactivate: [CanDeactivateGuard]
+    },
+    {
+        path: 'predefined-descriptions',
+        component: PredefinedDescriptionList,
         canDeactivate: [CanDeactivateGuard]
     }
 ];
