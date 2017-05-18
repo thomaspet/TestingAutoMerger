@@ -283,6 +283,7 @@ export class Teams {
                 FieldType: FieldType.TEXT,
                 Label: 'Teamnavn',
                 Classes: ['half-width'],
+                Section: 0
             }
          ]);
       }     

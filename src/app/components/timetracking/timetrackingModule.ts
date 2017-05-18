@@ -33,6 +33,7 @@ import {UniTimeModal} from './components/popupeditor';
 import {TeamworkReport} from './components/teamworkreport';
 import {ApproveDetails} from './components/approvedetails';
 import {TimeApproveModal} from './components/popupapprove';
+import {UniFileImport} from './components/popupfileimport';
 
 @NgModule({
     imports: [
@@ -71,7 +72,7 @@ import {TimeApproveModal} from './components/popupapprove';
         DayBrowser,
         UniTimeModal,
         TeamworkReport,
-        ApproveDetails, TimeApproveModal
+        ApproveDetails, TimeApproveModal, UniFileImport
     ],
     providers: [
         CanDeactivateGuard

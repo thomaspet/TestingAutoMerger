@@ -19,9 +19,22 @@
 
         <section [hidden]="missingWorker || !tabs[0].isSelected">
             
-            <daybrowser (clickday)="onClickDay($event)" (requestsums)="onRequestDaySums($event)" 
-                (navigate)="onNavigateDays($event)"
-            ></daybrowser>
+            <header>
+
+                <daybrowser *ngIf="settings.useDayBrowser" (clickday)="onClickDay($event)" (requestsums)="onRequestDaySums($event)" 
+                    (navigate)="onNavigateDays($event)">
+                </daybrowser>
+
+                <aside *ngIf="!settings.useDayBrowser" class="regtime_filters no-print">
+                    <br/>
+                    <ul>
+                        <li *ngFor="let filter of filters">
+                            <a (click)="onFilterClick(filter)" [ngClass]="{'router-link-active': filter.isSelected}" >{{filter.label}}</a>
+                        </li>
+                    </ul>
+                </aside>                                
+
+            </header>
 
             <workeditor [attr.aria-busy]="busy" [timesheet]="timeSheet" (rowDeleted)="onEditChanged(true)"
                 (valueChanged)="onEditChanged(true)" >
@@ -56,3 +69,4 @@
 </section>
 
 <uni-confirm-modal></uni-confirm-modal>
+<uni-file-import></uni-file-import>

@@ -50,8 +50,10 @@ export class DayBrowser {
     constructor(private changeDetectorRef: ChangeDetectorRef) {
         this.days = this.initWeekByDay( new Day(new Date() ) ); // new Date() );
     }
+    
+    // tslint:disable:no-unused-variable
 
-    public fromNow() {
+    private fromNow() {
         var dt = this.day.mDate;
         var now = moment();
         dt.add(now.hours(), 'hours');
@@ -72,11 +74,11 @@ export class DayBrowser {
         this.setDay(day);
     }
 
-    public onClick(day: Day) {
+    private onClick(day: Day) {
         this.clickday.emit(day);
     }
-
-    public onCalBlur() {
+    
+    private onCalBlur() {
         if (!this.ignoreNextBlur) {
             this.hideCalendar();
         }
@@ -92,7 +94,7 @@ export class DayBrowser {
         this.calendarOpen = false;
     }
 
-    public onCalendarDateChange(date: Date) {
+    private onCalendarDateChange(date: Date) {
         this.clickday.emit(new Day(date));
         this.hideCalendar();
     }
@@ -101,7 +103,7 @@ export class DayBrowser {
         this.emitRequestSums( this.days[0].date, this.days[this.days.length - 1].date ); 
     }
 
-    public onNavigate(direction: 'right'|'left') {
+    private onNavigate(direction: 'right'|'left') {
         this.navigate.emit({ 
             currentDate: this.day.date, 
             leftDate: this.days[0].date, 

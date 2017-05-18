@@ -7,7 +7,7 @@ import {exportToFile, arrayToCsv, safeInt, trimLength} from '../../common/utils/
 import {TimesheetService, TimeSheet} from '../../../services/timetracking/timesheetService';
 import {IsoTimePipe} from '../../common/utils/pipes';
 import {IUniSaveAction} from '../../../../framework/save/save';
-import {Lookupservice} from '../../../services/services';
+import {Lookupservice, BrowserStorageService} from '../../../services/services';
 import {RegtimeTotals} from './totals/totals';
 import {TimeTableReport} from './timetable/timetable';
 import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
@@ -18,12 +18,11 @@ import {UniConfirmModal, ConfirmActions} from '../../../../framework/modals/conf
 import {WorkEditor} from '../components/workeditor';
 import {DayBrowser, Day, ITimeSpan, INavDirection} from '../components/daybrowser';
 import {TeamworkReport, Team} from '../components/teamworkreport';
+import {UniFileImport} from '../components/popupfileimport';
 import * as moment from 'moment';
 
 type colName = 'Date' | 'StartTime' | 'EndTime' | 'WorkTypeID' | 'LunchInMinutes' |
     'Dimensions.ProjectID' | 'CustomerOrderID';
-
-export var view = new View('timeentry', 'Timer', 'TimeEntry', false, '', TimeEntry);
 
 interface ITab {
     name: string;
@@ -31,6 +30,12 @@ interface ITab {
     isSelected?: boolean;
     activate?: (ts: TimeSheet, filter: IFilter) => void;
 }
+
+interface ISettings {
+    useDayBrowser: boolean;
+}
+
+export var view = new View('timeentry', 'Timer', 'TimeEntry', false, '', TimeEntry);
 
 @Component({
     selector: view.name,
@@ -46,6 +51,9 @@ export class TimeEntry {
     public currentBalance: WorkBalanceDto;
     public incomingBalance: WorkBalance;
     public teams: Array<Team>;
+    private settings: ISettings = { 
+        useDayBrowser: true 
+    };
 
     @ViewChild(RegtimeTotals) private regtimeTotals: RegtimeTotals;
     @ViewChild(TimeTableReport) private regtimeTools: TimeTableReport;
@@ -54,6 +62,7 @@ export class TimeEntry {
     @ViewChild(WorkEditor) private workEditor: WorkEditor;
     @ViewChild(DayBrowser) private dayBrowser: DayBrowser;
     @ViewChild(TeamworkReport) private teamreport: TeamworkReport;
+    @ViewChild(UniFileImport) private fileImport: UniFileImport;
 
     public preSaveConfig: IPreSaveConfig = {
         askSave: () => this.checkSave(false),
@@ -61,8 +70,7 @@ export class TimeEntry {
     };
 
     private actions: IUniSaveAction[] = [
-            { label: 'Lagre endringer', action: (done) => this.save(done), main: true, disabled: true },
-            { label: 'Eksporter', action: (done) => this.export(done), main: false, disabled: false }
+            { label: 'Lagre endringer', action: (done) => this.save(done), main: true, disabled: true }
         ];
 
     public tabs: Array<any> = [ { name: 'timeentry', label: 'Registrering', isSelected: true },
@@ -78,8 +86,15 @@ export class TimeEntry {
 
     public toolbarConfig: any = {
         title: 'Registrering av timer',
-        omitFinalCrumb: true
+        omitFinalCrumb: true        
     };
+
+    private initialContextMenu: Array<any> = [
+        { label: 'Import', action: (done) => this.import(done), disabled: () => !this.isEntryTab },
+        { label: 'Eksport', action: (done) => this.export(done), disabled: () => !this.isEntryTab },
+        { label: 'Bytt visning', action: (done) => this.switchView(done), disabled: () => !this.isEntryTab }
+    ];
+    private isEntryTab: boolean = true;
 
     public filters: Array<IFilter>;
 
@@ -91,9 +106,11 @@ export class TimeEntry {
         private toast: ToastService,
         private route: ActivatedRoute,
         private errorService: ErrorService,
-        private router: Router
+        private router: Router,
+        private localStore: BrowserStorageService
     ) {
 
+        this.loadSettings();
         this.filters = service.getIntervalItems();        
         this.initApplicationTab();
 
@@ -106,7 +123,6 @@ export class TimeEntry {
         });
 
         this.initTabPositions();
-
         this.approvalCheck();
     }
 
@@ -149,7 +165,8 @@ export class TimeEntry {
         tab.isSelected = true;
         if (tab.activate) {
             tab.activate(this.timeSheet, this.currentFilter);
-        }
+        }        
+        this.isEntryTab = tab.name === 'timeentry';
     }
 
     public onAddNew() {
@@ -160,10 +177,16 @@ export class TimeEntry {
         if (chkSave) {
             this.checkSave().then( () => {
                 this.loadItems();
-                this.dayBrowser.reloadSums();
+                this.reloadSums();
             });
         } else {
             this.loadItems();
+            this.reloadSums();
+        }
+    }
+
+    private reloadSums() {
+        if (this.settings.useDayBrowser) {
             this.dayBrowser.reloadSums();
         }
     }
@@ -219,8 +242,8 @@ export class TimeEntry {
     private updateToolbar(name?: string, workRelations?: Array<WorkRelation> ) {
 
         this.userName = name || this.userName;
-
-        var contextMenus = [];
+        this.checkContextLabels();
+        var contextMenus = this.initialContextMenu.slice();
         var list = workRelations || this.workRelations;
         if (list && list.length > 1) {
             list.forEach( x => {
@@ -264,7 +287,9 @@ export class TimeEntry {
             }
             obs.subscribe((itemCount: number) => {
                 if (this.workEditor) { this.workEditor.closeEditor(); }
-                this.dayBrowser.current = new Day(dt, true, this.timeSheet.totals.Minutes);
+                if (this.settings.useDayBrowser) { 
+                    this.dayBrowser.current = new Day(dt, true, this.timeSheet.totals.Minutes); 
+                }
                 this.flagUnsavedChanged(true, false);
                 this.suggestTime();
                 this.busy = false;
@@ -323,11 +348,15 @@ export class TimeEntry {
             }, () => {
                 this.flagUnsavedChanged(true);
                 if (done) { done(counter + ' poster ble lagret.'); }
-                this.loadItems(this.dayBrowser.current.date);
+                this.refreshViewItems();
                 this.loadFlex(this.timeSheet.currentRelation);
                 resolve(true);
             });
         });
+    }
+
+    private refreshViewItems() {
+        this.loadItems(this.settings.useDayBrowser ? this.dayBrowser.current.date : undefined);
     }
 
     public export(done?: (msg?: string) => void) {
@@ -338,7 +367,7 @@ export class TimeEntry {
             if (item.Date && item.Minutes) {
                 var row = {
                     ID: item.ID,
-                    Date: isoPipe.transform(item.Date, undefined),
+                    Date: moment(item.Date).format().substr(0, 10),
                     StartTime: isoPipe.transform(item.StartTime, 'HH:mm'),
                     EndTime: isoPipe.transform(item.EndTime, 'HH:mm'),
                     WorkTypeID: item.WorkTypeID,
@@ -353,12 +382,66 @@ export class TimeEntry {
         });
 
         exportToFile(arrayToCsv(list), `Timeentries_${this.userName}.csv`);
-        done('Fil eksportert');
+        if (done) { done('Fil eksportert'); }
+    }
+
+    public import(done?: (msg?: string) => void) {
+        this.checkSave().then( () => {
+            this.fileImport.open().then( (success) => {
+                if (success) { 
+                    let ts = this.timeSheet.clone();
+                    let importedList = this.fileImport.getWorkItems();
+                    if (importedList && importedList.length > 0) {
+                        var types = this.workEditor.getWorkTypes();
+                        importedList.forEach( (x, index) => {
+                            if (x && x.Worktype && x.Worktype.Name ) {
+                                x.Worktype = types.find( t => t.Name === x.Worktype.Name);
+                            }
+                            // x.Worktype = x.Worktype || types[0];
+                            x.WorkTypeID = x.Worktype && x.Worktype.ID ? x.Worktype.ID : x.WorkTypeID;
+                            if (x.Minutes && !isNaN(x.Minutes)) {
+                                ts.addItem(x, false);
+                            }
+                        });
+                        ts.recalc();
+                        this.timeSheet = ts;
+                        this.flagUnsavedChanged();
+                    }                    
+                }
+                if (done) { done(); }
+            });
+        });
+    }
+
+    private switchView(done) {
+        this.checkSave().then( () => {
+            this.settings.useDayBrowser = !this.settings.useDayBrowser;
+            this.saveSettings();
+            this.checkContextLabels();
+            setTimeout( () => this.refreshViewItems(), 50 );
+        });
+        
+    }
+
+    private saveSettings() {
+        this.localStore.save('timeentry.settings', JSON.stringify(this.settings), false );
+    }
+
+    private loadSettings() {
+        var js = this.localStore.get('timeentry.settings', false);
+        if (js) {
+            this.settings = JSON.parse(js);
+        }
+    }
+
+    private checkContextLabels() {
+        this.initialContextMenu[2].label = 
+            this.settings.useDayBrowser ? 'Bytt til filtervisning' : 'Bytt til ukevisning';
     }
 
     private flagUnsavedChanged(reset = false, updateCounter: boolean = false) {
         this.actions[0].disabled = reset;
-        if (updateCounter) {
+        if (updateCounter && this.settings.useDayBrowser) {
             this.dayBrowser.setDayCounter( this.dayBrowser.current.date, this.timeSheet.totals.Minutes);
         }
     }
@@ -383,15 +466,19 @@ export class TimeEntry {
             + `&join=workitem.worktypeid eq worktype.id&pivot=true`;
         this.timesheetService.workerService.getStatistics(query).subscribe( (result: any) => {
             if (result && result.Data) {
-                this.dayBrowser.setDaySums(result.Data, 'WorkItemDate', '1', '12');
+                if (this.dayBrowser) {
+                    this.dayBrowser.setDaySums(result.Data, 'WorkItemDate', '1', '12');
+                }
             }
         });
     }
 
     public onNavigateDays(direction: INavDirection) {
-        var dt = moment(direction.currentDate);
-        this.busy = true;
-        this.loadItems(dt.add('days', direction.daysInView * (direction.directionLeft ? -1 : 1)).toDate());
+        this.checkSave().then( () => {
+            var dt = moment(direction.currentDate);
+            this.busy = true;
+            this.loadItems(dt.add('days', direction.daysInView * (direction.directionLeft ? -1 : 1)).toDate());
+        });
     }
 
     private hasUnsavedChanges(): boolean {
@@ -468,6 +555,18 @@ export class TimeEntry {
                 }
             });
     }
+
+    public onFilterClick(filter: IFilter) {
+        this.checkSave().then((success: boolean) => {
+            if (!success) { return; }
+            this.filters.forEach((value: any) => value.isSelected = false);
+            filter.isSelected = true;
+            this.currentFilter = filter;
+            this.busy = true;
+            this.loadItems();
+        });
+    }
+
 
 
 }
