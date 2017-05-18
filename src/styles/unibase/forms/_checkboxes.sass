@@ -1,3 +1,4 @@
+$radioBack: mix($uni-color-scale9, $uni-color-c2a, 90%)
 uni-checkbox-input label, uni-radio-input label
     width: 100%
 
@@ -160,8 +161,20 @@ input[type=radio]
             border-color: transparent
 
 input[type=radio] + label
+
     &:before
         border-radius: 99rem
+        background: $radioBack
+        border-color: $radioBack
+
+    &:after
+        opacity: 0
+
+
+input[type=radio]:checked + label
+    &:before
+        background: $uni-color-toolbar
+        border-color: $radioBack
 
     &:after
         opacity: 0

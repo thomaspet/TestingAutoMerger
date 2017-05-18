@@ -72,8 +72,16 @@ dialog.uniModal
         @media(small)
             width: 95cw
 
-        h1
+        h1:not(.new)
             @extend h2
+
+        h1.new
+            @extend p
+            color: $uni-color-negative
+            background: $uni-color-toolbar
+            line-height: 1
+            padding: .5rem 1rem
+            display: block
 
         footer
             float: right
