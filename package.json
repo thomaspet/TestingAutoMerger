@@ -48,7 +48,7 @@
     "tslib": "1.6.0",
     "uniform-ng2": "0.0.93",
     "unisearch-ng2": "0.0.23",
-    "unitable-ng2": "0.1.11",
+    "unitable-ng2": "0.1.12",
     "zone.js": "0.8.5"
   },
   "devDependencies": {
