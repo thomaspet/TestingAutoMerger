@@ -70,7 +70,11 @@ export class NumberSeriesService extends BizHttp<NumberSeries> {
     public translateSerie(serie) {
         switch(serie.Name) {
             case 'JournalEntry number series Yearly':
+            case 'JournalEntry number series yearly':
                 serie._DisplayName = `Generelle bilag ${serie.AccountYear}`;
+                break;
+            case 'JournalEntry number series type NOT yearly':
+                serie._DisplayName = 'Generelle bilag';
                 break;
             case 'JournalEntry invoice number series type':
                 serie._DisplayName = 'Faktura bilag (salg)';
@@ -114,6 +118,8 @@ export class NumberSeriesService extends BizHttp<NumberSeries> {
             case 'Project number series':
                 serie._DisplayName = 'Prosjekt';
                 break;
+            default:
+                serie._DisplayName = serie.Name;
         }
 
         return serie;
