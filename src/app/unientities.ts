@@ -3713,6 +3713,7 @@ export class JournalEntry extends UniEntity {
     public Lines: Array<JournalEntryLine>;
     public DraftLines: Array<JournalEntryLineDraft>;
     public CustomFields: any;
+    public NumberSeriesTaskID: number;
 }
 
 

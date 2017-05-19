@@ -5,6 +5,9 @@ import {
 
 export class JournalEntryData {
     SameOrNewDetails: any // TODO: find out what type this actually is;
+
+    NumberSeriesTaskID: number;
+
     JournalEntryID: number;
     JournalEntryLineID: number;
     JournalEntryDraftLineID: number;
@@ -69,6 +72,16 @@ export class JournalEntryData {
 
     PostPostJournalEntryLineID: number;
     PostPostJournalEntryLine: JournalEntryLine;
+}
+
+export enum NumberSeriesTaskIds {
+    Journal = 1,
+    CustomerInvoice = 2,
+    SupplierInvoice = 3,
+    Salary = 4,
+    Bank = 5,
+    VatReport = 6,
+    Asset = 7
 }
 
 export class JournalEntryPaymentData {

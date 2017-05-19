@@ -1,6 +1,6 @@
 import {Component, Input, SimpleChange, ViewChild, OnInit, OnChanges, Output, EventEmitter} from '@angular/core';
 import {JournalEntryProfessional} from '../components/journalentryprofessional/journalentryprofessional';
-import {Dimensions, FinancialYear, ValidationLevel, VatDeduction, CompanySettings, JournalEntryLine} from '../../../../unientities';
+import {Dimensions, FinancialYear, ValidationLevel, VatDeduction, CompanySettings, JournalEntryLine, NumberSeriesTask} from '../../../../unientities';
 import {ValidationResult} from '../../../../models/validationResult';
 import {JournalEntryData} from '../../../../models/models';
 import {JournalEntrySimpleCalculationSummary} from '../../../../models/accounting/JournalEntrySimpleCalculationSummary';
@@ -20,7 +20,8 @@ import {
     FinancialYearService,
     VatDeductionService,
     CompanySettingsService,
-    JournalEntryLineService
+    JournalEntryLineService,
+    NumberSeriesTaskService
 } from '../../../../services/services';
 
 export enum JournalEntryMode {
@@ -39,8 +40,10 @@ export class JournalEntryManual implements OnChanges, OnInit {
     @Input() public mode: number;
     @Input() public disabled: boolean = false;
     @Input() public editmode: boolean = false;
+    @Input() public selectedNumberSeriesTaskID: number;
 
     @Output() public dataCleared: EventEmitter<any> = new EventEmitter<any>();
+    @Output() public componentInitialized: EventEmitter<any> = new EventEmitter<any>();
 
     @ViewChild(UniConfirmModal) private confirmModal: UniConfirmModal;
     @ViewChild(UniTable) private openPostsTable: UniTable;
@@ -70,6 +73,8 @@ export class JournalEntryManual implements OnChanges, OnInit {
     public summary: ISummaryConfig[] = [];
     public journalEntrySettings: JournalEntrySettings;
 
+    public numberSeriesTasks: Array<NumberSeriesTask>;
+
     public saveactions: IUniSaveAction[];
     public isDirty: boolean = false;
 
@@ -81,7 +86,8 @@ export class JournalEntryManual implements OnChanges, OnInit {
         private toastService: ToastService,
         private vatDeductionService: VatDeductionService,
         private companySettingsService: CompanySettingsService,
-        private journalEntryLineService: JournalEntryLineService
+        private journalEntryLineService: JournalEntryLineService,
+        private numberSeriesTaskService: NumberSeriesTaskService
 
     ) {
     }
@@ -93,12 +99,15 @@ export class JournalEntryManual implements OnChanges, OnInit {
             this.financialYearService.GetAll(null),
             this.financialYearService.getActiveFinancialYear(),
             this.vatDeductionService.GetAll(null),
-            this.companySettingsService.Get(1)
+            this.companySettingsService.Get(1),
+            this.numberSeriesTaskService.getActiveNumberSeriesTasks('JournalEntry')
         ).subscribe(data => {
                 this.financialYears = data[0];
                 this.currentFinancialYear = data[1];
                 this.vatDeductions = data[2];
                 this.companySettings = data[3];
+                data[4].forEach(x => x = this.numberSeriesTaskService.translateTask(x));
+                this.numberSeriesTasks = data[4];
 
                 if (!this.hasLoadedData) {
                     this.loadData();
@@ -106,6 +115,10 @@ export class JournalEntryManual implements OnChanges, OnInit {
 
                 this.setSums();
                 this.setupSubscriptions();
+
+                setTimeout(() => {
+                    this.componentInitialized.emit();
+                });
             },
             err => this.errorService.handle(err)
         );

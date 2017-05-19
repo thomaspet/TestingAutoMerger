@@ -32,8 +32,17 @@
               [tags]="tags"
               [config]="tagConfig"
               (tagsChange)="tagsChangeEvent($event)"></uni-tags>
-</h1>
 
+    <section *ngIf="selectConfig" class="toolbar_uniselect">
+        {{selectConfig.label}}
+        <uni-select
+                    [config]="uniSelectConfig"
+                    [items]="selectConfig.items"
+                    [value]="selectConfig.selectedItem"
+                    (valueChange)="selectValueSelected($event)">
+        </uni-select>
+    </section>
+</h1>
 
 <nav class="toolbar_tools">
     <input *ngIf="config?.navigation?.find"

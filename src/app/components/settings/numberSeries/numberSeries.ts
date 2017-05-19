@@ -524,14 +524,14 @@ export class NumberSeries {
             let settings = data[3][0];
 
             this.types = types;
-            this.tasks = tasks.map(x => this.numberSeriesService.translateTask(x));
+            this.tasks = tasks.map(x => this.numberSeriesTaskService.translateTask(x));
             this.customeraccountnumber = settings.CustomerAccount.AccountNumber;
             this.supplieraccountnumber = settings.SupplierAccount.AccountNumber;
 
             this.asinvoicenumberserie = numberseries.find(x => x.Name == 'Customer Invoice number series').ID
             this.numberseries = this.addCustomFields(numberseries).map(x => {
                 if (x.NumberSeriesTask && x.NumberSeriesTask.Name) {
-                    x.NumberSeriesTask = this.numberSeriesService.translateTask(x.NumberSeriesTask);
+                    x.NumberSeriesTask = this.numberSeriesTaskService.translateTask(x.NumberSeriesTask);
                 }
 
                 x._AsInvoiceNumber = this.numberSeriesService.asinvoicenumber[this.asinvoicenumberserie == x.UseNumbersFromNumberSeriesID ? 1 : 0];

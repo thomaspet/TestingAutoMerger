@@ -63,6 +63,22 @@ uni-toolbar
             color: transparentize(white, .2)
             border-color: transparentize(white, .2)
 
+    .toolbar_uniselect
+        margin-left: 1rem
+        font-size: 1rem
+
+        .uniSelect
+            width: 10rem
+
+            .uniSelect_input
+                color: white
+                background: transparentize($uni-color-c2a, .5) unicon-chevron-down($uni-color-scale9) center right .5rem no-repeat !important
+                background-size: auto .5rem !important
+                border-color: transparentize($uni-color-negative, .5)
+
+            .uniSelect_dropdown_list
+                color: black
+
     nav
         flex-basis: fit-content
         flex-grow: 0
@@ -74,3 +90,4 @@ uni-toolbar
             width: 7rem
             position: relative
             top: .4rem
+

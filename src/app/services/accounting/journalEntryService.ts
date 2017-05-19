@@ -209,9 +209,8 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
             } else if (!previousJournalEntryNo || previousJournalEntryNo !== line.JournalEntryNo) {
                 // for each new number in line.JournalEntryNo, create a new journalentry
                 je = new JournalEntryExtended();
-
+                je.NumberSeriesTaskID = line.NumberSeriesTaskID;
                 je.DraftLines = [];
-
                 je.FileIDs = line.FileIDs;
                 je.Payments = [];
 
@@ -1135,7 +1134,7 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
             .map(response => response.json());
     }
 
-    public findJournalNumbersFromLines(journalEntryLines: Array<JournalEntryData>, nextJournalNumber: string = "") {
+    public findJournalNumbersFromLines(journalEntryLines: Array<JournalEntryData>, nextJournalNumber: string = '') {
         var first, last, year;
 
         if (journalEntryLines && journalEntryLines.length) {
@@ -1149,7 +1148,7 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
                     if (!last || no > last) {
                         last = no;
                     }
-                    if (i == 0) {
+                    if (i === 0 && parts.length > 1) {
                         year = parseInt(parts[1]);
                     }
                 }
@@ -1158,20 +1157,22 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
             if (!first) {
                 return null;
             }
-        } else if(nextJournalNumber && nextJournalNumber.length) {
+        } else if (nextJournalNumber && nextJournalNumber.length) {
             var parts = nextJournalNumber.split('-');
             first = parseInt(parts[0]);
             last = first;
-            year = parseInt(parts[1]);
+            if (parts.length > 1) {
+                year = parseInt(parts[1]);
+            }
         }
 
         return {
             first: first,
             last: last,
             year: year,
-            firstNumber: `${first}-${year}`,
-            nextNumber: `${last + (journalEntryLines.length ? 1 : 0)}-${year}`,
-            lastNumber: `${last}-${year}`
+            firstNumber: year ? `${first}-${year}` : `${first}`,
+            nextNumber: year ? `${last + (journalEntryLines.length ? 1 : 0)}-${year}` : `${last + (journalEntryLines.length ? 1 : 0)}`,
+            lastNumber: year ? `${last}-${year}` : `${last}`
         };
     }
 

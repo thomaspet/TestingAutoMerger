@@ -7,13 +7,14 @@ import {UniConfirmModal, ConfirmActions} from '../../../../../framework/modals/c
 import {IContextMenuItem} from 'unitable-ng2/main';
 import {IToolbarConfig} from '../../../common/toolbar/toolbar';
 import {ToastService, ToastType} from '../../../../../framework/uniToast/toastService';
+import {NumberSeriesTask} from '../../../../unientities';
 
 @Component({
     selector: 'journalentries',
     templateUrl: './journalentries.html'
 })
 export class JournalEntries {
-    @ViewChild(JournalEntryManual) private journalEntryManual;
+    @ViewChild(JournalEntryManual) private journalEntryManual: JournalEntryManual;
     @ViewChild(UniConfirmModal) private confirmModal: UniConfirmModal;
 
     private contextMenuItems: IContextMenuItem[] = [];
@@ -31,7 +32,9 @@ export class JournalEntries {
     private currentJournalEntryNumber: string;
     private currentJournalEntryID: number;
     public editmode: boolean = false;
-
+    private selectedNumberSeriesTask: NumberSeriesTask;
+    private selectedNumberSeriesTaskID: number;
+    private selectConfig: any;
 
     constructor(
         private route: ActivatedRoute,
@@ -113,7 +116,16 @@ export class JournalEntries {
         });
     }
 
-     private setupToolBarconfig() {
+    private journalEntryManualInitialized() {
+        // set selected numberseriestask to 1 by default (Journal)
+        this.selectedNumberSeriesTaskID = 1;
+        this.selectedNumberSeriesTask =
+            this.journalEntryManual.numberSeriesTasks.find(x => x.ID === 1);
+
+        this.setupToolBarconfig();
+    }
+
+    private setupToolBarconfig() {
 
         this.contextMenuItems = [
             {
@@ -148,11 +160,51 @@ export class JournalEntries {
             contextmenu: this.contextMenuItems
         };
 
+        let selectConfig = this.journalEntryManual && !this.currentJournalEntryID && this.journalEntryManual.numberSeriesTasks.length > 1 ?
+            {
+                items: this.journalEntryManual.numberSeriesTasks,
+                selectedItem: this.selectedNumberSeriesTask,
+                label: 'Nummerserie:'
+            }
+            : null;
+
+        this.selectConfig = selectConfig;
         this.toolbarConfig = toolbarConfig;
-
-
     }
 
+    private numberSeriesTaskChanged(selectedTask) {
+        if (this.journalEntryManual) {
+            if (selectedTask && selectedTask.ID !== this.selectedNumberSeriesTaskID) {
+                let currentData = this.journalEntryManual.getJournalEntryData();
+
+                if (currentData.length > 0) {
+                    this.confirmModal.confirm(
+                        'Du har allerede lagt til bilag - endring av nummerserie kan kunne oppdatere bilagsnr for alle bilagene',
+                        'Bekreft endring',
+                        false,
+                        { accept: 'Fortsett', reject: 'Avbryt' }
+                    ).then((response: ConfirmActions) => {
+                        if (response === ConfirmActions.ACCEPT) {
+                            // set the selectedNumberSeriesTaskID based on the selected numberseriestask,
+                            // this will be databound to the journalentrymanual and journalentryprofessional
+                            this.selectedNumberSeriesTaskID = selectedTask.ID;
+                        } else {
+                            // reset the selected task object to the previous task because
+                            // the user doesnt want to change it anyway
+                            this.selectedNumberSeriesTask =
+                                this.journalEntryManual.numberSeriesTasks.find(x => x.ID === this.selectedNumberSeriesTaskID);
+
+                            this.setupToolBarconfig();
+                        }
+                    });
+                } else {
+                    this.selectedNumberSeriesTaskID = selectedTask.ID;
+                }
+            }
+
+            this.selectedNumberSeriesTask = selectedTask;
+        }
+    }
     private openPredefinedDescriptions() {
         this.router.navigate(['./predefined-descriptions']);
     }
@@ -175,6 +227,11 @@ export class JournalEntries {
         }).then(() => {
             if (this.currentJournalEntryNumber) {
                 let journalEntryYear = this.currentJournalEntryNumber.split('-')[1];
+                if (!journalEntryYear) {
+                    journalEntryYear = this.journalEntryManual && this.journalEntryManual.currentFinancialYear ?
+                        this.journalEntryManual.currentFinancialYear.Year.toString()
+                        : '';
+                }
                 let journalEntryNumber = this.currentJournalEntryNumber.split('-')[0];
 
                 this.journalEntryService.getPreviousJournalEntry(journalEntryYear, journalEntryNumber)
@@ -220,6 +277,11 @@ export class JournalEntries {
         }).then(() => {
             if (this.currentJournalEntryNumber) {
                 let journalEntryYear = this.currentJournalEntryNumber.split('-')[1];
+                if (!journalEntryYear) {
+                    journalEntryYear = this.journalEntryManual && this.journalEntryManual.currentFinancialYear ?
+                        this.journalEntryManual.currentFinancialYear.Year.toString()
+                        : '';
+                }
                 let journalEntryNumber = this.currentJournalEntryNumber.split('-')[0];
 
                 this.journalEntryService.getNextJournalEntry(journalEntryYear, journalEntryNumber)

@@ -27,9 +27,10 @@ import {
     BankAccount,
     VatDeduction,
     InvoicePaymentData,
+    NumberSeriesTask,
     PredefinedDescription
 } from '../../../../../unientities';
-import {JournalEntryData} from '../../../../../models/models';
+import {JournalEntryData, NumberSeriesTaskIds} from '../../../../../models/models';
 import {JournalEntryMode} from '../../journalentrymanual/journalentrymanual';
 import {AccrualModal} from '../../../../common/modals/accrualModal';
 import {NewAccountModal} from '../../../NewAccountModal';
@@ -53,12 +54,14 @@ import {
 import * as moment from 'moment';
 import {CurrencyCodeService} from '../../../../../services/common/currencyCodeService';
 import {CurrencyService} from '../../../../../services/common/currencyService';
-import {}
 import {RegisterPaymentModal} from '../../../../common/modals/registerPaymentModal';
 import {SelectJournalEntryLineModal} from '../selectJournalEntryLineModal';
 import {INumberFormat} from 'unitable-ng2/src/unitable/config/unitableColumn';
 import {UniMath} from '../../../../../../framework/core/uniMath';
+import {UniSelect, ISelectConfig} from 'uniform-ng2/main';
 const PAPERCLIP = '📎'; // It might look empty in your editor, but this is the unicode paperclip
+
+declare const _; // lodash
 
 @Component({
     selector: 'journal-entry-professional',
@@ -75,6 +78,8 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
     @Input() public financialYears: Array<FinancialYear>;
     @Input() public currentFinancialYear: FinancialYear;
     @Input() public vatDeductions: Array<VatDeduction>;
+    @Input() public selectedNumberSeriesTaskID: number;
+
     @ViewChild(UniTable) private table: UniTable;
     @ViewChild(AccrualModal) private accrualModal: AccrualModal;
     @ViewChild(NewAccountModal) private newAccountModal: NewAccountModal;
@@ -102,7 +107,6 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
     private projects: Project[];
     private departments: Department[];
     private vattypes: VatType[];
-
 
     private SAME_OR_NEW_NEW: string = '1';
     private newAlternative: any = {ID: this.SAME_OR_NEW_NEW, Name: 'Nytt bilag'};
@@ -140,18 +144,13 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
     public ngOnInit() {
         this.setupJournalEntryTable();
 
+
+        this.selectedNumberSeriesTaskID = NumberSeriesTaskIds.Journal;
     }
 
     public ngOnChanges(changes: SimpleChanges) {
         if (changes['currentFinancialYear'] && this.currentFinancialYear) {
-            let journalentrytoday: JournalEntryData = new JournalEntryData();
-            journalentrytoday.FinancialDate = this.currentFinancialYear.ValidFrom;
-            this.journalEntryService.getNextJournalEntryNumber(journalentrytoday)
-                .subscribe(numberdata => {
-                        this.firstAvailableJournalEntryNumber = numberdata;
-                        this.setupSameNewAlternatives();
-                    }, err => this.errorService.handle(err)
-                );
+            this.setupJournalEntryNumbers(false);
         }
 
         if (changes['journalEntryLines'] && this.journalEntryLines && this.journalEntryLines.length > 0) {
@@ -173,6 +172,10 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                     this.defaultVisibleColumns.push(col);
                 }
             });
+        }
+
+        if (changes['selectedNumberSeriesTaskID']) {
+            this.setupJournalEntryNumbers(true);
         }
     }
 
@@ -269,6 +272,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
 
         newRow.SameOrNew = newRow.JournalEntryNo;
         newRow.SameOrNewDetails = {ID: newRow.JournalEntryNo, Name: newRow.JournalEntryNo};
+        newRow.NumberSeriesTaskID = this.selectedNumberSeriesTaskID;
 
         setTimeout(() => {
             // update alternatives, this will change when new numbers are used. Do this after datasource is updated, using setTimeout
@@ -1454,7 +1458,6 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
 
 
     private openNewAccountModal(item: any, searchCritera: string): Promise<Account> {
-
         return new Promise((resolve, reject) => {
 
             if (this.createdNewAccount) {
@@ -1467,8 +1470,8 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
 
             this.newAccountModal.searchCriteria = searchCritera;
             this.newAccountModal.openModal();
-        }
-    };
+        });
+    }
 
     private openAccrual(item: JournalEntryData) {
 
@@ -1656,6 +1659,77 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
         return br;
     }
 
+    private setupJournalEntryNumbers(doUpdateExistingLines: boolean): Promise<any> {
+
+        if (!this.currentFinancialYear) {
+            return Promise.resolve();
+        }
+
+        return new Promise((resolve, reject) => {
+            let journalentrytoday: JournalEntryData = new JournalEntryData();
+
+            journalentrytoday.FinancialDate = this.currentFinancialYear.ValidFrom;
+            journalentrytoday.NumberSeriesTaskID = this.selectedNumberSeriesTaskID;
+
+            this.journalEntryService.getNextJournalEntryNumber(journalentrytoday)
+                .subscribe(numberdata => {
+                    this.firstAvailableJournalEntryNumber = numberdata;
+
+                    if (doUpdateExistingLines && this.table) {
+                        let tableData = this.table.getTableData();
+
+                        if (tableData.length > 0) {
+                            let shouldUpdateData = false;
+                            tableData.forEach(row => {
+                                if (row.NumberSeriesTaskID !== this.selectedNumberSeriesTaskID) {
+                                    shouldUpdateData = true;
+                                }
+                            });
+
+                            if (shouldUpdateData) {
+                                let uniqueNumbers =
+                                    _.uniq(tableData.map(item => item.JournalEntryNo));
+
+                                uniqueNumbers.forEach(uniqueNumber => {
+                                    let lines = tableData.filter(x => x.JournalEntryNo === uniqueNumber);
+
+                                    lines.forEach((x: JournalEntryData) => {
+                                        x.JournalEntryNo = this.firstAvailableJournalEntryNumber;
+                                        x.SameOrNew = x.JournalEntryNo;
+                                        x.SameOrNewDetails = {ID: x.JournalEntryNo, Name: x.JournalEntryNo};
+                                        x.NumberSeriesTaskID = this.selectedNumberSeriesTaskID;
+                                    });
+
+                                    let nextNumberData = this.firstAvailableJournalEntryNumber.split('-');
+
+                                    this.firstAvailableJournalEntryNumber =
+                                        nextNumberData.length > 1 ?
+                                            (+nextNumberData[0] + 1) + '-' + nextNumberData[1]
+                                            : (+nextNumberData[0] + 1).toString();
+                                });
+
+                                this.setJournalEntryData(tableData);
+                                this.dataChanged.emit(tableData);
+                            }
+                        }
+                    }
+
+                    this.setupSameNewAlternatives();
+
+                    if (this.table) {
+                        this.table.focusRow(0);
+                    }
+                },
+                err => {
+                    this.errorService.handle(err);
+                    reject(err);
+                }
+            );
+
+            resolve();
+        });
+    }
+
     private setupSameNewAlternatives() {
 
         if (this.journalEntryTableConfig
@@ -1730,19 +1804,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 // Empty list
                 this.journalEntryLines = new Array<JournalEntryData>();
 
-                let journalentrytoday: JournalEntryData = new JournalEntryData();
-                journalentrytoday.FinancialDate = this.currentFinancialYear.ValidFrom;
-                this.journalEntryService.getNextJournalEntryNumber(journalentrytoday)
-                    .subscribe(numberdata => {
-                        this.firstAvailableJournalEntryNumber = numberdata;
-                        this.setupSameNewAlternatives();
-
-                        if (this.table) {
-                            this.table.focusRow(0);
-                        }
-                    },
-                    err => this.errorService.handle(err)
-                );
+                this.setupJournalEntryNumbers(false);
 
                 this.dataChanged.emit(this.journalEntryLines);
             },
@@ -1776,19 +1838,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
         this.journalEntryLines = new Array<JournalEntryData>();
         this.dataChanged.emit(this.journalEntryLines);
 
-        let journalentrytoday: JournalEntryData = new JournalEntryData();
-        journalentrytoday.FinancialDate = this.currentFinancialYear.ValidFrom;
-        this.journalEntryService.getNextJournalEntryNumber(journalentrytoday)
-            .subscribe(data => {
-                this.firstAvailableJournalEntryNumber = data;
-                this.setupSameNewAlternatives();
-
-                if (this.table) {
-                    this.table.focusRow(0);
-                }
-            },
-            err => this.errorService.handle(err)
-        );
+        this.setupJournalEntryNumbers(false);
 
         completeCallback('Listen er tømt');
     }
