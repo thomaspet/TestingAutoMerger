@@ -4180,9 +4180,9 @@ unc-path-regex@^0.1.0:
   version "0.1.2"
   resolved "https://registry.yarnpkg.com/unc-path-regex/-/unc-path-regex-0.1.2.tgz#e73dd3d7b0d7c5ed86fbac6b0ae7d8c6a69d50fa"
 
-uniform-ng2@0.0.91:
-  version "0.0.91"
-  resolved "https://registry.yarnpkg.com/uniform-ng2/-/uniform-ng2-0.0.91.tgz#0ce98cd8397618d5eb65b5754b6c010f219366f1"
+uniform-ng2@0.0.93-beta.19:
+  version "0.0.93-beta.19"
+  resolved "https://registry.yarnpkg.com/uniform-ng2/-/uniform-ng2-0.0.93-beta.19.tgz#944ce400ee5b8b9d8f341af648d6a3c57850e482"
   dependencies:
     "@angular/common" "4.0.0-rc.4"
     "@angular/compiler" "4.0.0-rc.4"
@@ -4574,8 +4574,8 @@ wrappy@1:
   resolved "https://registry.yarnpkg.com/wrappy/-/wrappy-1.0.2.tgz#b5243d8f3ec1aa35f1364605bc0d1036e30ab69f"
 
 write-file-atomic@^2.0.0:
-  version "2.1.0"
-  resolved "https://registry.yarnpkg.com/write-file-atomic/-/write-file-atomic-2.1.0.tgz#1769f4b551eedce419f0505deae2e26763542d37"
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/write-file-atomic/-/write-file-atomic-2.0.0.tgz#bb99a5440d0d31dd860a68da392bffeef66251a1"
   dependencies:
     graceful-fs "^4.1.11"
     imurmurhash "^0.1.4"
