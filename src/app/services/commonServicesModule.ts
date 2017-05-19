@@ -48,7 +48,10 @@ import {YearService} from './common/yearService';
 import {Lookupservice} from './common/lookupService';
 import {AgreementService} from './common/agreementService';
 import {ModulusService} from './common/modulusService';
-import {PredefinedDescriptionService} from './common/PredefinedDescriptionService'
+import {PredefinedDescriptionService} from './common/PredefinedDescriptionService';
+import {NumberSeriesService} from './common/numberSeriesService';
+import {NumberSeriesTypeService} from './common/numberSeriesTypeService';
+import {NumberSeriesTaskService} from './common/numberSeriesTaskService';
 
 export * from './common/altinnAuthenticationService';
 export * from './common/altinnIntegrationService';
@@ -94,7 +97,10 @@ export * from './common/yearService';
 export * from './common/lookupService';
 export * from './common/agreementService';
 export * from './common/modulusService';
-export * from './common/PredefinedDescriptionService'
+export * from './common/PredefinedDescriptionService';
+export * from './common/numberSeriesService';
+export * from './common/numberSeriesTypeService';
+export * from './common/numberSeriesTaskService';
 
 @NgModule({})
 export class CommonServicesModule {
@@ -151,7 +157,10 @@ export class CommonServicesModule {
                 Lookupservice,
                 AgreementService,
                 ModulusService,
-                PredefinedDescriptionService
+                PredefinedDescriptionService,
+                NumberSeriesService,
+                NumberSeriesTypeService,
+                NumberSeriesTaskService
             ]
         };
     }

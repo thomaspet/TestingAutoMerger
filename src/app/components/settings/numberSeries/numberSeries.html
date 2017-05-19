@@ -1,0 +1,30 @@
+<section class="splitview">
+
+    <nav class ="splitview_list">
+        <uni-table *ngIf="series"
+                [config]="seriesTableConfig"
+                [resource]="series"
+                (rowSelected)="onSerieSelected($event)">
+        </uni-table>
+    </nav>
+
+    <main class="splitview_detail">
+        <table [attr.aria-busy]="busy" class='button-toolbar'><tr>
+            <td>
+                <input *ngIf="currentSerie.ID == 'JournalEntry'" id="allYears" type="checkbox" [(ngModel)]="allYears" (change)="updateTable()" /> <label *ngIf="currentSerie.ID == 'JournalEntry'" for="allYears"> Vis alle regnskapsår</label>
+            </td>
+            <td></td><td></td>
+        </tr></table>
+
+        <uni-table
+            [config]="listTableConfig"
+            [resource]="current"
+            (rowChanged)="onRowChanged($event)"
+            (rowSelectionChanged)="onRowSelectionChange($event)">
+        </uni-table>
+    </main>
+
+</section>
+
+<uni-save [actions]="saveactions"></uni-save>
+<uni-confirm-modal></uni-confirm-modal>

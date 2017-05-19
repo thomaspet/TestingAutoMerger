@@ -4,6 +4,7 @@ import {AgaAndSubEntitySettings} from './agaAndSubEntitySettings/agaAndSubEntity
 import {UserSettings} from './userSettings/userSettings';
 import {Users} from './users/users';
 import {Teams} from './teams/teams';
+import {NumberSeries} from './numberSeries/numberSeries';
 import {AltinnSettings} from './altinnSettings/altinnSettings';
 import {WebHookSettings} from './webHookSettings/webHookSettings';
 import {Settings} from './settings';
@@ -51,6 +52,11 @@ export const settingsRoutes: Routes = [{
             path: 'teams',
             component: Teams,
             canDeactivate: [CanDeactivateGuard]
-        }        
+        },
+        {
+            path: 'numberseries',
+            component: NumberSeries,
+            canDeactivate: [CanDeactivateGuard]
+        }
     ]
 }];
