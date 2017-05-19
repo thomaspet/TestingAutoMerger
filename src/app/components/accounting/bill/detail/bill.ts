@@ -24,6 +24,7 @@ import {UniImageSize} from '../../../../../framework/uniImage/uniImage';
 import {IUniSearchConfig} from 'unisearch-ng2/src/UniSearch/IUniSearchConfig';
 import {UniAssignModal, AssignDetails} from './approvemodal';
 import {UniMath} from '../../../../../framework/core/uniMath';
+import {NumberSeriesTaskIds} from '../../../../models/models';
 
 import {
     SupplierInvoiceService,
@@ -1164,6 +1165,14 @@ export class BillView {
         var changesMade = false;
         let current = this.current.getValue();
         current.InvoiceDate = current.InvoiceDate || new LocalDate();
+
+        if (current.JournalEntry) {
+            if (!current.JournalEntry.NumberSeriesTaskID) {
+                current.JournalEntry.NumberSeriesTaskID = NumberSeriesTaskIds.SupplierInvoice;
+                changesMade = true;
+            }
+        }
+
         // Ensure dates are set
         if (current.JournalEntry && current.JournalEntry.DraftLines) {
             current.JournalEntry.DraftLines.forEach(x => {
