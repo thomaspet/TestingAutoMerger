@@ -76,7 +76,6 @@ export class Teams {
             this.setCurrent(t);
         }});
     }
-
     public onSaveClicked(done) {
         setTimeout( () => { // Allow the annoying editors to update
             this.busy = true;
@@ -247,8 +246,16 @@ export class Teams {
     }
 
     public onFormChange(event) {
-        this.hasUnsavedChanges = true;
-        this.updateSaveActions();
+        this.flagUnsavedChanges();
+    }
+
+    public onFormInput(event) {
+        this.flagUnsavedChanges();
+    }
+
+    private flagUnsavedChanges(reset: boolean = false) {
+        this.hasUnsavedChanges = !reset;
+        this.updateSaveActions();        
     }
 
      private initTableConfigs() {

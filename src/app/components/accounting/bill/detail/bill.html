@@ -25,7 +25,9 @@
                 [config]='formConfig'
                 [fields]='fields$'
                 [model]='current'
-                (changeEvent)="onFormChange($event)">
+                (changeEvent)="onFormChange($event)"
+                (inputEvent)="onFormInput($event)"
+            >
             </uni-form>
             <article class="collapsable no-topmargin no-horzmargins" [ngClass]="{'-is-open': !collapseSimpleJournal}">
                 <h4 class="no-topmargin" (click)="collapseSimpleJournal = !collapseSimpleJournal">Kontering</h4>
@@ -58,3 +60,4 @@
 <bankaccount-modal></bankaccount-modal>
 <image-modal></image-modal>
 <uni-assign-modal (okclicked)="onAssignClickOk($event)"></uni-assign-modal>
+<uni-approve-modal (okclicked)="onTaskApproval($event)"></uni-approve-modal>

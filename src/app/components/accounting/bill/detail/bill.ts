@@ -7,7 +7,7 @@ import {safeInt, roundTo, safeDec, filterInput, trimLength,
     createFormField, FieldSize, ControlTypes} from '../../../common/utils/utils';
 import {Supplier, SupplierInvoice, JournalEntryLineDraft,
     StatusCodeSupplierInvoice, BankAccount, LocalDate,
-    InvoicePaymentData, CurrencyCode, CompanySettings} from '../../../../unientities';
+    InvoicePaymentData, CurrencyCode, CompanySettings, Task} from '../../../../unientities';
 import {UniStatusTrack} from '../../../common/toolbar/statustrack';
 import {IUniSaveAction} from '../../../../../framework/save/save';
 import {UniForm, FieldType} from 'uniform-ng2/main';
@@ -22,7 +22,8 @@ import {BankAccountModal} from '../../../common/modals/modals';
 import {ImageModal} from '../../../common/modals/ImageModal';
 import {UniImageSize} from '../../../../../framework/uniImage/uniImage';
 import {IUniSearchConfig} from 'unisearch-ng2/src/UniSearch/IUniSearchConfig';
-import {UniAssignModal, AssignDetails} from './approvemodal';
+import {UniAssignModal, AssignDetails} from './assignmodal';
+import {UniApproveModal, ApprovalDetails} from './approvemodal';
 import {UniMath} from '../../../../../framework/core/uniMath';
 import {NumberSeriesTaskIds} from '../../../../models/models';
 
@@ -102,6 +103,7 @@ export class BillView {
     @ViewChild(BillHistoryView) private historyView: BillHistoryView;
     @ViewChild(ImageModal) public imageModal: ImageModal;
     @ViewChild(UniAssignModal) private assignModal: UniAssignModal;
+    @ViewChild(UniApproveModal) private approveModal: UniApproveModal;
 
     // tslint:disable:max-line-length
     private supplierExpandOptions: Array<string> = ['Info', 'Info.BankAccounts', 'Info.DefaultBankAccount', 'CurrencyCode'];
@@ -583,7 +585,12 @@ export class BillView {
         });
     }
 
+    public onFormInput(event) {
+        this.flagUnsavedChanged();
+    }
+
     public onFormChange(change: SimpleChanges) {
+
         let model = this.current.getValue();
 
         if (change['SupplierID']) {
@@ -792,6 +799,7 @@ export class BillView {
             var hasBilag = (!!(it.JournalEntry && it.JournalEntry.JournalEntryNumber));
             let filter = ((it.StatusCode === 30105 && hasBilag) ? ['journal'] : undefined);
             this.addActions(it._links.transitions, list, true, ['assign', 'approve', 'journal', 'pay'], filter);
+            /* todo: add smartbooking whenever it works properly..
             if (it._links.actions && it._links.actions.smartbooking) {
                 if (it.StatusCode < StatusCodeSupplierInvoice.Journaled) {
                     list.push(this.newAction(
@@ -799,6 +807,19 @@ export class BillView {
                         'smartbooking',
                         it._links.actions.smartbooking.href, false
                     ));
+                }
+            } */
+            if (this.CurrentTask) {
+                let task = this.CurrentTask;
+                if (task.Approvals && task.Approvals.length > 0) {
+                    list.forEach( x => x.main = false );
+                    let approval = task.Approvals[0];
+                    let action = this.newAction(lang.task_approval, 'task_approval', 
+                        `api/biz/approvals/${approval.ID}?action=approve`, true);
+                    list.push(action);
+                    action = this.newAction(lang.task_reject, 'task_reject',
+                        `api/biz/approvals/${approval.ID}?action=approve`, false);
+                    list.push(action);
                 }
             }
             this.actions = list;
@@ -862,6 +883,16 @@ export class BillView {
                 done();
             }
         });
+    }
+
+    public onTaskApproval(details: ApprovalDetails) {
+        if (details.approved || details.rejected) {
+            this.fetchInvoice(this.currentID, true);
+            if (details.rejected) {
+                // todo: update toolbar comments...
+            }
+        }
+        this.approveModal.close();
     }
 
     public onAssignClickOk(details: AssignDetails) {
@@ -937,6 +968,16 @@ export class BillView {
                     });
                 return true;
 
+            case 'task_approval':
+                this.approveModal.open(current, true);
+                done();            
+                return true;
+
+            case 'task_reject':
+                this.approveModal.open(current, false);
+                done();            
+                return true;
+
             default:
                 return this.RunActionOnCurrent(key, done);
         }
@@ -993,7 +1034,6 @@ export class BillView {
             return key;
         }
         return label;
-
     }
 
     private fetchInvoice(id: number | string, flagBusy: boolean): Promise<any> {
@@ -1005,7 +1045,10 @@ export class BillView {
             this.supplierInvoiceService.Get(
                 id,
                 ['Supplier.Info.BankAccounts', 'JournalEntry.DraftLines.Account,JournalEntry.DraftLines.VatType', 'CurrencyCode', 'BankAccount']
-            ).subscribe(result => {
+            ).finally( () => {
+                this.flagUnsavedChanged(true);
+             })
+            .subscribe(result => {
                 if (flagBusy) { this.busy = false; }
                 if (result.Supplier === null) { result.Supplier = new Supplier(); };
                 this.current.next(result);
@@ -1373,7 +1416,7 @@ export class BillView {
     private getStatustrackConfig() {
         let current = this.current.getValue();
         let statustrack: UniStatusTrack.IStatus[] = [];
-        let activeStatus = current.StatusCode;
+        let activeStatus = current.StatusCode;        
 
         this.supplierInvoiceService.statusTypes.forEach((status) => {
             let _state: UniStatusTrack.States;
@@ -1384,6 +1427,9 @@ export class BillView {
                 _state = UniStatusTrack.States.Completed;
             } else if (status.Code === activeStatus) {
                 _state = UniStatusTrack.States.Active;
+                if (this.CurrentTask) {
+                    _state = UniStatusTrack.States.Obsolete;
+                }
                 _addIt = true;
             }
             if (_addIt) {
@@ -1394,7 +1440,16 @@ export class BillView {
                 });
             }
         });
+        
         return statustrack;
+    }
+
+    private get CurrentTask(): Task {
+        if (this.current) {
+            let document = this.current.getValue();
+            let task: Task = <any>( document ? <any>document['_task'] : undefined );
+            return task;
+        }
     }
 
     private setupToolbar() {
