@@ -40,7 +40,8 @@ import {
     PageStateService,
     checkGuid,
     EHFService,
-    UniSearchConfigGeneratorService
+    UniSearchConfigGeneratorService,
+    ModulusService
 } from '../../../../services/services';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {UniFieldLayout} from 'uniform-ng2/main';
@@ -143,7 +144,8 @@ export class BillView {
         private currencyCodeService: CurrencyCodeService,
         private currencyService: CurrencyService,
         private ehfService: EHFService,
-        private uniSearchConfigGeneratorService: UniSearchConfigGeneratorService) {
+        private uniSearchConfigGeneratorService: UniSearchConfigGeneratorService,
+        private modulusService: ModulusService) {
         this.actions = this.rootActions;
     }
 
@@ -234,12 +236,13 @@ export class BillView {
             valueProperty: 'ID'
         };
 
-        var sumCol = createFormField('TaxInclusiveAmountCurrency', lang.col_total, ControlTypes.NumericInput, FieldSize.Double);
+        // todo: use NumericInput when it works properly
+        var sumCol = createFormField('TaxInclusiveAmountCurrency', lang.col_total, ControlTypes.TextInput, FieldSize.Double);
         sumCol.Classes += ' combofield';
         sumCol.Options = {
             events: {
                 enter: (x) => {
-                    this.focusJournalEntries();
+                    setTimeout(() => this.focusJournalEntries(), 50); 
                 }
             },
             decimalLength: 2,
@@ -651,6 +654,10 @@ export class BillView {
 
         // need to push an update if other fields changes to make the journal entry grid update itself
         if (change['TaxInclusiveAmountCurrency'] || change['InvoiceNumber'] || change['PaymentID'] || change['BankAccount']) {
+            if (change['TaxInclusiveAmountCurrency']) {
+                model.TaxInclusiveAmountCurrency = roundTo(safeDec(change['TaxInclusiveAmountCurrency'].currentValue), 2);
+                change['TaxInclusiveAmountCurrency'].currentValue = model.TaxInclusiveAmountCurrency;
+            }
             this.current.next(model);
         }
 
@@ -730,6 +737,9 @@ export class BillView {
         let tab = this.tabs.find(x => x.name === 'history');
         if (tab) {
             tab.count = value;
+        }
+        if (value > 0) {
+           this.simpleJournalentry.lookupHistory();
         }
     }
 
@@ -1497,6 +1507,8 @@ export class BillView {
             params += '&select=max(id)&filter=deleted eq \'false\'' + (id ? ' and id lt ' + id : '');
             resultFld = 'maxid';
         }
+        
+        this.simpleJournalentry.closeEditor();
 
         // TODO: should use BizHttp.getNextID() / BizHttp.getPreviousID()
         return new Promise((resolve, reject) => {

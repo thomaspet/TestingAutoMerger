@@ -1,6 +1,9 @@
 import { ViewChild, Component, Input, Output, EventEmitter, Pipe, PipeTransform} from '@angular/core';
-import {FinancialYear, VatType, SupplierInvoice, JournalEntryLineDraft, JournalEntry, Account, StatusCodeSupplierInvoice} from '../../../../../unientities';
-import {ICopyEventDetails, IConfig as ITableConfig, Column, ColumnType, IChangeEvent, ITypeSearch, Editable, ILookupDetails, IStartEdit} from '../../../../common/utils/editable/editable';
+import {FinancialYear, VatType, SupplierInvoice, 
+    JournalEntryLineDraft, JournalEntry, Account, StatusCodeSupplierInvoice} from '../../../../../unientities';
+import {ICopyEventDetails, IConfig as ITableConfig, Column, ColumnType, 
+    IChangeEvent, ITypeSearch, Editable, 
+    ILookupDetails, IStartEdit} from '../../../../common/utils/editable/editable';
 import {ToastService, ToastType} from '../../../../../../framework/uniToast/toastService';
 import {roundTo, safeDec, safeInt, trimLength} from '../../../../common/utils/utils';
 import {Lookupservice} from '../../../../../services/services';
@@ -35,6 +38,9 @@ export class BillSimpleJournalEntryView {
     private financialYearID: number = 0;
     private financialYears: Array<FinancialYear>;
     private isReadOnly: boolean = false;
+    private currentSupplierID: number = 0;
+    private hasSuggestions: boolean = false;
+    private suggestions: Array<IJournalHistoryItem> = [];
 
     constructor(
         private toast: ToastService,
@@ -53,18 +59,51 @@ export class BillSimpleJournalEntryView {
                 this.current = _.cloneDeep(value); // we need to refresh current to view actual data
                 this.initFromInvoice(this.current);
                 this.calcRemainder();
-            }
+            } else {
+                this.calcRemainder();
+            }            
         });
     }
 
     private initFromInvoice(invoice: SupplierInvoice) {
+        if (invoice.SupplierID !== this.currentSupplierID) {
+            this.currentSupplierID = invoice.SupplierID;
+        }
         this.hasMultipleEntries = false;
         this.analyzeEntries(invoice);
-        this.journalEntryNumber = invoice && invoice.JournalEntry ? invoice.JournalEntry.JournalEntryNumber : undefined;
-        // these lines avoid focus work properly when we jump from Fakturabelop to the table
-        // if (this.editable) {
-        //    this.editable.closeEditor();
-        // }
+        this.journalEntryNumber = invoice && invoice.JournalEntry ? 
+            invoice.JournalEntry.JournalEntryNumber : undefined;
+    }
+
+    public closeEditor() {
+        if (this.editable) {
+            this.editable.closeEditor();
+        }        
+    }
+
+    public lookupHistory() {
+        this.suggestions = [];
+        this.hasSuggestions = false;
+        if (this.costItems && this.costItems.length > 0 
+            && this.costItems[0].AccountID > 0) {
+            this.hasSuggestions = false;
+            return;
+        }
+        let observable = this.lookup.statQuery('supplierinvoice', 'select=lines.accountid as AccountID'
+            + ',account.accountnumber as AccountNumber,max(invoicedate) as LastDate'
+            + ',account.AccountName as AccountName,count(id) as Counter'
+            + `&filter=supplierid eq ${this.currentSupplierID} and accountgroup.groupnumber ge 300`
+            + (this.current.ID ? ` and id ne ${this.current.ID}` : '')
+            + '&join=&expand=journalentry,journalentry.lines,journalentry.lines.account'
+            + ',journalentry.lines.account.accountgroup&top=10&orderby=count(id) desc');
+        observable.subscribe( x => {
+            var items: Array<IJournalHistoryItem> = <any>x;
+            if (items) {
+                this.hasSuggestions = items.length > 0;
+                items.forEach( item => item.Label = `${item.AccountNumber} - ${item.AccountName}` );
+            }
+            this.suggestions = items;
+        });
     }
 
     public clear() {
@@ -73,7 +112,11 @@ export class BillSimpleJournalEntryView {
         this.sumVat = 0;
         this.journalEntryNumber = '';
         this.costItems.length = 0;
+        this.currentSupplierID = 0;
+        this.hasSuggestions = false;
+        this.suggestions = [];
         this.ensureWeHaveSingleEntry();
+        this.closeEditor();
     }
 
     public focus() {
@@ -105,7 +148,8 @@ export class BillSimpleJournalEntryView {
 
     private calcRemainder(): number {
         var sumItems = 0;
-        var total: number = this.current && this.current.TaxInclusiveAmountCurrency ? this.current.TaxInclusiveAmountCurrency : 0;
+        var total: number = this.current && this.current.TaxInclusiveAmountCurrency 
+            ? this.current.TaxInclusiveAmountCurrency : 0;
         var sumVat: number = 0;
         if (total) {
             this.costItems.forEach(x => {
@@ -131,7 +175,15 @@ export class BillSimpleJournalEntryView {
 
         this.isReadOnly = this.current ? this.current.StatusCode >= StatusCodeSupplierInvoice.Journaled : false;
 
-        if (lines.length > 0) {
+        if (lines.length === 0) {
+            // Old entries from previous invoice ?
+            if (this.costItems && this.costItems.length > 0 && this.costItems[0].AccountID) {
+                // Make sure we reset everything
+                this.clear();
+                this.currentSupplierID = invoice.SupplierID;
+                this.lookupHistory();
+            }
+        } else {
             var numberOfCostAccounts = 0;
             var firstLine = lines[0];
             this.costItems.length = 0;
@@ -191,7 +243,8 @@ export class BillSimpleJournalEntryView {
             events: {
 
                 onChange: (event: IChangeEvent) => {
-                    return this.lookup.checkAsyncLookup(event, (e) => this.updateChange(e), (e) => this.asyncValidationFailed(e)) || this.updateChange(event);
+                    return this.lookup.checkAsyncLookup(event, (e) => this.updateChange(e), 
+                        (e) => this.asyncValidationFailed(e)) || this.updateChange(event);
                 },
 
                 onStartEdit: (info: IStartEdit) => {
@@ -206,6 +259,12 @@ export class BillSimpleJournalEntryView {
                         }
                         if (info.columnDefinition.name === 'AmountCurrency') {
                             info.value = this.costItems[info.row].AmountCurrency + '';
+                        }
+                        if (info.columnDefinition.name === 'Account.AccountNumber') {
+                            if (this.hasSuggestions) {
+                                info.value = this.suggestions[0].Label;
+                                info.flagChanged = true;
+                            }
                         }
 
                         this.calcRemainder();
@@ -259,7 +318,8 @@ export class BillSimpleJournalEntryView {
             row.AmountCurrency = this.sumRemainder;
         }
         if ((!row.Description) && (this.current && this.current.Supplier && this.current.Supplier.Info)) {
-            row.Description = this.current.Supplier.SupplierNumber + ' - ' + this.current.Supplier.Info.Name + ' - ' + 'fakturanr.' + this.current.InvoiceNumber;
+            row.Description = this.current.Supplier.SupplierNumber + ' - ' 
+                + this.current.Supplier.Info.Name + ' - ' + 'fakturanr.' + this.current.InvoiceNumber;
         }
     }
 
@@ -439,7 +499,8 @@ export class BillSimpleJournalEntryView {
             event.userTypedValue = false;
             this.updateChange(event);
         } else {
-            this.toast.addToast(event.columnDefinition.label, ToastType.bad, 3, `Ugyldig ${event.columnDefinition.label}: ${event.value}`);
+            this.toast.addToast(event.columnDefinition.label, ToastType.bad, 3, 
+                `Ugyldig ${event.columnDefinition.label}: ${event.value}`);
         }
     }
 
@@ -508,4 +569,14 @@ export class TrimTextPipe implements PipeTransform {
             return trimLength(value, format ? safeInt(format) : 10);
         }
     }
+}
+
+interface IJournalHistoryItem {
+    AccountID: number;
+    AccountNumber: number; 
+    Amount: number;
+    AccountName: string;
+    Counter: number;
+    Label: string;
+    LastDate: Date;
 }
