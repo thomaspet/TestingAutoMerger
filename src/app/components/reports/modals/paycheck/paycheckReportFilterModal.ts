@@ -36,9 +36,9 @@ export class PaycheckReportFilterModalContent implements OnInit, OnDestroy {
     public config$: BehaviorSubject<any> = new BehaviorSubject({});
     public fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
     public model$: BehaviorSubject<InputModel> = new BehaviorSubject({ FromEmpNo: 0, ToEmpNo: 0, RunID: 0 });
+    private selectedPayrollRun: PayrollRun;
 
     private subscriptions: any[] = [];
-    private selectedRun: PayrollRun;
     public params$: BehaviorSubject<Hash> = new BehaviorSubject<Hash>([]);
     private employees: Employee[];
 
@@ -63,7 +63,7 @@ export class PaycheckReportFilterModalContent implements OnInit, OnDestroy {
             })
             .subscribe((result: [Employee, PayrollRun]) => {
                 let [employee, payrollRun] = result;
-                this.selectedRun = payrollRun;
+                this.selectedPayrollRun = payrollRun;
                 this.fields$
                     .next(this.getLayout(payrollRun));
 
@@ -86,45 +86,50 @@ export class PaycheckReportFilterModalContent implements OnInit, OnDestroy {
     }
 
     private updateParams(inputModel: InputModel) {
-        let observable: Observable<any>;
         let params = this.params$.getValue();
-        if (this.currentYear && this.currentYear !== params['ThisYear']) {
-            params['ThisYear'] = this.currentYear;
-            params['LastYear'] = this.currentYear - 1;
-        }
-        if (this.selectedRun && this.selectedRun.ID !== params['RunID']) {
-            params['PayDate'] = this.selectedRun.PayDate;
-            observable = Observable.forkJoin(
+        Observable
+            .of(inputModel && inputModel.RunID !== params['RunID'])
+            .do(hasChanged => {
+                if (this.currentYear && this.currentYear !== params['ThisYear']) {
+                    params['ThisYear'] = this.currentYear;
+                    params['LastYear'] = this.currentYear - 1;
+                    this.params$.next(params);
+                }
+            })
+            .filter((hasChanged) => hasChanged)
+            .do((hasChanged) => params['PayDate'] = this.selectedPayrollRun.PayDate)
+            .switchMap((hasChanged) => Observable
+                .forkJoin(
                 Observable.of(inputModel),
                 this.payrollRunService
-                    .getEmployeesOnPayroll(this.selectedRun.ID, [])
+                    .getEmployeesOnPayroll(inputModel.RunID, [])
                     .map(emps => {
                         this.employees = emps;
                         return emps;
                     })
                     .catch((err, obs) => this.errorService.handleRxCatch(err, obs))
-            );
-        } else {
-            observable = Observable.forkJoin(Observable.of(inputModel), Observable.of(this.employees));
-        }
-        observable
-            .subscribe((result: [InputModel, Employee[]]) => {
-            let [model, employees] = result;
-            if (employees) {
-                let filteredEmployees = employees
-                    .filter(emp => emp.EmployeeNumber <= model.ToEmpNo && emp.EmployeeNumber >= model.FromEmpNo);
+                ))
+            .map((result: [InputModel, Employee[]]) => {
+                let [model, employees] = result;
+                if (employees) {
+                    let filteredEmployees = employees
+                        .filter(emp => emp.EmployeeNumber <= model.ToEmpNo && emp.EmployeeNumber >= model.FromEmpNo);
 
-                params['TransFilter'] = `PayrollRunID eq ${model.RunID} `
-                    + (filteredEmployees.length
-                        ? 'and (' + filteredEmployees.map(emp => 'EmployeeID eq ' + emp.ID).join(' or ') + ')'
-                        : '');
-                params['EmployeeFilter'] = filteredEmployees.map(emp => 'ID eq ' + emp.ID).join(' or ');
-            }
-            Object.keys(model).forEach(key => {
-                params[key] = model[key];
-            });
-            this.params$.next(params);
-        });
+                    params['TransFilter'] = `PayrollRunID eq ${model.RunID} `
+                        + (filteredEmployees.length
+                            ? 'and (' + filteredEmployees.map(emp => 'EmployeeID eq ' + emp.ID).join(' or ') + ')'
+                            : '');
+                    params['EmployeeFilter'] = filteredEmployees.map(emp => 'ID eq ' + emp.ID).join(' or ');
+                }
+                return model;
+            })
+            .map((model: InputModel) => {
+                Object.keys(model).forEach(key => {
+                    params[key] = model[key];
+                });
+                return params;
+            })
+            .subscribe((newParams) => this.params$.next(newParams));
     }
 
     private getLayout(defaultRun: PayrollRun): UniFieldLayout[] {
@@ -149,7 +154,7 @@ export class PaycheckReportFilterModalContent implements OnInit, OnDestroy {
                     valueProperty: 'ID',
                     template: (obj: PayrollRun) => obj ? `${obj.ID} - ${obj.Description}` : '',
                     events: {
-                        select: (obj: PayrollRun) => this.selectedRun = obj
+                        select: (model: any, value: PayrollRun) => this.selectedPayrollRun = value
                     }
                 }
             }
@@ -179,7 +184,8 @@ export class PayCheckReportFilterModal implements OnInit {
                     text: 'Ok',
                     class: 'good',
                     method: () => {
-                        let subscription = Observable.fromPromise(this.modal.getContent())
+                        Observable
+                            .fromPromise(this.modal.getContent())
                             .map((component: PaycheckReportFilterModalContent) => {
                                 let params = component.params$.getValue();
                                 component.config.report.parameters.map(param => {
@@ -188,7 +194,6 @@ export class PayCheckReportFilterModal implements OnInit {
                                 return component;
                             })
                             .do(() => this.modal.close())
-                            .finally(() => subscription.unsubscribe())
                             .subscribe((component: PaycheckReportFilterModalContent) => {
                                 this.previewModal.open(component.config.report);
                             });
