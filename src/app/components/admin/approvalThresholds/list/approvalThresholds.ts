@@ -37,7 +37,7 @@ export class ApprovalThresholds implements OnInit {
 
     public ngOnInit() {
         this.tabService.addTab({
-            name: 'Oppgaver',
+            name: 'Regler',
             url: '/admin/thresholds',
             moduleID: UniModules.Thresholds,
             active: true

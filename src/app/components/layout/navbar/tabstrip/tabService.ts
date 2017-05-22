@@ -17,6 +17,7 @@ export enum UniModules {
     Reports         = 102,
     UniQuery        = 103,
     UniTicker       = 104,
+    Tasks           = 105,
 
     Sales           = 200,
     Customers       = 201,
@@ -71,9 +72,7 @@ export enum UniModules {
     Models          = 902,
     Roles           = 903,
 	Thresholds		= 904,
-    PaymentList     = 1000,
-
-    Tasks = 1100
+    PaymentList     = 1000
 }
 
 @Injectable()

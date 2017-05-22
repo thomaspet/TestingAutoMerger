@@ -205,7 +205,7 @@ export class HamburgerMenu {
                     {componentName: 'Languages', componentUrl: '/admin/languages', moduleID: UniModules.Translations},
                     {componentName: 'Modeller', componentUrl: '/admin/models', moduleID: UniModules.Models},
                     {componentName: 'Roller', componentUrl: '/admin/roles', moduleID: UniModules.Roles},
-                    {componentName: 'Oppgaver', componentUrl: '/admin/thresholds', moduleID: UniModules.Thresholds}
+                    {componentName: 'Regler', componentUrl: '/admin/thresholds', moduleID: UniModules.Thresholds}
                 ]
             }
         ]
