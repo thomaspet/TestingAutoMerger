@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { BizHttp } from '../../../../framework/core/http/BizHttp';
 import { UniHttp } from '../../../../framework/core/http/http';
 import {
-    PayrollRun, VacationPayInfo, TaxDrawFactor, EmployeeCategory, VacationPayList,
+    PayrollRun, TaxDrawFactor, EmployeeCategory,
     Employee, SalaryTransaction
 } from '../../../unientities';
 import { Observable } from 'rxjs/Observable';
