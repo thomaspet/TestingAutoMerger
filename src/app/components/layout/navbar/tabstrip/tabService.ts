@@ -70,7 +70,7 @@ export enum UniModules {
     Translations    = 901,
     Models          = 902,
     Roles           = 903,
-
+	Thresholds		= 904,
     PaymentList     = 1000,
 
     Tasks = 1100

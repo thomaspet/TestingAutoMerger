@@ -48,6 +48,7 @@ import {YearService} from './common/yearService';
 import {Lookupservice} from './common/lookupService';
 import {AgreementService} from './common/agreementService';
 import {ModulusService} from './common/modulusService';
+import {TransitionService} from './common/transitionService';
 import {PredefinedDescriptionService} from './common/PredefinedDescriptionService';
 import {NumberSeriesService} from './common/numberSeriesService';
 import {NumberSeriesTypeService} from './common/numberSeriesTypeService';
@@ -97,6 +98,7 @@ export * from './common/yearService';
 export * from './common/lookupService';
 export * from './common/agreementService';
 export * from './common/modulusService';
+export * from './common/transitionService';
 export * from './common/PredefinedDescriptionService';
 export * from './common/numberSeriesService';
 export * from './common/numberSeriesTypeService';
@@ -157,6 +159,7 @@ export class CommonServicesModule {
                 Lookupservice,
                 AgreementService,
                 ModulusService,
+                TransitionService
                 PredefinedDescriptionService,
                 NumberSeriesService,
                 NumberSeriesTypeService,

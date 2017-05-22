@@ -10,6 +10,7 @@ import {JobDetails} from './jobs/details/jobDetails';
 import {JobLog} from './jobs/log/jobLog';
 import {UniModels} from './models/models';
 import {UniRoles} from './roles/roles';
+import {ApprovalThresholds} from './approvalThresholds/list/approvalThresholds';
 
 export const childRoutes = [
     {
@@ -35,6 +36,10 @@ export const childRoutes = [
         path: 'roles',
         component: UniRoles,
         canDeactivate: [CanDeactivateGuard]
+    },
+    {
+        path: 'thresholds',
+        component: ApprovalThresholds
     }
 ];
 
