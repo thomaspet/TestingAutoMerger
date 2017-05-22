@@ -81,12 +81,12 @@ export class AMeldingView implements OnInit {
                     }
                 }
             },
-            valueProperty: 'month',
+            valueProperty: 'period',
             template: (obj: any) =>
                 obj
                     ? `${obj.period} - ${obj.name}`
                     : '',
-            search: (query) => Observable.of(_ameldingService.periodsInYear())
+            source: _ameldingService.periodsInYear()
         };
 
         this.contextMenuItems = [
