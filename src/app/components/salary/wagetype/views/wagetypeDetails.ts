@@ -38,7 +38,7 @@ export class WagetypeDetail extends UniView {
     private showBenefitAndDescriptionAsReadonly: boolean = true;
     private wageetypeUsedFieldIsReadOnly: boolean = false;
 
-    private currentPackage: string;
+    private currentPackage: string = null;
     private rateIsReadOnly: boolean;
     private basePayment: boolean;
     public config$: BehaviorSubject<any> = new BehaviorSubject({
@@ -689,7 +689,7 @@ export class WagetypeDetail extends UniView {
     }
 
     public change(changes: SimpleChanges) {
-        if (this.currentPackage !== this.wageType$.getValue()['SupplementPackage']) {
+        if (!!this.currentPackage !== !!this.wageType$.getValue()['SupplementPackage']) {
             this.currentPackage = this.wageType$.getValue()['SupplementPackage'];
             this.showTilleggsPakker(this.wageType$.getValue());
         }

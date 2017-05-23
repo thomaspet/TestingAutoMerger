@@ -47,7 +47,7 @@
     "reflect-metadata": "0.1.10",
     "rxjs": "5.2.0",
     "tslib": "1.6.0",
-    "uniform-ng2": "0.0.94",
+    "uniform-ng2": "0.0.95-beta.1",
     "unisearch-ng2": "0.0.23",
     "unitable-ng2": "0.1.11",
     "zone.js": "0.8.5"
