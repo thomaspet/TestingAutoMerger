@@ -194,9 +194,6 @@ export class SalarybalanceDetail extends UniView {
         amountField.Label = this.salarybalance$.getValue().InstalmentType === SalBalType.Advance ? 'Beløp' : 'Saldo';
         amountField.Hidden = this.salarybalanceID > 0;
 
-        let createpaymentField: UniFieldLayout = this.findByPropertyName('CreatePayment');
-        createpaymentField.Hidden = this.salarybalanceID > 0;
-
         this.fields$.next(this.fields$.getValue());
     }
 

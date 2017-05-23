@@ -6,7 +6,7 @@ import { IToolbarConfig } from '../../common/toolbar/toolbar';
 import { UniCacheService, ErrorService, SalarybalanceService } from '../../../services/services';
 import { TabService, UniModules } from '../../layout/navbar/tabstrip/tabService';
 import { Observable } from 'rxjs/Observable';
-import { SalaryBalance } from '../../../unientities';
+import { SalaryBalance, SalBalType } from '../../../unientities';
 import { UniConfirmModal, ConfirmActions } from '../../../../framework/modals/confirm';
 import { IContextMenuItem } from 'unitable-ng2/main';
 import { SalarybalancelineModal } from './modals/salarybalancelinemodal';
@@ -202,8 +202,8 @@ export class SalarybalanceView extends UniView {
 
     private saveSalarybalance(done: (message: string) => void) {
 
-        this.salarybalanceService
-            .save(this.salarybalance)
+        this.handlePaymentCreation(this.salarybalance)
+            .switchMap(salaryBalance => this.salarybalanceService.save(salaryBalance))
             .subscribe((salbal: SalaryBalance) => {
                 super.updateState('salarybalance', salbal, false);
                 let childRoute = this.router.url.split('/').pop();
@@ -213,6 +213,20 @@ export class SalarybalanceView extends UniView {
             }, err => {
                 this.errorService.handle(err);
                 done('Lagring feilet');
+            });
+    }
+
+    private handlePaymentCreation(salaryBalance: SalaryBalance): Observable<SalaryBalance> {
+        return Observable
+            .of(!salaryBalance.ID && salaryBalance.InstalmentType === SalBalType.Advance)
+            .switchMap(promptUser => promptUser
+                ? Observable.fromPromise(this.confirmModal
+                    .confirm('Vil du opprette en utbetalingspost av dette forskuddet?', 'Utbetaling', false))
+                    .map(response => response === ConfirmActions.ACCEPT)
+                : Observable.of(false))
+            .map(createPayment => {
+                salaryBalance['CreatePayment'] = createPayment;
+                return salaryBalance;
             });
     }
 
