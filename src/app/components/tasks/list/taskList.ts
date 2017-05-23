@@ -57,12 +57,12 @@ export class TaskList implements OnInit {
         this.newTask = new Task();
         this.newTask.StatusCode = TaskStatus.Pending;
         this.newTask.Title = '';
-        this.newTask.EntityType = 'FC59C9C3-0DEA-42CE-91D0-148DF3211EA5';
+        //this.newTask.EntityType = 'FC59C9C3-0DEA-42CE-91D0-148DF3211EA5';
 
         this.userService.getCurrentUser().subscribe(
             user => {
                 this.newTask.UserID = user.ID;
-                this.newTask.EntityID = user.ID;
+                //this.newTask.EntityID = user.ID;
 
                 this.markMyTasks();
                 this.filterIrrelevantTasks();
@@ -148,9 +148,6 @@ export class TaskList implements OnInit {
 
         var actionRequired = task.myTask 
                 && task.Approvals[task.approvalIndex].StatusCode === ApprovalStatus.Active;
-        if (task.myTask) {
-        console.log(task.ID + ' req: ' + actionRequired +  ' my: ' + task.myTask + ' index: ' + task.approvalIndex + ' statusCode: ' + task.Approvals[task.approvalIndex].StatusCode);
-        }
         return actionRequired;
     }
 
