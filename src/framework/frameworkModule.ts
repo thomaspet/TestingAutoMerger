@@ -20,8 +20,11 @@ import {UniNotifications} from './notifications/notifications';
 import {UniComments} from './comments/comments';
 import {CommentService} from './comments/commentService';
 import {AppPipesModule} from '../app/pipes/appPipesModule';
-
 import {UniMultiLevelSelect} from './controls/multiLevelSelect';
+
+import {UniAvatar} from './avatar/uniAvatar';
+import {UniCommentInput} from './comments/commentInput';
+import {UniCommentList} from './comments/commentList';
 
 @NgModule({
     imports: [
@@ -45,10 +48,13 @@ import {UniMultiLevelSelect} from './controls/multiLevelSelect';
         UniNotifications,
         UniComments,
         WidgetPoster,
-        UniMultiLevelSelect
+        UniMultiLevelSelect,
+        UniCommentInput,
+        UniCommentList,
+        UniAvatar
     ],
     entryComponents: [
-        UniConfirmContent
+        UniConfirmContent,
     ],
     providers: [
         ImageUploader,
@@ -74,7 +80,10 @@ import {UniMultiLevelSelect} from './controls/multiLevelSelect';
         UniNotifications,
         UniComments,
         WidgetPoster,
-        UniMultiLevelSelect
+        UniMultiLevelSelect,
+        UniCommentInput,
+        UniCommentList,
+        UniAvatar
     ]
 })
 export class UniFrameworkModule {

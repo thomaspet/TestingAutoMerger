@@ -1,6 +1,5 @@
 <uni-toolbar [config]="{title: 'Dine oppgaver og godkjenninger', omitFinalCrumb: true}"></uni-toolbar>
-
-<section class="application">
+<section class="tasks">
     <task-list (taskSelected)="onTaskSelected($event)"></task-list>
     <task-details *ngIf="selectedTask" [selectedTask]="selectedTask"></task-details>
 </section>

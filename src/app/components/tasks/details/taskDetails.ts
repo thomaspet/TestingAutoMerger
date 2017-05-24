@@ -1,8 +1,7 @@
-// angular
 import {Component, Input} from '@angular/core';
 import {ErrorService} from '../../../services/services';
 import {CommentService} from '../../../../framework/comments/commentService';
-import * as moment from 'moment';
+
 @Component({
     selector: 'task-details',
     templateUrl: './taskDetails.html'
@@ -12,7 +11,6 @@ export class TaskDetails {
     public selectedTask: any;
 
     private comments: Comment[];
-    private commentText: string = '';
 
     constructor(
         private errorService: ErrorService,
@@ -22,14 +20,7 @@ export class TaskDetails {
     public ngOnChanges() {
         if (this.selectedTask && this.selectedTask.ID) {
             this.getComments();
-
         }
-    }
-
-    private getTimeFromNow(createdAt: Date): string {
-        return (createdAt)
-        ? moment(createdAt).fromNow()
-        : '';
     }
 
     private getComments() {
@@ -40,14 +31,12 @@ export class TaskDetails {
             );
     }
 
-    public addComment() {
-        this.commentService.post('Task', this.selectedTask.ID, this.commentText)
+    public submitComment(text: string) {
+        this.commentService.post('Task', this.selectedTask.ID, text)
             .subscribe(
                 res => this.getComments(),
                 err => this.errorService.handle(err)
             );
-
-        this.commentText = '';
     }
 
 }
