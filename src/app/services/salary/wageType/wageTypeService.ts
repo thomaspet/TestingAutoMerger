@@ -14,7 +14,13 @@ export enum WageTypeBaseOptions {
 
 @Injectable()
 export class WageTypeService extends BizHttp<WageType> {
-
+    private readOnlyProps: string[] = [
+        '_baseOptions',
+        'Base_Payment',
+        'SpecialAgaRule',
+        'taxtype',
+        'StandardWageTypeFor'
+    ]
     private defaultExpands: any = [
         'SupplementaryInformations'
     ];
@@ -73,6 +79,15 @@ export class WageTypeService extends BizHttp<WageType> {
             .withEndPoint(this.relativeURL + '/' + ID + '?action=used-in-payrollrun')
             .send()
             .map(response => response.json());
+    }
+
+    public manageReadOnlyIfCalculated(fields: any[], readOnly: boolean) {
+        return fields.map(field => {
+            if (this.readOnlyProps.some(prop => prop === field.Property)) {
+                field.ReadOnly = readOnly;
+            }
+            return field;
+        });
     }
 
     public getPrevious(wageTypeNumber: number, expands: string[] = null) {

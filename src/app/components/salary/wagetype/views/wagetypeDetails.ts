@@ -36,8 +36,6 @@ export class WagetypeDetail extends UniView {
     private showSupplementaryInformations: boolean = false;
     private hidePackageDropdown: boolean = true;
     private showBenefitAndDescriptionAsReadonly: boolean = true;
-    private wageetypeUsedFieldIsReadOnly: boolean = false;
-
     private currentPackage: string = null;
     private rateIsReadOnly: boolean;
     private basePayment: boolean;
@@ -165,9 +163,8 @@ export class WagetypeDetail extends UniView {
                 }
                 this.accounts = accounts;
                 this.validValuesTypes = validvaluesTypes;
-                this.wageetypeUsedFieldIsReadOnly = usedInPayrollrun;
 
-                this.extendFields();
+                this.extendFields(usedInPayrollrun);
                 this.updateUniformFields();
                 this.checkAmeldingInfo();
             },
@@ -175,15 +172,10 @@ export class WagetypeDetail extends UniView {
         );
     }
 
-    private extendFields() {
+    private extendFields(calculatedRun: boolean) {
+        this.fields$.next(this.wageService.manageReadOnlyIfCalculated(this.fields$.getValue(), calculatedRun));
         let rate: UniFieldLayout = this.findByProperty('Rate');
         rate.ReadOnly = this.rateIsReadOnly;
-
-        let baseOptionsField: UniFieldLayout = this.findByProperty('_baseOptions');
-        baseOptionsField.ReadOnly = this.wageetypeUsedFieldIsReadOnly;
-
-        let basePaymentField: UniFieldLayout = this.findByProperty('Base_Payment');
-        basePaymentField.ReadOnly = this.wageetypeUsedFieldIsReadOnly;
 
         let wageTypeNumber: UniFieldLayout = this.findByProperty('WageTypeNumber');
         wageTypeNumber.ReadOnly = this.wageType$.getValue().ID > 0;
@@ -211,7 +203,6 @@ export class WagetypeDetail extends UniView {
             valueProperty: 'ID',
             debounceTime: 500
         };
-        specialAgaRule.ReadOnly = this.wageetypeUsedFieldIsReadOnly;
 
         let taxtype: UniFieldLayout = this.findByProperty('taxtype');
         taxtype.Options = {
@@ -229,7 +220,6 @@ export class WagetypeDetail extends UniView {
                 }
             }
         };
-        taxtype.ReadOnly = this.wageetypeUsedFieldIsReadOnly;
 
         let getRateFrom = this.fields$.getValue().find(x => x.Property === 'GetRateFrom');
         getRateFrom.Options = {
@@ -257,9 +247,9 @@ export class WagetypeDetail extends UniView {
                 }
             }
         };
-        standardWageTypeFor.ReadOnly = this.wageetypeUsedFieldIsReadOnly;
 
-        let specialTaxAndContributionsRule = this.fields$.getValue().find(x => x.Property === 'SpecialTaxAndContributionsRule');
+        let specialTaxAndContributionsRule = this.fields$.getValue()
+            .find(x => x.Property === 'SpecialTaxAndContributionsRule');
         specialTaxAndContributionsRule.Options = {
             source: this.specialTaxAndContributionsRule,
             displayProperty: 'Name',
@@ -271,7 +261,8 @@ export class WagetypeDetail extends UniView {
     }
 
     private checkAmeldingInfo() {
-        if (this.wageType$.getValue().SupplementaryInformations && this.wageType$.getValue().SupplementaryInformations.length > 0) {
+        if (this.wageType$.getValue().SupplementaryInformations
+            && this.wageType$.getValue().SupplementaryInformations.length > 0) {
             this.showSupplementaryInformations = true;
             this.findByProperty('SupplementPackage').Hidden = false;
         } else {
@@ -389,7 +380,11 @@ export class WagetypeDetail extends UniView {
         });
     }
 
-    private filterSupplementPackages(selectedType: string = '', setSources: boolean = true, filterByFordel: boolean = true, filterByDescription: boolean = true) {
+    private filterSupplementPackages(
+        selectedType: string = '',
+        setSources: boolean = true,
+        filterByFordel: boolean = true,
+        filterByDescription: boolean = true) {
         if (selectedType !== '') {
             selectedType = this.wageType$.getValue().IncomeType;
         }
