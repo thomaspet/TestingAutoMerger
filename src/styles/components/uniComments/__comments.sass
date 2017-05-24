@@ -22,11 +22,12 @@
 .comments-view
     @extend %mainNavDropdown // Consolidating a few styles
     position: fixed
-    right: calc(6.5vw + 1.6rem) // The gutter on desktop + padding on toolbar + elems
-    z-index: #{map-get($zindex, toolbar) + 1}
+    box-sizing: border-box
     height: 60%
     width: 30rem
     margin-top: .3rem
+    right: calc(6.5vw + 1.6rem) // The gutter on desktop + padding on toolbar + elems
+    z-index: #{map-get($zindex, toolbar) + 1}
 
     display: none
     &[aria-expanded]:not([aria-expanded=false])
@@ -47,6 +48,18 @@
         margin-left: -.5rem
         top: -1rem
         right: 1.5rem
+
+
+    uni-comment-list
+        height: calc(100% - 3rem)
+        padding: 1.5rem .5rem .5rem .25rem
+
+    uni-comment-input
+        height: 3rem
+        padding: .5rem .25rem .5rem 1rem
+        ul
+            bottom: 2rem
+            left: 1rem
 
 ol.comment-list
     overflow-y: auto
@@ -89,60 +102,33 @@ ol.comment-list
                     padding: 0 pxToRem(2)
                     border-radius: pxToRem(2)
 
-.new-comment
-    margin: 0 1rem
-    height: 4.5rem
-    display: flex
-    flex-flow: row nowrap
 
-    textarea
-        order: 1
-        flex: 1
-        resize: none
-        min-height: 4rem
-
-    button
-        order: 2
-        flex: 0 1 5rem
-        margin: auto 0 0 1rem
-
-    .comments-dropdown-list
-        @extend .uni-multivalue-values
-        position: absolute
-        bottom: 5rem
-        left: 1rem
-        width: 15rem
-        max-height: 17rem
-        border-radius: pxToRem(3)
-
-        box-sizing: border-box
-        overflow-y: auto
-        visibility: hidden
-        &[aria-expanded]:not([aria-expanded=false])
-            visibility: visible
-
-
-uni-comment-list ol
+uni-comment-list
     display: block
-    width: 100%
-    height: 100%
-    overflow-y: auto
-    margin: 0
-    padding: 0
+    box-sizing: border-box
 
-    small
-        float: right
+    ol
+        display: block
+        width: 100%
+        height: 100%
+        overflow-y: auto
+        margin: 0
+        padding: 0
 
-    uni-avatar
-        height: 2.5rem
-        width: 2.5rem
-        margin: .25rem 1rem 0 1rem
+        small
+            float: right
+
+        uni-avatar
+            height: 2.5rem
+            width: 2.5rem
+            margin: .25rem 1rem 0 1rem
 
 
 uni-comment-input
     position: relative
     display: flex
     flex-flow: row nowrap
+    box-sizing: border-box
 
     input
         order: 1

@@ -42,8 +42,7 @@ export class UniAvatar {
             'color': '#fff',
             'width': '100%',
             'height': '100%',
-            'border-radius': this.isSquare ? '0' : '50%',
-            'line-height': this.el.nativeElement.clientHeight + 'px'
+            'border-radius': this.isSquare ? '0' : '50%'
         };
     }
 

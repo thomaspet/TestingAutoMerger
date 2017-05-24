@@ -1,11 +1,11 @@
-import {Component, Input, ViewChild, ElementRef} from '@angular/core';
+import {Component, Input, ViewChild, ElementRef, ChangeDetectionStrategy, ChangeDetectorRef} from '@angular/core';
 import {Comment} from '../../app/unientities';
 import * as moment from 'moment';
 
 @Component({
     selector: 'uni-comment-list',
     template: `
-        <ol #commentList class="comment-list">
+        <ol #commentList class=" comment-list" *ngIf="comments?.length">
             <li *ngFor="let comment of comments">
                 <uni-avatar [name]="comment.Author?.DisplayName"></uni-avatar>
                 <main>
@@ -17,7 +17,8 @@ import * as moment from 'moment';
                 </main>
             </li>
         </ol>
-    `
+    `,
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class UniCommentList {
     @ViewChild('commentList')
@@ -27,6 +28,8 @@ export class UniCommentList {
     private comments: Comment[];
 
     private commentsWithMentions: Comment[];
+
+    constructor(private cdr: ChangeDetectorRef) {}
 
     public ngOnChanges() {
         if (this.comments) {
@@ -48,13 +51,13 @@ export class UniCommentList {
                 if (list) {
                     list.scrollTop = list.scrollHeight;
                 }
+
+                this.cdr.markForCheck();
             });
         }
     }
 
     public getTimeFromNow(createdAt: Date): string {
-        return (createdAt)
-            ? moment(createdAt).fromNow()
-            : '';
+        return createdAt ? moment(createdAt).fromNow() : '';
     }
 }

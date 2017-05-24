@@ -9,7 +9,11 @@
          (keydown.esc)="close()"
          (clickOutside)="close()"
          [attr.aria-expanded]="isOpen">
-    <ol class="comment-list" #commentList>
+
+    <uni-comment-list [comments]="comments"></uni-comment-list>
+    <uni-comment-input (submit)="submitComment($event)"></uni-comment-input>
+
+    <!--<ol class="comment-list" #commentList>
         <li *ngFor="let comment of comments">
             <aside class="comment-avatar"></aside>
             <main>
@@ -47,5 +51,5 @@
                 [disabled]="isBusy">
             Send
         </button>
-    </section>
+    </section>-->
 </section>
