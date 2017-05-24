@@ -37,8 +37,7 @@ export interface IUniSaveAction {
                 <button class="comboButton_more"
                         (click)="open = !open"
                         aria-owns="saveActionMenu"
-                        [attr.aria-expanded]="open"
-                        [disabled]="main.disabled">More options</button>
+                        [attr.aria-expanded]="open">More options</button>
 
                 <ul class="comboButton_moreList" [attr.aria-expanded]="open" role="menu" id="saveActionMenu">
                     <li *ngFor="let action of actions"
