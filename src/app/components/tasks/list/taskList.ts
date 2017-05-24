@@ -1,16 +1,14 @@
-import {Component,ElementRef, OnInit, ViewChild, Output, EventEmitter} from '@angular/core';
-import {Router} from '@angular/router';
-import {URLSearchParams} from '@angular/http';
-
+import {Component, ElementRef, OnInit, ViewChild, Output, EventEmitter} from '@angular/core';
+import {Observable} from 'rxjs/Observable';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
-import {UniSelect, ISelectConfig} from 'uniform-ng2/main';
+import {ISelectConfig} from 'uniform-ng2/main';
 import {ErrorService} from '../../../services/services';
 import {Task, TaskStatus, TaskType, ApprovalStatus, User} from '../../../unientities';
 import {TaskService, ApprovalService, UserService} from '../../../services/services';
-import {TaskDetails} from '../details/taskDetails';
+import * as moment from 'moment';
 
 @Component({
-    selector: 'task-list',
+    selector: 'uni-task-list',
     templateUrl: './taskList.html',
 })
 export class TaskList implements OnInit {
@@ -33,7 +31,6 @@ export class TaskList implements OnInit {
 
     private showCompleted: boolean;
     private typeFilter: TaskType;
-    // private filters: any[];
 
     constructor(
         private tabService: TabService,
@@ -51,26 +48,77 @@ export class TaskList implements OnInit {
             active: true
         });
 
-        this.userService.getCurrentUser().subscribe(user => {
-            this.currentUser = user;
-            this.getTasks();
-            this.initNewTask();
-        });
+        Observable.forkJoin(
+            this.userService.getCurrentUser(),
+            this.userService.GetAll(null)
+        ).subscribe(
+            res => {
+                this.currentUser = res[0];
+                this.users = res[1];
 
-        this.initUserList();
-     }
+                this.getTasks();
+                this.initNewTask();
+            },
+            err => this.errorService.handle(err)
+        );
 
-    private initUserList() {
         this.userSelectConfig = {
             displayProperty: 'DisplayName',
             searchable: true
         };
 
-        this.userService.GetAll(null).subscribe(
-            users => this.users = users,
-            err => this.errorService.handle(err)
-        );
+        // this.userService.getCurrentUser().subscribe(user => {
+        //     this.currentUser = user;
+        //     this.getTasks();
+        //     this.initNewTask();
+        // });
+
+        // this.initUserList();
+     }
+
+    // private initUserList() {
+    //     this.userSelectConfig = {
+    //         displayProperty: 'DisplayName',
+    //         searchable: true
+    //     };
+
+    //     this.userService.GetAll(null).subscribe(
+    //         users => this.users = users,
+    //         err => this.errorService.handle(err)
+    //     );
+    // }
+
+    private addTaskMetadata(task: Task): Task {
+        let assignedBy = this.users.find(u => u.GlobalIdentity === task.CreatedBy);
+        if (assignedBy) {
+            task['_assignedBy'] = assignedBy.DisplayName;
+        }
+
+        if (task.CreatedAt) {
+            task['_createdDate'] = moment(task.CreatedAt).format('DD. MMM YYYY');
+        }
+
+        if (task.StatusCode === TaskStatus.Complete) {
+            task['_completed'] = true;
+        }
+
+        if (task.Type === TaskType.Approval && task.StatusCode === TaskStatus.Active) {
+            task['_activeApproval'] = true;
+        }
+
+        console.log('Assigned by: ' + task['_assignedBy']);
+        console.log('Created: ' + task['_createdDate']);
+
+        return task;
     }
+
+    // private isCompleted(task: Task) {
+    //     return task.StatusCode === TaskStatus.Complete;
+    // }
+
+    // private isApproval(task: Task) {
+    //     return task.Type === TaskType.Approval && task.StatusCode === TaskStatus.Active;
+    // }
 
     private getTasks() {
         this.taskService.invalidateCache();
@@ -81,7 +129,7 @@ export class TaskList implements OnInit {
 
         this.taskService.GetAll(odata, ['approvals']).subscribe(
             tasks => {
-                this.tasks = tasks;
+                this.tasks = tasks.map(t => this.addTaskMetadata(t));
                 this.filterTasks(this.typeFilter);
                 this.selectTask(this.filteredTasks[this.filteredTasks.length - 1]);
 
@@ -197,13 +245,5 @@ export class TaskList implements OnInit {
             );
 
         }
-    }
-
-    private isCompleted(task: Task) {
-        return task.StatusCode === TaskStatus.Complete;
-    }
-
-    private isApproval(task: Task) {
-        return task.Type === TaskType.Approval && task.StatusCode === TaskStatus.Active;
     }
 }

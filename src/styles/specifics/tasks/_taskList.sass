@@ -9,96 +9,109 @@ uni-tasks .tasks
     margin-left: 6.25%
     padding-left: 1rem
 
-task-list
+uni-task-list
     width: 55%
     height: calc(100vh - 5.5rem - 2.5rem)
     float: left
 
-    .task-filters
-        height: 10%
-        padding-top: 2rem
-        display: block
+uni-task-list .task-filters
+    height: 10%
+    padding-top: 2rem
+    display: block
+
+    button
+        margin: 0
+        border-radius: 0
+        background-color: $uni-color-negative
+        color: $uni-color-c2a
+        border: 1px solid $uni-color-c2a
+        text-shadow: none
+        box-shadow: none
+        margin-right: -4px
+
+        &.active-filter
+            background-color: $uni-color-c2a
+            color: $uni-color-negative
+
+        &:first-of-type
+            border-top-left-radius: .2rem
+            border-bottom-left-radius: .2rem
+            border-right: none
+            width: 7rem
+
+        &:last-of-type
+            border-top-right-radius: .2rem
+            border-bottom-right-radius: .2rem
+            border-left: none
+            width: 7rem
+
+    .show-completed-toggle
+        display: inline-block
+        margin-left: .5rem
+
+        input[type=checkbox]+label.toggle
+            padding-top: .5rem
+            padding-left: 3.8rem
+
+
+uni-task-list .task-list
+    display: block
+    width: 100%
+    height: 75%
+    overflow: auto
+    box-sizing: border-box
+    list-style-type: none
+    margin: 0
+    padding: 1rem 0
+
+    li
+        display: flex
+        flex-flow: row nowrap
+        position: relative
+        cursor: pointer
+        border-bottom:  pxToRem(1) solid $uni-color-scale9
+        padding: 1rem
+
+        &[aria-selected]:not([aria-selected=false])
+            background: mix($uni-color-c2a, $uni-color-negative, 10%)
+
+    .task-info
+        order: 1
+        flex: 1
+        p
+            margin: 0 0 .25rem 0
+
+        small
+            margin-right: 1rem
+
+    .task-buttons
+        order: 2
+        flex: 0 1 14rem
+        margin: auto 0
 
         button
-            margin: 0
-            border-radius: 0
-            background-color: $uni-color-negative
-            color: $uni-color-c2a
-            border: 1px solid $uni-color-c2a
-            text-shadow: none
-            box-shadow: none
-            margin-right: -4px
-
-            &.active-filter
-                background-color: $uni-color-c2a
-                color: $uni-color-negative
-
-            &:first-of-type
-                border-top-left-radius: .2rem
-                border-bottom-left-radius: .2rem
-                border-right: none
-                width: 7rem
-
-            &:last-of-type
-                border-top-right-radius: .2rem
-                border-bottom-right-radius: .2rem
-                border-left: none
-                width: 7rem
-
-        .show-completed-toggle
-            display: inline-block
-            margin-left: .5rem
-
-            input[type=checkbox]+label.toggle
-                padding-top: .5rem
-                padding-left: 3.8rem
+            margin: 0 .25rem
+            padding: 0
+            width: 6.5rem
+            float: right
 
 
-    .task-list
-        display: block
-        width: 100%
-        height: 75%
-        overflow: auto
-        box-sizing: border-box
-        list-style-type: none
-        margin: 0
-        padding: 1rem 0
+uni-task-list .addTask
+    display: block
+    width: 100%
+    height: 15%
+    padding: 2.5rem 0
 
-        li
-            position: relative
-            cursor: pointer
-            border-bottom:  pxToRem(1) solid $uni-color-scale9
-            padding: 1rem
+    label
+        display: inline-block
+        width: 15rem
 
-            &[aria-selected]:not([aria-selected=false])
-                background: mix($uni-color-c2a, $uni-color-negative, 10%)
+        &.task-text
+            width: 25rem
+            margin-right: 1.5rem
 
-            p
-                margin: 0
 
-            button
-                margin-top: 0
-                float: right
-                width: 7rem
-
-            .approval-buttons .good
-                margin-right: 0
-
-    .addTask
-        display: block
-        width: 100%
-        height: 15%
-        padding: 2.5rem 0
-
-        label
-            display: inline-block
-            width: 15rem
-
-            &.task-text
-                width: 25rem
-                margin-right: 1.5rem
-
-task-details
+uni-task-details
     display: block
     box-sizing: border-box
     width: 45%

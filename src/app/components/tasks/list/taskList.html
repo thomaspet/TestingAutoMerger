@@ -24,18 +24,27 @@
 
 <ul #taskList class="task-list">
     <li *ngFor="let task of filteredTasks" (click)="selectTask(task)" [attr.aria-selected]="selectedTask?.ID === task.ID">
-        <button class="c2a"
-                *ngIf='!isCompleted(task) && !isApproval(task)'
-                (click)="completeTask(task)">
-            Fullfør
-        </button>
-
-        <section class="approval-buttons" *ngIf="isApproval(task)">
-            <button class="bad"  (click)="rejectTask(task)">Avvis</button>
-            <button class="good" (click)="approveTask(task)">Godkjenn</button>
+        <section class="task-info">
+            <p>{{task.Title}}</p>
+            <small>Tildelt av {{task._assignedBy}}</small>
+            <small>{{task._createdDate}}</small>
         </section>
 
-        <p>{{task.Title}}</p>
+        <section class="task-buttons">
+            <button class="c2a"
+                    *ngIf='!task._completed && !task._activeApproval'
+                    (click)="completeTask(task)">
+                Fullfør
+            </button>
+
+            <button *ngIf="task._activeApproval" class="bad"  (click)="rejectTask(task)">
+                Avvis
+            </button>
+
+            <button *ngIf="task._activeApproval" class="good" (click)="approveTask(task)">
+                Godkjenn
+            </button>
+        </section>
     </li>
 </ul>
 

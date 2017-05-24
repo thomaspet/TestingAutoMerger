@@ -10,7 +10,6 @@ export class UniTasks {
 
     public onTaskSelected(task) {
         this.selectedTask = task;
-        console.log(this.selectedTask);
     }
 
 }

@@ -3,7 +3,7 @@ import {ErrorService} from '../../../services/services';
 import {CommentService} from '../../../../framework/comments/commentService';
 
 @Component({
-    selector: 'task-details',
+    selector: 'uni-task-details',
     templateUrl: './taskDetails.html'
 })
 export class TaskDetails {
