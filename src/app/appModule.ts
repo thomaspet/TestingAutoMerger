@@ -49,6 +49,7 @@ import {AdminServicesModule} from './services/adminServicesModule';
 import {TaskServicesModule} from './services/taskServicesModule';
 
 import {CanDeactivateGuard} from './canDeactivateGuard';
+import {AboutModule} from './components/about/aboutModule';
 
 // Set moment locale
 // TODO: Allow users to change this during runtime
@@ -101,7 +102,8 @@ if (window.ENV === 'production') {
         UniTickerModule,
         TranslationsModule,
         TasksModule,
-        DashboardModule
+        DashboardModule,
+        AboutModule
     ],
     declarations: [
         App

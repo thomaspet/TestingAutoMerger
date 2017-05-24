@@ -207,6 +207,14 @@ export class HamburgerMenu {
                     {componentName: 'Roller', componentUrl: '/admin/roles', moduleID: UniModules.Roles},
                     {componentName: 'Regler', componentUrl: '/admin/thresholds', moduleID: UniModules.Thresholds}
                 ]
+            },
+            {
+                componentListName: 'Om',
+                componentListHeader: 'Om',
+                componentListUrl: '/about',
+                componentList: [
+                    {componentName: 'Versioner', componentUrl: '/about/versions', moduleID: UniModules.Versions}
+                ]
             }
         ]
     }

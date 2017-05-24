@@ -72,7 +72,11 @@ export enum UniModules {
     Models          = 902,
     Roles           = 903,
 	Thresholds		= 904,
-    PaymentList     = 1000
+
+    //PaymentList   = XX00, //commenting out because not in use and it fucks with the indexes of the underlying list
+
+    About           = 1000,
+    Versions        = 1001
 }
 
 @Injectable()
