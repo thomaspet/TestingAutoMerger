@@ -66,27 +66,7 @@ export class TaskList implements OnInit {
             displayProperty: 'DisplayName',
             searchable: true
         };
-
-        // this.userService.getCurrentUser().subscribe(user => {
-        //     this.currentUser = user;
-        //     this.getTasks();
-        //     this.initNewTask();
-        // });
-
-        // this.initUserList();
      }
-
-    // private initUserList() {
-    //     this.userSelectConfig = {
-    //         displayProperty: 'DisplayName',
-    //         searchable: true
-    //     };
-
-    //     this.userService.GetAll(null).subscribe(
-    //         users => this.users = users,
-    //         err => this.errorService.handle(err)
-    //     );
-    // }
 
     private addTaskMetadata(task: Task): Task {
         let assignedBy = this.users.find(u => u.GlobalIdentity === task.CreatedBy);
@@ -106,19 +86,8 @@ export class TaskList implements OnInit {
             task['_activeApproval'] = true;
         }
 
-        console.log('Assigned by: ' + task['_assignedBy']);
-        console.log('Created: ' + task['_createdDate']);
-
         return task;
     }
-
-    // private isCompleted(task: Task) {
-    //     return task.StatusCode === TaskStatus.Complete;
-    // }
-
-    // private isApproval(task: Task) {
-    //     return task.Type === TaskType.Approval && task.StatusCode === TaskStatus.Active;
-    // }
 
     private getTasks() {
         this.taskService.invalidateCache();
@@ -202,11 +171,14 @@ export class TaskList implements OnInit {
         );
     }
 
-    private addTask() {
+    public addTask() {
         this.newTask.CreatedAt = new Date;
         this.newTask.StatusCode = TaskStatus.Pending;
         this.taskService.Post(this.newTask).subscribe(
-            res => this.getTasks(),
+            res => {
+                this.newTask.Title = '';
+                this.getTasks();
+            },
             err => this.errorService.handle(err)
         );
     }

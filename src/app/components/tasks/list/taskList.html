@@ -59,6 +59,7 @@
         <uni-select class="drop-up"
                     [config]="userSelectConfig"
                     [items]="users"
+                    [value]="currentUser"
                     (valueChange)="onUserSelected($event)">
         </uni-select>
     </label>
