@@ -1770,8 +1770,10 @@ export class Employee extends UniEntity {
     public SubEntityID: number;
     public UpdatedAt: Date;
     public UpdatedBy: string;
+    public UserID: number;
     public VacationRateEmployeeID: number;
     public BusinessRelationInfo: BusinessRelation;
+    public User: User;
     public Employments: Array<Employment>;
     public VacationRateEmployee: VacationRateEmployee;
     public SubEntity: SubEntity;
@@ -2086,10 +2088,10 @@ export class Product extends UniEntity {
     public UpdatedBy: string;
     public VariansParentID: number;
     public VatTypeID: number;
-    public Account: Account;
     public VatType: VatType;
-    public Dimensions: Dimensions;
+    public Account: Account;
     public ProductCategoryLinks: Array<ProductCategoryLink>;
+    public Dimensions: Dimensions;
     public CustomFields: any;
 }
 
@@ -4605,9 +4607,9 @@ export class WorkBalanceDto extends UniEntity {
     public ValidFrom: Date;
     public ValidTimeOff: number;
     public WorkRelationID: number;
-    public WorkRelation: WorkRelation;
     public Previous: BalanceInfo;
     public Details: Array<FlexDetail>;
+    public WorkRelation: WorkRelation;
     public CustomFields: any;
 }
 

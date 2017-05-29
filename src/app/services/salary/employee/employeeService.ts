@@ -6,6 +6,7 @@ import { Observable } from 'rxjs/Observable';
 import {ErrorService} from '../../common/errorService';
 import { ITag } from '../../../components/common/toolbar/tags';
 import {FieldType} from 'uniform-ng2/main';
+import { UserService } from '../../common/userService';
 
 @Injectable()
 export class EmployeeService extends BizHttp<Employee> {
@@ -24,7 +25,8 @@ export class EmployeeService extends BizHttp<Employee> {
 
     constructor(
         http: UniHttp, 
-        private errorService: ErrorService) {
+        private errorService: ErrorService,
+        private userService: UserService) {
         super(http);
         this.relativeURL = Employee.RelativeUrl;
         this.entityType = Employee.EntityType;
@@ -301,7 +303,7 @@ export class EmployeeService extends BizHttp<Employee> {
 
                     EntityType: 'Employee',
                     Property: 'SubEntityID',
-                    Placement: 6,
+                    Placement: 5,
                     Hidden: false,
                     FieldType: FieldType.DROPDOWN,
                     ReadOnly: false,
@@ -328,6 +330,27 @@ export class EmployeeService extends BizHttp<Employee> {
                             Operator: 7 // required
                         }
                     ]
+                },
+                {
+                    ComponentLayoutID: 1,
+
+                    EntityType: 'Employee',
+                    Property: 'UserID',
+                    Placement: 6,
+                    Hidden: false,
+                    FieldType: FieldType.AUTOCOMPLETE,
+                    ReadOnly: false,
+                    LookupField: false,
+                    Label: 'Bruker',
+                    Description: null,
+                    HelpText: null,
+                    FieldSet: 0,
+                    Section: 0,
+                    Placeholder: null,
+                    LineBreak: null,
+                    Combo: null,
+                    Sectionheader: '',
+                    IsLookUp: false
                 },
                 {
                     ComponentLayoutID: 1,
