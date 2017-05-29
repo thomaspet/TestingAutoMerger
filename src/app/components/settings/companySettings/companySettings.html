@@ -12,12 +12,6 @@
               (changeEvent)="companySettingsChange($event)">
     </uni-form>
 
-    <uni-form class="company"
-              [config]="onlyCompanyConfig$"
-              [fields]="onlyCompanyFields$"
-              [model]="onlyCompanyModel$">
-    </uni-form>
-
     <article class="company-logo collapsable" [ngClass]="{'-is-open': showImageSection}">
         <h4 (click)="showImageSection = !showImageSection">Firmalogo</h4>
         <div class="collapsable-content">
