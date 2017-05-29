@@ -58,15 +58,17 @@
                 "FilterOperator": "gt"
             },
             {
-                "Header": "Restsum",
+                "Header": "Rest",
                 "Field": "RestAmountCurrency",
                 "Format": "NumberPositiveNegative",
-                "DefaultHidden": true
+                "Width": "150px",
+                "FilterOperator": "gt"
             },
             {
                 "Header": "Kreditert",
                 "Field": "CreditedAmountCurrency",
                 "Format": "NumberPositiveNegative",
+                "Width": "150px",
                 "DefaultHidden": true
             },
             {
@@ -85,6 +87,7 @@
                 "Header": "Kreditert [BASECURRENCY]",
                 "Field": "CreditedAmount",
                 "Format": "NumberPositiveNegative",
+                "Width": "150px",
                 "DefaultHidden": true
             },
             {
@@ -96,7 +99,7 @@
             },
             {
                 "Header": "Fakturatype",
-                "Field": "CustomerInvoice.InvoiceType",
+                "Field": "InvoiceType",
                 "Type": "dontdisplay"
             },
             {
@@ -245,17 +248,27 @@
                 "Code": "invoiced_invoices",
                 "UseAllCriterias": true,
                 "FilterGroups": [{
-                    "UseAllCriterias": false,
+                    "UseAllCriterias": true,
                     "FieldFilters": [
                     {
                         "Field": "StatusCode",
-                        "Operator": "eq",
-                        "Value": "42002"
+                        "Operator": "gt",
+                        "Value": "42001"
                     },
                     {
                         "Field": "StatusCode",
-                        "Operator": "eq",
-                        "Value": "42003"
+                        "Operator": "lt",
+                        "Value": "42004"
+                    },
+                    {
+                        "Field": "InvoiceType",
+                        "Operator": "ne",
+                        "Value": "1"
+                    },
+                    {
+                        "Field": "IsFullyCredited",
+                        "Operator": "ne",
+                        "Value": "True"
                     }
                 ]}
                 ]
@@ -277,6 +290,11 @@
                         "Field": "PaymentDueDate",
                         "Operator": "lt",
                         "Value": "getdate()"
+                    },
+                    {
+                        "Field": "IsFullyCredited",
+                        "Operator": "ne",
+                        "Value": "True"
                     }
                 ]},
                 {
@@ -306,6 +324,11 @@
                         "Field": "CollectorStatusCode",
                         "Operator": "eq",
                         "Value": "42501"
+                    },
+                    {
+                        "Field": "IsFullyCredited",
+                        "Operator": "ne",
+                        "Value": "True"
                     }
                 ]}
                 ]
@@ -336,6 +359,31 @@
                         "Field": "StatusCode",
                         "Operator": "eq",
                         "Value": "42004"
+                    },
+                    {
+                        "Field": "IsFullyCredited",
+                        "Operator": "ne",
+                        "Value": "True"
+                    }
+                ]}
+                ]
+            },
+            {
+                "Name": "Kreditert",
+                "Code": "fullyCredited_invoices",
+                "UseAllCriterias": true,
+                "FilterGroups": [{
+                    "UseAllCriterias": false,
+                    "FieldFilters": [
+                    {
+                        "Field": "IsFullyCredited",
+                        "Operator": "eq",
+                        "Value": "True"
+                    },
+                    {
+                        "Field": "InvoiceType",
+                        "Operator": "eq",
+                        "Value": "1"
                     }
                 ]}
                 ]
