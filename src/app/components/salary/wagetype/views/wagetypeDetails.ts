@@ -1,18 +1,17 @@
-import {Component, ViewChild, SimpleChanges} from '@angular/core';
+import { Component, ViewChild, SimpleChanges } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { WageTypeService, AccountService, InntektService, WageTypeBaseOptions } from '../../../../services/services';
 import { UniForm, UniFieldLayout } from 'uniform-ng2/main';
 import {
     WageType, Account, WageTypeSupplement, SpecialTaxAndContributionsRule, GetRateFrom,
-    StdWageType, SpecialAgaRule, TaxType } from '../../../../unientities';
+    StdWageType, SpecialAgaRule, TaxType
+} from '../../../../unientities';
 import { Observable } from 'rxjs/Observable';
 import { UniTableConfig, UniTableColumnType, UniTableColumn } from 'unitable-ng2/main';
 
 import { UniView } from '../../../../../framework/core/uniView';
-import { UniCacheService, ErrorService} from '../../../../services/services';
-import {BehaviorSubject} from 'rxjs/BehaviorSubject';
-
-declare const _; // lodash
+import { UniCacheService, ErrorService } from '../../../../services/services';
+import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 
 @Component({
     selector: 'wagetype-details',
@@ -30,7 +29,6 @@ export class WagetypeDetail extends UniView {
 
     private supplementPackages: any[] = [];
     private baseOptions: WageTypeBaseOptions[] = [];
-    private baseOptionsCounter: number;
 
     private tilleggspakkeConfig: UniTableConfig;
     private showSupplementaryInformations: boolean = false;
@@ -105,273 +103,289 @@ export class WagetypeDetail extends UniView {
 
         this.route.parent.params.subscribe(params => {
             super.updateCacheKey(router.url);
-            super.getStateSubject('wagetype').subscribe((wageType: WageType) => {
-                if (wageType.ID !== this.wagetypeID) {
+            super.getStateSubject('wagetype')
+                .switchMap((wageType: WageType) => {
+                    if (wageType.ID !== this.wagetypeID) {
+                        this.wagetypeID = wageType.ID;
+                        this.updateBaseOptions(wageType);
+
+                        this.rateIsReadOnly = wageType.GetRateFrom !== GetRateFrom.WageType;
+
+                        this.incomeTypeDatasource = [];
+                        this.benefitDatasource = [];
+                        this.descriptionDatasource = [];
+                        this.supplementPackages = [];
+
+                        return this.setup(wageType);
+                    } else {
+                        return Observable.of(wageType);
+                    }
+                })
+                .subscribe((wageType: WageType) => {
                     this.wageType$.next(wageType);
-                    this.wagetypeID = wageType.ID;
-                    this.updateBaseOptions();
-
-                    this.rateIsReadOnly = wageType.GetRateFrom !== GetRateFrom.WageType;
-
-                    this.incomeTypeDatasource = [];
-                    this.benefitDatasource = [];
-                    this.descriptionDatasource = [];
-                    this.supplementPackages = [];
-
-                    this.setup();
-                }
-            }, err => this.errorService.handle(err));
+                }, err => this.errorService.handle(err));
         });
     }
 
-    private updateBaseOptions() {
+    private updateBaseOptions(wageType: WageType) {
         this.baseOptions = [];
-        if (this.wageType$.getValue().Base_Vacation) {
+        if (wageType.Base_Vacation) {
             this.baseOptions.push(WageTypeBaseOptions.VacationPay);
         }
-        if (this.wageType$.getValue().Base_EmploymentTax) {
+        if (wageType.Base_EmploymentTax) {
             this.baseOptions.push(WageTypeBaseOptions.AGA);
         }
-        if (this.wageType$.getValue().Base_div1) {
+        if (wageType.Base_div1) {
             this.baseOptions.push(WageTypeBaseOptions.Pension);
         }
-        this.baseOptionsCounter = this.baseOptions.length;
-        let wageType = this.wageType$.getValue();
         wageType['_baseOptions'] = this.baseOptions;
-        this.wageType$.next(wageType);
+        return wageType;
     }
 
-    private getSetupSources() {
+    private getSetupSources(wageType: WageType) {
         let sources = [
-            this.wageService.layout('WagetypeDetails'),
+            <Observable<any>>this.wageService.layout('WagetypeDetails'),
             this.inntektService.getSalaryValidValueTypes(),
-            this.accountService.GetAll(null)
+            (this.accounts && this.accounts.length ? Observable.of(this.accounts) : this.accountService.GetAll(null))
         ];
-        if (this.wageType$.getValue().WageTypeNumber) {
-            sources.push(this.wageService.usedInPayrollrun(this.wageType$.getValue().WageTypeNumber));
+
+        if (wageType.WageTypeNumber) {
+            sources.push(this.wageService.usedInPayrollrun(wageType.WageTypeNumber));
         }
         return sources;
     }
 
-    private setup() {
-        const sources = this.getSetupSources();
-        Observable.forkJoin(sources).subscribe(
-            (response: any) => {
+    private setup(wageType: WageType): Observable<WageType> {
+        const sources = this.getSetupSources(wageType);
+        return Observable
+            .forkJoin(sources)
+            .map((response: [any, any[], Account[], boolean]) => {
                 let [layout, validvaluesTypes, accounts, usedInPayrollrun] = response;
-                if (layout.Fields) {
-                    this.fields$.next(layout.Fields);
-                }
+                let fields = layout.Fields;
                 this.accounts = accounts;
                 this.validValuesTypes = validvaluesTypes;
-
-                this.extendFields(usedInPayrollrun);
-                this.updateUniformFields();
-                this.checkAmeldingInfo();
-            },
-            err => this.errorService.handle(err)
-        );
+                this.extendFields(usedInPayrollrun, fields, wageType);
+                this.checkAmeldingInfo(wageType, fields);
+                this.updateUniformFields(fields, false);
+                this.fields$.next(fields);
+                return wageType;
+            })
+            .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
     }
 
-    private extendFields(calculatedRun: boolean) {
-        this.fields$.next(this.wageService.manageReadOnlyIfCalculated(this.fields$.getValue(), calculatedRun));
-        let rate: UniFieldLayout = this.findByProperty('Rate');
-        rate.ReadOnly = this.rateIsReadOnly;
-
-        let wageTypeNumber: UniFieldLayout = this.findByProperty('WageTypeNumber');
-        wageTypeNumber.ReadOnly = this.wageType$.getValue().ID > 0;
-
-        let accountNumber: UniFieldLayout = this.findByProperty('AccountNumber');
-        accountNumber.Options = {
-            source: this.accounts,
-            valueProperty: 'AccountNumber',
-            template: (account: Account) => account ? `${account.AccountNumber} - ${account.AccountName}` : '',
-        };
-
-        let accountNumberBalance: UniFieldLayout = this.findByProperty('AccountNumber_balance');
-        accountNumberBalance.Options = {
-            source: this.accounts,
-            valueProperty: 'AccountNumber',
-            template: (account: Account) => account ? `${account.AccountNumber} - ${account.AccountName}` : '',
-        };
-        accountNumberBalance.ReadOnly = this.wageType$.getValue().Base_Payment;
-        this.basePayment = this.wageType$.getValue().Base_Payment;
-
-        let specialAgaRule: UniFieldLayout = this.findByProperty('SpecialAgaRule');
-        specialAgaRule.Options = {
-            source: this.specialAgaRule,
-            displayProperty: 'Name',
-            valueProperty: 'ID',
-            debounceTime: 500
-        };
-
-        let taxtype: UniFieldLayout = this.findByProperty('taxtype');
-        taxtype.Options = {
-            source: this.taxType,
-            template: (obj) => obj.Name,
-            displayProperty: 'Name',
-            valueProperty: 'ID',
-            debounceTime: 500,
-            events: {
-                tab: (event) => {
-                    this.uniform.field('StandardWageTypeFor').focus();
-                },
-                shift_tab: (event) => {
-                    this.uniform.field('AccountNumber').focus();
-                }
-            }
-        };
-
-        let getRateFrom = this.fields$.getValue().find(x => x.Property === 'GetRateFrom');
-        getRateFrom.Options = {
-            source: this.getRateFrom,
-            displayProperty: 'Name',
-            valueProperty: 'ID'
-        };
-
-        let standardWageTypeFor: UniFieldLayout = this.findByProperty('StandardWageTypeFor');
-        standardWageTypeFor.Options = {
-            source: this.stdWageType,
-            displayProperty: 'Name',
-            valueProperty: 'ID',
-            events: {
-                tab: (event) => {
-                    if (this.wageType$.getValue().Base_Payment) {
-                        this.uniform.field('GetRateFrom').focus();
-                    } else {
-                        this.uniform.field('AccountNumber_balance').focus();
+    private extendFields(calculatedRun: boolean, fields: any[], wageType: WageType) {
+        this.basePayment = wageType.Base_Payment;
+        fields = this.wageService.manageReadOnlyIfCalculated(fields, calculatedRun);
+        this.setReadOnlyOnField(fields, 'Rate', this.rateIsReadOnly);
+        this.setReadOnlyOnField(fields, 'WageTypeNumber', !!wageType.ID);
+        this.editField(fields, 'AccountNumber', (accountNumber) => {
+            accountNumber.Options = {
+                source: this.accounts,
+                valueProperty: 'AccountNumber',
+                template: (account: Account) => account ? `${account.AccountNumber} - ${account.AccountName}` : '',
+            };
+        });
+        this.editField(fields, 'AccountNumber_balance', (accountNumberBalance) => {
+            accountNumberBalance.Options = {
+                source: this.accounts,
+                valueProperty: 'AccountNumber',
+                template: (account: Account) => account ? `${account.AccountNumber} - ${account.AccountName}` : '',
+            };
+            accountNumberBalance.ReadOnly = wageType.Base_Payment;
+        });
+        this.editField(fields, 'SpecialAgaRule', specialAgaRule => {
+            specialAgaRule.Options = {
+                source: this.specialAgaRule,
+                displayProperty: 'Name',
+                valueProperty: 'ID',
+                debounceTime: 500
+            };
+        });
+        this.editField(fields, 'taxtype', taxtype => {
+            taxtype.Options = {
+                source: this.taxType,
+                template: (obj) => obj.Name,
+                displayProperty: 'Name',
+                valueProperty: 'ID',
+                debounceTime: 500,
+                events: {
+                    tab: (event) => {
+                        this.uniform.field('StandardWageTypeFor').focus();
+                    },
+                    shift_tab: (event) => {
+                        this.uniform.field('AccountNumber').focus();
                     }
-
-                },
-                shift_tab: (event) => {
-                    this.uniform.field('taxtype').focus();
                 }
-            }
-        };
+            };
+        });
+        this.editField(fields, 'GetRateFrom', getRateFrom => {
+            getRateFrom.Options = {
+                source: this.getRateFrom,
+                displayProperty: 'Name',
+                valueProperty: 'ID'
+            };
+        });
 
-        let specialTaxAndContributionsRule = this.fields$.getValue()
-            .find(x => x.Property === 'SpecialTaxAndContributionsRule');
-        specialTaxAndContributionsRule.Options = {
-            source: this.specialTaxAndContributionsRule,
-            displayProperty: 'Name',
-            valueProperty: 'ID',
-            debounceTime: 500
-        };
+        this.editField(fields, 'StandardWageTypeFor', standardWageTypeFor => {
+            standardWageTypeFor.Options = {
+                source: this.stdWageType,
+                displayProperty: 'Name',
+                valueProperty: 'ID',
+                events: {
+                    tab: (event) => {
+                        if (this.wageType$.getValue().Base_Payment) {
+                            this.uniform.field('GetRateFrom').focus();
+                        } else {
+                            this.uniform.field('AccountNumber_balance').focus();
+                        }
 
-        this.fields$.next(this.fields$.getValue());
+                    },
+                    shift_tab: (event) => {
+                        this.uniform.field('taxtype').focus();
+                    }
+                }
+            };
+        });
+
+        this.editField(fields, 'SpecialTaxAndContributionsRule', specialTaxAndContributionsRule => {
+            specialTaxAndContributionsRule.Options = {
+                source: this.specialTaxAndContributionsRule,
+                displayProperty: 'Name',
+                valueProperty: 'ID'
+            };
+        });
     }
 
-    private checkAmeldingInfo() {
-        if (this.wageType$.getValue().SupplementaryInformations
-            && this.wageType$.getValue().SupplementaryInformations.length > 0) {
-            this.showSupplementaryInformations = true;
-            this.findByProperty('SupplementPackage').Hidden = false;
-        } else {
-            this.showSupplementaryInformations = false;
-            this.findByProperty('SupplementPackage').Hidden = true;
+    private editField(fields: any[], prop: string, edit: (field: any) => void) {
+        fields.map(field => {
+            if (field.Property === prop) {
+                edit(field);
+            }
+        });
+    }
+
+    private checkAmeldingInfo(wageType: WageType, fields: any[]) {
+        let hasSupplements = (wageType.SupplementaryInformations
+            && wageType.SupplementaryInformations.length > 0);
+
+        this.showSupplementaryInformations = hasSupplements;
+        this.setFieldHidden(fields, 'SupplementPackage', !hasSupplements);
+
+        if (wageType.Benefit !== '') {
+            this.benefitDatasource.push({ text: wageType.Benefit });
         }
 
-        if (this.wageType$.getValue().Benefit !== '') {
-            this.benefitDatasource.push({ text: this.wageType$.getValue().Benefit });
-        }
-
-        if (this.wageType$.getValue().Description !== '') {
-            this.descriptionDatasource.push({ text: this.wageType$.getValue().Description });
+        if (wageType.Description !== '') {
+            this.descriptionDatasource.push({ text: wageType.Description });
         }
 
         this.setupTypes(this.validValuesTypes);
 
-        if (this.wageType$.getValue().IncomeType !== null) {
+        if (!!wageType.IncomeType) {
             this.showBenefitAndDescriptionAsReadonly = false;
-            this.filterSupplementPackages();
+            this.filterSupplementPackages(wageType.IncomeType, true, true, true, fields);
         }
 
-        this.wageType$.getValue()['_AMeldingHelp'] = this.aMeldingHelp;
-
-        this.updateUniformFields();
+        wageType['_AMeldingHelp'] = this.aMeldingHelp;
 
         this.setupTilleggspakkeConfig();
     }
 
-    private updateUniformFields() {
-
-        let incomeType: UniFieldLayout = this.findByProperty('IncomeType');
-        incomeType.Options = {
-            source: this.incomeTypeDatasource,
-            valueProperty: 'text',
-            displayProperty: 'text',
-            debounceTime: 200,
-            template: (obj) => obj ? `${obj.text}` : '',
-            events: {
-                select: (model) => {
-                    this.showSupplementaryInformations = false;
-                    this.findByProperty('SupplementPackage').Hidden = true;
-                    this.filterSupplementPackages(model.IncomeType, true, false, false);
-                    this.showBenefitAndDescriptionAsReadonly = false;
-                    this.wageType$.getValue().Description = '';
-                    this.wageType$.getValue().Benefit = '';
-                    this.uniform.field('Benefit').focus();
-                },
-                shift_tab: (event) => {
-                    this.uniform.field('RateFactor').focus();
-                }
+    private setFieldHidden(fields: any[], prop: string, isHidden) {
+        fields.map(field => {
+            if (field.Property === prop) {
+                field.Hidden = isHidden;
             }
-        };
+        });
+        return fields;
+    }
 
-        let benefit: UniFieldLayout = this.findByProperty('Benefit');
-        benefit.Options = {
-            source: this.benefitDatasource,
-            valueProperty: 'text',
-            displayProperty: 'text',
-            debounceTime: 200,
-            template: (obj) => obj ? `${obj.text}` : '',
-            events: {
-                select: (model) => {
-                    this.showSupplementaryInformations = false;
-                    this.findByProperty('SupplementPackage').Hidden = true;
-                    this.filterSupplementPackages(model.IncomeType, true, true, false);
-                    this.setDescriptionDataSource();
-                    this.wageType$.getValue().Description = '';
-                },
-                shift_tab: (event) => {
-                    this.uniform.field('IncomeType').focus();
-                }
-            }
-        };
-        benefit.ReadOnly = this.showBenefitAndDescriptionAsReadonly;
+    private updateUniformFields(fields: any[], refresh = true) {
+        fields = fields || this.fields$.getValue();
 
-        let description: UniFieldLayout = this.findByProperty('Description');
-        description.Options = {
-            source: this.descriptionDatasource,
-            valueProperty: 'text',
-            displayProperty: 'text',
-            debounceTime: 200,
-            template: (obj) => obj ? `${obj.text}` : '',
-            events: {
-                select: (model) => {
-                    this.filterSupplementPackages(model.IncomeType, true, true, true);
-                    if (this.supplementPackages.length > 0) {
-                        this.findByProperty('SupplementPackage').Hidden = false;
+        this.editField(fields, 'IncomeType', incomeType => {
+            incomeType.Options = {
+                source: this.incomeTypeDatasource,
+                valueProperty: 'text',
+                displayProperty: 'text',
+                debounceTime: 200,
+                template: (obj) => obj ? `${obj.text}` : '',
+                events: {
+                    select: (model, value) => {
+                        let wageType = this.wageType$.getValue();
+                        this.showSupplementaryInformations = false;
+                        this.setFieldHidden(fields, 'SupplementPackage', true);
+                        this.filterSupplementPackages(model.IncomeType, true, false, false);
+                        this.showBenefitAndDescriptionAsReadonly = false;
+                        wageType.Description = '';
+                        wageType.Benefit = '';
+                        this.wageType$.next(wageType);
+                        this.uniform.field('Benefit').focus();
                     }
-                    this.uniform.field('SpecialTaxAndContributionsRule').focus();
-                },
-                shift_tab: (event) => {
-                    this.uniform.field('Benefit').focus();
                 }
-            }
-        };
-        description.ReadOnly = this.showBenefitAndDescriptionAsReadonly;
+            };
+        });
 
-        let tilleggsinfo: UniFieldLayout = this.findByProperty('SupplementPackage');
-        tilleggsinfo.Options = {
-            source: this.supplementPackages,
-            valueProperty: 'uninavn',
-            displayProperty: 'uninavn',
-            debounceTime: 200,
-            template: (obj) => obj ? `${obj.uninavn}` : ''
-        };
-        tilleggsinfo.ReadOnly = this.hidePackageDropdown;
+        this.editField(fields, 'Benefit', benefit => {
+            benefit.Options = {
+                source: this.benefitDatasource,
+                valueProperty: 'text',
+                displayProperty: 'text',
+                debounceTime: 200,
+                template: (obj) => obj ? `${obj.text}` : '',
+                events: {
+                    select: (model) => {
+                        let wageType = this.wageType$.getValue();
+                        this.showSupplementaryInformations = false;
+                        this.fields$.next(this.setFieldHidden(this.fields$.getValue(), 'SupplementPackage', true));
+                        this.filterSupplementPackages(model.IncomeType, true, true, false);
+                        this.setDescriptionDataSource();
+                        wageType.Description = '';
+                        this.wageType$.next(wageType);
+                        this.uniform.field('Description').focus();
+                    }
+                }
+            };
+            benefit.ReadOnly = this.showBenefitAndDescriptionAsReadonly;
+        });
 
-        this.fields$.next(this.fields$.getValue());
+        this.editField(fields, 'Description', description => {
+            description.Options = {
+                source: this.descriptionDatasource,
+                valueProperty: 'text',
+                displayProperty: 'text',
+                debounceTime: 200,
+                template: (obj) => obj ? `${obj.text}` : '',
+                events: {
+                    select: (model) => {
+                        this.filterSupplementPackages(model.IncomeType, true, true, true);
+                        this.fields$
+                            .next(this.setFieldHidden(
+                                this.fields$.getValue(),
+                                'SupplementPackage',
+                                !this.supplementPackages.length));
+
+                        this.uniform.field('SpecialTaxAndContributionsRule').focus();
+                    }
+                }
+            };
+            description.ReadOnly = this.showBenefitAndDescriptionAsReadonly;
+        });
+
+        this.editField(fields, 'SupplementPackage', tilleggsinfo => {
+            tilleggsinfo.Options = {
+                source: this.supplementPackages,
+                valueProperty: 'uninavn',
+                displayProperty: 'uninavn',
+                debounceTime: 200,
+                template: (obj) => obj ? `${obj.uninavn}` : ''
+            };
+            tilleggsinfo.ReadOnly = this.hidePackageDropdown;
+        });
+
+        if (refresh) {
+            this.fields$.next(fields);
+        }
     }
 
     private setupTypes(types: any[]) {
@@ -384,7 +398,8 @@ export class WagetypeDetail extends UniView {
         selectedType: string = '',
         setSources: boolean = true,
         filterByFordel: boolean = true,
-        filterByDescription: boolean = true) {
+        filterByDescription: boolean = true,
+        fields: any[] = undefined) {
         if (selectedType !== '') {
             selectedType = this.wageType$.getValue().IncomeType;
         }
@@ -400,6 +415,10 @@ export class WagetypeDetail extends UniView {
                     }
                     if (filterByDescription) {
                         this.setPackagesFilteredByDescription();
+                    }
+
+                    if (setSources || filterByDescription) {
+                        this.updateUniformFields(fields);
                     }
                 }
             }, err => this.errorService.handle(err));
@@ -421,8 +440,6 @@ export class WagetypeDetail extends UniView {
                 }
             }
         });
-
-        this.updateUniformFields();
     }
 
     private setDescriptionDataSource() {
@@ -508,7 +525,6 @@ export class WagetypeDetail extends UniView {
         }
 
         this.supplementPackages = packs;
-        this.updateUniformFields();
     }
 
     private setPackagesFilteredByFordel() {
@@ -617,8 +633,8 @@ export class WagetypeDetail extends UniView {
         return value;
     }
 
-    private showTilleggsPakker(model: any) {
-        let selectedPackage: any = this.supplementPackages.find(x => x.uninavn === model.SupplementPackage);
+    private showTilleggsPakker(wageType: WageType, fields: any[]): void {
+        let selectedPackage: any = this.supplementPackages.find(x => x.uninavn === wageType.SupplementPackage);
         this.showSupplementaryInformations = false;
         if (selectedPackage) {
             let supInfo: Array<any> = [];
@@ -627,39 +643,42 @@ export class WagetypeDetail extends UniView {
             });
 
             if (supInfo && supInfo.length > 0) {
-                this.wageType$.getValue().SupplementaryInformations = this.setDeleteOnDuplicates(supInfo);
+                this.setDeleteOnDuplicates(supInfo, wageType);
             } else {
-                this.wageType$.getValue().SupplementaryInformations.forEach(supplement => {
+                wageType.SupplementaryInformations.forEach(supplement => {
                     supplement['_setDelete'] = true;
                 });
             }
-
-            if (this.wageType$.getValue().SupplementaryInformations.length > 0) {
+            if (!!wageType.SupplementaryInformations.length) {
                 this.showSupplementaryInformations = true;
-                this.findByProperty('SupplementPackage').Hidden = false;
+                fields.map(field => {
+                    if (field.Property === 'SupplementPackage') {
+                        field.Hidden = false;
+                    }
+                });
             }
-
-            super.updateState('wagetype', this.wageType$.getValue(), true);
         }
     }
 
-    private setDeleteOnDuplicates(additions) {
+    private setDeleteOnDuplicates(additions, wageType: WageType): void {
+        // filter out not saved supplements
+        wageType.SupplementaryInformations = wageType.SupplementaryInformations.filter(x => x.ID);
         // set delete for those supplements thats not in selected addition-package
-        if (this.wageType$.getValue().SupplementaryInformations && this.wageType$.getValue().SupplementaryInformations.length) {
-            for (var g = 0; g < this.wageType$.getValue().SupplementaryInformations.length; g++) {
+        if (wageType.SupplementaryInformations && wageType.SupplementaryInformations.length) {
+            for (var g = 0; g < wageType.SupplementaryInformations.length; g++) {
                 let setDelete = true;
                 for (var h = 0; h < additions.length; h++) {
-                    if (additions[h].Name === this.wageType$.getValue().SupplementaryInformations[g].Name) {
+                    if (additions[h].Name === wageType.SupplementaryInformations[g].Name) {
                         setDelete = false;
                     }
                 }
                 if (setDelete) {
-                    this.wageType$.getValue().SupplementaryInformations[g].Deleted = true;
+                    wageType.SupplementaryInformations[g].Deleted = true;
                 }
             }
         }
 
-        let array = this.wageType$.getValue().SupplementaryInformations.concat(JSON.parse(JSON.stringify(additions)));
+        let array = wageType.SupplementaryInformations.concat(JSON.parse(JSON.stringify(additions)));
 
         // ensure no duplicates
         for (var i = array.length - 1; i > 0; i--) {
@@ -670,7 +689,7 @@ export class WagetypeDetail extends UniView {
                 }
             }
         }
-        return array;
+        wageType.SupplementaryInformations = array;
     }
 
     private setupTilleggspakkeConfig() {
@@ -679,42 +698,68 @@ export class WagetypeDetail extends UniView {
         let suggestedValue = new UniTableColumn('SuggestedValue', 'Fast verdi', UniTableColumnType.Text);
 
         this.tilleggspakkeConfig = new UniTableConfig(true, true, 15)
+            .setFilters([{ field: '_setDelete', operator: 'ne', value: 'true', group: 0 }])
             .setColumns([tilleggsopplysning, suggestedValue])
             .setAutoAddNewRow(false);
     }
 
     public change(changes: SimpleChanges) {
-        if (!!this.currentPackage !== !!this.wageType$.getValue()['SupplementPackage']) {
-            this.currentPackage = this.wageType$.getValue()['SupplementPackage'];
-            this.showTilleggsPakker(this.wageType$.getValue());
-        }
-        let newRateIsReadOnly = this.wageType$.getValue().GetRateFrom !== GetRateFrom.WageType;
-        if (this.rateIsReadOnly !== newRateIsReadOnly) {
-            this.rateIsReadOnly = newRateIsReadOnly;
-            let rate: UniFieldLayout = this.findByProperty('Rate');
-            rate.ReadOnly = this.rateIsReadOnly;
-        }
+        Observable
+            .combineLatest(this.wageType$, this.fields$)
+            .take(1)
+            .filter((result: [WageType, any[]]) => {
+                let [wageType, fields] = result;
+                return fields.some(field => {
+                    let change = changes[field.Property];
+                    return change && change.previousValue !== change.currentValue;
+                });
+            })
+            .map((result: [WageType, any[]]) => {
+                let [wageType, fields] = result;
 
-        if (this.basePayment !== this.wageType$.getValue().Base_Payment) {
-            this.basePayment = this.wageType$.getValue().Base_Payment;
-            let accountNumberBalance: UniFieldLayout = this.findByProperty('AccountNumber_balance');
-            accountNumberBalance.ReadOnly = this.basePayment;
-        }
+                if (changes['GetRateFrom']) {
+                    this.setReadOnlyOnField(
+                        fields,
+                        'Rate',
+                        changes['GetRateFrom'].currentValue !== GetRateFrom.WageType);
+                }
 
-        this.checkBaseOptions();
+                if (changes['Base_Payment']) {
+                    let basePayment = changes['Base_Payment'].currentValue;
+                    this.setReadOnlyOnField(fields, 'HideFromPaycheck', basePayment);
+                    this.setReadOnlyOnField(fields, 'AccountNumber_balance', basePayment);
+                    wageType.HideFromPaycheck = false;
+                }
 
-        this.wageType$.next(this.wageType$.getValue());
+                if (changes['SupplementPackage']) {
+                    this.showTilleggsPakker(wageType, fields);
+                }
 
-        super.updateState('wagetype', this.wageType$.getValue(), true);
+                if (changes['_baseOptions']) {
+                    this.checkBaseOptions(wageType);
+                }
+
+                return [wageType, fields];
+            })
+            .subscribe((result: [WageType, any[]]) => {
+                let [wageType, fields] = result;
+                this.fields$.next(fields);
+                super.updateState('wagetype', wageType, true);
+            });
     }
 
-    private checkBaseOptions() {
-        if (this.baseOptionsCounter !== this.baseOptions.length) {
-            this.baseOptionsCounter = this.baseOptions.length;
-            this.wageType$.getValue().Base_Vacation = this.baseOptions.some(x => x === WageTypeBaseOptions.VacationPay);
-            this.wageType$.getValue().Base_EmploymentTax = this.baseOptions.some(x => x === WageTypeBaseOptions.AGA);
-            this.wageType$.getValue().Base_div1 = this.baseOptions.some(x => x === WageTypeBaseOptions.Pension);
-        }
+    private setReadOnlyOnField(fields: any[], prop: string, readOnly: boolean) {
+        fields.map(field => {
+            if (field.Property === prop) {
+                field.ReadOnly = readOnly;
+            }
+        });
+    }
+
+    private checkBaseOptions(wageType: WageType): void {
+        wageType.Base_Vacation = this.baseOptions.some(x => x === WageTypeBaseOptions.VacationPay);
+        wageType.Base_EmploymentTax = this.baseOptions.some(x => x === WageTypeBaseOptions.AGA);
+        wageType.Base_div1 = this.baseOptions.some(x => x === WageTypeBaseOptions.Pension);
     }
 
     public toggle(section) {
@@ -727,21 +772,5 @@ export class WagetypeDetail extends UniView {
                 this.showSupplementaryInformations = false;
             }
         }
-    }
-
-    private findByProperty(name) {
-        return this.fields$.getValue().find((fld) => fld.Property === name);
-    }
-
-    public log(title: string, err) {
-        if (!title) {
-            title = '';
-        }
-        if (err._body) {
-            alert(title + ' ' + err._body);
-        } else {
-            alert(title + ' ' + JSON.stringify(err));
-        }
-
     }
 }
