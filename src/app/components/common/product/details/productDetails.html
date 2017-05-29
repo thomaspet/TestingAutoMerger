@@ -22,10 +22,23 @@
             (changeEvent)="change($event)">
     </uni-form>
 
-    <article class="collapsable" [ngClass]="{'-is-open': showImageComponent}">
-        <h4 (click)="showImageComponent = !showImageComponent">Produktbilde</h4>
+    <article class="collapsable" [ngClass]="{'-is-open': showExtendedProductInfo}">
+        <h4 (click)="showExtendedProductInfo = !showExtendedProductInfo">Utvidet produktinformasjon</h4>
         <div class="collapsable-content">
-            <uni-image [entity]="'product'" [entityID]="(product$ | async)?.ID" [uploadConfig]="imageUploadConfig"></uni-image>
+            <fieldset>
+                <legend>Produktbeskrivelse</legend>
+                <label>
+                    <span>Beskrivelse</span>
+                    <textarea [formControl]="descriptionControl"
+                              (change)="textareaChange">
+                    </textarea>
+                </label>
+            </fieldset>
+
+            <fieldset>
+                <legend>Produktbilde</legend>
+                <uni-image [entity]="'product'" [entityID]="(product$ | async)?.ID" [uploadConfig]="imageUploadConfig"></uni-image>
+            </fieldset>
         </div>
     </article>
 </section>
