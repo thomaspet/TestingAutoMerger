@@ -876,6 +876,22 @@ export class CustomerDetails {
                 },
                 {
                     FieldSet: 1,
+                    ComponentLayoutID: 1,
+                    EntityType: 'Customer',
+                    Property: '_CustomerSearchResult',
+                    Placement: 1,
+                    Hidden: true,
+                    FieldType: FieldType.UNI_SEARCH,
+                    Label: 'Navn',
+                    Section: 0,
+                    Sectionheader: '',
+                    Validations: [],
+                    Options: {
+                        uniSearchConfig: this.getCustomerLookupOptions()
+                    }
+                },
+                {
+                    FieldSet: 1,
                     ComponentLayoutID: 3,
                     EntityType: 'Customer',
                     Property: 'WebUrl',
@@ -1031,24 +1047,7 @@ export class CustomerDetails {
                     FieldType: FieldType.TEXT
                 },
 
-                // Hidden fields
-                {
-                    ComponentLayoutID: 1,
-                    EntityType: 'Customer',
-                    Property: '_CustomerSearchResult',
-                    Placement: 1,
-                    Hidden: true,
-                    FieldType: FieldType.UNI_SEARCH,
-                    Label: 'Navn',
-                    FieldSet: 0,
-                    Section: 0,
-                    Sectionheader: '',
-                    Validations: [],
-                    Options: {
-                        uniSearchConfig: this.getCustomerLookupOptions()
-                    }
-                },
-
+                // Hidden field
                 {
                     ComponentLayoutID: 3,
                     EntityType: 'Customer',
