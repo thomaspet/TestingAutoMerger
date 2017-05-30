@@ -1,4 +1,5 @@
 import {Component, Input, Output, ViewChild, EventEmitter, OnChanges, SimpleChanges} from '@angular/core';
+import {FormControl} from '@angular/forms';
 import {CurrencyCode} from '../../../unientities';
 import {TofCustomerCard} from './customerCard';
 import {TofDetailsForm} from './detailsForm';
@@ -18,17 +19,22 @@ export class TofHead implements OnChanges {
 
     @Output() public dataChange: EventEmitter<any> = new EventEmitter();
 
-    public tabs: string[] = ['Detaljer', 'Levering', 'Dokumenter'];
+    public tabs: string[] = ['Detaljer', 'Levering', 'Fritekst', 'Dokumenter'];
     public activeTabIndex: number = 0;
-
-    public onDataChange(data) {
-        this.dataChange.emit(data);
-    }
+    private freeTextControl: FormControl = new FormControl('');
 
     public ngOnChanges(changes: SimpleChanges) {
-        if (changes['data']) {
-            this.data = _.cloneDeep(this.data);
+        if (this.data) {
+            this.freeTextControl.setValue(this.data.FreeTxt, {emitEvent: false});
         }
+    }
+
+    public onDataChange(data?: any) {
+        let updatedEntity = data || this.data;
+        updatedEntity.FreeTxt = this.freeTextControl.value;
+
+        this.dataChange.emit(updatedEntity);
+        this.data = _.cloneDeep(updatedEntity);
     }
 
     public ngOnInit() {
