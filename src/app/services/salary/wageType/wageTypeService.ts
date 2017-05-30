@@ -97,7 +97,7 @@ export class WageTypeService extends BizHttp<WageType> {
     }
 
     public getNext(wageTypeNumber: number, expands: string[] = null) {
-        return super.GetAll(`filter=WageTypeNumber gt ${wageTypeNumber}&top=1&orderBy=WageTypeNumber`, 
+        return super.GetAll(`filter=WageTypeNumber gt ${wageTypeNumber}&top=1&orderBy=WageTypeNumber,ValidYear desc`, 
             expands ? expands : this.defaultExpands)
             .map(resultSet => resultSet[0]);
     }
