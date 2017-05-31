@@ -51,7 +51,7 @@ export class TransqueryDetails implements OnInit {
     private lastFilterString: string;
 
     private searchParams$: BehaviorSubject<SearchParams> = new BehaviorSubject({});
-    private config$: BehaviorSubject<any> = new BehaviorSubject({});
+    private config$: BehaviorSubject<any> = new BehaviorSubject({autofocus: true});
     private fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
 
     private financialYears: Array<FinancialYear> = null;
@@ -444,10 +444,10 @@ export class TransqueryDetails implements OnInit {
                     .setFilterOperator('contains')
                     .setTemplate(line => `<span title="${line.JournalEntryLineDescription}">${line.JournalEntryLineDescription}</span>`),
                 new UniTableColumn('VatType.VatCode', 'Mvakode', UniTableColumnType.Text)
-                    .setFilterOperator('eq')
+                    .setFilterOperator('startswith')
                     .setTemplate(line => line.VatTypeVatCode),
                 new UniTableColumn('VatDeductionPercent', 'Fradrag %', UniTableColumnType.Number)
-                    .setFilterOperator('eq')
+                    .setFilterOperator('startswith')
                     .setTemplate(line => line.VatDeductionPercent)
                     .setVisible(false),
                 new UniTableColumn('Amount', 'Beløp', UniTableColumnType.Money)
@@ -460,7 +460,7 @@ export class TransqueryDetails implements OnInit {
                     .setFilterOperator('contains')
                     .setTemplate(line => line.CurrencyCodeCode),
                 new UniTableColumn('CurrencyExchangeRate', 'V-Kurs', UniTableColumnType.Number)
-                    .setFilterOperator('eq')
+                    .setFilterOperator('startswith')
                     .setTemplate(line => line.JournalEntryLineCurrencyExchangeRate),
                 new UniTableColumn('TaxBasisAmount', 'Grunnlag MVA', UniTableColumnType.Money)
                     .setFilterOperator('eq')
@@ -476,7 +476,7 @@ export class TransqueryDetails implements OnInit {
                     .setVisible(false),
                 new UniTableColumn('InvoiceNumber', 'Fakturanr', UniTableColumnType.Text)
                     .setCls('column-align-right')
-                    .setFilterOperator('eq')
+                    .setFilterOperator('startswith')
                     .setVisible(false)
                     .setTemplate(line => line.JournalEntryLineInvoiceNumber),
                 new UniTableColumn('DueDate', 'Forfall', UniTableColumnType.LocalDate)

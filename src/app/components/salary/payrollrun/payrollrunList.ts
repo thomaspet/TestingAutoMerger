@@ -25,21 +25,22 @@ export class PayrollrunList implements OnInit {
     ) { }
 
     public ngOnInit() {
-
-        this.yearService.selectedYear$.subscribe(year => {
-            this.payrollRuns$ = this.payrollService
-            .GetAll('orderby=ID Desc' + (year ? '&filter=year(PayDate) eq ' + year : ''))
+        this.busy = true;
+        this.payrollRuns$ = this.yearService
+            .selectedYear$
+            .switchMap(year => this.payrollService
+                .GetAll('orderby=ID Desc' + (year ? '&filter=year(PayDate) eq ' + year : ''))
+                .finally(() => this.busy = false))
             .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
-        });
-        
+
         var idCol = new UniTableColumn('ID', 'Nr', UniTableColumnType.Number)
             .setWidth('5rem');
         var nameCol = new UniTableColumn('Description', 'Navn', UniTableColumnType.Text);
         var statusCol = new UniTableColumn('StatusCode', 'Status', UniTableColumnType.Text)
             .setTemplate((payrollRun) => {
-            var status = this.payrollService.getStatus(payrollRun);
-            return status.text;
-        });
+                var status = this.payrollService.getStatus(payrollRun);
+                return status.text;
+            });
         var paydateCol = new UniTableColumn('PayDate', 'Utbetalingsdato', UniTableColumnType.LocalDate);
         var fromdateCol = new UniTableColumn('FromDate', 'Fra dato', UniTableColumnType.LocalDate);
         var todateCol = new UniTableColumn('ToDate', 'Til dato', UniTableColumnType.LocalDate);

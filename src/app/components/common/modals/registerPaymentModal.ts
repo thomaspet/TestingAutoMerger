@@ -2,7 +2,6 @@ import {Component, Type, Input, Output, ViewChild, EventEmitter, SimpleChanges} 
 import {UniModal} from '../../../../framework/modals/modal';
 import {UniForm, FieldType} from 'uniform-ng2/main';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
-import {ConfirmActions} from '../../../../framework/modals/confirm';
 import {InvoicePaymentData, CompanySettings, Account, CurrencyCode, LocalDate} from '../../../unientities';
 import {
     CompanySettingsService,
@@ -12,6 +11,7 @@ import {
 } from '../../../services/services';
 import * as moment from 'moment';
 import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
+import {UniConfirmModal, ConfirmActions} from '../../../../framework/modals/confirm';
 import {UniMath} from '../../../../framework/core/uniMath';
 
 export interface RegisterPaymentModalResult {
@@ -30,11 +30,11 @@ export interface RegisterPaymentModalResult {
             <span *ngIf='config.invoiceCurrencyExchangeRate && !isMainCurrency'>
                 <table class="invoice-currency-table">
                     <tr>
-                        <td>Faktura-valutakurs:</td>
+                        <td>Valutakurs Faktura:</td>
                         <td>{{config.invoiceCurrencyExchangeRate}}</td>
                     </tr>
                     <tr *ngIf="paymentCurrencyExchangeRate">
-                        <td>Betaling-valutakurs:</td>
+                        <td>Valutakurs Betaling:</td>
                         <td>{{paymentCurrencyExchangeRate}}</td>
                     </tr>
                 </table>
@@ -52,21 +52,17 @@ export interface RegisterPaymentModalResult {
     `
 })
 export class RegisterPaymentForm {
-    @Input()
-    public config: any = {};
+    @Input() public config: any = {};
+    @Output() public formSubmitted: EventEmitter<InvoicePaymentData> = new EventEmitter<InvoicePaymentData>();
 
-    @ViewChild(UniForm)
-    public form: UniForm;
-
-    @Output()
-    public formSubmitted: EventEmitter<InvoicePaymentData> = new EventEmitter<InvoicePaymentData>();
+    @ViewChild(UniForm) public form: UniForm;
 
     // TODO: Jorge: I have to use any to hide errors. Don't use any. Use FieldLayout, but respect interface
     public model$: BehaviorSubject<any> = new BehaviorSubject(null);
     public fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
     public formConfig$: BehaviorSubject<any> = new BehaviorSubject({});
 
-    private companySettings: CompanySettings;
+    public companySettings: CompanySettings;
     private isMainCurrency: boolean = false;
     private paymentCurrencyExchangeRate: number;
 
@@ -82,7 +78,7 @@ export class RegisterPaymentForm {
         this.companySettingsService.Get(1, ['AgioGainAccount', 'AgioLossAccount', 'BankChargeAccount', 'BaseCurrencyCode'])
             .subscribe((data: CompanySettings) => {
                 this.companySettings = data;
-                if (this.companySettings.BaseCurrencyCodeID == this.config.model.CurrencyCodeID) {
+                if (this.companySettings.BaseCurrencyCodeID === this.config.model.CurrencyCodeID) {
                     this.isMainCurrency = true;
                 }
 
@@ -156,20 +152,20 @@ export class RegisterPaymentForm {
             currencyDate
         )
             .map(e => e.ExchangeRate)
-            .catch(err => this.errorService.handle(err))
             .toPromise()
             .then(exchangeRate => {
                 model.Amount = UniMath.round(model.AmountCurrency * exchangeRate);
                 return model;
-            });
+            })
+            .catch(err => this.errorService.handle(err));
     }
 
     private calculateAgio(model: InvoicePaymentData): InvoicePaymentData {
-        if (this.config.entityName === 'CustomerInvoice') {
+        if (this.config.entityName === 'CustomerInvoice' || (this.config.entityName === 'JournalEntryLine' && model.Amount > 0)) {
             this.calculateAgio4CustomerInvoice(model);
-        }
-        else
+        } else if (this.config.entityName === 'SupplierInvoice' || (this.config.entityName === 'JournalEntryLine' && model.Amount < 0)) {
             this.calculateAgio4SupplierInvoice(model);
+        }
         return model;
     }
 
@@ -271,7 +267,6 @@ export class RegisterPaymentForm {
                 FieldSet: 0,
                 Section: 0,
                 Placeholder: null,
-                Options: null,
                 LineBreak: null,
                 Combo: null,
                 Legend: '',
@@ -303,7 +298,6 @@ export class RegisterPaymentForm {
                 FieldSet: 0,
                 Section: 0,
                 Placeholder: null,
-                Options: null,
                 LineBreak: true,
                 Combo: null,
                 Legend: '',
@@ -335,7 +329,6 @@ export class RegisterPaymentForm {
                 FieldSet: 0,
                 Section: 0,
                 Placeholder: null,
-                Options: null,
                 LineBreak: null,
                 Combo: null,
                 Legend: '',
@@ -400,7 +393,6 @@ export class RegisterPaymentForm {
                 FieldSet: 0,
                 Section: 0,
                 Placeholder: null,
-                Options: null,
                 LineBreak: null,
                 Combo: null,
                 Legend: '',
@@ -458,15 +450,16 @@ export class RegisterPaymentForm {
     selector: 'register-payment-modal',
     template: `
         <uni-modal [type]='type' [config]='config' (close)='config?.actions?.cancel?.method()'></uni-modal>
+        <uni-confirm-modal></uni-confirm-modal>
     `,
 })
 export class RegisterPaymentModal {
-    @ViewChild(UniModal)
-    public modal: UniModal;
+    @ViewChild(UniModal) public modal: UniModal;
+    @ViewChild(UniConfirmModal) private confirmModal: UniConfirmModal;
 
     private config: any;
 
-    private invoiceID: number;
+    private id: number;
 
     public type: Type<any> = RegisterPaymentForm;
 
@@ -487,15 +480,15 @@ export class RegisterPaymentModal {
         };
     }
 
-    public confirm(invoiceId: number, title: string, currencyCode: CurrencyCode, invoiceCurrencyExchangeRate: number,
+    public confirm(id: number, title: string, currencyCode: CurrencyCode, currencyExchangeRate: number,
         entityName: string, invoicePaymentData: InvoicePaymentData): Promise<RegisterPaymentModalResult> {
         return new Promise(resolve => {
 
-            this.invoiceID = invoiceId;
+            this.id = id;
             this.config.title = title;
             this.config.model = invoicePaymentData;
             this.config.currencyCode = currencyCode;
-            this.config.invoiceCurrencyExchangeRate = invoiceCurrencyExchangeRate;
+            this.config.invoiceCurrencyExchangeRate = currencyExchangeRate;
             this.config.entityName = entityName;
             this.config.invoiceRestAmountCurrency = invoicePaymentData.AmountCurrency;
 
@@ -503,8 +496,32 @@ export class RegisterPaymentModal {
                 text: 'Registrer betaling',
                 class: 'good',
                 method: () => {
-                    resolve({ status: ConfirmActions.ACCEPT, model: this.config.model, id: this.invoiceID });
-                    this.modal.close();
+                    let diffCurrencyExchangeRate =
+                        Math.abs(this.config.invoiceCurrencyExchangeRate - this.config.model.CurrencyExchangeRate);
+
+                    let diffPercent =
+                        UniMath.round(diffCurrencyExchangeRate * 100 / this.config.invoiceCurrencyExchangeRate, 2);
+
+                    if (diffPercent > 15) {
+                        this.confirmModal.confirm(
+                            `Valutakurs for faktura og betaling avviker med ${diffPercent}%, ` +
+                                `er du sikker på at du har registrert riktige tall? Store differanser ` +
+                                `vil kunne føre til høye agioposteringer, i dette tilfellet blir ` +
+                                `agioposteringen på ${this.config.model.AgioAmount}`,
+                            'Høyt avvik valutakurs',
+                            false,
+                            {accept: 'Ja, det er riktig', reject: 'Avbryt'}
+                        )
+                        .then((response: ConfirmActions) => {
+                            if (response === ConfirmActions.ACCEPT) {
+                                resolve({ status: ConfirmActions.ACCEPT, model: this.config.model, id: this.id });
+                                this.modal.close();
+                            }
+                        });
+                    } else {
+                        resolve({ status: ConfirmActions.ACCEPT, model: this.config.model, id: this.id });
+                        this.modal.close();
+                    }
                 }
             };
 

@@ -4,12 +4,13 @@ import { Router, ActivatedRoute, NavigationEnd } from '@angular/router';
 import {
     Employee, Employment, EmployeeLeave, SalaryTransaction, Project, Dimensions,
     Department, SubEntity, SalaryTransactionSupplement, EmployeeTaxCard,
-    WageType, EmployeeCategory
+    WageType, EmployeeCategory, BusinessRelation
 } from '../../../unientities';
 import { TabService, UniModules } from '../../layout/navbar/tabstrip/tabService';
 import { ToastService, ToastType } from '../../../../framework/uniToast/toastService';
 import { IUniSaveAction } from '../../../../framework/save/save';
 import { IToolbarConfig, IAutoCompleteConfig } from '../../common/toolbar/toolbar';
+import { IUniTagsConfig, ITag } from '../../common/toolbar/tags';
 import { IPosterWidget } from '../../common/poster/poster';
 import { UniHttp } from '../../../../framework/core/http/http';
 import { UniView } from '../../../../framework/core/uniView';
@@ -19,6 +20,7 @@ import {
     EmployeeService, EmploymentService, EmployeeLeaveService, DepartmentService, ProjectService,
     SalaryTransactionService, UniCacheService, SubEntityService, EmployeeTaxCardService, ErrorService,
     NumberFormat, WageTypeService, SalarySumsService, YearService, BankAccountService, EmployeeCategoryService,
+    ModulusService
 } from '../../../services/services';
 declare var _;
 @Component({
@@ -49,11 +51,18 @@ export class EmployeeDetails extends UniView implements OnDestroy {
     private categories: EmployeeCategory[];
     private savedNewEmployee: boolean;
 
-    public categoryFilter: any[] = [];
-    public tagConfig: any = {
+    public categoryFilter: ITag[] = [];
+    public tagConfig: IUniTagsConfig = {
         description: 'Utvalg ',
         helpText: 'Kategorier på ansatt: ',
-        truncate: 20
+        truncate: 20,
+        autoCompleteConfig: {
+            template: (obj: EmployeeCategory) => obj ? obj.Name : '',
+            valueProperty: 'Name',
+            saveCallback: (cat: EmployeeCategory) => this.employeeService.saveEmployeeTag(this.employeeID, cat),
+            deleteCallback: (tag) => this.employeeService.deleteEmployeeTag(this.employeeID, tag),
+            search: (query, ignoreFilter) => this.employeeCategoryService.searchCategories(query, ignoreFilter)
+        }
     };
 
     @ViewChild(TaxCardModal) public taxCardModal: TaxCardModal;
@@ -123,7 +132,8 @@ export class EmployeeDetails extends UniView implements OnDestroy {
         private wageTypeService: WageTypeService,
         private yearService: YearService,
         private bankaccountService: BankAccountService,
-        private employeeCategoryService: EmployeeCategoryService
+        private employeeCategoryService: EmployeeCategoryService,
+        private modulusService: ModulusService
     ) {
         super(router.url, cacheService);
 
@@ -201,7 +211,7 @@ export class EmployeeDetails extends UniView implements OnDestroy {
                         type: 'text',
                         size: 'small',
                         config: {
-                            topText: [{ text: 'Ingen aktive stillingsforhold' }]
+                            topText: [{ text: 'Ingen aktive arbeidsforhold' }]
                         }
                     }
                 ];
@@ -458,10 +468,10 @@ export class EmployeeDetails extends UniView implements OnDestroy {
             config: {
                 topText: [{ text: '', class: 'large' }],
                 mainText: { text: '' },
-                bottomText: [{ text: '' }]
+                bottomText: [{ text: 'Ingen aktive arbeidsforhold' }]
             }
         };
-
+        
         // Add employments
         if (employments.length > 0) {
             var standardIndex = 0;
@@ -475,6 +485,7 @@ export class EmployeeDetails extends UniView implements OnDestroy {
                     standardIndex = i;
                 }
             }
+
             if (actives > 0) {
                 employmentWidget.config.topText[0].text = employments[standardIndex].JobName;
 
@@ -484,9 +495,11 @@ export class EmployeeDetails extends UniView implements OnDestroy {
                 if (actives > 1) {
                     employmentWidget.config.bottomText[0].text = '+' + (actives - 1) +
                         (actives > 2 ? ' stillinger' : ' stilling');
+                } else {
+                    employmentWidget.config.bottomText[0].text = '';
                 }
             } else {
-                employmentWidget.config.bottomText[0].text = 'Ingen aktive stillingsforhold';
+                employmentWidget.config.bottomText[0].text = 'Ingen aktive arbeidsforhold';
             }
 
         }
@@ -507,7 +520,7 @@ export class EmployeeDetails extends UniView implements OnDestroy {
 
         // SSN ok?
         alerts[2] = {
-            text: checks.hasSSN ? 'Personnummer ok' : 'Personnummer mangler',
+            text: checks.hasSSN ? 'Fødselsnummer ok' : 'Fødselsnummer mangler',
             class: checks.hasSSN ? 'success' : 'error'
         };
     }
@@ -545,7 +558,7 @@ export class EmployeeDetails extends UniView implements OnDestroy {
     // Dummy check to see is user has Tax Card, social security number and account number
     private employeeBoolChecks(employee: Employee): { hasSSN: boolean, hasAccountNumber: boolean } {
         return {
-            hasSSN: employee.SocialSecurityNumber !== null && employee.SocialSecurityNumber !== '',
+            hasSSN: this.modulusService.validSSN(employee.SocialSecurityNumber),
             hasAccountNumber: employee.BusinessRelationInfo.DefaultBankAccountID !== null
         };
     }
@@ -599,10 +612,19 @@ export class EmployeeDetails extends UniView implements OnDestroy {
     }
 
     private getEmployee() {
-        this.employeeService.get(this.employeeID).subscribe((employee: Employee) => {
-            this.employee = employee;
-            super.updateState('employee', employee, false);
-        }, err => this.errorService.handle(err));
+        this.employeeService
+            .get(this.employeeID)
+            .map(employee => {
+                if (!employee.BusinessRelationID && !employee.BusinessRelationInfo) {
+                    employee.BusinessRelationInfo = new BusinessRelation();
+                    employee.BusinessRelationInfo['_createguid'] = this.employeeService.getNewGuid();
+                }
+                return employee;
+            })
+            .subscribe((employee: Employee) => {
+                this.employee = employee;
+                super.updateState('employee', employee, false);
+            }, err => this.errorService.handle(err));
     }
 
     private getEmployeeCategories() {
@@ -874,23 +896,28 @@ export class EmployeeDetails extends UniView implements OnDestroy {
             brInfo.DefaultBankAccount.BankAccountType = 'employee';
         }
 
-        brInfo.Emails.forEach((email) => {
-            if (!email.ID) {
-                email['_createguid'] = this.employeeService.getNewGuid();
-            }
-        });
+        if (brInfo.Emails) {
+            brInfo.Emails.forEach((email) => {
+                if (!email.ID) {
+                    email['_createguid'] = this.employeeService.getNewGuid();
+                }
+            });
+        }
+        if (brInfo.Phones) {
+            brInfo.Phones.forEach((phone) => {
+                if (!phone.ID) {
+                    phone['_createguid'] = this.employeeService.getNewGuid();
+                }
+            });
+        }
 
-        brInfo.Phones.forEach((phone) => {
-            if (!phone.ID) {
-                phone['_createguid'] = this.employeeService.getNewGuid();
-            }
-        });
-
-        brInfo.Addresses.forEach((address) => {
-            if (!address.ID) {
-                address['_createguid'] = this.employeeService.getNewGuid();
-            }
-        });
+        if (brInfo.Addresses) {
+            brInfo.Addresses.forEach((address) => {
+                if (!address.ID) {
+                    address['_createguid'] = this.employeeService.getNewGuid();
+                }
+            });
+        }
 
         if (brInfo.InvoiceAddress && brInfo.InvoiceAddress['_createguid']) {
             brInfo.Addresses = brInfo.Addresses.filter(address => address !== brInfo.InvoiceAddress);
@@ -903,7 +930,7 @@ export class EmployeeDetails extends UniView implements OnDestroy {
         if (brInfo.DefaultEmail && brInfo.DefaultEmail['_createguid']) {
             brInfo.Emails = brInfo.Emails.filter(email => email !== brInfo.DefaultEmail);
         }
-
+        
         return (this.employee.ID > 0)
             ? this.employeeService.Put(this.employee.ID, this.employee)
             : this.employeeService.Post(this.employee);
@@ -960,6 +987,12 @@ export class EmployeeDetails extends UniView implements OnDestroy {
                     if (!employment.DimensionsID && employment.Dimensions) {
                         employment.Dimensions['_createguid'] = this.employmentService.getNewGuid();
                     }
+
+                    employment.MonthRate = employment.MonthRate || 0;
+                    employment.HourRate = employment.HourRate || 0;
+                    employment.UserDefinedRate = employment.UserDefinedRate || 0;
+                    employment.WorkPercent = employment.WorkPercent || 0;
+                    employment.HoursPerWeek = employment.HoursPerWeek || 0;
 
                     changes.push(employment);
                 }
@@ -1074,7 +1107,7 @@ export class EmployeeDetails extends UniView implements OnDestroy {
                                         if (updatePosts) {
                                             super.updateState('recurringPosts',
                                                 recurringPosts.filter(x => !x.Deleted),
-                                                false);
+                                                recurringPosts.some(trans => trans['_isDirty']));
                                         }
 
                                         this.checkForSaveDone(done);
@@ -1163,35 +1196,9 @@ export class EmployeeDetails extends UniView implements OnDestroy {
 
     private populateCategoryFilters(categories) {
         this.categoryFilter = categories.map(x => {
-            return { id: x.ID, title: x.Name };
+            return { linkID: x.ID, title: x.Name };
         });
         this.tagConfig.description = this.categoryFilter.length ? 'Utvalg: ' : 'Utvalg';
-    }
-
-    public filterChange(tags: any[]) {
-        let filter = tags.filter(x => !x.id).map(x => `Name eq '${x.title}'`).join(' or ');
-        let categoryObs = filter ? this.employeeCategoryService.GetAll('filter=' + filter) : Observable.of([]);
-
-        categoryObs.switchMap((response: EmployeeCategory[]) => {
-            let categoriesToDelete = this.categories
-                .filter(x => !tags.some(y => y.id === x.ID))
-                .map(x => x.ID);
-
-            let categoriesToAdd = response;
-            let saveObs: Observable<any>[] = categoriesToAdd
-                .map(x => this.employeeService
-                    .saveEmployeeCategory(this.employeeID, x)
-                    .catch((err, obs) => this.errorService.handleRxCatch(err, obs)))
-                .concat(categoriesToDelete
-                    .map(x => this.employeeService
-                        .deleteEmployeeCategory(this.employeeID, x)
-                        .catch((err, obs) => this.errorService.handleRxCatch(err, obs))));
-
-            return saveObs.length ? Observable.forkJoin(saveObs) : Observable.of(null);
-        })
-            .subscribe(
-            x => this.getEmployeeCategories(),
-            err => this.errorService.handle(err));
     }
 
 }

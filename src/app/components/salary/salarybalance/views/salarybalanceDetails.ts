@@ -84,6 +84,7 @@ export class SalarybalanceDetail extends UniView {
                 })
                 .subscribe((salarybalance: SalaryBalance) => {
                     this.salarybalance$.next(salarybalance);
+                    if(!salarybalance.FromDate) { salarybalance.FromDate = new Date(); }  
                     this.salarybalanceID = salarybalance.ID;
                     this.updateFields();
                 }, err => this.errorService.handle(err));
@@ -192,9 +193,6 @@ export class SalarybalanceDetail extends UniView {
         let amountField: UniFieldLayout = this.findByPropertyName('Amount');
         amountField.Label = this.salarybalance$.getValue().InstalmentType === SalBalType.Advance ? 'Beløp' : 'Saldo';
         amountField.Hidden = this.salarybalanceID > 0;
-
-        let createpaymentField: UniFieldLayout = this.findByPropertyName('CreatePayment');
-        createpaymentField.Hidden = this.salarybalanceID > 0;
 
         this.fields$.next(this.fields$.getValue());
     }

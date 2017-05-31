@@ -1,18 +1,8 @@
-<header *ngIf="department">
-
-    <article class="poster_toolbar">
-        <section>
-            <h1>{{(department$ | async)?.ID ? (department$ | async).Name : 'Ny avdeling'}}</h1>
-            <p>{{(department$ | async)?.ID ? 'Avdelingsnr. ' + (department$ | async).DepartmentNumber : '&nbsp;'}}</p>
-        </section>
-
-        <nav class="poster_toolbar_tools">
-            <a (click)="previous()" class="previous">Forrige</a>
-            <a (click)="next()" class="next">Neste</a>
-            <a (click)="add()" class="new">Ny leverandør</a>
-        </nav>
-    </article>
-</header>
+<uni-toolbar
+    *ngIf="!modalMode"
+    [config]="toolbarconfig"
+    [saveactions]="saveActions">
+</uni-toolbar>
 
 <section class="supplier-details application">
     <uni-form [config]="config$"
@@ -21,4 +11,3 @@
     </uni-form>
 </section>
 
-<uni-save [actions]="saveActions" [class.uni_save_modal_mode]="modalMode"></uni-save>

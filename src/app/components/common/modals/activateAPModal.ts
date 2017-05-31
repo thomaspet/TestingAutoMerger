@@ -4,11 +4,15 @@ import {UniForm} from 'uniform-ng2/main';
 import {FieldType} from 'uniform-ng2/main';
 import {ActivateAP} from '../../../models/activateAP';
 import {ToastService} from '../../../../framework/uniToast/toastService';
+import {UniConfirmModal, IModalAction, ConfirmActions} from '../../../../framework/modals/confirm';
+import {CompanySettings} from '../../../../unientities';
+import {Observable} from 'rxjs/Observable';
 import {
     ErrorService,
     CustomerService,
     UserService,
-    CompanySettingsService
+    CompanySettingsService,
+    AgreementService
 } from '../../../services/services';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 
@@ -20,8 +24,14 @@ import {BehaviorSubject} from 'rxjs/BehaviorSubject';
            <h1 *ngIf="config.title">{{config.title}}</h1>
            <uni-form [config]="formConfig$" [fields]="fields$" [model]="model$"></uni-form>
            <footer>
-                <button *ngFor="let action of config.actions" (click)="action.method()" [ngClass]="action.class" type="button">
-                    {{action.text}}
+                <button *ngIf="config?.actions?.license" (click)="config?.actions?.license?.method()">
+                    {{config?.actions?.license?.text}}
+                </button>
+                <button *ngIf="config?.actions?.accept" (click)="config?.actions?.accept?.method()" class="good" [disabled]="!config.readAgreement">
+                    {{config?.actions?.accept?.text}}
+                </button>
+                <button *ngIf="config?.actions?.cancel" (click)="config?.actions?.cancel?.method()">
+                    {{config?.actions?.cancel?.text}}
                 </button>
             </footer>
         </article>
@@ -81,11 +91,13 @@ export class ActivateAPForm {
     selector: 'activate-ap-modal',
     template: `
         <uni-modal [type]="type" [config]="modalConfig"></uni-modal>
+        <uni-confirm-modal class="scrollable"></uni-confirm-modal>
     `
 })
 export class ActivateAPModal {
     @Input() public email: ActivateAP;
     @ViewChild(UniModal) public modal: UniModal;
+    @ViewChild(UniConfirmModal) public confirmModal: UniConfirmModal;
 
     @Output() public Changed = new EventEmitter<ActivateAP>();
     @Output() public Canceled = new EventEmitter<boolean>();
@@ -99,7 +111,8 @@ export class ActivateAPModal {
         private customerService: CustomerService,
         private userService: UserService,
         private companySettingsService: CompanySettingsService,
-        private errorService: ErrorService
+        private errorService: ErrorService,
+        private agreementService: AgreementService
     ) {
     }
 
@@ -107,34 +120,35 @@ export class ActivateAPModal {
         this.modalConfig = {
             model: this.email,
             title: 'Aksesspunkt aktivering',
-            actions: [
-                {
-                    text: 'Aktiver',
-                    class: 'good',
-                    method: () => {
-                        // Send aktivering
-                        this.modal.close();
-                        this.Changed.emit(this.modalConfig.model);
-                        return false;
-                    }
+            readAgreement: false,
+            actions: {
+                license: {
+                    text: 'Betingelser',
+                    method: () => { this.model.close(); }
                 },
-                {
+                accept: {
+                    text: 'Aktiver',
+                    method: () => { this.modal.close(); }
+                },
+                cancel: {
                     text: 'Avbryt',
-                    method: () => {
-                        this.modal.close();
-                        this.Canceled.emit(true);
-                        return false;
-                    }
+                    method: () => { this.modal.close(); }
                 }
-            ]
+            }
         };
     }
 
-    public openModal() {
-        var activate = new ActivateAP();
+    public confirm(): Promise<any> {
+        return new Promise((resolve, reject) => {
+            var activate = new ActivateAP();
 
-        this.userService.getCurrentUser()
-            .subscribe(user => {
+            Observable.forkJoin(
+                this.userService.getCurrentUser(),
+                this.companySettingsService.Get(1)
+            ).subscribe((res) => {
+                let user = res[0];
+                let settings: CompanySettings = res[1];
+
                 activate.contactname = user.DisplayName;
                 activate.contactemail = user.Email;
                 activate.contactphone = user.PhoneNumber;
@@ -142,9 +156,51 @@ export class ActivateAPModal {
                 activate.outgoingInvoice = true;
 
                 this.modalConfig.model = activate;
+
+                this.modalConfig.actions.license = {
+                    text: 'Betingelser',
+                    method: () => {
+                        this.agreementService.Current('EHF').subscribe(message => {
+                            this.confirmModal.confirm(
+                                message,
+                                'Vennligst bekreft',
+                                false,
+                                {accept: 'Aksepter', reject: 'Avbryt'}
+                            ).then((confirmDialogResponse) => {
+                                if (confirmDialogResponse === ConfirmActions.ACCEPT) {
+                                    this.modalConfig.readAgreement = true;
+                                }
+                            });
+                        })
+                    }
+                }
+
+                this.modalConfig.actions.accept = {
+                    text: settings.APActivated ? 'Reaktiver' : 'Aktiver',
+                    class: 'good',
+                    method: () => {
+                        resolve({model: this.modalConfig.model, status: ConfirmActions.ACCEPT});
+                        this.modal.close();
+                    }
+                }
+
+                this.modalConfig.actions.cancel = {
+                    text: 'Avbryt',
+                    method: () => {
+                        resolve({status: ConfirmActions.CANCEL});
+                        this.modal.close();
+                    }
+                }
+
                 this.modal.open();
-            },
-            err => this.errorService.handle(err)
-        );
+            });
+
+            this.userService.getCurrentUser()
+                .subscribe(user => {
+
+                },
+                err => this.errorService.handle(err)
+            );
+        });
     }
 }

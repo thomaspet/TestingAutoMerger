@@ -1,8 +1,7 @@
-import {Component, ViewChild, Output, EventEmitter} from '@angular/core';
+import {Component, ViewChild, Output, EventEmitter, ElementRef} from '@angular/core';
 import {URLSearchParams} from '@angular/http';
-
 import {VatType} from '../../../../unientities';
-import {VatTypeService, VatCodeGroupService, ErrorService} from '../../../../services/services';
+import {VatTypeService, ErrorService} from '../../../../services/services';
 import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig} from 'unitable-ng2/main';
 
 @Component({
@@ -17,13 +16,18 @@ export class VatTypeList {
 
     constructor(
         private vatTypeService: VatTypeService,
-        private vatCodeGroupService: VatCodeGroupService,
-        private errorService: ErrorService
+        private errorService: ErrorService,
+        private elementRef: ElementRef
     ) {
     }
 
     public ngOnInit() {
         this.setupTable();
+    }
+
+    public ngAfterViewInit() {
+        const input = this.elementRef.nativeElement.querySelector('input');
+        input.focus();
     }
 
     private onRowSelected (event) {

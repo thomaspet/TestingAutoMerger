@@ -14,7 +14,7 @@ uni-init
     .init-container
         display: flex
         flex-flow: row wrap-reverse
-        max-width: 960px
+        max-width: 870px
         min-height: 30rem
         margin: 10vh auto
         padding: 0
@@ -41,31 +41,35 @@ uni-init
 
     .marketing-content
         order: 1
-        flex: 1 0 460px
+        flex: 1 0 60%
         display: block
         box-sizing: border-box
         height: auto
         background-color: $uni-color-c2a
         color: $uni-color-negative
         padding: 2rem 3.5rem
+        border-top-left-radius: 3px
+        border-bottom-left-radius: 3px
 
         h1
-            font-size: 3rem
+            font-size: 2.5rem
             padding-bottom: 1rem
 
         p
             padding: .5rem 0
             color: $uni-color-negative
-            font-size: 1.5rem
+            font-size: 1.2rem
             font-weight: 200
 
     .view-content
         order: 2
-        flex: 1 0 306px
+        flex: 1 0 40%
         display: block
         box-sizing: border-box
         height: auto
-        background-color: $uni-color-negative
+        background-color: transparentize(#fff, .25)
+        border-top-right-radius: 3px
+        border-bottom-right-radius: 3px
         padding: 0 3rem .5rem 3rem
 
         img
@@ -73,10 +77,10 @@ uni-init
             margin: 1rem auto
 
         input
-            height: 2rem
+            height: 2.5rem
 
         button
-            height: 2rem
+            height: 2.5rem
             margin-top: 2rem
 
         .company-select
@@ -95,7 +99,6 @@ uni-init
             margin: .5rem 0
 
             input
-                margin-top: .5rem
                 display: block
 
                 &.ng-invalid.ng-touched

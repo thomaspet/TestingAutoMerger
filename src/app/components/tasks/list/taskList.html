@@ -1,75 +1,94 @@
-<uni-toolbar [config]="{title: 'Dine oppgaver og godkjenninger', omitFinalCrumb: true}"></uni-toolbar>
+<section class="task-filters">
+    <button (click)="filterTasks(0)" [ngClass]="{'active-filter': typeFilter === 0}">
+        Oppgaver
+    </button>
 
-<section class="application">
-    <div>
-        <input type="radio" name="taskType" value="Oppgaver">
-        <input type="radio" name="taskType" value="Godkjenninger">
-        <input type="radio" name="taskType" value="Begge">
-        <!-- DO NOT REMOVE this uncommented section !!
-        <input type="checkbox" id="filterCompleted" [ngModel]="filterCompleted" (ngModelChange)="onStatusFilterChange()">
-        <label attr.for="filterCompleted" class="toggle"> </label>
+    <button (click)="filterTasks(1)" [ngClass]="{'active-filter': typeFilter === 1}">
+        Godkjenninger
+    </button>
 
-        <label>
-            Fullført
+    <button (click)="filterTasks()" [ngClass]="{'active-filter': typeFilter === undefined}">
+        Begge
+    </button>
+
+    <section class="show-completed-toggle">
+        <input type="checkbox" class="toggle"
+            [placeholder]="'Vis fullførte'"
+            [checked]="showCompleted"
+        />
+        <label (click)="toggleShowCompleted()" class="toggle" tabindex="-1">
+            Vis fullførte
         </label>
-        <input type="checkbox" id="aaaa" [ngModel]="filterCompleted" (ngModelChange)="onStatusFilterChange()">
-        <label attr.for="aaaa" class="toggle"> </label>
-        -->
-    </div>
-    <table class="taskView">
-        <tr>
-            <td>
-                <table class="taskList">
-                    <tr *ngFor="let item of tasks" (click)="onRowSelected(item)">
-                        <table class="taskListEmbedded">
-                            <tr>
-                                <td class="infoCol">
-                                    {{item.Title}}
-                                </td>
-                                <td class="buttonCol1">
-                                    <button class="task-approve" *ngIf="isApproval(item)" (click)="onApprove(item)" [disabled]="!item.myTask">Godkjenn</button>
-                                </td>
-                                <td class="buttonCol2">
-                                    <button class="task-complete" *ngIf='!isCompleted(item) && !isApproval(item)' (click)="onComplete(item)" [disabled]="!item.myTask">Fullfør</button>
-                                    <button class="task-reject" *ngIf='!isCompleted(item) && isApproval(item)' (click)="onReject(item)" [disabled]="!item.myTask">Avvis</button>
-                                    <label *ngIf='isCompleted(item)'>
-                                        Fullført
-                                    </label>
-                                </td>
-                            </tr>
-                        </table>
-                        <hr>
-                    </tr>
-                </table>
-            </td>
-            <td>
-                <task-details [selectedTask]="selectedTask">
-                </task-details>
-            </td>
-        </tr>
-    </table>
-    <table class="addTask">
-        <tr>
-            <td class="title">
-                <label>
-                    Legg til oppgave
-                    <input type="text" [(ngModel)]="newTask.Title">
-                </label>
-            </td>
-            <td class="users">
-                <label>
-                    Tilordne til
-                    <uni-select [config]="userSelectConfig"
-                                [items]="users"
-                                (valueChange)="onUserSelect($event)">
-                    </uni-select>
-                </label>
-            </td>
-            <td class="add">
-                <label>
-                    <button class="add-task" (click)="addTask()" [disabled]="!isValidInput()" >Legg til</button>
-                </label>
-            </td>
-        </tr>
-    </table>
+    </section>
 </section>
+
+<ul #taskList class="task-list">
+    <li *ngFor="let task of filteredTasks" (click)="selectTask(task)" [attr.aria-selected]="selectedTask?.ID === task.ID">
+        <section class="task-info">
+            <p>{{task.Title}}</p>
+            <small>Tildelt av {{task._assignedBy}}</small>
+            <small>{{task._createdDate}}</small>
+        </section>
+
+        <section class="task-buttons">
+            <button class="c2a"
+                    *ngIf='!task._completed && !task._activeApproval'
+                    (click)="completeTask(task)">
+                Fullfør
+            </button>
+
+            <button *ngIf="task._activeApproval" class="bad"  (click)="rejectTask(task)">
+                Avvis
+            </button>
+
+            <button *ngIf="task._activeApproval" class="good" (click)="approveTask(task)">
+                Godkjenn
+            </button>
+        </section>
+    </li>
+</ul>
+
+<section class="addTask">
+    <label class="task-text">
+        Legg til oppgave
+        <input type="text" [(ngModel)]="newTask.Title" placeholder="Oppgavetekst">
+    </label>
+
+    <label>
+        Tilordne til
+        <uni-select class="drop-up"
+                    [config]="userSelectConfig"
+                    [items]="users"
+                    [value]="currentUser"
+                    (valueChange)="onUserSelected($event)">
+        </uni-select>
+    </label>
+
+    <button class="good" (click)="addTask()" [disabled]="!isValidInput()">Legg til</button>
+</section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

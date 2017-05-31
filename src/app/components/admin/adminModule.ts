@@ -25,6 +25,8 @@ import {JobLog} from './jobs/log/jobLog';
 import {UniModels} from './models/models';
 import {UniRoles} from './roles/roles';
 import {PermissionSelector} from './roles/permissionSelector';
+import {ApprovalThresholds} from './approvalThresholds/list/approvalThresholds';
+import {ApprovalThresholdRules} from './approvalThresholds/details/approvalThresholdRules';
 
 @NgModule({
     imports: [
@@ -58,7 +60,9 @@ import {PermissionSelector} from './roles/permissionSelector';
         JobLog,
         UniModels,
         UniRoles,
-        PermissionSelector
+        PermissionSelector,
+        ApprovalThresholds,
+        ApprovalThresholdRules
     ],
     exports: [
         UniAdmin,
@@ -67,7 +71,8 @@ import {PermissionSelector} from './roles/permissionSelector';
         JobLog,
         UniModels,
         UniRoles,
-        PermissionSelector
+        PermissionSelector,
+        ApprovalThresholds
     ]
 })
 export class AdminModule {

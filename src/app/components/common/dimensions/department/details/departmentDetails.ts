@@ -3,11 +3,12 @@ import {Router, ActivatedRoute} from '@angular/router';
 import {Department} from '../../../../../unientities';
 import {FieldType} from 'uniform-ng2/main';
 import {IUniSaveAction} from '../../../../../../framework/save/save';
-import {TabService} from '../../../../layout/navbar/tabstrip/tabService';
+import {TabService, UniModules} from '../../../../layout/navbar/tabstrip/tabService';
 import {ToastService, ToastType} from '../../../../../../framework/uniToast/toastService';
 import {DepartmentService, ErrorService} from '../../../../../services/services';
 import {UniFieldLayout} from 'uniform-ng2/main';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
+import {IToolbarConfig} from './../../../../common/toolbar/toolbar';
 
 @Component({
     selector: 'department-dimensions-details',
@@ -26,6 +27,15 @@ export class DepartmentDetails implements OnInit {
             disabled: false
         }
     ];
+
+    private toolbarconfig: IToolbarConfig = {
+        title: 'Prosjekt',
+        navigation: {
+            prev: () => this.previous(),
+            next: () => this.next(),
+            add: () => this.add()
+        }
+    };
 
     constructor(
         private departmentService: DepartmentService,
@@ -58,7 +68,10 @@ export class DepartmentDetails implements OnInit {
         this.department$.next(department);
         const tabTitle = department.ID ? 'Avdeling ' + department.Name : 'Avdeling (ny)';
         const ID = department.ID ? department.ID : 'new';
-        this.tabService.addTab({url: '/dimensions/department/' + ID, name: tabTitle, active: true, moduleID: 23});
+        this.tabService.addTab({url: '/dimensions/department/' + ID, name: tabTitle, active: true, moduleID: UniModules.Departments});
+
+        this.toolbarconfig.title = department.ID ? department.Name : 'Ny avdeling';
+        this.toolbarconfig.subheads = department.ID ? [{title: 'Avdelingsnr. ' + department.DepartmentNumber}] : [];
     }
 
     public next() {

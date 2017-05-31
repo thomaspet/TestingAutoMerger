@@ -14,6 +14,7 @@ import {EmployeeService, ErrorService} from '../../../services/services';
 export class EmployeeList {
     private employeeTableConfig: UniTableConfig;
     private employees$: Observable<Employee>;
+    private busy: boolean;
 
     constructor(
         private router: Router,
@@ -21,8 +22,12 @@ export class EmployeeList {
         private _employeeService: EmployeeService,
         private errorService: ErrorService
     ) {
-        this.employees$ = _employeeService.GetAll('orderby=EmployeeNumber ASC', ['BusinessRelationInfo.DefaultEmail', 'SubEntity.BusinessRelationInfo'])
-            .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
+        this.busy = true;
+        this.employees$ = 
+            _employeeService
+                .GetAll('orderby=EmployeeNumber ASC', ['BusinessRelationInfo.DefaultEmail', 'SubEntity.BusinessRelationInfo'])
+                .finally(() => this.busy = false)
+                .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
 
         var idCol = new UniTableColumn('EmployeeNumber', 'Nr', UniTableColumnType.Number).setWidth('5rem');
 

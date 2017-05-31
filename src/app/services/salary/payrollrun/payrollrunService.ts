@@ -1,12 +1,16 @@
 import { Injectable } from '@angular/core';
 import { BizHttp } from '../../../../framework/core/http/BizHttp';
 import { UniHttp } from '../../../../framework/core/http/http';
-import { 
-    PayrollRun, VacationPayInfo, TaxDrawFactor, EmployeeCategory, VacationPayList,
-    Employee } from '../../../unientities';
+import {
+    PayrollRun, TaxDrawFactor, EmployeeCategory,
+    Employee, SalaryTransaction
+} from '../../../unientities';
 import { Observable } from 'rxjs/Observable';
 import { ErrorService } from '../../common/errorService';
-import {FieldType} from 'uniform-ng2/main';
+import { FieldType } from 'uniform-ng2/main';
+import { ToastService, ToastTime, ToastType } from '../../../../framework/uniToast/toastService';
+import { SalaryTransactionService } from '../salarytransaction/salaryTransactionService';
+import { ITag } from '../../../components/common/toolbar/tags';
 
 @Injectable()
 export class PayrollrunService extends BizHttp<PayrollRun> {
@@ -22,7 +26,11 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
         { ID: 6, text: 'Slettet' }
     ];
 
-    constructor(http: UniHttp, private errorService: ErrorService) {
+    constructor(
+        http: UniHttp,
+        private errorService: ErrorService,
+        private salaryTransactionService: SalaryTransactionService,
+        private toastService: ToastService) {
         super(http);
         this.relativeURL = PayrollRun.RelativeUrl;
         this.entityType = PayrollRun.EntityType;
@@ -78,8 +86,8 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
     }
 
     public getLatestSettledRun(year: number = undefined): Observable<PayrollRun> {
-        return super.GetAll(`filter=StatusCode ge 1 ${year 
-            ? 'and year(PayDate) eq ' +  year 
+        return super.GetAll(`filter=StatusCode ge 1 ${year
+            ? 'and year(PayDate) eq ' + year
             : ''}&top=1&orderby=PayDate DESC`)
             .map(resultSet => resultSet[0]);
     }
@@ -89,13 +97,25 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
         return financialYear && financialYear.Year ? financialYear.Year : undefined;
     }
 
-    public runSettling(ID: number) {
-        return this.http
+    public runSettling(ID: number, done: (message: string) => void = null) {
+        return this.salaryTransactionService
+            .GetAll(`filter=PayrollRunID eq ${ID}`)
+            .do(transes => {
+                this.validateTransesOnRun(transes, done);
+            })
+            .filter((trans: SalaryTransaction[]) => !!trans.length)
+            .switchMap(transes => this.http
+                .asPUT()
+                .usingBusinessDomain()
+                .withEndPoint(this.relativeURL + '/' + ID + '?action=calculate')
+                .send())
+            .map(response => response.json());
+        /*return this.http
             .asPUT()
             .usingBusinessDomain()
             .withEndPoint(this.relativeURL + '/' + ID + '?action=calculate')
             .send()
-            .map(response => response.json());
+            .map(response => response.json());*/
     }
 
     public controlPayroll(ID) {
@@ -130,7 +150,7 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
             .usingBusinessDomain()
             .asPOST()
             .withEndPoint(this.relativeURL + '/' + payrollrunID)
-            .send({ action: 'sendpaymentlist'})
+            .send({ action: 'sendpaymentlist' })
             .map(response => response.json());
     }
 
@@ -153,25 +173,7 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
             .map(response => response.json());
     }
 
-    public getVacationpayBasis(year: number, payrun: number): Observable<VacationPayList> {
-        return this.http
-            .asGET()
-            .usingBusinessDomain()
-            .withEndPoint(this.relativeURL + '/' + payrun + '?action=vacationpay-list&year=' + year)
-            .send()
-            .map(response => response.json());
-    }
-
-    public createVacationPay(year: number, payrun: number, payList: VacationPayInfo[]) {
-        return this.http
-            .asPUT()
-            .usingBusinessDomain()
-            .withEndPoint(this.relativeURL + '/' + payrun + '?action=vacationpay-from-vacationpayinfo-list&year=' + year)
-            .withBody(payList)
-            .send();
-    }
-
-    public saveCategoryOnRun(id: number, category: EmployeeCategory) {
+    public saveCategoryOnRun(id: number, category: EmployeeCategory): Observable<EmployeeCategory> {
         if (id && category) {
             let saveObs = category.ID ? this.http.asPUT() : this.http.asPOST();
             return saveObs
@@ -184,12 +186,24 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
         return Observable.of(null);
     }
 
-    public deleteCategoryOnRun(id: number, catID: number) {
+    public savePayrollTag(runID, category: EmployeeCategory): Observable<ITag> {
+        return this.saveCategoryOnRun(runID, category)
+            .filter(cat => !!cat)
+            .map(cat => { return {title: cat.Name, linkID: cat.ID}; });
+    }
+
+    public deleteCategoryOnRun(id: number, catID: number): Observable<boolean> {
         return this.http
-                .asDELETE()
-                .usingBusinessDomain()
-                .withEndPoint(this.relativeURL + '/' + id + '/category/' + catID)
-                .send();
+            .asDELETE()
+            .usingBusinessDomain()
+            .withEndPoint(this.relativeURL + '/' + id + '/category/' + catID)
+            .send();
+    }
+
+    public deletePayrollTag(runID, tag: ITag): Observable<boolean> {
+        return ((tag && tag.linkID)
+            ? this.deleteCategoryOnRun(runID, tag.linkID)
+            : Observable.of(false));
     }
 
     public getCategoriesOnRun(id: number) {
@@ -222,6 +236,20 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
             .send();
     }
 
+    public validateTransesOnRun(transes: SalaryTransaction[], done: (message: string) => void = null) {
+        if (!transes.length) {
+            this.toastService
+                .addToast(
+                'Avregning avbrutt',
+                ToastType.bad,
+                ToastTime.medium,
+                'Ingen lønnsposter i lønnsavregning');
+            if (done) {
+                done('Avregning avbrutt');
+            }
+        }
+    }
+
     public layout(layoutID: string) {
         return Observable.from([{
             Name: layoutID,
@@ -240,7 +268,7 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
                     Description: null,
                     HelpText: null,
                     FieldSet: 0,
-                    Section: null,
+                    Section: 0,
                     Placeholder: '',
                     Options: null,
                     LineBreak: null,
@@ -268,7 +296,7 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
                     Description: null,
                     HelpText: null,
                     FieldSet: 0,
-                    Section: null,
+                    Section: 0,
                     Placeholder: null,
                     Options: null,
                     LineBreak: null,
@@ -297,7 +325,7 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
                     Description: null,
                     HelpText: null,
                     FieldSet: 0,
-                    Section: null,
+                    Section: 0,
                     Placeholder: null,
                     Options: null,
                     LineBreak: null,
@@ -318,7 +346,7 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
                     Description: null,
                     HelpText: null,
                     FieldSet: 0,
-                    Section: null,
+                    Section: 0,
                     Placeholder: null,
                     LineBreak: null,
                     Combo: null,
@@ -346,7 +374,7 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
                     Description: null,
                     HelpText: null,
                     FieldSet: 0,
-                    Section: null,
+                    Section: 0,
                     Placeholder: null,
                     Options: null,
                     LineBreak: null,
@@ -380,7 +408,7 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
                     Description: null,
                     HelpText: null,
                     FieldSet: 0,
-                    Section: null,
+                    Section: 0,
                     Placeholder: null,
                     Options: null,
                     LineBreak: null,
@@ -414,7 +442,7 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
                     Description: null,
                     HelpText: null,
                     FieldSet: 0,
-                    Section: null,
+                    Section: 0,
                     Placeholder: null,
                     Options: null,
                     LineBreak: null,
@@ -448,7 +476,7 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
                     Description: null,
                     HelpText: null,
                     FieldSet: 0,
-                    Section: null,
+                    Section: 0,
                     Placeholder: null,
                     LineBreak: null,
                     Combo: null,
@@ -490,7 +518,7 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
                     Description: null,
                     HelpText: null,
                     FieldSet: 0,
-                    Section: null,
+                    Section: 0,
                     Placeholder: null,
                     Options: null,
                     LineBreak: null,
@@ -525,7 +553,7 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
                     Description: null,
                     HelpText: null,
                     FieldSet: 0,
-                    Section: null,
+                    Section: 0,
                     Placeholder: null,
                     Options: null,
                     LineBreak: null,
@@ -547,7 +575,7 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
                     Description: null,
                     HelpText: null,
                     FieldSet: 0,
-                    Section: null,
+                    Section: 0,
                     Placeholder: null,
                     Options: null,
                     LineBreak: null,
@@ -580,7 +608,7 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
                     Description: null,
                     HelpText: null,
                     FieldSet: 0,
-                    Section: null,
+                    Section: 0,
                     Placeholder: null,
                     Options: null,
                     LineBreak: true,

@@ -1,9 +1,9 @@
-import {Component, ChangeDetectionStrategy, ChangeDetectorRef} from '@angular/core'; 
-// Output, EventEmitter
+import {Component, ViewChild, ChangeDetectionStrategy, ChangeDetectorRef} from '@angular/core'; 
 import {WorkerService} from '../../../services/timetracking/workerService';
 import {LocalDate, WorkRelation, FlexDetail} from '../../../unientities';
+import {TimeApproveModal} from './popupapprove';
 
-
+// tslint:disable:max-line-length
 @Component({
     selector: 'teamwork-report',
     template: `<article>
@@ -28,7 +28,7 @@ import {LocalDate, WorkRelation, FlexDetail} from '../../../unientities';
                     <thead>
                         <tr>
                             <th></th>
-                            <th class="groupheader">Totalt</th>
+                            <th class="groupheader">Totalt</th>                            
                             <th class="groupheader left-border" colspan="3">{{report?.FromDate | isotime}} - {{report?.ToDate | isotime}}</th>
                             <th class="groupheader left-border" colspan="2">Fravær</th>
                         </tr>
@@ -47,9 +47,9 @@ import {LocalDate, WorkRelation, FlexDetail} from '../../../unientities';
                     </thead>
                     <tbody>
                         <tr *ngFor="let member of report?.Members">                            
-                            <td>{{member.Name}} <span class="subtitle">{{member.WorkRelation?.WorkPercentage}}% - {{member.WorkRelation?.Description}}</span></td>
+                            <td class="clickablecell" (click)="onRowClick(member)">{{member.Name}} <span class="subtitle">{{member.WorkRelation?.WorkPercentage}}% - {{member.WorkRelation?.Description}}</span></td>
                             
-                            <td [class.bad]="member?.TotalBalance < 0">{{member.TotalBalance | min2hours:'decimal0'}}</td>
+                            <td class="clickablecell" (click)="onRowClick(member)" [class.bad]="member?.TotalBalance < 0">{{member.TotalBalance | min2hours:'decimal0'}}</td>
                             
                             <td>{{member.ExpectedMinutes | min2hours:'decimal0'}}</td>
                             <td>{{member.MinutesWorked | min2hours:'decimal0'}}</td>
@@ -65,15 +65,18 @@ import {LocalDate, WorkRelation, FlexDetail} from '../../../unientities';
 
         </section>
 
+        <time-approve-modal></time-approve-modal>
+
     </article>`,
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class TeamworkReport {
-
+    @ViewChild(TimeApproveModal) private approveModal: TimeApproveModal;
     private teams: Array<Team>;
     private report: TeamReport;
     private memberCount: number = 0;
     private busy: boolean = true;
+    private currentRelation: WorkRelation;
 
     constructor(
         private changeDetectorRef: ChangeDetectorRef,
@@ -117,6 +120,10 @@ export class TeamworkReport {
         );
     }
 
+    public onRowClick(member: MemberDetails) {
+        this.currentRelation = member.WorkRelation;
+        this.approveModal.open(this.currentRelation);                        
+    }
 
 }
 

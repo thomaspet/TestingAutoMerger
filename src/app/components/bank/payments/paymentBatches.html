@@ -1,8 +1,8 @@
 <uni-toolbar [config]="toolbarconfig"></uni-toolbar>
-
 <section class="application">
     <section class="splitview">
         <nav class="splitview_list">
+            <uni-upload-file-button class="receipt-file-upload-button" [buttonText]="'Registrer kvitteringsfil'" (fileUploaded)="fileUploaded($event)"></uni-upload-file-button>
             <uni-table
                 [resource]="lookupFunction"
                 [config]="paymentBatchTableConfig"
@@ -20,12 +20,10 @@
             <div *ngIf="!selectedPaymentBatchID">
                 <h2>Opplasting av kvitteringsfil</h2>
                 <p>
-                    For å ferdigstille en betaling må du laste opp en kvitteringsfil fra banken. Dette kan du gjøre ved å laste opp filen under,
-                    eller gå inn på den aktuelle betalingsbunten i listen til venstre og laste opp filen der.
+                    For å ferdigstille en betaling må du laste opp en kvitteringsfil fra banken. 
+                    Dette kan du gjøre ved å klikke på knappen 'Registrer kvitteringsfil'.
+                    Filtype som støttes er camt.054.001.02 (ISO20022)
                 </p>
-                <div class="payment-batch-uploader">
-                    <uni-attachments class="upload-no-batch" [showFileList]="false" [uploadWithoutEntity]="true" (fileUploaded)="fileUploaded($event)" [headerText]="'Registrer kvitteringsfil'"></uni-attachments>
-                </div>
             </div>
         </main>
     </section>

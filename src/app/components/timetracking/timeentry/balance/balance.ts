@@ -219,7 +219,8 @@ class Week {
     }
 }
 
-class WorkBalanceDto extends WorkBalance {
+// tslint:disable:variable-name
+class WorkBalanceDto extends WorkBalance {    
     public LastDayExpected: number;
     public LastDayActual: number;
     public expectedHours: number;

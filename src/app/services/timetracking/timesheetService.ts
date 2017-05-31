@@ -34,6 +34,26 @@ export class TimeSheet {
         });
     }
 
+    public clone(): TimeSheet {
+        var tx = new TimeSheet(this.ts);
+        tx.currentRelation = this.currentRelation;
+        tx.allowLunchCalculations = this.allowLunchCalculations;
+        return tx;
+    }
+
+    public addItem(item: WorkItem, recalc: boolean = true) {
+        item.WorkRelationID = this.currentRelation.ID;
+        this.items.push(item);        
+        this.changeMap.add(this.items.length - 1, item);
+        if (recalc) {
+            this.analyzeItems(this.items);
+        }
+    }
+
+    public recalc() {
+        this.analyzeItems(this.items);
+    }
+
     public loadItems(interval?: ItemInterval): Observable<number> {
         this.changeMap.clear();
         var filter = this.ts.workerService.getIntervalFilter(interval);

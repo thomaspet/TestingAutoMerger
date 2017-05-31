@@ -30,6 +30,7 @@ import {
 } from '../../../../services/services';
 
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
+import {UniField} from "uniform-ng2/src/uniform";
 
 declare const _; // lodash
 
@@ -332,16 +333,16 @@ export class SupplierDetails implements OnInit {
         if (!this.allowSearchSupplier || this.supplierID > 0 || (supplier && supplier.Info.Name !== null && supplier.Info.Name !== '')) {
             supplierSearchResult.Hidden = true;
             supplierName.Hidden = false;
-
+            this.fields$.next(fields);
             setTimeout(() => {
                 if (this.form.field('Info.Name')) {
                     this.form.field('Info.Name').focus();
                 }
-            });
+           });
         } else {
             supplierSearchResult.Hidden = false;
             supplierName.Hidden = true;
-
+            this.fields$.next(fields);
             setTimeout(() => {
                 if (this.form.field('_SupplierSearchResult')) {
                     this.form.field('_SupplierSearchResult').focus();
@@ -567,7 +568,7 @@ export class SupplierDetails implements OnInit {
             storeIdInProperty: 'Info.DefaultBankAccountID',
             editor: (bankaccount: BankAccount) => new Promise((resolve, reject) => {
                 if ((bankaccount && !bankaccount.ID) || !bankaccount) {
-                    bankaccount = new BankAccount();
+                    bankaccount = bankaccount || new BankAccount();
                     bankaccount['_createguid'] = this.bankaccountService.getNewGuid();
                     bankaccount.BankAccountType = 'supplier';
                     bankaccount.ID = 0;
@@ -592,6 +593,21 @@ export class SupplierDetails implements OnInit {
         // small timeout to allow uniform and unitable to update the sources before saving
         setTimeout(() => {
             let supplier = this.supplier$.getValue();
+
+            // if the user has typed something in Name for a new supplier, but has not
+            // selected something from the list or clicked F3, the searchbox is still active,
+            // so we need to get the value from there
+            if (!supplier.ID || supplier.ID === 0) {
+                if (!supplier.Info.Name || supplier.Info.Name === '') {
+                    let searchInfo = <any>this.form.field('_SupplierSearchResult');
+                    if (searchInfo) {
+                        if (searchInfo.component && searchInfo.component.input) {
+                            supplier.Info.Name = searchInfo.component.input.value;
+                        }
+                    }
+                }
+            }
+
             // add createGuid for new entities and remove duplicate entities
             if (!supplier.Info.Emails) {
                 supplier.Info.Emails = [];
@@ -761,7 +777,6 @@ export class SupplierDetails implements OnInit {
             <[string]>this.expandOptions,
             () => {
                 let supplier = this.supplier$.getValue();
-
                 let searchInfo = <any>this.form.field('_SupplierSearchResult');
                 if (searchInfo) {
                     if (searchInfo.component && searchInfo.component.input) {
@@ -770,12 +785,10 @@ export class SupplierDetails implements OnInit {
                 }
 
                 if (!supplier.Info.Name) {
-                    supplier.Info.Name = '';
+                   supplier.Info.Name = '';
                 }
-
                 this.supplier$.next(supplier);
                 this.showHideNameProperties();
-
                 return Observable.from([supplier]);
             });
 

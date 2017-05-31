@@ -1,4 +1,4 @@
-<section class="splitview">
+<section class="splitview application">
     <nav class="splitview_list">
         <uni-table [config]="tableConfig" [resource]="employments" (rowSelected)="onRowSelected($event)"></uni-table>
         <button (click)="newEmployment()" [disabled]="employee?.ID === 0">

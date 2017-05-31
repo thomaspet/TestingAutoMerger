@@ -167,6 +167,32 @@ export class UniSearchCustomerConfigGeneratorHelper {
         return customer;
     }
 
+     public generateOnlyExternalSearch(): IUniSearchConfig {
+        return {
+            lookupFn: query =>
+                this.integrationServerCaller
+                    .businessRelationSearch(query, MAX_RESULTS)
+                    .map(results =>
+                        results.map(result =>
+                            this.mapExternalSearchToCustomStatisticsObj(result)
+                        )
+                    )
+                    .catch((err, obs) => this.errorService.handleRxCatch(err, obs)),
+            expandOrCreateFn: (item: CustomStatisticsResultItem) => Observable.of(item),
+            initialItem$: new BehaviorSubject(null),
+            tableHeader: ['Navn', 'Tlf', 'Adresse', 'Poststed', 'Org.Nr'],
+            rowTemplateFn: item => [
+                item.Name,
+                item.PhoneNumber,
+                item.AddressLine1,
+                `${item.PostalCode || ''} ${item.City || ''}`,
+                item.OrgNumber
+            ],
+            inputTemplateFn: item => item.Name,
+            maxResultsLength: MAX_RESULTS
+        };
+    }
+
     private getNumberFromStartOfString(str: string): number {
         const match = str.match(/^\d+/);
         return match && +match[0];

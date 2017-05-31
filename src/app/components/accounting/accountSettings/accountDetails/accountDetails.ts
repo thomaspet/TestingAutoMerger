@@ -29,7 +29,7 @@ export class AccountDetails implements OnInit {
     private currencyCodes: Array<any> = [];
     private vattypes: Array<any> = [];
     private accountGroups: AccountGroup[];
-    public config$: BehaviorSubject<any> = new BehaviorSubject({autofocus: true});
+    public config$: BehaviorSubject<any> = new BehaviorSubject({});
     public fields$: BehaviorSubject<UniFieldLayout[]> = new BehaviorSubject(this.getComponentLayout().Fields);
 
     constructor(

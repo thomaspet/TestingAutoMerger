@@ -12,20 +12,20 @@
             {
                 "Header": "Fakturanr",
                 "Field": "InvoiceNumber",
-                "Width": "100px",
+                "Width": "85px",
                 "Type": "link",
-                "FilterOperator": "eq"
+                "FilterOperator": "startswith"
             },
             {
                 "Header": "Kundenr",
                 "Field": "Customer.CustomerNumber",
                 "Type": "text",
-                "FilterOperator": "eq"
+                "Width": "90px",
+                "FilterOperator": "startswith"
             },
             {
                 "Header": "Kundenavn",
                 "Field": "Customer.Info.Name",
-                "Width": "250px",
                 "Type": "link",
                 "ExternalModel": "Customer",
                 "LinkNavigationProperty": "Customer.ID",
@@ -34,12 +34,15 @@
             {
                 "Header": "Fakturadato",
                 "Field": "InvoiceDate",
-                "FilterOperator": "gt"
+                "FilterOperator": "gt",
+                "Width": "103px"
             },
             {
                 "Header": "Forfallsdato",
                 "Field": "PaymentDueDate",
-                "Format": "DatePassed"
+                "Format": "DatePassed",
+                "FilterOperator": "gt",
+                "Width": "103px"
             },
             {
                 "Header": "Valuta",
@@ -55,16 +58,17 @@
                 "FilterOperator": "gt"
             },
             {
-                "Header": "Restsum",
+                "Header": "Rest",
                 "Field": "RestAmountCurrency",
                 "Format": "NumberPositiveNegative",
-                "DefaultHidden": true,
+                "Width": "150px",
                 "FilterOperator": "gt"
             },
             {
                 "Header": "Kreditert",
                 "Field": "CreditedAmountCurrency",
                 "Format": "NumberPositiveNegative",
+                "Width": "150px",
                 "DefaultHidden": true
             },
             {
@@ -83,6 +87,7 @@
                 "Header": "Kreditert [BASECURRENCY]",
                 "Field": "CreditedAmount",
                 "Format": "NumberPositiveNegative",
+                "Width": "150px",
                 "DefaultHidden": true
             },
             {
@@ -94,7 +99,7 @@
             },
             {
                 "Header": "Fakturatype",
-                "Field": "CustomerInvoice.InvoiceType",
+                "Field": "InvoiceType",
                 "Type": "dontdisplay"
             },
             {
@@ -104,7 +109,8 @@
             },
             {
                 "Header": "Status",
-                "Field": "StatusCode"
+                "Field": "StatusCode",
+                "Width": "125px"
             }
         ],
         "ParentFilter": {
@@ -195,12 +201,21 @@
         "SubTickersCodes": ["invoice_details", "invoice_items"],
         "Filters": [
             {
-                "Name": "Alle",
-                "Code": "all_invoices",
-                "Filter": ""
+                "Name": "Mine",
+                "Code": "my_invoices",
+                "UseAllCriterias": true,
+                "FilterGroups": [{
+                    "UseAllCriterias": true,
+                    "FieldFilters": [
+                    {
+                        "Field": "CreatedBy",
+                        "Operator": "eq",
+                        "Value": ":currentuserid"
+                    }]
+                }]
             },
             {
-                "Name": "Under arbeid",
+                "Name": "Kladd",
                 "Code": "my_draft_invoices",
                 "UseAllCriterias": true,
                 "FilterGroups": [{
@@ -214,21 +229,46 @@
                 }]
             },
             {
-                "Name": "Fakturert",
-                "Code": "invoiced_invoices",
+                "Name": "Alle",
+                "Code": "all_invoices",
                 "UseAllCriterias": true,
                 "FilterGroups": [{
                     "UseAllCriterias": false,
                     "FieldFilters": [
                     {
                         "Field": "StatusCode",
-                        "Operator": "eq",
-                        "Value": "42002"
+                        "Operator": "ne",
+                        "Value": "42001"
+                    }
+                ]}
+                ]
+            },
+            {
+                "Name": "Fakturert",
+                "Code": "invoiced_invoices",
+                "UseAllCriterias": true,
+                "FilterGroups": [{
+                    "UseAllCriterias": true,
+                    "FieldFilters": [
+                    {
+                        "Field": "StatusCode",
+                        "Operator": "gt",
+                        "Value": "42001"
                     },
                     {
                         "Field": "StatusCode",
-                        "Operator": "eq",
-                        "Value": "42003"
+                        "Operator": "lt",
+                        "Value": "42004"
+                    },
+                    {
+                        "Field": "InvoiceType",
+                        "Operator": "ne",
+                        "Value": "1"
+                    },
+                    {
+                        "Field": "IsFullyCredited",
+                        "Operator": "ne",
+                        "Value": "True"
                     }
                 ]}
                 ]
@@ -250,6 +290,11 @@
                         "Field": "PaymentDueDate",
                         "Operator": "lt",
                         "Value": "getdate()"
+                    },
+                    {
+                        "Field": "IsFullyCredited",
+                        "Operator": "ne",
+                        "Value": "True"
                     }
                 ]},
                 {
@@ -279,6 +324,11 @@
                         "Field": "CollectorStatusCode",
                         "Operator": "eq",
                         "Value": "42501"
+                    },
+                    {
+                        "Field": "IsFullyCredited",
+                        "Operator": "ne",
+                        "Value": "True"
                     }
                 ]}
                 ]
@@ -309,6 +359,31 @@
                         "Field": "StatusCode",
                         "Operator": "eq",
                         "Value": "42004"
+                    },
+                    {
+                        "Field": "IsFullyCredited",
+                        "Operator": "ne",
+                        "Value": "True"
+                    }
+                ]}
+                ]
+            },
+            {
+                "Name": "Kreditert",
+                "Code": "fullyCredited_invoices",
+                "UseAllCriterias": true,
+                "FilterGroups": [{
+                    "UseAllCriterias": false,
+                    "FieldFilters": [
+                    {
+                        "Field": "IsFullyCredited",
+                        "Operator": "eq",
+                        "Value": "True"
+                    },
+                    {
+                        "Field": "InvoiceType",
+                        "Operator": "eq",
+                        "Value": "1"
                     }
                 ]}
                 ]
@@ -509,29 +584,42 @@
         "Group": "Salg",
         "Model": "CustomerQuote",
         "Expand": "Customer.Info,CurrencyCode",
+        "OrderBy": "ID DESC",
         "Columns": [
             {
+                "Header": "Tilbudnr",
                 "Field": "QuoteNumber",
-                "Width": "100px",
-                "Type": "link"
+                "Width": "80px",
+                "Type": "Link",
+                "FilterOperator": "startswith"
             },
             {
+                "Header": "Kundenr",
                 "Field": "Customer.CustomerNumber",
-                "Type": "text"
+                "Type": "text",
+                "Width": "90px",
+                "FilterOperator": "startswith"
             },
             {
+                "Header": "Kundenavn",
                 "Field": "Customer.Info.Name",
-                "Width": "250px",
                 "Type": "link",
                 "ExternalModel": "Customer",
-                "LinkNavigationProperty": "Customer.ID"
+                "LinkNavigationProperty": "Customer.ID",
+                "FilterOperator": "contains"
             },
             {
-                "Field": "QuoteDate"
+                "Header": "Tilbudsdato",
+                "Field": "QuoteDate",
+                "Width": "100px",
+                "FilterOperator": "gt"
             },
             {
+                "Header": "Gyldig til",
                 "Field": "ValidUntilDate",
-                "Format": "DatePassed"
+                "Format": "DatePassed",
+                "Width": "100px",
+                "FilterOperator": "gt"
             },
             {
                 "Header": "Valuta",
@@ -543,7 +631,7 @@
                 "Header": "Sum inkl mva",
                 "Field": "TaxInclusiveAmountCurrency",
                 "Format": "NumberPositiveNegative",
-                "Width": "150px"
+                "Width": "120px"
             },
             {
                 "Header": "Sum inkl mva [BASECURRENCY]",
@@ -553,7 +641,8 @@
             },
             {
                 "Header": "Status",
-                "Field": "StatusCode"
+                "Field": "StatusCode",
+                "Width": "155px"
             }
         ],
         "ParentFilter": {
@@ -580,7 +669,7 @@
                 "Code": "export_quotes",
                 "Type": "export",
                 "ExecuteWithMultipleSelections": true,
-                "ExecuteWithoutSelection": true
+                "ExecuteWithoutSelection": false
             },
             {
                 "Name": "Skriv ut",
@@ -592,6 +681,14 @@
                 "Options": {
                     "ReportName": "Tilbud id"
                 }
+            },
+            {
+                "Name": "Send på epost",
+                "Code": "quote_sendemail",
+                "Type": "details",
+                "DisplayInContextMenu": true,
+                "ExecuteWithMultipleSelections": false,
+                "DisplayInActionBar": false
             },
             {
                 "Name": "Overfør til ordre",
@@ -626,10 +723,47 @@
         ],
         "SubTickersCodes": ["quote_details", "quote_items"],
         "Filters": [
+             {
+                "Name": "Mine",
+                "Code": "my_quotes",
+                "UseAllCriterias": true,
+                "FilterGroups": [{
+                    "UseAllCriterias": true,
+                    "FieldFilters": [
+                    {
+                        "Field": "CreatedBy",
+                        "Operator": "eq",
+                        "Value": ":currentuserid"
+                    }]
+                }]
+            },
+            {
+                "Name": "Kladd",
+                "Code": "quotes_in_draft",
+                "FilterGroups": [{
+                    "UseAllCriterias": false,
+                    "FieldFilters": [
+                        {
+                            "Field": "StatusCode",
+                            "Operator": "eq",
+                            "Value": "40101"
+                        }
+                    ]
+                }]
+            },
             {
                 "Name": "Alle",
                 "Code": "all_quotes",
-                "Filter": ""
+                "FilterGroups": [{
+                    "UseAllCriterias": false,
+                    "FieldFilters": [
+                        {
+                            "Field": "StatusCode",
+                            "Operator": "ne",
+                            "Value": "40101"
+                        }
+                    ]
+                }]
             },
             {
                 "Name": "Under arbeid",
@@ -638,11 +772,6 @@
                 "FilterGroups": [{
                     "UseAllCriterias": false,
                     "FieldFilters": [
-                        {
-                            "Field": "StatusCode",
-                            "Operator": "eq",
-                            "Value": "40101"
-                        },
                         {
                             "Field": "StatusCode",
                             "Operator": "eq",
@@ -856,24 +985,35 @@
         "Group": "Salg",
         "Model": "CustomerOrder",
         "Expand": "Customer.Info,CurrencyCode",
+        "OrderBy": "ID DESC",
         "Columns": [
             {
+                "Header": "Ordrenr",
                 "Field": "OrderNumber",
-                "Width": "100px",
-                "Type": "text"
+                "Width": "80px",
+                "Type": "Link",
+                "FilterOperator": "startswith"
             },
             {
+                "Header": "Kundenr",
                 "Field": "Customer.CustomerNumber",
-                "Type": "text"
+                "Type": "text",
+                "Width": "90px",
+                "FilterOperator": "startswith"
             },
             {
+                "Header": "Kundenavn",
                 "Field": "Customer.Info.Name",
-                "Width": "250px"
+                "FilterOperator": "contains"
             },
             {
-                "Field": "OrderDate"
+                "Header": "Ordredato",
+                "Field": "OrderDate",
+                "FilterOperator": "gt",
+                "Width": "100px"
             },
             {
+                "Header": "Valuta",
                 "Field": "CurrencyCode.Code",
                 "Width": "70px",
                 "DefaultHidden": true
@@ -882,7 +1022,8 @@
                 "Header": "Sum inkl mva",
                 "Field": "TaxInclusiveAmountCurrency",
                 "Format": "NumberPositiveNegative",
-                "Width": "150px"
+                "Width": "125px",
+                "FilterOperator": "gt"
             },
             {
                 "Header": "Sum inkl mva [BASECURRENCY]",
@@ -892,7 +1033,8 @@
             },
             {
                 "Header": "Status",
-                "Field": "StatusCode"
+                "Field": "StatusCode",
+                "Width": "155px"
             }
         ],
         "ParentFilter": {
@@ -912,13 +1054,23 @@
                 "Type": "details",
                 "DisplayInContextMenu": true,
                 "DisplayInActionBar": true
-            },            
+            },
             {
-                "Name": "Eksporter",
-                "Code": "export_quotes",
-                "Type": "export",
-                "ExecuteWithMultipleSelections": true,
-                "ExecuteWithoutSelection": true
+                "Name": "Avslutt",
+                "Code": "order_finish",
+                "Type": "transition",
+                "DisplayInContextMenu": true,
+                "DisplayInActionBar": false,
+                "Options": {
+                    "Transition": "complete"
+                }
+            },
+            {
+                "Name": "Send på epost",
+                "Code": "order_sendemail",
+                "Type": "details",
+                "DisplayInContextMenu": true,
+                "DisplayInActionBar": false
             },
             {
                 "Name": "Skriv ut",
@@ -935,13 +1087,22 @@
         "SubTickersCodes": ["order_details", "order_items"],
         "Filters": [
             {
-                "Name": "Alle",
-                "Code": "all_orders",
-                "Filter": ""
+                "Name": "Mine",
+                "Code": "my_orders",
+                "UseAllCriterias": true,
+                "FilterGroups": [{
+                    "UseAllCriterias": true,
+                    "FieldFilters": [
+                    {
+                        "Field": "CreatedBy",
+                        "Operator": "eq",
+                        "Value": ":currentuserid"
+                    }]
+                }]
             },
             {
-                "Name": "Under arbeid",
-                "Code": "draft_orders",
+                "Name": "Kladd",
+                "Code": "orders_in_draft",
                 "UseAllCriterias": true,
                 "FilterGroups": [{
                     "UseAllCriterias": false,
@@ -950,7 +1111,31 @@
                             "Field": "StatusCode",
                             "Operator": "eq",
                             "Value": "41001"
-                        },
+                        }
+                    ]
+                }]
+            },
+            {
+                "Name": "Alle",
+                "Code": "all_orders",
+                "FilterGroups": [{
+                    "UseAllCriterias": false,
+                    "FieldFilters": [
+                        {
+                            "Field": "StatusCode",
+                            "Operator": "ne",
+                            "Value": "41001"
+                        }
+                    ]
+                }]
+            },
+            {
+                "Name": "Under arbeid",
+                "Code": "draft_orders",
+                "UseAllCriterias": true,
+                "FilterGroups": [{
+                    "UseAllCriterias": false,
+                    "FieldFilters": [
                         {
                             "Field": "StatusCode",
                             "Operator": "eq",

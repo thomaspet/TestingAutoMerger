@@ -1,24 +1,11 @@
-<uni-toolbar [config]="toolbarconfig"></uni-toolbar>
+<uni-toolbar [config]="{title: 'Ordre', omitFinalCrumb: true}"></uni-toolbar>
 
-<header class="horizontal_nav no-print">
-    <ul>
-        <li *ngFor="let tab of filterTabs">
-            <a (click)="onFilterTabClick(tab)" [ngClass]="{'router-link-active': tab === activeTab}" >
-                {{tab.label}}&nbsp;
-                <span *ngIf="tab.count >= 0" class="tab_counter tab_counter_passive">{{tab.count}}</span>
-            </a>
-        </li>
-    </ul>
-</header>
+<uni-ticker-wrapper
+    [tickerCode]="tickercode"
+    [showFiltersAsNavbar]="true"
+    [actionOverrides]="actionOverrides"
+    [columnOverrides]="columnOverrides">
+</uni-ticker-wrapper>
 
-<section class="application">
-    <button class="new-button" (click)="createOrder()">Ny ordre</button>
-    <uni-table
-               [resource]="lookupFunction"
-               [config]="orderTable"
-               (rowSelected)="onRowSelected($event)">
-
-    </uni-table>
-</section>
 <send-email-modal></send-email-modal>
-<report-preview-modal></report-preview-modal>
+

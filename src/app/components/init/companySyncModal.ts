@@ -19,7 +19,7 @@ interface ISyncAction {
                 <ul class="progress-list">
                     <li *ngFor="let action of actions" class="progress-item" [ngClass]="{'finished': action.finished}" [attr.aria-busy]="action.busy">
                         {{action.label}}
-                    </li>                    
+                    </li>
                 </ul>
             </article>
         </dialog>
@@ -38,18 +38,6 @@ export class CompanySyncModal {
                     return this.http.asPUT()
                         .usingBusinessDomain()
                         .withEndPoint('accounts?action=synchronize-ns4102-as')
-                        .send()
-                        .map(response => response.json());
-                },
-                busy: false,
-                finished: false
-            },
-            {
-                label: 'Synkroniserer valuta',
-                request: () => {
-                    return this.http.asGET()
-                        .usingBusinessDomain()
-                        .withEndPoint('currency?action=download-from-norgesbank')
                         .send()
                         .map(response => response.json());
                 },

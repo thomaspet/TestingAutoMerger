@@ -2,8 +2,7 @@
              [saveactions]="saveActions" 
              [tags]="categoryFilter"
              [tagConfig]="tagConfig"
-             [autocompleteConfig]="employeeSearch"
-             (tagsChange)="filterChange($event)">
+             [autocompleteConfig]="employeeSearch">
 </uni-toolbar>
 
 <uni-poster [widgets]="employeeWidgets" *ngIf="employeeWidgets"></uni-poster>

@@ -1,4 +1,21 @@
-<div style="text-align:Center">
-    Placeholder Content
-    <br/> {{selectedTask.Title}}
-</div>
+<section class="task-header">
+    <h2>{{selectedTask?.Title}}</h2>
+</section>
+
+<uni-comment-list [comments]="comments"></uni-comment-list>
+<uni-comment-input (submit)="submitComment($event)"></uni-comment-input>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

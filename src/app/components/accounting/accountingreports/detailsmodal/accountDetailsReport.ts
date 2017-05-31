@@ -37,7 +37,7 @@ export class AccountDetailsReport {
     private uniTableConfigTransactions$: BehaviorSubject<UniTableConfig> = new BehaviorSubject<UniTableConfig>(null);
 
     private searchParams$: BehaviorSubject<any> = new BehaviorSubject({});
-    private config$: BehaviorSubject<any> = new BehaviorSubject({});
+    private config$: BehaviorSubject<any> = new BehaviorSubject({autofocus: true});
     private fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
     private financialYears: Array<FinancialYear> = null;
     private activeFinancialYear: FinancialYear;

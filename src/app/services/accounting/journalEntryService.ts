@@ -50,7 +50,7 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
         private journalEntryLineDraftService: JournalEntryLineDraftService,
         private errorService: ErrorService,
         private companySettingsService: CompanySettingsService,
-        private authService: AuthService
+        public authService: AuthService
     ) {
         super(http);
         this.relativeURL = JournalEntry.RelativeUrl;
@@ -209,9 +209,8 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
             } else if (!previousJournalEntryNo || previousJournalEntryNo !== line.JournalEntryNo) {
                 // for each new number in line.JournalEntryNo, create a new journalentry
                 je = new JournalEntryExtended();
-
+                je.NumberSeriesTaskID = line.NumberSeriesTaskID;
                 je.DraftLines = [];
-
                 je.FileIDs = line.FileIDs;
                 je.Payments = [];
 
@@ -264,6 +263,7 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
             draftLine.FinancialDate = journalEntryData.FinancialDate;
             draftLine.InvoiceNumber = journalEntryData.InvoiceNumber;
             draftLine.RegisteredDate = new LocalDate(Date());
+
             draftLine.VatDate = journalEntryData.FinancialDate;
             draftLine.VatTypeID = journalEntryData.DebitVatTypeID;
             draftLine.VatType = debitVatType;
@@ -284,6 +284,7 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
                 draftLine.PostPostJournalEntryLineID = journalEntryData.PostPostJournalEntryLineID;
                 draftLine.CustomerInvoiceID = journalEntryData.CustomerInvoiceID;
                 draftLine.SupplierInvoiceID = journalEntryData.SupplierInvoiceID;
+                draftLine.DueDate = journalEntryData.DueDate;
             }
 
             lines.push(draftLine);
@@ -327,6 +328,7 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
                 draftLine.PostPostJournalEntryLineID = journalEntryData.PostPostJournalEntryLineID;
                 draftLine.CustomerInvoiceID = journalEntryData.CustomerInvoiceID;
                 draftLine.SupplierInvoiceID = journalEntryData.SupplierInvoiceID;
+                draftLine.DueDate = journalEntryData.DueDate;
             }
 
             lines.push(draftLine);
@@ -349,25 +351,35 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
         let result: ValidationResult = new ValidationResult();
         result.Messages = [];
 
-        let DblPaymentsInvoiceNo: Set<string> = new Set();
+        let dblPaymentsInvoiceNo: Array<string> = [];
         journalDataEntries.forEach(row => {
-            if (journalDataEntries.filter(entry => entry.InvoiceNumber === row.InvoiceNumber && entry.InvoiceNumber).length > 1) {
-                DblPaymentsInvoiceNo.add(row.InvoiceNumber);
+            if (row.InvoiceNumber) {
+                let duplicatePayments = journalDataEntries.filter(entry =>
+                    entry.InvoiceNumber === row.InvoiceNumber && entry.InvoiceNumber
+                    && ((entry.DebitAccount && entry.DebitAccount.UsePostPost)
+                    || (entry.CreditAccount && entry.CreditAccount.UsePostPost))
+                );
+
+                if (duplicatePayments.length > 1) {
+                    if (!dblPaymentsInvoiceNo.find(x => x === row.InvoiceNumber)) {
+                        dblPaymentsInvoiceNo.push(row.InvoiceNumber);
+                    }
+                }
             }
         });
 
-        if (DblPaymentsInvoiceNo.size > 0) {
+        if (dblPaymentsInvoiceNo.length > 0) {
             let invPaymValidation = new ValidationMessage();
             let subMsg: string = '';
-            DblPaymentsInvoiceNo.forEach(invoiceNo => {
+            dblPaymentsInvoiceNo.forEach(invoiceNo => {
                 subMsg += invoiceNo + ', ';
             });
 
             invPaymValidation.Level = ValidationLevel.Warning;
-            let subNoMsg = DblPaymentsInvoiceNo.size > 1 ? ' numrene ' : ' nr ';
+            let subNoMsg = dblPaymentsInvoiceNo.length > 1 ? 'numrene ' : 'nr ';
 
-            invPaymValidation.Message = 'Faktura ' + subNoMsg +
-                subMsg.substring(0, subMsg.length - 2) + ' har flere betalinger.';
+            invPaymValidation.Message =
+                'Faktura' + subNoMsg + subMsg.substring(0, subMsg.length - 2) + ' har flere betalinger.';
 
             result.Messages.push(invPaymValidation);
         }
@@ -524,9 +536,10 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
         });
 
         if (UniMath.round(currentSumDebit, 2) !== UniMath.round(currentSumCredit * -1, 2)) {
+            let diff = UniMath.round((UniMath.round(currentSumDebit, 2) - UniMath.round(currentSumCredit * -1, 2)), 2);
             let message = new ValidationMessage();
             message.Level = ValidationLevel.Error;
-            message.Message = `Bilag ${lastJournalEntryNo} går ikke i balanse. Sum debet og sum kredit må være lik`;
+            message.Message = `Bilag ${lastJournalEntryNo} går ikke i balanse. Sum debet og sum kredit må være lik (differanse: ${diff})`;
             result.Messages.push(message);
         }
 
@@ -620,7 +633,6 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
             jed = new JournalEntryData();
             jed.FinancialDate = line.FinancialDate;
             jed.Amount = line.Amount;
-            jed.InvoiceNumber = line.InvoiceNumber;
             jed.AmountCurrency = line.AmountCurrency;
             jed.CurrencyID = line.CurrencyCodeID;
             jed.CurrencyCode = line.CurrencyCodeID ? line.CurrencyCode : null;
@@ -628,8 +640,6 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
             jed.JournalEntryID = line.JournalEntryID;
             jed.JournalEntryNo = line.JournalEntryNumber;
             jed.Description = line.Description;
-            jed.CustomerInvoiceID = line.CustomerInvoiceID;
-            jed.SupplierInvoiceID = line.SupplierInvoiceID;
             jed.StatusCode = line.StatusCode;
             jed.JournalEntryDraftIDs = [];
             jed.JournalEntryDrafts = [];
@@ -637,8 +647,24 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
             jed.CurrencyCode = line.CurrencyCode;
         }
 
-        if (jed.Dimensions == null && line.Dimensions != null) {
+        if (!jed.CustomerInvoiceID && line.CustomerInvoiceID) {
+            jed.CustomerInvoiceID = line.CustomerInvoiceID;
+        }
+
+        if (!jed.SupplierInvoiceID && line.SupplierInvoiceID) {
+            jed.SupplierInvoiceID = line.SupplierInvoiceID;
+        }
+
+        if (!jed.InvoiceNumber && line.InvoiceNumber) {
+            jed.InvoiceNumber = line.InvoiceNumber;
+        }
+
+        if (!jed.Dimensions && line.Dimensions) {
             jed.Dimensions = line.Dimensions;
+        }
+
+        if (!jed.DueDate && line.DueDate) {
+            jed.DueDate = line.DueDate;
         }
 
         jed.JournalEntryDraftIDs.push(line.ID);
@@ -1108,7 +1134,7 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
             .map(response => response.json());
     }
 
-    public findJournalNumbersFromLines(journalEntryLines: Array<JournalEntryData>, nextJournalNumber: string = "") {
+    public findJournalNumbersFromLines(journalEntryLines: Array<JournalEntryData>, nextJournalNumber: string = '') {
         var first, last, year;
 
         if (journalEntryLines && journalEntryLines.length) {
@@ -1122,7 +1148,7 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
                     if (!last || no > last) {
                         last = no;
                     }
-                    if (i == 0) {
+                    if (i === 0 && parts.length > 1) {
                         year = parseInt(parts[1]);
                     }
                 }
@@ -1131,20 +1157,22 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
             if (!first) {
                 return null;
             }
-        } else if(nextJournalNumber && nextJournalNumber.length) {
+        } else if (nextJournalNumber && nextJournalNumber.length) {
             var parts = nextJournalNumber.split('-');
             first = parseInt(parts[0]);
             last = first;
-            year = parseInt(parts[1]);
+            if (parts.length > 1) {
+                year = parseInt(parts[1]);
+            }
         }
 
         return {
             first: first,
             last: last,
             year: year,
-            firstNumber: `${first}-${year}`,
-            nextNumber: `${last + (journalEntryLines.length ? 1 : 0)}-${year}`,
-            lastNumber: `${last}-${year}`
+            firstNumber: year ? `${first}-${year}` : `${first}`,
+            nextNumber: year ? `${last + (journalEntryLines.length ? 1 : 0)}-${year}` : `${last + (journalEntryLines.length ? 1 : 0)}`,
+            lastNumber: year ? `${last}-${year}` : `${last}`
         };
     }
 

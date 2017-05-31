@@ -73,6 +73,18 @@ export const billViewLanguage = {
     warning: 'Advarsel',
     fyi: 'Til informasjon',
 
+    task_approval: 'Godkjenning',
+    task_approve: 'Godkjenn',
+    task_reject: 'Avvis',
+
+    err_missing_comment: 'Du må skrive en kommentar som forklarer avvisningen.'
+
+};
+
+export const approvalStatusLabels = {
+    50120: 'Tildelt',
+    50130: 'Godkjent',
+    50140: 'Avvist'
 };
 
 export const billStatusflowLabels = {

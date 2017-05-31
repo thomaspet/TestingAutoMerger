@@ -161,14 +161,26 @@ export class InvoiceDetails {
                     this.companySettingsService.Get(1),
                     this.currencyCodeService.GetAll(null)
                 ).subscribe((res) => {
+                    this.companySettings = res[3];
+
                     let invoice = <CustomerInvoice>res[0];
                     invoice.OurReference = res[1].DisplayName;
-                    invoice.InvoiceDate = <any>new LocalDate(); // TODO: Remove <any> when backend is ready
-                    invoice.PaymentDueDate = null;
+                    invoice.InvoiceDate = new LocalDate();
+
                     if (res[2]) {
                         invoice = this.tofHelper.mapCustomerToEntity(res[2], invoice);
+
+                        invoice.CreditDays = invoice.CreditDays
+                            || invoice.Customer.CreditDays
+                            || this.companySettings.CustomerCreditDays;
+
+                        invoice.PaymentDueDate = new LocalDate(
+                            moment(invoice.InvoiceDate).add(invoice.CreditDays, 'days').toDate()
+                        );
+                    } else {
+                        invoice.PaymentDueDate = null;
                     }
-                    this.companySettings = res[3];
+
 
                     if (!invoice.CurrencyCodeID) {
                         invoice.CurrencyCodeID = this.companySettings.BaseCurrencyCodeID;
@@ -243,11 +255,9 @@ export class InvoiceDetails {
         if (this.companySettings.APActivated && this.companySettings.APGuid) {
             this.askSendEHF(doneHandler);
         } else {
-            this.activateAPModal.openModal();
-
-            if (this.activateAPModal.Changed.observers.length === 0) {
-                this.activateAPModal.Changed.subscribe((activate) => {
-                    this.ehfService.Activate(activate).subscribe((ok) => {
+            this.activateAPModal.confirm().then((result) => {
+                if (result.status === ConfirmActions.ACCEPT) {
+                    this.ehfService.Activate(result.model).subscribe((ok) => {
                         if (ok) {
                             this.toastService.addToast('Aktivering', ToastType.good, 3, 'EHF aktivert');
                             this.askSendEHF(doneHandler);
@@ -256,12 +266,12 @@ export class InvoiceDetails {
                             if (doneHandler) { doneHandler('Feil oppstod ved aktivering!'); }
                         }
                     },
-                        (err) => {
-                            if (doneHandler) { doneHandler('Feil oppstod ved aktivering!'); }
-                            this.errorService.handle(err);
-                        });
-                });
-            }
+                    (err) => {
+                        if (doneHandler) { doneHandler('Feil oppstod ved aktivering!'); }
+                        this.errorService.handle(err);
+                    });
+                }
+            });
         }
     }
 
@@ -361,25 +371,32 @@ export class InvoiceDetails {
         let shouldGetCurrencyRate: boolean = false;
 
         // update invoices currencycodeid if the customer changed
-        if (this.didCustomerChange(invoice)) {
+        let customerChanged: boolean = this.didCustomerChange(invoice);
+        if (customerChanged) {
             if (invoice.Customer.CurrencyCodeID) {
                 invoice.CurrencyCodeID = invoice.Customer.CurrencyCodeID;
             } else {
                 invoice.CurrencyCodeID = this.companySettings.BaseCurrencyCodeID;
             }
             shouldGetCurrencyRate = true;
+            invoice.CreditDays = null;
         }
 
         if (invoice.Customer) {
-            invoice.CreditDays = invoice.CreditDays
+            let oldCreditDays = invoice.CreditDays;
+            invoice.CreditDays =
+                invoice.CreditDays
                 || invoice.Customer.CreditDays
                 || this.companySettings.CustomerCreditDays;
 
             if (invoice.InvoiceDate) {
-                if (isDifferent(this.invoice.InvoiceDate, invoice.InvoiceDate)) {
-                    invoice.PaymentDueDate = <any>new LocalDate(
+                if (!invoice.PaymentDueDate
+                    || customerChanged
+                    || isDifferent(this.invoice.InvoiceDate, invoice.InvoiceDate)
+                    || isDifferent(oldCreditDays, invoice.CreditDays)) {
+                    invoice.PaymentDueDate = new LocalDate(
                         moment(invoice.InvoiceDate).add(invoice.CreditDays, 'days').toDate()
-                    ); // TODO: Remove <any> when backend is ready
+                    );
                 }
             }
         }
@@ -545,7 +562,7 @@ export class InvoiceDetails {
         return invoice.Customer
             && (!this.invoice
                 || (invoice.Customer && !this.invoice.Customer)
-                || (invoice.Customer && this.invoice.Customer && invoice.Customer.ID !== this.invoice.Customer.ID))
+                || (invoice.Customer && this.invoice.Customer && invoice.Customer.ID !== this.invoice.Customer.ID));
     }
 
     private getUpdatedCurrencyExchangeRate(invoice: CustomerInvoice): Observable<number> {
@@ -758,12 +775,16 @@ export class InvoiceDetails {
         this.newInvoiceItem = <any>this.tradeItemHelper.getDefaultTradeItemData(invoice);
         this.readonly = invoice.StatusCode && invoice.StatusCode !== StatusCodeCustomerInvoice.Draft;
         this.invoiceItems = invoice.Items;
+
         this.invoice = _.cloneDeep(invoice);
         this.recalcDebouncer.next(invoice.Items);
         this.updateTabTitle();
         this.updateToolbar();
         this.updateSaveActions();
     }
+
+
+
 
     private updateTabTitle() {
         let tabTitle = '';
@@ -887,7 +908,7 @@ export class InvoiceDetails {
             label: (this.invoice.InvoiceType === InvoiceTypes.CreditNote) ? 'Krediter' : 'Fakturer',
             action: done => this.transition(done),
             disabled: id > 0 && !transitions['invoice'] && !transitions['credit'],
-            main: (!id && this.isDirty) || transitions['invoice'] || transitions['credit']
+            main: !id || (transitions && (transitions['invoice'] || transitions['credit']))
         });
 
         this.saveActions.push({
@@ -907,7 +928,7 @@ export class InvoiceDetails {
         this.saveActions.push({
             label: 'Send EHF',
             action: (done) => this.sendEHFAction(done),
-            disabled: false,
+            disabled: status < StatusCodeCustomerInvoice.Invoiced,
             main: printStatus === 100 && status === StatusCodeCustomerInvoice.Invoiced && !this.isDirty
         });
 
@@ -970,7 +991,7 @@ export class InvoiceDetails {
         }
 
         if (!this.invoice.PaymentDueDate) {
-            this.invoice.PaymentDueDate = <any>new LocalDate(
+            this.invoice.PaymentDueDate = new LocalDate(
                 moment(this.invoice.InvoiceDate).add(this.invoice.CreditDays, 'days').toDate()
             );
         }

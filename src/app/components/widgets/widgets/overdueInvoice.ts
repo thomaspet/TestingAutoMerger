@@ -11,7 +11,7 @@ import { Router } from '@angular/router';
             (click)="onClickNavigate()"
             title="Totalsum forfalte faktura">
 
-            <span class="title">forfalte ubetalte faktura</span>
+            <span class="title">Forfalte ubetalte faktura</span>
             <span class="value">{{displayValue}}</span>
         </div>
     `

@@ -45,6 +45,10 @@ export class WorkEditor {
         return this.defaultRow;
     }
 
+    public getWorkTypes(): Array<WorkType> {
+        return this.workTypes;
+    }
+
     constructor(
         private timesheetService: TimesheetService,
         private errorService: ErrorService,
@@ -62,6 +66,10 @@ export class WorkEditor {
 
     public closeEditor() {
         this.uniTable.blur();
+    }
+
+    public refreshData() {
+        this.tableConfig = this.createTableConfig();
     }
 
     private tryInit() {

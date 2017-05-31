@@ -35,6 +35,7 @@ export class UniTicker {
     @Input() private showSubTickers: boolean = false;
     @Input() private expanded: boolean = true;
     @Input() private parentModel: any;
+    @Input() private useUniTableFilter: boolean = false;
     @Input() private selectedFilter: TickerFilter;
     @Input() private header: string;
     @Input() private parentTicker: Ticker;
@@ -141,7 +142,10 @@ export class UniTicker {
         }
 
         if (this.selectedFilter) {
+            let uniTableFilter = urlParams.get('filter');
             let newFilter = '';
+
+
 
             if (this.selectedFilter.Filter && this.selectedFilter.Filter !== '') {
                 newFilter = this.selectedFilter.Filter;
@@ -162,7 +166,16 @@ export class UniTicker {
                     );
             }
 
-            params.set('filter', newFilter);
+            let filter = null;
+
+            if (newFilter && newFilter !== '' && uniTableFilter && uniTableFilter !== '') {
+                filter = '(' + uniTableFilter + ' ) and (' + newFilter + ' )';
+            } else if (newFilter && newFilter !== '') {
+                filter = newFilter;
+            } else if (uniTableFilter && uniTableFilter !== '') {
+                filter = uniTableFilter;
+            }
+            params.set('filter', filter);
         }
 
         // if the ticker has a parent filter (i.e. it is running in the context of another ticker),
@@ -534,7 +547,7 @@ export class UniTicker {
                                 case 'date':
                                 case 'datetime':
                                 case 'localdate':
-                                    colType = UniTableColumnType.LocalDate;
+                                    colType = UniTableColumnType.DateTime;
                                     break;
                                 case 'attachment':
                                     colType = UniTableColumnType.Text;
@@ -614,6 +627,11 @@ export class UniTicker {
                             col.setVisible(false);
                         }
 
+                        if(field.FilterOperator === 'startswith' || field.FilterOperator === 'eq' || field.FilterOperator ==='contains') {
+                            col.setFilterOperator(field.FilterOperator);
+                        } else {
+                            col.filterable = false;
+                        }
                         columns.push(col);
                     }
                 }
@@ -740,8 +758,8 @@ export class UniTicker {
                     .setAllowGroupFilter(true)
                     .setAllowConfigChanges(true)
                     .setColumnMenuVisible(true)
-                    .setSearchable(false)
-                    .setMultiRowSelect(true)
+                    .setSearchable(this.useUniTableFilter)
+                    .setMultiRowSelect(false)
                     .setDataMapper((data) => {
                         if (this.ticker.Model) {
                             let tmp = data !== null ? data.Data : [];

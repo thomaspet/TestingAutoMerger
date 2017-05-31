@@ -4,6 +4,8 @@ import { CompanySettings } from '../../unientities';
 import { Injectable } from '@angular/core';
 import {CompanySettingsService} from './companySettingsService';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
+import { TabService} from '../../components/layout/navbar/tabstrip/tabService';
+import {Router} from '@angular/router';
 
 @Injectable()
 export class YearService {
@@ -11,9 +13,10 @@ export class YearService {
     private activeYear: number;
 
     public selectedYear$: BehaviorSubject<number>;
+    //private tabService : tabService;
 
     constructor(
-        private companySettings: CompanySettingsService) {
+        private companySettings: CompanySettingsService, private tabservice: TabService, private router: Router) {
             this.selectedYear$ = new BehaviorSubject<number>(this.activeYear);
 
             this.getActiveYear().subscribe(val => {
@@ -23,8 +26,12 @@ export class YearService {
         }
 
     public setSelectedYear(year: number): void {
-        localStorage.setItem(this.ACTIVE_YEAR, year.toString());
-        this.selectedYear$.next(year);
+        if(year !== this.getSavedYear()) {
+            localStorage.setItem(this.ACTIVE_YEAR, year.toString());
+            this.selectedYear$.next(year);
+            this.tabservice.removeAllTabs();
+            this.router.navigateByUrl('/');
+        }
     }
 
     public getActiveYear(): Observable<number>{

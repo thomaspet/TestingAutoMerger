@@ -41,10 +41,18 @@ import {UmhService} from './common/UmhService';
 import {UniSearchAccountConfigGeneratorHelper} from './common/uniSearchConfig/uniSearchAccountConfigGeneratorHelper';
 import {UniSearchCustomerConfigGeneratorHelper} from './common/uniSearchConfig/uniSearchCustomerConfigGeneratorHelper';
 import {UniSearchSupplierConfigGeneratorHelper} from './common/uniSearchConfig/uniSearchSupplierConfigGeneratorHelper';
+import {UniSearchEmployeeConfigGeneratorHelper} from './common/uniSearchConfig/uniSearchEmployeeConfigGeneratorHelper';
 import {CurrencyOverridesService} from './common/currencyOverridesService';
 import {ApiModelService} from './common/apiModelService';
 import {YearService} from './common/yearService';
 import {Lookupservice} from './common/lookupService';
+import {AgreementService} from './common/agreementService';
+import {ModulusService} from './common/modulusService';
+import {TransitionService} from './common/transitionService';
+import {PredefinedDescriptionService} from './common/PredefinedDescriptionService';
+import {NumberSeriesService} from './common/numberSeriesService';
+import {NumberSeriesTypeService} from './common/numberSeriesTypeService';
+import {NumberSeriesTaskService} from './common/numberSeriesTaskService';
 
 export * from './common/altinnAuthenticationService';
 export * from './common/altinnIntegrationService';
@@ -88,6 +96,13 @@ export * from './common/currencyOverridesService';
 export * from './common/apiModelService';
 export * from './common/yearService';
 export * from './common/lookupService';
+export * from './common/agreementService';
+export * from './common/modulusService';
+export * from './common/transitionService';
+export * from './common/PredefinedDescriptionService';
+export * from './common/numberSeriesService';
+export * from './common/numberSeriesTypeService';
+export * from './common/numberSeriesTaskService';
 
 @NgModule({})
 export class CommonServicesModule {
@@ -135,12 +150,20 @@ export class CommonServicesModule {
                 UniSearchAccountConfigGeneratorHelper,
                 UniSearchCustomerConfigGeneratorHelper,
                 UniSearchSupplierConfigGeneratorHelper,
+                UniSearchEmployeeConfigGeneratorHelper,
                 CurrencyOverridesService,
                 CurrencyCodeService,
                 UniTickerService,
                 ApiModelService,
                 YearService,
-                Lookupservice
+                Lookupservice,
+                AgreementService,
+                ModulusService,
+                TransitionService
+                PredefinedDescriptionService,
+                NumberSeriesService,
+                NumberSeriesTypeService,
+                NumberSeriesTaskService
             ]
         };
     }

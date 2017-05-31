@@ -36,7 +36,6 @@ import {ReminderConfirmModal, ReminderConfirmForm} from './reminder/list/reminde
 import {ReminderSendingModal, ReminderSendingModalContent} from './reminder/sending/reminderSendingModal';
 import {ReminderSending} from './reminder/sending/reminderSending';
 import {DebtCollection} from './reminder/debtCollection/debtCollection';
-
 import {TofHead} from './common/tofHead';
 import {TofCustomerCard} from './common/customerCard';
 import {TofDetailsForm} from './common/detailsForm';
@@ -45,7 +44,6 @@ import {TofHelper} from './salesHelper/tofHelper';
 import {TradeItemTable} from './common/tradeItemTable';
 import {CanDeactivateGuard} from '../../canDeactivateGuard';
 import {UniSearchModule} from 'unisearch-ng2';
-
 import {WidgetModule} from '../widgets/widgetModule';
 
 @NgModule({
@@ -65,13 +63,13 @@ import {WidgetModule} from '../widgets/widgetModule';
 
         // Framework
         UniFrameworkModule,
-
         // App Modules
         WidgetModule,
         LayoutModule,
         AppCommonModule,
         ReportsModule,
         UniTickerModule,
+
 
         // Route module
         UniSearchModule

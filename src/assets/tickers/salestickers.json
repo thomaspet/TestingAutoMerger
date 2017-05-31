@@ -12,12 +12,14 @@
                 "Header": "Kundenr",
                 "Field": "Customer.CustomerNumber",
                 "Type": "text",
-                "Width": "120px"
+                "Width": "120px",
+                "FilterOperator": "startswith"
             },
             {
                 "Header": "Navn",
                 "Field": "Customer.Info.Name",
-                "Width": "250px"
+                "Width": "250px",
+                "FilterOperator": "contains"
             },
             {
                 "Header": "Telefon",
@@ -30,15 +32,18 @@
             },
             {
                 "Header": "Adresse",
-                "Field": "Info.InvoiceAddress.AddressLine1"
+                "Field": "Info.InvoiceAddress.AddressLine1",
+                "FilterOperator": "contains"
             },
             {
                 "Header": "Postnr",
-                "Field": "Info.InvoiceAddress.PostalCode"
+                "Field": "Info.InvoiceAddress.PostalCode",
+                "FilterOperator": "startswith"
             },
             {
                 "Header": "Sted",
-                "Field": "Info.InvoiceAddress.City"
+                "Field": "Info.InvoiceAddress.City",
+                "FilterOperator": "startswith"
             }
         ],
         "Actions": [
@@ -69,20 +74,6 @@
                 "Name": "Alle",
                 "Code": "all_customers",
                 "Filter": ""
-            },
-            {
-                "Name": "Mine kunder",
-                "Code": "my_customers",
-                "UseAllCriterias": true,
-                "FilterGroups": [{
-                    "UseAllCriterias": true,
-                    "FieldFilters": [
-                    {
-                        "Field": "CreatedBy",
-                        "Operator": "eq",
-                        "Value": ":currentuserid"
-                    }]
-                }]
             }
         ]
     },

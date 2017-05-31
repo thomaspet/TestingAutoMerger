@@ -11,6 +11,7 @@ import * as jwt_decode from 'jwt-decode';
 
 export interface IAuthDetails {
     token: string;
+    filesToken: string;
     activeCompany: any;
 }
 
@@ -27,15 +28,18 @@ export class AuthService {
     public jwtDecoded: any;
     public activeCompany: any;
     public companySettings: any;
+    public filesToken: string;
 
     constructor(private router: Router, private http: Http) {
         this.activeCompany = JSON.parse(localStorage.getItem('activeCompany')) || undefined;
         this.jwt = localStorage.getItem('jwt') || undefined;
         this.jwtDecoded = this.decodeToken(this.jwt);
+        this.filesToken = localStorage.getItem('filesToken');
 
         if (this.isAuthenticated()) {
             this.authentication$.next({
                 token: this.jwt,
+                filesToken: this.filesToken,
                 activeCompany: this.activeCompany
             });
         }
@@ -59,14 +63,29 @@ export class AuthService {
         let headers = new Headers({'Content-Type': 'application/json', 'Accept': 'application/json'});
 
         return this.http.post(url, JSON.stringify(credentials), {headers: headers})
-            .switchMap((response) => {
-                if (response.status === 200) {
-                    this.jwt = response.json().access_token;
-                    this.jwtDecoded = this.decodeToken(this.jwt);
-                    localStorage.setItem('jwt', this.jwt);
+            .switchMap((apiAuth) => {
+                if (apiAuth.status !== 200) {
+                    return Observable.of(apiAuth.json());
                 }
 
-                return Observable.of(response.json());
+                this.jwt = apiAuth.json().access_token;
+                this.jwtDecoded = this.decodeToken(this.jwt);
+                localStorage.setItem('jwt', this.jwt);
+
+                const uniFilesUrl = AppConfig.BASE_URL_FILES + '/api/init/sign-in';
+                return this.http.post(uniFilesUrl, JSON.stringify(this.jwt), {headers: headers})
+                    .map((filesAuth) => {
+                        if (filesAuth.status === 200) {
+                            this.filesToken = filesAuth.json();
+                            localStorage.setItem('filesToken', this.filesToken);
+                        }
+
+                        return {
+                            apiAuth: apiAuth.json(),
+                            filesAuth: filesAuth.json()
+                        };
+                    });
+
             });
     }
 
@@ -92,8 +111,14 @@ export class AuthService {
      */
     public setActiveCompany(activeCompany: any): void {
         localStorage.setItem('activeCompany', JSON.stringify(activeCompany));
+        localStorage.setItem('lastActiveCompanyKey', activeCompany.Key);
+
         this.activeCompany = activeCompany;
-        this.authentication$.next({token: this.jwt, activeCompany: activeCompany});
+        this.authentication$.next({
+            token: this.jwt,
+            filesToken: this.filesToken,
+            activeCompany: activeCompany
+        });
         this.companyChange.emit(this.activeCompany);
     }
 
@@ -137,7 +162,7 @@ export class AuthService {
      */
     public clearAuthAndGotoLogin(): void {
         if (this.isAuthenticated()) {
-            this.authentication$.next({token: undefined, activeCompany: undefined});
+            this.authentication$.next({token: undefined, filesToken: undefined, activeCompany: undefined});
         }
 
         localStorage.removeItem('jwt');

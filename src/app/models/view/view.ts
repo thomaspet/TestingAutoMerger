@@ -8,6 +8,7 @@ export class View {
     public url: string = '';
     public component: any;
 
+    // tslint:disable-next-line:max-line-length
     constructor(public name: string, public label: string, public className: string, public isDetail = false, public folder = '', component: any ) {
         this.routeName = this.name.substr(0, 1).toUpperCase() + this.name.substr(1);
         this.path = this.name + (this.isDetail ? '/:id' : '');

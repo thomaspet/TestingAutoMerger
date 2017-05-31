@@ -13,6 +13,7 @@ import {ToastService, ToastType} from '../../../framework/uniToast/toastService'
 import {ReportDefinition, ReportDefinitionParameter, ReportDefinitionDataSource} from '../../unientities';
 import {AppConfig} from '../../AppConfig';
 import {AuthService} from '../../../framework/core/authService';
+import {ReportFormat} from '../../../../models/reportFormat';
 
 @Injectable()
 export class ReportService extends BizHttp<string> {
@@ -68,6 +69,15 @@ export class ReportService extends BizHttp<string> {
     //
     // Generate report
     //
+
+    public generateReportFormat(format: string, report: ReportDefinition, doneHandler: (msg: string) => void = null) {
+        this.format = format;
+        this.report = <Report>report;
+        this.target = null;
+        this.sendemail = null;
+
+        this.generateReport(doneHandler);
+    }
 
     public generateReportHtml(report: ReportDefinition, target: any, doneHandler: (msg: string) => void = null) {
         this.format = 'html';
@@ -149,7 +159,7 @@ export class ReportService extends BizHttp<string> {
 
         if (this.target) {
             this.reportGenerator.showReport(this.report.templateJson, dataSources, this.report.parameters, this.target);
-            if (doneHandler) { doneHandler(); }
+            if (doneHandler) { doneHandler(''); }
         } else {
             var attachment = this.reportGenerator.printReport(this.report.templateJson, dataSources, this.report.parameters, !this.sendemail, this.format);
 

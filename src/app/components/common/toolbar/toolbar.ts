@@ -4,6 +4,10 @@ import { UniStatusTrack } from '../../common/toolbar/statustrack';
 import { IContextMenuItem } from 'unitable-ng2/main';
 import { UniFieldLayout, FieldType } from 'uniform-ng2/main';
 import { Observable } from 'rxjs/Observable';
+import { IUniTagsConfig, ITag } from './tags';
+import { ISelectConfig } from 'uniform-ng2/main';
+
+declare const _; // lodash
 
 export interface IToolbarConfig {
     title?: string;
@@ -26,6 +30,7 @@ export interface IToolbarConfig {
     omitFinalCrumb?: boolean;
     entityID?: any;
     entityType?: string;
+    numberSeriesTasks?: any;
 }
 
 export interface ICommentsConfig {
@@ -50,10 +55,10 @@ export interface IAutoCompleteConfig {
 })
 export class UniToolbar {
     @Input()
-    public tags: any;
+    public tags: ITag[];
 
     @Input()
-    public tagConfig: any;
+    public tagConfig: IUniTagsConfig;
 
     @Input()
     public config: IToolbarConfig;
@@ -76,6 +81,9 @@ export class UniToolbar {
     @Input()
     public autocompleteModel: any = {};
 
+    @Input()
+    public selectConfig: any = {};
+
     @Output()
     public tagsChange: EventEmitter<any> = new EventEmitter();
 
@@ -91,6 +99,14 @@ export class UniToolbar {
     @Output()
     public autocompleteFocusEvent: EventEmitter<any> = new EventEmitter();
     private autocompleteField: UniFieldLayout;
+
+    @Output()
+    public selectValueChanged: EventEmitter<any> = new EventEmitter();
+
+    private uniSelectConfig: ISelectConfig = {
+        displayProperty: '_DisplayName',
+        searchable: false
+    };
 
     public ngOnChanges(change) {
         if (this.config) {
@@ -114,6 +130,10 @@ export class UniToolbar {
             this.autocompleteField.FieldType = FieldType.AUTOCOMPLETE;
             this.autocompleteField.Options = this.autocompleteConfig;
         }
+
+        if (change['selectConfig']) {
+            this.selectConfig = _.cloneDeep(this.selectConfig);
+        }
     }
 
     public navigate(type: string, arg: any) {
@@ -126,6 +146,10 @@ export class UniToolbar {
 
     public tagsChangeEvent(tags) {
         this.tagsChange.emit(tags);
+    }
+
+    public selectValueSelected(selectedItem) {
+        this.selectValueChanged.emit(selectedItem);
     }
 
     private triggerSubheadEvent(subhead) {

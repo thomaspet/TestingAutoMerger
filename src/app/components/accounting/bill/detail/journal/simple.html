@@ -1,4 +1,4 @@
-<div class="compact-journalentry">
+<section class="compact-journalentry">
 
     <table editable [config]="tableConfig" class="compact-journalentry-table" [class.editable]="!isReadOnly">
         <thead>
@@ -46,4 +46,19 @@
 
 
 
-</div>
+</section>
+
+<footer *ngIf="hasSuggestions" >
+    <table class="compact-journalentry-history">
+        <tr>
+            <th class="left">Konteringshistorikk</th>
+            <th class="center">Antall</th>
+            <th class="center">Dato</th>
+        </tr>
+        <tr *ngFor="let item of suggestions">
+            <td>{{item.AccountNumber}} - {{item.AccountName}}</td>
+            <td class="center">{{item.Counter}}</td>
+            <td class="center">{{item.LastDate | date:'dd.MM.yyyy'}}</td>
+        </tr>
+    </table>
+</footer>

@@ -65,18 +65,13 @@ export class StimulsoftReportWrapper {
                         break;
                     case 'xls':
                         mimetype = 'application/xls';
-                        settings = new Stimulsoft.Report.Export.StiExcel2007ExportSettings();
+                        settings = new Stimulsoft.Report.Export.StiExcelExportSettings(null);
                         service = new Stimulsoft.Report.Export.StiExcel2007ExportService();
                         break;
-                    case 'jpg':
-                        mimetype = 'image/jpeg';
-                        settings = new Stimulsoft.Report.Export.StiJpegExportSettings();
-                        service = new Stimulsoft.Report.Export.StiJpegExportService();
-                        break;
-                    case 'png':
-                        mimetype = 'image/png';
-                        settings = new Stimulsoft.Report.Export.StiPngExportSettings();
-                        service = new Stimulsoft.Report.Export.StiPngExportService();
+                    case 'csv':
+                        mimetype = 'application/csv';
+                        settings = new Stimulsoft.Report.Export.StiCsvExportSettings();
+                        service = new Stimulsoft.Report.Export.StiCsvExportService();
                         break;
                     default:
                         mimetype = 'application/pdf';
@@ -101,8 +96,13 @@ export class StimulsoftReportWrapper {
                 }
                 // Save or return
                 if (saveReport) {
-                    let blob = new Blob([new Int8Array(data)], { type: mimetype });
-                    saveAs(blob, fileName + '.' + format);
+                    if (format == 'html') {
+                        let blob = new Blob([data], { type: mimetype })
+                        saveAs(blob, fileName + '.' + format);
+                    } else {
+                        let blob = new Blob([new Int8Array(data)], { type: mimetype });
+                        saveAs(blob, fileName + '.' + format);
+                    }
                 } else {
                     switch (format) {
                         case 'html':

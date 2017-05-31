@@ -1,14 +1,9 @@
-import {TransqueryList} from './list/transqueryList';
 import {TransqueryDetails} from './details/transqueryDetails';
 export const routes = [
     {
         path: '',
-        redirectTo: 'list',
+        redirectTo: 'details',
         pathMatch: 'full',
-    },
-    {
-        path: 'list',
-        component: TransqueryList
     },
     {
         path: 'details',

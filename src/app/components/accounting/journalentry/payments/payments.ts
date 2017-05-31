@@ -4,6 +4,9 @@ import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig} from 'unit
 import {URLSearchParams} from '@angular/http';
 import {CustomerInvoice, Account, CompanySettings, LocalDate} from '../../../../unientities';
 import {JournalEntryManual} from  '../journalentrymanual/journalentrymanual';
+import {IContextMenuItem} from 'unitable-ng2/main';
+import {IToolbarConfig} from '../../../common/toolbar/toolbar';
+import {Router} from '@angular/router';
 import {
     ErrorService,
     CustomerInvoiceService,
@@ -22,20 +25,20 @@ export class Payments {
     @ViewChild(UniTable) private table;
     @ViewChild(JournalEntryManual) private journalEntryManual;
 
+    private contextMenuItems: IContextMenuItem[] = [];
     private invoiceTable: UniTableConfig;
     private lookupFunction: (urlParams: URLSearchParams) => any;
     private ignoreInvoiceIdList: Array<number> = [];
     private defaultBankAccount: Account;
-    private toolbarConfig = {
-        title: 'Registrering av innbetalinger'
-    }
+    private toolbarConfig: IToolbarConfig = {};
 
     constructor(
         private tabService: TabService,
         private customerInvoiceService: CustomerInvoiceService,
         private accountService: AccountService,
         private companySettingsService: CompanySettingsService,
-        private errorService: ErrorService
+        private errorService: ErrorService,
+        private router: Router
     ) {
         this.tabService.addTab({ name: 'Innbetalinger', url: '/accounting/journalentry/payments', moduleID: UniModules.Payments, active: true });
 
@@ -54,6 +57,34 @@ export class Payments {
             }, err => this.errorService.handle(err));
 
         this.setupInvoiceTable();
+        this.setupToolBarconfig();
+    }
+
+    private setupToolBarconfig() {
+        this.contextMenuItems = [
+            {
+                label: 'Tøm listen',
+                action: () => this.journalEntryManual.removeJournalEntryData(),
+                disabled: () => false,
+            },
+            {
+                    action: (item) => this.openPredefinedDescriptions(),
+                    disabled: (item) => false,
+                    label: 'Faste tekster'
+            }
+
+        ];
+
+        let toolbarConfig: IToolbarConfig = {
+            title: 'Registrering av innbetalinger',
+            contextmenu: this.contextMenuItems
+        };
+
+        this.toolbarConfig = toolbarConfig;
+    }
+
+    private openPredefinedDescriptions() {
+        this.router.navigate(['./predefined-descriptions']);
     }
 
     private onRowSelectionChanged(invoice: CustomerInvoice) {

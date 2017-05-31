@@ -17,7 +17,8 @@ export class Lookupservice {
         return this.GET(route + '/' + id + (expand ? pfx + 'expand=' + expand : ''));
     }
 
-    public query<T>(route: string, searchString: string, matchCols: string, expand?: string, select?: string, filter?: string, useModel?: string): Observable<T> {
+    public query<T>(route: string, searchString: string, matchCols: string, expand?: string, 
+                    select?: string, filter?: string, useModel?: string): Observable<T> {
         var cols = matchCols.split(',');
         var params = '', prefix = '?';
         var useStatistics = false;
@@ -36,6 +37,10 @@ export class Lookupservice {
         if (expand) { params += '&expand=' + expand; }
         if (select) { params += '&select=' + this.mapStatSelect(select, useStatistics); }
         return this.GET(route + params, undefined, useStatistics );
+    }
+
+    public statQuery<T>(model: string, params: string): Observable<T> {
+        return this.GET(`?model=${model}&${params}`, undefined, true );        
     }
 
     private mapStatSelect(cols: string, useStatistics = false): string {

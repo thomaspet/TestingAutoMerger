@@ -18,7 +18,8 @@ declare const _; // lodash
 export class UniTickerContainer {
     @Input() private ticker: Ticker;
     @Input() private showActions: boolean;
-    @Input() private showFilters: boolean;
+    @Input() private showFilters: boolean = true;
+    @Input() private useUniTableFilter: boolean = false;
     @Input() private showFiltersAsNavbar: boolean = false;
     @Input() private showSubTickers: boolean = false;
     @Input() private actionOverrides: Array<ITickerActionOverride> = [];

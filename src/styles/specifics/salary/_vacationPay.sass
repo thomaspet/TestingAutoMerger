@@ -29,3 +29,22 @@
 
         &:active
             @extend a:active
+
+    uni-table
+        @extend uni-table.scrollable
+    
+        .icon-column
+            font-size: 0
+            height: 1rem
+
+        .over-sixty
+            display: inline-block
+            height: 1rem
+            width: 1rem
+            border-radius: 99rem
+            background: $uni-color-warn unicon-info($uni-color-negative) center center no-repeat
+            background-size: auto 1rem
+        
+        th:nth-child(3),
+        td:nth-child(3)
+            border-left: none

@@ -13,7 +13,7 @@ import {
     BankAccount, Municipal, Address, Phone, Email, AccountVisibilityGroup, Company
 } from '../../../unientities';
 import {BankAccountModal} from '../../common/modals/modals';
-import {AddressModal, EmailModal, PhoneModal} from '../../common/modals/modals';
+import {AddressModal, EmailModal, PhoneModal, ActivateAPModal} from '../../common/modals/modals';
 import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
 import {SearchResultItem} from '../../common/externalSearch/externalSearch';
 import {AuthService} from '../../../../framework/core/authService';
@@ -38,7 +38,8 @@ import {
     CompanyService,
     UniSearchConfigGeneratorService,
     CurrencyService,
-    FinancialYearService
+    FinancialYearService,
+    EHFService
 } from '../../../services/services';
 declare var _;
 
@@ -54,6 +55,7 @@ export class CompanySettingsComponent implements OnInit {
     @ViewChild(PhoneModal) public phoneModal: PhoneModal;
     @ViewChild(ReminderSettings) public reminderSettings: ReminderSettings;
     @ViewChild(UniConfirmModal) private confirmModal: UniConfirmModal;
+    @ViewChild(ActivateAPModal) private activateAPModal: ActivateAPModal;
 
     private defaultExpands: any = [
         'DefaultAddress',
@@ -145,7 +147,8 @@ export class CompanySettingsComponent implements OnInit {
         private errorService: ErrorService,
         private uniSearchConfigGeneratorService: UniSearchConfigGeneratorService,
         private currencyService: CurrencyService,
-        private financialYearService: FinancialYearService
+        private financialYearService: FinancialYearService,
+        private ehfService: EHFService
 
     ) {
     }
@@ -202,21 +205,17 @@ export class CompanySettingsComponent implements OnInit {
                 }
 
                 this.extendFormConfig();
-
-                setTimeout(() => {
-                    if (this.showExternalSearch) {
-                        this.form.field('CompanyName')
-                            .Component
-                            .control
-                            .valueChanges
-                            .debounceTime(300)
-                            .distinctUntilChanged()
-                            .subscribe((data) => {
-                                this.searchText = data;
-                            });
-                    }
-                });
-
+                if (this.showExternalSearch) {
+                    this.form.field('CompanyName')
+                        .component
+                        .control
+                        .valueChanges
+                        .debounceTime(300)
+                        .distinctUntilChanged()
+                        .subscribe((data) => {
+                            this.searchText = data;
+                        });
+                }
             },
             err => this.errorService.handle(err)
             );
@@ -541,7 +540,7 @@ export class CompanySettingsComponent implements OnInit {
             debounceTime: 200
         };
 
- let currentAccountYear: UniFieldLayout = fields.find(x => x.Property === 'CurrentAccountingYear');
+        let currentAccountYear: UniFieldLayout = fields.find(x => x.Property === 'CurrentAccountingYear');
         currentAccountYear.Options = {
             source: this.accountYears,
             valueProperty: 'Year',
@@ -584,6 +583,11 @@ export class CompanySettingsComponent implements OnInit {
         let salaryBankAccount: UniFieldLayout = fields.find(x => x.Property === 'SalaryBankAccount');
         salaryBankAccount.Options = this.getBankAccountOptions('SalaryBankAccount', 'salary');
 
+        let settings = this.company$.getValue();
+        let apActivated: UniFieldLayout = fields.find(x => x.Property === 'APActivated');
+        apActivated.Label = settings.APActivated ? 'Reaktiver' : 'Aktiver';
+        apActivated.Options.class = settings.APActivated ? 'good' : '';
+
         this.fields$.next(fields);
     }
 
@@ -616,6 +620,8 @@ export class CompanySettingsComponent implements OnInit {
                         });
 
                         resolve(localBankaccount);
+                    } else {
+                        reject(null);
                     }
                 }).catch(() => reject());
             })
@@ -1258,6 +1264,28 @@ export class CompanySettingsComponent implements OnInit {
             {
                 ComponentLayoutID: 1,
                 EntityType: 'CompanySettings',
+                Property: 'ShowKIDOnCustomerInvoice',
+                Placement: 1,
+                Hidden: false,
+                FieldType: FieldType.CHECKBOX,
+                ReadOnly: false,
+                LookupField: false,
+                Label: 'Vis KID i fakturablankett',
+                Description: null,
+                HelpText: null,
+                FieldSet: 0,
+                Section: 1,
+                Placeholder: null,
+                Options: null,
+                LineBreak: null,
+                Combo: null,
+                Sectionheader: 'Selskapsoppsett',
+                hasLineBreak: false,
+                Validations: []
+            },
+            {
+                ComponentLayoutID: 1,
+                EntityType: 'CompanySettings',
                 Property: 'CompanyBankAccount',
                 Placement: 1,
                 Hidden: false,
@@ -1446,6 +1474,18 @@ export class CompanySettingsComponent implements OnInit {
                 Sectionheader: 'Øredifferanse ved innbetaling',
                 hasLineBreak: false,
                 Validations: []
+            },
+            {
+                ComponentLayoutID: 1,
+                EntityType: 'CompanySettings',
+                Property: 'APActivated',
+                FieldType: FieldType.BUTTON,
+                Label: 'Aktiver',
+                Sectionheader: 'EHF',
+                Section: 5,
+                Options: {
+                    click: () => this.activateAP()
+                }
             }
         ]);
 
@@ -1479,6 +1519,22 @@ export class CompanySettingsComponent implements OnInit {
             .setModelField('ForceSupplierInvoiceApproval')
             .setType(UNI_CONTROL_DIRECTIVES[FieldType.CHECKBOX]);
         */
+    }
+
+    private activateAP() {
+        this.activateAPModal.confirm().then((result) => {
+            if (result.status === ConfirmActions.ACCEPT) {
+                this.ehfService.Activate(result.model).subscribe((ok) => {
+                    if (ok) {
+                        this.toastService.addToast('Aktivering', ToastType.good, 3, 'EHF aktivert');
+                    } else {
+                        this.toastService.addToast('Aktivering feilet!', ToastType.bad, 5, 'Noe galt skjedde ved aktivering');
+                    }
+                }, (err) => {
+                    this.errorService.handle(err);
+                });
+            }
+        });
     }
 
     //#region Test data

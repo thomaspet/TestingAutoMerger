@@ -30,6 +30,7 @@ import {
     CurrencyCodeService,
     UniSearchConfigGeneratorService
 } from '../../../../services/services';
+import {UniField} from "uniform-ng2/src/uniform";
 declare var _;
 
 @Component({
@@ -426,6 +427,7 @@ export class CustomerDetails {
         let customerSearchResult: UniFieldLayout = fields.find(x => x.Property === '_CustomerSearchResult');
         customerSearchResult.Hidden = this.customerID > 0;
 
+
         let customerName: UniFieldLayout = fields.find(x => x.Property === 'Info.Name');
         customerName.Hidden = this.customerID === 0;
 
@@ -595,21 +597,21 @@ export class CustomerDetails {
         if (!this.allowSearchCustomer || this.customerID > 0 || (customer && customer.Info.Name !== null && customer.Info.Name !== '')) {
             customerSearchResult.Hidden = true;
             customerName.Hidden = false;
-
+            this.fields$.next(fields);
             setTimeout(() => {
                 if (this.form.field('Info.Name')) {
                     this.form.field('Info.Name').focus();
                 }
-            });
+            }, 200);
         } else {
             customerSearchResult.Hidden = false;
             customerName.Hidden = true;
-
+            this.fields$.next(fields);
             setTimeout(() => {
                 if (this.form.field('_CustomerSearchResult')) {
                     this.form.field('_CustomerSearchResult').focus();
                 }
-            });
+            }, 200);
         }
     }
 
@@ -617,6 +619,20 @@ export class CustomerDetails {
         // small timeout to allow uniform and unitable to update the sources before saving
         setTimeout(() => {
             let customer = this.customer$.getValue();
+
+            // if the user has typed something in Name for a new customer, but has not
+            // selected something from the list or clicked F3, the searchbox is still active,
+            // so we need to get the value from there
+            if (!customer.ID || customer.ID === 0) {
+                if (!customer.Info.Name || customer.Info.Name === '') {
+                    const searchInfo = this.form.field('_CustomerSearchResult')
+                    if (searchInfo) {
+                        if (searchInfo.component && searchInfo.component.input) {
+                            customer.Info.Name = searchInfo.component.input.value;
+                        }
+                    }
+                }
+            }
 
             // add createGuid for new entities and remove duplicate entities
             if (!customer.Info.Emails) {
@@ -771,21 +787,14 @@ export class CustomerDetails {
             <[string]>this.expandOptions,
             () => {
                 let customer = this.customer$.getValue();
-
-                let searchInfo = <any>this.form.field('_CustomerSearchResult');
-                if (searchInfo) {
-                    if (searchInfo.component && searchInfo.component.input) {
-                        customer.Info.Name = searchInfo.component.input.value;
-                    }
-                }
-
+                const searchInfo = this.form.field('_CustomerSearchResult');
+                const cmp = searchInfo.component;
+                customer.Info.Name = cmp.input.value;
                 if (!customer.Info.Name) {
                     customer.Info.Name = '';
                 }
-
                 this.customer$.next(customer);
                 this.showHideNameProperties();
-
                 return Observable.from([customer]);
             });
 

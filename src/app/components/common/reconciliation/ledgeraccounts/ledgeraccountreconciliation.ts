@@ -11,7 +11,8 @@ import {
     StatisticsService,
     JournalEntryLineService,
     PostPostService,
-    NumberFormat
+    NumberFormat,
+    JournalEntryService
 } from '../../../../services/services';
 
 import * as moment from 'moment';
@@ -48,7 +49,7 @@ export class LedgerAccountReconciliation {
     public isDirty: boolean = false;
     private busy: boolean = false;
 
-    private displayPostsOption: string = "OPEN";
+    private displayPostsOption: string = 'OPEN';
 
     private summaryData = {
         SumOpen: 0,
@@ -64,7 +65,8 @@ export class LedgerAccountReconciliation {
         private errorService: ErrorService,
         private numberFormatService: NumberFormat,
         private sanitizer: DomSanitizer,
-        private toastService: ToastService
+        private toastService: ToastService,
+        private journalEntryService: JournalEntryService
     ) {
 
     }
@@ -111,6 +113,24 @@ export class LedgerAccountReconciliation {
             let isSelected = rowModel._rowSelected;
 
             if (isSelected) {
+
+                let currentMarkingsWithDifferentCurrencyCode =
+                    this.currentMarkingSession.filter(x => x.CurrencyCodeID !== rowModel.CurrencyCodeID);
+
+                if (currentMarkingsWithDifferentCurrencyCode.length > 0) {
+                    this.toastService.addToast(
+                        'Kan ikke markere rader med forskjellig valuta',
+                        ToastType.bad,
+                        ToastTime.medium,
+                        'Du kan bare markere rader som har samme valuta. Lag eventuelt motposteringer for å få riktig valuta og agiopostering'
+                    );
+
+                    rowModel._rowSelected = false;
+                    this.table.updateRow(rowModel._originalIndex, rowModel);
+
+                    return;
+                }
+
                 let currentSessionSum = 0;
                 this.currentMarkingSession.forEach(x => {
                     currentSessionSum += x.RestAmount;
@@ -643,6 +663,30 @@ export class LedgerAccountReconciliation {
         this.closeMarkingSession();
     }
 
+    private editJournalEntry(journalEntryID, journalEntryNumber) {
+
+        let data = this.journalEntryService.getSessionData(0);
+
+        // avoid loosing changes if user navigates to a new journalentry with unsaved changes
+        // without saving or discarding changes first
+        if (data && data.length > 0
+            && (!data[0].JournalEntryID || data[0].JournalEntryID.toString() !== journalEntryID.toString())) {
+               this.confirmModal.confirm(
+                    'Du har gjort endringer i bilag som ikke er lagret - hvis du fortsetter vil disse forkastes',
+                    'Forkast endringer?',
+                    false,
+                    {accept: 'Forkast endringer', reject: 'Avbryt'}
+                ).then((response: ConfirmActions) => {
+                    if (response === ConfirmActions.ACCEPT) {
+                        this.journalEntryService.setSessionData(0, []);
+                        this.router.navigateByUrl(`/accounting/journalentry/manual;journalEntryNumber=${journalEntryNumber};journalEntryID=${journalEntryID};editmode=true`);
+                    }
+                });
+        } else {
+            this.router.navigateByUrl(`/accounting/journalentry/manual;journalEntryNumber=${journalEntryNumber};journalEntryID=${journalEntryID};editmode=true`);
+        }
+    }
+
     private setupUniTable() {
 
         let filters: ITableFilter[] = [];
@@ -704,7 +748,14 @@ export class LedgerAccountReconciliation {
             .setColumns(columns)
             .setMultiRowSelect(true)
             .setColumnMenuVisible(true)
-            .setFilters(filters);
+            .setFilters(filters)
+            .setContextMenu([
+                {
+                    action: (item) => {console.log('item:', item); this.editJournalEntry(item.JournalEntryID, item.JournalEntryNumber);},
+                    disabled: (item) => false,
+                    label: 'Rediger bilag'
+                }
+            ]);
     }
 
     private getCssClasses(model, field) {

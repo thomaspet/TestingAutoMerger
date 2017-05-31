@@ -47,7 +47,7 @@ export function roundTo(value: number, decimals = 2): number {
     if (typeof(dVal) !== 'number') {
         dVal = safeDec(value);
     }
-    return parseFloat(dVal.toFixed(decimals));
+    return Number(Math.round(Number.parseFloat(dVal + 'e' + decimals)) + 'e-' + decimals);
 }
 
 export function safeDec(value: any) {
@@ -68,8 +68,10 @@ export function safeDec(value: any) {
     return tmp;
 }
 
-export function createFormField(name: string, label: string, fieldType: any = ControlTypes.TextInput,
-    size = FieldSize.Normal, hideLabel = false, section = 0, sectionHeader?: string, fieldSet = 0, options?: any): any {
+export function createFormField(
+    name: string, label: string, fieldType: any = ControlTypes.TextInput,
+    size = FieldSize.Normal, hideLabel = false, section = 0, 
+    sectionHeader?: string, fieldSet = 0, options?: any): any {
     return {
         Property: name, Label: label,
         FieldType: fieldType,

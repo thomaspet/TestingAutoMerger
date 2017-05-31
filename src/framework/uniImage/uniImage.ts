@@ -51,7 +51,8 @@ export interface IUploadConfig {
                 </li>
                 <li *ngIf="!readonly && !uploadConfig?.isDisabled" [attr.aria-busy]="uploading">
                     <label class="uni-image-upload"
-                           [attr.aria-disabled]="uploadConfig?.isDisabled || uploading">
+                           [attr.aria-disabled]="uploadConfig?.isDisabled || uploading"
+                           (drop)="onDrop($event, dropData)">
                         <input type="file"
                             (change)="uploadFileChange($event)"
                             [attr.aria-disabled]="uploadConfig?.isDisabled"
@@ -136,7 +137,7 @@ export class UniImage {
     ) {
         // Subscribe to authentication/activeCompany changes
         authService.authentication$.subscribe((authDetails) => {
-            this.token = authDetails.token;
+            this.token = authDetails.filesToken;
             this.activeCompany = authDetails.activeCompany;
         });
     }
@@ -333,6 +334,21 @@ export class UniImage {
         }
     }
 
+    private onDrop(event, dropData) {
+        let transfer = this.getTransfer(event);
+        if (!transfer) {
+            return;
+        }
+
+        for (let i = 0; i < transfer.files.length; i++) {
+            this.uploadFile(transfer.files[i]);
+        }
+    }
+
+    protected getTransfer(event: any): any {
+        return event.dataTransfer ? event.dataTransfer : event.originalEvent.dataTransfer; // jQuery fix;
+    }
+
     public uploadFileChange(event) {
         const source = event.srcElement || event.target;
 
@@ -369,7 +385,7 @@ export class UniImage {
             data.append('EntityType', this.entity);
         }
         if (this.entityID) {
-            data.append('EntityID', this.entityID);
+            data.append('EntityID', this.entityID.toString());
         }
         data.append('Caption', ''); // where should we get this from the user?
         data.append('File', file);

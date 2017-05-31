@@ -26,11 +26,14 @@ import {
     BusinessRelation,
     BankAccount,
     VatDeduction,
-    InvoicePaymentData
+    InvoicePaymentData,
+    NumberSeriesTask,
+    PredefinedDescription
 } from '../../../../../unientities';
-import {JournalEntryData} from '../../../../../models/models';
+import {JournalEntryData, NumberSeriesTaskIds} from '../../../../../models/models';
 import {JournalEntryMode} from '../../journalentrymanual/journalentrymanual';
 import {AccrualModal} from '../../../../common/modals/accrualModal';
+import {NewAccountModal} from '../../../NewAccountModal';
 import {ToastService, ToastType, ToastTime} from '../../../../../../framework/uniToast/toastService';
 import {AddPaymentModal} from '../../../../common/modals/addPaymentModal';
 import {UniConfirmModal, ConfirmActions} from '../../../../../../framework/modals/confirm';
@@ -45,7 +48,8 @@ import {
     CompanySettingsService,
     ErrorService,
     StatisticsService,
-    NumberFormat
+    NumberFormat,
+    PredefinedDescriptionService
 } from '../../../../../services/services';
 import * as moment from 'moment';
 import {CurrencyCodeService} from '../../../../../services/common/currencyCodeService';
@@ -54,7 +58,10 @@ import {RegisterPaymentModal} from '../../../../common/modals/registerPaymentMod
 import {SelectJournalEntryLineModal} from '../selectJournalEntryLineModal';
 import {INumberFormat} from 'unitable-ng2/src/unitable/config/unitableColumn';
 import {UniMath} from '../../../../../../framework/core/uniMath';
+import {UniSelect, ISelectConfig} from 'uniform-ng2/main';
 const PAPERCLIP = '📎'; // It might look empty in your editor, but this is the unicode paperclip
+
+declare const _; // lodash
 
 @Component({
     selector: 'journal-entry-professional',
@@ -71,8 +78,11 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
     @Input() public financialYears: Array<FinancialYear>;
     @Input() public currentFinancialYear: FinancialYear;
     @Input() public vatDeductions: Array<VatDeduction>;
+    @Input() public selectedNumberSeriesTaskID: number;
+
     @ViewChild(UniTable) private table: UniTable;
     @ViewChild(AccrualModal) private accrualModal: AccrualModal;
+    @ViewChild(NewAccountModal) private newAccountModal: NewAccountModal;
     @ViewChild(AddPaymentModal) private addPaymentModal: AddPaymentModal;
     @ViewChild(UniConfirmModal) private confirmModal: UniConfirmModal;
     @ViewChild(RegisterPaymentModal) private registerPaymentModal: RegisterPaymentModal;
@@ -84,6 +94,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
     private paymentModalValueChanged: any;
     private accrualModalValueChanged: any;
     private accrualModalValueDeleted: any;
+    private createdNewAccount: any;
 
     @Output() public dataChanged: EventEmitter<JournalEntryData[]> = new EventEmitter<JournalEntryData[]>();
     @Output() public dataLoaded: EventEmitter<JournalEntryData[]> = new EventEmitter<JournalEntryData[]>();
@@ -92,10 +103,10 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
     @Output() public columnVisibilityChange: EventEmitter<Array<string>> = new EventEmitter<Array<string>>();
     @Output() public rowSelected: EventEmitter<JournalEntryData> = new EventEmitter<JournalEntryData>();
 
+    private predefinedDescriptions: Array<any>;
     private projects: Project[];
     private departments: Department[];
     private vattypes: VatType[];
-
 
     private SAME_OR_NEW_NEW: string = '1';
     private newAlternative: any = {ID: this.SAME_OR_NEW_NEW, Name: 'Nytt bilag'};
@@ -124,25 +135,22 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
         private currencyCodeService: CurrencyCodeService,
         private currencyService: CurrencyService,
         private companySettingsService: CompanySettingsService,
-        private journalEntryLineService: JournalEntryLineService
+        private journalEntryLineService: JournalEntryLineService,
+        private predefinedDescriptionService: PredefinedDescriptionService
     ) {
 
     }
 
     public ngOnInit() {
         this.setupJournalEntryTable();
+
+
+        this.selectedNumberSeriesTaskID = NumberSeriesTaskIds.Journal;
     }
 
     public ngOnChanges(changes: SimpleChanges) {
         if (changes['currentFinancialYear'] && this.currentFinancialYear) {
-            let journalentrytoday: JournalEntryData = new JournalEntryData();
-            journalentrytoday.FinancialDate = this.currentFinancialYear.ValidFrom;
-            this.journalEntryService.getNextJournalEntryNumber(journalentrytoday)
-                .subscribe(numberdata => {
-                        this.firstAvailableJournalEntryNumber = numberdata;
-                        this.setupSameNewAlternatives();
-                    }, err => this.errorService.handle(err)
-                );
+            this.setupJournalEntryNumbers(false);
         }
 
         if (changes['journalEntryLines'] && this.journalEntryLines && this.journalEntryLines.length > 0) {
@@ -165,6 +173,10 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 }
             });
         }
+
+        if (changes['selectedNumberSeriesTaskID']) {
+            this.setupJournalEntryNumbers(true);
+        }
     }
 
     public setJournalEntryData(data) {
@@ -182,7 +194,6 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
         }
 
         this.journalEntryLines = data;
-
         setTimeout(() => {
             if (this.table) {
                 this.table.blur();
@@ -209,7 +220,8 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
             this.projectService.GetAll(null),
             this.vatTypeService.GetAll('orderby=VatCode'),
             this.accountService.GetAll('filter=AccountNumber eq 1920'),
-            this.companySettingsService.Get(1)
+            this.companySettingsService.Get(1),
+            this.predefinedDescriptionService.GetAll('filter=Type eq 1')
         ).subscribe(
             (data) => {
                 this.departments = data[0];
@@ -227,6 +239,10 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 }
 
                 this.companySettings = data[4];
+
+                if (data[5]) {
+                        this.predefinedDescriptions = data[5];
+                }
 
                 this.setupUniTable();
                 this.dataLoaded.emit(this.journalEntryLines);
@@ -256,6 +272,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
 
         newRow.SameOrNew = newRow.JournalEntryNo;
         newRow.SameOrNewDetails = {ID: newRow.JournalEntryNo, Name: newRow.JournalEntryNo};
+        newRow.NumberSeriesTaskID = this.selectedNumberSeriesTaskID;
 
         setTimeout(() => {
             // update alternatives, this will change when new numbers are used. Do this after datasource is updated, using setTimeout
@@ -512,6 +529,52 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
         return rowModel;
     }
 
+    private setDescriptionProperties(rowModel: JournalEntryData): JournalEntryData {
+
+        let journalEntryLineDescription = rowModel.Description;
+        if (journalEntryLineDescription == null) { return rowModel; }
+        let macroCodesInDescription: Array<string> = [];
+
+        for (var i = 0; i < journalEntryLineDescription.length; i++) {
+            if (journalEntryLineDescription[i] === '[') {
+                for (var i2 = i ; i2 < journalEntryLineDescription.length; i2 ++) {
+                    if (journalEntryLineDescription[i2] === '[') { i = i2; }
+                    if (journalEntryLineDescription[i2] === ']') {
+                       macroCodesInDescription.push(journalEntryLineDescription.substring(i + 1, i2));
+                       i = i2;
+                       break;
+                    }
+                }
+            }
+        }
+
+        if (macroCodesInDescription.length > 0) {
+
+            macroCodesInDescription.forEach(macroCode => {
+
+                let macroCodeObjectProperties = macroCode.split('.');
+                let lastObjectProperty: any = null;
+
+                if (macroCodeObjectProperties != null) {
+                    macroCodeObjectProperties.forEach(property => {
+                        if (lastObjectProperty === null) {
+                            lastObjectProperty = rowModel[property];
+                        } else { lastObjectProperty = lastObjectProperty[property]; }
+                    });
+
+                    if (lastObjectProperty != null) {
+                        let replaceValue = lastObjectProperty.toString();
+                        if (replaceValue) {
+                            journalEntryLineDescription = journalEntryLineDescription.replace(('[' + macroCode + ']'), replaceValue);
+                            rowModel.Description = journalEntryLineDescription;
+                        }
+                    }
+                }
+            });
+        }
+        return rowModel;
+    }
+
     private setDepartmentProperties(rowModel: JournalEntryData): JournalEntryData {
         let dep = rowModel['Dimensions.Department'];
         if (dep) {
@@ -586,8 +649,15 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                     if (rows.length === 1) {
                         let copyFromJournalEntryLine = rows[0];
                         this.setRowValuesBasedOnExistingJournalEntryLine(row, copyFromJournalEntryLine);
-
                         this.updateJournalEntryLine(row);
+
+                        if (row.CurrencyID !== this.companySettings.BaseCurrencyCodeID) {
+                            this.showAgioDialogPostPost(row)
+                                .then((res) => {
+                                    // reset focus after modal closes
+                                    this.table.focusRow(row['_originalIndex']);
+                                });
+                        }
                     } else if (rows.length > 1) {
                         // if multiple lines are found: show modal with lines that can be selected
                         this.selectJournalEntryLineModal
@@ -596,8 +666,16 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                                 this.setRowValuesBasedOnExistingJournalEntryLine(row, selectedLine);
                                 this.updateJournalEntryLine(row);
 
-                                // reset focus after modal closes
-                                this.table.focusRow(row['_originalIndex']);
+                                if (row.CurrencyID !== this.companySettings.BaseCurrencyCodeID) {
+                                    this.showAgioDialogPostPost(row)
+                                        .then((res) => {
+                                            // reset focus after modal closes
+                                            this.table.focusRow(row['_originalIndex']);
+                                        });
+                                } else {
+                                    // reset focus after modal closes
+                                    this.table.focusRow(row['_originalIndex']);
+                                }
                             });
                     }
                 }, err => {
@@ -620,8 +698,8 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
             row.DebitAccount = account;
         }
 
-        row.Amount = Math.abs(copyFromJournalEntryLine.RestAmount);
-        row.NetAmount = Math.abs(copyFromJournalEntryLine.RestAmount);
+        row.Amount = Math.abs(copyFromJournalEntryLine.RestAmountCurrency * copyFromJournalEntryLine.CurrencyExchangeRate);
+        row.NetAmount = Math.abs(copyFromJournalEntryLine.RestAmountCurrency * copyFromJournalEntryLine.CurrencyExchangeRate);
         row.AmountCurrency = Math.abs(copyFromJournalEntryLine.RestAmountCurrency);
         row.NetAmountCurrency = Math.abs(copyFromJournalEntryLine.RestAmountCurrency);
 
@@ -629,6 +707,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
         row.PostPostJournalEntryLine = copyFromJournalEntryLine;
         row.CurrencyID = copyFromJournalEntryLine.CurrencyCodeID;
         row.CurrencyCode = copyFromJournalEntryLine.CurrencyCode;
+        row.CurrencyExchangeRate = copyFromJournalEntryLine.CurrencyExchangeRate;
     }
 
     private setupUniTable() {
@@ -669,6 +748,9 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
         let invoiceNoTextCol = new UniTableColumn('InvoiceNumber', 'Fakturanr', UniTableColumnType.Text).setWidth('80px')
             .setVisible(false);
 
+        let dueDateCol = new UniTableColumn('DueDate', 'Forfall', UniTableColumnType.LocalDate).setWidth('80px')
+            .setVisible(false);
+
         let debitAccountCol = new UniTableColumn('DebitAccount', 'Debet', UniTableColumnType.Lookup)
             .setDisplayField('DebitAccount.AccountNumber')
             .setTemplate((rowModel) => {
@@ -687,6 +769,11 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 },
                 lookupFunction: (searchValue) => {
                     return this.accountSearch(searchValue);
+                },
+                addNewButtonVisible: true,
+                addNewButtonText: 'Opprett ny reskontro',
+                addNewButtonCallback: (text) => {
+                    return this.openNewAccountModal(this.table.getCurrentRow(), text);
                 }
             });
 
@@ -728,6 +815,11 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 },
                 lookupFunction: (searchValue) => {
                     return this.accountSearch(searchValue);
+                },
+                addNewButtonVisible: true,
+                addNewButtonText: 'Opprett ny reskontro',
+                addNewButtonCallback: (text) => {
+                    return this.openNewAccountModal(this.table.getCurrentRow(), text);
                 }
             });
 
@@ -839,7 +931,18 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 }
             });
 
-        let descriptionCol = new UniTableColumn('Description', 'Beskrivelse', UniTableColumnType.Text);
+        let descriptionCol = new UniTableColumn('Description', 'Beskrivelse', UniTableColumnType.Typeahead)
+            .setEditorOptions({
+                lookupFunction: (searchValue) => {
+                    return Observable.of(this.predefinedDescriptions.filter(x => x.Code.toString().indexOf(searchValue) === 0));
+                },
+                itemTemplate: (item) => {
+                    return (item.Code + ': ' + item.Description);
+                },
+                itemValue: (item) => {
+                    return item ? item.Description : '';
+                }
+            });
 
         let fileCol = new UniTableColumn('ID', PAPERCLIP, UniTableColumnType.Text, false).setFilterOperator('contains')
             .setTemplate(line => line.FileIDs && line.FileIDs.length > 0 ? PAPERCLIP : '')
@@ -895,6 +998,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 sameOrNewCol,
                 financialDateCol,
                 invoiceNoTextCol,
+                dueDateCol,
                 debitAccountCol,
                 debitVatTypeCol,
                 creditAccountCol,
@@ -1051,6 +1155,8 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                     row = this.setDepartmentProperties(row);
                 } else if (event.field === 'Dimensions.Project') {
                     row = this.setProjectProperties(row);
+                } else if (event.field === 'Description') {
+                    row = this.setDescriptionProperties(row);
                 } else if (event.field === 'CustomerInvoice') {
                     row = this.setCustomerInvoiceProperties(row);
                     if (row.CurrencyID !== this.companySettings.BaseCurrencyCodeID) {
@@ -1098,6 +1204,91 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
 
     }
 
+    public showAgioDialogPostPost(journalEntryRow: JournalEntryData): Promise<JournalEntryData> {
+        const postPostJournalEntryLine = journalEntryRow.PostPostJournalEntryLine;
+
+        return new Promise(res => {
+            const journalEntryPaymentData: InvoicePaymentData = {
+                Amount: postPostJournalEntryLine.RestAmount,
+                AmountCurrency: postPostJournalEntryLine.RestAmountCurrency,
+                BankChargeAmount: 0,
+                CurrencyCodeID: postPostJournalEntryLine.CurrencyCodeID,
+                CurrencyExchangeRate: 0,
+                PaymentDate: journalEntryRow.FinancialDate || new LocalDate(),
+                AgioAccountID: 0,
+                BankChargeAccountID: 0,
+                AgioAmount: 0
+            };
+
+            const title =
+                `Bilagsnr: ${postPostJournalEntryLine.JournalEntryNumber},`
+                + ` ${postPostJournalEntryLine.RestAmount} ${this.companySettings.BaseCurrencyCode.Code}`;
+
+            const updatedRow = this.registerPaymentModal.confirm(
+                postPostJournalEntryLine.ID,
+                title,
+                postPostJournalEntryLine.CurrencyCode,
+                postPostJournalEntryLine.CurrencyExchangeRate,
+                JournalEntryLine.EntityType,
+                journalEntryPaymentData
+            )
+                .then(modalResult => {
+                    if (modalResult.status === ConfirmActions.ACCEPT) {
+                        let paymentData = modalResult.model;
+
+                        journalEntryRow.FinancialDate = paymentData.PaymentDate;
+
+                        // we use the amount paid * the original journalentryline's CurrencyExchangeRate to
+                        // calculate the Amount that was paid in the base currency - the diff between this and
+                        // what is registerred as a payment on the opposite account (normally a bankaccount)
+                        // will be balanced using an agio line
+                        journalEntryRow.Amount = UniMath.round(paymentData.AmountCurrency * postPostJournalEntryLine.CurrencyExchangeRate);
+                        journalEntryRow.AmountCurrency = paymentData.AmountCurrency;
+                        journalEntryRow.NetAmount = journalEntryRow.Amount;
+                        journalEntryRow.NetAmountCurrency = journalEntryRow.AmountCurrency;
+                        journalEntryRow.CurrencyExchangeRate = postPostJournalEntryLine.CurrencyExchangeRate;
+
+                        if (paymentData.AgioAmount !== 0 && paymentData.AgioAccountID) {
+                            const oppositeRow = this.createOppositeRow(journalEntryRow, paymentData);
+
+                            if (journalEntryRow.DebitAccount && journalEntryRow.DebitAccount.UsePostPost) {
+                                journalEntryRow.CreditAccount = null;
+                                journalEntryRow.CreditAccountID = null;
+                                oppositeRow.CreditAccount = this.defaultAccountPayments;
+                                oppositeRow.CreditAccountID = this.defaultAccountPayments ? this.defaultAccountPayments.ID : null;
+                            } else if (journalEntryRow.CreditAccount && journalEntryRow.CreditAccount.UsePostPost) {
+                                journalEntryRow.DebitAccount = null;
+                                journalEntryRow.DebitAccountID = null;
+                                oppositeRow.DebitAccount = this.defaultAccountPayments;
+                                oppositeRow.DebitAccountID = this.defaultAccountPayments ? this.defaultAccountPayments.ID : null;
+                            }
+
+                            this.createAgioRow(journalEntryRow, paymentData)
+                                .then(agioRow => {
+                                    this.updateJournalEntryLine(journalEntryRow);
+                                    this.addJournalEntryLines([oppositeRow, agioRow]);
+                                });
+                        } else {
+                            if (journalEntryRow.DebitAccount && journalEntryRow.DebitAccount.UsePostPost && !journalEntryRow.CreditAccount) {
+                                journalEntryRow.CreditAccount = this.defaultAccountPayments;
+                                journalEntryRow.CreditAccountID = this.defaultAccountPayments ? this.defaultAccountPayments.ID : null;
+                            } else if (journalEntryRow.CreditAccount && journalEntryRow.CreditAccount.UsePostPost && !journalEntryRow.DebitAccount) {
+                                journalEntryRow.DebitAccount = this.defaultAccountPayments;
+                                journalEntryRow.DebitAccountID = this.defaultAccountPayments ? this.defaultAccountPayments.ID : null;
+                            }
+
+                            this.updateJournalEntryLine(journalEntryRow);
+                        }
+                    }
+                    return journalEntryRow;
+                });
+
+            res(updatedRow);
+        });
+    }
+
+
+
     private showAgioDialog(journalEntryRow: JournalEntryData): Promise<JournalEntryData> {
         const customerInvoice = journalEntryRow.CustomerInvoice;
         return new Promise(res => {
@@ -1107,7 +1298,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 BankChargeAmount: 0,
                 CurrencyCodeID: customerInvoice.CurrencyCodeID,
                 CurrencyExchangeRate: 0,
-                PaymentDate: new LocalDate(),
+                PaymentDate: journalEntryRow.FinancialDate || new LocalDate(),
                 AgioAccountID: 0,
                 BankChargeAccountID: 0,
                 AgioAmount: 0
@@ -1127,21 +1318,27 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
             )
                 .then(modalResult => {
                     if (modalResult.status === ConfirmActions.ACCEPT) {
+                        let paymentData = modalResult.model;
+                        journalEntryRow.FinancialDate = paymentData.PaymentDate;
 
-                        journalEntryRow.FinancialDate = modalResult.model.PaymentDate;
-
-                        journalEntryRow.Amount = UniMath.round(customerInvoice.RestAmountCurrency * customerInvoice.CurrencyExchangeRate);
-                        journalEntryRow.AmountCurrency = customerInvoice.RestAmountCurrency;
+                        // we use the amount paid * the original invoices CurrencyExchangeRate to calculate
+                        // the Amount that was paid in the base currency - the diff between this and what
+                        // is registerred as a payment on the opposite account (normally a bankaccount)
+                        // will be balanced using an agio line
+                        journalEntryRow.Amount =
+                            UniMath.round(paymentData.AmountCurrency * customerInvoice.CurrencyExchangeRate);
+                        journalEntryRow.AmountCurrency = paymentData.AmountCurrency;
+                        journalEntryRow.NetAmount = journalEntryRow.Amount;
+                        journalEntryRow.NetAmountCurrency = journalEntryRow.AmountCurrency;
                         journalEntryRow.CurrencyExchangeRate = customerInvoice.CurrencyExchangeRate;
 
-
-                        if (modalResult.model.AgioAmount !== 0 && modalResult.model.AgioAccountID) {
-                            const debRow = this.createDebitRow(journalEntryRow, modalResult.model);
+                        if (paymentData.AgioAmount !== 0 && paymentData.AgioAccountID) {
+                            const oppositeRow = this.createOppositeRow(journalEntryRow, paymentData);
                             journalEntryRow.DebitAccount = null;
                             journalEntryRow.DebitAccountID = null;
-                            this.createAgioRow(journalEntryRow, modalResult.model)
+                            this.createAgioRow(journalEntryRow, paymentData)
                                 .then(agioRow => {
-                                    this.addJournalEntryLines([debRow, agioRow]);
+                                    this.addJournalEntryLines([oppositeRow, agioRow]);
                                 });
                         }
                     }
@@ -1152,31 +1349,33 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
         });
     }
 
-    private createDebitRow(journalEntryData: JournalEntryData, invoicePaymentData: InvoicePaymentData): JournalEntryData {
-        const debRow = new JournalEntryData();
+    private createOppositeRow(journalEntryData: JournalEntryData, invoicePaymentData: InvoicePaymentData): JournalEntryData {
+        const oppositeRow = new JournalEntryData();
         const invoice = journalEntryData.CustomerInvoice;
 
-        debRow.SameOrNewDetails = journalEntryData.SameOrNewDetails;
-        debRow.CustomerInvoice = invoice;
-        debRow.SameOrNew = journalEntryData.SameOrNew;
-        debRow.JournalEntryNo = journalEntryData.JournalEntryNo;
-        debRow.InvoiceNumber = journalEntryData.InvoiceNumber;
-        debRow.CustomerInvoice = journalEntryData.CustomerInvoice;
-        debRow.CustomerInvoiceID = journalEntryData.CustomerInvoiceID;
-        debRow.FinancialDate = journalEntryData.FinancialDate;
-        debRow.Dimensions = journalEntryData.Dimensions;
-        debRow.Description = journalEntryData.Description;
+        oppositeRow.SameOrNewDetails = journalEntryData.SameOrNewDetails;
+        oppositeRow.CustomerInvoice = invoice;
+        oppositeRow.SameOrNew = journalEntryData.SameOrNew;
+        oppositeRow.JournalEntryNo = journalEntryData.JournalEntryNo;
+        oppositeRow.InvoiceNumber = journalEntryData.InvoiceNumber;
+        oppositeRow.CustomerInvoice = journalEntryData.CustomerInvoice;
+        oppositeRow.CustomerInvoiceID = journalEntryData.CustomerInvoiceID;
+        oppositeRow.FinancialDate = journalEntryData.FinancialDate;
+        oppositeRow.Dimensions = journalEntryData.Dimensions;
+        oppositeRow.Description = journalEntryData.Description;
 
+        oppositeRow.Amount = invoicePaymentData.Amount;
+        oppositeRow.AmountCurrency = invoicePaymentData.AmountCurrency;
+        oppositeRow.NetAmount = oppositeRow.Amount;
+        oppositeRow.NetAmountCurrency = oppositeRow.AmountCurrency;
+        oppositeRow.VatDeductionPercent = journalEntryData.VatDeductionPercent;
+        oppositeRow.CurrencyCode = journalEntryData.CurrencyCode;
+        oppositeRow.CurrencyID = journalEntryData.CurrencyID;
+        oppositeRow.CurrencyExchangeRate = invoicePaymentData.CurrencyExchangeRate;
+        oppositeRow.DebitAccountID = journalEntryData.DebitAccountID;
+        oppositeRow.DebitAccount = journalEntryData.DebitAccount;
 
-        debRow.Amount = invoicePaymentData.Amount;
-        debRow.AmountCurrency = invoicePaymentData.AmountCurrency;
-        debRow.VatDeductionPercent = journalEntryData.VatDeductionPercent;
-        debRow.CurrencyCode = journalEntryData.CurrencyCode;
-        debRow.CurrencyID = journalEntryData.CurrencyID;
-        debRow.CurrencyExchangeRate = invoicePaymentData.CurrencyExchangeRate;
-        debRow.DebitAccountID = journalEntryData.DebitAccountID;
-        debRow.DebitAccount = journalEntryData.DebitAccount;
-        return debRow;
+        return oppositeRow;
     }
 
     private createAgioRow(journalEntryData: JournalEntryData, invoicePaymentData: InvoicePaymentData): Promise<JournalEntryData> {
@@ -1190,9 +1389,10 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
         agioRow.FinancialDate = journalEntryData.FinancialDate;
         agioRow.Dimensions = journalEntryData.Dimensions;
         agioRow.Description = journalEntryData.Description;
-
         agioRow.Amount = Math.abs(invoicePaymentData.AgioAmount);
         agioRow.AmountCurrency = Math.abs(invoicePaymentData.AgioAmount);
+        agioRow.NetAmount = Math.abs(invoicePaymentData.AgioAmount);
+        agioRow.NetAmountCurrency = Math.abs(invoicePaymentData.AgioAmount);
         agioRow.VatDeductionPercent = journalEntryData.VatDeductionPercent;
         agioRow.CurrencyCode = this.companySettings.BaseCurrencyCode;
         agioRow.CurrencyID = this.companySettings.BaseCurrencyCode.ID;
@@ -1253,6 +1453,23 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                     this.dataChanged.emit(tableData);
                 });
             }
+        });
+    }
+
+
+    private openNewAccountModal(item: any, searchCritera: string): Promise<Account> {
+        return new Promise((resolve, reject) => {
+
+            if (this.createdNewAccount) {
+                this.createdNewAccount.unsubscribe();
+            }
+
+            this.createdNewAccount = this.newAccountModal.CreatedAccount.subscribe(acc => {
+                resolve(acc);
+            });
+
+            this.newAccountModal.searchCriteria = searchCritera;
+            this.newAccountModal.openModal();
         });
     }
 
@@ -1442,6 +1659,77 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
         return br;
     }
 
+    private setupJournalEntryNumbers(doUpdateExistingLines: boolean): Promise<any> {
+
+        if (!this.currentFinancialYear) {
+            return Promise.resolve();
+        }
+
+        return new Promise((resolve, reject) => {
+            let journalentrytoday: JournalEntryData = new JournalEntryData();
+
+            journalentrytoday.FinancialDate = this.currentFinancialYear.ValidFrom;
+            journalentrytoday.NumberSeriesTaskID = this.selectedNumberSeriesTaskID;
+
+            this.journalEntryService.getNextJournalEntryNumber(journalentrytoday)
+                .subscribe(numberdata => {
+                    this.firstAvailableJournalEntryNumber = numberdata;
+
+                    if (doUpdateExistingLines && this.table) {
+                        let tableData = this.table.getTableData();
+
+                        if (tableData.length > 0) {
+                            let shouldUpdateData = false;
+                            tableData.forEach(row => {
+                                if (row.NumberSeriesTaskID !== this.selectedNumberSeriesTaskID) {
+                                    shouldUpdateData = true;
+                                }
+                            });
+
+                            if (shouldUpdateData) {
+                                let uniqueNumbers =
+                                    _.uniq(tableData.map(item => item.JournalEntryNo));
+
+                                uniqueNumbers.forEach(uniqueNumber => {
+                                    let lines = tableData.filter(x => x.JournalEntryNo === uniqueNumber);
+
+                                    lines.forEach((x: JournalEntryData) => {
+                                        x.JournalEntryNo = this.firstAvailableJournalEntryNumber;
+                                        x.SameOrNew = x.JournalEntryNo;
+                                        x.SameOrNewDetails = {ID: x.JournalEntryNo, Name: x.JournalEntryNo};
+                                        x.NumberSeriesTaskID = this.selectedNumberSeriesTaskID;
+                                    });
+
+                                    let nextNumberData = this.firstAvailableJournalEntryNumber.split('-');
+
+                                    this.firstAvailableJournalEntryNumber =
+                                        nextNumberData.length > 1 ?
+                                            (+nextNumberData[0] + 1) + '-' + nextNumberData[1]
+                                            : (+nextNumberData[0] + 1).toString();
+                                });
+
+                                this.setJournalEntryData(tableData);
+                                this.dataChanged.emit(tableData);
+                            }
+                        }
+                    }
+
+                    this.setupSameNewAlternatives();
+
+                    if (this.table) {
+                        this.table.focusRow(0);
+                    }
+                },
+                err => {
+                    this.errorService.handle(err);
+                    reject(err);
+                }
+            );
+
+            resolve();
+        });
+    }
+
     private setupSameNewAlternatives() {
 
         if (this.journalEntryTableConfig
@@ -1516,19 +1804,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 // Empty list
                 this.journalEntryLines = new Array<JournalEntryData>();
 
-                let journalentrytoday: JournalEntryData = new JournalEntryData();
-                journalentrytoday.FinancialDate = this.currentFinancialYear.ValidFrom;
-                this.journalEntryService.getNextJournalEntryNumber(journalentrytoday)
-                    .subscribe(numberdata => {
-                        this.firstAvailableJournalEntryNumber = numberdata;
-                        this.setupSameNewAlternatives();
-
-                        if (this.table) {
-                            this.table.focusRow(0);
-                        }
-                    },
-                    err => this.errorService.handle(err)
-                );
+                this.setupJournalEntryNumbers(false);
 
                 this.dataChanged.emit(this.journalEntryLines);
             },
@@ -1562,19 +1838,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
         this.journalEntryLines = new Array<JournalEntryData>();
         this.dataChanged.emit(this.journalEntryLines);
 
-        let journalentrytoday: JournalEntryData = new JournalEntryData();
-        journalentrytoday.FinancialDate = this.currentFinancialYear.ValidFrom;
-        this.journalEntryService.getNextJournalEntryNumber(journalentrytoday)
-            .subscribe(data => {
-                this.firstAvailableJournalEntryNumber = data;
-                this.setupSameNewAlternatives();
-
-                if (this.table) {
-                    this.table.focusRow(0);
-                }
-            },
-            err => this.errorService.handle(err)
-        );
+        this.setupJournalEntryNumbers(false);
 
         completeCallback('Listen er tømt');
     }

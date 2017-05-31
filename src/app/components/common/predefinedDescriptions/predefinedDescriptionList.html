@@ -1,0 +1,27 @@
+<uni-toolbar [config]="toolbarConfig"
+             [saveactions]="saveActions">
+</uni-toolbar>
+<uni-confirm-modal></uni-confirm-modal>
+<section class="application">
+    <section class="splitview">
+        <nav class="splitview_list">
+            <uni-table
+                        [config]="predefinedDescriptionTypeTableConfig"
+                        [resource]="predefinedDescriptionTypes"
+                        (rowSelected)="onRowSelectedType($event)"
+                         >
+            </uni-table>
+        </nav>
+
+        <main class="splitview_detail">
+                <uni-table
+                        [config]="predefinedDescriptionsConfig"
+                        [resource]="predefinedDescriptions"
+                        (rowChanged)="onChangePreDefinedDescription($event)"
+                        (rowDeleted)="onPredefinedDescriptionDeleted($event)"
+                        >
+                </uni-table>
+        </main>
+    </section>
+</section>
+

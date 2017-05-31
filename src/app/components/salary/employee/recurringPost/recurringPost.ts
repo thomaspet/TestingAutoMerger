@@ -170,7 +170,7 @@ export class RecurringPost extends UniView {
         const todateCol = new UniTableColumn('recurringPostValidTo', 'Til dato', UniTableColumnType.LocalDate);
         const amountCol = new UniTableColumn('Amount', 'Antall', UniTableColumnType.Number);
         const rateCol = new UniTableColumn('Rate', 'Sats', UniTableColumnType.Money);
-        const sumCol = new UniTableColumn('Sum', 'Sum', UniTableColumnType.Money);
+        const sumCol = new UniTableColumn('Sum', 'Sum', UniTableColumnType.Money, false);
         const payoutCol = new UniTableColumn('_BasePayment', 'Utbetales', UniTableColumnType.Number, false)
             .setTemplate((dataItem: SalaryTransaction) => {
 

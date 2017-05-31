@@ -8,7 +8,6 @@
         (rowChanged)="rowChanged($event)" 
         (rowSelectionChanged)="onRowSelectionChange($event)"
         (dataLoaded)="updatetotalPay()"></uni-table>
-    <h4>Overfører feriepengeposter til lønnsavregning nr {{config.payrollRunID}}</h4>
     <h4 style="text-align:right">Totalsum utbetales {{totalPayout | unicurrency}}</h4>
     <footer>
         <a class="vacationPay_settingsLink" (click)="openVacationpaySettings()">Endre feriepengeinnstillinger</a>
@@ -18,3 +17,4 @@
     </footer>
     <vacationpay-setting-modal (recalc)="recalc($event)"></vacationpay-setting-modal>
 </article>
+<uni-confirm-modal></uni-confirm-modal>

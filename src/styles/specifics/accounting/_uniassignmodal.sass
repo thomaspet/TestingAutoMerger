@@ -1,4 +1,4 @@
-uni-assign-modal
+uni-assign-modal, uni-approve-modal
     
     dialog.uniModal .modal-content
         width: pxToRem(500)
@@ -6,12 +6,10 @@ uni-assign-modal
     footer
         margin-top: 4rem
 
-        button
-            width: 6rem
-            margin-left: 0 !important
-
-        button:last-of-type
-            margin-right: 0 !important
+    button
+        margin-left: 0 !important
+        margin-right: 0
+        min-width: 6rem
 
     .tab-page
         padding: 1rem
@@ -21,4 +19,7 @@ uni-assign-modal
         margin-top: 1rem
         margin-left: pxToRem(4)
         font-size: 9pt
+
+    table
+        width: 100%
 

@@ -237,10 +237,10 @@ export class SalaryTransactionSelectionList extends UniView implements AfterView
     public generateErrorMessage(): string {
         let employee: Employee = this.employeeList[this.selectedIndex];
         let taxCard = this.getTaxcard(employee);
+        
+        let name = `${employee.BusinessRelationInfo ? employee.BusinessRelationInfo.Name : '...'}`;
         let error = 
-            `Gå til <a href="/#/salary/employees/${employee.ID}"> ansattkortet ${employee.BusinessRelationInfo 
-            ? 'for' + employee.BusinessRelationInfo.Name 
-            : ''}</a> for å legge inn `;
+           `Gå til <a href="/#/salary/employees/${employee.ID}">${name}</a> for å legge inn `;
         let noBankAccounts = !employee.BusinessRelationID || !employee.BusinessRelationInfo.DefaultBankAccountID;
         let noTax = !taxCard || !taxCard.TaxTable && !taxCard.TaxPercentage;
 
@@ -265,7 +265,8 @@ export class SalaryTransactionSelectionList extends UniView implements AfterView
             ret += 'Skattekort er ikke oppdatert.';
 
             if (!this.hasError()) {
-                ret += ` Gå til <a href="/#/salary/employees/${employee.ID}"> ansattkortet for ${employee.BusinessRelationInfo.Name}</a> for å oppdatere skattekort.`;
+                let name = `${employee.BusinessRelationInfo ? employee.BusinessRelationInfo.Name : '...'}`;
+                ret += ` Gå til <a href="/#/salary/employees/${employee.ID}"> ${name}</a> for å oppdatere skattekort.`;
             }
         }
         return ret;

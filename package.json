@@ -4,6 +4,7 @@
   "scripts": {
     "sass.watch": "gulp sass.watch",
     "build.vendors": "webpack --config config/vendors.webpack.js",
+    "build.vendors.withSourcemaps": "webpack --config config/vendors.webpack.js --env.sourcemaps",
     "postinstall": "webpack --config config/vendors.webpack.js",
     "entities": "gulp entities",
     "build.dev": "gulp sass && gulp app-config-dev && webpack --config config/dev.webpack.js",
@@ -45,10 +46,10 @@
     "reflect-metadata": "0.1.10",
     "rxjs": "5.2.0",
     "tslib": "1.6.0",
-    "uniform-ng2": "0.0.80",
+    "uniform-ng2": "0.0.95",
     "unisearch-ng2": "0.0.23",
-    "unitable-ng2": "0.0.12",
-    "zone.js": "^0.8.4"
+    "unitable-ng2": "0.1.11",
+    "zone.js": "0.8.5"
   },
   "devDependencies": {
     "@ngtools/webpack": "^1.2.14",

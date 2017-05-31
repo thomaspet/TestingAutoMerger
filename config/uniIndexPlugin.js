@@ -11,9 +11,10 @@ UniIndexPlugin.prototype.apply = function(compiler) {
         indexHtml = indexHtml.source().toString().replace('<raygunApiKeyCode>', getRaygunCode());
 
         // Add git revision
-        indexHtml = indexHtml.replace('<gitRevision>', `
+        indexHtml = indexHtml.replace('<uniVersions></uniVersions>', `
             <script type='text/javascript'>
                 var APP_VERSION = '${getGitRevision()}';
+                var APP_BUILD_DATE = '${(new Date()).toISOString()}';
             </script>
         `);
 

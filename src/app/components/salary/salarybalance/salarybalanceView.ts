@@ -6,8 +6,10 @@ import { IToolbarConfig } from '../../common/toolbar/toolbar';
 import { UniCacheService, ErrorService, SalarybalanceService } from '../../../services/services';
 import { TabService, UniModules } from '../../layout/navbar/tabstrip/tabService';
 import { Observable } from 'rxjs/Observable';
-import { SalaryBalance } from '../../../unientities';
+import { SalaryBalance, SalBalType } from '../../../unientities';
 import { UniConfirmModal, ConfirmActions } from '../../../../framework/modals/confirm';
+import { IContextMenuItem } from 'unitable-ng2/main';
+import { SalarybalancelineModal } from './modals/salarybalancelinemodal';
 
 @Component({
     selector: 'uni-salarybalance-view',
@@ -21,10 +23,12 @@ export class SalarybalanceView extends UniView {
     private saveActions: IUniSaveAction[];
     private toolbarConfig: IToolbarConfig;
     private childRoutes: any[];
+    private contextMenuItems: IContextMenuItem[] = [];
 
     public busy: boolean;
 
     @ViewChild(UniConfirmModal) public confirmModal: UniConfirmModal;
+    @ViewChild(SalarybalancelineModal) private salarybalanceModal: SalarybalancelineModal;
 
     constructor(
         private route: ActivatedRoute,
@@ -37,7 +41,7 @@ export class SalarybalanceView extends UniView {
         super(router.url, cacheService);
 
         this.childRoutes = [
-            {name: 'Detaljer', path: 'details'}
+            { name: 'Detaljer', path: 'details' }
         ];
 
         this.saveActions = [{
@@ -46,6 +50,18 @@ export class SalarybalanceView extends UniView {
             main: true,
             disabled: true
         }];
+
+        this.contextMenuItems = [
+            {
+                label: 'Legg til manuell post',
+                action: () => {
+                    this.openSalarybalancelineModal();
+                },
+                disabled: (rowModel) => {
+                    return this.salarybalanceID < 1 || !this.salarybalance;
+                }
+            }
+        ];
 
         this.route.params.subscribe((params) => {
             this.salarybalanceID = +params['id'];
@@ -100,11 +116,20 @@ export class SalarybalanceView extends UniView {
                             'Du har ulagrede endringer, ønsker du å lagre disse før du fortsetter?',
                             'Lagre endringer?', true, { accept: 'Lagre', reject: 'Forkast' }))
                         .map((response: ConfirmActions) => {
-                            if ( response === ConfirmActions.ACCEPT) {
+                            if (response === ConfirmActions.ACCEPT) {
                                 this.saveSalarybalance((m) => { });
                                 return true;
+                            } else if (response === ConfirmActions.REJECT) {
+                                if (!this.salarybalanceID) {
+                                    let tabIndex = this.tabService.tabs
+                                        .findIndex(x => x.moduleID === UniModules.Salarybalances);
+                                    this.tabService.removeTab(
+                                        this.tabService.tabs[tabIndex],
+                                        tabIndex);
+                                }
+                                return true;
                             } else {
-                                return response === ConfirmActions.REJECT;
+                                return false;
                             }
                         });
             })
@@ -161,10 +186,14 @@ export class SalarybalanceView extends UniView {
         });
     }
 
+    public openSalarybalancelineModal() {
+        this.salarybalanceModal.openModal(this.salarybalance, false);
+    }
+
     private getSalarybalance() {
         this.salarybalanceService.getSalarybalance(this.salarybalanceID,
             ['Transactions', 'Employee', 'Employee.BusinessRelationInfo',
-            'Supplier', 'Supplier.Info', 'Supplier.Info.DefaultBankAccount'])
+                'Supplier', 'Supplier.Info', 'Supplier.Info.DefaultBankAccount'])
             .subscribe((salbal: SalaryBalance) => {
                 this.salarybalance = salbal;
                 super.updateState('salarybalance', salbal, false);
@@ -173,24 +202,31 @@ export class SalarybalanceView extends UniView {
 
     private saveSalarybalance(done: (message: string) => void) {
 
-        if (!this.salarybalance.ID) {
-            this.salarybalance.ID = 0;
-        }
-
-        let saver = this.salarybalance.ID
-            ? this.salarybalanceService.Put(this.salarybalance.ID, this.salarybalance)
-            : this.salarybalanceService.Post(this.salarybalance);
-
-        saver.subscribe((salbal: SalaryBalance) => {
-            super.updateState('salarybalance', this.salarybalance, false);
-            let childRoute = this.router.url.split('/').pop();
-            this.router.navigateByUrl(this.url + salbal.ID + '/' + childRoute);
-            done('lagring fullført');
-            this.saveActions[0].disabled = true;
-        },
-            (error) => {
+        this.handlePaymentCreation(this.salarybalance)
+            .switchMap(salaryBalance => this.salarybalanceService.save(salaryBalance))
+            .subscribe((salbal: SalaryBalance) => {
+                super.updateState('salarybalance', salbal, false);
+                let childRoute = this.router.url.split('/').pop();
+                this.router.navigateByUrl(this.url + salbal.ID + '/' + childRoute);
+                done('Lagring fullført');
+                this.saveActions[0].disabled = true;
+            }, err => {
+                this.errorService.handle(err);
                 done('Lagring feilet');
-                this.errorService.handle(error);
+            });
+    }
+
+    private handlePaymentCreation(salaryBalance: SalaryBalance): Observable<SalaryBalance> {
+        return Observable
+            .of(!salaryBalance.ID && salaryBalance.InstalmentType === SalBalType.Advance)
+            .switchMap(promptUser => promptUser
+                ? Observable.fromPromise(this.confirmModal
+                    .confirm('Vil du opprette en utbetalingspost av dette forskuddet?', 'Utbetaling', false))
+                    .map(response => response === ConfirmActions.ACCEPT)
+                : Observable.of(false))
+            .map(createPayment => {
+                salaryBalance['CreatePayment'] = createPayment;
+                return salaryBalance;
             });
     }
 

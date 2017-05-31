@@ -1,60 +1,54 @@
 uni-feedback
     @include unigrid-flush(5, 2, 2, 1)
-    position: fixed
-    bottom: 1.5rem
-    left: 0
     z-index: map-get($zindex, hamburger)
     width: auto
 
     .uniFeedback_toggle
         width: 2.5rem
-        height: 2.5rem
         padding: 0
         border-radius: 99rem
         overflow: hidden
-        text-indent: 3rem
         color: transparent
         box-shadow: 0 0 1rem transparentize($uni-color-positive, .8)
         transition: all 300ms ease
         background: $uni-color-c2a unicon-bug() left .5rem center no-repeat
         background-size: 1.5rem
         white-space: nowrap
-
-        &:hover
-            color: $uni-color-negative
-            width: auto
-            padding-right: 2rem
-            transition: all 300ms ease-out
+        margin-top: pxToRem(5)
+        margin-bottom: pxToRem(5)
 
     .uniFeedback_dropdown
+        position: fixed
+        width: 45rem
+        right: calc(5.2vw)
+        margin-top: 2.4rem
         background: #fff
         box-shadow: 0 0 1rem rgba(161,170,188,.4)
-        display: none
-        padding: 1rem
-        margin-left: 1rem
+        padding: 2rem
         border-radius: pxToRem(3)
 
+        h1
+            margin: 0
+
+        display: none
         &[aria-expanded]:not([aria-expanded=false])
             display: block
 
-        &.-is-successful
-            background: $uni-color-good
-            position: relative
-
-            &:before
-                content: 'Tusen takk for tilbakemeldingen!'
-                display: block
-                position: absolute
-                color: $uni-color-negative
-                font-size: 1.7rem
-                top: 50%
-                left: 0
-                right: 0
-                text-align: center
-                transform: translateY(-50%)
-
-            form
-                opacity: 0
+        // arrow
+        &:before
+            border: solid transparent
+            content: ''
+            height: 0
+            width: 0
+            position: absolute
+            pointer-events: none
+            display: block
+            border-color: rgba(255, 255, 255, 0)
+            border-bottom-color: #fff
+            border-width: .5rem
+            margin-left: -.5rem
+            top: -1rem
+            right: 2.75rem
 
         form
             width: 100%

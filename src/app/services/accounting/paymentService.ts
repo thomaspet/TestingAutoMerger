@@ -37,8 +37,9 @@ export class PaymentService extends BizHttp<Payment> {
             return 'Fullført';
         } else if (statusCode === 44005) {
             return 'Klar for overføring';
+        } else if (statusCode === 44006) {
+            return 'Kvittering innlest';
         }
-
         return 'Ukjent status: ' + statusCode;
     }
 }

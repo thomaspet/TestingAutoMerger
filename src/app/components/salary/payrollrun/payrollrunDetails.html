@@ -3,14 +3,14 @@
 
 <uni-poster [widgets]="payrollrunWidgets" *ngIf="payrollrunWidgets"></uni-poster>
 
-<section class="entityDetails" [attr.aria-busy]="busy" [attr.aria-expanded]="detailsActive" *ngIf="payrollrun$.getValue()">
+<section class="entityDetails" [attr.aria-expanded]="detailsActive" *ngIf="payrollrun$.getValue()">
     <uni-form [config]="config$" [fields]="fields$" [model]="payrollrun$" (changeEvent)="change($event)" (readyEvent)="ready($event)"></uni-form>
     <a href="#/accounting/transquery/details;journalEntryNumber={{payrollrun$.getValue().JournalEntryNumber}}" *ngIf="payrollrun$.getValue().JournalEntryNumber" class="journalEntryNumber">
         Bilagsnummer: {{payrollrun$.getValue().JournalEntryNumber}}
     </a>
 </section>
 
-<section class="content" [attr.aria-disabled]="detailsActive">
+<section class="content" [attr.aria-disabled]="detailsActive" [attr.aria-busy]="busy">
     <salarytrans></salarytrans>
 </section>
 <report-preview-modal></report-preview-modal>

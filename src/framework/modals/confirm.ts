@@ -28,7 +28,7 @@ export interface IUniConfirmModalConfig {
     template: `
         <article class='modal-content'>
             <h1 *ngIf='config.title'>{{config.title}}</h1>
-            {{config.message}}
+            <div [innerHtml]="config.message | safehtml"></div>
             <p class="warn" *ngIf="config.warningMessage">{{config.warningMessage}}</p>
             <footer>
                 <button *ngIf="config?.actions?.accept" (click)="runMethod('accept')" class="good">

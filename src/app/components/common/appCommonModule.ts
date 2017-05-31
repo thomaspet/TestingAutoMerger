@@ -5,7 +5,6 @@ import {HttpModule} from '@angular/http';
 import {RouterModule} from '@angular/router';
 import {ContextMenu} from './contextMenu/contextMenu';
 import {ExternalSearch} from './externalSearch/externalSearch';
-import {UniFeedback} from './feedback/feedback';
 import {ProductDetails} from './product/details/productDetails';
 import {ProductList} from './product/list/productList';
 import {AddressForm} from './modals/addressModal';
@@ -53,11 +52,11 @@ import {ModelTreeRelationNode} from './modeltreeview/relationNode';
 import {SupplierDetailsModal} from './supplier/details/supplierDetailModal';
 import {SupplierDetails} from './supplier/details/supplierDetails';
 import {SupplierList} from './supplier/list/supplierList';
-
 import {Editable} from './utils/editable/editable';
 import {IsoTimePipe} from './utils/pipes';
 import {MinutesToHoursPipe} from './utils/pipes';
 import {WorkTypeSystemTypePipe} from './utils/pipes';
+import {PredefinedDescriptionList} from './predefinedDescriptions/predefinedDescriptionList';
 
 import {routes as AppCommonRoutes} from './appCommonRoutes';
 
@@ -77,11 +76,11 @@ import {routes as AppCommonRoutes} from './appCommonRoutes';
         UniDimensions,
         ProjectList,
         ProjectDetails,
+        PredefinedDescriptionList,
         DepartmentList,
         DepartmentDetails,
         ContextMenu,
         ExternalSearch,
-        UniFeedback,
         ProductDetails,
         ProductList,
         AddressForm,
@@ -166,11 +165,11 @@ import {routes as AppCommonRoutes} from './appCommonRoutes';
         UniDimensions,
         ProjectList,
         ProjectDetails,
+        PredefinedDescriptionList,
         DepartmentList,
         DepartmentDetails,
         ContextMenu,
         ExternalSearch,
-        UniFeedback,
         ProductDetails,
         ProductList,
         AddressForm,

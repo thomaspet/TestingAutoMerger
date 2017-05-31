@@ -54,11 +54,24 @@ export class InvoiceList2 implements OnInit {
         }
     ];
 
+
     private columnOverrides: Array<ITickerColumnOverride> = [
         {
             Field: 'StatusCode',
             Template: (dataItem) => {
+
                 let statusText: string = this.customerInvoiceService.getStatusText(dataItem.CustomerInvoiceStatusCode, dataItem.CustomerInvoiceInvoiceType);
+
+                if (((dataItem.CustomerInvoiceTaxInclusiveAmount * -1) === dataItem.CustomerInvoiceCreditedAmount) &&
+                        (dataItem.CustomerInvoiceCreditedAmount > 0 || dataItem.CustomerInvoiceCreditedAmount < 0 )) {
+                    statusText = 'Kreditert';
+                }
+
+                if (((dataItem.CustomerInvoiceTaxInclusiveAmount * -1) > dataItem.CustomerInvoiceCreditedAmount) &&
+                        (dataItem.CustomerInvoiceCreditedAmount > 0 || dataItem.CustomerInvoiceCreditedAmount < 0 )) {
+                    statusText = statusText + '(Kreditert)';
+                }
+
                 if (dataItem.CustomerInvoiceCollectorStatusCode === 42501) {
                     statusText = 'Purret';
                 }

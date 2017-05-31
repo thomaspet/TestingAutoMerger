@@ -5,7 +5,7 @@ import {IToast} from './toastService';
     selector: 'uni-toast',
     template: `
         <header>{{toast.title}}<span class="toast-count" *ngIf="toast.count > 1">({{toast.count}})</span></header>
-        <small *ngIf="toast.message.length">{{toast.message}}</small>
+        <small *ngIf="toast.message.length" [innerHTML]="toast.message"></small>
         <button aria-label="Close" (click)="close()"></button>
     `,
     host: {

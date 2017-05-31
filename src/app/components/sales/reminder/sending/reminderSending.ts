@@ -133,7 +133,6 @@ export class ReminderSending implements OnInit {
     }
 
     public saveReminders(done) {
-
         let requests = [];
         for(var i = 0;i<this.changedReminders.length;i++) {
 
@@ -143,7 +142,6 @@ export class ReminderSending implements OnInit {
 
             requests.push(this.reminderService.Put(this.changedReminders[i].ID, this.changedReminders[i]));
         }
-
         Observable.forkJoin(requests)
             .subscribe(resp => {
                 this.toastService.addToast('Purringer ble lagret.', ToastType.good, 5);
@@ -241,7 +239,6 @@ export class ReminderSending implements OnInit {
             done('Sending avbrutt');
             return;
         }
-
         this.reminderService.sendAction(selected.map(x => x.ID)).subscribe(() => {
             done('Purringer sendes');
             this.loadRunNumber(this.currentRunNumber);
@@ -353,7 +350,6 @@ export class ReminderSending implements OnInit {
     public sendEmail() {
         var emails = this.getSelectedEmail();
         if (emails.length === 0) { return; }
-
         this.reminderService.sendAction(emails.map(x => x.ID)).subscribe(() => {
             this.loadRunNumber(this.currentRunNumber);
 
@@ -375,7 +371,6 @@ export class ReminderSending implements OnInit {
     public sendPrint(all) {
         var prints = all ? this.getSelected() : this.getSelectedPrint();
         if (prints.length === 0) { return; }
-
         this.reminderService.sendAction(prints.map(x => x.ID)).subscribe(() => {
             this.loadRunNumber(this.currentRunNumber);
 
@@ -405,6 +400,7 @@ export class ReminderSending implements OnInit {
                     : `<a href='/#/sales/invoices/${reminder.InvoiceID}' title='${title}'>${reminder.InvoiceNumber}</a>`;
             });
         let dueDateCol = new UniTableColumn('DueDate', 'Forfallsdato', UniTableColumnType.LocalDate);
+
         let customerNumberCol = new UniTableColumn('CustomerNumber', 'Kundenr', UniTableColumnType.Text)
             .setWidth('100px').setFilterOperator('startswith')
             .setEditable(false)
@@ -473,8 +469,13 @@ export class ReminderSending implements OnInit {
             .setAutoAddNewRow(false)
             .setMultiRowSelect(true)
             .setDeleteButton(false)
+            .setChangeCallback( x => this.onEditChange(x) )
             .setColumns([reminderNumberCol, invoiceNumberCol, customerNumberCol,
                          customerNameCol, emailCol, currencyCodeCol, taxInclusiveAmountCol, restAmountCol, feeAmountCol, dueDateCol, statusCol]);
+    }
+
+    public onEditChange(event) {
+        return event.rowModel;
     }
 
     public onFormFilterChange(event) {

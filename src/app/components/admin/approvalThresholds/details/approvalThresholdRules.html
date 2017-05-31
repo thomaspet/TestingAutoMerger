@@ -1,0 +1,94 @@
+<div class="approval_threshold">
+    <h1>Krev automatisk godkjenning av {{this.selectedTransition?.Label}} </h1>
+    <br/>
+    <table class="table_addThreshold">
+        <tr>
+            <td class="col_field">
+                <label>
+                    Hvis
+                    <uni-select [config]="fieldSelectConfig"
+                                [items]="fields"
+                                (valueChange)="onFieldSelect($event)"
+                                [value]="getField(newThreshold)">
+                    </uni-select>
+                </label>
+            </td>
+            <td class="col_operator">
+                <label>
+                    Er
+                    <uni-select [config]="operatorSelectConfig"
+                                [items]="operators"
+                                (valueChange)="onOperatorSelect($event)"
+                                [value]="getOperator(newThreshold)">
+                    </uni-select>
+                </label>
+            </td>
+            <td class="col_value">
+                <label>
+                    <input type="text" id="thresholdValue" [(ngModel)]="newThreshold.Value">
+                </label>
+            </td>
+            <td class="col_approver">
+                <label>
+                    Forespørsel godkjennes av
+                    <uni-select [config]="approverSelectConfig"
+                                [items]="approvers"
+                                (valueChange)="onApproverSelect($event)"
+                                [value]="getApprover(newThreshold)">>
+                    </uni-select>
+                </label>
+            </td>
+            <td class="col_add">
+                <label>
+                    <button class="add-threshold-rule" (click)="onAddRule()" [disabled]="!isValid()">Legg til</button>
+                </label>
+            </td>
+        </tr>
+    </table>
+    <hr>
+    <br/>
+    <table class="table_thresholds">
+        <tr *ngFor="let item of thresholds">
+            <td class="col_field">
+                <label>
+                    Hvis
+                    <uni-select [config]="fieldSelectConfig"
+                                [items]="fields"
+                                (valueChange)="onFieldSelect($event, item)"
+                                [value]="getField(item)">
+                    </uni-select>
+                </label>
+            </td>
+            <td class="col_condition">
+                <label>
+                    Er
+                    <uni-select [config]="operatorSelectConfig"
+                                [items]="operators"
+                                (valueChange)="onOperatorSelect($event, item)"
+                                [value]="getOperator(item)">
+                    </uni-select>
+                </label>
+            </td>
+            <td class="col_value">
+                <label>
+                    <input type="text" id="thresholdValue" [(ngModel)]="item.Value" (blur)="onModifyRule(item)">
+                </label>
+            </td>
+            <td class="col_approver">
+                <label>
+                    Forespørsel godkjennes av
+                    <uni-select [config]="approverSelectConfig"
+                                [items]="approvers"
+                                (valueChange)="onApproverSelect($event, item)"
+                                [value]="getApprover(item)">
+                    </uni-select>
+                </label>
+            </td>
+            <td class="col_remove">
+                <label>
+                    <button class="remove-threshold-rule" (click)="onDeleteRule(item) "></button>
+                </label>
+            </td>
+        </tr>
+    </table>
+</div>

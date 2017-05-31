@@ -93,8 +93,16 @@ export class Login {
                 }
 
                 this.availableCompanies = response.json();
+
                 try {
-                    if (this.availableCompanies.length === 1) {
+                    const lastActiveCompanyKey = localStorage.getItem('lastActiveCompanyKey');
+                    const lastActiveCompany = this.availableCompanies.find((company) => {
+                        return company.Key === lastActiveCompanyKey;
+                    });
+
+                    if (lastActiveCompany) {
+                        this.onCompanySelected(lastActiveCompany);
+                    } else if (this.availableCompanies.length === 1) {
                         this.onCompanySelected(this.availableCompanies[0]);
                     } else if (this.availableCompanies.length > 1) {
                         setTimeout(() => {

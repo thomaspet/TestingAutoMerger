@@ -1,55 +1,148 @@
-.taskView
-    width: 100%
-    height: 100%
+uni-tasks *
+    box-sizing: border-box
 
-.taskView td
-    width: 50%
-    height: 100%
-
-.taskList
-    width: 100%
+uni-tasks .tasks
     display: block
-    height: 70vh
+    width: 93.75%
+    padding: 0
+    margin: 0
+    margin-left: 6.25%
+    padding-left: 1rem
+
+uni-task-list
+    width: 55%
+    height: calc(100vh - 5.5rem - 2.5rem)
+    float: left
+
+uni-task-list .task-filters
+    height: 10%
+    padding-top: 2rem
+    display: block
+
+    button
+        margin: 0
+        border-radius: 0
+        background-color: $uni-color-negative
+        color: $uni-color-c2a
+        border: 1px solid $uni-color-c2a
+        text-shadow: none
+        box-shadow: none
+        margin-right: -4px
+
+        &.active-filter
+            background-color: $uni-color-c2a
+            color: $uni-color-negative
+
+        &:first-of-type
+            border-top-left-radius: .2rem
+            border-bottom-left-radius: .2rem
+            border-right: none
+            width: 7rem
+
+        &:last-of-type
+            border-top-right-radius: .2rem
+            border-bottom-right-radius: .2rem
+            border-left: none
+            width: 7rem
+
+    .show-completed-toggle
+        display: inline-block
+        margin-left: .5rem
+
+        input[type=checkbox]+label.toggle
+            padding-top: .5rem
+            padding-left: 3.8rem
+
+
+uni-task-list .task-list
+    display: block
+    width: 100%
+    height: 75%
     overflow: auto
+    box-sizing: border-box
+    list-style-type: none
+    margin: 0
+    padding: 1rem 0
 
-.taskListEmbedded
+    li
+        display: flex
+        flex-flow: row nowrap
+        position: relative
+        cursor: pointer
+        border-bottom:  pxToRem(1) solid $uni-color-scale9
+        padding: 1rem
+
+        &[aria-selected]:not([aria-selected=false])
+            background: mix($uni-color-c2a, $uni-color-negative, 10%)
+
+    .task-info
+        order: 1
+        flex: 1
+        p
+            margin: 0 0 .25rem 0
+
+        small
+            margin-right: 1rem
+
+    .task-buttons
+        order: 2
+        flex: 0 1 14rem
+        margin: auto 0
+
+        button
+            margin: 0 .25rem
+            padding: 0
+            width: 6.5rem
+            float: right
+
+
+uni-task-list .addTask
+    display: block
     width: 100%
-    cursor: pointer
-    table-layout: fixed
-    height: 50px
+    height: 15%
+    padding: 2.5rem 0
 
-.taskListEmbedded tr:hover
-    background: lighten($uni-color-scale6, 34%)
+    label
+        display: inline-block
+        width: 15rem
 
-.taskListEmbedded hr
-    width: 100%
+        &.task-text
+            width: 25rem
+            margin-right: 1.5rem
 
-.taskListEmbedded td.infoCol
-    width: 60%
 
-.taskListEmbedded td.buttonCol1
-    width: 20%
+uni-task-details
+    display: block
+    box-sizing: border-box
+    width: 45%
+    height: calc(100vh - 5.5rem - 2.5rem)
+    float: left
+    border-left: 1px solid $uni-color-scale9
+    list-style-type: none
 
-.taskListEmbedded td.buttonCol2
-    width: 20%
-    text-align: center
+    .task-header
+        height: 10%
+        padding: 1rem 12.5% 1rem 2rem
+        background-color: #fff
+        border-bottom:  pxToRem(1) solid $uni-color-scale9
+        h2
+            margin: 0
 
-button.task-complete
-    background-color: $uni-color-c2a
+    uni-comment-list
+        display: block
+        height: 80%
+        padding: 2rem 12.5% 1rem 1rem
+        border-bottom: pxToRem(1) solid $uni-color-scale9
+        box-sizing: border-box
 
-button.task-approve
-    @extend .good
+    uni-comment-input
+        box-sizing: border-box
+        padding: 1.5rem 12.5% 1rem 1rem
 
-button.task-reject
-    @extend .bad
-    color: rgb(248, 249, 253)
+        ul
+            bottom: 2.5rem
+            left: 1rem
 
-.addTask
-    width: 50%
-    bottom: 10px
-    display: inline
-    height: 70vh
+        button
+            margin-right: 0
 
-button.add-task
-    @extend .good
-    margin-top: 2rem

@@ -1,32 +1,31 @@
 import {Component, Output, ChangeDetectionStrategy, ChangeDetectorRef
     , HostListener, EventEmitter} from '@angular/core';
-import {ErrorService, SupplierInvoiceService} from '../../../../services/services';
-import {User, Team} from '../../../../unientities';
+import {ErrorService, SupplierInvoiceService, UserService} from '../../../../services/services';
+import {User, Team, Task, SupplierInvoice, ApprovalStatus, Approval} from '../../../../unientities';
+import {billViewLanguage as lang, approvalStatusLabels as statusLabels} from './lang';
 
 // tslint:disable:max-line-length
 
 @Component({
-    selector: 'uni-assign-modal',
+    selector: 'uni-approve-modal',
     template: `
         <dialog class="uniModal" [attr.open]="isOpen">            
             <article class="uniModal_bounds">                
                 <button (click)="close('cancel')" class="closeBtn"></button>                
                 <article class="modal-content" [attr.aria-busy]="busy" >
                     
-                    <h3>Tildel til:</h3>
+                    <h3>{{currentTask?.Title}}</h3>
                     
                     <header class="regtime_filters no-print">
                         <ul>
                             <li>
-                                <a (click)="userTab=false" [ngClass]="{'router-link-active': !userTab}">
-                                    Team
-                                    <span class='tab_counter'>{{teams?.length}}</span>
+                                <a (click)="switchTab(0)" [ngClass]="{'router-link-active': !rejectTab}">
+                                    Godkjenning
                                 </a>
                             </li>
                             <li>
-                                <a (click)="userTab=true" [ngClass]="{'router-link-active': userTab}">
-                                    Brukere
-                                    <span class='tab_counter'>{{users?.length}}</span>
+                                <a (click)="switchTab(1)" [ngClass]="{'router-link-active': rejectTab}">
+                                    Avvis
                                 </a>
                             </li>
                         </ul>
@@ -34,89 +33,127 @@ import {User, Team} from '../../../../unientities';
 
                     <section class="tab-page">
 
-                        <article [hidden]="userTab">     
-                            Velg team:                       
-                            <select [(ngModel)]="currentTeam">
-                                <option [ngValue]="team" *ngFor="let team of teams">{{team.Name}}</option></select>
-                            <span class="members">{{currentTeam?.Names}}</span>
+                        <article [hidden]="rejectTab">     
+                            <strong>Status:</strong>
+                            <table>
+                                <tr *ngFor="let approval of currentTask?.Approvals">
+                                    <td>{{approval.userName}}</td>
+                                    <td>{{approval.statusLabel}}</td>
+                                </tr>
+                            </table>
                         </article>
                         
-                        <article [hidden]="!userTab">
-                            Velg bruker:
-                            <select [(ngModel)]="currentUser">
-                                <option [ngValue]="user" *ngFor="let user of users">{{user.DisplayName}} ({{user.Email}})</option>
-                            </select>
-                            <span class="members">Brukerid: {{currentUser?.ID}}</span>
+                        <article [hidden]="!rejectTab">
+                            Avvis med kommentar:
+                            <textarea [(ngModel)]="rejectMessage"></textarea>
                         </article>
 
                     </section>
 
                     <footer>                         
-                        <button (click)="onCloseAction('ok')" class="good">Tildel</button>
+                        <button [disabled]="!canApprove" (click)="onCloseAction('ok')" class="good">{{okButtonLabel}}</button>
                         <button (click)="onCloseAction('cancel')" class="bad">Avbryt</button>
                     </footer>
+
                 </article>
             </article>
         </dialog>
     `,
     changeDetection: ChangeDetectionStrategy.OnPush    
 })
-export class UniAssignModal {
+export class UniApproveModal {
 
     private isOpen: boolean = false;
     private busy: boolean = false;
-    private userTab: boolean = false;
+    private rejectTab: boolean = false;
     private teams: Array<Team>;
     private users: Array<User>;
     private currentTeam: Team;
     private currentUser: User;
+    private okButtonLabel: string = lang.task_approve;
+    private invoice: SupplierInvoice;
+    private get currentTask(): Task {
+        return <any>(this.invoice ? this.invoice['_task'] : undefined);
+    }
+    private rejectMessage: string = '';
+    private canApprove: boolean = false;
+    private myApproval: Approval;
+    private myUser: User;
 
-    @Output() public okclicked: EventEmitter<AssignDetails> = new EventEmitter();
+    @Output() public okclicked: EventEmitter<ApprovalDetails> = new EventEmitter();
 
     constructor(
         private supplierInvoiceService: SupplierInvoiceService,
         private changeDetectorRef: ChangeDetectorRef,
-        private errorService: ErrorService) {
+        private errorService: ErrorService,
+        private userService: UserService) {
+            userService.getCurrentUser().subscribe( usr => {
+                this.myUser = usr;
+            });
     }
 
-    public get selectedUsers(): Array<User> {
-        var list: Array<User> = [];
-
-        if (this.userTab) {
-            list.push(this.currentUser);
-        } else {
-            if (this.currentTeam && this.currentTeam.Positions) {
-                this.currentTeam.Positions.forEach( x => list.push(x['User']));
-            }
-        }
-        return list;
+    public switchTab(index: number) {
+        this.rejectTab = index === 1;
+        this.okButtonLabel = this.rejectTab ? lang.task_reject : lang.task_approve;
     }
 
-    public get currentDetails(): AssignDetails {
-        var details = new AssignDetails();
-        if (this.userTab) {
-            details.Message = '';
-            details.UserIDs = [this.currentUser.ID];
-            details.TeamIDs = [];
+    public get currentDetails(): ApprovalDetails {
+        var details = new ApprovalDetails();
+        if (this.rejectTab) {
+            details.rejected = true;
         } else {
-            details.Message = '';
-            details.UserIDs = [];
-            details.TeamIDs = [this.currentTeam.ID];
+            details.approved = true;
         }
         return details;        
     }
 
     private onCloseAction(src: 'ok' | 'cancel') {
-       
+        
         if (src === 'ok') {
-            if (this.selectedUsers.length === 0) { return; }
-            this.okclicked.emit(this.currentDetails);            
+
+            if (this.rejectTab && !this.rejectMessage) {
+                this.errorService.addErrorToast(lang.err_missing_comment);
+                return;
+            }
+
+            var prom: Promise<boolean> = (this.rejectTab) ? this.reject() : this.approve();
+            prom.then( () => this.okclicked.emit( this.currentDetails) );                        
             return;
         } 
+        
         this.isOpen = false;
         this.onClose(false);
         this.refresh();
     }    
+
+    private approve(): Promise<boolean> {
+        this.goBusy(true);
+        return new Promise<boolean>( (resolve, reject) => {
+            this.supplierInvoiceService.send(`approvals/${this.myApproval.ID}?action=approve`)
+                .finally( () => this.goBusy(false) )
+                .subscribe( result => {
+                    resolve(true);
+                    }, 
+                    err => this.errorService.handle(err) 
+                );
+        });
+    }
+
+    private reject(): Promise<boolean> {
+        this.goBusy(true);
+        return new Promise<boolean>( (resolve, reject) => {
+            var msg = `${this.rejectMessage} : ${this.myUser.DisplayName}`;
+            this.supplierInvoiceService.send(`comments/supplierinvoice/${this.invoice.ID}`, undefined, 'POST', { Text: msg })
+                .subscribe( commentResult => {} );
+            this.supplierInvoiceService.send(`approvals/${this.myApproval.ID}?action=reject`)
+                .finally( () => this.goBusy(false) )
+                .subscribe( result => {
+                    resolve(true);
+                    }, 
+                    err => this.errorService.handle(err) 
+                );
+        });
+    }
     
     public goBusy(busy: boolean = true) {
         this.busy = busy;
@@ -147,7 +184,25 @@ export class UniAssignModal {
         }
     }
 
-    public open(): Promise<boolean> {
+    public open(invoice: SupplierInvoice, forApproval: boolean = true): Promise<boolean> {
+
+        this.invoice = invoice;
+        this.canApprove = false;
+        this.okButtonLabel = forApproval ? lang.task_approve : lang.task_reject;
+        this.rejectTab = !forApproval;
+
+        if (this.currentTask) {
+            let approvals = this.currentTask.Approvals;
+            if (approvals) {
+                approvals.forEach( x => {
+                    x['statusLabel'] = statusLabels[x.StatusCode];
+                    if (x.UserID === this.myUser.ID && x.StatusCode === ApprovalStatus.Active) {
+                        this.myApproval = x;
+                        this.canApprove = true;
+                    }
+                 });
+            }
+        }
 
         this.goBusy(true);
         this.supplierInvoiceService.getTeamsAndUsers().subscribe( x => {
@@ -176,6 +231,19 @@ export class UniAssignModal {
                 this.currentTeam = this.teams.length > 0 ? this.teams[0] : new Team();
             }
 
+            // Copy usernames into approvals
+            if (this.currentTask) {
+                let approvals = this.currentTask.Approvals;
+                if (approvals) {
+                    approvals.forEach( a => {
+                        let user = this.users.find( u => u.ID === a.UserID );
+                        if (user) {
+                            a['userName'] = user.DisplayName; 
+                        }
+                    });
+                }
+            }            
+
             this.goBusy(false);
 
         });
@@ -200,8 +268,8 @@ export class UniAssignModal {
 }
 
 // tslint:disable:variable-name
-export class AssignDetails {
-    public Message: string;
-    public TeamIDs: Array<number>;
-    public UserIDs: Array<number>;
+export class ApprovalDetails {
+    public taskCompleted: boolean;
+    public approved: boolean;
+    public rejected: boolean;
 }

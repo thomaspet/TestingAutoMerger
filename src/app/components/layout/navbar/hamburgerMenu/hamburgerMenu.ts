@@ -50,7 +50,7 @@ export class HamburgerMenu {
     // Get the corresponding parent app to a given module.
     public static getParentApp(moduleID): any {
         let _series = moduleID + '';
-        let _seriesIndex = +_series.slice(0, 1) - 1;
+        let _seriesIndex = +_series.substring(0, _series.length - 2) - 1;
         return this.getAvailableComponents()[_seriesIndex];
     }
 
@@ -135,8 +135,6 @@ export class HamburgerMenu {
                     {componentName: 'Fakturamottak', componentUrl: '/accounting/bills', moduleID: UniModules.Bills},
                     {componentName: 'Betaling', componentUrl: '/accounting/journalentry/payments', hidden: true},
                     {componentName: 'Regnskapsoversikt', componentUrl: '/accounting/accountingreports', moduleID: UniModules.AccountingReports},
-                    // KE: This is not really needed anymore - I'll just hide it for now, but the components should be removed when BA has approved new solution
-                    // {componentName: 'Forespørsel på konto', componentUrl: '/accounting/transquery', moduleID: UniModules.Transquery},
                     {componentName: 'Forespørsel på bilag', componentUrl: '/accounting/transquery/details', moduleID: UniModules.TransqueryDetails},
                     {componentName: 'Forespørsel på konto', componentUrl: '/accounting/accountquery', moduleID: UniModules.AccountQuery},
                     {componentName: 'Kontoplan', componentUrl: '/accounting/accountsettings', moduleID: UniModules.Accountsettings},
@@ -183,6 +181,7 @@ export class HamburgerMenu {
             {
                 componentListName: 'Dimensjoner',
                 componentListHeader: 'Dimensjoner',
+                componentListUrl: '/dimensions',
                 componentList: [
                     {componentName: 'Prosjekt', componentUrl: '/dimensions/project', moduleID: UniModules.Projects},
                     {componentName: 'Avdeling', componentUrl: '/dimensions/department', moduleID: UniModules.Departments}
@@ -205,10 +204,19 @@ export class HamburgerMenu {
                     {componentName: 'Jobber', componentUrl: '/admin/jobs', moduleID: UniModules.Jobs},
                     {componentName: 'Languages', componentUrl: '/admin/languages', moduleID: UniModules.Translations},
                     {componentName: 'Modeller', componentUrl: '/admin/models', moduleID: UniModules.Models},
-                    {componentName: 'Roller', componentUrl: '/admin/roles', moduleID: UniModules.Roles}
+                    {componentName: 'Roller', componentUrl: '/admin/roles', moduleID: UniModules.Roles},
+                    {componentName: 'Regler', componentUrl: '/admin/thresholds', moduleID: UniModules.Thresholds}
+                ]
+            },
+            {
+                componentListName: 'Om',
+                componentListHeader: 'Om',
+                componentListUrl: '/about',
+                componentList: [
+                    {componentName: 'Versioner', componentUrl: '/about/versions', moduleID: UniModules.Versions}
                 ]
             }
-        ];
+        ]
     }
 
 }

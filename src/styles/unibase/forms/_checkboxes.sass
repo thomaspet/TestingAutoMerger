@@ -1,4 +1,7 @@
-uni-checkbox-input label, uni-radio-input label
+$radioBack: mix($uni-color-scale9, $uni-color-c2a, 90%)
+uni-checkbox-input label,
+.uni-checkbox-input label,
+uni-radio-input label
     width: 100%
 
 input[type=checkbox],
@@ -106,30 +109,29 @@ input[type=radio]
         padding-left: 3.5rem
 
         &:before
-            width: 2.6rem
-            height: 1.1rem
+            width: 3rem
+            height: 1.5rem
             border-radius: 99rem
             top: .45rem
             border-color: transparent
-            background-color: $uni-color-scale8
+            background: $radioBack
             content: 'Av'
             text-align: right
-            color: $uni-color-scale3
-            line-height: .9rem
-            font-size: .75rem
+            color: $uni-color-positive
+            line-height: 1.2rem
+            font-size: .9rem
             padding: 0 .3rem
 
         &:after
             width: 1rem
             height: 1rem
-            top: .45rem
-            left: .3rem
+            top: .6rem
+            left: .5rem
             border-radius: 99rem
-            background-color: $uni-color-scale5
-            box-shadow: 0 0 .5rem transparentize($uni-color-scale1, .5)
-            border: pxToRem(1) solid transparentize($uni-color-scale2, .5)
+            background-color: $uni-color-toolbar
             transition: all .3s ease
             transform: rotate(0deg)
+            border-color: transparent
 
         &:hover,
         &:focus
@@ -148,25 +150,38 @@ input[type=radio]
         opacity: .4
 
     &:checked + label.toggle
-        &:after
-            left: 1.8rem
-            background-color: $uni-color-scale9
-
         &:before
             content: 'På'
             text-align: left
-            color: $uni-color-negative
-            background: transparentize($uni-color-good, .3)
+            border-color: transparent
+            background: $radioBack
+
+        &:after
+            left: 1.9rem
             border-color: transparent
 
+
 input[type=radio] + label
+
     &:before
         border-radius: 99rem
+        background: $radioBack
+        border-color: $radioBack
 
     &:after
         opacity: 0
 
-uni-checkbox-input
+
+input[type=radio]:checked + label
+    &:before
+        background: $uni-color-toolbar
+        border-color: $radioBack
+
+    &:after
+        opacity: 0
+
+uni-checkbox-input,
+.uni-checkbox-input
     display: block
     margin-top: 1.3rem
 

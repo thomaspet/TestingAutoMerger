@@ -64,7 +64,8 @@ export class Settings {
             { name: 'Min Bruker', path: 'user' },
             { name: 'Brukere', path: 'users' },
             { name: 'Team', path: 'teams' },
-            { name: 'Altinn', path: 'altinn' }
+            { name: 'Altinn', path: 'altinn' },
+            { name: 'Nummerserier', path: 'numberseries' }
         ];
     }
 

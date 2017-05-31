@@ -1,0 +1,62 @@
+.typeahead
+    position: relative
+
+    *
+        box-sizing: border-box
+
+    .uniTypeahead_input, .typeahead_input
+        width: calc(100% - 1.7rem)
+        height: 1.6667rem
+        float: left
+        border-top-right-radius: 0
+        border-bottom-right-radius: 0
+
+        &[readonly],
+        &[disabled]
+        border-radius: pxToRem(3) 0 0 pxToRem(3)
+
+    .uni-typeahead-searchBtn
+        width: 1.7rem
+        margin: 0
+        padding: 0
+        float: right
+        font-size: 0
+        background: $uni-color-negative unicon-more($uni-color-scale4) no-repeat center center
+        background-size: .8rem
+        border: $uni-color-scale7 solid pxToRem(1)
+        border-left: none
+        box-shadow: none
+        border-bottom-left-radius: 0
+        border-top-left-radius: 0
+
+        &:hover,
+        &:focus,
+        &.-is-active
+        background-color: $uni-color-scale9
+
+
+.typeahead_results
+    @extend .uni-multivalue-values
+    display: block
+    position: absolute
+    width: 100%
+    min-width: pxToRem(150)
+    max-height: 15rem
+    overflow-x: auto
+    list-style: none
+    z-index: map-get($zindex, picker)
+    border-width: 0
+
+    &[aria-expanded=true]
+        border-width: pxToRem(1)
+
+    &[aria-expanded=false]
+        display: none
+
+.typeahead_result
+    padding: .2rem 1rem
+
+    &[aria-selected=true]
+        font-weight: 400
+        background: $uni-color-c2a
+        color: $uni-color-negative

@@ -14,6 +14,7 @@ import { VacationpayModal } from './vacationpay/vacationPayModal';
 import { UniForm } from 'uniform-ng2/main';
 import { IContextMenuItem } from 'unitable-ng2/main';
 import { IToolbarConfig } from '../../common/toolbar/toolbar';
+import { IUniTagsConfig, ITag } from '../../common/toolbar/tags';
 import { UniStatusTrack } from '../../common/toolbar/statustrack';
 import { ToastService, ToastType, ToastTime } from '../../../../framework/uniToast/toastService';
 import { SalaryTransactionSelectionList } from '../salarytrans/salarytransactionSelectionList';
@@ -72,11 +73,18 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
     private categories: EmployeeCategory[];
     private journalEntry: JournalEntry;
 
-    public categoryFilter: any[] = [];
-    public tagConfig: any = {
+    public categoryFilter: ITag[] = [];
+    public tagConfig: IUniTagsConfig = {
         description: 'Utvalg ',
         helpText: 'Ansatte i følgende kategorier er med i denne lønnsavregningen:',
-        truncate: 20
+        truncate: 20,
+        autoCompleteConfig: {
+            template: (obj: EmployeeCategory) => obj ? obj.Name : '',
+            valueProperty: 'Name',
+            search: (query, ignoreFilter) => this.employeeCategoryService.searchCategories(query, ignoreFilter),
+            saveCallback: (cat: EmployeeCategory) => this.payrollrunService.savePayrollTag(this.payrollrunID, cat),
+            deleteCallback: (tag) => this.payrollrunService.deletePayrollTag(this.payrollrunID, tag)
+        }
     };
 
     private payrollrunWidgets: IPosterWidget[] = [
@@ -172,6 +180,13 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
                             err => this.errorService.handle(err));
                     }
                 })
+                .do((payrollRun: PayrollRun) => {
+                    let oldValue = this.payrollrun$.getValue();
+                    if (!oldValue 
+                        || (oldValue.StatusCode !== payrollRun.StatusCode || oldValue.ID !== payrollRun.ID)) {
+                        this.toggleReadOnlyOnCategories(this.salaryTransactions, payrollRun);
+                    }
+                })
                 .subscribe((payrollRun: PayrollRun) => {
                     if (payrollRun['_IncludeRecurringPosts'] === undefined) {
                         payrollRun['_IncludeRecurringPosts'] = !payrollRun.ExcludeRecurringPosts;
@@ -232,7 +247,7 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
             employeesSubject
                 .subscribe((employees: Employee[]) => {
                     this.employees = employees;
-                    this.updatePosterSelection();
+                    this.updatePosterSelection(employees.length);
                 });
 
             super.getStateSubject('salaryTransactions')
@@ -275,6 +290,9 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
                 label: 'Generer feriepenger',
                 action: () => {
                     this.openVacationPayModal();
+                },
+                disabled: (rowModel) => {
+                    return this.payrollrun$.getValue() && this.payrollrunID ? this.payrollrun$.getValue().StatusCode > 0 : false;
                 }
             },
             {
@@ -336,43 +354,43 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
 
     private getSaveActions(payrollRun: PayrollRun): IUniSaveAction[] {
         return [
-                        {
-                            label: 'Lagre',
-                            action: this.saveAll.bind(this),
-                            main: payrollRun ? payrollRun.StatusCode < 1 : true,
-                            disabled: true
-                        },
-                        {
-                            label: 'Kontroller',
-                            action: this.openControlModal.bind(this),
-                            main: false,
-                            disabled: payrollRun ? payrollRun.StatusCode > 0 : true
-                        },
-                        {
-                            label: 'Avregn',
-                            action: this.runSettling.bind(this),
-                            main: false,
-                            disabled: payrollRun && this.payrollrunID ? payrollRun.StatusCode > 0 : true
-                        },
-                        {
-                            label: 'Til utbetaling',
-                            action: this.sendPaymentList.bind(this),
-                            main: payrollRun ? payrollRun.StatusCode > 1 : false,
-                            disabled: payrollRun ? payrollRun.StatusCode < 1 : true
-                        },
-                        {
-                            label: 'Send lønnslipp',
-                            action: this.sendPaychecks.bind(this),
-                            main: false,
-                            disabled: payrollRun ? payrollRun.StatusCode < 1 : true
-                        },
-                        {
-                            label: 'Bokfør',
-                            action: this.openPostingSummaryModal.bind(this),
-                            main: payrollRun ? payrollRun.StatusCode === 1 : false,
-                            disabled: payrollRun ? payrollRun.StatusCode !== 1 : true
-                        }
-                    ];
+            {
+                label: 'Lagre',
+                action: this.saveAll.bind(this),
+                main: payrollRun ? payrollRun.StatusCode < 1 : true,
+                disabled: true
+            },
+            {
+                label: 'Kontroller',
+                action: this.openControlModal.bind(this),
+                main: false,
+                disabled: payrollRun ? payrollRun.StatusCode > 0 : true
+            },
+            {
+                label: 'Avregn',
+                action: this.runSettling.bind(this),
+                main: false,
+                disabled: payrollRun && this.payrollrunID ? payrollRun.StatusCode > 0 : true
+            },
+            {
+                label: 'Til utbetaling',
+                action: this.sendPaymentList.bind(this),
+                main: payrollRun ? payrollRun.StatusCode > 1 : false,
+                disabled: payrollRun ? payrollRun.StatusCode < 1 : true
+            },
+            {
+                label: 'Send lønnslipp',
+                action: this.sendPaychecks.bind(this),
+                main: false,
+                disabled: payrollRun ? payrollRun.StatusCode < 1 : true
+            },
+            {
+                label: 'Bokfør',
+                action: this.openPostingSummaryModal.bind(this),
+                main: payrollRun ? payrollRun.StatusCode === 1 : false,
+                disabled: payrollRun ? payrollRun.StatusCode !== 1 : true
+            }
+        ];
     }
 
     public ngOnDestroy() {
@@ -441,7 +459,7 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
         }
     }
 
-    private updatePosterSelection() {
+    private updatePosterSelection(numberOfEmpsInSelection: number) {
         this._employeeService.GetAll('filter=deleted eq false')
             .subscribe((employees: Employee[]) => {
                 let posterSelection = {
@@ -449,20 +467,31 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
                     config: {
                         alerts: [
                             {
-                                text: this.employees.length + ' ansatte i lønnsavregningen',
+                                text: this.EmployeeSumText(numberOfEmpsInSelection, 'i lønnsavregningen'),
                                 class: 'success'
-                            },
-                            {
-                                text: (employees.length - this.employees.length) + ' ansatte utelatt på grunn av utvalg',
-                                class: 'error'
                             }
                         ]
                     }
                 };
 
+                if (employees.length - numberOfEmpsInSelection > 0) {
+                    posterSelection.config.alerts.push(
+                        {
+                            text: this.EmployeeSumText(employees.length - numberOfEmpsInSelection,
+                                'utelatt på grunn av utvalg'),
+                            class: 'success'
+                        }
+                    );
+                }
+
                 this.payrollrunWidgets[2] = posterSelection;
             });
+    }
 
+    private EmployeeSumText(count: number, postText: string): string {
+        if (count === 1) { return count + ' ansatt ' + postText; }
+
+        return count + ' ansatte ' + postText;
     }
 
     private updateTax(employees: Employee[]) {
@@ -470,7 +499,7 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
         let employeeFilterTable: string[] = [];
 
         this.yearService
-            .getActiveYear()            
+            .getActiveYear()
             .switchMap(financialYear => {
                 employees.forEach(employee => {
                     employeeFilterTable.push('EmployeeID eq ' + employee.ID);
@@ -629,17 +658,15 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
                 .forkJoin(
                 this._salaryTransactionService
                     .GetAll(
-                    'filter=' + salaryTransactionFilter + '&orderBy=IsRecurringPost DESC',
+                    'filter=' + salaryTransactionFilter + '&orderBy=IsRecurringPost DESC,SalaryBalanceID DESC',
                     ['WageType.SupplementaryInformations', 'employment', 'Supplements'
                         , 'Dimensions', 'Files'])
                     .do((transes: SalaryTransaction[]) => {
                         if (this.selectionList) {
                             this.selectionList.updateSums();
                         }
-                        this.tagConfig.readOnly = transes.some(trans => !trans.IsRecurringPost);
-                        this.tagConfig.toolTip = this.tagConfig.readOnly
-                            ? 'Låst på grunn av variable poster' 
-                            : '';
+
+                        this.toggleReadOnlyOnCategories(transes, this.payrollrun$.getValue());
                     }),
                 this.getProjectsObservable(),
                 this.getDepartmentsObservable())
@@ -671,7 +698,6 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
         if (this.payrollrunID) {
             this.payrollrunService.get(this.payrollrunID).
                 subscribe((payroll: PayrollRun) => {
-                    this.payrollrun$.next(payroll);
                     if (payroll) {
                         payroll.StatusCode < 1 ? this.disableFilter = false : this.disableFilter = true;
                     }
@@ -747,7 +773,7 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
             let lastTodate = moment(latest.ToDate);
             let lastFromdate = lastTodate.clone();
             lastFromdate.add(1, 'days');
-            
+
             payrollRun.FromDate = new LocalDate(lastFromdate.toDate()).toDate();
 
             switch (companysalary.PaymentInterval) {
@@ -847,6 +873,22 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
         return statustrack;
     }
 
+    private toggleReadOnlyOnCategories(transes: SalaryTransaction[], run: PayrollRun) {
+        transes = transes || [];
+        let anyEditableTranses = transes
+            .some(trans => !trans.IsRecurringPost && !trans.SalaryBalanceID);
+        let runIsCalculated = run && run.StatusCode >= 1;
+        this.tagConfig.readOnly = anyEditableTranses || runIsCalculated;
+
+        if (runIsCalculated) {
+            this.tagConfig.toolTip = 'Låst fordi lønnsavregningen er avregnet';
+        } else if (anyEditableTranses) {
+            this.tagConfig.toolTip = 'Låst på grunn av variable poster';
+        } else {
+            this.tagConfig.toolTip = '';
+        }
+    }
+
     public newPayrollrun() {
         this.canDeactivate().subscribe(result => {
             if (result) {
@@ -912,10 +954,10 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
     }
 
     public runSettling(done: (message: string) => void) {
-        this.payrollrunService.runSettling(this.payrollrunID)
+        this.payrollrunService.runSettling(this.payrollrunID, done)
             .finally(() => this.busy = false)
             .subscribe((bResponse: boolean) => {
-                if (bResponse === true) {
+                if (bResponse) {
                     this.getPayrollRun();
                     this.getSalaryTransactions();
                     done('Avregnet');
@@ -1017,7 +1059,7 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
 
     private populateCategoryFilters() {
         this.categoryFilter = [];
-        this.categories.map(x => this.categoryFilter.push({ id: x.ID, title: x.Name }));
+        this.categories.map(x => this.categoryFilter.push({ linkID: x.ID, title: x.Name }));
         this.tagConfig.description = this.categoryFilter.length ? 'Utvalg: ' : 'Utvalg';
     }
 
@@ -1088,32 +1130,7 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
     }
 
     public filterChange(tags: any[]) {
-        let filter = tags.filter(x => !x.id).map(x => `Name eq '${x.title}'`).join(' or ');
-        let categoryObs = filter ? this.employeeCategoryService.GetAll('filter=' + filter) : Observable.of([]);
-
-        categoryObs.switchMap((response: EmployeeCategory[]) => {
-            let categoriesToDelete = this.categories
-                .filter(x => !tags.some(y => y.id === x.ID))
-                .map(x => x.ID);
-
-            let categoriesToAdd = response;
-            let saveObs: Observable<any>[] = categoriesToAdd
-                .map(x => this.payrollrunService
-                    .saveCategoryOnRun(this.payrollrunID, x)
-                    .catch((err, obs) => this.errorService.handleRxCatch(err, obs)))
-                .concat(categoriesToDelete
-                    .map(x => this.payrollrunService
-                        .deleteCategoryOnRun(this.payrollrunID, x)
-                        .catch((err, obs) => this.errorService.handleRxCatch(err, obs))));
-
-            return saveObs.length ? Observable.forkJoin(saveObs) : Observable.of(null);
-        })
-            .subscribe(
-            x => {
-                this.getEmployeeCategories();
-                this.getEmployees();
-                this.getSalaryTransactions();
-            },
-            err => this.errorService.handle(err));
+        this.getEmployees();
+        this.getSalaryTransactions();
     }
 }

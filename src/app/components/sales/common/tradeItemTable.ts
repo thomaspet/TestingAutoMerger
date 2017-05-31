@@ -237,17 +237,14 @@ export class TradeItemTable {
             .setDeleteButton(!this.readonly)
             .setChangeCallback((rowModel) => {
 
-                const updatedRow = this.tradeItemHelper.tradeItemChangeCallback(rowModel, this.currencyCodeID, this.currencyExchangeRate);
+        const updatedRow = this.tradeItemHelper.tradeItemChangeCallback(rowModel, this.currencyCodeID, this.currencyExchangeRate, this.settings, this.foreignVatType);
                 updatedRow['_isDirty'] = true;
 
                 if (updatedRow.VatTypeID && !updatedRow.VatType) {
                     updatedRow.VatType = this.vatTypes.find(vt => vt.ID === updatedRow.VatTypeID);
                 }
 
-                if(this.currencyCodeID !== this.settings.BaseCurrencyCodeID && this.foreignVatType) {
-                    updatedRow.VatType = this.foreignVatType;
-                    updatedRow.VatTypeID = this.foreignVatType.ID;
-                }
+
 
                 const index = updatedRow['_originalIndex'];
 

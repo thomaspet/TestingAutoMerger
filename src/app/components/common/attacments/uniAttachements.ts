@@ -29,7 +29,8 @@ export interface IUploadConfig {
             </section>
             <section class="upload" *ngIf="!readonly && !uploadConfig?.isDisabled" [attr.aria-busy]="uploading">
                 <label class="uni-image-upload"
-                       [attr.aria-disabled]="uploadConfig?.isDisabled || uploading">
+                       [attr.aria-disabled]="uploadConfig?.isDisabled || uploading"
+                       (drop)="onDrop($event, dropData)">
                     <input type="file"
                         (change)="uploadFileChange($event)"
                         [attr.aria-disabled]="uploadConfig?.isDisabled"
@@ -91,7 +92,7 @@ export class UniAttachments {
         authService: AuthService) {
         // Subscribe to authentication/activeCompany changes
         authService.authentication$.subscribe((authDetails) => {
-            this.token = authDetails.token;
+            this.token = authDetails.filesToken;
             this.activeCompany = authDetails.activeCompany;
         } /* don't need error handling */);
     }
@@ -120,7 +121,6 @@ export class UniAttachments {
         if (!this.downloadAsAttachment) {
             this.imageModal.openReadOnly(this.entity, this.entityID, attachment.ID);
         } else {
-            console.log('attachment', attachment);
             this.fileService
                 .downloadFile(attachment.ID, 'application/xml')
                     .subscribe((blob) => {
@@ -148,6 +148,20 @@ export class UniAttachments {
             source.value = '';
             this.uploadFile(newFile);
         }
+    }
+
+    private onDrop(event, dropData) {
+        let transfer = this.getTransfer(event);
+        if (!transfer) {
+            return;
+        }
+        for (let i = 0; i < transfer.files.length; i++) {
+            this.uploadFile(transfer.files[i]);
+        }
+    }
+
+    protected getTransfer(event: any): any {
+        return event.dataTransfer ? event.dataTransfer : event.originalEvent.dataTransfer; // jQuery fix;
     }
 
     private uploadFile(file: File) {

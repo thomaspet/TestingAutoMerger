@@ -1,10 +1,16 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { UniTableConfig, UniTableColumnType, UniTableColumn } from 'unitable-ng2/main';
-import { SalarybalanceService, ErrorService } from '../../../services/services';
+import { SalarybalanceService, ErrorService, NumberFormat } from '../../../services/services';
 import { SalaryBalance, SalBalType } from '../../../unientities';
 import { TabService, UniModules } from '../../layout/navbar/tabstrip/tabService';
 import { SalarybalancelineModal } from './modals/salarybalancelinemodal';
+import { Observable } from 'rxjs/Observable';
+
+type BalanceActionFormattedType = {
+    salaryBalanceID: number,
+    balance: number
+};
 
 @Component({
     selector: 'salarybalances',
@@ -13,47 +19,82 @@ import { SalarybalancelineModal } from './modals/salarybalancelinemodal';
 export class SalarybalanceList implements OnInit {
 
     private tableConfig: UniTableConfig;
-    private salarybalances: SalaryBalance[];
+    private salarybalances: SalaryBalance[] = [];
     @ViewChild(SalarybalancelineModal) private salarybalanceModal: SalarybalancelineModal;
+    private empID: number;
 
     constructor(
         private _router: Router,
         private route: ActivatedRoute,
         private tabSer: TabService,
         private _salarybalanceService: SalarybalanceService,
-        private errorService: ErrorService
+        private errorService: ErrorService,
+        private numberService: NumberFormat
     ) {
         route.params.subscribe(params => {
             let empID: number = +params['empID'] || 0;
+            this.empID = empID;
             this.tabSer
-            .addTab({
-                name: 'Saldo',
-                url: 'salary/salarybalances' + (empID ? `;empID=${empID}` : ''),
-                moduleID: UniModules.Salarybalances,
-                active: true
-            });
-
-            this._salarybalanceService.getAll(empID)
-                .subscribe((salarybalances: SalaryBalance[]) => {
-                    if (salarybalances) {
-                        salarybalances.forEach((salarybalance, index) => {
-                            if (salarybalance.InstalmentType === SalBalType.Advance 
-                                || salarybalance.InstalmentType === SalBalType.Garnishment 
-                                || salarybalance.InstalmentType === SalBalType.Outlay) {
-                                    this._salarybalanceService.getBalance(salarybalance.ID)
-                                        .subscribe(balance => {
-                                            salarybalance['_balance'] = balance;
-                                            this.salarybalances = salarybalances;
-                                        });
-                            }
-                        });
-                    }
+                .addTab({
+                    name: 'Saldo',
+                    url: 'salary/salarybalances' + (empID ? `;empID=${empID}` : ''),
+                    moduleID: UniModules.Salarybalances,
+                    active: true
                 });
+
+                this.setData(empID);
         });
     }
 
     public ngOnInit() {
         this.createConfig();
+    }
+
+    public rowSelected(event) {
+        this._router.navigateByUrl('/salary/salarybalances/' + event.rowModel.ID);
+    }
+
+    public createSalarybalance() {
+        this._router.navigateByUrl('/salary/salarybalances/0');
+    }
+
+    public openSalarybalancelineModal(salarybalance: SalaryBalance) {
+        this.salarybalanceModal.openModal(salarybalance, false);
+    }
+
+    public setData(empID: number = this.empID) {
+        this._salarybalanceService.getAll(empID)
+            .switchMap((salaryBalances: SalaryBalance[]) => {
+                let obsList: Observable<BalanceActionFormattedType>[] = [];
+                if (salaryBalances) {
+                    salaryBalances.forEach((salarybalance: SalaryBalance, index) => {
+                        if (salarybalance.InstalmentType === SalBalType.Advance
+                            || salarybalance.InstalmentType === SalBalType.Garnishment
+                            || salarybalance.InstalmentType === SalBalType.Outlay) {
+                            obsList
+                                .push(this._salarybalanceService
+                                    .getBalance(salarybalance.ID)
+                                    .map(balance => {
+                                        return { salaryBalanceID: salarybalance.ID, balance: balance };
+                                    }));
+                        }
+                    });
+                }
+                return Observable.forkJoin([Observable.of(salaryBalances), Observable.forkJoin(obsList)]);
+            })
+            .map((result: [SalaryBalance[], BalanceActionFormattedType[]]) => {
+                let [salaryBalances, balanceList] = result;
+                balanceList.map(balance => {
+                    let indx = salaryBalances.findIndex(sal => sal.ID === balance.salaryBalanceID);
+                    if (indx >= 0) {
+                        salaryBalances[indx]['_balance'] = balance.balance;
+                    }
+                });
+                return salaryBalances;
+            })
+            .subscribe((salarybalances: SalaryBalance[]) => {
+                this.salarybalances = salarybalances;
+            });
     }
 
     private createConfig() {
@@ -67,8 +108,13 @@ export class SalarybalanceList implements OnInit {
             return this._salarybalanceService.getInstalment(salarybalance).Name;
         });
 
-        const balanceCol = new UniTableColumn('_balance', 'Saldo', UniTableColumnType.Money);
-        
+        const balanceCol = new UniTableColumn('_balance', 'Saldo', UniTableColumnType.Text)
+            .setAlignment('right')
+            .setTemplate((salBal: SalaryBalance) => 
+                salBal['_balance'] || salBal['_balance'] === 0 
+                    ? this.numberService.asMoney(salBal['_balance'])
+                    : '');
+
         let contextMenu = {
             label: 'Legg til manuell post',
             action: (salbal) => {
@@ -80,17 +126,5 @@ export class SalarybalanceList implements OnInit {
             .setColumns([idCol, nameCol, employeeCol, typeCol, balanceCol])
             .setSearchable(true)
             .setContextMenu([contextMenu]);
-    }
-
-    public rowSelected(event) {
-        this._router.navigateByUrl('/salary/salarybalances/' + event.rowModel.ID);
-    }
-
-    public createSalarybalance() {
-        this._router.navigateByUrl('/salary/salarybalances/0');
-    }
-
-    public openSalarybalancelineModal(salarybalance: SalaryBalance) {
-        this.salarybalanceModal.openModal(salarybalance, false);
     }
 }

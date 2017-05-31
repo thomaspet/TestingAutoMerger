@@ -14,6 +14,23 @@ export class AMeldingService extends BizHttp<AmeldingData> {
         {Code: 3, Text: 'Tilbakemelding hentet'}
     ];
 
+    public periodsInYear(): Array<any> {
+        return [
+            {period: 1, name: 'Januar'},
+            {period: 2, name: 'Februar'},
+            {period: 3, name: 'Mars'},
+            {period: 4, name: 'April'},
+            {period: 5, name: 'Mai'},
+            {period: 6, name: 'Juni'},
+            {period: 7, name: 'Juli'},
+            {period: 8, name: 'August'},
+            {period: 9, name: 'September'},
+            {period: 10, name: 'Oktober'},
+            {period: 11, name: 'November'},
+            {period: 12, name: 'Desember'}
+        ];
+    }
+
     constructor(http: UniHttp) {
         super(http);
         this.relativeURL = AmeldingData.RelativeUrl;

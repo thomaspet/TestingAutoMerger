@@ -3,13 +3,15 @@ import { BizHttp } from '../../../../framework/core/http/BizHttp';
 import { UniHttp } from '../../../../framework/core/http/http';
 import { SalaryBalance, WageType, Employee, Supplier, SalBalType } from '../../../unientities';
 import { Observable } from 'rxjs/Observable';
-import { FieldType } from 'uniform-ng2/main';
+import { FieldType, UniValidationOperators } from 'uniform-ng2/main';
+import { SalaryBalanceLineService } from './salaryBalanceLineService';
+import { ErrorService } from '../../commonServicesModule';
 
 @Injectable()
 export class SalarybalanceService extends BizHttp<SalaryBalance> {
 
     private defaultExpands: string[] = [];
-    
+
     private instalmentTypes: { ID: SalBalType, Name: string }[] = [
         { ID: SalBalType.Advance, Name: 'Forskudd' },
         { ID: SalBalType.Contribution, Name: 'Bidragstrekk' },
@@ -18,7 +20,15 @@ export class SalarybalanceService extends BizHttp<SalaryBalance> {
         { ID: SalBalType.Other, Name: 'Andre' }
     ];
 
-    constructor(http: UniHttp) {
+    private standardNames: { Type: SalBalType, Name: string }[] = [
+        { Type: SalBalType.Advance, Name: 'Forskudd' },
+        { Type: SalBalType.Contribution, Name: 'Trekk i lønn' }
+    ];
+
+    constructor(
+        protected http: UniHttp,
+        private salaryBalanceLineService: SalaryBalanceLineService,
+        private errorService: ErrorService) {
         super(http);
         this.relativeURL = SalaryBalance.RelativeUrl;
         this.entityType = SalaryBalance.EntityType;
@@ -26,6 +36,33 @@ export class SalarybalanceService extends BizHttp<SalaryBalance> {
 
     public getInstalmentTypes() {
         return this.instalmentTypes;
+    }
+
+    public save(salarybalance: SalaryBalance): Observable<SalaryBalance> {
+        if (!salarybalance.Name) {
+            salarybalance.Name = this.getName(salarybalance);
+        }
+        let refreshLines: boolean;
+        if (!salarybalance.ID) {
+            salarybalance.ID = 0;
+        } else {
+            refreshLines = true;
+        }
+
+        let saver = salarybalance.ID
+            ? this.Put(salarybalance.ID, salarybalance)
+            : this.Post(salarybalance);
+
+        return saver
+            .switchMap((salbal: SalaryBalance) => refreshLines
+                ? this.salaryBalanceLineService
+                    .GetAll(`filter=SalaryBalanceID eq ${salbal.ID}`)
+                    .map((lines) => {
+                        salbal.Transactions = lines;
+                        return salbal;
+                    })
+                : Observable.of(salbal)
+            );
     }
 
     public getInstalment(salarybalance: SalaryBalance) {
@@ -50,7 +87,7 @@ export class SalarybalanceService extends BizHttp<SalaryBalance> {
         }
     }
 
-    public getAll(empID: number) {
+    public getAll(empID: number): Observable<SalaryBalance[]> {
         return super.GetAll(`filter=${empID ? 'EmployeeID eq ' + empID : ''}&orderBy=EmployeeID ASC&expand=Transactions`);
     }
 
@@ -58,7 +95,7 @@ export class SalarybalanceService extends BizHttp<SalaryBalance> {
         return super.GetAll(`filter=ID lt ${ID}&top=1&orderBy=ID desc`, expands ? expands : this.defaultExpands)
             .map(resultSet => resultSet[0]);
     }
-    
+
     public getNext(ID: number, expands: string[] = null) {
         return super.GetAll(`filter=ID gt ${ID}&top=1&orderBy=ID`, expands ? expands : this.defaultExpands)
             .map(resultSet => resultSet[0]);
@@ -71,6 +108,15 @@ export class SalarybalanceService extends BizHttp<SalaryBalance> {
             .withEndPoint(this.relativeURL + `/${ID}?action=balance`)
             .send()
             .map(response => response.json());
+    }
+
+    private getName(salarybalance: SalaryBalance): string {
+        let standardName = this.standardNames.find(x => x.Type === salarybalance.InstalmentType);
+        if (standardName) {
+            return standardName.Name;
+        } else {
+            return this.instalmentTypes.find(x => x.ID === salarybalance.InstalmentType).Name;
+        }
     }
 
     public layout(layoutID: string) {
@@ -312,26 +358,6 @@ export class SalarybalanceService extends BizHttp<SalaryBalance> {
                     {
                         ComponentLayoutID: 1,
                         EntityType: 'salarybalance',
-                        Property: 'CreatePayment',
-                        Placement: 1,
-                        Hidden: false,
-                        FieldType: FieldType.CHECKBOX,
-                        ReadOnly: false,
-                        LookupField: false,
-                        Label: 'Lag utbetaling',
-                        Description: null,
-                        HelpText: null,
-                        FieldSet: 0,
-                        Section: 0,
-                        Placeholder: null,
-                        Options: null,
-                        LineBreak: true,
-                        Combo: null,
-                        Sectionheader: ''
-                    },
-                    {
-                        ComponentLayoutID: 1,
-                        EntityType: 'salarybalance',
                         Property: 'SupplierID',
                         Placement: 1,
                         Hidden: false,
@@ -398,5 +424,5 @@ export class SalarybalanceService extends BizHttp<SalaryBalance> {
             }
         ]);
     }
-    
+
 }

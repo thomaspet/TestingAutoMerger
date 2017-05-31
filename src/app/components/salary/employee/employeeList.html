@@ -1,5 +1,5 @@
 <uni-toolbar [config]="{title: 'Ansatte', omitFinalCrumb: true}"></uni-toolbar>
-<section class="application">
+<section class="application" [attr.aria-busy] = "busy">
     <button (click)="newEmployee()" class="new-button">Ny ansatt</button>
     <uni-table [config]="employeeTableConfig" [resource]="employees$ | async" (rowSelected)="rowSelected($event)"></uni-table>
 </section>

@@ -1,6 +1,6 @@
 import {Injectable} from '@angular/core';
 import {GuidService} from '../../../services/services';
-import {Project, Department, CustomerQuoteItem, CustomerOrderItem, CustomerInvoiceItem} from '../../../unientities';
+import {Project, Department, CustomerQuoteItem, CustomerOrderItem, CustomerInvoiceItem, CompanySettings, VatType} from '../../../unientities';
 import {TradeHeaderCalculationSummary} from '../../../models/sales/TradeHeaderCalculationSummary';
 
 @Injectable()
@@ -39,7 +39,7 @@ export class TradeItemHelper  {
         };
     }
 
-    public tradeItemChangeCallback(event, currencyCodeID: number, currencyExchangeRate: number) {
+    public tradeItemChangeCallback(event, currencyCodeID: number, currencyExchangeRate: number, companySettings: CompanySettings, foreignVatType: VatType) {
         var newRow = event.rowModel;
 
         // if not currencyExchangeRate has been defined from the parent component, assume no
@@ -62,6 +62,10 @@ export class TradeItemHelper  {
         if (event.field === 'Product') {
             if (newRow['Product']) {
                 this.mapProductToQuoteItem(newRow, currencyExchangeRate);
+                if(currencyCodeID !== companySettings.BaseCurrencyCodeID && foreignVatType) {
+                    newRow.VatType = foreignVatType;
+                    newRow.VatTypeID = foreignVatType.ID;
+                }
             } else {
                 newRow['ProductID'] = null;
             }
@@ -72,7 +76,7 @@ export class TradeItemHelper  {
         }
 
         if (event.field === 'Account') {
-            this.mapAccountToQuoteItem(newRow);
+            this.mapAccountToQuoteItem(newRow, currencyCodeID !== companySettings.BaseCurrencyCodeID? foreignVatType: null);
         }
 
         if (event.field === 'Dimensions.Project') {
@@ -154,15 +158,20 @@ export class TradeItemHelper  {
         }
     }
 
-    public mapAccountToQuoteItem(rowModel) {
+    public mapAccountToQuoteItem(rowModel, overrideWithVatType:VatType) {
         let account = rowModel['Account'];
 
         if (!account) {
             rowModel.AccountID = null;
         } else {
             rowModel.AccountID = account.ID;
-            rowModel.VatTypeID = account.VatTypeID;
-            rowModel.VatType = account.VatType;
+            if(!overrideWithVatType) {
+                rowModel.VatTypeID = account.VatTypeID;
+                rowModel.VatType = account.VatType;
+            } else {
+                rowModel.VatTypeID = overrideWithVatType.ID;
+                rowModel.VatType = overrideWithVatType;
+            }
         }
     }
 

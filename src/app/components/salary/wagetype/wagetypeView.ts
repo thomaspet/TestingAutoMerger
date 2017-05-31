@@ -69,7 +69,11 @@ export class WageTypeView extends UniView {
                 this.toolbarConfig = {
                     title: this.wageType.ID ? this.wageType.WageTypeName : 'Ny lønnsart',
                     subheads: [{
-                        title: this.wageType.ID ? 'Lønnsartnr. ' + this.wageType.WageTypeNumber : null
+                        title: this.wageType.ID 
+                        ? 'Lønnsartnr. ' 
+                            + this.wageType.WageTypeNumber 
+                            + (this.wageType.ValidYear ? ` - ${this.wageType.ValidYear}` : '')
+                        : ''
                     }],
                     navigation: {
                         prev: this.previousWagetype.bind(this),

@@ -58,7 +58,7 @@ export class IntegrationServerCaller {
     public businessRelationSearch(
         query: string,
         limit: number = 30,
-        searchInBrreg: boolean = false
+        searchInBrreg: boolean = true
     ): Observable<[BusinessRelationSearch]> {
         return this.http
             .withBaseUrl(AppConfig.BASE_URL_INTEGRATION)

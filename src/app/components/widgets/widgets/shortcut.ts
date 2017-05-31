@@ -6,6 +6,7 @@ import {IUniWidget} from '../uniWidget';
     selector: 'uni-shortcut',
     template: `
         <div *ngIf="widget"
+            [ngClass]="widget.config.class"
              class="uni-widget-shortcut-tile uni-widget-tile-content"
              (click)="onClickNavigate()">
             <a *ngIf="widget?.config?.icon" [ngClass]="getIconClass()"></a><br />
@@ -21,7 +22,11 @@ export class UniShortcutWidget {
 
     public onClickNavigate() {
         if (!this.widget._editMode) {
-            this.router.navigateByUrl(this.widget.config.link);
+            if (this.widget.config.link) {
+                this.router.navigateByUrl(this.widget.config.link);
+            } else if (this.widget.config.method) {
+                this.widget.config.method();
+            }
         }
     }
 

@@ -11,7 +11,7 @@ export const AppConfig = ({
 
     UNI_MESSAGE_HUB_URL: 'https://pilot-unimessagehub.unieconomy.no',
 
-    UNI_JOB_SERVER_URL: 'https://devapi-unijobserver.azurewebsites.net/api/',
+    UNI_JOB_SERVER_URL: 'https://pilotapi-unijobserver.azurewebsites.net/api/',
 
     API_DOMAINS: {
         INIT: '/api/init/',

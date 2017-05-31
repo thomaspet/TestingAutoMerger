@@ -94,8 +94,8 @@ export class CustomerPaymentBatchDetails implements OnChanges {
 
     private completeCustomerPayment() {
         this.confirmModal.confirm(
-            `Er du sikker på at du vil kjøre innbetaling på denne innbetalingsfilen?`,
-            'Bekreft kjøring',
+            `Er du sikker på at du vil fullføre innbetalingen på denne innbetalingsfilen?`,
+            'Bekreft fullfør',
             false,
             { accept: 'Ok', reject: 'Avbryt' }
         ).then((action) => {
@@ -107,7 +107,7 @@ export class CustomerPaymentBatchDetails implements OnChanges {
                         this.table.refreshTableData();
                         this.paymentBatchUpdated.emit(result);
                     }, (err) => {
-                        this.errorService.handleWithMessage(err, 'Feil ved kjøring av betaling');
+                        this.errorService.handleWithMessage(err, 'Feil ved fullføring av betaling');
                     });
             }
         });
