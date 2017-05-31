@@ -1892,6 +1892,7 @@ export class CompanySettings extends UniEntity {
     public AgioGainAccountID: number;
     public AgioLossAccountID: number;
     public APActivated: boolean;
+    public APContactID: number;
     public APGuid: string;
     public AutoJournalPayment: boolean;
     public BankChargeAccountID: number;
@@ -1948,6 +1949,7 @@ export class CompanySettings extends UniEntity {
     public SalaryBankAccount: BankAccount;
     public SettlementVatAccount: Account;
     public DefaultSalesAccount: Account;
+    public APContact: Contact;
     public CustomerInvoiceReminderSettings: CustomerInvoiceReminderSettings;
     public DefaultProductInvoiceReminder: Product;
     public BaseCurrencyCode: CurrencyCode;
@@ -2779,6 +2781,23 @@ export class CurrencyOverride extends UniEntity {
     public UpdatedBy: string;
     public FromCurrencyCode: CurrencyCode;
     public ToCurrencyCode: CurrencyCode;
+    public CustomFields: any;
+}
+
+
+export class AccessPointFormat extends UniEntity {
+    public static RelativeUrl = '';
+    public static EntityType = 'AccessPointFormat';
+
+    public CreatedAt: Date;
+    public CreatedBy: string;
+    public Deleted: boolean;
+    public ID: number;
+    public Label: string;
+    public Name: string;
+    public ResourceName: string;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
     public CustomFields: any;
 }
 
@@ -4968,6 +4987,10 @@ export class EHFActivate extends UniEntity {
     public contactname: string;
     public contactphone: string;
     public incommingInvoice: boolean;
+    public orgemail: string;
+    public orgname: string;
+    public orgnumber: string;
+    public orgphone: string;
     public outgoingInvoice: boolean;
 }
 
