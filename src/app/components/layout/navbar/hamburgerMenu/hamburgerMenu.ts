@@ -213,7 +213,7 @@ export class HamburgerMenu {
                 componentListHeader: 'Om',
                 componentListUrl: '/about',
                 componentList: [
-                    {componentName: 'Versioner', componentUrl: '/about/versions', moduleID: UniModules.Versions}
+                    {componentName: 'Versjoner', componentUrl: '/about/versions', moduleID: UniModules.Versions}
                 ]
             }
         ]
