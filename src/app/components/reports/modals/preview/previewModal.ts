@@ -7,6 +7,8 @@ import {SendEmail} from '../../../../models/sendEmail';
 import {ReportService, Report, ReportParameter, UserService} from '../../../../services/services';
 import {CompanySettingsService, ErrorService} from '../../../../services/services';
 import {ToastService, ToastType} from '../../../../../framework/uniToast/toastService';
+import {IUniSaveAction} from '../../../../../framework/save/save';
+import {ReportFormat} from '../../../../models/reportFormat';
 
 @Component({
     selector: 'report-preview-modal-type',
@@ -67,51 +69,49 @@ export class PreviewModal {
             title: 'Forhåndsvisning',
             model: null,
 
-            actions: [
-                /* TODO: need the ID of the report to send
+            saveactions: [
                 {
-                    text: 'Epost',
-                    method: () => {
-                        let sendemail = new SendEmail();
-                        sendemail.Subject = this.reportDefinition.Name;
-                        sendemail.EmailAddress = '';
-                        sendemail.Message = 'Vedlagt rapport' +
-                                            '\n\nMed vennlig hilsen\n' +
-                                            this.companySettings.CompanyName + '\n' +
-                                            this.user.DisplayName + '\n' +
-                                            (this.companySettings.DefaultEmail ? this.companySettings.DefaultEmail.EmailAddress : '');
-
-                        this.sendEmailModal.openModal(sendemail);
-
-                        if (this.sendEmailModal.Changed.observers.length === 0) {
-                            this.sendEmailModal.Changed.subscribe((email) => {
-                                this.reportService.generateReportSendEmailById(this.reportDefinition.Name, 0, email);
-                            });
-                        }
-                    }
-                },*/
-                {
-                    text: 'Skriv ut',
-                    method: () => {
-                        this.modal.getContent().then(() => {
-                            this.reportService.generateReportPdf(this.reportDefinition);
-                            this.printed.emit();
-                            if (this.modalDoneHandler) { this.modalDoneHandler('Dokument ble skrevet ut!'); }
-                            this.modal.close();
-                        });
-                    }
+                    label: 'Last ned PDF',
+                    action: (done) => this.download(ReportFormat.PDF, done),
+                    main: true,
+                    disabled: false
                 },
                 {
-                    text: 'Lukk',
-                    method: () => {
-                        this.modal.getContent().then(() => {
-                            if (this.modalDoneHandler) { this.modalDoneHandler('Utskriftsvindu ble lukket!'); }
-                            this.modal.close();
-                        });
-                    }
+                    label: 'Last ned CSV',
+                    action: (done) => this.download(ReportFormat.CSV, done),
+                    main: true,
+                    disabled: false
+                },
+                {
+                    label: 'Last ned HTML',
+                    action: (done) => this.download(ReportFormat.HTML, done),
+                    main: true,
+                    disabled: false
+                },
+                {
+                    label: 'Last ned Excel',
+                    action: (done) => this.download(ReportFormat.Excel, done),
+                    main: true,
+                    disabled: false
+                },
+                {
+                    label: 'Last ned Word',
+                    action: (done) => this.download(ReportFormat.Word, done),
+                    main: true,
+                    disabled: false
                 }
-            ]
+            ],
         };
+    }
+
+    public download(format, done) {
+        this.modal.getContent().then(() => {
+            this.reportService.generateReportFormat(format, this.reportDefinition);
+            this.printed.emit();
+            done(format.toUpper() + ' nedlastet');
+        }).catch(() => {
+            done('Feilet!');
+        });
     }
 
     public openWithId(report: Report, id: number, name: string = 'Id', doneHandler: (msg: string) => void = null) {
