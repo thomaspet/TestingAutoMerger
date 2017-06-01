@@ -217,15 +217,21 @@
             {
                 "Name": "Kladd",
                 "Code": "my_draft_invoices",
-                "UseAllCriterias": true,
+                "UseAllCriterias": false,
                 "FilterGroups": [{
-                    "UseAllCriterias": true,
+                    "UseAllCriterias": false,
                     "FieldFilters": [
                     {
                         "Field": "StatusCode",
                         "Operator": "eq",
                         "Value": "42001"
-                    }]
+                    },
+                    {
+                        "Field": "InvoiceNumber",
+                        "Operator": "eq",
+                        "Value": "null"
+                    }
+                    ]
                 }]
             },
             {
@@ -234,14 +240,13 @@
                 "UseAllCriterias": true,
                 "FilterGroups": [{
                     "UseAllCriterias": false,
-                    "FieldFilters": [
-                    {
-                        "Field": "StatusCode",
-                        "Operator": "ne",
-                        "Value": "42001"
-                    }
-                ]}
-                ]
+                    "FieldFilters": [{
+                            "Field": "StatusCode",
+                            "Operator": "ne",
+                            "Value": "42001"
+                        }
+                    ]
+                }]
             },
             {
                 "Name": "Fakturert",
@@ -249,29 +254,28 @@
                 "UseAllCriterias": true,
                 "FilterGroups": [{
                     "UseAllCriterias": true,
-                    "FieldFilters": [
-                    {
-                        "Field": "StatusCode",
-                        "Operator": "gt",
-                        "Value": "42001"
-                    },
-                    {
-                        "Field": "StatusCode",
-                        "Operator": "lt",
-                        "Value": "42004"
-                    },
-                    {
-                        "Field": "InvoiceType",
-                        "Operator": "ne",
-                        "Value": "1"
-                    },
-                    {
-                        "Field": "IsFullyCredited",
-                        "Operator": "ne",
-                        "Value": "True"
-                    }
-                ]}
-                ]
+                    "FieldFilters": [{
+                            "Field": "StatusCode",
+                            "Operator": "gt",
+                            "Value": "42001"
+                        },
+                        {
+                            "Field": "StatusCode",
+                            "Operator": "lt",
+                            "Value": "42004"
+                        },
+                        {
+                            "Field": "InvoiceType",
+                            "Operator": "ne",
+                            "Value": "1"
+                        },
+                        {
+                            "Field": "add(TaxInclusiveAmount, CreditedAmount)",
+                            "Operator": "ne",
+                            "Value": "0"
+                        }
+                    ]
+                }]
             },
             {
                 "Name": "Forfalt",
@@ -280,37 +284,36 @@
                 "UseAllCriterias": true,
                 "FilterGroups": [{
                     "UseAllCriterias": true,
-                    "FieldFilters": [
+                    "FieldFilters": [{
+                            "Field": "RestAmountCurrency",
+                            "Operator": "ne",
+                            "Value": "0"
+                        },
+                        {
+                            "Field": "PaymentDueDate",
+                            "Operator": "lt",
+                            "Value": "getdate()"
+                        },
+                        {
+                            "Field": "add(TaxInclusiveAmount, CreditedAmount)",
+                            "Operator": "ne",
+                            "Value": "0"
+                        }
+                    ]},
                     {
-                        "Field": "RestAmountCurrency",
-                        "Operator": "ne",
-                        "Value": "0"
-                    },
-                    {
-                        "Field": "PaymentDueDate",
-                        "Operator": "lt",
-                        "Value": "getdate()"
-                    },
-                    {
-                        "Field": "IsFullyCredited",
-                        "Operator": "ne",
-                        "Value": "True"
-                    }
-                ]},
-                {
-                    "UseAllCriterias": false,
-                    "FieldFilters": [
-                    {
-                        "Field": "StatusCode",
-                        "Operator": "eq",
-                        "Value": "42002"
-                    },
-                    {
-                        "Field": "StatusCode",
-                        "Operator": "eq",
-                        "Value": "42003"
-                    }
-                ]}
+                        "UseAllCriterias": false,
+                        "FieldFilters": [
+                        {
+                            "Field": "StatusCode",
+                            "Operator": "eq",
+                            "Value": "42002"
+                        },
+                        {
+                            "Field": "StatusCode",
+                            "Operator": "eq",
+                            "Value": "42003"
+                        }
+                    ]}
                 ]
             },
             {
@@ -318,19 +321,18 @@
                 "Code": "invoices_reminded",
                 "UseAllCriterias": true,
                 "FilterGroups": [{
-                    "UseAllCriterias": true,
-                    "FieldFilters": [
-                    {
-                        "Field": "CollectorStatusCode",
-                        "Operator": "eq",
-                        "Value": "42501"
-                    },
-                    {
-                        "Field": "IsFullyCredited",
-                        "Operator": "ne",
-                        "Value": "True"
-                    }
-                ]}
+                        "UseAllCriterias": true,
+                        "FieldFilters": [{
+                            "Field": "CollectorStatusCode",
+                            "Operator": "eq",
+                            "Value": "42501"
+                        },
+                        {
+                            "Field": "add(TaxInclusiveAmount, CreditedAmount)",
+                            "Operator": "ne",
+                            "Value": "0"
+                        }
+                    ]}
                 ]
             },
             {
@@ -339,13 +341,12 @@
                 "UseAllCriterias": true,
                 "FilterGroups": [{
                     "UseAllCriterias": true,
-                    "FieldFilters": [
-                    {
-                        "Field": "CollectorStatusCode",
-                        "Operator": "eq",
-                        "Value": "42502"
-                    }
-                ]}
+                    "FieldFilters": [{
+                            "Field": "CollectorStatusCode",
+                            "Operator": "eq",
+                            "Value": "42502"
+                        }
+                    ]}
                 ]
             },
             {
@@ -354,18 +355,17 @@
                 "UseAllCriterias": true,
                 "FilterGroups": [{
                     "UseAllCriterias": true,
-                    "FieldFilters": [
-                    {
-                        "Field": "StatusCode",
-                        "Operator": "eq",
-                        "Value": "42004"
-                    },
-                    {
-                        "Field": "IsFullyCredited",
-                        "Operator": "ne",
-                        "Value": "True"
-                    }
-                ]}
+                    "FieldFilters": [{
+                            "Field": "StatusCode",
+                            "Operator": "eq",
+                            "Value": "42004"
+                        },
+                        {
+                            "Field": "add(TaxInclusiveAmount, CreditedAmount)",
+                            "Operator": "ne",
+                            "Value": "0"
+                        }
+                    ]}
                 ]
             },
             {
@@ -373,21 +373,29 @@
                 "Code": "fullyCredited_invoices",
                 "UseAllCriterias": true,
                 "FilterGroups": [{
-                    "UseAllCriterias": false,
-                    "FieldFilters": [
-                    {
-                        "Field": "IsFullyCredited",
-                        "Operator": "eq",
-                        "Value": "True"
-                    },
-                    {
-                        "Field": "InvoiceType",
-                        "Operator": "eq",
-                        "Value": "1"
-                    }
-                ]}
-                ]
-            },
+                        "UseAllCriterias": false,
+                        "FieldFilters": [{
+                                "Field": "add(TaxInclusiveAmount, CreditedAmount)",
+                                "Operator": "eq",
+                                "Value": "0"
+                            },
+                            {
+                                "Field": "InvoiceType",
+                                "Operator": "eq",
+                                "Value": "1"
+                            }
+                        ]
+                    },{
+                        "UseAllCriterias":true,
+                        "FieldFilters": [
+                            {
+                                "Field": "StatusCode",
+                                "Operator": "ne",
+                                "Value": "42001"
+                            }
+                        ]
+                    }]
+                },
             {
                 "Name": "Avansert filter",
                 "Code": "due_invoices",

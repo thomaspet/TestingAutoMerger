@@ -361,7 +361,7 @@ export class UniTickerService { //extends BizHttp<UniQueryDefinition> {
                                         value: selectedRows[0][action.Options.ParameterProperty.replace('.', '')]
                                     }
                                 ];
-                            } else if (action.Options.ParameterProperties 
+                            } else if (action.Options.ParameterProperties
                                 && action.Options.ParameterProperties.length) {
                                 propValuePairs = [];
                                 action.Options.ParameterProperties.forEach(prop => {
