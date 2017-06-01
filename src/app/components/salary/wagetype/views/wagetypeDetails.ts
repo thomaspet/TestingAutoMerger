@@ -21,7 +21,6 @@ export class WagetypeDetail extends UniView {
     private aMeldingHelp: string = 'http://veiledning-amelding.smartlearn.no/Veiledn_Generell/index.html#!Documents/lnnsinntekterrapportering.htm';
     private wageType$: BehaviorSubject<WageType> = new BehaviorSubject(new WageType());
     private wagetypeID: number;
-    private accounts: Account[];
     private incomeTypeDatasource: any[] = [];
     private benefitDatasource: any[] = [];
     private descriptionDatasource: any[] = [];
@@ -144,9 +143,8 @@ export class WagetypeDetail extends UniView {
 
     private getSetupSources(wageType: WageType) {
         let sources = [
-            <Observable<any>>this.wageService.layout('WagetypeDetails'),
-            this.inntektService.getSalaryValidValueTypes(),
-            (this.accounts && this.accounts.length ? Observable.of(this.accounts) : this.accountService.GetAll(null))
+            <Observable<any>>this.wageService.layout('WagetypeDetails', this.wageType$),
+            this.inntektService.getSalaryValidValueTypes()
         ];
 
         if (wageType.WageTypeNumber) {
@@ -159,10 +157,9 @@ export class WagetypeDetail extends UniView {
         const sources = this.getSetupSources(wageType);
         return Observable
             .forkJoin(sources)
-            .map((response: [any, any[], Account[], boolean]) => {
-                let [layout, validvaluesTypes, accounts, usedInPayrollrun] = response;
+            .map((response: [any, any[], boolean]) => {
+                let [layout, validvaluesTypes, usedInPayrollrun] = response;
                 let fields = layout.Fields;
-                this.accounts = accounts;
                 this.validValuesTypes = validvaluesTypes;
                 this.extendFields(usedInPayrollrun, fields, wageType);
                 this.checkAmeldingInfo(wageType, fields);
@@ -178,21 +175,7 @@ export class WagetypeDetail extends UniView {
         fields = this.wageService.manageReadOnlyIfCalculated(fields, calculatedRun);
         this.setReadOnlyOnField(fields, 'Rate', this.rateIsReadOnly);
         this.setReadOnlyOnField(fields, 'WageTypeNumber', !!wageType.ID);
-        this.editField(fields, 'AccountNumber', (accountNumber) => {
-            accountNumber.Options = {
-                source: this.accounts,
-                valueProperty: 'AccountNumber',
-                template: (account: Account) => account ? `${account.AccountNumber} - ${account.AccountName}` : '',
-            };
-        });
-        this.editField(fields, 'AccountNumber_balance', (accountNumberBalance) => {
-            accountNumberBalance.Options = {
-                source: this.accounts,
-                valueProperty: 'AccountNumber',
-                template: (account: Account) => account ? `${account.AccountNumber} - ${account.AccountName}` : '',
-            };
-            accountNumberBalance.ReadOnly = wageType.Base_Payment;
-        });
+        this.setReadOnlyOnField(fields, 'AccountNumber_balance', wageType.Base_Payment);
         this.editField(fields, 'SpecialAgaRule', specialAgaRule => {
             specialAgaRule.Options = {
                 source: this.specialAgaRule,
@@ -254,6 +237,8 @@ export class WagetypeDetail extends UniView {
                 valueProperty: 'ID'
             };
         });
+
+        return fields;
     }
 
     private editField(fields: any[], prop: string, edit: (field: any) => void) {
