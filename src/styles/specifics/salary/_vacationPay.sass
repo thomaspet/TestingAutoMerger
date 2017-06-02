@@ -19,7 +19,7 @@
     .vacationPay_settingsLink
         @extend a:link
         display: inline-block
-        float: left
+        float: right
         margin-top: .5rem
         cursor: pointer
 
@@ -32,7 +32,7 @@
 
     uni-table
         @extend uni-table.scrollable
-    
+
         .icon-column
             font-size: 0
             height: 1rem
@@ -44,7 +44,119 @@
             border-radius: 99rem
             background: $uni-color-warn unicon-info($uni-color-negative) center center no-repeat
             background-size: auto 1rem
-        
+
         th:nth-child(3),
         td:nth-child(3)
             border-left: none
+
+    .uniSave
+        display: inline-block
+
+    .singleButton,
+    .comboButton
+        margin: -.5rem 0 0
+        display: inline-flex
+
+    .singleButton button,
+    .comboButton_btn
+        @extend button.good
+        width: auto
+        margin: .35rem 0 0 .2rem
+        box-shadow: none
+        border: pxToRem(1) solid transparentize($uni-color-negative, .5)
+        top: .32rem
+        min-width: 10rem
+        overflow: hidden
+        text-overflow: ellipsis
+
+        &:hover,
+        &:focus
+            border: pxToRem(1) solid transparentize($uni-color-negative, .5)
+
+    .comboButton_btn
+        border-radius: pxToRem(3) 0 0 pxToRem(3)
+
+    .comboButton_more
+        @extend %hideText
+        box-shadow: none
+        border: pxToRem(1) solid transparentize($uni-color-negative, .5)
+        border-radius: 0 pxToRem(3) pxToRem(3) 0
+        margin: 0
+        border-left: none
+        top: 0
+        width: 2rem
+        background: $uni-color-good unicon-chevron-down($uni-color-negative) center center no-repeat
+        background-size: .75rem auto
+
+        &:hover,
+        &:focus
+            border: pxToRem(1) solid transparentize($uni-color-negative, .5)
+            border-left: 0
+            background-color: darken($uni-color-good, 5%)
+
+    .comboButton_moreList
+        @extend %contextMenu
+        right: 0
+        top: 1.1rem
+
+    .uniSave-status
+        position: fixed
+        bottom: 0
+        left: 0
+        right: 0
+        margin: 0
+        padding: .3rem 6.5% .8rem
+        text-align: start
+        display: block
+        background: transparentize($uni-color-scale4, .1)
+        color: $uni-color-negative
+        -webkit-backdrop-filter: blur(.5rem)
+        animation: .3s ease slideUp
+
+        time
+            opacity: .5
+            transition: opacity 300ms ease
+
+        &:hover time
+            opacity: 1
+
+.vacationpay_Flexheader
+    display: flex
+
+    .vacationpay_sixthWeek
+        uni-checkbox-input
+            text-align: left
+            width: calc(87.5vw - 67rem)
+
+        label
+            @extend label.toggle
+            width: 15rem
+            display: inline-block
+
+    .vacationpay_percentPayout
+        white-space: nowrap
+
+.vacationpay_settings_left
+    min-width: 40%
+    max-width: 40%
+
+.infoNote
+    display: inline-block
+    float: right
+    background-color: lightgrey
+    min-width: 60%
+    max-width: 60%
+
+    table
+        white-space: nowrap
+
+    h3
+        margin: 0
+        font-weight: bold
+
+    td:empty
+        width: 1rem
+
+    .vacationpay_settingValues
+        font-weight: bold
+        text-align: right

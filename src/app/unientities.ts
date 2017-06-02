@@ -547,6 +547,7 @@ export class CustomerInvoice extends UniEntity {
     public InvoiceReceiverName: string;
     public InvoiceReferenceID: number;
     public InvoiceType: number;
+    public IsFullyCredited: boolean;
     public JournalEntryID: number;
     public OurReference: string;
     public PayableRoundingAmount: number;
@@ -953,12 +954,12 @@ export class BusinessRelation extends UniEntity {
     public StatusCode: number;
     public UpdatedAt: Date;
     public UpdatedBy: string;
+    public BankAccounts: Array<BankAccount>;
     public DefaultContact: Contact;
     public Contacts: Array<Contact>;
     public Addresses: Array<Address>;
     public Phones: Array<Phone>;
     public Emails: Array<Email>;
-    public BankAccounts: Array<BankAccount>;
     public InvoiceAddress: Address;
     public ShippingAddress: Address;
     public DefaultPhone: Phone;
@@ -4099,6 +4100,7 @@ export class SupplierInvoice extends UniEntity {
     public InvoiceReceiverName: string;
     public InvoiceReferenceID: number;
     public InvoiceType: number;
+    public IsFullyCredited: boolean;
     public JournalEntryID: number;
     public OurReference: string;
     public PayableRoundingAmount: number;

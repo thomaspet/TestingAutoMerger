@@ -1,16 +1,17 @@
 import { Component, Input, ViewChild, SimpleChanges } from '@angular/core';
-import { BasicAmount, VacationPayLine } from '../../../../unientities';
+import { BasicAmount, VacationPayLine, CompanySalary } from '../../../../unientities';
 import { UniFieldLayout, FieldType } from 'uniform-ng2/main';
 import { UniTable, UniTableConfig, UniTableColumnType, UniTableColumn } from 'unitable-ng2/main';
 import {
     SalaryTransactionService, BasicAmountService, PayrollrunService,
-    VacationpayLineService, YearService, ErrorService
-} from '../../../../../app/services/services';
+    VacationpayLineService, YearService, ErrorService, CompanySalaryService,
+    CompanyVacationRateService } from '../../../../../app/services/services';
 import { VacationpaySettingModal } from './vacationPaySettingModal';
 import { ToastService, ToastType } from '../../../../../framework/uniToast/toastService';
 import { Observable } from 'rxjs/Observable';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import { UniConfirmModal, ConfirmActions } from '../../../../../framework/modals/confirm';
+import { IUniSaveAction } from '../../../../../framework/save/save';
 
 declare var _;
 
@@ -41,6 +42,9 @@ export class VacationpayModalContent {
     public dueToHolidayChanged: boolean = false;
     @ViewChild(UniConfirmModal) private confirmModal: UniConfirmModal;
     private percentPayout: number = 100;
+    private companysalary: CompanySalary;
+    private rates: any[] = [];
+    private saveactions: IUniSaveAction[] = [];
 
     constructor(
         private _salarytransService: SalaryTransactionService,
@@ -49,7 +53,9 @@ export class VacationpayModalContent {
         private _vacationpaylineService: VacationpayLineService,
         private _toastService: ToastService,
         private errorService: ErrorService,
-        private yearService: YearService
+        private yearService: YearService,
+        private m_companysalaryService: CompanySalaryService,
+        private m_companyVacationrateService: CompanyVacationRateService
     ) {
 
     }
@@ -60,15 +66,21 @@ export class VacationpayModalContent {
         this.busy = true;
         this.dueToHolidayChanged = false;
         this.totalPayout = 0;
+        this.saveactions = this.getSaveactions();
 
         Observable
             .forkJoin(
+            this.m_companyVacationrateService.GetAll(''),
+            this.m_companysalaryService.getCompanySalary(),
             this._basicamountService.getBasicAmounts(),
             this.yearService.getActiveYear())
             .subscribe((response: any) => {
-                let [basics, financial] = response;
+                let [rates, comp, basics, financial] = response;
                 this.basicamounts = basics;
                 this.financialYearEntity = financial;
+                this.companysalary = comp[0];
+                this.companysalary['_wagedeductionText'] = this._vacationpaylineService.WageDeductionDueToHolidayArray[this.companysalary.WageDeductionDueToHoliday].name;
+                this.rates = rates;
                 let vacationHeaderModel = this.vacationHeaderModel$.getValue();
                 vacationHeaderModel.VacationpayYear = 1;
                 vacationHeaderModel.SixthWeek = true;
@@ -78,6 +90,7 @@ export class VacationpayModalContent {
 
                 this.createFormConfig();
                 this.createTableConfig();
+                
 
                 this.busy = false;
             }, err => this.errorService.handle(err));
@@ -221,6 +234,7 @@ export class VacationpayModalContent {
             selectedRows.forEach(vacationpayLine => {
                 this.totalPayout += vacationpayLine.Withdrawal;
             });
+            this.saveactions = this.getSaveactions();
         }
     }
 
@@ -241,11 +255,23 @@ export class VacationpayModalContent {
         });
 
         if (tmp) {
-            this.vacationHeaderModel$.getValue().BasicAmount = tmp.BasicAmountPrYear;
+            this.vacationHeaderModel$.getValue().BasicAmount = this.companysalary['_BasicAmount'] = tmp.BasicAmountPrYear;
         }
-
+        this.setRates();
         this.getVacationpayData();
 
+    }
+
+    private setRates() {
+        let rateOfTheYear = this.rates.find((rate: any) => {
+            rate.FromDate = new Date(rate.FromDate.toString());
+            return rate.FromDate.getFullYear() === this.vacationBaseYear;
+        });
+
+        if (rateOfTheYear) {
+            this.companysalary['_Rate'] = rateOfTheYear.Rate;
+            this.companysalary['_Rate60'] = rateOfTheYear.Rate60;
+        }
     }
 
     private createFormConfig() {
@@ -287,6 +313,8 @@ export class VacationpayModalContent {
         sixthWeekField.Property = 'SixthWeek';
         sixthWeekField.Label = 'Inkluder 6.ferieuke';
         sixthWeekField.Options = null;
+        sixthWeekField.Classes = 'vacationpay_sixthWeek';
+        sixthWeekField.LineBreak = true;
 
         var percentField = new UniFieldLayout();
         percentField.FieldSet = 0;
@@ -297,8 +325,10 @@ export class VacationpayModalContent {
         percentField.Property = 'PercentPayout';
         percentField.Label = '% utbetaling av feriepenger';
         percentField.Options = null;
+        percentField.Classes = 'vacationpay_percentPayout';
+        percentField.LineBreak = true;
 
-        this.fields$.next([vpRadioField, basicAmountField, sixthWeekField, percentField]);
+        this.fields$.next([vpRadioField, sixthWeekField, percentField]);
     }
 
     private createTableConfig() {
@@ -388,5 +418,22 @@ export class VacationpayModalContent {
         let withdrawal = Math.round(vacationpay - rowModel['PaidVacationPay']);
         withdrawal = Math.round(withdrawal * this.percentPayout / 100);
         rowModel['Withdrawal'] = withdrawal;
+    }
+
+    private getSaveactions(): IUniSaveAction[] {
+        return [
+            {
+                label: 'Lagre',
+                action: this.saveVacationpayLines.bind(this),
+                main: false,
+                disabled: false
+            },
+            {
+                label: 'Generer poster',
+                action: this.createVacationPayments.bind(this),
+                main: true,
+                disabled: !this.totalPayout
+            }
+        ];
     }
 }
