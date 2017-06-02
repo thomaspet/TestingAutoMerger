@@ -34,9 +34,16 @@
 
         <fieldset *ngIf="activeTabIndex === 2" class="freetext-fieldset">
             <legend>Fritekst</legend>
-            <textarea [formControl]="freeTextControl"
-                      (change)="onDataChange()">
-            </textarea>
+            <label>
+                <span>Kommentar</span>
+                <input [formControl]="commentControl" (change)="onDataChange()" />
+            </label>
+            <label>
+                <span>Fritekst</span>
+                <textarea [formControl]="freeTextControl"
+                        (change)="onDataChange()">
+                </textarea>
+            </label>
         </fieldset>
 
         <fieldset class="attachment-fieldset" *ngIf="activeTabIndex === 3">
@@ -50,8 +57,9 @@
             </label>
         </fieldset>
 
-        <invoice-reminders *ngIf="activeTabIndex === 4 && entityName === 'CustomerInvoice'"
-                         [customerInvoice]="data">
-        </invoice-reminders>
+        <fieldset class="reminder-fieldset" *ngIf="activeTabIndex === 4 && entityName === 'CustomerInvoice'">
+            <legend>Purringer</legend>
+            <invoice-reminders [customerInvoice]="data"></invoice-reminders>
+        </fieldset>
     </article>
 </section>

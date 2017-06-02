@@ -849,20 +849,6 @@ export class CustomerDetails {
                     FieldSet: 1,
                     Legend: 'Kunde',
                     ComponentLayoutID: 3,
-                    EntityType: 'Customer',
-                    Property: 'OrgNumber',
-                    Placement: 1,
-                    FieldType: FieldType.TEXT,
-                    Label: 'Organisasjonsnummer',
-                    Description: '',
-                    HelpText: '',
-                    Section: 0,
-                    StatusCode: 0,
-                    ID: 3,
-                },
-                {
-                    FieldSet: 1,
-                    ComponentLayoutID: 3,
                     EntityType: 'BusinessRelation',
                     Property: 'Info.Name',
                     Placement: 1,
@@ -876,6 +862,7 @@ export class CustomerDetails {
                 },
                 {
                     FieldSet: 1,
+                    Legend: 'Kunde',
                     ComponentLayoutID: 1,
                     EntityType: 'Customer',
                     Property: '_CustomerSearchResult',
@@ -889,6 +876,20 @@ export class CustomerDetails {
                     Options: {
                         uniSearchConfig: this.getCustomerLookupOptions()
                     }
+                },
+                {
+                    FieldSet: 1,
+                    ComponentLayoutID: 3,
+                    EntityType: 'Customer',
+                    Property: 'OrgNumber',
+                    Placement: 1,
+                    FieldType: FieldType.TEXT,
+                    Label: 'Organisasjonsnummer',
+                    Description: '',
+                    HelpText: '',
+                    Section: 0,
+                    StatusCode: 0,
+                    ID: 3,
                 },
                 {
                     FieldSet: 1,

@@ -14,24 +14,29 @@ export class TofHead implements OnChanges {
     @ViewChild(TofDetailsForm) public detailsForm: TofDetailsForm;
     @Input() public entityName: string;
     @Input() public readonly: boolean;
-    @Input() private data: any; // type?
-    @Input() private currencyCodes: Array<CurrencyCode>;
+    @Input() private data: any;
+    @Input() public currencyCodes: Array<CurrencyCode>;
 
     @Output() public dataChange: EventEmitter<any> = new EventEmitter();
 
     public tabs: string[] = ['Detaljer', 'Levering', 'Fritekst', 'Dokumenter'];
     public activeTabIndex: number = 0;
+
     private freeTextControl: FormControl = new FormControl('');
+    private commentControl: FormControl = new FormControl('');
 
     public ngOnChanges(changes: SimpleChanges) {
         if (this.data) {
             this.freeTextControl.setValue(this.data.FreeTxt, {emitEvent: false});
+            this.commentControl.setValue(this.data.Comment, {emitEvent: false});
         }
     }
 
     public onDataChange(data?: any) {
         let updatedEntity = data || this.data;
+
         updatedEntity.FreeTxt = this.freeTextControl.value;
+        updatedEntity.Comment = this.commentControl.value;
 
         this.dataChange.emit(updatedEntity);
         this.data = _.cloneDeep(updatedEntity);
@@ -48,8 +53,4 @@ export class TofHead implements OnChanges {
             this.customerCard.focus();
         }
     }
-    // TODO: focus handling
-
-    // TODO: key handling?
-
 }

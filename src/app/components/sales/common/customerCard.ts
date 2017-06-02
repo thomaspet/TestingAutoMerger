@@ -14,15 +14,14 @@ import {IUniSearchConfig} from 'unisearch-ng2/src/UniSearch/IUniSearchConfig';
             <legend>Kunde</legend>
 
             <label class="customer-input">
-                <span>Kunde</span>
+                <!--<span>Kunde</span>-->
                 <uni-search
                     [config]="uniSearchConfig"
                     (changeEvent)="customerSelected($event)"
                     [disabled]="readonly">
                 </uni-search>
 
-                <section class="addressCard"
-                        [attr.aria-readonly]="readonly">
+                <section class="addressCard" [attr.aria-readonly]="readonly">
                     <span class="edit-btn" (click)="openCustomerModal()"></span>
                     <span *ngIf="ehfEnabled" class="ehf">EHF</span>
                     <strong>{{entity?.Customer?.Info?.Name}}</strong>
@@ -43,19 +42,7 @@ import {IUniSearchConfig} from 'unisearch-ng2/src/UniSearch/IUniSearchConfig';
                     </div>
                 </section>
             </label>
-
-            <label>
-                <span>Epost adresse</span>
-                <input type="text" [formControl]="emailControl" (change)="formFieldChange()" />
-            </label>
-
-            <label>
-                <span>Deres referanse</span>
-                <input type="text" [formControl]="yourRefControl" (change)="formFieldChange()" />
-            </label>
-
         </fieldset>
-
 
         <customer-details-modal></customer-details-modal>
         <address-modal></address-modal>
@@ -173,8 +160,10 @@ export class TofCustomerCard {
     }
 
     public openCustomerModal(): Observable<Customer> {
-        this.customerDetailsModal.open(this.entity.CustomerID);
-        return this.customerDetailsModal.customerUpdated;
+        if (!this.readonly) {
+            this.customerDetailsModal.open(this.entity.CustomerID);
+            return this.customerDetailsModal.customerUpdated;
+        }
     }
 
     public openAddressModal() {

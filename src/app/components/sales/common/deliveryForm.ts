@@ -154,20 +154,9 @@ export class TofDeliveryForm {
 
         this.fields$.next([
             {
-                FieldSet: 1,
                 Legend: 'Levering',
-                EntityType: this.entityType,
-                Property: '_ShippingAddress',
-                Placement: 1,
-                FieldType: FieldType.MULTIVALUE,
-                Label: 'Leveringsadresse',
-                Description: '',
-                HelpText: '',
-                Options: addressFieldOptions,
-                Section: 0
-            },
-            {
                 FieldSet: 1,
+                FieldSetColumn: 1,
                 EntityType: this.entityType,
                 Property: 'DeliveryDate',
                 Placement: 1,
@@ -181,6 +170,20 @@ export class TofDeliveryForm {
             },
             {
                 FieldSet: 1,
+                FieldSetColumn: 1,
+                EntityType: this.entityType,
+                Property: '_ShippingAddress',
+                Placement: 1,
+                FieldType: FieldType.MULTIVALUE,
+                Label: 'Leveringsadresse',
+                Description: '',
+                HelpText: '',
+                Options: addressFieldOptions,
+                Section: 0
+            },
+            {
+                FieldSet: 1,
+                FieldSetColumn: 1,
                 EntityType: this.entityType,
                 Property: 'DeliveryName',
                 Placement: 1,
@@ -194,6 +197,7 @@ export class TofDeliveryForm {
             },
             {
                 FieldSet: 1,
+                FieldSetColumn: 2,
                 EntityType: this.entityType,
                 Property: 'DeliveryMethod',
                 Placement: 1,
@@ -207,6 +211,7 @@ export class TofDeliveryForm {
             },
             {
                 FieldSet: 1,
+                FieldSetColumn: 2,
                 EntityType: this.entityType,
                 Property: 'DeliveryTerm',
                 Placement: 1,

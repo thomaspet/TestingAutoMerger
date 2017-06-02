@@ -112,62 +112,10 @@ export class TofDetailsForm {
     private initFormFields() {
         if (this.currencyCodes && this.entity) {
             let fields = [
-                // {
-                //     FieldSet: 1,
-                //     Legend: 'Detaljer',
-                //     EntityType: this.entityType,
-                //     Property: 'YourReference',
-                //     Placement: 1,
-                //     FieldType: FieldType.TEXT,
-                //     Label: 'Deres referanse',
-                //     Description: '',
-                //     HelpText: '',
-                //     Section: 0,
-                //     StatusCode: 0,
-                //     ID: 1,
-                // },
                 {
-                    FieldSet: 1,
                     Legend: 'Detaljer',
-                    EntityType: this.entityType,
-                    Property: 'OurReference',
-                    Placement: 1,
-                    FieldType: FieldType.TEXT,
-                    Label: 'Vår referanse',
-                    Description: '',
-                    HelpText: '',
-                    Section: 0,
-                    StatusCode: 0,
-                    ID: 1,
-                },
-                // {
-                //     FieldSet: 1,
-                //     EntityType: this.entityType,
-                //     Property: 'EmailAddress',
-                //     Placement: 1,
-                //     FieldType: FieldType.TEXT,
-                //     Label: 'Epost adresse',
-                //     Description: '',
-                //     HelpText: '',
-                //     Section: 0,
-                //     StatusCode: 0,
-                //     ID: 3,
-                // },
-                {
                     FieldSet: 1,
-                    EntityType: this.entityType,
-                    Property: 'Requisition',
-                    Placement: 1,
-                    FieldType: FieldType.TEXT,
-                    Label: 'Rekvisisjon',
-                    Description: '',
-                    HelpText: '',
-                    Section: 0,
-                    StatusCode: 0,
-                    ID: 2,
-                },
-                {
-                    FieldSet: 1,
+                    FieldSetColumn: 1,
                     EntityType: this.entityType,
                     Property: 'InvoiceDate',
                     Placement: 2,
@@ -177,10 +125,11 @@ export class TofDetailsForm {
                     HelpText: '',
                     Section: 0,
                     StatusCode: 0,
-                    ID: 3,
+                    ID: 1,
                 },
                 {
                     FieldSet: 1,
+                    FieldSetColumn: 1,
                     EntityType: this.entityType,
                     Property: 'PaymentDueDate',
                     Placement: 2,
@@ -190,10 +139,11 @@ export class TofDetailsForm {
                     HelpText: '',
                     Section: 0,
                     StatusCode: 0,
-                    ID: 4,
+                    ID: 2,
                 },
                 {
                     FieldSet: 1,
+                    FieldSetColumn: 1,
                     EntityType: this.entityType,
                     Property: 'CurrencyCodeID',
                     Placement: 1,
@@ -203,35 +153,77 @@ export class TofDetailsForm {
                     HelpText: '',
                     Section: 0,
                     StatusCode: 0,
-                    ID: 5,
+                    ID: 3,
                     Options: {
                         source: this.currencyCodes,
                         valueProperty: 'ID',
                         displayProperty: 'Code',
-                        debounceTime: 200,
+                        debounceTime: 200
+                    }
+                },
+                {
+                    FieldSet: 1,
+                    FieldSetColumn: 1,
+                    EntityType: this.entityType,
+                    Property: 'OurReference',
+                    Placement: 1,
+                    FieldType: FieldType.TEXT,
+                    Label: 'Vår referanse',
+                    Description: '',
+                    HelpText: '',
+                    Section: 0,
+                    StatusCode: 0,
+                    ID: 5
+                },
+                {
+                    FieldSet: 1,
+                    FieldSetColumn: 2,
+                    EntityType: this.entityType,
+                    Property: 'YourReference',
+                    Placement: 1,
+                    FieldType: FieldType.TEXT,
+                    Label: 'Deres referanse',
+                    Description: '',
+                    HelpText: '',
+                    Section: 0,
+                    StatusCode: 0,
+                    ID: 6,
+                },
+                {
+                    FieldSet: 1,
+                    FieldSetColumn: 2,
+                    EntityType: this.entityType,
+                    Property: 'EmailAddress',
+                    Placement: 1,
+                    FieldType: FieldType.TEXT,
+                    Label: 'Epost adresse',
+                    Description: '',
+                    HelpText: '',
+                    Section: 0,
+                    StatusCode: 0,
+                    ID: 4,
+                },
+
+                {
+                    FieldSet: 1,
+                    FieldSetColumn: 2,
+                    EntityType: this.entityType,
+                    Property: 'Requisition',
+                    Placement: 1,
+                    FieldType: FieldType.TEXT,
+                    Label: 'Rekvisisjon',
+                    Description: '',
+                    HelpText: '',
+                    Section: 0,
+                    StatusCode: 0,
+                    ID: 7,
+                    Options: {
                         events: {
-                            tab: (event) => this.tabbedPastLastField.emit(event)
+                            tab: (event) => this.tabbedPastLastField.emit(event),
+                            enter: (event) => this.tabbedPastLastField.emit(event)
                         }
                     }
                 },
-                // {
-                //     FieldSet: 1,
-                //     EntityType: this.entityType,
-                //     Property: 'Comment',
-                //     Placement: 1,
-                //     FieldType: FieldType.TEXTAREA,
-                //     Label: 'Kommentar',
-                //     Description: '',
-                //     HelpText: '',
-                //     Section: 0,
-                //     StatusCode: 0,
-                //     ID: 7,
-                //     Options: {
-                //         events: {
-                //             tab: (event) => this.tabbedPastLastField.emit(event)
-                //         }
-                //     }
-                // }
             ];
 
             if (this.entityType === 'CustomerQuote') {
