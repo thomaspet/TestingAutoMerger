@@ -7,7 +7,9 @@ import {ChangeMap} from '../../../common/utils/utils';
 import {Observable} from 'rxjs/Observable';
 import {IResult} from '../../genericview/detail';
 import {ErrorService} from '../../../../services/services';
-import {BehaviorSubject } from 'rxjs/BehaviorSubject';
+import {BehaviorSubject} from 'rxjs/BehaviorSubject';
+import * as moment from 'moment';
+import {ToastService, ToastType} from '../../../../../framework/uniToast/toastService';
 
 @Component({
     selector: 'vacation',
@@ -35,7 +37,12 @@ export class View {
 
     private changeMap: ChangeMap = new ChangeMap();
 
-    constructor(private workerService: WorkerService, private router: Router, private errorService: ErrorService) {
+    constructor(
+        private workerService: WorkerService,
+        private router: Router,
+        private errorService: ErrorService,
+        private toastService: ToastService
+    ) {
         this.layout$.next(this.createLayout());
     }
 
@@ -48,10 +55,17 @@ export class View {
     }
 
     public onChange(event: any) {
-        this.valueChange.emit(this.current$.getValue());
-        var ix = this.items.indexOf(this.current$.getValue());
-        this.changeMap.add(ix, this.current$.getValue());
+        const currentValue = this.current$.getValue();
+        this.valueChange.emit(currentValue);
+        var ix = this.items.indexOf(currentValue);
+        this.changeMap.add(ix, currentValue);
         this.hasUnsavedChanges = true;
+        const fom = currentValue.FromDate;
+        const tom = currentValue.ToDate;
+        if (fom && tom && moment(tom).isBefore(fom)) {
+            this.toastService
+                .addToast('Advarsel', ToastType.warn, 0, `Nå er "til" dato (${tom}) før "fra" dato (${fom})!`);
+        }
     }
 
     public onItemClicked(item: WorkTimeOff) {

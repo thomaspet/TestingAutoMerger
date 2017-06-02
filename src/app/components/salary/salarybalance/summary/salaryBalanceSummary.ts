@@ -2,7 +2,7 @@ import { Component, OnInit, Input, OnChanges, ChangeDetectionStrategy } from '@a
 import { Observable } from 'rxjs/Observable';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import { UniTableConfig, UniTableColumn, UniTableColumnType } from 'unitable-ng2/main';
-import { SalaryBalance, Employee, SalaryBalanceLine, SalaryTransaction } from '../../../../unientities';
+import { SalaryBalance, Employee, SalaryBalanceLine, SalaryTransaction, PayrollRun } from '../../../../unientities';
 import { 
     SalaryBalanceLineService, ErrorService, EmployeeService, SalaryTransactionService 
 } from '../../../../services/services';
@@ -52,12 +52,12 @@ export class SalaryBalanceSummary implements OnInit, OnChanges {
 
                 return !filter.length ?
                     Observable.of(response)
-                    : this.salarytransactionService.GetAll(`filter=${filter.join(' or ')}`)
+                    : this.salarytransactionService.GetAll(`filter=${filter.join(' or ')}`, ['payrollrun'])
                     .map((transes: SalaryTransaction[]) => {
                         response.forEach(salarybalanceline => {
                             transes.forEach(salarytransaction => {
                                 if (salarybalanceline.SalaryTransactionID === salarytransaction.ID) {
-                                    salarybalanceline['_payrollrunID'] = salarytransaction.PayrollRunID;
+                                    salarybalanceline['_payrollrun'] = salarytransaction.payrollrun;
                                 }
                             });
                         });
@@ -84,11 +84,16 @@ export class SalaryBalanceSummary implements OnInit, OnChanges {
     }
 
     private createConfig() {
-        const nameCol = new UniTableColumn('Description', 'Navn trekk', UniTableColumnType.Text);
+        const nameCol = new UniTableColumn('Description', 'Beskrivelse', UniTableColumnType.Text);
         const startDateCol = new UniTableColumn('Date', 'Dato', UniTableColumnType.LocalDate)
             .setWidth('7rem');
-        const sumCol = new UniTableColumn('Amount', 'Beløp', UniTableColumnType.Money);
-        const payRunCol = new UniTableColumn('_payrollrunID', 'Lønnsavregning', UniTableColumnType.Number)
+        const sumCol = new UniTableColumn('Amount', 'Beløp', UniTableColumnType.Money)
+            .setWidth('12rem');
+        const payRunCol = new UniTableColumn('_payrollrun', 'Lønnsavregning', UniTableColumnType.Number)
+            .setTemplate((row: SalaryBalanceLine) => {
+                let run: PayrollRun = row['_payrollrun'];
+                return run ? `${run.ID} - ${run.Description}` : 'manuelt trekk';
+            })
             .setWidth('9rem');
 
         let columnList = [nameCol, startDateCol, sumCol, payRunCol];

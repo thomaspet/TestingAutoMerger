@@ -1,64 +1,72 @@
-import { Component, OnInit,  ViewChild, Input, Output, EventEmitter } from '@angular/core';
-import { UniTable, UniTableConfig, UniTableColumn, UniTableColumnType } from 'unitable-ng2/main';
+import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
+import { UniComponentLayout, LayoutBuilder, FieldType, FieldSize } from 'uniform-ng2/main';
 import { ErrorService, SalaryBalanceLineService } from '../../../services/services';
 import { SalaryBalance, SalaryBalanceLine } from '../../../unientities';
-import { Observable } from 'rxjs/Observable';
+import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import { ToastService, ToastType, ToastTime } from '../../../../framework/uniToast/toastService';
-
-import * as moment from 'moment';
 
 @Component({
     selector: 'salarybalanceline',
     templateUrl: './salarybalanceline.html'
 })
 export class SalarybalanceLine implements OnInit {
-    @ViewChild(UniTable) private table: UniTable;
-    private salarybalancelineTable: UniTableConfig;
     @Input() private salarybalance: SalaryBalance;
-    private salarybalanceLines: SalaryBalanceLine[] = [];
     @Output() public linesSaved: EventEmitter<any> = new EventEmitter<any>();
     private busy: boolean;
+
+    private layout$: BehaviorSubject<UniComponentLayout> = new BehaviorSubject(new UniComponentLayout());
+    private salaryBalanceLine$: BehaviorSubject<SalaryBalanceLine> = new BehaviorSubject(new SalaryBalanceLine());
+    private config$: BehaviorSubject<any> = new BehaviorSubject({});
+
 
     constructor(
         private _salarybalancelineService: SalaryBalanceLineService,
         private _toastService: ToastService,
-        private errorService: ErrorService
+        private errorService: ErrorService,
+        private layoutBuilder: LayoutBuilder
     ) {
 
     }
 
     public ngOnInit() {
-        this.createConfig();
+        this.layout$.next(this.createLayout());
     }
 
-    public saveSalarybalanceLines() {
-        this.busy = true;
-        this.salarybalanceLines = this.table.getTableData();
-        let saveObservables: Observable<any>[] = [];
-        this.salarybalanceLines.forEach((salarybalanceline: SalaryBalanceLine) => {
-            salarybalanceline.SalaryBalanceID = this.salarybalance.ID;
-            salarybalanceline.ID > 0 ?
-                saveObservables.push(this._salarybalancelineService.Put(salarybalanceline.ID, salarybalanceline)) :
-                saveObservables.push(this._salarybalancelineService.Post(salarybalanceline));
-        });
-
-        Observable.forkJoin(saveObservables)
-            .finally(() => {
-                this.busy = false;
+    public saveSalaryBalanceLine() {
+        this.salaryBalanceLine$
+            .take(1)
+            .do(() => this.busy = true)
+            .finally(() => this.busy = false)
+            .switchMap(salaryBalanceLine => {
+                salaryBalanceLine.SalaryBalanceID = this.salarybalance.ID;
+                return salaryBalanceLine.ID 
+                    ? this._salarybalancelineService.Put(salaryBalanceLine.ID, salaryBalanceLine)
+                    : this._salarybalancelineService.Post(salaryBalanceLine);
             })
-            .subscribe(allSaved => {
-                this.linesSaved.emit(true);
-                this._toastService.addToast('Trekk lagret', ToastType.good, ToastTime.short);
-            },
-            err => this.errorService.handle(err));
+            .catch((err, obs) => this.errorService.handleRxCatch(err, obs))
+            .do(() => this._toastService.addToast('Trekk lagret', ToastType.good, ToastTime.short))
+            .subscribe(() => this.linesSaved.emit(true));
+
     }
 
-    private createConfig() {
-        let descriptionCol = new UniTableColumn('Description', 'Forklaring', UniTableColumnType.Text);
-        let dateCol = new UniTableColumn('Date', 'Dato', UniTableColumnType.LocalDate);
-        let amountCol = new UniTableColumn('Amount', 'Beløp', UniTableColumnType.Money);
-
-        this.salarybalancelineTable = new UniTableConfig(true, false, 1)
-            .setColumns([descriptionCol, dateCol, amountCol]);
+    private createLayout(): UniComponentLayout {
+        return this.layoutBuilder
+            .createNewLayout()
+            .addField(
+                'Description',
+                'Forklaring',
+                FieldType.TEXT,
+                FieldSize.Normal)
+            .addField(
+                'Date',
+                'Dato',
+                FieldType.LOCAL_DATE_PICKER,
+                FieldSize.Normal)
+            .addField(
+                'Amount',
+                'Beløp',
+                FieldType.NUMERIC,
+                FieldSize.Normal)
+            .getLayout();
     }
 }

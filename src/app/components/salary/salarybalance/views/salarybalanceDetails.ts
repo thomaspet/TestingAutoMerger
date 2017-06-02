@@ -8,7 +8,7 @@ import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import { ReplaySubject } from 'rxjs/ReplaySubject';
 import { Observable } from 'rxjs/Observable';
 import { UniFieldLayout } from 'uniform-ng2/main';
-import { 
+import {
     SalaryBalance, SalBalType, WageType, Employee, Supplier, SalBalDrawType, StdWageType
 } from '../../../../unientities';
 import {
@@ -84,7 +84,7 @@ export class SalarybalanceDetail extends UniView {
                 })
                 .subscribe((salarybalance: SalaryBalance) => {
                     this.salarybalance$.next(salarybalance);
-                    if(!salarybalance.FromDate) { salarybalance.FromDate = new Date(); }  
+                    if (!salarybalance.FromDate) { salarybalance.FromDate = new Date(); }
                     this.salarybalanceID = salarybalance.ID;
                     this.updateFields();
                 }, err => this.errorService.handle(err));
@@ -103,21 +103,21 @@ export class SalarybalanceDetail extends UniView {
         if (changes['SupplierID']) {
             model.Supplier = this.suppliers.find(supp => supp.ID === model.SupplierID);
         }
-        
+
         let previousAmount = changes['Amount'] ? changes['Amount'].previousValue : null;
         let currentAmount = changes['Amount'] ? changes['Amount'].currentValue : null;
         if (previousAmount !== currentAmount) {
             if (currentAmount < 0 && this.salarybalance$.getValue().InstalmentType === SalBalType.Advance) {
-                this.toastService.addToast('Feil i beløp', 
-                    ToastType.warn, ToastTime.medium, 
+                this.toastService.addToast('Feil i beløp',
+                    ToastType.warn, ToastTime.medium,
                     'Du prøver å føre et forskudd med et negativt beløp');
             } else if (currentAmount > 0 && this.salarybalance$.getValue().InstalmentType !== SalBalType.Advance) {
-                this.toastService.addToast('Feil i beløp', 
-                    ToastType.warn, ToastTime.medium, 
+                this.toastService.addToast('Feil i beløp',
+                    ToastType.warn, ToastTime.medium,
                     'Du prøver å føre et trekk med positivt beløp');
             }
         }
-        
+
         super.updateState('salarybalance', model, true);
     }
 
@@ -147,57 +147,76 @@ export class SalarybalanceDetail extends UniView {
     }
 
     private updateFields() {
-        let typeField: UniFieldLayout = this.findByPropertyName('InstalmentType');
-        typeField.Options = {
-            source: this.salarybalanceService.getInstalmentTypes(),
-            displayProperty: 'Name',
-            valueProperty: 'ID',
-            debounceTime: 500
-        };
+        this.fields$
+            .take(1)
+            .map(fields => {
+                let salaryBalance = this.salarybalance$.getValue();
+                this.editField(fields, 'InstalmentType', typeField => {
+                    typeField.Options = {
+                        source: this.salarybalanceService.getInstalmentTypes(),
+                        displayProperty: 'Name',
+                        valueProperty: 'ID',
+                        debounceTime: 500
+                    };
+                });
+                this.editField(fields, 'Type', drawtypeField => {
+                    drawtypeField.Options = {
+                        source: this.drawTypes,
+                        displayProperty: 'Name',
+                        valueProperty: 'ID',
+                        debounceTime: 500
+                    };
+                    drawtypeField.ReadOnly = salaryBalance.ID;
+                });
+                this.editField(fields, 'WageTypeNumber', wagetypeField => {
+                    wagetypeField.Options.source = this.wagetypes;
+                    wagetypeField.ReadOnly = salaryBalance.ID;
+                });
 
-        let drawtypeField: UniFieldLayout = this.findByPropertyName('Type');
-        drawtypeField.Options = {
-            source: this.drawTypes,
-            displayProperty: 'Name',
-            valueProperty: 'ID',
-            debounceTime: 500
-        };
+                this.editField(fields, 'EmployeeID', employeeField => {
+                    employeeField.Options.source = this.employees;
+                    employeeField.ReadOnly = salaryBalance.ID;
+                });
 
-        let wagetypeField: UniFieldLayout = this.findByPropertyName('WageTypeNumber');
-        wagetypeField.Options.source = this.wagetypes;
+                this.editField(fields, 'Instalment', instalmentField => {
+                    instalmentField.ReadOnly = salaryBalance.InstalmentPercent;
+                });
 
-        let employeeField: UniFieldLayout = this.findByPropertyName('EmployeeID');
-        employeeField.Options.source = this.employees;
-        
-        let instalmentField: UniFieldLayout = this.findByPropertyName('Instalment');
-        instalmentField.ReadOnly = this.salarybalance$.getValue().InstalmentPercent !== null
-            ? (this.salarybalance$.getValue().InstalmentPercent ? true : false) : false;
+                this.editField(fields, 'InstalmentPercent', percentField => {
+                    percentField.Hidden = salaryBalance.InstalmentType === SalBalType.Advance;
+                    percentField.ReadOnly = salaryBalance.Instalment;
+                });
 
-        let percentField: UniFieldLayout = this.findByPropertyName('InstalmentPercent');
-        percentField.Hidden = this.salarybalance$.getValue().InstalmentType === SalBalType.Advance;
-        percentField.ReadOnly = !!this.salarybalance$.getValue().Instalment ? true : false;
+                this.editField(fields, 'SupplierID', supplierField => {
+                    supplierField.Options.source = this.suppliers;
+                    supplierField.Hidden = (salaryBalance.InstalmentType !== SalBalType.Contribution)
+                        && (salaryBalance.InstalmentType !== SalBalType.Outlay);
+                });
 
-        let supplierField: UniFieldLayout = this.findByPropertyName('SupplierID');
-        supplierField.Options.source = this.suppliers;
-        supplierField.Hidden = !(this.salarybalance$.getValue().InstalmentType === SalBalType.Contribution)
-            && !(this.salarybalance$.getValue().InstalmentType === SalBalType.Outlay);
+                this.editField(fields, 'KID', kidField => {
+                    kidField.Hidden = !(salaryBalance.InstalmentType === SalBalType.Contribution)
+                        && !(salaryBalance.InstalmentType === SalBalType.Outlay);
+                });
 
-        let kidField: UniFieldLayout = this.findByPropertyName('KID');
-        kidField.Hidden = !(this.salarybalance$.getValue().InstalmentType === SalBalType.Contribution)
-            && !(this.salarybalance$.getValue().InstalmentType === SalBalType.Outlay);
+                this.editField(fields, 'Supplier.Info.DefaultBankAccount.AccountNumber', accountField => {
+                    accountField.Hidden = !(salaryBalance.InstalmentType === SalBalType.Contribution)
+                        && !(salaryBalance.InstalmentType === SalBalType.Outlay);
+                });
 
-        let accountField: UniFieldLayout = this.findByPropertyName('Supplier.Info.DefaultBankAccount.AccountNumber');
-        accountField.Hidden = !(this.salarybalance$.getValue().InstalmentType === SalBalType.Contribution)
-            && !(this.salarybalance$.getValue().InstalmentType === SalBalType.Outlay);
-        
-        let amountField: UniFieldLayout = this.findByPropertyName('Amount');
-        amountField.Label = this.salarybalance$.getValue().InstalmentType === SalBalType.Advance ? 'Beløp' : 'Saldo';
-        amountField.Hidden = this.salarybalanceID > 0;
+                this.editField(fields, 'Amount', amountField => {
+                    amountField.Label = salaryBalance.InstalmentType === SalBalType.Advance ? 'Beløp' : 'Saldo';
+                    amountField.Hidden = this.salarybalanceID > 0;
+                });
 
-        this.fields$.next(this.fields$.getValue());
+                return fields;
+            })
+            .subscribe(fields => this.fields$.next(fields));
     }
 
-    private findByPropertyName(name) {
-        return this.fields$.getValue().find((fld) => fld.Property === name);
+    private editField(fields: any[], prop: string, edit: (field: any) => void): void {
+        let field = fields.find(fld => fld.Property === prop);
+        if (field) {
+            edit(field);
+        }
     }
 }

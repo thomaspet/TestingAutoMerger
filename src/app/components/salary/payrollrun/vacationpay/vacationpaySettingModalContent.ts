@@ -2,7 +2,7 @@ import { Component, Input, ViewChild, OnInit } from '@angular/core';
 import { UniFieldLayout, FieldType } from 'uniform-ng2/main';
 import { UniTable, UniTableConfig, UniTableColumnType, UniTableColumn } from 'unitable-ng2/main';
 import {
-    CompanySalaryService, CompanyVacationRateService, AccountService, ErrorService
+    CompanySalaryService, CompanyVacationRateService, AccountService, ErrorService, VacationpayLineService
 } from '../../../../services/services';
 import {
     CompanyVacationRate, Account, LocalDate, WageDeductionDueToHolidayType
@@ -34,7 +34,8 @@ export class VacationpaySettingModalContent implements OnInit {
         private _companysalaryService: CompanySalaryService,
         private _companyvacationRateService: CompanyVacationRateService,
         private _accountService: AccountService,
-        private errorService: ErrorService
+        private errorService: ErrorService,
+        private m_vacationpaylineService: VacationpayLineService
     ) {
 
     }
@@ -169,12 +170,9 @@ export class VacationpaySettingModalContent implements OnInit {
         payInHoliday.Property = 'WageDeductionDueToHoliday';
         payInHoliday.FieldType = FieldType.DROPDOWN;
         payInHoliday.Options = {
-            source: [
-                { id: WageDeductionDueToHolidayType.Deduct4PartsOf26, name: '-4/26 av månedslønn' },
-                { id: WageDeductionDueToHolidayType.Deduct3PartsOf22, name: '-3/22 av månedslønn' },
-                { id: WageDeductionDueToHolidayType.Add1PartOf26, name: '+1/26 av månedslønn' },
-                { id: WageDeductionDueToHolidayType.Deduct1PartOf26, name: '-1/26 av månedslønn' }
-            ],
+            source: 
+                this.m_vacationpaylineService.WageDeductionDueToHolidayArray
+            ,
             displayProperty: 'name',
             valueProperty: 'id'
         };

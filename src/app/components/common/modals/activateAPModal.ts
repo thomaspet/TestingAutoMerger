@@ -5,7 +5,7 @@ import {FieldType} from 'uniform-ng2/main';
 import {ActivateAP} from '../../../models/activateAP';
 import {ToastService} from '../../../../framework/uniToast/toastService';
 import {UniConfirmModal, IModalAction, ConfirmActions} from '../../../../framework/modals/confirm';
-import {CompanySettings} from '../../../../unientities';
+import {CompanySettings} from '../../../unientities';
 import {Observable} from 'rxjs/Observable';
 import {
     ErrorService,
@@ -55,22 +55,39 @@ export class ActivateAPForm {
         // TODO: turn to 'ComponentLayout when the object respects the interface
         this.fields$.next([
             {
+                Property: 'orgnumber',
+                FieldType: FieldType.TEXT,
+                Label: 'Organisasjonsnummer',
+            },
+            {
+                Property: 'orgname',
+                FieldType: FieldType.TEXT,
+                Label: 'Firmanavn',
+            },
+            {
+                Property: 'orgphone',
+                FieldType: FieldType.TEXT,
+                Label: 'Telefon'
+            },
+            {
+                Property: 'orgemail',
+                FieldType: FieldType.EMAIL,
+                Label: 'Epost'
+            },
+            {
                 Property: 'contactname',
                 FieldType: FieldType.TEXT,
                 Label: 'Kontaktnavn',
-                LineBreak: true
             },
             {
                 Property: 'contactphone',
                 FieldType: FieldType.TEXT,
                 Label: 'Kontakttelefon',
-                LineBreak: true
             },
             {
                 Property: 'contactemail',
                 FieldType: FieldType.EMAIL,
                 Label: 'Kontaktepost',
-                LineBreak: true
             },
             {
                 Property: 'incommingInvoice',
@@ -124,7 +141,7 @@ export class ActivateAPModal {
             actions: {
                 license: {
                     text: 'Betingelser',
-                    method: () => { this.model.close(); }
+                    method: () => { this.modal.close(); }
                 },
                 accept: {
                     text: 'Aktiver',
@@ -144,15 +161,19 @@ export class ActivateAPModal {
 
             Observable.forkJoin(
                 this.userService.getCurrentUser(),
-                this.companySettingsService.Get(1)
+                this.companySettingsService.Get(1, ['DefaultPhone', 'DefaultEmail', 'APContact.Info','APContact.Info.DefaultPhone','APContact.Info.DefaultEmail', 'APIncomming', 'APOutgoing'])
             ).subscribe((res) => {
                 let user = res[0];
                 let settings: CompanySettings = res[1];
 
-                activate.contactname = user.DisplayName;
-                activate.contactemail = user.Email;
-                activate.contactphone = user.PhoneNumber;
-                activate.incommingInvoice = true;
+                activate.orgnumber = settings.OrganizationNumber;
+                activate.orgname = settings.CompanyName;
+                activate.orgphone = settings.DefaultPhone.Number;
+                activate.orgemail = settings.DefaultEmail.EmailAddress;
+                activate.contactname = settings.APContact && settings.APContact.Info && settings.APContact.Info.Name ? settings.APContact.Info.Name : user.DisplayName;
+                activate.contactemail = settings.APContact && settings.APContact.Info && settings.APContact.Info.DefaultEmail && settings.APContact.Info.DefaultEmail.EmailAddress ? settings.APContact.Info.DefaultEmail.EmailAddress : user.Email;
+                activate.contactphone = settings.APContact && settings.APContact.Info && settings.APContact.Info.DefaultPhone && settings.APContact.Info.DefaultPhone.Number ? settings.APContact.Info.DefaultPhone.Number : user.PhoneNumber;
+                activate.incommingInvoice = false;
                 activate.outgoingInvoice = true;
 
                 this.modalConfig.model = activate;

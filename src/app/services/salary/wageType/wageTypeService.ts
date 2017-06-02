@@ -1,10 +1,12 @@
 import { Injectable } from '@angular/core';
 import { BizHttp } from '../../../../framework/core/http/BizHttp';
 import { UniHttp } from '../../../../framework/core/http/http';
-import { WageType } from '../../../unientities';
+import { WageType, Account } from '../../../unientities';
 import { Observable } from 'rxjs/Observable';
+import { BehaviorSubject } from 'rxjs/BehaviorSubject';
+import { AccountService } from '../../accounting/accountService';
 import 'rxjs/Observable';
-import {FieldType} from 'uniform-ng2/main';
+import { FieldType } from 'uniform-ng2/main';
 
 export enum WageTypeBaseOptions {
     VacationPay = 0,
@@ -25,7 +27,9 @@ export class WageTypeService extends BizHttp<WageType> {
         'SupplementaryInformations'
     ];
 
-    constructor(http: UniHttp) {
+    constructor(
+        protected http: UniHttp,
+        private accountService: AccountService) {
         super(http);
         this.relativeURL = WageType.RelativeUrl;
         this.entityType = WageType.EntityType;
@@ -91,7 +95,7 @@ export class WageTypeService extends BizHttp<WageType> {
     }
 
     public getPrevious(wageTypeNumber: number, expands: string[] = null) {
-        return super.GetAll(`filter=WageTypeNumber lt ${wageTypeNumber}&top=1&orderBy=WageTypeNumber desc`, 
+        return super.GetAll(`filter=WageTypeNumber lt ${wageTypeNumber}&top=1&orderBy=WageTypeNumber desc`,
             expands ? expands : this.defaultExpands)
             .map(resultSet => resultSet[0]);
     }
@@ -119,7 +123,24 @@ export class WageTypeService extends BizHttp<WageType> {
         }
     }
 
-    public layout(layoutID: string) {
+    private getAccountSearchOptions(wageType$: BehaviorSubject<WageType>, accountProp: string) {
+        return {
+            getDefaultData: () => {
+                return wageType$
+                    .take(1)
+                    .switchMap(wt => (wt && wt[accountProp])
+                        ? this.accountService.GetAll(`filter=AccountNumber eq ${wt[accountProp]}`)
+                        : Observable.of([]));
+            },
+            valueProperty: 'AccountNumber',
+            template: (account: Account) => account ? `${account.AccountNumber} - ${account.AccountName}` : '',
+            debounceTime: 200,
+            search: (query: string) =>  this.accountService
+                .GetAll(`top=50&filter=startswith(AccountNumber, '${query}') or contains(AccountName, '${query}')`)
+        };
+    }
+
+    public layout(layoutID: string, wageType$: BehaviorSubject<WageType>) {
         return Observable.from([{
             Name: layoutID,
             BaseEntity: 'wagetype',
@@ -151,7 +172,7 @@ export class WageTypeService extends BizHttp<WageType> {
                     ComponentLayoutID: 1,
                     EntityType: 'wagetype',
                     Property: 'WageTypeName',
-                    Placement: 1,
+                    Placement: 2,
                     Hidden: false,
                     FieldType: FieldType.TEXT,
                     ReadOnly: false,
@@ -172,7 +193,7 @@ export class WageTypeService extends BizHttp<WageType> {
                     ComponentLayoutID: 1,
                     EntityType: 'wagetype',
                     Property: 'SpecialAgaRule',
-                    Placement: 1,
+                    Placement: 3,
                     Hidden: false,
                     FieldType: FieldType.DROPDOWN,
                     ReadOnly: false,
@@ -193,18 +214,18 @@ export class WageTypeService extends BizHttp<WageType> {
                     ComponentLayoutID: 1,
                     EntityType: 'wagetype',
                     Property: 'AccountNumber',
-                    Placement: 1,
+                    Placement: 4,
                     Hidden: false,
                     FieldType: FieldType.AUTOCOMPLETE,
                     ReadOnly: false,
                     LookupField: false,
                     Label: 'Hovedbokskonto',
-                    Description: null,
-                    HelpText: null,
+                    Description: '',
+                    HelpText: '',
                     FieldSet: 0,
                     Section: 0,
                     Placeholder: null,
-                    Options: null,
+                    Options: this.getAccountSearchOptions(wageType$, 'AccountNumber'),
                     LineBreak: null,
                     Combo: null,
                     Sectionheader: '',
@@ -214,7 +235,7 @@ export class WageTypeService extends BizHttp<WageType> {
                     ComponentLayoutID: 1,
                     EntityType: 'wagetype',
                     Property: 'taxtype',
-                    Placement: 1,
+                    Placement: 5,
                     Hidden: false,
                     FieldType: FieldType.DROPDOWN,
                     ReadOnly: false,
@@ -235,7 +256,7 @@ export class WageTypeService extends BizHttp<WageType> {
                     ComponentLayoutID: 1,
                     EntityType: 'wagetype',
                     Property: '_baseOptions',
-                    Placement: 1,
+                    Placement: 6,
                     Hidden: false,
                     FieldType: FieldType.CHECKBOXGROUP,
                     ReadOnly: false,
@@ -249,9 +270,9 @@ export class WageTypeService extends BizHttp<WageType> {
                     Options: {
                         multivalue: true,
                         source: [
-                            {ID: WageTypeBaseOptions.VacationPay, Name: 'Feriepenger'},
-                            {ID: WageTypeBaseOptions.AGA, Name: 'Aga'},
-                            {ID: WageTypeBaseOptions.Pension, Name: 'Pensjon'}
+                            { ID: WageTypeBaseOptions.VacationPay, Name: 'Feriepenger' },
+                            { ID: WageTypeBaseOptions.AGA, Name: 'Aga' },
+                            { ID: WageTypeBaseOptions.Pension, Name: 'Pensjon' }
                         ],
                         valueProperty: 'ID',
                         labelProperty: 'Name'
@@ -264,7 +285,7 @@ export class WageTypeService extends BizHttp<WageType> {
                     ComponentLayoutID: 1,
                     EntityType: 'wagetype',
                     Property: 'HideFromPaycheck',
-                    Placement: 1,
+                    Placement: 7,
                     Hidden: false,
                     FieldType: FieldType.CHECKBOX,
                     ReadOnly: false,
@@ -285,7 +306,7 @@ export class WageTypeService extends BizHttp<WageType> {
                     ComponentLayoutID: 1,
                     EntityType: 'wagetype',
                     Property: 'StandardWageTypeFor',
-                    Placement: 1,
+                    Placement: 8,
                     Hidden: false,
                     FieldType: FieldType.DROPDOWN,
                     ReadOnly: false,
@@ -306,7 +327,7 @@ export class WageTypeService extends BizHttp<WageType> {
                     ComponentLayoutID: 1,
                     EntityType: 'wagetype',
                     Property: 'Base_Payment',
-                    Placement: 1,
+                    Placement: 9,
                     Hidden: false,
                     FieldType: FieldType.CHECKBOX,
                     ReadOnly: false,
@@ -327,7 +348,7 @@ export class WageTypeService extends BizHttp<WageType> {
                     ComponentLayoutID: 1,
                     EntityType: 'wagetype',
                     Property: 'AccountNumber_balance',
-                    Placement: 1,
+                    Placement: 10,
                     Hidden: false,
                     FieldType: FieldType.AUTOCOMPLETE,
                     ReadOnly: false,
@@ -338,7 +359,7 @@ export class WageTypeService extends BizHttp<WageType> {
                     FieldSet: 0,
                     Section: 0,
                     Placeholder: null,
-                    Options: null,
+                    Options: this.getAccountSearchOptions(wageType$, 'AccountNumber_balance'),
                     LineBreak: null,
                     Combo: null,
                     Sectionheader: '',
@@ -369,7 +390,7 @@ export class WageTypeService extends BizHttp<WageType> {
                     ComponentLayoutID: 1,
                     EntityType: 'wagetype',
                     Property: 'Rate',
-                    Placement: 1,
+                    Placement: 2,
                     Hidden: false,
                     FieldType: FieldType.NUMERIC,
                     ReadOnly: false,
@@ -390,7 +411,7 @@ export class WageTypeService extends BizHttp<WageType> {
                     ComponentLayoutID: 1,
                     EntityType: 'wagetype',
                     Property: 'RateFactor',
-                    Placement: 1,
+                    Placement: 3,
                     Hidden: false,
                     FieldType: FieldType.NUMERIC,
                     ReadOnly: false,
@@ -401,7 +422,7 @@ export class WageTypeService extends BizHttp<WageType> {
                     FieldSet: 0,
                     Section: 1,
                     Placeholder: null,
-                    Options: {format: 'percent'},
+                    Options: { format: 'percent' },
                     LineBreak: null,
                     Combo: null,
                     Sectionheader: '',
@@ -433,7 +454,7 @@ export class WageTypeService extends BizHttp<WageType> {
                     ComponentLayoutID: 1,
                     EntityType: 'wagetype',
                     Property: 'Benefit',
-                    Placement: 1,
+                    Placement: 2,
                     Hidden: false,
                     FieldType: FieldType.AUTOCOMPLETE,
                     ReadOnly: false,
@@ -454,7 +475,7 @@ export class WageTypeService extends BizHttp<WageType> {
                     ComponentLayoutID: 1,
                     EntityType: 'wagetype',
                     Property: 'Description',
-                    Placement: 1,
+                    Placement: 3,
                     Hidden: false,
                     FieldType: FieldType.AUTOCOMPLETE,
                     ReadOnly: false,
@@ -475,7 +496,7 @@ export class WageTypeService extends BizHttp<WageType> {
                     ComponentLayoutID: 1,
                     EntityType: 'wagetype',
                     Property: 'SpecialTaxAndContributionsRule',
-                    Placement: 1,
+                    Placement: 4,
                     Hidden: false,
                     FieldType: FieldType.DROPDOWN,
                     ReadOnly: false,
@@ -496,7 +517,7 @@ export class WageTypeService extends BizHttp<WageType> {
                     ComponentLayoutID: 1,
                     EntityType: 'wagetype',
                     Property: 'SupplementPackage',
-                    Placement: 1,
+                    Placement: 5,
                     Hidden: false,
                     FieldType: FieldType.DROPDOWN,
                     ReadOnly: false,
@@ -516,6 +537,7 @@ export class WageTypeService extends BizHttp<WageType> {
                 {
                     Property: '_AMeldingHelp',
                     FieldType: FieldType.HYPERLINK,
+                    Placement: 6,
                     ReadOnly: false,
                     LookupField: false,
                     Label: 'Hjelp',

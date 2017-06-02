@@ -1,7 +1,10 @@
 <article [attr.aria-busy]="busy">
     <h1>Legge til manuelt trekk</h1>
-    <uni-table [resource]="salarybalanceLines" [config]="salarybalancelineTable"></uni-table>
+    <uni-form
+        [config]="config$"
+        [layout]="layout$"
+        [model]="salaryBalanceLine$"></uni-form>
     <footer>
-        <button [attr.aria-busy]="busy" class="good" (click)="saveSalarybalanceLines()">Lagre</button>
+        <button [attr.aria-busy]="busy" class="good" (click)="saveSalaryBalanceLine()">Lagre</button>
     </footer>
 </article>

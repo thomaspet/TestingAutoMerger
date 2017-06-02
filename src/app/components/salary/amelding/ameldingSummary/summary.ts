@@ -87,7 +87,9 @@ export class AmeldingSummaryView {
                                 if (arbeidsforhold.permisjon) {
                                     arbeidsforhold.permisjon.forEach(permisjon => {
                                         let startdatePeriod = parseInt(permisjon.startdato.split('-', 2)[1]);
-                                        let enddatePeriod = parseInt(permisjon.sluttdato.split('-', 2)[1]);
+                                        let enddatePeriod = permisjon.sluttdato 
+                                            ? parseInt(permisjon.sluttdato.split('-', 2)[1])
+                                            : undefined;
                                         if (startdatePeriod === period || enddatePeriod === period) {
                                             this.employeeleaves.push({
                                                 permisjonsId: permisjon.permisjonsId,

@@ -1,6 +1,35 @@
 <article class="modal-content vacationPay" [attr.aria-busy]="busy" *ngIf="config">
     <h1>Feriepenger - oppsett og utbetaling</h1>
-    <uni-form [config]="config$" [fields]="fields$" [model]="vacationHeaderModel$" (changeEvent)="change($event)"></uni-form>
+    <section class="vacationpay_Flexheader">
+        <uni-form class="vacationpay_settings_left" [config]="config$" [fields]="fields$" [model]="vacationHeaderModel$" (changeEvent)="change($event)"></uni-form>
+        <section class="infoNote" *ngIf="companysalary">
+            <h3>Innstillinger</h3>
+            <table>
+                <tr>
+                    <td>Feriepengesats</td>
+                    <td class="vacationpay_settingValues">{{companysalary._Rate | uninumberformat:'percentage'}}</td>
+                    <td></td>
+                    <td class="vacationpay_settingColumn">Trekk i lønn for ferie</td>
+                    <td class="vacationpay_settingValues">{{companysalary._wagedeductionText}}</td>
+                </tr>
+                <tr>
+                    <td>Sats over 60 år</td>
+                    <td class="vacationpay_settingValues">{{companysalary._Rate60 | uninumberformat:'percentage'}}</td>
+                    <td></td>
+                    <td class="vacationpay_settingColumn">Konto kostnader feriepenger</td>
+                    <td class="vacationpay_settingValues">{{companysalary.MainAccountCostVacation}}</td>
+                </tr>
+                <tr>
+                    <td>Grunnbeløp</td>
+                    <td class="vacationpay_settingValues">{{companysalary._BasicAmount | unicurrency}}</td>
+                    <td></td>
+                    <td class="vacationpay_settingColumn">Konto avsatt feriepenger</td>
+                    <td class="vacationpay_settingValues">{{companysalary.MainAccountAllocatedVacation}}</td>
+                </tr>
+            </table>
+            <a class="vacationPay_settingsLink" (click)="openVacationpaySettings()">Endre feriepengeinnstillinger</a>
+        </section>
+    </section>
     <uni-table 
         [resource]="vacationpayBasis" 
         [config]="tableConfig" 
@@ -9,10 +38,24 @@
         (rowSelectionChanged)="onRowSelectionChange($event)"
         (dataLoaded)="updatetotalPay()"></uni-table>
     <h4 style="text-align:right">Totalsum utbetales {{totalPayout | unicurrency}}</h4>
-    <footer>
-        <a class="vacationPay_settingsLink" (click)="openVacationpaySettings()">Endre feriepengeinnstillinger</a>
-        <button class="good" (click)="saveVacationpayLines()">Lagre</button>
-        <button class="good" [disabled]="!totalPayout" (click)="createVacationPayments()">Generer poster</button>
+    <footer role="group" class="comboButton">
+        <button class="comboButton_btn"
+                type="button"
+                (click)="saveactions[0].action()"
+                [attr.aria-busy]="busy"
+                [disabled]="saveactions[0].disabled">{{saveactions[0].label}}</button>
+        <button class="comboButton_more"
+                (click)="open = !open"
+                aria-owns="saveActionMenu"
+                [attr.aria-expanded]="open">More options</button>
+
+        <ul class="comboButton_moreList" [attr.aria-expanded]="open" role="menu" id="saveActionMenu">
+            <li *ngFor="let action of saveactions"
+                (click)="action.action()"
+                role="menuitem"
+                [attr.aria-disabled]="action.disabled"
+                [title]="action.label">{{action.label}}</li>
+        </ul>
         <button class="bad" *ngIf="config.hasCancelButton" (click)="closeModal()">Lukk</button>
     </footer>
     <vacationpay-setting-modal (recalc)="recalc($event)"></vacationpay-setting-modal>
