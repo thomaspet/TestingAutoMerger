@@ -73,7 +73,7 @@ export class SalarybalanceView extends UniView {
                 .subscribe((salarybalance: SalaryBalance) => {
                     this.salarybalance = salarybalance;
                     this.toolbarConfig = {
-                        title: this.salarybalance.ID ? this.salarybalance.Name : 'Ny saldo',
+                        title: this.salarybalance.ID ? this.salarybalance.Name : 'Nytt forskudd/trekk',
                         subheads: [{
                             title: this.salarybalance.ID ? 'Saldo nr. ' + this.salarybalance.ID : null
                         }],
