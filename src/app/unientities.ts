@@ -242,8 +242,8 @@ export class WorkRelation extends UniEntity {
     public WorkerID: number;
     public WorkPercentage: number;
     public WorkProfileID: number;
-    public Worker: Worker;
     public WorkProfile: WorkProfile;
+    public Worker: Worker;
     public Employment: Employment;
     public Items: Array<WorkItem>;
     public Team: Team;
@@ -489,6 +489,7 @@ export class Customer extends UniEntity {
     public OrgNumber: string;
     public PeppolAddress: string;
     public StatusCode: number;
+    public SubAccountNumberSeriesID: number;
     public UpdatedAt: Date;
     public UpdatedBy: string;
     public WebUrl: string;
@@ -500,6 +501,7 @@ export class Customer extends UniEntity {
     public CustomerInvoices: Array<CustomerInvoice>;
     public CurrencyCode: CurrencyCode;
     public AcceptableDelta4CustomerPaymentAccount: Account;
+    public SubAccountNumberSeries: NumberSeries;
     public CustomFields: any;
 }
 
@@ -547,7 +549,6 @@ export class CustomerInvoice extends UniEntity {
     public InvoiceReceiverName: string;
     public InvoiceReferenceID: number;
     public InvoiceType: number;
-    public IsFullyCredited: boolean;
     public JournalEntryID: number;
     public OurReference: string;
     public PayableRoundingAmount: number;
@@ -879,6 +880,7 @@ export class Supplier extends UniEntity {
     public OrgNumber: string;
     public PeppolAddress: string;
     public StatusCode: number;
+    public SubAccountNumberSeriesID: number;
     public SupplierNumber: number;
     public UpdatedAt: Date;
     public UpdatedBy: string;
@@ -886,6 +888,7 @@ export class Supplier extends UniEntity {
     public Info: BusinessRelation;
     public Dimensions: Dimensions;
     public CurrencyCode: CurrencyCode;
+    public SubAccountNumberSeries: NumberSeries;
     public CustomFields: any;
 }
 
@@ -1296,9 +1299,9 @@ export class SalaryBalance extends UniEntity {
     public UpdatedAt: Date;
     public UpdatedBy: string;
     public WageTypeNumber: number;
+    public Transactions: Array<SalaryBalanceLine>;
     public Employee: Employee;
     public Supplier: Supplier;
-    public Transactions: Array<SalaryBalanceLine>;
     public CustomFields: any;
 }
 
@@ -1551,9 +1554,9 @@ export class Employment extends UniEntity {
     public UserDefinedRate: number;
     public WorkingHoursScheme: WorkingHoursScheme;
     public WorkPercent: number;
+    public Dimensions: Dimensions;
     public Employee: Employee;
     public SubEntity: SubEntity;
-    public Dimensions: Dimensions;
     public Leaves: Array<EmployeeLeave>;
     public CustomFields: any;
 }
@@ -1773,11 +1776,10 @@ export class Employee extends UniEntity {
     public UpdatedBy: string;
     public UserID: number;
     public VacationRateEmployeeID: number;
-    public BusinessRelationInfo: BusinessRelation;
-    public User: User;
-    public Employments: Array<Employment>;
-    public VacationRateEmployee: VacationRateEmployee;
     public SubEntity: SubEntity;
+    public Employments: Array<Employment>;
+    public BusinessRelationInfo: BusinessRelation;
+    public VacationRateEmployee: VacationRateEmployee;
     public TaxCards: Array<EmployeeTaxCard>;
     public CustomFields: any;
 }
@@ -1951,6 +1953,8 @@ export class CompanySettings extends UniEntity {
     public SettlementVatAccount: Account;
     public DefaultSalesAccount: Account;
     public APContact: Contact;
+    public APIncomming: Array<AccessPointFormat>;
+    public APOutgoing: Array<AccessPointFormat>;
     public CustomerInvoiceReminderSettings: CustomerInvoiceReminderSettings;
     public DefaultProductInvoiceReminder: Product;
     public BaseCurrencyCode: CurrencyCode;
@@ -2726,6 +2730,7 @@ export class NumberSeries extends UniEntity {
     public Empty: boolean;
     public FromNumber: number;
     public ID: number;
+    public MainAccountID: number;
     public Name: string;
     public NextNumber: number;
     public NumberLock: boolean;
@@ -2740,6 +2745,7 @@ export class NumberSeries extends UniEntity {
     public NumberSeriesType: NumberSeriesType;
     public UseNumbersFromNumberSeries: NumberSeries;
     public NumberSeriesTask: NumberSeriesTask;
+    public MainAccount: Account;
     public CustomFields: any;
 }
 
@@ -2748,9 +2754,12 @@ export class NumberSeriesType extends UniEntity {
     public static RelativeUrl = 'number-series-types';
     public static EntityType = 'NumberSeriesType';
 
+    public CanHaveSeveralActiveSeries: boolean;
     public CreatedAt: Date;
     public CreatedBy: string;
     public Deleted: boolean;
+    public EntityField: string;
+    public EntitySeriesIDField: string;
     public EntityType: string;
     public ID: number;
     public Name: string;
@@ -2759,6 +2768,26 @@ export class NumberSeriesType extends UniEntity {
     public UpdatedAt: Date;
     public UpdatedBy: string;
     public Yearly: boolean;
+    public CustomFields: any;
+}
+
+
+export class AccessPointFormat extends UniEntity {
+    public static RelativeUrl = '';
+    public static EntityType = 'AccessPointFormat';
+
+    public CreatedAt: Date;
+    public CreatedBy: string;
+    public Deleted: boolean;
+    public ID: number;
+    public IncommingID: number;
+    public Label: string;
+    public Name: string;
+    public OutgoingID: number;
+    public ResourceName: string;
+    public StatusCode: number;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
     public CustomFields: any;
 }
 
@@ -2782,23 +2811,6 @@ export class CurrencyOverride extends UniEntity {
     public UpdatedBy: string;
     public FromCurrencyCode: CurrencyCode;
     public ToCurrencyCode: CurrencyCode;
-    public CustomFields: any;
-}
-
-
-export class AccessPointFormat extends UniEntity {
-    public static RelativeUrl = '';
-    public static EntityType = 'AccessPointFormat';
-
-    public CreatedAt: Date;
-    public CreatedBy: string;
-    public Deleted: boolean;
-    public ID: number;
-    public Label: string;
-    public Name: string;
-    public ResourceName: string;
-    public UpdatedAt: Date;
-    public UpdatedBy: string;
     public CustomFields: any;
 }
 
@@ -4100,7 +4112,6 @@ export class SupplierInvoice extends UniEntity {
     public InvoiceReceiverName: string;
     public InvoiceReferenceID: number;
     public InvoiceType: number;
-    public IsFullyCredited: boolean;
     public JournalEntryID: number;
     public OurReference: string;
     public PayableRoundingAmount: number;
@@ -4203,7 +4214,6 @@ export class Account extends UniEntity {
     public Locked: boolean;
     public LockManualPosts: boolean;
     public StatusCode: number;
-    public SubAccountNumberSeriesID: number;
     public SupplierID: number;
     public SystemAccount: boolean;
     public TopLevelAccountGroupID: number;
@@ -4221,7 +4231,6 @@ export class Account extends UniEntity {
     public Supplier: Supplier;
     public Employee: Employee;
     public Dimensions: Dimensions;
-    public SubAccountNumberSeries: NumberSeries;
     public Alias: Array<AccountAlias>;
     public CompatibleAccountGroups: Array<AccountGroup>;
     public SubAccounts: Array<Account>;
@@ -4628,9 +4637,9 @@ export class WorkBalanceDto extends UniEntity {
     public ValidFrom: Date;
     public ValidTimeOff: number;
     public WorkRelationID: number;
+    public WorkRelation: WorkRelation;
     public Previous: BalanceInfo;
     public Details: Array<FlexDetail>;
-    public WorkRelation: WorkRelation;
     public CustomFields: any;
 }
 

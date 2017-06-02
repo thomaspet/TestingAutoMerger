@@ -2,7 +2,7 @@ import { Component, OnInit, ViewChild } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { UniTableConfig, UniTableColumnType, UniTableColumn } from 'unitable-ng2/main';
 import { SalarybalanceService, ErrorService, NumberFormat } from '../../../services/services';
-import { SalaryBalance, SalBalType } from '../../../unientities';
+import { SalaryBalance, SalBalType, SalBalDrawType } from '../../../unientities';
 import { TabService, UniModules } from '../../layout/navbar/tabstrip/tabService';
 import { SalarybalancelineModal } from './modals/salarybalancelinemodal';
 import { Observable } from 'rxjs/Observable';
@@ -42,7 +42,7 @@ export class SalarybalanceList implements OnInit {
                     active: true
                 });
 
-                this.setData(empID);
+            this.setData(empID);
         });
     }
 
@@ -63,35 +63,9 @@ export class SalarybalanceList implements OnInit {
     }
 
     public setData(empID: number = this.empID) {
-        this._salarybalanceService.getAll(empID)
-            .switchMap((salaryBalances: SalaryBalance[]) => {
-                let obsList: Observable<BalanceActionFormattedType>[] = [];
-                if (salaryBalances) {
-                    salaryBalances.forEach((salarybalance: SalaryBalance, index) => {
-                        if (salarybalance.InstalmentType === SalBalType.Advance
-                            || salarybalance.InstalmentType === SalBalType.Garnishment
-                            || salarybalance.InstalmentType === SalBalType.Outlay) {
-                            obsList
-                                .push(this._salarybalanceService
-                                    .getBalance(salarybalance.ID)
-                                    .map(balance => {
-                                        return { salaryBalanceID: salarybalance.ID, balance: balance };
-                                    }));
-                        }
-                    });
-                }
-                return Observable.forkJoin([Observable.of(salaryBalances), Observable.forkJoin(obsList)]);
-            })
-            .map((result: [SalaryBalance[], BalanceActionFormattedType[]]) => {
-                let [salaryBalances, balanceList] = result;
-                balanceList.map(balance => {
-                    let indx = salaryBalances.findIndex(sal => sal.ID === balance.salaryBalanceID);
-                    if (indx >= 0) {
-                        salaryBalances[indx]['_balance'] = balance.balance;
-                    }
-                });
-                return salaryBalances;
-            })
+        this._salarybalanceService
+            .getAll(empID, ['Employee.BusinessRelationInfo'])
+            .map(salaryBalances => this.sortList(salaryBalances))
             .subscribe((salarybalances: SalaryBalance[]) => {
                 this.salarybalances = salarybalances;
             });
@@ -101,30 +75,41 @@ export class SalarybalanceList implements OnInit {
         const idCol = new UniTableColumn('ID', 'Nr', UniTableColumnType.Number);
         idCol.setWidth('5rem');
 
-        const nameCol = new UniTableColumn('Name', 'Navn', UniTableColumnType.Text);
-        const employeeCol = new UniTableColumn('EmployeeID', 'Ansattnr', UniTableColumnType.Text).setWidth('10rem');
+        const nameCol = new UniTableColumn('Name', 'Navn', UniTableColumnType.Text)
+        const employeeCol = new UniTableColumn('Employee', 'Ansatt', UniTableColumnType.Text)
+            .setWidth('15rem')
+            .setTemplate((rowModel: SalaryBalance) => {
+                return rowModel.Employee
+                    ? rowModel.Employee.EmployeeNumber + ' - ' + rowModel.Employee.BusinessRelationInfo.Name
+                    : '';
+            });
 
-        const typeCol = new UniTableColumn('InstalmentType', 'Type').setTemplate((salarybalance: SalaryBalance) => {
-            return this._salarybalanceService.getInstalment(salarybalance).Name;
-        });
 
-        const balanceCol = new UniTableColumn('_balance', 'Saldo', UniTableColumnType.Text)
+        const typeCol = new UniTableColumn('InstalmentType', 'Type')
+            .setTemplate((salarybalance: SalaryBalance) => {
+                return this._salarybalanceService.getInstalment(salarybalance).Name;
+            }).setWidth('7rem');
+
+        const balanceCol = new UniTableColumn('CalculatedBalance', 'Saldo', UniTableColumnType.Text)
             .setAlignment('right')
-            .setTemplate((salBal: SalaryBalance) => 
-                salBal['_balance'] || salBal['_balance'] === 0 
-                    ? this.numberService.asMoney(salBal['_balance'])
-                    : '');
-
-        let contextMenu = {
-            label: 'Legg til manuell post',
-            action: (salbal) => {
-                this.openSalarybalancelineModal(salbal);
-            }
-        };
+            .setTemplate((salaryBalance: SalaryBalance) =>
+                salaryBalance.CalculatedBalance || salaryBalance.CalculatedBalance === 0
+                    ? this.numberService.asMoney(salaryBalance.CalculatedBalance)
+                    : '')
+            .setWidth('14rem');
 
         this.tableConfig = new UniTableConfig(false, true, 15)
             .setColumns([idCol, nameCol, employeeCol, typeCol, balanceCol])
-            .setSearchable(true)
-            .setContextMenu([contextMenu]);
+            .setSearchable(true);
+    }
+
+    private sortList(salaryBalances: SalaryBalance[]): SalaryBalance[] {
+        return salaryBalances
+            .sort((salBal1, salBal2) => this.getSortingValue(salBal2) - this.getSortingValue(salBal1));
+    }
+
+    private getSortingValue(salaryBalance: SalaryBalance) {
+        return Math.abs(salaryBalance.CalculatedBalance || 0)
+            + (salaryBalance.Type === SalBalDrawType.FixedAmount ? 1 : 0);
     }
 }
