@@ -6,7 +6,8 @@ import {
     EventEmitter,
     ChangeDetectorRef,
     ChangeDetectionStrategy,
-    ViewChild
+    ViewChild,
+    ElementRef
 } from '@angular/core';
 import {Http} from '@angular/http';
 import {File} from '../../app/unientities';
@@ -34,8 +35,9 @@ export interface IUploadConfig {
         <article (click)="onClick()" (clickOutside)="offClick()">
             <picture #imageContainer *ngIf="imgUrl.length" [ngClass]="{'loading': imageIsLoading,'clickable': currentClicked}" (click)="currentClicked()">
                 <source [attr.srcset]="imageUrl2x" media="(-webkit-min-device-pixel-radio: 2), (min-resolution: 192dpi)">
-                <img [attr.src]="imgUrl" alt="" (load)="finishedLoadingImage()" *ngIf="currentFileIndex >= 0">
+                <img #image [attr.src]="imgUrl" alt="" (load)="finishedLoadingImage()" *ngIf="currentFileIndex >= 0">
             </picture>
+            <span id="span-area-highlighter"></span>
             <section *ngIf="!singleImage || files[currentFileIndex]?.Pages?.length" class="uni-image-pager">
                 <a class="prev" (click)="previous()"></a>
                 <label>{{fileInfo}}</label>
@@ -68,6 +70,9 @@ export interface IUploadConfig {
 export class UniImage {
     @ViewChild(UniConfirmModal)
     private confirmModal: UniConfirmModal;
+
+    @ViewChild('image')
+    private image: ElementRef;
 
     @Input()
     public entity: string;
@@ -402,5 +407,27 @@ export class UniImage {
                     this.loadThumbnails();
                 }
             }, err => this.errorService.handle(err));
+    }
+
+    //Coordinates param should contain positions top and left + width and height
+    public highlight(coordinates: number[], orgWidth: number, orgHeight: number, className: string = '') {
+
+        if (!coordinates || coordinates.length > 4) return;
+
+        let widthRatio = (this.image.nativeElement.clientWidth || orgWidth) / orgWidth;
+        let heightRatio = (this.image.nativeElement.clientHeight || orgHeight) / orgHeight;
+
+        let hl = document.getElementById('span-area-highlighter');
+
+        if (!className || className === '') {
+            hl.style.display = 'block';
+            hl.style.height = coordinates[3] + 'px';
+            hl.style.width = coordinates[2] + 'px';
+            hl.style.left = (coordinates[0] - coordinates[2]) * widthRatio + 'px';
+            hl.style.top = (coordinates[1] - coordinates[3]) * heightRatio + 'px';
+        } else {
+            hl.className += ' ' + className;
+        }
+
     }
 }

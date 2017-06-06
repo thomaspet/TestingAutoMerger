@@ -10,7 +10,7 @@ import {Supplier, SupplierInvoice, JournalEntryLineDraft,
     InvoicePaymentData, CurrencyCode, CompanySettings, Task} from '../../../../unientities';
 import {UniStatusTrack} from '../../../common/toolbar/statustrack';
 import {IUniSaveAction} from '../../../../../framework/save/save';
-import {UniForm, FieldType} from 'uniform-ng2/main';
+import { UniForm, FieldType} from 'uniform-ng2/main';
 import {RegisterPaymentModal} from '../../../common/modals/registerPaymentModal';
 import {Location} from '@angular/common';
 import {BillSimpleJournalEntryView} from './journal/simple';
@@ -19,8 +19,8 @@ import {IOcrServiceResult, OcrValuables} from './ocr';
 import {billViewLanguage as lang, billStatusflowLabels as workflowLabels} from './lang';
 import {BillHistoryView} from './history/history';
 import {BankAccountModal} from '../../../common/modals/modals';
-import {ImageModal} from '../../../common/modals/ImageModal';
-import {UniImageSize} from '../../../../../framework/uniImage/uniImage';
+import { ImageModal } from '../../../common/modals/ImageModal';
+import { UniImageSize, UniImage } from '../../../../../framework/uniImage/uniImage';
 import {IUniSearchConfig} from 'unisearch-ng2/src/UniSearch/IUniSearchConfig';
 import {UniAssignModal, AssignDetails} from './assignmodal';
 import {UniApproveModal, ApprovalDetails} from './approvemodal';
@@ -103,6 +103,7 @@ export class BillView {
     @ViewChild(UniConfirmModal) private confirmModal: UniConfirmModal;
     @ViewChild(BillHistoryView) private historyView: BillHistoryView;
     @ViewChild(ImageModal) public imageModal: ImageModal;
+    @ViewChild(UniImage) public uniImage: UniImage;
     @ViewChild(UniAssignModal) private assignModal: UniAssignModal;
     @ViewChild(UniApproveModal) private approveModal: UniApproveModal;
 
@@ -448,6 +449,8 @@ export class BillView {
                 this.toast.clear();
                 this.handleOcrResult(new OcrValuables(result));
                 this.flagUnsavedChanged();
+                this.uniImage.highlight(result.OcrInvoiceReport.Amount.Candidates[0].boundingBox.split(','), result.MaxWidth, result.MaxTop);
+                
             }, (err) => {
                 this.errorService.handle(err);
             });
@@ -590,6 +593,29 @@ export class BillView {
 
     public onFormInput(event) {
         this.flagUnsavedChanged();
+    }
+
+    public onFocusEvent(event) {
+        console.log(event);
+        switch (event.field.Label) {
+            case 'SupplierID':
+                break;
+            case 'InvoiceDate':
+                break;
+            case 'PaymentDueDate':
+                break;
+            case 'InvoiceNumber':
+                break;
+            case 'BankAccountID':
+                break;
+            case 'PaymentID':
+                break;
+            case 'TaxInclusiveAmountCurrency':
+                break;
+
+            default:
+                break;
+        }
     }
 
     public onFormChange(change: SimpleChanges) {

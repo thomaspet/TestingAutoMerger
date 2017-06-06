@@ -27,6 +27,7 @@
                 [model]='current'
                 (changeEvent)="onFormChange($event)"
                 (inputEvent)="onFormInput($event)"
+                (focusEvent)="onFocusEvent($event)"
             >
             </uni-form>
             <article class="collapsable no-topmargin no-horzmargins" [ngClass]="{'-is-open': !collapseSimpleJournal}">
