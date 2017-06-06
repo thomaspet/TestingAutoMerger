@@ -428,6 +428,9 @@ export class UniImage {
         } else {
             hl.className += ' ' + className;
         }
+    }
 
+    public removeHighlight() {
+        document.getElementById('span-area-highlighter').style.display = 'none';
     }
 }
