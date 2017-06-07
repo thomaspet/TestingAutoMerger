@@ -37,7 +37,7 @@ export interface IUploadConfig {
                 <source [attr.srcset]="imageUrl2x" media="(-webkit-min-device-pixel-radio: 2), (min-resolution: 192dpi)">
                 <img #image [attr.src]="imgUrl" alt="" (load)="finishedLoadingImage()" *ngIf="currentFileIndex >= 0">
             </picture>
-            <span id="span-area-highlighter"></span>
+            <span id="span-area-highlighter" class="span-area-highlight-class" [ngStyle]="highlightStyle"></span>
             <section *ngIf="!singleImage || files[currentFileIndex]?.Pages?.length" class="uni-image-pager">
                 <a class="prev" (click)="previous()"></a>
                 <label>{{fileInfo}}</label>
@@ -132,6 +132,7 @@ export class UniImage {
 
     private imgUrl: string = '';
     private imgUrl2x: string = '';
+    private highlightStyle: any;
 
     constructor(
         private ngHttp: Http,
@@ -409,28 +410,33 @@ export class UniImage {
             }, err => this.errorService.handle(err));
     }
 
-    //Coordinates param should contain positions top and left + width and height
-    public highlight(coordinates: number[], orgWidth: number, orgHeight: number, className: string = '') {
+    // Coordinates param should contain positions top and left + height and width of highlight element
+    // Height and width params is the sixe of the originally scanned document
+    // styleObject is for custom style like size, color and shape on the highlight marker..
+    public highlight(coordinates: number[], width: number, height: number, styleObject: any) {
 
-        if (!coordinates || coordinates.length > 4) return;
+        if ((!coordinates || coordinates.length < 4) && !styleObject) return;
 
-        let widthRatio = (this.image.nativeElement.clientWidth || orgWidth) / orgWidth;
-        let heightRatio = (this.image.nativeElement.clientHeight || orgHeight) / orgHeight;
+        // Find the ratio between the original scanned image(height and width param) and the shown image
+        let widthRatio = (this.image.nativeElement.clientWidth || width) / width;
+        let heightRatio = (this.image.nativeElement.clientHeight || height) / height;
 
-        let hl = document.getElementById('span-area-highlighter');
-
-        if (!className || className === '') {
-            hl.style.display = 'block';
-            hl.style.height = coordinates[3] + 'px';
-            hl.style.width = coordinates[2] + 'px';
-            hl.style.left = (coordinates[0] - coordinates[2]) * widthRatio + 'px';
-            hl.style.top = (coordinates[1] - coordinates[3]) * heightRatio + 'px';
+        if (styleObject) {
+            this.highlightStyle = styleObject;
         } else {
-            hl.className += ' ' + className;
+            this.highlightStyle = {
+                display: 'block',
+                height: coordinates[3] + 'px',
+                width: coordinates[2] + 'px',
+                left: (coordinates[0] - coordinates[2]) * widthRatio + 'px',
+                top: (coordinates[1] - coordinates[3]) * heightRatio + 'px'
+            }
         }
     }
 
     public removeHighlight() {
-        document.getElementById('span-area-highlighter').style.display = 'none';
+        this.highlightStyle = {
+            display: 'none'
+        }
     }
 }

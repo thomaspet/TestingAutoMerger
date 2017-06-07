@@ -598,44 +598,40 @@ export class BillView {
 
     public onFocusEvent(event) {
 
-        //If no documents have been uploaded, nothing to highlight
-        if (!this.currentFileID) return;
-
-        //Should get data if not gotten, but only if there is a document, and user has OCR-module.. 
-        if (!this.ocrData) return;
+        if (!this.currentFileID || !this.ocrData) return;
 
         this.uniImage.removeHighlight();
 
+        const ocrReport = this.ocrData.OcrInvoiceReport;
+        let candidates;
+
         switch (event.field.Property) {
-            case 'SupplierID':
-                break;
             case 'InvoiceDate':
-                if (!this.ocrData.OcrInvoiceReport.InvoiceDate.Candidates || !this.ocrData.OcrInvoiceReport.InvoiceDate.Candidates.length) return;
-                this.uniImage.highlight(this.ocrData.OcrInvoiceReport.InvoiceDate.Candidates[0].boundingBox.split(','), this.ocrData.MaxWidth, this.ocrData.MaxTop);
+                candidates = this.ocrData.OcrInvoiceReport.InvoiceDate.Candidates;
                 break;
             case 'PaymentDueDate':
-                if (!this.ocrData.OcrInvoiceReport.DueDate.Candidates || !this.ocrData.OcrInvoiceReport.DueDate.Candidates.length) return;
-                this.uniImage.highlight(this.ocrData.OcrInvoiceReport.DueDate.Candidates[0].boundingBox.split(','), this.ocrData.MaxWidth, this.ocrData.MaxTop);
+                candidates = this.ocrData.OcrInvoiceReport.DueDate.Candidates;
                 break;
             case 'InvoiceNumber':
-                if (!this.ocrData.OcrInvoiceReport.InvoiceNumber.Candidates || !this.ocrData.OcrInvoiceReport.InvoiceNumber.Candidates.length) return;
-                this.uniImage.highlight(this.ocrData.OcrInvoiceReport.InvoiceNumber.Candidates[0].boundingBox.split(','), this.ocrData.MaxWidth, this.ocrData.MaxTop);
+                candidates = this.ocrData.OcrInvoiceReport.InvoiceNumber.Candidates;
                 break;
             case 'BankAccountID':
-                if (!this.ocrData.OcrInvoiceReport.BankAccount.Candidates || !this.ocrData.OcrInvoiceReport.BankAccount.Candidates.length) return;
-                this.uniImage.highlight(this.ocrData.OcrInvoiceReport.BankAccount.Candidates[0].boundingBox.split(','), this.ocrData.MaxWidth, this.ocrData.MaxTop);
+                candidates = this.ocrData.OcrInvoiceReport.BankAccount.Candidates;
                 break;
             case 'PaymentID':
-                if (!this.ocrData.OcrInvoiceReport.Kid.Candidates || !this.ocrData.OcrInvoiceReport.Kid.Candidates.length) return;
-                this.uniImage.highlight(this.ocrData.OcrInvoiceReport.Kid.Candidates[0].boundingBox.split(','), this.ocrData.MaxWidth, this.ocrData.MaxTop);
+                candidates = this.ocrData.OcrInvoiceReport.Kid.Candidates;
                 break;
             case 'TaxInclusiveAmountCurrency':
-                if (!this.ocrData.OcrInvoiceReport.Amount.Candidates || !this.ocrData.OcrInvoiceReport.Amount.Candidates.length) return;
-                this.uniImage.highlight(this.ocrData.OcrInvoiceReport.Amount.Candidates[0].boundingBox.split(','), this.ocrData.MaxWidth, this.ocrData.MaxTop);
+                candidates = this.ocrData.OcrInvoiceReport.Amount.Candidates;
                 break;
+        }
 
-            default:
-                break;
+        if (candidates && candidates.length && candidates[0].boundingBox) {
+            this.uniImage.highlight(
+                candidates[0].boundingBox.split(','),
+                this.ocrData.MaxWidth,
+                this.ocrData.MaxTop
+            );
         }
     }
 
