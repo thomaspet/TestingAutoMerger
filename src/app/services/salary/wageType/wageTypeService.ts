@@ -1,12 +1,10 @@
 import { Injectable } from '@angular/core';
 import { BizHttp } from '../../../../framework/core/http/BizHttp';
 import { UniHttp } from '../../../../framework/core/http/http';
-import { WageType, Account } from '../../../unientities';
+import { WageType } from '../../../unientities';
 import { Observable } from 'rxjs/Observable';
-import { BehaviorSubject } from 'rxjs/BehaviorSubject';
-import { AccountService } from '../../accounting/accountService';
 import 'rxjs/Observable';
-import { FieldType } from 'uniform-ng2/main';
+import {FieldType} from 'uniform-ng2/main';
 
 export enum WageTypeBaseOptions {
     VacationPay = 0,
@@ -27,9 +25,7 @@ export class WageTypeService extends BizHttp<WageType> {
         'SupplementaryInformations'
     ];
 
-    constructor(
-        protected http: UniHttp,
-        private accountService: AccountService) {
+    constructor(http: UniHttp) {
         super(http);
         this.relativeURL = WageType.RelativeUrl;
         this.entityType = WageType.EntityType;
@@ -95,13 +91,13 @@ export class WageTypeService extends BizHttp<WageType> {
     }
 
     public getPrevious(wageTypeNumber: number, expands: string[] = null) {
-        return super.GetAll(`filter=WageTypeNumber lt ${wageTypeNumber}&top=1&orderBy=WageTypeNumber desc`,
+        return super.GetAll(`filter=WageTypeNumber lt ${wageTypeNumber}&top=1&orderBy=WageTypeNumber desc`, 
             expands ? expands : this.defaultExpands)
             .map(resultSet => resultSet[0]);
     }
 
     public getNext(wageTypeNumber: number, expands: string[] = null) {
-        return super.GetAll(`filter=WageTypeNumber gt ${wageTypeNumber}&top=1&orderBy=WageTypeNumber,ValidYear desc`, 
+        return super.GetAll(`filter=WageTypeNumber gt ${wageTypeNumber}&top=1&orderBy=WageTypeNumber`, 
             expands ? expands : this.defaultExpands)
             .map(resultSet => resultSet[0]);
     }
@@ -123,24 +119,7 @@ export class WageTypeService extends BizHttp<WageType> {
         }
     }
 
-    private getAccountSearchOptions(wageType$: BehaviorSubject<WageType>, accountProp: string) {
-        return {
-            getDefaultData: () => {
-                return wageType$
-                    .take(1)
-                    .switchMap(wt => (wt && wt[accountProp])
-                        ? this.accountService.GetAll(`filter=AccountNumber eq ${wt[accountProp]}`)
-                        : Observable.of([]));
-            },
-            valueProperty: 'AccountNumber',
-            template: (account: Account) => account ? `${account.AccountNumber} - ${account.AccountName}` : '',
-            debounceTime: 200,
-            search: (query: string) =>  this.accountService
-                .GetAll(`top=50&filter=startswith(AccountNumber, '${query}') or contains(AccountName, '${query}')`)
-        };
-    }
-
-    public layout(layoutID: string, wageType$: BehaviorSubject<WageType>) {
+    public layout(layoutID: string) {
         return Observable.from([{
             Name: layoutID,
             BaseEntity: 'wagetype',
@@ -157,7 +136,8 @@ export class WageTypeService extends BizHttp<WageType> {
                     Label: 'Nr',
                     Description: null,
                     HelpText: null,
-                    FieldSet: 0,
+                    FieldSet: 1,
+                    Legend: 'lønnsart',
                     Section: 0,
                     Placeholder: 'La stå tom for neste ledige',
                     LineBreak: null,
@@ -172,7 +152,7 @@ export class WageTypeService extends BizHttp<WageType> {
                     ComponentLayoutID: 1,
                     EntityType: 'wagetype',
                     Property: 'WageTypeName',
-                    Placement: 2,
+                    Placement: 1,
                     Hidden: false,
                     FieldType: FieldType.TEXT,
                     ReadOnly: false,
@@ -180,7 +160,7 @@ export class WageTypeService extends BizHttp<WageType> {
                     Label: 'Navn',
                     Description: null,
                     HelpText: null,
-                    FieldSet: 0,
+                    FieldSet: 1,
                     Section: 0,
                     Placeholder: null,
                     Options: null,
@@ -193,7 +173,7 @@ export class WageTypeService extends BizHttp<WageType> {
                     ComponentLayoutID: 1,
                     EntityType: 'wagetype',
                     Property: 'SpecialAgaRule',
-                    Placement: 3,
+                    Placement: 1,
                     Hidden: false,
                     FieldType: FieldType.DROPDOWN,
                     ReadOnly: false,
@@ -201,7 +181,7 @@ export class WageTypeService extends BizHttp<WageType> {
                     Label: 'Type lønnsart',
                     Description: null,
                     HelpText: null,
-                    FieldSet: 0,
+                    FieldSet: 1,
                     Section: 0,
                     Placeholder: null,
                     Options: null,
@@ -213,79 +193,8 @@ export class WageTypeService extends BizHttp<WageType> {
                 {
                     ComponentLayoutID: 1,
                     EntityType: 'wagetype',
-                    Property: 'AccountNumber',
-                    Placement: 4,
-                    Hidden: false,
-                    FieldType: FieldType.AUTOCOMPLETE,
-                    ReadOnly: false,
-                    LookupField: false,
-                    Label: 'Hovedbokskonto',
-                    Description: '',
-                    HelpText: '',
-                    FieldSet: 0,
-                    Section: 0,
-                    Placeholder: null,
-                    Options: this.getAccountSearchOptions(wageType$, 'AccountNumber'),
-                    LineBreak: null,
-                    Combo: null,
-                    Sectionheader: '',
-                    hasLineBreak: false
-                },
-                {
-                    ComponentLayoutID: 1,
-                    EntityType: 'wagetype',
-                    Property: 'taxtype',
-                    Placement: 5,
-                    Hidden: false,
-                    FieldType: FieldType.DROPDOWN,
-                    ReadOnly: false,
-                    LookupField: 'Name',
-                    Label: 'Behandlingsregel skattetrekk',
-                    Description: null,
-                    HelpText: null,
-                    FieldSet: 0,
-                    Section: 0,
-                    Placeholder: null,
-                    LineBreak: null,
-                    Combo: null,
-                    Sectionheader: '',
-                    Options: null,
-                    hasLineBreak: false
-                },
-                {
-                    ComponentLayoutID: 1,
-                    EntityType: 'wagetype',
-                    Property: '_baseOptions',
-                    Placement: 6,
-                    Hidden: false,
-                    FieldType: FieldType.CHECKBOXGROUP,
-                    ReadOnly: false,
-                    LookupField: false,
-                    Label: 'Med i grunnlag for: ',
-                    Description: null,
-                    HelpText: null,
-                    FieldSet: 0,
-                    Section: 0,
-                    Placeholder: null,
-                    Options: {
-                        multivalue: true,
-                        source: [
-                            { ID: WageTypeBaseOptions.VacationPay, Name: 'Feriepenger' },
-                            { ID: WageTypeBaseOptions.AGA, Name: 'Aga' },
-                            { ID: WageTypeBaseOptions.Pension, Name: 'Pensjon' }
-                        ],
-                        valueProperty: 'ID',
-                        labelProperty: 'Name'
-                    },
-                    LineBreak: null,
-                    Combo: null,
-                    hasLineBreak: false
-                },
-                {
-                    ComponentLayoutID: 1,
-                    EntityType: 'wagetype',
                     Property: 'HideFromPaycheck',
-                    Placement: 7,
+                    Placement: 1,
                     Hidden: false,
                     FieldType: FieldType.CHECKBOX,
                     ReadOnly: false,
@@ -293,7 +202,7 @@ export class WageTypeService extends BizHttp<WageType> {
                     Label: 'Skjul på lønnslipp',
                     Description: null,
                     HelpText: null,
-                    FieldSet: 0,
+                    FieldSet: 1,
                     Section: 0,
                     Placeholder: null,
                     Options: null,
@@ -306,7 +215,7 @@ export class WageTypeService extends BizHttp<WageType> {
                     ComponentLayoutID: 1,
                     EntityType: 'wagetype',
                     Property: 'StandardWageTypeFor',
-                    Placement: 8,
+                    Placement: 1,
                     Hidden: false,
                     FieldType: FieldType.DROPDOWN,
                     ReadOnly: false,
@@ -315,51 +224,9 @@ export class WageTypeService extends BizHttp<WageType> {
                     Label: 'Systemets standard lønnsart for',
                     Description: null,
                     HelpText: null,
-                    FieldSet: 0,
+                    FieldSet: 1,
                     Section: 0,
                     Placeholder: null,
-                    LineBreak: null,
-                    Combo: null,
-                    Sectionheader: '',
-                    hasLineBreak: false
-                },
-                {
-                    ComponentLayoutID: 1,
-                    EntityType: 'wagetype',
-                    Property: 'Base_Payment',
-                    Placement: 9,
-                    Hidden: false,
-                    FieldType: FieldType.CHECKBOX,
-                    ReadOnly: false,
-                    LookupField: false,
-                    Label: 'Utbetales',
-                    Description: null,
-                    HelpText: null,
-                    FieldSet: 0,
-                    Section: 0,
-                    Placeholder: null,
-                    Options: null,
-                    LineBreak: null,
-                    Combo: null,
-                    Sectionheader: '',
-                    hasLineBreak: false
-                },
-                {
-                    ComponentLayoutID: 1,
-                    EntityType: 'wagetype',
-                    Property: 'AccountNumber_balance',
-                    Placement: 10,
-                    Hidden: false,
-                    FieldType: FieldType.AUTOCOMPLETE,
-                    ReadOnly: false,
-                    LookupField: false,
-                    Label: 'Motkonto kredit',
-                    Description: null,
-                    HelpText: null,
-                    FieldSet: 0,
-                    Section: 0,
-                    Placeholder: null,
-                    Options: this.getAccountSearchOptions(wageType$, 'AccountNumber_balance'),
                     LineBreak: null,
                     Combo: null,
                     Sectionheader: '',
@@ -375,10 +242,11 @@ export class WageTypeService extends BizHttp<WageType> {
                     ReadOnly: false,
                     LookupField: false,
                     Label: 'Sats hentes fra',
+                    Legend: 'Sats',
                     Description: null,
                     HelpText: null,
-                    FieldSet: 0,
-                    Section: 1,
+                    FieldSet: 2,
+                    Section: 0,
                     Placeholder: null,
                     Options: null,
                     LineBreak: null,
@@ -390,7 +258,7 @@ export class WageTypeService extends BizHttp<WageType> {
                     ComponentLayoutID: 1,
                     EntityType: 'wagetype',
                     Property: 'Rate',
-                    Placement: 2,
+                    Placement: 1,
                     Hidden: false,
                     FieldType: FieldType.NUMERIC,
                     ReadOnly: false,
@@ -398,8 +266,8 @@ export class WageTypeService extends BizHttp<WageType> {
                     Label: 'Sats',
                     Description: null,
                     HelpText: null,
-                    FieldSet: 0,
-                    Section: 1,
+                    FieldSet: 2,
+                    Section: 0,
                     Placeholder: null,
                     Options: null,
                     LineBreak: null,
@@ -411,7 +279,7 @@ export class WageTypeService extends BizHttp<WageType> {
                     ComponentLayoutID: 1,
                     EntityType: 'wagetype',
                     Property: 'RateFactor',
-                    Placement: 3,
+                    Placement: 1,
                     Hidden: false,
                     FieldType: FieldType.NUMERIC,
                     ReadOnly: false,
@@ -419,14 +287,129 @@ export class WageTypeService extends BizHttp<WageType> {
                     Label: 'Utbetales med tillegg i prosent',
                     Description: null,
                     HelpText: null,
-                    FieldSet: 0,
-                    Section: 1,
+                    FieldSet: 2,
+                    Section: 0,
                     Placeholder: null,
-                    Options: { format: 'percent' },
+                    Options: {format: 'percent'},
                     LineBreak: null,
                     Combo: null,
                     Sectionheader: '',
                     hasLineBreak: false,
+                },
+                {
+                    ComponentLayoutID: 1,
+                    EntityType: 'wagetype',
+                    Property: 'taxtype',
+                    Placement: 1,
+                    Hidden: false,
+                    FieldType: FieldType.DROPDOWN,
+                    ReadOnly: false,
+                    LookupField: 'Name',
+                    Label: 'Behandlingsregel skattetrekk',
+                    Description: null,
+                    HelpText: null,
+                    FieldSet: 3,
+                    Legend: 'Behandling',
+                    Section: 0,
+                    Placeholder: null,
+                    LineBreak: null,
+                    Combo: null,
+                    Sectionheader: '',
+                    Options: null,
+                    hasLineBreak: false
+                },
+                {
+                    ComponentLayoutID: 1,
+                    EntityType: 'wagetype',
+                    Property: '_baseOptions',
+                    Placement: 1,
+                    Hidden: false,
+                    FieldType: FieldType.CHECKBOXGROUP,
+                    ReadOnly: false,
+                    LookupField: false,
+                    Label: 'Med i grunnlag for: ',
+                    Description: null,
+                    HelpText: null,
+                    FieldSet: 3,
+                    Section: 0,
+                    Placeholder: null,
+                    Options: {
+                        multivalue: true,
+                        source: [
+                            {ID: WageTypeBaseOptions.VacationPay, Name: 'Feriepenger'},
+                            {ID: WageTypeBaseOptions.AGA, Name: 'Aga'},
+                            {ID: WageTypeBaseOptions.Pension, Name: 'Pensjon'}
+                        ],
+                        valueProperty: 'ID',
+                        labelProperty: 'Name'
+                    },
+                    LineBreak: null,
+                    Combo: null,
+                    hasLineBreak: false
+                },
+                {
+                    ComponentLayoutID: 1,
+                    EntityType: 'wagetype',
+                    Property: 'AccountNumber',
+                    Placement: 1,
+                    Hidden: false,
+                    FieldType: FieldType.AUTOCOMPLETE,
+                    ReadOnly: false,
+                    LookupField: false,
+                    Label: 'Hovedbokskonto',
+                    Legend: 'Rengskapsinnstillinger',
+                    Description: null,
+                    HelpText: null,
+                    FieldSet: 4,
+                    Section: 0,
+                    Placeholder: null,
+                    Options: null,
+                    LineBreak: null,
+                    Combo: null,
+                    Sectionheader: '',
+                    hasLineBreak: false
+                },
+                {
+                    ComponentLayoutID: 1,
+                    EntityType: 'wagetype',
+                    Property: 'Base_Payment',
+                    Placement: 1,
+                    Hidden: false,
+                    FieldType: FieldType.CHECKBOX,
+                    ReadOnly: false,
+                    LookupField: false,
+                    Label: 'Utbetales',
+                    Description: null,
+                    HelpText: null,
+                    FieldSet: 4,
+                    Section: 0,
+                    Placeholder: null,
+                    Options: null,
+                    LineBreak: null,
+                    Combo: null,
+                    Sectionheader: '',
+                    hasLineBreak: false
+                },
+                {
+                    ComponentLayoutID: 1,
+                    EntityType: 'wagetype',
+                    Property: 'AccountNumber_balance',
+                    Placement: 1,
+                    Hidden: false,
+                    FieldType: FieldType.AUTOCOMPLETE,
+                    ReadOnly: false,
+                    LookupField: false,
+                    Label: 'Motkonto kredit',
+                    Description: null,
+                    HelpText: null,
+                    FieldSet: 4,
+                    Section: 0,
+                    Placeholder: null,
+                    Options: null,
+                    LineBreak: null,
+                    Combo: null,
+                    Sectionheader: '',
+                    hasLineBreak: false
                 },
                 {
                     ComponentLayoutID: 1,
@@ -454,7 +437,7 @@ export class WageTypeService extends BizHttp<WageType> {
                     ComponentLayoutID: 1,
                     EntityType: 'wagetype',
                     Property: 'Benefit',
-                    Placement: 2,
+                    Placement: 1,
                     Hidden: false,
                     FieldType: FieldType.AUTOCOMPLETE,
                     ReadOnly: false,
@@ -475,7 +458,7 @@ export class WageTypeService extends BizHttp<WageType> {
                     ComponentLayoutID: 1,
                     EntityType: 'wagetype',
                     Property: 'Description',
-                    Placement: 3,
+                    Placement: 1,
                     Hidden: false,
                     FieldType: FieldType.AUTOCOMPLETE,
                     ReadOnly: false,
@@ -496,7 +479,7 @@ export class WageTypeService extends BizHttp<WageType> {
                     ComponentLayoutID: 1,
                     EntityType: 'wagetype',
                     Property: 'SpecialTaxAndContributionsRule',
-                    Placement: 4,
+                    Placement: 1,
                     Hidden: false,
                     FieldType: FieldType.DROPDOWN,
                     ReadOnly: false,
@@ -517,7 +500,7 @@ export class WageTypeService extends BizHttp<WageType> {
                     ComponentLayoutID: 1,
                     EntityType: 'wagetype',
                     Property: 'SupplementPackage',
-                    Placement: 5,
+                    Placement: 1,
                     Hidden: false,
                     FieldType: FieldType.DROPDOWN,
                     ReadOnly: false,
@@ -537,7 +520,6 @@ export class WageTypeService extends BizHttp<WageType> {
                 {
                     Property: '_AMeldingHelp',
                     FieldType: FieldType.HYPERLINK,
-                    Placement: 6,
                     ReadOnly: false,
                     LookupField: false,
                     Label: 'Hjelp',
