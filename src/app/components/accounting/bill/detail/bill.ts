@@ -332,7 +332,7 @@ export class BillView {
                 let firstFile = files[0];
                 if (this.isOCR(firstFile)) {
                     this.runOcr(firstFile);
-                } else {
+                } else if (this.isEHF(firstFile)){
                     this.runEHF(firstFile);
                 }
             }
@@ -1591,7 +1591,15 @@ export class BillView {
         }
         if (file.Extension && file.Extension === '.xml') { return false; }
         var ocrformats = ['pdf', 'png', 'jpeg', 'jpg', 'gif', 'tiff'];
-        var ending = file.Name.split('.').pop();
+        var ending = file.Name.toLowerCase().split('.').pop();
         return ocrformats.indexOf(ending) >= 0;
+    }
+
+    private isEHF(file): Boolean {
+        if(file.Extension && file.Extension.toLowerCase() === '.ehf') {return true; }
+        
+        var ending = file.Name.toLowerCase().split('.').pop();
+        return ending === 'ehf';
+        
     }
 }
