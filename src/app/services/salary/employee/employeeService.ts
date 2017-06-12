@@ -24,7 +24,7 @@ export class EmployeeService extends BizHttp<Employee> {
     public debounceTime: number = 500;
 
     constructor(
-        http: UniHttp, 
+        http: UniHttp,
         private errorService: ErrorService,
         private userService: UserService) {
         super(http);
@@ -49,14 +49,14 @@ export class EmployeeService extends BizHttp<Employee> {
 
     public saveEmployeeCategory(employeeID: number, category: EmployeeCategory): Observable<EmployeeCategory> {
         if (employeeID && category) {
-            
+
             let endpoint = this.relativeURL
                 + '/'
                 + employeeID
                 + '/category';
 
-            let saveObs = category.ID 
-                ? this.http.asPUT().withEndPoint(endpoint + '/' + category.ID) 
+            let saveObs = category.ID
+                ? this.http.asPUT().withEndPoint(endpoint + '/' + category.ID)
                 : this.http.asPOST().withEndPoint(endpoint);
 
             return saveObs
@@ -88,8 +88,8 @@ export class EmployeeService extends BizHttp<Employee> {
     }
 
     public deleteEmployeeTag(employeeID: number, tag: ITag): Observable<boolean> {
-        return (tag && tag.linkID 
-            ? this.deleteEmployeeCategory(employeeID, tag.linkID) 
+        return (tag && tag.linkID
+            ? this.deleteEmployeeCategory(employeeID, tag.linkID)
             : Observable.of(false));
     }
 
@@ -145,7 +145,8 @@ export class EmployeeService extends BizHttp<Employee> {
                     Label: 'Navn',
                     Description: null,
                     HelpText: null,
-                    FieldSet: 0,
+                    FieldSet: 1,
+                    Legend: 'Ansatt',
                     Section: 0,
                     Placeholder: null,
                     Options: null,
@@ -173,129 +174,13 @@ export class EmployeeService extends BizHttp<Employee> {
                     Label: 'Navn',
                     Description: null,
                     HelpText: null,
-                    FieldSet: 0,
+                    FieldSet: 1,
+                    Legend: 'Ansatt',
                     Section: 0,
                     Placeholder: null,
                     LineBreak: null,
                     Combo: null,
                     Sectionheader: '',
-                    Options: null
-                },
-                {
-                    ComponentLayoutID: 1,
-
-                    EntityType: 'Employee',
-                    Property: 'SocialSecurityNumber',
-                    Placement: 2,
-                    Hidden: false,
-                    FieldType: FieldType.TEXT,
-                    ReadOnly: false,
-                    LookupField: false,
-                    Label: 'Fødselsnummer',
-                    Description: null,
-                    HelpText: null,
-                    FieldSet: 0,
-                    Section: 0,
-                    Placeholder: null,
-                    Options: {
-                        mask: '000000 00000'
-                    },
-                    LineBreak: null,
-                    Combo: null,
-                    Sectionheader: '',
-                    Validations: [
-                        {
-                            ErrorMessage: 'Required field',
-                            Level: 3,
-                            Operator: 7 // required
-                        }
-                    ]
-                },
-                {
-                    ComponentLayoutID: 1,
-
-                    EntityType: 'Employee',
-                    Property: 'BirthDate',
-                    Placement: 3,
-                    Hidden: false,
-                    FieldType: FieldType.LOCAL_DATE_PICKER,
-                    ReadOnly: false,
-                    LookupField: false,
-                    Label: 'Fødselsdato',
-                    Description: null,
-                    HelpText: null,
-                    FieldSet: 0,
-                    Section: 0,
-                    Placeholder: null,
-                    Options: null,
-                    LineBreak: null,
-                    Combo: null,
-                    Sectionheader: '',
-                    Validations: [
-                        {
-                            ErrorMessage: 'Required field',
-                            Level: 3,
-                            Operator: 7 // required
-                        }
-                    ]
-                },
-                {
-                    ComponentLayoutID: 1,
-
-                    EntityType: 'Employee',
-                    Property: 'Sex',
-                    Placement: 4,
-                    Hidden: false,
-                    FieldType: FieldType.DROPDOWN,
-                    ReadOnly: false,
-                    LookupField: false,
-                    Label: 'Kjønn',
-                    Description: null,
-                    HelpText: null,
-                    FieldSet: 0,
-                    Section: 0,
-                    Placeholder: null,
-                    LineBreak: null,
-                    Combo: null,
-                    Sectionheader: '',
-                    IsLookUp: true,
-                    Options: {
-                        source: [
-                            { id: 1, name: 'Kvinne' },
-                            { id: 2, name: 'Mann' }
-                        ],
-                        template: (obj) => `${obj.id} - ${obj.name}`,
-                        valueProperty: 'id',
-                        displayProperty: 'name'
-                    },
-                    Validations: [
-                        {
-                            ErrorMessage: 'Required field',
-                            Level: 3,
-                            Operator: Operator.Required
-                        }
-                    ]
-                },
-                {
-                    ComponentLayoutID: 1,
-
-                    EntityType: 'Employee',
-                    Property: 'BusinessRelationInfo.DefaultBankAccount',
-                    Placement: 4,
-                    Hidden: false,
-                    FieldType: FieldType.MULTIVALUE,
-                    ReadOnly: false,
-                    LookupField: false,
-                    Label: 'Kontonummer',
-                    Description: null,
-                    HelpText: null,
-                    FieldSet: 0,
-                    Section: 0,
-                    Placeholder: null,
-                    LineBreak: null,
-                    Combo: null,
-                    Sectionheader: '',
-                    IsLookUp: false,
                     Options: null
                 },
                 {
@@ -303,7 +188,7 @@ export class EmployeeService extends BizHttp<Employee> {
 
                     EntityType: 'Employee',
                     Property: 'SubEntityID',
-                    Placement: 5,
+                    Placement: 6,
                     Hidden: false,
                     FieldType: FieldType.DROPDOWN,
                     ReadOnly: false,
@@ -311,7 +196,7 @@ export class EmployeeService extends BizHttp<Employee> {
                     Label: 'Virksomhet',
                     Description: null,
                     HelpText: null,
-                    FieldSet: 0,
+                    FieldSet: 1,
                     Section: 0,
                     Placeholder: null,
                     LineBreak: null,
@@ -344,7 +229,7 @@ export class EmployeeService extends BizHttp<Employee> {
                     Label: 'Bruker',
                     Description: null,
                     HelpText: null,
-                    FieldSet: 0,
+                    FieldSet: 1,
                     Section: 0,
                     Placeholder: null,
                     LineBreak: null,
@@ -354,32 +239,24 @@ export class EmployeeService extends BizHttp<Employee> {
                 },
                 {
                     ComponentLayoutID: 1,
-
                     EntityType: 'Employee',
-                    Property: '',
-                    Placement: 7,
-                    Hidden: true,
-                    FieldType: FieldType.TEXT,
+                    Property: 'BusinessRelationInfo.DefaultBankAccount',
+                    Placement: 4,
+                    Hidden: false,
+                    FieldType: FieldType.MULTIVALUE,
                     ReadOnly: false,
                     LookupField: false,
-                    Label: 'Overordnet',
+                    Label: 'Kontonummer',
                     Description: null,
-                    HelpText: 'Ikke implementert enda',
-                    FieldSet: 0,
+                    HelpText: null,
+                    FieldSet: 1,
                     Section: 0,
                     Placeholder: null,
-                    Options: null,
                     LineBreak: null,
                     Combo: null,
                     Sectionheader: '',
                     IsLookUp: false,
-                    Validations: [
-                        {
-                            ErrorMessage: 'Required field',
-                            Level: 3,
-                            Operator: 7 // required
-                        }
-                    ]
+                    Options: null
                 },
                 {
                     ComponentLayoutID: 1,
@@ -394,8 +271,9 @@ export class EmployeeService extends BizHttp<Employee> {
                     Label: 'Adresse',
                     Description: null,
                     HelpText: null,
-                    FieldSet: 0,
-                    Section: 1,
+                    FieldSet: 2,
+                    Legend: 'Kontaktinformasjon',
+                    Section: 0,
                     Placeholder: 'Legg til adresse',
                     Options: null,
                     LineBreak: null,
@@ -417,8 +295,8 @@ export class EmployeeService extends BizHttp<Employee> {
                     Label: 'Epost',
                     Description: null,
                     HelpText: null,
-                    FieldSet: 0,
-                    Section: 1,
+                    FieldSet: 2,
+                    Section: 0,
                     Placeholder: 'Legg til e-post',
                     Options: null,
                     LineBreak: null,
@@ -439,17 +317,141 @@ export class EmployeeService extends BizHttp<Employee> {
                     Label: 'Telefon',
                     Description: null,
                     HelpText: null,
-                    FieldSet: 0,
-                    Section: 1,
+                    FieldSet: 2,
+                    Section: 0,
                     Placeholder: 'Legg til telefon',
                     Options: null,
                     LineBreak: null,
                     Combo: null,
                     Sectionheader: '',
                     IsLookUp: false
-                }
+                },
+                {
+                    ComponentLayoutID: 1,
+                    EntityType: 'Employee',
+                    Property: 'SocialSecurityNumber',
+                    Placement: 2,
+                    Hidden: false,
+                    FieldType: FieldType.TEXT,
+                    ReadOnly: false,
+                    LookupField: false,
+                    Label: 'Fødselsnummer',
+                    Description: null,
+                    HelpText: null,
+                    FieldSet: 3,
+                    Legend: 'Fødselsnummer',
+                    Section: 0,
+                    Placeholder: null,
+                    Options: {
+                        mask: '000000 00000'
+                    },
+                    LineBreak: null,
+                    Combo: null,
+                    Sectionheader: '',
+                    Validations: [
+                        {
+                            ErrorMessage: 'Required field',
+                            Level: 3,
+                            Operator: 7 // required
+                        }
+                    ]
+                },
+                {
+                    ComponentLayoutID: 1,
 
-                // ,{
+                    EntityType: 'Employee',
+                    Property: 'BirthDate',
+                    Placement: 3,
+                    Hidden: false,
+                    FieldType: FieldType.LOCAL_DATE_PICKER,
+                    ReadOnly: false,
+                    LookupField: false,
+                    Label: 'Fødselsdato',
+                    Description: null,
+                    HelpText: null,
+                    FieldSet: 3,
+                    Section: 0,
+                    Placeholder: null,
+                    Options: null,
+                    LineBreak: null,
+                    Combo: null,
+                    Sectionheader: '',
+                    Validations: [
+                        {
+                            ErrorMessage: 'Required field',
+                            Level: 3,
+                            Operator: 7 // required
+                        }
+                    ]
+                },
+                {
+                    ComponentLayoutID: 1,
+
+                    EntityType: 'Employee',
+                    Property: 'Sex',
+                    Placement: 4,
+                    Hidden: false,
+                    FieldType: FieldType.DROPDOWN,
+                    ReadOnly: false,
+                    LookupField: false,
+                    Label: 'Kjønn',
+                    Description: null,
+                    HelpText: null,
+                    FieldSet: 3,
+                    Section: 0,
+                    Placeholder: null,
+                    LineBreak: null,
+                    Combo: null,
+                    Sectionheader: '',
+                    IsLookUp: true,
+                    Options: {
+                        source: [
+                            { id: 1, name: 'Kvinne' },
+                            { id: 2, name: 'Mann' }
+                        ],
+                        template: (obj) => `${obj.id} - ${obj.name}`,
+                        valueProperty: 'id',
+                        displayProperty: 'name'
+                    },
+                    Validations: [
+                        {
+                            ErrorMessage: 'Required field',
+                            Level: 3,
+                            Operator: Operator.Required
+                        }
+                    ]
+                },
+
+                // {
+                //     ComponentLayoutID: 1,
+                //
+                //     EntityType: 'Employee',
+                //     Property: '',
+                //     Placement: 7,
+                //     Hidden: true,
+                //     FieldType: FieldType.TEXT,
+                //     ReadOnly: false,
+                //     LookupField: false,
+                //     Label: 'Overordnet',
+                //     Description: null,
+                //     HelpText: 'Ikke implementert enda',
+                //     FieldSet: 0,
+                //     Section: 0,
+                //     Placeholder: null,
+                //     Options: null,
+                //     LineBreak: null,
+                //     Combo: null,
+                //     Sectionheader: '',
+                //     IsLookUp: false,
+                //     Validations: [
+                //         {
+                //             ErrorMessage: 'Required field',
+                //             Level: 3,
+                //             Operator: 7 // required
+                //         }
+                //     ]
+                // },
+                // {
                 //     ComponentLayoutID: 1,
 
                 //     EntityType: 'Employee',
