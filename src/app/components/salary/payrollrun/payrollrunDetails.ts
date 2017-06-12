@@ -182,7 +182,7 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
                 })
                 .do((payrollRun: PayrollRun) => {
                     let oldValue = this.payrollrun$.getValue();
-                    if (!oldValue 
+                    if (!oldValue
                         || (oldValue.StatusCode !== payrollRun.StatusCode || oldValue.ID !== payrollRun.ID)) {
                         this.toggleReadOnlyOnCategories(this.salaryTransactions, payrollRun);
                     }
@@ -1052,9 +1052,19 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
     }
 
     private change(changes: SimpleChanges) {
-        let payrollRun = this.payrollrun$.getValue();
-        payrollRun.ExcludeRecurringPosts = !payrollRun['_IncludeRecurringPosts'];
-        super.updateState('payrollRun', payrollRun, true);
+        this.payrollrun$
+            .take(1)
+            .filter(() => Object
+                .keys(changes)
+                .some(key => {
+                    let change = changes[key];
+                    return change.previousValue !== change.currentValue;
+                }))
+            .map(payrollRun => {
+                payrollRun.ExcludeRecurringPosts = !payrollRun['_IncludeRecurringPosts'];
+                return payrollRun;
+            })
+            .subscribe(payrollRun => super.updateState('payrollRun', payrollRun, true));
     }
 
     private populateCategoryFilters() {

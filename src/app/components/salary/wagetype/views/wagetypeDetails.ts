@@ -692,13 +692,12 @@ export class WagetypeDetail extends UniView {
         Observable
             .combineLatest(this.wageType$, this.fields$)
             .take(1)
-            .filter((result: [WageType, any[]]) => {
-                let [wageType, fields] = result;
-                return fields.some(field => {
-                    let change = changes[field.Property];
-                    return change && change.previousValue !== change.currentValue;
-                });
-            })
+            .filter(() => Object
+                .keys(changes)
+                .some(key => {
+                    let change = changes[key];
+                    return change.previousValue !== change.currentValue;
+                }))
             .map((result: [WageType, any[]]) => {
                 let [wageType, fields] = result;
 

@@ -228,56 +228,52 @@ export class PersonalDetails extends UniView {
     }
 
     public onFormChange(changes: SimpleChanges) {
-        let employee = this.employee$.getValue();
-        let keys = [
-            ...Object.keys(employee),
-            '_EmployeeSearchResult',
-            'BusinessRelationInfo.DefaultBankAccountID'];
-
-        let actualChange = keys
-            .some(key => {
-                let change = changes[key];
-                return change && change.previousValue !== change.currentValue;
-            });
-
-        if (actualChange) {
-
-            if (changes['BusinessRelationInfo.DefaultBankAccountID']) {
-                this.businessRelationService.deleteRemovedBankAccounts(
-                    changes['BusinessRelationInfo.DefaultBankAccountID'],
-                    employee.BusinessRelationInfo
-                );
-            }
-
-            if (changes['_EmployeeSearchResult']) {
-                let searchResult = changes['_EmployeeSearchResult'].currentValue;
-                if (searchResult) {
-                    employee = searchResult;
-                    this.showHideNameProperties(true, employee);
+        this.employee$
+            .take(1)
+            .filter(() => Object
+                .keys(changes)
+                .some(key => {
+                    let change = changes[key];
+                    return change.previousValue !== change.currentValue;
+                }))
+            .map(employee => {
+                if (changes['BusinessRelationInfo.DefaultBankAccountID']) {
+                    this.businessRelationService.deleteRemovedBankAccounts(
+                        changes['BusinessRelationInfo.DefaultBankAccountID'],
+                        employee.BusinessRelationInfo
+                    );
                 }
-            }
 
-            // if the user has typed something in Name for a new employee, but has not
-            // selected something from the list or clicked F3, the searchbox is still active,
-            // so we need to get the value from there
-            if (!employee.ID || employee.ID === 0) {
-                if (!employee.BusinessRelationInfo.Name || employee.BusinessRelationInfo.Name === '') {
-                    let searchInfo = <any>this.uniform.field('_EmployeeSearchResult');
-                    if (searchInfo) {
-                        if (searchInfo.component && searchInfo.component.input) {
-                            employee.BusinessRelationInfo.Name = searchInfo.component.input.value;
-                            this.showHideNameProperties(false, employee);
+                if (changes['_EmployeeSearchResult']) {
+                    let searchResult = changes['_EmployeeSearchResult'].currentValue;
+                    if (searchResult) {
+                        employee = searchResult;
+                        this.showHideNameProperties(true, employee);
+                    }
+                }
+
+                // if the user has typed something in Name for a new employee, but has not
+                // selected something from the list or clicked F3, the searchbox is still active,
+                // so we need to get the value from there
+                if (!employee.ID || employee.ID === 0) {
+                    if (!employee.BusinessRelationInfo.Name || employee.BusinessRelationInfo.Name === '') {
+                        let searchInfo = <any>this.uniform.field('_EmployeeSearchResult');
+                        if (searchInfo) {
+                            if (searchInfo.component && searchInfo.component.input) {
+                                employee.BusinessRelationInfo.Name = searchInfo.component.input.value;
+                                this.showHideNameProperties(false, employee);
+                            }
                         }
                     }
                 }
-            }
 
-            if (changes['SocialSecurityNumber']) {
-                this.updateInfoFromSSN(employee);
-            }
+                if (changes['SocialSecurityNumber']) {
+                    this.updateInfoFromSSN(employee);
+                }
 
-            super.updateState('employee', employee, true);
-        }
+                return employee;
+            })
+            .subscribe(employee => super.updateState('employee', employee, true));
     }
 
     public onTaxFormChange(changes: SimpleChanges) {
