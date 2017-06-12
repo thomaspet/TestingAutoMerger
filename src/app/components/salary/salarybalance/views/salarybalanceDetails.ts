@@ -210,8 +210,10 @@ export class SalarybalanceDetail extends UniView {
                 });
 
                 this.editField(fields, 'Amount', amountField => {
+                    amountField.Options = {};
                     amountField.Label = salaryBalance.InstalmentType === SalBalType.Advance ? 'Beløp' : 'Saldo';
-                    amountField.Hidden = this.salarybalanceID > 0;
+                    amountField.Hidden = this.salarybalanceID > 0 
+                    || salaryBalance.InstalmentType === SalBalType.Contribution;
                 });
 
                 return fields;
