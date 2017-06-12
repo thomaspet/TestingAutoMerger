@@ -413,9 +413,11 @@ export class UniImage {
     // Coordinates param should contain positions top and left + height and width of highlight element
     // Height and width params is the sixe of the originally scanned document
     // styleObject is for custom style like size, color and shape on the highlight marker..
-    public highlight(coordinates: number[], width: number, height: number, styleObject: any) {
+    public highlight(coordinates: number[], width: number, height: number, styleObject?: any) {
 
-        if ((!coordinates || coordinates.length < 4) && !styleObject) return;
+        if ((!coordinates || coordinates.length < 4) && !styleObject) {
+            return;
+        }
 
         // Find the ratio between the original scanned image(height and width param) and the shown image
         let widthRatio = (this.image.nativeElement.clientWidth || width) / width;
@@ -430,7 +432,7 @@ export class UniImage {
                 width: coordinates[2] + 'px',
                 left: (coordinates[0] - coordinates[2]) * widthRatio + 'px',
                 top: (coordinates[1] - coordinates[3]) * heightRatio + 'px'
-            }
+            };
         }
     }
 

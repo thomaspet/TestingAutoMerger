@@ -598,11 +598,10 @@ export class BillView {
 
     public onFocusEvent(event) {
 
-        if (!this.currentFileID || !this.ocrData) return;
+        if (!this.currentFileID || !this.ocrData) { return; }
 
         this.uniImage.removeHighlight();
 
-        const ocrReport = this.ocrData.OcrInvoiceReport;
         let candidates;
 
         switch (event.field.Property) {

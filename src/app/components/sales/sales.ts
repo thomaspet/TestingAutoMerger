@@ -102,10 +102,10 @@ export class UniSales {
                 y: 0,
                 widgetType: 'shortcut',
                 config: {
-                    label: 'Produkter',
-                    description: 'Produkter',
+                    label: 'Prosjekt',
+                    description: 'Prosjektmodul',
                     icon: '',
-                    link: '/products'
+                    link: '/sales/project/overview/first'
                 }
             },
 
