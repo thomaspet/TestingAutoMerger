@@ -267,7 +267,8 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
                     Label: 'Nummer',
                     Description: null,
                     HelpText: null,
-                    FieldSet: 0,
+                    Legend: 'Lønnsvregning',
+                    FieldSet: 1,
                     Section: 0,
                     Placeholder: '',
                     Options: null,
@@ -295,7 +296,7 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
                     Label: 'Beskrivelse',
                     Description: null,
                     HelpText: null,
-                    FieldSet: 0,
+                    FieldSet: 1,
                     Section: 0,
                     Placeholder: null,
                     Options: null,
@@ -324,7 +325,7 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
                     Label: 'Status',
                     Description: null,
                     HelpText: null,
-                    FieldSet: 0,
+                    FieldSet: 1,
                     Section: 0,
                     Placeholder: null,
                     Options: null,
@@ -345,7 +346,7 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
                     Label: 'Skattetrekk',
                     Description: null,
                     HelpText: null,
-                    FieldSet: 0,
+                    FieldSet: 1,
                     Section: 0,
                     Placeholder: null,
                     LineBreak: null,
@@ -364,108 +365,6 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
                 {
                     ComponentLayoutID: 1,
                     EntityType: 'payrollrun',
-                    Property: 'PayDate',
-                    Placement: 3,
-                    Hidden: false,
-                    FieldType: FieldType.LOCAL_DATE_PICKER,
-                    ReadOnly: false,
-                    LookupField: false,
-                    Label: 'Utbetalingsdato',
-                    Description: null,
-                    HelpText: null,
-                    FieldSet: 0,
-                    Section: 0,
-                    Placeholder: null,
-                    Options: null,
-                    LineBreak: null,
-                    Combo: null,
-                    Classes: 'payrollDetails_payDate',
-                    Legend: '',
-                    hasLineBreak: false,
-                    Validations: [
-                        {
-                            ErrorMessage: 'should be a valid date',
-                            Operator: 'DATE',
-                            Level: 3
-                        },
-                        {
-                            ErrorMessage: 'Required field',
-                            Level: 3,
-                            Operator: 'REQUIRED'
-                        }
-                    ]
-                },
-                {
-                    ComponentLayoutID: 1,
-                    EntityType: 'payrollrun',
-                    Property: 'FromDate',
-                    Placement: 3,
-                    Hidden: false,
-                    FieldType: FieldType.LOCAL_DATE_PICKER,
-                    ReadOnly: false,
-                    LookupField: false,
-                    Label: 'Fra dato',
-                    Description: null,
-                    HelpText: null,
-                    FieldSet: 0,
-                    Section: 0,
-                    Placeholder: null,
-                    Options: null,
-                    LineBreak: null,
-                    Combo: null,
-                    Classes: 'payrollDetails_fromDate',
-                    Legend: '',
-                    hasLineBreak: false,
-                    Validations: [
-                        {
-                            ErrorMessage: 'should be a valid date',
-                            Operator: 'DATE',
-                            Level: 3
-                        },
-                        {
-                            ErrorMessage: 'Required field',
-                            Level: 3,
-                            Operator: 'REQUIRED'
-                        }
-                    ]
-                },
-                {
-                    ComponentLayoutID: 1,
-                    EntityType: 'payrollrun',
-                    Property: 'ToDate',
-                    Placement: 3,
-                    Hidden: false,
-                    FieldType: FieldType.LOCAL_DATE_PICKER,
-                    ReadOnly: false,
-                    LookupField: false,
-                    Label: 'Til dato',
-                    Description: null,
-                    HelpText: null,
-                    FieldSet: 0,
-                    Section: 0,
-                    Placeholder: null,
-                    Options: null,
-                    LineBreak: null,
-                    Combo: null,
-                    Classes: 'payrollDetails_toDate',
-                    Legend: '',
-                    hasLineBreak: true,
-                    Validations: [
-                        {
-                            ErrorMessage: 'should be a valid date',
-                            Operator: 'DATE',
-                            Level: 3
-                        },
-                        {
-                            ErrorMessage: 'Required field',
-                            Level: 3,
-                            Operator: 'REQUIRED'
-                        }
-                    ]
-                },
-                {
-                    ComponentLayoutID: 1,
-                    EntityType: 'payrollrun',
                     Property: '',
                     Placement: 3,
                     Hidden: true,
@@ -475,7 +374,7 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
                     Label: 'Behandling av fastlønn i feriemåned',
                     Description: null,
                     HelpText: null,
-                    FieldSet: 0,
+                    FieldSet: 1,
                     Section: 0,
                     Placeholder: null,
                     LineBreak: null,
@@ -517,7 +416,7 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
                     Label: 'Inkluder faste poster og trekk',
                     Description: null,
                     HelpText: null,
-                    FieldSet: 0,
+                    FieldSet: 1,
                     Section: 0,
                     Placeholder: null,
                     Options: null,
@@ -552,7 +451,7 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
                     Label: 'Trekk i fastlønn for ferie',
                     Description: null,
                     HelpText: null,
-                    FieldSet: 0,
+                    FieldSet: 1,
                     Section: 0,
                     Placeholder: null,
                     Options: null,
@@ -574,7 +473,7 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
                     Label: 'Ansatte med negativ lønn utelates',
                     Description: null,
                     HelpText: null,
-                    FieldSet: 0,
+                    FieldSet: 1,
                     Section: 0,
                     Placeholder: null,
                     Options: null,
@@ -582,6 +481,108 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
                     Combo: null,
                     Legend: '',
                     hasLineBreak: true,
+                    Validations: [
+                        {
+                            ErrorMessage: 'should be a valid date',
+                            Operator: 'DATE',
+                            Level: 3
+                        },
+                        {
+                            ErrorMessage: 'Required field',
+                            Level: 3,
+                            Operator: 'REQUIRED'
+                        }
+                    ]
+                },
+                {
+                    ComponentLayoutID: 1,
+                    EntityType: 'payrollrun',
+                    Property: 'FromDate',
+                    Placement: 3,
+                    Hidden: false,
+                    FieldType: FieldType.LOCAL_DATE_PICKER,
+                    ReadOnly: false,
+                    LookupField: false,
+                    Label: 'Fra dato',
+                    Description: null,
+                    HelpText: null,
+                    FieldSet: 2,
+                    Legend: 'Datoer og fritekst',
+                    Section: 0,
+                    Placeholder: null,
+                    Options: null,
+                    LineBreak: null,
+                    Combo: null,
+                    Classes: 'payrollDetails_fromDate',
+                    hasLineBreak: false,
+                    Validations: [
+                        {
+                            ErrorMessage: 'should be a valid date',
+                            Operator: 'DATE',
+                            Level: 3
+                        },
+                        {
+                            ErrorMessage: 'Required field',
+                            Level: 3,
+                            Operator: 'REQUIRED'
+                        }
+                    ]
+                },
+                {
+                    ComponentLayoutID: 1,
+                    EntityType: 'payrollrun',
+                    Property: 'ToDate',
+                    Placement: 3,
+                    Hidden: false,
+                    FieldType: FieldType.LOCAL_DATE_PICKER,
+                    ReadOnly: false,
+                    LookupField: false,
+                    Label: 'Til dato',
+                    Description: null,
+                    HelpText: null,
+                    FieldSet: 2,
+                    Section: 0,
+                    Placeholder: null,
+                    Options: null,
+                    LineBreak: null,
+                    Combo: null,
+                    Classes: 'payrollDetails_toDate',
+                    Legend: '',
+                    hasLineBreak: true,
+                    Validations: [
+                        {
+                            ErrorMessage: 'should be a valid date',
+                            Operator: 'DATE',
+                            Level: 3
+                        },
+                        {
+                            ErrorMessage: 'Required field',
+                            Level: 3,
+                            Operator: 'REQUIRED'
+                        }
+                    ]
+                },
+                {
+                    ComponentLayoutID: 1,
+                    EntityType: 'payrollrun',
+                    Property: 'PayDate',
+                    Placement: 3,
+                    Hidden: false,
+                    FieldType: FieldType.LOCAL_DATE_PICKER,
+                    ReadOnly: false,
+                    LookupField: false,
+                    Label: 'Utbetalingsdato',
+                    Description: null,
+                    HelpText: null,
+                    FieldSet: 2,
+                    Section: 0,
+                    Placeholder: null,
+                    Options: null,
+                    LineBreak: null,
+                    Combo: null,
+                    Classes: 'payrollDetails_payDate',
+                    Legend: '',
+                    hasLineBreak: false,
                     Validations: [
                         {
                             ErrorMessage: 'should be a valid date',
@@ -607,7 +608,7 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
                     Label: 'Fritekst til lønnslipp',
                     Description: null,
                     HelpText: null,
-                    FieldSet: 0,
+                    FieldSet: 2,
                     Section: 0,
                     Placeholder: null,
                     Options: null,
