@@ -25,7 +25,7 @@ import {KeyCodes} from "../../../../../services/common/KeyCodes";
             <label>
                 <h4>Translation</h4>
                 <textarea [formControl]="translationFormControl" #textarea (keydown)="preventEnter($event)"></textarea>
-                <small>*tip: use shift+enter to insert a line break</small>
+                <p align="right">*tip: use shift+enter to insert a line break</p>
             </label>
         </section>
     `,
