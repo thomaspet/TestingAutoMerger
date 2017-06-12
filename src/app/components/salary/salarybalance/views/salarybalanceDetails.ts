@@ -2,7 +2,8 @@ import { Component, SimpleChanges } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { UniView } from '../../../../../framework/core/uniView';
 import {
-    UniCacheService, ErrorService, SalarybalanceService, WageTypeService, EmployeeService, SupplierService
+    UniCacheService, ErrorService, SalarybalanceService, 
+    WageTypeService, EmployeeService, SupplierService, ModulusService
 } from '../../../../services/services';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import { ReplaySubject } from 'rxjs/ReplaySubject';
@@ -24,6 +25,7 @@ export class SalarybalanceDetail extends UniView {
     private wagetypes: WageType[];
     private employees: Employee[];
     private suppliers: Supplier[];
+    private invalidKID: boolean; 
     private cachedSalaryBalance$: ReplaySubject<SalaryBalance> = new ReplaySubject<SalaryBalance>(1);
     private salarybalance$: BehaviorSubject<SalaryBalance> = new BehaviorSubject(new SalaryBalance());
     public config$: BehaviorSubject<any> = new BehaviorSubject({ autofocus: true });
@@ -43,8 +45,9 @@ export class SalarybalanceDetail extends UniView {
         private employeeService: EmployeeService,
         private supplierService: SupplierService,
         private toastService: ToastService,
-        public cacheService: UniCacheService,
-        private errorService: ErrorService
+        protected cacheService: UniCacheService,
+        private errorService: ErrorService,
+        private modulusService: ModulusService
     ) {
         super(router.url, cacheService);
 
@@ -53,12 +56,12 @@ export class SalarybalanceDetail extends UniView {
             super.getStateSubject('salarybalance').subscribe(salaryBalance => {
                 this.cachedSalaryBalance$.next(salaryBalance);
             });
+            this.invalidKID = false;
         });
 
         this.route.params.subscribe(params => {
             let employeeID: number = +params['employeeID'] || undefined;
             let type: SalBalType = +params['instalmentType'] || undefined;
-
             this.cachedSalaryBalance$
                 .switchMap((salarybalance: SalaryBalance) => {
                     if (salarybalance.ID !== this.salarybalanceID) {
@@ -92,33 +95,37 @@ export class SalarybalanceDetail extends UniView {
     }
 
     public change(changes: SimpleChanges) {
-        let previous = changes['InstalmentType'] ? changes['InstalmentType'].previousValue : null;
-        let current = changes['InstalmentType'] ? changes['InstalmentType'].currentValue : null;
-        if (!previous || (previous !== current)) {
-            this.updateFields();
-        }
+        this.salarybalance$
+            .take(1)
+            .filter(() => Object
+                .keys(changes)
+                .some(key => changes[key].currentValue !== changes[key].previousValue))
+            .map(model => {
+                
+                if (changes['KID'] || changes['Instalment']) {
+                    this.validateKID(model);
+                }
+                if (changes['SupplierID']) {
+                    model.Supplier = this.suppliers.find(supp => supp.ID === model.SupplierID);
+                }
 
-        let model = this.salarybalance$.getValue();
-
-        if (changes['SupplierID']) {
-            model.Supplier = this.suppliers.find(supp => supp.ID === model.SupplierID);
-        }
-
-        let previousAmount = changes['Amount'] ? changes['Amount'].previousValue : null;
-        let currentAmount = changes['Amount'] ? changes['Amount'].currentValue : null;
-        if (previousAmount !== currentAmount) {
-            if (currentAmount < 0 && this.salarybalance$.getValue().InstalmentType === SalBalType.Advance) {
-                this.toastService.addToast('Feil i beløp',
-                    ToastType.warn, ToastTime.medium,
-                    'Du prøver å føre et forskudd med et negativt beløp');
-            } else if (currentAmount > 0 && this.salarybalance$.getValue().InstalmentType !== SalBalType.Advance) {
-                this.toastService.addToast('Feil i beløp',
-                    ToastType.warn, ToastTime.medium,
-                    'Du prøver å føre et trekk med positivt beløp');
-            }
-        }
-
-        super.updateState('salarybalance', model, true);
+                let previousAmount = changes['Amount'] ? changes['Amount'].previousValue : null;
+                let currentAmount = changes['Amount'] ? changes['Amount'].currentValue : null;
+                if (previousAmount !== currentAmount) {
+                    if (currentAmount < 0 && this.salarybalance$.getValue().InstalmentType === SalBalType.Advance) {
+                        this.toastService.addToast('Feil i beløp',
+                            ToastType.warn, ToastTime.medium,
+                            'Du prøver å føre et forskudd med et negativt beløp');
+                    } else if (currentAmount > 0 
+                        && this.salarybalance$.getValue().InstalmentType !== SalBalType.Advance) {
+                        this.toastService.addToast('Feil i beløp',
+                            ToastType.warn, ToastTime.medium,
+                            'Du prøver å føre et trekk med positivt beløp');
+                    }
+                }
+                return model;
+            })
+            .subscribe(model => super.updateState('salarybalance', model, true));
     }
 
     private setup(): Observable<any> {
@@ -189,18 +196,17 @@ export class SalarybalanceDetail extends UniView {
 
                 this.editField(fields, 'SupplierID', supplierField => {
                     supplierField.Options.source = this.suppliers;
-                    supplierField.Hidden = (salaryBalance.InstalmentType !== SalBalType.Contribution)
-                        && (salaryBalance.InstalmentType !== SalBalType.Outlay);
+                    supplierField.Hidden = this.hideSupplierKIDAndAccount(salaryBalance);
                 });
 
                 this.editField(fields, 'KID', kidField => {
-                    kidField.Hidden = !(salaryBalance.InstalmentType === SalBalType.Contribution)
-                        && !(salaryBalance.InstalmentType === SalBalType.Outlay);
+                    kidField.Options = {};
+                    kidField.Hidden = this.hideSupplierKIDAndAccount(salaryBalance);
                 });
 
                 this.editField(fields, 'Supplier.Info.DefaultBankAccount.AccountNumber', accountField => {
-                    accountField.Hidden = !(salaryBalance.InstalmentType === SalBalType.Contribution)
-                        && !(salaryBalance.InstalmentType === SalBalType.Outlay);
+                    accountField.Options = {};
+                    accountField.Hidden = this.hideSupplierKIDAndAccount(salaryBalance);
                 });
 
                 this.editField(fields, 'Amount', amountField => {
@@ -213,10 +219,21 @@ export class SalarybalanceDetail extends UniView {
             .subscribe(fields => this.fields$.next(fields));
     }
 
+    private hideSupplierKIDAndAccount(salaryBalance: SalaryBalance) {
+        return (salaryBalance.InstalmentType !== SalBalType.Contribution)
+            && (salaryBalance.InstalmentType !== SalBalType.Outlay) 
+            && (salaryBalance.InstalmentType !== SalBalType.Other);
+    }
+
     private editField(fields: any[], prop: string, edit: (field: any) => void): void {
         let field = fields.find(fld => fld.Property === prop);
         if (field) {
             edit(field);
         }
+    }
+
+    private validateKID(salaryBalance: SalaryBalance) {
+        this.invalidKID = !this.hideSupplierKIDAndAccount(salaryBalance) 
+        && !this.modulusService.isValidKID(salaryBalance.KID);
     }
 }

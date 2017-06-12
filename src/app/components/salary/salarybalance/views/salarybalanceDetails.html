@@ -1,4 +1,5 @@
 <section class="application">
+    <p *ngIf="invalidKID" role="alert" class="error">Ugyldig KID</p>
     <uni-form [config]="config$" [fields]="fields$" [model]="salarybalance$" (changeEvent)="change($event)"></uni-form>
     <salary-balance-summary [salaryBalance]="salarybalance$ | async"></salary-balance-summary>
 </section>
