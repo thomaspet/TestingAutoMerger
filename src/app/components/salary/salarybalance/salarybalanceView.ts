@@ -3,13 +3,14 @@ import { UniView } from '../../../../framework/core/uniView';
 import { ActivatedRoute, Router, NavigationEnd } from '@angular/router';
 import { IUniSaveAction } from '../../../../framework/save/save';
 import { IToolbarConfig } from '../../common/toolbar/toolbar';
-import { UniCacheService, ErrorService, SalarybalanceService } from '../../../services/services';
+import { UniCacheService, ErrorService, SalarybalanceService, ReportDefinitionService } from '../../../services/services';
 import { TabService, UniModules } from '../../layout/navbar/tabstrip/tabService';
 import { Observable } from 'rxjs/Observable';
 import { SalaryBalance, SalBalType } from '../../../unientities';
 import { UniConfirmModal, ConfirmActions } from '../../../../framework/modals/confirm';
 import { IContextMenuItem } from 'unitable-ng2/main';
 import { SalarybalancelineModal } from './modals/salarybalancelinemodal';
+import { PreviewModal } from '../../reports/modals/preview/previewModal';
 
 @Component({
     selector: 'uni-salarybalance-view',
@@ -29,6 +30,7 @@ export class SalarybalanceView extends UniView {
 
     @ViewChild(UniConfirmModal) public confirmModal: UniConfirmModal;
     @ViewChild(SalarybalancelineModal) private salarybalanceModal: SalarybalancelineModal;
+    @ViewChild(PreviewModal) private previewModal: PreviewModal;
 
     constructor(
         private route: ActivatedRoute,
@@ -36,7 +38,8 @@ export class SalarybalanceView extends UniView {
         private salarybalanceService: SalarybalanceService,
         private tabService: TabService,
         private errorService: ErrorService,
-        protected cacheService: UniCacheService
+        protected cacheService: UniCacheService,
+        private reportDefinitionService: ReportDefinitionService
     ) {
         super(router.url, cacheService);
 
@@ -51,25 +54,31 @@ export class SalarybalanceView extends UniView {
             disabled: true
         }];
 
-        this.contextMenuItems = [
-            {
-                label: 'Legg til manuell post',
-                action: () => {
-                    this.openSalarybalancelineModal();
-                },
-                disabled: (rowModel) => {
-                    return this.salarybalanceID < 1 || !this.salarybalance;
-                }
-            }
-        ];
-
         this.route.params.subscribe((params) => {
             this.salarybalanceID = +params['id'];
             this.updateTabStrip(this.salarybalanceID);
+            this.contextMenuItems = [];
 
             super.updateCacheKey(this.router.url);
 
             super.getStateSubject('salarybalance')
+                .do(salaryBalance => {
+                    if (!this.contextMenuItems.length) {
+                        this.contextMenuItems = [
+                            {
+                                label: 'Legg til manuell post',
+                                action: () => this.openSalarybalancelineModal(),
+                                disabled: () => this.salarybalanceID < 1 || !salaryBalance
+                            },
+                            {
+                                label: 'Vis forskuddskvittering',
+                                action: () => this.showAdvanceReport(this.salarybalanceID),
+                                disabled: () => !this.salarybalanceID
+                                    || !this.salarybalanceService.hasBalance(salaryBalance)
+                            }
+                        ];
+                    }
+                })
                 .subscribe((salarybalance: SalaryBalance) => {
                     this.salarybalance = salarybalance;
                     this.toolbarConfig = {
@@ -204,6 +213,11 @@ export class SalarybalanceView extends UniView {
 
         this.handlePaymentCreation(this.salarybalance)
             .switchMap(salaryBalance => this.salarybalanceService.save(salaryBalance))
+            .do(salaryBalance => {
+                if (!salaryBalance['CreatePayment'] && this.salarybalanceService.hasBalance(salaryBalance)) {
+                    this.showAdvanceReport(salaryBalance.ID);
+                }
+            })
             .subscribe((salbal: SalaryBalance) => {
                 super.updateState('salarybalance', salbal, false);
                 let childRoute = this.router.url.split('/').pop();
@@ -218,7 +232,7 @@ export class SalarybalanceView extends UniView {
 
     private handlePaymentCreation(salaryBalance: SalaryBalance): Observable<SalaryBalance> {
         return Observable
-            .of(!salaryBalance.ID && salaryBalance.InstalmentType === SalBalType.Advance)
+            .of(!salaryBalance.ID && this.salarybalanceService.hasBalance(salaryBalance))
             .switchMap(promptUser => promptUser
                 ? Observable.fromPromise(this.confirmModal
                     .confirm('Vil du opprette en utbetalingspost av dette forskuddet?', 'Utbetaling', false))
@@ -254,5 +268,13 @@ export class SalarybalanceView extends UniView {
         } else {
             this.saveActions[0].disabled = true;
         }
+    }
+
+    private showAdvanceReport(id: number) {
+        this.reportDefinitionService
+            .getReportByName('Forskuddskvittering')
+            .subscribe(report => {
+                this.previewModal.openWithId(report, id, 'SalaryBalanceID');
+            });
     }
 }

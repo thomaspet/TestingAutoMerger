@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { BizHttp } from '../../../../framework/core/http/BizHttp';
 import { UniHttp } from '../../../../framework/core/http/http';
-import { SalaryBalance, WageType, Employee, Supplier, SalBalType } from '../../../unientities';
+import { SalaryBalance, WageType, Employee, Supplier, SalBalType, SalBalDrawType } from '../../../unientities';
 import { Observable } from 'rxjs/Observable';
 import { FieldType, UniValidationOperators } from 'uniform-ng2/main';
 import { SalaryBalanceLineService } from './salaryBalanceLineService';
@@ -117,6 +117,10 @@ export class SalarybalanceService extends BizHttp<SalaryBalance> {
         } else {
             return this.instalmentTypes.find(x => x.ID === salarybalance.InstalmentType).Name;
         }
+    }
+
+    public hasBalance(salaryBalance: SalaryBalance): boolean {
+        return salaryBalance.InstalmentType === SalBalType.Advance || salaryBalance.Type !== SalBalDrawType.FixedAmount;
     }
 
     public layout(layoutID: string) {
