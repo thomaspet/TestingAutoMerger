@@ -1,3 +1,50 @@
+nav.horizontal_nav
+	margin-bottom: 1rem
+
+fieldset
+	width: calc(50% - 4rem)
+	&:first-of-type
+		float: left
+
+	label span
+        width: 9rem
+
+	label span+*
+		width: calc(100% - 9rem)
+
+.bill-small-field
+	display: inline-block
+	width: 50%
+
+	&:nth-of-type(odd) label span
+		width: 8rem
+		margin-left: 1rem
+
+.bill-amount-field
+	display: inline-block
+	width: calc(100% - 10rem)
+
+.bill-currency-field
+	width: 10rem
+	span
+		@extend %visuallyHidden
+
+	label span+*
+		width: 100%
+
+uni-multivalue-input .uni-multivalue-values
+	margin-top: 2rem
+	width: 12rem
+	right: 0
+
+article.collapsable h4
+	box-sizing: border-box
+
+uni-bill-history
+	display: block
+	padding: 0 .25rem
+
+
 /* BILL (detail)  */
 
 .supplier-invoice-table-payment-overdue
@@ -11,87 +58,6 @@
 
 supplier-invoice-table-minus
 	color: $uni-color-minus !important
-
-.no-wrap
-	white-space: nowrap
-	display: inline-block
-
-.no-topmargin
-	margin-top: 0 !important
-	padding-top: 0 !important
-
-.no-horzmargins
-	margin-left: 0 !important
-	margin-right: 0 !important
-
-.split-tabs
-	display: flex
-	min-height: 100vh
-	margin: 0 auto
-
-	aside
-		flex-shrink: 0
-		width: 50%
-		margin-right: 1em
-		overflow-x: hidden
-		text-overflow: ellipsis
-
-		uni-field
-			width: 100%
-
-			&.half-width
-				width: calc(50% - 2rem)
-
-			uni-autocomplete-input
-				ul
-					margin-top: 0
-
-		input
-			&.autocomplete_input
-				width: calc(100% - 3.4rem)
-
-		button.tiny
-			display: inherit
-			margin: inherit
-			padding-left: 4px
-			padding-right: 4px
-			box-shadow: none
-			border: 0
-			border-radius: 0
-
-		uni-numeric-input
-
-			input
-				text-align: right
-
-	div
-		flex-grow: 1
-
-@media all and (max-width: 800px)
-	.split-tabs
-		flex-flow: column
-
-		aside
-			width: 100%
-
-.split-tabs-parent
-	margin-top: 0
-	padding-top: 0
-
-.left
-	text-align: left !important
-
-.right
-	text-align: right !important
-
-.center
-	text-align: center !important
-
-.total
-	padding-right: 0.5rem
-	font-weight: 600
-
-$border-color: $uni-color-scale8
 
 bill-simple-journalentry
 	width: 100%
@@ -110,11 +76,11 @@ bill-simple-journalentry
 		border-top: 1px solid $uni-color-scale5
 
 	tbody tr td:first-of-type
-		border-left: 1px solid $border-color
+		border-left: 1px solid $uni-color-scale8
 
 	tbody td
-		border-right: 1px solid $border-color
-		border-bottom: 1px solid $border-color
+		border-right: 1px solid $uni-color-scale8
+		border-bottom: 1px solid $uni-color-scale8
 		padding: pxToRem(4)
 
 	th
