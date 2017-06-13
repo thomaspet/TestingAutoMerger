@@ -31,12 +31,6 @@ export class SalarybalanceDetail extends UniView {
     public config$: BehaviorSubject<any> = new BehaviorSubject({ autofocus: true });
     public fields$: BehaviorSubject<any> = new BehaviorSubject([]);
 
-    private drawTypes: { ID: SalBalDrawType, Name: string }[] = [
-        { ID: SalBalDrawType.FixedAmount, Name: 'Fast beløp' },
-        { ID: SalBalDrawType.InstalmentWithBalance, Name: 'Fast beløp med balanse' },
-        { ID: SalBalDrawType.Balance, Name: 'Trekk hele balansen, f.eks. forskudd' }
-    ];
-
     constructor(
         private route: ActivatedRoute,
         private router: Router,
@@ -163,15 +157,6 @@ export class SalarybalanceDetail extends UniView {
                         valueProperty: 'ID',
                         debounceTime: 500
                     };
-                });
-                this.editField(fields, 'Type', drawtypeField => {
-                    drawtypeField.Options = {
-                        source: this.drawTypes,
-                        displayProperty: 'Name',
-                        valueProperty: 'ID',
-                        debounceTime: 500
-                    };
-                    drawtypeField.ReadOnly = salaryBalance.ID;
                 });
                 this.editField(fields, 'WageTypeNumber', wagetypeField => {
                     wagetypeField.Options.source = this.wagetypes;
