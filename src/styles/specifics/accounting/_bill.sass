@@ -1,24 +1,33 @@
 nav.horizontal_nav
 	margin-bottom: 1rem
+uni-bill
+	fieldset
+		width: calc(50% - 4rem)
+		&:first-of-type
+			float: left
 
-fieldset
-	width: calc(50% - 4rem)
-	&:first-of-type
-		float: left
+		label span
+			width: 9rem
 
-	label span
-        width: 9rem
+		label span+*
+			width: calc(100% - 9rem)
 
-	label span+*
-		width: calc(100% - 9rem)
+	uni-field
+		max-width: 100%
 
-.bill-small-field
-	display: inline-block
-	width: 50%
+	uni-form,
+	article.collapsable
+		display: block
+		margin: 0 .25rem
 
-	&:nth-of-type(odd) label span
-		width: 8rem
-		margin-left: 1rem
+@media all and (min-width: 1500px)
+	.bill-small-field
+		display: inline-block
+		width: 50%
+
+		&:nth-of-type(odd) label span
+			width: 8rem
+			margin-left: 1rem
 
 .bill-amount-field
 	display: inline-block
