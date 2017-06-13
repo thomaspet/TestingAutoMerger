@@ -74,12 +74,7 @@ export class SalarybalanceDetail extends UniView {
                             }
                         }
                         return this.setup().map(response => {
-                            let wagetypes = response[1];
-                            if (salarybalance.InstalmentType === SalBalType.Advance && !salarybalance.WageTypeNumber) {
-                                let wagetype = wagetypes
-                                    .find(wt => wt.StandardWageTypeFor === StdWageType.AdvancePayment);
-                                salarybalance.WageTypeNumber = wagetype ? wagetype.WageTypeNumber : 0;
-                            }
+                            this.setWagetype(salarybalance, response[1]);
                             return salarybalance;
                         });
                     }
@@ -101,7 +96,10 @@ export class SalarybalanceDetail extends UniView {
                 .keys(changes)
                 .some(key => changes[key].currentValue !== changes[key].previousValue))
             .map(model => {
-                
+                if(changes['InstalmentType']) {
+                    this.setWagetype(model);
+                }
+
                 if (changes['KID'] || changes['Instalment']) {
                     this.validateKID(model);
                 }
@@ -237,5 +235,28 @@ export class SalarybalanceDetail extends UniView {
     private validateKID(salaryBalance: SalaryBalance) {
         this.invalidKID = !this.hideSupplierKIDAndAccount(salaryBalance) 
         && !this.modulusService.isValidKID(salaryBalance.KID);
+    }
+
+    private setWagetype(salarybalance: SalaryBalance, wagetypes = null) {
+        let wagetype: WageType;
+        wagetypes = wagetypes || this.wagetypes;
+        
+        if (!salarybalance.WageTypeNumber && wagetypes) {
+            switch(salarybalance.InstalmentType) {
+                case SalBalType.Advance:
+                    wagetype = wagetypes.find(wt => wt.StandardWageTypeFor === StdWageType.AdvancePayment);
+                    break;
+                case SalBalType.Contribution:
+                    wagetype = wagetypes.find(wt => wt.StandardWageTypeFor === StdWageType.Contribution);
+                    break;
+                case SalBalType.Garnishment:
+                    wagetype = wagetypes.find(wt => wt.StandardWageTypeFor === StdWageType.Garnishment);
+                    break;
+                case SalBalType.Outlay:
+                    wagetype = wagetypes.find(wt => wt.StandardWageTypeFor === StdWageType.Outlay);
+                    break;
+            }
+            salarybalance.WageTypeNumber = wagetype ? wagetype.WageTypeNumber : 0;
+        }
     }
 }

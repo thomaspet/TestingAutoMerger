@@ -242,8 +242,8 @@ export class WorkRelation extends UniEntity {
     public WorkerID: number;
     public WorkPercentage: number;
     public WorkProfileID: number;
-    public WorkProfile: WorkProfile;
     public Worker: Worker;
+    public WorkProfile: WorkProfile;
     public Employment: Employment;
     public Items: Array<WorkItem>;
     public Team: Team;
@@ -957,12 +957,12 @@ export class BusinessRelation extends UniEntity {
     public StatusCode: number;
     public UpdatedAt: Date;
     public UpdatedBy: string;
-    public BankAccounts: Array<BankAccount>;
     public DefaultContact: Contact;
     public Contacts: Array<Contact>;
     public Addresses: Array<Address>;
     public Phones: Array<Phone>;
     public Emails: Array<Email>;
+    public BankAccounts: Array<BankAccount>;
     public InvoiceAddress: Address;
     public ShippingAddress: Address;
     public DefaultPhone: Phone;
@@ -1299,9 +1299,9 @@ export class SalaryBalance extends UniEntity {
     public UpdatedAt: Date;
     public UpdatedBy: string;
     public WageTypeNumber: number;
-    public Transactions: Array<SalaryBalanceLine>;
     public Employee: Employee;
     public Supplier: Supplier;
+    public Transactions: Array<SalaryBalanceLine>;
     public CustomFields: any;
 }
 
@@ -1554,9 +1554,9 @@ export class Employment extends UniEntity {
     public UserDefinedRate: number;
     public WorkingHoursScheme: WorkingHoursScheme;
     public WorkPercent: number;
-    public Dimensions: Dimensions;
     public Employee: Employee;
     public SubEntity: SubEntity;
+    public Dimensions: Dimensions;
     public Leaves: Array<EmployeeLeave>;
     public CustomFields: any;
 }
@@ -1776,10 +1776,10 @@ export class Employee extends UniEntity {
     public UpdatedBy: string;
     public UserID: number;
     public VacationRateEmployeeID: number;
-    public SubEntity: SubEntity;
-    public Employments: Array<Employment>;
     public BusinessRelationInfo: BusinessRelation;
+    public Employments: Array<Employment>;
     public VacationRateEmployee: VacationRateEmployee;
+    public SubEntity: SubEntity;
     public TaxCards: Array<EmployeeTaxCard>;
     public CustomFields: any;
 }
@@ -2320,8 +2320,8 @@ export class Approval extends UniEntity {
     public UpdatedAt: Date;
     public UpdatedBy: string;
     public UserID: number;
-    public Thresholds: Array<TransitionThresholdApproval>;
     public Task: Task;
+    public Thresholds: Array<TransitionThresholdApproval>;
     public User: User;
     public CustomFields: any;
 }
@@ -4145,12 +4145,12 @@ export class SupplierInvoice extends UniEntity {
     public VatTotalsAmount: number;
     public VatTotalsAmountCurrency: number;
     public YourReference: string;
+    public CurrencyCode: CurrencyCode;
     public BankAccount: BankAccount;
+    public Supplier: Supplier;
+    public Items: Array<SupplierInvoiceItem>;
     public JournalEntry: JournalEntry;
     public Dimensions: Dimensions;
-    public Supplier: Supplier;
-    public CurrencyCode: CurrencyCode;
-    public Items: Array<SupplierInvoiceItem>;
     public InvoiceReference: SupplierInvoice;
     public CustomFields: any;
 }
@@ -5457,6 +5457,9 @@ export enum StdWageType{
     HolidayPayWithTaxDeduction = 5,
     AdvancePayment = 6,
     HolidayPayEarlierYears = 7,
+    Contribution = 8,
+    Garnishment = 9,
+    Outlay = 10
 }
 
 
