@@ -38,11 +38,25 @@
 .splitview_detail
     border: pxToRem(1) solid $uni-color-legend
     border-radius: pxToRem(5)
-    padding: 2rem 0
+    padding: 1rem
     align-self: stretch
     max-width: calc(100% - 15rem)
     min-width: 66%
     background-color: $uni-color-legend
+
+    uni-form
+        form
+            margin-top: 1rem
+
+        .collapsable
+            margin: 0
+
+        fieldset:nth-of-type(odd)
+            margin-left: 0
+
+        fieldset:nth-of-type(even)
+            margin-right: 0
+
 
     legend
         background-color: $uni-color-legend2
