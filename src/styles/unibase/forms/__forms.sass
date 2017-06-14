@@ -60,3 +60,29 @@ uni-form form
 
     @include media('128em', 'min-width')
         max-width: 128rem
+
+// Mixin for overrriding the labellength for forms with shorter labels
+@mixin labelLength($newLength)
+    background: redrem
+
+    label>span
+        width: $newLength
+        & + *
+            width: calc(100% - #{$newLength})
+
+    input[type=checkbox]
+        &+label
+            width: calc(#{$newLength} + 2rem)
+
+            &:before
+                left: calc(#{$newLength} - .3rem)
+
+            &:after
+                left: calc(#{$newLength} + .3rem)
+
+
+        &+label.toggle:after
+            left: calc(#{$newLength} + .2rem)
+
+        &:checked+label.toggle:after
+            left: calc(#{$newLength} + 1.9rem)
