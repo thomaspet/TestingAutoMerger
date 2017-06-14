@@ -227,14 +227,14 @@ export class TofDetailsForm {
             ];
 
             if (this.entityType === 'CustomerQuote') {
-                fields[2].Label = 'Tilbudsdato';
-                fields[2].Property = 'QuoteDate';
-                fields[3].Label = 'Gyldig til dato';
-                fields[3].Property = 'ValidUntilDate';
+                fields[0].Label = 'Tilbudsdato';
+                fields[0].Property = 'QuoteDate';
+                fields[1].Label = 'Gyldig til dato';
+                fields[1].Property = 'ValidUntilDate';
             } else if (this.entityType === 'CustomerOrder') {
-                fields[2].Label = 'Ordredato';
-                fields[2].Property = 'OrderDate';
-                fields[3].Hidden = true;
+                fields[0].Label = 'Ordredato';
+                fields[0].Property = 'OrderDate';
+                fields[1].Hidden = true;
             }
 
             this.fields$.next(fields);
