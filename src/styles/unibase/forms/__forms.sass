@@ -18,11 +18,11 @@ uni-form *
 
 uni-field
     width: 100%
-    max-width: pxToRem(650)
-    display: block
-    padding: 0 .2rem pxToRem(12)
     margin: 0 auto
+    display: block
+    padding: 0 0 pxToRem(10)
     min-height: 2.2rem
+    max-width: pxToRem(650)
 
     label > span
         display: inline-block
@@ -50,3 +50,13 @@ uni-button-input
 
     button
         margin: 0 0 .5rem 15.6rem
+
+uni-form form
+    max-width: pxToRem(1340)
+    margin: 0 auto
+
+    @include media('650px', 'max-width')
+        max-width: pxToRem(650)
+
+    @include media('128em', 'min-width')
+        max-width: 128rem
