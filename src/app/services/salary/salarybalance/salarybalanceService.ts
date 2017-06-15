@@ -6,6 +6,7 @@ import { Observable } from 'rxjs/Observable';
 import { FieldType, UniValidationOperators } from 'uniform-ng2/main';
 import { SalaryBalanceLineService } from './salaryBalanceLineService';
 import { ErrorService } from '../../commonServicesModule';
+import {URLSearchParams} from '@angular/http';
 
 @Injectable()
 export class SalarybalanceService extends BizHttp<SalaryBalance> {

@@ -3,7 +3,7 @@ import { UniView } from '../../../../framework/core/uniView';
 import { ActivatedRoute, Router, NavigationEnd } from '@angular/router';
 import { IUniSaveAction } from '../../../../framework/save/save';
 import { IToolbarConfig } from '../../common/toolbar/toolbar';
-import { UniCacheService, ErrorService, SalarybalanceService, ReportDefinitionService } from '../../../services/services';
+import { UniCacheService, ErrorService, SalarybalanceService, ReportDefinitionService, FileService } from '../../../services/services';
 import { TabService, UniModules } from '../../layout/navbar/tabstrip/tabService';
 import { Observable } from 'rxjs/Observable';
 import { SalaryBalance, SalBalType } from '../../../unientities';
@@ -39,7 +39,8 @@ export class SalarybalanceView extends UniView {
         private tabService: TabService,
         private errorService: ErrorService,
         protected cacheService: UniCacheService,
-        private reportDefinitionService: ReportDefinitionService
+        private reportDefinitionService: ReportDefinitionService,
+        private fileService: FileService
     ) {
         super(router.url, cacheService);
 
@@ -210,10 +211,13 @@ export class SalarybalanceView extends UniView {
     }
 
     private saveSalarybalance(done: (message: string) => void) {
-
         this.handlePaymentCreation(this.salarybalance)
             .switchMap(salaryBalance => this.salarybalanceService.save(salaryBalance))
             .do(salaryBalance => {
+                if (this.salarybalance['_newFiles'] && this.salarybalance['_newFiles'].length > 0) {
+                    this.linkNewFiles(salaryBalance.ID, this.salarybalance['_newFiles'], 'SalaryBalance')
+                }
+
                 if (!salaryBalance['CreatePayment'] && this.salarybalanceService.hasBalance(salaryBalance)) {
                     this.showAdvanceReport(salaryBalance.ID);
                 }
@@ -228,6 +232,14 @@ export class SalarybalanceView extends UniView {
                 this.errorService.handle(err);
                 done('Lagring feilet');
             });
+    }
+
+    private linkNewFiles(ID: any, fileIDs: Array<any>, entityType: string): Promise<any> {
+        return new Promise((resolve, reject) => {
+            fileIDs.forEach(fileID => {
+                this.fileService.linkFile(entityType, ID, fileID).subscribe(x => resolve(x));
+            });
+        });
     }
 
     private handlePaymentCreation(salaryBalance: SalaryBalance): Observable<SalaryBalance> {

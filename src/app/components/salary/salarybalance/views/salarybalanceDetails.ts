@@ -1,4 +1,4 @@
-import { Component, SimpleChanges } from '@angular/core';
+import { Component, SimpleChanges, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { UniView } from '../../../../../framework/core/uniView';
 import {
@@ -15,6 +15,8 @@ import {
 import {
     ToastService, ToastType, ToastTime
 } from '../../../../../framework/uniToast/toastService';
+import { UniImage, UniImageSize } from '../../../../../framework/uniImage/uniImage';
+import { ImageModal } from '../../../common/modals/ImageModal';
 
 @Component({
     selector: 'salarybalance-details',
@@ -28,8 +30,13 @@ export class SalarybalanceDetail extends UniView {
     private invalidKID: boolean; 
     private cachedSalaryBalance$: ReplaySubject<SalaryBalance> = new ReplaySubject<SalaryBalance>(1);
     private salarybalance$: BehaviorSubject<SalaryBalance> = new BehaviorSubject(new SalaryBalance());
+    
     public config$: BehaviorSubject<any> = new BehaviorSubject({ autofocus: true });
     public fields$: BehaviorSubject<any> = new BehaviorSubject([]);
+    public unlinkedFiles: Array<number> = [];
+
+    @ViewChild(UniImage) public uniImage: UniImage;
+    @ViewChild(ImageModal) public imageModal: ImageModal;
 
     constructor(
         private route: ActivatedRoute,
@@ -118,6 +125,34 @@ export class SalarybalanceDetail extends UniView {
                 return model;
             })
             .subscribe(model => super.updateState('salarybalance', model, true));
+    }
+
+    public onImageClicked(file) {
+        if (this.salarybalanceID > 0) {
+            this.imageModal.openReadOnly('SalaryBalance', this.salarybalanceID, file.ID, UniImageSize.large);
+        }
+    }
+
+    public onFileListReady(files: Array<any>) {
+        if (files && files.length) {
+            this.checkNewFiles(files);
+        }
+    }
+
+    private checkNewFiles(files: Array<any>) {
+
+        if ((!files) || files.length === 0) {
+            return;
+        }
+        let firstFile = files[0];
+        const current = this.salarybalance$.getValue();
+        if (!current.ID) {
+            if (this.unlinkedFiles.findIndex(x => x === firstFile.ID) < 0) {
+                this.unlinkedFiles.push(firstFile.ID);
+            }
+        }
+        current['_newFiles'] = this.unlinkedFiles;
+        this.salarybalance$.next(current);
     }
 
     private setup(): Observable<any> {

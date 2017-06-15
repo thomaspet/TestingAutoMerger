@@ -1,5 +1,22 @@
-<section class="application">
-    <p *ngIf="invalidKID" role="alert" class="error">Ugyldig KID</p>
-    <uni-form [config]="config$" [fields]="fields$" [model]="salarybalance$" (changeEvent)="change($event)"></uni-form>
-    <salary-balance-summary [salaryBalance]="salarybalance$ | async"></salary-balance-summary>
+<section class="application split-tabs-parent">
+    <section class="split-tabs">
+        <aside>
+            <p *ngIf="invalidKID" role="alert" class="error">Ugyldig KID</p>
+            <uni-form [config]="config$" [fields]="fields$" [model]="salarybalance$" (changeEvent)="change($event)"></uni-form>
+            <salary-balance-summary [salaryBalance]="salarybalance$ | async"></salary-balance-summary>
+        </aside>
+        <div>
+            <div *ngIf="!(salarybalance$ | async)?.ID">
+                <uni-image [singleImage]="true" [uploadWithoutEntity]="'true'" [fileIDs]="fileIds"
+                    (fileListReady)="onFileListReady($event)"
+                    (imageClicked)="onImageClicked($event)">
+                </uni-image>
+            </div>
+            <uni-image *ngIf="(salarybalance$ | async)?.ID" [entity]="'SalaryBalance'" [entityID]="(salarybalance$ | async)?.ID"
+                (fileListReady)="onFileListReady($event)"
+                (imageClicked)="onImageClicked($event)" >
+            </uni-image>
+        </div>
+    </section>
 </section>
+<image-modal></image-modal>
