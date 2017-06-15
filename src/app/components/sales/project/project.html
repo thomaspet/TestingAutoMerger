@@ -1,13 +1,9 @@
-﻿<uni-tabs [routes]="childRoutes" class="horizontal_nav"></uni-tabs>
-<section style="width: 15%; height: 700px; margin: 25px; padding: 20px; float: left; border: 1px solid #c3c3c3; border-radius: 3px;">
-    <h3 style="float: left; width: 50%; margin: 0;">Prosjekter</h3>
-    <section style="float: left; width: 50%;">
-        <input type="checkbox" />
-    </section>
-    
-    <input type="text" placeholder="Søk etter prosjekt" style="width: 100%; margin-top: 10px;" [(ngModel)]="projectFilterString"/>
-    <ul style="list-style:none;">
-        <li style="height: 33px; line-height: 33px; vertical-align: middle;" *ngFor="let project of projectList"><span>{{ project.name }}</span><span style="float: right; margin: 0;">{{ project.status }}</span></li>
-    </ul>
+﻿<uni-toolbar [config]="toolbarconfig"
+             [saveactions]="saveActions">
+</uni-toolbar>
+<uni-tabs [routes]="childRoutes" class="horizontal_nav"></uni-tabs>
+<section class="project-list">
+    <button (click)="newProject()">Nytt prosjekt</button>
+    <uni-table [resource]="lookupFunction" [config]="tableConfig" (rowSelected)="onRowSelected($event)"></uni-table>
 </section>
-<router-outlet style="float: left;"></router-outlet>
+<router-outlet></router-outlet>

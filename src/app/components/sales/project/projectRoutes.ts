@@ -1,5 +1,6 @@
 ﻿import { ProjectOverview } from './overview/overview';
 import { ProjectTasks } from './tasks/tasks';
+import { ProjectEditmode } from './editmode/editmode';
 
 export const routes = [
 
@@ -9,12 +10,15 @@ export const routes = [
         redirectTo: 'overview'
     },
     {
-        path: 'overview/:id',
+        path: 'overview',
         component: ProjectOverview
     },
     {
-        path: 'tasks/:id',
+        path: 'tasks',
         component: ProjectTasks
+    },
+    {
+        path: 'editmode',
+        component: ProjectEditmode
     }
-
 ];
