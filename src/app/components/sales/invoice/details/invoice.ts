@@ -27,7 +27,7 @@ import {CompanySettingsService} from '../../../../services/services';
 import {ActivateAPModal} from '../../../common/modals/activateAPModal';
 import {ReminderSendingModal} from '../../reminder/sending/reminderSendingModal';
 import {roundTo, safeDec, safeInt, trimLength, capitalizeSentence} from '../../../common/utils/utils';
-import {ActivationEnum} from '../../../../models/ActivationEnum';
+import {ActivationEnum} from '../../../../models/activationEnum';
 import {
     StatisticsService,
     CustomerInvoiceService,
