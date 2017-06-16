@@ -27,6 +27,7 @@ import {CompanySettingsService} from '../../../../services/services';
 import {ActivateAPModal} from '../../../common/modals/activateAPModal';
 import {ReminderSendingModal} from '../../reminder/sending/reminderSendingModal';
 import {roundTo, safeDec, safeInt, trimLength, capitalizeSentence} from '../../../common/utils/utils';
+import {ActivationEnum} from '../../../../models/ActivationEnum';
 import {
     StatisticsService,
     CustomerInvoiceService,
@@ -257,13 +258,14 @@ export class InvoiceDetails {
         } else {
             this.activateAPModal.confirm().then((result) => {
                 if (result.status === ConfirmActions.ACCEPT) {
-                    this.ehfService.Activate(result.model).subscribe((ok) => {
-                        if (ok) {
+                    this.ehfService.Activate(result.model).subscribe((status) => {
+                        if (status == ActivationEnum.ACTIVATED) {
                             this.toastService.addToast('Aktivering', ToastType.good, 3, 'EHF aktivert');
                             this.askSendEHF(doneHandler);
+                        } else if (status == ActivationEnum.CONFIRMATION) {
+                            this.toastService.addToast('Aktivering på vent', ToastType.good, 5, 'EHF er tidligere aktivert for org.nr. Venter på godkjenning sendt på epost til kontaktepostadresse registerert på Uni Micro sitt aksesspunkt.');
                         } else {
                             this.toastService.addToast('Aktivering feilet!', ToastType.bad, 5, 'Noe galt skjedde ved aktivering');
-                            if (doneHandler) { doneHandler('Feil oppstod ved aktivering!'); }
                         }
                     },
                     (err) => {

@@ -19,6 +19,7 @@ import {SearchResultItem} from '../../common/externalSearch/externalSearch';
 import {AuthService} from '../../../../framework/core/authService';
 import {ReminderSettings} from '../../common/reminder/settings/reminderSettings';
 import {UniConfirmModal, ConfirmActions} from '../../../../framework/modals/confirm';
+import {ActivationEnum} from '../../../models/activationEnum';
 import {
     CompanySettingsService,
     CurrencyCodeService,
@@ -1524,9 +1525,11 @@ export class CompanySettingsComponent implements OnInit {
     private activateAP() {
         this.activateAPModal.confirm().then((result) => {
             if (result.status === ConfirmActions.ACCEPT) {
-                this.ehfService.Activate(result.model).subscribe((ok) => {
-                    if (ok) {
+                this.ehfService.Activate(result.model).subscribe((status) => {
+                    if (status == ActivationEnum.ACTIVATED) {
                         this.toastService.addToast('Aktivering', ToastType.good, 3, 'EHF aktivert');
+                    } else if (status == ActivationEnum.CONFIRMATION) {
+                        this.toastService.addToast('Aktivering på vent', ToastType.good, 5, 'EHF er tidligere aktivert for org.nr. Venter på godkjenning sendt på epost til kontaktepostadresse registerert på Uni Micro sitt aksesspunkt.');
                     } else {
                         this.toastService.addToast('Aktivering feilet!', ToastType.bad, 5, 'Noe galt skjedde ved aktivering');
                     }
