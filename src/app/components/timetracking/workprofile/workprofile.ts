@@ -33,7 +33,7 @@ export class WorkprofileDetailview {
                 check: (item) => { console.log('check item', item); }
             },
             formFields: [
-                createFormField('Name', 'Navn',  ControlTypes.TextInput, FieldSize.Double),
+                createFormField('Name', 'Navn',  ControlTypes.TextInput),
                 createFormField('MinutesPerWeek', 'Minutter pr. uke', ControlTypes.NumericInput, 0, false, 1, 'Innstillinger' ),
                 createFormField('LunchIncluded', 'Inkludert lunsj', ControlTypes.CheckboxInput, 0, false, 1)
             ],
