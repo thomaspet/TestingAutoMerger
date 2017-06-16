@@ -147,7 +147,7 @@ export class PersonalDetails extends UniView {
         if (employee && this.taxFields$.getValue().length) {
             let taxFields = this.taxFields$.getValue();
             let field = this.findByProperty(taxFields, 'TaxBtn');
-            field.ReadOnly = super.isDirty('employee') || !employee.SocialSecurityNumber;
+            field.ReadOnly = !employee.SocialSecurityNumber;
             this.taxFields$.next(taxFields); // tried without this, didn't update when employee was updated
         }
     }
