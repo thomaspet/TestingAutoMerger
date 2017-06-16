@@ -46,11 +46,11 @@ export class WorktypeDetailview {
                 }
             },
             formFields: [
-                createFormField('Name', 'Navn',  ControlTypes.TextInput, undefined),
-                createFormField('SystemType', 'Type', 3, undefined, false, null, null, null, {
+                createFormField('Name', 'Navn',  ControlTypes.TextInput, undefined, undefined, 1, 'Timeart'),
+                createFormField('SystemType', 'Type', 3, undefined, false, 1, 'Timerart', {
                     source: SYSTEMTYPES, valueProperty: 'id', displayProperty: 'label'
                 }),
-                createFormField('Description', 'Kommentar', ControlTypes.TextareaInput, undefined, true, 1, 'Kommentar')
+                createFormField('Description', 'Kommentar', ControlTypes.TextareaInput, undefined, true, 1, 'Timart')
             ],
         };
 
