@@ -14,6 +14,8 @@ import {AppCommonModule} from '../common/appCommonModule';
 import {AppPipesModule} from '../../pipes/appPipesModule';
 import {UniQueryModule} from '../uniquery/uniqueryModule';
 
+import {SupplierInvoicePreview} from './previews/supplierInvoicePreview';
+
 // routes
 import {routes as AdminRoutes} from './tasksRoutes';
 
@@ -50,7 +52,8 @@ import {TaskDetails} from './details/taskDetails';
     declarations: [
         UniTasks,
         TaskList,
-        TaskDetails
+        TaskDetails,
+        SupplierInvoicePreview
     ],
     exports: [
         UniTasks,

@@ -18,7 +18,6 @@ export class TaskList implements OnInit {
     @Output()
     private taskSelected: EventEmitter<Task> = new EventEmitter();
 
-    // TODO: update unientities so we can actually use Task entitiy..
     private tasks: any[];
     private filteredTasks: any[];
     private selectedTask: any = new Task();
