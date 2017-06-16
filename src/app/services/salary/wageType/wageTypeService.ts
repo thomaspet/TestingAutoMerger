@@ -1,7 +1,9 @@
 import { Injectable } from '@angular/core';
 import { BizHttp } from '../../../../framework/core/http/BizHttp';
 import { UniHttp } from '../../../../framework/core/http/http';
-import { WageType } from '../../../unientities';
+import { WageType, Account  } from '../../../unientities';
+import { BehaviorSubject } from 'rxjs/BehaviorSubject';
+import { AccountService } from '../../accounting/accountService';
 import { Observable } from 'rxjs/Observable';
 import 'rxjs/Observable';
 import {FieldType} from 'uniform-ng2/main';
@@ -25,7 +27,7 @@ export class WageTypeService extends BizHttp<WageType> {
         'SupplementaryInformations'
     ];
 
-    constructor(http: UniHttp) {
+    constructor(http: UniHttp, private accountService: AccountService) {
         super(http);
         this.relativeURL = WageType.RelativeUrl;
         this.entityType = WageType.EntityType;
@@ -91,13 +93,13 @@ export class WageTypeService extends BizHttp<WageType> {
     }
 
     public getPrevious(wageTypeNumber: number, expands: string[] = null) {
-        return super.GetAll(`filter=WageTypeNumber lt ${wageTypeNumber}&top=1&orderBy=WageTypeNumber desc`, 
+        return super.GetAll(`filter=WageTypeNumber lt ${wageTypeNumber}&top=1&orderBy=WageTypeNumber desc`,
             expands ? expands : this.defaultExpands)
             .map(resultSet => resultSet[0]);
     }
 
     public getNext(wageTypeNumber: number, expands: string[] = null) {
-        return super.GetAll(`filter=WageTypeNumber gt ${wageTypeNumber}&top=1&orderBy=WageTypeNumber`, 
+        return super.GetAll(`filter=WageTypeNumber gt ${wageTypeNumber}&top=1&orderBy=WageTypeNumber`,
             expands ? expands : this.defaultExpands)
             .map(resultSet => resultSet[0]);
     }
@@ -119,7 +121,24 @@ export class WageTypeService extends BizHttp<WageType> {
         }
     }
 
-    public layout(layoutID: string) {
+    private getAccountSearchOptions(wageType$: BehaviorSubject<WageType>, accountProp: string) {
+        return {
+            getDefaultData: () => {
+                return wageType$
+                    .take(1)
+                    .switchMap(wt => (wt && wt[accountProp])
+                        ? this.accountService.GetAll(`filter=AccountNumber eq ${wt[accountProp]}`)
+                        : Observable.of([]));
+            },
+            valueProperty: 'AccountNumber',
+            template: (account: Account) => account ? `${account.AccountNumber} - ${account.AccountName}` : '',
+            debounceTime: 200,
+            search: (query: string) =>  this.accountService
+                .GetAll(`top=50&filter=startswith(AccountNumber, '${query}') or contains(AccountName, '${query}')`)
+        };
+    }
+
+    public layout(layoutID: string, wageType$: BehaviorSubject<WageType>) {
         return Observable.from([{
             Name: layoutID,
             BaseEntity: 'wagetype',
@@ -336,9 +355,9 @@ export class WageTypeService extends BizHttp<WageType> {
                     Options: {
                         multivalue: true,
                         source: [
-                            {ID: WageTypeBaseOptions.VacationPay, Name: 'Feriepenger'},
-                            {ID: WageTypeBaseOptions.AGA, Name: 'Aga'},
-                            {ID: WageTypeBaseOptions.Pension, Name: 'Pensjon'}
+                            { ID: WageTypeBaseOptions.VacationPay, Name: 'Feriepenger' },
+                            { ID: WageTypeBaseOptions.AGA, Name: 'Aga' },
+                            { ID: WageTypeBaseOptions.Pension, Name: 'Pensjon' }
                         ],
                         valueProperty: 'ID',
                         labelProperty: 'Name'
@@ -363,7 +382,7 @@ export class WageTypeService extends BizHttp<WageType> {
                     FieldSet: 4,
                     Section: 0,
                     Placeholder: null,
-                    Options: null,
+                    Options: this.getAccountSearchOptions(wageType$, 'AccountNumber'),
                     LineBreak: null,
                     Combo: null,
                     Sectionheader: '',
@@ -405,7 +424,7 @@ export class WageTypeService extends BizHttp<WageType> {
                     FieldSet: 4,
                     Section: 0,
                     Placeholder: null,
-                    Options: null,
+                    Options: this.getAccountSearchOptions(wageType$, 'AccountNumber_balance'),
                     LineBreak: null,
                     Combo: null,
                     Sectionheader: '',

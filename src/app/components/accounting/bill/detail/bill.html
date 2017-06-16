@@ -20,13 +20,14 @@
 
 <section class="application">
     <fieldset>
-        <legend>Kjøpsfaktura</legend>
+        <legend>KjÃ¸psfaktura</legend>
         <uni-form
             [config]='formConfig'
             [fields]='fields$'
             [model]='current'
             (changeEvent)="onFormChange($event)"
-            (inputEvent)="onFormInput($event)">
+            (inputEvent)="onFormInput($event)"
+            (focusEvent)="onFocusEvent($event)">
         </uni-form>
         <article class="collapsable" [ngClass]="{'-is-open': !collapseSimpleJournal}">
             <h4 (click)="collapseSimpleJournal = !collapseSimpleJournal">Kontering</h4>
