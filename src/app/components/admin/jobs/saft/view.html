@@ -1,0 +1,41 @@
+<table class="title-button-bar">
+    <tr>
+        <td><h2>Import av SAF-T (auditfile)</h2></td>
+        <td><button class="good" (click)="refresh()">Oppdater</button></td>
+    </tr>
+</table>
+
+<table>
+    <tr>
+        <td><input type="file" #fileInput accept=".xml"></td>
+        <td><button [attr.aria-busy]="busy" class="good" (click)="onUploadClick()">Last opp</button></td>
+    </tr>
+</table>
+
+<table [attr.aria-busy]="busyFetch" class="simple">
+    <thead>
+        <tr>
+            <th class="size-1">ID</th>
+            <th class="size-2">Filnavn</th>
+            <th class="size-1">Størrelse</th>
+            <th class="size-1">Type</th>
+            <th>Jobstatus</th>
+            <td class="size-2"></td>
+        </tr>
+    </thead>
+    <tbody>
+    <tr *ngFor="let file of files" [class.current]="file.FileID === currentFileId" >
+        <td>{{file.FileID}}</td>
+        <td>{{file.FileName}}</td>
+        <td>{{file.FileSize}}</td>
+        <td>{{file.FileContentType}}</td>
+        <td class="ellipsis"><span [hidden]="!file.busyFetch">Henter status..</span>{{file.jobStatus}}</td>
+        <td>
+            <button [disabled]="file.disabled" [attr.aria-busy]="file.busy" (click)="onJobStart(file)" class="good">Start import</button> 
+            <button [disabled]="file.disabled" [attr.aria-busy]="file.busy" (click)="onFileDeleteClick(file)" class="bad">Slett</button>
+        </td>
+    </tr>
+    </tbody>
+</table>
+
+<uni-confirm-modal></uni-confirm-modal>

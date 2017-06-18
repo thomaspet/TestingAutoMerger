@@ -1,0 +1,28 @@
+table.simple
+
+    width: 100%
+    table-layout: fixed
+    border-collapse: collapse
+    cursor: pointer
+    margin-top: 1rem
+
+    th, td
+        text-align: left
+        text-overflow: ellipsis
+        overflow-x: hidden
+        white-space: nowrap
+        border-width: 0 0 pxToRem(1) 0
+        border-color: $uni-color-scale8
+        border-style: solid
+        padding: pxToRem(3) pxToRem(4) 0 pxToRem(4)
+
+    td
+        border-bottom: pxToRem(1) solid $uni-color-scale9
+        border-left: pxToRem(1) solid $uni-color-scale9
+
+    tr.current
+        background-color: $uni-color-scale9
+
+    button
+        margin: pxToRem(3)
+        padding: pxToRem(5)
