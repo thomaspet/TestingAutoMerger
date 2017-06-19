@@ -34,6 +34,7 @@ export class SalarybalanceDetail extends UniView {
     public config$: BehaviorSubject<any> = new BehaviorSubject({ autofocus: true });
     public fields$: BehaviorSubject<any> = new BehaviorSubject([]);
     public unlinkedFiles: Array<number> = [];
+    public collapseSummary: boolean = false;
 
     @ViewChild(UniImage) public uniImage: UniImage;
     @ViewChild(ImageModal) public imageModal: ImageModal;
