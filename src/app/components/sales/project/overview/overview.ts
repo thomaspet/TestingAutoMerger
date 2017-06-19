@@ -1,4 +1,5 @@
 ﻿import { Component, ViewChild, ElementRef } from '@angular/core';
+import { Http } from '@angular/http';
 import { Project } from '../../../../unientities';
 import * as Chart from 'chart.js';
 import { ProjectService } from '../../../../services/services';
@@ -16,20 +17,30 @@ export class ProjectOverview {
     @ViewChild('chartElement2')
     private chartElement2: ElementRef;
 
+    private MONTHS = ['Januar', 'Februar', 'Mars', 'April', 'Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober', 'November', 'Desember'];
+    private MONTHS_SHORT = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    private QUARTERS = ['1. Kvartal', '2. Kvartal', '3. Kvartal', '4. Kvartal'];
+    private QUARTERS_SHORT = ['Q1', 'Q2', 'Q3', 'Q4'];
+
+    private myChart: any;
+    private myChart2: any;
+    private projectHoursTotal: number;
+    private projectHoursInvoiced: number;
+
     private project: Project;
     private chart = {
         type: 'bar',
         data: {
-            labels: ["Mars", "April", "Mai", "Juni", "Juli", "August"],
+            labels: [],
             datasets: [{
                 label: 'Loggede timer',
-                data: [120, 125, 143, 118, 116, 125],
+                data: [],
                 backgroundColor: '#7293cb',
                 borderColor: '#fff',
                 borderWidth: 1
             }, {
                 label: 'Fakturerte timer',
-                data: [120, 120, 140, 110, 100, 105],
+                data: [],
                 backgroundColor: '#e1974c',
                 borderColor: '#fff',
                 borderWidth: 1
@@ -60,18 +71,59 @@ export class ProjectOverview {
     constructor(private projectService: ProjectService) {}
 
     public ngOnInit() {
-        this.projectService.currentProject.subscribe(project => this.project = project);
+        this.projectService.currentProject.subscribe((project) => { this.projectChanged(project); });
     }
 
     public ngAfterViewInit() {
-        this.drawChart();
+        this.getDataAndDrawChart();
+        //this.drawChart();
+    }
+
+    private projectChanged(project: Project) {
+        this.project = project;
+        this.getDataAndDrawChart();
+    }
+
+    private getDataAndDrawChart() {
+
+        //Only draw charts when valid project is selected
+        if (this.project && this.project.ID) {
+            this.projectService.getProjectHours(this.project.ID).subscribe((res) => {
+
+                this.chart.data.labels = [];
+                this.chart.data.datasets[0].data = [];
+                this.chart.data.datasets[1].data = [];
+                this.projectHoursTotal = 0;
+                this.projectHoursInvoiced = 0;
+
+                res.Data.forEach((data: any) => {
+                    this.chart.data.labels.push(this.MONTHS[data.mnd - 1] + ' ' + data.year);
+                    this.chart.data.datasets[0].data.push(data.summinutes / 60);
+                    this.chart.data.datasets[1].data.push(data.WorkItemMinutesToOrder / 60);
+                    this.projectHoursTotal += data.summinutes;
+                    this.projectHoursInvoiced += data.WorkItemMinutesToOrder || 0;
+                })
+                this.projectHoursTotal /= 60;
+                this.projectHoursInvoiced /= 60;
+                this.drawChart();
+            })
+        }
     }
 
     private drawChart() {
+
+        if (this.myChart) {
+            this.myChart.destroy();
+        }
+
+        if (this.myChart2) {
+            this.myChart2.destroy();
+        }
+
         let element = this.chartElement1.nativeElement;
         let element2 = this.chartElement2.nativeElement;
         element2.style.maxWidth = '300px';
-        let chart = new Chart(<any>element, this.chart);
-        let chart2 = new Chart(<any>element2, this.chart2);
+        this.myChart = new Chart(<any>element, this.chart);
+        this.myChart2 = new Chart(<any>element2, this.chart2);
     }
 }

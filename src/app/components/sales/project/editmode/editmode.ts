@@ -2,7 +2,7 @@
 import { ProjectService, ErrorService } from '../../../../services/services';
 import { Project } from '../../../../unientities';
 import { UniFieldLayout } from 'uniform-ng2/main';
-import { FieldType, FieldSize } from 'uniform-ng2/main';
+import { FieldType } from 'uniform-ng2/main';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 
 
@@ -29,6 +29,7 @@ export class ProjectEditmode {
                     this.actionLabel = 'Rediger prosjekt ' + project.ProjectNumber + ':';
                 } else {
                     this.project$.next(new Project);
+                    this.projectService.currentProject.next(this.project$.getValue());
                     this.actionLabel = 'Nytt prosjekt:';
                 }
                 
@@ -102,6 +103,17 @@ export class ProjectEditmode {
             },
             <any>{
                 FieldType: FieldType.DATE_TIME_PICKER,
+                Label: 'Forventet startdato',
+                Property: 'PlannedStartdate'
+            },
+            <any>{
+                FieldType: FieldType.DATE_TIME_PICKER,
+                Label: 'Forventet sluttdato',
+                Property: 'PlannedEnddate',
+                LineBreak: true
+            },
+            <any>{
+                FieldType: FieldType.DATE_TIME_PICKER,
                 Label: 'Startdato',
                 Property: 'Startdate',
 
@@ -114,7 +126,8 @@ export class ProjectEditmode {
             <any>{
                 FieldType: FieldType.DATE_TIME_PICKER,
                 Label: 'Opprettet',
-                Property: 'CreatedAt'
+                Property: 'CreatedAt',
+                ReadOnly: true
             },
             <any>{
                 FieldType: FieldType.NUMERIC,
