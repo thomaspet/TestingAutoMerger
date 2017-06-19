@@ -384,6 +384,26 @@ export class SalarybalanceService extends BizHttp<SalaryBalance> {
                         LineBreak: null,
                         Combo: null,
                         Sectionheader: ''
+                    },
+                    {
+                        ComponentLayoutID: 1,
+                        EntityType: 'salarybalance',
+                        Property: 'CreatePayment',
+                        Placement: 1,
+                        Hidden: false,
+                        FieldType: FieldType.CHECKBOX,
+                        ReadOnly: true,
+                        LookupField: false,
+                        Label: 'Utbetales til leverandør ved lønnsutbetaling',
+                        Description: null,
+                        HelpText: null,
+                        FieldSet: 0,
+                        Section: 0,
+                        Placeholder: null,
+                        Options: null,
+                        LineBreak: null,
+                        Combo: null,
+                        Sectionheader: ''
                     }
                 ]
             }

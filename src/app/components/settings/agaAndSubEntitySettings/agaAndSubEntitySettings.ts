@@ -109,7 +109,7 @@ export class AgaAndSubEntitySettings implements OnInit {
         ).finally(() => this.busy = false).subscribe(
             (dataset: any) => {
                 let [companysalaries, mainOrg, zones, rules] = dataset;
-                this.companySalary$.next(companysalaries[0]);
+                this.companySalary$.next(companysalaries);
                 this.agaZones = zones;
                 this.agaRules = rules;
 
@@ -314,6 +314,13 @@ export class AgaAndSubEntitySettings implements OnInit {
             source: this.companySalary$.getValue(),
             valueProperty: 'PostToTaxDraw'
         };
+
+        let remitRegularTraits = new UniFieldLayout();
+        remitRegularTraits.Label = 'Lag utbetaling av faste trekk ved lønnsutbetaling';
+        remitRegularTraits.EntityType = 'CompanySalary';
+        remitRegularTraits.Property = 'RemitRegularTraits';
+        remitRegularTraits.FieldType = FieldType.CHECKBOX;
+        remitRegularTraits.Section = 2;
         
 
         let paymentInterval = new UniFieldLayout();
@@ -352,7 +359,8 @@ export class AgaAndSubEntitySettings implements OnInit {
             mainAccountCostAgaVacation,
             interrimRemit,
             paymentInterval,
-            postTax
+            postTax,
+            remitRegularTraits
         ]);
     }
 

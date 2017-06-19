@@ -717,7 +717,7 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
                 let [payroll, last, salaries, activeYear] = dataSet;
                 this.setDefaults(payroll);
                 let latest: PayrollRun = last;
-                let companysalary: CompanySalary = salaries[0];
+                let companysalary: CompanySalary = salaries;
                 this.activeYear = activeYear;
 
                 if (payroll && payroll.ID === 0) {

@@ -2,7 +2,7 @@ import { Component, SimpleChanges, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { UniView } from '../../../../../framework/core/uniView';
 import {
-    UniCacheService, ErrorService, SalarybalanceService, 
+    UniCacheService, ErrorService, SalarybalanceService,
     WageTypeService, EmployeeService, SupplierService, ModulusService
 } from '../../../../services/services';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
@@ -10,7 +10,7 @@ import { ReplaySubject } from 'rxjs/ReplaySubject';
 import { Observable } from 'rxjs/Observable';
 import { UniFieldLayout } from 'uniform-ng2/main';
 import {
-    SalaryBalance, SalBalType, WageType, Employee, Supplier, SalBalDrawType, StdWageType
+    SalaryBalance, SalBalType, WageType, Employee, Supplier, SalBalDrawType, StdWageType, CompanySalary
 } from '../../../../unientities';
 import {
     ToastService, ToastType, ToastTime
@@ -27,7 +27,7 @@ export class SalarybalanceDetail extends UniView {
     private wagetypes: WageType[];
     private employees: Employee[];
     private suppliers: Supplier[];
-    private invalidKID: boolean; 
+    private invalidKID: boolean;
     private cachedSalaryBalance$: ReplaySubject<SalaryBalance> = new ReplaySubject<SalaryBalance>(1);
     private salarybalance$: BehaviorSubject<SalaryBalance> = new BehaviorSubject(new SalaryBalance());
     
@@ -85,8 +85,18 @@ export class SalarybalanceDetail extends UniView {
                     this.salarybalance$.next(salarybalance);
                     if (!salarybalance.FromDate) { salarybalance.FromDate = new Date(); }
                     this.salarybalanceID = salarybalance.ID;
-                    this.updateFields();
+                    this.updateFields(salarybalance);
                 }, err => this.errorService.handle(err));
+
+            Observable
+                .combineLatest(this.cachedSalaryBalance$, super.getStateSubject('CompanySalary'))
+                .subscribe((result: [SalaryBalance, CompanySalary]) => {
+                    let [salaryBalance, companySalary] = result;
+                    if (!salaryBalance.ID) {
+                        salaryBalance.CreatePayment = companySalary.RemitRegularTraits;
+                    }
+                    this.updateFields(salaryBalance);
+                });
         });
     }
 
@@ -97,7 +107,7 @@ export class SalarybalanceDetail extends UniView {
                 .keys(changes)
                 .some(key => changes[key].currentValue !== changes[key].previousValue))
             .map(model => {
-                if(changes['InstalmentType']) {
+                if (changes['InstalmentType']) {
                     this.setWagetype(model);
                 }
 
@@ -115,7 +125,7 @@ export class SalarybalanceDetail extends UniView {
                         this.toastService.addToast('Feil i beløp',
                             ToastType.warn, ToastTime.medium,
                             'Du prøver å føre et forskudd med et negativt beløp');
-                    } else if (currentAmount > 0 
+                    } else if (currentAmount > 0
                         && this.salarybalance$.getValue().InstalmentType !== SalBalType.Advance) {
                         this.toastService.addToast('Feil i beløp',
                             ToastType.warn, ToastTime.medium,
@@ -124,6 +134,7 @@ export class SalarybalanceDetail extends UniView {
                 }
                 return model;
             })
+            .do(model => this.updateFields(model, changes))
             .subscribe(model => super.updateState('salarybalance', model, true));
     }
 
@@ -180,11 +191,10 @@ export class SalarybalanceDetail extends UniView {
         ];
     }
 
-    private updateFields() {
+    private updateFields(salaryBalance: SalaryBalance, changes: SimpleChanges = null) {
         this.fields$
             .take(1)
             .map(fields => {
-                let salaryBalance = this.salarybalance$.getValue();
                 this.editField(fields, 'InstalmentType', typeField => {
                     typeField.Options = {
                         source: this.salarybalanceService.getInstalmentTypes(),
@@ -197,51 +207,46 @@ export class SalarybalanceDetail extends UniView {
                     wagetypeField.Options.source = this.wagetypes;
                     wagetypeField.ReadOnly = salaryBalance.ID;
                 });
-
                 this.editField(fields, 'EmployeeID', employeeField => {
                     employeeField.Options.source = this.employees;
                     employeeField.ReadOnly = salaryBalance.ID;
                 });
-
                 this.editField(fields, 'Instalment', instalmentField => {
                     instalmentField.ReadOnly = salaryBalance.InstalmentPercent;
                 });
-
                 this.editField(fields, 'InstalmentPercent', percentField => {
                     percentField.Hidden = salaryBalance.InstalmentType === SalBalType.Advance;
                     percentField.ReadOnly = salaryBalance.Instalment;
                 });
-
                 this.editField(fields, 'SupplierID', supplierField => {
                     supplierField.Options.source = this.suppliers;
-                    supplierField.Hidden = this.hideSupplierKIDAndAccount(salaryBalance);
+                    supplierField.Hidden = this.isHiddenByInstalmentType(salaryBalance);
                 });
-
                 this.editField(fields, 'KID', kidField => {
                     kidField.Options = {};
-                    kidField.Hidden = this.hideSupplierKIDAndAccount(salaryBalance);
+                    kidField.Hidden = this.isHiddenByInstalmentType(salaryBalance);
                 });
-
                 this.editField(fields, 'Supplier.Info.DefaultBankAccount.AccountNumber', accountField => {
                     accountField.Options = {};
-                    accountField.Hidden = this.hideSupplierKIDAndAccount(salaryBalance);
+                    accountField.Hidden = this.isHiddenByInstalmentType(salaryBalance);
                 });
-
                 this.editField(fields, 'Amount', amountField => {
                     amountField.Options = {};
                     amountField.Label = salaryBalance.InstalmentType === SalBalType.Advance ? 'Beløp' : 'Saldo';
-                    amountField.Hidden = this.salarybalanceID > 0 
-                    || salaryBalance.InstalmentType === SalBalType.Contribution;
+                    amountField.Hidden = this.salarybalanceID > 0
+                        || salaryBalance.InstalmentType === SalBalType.Contribution;
                 });
-
+                this.editField(fields, 'CreatePayment', createPayment => {
+                    createPayment.Hidden = this.isHiddenByInstalmentType(salaryBalance);
+                });
                 return fields;
             })
             .subscribe(fields => this.fields$.next(fields));
     }
 
-    private hideSupplierKIDAndAccount(salaryBalance: SalaryBalance) {
+    private isHiddenByInstalmentType(salaryBalance: SalaryBalance) {
         return (salaryBalance.InstalmentType !== SalBalType.Contribution)
-            && (salaryBalance.InstalmentType !== SalBalType.Outlay) 
+            && (salaryBalance.InstalmentType !== SalBalType.Outlay)
             && (salaryBalance.InstalmentType !== SalBalType.Other);
     }
 
@@ -253,16 +258,16 @@ export class SalarybalanceDetail extends UniView {
     }
 
     private validateKID(salaryBalance: SalaryBalance) {
-        this.invalidKID = !this.hideSupplierKIDAndAccount(salaryBalance) 
-        && !this.modulusService.isValidKID(salaryBalance.KID);
+        this.invalidKID = !this.isHiddenByInstalmentType(salaryBalance)
+            && !this.modulusService.isValidKID(salaryBalance.KID);
     }
 
     private setWagetype(salarybalance: SalaryBalance, wagetypes = null) {
         let wagetype: WageType;
         wagetypes = wagetypes || this.wagetypes;
-        
+
         if (!salarybalance.WageTypeNumber && wagetypes) {
-            switch(salarybalance.InstalmentType) {
+            switch (salarybalance.InstalmentType) {
                 case SalBalType.Advance:
                     wagetype = wagetypes.find(wt => wt.StandardWageTypeFor === StdWageType.AdvancePayment);
                     break;
