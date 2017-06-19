@@ -1,22 +1,25 @@
-<section class="application split-tabs-parent">
-    <section class="split-tabs">
+<section class="application">
+    <fieldset>
+        <legend>Saldo</legend>
         <aside>
             <p *ngIf="invalidKID" role="alert" class="error">Ugyldig KID</p>
             <uni-form [config]="config$" [fields]="fields$" [model]="salarybalance$" (changeEvent)="change($event)"></uni-form>
             <salary-balance-summary [salaryBalance]="salarybalance$ | async"></salary-balance-summary>
         </aside>
-        <div>
-            <div *ngIf="!(salarybalance$ | async)?.ID">
-                <uni-image [singleImage]="true" [uploadWithoutEntity]="'true'" [fileIDs]="fileIds"
-                    (fileListReady)="onFileListReady($event)"
-                    (imageClicked)="onImageClicked($event)">
-                </uni-image>
-            </div>
-            <uni-image *ngIf="(salarybalance$ | async)?.ID" [entity]="'SalaryBalance'" [entityID]="(salarybalance$ | async)?.ID"
+    </fieldset>
+    
+    <fieldset>
+        <legend>Dokumenter</legend>
+        <div *ngIf="!(salarybalance$ | async)?.ID">
+            <uni-image [singleImage]="true" [uploadWithoutEntity]="'true'" [fileIDs]="fileIds"
                 (fileListReady)="onFileListReady($event)"
-                (imageClicked)="onImageClicked($event)" >
+                (imageClicked)="onImageClicked($event)">
             </uni-image>
         </div>
-    </section>
+        <uni-image *ngIf="(salarybalance$ | async)?.ID" [entity]="'SalaryBalance'" [entityID]="(salarybalance$ | async)?.ID"
+            (fileListReady)="onFileListReady($event)"
+            (imageClicked)="onImageClicked($event)" >
+        </uni-image>
+    </fieldset>
 </section>
 <image-modal></image-modal>

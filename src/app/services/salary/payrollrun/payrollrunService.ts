@@ -227,7 +227,6 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
     }
 
     public emailPaychecks(emps: Employee[], runID: number) {
-        console.log('ansatte som skal sendes', emps);
         return this.http
             .asPUT()
             .usingBusinessDomain()

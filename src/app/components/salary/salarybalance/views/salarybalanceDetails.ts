@@ -100,6 +100,7 @@ export class SalarybalanceDetail extends UniView {
         });
     }
 
+
     public change(changes: SimpleChanges) {
         this.salarybalance$
             .take(1)

@@ -1,2 +1,22 @@
+salarybalance-details
+	fieldset
+		width: calc(50% - 4rem)
+		float: right
+		&:first-of-type
+			float: left
+		label span
+			width: 9rem
+
+		label span+*
+			width: calc(100% - 9rem)
+
+	uni-field
+		max-width: 100%
+
+	uni-form,
+	article.collapsable
+		display: block
+		margin: 0 .25rem
+
 .salaryBalanceSummaryTable
     max-width: 50rem
