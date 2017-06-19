@@ -4,13 +4,16 @@ import {Http, Headers} from '@angular/http';
 import {UniConfirmModal, ConfirmActions} from '../../../../../framework/modals/confirm';
 import {AuthService} from '../../../../../framework/core/authService';
 import {TimerObservable} from 'rxjs/observable/TimerObservable';
+import * as moment from 'moment';
+
+const JOBNAME: string = 'ImportSaft';
+const COMPLETEMESSAGE: string = 'Import completed';
 
 @Component({
     selector: 'saft-import-view',
     templateUrl: './view.html'
 })
 export class SaftExportView implements OnInit {
-
     @ViewChild('fileInput') private fileInput: any;
     @ViewChild(UniConfirmModal) private confirmModal: UniConfirmModal;
     private busy: boolean = false;
@@ -19,6 +22,7 @@ export class SaftExportView implements OnInit {
     private currentFileId: number;
     private activeCompany: string;
     private subscription: any;
+    public jobName: string = JOBNAME;
 
     constructor(
         private errorService: ErrorService,
@@ -69,7 +73,7 @@ export class SaftExportView implements OnInit {
                         IncludeStartingBalance: false
                     };
 
-                    this.jobService.startJob('ImportSaft', undefined, details)
+                    this.jobService.startJob(JOBNAME, undefined, details)
                         .finally( () => file.busy = false )
                         .subscribe( (run: number) => {
                             this.fileService.tag(file.FileID, 'jobid', run)
@@ -139,15 +143,24 @@ export class SaftExportView implements OnInit {
     private fetchFileJobStatus(file: ISaftFileInfo) {
         file.busyFetch = true;
         file.disabled = true;
-        this.jobService.getJobRun('ImportSaft', <any>file.jobid, 2)
+        this.jobService.getJobRun(JOBNAME, <any>file.jobid, 2)
             .finally( () => file.busyFetch = false )
             .subscribe( x => {
                 file.jobStatus = (x && x.Progress && x.Progress.length > 0) ? x.Progress[0].Progress : '';
-                if (file.jobStatus && file.jobStatus.indexOf('completed') > 0) {
+                if (file.jobStatus && file.jobStatus.indexOf(COMPLETEMESSAGE) >= 0) {
                     file.disabled = false;
                     file.hasActiveJob = false;
                 } else {
-                    file.hasActiveJob = true;
+                    var lastProgress = x.Progress && x.Progress.length > 0 ? moment(x.Progress[0].Created) : moment();
+                    var diff = moment.duration(moment().diff(moment(lastProgress)));
+                    file.diff = parseInt(diff.asMinutes().toFixed(0));
+                    file.hasActiveJob = file.diff < 6;
+                    file.disabled = file.hasActiveJob;
+                }
+                if (x.Exception) {
+                    file.disabled = false;
+                    file.hasActiveJob = false;
+                    file.hasError = true;
                 }
             });
     }
@@ -228,4 +241,6 @@ interface ISaftFileInfo {
     jobStatus?: string;
     disabled?: boolean;
     hasActiveJob?: boolean;
+    diff?: number;
+    hasError?: boolean;
 }

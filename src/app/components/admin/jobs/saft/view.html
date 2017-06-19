@@ -29,7 +29,13 @@
         <td>{{file.FileName}}</td>
         <td>{{file.FileSize}}</td>
         <td>{{file.FileContentType}}</td>
-        <td class="ellipsis"><span [hidden]="!file.busyFetch">Henter status..</span>{{file.jobStatus}}</td>
+        <td class="ellipsis">
+            <span [hidden]="!file.busyFetch">Henter status..</span>
+            <a href="/#/admin/job-logs/{{jobName}}/{{file.jobid || 0}}" class="bad" [hidden]="!file.hasError">
+                &nbsp;En feil har oppstått
+            </a>
+            <a href="/#/admin/job-logs/{{jobName}}/{{file.jobid || 0}}">{{file.jobStatus}}</a>
+        </td>
         <td>
             <button [disabled]="file.disabled" [attr.aria-busy]="file.busy" (click)="onJobStart(file)" class="good">Start import</button> 
             <button [disabled]="file.disabled" [attr.aria-busy]="file.busy" (click)="onFileDeleteClick(file)" class="bad">Slett</button>

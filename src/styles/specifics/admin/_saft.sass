@@ -1,6 +1,7 @@
 table.simple
 
     width: 100%
+    min-width: pxToRem(800)
     table-layout: fixed
     border-collapse: collapse
     cursor: pointer
@@ -19,6 +20,10 @@ table.simple
     td
         border-bottom: pxToRem(1) solid $uni-color-scale9
         border-left: pxToRem(1) solid $uni-color-scale9
+
+    a.bad
+         color: red !important
+         margin-right: 1em
 
     tr.current
         background-color: $uni-color-scale9

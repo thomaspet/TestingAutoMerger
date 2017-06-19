@@ -21,6 +21,7 @@
                 {{item.Created | date:'HH:mm:ss'}} - {{item.Msg}}
             </td>
         </tr>
+        <tr *ngIf="jobRun?.Exception"><td class="bad">{{jobRun?.Exception}}</td></tr>
         <hr>
         <tr>
             <td>
