@@ -8,9 +8,11 @@
         <button (click)="onNewRule()">Ny regel</button>
     </nav>
     <main class="splitview_detail">
-        <reminder-rule-details
-            [rule]="rule"
-            (change)="onRuleChange(rule)">
-        </reminder-rule-details>
+        <uni-form
+            [config]="config$"
+            [fields]="fields$"
+            [model]="rule$"
+            (changeEvent)="onRuleChange($event)">
+        </uni-form>
     </main>
 </section>

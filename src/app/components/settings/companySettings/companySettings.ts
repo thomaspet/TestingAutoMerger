@@ -852,7 +852,7 @@ export class CompanySettingsComponent implements OnInit {
                 Options: null,
                 LineBreak: null,
                 Combo: null,
-                Sectionheader: 'Firmaopprett',
+                Sectionheader: 'Firmaoppsett',
                 Legend: 'Perioder',
                 hasLineBreak: false,
                 Validations: []
