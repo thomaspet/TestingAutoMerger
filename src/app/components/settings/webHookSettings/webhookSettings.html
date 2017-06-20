@@ -1,7 +1,7 @@
 <h2>Webhooks</h2> Webhook teknologi tilbyr mulighet for integrering third-party web services i Uni Economy.
 <br/>
 <br/>
-<section class="application">
+<section class="application" [attr.aria-busy]="isBusy">
     <div *ngIf="!isEnabled">
         <div class="enable-webhooks">
             Du har ikke aktivert web hooks for dette selskapet.

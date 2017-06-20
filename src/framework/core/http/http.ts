@@ -110,6 +110,12 @@ export class UniHttp {
         return this;
     }
 
+    public usingUmhDomain() {
+        this.baseUrl = AppConfig.BASE_URL;
+        this.apiDomain = AppConfig.API_DOMAINS.UMH;
+        return this;
+    }
+
     public usingEmptyDomain() {
         this.apiDomain = '';
         return this;

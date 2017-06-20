@@ -13,12 +13,4 @@ export class CompanyService extends BizHttp<Company> {
         this.entityType = Company.EntityType;
         this.DefaultOrderBy = null;
     }
-
-    public AssignToWebHookSubscriber(id: number, webHookSubscriberId: string): Observable<any> {
-        return this.PutAction(
-            id,
-            'attach-to-webhook-subscriber',
-            'webHookSubscriberId=' + webHookSubscriberId
-        );
-    }
 }

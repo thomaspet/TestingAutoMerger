@@ -9,8 +9,6 @@ export const AppConfig = ({
 
     UNI_PUSH_ADAPTER_URL: 'https://dev-unipushadapter.unieconomy.no',
 
-    UNI_MESSAGE_HUB_URL: 'https://dev-unimessagehub.unieconomy.no/api/application-domains/4ead79bd-36d3-4833-95f7-c87576233d3e/',
-
     UNI_JOB_SERVER_URL: 'https://devapi-unijobserver.unieconomy.no/api/',
 
     API_DOMAINS: {
@@ -18,7 +16,8 @@ export const AppConfig = ({
         BUSINESS: '/api/biz/',
         ROOT: '/api/',
         METADATA: '/api/metadata/',
-        STATISTICS: '/api/statistics/'
+        STATISTICS: '/api/statistics/',
+        UMH: '/api/umh/'
     },
 
     INTEGRATION_DOMAINS: {

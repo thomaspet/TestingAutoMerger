@@ -1,4 +1,6 @@
 import {Component, ViewChild, ChangeDetectorRef} from '@angular/core';
+import {Observable} from 'rxjs/Observable';
+
 import {UniSelect, ISelectConfig} from 'uniform-ng2/main';
 
 import {UmhService, IUmhAction, IUmhObjective, IUmhSubscription, IUmhSubscriber} from '../../../services/common/UmhService';
@@ -31,6 +33,7 @@ export class WebHookSettings {
 
     private company: Company;
     private isEnabled: boolean = false;
+    private isBusy: boolean = true;
 
     public constructor(
         private umhSerivce: UmhService,
@@ -44,25 +47,21 @@ export class WebHookSettings {
     public ngOnInit() {
         this.noFilter = 'ffffffff-ffff-ffff-ffff-ffffffffffff';
 
-        this.initActions();
-        this.initObjectives();
-        this.initSubscription();
+        Observable.forkJoin(
+            this.umhSerivce.getActions(),
+            this.umhSerivce.getObjectives()
+        ).subscribe(
+            res => {
+                this.initActions(res[0]);
+                this.initObjectives(res[1]);
+                this.initSubscription();
+            },
+            err => this.errorService.handle(err)
+        );
 
-        this.objectiveSelectConfig = {
-            //displayProperty: 'id',
-            // searchable: false,
-            // template: (item) => {
-            //     return (item.ID + ' - ' + item.PartName);
-            // }
-        };
+        this.objectiveSelectConfig = {};
 
-        this.actionSelectConfig = {
-            //displayProperty: 'id',
-            // searchable: false,
-            // template: (item) => {
-            //     return (item.ID + ' - ' + item.PartName);
-            // }
-        };
+        this.actionSelectConfig = {};
     }
 
     public ngAfterViewInit() {
@@ -91,44 +90,34 @@ export class WebHookSettings {
         });
     }
 
-    private initActions() {
-        this.umhSerivce.getActions().subscribe(
-            data => {
-                this.actionNames.push('All');
+    private initActions(data: any) {
+        this.actionNames.push('All');
 
-                const action: IUmhAction = {
-                        id: this.noFilter,
-                        Name: 'All'
-                };
-                this.actions.push(action);
+        const action: IUmhAction = {
+                id: this.noFilter,
+                Name: 'All'
+        };
+        this.actions.push(action);
 
-                for (var i = 0; i < data.length; ++i) {
-                    this.actionNames.push(data[i].Name);
-                    this.actions.push(data[i]);
-                }
-            },
-            err => this.errorService.handle(err)
-        );
+        for (var i = 0; i < data.length; ++i) {
+            this.actionNames.push(data[i].Name);
+            this.actions.push(data[i]);
+        }
     }
 
-    private initObjectives() {
-        this.umhSerivce.getObjectives().subscribe(
-            data => {
-                this.objectiveNames.push('All');
+    private initObjectives(data: any) {
+        this.objectiveNames.push('All');
 
-                const objective: IUmhObjective = {
-                    id: this.noFilter,
-                    Name : 'All'
-                }
-                this.objectives.push(objective);
+        const objective: IUmhObjective = {
+            id: this.noFilter,
+            Name : 'All'
+        }
+        this.objectives.push(objective);
 
-                for (var i = 0; i < data.length; ++i) {
-                    this.objectiveNames.push(data[i].Name);
-                    this.objectives.push(data[i]);
-                }
-            },
-            err => this.errorService.handle(err)
-        );
+        for (var i = 0; i < data.length; ++i) {
+            this.objectiveNames.push(data[i].Name);
+            this.objectives.push(data[i]);
+        }
     }
 
     private initSubscription() {
@@ -151,6 +140,7 @@ export class WebHookSettings {
                 this.initList();
 
                 this.ngAfterViewInit();
+                this.isBusy = false;
             },
             err => this.errorService.handle(err)
         );
@@ -158,20 +148,15 @@ export class WebHookSettings {
 
     private initList() {
         if (this.company.WebHookSubscriberId !== null) {
-            this.umhSerivce.getSubscriber(this.subscription.SubscriberId).subscribe(
-                res => {
-                    this.umhSerivce.getSubscriptions(this.subscription.SubscriberId).subscribe(
-                        subscriptions => this.subscriptions = subscriptions,
-                        err => this.errorService.handle(err)
-                    );
-                },
-                err => {} // nothing to do
+            this.umhSerivce.getSubscriptions().subscribe(
+                subscriptions => this.subscriptions = subscriptions,
+                err => this.errorService.handle(err)
             );
         }
     }
 
     private onSubmit() {
-        this.umhSerivce.createSubscription(this.subscription.SubscriberId, this.subscription).subscribe(
+        this.umhSerivce.createSubscription(this.subscription).subscribe(
             res => {
                 this.isDirty = false;
                 this.initSubscription();
@@ -181,46 +166,17 @@ export class WebHookSettings {
     }
 
     private enableWebHooks() {
-        this.checkCluster();
-        this.assignSubscriberToCompany();
-    }
-
-    // create new subscriber and attach to company
-    private assignSubscriberToCompany() {
         let newSubscriber: IUmhSubscriber = {
             Name: this.company.Name,
             ClusterIds: [this.company.Key]
-        }
-
-        this.umhSerivce.createSubscriber(newSubscriber).subscribe(
+        };
+        
+        this.umhSerivce.enableWebhooks().subscribe(
             res => {
                 this.company.WebHookSubscriberId = res.id;
-                this.companyService.AssignToWebHookSubscriber(this.company.ID, this.company.WebHookSubscriberId).subscribe(
-                    res2 => {
-                        this.initSubscription();
-                    },
-                    err2 => this.errorService.handle(err2)
-                );
+                this.initSubscription();
             },
-            err => this.errorService.handle(err)
-        );
-    }
-
-    // for backward compatibility reason
-    private checkCluster() {
-        this.umhSerivce.getCluster(this.company.Key).subscribe(
-            res => {
-                // nothing to do
-            },
-            err => {
-                this.umhSerivce.createCluster({
-                    id: this.company.Key,
-                    NativeObjectKey: this.company.Key,
-                    Name: this.company.Name
-                }).subscribe(
-                    res2 => {},
-                    err2 => this.errorService.handle(err2));
-            } 
+            err2 => this.errorService.handle(err2)
         );
     }
 
@@ -288,7 +244,7 @@ export class WebHookSettings {
     }
 
     private onDeleteSubscription(subscriptionId: string) {
-        this.umhSerivce.deleteSubscription(this.subscription.SubscriberId, subscriptionId).subscribe(
+        this.umhSerivce.deleteSubscription(subscriptionId).subscribe(
             res => {
                 this.initList();
             },
@@ -297,7 +253,7 @@ export class WebHookSettings {
     }
 
     private updateSubscription(subscription: IUmhSubscription) {
-        this.umhSerivce.updateSubscription(this.subscription.SubscriberId, subscription).subscribe(
+        this.umhSerivce.updateSubscription(subscription).subscribe(
             res => {},
             err => this.errorService.handle(err)
         );
