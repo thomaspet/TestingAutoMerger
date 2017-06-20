@@ -2,9 +2,10 @@
     <section class="project-overview-tile">
         <h3 class="project-overview-name"> {{ project?.Name }} </h3>
         <p class="project-overview-description">{{ project?.Description }}</p>
-        <h2 class="project-overview-company">{{ project?.Company }}</h2>
+        <h2 class="project-overview-company">{{ customerName}}</h2>
         <hr />
         <p><strong>Prosjektleder:</strong> {{ project?.ProjectLeadName }}</p>
+        <p><strong>Total budget:</strong> {{ project?.Total | number }}</p>
     </section>
     
     <section class="project-overview-chart-tile-container">

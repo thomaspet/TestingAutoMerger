@@ -1,13 +1,15 @@
 ﻿<section class="project-router-outlet">
-    <h2 style="margin: 16px; font-weight: 400; font-size: 2rem;">{{ actionLabel }}</h2>
-    <section class="project-edit-from">
-        <uni-form [config]="config$"
-                  [fields]="fields$"
-                  [model]="project$">
-        </uni-form>
-    </section>
-    <section class="project-edit-dimensions">
-        Dimensions
+    <section class="project-edit-container">
+        <h2 style="margin: 16px; font-weight: 400; font-size: 2rem;">{{ actionLabel }}</h2>
+        <section class="project-edit-from">
+            <uni-form [config]="config$"
+                      [fields]="fields$"
+                      [model]="project$">
+            </uni-form>
+        </section>
+        <section class="project-edit-dimensions">
+            Dimensions
+        </section>
     </section>
     
 </section>

@@ -17,6 +17,7 @@ export class ProjectEditmode {
     public fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
     private project$: BehaviorSubject<Project> = new BehaviorSubject(null);
     private actionLabel: string = '';
+    private STATUS = [{ ID: 42201, Name: 'Registrert' }, { ID: 2, Name: 'Aktivt' }, { ID: 3, Name: 'Avsluttet'}];
 
     constructor(private projectService: ProjectService, private errorService: ErrorService) { }
 
@@ -26,14 +27,27 @@ export class ProjectEditmode {
             (project) => {
                 if (project.ID) {
                     this.project$.next(project);
-                    this.actionLabel = 'Rediger prosjekt ' + project.ProjectNumber + ':';
+                    this.actionLabel = 'Rediger prosjekt ' + project.Name + ':';
                 } else {
                     this.project$.next(new Project);
                     this.projectService.currentProject.next(this.project$.getValue());
                     this.actionLabel = 'Nytt prosjekt:';
                 }
-                
+                this.extendFormConfig();
             });
+    }
+
+    private extendFormConfig() {
+        let fields = this.fields$.getValue();
+
+        let status: UniFieldLayout = fields[2];
+        status.Options = {
+            source: this.STATUS,
+            valueProperty: 'ID',
+            displayProperty: 'Name',
+            template: (obj: any) => obj ? obj.Name : '',
+            debounceTime: 200
+        }
     }
 
     private getComponentFields(): UniFieldLayout[] {
@@ -62,10 +76,7 @@ export class ProjectEditmode {
                 Property: 'StatusCode',
                 Classes: 'twentyfive-width-field',
                 LineBreak: false,
-                Section: 0,
-                Options: {
-                    source: ['Registrert', 'Aktivt', 'Avsluttet'],
-                }
+                Section: 0
             },
             <any>{
                 FieldType: FieldType.TEXTAREA,
@@ -79,7 +90,7 @@ export class ProjectEditmode {
                 FieldType: FieldType.TEXT,
                 Label: 'Prosjektleder',
                 Property: 'ProjectLeadName',
-                Classes: 'max-widh',
+                Classes: 'fifty-width-field',
                 LineBreak: true,
                 Section: 0
             },
@@ -102,29 +113,29 @@ export class ProjectEditmode {
                 Section: 0
             },
             <any>{
-                FieldType: FieldType.DATE_TIME_PICKER,
+                FieldType: FieldType.LOCAL_DATE_PICKER,
                 Label: 'Forventet startdato',
                 Property: 'PlannedStartdate'
             },
             <any>{
-                FieldType: FieldType.DATE_TIME_PICKER,
+                FieldType: FieldType.LOCAL_DATE_PICKER,
                 Label: 'Forventet sluttdato',
                 Property: 'PlannedEnddate',
                 LineBreak: true
             },
             <any>{
-                FieldType: FieldType.DATE_TIME_PICKER,
+                FieldType: FieldType.LOCAL_DATE_PICKER,
                 Label: 'Startdato',
                 Property: 'Startdate',
 
             },
             <any>{
-                FieldType: FieldType.DATE_TIME_PICKER,
+                FieldType: FieldType.LOCAL_DATE_PICKER,
                 Label: 'Sluttdato',
                 Property: 'Enddate'
             },
             <any>{
-                FieldType: FieldType.DATE_TIME_PICKER,
+                FieldType: FieldType.LOCAL_DATE_PICKER,
                 Label: 'Opprettet',
                 Property: 'CreatedAt',
                 ReadOnly: true
@@ -156,8 +167,34 @@ export class ProjectEditmode {
                 Section: 1,
                 Sectionheader: 'Budsjettstyring'
             },
+            <any>{
+                FieldType: FieldType.NUMERIC,
+                Label: 'Navn',
+                Property: '',
+                Classes: 'third-width-field',
+                LineBreak: false,
+                Section: 2,
+                Sectionheader: 'Ressurser'
+            },
+            <any>{
+                FieldType: FieldType.NUMERIC,
+                Label: 'Ansvar',
+                Property: '',
+                Classes: 'third-width-field',
+                LineBreak: false,
+                Section: 2,
+                Sectionheader: 'Ressurser'
+            },
+            <any>{
+                FieldType: FieldType.NUMERIC,
+                Label: 'Type',
+                Property: '',
+                Classes: 'third-width-field',
+                LineBreak: false,
+                Section: 2,
+                Sectionheader: 'Ressurser'
+            },
             
         ];
     }
-
 }

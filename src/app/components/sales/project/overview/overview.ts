@@ -1,8 +1,12 @@
 ﻿import { Component, ViewChild, ElementRef } from '@angular/core';
 import { Http } from '@angular/http';
-import { Project } from '../../../../unientities';
+import { Project, Customer } from '../../../../unientities';
 import * as Chart from 'chart.js';
-import { ProjectService } from '../../../../services/services';
+import { ProjectService, CustomerService } from '../../../../services/services';
+
+export interface myProject extends Project {
+    ProjectCustomerID: number;
+}
 
 @Component({
     selector: 'project-overview',
@@ -26,8 +30,10 @@ export class ProjectOverview {
     private myChart2: any;
     private projectHoursTotal: number;
     private projectHoursInvoiced: number;
+    private customer: Customer;
+    private customerName: string;
 
-    private project: Project;
+    private project: myProject;
     private chart = {
         type: 'bar',
         data: {
@@ -68,10 +74,10 @@ export class ProjectOverview {
         }
     };
 
-    constructor(private projectService: ProjectService) {}
+    constructor(private projectService: ProjectService, private customerService: CustomerService) { }
 
     public ngOnInit() {
-        this.projectService.currentProject.subscribe((project) => { this.projectChanged(project); });
+        this.projectService.currentProject.subscribe((project: any) => { this.projectChanged(project); });
     }
 
     public ngAfterViewInit() {
@@ -79,7 +85,7 @@ export class ProjectOverview {
         //this.drawChart();
     }
 
-    private projectChanged(project: Project) {
+    private projectChanged(project: myProject) {
         this.project = project;
         this.getDataAndDrawChart();
     }
@@ -88,6 +94,20 @@ export class ProjectOverview {
 
         //Only draw charts when valid project is selected
         if (this.project && this.project.ID) {
+
+            if (this.project.ProjectCustomerID) {
+                this.customerService.Get(this.project.ProjectCustomerID).subscribe((customer: Customer) => {
+                    if (customer) {
+                        this.customer = customer;
+                        this.customerName = customer.Info.Name;
+                    } else {
+                        this.customerName = '';
+                    }
+                })
+            } else {
+                this.customerName = '';
+            }
+            
             this.projectService.getProjectHours(this.project.ID).subscribe((res) => {
 
                 this.chart.data.labels = [];
