@@ -1,8 +1,9 @@
 ﻿import { Component } from '@angular/core';
-import { ProjectService, ErrorService } from '../../../../services/services';
-import { Project } from '../../../../unientities';
+import { ProjectService, ErrorService, UniSearchConfigGeneratorService } from '../../../../services/services';
+import { Project, Customer } from '../../../../unientities';
 import { UniFieldLayout } from 'uniform-ng2/main';
 import { FieldType } from 'uniform-ng2/main';
+import { IUniSearchConfig } from 'unisearch-ng2/src/UniSearch/IUniSearchConfig';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 
 
@@ -18,27 +19,36 @@ export class ProjectEditmode {
     private project$: BehaviorSubject<Project> = new BehaviorSubject(null);
     private actionLabel: string = '';
     private STATUS = [{ ID: 42201, Name: 'Registrert' }, { ID: 2, Name: 'Aktivt' }, { ID: 3, Name: 'Avsluttet'}];
+    private uniSearchConfig: IUniSearchConfig;
 
-    constructor(private projectService: ProjectService, private errorService: ErrorService) { }
+    private customerExpandOptions: Array<string> = ['Info.Name'];
+
+    constructor(
+        private projectService: ProjectService,
+        private errorService: ErrorService,
+        private uniSearchConfigGeneratorService: UniSearchConfigGeneratorService) { }
 
     public ngOnInit() {
         this.fields$.next(this.getComponentFields());
         this.projectService.currentProject.subscribe(
             (project) => {
-                if (project.ID) {
+                if (project) {
                     this.project$.next(project);
-                    this.actionLabel = 'Rediger prosjekt ' + project.Name + ':';
                 } else {
                     this.project$.next(new Project);
                     this.projectService.currentProject.next(this.project$.getValue());
-                    this.actionLabel = 'Nytt prosjekt:';
                 }
+                this.actionLabel = project && project.ID ? 'Rediger prosjekt - '
+                    + project.Name + ':' : 'Nytt prosjekt:';
                 this.extendFormConfig();
             });
     }
 
     private extendFormConfig() {
         let fields = this.fields$.getValue();
+
+        this.uniSearchConfig = this.uniSearchConfigGeneratorService
+            .generate(Customer, <[string]>this.customerExpandOptions);
 
         let status: UniFieldLayout = fields[2];
         status.Options = {
@@ -47,7 +57,13 @@ export class ProjectEditmode {
             displayProperty: 'Name',
             template: (obj: any) => obj ? obj.Name : '',
             debounceTime: 200
-        }
+        };
+
+        let customer: UniFieldLayout = fields[5];
+        customer.Options = {
+            uniSearchConfig: this.uniSearchConfig,
+            valueProperty: 'Name'
+        };
     }
 
     private getComponentFields(): UniFieldLayout[] {
@@ -57,142 +73,144 @@ export class ProjectEditmode {
                 Label: 'Prosjektnummer',
                 Property: 'ProjectNumber',
                 Placeholder: 'Autogenerert hvis blank',
-                Classes: 'twentyfive-width-field',
-                LineBreak: false,
-                Section: 0
+                Section: 0,
+                FieldSet: 1,
+                FieldSetColumn: 1,
+                Legend: 'Prosjektdetaljer'
 
             },
             <any>{
                 FieldType: FieldType.TEXT,
                 Label: 'Navn',
                 Property: 'Name',
-                Classes: 'fifty-width-field',
-                LineBreak: false,
-                Section: 0
+                Section: 0,
+                FieldSet: 1,
+                FieldSetColumn: 1
             },
             <any>{
                 FieldType: FieldType.DROPDOWN,
                 Label: 'Status',
                 Property: 'StatusCode',
-                Classes: 'twentyfive-width-field',
-                LineBreak: false,
-                Section: 0
-            },
-            <any>{
-                FieldType: FieldType.TEXTAREA,
-                Label: 'Beskrivelse',
-                Property: 'Description',
-                Classes: 'max-width',
-                LineBreak: true,
-                Section: 0
+                Section: 0,
+                FieldSet: 1,
+                FieldSetColumn: 1
             },
             <any>{
                 FieldType: FieldType.TEXT,
                 Label: 'Prosjektleder',
                 Property: 'ProjectLeadName',
-                Classes: 'fifty-width-field',
-                LineBreak: true,
-                Section: 0
+                Section: 0,
+                FieldSet: 1,
+                FieldSetColumn: 1
             },
             <any>{
-                FieldType: FieldType.TEXT,
+                FieldType: FieldType.TEXTAREA,
+                Label: 'Beskrivelse',
+                Property: 'Description',
+                Section: 0,
+                FieldSet: 2,
+                FieldSetColumn: 1,
+                Legend: 'Prosjektbeskrivelse'
+            },
+            <any>{
+                FieldType: FieldType.UNI_SEARCH,
                 Label: 'Kunde',
                 Property: 'ProjectCustomerID',
-                Classes: 'fifty-width-field',
-                LineBreak: false,
-                Width: '100%',
-                Section: 0
+                Section: 0,
+                FieldSet: 3,
+                FieldSetColumn: 1,
+                Legend: 'Kunde'
             },
             <any>{
                 FieldType: FieldType.TEXT,
                 Label: 'Arbeidssted',
                 Property: 'WorkPlaceAddressID',
-                Classes: 'fifty-width-field',
-                LineBreak: true,
-                Width: '100%',
-                Section: 0
+                Section: 0,
+                FieldSet: 4,
+                FieldSetColumn: 1,
+                Legend: 'Lokasjon'
             },
             <any>{
                 FieldType: FieldType.LOCAL_DATE_PICKER,
                 Label: 'Forventet startdato',
-                Property: 'PlannedStartdate'
+                Property: 'PlannedStartdate',
+                FieldSet: 5,
+                FieldSetColumn: 1,
+                Legend: 'Prosjektdatoer'
             },
             <any>{
                 FieldType: FieldType.LOCAL_DATE_PICKER,
                 Label: 'Forventet sluttdato',
                 Property: 'PlannedEnddate',
-                LineBreak: true
+                FieldSet: 5,
+                FieldSetColumn: 1
             },
             <any>{
                 FieldType: FieldType.LOCAL_DATE_PICKER,
                 Label: 'Startdato',
                 Property: 'Startdate',
+                FieldSet: 5,
+                FieldSetColumn: 1
 
             },
             <any>{
                 FieldType: FieldType.LOCAL_DATE_PICKER,
                 Label: 'Sluttdato',
-                Property: 'Enddate'
+                Property: 'Enddate',
+                FieldSet: 5,
+                FieldSetColumn: 1
             },
             <any>{
                 FieldType: FieldType.LOCAL_DATE_PICKER,
                 Label: 'Opprettet',
                 Property: 'CreatedAt',
-                ReadOnly: true
+                ReadOnly: true,
+                FieldSet: 5,
+                FieldSetColumn: 1
             },
             <any>{
                 FieldType: FieldType.NUMERIC,
                 Label: 'Price',
                 Property: 'Price',
-                Classes: 'third-width-field',
-                LineBreak: false,
-                Section: 1,
-                Sectionheader: 'Budsjettstyring'
+                FieldSet: 6,
+                FieldSetColumn: 1,
+                Legend: 'Budsjett'
             },
             <any>{
                 FieldType: FieldType.NUMERIC,
                 Label: 'CostPrice',
                 Property: 'CostPrice',
-                Classes: 'third-width-field',
-                LineBreak: false,
-                Section: 1,
-                Sectionheader: 'Budsjettstyring'
+                FieldSet: 6,
+                FieldSetColumn: 1
             },
             <any>{
                 FieldType: FieldType.NUMERIC,
                 Label: 'Total',
                 Property: 'Total',
-                Classes: 'third-width-field',
-                LineBreak: false,
-                Section: 1,
-                Sectionheader: 'Budsjettstyring'
+                FieldSet: 6,
+                FieldSetColumn: 1
             },
             <any>{
                 FieldType: FieldType.NUMERIC,
                 Label: 'Navn',
                 Property: '',
-                Classes: 'third-width-field',
-                LineBreak: false,
-                Section: 2,
-                Sectionheader: 'Ressurser'
+                FieldSet: 7,
+                FieldSetColumn: 1,
+                Legend: 'Ressurser'
             },
             <any>{
                 FieldType: FieldType.NUMERIC,
                 Label: 'Ansvar',
                 Property: '',
-                Classes: 'third-width-field',
-                LineBreak: false,
-                Section: 2,
-                Sectionheader: 'Ressurser'
+                FieldSet: 7,
+                FieldSetColumn: 1
             },
             <any>{
                 FieldType: FieldType.NUMERIC,
                 Label: 'Type',
                 Property: '',
-                Classes: 'third-width-field',
-                LineBreak: false,
-                Section: 2,
-                Sectionheader: 'Ressurser'
+                FieldSet: 7,
+                FieldSetColumn: 1
             },
             
         ];
