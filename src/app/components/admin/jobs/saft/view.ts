@@ -61,16 +61,18 @@ export class SaftExportView implements OnInit {
     }
 
     public onJobStart(file: ISaftFileInfo) {
-        this.confirmModal.confirm(`Starte SAF-T import av ${file.FileName}?`, 'SAF-T IMPORT')
+        this.confirmModal.confirm(`Starte SAF-T import av ${file.FileName}?`, 'SAF-T IMPORT'
+        , true, { accept: 'Importer med IB', reject: 'Importer uten IB', cancel: 'Avbryt',
+            warning: 'PS! Du kan lese inn filen flere ganger dersom det skulle oppstå problemer.'})
             .then( (action: ConfirmActions) => {
-                if (action === ConfirmActions.ACCEPT) {
+                if (action === ConfirmActions.REJECT || action === ConfirmActions.ACCEPT) {
                     file.busy = true;
                     this.currentFileId = file.FileID;
 
                     var details = { FileID: file.FileID,
                         FileName: file.FileName,
                         CompanyKey: this.activeCompany,
-                        IncludeStartingBalance: false
+                        IncludeStartingBalance: action === ConfirmActions.ACCEPT
                     };
 
                     this.jobService.startJob(JOBNAME, undefined, details)
