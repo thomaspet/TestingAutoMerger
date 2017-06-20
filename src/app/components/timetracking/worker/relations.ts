@@ -191,14 +191,14 @@ export class View {
             },
             formFields: [
                 createFormField('WorkPercentage', 'Prosent', ControlTypes.NumericInput),
-                createFormField('WorkProfileID', 'Stillingsmal', ControlTypes.SelectInput, FieldSize.Double
+                createFormField('WorkProfileID', 'Stillingsmal', ControlTypes.SelectInput, undefined
                     , false, 0, undefined, undefined, this.getComboOptions()),
                 createFormField('CompanyName', 'Firmanavn', ControlTypes.TextInput),
-                createFormField('Description', 'Beskrivelse', ControlTypes.TextInput, FieldSize.Double),
+                createFormField('Description', 'Beskrivelse', ControlTypes.TextInput),
                 createFormField('StartDate', 'Startdato', ControlTypes.LocalDate),
                 createFormField('EndTime', 'Sluttdato', ControlTypes.LocalDate),
                 createFormField('IsActive', 'Aktiv', ControlTypes.CheckboxInput),
-                createFormField('TeamID', 'Team', ControlTypes.SelectInput, FieldSize.Double
+                createFormField('TeamID', 'Team', ControlTypes.SelectInput, undefined
                     , false, 0, undefined, undefined, this.getTeamCombo()),
             ],
         };

@@ -39,4 +39,42 @@ export class FileService extends BizHttp<File> {
             .send()
             .map(response => response.json());
     }
+
+    public create(file: File) {
+        return this.http
+            .asPOST()
+            .withDefaultHeaders()
+            .usingBusinessDomain()
+            .withEndPoint(`files`)
+            .withBody(file)
+            .send()
+            .map(response => response.json());        
+    }
+
+    public delete(fileId: number) {
+        return this.http
+            .asDELETE()
+            .withDefaultHeaders()
+            .usingBusinessDomain()
+            .withEndPoint(`files/${fileId}`)
+            .send();
+    }
+
+    public tag(id: number, tag: string, status: number = 0) {
+        return this.http
+            .asPOST()
+            .withDefaultHeaders()
+            .usingBusinessDomain()
+            .withEndPoint(`filetags`)
+            .withBody({ FileID: id, TagName: tag, Status: status })
+            .send()
+            .map(response => response.json()); 
+    }
+
+    public getStatistics(query: string) {
+        return this.http.asGET().usingStatisticsDomain()
+        .withEndPoint('?' + query).send()
+        .map(response => response.json());
+
+    }
 }

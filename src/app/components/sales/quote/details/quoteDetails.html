@@ -17,7 +17,7 @@
                          [(items)]="quoteItems"
                          [currencyCodeID]="currencyCodeID"
                          [currencyExchangeRate]="currencyExchangeRate"
-                         (itemsChange)="recalcDebouncer.next($event)">
+                         (itemsChange)="recalcDebouncer.emit($event)">
     </uni-tradeitem-table>
     <uni-summary *ngIf="quote" [configs]="summary" [ngClass]="{'-is-dirty':dirty}"></uni-summary>
 </section>

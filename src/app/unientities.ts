@@ -242,8 +242,8 @@ export class WorkRelation extends UniEntity {
     public WorkerID: number;
     public WorkPercentage: number;
     public WorkProfileID: number;
-    public WorkProfile: WorkProfile;
     public Worker: Worker;
+    public WorkProfile: WorkProfile;
     public Employment: Employment;
     public Items: Array<WorkItem>;
     public Team: Team;
@@ -957,12 +957,12 @@ export class BusinessRelation extends UniEntity {
     public StatusCode: number;
     public UpdatedAt: Date;
     public UpdatedBy: string;
-    public BankAccounts: Array<BankAccount>;
     public DefaultContact: Contact;
     public Contacts: Array<Contact>;
     public Addresses: Array<Address>;
     public Phones: Array<Phone>;
     public Emails: Array<Email>;
+    public BankAccounts: Array<BankAccount>;
     public InvoiceAddress: Address;
     public ShippingAddress: Address;
     public DefaultPhone: Phone;
@@ -1282,6 +1282,7 @@ export class SalaryBalance extends UniEntity {
 
     public CreatedAt: Date;
     public CreatedBy: string;
+    public CreatePayment: boolean;
     public Deleted: boolean;
     public EmployeeID: number;
     public FromDate: Date;
@@ -1299,9 +1300,9 @@ export class SalaryBalance extends UniEntity {
     public UpdatedAt: Date;
     public UpdatedBy: string;
     public WageTypeNumber: number;
-    public Transactions: Array<SalaryBalanceLine>;
     public Employee: Employee;
     public Supplier: Supplier;
+    public Transactions: Array<SalaryBalanceLine>;
     public CustomFields: any;
 }
 
@@ -1554,9 +1555,9 @@ export class Employment extends UniEntity {
     public UserDefinedRate: number;
     public WorkingHoursScheme: WorkingHoursScheme;
     public WorkPercent: number;
-    public Dimensions: Dimensions;
     public Employee: Employee;
     public SubEntity: SubEntity;
+    public Dimensions: Dimensions;
     public Leaves: Array<EmployeeLeave>;
     public CustomFields: any;
 }
@@ -1776,10 +1777,10 @@ export class Employee extends UniEntity {
     public UpdatedBy: string;
     public UserID: number;
     public VacationRateEmployeeID: number;
-    public SubEntity: SubEntity;
-    public Employments: Array<Employment>;
     public BusinessRelationInfo: BusinessRelation;
+    public Employments: Array<Employment>;
     public VacationRateEmployee: VacationRateEmployee;
+    public SubEntity: SubEntity;
     public TaxCards: Array<EmployeeTaxCard>;
     public CustomFields: any;
 }
@@ -2153,6 +2154,7 @@ export class Dimensions extends UniEntity {
     public DepartmentID: number;
     public ID: number;
     public ProjectID: number;
+    public ProjectTaskID: number;
     public RegionID: number;
     public ResponsibleID: number;
     public StatusCode: number;
@@ -2160,29 +2162,9 @@ export class Dimensions extends UniEntity {
     public UpdatedBy: string;
     public Project: Project;
     public Department: Department;
+    public ProjectTask: ProjectTask;
     public Responsible: Responsible;
     public Region: Region;
-    public CustomFields: any;
-}
-
-
-export class Project extends UniEntity {
-    public static RelativeUrl = 'projects';
-    public static EntityType = 'Project';
-
-    public CreatedAt: Date;
-    public CreatedBy: string;
-    public Deleted: boolean;
-    public Description: string;
-    public ID: number;
-    public Name: string;
-    public ProjectLeadName: string;
-    public ProjectNumber: number;
-    public ProjectNumberSeriesID: number;
-    public StatusCode: number;
-    public UpdatedAt: Date;
-    public UpdatedBy: string;
-    public ProjectNumberSeries: NumberSeries;
     public CustomFields: any;
 }
 
@@ -2676,6 +2658,122 @@ export class AltinnCorrespondanceReader extends UniEntity {
     public UpdatedBy: string;
     public UserID: string;
     public UserPassword: string;
+    public CustomFields: any;
+}
+
+
+export class ProjectResourceSchedule extends UniEntity {
+    public static RelativeUrl = 'projects/tasks/schedules/resources';
+    public static EntityType = 'ProjectResourceSchedule';
+
+    public CreatedAt: Date;
+    public CreatedBy: string;
+    public Deleted: boolean;
+    public ID: number;
+    public ProjectResourceID: number;
+    public ProjectTaskScheduleID: number;
+    public StatusCode: number;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public CustomFields: any;
+}
+
+
+export class ProjectResource extends UniEntity {
+    public static RelativeUrl = 'projects/resources';
+    public static EntityType = 'ProjectResource';
+
+    public CreatedAt: Date;
+    public CreatedBy: string;
+    public Deleted: boolean;
+    public ID: number;
+    public Name: string;
+    public ProjectID: number;
+    public Responsibility: string;
+    public StatusCode: number;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public UserID: number;
+    public ProjectUser: User;
+    public CustomFields: any;
+}
+
+
+export class ProjectTaskSchedule extends UniEntity {
+    public static RelativeUrl = 'projects/tasks/schedules';
+    public static EntityType = 'ProjectTaskSchedule';
+
+    public CreatedAt: Date;
+    public CreatedBy: string;
+    public Deleted: boolean;
+    public EndDate: Date;
+    public ID: number;
+    public ProjectTaskID: number;
+    public StartDate: Date;
+    public StatusCode: number;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public ScheduleResources: Array<ProjectResourceSchedule>;
+    public CustomFields: any;
+}
+
+
+export class ProjectTask extends UniEntity {
+    public static RelativeUrl = 'projects/tasks';
+    public static EntityType = 'ProjectTask';
+
+    public Amount: number;
+    public CostPrice: number;
+    public CreatedAt: Date;
+    public CreatedBy: string;
+    public Deleted: boolean;
+    public Description: string;
+    public ID: number;
+    public Name: string;
+    public Number: string;
+    public Price: number;
+    public ProjectID: number;
+    public StatusCode: number;
+    public Total: number;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public ProjectTaskSchedules: Array<ProjectTaskSchedule>;
+    public CustomFields: any;
+}
+
+
+export class Project extends UniEntity {
+    public static RelativeUrl = 'projects';
+    public static EntityType = 'Project';
+
+    public Amount: number;
+    public CostPrice: number;
+    public CreatedAt: Date;
+    public CreatedBy: string;
+    public Deleted: boolean;
+    public Description: string;
+    public DimensionsID: number;
+    public Enddate: Date;
+    public ID: number;
+    public Name: string;
+    public PlannedEnddate: Date;
+    public PlannedStartdate: Date;
+    public Price: number;
+    public ProjectCustomerID: number;
+    public ProjectLeadName: string;
+    public ProjectNumber: number;
+    public ProjectNumberSeriesID: number;
+    public Startdate: Date;
+    public StatusCode: number;
+    public Total: number;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public WorkPlaceAddressID: number;
+    public ProjectCustomer: Customer;
+    public WorkPlaceAddress: Address;
+    public ProjectTasks: Array<ProjectTask>;
+    public ProjectResources: Array<ProjectResource>;
+    public ProjectNumberSeries: NumberSeries;
     public CustomFields: any;
 }
 
@@ -4637,9 +4735,9 @@ export class WorkBalanceDto extends UniEntity {
     public ValidFrom: Date;
     public ValidTimeOff: number;
     public WorkRelationID: number;
-    public WorkRelation: WorkRelation;
     public Previous: BalanceInfo;
     public Details: Array<FlexDetail>;
+    public WorkRelation: WorkRelation;
     public CustomFields: any;
 }
 
@@ -5313,7 +5411,6 @@ export enum SalBalSource{
 export enum SalBalDrawType{
     FixedAmount = 0,
     InstalmentWithBalance = 1,
-    Balance = 2,
 }
 
 
@@ -5457,6 +5554,9 @@ export enum StdWageType{
     HolidayPayWithTaxDeduction = 5,
     AdvancePayment = 6,
     HolidayPayEarlierYears = 7,
+    Contribution = 8,
+    Garnishment = 9,
+    Outlay = 10,
 }
 
 

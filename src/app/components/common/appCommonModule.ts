@@ -43,7 +43,6 @@ import {AccrualModal} from './modals/accrualModal';
 import {ReminderSettingsModal, ReminderSettingsForm} from './reminder/settings/settingsModal';
 import {ReminderSettings} from './reminder/settings/reminderSettings';
 import {ReminderRules} from './reminder/settings/reminderRules';
-import {ReminderRuleDetails} from './reminder/settings/ruleDetails';
 import {ContactDetails} from './contact/contactDetails';
 import {Contacts} from './contact/contacts';
 import {AddPaymentModal, AddPaymentForm} from './modals/addPaymentModal';
@@ -133,7 +132,6 @@ import {routes as AppCommonRoutes} from './appCommonRoutes';
         ReminderSettingsModal,
         ReminderSettingsForm,
         ReminderRules,
-        ReminderRuleDetails,
 
         ContactDetails,
         Contacts,

@@ -137,23 +137,13 @@ export class Users {
             {
                 label: 'Send ny invitasjon',
                 action: rowModel => this.resendInvite(rowModel),
-                disabled: (rowModel) => {
-                    return (rowModel['StatusCode'] === 110001);
-                }
+                disabled: user => user.StatusCode === 110001
             },
             {
                 label: 'Fjern bruker',
                 action: rowModel => this.revokeUser(rowModel),
-                disabled: (rowModel) => {
-                    return( rowModel ['StatusCode'] === 110001);
-                }
-
-            },
-            {
-                label: 'Fjern bruker',
-                action: rowModel => this.revokeUser(rowModel),
-                disabled: (rowModel) => {
-                    return(rowModel ['StatusCode'] === 110000);
+                disabled: (user: User) => {
+                    return user.StatusCode !== 110001 && user.StatusCode !== 110000;
                 }
             }
         ];

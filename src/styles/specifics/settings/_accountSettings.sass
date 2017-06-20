@@ -9,25 +9,14 @@ account-settings
     .splitview_detail
         max-width: 33%
         min-width: 33%
+        margin-top: 2.5rem
 
 account-details
-    uni-form
-        uni-field
-            width: 90%
-            float: left
+    fieldset
+        @include labelLength(11rem)
+        width: 100%
+        margin-top: .25rem
 
-account-details
-    uni-checkbox-input
-        margin-top: 0px
-
-account-details
-    .small-combo-field
-        width: calc(90% - 5rem) !important
-
-account-details
-    uni-checkbox
-        label
-            min-height: 0px
 
 .icon-column
     span

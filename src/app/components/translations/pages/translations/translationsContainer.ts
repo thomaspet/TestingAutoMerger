@@ -127,7 +127,7 @@ export class TranslationsContainer {
 
     private createToolbarConfig(language: Language) {
         this.toolbarConfig = {
-            title: 'Translations of ' + language.Name + '(' + language.Code + ')'
+            title: language.Name + '(' + language.Code + ')'
         };
         this.saveActions = [
             {

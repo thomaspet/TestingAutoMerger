@@ -1,15 +1,20 @@
 <div *ngIf="vatType$ | async">
-    <uni-form            
+    <uni-form
         [config]="config$"
         [fields]="fields$"
         [model]="vatType$"
         (change)="onChange($event)">
     </uni-form>
-    <uni-table
+
+    <fieldset>
+        <legend>Regnskap</legend>
+        <uni-table
             [resource]="(vatType$ | async).VatReportReferences"
             [config]="uniTableConfig"
-            (rowDeleted)="onVatPostReferenceDelete($event.rowModel)"
-    ></uni-table>
+            (rowDeleted)="onVatPostReferenceDelete($event.rowModel)">
+        </uni-table>
+    </fieldset>
+
 </div>
 <div *ngIf="!(vatType$ | async)">
     Velg en mvakode i listen til venstre for å se detaljer om mvakoden

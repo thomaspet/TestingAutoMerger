@@ -28,6 +28,7 @@ dialog.uniModal
     justify-content: center
     overflow: auto
     z-index: map-get($zindex, modal)
+
     @supports (backdrop-filter: blur(.2rem))
         backdrop-filter: blur(.2rem)
         background: transparentize($uni-color-scale4, .4)
@@ -60,6 +61,7 @@ dialog.uniModal
         width: 62.5vw
         margin: 0 auto
         background: $uni-color-negative
+        color: $uni-color-positive
         box-shadow: 0 0 1rem transparentize($uni-color-positive, .9)
         border: 1px solid $uni-color-scale9
         padding: 2rem

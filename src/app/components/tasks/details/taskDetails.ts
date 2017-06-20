@@ -11,6 +11,8 @@ export class TaskDetails {
     public selectedTask: any;
 
     private comments: Comment[];
+    public entityID: string;
+    public invoiceEntityExist: boolean;
 
     constructor(
         private errorService: ErrorService,
@@ -20,6 +22,13 @@ export class TaskDetails {
     public ngOnChanges() {
         if (this.selectedTask && this.selectedTask.ID) {
             this.getComments();
+            if (this.selectedTask.EntityID) {
+                this.entityID = this.selectedTask.EntityID;
+                this.invoiceEntityExist = true;
+            } else {
+                return this.invoiceEntityExist = false;
+            }
+            return;
         }
     }
 

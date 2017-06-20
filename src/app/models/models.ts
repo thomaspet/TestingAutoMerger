@@ -5,3 +5,4 @@ export * from './salary/salaryTransactionPay';
 export * from './salary/salaryTransactionSums';
 export * from './accounting/BankData';
 export * from './reportFormat';
+export * from './activationEnum';

@@ -18,7 +18,6 @@ export class TaskList implements OnInit {
     @Output()
     private taskSelected: EventEmitter<Task> = new EventEmitter();
 
-    // TODO: update unientities so we can actually use Task entitiy..
     private tasks: any[];
     private filteredTasks: any[];
     private selectedTask: any = new Task();
@@ -157,18 +156,30 @@ export class TaskList implements OnInit {
         );
     }
 
-    public approveTask(task: any) {
-        this.approvalService.PostAction(task.approvalId, 'approve').subscribe(
-            res => this.updateTaskAfterApproval(task),
-            err => this.errorService.handle(err)
-        );
+    public approveTask(task: Task) {
+        const approval = this.getMyApproval(task);
+        if (approval) {
+            this.approvalService.PostAction(approval.ID, 'approve').subscribe(
+                res => this.updateTaskAfterApproval(task),
+                err => this.errorService.handle(err)
+            );
+        }
     }
 
-    public rejectTask(task: any) {
-        this.approvalService.PostAction(task.approvalId, 'reject').subscribe(
-            res => this.getTasks(),
-            err => this.errorService.handle(err)
-        );
+    public rejectTask(task: Task) {
+        const approval = this.getMyApproval(task);
+        if (approval) {
+            this.approvalService.PostAction(approval.ID, 'reject').subscribe(
+                res => this.getTasks(),
+                err => this.errorService.handle(err)
+            );
+        }
+    }
+
+    private getMyApproval(task: Task) {
+        if (task && task.Approvals) {
+            return task.Approvals.find(a => a.UserID === this.currentUser.ID);
+        }
     }
 
     public addTask() {

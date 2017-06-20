@@ -70,13 +70,13 @@ export function safeDec(value: any) {
 
 export function createFormField(
     name: string, label: string, fieldType: any = ControlTypes.TextInput,
-    size = FieldSize.Normal, hideLabel = false, section = 0, 
-    sectionHeader?: string, fieldSet = 0, options?: any): any {
+    size = FieldSize.Normal, hideLabel = false, fieldset = 0,
+    legend?: string, options?: any): any {
     return {
         Property: name, Label: label,
         FieldType: fieldType,
-        Section: section, Sectionheader: sectionHeader,
-        FieldSet: fieldSet,
+        FieldSet: fieldset,
+        Legend: legend,
         Combo: 0, Options: options,
         Classes: combineClasses(size, hideLabel)
     };

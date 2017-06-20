@@ -1,13 +1,9 @@
-import {Component,} from '@angular/core';
+import {Component} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
 // app
 import {IToolbarConfig} from '../../../common/toolbar/toolbar';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
 import {ErrorService, JobService} from '../../../../services/services';
-import {JobRun} from '../../../../models/admin/jobs/jobRun';
-import {JobRunLog} from '../../../../models/admin/jobs/jobRunLog';
-import {JobProgress} from '../../../../models/admin/jobs/jobProgress';
-
 
 @Component({
     selector: 'job-log',
@@ -16,8 +12,8 @@ import {JobProgress} from '../../../../models/admin/jobs/jobProgress';
 export class JobLog {
     private toolbarconfig: IToolbarConfig;
     private jobName: string = '';
-    private date: string = '';
-    private time: string = '';
+    private jobRun: any;
+    private busy: boolean = false;
 
     private log: any = [];
     private progress: any = [];
@@ -53,17 +49,23 @@ export class JobLog {
         };
     }
 
+    public refresh() {
+        this.initLog();
+    }
+
     private initLog() {
+        this.busy = true;
         this.route.params.subscribe((params) => {
             this.jobName = params['jobName'];
             let hangfireJobId: string = params['jobRunId'];
 
-            this.jobService.getJobRun(this.jobName, hangfireJobId).subscribe(
+            this.jobService.getJobRun(this.jobName, hangfireJobId)
+            .finally( () => this.busy = false )
+            .subscribe(
                 jobRun => {
-                    this.formatDates(jobRun);
-
-                    this.log = jobRun.JobRunLogs;
-                    this.progress = jobRun.Progress;
+                    this.jobRun = jobRun;
+                    this.log = jobRun ? jobRun.JobRunLogs : [];
+                    this.progress = jobRun ? jobRun.Progress : [];
 
 
                     this.updateTabTitle();
@@ -74,28 +76,4 @@ export class JobLog {
         });
     }
 
-    private formatDates(jobRun: JobRun) {
-        let localDate: Date = new Date(jobRun.Created);
-        
-        this.date = ('0' + localDate.getDate()).slice(-2) 
-                    + '.' + ('0' + (localDate.getMonth() + 1)).slice(-2)
-                    + '.' + localDate.getFullYear().toString();
-                    
-        this.time = ('0' + localDate.getHours()).slice(-2) + ':' + ('0' + localDate.getMinutes()).slice(-2);
-        this.formatTimes(jobRun.JobRunLogs);
-        this.formatTimes(jobRun.Progress);
-    }
-
-    private formatTimes(list: any) {
-        let time: Date;
-
-        for (let i = 0; i < list.length; ++i) {
-            time = new Date(list[i].Created);
-            list[i].Created = '[' 
-                + ('0' + time.getHours()).slice(-2) 
-                + ':' +  ('0' + time.getMinutes()).slice(-2) 
-                + ':' +  ('0' + time.getSeconds()).slice(-2) + ']';
-        }
-      
-    }
 }

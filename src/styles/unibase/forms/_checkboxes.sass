@@ -1,4 +1,8 @@
 $radioBack: mix($uni-color-scale9, $uni-color-c2a, 90%)
+
+uni-checkbox-input
+    min-width: 100% // Overrides uni-field label>span+* which is set by `width`
+
 uni-checkbox-input label,
 .uni-checkbox-input label,
 uni-radio-input label
@@ -21,20 +25,26 @@ input[type=radio]
     & + label
         user-select: none
         box-sizing: border-box
-        padding: 1.5rem 0 0 1.8rem
         position: relative
+        white-space: nowrap
+        display: block
+        width: 17rem
+        padding-right: 2.5rem
+        overflow: hidden
+        text-overflow: ellipsis
+
 
         &:before
             display: block
             content: ''
-            border: .1rem solid $uni-color-scale8
+            border: pxToRem(1) solid $uni-color-scale7
             height: 1rem
             width: 1rem
             margin-left: .3rem
             box-sizing: border-box
             position: absolute
-            top: 1.8rem
-            left: 0
+            top: .3rem
+            left: 15.3rem
             border-radius: .2rem
             background: #fff
 
@@ -53,8 +63,8 @@ input[type=radio]
             border-right: .2rem solid transparent
             border-bottom: .2rem solid transparent
             position: absolute
-            top: 1.82rem
-            left: .65rem
+            top: .32rem
+            left: 15.9rem
             height: .5rem
             width: .2rem
             transform: rotate(45deg)
@@ -105,14 +115,12 @@ input[type=radio]
         box-shadow: 0 0 0 1px $uni-color-negative, 0 0 0 2px $uni-color-scale9
 
     & + label.toggle
-        padding-top: .3rem
-        padding-left: 3.5rem
+        width: 20rem
 
         &:before
             width: 3rem
             height: 1.5rem
             border-radius: 99rem
-            top: .45rem
             border-color: transparent
             background: $radioBack
             content: 'Av'
@@ -121,12 +129,13 @@ input[type=radio]
             line-height: 1.2rem
             font-size: .9rem
             padding: 0 .3rem
+            top: 0
 
         &:after
             width: 1rem
             height: 1rem
-            top: .6rem
-            left: .5rem
+            top: .1rem
+            left: calc(#{$labelLength} + .2rem)
             border-radius: 99rem
             background-color: $uni-color-toolbar
             transition: all .3s ease
@@ -157,7 +166,7 @@ input[type=radio]
             background: $radioBack
 
         &:after
-            left: 1.9rem
+            left: calc(#{$labelLength} + 1.6rem)
             border-color: transparent
 
 
@@ -183,7 +192,6 @@ input[type=radio]:checked + label
 uni-checkbox-input,
 .uni-checkbox-input
     display: block
-    margin-top: 1.3rem
 
 uni-checkboxgroup-input,
 uni-radiogroup-input
@@ -195,7 +203,3 @@ uni-radiogroup-input
         padding-bottom: 1.3rem
         padding-right: 2.5rem
         margin-left: 0
-
-        &:before,
-        &:after
-            margin-top: -1.4rem

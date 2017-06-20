@@ -11,16 +11,17 @@ vat-settings
         min-width: 33%
 
 vattype-details
-    uni-form 
-        uni-field
-            width: 90%
-            float: left
-    
-vattype-details
-    uni-checkbox-input        
-        margin-top: 0px
-            
-    
+    fieldset
+        width: 100%
+        margin-top: .25rem
+
+        label span
+                width: 10rem
+
+        label span+*
+            width: calc(100% - 10rem)
+
+
 .is-locked:before
     content: ''
     display: inline-block
@@ -29,4 +30,3 @@ vattype-details
     padding: 0.6rem
     margin-left: 0.4rem
 
-    

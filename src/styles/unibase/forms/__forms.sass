@@ -1,4 +1,8 @@
+$labelLength: pxToRem(250)
+$inputHeight: 2rem
+
 @import 'labels'
+@import 'inputButtons'
 @import 'textInputs'
 @import 'checkboxes'
 @import 'formSection'
@@ -7,21 +11,32 @@
 @import 'linebreaks'
 @import 'select'
 @import 'validation'
+@import 'helpText'
 
-uni-form form
-    width: 100%
-    flex-basis: 100%
-    display: flex
-    flex-wrap: wrap
+uni-form *
+    box-sizing: border-box
 
-    *
-        box-sizing: border-box
+fieldset uni-field
+    margin: 0 auto
 
 uni-field
-    @include unigrid(4,2,2)
+    width: 100%
     display: block
-    padding-bottom: 1rem
-    margin-top: 0
+    padding: 0 0 pxToRem(10)
+    min-height: 2.2rem
+    max-width: pxToRem(650)
+
+    label > span
+        display: inline-block
+        line-height: $inputHeight
+        width: $labelLength
+
+        & + *
+            width: calc(100% - #{$labelLength})
+            float: right
+
+.collapsable.-is-open>.collapsable-content
+    justify-content: space-between
 
 uni-button-input button
     margin: 1.5rem 0 0
@@ -31,3 +46,45 @@ uni-hyperlink-input a
 
 uni-field.visuallyHideLabel label > span
     @extend %visuallyHidden
+
+uni-button-input
+    min-width: 100%
+
+    button
+        margin: 0 0 .5rem 15.6rem
+
+uni-form form
+    max-width: pxToRem(1340)
+    margin: 0 auto
+
+    @include media('650px', 'max-width')
+        max-width: pxToRem(650)
+
+    @include media('128em', 'min-width')
+        max-width: 128rem
+
+// Mixin for overrriding the labellength for forms with shorter labels
+@mixin labelLength($newLength)
+    background: redrem
+
+    label>span
+        width: $newLength
+        & + *
+            width: calc(100% - #{$newLength})
+
+    input[type=checkbox]
+        &+label
+            width: calc(#{$newLength} + 2rem)
+
+            &:before
+                left: calc(#{$newLength} - .3rem)
+
+            &:after
+                left: calc(#{$newLength} + .3rem)
+
+
+        &+label.toggle:after
+            left: calc(#{$newLength} + .2rem)
+
+        &:checked+label.toggle:after
+            left: calc(#{$newLength} + 1.9rem)

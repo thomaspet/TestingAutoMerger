@@ -1,21 +1,24 @@
-import { Component, ViewChild } from '@angular/core';
+import { Component, ViewChild, OnDestroy } from '@angular/core';
 import { UniView } from '../../../../framework/core/uniView';
 import { ActivatedRoute, Router, NavigationEnd } from '@angular/router';
 import { IUniSaveAction } from '../../../../framework/save/save';
 import { IToolbarConfig } from '../../common/toolbar/toolbar';
-import { UniCacheService, ErrorService, SalarybalanceService } from '../../../services/services';
+import { UniCacheService, ErrorService, SalarybalanceService,
+    ReportDefinitionService, CompanySalaryService, FileService } from '../../../services/services';
 import { TabService, UniModules } from '../../layout/navbar/tabstrip/tabService';
 import { Observable } from 'rxjs/Observable';
-import { SalaryBalance, SalBalType } from '../../../unientities';
+import { Subscription } from 'rxjs/Subscription';
+import { SalaryBalance, SalBalType, CompanySalary } from '../../../unientities';
 import { UniConfirmModal, ConfirmActions } from '../../../../framework/modals/confirm';
 import { IContextMenuItem } from 'unitable-ng2/main';
 import { SalarybalancelineModal } from './modals/salarybalancelinemodal';
+import { PreviewModal } from '../../reports/modals/preview/previewModal';
 
 @Component({
     selector: 'uni-salarybalance-view',
     templateUrl: './salarybalanceView.html'
 })
-export class SalarybalanceView extends UniView {
+export class SalarybalanceView extends UniView implements OnDestroy {
 
     private url: string = '/salary/salarybalances/';
     private salarybalanceID: number;
@@ -24,11 +27,14 @@ export class SalarybalanceView extends UniView {
     private toolbarConfig: IToolbarConfig;
     private childRoutes: any[];
     private contextMenuItems: IContextMenuItem[] = [];
+    private subscriptions: Subscription[] = [];
+    private companySalary: CompanySalary;
 
     public busy: boolean;
 
     @ViewChild(UniConfirmModal) public confirmModal: UniConfirmModal;
     @ViewChild(SalarybalancelineModal) private salarybalanceModal: SalarybalancelineModal;
+    @ViewChild(PreviewModal) private previewModal: PreviewModal;
 
     constructor(
         private route: ActivatedRoute,
@@ -36,7 +42,10 @@ export class SalarybalanceView extends UniView {
         private salarybalanceService: SalarybalanceService,
         private tabService: TabService,
         private errorService: ErrorService,
-        protected cacheService: UniCacheService
+        protected cacheService: UniCacheService,
+        private reportDefinitionService: ReportDefinitionService,
+        private companySalaryService: CompanySalaryService,
+        private fileService: FileService
     ) {
         super(router.url, cacheService);
 
@@ -51,25 +60,31 @@ export class SalarybalanceView extends UniView {
             disabled: true
         }];
 
-        this.contextMenuItems = [
-            {
-                label: 'Legg til manuell post',
-                action: () => {
-                    this.openSalarybalancelineModal();
-                },
-                disabled: (rowModel) => {
-                    return this.salarybalanceID < 1 || !this.salarybalance;
-                }
-            }
-        ];
-
         this.route.params.subscribe((params) => {
             this.salarybalanceID = +params['id'];
             this.updateTabStrip(this.salarybalanceID);
+            this.contextMenuItems = [];
 
             super.updateCacheKey(this.router.url);
 
             super.getStateSubject('salarybalance')
+                .do(salaryBalance => {
+                    if (!this.contextMenuItems.length) {
+                        this.contextMenuItems = [
+                            {
+                                label: 'Legg til manuell post',
+                                action: () => this.openSalarybalancelineModal(),
+                                disabled: () => this.salarybalanceID < 1 || !salaryBalance
+                            },
+                            {
+                                label: 'Vis forskuddskvittering',
+                                action: () => this.showAdvanceReport(this.salarybalanceID),
+                                disabled: () => !this.salarybalanceID
+                                    || !this.salarybalanceService.hasBalance(salaryBalance)
+                            }
+                        ];
+                    }
+                })
                 .subscribe((salarybalance: SalaryBalance) => {
                     this.salarybalance = salarybalance;
                     this.toolbarConfig = {
@@ -94,14 +109,20 @@ export class SalarybalanceView extends UniView {
             }
         });
 
-        this.router.events.subscribe((event: any) => {
-            if (event instanceof NavigationEnd) {
-                if (!this.salarybalance) {
-                    this.getSalarybalance();
+        this.subscriptions
+            .push(this.router.events.subscribe((event: any) => {
+                if (event instanceof NavigationEnd) {
+                    if (!this.salarybalance) {
+                        this.getSalarybalance();
+                    }
+                    this.refreshCompanySalary();
                 }
-            }
-        });
+            }));
 
+    }
+
+    public ngOnDestroy() {
+        this.subscriptions.forEach(sub => sub.unsubscribe());
     }
 
     public canDeactivate(): Observable<boolean> {
@@ -201,9 +222,17 @@ export class SalarybalanceView extends UniView {
     }
 
     private saveSalarybalance(done: (message: string) => void) {
-
         this.handlePaymentCreation(this.salarybalance)
             .switchMap(salaryBalance => this.salarybalanceService.save(salaryBalance))
+            .do(salaryBalance => {
+                if (this.salarybalance['_newFiles'] && this.salarybalance['_newFiles'].length > 0) {
+                    this.linkNewFiles(salaryBalance.ID, this.salarybalance['_newFiles'], 'SalaryBalance')
+                }
+
+                if (!salaryBalance['CreatePayment'] && this.salarybalance.InstalmentType === SalBalType.Advance) {
+                    this.showAdvanceReport(salaryBalance.ID);
+                }
+            })
             .subscribe((salbal: SalaryBalance) => {
                 super.updateState('salarybalance', salbal, false);
                 let childRoute = this.router.url.split('/').pop();
@@ -216,16 +245,24 @@ export class SalarybalanceView extends UniView {
             });
     }
 
+    private linkNewFiles(ID: any, fileIDs: Array<any>, entityType: string): Promise<any> {
+        return new Promise((resolve, reject) => {
+            fileIDs.forEach(fileID => {
+                this.fileService.linkFile(entityType, ID, fileID).subscribe(x => resolve(x));
+            });
+        });
+    }
+
     private handlePaymentCreation(salaryBalance: SalaryBalance): Observable<SalaryBalance> {
         return Observable
-            .of(!salaryBalance.ID && salaryBalance.InstalmentType === SalBalType.Advance)
+            .of(!salaryBalance.ID && this.salarybalanceService.hasBalance(salaryBalance))
             .switchMap(promptUser => promptUser
                 ? Observable.fromPromise(this.confirmModal
                     .confirm('Vil du opprette en utbetalingspost av dette forskuddet?', 'Utbetaling', false))
                     .map(response => response === ConfirmActions.ACCEPT)
-                : Observable.of(false))
+                : Observable.of(salaryBalance.CreatePayment))
             .map(createPayment => {
-                salaryBalance['CreatePayment'] = createPayment;
+                salaryBalance.CreatePayment = createPayment;
                 return salaryBalance;
             });
     }
@@ -254,5 +291,24 @@ export class SalarybalanceView extends UniView {
         } else {
             this.saveActions[0].disabled = true;
         }
+    }
+
+    private showAdvanceReport(id: number) {
+        this.reportDefinitionService
+            .getReportByName('Forskuddskvittering')
+            .subscribe(report => {
+                this.previewModal.openWithId(report, id, 'SalaryBalanceID');
+            });
+    }
+
+    private refreshCompanySalary() {
+        this.getCompanySalary()
+            .subscribe(compSal => super.updateState('CompanySalary', compSal, false));
+    }
+
+    private getCompanySalary(): Observable<CompanySalary> {
+        return this.companySalary 
+            ? Observable.of(this.companySalary)
+            : this.companySalaryService.getCompanySalary();
     }
 }

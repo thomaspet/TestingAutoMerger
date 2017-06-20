@@ -22,9 +22,10 @@ export class JobService {
             .sendToUrl(AppConfig.UNI_JOB_SERVER_URL + 'jobruns/latest?num=' + num);
     }
 
-    public getJobRun(jobName: string, hangfireJobId: string): Observable<any> {
+    public getJobRun(jobName: string, hangfireJobId: string, loglimit: number = 50): Observable<any> {
         return this.uniHttp.asGET()
-            .sendToUrl(AppConfig.UNI_JOB_SERVER_URL + 'jobruns?job=' + jobName + '&run=' + hangfireJobId);
+            .sendToUrl(AppConfig.UNI_JOB_SERVER_URL + 'jobruns?job=' + jobName + '&run=' + hangfireJobId
+            + '&loglimit=' + loglimit);
     }
 
     // jobs
@@ -33,7 +34,7 @@ export class JobService {
             .sendToUrl(AppConfig.UNI_JOB_SERVER_URL + 'jobs');
     }
 
-    public startJob(name: string, minutes?: number): Observable<any> {
+    public startJob(name: string, minutes?: number, body?): Observable<any> {
         let url: string = AppConfig.UNI_JOB_SERVER_URL + 'jobs?job=' + name;
 
         if (minutes) {
@@ -41,7 +42,7 @@ export class JobService {
         }
 
         return this.uniHttp.asPOST()
-            .withBody('')
+            .withBody(body)
             .sendToUrl(url);
     }
 

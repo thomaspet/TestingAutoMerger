@@ -10,6 +10,7 @@
 
 <section class="application">
     <article class="tof-head">
+
         <tof-customer-card [readonly]="readonly"
                            [entity]="data"
                            [entityType]="entityName"
@@ -31,13 +32,34 @@
                            [readonly]="readonly">
         </tof-delivery-form>
 
-        <uni-attachments *ngIf="activeTabIndex === 2"
-                         [entity]="entityName"
-                         [entityID]="data?.ID">
-        </uni-attachments>
+        <fieldset *ngIf="activeTabIndex === 2" class="freetext-fieldset">
+            <legend>Fritekst</legend>
+            <label>
+                <span>Kommentar</span>
+                <input [formControl]="commentControl" (change)="onDataChange()" />
+            </label>
+            <label>
+                <span>Fritekst</span>
+                <textarea [formControl]="freeTextControl"
+                        (change)="onDataChange()">
+                </textarea>
+            </label>
+        </fieldset>
 
-        <invoice-reminders *ngIf="activeTabIndex === 3 && entityName === 'CustomerInvoice'"
-                         [customerInvoice]="data">
-        </invoice-reminders>
+        <fieldset class="attachment-fieldset" *ngIf="activeTabIndex === 3">
+            <legend>Dokumenter</legend>
+            <label>
+                <span>Vedlegg</span>
+                <uni-attachments [entity]="entityName"
+                                 [entityID]="data?.ID"
+                                 [hideLabel]="true">
+                </uni-attachments>
+            </label>
+        </fieldset>
+
+        <fieldset class="reminder-fieldset" *ngIf="activeTabIndex === 4 && entityName === 'CustomerInvoice'">
+            <legend>Purringer</legend>
+            <invoice-reminders [customerInvoice]="data"></invoice-reminders>
+        </fieldset>
     </article>
 </section>

@@ -25,16 +25,40 @@
     input[type=search].unitableSearch_input
         display: inline-block
 
+    uni-table table:not(.editable-table) tr[aria-selected]:not([aria-selected=false]):not([aria-readonly=true]), uni-table table:not(.editable-table) tr:focus:not([aria-readonly=true])
+        background-color: $uni-color-legend
+        color: $uni-color-positive
+
+        td
+            border-color: transparent
+
     @include media(small)
         width: 100%
 
 .splitview_detail
-    border: pxToRem(1) solid $uni-color-scale5
+    border: pxToRem(1) solid $uni-color-legend
     border-radius: pxToRem(5)
     padding: 1rem
     align-self: stretch
     max-width: calc(100% - 15rem)
     min-width: 66%
+    background-color: $uni-color-legend
+
+    uni-form
+        form
+            margin-top: 1rem
+
+        .collapsable,
+        fieldset:nth-of-type(odd),
+        fieldset:nth-of-type(even)
+            margin-left: 0
+            margin-right: 0
+            min-width: 100%
+
+
+    legend
+        background-color: $uni-color-legend2
+        color: #fff
 
     &:empty
         box-shadow: inset $uni-color-scale9 0 0 3rem

@@ -46,6 +46,12 @@ export class ModulusService {
         return checkSums;
     }
 
+    public isValidKID(KID: string) {
+        return !KID
+            .split('')
+            .some(x => isNaN(+x)) && this.modulus10(KID);
+    }
+
     private checkSSNCheckSums(ssn: string) {
         let checkSums = this.getSSNMod11CheckSums(ssn);
         return +ssn.charAt(ssn.length - 2) === checkSums.checkSum1 
@@ -68,6 +74,16 @@ export class ModulusService {
         let cleaned = numberToCheck;
         charsToRemove.forEach(char => cleaned.replace(char, ''));
         return cleaned;
+    }
+
+    private modulus10(value: string): boolean {
+        let sum = value
+            .split('')
+            .filter(x => !isNaN(+x))
+            .reverse()
+            .map((val, i) => +val * (i % 2 + 1))
+            .reduce((acc, val) => acc + Math.floor(val / 10) + val % 10, 0);
+        return !(sum % 10);
     }
 
 

@@ -10,46 +10,17 @@ import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 @Component({
     selector: 'tof-delivery-form',
     template: `
-        <section class="shippingAddress">
-            <uni-form [fields]="leftFields$"
-                      [model]="model$"
-                      [config]="formConfig$"
-                      (readyEvent)="onLeftFormReady($event)"
-                      (changeEvent)="onLeftFormChange($event)">
-            </uni-form>
-
-            <section *ngIf="entity?.Customer?.Info?.ShippingAddressID"
-                     class="addressCard"
-                     [attr.aria-readonly]="readonly">
-                <strong>{{entity.Customer?.Info?.Name}}</strong>
-                <br><span *ngIf="entity.ShippingAddressLine1">
-                    {{entity.ShippingAddressLine1}}
-                </span>
-                <br><span *ngIf="entity.ShippingPostalCode || entity.ShippingCity">
-                    {{entity.ShippingPostalCode}} {{entity.ShippingCity}}
-                </span>
-                <br><span *ngIf="entity.ShippingCountry">
-                    {{entity.ShippingCountry}}
-                </span>
-                <span class="emailInfo" *ngIf="entity.Customer?.Info?.Emails">
-                    {{entity?.Customer?.Info?.Emails[0]?.EmailAddress}}
-                </span>
-            </section>
-        </section>
-
-        <aside>
-            <uni-form [fields]="rightFields$"
-                      [model]="model$"
-                      [config]="formConfig$"
-                      (readyEvent)="onRightFormReady($event)"
-                      (changeEvent)="onRightFormChange($event)">
-            </uni-form>
-        </aside>
+        <uni-form [fields]="fields$"
+                  [model]="model$"
+                  [config]="formConfig$"
+                  (readyEvent)="onFormReady($event)"
+                  (changeEvent)="onFormChange($event)">
+        </uni-form>
     `
 })
 export class TofDeliveryForm {
-    @ViewChildren(UniForm)
-    private forms: QueryList<UniForm>;
+    @ViewChild(UniForm)
+    private form: UniForm;
 
     @ViewChild(AddressModal)
     private addressModal: AddressModal;
@@ -66,13 +37,10 @@ export class TofDeliveryForm {
     @Output()
     public entityChange: EventEmitter<any> = new EventEmitter();
 
-    private leftFields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
-    private rightFields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
     private model$: BehaviorSubject<any> = new BehaviorSubject({});
     private formConfig$: BehaviorSubject<any> = new BehaviorSubject({});
-    private multivalueField: any;
+    private fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
     private address$: any;
-    private currencyCodes: Array<CurrencyCode>;
 
     constructor(private addressService: AddressService,
                 private businessRelationService: BusinessRelationService,
@@ -82,18 +50,13 @@ export class TofDeliveryForm {
 
     public ngOnChanges(changes) {
         this.model$.next(this.entity);
-        if (changes['readonly'] && this.forms) {
+
+        if (changes['readonly'] && this.form) {
             setTimeout(() => {
                 if (this.readonly) {
-                    this.forms.first.readMode();
-                    this.forms.last.readMode();
+                    this.form.readMode();
                 } else {
-                    this.forms.last.editMode();
-                    if (this.entity && this.entity.Customer) {
-                        this.forms.first.editMode();
-                    } else {
-                        this.forms.first.readMode();
-                    }
+                    this.form.editMode();
                 }
             });
         }
@@ -105,34 +68,28 @@ export class TofDeliveryForm {
                     && addr.City === this.entity.ShippingCity
                     && addr.Country === this.entity.ShippingCountry;
             });
+
             if (shippingAddress) {
-                this.entity['_shippingAddressID'] = shippingAddress.ID;
+                this.entity['_shippingAddress'] = shippingAddress;
                 this.model$.next(this.entity);
             }
         }
     }
 
-    public onLeftFormReady() {
+    public onFormReady() {
         if (this.readonly) {
-            this.forms.first.readMode();
+            this.form.readMode();
         }
     }
 
-    public onRightFormReady() {
-        if (this.readonly) {
-            this.forms.last.readMode();
-        }
-    }
-
-    public onLeftFormChange(changes) {
+    public onFormChange(changes) {
         const model = this.model$.getValue();
-        this.addressService.addressToShipping(model, model['_ShippingAddress']);
+
+        if (changes['_shippingAddress']) {
+            this.addressService.addressToShipping(model, model['_shippingAddress']);
+        }
+
         this.model$.next(model);
-        this.entityChange.emit(model);
-    }
-
-    public onRightFormChange(changes) {
-        const model = this.model$.getValue();
         this.entityChange.emit(model);
     }
 
@@ -152,51 +109,23 @@ export class TofDeliveryForm {
         this.entity.Customer.Info.Addresses = _.uniqBy(this.entity.Customer.Info.Addresses, '_createguid');
 
         // this.quote.Customer.Info.ID
-        this.businessRelationService.Put(this.entity.Customer.Info.ID, this.entity.Customer.Info).subscribe((info) => {
-            this.entity.Customer.Info = info;
+        this.businessRelationService.Put(
+            this.entity.Customer.Info.ID,
+            this.entity.Customer.Info
+        ).subscribe((response) => {
+            this.entity.Customer.Info = response;
             this.model$.next(this.entity);
-            resolve(info.Addresses[idx]);
+            resolve(response.Addresses[idx]);
         }, err => this.errorService.handle(err));
     }
 
     private initFormLayout() {
-        // Setup multivalue form
-        this.multivalueField = {
-            ComponentLayoutID: 3,
-            EntityType: 'Address',
-            Property: '_ShippingAddress',
-            Placement: 1,
-            Hidden: false,
-            FieldType: FieldType.MULTIVALUE,
-            ReadOnly: false,
-            LookupField: false,
-            Label: 'Leveringsadresse',
-            Description: '',
-            HelpText: '',
-            FieldSet: 0,
-            Section: 0,
-            Placeholder: null,
-            Options: null,
-            LineBreak: null,
-            Combo: null,
-            Legend: '',
-            StatusCode: 0,
-            ID: 6,
-            Deleted: false,
-            CreatedAt: null,
-            UpdatedAt: null,
-            CreatedBy: null,
-            UpdatedBy: null,
-            CustomFields: null
-        };
-
-        this.multivalueField.Options = {
+        let addressFieldOptions = {
             entity: Address,
             listProperty: 'Customer.Info.Addresses',
             displayValue: 'AddressLine1',
             linkProperty: 'ID',
             storeResultInProperty: '_shippingAddress',
-            storeIdInProperty: '_shippingAddressID',
             editor: (value) => new Promise((resolve) => {
                 if (!value) {
                     value = new Address();
@@ -217,146 +146,83 @@ export class TofDeliveryForm {
                     }
                 }, err => this.errorService.handle(err));
             }),
+
             display: (address: Address) => {
                 return this.addressService.displayAddress(address);
             }
         };
-        this.leftFields$.next([this.multivalueField]);
-        // Setup right side form
-        this.rightFields$.next([
+
+        this.fields$.next([
             {
+                Legend: 'Levering',
+                FieldSet: 1,
+                FieldSetColumn: 1,
                 EntityType: this.entityType,
                 Property: 'DeliveryDate',
                 Placement: 1,
-                Hidden: false,
                 FieldType: FieldType.LOCAL_DATE_PICKER,
-                ReadOnly: false,
-                LookupField: false,
                 Label: 'Leveringsdato',
                 Description: '',
                 HelpText: '',
-                FieldSet: 0,
                 Section: 0,
-                Placeholder: null,
-                Options: null,
-                LineBreak: null,
-                Combo: null,
-                Legend: '',
                 StatusCode: 0,
-                ID: 3,
-                Deleted: false,
-                CreatedAt: null,
-                UpdatedAt: null,
-                CreatedBy: null,
-                UpdatedBy: null,
-                CustomFields: null
+                ID: 1,
             },
             {
+                FieldSet: 1,
+                FieldSetColumn: 1,
+                EntityType: this.entityType,
+                Property: '_ShippingAddress',
+                Placement: 1,
+                FieldType: FieldType.MULTIVALUE,
+                Label: 'Leveringsadresse',
+                Description: '',
+                HelpText: '',
+                Options: addressFieldOptions,
+                Section: 0
+            },
+            {
+                FieldSet: 1,
+                FieldSetColumn: 1,
                 EntityType: this.entityType,
                 Property: 'DeliveryName',
                 Placement: 1,
-                Hidden: false,
                 FieldType: FieldType.TEXT,
-                ReadOnly: false,
-                LookupField: false,
                 Label: 'Mottaker',
                 Description: '',
                 HelpText: '',
-                FieldSet: 0,
                 Section: 0,
-                Placeholder: null,
-                LineBreak: true,
-                Combo: null,
-                Legend: '',
                 StatusCode: 0,
                 ID: 2,
-                Deleted: false,
-                CreatedAt: null,
-                UpdatedAt: null,
-                CreatedBy: null,
-                UpdatedBy: null,
-                CustomFields: null
             },
             {
+                FieldSet: 1,
+                FieldSetColumn: 2,
                 EntityType: this.entityType,
                 Property: 'DeliveryMethod',
                 Placement: 1,
-                Hidden: false,
                 FieldType: FieldType.TEXT,
-                ReadOnly: false,
-                LookupField: false,
                 Label: 'Leveringsmåte',
                 Description: '',
                 HelpText: '',
-                FieldSet: 0,
                 Section: 0,
-                Placeholder: null,
-                LineBreak: null,
-                Combo: null,
-                Legend: '',
                 StatusCode: 0,
-                ID: 4,
-                Deleted: false,
-                CreatedAt: null,
-                UpdatedAt: null,
-                CreatedBy: null,
-                UpdatedBy: null,
-                CustomFields: null
+                ID: 3,
             },
             {
+                FieldSet: 1,
+                FieldSetColumn: 2,
                 EntityType: this.entityType,
                 Property: 'DeliveryTerm',
                 Placement: 1,
-                Hidden: false,
                 FieldType: FieldType.TEXT,
-                ReadOnly: false,
-                LookupField: false,
                 Label: 'Leveringsbetingelse',
                 Description: '',
                 HelpText: '',
-                FieldSet: 0,
                 Section: 0,
-                Placeholder: null,
-                LineBreak: null,
-                Combo: null,
-                Legend: '',
                 StatusCode: 0,
-                ID: 5,
-                Deleted: false,
-                CreatedAt: null,
-                UpdatedAt: null,
-                CreatedBy: null,
-                UpdatedBy: null,
-                CustomFields: null
+                ID: 4,
             },
-             {
-                EntityType: this.entityType,
-                Property: 'CurrencyCodeID',
-                Placement: 1,
-                Hidden: false,
-                FieldType: FieldType.DROPDOWN,
-                ReadOnly: false,
-                LookupField: false,
-                Label: 'Valuta',
-                Description: '',
-                HelpText: '',
-                FieldSet: 0,
-                Section: 0,
-                Placeholder: null,
-                LineBreak: null,
-                Combo: null,
-                Legend: '',
-                StatusCode: 0,
-                ID: 5,
-                Deleted: false,
-                CreatedAt: null,
-                UpdatedAt: null,
-                CreatedBy: null,
-                UpdatedBy: null,
-                CustomFields: null
-            }
         ]);
-
     }
-
 }

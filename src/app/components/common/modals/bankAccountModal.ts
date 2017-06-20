@@ -15,10 +15,8 @@ declare var _;
 // Reusable bankaccount form
 @Component({
     selector: 'bankaccount-form',
-
     template: `
         <article class="modal-content bankaccount-modal" *ngIf="config.model">
-           <h1 *ngIf="config.title">{{config.title}}</h1>
            <uni-form [config]="formConfig$" [fields]="fields$" [model]="model$" (changeEvent)="change($event)"></uni-form>
            <footer [attr.aria-busy]="busy">
                 <button *ngIf="config?.actions?.validate && !config?.validaccountnumber" (click)="config?.actions?.validate?.method()" class="warning">
@@ -181,106 +179,114 @@ export class BankAccountForm {
 
         return [
             {
+                Legend: this.config.title || 'Bankkonto',
+                FieldSet: 1,
+                FieldSetColumn: 1,
                 EntityType: 'BankAccount',
                 Property: 'AccountNumber',
                 FieldType: FieldType.TEXT,
                 Label: 'Kontonummer',
-                Section: 0
             },
             {
+                Legend: this.config.title || 'Bankkonto',
+                FieldSet: 1,
+                FieldSetColumn: 1,
                 EntityType: 'BankAccount',
                 Property: 'IBAN',
                 FieldType: FieldType.TEXT,
                 ReadOnly: true,
-                LineBreak: !this.config.accountVisible,
                 Label: 'IBAN',
-                Section: 0
             },
             {
+                Legend: this.config.title || 'Bankkonto',
+                FieldSet: 1,
+                FieldSetColumn: 1,
                 EntityType: 'BankAccount',
                 Property: 'AccountID',
                 FieldType: FieldType.AUTOCOMPLETE,
                 Label: 'Hovedbokskonto',
-                Classes: 'large-field',
-                LineBreak: true,
                 Hidden: !this.config.accountVisible,
-                Section: 0
             },
-            // Bank section
             {
+                Legend: this.config.title || 'Bankkonto',
+                FieldSet: 1,
+                FieldSetColumn: 1,
                 EntityType: 'Bank',
                 Property: 'Bank.Name',
                 FieldType: FieldType.TEXT,
                 ReadOnly: true,
                 Label: 'Banknavn',
-                Classes: 'large-field',
-                Section: 0
             },
             {
+                Legend: this.config.title || 'Bankkonto',
+                FieldSet: 1,
+                FieldSetColumn: 1,
                 EntityType: 'Bank',
                 Property: 'Bank.BIC',
                 FieldType: FieldType.TEXT,
                 ReadOnly: true,
                 Label: 'BIC',
-                Classes: 'small-field',
-                Section: 0
             },
             {
+                Legend: this.config.title || 'Bankkonto',
+                FieldSet: 1,
+                FieldSetColumn: 1,
                 EntityType: 'Bank',
                 Property: 'Bank.Web',
                 FieldType: FieldType.URL,
                 ReadOnly: true,
                 Label: 'Hjemmeside',
-                Classes: 'large-field',
                 LineBreak: true,
-                Section: 0
             },
             {
+                Legend: this.config.title || 'Bankkonto',
+                FieldSet: 1,
+                FieldSetColumn: 2,
                 EntityType: 'Bank',
                 Property: 'Bank.Address.AddressLine1',
-                Hidden: false,
                 FieldType: FieldType.TEXT,
                 ReadOnly: true,
                 Label: 'Adresse',
-                Classes: 'large-field',
-                Section: 0
             },
             {
+                Legend: this.config.title || 'Bankkonto',
+                FieldSet: 1,
+                FieldSetColumn: 2,
                 EntityType: 'Bank',
                 Property: 'Bank.Address.PostalCode',
                 FieldType: FieldType.TEXT,
                 ReadOnly: true,
                 Label: 'Postnr',
-                Classes: 'small-field',
-                Section: 0
             },
             {
+                Legend: this.config.title || 'Bankkonto',
+                FieldSet: 1,
+                FieldSetColumn: 2,
                 EntityType: 'Bank',
                 Property: 'Bank.Address.City',
                 FieldType: FieldType.TEXT,
                 ReadOnly: true,
                 Label: 'Poststed',
-                Classes: 'large-field',
-                LineBreak: true,
-                Section: 0
             },
             {
+                Legend: this.config.title || 'Bankkonto',
+                FieldSet: 1,
+                FieldSetColumn: 2,
                 EntityType: 'Bank',
                 Property: 'Bank.Email.EmailAddress',
                 FieldType: FieldType.TEXT,
                 ReadOnly: true,
-                Classes: 'large-field',
                 Label: 'E-post',
-                Section: 0
             },
             {
+                Legend: this.config.title || 'Bankkonto',
+                FieldSet: 1,
+                FieldSetColumn: 2,
                 EntityType: 'Bank',
                 Property: 'Bank.Phone.Number',
                 FieldType: FieldType.TEXT,
                 ReadOnly: true,
                 Label: 'Telefonnummer',
-                LineBreak: true,
-                Section: 0
             }
         ];
     }
