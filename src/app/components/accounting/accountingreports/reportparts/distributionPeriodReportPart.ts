@@ -1,6 +1,6 @@
 import {Component, ViewChild, Input, Output, OnChanges, EventEmitter} from '@angular/core';
 import {Observable} from 'rxjs/Observable';
-import {UniTableColumn, UniTableConfig, UniTableColumnType, ITableFilter, UniTable} from 'unitable-ng2/main';
+import {UniTableColumn, UniTableConfig, UniTableColumnType, ITableFilter, UniTable, INumberFormat} from 'unitable-ng2/main';
 import {ChartHelper, IChartDataSet} from '../chartHelper';
 import {Account, JournalEntryLine} from '../../../../unientities';
 import {
@@ -27,7 +27,6 @@ export class Period {
     templateUrl: './distributionPeriodReportPart.html',
 })
 export class DistributionPeriodReportPart implements OnChanges {
-
     @Input() private accountYear1: number;
     @Input() private accountYear2: number;
     @Input() private accountIDs: number[];
@@ -37,6 +36,7 @@ export class DistributionPeriodReportPart implements OnChanges {
     @Input() private dimensionType: number;
     @Input() private dimensionId: number;
     @Input() private includeIncomingBalance: boolean = false;
+    @Input() private filter: any;
 
     @Output() private rowSelected: EventEmitter<any> = new EventEmitter();
     @Output() private periodSelected: EventEmitter<Period> = new EventEmitter();
@@ -44,6 +44,13 @@ export class DistributionPeriodReportPart implements OnChanges {
     private uniTableConfigDistributionPeriod: UniTableConfig;
     private distributionPeriodData: Array<DistributionPeriodData> = [];
     private dimensionEntityName: string;
+    private showPercent: boolean = true;
+    private showPreviousAccountYear: boolean = true;
+    private numberFormat: INumberFormat = {
+        thousandSeparator: '',
+        decimalSeparator: '.',
+        decimalLength: 0
+    };
 
     private colors: Array<string> = ['#7293CB', '#84BA5B'];
 
@@ -51,6 +58,12 @@ export class DistributionPeriodReportPart implements OnChanges {
     }
 
     public ngOnChanges() {
+        if (this.filter) {
+            this.numberFormat.decimalLength = this.filter.Decimals ? this.filter.Decimals : 0;
+            this.showPercent = this.filter.ShowPercent;
+            this.showPreviousAccountYear = this.filter.ShowPreviousAccountYear;
+        }
+
         if (this.dimensionType) {
             this.dimensionEntityName = DimensionService.getEntityNameFromDimensionType(this.dimensionType);
         }
@@ -82,9 +95,11 @@ export class DistributionPeriodReportPart implements OnChanges {
             }
 
             let dimensionFilter = this.dimensionEntityName ? ` and isnull(Dimensions.${this.dimensionEntityName}ID,0) eq ${this.dimensionId}` : '';
+            let projectFilter = this.filter && this.filter.ProjectID ? ` and isnull(Dimensions.ProjectID,0) eq ${this.filter.ProjectID}` : '';
+            let departmentFilter = this.filter && this.filter.DepartmentID ? ` and isnull(Dimensions.DepartmentID,0) eq ${this.filter.DepartmentID}` : '';
 
             let periodQuery = 'model=JournalEntryLine&expand=Period,Account.TopLevelAccountGroup,Dimensions' +
-                                      `&filter=${accountIdFilter} ${dimensionFilter} and (Period.AccountYear eq ${this.accountYear1} or Period.AccountYear eq ${this.accountYear2})` +
+                                      `&filter=${accountIdFilter} ${dimensionFilter}${projectFilter}${departmentFilter} and (Period.AccountYear eq ${this.accountYear1} or Period.AccountYear eq ${this.accountYear2})` +
                                       '&orderby=Period.AccountYear,Period.No' +
                                       `&select=Period.AccountYear as PeriodAccountYear,Period.No as PeriodNo,sum(JournalEntryLine.Amount) as SumAmount`;
 
@@ -94,7 +109,7 @@ export class DistributionPeriodReportPart implements OnChanges {
                 subject = Observable.forkJoin(
                     this.statisticsService.GetAll(periodQuery),
                     this.statisticsService.GetAll('model=JournalEntryLine&expand=Period,Account.TopLevelAccountGroup,Dimensions' +
-                                        `&filter=${accountIdFilter} ${dimensionFilter}` +
+                                        `&filter=${accountIdFilter} ${dimensionFilter}${projectFilter}${departmentFilter}` +
                                         `&select=sum(casewhen(Period.AccountYear lt ${this.accountYear1}\\,JournalEntryLine.Amount\\,0)) as SumIBPeriod1,sum(casewhen(Period.AccountYear lt ${this.accountYear2}\\,JournalEntryLine.Amount\\,0)) as SumIBPeriod2`)                   //
                     );
             } else {
@@ -151,18 +166,24 @@ export class DistributionPeriodReportPart implements OnChanges {
 
                 this.distributionPeriodData = distributionPeriodData;
 
-                this.uniTableConfigDistributionPeriod = new UniTableConfig(false, false)
-                    .setColumns([
-                        new UniTableColumn('periodName', 'Periode', UniTableColumnType.Text).setWidth('50%'),
-                        new UniTableColumn('amountPeriodYear1', this.accountYear1.toString(), UniTableColumnType.Money).setCls('amount')
+                let periodName = new UniTableColumn('periodName', 'Periode', UniTableColumnType.Text).setWidth('50%');
+                let amountPeriod1 = new UniTableColumn('amountPeriodYear1', this.accountYear1.toString(), UniTableColumnType.Money).setCls('amount')
                             .setOnCellClick(row => {
                                 this.periodSelected.emit({ periodNo: row.periodNo, year: this.accountYear1});
-                            }),
-                        new UniTableColumn('amountPeriodYear2', this.accountYear2.toString(), UniTableColumnType.Money).setCls('amount')
+                            })
+                            .setNumberFormat(this.numberFormat);
+                let amountPeriod2 = new UniTableColumn('amountPeriodYear2', this.accountYear2.toString(), UniTableColumnType.Money).setCls('amount')
                             .setOnCellClick(row => {
                                 this.periodSelected.emit({ periodNo: row.periodNo, year: this.accountYear2});
                             })
-                    ]);
+                            .setNumberFormat(this.numberFormat);
+
+                this.uniTableConfigDistributionPeriod = new UniTableConfig(false, false);
+                if (this.showPreviousAccountYear) {
+                    this.uniTableConfigDistributionPeriod.setColumns([periodName, amountPeriod1, amountPeriod2]);
+                } else {
+                    this.uniTableConfigDistributionPeriod.setColumns([periodName, amountPeriod2]);
+                }
 
                 this.setupDistributionPeriodChart();
             }, err => this.errorService.handle(err));
@@ -173,15 +194,17 @@ export class DistributionPeriodReportPart implements OnChanges {
         let labels = [];
         let dataSets = [];
 
-        dataSets.push({
-            label: this.accountYear1.toString(),
-            data: [],
-            backgroundColor: this.colors[0],
-            borderColor: this.colors[0],
-            fill: false,
-            lineTension: 0,
-            borderWidth: 2
-        });
+        if (this.showPreviousAccountYear) {
+            dataSets.push({
+                label: this.accountYear1.toString(),
+                data: [],
+                backgroundColor: this.colors[0],
+                borderColor: this.colors[0],
+                fill: false,
+                lineTension: 0,
+                borderWidth: 2
+            });
+        }
 
         dataSets.push({
             label: this.accountYear2.toString(),
@@ -197,8 +220,12 @@ export class DistributionPeriodReportPart implements OnChanges {
             // don't include sums in the chart
             if (this.distributionPeriodData[i].periodNo >= 1 && this.distributionPeriodData[i].periodNo <= 12) {
                 labels.push(this.distributionPeriodData[i].periodName);
-                dataSets[0].data.push(this.distributionPeriodData[i].amountPeriodYear1);
-                dataSets[1].data.push(this.distributionPeriodData[i].amountPeriodYear2);
+                if (this.showPreviousAccountYear) {
+                    dataSets[0].data.push(this.distributionPeriodData[i].amountPeriodYear1);
+                    dataSets[1].data.push(this.distributionPeriodData[i].amountPeriodYear2);
+                } else {
+                    dataSets[0].data.push(this.distributionPeriodData[i].amountPeriodYear2);
+                }
             }
         }
 

@@ -3,7 +3,7 @@ import {Router, ActivatedRoute} from '@angular/router';
 import {Observable} from 'rxjs/Observable';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
 import {PeriodFilter, PeriodFilterHelper} from '../periodFilter/periodFilter';
-import {UniTableColumn, UniTableConfig, UniTableColumnType, ITableFilter} from 'unitable-ng2/main';
+import {UniTableColumn, UniTableConfig, UniTableColumnType, ITableFilter, INumberFormat} from 'unitable-ng2/main';
 import {
     StatisticsService,
     ErrorService,
@@ -38,9 +38,16 @@ export class DimensionsOverviewReportPart {
     @Input() private periodFilter1: PeriodFilter;
     @Input() private periodFilter2: PeriodFilter;
     @Input() private dimensionType: DimensionTypes;
+    @Input() private filter: any;
 
     private dimensionEntityName: string = '';
     private dimensionDisplayName: string = '';
+    private showPercent: boolean = true;
+    private numberFormat: INumberFormat = {
+        thousandSeparator: '',
+        decimalSeparator: '.',
+        decimalLength: 0
+    };
 
     private dimensionDataList: Array<DimensionSummaryData> = [];
     private uniTableConfigDimension: UniTableConfig;
@@ -54,6 +61,11 @@ export class DimensionsOverviewReportPart {
     }
 
     public ngOnChanges() {
+        if (this.filter) {
+            this.numberFormat.decimalLength = this.filter.Decimals ? this.filter.Decimals : 0;
+            this.showPercent = this.filter.ShowPercent;
+        }
+
         if (this.periodFilter1 && this.periodFilter2 && this.dimensionType) {
             this.loadData();
         }
@@ -134,25 +146,71 @@ export class DimensionsOverviewReportPart {
                 // do this to make UniTable accept the data as it's datasource
                 this.dimensionDataList = JSON.parse(JSON.stringify(dimensionDataList));
 
+                let dimensionName = new UniTableColumn('dimensionName', this.dimensionDisplayName, UniTableColumnType.Text)
+                    .setWidth('15%')
+                    .setTemplate(x => x.dimensionId > 0 ? `${x.dimensionNumber}: ${x.dimensionName}` : 'Ikke definert');
+
+                let amountGroup3 = new UniTableColumn('amountGroup3', 'Salgsinntekter', UniTableColumnType.Money)
+                    .setCls('amount')
+                    .setNumberFormat(this.numberFormat);
+
+                let amountGroup4 = new UniTableColumn('amountGroup4', 'Varekostnad', UniTableColumnType.Money)
+                    .setCls('amount')
+                    .setNumberFormat(this.numberFormat);
+
+                let percentGroup4 = new UniTableColumn('percentGroup4', '%', UniTableColumnType.Number)
+                    .setWidth('4%')
+                    .setCls('percentage');
+
+                let amountGroup5 = new UniTableColumn('amountGroup5', 'Lønnskostnader', UniTableColumnType.Money)
+                    .setCls('amount')
+                    .setNumberFormat(this.numberFormat);
+
+                let percentGroup5 = new UniTableColumn('percentGroup5', '%', UniTableColumnType.Number)
+                    .setWidth('4%')
+                    .setCls('percentage');
+
+                let amountGroup6 = new UniTableColumn('amountGroup6', 'Andre driftskost', UniTableColumnType.Money)
+                    .setCls('amount')
+                    .setNumberFormat(this.numberFormat);
+
+                let percentGroup6 = new UniTableColumn('percentGroup6', '%', UniTableColumnType.Number)
+                    .setWidth('4%')
+                    .setCls('percentage');
+
+                let amountGroup7 = new UniTableColumn('amountGroup7', 'Andre driftskost', UniTableColumnType.Money)
+                    .setCls('amount')
+                    .setNumberFormat(this.numberFormat);
+
+                let percentGroup7 = new UniTableColumn('percentGroup7', '%', UniTableColumnType.Number)
+                    .setWidth('4%')
+                    .setCls('percentage');
+
+                let amountGroup8 = new UniTableColumn('amountGroup8', 'Finanskost/innt', UniTableColumnType.Money)
+                    .setCls('amount')
+                    .setNumberFormat(this.numberFormat);
+
+                let percentGroup8 = new UniTableColumn('percentGroup8', '%', UniTableColumnType.Number)
+                    .setWidth('4%')
+                    .setCls('percentage');
+
+                let amountGroupResult = new UniTableColumn('amountGroupResult', 'Resultat', UniTableColumnType.Money)
+                    .setCls('amount')
+                    .setNumberFormat(this.numberFormat);
+
+                let percentGroupResult = new UniTableColumn('percentGroupResult', '%', UniTableColumnType.Number)
+                    .setWidth('4%')
+                    .setCls('percentage');
+
                 this.uniTableConfigDimension = new UniTableConfig(false, false)
                     .setPageable(true)
-                    .setPageSize(25)
-                    .setColumns([
-                        new UniTableColumn('dimensionName', this.dimensionDisplayName, UniTableColumnType.Text).setWidth('15%').setTemplate(x => x.dimensionId > 0 ? `${x.dimensionNumber}: ${x.dimensionName}` : 'Ikke definert'),
-                        new UniTableColumn('amountGroup3', 'Salgsinntekter', UniTableColumnType.Money).setCls('amount'),
-                        new UniTableColumn('amountGroup4', 'Varekostnad', UniTableColumnType.Money).setCls('amount'),
-                        new UniTableColumn('percentGroup4', '%', UniTableColumnType.Number).setWidth('4%').setCls('percentage'),
-                        new UniTableColumn('amountGroup5', 'Lønnskostnader', UniTableColumnType.Money).setCls('amount'),
-                        new UniTableColumn('percentGroup5', '%', UniTableColumnType.Number).setWidth('4%').setCls('percentage'),
-                        new UniTableColumn('amountGroup6', 'Andre driftskost', UniTableColumnType.Money).setCls('amount'),
-                        new UniTableColumn('percentGroup6', '%', UniTableColumnType.Number).setWidth('4%').setCls('percentage'),
-                        new UniTableColumn('amountGroup7', 'Andre driftskost', UniTableColumnType.Money).setCls('amount'),
-                        new UniTableColumn('percentGroup7', '%', UniTableColumnType.Number).setWidth('4%').setCls('percentage'),
-                        new UniTableColumn('amountGroup8', 'Finanskost/innt', UniTableColumnType.Money).setCls('amount'),
-                        new UniTableColumn('percentGroup8', '%', UniTableColumnType.Number).setWidth('4%').setCls('percentage'),
-                        new UniTableColumn('amountGroupResult', 'Resultat', UniTableColumnType.Money).setCls('amount'),
-                        new UniTableColumn('percentGroupResult', '%', UniTableColumnType.Number).setWidth('4%').setCls('percentage')
-                    ]);
+                    .setPageSize(25);
+
+                if (this.showPercent) {
+                    this.uniTableConfigDimension.setColumns([dimensionName, amountGroup3, amountGroup4, percentGroup4, amountGroup5, percentGroup5, amountGroup6, percentGroup6, amountGroup7, percentGroup7, amountGroup8, percentGroup8, amountGroupResult, percentGroupResult]);
+                } else {
+                    this.uniTableConfigDimension.setColumns([dimensionName, amountGroup3, amountGroup4, amountGroup5, amountGroup6, amountGroup7, amountGroup8, amountGroupResult]);
+                }
             }, err => this.errorService.handle(err));
     }
 }

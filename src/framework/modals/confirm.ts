@@ -127,7 +127,7 @@ export class UniConfirmModal {
 
             }
             this.onClose = () => {
-                resolve(ConfirmActions.REJECT);
+                resolve(hasCancel ? ConfirmActions.CANCEL : ConfirmActions.REJECT);
             };
             this.open();
         });

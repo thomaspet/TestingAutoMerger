@@ -1,0 +1,30 @@
+period-selector
+    position: relative;
+
+    button
+        @extend a:link
+        display: inline-block
+        background: 0 0
+        box-shadow: none
+        text-shadow: none
+        border: none
+        padding: 0
+        margin-left: .3rem
+        margin-right: .3rem
+        text-decoration: none
+
+    .picker-area
+        display: block
+        position: absolute
+        width: 12rem
+        color: $uni-color-positive
+        padding: 1rem
+        background: $uni-color-negative
+        border: pxToRem(1) solid $uni-color-scale8
+        box-shadow: 0 0 .6rem transparentize($uni-color-scale1, .7)
+        border-radius: pxToRem(5)
+        left: pxToRem(-50)
+
+        button
+            float: right
+            margin-top: pxToRem(20)
