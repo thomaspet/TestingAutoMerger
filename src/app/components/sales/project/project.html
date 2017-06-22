@@ -3,7 +3,6 @@
 </uni-toolbar>
 <uni-tabs [routes]="childRoutes" class="horizontal_nav"></uni-tabs>
 <section class="project-list">
-    <button (click)="newProject()">Nytt prosjekt</button>
     <uni-table [resource]="lookupFunction" [config]="tableConfig" (rowSelected)="onRowSelected($event)"></uni-table>
 </section>
 <router-outlet></router-outlet>

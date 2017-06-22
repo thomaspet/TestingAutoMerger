@@ -27,7 +27,12 @@ export class Project {
 
     private projectList;
 
-    private toolbarconfig: IToolbarConfig = { title: '' };
+    private toolbarconfig: IToolbarConfig = {
+        title: '',
+        navigation: {
+            add: this.newProject.bind(this)
+        }
+    };
 
     public saveActions: IUniSaveAction[] = [
         {
@@ -78,7 +83,7 @@ export class Project {
                 .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
         };
 
-        this.tableConfig = new UniTableConfig(false, true, 20)
+        this.tableConfig = new UniTableConfig(false, true, 15)
             .setSearchable(true)
             .setColumns([
                 new UniTableColumn('ProjectNumber', 'Nummer', UniTableColumnType.Text)

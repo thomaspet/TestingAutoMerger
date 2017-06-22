@@ -1,6 +1,12 @@
-﻿import { Component } from '@angular/core';
-import { ProjectService, ErrorService, UniSearchConfigGeneratorService } from '../../../../services/services';
-import { Project, Customer } from '../../../../unientities';
+﻿import { Component, ViewChild } from '@angular/core';
+import {
+    ProjectService,
+    ErrorService,
+    UniSearchConfigGeneratorService,
+    AddressService
+} from '../../../../services/services';
+import { Project, Customer, Address } from '../../../../unientities';
+import { AddressModal } from '../../../common/modals/modals';
 import { UniFieldLayout } from 'uniform-ng2/main';
 import { FieldType } from 'uniform-ng2/main';
 import { IUniSearchConfig } from 'unisearch-ng2/src/UniSearch/IUniSearchConfig';
@@ -20,13 +26,17 @@ export class ProjectEditmode {
     private actionLabel: string = '';
     private STATUS = [{ ID: 42201, Name: 'Registrert' }, { ID: 2, Name: 'Aktivt' }, { ID: 3, Name: 'Avsluttet'}];
     private uniSearchConfig: IUniSearchConfig;
+    private addressChanged: any;
+
+    @ViewChild(AddressModal) public addressModal: AddressModal;
 
     private customerExpandOptions: Array<string> = ['Info.Name'];
 
     constructor(
         private projectService: ProjectService,
         private errorService: ErrorService,
-        private uniSearchConfigGeneratorService: UniSearchConfigGeneratorService) { }
+        private uniSearchConfigGeneratorService: UniSearchConfigGeneratorService,
+        private addressService: AddressService) { }
 
     public ngOnInit() {
         this.fields$.next(this.getComponentFields());
@@ -62,7 +72,37 @@ export class ProjectEditmode {
         let customer: UniFieldLayout = fields[5];
         customer.Options = {
             uniSearchConfig: this.uniSearchConfig,
-            valueProperty: 'Name'
+            valueProperty: 'ID'
+        };
+
+        let invoiceaddress: UniFieldLayout = fields[6];
+
+        invoiceaddress.Options = {
+            entity: Address,
+            listProperty: 'Info.Addresses',
+            displayValue: 'AddressLine1',
+            linkProperty: 'ID',
+            storeResultInProperty: 'WorkPlaceAddressID',
+            storeIdInProperty: 'WorkPlaceAddressID',
+            editor: (value) => new Promise((resolve) => {
+                if (!value) {
+                    value = new Address();
+                    value.ID = 0;
+                }
+
+                this.addressModal.openModal(value);
+
+                if (this.addressChanged) {
+                    this.addressChanged.unsubscribe();
+                }
+
+                this.addressChanged = this.addressModal.Changed.subscribe(modalval => {
+                    resolve(modalval);
+                });
+            }),
+            display: (address: Address) => {
+                return this.addressService.displayAddress(address);
+            }
         };
     }
 
@@ -75,7 +115,7 @@ export class ProjectEditmode {
                 Placeholder: 'Autogenerert hvis blank',
                 Section: 0,
                 FieldSet: 1,
-                FieldSetColumn: 1,
+                FieldSetColumn: 1,  
                 Legend: 'Prosjektdetaljer'
 
             },
@@ -122,7 +162,7 @@ export class ProjectEditmode {
                 Legend: 'Kunde'
             },
             <any>{
-                FieldType: FieldType.TEXT,
+                FieldType: FieldType.MULTIVALUE,
                 Label: 'Arbeidssted',
                 Property: 'WorkPlaceAddressID',
                 Section: 0,

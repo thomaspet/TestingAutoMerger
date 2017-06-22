@@ -1,5 +1,6 @@
 ﻿import { Component, ViewChild, ElementRef } from '@angular/core';
 import { Http } from '@angular/http';
+import { Router } from '@angular/router';
 import { Project, Customer } from '../../../../unientities';
 import * as Chart from 'chart.js';
 import { ProjectService, CustomerService } from '../../../../services/services';
@@ -74,7 +75,10 @@ export class ProjectOverview {
         }
     };
 
-    constructor(private projectService: ProjectService, private customerService: CustomerService) { }
+    constructor(
+        private projectService: ProjectService,
+        private customerService: CustomerService,
+        private router: Router) { }
 
     public ngOnInit() {
         this.projectService.currentProject.subscribe((project: any) => { this.projectChanged(project); });
@@ -85,9 +89,17 @@ export class ProjectOverview {
         //this.drawChart();
     }
 
+    private navigateToEditmode() {
+        this.router.navigateByUrl('/sales/project/editmode');
+    }
+
     private projectChanged(project: myProject) {
-        this.project = project;
-        this.getDataAndDrawChart();
+        if (project && project.ID) {
+            this.project = project;
+            this.getDataAndDrawChart();
+        } else {
+            this.navigateToEditmode();
+        }
     }
 
     private getDataAndDrawChart() {
