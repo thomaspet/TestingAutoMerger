@@ -23,8 +23,11 @@ import {OrderToInvoiceTable} from './order/modals/ordertoinvoice';
 import {OrderToInvoiceModalType} from './order/modals/ordertoinvoice';
 import {OrderToInvoiceModal} from './order/modals/ordertoinvoice';
 import {QuoteDetails} from './quote/details/quoteDetails';
-import {QuoteList} from './quote/list/quoteList';
-
+import { QuoteList } from './quote/list/quoteList';
+import { Project } from './project/project';
+import { ProjectOverview } from './project/overview/overview';
+import { ProjectTasks } from './project/tasks/tasks';
+import { ProjectEditmode } from './project/editmode/editmode';
 import {UniTableModule} from 'unitable-ng2/main';
 import {UniFormModule} from 'uniform-ng2/main';
 import {UniSales} from './sales';
@@ -99,6 +102,12 @@ import {WidgetModule} from '../widgets/widgetModule';
 
         QuoteDetails,
         QuoteList,
+
+        Project,
+        ProjectOverview,
+        ProjectTasks,
+        ProjectEditmode,
+
         Reminder,
         ReminderList,
         ReminderConfirmModal,
@@ -138,6 +147,10 @@ import {WidgetModule} from '../widgets/widgetModule';
         OrderToInvoiceModal,
         QuoteDetails,
         QuoteList,
+        Project,
+        ProjectOverview,
+        ProjectTasks,
+        ProjectEditmode,
         Reminder,
         ReminderList,
         ReminderSending,

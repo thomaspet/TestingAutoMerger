@@ -1,0 +1,48 @@
+﻿<section class="project-router-outlet">
+    <section class="project-overview-tile">
+        <span class="project_edit_button" (click)="navigateToEditmode()"></span>
+        <h3 class="project-overview-name"> {{ project?.Name }} </h3>
+        <p class="project-overview-description">{{ project?.Description }}</p>
+        <h2 class="project-overview-company">{{ customerName}}</h2>
+        <hr />
+        <p><strong>Prosjektleder:</strong> {{ project?.ProjectLeadName }}</p>
+        <p><strong>Total budget:</strong> {{ project?.Total | number }}</p>
+    </section>
+    
+    <section class="project-overview-chart-tile-container">
+        <section class="project-overview-chart-tile">
+            <canvas #chartElement1> </canvas>
+        </section>
+        <section class="project-overview-chart-tile">
+            <canvas #chartElement2> </canvas>
+        </section>
+        <section>
+            <section class="project-overview-info-tiles">
+                <p>Loggede timer:</p>
+                <h3>{{ projectHoursTotal }}</h3>
+                
+            </section>
+            <section class="project-overview-info-tiles">
+                <p>Fakturerte timer:</p>
+                <h3>{{ projectHoursInvoiced }}</h3>
+            </section>
+            <section class="project-overview-info-tiles">
+                <p>Forventet resultat:</p>
+                <h3>1 453 000</h3>
+            </section>
+            <section class="project-overview-info-tiles">
+                <p>Resultat nå:</p>
+                <h3>960 000</h3>
+            </section>
+            <section class="project-overview-info-tiles">
+                <p>Gjennstående oppgaver</p>
+                <h3>8</h3>
+            </section>
+        </section>
+    </section>
+    <section class="project-overview-timeline-container">
+        <h3>Timeline comes here</h3>
+    </section>
+
+
+</section>

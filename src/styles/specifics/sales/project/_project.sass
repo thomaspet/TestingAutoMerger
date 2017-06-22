@@ -1,0 +1,146 @@
+﻿.project-list
+    width: 15%
+    min-height: 700px
+    margin: 25px 0 0 25px
+    float: left
+    border: 1px solid #c3c3c3
+    border-radius: 3px
+    padding: 20px
+
+    h3
+        margin: 20px 0 0 20px
+
+    input
+        &[type="text"]
+            width: calc(100% - 40px)
+            margin: 10px 0 0 20px
+
+    ul
+        list-style: none
+        max-height: 600px
+        overflow-y: scroll
+        li
+            height: 33px
+            line-height: 33px
+            vertical-align: middle
+            padding: 0 20px
+            &:hover
+                background-color: #638bb3
+                cursor: pointer
+
+            .currentProject
+                background-color: #0f4880
+
+    .unitableSearch_advancedBtn
+        display: none
+
+    .unitableSearch_input 
+        margin-bottom: 20px
+  
+    unitable-pagination
+        ul
+            overflow: hidden
+            li
+                padding: 0
+                &:hover
+                    background-color: transparent
+
+.project_edit_button
+    min-height: 0
+    height: 1rem
+    width: 1rem
+    position: absolute
+    top: pxToRem(5)
+    right: pxToRem(5)
+    cursor: pointer
+    color: #c3c3c3
+    background-size: auto 1rem
+    background-image: unicon-edit($uni-color-scale5)
+    &:hover
+        background-image: unicon-edit($uni-color-c2a)
+    
+
+.project-router-outlet
+    float: left
+    width: calc(85% - 125px)
+    min-height: 885px
+
+    .project-overview-tile
+        width: 20%
+        margin: 25px
+        padding: 20px
+        border: 1px solid #c3c3c3
+        border-radius: 3px
+        float: left
+        min-height: 402px
+        position: relative
+
+        .project-overview-name
+            font-size: 2rem
+            margin: 10px 0
+
+        .project-overview-company
+            white-space: nowrap;
+            overflow-x: hidden
+
+    .project-overview-chart-tile-container
+        float: left
+        margin: 25px 25px 25px 0
+        padding: 20px
+        width: calc(80% - 160px)
+
+        .project-overview-chart-tile
+            float: left
+            width: calc(50% - 5px)
+            &:after
+                clear: both
+
+            canvas
+                height: 300px
+                max-height: 300px
+                margin: 0 auto
+
+        .project-overview-info-tiles
+            float: left
+            margin-top: 25px
+            width: calc(20% - 5px)
+            box-sizing: border-box
+            text-align: center
+            border: 1px solid #c3c3c3
+            border-right: none
+            &:last-child
+                border-right: 1px solid #c3c3c3
+            &:after
+                clear:both
+
+    .project-edit-container
+        margin: 25px
+
+    .project-edit-from
+        width: 100%
+
+    .project-task-container
+        width: calc(100% - 40px)
+        margin: 25px
+        padding: 20px
+        border: 1px solid #c3c3c3
+        border-radius: 3px
+
+    .project-overview-timeline-container
+        margin: 25px
+
+.twenty-width-field
+    width: calc(20% - 33px)
+
+.twentyfive-width-field
+    width: calc(25% - 33px)
+
+.third-width-field
+    width: calc(33.33% - 33px)
+
+.fourthy-width-field
+    width: calc(40% - 33px)
+
+.fifty-width-field
+    width: calc(50% - 33px)
+

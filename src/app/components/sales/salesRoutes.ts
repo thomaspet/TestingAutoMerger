@@ -16,7 +16,9 @@ import {OrderList} from './order/list/orderList';
 import {OrderDetails} from './order/details/orderDetails';
 
 import {Reminder} from './reminder/reminder';
-import {routes as ReminderRoutes} from './reminder/reminderRoutes';
+import { routes as ReminderRoutes } from './reminder/reminderRoutes';
+import { Project } from './project/project';
+import { routes as ProjectRoutes } from './project/projectRoutes';
 
 export const salesRoutes: Routes = [
     {
@@ -61,7 +63,11 @@ export const salesRoutes: Routes = [
         component: OrderDetails,
         canDeactivate: [CanDeactivateGuard]
     },
-
+    {
+        path: 'project',
+        component: Project,
+        children: ProjectRoutes
+    },
     {
         path: 'reminders',
         component: Reminder,

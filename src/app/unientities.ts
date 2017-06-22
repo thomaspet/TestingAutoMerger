@@ -242,8 +242,8 @@ export class WorkRelation extends UniEntity {
     public WorkerID: number;
     public WorkPercentage: number;
     public WorkProfileID: number;
-    public Worker: Worker;
     public WorkProfile: WorkProfile;
+    public Worker: Worker;
     public Employment: Employment;
     public Items: Array<WorkItem>;
     public Team: Team;
@@ -4735,9 +4735,9 @@ export class WorkBalanceDto extends UniEntity {
     public ValidFrom: Date;
     public ValidTimeOff: number;
     public WorkRelationID: number;
+    public WorkRelation: WorkRelation;
     public Previous: BalanceInfo;
     public Details: Array<FlexDetail>;
-    public WorkRelation: WorkRelation;
     public CustomFields: any;
 }
 
@@ -5304,7 +5304,6 @@ export class Totals extends UniEntity {
 
 
 export class RssList extends UniEntity {
-    public Items: string;
     public Url: string;
     public Items: Array<RssItem>;
 }
