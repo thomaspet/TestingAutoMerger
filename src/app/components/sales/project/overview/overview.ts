@@ -86,7 +86,6 @@ export class ProjectOverview {
 
     public ngAfterViewInit() {
         this.getDataAndDrawChart();
-        //this.drawChart();
     }
 
     private navigateToEditmode() {
@@ -103,8 +102,6 @@ export class ProjectOverview {
     }
 
     private getDataAndDrawChart() {
-
-        //Only draw charts when valid project is selected
         if (this.project && this.project.ID) {
 
             if (this.project.ProjectCustomerID) {
@@ -135,6 +132,7 @@ export class ProjectOverview {
                     this.projectHoursTotal += data.summinutes;
                     this.projectHoursInvoiced += data.WorkItemMinutesToOrder || 0;
                 })
+
                 this.projectHoursTotal /= 60;
                 this.projectHoursInvoiced /= 60;
                 this.drawChart();

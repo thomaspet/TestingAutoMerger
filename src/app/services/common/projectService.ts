@@ -36,5 +36,5 @@ export class ProjectService extends BizHttp<Project> {
             .withEndPoint(route)
             .send()
             .map(response => response.json());
-    }
+    };
 }
