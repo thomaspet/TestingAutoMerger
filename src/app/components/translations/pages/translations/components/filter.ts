@@ -23,9 +23,8 @@ interface i18nModuleItem {
             [config]="config"
             [items]="i18nModules"
             [value]="selectedModule">
-
         </uni-select>
-        <input type="text" [formControl]="queryControl"/>
+        <input type="text" placeholder="Filter models" [formControl]="queryControl"/>
         <input type="checkbox" [checked]="includeAlreadyTranslated$ | async"/>
         <label (click)="toggleTranslatables()" class="toggle" tabindex="-1">
             Show already translated

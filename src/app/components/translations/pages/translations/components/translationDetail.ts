@@ -16,7 +16,9 @@ import {KeyCodes} from "../../../../../services/common/KeyCodes";
         <section class="translationInfo">
             <h2>Source Text</h2>
             <p>{{translatable?.Value}}</p>
-            <h3>Context</h3>
+            <h3>Meaning</h3>
+            <p>{{translatable?.Meaning}}</p>
+            <h3>Description</h3>
             <p>{{translatable?.Description}}</p>
         </section>
         <section class="translation">

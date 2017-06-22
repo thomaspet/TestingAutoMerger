@@ -7,18 +7,11 @@ import {KeyCodes} from '../../../../../services/common/KeyCodes';
 import {Observable} from 'rxjs/Observable';
 import {Subscription} from 'rxjs/Subscription';
 import 'rxjs/add/observable/fromEvent';
+import {UniTableConfig, UniTableColumn} from 'unitable-ng2/main';
 
 @Component({
     selector: 'uni-translatables-list',
-    template: `
-        <ul class="translatablesList" (keydown)="navigate($event)" #list>
-            <li *ngFor="let translatable of translatables"
-                (click)="open(translatable)"
-                [attr.aria-selected]="isSelected(translatable) || false"
-            >{{translatable.Value}}
-            </li>
-        </ul>
-    `,
+    templateUrl: './translatablesList.html',
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class TranslatablesListComponent implements OnChanges {
@@ -27,6 +20,7 @@ export class TranslatablesListComponent implements OnChanges {
     @Input() public language: Language;
     @Output() public selectTranslatable: EventEmitter<Translatable> = new EventEmitter<Translatable>();
     @ViewChild('list') private list: ElementRef;
+    private translatableTableConfig: UniTableConfig;
     private navigationEvent: Subscription;
     private openOnce: boolean = false;
     private currentTranslatable: Translatable;
@@ -47,6 +41,8 @@ export class TranslatablesListComponent implements OnChanges {
     public ngAfterViewInit() {
         this.navigationEvent = Observable.fromEvent(document, 'keydown')
             .subscribe(this.navigate.bind(this));
+
+        this.initTableConfig();
     }
 
     private open(translatable: Translatable) {
@@ -95,4 +91,17 @@ export class TranslatablesListComponent implements OnChanges {
     public ngOnDestroy() {
         this.navigationEvent.unsubscribe();
     }
+    private initTableConfig() {
+        this.translatableTableConfig = new UniTableConfig(false, true, 15)
+            .setColumns([
+                new UniTableColumn('Model', 'Model'),
+                new UniTableColumn('Value', 'Value')
+            ]);
+    }
 }
+
+
+
+
+
+
