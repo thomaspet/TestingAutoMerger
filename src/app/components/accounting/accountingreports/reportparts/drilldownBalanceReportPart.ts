@@ -2,6 +2,8 @@ import {Component, Input, ViewChild, OnChanges} from '@angular/core';
 import {Observable} from 'rxjs/Observable';
 import {PeriodFilter} from '../periodFilter/periodFilter';
 import {AccountDetailsReportModal} from '../detailsmodal/accountDetailsReportModal';
+import {INumberFormat} from 'unitable-ng2/main';
+
 import {
     AccountGroupService,
     StatisticsService,
@@ -35,9 +37,16 @@ export class DrilldownBalanceReportPart implements OnChanges {
     @ViewChild(AccountDetailsReportModal) private accountDetailsReportModal: AccountDetailsReportModal;
     @Input() private periodFilter1: PeriodFilter;
     @Input() private periodFilter2: PeriodFilter;
+    @Input() private filter: any;
 
     private treeSummaryList: BalanceSummaryData[] = [];
     private flattenedTreeSummaryList: BalanceSummaryData[] = [];
+    private showPreviousAccountYear: boolean = true;
+    private numberFormat: INumberFormat = {
+        thousandSeparator: '',
+        decimalSeparator: '.',
+        decimalLength: 0
+    };
 
     constructor(
         private statisticsService: StatisticsService,
@@ -47,6 +56,11 @@ export class DrilldownBalanceReportPart implements OnChanges {
     }
 
     public ngOnChanges() {
+        if (this.filter) {
+            this.numberFormat.decimalLength = this.filter.Decimals ? this.filter.Decimals : 0;
+            this.showPreviousAccountYear = this.filter.ShowPreviousAccountYear;
+        }
+
         if (this.periodFilter1 && this.periodFilter2) {
             this.loadData();
         }
@@ -88,11 +102,13 @@ export class DrilldownBalanceReportPart implements OnChanges {
         let period2FilterExpression = `Period.AccountYear eq ${this.periodFilter2.year} and Period.No ge ${this.periodFilter2.fromPeriodNo} and Period.No le ${this.periodFilter2.toPeriodNo}`;
         let period1IBFilterExpression = `(Period.AccountYear eq ${this.periodFilter1.year} and Period.No lt ${this.periodFilter1.fromPeriodNo}) or (Period.AccountYear lt ${this.periodFilter1.year})`;
         let period2IBFilterExpression = `(Period.AccountYear eq ${this.periodFilter2.year} and Period.No lt ${this.periodFilter2.fromPeriodNo}) or (Period.AccountYear lt ${this.periodFilter2.year})`;
+        let projectFilter = this.filter && this.filter.ProjectID ? ` and isnull(Dimensions.ProjectID,0) eq ${this.filter.ProjectID}` : '';
+        let departmentFilter = this.filter && this.filter.DepartmentID ? ` and isnull(Dimensions.DepartmentID,0) eq ${this.filter.DepartmentID}` : '';
 
         Observable.forkJoin(
             this.statisticsService.GetAll('model=AccountGroup&select=AccountGroup.ID as ID,AccountGroup.GroupNumber as GroupNumber,AccountGroup.Name as Name,AccountGroup.MainGroupID as MainGroupID&orderby=AccountGroup.MainGroupID asc'),
             this.statisticsService.GetAll('model=Account&expand=TopLevelAccountGroup&filter=TopLevelAccountGroup.GroupNumber le 2&select=Account.ID as ID,Account.AccountNumber as AccountNumber,Account.AccountName as AccountName,Account.AccountGroupID as AccountGroupID'),
-            this.statisticsService.GetAll(`model=JournalEntryLine&expand=Period,Account.TopLevelAccountGroup&filter=TopLevelAccountGroup.GroupNumber le 2&select=JournalEntryLine.AccountID as AccountID,sum(casewhen((${period1FilterExpression}) or (${period2FilterExpression})\\,1\\,0)) as CountEntries,sum(casewhen(${period1FilterExpression}\\,JournalEntryLine.Amount\\,0)) as amountChangePeriod1,sum(casewhen(${period1IBFilterExpression}\\,JournalEntryLine.Amount\\,0)) as amountIBPeriod1,sum(casewhen(${period2FilterExpression}\\,JournalEntryLine.Amount\\,0)) as amountChangePeriod2,sum(casewhen(${period2IBFilterExpression}\\,JournalEntryLine.Amount\\,0)) as amountIBPeriod2`)
+            this.statisticsService.GetAll(`model=JournalEntryLine&expand=Period,Account.TopLevelAccountGroup,Dimensions&filter=TopLevelAccountGroup.GroupNumber le 2${projectFilter}${departmentFilter}&select=JournalEntryLine.AccountID as AccountID,sum(casewhen((${period1FilterExpression}) or (${period2FilterExpression})\\,1\\,0)) as CountEntries,sum(casewhen(${period1FilterExpression}\\,JournalEntryLine.Amount\\,0)) as amountChangePeriod1,sum(casewhen(${period1IBFilterExpression}\\,JournalEntryLine.Amount\\,0)) as amountIBPeriod1,sum(casewhen(${period2FilterExpression}\\,JournalEntryLine.Amount\\,0)) as amountChangePeriod2,sum(casewhen(${period2IBFilterExpression}\\,JournalEntryLine.Amount\\,0)) as amountIBPeriod2`)
         ).subscribe(data => {
             let accountGroups = data[0].Data;
             let accounts = data[1].Data;
