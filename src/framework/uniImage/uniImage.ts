@@ -37,13 +37,13 @@ export interface IUploadConfig {
                 <source [attr.srcset]="imageUrl2x" media="(-webkit-min-device-pixel-radio: 2), (min-resolution: 192dpi)">
                 <img #image [attr.src]="imgUrl" alt="" (load)="finishedLoadingImage()" *ngIf="currentFileIndex >= 0">
             </picture>
-            <span id="span-area-highlighter" class="span-area-highlight-class" [ngStyle]="highlightStyle"></span>
             <section *ngIf="!singleImage || files[currentFileIndex]?.Pages?.length" class="uni-image-pager">
                 <a class="prev" (click)="previous()"></a>
                 <label>{{fileInfo}}</label>
                 <a class="trash" (click)="deleteImage()" *ngIf="!readonly"></a>
                 <a class="next" (click)="next()"></a>
             </section>
+            <span id="span-area-highlighter" class="span-area-highlight-class" [ngStyle]="highlightStyle"></span>
 
             <ul class="uni-thumbnail-list">
                 <li *ngFor="let thumbnail of thumbnails; let idx = index">
