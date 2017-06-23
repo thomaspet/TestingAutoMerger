@@ -1,6 +1,6 @@
 import {Component, Input, Output, ViewChild, EventEmitter, SimpleChanges} from '@angular/core';
 import {UniForm, FieldType} from 'uniform-ng2/main';
-import {CurrencyCode} from '../../../unientities';
+import {CurrencyCode, Project} from '../../../unientities';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 
 declare const _;
@@ -23,6 +23,7 @@ export class TofDetailsForm {
     @Input() public entityType: string;
     @Input() public entity: any;
     @Input() public currencyCodes: Array<CurrencyCode>;
+    @Input() public projects: Project; 
     @Output() public entityChange: EventEmitter<any> = new EventEmitter();
 
     public tabbedPastLastField: EventEmitter<any> = new EventEmitter();
@@ -37,7 +38,7 @@ export class TofDetailsForm {
     public ngOnChanges(changes) {
         this.entity$.next(this.entity);
 
-        if (changes['entityType'] && this.entityType) {
+        if (this.projects && this.entityType) {
             this.initFormFields();
         } else if (changes['currencyCodes'] && this.currencyCodes) {
             this.initFormFields();
@@ -224,6 +225,22 @@ export class TofDetailsForm {
                         }
                     }
                 },
+                { 
+                    FieldSet: 1,
+                    FieldSetColumn: 2,
+                    EntityType: this.entityType,
+                    Property: 'SuggestedProject',
+                    FieldType: FieldType.DROPDOWN,
+                    Label: 'Prosjekt',
+                    Section: 0,
+                    Options: {
+                        source: this.projects,
+                        valueProperty: 'ID',
+                        displayProperty: 'Name',
+                        debounceTime: 200
+                    }
+                    
+                }
             ];
 
             if (this.entityType === 'CustomerQuote') {

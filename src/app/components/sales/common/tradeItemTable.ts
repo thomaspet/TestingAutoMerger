@@ -5,13 +5,15 @@ import {TradeItemHelper} from '../salesHelper/tradeItemHelper';
 import {
     VatType,
     Account,
-    CompanySettings
+    CompanySettings,
+    Project
 } from '../../../unientities';
 import {
     ProductService,
     VatTypeService,
     AccountService,
     ProjectService,
+    ProjectTaskService,
     DepartmentService,
     ErrorService,
     CompanySettingsService
@@ -35,6 +37,7 @@ export class TradeItemTable {
     @Input() public items: any;
     @Input() public currencyCodeID: number;
     @Input() public currencyExchangeRate: number;
+    @Input() public projects: Project[];
 
     @Output() public itemsChange: EventEmitter<any> = new EventEmitter();
 
@@ -52,6 +55,7 @@ export class TradeItemTable {
         private tradeItemHelper: TradeItemHelper,
         private departmentService: DepartmentService,
         private projectService: ProjectService,
+        private projectTaskService: ProjectTaskService,
         private errorService: ErrorService,
         private companySettingsService: CompanySettingsService
     ) {
@@ -166,6 +170,19 @@ export class TradeItemTable {
                 }
             });
 
+        const projectTaskCol = new UniTableColumn('Dimensions.ProjectTask', 'Oppgave', UniTableColumnType.Lookup)
+            .setDisplayField('Dimensions.ProjectTask.Name')
+            .setEditorOptions({
+                itemTemplate: (item) => {
+                    return (item.ProjectID + ':' + item.Name)
+                },
+                lookupFunction: (query) => {
+                    return this.projectTaskService.GetAll(
+                        `filter=contains(Name,'${query}')&groupby=ProjectID`
+                    ).catch((err, obs) => this.errorService.handleRxCatch(err, obs));
+                }
+            });
+
         const discountPercentCol = new UniTableColumn('DiscountPercent', 'Rabatt %', UniTableColumnType.Percent);
         const discountCol = new UniTableColumn('DiscountCurrency', 'Rabatt', UniTableColumnType.Money, false)
             .setVisible(false);
@@ -230,20 +247,35 @@ export class TradeItemTable {
             .setColumns([
                 productCol, itemTextCol, numItemsCol, unitCol,
                 exVatCol, accountCol, vatTypeCol, discountPercentCol, discountCol,
-                projectCol, departmentCol, sumTotalExVatCol, sumVatCol, sumTotalIncVatCol
+                projectCol, departmentCol, sumTotalExVatCol, sumVatCol, sumTotalIncVatCol, projectTaskCol
             ])
             .setColumnMenuVisible(true)
             .setDefaultRowData(this.defaultTradeItem)
             .setDeleteButton(!this.readonly)
             .setChangeCallback((rowModel) => {
 
-        const updatedRow = this.tradeItemHelper.tradeItemChangeCallback(rowModel, this.currencyCodeID, this.currencyExchangeRate, this.settings, this.foreignVatType);
+                const updatedRow = this.tradeItemHelper.tradeItemChangeCallback(
+                    rowModel,
+                    this.currencyCodeID,
+                    this.currencyExchangeRate,
+                    this.settings,
+                    this.foreignVatType
+                );
                 updatedRow['_isDirty'] = true;
 
                 if (updatedRow.VatTypeID && !updatedRow.VatType) {
                     updatedRow.VatType = this.vatTypes.find(vt => vt.ID === updatedRow.VatTypeID);
                 }
 
+                if (updatedRow.Dimensions && updatedRow.Dimensions.ProjectTask) {
+                    let projectId = updatedRow.Dimensions.ProjectTask.ProjectID;
+                    let project = this.projects.find(p => p.ID === projectId);
+                    
+                    if (project) {
+                      updatedRow.Dimensions.Project = project;
+                      updatedRow.Dimensions.ProjectID = project.ID;
+                    }
+                }
 
 
                 const index = updatedRow['_originalIndex'];
@@ -288,5 +320,3 @@ export class TradeItemTable {
         return this.accountService.searchAccounts(filter, searchValue !== '' ? 100 : 500);
     }
 }
-
-

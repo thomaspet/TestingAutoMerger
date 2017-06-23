@@ -2096,10 +2096,10 @@ export class Product extends UniEntity {
     public UpdatedBy: string;
     public VariansParentID: number;
     public VatTypeID: number;
-    public VatType: VatType;
     public Account: Account;
-    public ProductCategoryLinks: Array<ProductCategoryLink>;
+    public VatType: VatType;
     public Dimensions: Dimensions;
+    public ProductCategoryLinks: Array<ProductCategoryLink>;
     public CustomFields: any;
 }
 
@@ -2835,15 +2835,9 @@ export class NumberSeries extends UniEntity {
     public NumberSeriesTaskID: number;
     public NumberSeriesTypeID: number;
     public StatusCode: number;
-    public System: boolean;
-    public ToNumber: number;
     public UpdatedAt: Date;
     public UpdatedBy: string;
-    public UseNumbersFromNumberSeriesID: number;
-    public NumberSeriesType: NumberSeriesType;
-    public UseNumbersFromNumberSeries: NumberSeries;
-    public NumberSeriesTask: NumberSeriesTask;
-    public MainAccount: Account;
+    public ScheduleResources: Array<ProjectResourceSchedule>;
     public CustomFields: any;
 }
 

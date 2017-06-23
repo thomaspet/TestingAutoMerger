@@ -27,7 +27,8 @@ import {
     StatusCodeCustomerOrder,
     CompanySettings,
     CurrencyCode,
-    LocalDate
+    LocalDate,
+    Project
 } from '../../../../unientities';
 import {
     CompanySettingsService,
@@ -94,10 +95,11 @@ export class OrderDetails {
     private currencyCodeID: number;
     private currencyExchangeRate: number;
     private printStatusPrinted: string = '200';
+    private projects: Project[];
 
-    private customerExpandOptions: string[] = ['Info', 'Info.Addresses', 'Info.InvoiceAddress', 'Info.ShippingAddress', 'Dimensions', 'Dimensions.Project', 'Dimensions.Department'];
+    private customerExpandOptions: string[] = ['Info', 'Info.Addresses', 'Info.InvoiceAddress', 'Info.ShippingAddress', 'Dimensions', 'Dimensions.Project', 'Dimensions.Department', 'Dimensions.Project.ProjectTasks'];
     private expandOptions: Array<string> = ['Items', 'Items.Product.VatType', 'Items.VatType',
-        'Items.Dimensions', 'Items.Dimensions.Project', 'Items.Dimensions.Department', 'Items.Account',
+        'Items.Dimensions', 'Items.Dimensions.Project', 'Items.Dimensions.Department', 'Items.Account', 'Items.Dimensions.Project.ProjectTasks',
         'Customer', 'Customer.Info', 'Customer.Info.Addresses', 'Customer.Dimensions', 'Customer.Dimensions.Project', 'Customer.Dimensions.Department'];
 
     // New
@@ -209,6 +211,10 @@ export class OrderDetails {
                 );
             }
         });
+        this.projectService.GetAll(null).subscribe(
+            res=>this.projects = res,
+            err=>this.errorService.handle(err)
+        );
     }
 
     private ngAfterViewInit() {

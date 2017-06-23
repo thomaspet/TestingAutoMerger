@@ -7,12 +7,14 @@
               [entityName]="'CustomerQuote'"
               [data]="quote"
               [currencyCodes]="currencyCodes"
+              [projects]="projects"
               (dataChange)="onQuoteChange($event)">
 </uni-tof-head>
 
 <section class="application">
     <uni-tradeitem-table *ngIf="quote"
                          [readonly]="readonly"
+                         [projects]="projects"
                          [defaultTradeItem]="newQuoteItem"
                          [(items)]="quoteItems"
                          [currencyCodeID]="currencyCodeID"

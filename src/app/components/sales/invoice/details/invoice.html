@@ -6,12 +6,14 @@
               [entityName]="'CustomerInvoice'"
               [data]="invoice"
               [currencyCodes]="currencyCodes"
+              [projects]="projects"
               (dataChange)="onInvoiceChange($event)">
 </uni-tof-head>
 
 <section class="application">
     <uni-tradeitem-table *ngIf="invoice"
                          [readonly]="readonly"
+                         [projects]="projects"
                          [(items)]="invoiceItems"
                          [currencyCodeID]="currencyCodeID"
                          [currencyExchangeRate]="currencyExchangeRate"

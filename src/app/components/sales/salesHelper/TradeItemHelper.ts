@@ -1,7 +1,16 @@
 import {Injectable} from '@angular/core';
 import {GuidService} from '../../../services/services';
-import {Project, Department, CustomerQuoteItem, CustomerOrderItem, CustomerInvoiceItem, CompanySettings, VatType} from '../../../unientities';
 import {TradeHeaderCalculationSummary} from '../../../models/sales/TradeHeaderCalculationSummary';
+import {
+    Project,
+    ProjectTask,
+    Department,
+    CustomerQuoteItem,
+    CustomerOrderItem,
+    CustomerInvoiceItem,
+    CompanySettings,
+    VatType
+} from '../../../unientities';
 
 @Injectable()
 export class TradeItemHelper  {
@@ -83,6 +92,10 @@ export class TradeItemHelper  {
             this.mapProjectToItem(newRow);
         }
 
+        if (event.field === 'Dimensions.ProjectTask') {
+            this.mapProjectTaskToItem(newRow);
+        }
+
         if (event.field === 'Dimensions.Department') {
             this.mapDepartmentToItem(newRow);
         }
@@ -106,6 +119,20 @@ export class TradeItemHelper  {
 
         // Return the updated row to the table
         return newRow;
+    }
+
+    public mapProjectTaskToItem(rowModel) {
+        let projectTask: ProjectTask = Object.assign({}, rowModel['Dimensions.ProjectTask']);
+        delete rowModel['Dimensions.ProjectTask'];
+
+        // Make sure we have a dimensions object to add stuff to
+        if (!rowModel.Dimensions) {
+            rowModel.Dimensions = {ID: 0};
+        }
+
+        rowModel.Dimensions.ProjectTaskID = projectTask ? projectTask.ID : null;
+        // Need to set this because unitable is bad with objects. Anders should fix this.
+        rowModel.Dimensions.ProjectTask = projectTask ? projectTask : null;
     }
 
     public mapProjectToItem(rowModel) {

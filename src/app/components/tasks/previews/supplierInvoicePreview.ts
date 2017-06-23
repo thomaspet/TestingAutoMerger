@@ -15,7 +15,13 @@ export class SupplierInvoicePreview {
     private task: Task;
 
     public invoice;
-    public expand: string[];
+    public expand: string[] = [
+        'BankAccounts', 
+        'JournalEntry.DraftLines.Account', 
+        'JournalEntry.DraftLines.VatType', 
+        'CurrencyCode', 
+        'BankAccount'
+    ];
     public settingsCurrency: string;
     public showCurrency: boolean;
     public entityID: number;
@@ -29,22 +35,13 @@ export class SupplierInvoicePreview {
 
     public ngOnChanges() {
         this.getCompanySettingsCurrency()
-         // getting supplier invoice and expanding neccesary fields
          if (this.task && this.task.EntityID) {
-            this.expand = [
-                'BankAccounts', 
-                'JournalEntry.DraftLines.Account', 
-                'JournalEntry.DraftLines.VatType', 
-                'CurrencyCode', 
-                'BankAccount'
-            ];
-
             this.invoiceService.Get(this.task.EntityID, this.expand)
                 .subscribe(
                     res => {
                         this.invoice = res;
                         this.entityID = res._task.EntityID;
-                        // setting mva to 0 if it doesnt have one and to value if it does
+                        // setting mva to 0 if it doesnt have one and to invoice value if it does
                         if (!res.JournalEntry) {
                            this.mva = 0;
                         } else {
@@ -63,7 +60,7 @@ export class SupplierInvoicePreview {
                     err => this.errorService.handle(err)
                 );
         }
-        // hiding invoice info after each change
+        // hiding invoice info at the start of each change
         this.invoiceInfoShow = false;
     }
 

@@ -4,7 +4,7 @@ import {Observable} from 'rxjs/Observable';
 import {TradeItemHelper} from '../../salesHelper/tradeItemHelper';
 import {TofHelper} from '../../salesHelper/tofHelper';
 import {IUniSaveAction} from '../../../../../framework/save/save';
-import {CustomerInvoice, CustomerInvoiceItem, CompanySettings, CurrencyCode, InvoicePaymentData} from '../../../../unientities';
+import {CustomerInvoice, CustomerInvoiceItem, CompanySettings, CurrencyCode, InvoicePaymentData, Project} from '../../../../unientities';
 import {StatusCodeCustomerInvoice, LocalDate} from '../../../../unientities';
 import {TradeHeaderCalculationSummary} from '../../../../models/sales/TradeHeaderCalculationSummary';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
@@ -42,7 +42,8 @@ import {
     CustomerInvoiceReminderService,
     CurrencyCodeService,
     CurrencyService,
-    ReportService
+    ReportService,
+    ProjectService
 } from '../../../../services/services';
 import * as moment from 'moment';
 declare const _;
@@ -95,7 +96,7 @@ export class InvoiceDetails {
     private summaryFields: ISummaryConfig[];
     private readonly: boolean;
     private printStatusPrinted: string = '200';
-
+    private projects: Project[]; 
 
     private recalcDebouncer: EventEmitter<any> = new EventEmitter();
     private saveActions: IUniSaveAction[] = [];
@@ -133,7 +134,8 @@ export class InvoiceDetails {
         private currencyCodeService: CurrencyCodeService,
         private currencyService: CurrencyService,
         private reportService: ReportService,
-        private statisticsService: StatisticsService
+        private statisticsService: StatisticsService,
+        private projectService: ProjectService
     ) {
         // set default tab title, this is done to set the correct current module to make the breadcrumb correct
         this.tabService.addTab({ url: '/sales/invoices/', name: 'Faktura', active: true, moduleID: UniModules.Invoices });
@@ -221,6 +223,10 @@ export class InvoiceDetails {
                 }, err => this.errorService.handle(err));
             }
         }, err => this.errorService.handle(err));
+        this.projectService.GetAll(null).subscribe(
+            res => this.projects=res,
+            err => this.errorService.handle(err)
+        );
     }
 
     private ngAfterViewInit() {

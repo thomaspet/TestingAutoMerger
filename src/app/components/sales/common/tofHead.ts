@@ -1,8 +1,9 @@
 import {Component, Input, Output, ViewChild, EventEmitter, OnChanges, SimpleChanges} from '@angular/core';
 import {FormControl} from '@angular/forms';
-import {CurrencyCode} from '../../../unientities';
+import {CurrencyCode, Project} from '../../../unientities';
 import {TofCustomerCard} from './customerCard';
 import {TofDetailsForm} from './detailsForm';
+
 declare var _;
 
 @Component({
@@ -16,6 +17,7 @@ export class TofHead implements OnChanges {
     @Input() public readonly: boolean;
     @Input() private data: any;
     @Input() public currencyCodes: Array<CurrencyCode>;
+    @Input() public projects: Project;
 
     @Output() public dataChange: EventEmitter<any> = new EventEmitter();
 
