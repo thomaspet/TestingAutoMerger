@@ -1,4 +1,5 @@
 import {Component, Input, Output, EventEmitter, ViewChild, ElementRef} from '@angular/core';
+import {FormControl} from '@angular/forms';
 import {Customer} from '../../../unientities';
 import {CustomerDetailsModal} from '../customer/customerDetails/customerDetailsModal';
 import {AddressModal} from '../../common/modals/modals';
@@ -9,36 +10,39 @@ import {IUniSearchConfig} from 'unisearch-ng2/src/UniSearch/IUniSearchConfig';
 @Component({
     selector: 'tof-customer-card',
     template: `
-        <label>
-            <span>Kunde</span>
-            <uni-search
-                [config]="uniSearchConfig"
-                (changeEvent)="selectCustomer($event)"
-                [disabled]="readonly"
-            ></uni-search>
-        </label>
+        <fieldset>
+            <legend>Kunde</legend>
 
-        <section *ngIf="entity?.Customer" class="addressCard"
-                 [attr.aria-readonly]="readonly">
-            <span class="edit-btn" (click)="openCustomerModal()"></span>
-            <span *ngIf="ehfEnabled" class="ehf">EHF</span>
-            <strong>{{entity.Customer.Info?.Name}}</strong>
-            <br><span *ngIf="entity.InvoiceAddressLine1">
-                {{entity.InvoiceAddressLine1}}
-            </span>
-            <br><span *ngIf="entity.InvoicePostalCode || entity.InvoiceCity">
-                {{entity.InvoicePostalCode}} {{entity.InvoiceCity}}
-            </span>
-            <br><span *ngIf="entity.InvoiceCountry">
-                {{entity.InvoiceCountry}}
-            </span>
-            <span class="emailInfo" *ngIf="entity.Customer?.Info?.Emails">
-                {{entity?.Customer?.Info?.Emails[0]?.EmailAddress}}
-            </span>
-            <div class="unpaid-invoices" *ngIf="customerDueInvoiceData?.NumberOfDueInvoices > 0">
-                <a href="#/sales/customer/{{entity.Customer?.ID}}">Kunden har {{customerDueInvoiceData.NumberOfDueInvoices}} forfalt{{customerDueInvoiceData.NumberOfDueInvoices > 1 ? 'e' : ''}} faktura{{customerDueInvoiceData.NumberOfDueInvoices > 1 ? 'er' : ''}}</a>
-            </div>
-        </section>
+            <label class="customer-input">
+                <!--<span>Kunde</span>-->
+                <uni-search
+                    [config]="uniSearchConfig"
+                    (changeEvent)="customerSelected($event)"
+                    [disabled]="readonly">
+                </uni-search>
+
+                <section class="addressCard" [attr.aria-readonly]="readonly">
+                    <span class="edit-btn" (click)="openCustomerModal()"></span>
+                    <span *ngIf="ehfEnabled" class="ehf">EHF</span>
+                    <strong>{{entity?.Customer?.Info?.Name}}</strong>
+                    <br><span *ngIf="entity?.InvoiceAddressLine1">
+                        {{entity?.InvoiceAddressLine1}}
+                    </span>
+                    <br><span *ngIf="entity?.InvoicePostalCode || entity?.InvoiceCity">
+                        {{entity?.InvoicePostalCode}} {{entity?.InvoiceCity}}
+                    </span>
+                    <br><span *ngIf="entity?.InvoiceCountry">
+                        {{entity?.InvoiceCountry}}
+                    </span>
+                    <span class="emailInfo" *ngIf="entity?.Customer?.Info?.Emails">
+                        {{entity?.Customer?.Info?.Emails[0]?.EmailAddress}}
+                    </span>
+                    <div class="unpaid-invoices" *ngIf="customerDueInvoiceData?.NumberOfDueInvoices > 0">
+                        <a href="#/sales/customer/{{entity?.Customer?.ID}}">Kunden har {{customerDueInvoiceData.NumberOfDueInvoices}} forfalt{{customerDueInvoiceData.NumberOfDueInvoices > 1 ? 'e' : ''}} faktura{{customerDueInvoiceData.NumberOfDueInvoices > 1 ? 'er' : ''}}</a>
+                    </div>
+                </section>
+            </label>
+        </fieldset>
 
         <customer-details-modal></customer-details-modal>
         <address-modal></address-modal>
@@ -70,6 +74,9 @@ export class TofCustomerCard {
     private customerDueInvoiceData: any;
     private lastPeppolAddressChecked: string;
     private lastCheckedStatisticsCustomerID: number;
+
+    private emailControl: FormControl = new FormControl('');
+    private yourRefControl: FormControl = new FormControl('');
 
     private customerExpands: [string] = [
         'Info.Addresses',
@@ -139,6 +146,9 @@ export class TofCustomerCard {
                         }, err => this.errorService.handle(err)
                     );
                 }
+
+                this.emailControl.setValue(this.entity.EmailAddress, {emitEvent: false});
+                this.yourRefControl.setValue(this.entity.YourReference, {emitEvent: false});
             }
         }
     }
@@ -150,22 +160,29 @@ export class TofCustomerCard {
     }
 
     public openCustomerModal(): Observable<Customer> {
-        this.customerDetailsModal.open(this.entity.CustomerID);
-        return this.customerDetailsModal.customerUpdated;
+        if (!this.readonly) {
+            this.customerDetailsModal.open(this.entity.CustomerID);
+            return this.customerDetailsModal.customerUpdated;
+        }
     }
 
     public openAddressModal() {
-        if (this.readonly) {
-            return;
+        if (!this.readonly) {
+            let address = this.addressService.invoiceToAddress(this.entity);
+            this.addressModal.openModal(address, false, 'Fakturaadresse');
+            this.addressModal.Changed.subscribe((modalValue) => {
+                this.addressService.addressToInvoice(this.entity, modalValue);
+            });
         }
-        let address = this.addressService.invoiceToAddress(this.entity);
-        this.addressModal.openModal(address, false, 'Fakturaadresse');
-        this.addressModal.Changed.subscribe((modalValue) => {
-            this.addressService.addressToInvoice(this.entity, modalValue);
-        });
     }
 
-    public selectCustomer(customer: Customer) {
+    public formFieldChange() {
+        this.entity.EmailAddress = this.emailControl.value;
+        this.entity.YourReference = this.yourRefControl.value;
+        this.entityChange.emit(this.entity);
+    }
+
+    public customerSelected(customer: Customer) {
         if (customer) {
             this.entity.CustomerID = customer.ID;
             this.entity.CustomerName = customer.Info.Name;
@@ -177,12 +194,11 @@ export class TofCustomerCard {
             this.entity.CustomerName = null;
         }
 
-        if(customer.Info.DefaultEmail) {
+        if (customer.Info.DefaultEmail) {
             this.entity.EmailAddress = customer.Info.DefaultEmail.EmailAddress;
         }
 
         this.entity.Customer = customer;
-        this.entity['_shippingAddressID'] = null; // reset when entering deliveryForm
         this.entityChange.emit(this.entity);
     }
 

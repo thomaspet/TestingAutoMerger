@@ -123,15 +123,8 @@
 .vacationpay_Flexheader
     display: flex
 
-    .vacationpay_sixthWeek
-        uni-checkbox-input
-            text-align: left
-            width: calc(87.5vw - 67rem)
-
-        label
-            @extend label.toggle
-            width: 15rem
-            display: inline-block
+    .vacationpay_sixthWeek label
+        @extend label.toggle
 
     .vacationpay_percentPayout
         white-space: nowrap
@@ -144,8 +137,7 @@
     display: inline-block
     float: right
     background-color: lightgrey
-    min-width: 60%
-    max-width: 60%
+    margin-left: 5rem
 
     table
         white-space: nowrap

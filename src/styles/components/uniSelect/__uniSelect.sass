@@ -2,7 +2,7 @@
     display: inline-block
     position: relative
 
-.uniSelect_input[role=combobox][readonly]
+.uniSelect_input[role=combobox]
     background: #fff unicon-chevron-down($uni-color-scale5) center right .5rem no-repeat
     background-size: auto .5rem
     padding-right: 2rem
@@ -10,6 +10,7 @@
     overflow: hidden
 
     &[disabled]:not([disabled=false])
+    &[readonly]:not([readonly=false])
         @extend input[disabled]
 
 
@@ -45,15 +46,4 @@
         margin: 0
         width: 100%
         height: 100%
-
-
-uni-select.drop-up
-    .uniSelect
-        position: relative
-
-        .uniSelect_dropdown
-            position: absolute
-            bottom: 1rem
-            ul
-                position: static
 

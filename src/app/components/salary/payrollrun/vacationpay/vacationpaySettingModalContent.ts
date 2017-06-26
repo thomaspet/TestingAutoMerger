@@ -47,7 +47,7 @@ export class VacationpaySettingModalContent implements OnInit {
             this._companyvacationRateService.GetAll('')
         ).subscribe((response: any) => {
             var [compsal, rates] = response;
-            this.companysalaryModel$.next(compsal[0]);
+            this.companysalaryModel$.next(compsal);
             this.originalDeduction = this.companysalaryModel$.getValue().WageDeductionDueToHoliday;
             this.vacationRates = rates;
             this.formConfig$.next({

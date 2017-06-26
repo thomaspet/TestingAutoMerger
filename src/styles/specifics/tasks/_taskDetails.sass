@@ -1,0 +1,83 @@
+uni-task-details
+    display: block
+    box-sizing: border-box
+    width: 45%
+    height: calc(100vh - 5.5rem - 2.5rem)
+    float: left
+    border-left: 1px solid $uni-color-scale9
+    list-style-type: none
+
+    .task-header
+        height: 10%
+        padding: 1rem 12.5% 1rem 2rem
+        background-color: #fff
+        border-bottom:  pxToRem(1) solid $uni-color-scale9
+        h2
+            margin: 0
+            display: inline-block
+            width: calc(100% - 4rem)
+
+        uni-comments
+            .comments-view
+                right: 5.5%
+
+        .comments_count
+            color: $uni-color-negative
+
+    .invoice-preview
+        height: 90%
+        padding: 1rem 12.5% 1rem 2rem
+        background-color: #fff
+        border-bottom:  pxToRem(1) solid $uni-color-scale9
+    
+        strong.totalSum
+            float: right
+            margin-top: 3.8rem
+            margin-left: 1%
+            width: 29%
+
+        .info
+            @extend small
+            display: flex
+            flex-flow: row
+            flex-wrap: wrap
+            width: 70%
+            overflow: visible
+            float: left
+
+        dt, dd
+            display: inline-block
+            width: 25%
+            overflow: hidden
+            margin: 0
+            padding 0
+            text-overflow: ellipsis
+            white-space: nowrap
+
+        uni-image .uni-thumbnail-list li
+            float: none
+            margin: 0 auto;
+        
+        uni-image 
+            display: block
+            width: 100%
+
+            picture.clickable, picture img, article
+                cursor: default
+        
+            picture img
+                display: block
+                width: 25vw
+                margin: 0 auto
+
+            img
+                width: 25vw
+                max-height: 60vh
+                object-fit: contain
+
+            ul
+                margin: 0
+
+            li img
+                height: 5vh
+                width: 10vw

@@ -1,11 +1,12 @@
 import { Injectable } from '@angular/core';
 import { BizHttp } from '../../../../framework/core/http/BizHttp';
 import { UniHttp } from '../../../../framework/core/http/http';
-import { SalaryBalance, WageType, Employee, Supplier, SalBalType } from '../../../unientities';
+import { SalaryBalance, WageType, Employee, Supplier, SalBalType, SalBalDrawType } from '../../../unientities';
 import { Observable } from 'rxjs/Observable';
 import { FieldType, UniValidationOperators } from 'uniform-ng2/main';
 import { SalaryBalanceLineService } from './salaryBalanceLineService';
 import { ErrorService } from '../../commonServicesModule';
+import {URLSearchParams} from '@angular/http';
 
 @Injectable()
 export class SalarybalanceService extends BizHttp<SalaryBalance> {
@@ -87,8 +88,8 @@ export class SalarybalanceService extends BizHttp<SalaryBalance> {
         }
     }
 
-    public getAll(empID: number): Observable<SalaryBalance[]> {
-        return super.GetAll(`filter=${empID ? 'EmployeeID eq ' + empID : ''}&orderBy=EmployeeID ASC&expand=Transactions`);
+    public getAll(empID: number, expand: string[] = []): Observable<SalaryBalance[]> {
+        return super.GetAll(`filter=${empID ? 'EmployeeID eq ' + empID : ''}&expand=${expand.join(',')}`);
     }
 
     public getPrevious(ID: number, expands: string[] = null) {
@@ -119,6 +120,10 @@ export class SalarybalanceService extends BizHttp<SalaryBalance> {
         }
     }
 
+    public hasBalance(salaryBalance: SalaryBalance): boolean {
+        return salaryBalance.InstalmentType === SalBalType.Advance || salaryBalance.Type !== SalBalDrawType.FixedAmount;
+    }
+
     public layout(layoutID: string) {
         return Observable.from([
             {
@@ -135,26 +140,6 @@ export class SalarybalanceService extends BizHttp<SalaryBalance> {
                         ReadOnly: false,
                         LookupField: false,
                         Label: 'Type',
-                        Description: null,
-                        HelpText: null,
-                        FieldSet: 0,
-                        Section: 0,
-                        Placeholder: null,
-                        Options: null,
-                        LineBreak: null,
-                        Combo: null,
-                        Sectionheader: ''
-                    },
-                    {
-                        ComponentLayoutID: 1,
-                        EntityType: 'salarybalance',
-                        Property: 'Type',
-                        Placement: 1,
-                        Hidden: false,
-                        FieldType: FieldType.DROPDOWN,
-                        ReadOnly: false,
-                        LookupField: false,
-                        Label: 'Trekktype',
                         Description: null,
                         HelpText: null,
                         FieldSet: 0,
@@ -191,7 +176,7 @@ export class SalarybalanceService extends BizHttp<SalaryBalance> {
                         Property: 'EmployeeID',
                         Placement: 1,
                         Hidden: false,
-                        FieldType: FieldType.DROPDOWN,
+                        FieldType: FieldType.AUTOCOMPLETE,
                         ReadOnly: false,
                         LookupField: false,
                         Label: 'Ansatt',
@@ -216,7 +201,7 @@ export class SalarybalanceService extends BizHttp<SalaryBalance> {
                         Property: 'WageTypeNumber',
                         Placement: 1,
                         Hidden: false,
-                        FieldType: FieldType.DROPDOWN,
+                        FieldType: FieldType.AUTOCOMPLETE,
                         ReadOnly: false,
                         LookupField: false,
                         Label: 'Lønnsart',
@@ -341,7 +326,7 @@ export class SalarybalanceService extends BizHttp<SalaryBalance> {
                         Property: 'SupplierID',
                         Placement: 1,
                         Hidden: false,
-                        FieldType: FieldType.DROPDOWN,
+                        FieldType: FieldType.AUTOCOMPLETE,
                         ReadOnly: false,
                         LookupField: false,
                         Label: 'Leverandør',
@@ -390,6 +375,26 @@ export class SalarybalanceService extends BizHttp<SalaryBalance> {
                         ReadOnly: true,
                         LookupField: false,
                         Label: 'Kontonummer',
+                        Description: null,
+                        HelpText: null,
+                        FieldSet: 0,
+                        Section: 0,
+                        Placeholder: null,
+                        Options: null,
+                        LineBreak: null,
+                        Combo: null,
+                        Sectionheader: ''
+                    },
+                    {
+                        ComponentLayoutID: 1,
+                        EntityType: 'salarybalance',
+                        Property: 'CreatePayment',
+                        Placement: 1,
+                        Hidden: false,
+                        FieldType: FieldType.CHECKBOX,
+                        ReadOnly: true,
+                        LookupField: false,
+                        Label: 'Utbetales til leverandør ved lønnsutbetaling',
                         Description: null,
                         HelpText: null,
                         FieldSet: 0,

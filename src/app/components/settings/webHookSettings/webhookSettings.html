@@ -1,7 +1,7 @@
 <h2>Webhooks</h2> Webhook teknologi tilbyr mulighet for integrering third-party web services i Uni Economy.
 <br/>
 <br/>
-<section class="application">
+<section class="application" [attr.aria-busy]="isBusy">
     <div *ngIf="!isEnabled">
         <div class="enable-webhooks">
             Du har ikke aktivert web hooks for dette selskapet.
@@ -84,15 +84,17 @@
                     </label>
                 </td>
                 <td class="col5">
-                    <tr>
-                        <td class="col5a">
-                            <input type="checkbox" id="{{item.id}}" [ngModel]="item.Enabled" (ngModelChange)="onToggle(item)">
-                            <label attr.for="{{item.id}}" class="toggle"> </label>
-                        </td>
-                        <td class="col5b">
-                            <button class="delete-webhook" (click)="onDeleteSubscription(item.id) "></button>
-                        </td>
-                    </tr>
+                    <table class="embeddedWebHookTable">
+                        <tr>
+                            <td class="col5a">
+                                <input class="toggle" type="checkbox" id="{{item.id}}" [ngModel]="item.Enabled" (ngModelChange)="onToggle(item)" />
+                                <label attr.for="{{item.id}}" class="toggleWebHook">&nbsp;</label>
+                            </td>
+                            <td class="col5b">
+                                <button class="delete-webhook" (click)="onDeleteSubscription(item.id) ">&nbsp;</button>
+                            </td>
+                        </tr>
+                    </table>
                 </td>
             </tr>
         </table>

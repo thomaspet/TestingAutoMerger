@@ -18,7 +18,7 @@ export interface IUploadConfig {
 @Component({
     selector: 'uni-attachments',
     template: `
-        <label>{{headerText}}</label>
+        <label *ngIf="!hideLabel">{{headerText}}</label>
         <article>
              <section class="file-name-list" *ngIf="showFileList">
                 <ul>
@@ -70,6 +70,9 @@ export class UniAttachments {
 
     @Input()
     public headerText: string = 'Vedlegg';
+
+    @Input()
+    public hideLabel: boolean;
 
     @Output()
     public fileUploaded: EventEmitter<File> = new EventEmitter<File>();

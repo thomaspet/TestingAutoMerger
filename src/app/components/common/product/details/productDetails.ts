@@ -1,5 +1,6 @@
 import {Component, Input, ViewChild, SimpleChanges} from '@angular/core';
 import {Router, ActivatedRoute} from '@angular/router';
+import {FormControl} from '@angular/forms';
 import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/observable/forkJoin';
 import {Product, Account, VatType} from '../../../../unientities';
@@ -28,8 +29,11 @@ declare const _; // lodash
     templateUrl: './productDetails.html'
 })
 export class ProductDetails {
-    @Input() public productId: any;
-    @ViewChild(UniForm) private form: UniForm;
+    @Input()
+    public productId: any;
+
+    @ViewChild(UniForm)
+    public form: UniForm;
 
     public config$: BehaviorSubject<any> = new BehaviorSubject({autofocus: true});
     public fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
@@ -37,7 +41,8 @@ export class ProductDetails {
 
     private defaultSalesAccount: Account;
 
-    private showImageComponent: boolean = true;  // template variable
+    public showExtendedProductInfo: boolean = true;
+    private descriptionControl: FormControl = new FormControl('');
     private imageUploadConfig: IUploadConfig;
 
     private vatTypes: VatType[];
@@ -150,6 +155,7 @@ export class ProductDetails {
 
         subject.subscribe(response => {
             this.product$.next(response[0]);
+            this.descriptionControl.setValue(response[0] && response[0].Description);
 
             this.setTabTitle();
             this.setupToolbar();
@@ -171,9 +177,16 @@ export class ProductDetails {
         this.tabService.addTab({ url: '/products/' + this.product$.getValue().ID, name: tabTitle, active: true, moduleID: UniModules.Products });
     }
 
+    private textareaChange() {
+        let description = this.descriptionControl.value;
+        let product = this.product$.getValue();
+        if (description && product) {
+            product.Description = description;
+            this.product$.next(product);
+        }
+    }
+
     private change(changes: SimpleChanges) {
-        console.log(this.product$.getValue().PriceExVat);
-        console.log(this.product$.getValue().PriceIncVat);
         if (changes['CalculateGrossPriceBasedOnNetPrice']) {
             this.showHidePriceFields(changes['CalculateGrossPriceBasedOnNetPrice'].currentValue);
         }
@@ -190,27 +203,32 @@ export class ProductDetails {
     }
 
     private saveProduct(completeEvent) {
-        if (this.product$.getValue().Dimensions && (!this.product$.getValue().Dimensions.ID || this.product$.getValue().Dimensions.ID === 0)) {
-            this.product$.getValue().Dimensions['_createguid'] = this.productService.getNewGuid();
+        let product = this.product$.getValue();
+        if (product.Dimensions && (!product.Dimensions.ID || product.Dimensions.ID === 0)) {
+            product.Dimensions['_createguid'] = this.productService.getNewGuid();
         }
 
         // clear Account and VatType, IDs are used when saving
-        this.product$.getValue().Account = null;
-        this.product$.getValue().VatType = null;
+        product.Account = null;
+        product.VatType = null;
+
+        let description = this.descriptionControl.value;
+        if (description && description.length) {
+            product.Description = description;
+        }
 
         if (this.productId > 0) {
-            this.productService.Put(this.product$.getValue().ID, this.product$.getValue())
-                .subscribe(
-                    (updatedValue) => {
-                        completeEvent('Produkt lagret');
-                        this.loadProduct();
-                        this.setTabTitle();
-                    },
-                    (err) => {
-                        completeEvent('Feil oppsto ved lagring');
-                        this.errorService.handle(err);
-                    }
-                );
+            this.productService.Put(product.ID, product).subscribe(
+                (updatedValue) => {
+                    completeEvent('Produkt lagret');
+                    this.loadProduct();
+                    this.setTabTitle();
+                },
+                (err) => {
+                    completeEvent('Feil oppsto ved lagring');
+                    this.errorService.handle(err);
+                }
+            );
         } else {
             this.productService.Post(this.product$.getValue())
                 .subscribe(
@@ -423,317 +441,162 @@ export class ProductDetails {
             ID: 1,
             CustomFields: null,
             Fields: [
+                // Fieldset 1 (Produkt)
                 {
+                    FieldSet: 1,
+                    Legend: 'Produkt',
+                    Section: 0,
                     ComponentLayoutID: 3,
                     EntityType: 'Product',
                     Property: 'PartName',
                     Placement: 1,
-                    Hidden: false,
                     FieldType: FieldType.TEXT,
-                    ReadOnly: false,
-                    LookupField: false,
                     Label: 'Produktnr',
                     Description: '',
                     HelpText: '',
-                    FieldSet: 0,
-                    Section: 0,
-                    Placeholder: null,
-                    Options: null,
-                    LineBreak: null,
-                    Combo: null,
-                    Legend: '',
                     StatusCode: 0,
                     ID: 1,
-                    Deleted: false,
-                    CreatedAt: null,
-                    UpdatedAt: null,
-                    CreatedBy: null,
-                    UpdatedBy: null,
-                    CustomFields: null
                 },
                 {
+                    FieldSet: 1,
+                    Section: 0,
                     ComponentLayoutID: 3,
                     EntityType: 'Product',
                     Property: 'Name',
                     Placement: 1,
-                    Hidden: false,
                     FieldType: FieldType.TEXT,
-                    ReadOnly: false,
-                    LookupField: false,
                     Label: 'Navn',
                     Description: '',
                     HelpText: '',
-                    FieldSet: 0,
-                    Section: 0,
-                    Placeholder: null,
-                    Options: null,
-                    LineBreak: null,
-                    Combo: null,
-                    Legend: '',
                     StatusCode: 0,
                     ID: 2,
-                    Deleted: false,
-                    CreatedAt: null,
-                    UpdatedAt: null,
-                    CreatedBy: null,
-                    UpdatedBy: null,
-                    CustomFields: null
                 },
                 {
-                    ComponentLayoutID: 3,
-                    EntityType: 'Product',
-                    Property: 'Type',
-                    Placement: 1,
-                    Hidden: false,
-                    FieldType: FieldType.DROPDOWN,
-                    ReadOnly: false,
-                    LookupField: false,
-                    Label: 'Produkttype',
-                    Description: '',
-                    HelpText: '',
-                    FieldSet: 0,
+                    FieldSet: 1,
                     Section: 0,
-                    Placeholder: null,
-                    Options: null,
-                    LineBreak: null,
-                    Combo: null,
-                    Legend: '',
-                    StatusCode: 0,
-                    ID: 2,
-                    Deleted: false,
-                    CreatedAt: null,
-                    UpdatedAt: null,
-                    CreatedBy: null,
-                    UpdatedBy: null,
-                    CustomFields: null
-                },
-                {
                     ComponentLayoutID: 3,
                     EntityType: 'Product',
                     Property: 'Unit',
                     Placement: 1,
-                    Hidden: false,
                     FieldType: FieldType.TEXT,
-                    ReadOnly: false,
-                    LookupField: false,
                     Label: 'Enhet',
                     Description: '',
                     HelpText: '',
-                    FieldSet: 0,
-                    Section: 0,
-                    Placeholder: null,
-                    Options: null,
-                    LineBreak: null,
-                    Combo: null,
                     Legend: '',
                     StatusCode: 0,
                     ID: 2,
-                    Deleted: false,
-                    CreatedAt: null,
-                    UpdatedAt: null,
-                    CreatedBy: null,
-                    UpdatedBy: null,
-                    CustomFields: null
                 },
                 {
+                    FieldSet: 1,
+                    Section: 0,
+                    ComponentLayoutID: 3,
+                    EntityType: 'Product',
+                    Property: 'Type',
+                    Placement: 1,
+                    FieldType: FieldType.DROPDOWN,
+                    Label: 'Produkttype',
+                    Description: '',
+                    HelpText: '',
+                    StatusCode: 0,
+                    ID: 2,
+                },
+
+                // Fieldset 2 (Pris)
+                {
+                    FieldSet: 2,
+                    Legend: 'Pris',
+                    Section: 0,
                     ComponentLayoutID: 3,
                     EntityType: 'Product',
                     Property: 'CostPrice',
                     Placement: 1,
-                    Hidden: false,
                     FieldType: FieldType.TEXT,
-                    ReadOnly: false,
-                    LookupField: false,
                     Label: 'Innpris eks. mva',
                     Description: '',
                     HelpText: '',
-                    FieldSet: 0,
-                    Section: 0,
-                    Placeholder: null,
-                    Options: null,
-                    LineBreak: null,
-                    Combo: null,
-                    Legend: '',
                     StatusCode: 0,
                     ID: 2,
-                    Deleted: false,
-                    CreatedAt: null,
-                    UpdatedAt: null,
-                    CreatedBy: null,
-                    UpdatedBy: null,
-                    CustomFields: null
                 },
                 {
-                    ComponentLayoutID: 1,
-                    EntityType: 'Product',
-                    Property: 'AccountID',
-                    Placement: 4,
-                    Hidden: false,
-                    FieldType: FieldType.AUTOCOMPLETE,
-                    ReadOnly: false,
-                    LookupField: false,
-                    Label: 'Hovedbokskonto',
-                    Description: '',
-                    HelpText: '',
-                    FieldSet: 0,
+                    FieldSet: 2,
                     Section: 0,
-                    Placeholder: null,
-                    Options: null,
-                    LineBreak: null,
-                    Combo: null,
-                    Legend: '',
-                    StatusCode: 0,
-                    ID: 5,
-                    Deleted: false,
-                    CreatedAt: null,
-                    UpdatedAt: null,
-                    CreatedBy: null,
-                    UpdatedBy: null,
-                    CustomFields: null
-                },
-                {
-                    ComponentLayoutID: 1,
-                    EntityType: 'Product',
-                    Property: 'VatTypeID',
-                    Placement: 4,
-                    Hidden: false,
-                    FieldType: FieldType.AUTOCOMPLETE,
-                    ReadOnly: false,
-                    LookupField: false,
-                    Label: 'Mvakode',
-                    Description: '',
-                    HelpText: '',
-                    FieldSet: 0,
-                    Section: 0,
-                    Placeholder: null,
-                    Options: null,
-                    LineBreak: null,
-                    Combo: null,
-                    Legend: '',
-                    StatusCode: 0,
-                    ID: 4,
-                    Deleted: false,
-                    CreatedAt: null,
-                    UpdatedAt: null,
-                    CreatedBy: null,
-                    UpdatedBy: null,
-                    CustomFields: null
-                },
-                {
-                    ComponentLayoutID: 3,
-                    EntityType: 'Product',
-                    Property: 'CalculateGrossPriceBasedOnNetPrice',
-                    Placement: 1,
-                    Hidden: false,
-                    FieldType: FieldType.CHECKBOX,
-                    ReadOnly: false,
-                    LookupField: false,
-                    Label: 'Kalkuler utpris eks mva basert på utpris inkl. mva',
-                    Description: '',
-                    HelpText: '',
-                    FieldSet: 0,
-                    Section: 0,
-                    Placeholder: null,
-                    Options: null,
-                    LineBreak: null,
-                    Combo: null,
-                    Legend: '',
-                    StatusCode: 0,
-                    ID: 2,
-                    Deleted: false,
-                    CreatedAt: null,
-                    UpdatedAt: null,
-                    CreatedBy: null,
-                    UpdatedBy: null,
-                    CustomFields: null
-                },
-                {
                     ComponentLayoutID: 3,
                     EntityType: 'Product',
                     Property: 'PriceExVat',
                     Placement: 1,
-                    Hidden: false,
                     FieldType: FieldType.TEXT,
-                    ReadOnly: false,
-                    LookupField: false,
                     Label: 'Utpris eks. mva',
                     Description: '',
                     HelpText: '',
-                    FieldSet: 0,
-                    Section: 0,
-                    Placeholder: null,
-                    Options: null,
-                    LineBreak: null,
-                    Combo: null,
-                    Legend: '',
                     StatusCode: 0,
                     ID: 2,
-                    Deleted: false,
-                    CreatedAt: null,
-                    UpdatedAt: null,
-                    CreatedBy: null,
-                    UpdatedBy: null,
-                    CustomFields: null
                 },
                 {
+                    FieldSet: 2,
+                    Section: 0,
                     ComponentLayoutID: 3,
                     EntityType: 'Product',
                     Property: 'PriceIncVat',
                     Placement: 1,
-                    Hidden: false,
                     FieldType: FieldType.TEXT,
-                    ReadOnly: false,
-                    LookupField: false,
                     Label: 'Utpris inkl. mva',
                     Description: '',
                     HelpText: '',
-                    FieldSet: 0,
+                    StatusCode: 0,
+                    ID: 2,
+                },
+                {
+                    FieldSet: 2,
                     Section: 0,
-                    Placeholder: null,
-                    Options: null,
-                    LineBreak: null,
-                    Combo: null,
+                    ComponentLayoutID: 3,
+                    EntityType: 'Product',
+                    Property: 'CalculateGrossPriceBasedOnNetPrice',
+                    Placement: 1,
+                    FieldType: FieldType.CHECKBOX,
+                    Label: 'Kalkuler utpris eks mva basert på utpris inkl. mva',
+                    Description: '',
+                    HelpText: '',
                     Legend: '',
                     StatusCode: 0,
                     ID: 2,
-                    Deleted: false,
-                    CreatedAt: null,
-                    UpdatedAt: null,
-                    CreatedBy: null,
-                    UpdatedBy: null,
-                    CustomFields: null
                 },
+
+                // Fieldset 3 (Regnskapsinnstillinger)
                 {
-                    ComponentLayoutID: 3,
+                    FieldSet: 3,
+                    Section: 0,
+                    Legend: 'Regnskapsinnstillinger',
+                    ComponentLayoutID: 1,
                     EntityType: 'Product',
-                    Property: 'Description',
+                    Property: 'AccountID',
                     Placement: 4,
-                    Hidden: false,
-                    FieldType: FieldType.TEXTAREA,
-                    ReadOnly: false,
-                    LookupField: false,
-                    Label: 'Beskrivelse',
+                    FieldType: FieldType.AUTOCOMPLETE,
+                    Label: 'Hovedbokskonto',
                     Description: '',
                     HelpText: '',
-                    FieldSet: 0,
-                    Section: 1,
-                    Sectionheader: 'Beskrivelse',
-                    Placeholder: null,
-                    Options: null,
-                    LineBreak: null,
-                    Combo: null,
-                    Legend: 'Beskrivelse',
                     StatusCode: 0,
-                    ID: 9,
-                    Deleted: false,
-                    CreatedAt: null,
-                    UpdatedAt: null,
-                    CreatedBy: null,
-                    UpdatedBy: null,
-                    CustomFields: null,
-                    Classes: 'max-width visuallyHideLabel'
+                    ID: 5,
                 },
                 {
+                    FieldSet: 3,
+                    Section: 0,
+                    ComponentLayoutID: 1,
+                    EntityType: 'Product',
+                    Property: 'VatTypeID',
+                    Placement: 4,
+                    FieldType: FieldType.AUTOCOMPLETE,
+                    Label: 'Mvakode',
+                    Description: '',
+                    HelpText: '',
+                    StatusCode: 0,
+                    ID: 4,
+                },
+
+                // Fieldset 4 (Dimensjoner)
+                {
+                    FieldSet: 4,
+                    Legend: 'Dimensjoner',
+                    Section: 0,
                     ComponentLayoutID: 3,
                     EntityType: 'Project',
                     Property: 'Dimensions.ProjectID',
@@ -745,51 +608,47 @@ export class ProductDetails {
                     Label: 'Prosjekt',
                     Description: '',
                     HelpText: '',
-                    FieldSet: 0,
-                    Section: 2,
-                    Sectionheader: 'Dimensjoner',
-                    Placeholder: null,
-                    Options: null,
-                    LineBreak: null,
-                    Combo: null,
-                    Legend: 'Dimensjoner',
                     StatusCode: 0,
                     ID: 8,
-                    Deleted: false,
-                    CreatedAt: null,
-                    UpdatedAt: null,
-                    CreatedBy: null,
-                    UpdatedBy: null,
-                    CustomFields: null
                 },
                 {
+                    FieldSet: 4,
+                    Section: 0,
                     ComponentLayoutID: 3,
                     EntityType: 'Department',
                     Property: 'Dimensions.DepartmentID',
                     Placement: 4,
-                    Hidden: false,
                     FieldType: FieldType.DROPDOWN,
-                    ReadOnly: false,
-                    LookupField: false,
                     Label: 'Avdeling',
                     Description: '',
                     HelpText: '',
-                    FieldSet: 0,
-                    Section: 2,
-                    Placeholder: null,
-                    Options: null,
-                    LineBreak: null,
-                    Combo: null,
-                    Legend: '',
                     StatusCode: 0,
                     ID: 9,
-                    Deleted: false,
-                    CreatedAt: null,
-                    UpdatedAt: null,
-                    CreatedBy: null,
-                    UpdatedBy: null,
-                    CustomFields: null
-                }
+                },
+
+                // Description textarea commented out of form config for now.
+                // Because design wants this to be in the same fieldset as product image.
+                // We dont have a form control for uni-image yet,
+                // so these fields needs to be hard coded into the template
+
+                // FieldSet 5 (Utvider produktinformasjon)
+                // {
+                //     FieldSet: 5,
+                //     Legend: 'Beskrivelse',
+                //     Section: 1,
+                //     ComponentLayoutID: 3,
+                //     EntityType: 'Product',
+                //     Property: 'Description',
+                //     Placement: 4,
+                //     FieldType: FieldType.TEXTAREA,
+                //     Label: 'Beskrivelse',
+                //     Description: '',
+                //     HelpText: '',
+                //     Sectionheader: 'Beskrivelse',
+                //     StatusCode: 0,
+                //     ID: 9,
+                //     Classes: 'max-width visuallyHideLabel'
+                // },
             ]
         };
     }

@@ -35,6 +35,13 @@ accounting-reports, accounting-details-report
     .period-setup
         margin-bottom: pxToRem(10)
 
+        .uniSelect,
+        .uniSelect_dropdown,
+        .uniSelect_dropdown ul.uniSelect_dropdown_list
+            min-width: 6.2rem
+            width: 6.2rem
+            float: right
+
     .dimension-summary
         font-size: small
 
@@ -53,6 +60,31 @@ accounting-reports, accounting-details-report
         .toggle-period-button
             margin-top: pxToRem(12)
             font-size: smaller
+
+    .accounting-report-drilldown
+        clear: both
+        margin-top: 2rem
+        overflow: auto
+
+        h2
+            margin-top: 0
+
+        .accounting-report-drilldown-main
+            @include unigrid(8, 4, 2)
+            margin-left: pxToRem(0)
+            float: left;
+
+            .profit-margin
+                margin-top: 2rem
+
+        .accounting-report-drilldown-chart
+            @include unigrid(8, 4, 2)
+            float: left;
+            height: pxToRem(450)
+
+            label
+                font-size: large
+                text-align: center
 
     .distribution-periods
         clear: both
@@ -79,6 +111,13 @@ accounting-reports, accounting-details-report
                 td:not(:first-child)
                     &:hover
                         text-decoration: underline
+
+                &:nth-last-of-type(2)
+                    border-bottom: pxToRem(1) solid black
+                &:last-of-type
+                    margin-top: 1rem
+                    border-bottom: pxToRem(3) solid black
+                    border-bottom-style: double
 
     .distribution-periods::after
         clear: both
@@ -113,6 +152,24 @@ accounting-reports, accounting-details-report
 
             &:hover
                 background: mix($uni-color-c2a, $uni-color-negative, 15%)
+
+            &:nth-last-of-type(2)
+                border-bottom: pxToRem(1) solid black
+
+            &:last-of-type
+                margin-top: 1rem
+                border-bottom: pxToRem(3) solid black
+                border-bottom-style: double
+
+            &.expanded
+                font-style: italic
+                font-weight: bold
+
+            td.negative
+                color: red
+
+            td.positive
+                color: blue
 
         th
             background: $uni-color-negative

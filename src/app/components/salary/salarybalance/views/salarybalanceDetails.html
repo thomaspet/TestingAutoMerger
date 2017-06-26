@@ -1,4 +1,30 @@
 <section class="application">
-    <uni-form [config]="config$" [fields]="fields$" [model]="salarybalance$" (changeEvent)="change($event)"></uni-form>
-    <salary-balance-summary [salaryBalance]="salarybalance$ | async"></salary-balance-summary>
+    <fieldset>
+        <legend>Detaljer</legend>
+        <aside>
+            <p *ngIf="invalidKID" role="alert" class="error">Ugyldig KID</p>
+            <uni-form [config]="config$" [fields]="fields$" [model]="salarybalance$" (changeEvent)="change($event)"></uni-form>
+            <article class="collapsable" [ngClass]="{'-is-open': !collapseSummary}">
+            <h4 (click)="collapseSummary = !collapseSummary">Poster</h4>
+            <div class="collapsable-content">
+                <salary-balance-summary [salaryBalance]="salarybalance$ | async"></salary-balance-summary>
+            </div>
+        </article>
+        </aside>
+    </fieldset>
+    
+    <fieldset>
+        <legend>Dokumenter</legend>
+        <div *ngIf="!(salarybalance$ | async)?.ID">
+            <uni-image [singleImage]="true" [uploadWithoutEntity]="'true'" [fileIDs]="fileIds"
+                (fileListReady)="onFileListReady($event)"
+                (imageClicked)="onImageClicked($event)">
+            </uni-image>
+        </div>
+        <uni-image *ngIf="(salarybalance$ | async)?.ID" [entity]="'SalaryBalance'" [entityID]="(salarybalance$ | async)?.ID"
+            (fileListReady)="onFileListReady($event)"
+            (imageClicked)="onImageClicked($event)" >
+        </uni-image>
+    </fieldset>
 </section>
+<image-modal></image-modal>

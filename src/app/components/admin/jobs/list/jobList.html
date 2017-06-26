@@ -1,77 +1,75 @@
 <uni-toolbar [config]="{title: 'Jobber', omitFinalCrumb: true}"></uni-toolbar>
-<!--
-<uni-poster [widgets]="widgets" *ngIf="widgets"></uni-poster>
--->
+
 <header class="horizontal_nav no-print">
     <ul>
         <li *ngFor="let tab of filterTabs">
             <a (click)="onTabChange(tab)" [ngClass]="{'router-link-active': tab === activeTab}">
                 {{tab.label}}&nbsp;
-                <span *ngIf="tab.count >= 0" class="tab_counter tab_counter_passive">{{tab.count}}</span>
+                <span *ngIf="tab.count" class="tab_counter tab_counter_passive">{{tab.count}}</span>
             </a>
         </li>
     </ul>
 </header>
 
 <section class="application">
-    <h2 *ngIf="isFiltered()">Sist kjørte jobber</h2>
-    <h2 *ngIf="!isFiltered()">Alle jobber</h2>
 
-    <!--
-    This will be supported later.
-    <button *ngIf="!isFiltered()" class="new-button" (click)="createJob()">Ny jobb</button>-->
-    <table *ngIf="isFiltered()" class="jobRunList">
-        <th>
-            ID
-        </th>
-        <th>
-            Jobb
-        </th>
-        <th>
-            Registreringsdato
-        </th>
-        <th>
-        </th>
-        <tr *ngFor="let item of jobRuns">
-            <td>
-                {{item.ID}}
-            </td>
-            <td>
-                {{item.JobName}}
-            </td>
-            <td>
-                {{item.Created}}
-            </td>
-            <td>
-                <table class="staticContainer">
-                    <tr>
-                        <!--
-                        <td class="stat1">
-                            <label>
-                                {{lastExecutionTime}}
-                            </label>
-                        </td>
-                        -->
-                        <td class="stat2">
-                            <a href="/#/admin/job-logs/{{item.JobName}}/{{item.HangfireJobId}}">
-                                Vis logg
-                            </a>
-                        </td>
-                    </tr>
-                </table>
-            </td>
-        </tr>
-    </table>
-    <table *ngIf="!isFiltered()" class="jobList">
-        <th>
-            Jobb
-        </th>
-        <tr *ngFor="let item of jobs">
-            <td>
-                <a href="/#/admin/job-details/{{item.name}}">
-                    {{item.name}}
-                </a>
-            </td>
-        </tr>
-    </table>
+    <article *ngIf="activeTab.id === 1">
+
+        <table class="title-button-bar" >
+            <tr><td><h2>Sist kjørte jobber</h2></td>        
+            <td><button class="good" (click)="refresh()">Oppdater</button></td>
+            </tr>
+        </table>
+
+        <table [attr.aria-busy]="busy" class="jobRunList">
+            <th>ID</th>
+            <th>Jobb</th>
+            <th>Start</th>
+            <th colspan="2">Status</th>
+            <th>Logg</th>
+            <tr *ngFor="let item of jobRuns">
+                <td class="size-1">
+                    {{item.ID}}
+                </td>
+                <td class="size-2">
+                    {{item.JobName}}
+                </td>
+                <td class="size-2">
+                    {{item.Created | date:'yyyy.MM.dd HH:mm'}}
+                </td>
+                <td class="size-1">{{item.Progress[0]?.Created | date:'HH:mm'}}</td>
+                <td class="ellipsis">{{item.Progress[0]?.Progress}}</td>
+                <td class="size-1">
+                    <a *ngIf="item.HangfireJobId" href="/#/admin/job-logs/{{item.JobName}}/{{item.HangfireJobId || 0}}">
+                        Vis logg
+                    </a>
+                </td>
+            </tr>
+        </table>
+    </article>
+
+    <article *ngIf="activeTab.id === 2">
+
+        <h2>{{activeTab.label}}</h2>
+
+        <table class="jobList">
+            <th>
+                Jobb
+            </th>
+            <tr *ngFor="let item of jobs">
+                <td>
+                    <a href="/#/admin/job-details/{{item.name}}">
+                        {{item.name}}
+                    </a>
+                </td>
+            </tr>
+        </table>
+
+    </article>
+
+    <article *ngIf="activeTab.id === 3">
+        <saft-import-view></saft-import-view>
+    </article>
+    
+
 </section>

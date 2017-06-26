@@ -7,17 +7,19 @@
               [entityName]="'CustomerQuote'"
               [data]="quote"
               [currencyCodes]="currencyCodes"
+              [projects]="projects"
               (dataChange)="onQuoteChange($event)">
 </uni-tof-head>
 
 <section class="application">
     <uni-tradeitem-table *ngIf="quote"
                          [readonly]="readonly"
+                         [projects]="projects"
                          [defaultTradeItem]="newQuoteItem"
                          [(items)]="quoteItems"
                          [currencyCodeID]="currencyCodeID"
                          [currencyExchangeRate]="currencyExchangeRate"
-                         (itemsChange)="recalcDebouncer.next($event)">
+                         (itemsChange)="recalcDebouncer.emit($event)">
     </uni-tradeitem-table>
     <uni-summary *ngIf="quote" [configs]="summary" [ngClass]="{'-is-dirty':dirty}"></uni-summary>
 </section>

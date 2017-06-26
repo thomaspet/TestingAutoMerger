@@ -71,8 +71,11 @@ export class WagetypeDetail extends UniView {
         { ID: StdWageType.HolidayPayWithTaxDeduction, Name: 'Feriepenger med skattetrekk' },
         { ID: StdWageType.HolidayPayThisYear, Name: 'Feriepenger i år' },
         { ID: StdWageType.HolidayPayLastYear, Name: 'Feriepenger forrige år' },
+        { ID: StdWageType.HolidayPayEarlierYears, Name: 'Feriepenger tidligere år' },
         { ID: StdWageType.AdvancePayment, Name: 'Forskudd' },
-        { ID: StdWageType.HolidayPayEarlierYears, Name: 'Feriepenger tidligere år' }
+        { ID: StdWageType.Contribution, Name: 'Bidragstrekk' },
+        { ID: StdWageType.Garnishment, Name: 'Påleggstrekk' },
+        { ID: StdWageType.Outlay, Name: 'Utleggstrekk' }
     ];
 
     private specialAgaRule: { ID: SpecialAgaRule, Name: string }[] = [
@@ -692,13 +695,12 @@ export class WagetypeDetail extends UniView {
         Observable
             .combineLatest(this.wageType$, this.fields$)
             .take(1)
-            .filter((result: [WageType, any[]]) => {
-                let [wageType, fields] = result;
-                return fields.some(field => {
-                    let change = changes[field.Property];
-                    return change && change.previousValue !== change.currentValue;
-                });
-            })
+            .filter(() => Object
+                .keys(changes)
+                .some(key => {
+                    let change = changes[key];
+                    return change.previousValue !== change.currentValue;
+                }))
             .map((result: [WageType, any[]]) => {
                 let [wageType, fields] = result;
 

@@ -33,9 +33,9 @@ export class WorkprofileDetailview {
                 check: (item) => { console.log('check item', item); }
             },
             formFields: [
-                createFormField('Name', 'Navn',  ControlTypes.TextInput, FieldSize.Double),
-                createFormField('MinutesPerWeek', 'Minutter pr. uke', ControlTypes.NumericInput, 0, false, 1, 'Innstillinger' ),
-                createFormField('LunchIncluded', 'Inkludert lunsj', ControlTypes.CheckboxInput, 0, false, 1)
+                createFormField('Name', 'Navn',  ControlTypes.TextInput, undefined, undefined, 1, 'Stillingsmal'),
+                createFormField('MinutesPerWeek', 'Minutter pr. uke', ControlTypes.NumericInput, 0, false, 1, 'Stillingsmal'),
+                createFormField('LunchIncluded', 'Inkludert lunsj', ControlTypes.CheckboxInput, 0, false, 1, 'Stillingsmal')
             ],
         };
 

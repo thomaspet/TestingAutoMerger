@@ -1,0 +1,8 @@
+﻿<uni-toolbar [config]="toolbarconfig"
+             [saveactions]="saveActions">
+</uni-toolbar>
+<uni-tabs [routes]="childRoutes" class="horizontal_nav"></uni-tabs>
+<section class="project-list">
+    <uni-table [resource]="lookupFunction" [config]="tableConfig" (rowSelected)="onRowSelected($event)"></uni-table>
+</section>
+<router-outlet></router-outlet>

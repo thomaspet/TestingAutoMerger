@@ -3,7 +3,7 @@ import {Router, ActivatedRoute} from '@angular/router';
 import {Observable} from 'rxjs/Observable';
 import {IUniSaveAction} from '../../../../../framework/save/save';
 import {TradeItemHelper} from '../../salesHelper/tradeItemHelper';
-import {CustomerQuote} from '../../../../unientities';
+import {CustomerQuote, Project} from '../../../../unientities';
 import {StatusCodeCustomerQuote, CompanySettings, CustomerQuoteItem, CurrencyCode, LocalDate} from '../../../../unientities';
 import {StatusCode} from '../../salesHelper/salesEnums';
 import {TradeHeaderCalculationSummary} from '../../../../models/sales/TradeHeaderCalculationSummary';
@@ -32,7 +32,8 @@ import {
     CompanySettingsService,
     CurrencyCodeService,
     CurrencyService,
-    ReportService
+    ReportService,
+    ProjectService
 } from '../../../../services/services';
 import * as moment from 'moment';
 declare var _;
@@ -69,6 +70,7 @@ export class QuoteDetails {
     private printStatusPrinted: string = '200';
 
     private currencyCodes: Array<CurrencyCode>;
+    private projects: Project[]; 
     private currencyCodeID: number;
     private currencyExchangeRate: number;
 
@@ -98,7 +100,8 @@ export class QuoteDetails {
                 private currencyCodeService: CurrencyCodeService,
                 private currencyService: CurrencyService,
                 private reportService: ReportService,
-                private tofHelper: TofHelper) {
+                private tofHelper: TofHelper,
+                private projectService: ProjectService){
     }
 
     public ngOnInit() {
@@ -193,8 +196,12 @@ export class QuoteDetails {
                     err => this.errorService.handle(err)
                 );
             }
-
         });
+        this.projectService.GetAll(null).subscribe(
+            res => this.projects=res,
+            err => this.errorService.handle(err)
+        );
+
     }
 
     private ngAfterViewInit() {

@@ -164,15 +164,15 @@ export class TabService {
         this.currentActiveIndex = index;
     }
 
-    public removeTabs(tabsToRemove: IUniTab)
-    {
+    public removeTabs(tabsToRemove: IUniTab) {
         this._tabs.forEach((tab, i) => {
-            if(tab.name === tabsToRemove.name &&
+            if (tab.name === tabsToRemove.name &&
                 tab.url === tabsToRemove.url &&
                 tab.moduleID === tabsToRemove.moduleID) {
                 this.removeTab(tab, i);
             }
         });
+
         this.updateMemStore();
     }
 
@@ -180,6 +180,8 @@ export class TabService {
     public removeTab(tabToRemove: IUniTab, index: number): IUniTab {
         this._tabs.splice(index, 1);
         this.currentActiveIndex = this._tabs.length - 1;
+
+        this.updateMemStore();
 
         // If the closed tab is not the active one
         if (!tabToRemove.active) {
@@ -192,8 +194,6 @@ export class TabService {
                 return this._tabs[this._tabs.length - 1];
             }
         }
-
-        this.updateMemStore();
     }
 
 

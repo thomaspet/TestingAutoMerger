@@ -1,3 +1,5 @@
+$entityDetailsHeight: 20rem
+
 @keyframes fadein
     from
         opacity: 0
@@ -23,7 +25,7 @@
 
     to
         filter: blur(.2rem)
-        transform: translateY(15rem)
+        transform: translateY($entityDetailsHeight)
 
 @keyframes slideunblur
     to
@@ -32,7 +34,7 @@
 
     from
         filter: blur(.2rem)
-        transform: translateY(15rem)
+        transform: translateY($entityDetailsHeight)
 
 
 .entityDetails_toggle
@@ -71,7 +73,7 @@
     left: 0
     right: 0
     top: 8rem
-    height: 15rem
+    height: $entityDetailsHeight
     transform-origin: top
 
     &[aria-expanded=true]
@@ -86,7 +88,7 @@
         &[aria-disabled=true]
             pointer-events: none
             filter: blur(.2rem)
-            transform: translateY(15rem)
+            transform: translateY($entityDetailsHeight)
             animation: 300ms ease slideblur
 
         &[aria-disabled=false]

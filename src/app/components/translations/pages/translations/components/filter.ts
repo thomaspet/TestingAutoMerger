@@ -22,13 +22,12 @@ interface i18nModuleItem {
         <uni-select
             [config]="config"
             [items]="i18nModules"
-            [value]="selectedModule"
-            (valueChange)="select($event)">
+            [value]="selectedModule">
         </uni-select>
-        <input type="text" [formControl]="queryControl"/>
+        <input type="text" placeholder="Filter models" [formControl]="queryControl"/>
         <input type="checkbox" [checked]="includeAlreadyTranslated$ | async"/>
-        <label (click)="toggleTranslatables()">
-            Include already translated
+        <label (click)="toggleTranslatables()" class="toggle" tabindex="-1">
+            Show already translated
         </label>
     `,
     changeDetection: ChangeDetectionStrategy.OnPush

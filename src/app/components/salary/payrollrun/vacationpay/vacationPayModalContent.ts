@@ -78,7 +78,7 @@ export class VacationpayModalContent {
                 let [rates, comp, basics, financial] = response;
                 this.basicamounts = basics;
                 this.financialYearEntity = financial;
-                this.companysalary = comp[0];
+                this.companysalary = comp;
                 this.companysalary['_wagedeductionText'] = this._vacationpaylineService.WageDeductionDueToHolidayArray[this.companysalary.WageDeductionDueToHoliday].name;
                 this.rates = rates;
                 let vacationHeaderModel = this.vacationHeaderModel$.getValue();

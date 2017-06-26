@@ -1,24 +1,23 @@
 export const AppConfig = ({
-    BASE_URL_INIT: 'https://devapi-unieconomy.azurewebsites.net',
+    BASE_URL_INIT: 'https://devapi.unieconomy.no',
 
-    BASE_URL: 'https://devapi-unieconomy.azurewebsites.net',
+    BASE_URL: 'https://devapi.unieconomy.no',
 
     BASE_URL_INTEGRATION: 'https://devintegrations-unieconomy.azurewebsites.net/',
 
-    BASE_URL_FILES: 'https://unifiles.azurewebsites.net/',
+    BASE_URL_FILES: 'https://dev-unifiles.unieconomy.no/',
 
-    UNI_PUSH_ADAPTER_URL: 'https://devapi-unipushadapter.azurewebsites.net',
+    UNI_PUSH_ADAPTER_URL: 'https://dev-unipushadapter.unieconomy.no',
 
-    UNI_MESSAGE_HUB_URL: 'https://devunimessagehub-unieconomy.azurewebsites.net/api/application-domains/4ead79bd-36d3-4833-95f7-c87576233d3e/',
-
-    UNI_JOB_SERVER_URL: 'https://devapi-unijobserver.azurewebsites.net/api/',
+    UNI_JOB_SERVER_URL: 'https://devapi-unijobserver.unieconomy.no/api/',
 
     API_DOMAINS: {
         INIT: '/api/init/',
         BUSINESS: '/api/biz/',
         ROOT: '/api/',
         METADATA: '/api/metadata/',
-        STATISTICS: '/api/statistics/'
+        STATISTICS: '/api/statistics/',
+        UMH: '/api/umh/'
     },
 
     INTEGRATION_DOMAINS: {

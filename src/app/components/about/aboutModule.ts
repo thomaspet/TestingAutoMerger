@@ -1,5 +1,6 @@
 // Angular imports
 import {NgModule} from '@angular/core';
+import {CommonModule} from '@angular/common';
 
 // app
 
@@ -11,6 +12,7 @@ import {AppCommonModule} from '../common/appCommonModule';
 
 @NgModule({
     imports: [
+        CommonModule,
         AboutRoutes,
         AppCommonModule
     ],

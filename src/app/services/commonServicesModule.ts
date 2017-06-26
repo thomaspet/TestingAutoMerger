@@ -12,6 +12,7 @@ import {GuidService} from './common/guidService';
 import {IntegrationServerCaller} from './common/integrationServerCaller';
 import {ProductService} from './common/productService';
 import {ProjectService} from './common/projectService';
+import {ProjectTaskService} from './common/projectTaskService';
 import {SubEntityService} from './common/subEntityService';
 import {UserService} from './common/userService';
 import {VatReportFormService} from './common/vatReportFormService';
@@ -67,6 +68,7 @@ export * from './common/guidService';
 export * from './common/integrationServerCaller';
 export * from './common/productService';
 export * from './common/projectService';
+export * from './common/projectTaskService';
 export * from './common/subEntityService';
 export * from './common/userService';
 export * from './common/vatReportFormService';
@@ -123,6 +125,7 @@ export class CommonServicesModule {
                 IntegrationServerCaller,
                 ProductService,
                 ProjectService,
+                ProjectTaskService,
                 SubEntityService,
                 UserService,
                 VatReportFormService,

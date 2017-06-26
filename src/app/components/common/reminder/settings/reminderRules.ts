@@ -1,12 +1,15 @@
 import {Component, ViewChild, Input, Output, EventEmitter, AfterViewInit, SimpleChanges} from '@angular/core';
 import {Router} from '@angular/router';
-import {CustomerInvoiceReminderSettings, CustomerInvoiceReminderRule} from '../../../../unientities';
 import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig, IContextMenuItem} from 'unitable-ng2/main';
 import {ToastService} from '../../../../../framework/uniToast/toastService';
+import {FieldType} from 'uniform-ng2/main';
+import {BehaviorSubject} from 'rxjs/BehaviorSubject';
+import {ErrorService, CustomerInvoiceReminderRuleService} from '../../../../services/services';
 import {
-    ErrorService,
-    CustomerInvoiceReminderRuleService
-} from '../../../../services/services';
+    CustomerInvoiceReminderSettings,
+    CustomerInvoiceReminderRule,
+    FieldLayout
+} from '../../../../unientities';
 
 import * as moment from 'moment';
 declare const _;
@@ -24,14 +27,20 @@ export class ReminderRules implements AfterViewInit {
     private rule: CustomerInvoiceReminderRule;
     private selectedIndex: number;
 
-    constructor(private router: Router,
-                private customerInvoiceReminderRuleService: CustomerInvoiceReminderRuleService,
-                private errorService: ErrorService,
-                private toastService: ToastService) {
-    }
+    private rule$: BehaviorSubject<CustomerInvoiceReminderRule> = new BehaviorSubject(null);
+    private config$: BehaviorSubject<any> = new BehaviorSubject({});
+    private fields$: BehaviorSubject<FieldLayout[]> = new BehaviorSubject([]);
+
+    constructor(
+        private router: Router,
+        private customerInvoiceReminderRuleService: CustomerInvoiceReminderRuleService,
+        private errorService: ErrorService,
+        private toastService: ToastService
+    ) {}
 
     public ngOnInit() {
         this.setupTable();
+        this.setupDetailForm();
     }
 
     public ngOnChanges(changes: SimpleChanges) {
@@ -42,18 +51,19 @@ export class ReminderRules implements AfterViewInit {
         }
     }
 
+    public ngAfterViewInit() {
+        this.focusRow(0);
+    }
+
     private onRowSelected(event) {
         this.selectedIndex = event.rowModel['_originalIndex'];
         this.rule = this.settings.CustomerInvoiceReminderRules[this.selectedIndex];
+        this.rule$.next(this.rule);
     }
 
-    private onRuleChange(rule: CustomerInvoiceReminderRule) {
-        this.settings.CustomerInvoiceReminderRules[this.selectedIndex] = rule;
-        this.change.emit();
-    }
-
-    public ngAfterViewInit() {
-        this.focusRow(0);
+    private onRuleChange() {
+        this.settings.CustomerInvoiceReminderRules[this.selectedIndex] = this.rule$.getValue();
+        this.change.emit(this.settings);
     }
 
     public focusRow(index = undefined) {
@@ -70,6 +80,41 @@ export class ReminderRules implements AfterViewInit {
                 this.table.refreshTableData();
                 this.change.emit();
             });
+    }
+
+    private setupDetailForm() {
+        this.fields$.next([
+            <any> {
+                Property: 'ReminderNumber',
+                Label: 'Nr.',
+                FieldType: FieldType.NUMERIC,
+            },
+            <any> {
+                Property: 'Title',
+                Label: 'Tittel',
+                FieldType: FieldType.TEXT,
+            },
+            <any> {
+                Property: 'ReminderFee',
+                Label: 'Gebyr',
+                FieldType: FieldType.NUMERIC,
+            },
+            <any> {
+                Property: 'UseMaximumLegalReminderFee',
+                Label: 'Bruk forskriftens makssats',
+                FieldType: FieldType.CHECKBOX,
+            },
+            <any> {
+                Property: 'MinimumDaysFromDueDate',
+                Label: 'Dager fra forfall',
+                FieldType: FieldType.NUMERIC,
+            },
+            <any> {
+                Property: 'Description',
+                Label: 'Beskrivelse',
+                FieldType: FieldType.TEXTAREA,
+            },
+        ]);
     }
 
     private setupTable() {

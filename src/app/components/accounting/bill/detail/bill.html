@@ -4,7 +4,7 @@
              class="no-print">
 </uni-toolbar>
 
-<aside class="horizontal_nav no-print">
+<nav class="horizontal_nav no-print">
     <ul>
         <li class="unigrid-small-true unigrid-huge-false unigrid-large-false unigrid-medium-false" >
             <a (click)="onTabClick(tabs[0])" [ngClass]="{'router-link-active': tabs[0].isSelected}" >{{tabs[0].label}}</a>
@@ -16,45 +16,52 @@
             </a>
         </li>
     </ul>
-</aside>
+</nav>
 
-<section class="application split-tabs-parent" [attr.aria-busy]="busy" >
-    <section class="split-tabs">
-        <aside>
-            <uni-form
-                [config]='formConfig'
-                [fields]='fields$'
-                [model]='current'
-                (changeEvent)="onFormChange($event)"
-                (inputEvent)="onFormInput($event)"
-            >
-            </uni-form>
-            <article class="collapsable no-topmargin no-horzmargins" [ngClass]="{'-is-open': !collapseSimpleJournal}">
-                <h4 class="no-topmargin" (click)="collapseSimpleJournal = !collapseSimpleJournal">Kontering</h4>
-                <div class="collapsable-content">
-                    <bill-simple-journalentry class="no-topmargin" [supplierinvoice]="current" (valueChange)="onEntryChange($event)" ></bill-simple-journalentry>
-                </div>
-            </article>
-        </aside>
-        <div [hidden]="!tabs[1].isSelected">
-            <div *ngIf="!(current | async)?.ID">
-                <uni-image [singleImage]="true" [uploadWithoutEntity]="'true'" [fileIDs]="fileIds"
-                    (fileListReady)="onFileListReady($event)"
-                    (imageClicked)="onImageClicked($event)">
-                </uni-image>
+<section class="application">
+    <fieldset>
+        <legend>Kjøpsfaktura</legend>
+        <uni-form
+            [config]='formConfig'
+            [fields]='fields$'
+            [model]='current'
+            (changeEvent)="onFormChange($event)"
+            (inputEvent)="onFormInput($event)"
+            (focusEvent)="onFocusEvent($event)">
+        </uni-form>
+        <article class="collapsable" [ngClass]="{'-is-open': !collapseSimpleJournal}">
+            <h4 (click)="collapseSimpleJournal = !collapseSimpleJournal">Kontering</h4>
+            <div class="collapsable-content">
+                <bill-simple-journalentry [supplierinvoice]="current" (valueChange)="onEntryChange($event)" ></bill-simple-journalentry>
             </div>
-            <uni-image *ngIf="(current | async)?.ID" [entity]="'SupplierInvoice'" [entityID]="(current | async)?.ID"
+        </article>
+    </fieldset>
+
+    <fieldset [hidden]="!tabs[1].isSelected">
+        <legend>Dokument</legend>
+        <div *ngIf="!(current | async)?.ID">
+            <uni-image [singleImage]="true" [uploadWithoutEntity]="'true'" [fileIDs]="fileIds"
                 (fileListReady)="onFileListReady($event)"
-                (imageClicked)="onImageClicked($event)" >
+                (imageClicked)="onImageClicked($event)">
             </uni-image>
         </div>
+        <uni-image *ngIf="(current | async)?.ID" [entity]="'SupplierInvoice'" [entityID]="(current | async)?.ID"
+            (fileListReady)="onFileListReady($event)"
+            (imageClicked)="onImageClicked($event)" >
+        </uni-image>
+    </fieldset>
 
-        <div [hidden]="!tabs[4].isSelected">
-            <uni-bill-history [isActive]="tabs[4].isSelected" [supplierID]="(current | async)?.SupplierID" [parentID]="(current | async)?.ID" >
-            </uni-bill-history>
-        </div>
-    </section>
+    <fieldset [hidden]="!tabs[4].isSelected">
+        <legend>Historikk</legend>
+        <uni-bill-history
+            [isActive]="tabs[4].isSelected"
+            [supplierID]="(current | async)?.SupplierID"
+            [parentID]="(current | async)?.ID">
+        </uni-bill-history>
+    </fieldset>
+
 </section>
+
 <register-payment-modal></register-payment-modal>
 <uni-confirm-modal></uni-confirm-modal>
 <bankaccount-modal></bankaccount-modal>

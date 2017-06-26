@@ -109,7 +109,7 @@ export class AgaAndSubEntitySettings implements OnInit {
         ).finally(() => this.busy = false).subscribe(
             (dataset: any) => {
                 let [companysalaries, mainOrg, zones, rules] = dataset;
-                this.companySalary$.next(companysalaries[0]);
+                this.companySalary$.next(companysalaries);
                 this.agaZones = zones;
                 this.agaRules = rules;
 
@@ -128,22 +128,34 @@ export class AgaAndSubEntitySettings implements OnInit {
         mainOrgName.EntityType = 'mainOrganization';
         mainOrgName.Property = 'BusinessRelationInfo.Name';
         mainOrgName.FieldType = FieldType.TEXT;
-        mainOrgName.Section = 1;
-        mainOrgName.Sectionheader = 'Juridisk enhet';
+        mainOrgName.Section = 0;
+        mainOrgName.FieldSet = 1;
+        mainOrgName.Legend = 'Juridisk enhet';
 
         var mainOrgOrg = new UniFieldLayout();
-        mainOrgOrg.Label = 'Orgnr';
+        mainOrgOrg.Label = 'Orgnummer';
         mainOrgOrg.EntityType = 'mainOrganization';
         mainOrgOrg.Property = 'OrgNumber';
         mainOrgOrg.FieldType = FieldType.TEXT;
-        mainOrgOrg.Section = 1;
+        mainOrgOrg.Section = 0;
+        mainOrgOrg.FieldSet = 1;
+
+        var mainOrgFreeAmount = new UniFieldLayout();
+        mainOrgFreeAmount.Label = 'Totalt fribeløp for juridisk enhet';
+        mainOrgFreeAmount.EntityType = 'mainOrganization';
+        mainOrgFreeAmount.Property = 'freeAmount';
+        mainOrgFreeAmount.FieldType = FieldType.NUMERIC;
+        mainOrgFreeAmount.Section = 0;
+        mainOrgFreeAmount.FieldSet = 1;
 
         var mainOrgZone = new UniFieldLayout();
         mainOrgZone.Label = 'Sone';
         mainOrgZone.EntityType = 'mainOrganization';
         mainOrgZone.Property = 'AgaZone';
         mainOrgZone.FieldType = FieldType.DROPDOWN;
-        mainOrgZone.Section = 1;
+        mainOrgZone.Section = 0;
+        mainOrgZone.FieldSet = 2;
+        mainOrgZone.Legend = 'Arbeidsgiveravgift';
         mainOrgZone.Options = {
             source: this.agaZones,
             valueProperty: 'ID',
@@ -156,43 +168,13 @@ export class AgaAndSubEntitySettings implements OnInit {
         mainOrgRule.EntityType = 'mainOrganization';
         mainOrgRule.Property = 'AgaRule';
         mainOrgRule.FieldType = FieldType.DROPDOWN;
-        mainOrgRule.Section = 1;
+        mainOrgRule.Section = 0;
+        mainOrgRule.FieldSet = 2;
         mainOrgRule.Options = {
             source: this.agaRules,
             valueProperty: 'SectorID',
             displayProperty: 'Sector',
             debounceTime: 500,
-        };
-
-        var mainOrgFreeAmount = new UniFieldLayout();
-        mainOrgFreeAmount.Label = 'Totalt fribeløp for juridisk enhet';
-        mainOrgFreeAmount.EntityType = 'mainOrganization';
-        mainOrgFreeAmount.Property = 'freeAmount';
-        mainOrgFreeAmount.FieldType = FieldType.NUMERIC;
-        mainOrgFreeAmount.Section = 1;
-
-        var grantBtn = new UniFieldLayout();
-        grantBtn.Label = 'Tilskudd';
-        grantBtn.EntityType = 'mainOrganization';
-        grantBtn.Property = 'TilskuddBtn';
-        grantBtn.FieldType = FieldType.BUTTON;
-        grantBtn.Section = 1;
-        grantBtn.Options = {
-            click: (event) => {
-                this.openGrantsModal();
-            }
-        };
-
-        var freeAmountBtn = new UniFieldLayout();
-        freeAmountBtn.Label = 'Oversikt fribeløp';
-        freeAmountBtn.EntityType = 'mainOrganization';
-        freeAmountBtn.Property = 'FreeAmountBtn';
-        freeAmountBtn.FieldType = FieldType.BUTTON;
-        freeAmountBtn.Section = 1;
-        freeAmountBtn.Options = {
-            click: (event) => {
-                this.openFreeamountModal();
-            }
         };
 
         var agaSoneLink = new UniFieldLayout();
@@ -201,11 +183,40 @@ export class AgaAndSubEntitySettings implements OnInit {
         agaSoneLink.EntityType = 'mainOrganization';
         agaSoneLink.Property = '_AgaSoneLink';
         agaSoneLink.FieldType = FieldType.HYPERLINK;
-        agaSoneLink.Section = 1;
+        agaSoneLink.Section = 0;
+        agaSoneLink.FieldSet = 2;
         agaSoneLink.Options = {
             description: 'Arbeidsgiveravgift soner',
             target: '_blank'
         };
+
+        var freeAmountBtn = new UniFieldLayout();
+        freeAmountBtn.Label = 'Oversikt fribeløp';
+        freeAmountBtn.EntityType = 'mainOrganization';
+        freeAmountBtn.Property = 'FreeAmountBtn';
+        freeAmountBtn.FieldType = FieldType.BUTTON;
+        freeAmountBtn.Section = 0;
+        freeAmountBtn.FieldSet = 2;
+        freeAmountBtn.Options = {
+            click: (event) => {
+                this.openFreeamountModal();
+            }
+        };
+
+        var grantBtn = new UniFieldLayout();
+        grantBtn.Label = 'Tilskudd';
+        grantBtn.EntityType = 'mainOrganization';
+        grantBtn.Property = 'TilskuddBtn';
+        grantBtn.FieldType = FieldType.BUTTON;
+        grantBtn.Section = 0;
+        grantBtn.FieldSet = 2;
+        grantBtn.Options = {
+            click: (event) => {
+                this.openGrantsModal();
+            }
+        };
+
+
 
         var mainAccountAlocatedAga = new UniFieldLayout();
         mainAccountAlocatedAga.Label = 'Konto avsatt aga';
@@ -213,7 +224,9 @@ export class AgaAndSubEntitySettings implements OnInit {
         mainAccountAlocatedAga.Property = 'MainAccountAllocatedAGA';
         mainAccountAlocatedAga.FieldType = FieldType.UNI_SEARCH;
         mainAccountAlocatedAga.Section = 2;
-        mainAccountAlocatedAga.Sectionheader = 'Kontooppsett';
+        mainAccountAlocatedAga.Sectionheader = 'Lønnsoppsett';
+        mainAccountAlocatedAga.FieldSet = 1;
+        mainAccountAlocatedAga.Legend = 'Hovedbokskontoer';
         mainAccountAlocatedAga.Options = {
             valueProperty: 'AccountNumber',
             source: model => this.accountService
@@ -229,6 +242,7 @@ export class AgaAndSubEntitySettings implements OnInit {
         mainAccountCostAga.Property = 'MainAccountCostAGA';
         mainAccountCostAga.FieldType = FieldType.UNI_SEARCH;
         mainAccountCostAga.Section = 2;
+        mainAccountCostAga.FieldSet = 1;
         mainAccountCostAga.Options = {
             valueProperty: 'AccountNumber',
             source: model => this.accountService
@@ -244,6 +258,7 @@ export class AgaAndSubEntitySettings implements OnInit {
         mainAccountAllocatedAgaVacation.Property = 'MainAccountAllocatedAGAVacation';
         mainAccountAllocatedAgaVacation.FieldType = FieldType.UNI_SEARCH;
         mainAccountAllocatedAgaVacation.Section = 2;
+        mainAccountAllocatedAgaVacation.FieldSet = 1;
         mainAccountAllocatedAgaVacation.Options = {
             valueProperty: 'AccountNumber',
             source: model => this.accountService
@@ -259,6 +274,7 @@ export class AgaAndSubEntitySettings implements OnInit {
         mainAccountCostAgaVacation.Property = 'MainAccountCostAGAVacation';
         mainAccountCostAgaVacation.FieldType = FieldType.UNI_SEARCH;
         mainAccountCostAgaVacation.Section = 2;
+        mainAccountCostAgaVacation.FieldSet =1;
         mainAccountCostAgaVacation.Options = {
             valueProperty: 'AccountNumber',
             source: model => this.accountService
@@ -274,6 +290,7 @@ export class AgaAndSubEntitySettings implements OnInit {
         interrimRemit.Property = 'InterrimRemitAccount';
         interrimRemit.FieldType = FieldType.UNI_SEARCH;
         interrimRemit.Section = 2;
+        interrimRemit.FieldSet = 1;
         interrimRemit.Options = {
             valueProperty: 'AccountNumber',
             source: model => this.accountService
@@ -290,11 +307,20 @@ export class AgaAndSubEntitySettings implements OnInit {
         postTax.FieldType = FieldType.CHECKBOX;
         postTax.ReadOnly = false;        
         postTax.Hidden = false;
-        postTax.Section = 2;        
+        postTax.Section = 2;
+        postTax.FieldSet = 2;
+        postTax.Legend = 'Andre innstillinger';
         postTax.Options = {
             source: this.companySalary$.getValue(),
             valueProperty: 'PostToTaxDraw'
         };
+
+        let remitRegularTraits = new UniFieldLayout();
+        remitRegularTraits.Label = 'Lag utbetaling av faste trekk ved lønnsutbetaling';
+        remitRegularTraits.EntityType = 'CompanySalary';
+        remitRegularTraits.Property = 'RemitRegularTraits';
+        remitRegularTraits.FieldType = FieldType.CHECKBOX;
+        remitRegularTraits.Section = 2;
         
 
         let paymentInterval = new UniFieldLayout();
@@ -302,7 +328,8 @@ export class AgaAndSubEntitySettings implements OnInit {
         paymentInterval.Label = 'Lønnsintervall';
         paymentInterval.Property = 'PaymentInterval';
         paymentInterval.FieldType = FieldType.DROPDOWN;
-        paymentInterval.Section = 3;
+        paymentInterval.Section = 2;
+        paymentInterval.FieldSet = 2;
         paymentInterval.Sectionheader = 'Lønnsintervall';
         paymentInterval.Options = {
             source: [
@@ -317,12 +344,12 @@ export class AgaAndSubEntitySettings implements OnInit {
         this.fields$.next([
             mainOrgName,
             mainOrgOrg,
+            mainOrgFreeAmount,
             mainOrgZone,
             mainOrgRule,
-            mainOrgFreeAmount,
-            grantBtn,
+            agaSoneLink,
             freeAmountBtn,
-            agaSoneLink
+            grantBtn
         ]);
 
         this.accountfields$.next([
@@ -332,7 +359,8 @@ export class AgaAndSubEntitySettings implements OnInit {
             mainAccountCostAgaVacation,
             interrimRemit,
             paymentInterval,
-            postTax
+            postTax,
+            remitRegularTraits
         ]);
     }
 

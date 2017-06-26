@@ -3,9 +3,18 @@
 </uni-toolbar>
 
 <section class="application">
+    <h3>Front end</h3>
     <table>
-        <tr><td>Versjon:</td><td>{{fullVersion}}</td></tr>
-        <tr><td>Build number:</td><td>{{minVersion}}</td></tr>
-        <tr><td>Build date:</td><td>{{buildDate}}</td></tr>
+        <tr><td>Versjon:</td><td>{{frontend.fullVersion}}</td></tr>
+        <tr><td>Build number:</td><td>{{frontend.minVersion}}</td></tr>
+        <tr><td>Build date:</td><td>{{frontend.buildDate}}</td></tr>
+    </table>
+    <h3>Back end</h3>
+    <table [attr.aria-busy]="!backend">
+        <tbody *ngIf="backend">
+            <tr><td>Versjon:</td><td>{{backend.fullVersion}}</td></tr>
+            <tr><td>Build number:</td><td>{{backend.minVersion}}</td></tr>
+            <tr><td>Build date:</td><td>{{backend.buildDate}}</td></tr>
+        </tbody>
     </table>
 </section>

@@ -47,59 +47,86 @@ export class UmhService {
 
     public getActions(): Observable<Array<IUmhAction>> {
         return this.uniHttp.asGET()
-            .sendToUrl(AppConfig.UNI_MESSAGE_HUB_URL + 'actions');
+            .usingUmhDomain()
+            .withEndPoint('om/actions')
+            .send()
+            .map((res) => {
+                return res.json();
+            });
     }
 
     public getObjectives(): Observable<Array<IUmhObjective>> {
         return this.uniHttp.asGET()
-            .sendToUrl(AppConfig.UNI_MESSAGE_HUB_URL + 'objectives');
+            .usingUmhDomain()
+            .withEndPoint('om/objectives')
+            .send()
+            .map((res) => {
+                return res.json();
+            });
     }
 
-    public getSubscriptions(subscriberId: string): Observable<Array<IUmhSubscription>> {
+    public getSubscriptions(): Observable<Array<IUmhSubscription>> {
         return this.uniHttp.asGET()
-            .sendToUrl(AppConfig.UNI_MESSAGE_HUB_URL + 'subscribers/' + subscriberId + '/subscriptions');
+            .usingUmhDomain()
+            .withEndPoint('web-hooks/subscriptions')
+            .send()
+            .map((res) => {
+                return res.json();
+            });
     }
 
-    public createSubscription(subscriberId: string, subscription: IUmhSubscription):
+    public createSubscription(subscription: IUmhSubscription):
                                                             Observable<Array<IUmhObjective>> {
         return this.uniHttp.asPOST()
+            .usingUmhDomain()
+            .withEndPoint('web-hooks/subscriptions')
             .withBody(subscription)
-            .sendToUrl(AppConfig.UNI_MESSAGE_HUB_URL + 'subscribers/' + subscriberId + '/subscriptions');
+            .send()
+            .map((res) => {
+                return res.json();
+            });
     }
 
-    public updateSubscription(subscriberId: string, subscription: IUmhSubscription):
+    public updateSubscription(subscription: IUmhSubscription):
                                                             Observable<Array<IUmhObjective>> {
         return this.uniHttp.asPUT()
+            .usingUmhDomain()
+            .withEndPoint('web-hooks/subscriptions')
             .withBody(subscription)
-            .sendToUrl(AppConfig.UNI_MESSAGE_HUB_URL + 'subscribers/' + subscriberId
-                                                    + '/subscriptions/' + subscription.id);
+            .send()
+            .map((res) => {
+                return res.json();
+            });
     }
 
-    public deleteSubscription(subscriberId: string, subscriptionId: string): Observable<Array<IUmhObjective>> {
+    public deleteSubscription(subscriptionId: string): Observable<Array<IUmhObjective>> {
         return this.uniHttp.asDELETE()
-            .sendToUrl(AppConfig.UNI_MESSAGE_HUB_URL + 'subscribers/' + subscriberId
-                                                    + '/subscriptions/' + subscriptionId);
+            .usingUmhDomain()
+            .withEndPoint('web-hooks/subscriptions/' + subscriptionId)
+            .send()
+            .map((res) => {
+                return res.json();
+            });
+
     }
 
-    public createSubscriber(subscriber: IUmhSubscriber): Observable<IUmhSubscriber> {
+    public enableWebhooks(): Observable<IUmhSubscriber> {
         return this.uniHttp.asPOST()
-            .withBody(subscriber)
-            .sendToUrl(AppConfig.UNI_MESSAGE_HUB_URL + 'subscribers');
+            .usingUmhDomain()
+            .withEndPoint('web-hooks/subscriptions/enable')
+            .send()
+            .map((res) => {
+                return res.json();
+            });
     }
 
-    public getSubscriber(subscriberId: string): Observable<IUmhSubscription> {
+    public isEnabled(): Observable<IUmhSubscription> {
         return this.uniHttp.asGET()
-            .sendToUrl(AppConfig.UNI_MESSAGE_HUB_URL + 'subscribers/' + subscriberId);
-    }
-
-    public getCluster(clusterId: string): Observable<IUmhSubscription> {
-        return this.uniHttp.asGET()
-            .sendToUrl(AppConfig.UNI_MESSAGE_HUB_URL + 'clusters/' + clusterId);
-    }
-    
-    public createCluster(cluster: IUmhCluster): Observable<IUmhSubscriber> {
-        return this.uniHttp.asPOST()
-            .withBody(cluster)
-            .sendToUrl(AppConfig.UNI_MESSAGE_HUB_URL + 'clusters');
+            .usingUmhDomain()
+            .withEndPoint('web-hooks/subscriptions/is-enabled')
+            .send()
+            .map((res) => {
+                return res.json();
+            });
     }
 }

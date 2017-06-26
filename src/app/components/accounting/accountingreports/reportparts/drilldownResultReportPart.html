@@ -1,18 +1,28 @@
-<table class="accounting-report-drilldown-table" *ngIf="periodFilter1 && periodFilter2">
-    <tr>
-        <th style="width: 50%">Konto/kontogruppe</th>
-        <th style="width: 20%" class="amount">{{periodFilter1.name}}</th>
-        <th style="width: 5%" class="percentage"></th>
-        <th style="width: 20%" class="amount">{{periodFilter2.name}}</th>
-        <th style="width: 5%" class="percentage"></th>
-    </tr>
-    <tr *ngFor="let summaryData of flattenedTreeSummaryList" (click)="rowClicked(summaryData)">
-        <td [ngStyle]="{'padding-left': getPaddingLeft(summaryData.level)}">{{summaryData.number}}: {{summaryData.name}}</td>
-        <td class="amount">{{summaryData.amountPeriod1 | number:'1.2-2'}}</td>
-        <td class="percentage">{{summaryData.percentagePeriod1}}</td>
-        <td class="amount">{{summaryData.amountPeriod2 | number:'1.2-2'}}</td>
-        <td class="percentage">{{summaryData.percentagePeriod2}}</td>
-    </tr>
-</table>
+<section class="accounting-report-drilldown" *ngIf="periodFilter1 && periodFilter2">
+    <div class="accounting-report-drilldown-main">
+        <table class="accounting-report-drilldown-table">
+            <tr>
+                <th style="width: 50%">Konto/kontogruppe <button (click)="toggleShowAll()">{{!showall ? 'Vis alle' : 'Skjul alle'}}</button></th>
+                <th style="width: 20%" class="amount">{{periodFilter1.name}}</th>
+                <th *ngIf="showPercent" style="width: 5%" class="percentage"></th>
+                <th *ngIf="showPreviousAccountYear" style="width: 20%" class="amount">{{periodFilter2.name}}</th>
+                <th *ngIf="showPercent && showPreviousAccountYear" style="width: 5%" class="percentage"></th>
+            </tr>
+            <tr *ngFor="let summaryData of flattenedTreeSummaryList" (click)="rowClicked(summaryData)" [class.expanded]="summaryData.expanded">
+                <td [ngStyle]="{'padding-left': getPaddingLeft(summaryData.level)}">{{summaryData.number}}: {{summaryData.number == 9 ? summaryData.amountPeriod1 > 0 ? 'Overskudd' : (summaryData.amountPeriod1 < 0 ? 'Underskudd' : 'Resultat') : summaryData.name}}</td>
+                <td class="amount" [ngClass]="(summaryData.turned ? summaryData.amountPeriod1 >= 0 : summaryData.amountPeriod1 < 0) ? 'negative' : 'positive'">{{numberFormatService.asMoney(summaryData.amountPeriod1, numberFormat)}}</td>
+                <td *ngIf="showPercent" class="percentage">{{summaryData.percentagePeriod1}}</td>
+                <td *ngIf="showPreviousAccountYear" class="amount" [ngClass]="(summaryData.turned ? summaryData.amountPeriod2 >= 0 : summaryData.amountPeriod2 < 0) ? 'negative' : 'positive'">{{numberFormatService.asMoney(summaryData.amountPeriod2, numberFormat)}}</td>
+                <td *ngIf="showPercent && showPreviousAccountYear" class="percentage">{{summaryData.percentagePeriod2}}</td>
+            </tr>
+        </table>
+
+        <span class="profit-margin">Resultatindikator {{profitMarginText()}}</span>
+    </div>
+
+    <div class="accounting-report-drilldown-chart">
+        <canvas id="accountingReportDrilldownChart" height="320"></canvas>
+    </div>
+</section>
 
 <account-details-report-modal></account-details-report-modal>

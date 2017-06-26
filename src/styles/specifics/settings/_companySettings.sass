@@ -7,7 +7,6 @@
 
 settings
     external-search
-
         .application
             margin-left: pxToRem(0)
             margin-right: pxToRem(0)
@@ -18,3 +17,22 @@ settings
             h3, p
                 margin-left: pxToRem(15)
                 margin-right: pxToRem(15)
+
+    .poster_overview,
+    .company-logo,
+    .reminders
+        max-width: pxToRem(1340)
+        margin: 0 auto
+
+        @include media('650px', 'max-width')
+            max-width: pxToRem(650)
+
+        @include media('128em', 'min-width')
+            max-width: 128rem
+
+    .poster_overview
+        margin-bottom: 1.5rem
+
+    fieldset
+        margin: 0
+

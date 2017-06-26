@@ -22,17 +22,26 @@
 .webhookTable td.col5
     width: 15%
 
-.webhookTable td.col5a
-    padding-top: 1.5rem
-    padding-left: 0
-
-.webhookTable td.col5b
-    width: 1rem
-    padding-top: 1.3rem
-    padding-left: 0
-
-.webhookTable button.delete-webhook
+.embeddedWebHookTable
     width: 100%
+    margin-top: 1.5rem
+    border-collapse: collapse
+    table-layout: auto
+
+.embeddedWebHookTable td.col5a
+    width: 50%
+    @include labelLength(0rem)
+
+.embeddedWebHookTable td.col5b
+    width: 50%
+    padding-left: 0
+
+.toggleWebHook
+    @extend label.toggle
+    width: 100% !important
+
+.embeddedWebHookTable button.delete-webhook
+    width: 30%
     margin: 0 0 0 0
     padding: 0 0 0 0
     background: lighten($uni-color-scale6, 34%) unicon-trash($uni-color-scale3) center center no-repeat
@@ -40,7 +49,7 @@
     box-shadow: none
     height: 1em
   
-.webhookTable tr:hover button.delete-webhook
+.embeddedWebHookTable tr:hover button.delete-webhook
     background: lighten($uni-color-scale6, 34%) unicon-trash(red) center center no-repeat
     background-size: 0.8rem  
     box-shadow: 0 pxToRem(1) pxToRem(1) $uni-color-scale7
@@ -52,4 +61,4 @@ button.new-webhook
 .enable-webhooks
     margin-top: 80px
     text-align: center
-    displaz: table
+    display: table

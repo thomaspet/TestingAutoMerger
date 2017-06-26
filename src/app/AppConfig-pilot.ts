@@ -9,8 +9,6 @@ export const AppConfig = ({
 
     UNI_PUSH_ADAPTER_URL: null,
 
-    UNI_MESSAGE_HUB_URL: 'https://pilot-unimessagehub.unieconomy.no',
-
     UNI_JOB_SERVER_URL: 'https://pilotapi-unijobserver.azurewebsites.net/api/',
 
     API_DOMAINS: {
@@ -18,7 +16,8 @@ export const AppConfig = ({
         BUSINESS: '/api/biz/',
         ROOT: '/api/',
         METADATA: '/api/metadata/',
-        STATISTICS: '/api/statistics/'
+        STATISTICS: '/api/statistics/',
+        UMH: '/api/umh/'
     },
 
     INTEGRATION_DOMAINS: {

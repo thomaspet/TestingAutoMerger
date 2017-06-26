@@ -25,8 +25,14 @@ export interface RegisterPaymentModalResult {
     selector: 'register-payment-form',
     template: `
         <article class='modal-content register-payment-modal' *ngIf="config">
-            <h1 *ngIf='config.title'>{{config.title}}</h1>
-            <uni-form [config]="formConfig$" [fields]="fields$" [model]="model$" (changeEvent)="onChange($event)"></uni-form>
+            <h1>{{config?.title || 'Registrer betaling'}}</h1>
+            <uni-form
+                [config]="formConfig$"
+                [fields]="fields$"
+                [model]="model$"
+                (changeEvent)="onChange($event)">
+            </uni-form>
+
             <span *ngIf='config.invoiceCurrencyExchangeRate && !isMainCurrency'>
                 <table class="invoice-currency-table">
                     <tr>
@@ -225,121 +231,38 @@ export class RegisterPaymentForm {
     private getFields() {
         return [
             {
-                ComponentLayoutID: 1,
                 EntityType: 'InvoicePaymentData',
                 Property: 'PaymentDate',
-                Placement: 1,
-                Hidden: false,
                 FieldType: FieldType.LOCAL_DATE_PICKER,
-                ReadOnly: false,
-                LookupField: false,
                 Label: 'Betalingsdato',
-                Description: '',
-                HelpText: '',
-                FieldSet: 0,
-                Section: 0,
-                Placeholder: null,
-                Options: null,
-                LineBreak: true,
-                Combo: null,
-                Legend: '',
-                StatusCode: 0,
-                ID: 1,
-                Deleted: false,
-                CreatedAt: null,
-                UpdatedAt: null,
-                CreatedBy: null,
-                UpdatedBy: null,
-                CustomFields: null
             },
             {
-                ComponentLayoutID: 1,
                 EntityType: 'InvoicePaymentData',
                 Property: 'Amount',
-                Placement: 1,
-                Hidden: false,
                 FieldType: FieldType.NUMERIC,
-                ReadOnly: false,
-                LookupField: false,
                 Label: this.isMainCurrency ? 'Innbetalt beløp' : 'Innbetalt beløp [' + this.companySettings.BaseCurrencyCode.Code + ']',
-                Description: '',
-                HelpText: '',
-                FieldSet: 0,
-                Section: 0,
-                Placeholder: null,
-                LineBreak: null,
-                Combo: null,
-                Legend: '',
-                StatusCode: 0,
-                ID: 2,
-                Deleted: false,
-                CreatedAt: null,
-                UpdatedAt: null,
-                CreatedBy: null,
-                UpdatedBy: null,
-                CustomFields: null,
                 Options: {
                     decimalLength: 2,
                     decimalSeparator: ','
                 }
             },
             {
-                ComponentLayoutID: 1,
                 EntityType: 'InvoicePaymentData',
                 Property: 'AmountCurrency',
-                Placement: 1,
                 Hidden: this.isMainCurrency, //Hide if it is main currency
                 FieldType: FieldType.NUMERIC,
-                ReadOnly: false,
-                LookupField: false,
                 Label: 'Valutabeløp [' + this.config.currencyCode.Code + ']',
-                Description: '',
-                HelpText: '',
-                FieldSet: 0,
-                Section: 0,
-                Placeholder: null,
-                LineBreak: true,
-                Combo: null,
-                Legend: '',
-                StatusCode: 0,
-                ID: 2,
-                Deleted: false,
-                CreatedAt: null,
-                UpdatedAt: null,
-                CreatedBy: null,
-                UpdatedBy: null,
-                CustomFields: null,
                 Options: {
                     decimalLength: 2,
                     decimalSeparator: ','
                 }
             },
             {
-                ComponentLayoutID: 1,
                 EntityType: 'InvoicePaymentData',
                 Property: 'AgioAmount',
-                Placement: 1,
                 Hidden: this.isMainCurrency, //Hide if it is main currency
                 FieldType: FieldType.NUMERIC,
-                ReadOnly: false,
-                LookupField: false,
                 Label: 'Agiobeløp [' + this.companySettings.BaseCurrencyCode.Code + ']',
-                Description: '',
-                HelpText: '',
-                FieldSet: 0,
-                Section: 0,
-                Placeholder: null,
-                LineBreak: null,
-                Combo: null,
-                Legend: '',
-                StatusCode: 0,
-                ID: 2,
-                Deleted: false,
-                CreatedAt: null,
-                UpdatedAt: null,
-                CreatedBy: null,
-                UpdatedBy: null,
-                CustomFields: null,
                 Sectionheader: '',
                 Options: {
                     decimalLength: 2,
@@ -347,39 +270,18 @@ export class RegisterPaymentForm {
                 }
             },
             {
-                ComponentLayoutID: 1,
                 EntityType: 'InvoicePaymentData',
                 Property: 'AgioAccountID',
-                Placement: 1,
                 Hidden: this.isMainCurrency, //Hide if it is main currency
                 FieldType: FieldType.UNI_SEARCH,
-                ReadOnly: false,
-                LookupField: false,
                 Label: 'Konto',
-                Description: '',
-                HelpText: '',
-                FieldSet: 0,
-                Section: 0,
                 Placeholder: 'Konto for bilagsføring av agio',
                 Options: {
                     uniSearchConfig: this.uniSearchConfigGeneratorService.generate(Account),
                     valueProperty: 'ID'
                 },
-                LineBreak: true,
-                Combo: null,
-                Legend: '',
-                StatusCode: 0,
-                ID: 1,
-                Deleted: false,
-                CreatedAt: null,
-                UpdatedAt: null,
-                CreatedBy: null,
-                UpdatedBy: null,
-                CustomFields: null,
-                Sectionheader: '',
             },
             {
-                ComponentLayoutID: 1,
                 EntityType: 'InvoicePaymentData',
                 Property: 'BankChargeAmount',
                 Placement: 1,
@@ -388,59 +290,22 @@ export class RegisterPaymentForm {
                 ReadOnly: false,
                 LookupField: false,
                 Label: this.isMainCurrency ? 'Bankgebyr' : 'Bankgebyr [' + this.companySettings.BaseCurrencyCode.Code + ']',
-                Description: '',
-                HelpText: '',
-                FieldSet: 0,
-                Section: 0,
-                Placeholder: null,
-                LineBreak: null,
-                Combo: null,
-                Legend: '',
-                StatusCode: 0,
-                ID: 2,
-                Deleted: false,
-                CreatedAt: null,
-                UpdatedAt: null,
-                CreatedBy: null,
-                UpdatedBy: null,
-                CustomFields: null,
-                Sectionheader: '',
                 Options: {
                     decimalLength: 2,
                     decimalSeparator: ','
                 }
             },
             {
-                ComponentLayoutID: 1,
                 EntityType: 'InvoicePaymentData',
                 Property: 'BankChargeAccountID',
-                Placement: 1,
                 Hidden: this.config.entityName === 'CustomerInvoice', //Hide if invoice is CustomerInvoice,
                 FieldType: FieldType.UNI_SEARCH,
-                ReadOnly: false,
-                LookupField: false,
                 Label: 'Konto',
-                Description: '',
-                HelpText: '',
-                FieldSet: 0,
-                Section: 0,
                 Placeholder: 'Konto for bilagsføring av gebyr',
                 Options: {
                     uniSearchConfig: this.uniSearchConfigGeneratorService.generate(Account),
                     valueProperty: 'ID'
                 },
-                LineBreak: null,
-                Combo: null,
-                Legend: '',
-                StatusCode: 0,
-                ID: 1,
-                Deleted: false,
-                CreatedAt: null,
-                UpdatedAt: null,
-                CreatedBy: null,
-                UpdatedBy: null,
-                CustomFields: null,
-                Sectionheader: '',
             }
         ];
     }

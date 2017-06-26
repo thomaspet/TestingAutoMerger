@@ -10,7 +10,7 @@ import {Supplier, SupplierInvoice, JournalEntryLineDraft,
     InvoicePaymentData, CurrencyCode, CompanySettings, Task} from '../../../../unientities';
 import {UniStatusTrack} from '../../../common/toolbar/statustrack';
 import {IUniSaveAction} from '../../../../../framework/save/save';
-import {UniForm, FieldType} from 'uniform-ng2/main';
+import { UniForm, FieldType} from 'uniform-ng2/main';
 import {RegisterPaymentModal} from '../../../common/modals/registerPaymentModal';
 import {Location} from '@angular/common';
 import {BillSimpleJournalEntryView} from './journal/simple';
@@ -19,8 +19,8 @@ import {IOcrServiceResult, OcrValuables} from './ocr';
 import {billViewLanguage as lang, billStatusflowLabels as workflowLabels} from './lang';
 import {BillHistoryView} from './history/history';
 import {BankAccountModal} from '../../../common/modals/modals';
-import {ImageModal} from '../../../common/modals/ImageModal';
-import {UniImageSize} from '../../../../../framework/uniImage/uniImage';
+import { ImageModal } from '../../../common/modals/ImageModal';
+import { UniImageSize, UniImage } from '../../../../../framework/uniImage/uniImage';
 import {IUniSearchConfig} from 'unisearch-ng2/src/UniSearch/IUniSearchConfig';
 import {UniAssignModal, AssignDetails} from './assignmodal';
 import {UniApproveModal, ApprovalDetails} from './approvemodal';
@@ -85,6 +85,7 @@ export class BillView {
     public currentFileID: number = 0;
     public hasStartupFileID: boolean = false;
     public historyCount: number = 0;
+    public ocrData: IOcrServiceResult;
 
     private files: Array<any>;
     private fileIds: Array<number> = [];
@@ -103,6 +104,7 @@ export class BillView {
     @ViewChild(UniConfirmModal) private confirmModal: UniConfirmModal;
     @ViewChild(BillHistoryView) private historyView: BillHistoryView;
     @ViewChild(ImageModal) public imageModal: ImageModal;
+    @ViewChild(UniImage) public uniImage: UniImage;
     @ViewChild(UniAssignModal) private assignModal: UniAssignModal;
     @ViewChild(UniApproveModal) private approveModal: UniApproveModal;
 
@@ -226,40 +228,86 @@ export class BillView {
     }
 
     private initForm() {
-        this.uniSearchConfig = this.uniSearchConfigGeneratorService.generate(
-            Supplier,
-            <[string]>this.supplierExpandOptions);
+        let fields = [
+            <any> {
+                Property: 'SupplierID',
+                FieldType: FieldType.UNI_SEARCH,
+                Label: 'Leverandør',
+            },
+            <any> {
+                Property: 'InvoiceDate',
+                FieldType: FieldType.LOCAL_DATE_PICKER,
+                Label: 'Fakturadato',
+                Classes: 'bill-small-field'
+            },
+            <any> {
+                Property: 'PaymentDueDate',
+                FieldType: FieldType.LOCAL_DATE_PICKER,
+                Label: 'Forfallsdato',
+                Classes: 'bill-small-field'
+            },
+            <any> {
+                Property: 'InvoiceNumber',
+                FieldType: FieldType.TEXT,
+                Label: 'Fakturanummer',
+                Classes: 'bill-small-field'
+            },
+            <any> {
+                Property: 'BankAccountID',
+                FieldType: FieldType.MULTIVALUE,
+                Label: 'Bankkonto',
+                Classes: 'bill-small-field'
+            },
+            <any> {
+                Property: 'PaymentID',
+                FieldType: FieldType.TEXT,
+                Label: 'KID'
+            },
+            <any> {
+                Property: 'TaxInclusiveAmountCurrency',
+                FieldType: FieldType.NUMERIC,
+                Label: 'Fakturabeløp',
+                Classes: 'bill-amount-field'
+            },
+            <any> {
+                Property: 'CurrencyCodeID',
+                FieldType: FieldType.DROPDOWN,
+                Label: 'Valuta',
+                Classes: 'bill-currency-field'
+            }
+        ];
 
-        var supIdCol = createFormField('SupplierID', lang.col_supplier, FieldType.UNI_SEARCH, FieldSize.Full);
-        supIdCol.Options = {
+        this.uniSearchConfig = this.uniSearchConfigGeneratorService
+            .generate(Supplier, <[string]>this.supplierExpandOptions);
+
+        // Extend config with stuff that can't come from layout system
+        let supplierField = fields.find(f => f.Property === 'SupplierID');
+        supplierField.Options = {
             uniSearchConfig: this.uniSearchConfig,
             valueProperty: 'ID'
         };
 
-        // todo: use NumericInput when it works properly
-        var sumCol = createFormField('TaxInclusiveAmountCurrency', lang.col_total, ControlTypes.TextInput, FieldSize.Double);
-        sumCol.Classes += ' combofield';
-        sumCol.Options = {
+        let sumField = fields.find(f => f.Property === 'TaxInclusiveAmountCurrency');
+        sumField.Options = {
             events: {
                 enter: (x) => {
-                    setTimeout(() => this.focusJournalEntries(), 50); 
+                    setTimeout(() => this.focusJournalEntries(), 50);
                 }
             },
             decimalLength: 2,
             decimalSeparator: ','
         };
 
-        var currencyCodeCol = createFormField('CurrencyCodeID', lang.col_currency_code, FieldType.DROPDOWN, FieldSize.Double);
-        currencyCodeCol.Classes += ' combofield';
-        currencyCodeCol.Options = {
+        let currencyField = fields.find(f => f.Property === 'CurrencyCodeID');
+        currencyField.Options = {
             source: this.currencyCodes,
             valueProperty: 'ID',
             displayValue: 'Code',
             debounceTime: 200,
         };
 
-        let bankAccountCol = createFormField('BankAccountID', lang.col_bank, ControlTypes.MultivalueInput, FieldSize.Double);
-        bankAccountCol.Options = {
+        let bankAccountField = fields.find(f => f.Property === 'BankAccountID');
+        bankAccountField.Options = {
             entity: BankAccount,
             listProperty: 'Supplier.Info.BankAccounts',
             displayValue: 'AccountNumber',
@@ -301,18 +349,90 @@ export class BillView {
             })
         };
 
-        var list = [
-            supIdCol,
-            createFormField('InvoiceDate', lang.col_date, ControlTypes.LocalDate, FieldSize.Double),
-            createFormField('PaymentDueDate', lang.col_due, ControlTypes.LocalDate, FieldSize.Double),
-            createFormField('InvoiceNumber', lang.col_invoice, undefined, FieldSize.Double),
-            bankAccountCol,
-            createFormField('PaymentID', lang.col_kid, ControlTypes.TextInput, FieldSize.Double),
-            sumCol,
-            currencyCodeCol
-        ];
 
-        this.fields$ = new BehaviorSubject(list);
+        // var supIdCol = createFormField('SupplierID', lang.col_supplier, FieldType.UNI_SEARCH, FieldSize.Full);
+        // supIdCol.Options = {
+        //     uniSearchConfig: this.uniSearchConfig,
+        //     valueProperty: 'ID'
+        // };
+
+        // todo: use NumericInput when it works properly
+        // var sumCol = createFormField('TaxInclusiveAmountCurrency', lang.col_total, ControlTypes.TextInput, FieldSize.Double);
+        // sumCol.Classes += ' combofield';
+        // sumCol.Options = {
+        //     events: {
+        //         enter: (x) => {
+        //             setTimeout(() => this.focusJournalEntries(), 50);
+        //         }
+        //     },
+        //     decimalLength: 2,
+        //     decimalSeparator: ','
+        // };
+
+        // var currencyCodeCol = createFormField('CurrencyCodeID', lang.col_currency_code, FieldType.DROPDOWN, FieldSize.Double);
+        // currencyCodeCol.Classes += ' combofield';
+        // currencyCodeCol.Options = {
+        //     source: this.currencyCodes,
+        //     valueProperty: 'ID',
+        //     displayValue: 'Code',
+        //     debounceTime: 200,
+        // };
+
+        // let bankAccountCol = createFormField('BankAccountID', lang.col_bank, ControlTypes.MultivalueInput, FieldSize.Double);
+        // bankAccountCol.Options = {
+        //     entity: BankAccount,
+        //     listProperty: 'Supplier.Info.BankAccounts',
+        //     displayValue: 'AccountNumber',
+        //     linkProperty: 'ID',
+        //     storeResultInProperty: 'BankAccount',
+        //     storeIdInProperty: 'BankAccountID',
+        //     editor: (bankaccount: BankAccount) => new Promise((resolve, reject) => {
+        //         let current: SupplierInvoice = this.current.getValue();
+
+        //         if (!bankaccount.ID) {
+        //             bankaccount['_createguid'] = this.bankAccountService.getNewGuid();
+        //             bankaccount.BankAccountType = 'supplier';
+        //             bankaccount.BusinessRelationID =
+        //                 current.Supplier ? current.Supplier.BusinessRelationID : null;
+        //             bankaccount.ID = 0;
+        //         }
+
+        //         this.bankAccountModal.confirm(bankaccount, false).then(res => {
+        //             if (res.status === ConfirmActions.ACCEPT) {
+        //                 // save the bank account to the supplier
+        //                 let changedBankaccount = res.model;
+        //                 if (changedBankaccount.ID === 0) {
+        //                     this.bankAccountService.Post(changedBankaccount)
+        //                         .subscribe((savedBankAccount: BankAccount) => {
+        //                             current.BankAccountID = savedBankAccount.ID;
+        //                             this.current.next(current); // if we update current we emit the new value
+        //                             resolve(savedBankAccount);
+        //                         },
+        //                         err => {
+        //                             this.errorService.handle(err);
+        //                             reject('Feil ved lagring av bankkonto');
+        //                         }
+        //                         );
+        //                 } else {
+        //                     throw new Error('Du kan ikke endre en bankkonto herfra');
+        //                 }
+        //             }
+        //         });
+        //     })
+        // };
+
+        // var list = [
+        //     supIdCol,
+        //     createFormField('InvoiceDate', lang.col_date, ControlTypes.LocalDate, FieldSize.Double),
+        //     createFormField('PaymentDueDate', lang.col_due, ControlTypes.LocalDate, FieldSize.Double),
+        //     createFormField('InvoiceNumber', lang.col_invoice, undefined, FieldSize.Double),
+        //     bankAccountCol,
+        //     createFormField('PaymentID', lang.col_kid, ControlTypes.TextInput, FieldSize.Double),
+        //     sumCol,
+        //     currencyCodeCol
+        // ];
+
+        this.fields$ = new BehaviorSubject(fields);
     }
 
     private focusJournalEntries() {
@@ -448,6 +568,8 @@ export class BillView {
                 this.toast.clear();
                 this.handleOcrResult(new OcrValuables(result));
                 this.flagUnsavedChanged();
+                this.ocrData = result;
+                
             }, (err) => {
                 this.errorService.handle(err);
             });
@@ -590,6 +712,44 @@ export class BillView {
 
     public onFormInput(event) {
         this.flagUnsavedChanged();
+    }
+
+    public onFocusEvent(event) {
+
+        if (!this.currentFileID || !this.ocrData) { return; }
+
+        this.uniImage.removeHighlight();
+
+        let candidates;
+
+        switch (event.field.Property) {
+            case 'InvoiceDate':
+                candidates = this.ocrData.OcrInvoiceReport.InvoiceDate.Candidates;
+                break;
+            case 'PaymentDueDate':
+                candidates = this.ocrData.OcrInvoiceReport.DueDate.Candidates;
+                break;
+            case 'InvoiceNumber':
+                candidates = this.ocrData.OcrInvoiceReport.InvoiceNumber.Candidates;
+                break;
+            case 'BankAccountID':
+                candidates = this.ocrData.OcrInvoiceReport.BankAccount.Candidates;
+                break;
+            case 'PaymentID':
+                candidates = this.ocrData.OcrInvoiceReport.Kid.Candidates;
+                break;
+            case 'TaxInclusiveAmountCurrency':
+                candidates = this.ocrData.OcrInvoiceReport.Amount.Candidates;
+                break;
+        }
+
+        if (candidates && candidates.length && candidates[0].boundingBox) {
+            this.uniImage.highlight(
+                candidates[0].boundingBox.split(','),
+                this.ocrData.MaxWidth,
+                this.ocrData.MaxTop
+            );
+        }
     }
 
     public onFormChange(change: SimpleChanges) {
@@ -824,7 +984,7 @@ export class BillView {
                 if (task.Approvals && task.Approvals.length > 0) {
                     list.forEach( x => x.main = false );
                     let approval = task.Approvals[0];
-                    let action = this.newAction(lang.task_approval, 'task_approval', 
+                    let action = this.newAction(lang.task_approval, 'task_approval',
                         `api/biz/approvals/${approval.ID}?action=approve`, true);
                     list.push(action);
                     action = this.newAction(lang.task_reject, 'task_reject',
@@ -980,12 +1140,12 @@ export class BillView {
 
             case 'task_approval':
                 this.approveModal.open(current, true);
-                done();            
+                done();
                 return true;
 
             case 'task_reject':
                 this.approveModal.open(current, false);
-                done();            
+                done();
                 return true;
 
             default:
@@ -1426,7 +1586,7 @@ export class BillView {
     private getStatustrackConfig() {
         let current = this.current.getValue();
         let statustrack: UniStatusTrack.IStatus[] = [];
-        let activeStatus = current.StatusCode;        
+        let activeStatus = current.StatusCode;
 
         this.supplierInvoiceService.statusTypes.forEach((status) => {
             let _state: UniStatusTrack.States;
@@ -1450,7 +1610,7 @@ export class BillView {
                 });
             }
         });
-        
+
         return statustrack;
     }
 
@@ -1507,7 +1667,7 @@ export class BillView {
             params += '&select=max(id)&filter=deleted eq \'false\'' + (id ? ' and id lt ' + id : '');
             resultFld = 'maxid';
         }
-        
+
         this.simpleJournalentry.closeEditor();
 
         // TODO: should use BizHttp.getNextID() / BizHttp.getPreviousID()

@@ -6,7 +6,8 @@ import {
     EventEmitter,
     ChangeDetectorRef,
     ChangeDetectionStrategy,
-    ViewChild
+    ViewChild,
+    ElementRef
 } from '@angular/core';
 import {Http} from '@angular/http';
 import {File} from '../../app/unientities';
@@ -34,7 +35,7 @@ export interface IUploadConfig {
         <article (click)="onClick()" (clickOutside)="offClick()">
             <picture #imageContainer *ngIf="imgUrl.length" [ngClass]="{'loading': imageIsLoading,'clickable': currentClicked}" (click)="currentClicked()">
                 <source [attr.srcset]="imageUrl2x" media="(-webkit-min-device-pixel-radio: 2), (min-resolution: 192dpi)">
-                <img [attr.src]="imgUrl" alt="" (load)="finishedLoadingImage()" *ngIf="currentFileIndex >= 0">
+                <img #image [attr.src]="imgUrl" alt="" (load)="finishedLoadingImage()" *ngIf="currentFileIndex >= 0">
             </picture>
             <section *ngIf="!singleImage || files[currentFileIndex]?.Pages?.length" class="uni-image-pager">
                 <a class="prev" (click)="previous()"></a>
@@ -42,6 +43,7 @@ export interface IUploadConfig {
                 <a class="trash" (click)="deleteImage()" *ngIf="!readonly"></a>
                 <a class="next" (click)="next()"></a>
             </section>
+            <span id="span-area-highlighter" class="span-area-highlight-class" [ngStyle]="highlightStyle"></span>
 
             <ul class="uni-thumbnail-list">
                 <li *ngFor="let thumbnail of thumbnails; let idx = index">
@@ -68,6 +70,9 @@ export interface IUploadConfig {
 export class UniImage {
     @ViewChild(UniConfirmModal)
     private confirmModal: UniConfirmModal;
+
+    @ViewChild('image')
+    private image: ElementRef;
 
     @Input()
     public entity: string;
@@ -127,6 +132,7 @@ export class UniImage {
 
     private imgUrl: string = '';
     private imgUrl2x: string = '';
+    private highlightStyle: any;
 
     constructor(
         private ngHttp: Http,
@@ -402,5 +408,37 @@ export class UniImage {
                     this.loadThumbnails();
                 }
             }, err => this.errorService.handle(err));
+    }
+
+    // Coordinates param should contain positions top and left + height and width of highlight element
+    // Height and width params is the sixe of the originally scanned document
+    // styleObject is for custom style like size, color and shape on the highlight marker..
+    public highlight(coordinates: number[], width: number, height: number, styleObject?: any) {
+
+        if ((!coordinates || coordinates.length < 4) && !styleObject) {
+            return;
+        }
+
+        // Find the ratio between the original scanned image(height and width param) and the shown image
+        let widthRatio = (this.image.nativeElement.clientWidth || width) / width;
+        let heightRatio = (this.image.nativeElement.clientHeight || height) / height;
+
+        if (styleObject) {
+            this.highlightStyle = styleObject;
+        } else {
+            this.highlightStyle = {
+                display: 'block',
+                height: coordinates[3] + 'px',
+                width: coordinates[2] + 'px',
+                left: (coordinates[0] - coordinates[2]) * widthRatio + 'px',
+                top: (coordinates[1] - coordinates[3]) * heightRatio + 'px'
+            };
+        }
+    }
+
+    public removeHighlight() {
+        this.highlightStyle = {
+            display: 'none'
+        }
     }
 }

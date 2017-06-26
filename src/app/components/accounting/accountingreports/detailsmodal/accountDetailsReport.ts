@@ -359,9 +359,6 @@ export class AccountDetailsReport {
                 this.config.accountNumber = account.AccountNumber;
                 this.config.subaccountID = account.AccountID;
 
-                search.AccountID = 0;
-                search.AccountNumber = 0;
-                this.searchParams$.next(search);
                 this.loadData();
             });
         }
@@ -380,10 +377,6 @@ export class AccountDetailsReport {
                     Label: 'Konto',
                     Options: {
                         valueProperty: 'ID',
-                        source: model => this.accountService
-                            .GetAll(``)
-                            .map(results => results[0])
-                            .catch((err, obs) => this.errorService.handleRxCatch(err, obs)),
                         uniSearchConfig: this.uniSearchAccountConfig.generateAllAccountsConfig()
                     }
                 }

@@ -18,16 +18,17 @@ import {KeyCodes} from "../../../../../services/common/KeyCodes";
             <p>{{translatable?.Value}}</p>
             <h3>Meaning</h3>
             <p>{{translatable?.Meaning}}</p>
-            <h3>Context</h3>
+            <h3>Description</h3>
             <p>{{translatable?.Description}}</p>
         </section>
         <section class="translation">
             <label>
                 <h4>Translation</h4>
                 <textarea [formControl]="translationFormControl" #textarea (keydown)="preventEnter($event)"></textarea>
-                <small>*tip: use shift+enter to insert a line break</small>
+                <aside style="float:right">Hint: Use shift+enter to insert a line break</aside>
             </label>
         </section>
+
     `,
     changeDetection: ChangeDetectionStrategy.OnPush
 })

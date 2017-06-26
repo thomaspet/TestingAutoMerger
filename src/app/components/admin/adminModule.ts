@@ -27,6 +27,7 @@ import {UniRoles} from './roles/roles';
 import {PermissionSelector} from './roles/permissionSelector';
 import {ApprovalThresholds} from './approvalThresholds/list/approvalThresholds';
 import {ApprovalThresholdRules} from './approvalThresholds/details/approvalThresholdRules';
+import {SaftExportView} from './jobs/saft/view';
 
 @NgModule({
     imports: [
@@ -62,7 +63,8 @@ import {ApprovalThresholdRules} from './approvalThresholds/details/approvalThres
         UniRoles,
         PermissionSelector,
         ApprovalThresholds,
-        ApprovalThresholdRules
+        ApprovalThresholdRules,
+        SaftExportView
     ],
     exports: [
         UniAdmin,

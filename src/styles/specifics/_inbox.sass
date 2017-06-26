@@ -82,10 +82,23 @@ uni-document-demo
     @extend h2
 
 .new-button
-  @extend button.good
-  position: absolute
-  margin-left: 19rem
-  z-index: #{map-get($zindex, base) + 1}
+  &,
+  &:hover,
+  &:focus,
+  &:active
+    @extend %unbutton
+    @extend a
+    position: absolute
+    display: block
+    cursor: pointer
+    margin-left: 19rem
+    padding-top: .55rem
+    z-index: #{map-get($zindex, base) + 1}
+
+  &:hover,
+  &:focus,
+  &:active
+    text-decoration: underline
 
 button.good.salary-new
   margin-left: 0

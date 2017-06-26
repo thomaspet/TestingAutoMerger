@@ -1,10 +1,13 @@
 <uni-toolbar [config]="toolbarconfig"></uni-toolbar>
 <section class="application">
     <section class="period-setup">
-        Perioder: <period-picker [periodFilter]="periodFilter1" (periodFilterChanged)="onPeriodFilter1Changed($event)"></period-picker> og <period-picker [periodFilter]="periodFilter2" (periodFilterChanged)="onPeriodFilter2Changed($event)"></period-picker>
+        <uni-select [items]="yearItems" [config]="yearSelectConfig" (valueChange)="onYearSelect($event)"></uni-select>
+        Viser perioder: <period-picker [periodFilter]="periodFilter1" (periodFilterChanged)="onPeriodFilter1Changed($event)"></period-picker> og <period-picker [periodFilter]="periodFilter2" (periodFilterChanged)="onPeriodFilter2Changed($event)"></period-picker>
+        <button (click)="toggleFilter()">Filter</button>
+        <uni-form *ngIf="filterVisible" [config]="config$" [fields]="fields$" [model]="filter$" (changeEvent)="onFilterChange($event)"></uni-form>
     </section>
 
-    <drilldown-result-report-part [periodFilter1]="periodFilter1" [periodFilter2]="periodFilter2"></drilldown-result-report-part>
+    <drilldown-result-report-part [periodFilter1]="periodFilter1" [periodFilter2]="periodFilter2" [filter]="filter"></drilldown-result-report-part>
 
     <distribution-period-report-part
         [accountIDs]="distributionPeriodAccountIDs"
@@ -13,12 +16,23 @@
         [doTurnAmounts]="true"
         [showHeader]="true"
         [activeDistributionElement]="activeDistributionElement"
-        [includeIncomingBalance]="false">
+        [includeIncomingBalance]="false"
+        [filter]="filter">
     </distribution-period-report-part>
 
-    <dimensions-overview-report-part [periodFilter1]="periodFilter1" [periodFilter2]="periodFilter2" [dimensionType]="dimensionTypeProject"></dimensions-overview-report-part>
+    <dimensions-overview-report-part
+        [periodFilter1]="periodFilter1"
+        [periodFilter2]="periodFilter2"
+        [dimensionType]="dimensionTypeProject"
+        [filter]="filter">
+    </dimensions-overview-report-part>
 
-    <dimensions-overview-report-part [periodFilter1]="periodFilter1" [periodFilter2]="periodFilter2" [dimensionType]="dimensionTypeDepartment"></dimensions-overview-report-part>
+    <dimensions-overview-report-part
+        [periodFilter1]="periodFilter1"
+        [periodFilter2]="periodFilter2"
+        [dimensionType]="dimensionTypeDepartment"
+        [filter]="filter">
+    </dimensions-overview-report-part>
 </section>
 
 <account-details-report-modal></account-details-report-modal>
