@@ -2,12 +2,13 @@ import {Component, Input, ViewChild, OnChanges} from '@angular/core';
 import {Observable} from 'rxjs/Observable';
 import {PeriodFilter} from '../periodFilter/periodFilter';
 import {AccountDetailsReportModal} from '../detailsmodal/accountDetailsReportModal';
-import {INumberFormat} from 'unitable-ng2/main';
+import {INumberOptions} from 'uniform-ng2/main';
 
 import {
     AccountGroupService,
     StatisticsService,
-    ErrorService
+    ErrorService,
+    NumberFormat
 } from '../../../../services/services';
 
 export class BalanceSummaryData {
@@ -42,16 +43,17 @@ export class DrilldownBalanceReportPart implements OnChanges {
     private treeSummaryList: BalanceSummaryData[] = [];
     private flattenedTreeSummaryList: BalanceSummaryData[] = [];
     private showPreviousAccountYear: boolean = true;
-    private numberFormat: INumberFormat = {
+    private numberFormat: INumberOptions = {
         thousandSeparator: '',
         decimalSeparator: '.',
-        decimalLength: 0
+        decimalLength: 2
     };
 
     constructor(
         private statisticsService: StatisticsService,
         private accountGroupService: AccountGroupService,
-        private errorService: ErrorService
+        private errorService: ErrorService,
+        private numberFormatService: NumberFormat
     ) {
     }
 

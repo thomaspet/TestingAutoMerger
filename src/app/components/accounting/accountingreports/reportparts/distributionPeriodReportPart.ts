@@ -47,9 +47,9 @@ export class DistributionPeriodReportPart implements OnChanges {
     private showPercent: boolean = true;
     private showPreviousAccountYear: boolean = true;
     private numberFormat: INumberFormat = {
-        thousandSeparator: '',
+        thousandSeparator: ' ',
         decimalSeparator: '.',
-        decimalLength: 0
+        decimalLength: 2
     };
 
     private colors: Array<string> = ['#7293CB', '#84BA5B'];
@@ -180,7 +180,7 @@ export class DistributionPeriodReportPart implements OnChanges {
 
                 this.uniTableConfigDistributionPeriod = new UniTableConfig(false, false);
                 if (this.showPreviousAccountYear) {
-                    this.uniTableConfigDistributionPeriod.setColumns([periodName, amountPeriod1, amountPeriod2]);
+                    this.uniTableConfigDistributionPeriod.setColumns([periodName, amountPeriod2, amountPeriod1]);
                 } else {
                     this.uniTableConfigDistributionPeriod.setColumns([periodName, amountPeriod2]);
                 }
@@ -194,6 +194,16 @@ export class DistributionPeriodReportPart implements OnChanges {
         let labels = [];
         let dataSets = [];
 
+        dataSets.push({
+            label: this.accountYear2.toString(),
+            data: [],
+            backgroundColor: this.colors[1],
+            borderColor: this.colors[1],
+            fill: false,
+            lineTension: 0,
+            borderWidth: 2
+        });
+
         if (this.showPreviousAccountYear) {
             dataSets.push({
                 label: this.accountYear1.toString(),
@@ -206,23 +216,13 @@ export class DistributionPeriodReportPart implements OnChanges {
             });
         }
 
-        dataSets.push({
-            label: this.accountYear2.toString(),
-            data: [],
-            backgroundColor: this.colors[1],
-            borderColor: this.colors[1],
-            fill: false,
-            lineTension: 0,
-            borderWidth: 2
-        });
-
         for (var i = 0; i < this.distributionPeriodData.length; i++) {
             // don't include sums in the chart
             if (this.distributionPeriodData[i].periodNo >= 1 && this.distributionPeriodData[i].periodNo <= 12) {
                 labels.push(this.distributionPeriodData[i].periodName);
                 if (this.showPreviousAccountYear) {
-                    dataSets[0].data.push(this.distributionPeriodData[i].amountPeriodYear1);
-                    dataSets[1].data.push(this.distributionPeriodData[i].amountPeriodYear2);
+                    dataSets[0].data.push(this.distributionPeriodData[i].amountPeriodYear2);
+                    dataSets[1].data.push(this.distributionPeriodData[i].amountPeriodYear1);
                 } else {
                     dataSets[0].data.push(this.distributionPeriodData[i].amountPeriodYear2);
                 }

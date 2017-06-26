@@ -2,14 +2,15 @@ import {Component, Input, ViewChild, OnChanges} from '@angular/core';
 import {Observable} from 'rxjs/Observable';
 import {PeriodFilter} from '../periodFilter/periodFilter';
 import {AccountDetailsReportModal} from '../detailsmodal/accountDetailsReportModal';
-import {UniSelect, ISelectConfig} from 'uniform-ng2/main';
+import {UniSelect, ISelectConfig, INumberOptions} from 'uniform-ng2/main';
 import {UniTableColumn, UniTableConfig, UniTableColumnType, ITableFilter, UniTable, INumberFormat} from 'unitable-ng2/main';
 import {ChartHelper, IChartDataSet} from '../chartHelper';
 import {
     AccountGroupService,
     StatisticsService,
     ErrorService,
-    DimensionService
+    DimensionService,
+    NumberFormat
 } from '../../../../services/services';
 
 export class ResultSummaryData {
@@ -26,6 +27,7 @@ export class ResultSummaryData {
     public parent: ResultSummaryData;
     public expanded: boolean = false;
     public level: number = 0;
+    public turned: boolean = false;
 }
 
 @Component({
@@ -47,10 +49,11 @@ export class DrilldownResultReportPart implements OnChanges {
     private uniTableConfig: UniTableConfig;
     private showPercent: boolean = true;
     private showPreviousAccountYear: boolean = true;
-    private numberFormat: INumberFormat = {
+    private showall: boolean = false;
+    private numberFormat: INumberOptions = {
         thousandSeparator: '',
         decimalSeparator: '.',
-        decimalLength: 0
+        decimalLength: 2
     };
 
     private colors: Array<string> = ['#7293CB', '#84BA5B', '#ff0000', '#00ff00', '#f0f000'];
@@ -59,7 +62,8 @@ export class DrilldownResultReportPart implements OnChanges {
     constructor(
         private statisticsService: StatisticsService,
         private accountGroupService: AccountGroupService,
-        private errorService: ErrorService
+        private errorService: ErrorService,
+        private numberFormatService: NumberFormat
     ) {
 
     }
@@ -78,6 +82,32 @@ export class DrilldownResultReportPart implements OnChanges {
         }
 
         this.loadData();
+    }
+
+    private toggleShowAll() {
+        this.showall = !this.showall;
+        if (this.showall) {
+            this.flattenedTreeSummaryList.forEach(child => {
+                this.expandChildren(child);
+            });
+        } else {
+            this.flattenedTreeSummaryList = this.treeSummaryList.concat();
+            this.flattenedTreeSummaryList.forEach(child => {
+                child.expanded = false;
+            });
+        }
+    }
+
+    private expandChildren(child) {
+        if (child.children.length > 0) {
+            child.expanded = true;
+            let index = this.flattenedTreeSummaryList.indexOf(child);
+            let childrenWithData = child.children.filter(x => x.rowCount > 0);
+            this.flattenedTreeSummaryList = this.flattenedTreeSummaryList.slice( 0, index + 1 ).concat( childrenWithData ).concat( this.flattenedTreeSummaryList.slice( index + 1 ) );
+            child.children.forEach(subchild => {
+                this.expandChildren(subchild);
+            });
+        }
     }
 
     private rowClicked(summaryData: ResultSummaryData) {
@@ -139,6 +169,7 @@ export class DrilldownResultReportPart implements OnChanges {
                     summaryData.name = group.Name;
                     summaryData.number = parseInt(group.GroupNumber);
                     summaryData.id = group.ID;
+                    summaryData.turned = this.shouldTurnAmount(summaryData.number);
 
                     if (group.MainGroupID) {
                         let mainGroupSummaryData: ResultSummaryData = summaryDataList.find(x => !x.isAccount && x.id === group.MainGroupID);
@@ -163,6 +194,7 @@ export class DrilldownResultReportPart implements OnChanges {
                         accountSummaryData.name = account.AccountName;
                         accountSummaryData.number = account.AccountNumber;
                         accountSummaryData.id = account.ID;
+                        accountSummaryData.turned = this.shouldTurnAmount(accountSummaryData.number);
 
                         let accountJournalEntryData = journalEntries.find(x => x.AccountID === account.ID);
                         if (accountJournalEntryData) {
@@ -209,7 +241,8 @@ export class DrilldownResultReportPart implements OnChanges {
                 amountPeriod2: 0,
                 percentagePeriod1: 0,
                 percentagePeriod2: 0,
-                expanded: false
+                expanded: false,
+                turned: false
             };
 
             treeSummaryList.forEach(item => {
@@ -321,7 +354,23 @@ export class DrilldownResultReportPart implements OnChanges {
         let other = this.flattenedTreeSummaryList.find(x => x.number === 7);
         let result = this.flattenedTreeSummaryList.find(x => x.number === 9);
 
-        let i = 0;
+        // amountPeriod1
+        dataSets.push({
+            label: this.periodFilter1.year,
+            data: [],
+            backgroundColor: this.colors[1],
+            borderColor: this.colors[1],
+            fill: true,
+            borderWidth: 2
+        });
+
+        dataSets[0].data.push(
+            sales.amountPeriod1,
+            salary.amountPeriod1,
+            other.amountPeriod1,
+            result.amountPeriod1
+        );
+
         // create datasets
         if (this.showPreviousAccountYear) {
             dataSets.push({
@@ -334,27 +383,13 @@ export class DrilldownResultReportPart implements OnChanges {
             });
 
             // amountPeriod2
-            dataSets[i].data.push(sales.amountPeriod2);
-            dataSets[i].data.push(salary.amountPeriod2);
-            dataSets[i].data.push(other.amountPeriod2);
-            dataSets[i].data.push(result.amountPeriod2);
-            i++;
+            dataSets[1].data.push(
+                sales.amountPeriod2,
+                salary.amountPeriod2,
+                other.amountPeriod2,
+                result.amountPeriod2
+            );
         }
-
-        // amountPeriod1
-        dataSets.push({
-            label: this.periodFilter1.year,
-            data: [],
-            backgroundColor: this.colors[1],
-            borderColor: this.colors[1],
-            fill: true,
-            borderWidth: 2
-        });
-
-        dataSets[i].data.push(sales.amountPeriod1);
-        dataSets[i].data.push(salary.amountPeriod1);
-        dataSets[i].data.push(other.amountPeriod1);
-        dataSets[i].data.push(result.amountPeriod1);
 
         // Result
         let resulttext = result.amountPeriod1 > 0 ? 'Overskudd' : (result.amountPeriod1 < 0 ? 'Underskudd' : 'Resultat');

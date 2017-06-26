@@ -2,7 +2,7 @@
 <section class="application">
     <section class="period-setup">
         <uni-select [items]="yearItems" [config]="yearSelectConfig" (valueChange)="onYearSelect($event)"></uni-select>
-        Viser perioder: <period-picker [periodFilter]="periodFilter2" (periodFilterChanged)="onPeriodFilter2Changed($event)"></period-picker> og <period-picker [periodFilter]="periodFilter1" (periodFilterChanged)="onPeriodFilter1Changed($event)"></period-picker>
+        Viser perioder: <period-picker [periodFilter]="periodFilter1" (periodFilterChanged)="onPeriodFilter1Changed($event)"></period-picker> og <period-picker [periodFilter]="periodFilter2" (periodFilterChanged)="onPeriodFilter2Changed($event)"></period-picker>
         <button (click)="toggleFilter()">Filter</button>
         <uni-form *ngIf="filterVisible" [config]="config$" [fields]="fields$" [model]="filter$" (changeEvent)="onFilterChange($event)"></uni-form>
     </section>

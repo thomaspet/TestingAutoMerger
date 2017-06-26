@@ -44,9 +44,9 @@ export class DimensionsOverviewReportPart {
     private dimensionDisplayName: string = '';
     private showPercent: boolean = true;
     private numberFormat: INumberFormat = {
-        thousandSeparator: '',
+        thousandSeparator: ' ',
         decimalSeparator: '.',
-        decimalLength: 0
+        decimalLength: 2
     };
 
     private dimensionDataList: Array<DimensionSummaryData> = [];
