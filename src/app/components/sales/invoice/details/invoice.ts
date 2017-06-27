@@ -96,7 +96,7 @@ export class InvoiceDetails {
     private summaryFields: ISummaryConfig[];
     private readonly: boolean;
     private printStatusPrinted: string = '200';
-    private projects: Project[]; 
+    private projects: Project[];
 
     private recalcDebouncer: EventEmitter<any> = new EventEmitter();
     private saveActions: IUniSaveAction[] = [];
@@ -112,6 +112,8 @@ export class InvoiceDetails {
     private expandOptions: Array<string> = ['Items', 'Items.Product.VatType', 'Items.VatType', 'Items.Account',
         'Items.Dimensions', 'Items.Dimensions.Project', 'Items.Dimensions.Department',
         'Customer', 'InvoiceReference', 'JournalEntry', 'CurrencyCode'].concat(this.customerExpandOptions.map(option => 'Customer.' + option));
+
+    private commentsConfig: any;
 
     constructor(
         private customerInvoiceService: CustomerInvoiceService,
@@ -155,6 +157,11 @@ export class InvoiceDetails {
         this.route.params.subscribe((params) => {
             this.invoiceID = +params['id'];
             const customerID = +params['customerID'];
+
+            this.commentsConfig = {
+                entityType: 'CustomerInvoice',
+                entityID: this.invoiceID
+            };
 
             if (this.invoiceID === 0) {
                 Observable.forkJoin(

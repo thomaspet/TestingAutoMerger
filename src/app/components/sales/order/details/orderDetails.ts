@@ -105,6 +105,7 @@ export class OrderDetails {
     // New
     private recalcDebouncer: EventEmitter<any> = new EventEmitter();
     private readonly: boolean;
+    private commentsConfig: any;
 
     constructor(
         private customerService: CustomerService,
@@ -152,6 +153,11 @@ export class OrderDetails {
         this.route.params.subscribe((params) => {
             this.orderID = +params['id'];
             const customerID = +params['customerID'];
+
+            this.commentsConfig = {
+                entityType: 'CustomerOrder',
+                entityID: this.orderID
+            };
 
             if (this.orderID) {
                 Observable.forkJoin(
