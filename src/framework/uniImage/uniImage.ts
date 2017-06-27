@@ -33,7 +33,11 @@ export interface IUploadConfig {
     selector: 'uni-image',
     template: `
         <article (click)="onClick()" (clickOutside)="offClick()">
-            <picture #imageContainer *ngIf="imgUrl.length" [ngClass]="{'loading': imageIsLoading,'clickable': currentClicked}" (click)="currentClicked()">
+            <picture #imageContainer
+                     *ngIf="imgUrl.length"
+                     [ngClass]="{'loading': imageIsLoading,'clickable': currentClicked}"
+                     (click)="onImageClick()">
+
                 <source [attr.srcset]="imageUrl2x" media="(-webkit-min-device-pixel-radio: 2), (min-resolution: 192dpi)">
                 <img #image [attr.src]="imgUrl" alt="" (load)="finishedLoadingImage()" *ngIf="currentFileIndex >= 0">
             </picture>
@@ -91,6 +95,9 @@ export class UniImage {
 
     @Input()
     public singleImage: boolean;
+
+    @Input()
+    public expandInNewTab: boolean;
 
     @Input()
     public uploadConfig: IUploadConfig;
@@ -302,7 +309,12 @@ export class UniImage {
             });
     }
 
-    private currentClicked() {
+    public onImageClick() {
+        const img: HTMLImageElement = this.image.nativeElement;
+        if (this.expandInNewTab && img) {
+            window.open(img.src);
+        }
+
         this.imageClicked.emit(this.files[this.currentFileIndex]);
     }
 
