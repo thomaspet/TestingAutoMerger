@@ -15,6 +15,9 @@ export class UniComments {
     @Input()
     private entityID: number;
 
+    @Input()
+    private toggleMode: boolean;
+
     private isOpen: boolean;
     private comments: Comment[] = [];
 

@@ -5,7 +5,7 @@ export * from './commonServicesModule';
 export * from './reportServicesModule';
 export * from './timetrackingServicesModule';
 export * from './adminServicesModule';
-export * from './taskServicesModule';
+export * from './assignmentServicesModule';
 
 // Accounting
 // export * from './accounting/accountService';

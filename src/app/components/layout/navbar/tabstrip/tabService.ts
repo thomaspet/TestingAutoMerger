@@ -18,7 +18,7 @@ export enum UniModules {
     Reports         = 102,
     UniQuery        = 103,
     UniTicker       = 104,
-    Tasks           = 105,
+    Assignments     = 105,
 
     Sales           = 200,
     Customers       = 201,

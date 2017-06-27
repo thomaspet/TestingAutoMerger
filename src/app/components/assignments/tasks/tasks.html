@@ -1,0 +1,78 @@
+<!-- Selection list -->
+<section class="assignment-list">
+    <section class="assignment-filters">
+        <button (click)="setShowOnlyMine(true)" [ngClass]="{'active-filter': showOnlyMine}">
+            Mine oppgaver
+        </button>
+
+        <button (click)="setShowOnlyMine(false)" [ngClass]="{'active-filter': !showOnlyMine}">
+            Alle oppgaver
+        </button>
+
+        <section class="show-completed-toggle">
+            <input type="checkbox" class="toggle"
+                [placeholder]="'Vis fullførte'"
+                [checked]="showCompleted"
+            />
+            <label (click)="toggleShowCompleted()" class="toggle" tabindex="-1">
+                Vis fullførte
+            </label>
+        </section>
+    </section>
+
+    <ul #taskList>
+        <li *ngFor="let task of tasks" (click)="selectedTask = task" [attr.aria-selected]="selectedTask?.ID === task.ID">
+            <section class="assignment-info">
+                <p>{{task.Title}}</p>
+                <small class="assigned-to">
+                    Tiltelt til {{task._assignedTo}}
+                </small>
+                <small class="created-by">
+                    Opprettet {{task._createdDate}} av {{task._assignedBy}}
+                </small>
+            </section>
+
+            <section class="assignment-buttons">
+                <button class="c2a"
+                        *ngIf='!task._completed && !task._activeApproval'
+                        (click)="completeTask(task)">
+                    Fullfør
+                </button>
+            </section>
+        </li>
+    </ul>
+
+    <section class="addTask">
+        <label class="task-text">
+            Legg til oppgave
+            <input type="text" [(ngModel)]="newTask.Title" placeholder="Oppgavetekst">
+        </label>
+
+        <label>
+            Tilordne til
+            <uni-select class="drop-up"
+                [config]="userSelectConfig"
+                [items]="users"
+                [value]="currentUser"
+                (valueChange)="onUserSelected($event)">
+            </uni-select>
+        </label>
+
+        <button class="good" (click)="addTask()" [disabled]="!isValidInput()">Legg til</button>
+    </section>
+</section>
+
+<!-- Details -->
+<section class="assignment-details">
+    <section class="assignment-details-header">
+        <h2>{{selectedTask?.Title}}</h2>
+    </section>
+
+    <section class="assignment-details-content">
+        <uni-comments
+            *ngIf="selectedTask"
+            [entity]="'Task'"
+            [entityID]="selectedTask.ID">
+        </uni-comments>
+    </section>
+</section>

@@ -12,7 +12,8 @@ import {
     accountingRouteMap,
     salaryRouteMap,
     salesRouteMap,
-    timetrackingRouteMap
+    timetrackingRouteMap,
+    commonRouteMap
 } from './entityRouteMap';
 
 // import { entityTypeMap as salaryMap } from '../../app/components/salary/salaryRoutes';
@@ -132,7 +133,9 @@ export class UniNotifications {
             route = '/salary/' + salaryRouteMap[entityType];
         } else if (timetrackingRouteMap[entityType]) {
             route = '/timetracking/' + timetrackingRouteMap[entityType];
-        } else if (notification.EntityType == 'File' && notification.SenderDisplayName == 'Uni Micro AP') {
+        } else if (commonRouteMap[entityType]) {
+            route = commonRouteMap[entityType];
+        } else if (notification.EntityType === 'File' && notification.SenderDisplayName === 'Uni Micro AP') {
             route = '/accounting/bill/0?fileid=:id';
         }
 
@@ -199,20 +202,25 @@ export class UniNotifications {
 
 
     private getNotificationText(notification: Notification) {
-        // TODO: rework this..
-        let text = '';
+        if (notification.EntityType  === 'File' && notification.SenderDisplayName === 'Uni Micro AP') {
+            return `${notification.EntityType}/${notification.EntityID} - Inngående EHF`
+        }
+
+        if (notification.EntityType === 'Approval') {
+            return 'Du har blitt tildelt en godkjenning på '
+                + notification.SourceEntityType
+                + ' '
+                + notification.SourceEntityID;
+        }
+
         if (notification.SourceEntityType === 'Comment') {
-            text += 'Du har blitt nevnt i en kommentar på ';
+            return 'Du har blitt nevnt i en kommentar på '
+                + notification.EntityType
+                + ' '
+                + notification.EntityID;
         }
 
-        if (notification.EntityType === 'File' && notification.SenderDisplayName === 'Uni Micro AP') {
-            text += `${notification.EntityType}/${notification.EntityID} - Inngående EHF`;
-        }
-        else {
-            text += `${notification.EntityType}/${notification.EntityID}`;
-        }
-
-        return text;
+        return `${notification.EntityType}/${notification.EntityID}`;
     }
 
 }

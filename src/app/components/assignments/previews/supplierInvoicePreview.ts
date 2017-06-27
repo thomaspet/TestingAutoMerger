@@ -1,7 +1,7 @@
 import {Component, Input, Output} from '@angular/core';
 import {
-    SupplierInvoiceService, 
-    ErrorService, 
+    SupplierInvoiceService,
+    ErrorService,
     CompanySettingsService
 } from '../../../services/services';
 import {Task} from '../../../unientities';
@@ -36,6 +36,14 @@ export class SupplierInvoicePreview {
     public ngOnChanges() {
         this.getCompanySettingsCurrency()
          if (this.task && this.task.EntityID) {
+            this.expand = [
+                'BankAccounts',
+                'JournalEntry.DraftLines.Account',
+                'JournalEntry.DraftLines.VatType',
+                'CurrencyCode',
+                'BankAccount'
+            ];
+
             this.invoiceService.Get(this.task.EntityID, this.expand)
                 .subscribe(
                     res => {
@@ -49,7 +57,7 @@ export class SupplierInvoicePreview {
                         }
                         // setting showCurrency to true/false for it to hide/show if
                         // company settings currency match with invoice currency
-                        (res.CurrencyCode.Code === this.settingsCurrency) 
+                        (res.CurrencyCode.Code === this.settingsCurrency)
                         ? this.showCurrency = false
                         : true;
                         // setting invoiceInfoShow based on the existance of InvoiceType

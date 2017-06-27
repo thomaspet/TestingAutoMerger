@@ -27,3 +27,8 @@ export const timetrackingRouteMap = {
     'worktype': 'worktypes/:id',
 };
 
+export const commonRouteMap = {
+    'Approval': '/assignments/approvals/:id',
+    'task': '/assignments/tasks/:id'
+};
+

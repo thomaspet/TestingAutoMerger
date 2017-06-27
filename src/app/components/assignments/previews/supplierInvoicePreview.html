@@ -1,0 +1,39 @@
+<section class="invoice-info">
+    <dl *ngIf="invoiceInfoShow">
+        <dt>Fakturadato: </dt>
+        <dd>{{invoice?.InvoiceDate | unidateformat}}</dd>
+
+        <dt>Konto: </dt>
+        <dd [title]="invoice?.JournalEntry?.DraftLines[0]?.Account?.AccountName">
+            {{invoice?.JournalEntry?.DraftLines[0]?.Account?.AccountNumber}} - {{invoice?.JournalEntry?.DraftLines[0]?.Account?.AccountName}}
+        </dd>
+
+        <dt>Forfallsdato: </dt>
+        <dd>{{invoice?.PaymentDueDate | unidateformat}}</dd>
+
+        <dt>Mva: </dt>
+        <dd>{{mva}}%</dd>
+
+        <dt>Fakturanr: </dt>
+        <dd>{{invoice?.InvoiceNumber}}</dd>
+
+        <dt>Beskrivelse: </dt>
+        <dd [title]="invoice?.JournalEntry?.DraftLines[0]?.Description">
+            {{invoice?.JournalEntry?.DraftLines[0]?.Description}}
+        </dd>
+    </dl>
+
+    <strong *ngIf="invoiceInfoShow" class="totalSum">
+        Total sum: {{invoice?.TaxInclusiveAmount | unicurrency}}
+        <strong *ngIf="showCurrency">
+            {{invoice?.CurrencyCode.Code}}/{{invoice?.CurrencyCode?.ShortCode}}
+        </strong>
+    </strong>
+</section>
+
+<uni-image *ngIf="task"
+    [entity]="'SupplierInvoice'"
+    [entityID]="task.EntityID"
+    [readonly]="true"
+    [singleImage]="false">
+</uni-image>

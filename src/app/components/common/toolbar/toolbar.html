@@ -9,7 +9,8 @@
 
 <uni-comments *ngIf="commentsConfig?.entityID > 0"
               [entity]="commentsConfig.entityType"
-              [entityID]="commentsConfig.entityID">
+              [entityID]="commentsConfig.entityID"
+              [toggleMode]="true">
 </uni-comments>
 
 <uni-autocomplete-input *ngIf="autocompleteField"

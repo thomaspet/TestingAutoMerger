@@ -60,6 +60,9 @@
         ul
             bottom: 2rem
             left: 1rem
+        button
+            height: 2rem
+            line-height: 1rem
 
 ol.comment-list
     overflow-y: auto
@@ -154,3 +157,22 @@ uni-comment-input
         visibility: hidden
         &[aria-expanded]:not([aria-expanded=false])
             visibility: visible
+
+
+.comments-standard-mode
+    height: 100%
+
+    uni-comment-list
+        display: block
+        height: calc(100% - 5rem)
+        padding: 1rem
+
+    uni-comment-input
+        padding: 1rem
+        height: 5rem
+    
+        ul
+            bottom: 2.5rem
+            left: 1rem
+        button
+            margin-right: 0
