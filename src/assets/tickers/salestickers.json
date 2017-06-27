@@ -11,8 +11,9 @@
             {
                 "Header": "Kundenr",
                 "Field": "Customer.CustomerNumber",
-                "Type": "text",
+                "Type": "link",
                 "Width": "120px",
+                "LinkNavigationProperty": "Customer.ID",
                 "FilterOperator": "startswith"
             },
             {

@@ -1012,6 +1012,9 @@
             {
                 "Header": "Kundenavn",
                 "Field": "Customer.Info.Name",
+                "Type": "link",
+                "ExternalModel": "Customer",
+                "LinkNavigationProperty": "Customer.ID",
                 "FilterOperator": "contains"
             },
             {
