@@ -11,29 +11,35 @@ accrual-modal
                 padding-right: 1.5rem
 
     .accrual-form
-        width: 35%
+        width: 60%
         float: left
 
         uni-field
             width: 100%
 
     .accrual-periods
-        width: calc(65% - 2rem)
-        float: left
-        margin-left: 2rem
+        width: calc(25% - 2rem)
+        float: right
+        margin-top: 1.5rem
+        margin-right: 4rem
+        margin-bottom: 1rem
 
         table
-            width: 100%
+            width: 40%
 
         input[type=checkbox]
-            height: 15px
-            width: 15px
+            height: pxToRem(15)
+            width: pxToRem(15)
             position: relative
 
-.accrual-periods-groups
-    margin-top: 1.5rem
+    h1
+        width: 60%
+        margin-right: 0
+        padding: 0
+        display: inline-block
 
+    footer
+        margin-top: 4rem
 
-
-
-
+    section.accrual-periods
+        display: inline-block

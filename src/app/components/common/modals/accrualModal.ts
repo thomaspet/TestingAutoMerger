@@ -17,14 +17,6 @@ declare const _; // lodash
     template: `
         <article class="modal-content accrual-modal">
             <h1 *ngIf="config.title">{{config.title}}</h1>
-            <section class="accrual-form">
-                <uni-form
-                    [config]="formConfig$"
-                    [fields]="fields$"
-                    [model]="model$"
-                    (changeEvent)="onFormChange($event)">
-                </uni-form>
-            </section>
             <section class="accrual-periods">
                 <table cols=4>
                     <tr>
@@ -46,7 +38,14 @@ declare const _; // lodash
                             [(ngModel)]="allCheckboxValues[i].period3" [disabled]="checkboxEnabledState"/></td>
                     </tr>
                 </table>
-
+            </section>
+            <section class="accrual-form">
+                <uni-form
+                    [config]="formConfig$"
+                    [fields]="fields$"
+                    [model]="model$"
+                    (changeEvent)="onFormChange($event)">
+                </uni-form>
             </section>
             <footer>
                 <button
