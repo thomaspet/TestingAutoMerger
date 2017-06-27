@@ -1,60 +1,61 @@
 label
     position: relative
 
-    .helpTextToggle
-        @extend %unbutton
-        position: absolute
-        top: 0rem
-        left: calc(#{$labelLength} - 2rem)
-        width: 1.2rem
-        height: 1.2rem
-        border: pxToRem(1) solid $uni-color-scale8
-        background-color: $uni-color-scale9
-        background-image: unicon-info($uni-color-scale5)
-        background-size: auto .8rem
-        background-position: center
-        background-repeat: no-repeat
-        border-radius: 9rem
+.helpTextToggle
+    @extend %unbutton
+    position: absolute
+    top: 0rem
+    left: calc(#{$labelLength} - 2rem)
+    width: 1.2rem
+    height: 1.2rem
+    border: pxToRem(1) solid $uni-color-scale8
+    background-color: $uni-color-scale9
+    background-image: unicon-info($uni-color-scale5)
+    background-size: auto .8rem
+    background-position: center
+    background-repeat: no-repeat
+    border-radius: 9rem
 
-        text-indent: 100%
-        white-space: nowrap
-        overflow: hidden
-        font-size: 0
+    text-indent: 100%
+    white-space: nowrap
+    overflow: hidden
+    font-size: 0
 
-        &:hover,
-        &:focus
-            background-color: $uni-color-scale8
-            background-image: unicon-info($uni-color-scale4)
+    &:hover,
+    &:focus
+        @extend .helpTextToggle
+        background-color: $uni-color-scale8
+        background-image: unicon-info($uni-color-scale4)
 
-            & + .helpText
-                display: block
-
-
-    .helpText
-        width: 20rem
-        position: absolute
-        bottom: calc(100% + .7rem)
-        left: 3.25rem
-        max-height: 25rem
-        // overflow-y: auto – the ::after elem triggers it, so we'll need a workaround here…
-        z-index: map-get($zindex, toolbar)
-        background-color: transparentize($uni-color-scale1, .1)
-        color: $uni-color-negative
-        -webkit-backdrop-filter: blur(.3rem)
-        padding: 1rem
-        border-radius: pxToRem(3)
-        display: none
-
-        &:after
-            position: absolute
-            content: ''
-            height: 0
-            width: 0
-            border: .7rem solid transparent
-            border-top-color: transparentize($uni-color-scale1, .1)
-            top: 100%
-            left: calc(50% - .35rem)
-
-        &:hover,
-        &:focus
+        & + .helpText
             display: block
+
+
+.helpText
+    width: 20rem
+    position: absolute
+    bottom: calc(100% + .7rem)
+    left: 3.9rem
+    max-height: 25rem
+    // overflow-y: auto – the ::after elem triggers it, so we'll need a workaround here…
+    z-index: map-get($zindex, toolbar)
+    background-color: transparentize($uni-color-scale1, .1)
+    color: $uni-color-negative
+    -webkit-backdrop-filter: blur(.3rem)
+    padding: 1rem
+    border-radius: pxToRem(3)
+    display: none
+
+    &:after
+        position: absolute
+        content: ''
+        height: 0
+        width: 0
+        border: .7rem solid transparent
+        border-top-color: transparentize($uni-color-scale1, .1)
+        top: 100%
+        left: calc(50% - .35rem)
+
+    &:hover,
+    &:focus
+        display: block
