@@ -92,15 +92,15 @@ export class EmployeeLeaves extends UniView {
         const employmentIDCol = new UniTableColumn('Employment', 'Arbeidsforhold', UniTableColumnType.Lookup)
             .setTemplate((dataItem) => {
                 let employment = this.employments.find(e => e.ID === dataItem.EmploymentID);
-                return (employment) ? employment.JobName : '';
+                return employment 
+                    ? employment.JobName ? `${employment.ID} - ${employment.JobName}` : employment.ID.toString()
+                    : '';
             })
             .setEditorOptions({
                 itemTemplate: (selectedItem) => {
                     return (selectedItem.ID + ' - ' + selectedItem.JobName);
                 },
-                lookupFunction: (searchValue) => {
-                    return this.employments.filter(employment => employment.JobName.toLowerCase().indexOf(searchValue) > -1);
-                }
+                lookupFunction: (searchValue) => this.lookupEmployment(searchValue)
             });
 
         this.tableConfig = new UniTableConfig(this.employeeID ? true : false)
@@ -132,12 +132,16 @@ export class EmployeeLeaves extends UniView {
             });
     }
 
+    private lookupEmployment(searchValue): Employment[] {
+        return this.employments
+            .filter(employment => isNaN(searchValue) 
+                ? employment.JobName.indexOf(searchValue) > -1
+                : employment.ID.toString().startsWith(searchValue));
+    }
+
     private mapEmploymentToPermision(rowModel) {
         let employment = rowModel['Employment'];
-        if (!employment) {
-            return;
-        }
-        rowModel['EmploymentID'] = employment.ID;
+        rowModel['EmploymentID'] = employment ? employment.ID : 0;
     }
 
     private mapLeavetypeToPermision(rowModel) {
