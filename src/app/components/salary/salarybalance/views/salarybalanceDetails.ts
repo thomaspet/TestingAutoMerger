@@ -8,7 +8,7 @@ import {
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import { ReplaySubject } from 'rxjs/ReplaySubject';
 import { Observable } from 'rxjs/Observable';
-import { UniFieldLayout } from 'uniform-ng2/main';
+import { UniFieldLayout, UniForm } from 'uniform-ng2/main';
 import {
     SalaryBalance, SalBalType, WageType, Employee, Supplier, SalBalDrawType, StdWageType, CompanySalary
 } from '../../../../unientities';
@@ -17,6 +17,11 @@ import {
 } from '../../../../../framework/uniToast/toastService';
 import { UniImage, UniImageSize } from '../../../../../framework/uniImage/uniImage';
 import { ImageModal } from '../../../common/modals/ImageModal';
+type UniFormTabEvent = {
+    event: KeyboardEvent,
+    prev: UniFieldLayout,
+    next: UniFieldLayout
+};
 
 @Component({
     selector: 'salarybalance-details',
@@ -30,7 +35,7 @@ export class SalarybalanceDetail extends UniView {
     private invalidKID: boolean;
     private cachedSalaryBalance$: ReplaySubject<SalaryBalance> = new ReplaySubject<SalaryBalance>(1);
     private salarybalance$: BehaviorSubject<SalaryBalance> = new BehaviorSubject(new SalaryBalance());
-    
+
     public config$: BehaviorSubject<any> = new BehaviorSubject({ autofocus: true });
     public fields$: BehaviorSubject<any> = new BehaviorSubject([]);
     public unlinkedFiles: Array<number> = [];
@@ -38,6 +43,7 @@ export class SalarybalanceDetail extends UniView {
 
     @ViewChild(UniImage) public uniImage: UniImage;
     @ViewChild(ImageModal) public imageModal: ImageModal;
+    @ViewChild(UniForm) public form: UniForm;
 
     constructor(
         private route: ActivatedRoute,
@@ -75,10 +81,7 @@ export class SalarybalanceDetail extends UniView {
                                 salarybalance.InstalmentType = type;
                             }
                         }
-                        return this.setup().map(response => {
-                            this.setWagetype(salarybalance, response[1]);
-                            return salarybalance;
-                        });
+                        return this.setup().map(response => this.setWagetype(salarybalance, response[1]));
                     }
                     return Observable.of(salarybalance);
                 })
@@ -116,27 +119,31 @@ export class SalarybalanceDetail extends UniView {
                 if (changes['KID'] || changes['Instalment']) {
                     this.validateKID(model);
                 }
+
                 if (changes['SupplierID']) {
                     model.Supplier = this.suppliers.find(supp => supp.ID === model.SupplierID);
                 }
 
-                let previousAmount = changes['Amount'] ? changes['Amount'].previousValue : null;
-                let currentAmount = changes['Amount'] ? changes['Amount'].currentValue : null;
-                if (previousAmount !== currentAmount) {
-                    if (currentAmount < 0 && this.salarybalance$.getValue().InstalmentType === SalBalType.Advance) {
-                        this.toastService.addToast('Feil i beløp',
-                            ToastType.warn, ToastTime.medium,
-                            'Du prøver å føre et forskudd med et negativt beløp');
-                    } else if (currentAmount > 0
-                        && this.salarybalance$.getValue().InstalmentType !== SalBalType.Advance) {
-                        this.toastService.addToast('Feil i beløp',
-                            ToastType.warn, ToastTime.medium,
-                            'Du prøver å føre et trekk med positivt beløp');
+                if (changes['Amount']) {
+                    if (changes['Amount'].currentValue < 0) {
+                        let message = '';
+                        switch (model.InstalmentType) {
+                            case SalBalType.Advance:
+                                message = 'Du prøver å føre et forskudd med et negativt beløp';
+                                break;
+                            default:
+                                message = 'Du prøver å føre et trekk med negativ saldo';
+                        }
+                        if (message) {
+                            this.toastService.addToast('Feil i beløp',
+                                ToastType.warn, ToastTime.medium,
+                                message);
+                        }
                     }
                 }
+
                 return model;
             })
-            .do(model => this.updateFields(model, changes))
             .subscribe(model => super.updateState('salarybalance', model, true));
     }
 
@@ -193,7 +200,7 @@ export class SalarybalanceDetail extends UniView {
         ];
     }
 
-    private updateFields(salaryBalance: SalaryBalance, changes: SimpleChanges = null) {
+    private updateFields(salaryBalance: SalaryBalance) {
         this.fields$
             .take(1)
             .map(fields => {
@@ -264,7 +271,7 @@ export class SalarybalanceDetail extends UniView {
             && !this.modulusService.isValidKID(salaryBalance.KID);
     }
 
-    private setWagetype(salarybalance: SalaryBalance, wagetypes = null) {
+    private setWagetype(salarybalance: SalaryBalance, wagetypes = null): SalaryBalance {
         let wagetype: WageType;
         wagetypes = wagetypes || this.wagetypes;
 
@@ -285,5 +292,41 @@ export class SalarybalanceDetail extends UniView {
             }
             salarybalance.WageTypeNumber = wagetype ? wagetype.WageTypeNumber : 0;
         }
+
+        return salarybalance;
+    }
+
+    private tabForward(event: UniFormTabEvent) {
+        this.fields$
+            .take(1)
+            .filter(fields => event.prev.Placement > event.next.Placement)
+            .map(fields => {
+                let newNextField = fields
+                    .filter(field => !field.Hidden)
+                    .find(field => field.Placement > event.prev.Placement) || {};
+                return newNextField.Property || '';
+            })
+            .subscribe(prop => {
+                if (prop) {
+                    this.form.field(prop).focus();
+                }
+            });
+    }
+
+    private tabBackward(event: UniFormTabEvent) {
+        this.fields$
+            .take(1)
+            .map(fields => {
+                let newPrevfield = fields
+                    .filter(field => !field.Hidden)
+                    .sort((fieldA, fieldB) => fieldB.Placement - fieldA.Placement)
+                    .find(field => field.Placement < event.prev.Placement) || {};
+                return newPrevfield.Property || '';
+            })
+            .subscribe(prop => {
+                if (prop) {
+                    this.form.field(prop).focus();
+                }
+            });
     }
 }

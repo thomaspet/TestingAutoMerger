@@ -3,7 +3,13 @@
         <legend>Detaljer</legend>
         <aside>
             <p *ngIf="invalidKID" role="alert" class="error">Ugyldig KID</p>
-            <uni-form [config]="config$" [fields]="fields$" [model]="salarybalance$" (changeEvent)="change($event)"></uni-form>
+            <uni-form 
+                [config]="config$" 
+                [fields]="fields$" 
+                [model]="salarybalance$" 
+                (changeEvent)="change($event)"
+                (moveForwardEvent)="tabForward($event)"
+                (moveBackwardEvent)="tabBackward($event)"></uni-form>
             <article class="collapsable" [ngClass]="{'-is-open': !collapseSummary}">
             <h4 (click)="collapseSummary = !collapseSummary">Poster</h4>
             <div class="collapsable-content">

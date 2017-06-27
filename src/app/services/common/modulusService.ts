@@ -47,9 +47,12 @@ export class ModulusService {
     }
 
     public isValidKID(KID: string) {
-        return !KID
+        if (KID) {
+            return !KID
             .split('')
             .some(x => isNaN(+x)) && this.modulus10(KID);
+        }
+        return true;
     }
 
     private checkSSNCheckSums(ssn: string) {
@@ -58,7 +61,7 @@ export class ModulusService {
         && +ssn.charAt(ssn.length - 1) === checkSums.checkSum2;
     }
 
-    private standardChecksOK(numberToCheck: string): boolean{
+    private standardChecksOK(numberToCheck: string): boolean {
         if (!numberToCheck) {
             return false;
         }
