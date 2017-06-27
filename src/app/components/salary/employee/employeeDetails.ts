@@ -234,7 +234,7 @@ export class EmployeeDetails extends UniView implements OnDestroy {
                 this.toolbarConfig = {
                     title: employee.BusinessRelationInfo ? employee.BusinessRelationInfo.Name || 'Ny ansatt' : 'Ny ansatt',
                     subheads: [{
-                        title: this.employee.ID ? 'Ansattnr. ' + this.employee.ID : ''
+                        title: this.employee.EmployeeNumber ? 'Ansattnr. ' + this.employee.EmployeeNumber : ''
                     }],
                     navigation: {
                         prev: this.previousEmployee.bind(this),
