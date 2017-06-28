@@ -119,7 +119,7 @@ export class AmeldingPeriodSummaryView {
 
     private checkMottattPeriode(mottak) {
         if (mottak.hasOwnProperty('mottattPeriode')) {
-            if (mottak.mottattPeriode.hasOwnProperty('mottattAvgiftOgTrekkTotalt')) {
+            if (!!mottak.mottattPeriode && mottak.mottattPeriode.hasOwnProperty('mottattAvgiftOgTrekkTotalt')) {
                 this.sumAmldAga = mottak.mottattPeriode.mottattAvgiftOgTrekkTotalt.sumArbeidsgiveravgift;
                 this.sumAmldFtrekk = mottak.mottattPeriode.mottattAvgiftOgTrekkTotalt.sumForskuddstrekk;
             }
