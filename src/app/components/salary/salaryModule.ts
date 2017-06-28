@@ -37,6 +37,7 @@ import {ReadTaxCard} from './employee/modals/readTaxCard';
 import {TaxCardRequest} from './employee/modals/taxCardRequest';
 import {PersonalDetails} from './employee/personalDetails/personalDetails';
 import {RecurringPost} from './employee/recurringPost/recurringPost';
+import {EmployeeTax} from './employee/employeeTax/employeeTax';
 
 import {VacationpayModal} from './payrollrun/vacationpay/vacationPayModal';
 import {VacationpayModalContent} from './payrollrun/vacationpay/vacationPayModalContent';
@@ -135,6 +136,7 @@ import {CanDeactivateGuard} from '../../canDeactivateGuard';
         AltinnResponseModalContent,
         PersonalDetails,
         RecurringPost,
+        EmployeeTax,
 
         // Payrollrun
         VacationpayModal,
@@ -228,6 +230,7 @@ import {CanDeactivateGuard} from '../../canDeactivateGuard';
         AltinnResponseModalContent,
         PersonalDetails,
         RecurringPost,
+        EmployeeTax,
 
         // Payrollrun
         VacationpayModal,

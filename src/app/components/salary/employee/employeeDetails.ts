@@ -22,6 +22,7 @@ import {
     NumberFormat, WageTypeService, SalarySumsService, YearService, BankAccountService, EmployeeCategoryService,
     ModulusService
 } from '../../../services/services';
+import { Subscription } from 'rxjs/Subscription';
 declare var _;
 @Component({
     selector: 'uni-employee-details',
@@ -50,6 +51,8 @@ export class EmployeeDetails extends UniView implements OnDestroy {
     private activeYear: number;
     private categories: EmployeeCategory[];
     private savedNewEmployee: boolean;
+    private taxOptions: any;
+    private subscriptions: Subscription[] = [];
 
     public categoryFilter: ITag[] = [];
     public tagConfig: IUniTagsConfig = {
@@ -165,10 +168,11 @@ export class EmployeeDetails extends UniView implements OnDestroy {
                 .debounceTime(200)
         };
 
-        this.yearService.getActiveYear()
-            .subscribe((year) => {
-                this.activeYear = year;
-            }, err => this.errorService.handle(err));
+        this.subscriptions
+            .push(this.yearService.getActiveYear()
+                .subscribe((year) => {
+                    this.activeYear = year;
+                }, err => this.errorService.handle(err)));
 
         this.route.params.subscribe((params) => {
             this.employeeID = +params['id'];
@@ -225,6 +229,7 @@ export class EmployeeDetails extends UniView implements OnDestroy {
             this.recurringPosts = undefined;
             this.employeeTaxCard = undefined;
             this.categories = undefined;
+            this.taxOptions = undefined;
 
             // (Re)subscribe to state var updates
             super.getStateSubject('employee').subscribe((employee) => {
@@ -289,11 +294,15 @@ export class EmployeeDetails extends UniView implements OnDestroy {
                 this.wageTypes = wageTypes;
             });
 
-            super.getStateSubject('employeeTaxCard').subscribe((employeeTaxCard) => {
-                this.employeeTaxCard = employeeTaxCard;
-                this.updateTaxAlerts(employeeTaxCard);
-                this.checkDirty();
-            });
+            super.getStateSubject('employeeTaxCard')
+                .subscribe((employeeTaxCard) => {
+                    this.employeeTaxCard = employeeTaxCard;
+                    this.updateTaxAlerts(employeeTaxCard);
+                    this.checkDirty();
+                });
+
+            super.getStateSubject('taxCardModalCallback')
+                .subscribe((options) => this.taxOptions = options);
 
 
             // If employee ID was changed by next/prev button clicks employee has been
@@ -309,46 +318,55 @@ export class EmployeeDetails extends UniView implements OnDestroy {
         });
 
         // Subscribe to route changes and load necessary data
-        this.router.events.subscribe((event: any) => {
-            if (event instanceof NavigationEnd && this.employeeID !== undefined) {
-                let childRoute = event.url.split('/').pop();
-                if (!this.employee) {
-                    this.getEmployee();
-                }
+        this.subscriptions
+            .push(this.router.events.subscribe((event: any) => {
+                if (event instanceof NavigationEnd && this.employeeID !== undefined) {
+                    let childRoute = event.url.split('/').pop();
+                    if (!this.employee) {
+                        this.getEmployee();
+                    }
 
-                if (!this.categories) {
-                    this.getEmployeeCategories();
-                }
+                    if (!this.categories) {
+                        this.getEmployeeCategories();
+                    }
 
-                if (!this.employeeTaxCard) {
-                    this.getTax();
-                }
+                    if (!this.employeeTaxCard) {
+                        this.getTax();
+                    }
 
-                if (!this.employments) {
-                    this.getEmployments();
-                    this.getProjects();
-                    this.getDepartments();
-                }
+                    if (!this.taxOptions) {
+                        super.updateState('taxCardModalCallback',
+                            { openModal: () => this.taxCardModal.openModal() },
+                            false);
+                    }
 
-                if (childRoute === 'recurring-post') {
-                    if (!this.recurringPosts) {
-                        this.getRecurringPosts();
+                    if (!this.employments) {
+                        this.getEmployments();
+                        this.getProjects();
+                        this.getDepartments();
+                    }
+
+                    if (childRoute === 'recurring-post') {
+                        if (!this.recurringPosts) {
+                            this.getRecurringPosts();
+                        }
+                    }
+
+                    if (childRoute === 'employee-leave') {
+                        if (!this.employeeLeave) {
+                            super.getStateSubject('employments')
+                                .take(1)
+                                .subscribe((employments) => {
+                                    this.getEmployeeLeave(employments);
+                                });
+                        }
+                    }
+
+                    if (childRoute !== 'employee-leave' && childRoute !== 'recurring-post') {
+                        this.getSubEntities();
                     }
                 }
-
-                if (childRoute === 'employee-leave') {
-                    if (!this.employeeLeave) {
-                        super.getStateSubject('employments').take(1).subscribe(() => {
-                            this.getEmployeeLeave();
-                        });
-                    }
-                }
-
-                if (childRoute !== 'employee-leave' && childRoute !== 'recurring-post') {
-                    this.getSubEntities();
-                }
-            }
-        });
+            }));
     }
 
     private updateTabStrip(employeeID: number, employee: Employee) {
@@ -371,6 +389,7 @@ export class EmployeeDetails extends UniView implements OnDestroy {
 
     public ngOnDestroy() {
         this.employeeID = undefined;
+        this.subscriptions.forEach(sub => sub.unsubscribe());
     }
 
     public canDeactivate(): Observable<boolean> {
@@ -471,7 +490,7 @@ export class EmployeeDetails extends UniView implements OnDestroy {
                 bottomText: [{ text: 'Ingen aktive arbeidsforhold' }]
             }
         };
-        
+
         // Add employments
         if (employments.length > 0) {
             var standardIndex = 0;
@@ -638,12 +657,7 @@ export class EmployeeDetails extends UniView implements OnDestroy {
 
     private getTax(): void {
         this.getTaxObservable()
-            .subscribe(taxCard => {
-                super.updateState('employeeTaxCard', taxCard, false);
-                super.updateState('taxCardModalCallback',
-                    { openModal: () => this.taxCardModal.openModal() },
-                    false);
-            });
+            .subscribe(taxCard => super.updateState('employeeTaxCard', taxCard, false));
     }
 
     private getTaxObservable(): Observable<EmployeeTaxCard> {
@@ -750,10 +764,10 @@ export class EmployeeDetails extends UniView implements OnDestroy {
         return this.departments ? Observable.of(this.departments) : this.departmentService.GetAll('');
     }
 
-    private getEmployeeLeave() {
+    private getEmployeeLeave(employments: Employment[]) {
         let filterParts = ['EmploymentID eq 0'];
-        if (this.employments) {
-            this.employments.forEach((employment: Employment) => {
+        if (employments) {
+            employments.forEach((employment: Employment) => {
                 filterParts.push(`EmploymentID eq ${employment.ID}`);
             });
         }
@@ -930,7 +944,7 @@ export class EmployeeDetails extends UniView implements OnDestroy {
         if (brInfo.DefaultEmail && brInfo.DefaultEmail['_createguid']) {
             brInfo.Emails = brInfo.Emails.filter(email => email !== brInfo.DefaultEmail);
         }
-        
+
         return (this.employee.ID > 0)
             ? this.employeeService.Put(this.employee.ID, this.employee)
             : this.employeeService.Post(this.employee);

@@ -1,20 +1,17 @@
 import { Component, ViewChild, SimpleChanges } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
-import { UniForm } from '../../../../../framework/ui/uniform/index';
+import { UniForm, UniFieldLayout } from '../../../../../framework/ui/uniform/index';
+import { UniView } from '../../../../../framework/core/uniView';
 import {
     OperationType, Operator, ValidationLevel, Employee, Email, Phone,
-    Address, Municipal, SubEntity, EmployeeTaxCard, BankAccount, User
+    Address, SubEntity, BankAccount, User
 } from '../../../../unientities';
 import { AddressModal, EmailModal, PhoneModal } from '../../../common/modals/modals';
-import { TaxCardModal } from '../modals/taxCardModal';
-import { UniFieldLayout } from '../../../../../framework/ui/uniform/index';
-import { UniView } from '../../../../../framework/core/uniView';
 import { Observable } from 'rxjs/Observable';
 
 import {
     EmployeeService,
     MunicipalService,
-    EmployeeTaxCardService,
     BankAccountService,
     BusinessRelationService,
     ErrorService,
@@ -47,18 +44,16 @@ export class PersonalDetails extends UniView {
     ];
     public config$: BehaviorSubject<any> = new BehaviorSubject({});
     public fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
-    public taxFields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
-    private employeeTaxCard$: BehaviorSubject<EmployeeTaxCard> = new BehaviorSubject(new EmployeeTaxCard());
     private employee$: BehaviorSubject<Employee> = new BehaviorSubject(new Employee());
 
     @ViewChild(UniForm) public uniform: UniForm;
-    @ViewChild(TaxCardModal) public taxCardModal: TaxCardModal;
     @ViewChild(PhoneModal) public phoneModal: PhoneModal;
     @ViewChild(EmailModal) public emailModal: EmailModal;
     @ViewChild(AddressModal) public addressModal: AddressModal;
 
     @ViewChild(BankAccountModal) public bankAccountModal: BankAccountModal;
     private employeeID: number;
+    private collapseTax: boolean;
 
     constructor(
         private employeeService: EmployeeService,
@@ -67,7 +62,6 @@ export class PersonalDetails extends UniView {
         route: ActivatedRoute,
         cacheService: UniCacheService,
         private errorService: ErrorService,
-        private employeeTaxCardService: EmployeeTaxCardService,
         private bankaccountService: BankAccountService,
         private businessRelationService: BusinessRelationService,
         private uniSearchConfigGeneratorService: UniSearchConfigGeneratorService,
@@ -94,25 +88,11 @@ export class PersonalDetails extends UniView {
 
             super.updateCacheKey(this.router.url);
             super.getStateSubject('employee')
-                .map(employee => {
-                    this.toggleTaxButtonActive(employee);
-                    return employee;
-                })
                 .subscribe(
                 employee => {
                     this.employee$.next(employee);
                     this.showHideNameProperties(false);
                 },
-                err => this.errorService.handle(err)
-                );
-
-            super.getStateSubject('employeeTaxCard')
-                .map((taxCard: EmployeeTaxCard) => {
-                    taxCard['_lastUpdated'] = taxCard.UpdatedAt || taxCard.CreatedAt;
-                    return taxCard;
-                })
-                .subscribe(
-                taxCard => this.employeeTaxCard$.next(taxCard),
                 err => this.errorService.handle(err)
                 );
 
@@ -127,64 +107,7 @@ export class PersonalDetails extends UniView {
                         this.getLayout(subEntities, employee);
                     });
             }
-
-            if (!this.taxFields$.getValue().length) {
-                Observable
-                    .combineLatest(
-                    super.getStateSubject('taxCardModalCallback'),
-                    super.getStateSubject('employee'))
-                    .take(1)
-                    .subscribe((response: [any, Employee]) => {
-                        let [taxCardOptions, employee] = response;
-                        this.getTaxLayout(taxCardOptions, employee);
-                    });
-            }
         });
-    }
-
-    private toggleTaxButtonActive(employee: Employee) {
-        if (employee && this.taxFields$.getValue().length) {
-            let taxFields = this.taxFields$.getValue();
-            let field = this.findByProperty(taxFields, 'TaxBtn');
-            field.ReadOnly = !employee.SocialSecurityNumber;
-            this.taxFields$.next(taxFields); // tried without this, didn't update when employee was updated
-        }
-    }
-
-    private getTaxLayout(taxCardOptions: { openModal: () => void }, employee: Employee) {
-        this.employeeTaxCardService.getLayout('EmployeeTaxCardForm').subscribe(layout => {
-            let taxButton = this.findByProperty(layout.Fields, 'TaxBtn');
-            taxButton.Options = {
-                click: (event) => {
-                    taxCardOptions.openModal();
-                }
-            };
-
-            this.toggleTaxButtonActive(employee);
-
-            let municipality = this.findByProperty(layout.Fields, 'MunicipalityNo');
-            municipality.Options = {
-                getDefaultData: () => this.employeeTaxCard$.getValue() && this.employeeTaxCard$.getValue().MunicipalityNo
-                    ? this.municipalService
-                        .GetAll(`filter=MunicipalityNo eq ${this.employeeTaxCard$.getValue().MunicipalityNo}`)
-                        .catch((err, obs) => this.errorService.handleRxCatch(err, obs))
-                    : Observable.of([]),
-                search: (query: string) => this.municipalService
-                    .GetAll(`filter=
-                        startswith(MunicipalityNo, '${query}')
-                        or contains(MunicipalityName, '${query}')
-                        &top=50`)
-                    .catch((err, obs) => this.errorService.handleRxCatch(err, obs)),
-                valueProperty: 'MunicipalityNo',
-                displayProperty: 'MunicipalityNo',
-                debounceTime: 200,
-                template: (obj: Municipal) => obj
-                    ? `${obj.MunicipalityNo} - ${obj.MunicipalityName.substr(0, 1).toUpperCase()
-                    + obj.MunicipalityName.substr(1).toLowerCase()}`
-                    : ''
-            };
-            this.taxFields$.next(layout.Fields);
-        }, err => this.errorService.handle(err));
     }
 
     private getLayout(subEntities: SubEntity[], employee: Employee) {
@@ -273,10 +196,6 @@ export class PersonalDetails extends UniView {
                 return employee;
             })
             .subscribe(employee => super.updateState('employee', employee, true));
-    }
-
-    public onTaxFormChange(changes: SimpleChanges) {
-        super.updateState('employeeTaxCard', this.employeeTaxCard$.getValue(), true);
     }
 
     public showHideNameProperties(doUpdateFocus: boolean = false, employee: Employee = undefined, fields: any[] = undefined) {

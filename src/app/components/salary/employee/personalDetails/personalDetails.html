@@ -1,17 +1,19 @@
-<article class="application employee-personal-details" [attr.aria-busy]="busy">
+<article class="application" [attr.aria-busy]="busy">
     <uni-form [config]="config$"
               [fields]="fields$"
               [model]="employee$"
               (changeEvent)="onFormChange($event)"
               (readyEvent)="onFormReady($event)">
     </uni-form>
-    <uni-form [config]="config$"
-              [fields]="taxFields$"
-              [model]="employeeTaxCard$"
-              (changeEvent)="onTaxFormChange($event)">
-    </uni-form>
-    <email-modal></email-modal>
-    <phone-modal></phone-modal>
-    <address-modal></address-modal>
-    <bankaccount-modal></bankaccount-modal>
+    <section class="personal-details-tax collapsable" [ngClass]="{'-is-open': !collapseTax}">
+        <h4 (click)="collapseTax = !collapseTax">Skatt</h4>
+        <section class="collapsable-content">
+            <employee-tax></employee-tax>
+        </section>
+    </section>
+
 </article>
+<email-modal></email-modal>
+<phone-modal></phone-modal>
+<address-modal></address-modal>
+<bankaccount-modal></bankaccount-modal>
