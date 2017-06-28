@@ -5,6 +5,7 @@ import { EmploymentService } from '../../../../services/services';
 import { UniTable, UniTableConfig, UniTableColumnType, UniTableColumn } from '../../../../../framework/ui/unitable/index';
 import { Employee, Employment, SubEntity, Project, Department } from '../../../../unientities';
 import { UniCacheService, ErrorService } from '../../../../services/services';
+import { ReplaySubject } from 'rxjs/ReplaySubject';
 
 @Component({
     selector: 'employments',
@@ -21,6 +22,7 @@ export class Employments extends UniView {
     private subEntities: SubEntity[];
     private projects: Project[];
     private departments: Department[];
+    private cachedEmployments: ReplaySubject<Employment[]> = new ReplaySubject<Employment[]>(1);
 
     constructor(
         private employmentService: EmploymentService,
@@ -56,14 +58,16 @@ export class Employments extends UniView {
 
             super.getStateSubject('departments')
                 .subscribe(departments => this.departments = departments, err => this.errorService.handle(err));
+
+            super.getStateSubject('employments')
+                .subscribe(employments => this.cachedEmployments.next(employments));
         });
 
         route.params.subscribe((paramsChange) => {
-            super.getStateSubject('employments')
-                .subscribe((employments) => {
-                    this.employments = employments || [];
-                    setTimeout(() => this.focusRow(+paramsChange['EmploymentID']));
-                }, err => this.errorService.handle(err));
+            this.cachedEmployments
+                .catch((err, obs) => this.errorService.handleRxCatch(err,obs))
+                .do(employments => setTimeout(() => this.focusRow(+paramsChange['EmploymentID'])))
+                .subscribe(employments => this.employments = employments || []);
         });
     }
 
