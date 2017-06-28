@@ -184,7 +184,7 @@ export class EmploymentService extends BizHttp<Employment> {
                     Property: 'SubEntityID',
                     Placement: 7,
                     Hidden: false,
-                    FieldType: FieldType.DROPDOWN,
+                    FieldType: FieldType.AUTOCOMPLETE,
                     ReadOnly: false,
                     LookupField: false,
                     Label: 'Virksomhet',
@@ -197,10 +197,7 @@ export class EmploymentService extends BizHttp<Employment> {
                     Combo: null,
                     Sectionheader: '',
                     IsLookUp: false,
-                    Options: {
-                        valueProperty: 'ID',
-                        displayProperty: 'BusinessRelationInfo.Name'
-                    },
+                    Options: null
                 },
                 {
                     ComponentLayoutID: 1,

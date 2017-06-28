@@ -95,6 +95,19 @@ export class EmploymentDetails implements OnChanges {
                 }
             });
 
+            const subEntityField = layout.Fields.find(field => field.Property === 'SubEntityID');
+            subEntityField.Options = {
+                valueProperty: 'ID',
+                debounceTime: 200,
+                template: (obj: SubEntity) =>
+                    obj && obj.BusinessRelationInfo
+                    ?
+                    obj.BusinessRelationInfo.Name
+                        ? `${obj.OrgNumber} - ${obj.BusinessRelationInfo.Name}`
+                        : `${obj.OrgNumber}`
+                    : ''
+            }
+
             let jobCodeField = layout.Fields.find(field => field.Property === 'JobCode');
             jobCodeField.Options = {
                 getDefaultData: () => this.employment && this.employment.JobCode

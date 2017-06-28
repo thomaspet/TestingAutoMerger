@@ -190,7 +190,7 @@ export class EmployeeService extends BizHttp<Employee> {
                     Property: 'SubEntityID',
                     Placement: 6,
                     Hidden: false,
-                    FieldType: FieldType.DROPDOWN,
+                    FieldType: FieldType.AUTOCOMPLETE,
                     ReadOnly: false,
                     LookupField: false,
                     Label: 'Virksomhet',
@@ -203,11 +203,7 @@ export class EmployeeService extends BizHttp<Employee> {
                     Combo: null,
                     Sectionheader: '',
                     IsLookUp: false,
-                    Options: {
-                        valueProperty: 'ID',
-                        displayProperty: 'BusinessRelationInfo.Name',
-                        debounceTime: 200
-                    },
+                    Options: null,
                     Validations: [
                         {
                             ErrorMessage: 'Required field',

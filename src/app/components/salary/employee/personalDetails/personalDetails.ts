@@ -329,8 +329,19 @@ export class PersonalDetails extends UniView {
     }
 
     private extendFormConfig(fields: any[], subEntities: SubEntity[], employee: Employee) {
-        const subEntityField = fields.find(field => field.Property === 'SubEntityID');
-        subEntityField.Options.source = subEntities;
+        let subEntityField = fields.find(field => field.Property === 'SubEntityID');
+        subEntityField.Options = {
+            source: subEntities,
+            valueProperty: 'ID',
+            debounceTime: 200,
+            template: (obj: SubEntity) =>
+                obj && obj.BusinessRelationInfo
+                ?
+                obj.BusinessRelationInfo.Name
+                    ? `${obj.OrgNumber} - ${obj.BusinessRelationInfo.Name}`
+                    : `${obj.OrgNumber}`
+                : ''
+        }
 
         let multiValuePhone: UniFieldLayout = this.findByProperty(fields, 'BusinessRelationInfo.DefaultPhone');
         let phoneModalSubscription;
