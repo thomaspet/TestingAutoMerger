@@ -52,7 +52,6 @@ export class AuthService {
             }
         }, 60000);
     }
-
     /**
      * Authenticates the user and returns an observable of the response
      * @param {Object} credentials
@@ -88,7 +87,6 @@ export class AuthService {
 
             });
     }
-
     /**
      * Returns web token or redirects to /login if user is not authenticated
      * @returns {String}
@@ -160,10 +158,22 @@ export class AuthService {
     /**
      * Removes web token from localStorage and memory, then redirects to /login
      */
-    public clearAuthAndGotoLogin(): void {
+    public clearAuthAndGotoLogin(): void  {
         if (this.isAuthenticated()) {
             this.authentication$.next({token: undefined, filesToken: undefined, activeCompany: undefined});
         }
+
+        let url = AppConfig.BASE_URL_INIT + AppConfig.API_DOMAINS.INIT + 'log-out';
+        let headers = new Headers({
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + this.jwt,
+            'CompanyKey': this.activeCompany
+        });
+        this.http.post(url, '', {headers: headers})
+            .subscribe(
+                () => console.log('User logged out sucessfully'),
+                err => console.error('Error:JWT token is still valid.', err)
+            );
 
         localStorage.removeItem('jwt');
         localStorage.removeItem('activeCompany');
@@ -173,7 +183,6 @@ export class AuthService {
         this.activeCompany = undefined;
         this.router.navigateByUrl('init/login');
     }
-
     /**
      * Returns the decoded web token
      * @returns {Object}
