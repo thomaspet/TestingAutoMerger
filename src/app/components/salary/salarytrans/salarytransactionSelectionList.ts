@@ -1,6 +1,6 @@
 import { Component, ViewChild, Output, EventEmitter, AfterViewInit, OnInit } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
-import { UniTable, UniTableConfig, UniTableColumnType, UniTableColumn, IContextMenuItem } from 'unitable-ng2/main';
+import { UniTable, UniTableConfig, UniTableColumnType, UniTableColumn, IContextMenuItem } from '../../../../framework/ui/unitable/index';
 import { UniHttp } from '../../../../framework/core/http/http';
 import { Employee, AGAZone, SalaryTransactionSums, PayrollRun, EmployeeTaxCard, SalBalType } from '../../../unientities';
 import { ISummaryConfig } from '../../common/summary/summary';

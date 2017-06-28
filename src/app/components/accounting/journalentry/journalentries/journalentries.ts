@@ -4,7 +4,7 @@ import {JournalEntryManual} from '../journalentrymanual/journalentrymanual';
 import {Router, ActivatedRoute} from '@angular/router';
 import {JournalEntryService, ErrorService, JournalEntryLineService} from '../../../../services/services';
 import {UniConfirmModal, ConfirmActions} from '../../../../../framework/modals/confirm';
-import {IContextMenuItem} from 'unitable-ng2/main';
+import {IContextMenuItem} from '../../../../../framework/ui/unitable/index';
 import {IToolbarConfig} from '../../../common/toolbar/toolbar';
 import {ToastService, ToastType} from '../../../../../framework/uniToast/toastService';
 import {NumberSeriesTask} from '../../../../unientities';

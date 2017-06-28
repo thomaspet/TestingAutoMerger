@@ -11,8 +11,8 @@ import { TabService, UniModules } from '../../layout/navbar/tabstrip/tabService'
 import { ControlModal } from './controlModal';
 import { PostingsummaryModal } from './postingsummaryModal';
 import { VacationpayModal } from './vacationpay/vacationPayModal';
-import { UniForm } from 'uniform-ng2/main';
-import { IContextMenuItem } from 'unitable-ng2/main';
+import { UniForm } from '../../../../framework/ui/uniform/index';
+import { IContextMenuItem } from '../../../../framework/ui/unitable/index';
 import { IToolbarConfig } from '../../common/toolbar/toolbar';
 import { IUniTagsConfig, ITag } from '../../common/toolbar/tags';
 import { UniStatusTrack } from '../../common/toolbar/statustrack';

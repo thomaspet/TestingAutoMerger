@@ -1,8 +1,8 @@
 import {Component, Type, Input, Output, ViewChild, EventEmitter, OnInit} from '@angular/core';
 import {UniModal} from '../../../../../framework/modals/modal';
-import {UniForm} from 'uniform-ng2/main';
+import {UniForm} from '../../../../../framework/ui/uniform/index';
 import {FieldLayout, Period, VatReport} from '../../../../../app/unientities';
-import {FieldType} from 'uniform-ng2/main';
+import {FieldType} from '../../../../../framework/ui/uniform/index';
 import {PeriodDateFormatPipe} from '../../../../pipes/periodDateFormatPipe';
 import {ToastService, ToastType} from '../../../../../framework/uniToast/toastService';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';

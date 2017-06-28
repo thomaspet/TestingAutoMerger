@@ -3,8 +3,8 @@ import {FormControl, FormGroup} from '@angular/forms';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {TabService} from '../../layout/navbar/tabstrip/tabService';
 import {UniHttp} from '../../../../framework/core/http/http';
-import {UniField, FieldType} from 'uniform-ng2/main';
-import {UniTable, UniTableConfig, UniTableColumn, IContextMenuItem} from 'unitable-ng2/main';
+import {UniField, FieldType} from '../../../../framework/ui/uniform/index';
+import {UniTable, UniTableConfig, UniTableColumn, IContextMenuItem} from '../../../../framework/ui/unitable/index';
 import {RoleService, ErrorService, UserService} from '../../../services/services';
 import {Role, UserRole, User} from '../../../unientities';
 

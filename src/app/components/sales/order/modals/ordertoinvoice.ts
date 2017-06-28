@@ -2,7 +2,7 @@ import {Component, Type, Input, Output, ViewChild, EventEmitter} from '@angular/
 import {Observable} from 'rxjs/Observable';
 
 import {UniModal} from '../../../../../framework/modals/modal';
-import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig} from 'unitable-ng2/main';
+import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig} from '../../../../../framework/ui/unitable/index';
 
 import {CustomerOrderService, ProductService, ErrorService} from '../../../../services/services';
 import {StatusCodeCustomerOrderItem} from '../../../../unientities';

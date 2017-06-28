@@ -1,5 +1,5 @@
 import {Component, Input, Output, EventEmitter, ViewChild} from '@angular/core';
-import {UniTableConfig, UniTableColumn, UniTableColumnType, UniTable} from 'unitable-ng2/main';
+import {UniTableConfig, UniTableColumn, UniTableColumnType, UniTable} from '../../../../framework/ui/unitable/index';
 import {TimesheetService, TimeSheet, ValueItem} from '../../../services/timetracking/timesheetService';
 import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
 import {ErrorService, BrowserStorageService} from '../../../services/services';

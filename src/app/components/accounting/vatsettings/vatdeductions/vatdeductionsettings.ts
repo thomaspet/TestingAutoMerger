@@ -3,7 +3,7 @@ import {Observable} from 'rxjs/Observable';
 import {VatDeduction} from '../../../../unientities';
 import {VatDeductionService, ErrorService} from '../../../../services/services';
 import {ToastService, ToastType, ToastTime} from '../../../../../framework/uniToast/toastService';
-import {UniTable, UniTableColumn, UniTableConfig, UniTableColumnType} from 'unitable-ng2/main';
+import {UniTable, UniTableColumn, UniTableConfig, UniTableColumnType} from '../../../../../framework/ui/unitable/index';
 
 
 @Component({

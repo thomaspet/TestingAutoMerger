@@ -1,13 +1,13 @@
 import { Component, ViewChild, SimpleChanges } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
-import { UniForm } from 'uniform-ng2/main';
+import { UniForm } from '../../../../../framework/ui/uniform/index';
 import {
     OperationType, Operator, ValidationLevel, Employee, Email, Phone,
     Address, Municipal, SubEntity, EmployeeTaxCard, BankAccount, User
 } from '../../../../unientities';
 import { AddressModal, EmailModal, PhoneModal } from '../../../common/modals/modals';
 import { TaxCardModal } from '../modals/taxCardModal';
-import { UniFieldLayout } from 'uniform-ng2/main';
+import { UniFieldLayout } from '../../../../../framework/ui/uniform/index';
 import { UniView } from '../../../../../framework/core/uniView';
 import { Observable } from 'rxjs/Observable';
 
@@ -25,8 +25,7 @@ import {
 declare var _;
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import { BankAccountModal } from '../../../common/modals/modals';
-import { UniField } from 'uniform-ng2/src/uniform';
-
+import { UniField } from '../../../../../framework/ui/uniform/index';
 
 
 @Component({

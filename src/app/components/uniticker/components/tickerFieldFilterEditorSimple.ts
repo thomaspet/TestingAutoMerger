@@ -2,7 +2,7 @@ import {Component, ViewChild, Input, Output, EventEmitter, SimpleChanges, Change
 import {Ticker, TickerFilter, TickerFieldFilter} from '../../../services/common/uniTickerService';
 import {Observable} from 'rxjs/Observable';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
-import {FieldType} from 'uniform-ng2/main';
+import {FieldType} from '../../../../framework/ui/uniform/index';
 import {UniTickerService} from '../../../services/services';
 
 declare const _; // lodash

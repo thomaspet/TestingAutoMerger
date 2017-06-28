@@ -5,8 +5,8 @@ import {HttpModule} from '@angular/http';
 import {RouterModule} from '@angular/router';
 
 import {WidgetModule} from '../widgets/widgetModule';
-import {UniTableModule} from 'unitable-ng2/main';
-import {UniFormModule} from 'uniform-ng2/main';
+import {UniTableModule} from '../../../framework/ui/unitable/index';
+import {UniFormModule} from '../../../framework/ui/uniform/index';
 import {UniFrameworkModule} from '../../../framework/frameworkModule';
 import {LayoutModule} from '../layout/layoutModule';
 import {AppCommonModule} from '../common/appCommonModule';
@@ -79,7 +79,7 @@ import {SalarybalanceLine} from './salarybalance/salarybalanceLine';
 import {SalarybalancelineModal, SalarybalancelineModalContent} from './salarybalance/modals/salarybalancelinemodal';
 
 import {SalaryTransactionSupplementList} from './salaryTransactionSupplement/salaryTransactionSupplementsList';
-import {UniSearchModule} from 'unisearch-ng2';
+import {UniSearchModule} from '../../../framework/ui/unisearch/index';
 
 import {CanDeactivateGuard} from '../../canDeactivateGuard';
 

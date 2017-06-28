@@ -2,7 +2,7 @@ import {Component, Input, ViewChild, Output, EventEmitter, SimpleChange, OnInit}
 import {Observable} from 'rxjs/Observable';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import 'rxjs/add/observable/forkJoin';
-import {UniForm, UniFieldLayout, FieldType} from 'uniform-ng2/main';
+import {UniForm, UniFieldLayout, FieldType} from '../../../../../framework/ui/uniform/index';
 import {Account, VatType, AccountGroup} from '../../../../unientities';
 import {ToastService, ToastType, ToastTime} from '../../../../../framework/uniToast/toastService';
 

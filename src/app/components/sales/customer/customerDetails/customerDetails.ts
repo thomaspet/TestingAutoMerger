@@ -5,7 +5,7 @@ import {Observable} from 'rxjs/Observable';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {SearchResultItem} from '../../../common/externalSearch/externalSearch';
 import {IUniSaveAction} from '../../../../../framework/save/save';
-import {UniForm, UniFieldLayout, FieldType} from 'uniform-ng2/main';
+import {UniForm, UniFieldLayout, FieldType} from '../../../../../framework/ui/uniform/index';
 import {ComponentLayout, Customer, Contact, Email, Phone, Address, CustomerInvoiceReminderSettings, CurrencyCode} from '../../../../unientities';
 import {AddressModal, EmailModal, PhoneModal} from '../../../common/modals/modals';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
@@ -30,7 +30,6 @@ import {
     CurrencyCodeService,
     UniSearchConfigGeneratorService
 } from '../../../../services/services';
-import {UniField} from "uniform-ng2/src/uniform";
 declare var _;
 
 @Component({

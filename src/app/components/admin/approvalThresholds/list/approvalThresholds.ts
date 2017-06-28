@@ -5,8 +5,8 @@ import {URLSearchParams} from '@angular/http';
 // app
 import {IToolbarConfig} from './../../../common/toolbar/toolbar';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
-import {UniTable, UniTableColumn, UniTableConfig} from 'unitable-ng2/main';
-import {UniSelect, ISelectConfig} from 'uniform-ng2/main';
+import {UniTable, UniTableColumn, UniTableConfig} from '../../../../../framework/ui/unitable/index';
+import {UniSelect, ISelectConfig} from '../../../../../framework/ui/uniform/index';
 import {ErrorService, TransitionService} from '../../../../services/services';
 
 @Component({

@@ -1,5 +1,5 @@
 import {Component, Input} from '@angular/core';
-import {IContextMenuItem} from 'unitable-ng2/main';
+import {IContextMenuItem} from '../../../../framework/ui/unitable/index';
 import {GuidService} from '../../../../app/services/services';
 
 @Component({

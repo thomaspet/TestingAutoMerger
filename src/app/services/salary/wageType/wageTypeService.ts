@@ -6,7 +6,7 @@ import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import { AccountService } from '../../accounting/accountService';
 import { Observable } from 'rxjs/Observable';
 import 'rxjs/Observable';
-import {FieldType} from 'uniform-ng2/main';
+import {FieldType} from '../../../../framework/ui/uniform/index';
 
 export enum WageTypeBaseOptions {
     VacationPay = 0,

@@ -1,8 +1,6 @@
-import {Component, Input, OnInit, ViewChild, ViewChildren, QueryList} from '@angular/core';
-import {UniTable, UniTableColumn, UniTableConfig, UniTableColumnType, IContextMenuItem} from 'unitable-ng2/main';
+import {Component, Input, OnInit, ViewChild} from '@angular/core';
+import {UniTable, UniTableColumn, UniTableConfig, UniTableColumnType, IContextMenuItem} from '../../../../../framework/ui/unitable/index';
 import {ToastService, ToastType} from '../../../../../framework/uniToast/toastService';
-import {SendEmail} from '../../../../models/sendEmail';
-import {PreviewModal} from '../../../reports/modals/preview/previewModal';
 import {IToolbarConfig} from './../../../common/toolbar/toolbar';
 import {IUniSaveAction} from '../../../../../framework/save/save';
 import {ISummaryConfig} from '../../../common/summary/summary';
@@ -15,7 +13,6 @@ import {
     CustomerInvoiceReminderService
 } from '../../../../services/services';
 
-import * as moment from 'moment';
 declare const _;
 
 @Component({

@@ -14,7 +14,7 @@ import {Signup} from './signup/signup';
 import {ResetPassword} from './resetPassword/resetPassword';
 import {Login} from './login/login';
 import {ConfirmInvite} from './confirmInvite/confirmInvite';
-import {UniFormModule} from 'uniform-ng2/main';
+import {UniFormModule} from '../../../framework/ui/uniform/index';
 
 @NgModule({
     imports: [

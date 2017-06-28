@@ -1,5 +1,5 @@
 import {Component, Input, Output, ViewChild, EventEmitter, SimpleChanges} from '@angular/core';
-import {UniForm, FieldType} from 'uniform-ng2/main';
+import {UniForm, FieldType} from '../../../../framework/ui/uniform/index';
 import {CurrencyCode, Project} from '../../../unientities';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 

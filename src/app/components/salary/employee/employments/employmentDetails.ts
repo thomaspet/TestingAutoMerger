@@ -1,7 +1,7 @@
 import {Component, Input, Output, EventEmitter, ViewChild, OnChanges, SimpleChanges} from '@angular/core';
 import { Employment, Account, SubEntity, Project, Department } from '../../../../unientities';
-import { UniForm } from 'uniform-ng2/main';
-import { UniFieldLayout } from 'uniform-ng2/main';
+import { UniForm } from '../../../../../framework/ui/uniform/index';
+import { UniFieldLayout } from '../../../../../framework/ui/uniform/index';
 import { Observable } from 'rxjs/Observable';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import {

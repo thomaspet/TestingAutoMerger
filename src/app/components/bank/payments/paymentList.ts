@@ -4,7 +4,7 @@ import {BankAccount, Payment, PaymentCode, PaymentBatch, LocalDate, CompanySetti
 import {Observable} from 'rxjs/Observable';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {IToolbarConfig} from '../../common/toolbar/toolbar';
-import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig} from 'unitable-ng2/main';
+import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig} from '../../../../framework/ui/unitable/index';
 import {IUniSaveAction} from '../../../../framework/save/save';
 import {ISummaryConfig} from '../../common/summary/summary';
 import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';

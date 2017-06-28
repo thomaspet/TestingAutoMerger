@@ -2,7 +2,7 @@ import {Component, ViewChild, Type, Input, OnInit} from '@angular/core';
 import {UniModal} from '../../../../../framework/modals/modal';
 import {ReportDefinition, ReportDefinitionParameter} from '../../../../unientities';
 import {PreviewModal} from '../preview/previewModal';
-import {UniFieldLayout, FieldType} from 'uniform-ng2/main';
+import {UniFieldLayout, FieldType} from '../../../../../framework/ui/uniform/index';
 import {
     ReportDefinitionParameterService,
     ErrorService,

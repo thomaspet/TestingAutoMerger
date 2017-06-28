@@ -8,7 +8,7 @@ import {
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import { ReplaySubject } from 'rxjs/ReplaySubject';
 import { Observable } from 'rxjs/Observable';
-import { UniFieldLayout, UniForm } from 'uniform-ng2/main';
+import { UniFieldLayout, UniForm } from '../../../../../framework/ui/uniform/index';
 import {
     SalaryBalance, SalBalType, WageType, Employee, Supplier, SalBalDrawType, StdWageType, CompanySalary
 } from '../../../../unientities';

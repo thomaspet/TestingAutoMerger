@@ -4,12 +4,12 @@ import {Observable} from 'rxjs/Observable';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 
 import {VatReportReference} from '../../../../unientities';
-import {FieldType, UniForm, UniFieldLayout} from 'uniform-ng2/main';
+import {FieldType, UniForm, UniFieldLayout} from '../../../../../framework/ui/uniform/index';
 
 import {VatType, VatCodeGroup, Account, VatPost} from '../../../../unientities';
 import {VatTypeService, VatCodeGroupService, AccountService, VatPostService, ErrorService} from '../../../../services/services';
 
-import {UniTable, UniTableColumn, UniTableConfig, UniTableColumnType} from 'unitable-ng2/main';
+import {UniTable, UniTableColumn, UniTableConfig, UniTableColumnType} from '../../../../../framework/ui/unitable/index';
 
 
 @Component({

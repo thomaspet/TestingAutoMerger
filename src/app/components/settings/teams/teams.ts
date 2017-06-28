@@ -2,8 +2,8 @@
 import {Component, ViewChild, ViewChildren, QueryList} from '@angular/core';
 import {TabService} from '../../layout/navbar/tabstrip/tabService';
 import {UniHttp} from '../../../../framework/core/http/http';
-import {UniField, FieldType} from 'uniform-ng2/main';
-import {UniTableConfig, UniTableColumn, UniTableColumnType, UniTable} from 'unitable-ng2/main';
+import {UniField, FieldType} from '../../../../framework/ui/uniform/index';
+import {UniTableConfig, UniTableColumn, UniTableColumnType, UniTable} from '../../../../framework/ui/unitable/index';
 import {ErrorService, UserService, GuidService} from '../../../services/services';
 import {Team, User, TeamPosition} from '../../../unientities';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';

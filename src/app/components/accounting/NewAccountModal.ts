@@ -1,14 +1,12 @@
-import {Component, Type, Input, Output, ViewChild, EventEmitter, OnChanges, SimpleChange} from '@angular/core';
+import {Component, Type, Output, ViewChild, EventEmitter, OnChanges, SimpleChange} from '@angular/core';
 import {UniModal} from '../../../framework/modals/modal';
 import {Observable} from 'rxjs/Observable';
-import {UniForm, UniFieldLayout} from 'uniform-ng2/main';
-import {Account, BusinessRelation, Email, Phone, PhoneTypeEnum, Address, Customer, Supplier, JournalEntryLineDraft, LocalDate, Period} from '../../unientities';
-import {ToastService, ToastType} from '../../../framework/uniToast/toastService';
+import {UniForm} from '../../../framework/ui/uniform/index';
+import {Account, BusinessRelation, Email, Phone, Address, Customer, Supplier} from '../../unientities';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
-import {IUniSearchConfig} from 'unisearch-ng2/src/UniSearch/IUniSearchConfig';
-import {AccountService, AddressService, UniSearchConfigGeneratorService, CustomerService, SupplierService, ErrorService} from '../../services/services';
+import {IUniSearchConfig} from '../../../framework/ui/unisearch/index';
+import {AccountService, CustomerService, SupplierService} from '../../services/services';
 import {UniSearchCustomerConfigGeneratorHelper} from '../../services/common/uniSearchConfig/uniSearchCustomerConfigGeneratorHelper';
-import {FieldType} from 'uniform-ng2/main';
 
 declare const _; // lodash
 

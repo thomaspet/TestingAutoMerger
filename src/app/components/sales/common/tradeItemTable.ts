@@ -1,6 +1,6 @@
 import {Component, Input, Output, EventEmitter, ViewChild} from '@angular/core';
 import {Observable} from 'rxjs/Observable';
-import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig} from 'unitable-ng2/main';
+import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig} from '../../../../framework/ui/unitable/index';
 import {TradeItemHelper} from '../salesHelper/tradeItemHelper';
 import {
     VatType,

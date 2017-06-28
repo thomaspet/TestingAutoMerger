@@ -1,8 +1,8 @@
 import {Component, Type, Input, Output, ViewChild, EventEmitter} from '@angular/core';
 import {UniModal} from '../../../../framework/modals/modal';
-import {UniForm, UniFieldLayout} from 'uniform-ng2/main';
+import {UniForm, UniFieldLayout} from '../../../../framework/ui/uniform/index';
 import {Email, CompanySettings} from '../../../unientities';
-import {FieldType} from 'uniform-ng2/main';
+import {FieldType} from '../../../../framework/ui/uniform/index';
 import {SendEmail} from '../../../models/sendEmail';
 import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
 import {Observable} from 'rxjs/Observable';

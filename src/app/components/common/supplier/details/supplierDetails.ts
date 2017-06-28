@@ -2,12 +2,12 @@ import {Component, Input, ViewChild, Output, EventEmitter, OnInit, SimpleChanges
 import {Router, ActivatedRoute} from '@angular/router';
 import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/observable/forkJoin';
-import {FieldType} from 'uniform-ng2/main';
+import {FieldType} from '../../../../../framework/ui/uniform/index';
 import {SearchResultItem} from '../../../common/externalSearch/externalSearch';
 import {IReference} from '../../../../models/iReference';
 import {Supplier, Contact, Email, Phone, Address, BankAccount, CurrencyCode} from '../../../../unientities';
 import {IUniSaveAction} from '../../../../../framework/save/save';
-import {UniForm, UniFieldLayout} from 'uniform-ng2/main';
+import {UniForm, UniFieldLayout} from '../../../../../framework/ui/uniform/index';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
 import {AddressModal, EmailModal, PhoneModal} from '../../../common/modals/modals';
 import {ToastService, ToastType} from '../../../../../framework/uniToast/toastService';
@@ -30,7 +30,6 @@ import {
 } from '../../../../services/services';
 
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
-import {UniField} from "uniform-ng2/src/uniform";
 
 declare const _; // lodash
 

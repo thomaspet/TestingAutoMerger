@@ -1,13 +1,12 @@
 import { Component, ViewChild } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
-import { WageTypeService, SalaryTransactionService, UniCacheService, AccountService, ErrorService } from '../../../../services/services';
-import { UniTableColumn, UniTableColumnType, UniTableConfig, UniTable } from 'unitable-ng2/main';
+import { WageTypeService, UniCacheService, AccountService, ErrorService } from '../../../../services/services';
+import { UniTableColumn, UniTableColumnType, UniTableConfig, UniTable } from '../../../../../framework/ui/unitable/index';
 import {
     Employment, SalaryTransaction, WageType, Dimensions, Department, Project,
-    SalaryTransactionSupplement, WageTypeSupplement, Account, Employee, SalBalType
+    SalaryTransactionSupplement, WageTypeSupplement, Account, SalBalType
 } from '../../../../unientities';
 import { UniView } from '../../../../../framework/core/uniView';
-import { Observable } from 'rxjs/Observable';
 import { SalaryTransactionSupplementsModal } from '../../modals/salaryTransactionSupplementsModal';
 
 

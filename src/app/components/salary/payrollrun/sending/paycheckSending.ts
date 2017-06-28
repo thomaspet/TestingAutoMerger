@@ -1,7 +1,7 @@
 import { Component, OnInit, Input, ViewChildren, QueryList, ViewChild } from '@angular/core';
 import { ErrorService, PayrollrunService, ReportDefinitionService, FinancialYearService } from '../../../../services/services';
 import { Employee, PayrollRun } from '../../../../unientities';
-import { UniTableConfig, UniTableColumn, UniTableColumnType, UniTable } from 'unitable-ng2/main';
+import { UniTableConfig, UniTableColumn, UniTableColumnType, UniTable } from '../../../../../framework/ui/unitable/index';
 import { PreviewModal } from '../../../reports/modals/preview/previewModal';
 import { Observable } from 'rxjs/Observable';
 

@@ -1,8 +1,8 @@
 import {Component, ViewChild, Input, Output, EventEmitter, AfterViewInit, SimpleChanges} from '@angular/core';
 import {Router} from '@angular/router';
-import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig, IContextMenuItem} from 'unitable-ng2/main';
+import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig, IContextMenuItem} from '../../../../../framework/ui/unitable/index';
 import {ToastService} from '../../../../../framework/uniToast/toastService';
-import {FieldType} from 'uniform-ng2/main';
+import {FieldType} from '../../../../../framework/ui/uniform/index';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {ErrorService, CustomerInvoiceReminderRuleService} from '../../../../services/services';
 import {
@@ -10,8 +10,6 @@ import {
     CustomerInvoiceReminderRule,
     FieldLayout
 } from '../../../../unientities';
-
-import * as moment from 'moment';
 declare const _;
 
 @Component({

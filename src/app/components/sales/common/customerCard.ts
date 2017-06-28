@@ -5,7 +5,7 @@ import {CustomerDetailsModal} from '../customer/customerDetails/customerDetailsM
 import {AddressModal} from '../../common/modals/modals';
 import {AddressService, EHFService, UniSearchConfigGeneratorService, CustomerService, ErrorService} from '../../../services/services';
 import {Observable} from 'rxjs/Observable';
-import {IUniSearchConfig} from 'unisearch-ng2/src/UniSearch/IUniSearchConfig';
+import {IUniSearchConfig} from '../../../../framework/ui/unisearch/index';
 
 @Component({
     selector: 'tof-customer-card',

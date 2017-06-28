@@ -1,7 +1,7 @@
 import {Component, ChangeDetectionStrategy} from '@angular/core';
 import {FormControl} from '@angular/forms';
 import {Store} from '@ngrx/store';
-import {ISelectConfig} from 'uniform-ng2/main';
+import {ISelectConfig} from '../../../../framework/ui/uniform/index';
 import {i18nModule} from '../../../../../unientities';
 import {TranslationsState} from '../../../reducers';
 import * as translatableActions from '../../../translatable/actions';

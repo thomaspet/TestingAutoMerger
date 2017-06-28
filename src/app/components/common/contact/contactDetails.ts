@@ -4,7 +4,7 @@ import {Observable} from 'rxjs/Observable';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {IToolbarConfig} from './../../common/toolbar/toolbar';
 import {IUniSaveAction} from '../../../../framework/save/save';
-import {UniForm, UniFieldLayout, FieldType} from 'uniform-ng2/main';
+import {UniForm, UniFieldLayout, FieldType} from '../../../../framework/ui/uniform/index';
 import {ComponentLayout, Contact, Email, Phone, Address, BusinessRelation} from '../../../unientities';
 import {AddressModal, EmailModal, PhoneModal} from '../../common/modals/modals';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';

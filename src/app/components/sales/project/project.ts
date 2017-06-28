@@ -4,10 +4,9 @@ import { Router } from '@angular/router';
 import { IUniTabsRoute } from '../../layout/uniTabs/uniTabs';
 import { TabService, UniModules } from '../../layout/navbar/tabstrip/tabService';
 import { ProjectService, ErrorService } from '../../../services/services';
-import { UniTable, UniTableColumn, UniTableColumnType, UniTableConfig } from 'unitable-ng2/main';
+import { UniTableColumn, UniTableColumnType, UniTableConfig } from '../../../../framework/ui/unitable/index';
 import { IToolbarConfig } from '../../common/toolbar/toolbar';
 import { IUniSaveAction } from '../../../../framework/save/save';
-//import { Project } from '../../../unientities';
 
 @Component({
     selector: 'uni-project',

@@ -1,8 +1,8 @@
 import {Component, Type, ViewChild, Input, EventEmitter, ElementRef, OnInit} from '@angular/core';
 import {UniModal} from '../../../../framework/modals/modal';
-import {UniFieldLayout} from 'uniform-ng2/main';
+import {UniFieldLayout} from '../../../../framework/ui/uniform/index';
 import {AltinnAuthRequest} from '../../../unientities';
-import {FieldType} from 'uniform-ng2/main';
+import {FieldType} from '../../../../framework/ui/uniform/index';
 import {AltinnAuthenticationService, ErrorService} from '../../../services/services';
 import {AltinnAuthenticationData} from '../../../models/AltinnAuthenticationData';
 import {ToastService} from '../../../../framework/uniToast/toastService';

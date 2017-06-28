@@ -9,8 +9,8 @@ import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {HttpModule} from '@angular/http';
 import {RouterModule} from '@angular/router';
 import {COMPILER_PROVIDERS} from '@angular/compiler';
-import {UniTableModule} from 'unitable-ng2/main';
-import {UniFormModule} from 'uniform-ng2/main';
+import {UniTableModule} from '../framework/ui/unitable/index';
+import {UniFormModule} from '../framework/ui/uniform/main';
 import {APP_ROUTES} from './routes';
 import {App} from './app';
 

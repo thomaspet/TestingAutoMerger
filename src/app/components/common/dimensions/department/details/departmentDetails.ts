@@ -1,12 +1,12 @@
 import {Component, OnInit} from '@angular/core';
 import {Router, ActivatedRoute} from '@angular/router';
 import {Department} from '../../../../../unientities';
-import {FieldType} from 'uniform-ng2/main';
+import {FieldType} from '../../../../../../framework/ui/uniform/index';
 import {IUniSaveAction} from '../../../../../../framework/save/save';
 import {TabService, UniModules} from '../../../../layout/navbar/tabstrip/tabService';
 import {ToastService, ToastType} from '../../../../../../framework/uniToast/toastService';
 import {DepartmentService, ErrorService} from '../../../../../services/services';
-import {UniFieldLayout} from 'uniform-ng2/main';
+import {UniFieldLayout} from '../../../../../../framework/ui/uniform/index';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {IToolbarConfig} from './../../../../common/toolbar/toolbar';
 

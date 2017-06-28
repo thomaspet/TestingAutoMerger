@@ -1,7 +1,7 @@
 import { Component, OnInit, Input, OnChanges, ChangeDetectionStrategy } from '@angular/core';
 import { Observable } from 'rxjs/Observable';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
-import { UniTableConfig, UniTableColumn, UniTableColumnType } from 'unitable-ng2/main';
+import { UniTableConfig, UniTableColumn, UniTableColumnType } from '../../../../../framework/ui/unitable/index';
 import { SalaryBalance, Employee, SalaryBalanceLine, SalaryTransaction, PayrollRun } from '../../../../unientities';
 import { 
     SalaryBalanceLineService, ErrorService, EmployeeService, SalaryTransactionService 

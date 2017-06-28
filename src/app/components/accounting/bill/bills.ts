@@ -1,7 +1,7 @@
 import {ViewChild, Component} from '@angular/core';
 import {FormControl} from '@angular/forms';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
-import {UniTableColumn, UniTableColumnType, UniTableConfig, UniTable} from 'unitable-ng2/main';
+import {UniTableColumn, UniTableColumnType, UniTableConfig, UniTable} from '../../../../framework/ui/unitable/index';
 import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
 import {URLSearchParams} from '@angular/http';
 import {ActivatedRoute} from '@angular/router';

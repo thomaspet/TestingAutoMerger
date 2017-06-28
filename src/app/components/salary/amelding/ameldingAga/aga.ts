@@ -1,5 +1,5 @@
 import {Component, Input} from '@angular/core';
-import {UniTableConfig, UniTableColumnType, UniTableColumn} from 'unitable-ng2/main';
+import {UniTableConfig, UniTableColumnType, UniTableColumn} from '../../../../../framework/ui/unitable/index';
 
 @Component({
     selector: 'amelding-aga-view',

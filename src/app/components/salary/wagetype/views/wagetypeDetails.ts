@@ -1,13 +1,13 @@
 import { Component, ViewChild, SimpleChanges } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { WageTypeService, AccountService, InntektService, WageTypeBaseOptions } from '../../../../services/services';
-import { UniForm, UniFieldLayout } from 'uniform-ng2/main';
+import { UniForm } from '../../../../../framework/ui/uniform/index';
 import {
-    WageType, Account, WageTypeSupplement, SpecialTaxAndContributionsRule, GetRateFrom,
+    WageType, WageTypeSupplement, SpecialTaxAndContributionsRule, GetRateFrom,
     StdWageType, SpecialAgaRule, TaxType
 } from '../../../../unientities';
 import { Observable } from 'rxjs/Observable';
-import { UniTableConfig, UniTableColumnType, UniTableColumn } from 'unitable-ng2/main';
+import { UniTableConfig, UniTableColumnType, UniTableColumn } from '../../../../../framework/ui/unitable/index';
 
 import { UniView } from '../../../../../framework/core/uniView';
 import { UniCacheService, ErrorService } from '../../../../services/services';

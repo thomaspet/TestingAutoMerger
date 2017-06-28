@@ -7,9 +7,9 @@ import {
 } from '../../../../services/services';
 import { Project, Customer, Address } from '../../../../unientities';
 import { AddressModal } from '../../../common/modals/modals';
-import { UniFieldLayout } from 'uniform-ng2/main';
-import { FieldType } from 'uniform-ng2/main';
-import { IUniSearchConfig } from 'unisearch-ng2/src/UniSearch/IUniSearchConfig';
+import { UniFieldLayout } from '../../../../../framework/ui/uniform/index';
+import { FieldType } from '../../../../../framework/ui/uniform/index';
+import { IUniSearchConfig } from '../../../../../framework/ui/unisearch/index';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 
 

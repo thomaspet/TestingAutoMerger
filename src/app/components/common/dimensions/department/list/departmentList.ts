@@ -1,7 +1,7 @@
 import {Component} from '@angular/core';
 import {URLSearchParams} from '@angular/http';
 import {Router} from '@angular/router';
-import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig} from 'unitable-ng2/main';
+import {UniTableColumn, UniTableColumnType, UniTableConfig} from '../../../../../../framework/ui/unitable/index';
 import {TabService, UniModules} from '../../../../layout/navbar/tabstrip/tabService';
 import {DepartmentService, ErrorService} from '../../../../../services/services';
 

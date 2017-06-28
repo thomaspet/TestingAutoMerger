@@ -1,4 +1,4 @@
-import {Component, ChangeDetectorRef} from '@angular/core';
+import {Component} from '@angular/core';
 import {Router} from '@angular/router';
 import {TabService, UniModules} from './tabService';
 import {AuthService} from '../../../../../framework/core/authService';
@@ -14,67 +14,57 @@ export interface IUniTab {
     selector: 'uni-tabstrip',
     template: `
         <ol class="navbar_tabs">
-            <li *ngFor="let tab of tabService.tabs; let i = index"
-                (click)="activateTab(tab, i)"
-                (mouseup)="possiblyCloseTab(tab, i, $event)"
-                [ngClass]="{'router-tab-active': tab.active, '': !tab.active}">
+            <li *ngFor="let tab of tabs; let idx = index"
+                (click)="activateTab(idx)"
+                (mousedown)="possiblyCloseTab(idx, $event)"
+                [ngClass]="{'router-tab-active': tab.active}">
                 {{tab.name}}
-                <span class="close" (click)="closeTab(tab, i)"></span>
+                <span class="close" (click)="closeTab(idx)"></span>
             </li>
         </ol>
-    `
+    `,
 })
 export class UniTabStrip {
+    private tabs: IUniTab[] = [];
+
     constructor(
         private router: Router,
         private tabService: TabService,
         authService: AuthService,
-        cdr: ChangeDetectorRef
     ) {
-        authService.companyChange.subscribe(change => this.tabService.removeAllTabs());
+        authService.companyChange.subscribe((change) => {
+            this.tabService.removeAllTabs();
+        });
 
         window.addEventListener('keydown', (event) => {
             if (event.keyCode === 87 && event.altKey) {
-                this.closeTab(this.tabService.currentActiveTab, this.tabService.currentActiveIndex);
+                this.tabService.closeTab();
             } else if (event.keyCode === 37 && event.altKey) {
-                let newIndex = this.tabService.currentActiveIndex > 0 ? this.tabService.currentActiveIndex - 1 : this.tabService.tabs.length - 1;
-                this.activateTab(this.tabService.tabs[newIndex], newIndex);
+                this.tabService.activatePrevTab();
             } else if (event.keyCode === 39 && event.altKey) {
-                let newIndex = this.tabService.currentActiveIndex >= this.tabService.tabs.length - 1 ? 0 : this.tabService.currentActiveIndex + 1;
-                this.activateTab(this.tabService.tabs[newIndex], newIndex);
+                this.tabService.activateNextTab();
             }
         });
 
-        tabService.tabsChange.subscribe(() => {
-            cdr.markForCheck();
+        tabService.tabsChange.subscribe((tabs: IUniTab[]) => {
+            this.tabs = tabs;
         });
     }
 
-    private possiblyCloseTab(tab: IUniTab, index: number, event: MouseEvent) {
+    public possiblyCloseTab(index: number, event: MouseEvent) {
+        // check for middle mouse button
         if (event.button === 1) {
             event.preventDefault();
-            this.closeTab(tab, index);
+            this.tabService.closeTab(index);
         }
     }
 
-    private activateTab(tab: IUniTab, index: number): void {
-
-        // Removes active class on previous active
-        this.tabService.currentActiveTab.active = false;
-
-        // Adds active class to new active tab.
-        this.tabService.setTabActive(index);
-
-        // Navigates to new active tab
-        this.router.navigateByUrl(tab.url);
+    public activateTab(index: number): void {
+        this.tabService.activateTab(index);
     }
 
-    private closeTab(tab: IUniTab, index: number): void {
-        var newTab = this.tabService.removeTab(tab, index);
-        if (newTab.name !== this.tabService.currentActiveTab.name) {
-            this.tabService.addTab(newTab);
-            this.router.navigateByUrl(newTab.url);
-        }
+    public closeTab(index: number): void {
+        this.tabService.closeTab(index);
     }
 
 }

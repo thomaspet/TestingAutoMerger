@@ -1,14 +1,13 @@
 import {Component, ViewChild, Input, Output, EventEmitter, AfterViewInit, SimpleChanges} from '@angular/core';
 import {Router} from '@angular/router';
-import {Contact, BusinessRelation, Address, Phone, Email} from '../../../unientities';
-import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig, IContextMenuItem} from 'unitable-ng2/main';
+import {Contact, BusinessRelation} from '../../../unientities';
+import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig, IContextMenuItem} from '../../../../framework/ui/unitable/index';
 import {ToastService, ToastTime, ToastType} from '../../../../framework/uniToast/toastService';
 import {
     ErrorService,
     ContactService
 } from '../../../services/services';
 
-import * as moment from 'moment';
 declare const _;
 
 @Component({

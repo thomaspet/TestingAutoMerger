@@ -1,11 +1,11 @@
 import {Component, Type, Input, Output, ViewChild, EventEmitter, OnChanges, SimpleChange} from '@angular/core';
 import {UniModal} from '../../../../framework/modals/modal';
 import {Observable} from 'rxjs/Observable';
-import {UniForm, UniFieldLayout} from 'uniform-ng2/main';
+import {UniForm, UniFieldLayout} from '../../../../framework/ui/uniform/index';
 import {Accrual, AccrualPeriod, Account, JournalEntryLineDraft, LocalDate, Period} from '../../../unientities';
 import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
 import {AccountService, ErrorService, FinancialYearService, PeriodService} from '../../../services/services';
-import {FieldType} from 'uniform-ng2/main';
+import {FieldType} from '../../../../framework/ui/uniform/index';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 
 declare const _; // lodash

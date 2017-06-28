@@ -4,8 +4,8 @@ import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/observable/forkJoin';
 import {IUniSaveAction} from '../../../../framework/save/save';
 
-import {UniForm, FieldType, UniField} from 'uniform-ng2/main';
-import {UniFieldLayout} from 'uniform-ng2/main';
+import {UniForm, FieldType} from '../../../../framework/ui/uniform/index';
+import {UniFieldLayout} from '../../../../framework/ui/uniform/index';
 import {IUploadConfig} from '../../../../framework/uniImage/uniImage';
 
 import {

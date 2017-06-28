@@ -1,5 +1,5 @@
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
-import { UniComponentLayout, LayoutBuilder, FieldType, FieldSize } from 'uniform-ng2/main';
+import { UniComponentLayout, LayoutBuilder, FieldType, FieldSize } from '../../../../framework/ui/uniform/index';
 import { ErrorService, SalaryBalanceLineService } from '../../../services/services';
 import { SalaryBalance, SalaryBalanceLine } from '../../../unientities';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';

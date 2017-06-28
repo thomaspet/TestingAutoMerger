@@ -1,11 +1,11 @@
 import {Component} from '@angular/core';
 import {URLSearchParams} from '@angular/http';
-import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig} from 'unitable-ng2/main';
+import {UniTableColumn, UniTableColumnType, UniTableConfig} from '../../../../../framework/ui/unitable/index';
 import {Router} from '@angular/router';
 import {UniHttp} from '../../../../../framework/core/http/http';
 import {ProductService, ErrorService} from '../../../../services/services';
 import {Product} from '../../../../unientities';
-import {TabService, UniModules} from "../../../layout/navbar/tabstrip/tabService";
+import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
 
 @Component({
     selector: 'product-list',

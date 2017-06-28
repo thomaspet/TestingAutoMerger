@@ -2,7 +2,7 @@ import {Component, ViewChild} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
 import {URLSearchParams} from '@angular/http';
 import {IToolbarConfig} from '../../common/toolbar/toolbar';
-import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig, INumberFormat} from 'unitable-ng2/main';
+import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig, INumberFormat} from '../../../../framework/ui/unitable/index';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {IUniSaveAction} from '../../../../framework/save/save';
 import {Observable} from 'rxjs/Observable';

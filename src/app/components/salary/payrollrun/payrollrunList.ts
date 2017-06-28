@@ -1,6 +1,6 @@
 import {Component, OnInit} from '@angular/core';
 import {Router} from '@angular/router';
-import {UniTableConfig, UniTableColumnType, UniTableColumn} from 'unitable-ng2/main';
+import {UniTableConfig, UniTableColumnType, UniTableColumn} from '../../../../framework/ui/unitable/index';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {PayrollRun} from '../../../unientities';
 import {PayrollrunService, ErrorService, YearService} from '../../../services/services';

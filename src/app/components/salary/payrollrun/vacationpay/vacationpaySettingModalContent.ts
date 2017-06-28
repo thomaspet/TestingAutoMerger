@@ -1,6 +1,6 @@
 import { Component, Input, ViewChild, OnInit } from '@angular/core';
-import { UniFieldLayout, FieldType } from 'uniform-ng2/main';
-import { UniTable, UniTableConfig, UniTableColumnType, UniTableColumn } from 'unitable-ng2/main';
+import { UniFieldLayout, FieldType } from '../../../../../framework/ui/uniform/index';
+import { UniTable, UniTableConfig, UniTableColumnType, UniTableColumn } from '../../../../../framework/ui/unitable/index';
 import {
     CompanySalaryService, CompanyVacationRateService, AccountService, ErrorService, VacationpayLineService
 } from '../../../../services/services';

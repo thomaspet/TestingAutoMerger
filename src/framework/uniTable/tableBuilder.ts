@@ -1,4 +1,4 @@
-import {UniTableConfig, UniTableColumn, UniTableColumnType} from 'unitable-ng2/main';
+import {UniTableConfig, UniTableColumn, UniTableColumnType} from '../ui/unitable/index';
 import * as $ from 'jquery';
 
 export class TableBuilder extends UniTableConfig {

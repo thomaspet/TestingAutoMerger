@@ -1,7 +1,7 @@
 import {IToolbarConfig} from '../../../../components/common/toolbar/toolbar';
 import {Component, OnInit, ViewChild} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
-import {UniTable, UniTableColumn, UniTableConfig, UniTableColumnType, ITableFilter} from 'unitable-ng2/main';
+import {UniTable, UniTableColumn, UniTableConfig, UniTableColumnType, ITableFilter} from '../../../../../framework/ui/unitable/index';
 import {TransqueryDetailsCalculationsSummary} from '../../../../models/accounting/TransqueryDetailsCalculationsSummary';
 import {URLSearchParams, Response} from '@angular/http';
 import {Observable} from 'rxjs/Observable';
@@ -21,16 +21,16 @@ import {
     FinancialYearService,
     BrowserStorageService
 } from '../../../../services/services';
-import {FieldType} from 'uniform-ng2/main';
+import {FieldType} from '../../../../../framework/ui/uniform/index';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 
 const PAPERCLIP = '📎'; // It might look empty in your editor, but this is the unicode paperclip
 
 interface SearchParams {
-    JournalEntryNumberNumeric: number,
-    AccountID: number,
-    AccountNumber: number,
-    AccountYear: number
+    JournalEntryNumberNumeric: number;
+    AccountID: number;
+    AccountNumber: number;
+    AccountYear: number;
 }
 
 @Component({

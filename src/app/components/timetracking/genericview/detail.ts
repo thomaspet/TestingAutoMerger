@@ -3,7 +3,7 @@ import {TabService} from '../../layout/navbar/tabstrip/tabService';
 import {WorkerService} from '../../../services/timetracking/workerService';
 import {Router, ActivatedRoute} from '@angular/router';
 import {IUniSaveAction} from '../../../../framework/save/save';
-import {UniForm} from 'uniform-ng2/main';
+import {UniForm} from '../../../../framework/ui/uniform/index';
 import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
 import {IViewConfig} from './list';
 import {getDeepValue, trimLength} from '../../common/utils/utils';

@@ -1,7 +1,7 @@
-import {Component, ViewChild, OnChanges, Input, Output, EventEmitter, SimpleChanges, ChangeDetectorRef, ChangeDetectionStrategy} from '@angular/core';
+import {Component, OnChanges, Input, Output, EventEmitter, SimpleChanges, ChangeDetectorRef, ChangeDetectionStrategy} from '@angular/core';
 import {StatisticsService, ErrorService} from '../../../services/services';
 import {ApiModelService, ModuleConfig} from '../../../services/common/apiModelService';
-import {UniTableColumn, UniTableColumnType} from 'unitable-ng2/main';
+import {UniTableColumn} from '../../../../framework/ui/unitable/index';
 
 declare const _; // lodash
 

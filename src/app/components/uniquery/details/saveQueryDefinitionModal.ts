@@ -5,7 +5,7 @@ import {UniQueryDefinitionService} from '../../../services/services';
 import {ToastService} from '../../../../framework/uniToast/toastService';
 import {Observable} from 'rxjs/Observable';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
-import {UniForm, FieldType} from 'uniform-ng2/main';
+import {UniForm, FieldType} from '../../../../framework/ui/uniform/index';
 import {UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {ErrorService} from '../../../services/services';;
 

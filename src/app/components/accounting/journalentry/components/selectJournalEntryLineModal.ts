@@ -1,11 +1,9 @@
 import {Component, Type, Input, Output, ViewChild, EventEmitter, OnInit} from '@angular/core';
-import {UniTable, UniTableColumn, UniTableConfig, UniTableColumnType} from 'unitable-ng2/main';
+import {UniTable, UniTableColumn, UniTableConfig, UniTableColumnType} from '../../../../../framework/ui/unitable/index';
 import {UniModal} from '../../../../../framework/modals/modal';
 import {JournalEntryLine} from '../../../../../app/unientities';
 import {PeriodDateFormatPipe} from '../../../../pipes/periodDateFormatPipe';
 import {ToastService} from '../../../../../framework/uniToast/toastService';
-import {URLSearchParams} from '@angular/http';
-import {Observable} from 'rxjs/Observable';
 import {
     JournalEntryLineService,
     PeriodService,

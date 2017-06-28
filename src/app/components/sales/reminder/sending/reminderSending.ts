@@ -1,13 +1,13 @@
 import {Component, Input, OnInit, ViewChild, ViewChildren, QueryList, SimpleChange} from '@angular/core';
-import {UniTable, UniTableColumn, UniTableConfig, UniTableColumnType} from 'unitable-ng2/main';
+import {UniTable, UniTableColumn, UniTableConfig, UniTableColumnType} from '../../../../../framework/ui/unitable/index';
 import {ToastService, ToastType} from '../../../../../framework/uniToast/toastService';
 import {SendEmail} from '../../../../models/sendEmail';
 import {PreviewModal} from '../../../reports/modals/preview/previewModal';
 import {IToolbarConfig} from './../../../common/toolbar/toolbar';
 import {IUniSaveAction} from '../../../../../framework/save/save';
 import {Observable} from 'rxjs/Observable';
-import {LocalDate,CustomerInvoiceReminder} from '../../../../unientities';
-import {FieldType} from 'uniform-ng2/main';
+import {LocalDate, CustomerInvoiceReminder} from '../../../../unientities';
+import {FieldType} from '../../../../../framework/ui/uniform/index';
 import {UniConfirmModal, ConfirmActions} from '../../../../../framework/modals/confirm';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {

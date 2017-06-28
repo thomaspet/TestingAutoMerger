@@ -3,7 +3,7 @@ import {Router} from '@angular/router';
 import {PaymentService, PaymentBatchService, ErrorService, FileService,
     StatisticsService, CompanySettingsService} from '../../../services/services';
 import {PaymentBatch, CompanySettings} from '../../../unientities';
-import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig} from 'unitable-ng2/main';
+import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig} from '../../../../framework/ui/unitable/index';
 import {URLSearchParams} from '@angular/http';
 import {PaymentRelationsModal} from './relationModal';
 import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';

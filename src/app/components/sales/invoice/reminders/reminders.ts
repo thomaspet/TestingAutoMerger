@@ -1,5 +1,5 @@
 import {Component, Input} from '@angular/core';
-import {UniTableColumn, UniTableColumnType, UniTableConfig} from 'unitable-ng2/main';
+import {UniTableColumn, UniTableColumnType, UniTableConfig} from '../../../../../framework/ui/unitable/index';
 import {Router} from '@angular/router';
 import {
     CustomerInvoice

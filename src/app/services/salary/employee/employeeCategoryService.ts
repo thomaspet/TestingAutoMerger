@@ -3,7 +3,7 @@ import {BizHttp} from '../../../../framework/core/http/BizHttp';
 import {UniHttp} from '../../../../framework/core/http/http';
 import {EmployeeCategory} from '../../../unientities';
 import {Observable} from 'rxjs/Observable';
-import {FieldType} from 'uniform-ng2/main';
+import {FieldType} from '../../../../framework/ui/uniform/index';
 
 @Injectable()
 export class EmployeeCategoryService extends BizHttp<EmployeeCategory> {

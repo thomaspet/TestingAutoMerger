@@ -6,7 +6,7 @@ import {SubEntityService} from '../common/subEntityService';
 import {IntegrationServerCaller} from './integrationServerCaller';
 import {Injectable} from '@angular/core';
 import {AltinnAuthenticationData} from '../../models/AltinnAuthenticationData';
-import {FieldType} from 'uniform-ng2/main';
+import {FieldType} from '../../../framework/ui/uniform/index';
 
 @Injectable()
 export class AltinnIntegrationService extends BizHttp<Altinn> {

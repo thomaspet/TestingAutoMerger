@@ -1,8 +1,7 @@
-import {Component, ViewChild, Input, Output, OnChanges, EventEmitter} from '@angular/core';
+import {Component, Input, Output, OnChanges, EventEmitter} from '@angular/core';
 import {Observable} from 'rxjs/Observable';
-import {UniTableColumn, UniTableConfig, UniTableColumnType, ITableFilter, UniTable, INumberFormat} from 'unitable-ng2/main';
-import {ChartHelper, IChartDataSet} from '../chartHelper';
-import {Account, JournalEntryLine} from '../../../../unientities';
+import {UniTableColumn, UniTableConfig, UniTableColumnType, INumberFormat} from '../../../../../framework/ui/unitable/index';
+import {ChartHelper} from '../chartHelper';
 import {
     StatisticsService,
     DimensionService,

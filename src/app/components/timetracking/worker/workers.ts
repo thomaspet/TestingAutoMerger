@@ -1,6 +1,6 @@
 import {Component} from '@angular/core';
 import {View} from '../../../models/view/view';
-import {UniTableColumn, UniTableColumnType, UniTableConfig} from 'unitable-ng2/main';
+import {UniTableColumn, UniTableColumnType, UniTableConfig} from '../../../../framework/ui/unitable/index';
 import {GenericListView, IViewConfig} from '../genericview/list';
 import {UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {Observable} from 'rxjs/Observable';

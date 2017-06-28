@@ -2,10 +2,8 @@
 import {Component, ViewChild, ViewChildren, QueryList} from '@angular/core';
 import {TabService} from '../../layout/navbar/tabstrip/tabService';
 import {UniHttp} from '../../../../framework/core/http/http';
-import {UniField, FieldType} from 'uniform-ng2/main';
-import {UniTableConfig, UniTableColumn, UniTableColumnType, UniTable} from 'unitable-ng2/main';
-import {ErrorService, UserService, GuidService, StatisticsService, YearService, NumberSeriesService, NumberSeriesTypeService, NumberSeriesTaskService} from '../../../services/services';
-import {BehaviorSubject} from 'rxjs/BehaviorSubject';
+import {UniTableConfig, UniTableColumn, UniTableColumnType, UniTable} from '../../../../framework/ui/unitable/index';
+import {ErrorService, GuidService, StatisticsService, YearService, NumberSeriesService, NumberSeriesTypeService, NumberSeriesTaskService} from '../../../services/services';
 import {UniConfirmModal, ConfirmActions} from '../../../../framework/modals/confirm';
 import {Observable} from 'rxjs/Observable';
 import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';

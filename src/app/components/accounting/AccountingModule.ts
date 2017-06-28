@@ -8,8 +8,8 @@ import {RouterModule} from '@angular/router';
 // App imports
 import {LayoutModule} from '../layout/layoutModule';
 import {UniFrameworkModule} from '../../../framework/frameworkModule';
-import {UniTableModule} from 'unitable-ng2/main';
-import {UniFormModule} from 'uniform-ng2/main';
+import {UniTableModule} from '../../../framework/ui/unitable/index';
+import {UniFormModule} from '../../../framework/ui/uniform/index';
 import {AppCommonModule} from '../common/appCommonModule';
 import {AppPipesModule} from '../../pipes/appPipesModule';
 import {WidgetModule} from '../widgets/widgetModule';
@@ -62,7 +62,7 @@ import {VatSettings} from './vatsettings/vatsettings';
 import {VatTypeDetails} from './vatsettings/vattypedetails/vattypedetails';
 import {VatTypeList} from './vatsettings/vattypelist/vatTypeList';
 import {VatDeductionSettings} from './vatsettings/vatdeductions/vatdeductionsettings';
-import {UniSearchModule} from 'unisearch-ng2';
+import {UniSearchModule} from '../../../framework/ui/unisearch/index';
 
 @NgModule({
     imports: [

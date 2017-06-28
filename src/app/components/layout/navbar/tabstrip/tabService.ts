@@ -157,52 +157,48 @@ export class TabService {
         this.tabsChange.next(this._tabs);
     }
 
-    // Sets tab active based on name
-    public setTabActive(index: number) {
+
+    public activateTab(index: number): void {
+        this._tabs.map(tab => tab.active = false);
         this._tabs[index].active = true;
-        this.currentActiveTab = this._tabs[index];
         this.currentActiveIndex = index;
+        this.updateMemStore();
+        this.tabsChange.emit(this._tabs);
+
+        this.router.navigateByUrl(this._tabs[index].url);
     }
 
-    public removeTabs(tabsToRemove: IUniTab) {
-        this._tabs.forEach((tab, i) => {
-            if (tab.name === tabsToRemove.name &&
-                tab.url === tabsToRemove.url &&
-                tab.moduleID === tabsToRemove.moduleID) {
-                this.removeTab(tab, i);
-            }
-        });
-
-        this.updateMemStore();
-    }
-
-    // Removes tab and returns the new tab to be activated
-    public removeTab(tabToRemove: IUniTab, index: number): IUniTab {
-        this._tabs.splice(index, 1);
-        this.currentActiveIndex = this._tabs.length - 1;
-
-        this.updateMemStore();
-
-        // If the closed tab is not the active one
-        if (!tabToRemove.active) {
-            return this.currentActiveTab;
-        } else {
-            // If closing the last open tab -> go to dashboard? Creates "bug" if dashboard is last tab
-            if (this._tabs.length === 0) {
-                return { name: 'Skrivebord', url: '/', moduleID: UniModules.Dashboard };
-            } else {
-                return this._tabs[this._tabs.length - 1];
-            }
+    public activateNextTab() {
+        if (this.currentActiveIndex + 1 < this._tabs.length) {
+            this.activateTab(this.currentActiveIndex + 1);
         }
     }
 
+    public activatePrevTab() {
+        if (this.currentActiveIndex - 1 >= 0) {
+            this.activateTab(this.currentActiveIndex - 1);
+        }
+    }
 
-     public removeAllTabs() {
+    public closeTab(index: number = this.currentActiveIndex): void {
+        this._tabs.splice(index, 1);
+        if (!this._tabs.length) {
+            this._tabs.push({
+                name: 'Skrivebord',
+                url: '/',
+                moduleID: UniModules.Dashboard
+            });
+        }
+
+        this.activateTab(this._tabs.length - 1);
+    }
+
+    public removeAllTabs() {
         this._tabs = [];
         this.clearMemStore();
     }
 
-    private getMemStore(){
+    private getMemStore() {
         return JSON.parse(localStorage.getItem(this.SKEY)) || [];
     }
 

@@ -2,7 +2,7 @@ import {Component, Input, ViewChild, OnChanges} from '@angular/core';
 import {Observable} from 'rxjs/Observable';
 import {PeriodFilter} from '../periodFilter/periodFilter';
 import {AccountDetailsReportModal} from '../detailsmodal/accountDetailsReportModal';
-import {INumberOptions} from 'uniform-ng2/main';
+import {INumberOptions} from '../../../../../framework/ui/uniform/index';
 
 import {
     AccountGroupService,

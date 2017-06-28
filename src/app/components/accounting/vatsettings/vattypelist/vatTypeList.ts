@@ -2,7 +2,7 @@ import {Component, ViewChild, Output, EventEmitter, ElementRef} from '@angular/c
 import {URLSearchParams} from '@angular/http';
 import {VatType} from '../../../../unientities';
 import {VatTypeService, ErrorService} from '../../../../services/services';
-import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig} from 'unitable-ng2/main';
+import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig} from '../../../../../framework/ui/unitable/index';
 
 @Component({
     selector: 'vattype-list',

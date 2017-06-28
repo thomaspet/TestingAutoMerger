@@ -7,7 +7,7 @@ import {
 } from '../../../unientities';
 import { Observable } from 'rxjs/Observable';
 import { ErrorService } from '../../common/errorService';
-import { FieldType } from 'uniform-ng2/main';
+import { FieldType } from '../../../../framework/ui/uniform/index';
 import { ToastService, ToastTime, ToastType } from '../../../../framework/uniToast/toastService';
 import { SalaryTransactionService } from '../salarytransaction/salaryTransactionService';
 import { ITag } from '../../../components/common/toolbar/tags';

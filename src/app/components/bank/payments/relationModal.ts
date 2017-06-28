@@ -1,5 +1,5 @@
 import {Component, Type, Input, ViewChild, OnInit} from '@angular/core';
-import {UniTable, UniTableColumn, UniTableConfig, UniTableColumnType} from 'unitable-ng2/main';
+import {UniTable, UniTableColumn, UniTableConfig, UniTableColumnType} from '../../../../framework/ui/unitable/index';
 import {UniModal} from '../../../../framework/modals/modal';
 import {StatisticsService, ErrorService} from '../../../services/services';
 import {ToastService} from '../../../../framework/uniToast/toastService';

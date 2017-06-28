@@ -1,16 +1,4 @@
 var packages = {
-    'unitable-ng2': {
-        main: 'main',
-        defaultExtension: 'js'
-    },
-    'uniform-ng2': {
-        main: 'main',
-        defaultExtension: 'js'
-    },
-    'unisearch-ng2': {
-        main: 'main',
-        defaultExtension: 'js'
-    },
     'moment': {
         main: 'moment',
         defaultExtension: 'js'

@@ -1,10 +1,8 @@
-import {Component, ViewChild} from '@angular/core';
-import {Router} from '@angular/router';
+import {Component} from '@angular/core';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
-import {AccountDetailsReportModal} from '../detailsmodal/accountDetailsReportModal';
 import {PeriodFilter, PeriodFilterHelper} from '../periodFilter/periodFilter';
 import {IToolbarConfig} from '../../../common/toolbar/toolbar';
-import {UniSelect, ISelectConfig, UniFieldLayout, FieldType} from 'uniform-ng2/main';
+import {ISelectConfig, UniFieldLayout, FieldType} from '../../../../../framework/ui/uniform/index';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {Observable} from 'rxjs/Observable';
 import {
@@ -12,7 +10,6 @@ import {
     Department
 } from '../../../../unientities';
 import {
-    StatisticsService,
     ProjectService,
     DepartmentService
 } from '../../../../services/services';

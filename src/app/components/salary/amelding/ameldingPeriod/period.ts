@@ -1,6 +1,6 @@
 import { NumberFormat } from './../../../../services/services';
 import { Component, Input } from '@angular/core';
-import { UniTableConfig, UniTableColumn, UniTableColumnType } from 'unitable-ng2/main';
+import { UniTableConfig, UniTableColumn, UniTableColumnType } from '../../../../../framework/ui/unitable/index';
 import { AmeldingData } from '../../../../unientities';
 import { ISummaryConfig } from '../../../common/summary/summary';
 import * as moment from 'moment';

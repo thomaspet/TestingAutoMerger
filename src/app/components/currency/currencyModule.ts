@@ -8,10 +8,10 @@ import {RouterModule} from '@angular/router';
 // App imports
 import {LayoutModule} from '../layout/layoutModule';
 import {UniFrameworkModule} from '../../../framework/frameworkModule';
-import {UniTableModule} from 'unitable-ng2/main';
+import {UniTableModule} from '../../../framework/ui/unitable/index';
 import {AppCommonModule} from '../common/appCommonModule';
 import {AppPipesModule} from '../../pipes/appPipesModule';
-import {UniFormModule} from 'uniform-ng2/main';
+import {UniFormModule} from '../../../framework/ui/uniform/index';
 
 // routes
 import {routes as CurrencyRoutes} from './currencyRoutes';

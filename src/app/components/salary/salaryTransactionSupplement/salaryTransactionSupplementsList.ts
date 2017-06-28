@@ -1,6 +1,6 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { UniTableConfig, UniTableColumn, UniTableColumnType, UniTable } from 'unitable-ng2/main';
+import { UniTableConfig, UniTableColumn, UniTableColumnType, UniTable } from '../../../../framework/ui/unitable/index';
 import { IUniSaveAction } from '../../../../framework/save/save';
 import { IToolbarConfig } from '../../common/toolbar/toolbar';
 import {

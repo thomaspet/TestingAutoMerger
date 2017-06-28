@@ -3,7 +3,7 @@ import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import { Observable } from 'rxjs/Observable';
 import 'rxjs/add/observable/forkJoin';
 import { IUniSaveAction } from '../../../../framework/save/save';
-import { FieldType, UniForm, UniFieldLayout } from 'uniform-ng2/main';
+import { FieldType, UniForm, UniFieldLayout } from '../../../../framework/ui/uniform/index';
 import { SubEntityList } from './subEntityList';
 import { UniConfirmModal, ConfirmActions } from '../../../../framework/modals/confirm';
 import {

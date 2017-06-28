@@ -1,7 +1,7 @@
 import {Component, ElementRef, OnInit, ViewChild, Output, EventEmitter} from '@angular/core';
 import {Observable} from 'rxjs/Observable';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
-import {ISelectConfig} from 'uniform-ng2/main';
+import {ISelectConfig} from '../../../../framework/ui/uniform/index';
 import {ErrorService} from '../../../services/services';
 import {Task, TaskStatus, TaskType, ApprovalStatus, User} from '../../../unientities';
 import {TaskService, ApprovalService, UserService} from '../../../services/services';

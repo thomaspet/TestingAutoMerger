@@ -11,7 +11,7 @@ import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService
 import {ToastService, ToastType, ToastTime} from '../../../../../framework/uniToast/toastService';
 import {IToolbarConfig} from '../../../common/toolbar/toolbar';
 import {UniStatusTrack} from '../../../common/toolbar/statustrack';
-import {IContextMenuItem} from 'unitable-ng2/main';
+import {IContextMenuItem} from '../../../../../framework/ui/unitable/index';
 import {SendEmailModal} from '../../../common/modals/sendEmailModal';
 import {SendEmail} from '../../../../models/sendEmail';
 import {ISummaryConfig} from '../../../common/summary/summary';

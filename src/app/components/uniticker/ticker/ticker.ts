@@ -1,18 +1,16 @@
 import {Component, ViewChild, Input, SimpleChanges, Output, EventEmitter, ChangeDetectorRef, ChangeDetectionStrategy} from '@angular/core';
 import {URLSearchParams, Http} from '@angular/http';
-import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
-import {UniTabs} from '../../layout/uniTabs/uniTabs';
-import {UniQueryDefinition} from '../../../unientities';
-import {Router, ActivatedRoute, RouterLink} from '@angular/router';
-import {Ticker, TickerGroup, TickerAction, TickerActionOptions, TickerFilter, TickerColumn, IExpressionFilterValue, ITickerActionOverride, ITickerColumnOverride} from '../../../services/common/uniTickerService';
+import {TabService} from '../../layout/navbar/tabstrip/tabService';
+import {Router, ActivatedRoute} from '@angular/router';
+import {Ticker, TickerAction, TickerFilter, IExpressionFilterValue, ITickerActionOverride, ITickerColumnOverride} from '../../../services/common/uniTickerService';
 import {StatisticsService, StatusService} from '../../../services/services';
 import {UniHttp} from '../../../../framework/core/http/http';
 import {ToastService, ToastType, ToastTime} from '../../../../framework/uniToast/toastService';
 import {ErrorService, UniTickerService, ApiModelService, ReportDefinitionService} from '../../../services/services';
-import {UniTable, UniTableColumn, IContextMenuItem, UniTableColumnType, UniTableConfig, ITableFilter} from 'unitable-ng2/main';
+import {UniTable, UniTableColumn, IContextMenuItem, UniTableColumnType, UniTableConfig} from '../../../../framework/ui/unitable/index';
 import {Observable} from 'rxjs/Observable';
 import {ImageModal} from '../../common/modals/ImageModal';
-import {UniConfirmModal, ConfirmActions} from '../../../../framework/modals/confirm';
+import {UniConfirmModal} from '../../../../framework/modals/confirm';
 import {PreviewModal} from '../../reports/modals/preview/previewModal';
 import {BrowserStorageService} from '../../../services/common/browserStorageService';
 

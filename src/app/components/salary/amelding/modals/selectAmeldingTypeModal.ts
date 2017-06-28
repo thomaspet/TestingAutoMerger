@@ -1,6 +1,6 @@
 import {Component, Type, ViewChild, Input, Output, EventEmitter, SimpleChanges} from '@angular/core';
 import { UniModal } from '../../../../../framework/modals/modal';
-import { UniFieldLayout, FieldType } from 'uniform-ng2/main';
+import { UniFieldLayout, FieldType } from '../../../../../framework/ui/uniform/index';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 
 @Component({

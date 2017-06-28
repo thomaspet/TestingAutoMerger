@@ -2,9 +2,9 @@ import {Component, Input, ViewChild, OnChanges} from '@angular/core';
 import {Observable} from 'rxjs/Observable';
 import {PeriodFilter} from '../periodFilter/periodFilter';
 import {AccountDetailsReportModal} from '../detailsmodal/accountDetailsReportModal';
-import {UniSelect, ISelectConfig, INumberOptions} from 'uniform-ng2/main';
-import {UniTableColumn, UniTableConfig, UniTableColumnType, ITableFilter, UniTable, INumberFormat} from 'unitable-ng2/main';
-import {ChartHelper, IChartDataSet} from '../chartHelper';
+import {INumberOptions} from '../../../../../framework/ui/uniform/index';
+import {UniTableColumn, UniTableConfig, UniTableColumnType} from '../../../../../framework/ui/unitable/index';
+import {ChartHelper} from '../chartHelper';
 import {
     AccountGroupService,
     StatisticsService,

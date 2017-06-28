@@ -1,11 +1,10 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
-import { UniTableConfig, UniTableColumnType, UniTableColumn } from 'unitable-ng2/main';
+import { UniTableConfig, UniTableColumnType, UniTableColumn } from '../../../../framework/ui/unitable/index';
 import { SalarybalanceService, ErrorService, NumberFormat } from '../../../services/services';
-import { SalaryBalance, SalBalType, SalBalDrawType } from '../../../unientities';
+import { SalaryBalance, SalBalDrawType } from '../../../unientities';
 import { TabService, UniModules } from '../../layout/navbar/tabstrip/tabService';
 import { SalarybalancelineModal } from './modals/salarybalancelinemodal';
-import { Observable } from 'rxjs/Observable';
 
 type BalanceActionFormattedType = {
     salaryBalanceID: number,

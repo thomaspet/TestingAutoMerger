@@ -28,8 +28,8 @@ import { Project } from './project/project';
 import { ProjectOverview } from './project/overview/overview';
 import { ProjectTasks } from './project/tasks/tasks';
 import { ProjectEditmode } from './project/editmode/editmode';
-import {UniTableModule} from 'unitable-ng2/main';
-import {UniFormModule} from 'uniform-ng2/main';
+import {UniTableModule} from '../../../framework/ui/unitable/index';
+import {UniFormModule} from '../../../framework/ui/uniform/index';
 import {UniSales} from './sales';
 import {InvoiceDetails} from './invoice/details/invoice';
 import {InvoiceReminders} from './invoice/reminders/reminders';
@@ -46,7 +46,7 @@ import {TofDeliveryForm} from './common/deliveryForm';
 import {TofHelper} from './salesHelper/tofHelper';
 import {TradeItemTable} from './common/tradeItemTable';
 import {CanDeactivateGuard} from '../../canDeactivateGuard';
-import {UniSearchModule} from 'unisearch-ng2';
+import {UniSearchModule} from '../../../framework/ui/unisearch/index';
 import {WidgetModule} from '../widgets/widgetModule';
 
 @NgModule({

@@ -10,7 +10,7 @@ import {IUniSaveAction} from '../../../../../framework/save/save';
 import {ISummaryConfig} from '../../../common/summary/summary';
 import {Observable} from 'rxjs/Observable';
 import {ToastService, ToastType, ToastTime} from '../../../../../framework/uniToast/toastService';
-import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig} from 'unitable-ng2/main';
+import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig} from '../../../../../framework/ui/unitable/index';
 import {UniConfirmModal, ConfirmActions} from '../../../../../framework/modals/confirm';
 import {
     JournalEntrySettings,

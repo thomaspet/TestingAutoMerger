@@ -1,7 +1,7 @@
 import {Component, Input} from '@angular/core';
 import {CustomerInvoiceReminderSettings} from '../../../../unientities';
-import {FieldType} from 'uniform-ng2/main';
-import {UniFieldLayout} from 'uniform-ng2/main';
+import {FieldType} from '../../../../../framework/ui/uniform/index';
+import {UniFieldLayout} from '../../../../../framework/ui/uniform/index';
 import {
     CompanySettingsService,
     CustomerInvoiceReminderSettingsService,

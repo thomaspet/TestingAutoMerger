@@ -2,7 +2,7 @@
 import {Component, Input, ViewChild, OnInit, SimpleChanges} from '@angular/core';
 
 // app
-import {UniSelect, ISelectConfig} from 'uniform-ng2/main';
+import {UniSelect, ISelectConfig} from '../../../../../framework/ui/uniform/index';
 import {Transition, TransitionThreshold, Operator} from '../../../../unientities';
 import {ThresholdService, RoleService, ErrorService, ApiModelService, ApiModel} from '../../../../services/services';
 

@@ -1,5 +1,5 @@
 import {Component, ViewChild, Output, EventEmitter} from '@angular/core';
-import {UniTableConfig, UniTableColumnType, UniTableColumn} from 'unitable-ng2/main';
+import {UniTableConfig, UniTableColumnType, UniTableColumn} from '../../../../../framework/ui/unitable/index';
 import {Observable} from 'rxjs/Observable';
 import {AltinnReceipt} from '../../../../../app/unientities';
 import {AltinnReceiptService, EmployeeService, ErrorService} from '../../../../../app/services/services';

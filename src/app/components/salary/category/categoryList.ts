@@ -1,6 +1,6 @@
 import {Component, OnInit} from '@angular/core';
 import {Router} from '@angular/router';
-import {UniTableConfig, UniTableColumnType, UniTableColumn} from 'unitable-ng2/main';
+import {UniTableConfig, UniTableColumnType, UniTableColumn} from '../../../../framework/ui/unitable/index';
 import {EmployeeCategoryService, ErrorService} from '../../../services/services';
 import {Observable} from 'rxjs/Observable';
 import {EmployeeCategory} from '../../../unientities';

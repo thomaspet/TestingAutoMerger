@@ -1,6 +1,6 @@
-import {Component, ViewChild, OnChanges, Input, Output, EventEmitter} from '@angular/core';
+import {Component, OnChanges, Input, Output, EventEmitter} from '@angular/core';
 import {StatisticsService} from '../../../services/services';
-import {UniTableColumn, UniTableColumnType} from 'unitable-ng2/main';
+import {UniTableColumn} from '../../../../framework/ui/unitable/index';
 declare var _;
 
 @Component({

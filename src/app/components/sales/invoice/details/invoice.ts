@@ -15,7 +15,7 @@ import {ISummaryConfig} from '../../../common/summary/summary';
 import {StatusCode} from '../../salesHelper/salesEnums';
 import {PreviewModal} from '../../../reports/modals/preview/previewModal';
 import {RegisterPaymentModal} from '../../../common/modals/registerPaymentModal';
-import {IContextMenuItem} from 'unitable-ng2/main';
+import {IContextMenuItem} from '../../../../../framework/ui/unitable/index';
 import {SendEmailModal} from '../../../common/modals/sendEmailModal';
 import {SendEmail} from '../../../../models/sendEmail';
 import {InvoiceTypes} from '../../../../models/Sales/InvoiceTypes';
@@ -354,12 +354,12 @@ export class InvoiceDetails {
                 return this.saveInvoice().then(invoice => {
                     this.isDirty = false;
 
-                    var currentab = this.tabService.currentActiveIndex;
+                    const currenTabIndex = this.tabService.currentActiveIndex;
                     this.customerInvoiceService.Get(invoice.ID, this.expandOptions)
                         .subscribe(
                         res => {
                             this.refreshInvoice(res);
-                            this.tabService.setTabActive(currentab);
+                            this.tabService.activateTab(currenTabIndex);
                         },
                         err => this.errorService.handle(err)
                         );

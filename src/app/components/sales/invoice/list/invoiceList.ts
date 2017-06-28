@@ -1,5 +1,5 @@
 import {Component, ViewChild, OnInit} from '@angular/core';
-import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig, IContextMenuItem} from 'unitable-ng2/main';
+import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig, IContextMenuItem} from '../../../../../framework/ui/unitable/index';
 import {Router} from '@angular/router';
 import {UniHttp} from '../../../../../framework/core/http/http';
 import {StatusCodeCustomerInvoice, CustomerInvoice, LocalDate, CompanySettings, InvoicePaymentData} from '../../../../unientities';
@@ -11,7 +11,6 @@ import {SendEmailModal} from '../../../common/modals/sendEmailModal';
 import {SendEmail} from '../../../../models/sendEmail';
 import {ToastService, ToastType} from '../../../../../framework/uniToast/toastService';
 import {ISummaryConfig} from '../../../common/summary/summary';
-import {UniConfirmModal, ConfirmActions} from '../../../../../framework/modals/confirm';
 import * as moment from 'moment';
 import {
     CustomerInvoiceService,

@@ -2,7 +2,7 @@ import {Component, ViewChild, Input} from '@angular/core';
 import {DomSanitizer} from '@angular/platform-browser';
 import {Router} from '@angular/router';
 import {StatusCodeJournalEntryLine} from '../../../../unientities';
-import {UniTable, UniTableColumn, UniTableConfig, UniTableColumnType, ITableFilter} from 'unitable-ng2/main';
+import {UniTable, UniTableColumn, UniTableConfig, UniTableColumnType, ITableFilter} from '../../../../../framework/ui/unitable/index';
 import {ISummaryConfig} from '../../../common/summary/summary';
 import {ToastService, ToastType, ToastTime} from '../../../../../framework/uniToast/toastService';
 import {UniConfirmModal, ConfirmActions} from '../../../../../framework/modals/confirm';

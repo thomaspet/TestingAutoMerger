@@ -1,10 +1,10 @@
 import {Component, ViewChild} from '@angular/core';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
-import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig} from 'unitable-ng2/main';
+import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig} from '../../../../../framework/ui/unitable/index';
 import {URLSearchParams} from '@angular/http';
 import {CustomerInvoice, Account, CompanySettings, LocalDate} from '../../../../unientities';
 import {JournalEntryManual} from  '../journalentrymanual/journalentrymanual';
-import {IContextMenuItem} from 'unitable-ng2/main';
+import {IContextMenuItem} from '../../../../../framework/ui/unitable/index';
 import {IToolbarConfig} from '../../../common/toolbar/toolbar';
 import {Router} from '@angular/router';
 import {

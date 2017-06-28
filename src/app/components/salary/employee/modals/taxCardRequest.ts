@@ -1,5 +1,5 @@
 import {Component, ViewChild, Input, Output, EventEmitter, SimpleChanges} from '@angular/core';
-import {UniForm, FieldType} from 'uniform-ng2/main';
+import {UniForm, FieldType} from '../../../../../framework/ui/uniform/index';
 import {FieldLayout, AltinnReceipt} from '../../../../../app/unientities';
 import {AltinnIntegrationService, ErrorService} from '../../../../../app/services/services';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';

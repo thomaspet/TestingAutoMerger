@@ -6,7 +6,7 @@ import {
     WorkingHoursScheme, Department, Project
 } from '../../../unientities';
 import { Observable } from 'rxjs/Observable';
-import {FieldType} from 'uniform-ng2/main';
+import {FieldType} from '../../../../framework/ui/uniform/index';
 
 @Injectable()
 export class EmploymentService extends BizHttp<Employment> {

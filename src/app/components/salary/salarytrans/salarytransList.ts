@@ -1,7 +1,7 @@
 import { Component, Input, OnChanges, EventEmitter, Output, ViewChild } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { Observable } from 'rxjs/Observable';
-import { UniTable, UniTableColumnType, UniTableColumn, UniTableConfig, IDeleteButton, ITableFilter } from 'unitable-ng2/main';
+import { UniTable, UniTableColumnType, UniTableColumn, UniTableConfig, IDeleteButton } from '../../../../framework/ui/unitable/index';
 import {
     Employee, WageType, PayrollRun, SalaryTransaction, Project, Department,
     WageTypeSupplement, SalaryTransactionSupplement, Account, Dimensions, LocalDate
@@ -10,7 +10,7 @@ import {
     AccountService, ReportDefinitionService, UniCacheService,
     ErrorService, NumberFormat, WageTypeService
 } from '../../../services/services';
-import { UniForm } from 'uniform-ng2/main';
+import { UniForm } from '../../../../framework/ui/uniform/index';
 import { SalaryTransactionSupplementsModal } from '../modals/salaryTransactionSupplementsModal';
 
 import { UniView } from '../../../../framework/core/uniView';

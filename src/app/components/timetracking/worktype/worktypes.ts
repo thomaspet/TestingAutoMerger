@@ -1,7 +1,7 @@
 import {Component} from '@angular/core';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {View} from '../../../models/view/view';
-import {UniTableColumn, UniTableColumnType, UniTableConfig} from 'unitable-ng2/main';
+import {UniTableColumn, UniTableColumnType, UniTableConfig} from '../../../../framework/ui/unitable/index';
 import {WorkTypeSystemTypePipe} from '../../common/utils/pipes';
 import {IViewConfig} from '../genericview/list';
 

@@ -1,8 +1,8 @@
 import {Component, ViewChild} from '@angular/core';
 import {Router} from '@angular/router';
 import {IToolbarConfig} from '../../common/toolbar/toolbar';
-import {UniFieldLayout, FieldType} from 'uniform-ng2/main';
-import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig, INumberFormat} from 'unitable-ng2/main';
+import {UniFieldLayout, FieldType} from '../../../../framework/ui/uniform/index';
+import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig, INumberFormat} from '../../../../framework/ui/unitable/index';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {Observable} from 'rxjs/Observable';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';

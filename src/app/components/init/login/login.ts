@@ -3,7 +3,7 @@ import {FormControl, Validators} from '@angular/forms';
 import {Router} from '@angular/router';
 import {AuthService} from '../../../../framework/core/authService';
 import {UniHttp} from '../../../../framework/core/http/http';
-import {UniSelect, ISelectConfig} from 'uniform-ng2/main';
+import {UniSelect, ISelectConfig} from '../../../../framework/ui/uniform/index';
 import {Logger} from '../../../../framework/core/logger';
 import * as $ from 'jquery';
 

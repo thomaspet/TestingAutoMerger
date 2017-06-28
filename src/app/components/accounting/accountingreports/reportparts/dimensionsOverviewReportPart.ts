@@ -1,9 +1,7 @@
-import {Component, ViewChild, Input} from '@angular/core';
-import {Router, ActivatedRoute} from '@angular/router';
-import {Observable} from 'rxjs/Observable';
-import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
-import {PeriodFilter, PeriodFilterHelper} from '../periodFilter/periodFilter';
-import {UniTableColumn, UniTableConfig, UniTableColumnType, ITableFilter, INumberFormat} from 'unitable-ng2/main';
+import {Component, Input} from '@angular/core';
+import {Router} from '@angular/router';
+import {PeriodFilter} from '../periodFilter/periodFilter';
+import {UniTableColumn, UniTableConfig, UniTableColumnType, INumberFormat} from '../../../../../framework/ui/unitable/index';
 import {
     StatisticsService,
     ErrorService,

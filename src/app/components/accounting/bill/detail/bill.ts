@@ -10,7 +10,7 @@ import {Supplier, SupplierInvoice, JournalEntryLineDraft,
     InvoicePaymentData, CurrencyCode, CompanySettings, Task} from '../../../../unientities';
 import {UniStatusTrack} from '../../../common/toolbar/statustrack';
 import {IUniSaveAction} from '../../../../../framework/save/save';
-import { UniForm, FieldType} from 'uniform-ng2/main';
+import { UniForm, FieldType} from '../../../../../framework/ui/uniform/index';
 import {RegisterPaymentModal} from '../../../common/modals/registerPaymentModal';
 import {Location} from '@angular/common';
 import {BillSimpleJournalEntryView} from './journal/simple';
@@ -21,7 +21,7 @@ import {BillHistoryView} from './history/history';
 import {BankAccountModal} from '../../../common/modals/modals';
 import { ImageModal } from '../../../common/modals/ImageModal';
 import { UniImageSize, UniImage } from '../../../../../framework/uniImage/uniImage';
-import {IUniSearchConfig} from 'unisearch-ng2/src/UniSearch/IUniSearchConfig';
+import {IUniSearchConfig} from '../../../../../framework/ui/unisearch/index';
 import {UniAssignModal, AssignDetails} from './assignmodal';
 import {UniApproveModal, ApprovalDetails} from './approvemodal';
 import {UniMath} from '../../../../../framework/core/uniMath';
@@ -44,7 +44,7 @@ import {
     ModulusService
 } from '../../../../services/services';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
-import {UniFieldLayout} from 'uniform-ng2/main';
+import {UniFieldLayout} from '../../../../../framework/ui/uniform/index';
 import * as moment from 'moment';
 declare var _;
 

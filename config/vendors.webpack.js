@@ -26,11 +26,7 @@ module.exports = function(options) {
                 'accounting/accounting.min.js',
                 'immutable/dist/immutable.min.js',
                 'jwt-decode/build/jwt-decode.min.js',
-                'lodash/lodash.min.js',
-
-                'uniform-ng2/main',
-                'unitable-ng2/main',
-                'unisearch-ng2'
+                'lodash/lodash.min.js'
             ]
         },
 

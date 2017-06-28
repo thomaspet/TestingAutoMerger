@@ -7,7 +7,7 @@ import {KeyCodes} from '../../../../../services/common/KeyCodes';
 import {Observable} from 'rxjs/Observable';
 import {Subscription} from 'rxjs/Subscription';
 import 'rxjs/add/observable/fromEvent';
-import {UniTableConfig, UniTableColumn} from 'unitable-ng2/main';
+import {UniTableConfig, UniTableColumn} from '../../../../../../framework/ui/unitable/index';
 
 @Component({
     selector: 'uni-translatables-list',

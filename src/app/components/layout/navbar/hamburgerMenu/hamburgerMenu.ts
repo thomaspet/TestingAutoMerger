@@ -22,7 +22,8 @@ export class RemoveHidden {
             <ul class="hamburger_menu" #menu>
                 <li class="hamburger_item"
                     *ngFor="let componentList of availableComponents; let idx = index"
-                    [ngClass]="{'is-active': idx === activeSectionIndex()}">
+                    (mouseover)="selectionIndex = idx"
+                    [ngClass]="{'is-active': idx === selectionIndex}">
                     {{componentList.componentListName}}
 
                     <ul class="hamburger_submenu">
@@ -46,6 +47,7 @@ export class HamburgerMenu {
     public routes: any[] = routes;
     public availableComponents: Array<any>;
     private activeSection: HTMLElement;
+    public selectionIndex: number = 0;
 
     // Get the corresponding parent app to a given module.
     public static getParentApp(moduleID): any {

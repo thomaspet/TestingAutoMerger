@@ -1,5 +1,5 @@
 import {Component, Output, EventEmitter, ViewChild, ElementRef} from '@angular/core';
-import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig} from 'unitable-ng2/main';
+import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig} from '../../../../../framework/ui/unitable/index';
 import {URLSearchParams} from '@angular/http';
 import {Account} from '../../../../unientities';
 import {AccountService, ErrorService} from '../../../../services/services';

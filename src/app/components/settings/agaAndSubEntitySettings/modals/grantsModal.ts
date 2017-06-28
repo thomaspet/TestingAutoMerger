@@ -1,6 +1,6 @@
 import {Component, ViewChild, Type, Input, OnInit} from '@angular/core';
 import {UniModal} from '../../../../../framework/modals/modal';
-import {UniTable, UniTableConfig, UniTableColumn, UniTableColumnType} from 'unitable-ng2/main';
+import {UniTable, UniTableConfig, UniTableColumn, UniTableColumnType} from '../../../../../framework/ui/unitable/index';
 import {GrantService, SubEntityService, ErrorService} from '../../../../services/services';
 import {Grant, SubEntity} from '../../../../unientities';
 import {Observable} from 'rxjs/Observable';

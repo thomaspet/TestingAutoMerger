@@ -10,7 +10,7 @@ import {
     ChangeDetectorRef
 } from '@angular/core';
 import {Observable} from 'rxjs/Observable';
-import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig} from 'unitable-ng2/main';
+import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig} from '../../../../../../framework/ui/unitable/index';
 import {UniHttp} from '../../../../../../framework/core/http/http';
 import {
     Account,
@@ -56,9 +56,7 @@ import {CurrencyCodeService} from '../../../../../services/common/currencyCodeSe
 import {CurrencyService} from '../../../../../services/common/currencyService';
 import {RegisterPaymentModal} from '../../../../common/modals/registerPaymentModal';
 import {SelectJournalEntryLineModal} from '../selectJournalEntryLineModal';
-import {INumberFormat} from 'unitable-ng2/src/unitable/config/unitableColumn';
 import {UniMath} from '../../../../../../framework/core/uniMath';
-import {UniSelect, ISelectConfig} from 'uniform-ng2/main';
 const PAPERCLIP = '📎'; // It might look empty in your editor, but this is the unicode paperclip
 
 declare const _; // lodash

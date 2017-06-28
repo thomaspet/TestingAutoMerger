@@ -3,7 +3,7 @@ import {Router} from '@angular/router';
 import {File, PaymentBatch} from '../../../unientities';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {IToolbarConfig} from '../../common/toolbar/toolbar';
-import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig} from 'unitable-ng2/main';
+import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig} from '../../../../framework/ui/unitable/index';
 import {URLSearchParams} from '@angular/http';
 import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
 import {

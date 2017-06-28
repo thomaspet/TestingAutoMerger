@@ -5,7 +5,7 @@ import {ActivatedRoute} from '@angular/router';
 import {IToolbarConfig} from '../../../common/toolbar/toolbar';
 import {IUniSaveAction} from '../../../../../framework/save/save';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
-import {UniSelect, ISelectConfig} from 'uniform-ng2/main';
+import {UniSelect, ISelectConfig} from '../../../../../framework/ui/uniform/index';
 import {ErrorService, JobService} from '../../../../services/services';
 // admin module
 import {Job} from '../../../../models/admin/jobs/job';

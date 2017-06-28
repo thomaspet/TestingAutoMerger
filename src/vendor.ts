@@ -24,5 +24,3 @@ import * as jQuery from 'jquery';
 // import * as jwt_decode from 'jwt-decode';
 // import * as Chart from 'chart.js';
 // import {saveAs} from 'file-saver';
-// import {UniTableModule} from 'unitable-ng2/main';
-// import {UniFormModule} from 'uniform-ng2/main';

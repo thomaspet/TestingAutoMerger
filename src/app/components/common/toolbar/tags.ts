@@ -1,6 +1,6 @@
 import { Component, Input, Output, EventEmitter, OnChanges, ViewChild } from '@angular/core';
 import { Observable } from 'rxjs/Observable';
-import { UniFieldLayout, FieldType, UniAutocompleteInput } from 'uniform-ng2/main';
+import { UniFieldLayout, FieldType, UniAutocompleteInput } from '../../../../framework/ui/uniform/index';
 import { ErrorService } from '../../../services/services';
 import * as _ from 'lodash';
 

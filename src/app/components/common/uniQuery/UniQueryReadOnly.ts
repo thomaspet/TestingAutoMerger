@@ -1,8 +1,7 @@
-import {Component, ViewChild, Input, OnChanges, SimpleChanges} from '@angular/core';
-import {UniTable, UniTableColumn, UniTableConfig, ITableFilter, IExpressionFilterValue} from 'unitable-ng2/main';
+import {Component, Input, OnChanges, SimpleChanges} from '@angular/core';
+import {UniTableColumn, UniTableConfig, ITableFilter, IExpressionFilterValue} from '../../../../framework/ui/unitable/index';
 import {Router} from '@angular/router';
 import {URLSearchParams} from '@angular/http';
-import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {StatisticsService, UniQueryDefinitionService, StatusService, ErrorService} from '../../../services/services';
 import {AuthService} from '../../../../framework/core/authService';
 import {UniQueryDefinition, UniQueryField, UniQueryFilter} from '../../../../app/unientities';

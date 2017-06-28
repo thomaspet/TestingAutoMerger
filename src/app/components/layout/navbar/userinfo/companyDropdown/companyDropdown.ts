@@ -1,9 +1,8 @@
 ﻿import {Component, ViewChildren, QueryList, ChangeDetectorRef, ViewChild} from '@angular/core';
 import {Router} from '@angular/router';
 import {Observable} from 'rxjs/Observable';
-import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {CompanySettings, FinancialYear} from '../../../../../unientities';
-import {UniSelect, ISelectConfig} from 'uniform-ng2/main';
+import {UniSelect, ISelectConfig} from '../../../../../../framework/ui/uniform/index';
 import {AuthService} from '../../../../../../framework/core/authService';
 import {
     CompanySettingsService,

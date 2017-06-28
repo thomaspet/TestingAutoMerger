@@ -51,8 +51,8 @@ export class TimeEntry {
     public currentBalance: WorkBalanceDto;
     public incomingBalance: WorkBalance;
     public teams: Array<Team>;
-    private settings: ISettings = { 
-        useDayBrowser: true 
+    private settings: ISettings = {
+        useDayBrowser: true
     };
 
     @ViewChild(RegtimeTotals) private regtimeTotals: RegtimeTotals;
@@ -86,7 +86,7 @@ export class TimeEntry {
 
     public toolbarConfig: any = {
         title: 'Registrering av timer',
-        omitFinalCrumb: true        
+        omitFinalCrumb: true
     };
 
     private initialContextMenu: Array<any> = [
@@ -111,7 +111,7 @@ export class TimeEntry {
     ) {
 
         this.loadSettings();
-        this.filters = service.getIntervalItems();        
+        this.filters = service.getIntervalItems();
         this.initApplicationTab();
 
         route.queryParams.first().subscribe((item: { workerId; workRelationId; }) => {
@@ -165,7 +165,7 @@ export class TimeEntry {
         tab.isSelected = true;
         if (tab.activate) {
             tab.activate(this.timeSheet, this.currentFilter);
-        }        
+        }
         this.isEntryTab = tab.name === 'timeentry';
     }
 
@@ -199,7 +199,7 @@ export class TimeEntry {
     public canDeactivate() {
         return new Promise((resolve, reject) => {
             this.checkSave(true).then( () => {
-                resolve(true);           
+                resolve(true);
             }, () => resolve(false) );
         });
     }
@@ -231,10 +231,8 @@ export class TimeEntry {
                     this.initApplicationTab();
                 } else {
                     this.busy = false;
-                    this.missingWorker = true;                    
-                    this.tabService.removeTabs({ 
-                        name: view.label, url: view.url, moduleID: UniModules.Timesheets });
-                    this.router.navigateByUrl('/');
+                    this.missingWorker = true;
+                    this.tabService.closeTab();
                 }
             });
     }
@@ -287,8 +285,8 @@ export class TimeEntry {
             }
             obs.subscribe((itemCount: number) => {
                 if (this.workEditor) { this.workEditor.closeEditor(); }
-                if (this.settings.useDayBrowser) { 
-                    this.dayBrowser.current = new Day(dt, true, this.timeSheet.totals.Minutes); 
+                if (this.settings.useDayBrowser) {
+                    this.dayBrowser.current = new Day(dt, true, this.timeSheet.totals.Minutes);
                 }
                 this.flagUnsavedChanged(true, false);
                 this.suggestTime();
@@ -388,7 +386,7 @@ export class TimeEntry {
     public import(done?: (msg?: string) => void) {
         this.checkSave().then( () => {
             this.fileImport.open().then( (success) => {
-                if (success) { 
+                if (success) {
                     let ts = this.timeSheet.clone();
                     let importedList = this.fileImport.getWorkItems();
                     if (importedList && importedList.length > 0) {
@@ -406,7 +404,7 @@ export class TimeEntry {
                         ts.recalc();
                         this.timeSheet = ts;
                         this.flagUnsavedChanged();
-                    }                    
+                    }
                 }
                 if (done) { done(); }
             });
@@ -420,7 +418,7 @@ export class TimeEntry {
             this.checkContextLabels();
             setTimeout( () => this.refreshViewItems(), 50 );
         });
-        
+
     }
 
     private saveSettings() {
@@ -435,7 +433,7 @@ export class TimeEntry {
     }
 
     private checkContextLabels() {
-        this.initialContextMenu[2].label = 
+        this.initialContextMenu[2].label =
             this.settings.useDayBrowser ? 'Bytt til filtervisning' : 'Bytt til ukevisning';
     }
 

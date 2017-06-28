@@ -1,5 +1,5 @@
 import {Component, Input} from '@angular/core';
-import {UniTableColumn, UniTableColumnType, UniTableConfig} from 'unitable-ng2/main';
+import {UniTableColumn, UniTableColumnType, UniTableConfig} from '../../../../../../framework/ui/unitable/index';
 import {StatisticsService, SupplierInvoiceService, ErrorService} from '../../../../../services/services';
 import {URLSearchParams} from '@angular/http';
 import * as moment from 'moment';

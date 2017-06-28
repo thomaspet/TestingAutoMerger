@@ -1,7 +1,7 @@
 import {Component} from '@angular/core';
 import {View} from '../../../models/view/view';
 import {IViewConfig} from '../genericview/list';
-import {UniTableColumn, UniTableColumnType, UniTableConfig} from 'unitable-ng2/main';
+import {UniTableColumn, UniTableColumnType, UniTableConfig} from '../../../../framework/ui/unitable/index';
 import {UniModules} from '../../layout/navbar/tabstrip/tabService';
 
 export var view = new View('workprofiles', 'Stillingsmaler', 'WorkprofileListview', false, 'workprofile', WorkprofileListview);

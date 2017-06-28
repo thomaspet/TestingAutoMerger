@@ -11,7 +11,7 @@ import {Subscription} from 'rxjs/Subscription';
 import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
 import {CreateCorrectedVatReportModal} from './modals/createCorrectedVatReport';
 import {HistoricVatReportModal} from './modals/historicVatReports';
-import {IContextMenuItem} from 'unitable-ng2/main';
+import {IContextMenuItem} from '../../../../framework/ui/unitable/index';
 import {AltinnAuthenticationDataModal} from '../../common/modals/AltinnAuthenticationDataModal';
 import {ReceiptVat} from './receipt/receipt';
 import {IToolbarConfig} from '../../common/toolbar/toolbar';

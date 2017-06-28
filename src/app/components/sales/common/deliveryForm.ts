@@ -1,7 +1,7 @@
 import {Component, ViewChild, ViewChildren, QueryList, Input, Output, EventEmitter} from '@angular/core';
 import {Address, CurrencyCode} from '../../../unientities';
 import {AddressService, BusinessRelationService, ErrorService} from '../../../services/services';
-import {UniForm, FieldType} from 'uniform-ng2/main';
+import {UniForm, FieldType} from '../../../../framework/ui/uniform/index';
 import {AddressModal} from '../../common/modals/modals';
 declare const _;
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';

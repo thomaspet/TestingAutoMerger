@@ -2,7 +2,7 @@ import { Component, ViewChild, Output, EventEmitter, Type, AfterViewInit, Input 
 import { UniModal } from '../../../../framework/modals/modal';
 import { SalaryTransaction, SalaryTransactionSupplement, Valuetype } from '../../../unientities';
 
-import { UniFieldLayout, FieldType } from 'uniform-ng2/main';
+import { UniFieldLayout, FieldType } from '../../../../framework/ui/uniform/index';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 
 type ModalContext = {

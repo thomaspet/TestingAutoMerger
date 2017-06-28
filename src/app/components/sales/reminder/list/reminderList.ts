@@ -1,6 +1,6 @@
 import {Component, ViewChild} from '@angular/core';
 import {IToolbarConfig} from './../../../common/toolbar/toolbar';
-import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig, ITableFilter, IContextMenuItem} from 'unitable-ng2/main';
+import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig, ITableFilter, IContextMenuItem} from '../../../../../framework/ui/unitable/index';
 import {Router} from '@angular/router';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
 import {ISummaryConfig} from '../../../common/summary/summary';

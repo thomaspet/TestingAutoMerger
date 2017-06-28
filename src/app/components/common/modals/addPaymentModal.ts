@@ -1,6 +1,6 @@
 import {Component, Type, Input, Output, ViewChild, EventEmitter, OnInit} from '@angular/core';
 import {UniModal} from '../../../../framework/modals/modal';
-import {UniForm, FieldType} from 'uniform-ng2/main';
+import {UniForm, FieldType} from '../../../../framework/ui/uniform/index';
 import {Payment, BankAccount, BusinessRelation} from '../../../unientities';
 import {PaymentService, StatisticsService, ErrorService} from '../../../services/services';
 import {Observable} from 'rxjs/Observable';

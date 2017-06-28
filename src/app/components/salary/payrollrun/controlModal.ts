@@ -1,9 +1,9 @@
 import { Component, Type, ViewChild, Input, OnInit, EventEmitter, Output } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { UniModal } from '../../../../framework/modals/modal';
-import { UniFieldLayout, FieldType } from 'uniform-ng2/main';
-import { UniTableConfig, UniTableColumnType, UniTableColumn } from 'unitable-ng2/main';
-import { PayrollRun, SalaryTransaction, StdSystemType } from '../../../../app/unientities';
+import { UniFieldLayout, FieldType } from '../../../../framework/ui/uniform/index';
+import { UniTableConfig, UniTableColumnType, UniTableColumn } from '../../../../framework/ui/unitable/index';
+import { SalaryTransaction, StdSystemType } from '../../../../app/unientities';
 import { Observable } from 'rxjs/Observable';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import { ReplaySubject } from 'rxjs/ReplaySubject';

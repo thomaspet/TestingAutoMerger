@@ -5,7 +5,7 @@ import {PeriodFilter, PeriodFilterHelper} from '../periodFilter/periodFilter';
 import {AccountDetailsReportModal} from '../detailsmodal/accountDetailsReportModal';
 import {DrilldownResultReportPart} from '../reportparts/drilldownResultReportPart';
 import {IToolbarConfig} from '../../../common/toolbar/toolbar';
-import {UniSelect, ISelectConfig, UniFieldLayout, FieldType} from 'uniform-ng2/main';
+import {ISelectConfig, UniFieldLayout, FieldType} from '../../../../../framework/ui/uniform/index';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {Observable} from 'rxjs/Observable';
 import {

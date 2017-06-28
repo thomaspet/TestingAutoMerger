@@ -1,7 +1,7 @@
 import {Component, ViewChild, ChangeDetectorRef} from '@angular/core';
 import {Observable} from 'rxjs/Observable';
 
-import {UniSelect, ISelectConfig} from 'uniform-ng2/main';
+import {UniSelect, ISelectConfig} from '../../../../framework/ui/uniform/index';
 
 import {UmhService, IUmhAction, IUmhObjective, IUmhSubscription, IUmhSubscriber} from '../../../services/common/UmhService';
 import {AuthService} from '../../../../framework/core/authService';

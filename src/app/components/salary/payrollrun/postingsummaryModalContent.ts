@@ -1,11 +1,9 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { UniTable, UniTableColumn, UniTableColumnType, UniTableConfig } from 'unitable-ng2/main';
-import { PostingSummary, Dimensions } from '../../../unientities';
-import { PayrollrunService, ErrorService, ReportDefinitionService, Report, ReportParameter, ReportService } from '../../../../app/services/services';
+import { UniTableColumn, UniTableColumnType, UniTableConfig } from '../../../../framework/ui/unitable/index';
+import { PostingSummary } from '../../../unientities';
+import { PayrollrunService, ErrorService, ReportDefinitionService, ReportParameter, ReportService } from '../../../../app/services/services';
 import { UniHttp } from '../../../../framework/core/http/http';
-
-import { Observable } from 'rxjs/Observable';
 import * as moment from 'moment';
 
 @Component({

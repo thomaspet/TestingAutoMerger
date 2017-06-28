@@ -1,5 +1,5 @@
 import {Component, Input, ViewChild} from '@angular/core';
-import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig} from 'unitable-ng2/main';
+import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig} from '../../../../../framework/ui/unitable/index';
 import {Dimensions} from '../../../../unientities';
 
 @Component({

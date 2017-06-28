@@ -3,7 +3,7 @@ import {
     SubEntityService, AgaZoneService, MunicipalService, StatisticsService, ErrorService
 } from '../../../services/services';
 import { SubEntity, PostalCode, Municipal } from '../../../unientities';
-import { UniFieldLayout } from 'uniform-ng2/main';
+import { UniFieldLayout } from '../../../../framework/ui/uniform/index';
 import { Observable } from 'rxjs/Observable';
 declare var _;
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';

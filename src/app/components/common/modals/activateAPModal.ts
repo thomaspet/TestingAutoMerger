@@ -1,7 +1,7 @@
 import {Component, Type, Input, Output, ViewChild, EventEmitter} from '@angular/core';
 import {UniModal} from '../../../../framework/modals/modal';
-import {UniForm} from 'uniform-ng2/main';
-import {FieldType} from 'uniform-ng2/main';
+import {UniForm} from '../../../../framework/ui/uniform/index';
+import {FieldType} from '../../../../framework/ui/uniform/index';
 import {ActivateAP} from '../../../models/activateAP';
 import {ToastService} from '../../../../framework/uniToast/toastService';
 import {UniConfirmModal, IModalAction, ConfirmActions} from '../../../../framework/modals/confirm';

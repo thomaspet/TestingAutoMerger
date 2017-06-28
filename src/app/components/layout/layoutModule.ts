@@ -13,7 +13,7 @@ import {UniCompanyDropdown} from './navbar/userinfo/companyDropdown/companyDropd
 import {UniFrameworkModule} from '../../../framework/frameworkModule';
 import {UniTabs} from './uniTabs/uniTabs';
 import {UniFeedback} from '../common/feedback/feedback';
-import {UniFormModule} from 'uniform-ng2/main';
+import {UniFormModule} from '../../../framework/ui/uniform/index';
 import { UniNumberFormatPipe } from '../../pipes/uniNumberFormatPipe';
 import { YearModal, YearModalContent } from "./navbar/userinfo/companyDropdown/modals/yearModal";
 

@@ -2,7 +2,7 @@ import { Component, ViewChild } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { UniView } from '../../../../../framework/core/uniView';
 import { EmploymentService } from '../../../../services/services';
-import { UniTable, UniTableConfig, UniTableColumnType, UniTableColumn } from 'unitable-ng2/main';
+import { UniTable, UniTableConfig, UniTableColumnType, UniTableColumn } from '../../../../../framework/ui/unitable/index';
 import { Employee, Employment, SubEntity, Project, Department } from '../../../../unientities';
 import { UniCacheService, ErrorService } from '../../../../services/services';
 

@@ -1,5 +1,5 @@
 import {Component, Input} from '@angular/core';
-import {UniTableConfig, UniTableColumnType, UniTableColumn, ISortInfo} from 'unitable-ng2/main';
+import {UniTableConfig, UniTableColumnType, UniTableColumn, ISortInfo} from '../../../../../framework/ui/unitable/index';
 import {AmeldingData} from '../../../../unientities';
 import * as moment from 'moment';
 

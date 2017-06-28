@@ -2,20 +2,16 @@ import {Component, ViewChild} from '@angular/core';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
-import {UniTable, UniTableColumn, UniTableConfig} from 'unitable-ng2/main';
-import {UniField, FieldType} from 'uniform-ng2/main';
+import {UniTable, UniTableColumn, UniTableConfig} from '../../../../framework/ui/unitable/index';
+import {UniField, FieldType} from '../../../../framework/ui/uniform/index';
 import {IToolbarConfig} from './../../common/toolbar/toolbar';
 import {IUniSaveAction} from '../../../../framework/save/save';
-import {CanDeactivate} from '@angular/router';
 
-import {
-    UniConfirmModal,
-    ConfirmActions
-} from '../../../../framework/modals/confirm';
+import {UniConfirmModal, ConfirmActions} from '../../../../framework/modals/confirm';
 
-import {Role, RolePermission, Permission} from '../../../unientities';
-import { RoleService, PermissionService, ErrorService } from '../../../services/services';
-import { Http } from "@angular/http";
+import {Role, Permission} from '../../../unientities';
+import {RoleService, PermissionService, ErrorService} from '../../../services/services';
+import {Http} from '@angular/http';
 
 @Component({
     selector: 'uni-roles',

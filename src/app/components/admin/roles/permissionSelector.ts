@@ -1,6 +1,6 @@
 import {Component, Input, Output, EventEmitter} from '@angular/core';
 import {Permission} from '../../../unientities';
-import {UniAutocompleteConfig, UniFieldLayout, FieldType} from 'uniform-ng2/main';
+import {UniFieldLayout, FieldType} from '../../../../framework/ui/uniform/index';
 
 @Component({
     selector: 'uni-permission-selector',

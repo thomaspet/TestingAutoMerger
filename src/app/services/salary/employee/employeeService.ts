@@ -5,7 +5,7 @@ import { Employee, Operator, EmployeeCategory } from '../../../unientities';
 import { Observable } from 'rxjs/Observable';
 import {ErrorService} from '../../common/errorService';
 import { ITag } from '../../../components/common/toolbar/tags';
-import {FieldType} from 'uniform-ng2/main';
+import {FieldType} from '../../../../framework/ui/uniform/index';
 import { UserService } from '../../common/userService';
 
 @Injectable()

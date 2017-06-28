@@ -5,7 +5,7 @@ import {ToastService} from '../../../../../framework/uniToast/toastService';
 import {ConfirmActions, IModalAction} from '../../../../../framework/modals/confirm';
 import {LocalDate} from '../../../../unientities';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
-import {UniFieldLayout, FieldType} from 'uniform-ng2/main';
+import {UniFieldLayout, FieldType} from '../../../../../framework/ui/uniform/index';
 
 import * as moment from 'moment';
 

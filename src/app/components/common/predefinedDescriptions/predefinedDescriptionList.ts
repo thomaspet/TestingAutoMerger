@@ -1,12 +1,9 @@
 import {Component, ViewChild} from '@angular/core';
-import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
-import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig} from 'unitable-ng2/main';
-import {UniField, FieldType} from 'uniform-ng2/main';
+import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig} from '../../../../framework/ui/unitable/index';
 import {IToolbarConfig} from './../../common/toolbar/toolbar';
 import {IUniSaveAction} from '../../../../framework/save/save';
-import {CanDeactivate} from '@angular/router';
 import {PredefinedDescription} from '../../../unientities';
 import {Observable} from 'rxjs/Observable';
 import {

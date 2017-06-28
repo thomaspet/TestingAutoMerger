@@ -4,7 +4,7 @@ import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {Observable} from 'rxjs/Observable';
 import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
 import {AmeldingData} from '../../../unientities';
-import {IContextMenuItem} from 'unitable-ng2/main';
+import {IContextMenuItem} from '../../../../framework/ui/unitable/index';
 import {IUniSaveAction} from '../../../../framework/save/save';
 import {SelectAmeldingTypeModal, IAmeldingTypeEvent} from './modals/selectAmeldingTypeModal';
 import {AltinnAuthenticationDataModal} from '../../common/modals/AltinnAuthenticationDataModal';

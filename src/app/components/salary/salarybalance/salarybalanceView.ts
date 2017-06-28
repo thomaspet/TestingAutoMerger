@@ -10,7 +10,7 @@ import { Observable } from 'rxjs/Observable';
 import { Subscription } from 'rxjs/Subscription';
 import { SalaryBalance, SalBalType, CompanySalary } from '../../../unientities';
 import { UniConfirmModal, ConfirmActions } from '../../../../framework/modals/confirm';
-import { IContextMenuItem } from 'unitable-ng2/main';
+import { IContextMenuItem } from '../../../../framework/ui/unitable/index';
 import { SalarybalancelineModal } from './modals/salarybalancelinemodal';
 import { PreviewModal } from '../../reports/modals/preview/previewModal';
 
@@ -142,11 +142,7 @@ export class SalarybalanceView extends UniView implements OnDestroy {
                                 return true;
                             } else if (response === ConfirmActions.REJECT) {
                                 if (!this.salarybalanceID) {
-                                    let tabIndex = this.tabService.tabs
-                                        .findIndex(x => x.moduleID === UniModules.Salarybalances);
-                                    this.tabService.removeTab(
-                                        this.tabService.tabs[tabIndex],
-                                        tabIndex);
+                                    this.tabService.closeTab();
                                 }
                                 return true;
                             } else {
@@ -307,7 +303,7 @@ export class SalarybalanceView extends UniView implements OnDestroy {
     }
 
     private getCompanySalary(): Observable<CompanySalary> {
-        return this.companySalary 
+        return this.companySalary
             ? Observable.of(this.companySalary)
             : this.companySalaryService.getCompanySalary();
     }
