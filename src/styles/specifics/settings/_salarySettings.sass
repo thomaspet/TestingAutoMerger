@@ -1,0 +1,10 @@
+.sub-entities-collapsable
+    @extend .collapsable
+    max-width: pxToRem(1340)
+    margin: 0 auto
+
+    @include media('650px', 'max-width')
+        max-width: pxToRem(650)
+
+    @include media('128em', 'min-width')
+        max-width: 128rem

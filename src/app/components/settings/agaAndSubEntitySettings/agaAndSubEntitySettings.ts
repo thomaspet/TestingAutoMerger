@@ -321,6 +321,7 @@ export class AgaAndSubEntitySettings implements OnInit {
         remitRegularTraits.Property = 'RemitRegularTraits';
         remitRegularTraits.FieldType = FieldType.CHECKBOX;
         remitRegularTraits.Section = 2;
+        remitRegularTraits.FieldSet = 2;
         
 
         let paymentInterval = new UniFieldLayout();
