@@ -52,16 +52,16 @@
             margin-left: 0
             margin-right: 0
             min-width: 100%
-        
+
         fieldset:nth-of-type(odd),
         fieldset:nth-of-type(even)
             margin-left: 0
             margin-right: 0
             @include media(huge)
-                min-width: 20%
+                min-width: calc(20% - .5rem)
             @include media(large)
-                min-width: 50%
-            @include media(medium)
+                min-width: calc(50% - .5rem)
+            @include media('1300px')
                 min-width: 100%
 
 
