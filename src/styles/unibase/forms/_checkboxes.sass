@@ -44,7 +44,7 @@ input[type=radio]
             box-sizing: border-box
             position: absolute
             top: .3rem
-            left: 15.3rem
+            left: calc(#{$labelLength} - .3rem)
             border-radius: .2rem
             background: #fff
 
@@ -64,7 +64,7 @@ input[type=radio]
             border-bottom: .2rem solid transparent
             position: absolute
             top: .32rem
-            left: 15.9rem
+            left: calc(#{$labelLength} + .3rem)
             height: .5rem
             width: .2rem
             transform: rotate(45deg)

@@ -1,4 +1,4 @@
-$labelLength: pxToRem(250)
+$labelLength: pxToRem(200)
 $inputHeight: 2rem
 
 %formWidth
@@ -37,6 +37,9 @@ uni-field
         display: inline-block
         line-height: $inputHeight
         width: $labelLength
+        white-space: nowrap
+        overflow: hidden
+        text-overflow: ellipsis
 
         & + *
             width: calc(100% - #{$labelLength})
