@@ -1,6 +1,13 @@
 $labelLength: pxToRem(250)
 $inputHeight: 2rem
 
+%formWidth
+    max-width: pxToRem(1340)
+    margin: 0 auto
+
+    @include media('650px', 'max-width')
+        max-width: pxToRem(650)
+
 @import 'labels'
 @import 'inputButtons'
 @import 'textInputs'
@@ -54,16 +61,10 @@ uni-button-input
         margin: 0 0 .5rem 15.6rem
 
 uni-form form
-    max-width: pxToRem(1340)
-    margin: 0 auto
-
-    @include media('650px', 'max-width')
-        max-width: pxToRem(650)
+    @extend %formWidth
 
 // Mixin for overrriding the labellength for forms with shorter labels
 @mixin labelLength($newLength)
-    background: redrem
-
     label>span
         width: $newLength
         & + *

@@ -5,8 +5,12 @@ uni-section
     display: none
 
 .collapsable
-    width: 100%
     display: block
+    max-width: 81.25rem !important
+    margin: 0 auto
+
+    @include media('650px', 'max-width')
+        max-width: pxToRem(650)
 
     & > h4
         margin-bottom: 1rem
