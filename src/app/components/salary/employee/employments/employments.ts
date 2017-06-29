@@ -60,7 +60,12 @@ export class Employments extends UniView {
                 .subscribe(departments => this.departments = departments, err => this.errorService.handle(err));
 
             super.getStateSubject('employments')
-                .subscribe(employments => this.cachedEmployments.next(employments));
+                .subscribe((employments: Employment[] )=> {
+                    if (employments && employments.length < 1) {
+                        this.newEmployment();
+                    }
+                    this.cachedEmployments.next(employments)
+                });
         });
 
         route.params.subscribe((paramsChange) => {
