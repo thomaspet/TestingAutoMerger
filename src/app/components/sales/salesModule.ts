@@ -48,6 +48,8 @@ import {TradeItemTable} from './common/tradeItemTable';
 import {CanDeactivateGuard} from '../../canDeactivateGuard';
 import {UniSearchModule} from '../../../framework/ui/unisearch/index';
 import {WidgetModule} from '../widgets/widgetModule';
+import {ProductGroups} from './productgroup/groups/productgroups';
+import {TreeModule} from 'angular-tree-component';
 
 @NgModule({
     imports: [
@@ -72,7 +74,7 @@ import {WidgetModule} from '../widgets/widgetModule';
         AppCommonModule,
         ReportsModule,
         UniTickerModule,
-
+        TreeModule,
 
         // Route module
         UniSearchModule
@@ -116,7 +118,9 @@ import {WidgetModule} from '../widgets/widgetModule';
         ReminderSendingModalContent,
         ReminderSendingModal,
         DebtCollection,
-        InvoiceReminders
+        InvoiceReminders,
+
+        ProductGroups
     ],
     entryComponents: [
         OrderToInvoiceModalType,
@@ -155,7 +159,8 @@ import {WidgetModule} from '../widgets/widgetModule';
         ReminderList,
         ReminderSending,
         ReminderSendingModal,
-        InvoiceReminders
+        InvoiceReminders,
+        ProductGroups
     ]
 })
 export class SalesModule {

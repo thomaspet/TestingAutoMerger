@@ -139,7 +139,7 @@ import {routes as AppCommonRoutes} from './appCommonRoutes';
         Editable,
         IsoTimePipe,
         MinutesToHoursPipe,
-        WorkTypeSystemTypePipe,
+        WorkTypeSystemTypePipe
     ],
     entryComponents: [
         AddressForm,

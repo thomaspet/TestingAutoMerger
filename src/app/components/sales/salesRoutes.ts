@@ -20,6 +20,8 @@ import { routes as ReminderRoutes } from './reminder/reminderRoutes';
 import { Project } from './project/project';
 import { routes as ProjectRoutes } from './project/projectRoutes';
 
+import {ProductGroups} from './productgroup/groups/productgroups';
+
 export const salesRoutes: Routes = [
     {
         path: '',
@@ -72,6 +74,15 @@ export const salesRoutes: Routes = [
         path: 'reminders',
         component: Reminder,
         children: ReminderRoutes
+    },
+    {
+        path: 'productgroups',
+        component: ProductGroups
+    },
+    {
+        path: 'productgroups/:id',
+        component: ProductGroups,
+        canDeactivate: [CanDeactivateGuard]
     }
 
 ];

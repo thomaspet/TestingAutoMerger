@@ -54,6 +54,7 @@ import {PredefinedDescriptionService} from './common/PredefinedDescriptionServic
 import {NumberSeriesService} from './common/numberSeriesService';
 import {NumberSeriesTypeService} from './common/numberSeriesTypeService';
 import {NumberSeriesTaskService} from './common/numberSeriesTaskService';
+import {ProductCategoryService} from './common/productCategoryService';
 
 export * from './common/altinnAuthenticationService';
 export * from './common/altinnIntegrationService';
@@ -105,6 +106,7 @@ export * from './common/PredefinedDescriptionService';
 export * from './common/numberSeriesService';
 export * from './common/numberSeriesTypeService';
 export * from './common/numberSeriesTaskService';
+export * from './common/productCategoryService';
 
 @NgModule({})
 export class CommonServicesModule {
@@ -162,11 +164,12 @@ export class CommonServicesModule {
                 Lookupservice,
                 AgreementService,
                 ModulusService,
-                TransitionService
+                TransitionService,
                 PredefinedDescriptionService,
                 NumberSeriesService,
                 NumberSeriesTypeService,
-                NumberSeriesTaskService
+                NumberSeriesTaskService,
+                ProductCategoryService
             ]
         };
     }

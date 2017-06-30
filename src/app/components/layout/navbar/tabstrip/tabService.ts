@@ -27,6 +27,7 @@ export enum UniModules {
     Products        = 205,
     Reminders       = 206,
     Contacts        = 207,
+    ProductGroup    = 208,
 
     Accounting      = 300,
     Transquery      = 301,
