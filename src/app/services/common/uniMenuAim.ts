@@ -3,7 +3,7 @@
 import {Injectable} from '@angular/core';
 @Injectable()
 export class UniMenuAim {
-    public aim(menu: HTMLElement, itemSelector: string, activationCb: (activeElement: HTMLElement) => void): void {
+    public aim(menu: HTMLElement, itemSelector: string, activationCb: (selectedIndex: number) => void): void {
 
         const rows: any = menu.querySelectorAll(itemSelector),
             tolerance = 75,
@@ -68,15 +68,15 @@ export class UniMenuAim {
 
         };
 
-        let possiblyActivate = (element) => {
+        let possiblyActivate = (element, index) => {
             let delay = activationDelay();
 
             if (delay) {
                 timeoutId = setTimeout(() => {
-                    possiblyActivate(element);
+                    possiblyActivate(element, index);
                 }, delay);
             } else {
-                activationCb(element);
+                activationCb(index);
             }
         };
 
@@ -90,15 +90,25 @@ export class UniMenuAim {
             }
         });
 
-        [].forEach.call(rows, (row) => {
+        rows.forEach((row, index) => {
             row.addEventListener('mouseenter', (e: MouseEvent) => {
                 if (timeoutId) {
                     clearTimeout(timeoutId);
                 }
 
-                possiblyActivate(e.target);
+                possiblyActivate(e.target, index);
             });
         });
+
+        // [].forEach.call(rows, (row) => {
+        //     row.addEventListener('mouseenter', (e: MouseEvent) => {
+        //         if (timeoutId) {
+        //             clearTimeout(timeoutId);
+        //         }
+
+        //         possiblyActivate(e.target);
+        //     });
+        // });
 
     }
 }

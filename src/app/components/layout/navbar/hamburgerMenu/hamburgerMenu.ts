@@ -22,7 +22,6 @@ export class RemoveHidden {
             <ul class="hamburger_menu" #menu>
                 <li class="hamburger_item"
                     *ngFor="let componentList of availableComponents; let idx = index"
-                    (mouseover)="selectionIndex = idx"
                     [ngClass]="{'is-active': idx === selectionIndex}">
                     {{componentList.componentListName}}
 
@@ -65,8 +64,8 @@ export class HamburgerMenu {
     }
 
     public ngAfterViewInit() {
-        this.menuaim.aim(this.sectionList.nativeElement, '.hamburger_item', (activeSection: HTMLLIElement) => {
-            this.activeSection = activeSection;
+        this.menuaim.aim(this.sectionList.nativeElement, '.hamburger_item', (selectedIndex: number) => {
+            this.selectionIndex = selectedIndex;
             this.cdr.markForCheck();
         });
 
