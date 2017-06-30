@@ -4,9 +4,18 @@ import {Observable} from 'rxjs/Observable';
 import {UniForm, UniFieldLayout} from '../../../../framework/ui/uniform/index';
 import {Accrual, AccrualPeriod, Account, JournalEntryLineDraft, LocalDate, Period} from '../../../unientities';
 import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
-import {AccountService, ErrorService, FinancialYearService, PeriodService} from '../../../services/services';
+import {
+    AccountService,
+    ErrorService,
+    FinancialYearService,
+    PeriodService,
+    BrowserStorageService
+} from '../../../services/services';
 import {FieldType} from '../../../../framework/ui/uniform/index';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
+import {
+    UniSearchAccountConfigGeneratorHelper
+} from '../../../services/common/uniSearchConfig/uniSearchAccountConfigGeneratorHelper';
 
 declare const _; // lodash
 
@@ -85,14 +94,14 @@ export class AccrualForm implements OnChanges {
         {period1: false, period2: false, period3: false}
     ];
 
-
-
     constructor(
         private accountService: AccountService,
         private errorService: ErrorService,
         private yearService: FinancialYearService,
         private periodService: PeriodService,
-        private toastService: ToastService
+        private toastService: ToastService,
+        private uniSearchAccountConfigGeneratorHelper: UniSearchAccountConfigGeneratorHelper,
+        private browserStorageService: BrowserStorageService
     ) {
     }
 
@@ -101,18 +110,27 @@ export class AccrualForm implements OnChanges {
     }
 
     public ngOnInit() {
+        // changing BalanceAccountID on model to localStorage so that your newest selected
+        // value becomes standard value on accrualModal initialization
+        this.config.model.BalanceAccountID = this.browserStorageService.get('BalanceAccountID');
+
         this.model$.next(this.config.model);
         this.yearService.getActiveFinancialYear().subscribe(res => {
             this.currentFinancialYear = res.Year;
-            this.periodService.GetAll<Period>('filter=AccountYear eq ' + this.currentFinancialYear + ' and periodseries.seriestype eq 1', ['PeriodSeries']).subscribe(periods => {
-                this.currentFinancialYearPeriods = periods;
-                this.setupForm();
-                if (this.config.model) {
-                    this.checkboxEnabledState = this.isAccrualSaved();
-                    this.setAccrualPeriodBasedOnAccrual();
-                    this.changeRecalculatePeriods();
-                }
-            });
+            this.periodService.GetAll<Period>(
+                'filter=AccountYear eq '
+                + this.currentFinancialYear
+                + ' and periodseries.seriestype eq 1',
+                ['PeriodSeries'])
+                    .subscribe(periods => {
+                        this.currentFinancialYearPeriods = periods;
+                        this.setupForm();
+                        if (this.config.model) {
+                            this.checkboxEnabledState = this.isAccrualSaved();
+                            this.setAccrualPeriodBasedOnAccrual();
+                            this.changeRecalculatePeriods();
+                        }
+                });
         });
     }
 
@@ -130,52 +148,57 @@ export class AccrualForm implements OnChanges {
 
     private extendFormConfig() {
         let fields = this.fields$.getValue();
-        let accountField: UniFieldLayout = fields.find(x => x.Property === 'BalanceAccountID');
-        accountField.ReadOnly = this.isAccrualSaved();
-        accountField.Options = {
-            getDefaultData: () => this.getDefaultBalanceAccountData(),
-            displayProperty: 'AccountNumber',
+
+        let accrualJEMode: UniFieldLayout = fields.find(x => x.Property === 'AccrualJournalEntryMode');
+        accrualJEMode.ReadOnly = this.isAccrualSaved();
+        accrualJEMode.Options = {
+            source: this.config.modelJournalEntryModes,
             valueProperty: 'ID',
-            debounceTime: 200,
-            search: (searchValue: string) => this.accountSearch(searchValue),
-            events: {select: () => this.updateBalanceAccount()},
-            template: (account: Account) => {
-                return account && account.ID !== 0 ? `${account.AccountNumber} ${account.AccountName }` : '';
-            }
+            displayProperty: 'Name'
         };
 
-       let accrualJEMode: UniFieldLayout = fields.find(x => x.Property === 'AccrualJournalEntryMode');
-       accrualJEMode.ReadOnly = this.isAccrualSaved();
-       accrualJEMode.Options = {
-           source: this.config.modelJournalEntryModes,
-           valueProperty: 'ID',
-           displayProperty: 'Name'
-       };
+        let accrualPeriodTemplate: UniFieldLayout = fields.find(x => x.Property === '_accrualPeriodsTemp');
+        accrualPeriodTemplate.ReadOnly = this.isAccrualSaved();
+        accrualPeriodTemplate.Options = {
+            source: this.config.modelPeriodsTemplates,
+            valueProperty: 'ID',
+            displayProperty: 'Name',
+            events: {select: () => this.reSelectCheckBoxesAccordingtoTemplate() }
+        };
+        this.model$.next(this.config.model);
 
-       let accrualPeriodTemplate: UniFieldLayout = fields.find(x => x.Property === '_accrualPeriodsTemp');
-       accrualPeriodTemplate.ReadOnly = this.isAccrualSaved();
-       accrualPeriodTemplate.Options = {
-           source: this.config.modelPeriodsTemplates,
-           valueProperty: 'ID',
-           displayProperty: 'Name',
-           events: {select: () => this.reSelectCheckBoxesAccordingtoTemplate() }
-       };
-       this.model$.next(this.config.model);
-
-       if (this.isAccrualSaved()) {
-            this.toastService.addToast('Periodisering', ToastType.warn, 8, 'Denne periodiseringen er allerede lagret, og kan ikke redigere ytterligere');
-       }
-       this.fields$.next(fields);
+        if (this.isAccrualSaved()) {
+            this.toastService.addToast(
+                'Periodisering',
+                ToastType.warn,
+                8,
+                'Denne periodiseringen er allerede lagret, og kan ikke redigere ytterligere'
+            );
+        }
+        this.fields$.next(fields);
     }
 
     private resetAllChechBoxValues(): void {
-        this.allCheckboxValues = [{period1: false, period2: false, period3: false},{period1: false, period2: false, period3: false},{period1: false, period2: false, period3: false},{period1: false, period2: false, period3: false},{period1: false, period2: false, period3: false},{period1: false, period2: false, period3: false},{period1: false, period2: false, period3: false},{period1: false, period2: false, period3: false},{period1: false, period2: false, period3: false},{period1: false, period2: false, period3: false},{period1: false, period2: false, period3: false},{period1: false, period2: false, period3: false}];
+        this.allCheckboxValues = [
+            {period1: false, period2: false, period3: false},
+            {period1: false, period2: false, period3: false},
+            {period1: false, period2: false, period3: false},
+            {period1: false, period2: false, period3: false},
+            {period1: false, period2: false, period3: false},
+            {period1: false, period2: false, period3: false},
+            {period1: false, period2: false, period3: false},
+            {period1: false, period2: false, period3: false},
+            {period1: false, period2: false, period3: false},
+            {period1: false, period2: false, period3: false},
+            {period1: false, period2: false, period3: false},
+            {period1: false, period2: false, period3: false}
+        ];
     }
 
 
     private isAccrualSaved(): boolean {
         let isSaved = false;
-        if(this.config.model.ID && this.config.model.ID > 0) {
+        if (this.config.model.ID && this.config.model.ID > 0) {
             isSaved = true;
         }
         return isSaved;
@@ -210,15 +233,20 @@ export class AccrualForm implements OnChanges {
             }
 
             if (checkBoxValue === true && template > overAllCounter) {
-                this.toastService.addToast('Periodisering', ToastType.warn, 5,
-                    "Begresninger i hvor langt frem et bilag kan periodiseres i kombinasjon med valgte første periode gjorde at beløpet kun kunne fordeles på " + overAllCounter + " perioder.");
+                this.toastService.addToast(
+                    'Periodisering',
+                    ToastType.warn,
+                    5,
+                    'Begresninger i hvor langt frem et bilag kan periodiseres '
+                    + 'i kombinasjon med valgte første periode gjorde at '
+                    + 'beløpet kun kunne fordeles på '
+                    + overAllCounter
+                    + ' perioder.');
             }
 
         } else {
             this.allCheckboxValues[periodNo - 1]['period' + yearNumber] = checkBoxValue;
         }
-
-
 
         this.changeRecalculatePeriods();
     }
@@ -372,7 +400,6 @@ export class AccrualForm implements OnChanges {
     }
 
      private accountSearch(searchValue: string): Observable<any> {
-
         let filter = '';
         if (searchValue === '') {
             filter = `Visible eq 'true' and TopLevelAccountGroup.GroupNumber eq 1 and isnull(AccountID,0) eq 0`;
@@ -443,28 +470,24 @@ export class AccrualForm implements OnChanges {
                 Property: 'BalanceAccountID',
                 Placement: 1,
                 Hidden: false,
-                FieldType: FieldType.AUTOCOMPLETE,
+                FieldType: FieldType.UNI_SEARCH,
                 ReadOnly: false,
                 LookupField: false,
                 Label: 'Balansekonto',
-                Description: '',
-                HelpText: '',
+                Description: null,
+                HelpText: null,
                 FieldSet: 0,
                 Section: 0,
                 Placeholder: null,
-                Options: null,
                 LineBreak: true,
                 Combo: null,
-                Legend: '',
-                StatusCode: 0,
-                ID: 1,
-                Deleted: false,
-                CreatedAt: null,
-                UpdatedAt: null,
-                CreatedBy: null,
-                UpdatedBy: null,
-                CustomFields: null,
-                Classes: ''
+                Sectionheader: 'Selskapsoppsett',
+                hasLineBreak: false,
+                Validations: [],
+                Options: {
+                    uniSearchConfig: this.uniSearchAccountConfigGeneratorHelper.generate17XXAccountsConfig(),
+                    valueProperty: 'ID'
+                }
             },
             {
                 ComponentLayoutID: 1,
@@ -660,7 +683,7 @@ export class AccrualModal {
         };
     }
 
-    private getDefaultPeriods(accrualAmount: number, startYear: number, startPeriod: number): Array<AccrualPeriod>{
+    private getDefaultPeriods(accrualAmount: number, startYear: number, startPeriod: number): Array<AccrualPeriod> {
 
         let accrualPeriodAmount: number = accrualAmount / 3;
         let accrualPeriods: Array<AccrualPeriod> = [];
@@ -721,7 +744,9 @@ export class AccrualModal {
                 accrual.AccrualAmount = accrualAmount;
                 accrual['_isValid'] = false;
                 accrual['_validationMessage'] = new Array<string>();
-                accrual['_accrualPeriodsTemp'] = 3;
+                // set this value to the id of the object in getAccrualPeriodsOptions
+                // array to change default period value
+                accrual['_accrualPeriodsTemp'] = 0;
                 if (accrualStartDate) {
                     accrual.Periods =
                         this.getDefaultPeriods(accrualAmount, accrualStartDate.year, accrualStartDate.month + 1);
@@ -737,7 +762,7 @@ export class AccrualModal {
                 let startPeriod: number = journalEntryLineDraft.FinancialDate.month;
                 accrual['_isValid'] = false;
                 accrual['_validationMessage'] =  new Array<string>();
-                accrual['_accrualPeriodsTemp'] = 3;
+                accrual['_accrualPeriodsTemp'] = 0;
                 if (journalEntryLineDraft.FinancialDate) {
                     accrual.Periods = this.getDefaultPeriods(accrualAmount, startYear, startPeriod);
                     accrual['_periodYears'] = [startYear, startYear + 1, startYear + 2];
