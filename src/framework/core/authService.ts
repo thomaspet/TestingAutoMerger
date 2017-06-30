@@ -69,22 +69,26 @@ export class AuthService {
 
                 this.jwt = apiAuth.json().access_token;
                 this.jwtDecoded = this.decodeToken(this.jwt);
-                localStorage.setItem('jwt', this.jwt);
 
-                const uniFilesUrl = AppConfig.BASE_URL_FILES + '/api/init/sign-in';
-                return this.http.post(uniFilesUrl, JSON.stringify(this.jwt), {headers: headers})
-                    .map((filesAuth) => {
-                        if (filesAuth.status === 200) {
-                            this.filesToken = filesAuth.json();
-                            localStorage.setItem('filesToken', this.filesToken);
-                        }
+                if (this.jwtDecoded) {
+                    localStorage.setItem('jwt', this.jwt);
 
-                        return {
-                            apiAuth: apiAuth.json(),
-                            filesAuth: filesAuth.json()
-                        };
-                    });
+                    const uniFilesUrl = AppConfig.BASE_URL_FILES + '/api/init/sign-in';
+                    return this.http.post(uniFilesUrl, JSON.stringify(this.jwt), {headers: headers})
+                        .map((filesAuth) => {
+                            if (filesAuth.status === 200) {
+                                this.filesToken = filesAuth.json();
+                                localStorage.setItem('filesToken', this.filesToken);
+                            }
 
+                            return {
+                                apiAuth: apiAuth.json(),
+                                filesAuth: filesAuth.json()
+                            };
+                        });
+                } else {
+                    return Observable.throw('Something went wrong when decoding token. Please re-authenticate.');
+                }
             });
     }
     /**
@@ -183,16 +187,19 @@ export class AuthService {
         this.activeCompany = undefined;
         this.router.navigateByUrl('init/login');
     }
+
     /**
      * Returns the decoded web token
      * @returns {Object}
      */
     private decodeToken(token: string) {
-        if (!token) {
-            return undefined;
-        } else {
-            return jwt_decode(token);
-        }
+        try {
+            if (!token) {
+                return undefined;
+            } else {
+                return jwt_decode(token);
+            }
+        } catch (e) {}
     }
 
     /**
