@@ -1,4 +1,4 @@
-import {Component} from '@angular/core';
+import {Component, ChangeDetectorRef, ChangeDetectionStrategy} from '@angular/core';
 import {Router} from '@angular/router';
 import {TabService, UniModules} from './tabService';
 import {AuthService} from '../../../../../framework/core/authService';
@@ -23,6 +23,7 @@ export interface IUniTab {
             </li>
         </ol>
     `,
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class UniTabStrip {
     private tabs: IUniTab[] = [];
@@ -30,12 +31,9 @@ export class UniTabStrip {
     constructor(
         private router: Router,
         private tabService: TabService,
-        authService: AuthService,
+        private authService: AuthService,
+        private cdr: ChangeDetectorRef
     ) {
-        authService.companyChange.subscribe((change) => {
-            this.tabService.removeAllTabs();
-        });
-
         window.addEventListener('keydown', (event) => {
             if (event.keyCode === 87 && event.altKey) {
                 this.tabService.closeTab();
@@ -45,9 +43,16 @@ export class UniTabStrip {
                 this.tabService.activateNextTab();
             }
         });
+    }
 
-        tabService.tabsChange.subscribe((tabs: IUniTab[]) => {
+    public ngAfterViewChecked() {
+        this.authService.companyChange.subscribe((change) => {
+            this.tabService.removeAllTabs();
+        });
+
+        this.tabService.tabs$.subscribe((tabs) => {
             this.tabs = tabs;
+            this.cdr.detectChanges();
         });
     }
 

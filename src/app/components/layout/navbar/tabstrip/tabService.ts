@@ -1,6 +1,7 @@
 import {Injectable, EventEmitter, TRANSLATIONS} from '@angular/core';
 import {IUniTab} from './tabStrip';
 import {Router} from '@angular/router';
+import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 
 // The enum is numbered based on its parent app:
 //      1×× - Core
@@ -82,32 +83,25 @@ export enum UniModules {
 
 @Injectable()
 export class TabService {
-    private _tabs: Array<IUniTab>;
-    public tabsChange: EventEmitter<IUniTab[]>;
+    private tabs: IUniTab[];
     public currentActiveTab: IUniTab;
     public currentActiveIndex: number = 0;
 
-    private SKEY: string = 'navbarTabs';
+    private storageKey: string = 'navbarTabs';
+
+    public tabs$: BehaviorSubject<IUniTab[]> = new BehaviorSubject([]);
 
     constructor(private router: Router) {
-        this._tabs = this.getMemStore();
-        this._tabs.forEach((tab, i) => {
+        this.tabs = this.getMemStore() || this.getDefaultTabs();
+
+        this.tabs.forEach((tab, i) => {
             if (tab.active) {
                 this.currentActiveTab = tab;
                 this.currentActiveIndex = i;
             }
         });
 
-        this.tabsChange = new EventEmitter<IUniTab[]>();
-        this.tabsChange.next(this._tabs);
-    }
-
-    public get tabs(): Array<IUniTab> {
-        return this._tabs;
-    }
-
-    public length(): number {
-        return this._tabs.length;
+        this.tabs$.next(this.tabs);
     }
 
     /**
@@ -118,7 +112,7 @@ export class TabService {
     public addTab(newTab: IUniTab) {
         var duplicate = false;
         var moduleCheck = { index: 0, exists: false}
-        this._tabs.forEach((tab, i) => {
+        this.tabs.forEach((tab, i) => {
             tab.active = false;
             if (tab.name === newTab.name) {
                 tab.active = true;
@@ -134,7 +128,7 @@ export class TabService {
 
         if (moduleCheck.exists) {
             newTab.active = true;
-            this._tabs[moduleCheck.index] = newTab;
+            this.tabs[moduleCheck.index] = newTab;
             this.updateMemStore();
             this.currentActiveIndex = moduleCheck.index;
             duplicate = true;
@@ -142,35 +136,35 @@ export class TabService {
 
         if (!duplicate) {
             newTab.active = true;
-            this._tabs.push(newTab);
+            this.tabs.push(newTab);
             this.updateMemStore();
-            this.currentActiveIndex = this._tabs.length - 1;
+            this.currentActiveIndex = this.tabs.length - 1;
         }
 
         this.currentActiveTab = newTab;
 
         /* DUMMY CHECK TO MAKE SURE THERE IS NEVER MORE THEN 7 TABS WHILE WAITING FOR ARNOR'S FINAL FIX */
-        if (this._tabs.length > 6) {
-            this._tabs.splice(0, 1);
+        if (this.tabs.length > 6) {
+            this.tabs.splice(0, 1);
         }
         /***********************************************************************************************/
 
-        this.tabsChange.next(this._tabs);
+        this.tabs$.next(this.tabs);
     }
 
 
     public activateTab(index: number): void {
-        this._tabs.map(tab => tab.active = false);
-        this._tabs[index].active = true;
+        this.tabs.map(tab => tab.active = false);
+        this.tabs[index].active = true;
         this.currentActiveIndex = index;
         this.updateMemStore();
-        this.tabsChange.emit(this._tabs);
 
-        this.router.navigateByUrl(this._tabs[index].url);
+        this.tabs$.next(this.tabs);
+        this.router.navigateByUrl(this.tabs[index].url);
     }
 
     public activateNextTab() {
-        if (this.currentActiveIndex + 1 < this._tabs.length) {
+        if (this.currentActiveIndex + 1 < this.tabs.length) {
             this.activateTab(this.currentActiveIndex + 1);
         }
     }
@@ -182,33 +176,42 @@ export class TabService {
     }
 
     public closeTab(index: number = this.currentActiveIndex): void {
-        this._tabs.splice(index, 1);
-        if (!this._tabs.length) {
-            this._tabs.push({
+        this.tabs.splice(index, 1);
+        if (!this.tabs.length) {
+            this.tabs.push({
                 name: 'Skrivebord',
                 url: '/',
                 moduleID: UniModules.Dashboard
             });
         }
 
-        this.activateTab(this._tabs.length - 1);
+        this.activateTab(this.tabs.length - 1);
     }
 
     public removeAllTabs() {
-        this._tabs = [];
-        this.clearMemStore();
+        this.tabs = this.getDefaultTabs();
+        this.updateMemStore();
+    }
+
+    private getDefaultTabs(): IUniTab[] {
+        return [{
+            name: 'Skrivebord',
+            url: '/',
+            moduleID: UniModules.Dashboard,
+            active: true
+        }];
     }
 
     private getMemStore() {
-        return JSON.parse(localStorage.getItem(this.SKEY)) || [];
+        return JSON.parse(localStorage.getItem(this.storageKey));
     }
 
     private updateMemStore() {
-        localStorage.setItem(this.SKEY, JSON.stringify(this._tabs));
+        localStorage.setItem(this.storageKey, JSON.stringify(this.tabs));
     }
 
     private clearMemStore() {
-        localStorage.removeItem(this.SKEY);
+        localStorage.removeItem(this.storageKey);
     }
 
 }
