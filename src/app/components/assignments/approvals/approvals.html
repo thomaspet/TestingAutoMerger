@@ -40,7 +40,7 @@
         <h2>{{selectedApproval?.Task?.Title}}</h2>
 
         <!-- TODO: Need to get entity from selectedApproval -->
-        <!-- Hard coded for now. Fix when backend gives us entityType -->
+        <!-- Hard coded for now. Can backend give us entity type? -->
         <uni-comments
             *ngIf="selectedApproval"
             [entity]="'SupplierInvoice'"
@@ -52,7 +52,7 @@
     <section class="assignment-details-content">
         <!-- TODO: Need ngSwitch on entityType here -->
         <!-- Hard coded to supplierInvoice or nothing now -->
-        <!-- Fix when backend gives us entityType -->
+        <!-- Can backend tell us the entity type? -->
         <supplier-invoice-preview
             *ngIf="selectedApproval"
             [task]="selectedApproval?.Task">
