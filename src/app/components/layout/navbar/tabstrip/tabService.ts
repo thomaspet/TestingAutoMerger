@@ -90,6 +90,7 @@ export class TabService {
     private storageKey: string = 'navbarTabs';
 
     public tabs$: BehaviorSubject<IUniTab[]> = new BehaviorSubject([]);
+    public activeTab$: BehaviorSubject<IUniTab> = new BehaviorSubject(null);
 
     constructor(private router: Router) {
         this.tabs = this.getMemStore() || this.getDefaultTabs();
@@ -102,6 +103,7 @@ export class TabService {
         });
 
         this.tabs$.next(this.tabs);
+        this.activeTab$.next(this.currentActiveTab);
     }
 
     /**
@@ -150,6 +152,7 @@ export class TabService {
         /***********************************************************************************************/
 
         this.tabs$.next(this.tabs);
+        this.activeTab$.next(this.currentActiveTab);
     }
 
 
@@ -157,9 +160,11 @@ export class TabService {
         this.tabs.map(tab => tab.active = false);
         this.tabs[index].active = true;
         this.currentActiveIndex = index;
+        this.currentActiveTab = this.tabs[index];
         this.updateMemStore();
 
         this.tabs$.next(this.tabs);
+        this.activeTab$.next(this.currentActiveTab);
         this.router.navigateByUrl(this.tabs[index].url);
     }
 

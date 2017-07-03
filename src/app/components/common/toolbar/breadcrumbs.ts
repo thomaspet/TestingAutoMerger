@@ -12,47 +12,47 @@ import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
     `
 })
 export class UniBreadcrumbs {
-    @Input() public omitFinalCrumb: boolean;
-    private moduleID: UniModules; // The moduleID, as per the TabService
-    private crumbs: any[] = []; // Our breadcrumbs array
+    @Input()
+    public omitFinalCrumb: boolean;
+
+    private moduleID: UniModules;
+    private crumbs: any[] = [];
 
     constructor(private tabService: TabService) {
-        // Getting the moduleID from the tabService.
-        this.moduleID = this.tabService.currentActiveTab.moduleID;
+        this.tabService.activeTab$.subscribe((activeTab) => {
+            if (activeTab) {
+                this.moduleID = activeTab.moduleID;
+                this.buildBreadcrumbs();
+            }
+        });
     }
 
-    public ngAfterViewInit() {
-        // Cache the hamburger components
-        let components = HamburgerMenu.getAvailableComponents();
-        // The object for the parent app, from the hamburger.
+    private buildBreadcrumbs() {
+        let crumbs = [];
         let parentApp = HamburgerMenu.getParentApp(this.moduleID);
+
         if (!parentApp) {
-            console.log('UniBreadcrumbs missing moduleID');
             return;
         }
 
-        // Some apps don't have a specific parent, like the dashboard
-        // and settings, so we won't add the top level crumb to those.
-        if (parentApp !== components[0]) {
-            this.crumbs.push({
-                title: parentApp.componentListName,
-                url: '/#' + parentApp.componentListUrl
-            });
-        }
+        crumbs.push({
+            title: parentApp.componentListName,
+            url: '/#' + parentApp.componentListUrl
+        });
 
         if (!this.omitFinalCrumb) {
-            // Find the correct component, and add it to the crumbs.
-            parentApp.componentList.find((component) => {
-                if (component.moduleID !== this.moduleID) {
-                    return false;
-                } else {
-                    this.crumbs.push({
-                        title: component.componentName,
-                        url: '/#' + component.componentUrl
-                    });
-                    return true;
-                }
+            let finalComponent = parentApp.componentList.find((component) => {
+                return component.moduleID === this.moduleID;
             });
+
+            if (finalComponent) {
+                crumbs.push({
+                    title: finalComponent.componentName,
+                    url: '/#' + finalComponent.componentUrl
+                });
+            }
         }
+
+        this.crumbs = crumbs;
     }
 }
