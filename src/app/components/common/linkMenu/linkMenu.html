@@ -1,0 +1,8 @@
+<ul class="link-menu">
+    <li *ngFor="let menuItem of menu; let index = index" class="link-menu-item">
+        <span *ngIf="index && index < menu.length">&ensp;|&ensp;</span>
+        <em class="warning" role="presentation" [title]="menuItem.title" *ngIf="menuItem.validation === 20"></em>
+        <em class="error" role="presentation" [title]="menuItem.title" *ngIf="menuItem.validation === 30"></em>
+        <a [href]="menuItem.link">{{menuItem.label}}</a> 
+    </li>
+</ul>

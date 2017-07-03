@@ -56,6 +56,7 @@ import {IsoTimePipe} from './utils/pipes';
 import {MinutesToHoursPipe} from './utils/pipes';
 import {WorkTypeSystemTypePipe} from './utils/pipes';
 import {PredefinedDescriptionList} from './predefinedDescriptions/predefinedDescriptionList';
+import {LinkMenu} from './linkMenu/linkMenu';
 
 import {routes as AppCommonRoutes} from './appCommonRoutes';
 
@@ -139,7 +140,9 @@ import {routes as AppCommonRoutes} from './appCommonRoutes';
         Editable,
         IsoTimePipe,
         MinutesToHoursPipe,
-        WorkTypeSystemTypePipe
+        WorkTypeSystemTypePipe,
+
+        LinkMenu,
     ],
     entryComponents: [
         AddressForm,
@@ -226,6 +229,8 @@ import {routes as AppCommonRoutes} from './appCommonRoutes';
         IsoTimePipe,
         MinutesToHoursPipe,
         WorkTypeSystemTypePipe,
+
+        LinkMenu,
     ]
 })
 export class AppCommonModule {

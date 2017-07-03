@@ -1,0 +1,27 @@
+link-menu
+    ul
+        list-style-type: none
+    .link-menu
+        display: flex
+        justify-content: flex-end
+        margin: 0
+
+    .link-menu-item
+        display: flex
+
+    .link-validation-icon
+        @extend %hideText
+        background-size: 1rem 1rem
+        background-position: center center
+        background-repeat: no-repeat
+        width: 1rem
+        height: 1rem
+        margin: .3rem .4rem 0 0
+    
+    .warning
+        @extend .link-validation-icon
+        background-image: unicon-warning($uni-color-warn)
+    
+    .error
+        @extend .link-validation-icon
+        background-image: unicon-warning($uni-color-bad)
