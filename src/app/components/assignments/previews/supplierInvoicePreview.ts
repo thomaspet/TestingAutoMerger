@@ -4,7 +4,7 @@ import {
     ErrorService,
     CompanySettingsService
 } from '../../../services/services';
-import {Task} from '../../../unientities';
+import {Task, SupplierInvoice} from '../../../unientities';
 
 @Component({
     selector: 'supplier-invoice-preview',
@@ -14,52 +14,52 @@ export class SupplierInvoicePreview {
     @Input()
     private task: Task;
 
-    public invoice;
-    public expand: string[] = [
-        'BankAccounts', 
-        'JournalEntry.DraftLines.Account', 
-        'JournalEntry.DraftLines.VatType', 
-        'CurrencyCode', 
-        'BankAccount'
-    ];
+    public invoice: SupplierInvoice;
     public settingsCurrency: string;
     public showCurrency: boolean;
     public entityID: number;
     public invoiceInfoShow: boolean;
     public mva: number;
 
+    public expand: string[] = [
+        'BankAccounts',
+        'JournalEntry.DraftLines.Account',
+        'JournalEntry.DraftLines.VatType',
+        'CurrencyCode',
+        'BankAccount'
+    ];
+
     constructor(
         private invoiceService: SupplierInvoiceService,
         private errorService: ErrorService,
-        private companySettingsService: CompanySettingsService) {}
+        private companySettingsService: CompanySettingsService
+    ) {
+        this.companySettingsService.Get(1).subscribe(
+            res => this.settingsCurrency = res.BaseCurrencyCode.Code,
+            err => this.errorService.handle(err)
+        );
+    }
 
     public ngOnChanges() {
-        this.getCompanySettingsCurrency()
-         if (this.task && this.task.EntityID) {
-            this.expand = [
-                'BankAccounts',
-                'JournalEntry.DraftLines.Account',
-                'JournalEntry.DraftLines.VatType',
-                'CurrencyCode',
-                'BankAccount'
-            ];
+        this.invoiceInfoShow = false;
 
+        if (this.task && this.task.EntityID) {
             this.invoiceService.Get(this.task.EntityID, this.expand)
                 .subscribe(
                     res => {
                         this.invoice = res;
                         this.entityID = res._task.EntityID;
-                        // setting mva to 0 if it doesnt have one and to invoice value if it does
-                        if (!res.JournalEntry) {
-                           this.mva = 0;
-                        } else {
-                            this.mva = res.JournalEntry.DraftLines[0].VatType.VatPercent;
+
+                        let draftLines = res.JournalEntry && res.JournalEntry.DraftLines;
+                        if (draftLines && draftLines.length) {
+                            const withVat = draftLines.find(dl => dl.VatPercent > 0);
+                            this.mva = withVat ? withVat.VatPercent : 0;
                         }
+
                         // setting showCurrency to true/false for it to hide/show if
                         // company settings currency match with invoice currency
-                        (res.CurrencyCode.Code === this.settingsCurrency)
-                        ? this.showCurrency = false
-                        : true;
+                        this.showCurrency = res.CurrencyCode.Code !== this.settingsCurrency;
+
                         // setting invoiceInfoShow based on the existance of InvoiceType
                         if (res.InvoiceType === 0 || res.InvoiceType) {
                             this.invoiceInfoShow = true;
@@ -68,15 +68,9 @@ export class SupplierInvoicePreview {
                     err => this.errorService.handle(err)
                 );
         }
+
         // hiding invoice info at the start of each change
         this.invoiceInfoShow = false;
     }
 
-    // getting the set currency from your company settings
-    getCompanySettingsCurrency() {
-        this.companySettingsService.Get(1).subscribe(
-            res => this.settingsCurrency = res.BaseCurrencyCode.Code,
-            err => this.errorService.handle(err)
-        );
-    }
 }
