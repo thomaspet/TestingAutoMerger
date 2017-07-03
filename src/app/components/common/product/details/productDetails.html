@@ -29,8 +29,10 @@
                 <legend>Produktbeskrivelse</legend>
                 <label>
                     <span>Beskrivelse</span>
-                    <textarea [formControl]="descriptionControl"
-                              (change)="textareaChange">
+                    <textarea
+                            #descriptionField
+                            [formControl]="descriptionControl"
+                            (change)="textareaChange">
                     </textarea>
                 </label>
             </fieldset>

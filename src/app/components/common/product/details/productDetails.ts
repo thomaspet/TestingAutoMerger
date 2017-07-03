@@ -1,4 +1,4 @@
-import {Component, Input, ViewChild, SimpleChanges} from '@angular/core';
+import {Component, Input, ViewChild, SimpleChanges, ElementRef} from '@angular/core';
 import {Router, ActivatedRoute} from '@angular/router';
 import {FormControl} from '@angular/forms';
 import {Observable} from 'rxjs/Observable';
@@ -34,6 +34,9 @@ export class ProductDetails {
 
     @ViewChild(UniForm)
     public form: UniForm;
+
+    @ViewChild('descriptionField')
+    public descriptionField: ElementRef;
 
     public config$: BehaviorSubject<any> = new BehaviorSubject({autofocus: true});
     public fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
@@ -290,13 +293,18 @@ export class ProductDetails {
     }
 
     private extendFormConfig() {
-
+        const self = this;
         let department: UniFieldLayout = this.fields$.getValue().find(x => x.Property === 'Dimensions.DepartmentID');
         department.Options = {
             source: this.departments,
             valueProperty: 'ID',
             template: (item) => {
                 return item !== null ? (item.DepartmentNumber + ': ' + item.Name) : '';
+            },
+            events: {
+                enter: () => {
+                    self.descriptionField.nativeElement.focus();
+                }
             },
             debounceTime: 200
         };
