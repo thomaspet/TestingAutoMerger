@@ -171,7 +171,7 @@ export class EmploymentDetails implements OnChanges {
                         this.employment$.next(employment);
 
                         setTimeout(() => {
-                            this.form.field('WorkPercent').focus();
+                            this.form.field('JobName').focus();
                         }, 50);
                     }
                 }, err => this.errorService.handle(err));
