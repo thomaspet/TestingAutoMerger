@@ -232,7 +232,9 @@ export class EmployeeDetails extends UniView implements OnDestroy {
             this.taxOptions = undefined;
 
             // (Re)subscribe to state var updates
-            super.getStateSubject('employee').subscribe((employee) => {
+            super.getStateSubject('employee')
+                .do(employee => this.updateTabStrip(employee))
+                .subscribe((employee) => {
                 this.employee = employee;
                 this.posterEmployee.employee = employee;
                 this.posterEmployee = _.cloneDeep(this.posterEmployee);
@@ -312,9 +314,6 @@ export class EmployeeDetails extends UniView implements OnDestroy {
             } else {
                 this.employee = undefined;
             }
-
-            // Update navbar tabs
-            this.updateTabStrip(this.employeeID, this.employee);
         });
 
         // Subscribe to route changes and load necessary data
@@ -369,18 +368,18 @@ export class EmployeeDetails extends UniView implements OnDestroy {
             }));
     }
 
-    private updateTabStrip(employeeID: number, employee: Employee) {
-        if (employeeID) {
+    private updateTabStrip(employee: Employee) {
+        if (employee && employee.ID) {
             this.tabService.addTab({
-                name: 'Ansattnr. ' + (employee ? employee.EmployeeNumber : employeeID),
-                url: this.url + employeeID,
+                name: 'Ansattnr. ' + employee.EmployeeNumber,
+                url: this.url + employee.ID,
                 moduleID: UniModules.Employees,
                 active: true
             });
         } else {
             this.tabService.addTab({
                 name: 'Ny ansatt',
-                url: this.url + employeeID,
+                url: this.url + 0,
                 moduleID: UniModules.Employees,
                 active: true
             });
@@ -413,7 +412,7 @@ export class EmployeeDetails extends UniView implements OnDestroy {
             .map(canDeactivate => {
                 canDeactivate
                     ? this.cacheService.clearPageCache(this.cacheKey)
-                    : this.updateTabStrip(this.employeeID, this.employee);
+                    : this.updateTabStrip(this.employee);
 
                 return canDeactivate;
             });

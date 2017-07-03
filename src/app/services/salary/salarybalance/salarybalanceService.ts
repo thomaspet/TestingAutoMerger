@@ -186,7 +186,7 @@ export class SalarybalanceService extends BizHttp<SalaryBalance> {
                         Section: 0,
                         Placeholder: null,
                         Options: {
-                            valueProperty: 'EmployeeNumber',
+                            valueProperty: 'ID',
                             template: (employee: Employee) => employee
                                 ? `${employee.EmployeeNumber} - ${employee.BusinessRelationInfo.Name}`
                                 : ''
