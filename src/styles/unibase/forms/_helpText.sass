@@ -35,7 +35,7 @@ label
     width: 20rem
     position: absolute
     bottom: calc(100% + .7rem)
-    left: 3.9rem
+    left: calc(#{$labelLength} + 11.7rem)
     max-height: 25rem
     // overflow-y: auto – the ::after elem triggers it, so we'll need a workaround here…
     z-index: map-get($zindex, toolbar)
