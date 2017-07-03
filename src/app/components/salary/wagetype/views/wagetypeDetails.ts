@@ -13,6 +13,26 @@ import { UniView } from '../../../../../framework/core/uniView';
 import { UniCacheService, ErrorService } from '../../../../services/services';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 
+type ValidValuesFilter = {
+    IncomeType?: string,
+    Benefit?: string,
+    Description?: string
+};
+
+type IncomeType = {
+    text: string
+};
+
+type Benefit = {
+    text: string
+};
+
+type Description = {
+    fordel?: string,
+    text: string
+};
+
+
 @Component({
     selector: 'wagetype-details',
     templateUrl: './wagetypeDetails.html'
@@ -21,9 +41,9 @@ export class WagetypeDetail extends UniView {
     private aMeldingHelp: string = 'http://veiledning-amelding.smartlearn.no/Veiledn_Generell/index.html#!Documents/lnnsinntekterrapportering.htm';
     private wageType$: BehaviorSubject<WageType> = new BehaviorSubject(new WageType());
     private wagetypeID: number;
-    private incomeTypeDatasource: any[] = [];
-    private benefitDatasource: any[] = [];
-    private descriptionDatasource: any[] = [];
+    private incomeTypeDatasource: IncomeType[] = [];
+    private benefitDatasource: Benefit[] = [];
+    private descriptionDatasource: Description[] = [];
     private validValuesTypes: any[] = [];
 
     private supplementPackages: any[] = [];
@@ -32,8 +52,6 @@ export class WagetypeDetail extends UniView {
     private tilleggspakkeConfig: UniTableConfig;
     private showSupplementaryInformations: boolean = false;
     private hidePackageDropdown: boolean = true;
-    private showBenefitAndDescriptionAsReadonly: boolean = true;
-    private currentPackage: string = null;
     private rateIsReadOnly: boolean;
     private basePayment: boolean;
     public config$: BehaviorSubject<any> = new BehaviorSubject({
@@ -166,8 +184,7 @@ export class WagetypeDetail extends UniView {
                 this.validValuesTypes = validvaluesTypes;
                 this.extendFields(usedInPayrollrun, fields, wageType);
                 this.checkAmeldingInfo(wageType, fields);
-                this.updateUniformFields(fields, false);
-                this.fields$.next(fields);
+                this.fields$.next(this.updateUniformFields(fields));
                 return wageType;
             })
             .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
@@ -268,10 +285,9 @@ export class WagetypeDetail extends UniView {
         }
 
         this.setupTypes(this.validValuesTypes);
-
+        this.setReadOnlyOnBenefitAndDescription(fields, wageType.IncomeType);
         if (!!wageType.IncomeType) {
-            this.showBenefitAndDescriptionAsReadonly = false;
-            this.filterSupplementPackages(wageType.IncomeType, true, true, true, fields);
+            this.handleSupplementPackages(wageType.IncomeType, wageType.Benefit, wageType.Description, fields);
         }
 
         wageType['_AMeldingHelp'] = this.aMeldingHelp;
@@ -288,8 +304,9 @@ export class WagetypeDetail extends UniView {
         return fields;
     }
 
-    private updateUniformFields(fields: any[], refresh = true) {
+    private updateUniformFields(fields: any[], supplementPackages: any[] = null) {
         fields = fields || this.fields$.getValue();
+        supplementPackages = supplementPackages || this.supplementPackages;
 
         this.editField(fields, 'IncomeType', incomeType => {
             incomeType.Options = {
@@ -299,15 +316,12 @@ export class WagetypeDetail extends UniView {
                 debounceTime: 200,
                 template: (obj) => obj ? `${obj.text}` : '',
                 events: {
-                    select: (model, value) => {
-                        let wageType = this.wageType$.getValue();
+                    select: (model: WageType) => {
                         this.showSupplementaryInformations = false;
-                        this.setFieldHidden(fields, 'SupplementPackage', true);
-                        this.filterSupplementPackages(model.IncomeType, true, false, false);
-                        this.showBenefitAndDescriptionAsReadonly = false;
-                        wageType.Description = '';
-                        wageType.Benefit = '';
-                        this.wageType$.next(wageType);
+                        this.handleSupplementPackages(model.IncomeType);
+                        model.Description = '';
+                        model.Benefit = '';
+                        this.wageType$.next(model);
                         this.uniform.field('Benefit').focus();
                     }
                 }
@@ -322,19 +336,15 @@ export class WagetypeDetail extends UniView {
                 debounceTime: 200,
                 template: (obj) => obj ? `${obj.text}` : '',
                 events: {
-                    select: (model) => {
-                        let wageType = this.wageType$.getValue();
+                    select: (model: WageType) => {
                         this.showSupplementaryInformations = false;
-                        this.fields$.next(this.setFieldHidden(this.fields$.getValue(), 'SupplementPackage', true));
-                        this.filterSupplementPackages(model.IncomeType, true, true, false);
-                        this.setDescriptionDataSource();
-                        wageType.Description = '';
-                        this.wageType$.next(wageType);
+                        this.handleSupplementPackages(model.IncomeType, model.Benefit);
+                        model.Description = '';
+                        this.wageType$.next(model);
                         this.uniform.field('Description').focus();
                     }
                 }
             };
-            benefit.ReadOnly = this.showBenefitAndDescriptionAsReadonly;
         });
 
         this.editField(fields, 'Description', description => {
@@ -345,35 +355,29 @@ export class WagetypeDetail extends UniView {
                 debounceTime: 200,
                 template: (obj) => obj ? `${obj.text}` : '',
                 events: {
-                    select: (model) => {
-                        this.filterSupplementPackages(model.IncomeType, true, true, true);
-                        this.fields$
-                            .next(this.setFieldHidden(
-                                this.fields$.getValue(),
-                                'SupplementPackage',
-                                !this.supplementPackages.length));
-
+                    select: (model: WageType) => {
+                        this.handleSupplementPackages(model.IncomeType, model.Benefit, model.Description);
                         this.uniform.field('SpecialTaxAndContributionsRule').focus();
                     }
                 }
             };
-            description.ReadOnly = this.showBenefitAndDescriptionAsReadonly;
         });
 
         this.editField(fields, 'SupplementPackage', tilleggsinfo => {
             tilleggsinfo.Options = {
-                source: this.supplementPackages,
+                source: supplementPackages,
                 valueProperty: 'uninavn',
-                displayProperty: 'uninavn',
                 debounceTime: 200,
                 template: (obj) => obj ? `${obj.uninavn}` : ''
             };
             tilleggsinfo.ReadOnly = this.hidePackageDropdown;
         });
 
-        if (refresh) {
+        if (supplementPackages) {
             this.fields$.next(fields);
         }
+
+        return fields;
     }
 
     private setupTypes(types: any[]) {
@@ -382,76 +386,76 @@ export class WagetypeDetail extends UniView {
         });
     }
 
-    private filterSupplementPackages(
+    private handleSupplementPackages(
         selectedType: string = '',
-        setSources: boolean = true,
-        filterByFordel: boolean = true,
-        filterByDescription: boolean = true,
+        selectedBenefit: string = '',
+        selectedDescription: string = '',
         fields: any[] = undefined) {
+        const filter: ValidValuesFilter = {
+            IncomeType: selectedType,
+            Benefit: selectedBenefit,
+            Description: selectedDescription
+        };
+        fields = fields || this.fields$.getValue();
+        const wageType = this.wageType$.getValue();
         if (selectedType !== '') {
-            selectedType = this.wageType$.getValue().IncomeType;
+            selectedType = wageType.IncomeType;
         }
-        this.inntektService.getSalaryValidValue(selectedType)
-            .subscribe(response => {
-                this.supplementPackages = response;
-                if (this.supplementPackages) {
-                    if (setSources) {
-                        this.setBenefitAndDescriptionSource(selectedType);
-                    }
-                    if (filterByFordel) {
-                        this.setPackagesFilteredByFordel();
-                    }
-                    if (filterByDescription) {
-                        this.setPackagesFilteredByDescription();
-                    }
-
-                    if (setSources || filterByDescription) {
-                        this.updateUniformFields(fields);
-                    }
-                }
-            }, err => this.errorService.handle(err));
+        this.inntektService
+            .getSalaryValidValue(selectedType)
+            .filter(response => !!response)
+            .map(response => this.setBenefitAndDescriptionSource(response, filter))
+            .map(response => this.filterTilleggsPakker(response, filter))
+            .map(response => this.setupTilleggsPakker(response, filter))
+            .do(response => {
+                this.setFieldHidden(fields, 'SupplementPackage', !filter.Description || !response.length);
+                this.updateUniformFields(fields, response); 
+            })
+            .catch((err, obs) => this.errorService.handleRxCatch(err, obs))
+            .subscribe(response => this.supplementPackages = response);
     }
 
-    private setBenefitAndDescriptionSource(selectedType: string) {
+    private setBenefitAndDescriptionSource(supplementPackages: any, filter: ValidValuesFilter) {
         this.benefitDatasource = [];
         this.descriptionDatasource = [];
 
-        this.supplementPackages.forEach(tp => {
-            if (!this.benefitDatasource.find(x => x.text === tp.fordel)) {
+        const _filter: ValidValuesFilter = {
+            IncomeType: filter.IncomeType,
+            Benefit: filter.Benefit
+        };
+
+        supplementPackages.forEach(tp => {
+            if (!this.benefitDatasource.some(x => x.text === tp.fordel)) {
                 this.benefitDatasource.push({ text: tp.fordel });
             }
-            let incometypeChild: any = this.getIncometypeChildObject(tp, selectedType);
+
+            let incometypeChild: any = this.getIncometypeChildObject(tp, _filter);
 
             if (incometypeChild) {
-                if (!this.descriptionDatasource.find(x => x.text === incometypeChild.beskrivelse)) {
+                if (!this.descriptionDatasource.some(x => x.text === incometypeChild.beskrivelse)) {
                     this.descriptionDatasource.push({ text: incometypeChild.beskrivelse, fordel: tp.fordel });
                 }
             }
         });
+
+
+        this.benefitDatasource = this.benefitDatasource.filter(benefit => !!benefit.text);
+        this.descriptionDatasource = this.descriptionDatasource.filter(description => !!description.text);
+
+        return supplementPackages;
     }
 
-    private setDescriptionDataSource() {
-        let tmp: any[] = [];
-
-        this.descriptionDatasource.forEach(dp => {
-            if (dp.fordel === this.wageType$.getValue().Benefit) {
-                tmp.push(dp);
-            }
-        });
-
-        this.descriptionDatasource = tmp;
-    }
-
-    private getIncometypeChildObject(tp: any, selType: string = '') {
-        let selectedType: string;
-        if (selType) {
-            selectedType = selType;
-        } else {
-            selectedType = this.wageType$.getValue().IncomeType;
+    private getIncometypeChildObject(tp: any, filter: ValidValuesFilter) {
+        const wageType = this.wageType$.getValue();
+        filter = filter || {
+            IncomeType: wageType.IncomeType,
+            Benefit: wageType.Benefit,
+            Description: wageType.Description
         }
+
         let incometypeChild: any;
-        if (selectedType) {
-            switch (selectedType.toLowerCase()) {
+        if (filter.IncomeType) {
+            switch (filter.IncomeType.toLowerCase()) {
                 case 'lønn':
                     incometypeChild = tp.loennsinntekt;
                     break;
@@ -474,31 +478,41 @@ export class WagetypeDetail extends UniView {
                 default:
                     break;
             }
+
+            if (incometypeChild
+                && filter.Benefit
+                && filter.Benefit.toLowerCase() !== 'fradrag'
+                && filter.Benefit.toLowerCase() !== 'forskuddstrekk') {
+                incometypeChild = tp.fordel === filter.Benefit ? incometypeChild : undefined;
+            }
+
+            if (incometypeChild && filter.Description) {
+                incometypeChild = incometypeChild.beskrivelse === filter.Description ? incometypeChild : undefined;
+            }
         }
 
         return incometypeChild;
     }
 
-    private updateForSkatteOgAvgiftregel() {
+    private updateForSkatteOgAvgiftregel(supplementPackages: any[]) {
         let filtered: any[] = [];
-        this.supplementPackages.forEach(pack => {
+        supplementPackages.forEach(pack => {
             if (pack.skatteOgAvgiftregel === null) {
                 filtered.push(pack);
             }
         });
 
-        this.supplementPackages = filtered;
+        supplementPackages = filtered;
+        return filtered;
     }
 
-    private setupTilleggsPakker() {
-        let selectedType: string = this.wageType$.getValue().IncomeType;
+    private setupTilleggsPakker(supplementPackages: any[], filter: ValidValuesFilter) {
         let packs: any[] = [];
-
         // Ta bort alle objekter som har 'skatteOgAvgiftsregel' som noe annet enn null
-        this.updateForSkatteOgAvgiftregel();
+        supplementPackages = this.updateForSkatteOgAvgiftregel(supplementPackages);
 
-        this.supplementPackages.forEach(tp => {
-            let incometypeChild: any = this.getIncometypeChildObject(tp, selectedType);
+        supplementPackages.forEach(tp => {
+            let incometypeChild: any = this.getIncometypeChildObject(tp, filter);
             if (incometypeChild) {
                 let additions: WageTypeSupplement[] = this.addTilleggsInformasjon(incometypeChild);
                 if (additions.length > 0) {
@@ -506,43 +520,18 @@ export class WagetypeDetail extends UniView {
                 }
             }
         });
+        packs = packs.filter(pack => !!pack && pack.uninavn);
         this.hidePackageDropdown = packs.length > 0 ? false : true;
 
         if (packs.length > 0) {
             packs.unshift({ uninavn: 'Ingen', additions: [] });
         }
 
-        this.supplementPackages = packs;
+        return packs;
     }
 
-    private setPackagesFilteredByFordel() {
-        let filtered: any[] = [];
-
-        if (this.wageType$.getValue().Benefit !== '' && this.benefitDatasource.length > 0) {
-            this.supplementPackages.forEach(tp => {
-                if (tp.fordel === this.wageType$.getValue().Benefit) {
-                    filtered.push(tp);
-                }
-            });
-            this.supplementPackages = filtered;
-        }
-    }
-
-    private setPackagesFilteredByDescription() {
-        let filtered: any[] = [];
-        if (this.wageType$.getValue().Description !== '' && this.descriptionDatasource.length > 0) {
-            this.supplementPackages.forEach(tp => {
-                let incometypeChild: any = this.getIncometypeChildObject(tp, this.wageType$.getValue().IncomeType);
-                if (incometypeChild) {
-                    if (this.wageType$.getValue().Description === incometypeChild.beskrivelse) {
-                        filtered.push(tp);
-                    }
-                }
-            });
-            this.supplementPackages = filtered;
-        }
-
-        this.setupTilleggsPakker();
+    private filterTilleggsPakker(supplementPackages: any[], filter: ValidValuesFilter) {
+        return supplementPackages.filter(tp => !!this.getIncometypeChildObject(tp, filter));
     }
 
     private addTilleggsInformasjon(tillegg) {
@@ -726,6 +715,19 @@ export class WagetypeDetail extends UniView {
                     this.checkBaseOptions(wageType);
                 }
 
+                if (changes['IncomeType']) {
+                    this.setReadOnlyOnBenefitAndDescription(fields, changes['IncomeType'].currentValue);
+                    this.setFieldHidden(fields, 'SupplementPackage', true);
+                }
+
+                if (changes['Benefit']) {
+                    this.setFieldHidden(fields, 'SupplementPackage', true);
+                }
+
+                if (changes['Description']) {
+                    this.setFieldHidden(fields, 'SupplementPackage', this.supplementPackages.length);
+                }
+
                 return [wageType, fields];
             })
             .subscribe((result: [WageType, any[]]) => {
@@ -733,6 +735,12 @@ export class WagetypeDetail extends UniView {
                 this.fields$.next(fields);
                 super.updateState('wagetype', wageType, true);
             });
+    }
+
+    private setReadOnlyOnBenefitAndDescription(fields: any[], value: string) {
+        const benefitAndDescriptionReadOnly = !value;
+        this.setReadOnlyOnField(fields, 'Benefit', benefitAndDescriptionReadOnly);
+        this.setReadOnlyOnField(fields, 'Description', benefitAndDescriptionReadOnly);
     }
 
     private setReadOnlyOnField(fields: any[], prop: string, readOnly: boolean) {
