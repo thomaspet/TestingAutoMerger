@@ -3,7 +3,6 @@ import { ProjectTasks } from './tasks/tasks';
 import { ProjectEditmode } from './editmode/editmode';
 
 export const routes = [
-
     {
         path: '',
         pathMatch: 'full',

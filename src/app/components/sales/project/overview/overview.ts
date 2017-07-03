@@ -12,7 +12,7 @@ export interface myProject extends Project {
 @Component({
     selector: 'project-overview',
     templateUrl: './overview.html'
-}) 
+})
 
 export class ProjectOverview {
 
@@ -22,9 +22,22 @@ export class ProjectOverview {
     @ViewChild('chartElement2')
     private chartElement2: ElementRef;
 
-    private MONTHS = ['Januar', 'Februar', 'Mars', 'April', 'Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober', 'November', 'Desember'];
-    private MONTHS_SHORT = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-    private QUARTERS = ['1. Kvartal', '2. Kvartal', '3. Kvartal', '4. Kvartal'];
+    private MONTHS = [
+        'Januar', 'Februar', 'Mars', 'April',
+        'Mai', 'Juni', 'Juli', 'August',
+        'September', 'Oktober', 'November', 'Desember'
+    ];
+    private MONTHS_SHORT = [
+        'Jan', 'Feb', 'Mar', 'Apr',
+        'May', 'Jun', 'Jul', 'Aug',
+        'Sep', 'Oct', 'Nov', 'Dec'
+    ];
+    private QUARTERS = [
+        '1. Kvartal',
+        '2. Kvartal',
+        '3. Kvartal',
+        '4. Kvartal'
+    ];
     private QUARTERS_SHORT = ['Q1', 'Q2', 'Q3', 'Q4'];
 
     private myChart: any;
@@ -116,7 +129,7 @@ export class ProjectOverview {
             } else {
                 this.customerName = '';
             }
-            
+
             this.projectService.getProjectHours(this.project.ID).subscribe((res) => {
 
                 this.chart.data.labels = [];

@@ -1,16 +1,16 @@
 ﻿import { Component, ViewChild } from '@angular/core';
-import {
-    ProjectService,
-    ErrorService,
-    UniSearchConfigGeneratorService,
-    AddressService
-} from '../../../../services/services';
 import { Project, Customer, Address } from '../../../../unientities';
 import { AddressModal } from '../../../common/modals/modals';
 import { UniFieldLayout } from '../../../../../framework/ui/uniform/index';
 import { FieldType } from '../../../../../framework/ui/uniform/index';
 import { IUniSearchConfig } from '../../../../../framework/ui/unisearch/index';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
+import {
+    ProjectService,
+    ErrorService,
+    UniSearchConfigGeneratorService,
+    AddressService
+} from '../../../../services/services';
 
 
 @Component({
@@ -19,24 +19,26 @@ import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 })
 
 export class ProjectEditmode {
+    @ViewChild(AddressModal) public addressModal: AddressModal;
 
     public config$: BehaviorSubject<any> = new BehaviorSubject({ autofocus: true });
     public fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
     private project$: BehaviorSubject<Project> = new BehaviorSubject(null);
     private actionLabel: string = '';
-    private STATUS = [{ ID: 42201, Name: 'Registrert' }, { ID: 2, Name: 'Aktivt' }, { ID: 3, Name: 'Avsluttet'}];
     private uniSearchConfig: IUniSearchConfig;
     private addressChanged: any;
-
-    @ViewChild(AddressModal) public addressModal: AddressModal;
-
     private customerExpandOptions: Array<string> = ['Info.Name'];
+    private STATUS = [
+        { ID: 42201, Name: 'Registrert' },
+        { ID: 2, Name: 'Aktivt' },
+        { ID: 3, Name: 'Avsluttet'}
+    ];
 
     constructor(
         private projectService: ProjectService,
         private errorService: ErrorService,
         private uniSearchConfigGeneratorService: UniSearchConfigGeneratorService,
-        private addressService: AddressService) { }
+        private addressService: AddressService) {}
 
     public ngOnInit() {
         this.fields$.next(this.getComponentFields());
@@ -115,7 +117,7 @@ export class ProjectEditmode {
                 Placeholder: 'Autogenerert hvis blank',
                 Section: 0,
                 FieldSet: 1,
-                FieldSetColumn: 1,  
+                FieldSetColumn: 1,
                 Legend: 'Prosjektdetaljer'
 
             },
@@ -251,8 +253,7 @@ export class ProjectEditmode {
                 Property: '',
                 FieldSet: 7,
                 FieldSetColumn: 1
-            },
-            
+            }
         ];
     }
 }

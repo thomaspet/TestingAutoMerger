@@ -10,6 +10,7 @@ export class ProjectService extends BizHttp<Project> {
 
     public currentProject: BehaviorSubject<Project> = new BehaviorSubject(null);
     public allProjects: Project[];
+    public isDirty: boolean;
 
     constructor(http: UniHttp, authService: AuthService) {
         super(http, authService);

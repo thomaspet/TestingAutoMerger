@@ -1,8 +1,12 @@
 ﻿<section class="project-router-outlet">
-    
     <section class="project-task-container">
-        Hello tasks
+        <h2 style="margin: 16px; font-weight: 100; font-size: 2rem;">{{ projectLabel }}</h2>
+
+        <uni-table
+            [config]="tableConfig"
+            [resource]="project?.ProjectTasks || []"
+            (rowChanged)="onRowChanged($event)"
+            (rowDeleted)="onRowDeleted($event)">
+        </uni-table>
     </section>
-
-
 </section>

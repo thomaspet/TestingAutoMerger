@@ -123,7 +123,7 @@ export class UniSave {
         this.open = false;
         this.busy = true;
         this.status = undefined;
-        setTimeout(action.action(this.onSaveCompleted.bind(this)));
+        setTimeout(() => action.action(this.onSaveCompleted.bind(this)));
     }
 
     public onSaveCompleted(statusMessage?: string) {

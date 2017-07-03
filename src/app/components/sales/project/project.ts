@@ -1,10 +1,15 @@
-﻿import { Component } from '@angular/core';
+import { Component, ViewChild } from '@angular/core';
 import { URLSearchParams } from '@angular/http';
 import { Router } from '@angular/router';
 import { IUniTabsRoute } from '../../layout/uniTabs/uniTabs';
 import { TabService, UniModules } from '../../layout/navbar/tabstrip/tabService';
 import { ProjectService, ErrorService } from '../../../services/services';
-import { UniTableColumn, UniTableColumnType, UniTableConfig } from '../../../../framework/ui/unitable/index';
+import {
+    UniTable,
+    UniTableColumn,
+    UniTableColumnType,
+    UniTableConfig
+} from '../../../../framework/ui/unitable/index';
 import { IToolbarConfig } from '../../common/toolbar/toolbar';
 import { IUniSaveAction } from '../../../../framework/save/save';
 
@@ -14,7 +19,8 @@ import { IUniSaveAction } from '../../../../framework/save/save';
 })
 
 export class Project {
-
+    @ViewChild(UniTable)
+    private table: UniTable;
 
     private childRoutes: IUniTabsRoute[];
     private projectFilterString: string = '';
@@ -36,7 +42,7 @@ export class Project {
     public saveActions: IUniSaveAction[] = [
         {
             label: 'Lagre',
-            action: (completeEvent) => this.saveProject(completeEvent),
+            action: (completeEvent) => setTimeout(this.saveProject(completeEvent)),
             main: true,
             disabled: false
         }
@@ -54,7 +60,7 @@ export class Project {
             moduleID: UniModules.Projects,
             active: true
         });
-        
+
 
         this.childRoutes = [
             { name: 'Oversikt', path: 'overview'},
@@ -69,6 +75,10 @@ export class Project {
         this.setUpTable();
     }
 
+    public onTableReady() {
+        this.table.focusRow(0);
+    }
+
     private newProject() {
         this.projectService.setNew();
         this.toolbarconfig.title = 'Nytt prosjekt';
@@ -78,6 +88,8 @@ export class Project {
     private setUpTable() {
         this.lookupFunction = (urlParams: URLSearchParams) => {
             urlParams = urlParams || new URLSearchParams();
+            urlParams.set('expand', 'ProjectTasks.ProjectTaskSchedules');
+
             return this.projectService.GetAllByUrlSearchParams(urlParams)
                 .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
         };
@@ -96,33 +108,23 @@ export class Project {
         this.toolbarconfig.title = event.rowModel.Name;
         this.projectService.currentProject.next(event.rowModel);
         this.activeProjectID = event.rowModel.ID;
-    }
+    };
 
     public saveProject(done: Function) {
-        if (this.projectService.currentProject.getValue().ID) {
-            this.projectService.Put(this.projectService.currentProject.getValue().ID, this.projectService.currentProject.getValue())
-                .subscribe(
-                updatedProject => {
-                    //this.router.navigateByUrl('/dimensions/project/' + updatedProject.ID);
-                    this.projectService.currentProject.next(updatedProject);
-                    done('Prosjekt lagret');
-                },
-                err => {
-                    if (err.status === 400) {
-                        //this.toastService.addToast('Warning', ToastType.warn, 0, 'Prosjekt nummer allerede brukt, venligst bruk et annet nummer');
-                    } else {
-                        this.errorService.handle(err);
-                    }
-                });
-        } else {
-            this.projectService.Post(this.projectService.currentProject.getValue())
-                .subscribe(
-                newProject => {
-                    //this.router.navigateByUrl('/dimensions/project/' + newProject.ID);
-                    this.projectService.currentProject.next(newProject);
-                    done('Prosjekt lagret');
-                },
-                err => this.errorService.handle(err));
-        }
+        const project = this.projectService.currentProject.getValue();
+        let source = (project.ID > 0)
+            ? this.projectService.Put(project.ID, project)
+            : this.projectService.Post(project);
+
+        source.subscribe(
+            res => {
+                this.table.refreshTableData();
+                done('Lagring fullført');
+            },
+            err => {
+                this.errorService.handle(err);
+                done('Lagring feilet');
+            }
+        );
     }
 }
