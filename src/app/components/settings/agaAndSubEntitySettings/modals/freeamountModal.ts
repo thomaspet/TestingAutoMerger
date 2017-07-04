@@ -5,6 +5,7 @@ import { GrantService, SubEntityService, ErrorService } from '../../../../servic
 import { Observable } from 'rxjs/Observable';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import { UniFieldLayout, FieldType } from '../../../../../framework/ui/uniform/index';
+import { SubEntity } from './../../../../unientities';
 
 @Component({
     selector: 'freeamount-modal-content',
@@ -54,8 +55,9 @@ export class FreeamountModalContent implements OnInit {
 
     private setTableConfig() {
         let subentityCol = new UniTableColumn('ID', 'Virksomhet', UniTableColumnType.Text)
-        .setTemplate((dataItem) => {
-                return `${dataItem.OrgNumber} - ${dataItem.BusinessRelationInfo.Name}`;
+        .setTemplate((dataItem: SubEntity) => {
+                let info = dataItem.BusinessRelationInfo;
+                return info ? `${dataItem.OrgNumber} - ${info.Name}` : dataItem.OrgNumber;
         });
         let maxCol = new UniTableColumn('AgaRule', 'Maks fribeløp', UniTableColumnType.Money);
         let usedCol = new UniTableColumn('AgaZone', 'Brukt fribeløp', UniTableColumnType.Money);
