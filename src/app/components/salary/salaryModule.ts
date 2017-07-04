@@ -65,7 +65,6 @@ import {
 import {WageTypeView} from './wagetype/wagetypeView';
 import {WagetypeDetail} from './wagetype/views/wagetypeDetails';
 import {WageTypeSettings} from './wagetype/views/wagetypeSettings';
-import {WageTypeLimitValues} from './wagetype/views/wagetypeLimitValues';
 import {WagetypeList} from './wagetype/wagetypeList';
 
 import {CategoryList} from './category/categoryList';
@@ -167,7 +166,6 @@ import {CanDeactivateGuard} from '../../canDeactivateGuard';
         WagetypeDetail,
         WagetypeList,
         WageTypeSettings,
-        WageTypeLimitValues,
 
         // Category
         CategoryList,
@@ -259,7 +257,6 @@ import {CanDeactivateGuard} from '../../canDeactivateGuard';
         WagetypeDetail,
         WagetypeList,
         WageTypeSettings,
-        WageTypeLimitValues,
 
         // Category
         CategoryList,

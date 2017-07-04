@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { BizHttp } from '../../../../framework/core/http/BizHttp';
 import { UniHttp } from '../../../../framework/core/http/http';
-import { WageType, Account  } from '../../../unientities';
+import { WageType, Account, LimitType } from '../../../unientities';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import { AccountService } from '../../accounting/accountService';
 import { Observable } from 'rxjs/Observable';
@@ -27,10 +27,20 @@ export class WageTypeService extends BizHttp<WageType> {
         'SupplementaryInformations'
     ];
 
+    private limitTypes: { Type: LimitType, Name: string }[] = [
+        { Type: LimitType.None, Name: 'Ingen' },
+        { Type: LimitType.Amount, Name: 'Antall' },
+        { Type: LimitType.Sum, Name: 'Beløp' }
+    ];
+
     constructor(http: UniHttp, private accountService: AccountService) {
         super(http);
         this.relativeURL = WageType.RelativeUrl;
         this.entityType = WageType.EntityType;
+    }
+
+    public getLimitTypes() {
+        return Observable.of(this.limitTypes);
     }
 
     public getSubEntities() {
@@ -156,7 +166,7 @@ export class WageTypeService extends BizHttp<WageType> {
                     Description: null,
                     HelpText: null,
                     FieldSet: 1,
-                    Legend: 'lønnsart',
+                    Legend: 'Lønnsart',
                     Section: 0,
                     Placeholder: 'La stå tom for neste ledige',
                     LineBreak: null,
@@ -288,7 +298,9 @@ export class WageTypeService extends BizHttp<WageType> {
                     FieldSet: 2,
                     Section: 0,
                     Placeholder: null,
-                    Options: null,
+                    Options: {
+                        format: 'money'
+                    },
                     LineBreak: null,
                     Combo: null,
                     Sectionheader: '',
@@ -570,10 +582,96 @@ export class WageTypeService extends BizHttp<WageType> {
                     FieldType: FieldType.CHECKBOX,
                     ReadOnly: false,
                     LookupField: false,
-                    Label: 'Fastlønn og trekk i lønn for ferie',
+                    Label: 'Trekk i fastlønn for ferie',
                     Description: null,
                     HelpText: null,
-                    FieldSet: 0,
+                    FieldSet: 1,
+                    Legend: 'Feriepenger',
+                    Section: 0,
+                    Placeholder: null,
+                    Options: null,
+                    LineBreak: null,
+                    Combo: null,
+                    Sectionheader: '',
+                    hasLineBreak: false
+                },
+                {
+                    ComponentLayoutID: 1,
+                    EntityType: 'wagetype',
+                    Property: 'Limit_type',
+                    Placement: 1,
+                    Hidden: false,
+                    FieldType: FieldType.DROPDOWN,
+                    ReadOnly: false,
+                    LookupField: false,
+                    Label: 'Grenseverdi type',
+                    Description: null,
+                    HelpText: null,
+                    FieldSet: 2,
+                    Legend: 'Grenseverdi',
+                    Section: 0,
+                    Placeholder: null,
+                    Options: null,
+                    LineBreak: null,
+                    Combo: null,
+                    Sectionheader: '',
+                    hasLineBreak: false
+                },
+                {
+                    ComponentLayoutID: 1,
+                    EntityType: 'wagetype',
+                    Property: 'Limit_value',
+                    Placement: 1,
+                    Hidden: false,
+                    FieldType: FieldType.TEXT,
+                    ReadOnly: false,
+                    LookupField: false,
+                    Label: 'Grenseverdi',
+                    Description: null,
+                    HelpText: null,
+                    FieldSet: 2,
+                    Section: 0,
+                    Placeholder: null,
+                    Options: null,
+                    LineBreak: null,
+                    Combo: null,
+                    Sectionheader: '',
+                    hasLineBreak: false
+                },
+                {
+                    ComponentLayoutID: 1,
+                    EntityType: 'wagetype',
+                    Property: 'Limit_newRate',
+                    Placement: 1,
+                    Hidden: false,
+                    FieldType: FieldType.TEXT,
+                    ReadOnly: false,
+                    LookupField: false,
+                    Label: 'Ny sats',
+                    Description: null,
+                    HelpText: null,
+                    FieldSet: 2,
+                    Section: 0,
+                    Placeholder: null,
+                    Options: null,
+                    LineBreak: null,
+                    Combo: null,
+                    Sectionheader: '',
+                    hasLineBreak: false
+                },
+                {
+                    ComponentLayoutID: 1,
+                    EntityType: 'wagetype',
+                    Property: 'Limit_WageTypeNumber',
+                    Placement: 1,
+                    Hidden: false,
+                    FieldType: FieldType.AUTOCOMPLETE,
+                    ReadOnly: false,
+                    LookupField: false,
+                    Label: 'Ny lønnsart',
+                    Description: null,
+                    HelpText: null,
+                    FieldSet: 2,
                     Section: 0,
                     Placeholder: null,
                     Options: null,

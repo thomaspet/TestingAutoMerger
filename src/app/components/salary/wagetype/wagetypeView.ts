@@ -48,8 +48,7 @@ export class WageTypeView extends UniView {
 
         this.childRoutes = [
             { name: 'Detaljer', path: 'details' },
-            { name: 'Spesialinnstillinger', path: 'spesial-settings' },
-            { name: 'Grenseverdier', path: 'limit-values' }
+            { name: 'Innstillinger', path: 'spesial-settings' }
         ];
 
         this.saveActions = [{

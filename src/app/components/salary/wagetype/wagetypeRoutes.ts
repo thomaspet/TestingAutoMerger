@@ -1,6 +1,5 @@
 import {WagetypeDetail} from './views/wagetypeDetails';
 import {WageTypeSettings} from './views/wagetypeSettings';
-import {WageTypeLimitValues} from './views/wagetypeLimitValues';
 
 export const routes = [
     {
@@ -15,10 +14,6 @@ export const routes = [
     {
         path: 'spesial-settings',
         component: WageTypeSettings
-    },
-    {
-        path: 'limit-values',
-        component: WageTypeLimitValues
     }
 
 ];
