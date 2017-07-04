@@ -1,7 +1,7 @@
 import {Component, AfterViewInit, QueryList, ViewChildren, Type, Output, EventEmitter} from '@angular/core';
 import {UniModal} from '../../../../framework/modals/modal';
 import {ActivatedRoute} from '@angular/router';
-import {PostingsummaryModalContent} from './postingsummaryModalContent';
+import {PostingsummaryModalContent, IPostingSummaryModalConfig} from './postingsummaryModalContent';
 import {ErrorService} from '../../../services/services';
 
 @Component({
@@ -13,7 +13,7 @@ export class PostingsummaryModal implements AfterViewInit {
     @ViewChildren(UniModal) private modalElements: QueryList<UniModal>;
     @Output() public updatePayrollRun: EventEmitter<any> = new EventEmitter<any>(true);
     private modals: UniModal[];
-    private modalConfig: any;
+    private modalConfig: IPostingSummaryModalConfig;
     public type: Type<any> = PostingsummaryModalContent;
 
     constructor(
@@ -31,13 +31,15 @@ export class PostingsummaryModal implements AfterViewInit {
                 method: () => {
                     this.modals[0].getContent().then((content: PostingsummaryModalContent) => {
                         content.busy = true;
-                        content.postTransactions().subscribe((success) => {
+                        content
+                            .postTransactions()
+                            .finally(() => content.busy = false)
+                            .subscribe((success) => {
                             if (success) {
                                 this.updatePayrollRun.emit(true);
                                 content.showResponseReceipt(success);
                             }
-                        }, err => this.errorService.handle(err),
-                        () => content.busy = false);
+                        }, err => this.errorService.handle(err));
                     });
                 }
             }]

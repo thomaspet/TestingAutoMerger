@@ -6,6 +6,13 @@ import { PayrollrunService, ErrorService, ReportDefinitionService, ReportParamet
 import { UniHttp } from '../../../../framework/core/http/http';
 import * as moment from 'moment';
 
+export interface IPostingSummaryModalConfig {
+    title: string;
+    hasCancelButton: true;
+    cancel: () => void;
+    actions: {text: string, method: () => void}[];
+};
+
 @Component({
     selector: 'postingsummary-modal-content',
     templateUrl: './postingsummaryModalContent.html'
@@ -14,7 +21,7 @@ export class PostingsummaryModalContent implements OnInit {
     public busy: boolean;
     private showReceipt: boolean = false;
     private accountTableConfig: UniTableConfig;
-    @Input() private config: any;
+    @Input() private config: IPostingSummaryModalConfig;
     private payrollrunID: number;
     private summary: any;
     private journalNumber: string;
@@ -63,7 +70,9 @@ export class PostingsummaryModalContent implements OnInit {
                 this.headerString = 'Konteringssammendrag: '
                     + this.summary.PayrollRun.ID + ' - ' + this.summary.PayrollRun.Description
                     + ', utbetales ' + moment(this.summary.PayrollRun.PayDate.toString()).format('DD.MM.YYYY');
-            }, err => this.errorService.handle(err));
+            }, err =>  { 
+                this.errorService.handle(err);
+            });
     }
 
     public postTransactions() {
