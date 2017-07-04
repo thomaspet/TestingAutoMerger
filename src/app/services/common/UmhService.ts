@@ -120,10 +120,20 @@ export class UmhService {
             });
     }
 
-    public isEnabled(): Observable<IUmhSubscription> {
+    public isEnabled(): Observable<boolean> {
         return this.uniHttp.asGET()
             .usingUmhDomain()
             .withEndPoint('web-hooks/subscriptions/is-enabled')
+            .send()
+            .map((res) => {
+                return res.json();
+            });
+    }
+
+    public isPermitted(writeOperation: boolean): Observable<boolean> {
+        return this.uniHttp.asGET()
+            .usingUmhDomain()
+            .withEndPoint('web-hooks/subscriptions/is-permitted?writeOperation=' + writeOperation)
             .send()
             .map((res) => {
                 return res.json();

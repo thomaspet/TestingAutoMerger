@@ -33,6 +33,7 @@ export class WebHookSettings {
 
     private company: Company;
     private isEnabled: boolean = false;
+    private isPermitted: boolean = false;
     private isBusy: boolean = true;
 
     public constructor(
@@ -47,6 +48,26 @@ export class WebHookSettings {
     public ngOnInit() {
         this.noFilter = 'ffffffff-ffff-ffff-ffff-ffffffffffff';
 
+        this.umhSerivce.isPermitted(true).subscribe(
+            isPermitted => { 
+                this.isPermitted = isPermitted;
+
+                if (isPermitted) {
+                    this.gatherData();
+                } else {
+                    this.isBusy = false;
+                }
+            },
+            err => this.errorService.handle(err)
+        )
+    }
+
+    public ngAfterViewInit() {
+        this.isEnabled = this.company !== undefined && this.company.WebHookSubscriberId !== null;
+        this.cdr.detectChanges();
+    }
+
+    private gatherData() {
         Observable.forkJoin(
             this.umhSerivce.getActions(),
             this.umhSerivce.getObjectives()
@@ -60,13 +81,7 @@ export class WebHookSettings {
         );
 
         this.objectiveSelectConfig = {};
-
         this.actionSelectConfig = {};
-    }
-
-    public ngAfterViewInit() {
-        this.isEnabled = this.company !== undefined && this.company.WebHookSubscriberId !== null;
-        this.cdr.detectChanges();
     }
 
     public canDeactivate(): boolean|Promise<boolean> {
