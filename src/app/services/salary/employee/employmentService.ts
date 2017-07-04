@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { BizHttp } from '../../../../framework/core/http/BizHttp';
 import { UniHttp } from '../../../../framework/core/http/http';
 import {
-    Employment, TypeOfEmployment, RenumerationType,
+    Employment, TypeOfEmployment, RemunerationType,
     WorkingHoursScheme, Department, Project
 } from '../../../unientities';
 import { Observable } from 'rxjs/Observable';
@@ -21,21 +21,21 @@ export class EmploymentService extends BizHttp<Employment> {
         { ID: TypeOfEmployment.PensionOrOtherNonEmployedBenefits, Name: '4 - Pensjon og annet uten ansettelse' }
     ];
 
-    private renumerationType: { ID: number, Name: string }[] = [
+    private remunerationType: { ID: number, Name: string }[] = [
         { ID: 0, Name: 'Ikke valgt' },
-        { ID: RenumerationType.Salaried, Name: '1 - Fast lønnet' },
-        { ID: RenumerationType.HourlyPaid, Name: '2 - Timelønnet' },
-        { ID: RenumerationType.PaidOnCommission, Name: '3 - Provisjonslønnet' },
-        { ID: RenumerationType.Fees, Name: '4 - Honorar' },
-        { ID: RenumerationType.Piecework, Name: '5 - Akkord' }
+        { ID: RemunerationType.FixedSalary, Name: '1 - Fast lønnet' },
+        { ID: RemunerationType.HourlyPaid, Name: '2 - Timelønnet' },
+        { ID: RemunerationType.PaidOnCommission, Name: '3 - Provisjonslønnet' },
+        { ID: RemunerationType.OnAgreement_Honorar, Name: '4 - Honorar' },
+        { ID: RemunerationType.ByPerformance, Name: '5 - Akkord' }
     ];
 
     private workingHoursScheme: { ID: number, Name: string }[] = [
         { ID: 0, Name: 'Ikke valgt' },
         { ID: WorkingHoursScheme.NonShift, Name: '1 - Ikke skiftarbeid' },
         { ID: WorkingHoursScheme.OffshoreWork, Name: '2 - Arbeid offshore' },
-        { ID: WorkingHoursScheme.SemiContinousShiftAndRotaWork, Name: '3 - Helkontinuerlig skiftarbeid' },
-        { ID: WorkingHoursScheme.ContinuousShiftAndOtherSchemes, Name: '4 - Døgnkontinuerlig skiftarbeid' },
+        { ID: WorkingHoursScheme.ContinousShiftwork336, Name: '3 - Helkontinuerlig skiftarbeid' },
+        { ID: WorkingHoursScheme.DayAndNightContinous355, Name: '4 - Døgnkontinuerlig skiftarbeid' },
         { ID: WorkingHoursScheme.ShiftWork, Name: '5 - skiftarbeid' }
     ];
 
@@ -256,7 +256,7 @@ export class EmploymentService extends BizHttp<Employment> {
                 {
                     ComponentLayoutID: 1,
                     EntityType: 'Employment',
-                    Property: 'RenumerationType',
+                    Property: 'RemunerationType',
                     Placement: 4,
                     Hidden: false,
                     FieldType: FieldType.DROPDOWN,
@@ -269,7 +269,7 @@ export class EmploymentService extends BizHttp<Employment> {
                     Section: 0,
                     Placeholder: null,
                     Options: {
-                        source: this.renumerationType,
+                        source: this.remunerationType,
                         valueProperty: 'ID',
                         displayProperty: 'Name'
                     },

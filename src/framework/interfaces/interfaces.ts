@@ -482,7 +482,7 @@ export interface IEmployment {
 	MonthRate: number;
 	UserDefinedRate: number;
 	TypeOfEmployment: TypeOfEmployment;
-	RenumerationType: RenumerationType;
+	RemunerationType: RemunerationType;
 	WorkingHoursScheme: WorkingHoursScheme;
 	WorkPercent: number;
 	HoursPerWeek: number;
@@ -779,8 +779,8 @@ export interface IPaymentCode {
 export interface IEmploymentValidValues {
 	employment: TypeOfEmployment;
 	typeOfEmployment: boolean;
-	RenumerationType: boolean;
-	PaymentType: RenumerationType;
+	RemunerationType: boolean;
+	PaymentType: RemunerationType;
 	WorkingHoursScheme: boolean;
 	StartDate: boolean;
 	EndDate: boolean;
@@ -2157,7 +2157,7 @@ export enum TypeOfEmployment{
 }
 
 
-export enum RenumerationType{
+export enum RemunerationType{
 	notSet = 0,
 	Salaried = 1,
 	HourlyPaid = 2,
