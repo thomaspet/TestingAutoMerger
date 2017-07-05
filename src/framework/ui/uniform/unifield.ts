@@ -90,7 +90,7 @@ import * as _ from 'lodash';
                 [model]="model"
                 [asideGuid]="asideGuid"
                 (readyEvent)="onReadyHandler($event)"
-                (changeEvent)="onChangeHandler($event)" 
+                (changeEvent)="onChangeHandler($event)"
                 (inputEvent)="onInputHandler($event)"
                 (focusEvent)="onFocusHandler($event)"
             ></uni-radiogroup-input>
@@ -109,7 +109,7 @@ import * as _ from 'lodash';
                 [model]="model"
                 [asideGuid]="asideGuid"
                 (readyEvent)="onReadyHandler($event)"
-                (changeEvent)="onChangeHandler($event)" 
+                (changeEvent)="onChangeHandler($event)"
                 (inputEvent)="onInputHandler($event)"
                 (focusEvent)="onFocusHandler($event)"
             ></uni-email-input>
@@ -126,9 +126,9 @@ import * as _ from 'lodash';
             <uni-hyperlink-input #selectedComponent *ngIf="field?.FieldType === 13"
                 [field]="field"
                 [model]="model"
-                [asideGuid]="asideGuid"    
+                [asideGuid]="asideGuid"
                 (readyEvent)="onReadyHandler($event)"
-                (changeEvent)="onChangeHandler($event)" 
+                (changeEvent)="onChangeHandler($event)"
                 (inputEvent)="onInputHandler($event)"
                 (focusEvent)="onFocusHandler($event)"
             ></uni-hyperlink-input>
@@ -140,16 +140,16 @@ import * as _ from 'lodash';
                 (changeEvent)="onChangeHandler($event)"
                 (inputEvent)="onInputHandler($event)"
                 (focusEvent)="onFocusHandler($event)"
-                (moveForwardEvent)="onMultivalueMoveForward($event)"                  
+                (moveForwardEvent)="onMultivalueMoveForward($event)"
             ></uni-multivalue-input>
 
             <uni-url-input #selectedComponent *ngIf="field?.FieldType === 15"
                 [field]="field"
                 [model]="model"
-                [asideGuid]="asideGuid"  
+                [asideGuid]="asideGuid"
                 (readyEvent)="onReadyHandler($event)"
                 (changeEvent)="onChangeHandler($event)"
-                (inputEvent)="onInputHandler($event)"                           
+                (inputEvent)="onInputHandler($event)"
                 (focusEvent)="onFocusHandler($event)"
             ></uni-url-input>
 
@@ -334,7 +334,7 @@ export class UniField {
                 event: event,
                 field: this.field
             });
-        } else if (combination.length === 2 && (combination[0] === 'shift' || combination[0] === 'tab')) {
+        } else if (combination.length === 2 && (combination[0] === 'shift' && combination[0] === 'tab')) {
             this.moveBackwardEvent.emit({
                 event: event,
                 field: this.field
@@ -356,4 +356,3 @@ export class UniField {
         return false;
     }
 }
-
