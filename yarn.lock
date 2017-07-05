@@ -136,9 +136,9 @@
   version "2.0.47"
   resolved "https://registry.yarnpkg.com/@types/jquery/-/jquery-2.0.47.tgz#9665a157519dd48d259f94ac670d332a56561c00"
 
-"@types/lodash@4.14.50":
-  version "4.14.50"
-  resolved "https://registry.yarnpkg.com/@types/lodash/-/lodash-4.14.50.tgz#2227da4d65fafe249bccd59c7b9396e27674c8f7"
+"@types/lodash@4.14.213132":
+  version "4.14.49"
+  resolved "https://registry.yarnpkg.com/@types/lodash/-/lodash-4.14.49.tgz#df2e3c40a96e2089cb636ec11c7820333477924a"
 
 "@types/lodash@^4.14.37":
   version "4.14.68"

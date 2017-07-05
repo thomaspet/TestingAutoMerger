@@ -55,7 +55,7 @@
     "@types/chart.js": "^2.4.1",
     "@types/core-js": "^0.9.37",
     "@types/filesaver": "0.0.30",
-    "@types/lodash": "4.13.50",
+    "@types/lodash": "4.14.49",
     "@types/node": "^6.0.38",
     "@types/jquery": "2.0.47",
     "add-asset-html-webpack-plugin": "^1.0.2",
