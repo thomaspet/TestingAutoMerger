@@ -21,6 +21,7 @@
 <section class="application">
     <fieldset>
         <legend>Kjøpsfaktura</legend>
+
         <uni-form
             [config]='formConfig'
             [fields]='fields$'
@@ -29,6 +30,7 @@
             (inputEvent)="onFormInput($event)"
             (focusEvent)="onFocusEvent($event)">
         </uni-form>
+
         <article class="collapsable" [ngClass]="{'-is-open': !collapseSimpleJournal}">
             <h4 (click)="collapseSimpleJournal = !collapseSimpleJournal">Kontering</h4>
             <div class="collapsable-content">
@@ -39,13 +41,21 @@
 
     <fieldset [hidden]="!tabs[1].isSelected">
         <legend>Dokument</legend>
+
         <div *ngIf="!(current | async)?.ID">
-            <uni-image [singleImage]="true" [uploadWithoutEntity]="'true'" [fileIDs]="fileIds"
+            <uni-image
+                [singleImage]="true"
+                [uploadWithoutEntity]="true"
+                [fileIDs]="fileIds"
                 (fileListReady)="onFileListReady($event)"
                 (imageClicked)="onImageClicked($event)">
             </uni-image>
         </div>
-        <uni-image *ngIf="(current | async)?.ID" [entity]="'SupplierInvoice'" [entityID]="(current | async)?.ID"
+
+        <uni-image
+            *ngIf="(current | async)?.ID"
+            [entity]="'SupplierInvoice'"
+            [entityID]="(current | async)?.ID"
             (fileListReady)="onFileListReady($event)"
             (imageClicked)="onImageClicked($event)" >
         </uni-image>
@@ -53,6 +63,7 @@
 
     <fieldset [hidden]="!tabs[4].isSelected">
         <legend>Historikk</legend>
+
         <uni-bill-history
             [isActive]="tabs[4].isSelected"
             [supplierID]="(current | async)?.SupplierID"

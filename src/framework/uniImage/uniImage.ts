@@ -33,33 +33,52 @@ export interface IUploadConfig {
     selector: 'uni-image',
     template: `
         <article (click)="onClick()" (clickOutside)="offClick()">
-            <picture #imageContainer
-                     *ngIf="imgUrl.length"
-                     [ngClass]="{'loading': imageIsLoading,'clickable': currentClicked}"
-                     (click)="onImageClick()">
+            <picture
+                #imageContainer
+                *ngIf="imgUrl.length"
+                [ngClass]="{'loading': imageIsLoading,'clickable': currentClicked}"
+                (click)="onImageClick()">
 
-                <source [attr.srcset]="imageUrl2x" media="(-webkit-min-device-pixel-radio: 2), (min-resolution: 192dpi)">
-                <img #image [attr.src]="imgUrl" alt="" (load)="finishedLoadingImage()" *ngIf="currentFileIndex >= 0">
+                <source
+                    [attr.srcset]="imageUrl2x"
+                    media="(-webkit-min-device-pixel-radio: 2), (min-resolution: 192dpi)">
+
+                <img
+                    #image
+                    [attr.src]="imgUrl"
+                    alt=""
+                    (load)="finishedLoadingImage()"
+                    *ngIf="currentFileIndex >= 0">
             </picture>
-            <section *ngIf="!singleImage || files[currentFileIndex]?.Pages?.length" class="uni-image-pager">
+
+            <section class="uni-image-pager">
                 <a class="prev" (click)="previous()"></a>
                 <label>{{fileInfo}}</label>
+
                 <a class="trash" (click)="deleteImage()" *ngIf="!readonly"></a>
                 <a class="next" (click)="next()"></a>
             </section>
+
             <span id="span-area-highlighter" class="span-area-highlight-class" [ngStyle]="highlightStyle"></span>
 
             <ul class="uni-thumbnail-list">
+
                 <li *ngFor="let thumbnail of thumbnails; let idx = index">
-                    <img [attr.src]="thumbnail"
+                    <img
+                        [attr.src]="thumbnail"
                         [attr.alt]="shorten(files[idx]?.Description, 20)"
                         (click)="thumbnailClicked(idx)">
                 </li>
+
                 <li *ngIf="!readonly && !uploadConfig?.isDisabled" [attr.aria-busy]="uploading">
-                    <label class="uni-image-upload"
-                           [attr.aria-disabled]="uploadConfig?.isDisabled || uploading"
-                           (drop)="onDrop($event, dropData)">
-                        <input type="file"
+
+                    <label
+                        class="uni-image-upload"
+                        [attr.aria-disabled]="uploadConfig?.isDisabled || uploading"
+                        (drop)="onDrop($event, dropData)">
+
+                        <input
+                            type="file"
                             (change)="uploadFileChange($event)"
                             [attr.aria-disabled]="uploadConfig?.isDisabled"
                             [disabled]="uploadConfig?.isDisabled">
@@ -254,8 +273,11 @@ export class UniImage {
     }
 
     private thumbnailClicked(index) {
-        this.currentFileIndex = index;
-        this.loadImage();
+        // make sure we are clicking on another picture beforetrying to load an image
+        if (this.currentFileIndex !== index) {
+            this.currentFileIndex = index;
+            this.loadImage();
+        }
     }
 
     private next() {
@@ -289,7 +311,7 @@ export class UniImage {
                     let oldFileID = this.files[this.currentFileIndex].ID;
                     this.http.asDELETE()
                         .usingBusinessDomain()
-                        .withEndPoint(`files/${this.entity}/${this.entityID}/${oldFileID}`)
+                        .withEndPoint(`files/${oldFileID}`)
                         .send()
                         .subscribe((res) => {
                             let current = this.files[this.currentFileIndex];
@@ -304,7 +326,7 @@ export class UniImage {
                             if (!this.singleImage) { this.loadThumbnails(); }
 
                             this.imageDeleted.emit(current);
-                        }, err => this.errorService.handle(err))
+                        }, err => this.errorService.handle(err));
                     }
             });
     }
@@ -451,6 +473,6 @@ export class UniImage {
     public removeHighlight() {
         this.highlightStyle = {
             display: 'none'
-        }
+        };
     }
 }

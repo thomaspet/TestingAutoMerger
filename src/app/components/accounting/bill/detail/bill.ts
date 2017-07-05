@@ -452,7 +452,7 @@ export class BillView {
                 let firstFile = files[0];
                 if (this.isOCR(firstFile)) {
                     this.runOcr(firstFile);
-                } else if (this.isEHF(firstFile)){
+                } else if (this.isEHF(firstFile)) {
                     this.runEHF(firstFile);
                 }
             }
@@ -522,9 +522,17 @@ export class BillView {
         let current = this.current.getValue();
         let entityID = current.ID || 0;
 
+        // makes a new array without duplicates of file.ID
+        if (this.fileIds.length > 0) {
+            this.fileIds = this.fileIds.filter(x => x !== parseInt(file.ID));
+        }
+
         if (entityID > 0) {
             this.imageModal.openReadOnly('SupplierInvoice', entityID, file.ID, UniImageSize.large);
         } else {
+            // if image is not bound to an entity push its id to the fileIds array,
+            // parse it to a number and open that image
+            this.fileIds.push(parseInt(file.ID));
             this.imageModal.openReadOnlyFileIds('SupplierInvoice', this.fileIds, file.ID, UniImageSize.large);
         }
     }
@@ -569,7 +577,7 @@ export class BillView {
                 this.handleOcrResult(new OcrValuables(result));
                 this.flagUnsavedChanged();
                 this.ocrData = result;
-                
+
             }, (err) => {
                 this.errorService.handle(err);
             });
@@ -1756,10 +1764,10 @@ export class BillView {
     }
 
     private isEHF(file): Boolean {
-        if(file.Extension && file.Extension.toLowerCase() === '.ehf') {return true; }
-        
+        if (file.Extension && file.Extension.toLowerCase() === '.ehf') {return true; }
+
         var ending = file.Name.toLowerCase().split('.').pop();
         return ending === 'ehf';
-        
+
     }
 }
