@@ -496,20 +496,21 @@ export class EmployeeDetails extends UniView implements OnDestroy {
             var actives = 0;
             for (var i = 0; i < employments.length; i++) {
                 let active = !employments[i].EndDate || new Date(employments[i].EndDate) > new Date();
-                if (active && employments[i].WorkPercent > 0) {
+                if (active) {
                     actives++;
                 }
-                if (employments[i].Standard && employments[i].WorkPercent > 0) {
+                if (employments[i].Standard) {
                     standardIndex = i;
                 }
             }
 
             if (actives > 0) {
                 employmentWidget.config.topText[0].text = employments[standardIndex].JobName;
-
-                employmentWidget.config.mainText.text =
-                    this.numberformat.asPercentage(employments[standardIndex].WorkPercent);
-
+                if (employments[standardIndex].WorkPercent > 0) {
+                    employmentWidget.config.mainText.text =
+                        this.numberformat.asPercentage(employments[standardIndex].WorkPercent);
+                }
+                
                 if (actives > 1) {
                     employmentWidget.config.bottomText[0].text = '+' + (actives - 1) +
                         (actives > 2 ? ' stillinger' : ' stilling');
