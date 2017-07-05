@@ -54,7 +54,7 @@ interface IAutocompleteCache {
     template: `
         <div class="autocomplete" (clickOutside)="onClickOutside()">
             <input #query
-                [attr.aria-describedby]="asideGuid" 
+                [attr.aria-describedby]="asideGuid"
                 class="autocomplete_input"
                 [formControl]="control"
                 [readonly]="readOnly$ | async"
@@ -120,7 +120,7 @@ export class UniAutocompleteInput extends BaseControl {
     private options: any;
     private source: Array<any>;
     private currentValue: any;
-    private value: string;
+    private value: string | Object;
     private initialDisplayValue: string;
     private selectedIndex: number = -1;
     private selectedItem: any = null;
@@ -338,11 +338,14 @@ export class UniAutocompleteInput extends BaseControl {
     private findIndex(value) {
         let result = -1;
         if (Array.isArray(this.options.source)) {
-            _.forEach(this.options.source, (item, index) => {
-                if (this.template(item) === value) {
-                    result = index;
-                }
+            result = this.options.source.findIndex((item) => {
+                return this.template(item) === value;
             });
+            // _.forEach(this.options.source, (item, index) => {
+            //     if (this.template(item) === value) {
+            //         result = index;
+            //     }
+            // });
         }
         return result;
     }

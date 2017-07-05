@@ -39,14 +39,13 @@ export class SendEmailForm {
     public formConfig$: BehaviorSubject<any> = new BehaviorSubject({});
 
     public ngOnInit() {
-
         this.setupForm();
         this.extendFormConfig();
-        this.model$.next(this.config.model));
+        this.model$.next(this.config.model);
     }
 
     private setupForm() {
-         console.log(this.model$);
+        console.log(this.model$);
         // TODO get it from the API and move these to backend migrations
         // TODO: turn to 'ComponentLayout when the object respects the interface
         this.fields$.next([

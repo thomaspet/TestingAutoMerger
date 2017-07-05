@@ -2,8 +2,7 @@ import {Component, Input, ViewChild, OnChanges} from '@angular/core';
 import {Observable} from 'rxjs/Observable';
 import {PeriodFilter} from '../periodFilter/periodFilter';
 import {AccountDetailsReportModal} from '../detailsmodal/accountDetailsReportModal';
-import {INumberOptions} from '../../../../../framework/ui/uniform/index';
-import {UniTableColumn, UniTableConfig, UniTableColumnType} from '../../../../../framework/ui/unitable/index';
+import {UniTableColumn, UniTableConfig, UniTableColumnType, INumberFormat} from '../../../../../framework/ui/unitable/index';
 import {ChartHelper} from '../chartHelper';
 import {
     AccountGroupService,
@@ -50,7 +49,7 @@ export class DrilldownResultReportPart implements OnChanges {
     private showPercent: boolean = true;
     private showPreviousAccountYear: boolean = true;
     private showall: boolean = false;
-    private numberFormat: INumberOptions = {
+    private numberFormat: INumberFormat = {
         thousandSeparator: '',
         decimalSeparator: '.',
         decimalLength: 2

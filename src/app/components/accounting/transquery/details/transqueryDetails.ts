@@ -27,10 +27,10 @@ import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 const PAPERCLIP = '📎'; // It might look empty in your editor, but this is the unicode paperclip
 
 interface SearchParams {
-    JournalEntryNumberNumeric: number;
-    AccountID: number;
-    AccountNumber: number;
-    AccountYear: number;
+    JournalEntryNumberNumeric?: number;
+    AccountID?: number;
+    AccountNumber?: number;
+    AccountYear?: number;
 }
 
 @Component({

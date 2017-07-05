@@ -2,7 +2,7 @@ import { Component, OnInit, ViewChild } from '@angular/core';
 import { IUniSaveAction } from '../../../../framework/save/save';
 import { Altinn } from '../../../unientities';
 import { Observable } from 'rxjs/Observable';
-import { UniFieldLayout } from '../../../../../framework/ui/uniform/index';
+import { UniFieldLayout } from '../../../../framework/ui/uniform/index';
 import { ErrorService, IntegrationServerCaller, AltinnIntegrationService } from '../../../services/services';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import { UniConfirmModal, ConfirmActions } from '../../../../framework/modals/confirm';

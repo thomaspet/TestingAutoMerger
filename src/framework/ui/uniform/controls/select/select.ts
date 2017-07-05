@@ -30,7 +30,7 @@ export interface ISelectConfig {
         [attr.aria-activedescendant]="activeDescendantId"
         tabindex="0"
         [value]="getDisplayValue(selectedItem)"
-        [placeholder]="config?.Placeholder || ''" 
+        [placeholder]="config?.Placeholder || ''"
         [readonly]="readonly"
         (click)="toggle()"
         readonly />
@@ -265,7 +265,7 @@ export class UniSelect {
         if (typeof item === 'string') {
             return item;
         } else if (this.config.displayProperty) {
-            return _.get(item, this.config.displayProperty);
+            return _.get(item, this.config.displayProperty, '');
         } else if (this.config.template) {
             return this.config.template(item);
         } else {

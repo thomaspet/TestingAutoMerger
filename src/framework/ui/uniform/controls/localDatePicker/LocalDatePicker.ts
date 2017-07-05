@@ -31,7 +31,7 @@ import * as _ from 'lodash';
             >Kalender</button>
 
             <ng-content></ng-content>
-            
+
             <uni-calendar [attr.aria-expanded]="calendarOpen"
                           [date]="selectedDate"
                           (dateChange)="selectAndMove($event)">
@@ -64,7 +64,7 @@ export class LocalDatePickerInput extends BaseControl{
         this.createControl();
         if (this.control && this.field) {
             this.options = this.field.Options || {};
-            let value = _.get(this.model, this.field.Property);
+            let value = <any>_.get(this.model, this.field.Property);
 
             if (value) {
                 this.selectedDate = new Date(value);

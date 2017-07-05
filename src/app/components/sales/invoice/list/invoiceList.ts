@@ -279,7 +279,13 @@ export class InvoiceList implements OnInit {
                     AgioAmount: 0
                 };
 
-                this.registerPaymentModal.confirm(rowModel.ID, title, rowModel.CurrencyCode, rowModel.CurrencyExchangeRate, invoiceData);
+                this.registerPaymentModal.confirm(
+                    rowModel.ID,
+                    title,
+                    rowModel.CurrencyCode,
+                    rowModel.CurrencyExchangeRate,
+                    rowModel.EntityType,
+                    invoiceData);
 
             },
 

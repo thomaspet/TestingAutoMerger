@@ -23,8 +23,8 @@ export enum UniTableColumnType {
 };
 
 export interface INumberFormat {
-    thousandSeparator: string;
-    decimalSeparator: string;
+    thousandSeparator?: string;
+    decimalSeparator?: string;
     decimalLength?: number;
     prefix?: string;
     postfix?: string;

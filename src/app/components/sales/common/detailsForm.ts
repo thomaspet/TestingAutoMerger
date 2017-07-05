@@ -1,5 +1,5 @@
 import {Component, Input, Output, ViewChild, EventEmitter, SimpleChanges} from '@angular/core';
-import {UniForm, FieldType} from '../../../../framework/ui/uniform/index';
+import {UniForm, FieldType, UniFieldLayout} from '../../../../framework/ui/uniform/index';
 import {CurrencyCode, Project} from '../../../unientities';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 
@@ -23,13 +23,13 @@ export class TofDetailsForm {
     @Input() public entityType: string;
     @Input() public entity: any;
     @Input() public currencyCodes: Array<CurrencyCode>;
-    @Input() public projects: Project; 
+    @Input() public projects: Project;
     @Output() public entityChange: EventEmitter<any> = new EventEmitter();
 
     public tabbedPastLastField: EventEmitter<any> = new EventEmitter();
     private entity$: BehaviorSubject<any> = new BehaviorSubject({});
     private formConfig$: BehaviorSubject<any> = new BehaviorSubject({autofocus: false});
-    private fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
+    private fields$: BehaviorSubject<UniFieldLayout[]> = new BehaviorSubject([]);
 
     public ngOnInit() {
         this.entity$.next(this.entity);
@@ -112,8 +112,8 @@ export class TofDetailsForm {
 
     private initFormFields() {
         if (this.currencyCodes && this.entity) {
-            let fields = [
-                {
+            let fields: UniFieldLayout[] = [
+                <any> {
                     Legend: 'Detaljer',
                     FieldSet: 1,
                     FieldSetColumn: 1,
@@ -128,7 +128,7 @@ export class TofDetailsForm {
                     StatusCode: 0,
                     ID: 1,
                 },
-                {
+                <any> {
                     FieldSet: 1,
                     FieldSetColumn: 1,
                     EntityType: this.entityType,
@@ -142,7 +142,7 @@ export class TofDetailsForm {
                     StatusCode: 0,
                     ID: 2,
                 },
-                {
+                <any> {
                     FieldSet: 1,
                     FieldSetColumn: 1,
                     EntityType: this.entityType,
@@ -162,7 +162,7 @@ export class TofDetailsForm {
                         debounceTime: 200
                     }
                 },
-                {
+                <any> {
                     FieldSet: 1,
                     FieldSetColumn: 1,
                     EntityType: this.entityType,
@@ -176,7 +176,7 @@ export class TofDetailsForm {
                     StatusCode: 0,
                     ID: 5
                 },
-                {
+                <any> {
                     FieldSet: 1,
                     FieldSetColumn: 2,
                     EntityType: this.entityType,
@@ -190,7 +190,7 @@ export class TofDetailsForm {
                     StatusCode: 0,
                     ID: 6,
                 },
-                {
+                <any> {
                     FieldSet: 1,
                     FieldSetColumn: 2,
                     EntityType: this.entityType,
@@ -204,8 +204,7 @@ export class TofDetailsForm {
                     StatusCode: 0,
                     ID: 4,
                 },
-
-                {
+                <any> {
                     FieldSet: 1,
                     FieldSetColumn: 2,
                     EntityType: this.entityType,
@@ -225,7 +224,7 @@ export class TofDetailsForm {
                         }
                     }
                 },
-                { 
+                <any> {
                     FieldSet: 1,
                     FieldSetColumn: 2,
                     EntityType: this.entityType,
@@ -239,7 +238,7 @@ export class TofDetailsForm {
                         displayProperty: 'Name',
                         debounceTime: 200
                     }
-                    
+
                 }
             ];
 

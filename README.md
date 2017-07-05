@@ -18,6 +18,13 @@ Uni Economy Angular2 version
 
 All of these tasks also runs webpack-dev-server. When the compile is finished, open up localhost:3000 to run app. </br>
 
+# Type checking
+
+In order to minimize compile time when developing we have opted to turn off full type checking. You will still get errors in your editor when misusing a type, but the compile task wont catch them. We have a separate build task that compiles with deep type checks
+`npm run start.typecheck` / `yarn start.typecheck`
+
+Please make a habit of running this and fixing your errors before pushing something to develop.
+
 # NPM scripts
 `build.vendors` will build vendors.bundle.js. This was previously done in our start task, but has been moved out to improve build times. Should run automatically after `npm install`. </br>
 

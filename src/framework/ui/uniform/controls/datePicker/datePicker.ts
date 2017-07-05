@@ -13,7 +13,7 @@ import * as _ from 'lodash';
     template: `
         <section class="uni-datepicker" (clickOutside)="close()">
             <input #input
-               [attr.aria-describedby]="asideGuid"   
+               [attr.aria-describedby]="asideGuid"
                 type="text"
                 (change)="inputChange()"
                 (focus)="onFocus()"
@@ -62,7 +62,7 @@ export class DateTimePickerInput extends BaseControl {
         if (this.field) {
             this.createControl();
             this.options = this.field.Options || {};
-            let value = _.get(this.model, this.field.Property);
+            let value = _.get(this.model, this.field.Property, '');
 
             if (value) {
                 this.selectedDate = new Date(value);

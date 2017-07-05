@@ -526,6 +526,7 @@ export class CustomerInvoice extends UniEntity {
     public CustomerName: string;
     public CustomerOrgNumber: string;
     public CustomerPerson: string;
+    public DefaultDimensionsID: number;
     public Deleted: boolean;
     public DeliveryDate: LocalDate;
     public DeliveryMethod: string;
@@ -588,6 +589,7 @@ export class CustomerInvoice extends UniEntity {
     public InvoiceNumberNumberSeries: NumberSeries;
     public Items: Array<CustomerInvoiceItem>;
     public InvoiceReference: CustomerInvoice;
+    public DefaultDimensions: Dimensions;
     public CustomFields: any;
 }
 
@@ -652,6 +654,7 @@ export class CustomerOrder extends UniEntity {
     public CustomerName: string;
     public CustomerOrgNumber: string;
     public CustomerPerson: string;
+    public DefaultDimensionsID: number;
     public Deleted: boolean;
     public DeliveryDate: LocalDate;
     public DeliveryMethod: string;
@@ -696,6 +699,7 @@ export class CustomerOrder extends UniEntity {
     public VatTotalsAmount: number;
     public VatTotalsAmountCurrency: number;
     public YourReference: string;
+    public DefaultDimensions: Dimensions;
     public Customer: Customer;
     public CurrencyCode: CurrencyCode;
     public OrderNumberNumberSeries: NumberSeries;
@@ -764,6 +768,7 @@ export class CustomerQuote extends UniEntity {
     public CustomerName: string;
     public CustomerOrgNumber: string;
     public CustomerPerson: string;
+    public DefaultDimensionsID: number;
     public Deleted: boolean;
     public DeliveryDate: LocalDate;
     public DeliveryMethod: string;
@@ -812,6 +817,7 @@ export class CustomerQuote extends UniEntity {
     public YourReference: string;
     public Customer: Customer;
     public CurrencyCode: CurrencyCode;
+    public DefaultDimensions: Dimensions;
     public QuoteNumberNumberSeries: NumberSeries;
     public Items: Array<CustomerQuoteItem>;
     public CustomFields: any;
@@ -2663,7 +2669,7 @@ export class AltinnCorrespondanceReader extends UniEntity {
 
 
 export class ProjectResourceSchedule extends UniEntity {
-    public static RelativeUrl = 'projects/tasks/schedules/resources';
+    public static RelativeUrl = 'projects-schedules-resources';
     public static EntityType = 'ProjectResourceSchedule';
 
     public CreatedAt: Date;
@@ -2671,6 +2677,7 @@ export class ProjectResourceSchedule extends UniEntity {
     public Deleted: boolean;
     public ID: number;
     public ProjectResourceID: number;
+    public ProjectTaskID: number;
     public ProjectTaskScheduleID: number;
     public StatusCode: number;
     public UpdatedAt: Date;
@@ -2680,7 +2687,7 @@ export class ProjectResourceSchedule extends UniEntity {
 
 
 export class ProjectResource extends UniEntity {
-    public static RelativeUrl = 'projects/resources';
+    public static RelativeUrl = 'projects-resources';
     public static EntityType = 'ProjectResource';
 
     public CreatedAt: Date;
@@ -2700,7 +2707,7 @@ export class ProjectResource extends UniEntity {
 
 
 export class ProjectTaskSchedule extends UniEntity {
-    public static RelativeUrl = 'projects/tasks/schedules';
+    public static RelativeUrl = 'projects-tasks-schedules';
     public static EntityType = 'ProjectTaskSchedule';
 
     public CreatedAt: Date;
@@ -2719,7 +2726,7 @@ export class ProjectTaskSchedule extends UniEntity {
 
 
 export class ProjectTask extends UniEntity {
-    public static RelativeUrl = 'projects/tasks';
+    public static RelativeUrl = 'projects-tasks';
     public static EntityType = 'ProjectTask';
 
     public Amount: number;
@@ -2728,16 +2735,19 @@ export class ProjectTask extends UniEntity {
     public CreatedBy: string;
     public Deleted: boolean;
     public Description: string;
+    public EndDate: LocalDate;
     public ID: number;
     public Name: string;
     public Number: string;
     public Price: number;
     public ProjectID: number;
+    public StartDate: LocalDate;
     public StatusCode: number;
     public Total: number;
     public UpdatedAt: Date;
     public UpdatedBy: string;
     public ProjectTaskSchedules: Array<ProjectTaskSchedule>;
+    public ProjectTaskResources: Array<ProjectResourceSchedule>;
     public CustomFields: any;
 }
 
@@ -2835,9 +2845,15 @@ export class NumberSeries extends UniEntity {
     public NumberSeriesTaskID: number;
     public NumberSeriesTypeID: number;
     public StatusCode: number;
+    public System: boolean;
+    public ToNumber: number;
     public UpdatedAt: Date;
     public UpdatedBy: string;
-    public ScheduleResources: Array<ProjectResourceSchedule>;
+    public UseNumbersFromNumberSeriesID: number;
+    public NumberSeriesType: NumberSeriesType;
+    public UseNumbersFromNumberSeries: NumberSeries;
+    public NumberSeriesTask: NumberSeriesTask;
+    public MainAccount: Account;
     public CustomFields: any;
 }
 
@@ -4183,12 +4199,12 @@ export class SupplierInvoice extends UniEntity {
     public CurrencyExchangeRate: number;
     public CustomerOrgNumber: string;
     public CustomerPerson: string;
+    public DefaultDimensionsID: number;
     public Deleted: boolean;
     public DeliveryDate: LocalDate;
     public DeliveryMethod: string;
     public DeliveryName: string;
     public DeliveryTerm: string;
-    public DimensionsID: number;
     public FreeTxt: string;
     public ID: number;
     public InternalNote: string;
@@ -4239,7 +4255,7 @@ export class SupplierInvoice extends UniEntity {
     public YourReference: string;
     public BankAccount: BankAccount;
     public JournalEntry: JournalEntry;
-    public Dimensions: Dimensions;
+    public DefaultDimensions: Dimensions;
     public Supplier: Supplier;
     public CurrencyCode: CurrencyCode;
     public Items: Array<SupplierInvoiceItem>;
@@ -5298,13 +5314,17 @@ export class Totals extends UniEntity {
 
 
 export class RssList extends UniEntity {
+    public Description: string;
+    public Title: string;
     public Url: string;
     public Items: Array<RssItem>;
 }
 
 
 export class RssItem extends UniEntity {
+    public Category: string;
     public Description: string;
+    public Guid: string;
     public Link: string;
     public PubDate: string;
     public Title: string;

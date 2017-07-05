@@ -73,7 +73,7 @@ export class UniCheckboxgroupInput extends BaseControl {
             } else if (typeof this.field.Options.source === 'string') {
                 // TODO: manage lookup url;
             }
-            this.selectedItems = _.get(this.model,this.field.Property) || [];
+            this.selectedItems = _.get(this.model, this.field.Property, []);
         }
     }
 

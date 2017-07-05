@@ -2,7 +2,6 @@ import {Component, Input, Output, ElementRef, EventEmitter, ChangeDetectionStrat
 import {FormControl} from '@angular/forms';
 import {UniFieldLayout} from '../interfaces';
 import {BaseControl} from './baseControl';
-declare var _; // jquery and lodash
 import * as _ from 'lodash';
 
 @Component({

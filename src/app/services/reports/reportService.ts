@@ -2,7 +2,6 @@ import {Injectable} from '@angular/core';
 import {RequestMethod} from '@angular/http';
 import {BizHttp} from '../../../framework/core/http/BizHttp';
 import {UniHttp} from '../../../framework/core/http/http';
-import {URLSearchParams, ResponseContentType, Response} from '@angular/http';
 import {Observable} from 'rxjs/Observable';
 import {StimulsoftReportWrapper} from '../../../framework/wrappers/reporting/reportWrapper';
 import {ErrorService} from '../common/errorService';
@@ -13,7 +12,6 @@ import {ToastService, ToastType} from '../../../framework/uniToast/toastService'
 import {ReportDefinition, ReportDefinitionParameter, ReportDefinitionDataSource} from '../../unientities';
 import {AppConfig} from '../../AppConfig';
 import {AuthService} from '../../../framework/core/authService';
-import {ReportFormat} from '../../../../models/reportFormat';
 
 @Injectable()
 export class ReportService extends BizHttp<string> {
@@ -23,12 +21,15 @@ export class ReportService extends BizHttp<string> {
     private sendemail: SendEmail;
     private emailtoast: number;
 
-    constructor(http: UniHttp, authService: AuthService,
+    constructor(
+        http: UniHttp,
+        authService: AuthService,
         private errorService: ErrorService,
         private reportGenerator: StimulsoftReportWrapper,
         private emailService: EmailService,
         private toastService: ToastService,
-        private reportDefinitionService: ReportDefinitionService) {
+        private reportDefinitionService: ReportDefinitionService
+    ) {
         super(http, authService);
 
         this.relativeURL = 'report';

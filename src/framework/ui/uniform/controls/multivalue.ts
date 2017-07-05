@@ -36,7 +36,7 @@ import * as _ from 'lodash';
             <button type="button" #openbtn class="uni-multivalue-moreBtn" (click)="showDropdown($event)" tabindex="-1" [disabled]="field?.ReadOnly">Ny</button>
 
             <ng-content></ng-content>
-            
+
             <ul class="uni-multivalue-values" [class.-is-active]="listIsVisible$ | async">
                 <ng-template ngFor let-row [ngForOf]="rows" let-i = "index">
                     <li [attr.aria-selected]="isSelected(row)">
@@ -210,9 +210,9 @@ export class UniMultivalueInput extends BaseControl {
         // update default option
         if (this.field.Options.storeResultInProperty) {
             if (this.field.Options.listProperty) {
-                this.rows = _.get(this.model, this.field.Options.listProperty) || [];
+                this.rows = _.get(this.model, this.field.Options.listProperty, []);
             } else {
-                this.rows = _.get(this.model, this.field.Property) || [];
+                this.rows = _.get(this.model, this.field.Property, []);
             }
             let foreignValue = _.get(this.model, this.field.Options.storeResultInProperty);
             foreignValue = this.showDisplayValue(foreignValue);

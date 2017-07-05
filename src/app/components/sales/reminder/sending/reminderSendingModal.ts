@@ -75,8 +75,9 @@ export class ReminderSendingModal {
     }
 
     public save() {
-        this.reminderSending.saveReminders();
-
+        this.modal.getContent().then((component: ReminderSendingModalContent) => {
+            component.reminderSending.saveReminders(true);
+        });
     }
 
     public close() {

@@ -188,7 +188,7 @@ export class View {
     }
 
     private validateItem(item: WorkTimeOff) {
-        var today = new Date(new LocalDate());
+        var today = new Date();
         item.ID = item.ID || 0;
         item.TimeoffType = item.TimeoffType || 2; // Vacation
         item.FromDate = item.FromDate || today;
