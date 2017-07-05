@@ -1546,7 +1546,7 @@ export class Employment extends UniEntity {
     public LedgerAccount: string;
     public MonthRate: number;
     public PayGrade: string;
-    public RenumerationType: RenumerationType;
+    public RemunerationType: RemunerationType;
     public SeniorityDate: Date;
     public ShipReg: ShipRegistry;
     public ShipType: ShipTypeOfShip;
@@ -3318,8 +3318,8 @@ export class EmploymentValidValues extends UniEntity {
     public LastSalaryChangeDate: boolean;
     public LastWorkPercentChange: boolean;
     public MonthRate: boolean;
-    public PaymentType: RenumerationType;
-    public RenumerationType: boolean;
+    public PaymentType: RemunerationType;
+    public RemunerationType: boolean;
     public SeniorityDate: boolean;
     public ShipReg: boolean;
     public ShipType: boolean;
@@ -5458,7 +5458,7 @@ export enum Leavetype{
 }
 
 
-export enum RenumerationType{
+export enum RemunerationType{
     notSet = 0,
     Salaried = 1,
     HourlyPaid = 2,

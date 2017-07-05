@@ -412,7 +412,7 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
                     FieldType: FieldType.CHECKBOX, // FieldType.CHECKBOX,
                     ReadOnly: false,
                     LookupField: false,
-                    Label: 'Inkluder faste poster og trekk',
+                    Label: 'Inkluder faste poster/trekk',
                     Description: null,
                     HelpText: null,
                     FieldSet: 1,

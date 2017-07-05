@@ -5,9 +5,6 @@
 
 <section class="entityDetails" [attr.aria-expanded]="detailsActive" *ngIf="payrollrun$.getValue()">
     <uni-form [config]="config$" [fields]="fields$" [model]="payrollrun$" (changeEvent)="change($event)" (readyEvent)="ready($event)"></uni-form>
-    <a href="#/accounting/transquery/details;journalEntryNumber={{payrollrun$.getValue().JournalEntryNumber}}" *ngIf="payrollrun$.getValue().JournalEntryNumber" class="journalEntryNumber">
-        Bilagsnummer: {{payrollrun$.getValue().JournalEntryNumber}}
-    </a>
 </section>
 <section class="content" [attr.aria-disabled]="detailsActive" [attr.aria-busy]="busy">
     <salarytrans></salarytrans>

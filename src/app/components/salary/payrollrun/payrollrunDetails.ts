@@ -211,9 +211,12 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
                                 : ''
                         },
                         {
-                            title: this.payDate ?
-                                'Utbetales ' + moment(this.payDate).format('DD.MM.YYYY')
-                                : 'Utbetalingsdato ikke satt'
+                            title: payrollRun.JournalEntryNumber ?
+                                'Bilag ' + payrollRun.JournalEntryNumber
+                                : 'Ikke bokført',
+                            link: payrollRun.JournalEntryNumber
+                                ? '#/accounting/transquery/details;journalEntryNumber=' + payrollRun.JournalEntryNumber
+                                : ''
                         },
                         {
                             title: 'Oppsett',
