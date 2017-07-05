@@ -212,7 +212,7 @@ export class ProjectEditmode {
             },
             <any>{
                 FieldType: FieldType.NUMERIC,
-                Label: 'Price',
+                Label: 'Pris',
                 Property: 'Price',
                 FieldSet: 6,
                 FieldSetColumn: 1,
@@ -220,7 +220,7 @@ export class ProjectEditmode {
             },
             <any>{
                 FieldType: FieldType.NUMERIC,
-                Label: 'CostPrice',
+                Label: 'Kostpris',
                 Property: 'CostPrice',
                 FieldSet: 6,
                 FieldSetColumn: 1
