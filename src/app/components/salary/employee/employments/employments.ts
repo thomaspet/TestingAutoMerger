@@ -61,9 +61,6 @@ export class Employments extends UniView {
 
             super.getStateSubject('employments')
                 .subscribe((employments: Employment[] )=> {
-                    if (employments && employments.length < 1) {
-                        this.newEmployment();
-                    }
                     this.cachedEmployments.next(employments)
                 });
         });
@@ -72,7 +69,12 @@ export class Employments extends UniView {
             this.cachedEmployments
                 .catch((err, obs) => this.errorService.handleRxCatch(err,obs))
                 .do(employments => setTimeout(() => this.focusRow(+paramsChange['EmploymentID'])))
-                .subscribe(employments => this.employments = employments || []);
+                .subscribe(employments => {
+                    this.employments = employments || [];
+                    if (employments && employments.length === 0 && this.table === undefined) {
+                        this.newEmployment();
+                    }
+                });
         });
     }
 
