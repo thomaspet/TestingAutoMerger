@@ -388,7 +388,7 @@ export class WageTypeService extends BizHttp<WageType> {
                     ReadOnly: false,
                     LookupField: false,
                     Label: 'Hovedbokskonto',
-                    Legend: 'Rengskapsinnstillinger',
+                    Legend: 'Regnskapsinnstillinger',
                     Description: null,
                     HelpText: null,
                     FieldSet: 4,
