@@ -47,7 +47,7 @@ export class WageTypeView extends UniView {
         super(router.url, cacheService);
 
         this.childRoutes = [
-            { name: 'Detaljer', path: 'details' },
+            { name: 'Lønnsart', path: 'details' },
             { name: 'Innstillinger', path: 'spesial-settings' }
         ];
 

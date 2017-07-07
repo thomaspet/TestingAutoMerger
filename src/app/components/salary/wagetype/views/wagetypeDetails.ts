@@ -1,11 +1,10 @@
 import { Component, ViewChild, SimpleChanges } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { WageTypeService, AccountService, InntektService, WageTypeBaseOptions } from '../../../../services/services';
-import { UniForm } from '../../../../../framework/ui/uniform/index';
+import { UniForm, UniFieldLayout } from '../../../../../framework/ui/uniform/index';
 import {
-    WageType, WageTypeSupplement, SpecialTaxAndContributionsRule, GetRateFrom,
-    StdWageType, SpecialAgaRule, TaxType
-} from '../../../../unientities';
+        WageType, WageTypeSupplement, SpecialTaxAndContributionsRule, GetRateFrom, TaxType
+    } from '../../../../unientities';
 import { Observable } from 'rxjs/Observable';
 import { UniTableConfig, UniTableColumnType, UniTableColumn } from '../../../../../framework/ui/unitable/index';
 
@@ -30,6 +29,12 @@ type Benefit = {
 type Description = {
     fordel?: string,
     text: string
+};
+
+type UniFormTabEvent = {
+    event: KeyboardEvent,
+    prev: UniFieldLayout,
+    next: UniFieldLayout
 };
 
 
@@ -82,25 +87,6 @@ export class WagetypeDetail extends UniView {
         { ID: GetRateFrom.FreeRateEmployee, Name: 'Frisats ansatt' }
     ];
 
-    private stdWageType: Array<any> = [
-        { ID: StdWageType.None, Name: 'Ingen' },
-        { ID: StdWageType.TaxDrawTable, Name: 'Tabelltrekk' },
-        { ID: StdWageType.TaxDrawPercent, Name: 'Prosenttrekk' },
-        { ID: StdWageType.HolidayPayWithTaxDeduction, Name: 'Feriepenger med skattetrekk' },
-        { ID: StdWageType.HolidayPayThisYear, Name: 'Feriepenger i år' },
-        { ID: StdWageType.HolidayPayLastYear, Name: 'Feriepenger forrige år' },
-        { ID: StdWageType.HolidayPayEarlierYears, Name: 'Feriepenger tidligere år' },
-        { ID: StdWageType.AdvancePayment, Name: 'Forskudd' },
-        { ID: StdWageType.Contribution, Name: 'Bidragstrekk' },
-        { ID: StdWageType.Garnishment, Name: 'Påleggstrekk' },
-        { ID: StdWageType.Outlay, Name: 'Utleggstrekk' }
-    ];
-
-    private specialAgaRule: { ID: SpecialAgaRule, Name: string }[] = [
-        { ID: SpecialAgaRule.Regular, Name: 'Vanlig' },
-        { ID: SpecialAgaRule.AgaRefund, Name: 'Aga refusjon' },
-        { ID: SpecialAgaRule.AgaPension, Name: 'Aga pensjon' }
-    ];
 
     private taxType: Array<any> = [
         { ID: TaxType.Tax_None, Name: 'Ingen' },
@@ -196,14 +182,7 @@ export class WagetypeDetail extends UniView {
         this.setReadOnlyOnField(fields, 'Rate', this.rateIsReadOnly);
         this.setReadOnlyOnField(fields, 'WageTypeNumber', !!wageType.ID);
         this.setReadOnlyOnField(fields, 'AccountNumber_balance', wageType.Base_Payment);
-        this.editField(fields, 'SpecialAgaRule', specialAgaRule => {
-            specialAgaRule.Options = {
-                source: this.specialAgaRule,
-                displayProperty: 'Name',
-                valueProperty: 'ID',
-                debounceTime: 500
-            };
-        });
+        
         this.editField(fields, 'taxtype', taxtype => {
             taxtype.Options = {
                 source: this.taxType,
@@ -212,11 +191,11 @@ export class WagetypeDetail extends UniView {
                 valueProperty: 'ID',
                 debounceTime: 500,
                 events: {
-                    tab: (event) => {
-                        this.uniform.field('StandardWageTypeFor').focus();
+                    tab: (event) => {                        
+                        this.uniform.field('AccountNumber').focus();                        
                     },
                     shift_tab: (event) => {
-                        this.uniform.field('AccountNumber').focus();
+                        this.uniform.field('RateFactor').focus();
                     }
                 }
             };
@@ -226,27 +205,6 @@ export class WagetypeDetail extends UniView {
                 source: this.getRateFrom,
                 displayProperty: 'Name',
                 valueProperty: 'ID'
-            };
-        });
-
-        this.editField(fields, 'StandardWageTypeFor', standardWageTypeFor => {
-            standardWageTypeFor.Options = {
-                source: this.stdWageType,
-                displayProperty: 'Name',
-                valueProperty: 'ID',
-                events: {
-                    tab: (event) => {
-                        if (this.wageType$.getValue().Base_Payment) {
-                            this.uniform.field('GetRateFrom').focus();
-                        } else {
-                            this.uniform.field('AccountNumber_balance').focus();
-                        }
-
-                    },
-                    shift_tab: (event) => {
-                        this.uniform.field('taxtype').focus();
-                    }
-                }
             };
         });
 
@@ -768,4 +726,39 @@ export class WagetypeDetail extends UniView {
             }
         }
     }
+
+    private tabForward(event: UniFormTabEvent) {
+        this.fields$
+            .take(1)
+            .filter(fields => event.prev.Placement > event.next.Placement)
+            .map(fields => {
+                let newNextField = fields
+                    .filter(field => !field.Hidden)
+                    .find(field => field.Placement > event.prev.Placement) || {};
+                return newNextField.Property || '';
+            })
+            .subscribe(prop => {
+                if (prop) {
+                    this.uniform.field(prop).focus();
+                }
+            });
+    }
+
+    private tabBackward(event: UniFormTabEvent) {
+        this.fields$
+            .take(1)
+            .map(fields => {
+                let newPrevfield = fields
+                    .filter(field => !field.Hidden)
+                    .sort((fieldA, fieldB) => fieldB.Placement - fieldA.Placement)
+                    .find(field => field.Placement < event.prev.Placement) || {};
+                return newPrevfield.Property || '';
+            })
+            .subscribe(prop => {
+                if (prop) {
+                    this.uniform.field(prop).focus();
+                }
+            });
+    }
+
 }

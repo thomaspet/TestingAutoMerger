@@ -1,5 +1,13 @@
 <section class="application">
-    <uni-form [config]="config$" [fields]="fields$" [model]="wageType$" (changeEvent)="change($event)" (toggleEvent)="toggle($event)"></uni-form>
+    <uni-form 
+    [config]="config$" 
+    [fields]="fields$" 
+    [model]="wageType$" 
+    (changeEvent)="change($event)" 
+    (toggleEvent)="toggle($event)"
+    (moveForwardEvent)="tabForward($event)"
+    (moveBackwardEvent)="tabBackward($event)">
+    </uni-form>
     <section *ngIf="showSupplementaryInformations" class="supplementInfo">
         <p>Valgte tilleggsopplysninger</p>
         <uni-table [config]="tilleggspakkeConfig" [resource]="wageType$.getValue().SupplementaryInformations"></uni-table>
