@@ -32,7 +32,8 @@ export interface ISelectConfig {
         [value]="getDisplayValue(selectedItem)"
         [placeholder]="config?.Placeholder || ''"
         [readonly]="readonly"
-        (click)="toggle()"
+        (click)="toggle()" 
+        [title]="getTitle()"
         readonly />
 
     <article class="uniSelect_dropdown" [hidden]="!expanded">
@@ -350,5 +351,13 @@ export class UniSelect {
 
     public select() {
         this.valueInput.nativeElement.select();
+    }
+
+    public getTitle() {
+        if (this.valueInput) {
+            return (this.valueInput as any).nativeElement.value || '';
+        } else {
+            return '';
+        }
     }
 }

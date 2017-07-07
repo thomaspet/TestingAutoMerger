@@ -21,6 +21,7 @@ import * as _ from 'lodash';
             [placeholder]="field?.Placeholder ||''"
             (blur)="blurHandler()"
             (focus)="focusHandler()"
+            [title]="control?.value || ''"
         />
         <ng-content></ng-content>
     `

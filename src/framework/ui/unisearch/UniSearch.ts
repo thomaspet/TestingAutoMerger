@@ -1,4 +1,4 @@
-import {Component, Input, Output, EventEmitter, ViewChild, ChangeDetectionStrategy} from '@angular/core';
+import {Component, Input, Output, EventEmitter, ViewChild, ChangeDetectionStrategy, ElementRef} from '@angular/core';
 import {UniSearchAttr} from './UniSearchAttr';
 import html from './UniSearchHtml';
 import css from './UniSearchCss';
@@ -28,5 +28,8 @@ export class UniSearch {
 
     private onChangeEvent(event) {
         this.changeEvent.emit(event);
+    }
+    private getTitle() {
+        return (this.uniSearchAttr as any).componentElement.nativeElement.value || '';
     }
 }

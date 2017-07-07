@@ -17,7 +17,8 @@ import * as _ from 'lodash';
             [readonly]="field?.ReadOnly"
             [placeholder]="field?.Placeholder || ''"
             (blur)="blurHandler()"
-            (focus)="focusHandler()"
+            (focus)="focusHandler()" 
+            [title]="control?.value || ''"
         />
         <ng-content></ng-content>
     `

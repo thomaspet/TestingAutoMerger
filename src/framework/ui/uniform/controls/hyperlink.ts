@@ -13,6 +13,7 @@ import * as _ from 'lodash';
            [attr.target]="field?.Options?.target"
            [attr.aria-describedby]="asideGuid"
            (focus)="focusHandler()"
+           [title]="field?.Options?.description"
         >{{field?.Options?.description}}</a>
         <ng-content></ng-content>
     `

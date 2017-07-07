@@ -7,6 +7,7 @@ export default `<section class="uni_search">
            (changeEvent)="onChangeEvent($event)"
            [config]="config"
            [disabled]="disabled"
+           [title]="getTitle()"
     />
 
     <button class="searchBtn"

@@ -20,6 +20,7 @@ import * as _ from 'lodash';
             [placeholder]="field?.Placeholder || ''"
             (blur)="blurHandler()"
             (focus)="focusHandler()"
+            [title]="control?.value || ''"
         />
         <button class="uni-url-openBtn"
                 (click)="openUrl()"

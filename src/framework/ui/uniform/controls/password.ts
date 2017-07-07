@@ -20,6 +20,7 @@ import * as _ from 'lodash';
             [placeholder]="field?.Placeholder ||''"
             (focus)="focusHandler()"
             (blur)="blurHandler()"
+            [title]="control?.value || ''"
         />
         <button class="uni-password-viewBtn" (click)="showPassword()">...</button>
         <ng-content></ng-content>

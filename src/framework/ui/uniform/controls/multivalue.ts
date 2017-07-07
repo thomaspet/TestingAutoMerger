@@ -31,9 +31,15 @@ import * as _ from 'lodash';
                    [placeholder]="field?.Placeholder || ''"
                    (keyup)="showDropdown($event)"
                    (focus)="focusHandler()"
+                   [title]="control?.value || ''"
             />
 
-            <button type="button" #openbtn class="uni-multivalue-moreBtn" (click)="showDropdown($event)" tabindex="-1" [disabled]="field?.ReadOnly">Ny</button>
+            <button type="button" 
+                    #openbtn 
+                    class="uni-multivalue-moreBtn" 
+                    (click)="showDropdown($event)" 
+                    tabindex="-1" 
+                    [disabled]="field?.ReadOnly">Ny</button>
 
             <ng-content></ng-content>
 

@@ -16,8 +16,9 @@ import * as _ from 'lodash';
             [disabled]="field?.ReadOnly"
             (click)="clickHandler($event)"
             (focus)="focusHandler($event)"
-            type="button"
-        >{{field.Label}}</button>
+            type="button" 
+            [title]="field?.Label"
+        >{{field?.Label}}</button>
         <ng-content></ng-content>
     `
 })

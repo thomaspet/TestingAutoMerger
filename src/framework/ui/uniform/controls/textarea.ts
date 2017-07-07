@@ -19,6 +19,7 @@ import * as _ from 'lodash';
             [placeholder]="field?.Placeholder || ''"
             (blur)="blurHandler($event)"
             (focus)="focusHandler()"
+            [title]="control?.value || ''"
         ></textarea>
         <ng-content></ng-content>
     `

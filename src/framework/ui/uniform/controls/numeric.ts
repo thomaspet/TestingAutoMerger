@@ -20,8 +20,8 @@ export interface INumberOptions {
             type="text"
             [formControl]="control"
             [readonly]="readOnly$ | async"
-            [placeholder]="field?.Placeholder || ''"
-
+            [placeholder]="field?.Placeholder || ''" 
+            [title]="control?.value || ''"
             (blur)="blurHandler($event)"
             (focus)="focusHandler($event)"
         />

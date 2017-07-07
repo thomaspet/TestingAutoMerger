@@ -64,6 +64,7 @@ interface IAutocompleteCache {
                 autocomplete="false"
                 aria-autocomplete="inline"
                 [attr.aria-owns]="'results-'+guid"
+                [title]="control?.value || ''"
             />
             <button #toggleBtn class="uni-autocomplete-searchBtn"
                     type="button"

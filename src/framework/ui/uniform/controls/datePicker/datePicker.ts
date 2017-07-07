@@ -20,7 +20,8 @@ import * as _ from 'lodash';
                 [formControl]="control"
                 [readonly]="field?.ReadOnly"
                 [placeholder]="field?.Placeholder || ''"
-                class="uni-datepicker-input"
+                class="uni-datepicker-input" 
+                [title]="control?.value || ''"
             />
             <button type="button"
                 tabindex="-1"

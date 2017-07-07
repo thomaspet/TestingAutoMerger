@@ -13,7 +13,7 @@ import * as _ from 'lodash';
     template: `
         <section class="uni-datepicker" (clickOutside)="close()">
             <input #input
-               [attr.aria-describedby]="asideGuid"
+                [attr.aria-describedby]="asideGuid"
                 type="text"
                 (change)="inputChange()"
                 (focus)="onFocus()"
@@ -21,6 +21,7 @@ import * as _ from 'lodash';
                 [readonly]="field?.ReadOnly"
                 [placeholder]="field?.Placeholder || ''"
                 class="uni-datepicker-input"
+                [title]="control?.value || ''"
             />
             <button type="button"
                 tabindex="-1"
