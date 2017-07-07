@@ -23,19 +23,19 @@ export class EmploymentService extends BizHttp<Employment> {
 
     private remunerationType: { ID: number, Name: string }[] = [
         { ID: 0, Name: 'Ikke valgt' },
-        { ID: RemunerationType.FixedSalary, Name: '1 - Fast lønnet' },
+        { ID: RemunerationType.Salaried, Name: '1 - Fast lønnet' },
         { ID: RemunerationType.HourlyPaid, Name: '2 - Timelønnet' },
         { ID: RemunerationType.PaidOnCommission, Name: '3 - Provisjonslønnet' },
-        { ID: RemunerationType.OnAgreement_Honorar, Name: '4 - Honorar' },
-        { ID: RemunerationType.ByPerformance, Name: '5 - Akkord' }
+        { ID: RemunerationType.Fees, Name: '4 - Honorar' },
+        { ID: RemunerationType.Piecework, Name: '5 - Akkord' }
     ];
 
     private workingHoursScheme: { ID: number, Name: string }[] = [
         { ID: 0, Name: 'Ikke valgt' },
         { ID: WorkingHoursScheme.NonShift, Name: '1 - Ikke skiftarbeid' },
         { ID: WorkingHoursScheme.OffshoreWork, Name: '2 - Arbeid offshore' },
-        { ID: WorkingHoursScheme.ContinousShiftwork336, Name: '3 - Helkontinuerlig skiftarbeid' },
-        { ID: WorkingHoursScheme.DayAndNightContinous355, Name: '4 - Døgnkontinuerlig skiftarbeid' },
+        { ID: WorkingHoursScheme.SemiContinousShiftAndRotaWork, Name: '3 - Helkontinuerlig skiftarbeid' },
+        { ID: WorkingHoursScheme.ContinuousShiftAndOtherSchemes, Name: '4 - Døgnkontinuerlig skiftarbeid' },
         { ID: WorkingHoursScheme.ShiftWork, Name: '5 - skiftarbeid' }
     ];
 
