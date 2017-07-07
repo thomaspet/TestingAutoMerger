@@ -39,8 +39,7 @@ export class EmployeeTax extends UniView implements OnInit {
             this.fields$
                 .take(1)
                 .filter(fields => !fields.length)
-                .switchMap(fields => Observable
-                    .combineLatest(taxCard$, employee$, taxOptions$))
+                .switchMap(fields => Observable.combineLatest(taxCard$, employee$, taxOptions$))
                 .take(1)
                 .subscribe((result: [EmployeeTaxCard, Employee, any]) => {
                     const [taxCard, employee, taxOptions] = result;
@@ -52,11 +51,12 @@ export class EmployeeTax extends UniView implements OnInit {
                     taxCard['_lastUpdated'] = taxCard.UpdatedAt || taxCard.CreatedAt;
                     return taxCard;
                 })
+                .do(taxCard => this.fields$.next(this.toggleReadOnly(taxCard)))
                 .catch((err, obs) => this.errorService.handleRxCatch(err, obs))
                 .subscribe(taxCard => this.employeeTaxCard$.next(taxCard));
             
             employee$
-                .subscribe((emp) => this.toggleTaxButtonActive(emp));
+                .subscribe((emp) => this.fields$.next(this.toggleTaxButtonActive(emp)));
         });
     }
 
@@ -75,6 +75,7 @@ export class EmployeeTax extends UniView implements OnInit {
             };
 
             this.toggleTaxButtonActive(employee, <any>layout.Fields);
+            this.toggleReadOnly(employeeTaxCard, <any>layout.Fields);
 
             let municipality = this.findByProperty(layout.Fields, 'MunicipalityNo');
             municipality.Options = {
@@ -106,7 +107,7 @@ export class EmployeeTax extends UniView implements OnInit {
             .take(1)
             .filter(empTax => Object
                 .keys(changes)
-                .some(key => changes[key].currentValue !== changes[key].previousValue))
+                .some(key => changes[key].currentValue !== changes[key].previousValue) && !!empTax.EmployeeID)
             .subscribe(empTax => super.updateState('employeeTaxCard', empTax, true));
     }
 
@@ -116,10 +117,16 @@ export class EmployeeTax extends UniView implements OnInit {
 
     private toggleTaxButtonActive(employee: Employee, fields: UniFieldLayout[] = undefined): UniFieldLayout[] {
         fields = fields || this.fields$.getValue();
-        if (employee && fields.length) {
+        if (employee && fields.length && !super.isDirty('employee')) {
             let field = this.findByProperty(fields, 'TaxBtn');
-            field.ReadOnly = !employee.SocialSecurityNumber;
+            field.ReadOnly = !employee.SocialSecurityNumber || !employee.ID;
         }
+        return fields;
+    }
+
+    private toggleReadOnly(taxCard: EmployeeTaxCard, fields: UniFieldLayout[] = undefined): UniFieldLayout[] {
+        fields = fields || this.fields$.getValue();
+        fields.filter(field => field.Property !== 'TaxBtn').forEach(field => field.ReadOnly = !taxCard.EmployeeID);
         return fields;
     }
 }
