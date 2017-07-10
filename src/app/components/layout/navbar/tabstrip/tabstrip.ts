@@ -2,6 +2,7 @@ import {Component, ChangeDetectorRef, ChangeDetectionStrategy} from '@angular/co
 import {Router} from '@angular/router';
 import {TabService, UniModules} from './tabService';
 import {AuthService} from '../../../../../framework/core/authService';
+import {Subscription} from 'rxjs/Subscription';
 
 export interface IUniTab {
     url: string;
@@ -27,6 +28,7 @@ export interface IUniTab {
 })
 export class UniTabStrip {
     private tabs: IUniTab[] = [];
+    private tabSubscription: Subscription;
 
     constructor(
         private router: Router,
@@ -43,17 +45,21 @@ export class UniTabStrip {
                 this.tabService.activateNextTab();
             }
         });
-    }
 
-    public ngAfterViewChecked() {
         this.authService.companyChange.subscribe((change) => {
             this.tabService.removeAllTabs();
         });
+    }
 
-        this.tabService.tabs$.subscribe((tabs) => {
+    public ngAfterViewInit() {
+        this.tabSubscription = this.tabService.tabs$.subscribe((tabs) => {
             this.tabs = tabs;
             this.cdr.detectChanges();
         });
+    }
+
+    public ngOnDestroy() {
+        this.tabSubscription.unsubscribe();
     }
 
     public possiblyCloseTab(index: number, event: MouseEvent) {

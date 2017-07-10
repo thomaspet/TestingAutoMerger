@@ -129,6 +129,6 @@ export class Login {
     private navigate() {
         const url = localStorage.getItem('lastNavigationAttempt') || '/';
         localStorage.removeItem('lastNavigationAttempt');
-        this._router.navigate([url]);
+        this._router.navigateByUrl(url);
     }
 }
