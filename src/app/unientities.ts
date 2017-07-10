@@ -53,6 +53,7 @@ export class AuditLog extends UniEntity {
     public static RelativeUrl = 'auditlogs';
     public static EntityType = 'AuditLog';
 
+    public _createguid: string;
     public Action: string;
     public CreatedAt: Date;
     public CreatedBy: string;
@@ -76,6 +77,7 @@ export class WorkBalance extends UniEntity {
     public static RelativeUrl = 'workbalances';
     public static EntityType = 'WorkBalance';
 
+    public _createguid: string;
     public ActualMinutes: number;
     public BalanceDate: Date;
     public BalanceFrom: Date;
@@ -103,6 +105,7 @@ export class Worker extends UniEntity {
     public static RelativeUrl = 'workers';
     public static EntityType = 'Worker';
 
+    public _createguid: string;
     public BusinessRelationID: number;
     public CreatedAt: Date;
     public CreatedBy: string;
@@ -122,6 +125,7 @@ export class WorkItem extends UniEntity {
     public static RelativeUrl = 'workitems';
     public static EntityType = 'WorkItem';
 
+    public _createguid: string;
     public CreatedAt: Date;
     public CreatedBy: string;
     public CustomerID: number;
@@ -161,6 +165,7 @@ export class WorkItemGroup extends UniEntity {
     public static RelativeUrl = 'workitemgroups';
     public static EntityType = 'WorkItemGroup';
 
+    public _createguid: string;
     public CreatedAt: Date;
     public CreatedBy: string;
     public Deleted: boolean;
@@ -179,6 +184,7 @@ export class WorkTimeOff extends UniEntity {
     public static RelativeUrl = 'worktimeoff';
     public static EntityType = 'WorkTimeOff';
 
+    public _createguid: string;
     public CreatedAt: Date;
     public CreatedBy: string;
     public Deleted: boolean;
@@ -202,6 +208,7 @@ export class WorkProfile extends UniEntity {
     public static RelativeUrl = 'workprofiles';
     public static EntityType = 'WorkProfile';
 
+    public _createguid: string;
     public CreatedAt: Date;
     public CreatedBy: string;
     public Deleted: boolean;
@@ -223,6 +230,7 @@ export class WorkRelation extends UniEntity {
     public static RelativeUrl = 'workrelations';
     public static EntityType = 'WorkRelation';
 
+    public _createguid: string;
     public CompanyID: number;
     public CompanyName: string;
     public CreatedAt: Date;
@@ -242,8 +250,8 @@ export class WorkRelation extends UniEntity {
     public WorkerID: number;
     public WorkPercentage: number;
     public WorkProfileID: number;
-    public WorkProfile: WorkProfile;
     public Worker: Worker;
+    public WorkProfile: WorkProfile;
     public Employment: Employment;
     public Items: Array<WorkItem>;
     public Team: Team;
@@ -255,6 +263,7 @@ export class WorkType extends UniEntity {
     public static RelativeUrl = 'worktypes';
     public static EntityType = 'WorkType';
 
+    public _createguid: string;
     public CreatedAt: Date;
     public CreatedBy: string;
     public Deleted: boolean;
@@ -273,6 +282,7 @@ export class FieldLayout extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'FieldLayout';
 
+    public _createguid: string;
     public Alignment: Alignment;
     public Combo: number;
     public ComponentLayoutID: number;
@@ -310,6 +320,7 @@ export class ComponentLayout extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'ComponentLayout';
 
+    public _createguid: string;
     public BaseEntity: string;
     public CreatedAt: Date;
     public CreatedBy: string;
@@ -328,6 +339,7 @@ export class UserRole extends UniEntity {
     public static RelativeUrl = 'userroles';
     public static EntityType = 'UserRole';
 
+    public _createguid: string;
     public CreatedAt: Date;
     public CreatedBy: string;
     public Deleted: boolean;
@@ -346,6 +358,7 @@ export class Role extends UniEntity {
     public static RelativeUrl = 'roles';
     public static EntityType = 'Role';
 
+    public _createguid: string;
     public CreatedAt: Date;
     public CreatedBy: string;
     public Deleted: boolean;
@@ -364,6 +377,7 @@ export class RolePermission extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'RolePermission';
 
+    public _createguid: string;
     public CreatedAt: Date;
     public CreatedBy: string;
     public Deleted: boolean;
@@ -382,6 +396,7 @@ export class Permission extends UniEntity {
     public static RelativeUrl = 'permissions';
     public static EntityType = 'Permission';
 
+    public _createguid: string;
     public CreatedAt: Date;
     public CreatedBy: string;
     public Deleted: boolean;
@@ -398,6 +413,7 @@ export class CustomerInvoiceReminderRule extends UniEntity {
     public static RelativeUrl = 'invoicereminderrules';
     public static EntityType = 'CustomerInvoiceReminderRule';
 
+    public _createguid: string;
     public CreatedAt: Date;
     public CreatedBy: string;
     public CreditDays: number;
@@ -422,6 +438,7 @@ export class CustomerInvoiceReminderSettings extends UniEntity {
     public static RelativeUrl = 'invoiceremindersettings';
     public static EntityType = 'CustomerInvoiceReminderSettings';
 
+    public _createguid: string;
     public AcceptPaymentWithoutReminderFee: boolean;
     public CreatedAt: Date;
     public CreatedBy: string;
@@ -441,6 +458,7 @@ export class CustomerInvoiceReminder extends UniEntity {
     public static RelativeUrl = 'invoicereminders';
     public static EntityType = 'CustomerInvoiceReminder';
 
+    public _createguid: string;
     public CreatedAt: Date;
     public CreatedBy: string;
     public CreatedByReminderRuleID: number;
@@ -472,6 +490,7 @@ export class Customer extends UniEntity {
     public static RelativeUrl = 'customers';
     public static EntityType = 'Customer';
 
+    public _createguid: string;
     public AcceptableDelta4CustomerPayment: number;
     public AcceptableDelta4CustomerPaymentAccountID: number;
     public BusinessRelationID: number;
@@ -510,6 +529,7 @@ export class CustomerInvoice extends UniEntity {
     public static RelativeUrl = 'invoices';
     public static EntityType = 'CustomerInvoice';
 
+    public _createguid: string;
     public AmountRegards: string;
     public BankAccountID: number;
     public CollectorStatusCode: number;
@@ -598,6 +618,7 @@ export class CustomerInvoiceItem extends UniEntity {
     public static RelativeUrl = 'invoiceitems';
     public static EntityType = 'CustomerInvoiceItem';
 
+    public _createguid: string;
     public AccountID: number;
     public CalculateGrossPriceBasedOnNetPrice: boolean;
     public Comment: string;
@@ -644,6 +665,7 @@ export class CustomerOrder extends UniEntity {
     public static RelativeUrl = 'orders';
     public static EntityType = 'CustomerOrder';
 
+    public _createguid: string;
     public Comment: string;
     public CreatedAt: Date;
     public CreatedBy: string;
@@ -712,6 +734,7 @@ export class CustomerOrderItem extends UniEntity {
     public static RelativeUrl = 'orderitems';
     public static EntityType = 'CustomerOrderItem';
 
+    public _createguid: string;
     public AccountID: number;
     public CalculateGrossPriceBasedOnNetPrice: boolean;
     public Comment: string;
@@ -758,6 +781,7 @@ export class CustomerQuote extends UniEntity {
     public static RelativeUrl = 'quotes';
     public static EntityType = 'CustomerQuote';
 
+    public _createguid: string;
     public Comment: string;
     public CreatedAt: Date;
     public CreatedBy: string;
@@ -828,6 +852,7 @@ export class CustomerQuoteItem extends UniEntity {
     public static RelativeUrl = 'quoteitems';
     public static EntityType = 'CustomerQuoteItem';
 
+    public _createguid: string;
     public AccountID: number;
     public CalculateGrossPriceBasedOnNetPrice: boolean;
     public Comment: string;
@@ -874,6 +899,7 @@ export class Supplier extends UniEntity {
     public static RelativeUrl = 'suppliers';
     public static EntityType = 'Supplier';
 
+    public _createguid: string;
     public BusinessRelationID: number;
     public CreatedAt: Date;
     public CreatedBy: string;
@@ -903,6 +929,7 @@ export class Address extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'Address';
 
+    public _createguid: string;
     public AddressLine1: string;
     public AddressLine2: string;
     public AddressLine3: string;
@@ -928,6 +955,7 @@ export class Contact extends UniEntity {
     public static RelativeUrl = 'contacts';
     public static EntityType = 'Contact';
 
+    public _createguid: string;
     public Comment: string;
     public CreatedAt: Date;
     public CreatedBy: string;
@@ -949,6 +977,7 @@ export class BusinessRelation extends UniEntity {
     public static RelativeUrl = 'business-relations';
     public static EntityType = 'BusinessRelation';
 
+    public _createguid: string;
     public CreatedAt: Date;
     public CreatedBy: string;
     public DefaultBankAccountID: number;
@@ -982,6 +1011,7 @@ export class Email extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'Email';
 
+    public _createguid: string;
     public BusinessRelationID: number;
     public CreatedAt: Date;
     public CreatedBy: string;
@@ -1001,6 +1031,7 @@ export class Phone extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'Phone';
 
+    public _createguid: string;
     public BusinessRelationID: number;
     public CountryCode: string;
     public CreatedAt: Date;
@@ -1021,6 +1052,7 @@ export class AGACalculation extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'AGACalculation';
 
+    public _createguid: string;
     public CreatedAt: Date;
     public CreatedBy: string;
     public Deleted: boolean;
@@ -1047,6 +1079,7 @@ export class FreeAmountUsed extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'FreeAmountUsed';
 
+    public _createguid: string;
     public AGACalculationID: number;
     public CreatedAt: Date;
     public CreatedBy: string;
@@ -1066,6 +1099,7 @@ export class AGATax extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'AGATax';
 
+    public _createguid: string;
     public agaBase: number;
     public AGACalculationID: number;
     public agaRate: number;
@@ -1089,6 +1123,7 @@ export class AGAPension extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'AGAPension';
 
+    public _createguid: string;
     public agaBase: number;
     public AGACalculationID: number;
     public agaRate: number;
@@ -1112,6 +1147,7 @@ export class AGADraw extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'AGADraw';
 
+    public _createguid: string;
     public agaBase: number;
     public AGACalculationID: number;
     public agaRate: number;
@@ -1135,6 +1171,7 @@ export class ForeignerWithPercent extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'ForeignerWithPercent';
 
+    public _createguid: string;
     public agaBase: number;
     public AGACalculationID: number;
     public agaRate: number;
@@ -1155,6 +1192,7 @@ export class DrawForeignerWithPercent extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'DrawForeignerWithPercent';
 
+    public _createguid: string;
     public agaBase: number;
     public AGACalculationID: number;
     public agaRate: number;
@@ -1175,6 +1213,7 @@ export class ForeignerWithAmount extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'ForeignerWithAmount';
 
+    public _createguid: string;
     public aga: number;
     public AGACalculationID: number;
     public CreatedAt: Date;
@@ -1195,6 +1234,7 @@ export class AmeldingData extends UniEntity {
     public static RelativeUrl = 'amelding';
     public static EntityType = 'AmeldingData';
 
+    public _createguid: string;
     public altinnStatus: string;
     public attachmentFileID: number;
     public created: Date;
@@ -1210,6 +1250,7 @@ export class AmeldingData extends UniEntity {
     public period: number;
     public receiptID: number;
     public replacesID: number;
+    public replaceThis: string;
     public sent: Date;
     public status: number;
     public StatusCode: number;
@@ -1226,6 +1267,7 @@ export class AmeldingLog extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'AmeldingLog';
 
+    public _createguid: string;
     public AmeldingsID: number;
     public CreatedAt: Date;
     public CreatedBy: string;
@@ -1244,6 +1286,7 @@ export class EmployeeTaxCard extends UniEntity {
     public static RelativeUrl = 'taxcards';
     public static EntityType = 'EmployeeTaxCard';
 
+    public _createguid: string;
     public CreatedAt: Date;
     public CreatedBy: string;
     public Deleted: boolean;
@@ -1267,6 +1310,7 @@ export class PayrollRunCategoryLink extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'PayrollRunCategoryLink';
 
+    public _createguid: string;
     public CreatedAt: Date;
     public CreatedBy: string;
     public Deleted: boolean;
@@ -1286,6 +1330,10 @@ export class SalaryBalance extends UniEntity {
     public static RelativeUrl = 'salarybalances';
     public static EntityType = 'SalaryBalance';
 
+    public _createguid: string;
+    public Amount: number;
+    public Balance: number;
+    public CalculatedBalance: number;
     public CreatedAt: Date;
     public CreatedBy: string;
     public CreatePayment: boolean;
@@ -1317,6 +1365,7 @@ export class SalaryBalanceLine extends UniEntity {
     public static RelativeUrl = 'salarybalancelines';
     public static EntityType = 'SalaryBalanceLine';
 
+    public _createguid: string;
     public Amount: number;
     public CreatedAt: Date;
     public CreatedBy: string;
@@ -1339,6 +1388,7 @@ export class SalaryTransactionSupplement extends UniEntity {
     public static RelativeUrl = 'supplements';
     public static EntityType = 'SalaryTransactionSupplement';
 
+    public _createguid: string;
     public CreatedAt: Date;
     public CreatedBy: string;
     public Deleted: boolean;
@@ -1362,15 +1412,25 @@ export class VacationPayLine extends UniEntity {
     public static RelativeUrl = 'VacationPayLines';
     public static EntityType = 'VacationPayLine';
 
+    public _createguid: string;
+    public Age: number;
     public CreatedAt: Date;
     public CreatedBy: string;
     public Deleted: boolean;
     public EmployeeID: number;
     public ID: number;
+    public IsInCollection: boolean;
     public ManualVacationPayBase: number;
+    public PaidVacationPay: number;
+    public Rate: number;
+    public Rate60: number;
     public StatusCode: number;
+    public SystemVacationPayBase: number;
     public UpdatedAt: Date;
     public UpdatedBy: string;
+    public VacationPay: number;
+    public VacationPay60: number;
+    public Withdrawal: number;
     public Year: number;
     public Employee: Employee;
     public CustomFields: any;
@@ -1381,6 +1441,7 @@ export class WageTypeSupplement extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'WageTypeSupplement';
 
+    public _createguid: string;
     public ameldingType: string;
     public CreatedAt: Date;
     public CreatedBy: string;
@@ -1402,6 +1463,7 @@ export class BasicAmount extends UniEntity {
     public static RelativeUrl = 'basicamounts';
     public static EntityType = 'BasicAmount';
 
+    public _createguid: string;
     public AveragePrYear: number;
     public BasicAmountPrMonth: number;
     public BasicAmountPrYear: number;
@@ -1422,6 +1484,7 @@ export class CompanySalary extends UniEntity {
     public static RelativeUrl = 'companysalary';
     public static EntityType = 'CompanySalary';
 
+    public _createguid: string;
     public CreatedAt: Date;
     public CreatedBy: string;
     public Deleted: boolean;
@@ -1452,6 +1515,7 @@ export class CompanyVacationRate extends UniEntity {
     public static RelativeUrl = 'companyvacationrates';
     public static EntityType = 'CompanyVacationRate';
 
+    public _createguid: string;
     public CreatedAt: Date;
     public CreatedBy: string;
     public Deleted: boolean;
@@ -1470,6 +1534,7 @@ export class EmployeeCategory extends UniEntity {
     public static RelativeUrl = 'employeecategories';
     public static EntityType = 'EmployeeCategory';
 
+    public _createguid: string;
     public CreatedAt: Date;
     public CreatedBy: string;
     public Deleted: boolean;
@@ -1487,6 +1552,7 @@ export class EmployeeCategoryLink extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'EmployeeCategoryLink';
 
+    public _createguid: string;
     public CreatedAt: Date;
     public CreatedBy: string;
     public Deleted: boolean;
@@ -1507,6 +1573,7 @@ export class EmployeeLeave extends UniEntity {
     public static RelativeUrl = 'EmployeeLeave';
     public static EntityType = 'EmployeeLeave';
 
+    public _createguid: string;
     public CreatedAt: Date;
     public CreatedBy: string;
     public Deleted: boolean;
@@ -1529,6 +1596,7 @@ export class Employment extends UniEntity {
     public static RelativeUrl = 'employments';
     public static EntityType = 'Employment';
 
+    public _createguid: string;
     public CreatedAt: Date;
     public CreatedBy: string;
     public Deleted: boolean;
@@ -1573,6 +1641,7 @@ export class SubEntity extends UniEntity {
     public static RelativeUrl = 'subentities';
     public static EntityType = 'SubEntity';
 
+    public _createguid: string;
     public AgaRule: number;
     public AgaZone: number;
     public BusinessRelationID: number;
@@ -1597,6 +1666,7 @@ export class Grant extends UniEntity {
     public static RelativeUrl = 'grants';
     public static EntityType = 'Grant';
 
+    public _createguid: string;
     public AffectsAGA: boolean;
     public Amount: number;
     public CreatedAt: Date;
@@ -1617,6 +1687,7 @@ export class PayrollRun extends UniEntity {
     public static RelativeUrl = 'payrollrun';
     public static EntityType = 'PayrollRun';
 
+    public _createguid: string;
     public AGAFreeAmount: number;
     public AGAonRun: number;
     public CreatedAt: Date;
@@ -1647,6 +1718,7 @@ export class VacationRateEmployee extends UniEntity {
     public static RelativeUrl = 'employeevacationrates';
     public static EntityType = 'VacationRateEmployee';
 
+    public _createguid: string;
     public CreatedAt: Date;
     public CreatedBy: string;
     public Deleted: boolean;
@@ -1666,6 +1738,7 @@ export class WageType extends UniEntity {
     public static RelativeUrl = 'wagetypes';
     public static EntityType = 'WageType';
 
+    public _createguid: string;
     public AccountNumber: number;
     public AccountNumber_balance: number;
     public Base_div1: boolean;
@@ -1714,6 +1787,7 @@ export class SalaryTransaction extends UniEntity {
     public static RelativeUrl = 'salarytrans';
     public static EntityType = 'SalaryTransaction';
 
+    public _createguid: string;
     public Account: number;
     public Amount: number;
     public calcAGA: number;
@@ -1725,6 +1799,7 @@ export class SalaryTransaction extends UniEntity {
     public EmployeeID: number;
     public EmployeeNumber: number;
     public EmploymentID: number;
+    public Files: string;
     public FromDate: Date;
     public HolidayPayDeduction: boolean;
     public ID: number;
@@ -1759,6 +1834,7 @@ export class Employee extends UniEntity {
     public static RelativeUrl = 'employees';
     public static EntityType = 'Employee';
 
+    public _createguid: string;
     public Active: boolean;
     public AdvancePaymentAmount: number;
     public BirthDate: Date;
@@ -1796,6 +1872,7 @@ export class EHFLog extends UniEntity {
     public static RelativeUrl = 'ehf';
     public static EntityType = 'EHFLog';
 
+    public _createguid: string;
     public CreatedAt: Date;
     public CreatedBy: string;
     public Deleted: boolean;
@@ -1814,6 +1891,7 @@ export class StatusLog extends UniEntity {
     public static RelativeUrl = 'statuslogs';
     public static EntityType = 'StatusLog';
 
+    public _createguid: string;
     public CreatedAt: Date;
     public CreatedBy: string;
     public Deleted: boolean;
@@ -1832,6 +1910,7 @@ export class EmailLog extends UniEntity {
     public static RelativeUrl = 'emails';
     public static EntityType = 'EmailLog';
 
+    public _createguid: string;
     public CreatedAt: Date;
     public CreatedBy: string;
     public Deleted: boolean;
@@ -1852,6 +1931,7 @@ export class PredefinedDescription extends UniEntity {
     public static RelativeUrl = 'predefineddescriptions';
     public static EntityType = 'PredefinedDescription';
 
+    public _createguid: string;
     public Code: string;
     public CreatedAt: Date;
     public CreatedBy: string;
@@ -1870,6 +1950,7 @@ export class Period extends UniEntity {
     public static RelativeUrl = 'periodes';
     public static EntityType = 'Period';
 
+    public _createguid: string;
     public AccountYear: number;
     public CreatedAt: Date;
     public CreatedBy: string;
@@ -1894,6 +1975,7 @@ export class CompanySettings extends UniEntity {
     public static RelativeUrl = 'companysettings';
     public static EntityType = 'CompanySettings';
 
+    public _createguid: string;
     public AcceptableDelta4CustomerPayment: number;
     public AcceptableDelta4CustomerPaymentAccountID: number;
     public AccountGroupSetID: number;
@@ -1977,6 +2059,7 @@ export class User extends UniEntity {
     public static RelativeUrl = 'users';
     public static EntityType = 'User';
 
+    public _createguid: string;
     public CreatedAt: Date;
     public CreatedBy: string;
     public Deleted: boolean;
@@ -1998,6 +2081,7 @@ export class TreeStructure extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'TreeStructure';
 
+    public _createguid: string;
     public CreatedAt: Date;
     public CreatedBy: string;
     public Deleted: boolean;
@@ -2017,6 +2101,7 @@ export class ProductCategory extends UniEntity {
     public static RelativeUrl = 'productcategories';
     public static EntityType = 'ProductCategory';
 
+    public _createguid: string;
     public Comment: string;
     public CreatedAt: Date;
     public CreatedBy: string;
@@ -2040,6 +2125,7 @@ export class ProductCategoryLink extends UniEntity {
     public static RelativeUrl = 'productcategorylinks';
     public static EntityType = 'ProductCategoryLink';
 
+    public _createguid: string;
     public CreatedAt: Date;
     public CreatedBy: string;
     public Deleted: boolean;
@@ -2058,6 +2144,7 @@ export class Tracelink extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'Tracelink';
 
+    public _createguid: string;
     public CreatedAt: Date;
     public CreatedBy: string;
     public Date: Date;
@@ -2078,6 +2165,7 @@ export class Product extends UniEntity {
     public static RelativeUrl = 'products';
     public static EntityType = 'Product';
 
+    public _createguid: string;
     public AccountID: number;
     public AverageCost: number;
     public CalculateGrossPriceBasedOnNetPrice: boolean;
@@ -2102,10 +2190,10 @@ export class Product extends UniEntity {
     public UpdatedBy: string;
     public VariansParentID: number;
     public VatTypeID: number;
-    public Account: Account;
     public VatType: VatType;
-    public Dimensions: Dimensions;
+    public Account: Account;
     public ProductCategoryLinks: Array<ProductCategoryLink>;
+    public Dimensions: Dimensions;
     public CustomFields: any;
 }
 
@@ -2114,6 +2202,7 @@ export class Region extends UniEntity {
     public static RelativeUrl = 'regions';
     public static EntityType = 'Region';
 
+    public _createguid: string;
     public CountryCode: string;
     public CreatedAt: Date;
     public CreatedBy: string;
@@ -2133,6 +2222,7 @@ export class Department extends UniEntity {
     public static RelativeUrl = 'departments';
     public static EntityType = 'Department';
 
+    public _createguid: string;
     public CreatedAt: Date;
     public CreatedBy: string;
     public Deleted: boolean;
@@ -2154,6 +2244,7 @@ export class Dimensions extends UniEntity {
     public static RelativeUrl = 'dimensions';
     public static EntityType = 'Dimensions';
 
+    public _createguid: string;
     public CreatedAt: Date;
     public CreatedBy: string;
     public Deleted: boolean;
@@ -2179,6 +2270,7 @@ export class Responsible extends UniEntity {
     public static RelativeUrl = 'responsibles';
     public static EntityType = 'Responsible';
 
+    public _createguid: string;
     public CreatedAt: Date;
     public CreatedBy: string;
     public Deleted: boolean;
@@ -2197,6 +2289,7 @@ export class Status extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'Status';
 
+    public _createguid: string;
     public CreatedAt: Date;
     public CreatedBy: string;
     public Deleted: boolean;
@@ -2218,6 +2311,7 @@ export class StatusCategory extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'StatusCategory';
 
+    public _createguid: string;
     public CreatedAt: Date;
     public CreatedBy: string;
     public Deleted: boolean;
@@ -2234,6 +2328,7 @@ export class Transition extends UniEntity {
     public static RelativeUrl = 'transitions';
     public static EntityType = 'Transition';
 
+    public _createguid: string;
     public Controller: string;
     public CreatedAt: Date;
     public CreatedBy: string;
@@ -2251,6 +2346,7 @@ export class TransitionThreshold extends UniEntity {
     public static RelativeUrl = 'thresholds';
     public static EntityType = 'TransitionThreshold';
 
+    public _createguid: string;
     public CreatedAt: Date;
     public CreatedBy: string;
     public Deleted: boolean;
@@ -2274,6 +2370,7 @@ export class TransitionThresholdApproval extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'TransitionThresholdApproval';
 
+    public _createguid: string;
     public ApprovalID: number;
     public CreatedAt: Date;
     public CreatedBy: string;
@@ -2298,6 +2395,7 @@ export class Approval extends UniEntity {
     public static RelativeUrl = 'approvals';
     public static EntityType = 'Approval';
 
+    public _createguid: string;
     public CreatedAt: Date;
     public CreatedBy: string;
     public Deleted: boolean;
@@ -2319,6 +2417,7 @@ export class Task extends UniEntity {
     public static RelativeUrl = 'tasks';
     public static EntityType = 'Task';
 
+    public _createguid: string;
     public CreatedAt: Date;
     public CreatedBy: string;
     public Deleted: boolean;
@@ -2346,6 +2445,7 @@ export class TransitionFlow extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'TransitionFlow';
 
+    public _createguid: string;
     public CreatedAt: Date;
     public CreatedBy: string;
     public Deleted: boolean;
@@ -2367,6 +2467,7 @@ export class UniQueryFilter extends UniEntity {
     public static RelativeUrl = 'uniqueryfilters';
     public static EntityType = 'UniQueryFilter';
 
+    public _createguid: string;
     public CreatedAt: Date;
     public CreatedBy: string;
     public Deleted: boolean;
@@ -2387,6 +2488,7 @@ export class UniQueryField extends UniEntity {
     public static RelativeUrl = 'uniqueryfields';
     public static EntityType = 'UniQueryField';
 
+    public _createguid: string;
     public Alias: string;
     public CreatedAt: Date;
     public CreatedBy: string;
@@ -2411,6 +2513,7 @@ export class UniQueryDefinition extends UniEntity {
     public static RelativeUrl = 'uniquerydefinitions';
     public static EntityType = 'UniQueryDefinition';
 
+    public _createguid: string;
     public Category: string;
     public ClickParam: string;
     public ClickUrl: string;
@@ -2440,6 +2543,7 @@ export class Team extends UniEntity {
     public static RelativeUrl = 'teams';
     public static EntityType = 'Team';
 
+    public _createguid: string;
     public CreatedAt: Date;
     public CreatedBy: string;
     public Deleted: boolean;
@@ -2463,6 +2567,7 @@ export class TeamPosition extends UniEntity {
     public static RelativeUrl = 'teampositions';
     public static EntityType = 'TeamPosition';
 
+    public _createguid: string;
     public ApproveOrder: number;
     public CreatedAt: Date;
     public CreatedBy: string;
@@ -2486,6 +2591,7 @@ export class File extends UniEntity {
     public static RelativeUrl = 'files/{entitytype}/{entityid}';
     public static EntityType = 'File';
 
+    public _createguid: string;
     public ContentType: string;
     public CreatedAt: Date;
     public CreatedBy: string;
@@ -2502,6 +2608,7 @@ export class File extends UniEntity {
     public StorageReference: string;
     public UpdatedAt: Date;
     public UpdatedBy: string;
+    public UploadSlot: string;
     public FileTags: Array<FileTag>;
     public CustomFields: any;
 }
@@ -2511,6 +2618,7 @@ export class FileTag extends UniEntity {
     public static RelativeUrl = 'filetags';
     public static EntityType = 'FileTag';
 
+    public _createguid: string;
     public CreatedAt: Date;
     public CreatedBy: string;
     public Deleted: boolean;
@@ -2529,6 +2637,7 @@ export class FileEntityLink extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'FileEntityLink';
 
+    public _createguid: string;
     public CreatedAt: Date;
     public CreatedBy: string;
     public Deleted: boolean;
@@ -2548,6 +2657,7 @@ export class Comment extends UniEntity {
     public static RelativeUrl = 'comments';
     public static EntityType = 'Comment';
 
+    public _createguid: string;
     public AuthorID: number;
     public CreatedAt: Date;
     public CreatedBy: string;
@@ -2569,6 +2679,7 @@ export class Mentioned extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'Mentioned';
 
+    public _createguid: string;
     public CommentID: number;
     public CreatedAt: Date;
     public CreatedBy: string;
@@ -2587,6 +2698,7 @@ export class Altinn extends UniEntity {
     public static RelativeUrl = 'altinn';
     public static EntityType = 'Altinn';
 
+    public _createguid: string;
     public CreatedAt: Date;
     public CreatedBy: string;
     public Deleted: boolean;
@@ -2606,6 +2718,7 @@ export class AltinnSigning extends UniEntity {
     public static RelativeUrl = 'altinnsigning';
     public static EntityType = 'AltinnSigning';
 
+    public _createguid: string;
     public AltinnReceiptID: number;
     public CreatedAt: Date;
     public CreatedBy: string;
@@ -2627,6 +2740,7 @@ export class AltinnReceipt extends UniEntity {
     public static RelativeUrl = 'altinnreceipts';
     public static EntityType = 'AltinnReceipt';
 
+    public _createguid: string;
     public AltinnResponseData: string;
     public CreatedAt: Date;
     public CreatedBy: string;
@@ -2651,6 +2765,7 @@ export class AltinnCorrespondanceReader extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'AltinnCorrespondanceReader';
 
+    public _createguid: string;
     public CreatedAt: Date;
     public CreatedBy: string;
     public Deleted: boolean;
@@ -2672,6 +2787,7 @@ export class ProjectResourceSchedule extends UniEntity {
     public static RelativeUrl = 'projects-schedules-resources';
     public static EntityType = 'ProjectResourceSchedule';
 
+    public _createguid: string;
     public CreatedAt: Date;
     public CreatedBy: string;
     public Deleted: boolean;
@@ -2690,6 +2806,7 @@ export class ProjectResource extends UniEntity {
     public static RelativeUrl = 'projects-resources';
     public static EntityType = 'ProjectResource';
 
+    public _createguid: string;
     public CreatedAt: Date;
     public CreatedBy: string;
     public Deleted: boolean;
@@ -2710,6 +2827,7 @@ export class ProjectTaskSchedule extends UniEntity {
     public static RelativeUrl = 'projects-tasks-schedules';
     public static EntityType = 'ProjectTaskSchedule';
 
+    public _createguid: string;
     public CreatedAt: Date;
     public CreatedBy: string;
     public Deleted: boolean;
@@ -2729,6 +2847,7 @@ export class ProjectTask extends UniEntity {
     public static RelativeUrl = 'projects-tasks';
     public static EntityType = 'ProjectTask';
 
+    public _createguid: string;
     public Amount: number;
     public CostPrice: number;
     public CreatedAt: Date;
@@ -2756,6 +2875,7 @@ export class Project extends UniEntity {
     public static RelativeUrl = 'projects';
     public static EntityType = 'Project';
 
+    public _createguid: string;
     public Amount: number;
     public CostPrice: number;
     public CreatedAt: Date;
@@ -2792,6 +2912,7 @@ export class NumberSeriesTask extends UniEntity {
     public static RelativeUrl = 'number-series-tasks';
     public static EntityType = 'NumberSeriesTask';
 
+    public _createguid: string;
     public CreatedAt: Date;
     public CreatedBy: string;
     public Deleted: boolean;
@@ -2810,6 +2931,7 @@ export class NumberSeriesInvalidOverlap extends UniEntity {
     public static RelativeUrl = 'number-series-invalid-overlaps';
     public static EntityType = 'NumberSeriesInvalidOverlap';
 
+    public _createguid: string;
     public CreatedAt: Date;
     public CreatedBy: string;
     public Deleted: boolean;
@@ -2829,6 +2951,7 @@ export class NumberSeries extends UniEntity {
     public static RelativeUrl = 'number-series';
     public static EntityType = 'NumberSeries';
 
+    public _createguid: string;
     public AccountYear: number;
     public Comment: string;
     public CreatedAt: Date;
@@ -2862,6 +2985,7 @@ export class NumberSeriesType extends UniEntity {
     public static RelativeUrl = 'number-series-types';
     public static EntityType = 'NumberSeriesType';
 
+    public _createguid: string;
     public CanHaveSeveralActiveSeries: boolean;
     public CreatedAt: Date;
     public CreatedBy: string;
@@ -2884,6 +3008,7 @@ export class AccessPointFormat extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'AccessPointFormat';
 
+    public _createguid: string;
     public CreatedAt: Date;
     public CreatedBy: string;
     public Deleted: boolean;
@@ -2904,6 +3029,7 @@ export class CurrencyOverride extends UniEntity {
     public static RelativeUrl = 'currencyoverrides';
     public static EntityType = 'CurrencyOverride';
 
+    public _createguid: string;
     public CreatedAt: Date;
     public CreatedBy: string;
     public Deleted: boolean;
@@ -2927,6 +3053,7 @@ export class AccountVisibilityGroupAccount extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'AccountVisibilityGroupAccount';
 
+    public _createguid: string;
     public AccountSetupID: number;
     public AccountVisibilityGroupID: number;
     public CreatedAt: Date;
@@ -2943,6 +3070,7 @@ export class AccountVisibilityGroup extends UniEntity {
     public static RelativeUrl = 'accountvisibilitygroups';
     public static EntityType = 'AccountVisibilityGroup';
 
+    public _createguid: string;
     public CreatedAt: Date;
     public CreatedBy: string;
     public Deleted: boolean;
@@ -2960,6 +3088,7 @@ export class Agreement extends UniEntity {
     public static RelativeUrl = 'agreements';
     public static EntityType = 'Agreement';
 
+    public _createguid: string;
     public AppliesTo: number;
     public CreatedAt: Date;
     public CreatedBy: string;
@@ -2978,6 +3107,7 @@ export class CurrencyCode extends UniEntity {
     public static RelativeUrl = 'currencycodes';
     public static EntityType = 'CurrencyCode';
 
+    public _createguid: string;
     public Code: string;
     public CreatedAt: Date;
     public CreatedBy: string;
@@ -2996,6 +3126,7 @@ export class PaymentBatchType extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'PaymentBatchType';
 
+    public _createguid: string;
     public Code: number;
     public CreatedAt: Date;
     public CreatedBy: string;
@@ -3013,6 +3144,7 @@ export class Currency extends UniEntity {
     public static RelativeUrl = 'currencies';
     public static EntityType = 'Currency';
 
+    public _createguid: string;
     public CreatedAt: Date;
     public CreatedBy: string;
     public CurrencyDate: LocalDate;
@@ -3035,6 +3167,7 @@ export class PostalCode extends UniEntity {
     public static RelativeUrl = 'postalcodes';
     public static EntityType = 'PostalCode';
 
+    public _createguid: string;
     public City: string;
     public Code: string;
     public CreatedAt: Date;
@@ -3052,6 +3185,7 @@ export class Language extends UniEntity {
     public static RelativeUrl = 'languages';
     public static EntityType = 'Language';
 
+    public _createguid: string;
     public Code: string;
     public CreatedAt: Date;
     public CreatedBy: string;
@@ -3070,6 +3204,7 @@ export class Translatable extends UniEntity {
     public static RelativeUrl = 'translatables';
     public static EntityType = 'Translatable';
 
+    public _createguid: string;
     public Column: string;
     public CreatedAt: Date;
     public CreatedBy: string;
@@ -3092,6 +3227,7 @@ export class Translation extends UniEntity {
     public static RelativeUrl = 'translations';
     public static EntityType = 'Translation';
 
+    public _createguid: string;
     public CreatedAt: Date;
     public CreatedBy: string;
     public Deleted: boolean;
@@ -3111,6 +3247,7 @@ export class UserVerification extends UniEntity {
     public static RelativeUrl = 'user-verifications';
     public static EntityType = 'UserVerification';
 
+    public _createguid: string;
     public CompanyId: number;
     public CreatedAt: Date;
     public CreatedBy: string;
@@ -3133,6 +3270,7 @@ export class AccountGroupSetup extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'AccountGroupSetup';
 
+    public _createguid: string;
     public CreatedAt: Date;
     public CreatedBy: string;
     public Deleted: boolean;
@@ -3152,6 +3290,7 @@ export class AccountSetup extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'AccountSetup';
 
+    public _createguid: string;
     public AccountGroupSetupID: number;
     public AccountName: string;
     public AccountNumber: number;
@@ -3176,6 +3315,7 @@ export class AGARate extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'AGARate';
 
+    public _createguid: string;
     public CreatedAt: Date;
     public CreatedBy: string;
     public Deleted: boolean;
@@ -3194,6 +3334,7 @@ export class AGASector extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'AGASector';
 
+    public _createguid: string;
     public CreatedAt: Date;
     public CreatedBy: string;
     public Deleted: boolean;
@@ -3214,6 +3355,7 @@ export class AGAZone extends UniEntity {
     public static RelativeUrl = 'AGAZones';
     public static EntityType = 'AGAZone';
 
+    public _createguid: string;
     public CreatedAt: Date;
     public CreatedBy: string;
     public Deleted: boolean;
@@ -3231,6 +3373,7 @@ export class Company extends UniEntity {
     public static RelativeUrl = 'companies';
     public static EntityType = 'Company';
 
+    public _createguid: string;
     public ConnectionString: string;
     public CreatedAt: Date;
     public CreatedBy: string;
@@ -3252,6 +3395,7 @@ export class CompanyAccess extends UniEntity {
     public static RelativeUrl = 'companies-access';
     public static EntityType = 'CompanyAccess';
 
+    public _createguid: string;
     public CompanyID: number;
     public CreatedAt: Date;
     public CreatedBy: string;
@@ -3268,6 +3412,7 @@ export class CompanyType extends UniEntity {
     public static RelativeUrl = 'companytypes';
     public static EntityType = 'CompanyType';
 
+    public _createguid: string;
     public CreatedAt: Date;
     public CreatedBy: string;
     public DefaultAccountVisibilityGroupID: number;
@@ -3287,6 +3432,7 @@ export class Country extends UniEntity {
     public static RelativeUrl = 'countries';
     public static EntityType = 'Country';
 
+    public _createguid: string;
     public CountryCode: string;
     public CreatedAt: Date;
     public CreatedBy: string;
@@ -3305,6 +3451,7 @@ export class EmploymentValidValues extends UniEntity {
     public static RelativeUrl = 'employmentvalidvalues';
     public static EntityType = 'EmploymentValidValues';
 
+    public _createguid: string;
     public CreatedAt: Date;
     public CreatedBy: string;
     public Deleted: boolean;
@@ -3339,6 +3486,7 @@ export class Municipal extends UniEntity {
     public static RelativeUrl = 'Municipals';
     public static EntityType = 'Municipal';
 
+    public _createguid: string;
     public CountyName: string;
     public CountyNo: string;
     public CreatedAt: Date;
@@ -3357,6 +3505,7 @@ export class MunicipalAGAZone extends UniEntity {
     public static RelativeUrl = 'MunicipalAGAZones';
     public static EntityType = 'MunicipalAGAZone';
 
+    public _createguid: string;
     public CreatedAt: Date;
     public CreatedBy: string;
     public Deleted: boolean;
@@ -3374,6 +3523,7 @@ export class PaymentCode extends UniEntity {
     public static RelativeUrl = 'paymentCodes';
     public static EntityType = 'PaymentCode';
 
+    public _createguid: string;
     public Code: number;
     public CreatedAt: Date;
     public CreatedBy: string;
@@ -3392,6 +3542,7 @@ export class StaticRegister extends UniEntity {
     public static RelativeUrl = 'StaticRegister';
     public static EntityType = 'StaticRegister';
 
+    public _createguid: string;
     public CreatedAt: Date;
     public CreatedBy: string;
     public Deleted: boolean;
@@ -3408,6 +3559,7 @@ export class STYRKCode extends UniEntity {
     public static RelativeUrl = 'STYRK';
     public static EntityType = 'STYRKCode';
 
+    public _createguid: string;
     public CreatedAt: Date;
     public CreatedBy: string;
     public Deleted: boolean;
@@ -3426,6 +3578,7 @@ export class VatCodeGroupSetup extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'VatCodeGroupSetup';
 
+    public _createguid: string;
     public CreatedAt: Date;
     public CreatedBy: string;
     public Deleted: boolean;
@@ -3442,6 +3595,7 @@ export class VatPostSetup extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'VatPostSetup';
 
+    public _createguid: string;
     public CreatedAt: Date;
     public CreatedBy: string;
     public Deleted: boolean;
@@ -3462,6 +3616,7 @@ export class VatReportForm extends UniEntity {
     public static RelativeUrl = 'vatreportforms';
     public static EntityType = 'VatReportForm';
 
+    public _createguid: string;
     public CreatedAt: Date;
     public CreatedBy: string;
     public Deleted: boolean;
@@ -3478,6 +3633,7 @@ export class VatReportReferenceSetup extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'VatReportReferenceSetup';
 
+    public _createguid: string;
     public AccountNumber: number;
     public CreatedAt: Date;
     public CreatedBy: string;
@@ -3495,6 +3651,7 @@ export class VatTypeSetup extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'VatTypeSetup';
 
+    public _createguid: string;
     public CreatedAt: Date;
     public CreatedBy: string;
     public Deleted: boolean;
@@ -3522,6 +3679,7 @@ export class PeriodSeries extends UniEntity {
     public static RelativeUrl = 'period-series';
     public static EntityType = 'PeriodSeries';
 
+    public _createguid: string;
     public Active: boolean;
     public CreatedAt: Date;
     public CreatedBy: string;
@@ -3539,6 +3697,7 @@ export class PeriodTemplate extends UniEntity {
     public static RelativeUrl = 'period-templates';
     public static EntityType = 'PeriodTemplate';
 
+    public _createguid: string;
     public CreatedAt: Date;
     public CreatedBy: string;
     public Deleted: boolean;
@@ -3559,6 +3718,7 @@ export class ReportDefinition extends UniEntity {
     public static RelativeUrl = 'report-definitions';
     public static EntityType = 'ReportDefinition';
 
+    public _createguid: string;
     public Category: string;
     public CreatedAt: Date;
     public CreatedBy: string;
@@ -3579,6 +3739,7 @@ export class ReportDefinitionDataSource extends UniEntity {
     public static RelativeUrl = 'report-definition-data-sources';
     public static EntityType = 'ReportDefinitionDataSource';
 
+    public _createguid: string;
     public CreatedAt: Date;
     public CreatedBy: string;
     public DataSourceUrl: string;
@@ -3596,6 +3757,7 @@ export class ReportDefinitionParameter extends UniEntity {
     public static RelativeUrl = 'report-definition-parameters';
     public static EntityType = 'ReportDefinitionParameter';
 
+    public _createguid: string;
     public CreatedAt: Date;
     public CreatedBy: string;
     public Deleted: boolean;
@@ -3615,6 +3777,7 @@ export class Model extends UniEntity {
     public static RelativeUrl = 'models';
     public static EntityType = 'Model';
 
+    public _createguid: string;
     public Admin: boolean;
     public CreatedAt: Date;
     public CreatedBy: string;
@@ -3636,6 +3799,7 @@ export class Field extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'Field';
 
+    public _createguid: string;
     public CreatedAt: Date;
     public CreatedBy: string;
     public Deleted: boolean;
@@ -3656,6 +3820,7 @@ export class Notification extends UniEntity {
     public static RelativeUrl = 'notifications';
     public static EntityType = 'Notification';
 
+    public _createguid: string;
     public CompanyKey: string;
     public CompanyName: string;
     public CreatedAt: Date;
@@ -3680,6 +3845,7 @@ export class AccrualPeriod extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'AccrualPeriod';
 
+    public _createguid: string;
     public AccountYear: number;
     public AccrualID: number;
     public Amount: number;
@@ -3702,6 +3868,7 @@ export class Accrual extends UniEntity {
     public static RelativeUrl = 'accruals';
     public static EntityType = 'Accrual';
 
+    public _createguid: string;
     public AccrualAmount: number;
     public AccrualJournalEntryMode: number;
     public BalanceAccountID: number;
@@ -3725,6 +3892,7 @@ export class JournalEntryType extends UniEntity {
     public static RelativeUrl = 'journalentrytypes';
     public static EntityType = 'JournalEntryType';
 
+    public _createguid: string;
     public CreatedAt: Date;
     public CreatedBy: string;
     public Deleted: boolean;
@@ -3741,6 +3909,7 @@ export class JournalEntryMode extends UniEntity {
     public static RelativeUrl = 'journalEntryModes';
     public static EntityType = 'JournalEntryMode';
 
+    public _createguid: string;
     public ColumnSetUp: string;
     public CreatedAt: Date;
     public CreatedBy: string;
@@ -3760,6 +3929,7 @@ export class JournalEntry extends UniEntity {
     public static RelativeUrl = 'journalentries';
     public static EntityType = 'JournalEntry';
 
+    public _createguid: string;
     public CreatedAt: Date;
     public CreatedBy: string;
     public Deleted: boolean;
@@ -3783,6 +3953,7 @@ export class JournalEntryLine extends UniEntity {
     public static RelativeUrl = 'journalentrylines';
     public static EntityType = 'JournalEntryLine';
 
+    public _createguid: string;
     public AccountID: number;
     public AccrualID: number;
     public Amount: number;
@@ -3856,6 +4027,7 @@ export class JournalEntryLineDraft extends UniEntity {
     public static RelativeUrl = 'journalentrylinedrafts';
     public static EntityType = 'JournalEntryLineDraft';
 
+    public _createguid: string;
     public AccountID: number;
     public AccrualID: number;
     public Amount: number;
@@ -3914,6 +4086,7 @@ export class PaymentBatch extends UniEntity {
     public static RelativeUrl = 'paymentbatches';
     public static EntityType = 'PaymentBatch';
 
+    public _createguid: string;
     public Camt054CMsgId: string;
     public CreatedAt: Date;
     public CreatedBy: string;
@@ -3943,6 +4116,7 @@ export class Payment extends UniEntity {
     public static RelativeUrl = 'payments';
     public static EntityType = 'Payment';
 
+    public _createguid: string;
     public Amount: number;
     public AmountCurrency: number;
     public AutoJournal: boolean;
@@ -3987,6 +4161,7 @@ export class VatCodeGroup extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'VatCodeGroup';
 
+    public _createguid: string;
     public CreatedAt: Date;
     public CreatedBy: string;
     public Deleted: boolean;
@@ -4004,6 +4179,7 @@ export class VatReportArchivedSummary extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'VatReportArchivedSummary';
 
+    public _createguid: string;
     public AmountToBePayed: number;
     public AmountToBeReceived: number;
     public CreatedAt: Date;
@@ -4029,6 +4205,7 @@ export class VatReportType extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'VatReportType';
 
+    public _createguid: string;
     public CreatedAt: Date;
     public CreatedBy: string;
     public Deleted: boolean;
@@ -4045,6 +4222,7 @@ export class VatReport extends UniEntity {
     public static RelativeUrl = 'vatreports';
     public static EntityType = 'VatReport';
 
+    public _createguid: string;
     public Comment: string;
     public CreatedAt: Date;
     public CreatedBy: string;
@@ -4074,6 +4252,7 @@ export class VatPost extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'VatPost';
 
+    public _createguid: string;
     public CreatedAt: Date;
     public CreatedBy: string;
     public Deleted: boolean;
@@ -4096,6 +4275,7 @@ export class VatReportReference extends UniEntity {
     public static RelativeUrl = 'vatreportreferences';
     public static EntityType = 'VatReportReference';
 
+    public _createguid: string;
     public AccountID: number;
     public CreatedAt: Date;
     public CreatedBy: string;
@@ -4117,6 +4297,7 @@ export class PostPost extends UniEntity {
     public static RelativeUrl = 'postposts';
     public static EntityType = 'PostPost';
 
+    public _createguid: string;
     public Amount: number;
     public AmountCurrency: number;
     public CreatedAt: Date;
@@ -4142,6 +4323,7 @@ export class SupplierInvoiceItem extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'SupplierInvoiceItem';
 
+    public _createguid: string;
     public CalculateGrossPriceBasedOnNetPrice: boolean;
     public Comment: string;
     public CreatedAt: Date;
@@ -4186,6 +4368,7 @@ export class SupplierInvoice extends UniEntity {
     public static RelativeUrl = 'supplierinvoices';
     public static EntityType = 'SupplierInvoice';
 
+    public _createguid: string;
     public AmountRegards: string;
     public BankAccountID: number;
     public Comment: string;
@@ -4268,11 +4451,14 @@ export class JournalEntrySourceSerie extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'JournalEntrySourceSerie';
 
+    public _createguid: string;
     public CreatedAt: Date;
     public CreatedBy: string;
     public Deleted: boolean;
     public ID: number;
+    public JournalEntrySourceEntityName: string;
     public JournalEntrySourceID: number;
+    public JournalEntrySourceInstanceID: number;
     public StatusCode: number;
     public UpdatedAt: Date;
     public UpdatedBy: string;
@@ -4284,6 +4470,7 @@ export class AccountGroupSet extends UniEntity {
     public static RelativeUrl = 'accountgroupsets';
     public static EntityType = 'AccountGroupSet';
 
+    public _createguid: string;
     public CreatedAt: Date;
     public CreatedBy: string;
     public Deleted: boolean;
@@ -4305,6 +4492,7 @@ export class Account extends UniEntity {
     public static RelativeUrl = 'accounts';
     public static EntityType = 'Account';
 
+    public _createguid: string;
     public AccountGroupID: number;
     public AccountID: number;
     public AccountName: string;
@@ -4351,6 +4539,7 @@ export class AccountAlias extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'AccountAlias';
 
+    public _createguid: string;
     public AccountID: number;
     public CreatedAt: Date;
     public CreatedBy: string;
@@ -4368,6 +4557,7 @@ export class AccountGroup extends UniEntity {
     public static RelativeUrl = 'accountgroups';
     public static EntityType = 'AccountGroup';
 
+    public _createguid: string;
     public AccountGroupSetID: number;
     public AccountGroupSetupID: number;
     public AccountID: number;
@@ -4393,6 +4583,7 @@ export class Bank extends UniEntity {
     public static RelativeUrl = 'banks';
     public static EntityType = 'Bank';
 
+    public _createguid: string;
     public AddressID: number;
     public BIC: string;
     public CreatedAt: Date;
@@ -4417,6 +4608,7 @@ export class BankAccount extends UniEntity {
     public static RelativeUrl = 'bankaccounts';
     public static EntityType = 'BankAccount';
 
+    public _createguid: string;
     public AccountID: number;
     public AccountNumber: string;
     public BankAccountType: string;
@@ -4444,6 +4636,7 @@ export class FinancialYear extends UniEntity {
     public static RelativeUrl = 'financialyears';
     public static EntityType = 'FinancialYear';
 
+    public _createguid: string;
     public CreatedAt: Date;
     public CreatedBy: string;
     public Deleted: boolean;
@@ -4462,6 +4655,7 @@ export class VatDeduction extends UniEntity {
     public static RelativeUrl = 'vatdeductions';
     public static EntityType = 'VatDeduction';
 
+    public _createguid: string;
     public CreatedAt: Date;
     public CreatedBy: string;
     public DeductionPercent: number;
@@ -4480,6 +4674,7 @@ export class VatType extends UniEntity {
     public static RelativeUrl = 'vattypes';
     public static EntityType = 'VatType';
 
+    public _createguid: string;
     public Alias: string;
     public AvailableInModules: boolean;
     public CreatedAt: Date;
@@ -4516,6 +4711,7 @@ export class EntityValidationRule extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'EntityValidationRule';
 
+    public _createguid: string;
     public ChangedByCompany: boolean;
     public CreatedAt: Date;
     public CreatedBy: string;
@@ -4541,6 +4737,7 @@ export class EntityValidationRuleTemplate extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'EntityValidationRuleTemplate';
 
+    public _createguid: string;
     public ChangedByCompany: boolean;
     public CreatedAt: Date;
     public CreatedBy: string;
@@ -4566,6 +4763,7 @@ export class ComplexValidationRule extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'ComplexValidationRule';
 
+    public _createguid: string;
     public ChangedByCompany: boolean;
     public CreatedAt: Date;
     public CreatedBy: string;
@@ -4589,6 +4787,7 @@ export class ComplexValidationRuleTemplate extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'ComplexValidationRuleTemplate';
 
+    public _createguid: string;
     public ChangedByCompany: boolean;
     public CreatedAt: Date;
     public CreatedBy: string;
@@ -4612,6 +4811,7 @@ export class CustomField extends UniEntity {
     public static RelativeUrl = 'custom-fields';
     public static EntityType = 'CustomField';
 
+    public _createguid: string;
     public CreatedAt: Date;
     public CreatedBy: string;
     public DataType: string;
@@ -4631,6 +4831,7 @@ export class ValueList extends UniEntity {
     public static RelativeUrl = 'valuelists';
     public static EntityType = 'ValueList';
 
+    public _createguid: string;
     public Code: string;
     public CreatedAt: Date;
     public CreatedBy: string;
@@ -4649,6 +4850,7 @@ export class ValueItem extends UniEntity {
     public static RelativeUrl = 'valueitems';
     public static EntityType = 'ValueItem';
 
+    public _createguid: string;
     public Code: string;
     public CreatedAt: Date;
     public CreatedBy: string;
@@ -4745,9 +4947,9 @@ export class WorkBalanceDto extends UniEntity {
     public ValidFrom: Date;
     public ValidTimeOff: number;
     public WorkRelationID: number;
-    public WorkRelation: WorkRelation;
     public Previous: BalanceInfo;
     public Details: Array<FlexDetail>;
+    public WorkRelation: WorkRelation;
     public CustomFields: any;
 }
 
@@ -5460,11 +5662,11 @@ export enum Leavetype{
 
 export enum RemunerationType{
     notSet = 0,
-    Salaried = 1,
+    FixedSalary = 1,
     HourlyPaid = 2,
     PaidOnCommission = 3,
-    Fees = 4,
-    Piecework = 5,
+    OnAgreement_Honorar = 4,
+    ByPerformance = 5,
 }
 
 
@@ -5504,8 +5706,8 @@ export enum WorkingHoursScheme{
     notSet = 0,
     NonShift = 1,
     OffshoreWork = 2,
-    SemiContinousShiftAndRotaWork = 3,
-    ContinuousShiftAndOtherSchemes = 4,
+    ContinousShiftwork336 = 3,
+    DayAndNightContinous355 = 4,
     ShiftWork = 5,
 }
 

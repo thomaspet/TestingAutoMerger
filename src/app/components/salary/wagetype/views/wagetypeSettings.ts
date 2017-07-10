@@ -76,7 +76,7 @@ export class WageTypeSettings extends UniView {
     private setup(wagetype: WageType) {
         return Observable
             .forkJoin(this.getSources(wagetype))
-            .map((response: [any, any [], : any[], bool]) => {                
+            .map((response: any) => {                
                 let [layout, wagetypes, limitTypes, used] = response;
                 layout.Fields = this.wagetypeService.manageReadOnlyIfCalculated(layout.Fields, used);
                 if (layout.Fields) {
@@ -118,8 +118,9 @@ export class WageTypeSettings extends UniView {
             }
         });
     }
+    
 
-    private getSources(wagetype: WageType) {
+    private getSources(wagetype: WageType): any {
         let source =  [
             this.wagetypeService.specialSettingsLayout('wagetypeSettings'),
             this.wagetypeService.GetAll(null),
@@ -128,8 +129,8 @@ export class WageTypeSettings extends UniView {
 
         if (wagetype.WageTypeNumber) {
             source.push(this.wagetypeService.usedInPayrollrun(wagetype.WageTypeNumber));
-        }
-
+        }  
+        
         return source;
     }
 
@@ -166,13 +167,5 @@ export class WageTypeSettings extends UniView {
                 return fields;
             })
             .subscribe(fields => this.fields$.next(fields));
-    }
-
-    private editField(fields: any[], prop: string, edit: (field: any) => void) {
-        fields.map(field => {
-            if (field.Property === prop) {
-                edit(field);
-            }
-        });
     }
 }
