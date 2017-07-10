@@ -90,7 +90,7 @@ export class UniMenuAim {
             }
         });
 
-        rows.forEach((row, index) => {
+        [].forEach.call(rows, (row, index) => {
             row.addEventListener('mouseenter', (e: MouseEvent) => {
                 if (timeoutId) {
                     clearTimeout(timeoutId);
@@ -99,16 +99,5 @@ export class UniMenuAim {
                 possiblyActivate(e.target, index);
             });
         });
-
-        // [].forEach.call(rows, (row) => {
-        //     row.addEventListener('mouseenter', (e: MouseEvent) => {
-        //         if (timeoutId) {
-        //             clearTimeout(timeoutId);
-        //         }
-
-        //         possiblyActivate(e.target);
-        //     });
-        // });
-
     }
 }
