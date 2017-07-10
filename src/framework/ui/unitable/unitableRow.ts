@@ -23,7 +23,8 @@ export interface IRowModelChangeEvent {
             (focus)="onCellFocus($event, column)"
             (click)="onCellClick($event, column)"
             [tabindex]="getTabIndex(column)"
-            [innerHtml]="uniTablePipe.transform(rowModel, column)">
+            [innerHtml]="uniTablePipe.transform(rowModel, column)"
+            [attr.title]="uniTablePipe.transform(rowModel, column)">
         </td>
 
         <td *ngIf="config?.deleteButton" tabindex="-1" class="unitable-delete-btn">

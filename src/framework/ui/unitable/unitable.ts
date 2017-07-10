@@ -73,6 +73,7 @@ enum Direction { UP, DOWN, LEFT, RIGHT }
 
                         [hidden]="!column.get('visible')"
                         (click)="onSort(column)"
+                        [attr.title]="column.get('header')"
                     >
                         {{column.get('header')}}
                     </th>
