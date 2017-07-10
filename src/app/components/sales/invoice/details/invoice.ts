@@ -1070,6 +1070,13 @@ export class InvoiceDetails {
 
         this.saveInvoice().then((invoice) => {
             this.isDirty = false;
+
+            // Update ID to avoid posting multiple times
+            // in case any of the following requests fail
+            if (invoice.ID && !this.invoice.ID) {
+                this.invoice.ID = invoice.ID;
+            }
+
             if (!isDraft) {
                 done(doneText);
                 this.router.navigateByUrl('sales/invoices/' + invoice.ID);
@@ -1079,13 +1086,14 @@ export class InvoiceDetails {
             this.customerInvoiceService.Transition(invoice.ID, null, 'invoice').subscribe(
                 (res) => {
                     done(doneText);
-                    this.customerInvoiceService.Get(this.invoice.ID, this.expandOptions).subscribe((refreshed) => {
-                        this.refreshInvoice(refreshed);
-                    });
                 },
                 (err) => {
                     done(errText);
                     this.errorService.handle(err);
+                },
+                () => {
+                    this.customerInvoiceService.Get(this.invoice.ID, this.expandOptions)
+                        .subscribe(res => this.refreshInvoice(res));
                 }
             );
         }).catch(error => {

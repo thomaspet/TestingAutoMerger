@@ -1,4 +1,12 @@
-import {Component, Input, Output, EventEmitter, SimpleChanges} from '@angular/core';
+import {
+    Component,
+    Input,
+    Output,
+    EventEmitter,
+    SimpleChanges,
+    ChangeDetectionStrategy,
+    ChangeDetectorRef
+} from '@angular/core';
 import * as moment from 'moment';
 
 export interface IUniSaveAction {
@@ -23,7 +31,7 @@ export interface IUniSaveAction {
                 <button *ngIf="actions.length === 1"
                         (click)="onSave(actions[0])"
                         [attr.aria-busy]="busy"
-                        [disabled]="actions[0].disabled">
+                        [disabled]="busy || actions[0].disabled">
                     {{actions[0].label}}
                 </button>
             </div>
@@ -123,6 +131,7 @@ export class UniSave {
         this.open = false;
         this.busy = true;
         this.status = undefined;
+
         setTimeout(() => action.action(this.onSaveCompleted.bind(this)));
     }
 
