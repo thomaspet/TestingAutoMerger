@@ -1,5 +1,8 @@
-<uni-toolbar *ngIf="!modalMode" [config]="toolbarconfig"
-                                [saveactions]="saveactions">
+<uni-toolbar *ngIf="!modalMode"
+    [config]="toolbarconfig"
+    [saveactions]="saveactions"
+    [tags]="categoryFilter"
+    [tagConfig]="tagConfig">
 </uni-toolbar>
 
 <header class="product_poster" *ngIf="product">

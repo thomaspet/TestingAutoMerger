@@ -7,11 +7,15 @@ import {Product, Account, VatType} from '../../../../unientities';
 import {FieldType} from '../../../../../framework/ui/uniform/index';
 import {IUniSaveAction} from '../../../../../framework/save/save';
 import {UniForm, UniField, UniFieldLayout} from '../../../../../framework/ui/uniform/index';
-import {Project} from '../../../../unientities';
-import {Department} from '../../../../unientities';
 import {IUploadConfig} from '../../../../../framework/uniImage/uniImage';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
 import {IToolbarConfig} from './../../../common/toolbar/toolbar';
+import {IUniTagsConfig, ITag} from './../../../common/toolbar/tags';
+import {
+    Project,
+    Department,
+    ProductCategory
+} from '../../../../unientities';
 import {
     ErrorService,
     ProductService,
@@ -19,7 +23,8 @@ import {
     VatTypeService,
     ProjectService,
     DepartmentService,
-    CompanySettingsService
+    CompanySettingsService,
+    ProductCategoryService
 } from '../../../../services/services';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 declare const _; // lodash
@@ -76,6 +81,20 @@ export class ProductDetails {
          }
     ];
 
+    public categoryFilter: ITag[] = [];
+    public tagConfig: IUniTagsConfig = {
+        description: 'Kategori ',
+        helpText: 'Produktkategorier: ',
+        truncate: 20,
+        autoCompleteConfig: {
+            template: (obj: ProductCategory) => obj ? obj.Name : '',
+            valueProperty: 'Name',
+            saveCallback: (category: ProductCategory) => this.productCategoryService.saveCategoryTag(this.productId, category),
+            deleteCallback: (tag) => this.productCategoryService.deleteCategoryTag(this.productId, tag),
+            search: (query, ignoreFilter) => this.productCategoryService.searchCategories(query, ignoreFilter)
+        }
+    };
+
     constructor(
         private productService: ProductService,
         private accountService: AccountService,
@@ -86,7 +105,8 @@ export class ProductDetails {
         private projectService: ProjectService,
         private departmentService: DepartmentService,
         private errorService: ErrorService,
-        private companySettingsService: CompanySettingsService
+        private companySettingsService: CompanySettingsService,
+        private productCategoryService: ProductCategoryService
     ) {
         this.route.params.subscribe(params => {
             this.productId = +params['id'];
@@ -167,6 +187,8 @@ export class ProductDetails {
             if (response.length > 1 && response[1] !== null) {
                 this.product$.getValue().PartName = response[1].PartNameSuggestion;
             }
+
+            this.getProductCategories();
 
             this.imageUploadConfig = {
                 isDisabled: (!this.productId || parseInt(this.productId) === 0),
@@ -433,6 +455,23 @@ export class ProductDetails {
         }
 
         return this.accountService.searchAccounts(filter, searchValue !== '' ? 100 : 500);
+    }
+
+    private getProductCategories() {
+        if (this.productId) {
+            this.productCategoryService.getProductCategories(this.productId).subscribe(categories => {
+                this.populateCategoryFilters(categories);
+            });
+        } else {
+            this.categoryFilter = [];
+        }
+    }
+
+    private populateCategoryFilters(categories) {
+        this.categoryFilter = categories.map(x => {
+            return { linkID: x.ProductCategoryLinkID, title: x.ProductCategoryName };
+        });
+        this.tagConfig.description = this.categoryFilter.length ? 'Kategori: ' : 'Kategori';
     }
 
     // TODO: return ComponentLayout when the object respects the interface

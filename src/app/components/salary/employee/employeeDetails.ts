@@ -510,7 +510,7 @@ export class EmployeeDetails extends UniView implements OnDestroy {
                     employmentWidget.config.mainText.text =
                         this.numberformat.asPercentage(employments[standardIndex].WorkPercent);
                 }
-                
+
                 if (actives > 1) {
                     employmentWidget.config.bottomText[0].text = '+' + (actives - 1) +
                         (actives > 2 ? ' stillinger' : ' stilling');
