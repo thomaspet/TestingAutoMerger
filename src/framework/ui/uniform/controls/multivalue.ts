@@ -126,28 +126,27 @@ export class UniMultivalueInput extends BaseControl {
     private createOpenCloseListeners() {
         const target = <any>this.el.nativeElement.children[0].children[0];
         const keyDownEvent = Observable.fromEvent(target, 'keydown');
-        const f4AndSpaceEvent = keyDownEvent.filter((event: KeyboardEvent) => {
-            return event.keyCode === KeyCodes.F4 || event.keyCode === KeyCodes.SPACE;
-        });
-        const arrowDownEvent = keyDownEvent.filter((event: KeyboardEvent) => {
-            return (event.keyCode === KeyCodes.ARROW_UP
-                || event.keyCode === KeyCodes.ARROW_DOWN)
-                && event.altKey;
-        });
 
-        Observable.merge(f4AndSpaceEvent, arrowDownEvent)
-            .subscribe((event: KeyboardEvent) => {
+        keyDownEvent.subscribe(event => {
+            const openKeys = [
+              KeyCodes.F4,
+              KeyCodes.SPACE,
+              KeyCodes.ARROW_UP,
+              KeyCodes.ARROW_DOWN
+            ]
+            if (openKeys.includes(event.keyCode)) {
                 event.preventDefault();
                 event.stopPropagation();
                 this.toggle();
-            });
-
-        keyDownEvent.filter((event: KeyboardEvent) => event.keyCode === KeyCodes.ESC)
-            .subscribe((event: KeyboardEvent) => {
+            } else if (event.keyCode === KeyCodes.ESC) {
                 event.preventDefault();
                 event.stopPropagation();
                 this.close();
-            });
+            } else if (!this.editorIsOpen) {
+                this.queryElement.nativeElement.blur();
+                this.edit(this.defaultRow, event);
+            }
+        })
     }
 
     public createListNavigationListeners() {

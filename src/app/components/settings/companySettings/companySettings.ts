@@ -416,7 +416,7 @@ export class CompanySettingsComponent implements OnInit {
         var defaultAddress: UniFieldLayout = fields.find(x => x.Property === 'DefaultAddress');
         defaultAddress.Options = {
             allowAddValue: false,
-            allowDeleteValue: false,
+            allowDeleteValue: true,
             entity: Address,
             listProperty: 'Addresses',
             displayValue: 'AddressLine1',
@@ -438,6 +438,10 @@ export class CompanySettingsComponent implements OnInit {
                 this.addressChanged = this.addressModal.Changed.subscribe(modalval => {
                     resolve(modalval);
                 });
+
+                this.addresModal.Canceled.subscribe(() => {
+                    reject();
+                });
             }),
             display: (address: Address) => {
                 return this.addressService.displayAddress(address);
@@ -448,7 +452,7 @@ export class CompanySettingsComponent implements OnInit {
 
         phones.Options = {
             allowAddValue: false,
-            allowDeleteValue: false,
+            allowDeleteValue: true,
             entity: Phone,
             listProperty: 'Phones',
             displayValue: 'Number',
@@ -474,7 +478,7 @@ export class CompanySettingsComponent implements OnInit {
 
         emails.Options = {
             allowAddValue: false,
-            allowDeleteValue: false,
+            allowDeleteValue: true,
             entity: Email,
             listProperty: 'Emails',
             displayValue: 'EmailAddress',
