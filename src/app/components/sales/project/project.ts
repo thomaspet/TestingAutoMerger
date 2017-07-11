@@ -48,6 +48,8 @@ export class Project {
         }
     ];
 
+    private commentsConfig: any;
+
     constructor(
         private tabService: TabService,
         private projectService: ProjectService,
@@ -60,7 +62,6 @@ export class Project {
             moduleID: UniModules.Projects,
             active: true
         });
-
 
         this.childRoutes = [
             { name: 'Oversikt', path: 'overview'},
@@ -108,6 +109,11 @@ export class Project {
         this.toolbarconfig.title = event.rowModel.Name;
         this.projectService.currentProject.next(event.rowModel);
         this.activeProjectID = event.rowModel.ID;
+
+        this.commentsConfig = {
+            entityType: 'Project',
+            entityID: this.activeProjectID
+        };
     };
 
     public saveProject(done: Function) {
