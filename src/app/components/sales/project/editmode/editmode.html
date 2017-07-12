@@ -9,6 +9,17 @@
                 [model]="project$">
             </uni-form>
         </section>
+        <section>
+            <fieldset>
+                <legend>Ressurser</legend>
+                <uni-table
+                    [config]="tableConfig"
+                    [resource]="project?.ProjectResources || []"
+                    (rowChanged)="onRowChanged($event)"
+                    (rowDeleted)="onRowDeleted($event)">
+                </uni-table>
+            </fieldset>
+        </section>
     </section>
 </section>
 <address-modal></address-modal>

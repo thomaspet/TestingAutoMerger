@@ -1,17 +1,33 @@
 ﻿import { Component, ViewChild } from '@angular/core';
-import { Project, Customer, Address } from '../../../../unientities';
 import { AddressModal } from '../../../common/modals/modals';
 import { UniFieldLayout } from '../../../../../framework/ui/uniform/index';
 import { FieldType } from '../../../../../framework/ui/uniform/index';
 import { IUniSearchConfig } from '../../../../../framework/ui/unisearch/index';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
+import { ProjectResponsibility } from '../../../../models/models';
+import { Observable } from 'rxjs/Observable';
+import {
+    Project,
+    Customer,
+    Address,
+    ProjectResource,
+    User
+} from '../../../../unientities';
+import {
+    UniTable,
+    UniTableColumn,
+    UniTableColumnType,
+    UniTableConfig
+} from '../../../../../framework/ui/unitable/index';
 import {
     ProjectService,
     ErrorService,
     UniSearchConfigGeneratorService,
-    AddressService
+    AddressService,
+    UserService
 } from '../../../../services/services';
 
+declare var _;
 
 @Component({
     selector: 'project-editmode',
@@ -34,11 +50,18 @@ export class ProjectEditmode {
         { ID: 3, Name: 'Avsluttet'}
     ];
 
+    private tableConfig: UniTableConfig;
+    private project: Project;
+    private users: User[] = [];
+
     constructor(
         private projectService: ProjectService,
         private errorService: ErrorService,
         private uniSearchConfigGeneratorService: UniSearchConfigGeneratorService,
-        private addressService: AddressService) {}
+        private addressService: AddressService,
+        private userService: UserService) {
+            this.setupTable();
+        }
 
     public ngOnInit() {
         this.fields$.next(this.getComponentFields());
@@ -53,6 +76,8 @@ export class ProjectEditmode {
                 this.actionLabel = project && project.ID ? 'Rediger prosjekt - '
                     + project.Name + ':' : 'Nytt prosjekt:';
                 this.extendFormConfig();
+
+                this.project = this.project$.getValue();
             });
     }
 
@@ -106,6 +131,83 @@ export class ProjectEditmode {
                 return this.addressService.displayAddress(address);
             }
         };
+    }
+
+    public onRowChanged(event) {
+        let row = event.rowModel;
+
+        // Map reponsibility
+        if (row['_Responsibility']) {
+            row['Responsibility'] = row['_Responsibility'].ID;
+        }
+
+        if (row['User']) {
+            row['UserID'] = row['User'].ID;
+        }
+
+        // Make sure new rows have a createguid
+        if (!row.ID && !row._createguid) {
+            row.ProjectID = this.project.ID;
+            row._createguid = this.projectService.getNewGuid();
+        }
+
+        // New project?
+        if (!this.project.ProjectResources) {
+            this.project.ProjectResources = [];
+        }
+
+        this.project.ProjectResources[row._originalIndex] = _.cloneDeep(row);
+        this.projectService.currentProject.next(this.project);
+        this.projectService.isDirty = true;
+    }
+
+    public onRowDeleted(event) {
+        let row = event.rowModel;
+
+        if (row.ID) {
+            this.project.ProjectResources[row._originalIndex].Deleted = true;
+        } else {
+            this.project.ProjectResources.splice(row._originalIndex, 1);
+        }
+
+        this.projectService.currentProject.next(this.project);
+        this.projectService.isDirty = true;
+   }
+
+    private setupTable() {
+        this.userService.GetAll('').subscribe(users => {
+            this.users = users;
+            this.tableConfig = new UniTableConfig(true, true, 5)
+                .setDeleteButton(true)
+                .setSearchable(false)
+                .setAutoAddNewRow(true)
+                .setDefaultRowData({Name: '', User: null, Responsibility: -1})
+                .setColumns([
+                    new UniTableColumn('Name', 'Ressurs', UniTableColumnType.Text),
+                    new UniTableColumn('User', 'Bruker', UniTableColumnType.Lookup)
+                        .setTemplate((row) => {
+                            let user = row['User'] ? row['User'] : this.users.find(x => x.ID == row['UserID']);
+                            return user ? user.DisplayName : '';
+                        })
+                        .setEditorOptions({
+                            itemTemplate: (item) => item.DisplayName || item.Email,
+                            lookupFunction: (searchValue) => {
+                                return Observable.from([this.users.filter(x => x.DisplayName.startsWith(searchValue))]);
+                            }
+                        }),
+                    new UniTableColumn('_Responsibility', 'Ansvar', UniTableColumnType.Lookup)
+                        .setTemplate((row) => {
+                            let responsibility = row['_Responsibility'] ? row['_Responsibility'] : ProjectResponsibility.find(x => x.ID == row['Responsibility']);
+                            return responsibility ? responsibility.Title : '';
+                        })
+                        .setEditorOptions({
+                            itemTemplate: (item) => item.Title,
+                            lookupFunction: (searchValue) => {
+                                return Observable.from([ProjectResponsibility.filter((x => x.Title.startsWith(searchValue)))]);
+                            }
+                        })
+                ]);
+        });
     }
 
     private getComponentFields(): UniFieldLayout[] {
@@ -230,28 +332,6 @@ export class ProjectEditmode {
                 Label: 'Total',
                 Property: 'Total',
                 FieldSet: 6,
-                FieldSetColumn: 1
-            },
-            <any>{
-                FieldType: FieldType.NUMERIC,
-                Label: 'Navn',
-                Property: '',
-                FieldSet: 7,
-                FieldSetColumn: 1,
-                Legend: 'Ressurser'
-            },
-            <any>{
-                FieldType: FieldType.NUMERIC,
-                Label: 'Ansvar',
-                Property: '',
-                FieldSet: 7,
-                FieldSetColumn: 1
-            },
-            <any>{
-                FieldType: FieldType.NUMERIC,
-                Label: 'Type',
-                Property: '',
-                FieldSet: 7,
                 FieldSetColumn: 1
             }
         ];

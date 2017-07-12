@@ -13,6 +13,8 @@ import {
 import { IToolbarConfig } from '../../common/toolbar/toolbar';
 import { IUniSaveAction } from '../../../../framework/save/save';
 
+declare var _;
+
 @Component({
     selector: 'uni-project',
     templateUrl: './project.html'
@@ -89,7 +91,7 @@ export class Project {
     private setUpTable() {
         this.lookupFunction = (urlParams: URLSearchParams) => {
             urlParams = urlParams || new URLSearchParams();
-            urlParams.set('expand', 'ProjectTasks.ProjectTaskSchedules');
+            urlParams.set('expand', 'ProjectTasks.ProjectTaskSchedules,ProjectResources');
 
             return this.projectService.GetAllByUrlSearchParams(urlParams)
                 .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
@@ -123,8 +125,8 @@ export class Project {
             : this.projectService.Post(project);
 
         source.subscribe(
-            res => {
-                this.table.refreshTableData();
+            (project) => {
+                this.table.refreshTableData(); // TODO: also do something about which project is active
                 done('Lagring fullført');
             },
             err => {
