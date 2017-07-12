@@ -24,6 +24,8 @@ import * as moment from 'moment';
 
 const PAPERCLIP = '📎'; // It might look empty in your editor, but this is the unicode paperclip
 
+declare var _;
+
 @Component({
     selector: 'accounting-details-report',
     templateUrl: './accountDetailsReport.html',
@@ -128,6 +130,7 @@ export class AccountDetailsReport {
                 this.loadData();
             });
         } else {
+            this.loadData();
             this.doTurnAndInclude();
         }
     }
