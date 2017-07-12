@@ -32,8 +32,6 @@ export class Project {
     private tableConfig: UniTableConfig;
     private lookupFunction: (urlParams: URLSearchParams) => any;
 
-    private projectList;
-
     private toolbarconfig: IToolbarConfig = {
         title: '',
         navigation: {
@@ -79,7 +77,12 @@ export class Project {
     }
 
     public onTableReady() {
-        this.table.focusRow(0);
+        if (this.table.getRowCount() === 0) {
+            this.newProject();
+        } else {
+            let current = this.projectService.currentProject.getValue();
+            this.table.focusRow(current['_originalIndex'] ? current['_originalIndex'] : 0);
+        }
     }
 
     private newProject() {
@@ -126,7 +129,7 @@ export class Project {
 
         source.subscribe(
             (project) => {
-                this.table.refreshTableData(); // TODO: also do something about which project is active
+                this.table.refreshTableData();
                 done('Lagring fullført');
             },
             err => {
