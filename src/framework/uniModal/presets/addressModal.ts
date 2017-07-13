@@ -44,8 +44,6 @@ export class UniAddressModal implements IUniModal {
     private formModel$: BehaviorSubject<Address> = new BehaviorSubject(null);
     private formFields$: BehaviorSubject<UniFieldLayout[]> = new BehaviorSubject([]);
 
-    private countries: Country[];
-
     constructor(
         private countryService: CountryService,
         private postalCodeService: PostalCodeService,
@@ -56,20 +54,7 @@ export class UniAddressModal implements IUniModal {
         let address = this.options.data || {};
         this.formModel$.next(address);
 
-        this.countryService.GetAll('orderby=Name').subscribe(
-            res => {
-                let countries: Country[] = res;
-                let defaultCountryIndex = countries.findIndex(x => x.CountryCode === 'NO');
-                if (defaultCountryIndex >= 0) {
-                    let defaultCountry = countries.splice(defaultCountryIndex, 1)[0];
-                    countries.unshift(defaultCountry);
-                }
-
-                this.countries = countries;
-                this.formFields$.next(this.getFormFields());
-            },
-            err => this.errorService.handle(err)
-        );
+        this.formFields$.next(this.getFormFields());
     }
 
     public formChange(changes) {
@@ -87,20 +72,11 @@ export class UniAddressModal implements IUniModal {
     }
 
     public close(emitValue?: boolean) {
-        let address: Address;
-        if (emitValue) {
-            address = this.formModel$.getValue();
-            this.setCountryCode(address);
-        }
+        const address: Address = emitValue
+            ? this.formModel$.getValue()
+            : null;
 
         this.onClose.emit(address);
-    }
-
-    private setCountryCode(address: Address) {
-        if (address.Country && this.countries) {
-            let country = this.countries.find(c => c.Name === address.Country);
-            address.CountryCode = country && country.CountryCode;
-        }
     }
 
     private getFormFields(): UniFieldLayout[] {
@@ -138,10 +114,23 @@ export class UniAddressModal implements IUniModal {
             <any> {
                 EntityType: 'Address',
                 Property: 'Country',
-                FieldType: FieldType.DROPDOWN,
+                FieldType: FieldType.AUTOCOMPLETE,
                 Label: 'Land',
                 Options: {
-                    source: this.countries,
+                    search: (query) => {
+                        const filter = query && query.length
+                            ? `filter=startswith(Name,'${query}')&top=20`
+                            : 'top=20';
+
+                        return this.countryService.GetAll(filter);
+                    },
+                    events: {
+                        select: (model: Address, selectedItem: Country) => {
+                            model.Country = selectedItem.Name;
+                            model.CountryCode = selectedItem.CountryCode;
+                        }
+                    },
+
                     valueProperty: 'Name',
                     displayProperty: 'Name',
                 }
