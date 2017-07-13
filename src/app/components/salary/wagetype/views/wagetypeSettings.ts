@@ -19,7 +19,6 @@ export class WageTypeSettings extends UniView {
     @ViewChild(UniForm) public uniform: UniForm;
 
     private wagetypeID: number;
-    private wagetypes: WageType[] = [];
     private limitTypes: { Type: LimitType, Name: string }[] = [];
 
     private stdWageType: Array<any> = [
@@ -77,12 +76,11 @@ export class WageTypeSettings extends UniView {
         return Observable
             .forkJoin(this.getSources(wagetype))
             .map((response: any) => {                
-                let [layout, wagetypes, limitTypes, used] = response;
+                let [layout, limitTypes, used] = response;
                 layout.Fields = this.wagetypeService.manageReadOnlyIfCalculated(layout.Fields, used);
                 if (layout.Fields) {
                     this.fields$.next(layout.Fields);
                 }
-                this.wagetypes = wagetypes;
                 this.limitTypes = limitTypes;                
                 this.extendFields(layout.Fields, wagetype);
                 this.updateFields(wagetype);
@@ -122,8 +120,7 @@ export class WageTypeSettings extends UniView {
 
     private getSources(wagetype: WageType): any {
         let source =  [
-            this.wagetypeService.specialSettingsLayout('wagetypeSettings'),
-            this.wagetypeService.GetAll(null),
+            this.wagetypeService.specialSettingsLayout('wagetypeSettings', this.wagetypeService.GetAll(null)),
             this.wagetypeService.getLimitTypes()
         ];  
 
@@ -136,27 +133,11 @@ export class WageTypeSettings extends UniView {
 
     private updateFields(wagetype: WageType) {
         this.fields$
+            .asObservable()
             .take(1)
             .map(fields => {
-                this.editField(fields, 'Limit_type', limitType => {
-                    limitType.Options = {
-                        source: this.limitTypes,
-                        valueProperty: 'Type',
-                        template: (obj: any) => obj
-                            ? `${obj.Type} - ${obj.Name}`
-                            : '',
-                        debounceTime: 500
-                    };
-                });
 
                 this.editField(fields, 'Limit_WageTypeNumber', limitWagetypeNumber => {
-                    limitWagetypeNumber.Options = {
-                        source: this.wagetypes,
-                        valueProperty: 'WageTypeNumber',
-                        template: (wagetype: WageType) => wagetype
-                            ? `${wagetype.WageTypeNumber} - ${wagetype.WageTypeName}`
-                            : ''
-                    };
                     limitWagetypeNumber.ReadOnly = !!wagetype.Limit_newRate;
                 });
 
