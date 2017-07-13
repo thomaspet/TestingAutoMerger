@@ -5,7 +5,13 @@ import {UniHttp} from '../../../framework/core/http/http';
 import {Router} from '@angular/router';
 import {ErrorService, CompanySettingsService} from '../../services/services';
 import {UniWidgetCanvas} from '../widgets/widgetCanvas';
-
+import {
+    UniModalService,
+    UniConfirmModalV2,
+    UniAddressModal,
+    UniPhoneModal,
+    UniEmailModal
+} from '../../../framework/uniModal/barrel';
 import * as Chart from 'chart.js';
 
 export interface IChartDataSet {
@@ -34,12 +40,39 @@ export class Dashboard {
         private router: Router,
         private errorService: ErrorService,
         private companySettingsService: CompanySettingsService,
+        private modalService: UniModalService
     ) {
         this.tabService.addTab({ name: 'Skrivebord', url: '/', active: true, moduleID: UniModules.Dashboard });
 
         // Avoid compile error. Seems to be something weird with the chart.js typings file
         (<any> Chart).defaults.global.maintainAspectRatio = false;
         this.layout = this.initLayout();
+    }
+
+    public openModal(type) {
+        let modal;
+
+        switch (type) {
+            case 1:
+                modal = this.modalService.open(UniConfirmModalV2, {
+                    header: 'Bekreft',
+                    message: 'Vennligst bekreft dette',
+                });
+            break;
+            case 2:
+                modal = this.modalService.open(UniAddressModal);
+            break;
+            case 3:
+                modal = this.modalService.open(UniPhoneModal);
+            break;
+            case 4:
+                modal = this.modalService.open(UniEmailModal);
+            break;
+        }
+
+        modal.onClose.subscribe(value => {
+            console.log('Modal closed with value: ', value);
+        });
     }
 
     public initLayout() {

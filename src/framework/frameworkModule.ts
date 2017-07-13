@@ -26,6 +26,11 @@ import {UniAvatar} from './avatar/uniAvatar';
 import {UniCommentInput} from './comments/commentInput';
 import {UniCommentList} from './comments/commentList';
 
+import {UniFormModule} from './ui/uniform/uniform.module';
+import {UniTableModule} from './ui/unitable/unitableModule';
+
+import {UniModalService, MODALS} from './uniModal/barrel';
+
 @NgModule({
     imports: [
         CommonModule,
@@ -33,7 +38,9 @@ import {UniCommentList} from './comments/commentList';
         ReactiveFormsModule,
         UniCoreModule,
         AppPipesModule,
-        UniPipesModule
+        UniPipesModule,
+        UniFormModule,
+        UniTableModule
     ],
     declarations: [
         UniModal,
@@ -51,21 +58,26 @@ import {UniCommentList} from './comments/commentList';
         UniMultiLevelSelect,
         UniCommentInput,
         UniCommentList,
-        UniAvatar
+        UniAvatar,
+        ...MODALS
     ],
     entryComponents: [
         UniConfirmContent,
+        ...MODALS
     ],
     providers: [
         ImageUploader,
         CommentService,
         StimulsoftReportWrapper,
-        Logger
+        Logger,
+        UniModalService
     ],
     exports: [
         // Modules
         UniCoreModule,
         UniPipesModule,
+        UniFormModule,
+        UniTableModule,
 
         // Components
         UniModal,

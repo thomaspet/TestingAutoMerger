@@ -75,16 +75,7 @@ dialog.uniModal
         @media(small)
             width: 95cw
 
-        h1:not(.new)
-            @extend h2
 
-        h1.new
-            @extend p
-            color: $uni-color-negative
-            background: $uni-color-toolbar
-            line-height: 1
-            padding: .5rem 1rem
-            display: block
 
         footer
             float: right
@@ -104,3 +95,98 @@ dialog.uniModal[open=false],
 dialog.uniModal[open=false]:before
     visibility: hidden
     animation: hide-modal 300ms linear 1
+
+
+// NEW MODAL STUFF
+.uni-modal-backdrop
+    @include fullscreen
+    box-sizing: border-box
+    border: none
+    padding: 2rem
+    transition: opacity 300ms ease
+    opacity: 1
+    background: transparentize($uni-color-scale4, .3)
+    display: flex
+    align-items: center
+    justify-content: center
+    overflow: auto
+    z-index: map-get($zindex, modal)
+
+    @supports (backdrop-filter: blur(.2rem))
+        backdrop-filter: blur(.2rem)
+        background: transparentize($uni-color-scale4, .4)
+
+dialog.uni-modal
+    width: 40vw
+    margin: 0 auto
+    background: $uni-color-negative
+    color: $uni-color-positive
+    box-shadow: 0 0 1rem transparentize($uni-color-positive, .9)
+    border: 1px solid $uni-color-scale9
+    padding: 1rem
+    box-sizing: border-box
+    border-radius: pxToRem(5)
+    max-height: 90vh
+    overflow-y: visible
+    overflow-x: auto
+
+    transform: translateY(-50%)
+
+    @include clearfix
+
+    &.small
+        width: 40vw
+
+    &.medium
+        width: 60vw
+
+    &.large
+        width: 90vw
+
+    @media (max-width: 1100px)
+        min-width: 60vw
+
+    @media (max-width: 700px)
+        width: 90vw !important
+
+    header
+        background: $uni-color-toolbar
+
+        h1
+            @extend p
+            width: calc(100% - 4rem)
+            color: $uni-color-negative
+            line-height: 1
+            padding: 0 1rem
+            display: inline-block
+            box-sizing: border-box
+
+        button.modal-close-button
+            @extend %hideText
+            float: right
+            height: 2rem
+            width: 2rem
+            margin: .25rem 1rem
+            padding: 0
+            box-shadow: none
+            border: none
+            background: transparent unicon-close($uni-color-negative) center no-repeat
+            background-size: .7rem
+            display: inline-block
+
+            &:hover
+                background: transparent unicon-close($uni-color-scale1) center no-repeat
+                background-size: .7rem
+
+    main
+        padding: 1rem .5rem
+
+    footer
+        width: 100%
+        text-align: right
+        border-top: 1px solid $uni-color-scale9
+
+        button
+            display: inline-block
+            min-width: 5rem
+            margin: 1rem 0 0 1rem
