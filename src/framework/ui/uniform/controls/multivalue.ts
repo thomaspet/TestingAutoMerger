@@ -127,14 +127,15 @@ export class UniMultivalueInput extends BaseControl {
         const target = <any>this.el.nativeElement.children[0].children[0];
         const keyDownEvent = Observable.fromEvent(target, 'keydown');
 
-        keyDownEvent.subscribe(event => {
+        keyDownEvent.subscribe((event: KeyboardEvent) => {
             const openKeys = [
               KeyCodes.F4,
               KeyCodes.SPACE,
               KeyCodes.ARROW_UP,
               KeyCodes.ARROW_DOWN
-            ]
-            if (openKeys.includes(event.keyCode)) {
+            ];
+
+            if (Array.includes(openKeys, event.keyCode)) {
                 event.preventDefault();
                 event.stopPropagation();
                 this.toggle();
@@ -146,7 +147,7 @@ export class UniMultivalueInput extends BaseControl {
                 this.queryElement.nativeElement.blur();
                 this.edit(this.defaultRow, event);
             }
-        })
+        });
     }
 
     public createListNavigationListeners() {
@@ -369,95 +370,46 @@ export class UniMultivalueInput extends BaseControl {
                 }
             }
         }
-        var self = this;
-        let modelProperty = this.field.Options.storeResultInProperty || this.field.Property;
-        let rowsProperty = this.field.Options.listProperty || this.field.Property;
-        if (!this.field.Options.editor) {
-            var entity = this.field.Options.entity;
-            var tmp = new entity();
-            _.set(tmp, this.field.Options.displayValue, this.currentValue);
-            this.rows = [].concat(this.rows, tmp);
-            let previousValue = _.get(this.model, modelProperty);
-            _.set(this.model, rowsProperty, this.rows);
-            this.currentValue = '';
-            let row = this.rows[this.rows.length - 1];
-            this.edit(row, $event);
-            this.emitChange(previousValue, row);
-            this.isDirty = false;
-            this.moveForwardEvent.emit({event: $event, field: this.field});
-        } else {
-            let entityType = this.field.Options.entity;
-            let entityInstance;
-            if (entityType && this.isDirty) {
-                this.isDirty = false;
-                entityInstance = new entityType();
-                entityInstance[this.field.Options.displayValue] = this.currentValue;
-            } else {
-                entityInstance = {};
-            }
-            if (!this.editorIsOpen) {
-                this.editorIsOpen = true;
-                this.field.Options.editor(entityInstance)
-                    .then(newEntity => {
-                        this.editorIsOpen = false;
-                        this.isDirty = false;
-                        self.rows = [].concat(self.rows, newEntity);
-                        self.currentValue = '';
-                        if (self.field.Options.listProperty) {
-                            _.set(self.model, self.field.Options.listProperty, self.rows);
-                        } else {
-                            _.set(self.model, self.field.Property, self.rows);
-                        }
-                        self.setAsDefault(newEntity);
-                        this.emitChange(null, newEntity);
-                        this.moveForwardEvent.emit({event: $event, field: this.field});
-                        this.close();
-                        self.cd.markForCheck();
-                    })
-                    .catch(res => {
-                        this.currentValue = this.showDisplayValue(this.defaultRow);
-                        this.close();
-                        this.cd.markForCheck();
-                        this.editorIsOpen = false;
-                        this.isDirty = false;
-                    });
-            }
-        }
+
+        let newEntity = {ID: 0};
+        this.edit(newEntity, $event);
     }
 
     private edit(row, $event) {
-        var self = this;
-        this.rows.forEach(x => x._mode = 0);
         $event.preventDefault();
         $event.stopPropagation();
+
+        if (this.editorIsOpen) {
+            return;
+        }
+
+        this.rows.forEach(x => x._mode = 0);
+
         if (this.field.Options.editor) {
             if (!this.editorIsOpen) {
                 this.editorIsOpen = true;
                 this.field.Options.editor(row).then(editedEntity => {
                     this.isDirty = false;
                     this.editorIsOpen = false;
-                    var index = self.rows.indexOf(row);
-                    var part1 = self.rows.slice(0, index);
-                    var part2 = self.rows.slice(index + 1);
-                    self.rows = [
-                        ...part1,
-                        editedEntity,
-                        ...part2
-                    ];
-                    let previousValue;
-                    if (self.field.Options.listProperty) {
-                        _.set(self.model, self.field.Options.listProperty, self.rows);
-                        previousValue = _.get(self.model, self.field.Options.listProperty);
-                    } else {
-                        _.set(self.model, self.field.Property, self.rows);
-                        previousValue = _.get(self.model, self.field.Property);
+
+                    if (!editedEntity) {
+                        return;
                     }
-                    self.setAsDefault(editedEntity);
+
+                    const index = this.rows.indexOf(row);
+                    if (index >= 0) {
+                        this.rows[index] = editedEntity;
+                    } else {
+                        this.rows.push(editedEntity);
+                    }
+
+                    this.close();
+
+                    this.setAsDefault(editedEntity);
                     const oldValue = row;
                     const newValue = editedEntity;
-                    this.close();
                     this.emitChange(oldValue, newValue);
-                    self.cd.markForCheck();
+                    this.cd.markForCheck();
                     this.moveForwardEvent.emit({event: $event, field: this.field});
                 }).catch((res) => {
                     this.isDirty = false;
