@@ -15,7 +15,11 @@ import { IPosterWidget } from '../../common/poster/poster';
 import { UniHttp } from '../../../../framework/core/http/http';
 import { UniView } from '../../../../framework/core/uniView';
 import { TaxCardModal } from './modals/taxCardModal';
-import { UniConfirmModal, ConfirmActions } from '../../../../framework/modals/confirm';
+import {
+    UniModalService,
+    UniConfirmModalV2,
+    ConfirmActions
+} from '../../../../framework/uniModal/barrel';
 import {
     EmployeeService, EmploymentService, EmployeeLeaveService, DepartmentService, ProjectService,
     SalaryTransactionService, UniCacheService, SubEntityService, EmployeeTaxCardService, ErrorService,
@@ -68,8 +72,8 @@ export class EmployeeDetails extends UniView implements OnDestroy {
         }
     };
 
-    @ViewChild(TaxCardModal) public taxCardModal: TaxCardModal;
-    @ViewChild(UniConfirmModal) private confirmModal: UniConfirmModal;
+    @ViewChild(TaxCardModal)
+    public taxCardModal: TaxCardModal;
 
     private employeeWidgets: IPosterWidget[] = [
         {
@@ -136,7 +140,8 @@ export class EmployeeDetails extends UniView implements OnDestroy {
         private yearService: YearService,
         private bankaccountService: BankAccountService,
         private employeeCategoryService: EmployeeCategoryService,
-        private modulusService: ModulusService
+        private modulusService: ModulusService,
+        private modalService: UniModalService
     ) {
         super(router.url, cacheService);
 
@@ -394,20 +399,55 @@ export class EmployeeDetails extends UniView implements OnDestroy {
     public canDeactivate(): Observable<boolean> {
         return Observable
             .of(!super.isDirty() || this.savedNewEmployee)
-            .switchMap(result => {
-                return result
-                    ? Observable.of(result)
-                    : Observable
-                        .fromPromise(
-                        this.confirmModal.confirmSave())
-                        .map((response: ConfirmActions) => {
-                            if (response === ConfirmActions.ACCEPT) {
-                                this.saveAll((m) => { }, false);
-                                return true;
-                            } else {
-                                return response === ConfirmActions.REJECT;
-                            }
-                        });
+            .switchMap(isSaved => {
+                if (isSaved) {
+                    return Observable.of(true);
+                }
+
+                const modal = this.modalService.open(UniConfirmModalV2, {
+                    header: 'Ulagrede endringer',
+                    message: 'Du har ulagrede endringer. Ønsker du å lagre disse før du fortsetter?',
+                    buttons: [
+                        {
+                            label: 'Lagre',
+                            class: 'good',
+                            action: modalInstance => modalInstance.onClose.next(ConfirmActions.ACCEPT),
+                        },
+                        {
+                            label: 'Forkast',
+                            class: 'bad',
+                            action: modalInstance => modalInstance.onClose.next(ConfirmActions.REJECT),
+                        },
+                        {
+                            label: 'Avbryt',
+                            class: 'warning',
+                            action: modalInstance => modalInstance.onClose.next(ConfirmActions.CANCEL),
+                        }
+                    ]
+                });
+
+                return modal.onClose.map((action) => {
+                    if (action === ConfirmActions.ACCEPT) {
+                        this.saveAll((m) => {}, false);
+                        return true;
+                    } else {
+                        return action === ConfirmActions.REJECT;
+                    }
+                });
+
+                // return result
+                //     ? Observable.of(result)
+                //     : Observable
+                //         .fromPromise(
+                //         this.confirmModal.confirmSave())
+                //         .map((response: ConfirmActions) => {
+                //             if (response === ConfirmActions.ACCEPT) {
+                //                 this.saveAll((m) => { }, false);
+                //                 return true;
+                //             } else {
+                //                 return response === ConfirmActions.REJECT;
+                //             }
+                //         });
             })
             .map(canDeactivate => {
                 canDeactivate

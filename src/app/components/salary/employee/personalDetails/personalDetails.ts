@@ -6,7 +6,12 @@ import {
     OperationType, Operator, ValidationLevel, Employee, Email, Phone,
     Address, SubEntity, BankAccount, User
 } from '../../../../unientities';
-import { AddressModal, EmailModal, PhoneModal } from '../../../common/modals/modals';
+import {
+    UniModalService,
+    UniAddressModal,
+    UniEmailModal,
+    UniPhoneModal
+} from '../../../../../framework/uniModal/barrel';
 import { Observable } from 'rxjs/Observable';
 
 import {
@@ -24,12 +29,16 @@ import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import { BankAccountModal } from '../../../common/modals/modals';
 import { UniField } from '../../../../../framework/ui/uniform/index';
 
-
 @Component({
     selector: 'employee-personal-details',
     templateUrl: './personalDetails.html'
 })
 export class PersonalDetails extends UniView {
+    @ViewChild(UniForm)
+    public uniform: UniForm;
+
+    @ViewChild(BankAccountModal)
+    public bankAccountModal: BankAccountModal;
 
     public busy: boolean;
     public expands: any = [
@@ -46,12 +55,6 @@ export class PersonalDetails extends UniView {
     public fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
     private employee$: BehaviorSubject<Employee> = new BehaviorSubject(new Employee());
 
-    @ViewChild(UniForm) public uniform: UniForm;
-    @ViewChild(PhoneModal) public phoneModal: PhoneModal;
-    @ViewChild(EmailModal) public emailModal: EmailModal;
-    @ViewChild(AddressModal) public addressModal: AddressModal;
-
-    @ViewChild(BankAccountModal) public bankAccountModal: BankAccountModal;
     private employeeID: number;
     private collapseTax: boolean;
 
@@ -65,7 +68,8 @@ export class PersonalDetails extends UniView {
         private bankaccountService: BankAccountService,
         private businessRelationService: BusinessRelationService,
         private uniSearchConfigGeneratorService: UniSearchConfigGeneratorService,
-        private userService: UserService
+        private userService: UserService,
+        private modalService: UniModalService
     ) {
 
         super(router.url, cacheService);
@@ -260,10 +264,9 @@ export class PersonalDetails extends UniView {
                     ? `${obj.OrgNumber} - ${obj.BusinessRelationInfo.Name}`
                     : `${obj.OrgNumber}`
                 : ''
-        }
+        };
 
         let multiValuePhone: UniFieldLayout = this.findByProperty(fields, 'BusinessRelationInfo.DefaultPhone');
-        let phoneModalSubscription;
         multiValuePhone.Options = {
             entity: Phone,
             listProperty: 'BusinessRelationInfo.Phones',
@@ -271,19 +274,13 @@ export class PersonalDetails extends UniView {
             linkProperty: 'ID',
             storeResultInProperty: 'BusinessRelationInfo.DefaultPhone',
             storeIdInProperty: 'BusinessRelationInfo.DefaultPhoneID',
-            editor: (value) => new Promise((resolve) => {
-                if (!value || !value.ID) {
-                    value = new Phone();
-                    value.ID = 0;
-                }
+            editor: (value) => {
+                const modal = this.modalService.open(UniPhoneModal, {
+                    data: value || new Phone()
+                });
 
-                this.phoneModal.openModal(value);
-                if (!phoneModalSubscription) {
-                    phoneModalSubscription = this.phoneModal.Changed.subscribe(modalval => {
-                        resolve(modalval);
-                    });
-                }
-            }),
+                return modal.onClose.take(1).toPromise();
+            },
             display: (phone: Phone) => {
                 let displayVal = '';
                 if (phone.Number) {
@@ -294,7 +291,6 @@ export class PersonalDetails extends UniView {
         };
 
         let multiValueEmail: UniFieldLayout = this.findByProperty(fields, 'BusinessRelationInfo.DefaultEmail');
-        let emailModalSubscription;
         multiValueEmail.Options = {
             entity: Email,
             listProperty: 'BusinessRelationInfo.Emails',
@@ -302,25 +298,17 @@ export class PersonalDetails extends UniView {
             linkProperty: 'ID',
             storeResultInProperty: 'BusinessRelationInfo.DefaultEmail',
             storeIdInProperty: 'BusinessRelationInfo.DefaultEmailID',
-            editor: (value) => new Promise((resolve) => {
-                if (!value || !value.ID) {
-                    value = new Email();
-                    value.ID = 0;
-                }
+            editor: (value) => {
+                const modal = this.modalService.open(UniEmailModal, {
+                    data: value || new Email()
+                });
 
-                this.emailModal.openModal(value);
-
-                if (!emailModalSubscription) {
-                    emailModalSubscription = this.emailModal.Changed.subscribe(modalval => {
-                        resolve(modalval);
-                    });
-                }
-            })
+                return modal.onClose.take(1).toPromise();
+            }
         };
 
         let multiValueAddress: UniFieldLayout = this.findByProperty(fields, 'BusinessRelationInfo.InvoiceAddress');
 
-        let addressModalSubscription;
         multiValueAddress.Options = {
             entity: Address,
             listProperty: 'BusinessRelationInfo.Addresses',
@@ -328,21 +316,13 @@ export class PersonalDetails extends UniView {
             linkProperty: 'ID',
             storeResultInProperty: 'BusinessRelationInfo.InvoiceAddress',
             storeIdInProperty: 'BusinessRelationInfo.InvoiceAddressID',
-            editor: (value) => new Promise((resolve) => {
-                if (!value || !value.ID) {
-                    value = new Address();
-                    value.ID = 0;
-                }
+            editor: (value) => {
+                const modal = this.modalService.open(UniAddressModal, {
+                    data: value || new Address()
+                });
 
-                this.addressModal.openModal(value);
-
-                if (!addressModalSubscription) {
-                    addressModalSubscription = this.addressModal.Changed.subscribe(modalval => {
-                        resolve(modalval);
-                    });
-                }
-
-            }),
+                return modal.onClose.take(1).toPromise();
+            },
             display: (address: Address) => {
 
                 let displayVal = (address.AddressLine1 ? address.AddressLine1 + ', ' : '')
