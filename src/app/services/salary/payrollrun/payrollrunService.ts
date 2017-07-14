@@ -288,10 +288,9 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
             .asObservable()
             .take(1)
             .switchMap(year => {
-
                 let queryList = queryString.split('&');
                 let filter = queryList.filter(x => x.toLowerCase().includes('filter'))[0] || '';
-                queryList = queryList.filter(x => x.toLowerCase().includes('filter'));
+                queryList = queryList.filter(x => !x.toLowerCase().includes('filter'));
                 if (!filter.toLowerCase().includes('year(paydate)')) {
                     filter = (filter ? `(${filter}) and ` : 'filter=') 
                         + `(year(PayDate) eq ${year})`; 
@@ -301,7 +300,6 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
                 if (includePayments) {
                     queryList.push('includePayments=true');
                 }
-
                 return this.GetAll(queryList.join('&'));
             })
             .map(payrollRuns => this.setPaymentStatusOnPayrollList(payrollRuns));
