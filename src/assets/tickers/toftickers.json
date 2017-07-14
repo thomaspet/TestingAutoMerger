@@ -6,7 +6,7 @@
         "IsTopLevelTicker": true,
         "Group": "Salg",
         "Model": "CustomerInvoice",
-        "Expand": "Customer.Info,CurrencyCode,InvoiceReference",
+        "Expand": "Customer.Info,CurrencyCode,InvoiceReference,DefaultDimensions.Project",
         "OrderBy": "ID DESC",
         "Columns": [
             {

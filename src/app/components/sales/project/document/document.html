@@ -1,0 +1,7 @@
+<section>
+    <h2 *ngIf="!project">Ingen prosjekt valgt</h2>
+    <uni-attachments [entity]="'Project'" *ngIf="project"
+                     [entityID]="project?.ID"
+                     [hideLabel]="true">
+    </uni-attachments>
+</section>

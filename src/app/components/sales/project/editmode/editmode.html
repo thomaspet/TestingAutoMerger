@@ -1,15 +1,15 @@
 ﻿<section class="project-router-outlet">
     <section class="project-edit-container">
-        <h2 style="margin: 16px; font-weight: 100; font-size: 2rem;">{{ actionLabel }}</h2>
+        <h2>{{ actionLabel }}</h2>
 
-        <section class="project-edit-from">
+        <section class="project-edit-form">
             <uni-form
                 [config]="config$"
                 [fields]="fields$"
                 [model]="project$">
             </uni-form>
         </section>
-        <section>
+        <section class="project-edit-resources">
             <fieldset>
                 <legend>Ressurser</legend>
                 <uni-table

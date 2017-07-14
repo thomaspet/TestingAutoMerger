@@ -64,13 +64,19 @@ export class Project {
         });
 
         this.childRoutes = [
-            { name: 'Oversikt', path: 'overview'},
-            { name: 'Oppgaver', path: 'tasks'},
-            { name: 'Budsjett', path: 'budget' },
+            { name: 'Oversikt', path: 'overview' },
+            { name: 'Oppgaver', path: 'tasks' },
+            { name: 'Faktura', path: 'invoices' },
             { name: 'Ordre', path: 'orders' },
-            { name: 'Rapport', path: 'reports' },
-            { name: 'Nøkkeltall', path: 'kpi' },
-            { name: 'Tidslinje', path: 'timeline' },
+            { name: 'Tilbud', path: 'quotes' },
+            { name: 'Timer', path: 'hours' },
+            { name: 'Inng.faktura', path: 'supplierinvoices'},
+            { name: 'Dokumenter', path: 'documents' },
+            //{ name: 'Budsjett', path: 'budget' },     // TODO: uncomment when available
+            //{ name: 'Ordre', path: 'orders' },        // TODO: uncomment when available
+            //{ name: 'Rapport', path: 'reports' },     // TODO: uncomment when available
+            //{ name: 'Nøkkeltall', path: 'kpi' },      // TODO: uncomment when available
+            //{ name: 'Tidslinje', path: 'timeline' },  // TODO: uncomment when available
             { name: 'Redigering', path: 'editmode' }
         ];
         this.setUpTable();

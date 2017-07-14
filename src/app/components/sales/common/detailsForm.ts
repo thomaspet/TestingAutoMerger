@@ -2,6 +2,7 @@ import {Component, Input, Output, ViewChild, EventEmitter, SimpleChanges} from '
 import {UniForm, FieldType, UniFieldLayout} from '../../../../framework/ui/uniform/index';
 import {CurrencyCode, Project} from '../../../unientities';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
+import {Dimension} from '../../../services/common/dimensionService';
 
 declare const _;
 

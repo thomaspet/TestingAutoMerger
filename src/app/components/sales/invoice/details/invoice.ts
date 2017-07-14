@@ -43,7 +43,8 @@ import {
     CurrencyCodeService,
     CurrencyService,
     ReportService,
-    ProjectService
+    ProjectService,
+    DimensionService
 } from '../../../../services/services';
 import * as moment from 'moment';
 declare const _;
@@ -137,7 +138,8 @@ export class InvoiceDetails {
         private currencyService: CurrencyService,
         private reportService: ReportService,
         private statisticsService: StatisticsService,
-        private projectService: ProjectService
+        private projectService: ProjectService,
+        private dimensionService: DimensionService
     ) {
         // set default tab title, this is done to set the correct current module to make the breadcrumb correct
         this.tabService.addTab({ url: '/sales/invoices/', name: 'Faktura', active: true, moduleID: UniModules.Invoices });
@@ -974,10 +976,6 @@ export class InvoiceDetails {
         this.invoice.Items.forEach(item => {
             if (item.ID && item['_createguid']) {
                 delete item['_createguid'];
-            }
-
-            if (item.Dimensions && item.Dimensions.ID === 0) {
-                item.Dimensions['_createguid'] = this.customerInvoiceItemService.getNewGuid();
             }
 
             if (item.VatType) {

@@ -64,7 +64,6 @@
             [queryDefinitionID]="link.id"
             [externalID]="(customer$ | async)?.ID"
     ></uni-query-read-only>
-
 </section>
 
 <uni-save *ngIf="modalMode" [actions]="saveactions" class="uni_save_modal_mode"></uni-save>

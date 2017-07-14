@@ -11,11 +11,7 @@ export const routes = [
     },
     {
         path: 'project',
-        component: ProjectList
-    },
-    {
-        path: 'project/:id',
-        component: ProjectDetails
+        redirectTo: '/sales/project'
     },
     {
         path: 'department',

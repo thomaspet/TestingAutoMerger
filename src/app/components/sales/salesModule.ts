@@ -28,6 +28,8 @@ import { Project } from './project/project';
 import { ProjectOverview } from './project/overview/overview';
 import { ProjectTasks } from './project/tasks/tasks';
 import { ProjectEditmode } from './project/editmode/editmode';
+import { ProjectDocument } from './project/document/document';
+import { ProjectQueryList } from './project/lists/querylist';
 import {UniTableModule} from '../../../framework/ui/unitable/index';
 import {UniFormModule} from '../../../framework/ui/uniform/index';
 import {UniSales} from './sales';
@@ -109,6 +111,8 @@ import {TreeModule} from 'angular-tree-component';
         ProjectOverview,
         ProjectTasks,
         ProjectEditmode,
+        ProjectDocument,
+        ProjectQueryList,
 
         Reminder,
         ReminderList,
@@ -155,6 +159,8 @@ import {TreeModule} from 'angular-tree-component';
         ProjectOverview,
         ProjectTasks,
         ProjectEditmode,
+        ProjectDocument,
+        ProjectQueryList,
         Reminder,
         ReminderList,
         ReminderSending,

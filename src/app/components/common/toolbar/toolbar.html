@@ -46,6 +46,7 @@
 </h1>
 
 <nav class="toolbar_tools">
+
     <input *ngIf="config?.navigation?.find"
         #query
         type="search"
@@ -74,4 +75,5 @@
     <uni-save *ngIf="saveactions || config?.saveactions"
               [actions]="saveactions || config.saveactions">
     </uni-save>
+
 </nav>

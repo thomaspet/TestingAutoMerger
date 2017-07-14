@@ -1,4 +1,19 @@
-﻿.project-list
+﻿project-document
+    width: calc(85% - 125px)
+    float: left
+    margin: 25px
+
+    uni-attachments
+        height: 10rem
+        width: 100%
+
+        label
+            width: 100%
+        article
+            width: 100%
+            margin: 0
+
+.project-list
     width: 15%
     min-height: 700px
     margin: 25px 0 0 25px
@@ -34,9 +49,9 @@
     .unitableSearch_advancedBtn
         display: none
 
-    .unitableSearch_input 
+    .unitableSearch_input
         margin-bottom: 20px
-  
+
     unitable-pagination
         ul
             overflow: hidden
@@ -58,7 +73,7 @@
     background-image: unicon-edit($uni-color-scale5)
     &:hover
         background-image: unicon-edit($uni-color-c2a)
-    
+
 
 .project-router-outlet
     float: left
@@ -116,7 +131,12 @@
     .project-edit-container
         margin: 25px
 
-    .project-edit-from
+        h2
+            margin: 16px
+            font-weight: 100
+            font-size: 2rem
+
+    .project-edit-form
         width: 100%
 
     .project-task-container

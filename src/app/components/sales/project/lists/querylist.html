@@ -1,0 +1,10 @@
+<section class="project-router-outlet">
+    <h2 *ngIf="!projectID">Ingen prosjekt valgt</h2>
+    <uni-query-read-only *ngIf="projectID"
+        [hidden]="false"
+        [queryDefinitionID]="reportID"
+        [externalID]="projectID">
+    </uni-query-read-only>
+
+    <uni-summary *ngIf="projectID" [configs]="summary"></uni-summary>
+</section>

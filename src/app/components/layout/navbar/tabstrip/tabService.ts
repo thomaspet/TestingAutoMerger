@@ -29,6 +29,7 @@ export enum UniModules {
     Reminders       = 206,
     Contacts        = 207,
     ProductGroup    = 208,
+    Projects        = 209,
 
     Accounting      = 300,
     Transquery      = 301,
@@ -63,7 +64,7 @@ export enum UniModules {
     Timesheets      = 603,
 
     Dimensions      = 700,
-    Projects        = 701,
+    //Projects        = 701,
     Departments     = 702,
 
     CurrencyExchange = 800,

@@ -43,7 +43,7 @@ export class TimeSheet {
 
     public addItem(item: WorkItem, recalc: boolean = true) {
         item.WorkRelationID = this.currentRelation.ID;
-        this.items.push(item);        
+        this.items.push(item);
         this.changeMap.add(this.items.length - 1, item);
         if (recalc) {
             this.analyzeItems(this.items);

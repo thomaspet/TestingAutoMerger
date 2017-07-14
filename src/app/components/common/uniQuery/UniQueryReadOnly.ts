@@ -1,11 +1,14 @@
-import {Component, Input, OnChanges, SimpleChanges} from '@angular/core';
-import {UniTableColumn, UniTableConfig, ITableFilter, IExpressionFilterValue} from '../../../../framework/ui/unitable/index';
+import {Component, Input, OnChanges, SimpleChanges, ViewChild} from '@angular/core';
+import {UniTable, UniTableColumn, UniTableConfig, ITableFilter, IExpressionFilterValue} from '../../../../framework/ui/unitable/index';
 import {Router} from '@angular/router';
 import {URLSearchParams} from '@angular/http';
 import {StatisticsService, UniQueryDefinitionService, StatusService, ErrorService} from '../../../services/services';
 import {AuthService} from '../../../../framework/core/authService';
 import {UniQueryDefinition, UniQueryField, UniQueryFilter} from '../../../../app/unientities';
 import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
+import {BehaviorSubject} from 'rxjs/BehaviorSubject';
+
+declare var _;
 
 @Component({
     selector: 'uni-query-read-only',
@@ -18,6 +21,8 @@ export class UniQueryReadOnly implements OnChanges {
     @Input() public externalID: number;
     @Input() public queryDefinitionID: number;
     @Input() public hidden: boolean;
+
+    @ViewChild(UniTable) public table: UniTable;
 
     private tableConfig: UniTableConfig;
     private lookupFunction: (urlParams: URLSearchParams) => any;
@@ -66,17 +71,33 @@ export class UniQueryReadOnly implements OnChanges {
     }
 
     public ngOnChanges(changes: SimpleChanges) {
-        if (changes['hidden'] && changes['hidden'].currentValue === false) {
-            if (!this.queryDefinition || this.queryDefinitionID !== this.queryDefinition.ID) {
+        if ((changes['hidden'] && changes['hidden'].currentValue === false) || changes['queryDefinitionID']) {
+            if ((!this.queryDefinition || this.queryDefinitionID !== this.queryDefinition.ID)) {
                 this.statusService.loadStatusCache().then(x => {
                     this.loadQueryDefinition();
                 });
             }
         }
+
+        if (changes['externalID'] && this.tableConfig) {
+            let expressionFilterValues: Array<IExpressionFilterValue> = [
+                {
+                    expression: 'currentuserid',
+                    value: this.currentUserGlobalIdentity
+                },
+                {
+                    expression: 'externalid',
+                    value: this.externalID.toString()
+                }
+            ];
+
+            this.tableConfig.setExpressionFilterValues(expressionFilterValues);
+            this.tableConfig = _.cloneDeep(this.tableConfig);
+            this.table.refreshTableData();
+        }
     }
 
     private loadQueryDefinition() {
-
         this.fields = [];
         this.filters = [];
         this.selects = '';
@@ -150,6 +171,9 @@ export class UniQueryReadOnly implements OnChanges {
                 this.buttonTitle = 'Ny faktura';
                 this.buttonAction = () => { this.router.navigateByUrl(`/sales/invoices/0;customerID=${this.externalID}`) }
             }
+        } else {
+            this.buttonTitle = '';
+            this.buttonAction = () => {};
         }
 
         for (let i = 0; i < this.fields.length; i++) {
