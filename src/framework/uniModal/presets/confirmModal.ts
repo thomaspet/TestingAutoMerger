@@ -21,7 +21,7 @@ export enum ConfirmActions {
 
             <footer>
                 <button *ngFor="let button of options.buttons"
-                    (click)="button.action"
+                    (click)="onButtonClick(button)"
                     [ngClass]="button.class">
                     {{button.label}}
                 </button>
@@ -51,6 +51,10 @@ export class UniConfirmModalV2 implements IUniModal {
                 }
             ];
         }
+    }
+
+    public onButtonClick(button) {
+        button.action(this);
     }
 
     public close(value = ConfirmActions.CANCEL) {
