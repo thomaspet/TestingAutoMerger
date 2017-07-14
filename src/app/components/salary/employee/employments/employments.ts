@@ -2,7 +2,9 @@ import { Component, ViewChild } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { UniView } from '../../../../../framework/core/uniView';
 import { EmploymentService } from '../../../../services/services';
-import { UniTable, UniTableConfig, UniTableColumnType, UniTableColumn } from '../../../../../framework/ui/unitable/index';
+import { 
+    UniTable, UniTableConfig, UniTableColumnType, UniTableColumn 
+} from '../../../../../framework/ui/unitable/index';
 import { Employee, Employment, SubEntity, Project, Department } from '../../../../unientities';
 import { UniCacheService, ErrorService } from '../../../../services/services';
 import { ReplaySubject } from 'rxjs/ReplaySubject';
@@ -23,6 +25,7 @@ export class Employments extends UniView {
     private projects: Project[];
     private departments: Department[];
     private cachedEmployments: ReplaySubject<Employment[]> = new ReplaySubject<Employment[]>(1);
+    private employeeID: number;
 
     constructor(
         private employmentService: EmploymentService,
@@ -45,6 +48,7 @@ export class Employments extends UniView {
         // Update cache key and (re)subscribe when param changes (different employee selected)
         route.parent.params.subscribe((paramsChange) => {
             super.updateCacheKey(router.url);
+            this.employeeID = +paramsChange['id'];
             this.selectedIndex = undefined;
 
             super.getStateSubject('subEntities')
@@ -60,18 +64,19 @@ export class Employments extends UniView {
                 .subscribe(departments => this.departments = departments, err => this.errorService.handle(err));
 
             super.getStateSubject('employments')
-                .subscribe((employments: Employment[] )=> {
-                    this.cachedEmployments.next(employments)
+                .subscribe((employments: Employment[]) => {
+                    this.cachedEmployments.next(employments);
                 });
         });
 
         route.params.subscribe((paramsChange) => {
             this.cachedEmployments
-                .catch((err, obs) => this.errorService.handleRxCatch(err,obs))
+                .asObservable()
+                .catch((err, obs) => this.errorService.handleRxCatch(err, obs))
                 .do(employments => setTimeout(() => this.focusRow(+paramsChange['EmploymentID'])))
                 .subscribe(employments => {
                     this.employments = employments || [];
-                    if (employments && employments.length === 0 && this.table === undefined) {
+                    if (employments && employments.length === 0 && this.employeeID) {
                         this.newEmployment();
                     }
                 });
