@@ -2,11 +2,12 @@ import { Component, ViewChild, OnDestroy, SimpleChanges } from '@angular/core';
 import { ActivatedRoute, Router, NavigationEnd } from '@angular/router';
 import {
     PayrollRun, SalaryTransaction, Employee, SalaryTransactionSupplement, WageType, Account, EmployeeTaxCard,
-    CompanySalary, CompanySalaryPaymentInterval, Project, Department, TaxDrawFactor, FinancialYear, EmployeeCategory,
+    CompanySalary, CompanySalaryPaymentInterval, Project, Department, TaxDrawFactor, EmployeeCategory,
     JournalEntry, LocalDate
 } from '../../../unientities';
 import { Observable } from 'rxjs/Observable';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
+import { ReplaySubject } from 'rxjs/ReplaySubject';
 import { TabService, UniModules } from '../../layout/navbar/tabstrip/tabService';
 import { ControlModal } from './controlModal';
 import { PostingsummaryModal } from './postingsummaryModal';
@@ -26,10 +27,9 @@ import 'rxjs/add/observable/forkJoin';
 import {
     PayrollrunService, UniCacheService, SalaryTransactionService, EmployeeService, WageTypeService,
     ReportDefinitionService, CompanySalaryService, ProjectService, DepartmentService, EmployeeTaxCardService,
-    YearService, ErrorService, EmployeeCategoryService, SalarySumsService, NumberFormat, FileService,
-    JournalEntryService
+    YearService, ErrorService, EmployeeCategoryService, FileService,
+    JournalEntryService, PayrollRunPaymentStatus
 } from '../../../services/services';
-import { IPosterWidget } from '../../common/poster/poster';
 import { PaycheckSendingModal } from './sending/paycheckSendingModal';
 
 declare var _;
@@ -60,7 +60,6 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
     private disableFilter: boolean;
     private saveActions: IUniSaveAction[] = [];
     @ViewChild(PreviewModal) public previewModal: PreviewModal;
-    private activeFinancialYear: FinancialYear;
     @ViewChild(PaycheckSendingModal) private paycheckSendingModal: PaycheckSendingModal;
     private activeYear: number;
 
@@ -72,6 +71,7 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
     private detailsActive: boolean = false;
     private categories: EmployeeCategory[];
     private journalEntry: JournalEntry;
+    private paymentStatus: PayrollRunPaymentStatus;
 
     public categoryFilter: ITag[] = [];
     public tagConfig: IUniTagsConfig = {
@@ -87,43 +87,8 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
         }
     };
 
-    private payrollrunWidgets: IPosterWidget[] = [
-        {
-            type: 'table',
-            config: {
-                rows: [{
-                    cells: [{
-                        text: ''
-                    }]
-                }]
-            }
-        },
-        {
-            type: 'text',
-            config: {
-                mainText: { text: '' }
-            }
-        },
-        {
-            type: 'alerts',
-            config: {
-                alerts: [{
-                    text: '',
-                    class: ''
-                },
-                {
-                    text: '',
-                    class: ''
-                }]
-            }
-        },
-        {
-            type: 'text',
-            config: {
-                mainText: { text: '' }
-            }
-        }
-    ];
+    private posterEmps$: ReplaySubject<Employee[]> = new ReplaySubject(1);
+    private posterPayrollRun$: ReplaySubject<PayrollRun> = new ReplaySubject(1);
 
     constructor(
         private route: ActivatedRoute,
@@ -142,8 +107,6 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
         private _employeeTaxCardService: EmployeeTaxCardService,
         private yearService: YearService,
         private employeeCategoryService: EmployeeCategoryService,
-        private _salarySumsService: SalarySumsService,
-        private numberformat: NumberFormat,
         private fileService: FileService,
         private journalEntryService: JournalEntryService
     ) {
@@ -187,6 +150,11 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
                         this.toggleReadOnlyOnCategories(this.salaryTransactions, payrollRun);
                     }
                 })
+                .do(payrollRun => { 
+                    if (!super.isDirty('payrollRun')) {
+                        this.posterPayrollRun$.next(payrollRun);
+                    }
+                })
                 .subscribe((payrollRun: PayrollRun) => {
                     if (payrollRun['_IncludeRecurringPosts'] === undefined) {
                         payrollRun['_IncludeRecurringPosts'] = !payrollRun.ExcludeRecurringPosts;
@@ -196,8 +164,6 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
                         this.payDate = new Date(payrollRun.PayDate.toString());
                     }
                     this.payStatus = this.payrollrunService.getStatus(payrollRun).text;
-
-                    this.updatePoster();
 
                     this.toolbarconfig = {
                         title: payrollRun && payrollRun.ID
@@ -248,10 +214,12 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
                 }, err => this.errorService.handle(err));
 
             employeesSubject
-                .subscribe((employees: Employee[]) => {
-                    this.employees = employees;
-                    this.updatePosterSelection(employees.length);
-                });
+                .do(employees => {
+                    if (!super.isDirty('employees')) {
+                        this.posterEmps$.next(employees);
+                    } 
+                })
+                .subscribe((employees: Employee[]) => this.employees = employees);
 
             super.getStateSubject('salaryTransactions')
                 .map((transes: SalaryTransaction[]) => {
@@ -378,13 +346,19 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
             {
                 label: 'Til utbetaling',
                 action: this.sendPaymentList.bind(this),
-                main: payrollRun ? payrollRun.StatusCode > 1 : false,
+                main: payrollRun 
+                    ? payrollRun.StatusCode > 1 
+                        && (!this.paymentStatus || this.paymentStatus < PayrollRunPaymentStatus.SendtToPayment) 
+                    : false,
                 disabled: payrollRun ? payrollRun.StatusCode < 1 : true
             },
             {
                 label: 'Send lønnslipp',
                 action: this.sendPaychecks.bind(this),
-                main: false,
+                main: payrollRun 
+                    ? payrollRun.StatusCode > 1 
+                        && this.paymentStatus && this.paymentStatus >= PayrollRunPaymentStatus.SendtToPayment
+                    : false,
                 disabled: payrollRun ? payrollRun.StatusCode < 1 : true
             },
             {
@@ -398,103 +372,6 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
 
     public ngOnDestroy() {
         this.payrollrunID = undefined;
-    }
-
-    private updatePoster() {
-        if (this.payrollrunID) {
-            this._salarySumsService.getFromPayrollRun(this.payrollrunID)
-                .subscribe((totalSums: any) => {
-                    let posterFilter = {
-                        type: 'table',
-                        config: {
-                            rows: [
-                                {
-                                    cells: [
-                                        {
-                                            text: 'Periode fastlønn',
-                                            header: true,
-                                            colspan: 3
-                                        }
-                                    ]
-                                },
-                                {
-                                    cells: [
-                                        {
-                                            text: moment(this.payrollrun$.getValue().FromDate).format('DD.MM.YYYY'),
-                                            header: false
-                                        },
-                                        {
-                                            text: ' - ',
-                                            header: false
-                                        },
-                                        {
-                                            text: moment(this.payrollrun$.getValue().ToDate).format('DD.MM.YYYY'),
-                                            header: false
-                                        }
-                                    ]
-                                }
-                            ]
-                        }
-                    },
-                        posterDates = {
-                            type: 'text',
-                            config: {
-                                topText: [
-                                    { text: 'Utbetalingsdato', class: 'large' }
-                                ],
-                                mainText: { text: moment(this.payrollrun$.getValue().PayDate).format('DD.MM.YYYY') }
-                            }
-                        },
-                        posterPayout = {
-                            type: 'text',
-                            config: {
-                                topText: [
-                                    { text: 'Beløp til utbetaling', class: 'large' }
-                                ],
-                                mainText: { text: this.numberformat.asMoney(totalSums.netPayment) }
-                            }
-                        };
-
-                    this.payrollrunWidgets[0] = posterFilter;
-                    this.payrollrunWidgets[1] = posterDates;
-                    this.payrollrunWidgets[3] = posterPayout;
-                });
-        }
-    }
-
-    private updatePosterSelection(numberOfEmpsInSelection: number) {
-        this._employeeService.GetAll('filter=deleted eq false')
-            .subscribe((employees: Employee[]) => {
-                let posterSelection = {
-                    type: 'alerts',
-                    config: {
-                        alerts: [
-                            {
-                                text: this.EmployeeSumText(numberOfEmpsInSelection, 'i lønnsavregningen'),
-                                class: 'success'
-                            }
-                        ]
-                    }
-                };
-
-                if (employees.length - numberOfEmpsInSelection > 0) {
-                    posterSelection.config.alerts.push(
-                        {
-                            text: this.EmployeeSumText(employees.length - numberOfEmpsInSelection,
-                                'utelatt på grunn av utvalg'),
-                            class: 'success'
-                        }
-                    );
-                }
-
-                this.payrollrunWidgets[2] = posterSelection;
-            });
-    }
-
-    private EmployeeSumText(count: number, postText: string): string {
-        if (count === 1) { return count + ' ansatt ' + postText; }
-
-        return count + ' ansatte ' + postText;
     }
 
     private updateTax(employees: Employee[]) {
@@ -579,6 +456,17 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
             _subhead.classname = 'entityDetails_toggle';
         }
         this.toolbarconfig = _toolbarconfig;
+    }
+
+    public setPaymentStatus(status: PayrollRunPaymentStatus) {
+        this.paymentStatus = status;
+        this.payrollrun$
+            .asObservable()
+            .take(1)
+            .subscribe(payrollRun => {
+                this.saveActions = this.getSaveActions(payrollRun);
+                this.checkDirty();
+            });
     }
 
     public canDeactivate(): Observable<boolean> {
@@ -1064,6 +952,7 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
 
     private change(changes: SimpleChanges) {
         this.payrollrun$
+            .asObservable()
             .take(1)
             .filter(() => Object
                 .keys(changes)

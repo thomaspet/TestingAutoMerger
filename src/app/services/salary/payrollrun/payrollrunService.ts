@@ -3,17 +3,36 @@ import { BizHttp } from '../../../../framework/core/http/BizHttp';
 import { UniHttp } from '../../../../framework/core/http/http';
 import {
     PayrollRun, TaxDrawFactor, EmployeeCategory,
-    Employee, SalaryTransaction
+    Employee, SalaryTransaction, Tracelink, Payment
 } from '../../../unientities';
 import { Observable } from 'rxjs/Observable';
 import { ErrorService } from '../../common/errorService';
 import { FieldType } from '../../../../framework/ui/uniform/index';
 import { ToastService, ToastTime, ToastType } from '../../../../framework/uniToast/toastService';
 import { SalaryTransactionService } from '../salarytransaction/salaryTransactionService';
+import { StatisticsService } from '../../common/statisticsService';
+import { YearService } from '../../common/yearService';
 import { ITag } from '../../../components/common/toolbar/tags';
+enum StatusCodePayment {
+    Queued = 44001,
+    TransferredToBank = 44002, //Note: NOT in Use yet
+    Failed = 44003,
+    Completed = 44004,
+    ReadyForTransfer = 44005,
+    ReceiptParsed = 44006
+}
+
+export enum PayrollRunPaymentStatus {
+    None = 0,
+    SendtToPayment = 1,
+    PartlyPaid = 2,
+    Paid = 3
+}
 
 @Injectable()
 export class PayrollrunService extends BizHttp<PayrollRun> {
+
+    readonly payStatusProp = '_payStatus';
 
     public payStatusTable: any = [
         { ID: null, text: 'Opprettet' },
@@ -30,7 +49,9 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
         http: UniHttp,
         private errorService: ErrorService,
         private salaryTransactionService: SalaryTransactionService,
-        private toastService: ToastService) {
+        private toastService: ToastService,
+        private statisticsService: StatisticsService,
+        private yearService: YearService) {
         super(http);
         this.relativeURL = PayrollRun.RelativeUrl;
         this.entityType = PayrollRun.EntityType;
@@ -189,7 +210,7 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
     public savePayrollTag(runID, category: EmployeeCategory): Observable<ITag> {
         return this.saveCategoryOnRun(runID, category)
             .filter(cat => !!cat)
-            .map(cat => { return {title: cat.Name, linkID: cat.ID}; });
+            .map(cat => { return { title: cat.Name, linkID: cat.ID }; });
     }
 
     public deleteCategoryOnRun(id: number, catID: number): Observable<boolean> {
@@ -235,6 +256,15 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
             .send();
     }
 
+    public getPaymentsOnPayrollRun(id: number): Observable<Payment[]> {
+        return this.http
+            .asGET()
+            .usingBusinessDomain()
+            .withEndPoint(`${this.relativeURL}/${id}?action=payments-on-runs`)
+            .send()
+            .map(response => response.json());
+    }
+
     public validateTransesOnRun(transes: SalaryTransaction[], done: (message: string) => void = null) {
         if (!transes.length) {
             this.toastService
@@ -247,6 +277,68 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
                 done('Avregning avbrutt');
             }
         }
+    }
+    public setPaymentStatusOnPayroll(payrollRun: PayrollRun): Observable<PayrollRun> {
+        return this.getPaymentsOnPayrollRun(payrollRun.ID)
+            .map(payments => this.markPaymentStatus(payrollRun, payments));
+    }
+    public getAll(queryString: string, includePayments: boolean = false): Observable<PayrollRun[]> {
+        return this.yearService
+            .selectedYear$
+            .asObservable()
+            .take(1)
+            .switchMap(year => {
+
+                let queryList = queryString.split('&');
+                let filter = queryList.filter(x => x.toLowerCase().includes('filter'))[0] || '';
+                queryList = queryList.filter(x => x.toLowerCase().includes('filter'));
+                if (!filter.toLowerCase().includes('year(paydate)')) {
+                    filter = (filter ? `(${filter}) and ` : 'filter=') 
+                        + `(year(PayDate) eq ${year})`; 
+                }
+                
+                queryList.push(filter);
+                if (includePayments) {
+                    queryList.push('includePayments=true');
+                }
+
+                return this.GetAll(queryList.join('&'));
+            })
+            .map(payrollRuns => this.setPaymentStatusOnPayrollList(payrollRuns));
+    }
+    public setPaymentStatusOnPayrollList(payrollRuns: PayrollRun[]): PayrollRun[] {
+        return payrollRuns 
+            ? payrollRuns
+                .map(run => this.markPaymentStatus(run)) 
+            : [];
+    }
+
+    public GetPaymentStatusText(payrollRun: PayrollRun) {
+        const status: PayrollRunPaymentStatus = payrollRun[this.payStatusProp];
+        switch (status) {
+            case PayrollRunPaymentStatus.SendtToPayment:
+                return 'Sendt til utbetaling';
+            case PayrollRunPaymentStatus.PartlyPaid: 
+                return 'Delbetalt';
+            case PayrollRunPaymentStatus.Paid:
+                return 'Utbetalt';
+            default:
+                return '';
+        }
+    }
+
+    private markPaymentStatus(payrollRun: PayrollRun, payments: Payment[] = undefined): PayrollRun {
+        payments = payments || payrollRun['Payments'] || [];
+        if (payments.length <= 0) {
+            payrollRun[this.payStatusProp] = PayrollRunPaymentStatus.None;
+        } else if (!payments.some(pay => pay.StatusCode === StatusCodePayment.Completed)) {
+            payrollRun[this.payStatusProp] = PayrollRunPaymentStatus.SendtToPayment;
+        } else if (payments.some(pay => pay.StatusCode !== StatusCodePayment.Completed)) {
+            payrollRun[this.payStatusProp] = PayrollRunPaymentStatus.PartlyPaid;
+        } else {
+            payrollRun[this.payStatusProp] = PayrollRunPaymentStatus.Paid;
+        }
+        return payrollRun;
     }
 
     public layout(layoutID: string) {

@@ -51,6 +51,7 @@ import {PostingsummaryModal} from './payrollrun/postingsummaryModal';
 import {PostingsummaryModalContent} from './payrollrun/postingsummaryModalContent';
 import {PaycheckSending} from './payrollrun/sending/paycheckSending';
 import {PaycheckSendingModal, PaycheckSendingModalContent} from './payrollrun/sending/paycheckSendingModal';
+import { PayrollRunPoster } from './payrollrun/poster/payrollRunPoster';
 
 import {SalaryTransactionSelectionList} from './salarytrans/salarytransactionSelectionList';
 import {SalarytransFilterContent} from './salarytrans/salarytransFilter';
@@ -151,6 +152,7 @@ import {CanDeactivateGuard} from '../../canDeactivateGuard';
         PaycheckSending,
         PaycheckSendingModal,
         PaycheckSendingModalContent,
+        PayrollRunPoster,
 
         // Salarytrans
         SalaryTransactionSelectionList,
@@ -242,6 +244,7 @@ import {CanDeactivateGuard} from '../../canDeactivateGuard';
         PostingsummaryModal,
         PostingsummaryModalContent,
         PaycheckSending,
+        PayrollRunPoster,
 
         // Salarytrans
         SalaryTransactionSelectionList,
