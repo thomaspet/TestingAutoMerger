@@ -229,7 +229,7 @@ export class TofDetailsForm {
                     FieldSet: 1,
                     FieldSetColumn: 2,
                     EntityType: this.entityType,
-                    Property: 'SuggestedProject',
+                    Property: 'DefaultDimensions.ProjectID',
                     FieldType: FieldType.DROPDOWN,
                     Label: 'Prosjekt',
                     Section: 0,
@@ -239,7 +239,6 @@ export class TofDetailsForm {
                         displayProperty: 'Name',
                         debounceTime: 200
                     }
-
                 }
             ];
 

@@ -5,9 +5,12 @@ import {Router, ActivatedRoute} from '@angular/router';
 import {Observable} from 'rxjs/Observable';
 import {safeInt, roundTo, safeDec, filterInput, trimLength,
     createFormField, FieldSize, ControlTypes} from '../../../common/utils/utils';
-import {Supplier, SupplierInvoice, JournalEntryLineDraft,
+import {
+    Supplier, SupplierInvoice, JournalEntryLineDraft,
     StatusCodeSupplierInvoice, BankAccount, LocalDate,
-    InvoicePaymentData, CurrencyCode, CompanySettings, Task} from '../../../../unientities';
+    InvoicePaymentData, CurrencyCode, CompanySettings, Task,
+    Project
+} from '../../../../unientities';
 import {UniStatusTrack} from '../../../common/toolbar/statustrack';
 import {IUniSaveAction} from '../../../../../framework/save/save';
 import { UniForm, FieldType} from '../../../../../framework/ui/uniform/index';
@@ -41,7 +44,8 @@ import {
     checkGuid,
     EHFService,
     UniSearchConfigGeneratorService,
-    ModulusService
+    ModulusService,
+    ProjectService
 } from '../../../../services/services';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {UniFieldLayout} from '../../../../../framework/ui/uniform/index';
@@ -118,7 +122,6 @@ export class BillView {
         { label: lang.tab_journal, name: 'journal', isHidden: true },
         { label: lang.tab_items, name: 'items', isHidden: true },
         { label: lang.tab_history, name: 'history' }
-
     ];
 
     public actions: IUniSaveAction[];
@@ -128,6 +131,8 @@ export class BillView {
         { label: lang.tool_delete, action: (done) => this.tryDelete(done), main: false, disabled: true },
         { label: lang.converter, action: (done) => this.runConverter(this.files).then(() => done()), main: false, disabled: false },
     ];
+
+    private projects: Project[];
 
     constructor(
         private tabService: TabService,
@@ -147,7 +152,8 @@ export class BillView {
         private currencyService: CurrencyService,
         private ehfService: EHFService,
         private uniSearchConfigGeneratorService: UniSearchConfigGeneratorService,
-        private modulusService: ModulusService) {
+        private modulusService: ModulusService,
+        private projectService: ProjectService) {
         this.actions = this.rootActions;
     }
 
@@ -172,10 +178,12 @@ export class BillView {
             if (safeInt(id) > 0) {
                 Observable.forkJoin(
                     this.companySettingsService.Get(1),
-                    this.currencyCodeService.GetAll(null)
+                    this.currencyCodeService.GetAll(null),
+                    this.projectService.GetAll(null)
                 ).subscribe((res) => {
                     this.companySettings = res[0];
                     this.currencyCodes = res[1];
+                    this.projects = res[2];
 
                     this.updateTabInfo(id);
                     this.fetchInvoice(id, true);
@@ -184,10 +192,12 @@ export class BillView {
             } else {
                 Observable.forkJoin(
                     this.companySettingsService.Get(1),
-                    this.currencyCodeService.GetAll(null)
+                    this.currencyCodeService.GetAll(null),
+                    this.projectService.GetAll(null)
                 ).subscribe((res) => {
                     this.companySettings = res[0];
                     this.currencyCodes = res[1];
+                    this.projects = res[2];
 
                     this.newInvoice(true);
                     this.checkPath();
@@ -210,6 +220,14 @@ export class BillView {
             source: this.currencyCodes,
             valueProperty: 'ID',
             displayProperty: 'Code',
+            debounceTime: 200
+        };
+
+        let projectsField = fields.find(f => f.Property === 'DefaultDimensions.ProjectID');
+        projectsField.Options = {
+            source: this.projects,
+            valueProperty: 'ID',
+            displayProperty: 'Name',
             debounceTime: 200
         };
 
@@ -274,6 +292,11 @@ export class BillView {
                 FieldType: FieldType.DROPDOWN,
                 Label: 'Valuta',
                 Classes: 'bill-currency-field'
+            },
+            <any> {
+                Property: 'DefaultDimensions.ProjectID',
+                FieldType: FieldType.DROPDOWN,
+                Label: 'Prosjekt',
             }
         ];
 
@@ -304,6 +327,14 @@ export class BillView {
             valueProperty: 'ID',
             displayValue: 'Code',
             debounceTime: 200,
+        };
+
+        let projectsField = fields.find(f => f.Property === 'DefaultDimensions.ProjectID');
+        projectsField.Options = {
+            source: this.projects,
+            valueProperty: 'ID',
+            displayProperty: 'Name',
+            debounceTime: 200
         };
 
         let bankAccountField = fields.find(f => f.Property === 'BankAccountID');
@@ -829,6 +860,14 @@ export class BillView {
             this.current.next(model);
         }
 
+        // need to add _createguid if missing making a new dimension
+        if (change['DefaultDimensions.ProjectID']) {
+            if (!model.DefaultDimensions.ID && !model.DefaultDimensions['_createguid']) {
+                model.DefaultDimensions['_createguid'] = this.projectService.getNewGuid();
+                this.current.next(model);
+            }
+        }
+
         this.flagUnsavedChanged();
     }
 
@@ -1222,7 +1261,7 @@ export class BillView {
         return new Promise((resolve, reject) => {
             this.supplierInvoiceService.Get(
                 id,
-                ['Supplier.Info.BankAccounts', 'JournalEntry.DraftLines.Account,JournalEntry.DraftLines.VatType', 'CurrencyCode', 'BankAccount']
+                ['Supplier.Info.BankAccounts', 'JournalEntry.DraftLines.Account,JournalEntry.DraftLines.VatType', 'CurrencyCode', 'BankAccount', 'DefaultDimensions']
             ).finally( () => {
                 this.flagUnsavedChanged(true);
              })

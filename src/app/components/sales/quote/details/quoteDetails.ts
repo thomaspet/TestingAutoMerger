@@ -70,7 +70,7 @@ export class QuoteDetails {
     private printStatusPrinted: string = '200';
 
     private currencyCodes: Array<CurrencyCode>;
-    private projects: Project[]; 
+    private projects: Project[];
     private currencyCodeID: number;
     private currencyExchangeRate: number;
 
@@ -79,7 +79,7 @@ export class QuoteDetails {
     public summary: ISummaryConfig[] = [];
     private customerExpandOptions: string[] = ['Info', 'Info.Addresses', 'Info.InvoiceAddress', 'Info.ShippingAddress', 'Dimensions', 'Dimensions.Project', 'Dimensions.Department'];
     private expandOptions: Array<string> = ['Items', 'Items.Product.VatType', 'Items.VatType', 'Items.Account',
-        'Items.Dimensions', 'Items.Dimensions.Project', 'Items.Dimensions.Department', 'Customer'
+        'Items.Dimensions', 'Items.Dimensions.Project', 'Items.Dimensions.Department', 'Customer', 'DefaultDimensions'
     ].concat(this.customerExpandOptions.map(option => 'Customer.' + option));
 
     private commentsConfig: any;

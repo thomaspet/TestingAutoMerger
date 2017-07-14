@@ -100,7 +100,7 @@ export class OrderDetails {
     private customerExpandOptions: string[] = ['Info', 'Info.Addresses', 'Info.InvoiceAddress', 'Info.ShippingAddress', 'Dimensions', 'Dimensions.Project', 'Dimensions.Department', 'Dimensions.Project.ProjectTasks'];
     private expandOptions: Array<string> = ['Items', 'Items.Product.VatType', 'Items.VatType',
         'Items.Dimensions', 'Items.Dimensions.Project', 'Items.Dimensions.Department', 'Items.Account', 'Items.Dimensions.Project.ProjectTasks',
-        'Customer', 'Customer.Info', 'Customer.Info.Addresses', 'Customer.Dimensions', 'Customer.Dimensions.Project', 'Customer.Dimensions.Department'];
+        'Customer', 'Customer.Info', 'Customer.Info.Addresses', 'Customer.Dimensions', 'Customer.Dimensions.Project', 'Customer.Dimensions.Department', 'DefaultDimensions'];
 
     // New
     private recalcDebouncer: EventEmitter<any> = new EventEmitter();

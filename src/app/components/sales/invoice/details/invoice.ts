@@ -112,7 +112,7 @@ export class InvoiceDetails {
     private customerExpandOptions: string[] = ['Info', 'Info.Addresses', 'Dimensions', 'Dimensions.Project', 'Dimensions.Department'];
     private expandOptions: Array<string> = ['Items', 'Items.Product.VatType', 'Items.VatType', 'Items.Account',
         'Items.Dimensions', 'Items.Dimensions.Project', 'Items.Dimensions.Department',
-        'Customer', 'InvoiceReference', 'JournalEntry', 'CurrencyCode'].concat(this.customerExpandOptions.map(option => 'Customer.' + option));
+        'Customer', 'InvoiceReference', 'JournalEntry', 'CurrencyCode', 'DefaultDimensions'].concat(this.customerExpandOptions.map(option => 'Customer.' + option));
 
     private commentsConfig: any;
 
@@ -233,7 +233,7 @@ export class InvoiceDetails {
             }
         }, err => this.errorService.handle(err));
         this.projectService.GetAll(null).subscribe(
-            res => this.projects=res,
+            res => this.projects = res,
             err => this.errorService.handle(err)
         );
     }
