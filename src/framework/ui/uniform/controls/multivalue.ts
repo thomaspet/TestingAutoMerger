@@ -34,11 +34,11 @@ import * as _ from 'lodash';
                    [title]="control?.value || ''"
             />
 
-            <button type="button" 
-                    #openbtn 
-                    class="uni-multivalue-moreBtn" 
-                    (click)="showDropdown($event)" 
-                    tabindex="-1" 
+            <button type="button"
+                    #openbtn
+                    class="uni-multivalue-moreBtn"
+                    (click)="showDropdown($event)"
+                    tabindex="-1"
                     [disabled]="field?.ReadOnly">Ny</button>
 
             <ng-content></ng-content>
@@ -387,7 +387,9 @@ export class UniMultivalueInput extends BaseControl {
 
         if (this.field.Options.editor) {
             if (!this.editorIsOpen) {
+                const oldValue = Object.assign({}, row);
                 this.editorIsOpen = true;
+
                 this.field.Options.editor(row).then(editedEntity => {
                     this.isDirty = false;
                     this.editorIsOpen = false;
@@ -406,7 +408,6 @@ export class UniMultivalueInput extends BaseControl {
                     this.close();
 
                     this.setAsDefault(editedEntity);
-                    const oldValue = row;
                     const newValue = editedEntity;
                     this.emitChange(oldValue, newValue);
                     this.cd.markForCheck();
