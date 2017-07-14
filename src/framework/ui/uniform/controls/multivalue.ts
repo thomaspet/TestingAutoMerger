@@ -135,7 +135,7 @@ export class UniMultivalueInput extends BaseControl {
               KeyCodes.ARROW_DOWN
             ];
 
-            if (Array.includes(openKeys, event.keyCode)) {
+            if (openKeys.some(key => key === event.keyCode)) {
                 event.preventDefault();
                 event.stopPropagation();
                 this.toggle();
