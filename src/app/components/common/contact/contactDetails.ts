@@ -25,8 +25,7 @@ import {
     UniModalService,
     UniAddressModal,
     UniPhoneModal,
-    UniEmailModal,
-    UniConfirmModalV2
+    UniEmailModal
 } from '../../../../framework/uniModal/barrel';
 
 @Component({
@@ -180,11 +179,7 @@ export class ContactDetails {
             return;
         }
 
-        const modal = this.modalService.open(UniConfirmModalV2, {
-            header: 'Vennligst bekreft',
-            message: 'Du har endringer som ikke er lagret. Vil du forkaste endringene?'
-        });
-
+        const modal = this.modalService.openUnsavedChangesModal();
         return modal.onClose;
     }
 
