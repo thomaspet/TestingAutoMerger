@@ -8,6 +8,7 @@ import {
     EventEmitter,
     Type
 } from '@angular/core';
+import {UniUnsavedChangesModal} from './barrel';
 
 export interface IModalOptions {
     data?: any;
@@ -15,6 +16,11 @@ export interface IModalOptions {
     header?: string;
     message?: string;
     closeOnClickOutside?: boolean;
+    buttons?: {
+        label: string;
+        class?: string;
+        action?: (modalInstance?: IUniModal) => void;
+    }[];
 }
 
 export interface IUniModal {
@@ -37,6 +43,11 @@ export class UniModalService {
 
     public open(modal: Type<IUniModal>, options: IModalOptions = {}): IUniModal {
         const componentRef = this.createModal(modal, options);
+        return componentRef.instance;
+    }
+
+    public openUnsavedChangesModal(): IUniModal {
+        const componentRef = this.createModal(UniUnsavedChangesModal, {});
         return componentRef.instance;
     }
 

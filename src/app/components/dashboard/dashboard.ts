@@ -54,10 +54,11 @@ export class Dashboard {
 
         switch (type) {
             case 1:
-                modal = this.modalService.open(UniConfirmModalV2, {
-                    header: 'Bekreft',
-                    message: 'Vennligst bekreft dette',
-                });
+                // modal = this.modalService.open(UniConfirmModalV2, {
+                //     header: 'Bekreft',
+                //     message: 'Vennligst bekreft dette',
+                // });
+                modal  = this.modalService.openUnsavedChangesModal();
             break;
             case 2:
                 modal = this.modalService.open(UniAddressModal);

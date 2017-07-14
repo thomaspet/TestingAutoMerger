@@ -1,10 +1,16 @@
 import {Component, Input, Output, EventEmitter} from '@angular/core';
 import {IUniModal, IModalOptions} from '../modalService';
 
+export enum ConfirmActions {
+    ACCEPT,
+    REJECT,
+    CANCEL
+};
+
 @Component({
     selector: 'uni-confirm-modal-v2',
     template: `
-        <dialog class="uni-modal" (clickOutside)="close(false)">
+        <dialog class="uni-modal" (clickOutside)="close()">
             <header>
                 <h1 class="new">{{options.header}}</h1>
             </header>
@@ -14,8 +20,11 @@ import {IUniModal, IModalOptions} from '../modalService';
             </main>
 
             <footer>
-                <button (click)="close(true)" class="good">Ok</button>
-                <button (click)="close(false)" class="bad">Avbryt</button>
+                <button *ngFor="let button of options.buttons"
+                    (click)="button.action"
+                    [ngClass]="button.class">
+                    {{button.label}}
+                </button>
             </footer>
         </dialog>
     `
@@ -27,7 +36,24 @@ export class UniConfirmModalV2 implements IUniModal {
     @Output()
     public onClose: EventEmitter<any> = new EventEmitter();
 
-    public close(value) {
+    public ngOnInit() {
+        if (!this.options.buttons) {
+            this.options.buttons = [
+                {
+                    label: 'Ok',
+                    class: 'good',
+                    action: () => this.close(ConfirmActions.ACCEPT)
+                },
+                {
+                    label: 'Avbryt',
+                    class: 'warning',
+                    action: () => this.close(ConfirmActions.CANCEL)
+                }
+            ];
+        }
+    }
+
+    public close(value = ConfirmActions.CANCEL) {
         this.onClose.emit(value);
     }
 }
