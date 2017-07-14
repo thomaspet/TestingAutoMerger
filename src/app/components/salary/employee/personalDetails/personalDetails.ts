@@ -458,7 +458,7 @@ export class PersonalDetails extends UniView {
             let day: number = +employee.SocialSecurityNumber.substring(0, 2);
             let month: number = +employee.SocialSecurityNumber.substring(2, 4);
             let year: number = +employee.SocialSecurityNumber.substring(4, 6);
-            let controlNumbers: number = +employee.SocialSecurityNumber.substring(6, 9);
+            let controlNumber: number = +employee.SocialSecurityNumber.substring(8, 9);
 
             let yearToday = +new Date().getFullYear().toString().substring(2, 4);
 
@@ -474,7 +474,7 @@ export class PersonalDetails extends UniView {
                 employee.BirthDate = new Date(year, month, day, 12);
             }
 
-            employee.Sex = (controlNumbers % 2) + 1;
+            employee.Sex = (controlNumber % 2) + 1;
         }
         return employee;
 
