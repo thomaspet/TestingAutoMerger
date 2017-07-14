@@ -32,7 +32,7 @@ export interface ISelectConfig {
         [value]="getDisplayValue(selectedItem)"
         [placeholder]="config?.Placeholder || ''"
         [readonly]="readonly"
-        (click)="toggle()" 
+        (click)="toggle()"
         [title]="getTitle()"
         readonly />
 
@@ -253,7 +253,8 @@ export class UniSelect {
 
     private filterItems(filterString: string) {
         this.filteredItems = this.items.filter((item) => {
-            return this.getDisplayValue(item).toLowerCase().indexOf(filterString.toLowerCase()) >= 0;
+            let displayValue = this.getDisplayValue(item) || '';
+            return displayValue.toLowerCase().indexOf(filterString.toLowerCase()) >= 0;
         });
         this.cd.markForCheck();
     }
