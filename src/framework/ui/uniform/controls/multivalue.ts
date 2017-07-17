@@ -29,7 +29,6 @@ import * as _ from 'lodash';
                    [class.-has-editor]="field?.Options?.editor"
                    [readonly]="field?.ReadOnly"
                    [placeholder]="field?.Placeholder || ''"
-                   (keyup)="showDropdown($event)"
                    (focus)="focusHandler()"
                    [title]="control?.value || ''"
             />
@@ -135,6 +134,8 @@ export class UniMultivalueInput extends BaseControl {
               KeyCodes.ARROW_DOWN
             ];
 
+            const alphanumeric = event.key && event.key.length === 1 && /[A-Za-z0-9]/.test(event.key);
+
             if (openKeys.some(key => key === event.keyCode)) {
                 event.preventDefault();
                 event.stopPropagation();
@@ -143,7 +144,7 @@ export class UniMultivalueInput extends BaseControl {
                 event.preventDefault();
                 event.stopPropagation();
                 this.close();
-            } else if (!this.editorIsOpen) {
+            } else if (alphanumeric && !this.editorIsOpen) {
                 this.queryElement.nativeElement.blur();
                 this.edit(this.defaultRow, event);
             }
