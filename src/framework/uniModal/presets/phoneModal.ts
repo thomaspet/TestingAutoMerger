@@ -6,9 +6,11 @@ import {Phone, PhoneTypeEnum} from '../../../app/unientities';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 
 @Component({
-    selector: 'uni-address-modal',
+    selector: 'uni-phone-modal',
     template: `
-        <dialog class="uni-modal" (clickOutside)="close(false)">
+        <dialog class="uni-modal"
+                (clickOutside)="close(false)"
+                (keydown.esc)="close(false)">
             <header>
                 <h1>{{options.header || 'Telefon'}}</h1>
             </header>
@@ -57,15 +59,15 @@ export class UniPhoneModal implements IUniModal {
         let fields = [
             <any> {
                 EntityType: 'Phone',
-                Property: 'CountryCode',
-                FieldType: FieldType.TEXT,
-                Label: 'Landskode',
-            },
-            <any> {
-                EntityType: 'Phone',
                 Property: 'Number',
                 FieldType: FieldType.TEXT,
                 Label: 'Telefonnr.',
+            },
+            <any> {
+                EntityType: 'Phone',
+                Property: 'CountryCode',
+                FieldType: FieldType.TEXT,
+                Label: 'Landskode',
             },
             <any> {
                 EntityType: 'Phone',

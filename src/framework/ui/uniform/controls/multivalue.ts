@@ -396,6 +396,7 @@ export class UniMultivalueInput extends BaseControl {
                     this.editorIsOpen = false;
 
                     if (!editedEntity) {
+                        this.focus();
                         return;
                     }
 

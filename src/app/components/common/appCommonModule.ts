@@ -7,16 +7,12 @@ import {ContextMenu} from './contextMenu/contextMenu';
 import {ExternalSearch} from './externalSearch/externalSearch';
 import {ProductDetails} from './product/details/productDetails';
 import {ProductList} from './product/list/productList';
-import {AddressForm} from './modals/addressModal';
 import {AltinnAuthenticationDataModalContent} from './modals/AltinnAuthenticationDataModal';
 import {BankAccountForm} from './modals/bankAccountModal';
-import {EmailForm, EmailModal} from './modals/emailModal';
-import {PhoneForm, PhoneModal} from './modals/phoneModal';
 import {RegisterPaymentForm} from './modals/registerPaymentModal';
 import {UniFrameworkModule} from '../../../framework/frameworkModule';
 import {UniTableModule} from '../../../framework/ui/unitable/index';
 import {UniFormModule} from '../../../framework/ui/uniform/index';
-import {AddressModal} from './modals/addressModal';
 import {AltinnAuthenticationDataModal} from './modals/AltinnAuthenticationDataModal';
 import {BankAccountModal} from './modals/bankAccountModal';
 import {RegisterPaymentModal} from './modals/registerPaymentModal';
@@ -83,18 +79,12 @@ import {routes as AppCommonRoutes} from './appCommonRoutes';
         ExternalSearch,
         ProductDetails,
         ProductList,
-        AddressForm,
-        AddressModal,
         AccrualForm,
         AccrualModal,
         AltinnAuthenticationDataModalContent,
         AltinnAuthenticationDataModal,
         BankAccountForm,
         BankAccountModal,
-        EmailForm,
-        EmailModal,
-        PhoneForm,
-        PhoneModal,
         RegisterPaymentForm,
         RegisterPaymentModal,
         UniBreadcrumbs,
@@ -145,11 +135,8 @@ import {routes as AppCommonRoutes} from './appCommonRoutes';
         LinkMenu,
     ],
     entryComponents: [
-        AddressForm,
         AccrualForm,
         BankAccountForm,
-        EmailForm,
-        PhoneForm,
         RegisterPaymentForm,
         AltinnAuthenticationDataModalContent,
         SendEmailForm,
@@ -173,18 +160,12 @@ import {routes as AppCommonRoutes} from './appCommonRoutes';
         ExternalSearch,
         ProductDetails,
         ProductList,
-        AddressForm,
-        AddressModal,
         AccrualForm,
         AccrualModal,
         AltinnAuthenticationDataModalContent,
         AltinnAuthenticationDataModal,
         BankAccountForm,
         BankAccountModal,
-        EmailForm,
-        EmailModal,
-        PhoneForm,
-        PhoneModal,
         RegisterPaymentForm,
         RegisterPaymentModal,
         UniBreadcrumbs,
