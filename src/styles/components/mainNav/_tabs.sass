@@ -84,3 +84,21 @@
         &:hover,
         &:focus
             background: darken($navbarBackground, 10%)
+
+    li.home-tab
+        @extend %hideText
+        background: unicon-home($uni-color-negative) no-repeat center center
+        background-size: 1.1rem
+        span.close
+            display: none
+
+        &:hover,
+        &:focus
+            background-color: darken($navbarBackground, 10%)
+
+        &.router-tab-active,
+        &.router-tab-active:hover,
+        &.router-tab-active:focus
+            background: unicon-home($uni-color-negative) no-repeat center center
+            background-size: 1.1rem
+            background-color: $navbarActive

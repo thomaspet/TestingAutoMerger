@@ -7,21 +7,30 @@ import {Subscription} from 'rxjs/Subscription';
 export interface IUniTab {
     url: string;
     name: string;
-    active?: boolean;
     moduleID?: UniModules;
+    active?: boolean;
 }
 
 @Component({
     selector: 'uni-tabstrip',
     template: `
         <ol class="navbar_tabs">
-            <li *ngFor="let tab of tabs; let idx = index"
-                (click)="activateTab(idx)"
-                (mousedown)="possiblyCloseTab(idx, $event)"
-                [ngClass]="{'router-tab-active': tab.active}">
-                {{tab.name}}
-                <span class="close" (click)="closeTab(idx)"></span>
-            </li>
+            <ng-template ngFor let-tab let-idx="index" [ngForOf]="tabs">
+                <li *ngIf="isHomeTab(tab)" class="home-tab"
+                    (click)="activateTab(idx)"
+                    [ngClass]="{'router-tab-active': tab.active}"
+                    [title]="tab.name">
+                </li>
+
+                <li *ngIf="!isHomeTab(tab)"
+                    (click)="activateTab(idx)"
+                    (mousedown)="possiblyCloseTab(idx, $event)"
+                    [ngClass]="{'router-tab-active': tab.active}"
+                    [title]="tab.name">
+                    {{tab.name}}
+                    <span class="close" (click)="closeTab(idx)"></span>
+                </li>
+            </ng-template>
         </ol>
     `,
     changeDetection: ChangeDetectionStrategy.OnPush
@@ -66,12 +75,18 @@ export class UniTabStrip {
         // check for middle mouse button
         if (event.button === 1) {
             event.preventDefault();
-            this.tabService.closeTab(index);
+            if (!this.isHomeTab(this.tabs[index])) {
+                this.tabService.closeTab(index);
+            }
         }
     }
 
     public activateTab(index: number): void {
         this.tabService.activateTab(index);
+    }
+
+    public isHomeTab(tab: IUniTab): boolean {
+        return tab.moduleID === UniModules.Dashboard;
     }
 
     public closeTab(index: number): void {

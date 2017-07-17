@@ -76,8 +76,6 @@ export enum UniModules {
     Roles           = 903,
 	Thresholds		= 904,
 
-    //PaymentList   = XX00, //commenting out because not in use and it fucks with the indexes of the underlying list
-
     About           = 1000,
     Versions        = 1001
 }
@@ -111,10 +109,9 @@ export class TabService {
      * TO FIND WHAT MODULEID YOU SHOULD USE, GO TO
      * https://unimicro.atlassian.net/wiki/pages/viewpage.action?spaceKey=AD&title=TabService
      */
-
     public addTab(newTab: IUniTab) {
         var duplicate = false;
-        var moduleCheck = { index: 0, exists: false}
+        var moduleCheck = { index: 0, exists: false };
         this.tabs.forEach((tab, i) => {
             tab.active = false;
             if (tab.name === newTab.name) {
@@ -183,33 +180,34 @@ export class TabService {
 
     public closeTab(index: number = this.currentActiveIndex): void {
         this.tabs.splice(index, 1);
-        if (!this.tabs.length) {
-            this.tabs.push({
-                name: 'Skrivebord',
-                url: '/',
-                moduleID: UniModules.Dashboard
-            });
+        if (this.tabs.length) {
+            this.activateTab(this.tabs.length - 1);
         }
-
-        this.activateTab(this.tabs.length - 1);
     }
 
     public removeAllTabs() {
-        this.tabs = this.getDefaultTabs();
+        this.tabs = [];
         this.updateMemStore();
     }
 
     private getDefaultTabs(): IUniTab[] {
         return [{
-            name: 'Skrivebord',
             url: '/',
+            name: 'Hjem',
             moduleID: UniModules.Dashboard,
             active: true
         }];
     }
 
-    private getMemStore() {
-        return JSON.parse(localStorage.getItem(this.storageKey));
+    private getMemStore(): IUniTab[] {
+        let tabs: IUniTab[] = JSON.parse(localStorage.getItem(this.storageKey));
+
+        if (tabs && tabs.length && tabs[0].moduleID !== UniModules.Dashboard) {
+            this.clearMemStore();
+            return undefined;
+        }
+
+        return tabs;
     }
 
     private updateMemStore() {
