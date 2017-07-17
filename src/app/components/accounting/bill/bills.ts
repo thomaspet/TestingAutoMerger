@@ -6,10 +6,9 @@ import {ToastService, ToastType} from '../../../../framework/uniToast/toastServi
 import {URLSearchParams} from '@angular/http';
 import {ActivatedRoute} from '@angular/router';
 import {Router} from '@angular/router';
-import {UniConfirmModal, ConfirmActions} from '../../../../framework/modals/confirm';
 import {StatusCodeSupplierInvoice, CompanySettings} from '../../../unientities';
 import {safeInt} from '../../common/utils/utils';
-
+import {UniModalService, UniConfirmModalV2} from '../../../../framework/uniModal/barrel';
 import {
     SettingsService,
     ViewSettings,
@@ -42,9 +41,9 @@ interface IFilter {
     templateUrl: './bills.html'
 })
 export class BillsView {
+    @ViewChild(UniTable)
+    private unitable: UniTable;
 
-    @ViewChild(UniConfirmModal) private confirmModal: UniConfirmModal;
-    @ViewChild(UniTable) private unitable: UniTable;
     private searchControl: FormControl = new FormControl('');
 
     public tableConfig: UniTableConfig;
@@ -88,7 +87,8 @@ export class BillsView {
         private settingsService: SettingsService,
         private errorService: ErrorService,
         private companySettingsService: CompanySettingsService,
-        private pageStateService: PageStateService
+        private pageStateService: PageStateService,
+        private modalService: UniModalService
     ) {
 
         this.viewSettings = settingsService.getViewSettings('economy.bills.settings');
@@ -335,15 +335,22 @@ export class BillsView {
         if (this.currentFilter.name === 'Inbox') {
             var fileId = row.ID;
             if (fileId) {
-                this.confirmModal.confirm('Slett aktuell fil: ' + row.Name, 'Sletting av fil').then(x => {
+                const modal = this.modalService.open(UniConfirmModalV2, {
+                    header: 'Bekreft sletting',
+                    message: 'Slett aktuell fil: ' + row.Name
+                });
 
-                    if (x === ConfirmActions.ACCEPT) {
-                        this.supplierInvoiceService.send('files/' + fileId, undefined, 'DELETE').subscribe((result) => {
-                            this.toast.addToast('Filen er slettet', ToastType.good, 2);
-                        }, (err) => {
-                            this.errorService.handle(err);
-                            this.refreshList(this.currentFilter);
-                        });
+                modal.onClose.subscribe(canDelete => {
+                    if (canDelete) {
+                        this.supplierInvoiceService.send('files/' + fileId, undefined, 'DELETE').subscribe(
+                            res => {
+                                this.toast.addToast('Filen er slettet', ToastType.good, 2);
+                            },
+                            err => {
+                                this.errorService.handle(err);
+                                this.refreshList(this.currentFilter);
+                            }
+                        );
                     } else {
                         this.refreshList(this.currentFilter);
                     }

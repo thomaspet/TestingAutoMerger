@@ -12,8 +12,6 @@ import {
     UniEmailModal,
     UniPhoneModal
 } from '../../../../../framework/uniModal/barrel';
-import { Observable } from 'rxjs/Observable';
-
 import {
     EmployeeService,
     MunicipalService,
@@ -25,6 +23,8 @@ import {
     UserService
 } from '../../../../services/services';
 declare var _;
+
+import { Observable } from 'rxjs/Observable';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import { BankAccountModal } from '../../../common/modals/modals';
 import { UniField } from '../../../../../framework/ui/uniform/index';

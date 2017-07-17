@@ -1,11 +1,11 @@
-import {Component, ViewChild, ViewChildren, QueryList, Input, Output, EventEmitter} from '@angular/core';
-import {Address, CurrencyCode} from '../../../unientities';
+import {Component, ViewChild, Input, Output, EventEmitter} from '@angular/core';
+import {Address} from '../../../unientities';
 import {AddressService, BusinessRelationService, ErrorService} from '../../../services/services';
 import {UniForm, FieldType} from '../../../../framework/ui/uniform/index';
-import {AddressModal} from '../../common/modals/modals';
-declare const _;
+import {UniModalService, UniAddressModal} from '../../../../framework/uniModal/barrel';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
-
+import {Observable} from 'rxjs/Observable';
+declare const _;
 
 @Component({
     selector: 'tof-delivery-form',
@@ -22,9 +22,6 @@ export class TofDeliveryForm {
     @ViewChild(UniForm)
     private form: UniForm;
 
-    @ViewChild(AddressModal)
-    private addressModal: AddressModal;
-
     @Input()
     public readonly: boolean;
 
@@ -40,11 +37,13 @@ export class TofDeliveryForm {
     private model$: BehaviorSubject<any> = new BehaviorSubject({});
     private formConfig$: BehaviorSubject<any> = new BehaviorSubject({});
     private fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
-    private address$: any;
 
-    constructor(private addressService: AddressService,
-                private businessRelationService: BusinessRelationService,
-                private errorService: ErrorService) {
+    constructor(
+        private addressService: AddressService,
+        private businessRelationService: BusinessRelationService,
+        private errorService: ErrorService,
+        private modalService: UniModalService
+    ) {
         this.initFormLayout();
     }
 
@@ -85,15 +84,23 @@ export class TofDeliveryForm {
     public onFormChange(changes) {
         const model = this.model$.getValue();
 
-        if (changes['_shippingAddress']) {
-            this.addressService.addressToShipping(model, model['_shippingAddress']);
+        let shippingAddress = changes['_shippingAddress'];
+        if (shippingAddress) {
+            this.saveAddressOnCustomer(shippingAddress.currentValue).subscribe(
+                res => {
+                    this.addressService.addressToShipping(model, res);
+                    this.model$.next(model);
+                    this.entityChange.emit(model);
+                },
+                err => this.errorService.handle(err)
+            );
+        } else {
+            this.model$.next(model);
+            this.entityChange.emit(model);
         }
-
-        this.model$.next(model);
-        this.entityChange.emit(model);
     }
 
-    private saveAddressOnCustomer(address: Address, resolve) {
+    private saveAddressOnCustomer(address: Address): Observable<Address> {
         var idx = 0;
 
         if (!address.ID || address.ID === 0) {
@@ -108,15 +115,17 @@ export class TofDeliveryForm {
         // remove entries with equal _createguid
         this.entity.Customer.Info.Addresses = _.uniqBy(this.entity.Customer.Info.Addresses, '_createguid');
 
-        // this.quote.Customer.Info.ID
-        this.businessRelationService.Put(
+        let saveObservable = this.businessRelationService.Put(
             this.entity.Customer.Info.ID,
             this.entity.Customer.Info
-        ).subscribe((response) => {
+        ).catch(err => this.errorService.handleRxCatch(err, saveObservable))
+        .map((response) => {
             this.entity.Customer.Info = response;
             this.model$.next(this.entity);
-            resolve(response.Addresses[idx]);
-        }, err => this.errorService.handle(err));
+            return response.Addresses[idx];
+        });
+
+        return saveObservable;
     }
 
     private initFormLayout() {
@@ -126,27 +135,14 @@ export class TofDeliveryForm {
             displayValue: 'AddressLine1',
             linkProperty: 'ID',
             storeResultInProperty: '_shippingAddress',
-            editor: (value) => new Promise((resolve) => {
-                if (!value) {
-                    value = new Address();
-                    value.ID = 0;
-                }
+            editor: (value) => {
+                const modal = this.modalService.open(UniAddressModal, {
+                    data: value || new Address(),
+                    header: 'Leveringsadresse'
+                });
 
-                this.addressModal.openModal(value);
-
-                if (this.address$) {
-                    this.address$.unsubscribe();
-                }
-
-                this.address$ = this.addressModal.Changed.subscribe((address) => {
-                    if (address._question) {
-                        this.saveAddressOnCustomer(address, resolve);
-                    } else {
-                        resolve(address);
-                    }
-                }, err => this.errorService.handle(err));
-            }),
-
+                return modal.onClose.take(1).toPromise();
+            },
             display: (address: Address) => {
                 return this.addressService.displayAddress(address);
             }

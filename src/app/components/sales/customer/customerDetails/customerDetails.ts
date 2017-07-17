@@ -7,11 +7,9 @@ import {SearchResultItem} from '../../../common/externalSearch/externalSearch';
 import {IUniSaveAction} from '../../../../../framework/save/save';
 import {UniForm, UniFieldLayout, FieldType} from '../../../../../framework/ui/uniform/index';
 import {ComponentLayout, Customer, Contact, Email, Phone, Address, CustomerInvoiceReminderSettings, CurrencyCode} from '../../../../unientities';
-import {AddressModal, EmailModal, PhoneModal} from '../../../common/modals/modals';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
 import {IReference} from '../../../../models/iReference';
 import {ToastService, ToastType} from '../../../../../framework/uniToast/toastService';
-import {UniConfirmModal, ConfirmActions} from '../../../../../framework/modals/confirm';
 import {IPosterWidget} from '../../../common/poster/poster';
 import {LedgerAccountReconciliation} from '../../../common/reconciliation/ledgeraccounts/ledgeraccountreconciliation';
 import {ReminderSettings} from '../../../common/reminder/settings/reminderSettings';
@@ -30,6 +28,12 @@ import {
     CurrencyCodeService,
     UniSearchConfigGeneratorService
 } from '../../../../services/services';
+import {
+    UniModalService,
+    UniAddressModal,
+    UniEmailModal,
+    UniPhoneModal
+} from '../../../../../framework/uniModal/barrel';
 declare var _;
 
 @Component({
@@ -40,10 +44,6 @@ export class CustomerDetails {
     @Input() public modalMode: boolean;
     @Output() public customerUpdated: EventEmitter<Customer> = new EventEmitter<Customer>();
     @ViewChild(UniForm) public form: UniForm;
-    @ViewChild(EmailModal) public emailModal: EmailModal;
-    @ViewChild(AddressModal) public addressModal: AddressModal;
-    @ViewChild(PhoneModal) public phoneModal: PhoneModal;
-    @ViewChild(UniConfirmModal) private confirmModal: UniConfirmModal;
     @ViewChild(LedgerAccountReconciliation) private ledgerAccountReconciliation: LedgerAccountReconciliation;
     @ViewChild(ReminderSettings) public reminderSettings: ReminderSettings;
 
@@ -177,7 +177,8 @@ export class CustomerDetails {
         private numberFormat: NumberFormat,
         private customerInvoiceReminderSettingsService: CustomerInvoiceReminderSettingsService,
         private currencyCodeService: CurrencyCodeService,
-        private uniSearchConfigGeneratorService: UniSearchConfigGeneratorService
+        private uniSearchConfigGeneratorService: UniSearchConfigGeneratorService,
+        private modalService: UniModalService
     ) {}
 
     public ngOnInit() {
@@ -244,27 +245,13 @@ export class CustomerDetails {
         this.toolbarconfig.subheads = customer.ID ? [{title: 'Kundenr. ' + customer.CustomerNumber}] : [];
     }
 
-    public canDeactivate(): boolean|Promise<boolean> {
-
+    public canDeactivate(): boolean|Observable<boolean> {
         // Check if ledgeraccountdetails is dirty - if so, warn user before we continue
         if (!this.ledgerAccountReconciliation || !this.ledgerAccountReconciliation.isDirty) {
            return true;
         }
 
-        return new Promise<boolean>((resolve, reject) => {
-            this.confirmModal.confirm(
-                'Du har endringer som ikke er lagret - disse vil forkastes hvis du fortsetter?',
-                'Vennligst bekreft',
-                false,
-                {accept: 'Fortsett uten å lagre', reject: 'Avbryt'}
-            ).then((confirmDialogResponse) => {
-               if (confirmDialogResponse === ConfirmActions.ACCEPT) {
-                    resolve(true);
-               } else {
-                    resolve(false);
-                }
-            });
-        });
+        return this.modalService.openUnsavedChangesModal().onClose;
     }
 
     public showTab(tab: string, reportid: number = null) {
@@ -272,17 +259,13 @@ export class CustomerDetails {
             && this.ledgerAccountReconciliation
             && this.ledgerAccountReconciliation.isDirty) {
 
-            this.confirmModal.confirm(
-                'Du har endringer som ikke er lagret - disse vil forkastes hvis du fortsetter',
-                'Vennligst bekreft',
-                false,
-                {accept: 'Fortsett uten å lagre', reject: 'Avbryt'})
-                .then(confirmDialogResponse => {
-                    if (confirmDialogResponse === ConfirmActions.ACCEPT) {
-                        this.activeTab = tab;
-                        this.showReportWithID = reportid;
-                    }
-                });
+            const modal = this.modalService.openUnsavedChangesModal();
+            modal.onClose.subscribe(canChangeTab => {
+                if (canChangeTab) {
+                    this.activeTab = tab;
+                    this.showReportWithID = reportid;
+                }
+            });
         } else {
             this.activeTab = tab;
             this.showReportWithID = reportid;
@@ -468,19 +451,13 @@ export class CustomerDetails {
             linkProperty: 'ID',
             storeResultInProperty: 'Info.DefaultPhone',
             storeIdInProperty: 'Info.DefaultPhoneID',
-            editor: (value) => new Promise((resolve) => {
-                if (!value) {
-                    value = new Phone();
-                    value.ID = 0;
-                }
-
-                this.phoneModal.openModal(value);
-
-                this.phoneChanged = this.phoneModal.Changed.subscribe(modalval => {
-                    this.phoneChanged.unsubscribe();
-                    resolve(modalval);
+            editor: (value) => {
+                const modal = this.modalService.open(UniPhoneModal, {
+                    data: value || new Phone()
                 });
-            })
+
+                return modal.onClose.take(1).toPromise();
+            }
         };
 
         let invoiceaddress: UniFieldLayout = fields.find(x => x.Property === 'Info.InvoiceAddress');
@@ -492,29 +469,20 @@ export class CustomerDetails {
             linkProperty: 'ID',
             storeResultInProperty: 'Info.InvoiceAddress',
             storeIdInProperty: 'Info.InvoiceAddressID',
-            editor: (value) => new Promise((resolve) => {
-                if (!value) {
-                    value = new Address();
-                    value.ID = 0;
-                }
-
-                this.addressModal.openModal(value);
-
-                if (this.addressChanged) {
-                    this.addressChanged.unsubscribe();
-                }
-
-                this.addressChanged = this.addressModal.Changed.subscribe(modalval => {
-                    resolve(modalval);
+            editor: (value) => {
+                const modal = this.modalService.open(UniAddressModal, {
+                    data: value || new Address(),
+                    header: 'Fakturaadresse'
                 });
-            }),
+
+                return modal.onClose.take(1).toPromise();
+            },
             display: (address: Address) => {
                 return this.addressService.displayAddress(address);
             }
         };
 
         let emails: UniFieldLayout = fields.find(x => x.Property === 'Info.DefaultEmail');
-
         emails.Options = {
             entity: Email,
             listProperty: 'Info.Emails',
@@ -522,36 +490,13 @@ export class CustomerDetails {
             linkProperty: 'ID',
             storeResultInProperty: 'Info.DefaultEmail',
             storeIdInProperty: 'Info.DefaultEmailID',
-            editor: (value) => new Promise((resolve, reject) => {
-                if (!value) {
-                    value = new Email();
-                    value.ID = 0;
-                }
-
-                this.emailModal.openModal(value);
-
-                const modalSubscription = this.emailModal.modal.closeEvent.subscribe(fromClose => {
-                    if (fromClose) {
-                        reject();
-                    }
-                    modalSubscription.unsubscribe();
-
+            editor: (value) => {
+                const modal = this.modalService.open(UniEmailModal, {
+                    data: value || new Email()
                 });
-                this.emailChanged = this.emailModal.Changed.subscribe(modalval => {
-                    this.emailChanged.unsubscribe();
-                    resolve(modalval);
-                    if (modalSubscription) {
-                        modalSubscription.unsubscribe();
-                    }
-                });
-                const canceled = this.emailModal.Canceled.subscribe(modalval => {
-                    canceled.unsubscribe();
-                    reject(modalval);
-                    if (modalSubscription) {
-                        modalSubscription.unsubscribe();
-                    }
-                });
-            })
+
+                return modal.onClose.take(1).toPromise();
+            }
         };
 
         let shippingaddress: UniFieldLayout = fields.find(x => x.Property === 'Info.ShippingAddress');
@@ -562,22 +507,14 @@ export class CustomerDetails {
             linkProperty: 'ID',
             storeIdInProperty: 'Info.ShippingAddressID',
             storeResultInProperty: 'Info.ShippingAddress',
-            editor: (value) => new Promise((resolve) => {
-                if (!value) {
-                    value = new Address();
-                    value.ID = 0;
-                }
-
-                this.addressModal.openModal(value);
-
-                if (this.addressChanged) {
-                    this.addressChanged.unsubscribe();
-                }
-
-                this.addressChanged = this.addressModal.Changed.subscribe(modalval => {
-                    resolve(modalval);
+            editor: (value) => {
+                const modal = this.modalService.open(UniAddressModal, {
+                    data: value || new Address(),
+                    header: 'Leveringsadresse'
                 });
-            }),
+
+                return modal.onClose.take(1).toPromise();
+            },
             display: (address: Address) => {
                 return this.addressService.displayAddress(address);
             }

@@ -1,5 +1,5 @@
 ﻿import { Component, ViewChild } from '@angular/core';
-import { AddressModal } from '../../../common/modals/modals';
+import { UniModalService, UniAddressModal } from '../../../../../framework/uniModal/barrel';
 import { UniFieldLayout } from '../../../../../framework/ui/uniform/index';
 import { FieldType } from '../../../../../framework/ui/uniform/index';
 import { IUniSearchConfig } from '../../../../../framework/ui/unisearch/index';
@@ -35,8 +35,6 @@ declare var _;
 })
 
 export class ProjectEditmode {
-    @ViewChild(AddressModal) public addressModal: AddressModal;
-
     public config$: BehaviorSubject<any> = new BehaviorSubject({ autofocus: true });
     public fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
     private project$: BehaviorSubject<Project> = new BehaviorSubject(null);
@@ -59,9 +57,11 @@ export class ProjectEditmode {
         private errorService: ErrorService,
         private uniSearchConfigGeneratorService: UniSearchConfigGeneratorService,
         private addressService: AddressService,
-        private userService: UserService) {
-            this.setupTable();
-        }
+        private userService: UserService,
+        private modalService: UniModalService
+    ) {
+        this.setupTable();
+    }
 
     public ngOnInit() {
         this.fields$.next(this.getComponentFields());
@@ -111,22 +111,14 @@ export class ProjectEditmode {
             linkProperty: 'ID',
             storeResultInProperty: 'WorkPlaceAddressID',
             storeIdInProperty: 'WorkPlaceAddressID',
-            editor: (value) => new Promise((resolve) => {
-                if (!value) {
-                    value = new Address();
-                    value.ID = 0;
-                }
-
-                this.addressModal.openModal(value);
-
-                if (this.addressChanged) {
-                    this.addressChanged.unsubscribe();
-                }
-
-                this.addressChanged = this.addressModal.Changed.subscribe(modalval => {
-                    resolve(modalval);
+            editor: (value) => {
+                const modal = this.modalService.open(UniAddressModal, {
+                    data: value || new Address(),
+                    header: 'Arbeidssted'
                 });
-            }),
+
+                return modal.onClose.take(1).toPromise();
+            },
             display: (address: Address) => {
                 return this.addressService.displayAddress(address);
             }

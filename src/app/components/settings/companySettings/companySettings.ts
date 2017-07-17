@@ -1,25 +1,29 @@
 ﻿import {Component, OnInit, ViewChild, SimpleChanges} from '@angular/core';
-import { BehaviorSubject } from 'rxjs/BehaviorSubject';
-import {Observable} from 'rxjs/Observable';
-import 'rxjs/add/observable/forkJoin';
 import {IUniSaveAction} from '../../../../framework/save/save';
-
 import {UniForm, FieldType} from '../../../../framework/ui/uniform/index';
 import {UniFieldLayout} from '../../../../framework/ui/uniform/index';
 import {IUploadConfig} from '../../../../framework/uniImage/uniImage';
-
-import {
-    FinancialYear, CompanyType, CompanySettings, VatReportForm, PeriodSeries, CurrencyCode, AccountGroup, Account,
-    BankAccount, Municipal, Address, Phone, Email, AccountVisibilityGroup, Company
-} from '../../../unientities';
-import {BankAccountModal} from '../../common/modals/modals';
-import {AddressModal, EmailModal, PhoneModal, ActivateAPModal} from '../../common/modals/modals';
 import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
 import {SearchResultItem} from '../../common/externalSearch/externalSearch';
 import {AuthService} from '../../../../framework/core/authService';
 import {ReminderSettings} from '../../common/reminder/settings/reminderSettings';
-import {UniConfirmModal, ConfirmActions} from '../../../../framework/modals/confirm';
 import {ActivationEnum} from '../../../models/activationEnum';
+import {
+    FinancialYear,
+    CompanyType,
+    CompanySettings,
+    VatReportForm,
+    PeriodSeries,
+    CurrencyCode,
+    AccountGroup,
+    Account,
+    BankAccount,
+    Municipal,
+    Address,
+    Phone,
+    Email,
+    AccountVisibilityGroup
+} from '../../../unientities';
 import {
     CompanySettingsService,
     CurrencyCodeService,
@@ -42,6 +46,19 @@ import {
     FinancialYearService,
     EHFService
 } from '../../../services/services';
+import {
+    UniModalService,
+    UniAddressModal,
+    UniEmailModal,
+    UniPhoneModal
+} from '../../../../framework/uniModal/barrel';
+
+import {ActivateAPModal} from '../../common/modals/modals';
+import {ConfirmActions} from '../../../../framework/modals/confirm';
+import {BankAccountModal} from '../../common/modals/modals';
+
+import {BehaviorSubject} from 'rxjs/BehaviorSubject';
+import {Observable} from 'rxjs/Observable';
 declare var _;
 
 @Component({
@@ -49,14 +66,17 @@ declare var _;
     templateUrl: './companySettings.html'
 })
 export class CompanySettingsComponent implements OnInit {
-    @ViewChild(UniForm) public form: UniForm;
-    @ViewChild(BankAccountModal) public bankAccountModal: BankAccountModal;
-    @ViewChild(EmailModal) public emailModal: EmailModal;
-    @ViewChild(AddressModal) public addressModal: AddressModal;
-    @ViewChild(PhoneModal) public phoneModal: PhoneModal;
-    @ViewChild(ReminderSettings) public reminderSettings: ReminderSettings;
-    @ViewChild(UniConfirmModal) private confirmModal: UniConfirmModal;
-    @ViewChild(ActivateAPModal) private activateAPModal: ActivateAPModal;
+    @ViewChild(UniForm)
+    public form: UniForm;
+
+    @ViewChild(BankAccountModal)
+    public bankAccountModal: BankAccountModal;
+
+    @ViewChild(ReminderSettings)
+    public reminderSettings: ReminderSettings;
+
+    @ViewChild(ActivateAPModal)
+    private activateAPModal: ActivateAPModal;
 
     private defaultExpands: any = [
         'DefaultAddress',
@@ -82,9 +102,9 @@ export class CompanySettingsComponent implements OnInit {
     private municipalities: Municipal[] = [];
     private accountVisibilityGroups: AccountVisibilityGroup[] = [];
 
-    private showImageSection: boolean = false; // used in template
-    private showReminderSection: boolean = false; // used in template
-    private imageUploadOptions: IUploadConfig; // used in template
+    public showImageSection: boolean = false;
+    public showReminderSection: boolean = false;
+    public imageUploadOptions: IUploadConfig;
 
     private addressChanged: any;
     private emailChanged: any;
@@ -101,14 +121,12 @@ export class CompanySettingsComponent implements OnInit {
     public config$: BehaviorSubject<any> = new BehaviorSubject({});
     public fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
 
-    public saveactions: IUniSaveAction[] = [
-        {
-            label: 'Lagre',
-            action: (event) => this.saveSettings(event),
-            main: true,
-            disabled: false
-        }
-    ];
+    public saveactions: IUniSaveAction[] = [{
+        label: 'Lagre',
+        action: (event) => this.saveSettings(event),
+        main: true,
+        disabled: false
+    }];
 
     private roundingTypes: {ID: number, Label: string}[] = [
         {ID: 0, Label: 'Opp'},
@@ -146,10 +164,9 @@ export class CompanySettingsComponent implements OnInit {
         private uniSearchConfigGeneratorService: UniSearchConfigGeneratorService,
         private currencyService: CurrencyService,
         private financialYearService: FinancialYearService,
-        private ehfService: EHFService
-
-    ) {
-    }
+        private ehfService: EHFService,
+        private modalService: UniModalService
+    ) {}
 
     public ngOnInit() {
         this.getDataAndSetupForm();
@@ -257,25 +274,13 @@ export class CompanySettingsComponent implements OnInit {
         this.company$.next(company);
     }
 
-    public canDeactivate(): boolean|Promise<boolean> {
+    public canDeactivate(): boolean|Observable<boolean> {
         if (!this.isDirty && (!this.reminderSettings || !this.reminderSettings.isDirty)) {
            return true;
         }
 
-        return new Promise<boolean>((resolve, reject) => {
-            this.confirmModal.confirm(
-                'Du har endringer som ikke er lagret - disse vil forkastes hvis du fortsetter?',
-                'Vennligst bekreft',
-                false,
-                {accept: 'Fortsett uten å lagre', reject: 'Avbryt'}
-            ).then((confirmDialogResponse) => {
-               if (confirmDialogResponse === ConfirmActions.ACCEPT) {
-                    resolve(true);
-               } else {
-                    resolve(false);
-                }
-            });
-        });
+        const modal = this.modalService.openUnsavedChangesModal();
+        return modal.onClose;
     }
 
     public companySettingsChange(changes: SimpleChanges) {
@@ -423,26 +428,13 @@ export class CompanySettingsComponent implements OnInit {
             linkProperty: 'ID',
             storeResultInProperty: 'DefaultAddress',
             storeIdInProperty: 'DefaultAddressID',
-            editor: (value) => new Promise((resolve) => {
-                if (!value) {
-                    value = new Address();
-                    value.ID = 0;
-                }
-
-                this.addressModal.openModal(value);
-
-                if (this.addressChanged) {
-                    this.addressChanged.unsubscribe();
-                }
-
-                this.addressChanged = this.addressModal.Changed.subscribe(modalval => {
-                    resolve(modalval);
+            editor: (value) => {
+                const modal = this.modalService.open(UniAddressModal, {
+                    data: value || new Address()
                 });
 
-                this.addresModal.Canceled.subscribe(() => {
-                    reject();
-                });
-            }),
+                return modal.onClose.take(1).toPromise();
+            },
             display: (address: Address) => {
                 return this.addressService.displayAddress(address);
             }
@@ -459,19 +451,13 @@ export class CompanySettingsComponent implements OnInit {
             linkProperty: 'ID',
             storeResultInProperty: 'DefaultPhone',
             storeIdInProperty: 'DefaultPhoneID',
-            editor: (value) => new Promise((resolve) => {
-                if (!value) {
-                    value = new Phone();
-                    value.ID = 0;
-                }
-
-                this.phoneModal.openModal(value);
-
-                this.phoneChanged = this.phoneModal.Changed.subscribe(modalval => {
-                    this.phoneChanged.unsubscribe();
-                    resolve(modalval);
+            editor: (value) => {
+                const modal = this.modalService.open(UniPhoneModal, {
+                    data: value || new Phone()
                 });
-            })
+
+                return modal.onClose.take(1).toPromise();
+            },
         };
 
         var emails: UniFieldLayout = fields.find(x => x.Property === 'DefaultEmail');
@@ -485,21 +471,14 @@ export class CompanySettingsComponent implements OnInit {
             linkProperty: 'ID',
             storeResultInProperty: 'DefaultEmail',
             storeIdInProperty: 'DefaultEmailID',
-            editor: (value) => new Promise((resolve) => {
-                if (!value) {
-                    value = new Email();
-                    value.ID = 0;
-                }
-
-                this.emailModal.openModal(value);
-
-                this.emailChanged = this.emailModal.Changed.subscribe(modalval => {
-                    this.emailChanged.unsubscribe();
-                    resolve(modalval);
+            editor: (value) => {
+                const modal = this.modalService.open(UniEmailModal, {
+                    data: value || new Email()
                 });
-            })
-        };
 
+                return modal.onClose.take(1).toPromise();
+            },
+        };
 
         this.accountGroupSets.unshift(null);
         let accountGroupSetID: UniFieldLayout = fields.find(x => x.Property === 'AccountGroupSetID');

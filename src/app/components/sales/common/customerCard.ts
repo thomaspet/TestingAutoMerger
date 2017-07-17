@@ -2,8 +2,13 @@ import {Component, Input, Output, EventEmitter, ViewChild, ElementRef} from '@an
 import {FormControl} from '@angular/forms';
 import {Customer} from '../../../unientities';
 import {CustomerDetailsModal} from '../customer/customerDetails/customerDetailsModal';
-import {AddressModal} from '../../common/modals/modals';
-import {AddressService, EHFService, UniSearchConfigGeneratorService, CustomerService, ErrorService} from '../../../services/services';
+import {
+    AddressService,
+    EHFService,
+    UniSearchConfigGeneratorService,
+    CustomerService,
+    ErrorService
+} from '../../../services/services';
 import {Observable} from 'rxjs/Observable';
 import {IUniSearchConfig} from '../../../../framework/ui/unisearch/index';
 
@@ -45,13 +50,9 @@ import {IUniSearchConfig} from '../../../../framework/ui/unisearch/index';
         </fieldset>
 
         <customer-details-modal></customer-details-modal>
-        <address-modal></address-modal>
     `
 })
 export class TofCustomerCard {
-    @ViewChild(AddressModal)
-    private addressModal: AddressModal;
-
     private searchInput: HTMLElement;
 
     @ViewChild(CustomerDetailsModal)
@@ -163,16 +164,6 @@ export class TofCustomerCard {
         if (!this.readonly) {
             this.customerDetailsModal.open(this.entity.CustomerID);
             return this.customerDetailsModal.customerUpdated;
-        }
-    }
-
-    public openAddressModal() {
-        if (!this.readonly) {
-            let address = this.addressService.invoiceToAddress(this.entity);
-            this.addressModal.openModal(address, false, 'Fakturaadresse');
-            this.addressModal.Changed.subscribe((modalValue) => {
-                this.addressService.addressToInvoice(this.entity, modalValue);
-            });
         }
     }
 
