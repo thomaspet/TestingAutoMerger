@@ -52,7 +52,6 @@ export class WagetypeDetail extends UniView {
     private validValuesTypes: any[] = [];
 
     private supplementPackages: any[] = [];
-    private baseOptions: WageTypeBaseOptions[] = [];
 
     private tilleggspakkeConfig: UniTableConfig;
     private showSupplementaryInformations: boolean = false;
@@ -113,7 +112,7 @@ export class WagetypeDetail extends UniView {
                 .switchMap((wageType: WageType) => {
                     if (wageType.ID !== this.wagetypeID) {
                         this.wagetypeID = wageType.ID;
-                        this.updateBaseOptions(wageType);
+                        wageType['_baseOptions'] = this.getBaseOptions(wageType);
 
                         this.rateIsReadOnly = wageType.GetRateFrom !== GetRateFrom.WageType;
 
@@ -133,19 +132,27 @@ export class WagetypeDetail extends UniView {
         });
     }
 
-    private updateBaseOptions(wageType: WageType) {
-        this.baseOptions = [];
+    private getBaseOptions(wageType: WageType): WageTypeBaseOptions[] {
+        const baseOptions = [];
         if (wageType.Base_Vacation) {
-            this.baseOptions.push(WageTypeBaseOptions.VacationPay);
+            baseOptions.push(WageTypeBaseOptions.VacationPay);
         }
+
         if (wageType.Base_EmploymentTax) {
-            this.baseOptions.push(WageTypeBaseOptions.AGA);
+            baseOptions.push(WageTypeBaseOptions.AGA);
         }
+
         if (wageType.Base_div1) {
-            this.baseOptions.push(WageTypeBaseOptions.Pension);
+            baseOptions.push(WageTypeBaseOptions.Pension);
         }
-        wageType['_baseOptions'] = this.baseOptions;
-        return wageType;
+
+        return baseOptions;
+    }
+
+    private setBaseOptions(wageType: WageType, baseOptions: WageTypeBaseOptions[]): void {
+        wageType.Base_Vacation = baseOptions.some(x => x === WageTypeBaseOptions.VacationPay);
+        wageType.Base_EmploymentTax = baseOptions.some(x => x === WageTypeBaseOptions.AGA);
+        wageType.Base_div1 = baseOptions.some(x => x === WageTypeBaseOptions.Pension);
     }
 
     private getSetupSources(wageType: WageType) {
@@ -670,7 +677,8 @@ export class WagetypeDetail extends UniView {
                 }
 
                 if (changes['_baseOptions']) {
-                    this.checkBaseOptions(wageType);
+                    const baseOptions = changes['_baseOptions'].currentValue;
+                    this.setBaseOptions(wageType, baseOptions);
                 }
 
                 if (changes['IncomeType']) {
@@ -707,12 +715,6 @@ export class WagetypeDetail extends UniView {
                 field.ReadOnly = readOnly;
             }
         });
-    }
-
-    private checkBaseOptions(wageType: WageType): void {
-        wageType.Base_Vacation = this.baseOptions.some(x => x === WageTypeBaseOptions.VacationPay);
-        wageType.Base_EmploymentTax = this.baseOptions.some(x => x === WageTypeBaseOptions.AGA);
-        wageType.Base_div1 = this.baseOptions.some(x => x === WageTypeBaseOptions.Pension);
     }
 
     public toggle(section) {
