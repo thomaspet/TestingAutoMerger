@@ -21,7 +21,6 @@ import {UniConfirmModal, ConfirmActions} from '../../../../../framework/modals/c
 import {IOcrServiceResult, OcrValuables} from './ocr';
 import {billViewLanguage as lang, billStatusflowLabels as workflowLabels} from './lang';
 import {BillHistoryView} from './history/history';
-import {BankAccountModal} from '../../../common/modals/modals';
 import { ImageModal } from '../../../common/modals/ImageModal';
 import { UniImageSize, UniImage } from '../../../../../framework/uniImage/uniImage';
 import {IUniSearchConfig} from '../../../../../framework/ui/unisearch/index';
@@ -29,7 +28,10 @@ import {UniAssignModal, AssignDetails} from './assignmodal';
 import {UniApproveModal, ApprovalDetails} from './approvemodal';
 import {UniMath} from '../../../../../framework/core/uniMath';
 import {NumberSeriesTaskIds} from '../../../../models/models';
-
+import {
+    UniModalService,
+    UniBankAccountModal
+} from '../../../../../framework/uniModal/barrel';
 import {
     SupplierInvoiceService,
     SupplierService,
@@ -102,7 +104,6 @@ export class BillView {
     private uniSearchConfig: IUniSearchConfig;
 
     @ViewChild(UniForm) public uniForm: UniForm;
-    @ViewChild(BankAccountModal) public bankAccountModal: BankAccountModal;
     @ViewChild(RegisterPaymentModal) private registerPaymentModal: RegisterPaymentModal;
     @ViewChild(BillSimpleJournalEntryView) private simpleJournalentry: BillSimpleJournalEntryView;
     @ViewChild(UniConfirmModal) private confirmModal: UniConfirmModal;
@@ -153,7 +154,9 @@ export class BillView {
         private ehfService: EHFService,
         private uniSearchConfigGeneratorService: UniSearchConfigGeneratorService,
         private modulusService: ModulusService,
-        private projectService: ProjectService) {
+        private projectService: ProjectService,
+        private modalService: UniModalService
+    ) {
         this.actions = this.rootActions;
     }
 
@@ -345,39 +348,41 @@ export class BillView {
             linkProperty: 'ID',
             storeResultInProperty: 'BankAccount',
             storeIdInProperty: 'BankAccountID',
-            editor: (bankaccount: BankAccount) => new Promise((resolve, reject) => {
-                let current: SupplierInvoice = this.current.getValue();
+            editor: (bankAccount: BankAccount) => new Promise((resolve, reject) => {
+                let invoice: SupplierInvoice = this.current.getValue();
+                if (!bankAccount.ID) {
+                    bankAccount['_createguid'] = this.bankAccountService.getNewGuid();
+                    bankAccount.BankAccountType = 'supplier';
+                    bankAccount.BusinessRelationID = invoice.Supplier
+                        ? invoice.Supplier.BusinessRelationID
+                        : null;
 
-                if (!bankaccount.ID) {
-                    bankaccount['_createguid'] = this.bankAccountService.getNewGuid();
-                    bankaccount.BankAccountType = 'supplier';
-                    bankaccount.BusinessRelationID =
-                        current.Supplier ? current.Supplier.BusinessRelationID : null;
-                    bankaccount.ID = 0;
+                    bankAccount.ID = 0;
                 }
 
-                this.bankAccountModal.confirm(bankaccount, false).then(res => {
-                    if (res.status === ConfirmActions.ACCEPT) {
-                        // save the bank account to the supplier
-                        let changedBankaccount = res.model;
-                        if (changedBankaccount.ID === 0) {
-                            this.bankAccountService.Post(changedBankaccount)
-                                .subscribe((savedBankAccount: BankAccount) => {
-                                    current.BankAccountID = savedBankAccount.ID;
-                                    this.current.next(current); // if we update current we emit the new value
-                                    resolve(savedBankAccount);
-                                },
-                                err => {
-                                    this.errorService.handle(err);
-                                    reject('Feil ved lagring av bankkonto');
-                                }
-                                );
-                        } else {
-                            throw new Error('Du kan ikke endre en bankkonto herfra');
-                        }
-                    }
+                const modal = this.modalService.open(UniBankAccountModal, {
+                    data: bankAccount
                 });
-            })
+
+                modal.onClose.subscribe(account => {
+                    if (!account) {
+                        reject();
+                        return;
+                    }
+
+                    const request = account.ID > 0
+                        ? this.bankAccountService.Put(account.ID, account)
+                        : this.bankAccountService.Post(account);
+
+                    request.subscribe(
+                        res => resolve(res),
+                        err => {
+                            this.errorService.handle(err);
+                            reject();
+                        }
+                    );
+                });
+            }),
         };
 
 

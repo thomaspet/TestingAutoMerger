@@ -8,13 +8,11 @@ import {ExternalSearch} from './externalSearch/externalSearch';
 import {ProductDetails} from './product/details/productDetails';
 import {ProductList} from './product/list/productList';
 import {AltinnAuthenticationDataModalContent} from './modals/AltinnAuthenticationDataModal';
-import {BankAccountForm} from './modals/bankAccountModal';
 import {RegisterPaymentForm} from './modals/registerPaymentModal';
 import {UniFrameworkModule} from '../../../framework/frameworkModule';
 import {UniTableModule} from '../../../framework/ui/unitable/index';
 import {UniFormModule} from '../../../framework/ui/uniform/index';
 import {AltinnAuthenticationDataModal} from './modals/AltinnAuthenticationDataModal';
-import {BankAccountModal} from './modals/bankAccountModal';
 import {RegisterPaymentModal} from './modals/registerPaymentModal';
 import {UniBreadcrumbs} from './toolbar/breadcrumbs';
 import {UniStatusTrack} from './toolbar/statustrack';
@@ -83,8 +81,6 @@ import {routes as AppCommonRoutes} from './appCommonRoutes';
         AccrualModal,
         AltinnAuthenticationDataModalContent,
         AltinnAuthenticationDataModal,
-        BankAccountForm,
-        BankAccountModal,
         RegisterPaymentForm,
         RegisterPaymentModal,
         UniBreadcrumbs,
@@ -136,7 +132,6 @@ import {routes as AppCommonRoutes} from './appCommonRoutes';
     ],
     entryComponents: [
         AccrualForm,
-        BankAccountForm,
         RegisterPaymentForm,
         AltinnAuthenticationDataModalContent,
         SendEmailForm,
@@ -164,8 +159,6 @@ import {routes as AppCommonRoutes} from './appCommonRoutes';
         AccrualModal,
         AltinnAuthenticationDataModalContent,
         AltinnAuthenticationDataModal,
-        BankAccountForm,
-        BankAccountModal,
         RegisterPaymentForm,
         RegisterPaymentModal,
         UniBreadcrumbs,

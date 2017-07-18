@@ -394,7 +394,6 @@ export class UniMultivalueInput extends BaseControl {
                 this.field.Options.editor(row).then(editedEntity => {
                     this.isDirty = false;
                     this.editorIsOpen = false;
-
                     if (!editedEntity) {
                         this.focus();
                         return;

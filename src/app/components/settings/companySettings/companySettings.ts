@@ -50,12 +50,11 @@ import {
     UniModalService,
     UniAddressModal,
     UniEmailModal,
-    UniPhoneModal
+    UniPhoneModal,
+    UniBankAccountModal
 } from '../../../../framework/uniModal/barrel';
 
 import {ActivateAPModal} from '../../common/modals/modals';
-import {ConfirmActions} from '../../../../framework/modals/confirm';
-import {BankAccountModal} from '../../common/modals/modals';
 
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {Observable} from 'rxjs/Observable';
@@ -68,9 +67,6 @@ declare var _;
 export class CompanySettingsComponent implements OnInit {
     @ViewChild(UniForm)
     public form: UniForm;
-
-    @ViewChild(BankAccountModal)
-    public bankAccountModal: BankAccountModal;
 
     @ViewChild(ReminderSettings)
     public reminderSettings: ReminderSettings;
@@ -584,7 +580,7 @@ export class CompanySettingsComponent implements OnInit {
             linkProperty: 'ID',
             storeResultInProperty: storeResultInProperty,
             storeIdInProperty: storeResultInProperty + 'ID',
-            editor: (bankaccount: BankAccount) => new Promise((resolve, reject) => {
+            editor: (bankaccount: BankAccount) => {
                 if (!bankaccount || !bankaccount.ID) {
                     bankaccount = bankaccount || new BankAccount();
                     bankaccount['_createguid'] = this.bankaccountService.getNewGuid();
@@ -593,23 +589,12 @@ export class CompanySettingsComponent implements OnInit {
                     bankaccount.ID = 0;
                 }
 
-                this.bankAccountModal.confirm(bankaccount).then(res => {
-                    if (res.status === ConfirmActions.ACCEPT) {
-                        let localBankaccount = res.model;
+                const modal = this.modalService.open(UniBankAccountModal, {
+                    data: bankaccount
+                });
 
-                        // update BankAccounts list only active is updated directly
-                        this.company$.getValue().BankAccounts.forEach((ba, i) => {
-                            if ((ba.ID && ba.ID === localBankaccount.ID) || (ba['_createdguid'] && ba['_createguid'] === localBankaccount._createguid)) {
-                                this.company$.getValue().BankAccounts[i] = localBankaccount;
-                            }
-                        });
-
-                        resolve(localBankaccount);
-                    } else {
-                        reject(null);
-                    }
-                }).catch(() => reject());
-            })
+                return modal.onClose.take(1).toPromise();
+            }
         };
     }
 

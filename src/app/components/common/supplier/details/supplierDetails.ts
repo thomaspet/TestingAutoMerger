@@ -10,7 +10,6 @@ import {IUniSaveAction} from '../../../../../framework/save/save';
 import {UniForm, UniFieldLayout} from '../../../../../framework/ui/uniform/index';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
 import {ToastService, ToastType} from '../../../../../framework/uniToast/toastService';
-import {BankAccountModal} from '../../../common/modals/modals';
 import {IToolbarConfig} from './../../../common/toolbar/toolbar';
 import {LedgerAccountReconciliation} from '../../../common/reconciliation/ledgeraccounts/ledgeraccountreconciliation';
 import {
@@ -35,7 +34,8 @@ import {
     UniModalService,
     UniAddressModal,
     UniEmailModal,
-    UniPhoneModal
+    UniPhoneModal,
+    UniBankAccountModal
 } from '../../../../../framework/uniModal/barrel';
 
 declare const _; // lodash
@@ -45,11 +45,17 @@ declare const _; // lodash
     templateUrl: './supplierDetails.html'
 })
 export class SupplierDetails implements OnInit {
-    @Input() public modalMode: boolean = false;
-    @Output() public createdNewSupplier: EventEmitter<Supplier> = new EventEmitter<Supplier>();
-    @ViewChild(UniForm) public form: UniForm;
-    @ViewChild(BankAccountModal) public bankAccountModal: BankAccountModal;
-    @ViewChild(LedgerAccountReconciliation) private ledgerAccountReconciliation: LedgerAccountReconciliation;
+    @Input()
+    public modalMode: boolean = false;
+
+    @Output()
+    public createdNewSupplier: EventEmitter<Supplier> = new EventEmitter<Supplier>();
+
+    @ViewChild(UniForm)
+    public form: UniForm;
+
+    @ViewChild(LedgerAccountReconciliation)
+    private ledgerAccountReconciliation: LedgerAccountReconciliation;
 
     public supplierID: number;
     public allowSearchSupplier: boolean = true;
@@ -454,7 +460,7 @@ export class SupplierDetails implements OnInit {
             linkProperty: 'ID',
             storeResultInProperty: 'Info.DefaultBankAccount',
             storeIdInProperty: 'Info.DefaultBankAccountID',
-            editor: (bankaccount: BankAccount) => new Promise((resolve, reject) => {
+            editor: (bankaccount: BankAccount) => {
                 if ((bankaccount && !bankaccount.ID) || !bankaccount) {
                     bankaccount = bankaccount || new BankAccount();
                     bankaccount['_createguid'] = this.bankaccountService.getNewGuid();
@@ -462,16 +468,12 @@ export class SupplierDetails implements OnInit {
                     bankaccount.ID = 0;
                 }
 
-                this.bankAccountModal.confirm(bankaccount, false).then((res) => {
-                    if (res.status === ConfirmActions.ACCEPT) {
-                        resolve(res.model);
-                    } else {
-                        reject(null);
-                    }
-                }).catch(() => {
-                    reject();
+                const modal = this.modalService.open(UniBankAccountModal, {
+                    data: bankaccount
                 });
-            })
+
+                return modal.onClose.take(1).toPromise();
+            }
         };
 
         this.fields$.next(fields);

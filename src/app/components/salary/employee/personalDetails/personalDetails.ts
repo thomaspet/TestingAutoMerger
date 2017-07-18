@@ -10,7 +10,8 @@ import {
     UniModalService,
     UniAddressModal,
     UniEmailModal,
-    UniPhoneModal
+    UniPhoneModal,
+    UniBankAccountModal
 } from '../../../../../framework/uniModal/barrel';
 import {
     EmployeeService,
@@ -26,7 +27,6 @@ declare var _;
 
 import { Observable } from 'rxjs/Observable';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
-import { BankAccountModal } from '../../../common/modals/modals';
 import { UniField } from '../../../../../framework/ui/uniform/index';
 
 @Component({
@@ -36,9 +36,6 @@ import { UniField } from '../../../../../framework/ui/uniform/index';
 export class PersonalDetails extends UniView {
     @ViewChild(UniForm)
     public uniform: UniForm;
-
-    @ViewChild(BankAccountModal)
-    public bankAccountModal: BankAccountModal;
 
     public busy: boolean;
     public expands: any = [
@@ -340,20 +337,23 @@ export class PersonalDetails extends UniView {
             linkProperty: 'ID',
             storeResultInProperty: 'BusinessRelationInfo.DefaultBankAccount',
             storeIdInProperty: 'BusinessRelationInfo.DefaultBankAccountID',
-            editor: (bankaccount: BankAccount) => new Promise((resolve) => {
-                if (!bankaccount || !bankaccount.ID) {
+            editor: (bankaccount: BankAccount) => {
+                if (!bankaccount) {
                     bankaccount = new BankAccount();
                     bankaccount['_createguid'] = this.bankaccountService.getNewGuid();
                     bankaccount.BankAccountType = 'employee';
                     bankaccount.ID = 0;
                 }
 
-                this.bankAccountModal.confirm(bankaccount, false).then(res => {
-                    resolve(res.model);
-                }).catch(() => {
-                    // nothing, just close the modal.
+                const modal = this.modalService.open(UniBankAccountModal, {
+                    data: bankaccount,
+                    modalConfig: {
+                        accountVisible: true
+                    }
                 });
-            })
+
+                return modal.onClose.take(1).toPromise();
+            }
         };
 
         let employeeNameField: UniFieldLayout = this.findByProperty(fields, 'BusinessRelationInfo.Name');

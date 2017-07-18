@@ -9,9 +9,7 @@ import {IUniSaveAction} from '../../../../framework/save/save';
 import {ISummaryConfig} from '../../common/summary/summary';
 import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
 import {PaymentRelationsModal} from './relationModal';
-import {BankAccountModal} from '../../common/modals/modals';
 import {BankPaymentSummaryData} from '../../../models/accounting/BankPaymentSummaryData';
-import {UniConfirmModal, ConfirmActions} from '../../../../framework/modals/confirm';
 import {
     NumberFormat,
     ErrorService,
@@ -25,6 +23,13 @@ import {
     CompanySettingsService,
     CurrencyService,
 } from '../../../services/services';
+import {
+    UniModalService,
+    UniConfirmModalV2,
+    UniBankAccountModal,
+    ConfirmActions
+} from '../../../../framework/uniModal/barrel';
+
 import {saveAs} from 'file-saver';
 import * as moment from 'moment';
 
@@ -33,10 +38,11 @@ import * as moment from 'moment';
     templateUrl: './paymentList.html',
 })
 export class PaymentList {
-    @ViewChild(UniTable) private table: UniTable;
-    @ViewChild(PaymentRelationsModal) private paymentRelationsModal: PaymentRelationsModal;
-    @ViewChild(BankAccountModal) public bankAccountModal: BankAccountModal;
-    @ViewChild(UniConfirmModal) private confirmModal: UniConfirmModal;
+    @ViewChild(UniTable)
+    private table: UniTable;
+
+    @ViewChild(PaymentRelationsModal)
+    private paymentRelationsModal: PaymentRelationsModal;
 
     private toolbarconfig: IToolbarConfig;
     private paymentTableConfig: UniTableConfig;
@@ -67,7 +73,8 @@ export class PaymentList {
         private paymentBatchService: PaymentBatchService,
         private fileService: FileService,
         private companySettingsService: CompanySettingsService,
-        private currencyService: CurrencyService) {
+        private currencyService: CurrencyService,
+        private modalService: UniModalService) {
 
         this.tabService.addTab({
             name: 'Betalinger', url: '/bank/payments',
@@ -234,17 +241,23 @@ export class PaymentList {
         });
 
         if (dirtyRows.length > 0) {
-            this.confirmModal.confirm(
-                `Du har endret ${dirtyRows.length} rader som du ikke har lagret - vil du lagre før du fortsetter?`,
-                'Ulagrede endringer',
-                true
-            ).then((action) => {
-                if (action === ConfirmActions.ACCEPT) {
-                    this.save((status) => { }, () => {
+            const confirmModal = this.modalService.open(UniConfirmModalV2, {
+                header: 'Ulagrede endringer',
+                message: `Du har ${dirtyRows.length} ulagrede rader. Ønsker du å lagre før du fortsetter?`,
+                buttonLabels: {
+                    accept: 'Lagre',
+                    reject: 'Forkast',
+                    cancel: 'Avbryt'
+                }
+            });
+
+            confirmModal.onClose.subscribe((response) => {
+                if (response === ConfirmActions.ACCEPT) {
+                    this.save(() => {}, () => {
                         this.paymentCodeFilterValue = newValue;
                         this.loadData();
                     });
-                } else if (action === ConfirmActions.REJECT) {
+                } else if (response === ConfirmActions.REJECT) {
                     this.paymentCodeFilterValue = newValue;
                     this.loadData();
                 } else {
@@ -365,24 +378,23 @@ export class PaymentList {
             return;
         }
 
-        let rowsWithOldDates = selectedRows.filter(x => moment(x.PaymentDate).isBefore(moment().startOf('day')));
+        let rowsWithOldDates: any[] = selectedRows.filter(x => moment(x.PaymentDate).isBefore(moment().startOf('day')));
 
         if (rowsWithOldDates.length > 0) {
-            this.confirmModal.confirm(
-                `Det er ${rowsWithOldDates.length} rader som har betalingsdato tilbake i tid. Vil du sette dagens dato automatisk?`,
-                'Ugyldig betalingsdato',
-                false,
-                { accept: 'Sett dagens dato', reject: 'Avbryt og sett dato manuelt' }
-            ).then((action) => {
-                if (action === ConfirmActions.ACCEPT) {
-                    rowsWithOldDates.forEach(x => {
-                        x.PaymentDate = new LocalDate(moment().toDate());
-                        x._isDirty = true;
-                        this.table.updateRow(x._originalIndex, x);
-                    });
+            const modal = this.modalService.open(UniConfirmModalV2, {
+                header: 'Ugyldig betalingsdato',
+                message: `Det er ${rowsWithOldDates.length} rader som har betalingsdato tilbake i tid. Vil du sette dagens dato autmatisk?`,
+                buttonLabels: {accept: 'Sett dagens dato', reject: 'Avbryt og sett dato manuelt'}
+            });
 
-                    this.saveAndPayInternal(selectedRows, doneHandler);
-                } else if (action === ConfirmActions.REJECT) {
+            modal.onClose.subscribe((result) => {
+                if (result === ConfirmActions.ACCEPT) {
+                    rowsWithOldDates.map(row => {
+                        row.PaymentDate = new LocalDate(new Date());
+                        row._isDirty = true;
+                        this.table.updateRow(row._originalIndex, row);
+                    });
+                } else {
                     doneHandler('Lagring avbrutt');
                 }
             });
@@ -394,66 +406,73 @@ export class PaymentList {
     private saveAndPayInternal(selectedRows: Array<Payment>, doneHandler: (status: string) => any) {
         // save first, then run action
         this.save(doneHandler, () => {
-            this.confirmModal.confirm(
-                'Er du sikker på at du vil utbetale de valgte ' + selectedRows.length + ' betalinger?',
-                'Bekreft utbetaling',
-                false,
-                { accept: 'Send til betaling', reject: 'Avbryt' }
-            ).then((action) => {
-                if (action === ConfirmActions.ACCEPT) {
+            const modal = this.modalService.open(UniConfirmModalV2, {
+                header: 'Bekreft utbetaling',
+                message: `Er du sikker på at du vil utbetale de valgte ${selectedRows.length} radene?`,
+                buttonLabels: {accept: 'Send til betaling', cancel: 'Avbryt'}
+            });
 
-                    let paymentIDs: Array<number> = [];
-                    selectedRows.forEach(x => {
-                        paymentIDs.push(x.ID);
-                    });
-
-                    // lag action for å generer batch for X betalinger
-                    this.paymentService.createPaymentBatch(paymentIDs)
-                        .subscribe((paymentBatch: PaymentBatch) => {
-                            this.toastService.addToast(`Betalingsbunt ${paymentBatch.ID} opprettet, genererer utbetalingsfil...`, ToastType.good, 5);
-
-                            // refresh list after paymentbatch has been generated
-                            this.loadData();
-
-                            // kjør action for å generere utbetalingsfil basert på batch
-                            this.paymentBatchService.generatePaymentFile(paymentBatch.ID)
-                                .subscribe((updatedPaymentBatch: PaymentBatch) => {
-
-                                    if (updatedPaymentBatch.PaymentFileID) {
-                                        this.toastService.addToast('Utbetalingsfil laget, henter fil...', ToastType.good, 5);
-
-                                        this.fileService
-                                            .downloadFile(updatedPaymentBatch.PaymentFileID, 'application/xml')
-                                            .subscribe((blob) => {
-                                                doneHandler('Utbetalingsfil hentet');
-
-                                                // download file so the user can open it
-                                                saveAs(blob, `payments_${updatedPaymentBatch.ID}.xml`);
-                                            },
-                                            err => {
-                                                doneHandler('Feil ved henting av utbetalingsfil');
-                                                this.errorService.handle(err);
-                                            }
-                                            );
-                                    } else {
-                                        this.toastService.addToast('Fant ikke utbetalingsfil, ingen PaymentFileID definert', ToastType.bad, 0);
-                                        doneHandler('Feil ved henting av utbetalingsfil');
-                                    }
-                                },
-                                err => {
-                                    doneHandler('Feil ved generering av utbetalingsfil');
-                                    this.errorService.handle(err);
-                                });
-
-                        },
-                        err => {
-                            doneHandler('Feil ved opprettelse av betalingsbunt');
-                            this.errorService.handle(err);
-                        });
-
-                } else if (action === ConfirmActions.REJECT) {
+            modal.onClose.subscribe((response) => {
+                if (response === ConfirmActions.REJECT) {
                     doneHandler('Utbetaling avbrutt');
+                    return;
                 }
+
+                let paymentIDs: number[] = [];
+                selectedRows.forEach(x => {
+                    paymentIDs.push(x.ID);
+                });
+
+                // lag action for å generer batch for X betalinger
+                this.paymentService.createPaymentBatch(paymentIDs)
+                    .subscribe((paymentBatch: PaymentBatch) => {
+                        this.toastService.addToast(
+                            `Betalingsbunt ${paymentBatch.ID} opprettet, genererer utbetalingsfil...`,
+                            ToastType.good, 5
+                        );
+
+                        // refresh list after paymentbatch has been generated
+                        this.loadData();
+
+                        // kjør action for å generere utbetalingsfil basert på batch
+                        this.paymentBatchService.generatePaymentFile(paymentBatch.ID)
+                            .subscribe((updatedPaymentBatch: PaymentBatch) => {
+                                if (updatedPaymentBatch.PaymentFileID) {
+                                    this.toastService.addToast(
+                                        'Utbetalingsfil laget, henter fil...',
+                                        ToastType.good, 5
+                                    );
+
+                                    this.fileService
+                                        .downloadFile(updatedPaymentBatch.PaymentFileID, 'application/xml')
+                                        .subscribe((blob) => {
+                                            doneHandler('Utbetalingsfil hentet');
+
+                                            // download file so the user can open it
+                                            saveAs(blob, `payments_${updatedPaymentBatch.ID}.xml`);
+                                        },
+                                        err => {
+                                            doneHandler('Feil ved henting av utbetalingsfil');
+                                            this.errorService.handle(err);
+                                        });
+                                } else {
+                                    this.toastService.addToast(
+                                        'Fant ikke utbetalingsfil, ingen PaymentFileID definert',
+                                        ToastType.bad
+                                    );
+
+                                    doneHandler('Feil ved henting av utbetalingsfil');
+                                }
+                            },
+                            err => {
+                                doneHandler('Feil ved generering av utbetalingsfil');
+                                this.errorService.handle(err);
+                            });
+                    },
+                    err => {
+                        doneHandler('Feil ved opprettelse av betalingsbunt');
+                        this.errorService.handle(err);
+                    });
             });
         });
     }
@@ -490,32 +509,33 @@ export class PaymentList {
             }
         }
 
-        this.confirmModal.confirm(
-            'Er du sikker på at du vil slette ' + selectedRows.length + ' betalinger?',
-            'Bekreft sletting',
-            false
-        ).then((action) => {
-            if (action === ConfirmActions.ACCEPT) {
-                let requests = [];
-                selectedRows.forEach(x => {
-                    requests.push(this.paymentService.Remove(x.ID, x));
-                });
+        const modal = this.modalService.open(UniConfirmModalV2, {
+            header: 'Bekreft sletting',
+            message: `Er du sikker på at du vil slette ${selectedRows.length} betalinger?`,
+            buttonLabels: {accept: 'Slett', cancel: 'Avbryt'}
+        });
 
-                Observable.forkJoin(requests)
-                    .subscribe(resp => {
-                        this.toastService.addToast('Betalinger slettet', ToastType.good, 5);
-                        doneHandler('Betalinger slettet');
-
-                        // refresh data after save
-                        this.loadData();
-
-                    }, (err) => {
-                        doneHandler('Feil ved sletting av data');
-                        this.errorService.handle(err);
-                    });
-            } else if (action === ConfirmActions.REJECT) {
+        modal.onClose.subscribe(result => {
+            if (result === ConfirmActions.CANCEL) {
                 doneHandler('Sletting avbrutt');
+                return;
             }
+
+            let requests = [];
+            selectedRows.forEach(x => {
+                requests.push(this.paymentService.Remove(x.ID, x));
+            });
+
+            Observable.forkJoin(requests).subscribe(response => {
+                this.toastService.addToast('Betalinger slettet', ToastType.good, 5);
+                doneHandler('Betalinger slettet');
+
+                // refresh data after save
+                this.loadData();
+            }, (err) => {
+                doneHandler('Feil ved sletting av data');
+                this.errorService.handle(err);
+            });
         });
     }
 
@@ -621,34 +641,32 @@ export class PaymentList {
                 },
                 addNewButtonVisible: true,
                 addNewButtonText: 'Legg til bankkonto',
-                addNewButtonCallback: (text) => {
-                    return new Promise((resolve, reject) => {
-                        let bankaccount = new BankAccount();
-                        bankaccount.AccountNumber = text;
-                        bankaccount['_createguid'] = this.bankAccountService.getNewGuid();
-                        bankaccount.BankAccountType = '-';
+                addNewButtonCallback: (text) => new Promise((resolve, reject) => {
+                    let currentRow = this.table.getCurrentRow();
+                    let bankAccount = new BankAccount();
+                    bankAccount.BusinessRelationID = currentRow.BusinessRelationID;
+                    bankAccount['_createguide'] = this.bankAccountService.getNewGuid();
+                    bankAccount.BankAccountType = '-';
 
-                        let currentRow = this.table.getCurrentRow();
-
-                        bankaccount.BusinessRelationID = currentRow.BusinessRelationID;
-                        bankaccount.ID = 0;
-
-                        this.bankAccountModal.confirm(bankaccount, false).then(res => {
-                            if (res.status === ConfirmActions.ACCEPT) {
-                                // Save bank account and resolve saved object
-                                this.bankAccountService.Post(res.model)
-                                    .subscribe(savedAccount => {
-                                        resolve(savedAccount);
-                                    }, err => {
-                                        reject('Error saving bank account');
-                                        this.errorService.handle(err);
-                                    });
-                            } else {
-                                resolve(res.model);
-                            }
-                        });
+                    const modal = this.modalService.open(UniBankAccountModal, {
+                        data: bankAccount
                     });
-                }
+
+                    modal.onClose.subscribe((account) => {
+                        if (!account) {
+                            resolve(undefined);
+                            return;
+                        }
+
+                        this.bankAccountService.Post(account).subscribe(
+                            res => resolve(res),
+                            err => {
+                                this.errorService.handle(err);
+                                resolve(undefined);
+                            }
+                        );
+                    });
+                })
             });
 
         let paymentIDCol = new UniTableColumn('PaymentID', 'KID', UniTableColumnType.Text);
@@ -740,21 +758,29 @@ export class PaymentList {
             }
         });
 
-        if (dirtyRows.length === 0) {
+        console.log('candeactivate', dirtyRows, tableData);
+
+        if (!dirtyRows.length) {
             return true;
         }
 
-        return new Promise<boolean>((resolve, reject) => {
-            this.confirmModal.confirm(
-                `Du har endret ${dirtyRows.length} rader som du ikke har lagret - vil du lagre før du fortsetter?`,
-                'Ulagrede endringer',
-                true
-            ).then((action) => {
-                if (action === ConfirmActions.ACCEPT) {
-                    this.save((status) => { }, () => {
+        const modal = this.modalService.open(UniConfirmModalV2, {
+            header: 'Ulagrede endringer',
+            message: `Du har ${dirtyRows.length} rader som ikke er lagret. Vil du lagre før du fortsetter?`,
+            buttonLabels: {
+                accept: 'Lagre',
+                reject: 'Forkast endringer',
+                cancel: 'Avbryt'
+            }
+        });
+
+        return new Promise((resolve, reject) => {
+            modal.onClose.subscribe((response) => {
+                if (response === ConfirmActions.ACCEPT) {
+                    this.save((status) => {}, () => {
                         resolve(true);
                     });
-                } else if (action === ConfirmActions.REJECT) {
+                } else if (response === ConfirmActions.REJECT) {
                     resolve(true);
                 } else {
                     resolve(false);

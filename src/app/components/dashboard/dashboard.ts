@@ -7,6 +7,7 @@ import {ErrorService, CompanySettingsService} from '../../services/services';
 import {UniWidgetCanvas} from '../widgets/widgetCanvas';
 import {
     UniModalService,
+    ConfirmActions,
     UniConfirmModalV2,
     UniAddressModal,
     UniPhoneModal,
@@ -54,11 +55,15 @@ export class Dashboard {
 
         switch (type) {
             case 1:
-                // modal = this.modalService.open(UniConfirmModalV2, {
-                //     header: 'Bekreft',
-                //     message: 'Vennligst bekreft dette',
-                // });
-                modal  = this.modalService.openUnsavedChangesModal();
+                modal = this.modalService.open(UniConfirmModalV2, {
+                    header: 'Ulagrede endringer',
+                    message: `Du har ${5} ulagrede rader. Ønsker du å lagre før du fortsetter?`,
+                    buttonLabels: {
+                        accept: 'Lagre',
+                        reject: 'Forkast',
+                        cancel: 'Avbryt'
+                    }
+                });
             break;
             case 2:
                 modal = this.modalService.open(UniAddressModal);

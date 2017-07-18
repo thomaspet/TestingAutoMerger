@@ -16,12 +16,14 @@ export interface IModalOptions {
     header?: string;
     message?: string;
     closeOnClickOutside?: boolean;
-    buttons?: {
-        label: string;
-        class?: string;
-        action?: (modalInstance?: IUniModal) => void;
-    }[];
+    buttonLabels?: {
+        accept?: string;
+        reject?: string;
+        cancel?: string;
+    };
+    modalConfig?: any;
 }
+
 
 export interface IUniModal {
     onClose: EventEmitter<any>;

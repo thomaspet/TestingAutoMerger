@@ -10,7 +10,9 @@ export enum ConfirmActions {
 @Component({
     selector: 'uni-confirm-modal-v2',
     template: `
-        <dialog class="uni-modal" (clickOutside)="close()">
+        <dialog class="uni-modal"
+                (clickOutside)="cancel()"
+                (keydown.esc)="cancel()">
             <header>
                 <h1 class="new">{{options.header}}</h1>
             </header>
@@ -20,10 +22,16 @@ export enum ConfirmActions {
             </main>
 
             <footer>
-                <button *ngFor="let button of options.buttons"
-                    (click)="onButtonClick(button)"
-                    [ngClass]="button.class">
-                    {{button.label}}
+                <button *ngIf="options.buttonLabels.accept" class="good" (click)="accept()">
+                    {{options.buttonLabels.accept}}
+                </button>
+
+                <button *ngIf="options.buttonLabels.reject" class="bad" (click)="reject()">
+                    {{options.buttonLabels.reject}}
+                </button>
+
+                <button *ngIf="options.buttonLabels.cancel" class="cancel" (click)="cancel()">
+                    {{options.buttonLabels.cancel}}
                 </button>
             </footer>
         </dialog>
@@ -37,27 +45,23 @@ export class UniConfirmModalV2 implements IUniModal {
     public onClose: EventEmitter<any> = new EventEmitter();
 
     public ngOnInit() {
-        if (!this.options.buttons) {
-            this.options.buttons = [
-                {
-                    label: 'Ok',
-                    class: 'good',
-                    action: () => this.close(ConfirmActions.ACCEPT)
-                },
-                {
-                    label: 'Avbryt',
-                    class: 'warning',
-                    action: () => this.close(ConfirmActions.CANCEL)
-                }
-            ];
+        if (!this.options.buttonLabels) {
+            this.options.buttonLabels = {
+                accept: 'Ok',
+                cancel: 'Avbryt'
+            };
         }
     }
 
-    public onButtonClick(button) {
-        button.action(this);
+    public accept() {
+        this.onClose.emit(ConfirmActions.ACCEPT);
     }
 
-    public close(value = ConfirmActions.CANCEL) {
-        this.onClose.emit(value);
+    public reject() {
+        this.onClose.emit(ConfirmActions.REJECT);
+    }
+
+    public cancel() {
+        this.onClose.emit(ConfirmActions.CANCEL);
     }
 }
