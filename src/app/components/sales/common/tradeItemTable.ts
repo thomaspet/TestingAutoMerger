@@ -172,14 +172,26 @@ export class TradeItemTable {
 
         const projectTaskCol = new UniTableColumn('Dimensions.ProjectTask', 'Oppgave', UniTableColumnType.Lookup)
             .setDisplayField('Dimensions.ProjectTask.Name')
+            .setVisible(false)
             .setEditorOptions({
                 itemTemplate: (item) => {
-                    return (item.ProjectID + ':' + item.Name)
+                    return (item.Number + ': ' + item.Name)
                 },
                 lookupFunction: (query) => {
-                    return this.projectTaskService.GetAll(
-                        `filter=contains(Name,'${query}')&groupby=ProjectID`
-                    ).catch((err, obs) => this.errorService.handleRxCatch(err, obs));
+                    let filter = `filter=contains(Name,'${query}') or contains(ID,'${query}') `
+                        + `or contains(Number,'${query}')&groupby=ProjectID`;
+
+                    if (typeof query === 'string' && query !== '') {
+                        if (query.indexOf(',') !== -1 || query.indexOf('.') !== -1) {
+                            let querySplit = query.split(/[,.]/) ;
+                            filter = `filter=startswith(Number,'${querySplit[0]}') and `
+                                + `(contains(Name,'${querySplit[1]}') or `
+                                + `contains(ID,'${querySplit[1]}'))&groupby=ProjectID`;
+                        }
+                    }
+                    
+                    return this.projectTaskService.GetAll(filter)
+                        .catch((err, obs) => this.errorService.handleRxCatch(err, obs));    
                 }
             });
 
