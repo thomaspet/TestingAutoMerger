@@ -3,6 +3,13 @@ import {Observable} from 'rxjs/Observable';
 import {AppConfig} from '../../AppConfig';
 import {UniHttp} from '../../../framework/core/http/http';
 
+export enum SubscriptionState {
+        Unchanged = 0,
+        New = 1,
+        Deleted = 2,
+        Changed = 3
+}
+
 export interface IUmhAction {
     id?: string;
     Name?: string;
@@ -24,6 +31,8 @@ export interface IUmhSubscription {
     AppModuleId?: string;
     ObjectiveId?: string;
     ActionId?: string;
+
+    State?: SubscriptionState;
 }
 
 export interface IUmhSubscriber {
@@ -75,8 +84,7 @@ export class UmhService {
             });
     }
 
-    public createSubscription(subscription: IUmhSubscription):
-                                                            Observable<Array<IUmhObjective>> {
+    public createSubscription(subscription: IUmhSubscription): Observable<IUmhSubscription> {
         return this.uniHttp.asPOST()
             .usingUmhDomain()
             .withEndPoint('web-hooks/subscriptions')
@@ -87,8 +95,7 @@ export class UmhService {
             });
     }
 
-    public updateSubscription(subscription: IUmhSubscription):
-                                                            Observable<Array<IUmhObjective>> {
+    public updateSubscription(subscription: IUmhSubscription): Observable<IUmhSubscription> {
         return this.uniHttp.asPUT()
             .usingUmhDomain()
             .withEndPoint('web-hooks/subscriptions')
@@ -99,15 +106,15 @@ export class UmhService {
             });
     }
 
-    public deleteSubscription(subscriptionId: string): Observable<Array<IUmhObjective>> {
+    public deleteSubscription(subscriptionId: string): Observable<any> {
         return this.uniHttp.asDELETE()
             .usingUmhDomain()
             .withEndPoint('web-hooks/subscriptions/' + subscriptionId)
             .send()
             .map((res) => {
+                console.log(res);
                 return res.json();
             });
-
     }
 
     public enableWebhooks(): Observable<IUmhSubscriber> {
@@ -138,5 +145,25 @@ export class UmhService {
             .map((res) => {
                 return res.json();
             });
+    }
+
+    public save(subscriptions: IUmhSubscription[]): Observable<any> {
+        var save = Observable.from(subscriptions). mergeMap((subscription: IUmhSubscription) => {
+            console.log('SAVE:' + JSON.stringify(subscription));
+            switch (subscription.State) {
+                case SubscriptionState.New:
+                    console.log('POST');
+                    return this.createSubscription(subscription).map((res) => { return res; });
+                case SubscriptionState.Deleted:
+                    console.log('DELETE');
+                    return this.deleteSubscription(subscription.id);
+                case SubscriptionState.Changed:
+                    console.log('PUSH');
+                    return this.updateSubscription(subscription);
+                default:
+                    ;
+            }
+        });
+        return save;
     }
 }

@@ -3,57 +3,82 @@ import {Observable} from 'rxjs/Observable';
 
 import {UniSelect, ISelectConfig} from '../../../../framework/ui/uniform/index';
 
-import {UmhService, IUmhAction, IUmhObjective, IUmhSubscription, IUmhSubscriber} from '../../../services/common/UmhService';
+import {UmhService, IUmhAction, IUmhObjective, IUmhSubscription, IUmhSubscriber, SubscriptionState} from '../../../services/common/UmhService';
 import {AuthService} from '../../../../framework/core/authService';
 import {UniConfirmModal, ConfirmActions} from '../../../../framework/modals/confirm';
+import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
 import {CompanyService, ErrorService} from '../../../services/services';
 import {Company} from '../../../unientities';
+import {IUniSaveAction} from '../../../../framework/save/save';
 
 @Component({
     selector: 'webhook-settings',
     templateUrl: './webHookSettings.html',
 })
-
 export class WebHookSettings {
     @ViewChild(UniConfirmModal) private confirmModal: UniConfirmModal;
-    @ViewChild(UniSelect)
+    @ViewChild(UniSelect) private select: UniSelect;
 
+    private noFilter: string = 'ffffffff-ffff-ffff-ffff-ffffffffffff';
+    
     private actionSelectConfig: ISelectConfig;
     private objectiveSelectConfig: ISelectConfig;
+    
     private objectives: Array<IUmhObjective> = [];
     private actions: Array<IUmhAction> = [];
-    private noFilter: string;
 
     private subscription: IUmhSubscription;
-    private subscriptions: Array<IUmhSubscription>;
-
-    public objectiveNames: string[] = [];
-    public actionNames: string[] = [];
-    public isDirty: boolean = false;
+    private subscriptions: Array<IUmhSubscription> = [];
 
     private company: Company;
     private isEnabled: boolean = false;
     private isPermitted: boolean = false;
     private isBusy: boolean = true;
 
+    private saveactions: IUniSaveAction[] = [
+        {
+            label: 'Lagre',
+            action: (done) => this.save(done),
+            main: true,
+            disabled: true
+        }
+    ];
+
     public constructor(
         private umhSerivce: UmhService,
         private companyService: CompanyService,
         private authService: AuthService,
         private cdr: ChangeDetectorRef,
+        private toastService: ToastService,
         private errorService: ErrorService
         ) {
     }
 
     public ngOnInit() {
-        this.noFilter = 'ffffffff-ffff-ffff-ffff-ffffffffffff';
+        console.log('---> ngOnInit');
+        this.objectiveSelectConfig = {
+            displayProperty: 'Name',
+            placeholder: 'Velg objektiv',
+            searchable: true
+        };
+        this.actionSelectConfig = {
+            displayProperty: 'Name',
+            placeholder: 'Velg handling',
+            searchable: true
+        };
 
         this.umhSerivce.isPermitted(true).subscribe(
             isPermitted => { 
                 this.isPermitted = isPermitted;
 
                 if (isPermitted) {
-                    this.gatherData();
+                    this.companyService.Get(this.authService.activeCompany.ID).subscribe(
+                        company => {
+                            this.company = company;
+                            this.gatherData();
+                        },
+                        err => this.errorService.handle(err)
+                    );
                 } else {
                     this.isBusy = false;
                 }
@@ -76,16 +101,14 @@ export class WebHookSettings {
                 this.initActions(res[0]);
                 this.initObjectives(res[1]);
                 this.initSubscription();
+                this.initList();
             },
             err => this.errorService.handle(err)
         );
-
-        this.objectiveSelectConfig = {};
-        this.actionSelectConfig = {};
     }
 
     public canDeactivate(): boolean|Promise<boolean> {
-        if (!this.isDirty) {
+        if (this.saveactions[0].disabled) {
            return true;
         }
 
@@ -106,78 +129,73 @@ export class WebHookSettings {
     }
 
     private initActions(data: any) {
-        this.actionNames.push('All');
-
+        const actions = [];
         const action: IUmhAction = {
-                id: this.noFilter,
-                Name: 'All'
+            id: this.noFilter,
+            Name: 'All'
         };
-        this.actions.push(action);
+        actions.push(action);
 
-        for (var i = 0; i < data.length; ++i) {
-            this.actionNames.push(data[i].Name);
-            this.actions.push(data[i]);
+        for (let i = 0; i < data.length; ++i) {
+            actions.push(data[i]);
         }
+        this.actions = actions;
+        console.log(JSON.stringify(this.actions));
     }
 
     private initObjectives(data: any) {
-        this.objectiveNames.push('All');
-
-        const objective: IUmhObjective = {
+        const objectives = [];
+        let objective: IUmhObjective = {
             id: this.noFilter,
-            Name : 'All'
-        }
-        this.objectives.push(objective);
+            Name: 'All'
+        };
+        objectives.push(objective);
 
-        for (var i = 0; i < data.length; ++i) {
-            this.objectiveNames.push(data[i].Name);
-            this.objectives.push(data[i]);
+        for (let i = 0; i < data.length; ++i) {
+            objectives.push(data[i]);
         }
+        this.objectives = objectives;
+        console.log(JSON.stringify(this.objectives));
     }
 
     private initSubscription() {
+        console.log('--- INIT SUBSC ---');
         this.subscription = {
             AppModuleId: this.noFilter,
             Enabled: true,
             ObjectiveId: this.noFilter,
             ActionId: this.noFilter,
             Url: '',
-            Name: ''
+            Name: '',
+            State: SubscriptionState.New,
+            SubscriberId: this.company.WebHookSubscriberId,
+            ClusterId: this.company.Key
         };
-
-        this.companyService.Get(this.authService.activeCompany.ID).subscribe(
-            company => {
-                this.subscription.SubscriberId = company.WebHookSubscriberId;
-                this.subscription.ClusterId = company.Key;
-                this.company = company;
-
-                // get list of subscriptions
-                this.initList();
-
-                this.ngAfterViewInit();
-                this.isBusy = false;
-            },
-            err => this.errorService.handle(err)
-        );
     }
 
     private initList() {
         if (this.company.WebHookSubscriberId !== null) {
             this.umhSerivce.getSubscriptions().subscribe(
-                subscriptions => this.subscriptions = subscriptions,
+                subscriptions => {
+                    const length = subscriptions.length;
+
+                    for (var i = 0; i < length; ++i) {
+                        subscriptions[i].State = SubscriptionState.Unchanged;    
+                    }
+                    this.subscriptions = subscriptions;
+                    this.isBusy = false;
+                    this.saveactions[0].disabled = true;
+                },
                 err => this.errorService.handle(err)
             );
         }
+        this.ngAfterViewInit();
     }
 
     private onSubmit() {
-        this.umhSerivce.createSubscription(this.subscription).subscribe(
-            res => {
-                this.isDirty = false;
-                this.initSubscription();
-            },
-            err => this.errorService.handle(err)
-        );
+        this.subscriptions.push(this.subscription);
+        this.initSubscription();
+        this.saveactions[0].disabled = false;
     }
 
     private enableWebHooks() {
@@ -196,54 +214,44 @@ export class WebHookSettings {
     }
 
     private urlChange(event) {
-        this.isDirty = true;
+        
     }
 
     private descriptionChange(event) {
-        this.isDirty = true;
+        
     }
 
-    private onObjectiveSelectForNewSubscription(event) {
-        this.isDirty = true;
-        var objective = this.objectives.find(o => o.Name === event);
-
-        if (objective !== undefined) {
-            this.subscription.ObjectiveId = objective.id;
+    private onObjectiveSelectForNewSubscription(event: IUmhObjective) {
+        console.log(JSON.stringify(event));
+        if (event !== undefined) {
+            this.subscription.ObjectiveId = event.id;
          } else {
             this.subscription.ObjectiveId = this.noFilter;
         }
     }
 
-    private onActionSelectForNewSubscription(event) {
-        this.isDirty = true;
-        var action = this.actions.find(o => o.Name === event);
-
-        if (action !== undefined) {
-            this.subscription.ActionId = action.id;
+    private onActionSelectForNewSubscription(event: IUmhAction) {
+        console.log(JSON.stringify(event));
+        if (event !== undefined) {
+            this.subscription.ActionId = event.id;
          } else {
             this.subscription.ActionId = this.noFilter;
         }
     }
 
-    private onObjectiveSelectForExistingSubscription(subscription: IUmhSubscription, event: string) {
-        this.isDirty = true;
-        var objective = this.objectives.find(o => o.Name === event);
-
-        if (objective !== undefined) {
-            subscription.ObjectiveId = objective.id;
+    private onObjectiveSelectForExistingSubscription(subscription: IUmhSubscription, event: IUmhObjective) {
+        if (event !== undefined) {
+            subscription.ObjectiveId = event.id;
          } else {
             subscription.ObjectiveId = this.noFilter;
         }
-
+        
         this.updateSubscription(subscription);
     }
 
-    private onActionSelectForExistingSubscription(subscription: IUmhSubscription, event: string) {
-        this.isDirty = true;
-        var action = this.actions.find(o => o.Name === event);
-
-        if (action !== undefined) {
-            subscription.ActionId = action.id;
+    private onActionSelectForExistingSubscription(subscription: IUmhSubscription, event: IUmhAction) {
+        if (event !== undefined) {
+            subscription.ActionId = event.id;
          } else {
             subscription.ActionId = this.noFilter;
         }
@@ -252,46 +260,82 @@ export class WebHookSettings {
     }
 
 
-    private onToggle(item: IUmhSubscription) {
-        this.isDirty = true;
-        item.Enabled = !item.Enabled;
-        this.updateSubscription(item);
+    private onToggle(subscription: IUmhSubscription) {
+        subscription.Enabled = !subscription.Enabled;
+        this.updateSubscription(subscription);        
     }
 
-    private onDeleteSubscription(subscriptionId: string) {
-        this.umhSerivce.deleteSubscription(subscriptionId).subscribe(
-            res => {
-                this.initList();
-            },
-            err => this.errorService.handle(err)
-        );
+    private onDeleteSubscription(subscription: IUmhSubscription) {
+        if (subscription.State === SubscriptionState.New) {
+            var idx = this.subscriptions.indexOf(subscription);
+
+            if (idx > -1) {
+                this.subscriptions.splice(idx, 1);
+            }
+        } else {
+            subscription.State = SubscriptionState.Deleted;
+        }
+        this.saveactions[0].disabled = false;
     }
 
     private updateSubscription(subscription: IUmhSubscription) {
-        this.umhSerivce.updateSubscription(subscription).subscribe(
-            res => {},
-            err => this.errorService.handle(err)
-        );
+        this.saveactions[0].disabled = false;
+
+        if (subscription.State !== SubscriptionState.New) {
+            subscription.State = SubscriptionState.Changed;
+        }
     }
 
-    private isSubmitDisabled() {
+    private isSubmitDisabled(): boolean {
         return this.subscription.Url === ''
                 || this.subscription.Name === '';
     }
 
-    private getObjectiveName(id) {
+    private getObjectiveName(id: string): string {
         if (this.objectives !== undefined) {
-            return this.objectives.find(o => o.id === id).Name;
+            var objective =  this.objectives.find(o => o.id === id);
+
+            return objective !== undefined ? objective.Name : '';
         } else {
             return 'All';
         }
     }
 
-    private getActionName(id) {
+    private getActionName(id: string): string {
         if (this.actions !== undefined) {
-            return this.actions.find(o => o.id === id).Name;
+            var action = this.actions.find(o => o.id === id);
+
+            return action !== undefined ? action.Name : null;
         } else {
             return 'All';
         }
     }
+
+    private save(done: any) {
+        console.log(JSON.stringify(this.subscriptions));
+        this.isBusy = true;
+
+        let subscriptions = [];
+        const length = this.subscriptions.length;
+
+        for (let i = 0; i < length; ++i) {
+            if (this.subscriptions[i].State !== SubscriptionState.Unchanged) {
+                subscriptions.push(this.subscriptions[i]);
+            }
+        }
+
+        this.umhSerivce.save(subscriptions).subscribe(
+            res => {
+                this.toastService.addToast('Innstillinger lagret', ToastType.good, 3);
+                done('Webhook instillinger lagret');
+
+                this.initSubscription();
+                this.initList();
+            },
+            err => {
+                this.errorService.handle(err);
+                done('Webhook innstillinger feilet i lagring');
+            }
+        );
+   }
 }
