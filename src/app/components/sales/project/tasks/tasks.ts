@@ -81,18 +81,12 @@ export class ProjectTasks implements OnInit {
         row[event.field] = event.newValue;
 
         if (event.field === 'Amount' || event.field === 'Price') {
-            if (!row.Price) {
-                row.Price = 1;
-            }
-            if (!row.Amount) {
-                row.Amount = 1;
-            } 
-            row.Total = row.Amount * row.Price;
+            row.Total = (row.Amount || 0) * (row.Price || 0);
+            this.table.updateRow(event.originalIndex, row);
         }
 
         this.project.ProjectTasks[row._originalIndex] = row;
         this.projectService.isDirty = true;
-        this.table.updateRow(event.originalIndex, row);
     }
 
     public onRowDeleted(event) {
