@@ -50,37 +50,6 @@ export class Dashboard {
         this.layout = this.initLayout();
     }
 
-    public openModal(type) {
-        let modal;
-
-        switch (type) {
-            case 1:
-                modal = this.modalService.open(UniConfirmModalV2, {
-                    header: 'Ulagrede endringer',
-                    message: `Du har ${5} ulagrede rader. Ønsker du å lagre før du fortsetter?`,
-                    buttonLabels: {
-                        accept: 'Lagre',
-                        reject: 'Forkast',
-                        cancel: 'Avbryt'
-                    }
-                });
-            break;
-            case 2:
-                modal = this.modalService.open(UniAddressModal);
-            break;
-            case 3:
-                modal = this.modalService.open(UniPhoneModal);
-            break;
-            case 4:
-                modal = this.modalService.open(UniEmailModal);
-            break;
-        }
-
-        modal.onClose.subscribe(value => {
-            console.log('Modal closed with value: ', value);
-        });
-    }
-
     public initLayout() {
         return [
             {
