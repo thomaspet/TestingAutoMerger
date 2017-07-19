@@ -52,6 +52,8 @@ export class ProjectTasks implements OnInit {
     }
 
     private getTableConfig(): UniTableConfig {
+        let totalRow = new UniTableColumn('Total', 'Total', UniTableColumnType.Money);
+        totalRow.editable = false;
         return new UniTableConfig(true, true, 15)
             .setDeleteButton(true)
             .setColumns([
@@ -63,7 +65,7 @@ export class ProjectTasks implements OnInit {
                 new UniTableColumn('CostPrice', 'Kostpris', UniTableColumnType.Money),
                 new UniTableColumn('Amount', 'Antall', UniTableColumnType.Number),
                 new UniTableColumn('Price', 'Pris', UniTableColumnType.Money),
-                new UniTableColumn('Total', 'Total', UniTableColumnType.Money)
+                totalRow
             ]);
     }
 
@@ -76,8 +78,14 @@ export class ProjectTasks implements OnInit {
             row._createguid = this.projectService.getNewGuid();
         }
 
+        row[event.field] = event.newValue;
+
+        if (event.field === 'Amount' || event.field === 'Price') {
+            row.Total = (row.Amount || 0) * (row.Price || 0);
+            this.table.updateRow(event.originalIndex, row);
+        }
+
         this.project.ProjectTasks[row._originalIndex] = row;
-        this.projectService.currentProject.next(this.project);
         this.projectService.isDirty = true;
     }
 
