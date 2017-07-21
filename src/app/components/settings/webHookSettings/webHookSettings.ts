@@ -27,7 +27,7 @@ export class WebHookSettings {
     private objectives: Array<IUmhObjective> = [];
     private actions: Array<IUmhAction> = [];
 
-    private subscription: IUmhSubscription;
+    private subscription: IUmhSubscription = {};
     private subscriptions: Array<IUmhSubscription> = [];
 
     private company: Company;
@@ -72,10 +72,18 @@ export class WebHookSettings {
                 this.isPermitted = isPermitted;
 
                 if (isPermitted) {
+                    this.companyService.invalidateCache();
                     this.companyService.Get(this.authService.activeCompany.ID).subscribe(
                         company => {
+                            console.log('COMPANY' + JSON.stringify(company));
                             this.company = company;
-                            this.gatherData();
+                            this.isEnabled = this.company !== undefined && this.company.WebHookSubscriberId !== null;
+
+                            if (this.company.WebHookSubscriberId !== null) {
+                                this.gatherData();
+                            } else {
+                                this.isBusy = false;
+                            }
                         },
                         err => this.errorService.handle(err)
                     );
@@ -88,7 +96,6 @@ export class WebHookSettings {
     }
 
     public ngAfterViewInit() {
-        this.isEnabled = this.company !== undefined && this.company.WebHookSubscriberId !== null;
         this.cdr.detectChanges();
     }
 
@@ -159,7 +166,6 @@ export class WebHookSettings {
     }
 
     private initSubscription() {
-        console.log('--- INIT SUBSC ---');
         this.subscription = {
             AppModuleId: this.noFilter,
             Enabled: true,
@@ -189,7 +195,6 @@ export class WebHookSettings {
                 err => this.errorService.handle(err)
             );
         }
-        this.ngAfterViewInit();
     }
 
     private onSubmit() {
@@ -199,15 +204,11 @@ export class WebHookSettings {
     }
 
     private enableWebHooks() {
-        let newSubscriber: IUmhSubscriber = {
-            Name: this.company.Name,
-            ClusterIds: [this.company.Key]
-        };
-        
+        this.isBusy = true;
+
         this.umhSerivce.enableWebhooks().subscribe(
             res => {
-                this.company.WebHookSubscriberId = res.id;
-                this.initSubscription();
+                this.ngOnInit();
             },
             err2 => this.errorService.handle(err2)
         );
@@ -222,7 +223,6 @@ export class WebHookSettings {
     }
 
     private onObjectiveSelectForNewSubscription(event: IUmhObjective) {
-        console.log(JSON.stringify(event));
         if (event !== undefined) {
             this.subscription.ObjectiveId = event.id;
          } else {
@@ -231,7 +231,6 @@ export class WebHookSettings {
     }
 
     private onActionSelectForNewSubscription(event: IUmhAction) {
-        console.log(JSON.stringify(event));
         if (event !== undefined) {
             this.subscription.ActionId = event.id;
          } else {
@@ -271,6 +270,7 @@ export class WebHookSettings {
 
             if (idx > -1) {
                 this.subscriptions.splice(idx, 1);
+                this.isBusy = false;
             }
         } else {
             subscription.State = SubscriptionState.Deleted;
@@ -312,11 +312,8 @@ export class WebHookSettings {
     }
 
     private save(done: any) {
-        console.log(JSON.stringify(this.subscriptions));
-        this.isBusy = true;
-
-        let subscriptions = [];
         const length = this.subscriptions.length;
+        const subscriptions = [];
 
         for (let i = 0; i < length; ++i) {
             if (this.subscriptions[i].State !== SubscriptionState.Unchanged) {
@@ -324,18 +321,25 @@ export class WebHookSettings {
             }
         }
 
-        this.umhSerivce.save(subscriptions).subscribe(
-            res => {
-                this.toastService.addToast('Innstillinger lagret', ToastType.good, 3);
-                done('Webhook instillinger lagret');
+        if (subscriptions.length > 0) {
+            this.isBusy = true;
 
-                this.initSubscription();
-                this.initList();
-            },
-            err => {
-                this.errorService.handle(err);
-                done('Webhook innstillinger feilet i lagring');
-            }
-        );
+            this.umhSerivce.save(subscriptions).subscribe(
+                res => {
+                    this.toastService.addToast('Innstillinger lagret', ToastType.good, 3);
+                    done('Webhook instillinger lagret');
+
+                    this.initSubscription();
+                    this.initList();
+                },
+                err => {
+                    this.errorService.handle(err);
+                    done('Webhook innstillinger feilet i lagring');
+                }
+            );
+        } else {
+            done();
+            this.saveactions[0].disabled = true;
+        }
    }
 }
