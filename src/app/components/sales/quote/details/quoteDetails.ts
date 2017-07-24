@@ -132,6 +132,7 @@ export class QuoteDetails {
         this.route.params.subscribe(params => {
             this.quoteID = +params['id'];
             const customerID = +params['customerID'];
+            const projectID = +params['projectID'];
 
             this.commentsConfig = {
                 entityType: 'CustomerQuote',
@@ -162,11 +163,12 @@ export class QuoteDetails {
                 });
             } else {
                 Observable.forkJoin(
-                    this.customerQuoteService.GetNewEntity([], CustomerQuote.EntityType),
+                    this.customerQuoteService.GetNewEntity(['DefaultDimensions'], CustomerQuote.EntityType),
                     this.userService.getCurrentUser(),
                     this.companySettingsService.Get(1),
                     this.currencyCodeService.GetAll(null),
-                    customerID ? this.customerService.Get(customerID, this.customerExpandOptions) : Observable.of(null)
+                    customerID ? this.customerService.Get(customerID, this.customerExpandOptions) : Observable.of(null),
+                    projectID ? this.projectService.Get(projectID, null) : Observable.of(null)
                 ).subscribe(
                     (res) => {
                         let quote = <CustomerQuote> res[0];
@@ -177,6 +179,10 @@ export class QuoteDetails {
 
                         if (res[4]) {
                             quote = this.tofHelper.mapCustomerToEntity(res[4], quote);
+                        }
+
+                        if (res[5]) {
+                            quote.DefaultDimensions.ProjectID = res[5].ID;
                         }
 
                         this.companySettings = res[2];

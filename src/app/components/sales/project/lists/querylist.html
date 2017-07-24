@@ -3,7 +3,8 @@
     <uni-query-read-only *ngIf="projectID"
         [hidden]="false"
         [queryDefinitionID]="reportID"
-        [externalID]="projectID">
+        [externalID]="projectID"
+        [customerID]="customerID">
     </uni-query-read-only>
 
     <uni-summary *ngIf="projectID" [configs]="summary"></uni-summary>

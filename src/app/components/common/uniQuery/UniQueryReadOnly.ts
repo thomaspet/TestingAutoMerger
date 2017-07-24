@@ -20,6 +20,7 @@ export class UniQueryReadOnly implements OnChanges {
     // is a specific ID, this customers ID in this case
     @Input() public externalID: number;
     @Input() public queryDefinitionID: number;
+    @Input() public customerID: number;
     @Input() public hidden: boolean;
 
     @ViewChild(UniTable) public table: UniTable;
@@ -158,19 +159,20 @@ export class UniQueryReadOnly implements OnChanges {
         let columns: Array<UniTableColumn> = [];
         let expands: Array<string> = [];
         let selects: Array<string> = [];
-
+        let navigateURL: string;
         if (this.queryDefinition.MainModelName.startsWith('Customer')) {
             var title = this.queryDefinition.MainModelName.slice(8, this.queryDefinition.MainModelName.length);
             if (title === 'Quote') {
                 this.buttonTitle = 'Nytt tilbud';
-                this.buttonAction = () => { this.router.navigateByUrl(`/sales/quotes/0;customerID=${this.externalID}`) }
+                navigateURL = `/sales/quotes/0;customerID=${this.customerID};projectID=${this.externalID}`;
             } else if (title === 'Order') {
                 this.buttonTitle = 'Ny ordre';
-                this.buttonAction = () => { this.router.navigateByUrl(`/sales/orders/0;customerID=${this.externalID}`) }
+                navigateURL = `/sales/orders/0;customerID=${this.customerID};projectID=${this.externalID}`;
             } else if (title === 'Invoice') {
                 this.buttonTitle = 'Ny faktura';
-                this.buttonAction = () => { this.router.navigateByUrl(`/sales/invoices/0;customerID=${this.externalID}`) }
+                navigateURL = `/sales/invoices/0;customerID=${this.customerID};projectID=${this.externalID}`;
             }
+            this.buttonAction = () => this.router.navigateByUrl(navigateURL);
         } else {
             this.buttonTitle = '';
             this.buttonAction = () => {};

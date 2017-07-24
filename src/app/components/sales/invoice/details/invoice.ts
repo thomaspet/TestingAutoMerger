@@ -159,6 +159,7 @@ export class InvoiceDetails {
         this.route.params.subscribe((params) => {
             this.invoiceID = +params['id'];
             const customerID = +params['customerID'];
+            const projectID = +params['projectID'];
 
             this.commentsConfig = {
                 entityType: 'CustomerInvoice',
@@ -167,11 +168,12 @@ export class InvoiceDetails {
 
             if (this.invoiceID === 0) {
                 Observable.forkJoin(
-                    this.customerInvoiceService.GetNewEntity([], CustomerInvoice.EntityType),
+                    this.customerInvoiceService.GetNewEntity(['DefaultDimensions'], CustomerInvoice.EntityType),
                     this.userService.getCurrentUser(),
                     customerID ? this.customerService.Get(customerID, this.customerExpandOptions) : Observable.of(null),
                     this.companySettingsService.Get(1),
-                    this.currencyCodeService.GetAll(null)
+                    this.currencyCodeService.GetAll(null),
+                    projectID ? this.projectService.Get(projectID, null) : Observable.of(null)
                 ).subscribe((res) => {
                     this.companySettings = res[3];
 
@@ -203,6 +205,10 @@ export class InvoiceDetails {
                     this.currencyExchangeRate = invoice.CurrencyExchangeRate;
 
                     this.currencyCodes = res[4];
+
+                    if (res[5]) {
+                        invoice.DefaultDimensions.ProjectID = res[5].ID;
+                    }
 
                     this.setupContextMenuItems();
                     this.refreshInvoice(invoice);

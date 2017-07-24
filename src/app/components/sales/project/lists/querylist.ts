@@ -18,6 +18,7 @@ import {
 export class ProjectQueryList {
     private projectID: number = 0;
     private reportID: number = 0;
+    private customerID: number = 0;
     public summary: ISummaryConfig[] = [];
 
     constructor(private projectService: ProjectService,
@@ -40,6 +41,7 @@ export class ProjectQueryList {
             (project) => {
                 if (project) {
                     this.projectID = project.ID;
+                    this.customerID = project.ProjectCustomerID;
                 }
             }
         );

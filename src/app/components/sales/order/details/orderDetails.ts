@@ -153,6 +153,7 @@ export class OrderDetails {
         this.route.params.subscribe((params) => {
             this.orderID = +params['id'];
             const customerID = +params['customerID'];
+            const projectID = +params['projectID'];
 
             this.commentsConfig = {
                 entityType: 'CustomerOrder',
@@ -183,11 +184,12 @@ export class OrderDetails {
                 err => this.errorService.handle(err));
             } else {
                 Observable.forkJoin(
-                    this.customerOrderService.GetNewEntity([], CustomerOrder.EntityType),
+                    this.customerOrderService.GetNewEntity(['DefaultDimensions'], CustomerOrder.EntityType),
                     this.userService.getCurrentUser(),
                     this.companySettingsService.Get(1),
                     this.currencyCodeService.GetAll(null),
-                    customerID ? this.customerService.Get(customerID, this.customerExpandOptions) : Observable.of(null)
+                    customerID ? this.customerService.Get(customerID, this.customerExpandOptions) : Observable.of(null),
+                    projectID ? this.projectService.Get(projectID, null) : Observable.of(null)
                 ).subscribe(
                     (res) => {
                         let order = <CustomerOrder> res[0];
@@ -199,6 +201,10 @@ export class OrderDetails {
 
                         if (res[4]) {
                             order = this.tofHelper.mapCustomerToEntity(res[4], order);
+                        }
+
+                        if (res[5]) {
+                            order.DefaultDimensions.ProjectID = res[5].ID;
                         }
 
                         if (!order.CurrencyCodeID) {
@@ -746,7 +752,6 @@ export class OrderDetails {
 
     private saveOrder(): Promise<CustomerOrder> {
         this.order.Items = this.orderItems;
-
         this.order.Items.forEach(item => {
             if (item.Dimensions && item.Dimensions.ID === 0) {
                 item.Dimensions['_createguid'] = this.customerOrderService.getNewGuid();
