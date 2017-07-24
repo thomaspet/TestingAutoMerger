@@ -8,10 +8,8 @@ import {ExternalSearch} from './externalSearch/externalSearch';
 import {ProductDetails} from './product/details/productDetails';
 import {ProductList} from './product/list/productList';
 import {AltinnAuthenticationDataModalContent} from './modals/AltinnAuthenticationDataModal';
-import {RegisterPaymentForm} from './modals/registerPaymentModal';
 import {UniFrameworkModule} from '../../../framework/frameworkModule';
 import {AltinnAuthenticationDataModal} from './modals/AltinnAuthenticationDataModal';
-import {RegisterPaymentModal} from './modals/registerPaymentModal';
 import {UniBreadcrumbs} from './toolbar/breadcrumbs';
 import {UniStatusTrack} from './toolbar/statustrack';
 import {UniTags} from './toolbar/tags';
@@ -77,8 +75,6 @@ import {routes as AppCommonRoutes} from './appCommonRoutes';
         AccrualModal,
         AltinnAuthenticationDataModalContent,
         AltinnAuthenticationDataModal,
-        RegisterPaymentForm,
-        RegisterPaymentModal,
         UniBreadcrumbs,
         UniStatusTrack.StatusTrack,
         UniToolbar,
@@ -128,7 +124,6 @@ import {routes as AppCommonRoutes} from './appCommonRoutes';
     ],
     entryComponents: [
         AccrualForm,
-        RegisterPaymentForm,
         AltinnAuthenticationDataModalContent,
         SendEmailForm,
         SendEmailModal,
@@ -155,8 +150,6 @@ import {routes as AppCommonRoutes} from './appCommonRoutes';
         AccrualModal,
         AltinnAuthenticationDataModalContent,
         AltinnAuthenticationDataModal,
-        RegisterPaymentForm,
-        RegisterPaymentModal,
         UniBreadcrumbs,
         UniStatusTrack.StatusTrack,
         UniToolbar,

@@ -14,7 +14,6 @@ import {
 import {UniStatusTrack} from '../../../common/toolbar/statustrack';
 import {IUniSaveAction} from '../../../../../framework/save/save';
 import { UniForm, FieldType} from '../../../../../framework/ui/uniform/index';
-import {RegisterPaymentModal} from '../../../common/modals/registerPaymentModal';
 import {Location} from '@angular/common';
 import {BillSimpleJournalEntryView} from './journal/simple';
 import {UniConfirmModal, ConfirmActions} from '../../../../../framework/modals/confirm';
@@ -30,7 +29,8 @@ import {UniMath} from '../../../../../framework/core/uniMath';
 import {NumberSeriesTaskIds} from '../../../../models/models';
 import {
     UniModalService,
-    UniBankAccountModal
+    UniBankAccountModal,
+    UniRegisterPaymentModal
 } from '../../../../../framework/uniModal/barrel';
 import {
     SupplierInvoiceService,
@@ -104,7 +104,6 @@ export class BillView {
     private uniSearchConfig: IUniSearchConfig;
 
     @ViewChild(UniForm) public uniForm: UniForm;
-    @ViewChild(RegisterPaymentModal) private registerPaymentModal: RegisterPaymentModal;
     @ViewChild(BillSimpleJournalEntryView) private simpleJournalentry: BillSimpleJournalEntryView;
     @ViewChild(UniConfirmModal) private confirmModal: UniConfirmModal;
     @ViewChild(BillHistoryView) private historyView: BillHistoryView;
@@ -1533,14 +1532,13 @@ export class BillView {
     }
 
     private registerPayment(done) {
-        let current = this.current.getValue();
-        const title = lang.ask_register_payment + current.InvoiceNumber;
+        let bill = this.current.getValue();
 
-        const invoiceData: InvoicePaymentData = {
-            Amount: roundTo(current.RestAmount),
-            AmountCurrency: roundTo(current.RestAmountCurrency),
+        const paymentData: InvoicePaymentData = {
+            Amount: roundTo(bill.RestAmount),
+            AmountCurrency: roundTo(bill.RestAmountCurrency),
             BankChargeAmount: 0,
-            CurrencyCodeID: current.CurrencyCodeID,
+            CurrencyCodeID: bill.CurrencyCodeID,
             CurrencyExchangeRate: 0,
             PaymentDate: new LocalDate(Date()),
             AgioAccountID: 0,
@@ -1548,27 +1546,33 @@ export class BillView {
             AgioAmount: 0
         };
 
-        this.registerPaymentModal.confirm(current.ID, title, current.CurrencyCode, current.CurrencyExchangeRate,
-            'SupplierInvoice', invoiceData).then((res) => {
-                if (res.status === ConfirmActions.ACCEPT) {
-                    this.busy = true;
+        const modal = this.modalService.open(UniRegisterPaymentModal, {
+            header: lang.ask_register_payment + bill.InvoiceNumber,
+            data: paymentData,
+            modalConfig: {
+                entityName: 'SupplierInvoice',
+                currencyCode: bill.CurrencyCode,
+                currencyExchangeRate: bill.CurrencyExchangeRate
+            }
+        });
 
-                    this.supplierInvoiceService.ActionWithBody(res.id, res.model, 'payInvoice')
-                        .finally(() => this.busy = false)
-                        .subscribe((journalEntry) => {
-                            this.fetchInvoice(current.ID, true);
-                            this.userMsg(lang.payment_ok, null, null, true);
-                            done('Betaling registrert');
-                        }, (error) => {
-                            this.errorService.handle(error);
-                            done('Betaling feilet');
-                        });
-                } else {
-                    done();
-                }
-            });
+        modal.onClose.subscribe((payment) => {
+            if (payment) {
+                this.supplierInvoiceService.ActionWithBody(bill.ID, payment, 'payInvoice')
+                    .finally(() => this.busy = false)
+                    .subscribe((res) => {
+                        this.fetchInvoice(bill.ID, true);
+                        this.userMsg(lang.payment_ok, null, null, null);
+                        done('Betaling registrert');
+                    }, err => {
+                        this.errorService.handle(err);
+                        done('Betaling feilet');
+                    });
+            } else {
+                done();
+            }
+        });
     }
-
 
     private hasValidDraftLines(showErrMsg: boolean): ILocalValidation {
         var msg: string;

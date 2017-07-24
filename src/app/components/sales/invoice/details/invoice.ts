@@ -14,7 +14,6 @@ import {UniStatusTrack} from '../../../common/toolbar/statustrack';
 import {ISummaryConfig} from '../../../common/summary/summary';
 import {StatusCode} from '../../salesHelper/salesEnums';
 import {PreviewModal} from '../../../reports/modals/preview/previewModal';
-import {RegisterPaymentModal} from '../../../common/modals/registerPaymentModal';
 import {IContextMenuItem} from '../../../../../framework/ui/unitable/index';
 import {SendEmailModal} from '../../../common/modals/sendEmailModal';
 import {SendEmail} from '../../../../models/sendEmail';
@@ -46,6 +45,11 @@ import {
     ProjectService,
     DimensionService
 } from '../../../../services/services';
+import {
+    UniModalService,
+    UniRegisterPaymentModal
+} from '../../../../../framework/uniModal/barrel';
+
 import * as moment from 'moment';
 declare const _;
 
@@ -64,9 +68,6 @@ export enum CollectorStatus {
 export class InvoiceDetails {
     @ViewChild(UniConfirmModal)
     private confirmModal: UniConfirmModal;
-
-    @ViewChild(RegisterPaymentModal)
-    public registerPaymentModal: RegisterPaymentModal;
 
     @ViewChild(PreviewModal)
     public previewModal: PreviewModal;
@@ -139,7 +140,8 @@ export class InvoiceDetails {
         private reportService: ReportService,
         private statisticsService: StatisticsService,
         private projectService: ProjectService,
-        private dimensionService: DimensionService
+        private dimensionService: DimensionService,
+        private modalService: UniModalService
     ) {
         // set default tab title, this is done to set the correct current module to make the breadcrumb correct
         this.tabService.addTab({ url: '/sales/invoices/', name: 'Faktura', active: true, moduleID: UniModules.Invoices });
@@ -1201,23 +1203,61 @@ export class InvoiceDetails {
             AgioAmount: 0
         };
 
-        this.registerPaymentModal.confirm(this.invoice.ID, title, this.invoice.CurrencyCode, this.invoice.CurrencyExchangeRate,
-            'CustomerInvoice', invoicePaymentData).then(res => {
-            if (res.status === ConfirmActions.ACCEPT) {
-                this.customerInvoiceService.ActionWithBody(res.id, <any>res.model, 'payInvoice').subscribe((journalEntry) => {
-                    this.toastService.addToast('Faktura er betalt. Bilagsnummer: ' + journalEntry.JournalEntryNumber, ToastType.good, 5);
-                    done('Betaling registrert');
-                    this.customerInvoiceService.Get(this.invoice.ID, this.expandOptions).subscribe((invoice) => {
-                        this.refreshInvoice(invoice);
-                    });
-                }, (err) => {
-                    done('Feilet ved registrering av betaling');
-                    this.errorService.handle(err);
-                });
+        const paymentModal = this.modalService.open(UniRegisterPaymentModal, {
+            header: title,
+            data: invoicePaymentData,
+            modalConfig: {
+                entityName: 'CustomerInvoice',
+                currencyCode: this.invoice.CurrencyCode,
+                currencyExchangeRate: this.invoice.CurrencyExchangeRate
+            }
+        });
+
+
+        // HOME OFFICE FROM HERE
+
+        paymentModal.onClose.subscribe((payment) => {
+            if (payment) {
+                this.customerInvoiceService.ActionWithBody(this.invoice.ID, payment, 'payInvoice').subscribe(
+                    res => {
+                        done('Betaling vellykket');
+                        this.toastService.addToast(
+                            'Faktura er betalt. Betalingsnummer: ' + res.JournalEntryNumber,
+                            ToastType.good,
+                            5
+                        );
+
+                        this.customerInvoiceService.Get(this.invoice.ID, this.expandOptions).subscribe(invoice => {
+                            this.refreshInvoice(invoice);
+                        });
+                    },
+                    err => {
+                        done('Feilet ved registrering av betaling');
+                        this.errorService.handle(err);
+                    }
+                );
             } else {
                 done();
             }
         });
+
+        // this.registerPaymentModal.confirm(this.invoice.ID, title, this.invoice.CurrencyCode, this.invoice.CurrencyExchangeRate,
+        //     'CustomerInvoice', invoicePaymentData).then(res => {
+        //     if (res.status === ConfirmActions.ACCEPT) {
+        //         this.customerInvoiceService.ActionWithBody(res.id, <any>res.model, 'payInvoice').subscribe((journalEntry) => {
+        //             this.toastService.addToast('Faktura er betalt. Bilagsnummer: ' + journalEntry.JournalEntryNumber, ToastType.good, 5);
+        //             done('Betaling registrert');
+        //             this.customerInvoiceService.Get(this.invoice.ID, this.expandOptions).subscribe((invoice) => {
+        //                 this.refreshInvoice(invoice);
+        //             });
+        //         }, (err) => {
+        //             done('Feilet ved registrering av betaling');
+        //             this.errorService.handle(err);
+        //         });
+        //     } else {
+        //         done();
+        //     }
+        // });
     }
 
     private handleSaveError(error, donehandler) {
