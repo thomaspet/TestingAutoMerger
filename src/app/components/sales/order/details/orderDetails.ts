@@ -770,6 +770,10 @@ export class OrderDetails {
             }
         });
 
+        if (this.order.DefaultDimensions && !this.order.DefaultDimensions.ID) {
+            this.order.DefaultDimensions._createguid = this.customerOrderService.getNewGuid();
+        }
+
         return new Promise((resolve, reject) => {
             // Save only lines with products from product list
             if (!TradeItemHelper.IsItemsValid(this.order.Items)) {
