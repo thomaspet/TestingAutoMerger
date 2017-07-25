@@ -178,6 +178,8 @@ export class TransqueryDetails implements OnInit {
             'JournalEntryNumber,' +
             'Account.AccountNumber,' +
             'Account.AccountName,' +
+            'SubAccount.AccountNumber,' +
+            'SubAccount.AccountName,' +
             'FinancialDate,' +
             'VatDate,' +
             'Description,' +
@@ -207,7 +209,7 @@ export class TransqueryDetails implements OnInit {
             'VatDeductionPercent as VatDeductionPercent,' +
             'sum(casewhen(FileEntityLink.EntityType eq \'JournalEntry\'\\,1\\,0)) as Attachments'
         );
-        urlParams.set('expand', 'Account,VatType,Dimensions.Department,Dimensions.Project,Period,VatReport.TerminPeriod,CurrencyCode');
+        urlParams.set('expand', 'Account,SubAccount,VatType,Dimensions.Department,Dimensions.Project,Period,VatReport.TerminPeriod,CurrencyCode');
         urlParams.set('join', 'JournalEntryLine.JournalEntryID eq FileEntityLink.EntityID');
         urlParams.set('filter', filters.join(' and '));
         urlParams.set('orderby', urlParams.get('orderby') || 'JournalEntryID desc');
@@ -224,7 +226,7 @@ export class TransqueryDetails implements OnInit {
             urlParams.set('model', 'JournalEntryLine');
             urlParams.set('filter', f);
             urlParams.set('select', 'sum(casewhen(JournalEntryLine.Amount gt 0\\,JournalEntryLine.Amount\\,0)) as SumDebit,sum(casewhen(JournalEntryLine.Amount lt 0\\,JournalEntryLine.Amount\\,0)) as SumCredit,sum(casewhen(JournalEntryLine.AccountID gt 0\\,JournalEntryLine.Amount\\,0)) as SumLedger,sum(JournalEntryLine.TaxBasisAmount) as SumTaxBasisAmount,sum(JournalEntryLine.Amount) as SumBalance');
-            urlParams.set('expand', 'Account,VatType,Dimensions.Department,Dimensions.Project,Period,VatReport.TerminPeriod,CurrencyCode');
+            urlParams.set('expand', 'Account,SubAccount,VatType,Dimensions.Department,Dimensions.Project,Period,VatReport.TerminPeriod,CurrencyCode');
             this.statisticsService.GetDataByUrlSearchParams(urlParams).subscribe(summary => {
                 this.summaryData = summary.Data[0];
                 this.summaryData.SumCredit *= -1;
@@ -431,6 +433,16 @@ export class TransqueryDetails implements OnInit {
                 new UniTableColumn('Account.AccountName', 'Kontonavn', UniTableColumnType.Text)
                     .setFilterOperator('contains')
                     .setTemplate(line => line.AccountAccountName),
+                new UniTableColumn('SubAccount.AccountNumber', 'Reskontronr')
+                    .setTemplate(line => {
+                        return `<a href="/#/accounting/transquery/details;SubAccount_AccountNumber=${line.SubAccountAccountNumber}">
+                                ${line.SubAccountAccountNumber}
+                            </a>`;
+                    })
+                    .setFilterOperator('startswith'),
+                new UniTableColumn('SubAccount.AccountName', 'Reskontro', UniTableColumnType.Text)
+                    .setFilterOperator('contains')
+                    .setTemplate(line => line.SubAccountAccountName),
                 new UniTableColumn('FinancialDate', 'Regnskapsdato', UniTableColumnType.LocalDate)
                     .setFilterOperator('contains')
                     .setFormat('DD.MM.YYYY')
