@@ -407,23 +407,11 @@ export class EmployeeDetails extends UniView implements OnDestroy {
                 const modal = this.modalService.open(UniConfirmModalV2, {
                     header: 'Ulagrede endringer',
                     message: 'Du har ulagrede endringer. Ønsker du å lagre disse før du fortsetter?',
-                    buttons: [
-                        {
-                            label: 'Lagre',
-                            class: 'good',
-                            action: modalInstance => modalInstance.onClose.next(ConfirmActions.ACCEPT),
-                        },
-                        {
-                            label: 'Forkast',
-                            class: 'bad',
-                            action: modalInstance => modalInstance.onClose.next(ConfirmActions.REJECT),
-                        },
-                        {
-                            label: 'Avbryt',
-                            class: 'warning',
-                            action: modalInstance => modalInstance.onClose.next(ConfirmActions.CANCEL),
-                        }
-                    ]
+                    buttonLabels: {
+                        accept: 'Lagre',
+                        reject: 'Forkast',
+                        cancel: 'Avbryt'
+                    }
                 });
 
                 return modal.onClose.map((action) => {
@@ -434,20 +422,6 @@ export class EmployeeDetails extends UniView implements OnDestroy {
                         return action === ConfirmActions.REJECT;
                     }
                 });
-
-                // return result
-                //     ? Observable.of(result)
-                //     : Observable
-                //         .fromPromise(
-                //         this.confirmModal.confirmSave())
-                //         .map((response: ConfirmActions) => {
-                //             if (response === ConfirmActions.ACCEPT) {
-                //                 this.saveAll((m) => { }, false);
-                //                 return true;
-                //             } else {
-                //                 return response === ConfirmActions.REJECT;
-                //             }
-                //         });
             })
             .map(canDeactivate => {
                 canDeactivate
