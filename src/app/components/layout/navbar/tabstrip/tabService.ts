@@ -145,7 +145,7 @@ export class TabService {
 
         /* DUMMY CHECK TO MAKE SURE THERE IS NEVER MORE THEN 7 TABS WHILE WAITING FOR ARNOR'S FINAL FIX */
         if (this.tabs.length > 6) {
-            this.tabs.splice(0, 1);
+            this.tabs.splice(1, 1); // dont remove home tab
         }
         /***********************************************************************************************/
 
