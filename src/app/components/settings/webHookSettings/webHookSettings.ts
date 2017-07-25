@@ -334,6 +334,7 @@ export class WebHookSettings {
                 },
                 err => {
                     this.errorService.handle(err);
+                    this.isBusy = false;
                     done('Webhook innstillinger feilet i lagring');
                 }
             );
