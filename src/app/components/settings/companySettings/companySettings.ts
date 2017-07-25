@@ -51,7 +51,8 @@ import {
     UniAddressModal,
     UniEmailModal,
     UniPhoneModal,
-    UniBankAccountModal
+    UniBankAccountModal,
+    ConfirmActions
 } from '../../../../framework/uniModal/barrel';
 
 import {ActivateAPModal} from '../../common/modals/modals';
