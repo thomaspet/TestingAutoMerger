@@ -26,6 +26,7 @@ import {UniAvatar} from './avatar/uniAvatar';
 import {UniCommentInput} from './comments/commentInput';
 import {UniCommentList} from './comments/commentList';
 
+import {UniSearchModule} from './ui/unisearch/uniSearch.module';
 import {UniFormModule} from './ui/uniform/uniform.module';
 import {UniTableModule} from './ui/unitable/unitableModule';
 
@@ -39,6 +40,7 @@ import {UniModalService, MODALS} from './uniModal/barrel';
         UniCoreModule,
         AppPipesModule,
         UniPipesModule,
+        UniSearchModule,
         UniFormModule,
         UniTableModule
     ],
@@ -76,6 +78,7 @@ import {UniModalService, MODALS} from './uniModal/barrel';
         // Modules
         UniCoreModule,
         UniPipesModule,
+        UniSearchModule,
         UniFormModule,
         UniTableModule,
 
@@ -98,7 +101,5 @@ import {UniModalService, MODALS} from './uniModal/barrel';
         UniAvatar
     ]
 })
-export class UniFrameworkModule {
-
-}
+export class UniFrameworkModule {}
 
