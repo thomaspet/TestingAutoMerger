@@ -8,8 +8,6 @@ import {RouterModule} from '@angular/router';
 // App imports
 import {LayoutModule} from '../layout/layoutModule';
 import {UniFrameworkModule} from '../../../framework/frameworkModule';
-import {UniTableModule} from '../../../framework/ui/unitable/index';
-import {UniFormModule} from '../../../framework/ui/uniform/index';
 import {AppCommonModule} from '../common/appCommonModule';
 import {AppPipesModule} from '../../pipes/appPipesModule';
 import {ReportsModule} from '../reports/reportsModule';
@@ -35,29 +33,19 @@ import {UniTickerFieldFilterEditorSimple} from './components/tickerFieldFilterEd
 
 @NgModule({
     imports: [
-        // Angular modules
         CommonModule,
         FormsModule,
         ReactiveFormsModule,
         HttpModule,
         RouterModule,
 
-        // UniTable
-        UniTableModule,
-
-        // UniForm
-        UniFormModule,
-
-        // Framework
         UniFrameworkModule,
 
-        // App Modules
         LayoutModule,
         AppCommonModule,
         AppPipesModule,
         ReportsModule,
 
-        // Route module
         UniTickerRoutes
     ],
     declarations: [

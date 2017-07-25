@@ -30,8 +30,6 @@ import { ProjectTasks } from './project/tasks/tasks';
 import { ProjectEditmode } from './project/editmode/editmode';
 import { ProjectDocument } from './project/document/document';
 import { ProjectQueryList } from './project/lists/querylist';
-import {UniTableModule} from '../../../framework/ui/unitable/index';
-import {UniFormModule} from '../../../framework/ui/uniform/index';
 import {UniSales} from './sales';
 import {InvoiceDetails} from './invoice/details/invoice';
 import {InvoiceReminders} from './invoice/reminders/reminders';
@@ -48,7 +46,6 @@ import {TofDeliveryForm} from './common/deliveryForm';
 import {TofHelper} from './salesHelper/tofHelper';
 import {TradeItemTable} from './common/tradeItemTable';
 import {CanDeactivateGuard} from '../../canDeactivateGuard';
-import {UniSearchModule} from '../../../framework/ui/unisearch/index';
 import {WidgetModule} from '../widgets/widgetModule';
 import {ProductGroups} from './productgroup/groups/productgroups';
 import {TreeModule} from 'angular-tree-component';
@@ -62,24 +59,14 @@ import {TreeModule} from 'angular-tree-component';
 
         RouterModule.forChild(salesRoutes),
 
-        // Unitable
-        UniTableModule,
-
-        // UniForm
-        UniFormModule,
-
-        // Framework
         UniFrameworkModule,
-        // App Modules
+
         WidgetModule,
         LayoutModule,
         AppCommonModule,
         ReportsModule,
         UniTickerModule,
         TreeModule,
-
-        // Route module
-        UniSearchModule
     ],
     declarations: [
         UniSales,

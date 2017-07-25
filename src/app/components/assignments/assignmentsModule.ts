@@ -6,8 +6,6 @@ import {RouterModule} from '@angular/router';
 
 import {LayoutModule} from '../layout/layoutModule';
 import {UniFrameworkModule} from '../../../framework/frameworkModule';
-import {UniTableModule} from '../../../framework/ui/unitable/index';
-import {UniFormModule} from '../../../framework/ui/uniform/index';
 import {AppCommonModule} from '../common/appCommonModule';
 import {AppPipesModule} from '../../pipes/appPipesModule';
 
@@ -28,10 +26,7 @@ import {SupplierInvoicePreview} from './previews/supplierInvoicePreview';
         HttpModule,
         RouterModule,
 
-        UniTableModule,
-        UniFormModule,
         UniFrameworkModule,
-
         LayoutModule,
         AppCommonModule,
         AppPipesModule,

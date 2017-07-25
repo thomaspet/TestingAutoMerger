@@ -8,8 +8,6 @@ import {RouterModule} from '@angular/router';
 // App imports
 import {LayoutModule} from '../layout/layoutModule';
 import {UniFrameworkModule} from '../../../framework/frameworkModule';
-import {UniTableModule} from '../../../framework/ui/unitable/index';
-import {UniFormModule} from '../../../framework/ui/uniform/index';
 import {AppCommonModule} from '../common/appCommonModule';
 import {AppPipesModule} from '../../pipes/appPipesModule';
 import {UniQueryModule} from '../uniquery/uniqueryModule';
@@ -31,23 +29,13 @@ import {SaftExportView} from './jobs/saft/view';
 
 @NgModule({
     imports: [
-        // Angular modules
         BrowserModule,
         FormsModule,
         ReactiveFormsModule,
         HttpModule,
         RouterModule,
 
-        // UniTable
-        UniTableModule,
-
-        // UniFormModule,
-        UniFormModule,
-
-        // Framework
         UniFrameworkModule,
-
-        // App Modules
         LayoutModule,
         AppCommonModule,
         AppPipesModule,
@@ -77,5 +65,4 @@ import {SaftExportView} from './jobs/saft/view';
         ApprovalThresholds
     ]
 })
-export class AdminModule {
-}
+export class AdminModule {}

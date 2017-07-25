@@ -1,4 +1,4 @@
-export * from './UniSearch.module';
+export * from './uniSearch.module';
 export * from './TestDataService';
 
 export * from './UniSearch';

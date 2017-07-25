@@ -250,8 +250,8 @@ export class WorkRelation extends UniEntity {
     public WorkerID: number;
     public WorkPercentage: number;
     public WorkProfileID: number;
-    public Worker: Worker;
     public WorkProfile: WorkProfile;
+    public Worker: Worker;
     public Employment: Employment;
     public Items: Array<WorkItem>;
     public Team: Team;
@@ -1851,7 +1851,7 @@ export class Employee extends UniEntity {
     public InternationalID: string;
     public PaymentInterval: PaymentInterval;
     public PhotoID: number;
-    public Sex: number;
+    public Sex: GenderEnum;
     public SocialSecurityNumber: string;
     public StatusCode: number;
     public SubEntityID: number;
@@ -4948,9 +4948,9 @@ export class WorkBalanceDto extends UniEntity {
     public ValidFrom: Date;
     public ValidTimeOff: number;
     public WorkRelationID: number;
+    public WorkRelation: WorkRelation;
     public Previous: BalanceInfo;
     public Details: Array<FlexDetail>;
-    public WorkRelation: WorkRelation;
     public CustomFields: any;
 }
 
@@ -5815,6 +5815,13 @@ export enum PaymentInterval{
     Monthly = 1,
     Pr14Days = 2,
     Weekly = 3,
+}
+
+
+export enum GenderEnum{
+    NotDefined = 0,
+    Woman = 1,
+    Man = 2,
 }
 
 

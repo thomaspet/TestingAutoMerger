@@ -10,8 +10,6 @@ import {ProductList} from './product/list/productList';
 import {AltinnAuthenticationDataModalContent} from './modals/AltinnAuthenticationDataModal';
 import {RegisterPaymentForm} from './modals/registerPaymentModal';
 import {UniFrameworkModule} from '../../../framework/frameworkModule';
-import {UniTableModule} from '../../../framework/ui/unitable/index';
-import {UniFormModule} from '../../../framework/ui/uniform/index';
 import {AltinnAuthenticationDataModal} from './modals/AltinnAuthenticationDataModal';
 import {RegisterPaymentModal} from './modals/registerPaymentModal';
 import {UniBreadcrumbs} from './toolbar/breadcrumbs';
@@ -62,9 +60,7 @@ import {routes as AppCommonRoutes} from './appCommonRoutes';
         HttpModule,
         RouterModule,
         UniFrameworkModule,
-        UniTableModule,
         AppCommonRoutes,
-        UniFormModule
     ],
     declarations: [
         UniDimensions,

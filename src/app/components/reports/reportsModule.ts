@@ -9,8 +9,6 @@ import {RouterModule} from '@angular/router';
 // App imports
 import {LayoutModule} from '../layout/layoutModule';
 import {UniFrameworkModule} from '../../../framework/frameworkModule';
-import {UniTableModule} from '../../../framework/ui/unitable/index';
-import {UniFormModule} from '../../../framework/ui/uniform/index';
 import {AppCommonModule} from '../common/appCommonModule';
 import {AppPipesModule} from '../../pipes/appPipesModule';
 
@@ -38,14 +36,17 @@ import {
     SalaryPaymentListReportFilterModal,
     SalaryPaymentListReportFilterModalContent
 } from './modals/salaryPaymentList/salaryPaymentListReportFilterModal';
+
 import {
     VacationPayBaseReportFilterModal,
     VacationPayBaseReportFilterModalContent
 } from './modals/vacationPayBase/vacationPayBaseReportFilterModal';
+
 import {
     SalaryWithholdingAndAGAReportFilterModal,
     SalaryWithholdingAndAGAReportFilterModalContent
 } from './modals/salaryWithholdingAndAGA/salaryWithholdingAndAGAReportFilterModal';
+
 import {
     PayCheckReportFilterModal,
     PaycheckReportFilterModalContent
@@ -54,28 +55,17 @@ import {UniReports} from './reports';
 
 @NgModule({
     imports: [
-        // Angular modules
         CommonModule,
         FormsModule,
         ReactiveFormsModule,
         HttpModule,
         RouterModule,
 
-        // UniTable
-        UniTableModule,
-
-        // UniFormModule,
-        UniFormModule,
-
-        // Framework
         UniFrameworkModule,
-
-        // App Modules
         LayoutModule,
         AppCommonModule,
         AppPipesModule,
 
-        // Route module
         ReportRoutes
     ],
     declarations: [

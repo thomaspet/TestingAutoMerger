@@ -9,8 +9,6 @@ import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {HttpModule} from '@angular/http';
 import {RouterModule} from '@angular/router';
 import {COMPILER_PROVIDERS} from '@angular/compiler';
-import {UniTableModule} from '../framework/ui/unitable/index';
-import {UniFormModule} from '../framework/ui/uniform/main';
 import {APP_ROUTES} from './routes';
 import {App} from './app';
 
@@ -69,7 +67,6 @@ if (window.ENV === 'production') {
         HttpModule,
         RouterModule,
 
-        // REVISIT SERVICES!
         CommonServicesModule.forRoot(),
         ReportServicesModule.forRoot(),
         AccountingServicesModule.forRoot(),
@@ -79,16 +76,7 @@ if (window.ENV === 'production') {
         AdminServicesModule.forRoot(),
         AssignmentServicesModule.forRoot(),
 
-        // routes
         APP_ROUTES,
-
-        // UNITABLE
-        UniTableModule,
-
-        // UNIFORM
-        UniFormModule,
-
-        // FRAMEWORK MODULE
         UniFrameworkModule,
 
         // COMMON MODULES
@@ -121,7 +109,4 @@ if (window.ENV === 'production') {
         {provide: ErrorHandler, useClass: UniMicroAngularInternalErrorHandlerOverride}
     ],
 })
-export class AppModule {
-}
-
-// platformBrowserDynamic().bootstrapModule(AppModule);
+export class AppModule {}

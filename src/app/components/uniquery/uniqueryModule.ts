@@ -8,8 +8,6 @@ import {RouterModule} from '@angular/router';
 // App imports
 import {LayoutModule} from '../layout/layoutModule';
 import {UniFrameworkModule} from '../../../framework/frameworkModule';
-import {UniTableModule} from '../../../framework/ui/unitable/index';
-import {UniFormModule} from '../../../framework/ui/uniform/index';
 import {AppCommonModule} from '../common/appCommonModule';
 
 // routes
@@ -21,27 +19,16 @@ import {UniQueries} from './uniQueries';
 
 @NgModule({
     imports: [
-        // Angular modules
         CommonModule,
         FormsModule,
         ReactiveFormsModule,
         HttpModule,
         RouterModule,
 
-        // UniTable
-        UniTableModule,
-
-        // UniForm
-        UniFormModule,
-
-        // Framework
         UniFrameworkModule,
-
-        // App Modules
         LayoutModule,
         AppCommonModule,
 
-        // Route module
         UniQueryRoutes
     ],
     declarations: [

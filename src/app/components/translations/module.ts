@@ -3,8 +3,6 @@ import {BrowserModule} from '@angular/platform-browser';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {HttpModule} from '@angular/http';
 import {RouterModule} from '@angular/router';
-import {UniTableModule} from '../../../framework/ui/unitable/index';
-import {UniFormModule} from '../../../framework/ui/uniform/index';
 import {UniFrameworkModule} from '../../../framework/frameworkModule';
 import {LayoutModule} from '../layout/layoutModule';
 import {AppCommonModule} from '../common/appCommonModule';
@@ -31,7 +29,6 @@ import reducer from './reducers';
 
 @NgModule({
     imports: [
-        // Angular modules
         BrowserModule,
         FormsModule,
         ReactiveFormsModule,
@@ -44,21 +41,12 @@ import reducer from './reducers';
         EffectsModule.runAfterBootstrap(TranslatableEffects),
         EffectsModule.runAfterBootstrap(TranslationEffects),
 
-        // UniTable
-        UniTableModule,
 
-        // UniForm
-        UniFormModule,
-
-        // Framework
         UniFrameworkModule,
-
-        // App Modules
         LayoutModule,
         AppCommonModule,
         AppPipesModule,
 
-        // Route module
         TranslationRoutes
     ],
     declarations: [

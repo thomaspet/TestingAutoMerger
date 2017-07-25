@@ -14,7 +14,6 @@ import {Signup} from './signup/signup';
 import {ResetPassword} from './resetPassword/resetPassword';
 import {Login} from './login/login';
 import {ConfirmInvite} from './confirmInvite/confirmInvite';
-import {UniFormModule} from '../../../framework/ui/uniform/index';
 
 @NgModule({
     imports: [
@@ -25,7 +24,6 @@ import {UniFormModule} from '../../../framework/ui/uniform/index';
         RouterModule,
 
         UniFrameworkModule,
-        UniFormModule,
         LayoutModule,
         AppCommonModule,
 
@@ -50,6 +48,4 @@ import {UniFormModule} from '../../../framework/ui/uniform/index';
         ConfirmInvite
     ]
 })
-export class InitModule {
-
-}
+export class InitModule {}

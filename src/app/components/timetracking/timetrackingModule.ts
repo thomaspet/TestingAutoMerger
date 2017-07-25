@@ -3,8 +3,6 @@ import {CommonModule} from '@angular/common';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {HttpModule} from '@angular/http';
 import {RouterModule} from '@angular/router';
-import {UniTableModule} from '../../../framework/ui/unitable/index';
-import {UniFormModule} from '../../../framework/ui/uniform/index';
 import {UniFrameworkModule} from '../../../framework/frameworkModule';
 import {LayoutModule} from '../layout/layoutModule';
 import {AppCommonModule} from '../common/appCommonModule';
@@ -44,10 +42,7 @@ import {UniFileImport} from './components/popupfileimport';
 
         RouterModule.forChild(timetrackingRoutes),
 
-        UniTableModule,
-        UniFormModule,
         UniFrameworkModule,
-
         LayoutModule,
         AppCommonModule,
     ],

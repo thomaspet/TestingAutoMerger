@@ -8,8 +8,6 @@ import {RouterModule} from '@angular/router';
 // App imports
 import {LayoutModule} from '../layout/layoutModule';
 import {UniFrameworkModule} from '../../../framework/frameworkModule';
-import {UniTableModule} from '../../../framework/ui/unitable/index';
-import {UniFormModule} from '../../../framework/ui/uniform/index';
 import {AppCommonModule} from '../common/appCommonModule';
 import {AppPipesModule} from '../../pipes/appPipesModule';
 import {WidgetModule} from '../widgets/widgetModule';
@@ -62,7 +60,6 @@ import {VatSettings} from './vatsettings/vatsettings';
 import {VatTypeDetails} from './vatsettings/vattypedetails/vattypedetails';
 import {VatTypeList} from './vatsettings/vattypelist/vatTypeList';
 import {VatDeductionSettings} from './vatsettings/vatdeductions/vatdeductionsettings';
-import {UniSearchModule} from '../../../framework/ui/unisearch/index';
 
 @NgModule({
     imports: [
@@ -71,15 +68,12 @@ import {UniSearchModule} from '../../../framework/ui/unisearch/index';
         ReactiveFormsModule,
         HttpModule,
 
-        UniTableModule,
-        UniFormModule,
         UniFrameworkModule,
 
         LayoutModule,
         AppCommonModule,
         WidgetModule,
         AppPipesModule,
-        UniSearchModule,
         RouterModule.forChild(accountingRoutes)
     ],
     declarations: [

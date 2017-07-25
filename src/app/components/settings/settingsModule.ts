@@ -3,8 +3,6 @@ import {CommonModule} from '@angular/common';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {HttpModule} from '@angular/http';
 import {RouterModule} from '@angular/router';
-import {UniTableModule} from '../../../framework/ui/unitable/index';
-import {UniFormModule} from '../../../framework/ui/uniform/index';
 import {UniFrameworkModule} from '../../../framework/frameworkModule';
 import {LayoutModule} from '../layout/layoutModule';
 import {AppCommonModule} from '../common/appCommonModule';
@@ -37,11 +35,9 @@ import {RoleSelector} from './users/roleSelector';
 
         RouterModule.forChild(settingsRoutes),
 
-        UniTableModule,
-        UniFormModule,
         UniFrameworkModule,
-        CommonServicesModule,
 
+        CommonServicesModule,
         LayoutModule,
         AppCommonModule,
     ],

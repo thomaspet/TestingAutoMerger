@@ -8,7 +8,6 @@ import {RouterModule} from '@angular/router';
 // App imports
 import {LayoutModule} from '../layout/layoutModule';
 import {UniFrameworkModule} from '../../../framework/frameworkModule';
-import {UniTableModule} from '../../../framework/ui/unitable/index';
 import {AppCommonModule} from '../common/appCommonModule';
 import {AppPipesModule} from '../../pipes/appPipesModule';
 
@@ -35,7 +34,6 @@ import {CanDeactivateGuard} from '../../canDeactivateGuard';
 
         RouterModule.forChild(bankRoutes),
 
-        UniTableModule,
         UniFrameworkModule,
 
         LayoutModule,
