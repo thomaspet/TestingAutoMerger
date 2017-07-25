@@ -746,6 +746,10 @@ export class QuoteDetails {
             }
         });
 
+        if (this.quote.DefaultDimensions && !this.quote.DefaultDimensions.ID) {
+            this.quote.DefaultDimensions._createguid = this.customerQuoteService.getNewGuid();
+        }
+
         return new Promise((resolve, reject) => {
              // Save only lines with products from product list
             if (!TradeItemHelper.IsItemsValid(this.quote.Items)) {
