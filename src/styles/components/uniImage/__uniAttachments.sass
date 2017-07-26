@@ -33,10 +33,14 @@ uni-attachments
         margin: 2rem 0 2rem 1rem
 
     .file-name-list
+        overflow: auto
         display: block
         width: calc(80% - 1px)
         height: 100%
         float: left
+
+        ul
+            margin-top: 0.5rem
 
         li
             list-style: none
@@ -53,13 +57,23 @@ uni-attachments
         li:before
             content: ''
             display: inline-block
-            height: 20px
+            height: 25px
             width: 20px
             background-size: 20px
             background-image: unicon-paperclip($uni-color-scale1)
             background-repeat: no-repeat
+            background-position: center center
             margin-left: 10px
             margin-right: 10px
+
+        button.removeDocumentButton
+            width: 2rem
+            margin: 0 0 0 pxToRem(2)
+            padding: 0 pxToRem(2) pxToRem(7) pxToRem(2)
+            background: lighten($uni-color-scale6, 37%) unicon-trash($uni-color-scale3) center center no-repeat
+            background-size: 0.9rem
+            box-shadow: none
+            height: 1em
 
     .upload
         height: 100%

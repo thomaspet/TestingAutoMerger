@@ -85,6 +85,7 @@ export class ImageModal {
         this.config.showFileID = showFileID;
         this.config.readOnly = true;
         this.config.size = size;
+        this.config = Object.assign({}, this.config);
         this.modal.open();
     }
 

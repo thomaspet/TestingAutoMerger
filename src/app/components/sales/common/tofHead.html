@@ -49,13 +49,15 @@
 
         <fieldset class="attachment-fieldset" *ngIf="activeTabIndex === 3">
             <legend>Dokumenter</legend>
-            <label>
+            <label for="attachments">
                 <span>Vedlegg</span>
-                <uni-attachments [entity]="entityName"
-                                 [entityID]="data?.ID"
-                                 [hideLabel]="true">
-                </uni-attachments>
             </label>
+            <uni-attachments
+                id="attachments"
+                [entity]="entityName"
+                [entityID]="data?.ID"
+                [hideLabel]="true">
+            </uni-attachments>
         </fieldset>
 
         <fieldset class="reminder-fieldset" *ngIf="activeTabIndex === 4 && entityName === 'CustomerInvoice'">

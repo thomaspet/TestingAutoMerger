@@ -23,7 +23,8 @@ export interface IUploadConfig {
              <section class="file-name-list" *ngIf="showFileList">
                 <ul>
                     <li *ngFor="let file of files">
-                        <a (click)="attachmentClicked(file)">{{file.Name}}</a>
+                        <a (click)="attachmentClicked(file)">{{file?.Name}}</a>
+                        <button class="removeDocumentButton" (click)="removeDocument(file?.ID)"></button>
                     </li>
                 </ul>
             </section>
@@ -102,18 +103,22 @@ export class UniAttachments {
 
     public ngOnChanges(changes: SimpleChanges) {
         if (this.showFileList && (changes['entity'] || changes['entityID']) && this.entity && this.isDefined(this.entityID)) {
-            this.http.asGET()
-                .usingBusinessDomain()
-                .withEndPoint(`files/${this.entity}/${this.entityID}`)
-                .send()
-                .map(res => res.json())
-                .subscribe(
-                    files => this.files = files,
-                    err => this.errorService.handle(err)
-                );
+            this.getFiles();
         } else {
             this.files = [];
         }
+    }
+
+    private getFiles() {
+        this.http.asGET()
+            .usingBusinessDomain()
+            .withEndPoint(`files/${this.entity}/${this.entityID}`)
+            .send()
+            .map(res => res.json())
+            .subscribe(
+                files => this.files = files,
+                err => this.errorService.handle(err)
+            );
     }
 
     private isDefined(value: any) {
@@ -189,5 +194,13 @@ export class UniAttachments {
                 this.fileUploaded.emit(res);
                 this.imageModal.refreshImages();
             }, err => this.errorService.handle(err));
+    }
+
+    private removeDocument(fileID: number) {
+        this.fileService.deleteOnEntity(this.entity, this.entityID, fileID)
+            .subscribe(
+                res => this.getFiles(),
+                err => this.errorService.handle(err)
+            );
     }
 }

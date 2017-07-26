@@ -48,7 +48,7 @@ export class FileService extends BizHttp<File> {
             .withEndPoint(`files`)
             .withBody(file)
             .send()
-            .map(response => response.json());        
+            .map(response => response.json());
     }
 
     public delete(fileId: number) {
@@ -60,6 +60,15 @@ export class FileService extends BizHttp<File> {
             .send();
     }
 
+    public deleteOnEntity(entityType: string, entityID: number, fileID: number) {
+        return this.http
+            .asDELETE()
+            .withDefaultHeaders()
+            .usingBusinessDomain()
+            .withEndPoint(`files/${entityType}/${entityID}/${fileID}`)
+            .send();
+    }
+
     public tag(id: number, tag: string, status: number = 0) {
         return this.http
             .asPOST()
@@ -68,7 +77,7 @@ export class FileService extends BizHttp<File> {
             .withEndPoint(`filetags`)
             .withBody({ FileID: id, TagName: tag, Status: status })
             .send()
-            .map(response => response.json()); 
+            .map(response => response.json());
     }
 
     public getStatistics(query: string) {

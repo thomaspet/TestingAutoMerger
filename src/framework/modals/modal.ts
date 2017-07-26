@@ -31,6 +31,7 @@ export class UniModal implements AfterViewInit {
     private componentResolver: (component: any) => void;
     private componentIsResolved: boolean = false;
     private factory: ComponentFactory<any>;
+    private modal: any;
 
     constructor(public creator: ComponentCreator<any>, private elementRef: ElementRef) {
         document.addEventListener('keyup', (e: any) => {
@@ -47,6 +48,11 @@ export class UniModal implements AfterViewInit {
         this.factory = this.creator.compileComponent<any>(this.componentType);
     }
 
+    public ngOnChanges(changes) {
+        if (this.modal && changes.config) {
+            this.modal.instance.config = this.config;
+        }
+    }
 
 
     public createContent() {
@@ -61,6 +67,7 @@ export class UniModal implements AfterViewInit {
                 isOpen: config.isOpen || false
             }
         });
+        this.modal = modal;
         this.componentResolver(modal.instance);
         this.componentIsResolved = true;
     }
