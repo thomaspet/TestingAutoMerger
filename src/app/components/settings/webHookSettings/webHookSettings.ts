@@ -171,7 +171,7 @@ export class WebHookSettings {
             Enabled: true,
             ObjectiveId: this.noFilter,
             ActionId: this.noFilter,
-            Url: '',
+            Url: 'https://',
             Name: '',
             State: SubscriptionState.New,
             SubscriberId: this.company.WebHookSubscriberId,
@@ -340,7 +340,7 @@ export class WebHookSettings {
             );
         } else {
             done();
-            this.saveactions[0].disabled = true;
         }
+        this.saveactions[0].disabled = true;
    }
 }
