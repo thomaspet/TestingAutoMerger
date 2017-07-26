@@ -23,6 +23,11 @@ export class AuthService {
     @Output()
     public companyChange: EventEmitter<any> = new EventEmitter();
 
+    private headers: Headers = new Headers({
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+    });
+
     public authentication$: ReplaySubject<IAuthDetails> = new ReplaySubject<IAuthDetails>(1);
     public jwt: string;
     public jwtDecoded: any;
@@ -45,10 +50,15 @@ export class AuthService {
         }
 
         // Check expired status every minute, with a 10 minute offset on the expiration check
-        // This allows the user to re-authenticate before http calls start 401'ing
+        // This allows the user to re-authenticate before http calls start 401'ing.
+        // Also check if we have a files token, and re-authenticate with uni-files if not.
         setInterval(() => {
             if (this.jwt && this.isTokenExpired(10)) {
                 this.requestAuthentication$.emit(true);
+            }
+
+            if (this.jwt && !this.filesToken) {
+                this.authenticateUniFiles();
             }
         }, 60000);
     }
@@ -57,11 +67,11 @@ export class AuthService {
      * @param {Object} credentials
      * @returns Observable
      */
-    public authenticate(credentials: {username: string, password: string}): Observable<any> {
+    public authenticate(credentials: {username: string, password: string}): Observable<boolean> {
         let url = AppConfig.BASE_URL_INIT + AppConfig.API_DOMAINS.INIT + 'sign-in';
-        let headers = new Headers({'Content-Type': 'application/json', 'Accept': 'application/json'});
 
-        return this.http.post(url, JSON.stringify(credentials), {headers: headers})
+        return this.http.post(url, JSON.stringify(credentials), {headers: this.headers})
+            .finally(() => this.authenticateUniFiles())
             .switchMap((apiAuth) => {
                 if (apiAuth.status !== 200) {
                     return Observable.of(apiAuth.json());
@@ -70,27 +80,38 @@ export class AuthService {
                 this.jwt = apiAuth.json().access_token;
                 this.jwtDecoded = this.decodeToken(this.jwt);
 
-                if (this.jwtDecoded) {
-                    localStorage.setItem('jwt', this.jwt);
-
-                    const uniFilesUrl = AppConfig.BASE_URL_FILES + '/api/init/sign-in';
-                    return this.http.post(uniFilesUrl, JSON.stringify(this.jwt), {headers: headers})
-                        .map((filesAuth) => {
-                            if (filesAuth.status === 200) {
-                                this.filesToken = filesAuth.json();
-                                localStorage.setItem('filesToken', this.filesToken);
-                            }
-
-                            return {
-                                apiAuth: apiAuth.json(),
-                                filesAuth: filesAuth.json()
-                            };
-                        });
-                } else {
+                if (!this.jwtDecoded) {
                     return Observable.throw('Something went wrong when decoding token. Please re-authenticate.');
                 }
+
+                localStorage.setItem('jwt', this.jwt);
+                return Observable.of(true);
             });
     }
+
+    public authenticateUniFiles() {
+        if (!this.jwt) {
+            return;
+        }
+
+        const uniFilesUrl = AppConfig.BASE_URL_FILES + '/api/init/sign-in';
+        this.http.post(uniFilesUrl, JSON.stringify(this.jwt), {headers: this.headers}).subscribe(
+            res => {
+                if (res && res.status === 200) {
+                    this.filesToken = res.json();
+                    localStorage.setItem('filesToken', this.filesToken);
+
+                    this.authentication$.next({
+                        token: this.jwt,
+                        filesToken: this.filesToken,
+                        activeCompany: this.activeCompany
+                    });
+                }
+            },
+            err => console.log(err)
+        );
+    }
+
     /**
      * Returns web token or redirects to /login if user is not authenticated
      * @returns {String}
