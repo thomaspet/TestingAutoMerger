@@ -404,17 +404,18 @@ export class TransqueryDetails implements OnInit {
         let visibleColumnsString = this.storageService.get(this.COLUMN_VISIBILITY_LOCALSTORAGE_KEY, true);
         let visibleColumns = [];
         if (visibleColumnsString) {
-            visibleColumns = JSON.parse(visibleColumnsString);
+          visibleColumns = JSON.parse(visibleColumnsString);
         }
 
         let columns = [
-                new UniTableColumn('JournalEntryNumberNumeric', 'Bilagsnr')
+                new UniTableColumn('JournalEntryNumberNumeric', 'Bnr')
                     .setTemplate(line => {
                         return `<a href="/#/accounting/transquery/details;journalEntryNumber=${line.JournalEntryLineJournalEntryNumber}">
                                 ${line.JournalEntryLineJournalEntryNumberNumeric}
                             </a>`;
                     })
-                    .setFilterOperator('startswith'),
+                    .setFilterOperator('startswith')
+                    .setWidth('65px'),
                 new UniTableColumn('JournalEntryNumber', 'Bilagsnr med år')
                     .setTemplate(line => {
                         return `<a href="/#/accounting/transquery/details;journalEntryNumber=${line.JournalEntryLineJournalEntryNumber}">
@@ -429,6 +430,7 @@ export class TransqueryDetails implements OnInit {
                                 ${line.AccountAccountNumber}
                             </a>`;
                     })
+                        .setWidth('85px')
                     .setFilterOperator('startswith'),
                 new UniTableColumn('Account.AccountName', 'Kontonavn', UniTableColumnType.Text)
                     .setFilterOperator('contains')
@@ -439,17 +441,22 @@ export class TransqueryDetails implements OnInit {
                                 ${line.SubAccountAccountNumber}
                             </a>`;
                     })
+                    .setVisible(false)
+                    .setWidth('90px')
                     .setFilterOperator('startswith'),
                 new UniTableColumn('SubAccount.AccountName', 'Reskontro', UniTableColumnType.Text)
                     .setFilterOperator('contains')
-                    .setTemplate(line => line.SubAccountAccountName),
+                    .setTemplate(line => line.SubAccountAccountName)
+                    .setVisible(false),
                 new UniTableColumn('FinancialDate', 'Regnskapsdato', UniTableColumnType.LocalDate)
                     .setFilterOperator('contains')
                     .setFormat('DD.MM.YYYY')
+                    .setWidth('110px')
                     .setTemplate(line => line.JournalEntryLineFinancialDate),
                 new UniTableColumn('VatDate', 'MVA-dato', UniTableColumnType.LocalDate)
                     .setFilterOperator('contains')
                     .setFormat('DD.MM.YYYY')
+                    .setWidth('110px')
                     .setTemplate(line => line.JournalEntryLineVatDate),
                 new UniTableColumn('Description', 'Beskrivelse', UniTableColumnType.Text)
                     .setWidth('20%')
@@ -457,6 +464,7 @@ export class TransqueryDetails implements OnInit {
                     .setTemplate(line => `<span title="${line.JournalEntryLineDescription}">${line.JournalEntryLineDescription}</span>`),
                 new UniTableColumn('VatType.VatCode', 'Mvakode', UniTableColumnType.Text)
                     .setFilterOperator('startswith')
+                    .setWidth('60px')
                     .setTemplate(line => line.VatTypeVatCode),
                 new UniTableColumn('VatDeductionPercent', 'Fradrag %', UniTableColumnType.Number)
                     .setFilterOperator('startswith')
@@ -467,13 +475,16 @@ export class TransqueryDetails implements OnInit {
                     .setTemplate(line => line.JournalEntryLineAmount),
                 new UniTableColumn('AmountCurrency', 'V-beløp', UniTableColumnType.Money)
                     .setFilterOperator('eq')
-                    .setTemplate(line => line.JournalEntryLineAmountCurrency),
+                    .setTemplate(line => line.JournalEntryLineAmountCurrency)
+                    .setVisible(false),
                 new UniTableColumn('CurrencyCode.Code', 'Valuta', UniTableColumnType.Text)
                     .setFilterOperator('contains')
-                    .setTemplate(line => line.CurrencyCodeCode),
+                    .setTemplate(line => line.CurrencyCodeCode)
+                    .setVisible(false),
                 new UniTableColumn('CurrencyExchangeRate', 'V-Kurs', UniTableColumnType.Number)
                     .setFilterOperator('startswith')
-                    .setTemplate(line => line.JournalEntryLineCurrencyExchangeRate),
+                    .setTemplate(line => line.JournalEntryLineCurrencyExchangeRate)
+                    .setVisible(false),
                 new UniTableColumn('TaxBasisAmount', 'Grunnlag MVA', UniTableColumnType.Money)
                     .setFilterOperator('eq')
                     .setVisible(showTaxBasisAmount)
@@ -508,9 +519,11 @@ export class TransqueryDetails implements OnInit {
                     .setTemplate(line => this.journalEntryLineService.getStatusText(line.JournalEntryLineStatusCode))
                     .setVisible(false),
                 new UniTableColumn('Department.Name', 'Avdeling', UniTableColumnType.Text).setFilterOperator('contains')
-                    .setTemplate(line => { return line.DepartmentDepartmentNumber ? line.DepartmentDepartmentNumber + ': ' + line.DepartmentName : ''; }),
+                    .setTemplate(line => { return line.DepartmentDepartmentNumber ? line.DepartmentDepartmentNumber + ': ' + line.DepartmentName : ''; })
+                    .setVisible(false),
                 new UniTableColumn('Project.Name', 'Prosjekt', UniTableColumnType.Text).setFilterOperator('contains')
-                    .setTemplate(line => { return line.ProjectProjectNumber ? line.ProjectProjectNumber + ': ' + line.ProjectName : ''; }),
+                    .setTemplate(line => { return line.ProjectProjectNumber ? line.ProjectProjectNumber + ': ' + line.ProjectName : ''; })
+                    .setVisible(false),
                 new UniTableColumn('ID', PAPERCLIP, UniTableColumnType.Text).setFilterOperator('contains')
                     .setTemplate(line => line.Attachments ? PAPERCLIP : '')
                     .setWidth('40px')
