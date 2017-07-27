@@ -1,4 +1,4 @@
-import {Component, ViewChild} from '@angular/core';
+﻿import {Component, ViewChild} from '@angular/core';
 import {View} from '../../../models/view/view';
 import {createFormField, FieldSize, ControlTypes} from '../../common/utils/utils';
 import {IViewConfig} from '../genericview/list';
@@ -6,7 +6,8 @@ import {Worker, WorkRelation} from '../../../unientities';
 import {GenericDetailview, IAfterSaveInfo, IResult} from '../genericview/detail';
 import {View as RelationsSubView} from './relations';
 import {View as BalancesSubView} from './balances';
-import {UniModules} from '../../layout/navbar/tabstrip/tabService';
+import { UniModules } from '../../layout/navbar/tabstrip/tabService';
+import { IModuleType } from '../genericview/detail';
 
 export var view = new View('workers', 'Person', 'WorkerDetailview', true, '', WorkerDetailview);
 
@@ -21,6 +22,7 @@ export class WorkerDetailview {
     private viewconfig: IViewConfig;
     private currentId: number = 0;
     private hasRelationChanges: boolean = false;
+    private deleteMessageModule: IModuleType = IModuleType.Worker;
 
     public tabs: Array<any> = [ { name: 'details', label: 'Detaljer', isSelected: true },
             { name: 'balances', label: 'Saldoer',

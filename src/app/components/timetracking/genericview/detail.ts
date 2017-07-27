@@ -16,6 +16,18 @@ enum IAction {
     Delete = 1
 }
 
+export enum IModuleType {
+    Worker = 1,
+    WorkType = 2,
+    WorkProfile = 3
+}
+
+var deleteMessageModuleSpesific = [
+    'denne personen',
+    'denne timearten',
+    'denne malen'
+]
+
 var labels = {
     'action_save': 'Lagre',
     'action_delete': 'Slett',
@@ -24,7 +36,7 @@ var labels = {
     'err_loading': 'Feil ved lasting',
     'err_save': 'Feil ved lagring',
     'err_delete': 'Feil ved sletting',
-    'ask_delete': 'Ønsker du virkelig å slette aktuell post?',
+    'ask_delete': 'Er du sikker på at du vil slette aktuell post? (Obs: Kan ikke angres)',
     'ask_delete_title': 'Slette?',
     'msg_saved': 'Lagret',
     'ask_save': 'Vil lagre før du fortsetter?',
@@ -49,6 +61,7 @@ export interface IAfterSaveInfo {
 export class GenericDetailview {
     @Input() public viewconfig: IViewConfig;
     @Input() public hiddenform: boolean;
+    @Input() public messageModule: IModuleType;
     @Output() public itemChanged: EventEmitter<any> = new EventEmitter();
     @Output() public afterSave: EventEmitter<IAfterSaveInfo> = new EventEmitter<IAfterSaveInfo>();
     @ViewChild(UniForm) public form: UniForm;
@@ -83,6 +96,12 @@ export class GenericDetailview {
     public ngOnInit() {
         if (this.viewconfig) {
             this.fields$.next(this.viewconfig.formFields);
+        }
+        if (this.messageModule) {
+            labels.ask_delete =
+                `Er du sikker på at du vil slette ${deleteMessageModuleSpesific[this.messageModule - 1]}? (Obs: Kan ikke angres)`;
+        } else {
+            labels.ask_delete = 'Er du sikker på at du vil slette aktuell post? (Obs: Kan ikke angres)';
         }
     }
 

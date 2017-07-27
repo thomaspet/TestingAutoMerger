@@ -1,13 +1,13 @@
 <section class="application">
     <article class="collapsable" [ngClass]="{'-is-open': !collapseView}">
-        <h4 (click)="collapseView = !collapseView">Timeføring</h4>
+        <h4 (click)="collapseView = !collapseView">Oppsett for Arbeidstid</h4>
         <div class="collapsable-content" [attr.aria-busy]="busy">
 
 
             <table class='timeentry_toolbar'><tr>
                 <td>
-                    <button class="good" (click)="onAddNew()">Ny stilling</button>
-                    <button [hidden]="!(currentRelation && currentRelation.ID)" class="bad" (click)="onDelete()">Slett stilling</button>
+                    <button class="good" (click)="onAddNew()">Nytt oppsett for Arbeidstid</button>
+                    <button [hidden]="!(currentRelation && currentRelation.ID)" class="bad" (click)="onDelete()">Slett oppsett</button>
                     &nbsp;&nbsp;
                     <button [hidden]="!(currentRelation && currentRelation.ID)" class="secondary-button" (click)="onRegisterHours()">Rediger timer</button>
                 </td>                

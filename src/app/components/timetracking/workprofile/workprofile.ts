@@ -4,17 +4,19 @@ import {createFormField, FieldSize, ControlTypes} from '../../common/utils/utils
 import {IViewConfig} from '../genericview/list';
 import {WorkProfile} from '../../../unientities';
 import {GenericDetailview} from '../genericview/detail';
-import {UniModules} from '../../layout/navbar/tabstrip/tabService';
+import { UniModules } from '../../layout/navbar/tabstrip/tabService';
+import { IModuleType } from '../genericview/detail';
 
 export var view = new View('workprofiles', 'Stillingsmal', 'WorkprofileDetailview', true, '', WorkprofileDetailview);
 
 @Component({
     selector: view.name,
-    template: '<genericdetail [viewconfig]="viewconfig" ></genericdetail>'
+    template: '<genericdetail [viewconfig]="viewconfig" [messageModule]="deleteMessageModule" ></genericdetail>'
 })
 export class WorkprofileDetailview {
     @ViewChild(GenericDetailview) private genericDetail: GenericDetailview;
     private viewconfig: IViewConfig;
+    private deleteMessageModule: IModuleType = IModuleType.WorkProfile;
     constructor() {
         this.viewconfig = this.createLayout();
     }

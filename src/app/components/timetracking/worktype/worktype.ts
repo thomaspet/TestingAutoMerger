@@ -5,7 +5,8 @@ import {IViewConfig} from '../genericview/list';
 import {WorkType} from '../../../unientities';
 import {GenericDetailview} from '../genericview/detail';
 import {SYSTEMTYPES} from '../../common/utils/pipes';
-import {UniModules} from '../../layout/navbar/tabstrip/tabService';
+import { UniModules } from '../../layout/navbar/tabstrip/tabService';
+import { IModuleType } from '../genericview/detail';
 
 export var view = new View('worktypes', 'Timeart', 'WorktypeDetailview', true, '', WorktypeDetailview);
 
@@ -13,11 +14,12 @@ var defaultSystemType = 1; // 1 - Hours (default)
 
 @Component({
     selector: view.name,
-    template: '<genericdetail [viewconfig]="viewconfig"></genericdetail>'
+    template: '<genericdetail [viewconfig]="viewconfig" [messageModule]="deleteMessageModule"></genericdetail>'
 })
 export class WorktypeDetailview {
     @ViewChild(GenericDetailview) private genericDetail: GenericDetailview;
     private viewconfig: IViewConfig;
+    private deleteMessageModule: IModuleType = IModuleType.WorkType;
     constructor() {
         this.viewconfig = this.createLayout();
     }
