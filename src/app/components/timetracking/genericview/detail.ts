@@ -24,7 +24,7 @@ var labels = {
     'err_loading': 'Feil ved lasting',
     'err_save': 'Feil ved lagring',
     'err_delete': 'Feil ved sletting',
-    'ask_delete': 'Ønsker du virkelig å slette aktuell post?',
+    'ask_delete': 'Er du sikker på at du vil slette aktuell post? (Obs: Kan ikke angres)',
     'ask_delete_title': 'Slette?',
     'msg_saved': 'Lagret',
     'ask_save': 'Vil lagre før du fortsetter?',
@@ -310,7 +310,9 @@ export class GenericDetailview {
 
     private delete(done?) {
         if (this.ID) {
-            this.confirmModal.confirm(labels.ask_delete, labels.ask_delete_title).then( (dlgResult: ConfirmActions) => {
+            this.confirmModal.confirm(
+                (this.viewconfig.labels.ask_delete || labels.ask_delete),
+                labels.ask_delete_title).then((dlgResult: ConfirmActions) => {
                 if (dlgResult !== ConfirmActions.ACCEPT) { if (done) { done(); } return; }
                 this.workerService.deleteByID(this.ID, this.viewconfig.data.route)
                 .finally(() => this.busy = false)

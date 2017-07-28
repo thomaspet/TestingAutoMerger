@@ -1,16 +1,16 @@
-import {Component, ViewChild} from '@angular/core';
+﻿import {Component, ViewChild} from '@angular/core';
 import {View} from '../../../models/view/view';
 import {createFormField, FieldSize, ControlTypes} from '../../common/utils/utils';
 import {IViewConfig} from '../genericview/list';
 import {WorkProfile} from '../../../unientities';
 import {GenericDetailview} from '../genericview/detail';
-import {UniModules} from '../../layout/navbar/tabstrip/tabService';
+import { UniModules } from '../../layout/navbar/tabstrip/tabService';
 
 export var view = new View('workprofiles', 'Stillingsmal', 'WorkprofileDetailview', true, '', WorkprofileDetailview);
 
 @Component({
     selector: view.name,
-    template: '<genericdetail [viewconfig]="viewconfig" ></genericdetail>'
+    template: '<genericdetail [viewconfig]="viewconfig"></genericdetail>'
 })
 export class WorkprofileDetailview {
     @ViewChild(GenericDetailview) private genericDetail: GenericDetailview;
@@ -23,7 +23,12 @@ export class WorkprofileDetailview {
 
         var layout: IViewConfig = {
             moduleID: UniModules.WorkProfiles,
-            labels: { single: 'Mal', plural: 'Maler', createNew: 'Ny mal'},
+            labels: {
+                single: 'Mal',
+                plural: 'Maler',
+                createNew: 'Ny mal',
+                ask_delete: 'Er du sikker på at du vil slette denne malen? (Obs: Kan ikke angres)'
+            },
             detail: { routeBackToList: '/timetracking/workprofiles'},
             tab: view,
             data: {

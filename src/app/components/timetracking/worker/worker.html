@@ -10,7 +10,10 @@
 </aside>
 
 <section>
-    <genericdetail [hiddenform]="!tabs[0].isSelected" [viewconfig]="viewconfig" (itemChanged)="onItemChanged($event)" (afterSave)="afterWorkerSaved($event)" >
+    <genericdetail [hiddenform]="!tabs[0].isSelected" 
+                   [viewconfig]="viewconfig"
+                   (itemChanged)="onItemChanged($event)" 
+                   (afterSave)="afterWorkerSaved($event)">
     </genericdetail>
 
     <workrelations [hidden]="(!tabs[0].isSelected || !currentId)" (valueChange)="onRelationvalueChanged($event)" [workerid]="currentId" >

@@ -10,9 +10,10 @@ import {ErrorService} from '../../../services/services';
 
 export interface IViewConfig {
     labels?: {
-        single: string;
-        plural: string;
-        createNew: string;
+        single?: string;
+        plural?: string;
+        createNew?: string;
+        ask_delete?: string;
     };
     moduleID: UniModules;
     detail: {

@@ -1,11 +1,11 @@
-import {Component, ViewChild} from '@angular/core';
+﻿import {Component, ViewChild} from '@angular/core';
 import {View} from '../../../models/view/view';
 import {createFormField, FieldSize, ControlTypes} from '../../common/utils/utils';
 import {IViewConfig} from '../genericview/list';
 import {WorkType} from '../../../unientities';
 import {GenericDetailview} from '../genericview/detail';
 import {SYSTEMTYPES} from '../../common/utils/pipes';
-import {UniModules} from '../../layout/navbar/tabstrip/tabService';
+import { UniModules } from '../../layout/navbar/tabstrip/tabService';
 
 export var view = new View('worktypes', 'Timeart', 'WorktypeDetailview', true, '', WorktypeDetailview);
 
@@ -30,7 +30,12 @@ export class WorktypeDetailview {
 
         var layout: IViewConfig = {
             moduleID: UniModules.WorkTypes,
-            labels: { single: 'Mal', plural: 'Maler', createNew: 'Ny Timeart'},
+            labels: {
+                single: 'Mal',
+                plural: 'Maler',
+                createNew: 'Ny Timeart',
+                ask_delete: 'Er du sikker på at du vil slette denne timearten? (Obs: Kan ikke angres)'
+            },
             detail: { routeBackToList: '/timetracking/worktypes'},
             tab: view,
             data: {

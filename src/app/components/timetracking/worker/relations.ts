@@ -190,9 +190,9 @@ export class View {
                 }
             },
             formFields: [
-                createFormField('WorkPercentage', 'Prosent', ControlTypes.NumericInput),
                 createFormField('WorkProfileID', 'Stillingsmal', ControlTypes.SelectInput, undefined
                     , false, 0, undefined, this.getComboOptions()),
+                createFormField('WorkPercentage', 'Prosent', ControlTypes.NumericInput),
                 createFormField('CompanyName', 'Firmanavn', ControlTypes.TextInput),
                 createFormField('Description', 'Beskrivelse', ControlTypes.TextInput),
                 createFormField('StartDate', 'Startdato', ControlTypes.LocalDate),

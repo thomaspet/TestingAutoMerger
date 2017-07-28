@@ -1,4 +1,4 @@
-import {Component, ViewChild} from '@angular/core';
+﻿import {Component, ViewChild} from '@angular/core';
 import {View} from '../../../models/view/view';
 import {createFormField, FieldSize, ControlTypes} from '../../common/utils/utils';
 import {IViewConfig} from '../genericview/list';
@@ -6,7 +6,7 @@ import {Worker, WorkRelation} from '../../../unientities';
 import {GenericDetailview, IAfterSaveInfo, IResult} from '../genericview/detail';
 import {View as RelationsSubView} from './relations';
 import {View as BalancesSubView} from './balances';
-import {UniModules} from '../../layout/navbar/tabstrip/tabService';
+import { UniModules } from '../../layout/navbar/tabstrip/tabService';
 
 export var view = new View('workers', 'Person', 'WorkerDetailview', true, '', WorkerDetailview);
 
@@ -92,7 +92,12 @@ export class WorkerDetailview {
     private createFormConfig(): IViewConfig {
         return {
             moduleID: UniModules.Workers,
-            labels: { single: view.label, plural: 'Personer', createNew: 'Ny person'},
+            labels: {
+                single: view.label,
+                plural: 'Personer',
+                createNew: 'Ny person',
+                ask_delete: 'Er du sikker på at du vil slette denne personen? (Obs: Kan ikke angres)'
+            },
             detail: { routeBackToList: '/timetracking/workers', nameProperty: 'Info.Name'},
             tab: view,
             data: {
