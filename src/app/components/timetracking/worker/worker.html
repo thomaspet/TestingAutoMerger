@@ -11,8 +11,7 @@
 
 <section>
     <genericdetail [hiddenform]="!tabs[0].isSelected" 
-                   [viewconfig]="viewconfig" 
-                   [messageModule]="deleteMessageModule"
+                   [viewconfig]="viewconfig"
                    (itemChanged)="onItemChanged($event)" 
                    (afterSave)="afterWorkerSaved($event)">
     </genericdetail>

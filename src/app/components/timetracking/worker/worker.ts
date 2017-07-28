@@ -7,7 +7,6 @@ import {GenericDetailview, IAfterSaveInfo, IResult} from '../genericview/detail'
 import {View as RelationsSubView} from './relations';
 import {View as BalancesSubView} from './balances';
 import { UniModules } from '../../layout/navbar/tabstrip/tabService';
-import { IModuleType } from '../genericview/detail';
 
 export var view = new View('workers', 'Person', 'WorkerDetailview', true, '', WorkerDetailview);
 
@@ -22,7 +21,6 @@ export class WorkerDetailview {
     private viewconfig: IViewConfig;
     private currentId: number = 0;
     private hasRelationChanges: boolean = false;
-    private deleteMessageModule: IModuleType = IModuleType.Worker;
 
     public tabs: Array<any> = [ { name: 'details', label: 'Detaljer', isSelected: true },
             { name: 'balances', label: 'Saldoer',
@@ -94,7 +92,12 @@ export class WorkerDetailview {
     private createFormConfig(): IViewConfig {
         return {
             moduleID: UniModules.Workers,
-            labels: { single: view.label, plural: 'Personer', createNew: 'Ny person'},
+            labels: {
+                single: view.label,
+                plural: 'Personer',
+                createNew: 'Ny person',
+                ask_delete: 'Er du sikker på at du vil slette denne personen? (Obs: Kan ikke angres)'
+            },
             detail: { routeBackToList: '/timetracking/workers', nameProperty: 'Info.Name'},
             tab: view,
             data: {

@@ -16,18 +16,6 @@ enum IAction {
     Delete = 1
 }
 
-export enum IModuleType {
-    Worker = 1,
-    WorkType = 2,
-    WorkProfile = 3
-}
-
-var deleteMessageModuleSpesific = [
-    'denne personen',
-    'denne timearten',
-    'denne malen'
-]
-
 var labels = {
     'action_save': 'Lagre',
     'action_delete': 'Slett',
@@ -61,7 +49,6 @@ export interface IAfterSaveInfo {
 export class GenericDetailview {
     @Input() public viewconfig: IViewConfig;
     @Input() public hiddenform: boolean;
-    @Input() public messageModule: IModuleType;
     @Output() public itemChanged: EventEmitter<any> = new EventEmitter();
     @Output() public afterSave: EventEmitter<IAfterSaveInfo> = new EventEmitter<IAfterSaveInfo>();
     @ViewChild(UniForm) public form: UniForm;
@@ -96,12 +83,6 @@ export class GenericDetailview {
     public ngOnInit() {
         if (this.viewconfig) {
             this.fields$.next(this.viewconfig.formFields);
-        }
-        if (this.messageModule) {
-            labels.ask_delete =
-                `Er du sikker på at du vil slette ${deleteMessageModuleSpesific[this.messageModule - 1]}? (Obs: Kan ikke angres)`;
-        } else {
-            labels.ask_delete = 'Er du sikker på at du vil slette aktuell post? (Obs: Kan ikke angres)';
         }
     }
 
@@ -329,7 +310,9 @@ export class GenericDetailview {
 
     private delete(done?) {
         if (this.ID) {
-            this.confirmModal.confirm(labels.ask_delete, labels.ask_delete_title).then( (dlgResult: ConfirmActions) => {
+            this.confirmModal.confirm(
+                (this.viewconfig.labels.ask_delete || labels.ask_delete),
+                labels.ask_delete_title).then((dlgResult: ConfirmActions) => {
                 if (dlgResult !== ConfirmActions.ACCEPT) { if (done) { done(); } return; }
                 this.workerService.deleteByID(this.ID, this.viewconfig.data.route)
                 .finally(() => this.busy = false)
