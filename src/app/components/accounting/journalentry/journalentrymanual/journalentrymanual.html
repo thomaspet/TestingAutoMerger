@@ -1,4 +1,16 @@
 <section [ngClass]="{'journalentry-input-area-full': !journalEntrySettings.AttachmentsVisible, 'journalentry-input-area': journalEntrySettings.AttachmentsVisible}">
+    <div class="validation_messages_container" *ngIf="validationResult && validationResult.Messages.length > 0">
+        <strong *ngFor="let message of validationResult.Messages"
+            class="journalEntry_validation validation {{getValidationLevelCss(message.Level)}}"
+                [ngClass]="{
+                simplemode: journalEntryMode === 'SIMPLE',
+                promode: journalEntryMode != 'SIMPLE',
+                runassubcomponent: runAsSubComponent
+            }">
+            {{message.Message}}
+        </strong>
+    </div>
+
     <div class="journalentry-input-components">
         <journal-entry-professional (dataLoaded)="onDataLoaded($event)"
                                     (showImageChanged)="onShowImageChanged($event)"
@@ -63,6 +75,7 @@
                 </tr>
             </table>
         </section>
+
          <section class="openposts_container">
              <p *ngIf="openPostRetrievingDataInProgress">Henter åpne poster...</p>
              <p *ngIf="openPostsForSelectedRow && openPostsForSelectedRow.length === 0">
@@ -77,18 +90,6 @@
                 </uni-table>
              </div>
         </section>
-
-        <div class="validation_messages_container" *ngIf="validationResult && validationResult.Messages.length > 0">
-            <strong *ngFor="let message of validationResult.Messages"
-                class="journalEntry_validation validation {{getValidationLevelCss(message.Level)}}"
-                    [ngClass]="{
-                    simplemode: journalEntryMode === 'SIMPLE',
-                    promode: journalEntryMode != 'SIMPLE',
-                    runassubcomponent: runAsSubComponent
-                }">
-                {{message.Message}}
-            </strong>
-        </div>
     </div>
 </section>
 
