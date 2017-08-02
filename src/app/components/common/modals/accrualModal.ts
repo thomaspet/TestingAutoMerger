@@ -292,7 +292,7 @@ export class AccrualForm implements OnChanges {
     }
 
     private getAccrualJournalEntryModes (): Array<AccrualJournalEntryMode> {
-       return [{ID: 1, Name: 'Per år'}, {ID: 2, Name: 'Per måned'}];
+       return [{ID: 0, Name: 'Ett bilag'}, {ID: 1, Name: 'Per år'}, {ID: 2, Name: 'Per måned'}];
     }
 
     private getAccrualPeriodsOptions (): any {
@@ -738,7 +738,7 @@ export class AccrualModal {
 
         if (!accrual) {
             accrual = new Accrual();
-            accrual.AccrualJournalEntryMode = 1;
+            accrual.AccrualJournalEntryMode = 0;
 
             if (!journalEntryLineDraft) {
                 accrual.AccrualAmount = accrualAmount;
