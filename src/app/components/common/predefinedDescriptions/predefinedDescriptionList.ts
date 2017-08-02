@@ -6,10 +6,7 @@ import {IToolbarConfig} from './../../common/toolbar/toolbar';
 import {IUniSaveAction} from '../../../../framework/save/save';
 import {PredefinedDescription} from '../../../unientities';
 import {Observable} from 'rxjs/Observable';
-import {
-    UniConfirmModal,
-    ConfirmActions
-} from '../../../../framework/modals/confirm';
+import {UniModalService} from '../../../../framework/uniModal/barrel';
 
 import { PredefinedDescriptionService, ErrorService } from '../../../services/services';
 
@@ -21,12 +18,7 @@ import { PredefinedDescriptionService, ErrorService } from '../../../services/se
 
 export class PredefinedDescriptionList {
     @ViewChild(UniTable)
-
-
     private table: UniTable;
-
-    @ViewChild(UniConfirmModal)
-    private confirmModal: UniConfirmModal;
 
     private hasUnsavedChanges: boolean;
     private predefinedDescriptionTypes: Array<any> =  [ {ID: 1, Name: 'Bilagsføring'} ];
@@ -44,6 +36,7 @@ export class PredefinedDescriptionList {
         private errorService: ErrorService,
         private tabService: TabService,
         private toastService: ToastService,
+        private modalService: UniModalService
     ) {
 
         this.tabService.addTab({
@@ -68,15 +61,12 @@ export class PredefinedDescriptionList {
             return;
         }
 
-        if (this.hasUnsavedChanges) {
-            this.canDeactivate().then(allowed => {
-                if (!allowed) {
-                    return;
-                }
-            });
-        }
-        this.selectedType = event.rowModel['ID'];
-        this.loadData();
+        this.canDeactivate().subscribe(canDeactivate => {
+            if (canDeactivate) {
+                this.selectedType = event.rowModel['ID'];
+                this.loadData();
+            }
+        });
     }
 
     public loadData() {
@@ -132,32 +122,23 @@ export class PredefinedDescriptionList {
 
     public canDeactivate() {
         if (!this.hasUnsavedChanges) {
-            return Promise.resolve(true);
+            return Observable.of(true);
         }
 
-        return new Promise<boolean>((resolve, reject) => {
-            this.confirmModal.confirm(
-                'Du har ulagrede endringer. Ønsker du å forkaste disse?',
-                'Ulagrede endringer',
-                false,
-                {
-                    accept: 'Fortsett uten å lagre',
-                    reject: 'Avbryt'
-                }
-            ).then((result) => {
-                if (result === ConfirmActions.ACCEPT) {
-                    resolve(true);
-                } else {
+        return this.modalService.openUnsavedChangesModal()
+            .onClose
+            .map(canDeactivate => {
+                if (!canDeactivate) {
                     this.tabService.addTab({
                         name: 'Faste tekster',
                         url: '/predefinedDescriptions/predefineddescriptions',
                         moduleID: UniModules.PredefinedDescription,
                         active: true
                     });
-                    resolve(false);
                 }
+
+                return canDeactivate;
             });
-        });
     }
 
 

@@ -20,7 +20,7 @@ import {ISummaryConfig} from '../../../common/summary/summary';
 import {GetPrintStatusText} from '../../../../models/printStatus';
 import {TofHead} from '../../common/tofHead';
 import {TradeItemTable} from '../../common/tradeItemTable';
-import {UniConfirmModal, ConfirmActions} from '../../../../../framework/modals/confirm';
+import {UniModalService, ConfirmActions} from '../../../../../framework/uniModal/barrel';
 import {
     CustomerQuoteService,
     CustomerQuoteItemService,
@@ -52,9 +52,6 @@ export class QuoteDetails {
     @ViewChild(TradeItemTable)
     private tradeItemTable: TradeItemTable;
 
-    @ViewChild(UniConfirmModal)
-    private confirmModal: UniConfirmModal;
-
     @Input()
     public quoteID: number;
 
@@ -84,25 +81,27 @@ export class QuoteDetails {
 
     private commentsConfig: any;
 
-    constructor(private customerService: CustomerService,
-                private customerQuoteService: CustomerQuoteService,
-                private customerQuoteItemService: CustomerQuoteItemService,
-                private reportDefinitionService: ReportDefinitionService,
-                private companySettingsService: CompanySettingsService,
-                private toastService: ToastService,
-                private userService: UserService,
-                private numberFormat: NumberFormat,
-                private router: Router,
-                private route: ActivatedRoute,
-                private tabService: TabService,
-                private tradeItemHelper: TradeItemHelper,
-                private errorService: ErrorService,
-                private currencyCodeService: CurrencyCodeService,
-                private currencyService: CurrencyService,
-                private reportService: ReportService,
-                private tofHelper: TofHelper,
-                private projectService: ProjectService){
-    }
+    constructor(
+        private customerService: CustomerService,
+        private customerQuoteService: CustomerQuoteService,
+        private customerQuoteItemService: CustomerQuoteItemService,
+        private reportDefinitionService: ReportDefinitionService,
+        private companySettingsService: CompanySettingsService,
+        private toastService: ToastService,
+        private userService: UserService,
+        private numberFormat: NumberFormat,
+        private router: Router,
+        private route: ActivatedRoute,
+        private tabService: TabService,
+        private tradeItemHelper: TradeItemHelper,
+        private errorService: ErrorService,
+        private currencyCodeService: CurrencyCodeService,
+        private currencyService: CurrencyService,
+        private reportService: ReportService,
+        private tofHelper: TofHelper,
+        private projectService: ProjectService,
+        private modalService: UniModalService
+    ){}
 
     public ngOnInit() {
         this.setSums();
@@ -227,34 +226,20 @@ export class QuoteDetails {
         }
     }
 
-    public canDeactivate(): boolean|Promise<boolean> {
+    public canDeactivate(): boolean | Observable<boolean> {
         if (!this.isDirty) {
             return true;
         }
 
-        return this.confirmModal.confirm(
-            'Ønsker du å lagre tilbudet før du fortsetter?',
-            'Ulagrede endringer',
-            true
-        ).then((action) => {
-            if (action === ConfirmActions.ACCEPT) {
-                if (!this.quote.StatusCode) {
-                    this.quote.StatusCode = StatusCode.Draft;
+        return this.modalService.openUnsavedChangesModal()
+            .onClose
+            .map(canDeactivate => {
+                if (!canDeactivate) {
+                    this.setTabTitle();
                 }
-                return this.saveQuote().then(res => {
-                    this.isDirty = false;
-                    return true;
-                }).catch(error => {
-                    this.handleSaveError(error, null);
-                    return false;
-                });
-            } else if (action === ConfirmActions.REJECT) {
-                return true;
-            } else {
-                this.setTabTitle();
-                return false;
-            }
-        });
+
+                return canDeactivate;
+            });
     }
 
     private refreshQuote(quote?: CustomerQuote) {
@@ -376,16 +361,21 @@ export class QuoteDetails {
                         if (askUserWhatToDo) {
                             let baseCurrencyCode = this.getCurrencyCode(this.companySettings.BaseCurrencyCodeID);
 
-                            this.confirmModal.confirm(
-                                `Endringen førte til at en ny valutakurs ble hentet. Du har overstyrt en eller flere priser, ` +
-                                `og dette fører derfor til at totalsum eks. mva ` +
-                                `for ${baseCurrencyCode} endres med ${diffBaseCurrencyPercent}% ` +
-                                `til ${baseCurrencyCode} ${this.numberFormat.asMoney(newTotalExVatBaseCurrency)}.\n\n` +
-                                `Vil du heller rekalkulere valutaprisene basert på ny kurs og standardprisen på varene?`,
-                                'Rekalkulere valutapriser for varer?',
-                                false,
-                                {accept: 'Ikke rekalkuler valutapriser', reject: 'Rekalkuler valutapriser'}
-                            ).then((response: ConfirmActions) => {
+                            const modalMessage = 'Endringen førte til at en ny valutakurs ble hentet. '
+                                + 'Du har overstyrt en eller flere priser, '
+                                + 'og dette fører derfor til at totalsum eks. mva '
+                                + `for ${baseCurrencyCode} endres med ${diffBaseCurrencyPercent}% `
+                                + `til ${baseCurrencyCode} ${this.numberFormat.asMoney(newTotalExVatBaseCurrency)}.\n\n`
+                                + `Vil du heller rekalkulere valutaprisene basert på ny kurs og standardprisen på varene?`;
+
+                            this.modalService.confirm({
+                                header: 'Rekalkulere valutapriser for varer?',
+                                message: modalMessage,
+                                buttonLabels: {
+                                    accept: 'Ikke rekalkuler valutapriser',
+                                    reject: 'Rekalkuler valutapriser'
+                                }
+                            }).onClose.subscribe(response => {
                                 if (response === ConfirmActions.ACCEPT) {
                                     // we need to calculate the base currency amount numbers if we are going
                                     // to keep the currency amounts - if not the data will be out of sync
@@ -411,6 +401,7 @@ export class QuoteDetails {
                                 // update the model
                                 this.quote = _.cloneDeep(quote);
                             });
+
                         } else if (this.quoteItems && this.quoteItems.length > 0) {
                             // the currencyrate has changed, but not so much that we had to ask the user what to do,
                             // so just make an assumption what to do; recalculated based on set price if user
@@ -622,7 +613,7 @@ export class QuoteDetails {
     private handleSaveError(error, donehandler) {
         if (typeof(error) === 'string') {
             if (donehandler) {
-                donehandler('Lagring avbrutt ' + error);
+                donehandler('Lagring avbrutt. ' + error);
             }
         } else {
             if (donehandler) {
@@ -767,12 +758,17 @@ export class QuoteDetails {
             if (this.quote.CurrencyCodeID !== this.companySettings.BaseCurrencyCodeID) {
                 let linesWithVat = this.quote.Items.filter(x => x.SumVatCurrency > 0);
                 if (linesWithVat.length > 0) {
-                    this.confirmModal.confirm(
-                        `Er du sikker på at du vil registrere linjer med MVA når det er brukt ${this.getCurrencyCode(this.quote.CurrencyCodeID)} som valuta?`,
-                        'Vennligst bekreft',
-                        false,
-                        {accept: 'Ja, jeg vil lagre med MVA', reject: 'Avbryt lagring'}
-                    ).then(response => {
+                    const modalMessage = 'Er du sikker på at du vil registrere linjer med MVA når det er brukt '
+                        + `${this.getCurrencyCode(this.quote.CurrencyCodeID)} som valuta?`;
+
+                    this.modalService.confirm({
+                        header: 'Vennligst bekreft',
+                        message: modalMessage,
+                        buttonLabels: {
+                            accept: 'Ja, lagre med MVA',
+                            cancel: 'Avbryt'
+                        }
+                    }).onClose.subscribe(response => {
                         if (response === ConfirmActions.ACCEPT) {
                             request.subscribe(res => resolve(res), err => reject(err));
                         } else {

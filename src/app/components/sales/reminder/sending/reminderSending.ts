@@ -8,7 +8,7 @@ import {IUniSaveAction} from '../../../../../framework/save/save';
 import {Observable} from 'rxjs/Observable';
 import {LocalDate, CustomerInvoiceReminder} from '../../../../unientities';
 import {FieldType} from '../../../../../framework/ui/uniform/index';
-import {UniConfirmModal, ConfirmActions} from '../../../../../framework/modals/confirm';
+import {UniModalService, ConfirmActions} from '../../../../../framework/uniModal/barrel';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {
     StatisticsService,
@@ -36,7 +36,6 @@ export class ReminderSending implements OnInit {
     @Input() public modalMode: boolean;
     @ViewChildren(UniTable) private tables: QueryList<UniTable>;
     @ViewChild(PreviewModal) public previewModal: PreviewModal;
-    @ViewChild(UniConfirmModal) private confirmModal: UniConfirmModal;
 
     private remindersEmail: any;
     private remindersPrint: any;
@@ -92,9 +91,9 @@ export class ReminderSending implements OnInit {
         private reminderService: CustomerInvoiceReminderService,
         private reportDefinitionService: ReportDefinitionService,
         private numberFormat: NumberFormat,
-        private reportService: ReportService
-    ) {
-    }
+        private reportService: ReportService,
+        private modalService: UniModalService
+    ) {}
 
     public ngOnInit() {
         this.loadLastRunNumber();
@@ -160,7 +159,7 @@ export class ReminderSending implements OnInit {
     }
 
     private deleteReminders(done) {
-        var selected = this.getSelected();
+        let selected = this.getSelected();
         if (selected.length === 0) {
             this.toastService.addToast(
                 'Ingen purringer er valgt',
@@ -168,39 +167,42 @@ export class ReminderSending implements OnInit {
                 10,
                 'Vennligst velg hvilke purringer du vil slette, eller kryss av for alle'
             );
-            done('Ingen purringer ble slettet!')
+
+            done('Ingen purringer slettet');
             return;
         }
 
-        this.confirmModal.confirm(
-            `Er du sikker på at du vil slette valgte purringer?`,
-                    'Vennligst bekreft',
-                    false,
-                    { accept: 'Ja, jeg vil slette purringene', reject: 'Avbryt sletting' }
-                ).then(response => {
-                    if (response === ConfirmActions.ACCEPT) {
-                    let requests = [];
-                    selected.forEach(x => {
-                        requests.push(this.reminderService.Remove(x.ID, x));
-                    });
-                    Observable.forkJoin(requests)
-                        .subscribe(resp => {
-                            this.toastService.addToast('Purringer slettet', ToastType.good, 5);
-                            done('Purringene ble slettet');
+        this.modalService.confirm({
+            header: 'Bekreft sletting',
+            message: 'Vennligst bekreft sletting av valgte purringer',
+            buttonLabels: {
+                accept: 'Slett',
+                cancel: 'Avbryt'
+            }
+        }).onClose.subscribe(response => {
+            if (response === ConfirmActions.ACCEPT) {
+                let requests = [];
+                selected.forEach(x => {
+                    requests.push(this.reminderService.Remove(x.ID, x));
+                });
 
-                            // refresh data after save
-                            this.loadRunNumber(this.currentRunNumber);
+                Observable.forkJoin(requests).subscribe(
+                    res => {
+                        this.toastService.addToast('Purringer slettet', ToastType.good, 5);
+                        done('Purringer slettet');
 
-                        }, (err) => {
-                            done('Feil ved sletting av purringer');
-                            this.loadRunNumber(this.currentRunNumber);
-                            this.errorService.handle(err);
-                        });
-                    } else {
-                        done('Sletting ble avbrutt!');
+                        this.loadRunNumber(this.currentRunNumber);
+                    },
+                    err => {
+                        done('Feil ved sletting av purringer');
+                        this.loadRunNumber(this.currentRunNumber);
+                        this.errorService.handle(err);
                     }
-            });
-        return;
+                );
+            } else {
+                done('Sletting ble avbrutt');
+            }
+        });
     }
 
     private sendReminders(done, printonly) {
@@ -333,18 +335,21 @@ export class ReminderSending implements OnInit {
     }
 
     public getSelected() {
-        var emails = this.tables.toArray()[0].getSelectedRows();
-        var print = this.tables.toArray()[1].getSelectedRows();
+        const tables = this.tables.toArray();
+        let emails = tables[0] && tables[0].getSelectedRows() || [];
+        let print = tables[1] && tables[1].getSelectedRows() || [];
 
         return emails.concat(print);
     }
 
     public getSelectedEmail() {
-        return this.tables.toArray()[0].getSelectedRows();
+        const tables = this.tables.toArray();
+        return tables[0] && tables[0].getSelectedRows() || [];
     }
 
     public getSelectedPrint() {
-        return this.tables.toArray()[1].getSelectedRows();
+        const tables = this.tables.toArray();
+        return tables[1] && tables[1].getSelectedRows() || [];
     }
 
     public sendEmail() {

@@ -8,13 +8,17 @@ import {
     EventEmitter,
     Type
 } from '@angular/core';
-import {UniUnsavedChangesModal} from './barrel';
+import {
+    UniUnsavedChangesModal,
+    UniConfirmModalV2
+} from './barrel';
 
 export interface IModalOptions {
     data?: any;
     class?: string;
     header?: string;
     message?: string;
+    warning?: string;
     closeOnClickOutside?: boolean;
     buttonLabels?: {
         accept?: string;
@@ -53,6 +57,11 @@ export class UniModalService {
         return componentRef.instance;
     }
 
+    public confirm(options: IModalOptions) {
+        const componentRef = this.createModal(UniConfirmModalV2, options);
+        return componentRef.instance;
+    }
+
     public close(componentRef: ComponentRef<IUniModal>): void {
         let index = this.openModalRefs.findIndex(ref => ref === componentRef);
         componentRef.destroy();
@@ -67,7 +76,7 @@ export class UniModalService {
     }
 
     private createModal(modal: Type<IUniModal>, options: IModalOptions): ComponentRef<IUniModal> {
-        let componentRef = this.compileModal(modal, options);
+        let componentRef = this.compileModal(modal, options || {});
         let componentRootNode = (componentRef.hostView as EmbeddedViewRef<any>)
             .rootNodes[0] as HTMLElement;
 

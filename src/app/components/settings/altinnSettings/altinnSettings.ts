@@ -1,11 +1,11 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { IUniSaveAction } from '../../../../framework/save/save';
 import { Altinn } from '../../../unientities';
 import { Observable } from 'rxjs/Observable';
 import { UniFieldLayout } from '../../../../framework/ui/uniform/index';
 import { ErrorService, IntegrationServerCaller, AltinnIntegrationService } from '../../../services/services';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
-import { UniConfirmModal, ConfirmActions } from '../../../../framework/modals/confirm';
+import { UniModalService } from '../../../../framework/uniModal/barrel';
 
 @Component({
     selector: 'altinn-settings',
@@ -13,8 +13,6 @@ import { UniConfirmModal, ConfirmActions } from '../../../../framework/modals/co
 
 })
 export class AltinnSettings implements OnInit {
-    @ViewChild(UniConfirmModal) private confirmModal: UniConfirmModal;
-
     private formConfig$: BehaviorSubject<any>= new BehaviorSubject({});
     private fields$: BehaviorSubject<UniFieldLayout[]> = new BehaviorSubject([]);
     private altinn$: BehaviorSubject<Altinn> = new BehaviorSubject(null);
@@ -29,40 +27,26 @@ export class AltinnSettings implements OnInit {
         }
     ];
 
-    public loginErr: string;
+    public loginErr: string = '';
     public isDirty: boolean = false;
 
     constructor(
         private _altinnService: AltinnIntegrationService,
         private integrate: IntegrationServerCaller,
-        private errorService: ErrorService
-    ) {
-        this.loginErr = '';
-    }
+        private errorService: ErrorService,
+        private modalService: UniModalService
+    ) {}
 
     public ngOnInit() {
         this.getData();
     }
 
-    public canDeactivate(): boolean|Promise<boolean> {
+    public canDeactivate(): boolean | Observable<boolean> {
         if (!this.isDirty) {
            return true;
         }
 
-        return new Promise<boolean>((resolve, reject) => {
-            this.confirmModal.confirm(
-                'Du har endringer som ikke er lagret - disse vil forkastes hvis du fortsetter?',
-                'Vennligst bekreft',
-                false,
-                {accept: 'Fortsett uten å lagre', reject: 'Avbryt'}
-            ).then((confirmDialogResponse) => {
-               if (confirmDialogResponse === ConfirmActions.ACCEPT) {
-                    resolve(true);
-               } else {
-                    resolve(false);
-                }
-            });
-        });
+        return this.modalService.openUnsavedChangesModal().onClose;
     }
 
     public change(event) {

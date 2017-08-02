@@ -1,9 +1,13 @@
 import {Component, OnInit, ViewChild} from '@angular/core';
 import {ErrorService, JobService, FileService} from '../../../../services/services';
 import {Http, Headers} from '@angular/http';
-import {UniConfirmModal, ConfirmActions} from '../../../../../framework/modals/confirm';
 import {AuthService} from '../../../../../framework/core/authService';
 import {TimerObservable} from 'rxjs/observable/TimerObservable';
+import {
+    UniModalService,
+    ConfirmActions
+} from '../../../../../framework/uniModal/barrel';
+
 import * as moment from 'moment';
 
 const JOBNAME: string = 'ImportSaft';
@@ -14,8 +18,9 @@ const COMPLETEMESSAGE: string = 'Import completed';
     templateUrl: './view.html'
 })
 export class SaftExportView implements OnInit {
-    @ViewChild('fileInput') private fileInput: any;
-    @ViewChild(UniConfirmModal) private confirmModal: UniConfirmModal;
+    @ViewChild('fileInput')
+    private fileInput: any;
+
     private busy: boolean = false;
     private busyFetch: boolean = false;
     private files: Array<ISaftFileInfo> = [];
@@ -29,11 +34,12 @@ export class SaftExportView implements OnInit {
         private jobService: JobService,
         private fileService: FileService,
         private ngHttp: Http,
-        authService: AuthService
-        ) {        
-            authService.authentication$.subscribe((authDetails) => {
-                this.activeCompany = authDetails.activeCompany.Key;
-            });
+        private authService: AuthService,
+        private modalService: UniModalService
+    ) {
+        this.authService.authentication$.subscribe((authDetails) => {
+            this.activeCompany = authDetails.activeCompany.Key;
+        });
     }
 
     public ngOnInit() {
@@ -61,43 +67,57 @@ export class SaftExportView implements OnInit {
     }
 
     public onJobStart(file: ISaftFileInfo) {
-        this.confirmModal.confirm(`Starte SAF-T import av ${file.FileName}?`, 'SAF-T IMPORT'
-        , true, { accept: 'Importer med IB', reject: 'Importer uten IB', cancel: 'Avbryt',
-            warning: 'PS! Du kan lese inn filen flere ganger dersom det skulle oppstå problemer.'})
-            .then( (action: ConfirmActions) => {
-                if (action === ConfirmActions.REJECT || action === ConfirmActions.ACCEPT) {
-                    file.busy = true;
-                    this.currentFileId = file.FileID;
+        this.modalService.confirm({
+            header: 'SAF-T IMPORT',
+            message: `Starte SAF-T import av ${file.FileName}?`,
+            buttonLabels: {
+                accept: 'Importer med IB',
+                reject: 'Importer uten IB',
+                cancel: 'Avbryt'
+            },
+            warning: 'PS! Du kan lese inn filen flere ganger dersom det skulle oppstå problemer'
+        }).onClose.subscribe(response => {
+            if (response === ConfirmActions.CANCEL) {
+                return;
+            }
 
-                    var details = { FileID: file.FileID,
-                        FileName: file.FileName,
-                        CompanyKey: this.activeCompany,
-                        IncludeStartingBalance: action === ConfirmActions.ACCEPT
-                    };
+            file.busy = true;
+            this.currentFileId = file.FileID;
+            const details = {
+                FileID: file.FileID,
+                FileName: file.FileName,
+                CompanyKey: this.activeCompany,
+                IncludeStartingBalance: response === ConfirmActions.ACCEPT
+            };
 
-                    this.jobService.startJob(JOBNAME, undefined, details)
-                        .finally( () => file.busy = false )
-                        .subscribe( (run: number) => {
-                            this.fileService.tag(file.FileID, 'jobid', run)
-                                .subscribe( () => this.refresh() );
-                        });
-                    
-                }
-            }).catch( err => this.errorService.handle(err) );
+            this.jobService.startJob(JOBNAME, undefined, details)
+                .finally(() => file.busy = false)
+                .subscribe((jobID: number) => {
+                    this.fileService.tag(file.FileID, 'jobid', jobID)
+                        .subscribe(() => this.refresh());
+                });
+        });
     }
 
     public onFileDeleteClick(file: ISaftFileInfo) {
-        this.confirmModal.confirm(`Ønsker du virkelig å slette filen ${file.FileName}?`, 'Slette fil?')
-            .then( (action: ConfirmActions) => {
-                if (action === ConfirmActions.ACCEPT) {
-                    file.busy = true;
-                    this.fileService.delete(file.FileID)
-                        .finally( () => file.busy = false )
-                        .subscribe( () => {
-                            this.removeFile(file.FileID);
-                        });
-                }
-            }).catch( err => this.errorService.handle(err) );
+        this.modalService.confirm({
+            header: 'Bekreft sletting av fil',
+            message: `Vennligst bekreft sletting av fil ${file.FileName}`,
+            buttonLabels: {
+                accept: 'Slett',
+                cancel: 'Avbryt'
+            }
+        }).onClose.subscribe(response => {
+            if (response === ConfirmActions.ACCEPT) {
+                file.busy = true;
+                this.fileService.delete(file.FileID)
+                    .finally(() => file.busy = false)
+                    .subscribe(
+                        () => this.removeFile(file.FileID),
+                        err => this.errorService.handle(err)
+                    );
+            }
+        });
     }
 
     private removeFile(fileId: number) {
@@ -181,9 +201,9 @@ export class SaftExportView implements OnInit {
                     this.currentFileId = x.ID;
                     this.fileService.PostAction(x.ID, 'finalize')
                     .finally( () => this.busy = false )
-                    .subscribe( result => 
-                        this.refresh() 
-                    );                
+                    .subscribe( result =>
+                        this.refresh()
+                    );
                 });
             });
 
@@ -198,7 +218,7 @@ export class SaftExportView implements OnInit {
                     this.fileService.tag(result.ID, 'SAFT', 1).subscribe();
                     resolve(result);
                 }
-                , err => { this.busy = false; this.errorService.handle(err); } );        
+                , err => { this.busy = false; this.errorService.handle(err); } );
         });
     }
 

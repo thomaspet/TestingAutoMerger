@@ -11,7 +11,6 @@ import {ISummaryConfig} from '../../../common/summary/summary';
 import {Observable} from 'rxjs/Observable';
 import {ToastService, ToastType, ToastTime} from '../../../../../framework/uniToast/toastService';
 import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig} from '../../../../../framework/ui/unitable/index';
-import {UniConfirmModal, ConfirmActions} from '../../../../../framework/modals/confirm';
 import {
     JournalEntrySettings,
     NumberFormat,
@@ -23,6 +22,12 @@ import {
     JournalEntryLineService,
     NumberSeriesTaskService
 } from '../../../../services/services';
+
+import {
+    UniModalService,
+    UniConfirmModalV2,
+    ConfirmActions
+} from '../../../../../framework/uniModal/barrel';
 
 export enum JournalEntryMode {
     Manual,
@@ -45,7 +50,6 @@ export class JournalEntryManual implements OnChanges, OnInit {
     @Output() public dataCleared: EventEmitter<any> = new EventEmitter<any>();
     @Output() public componentInitialized: EventEmitter<any> = new EventEmitter<any>();
 
-    @ViewChild(UniConfirmModal) private confirmModal: UniConfirmModal;
     @ViewChild(UniTable) private openPostsTable: UniTable;
     @ViewChild(JournalEntryProfessional) private journalEntryProfessional: JournalEntryProfessional;
 
@@ -87,10 +91,9 @@ export class JournalEntryManual implements OnChanges, OnInit {
         private vatDeductionService: VatDeductionService,
         private companySettingsService: CompanySettingsService,
         private journalEntryLineService: JournalEntryLineService,
-        private numberSeriesTaskService: NumberSeriesTaskService
-
-    ) {
-    }
+        private numberSeriesTaskService: NumberSeriesTaskService,
+        private modalService: UniModalService
+    ) {}
 
     public ngOnInit() {
         this.journalEntrySettings = this.journalEntryService.getJournalEntrySettings(this.mode);
@@ -585,47 +588,48 @@ export class JournalEntryManual implements OnChanges, OnInit {
         */
     }
 
+    private canPostData(): Observable<boolean> {
+        let hasError, hasWarning;
+        let validationMessages = this.validationResult && this.validationResult.Messages;
+        if (validationMessages.length) {
+            hasError = validationMessages.some(msg => msg.Level === ValidationLevel.Error);
+            hasWarning = validationMessages.some(msg => msg.Level === ValidationLevel.Warning);
+        }
+
+        if (hasError) {
+            this.toastService.addToast(
+                'Lagring avbrutt',
+                ToastType.bad,
+                ToastTime.long,
+                'Se feilmeldinger under, og korriger linjene som er feil før du lagrer på ny'
+            );
+
+            return Observable.of(false);
+        }
+
+        if (hasWarning) {
+            return this.modalService.open(UniConfirmModalV2, {
+                header: 'Bekreft bokføring med advasler',
+                message: 'Det finnes advarsler, men du kan likevel bokføre dersom dataene er riktige',
+                buttonLabels: {
+                    accept: 'Lagre og bokfør',
+                    cancel: 'Avbryt'
+                }
+            }).onClose.map(response => {
+                return response === ConfirmActions.ACCEPT;
+            });
+        }
+
+        return Observable.of(true);
+    }
+
     private postJournalEntryData(completeCallback) {
         // allow events from UniTable to finish, e.g. if the focus was in a cell
         // when the user clicked the save button the unitable events should be allowed
         // to run first, to let it update its' datasource
         setTimeout(() => {
-            new Promise((resolve, reject) => {
-                if (this.validationResult && this.validationResult.Messages.length > 0) {
-                    let errorMessages = this.validationResult.Messages.filter(x => x.Level === ValidationLevel.Error);
-                    let warningMessages = this.validationResult.Messages.filter(x => x.Level === ValidationLevel.Warning);
-
-                    if (errorMessages.length > 0) {
-                        this.toastService.addToast(
-                            'Kan ikke lagre',
-                            ToastType.bad,
-                            ToastTime.long,
-                            'Lagring avbrutt - se feilmeldinger under, og korriger linjene som er feil før du lagrer på ny'
-                        );
-                        completeCallback('Lagring avbrutt');
-                    } else if (warningMessages.length > 0) {
-                        this.confirmModal.confirm(
-                            'Det finnes advarsler, men du kan bokføre likevel hvis dataene dine er riktige',
-                            'Lagre og bokfør likevel?',
-                            false,
-                            {accept: 'Lagre og bokfør', reject: 'Avbryt'}
-                        ).then(confirmDialogResponse => {
-                            if (confirmDialogResponse === ConfirmActions.ACCEPT) {
-                                resolve();
-                            } else {
-                                completeCallback('Lagring avbrutt');
-                            }
-                        });
-                    } else {
-                        resolve();
-                    }
-                } else {
-                    resolve();
-                }
-            })
-            .then(() => {
-                if (this.journalEntryProfessional) {
-
+            this.canPostData().subscribe(canPost => {
+                if (canPost && this.journalEntryProfessional) {
                     this.journalEntryProfessional.postJournalEntryData((result: string) => {
                         completeCallback(result);
 
@@ -637,6 +641,8 @@ export class JournalEntryManual implements OnChanges, OnInit {
                     });
 
                     this.onShowImageForJournalEntry(null);
+                } else {
+                    completeCallback('Lagring avbrutt');
                 }
             });
         });

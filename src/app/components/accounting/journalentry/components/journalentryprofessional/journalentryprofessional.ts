@@ -50,16 +50,13 @@ import {
     NumberFormat,
     PredefinedDescriptionService
 } from '../../../../../services/services';
-// TODO: Replace
-import {
-    UniConfirmModal,
-    ConfirmActions
-} from '../../../../../../framework/modals/confirm';
+
 import {
     UniModalService,
-    UniRegisterPaymentModal
+    UniRegisterPaymentModal,
+    UniConfirmModalV2,
+    ConfirmActions
 } from '../../../../../../framework/uniModal/barrel';
-
 
 import * as moment from 'moment';
 import {CurrencyCodeService} from '../../../../../services/common/currencyCodeService';
@@ -91,7 +88,6 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
     @ViewChild(AccrualModal) private accrualModal: AccrualModal;
     @ViewChild(NewAccountModal) private newAccountModal: NewAccountModal;
     @ViewChild(AddPaymentModal) private addPaymentModal: AddPaymentModal;
-    @ViewChild(UniConfirmModal) private confirmModal: UniConfirmModal;
     @ViewChild(SelectJournalEntryLineModal) private selectJournalEntryLineModal: SelectJournalEntryLineModal;
 
     private companySettings: CompanySettings;
@@ -1551,18 +1547,18 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
     }
 
     private deleteLine(line) {
-        this.confirmModal.confirm(
-            'Er du sikker på at du vil slette linjen?',
-            'Bekreft sletting',
-            false,
-            {accept: 'Slett linjen', reject: 'Avbryt'}
-        )
-        .then((response: ConfirmActions) => {
+        this.modalService.open(UniConfirmModalV2, {
+            header: 'Bekreft sletting',
+            message: 'Er du sikker på at du vil slette linjen?',
+            buttonLabels: {
+                accept: 'Slett',
+                cancel: 'Avbryt'
+            }
+        }).onClose.subscribe(response => {
             if (response === ConfirmActions.ACCEPT) {
                 this.table.removeRow(line._originalIndex);
-
                 setTimeout(() => {
-                    var tableData = this.table.getTableData();
+                    const tableData = this.table.getTableData();
                     this.dataChanged.emit(tableData);
                 });
             }
@@ -1929,22 +1925,19 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
     }
 
     public removeJournalEntryData(completeCallback, isDirty) {
-        if (isDirty) {
-            this.confirmModal.confirm(
-                'Er du sikker på at du vil forkaste alle endringene dine?',
-                'Forkaste endringer?',
-                false,
-                {accept: 'Forkast endringer', reject: 'Avbryt'})
-            .then((response: ConfirmActions) => {
-                if (response === ConfirmActions.ACCEPT) {
-                    this.clearListInternal(completeCallback);
-                } else {
-                    completeCallback(null);
-                }
-            });
-        } else {
+        if (!isDirty) {
             this.clearListInternal(completeCallback);
+            return;
         }
+
+        const modal = this.modalService.openUnsavedChangesModal();
+        modal.onClose.subscribe(canRemove => {
+            if (canRemove) {
+                this.clearListInternal(completeCallback);
+            } else {
+                completeCallback(null);
+            }
+        });
     }
 
     private clearListInternal(completeCallback: (msg: string) => void) {

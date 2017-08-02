@@ -14,7 +14,7 @@ import {
 } from '../../../unientities';
 import { Observable } from 'rxjs/Observable';
 import { ReplaySubject } from 'rxjs/ReplaySubject';
-import { UniConfirmModal, ConfirmActions } from '../../../../framework/modals/confirm';
+import { UniModalService } from '../../../../framework/uniModal/barrel';
 
 type HashMap<T> = {
     [key: string]: T;
@@ -24,6 +24,8 @@ type HashMap<T> = {
     templateUrl: './salaryTransactionSupplementsList.html'
 })
 export class SalaryTransactionSupplementList implements OnInit {
+    @ViewChild(UniTable)
+    private table: UniTable;
 
     private model$: Observable<SalaryTransactionSupplement[]>;
     private tableConfig$: ReplaySubject<UniTableConfig>;
@@ -34,11 +36,11 @@ export class SalaryTransactionSupplementList implements OnInit {
         label: 'Lagre',
         main: true
     }];
+
     private toolbarConfig: IToolbarConfig = {
         title: 'Tilleggsopplysninger'
-    }
-    @ViewChild(UniTable) private table: UniTable;
-    @ViewChild(UniConfirmModal) private confirmModal: UniConfirmModal;
+    };
+
     constructor(
         private payrollRunService: PayrollrunService,
         private salaryTransactionService: SalaryTransactionService,
@@ -47,7 +49,9 @@ export class SalaryTransactionSupplementList implements OnInit {
         private yearService: YearService,
         private supplementService: SupplementService,
         private tabService: TabService,
-        private route: ActivatedRoute) {
+        private route: ActivatedRoute,
+        private modalService: UniModalService
+    ) {
         this.tableConfig$ = new ReplaySubject<UniTableConfig>(1);
         this.route.params.subscribe(params => {
             let payrollRunID = +params['runID'] || undefined;
@@ -56,7 +60,7 @@ export class SalaryTransactionSupplementList implements OnInit {
                 if((!this.model$ || !payrollRunID)){
                     this.model$ = this.getModel(payrollRunID, year);
                 }
-            });            
+            });
         });
     }
 
@@ -100,24 +104,19 @@ export class SalaryTransactionSupplementList implements OnInit {
     }
 
     public canDeactivate(): Observable<boolean> {
-        return this.transactions.some(x => x['_isDirty'])
-            ? Observable
-                .fromPromise(this.confirmModal.confirmSave())
-                .map((response: ConfirmActions) => {
-                    if (response === ConfirmActions.ACCEPT) {
-                        this.save(() => { });
-                        return true;
-                    } else {
-                        return response === ConfirmActions.REJECT;
-                    }
-                })
-                .map(canDeactivate => {
-                    if (!canDeactivate) {
-                        this.updateTabStrip();
-                    }
-                    return canDeactivate;
-                })
-            : Observable.of(true);
+        if (!this.transactions.some(trans => trans['_isDirty'])) {
+            return Observable.of(true);
+        }
+
+        return this.modalService.openUnsavedChangesModal()
+            .onClose
+            .map(canDeactivate => {
+                if (!canDeactivate) {
+                    this.updateTabStrip();
+                }
+
+                return canDeactivate;
+            });
     }
 
     private getModel(payrollRunID: number, year: number): Observable<SalaryTransactionSupplement[]> {

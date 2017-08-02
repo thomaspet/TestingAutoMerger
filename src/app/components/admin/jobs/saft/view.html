@@ -37,11 +37,9 @@
             <a href="/#/admin/job-logs/{{jobName}}/{{file.jobid || 0}}">{{file.jobStatus}}</a>
         </td>
         <td>
-            <button [disabled]="file.disabled" [attr.aria-busy]="file.busy" (click)="onJobStart(file)" class="good">Start import</button> 
+            <button [disabled]="file.disabled" [attr.aria-busy]="file.busy" (click)="onJobStart(file)" class="good">Start import</button>
             <button [disabled]="file.disabled" [attr.aria-busy]="file.busy" (click)="onFileDeleteClick(file)" class="bad">Slett</button>
         </td>
     </tr>
     </tbody>
 </table>
-
-<uni-confirm-modal></uni-confirm-modal>

@@ -14,8 +14,8 @@ import {IUniModal, IModalOptions} from '../modalService';
             </main>
 
             <footer>
-                <button (click)="close(true)" class="good">Fortsett uten å lagre</button>
-                <button (click)="close(false)" class="bad">Avbryt</button>
+                <button (click)="close(true)" class="bad">Forkast endringer</button>
+                <button (click)="close(false)" class="warning">Avbryt</button>
             </footer>
         </dialog>
     `

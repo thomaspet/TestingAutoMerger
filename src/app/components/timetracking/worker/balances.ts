@@ -7,7 +7,7 @@ import {MinutesToHoursPipe} from '../../common/utils/pipes';
 import {ChangeMap} from '../../common/utils/changeMap';
 import {safeDec, safeInt} from '../../common/utils/utils';
 import {Observable} from 'rxjs/Observable';
-import {UniConfirmModal, ConfirmActions} from '../../../../framework/modals/confirm';
+import {UniModalService, ConfirmActions} from '../../../../framework/uniModal/barrel';
 
 @Component({
     selector: 'workbalances',
@@ -20,7 +20,6 @@ export class View {
     @Output() public valueChange: EventEmitter<any> = new EventEmitter();
 
     @ViewChild(UniTable) private tableView: UniTable;
-    @ViewChild(UniConfirmModal) private confirmModal: UniConfirmModal;
 
     public currentId: number = 0;
     public relations: Array<WorkRelation>;
@@ -33,8 +32,11 @@ export class View {
 
     private changeMap: ChangeMap = new ChangeMap();
 
-    constructor(private workerService: WorkerService, private errorService: ErrorService) {
-    }
+    constructor(
+        private workerService: WorkerService,
+        private errorService: ErrorService,
+        private modalService: UniModalService
+    ) {}
 
     public activate(workerid: number, reload = false) {
         var preActivated = this.isActivated;
@@ -142,26 +144,33 @@ export class View {
 
     private checkSave(reloadAfter = false): Promise<boolean> {
         return new Promise((resolve, reject) => {
-            if (this.hasUnsavedChanges()) {
-                this.confirmModal.confirm('Lagre endringer før du fortsetter?', 'Lagre endringer', true)
-                .then( (x: ConfirmActions) => {
-                    switch (x) {
-                        case ConfirmActions.ACCEPT:
-                            this.save(reloadAfter).then(success => {
-                                resolve(true);
-                            }).catch( () =>
-                                resolve(false) );
-                            break;
-                        case ConfirmActions.REJECT:
-                            resolve(true);
-                            break;
-                        default: // CANCEL
-                            resolve(false);
-                    }
-                });
-            } else {
+            if (!this.hasUnsavedChanges()) {
                 resolve(true);
             }
+
+            this.modalService.confirm({
+                header: 'Ulagrede endringer',
+                message: 'Ønsker du å lagre endringene før vi fortsetter?',
+                buttonLabels: {
+                    accept: 'Lagre',
+                    reject: 'Forkast',
+                    cancel: 'Avbryt'
+                }
+            }).onClose.subscribe(response => {
+                switch (response) {
+                    case ConfirmActions.ACCEPT:
+                        this.save(reloadAfter)
+                            .then(success => resolve(true))
+                            .catch(() => resolve(false));
+                    break;
+                    case ConfirmActions.REJECT:
+                        resolve(true);
+                    break;
+                    default:
+                        resolve(false);
+                    break;
+                }
+            });
         });
     }
 

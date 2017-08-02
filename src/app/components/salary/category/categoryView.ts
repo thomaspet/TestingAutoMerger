@@ -8,7 +8,7 @@ import { IUniSaveAction } from '../../../../framework/save/save';
 import { IToolbarConfig } from '../../common/toolbar/toolbar';
 
 import { UniView } from '../../../../framework/core/uniView';
-import { UniConfirmModal, ConfirmActions } from '../../../../framework/modals/confirm';
+import { UniModalService } from '../../../../framework/uniModal/barrel';
 
 import { Observable } from 'rxjs/Observable';
 
@@ -27,7 +27,6 @@ export class CategoryView extends UniView {
     private toolbarConfig: IToolbarConfig;
 
     private childRoutes: any[];
-    @ViewChild(UniConfirmModal) public confirmModal: UniConfirmModal;
 
     constructor(
         private route: ActivatedRoute,
@@ -36,7 +35,8 @@ export class CategoryView extends UniView {
         private router: Router,
         private tabService: TabService,
         public cacheService: UniCacheService,
-        private errorService: ErrorService
+        private errorService: ErrorService,
+        private modalService: UniModalService
     ) {
 
         super(router.url, cacheService);
@@ -95,22 +95,20 @@ export class CategoryView extends UniView {
     }
 
     public canDeactivate(): Observable<boolean> {
-        return Observable
-            .of(!super.isDirty())
-            .switchMap(result => {
-                return result
-                    ? Observable.of(result)
-                    : Observable
-                        .fromPromise(
-                        this.confirmModal.confirm('Du har ulagrede endringer, ønsker du å forkaste disse?'))
-                        .map((response: ConfirmActions) => response === ConfirmActions.ACCEPT);
-            })
-            .map(canDeactivate => {
-                canDeactivate
-                    ? this.cacheService.clearPageCache(this.cacheKey)
-                    : this.updateTabStrip(this.categoryID, this.currentCategory);
+        if (!super.isDirty()) {
+            return Observable.of(true);
+        }
 
-                return canDeactivate;
+        return this.modalService.openUnsavedChangesModal()
+            .onClose
+            .map(allowed => {
+                if (allowed) {
+                    this.cacheService.clearPageCache(this.cacheKey);
+                } else {
+                    this.updateTabStrip(this.categoryID, this.currentCategory);
+                }
+
+                return allowed;
             });
     }
 

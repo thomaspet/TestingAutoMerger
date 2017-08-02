@@ -1,10 +1,10 @@
 // tslint:disable:max-line-length
-import {Component, ViewChild, ViewChildren, QueryList} from '@angular/core';
+import {Component, ViewChildren, QueryList} from '@angular/core';
 import {TabService} from '../../layout/navbar/tabstrip/tabService';
 import {UniHttp} from '../../../../framework/core/http/http';
 import {UniTableConfig, UniTableColumn, UniTableColumnType, UniTable} from '../../../../framework/ui/unitable/index';
 import {ErrorService, GuidService, StatisticsService, YearService, NumberSeriesService, NumberSeriesTypeService, NumberSeriesTaskService} from '../../../services/services';
-import {UniConfirmModal, ConfirmActions} from '../../../../framework/modals/confirm';
+import {UniModalService, ConfirmActions} from '../../../../framework/uniModal/barrel';
 import {Observable} from 'rxjs/Observable';
 import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
 import {IUniSaveAction} from '../../../../framework/save/save';
@@ -18,8 +18,8 @@ const MININVOICENUMBER = 100000;
     templateUrl: './numberSeries.html'
 })
 export class NumberSeries {
-    @ViewChild(UniConfirmModal) private confirmModal: UniConfirmModal;
-    @ViewChildren(UniTable) private uniTables: QueryList<UniTable>;
+    @ViewChildren(UniTable)
+    private uniTables: QueryList<UniTable>;
 
     private series: any[] = [];
     private current: any[] = [];
@@ -52,7 +52,8 @@ export class NumberSeries {
         private toastService: ToastService,
         private numberSeriesService: NumberSeriesService,
         private numberSeriesTypeService: NumberSeriesTypeService,
-        private numberSeriesTaskService: NumberSeriesTaskService
+        private numberSeriesTaskService: NumberSeriesTaskService,
+        private modalService: UniModalService
     ) {
         this.series = this.numberSeriesService.series;
         this.initTableConfigs();
@@ -153,37 +154,42 @@ export class NumberSeries {
         });
     }
 
-    private checkSave(ask: boolean): Promise<boolean> {
-        return new Promise( (resolve, reject) => {
-
-            // todo: remove timer when uniform has solutions for completing current edit
+    private checkSave(confirmBeforeSave: boolean): Promise<boolean> {
+        return new Promise((resolve, reject) => {
+            // Allow changes to reach the component
             setTimeout(() => {
                 if (!this.hasUnsavedChanges) {
                     resolve(true);
                     return;
                 }
-                if (ask) {
-                    this.confirmModal.confirm('Lagre endringer før du fortsetter?', 'Lagre endringer?', true)
-                    .then( (userChoice: ConfirmActions) => {
-                        switch (userChoice) {
+
+                if (confirmBeforeSave) {
+                    this.modalService.confirm({
+                        header: 'Lagre endringer?',
+                        message: 'Ønsker du å lagre endringene før vi fortsetter?',
+                        buttonLabels: {
+                            accept: 'Lagre',
+                            reject: 'Forkast',
+                            cancel: 'Avbryt'
+                        }
+                    }).onClose.subscribe(response => {
+                        switch (response) {
                             case ConfirmActions.ACCEPT:
                                 this.Save().then(saveResult => resolve(saveResult));
-                                break;
-
-                            case ConfirmActions.CANCEL:
-                                resolve(false);
-                                break;
-
-                            default:
+                            break;
+                            case ConfirmActions.REJECT:
                                 resolve(true);
-                                break;
+                            break;
+                            default:
+                                resolve(false);
+                            break;
                         }
                     });
+
                 } else {
                     this.Save().then(x => resolve(x));
                 }
-
-            }, 50);
+            });
         });
     }
 
@@ -225,32 +231,30 @@ export class NumberSeries {
             }
 
             if (row._AsInvoiceNumber.ID && (row.UseNumbersFromNumberSeriesID === null || row.UseNumbersFromNumberSeriesID == 0)) {
-                this.confirmModal.confirm('Helt sikker på at du vil gjøre dette? Endring kan ikke omgjøres etter lagring.', 'Helt sikker?', true)
-                .then( (userChoice: ConfirmActions) => {
-                switch (userChoice) {
-                    case ConfirmActions.ACCEPT:
+                this.modalService.confirm({
+                    header: 'Vennligst bekreft',
+                    message: 'Vennligst bekreft operasjon. Endring kan ikke omgjøres etter lagring'
+                }).onClose.subscribe(response => {
+                    if (response === ConfirmActions.ACCEPT) {
                         row.UseNumbersFromNumberSeriesID = this.asinvoicenumberserie;
                         row.NumberSeriesType = this.types.find(x => x.Name == 'JournalEntry number series type NOT yearly');
-                        row.NumberSeriesTypeID = row.NumberSeriesType ? row.NumberSeriesType.ID : 0;
                         row.AccountYear = 0;
 
                         row.FromNumber = MININVOICENUMBER;
                         row.NextNumber = MININVOICENUMBER;
                         row.ToNumber = MAXNUMBER;
-
-                        this.current[index] = row;
-                        this.current  = _.cloneDeep(this.current);
-                        break;
-                    default:
+                    } else {
                         row.UseNumbersFromNumberSerieID = null;
                         row.NumberSeriesType = this.types.find(x => x.Name == 'JournalEntry number series type yearly');
-                        row.NumberSeriesTypeID = row.NumberSeriesType ? row.NumberSeriesType.ID : 0;
-                        row._AsInvoiceNumber = this.numberSeriesService.asinvoicenumber.find(x => !x.ID);
 
-                        this.current[index] = row;
-                        this.current = _.cloneDeep(this.current);
-                        break;
-                }});
+                        row._AsInvoiceNumber = this.numberSeriesService.asinvoicenumber.find(x => !x.ID);
+                    }
+
+                    row.NumberSeriesTypeID = row.NumberSeriesType ? row.NumberSeriesType.ID : 0;
+                    this.current[index] = row;
+                    this.current = _.cloneDeep(this.current);
+                });
+
             } else {
                 row.NumberSeriesType = this.types.find(x => x.Name == (row._Yearly && row._Yearly.ID ? 'JournalEntry number series type yearly' : 'JournalEntry number series type NOT yearly'));
                 row.NumberSeriesTypeID = row.NumberSeriesType ? row.NumberSeriesType.ID : 0;

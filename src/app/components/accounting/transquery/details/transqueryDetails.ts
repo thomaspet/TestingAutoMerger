@@ -10,7 +10,6 @@ import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService
 import {ToastService, ToastType} from '../../../../../framework/uniToast/toastService';
 import {ImageModal} from '../../../common/modals/ImageModal';
 import {ISummaryConfig} from '../../../common/summary/summary';
-import {UniConfirmModal, ConfirmActions} from '../../../../../framework/modals/confirm';
 import {
     JournalEntryLineService,
     JournalEntryService,
@@ -21,6 +20,12 @@ import {
     FinancialYearService,
     BrowserStorageService
 } from '../../../../services/services';
+
+import {
+    UniModalService,
+    ConfirmActions
+} from '../../../../../framework/uniModal/barrel';
+
 import {FieldType} from '../../../../../framework/ui/uniform/index';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 
@@ -38,9 +43,11 @@ interface SearchParams {
     templateUrl: './transqueryDetails.html',
 })
 export class TransqueryDetails implements OnInit {
-    @ViewChild(UniConfirmModal) private confirmModal: UniConfirmModal;
-    @ViewChild(UniTable) private table: UniTable;
-    @ViewChild(ImageModal) private imageModal: ImageModal;
+    @ViewChild(UniTable)
+    private table: UniTable;
+
+    @ViewChild(ImageModal)
+    private imageModal: ImageModal;
 
     private summaryData: TransqueryDetailsCalculationsSummary;
     private uniTableConfig: UniTableConfig;
@@ -75,7 +82,8 @@ export class TransqueryDetails implements OnInit {
         private accountService: AccountService,
         private financialYearService: FinancialYearService,
         private storageService: BrowserStorageService,
-        private router: Router
+        private router: Router,
+        private modalService: UniModalService
     ) {
         this.tabService.addTab({
             'name': 'Forespørsel bilag',
@@ -355,14 +363,23 @@ export class TransqueryDetails implements OnInit {
     }
 
     private creditJournalEntry(journalEntryNumber: string) {
-        this.confirmModal.confirm('Vil du kreditere hele dette bilaget?', `Kreditere bilag ${journalEntryNumber}?`, false, { accept: 'Krediter', reject: 'Avbryt'}, ).then( (userChoice: ConfirmActions) => {
-            if (userChoice === ConfirmActions.ACCEPT) {
-                this.journalEntryService.creditJournalEntry(journalEntryNumber)
-                    .subscribe((res) => {
+        const modal = this.modalService.confirm({
+            header: 'Bekreft kreditering',
+            message: `Vennligst bekreft kreditering av hele bilag ${journalEntryNumber}`,
+            buttonLabels: {
+                accept: 'Krediter',
+                cancel: 'Avbryt'
+            }
+        });
+
+        modal.onClose.subscribe(response => {
+            if (response === ConfirmActions.ACCEPT) {
+                this.journalEntryService.creditJournalEntry(journalEntryNumber).subscribe(
+                    res => {
                         this.toastService.addToast('Kreditering utført', ToastType.good, 5);
                         this.table.refreshTableData();
 
-                        // recalc summary
+                        // Force summary recalc
                         if (this.lastFilterString) {
                             this.onFiltersChange(this.lastFilterString);
                         }
@@ -374,26 +391,23 @@ export class TransqueryDetails implements OnInit {
     }
 
     private editJournalEntry(journalEntryID, journalEntryNumber) {
-
         let data = this.journalEntryService.getSessionData(0);
+        let url = '/accounting/journalentry/manual'
+                + `;journalEntryNumber=${journalEntryNumber}`
+                + `journalEntryID=${journalEntryID};editmode=true`;
 
-        // avoid loosing changes if user navigates to a new journalentry with unsaved changes
-        // without saving or discarding changes first
         if (data && data.length > 0
             && (!data[0].JournalEntryID || data[0].JournalEntryID.toString() !== journalEntryID.toString())) {
-               this.confirmModal.confirm(
-                    'Du har gjort endringer i bilag som ikke er lagret - hvis du fortsetter vil disse forkastes',
-                    'Forkast endringer?',
-                    false,
-                    {accept: 'Forkast endringer', reject: 'Avbryt'}
-                ).then((response: ConfirmActions) => {
-                    if (response === ConfirmActions.ACCEPT) {
+                const modal = this.modalService.openUnsavedChangesModal();
+                modal.onClose.subscribe((canDeactivate) => {
+                    if (canDeactivate) {
                         this.journalEntryService.setSessionData(0, []);
-                        this.router.navigateByUrl(`/accounting/journalentry/manual;journalEntryNumber=${journalEntryNumber};journalEntryID=${journalEntryID};editmode=true`);
+                        this.router.navigateByUrl(url);
                     }
                 });
+
         } else {
-            this.router.navigateByUrl(`/accounting/journalentry/manual;journalEntryNumber=${journalEntryNumber};journalEntryID=${journalEntryID};editmode=true`);
+            this.router.navigateByUrl(url);
         }
     }
 

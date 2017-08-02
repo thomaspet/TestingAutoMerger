@@ -5,7 +5,7 @@ import {StatusCodeJournalEntryLine} from '../../../../unientities';
 import {UniTable, UniTableColumn, UniTableConfig, UniTableColumnType, ITableFilter} from '../../../../../framework/ui/unitable/index';
 import {ISummaryConfig} from '../../../common/summary/summary';
 import {ToastService, ToastType, ToastTime} from '../../../../../framework/uniToast/toastService';
-import {UniConfirmModal, ConfirmActions} from '../../../../../framework/modals/confirm';
+import {UniModalService} from '../../../../../framework/uniModal/barrel';
 import {
     ErrorService,
     StatisticsService,
@@ -14,7 +14,7 @@ import {
     NumberFormat,
     JournalEntryService
 } from '../../../../services/services';
-
+import {Observable} from 'rxjs/Observable';
 import * as moment from 'moment';
 declare var _;
 
@@ -28,10 +28,14 @@ class JournalEntryLineCouple {
     templateUrl: './ledgeraccountreconciliation.html',
 })
 export class LedgerAccountReconciliation {
-    @Input() supplierID: number;
-    @Input() customerID: number;
-    @ViewChild(UniTable) private table: UniTable;
-    @ViewChild(UniConfirmModal) private confirmModal: UniConfirmModal;
+    @Input()
+    public supplierID: number;
+
+    @Input()
+    public customerID: number;
+
+    @ViewChild(UniTable)
+    private table: UniTable;
 
     private showMarkedEntries: boolean = false;
     private uniTableConfig: UniTableConfig;
@@ -66,10 +70,9 @@ export class LedgerAccountReconciliation {
         private numberFormatService: NumberFormat,
         private sanitizer: DomSanitizer,
         private toastService: ToastService,
-        private journalEntryService: JournalEntryService
-    ) {
-
-    }
+        private journalEntryService: JournalEntryService,
+        private modalService: UniModalService
+    ) {}
 
     public ngOnChanges() {
         this.loadData();
@@ -489,30 +492,25 @@ export class LedgerAccountReconciliation {
         ];
     }
 
-    private showHideEntires(newValue) {
-        if (this.isDirty) {
-            this.confirmModal.confirm(
-                'Du har endringer som ikke er lagret, disse vil forkastes hvis du fortsetter - vil du fortsette?',
-                'Fortsette uten å lagre?')
-            .then(confirmDialogResponse => {
-                if (confirmDialogResponse === ConfirmActions.ACCEPT) {
-                    this.allMarkingSessions = [];
-                    this.currentMarkingSession = [];
-                    this.currentSelectedRows = [];
-                    this.isDirty = false;
-                    this.displayPostsOption = newValue;
-
-                    this.loadData();
-                }
-            });
-        } else {
-            this.allMarkingSessions = [];
-            this.currentMarkingSession = [];
-            this.currentSelectedRows = [];
-            this.isDirty = false;
-            this.displayPostsOption = newValue;
-            this.loadData();
+    public canDiscardChanges(): Observable<boolean> {
+        if (!this.isDirty) {
+            return Observable.of(true);
         }
+
+        return this.modalService.openUnsavedChangesModal().onClose;
+    }
+
+    private showHideEntires(newValue) {
+        this.canDiscardChanges().subscribe(canDeactivate => {
+            if (canDeactivate) {
+                this.allMarkingSessions = [];
+                this.currentMarkingSession = [];
+                this.currentSelectedRows = [];
+                this.isDirty = false;
+                this.displayPostsOption = newValue;
+                this.loadData();
+            }
+        });
     }
 
     private unlockJournalEntries() {
@@ -529,7 +527,6 @@ export class LedgerAccountReconciliation {
         }
 
         let hasRemoteMarkedRowsSelected: boolean = false;
-
         selectedRows.forEach(row => {
             if (row.StatusCode !== StatusCodeJournalEntryLine.Open && !row._originalStatusCode) {
                 hasRemoteMarkedRowsSelected = true;
@@ -541,23 +538,15 @@ export class LedgerAccountReconciliation {
         // before continuing. However, if we are working on remote data as well,
         // we will need to refresh the data afterwards, so we need to ask the
         // user first if they have made new markings that are not yet saved
-        new Promise((resolve, reject) => {
-            if (this.isDirty && this.showMarkedEntries && hasRemoteMarkedRowsSelected) {
-                this.confirmModal.confirm(
-                    'Du har endringer som ikke er lagret, disse vil forkastes hvis du fortsetter - vil du fortsette?',
-                    'Fortsette uten å lagre?')
-                .then(confirmDialogResponse => {
-                    if (confirmDialogResponse === ConfirmActions.ACCEPT) {
-                        resolve();
-                    }
-                });
-            } else {
-                // if we don't have any pending changes, or no remote markings are selected,
-                // just resolve without asking user - we don't need to refresh the table then,
-                // so we don't need to loose our changes
-                resolve();
+        const canUnlock = (this.isDirty && this.showMarkedEntries && hasRemoteMarkedRowsSelected)
+            ? this.canDiscardChanges()
+            : Observable.of(true);
+
+        canUnlock.subscribe((allowed) => {
+            if (!allowed) {
+                return;
             }
-        }).then(() => {
+
             // unmark local markings that are not yet marked on the server
             selectedRows.forEach(row => {
                 if (row._isDirty && row.StatusCode !== StatusCodeJournalEntryLine.Open) {
@@ -604,25 +593,15 @@ export class LedgerAccountReconciliation {
     }
 
     private abortMarking() {
-        if (this.isDirty) {
-            this.confirmModal.confirm(
-                'Du har endringer som ikke er lagret, disse vil forkastes hvis du fortsetter - vil du fortsette?',
-                'Fortsette uten å lagre?')
-            .then(confirmDialogResponse => {
-                if (confirmDialogResponse === ConfirmActions.ACCEPT) {
-                    this.allMarkingSessions = [];
-                    this.currentMarkingSession = [];
-                    this.currentSelectedRows = [];
-                    this.isDirty = false;
-                    this.loadData();
-                }
-            });
-        } else {
-            this.currentMarkingSession = [];
-            this.currentSelectedRows = [];
-            this.isDirty = false;
-            this.loadData();
-        }
+        this.canDiscardChanges().subscribe(canDeactivate => {
+            if (canDeactivate) {
+                this.allMarkingSessions = [];
+                this.currentMarkingSession = [];
+                this.currentSelectedRows = [];
+                this.isDirty = false;
+                this.loadData();
+            }
+        });
     }
 
     private reconciliateJournalEntries() {
@@ -664,26 +643,30 @@ export class LedgerAccountReconciliation {
     }
 
     private editJournalEntry(journalEntryID, journalEntryNumber) {
-
         let data = this.journalEntryService.getSessionData(0);
 
-        // avoid loosing changes if user navigates to a new journalentry with unsaved changes
+        // avoid losing changes if user navigates to a new journalentry with unsaved changes
         // without saving or discarding changes first
-        if (data && data.length > 0
-            && (!data[0].JournalEntryID || data[0].JournalEntryID.toString() !== journalEntryID.toString())) {
-               this.confirmModal.confirm(
-                    'Du har gjort endringer i bilag som ikke er lagret - hvis du fortsetter vil disse forkastes',
-                    'Forkast endringer?',
-                    false,
-                    {accept: 'Forkast endringer', reject: 'Avbryt'}
-                ).then((response: ConfirmActions) => {
-                    if (response === ConfirmActions.ACCEPT) {
-                        this.journalEntryService.setSessionData(0, []);
-                        this.router.navigateByUrl(`/accounting/journalentry/manual;journalEntryNumber=${journalEntryNumber};journalEntryID=${journalEntryID};editmode=true`);
-                    }
-                });
+        const isNewJournalEntry = data && data.length > 0
+            && (!data[0].JournalEntryID || data[0].JournalEntryID.toString() !== journalEntryID.toString());
+
+        if (isNewJournalEntry) {
+            this.modalService.openUnsavedChangesModal().onClose.subscribe(canEdit => {
+                if (canEdit) {
+                    this.journalEntryService.setSessionData(0, []);
+                    this.router.navigateByUrl(
+                        `/accounting/journalentry/manual;journalEntryNumber=${journalEntryNumber}
+                        ;journalEntryID=${journalEntryID}
+                        ;editmode=true`
+                    );
+                }
+            });
         } else {
-            this.router.navigateByUrl(`/accounting/journalentry/manual;journalEntryNumber=${journalEntryNumber};journalEntryID=${journalEntryID};editmode=true`);
+            this.router.navigateByUrl(
+                `/accounting/journalentry/manual;journalEntryNumber=${journalEntryNumber}
+                ;journalEntryID=${journalEntryID}
+                ;editmode=true`
+            );
         }
     }
 

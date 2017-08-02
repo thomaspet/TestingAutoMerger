@@ -7,7 +7,7 @@ import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {FieldType, UniField} from '../../../../framework/ui/uniform/index';
 import {IToolbarConfig} from './../../common/toolbar/toolbar';
 import {IUniSaveAction} from '../../../../framework/save/save';
-import {UniConfirmModal, ConfirmActions} from '../../../../framework/modals/confirm';
+import {UniModalService} from '../../../../framework/uniModal/barrel';
 @Component({
     selector: 'uni-models',
     templateUrl: './models.html'
@@ -15,9 +15,6 @@ import {UniConfirmModal, ConfirmActions} from '../../../../framework/modals/conf
 export class UniModels {
     @ViewChildren(UniTable)
     private tables: QueryList<UniTable>;
-
-    @ViewChild(UniConfirmModal)
-    private confirmModal: UniConfirmModal;
 
     private models: Model[];
     private selectedModel: Model;
@@ -38,7 +35,8 @@ export class UniModels {
     constructor(
         private tabService: TabService,
         private modelService: ModelService,
-        private errorService: ErrorService
+        private errorService: ErrorService,
+        private modalService: UniModalService
     ) {
         this.tabService.addTab({
             name: 'Modeller',
@@ -94,33 +92,25 @@ export class UniModels {
         this.selectedModel = this.formModel$.getValue();
     }
 
-    public canDeactivate(){
-        if(!this.hasUnsavedChanges){
+    public canDeactivate() {
+        if (!this.hasUnsavedChanges) {
             return true;
         }
-        return new Promise<boolean>((resolve, reject)=> {
-            this.confirmModal.confirm(
-                'Du har ulagrede endringer. Ønsker du å forkaste disse?',
-                'ulagrede endringer',
-                false,{
-                    accept: 'Fortsett uten å lagre',
-                    reject: 'Avbryt'
-                }
-            ).then((result) =>{
-                if(result === ConfirmActions.ACCEPT){
-                    resolve(true);
-                }else{
+
+        return this.modalService.openUnsavedChangesModal()
+            .onClose
+            .map((canDeactivate) => {
+                if (!canDeactivate) {
                     this.tabService.addTab({
                         name: 'Modeller',
                         url: '/admin/models',
                         moduleID: UniModules.Models,
                         active: true
                     });
-                    resolve(false);
                 }
-            });
 
-        });
+                return canDeactivate;
+            });
     }
 
 

@@ -10,7 +10,6 @@ import {ErrorService, UniTickerService, ApiModelService, ReportDefinitionService
 import {UniTable, UniTableColumn, IContextMenuItem, UniTableColumnType, UniTableConfig} from '../../../../framework/ui/unitable/index';
 import {Observable} from 'rxjs/Observable';
 import {ImageModal} from '../../common/modals/ImageModal';
-import {UniConfirmModal} from '../../../../framework/modals/confirm';
 import {PreviewModal} from '../../reports/modals/preview/previewModal';
 import {BrowserStorageService} from '../../../services/common/browserStorageService';
 
@@ -44,7 +43,6 @@ export class UniTicker {
     @Output() private rowSelected: EventEmitter<any> = new EventEmitter<any>();
 
     @ViewChild(UniTable) unitable: UniTable;
-    @ViewChild(UniConfirmModal) private confirmModal: UniConfirmModal;
     @ViewChild(ImageModal) private imageModal: ImageModal;
     @ViewChild(PreviewModal) private previewModal: PreviewModal;
 

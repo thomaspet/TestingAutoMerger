@@ -12,16 +12,16 @@
 </aside>
 
 <section class='regtimecontainer'
-    [class.wideapplication]="workEditor.numberOfVisibleColumns > 9" 
+    [class.wideapplication]="workEditor.numberOfVisibleColumns > 9"
     [class.application]="workEditor.numberOfVisibleColumns <= 9" >
 
     <section class="regtime_tabs">
 
         <section [hidden]="missingWorker || !tabs[0].isSelected">
-            
+
             <header>
 
-                <daybrowser *ngIf="settings.useDayBrowser" (clickday)="onClickDay($event)" (requestsums)="onRequestDaySums($event)" 
+                <daybrowser *ngIf="settings.useDayBrowser" (clickday)="onClickDay($event)" (requestsums)="onRequestDaySums($event)"
                     (navigate)="onNavigateDays($event)">
                 </daybrowser>
 
@@ -32,7 +32,7 @@
                             <a (click)="onFilterClick(filter)" [ngClass]="{'router-link-active': filter.isSelected}" >{{filter.label}}</a>
                         </li>
                     </ul>
-                </aside>                                
+                </aside>
 
             </header>
 
@@ -48,7 +48,7 @@
 
         <section [hidden]="!tabs[2].isSelected">
             <regtimetotals></regtimetotals>
-        </section>        
+        </section>
 
         <section [hidden]="!tabs[3].isSelected">
             <regtimebalance [eventcfg]="preSaveConfig" [workrelation]="this.timeSheet?.currentRelation" (valueChange)="onBalanceChanged($event)" ></regtimebalance>
@@ -61,12 +61,11 @@
         <div *ngIf="this.mapTabPosition(5)">
             <section [hidden]="!tabs[5].isSelected">
                 <teamwork-report></teamwork-report>
-            </section>        
+            </section>
         </div>
 
     </section>
 
 </section>
 
-<uni-confirm-modal></uni-confirm-modal>
 <uni-file-import></uni-file-import>

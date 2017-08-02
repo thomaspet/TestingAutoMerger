@@ -7,7 +7,7 @@ import {UniField, FieldType} from '../../../../framework/ui/uniform/index';
 import {IToolbarConfig} from './../../common/toolbar/toolbar';
 import {IUniSaveAction} from '../../../../framework/save/save';
 
-import {UniConfirmModal, ConfirmActions} from '../../../../framework/modals/confirm';
+import {UniModalService} from '../../../../framework/uniModal/barrel';
 
 import {Role, Permission} from '../../../unientities';
 import {RoleService, PermissionService, ErrorService} from '../../../services/services';
@@ -21,9 +21,6 @@ import {Http} from '@angular/http';
 export class UniRoles {
     @ViewChild(UniTable)
     private table: UniTable;
-
-    @ViewChild(UniConfirmModal)
-    private confirmModal: UniConfirmModal;
 
     private hasUnsavedChanges: boolean;
 
@@ -47,7 +44,8 @@ export class UniRoles {
         private permissionService: PermissionService,
         private errorService: ErrorService,
         private http: Http,
-        private tabService: TabService
+        private tabService: TabService,
+        private modalService: UniModalService
     ) {
         this.tabService.addTab({
             name: 'Roller',
@@ -138,29 +136,20 @@ export class UniRoles {
             return true;
         }
 
-        return new Promise<boolean>((resolve, reject) => {
-            this.confirmModal.confirm(
-                'Du har ulagrede endringer. Ønsker du å forkaste disse?',
-                'Ulagrede endringer',
-                false,
-                {
-                    accept: 'Fortsett uten å lagre',
-                    reject: 'Avbryt'
-                }
-            ).then((result) => {
-                if (result === ConfirmActions.ACCEPT) {
-                    resolve(true);
-                } else {
+        return this.modalService.openUnsavedChangesModal()
+            .onClose
+            .map((canDeactivate) => {
+                if (!canDeactivate) {
                     this.tabService.addTab({
                         name: 'Roller',
                         url: '/admin/roles',
                         moduleID: UniModules.Roles,
                         active: true
                     });
-                    resolve(false);
                 }
+
+                return canDeactivate;
             });
-        });
     }
 
 

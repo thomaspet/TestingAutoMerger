@@ -9,7 +9,7 @@ import { TabService, UniModules } from '../../layout/navbar/tabstrip/tabService'
 import { Observable } from 'rxjs/Observable';
 import { Subscription } from 'rxjs/Subscription';
 import { SalaryBalance, SalBalType, CompanySalary } from '../../../unientities';
-import { UniConfirmModal, ConfirmActions } from '../../../../framework/modals/confirm';
+import { UniModalService, ConfirmActions } from '../../../../framework/uniModal/barrel';
 import { IContextMenuItem } from '../../../../framework/ui/unitable/index';
 import { SalarybalancelineModal } from './modals/salarybalancelinemodal';
 import { PreviewModal } from '../../reports/modals/preview/previewModal';
@@ -19,7 +19,6 @@ import { PreviewModal } from '../../reports/modals/preview/previewModal';
     templateUrl: './salarybalanceView.html'
 })
 export class SalarybalanceView extends UniView implements OnDestroy {
-
     private url: string = '/salary/salarybalances/';
     private salarybalanceID: number;
     private salarybalance: SalaryBalance;
@@ -32,9 +31,11 @@ export class SalarybalanceView extends UniView implements OnDestroy {
 
     public busy: boolean;
 
-    @ViewChild(UniConfirmModal) public confirmModal: UniConfirmModal;
-    @ViewChild(SalarybalancelineModal) private salarybalanceModal: SalarybalancelineModal;
-    @ViewChild(PreviewModal) private previewModal: PreviewModal;
+    @ViewChild(SalarybalancelineModal)
+    private salarybalanceModal: SalarybalancelineModal;
+
+    @ViewChild(PreviewModal)
+    private previewModal: PreviewModal;
 
     constructor(
         private route: ActivatedRoute,
@@ -45,7 +46,8 @@ export class SalarybalanceView extends UniView implements OnDestroy {
         protected cacheService: UniCacheService,
         private reportDefinitionService: ReportDefinitionService,
         private companySalaryService: CompanySalaryService,
-        private fileService: FileService
+        private fileService: FileService,
+        private modalService: UniModalService
     ) {
         super(router.url, cacheService);
 
@@ -126,34 +128,14 @@ export class SalarybalanceView extends UniView implements OnDestroy {
     }
 
     public canDeactivate(): Observable<boolean> {
-        return Observable
-            .of(!super.isDirty())
-            .flatMap(result => {
-                return result
-                    ? Observable.of(result)
-                    : Observable
-                        .fromPromise(
-                        this.confirmModal.confirm(
-                            'Du har ulagrede endringer, ønsker du å lagre disse før du fortsetter?',
-                            'Lagre endringer?', true, { accept: 'Lagre', reject: 'Forkast' }))
-                        .map((response: ConfirmActions) => {
-                            if (response === ConfirmActions.ACCEPT) {
-                                this.saveSalarybalance((m) => { });
-                                return true;
-                            } else if (response === ConfirmActions.REJECT) {
-                                if (!this.salarybalanceID) {
-                                    this.tabService.closeTab();
-                                }
-                                return true;
-                            } else {
-                                return false;
-                            }
-                        });
-            })
+        return this.modalService.openUnsavedChangesModal()
+            .onClose
             .map(canDeactivate => {
-                canDeactivate
-                    ? this.cacheService.clearPageCache(this.cacheKey)
-                    : this.updateTabStrip(this.salarybalanceID);
+                if (canDeactivate) {
+                    this.cacheService.clearPageCache(this.cacheKey);
+                } else {
+                    this.updateTabStrip(this.salarybalanceID);
+                }
 
                 return canDeactivate;
             });
@@ -250,17 +232,23 @@ export class SalarybalanceView extends UniView implements OnDestroy {
     }
 
     private handlePaymentCreation(salaryBalance: SalaryBalance): Observable<SalaryBalance> {
-        return Observable
-            .of(!salaryBalance.ID && this.salarybalanceService.hasBalance(salaryBalance))
-            .switchMap(promptUser => promptUser
-                ? Observable.fromPromise(this.confirmModal
-                    .confirm('Vil du opprette en utbetalingspost av dette forskuddet?', 'Utbetaling', false))
-                    .map(response => response === ConfirmActions.ACCEPT)
-                : Observable.of(salaryBalance.CreatePayment))
-            .map(createPayment => {
-                salaryBalance.CreatePayment = createPayment;
-                return salaryBalance;
-            });
+        if (salaryBalance.ID || !this.salarybalanceService.hasBalance(salaryBalance)) {
+            return Observable.of(salaryBalance);
+        }
+
+        const modal = this.modalService.confirm({
+            header: 'Opprett utbetaling',
+            message: 'Vil du opprette en utbetalingspost av dette forskuddet?',
+            buttonLabels: {
+                accept: 'Opprett',
+                cancel: 'Avbryt'
+            }
+        });
+
+        return modal.onClose.map(response => {
+            salaryBalance.CreatePayment = response === ConfirmActions.ACCEPT;
+            return salaryBalance;
+        });
     }
 
     private updateTabStrip(salarybalanceID: number) {

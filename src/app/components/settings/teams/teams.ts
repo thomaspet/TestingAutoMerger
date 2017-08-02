@@ -1,5 +1,5 @@
 ﻿// tslint:disable:max-line-length
-import {Component, ViewChild, ViewChildren, QueryList} from '@angular/core';
+import {Component, ViewChildren, QueryList} from '@angular/core';
 import {TabService} from '../../layout/navbar/tabstrip/tabService';
 import {UniHttp} from '../../../../framework/core/http/http';
 import {UniField, FieldType} from '../../../../framework/ui/uniform/index';
@@ -7,7 +7,7 @@ import {UniTableConfig, UniTableColumn, UniTableColumnType, UniTable} from '../.
 import {ErrorService, UserService, GuidService} from '../../../services/services';
 import {Team, User, TeamPosition} from '../../../unientities';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
-import {UniConfirmModal, ConfirmActions} from '../../../../framework/modals/confirm';
+import {UniModalService, ConfirmActions} from '../../../../framework/uniModal/barrel';
 import {Observable} from 'rxjs/Observable';
 import {IUniSaveAction} from '../../../../framework/save/save';
 
@@ -16,8 +16,8 @@ import {IUniSaveAction} from '../../../../framework/save/save';
     templateUrl: './teams.html'
 })
 export class Teams {
-    @ViewChild(UniConfirmModal) private confirmModal: UniConfirmModal;
-    @ViewChildren(UniTable) private uniTables: QueryList<UniTable>;
+    @ViewChildren(UniTable)
+    private uniTables: QueryList<UniTable>;
 
     public teams: Team[];
     public users: User[] = [];
@@ -41,7 +41,8 @@ export class Teams {
         private tabService: TabService,
         private userService: UserService,
         private errorService: ErrorService,
-        private guidService: GuidService
+        private guidService: GuidService,
+        private modalService: UniModalService
     ) {
         this.initTableConfigs();
         this.initFormConfigs();
@@ -52,34 +53,40 @@ export class Teams {
     }
 
     public updateSaveActions() {
-        this.saveactions = [
-            {
-                label: 'Lagre',
-                action: (done) => this.onSaveClicked(done),
-                main: true,
-                disabled: !this.hasUnsavedChanges
-            }];
+        this.saveactions = [{
+            label: 'Lagre',
+            action: (done) => this.onSaveClicked(done),
+            main: true,
+            disabled: !this.hasUnsavedChanges
+        }];
     }
 
     public onTeamSelected(event) {
+        if (!event || !event.rowModel) {
+            return;
+        }
 
-        if (!(event && event.rowModel)) { return; }
-        this.checkSave(true).then( ok => { if (ok) {
-            this.setCurrent( event.rowModel );
-        }});
+        this.checkSave(true).then(ok => {
+            if (ok) {
+                this.setCurrent(event.rowModel);
+            }
+        });
     }
 
     public onAddNew() {
-        this.checkSave(true).then( ok => { if (ok) {
-            var t = new Team();
-            t.Positions = [];
-            this.setCurrent(t);
-        }});
+        this.checkSave(true).then(ok => {
+            if (ok) {
+                var t = new Team();
+                t.Positions = [];
+                this.setCurrent(t);
+            }
+        });
     }
+
     public onSaveClicked(done) {
         setTimeout( () => { // Allow the annoying editors to update
             this.busy = true;
-            this.Save().then(x => {
+            this.save().then(x => {
                 this.busy = false;
                 done();
             }).catch(reason => done(reason));
@@ -165,42 +172,43 @@ export class Teams {
         });
     }
 
-    private checkSave(ask: boolean): Promise<boolean> {
+    private checkSave(askBeforeSave: boolean): Promise<boolean> {
         return new Promise( (resolve, reject) => {
-
-            // todo: remove timer when uniform has solutions for completing current edit
             setTimeout(() => {
-
                 if (!this.hasUnsavedChanges) {
                     resolve(true);
                     return;
                 }
-                if (ask) {
-                    this.confirmModal.confirm('Lagre endringer før du fortsetter?', 'Lagre endringer?', true)
-                    .then( (userChoice: ConfirmActions) => {
-                        switch (userChoice) {
-                            case ConfirmActions.ACCEPT:
-                                this.Save().then( saveResult => resolve(saveResult) );
-                                break;
 
-                            case ConfirmActions.CANCEL:
-                                resolve(false);
-                                break;
-
-                            default:
-                                resolve(true);
-                                break;
-                        }
-                    });
-                } else {
-                    this.Save().then( x => resolve(x) );
+                if (!askBeforeSave) {
+                    this.save().then(
+                        success => resolve(success),
+                        failure => resolve(false)
+                    );
                 }
 
-            }, 50);
+                this.modalService.confirm({
+                    header: 'Lagre endringer?',
+                    message: 'Ønsker du å lagre endringer før vi fortsetter?',
+                    buttonLabels: {
+                        accept: 'Lagre',
+                        reject: 'Forkast',
+                        cancel: 'Avbryt'
+                    }
+                }).onClose.subscribe(response => {
+                    if (response === ConfirmActions.ACCEPT) {
+                        this.save().then(saveResult => resolve(saveResult));
+                    } else if (response === ConfirmActions.REJECT) {
+                        resolve(true); // reject = discard changes
+                    } else {
+                        resolve(false);
+                    }
+                });
+            });
         });
     }
 
-    private Save(): Promise<boolean> {
+    private save(): Promise<boolean> {
         return new Promise( (resolve, reject) => {
             var ht = this.current.ID ? this.http.asPUT() : this.http.asPOST();
             var route = this.current.ID ? 'teams/' + this.current.ID : 'teams';
@@ -228,21 +236,34 @@ export class Teams {
     }
 
     public onDelete(event) {
-        if (this.current && this.current.ID) {
-            this.confirmModal.confirm(`Ønsker du å slette team: '${this.current.Name}' `, 'Slette teamet', false).then(
-                (x: ConfirmActions) => {
-                    if (x !== ConfirmActions.ACCEPT) { return; }
-                    this.busy = true;
-                    this.http.usingBusinessDomain()
+        if (!this.current || !this.current.ID) {
+            return;
+        }
+
+        this.modalService.confirm({
+            header: 'Bekreft sletting',
+            message: `Vennligst bekreft sletting av team ${this.current.Name || ''}`,
+            buttonLabels: {
+                accept: 'Slett',
+                cancel: 'Avbryt'
+            }
+        }).onClose.subscribe(response => {
+            if (response === ConfirmActions.ACCEPT) {
+                this.busy = true;
+                this.http.usingBusinessDomain()
                     .asDELETE()
                     .withEndPoint(`teams/${this.current.ID}`)
-                    .send().finally( () => this.busy = false )
-                    .subscribe( () => {
-                        this.current = undefined;
-                        this.requestTeams();
-                    }, error => this.errorService.handle(error) );
-                });
-        }
+                    .send()
+                    .finally(() => this.busy = false)
+                    .subscribe(
+                        res => {
+                            this.current = undefined;
+                            this.requestTeams();
+                        },
+                        error => this.errorService.handle(error)
+                    );
+            }
+        });
     }
 
     public onFormChange(event) {
@@ -255,7 +276,7 @@ export class Teams {
 
     private flagUnsavedChanges(reset: boolean = false) {
         this.hasUnsavedChanges = !reset;
-        this.updateSaveActions();        
+        this.updateSaveActions();
     }
 
      private initTableConfigs() {

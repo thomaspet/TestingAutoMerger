@@ -30,11 +30,11 @@
             <a class="vacationPay_settingsLink" (click)="openVacationpaySettings()">Endre feriepengeinnstillinger</a>
         </section>
     </section>
-    <uni-table 
-        [resource]="vacationpayBasis" 
-        [config]="tableConfig" 
-        [attr.aria-busy]="basicamountBusy" 
-        (rowChanged)="rowChanged($event)" 
+    <uni-table
+        [resource]="vacationpayBasis"
+        [config]="tableConfig"
+        [attr.aria-busy]="basicamountBusy"
+        (rowChanged)="rowChanged($event)"
         (rowSelectionChanged)="onRowSelectionChange($event)"
         (dataLoaded)="updatetotalPay()"></uni-table>
     <h4 style="text-align:right">Totalsum utbetales {{totalPayout | unicurrency}}</h4>
@@ -60,4 +60,3 @@
     </footer>
     <vacationpay-setting-modal (recalc)="recalc($event)"></vacationpay-setting-modal>
 </article>
-<uni-confirm-modal></uni-confirm-modal>

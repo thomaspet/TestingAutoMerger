@@ -1,21 +1,23 @@
-import {Component, Input, ViewChild, SimpleChanges, OnInit} from '@angular/core';
+import {Component, Input, ViewChild, OnInit} from '@angular/core';
 import {Router, ActivatedRoute} from '@angular/router';
 import {Observable} from 'rxjs/Observable';
 import {IUniSaveAction} from '../../../../../framework/save/save';
-import {UniForm, UniField, FieldType, UniFieldLayout} from '../../../../../framework/ui/uniform/index';;
-import {IUploadConfig} from '../../../../../framework/uniImage/uniImage';
+import {UniForm, FieldType, UniFieldLayout} from '../../../../../framework/ui/uniform/index';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
 import {IToolbarConfig} from './../../../common/toolbar/toolbar';
-import {UniConfirmModal, ConfirmActions} from '../../../../../framework/modals/confirm';
-import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig} from '../../../../../framework/ui/unitable/index';
+import {UniModalService} from '../../../../../framework/uniModal/barrel';
+import {ProductCategory} from '../../../../unientities';
 import {
-    ProductCategory
-} from '../../../../unientities';
+    UniTableColumn,
+    UniTableColumnType,
+    UniTableConfig
+} from '../../../../../framework/ui/unitable/index';
 import {
     ProductCategoryService,
     ErrorService,
     StatisticsService
 } from '../../../../services/services';
+
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 declare const _; // lodash
 
@@ -24,9 +26,6 @@ declare const _; // lodash
     templateUrl: './productgroups.html'
 })
 export class ProductGroups implements OnInit {
-    @ViewChild(UniConfirmModal)
-    private confirmModal: UniConfirmModal;
-
     @Input()
     public groupId: number;
 
@@ -68,9 +67,10 @@ export class ProductGroups implements OnInit {
         private tabService: TabService,
         private productCategoryService: ProductCategoryService,
         private errorService: ErrorService,
-        private statisticsService: StatisticsService
+        private statisticsService: StatisticsService,
+        private modalService: UniModalService
     ) {
-        this.tabService.addTab({ url: '/sales/productgroups', name: 'Produktgrupper', active: true, moduleID: UniModules.ProductGroup });
+        this.addTab();
         this.loadGroups();
     }
 
@@ -91,6 +91,15 @@ export class ProductGroups implements OnInit {
                 this.group$.next(new ProductCategory());
                 this.setupToolbar();
             }
+        });
+    }
+
+    private addTab() {
+        this.tabService.addTab({
+            url: '/sales/productgroups',
+            name: 'Produktgrupper',
+            active: true,
+            moduleID: UniModules.ProductGroup
         });
     }
 
@@ -133,25 +142,20 @@ export class ProductGroups implements OnInit {
         this.router.navigateByUrl('/sales/productgroups/0');
     }
 
-    public canDeactivate(): boolean | Promise<boolean> {
+    public canDeactivate(): boolean | Observable<boolean> {
         if (!this.isDirty) {
             return true;
         }
 
-        return this.confirmModal.confirm(
-            'Ønsker du å lagre før du fortsetter?',
-            'Ulagrede endringer',
-            true
-        ).then((action) => {
-            if (action === ConfirmActions.ACCEPT) {
-                this.saveProductGroup(() => {});
-                return true;
-            } else if (action === ConfirmActions.REJECT) {
-                return true;
-            }
+        return this.modalService.openUnsavedChangesModal()
+            .onClose
+            .map(canDeactivate => {
+                if (!canDeactivate) {
+                    this.addTab();
+                }
 
-            return false;
-        });
+                return canDeactivate;
+            });
     }
 
     private treeStructureToNodes(tree, root = null): any {

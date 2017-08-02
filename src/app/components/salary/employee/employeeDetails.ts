@@ -17,7 +17,6 @@ import { UniView } from '../../../../framework/core/uniView';
 import { TaxCardModal } from './modals/taxCardModal';
 import {
     UniModalService,
-    UniConfirmModalV2,
     ConfirmActions
 } from '../../../../framework/uniModal/barrel';
 import {
@@ -404,7 +403,7 @@ export class EmployeeDetails extends UniView implements OnDestroy {
                     return Observable.of(true);
                 }
 
-                const modal = this.modalService.open(UniConfirmModalV2, {
+                const modal = this.modalService.confirm({
                     header: 'Ulagrede endringer',
                     message: 'Du har ulagrede endringer. Ønsker du å lagre disse før du fortsetter?',
                     buttonLabels: {

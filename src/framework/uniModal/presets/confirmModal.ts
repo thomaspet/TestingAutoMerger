@@ -19,6 +19,9 @@ export enum ConfirmActions {
 
             <main>
                 <p>{{options.message}}</p>
+                <p class="warn" *ngIf="options.warning">
+                    {{options.warning}}
+                </p>
             </main>
 
             <footer>
