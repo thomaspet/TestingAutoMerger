@@ -26,7 +26,6 @@ import {ImageModal, ImageModalContent} from './modals/ImageModal';
 import {UniAttachments} from './attacments/uniAttachements';
 import {UniUploadFileButton} from './attacments/uploadFileButton';
 import {UniPoster, TextWidget, ContactWidget, TableWidget, AlertsWidget, ImageWidget} from './poster/poster';
-import {ActivateAPForm, ActivateAPModal} from './modals/activateAPModal';
 import {LedgerAccountReconciliation} from './reconciliation/ledgeraccounts/ledgeraccountreconciliation';
 import {AccrualForm} from './modals/accrualModal';
 import {AccrualModal} from './modals/accrualModal';
@@ -95,8 +94,6 @@ import {routes as AppCommonRoutes} from './appCommonRoutes';
         AlertsWidget,
         ImageWidget,
         UniUploadFileButton,
-        ActivateAPForm,
-        ActivateAPModal,
         UniTags,
         AddPaymentModal,
         AddPaymentForm,
@@ -136,8 +133,6 @@ import {routes as AppCommonRoutes} from './appCommonRoutes';
         SendEmailForm,
         SendEmailModal,
         ImageModalContent,
-        ActivateAPForm,
-        ActivateAPModal,
         ReminderSettingsForm,
         ReminderSettingsModal,
         ReminderSettings,
@@ -175,8 +170,6 @@ import {routes as AppCommonRoutes} from './appCommonRoutes';
         AlertsWidget,
         ImageWidget,
         UniUploadFileButton,
-        ActivateAPForm,
-        ActivateAPModal,
         UniTags,
         AddPaymentModal,
         AddPaymentForm,
@@ -209,5 +202,4 @@ import {routes as AppCommonRoutes} from './appCommonRoutes';
         SellerDetails
     ]
 })
-export class AppCommonModule {
-}
+export class AppCommonModule {}

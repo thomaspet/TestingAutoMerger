@@ -4,11 +4,10 @@ import {Observable} from 'rxjs/Observable';
 import {TradeItemHelper} from '../../salesHelper/tradeItemHelper';
 import {TofHelper} from '../../salesHelper/tofHelper';
 import {IUniSaveAction} from '../../../../../framework/save/save';
-import {CustomerInvoice, CustomerInvoiceItem, CompanySettings, CurrencyCode, InvoicePaymentData, Project} from '../../../../unientities';
 import {StatusCodeCustomerInvoice, LocalDate} from '../../../../unientities';
 import {TradeHeaderCalculationSummary} from '../../../../models/sales/TradeHeaderCalculationSummary';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
-import {ToastService, ToastType, ToastTime} from '../../../../../framework/uniToast/toastService';
+import {ToastService, ToastType} from '../../../../../framework/uniToast/toastService';
 import {IToolbarConfig} from '../../../common/toolbar/toolbar';
 import {UniStatusTrack} from '../../../common/toolbar/statustrack';
 import {ISummaryConfig} from '../../../common/summary/summary';
@@ -18,13 +17,12 @@ import {IContextMenuItem} from '../../../../../framework/ui/unitable/index';
 import {SendEmailModal} from '../../../common/modals/sendEmailModal';
 import {SendEmail} from '../../../../models/sendEmail';
 import {InvoiceTypes} from '../../../../models/Sales/InvoiceTypes';
-import {GetPrintStatusText, PrintStatus} from '../../../../models/printStatus';
+import {GetPrintStatusText} from '../../../../models/printStatus';
 import {TradeItemTable} from '../../common/tradeItemTable';
 import {TofHead} from '../../common/tofHead';
 import {CompanySettingsService} from '../../../../services/services';
-import {ActivateAPModal} from '../../../common/modals/activateAPModal';
 import {ReminderSendingModal} from '../../reminder/sending/reminderSendingModal';
-import {roundTo, safeDec, safeInt, trimLength, capitalizeSentence} from '../../../common/utils/utils';
+import {roundTo} from '../../../common/utils/utils';
 import {ActivationEnum} from '../../../../models/activationEnum';
 import {
     StatisticsService,
@@ -45,8 +43,17 @@ import {
     DimensionService
 } from '../../../../services/services';
 import {
+    CustomerInvoice,
+    CustomerInvoiceItem,
+    CompanySettings,
+    CurrencyCode,
+    InvoicePaymentData,
+    Project
+} from '../../../../unientities';
+import {
     UniModalService,
     UniRegisterPaymentModal,
+    UniActivateAPModal,
     ConfirmActions
 } from '../../../../../framework/uniModal/barrel';
 
@@ -77,9 +84,6 @@ export class InvoiceDetails {
 
     @ViewChild(TradeItemTable)
     private tradeItemTable: TradeItemTable;
-
-    @ViewChild(ActivateAPModal)
-    public activateAPModal: ActivateAPModal;
 
     @ViewChild(ReminderSendingModal)
     public reminderSendingModal: ReminderSendingModal;
@@ -277,22 +281,9 @@ export class InvoiceDetails {
         if (this.companySettings.APActivated && this.companySettings.APGuid) {
             this.askSendEHF(doneHandler);
         } else {
-            this.activateAPModal.confirm().then((result) => {
-                if (result.status === ConfirmActions.ACCEPT) {
-                    this.ehfService.Activate(result.model).subscribe((status) => {
-                        if (status == ActivationEnum.ACTIVATED) {
-                            this.toastService.addToast('Aktivering', ToastType.good, 3, 'EHF aktivert');
-                            this.askSendEHF(doneHandler);
-                        } else if (status == ActivationEnum.CONFIRMATION) {
-                            this.toastService.addToast('Aktivering på vent', ToastType.good, 5, 'EHF er tidligere aktivert for org.nr. Venter på godkjenning sendt på epost til kontaktepostadresse registerert på Uni Micro sitt aksesspunkt.');
-                        } else {
-                            this.toastService.addToast('Aktivering feilet!', ToastType.bad, 5, 'Noe galt skjedde ved aktivering');
-                        }
-                    },
-                    (err) => {
-                        if (doneHandler) { doneHandler('Feil oppstod ved aktivering!'); }
-                        this.errorService.handle(err);
-                    });
+            this.modalService.open(UniActivateAPModal).onClose.subscribe(status => {
+                if (status === ActivationEnum.ACTIVATED) {
+                    this.askSendEHF(doneHandler);
                 }
             });
         }

@@ -5,6 +5,7 @@ import {UniEmailModal} from './presets/emailModal';
 import {UniBankAccountModal} from './presets/bankAccountModal';
 import {UniUnsavedChangesModal} from './presets/unsavedChangesModal';
 import {UniRegisterPaymentModal} from './presets/registerPaymentModal';
+import {UniActivateAPModal} from './presets/activateAPModal';
 
 export * from './modalService';
 export * from './presets/confirmModal';
@@ -14,6 +15,7 @@ export * from './presets/emailModal';
 export * from './presets/bankAccountModal';
 export * from './presets/unsavedChangesModal';
 export * from './presets/registerPaymentModal';
+export * from './presets/activateAPModal';
 
 export const MODALS = [
     UniConfirmModalV2,
@@ -22,6 +24,7 @@ export const MODALS = [
     UniEmailModal,
     UniBankAccountModal,
     UniUnsavedChangesModal,
-    UniRegisterPaymentModal
+    UniRegisterPaymentModal,
+    UniActivateAPModal
 ];
 
