@@ -20,7 +20,6 @@ import {ProjectDetails} from './dimensions/project/details/projectDetails';
 import {DepartmentList} from './dimensions/department/list/departmentList';
 import {DepartmentDetails} from './dimensions/department/details/departmentDetails';
 import {UniQueryReadOnly} from './uniQuery/UniQueryReadOnly';
-import {SendEmailForm, SendEmailModal} from './modals/sendEmailModal';
 import {UniSummary} from './summary/summary';
 import {ImageModal, ImageModalContent} from './modals/ImageModal';
 import {UniAttachments} from './attacments/uniAttachements';
@@ -81,8 +80,6 @@ import {routes as AppCommonRoutes} from './appCommonRoutes';
         UniStatusTrack.StatusTrack,
         UniToolbar,
         UniQueryReadOnly,
-        SendEmailForm,
-        SendEmailModal,
         UniSummary,
         ImageModal,
         ImageModalContent,
@@ -130,8 +127,6 @@ import {routes as AppCommonRoutes} from './appCommonRoutes';
     entryComponents: [
         AccrualForm,
         AltinnAuthenticationDataModalContent,
-        SendEmailForm,
-        SendEmailModal,
         ImageModalContent,
         ReminderSettingsForm,
         ReminderSettingsModal,
@@ -161,8 +156,6 @@ import {routes as AppCommonRoutes} from './appCommonRoutes';
         ImageModal,
         ImageModalContent,
         UniAttachments,
-        SendEmailForm,
-        SendEmailModal,
         UniPoster,
         TextWidget,
         ContactWidget,

@@ -2,12 +2,9 @@ import {Component, ViewChild, Output, EventEmitter, Type, Input, ChangeDetectorR
 import {Http} from '@angular/http';
 import {ReportDefinition, CompanySettings, User} from '../../../../unientities';
 import {UniModal} from '../../../../../framework/modals/modal';
-import {SendEmailModal} from '../../../common/modals/sendEmailModal';
-import {SendEmail} from '../../../../models/sendEmail';
 import {ReportService, Report, ReportParameter, UserService} from '../../../../services/services';
 import {CompanySettingsService, ErrorService} from '../../../../services/services';
-import {ToastService, ToastType} from '../../../../../framework/uniToast/toastService';
-import {IUniSaveAction} from '../../../../../framework/save/save';
+import {ToastService} from '../../../../../framework/uniToast/toastService';
 import {ReportFormat} from '../../../../models/reportFormat';
 
 @Component({
@@ -26,15 +23,15 @@ export class ReportPreviewModalType {
     selector: 'report-preview-modal',
     template: `
         <uni-modal [type]="type" [config]="modalConfig"></uni-modal>
-        <send-email-modal></send-email-modal>
     `
 })
 export class PreviewModal {
     @ViewChild(UniModal)
     private modal: UniModal;
-    @ViewChild(SendEmailModal)
-    private sendEmailModal: SendEmailModal;
-    @Output() printed: EventEmitter<any> = new EventEmitter<any>();
+
+    @Output()
+    printed: EventEmitter<any> = new EventEmitter<any>();
+
     public modalConfig: any = {};
     public type: Type<any> = ReportPreviewModalType;
 

@@ -24,5 +24,4 @@
     <uni-summary *ngIf="quote" [configs]="summary" [ngClass]="{'-is-dirty':dirty}"></uni-summary>
 </section>
 
-<send-email-modal></send-email-modal>
 <report-preview-modal (printed)="onPrinted($event)"></report-preview-modal>

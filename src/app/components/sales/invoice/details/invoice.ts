@@ -14,7 +14,6 @@ import {ISummaryConfig} from '../../../common/summary/summary';
 import {StatusCode} from '../../salesHelper/salesEnums';
 import {PreviewModal} from '../../../reports/modals/preview/previewModal';
 import {IContextMenuItem} from '../../../../../framework/ui/unitable/index';
-import {SendEmailModal} from '../../../common/modals/sendEmailModal';
 import {SendEmail} from '../../../../models/sendEmail';
 import {InvoiceTypes} from '../../../../models/Sales/InvoiceTypes';
 import {GetPrintStatusText} from '../../../../models/printStatus';
@@ -54,6 +53,7 @@ import {
     UniModalService,
     UniRegisterPaymentModal,
     UniActivateAPModal,
+    UniSendEmailModal,
     ConfirmActions
 } from '../../../../../framework/uniModal/barrel';
 
@@ -75,9 +75,6 @@ export enum CollectorStatus {
 export class InvoiceDetails {
     @ViewChild(PreviewModal)
     public previewModal: PreviewModal;
-
-    @ViewChild(SendEmailModal)
-    private sendEmailModal: SendEmailModal;
 
     @ViewChild(TofHead)
     private tofHead: TofHead;
@@ -289,24 +286,28 @@ export class InvoiceDetails {
         }
     }
 
-    private sendEmailAction(doneHandler: (msg: string) => void = null) {
-        doneHandler('Email-sending åpnet');
+    private sendEmailAction(doneHandler: (msg?: string) => void) {
+        let model = new SendEmail();
+        model.EntityType = 'CustomerInvoice';
+        model.EntityID = this.invoice.ID;
+        model.CustomerID = this.invoice.CustomerID;
 
-        let sendemail = new SendEmail();
-        sendemail.EntityType = 'CustomerInvoice';
-        sendemail.EntityID = this.invoice.ID;
-        sendemail.CustomerID = this.invoice.CustomerID;
-        sendemail.Subject = 'Faktura ' + (this.invoice.InvoiceNumber ? 'nr. ' + this.invoice.InvoiceNumber : 'kladd');
-        sendemail.Message = 'Vedlagt finner du Faktura ' + (this.invoice.InvoiceNumber ? 'nr. ' + this.invoice.InvoiceNumber : 'kladd');
-        this.sendEmailModal.openModal(sendemail);
-        if (this.sendEmailModal.Changed.observers.length === 0) {
-            this.sendEmailModal.Changed.subscribe((email) => {
+        const invoiceNumber = (this.invoice.InvoiceNumber)
+            ? ` nr. ${this.invoice.InvoiceNumber}`
+            : 'kladd';
+
+        model.Subject = 'Faktura' + invoiceNumber;
+        model.Message = 'Vedlagt finner du faktura' + invoiceNumber;
+
+        this.modalService.open(UniSendEmailModal, {
+            data: model
+        }).onClose.subscribe(email => {
+            if (email) {
                 this.reportService.generateReportSendEmail('Faktura id', email, null, doneHandler);
-            }, (err) => {
-                if (doneHandler) { doneHandler('Feil oppstod ved sending av faktura på epost!'); }
-            });
-        }
-
+            } else if (doneHandler) {
+                doneHandler();
+            }
+        });
     }
 
     private sendReminderAction() {

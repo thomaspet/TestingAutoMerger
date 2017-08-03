@@ -6,7 +6,6 @@ import {StatusCodeCustomerInvoice, CustomerInvoice, LocalDate, CompanySettings, 
 import {URLSearchParams} from '@angular/http';
 import {PreviewModal} from '../../../reports/modals/preview/previewModal';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
-import {SendEmailModal} from '../../../common/modals/sendEmailModal';
 import {SendEmail} from '../../../../models/sendEmail';
 import {ToastService, ToastType} from '../../../../../framework/uniToast/toastService';
 import {ISummaryConfig} from '../../../common/summary/summary';
@@ -21,6 +20,7 @@ import {
 } from '../../../../services/services';
 import {
     UniRegisterPaymentModal,
+    UniSendEmailModal,
     UniModalService
 } from '../../../../../framework/uniModal/barrel';
 
@@ -29,9 +29,11 @@ import {
     templateUrl: './invoiceList.html'
 })
 export class InvoiceList implements OnInit {
-    @ViewChild(PreviewModal) private previewModal: PreviewModal;
-    @ViewChild(UniTable) private table: UniTable;
-    @ViewChild(SendEmailModal) private sendEmailModal: SendEmailModal;
+    @ViewChild(PreviewModal)
+    private previewModal: PreviewModal;
+
+    @ViewChild(UniTable)
+    private table: UniTable;
 
     private invoiceTable: UniTableConfig;
     private lookupFunction: (urlParams: URLSearchParams) => any;
@@ -330,20 +332,25 @@ export class InvoiceList implements OnInit {
         contextMenuItems.push({
             label: 'Send på epost',
             action: (invoice: CustomerInvoice) => {
-                let sendemail = new SendEmail();
-                sendemail.EntityType = 'CustomerInvoice';
-                sendemail.EntityID = invoice.ID;
-                sendemail.CustomerID = invoice.CustomerID;
-                sendemail.Subject = 'Faktura ' + (invoice.InvoiceNumber ? 'nr. ' + invoice.InvoiceNumber : 'kladd');
-                sendemail.Message = 'Vedlagt finner du Faktura ' + (invoice.InvoiceNumber ? 'nr. ' + invoice.InvoiceNumber : 'kladd');
+                let model = new SendEmail();
+                model.EntityType = 'CustomerInvoice';
+                model.EntityID = invoice.ID;
+                model.CustomerID = invoice.CustomerID;
 
-                this.sendEmailModal.openModal(sendemail);
+                const invoiceNumber = (invoice.InvoiceNumber)
+                    ? ` nr. ${invoice.InvoiceNumber}`
+                    : 'kladd';
 
-                if (this.sendEmailModal.Changed.observers.length === 0) {
-                    this.sendEmailModal.Changed.subscribe((email) => {
+                model.Subject = 'Faktura' + invoiceNumber;
+                model.Message = 'Vedlagt finner du faktura' + invoiceNumber;
+
+                this.modalService.open(UniSendEmailModal, {
+                    data: model
+                }).onClose.subscribe(email => {
+                    if (email) {
                         this.reportService.generateReportSendEmail('Faktura id', email);
-                    });
-                }
+                    }
+                });
             }
         });
 

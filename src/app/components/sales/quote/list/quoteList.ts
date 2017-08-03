@@ -1,14 +1,13 @@
-import {Component, ViewChild, OnInit} from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 import {Router} from '@angular/router';
 import {UniHttp} from '../../../../../framework/core/http/http';
 import {CompanySettings} from '../../../../unientities';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
-import {SendEmailModal} from '../../../common/modals/sendEmailModal';
 import {SendEmail} from '../../../../models/sendEmail';
-import {ToastService, ToastType} from '../../../../../framework/uniToast/toastService';
-import {ISummaryConfig} from '../../../common/summary/summary';
-import {ITickerActionOverride, TickerAction, ITickerColumnOverride} from '../../../../services/common/uniTickerService';
-import * as moment from 'moment';
+import {ToastService} from '../../../../../framework/uniToast/toastService';
+
+import {ITickerActionOverride, ITickerColumnOverride} from '../../../../services/common/uniTickerService';
+import {UniModalService, UniSendEmailModal} from '../../../../../framework/uniModal/barrel';
 import {
     CustomerQuoteService,
     ReportDefinitionService,
@@ -22,32 +21,24 @@ import {
     templateUrl: './quoteList.html'
 })
 export class QuoteList implements OnInit {
-    @ViewChild(SendEmailModal) private sendEmailModal: SendEmailModal;
+    public actionOverrides: ITickerActionOverride[] = [{
+        Code: 'quote_sendemail',
+        ExecuteActionHandler: (selectedRows) => this.onSendEmail(selectedRows)
+    }];
 
-    private actionOverrides: Array<ITickerActionOverride> = [
-        {
-            Code: 'quote_sendemail',
-            ExecuteActionHandler: (selectedRows) => this.onSendEmail(selectedRows)
+    public columnOverrides: ITickerColumnOverride[] = [{
+        Field: 'StatusCode',
+        Template: (dataItem) => {
+            let statusText: string = this.customerQuoteService.getStatusText(dataItem.CustomerQuoteStatusCode);
+            return statusText;
         }
-    ];
+    }];
 
-    private columnOverrides: Array<ITickerColumnOverride> = [
-
- {
-            Field: 'StatusCode',
-            Template: (dataItem) => {
-                let statusText: string = this.customerQuoteService.getStatusText(dataItem.CustomerQuoteStatusCode);
-                return statusText;
-            }
-        }
-
-     ];
-
-    private tickercode: string = 'quote_list';
+    public tickercode: string = 'quote_list';
 
     private companySettings: CompanySettings;
     private baseCurrencyCode: string;
-    private printStatusPrinted: string = '200';
+    public printStatusPrinted: string = '200';
 
     constructor(
         private uniHttpService: UniHttp,
@@ -58,8 +49,9 @@ export class QuoteList implements OnInit {
         private toastService: ToastService,
         private errorService: ErrorService,
         private companySettingsService: CompanySettingsService,
-        private reportService: ReportService
-    ) { }
+        private reportService: ReportService,
+        private modalService: UniModalService
+    ) {}
 
     public ngOnInit() {
         this.companySettingsService.Get(1)
@@ -88,21 +80,23 @@ export class QuoteList implements OnInit {
         let quote = selectedRows[0];
 
         return new Promise((resolve, reject) => {
-            let sendemail = new SendEmail();
-            sendemail.EntityType = 'CustomerQuote';
-            sendemail.EntityID = quote.ID;
-            sendemail.CustomerID = quote.CustomerID;
-            sendemail.Subject = 'Tilbud ' + (quote.CustomerQuoteQuoteNumber ? 'nr. ' + quote.CustomerQuoteQuoteNumber : 'kladd');
-            sendemail.Message = 'Vedlagt finner du Tilbud ' + (quote.CustomerQuoteQuoteNumber ? 'nr. ' + quote.CustomerQuoteQuoteNumber : 'kladd');
+            let model = new SendEmail();
+            model.EntityType = 'CustomerQuote';
+            model.EntityID = quote.ID;
+            model.CustomerID = quote.CustomerID;
 
-            this.sendEmailModal.openModal(sendemail);
+            const quoteNumber = quote.QuoteNumber ? ` nr. ${quote.QuoteNumber}` : 'kladd';
+            model.Subject = 'Tilbud' + quoteNumber;
+            model.Message = 'Vedlagt finner du tilbud' + quoteNumber;
 
-            if (this.sendEmailModal.Changed.observers.length === 0) {
-                this.sendEmailModal.Changed.subscribe((email) => {
-                    this.reportService.generateReportSendEmail('Tilbud id', email);
-                    resolve();
-                });
-            }
+            this.modalService.open(UniSendEmailModal, {
+                data: model
+            }).onClose.subscribe(email => {
+                if (email) {
+                    this.reportService.generateReportSendEmail('Tilbud id', email, null);
+                }
+                resolve();
+            });
         });
     }
 

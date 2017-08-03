@@ -4,23 +4,20 @@ import {Observable} from 'rxjs/Observable';
 import {IUniSaveAction} from '../../../../../framework/save/save';
 import {TradeItemHelper} from '../../salesHelper/tradeItemHelper';
 import {CustomerQuote, Project} from '../../../../unientities';
-import {StatusCodeCustomerQuote, CompanySettings, CustomerQuoteItem, CurrencyCode, LocalDate} from '../../../../unientities';
 import {StatusCode} from '../../salesHelper/salesEnums';
 import {TradeHeaderCalculationSummary} from '../../../../models/sales/TradeHeaderCalculationSummary';
 import {TofHelper} from '../../salesHelper/tofHelper';
 import {PreviewModal} from '../../../reports/modals/preview/previewModal';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
-import {ToastService, ToastType, ToastTime} from '../../../../../framework/uniToast/toastService';
+import {ToastService, ToastType} from '../../../../../framework/uniToast/toastService';
 import {IToolbarConfig} from '../../../common/toolbar/toolbar';
 import {UniStatusTrack} from '../../../common/toolbar/statustrack';
 import {IContextMenuItem} from '../../../../../framework/ui/unitable/index';
-import {SendEmailModal} from '../../../common/modals/sendEmailModal';
 import {SendEmail} from '../../../../models/sendEmail';
 import {ISummaryConfig} from '../../../common/summary/summary';
 import {GetPrintStatusText} from '../../../../models/printStatus';
 import {TofHead} from '../../common/tofHead';
 import {TradeItemTable} from '../../common/tradeItemTable';
-import {UniModalService, ConfirmActions} from '../../../../../framework/uniModal/barrel';
 import {
     CustomerQuoteService,
     CustomerQuoteItemService,
@@ -35,6 +32,19 @@ import {
     ReportService,
     ProjectService
 } from '../../../../services/services';
+import {
+    StatusCodeCustomerQuote,
+    CompanySettings,
+    CustomerQuoteItem,
+    CurrencyCode,
+    LocalDate
+} from '../../../../unientities';
+import {
+    UniModalService,
+    UniSendEmailModal,
+    ConfirmActions
+} from '../../../../../framework/uniModal/barrel';
+
 import * as moment from 'moment';
 declare var _;
 
@@ -43,8 +53,8 @@ declare var _;
     templateUrl: './quoteDetails.html',
 })
 export class QuoteDetails {
-    @ViewChild(PreviewModal) private previewModal: PreviewModal;
-    @ViewChild(SendEmailModal) private sendEmailModal: SendEmailModal;
+    @ViewChild(PreviewModal)
+    private previewModal: PreviewModal;
 
     @ViewChild(TofHead)
     private tofHead: TofHead;
@@ -102,7 +112,7 @@ export class QuoteDetails {
         private tofHelper: TofHelper,
         private projectService: ProjectService,
         private modalService: UniModalService
-    ){}
+    ) {}
 
     public ngOnInit() {
         this.setSums();
@@ -666,7 +676,27 @@ export class QuoteDetails {
 
         this.saveActions.push({
             label: 'Send på epost',
-            action: (done) => this.sendEmailAction(done),
+            action: (done) => {
+                let model = new SendEmail();
+                model.EntityType = 'CustomerQuote';
+                model.EntityID = this.quote.ID;
+                model.CustomerID = this.quote.CustomerID;
+                model.EmailAddress = this.quote.EmailAddress;
+
+                const quoteNumber = this.quote.QuoteNumber ? ` nr. ${this.quote.QuoteNumber}` : 'kladd';
+                model.Subject = 'Tilbud' + quoteNumber;
+                model.Message = 'Vedlagt finner du tilbud' + quoteNumber;
+
+                this.modalService.open(UniSendEmailModal, {
+                    data: model
+                }).onClose.subscribe(email => {
+                    if (email) {
+                        this.reportService.generateReportSendEmail('Tilbud id', email, null, done);
+                    } else {
+                        done();
+                    }
+                });
+            },
             main: printStatus === 200 && !this.isDirty,
             disabled: false
         });
