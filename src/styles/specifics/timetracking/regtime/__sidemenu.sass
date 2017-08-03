@@ -1,0 +1,112 @@
+﻿.sidemenu_timetracking_component
+    width: 335px
+    float: left
+    height: calc(100vh - 160px)
+    
+
+.sidemenu_container
+    background-color: #eceff7
+    min-height: 100%
+
+.sidemenu_calender_container
+    width: 80%
+    text-align: center
+    padding: 15px 
+    margin: 0 auto
+    .sidemenu_calender
+        display: block
+        position: relative
+        box-shadow: none
+        background-color: #eceff7
+        margin: 0
+        table
+            background-color: #eceff7
+            caption
+                background-color: #eceff7
+                font-size: 1.4rem
+                color: #717882
+                a
+                    &:before
+                        height: 2.5rem
+                        width: 2rem
+                        display: block
+                        content: ''
+                        background: unicon-chevron-right(#717882) center center no-repeat
+                        background-size: .6rem
+
+                &:hover
+                    &:before
+                        background-size: .4rem
+            .prev
+                left: 1%
+                transform: rotate(180deg)
+
+            .next
+                right: 2%
+
+            thead
+                color: #838993
+
+            tbody > tr > td
+                /*-n+2 selects the last two elements of each tr*/
+                &:nth-last-of-type(-n+2)
+                    background-color: #e2e5ef
+                &.selected
+                    background-color: #8d96a9
+                    border-radius: 100%
+                    color: #fff
+
+    button
+        background-color: #114880
+        height: 25px
+        width: 125px
+        padding: 0
+
+.sidemenu_template_container
+    width: 80% 
+    margin: 0 auto
+
+    h3
+        font-size: 1.3rem
+        margin-left: 15px
+
+    .sidemenu_template
+        border-bottom: 1px solid #babcc2
+        padding: 15px
+        &:last-of-type
+            border: none
+
+        &:hover
+            background-color: #babcc2
+            cursor: pointer
+
+        .sidemenu_template_start_end_time
+            float: right
+            margin: 0
+            font-size: 0.8rem
+
+        .sidemenu_template_time_total
+            float: right
+            &:after
+                clear: both
+
+        .sidemenu_template_timeart
+            color: #628cb2
+            font-size: 0.8rem
+            max-width: 60%
+            display: inline-block
+            overflow-x: hidden
+            white-space: nowrap
+
+    h4
+        font-weight: 200
+        font-size: 1rem
+        padding: 0 15px
+
+    button
+        background-color: #008000
+        height: 25px
+        width: 125px
+        padding: 0
+        float: right
+        margin: 15px 0

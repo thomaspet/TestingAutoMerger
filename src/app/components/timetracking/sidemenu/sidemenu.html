@@ -1,0 +1,24 @@
+﻿<section class="sidemenu_container">
+    <section class="sidemenu_calender_container">
+            <unitable-calendar class="sidemenu_calender"
+                               (dateChange)="onCalendarDateChange($event)"
+                               (keydown.esc)="hideCalendar()"
+                               [date]="day.date"></unitable-calendar>
+        <button (click)="setTodayAsCurrentDay()">Gå til idag</button>
+        
+    </section>
+
+    <section class="sidemenu_template_container">
+        <h3>Maler</h3>
+        <article class="sidemenu_template" *ngFor="let template of timeTrackingTemplates" (click)="onTemplateSelected(template)">
+            <a class="sidemenu_template_timeart">{{ timearts[template.WorkRelationID - 1] }}</a>
+            <time class="sidemenu_template_start_end_time">{{ template.StartTime }} - {{ template.EndTime }}</time><br />
+            <a>{{ template.Label }}</a>
+            <time class="sidemenu_template_time_total"> {{ template.Minutes / 60 }} </time>
+        </article>
+        <h4 *ngIf="!timeTrackingTemplates.length">
+            Ingen maler lagret. Trykk på "Ny Mal" for å lage en ny. 
+        </h4>
+        <button (click)="createNewTemplate()">Ny mal...</button>
+    </section>
+</section>

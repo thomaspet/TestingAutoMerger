@@ -1,9 +1,9 @@
-import {Component, ViewChild} from '@angular/core';
+import {Component, ViewChild, ChangeDetectorRef} from '@angular/core';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {View} from '../../../models/view/view';
 import {WorkRelation, WorkItem, Worker, WorkBalance, LocalDate} from '../../../unientities';
-import {WorkerService, IFilter} from '../../../services/timetracking/workerService';
-import {exportToFile, arrayToCsv, safeInt, trimLength} from '../../common/utils/utils';
+import { WorkerService, IFilter } from '../../../services/timetracking/workerService';
+import { exportToFile, arrayToCsv, safeInt, trimLength, parseTime } from '../../common/utils/utils';
 import {TimesheetService, TimeSheet} from '../../../services/timetracking/timesheetService';
 import {IsoTimePipe} from '../../common/utils/pipes';
 import {IUniSaveAction} from '../../../../framework/save/save';
@@ -16,7 +16,8 @@ import {ActivatedRoute, Router} from '@angular/router';
 import {ErrorService} from '../../../services/services';
 import {UniConfirmModal, ConfirmActions} from '../../../../framework/modals/confirm';
 import {WorkEditor} from '../components/workeditor';
-import {DayBrowser, Day, ITimeSpan, INavDirection} from '../components/daybrowser';
+import { DayBrowser, Day, ITimeSpan, INavDirection } from '../components/daybrowser';
+import { SideMenu } from '../sidemenu/sidemenu';
 import {TeamworkReport, Team} from '../components/teamworkreport';
 import {UniFileImport} from '../components/popupfileimport';
 import * as moment from 'moment';
@@ -35,6 +36,15 @@ interface ISettings {
     useDayBrowser: boolean;
 }
 
+export enum TimeTrackingPeriodes {
+    Day = 0,
+    Week,
+    Month,
+    TwoMonths,
+    Year,
+    Everything
+}
+
 export var view = new View('timeentry', 'Timer', 'TimeEntry', false, '', TimeEntry);
 
 @Component({
@@ -48,6 +58,7 @@ export class TimeEntry {
     public workRelations: Array<WorkRelation> = [];
     private timeSheet: TimeSheet = new TimeSheet();
     private currentFilter: IFilter;
+    public currentPeriode: TimeTrackingPeriodes = 0;
     public currentBalance: WorkBalanceDto;
     public incomingBalance: WorkBalance;
     public teams: Array<Team>;
@@ -61,6 +72,7 @@ export class TimeEntry {
     @ViewChild(RegtimeBalance) private regtimeBalance: RegtimeBalance;
     @ViewChild(WorkEditor) private workEditor: WorkEditor;
     @ViewChild(DayBrowser) private dayBrowser: DayBrowser;
+    @ViewChild(SideMenu) private sideMenu: SideMenu;
     @ViewChild(TeamworkReport) private teamreport: TeamworkReport;
     @ViewChild(UniFileImport) private fileImport: UniFileImport;
 
@@ -107,7 +119,8 @@ export class TimeEntry {
         private route: ActivatedRoute,
         private errorService: ErrorService,
         private router: Router,
-        private localStore: BrowserStorageService
+        private localStore: BrowserStorageService,
+        private changeDetectorRef: ChangeDetectorRef
     ) {
 
         this.loadSettings();
@@ -155,6 +168,47 @@ export class TimeEntry {
                 this.loadItems();
             }
         });
+    }
+
+    private onDateSelected(event) {
+        this.checkSave().then(() => {
+            this.busy = true;
+            this.loadItems(event);
+            //event.selected = true;
+        });
+    }
+
+    private onTemplateSelected(event) {
+        let newTimeItem = this.mapTemplateToWorkItem({}, event);
+        this.timeSheet.addItem(newTimeItem, false);
+
+        let types = this.workEditor.getWorkTypes();
+        if (newTimeItem.WorkRelationID) {
+            newTimeItem.Worktype = types.find(t => t.ID === event.WorkRelationID);
+        }
+
+        this.timeSheet.recalc();
+        this.flagUnsavedChanged();
+        this.workEditor.refreshData();
+    }
+
+    private mapTemplateToWorkItem(workItem: any, template: any) {
+        console.log(template);
+        workItem.Date = new Date();
+        workItem.StartTime = template.StartTime ? parseTime(template.StartTime) : parseTime('8');
+        workItem.EndTime = template.EndTime ? parseTime(template.EndTime) : parseTime('8');
+        workItem.Minutes = template.Minutes;
+        workItem.LunchInMinutes = template.LunchInMinutes;
+        workItem.Description = template.Description;
+        workItem.DimensionsID = template.DimensionsID;
+        workItem.CustomerOrderID = template.CustomerOrderID;
+
+        console.log(workItem);
+        return workItem;
+    }
+
+    private refresh() {
+        this.changeDetectorRef.markForCheck();
     }
 
     public onTabClick(tab: ITab) {
@@ -389,6 +443,8 @@ export class TimeEntry {
                 if (success) {
                     let ts = this.timeSheet.clone();
                     let importedList = this.fileImport.getWorkItems();
+                    console.log(importedList);
+                    //return;
                     if (importedList && importedList.length > 0) {
                         var types = this.workEditor.getWorkTypes();
                         importedList.forEach( (x, index) => {
@@ -564,9 +620,6 @@ export class TimeEntry {
             this.loadItems();
         });
     }
-
-
-
 }
 
 // tslint:disable:variable-name

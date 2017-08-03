@@ -23,7 +23,8 @@ import {WorkprofileListview} from './workprofile/workprofiles';
 import {WorktypeDetailview} from './worktype/worktype';
 import {WorktypeListview} from './worktype/worktypes';
 import {View as VacationView} from './timeentry/vacation/vacation';
-import {View as WorkBalancesView} from './worker/balances';
+import { View as WorkBalancesView } from './worker/balances';
+import { SideMenu } from './sidemenu/sidemenu';
 import {CanDeactivateGuard} from '../../canDeactivateGuard';
 import {WorkEditor} from './components/workeditor';
 import {DayBrowser} from './components/daybrowser';
@@ -64,6 +65,7 @@ import {UniFileImport} from './components/popupfileimport';
         VacationView,
         WorkBalancesView,
         WorkEditor,
+        SideMenu,
         DayBrowser,
         UniTimeModal,
         TeamworkReport,

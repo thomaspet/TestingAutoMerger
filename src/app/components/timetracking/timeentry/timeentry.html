@@ -1,4 +1,4 @@
-<uni-toolbar class="no-print" [config]="toolbarConfig" [saveactions]="actions"></uni-toolbar>
+﻿<uni-toolbar class="no-print" [config]="toolbarConfig" [saveactions]="actions"></uni-toolbar>
 
 <aside class="horizontal_nav no-print" [hidden]="missingWorker">
     <ul>
@@ -10,21 +10,28 @@
         </li>
     </ul>
 </aside>
-
+<sidemenu class="sidemenu_timetracking_component" [periode]="currentPeriode" (dateSelected)="onDateSelected($event)" (templateSelected)="onTemplateSelected($event)"></sidemenu>
 <section class='regtimecontainer'
     [class.wideapplication]="workEditor.numberOfVisibleColumns > 9" 
-    [class.application]="workEditor.numberOfVisibleColumns <= 9" >
+    [class.application]="workEditor.numberOfVisibleColumns <= 9" style="width: calc(100% - 400px); float: left;">
 
     <section class="regtime_tabs">
 
         <section [hidden]="missingWorker || !tabs[0].isSelected">
             
             <header>
-
+                <ul class="timetracking_periode_selector">
+                    <li class="timetracking_periode_selected"> Dag </li>
+                    <li> Uke </li>
+                    <li> Måned </li>
+                    <li> 2 måneder </li>
+                    <li> År </li>
+                    <li> Alt </li>
+                </ul>
                 <daybrowser *ngIf="settings.useDayBrowser" (clickday)="onClickDay($event)" (requestsums)="onRequestDaySums($event)" 
                     (navigate)="onNavigateDays($event)">
                 </daybrowser>
-
+                
                 <aside *ngIf="!settings.useDayBrowser" class="regtime_filters no-print">
                     <br/>
                     <ul>

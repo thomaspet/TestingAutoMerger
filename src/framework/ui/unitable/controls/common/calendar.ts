@@ -86,7 +86,7 @@ export class UniCalendar {
         }
 
         this.calendarWeeks = [];
-        for (let i = 0; i <= 5; i++) {
+        for (let i = 0; i <= 4; i++) {
             this.calendarWeeks[i] = days.splice(0, 7);
         }
 
