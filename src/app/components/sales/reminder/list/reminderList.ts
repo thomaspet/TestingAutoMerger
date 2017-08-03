@@ -1,20 +1,22 @@
 import {Component, ViewChild} from '@angular/core';
 import {IToolbarConfig} from './../../../common/toolbar/toolbar';
-import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig, ITableFilter, IContextMenuItem} from '../../../../../framework/ui/unitable/index';
 import {Router} from '@angular/router';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
 import {ISummaryConfig} from '../../../common/summary/summary';
 import {IUniSaveAction} from '../../../../../framework/save/save';
 import {ToastService, ToastType} from '../../../../../framework/uniToast/toastService';
 import {ReminderSendingModal} from '../sending/reminderSendingModal';
-import {ReminderSettingsModal} from '../../../common/reminder/settings/settingsModal';
-import {Observable} from 'rxjs/Observable';
+import {UniModalService} from '../../../../../framework/uniModal/barrel';
+import {UniReminderSettingsModal} from '../../../common/reminder/settings/reminderSettingsModal';
+import {CustomerInvoiceReminderSettings, LocalDate} from '../../../../unientities';
 import {
-    CustomerInvoiceReminderSettings,
-    CustomerInvoice,
-    LocalDate
-} from '../../../../unientities';
-
+    UniTable,
+    UniTableColumn,
+    UniTableColumnType,
+    UniTableConfig,
+    ITableFilter,
+    IContextMenuItem
+} from '../../../../../framework/ui/unitable/index';
 import {
     NumberFormat,
     CustomerInvoiceService,
@@ -23,7 +25,6 @@ import {
     ErrorService
 } from '../../../../services/services';
 
-import * as moment from 'moment';
 declare const _;
 
 @Component({
@@ -33,8 +34,7 @@ declare const _;
 export class ReminderList {
     @ViewChild(UniTable)
     private table: UniTable;
-    @ViewChild(ReminderSettingsModal)
-    private settingsModal: ReminderSettingsModal;
+
     @ViewChild(ReminderSendingModal)
     private reminderSendingModal: ReminderSendingModal;
 
@@ -44,7 +44,7 @@ export class ReminderList {
     private reminderSettings: CustomerInvoiceReminderSettings;
     public showInvoicesWithReminderStop: boolean = false;
 
-    private toolbarconfig: IToolbarConfig = {
+    public toolbarconfig: IToolbarConfig = {
         title: 'Purring',
         omitFinalCrumb: true
     };
@@ -64,7 +64,8 @@ export class ReminderList {
         private tabService: TabService,
         private errorService: ErrorService,
         private numberFormatService: NumberFormat,
-        private toastService: ToastService
+        private toastService: ToastService,
+        private modalService: UniModalService
     ) {
         this.tabService.addTab({
             name: 'Purring',
@@ -194,9 +195,8 @@ export class ReminderList {
     }
 
     public settings(done) {
-        this.settingsModal.settings().then((action) => {
-            done();
-        });
+        this.modalService.open(UniReminderSettingsModal)
+            .onClose.subscribe(() => done());
     }
 
     private onRowSelected(data) {

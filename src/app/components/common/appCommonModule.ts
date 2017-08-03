@@ -28,7 +28,7 @@ import {UniPoster, TextWidget, ContactWidget, TableWidget, AlertsWidget, ImageWi
 import {LedgerAccountReconciliation} from './reconciliation/ledgeraccounts/ledgeraccountreconciliation';
 import {AccrualForm} from './modals/accrualModal';
 import {AccrualModal} from './modals/accrualModal';
-import {ReminderSettingsModal, ReminderSettingsForm} from './reminder/settings/settingsModal';
+import {UniReminderSettingsModal} from './reminder/settings/reminderSettingsModal';
 import {ReminderSettings} from './reminder/settings/reminderSettings';
 import {ReminderRules} from './reminder/settings/reminderRules';
 import {ContactDetails} from './contact/contactDetails';
@@ -101,12 +101,10 @@ import {routes as AppCommonRoutes} from './appCommonRoutes';
         SupplierDetails,
         SupplierDetailsModal,
 
-        // reconciliation
         LedgerAccountReconciliation,
 
         ReminderSettings,
-        ReminderSettingsModal,
-        ReminderSettingsForm,
+        UniReminderSettingsModal,
         ReminderRules,
 
         ContactDetails,
@@ -128,8 +126,7 @@ import {routes as AppCommonRoutes} from './appCommonRoutes';
         AccrualForm,
         AltinnAuthenticationDataModalContent,
         ImageModalContent,
-        ReminderSettingsForm,
-        ReminderSettingsModal,
+        UniReminderSettingsModal,
         ReminderSettings,
         AddPaymentForm
     ],
@@ -173,11 +170,10 @@ import {routes as AppCommonRoutes} from './appCommonRoutes';
         SupplierDetails,
         SupplierDetailsModal,
 
-        // reconciliation
         LedgerAccountReconciliation,
 
         ReminderSettings,
-        ReminderSettingsModal,
+        UniReminderSettingsModal,
 
         ContactDetails,
         Contacts,
