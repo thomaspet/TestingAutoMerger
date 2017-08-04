@@ -231,6 +231,26 @@ export class OrderDetails {
          this.tofHead.detailsForm.tabbedPastLastField.subscribe((event) => this.tradeItemTable.focusFirstRow());
     }
 
+    private sendEmailAction(doneHandler: (msg: string) => void = null) {
+        doneHandler('Email-sending åpnet');
+        
+        let sendemail = new SendEmail();
+        sendemail.EntityType = 'CustomerOrder';
+        sendemail.EntityID = this.order.ID;
+        sendemail.CustomerID = this.order.CustomerID;
+        sendemail.EmailAddress = this.order.EmailAddress;
+        sendemail.Subject = 'Ordre ' + (this.order.OrderNumber ? 'nr. ' + this.order.OrderNumber : 'kladd');
+        sendemail.Message = 'Vedlagt finner du Ordre ' + (this.order.OrderNumber ? 'nr. ' + this.order.OrderNumber : 'kladd');
+
+        this.sendEmailModal.openModal(sendemail);
+        if (this.sendEmailModal.Changed.observers.length === 0) {
+                this.sendEmailModal.Changed.subscribe((email) => {
+                this.reportService.generateReportSendEmail('Ordre id', email, null, doneHandler);
+            });
+        }
+
+    }
+
     @HostListener('keydown', ['$event'])
     public onKeyDown(event: KeyboardEvent) {
         const key = event.which || event.keyCode;
@@ -660,22 +680,7 @@ export class OrderDetails {
 
         this.saveActions.push({
             label: 'Send på epost',
-            action: (done) => {
-                let sendemail = new SendEmail();
-                sendemail.EntityType = 'CustomerOrder';
-                sendemail.EntityID = this.order.ID;
-                sendemail.CustomerID = this.order.CustomerID;
-                sendemail.EmailAddress = this.order.EmailAddress;
-                sendemail.Subject = 'Ordre ' + (this.order.OrderNumber ? 'nr. ' + this.order.OrderNumber : 'kladd');
-                sendemail.Message = 'Vedlagt finner du Ordre ' + (this.order.OrderNumber ? 'nr. ' + this.order.OrderNumber : 'kladd');
-
-                this.sendEmailModal.openModal(sendemail);
-                if (this.sendEmailModal.Changed.observers.length === 0) {
-                        this.sendEmailModal.Changed.subscribe((email) => {
-                        this.reportService.generateReportSendEmail('Ordre id', email, null, done);
-                    });
-                }
-            },
+            action: (done) => this.sendEmailAction(done),
             main: printStatus === 200 && !this.isDirty,
             disabled: false
 

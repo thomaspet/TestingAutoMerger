@@ -298,6 +298,8 @@ export class InvoiceDetails {
     }
 
     private sendEmailAction(doneHandler: (msg: string) => void = null) {
+        doneHandler('Email-sending åpnet');
+        
         let sendemail = new SendEmail();
         sendemail.EntityType = 'CustomerInvoice';
         sendemail.EntityID = this.invoice.ID;

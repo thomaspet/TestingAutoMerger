@@ -213,6 +213,26 @@ export class QuoteDetails {
          this.tofHead.detailsForm.tabbedPastLastField.subscribe((event) => this.tradeItemTable.focusFirstRow());
     }
 
+    private sendEmailAction(doneHandler: (msg: string) => void = null) {   
+        doneHandler('Email-sending åpnet');
+        
+        let sendemail = new SendEmail();
+        sendemail.EntityType = 'CustomerQuote';
+        sendemail.EntityID = this.quote.ID;
+        sendemail.CustomerID = this.quote.CustomerID;
+        sendemail.EmailAddress = this.quote.EmailAddress;
+        sendemail.Subject = 'Tilbud ' + (this.quote.QuoteNumber ? 'nr. ' + this.quote.QuoteNumber : 'kladd');
+        sendemail.Message = 'Vedlagt finner du Tilbud ' + (this.quote.QuoteNumber ? 'nr. ' + this.quote.QuoteNumber : 'kladd');
+
+        this.sendEmailModal.openModal(sendemail);
+        if (this.sendEmailModal.Changed.observers.length === 0) {
+                this.sendEmailModal.Changed.subscribe((email) => {
+                this.reportService.generateReportSendEmail('Tilbud id', email, null, doneHandler);
+            });
+        }
+
+    }
+
     @HostListener('keydown', ['$event'])
     public onKeyDown(event: KeyboardEvent) {
         const key = event.which || event.keyCode;
@@ -645,22 +665,7 @@ export class QuoteDetails {
 
         this.saveActions.push({
             label: 'Send på epost',
-            action: (done) => {
-                let sendemail = new SendEmail();
-                sendemail.EntityType = 'CustomerQuote';
-                sendemail.EntityID = this.quote.ID;
-                sendemail.CustomerID = this.quote.CustomerID;
-                sendemail.EmailAddress = this.quote.EmailAddress;
-                sendemail.Subject = 'Tilbud ' + (this.quote.QuoteNumber ? 'nr. ' + this.quote.QuoteNumber : 'kladd');
-                sendemail.Message = 'Vedlagt finner du Tilbud ' + (this.quote.QuoteNumber ? 'nr. ' + this.quote.QuoteNumber : 'kladd');
-
-                this.sendEmailModal.openModal(sendemail);
-                if (this.sendEmailModal.Changed.observers.length === 0) {
-                        this.sendEmailModal.Changed.subscribe((email) => {
-                        this.reportService.generateReportSendEmail('Tilbud id', email, null, done);
-                    });
-                }
-            },
+            action: (done) => this.sendEmailAction(done),
             main: printStatus === 200 && !this.isDirty,
             disabled: false
         });

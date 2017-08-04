@@ -128,6 +128,8 @@ export class PreviewModal {
         this.modalConfig.report = null;
         this.reportDefinition = report;
         this.modal.open();
+        
+        doneHandler('Skrevet ut');
 
         this.reportService.generateReportHtml(report, this.modalConfig, () => {
             this.cdr.markForCheck();
