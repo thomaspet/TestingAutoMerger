@@ -9,7 +9,7 @@ import {
     Supplier, SupplierInvoice, JournalEntryLineDraft,
     StatusCodeSupplierInvoice, BankAccount, LocalDate,
     InvoicePaymentData, CurrencyCode, CompanySettings, Task,
-    Project
+    Project, Department
 } from '../../../../unientities';
 import {UniStatusTrack} from '../../../common/toolbar/statustrack';
 import {IUniSaveAction} from '../../../../../framework/save/save';
@@ -48,7 +48,8 @@ import {
     EHFService,
     UniSearchConfigGeneratorService,
     ModulusService,
-    ProjectService
+    ProjectService,
+    DepartmentService
 } from '../../../../services/services';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {UniFieldLayout} from '../../../../../framework/ui/uniform/index';
@@ -133,6 +134,7 @@ export class BillView {
     ];
 
     private projects: Project[];
+    private departments: Department[];
 
     constructor(
         private tabService: TabService,
@@ -154,6 +156,7 @@ export class BillView {
         private uniSearchConfigGeneratorService: UniSearchConfigGeneratorService,
         private modulusService: ModulusService,
         private projectService: ProjectService,
+        private departmentService: DepartmentService,
         private modalService: UniModalService
     ) {
         this.actions = this.rootActions;
@@ -181,11 +184,13 @@ export class BillView {
                 Observable.forkJoin(
                     this.companySettingsService.Get(1),
                     this.currencyCodeService.GetAll(null),
-                    this.projectService.GetAll(null)
+                    this.projectService.GetAll(null),
+                    this.departmentService.GetAll(null)
                 ).subscribe((res) => {
                     this.companySettings = res[0];
                     this.currencyCodes = res[1];
                     this.projects = res[2];
+                    this.departments = res[3];
 
                     this.updateTabInfo(id);
                     this.fetchInvoice(id, true);
@@ -195,11 +200,13 @@ export class BillView {
                 Observable.forkJoin(
                     this.companySettingsService.Get(1),
                     this.currencyCodeService.GetAll(null),
-                    this.projectService.GetAll(null)
+                    this.projectService.GetAll(null),
+                    this.departmentService.GetAll(null)
                 ).subscribe((res) => {
                     this.companySettings = res[0];
                     this.currencyCodes = res[1];
                     this.projects = res[2];
+                    this.departments = res[3];
 
                     this.newInvoice(true);
                     this.checkPath();
@@ -228,6 +235,14 @@ export class BillView {
         let projectsField = fields.find(f => f.Property === 'DefaultDimensions.ProjectID');
         projectsField.Options = {
             source: this.projects,
+            valueProperty: 'ID',
+            displayProperty: 'Name',
+            debounceTime: 200
+        };
+
+        let departmentsField = fields.find(f => f.Property === 'DefaultDimensions.DepartmentID');
+        departmentsField.Options = {
+            source: this.departments,
             valueProperty: 'ID',
             displayProperty: 'Name',
             debounceTime: 200
@@ -299,7 +314,12 @@ export class BillView {
                 Property: 'DefaultDimensions.ProjectID',
                 FieldType: FieldType.DROPDOWN,
                 Label: 'Prosjekt',
-            }
+            },
+            <any> {
+                Property: 'DefaultDimensions.DepartmentID',
+                FieldType: FieldType.DROPDOWN,
+                Label: 'Avdeling',
+            },
         ];
 
         this.uniSearchConfig = this.uniSearchConfigGeneratorService
@@ -329,14 +349,6 @@ export class BillView {
             valueProperty: 'ID',
             displayValue: 'Code',
             debounceTime: 200,
-        };
-
-        let projectsField = fields.find(f => f.Property === 'DefaultDimensions.ProjectID');
-        projectsField.Options = {
-            source: this.projects,
-            valueProperty: 'ID',
-            displayProperty: 'Name',
-            debounceTime: 200
         };
 
         let bankAccountField = fields.find(f => f.Property === 'BankAccountID');
