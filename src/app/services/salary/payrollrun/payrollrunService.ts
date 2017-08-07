@@ -356,7 +356,7 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
                     Label: 'Nummer',
                     Description: null,
                     HelpText: null,
-                    Legend: 'Lønnsvregning',
+                    Legend: 'Lønnsavregning',
                     FieldSet: 1,
                     Section: 0,
                     Placeholder: '',
