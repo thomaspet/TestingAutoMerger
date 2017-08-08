@@ -130,7 +130,11 @@ export class EmployeeTax extends UniView implements OnInit {
 
     private toggleReadOnly(taxCard: EmployeeTaxCard, fields: UniFieldLayout[] = undefined): UniFieldLayout[] {
         fields = fields || this.fields$.getValue();
-        fields.filter(field => field.Property !== 'TaxBtn').forEach(field => field.ReadOnly = !taxCard.EmployeeID);
+        fields.filter(field => 
+            field.Property !== 'TaxBtn')
+                .forEach(field =>
+                    field.Property === '_lastUpdated' ? field.ReadOnly = true : field.ReadOnly = !taxCard.EmployeeID
+                );
         return fields;
     }
 }
