@@ -92,7 +92,7 @@ export class PersonalDetails extends UniView {
                 .subscribe(
                 employee => {
                     this.employee$.next(employee);
-                    this.showHideNameProperties(false);
+                    this.showHideNameProperties(false, employee);
                 },
                 err => this.errorService.handle(err)
                 );
@@ -152,6 +152,7 @@ export class PersonalDetails extends UniView {
 
     public onFormChange(changes: SimpleChanges) {
         this.employee$
+            .asObservable()
             .take(1)
             .filter(() => Object
                 .keys(changes)
@@ -369,6 +370,7 @@ export class PersonalDetails extends UniView {
         userIDField.Options = {
             getDefaultData: () => {
                 return this.employee$
+                    .asObservable()
                     .take(1)
                     .switchMap(emp => {
                         return emp && emp.UserID
@@ -403,9 +405,8 @@ export class PersonalDetails extends UniView {
                 if (!employee.BusinessRelationInfo.Name) {
                     employee.BusinessRelationInfo.Name = '';
                 }
-
                 this.employee$.next(employee);
-                this.showHideNameProperties();
+                this.showHideNameProperties(true, employee);
                 return Observable.from([employee]);
             });
 

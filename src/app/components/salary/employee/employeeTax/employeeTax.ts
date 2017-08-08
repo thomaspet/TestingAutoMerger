@@ -37,6 +37,7 @@ export class EmployeeTax extends UniView implements OnInit {
             const taxOptions$ = super.getStateSubject('taxCardModalCallback');
 
             this.fields$
+                .asObservable()
                 .take(1)
                 .filter(fields => !fields.length)
                 .switchMap(fields => Observable.combineLatest(taxCard$, employee$, taxOptions$))
@@ -56,6 +57,7 @@ export class EmployeeTax extends UniView implements OnInit {
                 .subscribe(taxCard => this.employeeTaxCard$.next(taxCard));
             
             employee$
+                .filter(emp => emp && emp.ID)
                 .subscribe((emp) => this.fields$.next(this.toggleTaxButtonActive(emp)));
         });
     }
@@ -104,6 +106,7 @@ export class EmployeeTax extends UniView implements OnInit {
 
     public onFormChange(changes: SimpleChanges) {
         this.employeeTaxCard$
+            .asObservable()
             .take(1)
             .filter(empTax => Object
                 .keys(changes)
@@ -117,9 +120,10 @@ export class EmployeeTax extends UniView implements OnInit {
 
     private toggleTaxButtonActive(employee: Employee, fields: UniFieldLayout[] = undefined): UniFieldLayout[] {
         fields = fields || this.fields$.getValue();
-        if (employee && fields.length && !super.isDirty('employee')) {
+
+        if (employee && fields.length) {
             let field = this.findByProperty(fields, 'TaxBtn');
-            field.ReadOnly = !employee.SocialSecurityNumber || !employee.ID;
+            field.ReadOnly = !employee.SocialSecurityNumber || !employee.ID || super.isDirty('employee');
         }
         return fields;
     }

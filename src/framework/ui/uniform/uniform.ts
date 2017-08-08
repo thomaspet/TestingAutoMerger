@@ -184,16 +184,16 @@ export class UniForm {
             });
             this.lastLayout = _.cloneDeep(this.lastLayout);
         }
-        if (this.currentComponent) {
-            setTimeout(() => {
+        setTimeout(() => {
+            if (this.currentComponent) {
                 this.currentComponent = this.field(this.currentComponent.field.Property);
                 if (this.currentComponent) {
                     this.currentComponent.focus();
                 } else {
                     this.focusFirstElement();
                 }
-            }, 200);
-        }
+            }
+        });
     }
 
     private changesLayout(layout) {
