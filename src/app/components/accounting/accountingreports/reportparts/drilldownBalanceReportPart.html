@@ -14,12 +14,12 @@
     </tr>
     <tr *ngFor="let summaryData of flattenedTreeSummaryList" (click)="expandRow(summaryData)" [class.expanded]="summaryData.expanded">
         <td [ngStyle]="{'padding-left': getPaddingLeft(summaryData.level)}">{{summaryData.number}}: {{summaryData.name}}</td>
-        <td class="amount">{{numberFormatService.asMoney(summaryData.amountIBPeriod1, numberFormat)}}</td>
-        <td class="amount">{{numberFormatService.asMoney(summaryData.amountChangePeriod1, numberFormat)}}</td>
-        <td class="amount">{{numberFormatService.asMoney(summaryData.amountOBPeriod1, numberFormat)}}</td>
-        <td *ngIf="showPreviousAccountYear" class="amount">{{numberFormatService.asMoney(summaryData.amountIBPeriod2, numberFormat)}}</td>
-        <td *ngIf="showPreviousAccountYear" class="amount">{{numberFormatService.asMoney(summaryData.amountChangePeriod2, numberFormat)}}</td>
-        <td *ngIf="showPreviousAccountYear" class="amount">{{numberFormatService.asMoney(summaryData.amountOBPeriod2, numberFormat)}}</td>
+        <td class="amount" [ngClass]="summaryData.amountIBPeriod1 < 0 ? 'negative' : 'positive'">{{numberFormatService.asMoney(summaryData.amountIBPeriod1, numberFormat)}}</td>
+        <td class="amount" [ngClass]="summaryData.amountChangePeriod1 < 0 ? 'negative' : 'positive'">{{numberFormatService.asMoney(summaryData.amountChangePeriod1, numberFormat)}}</td>
+        <td class="amount" [ngClass]="summaryData.amountOBPeriod1 < 0 ? 'negative' : 'positive'">{{numberFormatService.asMoney(summaryData.amountOBPeriod1, numberFormat)}}</td>
+        <td *ngIf="showPreviousAccountYear" class="amount" [ngClass]="summaryData.amountIBPeriod2 < 0 ? 'negative' : 'positive'">{{numberFormatService.asMoney(summaryData.amountIBPeriod2, numberFormat)}}</td>
+        <td *ngIf="showPreviousAccountYear" class="amount" [ngClass]="summaryData.amountChangePeriod2 < 0 ? 'negative' : 'positive'">{{numberFormatService.asMoney(summaryData.amountChangePeriod2, numberFormat)}}</td>
+        <td *ngIf="showPreviousAccountYear" class="amount" [ngClass]="summaryData.amountOBPeriod2 < 0 ? 'negative' : 'positive'">{{numberFormatService.asMoney(summaryData.amountOBPeriod2, numberFormat)}}</td>
     </tr>
 </table>
 
