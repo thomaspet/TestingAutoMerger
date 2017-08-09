@@ -127,16 +127,16 @@ export class CompanySettingsComponent implements OnInit {
 
     private roundingTypes: {ID: number, Label: string}[] = [
         {ID: 0, Label: 'Opp'},
-        {ID: 1, Label: 'Ned'},
-        {ID: 2, Label: 'Hele'},
-        {ID: 3, Label: 'Halve'}
+    //    {ID: 1, Label: 'Ned'},
+    //    {ID: 2, Label: 'Hele'},
+    //    {ID: 3, Label: 'Halve'}
     ];
 
     private roundingNumberOfDecimals: {Decimals: number, Label: string}[] = [
         {Decimals: 0, Label: 'Ingen desimaler'},
         {Decimals: 2, Label: '2 desimaler'},
-        {Decimals: 3, Label: '3 desimaler'},
-        {Decimals: 4, Label: '4 desimaler'}
+        //{Decimals: 3, Label: '3 desimaler'},
+        //{Decimals: 4, Label: '4 desimaler'}
     ];
 
     constructor(
@@ -1224,19 +1224,6 @@ export class CompanySettingsComponent implements OnInit {
                 }
             },
             {
-                Property: 'RoundingType',
-                FieldType: FieldType.DROPDOWN,
-                Label: 'Avrundingstype',
-                Section: 1,
-                FieldSet: 5,
-                Sectionheader: 'Avrunding',
-                Options: {
-                    source: this.roundingTypes,
-                    valueProperty: 'ID',
-                    displayProperty: 'Label'
-                }
-            }, //Øreavrunding ved betaling
-            {
                 ComponentLayoutID: 1,
                 EntityType: 'CompanySettings',
                 Property: 'AcceptableDelta4CustomerPaymentAccountID',
@@ -1245,7 +1232,7 @@ export class CompanySettingsComponent implements OnInit {
                 FieldType: FieldType.UNI_SEARCH,
                 ReadOnly: false,
                 LookupField: false,
-                Label: 'Konto for øredifferanse ved innbetaling',
+                Label: 'Konto for øredifferanse',
                 Description: null,
                 HelpText: null,
                 FieldSet: 5,

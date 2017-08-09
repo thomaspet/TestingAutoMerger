@@ -233,7 +233,7 @@ export class OrderDetails {
 
     private sendEmailAction(doneHandler: (msg: string) => void = null) {
         doneHandler('Email-sending åpnet');
-        
+
         let sendemail = new SendEmail();
         sendemail.EntityType = 'CustomerOrder';
         sendemail.EntityID = this.order.ID;
@@ -743,7 +743,7 @@ export class OrderDetails {
         }
 
         this.order.Items = orderItems;
-        this.itemsSummaryData = this.tradeItemHelper.calculateTradeItemSummaryLocal(orderItems);
+        this.itemsSummaryData = this.tradeItemHelper.calculateTradeItemSummaryLocal(orderItems, this.companySettings.RoundingNumberOfDecimals);
         this.updateToolbar();
         this.setSums();
     }

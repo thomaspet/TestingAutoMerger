@@ -213,9 +213,9 @@ export class QuoteDetails {
          this.tofHead.detailsForm.tabbedPastLastField.subscribe((event) => this.tradeItemTable.focusFirstRow());
     }
 
-    private sendEmailAction(doneHandler: (msg: string) => void = null) {   
+    private sendEmailAction(doneHandler: (msg: string) => void = null) {
         doneHandler('Email-sending åpnet');
-        
+
         let sendemail = new SendEmail();
         sendemail.EntityType = 'CustomerQuote';
         sendemail.EntityID = this.quote.ID;
@@ -625,7 +625,7 @@ export class QuoteDetails {
             return;
         }
 
-        this.itemsSummaryData = this.tradeItemHelper.calculateTradeItemSummaryLocal(quoteItems);
+        this.itemsSummaryData = this.tradeItemHelper.calculateTradeItemSummaryLocal(quoteItems, this.companySettings.RoundingNumberOfDecimals);
         this.updateToolbar();
         this.setSums();
     }

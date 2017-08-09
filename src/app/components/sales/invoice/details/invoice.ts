@@ -299,7 +299,7 @@ export class InvoiceDetails {
 
     private sendEmailAction(doneHandler: (msg: string) => void = null) {
         doneHandler('Email-sending åpnet');
-        
+
         let sendemail = new SendEmail();
         sendemail.EntityType = 'CustomerInvoice';
         sendemail.EntityID = this.invoice.ID;
@@ -1323,7 +1323,7 @@ export class InvoiceDetails {
     // Summary
     public recalcItemSums(invoiceItems: CustomerInvoiceItem[] = null) {
         if (invoiceItems) {
-            this.itemsSummaryData = this.tradeItemHelper.calculateTradeItemSummaryLocal(invoiceItems);
+            this.itemsSummaryData = this.tradeItemHelper.calculateTradeItemSummaryLocal(invoiceItems, this.companySettings.RoundingNumberOfDecimals);
             this.updateSaveActions();
             this.updateToolbar();
         } else {
@@ -1367,7 +1367,7 @@ export class InvoiceDetails {
             },
             {
                 title: 'Restbeløp',
-                value: !this.itemsSummaryData ? this.numberFormat.asMoney(0) : !this.invoice.ID ? this.numberFormat.asMoney(this.itemsSummaryData.SumTotalIncVatCurrency) : this.numberFormat.asMoney(this.invoice.RestAmountCurrency)
+                value: !this.itemsSummaryData ? this.numberFormat.asMoney(0) : !this.invoice.ID ? 0 : this.numberFormat.asMoney(this.invoice.RestAmountCurrency)
             },
         ];
     }
