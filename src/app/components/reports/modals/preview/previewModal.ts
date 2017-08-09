@@ -129,7 +129,9 @@ export class PreviewModal {
         this.reportDefinition = report;
         this.modal.open();
         
-        doneHandler('Skrevet ut');
+        if (doneHandler !== null) {
+            doneHandler('Skrevet ut');
+        }
 
         this.reportService.generateReportHtml(report, this.modalConfig, () => {
             this.cdr.markForCheck();
