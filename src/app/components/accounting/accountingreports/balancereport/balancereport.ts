@@ -33,7 +33,7 @@ export class BalanceReport {
         title: 'Balanse'
     };
 
-    private filter$: BehaviorSubject<any> = new BehaviorSubject({ShowPreviousAccountYear: true, Decimals: 2, ShowPercent: true});
+    private filter$: BehaviorSubject<any> = new BehaviorSubject({ShowPreviousAccountYear: false, Decimals: 2, ShowPercent: true});
     private config$: BehaviorSubject<any> = new BehaviorSubject({});
     private fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
 
@@ -57,6 +57,7 @@ export class BalanceReport {
         // get default period filters
         this.periodFilter1 = PeriodFilterHelper.getFilter(1, null);
         this.periodFilter2 = PeriodFilterHelper.getFilter(2, this.periodFilter1);
+        this.filter = this.filter$.getValue();
 
         this.yearItems = this.getYearComboSelection(this.periodFilter1.year);
 
