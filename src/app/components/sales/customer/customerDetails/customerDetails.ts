@@ -9,7 +9,7 @@ import {UniForm, UniFieldLayout, FieldType} from '../../../../../framework/ui/un
 import {ComponentLayout, Customer, Contact, Email, Phone, Address, CustomerInvoiceReminderSettings, CurrencyCode} from '../../../../unientities';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
 import {IReference} from '../../../../models/iReference';
-import {ToastService, ToastType} from '../../../../../framework/uniToast/toastService';
+import {ToastService, ToastType, ToastTime} from '../../../../../framework/uniToast/toastService';
 import {IPosterWidget} from '../../../common/poster/poster';
 import {LedgerAccountReconciliation} from '../../../common/reconciliation/ledgeraccounts/ledgeraccountreconciliation';
 import {ReminderSettings} from '../../../common/reminder/settings/reminderSettings';
@@ -67,6 +67,7 @@ export class CustomerDetails {
     public reportLinks: IReference[];
     private activeTab: string = 'details';
     public showReportWithID: number;
+    private isDisabled: boolean = true;
 
     private toolbarconfig: IToolbarConfig = {
         title: 'Kunde',
@@ -151,14 +152,7 @@ export class CustomerDetails {
 
     private formIsInitialized: boolean = false;
 
-    private saveactions: IUniSaveAction[] = [
-         {
-             label: 'Lagre',
-             action: (completeEvent) => this.saveCustomer(completeEvent),
-             main: true,
-             disabled: false
-         }
-    ];
+    private saveactions: IUniSaveAction[];
 
     constructor(
         private uniQueryDefinitionService: UniQueryDefinitionService,
@@ -182,6 +176,7 @@ export class CustomerDetails {
     ) {}
 
     public ngOnInit() {
+        this.setupSaveActions();
         if (!this.modalMode) {
             this.route.params.subscribe((params) => {
                 if (params['id'] === 'new') {
@@ -196,6 +191,17 @@ export class CustomerDetails {
                     .subscribe(links => this.reportLinks = links, err => this.errorService.handle(err));
             });
         }
+    }
+
+    private setupSaveActions() {
+        this.saveactions = [
+             {
+                 label: 'Lagre',
+                 action: (completeEvent) => this.saveCustomer(completeEvent),
+                 main: true,
+                 disabled: this.isDisabled
+             }
+        ];
     }
 
     public nextCustomer() {
@@ -226,6 +232,8 @@ export class CustomerDetails {
 
     public addCustomer() {
         this.router.navigateByUrl('/sales/customer/new');
+        this.isDisabled = true;
+        this.setupSaveActions();
     }
 
     private setTabTitle() {
@@ -315,6 +323,10 @@ export class CustomerDetails {
                 this.dropdownData = [response[0], response[1]];
 
                 let customer = response[2];
+
+                this.isDisabled = !customer.Info.Name;
+                this.setupSaveActions();
+
                 this.setMainContact(customer);
 
                 this.customer$.next(customer);
@@ -753,8 +765,22 @@ export class CustomerDetails {
     }
 
     private onChange(changes: SimpleChanges) {
+        if (changes['Info.Name']) {
+            if (this.isDisabled === true && changes['Info.Name'].currentValue !== '') {
+                this.isDisabled = false;
+                this.setupSaveActions();
+            } else if (this.isDisabled === false && changes['Info.Name'].currentValue === '') {
+                this.toastService.addToast('Navn er påkrevd', ToastType.warn, ToastTime.short)
+                this.isDisabled = true;
+                this.setupSaveActions();
+            }
+        }
         if (changes['_CustomerSearchResult']) {
             let searchResult = changes['_CustomerSearchResult'].currentValue;
+
+            if (searchResult === '') {
+                this.toastService.addToast('Navn er påkrevd', ToastType.warn, ToastTime.short);
+            }
 
             if (searchResult) {
                 let customer = this.customer$.getValue();
@@ -793,6 +819,7 @@ export class CustomerDetails {
                     Description: '',
                     HelpText: '',
                     Section: 0,
+                    Validations: [],
                     StatusCode: 0,
                     ID: 2,
                 },
