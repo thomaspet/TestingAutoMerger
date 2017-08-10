@@ -479,7 +479,7 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
             return Observable.of(true);
         }
 
-        return this.modalService.openUnsavedChangesModal()
+        return this.modalService.deprecated_openUnsavedChangesModal()
             .onClose
             .map(canDeactivate => {
                 if (canDeactivate) {

@@ -128,7 +128,7 @@ export class SalarybalanceView extends UniView implements OnDestroy {
     }
 
     public canDeactivate(): Observable<boolean> {
-        return this.modalService.openUnsavedChangesModal()
+        return this.modalService.deprecated_openUnsavedChangesModal()
             .onClose
             .map(canDeactivate => {
                 if (canDeactivate) {

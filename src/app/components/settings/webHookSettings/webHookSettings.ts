@@ -124,7 +124,7 @@ export class WebHookSettings {
            return true;
         }
 
-        return this.modalService.openUnsavedChangesModal().onClose;
+        return this.modalService.deprecated_openUnsavedChangesModal().onClose;
     }
 
     private initActions(data: any) {

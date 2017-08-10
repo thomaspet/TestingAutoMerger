@@ -276,7 +276,7 @@ export class CompanySettingsComponent implements OnInit {
            return true;
         }
 
-        const modal = this.modalService.openUnsavedChangesModal();
+        const modal = this.modalService.deprecated_openUnsavedChangesModal();
         return modal.onClose;
     }
 

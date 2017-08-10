@@ -398,7 +398,7 @@ export class TransqueryDetails implements OnInit {
 
         if (data && data.length > 0
             && (!data[0].JournalEntryID || data[0].JournalEntryID.toString() !== journalEntryID.toString())) {
-                const modal = this.modalService.openUnsavedChangesModal();
+                const modal = this.modalService.deprecated_openUnsavedChangesModal();
                 modal.onClose.subscribe((canDeactivate) => {
                     if (canDeactivate) {
                         this.journalEntryService.setSessionData(0, []);

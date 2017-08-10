@@ -259,7 +259,7 @@ export class CustomerDetails {
            return true;
         }
 
-        return this.modalService.openUnsavedChangesModal().onClose;
+        return this.modalService.deprecated_openUnsavedChangesModal().onClose;
     }
 
     public showTab(tab: string, reportid: number = null) {
@@ -267,7 +267,7 @@ export class CustomerDetails {
             && this.ledgerAccountReconciliation
             && this.ledgerAccountReconciliation.isDirty) {
 
-            const modal = this.modalService.openUnsavedChangesModal();
+            const modal = this.modalService.deprecated_openUnsavedChangesModal();
             modal.onClose.subscribe(canChangeTab => {
                 if (canChangeTab) {
                     this.activeTab = tab;

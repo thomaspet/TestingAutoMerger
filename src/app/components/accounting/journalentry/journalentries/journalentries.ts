@@ -223,7 +223,7 @@ export class JournalEntries {
             return Observable.of(true);
         }
 
-        const modal = this.modalService.openUnsavedChangesModal();
+        const modal = this.modalService.deprecated_openUnsavedChangesModal();
         return modal.onClose;
     }
 

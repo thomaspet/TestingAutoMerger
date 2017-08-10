@@ -1930,7 +1930,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
             return;
         }
 
-        const modal = this.modalService.openUnsavedChangesModal();
+        const modal = this.modalService.deprecated_openUnsavedChangesModal();
         modal.onClose.subscribe(canRemove => {
             if (canRemove) {
                 this.clearListInternal(completeCallback);

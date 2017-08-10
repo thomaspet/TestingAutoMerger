@@ -403,15 +403,7 @@ export class EmployeeDetails extends UniView implements OnDestroy {
                     return Observable.of(true);
                 }
 
-                const modal = this.modalService.confirm({
-                    header: 'Ulagrede endringer',
-                    message: 'Du har ulagrede endringer. Ønsker du å lagre disse før du fortsetter?',
-                    buttonLabels: {
-                        accept: 'Lagre',
-                        reject: 'Forkast',
-                        cancel: 'Avbryt'
-                    }
-                });
+                const modal = this.modalService.openUnsavedChangesModal();
 
                 return modal.onClose.map((action) => {
                     if (action === ConfirmActions.ACCEPT) {

@@ -52,9 +52,22 @@ export class UniModalService {
         return componentRef.instance;
     }
 
-    public openUnsavedChangesModal(): IUniModal {
+    // TODO: remove this after everyone has migrated to the new method
+    public deprecated_openUnsavedChangesModal(): IUniModal {
         const componentRef = this.createModal(UniUnsavedChangesModal, {});
         return componentRef.instance;
+    }
+
+    public openUnsavedChangesModal(): IUniModal {
+        return this.confirm({
+            header: 'Ulagrede endringer',
+            message: 'Du har ulagrede endringer. Ønsker du å lagre?',
+            buttonLabels: {
+                accept: 'Lagre',
+                reject: 'Forkast',
+                cancel: 'Avbryt'
+            }
+        });
     }
 
     public confirm(options: IModalOptions) {

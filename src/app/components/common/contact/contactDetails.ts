@@ -179,7 +179,7 @@ export class ContactDetails {
             return;
         }
 
-        const modal = this.modalService.openUnsavedChangesModal();
+        const modal = this.modalService.deprecated_openUnsavedChangesModal();
         return modal.onClose;
     }
 

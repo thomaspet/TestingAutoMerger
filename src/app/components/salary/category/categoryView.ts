@@ -99,7 +99,7 @@ export class CategoryView extends UniView {
             return Observable.of(true);
         }
 
-        return this.modalService.openUnsavedChangesModal()
+        return this.modalService.deprecated_openUnsavedChangesModal()
             .onClose
             .map(allowed => {
                 if (allowed) {

@@ -497,7 +497,7 @@ export class LedgerAccountReconciliation {
             return Observable.of(true);
         }
 
-        return this.modalService.openUnsavedChangesModal().onClose;
+        return this.modalService.deprecated_openUnsavedChangesModal().onClose;
     }
 
     private showHideEntires(newValue) {
@@ -651,7 +651,7 @@ export class LedgerAccountReconciliation {
             && (!data[0].JournalEntryID || data[0].JournalEntryID.toString() !== journalEntryID.toString());
 
         if (isNewJournalEntry) {
-            this.modalService.openUnsavedChangesModal().onClose.subscribe(canEdit => {
+            this.modalService.deprecated_openUnsavedChangesModal().onClose.subscribe(canEdit => {
                 if (canEdit) {
                     this.journalEntryService.setSessionData(0, []);
                     this.router.navigateByUrl(

@@ -46,7 +46,7 @@ export class AltinnSettings implements OnInit {
            return true;
         }
 
-        return this.modalService.openUnsavedChangesModal().onClose;
+        return this.modalService.deprecated_openUnsavedChangesModal().onClose;
     }
 
     public change(event) {

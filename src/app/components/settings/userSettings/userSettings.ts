@@ -45,7 +45,7 @@ export class UserSettings {
            return true;
         }
 
-        return this.modalService.openUnsavedChangesModal().onClose;
+        return this.modalService.deprecated_openUnsavedChangesModal().onClose;
     }
 
     public onFormChange(event) {

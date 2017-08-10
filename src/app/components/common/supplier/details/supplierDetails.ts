@@ -228,7 +228,7 @@ export class SupplierDetails implements OnInit {
             && this.ledgerAccountReconciliation
             && this.ledgerAccountReconciliation.isDirty) {
 
-            const modal = this.modalService.openUnsavedChangesModal();
+            const modal = this.modalService.deprecated_openUnsavedChangesModal();
             modal.onClose.subscribe(canClose => {
                 if (canClose) {
                     this.activeTab = tab;
@@ -246,7 +246,7 @@ export class SupplierDetails implements OnInit {
             return true;
         }
 
-        const modal = this.modalService.openUnsavedChangesModal();
+        const modal = this.modalService.deprecated_openUnsavedChangesModal();
         return modal.onClose;
     }
 

@@ -282,7 +282,7 @@ export class OrderDetails {
             return true;
         }
 
-        return this.modalService.openUnsavedChangesModal()
+        return this.modalService.deprecated_openUnsavedChangesModal()
             .onClose
             .map(canDeactivate => {
                 if (!canDeactivate) {
