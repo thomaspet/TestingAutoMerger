@@ -58,25 +58,33 @@ export class AltinnSettings implements OnInit {
         this.loginErr = '';
         let company = JSON.parse(localStorage.getItem('companySettings'));
 
-        this.busy = true;
-        let altinn = this.altinn$.getValue();
-        this._altinnService
-            .getPassword()
-            .switchMap((password: string) => password
+        this.altinn$
+            .asObservable()
+            .do(() => this.busy = true)
+            .take(1)
+            .switchMap(altinn => {
+                if (altinn.SystemPw) {
+                    return Observable.of(altinn);
+                } else {
+                    return this._altinnService.getPassword().map(password => {
+                        altinn.SystemPw = password;
+                        return altinn;
+                    })
+                }
+            })
+            .switchMap(altinn => altinn.SystemPw 
                 ? this.integrate.checkSystemLogin(
-                    company.OrganizationNumber,
-                    altinn.SystemID,
-                    password,
+                    company.OrganizationNumber, 
+                    altinn.SystemID, 
+                    altinn.SystemPw, 
                     altinn.Language)
-                    .map(result => result
+                    .map(result => result 
                         ? 'Login ok'
                         : 'Failed to log in with given credentials')
                 : Observable.of('Missing password'))
             .finally(() => this.busy = false)
-            .subscribe((loginError: string) => {
-                this.loginErr = loginError;
-            }
-            , (err) => {
+            .subscribe(response => this.loginErr = response,
+            err => {
                 this.errorService.handle(err);
                 this.loginErr = err;
             });
