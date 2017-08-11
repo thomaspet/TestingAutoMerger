@@ -1,6 +1,14 @@
 import {Component, Input, SimpleChange, ViewChild, OnInit, OnChanges, Output, EventEmitter} from '@angular/core';
 import {JournalEntryProfessional} from '../components/journalentryprofessional/journalentryprofessional';
-import {Dimensions, FinancialYear, ValidationLevel, VatDeduction, CompanySettings, JournalEntryLine, NumberSeriesTask} from '../../../../unientities';
+import {
+    Dimensions,
+    FinancialYear,
+    ValidationLevel,
+    VatDeduction,
+    CompanySettings,
+    JournalEntryLine,
+    NumberSeriesTask
+} from '../../../../unientities';
 import {ValidationResult} from '../../../../models/validationResult';
 import {JournalEntryData} from '../../../../models/models';
 import {JournalEntrySimpleCalculationSummary} from '../../../../models/accounting/JournalEntrySimpleCalculationSummary';
@@ -9,8 +17,17 @@ import {AccountBalanceInfo} from '../../../../models/accounting/AccountBalanceIn
 import {IUniSaveAction} from '../../../../../framework/save/save';
 import {ISummaryConfig} from '../../../common/summary/summary';
 import {Observable} from 'rxjs/Observable';
-import {ToastService, ToastType, ToastTime} from '../../../../../framework/uniToast/toastService';
-import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig} from '../../../../../framework/ui/unitable/index';
+import {
+    ToastService,
+    ToastType,
+    ToastTime
+} from '../../../../../framework/uniToast/toastService';
+import {
+    UniTable,
+    UniTableColumn,
+    UniTableColumnType,
+    UniTableConfig
+} from '../../../../../framework/ui/unitable/index';
 import {
     JournalEntrySettings,
     NumberFormat,
@@ -22,7 +39,6 @@ import {
     JournalEntryLineService,
     NumberSeriesTaskService
 } from '../../../../services/services';
-
 import {
     UniModalService,
     UniConfirmModalV2,

@@ -1,8 +1,9 @@
 <section [ngClass]="{'journalentry-input-area-full': !journalEntrySettings.AttachmentsVisible, 'journalentry-input-area': journalEntrySettings.AttachmentsVisible}">
     <div class="validation_messages_container" *ngIf="validationResult && validationResult.Messages.length > 0">
-        <strong *ngFor="let message of validationResult.Messages"
+        <strong
+            *ngFor="let message of validationResult.Messages"
             class="journalEntry_validation validation {{getValidationLevelCss(message.Level)}}"
-                [ngClass]="{
+            [ngClass]="{
                 simplemode: journalEntryMode === 'SIMPLE',
                 promode: journalEntryMode != 'SIMPLE',
                 runassubcomponent: runAsSubComponent
@@ -12,21 +13,23 @@
     </div>
 
     <div class="journalentry-input-components">
-        <journal-entry-professional (dataLoaded)="onDataLoaded($event)"
-                                    (showImageChanged)="onShowImageChanged($event)"
-                                    (showImageForJournalEntry)="onShowImageForJournalEntry($event)"
-                                    (columnVisibilityChange)="onColumnVisibilityChange($event)"
-                                    (rowSelected)="onRowSelected($event)"
-                                    [runAsSubComponent]="runAsSubComponent"
-                                    [disabled]="disabled"
-                                    [mode]="mode"
-                                    [journalEntryID]="journalEntryID"
-                                    [doShowImage]="journalEntrySettings.AttachmentsVisible"
-                                    [defaultVisibleColumns]="journalEntrySettings.DefaultVisibleFields"
-                                    [financialYears]="financialYears"
-                                    [currentFinancialYear]="currentFinancialYear"
-                                    [vatDeductions]="vatDeductions"
-                                    [selectedNumberSeriesTaskID]="selectedNumberSeriesTaskID">
+        <journal-entry-professional
+            (dataLoaded)="onDataLoaded($event)"
+            (showImageChanged)="onShowImageChanged($event)"
+            (showImageForJournalEntry)="onShowImageForJournalEntry($event)"
+            (columnVisibilityChange)="onColumnVisibilityChange($event)"
+            (rowSelected)="onRowSelected($event)"
+            [attr.aria-busy]="busy"
+            [runAsSubComponent]="runAsSubComponent"
+            [disabled]="disabled"
+            [mode]="mode"
+            [journalEntryID]="journalEntryID"
+            [doShowImage]="journalEntrySettings.AttachmentsVisible"
+            [defaultVisibleColumns]="journalEntrySettings.DefaultVisibleFields"
+            [financialYears]="financialYears"
+            [currentFinancialYear]="currentFinancialYear"
+            [vatDeductions]="vatDeductions"
+            [selectedNumberSeriesTaskID]="selectedNumberSeriesTaskID">
         </journal-entry-professional>
 
         <uni-summary [configs]="summary" *ngIf="itemsSummaryData" [attr.aria-busy]="busy"></uni-summary>
