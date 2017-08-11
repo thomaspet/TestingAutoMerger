@@ -56,6 +56,7 @@ export class CustomerDetails {
     private phoneChanged: any;
     private showReminderSection: boolean = false; // used in template
     private showContactSection: boolean = false; // used in template
+    private showSellerSection: boolean = false; // used in template
 
     public currencyCodes: Array<CurrencyCode>;
     public dropdownData: any;
@@ -146,7 +147,9 @@ export class CustomerDetails {
         'CustomerInvoiceReminderSettings.CustomerInvoiceReminderRules',
         'Info.Contacts.Info',
         'Info.Contacts.Info.DefaultEmail',
-        'Info.Contacts.Info.DefaultPhone'
+        'Info.Contacts.Info.DefaultPhone',
+        'Sellers',
+        'Sellers.Seller'
         ];
 
 

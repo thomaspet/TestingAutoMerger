@@ -11,6 +11,7 @@ import {IUploadConfig} from '../../../../../framework/uniImage/uniImage';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
 import {IToolbarConfig} from './../../../common/toolbar/toolbar';
 import {IUniTagsConfig, ITag} from './../../../common/toolbar/tags';
+import {ToastService, ToastTime, ToastType} from '../../../../../framework/uniToast/toastService';
 import {
     Project,
     Department,
@@ -106,7 +107,8 @@ export class ProductDetails {
         private departmentService: DepartmentService,
         private errorService: ErrorService,
         private companySettingsService: CompanySettingsService,
-        private productCategoryService: ProductCategoryService
+        private productCategoryService: ProductCategoryService,
+        private toastService: ToastService
     ) {
         this.route.params.subscribe(params => {
             this.productId = +params['id'];
@@ -294,7 +296,7 @@ export class ProductDetails {
                 if (ID) {
                     this.router.navigateByUrl('/products/' + ID);
                 } else {
-                    alert('Ingen flere produkter før denne!')
+                    this.toastService.addToast('Ingen flere produkter før denne!', ToastType.warn, ToastTime.short);
                 }
             }, err => this.errorService.handle(err));
     }
@@ -305,7 +307,7 @@ export class ProductDetails {
                 if (ID) {
                     this.router.navigateByUrl('/products/' + ID);
                 } else {
-                    alert('Ingen flere produkter etter denne!')
+                    this.toastService.addToast('Ingen flere produkter etter denne!', ToastType.warn, ToastTime.short);
                 }
             }, err => this.errorService.handle(err));
     }

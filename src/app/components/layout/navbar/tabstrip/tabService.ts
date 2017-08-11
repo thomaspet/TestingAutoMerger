@@ -30,6 +30,7 @@ export enum UniModules {
     Contacts        = 207,
     ProductGroup    = 208,
     Projects        = 209,
+    Sellers         = 210,
 
     Accounting      = 300,
     Transquery      = 301,

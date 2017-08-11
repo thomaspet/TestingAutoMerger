@@ -21,7 +21,7 @@ export class TofHead implements OnChanges {
 
     @Output() public dataChange: EventEmitter<any> = new EventEmitter();
 
-    public tabs: string[] = ['Detaljer', 'Levering', 'Fritekst', 'Dokumenter'];
+    public tabs: string[] = ['Detaljer', 'Levering', 'Fritekst', 'Selgere', 'Dokumenter'];
     public activeTabIndex: number = 0;
 
     private freeTextControl: FormControl = new FormControl('');

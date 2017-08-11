@@ -1,13 +1,14 @@
 import {Component, Input, Output, EventEmitter, ViewChild, ElementRef} from '@angular/core';
 import {FormControl} from '@angular/forms';
-import {Customer} from '../../../unientities';
+import {Customer, SellerLink} from '../../../unientities';
 import {CustomerDetailsModal} from '../customer/customerDetails/customerDetailsModal';
 import {
     AddressService,
     EHFService,
     UniSearchConfigGeneratorService,
     CustomerService,
-    ErrorService
+    ErrorService,
+    SellerLinkService
 } from '../../../services/services';
 import {Observable} from 'rxjs/Observable';
 import {IUniSearchConfig} from '../../../../framework/ui/unisearch/index';
@@ -85,7 +86,9 @@ export class TofCustomerCard {
         'Info.InvoiceAddress',
         'Info.DefaultEmail',
         'Dimensions.Project',
-        'Dimensions.Department'
+        'Dimensions.Department',
+        'Sellers',
+        'Sellers.Seller'
     ];
 
     constructor(
@@ -94,7 +97,8 @@ export class TofCustomerCard {
         private elementRef: ElementRef,
         private uniSearchConfigGeneratorService: UniSearchConfigGeneratorService,
         private customerService: CustomerService,
-        private errorService: ErrorService
+        private errorService: ErrorService,
+        private sellerLinkService: SellerLinkService
     ) {
         this.uniSearchConfig = this.uniSearchConfigGeneratorService.generate(
             Customer,
@@ -189,7 +193,22 @@ export class TofCustomerCard {
             this.entity.EmailAddress = customer.Info.DefaultEmail.EmailAddress;
         }
 
+        let sellers = [];
+        if (this.entity.Sellers.length == 0) {
+            customer.Sellers.forEach((seller: SellerLink) => {
+                sellers.push({
+                    Percent: seller.Percent,
+                    SellerID: seller.SellerID,
+                    Seller: seller.Seller,
+                    _createguid: this.sellerLinkService.getNewGuid(),
+                    _mainseller: seller.ID === customer.DefaultSellerLinkID
+                });
+            });
+            this.entity.Sellers = sellers;
+        }
+
         this.entity.Customer = customer;
+
         this.entityChange.emit(this.entity);
     }
 

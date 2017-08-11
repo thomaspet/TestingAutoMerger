@@ -1,0 +1,12 @@
+<uni-toolbar
+    [config]="toolbarconfig"
+    [saveactions]="saveactions">
+</uni-toolbar>
+<section *ngIf="(seller$ | async)" class="seller-details application">
+    <uni-form
+            [config]="config$"
+            [fields]="fields$"
+            [model]="seller$"
+            (changeEvent)="onFormChange($event)">
+    </uni-form>
+</section>

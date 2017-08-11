@@ -47,6 +47,9 @@ import {MinutesToHoursPipe} from './utils/pipes';
 import {WorkTypeSystemTypePipe} from './utils/pipes';
 import {PredefinedDescriptionList} from './predefinedDescriptions/predefinedDescriptionList';
 import {LinkMenu} from './linkMenu/linkMenu';
+import {SellerList} from './seller/sellerList';
+import {SellerLinks} from './seller/sellerLinks';
+import {SellerDetails} from './seller/sellerDetails';
 
 import {routes as AppCommonRoutes} from './appCommonRoutes';
 
@@ -121,6 +124,10 @@ import {routes as AppCommonRoutes} from './appCommonRoutes';
         WorkTypeSystemTypePipe,
 
         LinkMenu,
+
+        SellerList,
+        SellerLinks,
+        SellerDetails
     ],
     entryComponents: [
         AccrualForm,
@@ -194,6 +201,10 @@ import {routes as AppCommonRoutes} from './appCommonRoutes';
         WorkTypeSystemTypePipe,
 
         LinkMenu,
+
+        SellerList,
+        SellerLinks,
+        SellerDetails
     ]
 })
 export class AppCommonModule {

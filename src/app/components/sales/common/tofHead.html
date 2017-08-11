@@ -47,7 +47,15 @@
             </label>
         </fieldset>
 
-        <fieldset class="attachment-fieldset" *ngIf="activeTabIndex === 3">
+        <fieldset class="sellers-fieldset" *ngIf="activeTabIndex === 3">
+            <legend>Selgere</legend>
+            <seller-links
+                [parent]="data"
+                (sellerChanged)="onDataChange()">
+            </seller-links>
+        </fieldset>
+
+        <fieldset class="attachment-fieldset" *ngIf="activeTabIndex === 4">
             <legend>Dokumenter</legend>
             <label for="attachments">
                 <span>Vedlegg</span>
@@ -60,9 +68,10 @@
             </uni-attachments>
         </fieldset>
 
-        <fieldset class="reminder-fieldset" *ngIf="activeTabIndex === 4 && entityName === 'CustomerInvoice'">
+        <fieldset class="reminder-fieldset" *ngIf="activeTabIndex === 5 && entityName === 'CustomerInvoice'">
             <legend>Purringer</legend>
             <invoice-reminders [customerInvoice]="data"></invoice-reminders>
         </fieldset>
+
     </article>
 </section>

@@ -76,7 +76,8 @@ export class QuoteDetails {
     public summary: ISummaryConfig[] = [];
     private customerExpandOptions: string[] = ['Info', 'Info.Addresses', 'Info.InvoiceAddress', 'Info.ShippingAddress', 'Dimensions', 'Dimensions.Project', 'Dimensions.Department'];
     private expandOptions: Array<string> = ['Items', 'Items.Product.VatType', 'Items.VatType', 'Items.Account',
-        'Items.Dimensions', 'Items.Dimensions.Project', 'Items.Dimensions.Department', 'Customer', 'DefaultDimensions'
+        'Items.Dimensions', 'Items.Dimensions.Project', 'Items.Dimensions.Department', 'Customer', 'DefaultDimensions',
+        'Sellers', 'Sellers.Seller'
     ].concat(this.customerExpandOptions.map(option => 'Customer.' + option));
 
     private commentsConfig: any;
