@@ -215,9 +215,10 @@ export class TransqueryDetails implements OnInit {
             'ReferenceCreditPostID as ReferenceCreditPostID,' +
             'OriginalReferencePostID as OriginalReferencePostID,' +
             'VatDeductionPercent as VatDeductionPercent,' +
+            'JournalEntry.JournalEntryAccrualID,' +
             'sum(casewhen(FileEntityLink.EntityType eq \'JournalEntry\'\\,1\\,0)) as Attachments'
         );
-        urlParams.set('expand', 'Account,SubAccount,VatType,Dimensions.Department,Dimensions.Project,Period,VatReport.TerminPeriod,CurrencyCode');
+        urlParams.set('expand', 'Account,SubAccount,JournalEntry,VatType,Dimensions.Department,Dimensions.Project,Period,VatReport.TerminPeriod,CurrencyCode');
         urlParams.set('join', 'JournalEntryLine.JournalEntryID eq FileEntityLink.EntityID');
         urlParams.set('filter', filters.join(' and '));
         urlParams.set('orderby', urlParams.get('orderby') || 'JournalEntryID desc');
@@ -234,7 +235,7 @@ export class TransqueryDetails implements OnInit {
             urlParams.set('model', 'JournalEntryLine');
             urlParams.set('filter', f);
             urlParams.set('select', 'sum(casewhen(JournalEntryLine.Amount gt 0\\,JournalEntryLine.Amount\\,0)) as SumDebit,sum(casewhen(JournalEntryLine.Amount lt 0\\,JournalEntryLine.Amount\\,0)) as SumCredit,sum(casewhen(JournalEntryLine.AccountID gt 0\\,JournalEntryLine.Amount\\,0)) as SumLedger,sum(JournalEntryLine.TaxBasisAmount) as SumTaxBasisAmount,sum(JournalEntryLine.Amount) as SumBalance');
-            urlParams.set('expand', 'Account,SubAccount,VatType,Dimensions.Department,Dimensions.Project,Period,VatReport.TerminPeriod,CurrencyCode');
+            urlParams.set('expand', 'Account,SubAccount,JournalEntry,VatType,Dimensions.Department,Dimensions.Project,Period,VatReport.TerminPeriod,CurrencyCode');
             this.statisticsService.GetDataByUrlSearchParams(urlParams).subscribe(summary => {
                 this.summaryData = summary.Data[0];
                 this.summaryData.SumCredit *= -1;
@@ -538,6 +539,15 @@ export class TransqueryDetails implements OnInit {
                 new UniTableColumn('Project.Name', 'Prosjekt', UniTableColumnType.Text).setFilterOperator('contains')
                     .setTemplate(line => { return line.ProjectProjectNumber ? line.ProjectProjectNumber + ': ' + line.ProjectName : ''; })
                     .setVisible(false),
+                new UniTableColumn('JournalEntry.JournalEntryAccrualID', 'Periodisering', UniTableColumnType.Text)
+                    .setFilterOperator('eq')
+                    .setWidth('60px')
+                    .setVisible(false)
+                    .setTemplate(line => {
+                        return `<a href="/#/accounting/transquery/details;JournalEntry_JournalEntryAccrualID=${line.JournalEntryJournalEntryAccrualID}">
+                                ${line.JournalEntryJournalEntryAccrualID}
+                            </a>`;
+                    }),
                 new UniTableColumn('ID', PAPERCLIP, UniTableColumnType.Text).setFilterOperator('contains')
                     .setTemplate(line => line.Attachments ? PAPERCLIP : '')
                     .setWidth('40px')
