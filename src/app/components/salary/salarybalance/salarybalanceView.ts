@@ -3,8 +3,10 @@ import { UniView } from '../../../../framework/core/uniView';
 import { ActivatedRoute, Router, NavigationEnd } from '@angular/router';
 import { IUniSaveAction } from '../../../../framework/save/save';
 import { IToolbarConfig } from '../../common/toolbar/toolbar';
-import { UniCacheService, ErrorService, SalarybalanceService,
-    ReportDefinitionService, CompanySalaryService, FileService } from '../../../services/services';
+import {
+    UniCacheService, ErrorService, SalarybalanceService,
+    ReportDefinitionService, CompanySalaryService, FileService
+} from '../../../services/services';
 import { TabService, UniModules } from '../../layout/navbar/tabstrip/tabService';
 import { Observable } from 'rxjs/Observable';
 import { Subscription } from 'rxjs/Subscription';
@@ -20,6 +22,7 @@ import { PreviewModal } from '../../reports/modals/preview/previewModal';
 })
 export class SalarybalanceView extends UniView implements OnDestroy {
     private url: string = '/salary/salarybalances/';
+    readonly SALARY_BALANCE_KEY: string = 'salarybalance'
     private salarybalanceID: number;
     private salarybalance: SalaryBalance;
     private saveActions: IUniSaveAction[];
@@ -69,7 +72,7 @@ export class SalarybalanceView extends UniView implements OnDestroy {
 
             super.updateCacheKey(this.router.url);
 
-            super.getStateSubject('salarybalance')
+            super.getStateSubject(this.SALARY_BALANCE_KEY)
                 .do(salaryBalance => {
                     if (!this.contextMenuItems.length) {
                         this.contextMenuItems = [
@@ -105,7 +108,7 @@ export class SalarybalanceView extends UniView implements OnDestroy {
                 }, err => this.errorService.handle(err));
 
             if (this.salarybalance && this.salarybalance.ID === +params['id']) {
-                super.updateState('salarybalance', this.salarybalance, false);
+                super.updateState(this.SALARY_BALANCE_KEY, this.salarybalance, false);
             } else {
                 this.salarybalance = undefined;
             }
@@ -128,8 +131,21 @@ export class SalarybalanceView extends UniView implements OnDestroy {
     }
 
     public canDeactivate(): Observable<boolean> {
-        return this.modalService.deprecated_openUnsavedChangesModal()
+
+        if (!super.isDirty(this.SALARY_BALANCE_KEY)) {
+            return Observable.of(true);
+        }
+
+        return this.modalService
+            .openUnsavedChangesModal()
             .onClose
+            .map((result: ConfirmActions) => {
+                if (result === ConfirmActions.ACCEPT) {
+                    this.saveSalarybalance(m => { }, false);
+                }
+
+                return result !== ConfirmActions.CANCEL;
+            })
             .map(canDeactivate => {
                 if (canDeactivate) {
                     this.cacheService.clearPageCache(this.cacheKey);
@@ -199,7 +215,7 @@ export class SalarybalanceView extends UniView implements OnDestroy {
             }, err => this.errorService.handle(err));
     }
 
-    private saveSalarybalance(done: (message: string) => void) {
+    private saveSalarybalance(done: (message: string) => void, updateView = true) {
         this.handlePaymentCreation(this.salarybalance)
             .switchMap(salaryBalance => this.salarybalanceService.save(salaryBalance))
             .do(salaryBalance => {
@@ -212,11 +228,13 @@ export class SalarybalanceView extends UniView implements OnDestroy {
                 }
             })
             .subscribe((salbal: SalaryBalance) => {
-                super.updateState('salarybalance', salbal, false);
-                let childRoute = this.router.url.split('/').pop();
-                this.router.navigateByUrl(this.url + salbal.ID + '/' + childRoute);
-                done('Lagring fullført');
-                this.saveActions[0].disabled = true;
+                if (updateView) {
+                    super.updateState('salarybalance', salbal, false);
+                    let childRoute = this.router.url.split('/').pop();
+                    this.router.navigateByUrl(this.url + salbal.ID + '/' + childRoute);
+                    done('Lagring fullført');
+                    this.saveActions[0].disabled = true;
+                }
             }, err => {
                 this.errorService.handle(err);
                 done('Lagring feilet');

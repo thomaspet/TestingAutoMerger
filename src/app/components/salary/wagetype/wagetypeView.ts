@@ -11,7 +11,7 @@ import { IUniSaveAction } from '../../../../framework/save/save';
 import { IToolbarConfig } from '../../common/toolbar/toolbar';
 
 import { UniView } from '../../../../framework/core/uniView';
-import { UniModalService } from '../../../../framework/uniModal/barrel';
+import { UniModalService, ConfirmActions } from '../../../../framework/uniModal/barrel';
 
 import { Observable } from 'rxjs/Observable';
 
@@ -68,10 +68,10 @@ export class WageTypeView extends UniView {
                     title: this.wageType.ID ? this.wageType.WageTypeName : 'Ny lønnsart',
                     subheads: [{
                         title: this.wageType.ID
-                        ? 'Lønnsartnr. '
+                            ? 'Lønnsartnr. '
                             + this.wageType.WageTypeNumber
                             + (this.wageType.ValidYear ? ` - ${this.wageType.ValidYear}` : '')
-                        : ''
+                            : ''
                     }],
                     navigation: {
                         prev: this.previousWagetype.bind(this),
@@ -104,19 +104,26 @@ export class WageTypeView extends UniView {
     }
 
     public canDeactivate(): Observable<boolean> {
-        if (!super.isDirty()) {
-            this.cacheService.clearPageCache(this.cacheKey);
-            return Observable.of(true);
-        }
-
-        return this.modalService.deprecated_openUnsavedChangesModal()
-            .onClose
+        return Observable
+            .of(!super.isDirty())
+            .switchMap(isSaved =>
+                isSaved
+                    ? Observable.of(true)
+                    : this.modalService
+                        .openUnsavedChangesModal()
+                        .onClose
+                        .map((action: ConfirmActions) => {
+                            if (action === ConfirmActions.ACCEPT) {
+                                this.saveWageType((m) => { }, false);
+                                return true;
+                            } else {
+                                return action === ConfirmActions.REJECT;
+                            }
+                        }))
             .map(canDeactivate => {
-                if (canDeactivate) {
-                    this.cacheService.clearPageCache(this.cacheKey);
-                } else {
-                    this.updateTabStrip(this.wagetypeID, this.wageType);
-                }
+                canDeactivate
+                    ? this.cacheService.clearPageCache(this.cacheKey)
+                    : this.updateTabStrip(this.wagetypeID, this.wageType);
 
                 return canDeactivate;
             });

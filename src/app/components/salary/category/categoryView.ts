@@ -8,7 +8,7 @@ import { IUniSaveAction } from '../../../../framework/save/save';
 import { IToolbarConfig } from '../../common/toolbar/toolbar';
 
 import { UniView } from '../../../../framework/core/uniView';
-import { UniModalService } from '../../../../framework/uniModal/barrel';
+import { UniModalService, ConfirmActions } from '../../../../framework/uniModal/barrel';
 
 import { Observable } from 'rxjs/Observable';
 
@@ -99,8 +99,16 @@ export class CategoryView extends UniView {
             return Observable.of(true);
         }
 
-        return this.modalService.deprecated_openUnsavedChangesModal()
+        return this.modalService
+            .openUnsavedChangesModal()
             .onClose
+            .map(result => {
+                if (result === ConfirmActions.ACCEPT) {
+                    this.saveCategory(m => { }, false);
+                }
+
+                return result !== ConfirmActions.CANCEL;
+            })
             .map(allowed => {
                 if (allowed) {
                     this.cacheService.clearPageCache(this.cacheKey);
@@ -130,18 +138,20 @@ export class CategoryView extends UniView {
         }
     }
 
-    private saveCategory(done: (message: string) => void) {
+    private saveCategory(done: (message: string) => void, updateView = true) {
 
         let saver = this.currentCategory.ID
             ? this.categoryService.Put(this.currentCategory.ID, this.currentCategory)
             : this.categoryService.Post(this.currentCategory);
 
         saver.subscribe((category: EmployeeCategory) => {
-            super.updateState('employeecategory', this.currentCategory, false);
-            let childRoute = this.router.url.split('/').pop();
-            this.router.navigateByUrl(this.url + category.ID + '/' + childRoute);
-            done('lagring fullført');
-            this.saveActions[0].disabled = true;
+            if (updateView) {
+                super.updateState('employeecategory', this.currentCategory, false);
+                let childRoute = this.router.url.split('/').pop();
+                this.router.navigateByUrl(this.url + category.ID + '/' + childRoute);
+                done('lagring fullført');
+                this.saveActions[0].disabled = true;
+            }
         },
             (error) => {
                 done('Lagring feilet');

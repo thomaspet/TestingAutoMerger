@@ -479,8 +479,16 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
             return Observable.of(true);
         }
 
-        return this.modalService.deprecated_openUnsavedChangesModal()
+        return this.modalService
+            .openUnsavedChangesModal()
             .onClose
+            .map(result => {
+                if (result === ConfirmActions.ACCEPT) {
+                    this.saveAll(m => {}, false);
+                }
+
+                return result !== ConfirmActions.CANCEL;
+            })
             .map(canDeactivate => {
                 if (canDeactivate) {
                     this.cacheService.clearPageCache(this.cacheKey);
@@ -909,7 +917,7 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
 
     public ready(value) { }
 
-    private saveAll(done: (message: string) => void) {
+    private saveAll(done: (message: string) => void, updateView = true) {
 
         if (!this.payrollrun$.getValue().PayDate) {
             this._toastService
@@ -922,6 +930,7 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
         this.setEditableOnChildren(false);
 
         this.savePayrollrun()
+            .filter(() => updateView)
             .switchMap((payrollRun: PayrollRun) => {
                 this.payrollrun$.next(payrollRun);
                 super.updateState('payrollRun', payrollRun, false);

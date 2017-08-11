@@ -14,7 +14,7 @@ import {
 } from '../../../unientities';
 import { Observable } from 'rxjs/Observable';
 import { ReplaySubject } from 'rxjs/ReplaySubject';
-import { UniModalService } from '../../../../framework/uniModal/barrel';
+import { UniModalService, ConfirmActions } from '../../../../framework/uniModal/barrel';
 
 type HashMap<T> = {
     [key: string]: T;
@@ -104,12 +104,20 @@ export class SalaryTransactionSupplementList implements OnInit {
     }
 
     public canDeactivate(): Observable<boolean> {
-        if (!this.transactions.some(trans => trans['_isDirty'])) {
+        if (!this.table.getTableData().some(row => row['_isDirty'])) {
             return Observable.of(true);
         }
-
-        return this.modalService.deprecated_openUnsavedChangesModal()
+        
+        return this.modalService
+            .openUnsavedChangesModal()
             .onClose
+            .map(result => {
+                if (result === ConfirmActions.ACCEPT) {
+                    this.save(m => {});
+                }
+
+                return result !== ConfirmActions.CANCEL;
+            })
             .map(canDeactivate => {
                 if (!canDeactivate) {
                     this.updateTabStrip();
