@@ -87,7 +87,7 @@ export class Project {
             this.newProject();
         } else {
             let current = this.projectService.currentProject.getValue();
-            this.table.focusRow(current['_originalIndex'] ? current['_originalIndex'] : 0);
+            this.table.focusRow(current && current['_originalIndex'] ? current['_originalIndex'] : 0);
         }
     }
 
