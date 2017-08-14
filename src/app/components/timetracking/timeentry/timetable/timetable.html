@@ -9,40 +9,58 @@
     </ul>    
 </aside>
 
-<section *ngIf="config" [attr.aria-busy]="busy">
-    <table class="timeentriesTable">
+<section *ngIf="report" [attr.aria-busy]="busy">
+
+    <div *ngFor="let month of report?.Months">
+    <h3>{{month.Name}}</h3>
+
+    <table class="timesheet">
         <thead><tr>
-            <th class="s2">Ukedag</th>
-            <th class="s2">Dato</th>
-            <th class="s2 center">Start</th>
-            <th class="s2 center">Slutt</th>
-            <th class="s2 right">Timer</th>
-            <th class="s1 right">Lunsj</th>
-            <th class="s2 right" *ngFor="let col of sumColumns">{{col.label}}</th>
-            <th class="left">Sum</th>
+            <th class="s2 center">Uke</th>
+            <th class="s2 center">Periode</th>
+            <th class="s1 center">Man</th>
+            <th class="s1 center">Tir</th>
+            <th class="s1 center">Ons</th>
+            <th class="s1 center">Tor</th>
+            <th class="s1 center">Fre</th>
+            <th class="s1 center weekend">Lør</th>
+            <th class="s1 center weekend">Søn</th>
+            <th class="s1 center">Sum</th>
+            <th class="s1 center">Ukesaldo</th>
+            <th class="s1 center">Prosjekt</th>
+            <th class="s1 center">Faktura</th>
+            <th>&nbsp;</th>
         </tr></thead>
-        <tbody>
-            <tr (click)="onDayClick(item.WorkItemDate)" *ngFor="let item of config.items" [ngClass]="{sum: !!item.weekNumber}">                
-                <td>
-                    {{item.WorkItemDate | isotime:'dddd'}}
-                    {{item.label}}
+        <tbody>           
+            <tr *ngFor="let week of month.Weeks">
+                <td class="center">Uke {{week.WeekNumber}}</td>
+                <td class="center">{{week.FirstDay | isotime:'DD.MM'}} - {{week?.Items[6].Date | isotime:'DD.MM'}}</td>
+                <td (click)="onDayClick(item.Date)" class="timecell" [class.weekend]="item.IsWeekend" 
+                    *ngFor="let item of week?.Items">
+                    <div title="{{item.Date|isotime:'d.MMMM'}}" [class.flexplus]="item.Flextime > 0" [class.flexminus]="item.Flextime < 0" >
+                        <span *ngIf="item.ValidTime && !item.ValidTimeOff" >{{item.ValidTime | hours}}</span>
+                        <span *ngIf="item.ValidTimeOff" class="timeoff" >F</span>
+                        <span *ngIf="item.SickTime" class="timesick" >S</span>
+                    </div>
                 </td>
-                <td>{{item.WorkItemDate | isotime:'DD.MM.YYYY'}}</td>
-                <td class="center">{{item.minstarttime | isotime:'HH:mm'}}</td>
-                <td class="center">{{item.maxendtime | isotime:'HH:mm'}}</td>
-                <td class="right">{{item.summinutes | min2hours:'decimal0' }}</td>
-                <td class="right">{{item.sumlunchinminutes | min2hours:'decimal0'}}</td>
-                <td class="right" *ngFor="let col of sumColumns">{{item[col.name] | min2hours:'decimal0' }}</td>
-                <td class="left">{{item.total | min2hours:'decimal0' }}</td>
-            </tr>
-            <tr>
-                <td class="sum">Sum</td>
-                <td class="right sum" colspan="4">{{config.sumWork | min2hours }}</td>
-                <td></td>
-                <td *ngFor="let col of sumColumns" class="right sum">{{col.sum | min2hours:'short' }}</td>
-                <td class="left sum">{{config.sumTotal | min2hours }}</td>
+                <td class="s1 timecell">
+                    <div [class.flexplus]="week.Sums.Flextime > 0" [class.flexminus]="week.Sums.Flextime < 0" >
+                        <span >{{week.Sums.ValidTime | hours}}</span>
+                    </div>
+                </td>
+                <td class="s1 timecell">
+                    <div [class.good]="week.Sums.Flextime > 0" [class.bad]="week.Sums.Flextime < 0" >
+                        <span >{{week.Sums.Flextime | hours}}</span>
+                    </div>
+                </td>
+                <td class="s1 timecell">{{week.Sums.ProjectPrc|uninumberformat:'percentage'}}</td>
+                <td class="s1 timecell">{{week.Sums.InvoicePrc|uninumberformat:'percentage'}}</td>
+                <td>&nbsp;</td>
             </tr>
         </tbody>
     </table>
+    </div>
+
     <uni-time-modal></uni-time-modal>
+
 </section>

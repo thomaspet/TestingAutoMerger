@@ -42,7 +42,7 @@ import {SupplierDetailsModal} from './supplier/details/supplierDetailModal';
 import {SupplierDetails} from './supplier/details/supplierDetails';
 import {SupplierList} from './supplier/list/supplierList';
 import {Editable} from './utils/editable/editable';
-import {IsoTimePipe} from './utils/pipes';
+import {IsoTimePipe, HoursPipe} from './utils/pipes';
 import {MinutesToHoursPipe} from './utils/pipes';
 import {WorkTypeSystemTypePipe} from './utils/pipes';
 import {PredefinedDescriptionList} from './predefinedDescriptions/predefinedDescriptionList';
@@ -120,6 +120,7 @@ import {routes as AppCommonRoutes} from './appCommonRoutes';
 
         Editable,
         IsoTimePipe,
+        HoursPipe,
         MinutesToHoursPipe,
         WorkTypeSystemTypePipe,
 
@@ -198,6 +199,7 @@ import {routes as AppCommonRoutes} from './appCommonRoutes';
         Editable,
         IsoTimePipe,
         MinutesToHoursPipe,
+        HoursPipe,
         WorkTypeSystemTypePipe,
 
         LinkMenu,

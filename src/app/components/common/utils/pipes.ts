@@ -52,6 +52,16 @@ export class IsoTimePipe implements PipeTransform {
 }
 
 @Pipe({
+  name: 'hours'
+})
+export class HoursPipe implements PipeTransform {
+    public transform(value: any, format?: string) {
+        if (!value) { return ''; }
+        return value.toFixed(1);
+    }
+}
+
+@Pipe({
   name: 'min2hours'
 })
 export class MinutesToHoursPipe implements PipeTransform {

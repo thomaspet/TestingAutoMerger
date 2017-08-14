@@ -176,6 +176,7 @@ export class GenericDetailview {
         return new Promise((resolve, reject) => {
             if (!this.isDirty) {
                 resolve(true);
+                return;
             }
 
             this.modalService.confirm({

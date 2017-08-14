@@ -505,6 +505,7 @@ export class TimeEntry {
         return new Promise((resolve, reject) => {
             if (!this.hasUnsavedChanges()) {
                 resolve(true);
+                return;
             }
 
             this.modalService.confirm({

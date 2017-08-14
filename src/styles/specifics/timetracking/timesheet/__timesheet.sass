@@ -1,0 +1,109 @@
+
+.timecell
+    text-align: center
+    vertical-align: bottom
+
+    .flexplus
+        border-bottom: 2px solid $uni-color-good
+
+    .flexminus
+        border-bottom: 2px solid $uni-color-bad
+
+    .timesick
+        color: $uni-color-warn
+
+    .timeoff
+        color: $uni-color-good
+
+.weekend
+    color: $uni-color-scale4
+    background-color: lighten($uni-color-scale9, 5%)
+
+.timesheet
+    min-width: 100%
+    table-layout: fixed
+    border-collapse: collapse
+    cursor: pointer
+    margin-top: 1rem
+    font-size: 10pt
+
+.timesheet th
+    text-align: left
+    text-overflow: ellipsis
+    overflow-x: hidden
+    white-space: nowrap
+    border-width: 0 0 pxToRem(1) 0
+    border-color: $uni-color-scale8
+    border-style: solid
+    padding: pxToRem(3) pxToRem(4) 0 pxToRem(4)
+
+.timesheet th.s1
+    width: pxToRem(40)
+.timesheet th.s2
+    width: pxToRem(90)
+.timesheet th.s3
+    width: pxToRem(140)
+.timesheet th.s4
+    width: 35%
+.timesheet th.s5
+    width: 45%
+
+.timesheet th.left
+    text-align: left
+    padding-left: 1em;
+
+.timesheet th.center
+    text-align: center
+
+.timesheet th.right
+    text-align: right
+
+.timesheet th:first-of-type
+    border-width: 0 0 pxToRem(1) 0
+
+.timesheet th:last-of-type
+    border-right: 0
+
+.timesheet td:hover
+    background-color: lighten($uni-color-scale6, 32%)
+
+.timesheet td
+    padding: pxToRem(3) pxToRem(4) 0 pxToRem(4)
+    border-bottom: pxToRem(1) solid $uni-color-scale9
+    border-left: pxToRem(1) solid $uni-color-scale9
+    white-space: nowrap
+    text-overflow: ellipsis
+    overflow-x: hidden
+
+.timesheet td.sum
+    height: 2rem
+    border-top: 1px solid #000 !important
+    font-weight: 600
+
+tr.sum td
+    border-bottom: 2px solid lighten($uni-color-scale6, 20%) !important
+    font-weight: 600
+    padding-bottom: 0.4em
+
+.timesheet td.sumright
+    font-weight: 600
+    border-left: 1px solid $uni-color-scale6
+
+.timesheet th.sum
+    background-color: lighten(mix($uni-color-scale9, $navbarBackground, 50%), 24%)
+
+.timesheet td.left
+    text-align: left
+    padding-left: 1em;
+
+.timesheet td.center
+    text-align: center
+
+.timesheet td.right
+    text-align: right
+
+.timesheet td:first-of-type
+    border-left: 0
+
+.timesheet td:last-of-type
+    border-right: 0
