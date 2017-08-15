@@ -767,8 +767,8 @@ export class BillView {
                         if (response === ConfirmActions.ACCEPT) {
                             this.createSupplier(
                                 item.orgnr,
-                                item.foretningsadr,
                                 item.navn,
+                                item.foretningsadr,
                                 item.forradrpostnr,
                                 item.forradrpoststed,
                                 bankAccount
@@ -785,7 +785,6 @@ export class BillView {
     private createSupplier(orgNo: string, name: string, address: string, postalCode: string, city: string, bankAccount?: string) {
         var sup = new Supplier();
         sup.OrgNumber = orgNo;
-
         sup.Info = <any>{
             Name: name,
             ShippingAddress: {

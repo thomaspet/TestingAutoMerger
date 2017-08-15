@@ -8,7 +8,7 @@ import {ActivatedRoute} from '@angular/router';
 import {Router} from '@angular/router';
 import {StatusCodeSupplierInvoice, CompanySettings} from '../../../unientities';
 import {safeInt} from '../../common/utils/utils';
-import {UniModalService, UniConfirmModalV2} from '../../../../framework/uniModal/barrel';
+import {UniModalService, UniConfirmModalV2, ConfirmActions} from '../../../../framework/uniModal/barrel';
 import {
     SettingsService,
     ViewSettings,
@@ -239,9 +239,11 @@ export class BillsView {
             new UniTableColumn('Description', 'Tekst').setFilterOperator('contains'),
             new UniTableColumn('Size', 'Størrelse', UniTableColumnType.Number).setVisible(false).setWidth('6rem').setFilterOperator('startswith'),
             new UniTableColumn('Source', 'Kilde', UniTableColumnType.Lookup).setWidth('6rem').setFilterOperator('startswith').setTemplate((rowModel) => {
-                switch(rowModel.FileTags[0].TagName) {
-                    case 'IncomingMail': return 'Epost';
-                    case 'IncomingEHF': return 'EHF';
+                if (rowModel.FileTags) {
+                    switch(rowModel.FileTags[0].TagName) {
+                        case 'IncomingMail': return 'Epost';
+                        case 'IncomingEHF': return 'EHF';
+                    }
                 }
                 return '';
             }),
@@ -333,6 +335,7 @@ export class BillsView {
 
     public onRowDeleted(row) {
         if (this.currentFilter.name === 'Inbox') {
+            this.currentFilter.count--;
             var fileId = row.ID;
             if (fileId) {
                 const modal = this.modalService.open(UniConfirmModalV2, {
@@ -340,8 +343,8 @@ export class BillsView {
                     message: 'Slett aktuell fil: ' + row.Name
                 });
 
-                modal.onClose.subscribe(canDelete => {
-                    if (canDelete) {
+                modal.onClose.subscribe(response => {
+                    if (response === ConfirmActions.ACCEPT) {
                         this.supplierInvoiceService.send('files/' + fileId, undefined, 'DELETE').subscribe(
                             res => {
                                 this.toast.addToast('Filen er slettet', ToastType.good, 2);
