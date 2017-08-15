@@ -4018,6 +4018,7 @@ export class JournalEntry extends UniEntity {
     public Deleted: boolean;
     public FinancialYearID: number;
     public ID: number;
+    public JournalEntryAccrualID: number;
     public JournalEntryNumber: string;
     public JournalEntryNumberNumeric: number;
     public NumberSeriesTaskID: number;
@@ -4028,6 +4029,7 @@ export class JournalEntry extends UniEntity {
     public Lines: Array<JournalEntryLine>;
     public DraftLines: Array<JournalEntryLineDraft>;
     public NumberSeriesTask: NumberSeriesTask;
+    public JournalEntryAccrual: Accrual;
     public CustomFields: any;
 }
 
@@ -4084,6 +4086,7 @@ export class JournalEntryLine extends UniEntity {
     public VatPeriodID: number;
     public VatReportID: number;
     public VatTypeID: number;
+    public JournalEntry: JournalEntry;
     public CurrencyCode: CurrencyCode;
     public Period: Period;
     public VatPeriod: Period;

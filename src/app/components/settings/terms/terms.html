@@ -1,0 +1,21 @@
+<section class="splitview">
+
+    <nav class ="splitview_list">
+        <uni-table *ngIf="termsTypes"
+                [config]="termsTypeTableConfig"
+                [resource]="termsTypes"
+                (rowSelected)="onTermSelected($event)">
+        </uni-table>
+    </nav>
+
+    <main class="splitview_detail">
+        <uni-table
+            [config]="termsTableConfig"
+            [resource]="currentTerms"
+            (rowDeleted)="onTermDeleted($event)">
+        </uni-table> 
+    </main>
+
+</section>
+
+<uni-save [actions]="saveactions"></uni-save>

@@ -18,6 +18,7 @@ import {Users} from './users/users';
 import {Teams} from './teams/teams';
 import {UserSettings} from './userSettings/userSettings';
 import {NumberSeries} from './numberSeries/numberSeries';
+import {UniTerms} from './terms/terms';
 
 import {GrantsModal, GrantsModalContent} from './agaAndSubEntitySettings/modals/grantsModal';
 import {FreeamountModal, FreeamountModalContent} from './agaAndSubEntitySettings/modals/freeamountModal';
@@ -52,6 +53,7 @@ import {RoleSelector} from './users/roleSelector';
         Teams,
         UserSettings,
         NumberSeries,
+        UniTerms,
 
         GrantsModal,
         GrantsModalContent,
@@ -75,6 +77,7 @@ import {RoleSelector} from './users/roleSelector';
         CompanySettingsComponent,
         Users,
         UserSettings,
+        UniTerms,
 
         GrantsModal,
         GrantsModalContent,

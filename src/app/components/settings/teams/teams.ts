@@ -335,8 +335,8 @@ export class Teams {
                 Classes: ['half-width'],
                 Section: 0
             }
-         ]);
-      }
+        ]);
+    }
 
     private requestTeams() {
         this.http.asGET()
