@@ -73,7 +73,7 @@ export class TimeEntry {
         ];
 
     public tabs: Array<any> = [ { name: 'timeentry', label: 'Registrering', isSelected: true },
-            { name: 'tools', label: 'Timeliste', activate: (ts: any, filter: any) =>
+            { name: 'timesheet', label: 'Timeliste', activate: (ts: any, filter: any) =>
                 this.regtimeTools.activate(ts, filter) },
             { name: 'totals', label: 'Totaler', activate: (ts: any, filter: any) =>
                 this.regtimeTotals.activate(ts, filter) },
@@ -153,8 +153,17 @@ export class TimeEntry {
                 this.timeSheet.currentRelationId = id;
                 this.updateToolbar();
                 this.loadItems();
+                // Refresh timesheet?
+                let index = this.indexOfTab('timesheet');
+                if (index >= 0 && this.tabs[index].isSelected) {
+                    this.tabs[index].activate(this.timeSheet, this.currentFilter);
+                }
             }
         });
+    }
+
+    private indexOfTab(name: string): number {
+        return this.tabs.findIndex( x => x.name === name);
     }
 
     public onTabClick(tab: ITab) {

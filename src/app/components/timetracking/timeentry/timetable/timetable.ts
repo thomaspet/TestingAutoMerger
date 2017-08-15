@@ -101,7 +101,7 @@ export class TimeTableReport {
         for (var i = 0; i < report.Items.length; i++) {
             let item = report.Items[i];
             if ((week && item.WeekNumber !== week.WeekNumber) || (!week)) {
-                week = { WeekNumber: item.WeekNumber, FirstDay: item.Date, Items: [] };
+                week = { WeekNumber: item.WeekNumber, FirstDay: item.Date, Items: [], Sums: new Sums() };
                 week.Items.push(item);
                 weeks.push(week);
             } else {
@@ -137,38 +137,17 @@ export class TimeTableReport {
             } else {
                 month.Weeks.push(week);
             }
+            this.addSums(month.Sums, week.Sums);
         }
         report.Months = months;
         return report;
     }
 
     private sumWeeks(weeks: Array<IWeek>) {
-        var accumulative: Sums;
-        for (var i = 0; i < weeks.length; i++) {
-            let week = weeks[i];
-            let sum = new Sums();            
-            for (var wi = 0; wi < week.Items.length; wi++) {
-                this.addSums(sum, week.Items[wi]);
-                if (!accumulative) { 
-                    accumulative = new Sums(); 
-                    accumulative.Name = moment(week.FirstDay).format('MMMM');
-                }
-                this.addSums(accumulative, week.Items[wi]);
-            }
-            sum.ProjectPrc = this.minValue(100, (sum.Projecttime || 0) / (sum.ExpectedTime || 1) * 100);
-            sum.InvoicePrc = this.minValue(100, (sum.Invoicable || 0) / (sum.ExpectedTime || 1) * 100);
-            if (i > 0 && moment(weeks[i].FirstDay).month !== moment(weeks[i - 1].FirstDay).month) {
-                week.Accumulative = accumulative;
-                accumulative = undefined;
-            }
-            week.Sums = sum;
-        }
-        if (accumulative) {
-            weeks[weeks.length - 1].Accumulative = accumulative;
-        }
+        weeks.forEach( x => x.Items.forEach( y => this.addSums(x.Sums, y)) );
     }
 
-    private addSums(sum: Sums, day: IWorkDay) {
+    private addSums(sum: Sums, day: IWorkDay | Sums) {
         sum.ExpectedTime += day.ExpectedTime || 0;
         sum.Flextime += day.Flextime || 0;
         sum.Overtime += day.Overtime || 0;
@@ -177,6 +156,8 @@ export class TimeTableReport {
         sum.TimeOff += day.TimeOff || 0;
         sum.ValidTime += day.ValidTime || 0;
         sum.Invoicable += day.Invoicable || 0;
+        sum.ProjectPrc = this.minValue(100, (sum.Projecttime || 0) / (sum.ExpectedTime || 1) * 100);
+        sum.InvoicePrc = this.minValue(100, (sum.Invoicable || 0) / (sum.ExpectedTime || 1) * 100);    
         // sum.Status = ?? todo: combine statuses from all days
     }
 
@@ -192,13 +173,13 @@ class Month {
     public Date: Date;
     public Name: string;
     public Weeks: Array<IWeek> = [];
-    public Sums: Sums;
+    public Sums: Sums = new Sums();
     constructor(date: Date) {
         this.Date = date;
         this.Name = moment(date).format('MMMM').toLocaleUpperCase();
     }
     public isInMonth(week: IWeek): boolean {
-        var md = moment(week.Items[2].Date).toDate().getMonth();        
+        var md = moment(week.Items[4].Date).toDate().getMonth();        
         return (md === moment(this.Date).toDate().getMonth());
     }
 }
@@ -208,7 +189,7 @@ interface IWeek {
     FirstDay: Date;
     Items: Array<IWorkDay>;
     Sums?: Sums;
-    Accumulative?: Sums;
+    // Accumulative?: Sums;
 }
 
 class Sums {
