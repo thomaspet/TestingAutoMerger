@@ -171,7 +171,8 @@ export class NumberSeries {
                             accept: 'Lagre',
                             reject: 'Forkast',
                             cancel: 'Avbryt'
-                        }
+                        },
+                        activateClickOutside: false
                     }).onClose.subscribe(response => {
                         switch (response) {
                             case ConfirmActions.ACCEPT:
