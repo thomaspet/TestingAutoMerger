@@ -26,6 +26,7 @@ export interface IModalOptions {
         cancel?: string;
     };
     modalConfig?: any;
+    activateClickOutside?: boolean;
 }
 
 
