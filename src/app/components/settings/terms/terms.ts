@@ -5,7 +5,6 @@ import {ErrorService, GuidService} from '../../../services/services';
 import {Terms, TermsType} from '../../../unientities';
 import {IUniSaveAction} from '../../../../framework/save/save';
 import {UniModalService, ConfirmActions} from '../../../../framework/uniModal/barrel';
-import {Observable} from 'rxjs/Observable';
 
 @Component({
     selector: 'uni-terms',
@@ -19,11 +18,13 @@ export class UniTerms {
         {TermsType: TermsType.PaymentTerms, Name: 'Betalingsbetingelser'},
         {TermsType: TermsType.DeliveryTerms, Name: 'Leveringsbetingelser'}
     ];
-    private currentTermType: any = this.termsTypes.find(x => x.TermsType == TermsType.PaymentTerms); //Valgt TermsTypes, betaling forhåndsvalgt
-    private currentTerms: Terms[] = []; //terms filtrert etter valgt TermsTypes
-    private deletables: Array<Terms> = []; //Tabellrader som blir slettet
+    private currentTermType: any = this.termsTypes.find(
+        x => x.TermsType === TermsType.PaymentTerms
+    ); // Valgt TermsTypes, betaling forhåndsvalgt
+    private currentTerms: Terms[] = []; // terms filtrert etter valgt TermsTypes
+    private deletables: Array<Terms> = []; // Tabellrader som blir slettet
     
-    public terms: Terms[] = []; //Alle terms, begge typer
+    public terms: Terms[] = []; // Alle terms, begge typer
     public hasUnsavedChanges: boolean = false;
     public busy: boolean = false;
 
@@ -43,7 +44,7 @@ export class UniTerms {
         this.getTerms(); 
         setTimeout(x => {
             this.uniTables.first.focusRow(0);
-        }, 500); //Forhåndsvelger TermsTypes betaling
+        }, 500); // Forhåndsvelger TermsTypes betaling
     }
 
     public onTermSelected(event) {
@@ -77,7 +78,7 @@ export class UniTerms {
         }, 50);
     }
 
-    //Filtrerer terms etter valgt TermsTypes
+    // Filtrerer terms etter valgt TermsTypes
     private setCurrent(t: any) {
         if (this.uniTables) {
             this.uniTables.last.blur();
@@ -86,12 +87,11 @@ export class UniTerms {
 
         if (t.TermsType === TermsType.PaymentTerms) {
             this.currentTermType.TermsType = TermsType.PaymentTerms;
-            this.currentTerms = this.terms.filter(x => x.TermsType == TermsType.PaymentTerms);
+            this.currentTerms = this.terms.filter(x => x.TermsType === TermsType.PaymentTerms);
             this.initPaymentTermsTableConfig();
-        } 
-        else if (t.TermsType === TermsType.DeliveryTerms) {
+        } else if (t.TermsType === TermsType.DeliveryTerms) {
             this.currentTermType.TermsType = TermsType.DeliveryTerms;
-            this.currentTerms = this.terms.filter(x => x.TermsType == TermsType.DeliveryTerms);
+            this.currentTerms = this.terms.filter(x => x.TermsType === TermsType.DeliveryTerms);
             this.initDeliveryTermsTableConfig();
         }
         this.uniTables.last.refreshTableData();
@@ -129,14 +129,14 @@ export class UniTerms {
             };
     }
 
-    //Oppdaterer data ved endring i tabellen (men ikke lagrer, lagres i save())
+    // Oppdaterer data ved endring i tabellen (men ikke lagrer, lagres i save())
     private onEditChange(event) {
         var rowIndex = event.originalIndex;
         var value = event.rowModel[event.field];
 
-        if (value == null) {value = 0};
+        if (value === null) {value = 0; }
 
-        if (!value && value != '') {
+        if (!value && value !== '') {
             return event.rowModel;
         }
 
@@ -144,10 +144,9 @@ export class UniTerms {
         this.updateSaveActions();
 
         if (rowIndex >= this.currentTerms.length) {
-            if (this.currentTermType.TermsType == TermsType.PaymentTerms) {
+            if (this.currentTermType.TermsType === TermsType.PaymentTerms) {
                 this.currentTerms.push(this.newPaymentTerm());   
-            }
-            else if (this.currentTermType.TermsType == TermsType.DeliveryTerms) {
+            } else if (this.currentTermType.TermsType === TermsType.DeliveryTerms) {
                 this.currentTerms.push(this.newDeliveryTerm());   
             }
         }
