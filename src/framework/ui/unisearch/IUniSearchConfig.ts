@@ -11,4 +11,5 @@ export interface IUniSearchConfig {
     newItemModalFn?: () => Observable<any>;
     externalLookupFn?: (searchTerm: string) => Observable<any[]>;
     maxResultsLength?: number;
+    unfinishedValueFn?: (val: any) => Observable<any>;
 }

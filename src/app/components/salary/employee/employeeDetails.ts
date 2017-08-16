@@ -950,6 +950,8 @@ export class EmployeeDetails extends UniView implements OnDestroy {
             brInfo.Emails = brInfo.Emails.filter(email => email !== brInfo.DefaultEmail);
         }
 
+        this.employee['_EmployeeSearchResult'] = undefined;
+
         return (this.employee.ID > 0)
             ? this.employeeService.Put(this.employee.ID, this.employee)
             : this.employeeService.Post(this.employee);

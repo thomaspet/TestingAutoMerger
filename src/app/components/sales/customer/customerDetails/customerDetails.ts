@@ -571,20 +571,6 @@ export class CustomerDetails {
         setTimeout(() => {
             let customer = this.customer$.getValue();
 
-            // if the user has typed something in Name for a new customer, but has not
-            // selected something from the list or clicked F3, the searchbox is still active,
-            // so we need to get the value from there
-            if (!customer.ID || customer.ID === 0) {
-                if (!customer.Info.Name || customer.Info.Name === '') {
-                    const searchInfo = this.form.field('_CustomerSearchResult')
-                    if (searchInfo) {
-                        if (searchInfo.component && searchInfo.component.input) {
-                            customer.Info.Name = searchInfo.component.input.value;
-                        }
-                    }
-                }
-            }
-
             // add createGuid for new entities and remove duplicate entities
             if (!customer.Info.Emails) {
                 customer.Info.Emails = [];
@@ -673,6 +659,8 @@ export class CustomerDetails {
                     customer.CustomerInvoiceReminderSettings = null;
             }
 
+            customer['_CustomerSearchResult'] = undefined;
+
             if (this.customerID > 0) {
                 this.customerService.Put(customer.ID, customer).subscribe(
                     (updatedCustomer) => {
@@ -748,6 +736,13 @@ export class CustomerDetails {
                 this.showHideNameProperties();
                 return Observable.from([customer]);
             });
+        uniSearchConfig.unfinishedValueFn = (val: string) => this.customer$
+            .asObservable()
+            .take(1)
+            .map(customer => {
+                customer.Info.Name = val;
+                return customer;
+            });
 
         uniSearchConfig.expandOrCreateFn = (newOrExistingItem: any) => {
             if (newOrExistingItem.ID) {
@@ -791,7 +786,6 @@ export class CustomerDetails {
                 this.customer$.next(customer);
                 this.isDisabled = false;
                 this.setupSaveActions();
-
                 this.showHideNameProperties();
             }
         }
