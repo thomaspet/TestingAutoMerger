@@ -399,14 +399,18 @@ export class AgaAndSubEntitySettings implements OnInit {
 
             saveObs.push(mainOrgSave);
         }
-        Observable.forkJoin(saveObs).subscribe((response: any) => {
-            this.companySalary$.next(response[0]);
-            this.mainOrganization$.next(response[2]);
-            this.isDirty = false;
-            done('Sist lagret: ');
-        },
-            err => this.errorService.handle(err),
-            () => this.saveactions[0].disabled = false);
+        Observable.forkJoin(saveObs)
+            .finally( () => this.saveactions[0].disabled = false)
+            .subscribe((response: any) => {
+                this.companySalary$.next(response[0]);
+                this.mainOrganization$.next(response[2]);
+                this.isDirty = false;
+                done('Sist lagret: ');
+            },
+            err => {
+                this.errorService.handle(err);
+                done('');
+            })
     }
 
     public toggleShowSubEntities() {
