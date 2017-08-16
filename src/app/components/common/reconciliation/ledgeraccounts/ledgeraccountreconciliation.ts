@@ -34,6 +34,12 @@ export class LedgerAccountReconciliation {
     @Input()
     public customerID: number;
 
+    @Input()
+    public accountID: number;
+
+    @Input()
+    public modalMode: boolean = false;
+
     @ViewChild(UniTable)
     private table: UniTable;
 
@@ -79,9 +85,11 @@ export class LedgerAccountReconciliation {
     }
 
     private loadData() {
-        if (this.customerID || this.supplierID) {
+        if (this.customerID || this.supplierID || this.accountID) {
             this.setupUniTable();
             this.busy = false;
+        } else {
+            this.journalEntryLines = [];
         }
     }
 
@@ -686,7 +694,8 @@ export class LedgerAccountReconciliation {
             this.displayPostsOption !== 'MARKED',
             this.displayPostsOption !== 'OPEN',
             this.customerID,
-            this.supplierID)
+            this.supplierID,
+            this.accountID)
             .subscribe(data => {
                 this.journalEntryLines = data;
                 setTimeout(() => {
@@ -704,11 +713,11 @@ export class LedgerAccountReconciliation {
             new UniTableColumn('InvoiceNumber', 'Fakturanr', UniTableColumnType.Text),
             new UniTableColumn('DueDate', 'Forfall', UniTableColumnType.DateTime),
             new UniTableColumn('Amount', 'Beløp', UniTableColumnType.Money),
-            new UniTableColumn('AmountCurrency', 'V-Beløp', UniTableColumnType.Money),
-            new UniTableColumn('CurrencyCodeCode', 'Valuta', UniTableColumnType.Text),
-            new UniTableColumn('CurrencyExchangeRate', 'V-Kurs', UniTableColumnType.Number),
+            new UniTableColumn('AmountCurrency', 'V-Beløp', UniTableColumnType.Money).setVisible(false),
+            new UniTableColumn('CurrencyCodeCode', 'Valuta', UniTableColumnType.Text).setVisible(false),
+            new UniTableColumn('CurrencyExchangeRate', 'V-Kurs', UniTableColumnType.Number).setVisible(false),
             new UniTableColumn('RestAmount', 'Restbeløp', UniTableColumnType.Money),
-            new UniTableColumn('RestAmountCurrency', 'V-Restbeløp', UniTableColumnType.Money),
+            new UniTableColumn('RestAmountCurrency', 'V-Restbeløp', UniTableColumnType.Money).setVisible(false),
             new UniTableColumn('Description', 'Beskrivelse', UniTableColumnType.Text),
             new UniTableColumn('StatusCode', 'Status', UniTableColumnType.Text)
                 .setTemplate(x => this.journalEntryLineService.getStatusText(x.StatusCode)),

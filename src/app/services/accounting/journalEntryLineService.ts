@@ -28,8 +28,7 @@ export class JournalEntryLineService extends BizHttp<JournalEntryLine> {
         return periodDates;
     }
 
-
-    public getJournalEntryLinePostPostData(includeOpenPosts, includeMarkedPosts, customerID, supplierID) {
+    public getJournalEntryLinePostPostData(includeOpenPosts, includeMarkedPosts, customerID, supplierID, accountID) {
         let querystring: string = `&includeOpenPosts=${includeOpenPosts}&includeMarkedPosts=${includeMarkedPosts}`;
 
         if (customerID) {
@@ -38,6 +37,10 @@ export class JournalEntryLineService extends BizHttp<JournalEntryLine> {
 
         if (supplierID) {
             querystring += '&supplierID=' + supplierID;
+        }
+
+        if (accountID) {
+            querystring += '&accountID=' + accountID;
         }
 
         return this.http
