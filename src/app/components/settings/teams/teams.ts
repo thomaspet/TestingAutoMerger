@@ -134,6 +134,7 @@ export class Teams {
             };
     }
 
+    //Oppdaterer data ved endring i tabellen (men ikke lagrer, lagres i save())
     private onEditChange(event) {
         var rowIndex = event.originalIndex;
         var value = event.rowModel[event.field];
@@ -194,7 +195,8 @@ export class Teams {
                         accept: 'Lagre',
                         reject: 'Forkast',
                         cancel: 'Avbryt'
-                    }
+                    },
+                    activateClickOutside: false
                 }).onClose.subscribe(response => {
                     if (response === ConfirmActions.ACCEPT) {
                         this.save().then(saveResult => resolve(saveResult));
