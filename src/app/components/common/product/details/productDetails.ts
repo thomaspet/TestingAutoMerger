@@ -602,7 +602,7 @@ export class ProductDetails {
                     Property: 'CalculateGrossPriceBasedOnNetPrice',
                     Placement: 1,
                     FieldType: FieldType.CHECKBOX,
-                    Label: 'Kalkuler utpris eks mva basert på utpris inkl. mva',
+                    Label: 'Utpris inkl. mva',
                     Description: '',
                     HelpText: '',
                     Legend: '',
