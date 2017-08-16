@@ -1,8 +1,8 @@
-import {Component, ViewChild, ChangeDetectorRef} from '@angular/core';
+import { Component, ViewChild, ChangeDetectorRef } from '@angular/core';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {View} from '../../../models/view/view';
-import {WorkRelation, WorkItem, Worker, WorkBalance, LocalDate} from '../../../unientities';
-import { WorkerService, IFilter } from '../../../services/timetracking/workerService';
+import { WorkRelation, WorkItem, Worker, WorkBalance, LocalDate } from '../../../unientities';
+import { WorkerService, IFilter, ItemInterval } from '../../../services/timetracking/workerService';
 import { exportToFile, arrayToCsv, safeInt, trimLength, parseTime } from '../../common/utils/utils';
 import {TimesheetService, TimeSheet} from '../../../services/timetracking/timesheetService';
 import {IsoTimePipe} from '../../common/utils/pipes';
@@ -19,7 +19,8 @@ import {WorkEditor} from '../components/workeditor';
 import { DayBrowser, Day, ITimeSpan, INavDirection } from '../components/daybrowser';
 import { SideMenu } from '../sidemenu/sidemenu';
 import {TeamworkReport, Team} from '../components/teamworkreport';
-import {UniFileImport} from '../components/popupfileimport';
+import { UniFileImport } from '../components/popupfileimport';
+import { UniHttp } from '../../../../framework/core/http/http';
 import * as moment from 'moment';
 
 type colName = 'Date' | 'StartTime' | 'EndTime' | 'WorkTypeID' | 'LunchInMinutes' |
@@ -63,8 +64,10 @@ export class TimeEntry {
     public incomingBalance: WorkBalance;
     public teams: Array<Team>;
     private settings: ISettings = {
-        useDayBrowser: true
+        useDayBrowser: false
     };
+    private workedToday: string = '';
+    private customDateSelected: Date = null;
 
     @ViewChild(RegtimeTotals) private regtimeTotals: RegtimeTotals;
     @ViewChild(TimeTableReport) private regtimeTools: TimeTableReport;
@@ -120,7 +123,8 @@ export class TimeEntry {
         private errorService: ErrorService,
         private router: Router,
         private localStore: BrowserStorageService,
-        private changeDetectorRef: ChangeDetectorRef
+        private changeDetectorRef: ChangeDetectorRef,
+        private http: UniHttp
     ) {
 
         this.loadSettings();
@@ -174,7 +178,21 @@ export class TimeEntry {
         this.checkSave().then(() => {
             this.busy = true;
             this.loadItems(event);
-            //event.selected = true;
+            this.customDateSelected = new Date(event);
+            //Unselect upper right selector when selecting other date then today or yesterday 
+            if (new Date(event).getDate() === new Date().getDate()) {
+                this.currentFilter = this.filters[0];
+                this.filters.forEach((value: any) => value.isSelected = false);
+                this.currentFilter.isSelected = true;
+            } else if (new Date(event).getDate() === (new Date().getDate() - 1)) {
+                this.currentFilter = this.filters[1];
+                this.filters.forEach((value: any) => value.isSelected = false);
+                this.currentFilter.isSelected = true;
+            } else {
+                this.currentFilter.isSelected = false;
+            }
+            this.currentFilter.bigLabel = moment(event).format('Do MMMM YYYY');
+            this.showProgress(event);
         });
     }
 
@@ -193,7 +211,6 @@ export class TimeEntry {
     }
 
     private mapTemplateToWorkItem(workItem: any, template: any) {
-        console.log(template);
         workItem.Date = new Date();
         workItem.StartTime = template.StartTime ? parseTime(template.StartTime) : parseTime('8');
         workItem.EndTime = template.EndTime ? parseTime(template.EndTime) : parseTime('8');
@@ -203,7 +220,6 @@ export class TimeEntry {
         workItem.DimensionsID = template.DimensionsID;
         workItem.CustomerOrderID = template.CustomerOrderID;
 
-        console.log(workItem);
         return workItem;
     }
 
@@ -269,7 +285,8 @@ export class TimeEntry {
             }
             this.timeSheet = ts;
             this.loadItems();
-            this.updateToolbar( !workerid ? this.service.user.name : '', this.workRelations );
+            this.updateToolbar(!workerid ? this.service.user.name : '', this.workRelations);
+            this.showProgress();
         }, err => {
             this.errorService.handle(err);
         });
@@ -400,15 +417,16 @@ export class TimeEntry {
             }, () => {
                 this.flagUnsavedChanged(true);
                 if (done) { done(counter + ' poster ble lagret.'); }
-                this.refreshViewItems();
+                this.refreshViewItems(this.customDateSelected);
                 this.loadFlex(this.timeSheet.currentRelation);
                 resolve(true);
+                this.showProgress(this.customDateSelected);
             });
         });
     }
 
-    private refreshViewItems() {
-        this.loadItems(this.settings.useDayBrowser ? this.dayBrowser.current.date : undefined);
+    private refreshViewItems(date?: Date) {
+        this.loadItems(date);
     }
 
     public export(done?: (msg?: string) => void) {
@@ -443,7 +461,6 @@ export class TimeEntry {
                 if (success) {
                     let ts = this.timeSheet.clone();
                     let importedList = this.fileImport.getWorkItems();
-                    console.log(importedList);
                     //return;
                     if (importedList && importedList.length > 0) {
                         var types = this.workEditor.getWorkTypes();
@@ -613,12 +630,98 @@ export class TimeEntry {
     public onFilterClick(filter: IFilter) {
         this.checkSave().then((success: boolean) => {
             if (!success) { return; }
+            filter.bigLabel = this.service.getBigLabel(filter.interval);
             this.filters.forEach((value: any) => value.isSelected = false);
             filter.isSelected = true;
             this.currentFilter = filter;
             this.busy = true;
             this.loadItems();
+            this.customDateSelected = null;
+            this.showProgress();
         });
+    }
+
+    private showProgress(date?: any) {
+        let endpoint = 'workrelations/' + this.workRelations[0].ID + '?action=timesheet&fromdate=';
+
+        let year = new Date().getFullYear();
+        let month = new Date().getMonth() < 10 ? '0' + (new Date().getMonth() + 1) : new Date().getMonth() + 1;
+        let today = new Date().getDate() < 10 ? '0' + new Date().getDate() : new Date().getDate();
+
+        if (date) {
+            let selectedDate = new Date(date);
+
+            let myDate = selectedDate.getFullYear() + '-';
+            myDate += selectedDate.getMonth() < 10 ? '0' + (selectedDate.getMonth() + 1) : selectedDate.getMonth() + 1;
+            myDate += '-' + (selectedDate.getDate() < 10 ? '0' + selectedDate.getDate() : selectedDate.getDate());
+
+            endpoint += myDate + '&todate=' + myDate;
+        } else {
+            switch (this.currentFilter.interval) {
+                case ItemInterval.today:
+                    endpoint += year + '-' + month + '-' + today;
+                    break;
+                case ItemInterval.yesterday:
+                    let yesterdayDate = year + '-' + month + '-';
+                    yesterdayDate += (new Date().getDate() - 1) < 10 ? '0' + (new Date().getDate() - 1) : (new Date().getDate() - 1)
+                    endpoint += yesterdayDate + '&todate=' + yesterdayDate;
+                    break;
+                case ItemInterval.thisWeek:
+                    let diff = new Date().getDay() - 1;
+                    endpoint += year + '-' + month + '-' + (new Date().getDate() - diff) + '&todate=' + year + '-' + month + '-' + new Date().getDate();
+                    break;
+                case ItemInterval.thisMonth:
+                    endpoint += year + '-' + month + '-01' + '&todate=' + year + '-' + month + '-' + today;
+                    break;
+                case ItemInterval.lastTwoMonths:
+                    let lastMonth = new Date().getMonth() < 10 ? '0' + (new Date().getMonth()) : new Date().getMonth();
+                    endpoint += year + '-' + lastMonth + '-01' + '&todate=' + year + '-' + month + '-' + today;
+                    break;
+                case ItemInterval.thisYear:
+                    endpoint += year + '-01-01&todate=' + year + '-' + month + '-' + today;
+                    break;
+                case ItemInterval.all:
+                    endpoint += '2016-01-01';
+                    break;
+                default:
+                    endpoint += year + '-' + month + '-' + today;
+                    break;
+            }
+        }
+
+        let expectedTime = 0;
+        let totalTime = 0;
+
+        this.getProgressData(endpoint).subscribe((data) => {
+            //Loop data and sum up expected time and total time worked
+            data.Items.forEach((item) => {
+                expectedTime += item.ExpectedTime;
+                totalTime += item.TotalTime;
+            })
+
+            this.workedToday = Math.floor(totalTime) + ' timer og ' + (totalTime * 60) % 60 + ' minutter'
+
+            //Find percentage of hours worked (Max 100) 
+            let percentageWorked = totalTime / (expectedTime / 100);
+            percentageWorked = percentageWorked > 100 ? 100 : percentageWorked;
+
+            //Add styling to the progress bar
+            let progressBar: any = document.getElementById('timetracking_progress_bar').children[0];
+            progressBar.style.width = isNaN(percentageWorked) ? 0 : percentageWorked + '%';
+            if (percentageWorked >= 100) {
+                progressBar.style.backgroundColor = '#008000';
+            } else {
+                progressBar.style.backgroundColor = '#0f4880';
+            }
+        })
+    }
+
+    private getProgressData(endpoint: string) {
+        return this.http.asGET()
+            .usingBusinessDomain()
+            .withEndPoint(endpoint)
+            .send()
+            .map(response => response.json());
     }
 }
 

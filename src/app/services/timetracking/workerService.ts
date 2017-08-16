@@ -24,6 +24,8 @@ export interface IFilter {
     label: string;
     isSelected?: boolean;
     interval: ItemInterval;
+    bigLabel: string;
+    date: Date;
 }
 
 @Injectable()
@@ -162,15 +164,59 @@ export class WorkerService extends BizHttp<Worker> {
     }
 
     public getIntervalItems(): Array<IFilter> {
+        let date = new Date();
         return [
-            { name: 'today', label: 'I dag', isSelected: true, interval: ItemInterval.today },
-            { name: 'yesterday', label: this.getLastWorkDayName(),
-                isSelected: false, interval: ItemInterval.yesterday },
-            { name: 'week', label: 'Denne uke', interval: ItemInterval.thisWeek},
-            { name: 'month', label: 'Denne måned', interval: ItemInterval.thisMonth},
-            { name: 'months', label: 'Siste 2 måneder', interval: ItemInterval.lastTwoMonths},
-            { name: 'year', label: 'Dette år', interval: ItemInterval.thisYear},
-            { name: 'all', label: 'Alt', interval: ItemInterval.all}
+            {
+                name: 'today',
+                label: 'I dag',
+                isSelected: true,
+                interval: ItemInterval.today,
+                bigLabel: this.getBigLabel(ItemInterval.today),
+                date: new Date()
+            },
+            {
+                name: 'yesterday',
+                label: this.getLastWorkDayName(),
+                isSelected: false,
+                interval: ItemInterval.yesterday,
+                bigLabel: this.getBigLabel(ItemInterval.yesterday),
+                date: new Date(date.setDate(date.getDate() - 1))
+            },
+            {
+                name: 'week',
+                label: 'Denne uke',
+                interval: ItemInterval.thisWeek,
+                bigLabel: this.getBigLabel(ItemInterval.thisWeek),
+                date: new Date()
+            },
+            {
+                name: 'month',
+                label: 'Denne måned',
+                interval: ItemInterval.thisMonth,
+                bigLabel: this.getBigLabel(ItemInterval.thisMonth),
+                date: new Date()
+            },
+            {
+                name: 'months',
+                label: 'Siste 2 måneder',
+                interval: ItemInterval.lastTwoMonths,
+                bigLabel: this.getBigLabel(ItemInterval.lastTwoMonths),
+                date: new Date()
+            },
+            {
+                name: 'year',
+                label: 'Dette år',
+                interval: ItemInterval.thisYear,
+                bigLabel: this.getBigLabel(ItemInterval.thisYear),
+                date: new Date()
+            },
+            {
+                name: 'all',
+                label: 'Alt',
+                interval: ItemInterval.all,
+                bigLabel: this.getBigLabel(ItemInterval.all),
+                date: new Date()
+            }
         ];
     }
 
@@ -183,6 +229,35 @@ export class WorkerService extends BizHttp<Worker> {
             dt.add(-1, 'days');
         }
         return dt.toDate();
+    }
+
+    public getBigLabel(item: ItemInterval) {
+        let bigLabel = '';
+        switch (item) {
+            case ItemInterval.today:
+                bigLabel += moment().format('Do MMMM YYYY');
+                break;
+            case ItemInterval.yesterday:
+                bigLabel += moment().add(-1, 'days').format('Do MMMM YYYY');
+                break;
+            case ItemInterval.thisWeek:
+                bigLabel += 'Uke ' + moment(new Date()).week();
+                break;
+            case ItemInterval.thisMonth:
+                bigLabel += capitalizeFirstLetter(moment().format('MMMM'));
+                break;
+            case ItemInterval.lastTwoMonths:
+                bigLabel += capitalizeFirstLetter(moment().add(-1, 'months').format('MMMM')) + ' og ' + capitalizeFirstLetter(moment().format('MMMM'));
+                break;
+            case ItemInterval.thisYear:
+                bigLabel += moment().format('YYYY');
+                break;
+            case ItemInterval.all:
+                bigLabel += 'Alle registrerte timer';
+                break;
+        }
+
+        return bigLabel;
     }
 
     private getLastWorkDayName(): string {

@@ -364,7 +364,7 @@ uni-file-import input
 
     li
         float: left
-        width: 100px
+        width: 120px
         text-align: center
         height: 30px
         line-height: 30px
@@ -373,6 +373,7 @@ uni-file-import input
         border-bottom: $primaryBorder
         border-left: $primaryBorder
         color: $primaryblue
+        font-size: 0.8rem
 
         &:first-of-type
             border-top-left-radius: 4px
@@ -394,3 +395,27 @@ uni-file-import input
             cursor: pointer
             background-color: $primaryblue
             color: #fff
+
+#timetracking_progress_bar
+    width: 150px
+    border: 1px solid #0f4880
+    border-radius: 12px
+    height: 12px
+    padding: 1px
+    float: left
+    margin-top: 5px
+
+    div
+        width: 10%
+        height: 100%
+        background-color: #0f4880
+        border-radius: 12px
+        transition: linear 1s
+    
+
+.timetracking_worked_today_text
+    float: left
+    margin-left: 15px
+    color: #0f4880
+    &:after
+        clear: both

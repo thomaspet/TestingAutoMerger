@@ -1,5 +1,7 @@
 ﻿import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { TimeTrackingPeriodes } from '../timeentry/timeentry';
+import { WorkerService, IFilter } from '../../../services/timetracking/workerService';
+import * as moment from 'moment';
 
 export interface ITimeTrackingTemplate {
     Date: Date,
@@ -29,14 +31,14 @@ export class SideMenu {
         date: new Date()
     }
 
-    @Input() private periode: TimeTrackingPeriodes;
+    @Input() private periode: IFilter;
     @Output() public dateSelected: EventEmitter<Date> = new EventEmitter();
     @Output() public templateSelected: EventEmitter<any> = new EventEmitter();
 
 
     constructor() {
-        console.log('Hello from sidemenu');
         let temp = localStorage.getItem('timeTrackingTemplates');
+        
         if (temp) {
             this.timeTrackingTemplates = JSON.parse(temp);
         }
@@ -44,28 +46,19 @@ export class SideMenu {
 
     private onTemplateSelected(template: any) {
         this.templateSelected.emit(template);
-        console.log(template);
     }
 
     private createNewTemplate() {
         console.log('Create new template');
     }
 
-    private onCalBlur() {
-        console.log('clickOutside');
-    }
-
     private onCalendarDateChange(date: Date) {
         this.dateSelected.emit(date);
     }
 
-    private hideCalendar() {
-        console.log('onEscKey');
-    }
-
     private setTodayAsCurrentDay() {
-        this.day.date = new Date();
-        this.dateSelected.emit(this.day.date);
+        this.periode.date = new Date();
+        this.dateSelected.emit(new Date());
     }
 
     private dummyTemplates() {
