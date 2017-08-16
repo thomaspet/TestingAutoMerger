@@ -75,11 +75,13 @@ export class UniSearchAccountConfigGeneratorHelper {
 
     // function made for accrualModal to search for 1700's accounts if search is empty, searches for input otherwise
     public generate17XXAccountsConfig(
+
         all: boolean = false,
         expands: string[] = [],
         newItemModalFn?: () => Observable<UniEntity>
     ): IUniSearchConfig {
         return {
+
             lookupFn: searchTerm => this.statisticsService
                 .GetAllUnwrapped(this.generate17XXAccountsStatisticsQuery(searchTerm, all))
                 .catch((err, obs) => this.errorService.handleRxCatch(err, obs)),
@@ -115,9 +117,10 @@ export class UniSearchAccountConfigGeneratorHelper {
     public generate17XXAccountsStatisticsQuery(searchTerm: string, all: boolean = false): string {
       const model = 'Account';
       const isEmptySearch = !searchTerm;
+      const startNumber = this.getNumberFromStartOfString(searchTerm);
       const filter = `(Account.Visible eq 1) and ` + ( isEmptySearch
           ? `startswith(Account.AccountNumber,'17')`
-          : `contains(Account.AccountName,'${searchTerm}')` )
+          : startNumber ? `startswith(Account.AccountNumber,'${searchTerm}')` : `contains(Account.AccountName,'${searchTerm}')`)
           + (all ? '' : ' and isnull(Account.AccountID,0) eq 0');
       const select = [
           'Account.ID as ID',

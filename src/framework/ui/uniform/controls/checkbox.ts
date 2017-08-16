@@ -46,6 +46,9 @@ export class UniCheckboxInput extends BaseControl {
     }
 
     public checkIt() {
+        if (this.field.ReadOnly) {
+            return;
+        }
         _.set(this.model, this.field.Property, !this.isChecked());
         this.emitChange(!this.isChecked(), this.isChecked());
         this.emitInstantChange(!this.isChecked(), this.isChecked(), true);

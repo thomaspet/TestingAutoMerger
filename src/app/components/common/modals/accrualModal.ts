@@ -292,7 +292,7 @@ export class AccrualForm implements OnChanges {
     }
 
     private getAccrualJournalEntryModes (): Array<AccrualJournalEntryMode> {
-       return [{ID: 1, Name: 'Per år'}, {ID: 2, Name: 'Per måned'}];
+       return [{ID: 0, Name: 'Per år'}, {ID: 2, Name: 'Per måned'}];
     }
 
     private getAccrualPeriodsOptions (): any {
@@ -411,8 +411,12 @@ export class AccrualForm implements OnChanges {
                 copyPasteFilter = ` or (AccountNumber eq '${accountNumberPart}'
                     and AccountName eq '${accountNamePart}')`;
             }
-            filter = `Visible eq 'true' and (startswith(AccountNumber\,'${searchValue}')
-                or contains(AccountName\,'${searchValue}')${copyPasteFilter} )`;
+            filter = `Visible eq 'true' and
+            (
+                startswith(AccountNumber\,'${searchValue}')
+                or contains(AccountName\,'${searchValue}')${copyPasteFilter}
+                or AccountNumber ge ${searchValue}
+            )`;
         }
         return this.accountService.searchAccounts(filter, searchValue !== '' ? 100 : 500);
     }
@@ -554,7 +558,7 @@ export class AccrualForm implements OnChanges {
                 Placement: 1,
                 Hidden: false,
                 FieldType: FieldType.TEXT,
-                ReadOnly: true,
+                ReadOnly: false,
                 LookupField: false,
                 Label: 'Antall Perioder',
                 Description: '',
@@ -738,7 +742,7 @@ export class AccrualModal {
 
         if (!accrual) {
             accrual = new Accrual();
-            accrual.AccrualJournalEntryMode = 1;
+            accrual.AccrualJournalEntryMode = 0;
 
             if (!journalEntryLineDraft) {
                 accrual.AccrualAmount = accrualAmount;

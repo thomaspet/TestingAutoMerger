@@ -277,7 +277,7 @@ export class TradeItemHelper  {
         rowModel.SumVatCurrency = rowModel.SumTotalIncVatCurrency - rowModel.SumTotalExVatCurrency;
     }
 
-    public calculateTradeItemSummaryLocal(items: Array<any>): TradeHeaderCalculationSummary {
+    public calculateTradeItemSummaryLocal(items: Array<any>, decimals: number): TradeHeaderCalculationSummary {
         let sum: TradeHeaderCalculationSummary = new TradeHeaderCalculationSummary();
         sum.SumTotalExVat = 0;
         sum.SumTotalIncVat = 0;
@@ -331,10 +331,10 @@ export class TradeItemHelper  {
                 sum.SumNoVatBasisCurrency += item.SumVatCurrency === 0 ? item.SumTotalExVatCurrency : 0;
             });
 
-            let roundedAmount = Math.round(sum.SumTotalIncVat);
+            let roundedAmount = this.round(sum.SumTotalIncVat, decimals);
             sum.DecimalRounding = sum.SumTotalIncVat - roundedAmount;
 
-            roundedAmount = Math.round(sum.SumTotalIncVatCurrency);
+            roundedAmount = this.round(sum.SumTotalIncVatCurrency, decimals);
             sum.DecimalRoundingCurrency = sum.SumTotalIncVatCurrency - roundedAmount;
             sum.SumTotalIncVatCurrency = roundedAmount;
         }

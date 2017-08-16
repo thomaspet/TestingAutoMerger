@@ -84,8 +84,22 @@ $primaryBorder: 1px solid $primaryblue
                 color: $navbarTextColor
                 background: darken(mix($uni-color-scale7, $navbarBackground, 60%), 15%)
 
+.timeentriesTable .timecell
+    whitespace: no-wrap
+    vertical-align: middle
+
+    .flexitime
+        margin-left: 1em
+        padding: 3px
+        color: red
+        font-size: 9px
+
+.timeentry-scrollview
+    max-width: 100%
+    overflow: auto
+
 .timeentriesTable
-    width: 100%
+    min-width: 100%
     table-layout: fixed
     border-collapse: collapse
     cursor: pointer
@@ -419,3 +433,9 @@ uni-file-import input
     color: #0f4880
     &:after
         clear: both
+
+.horizontal_nav 
+    overflow: auto
+
+    li
+        white-space: nowrap

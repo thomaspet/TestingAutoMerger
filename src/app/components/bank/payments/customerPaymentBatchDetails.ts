@@ -1,14 +1,20 @@
 import {Component, ViewChild, Input, EventEmitter, Output, OnChanges} from '@angular/core';
 import {Router} from '@angular/router';
-import {PaymentService, PaymentBatchService, ErrorService, FileService,
-    StatisticsService, CompanySettingsService} from '../../../services/services';
+import {
+    PaymentService,
+    PaymentBatchService,
+    ErrorService,
+    FileService,
+    StatisticsService,
+    CompanySettingsService
+} from '../../../services/services';
 import {PaymentBatch, CompanySettings} from '../../../unientities';
 import {Observable} from 'rxjs/Observable';
 import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig} from '../../../../framework/ui/unitable/index';
 import {URLSearchParams} from '@angular/http';
 import {PaymentRelationsModal} from './relationModal';
 import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
-import {UniConfirmModal, ConfirmActions} from '../../../../framework/modals/confirm';
+import {UniModalService, ConfirmActions} from '../../../../framework/uniModal/barrel';
 import {saveAs} from 'file-saver';
 import * as moment from 'moment';
 
@@ -24,7 +30,6 @@ export class CustomerPaymentBatchDetails implements OnChanges {
 
     @ViewChild(PaymentRelationsModal) private paymentRelationsModal: PaymentRelationsModal;
     @ViewChild(UniTable) private table: UniTable;
-    @ViewChild(UniConfirmModal) private confirmModal: UniConfirmModal;
 
     private downloadFilesAsAttachments: boolean = true;
     private paymentBatch: PaymentBatch;
@@ -41,7 +46,9 @@ export class CustomerPaymentBatchDetails implements OnChanges {
         private toastService: ToastService,
         private fileService: FileService,
         private statisticsService: StatisticsService,
-        private companySettingsService: CompanySettingsService) { }
+        private companySettingsService: CompanySettingsService,
+        private modalService: UniModalService
+    ) {}
 
     public ngOnInit() {
         this.companySettingsService.Get(1)
@@ -75,13 +82,15 @@ export class CustomerPaymentBatchDetails implements OnChanges {
         if (!this.paymentBatch.PaymentFileID) {
             this.deletePaymentBatch.emit(this.paymentBatch);
         } else {
-            this.confirmModal.confirm(
-                `Er du sikker på at du vil fjerne innbetalingsfilen?`,
-                'Bekreft fjerning',
-                false,
-                { accept: 'Fjern', reject: 'Avbryt' }
-            ).then((action) => {
-                if (action === ConfirmActions.ACCEPT) {
+            this.modalService.confirm({
+                header: 'Bekreft fjerning',
+                message: 'Vennligst bekreft fjerning av innbetalingsfil',
+                buttonLabels: {
+                    accept: 'Fjern',
+                    cancel: 'Avbryt'
+                }
+            }).onClose.subscribe(response => {
+                if (response === ConfirmActions.ACCEPT) {
                     this.deletePaymentBatch.emit(this.paymentBatch);
                 }
             });
@@ -93,22 +102,20 @@ export class CustomerPaymentBatchDetails implements OnChanges {
     }
 
     private completeCustomerPayment() {
-        this.confirmModal.confirm(
-            `Er du sikker på at du vil fullføre innbetalingen på denne innbetalingsfilen?`,
-            'Bekreft fullfør',
-            false,
-            { accept: 'Ok', reject: 'Avbryt' }
-        ).then((action) => {
-            if (action === ConfirmActions.ACCEPT) {
-                this.paymentBatchService.completeCustomerPayment(this.paymentBatch.ID)
-                    .subscribe((result) => {
+        this.modalService.confirm({
+            header: 'Bekreft fullføring',
+            message: 'Vennligst bekreft at du ønsker å fullføre innbetaling på denne innbetalingsfilen',
+        }).onClose.subscribe(response => {
+            if (response === ConfirmActions.ACCEPT) {
+                this.paymentBatchService.completeCustomerPayment(this.paymentBatch.ID).subscribe(
+                    res => {
                         this.toastService.addToast('Innbetaling fullført', ToastType.good, 5);
-                        this.paymentBatch = result;
+                        this.paymentBatch = res;
                         this.table.refreshTableData();
-                        this.paymentBatchUpdated.emit(result);
-                    }, (err) => {
-                        this.errorService.handleWithMessage(err, 'Feil ved fullføring av betaling');
-                    });
+                        this.paymentBatchUpdated.emit(res);
+                    },
+                    err => this.errorService.handleWithMessage(err, 'Feil ved fullføring av betaling')
+                );
             }
         });
     }

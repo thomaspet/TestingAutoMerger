@@ -1,12 +1,10 @@
-﻿<h2>Brukerinnstillinger</h2>
-<article *ngIf="user$ | async">
-    <uni-form class="userSettings"            
-            [config]="config$"
-            [fields]="fields$"
+﻿<article *ngIf="user$ | async">
+    <uni-form class="userSettings"
+            [config]="formConfig$"
+            [fields]="formFields$"
             [model]="user$"
-            (changeEvent)="change($event)">
+            (changeEvent)="onFormChange($event)">
     </uni-form>
 </article>
 
 <uni-save [actions]="saveactions"></uni-save>
-<uni-confirm-modal></uni-confirm-modal>

@@ -9,15 +9,13 @@ import {
     Supplier, SupplierInvoice, JournalEntryLineDraft,
     StatusCodeSupplierInvoice, BankAccount, LocalDate,
     InvoicePaymentData, CurrencyCode, CompanySettings, Task,
-    Project
+    Project, Department
 } from '../../../../unientities';
 import {UniStatusTrack} from '../../../common/toolbar/statustrack';
 import {IUniSaveAction} from '../../../../../framework/save/save';
 import { UniForm, FieldType} from '../../../../../framework/ui/uniform/index';
-import {RegisterPaymentModal} from '../../../common/modals/registerPaymentModal';
 import {Location} from '@angular/common';
 import {BillSimpleJournalEntryView} from './journal/simple';
-import {UniConfirmModal, ConfirmActions} from '../../../../../framework/modals/confirm';
 import {IOcrServiceResult, OcrValuables} from './ocr';
 import {billViewLanguage as lang, billStatusflowLabels as workflowLabels} from './lang';
 import {BillHistoryView} from './history/history';
@@ -30,7 +28,10 @@ import {UniMath} from '../../../../../framework/core/uniMath';
 import {NumberSeriesTaskIds} from '../../../../models/models';
 import {
     UniModalService,
-    UniBankAccountModal
+    UniBankAccountModal,
+    UniRegisterPaymentModal,
+    UniConfirmModalV2,
+    ConfirmActions
 } from '../../../../../framework/uniModal/barrel';
 import {
     SupplierInvoiceService,
@@ -47,7 +48,8 @@ import {
     EHFService,
     UniSearchConfigGeneratorService,
     ModulusService,
-    ProjectService
+    ProjectService,
+    DepartmentService
 } from '../../../../services/services';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {UniFieldLayout} from '../../../../../framework/ui/uniform/index';
@@ -104,9 +106,7 @@ export class BillView {
     private uniSearchConfig: IUniSearchConfig;
 
     @ViewChild(UniForm) public uniForm: UniForm;
-    @ViewChild(RegisterPaymentModal) private registerPaymentModal: RegisterPaymentModal;
     @ViewChild(BillSimpleJournalEntryView) private simpleJournalentry: BillSimpleJournalEntryView;
-    @ViewChild(UniConfirmModal) private confirmModal: UniConfirmModal;
     @ViewChild(BillHistoryView) private historyView: BillHistoryView;
     @ViewChild(ImageModal) public imageModal: ImageModal;
     @ViewChild(UniImage) public uniImage: UniImage;
@@ -134,6 +134,7 @@ export class BillView {
     ];
 
     private projects: Project[];
+    private departments: Department[];
 
     constructor(
         private tabService: TabService,
@@ -155,6 +156,7 @@ export class BillView {
         private uniSearchConfigGeneratorService: UniSearchConfigGeneratorService,
         private modulusService: ModulusService,
         private projectService: ProjectService,
+        private departmentService: DepartmentService,
         private modalService: UniModalService
     ) {
         this.actions = this.rootActions;
@@ -182,11 +184,13 @@ export class BillView {
                 Observable.forkJoin(
                     this.companySettingsService.Get(1),
                     this.currencyCodeService.GetAll(null),
-                    this.projectService.GetAll(null)
+                    this.projectService.GetAll(null),
+                    this.departmentService.GetAll(null)
                 ).subscribe((res) => {
                     this.companySettings = res[0];
                     this.currencyCodes = res[1];
                     this.projects = res[2];
+                    this.departments = res[3];
 
                     this.updateTabInfo(id);
                     this.fetchInvoice(id, true);
@@ -196,11 +200,13 @@ export class BillView {
                 Observable.forkJoin(
                     this.companySettingsService.Get(1),
                     this.currencyCodeService.GetAll(null),
-                    this.projectService.GetAll(null)
+                    this.projectService.GetAll(null),
+                    this.departmentService.GetAll(null)
                 ).subscribe((res) => {
                     this.companySettings = res[0];
                     this.currencyCodes = res[1];
                     this.projects = res[2];
+                    this.departments = res[3];
 
                     this.newInvoice(true);
                     this.checkPath();
@@ -229,6 +235,14 @@ export class BillView {
         let projectsField = fields.find(f => f.Property === 'DefaultDimensions.ProjectID');
         projectsField.Options = {
             source: this.projects,
+            valueProperty: 'ID',
+            displayProperty: 'Name',
+            debounceTime: 200
+        };
+
+        let departmentsField = fields.find(f => f.Property === 'DefaultDimensions.DepartmentID');
+        departmentsField.Options = {
+            source: this.departments,
             valueProperty: 'ID',
             displayProperty: 'Name',
             debounceTime: 200
@@ -300,7 +314,12 @@ export class BillView {
                 Property: 'DefaultDimensions.ProjectID',
                 FieldType: FieldType.DROPDOWN,
                 Label: 'Prosjekt',
-            }
+            },
+            <any> {
+                Property: 'DefaultDimensions.DepartmentID',
+                FieldType: FieldType.DROPDOWN,
+                Label: 'Avdeling',
+            },
         ];
 
         this.uniSearchConfig = this.uniSearchConfigGeneratorService
@@ -330,14 +349,6 @@ export class BillView {
             valueProperty: 'ID',
             displayValue: 'Code',
             debounceTime: 200,
-        };
-
-        let projectsField = fields.find(f => f.Property === 'DefaultDimensions.ProjectID');
-        projectsField.Options = {
-            source: this.projects,
-            valueProperty: 'ID',
-            displayProperty: 'Name',
-            debounceTime: 200
         };
 
         let bankAccountField = fields.find(f => f.Property === 'BankAccountID');
@@ -520,26 +531,43 @@ export class BillView {
             var title = `${lang.create_supplier} '${invoice.InvoiceReceiverName}' ?`;
             var msg = `${invoice.InvoiceAddressLine1 || ''} ${invoice.InvoicePostalCode || ''}. ${lang.org_number}: ${invoice.Supplier.OrgNumber}`;
             this.toast.clear();
-            this.confirmModal.confirm(msg, title, false, { warning: lang.org_not_found }).then((userChoice: ConfirmActions) => {
-                if (userChoice === ConfirmActions.ACCEPT) {
-                    this.supplierService.Post(invoice.Supplier).subscribe(x => {
-                        this.fetchNewSupplier(x.ID, true);
-                    }, err => this.errorService.handle(err));
+
+            const modal = this.modalService.open(UniConfirmModalV2, {
+                header: title,
+                message: msg,
+                buttonLabels: {
+                    accept: 'Opprett leverandør',
+                    cancel: 'Avbryt'
                 }
             });
-        } else if (!invoice.BankAccountID && invoice.BankAccount) {
-            this.confirmModal.confirm(
-                `${lang.create_bankaccount_info} ${invoice.InvoiceReceiverName}`,
-                `${lang.create_bankaccount_title} ${invoice.BankAccount.AccountNumber}?`,
-                false,
-                { accept: `${lang.create_bankaccount_accept}`, reject: lang.create_bankaccount_reject }
-            ).then((userChoice: ConfirmActions) => {
-                if (userChoice === ConfirmActions.ACCEPT) {
-                    this.bankAccountService.Post(invoice.BankAccount)
-                        .subscribe((savedBankAccount: BankAccount) => {
-                            let current = this.current.getValue();
-                            current.BankAccountID = savedBankAccount.ID;
-                            this.current.next(current);
+
+            modal.onClose.subscribe(response => {
+                if (response === ConfirmActions.ACCEPT) {
+                    this.supplierService.Post(invoice.Supplier).subscribe(
+                        res => this.fetchNewSupplier(res.ID, true),
+                        err => this.errorService.handle(err)
+                    );
+                }
+            });
+        }
+
+        if (!invoice.BankAccountID && invoice.BankAccount) {
+            const modal = this.modalService.open(UniConfirmModalV2, {
+                header: `${lang.create_bankaccount_title} ${invoice.BankAccount.AccountNumber}?`,
+                message: `${lang.create_bankaccount_info} ${invoice.InvoiceReceiverName}`,
+                buttonLabels: {
+                    accept: 'Opprett konto',
+                    cancel: 'Avbryt'
+                }
+            });
+
+            modal.onClose.subscribe(response => {
+                if (response === ConfirmActions.ACCEPT) {
+                    this.bankAccountService.Post(invoice.BankAccount).subscribe(
+                        res => {
+                            let bill = this.current.getValue();
+                            bill.BankAccountID = res.ID;
+                            this.current.next(bill);
                         },
                         err => this.errorService.handle(err)
                     );
@@ -625,64 +653,78 @@ export class BillView {
                 var orgNo = filterInput(ocr.Orgno);
                 this.supplierService.GetAll(`filter=contains(OrgNumber,'${orgNo}')`, ['Info.BankAccounts'])
                     .subscribe((result: Supplier[]) => {
-                        if (result && result.length > 0) {
-                            let supplier = result[0];
+                        if (!result || !result.length) {
+                            this.findSupplierViaPhonebook(
+                                orgNo,
+                                true,
+                                ocr.BankAccountCandidates.length > 0
+                                    ? ocr.BankAccountCandidates[0]
+                                    : null
+                            );
 
-                            if (ocr.BankAccountCandidates.length > 0) {
-                                let bankAccount: BankAccount;
+                            return;
+                        }
 
-                                for (let i = 0; i < ocr.BankAccountCandidates.length && !bankAccount; i++) {
-                                    let candidate = ocr.BankAccountCandidates[i];
 
-                                    let existingAccount = supplier.Info.BankAccounts
-                                        .find(x => x.AccountNumber === candidate);
+                        let supplier = result[0];
 
-                                    if (existingAccount) {
-                                        bankAccount = existingAccount;
-                                    }
-                                }
+                        if (ocr.BankAccountCandidates.length > 0) {
+                            let bankAccount: BankAccount;
 
-                                if (bankAccount) {
-                                    let current = this.current.getValue();
-                                    current.BankAccountID = bankAccount.ID;
-                                    current.BankAccount = bankAccount;
-                                    this.current.next(current);
-                                } else {
-                                    this.confirmModal.confirm(
-                                        `${lang.create_bankaccount_info} ${supplier.Info.Name}`,
-                                        `${lang.create_bankaccount_title} ${ocr.BankAccount}?`,
-                                        false,
-                                        { accept: `${lang.create_bankaccount_accept}`, reject: lang.create_bankaccount_reject }
-                                    ).then((userChoice: ConfirmActions) => {
-                                        if (userChoice === ConfirmActions.ACCEPT) {
-                                            let newBankAccount = new BankAccount();
-                                            newBankAccount.AccountNumber = ocr.BankAccount;
-                                            newBankAccount.BusinessRelationID = supplier.BusinessRelationID;
-                                            newBankAccount.BankAccountType = 'supplier';
+                            for (let i = 0; i < ocr.BankAccountCandidates.length && !bankAccount; i++) {
+                                let candidate = ocr.BankAccountCandidates[i];
 
-                                            this.bankAccountService.Post(newBankAccount)
-                                                .subscribe((savedBankAccount: BankAccount) => {
-                                                    supplier.Info.BankAccounts.push(savedBankAccount);
+                                let existingAccount = supplier.Info.BankAccounts
+                                    .find(x => x.AccountNumber === candidate);
 
-                                                    let current = this.current.getValue();
-                                                    current.BankAccountID = savedBankAccount.ID;
-                                                    current.BankAccount = savedBankAccount;
-                                                    this.current.next(current);
-
-                                                    this.setSupplier(supplier);
-                                                },
-                                                err => this.errorService.handle(err)
-                                                );
-                                        }
-                                    });
+                                if (existingAccount) {
+                                    bankAccount = existingAccount;
                                 }
                             }
 
-                            this.setSupplier(supplier);
-                        } else {
-                            this.findSupplierViaPhonebook(orgNo, true, ocr.BankAccountCandidates.length > 0 ? ocr.BankAccountCandidates[0] : null);
+                            if (bankAccount) {
+                                let current = this.current.getValue();
+                                current.BankAccountID = bankAccount.ID;
+                                current.BankAccount = bankAccount;
+                                this.current.next(current);
+                            } else {
+                                const modal = this.modalService.open(UniConfirmModalV2, {
+                                    header: `${lang.create_bankaccount_title} ${ocr.BankAccount}?`,
+                                    message: `${lang.create_bankaccount_info} ${supplier.Info.Name}`,
+                                    buttonLabels: {
+                                        accept: lang.create_bankaccount_accept,
+                                        cancel: lang.create_bankaccount_reject
+                                    }
+                                });
+
+                                modal.onClose.subscribe(response => {
+                                    if (response === ConfirmActions.ACCEPT) {
+                                        let newBankAccount = new BankAccount();
+                                        newBankAccount.AccountNumber = ocr.BankAccount;
+                                        newBankAccount.BusinessRelationID = supplier.BusinessRelationID;
+                                        newBankAccount.BankAccountType = 'supplier';
+
+                                        this.bankAccountService.Post(newBankAccount).subscribe(
+                                            (res: BankAccount) => {
+                                                supplier.Info.BankAccounts.push(res);
+
+                                                let current = this.current.getValue();
+                                                current.BankAccountID = res.ID;
+                                                current.BankAccount = res;
+                                                this.current.next(current);
+
+                                                this.setSupplier(supplier);
+                                            },
+                                            err => this.errorService.handle(err)
+                                        );
+                                    }
+                                });
+                            }
                         }
-                    }, err => this.errorService.handle(err));
+
+                        this.setSupplier(supplier);
+                    },
+                    err => this.errorService.handle(err));
             }
         }
 
@@ -712,9 +754,25 @@ export class BillView {
                 var msg = `${item.foretningsadr || ''} ${item.forradrpostnr || ''} ${item.forradrpoststed || ''}. ${lang.org_number}: ${item.orgnr}`;
                 this.toast.clear();
                 if (askUser) {
-                    this.confirmModal.confirm(msg, title, false, { warning: lang.org_not_found }).then((userChoice: ConfirmActions) => {
-                        if (userChoice === ConfirmActions.ACCEPT) {
-                            this.createSupplier(item.orgnr, item.navn, item.foretningsadr, item.forradrpostnr, item.forradrpoststed, bankAccount);
+                    const modal = this.modalService.open(UniConfirmModalV2, {
+                        header: title,
+                        message: msg,
+                        buttonLabels: {
+                            accept: 'Opprett leverandør',
+                            cancel: 'Avbryt'
+                        }
+                    });
+
+                    modal.onClose.subscribe(response => {
+                        if (response === ConfirmActions.ACCEPT) {
+                            this.createSupplier(
+                                item.orgnr,
+                                item.navn,
+                                item.foretningsadr,
+                                item.forradrpostnr,
+                                item.forradrpoststed,
+                                bankAccount
+                            );
                         }
                     });
                 } else {
@@ -727,7 +785,6 @@ export class BillView {
     private createSupplier(orgNo: string, name: string, address: string, postalCode: string, city: string, bankAccount?: string) {
         var sup = new Supplier();
         sup.OrgNumber = orgNo;
-
         sup.Info = <any>{
             Name: name,
             ShippingAddress: {
@@ -1140,26 +1197,31 @@ export class BillView {
                 break;
 
             case 'journal':
-                this.confirmModal.confirm(
-                    lang.ask_journal_msg + current.TaxInclusiveAmountCurrency.toFixed(2) + '?',
-                    lang.ask_journal_title + current.Supplier.Info.Name, false,
-                    { warning: lang.warning_action_not_reversable }).then((result: ConfirmActions) => {
+                this.modalService.open(UniConfirmModalV2, {
+                    header: lang.ask_journal_title + current.Supplier.Info.Name,
+                    message: lang.ask_journal_msg + current.TaxInclusiveAmountCurrency.toFixed(2) + '?',
+                    warning: lang.warning_action_not_reversable,
+                    buttonLabels: {
+                        accept: 'Bokfør',
+                        cancel: 'Avbryt'
+                    }
+                }).onClose.subscribe(response => {
+                    if (response === ConfirmActions.ACCEPT) {
+                        this.busy = true;
+                        this.tryJournal(href).then((status: ILocalValidation) => {
+                            this.busy = false;
+                            this.hasUnsavedChanges = false;
+                            done(lang.save_success);
+                        }).catch((err: ILocalValidation) => {
+                            this.busy = false;
+                            done(err.errorMessage);
+                            this.userMsg(err.errorMessage, lang.warning, 10);
+                        });
+                    } else {
+                        done();
+                    }
+                });
 
-                        if (result === ConfirmActions.ACCEPT) {
-                            this.busy = true;
-                            this.tryJournal(href).then((status: ILocalValidation) => {
-                                this.busy = false;
-                                this.hasUnsavedChanges = false;
-                                done(lang.save_success);
-                            }).catch((err: ILocalValidation) => {
-                                this.busy = false;
-                                done(err.errorMessage);
-                                this.userMsg(err.errorMessage, lang.warning, 10);
-                            });
-                        } else {
-                            done();
-                        }
-                    });
                 return true;
 
             case 'smartbooking':
@@ -1178,16 +1240,18 @@ export class BillView {
                 return true;
 
             case 'finish':
-                this.confirmModal.confirm(
-                    lang.ask_archive + current.InvoiceNumber,
-                    lang.ask_archive,
-                    false,
-                    { warning: lang.warning_action_not_reversable })
-                    .then((result: ConfirmActions) => {
-                        if (result === ConfirmActions.ACCEPT) {
-                            return this.RunActionOnCurrent(key, done);
-                        } else { done(); }
-                    });
+                this.modalService.open(UniConfirmModalV2, {
+                    header: lang.ask_archive,
+                    message: lang.ask_archive + current.InvoiceNumber,
+                    warning: lang.warning_action_not_reversable
+                }).onClose.subscribe(response => {
+                    if (response === ConfirmActions.ACCEPT) {
+                        return this.RunActionOnCurrent(key, done);
+                    }
+
+                    done();
+                });
+
                 return true;
 
             case 'task_approval':
@@ -1339,16 +1403,21 @@ export class BillView {
     }
 
     public tryDelete(done) {
-        let current = this.current.getValue();
-        this.confirmModal.confirm(
-            lang.ask_delete + (current.InvoiceNumber || '') + '?',
-            this.getSupplierName()).then(x => {
-                if (x === ConfirmActions.ACCEPT) {
-                    return this.delete(done);
-                } else {
-                    done(lang.delete_canceled);
-                }
-            });
+        let bill = this.current.getValue();
+        this.modalService.open(UniConfirmModalV2, {
+            header: 'Bekreft sletting',
+            message: lang.ask_delete + (bill.InvoiceNumber || '') + '?',
+            buttonLabels: {
+                accept: 'Slett',
+                cancel: 'Avbryt'
+            }
+        }).onClose.subscribe(response => {
+            if (response === ConfirmActions.ACCEPT) {
+                return this.delete(done);
+            }
+
+            done(lang.delete_canceled);
+        });
     }
 
     public delete(done) {
@@ -1533,14 +1602,13 @@ export class BillView {
     }
 
     private registerPayment(done) {
-        let current = this.current.getValue();
-        const title = lang.ask_register_payment + current.InvoiceNumber;
+        let bill = this.current.getValue();
 
-        const invoiceData: InvoicePaymentData = {
-            Amount: roundTo(current.RestAmount),
-            AmountCurrency: roundTo(current.RestAmountCurrency),
+        const paymentData: InvoicePaymentData = {
+            Amount: roundTo(bill.RestAmount),
+            AmountCurrency: roundTo(bill.RestAmountCurrency),
             BankChargeAmount: 0,
-            CurrencyCodeID: current.CurrencyCodeID,
+            CurrencyCodeID: bill.CurrencyCodeID,
             CurrencyExchangeRate: 0,
             PaymentDate: new LocalDate(Date()),
             AgioAccountID: 0,
@@ -1548,27 +1616,33 @@ export class BillView {
             AgioAmount: 0
         };
 
-        this.registerPaymentModal.confirm(current.ID, title, current.CurrencyCode, current.CurrencyExchangeRate,
-            'SupplierInvoice', invoiceData).then((res) => {
-                if (res.status === ConfirmActions.ACCEPT) {
-                    this.busy = true;
+        const modal = this.modalService.open(UniRegisterPaymentModal, {
+            header: lang.ask_register_payment + bill.InvoiceNumber,
+            data: paymentData,
+            modalConfig: {
+                entityName: 'SupplierInvoice',
+                currencyCode: bill.CurrencyCode,
+                currencyExchangeRate: bill.CurrencyExchangeRate
+            }
+        });
 
-                    this.supplierInvoiceService.ActionWithBody(res.id, res.model, 'payInvoice')
-                        .finally(() => this.busy = false)
-                        .subscribe((journalEntry) => {
-                            this.fetchInvoice(current.ID, true);
-                            this.userMsg(lang.payment_ok, null, null, true);
-                            done('Betaling registrert');
-                        }, (error) => {
-                            this.errorService.handle(error);
-                            done('Betaling feilet');
-                        });
-                } else {
-                    done();
-                }
-            });
+        modal.onClose.subscribe((payment) => {
+            if (payment) {
+                this.supplierInvoiceService.ActionWithBody(bill.ID, payment, 'payInvoice')
+                    .finally(() => this.busy = false)
+                    .subscribe((res) => {
+                        this.fetchInvoice(bill.ID, true);
+                        this.userMsg(lang.payment_ok, null, null, null);
+                        done('Betaling registrert');
+                    }, err => {
+                        this.errorService.handle(err);
+                        done('Betaling feilet');
+                    });
+            } else {
+                done();
+            }
+        });
     }
-
 
     private hasValidDraftLines(showErrMsg: boolean): ILocalValidation {
         var msg: string;
@@ -1606,29 +1680,34 @@ export class BillView {
     }
 
     private checkSave(): Promise<boolean> {
-
-        if (!this.hasUnsavedChanges) { return Promise.resolve(true); }
+        if (!this.hasUnsavedChanges) {
+            return Promise.resolve(true);
+        }
 
         return new Promise((resolve, reject) => {
-            this.confirmModal.confirm('Lagre endringer før du fortsetter?', 'Advarsel', true).then(x => {
-                if (x === ConfirmActions.ACCEPT) {
-                    this.busy = true;
+            this.modalService.open(UniConfirmModalV2, {
+                header: 'Ulagrede endringer',
+                message: 'Du har ulagrede endringer. Ønsker du å lagre disse før vi fortsetter?',
+                buttonLabels: {
+                    accept: 'Lagre',
+                    reject: 'Forkast',
+                    cancel: 'Avbryt'
+                }
+            }).onClose.subscribe(response => {
+                if (response === ConfirmActions.ACCEPT) {
+                    this.busy = false;
                     this.save().then(() => {
+                        this.busy = false;
                         resolve(true);
-                        this.busy = false;
-                    }).catch(err => {
-                        resolve(false);
-                        this.busy = false;
                     });
-                } else if (x === ConfirmActions.REJECT) {
-                    resolve(true); // no!, ignore saving
+                } else if (response === ConfirmActions.REJECT) {
+                    resolve(true);
                 } else {
-                    resolve(false); // cancel, stop action
+                    resolve(false);
                     this.updateTabInfo();
                 }
             });
         });
-
     }
 
     public onEntryChange(details: { rowIndex: number, item: JournalEntryLineDraft, extra: any }) {

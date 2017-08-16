@@ -8,7 +8,7 @@ import { IUniSaveAction } from '../../../../framework/save/save';
 import { IToolbarConfig } from '../../common/toolbar/toolbar';
 
 import { UniView } from '../../../../framework/core/uniView';
-import { UniConfirmModal, ConfirmActions } from '../../../../framework/modals/confirm';
+import { UniModalService, ConfirmActions } from '../../../../framework/uniModal/barrel';
 
 import { Observable } from 'rxjs/Observable';
 
@@ -27,7 +27,6 @@ export class CategoryView extends UniView {
     private toolbarConfig: IToolbarConfig;
 
     private childRoutes: any[];
-    @ViewChild(UniConfirmModal) public confirmModal: UniConfirmModal;
 
     constructor(
         private route: ActivatedRoute,
@@ -36,7 +35,8 @@ export class CategoryView extends UniView {
         private router: Router,
         private tabService: TabService,
         public cacheService: UniCacheService,
-        private errorService: ErrorService
+        private errorService: ErrorService,
+        private modalService: UniModalService
     ) {
 
         super(router.url, cacheService);
@@ -95,22 +95,28 @@ export class CategoryView extends UniView {
     }
 
     public canDeactivate(): Observable<boolean> {
-        return Observable
-            .of(!super.isDirty())
-            .switchMap(result => {
-                return result
-                    ? Observable.of(result)
-                    : Observable
-                        .fromPromise(
-                        this.confirmModal.confirm('Du har ulagrede endringer, ønsker du å forkaste disse?'))
-                        .map((response: ConfirmActions) => response === ConfirmActions.ACCEPT);
-            })
-            .map(canDeactivate => {
-                canDeactivate
-                    ? this.cacheService.clearPageCache(this.cacheKey)
-                    : this.updateTabStrip(this.categoryID, this.currentCategory);
+        if (!super.isDirty()) {
+            return Observable.of(true);
+        }
 
-                return canDeactivate;
+        return this.modalService
+            .openUnsavedChangesModal()
+            .onClose
+            .map(result => {
+                if (result === ConfirmActions.ACCEPT) {
+                    this.saveCategory(m => { }, false);
+                }
+
+                return result !== ConfirmActions.CANCEL;
+            })
+            .map(allowed => {
+                if (allowed) {
+                    this.cacheService.clearPageCache(this.cacheKey);
+                } else {
+                    this.updateTabStrip(this.categoryID, this.currentCategory);
+                }
+
+                return allowed;
             });
     }
 
@@ -132,18 +138,20 @@ export class CategoryView extends UniView {
         }
     }
 
-    private saveCategory(done: (message: string) => void) {
+    private saveCategory(done: (message: string) => void, updateView = true) {
 
         let saver = this.currentCategory.ID
             ? this.categoryService.Put(this.currentCategory.ID, this.currentCategory)
             : this.categoryService.Post(this.currentCategory);
 
         saver.subscribe((category: EmployeeCategory) => {
-            super.updateState('employeecategory', this.currentCategory, false);
-            let childRoute = this.router.url.split('/').pop();
-            this.router.navigateByUrl(this.url + category.ID + '/' + childRoute);
-            done('lagring fullført');
-            this.saveActions[0].disabled = true;
+            if (updateView) {
+                super.updateState('employeecategory', this.currentCategory, false);
+                let childRoute = this.router.url.split('/').pop();
+                this.router.navigateByUrl(this.url + category.ID + '/' + childRoute);
+                done('lagring fullført');
+                this.saveActions[0].disabled = true;
+            }
         },
             (error) => {
                 done('Lagring feilet');

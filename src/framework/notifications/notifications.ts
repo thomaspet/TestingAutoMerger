@@ -5,7 +5,7 @@ import { ErrorService, CompanyService } from '../../app/services/services';
 import { Notification, NotificationStatus, Company } from '../../app/unientities';
 import { Observable } from 'rxjs/Observable';
 import { AuthService } from '../core/authService';
-import {UniConfirmModal, ConfirmActions} from '../modals/confirm';
+import {UniModalService, ConfirmActions} from '../uniModal/barrel';
 
 import * as moment from 'moment';
 import {
@@ -16,11 +16,6 @@ import {
     commonRouteMap
 } from './entityRouteMap';
 
-// import { entityTypeMap as salaryMap } from '../../app/components/salary/salaryRoutes';
-// import { entityTypeMap as salesMap } from '../../app/components/sales/salesRoutes';
-// import { entityTypeMap as accountingMap } from '../../app/components/accounting/accountingRoutes';
-// import { entityTypeMap as timetrackingMap } from '../../app/components/timetracking/timetrackingRoutes';
-// declare const OneSignal;
 
 @Component({
     selector: 'uni-notifications',
@@ -28,9 +23,6 @@ import {
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class UniNotifications {
-    @ViewChild(UniConfirmModal)
-    private confirmModal: UniConfirmModal;
-
     private isOpen: boolean;
     private notifications: Notification[] = [];
     private unreadCount: number;
@@ -42,7 +34,8 @@ export class UniNotifications {
         private router: Router,
         private cdr: ChangeDetectorRef,
         private authService: AuthService,
-        private companyService: CompanyService
+        private companyService: CompanyService,
+        private modalService: UniModalService
     ) {
         this.getNotifications();
 
@@ -106,14 +99,14 @@ export class UniNotifications {
         }
 
         // Change companies before routing
-        this.confirmModal.confirm(
+        this.modalService.confirm({
+            header: 'Bytte selskap?',
+            message: `
+                Navigering til denne varselen vil føre til endring av aktivt selskap.
+                Ulagrede endringer vil bli forkastet. Ønsker du å fortsette?
             `
-            Navigering til denne varselen vil føre til endring av aktivt selskap.
-            Ulagrede endringer vil blir forkastet. Ønsker du å fortsette?
-            `,
-            'Bytte selskap'
-        ).then((res) => {
-            if (res === ConfirmActions.ACCEPT) {
+        }).onClose.subscribe(response => {
+            if (response === ConfirmActions.ACCEPT) {
                 const company = this.companies.find(c => c.Key === notification.CompanyKey);
                 this.authService.setActiveCompany(company);
                 this.routeToNotification(notification);

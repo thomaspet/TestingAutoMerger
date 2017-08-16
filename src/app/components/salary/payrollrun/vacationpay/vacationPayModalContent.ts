@@ -10,7 +10,7 @@ import { VacationpaySettingModal } from './vacationPaySettingModal';
 import { ToastService, ToastType } from '../../../../../framework/uniToast/toastService';
 import { Observable } from 'rxjs/Observable';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
-import { UniConfirmModal, ConfirmActions } from '../../../../../framework/modals/confirm';
+import { UniModalService, ConfirmActions } from '../../../../../framework/uniModal/barrel';
 import { IUniSaveAction } from '../../../../../framework/save/save';
 
 declare var _;
@@ -40,7 +40,6 @@ export class VacationpayModalContent {
     private vacationBaseYear: number;
     private financialYearEntity: number;
     public dueToHolidayChanged: boolean = false;
-    @ViewChild(UniConfirmModal) private confirmModal: UniConfirmModal;
     private percentPayout: number = 100;
     private companysalary: CompanySalary;
     private rates: any[] = [];
@@ -55,10 +54,9 @@ export class VacationpayModalContent {
         private errorService: ErrorService,
         private yearService: YearService,
         private m_companysalaryService: CompanySalaryService,
-        private m_companyVacationrateService: CompanyVacationRateService
-    ) {
-
-    }
+        private m_companyVacationrateService: CompanyVacationRateService,
+        private modalService: UniModalService
+    ) {}
 
     public ngOnInit() {
         this.config$.next(this.config);
@@ -90,7 +88,7 @@ export class VacationpayModalContent {
 
                 this.createFormConfig();
                 this.createTableConfig();
-                
+
 
                 this.busy = false;
             }, err => this.errorService.handle(err));
@@ -122,26 +120,30 @@ export class VacationpayModalContent {
     }
 
     public createVacationPayments() {
-        this.confirmModal
-            .confirm(
-            `Overfører feriepengeposter til lønnsavregning ${this.config.payrollRunID}.`
-            + ` Totalsum kr ${this.totalPayout}`,
-            'Opprette feriepengeposter', true)
-            .then((x: ConfirmActions) => {
-                if (x === ConfirmActions.ACCEPT) {
-                    this.busy = true;
+        this.modalService.confirm({
+            header: 'Opprett feriepengeposter',
+            message: 'Vennligst bekreft overføring av feriepengeposter til lønnsavregning '
+                + this.config.payrollRunID
+                + ` - Totalsum kr ${this.totalPayout}`,
+            buttonLabels: {
+                accept: 'Overfør',
+                cancel: 'Avbryt'
+            }
+        }).onClose.subscribe(response => {
+            if (response === ConfirmActions.ACCEPT) {
+                this.busy = true;
 
-                    this._vacationpaylineService
-                        .createVacationPay(
-                            this.vacationBaseYear, 
-                            this.config.payrollRunID, 
-                            this.table.getSelectedRows())
-                        .finally(() => this.busy = false)
-                        .subscribe((response) => {
-                            this.config.submit(this.dueToHolidayChanged);
-                        }, err => this.errorService.handle(err));
-                }
-            });
+                this._vacationpaylineService.createVacationPay(
+                    this.vacationBaseYear,
+                    this.config.payrollRunID,
+                    this.table.getSelectedRows()
+                ).finally(() => this.busy = false)
+                .subscribe(
+                    res => this.config.submit(this.dueToHolidayChanged),
+                    err => this.errorService.handle(err)
+                );
+            }
+        });
     }
 
     public closeModal() {

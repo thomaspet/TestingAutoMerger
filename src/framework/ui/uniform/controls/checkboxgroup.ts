@@ -85,6 +85,9 @@ export class UniCheckboxgroupInput extends BaseControl {
     }
 
     public checkIt(item) {
+        if (this.field.ReadOnly) {
+            return;
+        }
         const itemValue = _.get(item, this.field.Options.valueProperty);
         if (!this.isChecked(item)) {
             if (this.field.Options.multivalue !== false) {

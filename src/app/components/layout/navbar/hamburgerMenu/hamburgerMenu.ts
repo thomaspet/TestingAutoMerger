@@ -127,6 +127,7 @@ export class HamburgerMenu {
                     {componentName: 'Produktgrupper', componentUrl: '/sales/productgroups', moduleID: UniModules.ProductGroup},
                     {componentName: 'Purring', componentUrl: '/sales/reminders', moduleID: UniModules.Reminders},
                     {componentName: 'Prosjekt', componentUrl: '/sales/project', moduleID: UniModules.Projects},
+                    {componentName: 'Selgere', componentUrl: '/sellers', moduleID: UniModules.Sellers}
                 ]
             },
             {
@@ -135,6 +136,7 @@ export class HamburgerMenu {
                 componentListUrl: '/accounting',
                 componentList: [
                     {componentName: 'Bilagsføring', componentUrl: '/accounting/journalentry', moduleID: UniModules.Accounting},
+                    {componentName: 'Åpne poster', componentUrl: '/accounting/postpost', moduleID: UniModules.PostPost},
                     {componentName: 'Fakturamottak', componentUrl: '/accounting/bills', moduleID: UniModules.Bills},
                     {componentName: 'Betaling', componentUrl: '/accounting/journalentry/payments', hidden: true},
                     {componentName: 'Regnskapsoversikt', componentUrl: '/accounting/accountingreports', moduleID: UniModules.AccountingReports},

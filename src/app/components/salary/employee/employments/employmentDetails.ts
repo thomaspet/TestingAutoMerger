@@ -117,7 +117,7 @@ export class EmploymentDetails implements OnChanges {
                     : Observable.of([{ styrk: '', tittel: '' }]),
                 template: (obj) => obj && obj.styrk ? `${obj.styrk} - ${obj.tittel}` : '',
                 search: (query: string) => this.statisticsService
-                    .GetAll(`top=50&model=STYRKCode&select=styrk as styrk,tittel as tittel&filter=startswith(styrk,'${query}') or startswith(tittel,'${query}')`)
+                    .GetAll(`top=50&model=STYRKCode&select=styrk as styrk,tittel as tittel&filter=startswith(styrk,'${query}') or contains(tittel,'${query}')`)
                     .map(x => x.Data),
                 displayProperty: 'styrk',
                 valueProperty: 'styrk',

@@ -14,7 +14,6 @@ import {UniStatusTrack} from '../../../common/toolbar/statustrack';
 import {ISummaryConfig} from '../../../common/summary/summary';
 import {StatusCode} from '../../salesHelper/salesEnums';
 import {PreviewModal} from '../../../reports/modals/preview/previewModal';
-import {RegisterPaymentModal} from '../../../common/modals/registerPaymentModal';
 import {IContextMenuItem} from '../../../../../framework/ui/unitable/index';
 import {SendEmailModal} from '../../../common/modals/sendEmailModal';
 import {SendEmail} from '../../../../models/sendEmail';
@@ -22,7 +21,6 @@ import {InvoiceTypes} from '../../../../models/Sales/InvoiceTypes';
 import {GetPrintStatusText, PrintStatus} from '../../../../models/printStatus';
 import {TradeItemTable} from '../../common/tradeItemTable';
 import {TofHead} from '../../common/tofHead';
-import {UniConfirmModal, ConfirmActions} from '../../../../../framework/modals/confirm';
 import {CompanySettingsService} from '../../../../services/services';
 import {ActivateAPModal} from '../../../common/modals/activateAPModal';
 import {ReminderSendingModal} from '../../reminder/sending/reminderSendingModal';
@@ -46,6 +44,12 @@ import {
     ProjectService,
     DimensionService
 } from '../../../../services/services';
+import {
+    UniModalService,
+    UniRegisterPaymentModal,
+    ConfirmActions
+} from '../../../../../framework/uniModal/barrel';
+
 import * as moment from 'moment';
 declare const _;
 
@@ -62,12 +66,6 @@ export enum CollectorStatus {
     templateUrl: './invoice.html'
 })
 export class InvoiceDetails {
-    @ViewChild(UniConfirmModal)
-    private confirmModal: UniConfirmModal;
-
-    @ViewChild(RegisterPaymentModal)
-    public registerPaymentModal: RegisterPaymentModal;
-
     @ViewChild(PreviewModal)
     public previewModal: PreviewModal;
 
@@ -112,7 +110,8 @@ export class InvoiceDetails {
     private customerExpandOptions: string[] = ['Info', 'Info.Addresses', 'Dimensions', 'Dimensions.Project', 'Dimensions.Department'];
     private expandOptions: Array<string> = ['Items', 'Items.Product.VatType', 'Items.VatType', 'Items.Account',
         'Items.Dimensions', 'Items.Dimensions.Project', 'Items.Dimensions.Department',
-        'Customer', 'InvoiceReference', 'JournalEntry', 'CurrencyCode', 'DefaultDimensions'].concat(this.customerExpandOptions.map(option => 'Customer.' + option));
+        'Customer', 'InvoiceReference', 'JournalEntry', 'CurrencyCode', 'DefaultDimensions',
+        'Sellers', 'Sellers.Seller'].concat(this.customerExpandOptions.map(option => 'Customer.' + option));
 
     private commentsConfig: any;
 
@@ -139,7 +138,8 @@ export class InvoiceDetails {
         private reportService: ReportService,
         private statisticsService: StatisticsService,
         private projectService: ProjectService,
-        private dimensionService: DimensionService
+        private dimensionService: DimensionService,
+        private modalService: UniModalService
     ) {
         // set default tab title, this is done to set the correct current module to make the breadcrumb correct
         this.tabService.addTab({ url: '/sales/invoices/', name: 'Faktura', active: true, moduleID: UniModules.Invoices });
@@ -299,6 +299,8 @@ export class InvoiceDetails {
     }
 
     private sendEmailAction(doneHandler: (msg: string) => void = null) {
+        doneHandler('Email-sending åpnet');
+
         let sendemail = new SendEmail();
         sendemail.EntityType = 'CustomerInvoice';
         sendemail.EntityID = this.invoice.ID;
@@ -340,50 +342,20 @@ export class InvoiceDetails {
         }
     }
 
-    public canDeactivate(): boolean | Promise<boolean> {
+    public canDeactivate(): boolean | Observable<boolean> {
         if (!this.isDirty) {
             return true;
         }
 
-        let message = !this.invoice.StatusCode || this.invoice.StatusCode == StatusCodeCustomerInvoice.Draft
-            ? 'Ønsker du å lagre fakturaen som kladd før du fortsetter?'
-            : 'Ønsker du å lagre fakturaen før du fortsetter?';
-
-        return this.confirmModal.confirm(
-            message,
-            'Ulagrede endringer',
-            true
-        ).then((action) => {
-            if (action === ConfirmActions.ACCEPT) {
-                if (!this.invoice.StatusCode) {
-                    this.invoice.StatusCode = StatusCode.Draft;
+        return this.modalService.deprecated_openUnsavedChangesModal()
+            .onClose
+            .map(canDeactivate => {
+                if (!canDeactivate) {
+                    this.updateTabTitle();
                 }
 
-                return this.saveInvoice().then(invoice => {
-                    this.isDirty = false;
-
-                    const currenTabIndex = this.tabService.currentActiveIndex;
-                    this.customerInvoiceService.Get(invoice.ID, this.expandOptions)
-                        .subscribe(
-                        res => {
-                            this.refreshInvoice(res);
-                            this.tabService.activateTab(currenTabIndex);
-                        },
-                        err => this.errorService.handle(err)
-                        );
-
-                    return true;
-                }).catch(reason => {
-                    this.toastService.addToast('Lagring avbrutt', ToastType.warn, ToastTime.short, reason);
-                    return false;
-                });
-            } else if (action === ConfirmActions.REJECT) {
-                return true;
-            } else {
-                this.updateTabTitle();
-                return false;
-            }
-        });
+                return canDeactivate;
+            });
     }
 
     public onInvoiceChange(invoice: CustomerInvoice) {
@@ -441,87 +413,71 @@ export class InvoiceDetails {
 
         this.invoice = _.cloneDeep(invoice);
 
-        if (shouldGetCurrencyRate) {
-            this.getUpdatedCurrencyExchangeRate(invoice)
-                .subscribe(res => {
-                    let newCurrencyRate = res;
+        // If not getting currencyrate, we're done
+        if (!shouldGetCurrencyRate) {
+            return;
+        }
 
-                    if (!this.currencyExchangeRate) {
-                        this.currencyExchangeRate = 1;
+        this.getUpdatedCurrencyExchangeRate(invoice).subscribe(res => {
+            let newCurrencyRate = res;
+
+            if (!this.currencyExchangeRate) {
+                this.currencyExchangeRate = 1;
+            }
+
+            if (newCurrencyRate === this.currencyExchangeRate) {
+                return;
+            }
+
+            if (newCurrencyRate !== this.currencyExchangeRate) {
+                this.currencyExchangeRate = newCurrencyRate;
+                invoice.CurrencyExchangeRate = res;
+
+                let askUserWhatToDo: boolean = false;
+
+                let newTotalExVatBaseCurrency: number;
+                let diffBaseCurrency: number;
+                let diffBaseCurrencyPercent: number;
+
+                let haveUserDefinedPrices = this.invoiceItems && this.invoiceItems.filter(x => x.PriceSetByUser).length > 0;
+
+                if (haveUserDefinedPrices) {
+                    // calculate how much the new currency will affect the amount for the base currency,
+                    // if it doesnt cause a change larger than 5%, don't bother asking the user what
+                    // to do, just use the set prices
+                    newTotalExVatBaseCurrency = this.itemsSummaryData.SumTotalExVatCurrency * newCurrencyRate;
+                    diffBaseCurrency = Math.abs(newTotalExVatBaseCurrency - this.itemsSummaryData.SumTotalExVat);
+
+                    diffBaseCurrencyPercent =
+                        this.tradeItemHelper.round((diffBaseCurrency * 100) / Math.abs(this.itemsSummaryData.SumTotalExVat), 1);
+
+                    // 5% is set as a limit for asking the user now, but this might need to be reconsidered,
+                    // or make it possible to override it either on companysettings, customer, or the TOF header
+                    if (diffBaseCurrencyPercent > 5) {
+                        askUserWhatToDo = true;
                     }
+                }
 
-                    if (newCurrencyRate !== this.currencyExchangeRate) {
-                        this.currencyExchangeRate = newCurrencyRate;
-                        invoice.CurrencyExchangeRate = res;
+                if (askUserWhatToDo) {
+                    let baseCurrencyCode = this.getCurrencyCode(this.companySettings.BaseCurrencyCodeID);
+                    const modalMessage = 'Endringen førte til at en ny valutakurs ble hentet. '
+                        + 'Du har overstyrt en eller flere priser, '
+                        + 'og dette fører derfor til at totalsum eks. mva '
+                        + `for ${baseCurrencyCode} endres med ${diffBaseCurrencyPercent}% `
+                        + `til ${baseCurrencyCode} ${this.numberFormat.asMoney(newTotalExVatBaseCurrency)}.\n\n`
+                        + `Vil du heller rekalkulere valutaprisene basert på ny kurs og standardprisen på varene?`;
 
-                        let askUserWhatToDo: boolean = false;
-
-                        let newTotalExVatBaseCurrency: number;
-                        let diffBaseCurrency: number;
-                        let diffBaseCurrencyPercent: number;
-
-                        let haveUserDefinedPrices = this.invoiceItems && this.invoiceItems.filter(x => x.PriceSetByUser).length > 0;
-
-                        if (haveUserDefinedPrices) {
-                            // calculate how much the new currency will affect the amount for the base currency,
-                            // if it doesnt cause a change larger than 5%, don't bother asking the user what
-                            // to do, just use the set prices
-                            newTotalExVatBaseCurrency = this.itemsSummaryData.SumTotalExVatCurrency * newCurrencyRate;
-                            diffBaseCurrency = Math.abs(newTotalExVatBaseCurrency - this.itemsSummaryData.SumTotalExVat);
-
-                            diffBaseCurrencyPercent =
-                                this.tradeItemHelper.round((diffBaseCurrency * 100) / Math.abs(this.itemsSummaryData.SumTotalExVat), 1);
-
-                            // 5% is set as a limit for asking the user now, but this might need to be reconsidered,
-                            // or make it possible to override it either on companysettings, customer, or the TOF header
-                            if (diffBaseCurrencyPercent > 5) {
-                                askUserWhatToDo = true;
-                            }
+                    this.modalService.confirm({
+                        header: 'Rekalkulere valutapriser for varer?',
+                        message: modalMessage,
+                        buttonLabels: {
+                            accept: 'Ikke rekalkuler valutapriser',
+                            reject: 'Rekalkuler valutapriser'
                         }
-
-                        if (askUserWhatToDo) {
-                            let baseCurrencyCode = this.getCurrencyCode(this.companySettings.BaseCurrencyCodeID);
-
-                            this.confirmModal.confirm(
-                                `Endringen førte til at en ny valutakurs ble hentet. Du har overstyrt en eller flere priser, ` +
-                                `og dette fører derfor til at totalsum eks. mva ` +
-                                `for ${baseCurrencyCode} endres med ${diffBaseCurrencyPercent}% ` +
-                                `til ${baseCurrencyCode} ${this.numberFormat.asMoney(newTotalExVatBaseCurrency)}.\n\n` +
-                                `Vil du heller rekalkulere valutaprisene basert på ny kurs og standardprisen på varene?`,
-                                'Rekalkulere valutapriser for varer?',
-                                false,
-                                { accept: 'Ikke rekalkuler valutapriser', reject: 'Rekalkuler valutapriser' }
-                            ).then((response: ConfirmActions) => {
-                                if (response === ConfirmActions.ACCEPT) {
-                                    // we need to calculate the base currency amount numbers if we are going
-                                    // to keep the currency amounts - if not the data will be out of sync
-                                    this.invoiceItems.forEach(item => {
-                                        if (item.PriceSetByUser) {
-                                            this.recalcPriceAndSumsBasedOnSetPrices(item, this.currencyExchangeRate);
-                                        } else {
-                                            this.recalcPriceAndSumsBasedOnBaseCurrencyPrices(item, this.currencyExchangeRate);
-                                        }
-                                    });
-                                } else if (response === ConfirmActions.REJECT) {
-                                    // we need to calculate the currency amounts based on the original prices
-                                    // defined in the base currency
-                                    this.invoiceItems.forEach(item => {
-                                        this.recalcPriceAndSumsBasedOnBaseCurrencyPrices(item, this.currencyExchangeRate);
-                                    });
-                                }
-
-                                // make unitable update the data after calculations
-                                this.invoiceItems = this.invoiceItems.concat();
-                                this.recalcItemSums(this.invoiceItems);
-
-                                // update the model
-                                this.invoice = _.cloneDeep(invoice);
-                            });
-                        } else if (this.invoiceItems && this.invoiceItems.length > 0) {
-                            // the currencyrate has changed, but not so much that we had to ask the user what to do,
-                            // so just make an assumption what to do; recalculated based on set price if user
-                            // has defined a price, and by the base currency price if the user has not set a
-                            // specific price
+                    }).onClose.subscribe(response => {
+                        if (response === ConfirmActions.ACCEPT) {
+                            // we need to calculate the base currency amount numbers if we are going
+                            // to keep the currency amounts - if not the data will be out of sync
                             this.invoiceItems.forEach(item => {
                                 if (item.PriceSetByUser) {
                                     this.recalcPriceAndSumsBasedOnSetPrices(item, this.currencyExchangeRate);
@@ -529,35 +485,63 @@ export class InvoiceDetails {
                                     this.recalcPriceAndSumsBasedOnBaseCurrencyPrices(item, this.currencyExchangeRate);
                                 }
                             });
-
-                            // make unitable update the data after calculations
-                            this.invoiceItems = this.invoiceItems.concat();
-                            this.recalcItemSums(this.invoiceItems);
-
-                            // update the model
-                            this.invoice = _.cloneDeep(invoice);
-                        } else {
-                            // update
-                            this.recalcItemSums(this.invoiceItems);
-
-                            // update the model
-                            this.invoice = _.cloneDeep(invoice);
+                        } else if (response === ConfirmActions.REJECT) {
+                            // we need to calculate the currency amounts based on the original prices
+                            // defined in the base currency
+                            this.invoiceItems.forEach(item => {
+                                this.recalcPriceAndSumsBasedOnBaseCurrencyPrices(item, this.currencyExchangeRate);
+                            });
                         }
-                    }
-                }, err => this.errorService.handle(err)
-                );
-        }
 
+                        // make unitable update the data after calculations
+                        this.invoiceItems = this.invoiceItems.concat();
+                        this.recalcItemSums(this.invoiceItems);
+
+                        // update the model
+                        this.invoice = _.cloneDeep(invoice);
+                    });
+
+                } else if (this.invoiceItems && this.invoiceItems.length > 0) {
+                    // the currencyrate has changed, but not so much that we had to ask the user what to do,
+                    // so just make an assumption what to do; recalculated based on set price if user
+                    // has defined a price, and by the base currency price if the user has not set a
+                    // specific price
+                    this.invoiceItems.forEach(item => {
+                        if (item.PriceSetByUser) {
+                            this.recalcPriceAndSumsBasedOnSetPrices(item, this.currencyExchangeRate);
+                        } else {
+                            this.recalcPriceAndSumsBasedOnBaseCurrencyPrices(item, this.currencyExchangeRate);
+                        }
+                    });
+
+                    // make unitable update the data after calculations
+                    this.invoiceItems = this.invoiceItems.concat();
+                    this.recalcItemSums(this.invoiceItems);
+
+                    // update the model
+                    this.invoice = _.cloneDeep(invoice);
+                } else {
+                    // update
+                    this.recalcItemSums(this.invoiceItems);
+
+                    // update the model
+                    this.invoice = _.cloneDeep(invoice);
+                }
+            }
+        },
+        err => this.errorService.handle(err));
     }
 
     private askSendEHF(doneHandler: (msg: string) => void = null) {
-        if (this.invoice.PrintStatus == 300) {
-            this.confirmModal.confirm(
-                `Er du sikker på at du vil sende EHF på nytt?`,
-                'Vennligst bekreft',
-                false,
-                { accept: 'Ja', reject: 'Avbryt' }
-            ).then(response => {
+        if (this.invoice.PrintStatus === 300) {
+            this.modalService.confirm({
+                header: 'Bekreft EHF sending',
+                message: 'Vil du sende EHF på nytt?',
+                buttonLabels: {
+                    accept: 'Send',
+                    cancel: 'Avbryt'
+                }
+            }).onClose.subscribe(response => {
                 if (response === ConfirmActions.ACCEPT) {
                     this.sendEHF(doneHandler);
                 } else {
@@ -810,13 +794,16 @@ export class InvoiceDetails {
 
 
     private updateTabTitle() {
-        let tabTitle = '';
-        if (this.invoice.InvoiceNumber) {
-            tabTitle = 'Fakturanr. ' + this.invoice.InvoiceNumber;
-        } else {
-            tabTitle = (this.invoice.ID) ? 'Faktura (kladd)' : 'Ny faktura';
-        }
-        this.tabService.addTab({ url: '/sales/invoices/' + this.invoice.ID, name: tabTitle, active: true, moduleID: UniModules.Invoices });
+        let tabTitle = (this.invoice.InvoiceNumber)
+            ? 'Fakturanr. ' + this.invoice.InvoiceNumber
+            : (this.invoice.ID) ? 'Faktura (kladd)' : 'Ny faktura';
+
+        this.tabService.addTab({
+            url: '/sales/invoices/' + this.invoice.ID,
+            name: tabTitle,
+            active: true,
+            moduleID: UniModules.Invoices
+        });
     }
 
     private updateToolbar() {
@@ -1037,19 +1024,28 @@ export class InvoiceDetails {
             if (this.invoice.CurrencyCodeID !== this.companySettings.BaseCurrencyCodeID) {
                 let linesWithVat = this.invoice.Items.filter(x => x.SumVatCurrency > 0);
                 if (linesWithVat.length > 0) {
-                    this.confirmModal.confirm(
-                        `Er du sikker på at du vil registrere linjer med MVA når det er brukt ${this.getCurrencyCode(this.invoice.CurrencyCodeID)} som valuta?`,
-                        'Vennligst bekreft',
-                        false,
-                        { accept: 'Ja, jeg vil lagre med MVA', reject: 'Avbryt lagring' }
-                    ).then(response => {
+                    const modalMessage = 'Er du sikker på at du vil registrere linjer med MVA når det er brukt '
+                        + `${this.getCurrencyCode(this.invoice.CurrencyCodeID)} som valuta?`;
+
+                    this.modalService.confirm({
+                        header: 'Vennligst bekreft',
+                        message: modalMessage,
+                        buttonLabels: {
+                            accept: 'Ja, lagre med MVA',
+                            cancel: 'Avbryt'
+                        }
+                    }).onClose.subscribe(response => {
                         if (response === ConfirmActions.ACCEPT) {
-                            request.subscribe(res => resolve(res), err => reject(err));
+                            request.subscribe(
+                                res => resolve(res),
+                                err => reject(err)
+                            );
                         } else {
                             const message = 'Endre MVA kode og lagre på ny';
                             reject(message);
                         }
                     });
+
                 } else {
                     request.subscribe(res => {
                         resolve(res)
@@ -1201,29 +1197,67 @@ export class InvoiceDetails {
             AgioAmount: 0
         };
 
-        this.registerPaymentModal.confirm(this.invoice.ID, title, this.invoice.CurrencyCode, this.invoice.CurrencyExchangeRate,
-            'CustomerInvoice', invoicePaymentData).then(res => {
-            if (res.status === ConfirmActions.ACCEPT) {
-                this.customerInvoiceService.ActionWithBody(res.id, <any>res.model, 'payInvoice').subscribe((journalEntry) => {
-                    this.toastService.addToast('Faktura er betalt. Bilagsnummer: ' + journalEntry.JournalEntryNumber, ToastType.good, 5);
-                    done('Betaling registrert');
-                    this.customerInvoiceService.Get(this.invoice.ID, this.expandOptions).subscribe((invoice) => {
-                        this.refreshInvoice(invoice);
-                    });
-                }, (err) => {
-                    done('Feilet ved registrering av betaling');
-                    this.errorService.handle(err);
-                });
+        const paymentModal = this.modalService.open(UniRegisterPaymentModal, {
+            header: title,
+            data: invoicePaymentData,
+            modalConfig: {
+                entityName: 'CustomerInvoice',
+                currencyCode: this.invoice.CurrencyCode,
+                currencyExchangeRate: this.invoice.CurrencyExchangeRate
+            }
+        });
+
+
+        // HOME OFFICE FROM HERE
+
+        paymentModal.onClose.subscribe((payment) => {
+            if (payment) {
+                this.customerInvoiceService.ActionWithBody(this.invoice.ID, payment, 'payInvoice').subscribe(
+                    res => {
+                        done('Betaling vellykket');
+                        this.toastService.addToast(
+                            'Faktura er betalt. Betalingsnummer: ' + res.JournalEntryNumber,
+                            ToastType.good,
+                            5
+                        );
+
+                        this.customerInvoiceService.Get(this.invoice.ID, this.expandOptions).subscribe(invoice => {
+                            this.refreshInvoice(invoice);
+                        });
+                    },
+                    err => {
+                        done('Feilet ved registrering av betaling');
+                        this.errorService.handle(err);
+                    }
+                );
             } else {
                 done();
             }
         });
+
+        // this.registerPaymentModal.confirm(this.invoice.ID, title, this.invoice.CurrencyCode, this.invoice.CurrencyExchangeRate,
+        //     'CustomerInvoice', invoicePaymentData).then(res => {
+        //     if (res.status === ConfirmActions.ACCEPT) {
+        //         this.customerInvoiceService.ActionWithBody(res.id, <any>res.model, 'payInvoice').subscribe((journalEntry) => {
+        //             this.toastService.addToast('Faktura er betalt. Bilagsnummer: ' + journalEntry.JournalEntryNumber, ToastType.good, 5);
+        //             done('Betaling registrert');
+        //             this.customerInvoiceService.Get(this.invoice.ID, this.expandOptions).subscribe((invoice) => {
+        //                 this.refreshInvoice(invoice);
+        //             });
+        //         }, (err) => {
+        //             done('Feilet ved registrering av betaling');
+        //             this.errorService.handle(err);
+        //         });
+        //     } else {
+        //         done();
+        //     }
+        // });
     }
 
     private handleSaveError(error, donehandler) {
         if (typeof (error) === 'string') {
             if (donehandler) {
-                donehandler('Lagring avbrutt ' + error);
+                donehandler('Lagring avbrutt. ' + error);
             }
         } else {
             if (donehandler) {
@@ -1290,7 +1324,7 @@ export class InvoiceDetails {
     // Summary
     public recalcItemSums(invoiceItems: CustomerInvoiceItem[] = null) {
         if (invoiceItems) {
-            this.itemsSummaryData = this.tradeItemHelper.calculateTradeItemSummaryLocal(invoiceItems);
+            this.itemsSummaryData = this.tradeItemHelper.calculateTradeItemSummaryLocal(invoiceItems, this.companySettings.RoundingNumberOfDecimals);
             this.updateSaveActions();
             this.updateToolbar();
         } else {
@@ -1334,7 +1368,7 @@ export class InvoiceDetails {
             },
             {
                 title: 'Restbeløp',
-                value: !this.itemsSummaryData ? this.numberFormat.asMoney(0) : !this.invoice.ID ? this.numberFormat.asMoney(this.itemsSummaryData.SumTotalIncVatCurrency) : this.numberFormat.asMoney(this.invoice.RestAmountCurrency)
+                value: !this.itemsSummaryData ? this.numberFormat.asMoney(0) : !this.invoice.ID ? 0 : this.numberFormat.asMoney(this.invoice.RestAmountCurrency)
             },
         ];
     }

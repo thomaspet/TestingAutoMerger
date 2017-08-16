@@ -14,11 +14,10 @@
 <section class='regtimecontainer'
     [class.wideapplication]="workEditor.numberOfVisibleColumns > 9" 
     [class.application]="workEditor.numberOfVisibleColumns <= 9" style="width: calc(100% - 400px); float: left;">
-
     <section class="regtime_tabs">
 
         <section [hidden]="missingWorker || !tabs[0].isSelected">
-            
+
             <header>
                 <section style="float: left; padding-left: 15px; margin-bottom: 15px" id="timetracker_date_and_progress">
                     <h3 style="font-size: 1.7rem; font-weight: 400; color: #0f4880; margin-bottom: 15px;"> {{ currentFilter.bigLabel }} </h3>
@@ -66,7 +65,7 @@
 
         <section [hidden]="!tabs[2].isSelected">
             <regtimetotals></regtimetotals>
-        </section>        
+        </section>
 
         <section [hidden]="!tabs[3].isSelected">
             <regtimebalance [eventcfg]="preSaveConfig" [workrelation]="this.timeSheet?.currentRelation" (valueChange)="onBalanceChanged($event)" ></regtimebalance>
@@ -79,12 +78,11 @@
         <div *ngIf="this.mapTabPosition(5)">
             <section [hidden]="!tabs[5].isSelected">
                 <teamwork-report></teamwork-report>
-            </section>        
+            </section>
         </div>
 
     </section>
 
 </section>
 
-<uni-confirm-modal></uni-confirm-modal>
 <uni-file-import></uni-file-import>

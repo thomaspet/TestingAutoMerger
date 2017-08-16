@@ -4,7 +4,6 @@ import {Router} from '@angular/router';
 import {UniHttp} from '../../../../../framework/core/http/http';
 import {StatusCodeCustomerInvoice, CustomerInvoice, LocalDate, CompanySettings, InvoicePaymentData} from '../../../../unientities';
 import {URLSearchParams} from '@angular/http';
-import {RegisterPaymentModal} from '../../../common/modals/registerPaymentModal';
 import {PreviewModal} from '../../../reports/modals/preview/previewModal';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
 import {SendEmailModal} from '../../../common/modals/sendEmailModal';
@@ -20,13 +19,16 @@ import {
     CompanySettingsService,
     ReportService
 } from '../../../../services/services';
+import {
+    UniRegisterPaymentModal,
+    UniModalService
+} from '../../../../../framework/uniModal/barrel';
 
 @Component({
     selector: 'invoice-list',
     templateUrl: './invoiceList.html'
 })
 export class InvoiceList implements OnInit {
-    @ViewChild(RegisterPaymentModal) private registerPaymentModal: RegisterPaymentModal;
     @ViewChild(PreviewModal) private previewModal: PreviewModal;
     @ViewChild(UniTable) private table: UniTable;
     @ViewChild(SendEmailModal) private sendEmailModal: SendEmailModal;
@@ -45,7 +47,7 @@ export class InvoiceList implements OnInit {
         { label: 'Betalt', statuscode: StatusCodeCustomerInvoice.Paid }
     ];
     private activeTab: any = this.filterTabs[0];
-    private
+
     constructor(
         private uniHttpService: UniHttp,
         private router: Router,
@@ -56,8 +58,9 @@ export class InvoiceList implements OnInit {
         private numberFormat: NumberFormat,
         private errorService: ErrorService,
         private companySettingsService: CompanySettingsService,
-        private reportService: ReportService
-    ) { }
+        private reportService: ReportService,
+        private modalService: UniModalService
+    ) {}
 
     public ngOnInit() {
         this.companySettingsService.Get(1)
@@ -135,24 +138,6 @@ export class InvoiceList implements OnInit {
         } else {
             this.table.removeFilter('StatusCode');
         }
-    }
-
-    public onRegisteredPayment(modalData: any) {
-        const warnToastID = this.toastService.addToast('Registrerer betaling', ToastType.warn);
-        this.customerInvoiceService
-            .ActionWithBody(modalData.id, modalData.invoice, 'payInvoice')
-            .subscribe(
-            (journalEntry) => {
-                this.toastService.removeToast(warnToastID);
-                const msg = 'Bilagsnummer: ' + journalEntry.JournalEntryNumber;
-                this.toastService.addToast(`Faktura betalt`, ToastType.good, 10, msg);
-                this.refreshData();
-            },
-            (err) => {
-                this.toastService.removeToast(warnToastID);
-                this.errorService.handle(err);
-            }
-            );
     }
 
     private setupInvoiceTable() {
@@ -267,7 +252,7 @@ export class InvoiceList implements OnInit {
             label: 'Registrer betaling',
             action: (rowModel) => {
                 const title = `Register betaling, Faktura ${rowModel.InvoiceNumber || ''}, ${rowModel.CustomerName || ''}`;
-                const invoiceData: InvoicePaymentData = {
+                const paymentData: InvoicePaymentData = {
                     Amount: rowModel.RestAmount,
                     AmountCurrency: rowModel.CurrencyCodeID == this.companySettings.BaseCurrencyCodeID ? rowModel.RestAmount : rowModel.RestAmountCurrency,
                     BankChargeAmount: 0,
@@ -279,14 +264,40 @@ export class InvoiceList implements OnInit {
                     AgioAmount: 0
                 };
 
-                this.registerPaymentModal.confirm(
-                    rowModel.ID,
-                    title,
-                    rowModel.CurrencyCode,
-                    rowModel.CurrencyExchangeRate,
-                    rowModel.EntityType,
-                    invoiceData);
+                const modal = this.modalService.open(UniRegisterPaymentModal, {
+                    data: paymentData,
+                    header: title,
+                    modalConfig: {
+                        currencyCode: rowModel.CurrencyCode,
+                        entityName: 'CustomerInvoice',
+                        currencyExchangeRate: rowModel.CurrencyExchangeRate
+                    }
+                });
 
+                modal.onClose.subscribe((payment) => {
+                    if (!payment) {
+                        return;
+                    }
+
+                    this.toastService.addToast('Registrerer betaling', ToastType.warn);
+                    this.customerInvoiceService.ActionWithBody(
+                        rowModel.ID,
+                        payment,
+                        'payInvoice'
+                    ).subscribe(
+                        res => {
+                            this.toastService.clear();
+                            const msg = 'Bilagsnummer: ' + res.JournalEntryNumber;
+                            this.toastService.addToast(`Faktura betalt`, ToastType.good, 10, msg);
+                            this.refreshData();
+                        },
+                        err => {
+                            this.errorService.handle(err);
+                            this.toastService.clear();
+                            this.toastService.addToast('Registrering av betaling feilet', ToastType.bad, 5);
+                        }
+                    );
+                });
             },
 
             // TODO: Benytt denne n�r _links fungerer

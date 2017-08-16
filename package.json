@@ -16,7 +16,8 @@
     "start.test": "gulp app-config-test-env && gulp sass && concurrently \"npm run sass.watch\" \"webpack-dev-server --inline --port 3000\" ",
     "start.local": "gulp app-config-local && gulp sass &&  concurrently \"npm run sass.watch\" \"webpack-dev-server --inline --port 3000\" ",
     "start.pilot": "gulp app-config-pilot && gulp sass &&  concurrently \"npm run sass.watch\" \"webpack-dev-server --config config/prod.webpack.js --inline --port 3000\" ",
-    "start.typecheck": "gulp app-config-dev && gulp sass && concurrently \"npm run sass.watch\" \"webpack-dev-server --inline --port 3000 --env.typecheck\" "
+    "start.typecheck": "gulp app-config-dev && gulp sass && concurrently \"npm run sass.watch\" \"webpack-dev-server --inline --port 3000 --env.typecheck\" ",
+    "start.all": "yarn && npm run build.vendors.withSourcemaps && npm start"
   },
   "license": "MIT",
   "dependencies": {
@@ -55,9 +56,9 @@
     "@types/chart.js": "^2.4.1",
     "@types/core-js": "^0.9.37",
     "@types/filesaver": "0.0.30",
+    "@types/jquery": "2.0.47",
     "@types/lodash": "4.14.49",
     "@types/node": "^6.0.38",
-    "@types/jquery": "2.0.47",
     "add-asset-html-webpack-plugin": "^1.0.2",
     "angular-router-loader": "~0.5.0",
     "angular2-template-loader": "^0.6.0",

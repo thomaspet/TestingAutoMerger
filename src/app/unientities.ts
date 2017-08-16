@@ -250,8 +250,8 @@ export class WorkRelation extends UniEntity {
     public WorkerID: number;
     public WorkPercentage: number;
     public WorkProfileID: number;
-    public WorkProfile: WorkProfile;
     public Worker: Worker;
+    public WorkProfile: WorkProfile;
     public Employment: Employment;
     public Items: Array<WorkItem>;
     public Team: Team;
@@ -409,6 +409,75 @@ export class Permission extends UniEntity {
 }
 
 
+export class Seller extends UniEntity {
+    public static RelativeUrl = 'sellers';
+    public static EntityType = 'Seller';
+
+    public _createguid: string;
+    public CreatedAt: Date;
+    public CreatedBy: string;
+    public DefaultDimensionsID: number;
+    public Deleted: boolean;
+    public EmployeeID: number;
+    public ID: number;
+    public Name: string;
+    public StatusCode: number;
+    public TeamID: number;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public UserID: number;
+    public User: User;
+    public Employee: Employee;
+    public Team: Team;
+    public DefaultDimensions: Dimensions;
+    public CustomFields: any;
+}
+
+
+export class SellerLink extends UniEntity {
+    public static RelativeUrl = 'sellerlinks';
+    public static EntityType = 'SellerLink';
+
+    public _createguid: string;
+    public Amount: number;
+    public CreatedAt: Date;
+    public CreatedBy: string;
+    public CustomerID: number;
+    public CustomerInvoiceID: number;
+    public CustomerOrderID: number;
+    public CustomerQuoteID: number;
+    public Deleted: boolean;
+    public ID: number;
+    public Percent: number;
+    public SellerID: number;
+    public StatusCode: number;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public Seller: Seller;
+    public CustomFields: any;
+}
+
+
+export class Terms extends UniEntity {
+    public static RelativeUrl = 'terms';
+    public static EntityType = 'Terms';
+
+    public _createguid: string;
+    public CreatedAt: Date;
+    public CreatedBy: string;
+    public CreditDays: number;
+    public Deleted: boolean;
+    public Description: string;
+    public ID: number;
+    public Name: string;
+    public StatusCode: number;
+    public TermsType: TermsType;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public CustomFields: any;
+}
+
+
 export class CustomerInvoiceReminderRule extends UniEntity {
     public static RelativeUrl = 'invoicereminderrules';
     public static EntityType = 'CustomerInvoiceReminderRule';
@@ -500,6 +569,7 @@ export class Customer extends UniEntity {
     public CurrencyCodeID: number;
     public CustomerInvoiceReminderSettingsID: number;
     public CustomerNumber: number;
+    public DefaultSellerLinkID: number;
     public Deleted: boolean;
     public DimensionsID: number;
     public DontSendReminders: boolean;
@@ -521,6 +591,8 @@ export class Customer extends UniEntity {
     public CurrencyCode: CurrencyCode;
     public AcceptableDelta4CustomerPaymentAccount: Account;
     public SubAccountNumberSeries: NumberSeries;
+    public DefaultSeller: SellerLink;
+    public Sellers: Array<SellerLink>;
     public CustomFields: any;
 }
 
@@ -547,6 +619,7 @@ export class CustomerInvoice extends UniEntity {
     public CustomerOrgNumber: string;
     public CustomerPerson: string;
     public DefaultDimensionsID: number;
+    public DefaultSellerLinkID: number;
     public Deleted: boolean;
     public DeliveryDate: LocalDate;
     public DeliveryMethod: string;
@@ -610,6 +683,8 @@ export class CustomerInvoice extends UniEntity {
     public Items: Array<CustomerInvoiceItem>;
     public InvoiceReference: CustomerInvoice;
     public DefaultDimensions: Dimensions;
+    public DefaultSeller: SellerLink;
+    public Sellers: Array<SellerLink>;
     public CustomFields: any;
 }
 
@@ -677,9 +752,11 @@ export class CustomerOrder extends UniEntity {
     public CustomerOrgNumber: string;
     public CustomerPerson: string;
     public DefaultDimensionsID: number;
+    public DefaultSellerLinkID: number;
     public Deleted: boolean;
     public DeliveryDate: LocalDate;
     public DeliveryMethod: string;
+    public DeliveryName: string;
     public DeliveryTerm: string;
     public EmailAddress: string;
     public FreeTxt: string;
@@ -726,6 +803,8 @@ export class CustomerOrder extends UniEntity {
     public CurrencyCode: CurrencyCode;
     public OrderNumberNumberSeries: NumberSeries;
     public Items: Array<CustomerOrderItem>;
+    public DefaultSeller: SellerLink;
+    public Sellers: Array<SellerLink>;
     public CustomFields: any;
 }
 
@@ -793,9 +872,11 @@ export class CustomerQuote extends UniEntity {
     public CustomerOrgNumber: string;
     public CustomerPerson: string;
     public DefaultDimensionsID: number;
+    public DefaultSellerLinkID: number;
     public Deleted: boolean;
     public DeliveryDate: LocalDate;
     public DeliveryMethod: string;
+    public DeliveryName: string;
     public DeliveryTerm: string;
     public EmailAddress: string;
     public FreeTxt: string;
@@ -844,6 +925,8 @@ export class CustomerQuote extends UniEntity {
     public DefaultDimensions: Dimensions;
     public QuoteNumberNumberSeries: NumberSeries;
     public Items: Array<CustomerQuoteItem>;
+    public DefaultSeller: SellerLink;
+    public Sellers: Array<SellerLink>;
     public CustomFields: any;
 }
 
@@ -3935,6 +4018,7 @@ export class JournalEntry extends UniEntity {
     public Deleted: boolean;
     public FinancialYearID: number;
     public ID: number;
+    public JournalEntryAccrualID: number;
     public JournalEntryNumber: string;
     public JournalEntryNumberNumeric: number;
     public NumberSeriesTaskID: number;
@@ -3945,6 +4029,7 @@ export class JournalEntry extends UniEntity {
     public Lines: Array<JournalEntryLine>;
     public DraftLines: Array<JournalEntryLineDraft>;
     public NumberSeriesTask: NumberSeriesTask;
+    public JournalEntryAccrual: Accrual;
     public CustomFields: any;
 }
 
@@ -4001,6 +4086,7 @@ export class JournalEntryLine extends UniEntity {
     public VatPeriodID: number;
     public VatReportID: number;
     public VatTypeID: number;
+    public JournalEntry: JournalEntry;
     public CurrencyCode: CurrencyCode;
     public Period: Period;
     public VatPeriod: Period;
@@ -4922,6 +5008,44 @@ export class FieldLayoutDto extends UniEntity {
 }
 
 
+export class AssignmentDetails extends UniEntity {
+    public Message: string;
+    public TeamIDs: string;
+    public UserIDs: string;
+}
+
+
+export class TimeSheet extends UniEntity {
+    public FromDate: Date;
+    public ToDate: Date;
+    public Workflow: TimesheetWorkflow;
+    public Relation: WorkRelation;
+    public Items: Array<TimeSheetItem>;
+}
+
+
+export class TimeSheetItem extends UniEntity {
+    public Date: Date;
+    public EndTime: Date;
+    public ExpectedTime: number;
+    public Flextime: number;
+    public Invoicable: number;
+    public IsWeekend: boolean;
+    public Overtime: number;
+    public Projecttime: number;
+    public SickTime: number;
+    public StartTime: Date;
+    public Status: WorkStatus;
+    public TimeOff: number;
+    public TotalTime: number;
+    public ValidTime: number;
+    public ValidTimeOff: number;
+    public WeekDay: number;
+    public WeekNumber: number;
+    public Workflow: TimesheetWorkflow;
+}
+
+
 export class WorkBalanceDto extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'WorkBalanceDto';
@@ -4948,9 +5072,9 @@ export class WorkBalanceDto extends UniEntity {
     public ValidFrom: Date;
     public ValidTimeOff: number;
     public WorkRelationID: number;
-    public WorkRelation: WorkRelation;
     public Previous: BalanceInfo;
     public Details: Array<FlexDetail>;
+    public WorkRelation: WorkRelation;
     public CustomFields: any;
 }
 
@@ -5360,13 +5484,6 @@ export class JournalEntryLineCouple extends UniEntity {
 }
 
 
-export class AssignmentDetails extends UniEntity {
-    public Message: string;
-    public TeamIDs: string;
-    public UserIDs: string;
-}
-
-
 export class VatReportMessage extends UniEntity {
     public Level: ValidationLevel;
     public Message: string;
@@ -5581,6 +5698,12 @@ export enum FieldType{
     URL = 15,
     TEXTAREA = 16,
     LOCAL_DATE_PICKER = 17,
+}
+
+
+export enum TermsType{
+    PaymentTerms = 1,
+    DeliveryTerms = 2,
 }
 
 
@@ -5941,6 +6064,23 @@ export enum OnConflict{
     Replace = 0,
     Ignore = 1,
     ManualResolve = 2,
+}
+
+
+export enum TimesheetWorkflow{
+    UnApproved = 0,
+    Partial = 1,
+    Approved = 2,
+    Rejected = 3,
+}
+
+
+export enum WorkStatus{
+    MissingFromWork = 0,
+    Incomplete = 1,
+    Complete = 2,
+    OvertimeOrFlex = 3,
+    ValidTimeOff = 4,
 }
 
 

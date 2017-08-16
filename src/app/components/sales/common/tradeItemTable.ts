@@ -109,7 +109,7 @@ export class TradeItemTable {
         const productCol = new UniTableColumn('Product', 'Varenr', UniTableColumnType.Lookup)
             .setDisplayField('Product.PartName')
             .setEditorOptions({
-                itemTemplate: item => `${item.PartName} - ${item.Name}`,
+                itemTemplate: item => item.Name ? `${item.PartName} - ${item.Name}` : item.PartName,
                 lookupFunction: (query: string) => {
                     return this.productService.GetAll(
                         `filter=contains(Name,'${query}') or contains(PartName,'${query}')&top=20`,
@@ -189,9 +189,9 @@ export class TradeItemTable {
                                 + `contains(ID,'${querySplit[1]}'))&groupby=ProjectID`;
                         }
                     }
-                    
+
                     return this.projectTaskService.GetAll(filter)
-                        .catch((err, obs) => this.errorService.handleRxCatch(err, obs));    
+                        .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
                 }
             });
 
@@ -282,7 +282,7 @@ export class TradeItemTable {
                 if (updatedRow.Dimensions && updatedRow.Dimensions.ProjectTask) {
                     let projectId = updatedRow.Dimensions.ProjectTask.ProjectID;
                     let project = this.projects.find(p => p.ID === projectId);
-                    
+
                     if (project) {
                       updatedRow.Dimensions.Project = project;
                       updatedRow.Dimensions.ProjectID = project.ID;

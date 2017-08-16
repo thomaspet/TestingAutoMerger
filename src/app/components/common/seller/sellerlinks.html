@@ -1,0 +1,7 @@
+<uni-table
+    [resource]="sellers"
+    [config]="sellerTableConfig"
+    (rowDeleted)="onRowDelete($event)"
+    (rowChanged)="onRowChanged($event)"
+    (rowSelected)="onRowSelected($event)">
+</uni-table>

@@ -36,7 +36,6 @@ import {AccrualModal} from '../../../../common/modals/accrualModal';
 import {NewAccountModal} from '../../../NewAccountModal';
 import {ToastService, ToastType, ToastTime} from '../../../../../../framework/uniToast/toastService';
 import {AddPaymentModal} from '../../../../common/modals/addPaymentModal';
-import {UniConfirmModal, ConfirmActions} from '../../../../../../framework/modals/confirm';
 import {
     VatTypeService,
     AccountService,
@@ -51,10 +50,17 @@ import {
     NumberFormat,
     PredefinedDescriptionService
 } from '../../../../../services/services';
+
+import {
+    UniModalService,
+    UniRegisterPaymentModal,
+    UniConfirmModalV2,
+    ConfirmActions
+} from '../../../../../../framework/uniModal/barrel';
+
 import * as moment from 'moment';
 import {CurrencyCodeService} from '../../../../../services/common/currencyCodeService';
 import {CurrencyService} from '../../../../../services/common/currencyService';
-import {RegisterPaymentModal} from '../../../../common/modals/registerPaymentModal';
 import {SelectJournalEntryLineModal} from '../selectJournalEntryLineModal';
 import {UniMath} from '../../../../../../framework/core/uniMath';
 const PAPERCLIP = '📎'; // It might look empty in your editor, but this is the unicode paperclip
@@ -82,8 +88,6 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
     @ViewChild(AccrualModal) private accrualModal: AccrualModal;
     @ViewChild(NewAccountModal) private newAccountModal: NewAccountModal;
     @ViewChild(AddPaymentModal) private addPaymentModal: AddPaymentModal;
-    @ViewChild(UniConfirmModal) private confirmModal: UniConfirmModal;
-    @ViewChild(RegisterPaymentModal) private registerPaymentModal: RegisterPaymentModal;
     @ViewChild(SelectJournalEntryLineModal) private selectJournalEntryLineModal: SelectJournalEntryLineModal;
 
     private companySettings: CompanySettings;
@@ -134,10 +138,9 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
         private currencyService: CurrencyService,
         private companySettingsService: CompanySettingsService,
         private journalEntryLineService: JournalEntryLineService,
-        private predefinedDescriptionService: PredefinedDescriptionService
-    ) {
-
-    }
+        private predefinedDescriptionService: PredefinedDescriptionService,
+        private modalService: UniModalService
+    ) {}
 
     public ngOnInit() {
         this.setupJournalEntryTable();
@@ -1205,7 +1208,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
     public showAgioDialogPostPost(journalEntryRow: JournalEntryData): Promise<JournalEntryData> {
         const postPostJournalEntryLine = journalEntryRow.PostPostJournalEntryLine;
 
-        return new Promise(res => {
+        return new Promise(resolve => {
             const journalEntryPaymentData: InvoicePaymentData = {
                 Amount: postPostJournalEntryLine.RestAmount,
                 AmountCurrency: postPostJournalEntryLine.RestAmountCurrency,
@@ -1218,70 +1221,135 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 AgioAmount: 0
             };
 
-            const title =
-                `Bilagsnr: ${postPostJournalEntryLine.JournalEntryNumber},`
-                + ` ${postPostJournalEntryLine.RestAmount} ${this.companySettings.BaseCurrencyCode.Code}`;
+            const title = `Bilagsnr: ${postPostJournalEntryLine.JournalEntryNumber}, `
+                + `${postPostJournalEntryLine.RestAmount} ${this.companySettings.BaseCurrencyCode.Code}`;
 
-            const updatedRow = this.registerPaymentModal.confirm(
-                postPostJournalEntryLine.ID,
-                title,
-                postPostJournalEntryLine.CurrencyCode,
-                postPostJournalEntryLine.CurrencyExchangeRate,
-                JournalEntryLine.EntityType,
-                journalEntryPaymentData
-            )
-                .then(modalResult => {
-                    if (modalResult.status === ConfirmActions.ACCEPT) {
-                        let paymentData = modalResult.model;
+            const paymentModal = this.modalService.open(UniRegisterPaymentModal, {
+                header: title,
+                data: journalEntryPaymentData,
+                modalConfig: {
+                    entityName: JournalEntryLine.EntityType,
+                    currencyCode: postPostJournalEntryLine.CurrencyCode,
+                    currencyExchangeRate: postPostJournalEntryLine.CurrencyExchangeRate
+                }
+            });
 
-                        journalEntryRow.FinancialDate = paymentData.PaymentDate;
+            paymentModal.onClose.subscribe((paymentData) => {
+                if (!paymentData) {
+                    resolve(journalEntryRow);
+                }
 
-                        // we use the amount paid * the original journalentryline's CurrencyExchangeRate to
-                        // calculate the Amount that was paid in the base currency - the diff between this and
-                        // what is registerred as a payment on the opposite account (normally a bankaccount)
-                        // will be balanced using an agio line
-                        journalEntryRow.Amount = UniMath.round(paymentData.AmountCurrency * postPostJournalEntryLine.CurrencyExchangeRate);
-                        journalEntryRow.AmountCurrency = paymentData.AmountCurrency;
-                        journalEntryRow.NetAmount = journalEntryRow.Amount;
-                        journalEntryRow.NetAmountCurrency = journalEntryRow.AmountCurrency;
-                        journalEntryRow.CurrencyExchangeRate = postPostJournalEntryLine.CurrencyExchangeRate;
+                journalEntryRow.FinancialDate = paymentData.PaymentDate;
 
-                        if (paymentData.AgioAmount !== 0 && paymentData.AgioAccountID) {
-                            const oppositeRow = this.createOppositeRow(journalEntryRow, paymentData);
+                // we use the amount paid * the original journalentryline's CurrencyExchangeRate to
+                // calculate the Amount that was paid in the base currency - the diff between this and
+                // what is registerred as a payment on the opposite account (normally a bankaccount)
+                // will be balanced using an agio line
+                journalEntryRow.Amount = UniMath.round(
+                    paymentData.AmountCurrency * postPostJournalEntryLine.CurrencyExchangeRate
+                );
 
-                            if (journalEntryRow.DebitAccount && journalEntryRow.DebitAccount.UsePostPost) {
-                                journalEntryRow.CreditAccount = null;
-                                journalEntryRow.CreditAccountID = null;
-                                oppositeRow.CreditAccount = this.defaultAccountPayments;
-                                oppositeRow.CreditAccountID = this.defaultAccountPayments ? this.defaultAccountPayments.ID : null;
-                            } else if (journalEntryRow.CreditAccount && journalEntryRow.CreditAccount.UsePostPost) {
-                                journalEntryRow.DebitAccount = null;
-                                journalEntryRow.DebitAccountID = null;
-                                oppositeRow.DebitAccount = this.defaultAccountPayments;
-                                oppositeRow.DebitAccountID = this.defaultAccountPayments ? this.defaultAccountPayments.ID : null;
-                            }
+                journalEntryRow.AmountCurrency = paymentData.AmountCurrency;
+                journalEntryRow.NetAmount = journalEntryRow.Amount;
+                journalEntryRow.NetAmountCurrency = journalEntryRow.AmountCurrency;
+                journalEntryRow.CurrencyExchangeRate = postPostJournalEntryLine.CurrencyExchangeRate;
 
-                            this.createAgioRow(journalEntryRow, paymentData)
-                                .then(agioRow => {
-                                    this.updateJournalEntryLine(journalEntryRow);
-                                    this.addJournalEntryLines([oppositeRow, agioRow]);
-                                });
-                        } else {
-                            if (journalEntryRow.DebitAccount && journalEntryRow.DebitAccount.UsePostPost && !journalEntryRow.CreditAccount) {
-                                journalEntryRow.CreditAccount = this.defaultAccountPayments;
-                                journalEntryRow.CreditAccountID = this.defaultAccountPayments ? this.defaultAccountPayments.ID : null;
-                            } else if (journalEntryRow.CreditAccount && journalEntryRow.CreditAccount.UsePostPost && !journalEntryRow.DebitAccount) {
-                                journalEntryRow.DebitAccount = this.defaultAccountPayments;
-                                journalEntryRow.DebitAccountID = this.defaultAccountPayments ? this.defaultAccountPayments.ID : null;
-                            }
+                if (paymentData.AgioAmount !== 0 && paymentData.AgioAccountID) {
+                    const oppositeRow = this.createOppositeRow(journalEntryRow, paymentData);
 
-                            this.updateJournalEntryLine(journalEntryRow);
-                        }
+                    if (journalEntryRow.DebitAccount && journalEntryRow.DebitAccount.UsePostPost) {
+                        journalEntryRow.CreditAccount = null;
+                        journalEntryRow.CreditAccountID = null;
+                        oppositeRow.CreditAccount = this.defaultAccountPayments;
+                        oppositeRow.CreditAccountID = this.defaultAccountPayments
+                            ? this.defaultAccountPayments.ID
+                            : null;
+                    } else if (journalEntryRow.CreditAccount && journalEntryRow.CreditAccount.UsePostPost) {
+                        journalEntryRow.DebitAccount = null;
+                        journalEntryRow.DebitAccountID = null;
+                        oppositeRow.DebitAccount = this.defaultAccountPayments;
+                        oppositeRow.DebitAccountID = this.defaultAccountPayments
+                            ? this.defaultAccountPayments.ID
+                            : null;
                     }
-                    return journalEntryRow;
-                });
 
-            res(updatedRow);
+                    this.createAgioRow(journalEntryRow, paymentData).then(agioRow => {
+                        this.updateJournalEntryLine(journalEntryRow);
+                        this.addJournalEntryLines([oppositeRow, agioRow]);
+                        resolve(journalEntryRow);
+                    });
+                } else {
+                    if (journalEntryRow.DebitAccount && journalEntryRow.DebitAccount.UsePostPost && !journalEntryRow.CreditAccount) {
+                        journalEntryRow.CreditAccount = this.defaultAccountPayments;
+                        journalEntryRow.CreditAccountID = this.defaultAccountPayments ? this.defaultAccountPayments.ID : null;
+                    } else if (journalEntryRow.CreditAccount && journalEntryRow.CreditAccount.UsePostPost && !journalEntryRow.DebitAccount) {
+                        journalEntryRow.DebitAccount = this.defaultAccountPayments;
+                        journalEntryRow.DebitAccountID = this.defaultAccountPayments ? this.defaultAccountPayments.ID : null;
+                    }
+
+                    this.updateJournalEntryLine(journalEntryRow);
+                    resolve(journalEntryRow);
+                }
+            });
+
+            // const updatedRow = this.registerPaymentModal.confirm(
+            //     postPostJournalEntryLine.ID,
+            //     title,
+            //     postPostJournalEntryLine.CurrencyCode,
+            //     postPostJournalEntryLine.CurrencyExchangeRate,
+            //     JournalEntryLine.EntityType,
+            //     journalEntryPaymentData
+            // )
+            //     .then(modalResult => {
+            //         if (modalResult.status === ConfirmActions.ACCEPT) {
+            //             let paymentData = modalResult.model;
+
+            //             journalEntryRow.FinancialDate = paymentData.PaymentDate;
+
+            //             // we use the amount paid * the original journalentryline's CurrencyExchangeRate to
+            //             // calculate the Amount that was paid in the base currency - the diff between this and
+            //             // what is registerred as a payment on the opposite account (normally a bankaccount)
+            //             // will be balanced using an agio line
+            //             journalEntryRow.Amount = UniMath.round(paymentData.AmountCurrency * postPostJournalEntryLine.CurrencyExchangeRate);
+            //             journalEntryRow.AmountCurrency = paymentData.AmountCurrency;
+            //             journalEntryRow.NetAmount = journalEntryRow.Amount;
+            //             journalEntryRow.NetAmountCurrency = journalEntryRow.AmountCurrency;
+            //             journalEntryRow.CurrencyExchangeRate = postPostJournalEntryLine.CurrencyExchangeRate;
+
+            //             if (paymentData.AgioAmount !== 0 && paymentData.AgioAccountID) {
+            //                 const oppositeRow = this.createOppositeRow(journalEntryRow, paymentData);
+
+            //                 if (journalEntryRow.DebitAccount && journalEntryRow.DebitAccount.UsePostPost) {
+            //                     journalEntryRow.CreditAccount = null;
+            //                     journalEntryRow.CreditAccountID = null;
+            //                     oppositeRow.CreditAccount = this.defaultAccountPayments;
+            //                     oppositeRow.CreditAccountID = this.defaultAccountPayments ? this.defaultAccountPayments.ID : null;
+            //                 } else if (journalEntryRow.CreditAccount && journalEntryRow.CreditAccount.UsePostPost) {
+            //                     journalEntryRow.DebitAccount = null;
+            //                     journalEntryRow.DebitAccountID = null;
+            //                     oppositeRow.DebitAccount = this.defaultAccountPayments;
+            //                     oppositeRow.DebitAccountID = this.defaultAccountPayments ? this.defaultAccountPayments.ID : null;
+            //                 }
+
+            //                 this.createAgioRow(journalEntryRow, paymentData)
+            //                     .then(agioRow => {
+            //                         this.updateJournalEntryLine(journalEntryRow);
+            //                         this.addJournalEntryLines([oppositeRow, agioRow]);
+            //                     });
+            //             } else {
+            //                 if (journalEntryRow.DebitAccount && journalEntryRow.DebitAccount.UsePostPost && !journalEntryRow.CreditAccount) {
+            //                     journalEntryRow.CreditAccount = this.defaultAccountPayments;
+            //                     journalEntryRow.CreditAccountID = this.defaultAccountPayments ? this.defaultAccountPayments.ID : null;
+            //                 } else if (journalEntryRow.CreditAccount && journalEntryRow.CreditAccount.UsePostPost && !journalEntryRow.DebitAccount) {
+            //                     journalEntryRow.DebitAccount = this.defaultAccountPayments;
+            //                     journalEntryRow.DebitAccountID = this.defaultAccountPayments ? this.defaultAccountPayments.ID : null;
+            //                 }
+
+            //                 this.updateJournalEntryLine(journalEntryRow);
+            //             }
+            //         }
+            //         return journalEntryRow;
+            //     });
         });
     }
 
@@ -1289,8 +1357,8 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
 
     private showAgioDialog(journalEntryRow: JournalEntryData): Promise<JournalEntryData> {
         const customerInvoice = journalEntryRow.CustomerInvoice;
-        return new Promise(res => {
-            const invoiceData: InvoicePaymentData = {
+        return new Promise(resolve => {
+            const paymentData: InvoicePaymentData = {
                 Amount: customerInvoice.RestAmount,
                 AmountCurrency: customerInvoice.RestAmountCurrency,
                 BankChargeAmount: 0,
@@ -1301,49 +1369,92 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 BankChargeAccountID: 0,
                 AgioAmount: 0
             };
-            const title =
-                `Faktura nr: ${customerInvoice.InvoiceNumber},`
+
+            const title = `Faktura nr: ${customerInvoice.InvoiceNumber},`
                 + ` ${customerInvoice.RestAmount} ${this.companySettings.BaseCurrencyCode.Code}`;
 
+            const paymentModal = this.modalService.open(UniRegisterPaymentModal, {
+                header: title,
+                data: paymentData,
+                modalConfig: {
+                    entityName: CustomerInvoice.EntityType,
+                    currencyCode: customerInvoice.CurrencyCode,
+                    currencyExchangeRate: customerInvoice.CurrencyExchangeRate
+                }
+            });
 
-            const updatedRow = this.registerPaymentModal.confirm(
-                customerInvoice.ID,
-                title,
-                customerInvoice.CurrencyCode,
-                customerInvoice.CurrencyExchangeRate,
-                CustomerInvoice.EntityType,
-                invoiceData
-            )
-                .then(modalResult => {
-                    if (modalResult.status === ConfirmActions.ACCEPT) {
-                        let paymentData = modalResult.model;
-                        journalEntryRow.FinancialDate = paymentData.PaymentDate;
+            paymentModal.onClose.subscribe(payment => {
+                if (!payment) {
+                    resolve(journalEntryRow);
+                }
 
-                        // we use the amount paid * the original invoices CurrencyExchangeRate to calculate
-                        // the Amount that was paid in the base currency - the diff between this and what
-                        // is registerred as a payment on the opposite account (normally a bankaccount)
-                        // will be balanced using an agio line
-                        journalEntryRow.Amount =
-                            UniMath.round(paymentData.AmountCurrency * customerInvoice.CurrencyExchangeRate);
-                        journalEntryRow.AmountCurrency = paymentData.AmountCurrency;
-                        journalEntryRow.NetAmount = journalEntryRow.Amount;
-                        journalEntryRow.NetAmountCurrency = journalEntryRow.AmountCurrency;
-                        journalEntryRow.CurrencyExchangeRate = customerInvoice.CurrencyExchangeRate;
+                journalEntryRow.FinancialDate = paymentData.PaymentDate;
 
-                        if (paymentData.AgioAmount !== 0 && paymentData.AgioAccountID) {
-                            const oppositeRow = this.createOppositeRow(journalEntryRow, paymentData);
-                            journalEntryRow.DebitAccount = null;
-                            journalEntryRow.DebitAccountID = null;
-                            this.createAgioRow(journalEntryRow, paymentData)
-                                .then(agioRow => {
-                                    this.addJournalEntryLines([oppositeRow, agioRow]);
-                                });
-                        }
-                    }
-                    return journalEntryRow;
-                });
+                // we use the amount paid * the original invoices CurrencyExchangeRate to calculate
+                // the Amount that was paid in the base currency - the diff between this and what
+                // is registerred as a payment on the opposite account (normally a bankaccount)
+                // will be balanced using an agio line
+                journalEntryRow.Amount = UniMath.round(
+                    paymentData.AmountCurrency * customerInvoice.CurrencyExchangeRate
+                );
 
-            res(updatedRow);
+                journalEntryRow.AmountCurrency = paymentData.AmountCurrency;
+                journalEntryRow.NetAmount = journalEntryRow.Amount;
+                journalEntryRow.NetAmountCurrency = journalEntryRow.AmountCurrency;
+                journalEntryRow.CurrencyExchangeRate = customerInvoice.CurrencyExchangeRate;
+
+                if (paymentData.AgioAmount !== 0 && paymentData.AgioAccountID) {
+                    const oppositeRow = this.createOppositeRow(journalEntryRow, paymentData);
+                    journalEntryRow.DebitAccount = null;
+                    journalEntryRow.DebitAccountID = null;
+
+                    this.createAgioRow(journalEntryRow, paymentData).then(agioRow => {
+                        this.addJournalEntryLines([oppositeRow, agioRow]);
+                        resolve(journalEntryRow);
+                    });
+                } else {
+                    resolve(journalEntryRow);
+                }
+            });
+
+            // const updatedRow = this.registerPaymentModal.confirm(
+            //     customerInvoice.ID,
+            //     title,
+            //     customerInvoice.CurrencyCode,
+            //     customerInvoice.CurrencyExchangeRate,
+            //     CustomerInvoice.EntityType,
+            //     invoiceData
+            // )
+            //     .then(modalResult => {
+            //         if (modalResult.status === ConfirmActions.ACCEPT) {
+            //             let paymentData = modalResult.model;
+            //             journalEntryRow.FinancialDate = paymentData.PaymentDate;
+
+            //             // we use the amount paid * the original invoices CurrencyExchangeRate to calculate
+            //             // the Amount that was paid in the base currency - the diff between this and what
+            //             // is registerred as a payment on the opposite account (normally a bankaccount)
+            //             // will be balanced using an agio line
+            //             journalEntryRow.Amount =
+            //                 UniMath.round(paymentData.AmountCurrency * customerInvoice.CurrencyExchangeRate);
+            //             journalEntryRow.AmountCurrency = paymentData.AmountCurrency;
+            //             journalEntryRow.NetAmount = journalEntryRow.Amount;
+            //             journalEntryRow.NetAmountCurrency = journalEntryRow.AmountCurrency;
+            //             journalEntryRow.CurrencyExchangeRate = customerInvoice.CurrencyExchangeRate;
+
+            //             if (paymentData.AgioAmount !== 0 && paymentData.AgioAccountID) {
+            //                 const oppositeRow = this.createOppositeRow(journalEntryRow, paymentData);
+            //                 journalEntryRow.DebitAccount = null;
+            //                 journalEntryRow.DebitAccountID = null;
+            //                 this.createAgioRow(journalEntryRow, paymentData)
+            //                     .then(agioRow => {
+            //                         this.addJournalEntryLines([oppositeRow, agioRow]);
+            //                     });
+            //             }
+            //         }
+            //         return journalEntryRow;
+            //     });
+
+            // res(updatedRow);
         });
     }
 
@@ -1436,18 +1547,18 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
     }
 
     private deleteLine(line) {
-        this.confirmModal.confirm(
-            'Er du sikker på at du vil slette linjen?',
-            'Bekreft sletting',
-            false,
-            {accept: 'Slett linjen', reject: 'Avbryt'}
-        )
-        .then((response: ConfirmActions) => {
+        this.modalService.open(UniConfirmModalV2, {
+            header: 'Bekreft sletting',
+            message: 'Er du sikker på at du vil slette linjen?',
+            buttonLabels: {
+                accept: 'Slett',
+                cancel: 'Avbryt'
+            }
+        }).onClose.subscribe(response => {
             if (response === ConfirmActions.ACCEPT) {
                 this.table.removeRow(line._originalIndex);
-
                 setTimeout(() => {
-                    var tableData = this.table.getTableData();
+                    const tableData = this.table.getTableData();
                     this.dataChanged.emit(tableData);
                 });
             }
@@ -1814,22 +1925,19 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
     }
 
     public removeJournalEntryData(completeCallback, isDirty) {
-        if (isDirty) {
-            this.confirmModal.confirm(
-                'Er du sikker på at du vil forkaste alle endringene dine?',
-                'Forkaste endringer?',
-                false,
-                {accept: 'Forkast endringer', reject: 'Avbryt'})
-            .then((response: ConfirmActions) => {
-                if (response === ConfirmActions.ACCEPT) {
-                    this.clearListInternal(completeCallback);
-                } else {
-                    completeCallback(null);
-                }
-            });
-        } else {
+        if (!isDirty) {
             this.clearListInternal(completeCallback);
+            return;
         }
+
+        const modal = this.modalService.deprecated_openUnsavedChangesModal();
+        modal.onClose.subscribe(canRemove => {
+            if (canRemove) {
+                this.clearListInternal(completeCallback);
+            } else {
+                completeCallback(null);
+            }
+        });
     }
 
     private clearListInternal(completeCallback: (msg: string) => void) {

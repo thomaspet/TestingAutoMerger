@@ -1,7 +1,7 @@
 <uni-toolbar [config]="toolbarConfig"
              [saveactions]="saveActions">
 </uni-toolbar>
-<uni-confirm-modal></uni-confirm-modal>
+
 <section class="application">
     <section class="splitview">
         <nav class="splitview_list">
@@ -14,13 +14,12 @@
         </nav>
 
         <main class="splitview_detail">
-                <uni-table
-                        [config]="predefinedDescriptionsConfig"
-                        [resource]="predefinedDescriptions"
-                        (rowChanged)="onChangePreDefinedDescription($event)"
-                        (rowDeleted)="onPredefinedDescriptionDeleted($event)"
-                        >
-                </uni-table>
+            <uni-table
+                [config]="predefinedDescriptionsConfig"
+                [resource]="predefinedDescriptions"
+                (rowChanged)="onChangePreDefinedDescription($event)"
+                (rowDeleted)="onPredefinedDescriptionDeleted($event)">
+            </uni-table>
         </main>
     </section>
 </section>

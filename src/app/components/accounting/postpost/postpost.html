@@ -1,0 +1,30 @@
+<uni-toolbar
+    [config]="toolbarconfig"
+    [selectConfig]="registerConfig"
+    (selectValueChanged)="onRegisterChange($event)">
+</uni-toolbar>
+
+<section class="application">
+
+    <section class="splitview">
+
+        <nav class ="splitview_list">
+            <uni-table
+                    [config]="accountsTableConfig"
+                    [resource]="(accounts$ | async)"
+                    (rowSelected)="onRowSelected($event)">
+            </uni-table>
+        </nav>
+
+        <main class="splitview_detail">
+            <ledger-account-reconciliation
+                [modalMode]="true"
+                [customerID]="(customer$ | async)?.ID"
+                [supplierID]="(supplier$ | async)?.ID"
+                [accountID]="(account$ | async)?.ID">
+            </ledger-account-reconciliation>
+        </main>
+
+    </section>
+
+</section>

@@ -3,7 +3,6 @@ import {Router} from '@angular/router';
 import {UniHttp} from '../../../../../framework/core/http/http';
 import {StatusCodeCustomerInvoice, CustomerInvoice, LocalDate, CompanySettings, InvoicePaymentData} from '../../../../unientities';
 import {URLSearchParams} from '@angular/http';
-import {RegisterPaymentModal} from '../../../common/modals/registerPaymentModal';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
 import {SendEmailModal} from '../../../common/modals/sendEmailModal';
 import {SendEmail} from '../../../../models/sendEmail';
@@ -21,12 +20,16 @@ import {
     ReportService
 } from '../../../../services/services';
 
+import {
+    UniModalService,
+    UniRegisterPaymentModal
+} from '../../../../../framework/uniModal/barrel';
+
 @Component({
     selector: 'invoice-list2',
     templateUrl: './invoiceList2.html'
 })
 export class InvoiceList2 implements OnInit {
-    @ViewChild(RegisterPaymentModal) private registerPaymentModal: RegisterPaymentModal;
     @ViewChild(SendEmailModal) private sendEmailModal: SendEmailModal;
 
     private actionOverrides: Array<ITickerActionOverride> = [
@@ -98,7 +101,8 @@ export class InvoiceList2 implements OnInit {
         private toastService: ToastService,
         private errorService: ErrorService,
         private companySettingsService: CompanySettingsService,
-        private reportService: ReportService
+        private reportService: ReportService,
+        private modalService: UniModalService
     ) { }
 
     public ngOnInit() {
@@ -164,45 +168,61 @@ export class InvoiceList2 implements OnInit {
 
         if (!row) {
             return Promise.resolve();
-        } else {
-            return new Promise<any>((resolve, reject) => {
-                // get invoice from API - the data from the ticker may only be partial
-                this.customerInvoiceService.Get(row.ID, ['CurrencyCode'])
-                    .subscribe(invoice => {
-                        let rowModel = invoice;
-                        const title = `Register betaling, Faktura ${rowModel.InvoiceNumber || ''}, ${rowModel.CustomerName || ''}`;
-                        const invoiceData: InvoicePaymentData = {
-                            Amount: rowModel.RestAmount,
-                            AmountCurrency: rowModel.CurrencyCodeID == this.companySettings.BaseCurrencyCodeID ? rowModel.RestAmount : rowModel.RestAmountCurrency,
-                            BankChargeAmount: 0,
-                            CurrencyCodeID: rowModel.CurrencyCodeID,
-                            CurrencyExchangeRate: 0,
-                            PaymentDate: new LocalDate(Date()),
-                            AgioAccountID: null,
-                            BankChargeAccountID: 0,
-                            AgioAmount: 0
-                        };
-
-                        return this.registerPaymentModal.confirm(rowModel.ID, title, rowModel.CurrencyCode, rowModel.CurrencyExchangeRate, 'CustomerInvoice', invoiceData).then(res => {
-                            if (res.status === ConfirmActions.ACCEPT) {
-                                this.customerInvoiceService.ActionWithBody(res.id, res.model, 'payInvoice').subscribe((journalEntry) => {
-                                    this.toastService.addToast('Faktura er betalt. Bilagsnummer: ' + journalEntry.JournalEntryNumber, ToastType.good, 5);
-                                    resolve();
-                                }, (err) => {
-                                    this.errorService.handle(err);
-                                    reject(err);
-                                });
-                            } else {
-                                resolve();
-                            }
-                        });
-                    }, err => {
-                        reject(err);
-                        this.errorService.handle(err);
-                    }
-                );
-            });
         }
+
+        return new Promise((resolve, reject) => {
+            // get invoice from API - the data from the ticker may only be partial
+            this.customerInvoiceService.Get(row.ID, ['CurrencyCode']).subscribe(invoice => {
+                let rowModel = invoice;
+                const title = `Register betaling, Faktura ${rowModel.InvoiceNumber || ''}, ${rowModel.CustomerName || ''}`;
+
+                const paymentData: InvoicePaymentData = {
+                    Amount: rowModel.RestAmount,
+                    AmountCurrency: rowModel.CurrencyCodeID === this.companySettings.BaseCurrencyCodeID
+                        ? rowModel.RestAmount
+                        : rowModel.RestAmountCurrency,
+                    BankChargeAmount: 0,
+                    CurrencyCodeID: rowModel.CurrencyCodeID,
+                    CurrencyExchangeRate: 0,
+                    PaymentDate: new LocalDate(new Date()),
+                    AgioAccountID: null,
+                    BankChargeAccountID: 0,
+                    AgioAmount: 0
+                };
+
+                const modal = this.modalService.open(UniRegisterPaymentModal, {
+                    data: paymentData,
+                    header: title,
+                    modalConfig: {
+                        currencyExchangeRate: rowModel.CurrencyExchangeRate,
+                        entityName: 'CustomerInvoice',
+                        currencyCode: rowModel.CurrencyCode
+                    }
+                });
+
+                modal.onClose.subscribe((payment) => {
+                    if (!payment) {
+                        resolve();
+                        return;
+                    }
+
+                    this.customerInvoiceService.ActionWithBody(rowModel.ID, payment, 'payInvoice').subscribe(
+                        res => {
+                            this.toastService.addToast(
+                                'Faktura er betalt. Bilagsnummer: ' + res.JournalEntryNumber,
+                                ToastType.good,
+                                5
+                            );
+                            resolve();
+                        },
+                        err => {
+                            this.errorService.handle(err);
+                            resolve();
+                        }
+                    );
+                });
+            });
+        });
     }
 
     private onCheckCreateCreditNoteDisabled(selectedRows: Array<any>): boolean {

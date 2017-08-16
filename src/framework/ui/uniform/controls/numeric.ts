@@ -210,6 +210,7 @@ export class UniNumericInput extends BaseControl {
         if (this.options.format === 'money') {
             this.options.decimalLength = 2;
         }
+        value = value.replace(this.options.decimalSeparator, '.');
         value = this.round(value, this.options.decimalLength).toString();
         value = this.addThousandSeparator(value + '', this.options.thousandSeparator, '.');
         value = value.replace('.', this.options.decimalSeparator);
@@ -224,15 +225,15 @@ export class UniNumericInput extends BaseControl {
             negative = true;
         }
         value = this.removeThousandSeparator(value, this.options.thousandSeparator);
-        let decimalSepartor = this.getDecimalSeparator(value);
+        let decimalSeparator = this.getDecimalSeparator(value);
         for(let i = 0; i < value.length; i++) {
             let integer = value[i] >= '0' && value[i] <= '9';
-            let hasDecimalSeparator = value[i] === decimalSepartor;
+            let hasDecimalSeparator = value[i] === decimalSeparator;
             if (integer || hasDecimalSeparator) {
                 result += value[i];
             }
         }
-        result = result.replace(decimalSepartor, '.');
+        // result = result.replace(decimalSeparator, '.');
         if (negative) {
             result = '-'.concat(result);
         }

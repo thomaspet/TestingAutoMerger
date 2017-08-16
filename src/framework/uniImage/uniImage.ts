@@ -16,7 +16,7 @@ import {AuthService} from '../core/authService';
 import {Observable} from 'rxjs/Observable';
 import {AppConfig} from '../../app/AppConfig';
 import {ErrorService} from '../../app/services/services';
-import {UniConfirmModal, ConfirmActions} from '../modals/confirm';
+import {UniModalService, ConfirmActions} from '../uniModal/barrel';
 
 export enum UniImageSize {
     small = 150,
@@ -86,14 +86,10 @@ export interface IUploadConfig {
                 </li>
             </ul>
         </article>
-        <uni-confirm-modal></uni-confirm-modal>
     `,
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class UniImage {
-    @ViewChild(UniConfirmModal)
-    private confirmModal: UniConfirmModal;
-
     @ViewChild('image')
     private image: ElementRef;
 
@@ -165,6 +161,7 @@ export class UniImage {
         private http: UniHttp,
         private errorService: ErrorService,
         private cdr: ChangeDetectorRef,
+        private modalService: UniModalService
         authService: AuthService,
     ) {
         // Subscribe to authentication/activeCompany changes
@@ -303,17 +300,22 @@ export class UniImage {
     }
 
     private deleteImage() {
-        this.confirmModal.confirm(
-                'Virkelig slette valgt fil?',
-                'Slette?')
-            .then(confirmDialogResponse => {
-                if (confirmDialogResponse === ConfirmActions.ACCEPT) {
-                    let oldFileID = this.files[this.currentFileIndex].ID;
-                    this.http.asDELETE()
-                        .usingBusinessDomain()
-                        .withEndPoint(`files/${oldFileID}`)
-                        .send()
-                        .subscribe((res) => {
+        this.modalService.confirm({
+            header: 'Bekreft sletting',
+            message: 'Vennligst bekreft sletting av fil',
+            buttonLabels: {
+                accept: 'Slett',
+                cancel: 'Avbryt'
+            }
+        }).onClose.subscribe(response => {
+            if (response === ConfirmActions.ACCEPT) {
+                let oldFileID = this.files[this.currentFileIndex].ID;
+                this.http.asDELETE()
+                    .usingBusinessDomain()
+                    .withEndPoint(`files/${oldFileID}`)
+                    .send()
+                    .subscribe(
+                        res => {
                             let current = this.files[this.currentFileIndex];
                             let fileIDsIndex = this.fileIDs.indexOf(current.ID);
 
@@ -326,9 +328,11 @@ export class UniImage {
                             if (!this.singleImage) { this.loadThumbnails(); }
 
                             this.imageDeleted.emit(current);
-                        }, err => this.errorService.handle(err));
-                    }
-            });
+                        },
+                        err => this.errorService.handle(err)
+                    );
+            }
+        });
     }
 
     public onImageClick() {

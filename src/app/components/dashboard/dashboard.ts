@@ -139,7 +139,7 @@ export class Dashboard {
                     description: 'Uleste eposter',
                     icon: 'letter',
                     link: '/accounting/bills?filter=Inbox',
-                    dataEndpoint: "/api/statistics?skip=0&model=FileTag&select=count(ID) as count&expand=File&filter=FileTag.Status eq 0 and FileTag.TagName eq 'IncomingMail'",
+                    dataEndpoint: "/api/statistics?skip=0&model=FileTag&select=count(ID) as count&expand=File&filter=FileTag.Status eq 0 and FileTag.TagName eq 'IncomingMail' and File.Deleted eq 0",
                     valueKey: 'Data[0].count',
                     amount: 0,
                     class: 'uni-widget-notification-orange'
@@ -153,10 +153,10 @@ export class Dashboard {
                 widgetType: 'counter', // TODO: enum
                 config: {
                     label: 'EHF',
-                    description: 'Innkommende ehfs',
+                    description: 'Innkommende EHF',
                     icon: 'ehf',
                     link: '/accounting/bills?filter=Inbox',
-                    dataEndpoint: "/api/statistics?skip=0&model=FileTag&select=count(ID) as count&expand=File&filter=FileTag.Status eq 0 and FileTag.TagName eq 'IncomingEHF'",
+                    dataEndpoint: "/api/statistics?skip=0&model=FileTag&select=count(ID) as count&expand=File&filter=FileTag.Status eq 0 and FileTag.TagName eq 'IncomingEHF' and File.Deleted eq 0",
                     valueKey: 'Data[0].count',
                     amount: 0,
                     class: 'uni-widget-notification-orange'

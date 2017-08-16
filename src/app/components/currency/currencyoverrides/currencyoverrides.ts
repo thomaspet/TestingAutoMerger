@@ -2,18 +2,19 @@ import {Component, ViewChild} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
 import {URLSearchParams} from '@angular/http';
 import {IToolbarConfig} from '../../common/toolbar/toolbar';
-import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig, INumberFormat} from '../../../../framework/ui/unitable/index';
+import {
+    UniTable,
+    UniTableColumn,
+    UniTableColumnType,
+    UniTableConfig,
+    INumberFormat
+} from '../../../../framework/ui/unitable/index';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {IUniSaveAction} from '../../../../framework/save/save';
 import {Observable} from 'rxjs/Observable';
 import {CurrencyCode} from '../../../unientities';
-import {UniConfirmModal, ConfirmActions} from '../../../../framework/modals/confirm';
-import {
-    CurrencyOverride,
-    LocalDate,
-    CurrencySourceEnum
-} from '../../../unientities';
-
+import {UniModalService} from '../../../../framework/uniModal/barrel';
+import {CurrencyOverride, LocalDate, CurrencySourceEnum} from '../../../unientities';
 import {
     NumberFormat,
     CurrencyOverridesService,
@@ -29,8 +30,8 @@ declare const _;
     templateUrl: './currencyoverrides.html'
 })
 export class CurrencyOverrides {
-    @ViewChild(UniTable) private table: UniTable;
-    @ViewChild(UniConfirmModal) private confirmModal: UniConfirmModal;
+    @ViewChild(UniTable)
+    private table: UniTable;
 
     private overridesTable: UniTableConfig;
     private saveActions: IUniSaveAction[] = [];
@@ -65,15 +66,10 @@ export class CurrencyOverrides {
         private tabService: TabService,
         private errorService: ErrorService,
         private currencyCodeService: CurrencyCodeService,
-        private numberFormat: NumberFormat
+        private numberFormat: NumberFormat,
+        private modalService: UniModalService
     ) {
-        this.tabService.addTab({
-            name: 'Valutaoverstyring',
-            url: '/currency/overrides',
-            moduleID: UniModules.Settings,
-            active: true
-        });
-
+        this.addTab();
         this.currencyCodeService.GetAll('').subscribe(data => {
             this.currencycodes = data;
             this.setupOverridesTable();
@@ -85,25 +81,29 @@ export class CurrencyOverrides {
         });
     }
 
-    public canDeactivate(): boolean|Promise<boolean> {
+    private addTab() {
+        this.tabService.addTab({
+            name: 'Valutaoverstyring',
+            url: '/currency/overrides',
+            moduleID: UniModules.Settings,
+            active: true
+        });
+    }
+
+    public canDeactivate(): boolean | Observable<boolean> {
         if (!this.isDirty) {
             return true;
         }
 
-        return new Promise<boolean>((resolve, reject) => {
-             this.confirmModal.confirm(
-                 'Du har endringer som ikke er lagret - disse vil forkastes hvis du fortsetter?',
-                 'Vennligst bekreft',
-                 false,
-                 {accept: 'Fortsett uten å lagre', reject: 'Avbryt'}
-             ).then((confirmDialogResponse) => {
-                if (confirmDialogResponse === ConfirmActions.ACCEPT) {
-                     resolve(true);
-                } else {
-                     resolve(false);
-                 }
-             });
-         });
+        return this.modalService.deprecated_openUnsavedChangesModal()
+            .onClose
+            .map(canDeactivate => {
+                if (!canDeactivate) {
+                    this.addTab();
+                }
+
+                return canDeactivate;
+            });
     }
 
     private rowChanged(event) {

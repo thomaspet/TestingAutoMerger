@@ -39,6 +39,14 @@
               [model]="customer$"
               (changeEvent)="onChange($event)">
     </uni-form>
+    <article class="collapsable" [ngClass]="{'-is-open': showSellerSection}" *ngIf="activeTab === 'details' && (customer$|async)?.ID">
+        <h4 (click)="showSellerSection = !showSellerSection">Selgere</h4>
+        <div class="collapsable-content">
+            <seller-links
+                [parent]="(customer$ | async)">
+            </seller-links>
+        </div>
+    </article>
     <article class="collapsable" [ngClass]="{'-is-open': showContactSection}" *ngIf="activeTab === 'details' && (customer$|async)?.ID">
         <h4 (click)="showContactSection = !showContactSection">Kontakter</h4>
         <div class="collapsable-content">

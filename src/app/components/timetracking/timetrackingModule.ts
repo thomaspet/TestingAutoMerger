@@ -14,6 +14,7 @@ import {TimeEntry} from './timeentry/timeentry';
 import {TimeTableReport} from './timeentry/timetable/timetable';
 import {RegtimeTotals} from './timeentry/totals/totals';
 import {RegtimeBalance} from './timeentry/balance/balance';
+import {AppPipesModule} from '../../pipes/appPipesModule';
 
 import {View} from './worker/relations';
 import {WorkerDetailview} from './worker/worker';
@@ -40,7 +41,8 @@ import {UniFileImport} from './components/popupfileimport';
         FormsModule,
         ReactiveFormsModule,
         HttpModule,
-
+        AppPipesModule,
+        
         RouterModule.forChild(timetrackingRoutes),
 
         UniFrameworkModule,

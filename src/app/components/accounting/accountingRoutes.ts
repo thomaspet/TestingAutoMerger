@@ -12,6 +12,8 @@ import {AccountDetailsReport} from './accountingreports/detailsmodal/accountDeta
 import {BillsView} from './bill/bills';
 import {BillView} from './bill/detail/bill';
 
+import {PostPost} from './postpost/postpost';
+
 import {routes as JournalEntryRoutes} from './journalentry/journalentryRoutes';
 import {routes as TransqueryRoutes} from './transquery/transqueryRoutes';
 import {routes as AccountintReportsRoutes} from './accountingreports/accountingreportsRoutes';
@@ -62,6 +64,10 @@ export const accountingRoutes: Routes = [
     {
         path: 'accountquery',
         component: AccountDetailsReport
+    },
+    {
+        path: 'postpost',
+        component: PostPost
     }
 ];
 

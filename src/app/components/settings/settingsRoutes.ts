@@ -9,6 +9,7 @@ import {AltinnSettings} from './altinnSettings/altinnSettings';
 import {WebHookSettings} from './webHookSettings/webHookSettings';
 import {Settings} from './settings';
 import {CanDeactivateGuard} from '../../canDeactivateGuard';
+import {UniTerms} from './terms/terms';
 
 export const settingsRoutes: Routes = [{
     path: '',
@@ -56,6 +57,11 @@ export const settingsRoutes: Routes = [{
         {
             path: 'numberseries',
             component: NumberSeries,
+            canDeactivate: [CanDeactivateGuard]
+        },
+        {
+            path: 'terms',
+            component: UniTerms,
             canDeactivate: [CanDeactivateGuard]
         }
     ]

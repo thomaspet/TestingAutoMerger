@@ -1,24 +1,29 @@
 ﻿import { Component, OnInit, ViewChild } from '@angular/core';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
-import { Observable } from 'rxjs/Observable';
-import 'rxjs/add/observable/forkJoin';
 import { IUniSaveAction } from '../../../../framework/save/save';
 import { FieldType, UniForm, UniFieldLayout } from '../../../../framework/ui/uniform/index';
 import { SubEntityList } from './subEntityList';
-import { UniConfirmModal, ConfirmActions } from '../../../../framework/modals/confirm';
-import {
-    CompanySalary, Account,
-    SubEntity, AGAZone, AGASector, CompanySalaryPaymentInterval 
-} from '../../../unientities';
-import { 
-    CompanySalaryService, AccountService, SubEntityService, 
-    AgaZoneService, ErrorService 
-} from '../../../services/services';
+import { UniModalService } from '../../../../framework/uniModal/barrel';
 import { GrantsModal } from './modals/grantsModal';
 import { FreeamountModal } from './modals/freeamountModal';
-declare var _;
+import { Observable } from 'rxjs/Observable';
 import {UniSearchAccountConfigGeneratorHelper} from '../../../services/common/uniSearchConfig/uniSearchAccountConfigGeneratorHelper';
-
+import {
+    CompanySalary,
+    Account,
+    SubEntity,
+    AGAZone,
+    AGASector,
+    CompanySalaryPaymentInterval
+} from '../../../unientities';
+import {
+    CompanySalaryService,
+    AccountService,
+    SubEntityService,
+    AgaZoneService,
+    ErrorService
+} from '../../../services/services';
+declare var _;
 
 @Component({
     selector: 'aga-and-subentities-settings',
@@ -30,7 +35,6 @@ export class AgaAndSubEntitySettings implements OnInit {
     @ViewChild(SubEntityList) public subEntityList: SubEntityList;
     @ViewChild(GrantsModal) public grantsModal: GrantsModal;
     @ViewChild(FreeamountModal) public freeamountModal: FreeamountModal;
-    @ViewChild(UniConfirmModal) private confirmModal: UniConfirmModal;
 
     public showSubEntities: boolean = true;
     public isDirty: boolean = false;
@@ -65,7 +69,8 @@ export class AgaAndSubEntitySettings implements OnInit {
         private subentityService: SubEntityService,
         private agazoneService: AgaZoneService,
         private errorService: ErrorService,
-        private uniSearchAccountConfig: UniSearchAccountConfigGeneratorHelper
+        private uniSearchAccountConfig: UniSearchAccountConfigGeneratorHelper,
+        private modalService: UniModalService
     ) {
         this.formConfig$.next({
             sections: {
@@ -78,25 +83,12 @@ export class AgaAndSubEntitySettings implements OnInit {
         this.getDataAndSetupForm();
     }
 
-    public canDeactivate(): boolean|Promise<boolean> {
+    public canDeactivate(): boolean | Observable<boolean> {
         if (!this.isDirty) {
            return true;
         }
 
-        return new Promise<boolean>((resolve, reject) => {
-            this.confirmModal.confirm(
-                'Du har endringer som ikke er lagret - disse vil forkastes hvis du fortsetter?',
-                'Vennligst bekreft',
-                false,
-                {accept: 'Fortsett uten å lagre', reject: 'Avbryt'}
-            ).then((confirmDialogResponse) => {
-               if (confirmDialogResponse === ConfirmActions.ACCEPT) {
-                    resolve(true);
-               } else {
-                    resolve(false);
-                }
-            });
-        });
+        return this.modalService.deprecated_openUnsavedChangesModal().onClose;
     }
 
     private getDataAndSetupForm() {
@@ -305,7 +297,7 @@ export class AgaAndSubEntitySettings implements OnInit {
         postTax.EntityType = 'CompanySalary';
         postTax.Property = 'PostToTaxDraw';
         postTax.FieldType = FieldType.CHECKBOX;
-        postTax.ReadOnly = false;        
+        postTax.ReadOnly = false;
         postTax.Hidden = false;
         postTax.Section = 2;
         postTax.FieldSet = 2;
@@ -322,7 +314,7 @@ export class AgaAndSubEntitySettings implements OnInit {
         remitRegularTraits.FieldType = FieldType.CHECKBOX;
         remitRegularTraits.Section = 2;
         remitRegularTraits.FieldSet = 2;
-        
+
 
         let paymentInterval = new UniFieldLayout();
         paymentInterval.EntityType = 'CompanySalary';
@@ -407,14 +399,18 @@ export class AgaAndSubEntitySettings implements OnInit {
 
             saveObs.push(mainOrgSave);
         }
-        Observable.forkJoin(saveObs).subscribe((response: any) => {
-            this.companySalary$.next(response[0]);
-            this.mainOrganization$.next(response[2]);
-            this.isDirty = false;
-            done('Sist lagret: ');
-        },
-            err => this.errorService.handle(err),
-            () => this.saveactions[0].disabled = false);
+        Observable.forkJoin(saveObs)
+            .finally( () => this.saveactions[0].disabled = false)
+            .subscribe((response: any) => {
+                this.companySalary$.next(response[0]);
+                this.mainOrganization$.next(response[2]);
+                this.isDirty = false;
+                done('Sist lagret: ');
+            },
+            err => {
+                this.errorService.handle(err);
+                done('');
+            })
     }
 
     public toggleShowSubEntities() {

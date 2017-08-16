@@ -1,29 +1,34 @@
 import {Component, ViewChild, ChangeDetectorRef} from '@angular/core';
 import {Observable} from 'rxjs/Observable';
-
 import {UniSelect, ISelectConfig} from '../../../../framework/ui/uniform/index';
-
-import {UmhService, IUmhAction, IUmhObjective, IUmhSubscription, IUmhSubscriber, SubscriptionState} from '../../../services/common/UmhService';
 import {AuthService} from '../../../../framework/core/authService';
-import {UniConfirmModal, ConfirmActions} from '../../../../framework/modals/confirm';
+import {UniModalService} from '../../../../framework/uniModal/barrel';
 import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
 import {CompanyService, ErrorService} from '../../../services/services';
 import {Company} from '../../../unientities';
 import {IUniSaveAction} from '../../../../framework/save/save';
+import {
+    UmhService,
+    IUmhAction,
+    IUmhObjective,
+    IUmhSubscription,
+    IUmhSubscriber,
+    SubscriptionState
+} from '../../../services/common/UmhService';
 
 @Component({
     selector: 'webhook-settings',
     templateUrl: './webHookSettings.html',
 })
 export class WebHookSettings {
-    @ViewChild(UniConfirmModal) private confirmModal: UniConfirmModal;
-    @ViewChild(UniSelect) private select: UniSelect;
+    @ViewChild(UniSelect)
+    private select: UniSelect;
 
     private noFilter: string = 'ffffffff-ffff-ffff-ffff-ffffffffffff';
-    
+
     private actionSelectConfig: ISelectConfig;
     private objectiveSelectConfig: ISelectConfig;
-    
+
     private objectives: Array<IUmhObjective> = [];
     private actions: Array<IUmhAction> = [];
 
@@ -50,17 +55,17 @@ export class WebHookSettings {
         private authService: AuthService,
         private cdr: ChangeDetectorRef,
         private toastService: ToastService,
-        private errorService: ErrorService
-        ) {
-    }
+        private errorService: ErrorService,
+        private modalService: UniModalService
+    ) {}
 
     public ngOnInit() {
-        console.log('---> ngOnInit');
         this.objectiveSelectConfig = {
             displayProperty: 'Name',
             placeholder: 'Velg objektiv',
             searchable: true
         };
+
         this.actionSelectConfig = {
             displayProperty: 'Name',
             placeholder: 'Velg handling',
@@ -68,7 +73,7 @@ export class WebHookSettings {
         };
 
         this.umhSerivce.isPermitted(true).subscribe(
-            isPermitted => { 
+            isPermitted => {
                 this.isPermitted = isPermitted;
 
                 if (isPermitted) {
@@ -92,7 +97,7 @@ export class WebHookSettings {
                 }
             },
             err => this.errorService.handle(err)
-        )
+        );
     }
 
     public ngAfterViewInit() {
@@ -114,25 +119,12 @@ export class WebHookSettings {
         );
     }
 
-    public canDeactivate(): boolean|Promise<boolean> {
+    public canDeactivate(): boolean | Observable<boolean> {
         if (this.saveactions[0].disabled) {
            return true;
         }
 
-        return new Promise<boolean>((resolve, reject) => {
-            this.confirmModal.confirm(
-                'Du har endringer som ikke er lagret - disse vil forkastes hvis du fortsetter?',
-                'Vennligst bekreft',
-                false,
-                {accept: 'Fortsett uten å lagre', reject: 'Avbryt'}
-            ).then((confirmDialogResponse) => {
-               if (confirmDialogResponse === ConfirmActions.ACCEPT) {
-                    resolve(true);
-               } else {
-                    resolve(false);
-                }
-            });
-        });
+        return this.modalService.deprecated_openUnsavedChangesModal().onClose;
     }
 
     private initActions(data: any) {
@@ -147,7 +139,6 @@ export class WebHookSettings {
             actions.push(data[i]);
         }
         this.actions = actions;
-        console.log(JSON.stringify(this.actions));
     }
 
     private initObjectives(data: any) {
@@ -162,7 +153,6 @@ export class WebHookSettings {
             objectives.push(data[i]);
         }
         this.objectives = objectives;
-        console.log(JSON.stringify(this.objectives));
     }
 
     private initSubscription() {
@@ -186,7 +176,7 @@ export class WebHookSettings {
                     const length = subscriptions.length;
 
                     for (var i = 0; i < length; ++i) {
-                        subscriptions[i].State = SubscriptionState.Unchanged;    
+                        subscriptions[i].State = SubscriptionState.Unchanged;
                     }
                     this.subscriptions = subscriptions;
                     this.isBusy = false;
@@ -215,11 +205,11 @@ export class WebHookSettings {
     }
 
     private urlChange(event) {
-        
+
     }
 
     private descriptionChange(event) {
-        
+
     }
 
     private onObjectiveSelectForNewSubscription(event: IUmhObjective) {
@@ -244,7 +234,7 @@ export class WebHookSettings {
          } else {
             subscription.ObjectiveId = this.noFilter;
         }
-        
+
         this.updateSubscription(subscription);
     }
 
@@ -261,7 +251,7 @@ export class WebHookSettings {
 
     private onToggle(subscription: IUmhSubscription) {
         subscription.Enabled = !subscription.Enabled;
-        this.updateSubscription(subscription);        
+        this.updateSubscription(subscription);
     }
 
     private onDeleteSubscription(subscription: IUmhSubscription) {

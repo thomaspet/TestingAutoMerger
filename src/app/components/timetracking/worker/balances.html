@@ -9,19 +9,17 @@
                 </select>
                 &nbsp;
                 <button class="good" (click)="addNew()">Ny saldo</button>
-            </header>               
+            </header>
         </td>
         <td>
         </td>
-        <td>            
+        <td>
             <button *ngIf="hasUnsavedChanges()" class="good" (click)="onSaveClicked()">Lagre endringer</button>
-            <button *ngIf="hasUnsavedChanges()" class="bad" (click)="reset()">Avbryt</button>            
+            <button *ngIf="hasUnsavedChanges()" class="bad" (click)="reset()">Avbryt</button>
         </td>
-    </tr></table>    
+    </tr></table>
 
     <uni-table [attr.aria-busy]="busy" [resource]="list" [config]="tableConfig" (rowDeleted)="onDeleteRow($event)" ></uni-table>
 
 </section>
-
-<uni-confirm-modal></uni-confirm-modal>
 

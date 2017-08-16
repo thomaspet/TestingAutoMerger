@@ -1,10 +1,9 @@
 import {Component, Input, OnInit, ViewChild} from '@angular/core';
-import {UniTable, UniTableColumn, UniTableConfig, UniTableColumnType, IContextMenuItem} from '../../../../../framework/ui/unitable/index';
 import {ToastService, ToastType} from '../../../../../framework/uniToast/toastService';
 import {IToolbarConfig} from './../../../common/toolbar/toolbar';
 import {IUniSaveAction} from '../../../../../framework/save/save';
 import {ISummaryConfig} from '../../../common/summary/summary';
-import {UniConfirmModal, ConfirmActions} from '../../../../../framework/modals/confirm';
+import {UniModalService, ConfirmActions} from '../../../../../framework/uniModal/barrel';
 import {
     NumberFormat,
     CustomerInvoiceService,
@@ -12,6 +11,13 @@ import {
     ErrorService,
     CustomerInvoiceReminderService
 } from '../../../../services/services';
+import {
+    UniTable,
+    UniTableColumn,
+    UniTableConfig,
+    UniTableColumnType,
+    IContextMenuItem
+} from '../../../../../framework/ui/unitable/index';
 
 declare const _;
 
@@ -21,9 +27,11 @@ declare const _;
 })
 
 export class DebtCollection implements OnInit {
-    @Input() public config: any;
-    @ViewChild(UniTable) private table: UniTable;
-    @ViewChild(UniConfirmModal) private confirmModal: UniConfirmModal;
+    @Input()
+    public config: any;
+
+    @ViewChild(UniTable)
+    private table: UniTable;
 
     private remindersToDebtCollect: any;
 
@@ -57,9 +65,9 @@ export class DebtCollection implements OnInit {
         private statisticsService: StatisticsService,
         private customerInvoiceReminderService: CustomerInvoiceReminderService,
         private customerInvoiceService: CustomerInvoiceService,
-        private numberFormatService: NumberFormat
-    ) {
-    }
+        private numberFormatService: NumberFormat,
+        private modalService: UniModalService
+    ) {}
 
     public ngOnInit() {
         this.setupRemindersToDebtCollectTable();
@@ -110,32 +118,37 @@ export class DebtCollection implements OnInit {
             return;
         }
 
-        this.confirmModal.confirm(
-            'Vil du sende merkede fakturaer til inkasso ?',
-            'Til inkasso?',
-            false,
-            { accept: 'Ja', reject: 'Avbryt' }
-        )
-            .then((response: ConfirmActions) => {
-                if (response === ConfirmActions.ACCEPT) {
-                    let selectedToDebtCollect = this.table.getSelectedRows().map(x => x.CustomerInvoiceID);
-                    this.customerInvoiceReminderService.sendToDebtCollection(selectedToDebtCollect).subscribe(s => {
-                        this.toastService.addToast('Inkasso', ToastType.good, 5, 'Merkede fakturaer ble sendt til inkasso!');
-                        this.setupRemindersToDebtCollectTable();
-                        donehandler('Merkede fakturaer ble sendt til inkasso!');
-                    }, err => {
-                        this.errorService.handle(err);
-                        donehandler('En feil oppstod ved sending av fakturaer til inkasso!');
-                    });
-                }
-            });
+        this.modalService.confirm({
+            header: 'Til inkasso',
+            message: 'Vennligst bekreft sending av markerte fakturaer til inkasso',
+            buttonLabels: {
+                accept: 'Send',
+                cancel: 'Avbryt'
+            }
+        }).onClose.subscribe(response => {
+            if (response === ConfirmActions.ACCEPT) {
+                let selectedToDebtCollect = this.table.getSelectedRows().map(x => x.CustomerInvoiceID);
+                this.customerInvoiceReminderService.sendToDebtCollection(selectedToDebtCollect).subscribe(s => {
+                    this.toastService.addToast('Inkasso', ToastType.good, 5, 'Merkede fakturaer ble sendt til inkasso');
+                    this.setupRemindersToDebtCollectTable();
+                    donehandler('Merkede fakturaer sendt til inkasso');
+                }, err => {
+                    this.errorService.handle(err);
+                    donehandler('En feil oppsto ved sending til inkasso');
+                });
+            }
+        });
     }
 
     private setSums() {
-        this.summaryFields = [{
-            value: this.summaryData ? this.numberFormatService.asMoney(this.summaryData.restSumReadyForDebtCollection) : null,
-            title: 'Totalt restsum til inkasso',
-        }, {
+        this.summaryFields = [
+            {
+                value: this.summaryData
+                    ? this.numberFormatService.asMoney(this.summaryData.restSumReadyForDebtCollection)
+                    : null,
+                title: 'Totalt restsum til inkasso',
+            },
+            {
                 value: this.summaryData ? this.numberFormatService.asMoney(this.summaryData.restSumChecked) : null,
                 title: 'Totalt restsum valgt',
             }
@@ -233,7 +246,7 @@ export class DebtCollection implements OnInit {
             .setAutoAddNewRow(false)
             .setMultiRowSelect(true)
             .setDeleteButton(false)
-            .setColumns([reminderNumberCol, invoiceNumberCol, customerNumberCol, customerNameCol, currencyCodeCol, 
+            .setColumns([reminderNumberCol, invoiceNumberCol, customerNumberCol, customerNameCol, currencyCodeCol,
                 taxInclusiveAmountCurrencyCol, restAmountCurrencyCol, invoiceDateCol, invoiceDueDateCol, reminderStoppCol])
             .setContextMenu(contextMenuItems);
     }

@@ -11,7 +11,7 @@ import { IUniSaveAction } from '../../../../framework/save/save';
 import { IToolbarConfig } from '../../common/toolbar/toolbar';
 
 import { UniView } from '../../../../framework/core/uniView';
-import { UniConfirmModal, ConfirmActions } from '../../../../framework/modals/confirm';
+import { UniModalService, ConfirmActions } from '../../../../framework/uniModal/barrel';
 
 import { Observable } from 'rxjs/Observable';
 
@@ -21,7 +21,6 @@ import { Observable } from 'rxjs/Observable';
     templateUrl: './wageTypeView.html'
 })
 export class WageTypeView extends UniView {
-
     public busy: boolean;
     private url: string = '/salary/wagetypes/';
 
@@ -31,7 +30,6 @@ export class WageTypeView extends UniView {
     private toolbarConfig: IToolbarConfig;
 
     private childRoutes: any[];
-    @ViewChild(UniConfirmModal) public confirmModal: UniConfirmModal;
 
     constructor(
         private route: ActivatedRoute,
@@ -41,7 +39,8 @@ export class WageTypeView extends UniView {
         private tabService: TabService,
         public cacheService: UniCacheService,
         private errorService: ErrorService,
-        private yearService: YearService
+        private yearService: YearService,
+        private modalService: UniModalService
     ) {
 
         super(router.url, cacheService);
@@ -68,11 +67,11 @@ export class WageTypeView extends UniView {
                 this.toolbarConfig = {
                     title: this.wageType.ID ? this.wageType.WageTypeName : 'Ny lønnsart',
                     subheads: [{
-                        title: this.wageType.ID 
-                        ? 'Lønnsartnr. ' 
-                            + this.wageType.WageTypeNumber 
+                        title: this.wageType.ID
+                            ? 'Lønnsartnr. '
+                            + this.wageType.WageTypeNumber
                             + (this.wageType.ValidYear ? ` - ${this.wageType.ValidYear}` : '')
-                        : ''
+                            : ''
                     }],
                     navigation: {
                         prev: this.previousWagetype.bind(this),
@@ -107,21 +106,20 @@ export class WageTypeView extends UniView {
     public canDeactivate(): Observable<boolean> {
         return Observable
             .of(!super.isDirty())
-            .switchMap(result => {
-                return result
-                    ? Observable.of(result)
-                    : Observable
-                        .fromPromise(
-                        this.confirmModal.confirmSave())
-                        .map((response: ConfirmActions) => {
-                            if (response === ConfirmActions.ACCEPT) {
+            .switchMap(isSaved =>
+                isSaved
+                    ? Observable.of(true)
+                    : this.modalService
+                        .openUnsavedChangesModal()
+                        .onClose
+                        .map((action: ConfirmActions) => {
+                            if (action === ConfirmActions.ACCEPT) {
                                 this.saveWageType((m) => { }, false);
                                 return true;
                             } else {
-                                return response === ConfirmActions.REJECT;
+                                return action === ConfirmActions.REJECT;
                             }
-                        });
-            })
+                        }))
             .map(canDeactivate => {
                 canDeactivate
                     ? this.cacheService.clearPageCache(this.cacheKey)

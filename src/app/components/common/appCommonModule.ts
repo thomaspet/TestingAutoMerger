@@ -8,10 +8,8 @@ import {ExternalSearch} from './externalSearch/externalSearch';
 import {ProductDetails} from './product/details/productDetails';
 import {ProductList} from './product/list/productList';
 import {AltinnAuthenticationDataModalContent} from './modals/AltinnAuthenticationDataModal';
-import {RegisterPaymentForm} from './modals/registerPaymentModal';
 import {UniFrameworkModule} from '../../../framework/frameworkModule';
 import {AltinnAuthenticationDataModal} from './modals/AltinnAuthenticationDataModal';
-import {RegisterPaymentModal} from './modals/registerPaymentModal';
 import {UniBreadcrumbs} from './toolbar/breadcrumbs';
 import {UniStatusTrack} from './toolbar/statustrack';
 import {UniTags} from './toolbar/tags';
@@ -44,11 +42,14 @@ import {SupplierDetailsModal} from './supplier/details/supplierDetailModal';
 import {SupplierDetails} from './supplier/details/supplierDetails';
 import {SupplierList} from './supplier/list/supplierList';
 import {Editable} from './utils/editable/editable';
-import {IsoTimePipe} from './utils/pipes';
+import {IsoTimePipe, HoursPipe} from './utils/pipes';
 import {MinutesToHoursPipe} from './utils/pipes';
 import {WorkTypeSystemTypePipe} from './utils/pipes';
 import {PredefinedDescriptionList} from './predefinedDescriptions/predefinedDescriptionList';
 import {LinkMenu} from './linkMenu/linkMenu';
+import {SellerList} from './seller/sellerList';
+import {SellerLinks} from './seller/sellerLinks';
+import {SellerDetails} from './seller/sellerDetails';
 
 import {routes as AppCommonRoutes} from './appCommonRoutes';
 
@@ -77,8 +78,6 @@ import {routes as AppCommonRoutes} from './appCommonRoutes';
         AccrualModal,
         AltinnAuthenticationDataModalContent,
         AltinnAuthenticationDataModal,
-        RegisterPaymentForm,
-        RegisterPaymentModal,
         UniBreadcrumbs,
         UniStatusTrack.StatusTrack,
         UniToolbar,
@@ -121,14 +120,18 @@ import {routes as AppCommonRoutes} from './appCommonRoutes';
 
         Editable,
         IsoTimePipe,
+        HoursPipe,
         MinutesToHoursPipe,
         WorkTypeSystemTypePipe,
 
         LinkMenu,
+
+        SellerList,
+        SellerLinks,
+        SellerDetails
     ],
     entryComponents: [
         AccrualForm,
-        RegisterPaymentForm,
         AltinnAuthenticationDataModalContent,
         SendEmailForm,
         SendEmailModal,
@@ -155,8 +158,6 @@ import {routes as AppCommonRoutes} from './appCommonRoutes';
         AccrualModal,
         AltinnAuthenticationDataModalContent,
         AltinnAuthenticationDataModal,
-        RegisterPaymentForm,
-        RegisterPaymentModal,
         UniBreadcrumbs,
         UniStatusTrack.StatusTrack,
         UniToolbar,
@@ -198,9 +199,14 @@ import {routes as AppCommonRoutes} from './appCommonRoutes';
         Editable,
         IsoTimePipe,
         MinutesToHoursPipe,
+        HoursPipe,
         WorkTypeSystemTypePipe,
 
         LinkMenu,
+
+        SellerList,
+        SellerLinks,
+        SellerDetails
     ]
 })
 export class AppCommonModule {

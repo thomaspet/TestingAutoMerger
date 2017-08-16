@@ -30,6 +30,7 @@ export enum UniModules {
     Contacts        = 207,
     ProductGroup    = 208,
     Projects        = 209,
+    Sellers         = 210,
 
     Accounting      = 300,
     Transquery      = 301,
@@ -43,6 +44,7 @@ export enum UniModules {
     Suppliers       = 308,
     AccountQuery    = 309,
     PredefinedDescription = 310,
+    PostPost        = 311,
 
     Bank            = 450,
     Payment         = 451,

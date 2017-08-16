@@ -1,16 +1,28 @@
-<uni-toolbar [config]="toolbarconfig" [contextmenu]="contextMenuItems" [saveactions]="saveActions" [statustrack]="getStatustrackConfig()" [tags]="categoryFilter" [tagConfig]="tagConfig" (tagsChange)="filterChange($event)">
+<uni-toolbar
+    [config]="toolbarconfig"
+    [contextmenu]="contextMenuItems"
+    [saveactions]="saveActions"
+    [statustrack]="getStatustrackConfig()"
+    [tags]="categoryFilter"
+    [tagConfig]="tagConfig"
+    (tagsChange)="filterChange($event)">
 </uni-toolbar>
 
-<payroll-run-poster [payrollRun]="posterPayrollRun$ | async" [employees]="posterEmps$ | async" (payStatus)="setPaymentStatus($event)"></payroll-run-poster>
+<payroll-run-poster
+    [payrollRun]="posterPayrollRun$ | async"
+    [employees]="posterEmps$ | async"
+    (payStatus)="setPaymentStatus($event)">
+</payroll-run-poster>
 
 <section class="entityDetails" [attr.aria-expanded]="detailsActive" *ngIf="payrollrun$.getValue()">
-    <uni-form [config]="config$" [fields]="fields$" [model]="payrollrun$" (changeEvent)="change($event)" (readyEvent)="ready($event)"></uni-form>
+    <uni-form [config]="config$" [fields]="fields$" [model]="payrollrun$" (changeEvent)="change($event)"></uni-form>
 </section>
+
 <section class="content" [attr.aria-disabled]="detailsActive" [attr.aria-busy]="busy">
     <salarytrans></salarytrans>
 </section>
+
 <report-preview-modal></report-preview-modal>
-<uni-confirm-modal></uni-confirm-modal>
 <control-modal (updatePayrollRun)="this.getPayrollRun()"></control-modal>
 <postingsummary-modal (updatePayrollRun)="this.getPayrollRun()"></postingsummary-modal>
 <vacationpay-modal (updatePayrollRun)="this.getSalaryTransactions()" (recalc)="this.updateTranses()"></vacationpay-modal>

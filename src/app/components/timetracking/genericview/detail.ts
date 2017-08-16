@@ -8,8 +8,8 @@ import {ToastService, ToastType} from '../../../../framework/uniToast/toastServi
 import {IViewConfig} from './list';
 import {getDeepValue, trimLength} from '../../common/utils/utils';
 import {ErrorService} from '../../../services/services';
-import {UniConfirmModal, ConfirmActions} from '../../../../framework/modals/confirm';
-import { BehaviorSubject } from 'rxjs/BehaviorSubject';
+import {UniModalService, ConfirmActions} from '../../../../framework/uniModal/barrel';
+import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 
 enum IAction {
     Save = 0,
@@ -52,7 +52,6 @@ export class GenericDetailview {
     @Output() public itemChanged: EventEmitter<any> = new EventEmitter();
     @Output() public afterSave: EventEmitter<IAfterSaveInfo> = new EventEmitter<IAfterSaveInfo>();
     @ViewChild(UniForm) public form: UniForm;
-    @ViewChild(UniConfirmModal) private confirmModal: UniConfirmModal;
 
     public busy: boolean = true;
     public isDirty: boolean = false;
@@ -75,7 +74,8 @@ export class GenericDetailview {
         private tabService: TabService,
         private toastService: ToastService,
         private router: Router,
-        private errorService: ErrorService
+        private errorService: ErrorService,
+        private modalService: UniModalService
     ) {
         this.route.params.subscribe(params => this.ID = +params['id']);
     }
@@ -174,25 +174,34 @@ export class GenericDetailview {
 
     private checkSave(): Promise<boolean> {
         return new Promise((resolve, reject) => {
-            if (this.isDirty) {
-                this.confirmModal.confirm(labels.ask_save, labels.ask_save_title, true).then( (x: ConfirmActions) => {
-                    switch (x) {
-                        case ConfirmActions.ACCEPT:
-                            this.save(undefined).then(success => {
-                                resolve(true);
-                            }).catch( () =>
-                                resolve(false) );
-                            break;
-                        case ConfirmActions.REJECT:
-                            resolve(true);
-                            break;
-                        default: // CANCEL
-                            resolve(false);
-                    }
-                });
-            } else {
+            if (!this.isDirty) {
                 resolve(true);
+                return;
             }
+
+            this.modalService.confirm({
+                header: labels.ask_save_title,
+                message: labels.ask_save,
+                buttonLabels: {
+                    accept: 'Lagre',
+                    reject: 'Forkast',
+                    cancel: 'Avbryt'
+                }
+            }).onClose.subscribe(response => {
+                switch (response) {
+                    case ConfirmActions.ACCEPT:
+                        this.save(undefined)
+                            .then(success => resolve(true))
+                            .catch(() => resolve(false));
+                    break;
+                    case ConfirmActions.REJECT:
+                        resolve(true); // discard changes
+                    break;
+                    default:
+                        resolve(false);
+                    break;
+                }
+            });
         });
     }
 
@@ -309,24 +318,49 @@ export class GenericDetailview {
     }
 
     private delete(done?) {
-        if (this.ID) {
-            this.confirmModal.confirm(
-                (this.viewconfig.labels.ask_delete || labels.ask_delete),
-                labels.ask_delete_title).then((dlgResult: ConfirmActions) => {
-                if (dlgResult !== ConfirmActions.ACCEPT) { if (done) { done(); } return; }
-                this.workerService.deleteByID(this.ID, this.viewconfig.data.route)
-                .finally(() => this.busy = false)
-                .subscribe((result) => {
-                    if (done) { done(labels.deleted_ok); }
-                    this.onCreateNew();
-                    this.postDeleteAction();
-                }, (err) => {
-                    this.toastService.addToast(labels.err_delete, ToastType.warn, 6, this.errorService.extractMessage(err) || err.statusText );
-                    if (done) { done(labels.err_delete); }
-                });
-            } );
-
+        if (!this.ID) {
+            return;
         }
+
+        this.modalService.confirm({
+            header: labels.ask_delete_title,
+            message: labels.ask_delete,
+            buttonLabels: {
+                accept: 'Slett',
+                cancel: 'Avbryt'
+            }
+        }).onClose.subscribe(response => {
+            if (response === ConfirmActions.ACCEPT) {
+                this.busy = true;
+                this.workerService.deleteByID(this.ID, this.viewconfig.data.route)
+                    .finally(() => this.busy = false)
+                    .subscribe(
+                        res => {
+                            if (done) {
+                                done(labels.deleted_ok);
+                            }
+
+                            this.onCreateNew();
+                            this.postDeleteAction();
+                        },
+                        err => {
+                            this.errorService.handle(err);
+                            this.toastService.addToast(
+                                labels.err_delete,
+                                ToastType.warn,
+                                6,
+                                this.errorService.extractMessage(err) || err.statusText
+                            );
+
+                            if (done) {
+                                done(labels.err_delete);
+                            }
+                        }
+                    );
+            } else if (done) {
+                done();
+            }
+        });
     }
 
     private postDeleteAction() {

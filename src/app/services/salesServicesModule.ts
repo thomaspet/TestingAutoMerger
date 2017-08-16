@@ -12,6 +12,8 @@ import {PhoneService} from './sales/phoneService';
 import {CustomerInvoiceReminderService} from './sales/customerInvoiceReminderService';
 import {CustomerInvoiceReminderSettingsService} from './sales/customerInvoiceReminderSettingsService';
 import {CustomerInvoiceReminderRuleService} from './sales/customerInvoiceReminderRuleService';
+import {SellerService} from './sales/sellerService';
+import {SellerLinkService} from './sales/sellerLinkService';
 
 export * from './sales/addressService';
 export * from './sales/businessRelationService';
@@ -26,6 +28,8 @@ export * from './sales/phoneService';
 export * from './sales/customerInvoiceReminderService';
 export * from './sales/customerInvoiceReminderSettingsService';
 export * from './sales/customerInvoiceReminderRuleService';
+export * from './sales/sellerService';
+export * from './sales/sellerLinkService';
 
 @NgModule({
     // providers: [
@@ -61,7 +65,9 @@ export class SalesServicesModule {
                 PhoneService,
                 CustomerInvoiceReminderService,
                 CustomerInvoiceReminderSettingsService,
-                CustomerInvoiceReminderRuleService
+                CustomerInvoiceReminderRuleService,
+                SellerService,
+                SellerLinkService
             ]
         };
     }

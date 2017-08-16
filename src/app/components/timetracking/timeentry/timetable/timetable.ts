@@ -1,7 +1,7 @@
 import {Component, ViewChild, Input} from '@angular/core';
 import {TimeSheet, TimesheetService} from '../../../../services/timetracking/timesheetService';
-import {WorkerService, IFilter} from '../../../../services/timetracking/workerService';
-import {safeInt} from '../../../common/utils/utils';
+import {WorkerService, ItemInterval, IFilter} from '../../../../services/timetracking/workerService';
+import {toIso} from '../../../common/utils/utils';
 import {ErrorService} from '../../../../services/services';
 import {UniTimeModal} from '../../components/popupeditor';
 import {IPreSaveConfig} from '../timeentry';
@@ -21,27 +21,28 @@ export class TimeTableReport {
         sumWork: number,
         sumTotal: number
     };
+    public report: IReport;
     public filters: Array<IFilter>;
     public currentFilter: IFilter;
     public busy: boolean = true;
-
-    public sumColumns: any = [
-        { types: [10, 11], name: 'Timeoff', label: 'Fri', sum: 0 },
-        { types: [13], name: 'Vacation', label: 'Ferie', sum: 0 },
-        { types: [20], name: 'Sickleave', label: 'Sykdom', sum: 0 }
-    ];
 
     constructor(
         private workerService: WorkerService,
         private timesheetService: TimesheetService,
         private errorService: ErrorService
     ) {
-        this.filters = workerService.getIntervalItems();
+        this.filters = [
+            { name: 'month', label: 'Denne måned', interval: ItemInterval.thisMonth},
+            { name: 'months', label: 'Siste 2 måneder', interval: ItemInterval.lastTwoMonths},
+            { name: 'months2', label: 'Siste 3 måneder', interval: ItemInterval.lastThreeMonths},
+            { name: 'year', label: 'Dette år', interval: ItemInterval.thisYear}
+        ];
+
     }
 
     public activate(ts: TimeSheet, filter?: IFilter) {
         if (!this.timesheet) {
-            this.currentFilter = this.filters[3];
+            this.currentFilter = this.filters[0];
         }
         this.timesheet = ts;
         this.onFilterClick( this.currentFilter );
@@ -78,133 +79,156 @@ export class TimeTableReport {
             }
         });
         this.currentFilter = f;
-        this.queryTotals();
+        this.queryTimesheetReport();
     }
 
-
-    private showData(items) {
-        var compactedList = this.filterItems(items);
-        var sums = this.sumItems(items);
-        this.config = {
-            title: ( compactedList && compactedList.length > 0 ) ? compactedList[0].Name : '',
-            items: sums.report,
-            sumWork: sums.sumWork,
-            sumTotal: sums.sumTotal
-        };
-    }
-
-    private filterItems(items) {
-        for (var i = items.length - 1; i >= 0; i--) {
-            this.filterItem(items, i);
-        }
-        return items;
-    }
-
-    private filterItem(items, index: number) {
-        var item = items[index];
-        var systemType = safeInt(item.WorkTypeSystemType);
-        var isHours = (systemType < 10 || systemType === 12);
-        item.OffTime = item.OffTime || 0;
-        if (!isHours) {
-            let canMerge = index > 0 && item.WorkItemDate === items[index - 1].WorkItemDate;
-            if (canMerge) {
-                this.mergeItem(item, items[index - 1]);
-                items.splice(index, 1);
-            } else {
-                this.mergeItem(item);
-            }
-        }
-    }
-
-    private mergeItem(item: any, target: any = undefined) {
-        if (target) {
-            this.createMergeSumsOnItem(item, target);
-            if ( target.maxendtime < item.maxendtime ) {
-                target.maxendtime = item.maxendtime;
-            }
-            if ( target.minstarttime > item.minstarttime ) {
-                target.minstarttime = item.minstarttime;
-            }
-        } else {
-            this.createMergeSumsOnItem(item, item);
-            item.summinutes = 0;
-            item.sumlunchinminutes = 0;
-        }
-    }
-
-    private createMergeSumsOnItem(item: any, target: any) {
-        var sysType = safeInt( item.WorkTypeSystemType );
-        var minutes = safeInt( item.summinutes );
-        this.sumColumns.forEach((sum) => {
-            if (sum.types.indexOf(sysType) >= 0) {
-                target[sum.name] = safeInt( (target[sum.name] || 0) ) + minutes;
-            }
-        });
-    }
-
-    private sumItems(items: Array<any>): { sumWork: number, sumTotal: number, report: Array<any> } {
-        var prevWeek = 0;
-        var totals = { sumWork: 0, sumTotal: 0, report: [] };
-        this.sumColumns.forEach((col) => { col.sum = 0; });
-
-        var week: { weekNumber: number, label: string, total: number, summinutes: number };
-
-        for (var i = 0; i < items.length; i++) {
-            let element = items[i];
-            let itemSum = safeInt(element.summinutes || 0);
-            let weekNumber = moment(element.WorkItemDate).isoWeek();
-            if ( (i === 0) || weekNumber !== prevWeek) {
-                if (week) {
-                    totals.report.push(week);
-                }
-                week = { weekNumber: weekNumber, label: 'Uke ' + weekNumber, total: 0, summinutes: 0 };
-            }
-            totals.sumWork += itemSum;
-            week.summinutes += itemSum;
-            element.total = itemSum;
-            this.sumColumns.forEach((col) => {
-                if (element[col.name]) {
-                    col.sum += safeInt(element[col.name]);
-                    element.total += safeInt(element[col.name]);
-                    week[col.name] = ( week[col.name] || 0 ) + safeInt(element[col.name]);
-                }
-            });
-            totals.sumTotal += element.total;
-            week.total += element.total;
-            prevWeek = weekNumber;
-            totals.report.push(element);
-        }
-        if (week) {
-            totals.report.push(week);
-        }
-        return totals;
-    }
-
-    private queryTotals() {
+    private queryTimesheetReport() {
         this.busy = true;
-        var query = 'model=workitem';
-        var filter = this.workerService.getIntervalFilter(this.currentFilter.interval);
-        query += this.createArg('select', 'WorkRelation.WorkerId,BusinessRelation.Name,WorkRelation.Description'
-            + ',Date,WorkType.SystemType,min(starttime),max(endtime),sum(minutes),sum(lunchinminutes)');
-        query += this.createArg('filter', 'workrelationid eq ' + this.timesheet.currentRelation.ID
-            + ' and ( not setornull(deleted) )' + (filter ? ' and ( ' +  filter + ' )' : ''));
-        query += this.createArg('join', 'workitem.worktypeid eq worktype.id and workitem.workrelationid'
-            + ' eq workrelation.id and workrelation.workerid eq worker.id'
-            + ' and worker.businessrelationid eq businessrelation.id');
-        query += this.createArg('orderby', 'date');
-        this.workerService.getStatistics(query).subscribe((result) => {
-            this.busy = false;
-            if (result) {
-                if (result.Success) {
-                    this.showData(result.Data);
-                } else {
-                    this.showData([{'label': result.Message}]);
-                }
-            }
-        }, err => this.errorService.handle(err));
+        var dt = toIso(moment(this.workerService.getIntervalDate(this.currentFilter.interval))
+            .startOf('week').toDate());
+        this.workerService.get(`workrelations/${this.timesheet.currentRelation.ID}?action=timesheet&fromdate=${dt}`)
+            .subscribe( result => {
+                this.report = this.groupIntoWeeks(<IReport>result);
+                this.busy = false;
+            }, err => this.errorService.handle(err));    
     }
 
-    private createArg(name: string, value: string): string {
-        return '&' + name + '=' + value;
+    private groupIntoWeeks(report: IReport): any {
+        var weeks = [];
+        var week: IWeek;
+
+        // Move items into each week (for easier templating)
+        for (var i = 0; i < report.Items.length; i++) {
+            let item = report.Items[i];
+            if ((week && item.WeekNumber !== week.WeekNumber) || (!week)) {
+                week = { WeekNumber: item.WeekNumber, FirstDay: item.Date, Items: [], Sums: new Sums() };
+                week.Items.push(item);
+                weeks.push(week);
+            } else {
+                week.Items.push(item);
+            }
+        }
+
+        // Add empty days at the end of last row?
+        if (week && week.Items.length < 7) {
+            let start = week.Items.length;             
+            for (let ii = start; ii < 7; ii++) { 
+                let endDate = moment(week.FirstDay).add(ii, 'days').toDate();
+                week.Items.push( { TotalTime: 0, IsWeekend: ii >= 5, Date: endDate } );
+            }            
+        }
+
+        // Creatsums
+        this.sumWeeks(weeks);
+        report.Weeks = weeks;
+
+        return this.groupIntoMonths(report);
     }
+
+    private groupIntoMonths(report: IReport): IReport {
+        var months: Array<Month> = [];
+        var month: Month;
+        for (var i = 0; i < report.Weeks.length; i++) {
+            let week = report.Weeks[i];
+            if (month === undefined || (!month.isInMonth(week))) {
+                month = new Month(week.Items[week.Items.length - 1].Date);
+                month.Weeks.push(week);
+                months.push(month);
+            } else {
+                month.Weeks.push(week);
+            }
+            this.addSums(month.Sums, week.Sums);
+        }
+        report.Months = months;
+        return report;
+    }
+
+    private sumWeeks(weeks: Array<IWeek>) {
+        weeks.forEach( x => x.Items.forEach( y => this.addSums(x.Sums, y)) );
+    }
+
+    private addSums(sum: Sums, day: IWorkDay | Sums) {
+        sum.ExpectedTime += day.ExpectedTime || 0;
+        sum.Flextime += day.Flextime || 0;
+        sum.Overtime += day.Overtime || 0;
+        sum.Projecttime += day.Projecttime || 0;
+        sum.SickTime += day.SickTime || 0;
+        sum.TimeOff += day.TimeOff || 0;
+        sum.ValidTime += day.ValidTime || 0;
+        sum.Invoicable += day.Invoicable || 0;
+        sum.ProjectPrc = this.minValue(100, (sum.Projecttime || 0) / (sum.ExpectedTime || 1) * 100);
+        sum.InvoicePrc = this.minValue(100, (sum.Invoicable || 0) / (sum.ExpectedTime || 1) * 100);    
+        // sum.Status = ?? todo: combine statuses from all days
+    }
+
+    private minValue(v1: number, v2: number): number {
+        return v1 < v2 ? v1 : v2;
+    }
+
+}
+
+// tslint:disable:variable-name
+
+class Month {
+    public Date: Date;
+    public Name: string;
+    public Weeks: Array<IWeek> = [];
+    public Sums: Sums = new Sums();
+    constructor(date: Date) {
+        this.Date = date;
+        this.Name = moment(date).format('MMMM').toLocaleUpperCase();
+    }
+    public isInMonth(week: IWeek): boolean {
+        var md = moment(week.Items[4].Date).toDate().getMonth();        
+        return (md === moment(this.Date).toDate().getMonth());
+    }
+}
+
+interface IWeek {
+    WeekNumber: number;
+    FirstDay: Date;
+    Items: Array<IWorkDay>;
+    Sums?: Sums;
+    // Accumulative?: Sums;
+}
+
+class Sums {
+    public Name: string;
+    public TotalTime: number = 0;
+    public ValidTime: number = 0;
+    public ExpectedTime: number = 0;
+    public TimeOff: number = 0;
+    public SickTime: number = 0;
+    public Overtime: number = 0;
+    public Flextime: number = 0;
+    public Invoicable: number = 0;
+    public Projecttime: number = 0;
+    public Status: number = 0;        
+    public ProjectPrc?: number;
+    public InvoicePrc?: number;    
+}
+
+interface IWorkDay {
+    Date: Date;
+    TotalTime: number;
+    IsWeekend: boolean;
+    ExpectedTime?: number;
+    ValidTime?: number;
+    TimeOff?: number;
+    SickTime?: number;
+    Overtime?: number;
+    Flextime?: number;
+    Invoicable?: number;
+    Projecttime?: number;
+    Status?: number;
+}
+
+interface IReport {
+    Relation;
+    FromDate: Date;
+    ToDate: Date;
+    Items: Array<any>;
+    Workflow;
+    Weeks?: Array<IWeek>;
+    Months?: Array<Month>;
 }

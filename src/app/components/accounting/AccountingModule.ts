@@ -60,6 +60,7 @@ import {VatSettings} from './vatsettings/vatsettings';
 import {VatTypeDetails} from './vatsettings/vattypedetails/vattypedetails';
 import {VatTypeList} from './vatsettings/vattypelist/vatTypeList';
 import {VatDeductionSettings} from './vatsettings/vatdeductions/vatdeductionsettings';
+import {PostPost} from './postpost/postpost';
 
 @NgModule({
     imports: [
@@ -131,7 +132,10 @@ import {VatDeductionSettings} from './vatsettings/vatdeductions/vatdeductionsett
         DrilldownResultReportPart,
         DimensionsOverviewReportPart,
         DimensionResultReport,
-        DrilldownBalanceReportPart
+        DrilldownBalanceReportPart,
+
+        // PostPos
+        PostPost
     ],
     entryComponents: [
         HistoricVatReportTable,
@@ -187,7 +191,10 @@ import {VatDeductionSettings} from './vatsettings/vatdeductions/vatdeductionsett
         DrilldownResultReportPart,
         DimensionsOverviewReportPart,
         DimensionResultReport,
-        DrilldownBalanceReportPart
+        DrilldownBalanceReportPart,
+
+        // PostPost
+        PostPost
     ]
 })
 export class AccountingModule {

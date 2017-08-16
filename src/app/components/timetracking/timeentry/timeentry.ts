@@ -14,7 +14,7 @@ import {ToastService, ToastType} from '../../../../framework/uniToast/toastServi
 import {RegtimeBalance} from './balance/balance';
 import {ActivatedRoute, Router} from '@angular/router';
 import {ErrorService} from '../../../services/services';
-import {UniConfirmModal, ConfirmActions} from '../../../../framework/modals/confirm';
+import {UniModalService, ConfirmActions} from '../../../../framework/uniModal/barrel';
 import {WorkEditor} from '../components/workeditor';
 import { DayBrowser, Day, ITimeSpan, INavDirection } from '../components/daybrowser';
 import { SideMenu } from '../sidemenu/sidemenu';
@@ -71,7 +71,6 @@ export class TimeEntry {
 
     @ViewChild(RegtimeTotals) private regtimeTotals: RegtimeTotals;
     @ViewChild(TimeTableReport) private regtimeTools: TimeTableReport;
-    @ViewChild(UniConfirmModal) private confirmModal: UniConfirmModal;
     @ViewChild(RegtimeBalance) private regtimeBalance: RegtimeBalance;
     @ViewChild(WorkEditor) private workEditor: WorkEditor;
     @ViewChild(DayBrowser) private dayBrowser: DayBrowser;
@@ -80,7 +79,7 @@ export class TimeEntry {
     @ViewChild(UniFileImport) private fileImport: UniFileImport;
 
     public preSaveConfig: IPreSaveConfig = {
-        askSave: () => this.checkSave(false),
+        askSave: () => this.checkSave(),
         askReload: () => this.reset(false)
     };
 
@@ -89,7 +88,7 @@ export class TimeEntry {
         ];
 
     public tabs: Array<any> = [ { name: 'timeentry', label: 'Registrering', isSelected: true },
-            { name: 'tools', label: 'Timeliste', activate: (ts: any, filter: any) =>
+            { name: 'timesheet', label: 'Timeliste', activate: (ts: any, filter: any) =>
                 this.regtimeTools.activate(ts, filter) },
             { name: 'totals', label: 'Totaler', activate: (ts: any, filter: any) =>
                 this.regtimeTotals.activate(ts, filter) },
@@ -124,7 +123,8 @@ export class TimeEntry {
         private router: Router,
         private localStore: BrowserStorageService,
         private changeDetectorRef: ChangeDetectorRef,
-        private http: UniHttp
+        private http: UniHttp,
+        private modalService: UniModalService
     ) {
 
         this.loadSettings();
@@ -165,11 +165,16 @@ export class TimeEntry {
     }
 
     private setWorkRelationById(id: number) {
-        this.checkSave().then( () => {
-            if (id) {
+        this.checkSave().then((canDeactivate) => {
+            if (canDeactivate && id) {
                 this.timeSheet.currentRelationId = id;
                 this.updateToolbar();
                 this.loadItems();
+                // Refresh timesheet?
+                let index = this.indexOfTab('timesheet');
+                if (index >= 0 && this.tabs[index].isSelected) {
+                    this.tabs[index].activate(this.timeSheet, this.currentFilter);
+                }
             }
         });
     }
@@ -227,6 +232,10 @@ export class TimeEntry {
         this.changeDetectorRef.markForCheck();
     }
 
+    private indexOfTab(name: string): number {
+        return this.tabs.findIndex( x => x.name === name);
+    }
+
     public onTabClick(tab: ITab) {
         if (tab.isSelected) { return; }
         this.tabs.forEach((t: any) => {
@@ -243,11 +252,13 @@ export class TimeEntry {
         this.workEditor.editRow(this.timeSheet.items.length - 1);
     }
 
-    public reset(chkSave: boolean = true) {
-        if (chkSave) {
-            this.checkSave().then( () => {
-                this.loadItems();
-                this.reloadSums();
+    public reset(checkSave: boolean = true) {
+        if (checkSave) {
+            this.checkSave().then((canDeactivate) => {
+                if (canDeactivate) {
+                    this.loadItems();
+                    this.reloadSums();
+                }
             });
         } else {
             this.loadItems();
@@ -267,11 +278,7 @@ export class TimeEntry {
     }
 
     public canDeactivate() {
-        return new Promise((resolve, reject) => {
-            this.checkSave(true).then( () => {
-                resolve(true);
-            }, () => resolve(false) );
-        });
+        return this.checkSave();
     }
 
     private initWorker(workerid?: number, autoCreate = false) {
@@ -293,19 +300,19 @@ export class TimeEntry {
     }
 
     private initNewUser() {
-
-        this.confirmModal.confirm('Aktivere din bruker for timeføring på denne klienten?',
-            `Velkommen, ${this.service.user.name}!`)
-            .then( (userChoice: ConfirmActions)  => {
-                if (userChoice === ConfirmActions.ACCEPT) {
-                    this.initWorker(undefined, true);
-                    this.initApplicationTab();
-                } else {
-                    this.busy = false;
-                    this.missingWorker = true;
-                    this.tabService.closeTab();
-                }
-            });
+        this.modalService.confirm({
+            header: 'Aktivere timeføring',
+            message: 'Ønsker du å aktivere din bruker for timeføring på denne klienten?'
+        }).onClose.subscribe(response => {
+            if (response === ConfirmActions.ACCEPT) {
+                this.initWorker(undefined, true);
+                this.initApplicationTab();
+            } else {
+                this.busy = false;
+                this.missingWorker = true;
+                this.tabService.closeTab();
+            }
+        });
     }
 
     private updateToolbar(name?: string, workRelations?: Array<WorkRelation> ) {
@@ -456,7 +463,7 @@ export class TimeEntry {
     }
 
     public import(done?: (msg?: string) => void) {
-        this.checkSave().then( () => {
+        this.checkSave().then(() => {
             this.fileImport.open().then( (success) => {
                 if (success) {
                     let ts = this.timeSheet.clone();
@@ -485,11 +492,13 @@ export class TimeEntry {
     }
 
     private switchView(done) {
-        this.checkSave().then( () => {
-            this.settings.useDayBrowser = !this.settings.useDayBrowser;
-            this.saveSettings();
-            this.checkContextLabels();
-            setTimeout( () => this.refreshViewItems(), 50 );
+        this.checkSave().then((canDeactivate) => {
+            if (canDeactivate) {
+                this.settings.useDayBrowser = !this.settings.useDayBrowser;
+                this.saveSettings();
+                this.checkContextLabels();
+                setTimeout( () => this.refreshViewItems(), 50 );
+            }
         });
 
     }
@@ -518,10 +527,12 @@ export class TimeEntry {
     }
 
     public onClickDay(event: Day) {
-        this.checkSave().then( () => {
-            this.busy = true;
-            this.loadItems(event.date);
-            event.selected = true;
+        this.checkSave().then((canDeactivate) => {
+            if (canDeactivate) {
+                this.busy = true;
+                this.loadItems(event.date);
+                event.selected = true;
+            }
         });
     }
 
@@ -545,10 +556,12 @@ export class TimeEntry {
     }
 
     public onNavigateDays(direction: INavDirection) {
-        this.checkSave().then( () => {
-            var dt = moment(direction.currentDate);
-            this.busy = true;
-            this.loadItems(dt.add('days', direction.daysInView * (direction.directionLeft ? -1 : 1)).toDate());
+        this.checkSave().then((canDeactivate) => {
+            if (canDeactivate) {
+                var dt = moment(direction.currentDate);
+                this.busy = true;
+                this.loadItems(dt.add('days', direction.daysInView * (direction.directionLeft ? -1 : 1)).toDate());
+            }
         });
     }
 
@@ -570,30 +583,36 @@ export class TimeEntry {
 
 
 
-    private checkSave(rejectIfFail: boolean = false): Promise<boolean> {
+    private checkSave(): Promise<boolean> {
         return new Promise((resolve, reject) => {
-            if (this.hasUnsavedChanges()) {
-                this.confirmModal.confirm('Lagre endringer før du fortsetter?', 'Lagre endringer?', true)
-                .then( (userChoice: ConfirmActions) => {
-                    switch (userChoice) {
-                        case ConfirmActions.ACCEPT:
-                            this.save().then( x => {
-                                if (x) { resolve(true); } else { if (rejectIfFail) { reject(); } }
-                            });
-                            break;
-
-                        case ConfirmActions.CANCEL:
-                            if (rejectIfFail) { reject(); }
-                            break;
-
-                        default:
-                            resolve(true);
-                            break;
-                    }
-                });
-            } else {
+            if (!this.hasUnsavedChanges()) {
                 resolve(true);
+                return;
             }
+
+            this.modalService.confirm({
+                header: 'Ulagrede endringer',
+                message: 'Ønsker du å lagre endringer før vi fortsetter?',
+                buttonLabels: {
+                    accept: 'Lagre',
+                    reject: 'Forkast',
+                    cancel: 'Avbryt'
+                }
+            }).onClose.subscribe(response => {
+                switch (response) {
+                    case ConfirmActions.ACCEPT:
+                        this.save()
+                            .then(() => resolve(true))
+                            .catch(() => resolve(false));
+                    break;
+                    case ConfirmActions.REJECT:
+                        resolve(true); // discard changes
+                    break;
+                    default:
+                        resolve(false);
+                    break;
+                }
+            });
         });
     }
 

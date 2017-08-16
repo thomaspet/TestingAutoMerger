@@ -14,9 +14,11 @@ export enum ItemInterval {
     today = 1,
     yesterday = 2,
     thisWeek = 3,
-    thisMonth = 4,
-    lastTwoMonths = 5,
-    thisYear = 6
+    lastTwoWeeks = 4,
+    thisMonth = 5,
+    lastTwoMonths = 6,
+    lastThreeMonths = 7,
+    thisYear = 8
 }
 
 export interface IFilter {
@@ -133,8 +135,15 @@ export class WorkerService extends BizHttp<Worker> {
             case ItemInterval.thisMonth:
                 return "date ge '" + toIso(moment().startOf('month').toDate()) + "' and date le '" +
                 toIso(moment().endOf('month').toDate()) + "'";
+            case ItemInterval.lastTwoWeeks:
+                return "date ge '" + toIso(moment().startOf('week').add(-1)
+                    .startOf('week').toDate()) + "' and date le '" +
+                toIso(moment().endOf('month').toDate()) + "'";            
             case ItemInterval.lastTwoMonths:
                 return "date ge '" + toIso(moment().add(-1, 'month').startOf('month').toDate()) + "' and date le '" +
+                toIso(moment().endOf('month').toDate()) + "'";
+            case ItemInterval.lastThreeMonths:
+                return "date ge '" + toIso(moment().add(-2, 'month').startOf('month').toDate()) + "' and date le '" +
                 toIso(moment().endOf('month').toDate()) + "'";
             case ItemInterval.thisYear:
                 return "date ge '" + toIso(moment().startOf('year').toDate()) + "' and date le '" +
@@ -152,10 +161,14 @@ export class WorkerService extends BizHttp<Worker> {
                 return this.getLastWorkDay();
             case ItemInterval.thisWeek:
                 return moment().startOf('week').toDate();
+            case ItemInterval.lastTwoWeeks:
+                return moment().startOf('week').add(-1).startOf('week').toDate();
             case ItemInterval.thisMonth:
                 return moment().startOf('month').toDate();
             case ItemInterval.lastTwoMonths:
                 return moment().add(-1, 'month').startOf('month').toDate();
+            case ItemInterval.lastThreeMonths:
+                return moment().add(-2, 'month').startOf('month').toDate();
             case ItemInterval.thisYear:
                 return moment().startOf('year').toDate();
             default:
@@ -166,6 +179,7 @@ export class WorkerService extends BizHttp<Worker> {
     public getIntervalItems(): Array<IFilter> {
         let date = new Date();
         return [
+<<<<<<< HEAD
             {
                 name: 'today',
                 label: 'I dag',
@@ -217,6 +231,16 @@ export class WorkerService extends BizHttp<Worker> {
                 bigLabel: this.getBigLabel(ItemInterval.all),
                 date: new Date()
             }
+=======
+            { name: 'today', label: 'I dag', isSelected: true, interval: ItemInterval.today },
+            { name: 'week', label: 'Denne uke', interval: ItemInterval.thisWeek},
+            { name: 'weeks', label: 'Siste 2 uker', interval: ItemInterval.lastTwoWeeks},
+            { name: 'month', label: 'Denne måned', interval: ItemInterval.thisMonth},
+            { name: 'months', label: 'Siste 2 måneder', interval: ItemInterval.lastTwoMonths},
+            { name: 'months2', label: 'Siste 3 måneder', interval: ItemInterval.lastThreeMonths},
+            { name: 'year', label: 'Dette år', interval: ItemInterval.thisYear},
+            { name: 'all', label: 'Alt', interval: ItemInterval.all}
+>>>>>>> develop
         ];
     }
 
