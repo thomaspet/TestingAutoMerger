@@ -80,7 +80,7 @@ export class UniQueryReadOnly implements OnChanges {
             }
         }
 
-        if (changes['externalID'] && this.tableConfig) {
+        if (changes['externalID'] && changes['externalID'].currentValue && this.tableConfig) {
             let expressionFilterValues: Array<IExpressionFilterValue> = [
                 {
                     expression: 'currentuserid',

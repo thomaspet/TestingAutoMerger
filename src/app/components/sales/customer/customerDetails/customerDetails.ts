@@ -789,6 +789,8 @@ export class CustomerDetails {
                 let customer = this.customer$.getValue();
                 customer = searchResult;
                 this.customer$.next(customer);
+                this.isDisabled = false;
+                this.setupSaveActions();
 
                 this.showHideNameProperties();
             }
