@@ -2,12 +2,13 @@ import {Component, Type, Input, Output, ViewChild, EventEmitter, OnChanges, Simp
 import {UniModal} from '../../../../framework/modals/modal';
 import {Observable} from 'rxjs/Observable';
 import {UniForm, UniFieldLayout} from '../../../../framework/ui/uniform/index';
-import {Accrual, AccrualPeriod, Account, JournalEntryLineDraft, LocalDate, Period} from '../../../unientities';
+import {Accrual, AccrualPeriod, JournalEntryLineDraft, LocalDate, Period} from '../../../unientities';
 import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
 import {
     AccountService,
     ErrorService,
     FinancialYearService,
+    JournalEntryService,
     PeriodService,
     BrowserStorageService
 } from '../../../services/services';
@@ -37,14 +38,14 @@ declare const _; // lodash
                     <tr *ngFor="let period of currentFinancialYearPeriods; let i = index">
                         <td>{{period.Name}}</td>
                         <td align="center"><input type="checkbox" tabindex="10"
-                            (click)="setAccrualPeriodBasedOnTemplate(period.No,1)"
-                            [(ngModel)]="allCheckboxValues[i].period1" [disabled]="checkboxEnabledState"/></td>
+                            (click)="setSingleAccrualPeriod(period.No,1)"
+                            [(ngModel)]="allCheckboxValues[i].period1" [disabled]="allCheckBoxEnabledValues[i].period1"/></td>
                         <td align="center"><input type="checkbox" tabindex="10"
-                            (click)="setAccrualPeriodBasedOnTemplate(period.No,2)"
-                            [(ngModel)]="allCheckboxValues[i].period2" [disabled]="checkboxEnabledState"/></td>
+                            (click)="setSingleAccrualPeriod(period.No,2)"
+                            [(ngModel)]="allCheckboxValues[i].period2" [disabled]="allCheckBoxEnabledValues[i].period2"/></td>
                         <td align="center"><input type="checkbox" tabindex="10"
-                            (click)="setAccrualPeriodBasedOnTemplate(period.No,3)"
-                            [(ngModel)]="allCheckboxValues[i].period3" [disabled]="checkboxEnabledState"/></td>
+                            (click)="setSingleAccrualPeriod(period.No,3)"
+                            [(ngModel)]="allCheckboxValues[i].period3" [disabled]="allCheckBoxEnabledValues[i].period3"/></td>
                     </tr>
                 </table>
             </section>
@@ -78,8 +79,26 @@ export class AccrualForm implements OnChanges {
     private currentFinancialYear: number;
     private currentFinancialYearPeriods: Array<Period> = [];
     private checkboxEnabledState: Boolean = false;
+    private numberOfPeriods: number;
+    private lastClickedPeriodNo: number = 0;
+    private lastClickedYear: number = 0;
 
     private allCheckboxValues: any = [
+        {period1: false, period2: false, period3: false},
+        {period1: false, period2: false, period3: false},
+        {period1: false, period2: false, period3: false},
+        {period1: false, period2: false, period3: false},
+        {period1: false, period2: false, period3: false},
+        {period1: false, period2: false, period3: false},
+        {period1: false, period2: false, period3: false},
+        {period1: false, period2: false, period3: false},
+        {period1: false, period2: false, period3: false},
+        {period1: false, period2: false, period3: false},
+        {period1: false, period2: false, period3: false},
+        {period1: false, period2: false, period3: false}
+    ];
+
+    private allCheckBoxEnabledValues: any = [
         {period1: false, period2: false, period3: false},
         {period1: false, period2: false, period3: false},
         {period1: false, period2: false, period3: false},
@@ -101,19 +120,39 @@ export class AccrualForm implements OnChanges {
         private periodService: PeriodService,
         private toastService: ToastService,
         private uniSearchAccountConfigGeneratorHelper: UniSearchAccountConfigGeneratorHelper,
-        private browserStorageService: BrowserStorageService
+        private browserStorageService: BrowserStorageService,
+        private journalEntryService: JournalEntryService
     ) {
     }
 
     public onFormChange(event) {
-        this.changeRecalculatePeriods();
+
+        if (event['_numberOfPeriods']) {
+
+            // minimum periods must be 2, so always push back to 2 periods if not numeric of less than to is set
+            this.numberOfPeriods = 2;
+
+            if (Number(event['_numberOfPeriods'].currentValue) !== NaN) {
+                this.numberOfPeriods = event['_numberOfPeriods'].currentValue;
+                if (this.numberOfPeriods < 2) {
+                    this.numberOfPeriods = 2;
+                }
+            }
+
+            this.config.model['_numberOfPeriods'] = this.numberOfPeriods;
+            this.reSelectCheckBoxes();
+        } else {
+            if (!this.numberOfPeriods) {
+                this.numberOfPeriods = 3;
+            }
+            this.changeRecalculatePeriods();
+        }
     }
 
     public ngOnInit() {
         // changing BalanceAccountID on model to localStorage so that your newest selected
         // value becomes standard value on accrualModal initialization
         this.config.model.BalanceAccountID = this.browserStorageService.get('BalanceAccountID');
-
         this.model$.next(this.config.model);
         this.yearService.getActiveFinancialYear().subscribe(res => {
             this.currentFinancialYear = res.Year;
@@ -132,6 +171,7 @@ export class AccrualForm implements OnChanges {
                         }
                 });
         });
+
     }
 
     public ngOnChanges(changes: {[propName: string]: SimpleChange}) {
@@ -142,12 +182,13 @@ export class AccrualForm implements OnChanges {
     private setupForm() {
         this.fields$.next(this.getFields());
         this.config.modelJournalEntryModes = this.getAccrualJournalEntryModes();
-        this.config.modelPeriodsTemplates = this.getAccrualPeriodsOptions();
         this.extendFormConfig();
     }
 
     private extendFormConfig() {
         let fields = this.fields$.getValue();
+
+        this.setAccountingLockedPeriods();
 
         let accrualJEMode: UniFieldLayout = fields.find(x => x.Property === 'AccrualJournalEntryMode');
         accrualJEMode.ReadOnly = this.isAccrualSaved();
@@ -157,14 +198,7 @@ export class AccrualForm implements OnChanges {
             displayProperty: 'Name'
         };
 
-        let accrualPeriodTemplate: UniFieldLayout = fields.find(x => x.Property === '_accrualPeriodsTemp');
-        accrualPeriodTemplate.ReadOnly = this.isAccrualSaved();
-        accrualPeriodTemplate.Options = {
-            source: this.config.modelPeriodsTemplates,
-            valueProperty: 'ID',
-            displayProperty: 'Name',
-            events: {select: () => this.reSelectCheckBoxesAccordingtoTemplate() }
-        };
+
         this.model$.next(this.config.model);
 
         if (this.isAccrualSaved()) {
@@ -195,6 +229,38 @@ export class AccrualForm implements OnChanges {
         ];
     }
 
+    private setAccountingLockedPeriods(): void {
+        let enablingValues = [
+            {period1: false, period2: false, period3: false},
+            {period1: false, period2: false, period3: false},
+            {period1: false, period2: false, period3: false},
+            {period1: false, period2: false, period3: false},
+            {period1: false, period2: false, period3: false},
+            {period1: false, period2: false, period3: false},
+            {period1: false, period2: false, period3: false},
+            {period1: false, period2: false, period3: false},
+            {period1: false, period2: false, period3: false},
+            {period1: false, period2: false, period3: false},
+            {period1: false, period2: false, period3: false},
+            {period1: false, period2: false, period3: false}
+        ];
+
+        let tempDate = this.journalEntryService.getAccountingLockedDate();
+        if (tempDate) {
+            let lockedDate = new LocalDate(tempDate.toString());
+            let lockedMonth = lockedDate.month;
+            let lockedYear = lockedDate.year;
+            let year = this.currentFinancialYear;
+
+            if (lockedYear === year) {
+
+                for (let p: number = 0; p < lockedMonth; p++) {
+                    enablingValues[p].period1 = true;
+                }
+            }
+        }
+        this.allCheckBoxEnabledValues = enablingValues;
+    }
 
     private isAccrualSaved(): boolean {
         let isSaved = false;
@@ -204,35 +270,36 @@ export class AccrualForm implements OnChanges {
         return isSaved;
     }
 
-
-    private setAccrualPeriodBasedOnTemplate(periodNo: number, yearNumber: number): void {
+    private setAccrualPeriods(periodNo: number, yearNumber: number): void {
 
         if (this.isAccrualSaved()) {
             return;
         }
 
-        let template: number = this.config.model['_accrualPeriodsTemp'];
         let checkBoxValue = !this.allCheckboxValues[periodNo - 1]['period' + yearNumber];
 
         let overAllCounter: number = 0;
-        if (template > 0) {
+        if (this.numberOfPeriods > 0) {
             this.resetAllChechBoxValues();
             let yearCounter: number = yearNumber;
             let counter: number = periodNo - 1;
             let maxYear: number = 3;
-            let howManyCheckboxWasMarked = 0;
 
-            while ( overAllCounter < template && yearCounter <= maxYear ) {
+
+            while ( overAllCounter < this.numberOfPeriods && yearCounter <= maxYear ) {
+
                 this.allCheckboxValues[counter]['period' + yearCounter] = checkBoxValue;
                 counter++;
+
                 if ( counter === 12 ) {
                     counter = 0;
                     yearCounter ++;
                 }
+
                 overAllCounter++;
             }
 
-            if (checkBoxValue === true && template > overAllCounter) {
+            if (checkBoxValue === true && this.numberOfPeriods > overAllCounter) {
                 this.toastService.addToast(
                     'Periodisering',
                     ToastType.warn,
@@ -251,25 +318,47 @@ export class AccrualForm implements OnChanges {
         this.changeRecalculatePeriods();
     }
 
-    private reSelectCheckBoxesAccordingtoTemplate(): void {
+    private setSingleAccrualPeriod(periodNo: number, yearNumber: number) {
+
+        this.lastClickedPeriodNo = periodNo;
+        this.lastClickedYear = yearNumber;
+        let checkBoxValue = !this.allCheckboxValues[periodNo - 1]['period' + yearNumber];
+        this.allCheckboxValues[periodNo - 1]['period' + yearNumber] = checkBoxValue;
+        this.changeRecalculatePeriods();
+
+    }
+
+    private reSelectCheckBoxes(): void {
 
         if (this.isAccrualSaved()) {
             return;
         }
 
-        if (this.config.model.Periods && this.config.model['_accrualPeriodsTemp'] > 0) {
-            let periodNo = this.config.model.Periods[0].PeriodNo;
-            let periodYear = this.config.model.Periods[0].AccountYear;
+        if (this.config.model.Periods) {
+
+            let periodNo = 1;
+            let periodYear = 1;
             let yearNumber = 1;
-            if (this.config.model['_periodYears'][0] === periodYear) {
-                yearNumber = 1;
-            } else if (this.config.model['_periodYears'][1] === periodYear) {
-                yearNumber = 2;
+
+            if (!this.config.model.Periods[0]) {
+                periodNo =  this.lastClickedPeriodNo;
+                periodYear = this.lastClickedYear;
+                yearNumber = periodYear;
             } else {
-                yearNumber = 3;
+                periodNo = this.config.model.Periods[0].PeriodNo;
+                periodYear = this.config.model.Periods[0].AccountYear;
+
+
+                if (this.config.model['_periodYears'][0] === periodYear) {
+                    yearNumber = 1;
+                } else if (this.config.model['_periodYears'][1] === periodYear) {
+                    yearNumber = 2;
+                } else {
+                    yearNumber = 3;
+                }
             }
             this.resetAllChechBoxValues();
-            this.setAccrualPeriodBasedOnTemplate(periodNo, yearNumber);
+            this.setAccrualPeriods(periodNo, yearNumber);
         }
     }
 
@@ -295,15 +384,6 @@ export class AccrualForm implements OnChanges {
        return [{ID: 0, Name: 'Per år'}, {ID: 2, Name: 'Per måned'}];
     }
 
-    private getAccrualPeriodsOptions (): any {
-        return [
-            {ID: 0, Name: 'Fleksibel'},
-            {ID: 3, Name: 'Kvartal'},
-            {ID: 6, Name: 'Halvår'},
-            {ID: 12, Name: 'År'},
-            {ID: 24, Name: '2 år'}
-        ];
-    }
 
     private isAccrualPeriodsEqualOrLessThan24(periods: Array<AccrualPeriod>): boolean {
 
@@ -349,6 +429,27 @@ export class AccrualForm implements OnChanges {
 
     }
 
+
+    private countNumberOfCheckedCheckboxes() : number {
+
+        let yearCounter: number = 1;
+        let periodCounter: number = 0;
+        let checkedPeriods: number = 0;
+
+        while (yearCounter < 4) {
+            if (this.allCheckboxValues[periodCounter]['period' + yearCounter] === true) {
+               checkedPeriods++;
+            }
+
+            periodCounter++;
+            if (periodCounter === 12) {
+                periodCounter = 0;
+                yearCounter++;
+            }
+        }
+        return checkedPeriods;
+    }
+
     private changeRecalculatePeriods(): void {
 
         let accrualPeriods: Array<AccrualPeriod> = new Array<AccrualPeriod>();
@@ -371,7 +472,10 @@ export class AccrualForm implements OnChanges {
             }
         }
 
+
+
         this.config.model.Periods = accrualPeriods;
+
         this.config.model['_numberOfPeriods'] = accrualPeriods.length;
         this.config.model['_periodAmount'] =
             (this.config.model.AccrualAmount / this.config.model.Periods.length).toFixed(2);
@@ -435,6 +539,7 @@ export class AccrualForm implements OnChanges {
             );
         }
     }
+
 
     private getFields() {
         // TODO get it from the API and move these to backend migrations
@@ -503,35 +608,6 @@ export class AccrualForm implements OnChanges {
                 ReadOnly: false,
                 LookupField: false,
                 Label: 'Bilagsmodus',
-                Description: '',
-                HelpText: '',
-                FieldSet: 0,
-                Section: 0,
-                Placeholder: null,
-                Options: null,
-                LineBreak: true,
-                Combo: null,
-                Legend: '',
-                StatusCode: 0,
-                ID: 1,
-                Deleted: false,
-                CreatedAt: null,
-                UpdatedAt: null,
-                CreatedBy: null,
-                UpdatedBy: null,
-                CustomFields: null,
-                Classes: ''
-            },
-             {
-                ComponentLayoutID: 1,
-                EntityType: 'Accrual',
-                Property: '_accrualPeriodsTemp',
-                Placement: 1,
-                Hidden: false,
-                FieldType: FieldType.AUTOCOMPLETE,
-                ReadOnly: false,
-                LookupField: false,
-                Label: 'Periodeoppsett',
                 Description: '',
                 HelpText: '',
                 FieldSet: 0,
@@ -750,7 +826,6 @@ export class AccrualModal {
                 accrual['_validationMessage'] = new Array<string>();
                 // set this value to the id of the object in getAccrualPeriodsOptions
                 // array to change default period value
-                accrual['_accrualPeriodsTemp'] = 0;
                 if (accrualStartDate) {
                     accrual.Periods =
                         this.getDefaultPeriods(accrualAmount, accrualStartDate.year, accrualStartDate.month + 1);
@@ -766,7 +841,6 @@ export class AccrualModal {
                 let startPeriod: number = journalEntryLineDraft.FinancialDate.month;
                 accrual['_isValid'] = false;
                 accrual['_validationMessage'] =  new Array<string>();
-                accrual['_accrualPeriodsTemp'] = 0;
                 if (journalEntryLineDraft.FinancialDate) {
                     accrual.Periods = this.getDefaultPeriods(accrualAmount, startYear, startPeriod);
                     accrual['_periodYears'] = [startYear, startYear + 1, startYear + 2];
