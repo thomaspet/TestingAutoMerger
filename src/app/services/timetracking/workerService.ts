@@ -99,6 +99,10 @@ export class WorkerService extends BizHttp<Worker> {
         return this.GET(route, params);
     }
 
+    public post<T>(route: string, body?: any): Observable<T> {
+        return this.POST(route, undefined, body);
+    }
+
     public createInitialWorkRelation(workerId: number, profile: WorkProfile): Observable<WorkRelation> {
         var route = 'workrelations';
         var rel = {
