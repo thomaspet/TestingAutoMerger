@@ -289,7 +289,7 @@ export class TimeTableReport {
             if (x.ExpectedTime > 0) {
                 var offset = moment().utcOffset();
                 var startTime = moment(x.Date).add(-offset, 'minutes').add(8, 'hours');
-                startTime.add(-offset, 'minutes');
+                // startTime.add(-offset, 'minutes');
                 var endTime = moment(startTime).add(x.ExpectedTime, 'hours');
                 ts.addItem( <any>{ Date: x.Date, Minutes: x.ExpectedTime * 60, 
                     Description: 'Normaltid', WorkTypeID: 1, LunchInMinutes: 0,
