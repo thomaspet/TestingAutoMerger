@@ -165,6 +165,9 @@ export class TimeTableReport {
             case 'reject':
                 this.approveWeek(event.cargo, false);
                 break;
+            case 'autofill':
+                this.autoFillWeek(event.cargo);
+                break;
         }
         console.log(event.name, event.cargo);
     }    
@@ -277,6 +280,28 @@ export class TimeTableReport {
                     });        
                 });
             });
+    }
+
+    private autoFillWeek(week: Week) {
+        var ts = new TimeSheet(this.timesheetService);
+        ts.currentRelationId = this.CurrentRelationID;
+        week.Items.forEach( x => {
+            if (x.ExpectedTime > 0) {
+                var offset = moment().utcOffset();
+                var startTime = moment(x.Date).add(-offset, 'minutes').add(8, 'hours');
+                startTime.add(-offset, 'minutes');
+                var endTime = moment(startTime).add(x.ExpectedTime, 'hours');
+                ts.addItem( <any>{ Date: x.Date, Minutes: x.ExpectedTime * 60, 
+                    Description: 'Normaltid', WorkTypeID: 1, LunchInMinutes: 0,
+                    StartTime: toIso(startTime.toDate(), true), EndTime: toIso(endTime.toDate(), true) });
+            }
+        });
+        this.busy = true;
+        ts.saveItems(true)
+            .finally( () => this.busy = false )
+            .subscribe( x => {
+                this.refreshReport();
+            }, err => this.errorService.handle(err));
     }
 
     private assignWeek(week: Week) {
