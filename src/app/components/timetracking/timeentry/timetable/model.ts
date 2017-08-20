@@ -21,28 +21,49 @@ export enum StatusCode {
 }
 
 // tslint:disable:variable-name
+// tslint:disable:member-access
 
 export class Month {
     public Date: Date;
     public Name: string;
-    public Weeks: Array<IWeek> = [];
+    public Weeks: Array<Week> = [];
     public Sums: Sums = new Sums();
     constructor(date: Date) {
         this.Date = date;
         this.Name = moment(date).format('MMMM').toLocaleUpperCase();
     }
-    public isInMonth(week: IWeek): boolean {
+    public isInMonth(week: Week): boolean {
         var weekMonth = moment(week.Items[2].Date).toDate().getMonth();
         var curMonth = moment(this.Date).toDate().getMonth();
         return (weekMonth === curMonth);
     }
 }
 
-export interface IWeek {
-    WeekNumber: number;
-    FirstDay: Date;
-    Items: Array<IWorkDay>;
-    Sums?: Sums;
+
+export class Week {
+    public WeekNumber: number = 0;
+    public FirstDay: Date;
+    public Items: Array<IWorkDay> = [];
+    public Sums: Sums = new Sums();
+    public get LastDay(): Date {
+        if (this.Items && this.Items.length > 0) {
+            return this.Items[this.Items.length - 1].Date;
+        }
+    }
+    constructor(weekNumber?: number, date?: Date) {
+        this.WeekNumber = weekNumber || this.WeekNumber;
+        this.FirstDay = date || this.FirstDay;
+    }
+
+    public addMissingDays() {
+        if (this.Items && this.Items.length < 7) {
+            let start = this.Items.length;             
+            for (let ii = start; ii < 7; ii++) { 
+                let endDate = moment(this.FirstDay).add(ii, 'days').toDate();
+                this.Items.push( { TotalTime: 0, IsWeekend: ii >= 5, Date: endDate } );
+            }            
+        }        
+    }
 }
 
 export class Sums {
@@ -102,6 +123,6 @@ export interface IReport {
     ToDate: Date;
     Items: Array<any>;
     Workflow;
-    Weeks?: Array<IWeek>;
+    Weeks?: Array<Week>;
     Months?: Array<Month>;
 }

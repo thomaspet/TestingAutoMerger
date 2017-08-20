@@ -39,7 +39,7 @@
                 <td class="center">{{week.FirstDay | isotime:'DD.MM'}} - {{week?.Items[6].Date | isotime:'DD.MM'}}</td>
                 <td class="center">{{week.Sums.Workflow | ReportWorkflow}}</td>
                 <td class="center actions"><button [class.locked]="week.Sums.Workflow>8" [class.assign]="week.Sums.Workflow==1" [class.approve]="week.Sums.Workflow>=4 && week.Sums.Workflow<=8"
-                    (click)="onRowActionClicked(week)"></button></td>
+                    (click)="onRowActionClicked(week, $event)"></button></td>
                 <td (click)="onDayClick(item.Date)" class="timecell" [class.weekend]="item.IsWeekend" 
                     *ngFor="let item of week?.Items">
                     <div title="{{item.Date|isotime:'D.MMMM'}}" [class.flexplus]="item.Flextime > 0" [class.flexminus]="item.Flextime < 0" >
@@ -87,5 +87,7 @@
     </div>
 
     <uni-time-modal></uni-time-modal>
+
+    <popup-menu (menuclick)="onPopupMenuClick($event)"></popup-menu>
 
 </section>
