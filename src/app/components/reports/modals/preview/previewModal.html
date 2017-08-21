@@ -1,6 +1,0 @@
-<article class="report-preview-modal tmpReportModal" *ngIf="config">
-    <h1 *ngIf="config.title">{{config.title}}</h1>
-    <div id="reportContainer" [innerHtml]="config.report | safehtml">
-    </div>
-</article>
-<uni-save [actions]="config.saveactions"></uni-save>

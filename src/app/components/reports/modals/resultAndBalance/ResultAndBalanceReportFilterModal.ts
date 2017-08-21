@@ -2,7 +2,8 @@ import {Component, ViewChild, Type, Input, OnInit} from '@angular/core';
 import {UniModal} from '../../../../../framework/modals/modal';
 import {ReportDefinition, ReportDefinitionParameter} from '../../../../unientities';
 import {ReportDefinitionParameterService, FinancialYearService, ErrorService} from '../../../../services/services';
-import {PreviewModal} from '../preview/previewModal';
+import {UniPreviewModal} from '../preview/previewModal';
+import {UniModalService} from '../../../../../framework/uniModal/barrel';
 import {UniFieldLayout, FieldType} from '../../../../../framework/ui/uniform/index';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 
@@ -57,10 +58,7 @@ export class ResultAndBalanceReportFilterForm implements OnInit {
         {ID: 'balance', Label: 'Balanse'}
     ];
 
-    constructor(
-        private yearService: FinancialYearService
-    ) {
-    }
+    constructor(private yearService: FinancialYearService) {}
 
     public ngOnInit() {
         this.config$.next(this.config);
@@ -151,11 +149,10 @@ export class ResultAndBalanceReportFilterModal {
     public modalConfig: any = {};
     public type: Type<any> = ResultAndBalanceReportFilterForm;
 
-    private previewModal: PreviewModal;
-
     constructor(
         private reportDefinitionParameterService: ReportDefinitionParameterService,
-        private errorService: ErrorService
+        private errorService: ErrorService,
+        private modalService: UniModalService
     ) {
         this.modalConfig = {
             title: 'Parametre',
@@ -233,7 +230,11 @@ export class ResultAndBalanceReportFilterModal {
                         this.modalConfig.report.parameters.push(unallocatedParam);
 
                         this.modal.close();
-                        this.previewModal.open(this.modalConfig.report);
+
+                        this.modalService.open(UniPreviewModal, {
+                            data: this.modalConfig.report
+                        });
+                        // this.previewModal.open(this.modalConfig.report);
                     }
                 },
                 {
@@ -248,10 +249,9 @@ export class ResultAndBalanceReportFilterModal {
         };
     }
 
-    public open(report: ReportDefinition, previewModal: PreviewModal) {
+    public open(report: ReportDefinition) {
         this.modalConfig.title = report.Name;
         this.modalConfig.report = report;
-        this.previewModal = previewModal;
 
         this.reportDefinitionParameterService.GetAll('filter=ReportDefinitionId eq ' + report.ID).subscribe(params => {
             this.modalConfig.report.parameters = params;

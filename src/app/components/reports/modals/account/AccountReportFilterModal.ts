@@ -2,7 +2,8 @@ import {Component, ViewChild, Type, Input, OnInit} from '@angular/core';
 import {UniModal} from '../../../../../framework/modals/modal';
 import {ReportDefinition, ReportDefinitionParameter} from '../../../../unientities';
 import {ReportDefinitionParameterService, FinancialYearService} from '../../../../services/services';
-import {PreviewModal} from '../preview/previewModal';
+import {UniModalService} from '../../../../../framework/uniModal/barrel';
+import {UniPreviewModal} from '../preview/previewModal';
 import {UniFieldLayout, FieldType} from '../../../../../framework/ui/uniform/index';
 import {ErrorService} from '../../../../services/services';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
@@ -146,11 +147,10 @@ export class AccountReportFilterModal {
     public modalConfig: any = {};
     public type: Type<any> = AccountReportFilterForm;
 
-    private previewModal: PreviewModal;
-
     constructor(
         private reportDefinitionParameterService: ReportDefinitionParameterService,
-        private errorService: ErrorService
+        private errorService: ErrorService,
+        private modalService: UniModalService
     ) {
         this.modalConfig = {
             title: 'Parametre',
@@ -211,12 +211,13 @@ export class AccountReportFilterModal {
                                 orderByGroupParam.value = 'default';
                                 break;
                         }
+
                         this.modalConfig.report.parameters.push(orderByGroupParam);
 
-
-                        // add custom parameters
                         this.modal.close();
-                        this.previewModal.open(this.modalConfig.report);
+                        this.modalService.open(UniPreviewModal, {
+                            data: this.modalConfig.report
+                        });
                     }
                 },
                 {
@@ -232,10 +233,9 @@ export class AccountReportFilterModal {
     }
 
 
-    public open(report: ReportDefinition, previewModal: PreviewModal) {
+    public open(report: ReportDefinition) {
         this.modalConfig.title = report.Name;
         this.modalConfig.report = report;
-        this.previewModal = previewModal;
 
         this.reportDefinitionParameterService.GetAll('filter=ReportDefinitionId eq ' + report.ID).subscribe(params => {
             this.modalConfig.report.parameters = params;

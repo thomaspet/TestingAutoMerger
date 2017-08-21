@@ -1,19 +1,31 @@
-import { Component, OnInit, Input, ViewChildren, QueryList, ViewChild } from '@angular/core';
-import { ErrorService, PayrollrunService, ReportDefinitionService, FinancialYearService } from '../../../../services/services';
-import { Employee, PayrollRun } from '../../../../unientities';
-import { UniTableConfig, UniTableColumn, UniTableColumnType, UniTable } from '../../../../../framework/ui/unitable/index';
-import { PreviewModal } from '../../../reports/modals/preview/previewModal';
-import { Observable } from 'rxjs/Observable';
+import {Component, OnInit, Input, ViewChildren, QueryList, ViewChild} from '@angular/core';
+import {Employee, PayrollRun} from '../../../../unientities';
+import {Observable} from 'rxjs/Observable';
+import {UniPreviewModal} from '../../../reports/modals/preview/previewModal';
+import {UniModalService} from '../../../../../framework/uniModal/barrel';
+import {
+    UniTableConfig,
+    UniTableColumn,
+    UniTableColumnType,
+    UniTable
+} from '../../../../../framework/ui/unitable/index';
+import {
+    ErrorService,
+    PayrollrunService,
+    ReportDefinitionService,
+    FinancialYearService
+} from '../../../../services/services';
 
 @Component({
     selector: 'paycheck-sending',
     templateUrl: './paycheckSending.html'
 })
 export class PaycheckSending implements OnInit {
+    @Input()
+    private runID: number;
 
-    @Input() private runID: number;
-    @ViewChildren(UniTable) private tables: QueryList<UniTable>;
-    @ViewChild(PreviewModal) public previewModal: PreviewModal;
+    @ViewChildren(UniTable)
+    private tables: QueryList<UniTable>;
 
     private paychecksEmail: Employee[] = [];
     private paychecksPrint: Employee[] = [];
@@ -24,10 +36,9 @@ export class PaycheckSending implements OnInit {
         private payrollrunService: PayrollrunService,
         private reportdefinitionService: ReportDefinitionService,
         private financialYearService: FinancialYearService,
-        private errorService: ErrorService
-    ) {
-
-    }
+        private errorService: ErrorService,
+        private modalService: UniModalService
+    ) {}
 
     public ngOnInit() {
         this.loadEmployeesInPayrollrun();
@@ -61,7 +72,7 @@ export class PaycheckSending implements OnInit {
                 let employeeFilter = prints
                     .map(emp => 'ID eq ' + emp.ID)
                     .join(' or ');
-                
+
 
                 report.parameters = [
                     {Name: 'TransFilter', value: transFilter},
@@ -70,8 +81,11 @@ export class PaycheckSending implements OnInit {
                     {Name: 'PayDate', value: payrollRun.PayDate},
                     {Name: 'EmployeeFilter', value: employeeFilter},
                     {Name: 'RunID', value: this.runID}
-                    ];
-                this.previewModal.open(report);
+                ];
+
+                this.modalService.open(UniPreviewModal, report)
+                    .onClose
+                    .subscribe(() => {});
             }
         }, err => this.errorService.handle(err));
     }
@@ -95,7 +109,7 @@ export class PaycheckSending implements OnInit {
         let tmpEmail: Employee[] = [];
         let tmpPrint: Employee[] = [];
 
-        this.payrollrunService.getEmployeesOnPayroll(this.runID, 
+        this.payrollrunService.getEmployeesOnPayroll(this.runID,
             ['BusinessRelationInfo', 'BusinessRelationInfo.DefaultEmail'])
             .subscribe((emps: Employee[]) => {
                 emps.forEach(employee => {
@@ -122,7 +136,7 @@ export class PaycheckSending implements OnInit {
             .setMultiRowSelect(true)
             .setDeleteButton(false)
             .setColumns([employeenumberCol, employeenameCol, emailCol]);
-        
+
         this.paycheckPrintTableConfig = new UniTableConfig(true, true, 25)
             .setSearchable(false)
             .setColumnMenuVisible(false)

@@ -1,18 +1,23 @@
 import { Component, OnInit, ViewChild, Type, Input } from '@angular/core';
 import { UniModal } from '../../../../../framework/modals/modal';
 import { ReportDefinition, ReportDefinitionParameter, PayrollRun } from '../../../../unientities';
-import { ReportDefinitionParameterService, YearService, ErrorService,
-    PayrollrunService } from '../../../../services/services';
-import { PreviewModal } from '../preview/previewModal';
+import {UniModalService} from '../../../../../framework/uniModal/barrel';
+import {UniPreviewModal} from '../preview/previewModal';
 import { UniFieldLayout, FieldType } from '../../../../../framework/ui/uniform/index';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import { Observable } from 'rxjs/Observable';
+import {
+    ReportDefinitionParameterService,
+    YearService,
+    ErrorService,
+    PayrollrunService
+} from '../../../../services/services';
 
 type ModalConfig = {
     report: any,
     title: string,
     actions: { text: string, class?: string, method: (any) => void }[]
-}
+};
 
 @Component({
     selector: 'salary-payment-list-report-filter-modal-content',
@@ -64,13 +69,17 @@ export class SalaryPaymentListReportFilterModalContent implements OnInit {
     `
 })
 export class SalaryPaymentListReportFilterModal implements OnInit {
-    @ViewChild(UniModal) private modal: UniModal;
-    private previewModal: PreviewModal;
+    @ViewChild(UniModal)
+    private modal: UniModal;
+
     private modalConfig: ModalConfig;
     public type: Type<any> = SalaryPaymentListReportFilterModalContent;
+
     constructor(
         private reportDefinitionParameterService: ReportDefinitionParameterService,
-        private errorService: ErrorService) { }
+        private errorService: ErrorService,
+        private modalService: UniModalService
+    ) {}
 
     public ngOnInit() {
         this.modalConfig = {
@@ -82,10 +91,15 @@ export class SalaryPaymentListReportFilterModal implements OnInit {
                     class: 'good',
                     method: (model$) => {
                         this.modal.close();
-                        this.previewModal.openWithId(
-                            this.modalConfig.report,
-                            model$.getValue().RunID,
-                                'RunID');
+                        let report = this.modalConfig.report;
+                        report.parameters = [{Name: 'RunID', value: model$.getValue().RunID}];
+                        this.modalService.open(UniPreviewModal, {
+                            data: report
+                        });
+                        // this.previewModal.openWithId(
+                        //     this.modalConfig.report,
+                        //     model$.getValue().RunID,
+                        //         'RunID');
                     }
                 },
                 {
@@ -96,10 +110,9 @@ export class SalaryPaymentListReportFilterModal implements OnInit {
         };
     }
 
-    public open(report: ReportDefinition, previewModal: PreviewModal) {
+    public open(report: ReportDefinition) {
         this.modalConfig.title = report.Name;
         this.modalConfig.report = report;
-        this.previewModal = previewModal;
 
         this.reportDefinitionParameterService.GetAll('filter=ReportDefinitionId eq ' + report.ID)
             .subscribe((params: ReportDefinitionParameter[]) => {

@@ -55,7 +55,7 @@ import {
     ConfirmActions
 } from '../../../../../framework/uniModal/barrel';
 import {UniReminderSendingModal} from '../../reminder/sending/reminderSendingModal';
-import {UniPreviewModal} from '../../../reports/modals/preview/previewModal1';
+import {UniPreviewModal} from '../../../reports/modals/preview/previewModal';
 
 import * as moment from 'moment';
 declare const _;
@@ -1098,13 +1098,6 @@ export class InvoiceDetails {
         });
     }
 
-  private onPrinted(event) {
-            this.customerInvoiceService.setPrintStatus(this.invoiceID, this.printStatusPrinted).subscribe((printStatus) => {
-                this.invoice.PrintStatus = +this.printStatusPrinted;
-                this.updateToolbar();
-            }, err => this.errorService.handle(err));
-  }
-
     private saveAsDraft(done) {
         const requiresPageRefresh = !this.invoice.ID;
         if (!this.invoice.StatusCode) {
@@ -1149,6 +1142,13 @@ export class InvoiceDetails {
                 data: report
             }).onClose.subscribe(() => {
                 doneHandler();
+                this.customerInvoiceService.setPrintStatus(this.invoiceID, this.printStatusPrinted).subscribe(
+                    (printStatus) => {
+                        this.invoice.PrintStatus = +this.printStatusPrinted;
+                        this.updateToolbar();
+                    },
+                    err => this.errorService.handle(err)
+                );
             });
         }, err => {
             this.errorService.handle(err);

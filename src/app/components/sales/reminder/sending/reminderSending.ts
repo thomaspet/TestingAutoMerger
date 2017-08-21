@@ -8,7 +8,7 @@ import {LocalDate, CustomerInvoiceReminder} from '../../../../unientities';
 import {FieldType} from '../../../../../framework/ui/uniform/index';
 import {UniModalService, ConfirmActions} from '../../../../../framework/uniModal/barrel';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
-import {UniPreviewModal} from '../../../reports/modals/preview/previewModal1';
+import {UniPreviewModal} from '../../../reports/modals/preview/previewModal';
 import {
     StatisticsService,
     ErrorService,

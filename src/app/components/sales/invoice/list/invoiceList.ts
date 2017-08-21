@@ -4,7 +4,7 @@ import {Router} from '@angular/router';
 import {UniHttp} from '../../../../../framework/core/http/http';
 import {StatusCodeCustomerInvoice, CustomerInvoice, LocalDate, CompanySettings, InvoicePaymentData} from '../../../../unientities';
 import {URLSearchParams} from '@angular/http';
-import {PreviewModal} from '../../../reports/modals/preview/previewModal';
+import {UniPreviewModal} from '../../../reports/modals/preview/previewModal';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
 import {SendEmail} from '../../../../models/sendEmail';
 import {ToastService, ToastType} from '../../../../../framework/uniToast/toastService';
@@ -29,9 +29,6 @@ import {
     templateUrl: './invoiceList.html'
 })
 export class InvoiceList implements OnInit {
-    @ViewChild(PreviewModal)
-    private previewModal: PreviewModal;
-
     @ViewChild(UniTable)
     private table: UniTable;
 
@@ -322,8 +319,15 @@ export class InvoiceList implements OnInit {
             action: (invoice: CustomerInvoice) => {
                 this.reportDefinitionService.getReportByName('Faktura id').subscribe((report) => {
                     if (report) {
-                        this.previewModal.openWithId(report, invoice.ID);
-                        this.customerInvoiceService.setPrintStatus(invoice.ID, this.printStatusPrinted).subscribe((printStatus) => {}, err => this.errorService.handle(err));
+                        report.parameters = [{Name: 'Id', value: invoice.ID}];
+                        this.modalService.open(UniPreviewModal, {
+                            data: report
+                        }).onClose.subscribe(() => {});
+
+                        this.customerInvoiceService.setPrintStatus(invoice.ID, this.printStatusPrinted).subscribe(
+                            (printStatus) => {},
+                            err => this.errorService.handle(err)
+                        );
                     }
                 });
             }

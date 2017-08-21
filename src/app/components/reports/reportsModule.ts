@@ -26,12 +26,8 @@ import {CustomerAccountReportFilterModal} from './modals/customerAccountReportFi
 import {ParameterModal, ReportparameterModalType} from './modals/parameter/parameterModal';
 import {PostingJournalReportFilterForm} from './modals/postingJournal/PostingJournalReportFilterModal';
 import {PostingJournalReportFilterModal} from './modals/postingJournal/PostingJournalReportFilterModal';
-import {ReportPreviewModalType} from './modals/preview/previewModal';
 
-
-import {PreviewModal} from './modals/preview/previewModal';
-import {UniPreviewModal} from './modals/preview/previewModal1';
-
+import {UniPreviewModal} from './modals/preview/previewModal';
 
 import {ResultAndBalanceReportFilterForm} from './modals/resultAndBalance/ResultAndBalanceReportFilterModal';
 import {ResultAndBalanceReportFilterModal} from './modals/resultAndBalance/ResultAndBalanceReportFilterModal';
@@ -87,8 +83,6 @@ import {UniReports} from './reports';
         ParameterModal,
         PostingJournalReportFilterForm,
         PostingJournalReportFilterModal,
-        ReportPreviewModalType,
-        PreviewModal,
         UniPreviewModal,
         ResultAndBalanceReportFilterForm ,
         ResultAndBalanceReportFilterModal,
@@ -105,7 +99,6 @@ import {UniReports} from './reports';
         ReportparameterModalType
     ],
     entryComponents: [
-        ReportPreviewModalType,
         BalanceReportFilterForm,
         AccountReportFilterForm,
         BalanceGeneralLedgerFilterForm,
@@ -134,8 +127,6 @@ import {UniReports} from './reports';
         ParameterModal,
         PostingJournalReportFilterForm,
         PostingJournalReportFilterModal,
-        ReportPreviewModalType,
-        PreviewModal,
         UniPreviewModal,
         ResultAndBalanceReportFilterForm ,
         ResultAndBalanceReportFilterModal,

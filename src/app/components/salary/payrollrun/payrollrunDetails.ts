@@ -20,7 +20,7 @@ import { UniStatusTrack } from '../../common/toolbar/statustrack';
 import { ToastService, ToastType, ToastTime } from '../../../../framework/uniToast/toastService';
 import { SalaryTransactionSelectionList } from '../salarytrans/salarytransactionSelectionList';
 import { UniView } from '../../../../framework/core/uniView';
-import { UniPreviewModal } from '../../reports/modals/preview/previewModal1';
+import { UniPreviewModal } from '../../reports/modals/preview/previewModal';
 import { UniModalService, ConfirmActions } from '../../../../framework/uniModal/barrel';
 import { IUniSaveAction } from '../../../../framework/save/save';
 import 'rxjs/add/observable/forkJoin';

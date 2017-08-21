@@ -3,10 +3,13 @@ import { UniView } from '../../../../framework/core/uniView';
 import { ActivatedRoute, Router, NavigationEnd } from '@angular/router';
 import { IUniSaveAction } from '../../../../framework/save/save';
 import { IToolbarConfig } from '../../common/toolbar/toolbar';
+<<<<<<< HEAD
 import {
     UniCacheService, ErrorService, SalarybalanceService,
     ReportDefinitionService, CompanySalaryService, FileService
 } from '../../../services/services';
+=======
+>>>>>>> feat(modals): rewrite previewModal to support modalService
 import { TabService, UniModules } from '../../layout/navbar/tabstrip/tabService';
 import { Observable } from 'rxjs/Observable';
 import { Subscription } from 'rxjs/Subscription';
@@ -14,7 +17,15 @@ import { SalaryBalance, SalBalType, CompanySalary } from '../../../unientities';
 import { UniModalService, ConfirmActions } from '../../../../framework/uniModal/barrel';
 import { IContextMenuItem } from '../../../../framework/ui/unitable/index';
 import { SalarybalancelineModal } from './modals/salarybalancelinemodal';
-import { PreviewModal } from '../../reports/modals/preview/previewModal';
+import {UniPreviewModal} from '../../reports/modals/preview/previewModal';
+import {
+    UniCacheService,
+    ErrorService,
+    SalarybalanceService,
+    ReportDefinitionService,
+    CompanySalaryService,
+    FileService
+} from '../../../services/services';
 
 @Component({
     selector: 'uni-salarybalance-view',
@@ -36,9 +47,6 @@ export class SalarybalanceView extends UniView implements OnDestroy {
 
     @ViewChild(SalarybalancelineModal)
     private salarybalanceModal: SalarybalancelineModal;
-
-    @ViewChild(PreviewModal)
-    private previewModal: PreviewModal;
 
     constructor(
         private route: ActivatedRoute,
@@ -299,7 +307,10 @@ export class SalarybalanceView extends UniView implements OnDestroy {
         this.reportDefinitionService
             .getReportByName('Forskuddskvittering')
             .subscribe(report => {
-                this.previewModal.openWithId(report, id, 'SalaryBalanceID');
+                report.parameters = [{Name: 'SalaryBalanceID', value: id}];
+                this.modalService.open(UniPreviewModal, {
+                    data: report
+                }).onClose.subscribe(() => {});
             });
     }
 

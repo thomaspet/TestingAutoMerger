@@ -6,7 +6,6 @@ import {TradeItemHelper} from '../../salesHelper/tradeItemHelper';
 import {OrderToInvoiceModal} from '../modals/ordertoinvoice';
 import {TradeHeaderCalculationSummary} from '../../../../models/sales/TradeHeaderCalculationSummary';
 import {TofHelper} from '../../salesHelper/tofHelper';
-import {PreviewModal} from '../../../reports/modals/preview/previewModal';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
 import {ToastService, ToastType} from '../../../../../framework/uniToast/toastService';
 import {IToolbarConfig} from '../../../common/toolbar/toolbar';
@@ -18,6 +17,7 @@ import {GetPrintStatusText} from '../../../../models/printStatus';
 import {TradeItemTable} from '../../common/tradeItemTable';
 import {TofHead} from '../../common/tofHead';
 import {StatusCode} from '../../salesHelper/salesEnums';
+import {UniPreviewModal} from '../../../reports/modals/preview/previewModal';
 import {
     UniModalService,
     UniSendEmailModal,
@@ -69,9 +69,6 @@ class CustomerOrderExt extends CustomerOrder {
 export class OrderDetails {
     @ViewChild(OrderToInvoiceModal)
     private oti: OrderToInvoiceModal;
-
-    @ViewChild(PreviewModal)
-    private previewModal: PreviewModal;
 
     @ViewChild(TofHead)
     private tofHead: TofHead;
@@ -911,20 +908,26 @@ export class OrderDetails {
         }
     }
 
-    private print(id, doneHandler: (msg: string) => void = null) {
+    private print(id, doneHandler: (msg?: string) => void = () => {}) {
         this.reportDefinitionService.getReportByName('Ordre id').subscribe((report) => {
-            this.previewModal.openWithId(report, id, 'Id', doneHandler);
+            report.parameters = [{Name: 'Id', value: id}];
+            this.modalService.open(UniPreviewModal, {
+                data: report
+            }).onClose.subscribe(() => {
+                doneHandler();
+
+                this.customerOrderService.setPrintStatus(this.orderID, this.printStatusPrinted).subscribe(
+                    (printStatus) => {
+                        this.order.PrintStatus = +this.printStatusPrinted;
+                        this.updateToolbar();
+                    },
+                    err => this.errorService.handle(err)
+                );
+            });
         }, (err) => {
-            if (doneHandler) { doneHandler('En feil oppstod ved utskrift av ordre!'); }
+            doneHandler('En feil oppstod ved utskrift av ordre');
         });
     }
-
-    private onPrinted(event) {
-            this.customerOrderService.setPrintStatus(this.orderID, this.printStatusPrinted).subscribe((printStatus) => {
-                this.order.PrintStatus = +this.printStatusPrinted;
-                this.updateToolbar();
-            }, err => this.errorService.handle(err));
-  }
 
     private deleteOrder(done) {
         this.customerOrderService.Remove(this.order.ID, null).subscribe(

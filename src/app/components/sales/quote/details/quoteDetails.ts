@@ -7,7 +7,6 @@ import {CustomerQuote, Project} from '../../../../unientities';
 import {StatusCode} from '../../salesHelper/salesEnums';
 import {TradeHeaderCalculationSummary} from '../../../../models/sales/TradeHeaderCalculationSummary';
 import {TofHelper} from '../../salesHelper/tofHelper';
-import {PreviewModal} from '../../../reports/modals/preview/previewModal';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
 import {ToastService, ToastType} from '../../../../../framework/uniToast/toastService';
 import {IToolbarConfig} from '../../../common/toolbar/toolbar';
@@ -32,6 +31,7 @@ import {
     ReportService,
     ProjectService
 } from '../../../../services/services';
+
 import {
     StatusCodeCustomerQuote,
     CompanySettings,
@@ -39,12 +39,13 @@ import {
     CurrencyCode,
     LocalDate
 } from '../../../../unientities';
+
 import {
     UniModalService,
     UniSendEmailModal,
     ConfirmActions
 } from '../../../../../framework/uniModal/barrel';
-
+import {UniPreviewModal} from '../../../reports/modals/preview/previewModal';
 import * as moment from 'moment';
 declare var _;
 
@@ -53,9 +54,6 @@ declare var _;
     templateUrl: './quoteDetails.html',
 })
 export class QuoteDetails {
-    @ViewChild(PreviewModal)
-    private previewModal: PreviewModal;
-
     @ViewChild(TofHead)
     private tofHead: TofHead;
 
@@ -298,13 +296,6 @@ export class QuoteDetails {
         this.updateToolbar();
         this.updateSaveActions();
     }
-
-        private onPrinted(event) {
-                    this.customerQuoteService.setPrintStatus(this.quoteID, this.printStatusPrinted).subscribe((printStatus) => {
-                        this.quote.PrintStatus = +this.printStatusPrinted;
-                        this.updateToolbar();
-                    }, err => this.errorService.handle(err));
-        }
 
     public onQuoteChange(quote: CustomerQuote) {
         this.isDirty = true;
@@ -889,11 +880,26 @@ export class QuoteDetails {
         }
     }
 
-    private print(id, doneHandler: (msg: string) => void = null) {
+    private print(id, doneHandler: (msg?: string) => void = () => {}) {
         this.reportDefinitionService.getReportByName('Tilbud id').subscribe((report) => {
-            if (report) {
-                this.previewModal.openWithId(report, id, 'Id', doneHandler);
-            }
+            report.parameters = [{Name: 'Id', value: id}];
+
+            this.modalService.open(UniPreviewModal, {
+                data: report
+            }).onClose.subscribe(() => {
+                doneHandler();
+
+                this.customerQuoteService.setPrintStatus(this.quoteID, this.printStatusPrinted).subscribe(
+                    (printStatus) => {
+                        this.quote.PrintStatus = +this.printStatusPrinted;
+                        this.updateToolbar();
+                    },
+                    err => this.errorService.handle(err)
+                );
+            });
+        },
+        (err) => {
+            doneHandler('En feil oppstod ved utskrift av tilbud');
         });
     }
 

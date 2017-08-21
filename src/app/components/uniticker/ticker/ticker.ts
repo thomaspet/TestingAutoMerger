@@ -10,9 +10,9 @@ import {ErrorService, UniTickerService, ApiModelService, ReportDefinitionService
 import {UniTable, UniTableColumn, IContextMenuItem, UniTableColumnType, UniTableConfig} from '../../../../framework/ui/unitable/index';
 import {Observable} from 'rxjs/Observable';
 import {ImageModal} from '../../common/modals/ImageModal';
-import {PreviewModal} from '../../reports/modals/preview/previewModal';
 import {BrowserStorageService} from '../../../services/common/browserStorageService';
-
+import {UniModalService} from '../../../../framework/uniModal/barrel';
+import {UniPreviewModal} from '../../reports/modals/preview/previewModal';
 
 import * as moment from 'moment';
 import {saveAs} from 'file-saver';
@@ -44,7 +44,6 @@ export class UniTicker {
 
     @ViewChild(UniTable) unitable: UniTable;
     @ViewChild(ImageModal) private imageModal: ImageModal;
-    @ViewChild(PreviewModal) private previewModal: PreviewModal;
 
     private model: any;
 
@@ -57,7 +56,8 @@ export class UniTicker {
 
     private canShowTicker: boolean = true;
 
-    constructor(private uniHttpService: UniHttp,
+    constructor(
+        private uniHttpService: UniHttp,
         private router: Router,
         private route: ActivatedRoute,
         private tabService: TabService,
@@ -70,7 +70,9 @@ export class UniTicker {
         private http: Http,
         private reportDefinitionService: ReportDefinitionService,
         private storageService: BrowserStorageService,
-        private cdr: ChangeDetectorRef) {
+        private cdr: ChangeDetectorRef,
+        private modalService: UniModalService
+    ) {
 
         this.statusService
             .loadStatusCache()
@@ -411,7 +413,12 @@ export class UniTicker {
 
                 this.reportDefinitionService.getReportByName(action.Options.ReportName).subscribe((report) => {
                     if (report) {
-                        this.previewModal.openWithId(report, this.selectedRow ? this.selectedRow[rowIdentifier] : selectedRows[0][rowIdentifier]);
+                        let id = this.selectedRow ? this.selectedRow.rowIdentifier : selectedRows[0].rowIdentifier;
+                        report.parameters = [{Name: 'Id', id}];
+
+                        this.modalService.open(UniPreviewModal, {
+                            data: report
+                        }).onClose.subscribe(() => {});
 
                         // execute AfterExecuteActionHandler if it is specified
                         this.afterExecuteAction(action, actionOverride, selectedRows);
