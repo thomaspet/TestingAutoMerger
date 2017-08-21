@@ -877,9 +877,7 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
             report.parameters = [{Name: 'RunID', value: this.payrollrun$.getValue().ID}];
             this.modalService.open(UniPreviewModal, {
                 data: report
-            }).onClose.subscribe(() => {});
-
-            // this.previewModal.openWithId(report, this.payrollrun$.getValue().ID, 'RunID');
+            });
         });
     }
 

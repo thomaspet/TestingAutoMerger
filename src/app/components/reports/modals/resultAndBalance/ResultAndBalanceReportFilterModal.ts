@@ -234,7 +234,6 @@ export class ResultAndBalanceReportFilterModal {
                         this.modalService.open(UniPreviewModal, {
                             data: this.modalConfig.report
                         });
-                        // this.previewModal.open(this.modalConfig.report);
                     }
                 },
                 {

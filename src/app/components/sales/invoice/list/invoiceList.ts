@@ -322,7 +322,7 @@ export class InvoiceList implements OnInit {
                         report.parameters = [{Name: 'Id', value: invoice.ID}];
                         this.modalService.open(UniPreviewModal, {
                             data: report
-                        }).onClose.subscribe(() => {});
+                        });
 
                         this.customerInvoiceService.setPrintStatus(invoice.ID, this.printStatusPrinted).subscribe(
                             (printStatus) => {},

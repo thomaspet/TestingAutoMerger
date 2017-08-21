@@ -389,7 +389,7 @@ export class ReminderSending implements OnInit {
 
                     this.modalService.open(UniPreviewModal, {
                         data: report
-                    }).onClose.subscribe(() => {});
+                    });
                 }
             }, err => this.errorService.handle(err));
         });

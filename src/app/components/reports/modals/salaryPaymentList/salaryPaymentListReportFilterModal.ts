@@ -96,10 +96,6 @@ export class SalaryPaymentListReportFilterModal implements OnInit {
                         this.modalService.open(UniPreviewModal, {
                             data: report
                         });
-                        // this.previewModal.openWithId(
-                        //     this.modalConfig.report,
-                        //     model$.getValue().RunID,
-                        //         'RunID');
                     }
                 },
                 {

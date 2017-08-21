@@ -418,7 +418,7 @@ export class UniTicker {
 
                         this.modalService.open(UniPreviewModal, {
                             data: report
-                        }).onClose.subscribe(() => {});
+                        });
 
                         // execute AfterExecuteActionHandler if it is specified
                         this.afterExecuteAction(action, actionOverride, selectedRows);

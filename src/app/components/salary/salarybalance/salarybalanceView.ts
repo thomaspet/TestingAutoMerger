@@ -303,7 +303,7 @@ export class SalarybalanceView extends UniView implements OnDestroy {
                 report.parameters = [{Name: 'SalaryBalanceID', value: id}];
                 this.modalService.open(UniPreviewModal, {
                     data: report
-                }).onClose.subscribe(() => {});
+                });
             });
     }
 

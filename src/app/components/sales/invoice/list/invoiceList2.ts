@@ -128,6 +128,7 @@ export class InvoiceList2 implements OnInit {
     private onAfterPrintInvoice(selectedRows: Array<any>): Promise<any> {
         return new Promise((resolve, reject) => {
             let invoice = selectedRows[0];
+            debugger;
             this.customerInvoiceService
                 .setPrintStatus(invoice.ID, this.printStatusPrinted)
                     .subscribe((printStatus) => {
