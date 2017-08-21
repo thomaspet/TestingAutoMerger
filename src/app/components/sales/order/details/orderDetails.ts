@@ -225,33 +225,13 @@ export class OrderDetails {
             }
         });
         this.projectService.GetAll(null).subscribe(
-            res=>this.projects = res,
-            err=>this.errorService.handle(err)
+            res => this.projects = res,
+            err => this.errorService.handle(err)
         );
     }
 
-    private ngAfterViewInit() {
+    public ngAfterViewInit() {
          this.tofHead.detailsForm.tabbedPastLastField.subscribe((event) => this.tradeItemTable.focusFirstRow());
-    }
-
-    private sendEmailAction(doneHandler: (msg: string) => void = null) {
-        doneHandler('Email-sending åpnet');
-
-        let sendemail = new SendEmail();
-        sendemail.EntityType = 'CustomerOrder';
-        sendemail.EntityID = this.order.ID;
-        sendemail.CustomerID = this.order.CustomerID;
-        sendemail.EmailAddress = this.order.EmailAddress;
-        sendemail.Subject = 'Ordre ' + (this.order.OrderNumber ? 'nr. ' + this.order.OrderNumber : 'kladd');
-        sendemail.Message = 'Vedlagt finner du Ordre ' + (this.order.OrderNumber ? 'nr. ' + this.order.OrderNumber : 'kladd');
-
-        this.sendEmailModal.openModal(sendemail);
-        if (this.sendEmailModal.Changed.observers.length === 0) {
-                this.sendEmailModal.Changed.subscribe((email) => {
-                this.reportService.generateReportSendEmail('Ordre id', email, null, doneHandler);
-            });
-        }
-
     }
 
     @HostListener('keydown', ['$event'])

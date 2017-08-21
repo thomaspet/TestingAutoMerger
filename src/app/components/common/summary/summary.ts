@@ -1,7 +1,7 @@
 import { Component, Input } from '@angular/core';
 export interface ISummaryConfig {
     title: string;
-    value: string;
+    value: string | number;
     description?: string;
 }
 @Component({

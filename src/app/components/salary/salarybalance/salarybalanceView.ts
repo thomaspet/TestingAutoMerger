@@ -3,13 +3,6 @@ import { UniView } from '../../../../framework/core/uniView';
 import { ActivatedRoute, Router, NavigationEnd } from '@angular/router';
 import { IUniSaveAction } from '../../../../framework/save/save';
 import { IToolbarConfig } from '../../common/toolbar/toolbar';
-<<<<<<< HEAD
-import {
-    UniCacheService, ErrorService, SalarybalanceService,
-    ReportDefinitionService, CompanySalaryService, FileService
-} from '../../../services/services';
-=======
->>>>>>> feat(modals): rewrite previewModal to support modalService
 import { TabService, UniModules } from '../../layout/navbar/tabstrip/tabService';
 import { Observable } from 'rxjs/Observable';
 import { Subscription } from 'rxjs/Subscription';

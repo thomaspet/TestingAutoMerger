@@ -14,24 +14,19 @@ interface IDownloadAction {
         <dialog class="uni-modal medium"
             (clickOutside)="close()"
             (keydown.esc)="close()">
-
             <header>
                 <h1>{{options.header || 'Forhåndsvisning'}}</h1>
             </header>
-
             <main>
                 <section id="reportContainer" [innerHtml]="modalConfig?.report | safehtml"></section>
             </main>
-
             <footer>
                 <button class="main-action-button good" (click)="download(actions[0].format)">
                     {{actions[0].label}}
                 </button>
-
                 <button class="action-list-toggle good" (click)="showActionList = !showActionList">
                     Flere valg
                 </button>
-
                 <ul class="download-action-list" [attr.aria-expanded]="showActionList">
                     <li *ngFor="let action of actions" (click)="download(action.format)">
                         {{action.label}}
@@ -100,24 +95,7 @@ export class UniPreviewModal implements IUniModal {
         this.reportService.generateReportFormat(format, this.modalConfig.reportDefinition);
     }
 
-<<<<<<< HEAD
-    public open(report: Report, parameters = null, doneHandler: (msg: string) => void = null) {
-        this.modalDoneHandler = doneHandler;
-        this.modalConfig.title = report.Name;
-        this.modalConfig.report = null;
-        this.reportDefinition = report;
-        this.modal.open();
-        
-        if (doneHandler !== null) {
-            doneHandler('Skrevet ut');
-        }
-
-        this.reportService.generateReportHtml(report, this.modalConfig, () => {
-            this.cdr.markForCheck();
-        });
-=======
     public close(saveBeforeClosing?: boolean) {
         this.onClose.emit();
->>>>>>> feat(modals): rewrite previewModal to support modalService
     }
 }
