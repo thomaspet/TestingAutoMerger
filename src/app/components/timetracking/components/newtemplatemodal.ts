@@ -15,8 +15,8 @@ import * as moment from 'moment';
 @Component({
     selector: 'uni-template-modal',
     template: `
-        <dialog class="uniModal" [attr.open]="isOpen">            
-            <article class="uniModal_bounds">                
+        <dialog class="uniModal" [attr.open]="isOpen">
+            <article class="uniModal_bounds">
                 <button (click)="close('cancel')" class="closeBtn"></button>
                 <article class="modal-content uni_template_modal_content" [attr.aria-busy]="busy" >
                     <h3>Opprett ny modal</h3>
@@ -27,7 +27,7 @@ import * as moment from 'moment';
                         [config]="tableConfig"
                         (rowSelected)="onRowSelected($event)">
                     </uni-table>
-                    <footer>                         
+                    <footer>
                         <button (click)="close('ok')" class="good">Lagre</button>
                         <button (click)="close('cancel')" class="bad">Avbryt</button>
                     </footer>
@@ -53,29 +53,29 @@ export class UniTemplateModal {
     constructor(private worker: WorkEditor) { }
 
     private setUpTable() {
-        this.tableConfig = new UniTableConfig(true, false, 1)
+        this.tableConfig = new UniTableConfig(true, false)
             .setSearchable(false)
             .setColumns([
-                this.createTimeColumn('StartTime', 'Start'),
-                this.createTimeColumn('EndTime', 'Slutt'),
-                new UniTableColumn('LunchInMinutes', 'Lunsj', UniTableColumnType.Text),
-                new UniTableColumn('Minutes', 'Timer', UniTableColumnType.Text),
-                new UniTableColumn('Description', 'Beskrivelse', UniTableColumnType.Text).setWidth('30%'),
-                this.worker.createLookupColumn('Worktype', 'Timeart', 'Worktype', x => this.worker.lookupType(x)).setWidth('6rem'),
-                new UniTableColumn('DimensionsID', 'Prosjekt', UniTableColumnType.Text),
-                new UniTableColumn('CustomerOrderID', 'Ordre', UniTableColumnType.Text)
+                new UniTableColumn('StartTime', 'Start'),
+                new UniTableColumn('EndTime', 'Slutt'),
+                new UniTableColumn('LunchInMinutes', 'Lunsj'),
+                new UniTableColumn('Minutes', 'Timer')
+                    .setTemplate(rowModel => rowModel.Minutes && (rowModel.Minutes / 60).toFixed(1)),
+                new UniTableColumn('Description', 'Beskrivelse')
+                    .setWidth('30%'),
+                this.worker.createLookupColumn('Worktype', 'Timeart', 'Worktype', x => this.worker.lookupType(x))
+                    .setWidth('6rem'),
+                new UniTableColumn('DimensionsID', 'Prosjekt'),
+                new UniTableColumn('CustomerOrderID', 'Ordre')
             ])
-            .setChangeCallback(x => this.onEditChange(x))
+            .setChangeCallback(event => this.onEditChange(event));
     }
 
     public open(template?: ITemplate) {
-        if (template) {
-            this.template = template;
-        } else {
-            this.template = this.getCleanTemplate();
-        }
+        this.template = template || this.getCleanTemplate();
         this.isOpen = true;
         this.setUpTable();
+
         return new Promise((resolve, reject) => {
             this.onClose = ok => resolve(ok);
         });
@@ -89,7 +89,7 @@ export class UniTemplateModal {
 
     private onClose: (ok: boolean) => void = () => {
         console.log(this.template);
-        
+
     };
 
     private getCleanTemplate() {
@@ -110,15 +110,7 @@ export class UniTemplateModal {
                 DimensionsID: null,
                 CustomerOrderID: null
             }]
-        }
-    }
-
-    private createTimeColumn(name, label) {
-
-        return new UniTableColumn(name, label, UniTableColumnType.Text)
-            .setTemplate((item: any) => {
-                return this.formatHours(item[name]);
-            })
+        };
     }
 
     private onRowSelected(event) {
@@ -126,43 +118,12 @@ export class UniTemplateModal {
     }
 
     private onEditChange(event) {
-        if (event.originalIndex === this.template.Items.length) {
-            this.template.Items.push({
-                StartTime: '',
-                EndTime: '',
-                Minutes: 0,
-                WorkType: null,
-                LunchInMinutes: 0,
-                Description: '',
-                DimensionsID: null,
-                CustomerOrderID: null
-            });
+        if (event.field === 'StartTime' || event.field === 'EndTime' ) {
+            event.rowModel[event.field] = this.formatHours(event.rowModel[event.field]);
+            event.rowModel.Minutes = this.calcMinutesOnLine(event.rowModel);
+            return event.rowModel;
         }
-        if (event.newValue) {
-            if (event.field === 'StartTime' || event.field === 'EndTime') {
-                this.template.Items[event.originalIndex][event.field]
-                    = this.formatHours(event.newValue);
-                this.template.Items[event.originalIndex].Minutes
-                    = this.calcMinutesOnLine(this.template.Items[event.originalIndex]);
-            } else if (event.field === 'Worktype') {
-                this.template.Items[event.originalIndex][event.field] = event.rowModel.Worktype;
-            } else {
-                this.template.Items[event.originalIndex][event.field] = event.newValue;
-            }
-            
-        }
-
-
-        this.table.updateRow(event.originalIndex, event.rowModel);
-        console.log(this.template);
-
-        //if (event.field === 'StartTime' || event.field === 'EndTime') {
-        //    this.template.Items[event.originalIndex].Minutes =
-        //        this.calcMinutesOnLine(this.template.Items[event.originalIndex]);
-        //}
     }
-
-
 
     private calcMinutesOnLine(item: ITimeTrackingTemplate): number {
         var minutes = 0;
