@@ -1,8 +1,6 @@
-import {Component, Input, OnInit, ViewChild, ViewChildren, QueryList, SimpleChange} from '@angular/core';
-import {UniTable, UniTableColumn, UniTableConfig, UniTableColumnType} from '../../../../../framework/ui/unitable/index';
+import {Component, Input, OnInit, ViewChildren, QueryList, SimpleChange} from '@angular/core';
 import {ToastService, ToastType} from '../../../../../framework/uniToast/toastService';
 import {SendEmail} from '../../../../models/sendEmail';
-import {PreviewModal} from '../../../reports/modals/preview/previewModal';
 import {IToolbarConfig} from './../../../common/toolbar/toolbar';
 import {IUniSaveAction} from '../../../../../framework/save/save';
 import {Observable} from 'rxjs/Observable';
@@ -10,6 +8,7 @@ import {LocalDate, CustomerInvoiceReminder} from '../../../../unientities';
 import {FieldType} from '../../../../../framework/ui/uniform/index';
 import {UniModalService, ConfirmActions} from '../../../../../framework/uniModal/barrel';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
+import {UniPreviewModal} from '../../../reports/modals/preview/previewModal1';
 import {
     StatisticsService,
     ErrorService,
@@ -18,7 +17,12 @@ import {
     NumberFormat,
     ReportService
 } from '../../../../services/services';
-
+import {
+    UniTable,
+    UniTableColumn,
+    UniTableConfig,
+    UniTableColumnType
+} from '../../../../../framework/ui/unitable/index';
 import * as moment from 'moment';
 
 export interface IRunNumberData {
@@ -35,7 +39,6 @@ export class ReminderSending implements OnInit {
     @Input() public config: any;
     @Input() public modalMode: boolean;
     @ViewChildren(UniTable) private tables: QueryList<UniTable>;
-    @ViewChild(PreviewModal) public previewModal: PreviewModal;
 
     private remindersEmail: any;
     private remindersPrint: any;
@@ -131,7 +134,7 @@ export class ReminderSending implements OnInit {
         }
     }
 
-    public saveReminders(done) {
+    public saveReminders(done: (msg: string) => void = () => {}) {
         let requests = [];
         for(var i = 0;i<this.changedReminders.length;i++) {
 
@@ -223,7 +226,7 @@ export class ReminderSending implements OnInit {
             this.sendPrint(true);
         } else {
             done('Purringer sendes');
-            this.sendEmail();
+            this.sendEmail(done);
             this.sendPrint(false);
         }
     }
@@ -352,7 +355,7 @@ export class ReminderSending implements OnInit {
         return tables[1] && tables[1].getSelectedRows() || [];
     }
 
-    public sendEmail() {
+    public sendEmail(doneHandler?) {
         var emails = this.getSelectedEmail();
         if (emails.length === 0) { return; }
         this.reminderService.sendAction(emails.map(x => x.ID)).subscribe(() => {
@@ -368,7 +371,7 @@ export class ReminderSending implements OnInit {
                 email.Message = `Vedlagt finner du purring ${r.ReminderNumber} for faktura ${r.InvoiceNumber}`;
 
                 let parameters = [{Name: 'odatafilter', value: `ID eq ${r.ID}`}];
-                this.reportService.generateReportSendEmail('Purring', email, parameters);
+                this.reportService.generateReportSendEmail('Purring', email, parameters, doneHandler);
             });
         });
     }
@@ -383,7 +386,10 @@ export class ReminderSending implements OnInit {
                 if (report) {
                     let filter = prints.map((r) => 'ID eq ' + r.ID).join(' or ');
                     report.parameters = [{Name: 'odatafilter', value: filter}];
-                    this.previewModal.open(report);
+
+                    this.modalService.open(UniPreviewModal, {
+                        data: report
+                    }).onClose.subscribe(() => {});
                 }
             }, err => this.errorService.handle(err));
         });

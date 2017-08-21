@@ -108,9 +108,16 @@ export class ReportService extends BizHttp<string> {
     }
 
     public generateReportSendEmail(name: string, sendemail: SendEmail, parameters = null, doneHandler: (msg: string) => void = null) {
-        if (sendemail.EmailAddress.indexOf('@') <= 0) {
-            this.toastService.addToast('Sending av epost feilet', ToastType.bad, 3, 'Grunnet manglende epostadresse');
-            if (doneHandler) { doneHandler('Sending av epost feilet grunnet manglende epostadresse'); }
+        if (!sendemail.EmailAddress || sendemail.EmailAddress.indexOf('@') <= 0) {
+            this.toastService.addToast(
+                'Sending feilet',
+                ToastType.bad, 3,
+                'Sending av epost feilet grunnet manglende epostadresse'
+            );
+
+            if (doneHandler) {
+                doneHandler('Sending feilet');
+            }
         } else {
             this.emailtoast = this.toastService.addToast('Sender epost til ' + sendemail.EmailAddress, ToastType.warn, 0, sendemail.Subject);
 

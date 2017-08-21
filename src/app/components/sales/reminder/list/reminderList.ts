@@ -5,7 +5,6 @@ import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService
 import {ISummaryConfig} from '../../../common/summary/summary';
 import {IUniSaveAction} from '../../../../../framework/save/save';
 import {ToastService, ToastType} from '../../../../../framework/uniToast/toastService';
-import {ReminderSendingModal} from '../sending/reminderSendingModal';
 import {UniModalService} from '../../../../../framework/uniModal/barrel';
 import {UniReminderSettingsModal} from '../../../common/reminder/settings/reminderSettingsModal';
 import {CustomerInvoiceReminderSettings, LocalDate} from '../../../../unientities';
@@ -34,9 +33,6 @@ declare const _;
 export class ReminderList {
     @ViewChild(UniTable)
     private table: UniTable;
-
-    @ViewChild(ReminderSendingModal)
-    private reminderSendingModal: ReminderSendingModal;
 
     private reminderTable: UniTableConfig;
     private reminderList: any;

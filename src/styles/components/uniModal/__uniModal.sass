@@ -215,3 +215,37 @@ uni-send-email-modal
     textarea
         height: 12rem
         overflow: auto
+
+uni-preview-modal dialog.uni-modal
+    max-height: 95vh
+
+    #reportContainer
+        max-height: calc(95vh - 10rem)
+        overflow: auto
+        text-align: center
+
+    .main-action-button
+        border-radius: pxToRem(3) 0 0 pxToRem(3)
+
+    .action-list-toggle
+        @extend %hideText
+        border-radius: 0 pxToRem(3) pxToRem(3) 0
+        margin-left: 0
+        border-left: none
+        float: right
+        min-width: 0
+        width: 2rem
+        background: $uni-color-good unicon-chevron-down($uni-color-negative) center center no-repeat
+        background-size: .75rem auto
+
+        &:hover,
+        &:focus
+            // border: pxToRem(1) solid transparentize($uni-color-negative, .5)
+            border-left: 0
+            background-color: darken($uni-color-good, 5%)
+
+    .download-action-list
+        @extend %contextMenu
+        bottom: 3rem
+        right: 1
+

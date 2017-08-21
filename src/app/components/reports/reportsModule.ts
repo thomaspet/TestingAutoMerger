@@ -27,7 +27,12 @@ import {ParameterModal, ReportparameterModalType} from './modals/parameter/param
 import {PostingJournalReportFilterForm} from './modals/postingJournal/PostingJournalReportFilterModal';
 import {PostingJournalReportFilterModal} from './modals/postingJournal/PostingJournalReportFilterModal';
 import {ReportPreviewModalType} from './modals/preview/previewModal';
+
+
 import {PreviewModal} from './modals/preview/previewModal';
+import {UniPreviewModal} from './modals/preview/previewModal1';
+
+
 import {ResultAndBalanceReportFilterForm} from './modals/resultAndBalance/ResultAndBalanceReportFilterModal';
 import {ResultAndBalanceReportFilterModal} from './modals/resultAndBalance/ResultAndBalanceReportFilterModal';
 import {SupplierAccountReportFilterModal} from './modals/supplierAccountReportFilter/SupplierAccountReportFilterModal';
@@ -84,6 +89,7 @@ import {UniReports} from './reports';
         PostingJournalReportFilterModal,
         ReportPreviewModalType,
         PreviewModal,
+        UniPreviewModal,
         ResultAndBalanceReportFilterForm ,
         ResultAndBalanceReportFilterModal,
         SupplierAccountReportFilterForm,
@@ -111,7 +117,8 @@ import {UniReports} from './reports';
         VacationPayBaseReportFilterModalContent,
         SalaryWithholdingAndAGAReportFilterModalContent,
         PaycheckReportFilterModalContent,
-        ReportparameterModalType
+        ReportparameterModalType,
+        UniPreviewModal
     ],
     exports: [
         UniReports,
@@ -129,6 +136,7 @@ import {UniReports} from './reports';
         PostingJournalReportFilterModal,
         ReportPreviewModalType,
         PreviewModal,
+        UniPreviewModal,
         ResultAndBalanceReportFilterForm ,
         ResultAndBalanceReportFilterModal,
         SupplierAccountReportFilterForm,

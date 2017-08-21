@@ -2,20 +2,18 @@ import {Component, Type, Input, ViewChild, OnInit} from '@angular/core';
 import {UniModal} from '../../../../../framework/modals/modal';
 import {ErrorService} from '../../../../services/services';
 import {ToastService} from '../../../../../framework/uniToast/toastService';
-import {ConfirmActions, IModalAction} from '../../../../../framework/modals/confirm';
+import {ConfirmActions} from '../../../../../framework/uniModal/barrel';
 import {LocalDate} from '../../../../unientities';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {UniFieldLayout, FieldType} from '../../../../../framework/ui/uniform/index';
-
-import * as moment from 'moment';
 
 export interface IReminderConfirmModalConfig {
     reminders?: any;
     model?: any;
     actions?: {
-        accept?: IModalAction,
-        reject?: IModalAction,
-        cancel?: IModalAction
+        accept?: any,
+        reject?: any,
+        cancel?: any
     };
 }
 
