@@ -29,7 +29,8 @@ import { SideMenu } from './sidemenu/sidemenu';
 import {CanDeactivateGuard} from '../../canDeactivateGuard';
 import {WorkEditor} from './components/workeditor';
 import {DayBrowser} from './components/daybrowser';
-import {UniTimeModal} from './components/popupeditor';
+import { UniTimeModal } from './components/popupeditor';
+import { UniTemplateModal } from './components/newtemplatemodal';
 import {TeamworkReport} from './components/teamworkreport';
 import {ApproveDetails} from './components/approvedetails';
 import {TimeApproveModal} from './components/popupapprove';
@@ -70,6 +71,7 @@ import {UniFileImport} from './components/popupfileimport';
         SideMenu,
         DayBrowser,
         UniTimeModal,
+        UniTemplateModal
         TeamworkReport,
         ApproveDetails, TimeApproveModal, UniFileImport
     ],

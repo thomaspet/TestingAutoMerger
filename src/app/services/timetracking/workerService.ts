@@ -26,8 +26,8 @@ export interface IFilter {
     label: string;
     isSelected?: boolean;
     interval: ItemInterval;
-    bigLabel: string;
-    date: Date;
+    bigLabel?: string;
+    date?: Date;
 }
 
 @Injectable()

@@ -260,7 +260,7 @@ export class WorkEditor {
             'filter', filter);
     }
 
-    private createTimeColumn(name: string, label: string): UniTableColumn {
+    public createTimeColumn(name: string, label: string): UniTableColumn {
         return this.createFmtColumn(name, label, x => moment(x).format('HH:mm'));
     }
 
@@ -279,7 +279,7 @@ export class WorkEditor {
             });
     }
 
-    private createLookupColumn(
+    public createLookupColumn(
         name: string, label: string, expandCol: string, lookupFn?: any,
         expandKey = 'ID', expandLabel = 'Name'): UniTableColumn {
         return new UniTableColumn(name, label, UniTableColumnType.Lookup)
