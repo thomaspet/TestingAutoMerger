@@ -8,7 +8,7 @@ export enum ConfirmActions {
 };
 
 @Component({
-    selector: 'uni-confirm-modal-v2',
+    selector: 'uni-confirm-modal',
     template: `
         <dialog class="uni-modal"
                 (clickOutside)="clickOutsideCancel()"
