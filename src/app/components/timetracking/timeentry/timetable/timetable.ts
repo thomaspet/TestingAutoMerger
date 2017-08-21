@@ -96,7 +96,9 @@ export class TimeTableReport {
 
         switch (week.Sums.Workflow) {
             case ReportFlow.Rejected:
-                this.reAssignWeek(week);
+                this.popup.clear();                
+                this.popup.addItem('reset', 'Lås opp denne uken for redigering', week);
+                this.popup.activate(src, week.WeekNumber);
                 break;
 
             case ReportFlow.Draft:
@@ -106,25 +108,16 @@ export class TimeTableReport {
                 break;
 
             case ReportFlow.PartialAssign:
-                this.modalService.confirm( { 
-                    header: 'Send inn ikke-godkjente timer?',
-                    message: 'Ønsker du å sende inn timer som ikke er godkjent?'
-                }).onClose.subscribe( response => {
-                    if (response === ConfirmActions.ACCEPT) {
-                        this.assignWeek(week);
-                    }
-                });
+                this.popup.clear();                
+                this.popup.addItem('assign', 'Send resterende poster til godkjenning', week);
+                this.popup.addItem('reset', 'Nullstill innsending for denne uken', week);
+                this.popup.activate(src, week.WeekNumber);
                 break;
             
             case ReportFlow.Approved:
-                this.modalService.confirm( { 
-                    header: 'Låse opp godkjente timer ?',
-                    message: 'Ønsker du å låse opp alle timene for denne uken ?'
-                }).onClose.subscribe( response => {
-                    if (response === ConfirmActions.ACCEPT) {
-                        this.deleteAllGroupsForWeek(week);
-                    }
-                });
+                this.popup.clear();                
+                this.popup.addItem('reset', 'Lås opp denne uken for redigering', week);
+                this.popup.activate(src, week.WeekNumber);
                 break;
 
             case ReportFlow.AwaitingApproval:
