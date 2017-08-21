@@ -55,7 +55,7 @@
         </section>
 
         <section [hidden]="!tabs[4].isSelected">
-            <vacation *ngIf="tabs[4].activated" (saved)="onVacationSaved()" [workrelationid]="timeSheet.currentRelation.ID"></vacation>
+            <vacation *ngIf="tabs[4].activated" (saved)="reloadFlex()" [workrelationid]="timeSheet.currentRelation.ID"></vacation>
         </section>
 
         <div *ngIf="this.mapTabPosition(5)">

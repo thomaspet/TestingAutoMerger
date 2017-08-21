@@ -193,6 +193,7 @@ export class TimeEntry {
         } else {
             this.loadItems();
             this.reloadSums();
+            this.reloadFlex();
         }
     }
 
@@ -317,7 +318,7 @@ export class TimeEntry {
         this.workEditor.EmptyRowDetails.StartTime = def;
     }
 
-    public onVacationSaved() {
+    public reloadFlex() {
         this.loadFlex(this.timeSheet.currentRelation);
     }
 
@@ -326,7 +327,6 @@ export class TimeEntry {
     }
 
     private loadFlex(rel: WorkRelation) {
-        console.log('loadFlex');
         this.regtimeBalance.refresh(rel);
     }
 

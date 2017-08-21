@@ -1,4 +1,4 @@
-import {Component, ViewChild, Input } from '@angular/core';
+import {Component, ViewChild, Input} from '@angular/core';
 import {TimeSheet, TimesheetService, WorkerService} from '../../../../services/services';
 import {ItemInterval, IFilter} from '../../../../services/timetracking/workerService';
 import {toIso} from '../../../common/utils/utils';
@@ -13,6 +13,7 @@ import {Sums, StatusCode, ReportFlow, IReport, Week, IWorkDay, Month} from './mo
 import {UniModalService, ConfirmActions} from '../../../../../framework/uniModal/barrel';
 import {WorkitemGroupService} from './workitemgroupservice';
 import {PopupMenu} from './popupmenu';
+import {ToastService, ToastType} from '../../../../../framework/uniToast/toastService';
 
 @Component({
     selector: 'timetracking-timetable',
@@ -30,6 +31,7 @@ export class TimeTableReport {
         sumWork: number,
         sumTotal: number
     };
+    private defaultWorkTypeID: number;
     public report: IReport;
     public filters: Array<IFilter>;
     public currentFilter: IFilter;
@@ -40,7 +42,8 @@ export class TimeTableReport {
         private api: WorkitemGroupService,
         private timesheetService: TimesheetService,
         private errorService: ErrorService,
-        private modalService: UniModalService
+        private modalService: UniModalService,
+        private toast: ToastService
     ) {
         this.filters = [
             { name: 'month', label: 'Denne måned', interval: ItemInterval.thisMonth},
@@ -69,7 +72,7 @@ export class TimeTableReport {
             if (this.eventcfg && checkSave) {
                 this.eventcfg.askSave().then( () => {
                     this.onDayClick(day, false);
-                    this.eventcfg.askReload();
+                    this.publishReloadEvent();
                 });
                 return;
             }
@@ -77,10 +80,14 @@ export class TimeTableReport {
             this.timeModal.open(this.timesheet.currentRelation, day).then( x => {
                 if (x) {
                     this.onFilterClick( this.currentFilter );
-                    if (this.eventcfg && this.eventcfg.askReload) { this.eventcfg.askReload(); }
+                    this.publishReloadEvent();
                 }
             });
         }
+    }
+
+    private publishReloadEvent() {
+        if (this.eventcfg && this.eventcfg.askReload) { this.eventcfg.askReload(); }
     }
 
     public onRowActionClicked(week: Week, event: MouseEvent) {
@@ -212,18 +219,19 @@ export class TimeTableReport {
     }
 
     private deleteAllGroupsForWeek(week: Week) {
+        week.isBusy = true;
         this.api.GetGroups(this.CurrentRelationID, week.FirstDay, week.LastDay)
         .subscribe( list => {
             Observable.forkJoin(
                 list.map( x => this.api.Delete(x.ID) )
             )
-            .finally( () => this.busy = false )
+            .finally( () => week.isBusy = false )
             .subscribe( result => {
-                this.refreshReport();
+                this.refreshReport(false);
             }, err => this.errorService.handle(err) );
         }, err => {
             this.errorService.handle(err);
-            this.busy = false;
+            week.isBusy = false;
         });         
     }
 
@@ -233,7 +241,8 @@ export class TimeTableReport {
         var d1 = week.FirstDay;
         var d2 = week.LastDay;
 
-        // this.busy = true;
+        week.isBusy = true;
+
         this.api.GetGroups(rel, d1, d2, StatusCode.AwaitingApproval)
             .subscribe( list => {                    
                 Observable.forkJoin(
@@ -241,9 +250,9 @@ export class TimeTableReport {
                         return approve ? this.api.Approve(x.ID) : this.api.Reject(x.ID); 
                     })
                 )
-                .finally( () => this.busy = false )
+                .finally( () => week.isBusy = false )
                 .subscribe( result => {
-                    this.refreshReport();
+                    this.refreshReport(false);
                 }, err => {
                     var msg = this.errorService.extractMessage(err);
                     if (msg && msg.indexOf('exists an active approval task')) {
@@ -255,11 +264,11 @@ export class TimeTableReport {
                 });
             }, err => {
                 this.errorService.handle(err);
-                this.busy = false;
+                week.isBusy = false;
             });        
     }
 
-    private showApprovers(week: Week) {
+    private showApprovers(week: Week, asToast: boolean = false) {
         this.api.GetGroups(this.CurrentRelationID, week.FirstDay, week.LastDay, StatusCode.AwaitingApproval)
             .subscribe( list => {
                 Observable.forkJoin(
@@ -267,40 +276,78 @@ export class TimeTableReport {
                 ).subscribe( (results: Array<Array<{ name: string, email: string }>>) => {
                     var group: string = '';
                     results.forEach( nameList => {
-                        nameList.forEach( y => {
-                            group += ((!group) ? '' : ', ') + y.name;
+                        nameList.forEach( (y, index) => {
+                            group += ((!group) ? '' : ( index === nameList.length - 1 ? ' og ' : ', ')) 
+                            + y.name.trim() + (y.email ? ` (${y.email})` : '');
                         });
                     });
-                    this.modalService.confirm({
-                        header: 'Tildelingsstatus',
-                        message: group + ' må godkjenne.',
+
+                    if (!group) {
+                        return;
+                    }
+
+                    var msgDetails = {
+                        header: 'Godkjenningstatus for Uke ' + week.WeekNumber,
+                        message: 'Tildelt til: ' + group,
                         buttonLabels: {
                             reject: 'Lukk',
                         }
-                    });        
+                    };
+
+                    if (asToast) {
+                        this.toast.addToast(msgDetails.header, ToastType.good, 5, msgDetails.message);
+                    } else {
+                        this.modalService.confirm(msgDetails);
+                    }
                 });
             });
     }
 
-    private autoFillWeek(week: Week) {
+    private autoFillWeek(week: Week, workTypeId: number = 0) {
+
+        workTypeId = workTypeId || this.defaultWorkTypeID;
+
+        if (!workTypeId) {
+            // Fetch the workers most used worktype
+            this.api.getStatistics('model=workitem&select=worktypeid as id,count(id)'
+                + '&top=1&orderby=count(id) desc'
+                + '&filter=workrelationid eq ' + this.CurrentRelationID)
+                .map( x => x.Data )
+                .subscribe( (list: Array<{ id: number}>) => {
+                    if (list && list.length > 0 && list[0].id) {
+                        this.autoFillWeek(week, list[0].id);
+                        return;                 
+                    }
+                    // Not found... ok, lets fetch the first normal worktype:
+                    this.api.get('worktypes?filter=systemtype eq 1&top=1&orderby=ID&select=ID,Name&hateoas=false')
+                        .subscribe( (items: Array<{ID: number, Name: string }>) => {
+                            if (items && items.length > 0 && items[0].ID) {
+                                this.autoFillWeek(week, items[0].ID);
+                            }
+                        });
+                });
+            return;
+        } 
+        this.defaultWorkTypeID = workTypeId;
+
         var ts = new TimeSheet(this.timesheetService);
         ts.currentRelationId = this.CurrentRelationID;
         week.Items.forEach( x => {
             if (x.ExpectedTime > 0) {
                 var offset = moment().utcOffset();
                 var startTime = moment(x.Date).add(-offset, 'minutes').add(8, 'hours');
-                // startTime.add(-offset, 'minutes');
                 var endTime = moment(startTime).add(x.ExpectedTime, 'hours');
                 ts.addItem( <any>{ Date: x.Date, Minutes: x.ExpectedTime * 60, 
-                    Description: 'Normaltid', WorkTypeID: 1, LunchInMinutes: 0,
+                    Description: 'Normaltid', WorkTypeID: workTypeId, LunchInMinutes: 0,
                     StartTime: toIso(startTime.toDate(), true), EndTime: toIso(endTime.toDate(), true) });
             }
         });
-        this.busy = true;
-        ts.saveItems(true)
-            .finally( () => this.busy = false )
+        week.isBusy = true;
+        Observable.forkJoin(ts.saveItems(true))
+            .finally( () => week.isBusy = false )
             .subscribe( x => {
-                this.refreshReport();
+                this.refreshReport(false);
+                this.publishReloadEvent();
             }, err => this.errorService.handle(err));
     }
 
@@ -310,21 +357,22 @@ export class TimeTableReport {
         var d1 = week.FirstDay;
         var d2 = week.LastDay;
         
-        // this.busy = true;
+        week.isBusy = true;
 
         // Locate any open drafts inside this week
         this.api.GetGroups(rel, d1, d2, StatusCode.Draft, StatusCode.Declined)
             .subscribe( (list: Array<WorkItemGroup>) => {
-                
                 // Did we find any ?
                 if (list && list.length > 0) {
                     // Yes, lets assign them
                     Observable.forkJoin(
                         list.map( x => this.api.AssignGroup(x.ID) )
                     )
-                    .subscribe( x => this.refreshReport()
-                    , err => { 
-                        this.busy = false;
+                    .finally(() => week.isBusy = false)
+                    .subscribe( x => {
+                        this.showApprovers(week, true);
+                        this.refreshReport(false);
+                    }, err => { 
                         this.errorService.handle(err); 
                     });
                 } else {
@@ -332,11 +380,17 @@ export class TimeTableReport {
                     this.api.CreateGroup(rel, d1, d2)
                     .subscribe( (group: WorkItemGroup) => {
                         this.api.AssignGroup(group.ID)
-                        .subscribe( x => this.refreshReport()
-                        , err => { 
-                            this.busy = false;
+                        .finally(() => week.isBusy = false)
+                        .subscribe( (x: WorkItemGroup) => {
+                            this.showApprovers(week, true);
+                            this.refreshReport(false);
+                        }, err => { 
                             this.errorService.handle(err); 
                         });
+                    },
+                    err => { 
+                        week.isBusy = false;
+                        this.errorService.handle(err);
                     });
                 }
             });
@@ -353,11 +407,11 @@ export class TimeTableReport {
             }
         });
         this.currentFilter = f;
-        this.refreshReport();
+        this.refreshReport(true);
     }
 
-    private refreshReport() {
-        this.busy = true;
+    private refreshReport(showBusy: boolean) {
+        if (showBusy) { this.busy = true; }
         var dt = toIso(moment(this.workerService.getIntervalDate(this.currentFilter.interval))
             .startOf('week').toDate());
         this.api.GetTimeSheet(this.CurrentRelationID, dt)

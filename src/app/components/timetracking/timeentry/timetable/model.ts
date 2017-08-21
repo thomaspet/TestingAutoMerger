@@ -45,6 +45,7 @@ export class Week {
     public FirstDay: Date;
     public Items: Array<IWorkDay> = [];
     public Sums: Sums = new Sums();
+    public isBusy: boolean = false;
     public get LastDay(): Date {
         if (this.Items && this.Items.length > 0) {
             return this.Items[this.Items.length - 1].Date;
