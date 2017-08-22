@@ -591,7 +591,10 @@ export class CompanySettingsComponent implements OnInit {
                 }
 
                 const modal = this.modalService.open(UniBankAccountModal, {
-                    data: bankaccount
+                    data: bankaccount,
+                    modalConfig: {
+                        accountVisible: true
+                    }
                 });
 
                 return modal.onClose.take(1).toPromise();
