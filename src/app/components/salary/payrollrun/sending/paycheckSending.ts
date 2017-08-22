@@ -83,7 +83,7 @@ export class PaycheckSending implements OnInit {
                     {Name: 'RunID', value: this.runID}
                 ];
 
-                this.modalService.open(UniPreviewModal, report);
+                this.modalService.open(UniPreviewModal, {data: report});
             }
         }, err => this.errorService.handle(err));
     }
