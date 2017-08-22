@@ -16,7 +16,7 @@
         height: 0
 
 dialog.uniModal
-    @include fullscreen
+    // @include fullscreen
     box-sizing: border-box
     border: none
     padding: 2rem
@@ -100,12 +100,9 @@ dialog.uniModal[open=false]:before
 // NEW MODAL STUFF
 .uni-modal-backdrop
     @include fullscreen
-    box-sizing: border-box
-    border: none
-    padding: 2rem
     transition: opacity 300ms ease
     opacity: 1
-    background: transparentize($uni-color-scale4, .3)
+    background: transparentize($uni-color-scale4, .4)
     display: flex
     align-items: center
     justify-content: center
@@ -122,8 +119,6 @@ dialog.uni-modal
     background: $uni-color-negative
     color: $uni-color-positive
     box-shadow: 0 0 1rem transparentize($uni-color-positive, .9)
-    border: 1px solid $uni-color-scale9
-    padding: 1rem
     box-sizing: border-box
     border-radius: pxToRem(5)
     max-height: 90vh
@@ -131,8 +126,10 @@ dialog.uni-modal
     overflow-x: auto
 
     transform: translateY(-50%)
+    display: block
 
-    @include clearfix
+    padding: 0
+    border: none
 
     &.small
         width: 40vw
@@ -179,10 +176,13 @@ dialog.uni-modal
                 background-size: .7rem
 
     main
-        padding: 1rem .5rem
+        box-sizing: border-box
+        padding: 1rem
 
     footer
         width: 100%
+        box-sizing: border-box
+        padding: 0 1rem 1rem 1rem
         text-align: right
         border-top: 1px solid $uni-color-scale9
 
