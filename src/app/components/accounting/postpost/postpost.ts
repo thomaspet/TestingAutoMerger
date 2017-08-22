@@ -1,15 +1,20 @@
 import {ViewChild, Component} from '@angular/core';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
+import {UniForm, FieldType, UniFieldLayout} from '../../../../framework/ui/uniform/index';
 import {UniTableColumn, UniTableColumnType, UniTableConfig, UniTable} from '../../../../framework/ui/unitable/index';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {UniModalService} from '../../../../framework/uniModal/barrel';
 import {IToolbarConfig, IAutoCompleteConfig} from './../../common/toolbar/toolbar';
 import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
+import {IUniSaveAction} from '../../../../framework/save/save';
+import {LedgerAccountReconciliation} from '../../common/reconciliation/ledgeraccounts/ledgeraccountreconciliation';
+import {exportToFile, arrayToCsv} from '../../common/utils/utils';
 import {
     Customer,
     Supplier,
     Account,
-    StatusCodeJournalEntryLine
+    StatusCodeJournalEntryLine,
+    LocalDate
 } from '../../../unientities';
 import {
     ErrorService,
@@ -17,6 +22,16 @@ import {
     StatisticsService,
     JournalEntryLineService
 } from '../../../services/services';
+
+interface IFilter {
+    name: string;
+    label: string;
+    isSelected?: boolean;
+    count?: number;
+    showStatus?: boolean;
+    passiveCounter?: boolean;
+    hotCounter?: boolean;
+}
 
 @Component({
     selector: 'postpost',
@@ -26,11 +41,67 @@ export class PostPost {
     @ViewChild(UniTable)
     private table: UniTable;
 
+    @ViewChild(LedgerAccountReconciliation)
+    private postpost: LedgerAccountReconciliation
+
+    //Save
+    private saveActions: IUniSaveAction[] = [{
+        action: this.save.bind(this),
+        disabled: false,
+        label: 'Lagre',
+    },{
+        action: this.lock.bind(this),
+        disabled: false,
+        label: 'Lås',
+        main: true
+    },{
+        action: this.unlock.bind(this),
+        disabled: false,
+        label: 'Lås opp'
+    },{
+        action: this.automark.bind(this),
+        disabled: false,
+        label: 'Automerk'
+    },{
+        action: this.cancel.bind(this),
+        disabled: false,
+        label: 'Angre'
+    },{
+        action: this.exportAccounts.bind(this),
+        disabled: false,
+        label: 'Eksport kontoliste'
+    },{
+        action: this.exportOpenPosts.bind(this),
+        disabled: false,
+        label: 'Eksport åpne poster'
+    }];
+
+    //Filter form
+    private model$: BehaviorSubject<any> = new BehaviorSubject({Register: 'customer', AutoLock: true, ShowPosts: 'OPEN'});
+    private formConfig$: BehaviorSubject<any> = new BehaviorSubject({});
+    private fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
+
+    private registers = [
+        {Register: 'customer', DisplayName: 'Kunde'},
+        {Register: 'supplier', DisplayName: 'Leverandør'},
+        {Register: 'account', DisplayName: 'Hovedbok'}
+    ];
+
+    private showoptions: Array<IFilter> = [
+        { label: 'Åpne poster', name: 'OPEN', isSelected: true },
+        { label: 'Lukkede poster', name: 'MARKED', isSelected: false },
+        { label: 'Alle poster', name: 'ALL', isSelected: false }
+    ];
+
+    //List table
+    public accounts$: BehaviorSubject<any> = new BehaviorSubject(null);
+    public accountsTableConfig: UniTableConfig;
+
+    //Detail view
+    public pointInTime$: BehaviorSubject<LocalDate> = new BehaviorSubject(new LocalDate());
     public customer$: BehaviorSubject<Customer> = new BehaviorSubject(null);
     public supplier$: BehaviorSubject<Supplier> = new BehaviorSubject(null);
     public account$: BehaviorSubject<Account> = new BehaviorSubject(null);
-    public accounts$: BehaviorSubject<any> = new BehaviorSubject(null);
-    public accountsTableConfig: UniTableConfig;
 
     private toolbarconfig: IToolbarConfig;
     private accountSearch: IAutoCompleteConfig;
@@ -48,7 +119,8 @@ export class PostPost {
         private journalEntryLineService: JournalEntryLineService
     ) {
         this.setupAccountsTable();
-        this.setupAccountSearch();
+        this.setupForm();
+        this.extendFormConfig();
         this.setupToolbarConfig();
         this.setTabTitle();
         this.loadCustomers();
@@ -67,26 +139,65 @@ export class PostPost {
         }
     }
 
+    //Save actions
+    private save(done: (message: string) => void) {
+        this.postpost.reconciliateJournalEntries();
+        done('Lagret');
+    }
+
+    private automark(done: (message: string) => void) {
+        this.postpost.autoMarkJournalEntries();
+        done('Merket');
+    }
+
+    private lock(done: (message: string) => void) {
+        done('Låst');
+    }
+
+    private unlock(done: (message: string) => void) {
+        this.postpost.unlockJournalEntries();
+        done('Opplåst');
+    }
+
+    private cancel(done: (message: string) => void) {
+        this.postpost.abortMarking();
+        done('Angret');
+    }
+
+    private exportAccounts(done: (message: string) => void) {
+        let accounts = this.accounts$.getValue();
+
+        var list = [];
+        accounts.forEach((account) => {
+            var row = {
+                AccountNumber: account.AccountNumber,
+                AccountName: account.AccountName,
+                SumAmount: account.SumAmount.toFixed(2)
+            };
+            list.push(row);
+        });
+
+        exportToFile(arrayToCsv(list), `OpenPostAccounts.csv`);
+        done('Fil eksportert');
+    }
+
+    private exportOpenPosts(done: (message: string) => void) {
+        this.postpost.export();
+
+        done('Fil eksportert');
+    }
+
+    //
+
     private setupToolbarConfig() {
+        let r = this.registers.find(x => x.Register == this.register);
         this.toolbarconfig = {
+            title: `${r.DisplayName} poster`,
             navigation: {
                 prev: this.previousAccount.bind(this),
                 next: this.nextAccount.bind(this)
             },
             contextmenu: []
-        };
-
-        let items = [
-                {Register: 'customer', _DisplayName: 'Kunde'},
-                {Register: 'supplier', _DisplayName: 'Leverandør'},
-                {Register: 'account', _DisplayName: 'Hovedbok'}
-        ];
-
-        this.registerConfig = {
-            items: items,
-            selectedItem: items.find(x => x.Register == this.register),
-            displayField: 'Name',
-            placeholder: 'Register'
         };
     }
 
@@ -97,24 +208,6 @@ export class PostPost {
             active: true,
             moduleID: UniModules.PostPost
         });
-    }
-
-    private setupAccountSearch() {
-        this.accountSearch = {
-            events: {
-                select: (model, value: any) => {
-                    if (value) {
-                        // TODO
-                    }
-                }
-            },
-            valueProperty: 'period',
-            template: (obj: any) =>
-                obj
-                    ? `${obj.ID} - ${obj.Name}`
-                    : '',
-            source: []
-        };
     }
 
     public nextAccount() {
@@ -155,12 +248,22 @@ export class PostPost {
         }
     }
 
+    private onFilterClick(filter: IFilter, searchFilter?: string) {
+        this.showoptions.forEach(f => f.isSelected = f == filter);
+        this.postpost.showHideEntries(filter.name);
+    }
+
+    private getDateFilter(): string {
+        let date = this.pointInTime$.getValue();
+        return date ? `and FinancialDate le '${date}'` : '';
+    }
+
     private loadCustomers() {
         this.statisticsService
             .GetAllUnwrapped(`model=JournalEntryLine&` +
                              `select=Customer.ID as ID,Customer.CustomerNumber as AccountNumber,Info.Name as AccountName,sum(Amount) as SumAmount&` +
                              `expand=SubAccount,SubAccount.Customer,SubAccount.Customer.Info&` +
-                             `filter=SubAccount.CustomerID gt 0 and StatusCode eq ${StatusCodeJournalEntryLine.Open}&` +
+                             `filter=SubAccount.CustomerID gt 0 and StatusCode eq ${StatusCodeJournalEntryLine.Open} ${this.getDateFilter()}&` +
                              `orderby=Customer.CustomerNumber`)
             .subscribe(accounts => {
                 this.accounts$.next(accounts);
@@ -172,7 +275,7 @@ export class PostPost {
             .GetAllUnwrapped(`model=JournalEntryLine&` +
                              `select=Supplier.ID as ID,Supplier.SupplierNumber as AccountNumber,Info.Name as AccountName,sum(Amount) as SumAmount&` +
                              `expand=SubAccount,SubAccount.Supplier,SubAccount.Supplier.Info&` +
-                             `filter=SubAccount.SupplierID gt 0 and StatusCode eq ${StatusCodeJournalEntryLine.Open}&` +
+                             `filter=SubAccount.SupplierID gt 0 and StatusCode eq ${StatusCodeJournalEntryLine.Open} ${this.getDateFilter()}&` +
                              `orderby=Supplier.SupplierNumber`)
             .subscribe(accounts => {
                 this.accounts$.next(accounts);
@@ -184,37 +287,46 @@ export class PostPost {
             .GetAllUnwrapped(`model=JournalEntryLine&` +
                              `select=Account.ID as ID,Account.AccountNumber as AccountNumber,Account.AccountName as AccountName,sum(Amount) as SumAmount&` +
                              `expand=Account&` +
-                             `filter=Account.UsePostPost eq 1 and StatusCode eq ${StatusCodeJournalEntryLine.Open}&` +
+                             `filter=Account.UsePostPost eq 1 and StatusCode eq ${StatusCodeJournalEntryLine.Open} ${this.getDateFilter()}&` +
                              `orderby=Account.AccountNumber`)
             .subscribe(accounts => {
                 this.accounts$.next(accounts);
             });
     }
 
-    private onRegisterChange(register) {
-        this.register = register.Register;
-        switch (register.Register) {
-            case 'customer':
-                this.supplier$.next(null);
-                this.account$.next(null);
-                this.loadCustomers();
-                break;
-            case 'supplier':
-                this.customer$.next(null);
-                this.account$.next(null);
-                this.loadSuppliers();
-                break;
-            case 'account':
-                this.customer$.next(null);
-                this.supplier$.next(null);
-                this.loadAccounts();
-                break;
+    private onFilterChange(changes) {
+
+        if (changes['Register']) {
+            this.register = changes['Register'].currentValue;
+            this.setupToolbarConfig();
+            switch (this.register) {
+                case 'customer':
+                    this.supplier$.next(null);
+                    this.account$.next(null);
+                    this.loadCustomers();
+                    break;
+                case 'supplier':
+                    this.customer$.next(null);
+                    this.account$.next(null);
+                    this.loadSuppliers();
+                    break;
+                case 'account':
+                    this.customer$.next(null);
+                    this.supplier$.next(null);
+                    this.loadAccounts();
+                    break;
+            }
+        } else if (changes['ShowPosts']) {
+            this.postpost.showHideEntries(changes['ShowPosts'].currentValue);
+        }
+        else if (changes['PointInTime']) {
+            this.pointInTime$.next(changes['PointInTime'].currentValue);
         }
     }
 
     private setupAccountsTable() {
         let accountCol = new UniTableColumn('AccountNumber', 'Konto', UniTableColumnType.Text)
-            .setWidth('2rem')
+            .setWidth('1.5rem')
             .setTemplate((account) => {
                 switch (this.register) {
                     case 'customer':
@@ -226,14 +338,58 @@ export class PostPost {
             });
 
         let nameCol = new UniTableColumn('AccountName', 'Navn', UniTableColumnType.Text).setWidth('5em');
-        let restamountCol = new UniTableColumn('SumAmount', 'Sum åpne poster', UniTableColumnType.Number)
-            .setWidth('3em');
+        let sumCol = new UniTableColumn('SumAmount', 'Sum åpne poster', UniTableColumnType.Money)
+            .setWidth('2.5em');
 
-        this.accountsTableConfig = new UniTableConfig(false, true, 25)
-            .setSearchable(false)
+        this.accountsTableConfig = new UniTableConfig(false, true, 10)
+            .setSearchable(true)
             .setColumnMenuVisible(false)
             .setMultiRowSelect(false)
             .setAutoAddNewRow(false)
-            .setColumns([accountCol, nameCol, restamountCol]);
+            .setColumns([accountCol, nameCol, sumCol]);
+    }
+
+    //Filter form
+    private extendFormConfig() {
+        let fields = this.fields$.getValue();
+        let register: UniFieldLayout = fields.find(x => x.Property === 'Register');
+        register.Options =  {
+            source: this.registers,
+            valueProperty: 'Register',
+            displayProperty: 'DisplayName',
+            debounceTime: 200
+        };
+    }
+
+    private setupForm() {
+        this.fields$.next([
+            {
+                Legend: 'Filter',
+                FieldSet: 1,
+                FieldSetColumn: 1,
+                Property: 'Register',
+                FieldType: FieldType.DROPDOWN,
+                Label: 'Register',
+                HelpText: 'Velg hvilket register du vil se åpne poster for'
+            },
+            {
+                Legend: 'Filter',
+                FieldSet: 1,
+                FieldSetColumn: 1,
+                Property: 'PointInTime',
+                FieldType: FieldType.LOCAL_DATE_PICKER,
+                Label: 'Dato',
+                HelpText: 'Filtrer frem til og med dato'
+            },
+            {
+                Legend: 'Automatikk',
+                FieldSet: 2,
+                FieldSetColumn: 1,
+                Property: 'AutoLock',
+                FieldType: FieldType.CHECKBOX,
+                Label: 'Auto lås',
+                HelpText: 'Utfør automatisk låsing når merket sum blir 0'
+            }
+        ]);
     }
 }
