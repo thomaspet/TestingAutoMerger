@@ -212,7 +212,8 @@ export class WorkerService extends BizHttp<Worker> {
             filter += ' and ( ' + intervalFilter + ' )';
         }
         return this.GET('workitems', { filter: filter, hateoas: 'false',
-            expand: 'WorkType,Dimensions,Dimensions.Project,Dimensions.Department,CustomerOrder',
+            expand: 'WorkType,Dimensions,Dimensions.Project,Dimensions.Department,CustomerOrder'
+                + ',Customer,Customer.Info',
             orderBy: 'StartTime' });
     }
 

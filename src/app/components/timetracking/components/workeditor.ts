@@ -198,6 +198,13 @@ export class WorkEditor {
                 .setWidth('6rem')
                 .setVisible(false),
 
+            this.createLookupColumn('Customer', 'Kunde',
+                'Customer',
+                x => this.lookupAny(x, 'customers', 'CustomerNumber', 'Info.Name', 'info'), 
+                'CustomerNumber', 'Info.Name' )
+                .setWidth('6rem')
+                .setVisible(false),
+
             new UniTableColumn('Label', 'Merke/etikett').setWidth('6rem').setCls('good')
                 .setVisible(false)
 
@@ -237,7 +244,8 @@ export class WorkEditor {
         return Observable.from([sublist]);
     }
 
-    public lookupAny(txt: string, route: string = 'projects', visualIdcol: string = 'id', nameCol: string = 'name') {
+    public lookupAny(txt: string, route: string = 'projects', 
+                     visualIdcol: string = 'id', nameCol: string = 'name', expand?: string) {
         var filter = '', orderBy = nameCol;
         var filtered = filterInput(txt);
         var select = 'id,' + nameCol;
@@ -257,7 +265,7 @@ export class WorkEditor {
             'select', select,
             'orderby', orderBy,
             'top', '50',
-            'filter', filter);
+            'filter', filter, 'expand', expand);
     }
 
     private createTimeColumn(name: string, label: string): UniTableColumn {
@@ -285,8 +293,8 @@ export class WorkEditor {
         return new UniTableColumn(name, label, UniTableColumnType.Lookup)
             .setDisplayField(`${expandCol}.${expandLabel}`)
             .setEditorOptions({
-                itemTemplate: (item) => {
-                    return item[expandKey] + ' - ' + item[expandLabel];
+                itemTemplate: (item) => { 
+                    return item[expandKey] + ' - ' + getDeepValue(item, expandLabel);
                 },
                 lookupFunction: lookupFn
         });

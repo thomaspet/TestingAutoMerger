@@ -35,6 +35,7 @@ import {ApproveDetails} from './components/approvedetails';
 import {TimeApproveModal} from './components/popupapprove';
 import {UniFileImport} from './components/popupfileimport';
 import {PopupMenu} from './timeentry/timetable/popupmenu';
+import {UniApproveTaskModal} from './timeentry/timetable/approvetaskmodal';
 
 @NgModule({
     imports: [
@@ -73,7 +74,8 @@ import {PopupMenu} from './timeentry/timetable/popupmenu';
         TeamworkReport,
         ApproveDetails, TimeApproveModal, UniFileImport,
         ReportWorkflow,
-        PopupMenu
+        PopupMenu,
+        UniApproveTaskModal
     ],
     providers: [
         CanDeactivateGuard,
