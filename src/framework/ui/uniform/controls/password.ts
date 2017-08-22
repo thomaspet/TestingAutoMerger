@@ -22,7 +22,7 @@ import * as _ from 'lodash';
             (blur)="blurHandler()"
             [title]="control?.value || ''"
         />
-        <button class="uni-password-viewBtn" (click)="showPassword()">...</button>
+        <button type="button" class="uni-password-viewBtn" (click)="showPassword()">...</button>
         <ng-content></ng-content>
     `
 })
