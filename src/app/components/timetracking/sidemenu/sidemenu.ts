@@ -7,7 +7,7 @@ import * as moment from 'moment';
 export interface ITimeTrackingTemplate {
     StartTime: string;
     EndTime: string;
-    WorkType: number;
+    Worktype: any;
     Minutes: number;
     LunchInMinutes: number;
     Description: string;
@@ -19,7 +19,7 @@ export interface ITemplate {
     Name: string;
     StartTime: string;
     EndTime: string;
-    Hours: number;
+    Minutes: number;
     LunchInMinutes: number;
     Description: string;
     Items: ITimeTrackingTemplate[];
@@ -37,10 +37,6 @@ export class SideMenu {
 
     private timearts: string[] = ['Administarsjon diverse', 'Utvikling/Prosjektarbeid', 'Reisetid', 'Møte']
     private editTemplateOnClick: boolean = false;
-    private day = {
-        name: '',
-        date: new Date()
-    }
 
     @ViewChild(UniTemplateModal) private templateModal: UniTemplateModal;
     @Input() private periode: IFilter;
@@ -57,24 +53,15 @@ export class SideMenu {
     }
 
     private onTemplateSelected(template: any) {
-        if (this.editTemplateOnClick) {
-            this.editTemplateOnClick = false;
-            this.templateModal.open(template).then(x => {
-                console.log(x);
-            })
-        } else {
-            this.templateSelected.emit(template);
-        }
+        this.templateSelected.emit(template);
+    }
+
+    private onTemplateEdit(template: any, index: number) {
+        this.templateModal.open(template, index).then(x => { });
     }
 
     private createNewTemplate() {
-        this.templateModal.open().then(x => {
-            //if (x) {
-            //    this.onFilterClick(this.currentFilter);
-            //    if (this.eventcfg && this.eventcfg.askReload) { this.eventcfg.askReload(); }
-            //}
-            console.log(x);
-        });
+        this.templateModal.open().then(x => { });
     }
 
     private onCalendarDateChange(date: Date) {
@@ -87,67 +74,76 @@ export class SideMenu {
     }
 
     private templateSave(event) {
-        console.log(event);
+        if (event.index || event.index === 0) {
+            this.timeTrackingTemplates.splice(event.index, 1, event.template);
+        } else {
+            this.timeTrackingTemplates.push(event.template);
+        }
+        localStorage.setItem('timeTrackingTemplates', JSON.stringify(this.timeTrackingTemplates));
+    }
+
+    private templateDelete(index) {
+        this.timeTrackingTemplates.splice(index, 1);
     }
 
     private dummyTemplates(): ITemplate[] {
 
         return [
             {
-                Name: 'Standard dag',
+                Name: 'Standard day',
                 StartTime: '08:00',
                 EndTime: '16:00',
                 LunchInMinutes: 30,
-                Hours: 7.50,
-                Description: 'Vanlig dag',
+                Minutes: 450,
+                Description: 'Ordinary day..',
                 Items: [
                     {
                         StartTime: '08:00',
-                        EndTime: '11:15',
-                        Minutes: 120,
-                        WorkType: 3,
+                        EndTime: '09:00',
+                        Minutes: 60,
+                        Worktype: {ID: 1},
                         LunchInMinutes: 0,
-                        Description: 'Before lunch',
+                        Description: 'Morning coffee + mails',
                         DimensionsID: null,
                         CustomerOrderID: null
                     },
                     {
-                        StartTime: '11:15',
-                        EndTime: '11:30',
-                        Minutes: 15,
-                        WorkType: 4,
+                        StartTime: '09:00',
+                        EndTime: '10:30',
+                        Minutes: 90,
+                        Worktype: {ID: 2},
                         LunchInMinutes: 0,
-                        Description: 'Daily status update meeting',
+                        Description: 'Meetings, blablabla',
                         DimensionsID: null,
                         CustomerOrderID: null
                     },
                     {
-                        StartTime: '11:30',
+                        StartTime: '10:30',
                         EndTime: '16:00',
-                        Minutes: 270,
-                        WorkType: 2,
+                        Minutes: 300,
+                        Worktype: {ID: 1},
                         LunchInMinutes: 30,
-                        Description: 'Working on timetracking module in UniEconomy',
+                        Description: 'Doing awesome work, like always',
                         DimensionsID: null,
                         CustomerOrderID: null
                     }
                 ]
             },
             {
-                Name: 'Full dag i en føring',
+                Name: 'One-liner day',
                 StartTime: '08:00',
                 EndTime: '16:00',
                 LunchInMinutes: 30,
-                Hours: 7.50,
-                Description: 'Vanlig dag',
+                Minutes: 450,
+                Description: 'Full day in one line',
                 Items: [
                     {
                         StartTime: '08:00',
                         EndTime: '16:00',
                         Minutes: 450,
-                        WorkType: 2,
+                        Worktype: {ID: 1},
                         LunchInMinutes: 30,
-                        Description: 'Uni Economy Timetracking',
+                        Description: 'Working hard or hardly working',
                         DimensionsID: null,
                         CustomerOrderID: null
                     }

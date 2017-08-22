@@ -71,7 +71,7 @@ import {UniFileImport} from './components/popupfileimport';
         SideMenu,
         DayBrowser,
         UniTimeModal,
-        UniTemplateModal
+        UniTemplateModal,
         TeamworkReport,
         ApproveDetails, TimeApproveModal, UniFileImport
     ],

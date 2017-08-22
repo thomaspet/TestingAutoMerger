@@ -24,12 +24,12 @@ import * as moment from 'moment';
                     <label>Beskrivelse: </label><input type="text" [(ngModel)]="template.Description">
                     <uni-table
                         [resource]="template?.Items"
-                        [config]="tableConfig"
-                        (rowSelected)="onRowSelected($event)">
+                        [config]="tableConfig">
                     </uni-table>
                     <footer>
                         <button (click)="close('ok')" class="good">Lagre</button>
                         <button (click)="close('cancel')" class="bad">Avbryt</button>
+                        <button (click)="close('delete')" class="bad" *ngIf="onEdit.isEdit">Slett</button>
                     </footer>
                 </article>
             </article>
@@ -44,8 +44,13 @@ export class UniTemplateModal {
     private busy: boolean = false;
     private template: ITemplate = this.getCleanTemplate();
     private tableConfig: UniTableConfig;
+    private onEdit: any = {
+        isEdit: false,
+        index: null
+    };
 
     @Output() private onSaveAndClose: EventEmitter<any> = new EventEmitter();
+    @Output() private onDeleteAndClose: EventEmitter<any> = new EventEmitter();
 
     @ViewChild(UniTable)
     private table: UniTable;
@@ -65,13 +70,17 @@ export class UniTemplateModal {
                     .setWidth('30%'),
                 this.worker.createLookupColumn('Worktype', 'Timeart', 'Worktype', x => this.worker.lookupType(x))
                     .setWidth('6rem'),
-                new UniTableColumn('DimensionsID', 'Prosjekt'),
-                new UniTableColumn('CustomerOrderID', 'Ordre')
+                //new UniTableColumn('DimensionsID', 'Prosjekt'),
+                //new UniTableColumn('CustomerOrderID', 'Ordre')
             ])
             .setChangeCallback(event => this.onEditChange(event));
     }
 
-    public open(template?: ITemplate) {
+    public open(template?: ITemplate, index?: number) {
+        if (index || index === 0) {
+            this.onEdit.isEdit = true;
+            this.onEdit.index = index;
+        }
         this.template = template || this.getCleanTemplate();
         this.isOpen = true;
         this.setUpTable();
@@ -81,16 +90,23 @@ export class UniTemplateModal {
         });
     }
 
-    public close(src: 'ok' | 'cancel') {
-        this.onSaveAndClose.emit(this.template);
+    public close(src: 'ok' | 'cancel' | 'delete') {
+        if (src === 'ok') {
+            this.template.Items = this.table.getTableData();
+            this.template.Minutes = this.calcMinutesTotal(this.template.Items);
+            this.template.StartTime = this.calcStartTime(this.template.Items);
+            this.template.EndTime = this.calcEndTime(this.template.Items);
+            this.onSaveAndClose.emit({ template: this.template, index: this.onEdit.index });
+        } else if (src === 'delete') {
+            this.onDeleteAndClose.emit(this.onEdit.index);
+        }
+        this.onEdit.isEdit = false;
+        this.onEdit.index = null;
         this.isOpen = false;
         this.onClose(src === 'ok');
     }
 
-    private onClose: (ok: boolean) => void = () => {
-        console.log(this.template);
-
-    };
+    private onClose: (ok: boolean) => void = () => { };
 
     private getCleanTemplate() {
         return {
@@ -98,13 +114,13 @@ export class UniTemplateModal {
             StartTime: '',
             EndTime: '',
             LunchInMinutes: 0,
-            Hours: 0,
+            Minutes: 0,
             Description: '',
             Items: [{
                 StartTime: '',
                 EndTime: '',
                 Minutes: 0,
-                WorkType: null,
+                Worktype: null,
                 LunchInMinutes: 0,
                 Description: '',
                 DimensionsID: null,
@@ -113,13 +129,12 @@ export class UniTemplateModal {
         };
     }
 
-    private onRowSelected(event) {
-        console.log(event);
-    }
-
     private onEditChange(event) {
-        if (event.field === 'StartTime' || event.field === 'EndTime' ) {
+        if (event.field === 'StartTime' || event.field === 'EndTime') {
             event.rowModel[event.field] = this.formatHours(event.rowModel[event.field]);
+            event.rowModel.Minutes = this.calcMinutesOnLine(event.rowModel);
+            return event.rowModel;
+        } else if (event.field === 'LunchInMinutes') {
             event.rowModel.Minutes = this.calcMinutesOnLine(event.rowModel);
             return event.rowModel;
         }
@@ -141,12 +156,36 @@ export class UniTemplateModal {
         return minutes || 0;
     }
 
-    private calcMinutesTotal(item: ITemplate): number {
+    private calcMinutesTotal(items: ITimeTrackingTemplate[]): number {
         let totalMinutes = 0;
-        item.Items.forEach((temp) => {
+        items.forEach((temp) => {
             totalMinutes += temp.Minutes;
         })
         return totalMinutes;
+    }
+
+    private calcStartTime(items: ITimeTrackingTemplate[]): string {
+        let earliestHour = '23:59';
+
+        items.forEach((item) => {
+            if (parseInt(item.StartTime.replace(':', '')) < parseInt(earliestHour.replace(':', ''))) {
+                earliestHour = item.StartTime;
+            }
+        })
+
+        return earliestHour;
+    }
+
+    private calcEndTime(items: ITimeTrackingTemplate[]): string {
+        let latestHour = '00:00';
+
+        items.forEach((item) => {
+            if (parseInt(item.EndTime.replace(':', '')) > parseInt(latestHour.replace(':', ''))) {
+                latestHour = item.EndTime;
+            }
+        })
+
+        return latestHour;
     }
 
     private formatHours(value: string): string {

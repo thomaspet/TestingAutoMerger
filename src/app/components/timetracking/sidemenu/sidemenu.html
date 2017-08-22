@@ -10,11 +10,16 @@
 
     <section class="sidemenu_template_container">
         <h3>Maler</h3>
-        <article class="sidemenu_template" *ngFor="let template of timeTrackingTemplates" (click)="onTemplateSelected(template)">
-            <a class="sidemenu_template_timeart">{{ template.Name}}</a>
-            <time class="sidemenu_template_start_end_time">{{ template.StartTime }} - {{ template.EndTime }}</time><br />
-            <a>{{ template.Description }}</a>
-            <time class="sidemenu_template_time_total"> {{ template.Hours }} </time>
+        <article class="sidemenu_template" *ngFor="let template of timeTrackingTemplates; let i = index;">
+            <section class="template_info_section" (click)="onTemplateSelected(template)">
+                <span style="font-size: 0.8rem; color: #638bb3;">{{ template.Name }}</span>
+                <time style="float: right; margin: 0; font-size: 0.9rem;">{{ template.StartTime }} - {{ template.EndTime }}</time><br />
+                <span class="sidemenu_template_timeart">{{ template.Description }}</span>
+                <time class="sidemenu_template_time_total">{{ (template.Minutes / 60).toFixed(1) }}</time>
+            </section>
+            <section style="width: 13%; float: left; line-height: 4.5rem; vertical-align: middle; text-align: center;">
+                <a class="sidemenu_template_edit_symbol" (click)="onTemplateEdit(template, i)"></a>
+            </section>
         </article>
         <h4 *ngIf="!timeTrackingTemplates.length">
             Ingen maler lagret. Trykk på "Ny Mal" for å lage en ny. 
@@ -22,4 +27,4 @@
         <button (click)="createNewTemplate()">Ny mal...</button>
     </section>
 </section>
-<uni-template-modal (onSaveAndClose)="templateSave($event)"></uni-template-modal>
+<uni-template-modal (onSaveAndClose)="templateSave($event)" (onDeleteAndClose)="templateDelete($event)"></uni-template-modal>

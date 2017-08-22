@@ -17,7 +17,7 @@ import {ErrorService} from '../../../services/services';
 import {UniModalService, ConfirmActions} from '../../../../framework/uniModal/barrel';
 import {WorkEditor} from '../components/workeditor';
 import { DayBrowser, Day, ITimeSpan, INavDirection } from '../components/daybrowser';
-import { SideMenu } from '../sidemenu/sidemenu';
+import { SideMenu, ITemplate, ITimeTrackingTemplate } from '../sidemenu/sidemenu';
 import {TeamworkReport, Team} from '../components/teamworkreport';
 import { UniFileImport } from '../components/popupfileimport';
 import { UniHttp } from '../../../../framework/core/http/http';
@@ -201,29 +201,33 @@ export class TimeEntry {
         });
     }
 
-    private onTemplateSelected(event) {
-        let newTimeItem = this.mapTemplateToWorkItem({}, event);
-        this.timeSheet.addItem(newTimeItem, false);
-
-        let types = this.workEditor.getWorkTypes();
-        if (newTimeItem.WorkRelationID) {
-            newTimeItem.Worktype = types.find(t => t.ID === event.WorkRelationID);
-        }
+    private onTemplateSelected(event: ITemplate) {
+        event.Items.forEach((item: ITimeTrackingTemplate) => {
+            this.timeSheet.addItem(this.mapTemplateToWorkItem({}, item))
+        })
 
         this.timeSheet.recalc();
         this.flagUnsavedChanged();
         this.workEditor.refreshData();
     }
 
-    private mapTemplateToWorkItem(workItem: any, template: any) {
-        workItem.Date = new Date();
+    private mapTemplateToWorkItem(workItem: any, template: ITimeTrackingTemplate) {
+        let types = this.workEditor.getWorkTypes();
+        if (this.customDateSelected) {
+            workItem.Date = new LocalDate(this.customDateSelected);
+        } else {
+            workItem.Date = new LocalDate(this.currentFilter.date);
+        }
+        
         workItem.StartTime = template.StartTime ? parseTime(template.StartTime) : parseTime('8');
         workItem.EndTime = template.EndTime ? parseTime(template.EndTime) : parseTime('8');
         workItem.Minutes = template.Minutes;
         workItem.LunchInMinutes = template.LunchInMinutes;
         workItem.Description = template.Description;
-        workItem.DimensionsID = template.DimensionsID;
-        workItem.CustomerOrderID = template.CustomerOrderID;
+        workItem.Worktype = types.find(t => t.ID === template.Worktype.ID);
+        workItem.WorkTypeID = workItem.Worktype.ID;
+        //workItem.DimensionsID = template.DimensionsID;
+        //workItem.CustomerOrderID = template.CustomerOrderID;
 
         return workItem;
     }
@@ -350,6 +354,7 @@ export class TimeEntry {
     }
 
     private loadItems(date?: Date) {
+        console.log(date);
         this.workEditor.EmptyRowDetails.Date = new LocalDate(date);
         if (this.timeSheet.currentRelation && this.timeSheet.currentRelation.ID) {
             var obs: any;
@@ -424,7 +429,7 @@ export class TimeEntry {
             }, () => {
                 this.flagUnsavedChanged(true);
                 if (done) { done(counter + ' poster ble lagret.'); }
-                this.refreshViewItems(this.customDateSelected);
+                this.refreshViewItems(this.customDateSelected || this.currentFilter.date);
                 this.loadFlex(this.timeSheet.currentRelation);
                 resolve(true);
                 this.showProgress(this.customDateSelected);
@@ -718,7 +723,7 @@ export class TimeEntry {
                 totalTime += item.TotalTime;
             })
 
-            this.workedToday = Math.floor(totalTime) + ' timer og ' + (totalTime * 60) % 60 + ' minutter'
+            this.workedToday = Math.floor(totalTime) + ' timer og ' + Math.floor((totalTime * 60) % 60) + ' minutter'
 
             //Find percentage of hours worked (Max 100) 
             let percentageWorked = totalTime / (expectedTime / 100);

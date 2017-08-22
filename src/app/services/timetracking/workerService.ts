@@ -179,7 +179,6 @@ export class WorkerService extends BizHttp<Worker> {
     public getIntervalItems(): Array<IFilter> {
         let date = new Date();
         return [
-<<<<<<< HEAD
             {
                 name: 'today',
                 label: 'I dag',
@@ -231,16 +230,6 @@ export class WorkerService extends BizHttp<Worker> {
                 bigLabel: this.getBigLabel(ItemInterval.all),
                 date: new Date()
             }
-=======
-            { name: 'today', label: 'I dag', isSelected: true, interval: ItemInterval.today },
-            { name: 'week', label: 'Denne uke', interval: ItemInterval.thisWeek},
-            { name: 'weeks', label: 'Siste 2 uker', interval: ItemInterval.lastTwoWeeks},
-            { name: 'month', label: 'Denne måned', interval: ItemInterval.thisMonth},
-            { name: 'months', label: 'Siste 2 måneder', interval: ItemInterval.lastTwoMonths},
-            { name: 'months2', label: 'Siste 3 måneder', interval: ItemInterval.lastThreeMonths},
-            { name: 'year', label: 'Dette år', interval: ItemInterval.thisYear},
-            { name: 'all', label: 'Alt', interval: ItemInterval.all}
->>>>>>> develop
         ];
     }
 
