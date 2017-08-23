@@ -6,7 +6,7 @@ import {ErrorService} from '../../../../services/services';
 import {UniTimeModal} from '../../components/popupeditor';
 import {IPreSaveConfig} from '../timeentry';
 import * as moment from 'moment';
-import {WorkItemGroup} from '../../../../unientities';
+import {WorkItemGroup, WorkRelation} from '../../../../unientities';
 import {Observable} from 'rxjs/Observable';
 import {ReportWorkflow} from './pipes';
 import {Sums, StatusCode, ReportFlow, IReport, Week, IWorkDay, Month} from './model';
@@ -23,10 +23,15 @@ import {UniApproveTaskModal} from './approvetaskmodal';
 })
 export class TimeTableReport {
     @ViewChild(UniTimeModal) private timeModal: UniTimeModal;
+    @Input() public set workrelation(value: WorkRelation ) {
+        this.currentRelation = value;
+        this.refreshReport(true);
+    }    
     @Input() public eventcfg: IPreSaveConfig;
+    @Input() public lazy: boolean;
     @ViewChild(PopupMenu) private popup: PopupMenu;
     @ViewChild(UniApproveTaskModal) private approveTaskModal: UniApproveTaskModal;
-    private timesheet: TimeSheet;
+    private currentRelation: WorkRelation;
     public config: {
         title: string,
         items: Array<any>,
@@ -38,6 +43,7 @@ export class TimeTableReport {
     public filters: Array<IFilter>;
     public currentFilter: IFilter;
     public busy: boolean = true;
+    private isActivated: boolean = false;
 
     constructor(
         private workerService: WorkerService,
@@ -52,20 +58,20 @@ export class TimeTableReport {
             { name: 'months', label: 'Siste 2 måneder', interval: ItemInterval.lastTwoMonths},
             { name: 'months2', label: 'Siste 3 måneder', interval: ItemInterval.lastThreeMonths},
             { name: 'year', label: 'Dette år', interval: ItemInterval.thisYear}
-        ];
-
+        ];        
+        this.currentFilter = this.filters[0];
+        this.currentFilter.isSelected = true;
     }
 
     private get CurrentRelationID(): number {
-        return this.timesheet.currentRelation.ID;
+        return this.currentRelation ? this.currentRelation.ID : 0;
     } 
 
-    public activate(ts: TimeSheet, filter?: IFilter) {
-        if (!this.timesheet) {
-            this.currentFilter = this.filters[0];
+    public activate() {
+        if (!this.isActivated) {
+            this.isActivated = true;
+            this.onFilterClick( this.currentFilter );
         }
-        this.timesheet = ts;
-        this.onFilterClick( this.currentFilter );
     }
 
     public onDayClick(day: Date, checkSave: boolean = true) {
@@ -79,7 +85,7 @@ export class TimeTableReport {
                 return;
             }
 
-            this.timeModal.open(this.timesheet.currentRelation, day).then( x => {
+            this.timeModal.open(this.currentRelation, day).then( x => {
                 if (x) {
                     this.onFilterClick( this.currentFilter );
                     this.publishReloadEvent();
@@ -97,8 +103,10 @@ export class TimeTableReport {
         var src: Element = <any>(event.target || event.srcElement);
 
         switch (week.Sums.Workflow) {
+
             case ReportFlow.Rejected:
                 this.popup.clear();                
+                this.popup.addItem('comments', 'Vis årsak/kommentar', week);
                 this.popup.addItem('reset', 'Lås opp denne uken for redigering', week);
                 this.popup.activate(src, week.WeekNumber);
                 break;
@@ -169,6 +177,9 @@ export class TimeTableReport {
                 break;
             case 'autofill':
                 this.autoFillWeek(event.cargo);
+                break;
+            case 'comments':
+                this.showComments(event.cargo);
                 break;
         }
     }    
@@ -386,6 +397,27 @@ export class TimeTableReport {
                 }
             });
     }
+
+    private showComments(week: Week) {
+        week.isBusy = true;
+        this.api.GetGroups(this.CurrentRelationID, week.FirstDay, week.LastDay, StatusCode.Declined)
+        .subscribe( (list: Array<WorkItemGroup>) => {
+            var idFilter = '';
+            list.forEach( (group, index) => {
+                idFilter += (index > 0 ? ' or ' : '') + 'entityid eq ' + group.ID;
+            });
+            this.api.get(`comments?select=text&orderby=id desc&filter=entitytype eq 'workitemgroup'`
+                + ` and (${idFilter})`)
+                .finally( () => week.isBusy = false )
+                .subscribe( (result: Array<{ Text: string }>) => {
+                    var output = '';
+                    result.forEach( (comment, index) => {
+                        output += (index > 0 ? ', ' : '') + comment.Text;
+                    });
+                    this.toast.addToast('Kommentarer til uke ' + week.WeekNumber + ' :', ToastType.warn, 0, output);
+                });
+        });
+    }
     
     private onFilterClick(filter: IFilter) {
         var f: IFilter;
@@ -402,6 +434,13 @@ export class TimeTableReport {
     }
 
     private refreshReport(showBusy: boolean) {
+        if (this.lazy && !this.isActivated) {
+            return;
+        }
+        if (!this.CurrentRelationID) {
+            this.report = undefined;
+            return;
+        }
         return new Promise<boolean>( (resolve, reject) => {
             if (showBusy) { this.busy = true; }
             var dt = toIso(moment(this.workerService.getIntervalDate(this.currentFilter.interval))

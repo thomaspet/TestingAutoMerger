@@ -1,4 +1,4 @@
-import {Component, ViewChild, ChangeDetectionStrategy, ChangeDetectorRef} from '@angular/core'; 
+import {Component, ViewChild} from '@angular/core'; 
 import {WorkerService} from '../../../services/timetracking/workerService';
 import {LocalDate, WorkRelation, FlexDetail} from '../../../unientities';
 import {TimeApproveModal} from './popupapprove';
@@ -27,13 +27,15 @@ import {TimeApproveModal} from './popupapprove';
                 <table class="teamreport">
                     <thead>
                         <tr>
-                            <th></th>
+                            <th colspan="3"></th>
                             <th class="groupheader">Totalt</th>                            
                             <th class="groupheader left-border" colspan="3">{{report?.FromDate | isotime}} - {{report?.ToDate | isotime}}</th>
                             <th class="groupheader left-border" colspan="2">Fravær</th>
                         </tr>
                         <tr>
-                            <th>Resurs</th>
+                            <th class="left">Resurs</th>
+                            <th class="left">Beskrivelse</th>
+                            <th>Stilling%</th>
                             
                             <th class="left-border">Saldo</th>
 
@@ -46,14 +48,16 @@ import {TimeApproveModal} from './popupapprove';
                         </tr>
                     </thead>
                     <tbody>
-                        <tr *ngFor="let member of report?.Members">                            
-                            <td class="clickablecell" (click)="onRowClick(member)">{{member.Name}} <span class="subtitle">{{member.WorkRelation?.WorkPercentage}}% - {{member.WorkRelation?.Description}}</span></td>
+                        <tr class="clickable" (click)="onRowClick(member)" *ngFor="let member of report?.Members">                            
+                            <td>{{member.Name}}</td>
+                            <td>{{member.WorkRelation?.Description}}</td>
+                            <td class="center">{{member.WorkRelation?.WorkPercentage}}%</td>
                             
-                            <td class="clickablecell" (click)="onRowClick(member)" [class.bad]="member?.TotalBalance < 0">{{member.TotalBalance | min2hours:'decimal0'}}</td>
+                            <td class="center" [class.bad]="member?.TotalBalance < 0">{{member.TotalBalance | min2hours:'decimal0'}}</td>
                             
-                            <td>{{member.ExpectedMinutes | min2hours:'decimal0'}}</td>
-                            <td>{{member.MinutesWorked | min2hours:'decimal0'}}</td>
-                            <td [class.bad]="member?.ReportBalance < 0">{{member.ReportBalance | min2hours:'decimal0'}}</td>
+                            <td class="center" >{{member.ExpectedMinutes | min2hours:'decimal0'}}</td>
+                            <td class="center" >{{member.MinutesWorked | min2hours:'decimal0'}}</td>
+                            <td class="center"  [class.bad]="member?.ReportBalance < 0">{{member.ReportBalance | min2hours:'decimal0'}}</td>
 
                             <td>{{member.TimeOff.length }} dager</td>
                             <td>{{member.MissingDays.length }} dager</td>
@@ -67,8 +71,7 @@ import {TimeApproveModal} from './popupapprove';
 
         <time-approve-modal></time-approve-modal>
 
-    </article>`,
-    changeDetection: ChangeDetectionStrategy.OnPush
+    </article>`
 })
 export class TeamworkReport {
     @ViewChild(TimeApproveModal) private approveModal: TimeApproveModal;
@@ -78,9 +81,7 @@ export class TeamworkReport {
     private busy: boolean = true;
     private currentRelation: WorkRelation;
 
-    constructor(
-        private changeDetectorRef: ChangeDetectorRef,
-        private workerService: WorkerService) {
+    constructor(private workerService: WorkerService) {
 
     }
 
@@ -93,16 +94,10 @@ export class TeamworkReport {
         if (teams && teams.length > 0) {
             this.onTeamSelect(teams[0]);
         }
-        this.refresh();
-    }
-
-    private refresh() {
-        this.changeDetectorRef.markForCheck();
     }
 
     private goBusy(value: boolean) {
         this.busy = value;
-        this.refresh();
     }
 
     public onTeamSelect(team: Team) {
@@ -115,7 +110,6 @@ export class TeamworkReport {
             x => {
                 this.report = x;
                 this.memberCount = (x && x.Members) ? x.Members.length : 0;
-                this.refresh();
             }
         );
     }

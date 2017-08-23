@@ -1,10 +1,9 @@
 import {Component} from '@angular/core';
 import {View} from '../../../models/view/view';
 import {UniTableColumn, UniTableColumnType, UniTableConfig} from '../../../../framework/ui/unitable/index';
-import {GenericListView, IViewConfig} from '../genericview/list';
+import {IViewConfig} from '../genericview/list';
 import {UniModules} from '../../layout/navbar/tabstrip/tabService';
-import {Observable} from 'rxjs/Observable';
-export var view = new View('workers', 'Personer', 'WorkerListview', false, 'worker', WorkerListview);
+export var view = new View('workers', 'Personer', 'WorkerListview', false, 'worker');
 
 @Component({
     selector: view.name,
@@ -32,7 +31,9 @@ export class WorkerListview {
 
     private createTableConfig(): UniTableConfig {
         var cols = [
-            new UniTableColumn('ID', 'Nr.', UniTableColumnType.Number).setWidth('10%').setFilterOperator('startswith'),
+            new UniTableColumn('ID', 'Nr.', UniTableColumnType.Number)
+                .setWidth('10%')
+                .setFilterOperator('startswith'),
             new UniTableColumn('Info.Name', 'Navn').setWidth('40%')
         ];
         return new UniTableConfig(false, true).setSearchable(true).setColumns(cols);
@@ -41,3 +42,4 @@ export class WorkerListview {
 
 
 }
+view.component = WorkerListview;

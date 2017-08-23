@@ -11,13 +11,14 @@
     </ul>
 </aside>
 
-<section class='regtimecontainer'
-    [class.wideapplication]="workEditor.numberOfVisibleColumns > 9"
-    [class.application]="workEditor.numberOfVisibleColumns <= 9" >
+<section class='regtimecontainer'>
+
 
     <section class="regtime_tabs">
 
-        <section [hidden]="missingWorker || !tabs[0].isSelected">
+        <section [hidden]="missingWorker || !tabs[0].isSelected"
+            [class.wideapplication]="workEditor.numberOfVisibleColumns > 9"
+            [class.application]="workEditor.numberOfVisibleColumns <= 9" >
 
             <header>
 
@@ -42,23 +43,23 @@
 
         </section>
 
-        <section [hidden]="!tabs[1].isSelected">
-            <timetracking-timetable [eventcfg]="preSaveConfig"></timetracking-timetable>
+        <section class="application" [hidden]="!tabs[1].isSelected">
+            <timetracking-timetable [lazy]="true" [workrelation]="this.timeSheet?.currentRelation" [eventcfg]="preSaveConfig"></timetracking-timetable>
         </section>
 
-        <section [hidden]="!tabs[2].isSelected">
+        <section class="application" [hidden]="!tabs[2].isSelected">
             <regtimetotals></regtimetotals>
         </section>
 
-        <section [hidden]="!tabs[3].isSelected">
+        <section class="application" [hidden]="!tabs[3].isSelected">
             <regtimebalance [eventcfg]="preSaveConfig" [workrelation]="this.timeSheet?.currentRelation" (valueChange)="onBalanceChanged($event)" ></regtimebalance>
         </section>
 
-        <section [hidden]="!tabs[4].isSelected">
+        <section class="application" [hidden]="!tabs[4].isSelected">
             <vacation *ngIf="tabs[4].activated" (saved)="reloadFlex()" [workrelationid]="timeSheet.currentRelation.ID"></vacation>
         </section>
 
-        <div *ngIf="this.mapTabPosition(5)">
+        <div class="application" *ngIf="this.mapTabPosition(5)">
             <section [hidden]="!tabs[5].isSelected">
                 <teamwork-report></teamwork-report>
             </section>

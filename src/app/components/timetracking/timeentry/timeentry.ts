@@ -35,7 +35,7 @@ interface ISettings {
     useDayBrowser: boolean;
 }
 
-export var view = new View('timeentry', 'Timer', 'TimeEntry', false, '', TimeEntry);
+export var view = new View('timeentry', 'Timer', 'TimeEntry', false, '');
 
 @Component({
     selector: view.name,
@@ -56,7 +56,7 @@ export class TimeEntry {
     };
 
     @ViewChild(RegtimeTotals) private regtimeTotals: RegtimeTotals;
-    @ViewChild(TimeTableReport) private regtimeTools: TimeTableReport;
+    @ViewChild(TimeTableReport) private timeTable: TimeTableReport;
     @ViewChild(RegtimeBalance) private regtimeBalance: RegtimeBalance;
     @ViewChild(WorkEditor) private workEditor: WorkEditor;
     @ViewChild(DayBrowser) private dayBrowser: DayBrowser;
@@ -74,7 +74,7 @@ export class TimeEntry {
 
     public tabs: Array<any> = [ { name: 'timeentry', label: 'Registrering', isSelected: true },
             { name: 'timesheet', label: 'Timeliste', activate: (ts: any, filter: any) =>
-                this.regtimeTools.activate(ts, filter) },
+                this.timeTable.activate() },
             { name: 'totals', label: 'Totaler', activate: (ts: any, filter: any) =>
                 this.regtimeTotals.activate(ts, filter) },
             { name: 'flex', label: 'Timesaldo', counter: 0 },
@@ -604,3 +604,5 @@ export interface IPreSaveConfig {
     askSave(): Promise<boolean>;
     askReload?(): void;
 }
+
+view.component = TimeEntry;

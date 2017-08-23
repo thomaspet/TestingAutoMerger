@@ -105,12 +105,13 @@ export class WorkerService extends BizHttp<Worker> {
 
     public createInitialWorkRelation(workerId: number, profile: WorkProfile): Observable<WorkRelation> {
         var route = 'workrelations';
+        var dt = moment();
         var rel = {
             WorkerID: workerId,
             CompanyName: this.user.company,
             WorkPercentage: 100,
             Description: profile.Name,
-            StartDate: moment([moment().year(), moment().month(), 1]).toDate(),
+            StartDate: moment([dt.year(), dt.month(), dt.date()]).toDate(),
             IsActive: true,
             WorkProfileID: profile.ID
         };
