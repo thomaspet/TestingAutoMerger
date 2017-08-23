@@ -1,13 +1,14 @@
-import {Component, ViewChild, OnInit} from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 import {Router} from '@angular/router';
 import {UniHttp} from '../../../../../framework/core/http/http';
 import {CompanySettings} from '../../../../unientities';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
-import {SendEmailModal} from '../../../common/modals/sendEmailModal';
 import {SendEmail} from '../../../../models/sendEmail';
-import {ToastService, ToastType} from '../../../../../framework/uniToast/toastService';
-import {ITickerActionOverride, TickerAction, ITickerColumnOverride} from '../../../../services/common/uniTickerService';
-import * as moment from 'moment';
+import {ToastService} from '../../../../../framework/uniToast/toastService';
+import {
+    ITickerActionOverride,
+    ITickerColumnOverride
+} from '../../../../services/common/uniTickerService';
 import {
     CustomerOrderService,
     ReportDefinitionService,
@@ -15,14 +16,16 @@ import {
     CompanySettingsService,
     ReportService
 } from '../../../../services/services';
+import {
+    UniModalService,
+    UniSendEmailModal
+} from '../../../../../framework/uniModal/barrel';
 
 @Component({
     selector: 'order-list',
     templateUrl: './orderList.html'
 })
 export class OrderList implements OnInit {
-    @ViewChild(SendEmailModal) private sendEmailModal: SendEmailModal;
-
     private actionOverrides: Array<ITickerActionOverride> = [
         {
             Code: 'order_sendemail',
@@ -55,8 +58,9 @@ export class OrderList implements OnInit {
         private toastService: ToastService,
         private errorService: ErrorService,
         private companySettingsService: CompanySettingsService,
-        private reportService: ReportService
-    ) { }
+        private reportService: ReportService,
+        private modalService: UniModalService
+    ) {}
 
     public ngOnInit() {
         this.companySettingsService.Get(1)
@@ -85,21 +89,23 @@ export class OrderList implements OnInit {
         let order = selectedRows[0];
 
         return new Promise((resolve, reject) => {
-            let sendemail = new SendEmail();
-            sendemail.EntityType = 'CustomerOrder';
-            sendemail.EntityID = order.ID;
-            sendemail.CustomerID = order.CustomerID;
-            sendemail.Subject = 'Ordre ' + (order.CustomerOrderNumber ? 'nr. ' + order.CustomerOrderOrderNumber : 'kladd');
-            sendemail.Message = 'Vedlagt finner du Ordre ' + (order.CustomerOrderOrderNumber ? 'nr. ' + order.CustomerOrderOrderNumber : 'kladd');
+            let model = new SendEmail();
+            model.EntityType = 'CustomerOrder';
+            model.EntityID = order.ID;
+            model.CustomerID = order.CustomerID;
 
-            this.sendEmailModal.openModal(sendemail);
+            const orderNumber = order.OrderNumber ? ` nr. ${order.OrderNumber}` : 'kladd';
+            model.Subject = 'Ordre' + orderNumber;
+            model.Message = 'Vedlagt finner du ordre' + orderNumber;
 
-            if (this.sendEmailModal.Changed.observers.length === 0) {
-                this.sendEmailModal.Changed.subscribe((email) => {
+            this.modalService.open(UniSendEmailModal, {
+                data: model
+            }).onClose.subscribe(email => {
+                if (email) {
                     this.reportService.generateReportSendEmail('Ordre id', email);
-                    resolve();
-                });
-            }
+                }
+                resolve();
+            });
         });
     }
 }

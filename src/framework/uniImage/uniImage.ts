@@ -161,11 +161,11 @@ export class UniImage {
         private http: UniHttp,
         private errorService: ErrorService,
         private cdr: ChangeDetectorRef,
-        private modalService: UniModalService
-        authService: AuthService,
+        private modalService: UniModalService,
+        private authService: AuthService,
     ) {
         // Subscribe to authentication/activeCompany changes
-        authService.authentication$.subscribe((authDetails) => {
+        this.authService.authentication$.subscribe((authDetails) => {
             this.token = authDetails.filesToken;
             this.activeCompany = authDetails.activeCompany;
         });

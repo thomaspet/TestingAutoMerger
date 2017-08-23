@@ -36,7 +36,7 @@ import {InvoiceReminders} from './invoice/reminders/reminders';
 import {Reminder} from './reminder/reminder';
 import {ReminderList} from './reminder/list/reminderList';
 import {ReminderConfirmModal, ReminderConfirmForm} from './reminder/list/reminderConfirmModal';
-import {ReminderSendingModal, ReminderSendingModalContent} from './reminder/sending/reminderSendingModal';
+import {UniReminderSendingModal} from './reminder/sending/reminderSendingModal';
 import {ReminderSending} from './reminder/sending/reminderSending';
 import {DebtCollection} from './reminder/debtCollection/debtCollection';
 import {TofHead} from './common/tofHead';
@@ -106,8 +106,7 @@ import {TreeModule} from 'angular-tree-component';
         ReminderConfirmModal,
         ReminderConfirmForm,
         ReminderSending,
-        ReminderSendingModalContent,
-        ReminderSendingModal,
+        UniReminderSendingModal,
         DebtCollection,
         InvoiceReminders,
 
@@ -117,7 +116,7 @@ import {TreeModule} from 'angular-tree-component';
         OrderToInvoiceModalType,
         OrderToInvoiceTable,
         ReminderConfirmForm,
-        ReminderSendingModalContent,
+        UniReminderSendingModal,
         ReminderSending,
         InvoiceReminders
     ],
@@ -151,7 +150,7 @@ import {TreeModule} from 'angular-tree-component';
         Reminder,
         ReminderList,
         ReminderSending,
-        ReminderSendingModal,
+        UniReminderSendingModal,
         InvoiceReminders,
         ProductGroups
     ]

@@ -9,6 +9,7 @@ export interface IDeleteButton {
 export interface ISortInfo {
     field: string;
     direction: number;
+    type: number;
 }
 
 export interface IEditorData {

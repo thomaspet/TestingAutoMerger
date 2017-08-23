@@ -1,11 +1,12 @@
-import {Component, ViewChild, Input} from '@angular/core';
+import {Component, ViewChild, Input, SimpleChanges} from '@angular/core';
 import {DomSanitizer} from '@angular/platform-browser';
 import {Router} from '@angular/router';
-import {StatusCodeJournalEntryLine} from '../../../../unientities';
+import {StatusCodeJournalEntryLine, LocalDate} from '../../../../unientities';
 import {UniTable, UniTableColumn, UniTableConfig, UniTableColumnType, ITableFilter} from '../../../../../framework/ui/unitable/index';
 import {ISummaryConfig} from '../../../common/summary/summary';
 import {ToastService, ToastType, ToastTime} from '../../../../../framework/uniToast/toastService';
 import {UniModalService} from '../../../../../framework/uniModal/barrel';
+import {exportToFile, arrayToCsv} from '../../../common/utils/utils';
 import {
     ErrorService,
     StatisticsService,
@@ -38,7 +39,13 @@ export class LedgerAccountReconciliation {
     public accountID: number;
 
     @Input()
-    public modalMode: boolean = false;
+    public pointInTime: LocalDate;
+
+    @Input()
+    public autoLock: boolean = true;
+
+    @Input()
+    public hideHeader: boolean = false;
 
     @ViewChild(UniTable)
     private table: UniTable;
@@ -80,14 +87,29 @@ export class LedgerAccountReconciliation {
         private modalService: UniModalService
     ) {}
 
-    public ngOnChanges() {
-        this.loadData();
+    public ngOnChanges(changes: SimpleChanges) {
+        if (changes['autoLock'] && changes['autoLock'].currentValue) {
+                if (this.currentMarkingSession.length >= 2) {
+                    let currentSessionSum = 0;
+                    this.currentMarkingSession.forEach(x => {
+                        currentSessionSum += x.RestAmount;
+                    });
+
+                    if (currentSessionSum === 0) {
+                        this.closeMarkingSession();
+                    }
+                }
+        }
+
+        if (!changes['autoLock']) {
+            this.loadData();
+        }
     }
 
     private loadData() {
         if (this.customerID || this.supplierID || this.accountID) {
+            this.busy = true;
             this.setupUniTable();
-            this.busy = false;
         } else {
             this.journalEntryLines = [];
         }
@@ -183,7 +205,9 @@ export class LedgerAccountReconciliation {
                 } else if (currentSessionSum === 0) {
                     // TODO: Add some slack here - allow for e.g. differences of 5 kr ??
                     this.addToCurrentMarkingSession(rowModel);
-                    this.closeMarkingSession();
+                    if (this.autoLock) {
+                        this.closeMarkingSession();
+                    }
                 } else if ((countPositive === 0 && rowModel.RestAmount < 0)
                     || (countNegative === 0 && rowModel.RestAmount > 0)) {
                     // Only negative or only positive amounts are crossed, so they don't balance.
@@ -217,6 +241,17 @@ export class LedgerAccountReconciliation {
                 // nothing will happen if it is deselected (the user needs to manually use the unlock
                 // button if that was the intent)
                 this.currentMarkingSession = this.currentMarkingSession.filter(x => x.ID !== rowModel.ID);
+                if (this.autoLock) {
+                    let currentSessionSum = 0;
+                    this.currentMarkingSession.forEach(x => {
+                        currentSessionSum += x.RestAmount;
+                    });
+
+                    if (currentSessionSum === 0) {
+                        this.closeMarkingSession();
+                    }
+                }
+
             }
         }
 
@@ -233,7 +268,30 @@ export class LedgerAccountReconciliation {
         });
     }
 
-    private autoMarkJournalEntries() {
+    public export() {
+        let lines = this.journalEntryLines;
+
+        var list = [];
+        lines.forEach((line) => {
+            var row = {
+                JournalEntryNumber: line.JournalEntryNumber,
+                FinancialDate: line.FinancialDate ? moment(line.FinancialDate).format().substr(0, 10) : '',
+                InvoiceNumber: line.InvoiceNumber ? line.InvoiceNumber : '',
+                DueDate: line.DueDate ? moment(line.DueDate).format().substr(0, 10) : '',
+                Amount: line.Amount,
+                RestAmount: line.RestAmount,
+                Description: line.Description,
+                Status: this.journalEntryLineService.getStatusText(line.StatusCode),
+                NumberOfPayments: line.NumberOfPayments,
+                Markings: this.getMarkingsText(line)
+            };
+            list.push(row);
+        });
+
+        exportToFile(arrayToCsv(list, ['JournalEntryNumber']), `OpenPosts.csv`);
+    }
+
+    public autoMarkJournalEntries() {
         if (this.allMarkingSessions.length > 0) {
             this.toastService.addToast('Kan ikke kjøre automerking',
                 ToastType.bad,
@@ -508,7 +566,7 @@ export class LedgerAccountReconciliation {
         return this.modalService.deprecated_openUnsavedChangesModal().onClose;
     }
 
-    private showHideEntires(newValue) {
+    public showHideEntries(newValue) {
         this.canDiscardChanges().subscribe(canDeactivate => {
             if (canDeactivate) {
                 this.allMarkingSessions = [];
@@ -521,7 +579,7 @@ export class LedgerAccountReconciliation {
         });
     }
 
-    private unlockJournalEntries() {
+    public unlockJournalEntries() {
         // check if any of the rows that are selected are serverside markings
         let selectedRows = this.table.getSelectedRows();
         if (selectedRows.length === 0) {
@@ -600,7 +658,7 @@ export class LedgerAccountReconciliation {
         });
     }
 
-    private abortMarking() {
+    public abortMarking() {
         this.canDiscardChanges().subscribe(canDeactivate => {
             if (canDeactivate) {
                 this.allMarkingSessions = [];
@@ -612,7 +670,7 @@ export class LedgerAccountReconciliation {
         });
     }
 
-    private reconciliateJournalEntries() {
+    public reconciliateJournalEntries() {
         // if at least 2 rows are marked but haven't been closed yet (because they dont match exactly),
         // close them before saving
         if (this.currentMarkingSession.length > 1) {
@@ -680,26 +738,18 @@ export class LedgerAccountReconciliation {
 
     private setupUniTable() {
 
-        let filters: ITableFilter[] = [];
-        if (this.displayPostsOption === 'OPEN') {
-            filters.push({
-                field: 'StatusCode',
-                operator: 'ne',
-                value: StatusCodeJournalEntryLine.Marked,
-                group: 0
-            });
-        }
-
         this.journalEntryLineService.getJournalEntryLinePostPostData(
             this.displayPostsOption !== 'MARKED',
             this.displayPostsOption !== 'OPEN',
             this.customerID,
             this.supplierID,
-            this.accountID)
+            this.accountID,
+            this.pointInTime)
             .subscribe(data => {
                 this.journalEntryLines = data;
                 setTimeout(() => {
                     this.calculateSums();
+                    this.busy = false;
                 });
             },
             (err) => this.errorService.handle(err)
@@ -708,18 +758,24 @@ export class LedgerAccountReconciliation {
         let columns = [
             new UniTableColumn('JournalEntryNumber', 'Bilagsnr', UniTableColumnType.Text),
             new UniTableColumn('JournalEntryType.Name', 'Type', UniTableColumnType.Text)
-                .setTemplate(x => x.JournalEntryTypeName),
+                .setTemplate(x => x.JournalEntryTypeName)
+                .setVisible(false),
             new UniTableColumn('FinancialDate', 'Dato', UniTableColumnType.LocalDate),
             new UniTableColumn('InvoiceNumber', 'Fakturanr', UniTableColumnType.Text),
             new UniTableColumn('DueDate', 'Forfall', UniTableColumnType.DateTime),
             new UniTableColumn('Amount', 'Beløp', UniTableColumnType.Money),
-            new UniTableColumn('AmountCurrency', 'V-Beløp', UniTableColumnType.Money).setVisible(false),
-            new UniTableColumn('CurrencyCodeCode', 'Valuta', UniTableColumnType.Text).setVisible(false),
-            new UniTableColumn('CurrencyExchangeRate', 'V-Kurs', UniTableColumnType.Number).setVisible(false),
+            new UniTableColumn('AmountCurrency', 'V-Beløp', UniTableColumnType.Money)
+                .setVisible(false),
+            new UniTableColumn('CurrencyCodeCode', 'Valuta', UniTableColumnType.Text)
+                .setVisible(false),
+            new UniTableColumn('CurrencyExchangeRate', 'V-Kurs', UniTableColumnType.Number)
+                .setVisible(false),
             new UniTableColumn('RestAmount', 'Restbeløp', UniTableColumnType.Money),
-            new UniTableColumn('RestAmountCurrency', 'V-Restbeløp', UniTableColumnType.Money).setVisible(false),
+            new UniTableColumn('RestAmountCurrency', 'V-Restbeløp', UniTableColumnType.Money)
+                .setVisible(false),
             new UniTableColumn('Description', 'Beskrivelse', UniTableColumnType.Text),
             new UniTableColumn('StatusCode', 'Status', UniTableColumnType.Text)
+                .setWidth('5rem')
                 .setTemplate(x => this.journalEntryLineService.getStatusText(x.StatusCode)),
             new UniTableColumn('NumberOfPayments', 'Bet.', UniTableColumnType.Text)
                 .setWidth('60px')
@@ -740,10 +796,9 @@ export class LedgerAccountReconciliation {
             .setColumns(columns)
             .setMultiRowSelect(true)
             .setColumnMenuVisible(true)
-            .setFilters(filters)
             .setContextMenu([
                 {
-                    action: (item) => {console.log('item:', item); this.editJournalEntry(item.JournalEntryID, item.JournalEntryNumber);},
+                    action: (item) => { this.editJournalEntry(item.JournalEntryID, item.JournalEntryNumber); },
                     disabled: (item) => false,
                     label: 'Rediger bilag'
                 }

@@ -318,7 +318,7 @@ export function exportToFile(text: string, fileName: string) {
     document.body.removeChild(link);
 }
 
-export function arrayToCsv(data: Array<any>, columnDelimiter = ';', lineDelimiter = '\r\n') {
+export function arrayToCsv(data: Array<any>, columnAsFormula: Array<string> = [], columnDelimiter = ';', lineDelimiter = '\r\n') {
     var result, ctr, keys;
 
     if (data === null || !data.length) {
@@ -343,6 +343,7 @@ export function arrayToCsv(data: Array<any>, columnDelimiter = ';', lineDelimite
                 if (prop.indexOf(columnDelimiter) > 0) {
                     prop = prop.replace(new RegExp(columnDelimiter, 'g'), '.');
                 }
+                if (columnAsFormula.indexOf(key) != -1) { result += '='; }
                 result += '"' + prop + '"';
             }
             ctr++;

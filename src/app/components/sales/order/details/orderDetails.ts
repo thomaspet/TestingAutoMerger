@@ -6,20 +6,23 @@ import {TradeItemHelper} from '../../salesHelper/tradeItemHelper';
 import {OrderToInvoiceModal} from '../modals/ordertoinvoice';
 import {TradeHeaderCalculationSummary} from '../../../../models/sales/TradeHeaderCalculationSummary';
 import {TofHelper} from '../../salesHelper/tofHelper';
-import {PreviewModal} from '../../../reports/modals/preview/previewModal';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
-import {ToastService, ToastType, ToastTime} from '../../../../../framework/uniToast/toastService';
+import {ToastService, ToastType} from '../../../../../framework/uniToast/toastService';
 import {IToolbarConfig} from '../../../common/toolbar/toolbar';
 import {UniStatusTrack} from '../../../common/toolbar/statustrack';
 import {IContextMenuItem} from '../../../../../framework/ui/unitable/index';
-import {SendEmailModal} from '../../../common/modals/sendEmailModal';
 import {SendEmail} from '../../../../models/sendEmail';
 import {ISummaryConfig} from '../../../common/summary/summary';
 import {GetPrintStatusText} from '../../../../models/printStatus';
 import {TradeItemTable} from '../../common/tradeItemTable';
 import {TofHead} from '../../common/tofHead';
 import {StatusCode} from '../../salesHelper/salesEnums';
-import {UniModalService, ConfirmActions} from '../../../../../framework/uniModal/barrel';
+import {UniPreviewModal} from '../../../reports/modals/preview/previewModal';
+import {
+    UniModalService,
+    UniSendEmailModal,
+    ConfirmActions
+} from '../../../../../framework/uniModal/barrel';
 import {
     Address,
     CustomerOrder,
@@ -64,9 +67,8 @@ class CustomerOrderExt extends CustomerOrder {
     templateUrl: './orderDetails.html'
 })
 export class OrderDetails {
-    @ViewChild(OrderToInvoiceModal) private oti: OrderToInvoiceModal;
-    @ViewChild(PreviewModal) private previewModal: PreviewModal;
-    @ViewChild(SendEmailModal) private sendEmailModal: SendEmailModal;
+    @ViewChild(OrderToInvoiceModal)
+    private oti: OrderToInvoiceModal;
 
     @ViewChild(TofHead)
     private tofHead: TofHead;
@@ -223,33 +225,13 @@ export class OrderDetails {
             }
         });
         this.projectService.GetAll(null).subscribe(
-            res=>this.projects = res,
-            err=>this.errorService.handle(err)
+            res => this.projects = res,
+            err => this.errorService.handle(err)
         );
     }
 
-    private ngAfterViewInit() {
+    public ngAfterViewInit() {
          this.tofHead.detailsForm.tabbedPastLastField.subscribe((event) => this.tradeItemTable.focusFirstRow());
-    }
-
-    private sendEmailAction(doneHandler: (msg: string) => void = null) {
-        doneHandler('Email-sending åpnet');
-
-        let sendemail = new SendEmail();
-        sendemail.EntityType = 'CustomerOrder';
-        sendemail.EntityID = this.order.ID;
-        sendemail.CustomerID = this.order.CustomerID;
-        sendemail.EmailAddress = this.order.EmailAddress;
-        sendemail.Subject = 'Ordre ' + (this.order.OrderNumber ? 'nr. ' + this.order.OrderNumber : 'kladd');
-        sendemail.Message = 'Vedlagt finner du Ordre ' + (this.order.OrderNumber ? 'nr. ' + this.order.OrderNumber : 'kladd');
-
-        this.sendEmailModal.openModal(sendemail);
-        if (this.sendEmailModal.Changed.observers.length === 0) {
-                this.sendEmailModal.Changed.subscribe((email) => {
-                this.reportService.generateReportSendEmail('Ordre id', email, null, doneHandler);
-            });
-        }
-
     }
 
     @HostListener('keydown', ['$event'])
@@ -681,7 +663,27 @@ export class OrderDetails {
 
         this.saveActions.push({
             label: 'Send på epost',
-            action: (done) => this.sendEmailAction(done),
+            action: (done) => {
+                let model = new SendEmail();
+                model.EntityType = 'CustomerOrder';
+                model.EntityID = this.order.ID;
+                model.CustomerID = this.order.CustomerID;
+                model.EmailAddress = this.order.EmailAddress;
+
+                const orderNumber = this.order.OrderNumber ? ` nr. ${this.order.OrderNumber}` : 'kladd';
+                model.Subject = 'Ordre' + orderNumber;
+                model.Message = 'Vedlagt finner du ordre' + orderNumber;
+
+                this.modalService.open(UniSendEmailModal, {
+                    data: model
+                }).onClose.subscribe(email => {
+                    if (email) {
+                        this.reportService.generateReportSendEmail('Ordre id', email, null, done);
+                    } else {
+                        done();
+                    }
+                });
+            },
             main: printStatus === 200 && !this.isDirty,
             disabled: false
 
@@ -886,20 +888,26 @@ export class OrderDetails {
         }
     }
 
-    private print(id, doneHandler: (msg: string) => void = null) {
+    private print(id, doneHandler: (msg?: string) => void = () => {}) {
         this.reportDefinitionService.getReportByName('Ordre id').subscribe((report) => {
-            this.previewModal.openWithId(report, id, 'Id', doneHandler);
+            report.parameters = [{Name: 'Id', value: id}];
+            this.modalService.open(UniPreviewModal, {
+                data: report
+            }).onClose.subscribe(() => {
+                doneHandler();
+
+                this.customerOrderService.setPrintStatus(this.orderID, this.printStatusPrinted).subscribe(
+                    (printStatus) => {
+                        this.order.PrintStatus = +this.printStatusPrinted;
+                        this.updateToolbar();
+                    },
+                    err => this.errorService.handle(err)
+                );
+            });
         }, (err) => {
-            if (doneHandler) { doneHandler('En feil oppstod ved utskrift av ordre!'); }
+            doneHandler('En feil oppstod ved utskrift av ordre');
         });
     }
-
-    private onPrinted(event) {
-            this.customerOrderService.setPrintStatus(this.orderID, this.printStatusPrinted).subscribe((printStatus) => {
-                this.order.PrintStatus = +this.printStatusPrinted;
-                this.updateToolbar();
-            }, err => this.errorService.handle(err));
-  }
 
     private deleteOrder(done) {
         this.customerOrderService.Remove(this.order.ID, null).subscribe(

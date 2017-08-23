@@ -24,6 +24,4 @@
     <uni-summary *ngIf="order" [configs]="summary"></uni-summary>
 </section>
 
-<send-email-modal></send-email-modal>
-<report-preview-modal  (printed)="onPrinted($event)"></report-preview-modal>
 <order-to-invoice-modal *ngIf="order"></order-to-invoice-modal>

@@ -7,7 +7,6 @@ import {ToastService, ToastType} from '../../../../framework/uniToast/toastServi
 import {SearchResultItem} from '../../common/externalSearch/externalSearch';
 import {AuthService} from '../../../../framework/core/authService';
 import {ReminderSettings} from '../../common/reminder/settings/reminderSettings';
-import {ActivationEnum} from '../../../models/activationEnum';
 import {
     FinancialYear,
     CompanyType,
@@ -52,10 +51,8 @@ import {
     UniEmailModal,
     UniPhoneModal,
     UniBankAccountModal,
-    ConfirmActions
+    UniActivateAPModal
 } from '../../../../framework/uniModal/barrel';
-
-import {ActivateAPModal} from '../../common/modals/modals';
 
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {Observable} from 'rxjs/Observable';
@@ -71,9 +68,6 @@ export class CompanySettingsComponent implements OnInit {
 
     @ViewChild(ReminderSettings)
     public reminderSettings: ReminderSettings;
-
-    @ViewChild(ActivateAPModal)
-    private activateAPModal: ActivateAPModal;
 
     private defaultExpands: any = [
         'DefaultAddress',
@@ -591,7 +585,10 @@ export class CompanySettingsComponent implements OnInit {
                 }
 
                 const modal = this.modalService.open(UniBankAccountModal, {
-                    data: bankaccount
+                    data: bankaccount,
+                    modalConfig: {
+                        accountVisible: true
+                    }
                 });
 
                 return modal.onClose.take(1).toPromise();
@@ -1462,55 +1459,11 @@ export class CompanySettingsComponent implements OnInit {
                 }
             }
         ]);
-
-        /*
-        KE 08062016: Fjernet foreløpig, disse skal sannsynligvis inn et annet sted, men brukes ikke PT
-        if (this.company.AccountingLockedDate !== null) {
-            this.company.AccountingLockedDate = new Date(this.company.AccountingLockedDate);
-        }
-
-        if (this.company.VatLockedDate !== null) {
-            this.company.VatLockedDate = new Date(this.company.VatLockedDate);
-        }
-
-        var accountingLockedDate = new UniFieldBuilder();
-        accountingLockedDate.setLabel('Regnskap låst tom')
-            .setModel(this.company)
-            .setModelField('AccountingLockedDate')
-            .setType(UNI_CONTROL_DIRECTIVES[FieldType.LOCAL_DATE_PICKER]);
-
-        var vatLockedDate = new UniFieldBuilder();
-        vatLockedDate.setLabel('Mva låst tom')
-            .setModel(this.company)
-            .setModelField('VatLockedDate')
-            .setType(UNI_CONTROL_DIRECTIVES[FieldType.LOCAL_DATE_PICKER])
-            .setKendoOptions({})
-            .hasLineBreak(true);
-
-        var forceSupplierInvoiceApproval = new UniFieldBuilder();
-        forceSupplierInvoiceApproval.setLabel('Tvungen godkjenning')
-            .setModel(this.company)
-            .setModelField('ForceSupplierInvoiceApproval')
-            .setType(UNI_CONTROL_DIRECTIVES[FieldType.CHECKBOX]);
-        */
     }
 
     private activateAP() {
-        this.activateAPModal.confirm().then((result) => {
-            if (result.status === ConfirmActions.ACCEPT) {
-                this.ehfService.Activate(result.model).subscribe((status) => {
-                    if (status == ActivationEnum.ACTIVATED) {
-                        this.toastService.addToast('Aktivering', ToastType.good, 3, 'EHF aktivert');
-                    } else if (status == ActivationEnum.CONFIRMATION) {
-                        this.toastService.addToast('Aktivering på vent', ToastType.good, 5, 'EHF er tidligere aktivert for org.nr. Venter på godkjenning sendt på epost til kontaktepostadresse registerert på Uni Micro sitt aksesspunkt.');
-                    } else {
-                        this.toastService.addToast('Aktivering feilet!', ToastType.bad, 5, 'Noe galt skjedde ved aktivering');
-                    }
-                }, (err) => {
-                    this.errorService.handle(err);
-                });
-            }
-        });
+        this.modalService.open(UniActivateAPModal)
+            .onClose.subscribe((status) => {});
     }
 
     //#region Test data

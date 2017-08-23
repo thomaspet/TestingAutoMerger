@@ -14,7 +14,6 @@ import {ToastService} from './uniToast/toastService';
 import {StimulsoftReportWrapper} from './wrappers/reporting/reportWrapper';
 import {UniCoreModule} from './core/coreModule';
 import {UniPipesModule} from './pipes/pipesModule';
-import {UniConfirmModal, UniConfirmContent} from './modals/confirm';
 import {Logger} from './core/logger';
 import {UniNotifications} from './notifications/notifications';
 import {UniComments} from './comments/comments';
@@ -46,8 +45,6 @@ import {UniModalService, MODALS} from './uniModal/barrel';
     ],
     declarations: [
         UniModal,
-        UniConfirmModal,
-        UniConfirmContent,
         UniDocumentList,
         UniDocumentUploader,
         UniSave,
@@ -64,7 +61,6 @@ import {UniModalService, MODALS} from './uniModal/barrel';
         ...MODALS
     ],
     entryComponents: [
-        UniConfirmContent,
         ...MODALS
     ],
     providers: [
@@ -84,8 +80,6 @@ import {UniModalService, MODALS} from './uniModal/barrel';
 
         // Components
         UniModal,
-        UniConfirmModal,
-        UniConfirmContent,
         UniDocumentList,
         UniDocumentUploader,
         UniSave,

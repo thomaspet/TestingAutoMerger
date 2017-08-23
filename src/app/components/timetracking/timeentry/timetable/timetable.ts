@@ -10,20 +10,22 @@ import {WorkItemGroup} from '../../../../unientities';
 import {Observable} from 'rxjs/Observable';
 import {ReportWorkflow} from './pipes';
 import {Sums, StatusCode, ReportFlow, IReport, Week, IWorkDay, Month} from './model';
-import {UniModalService, ConfirmActions} from '../../../../../framework/uniModal/barrel';
+import {UniModalService} from '../../../../../framework/uniModal/barrel';
 import {WorkitemGroupService} from './workitemgroupservice';
 import {PopupMenu} from './popupmenu';
 import {ToastService, ToastType} from '../../../../../framework/uniToast/toastService';
+import {UniApproveTaskModal} from './approvetaskmodal';
 
 @Component({
     selector: 'timetracking-timetable',
     templateUrl: './timetable.html',
-    providers: [ReportWorkflow, WorkitemGroupService, PopupMenu]
+    providers: [ReportWorkflow, WorkitemGroupService, PopupMenu, UniApproveTaskModal]
 })
 export class TimeTableReport {
     @ViewChild(UniTimeModal) private timeModal: UniTimeModal;
     @Input() public eventcfg: IPreSaveConfig;
     @ViewChild(PopupMenu) private popup: PopupMenu;
+    @ViewChild(UniApproveTaskModal) private approveTaskModal: UniApproveTaskModal;
     private timesheet: TimeSheet;
     public config: {
         title: string,
@@ -160,40 +162,16 @@ export class TimeTableReport {
                 this.showApprovers(event.cargo);
                 break;
             case 'approve':
-                this.approveWeek(event.cargo, true);
+                this.approveOrRejectWeek(event.cargo, true);
                 break;
             case 'reject':
-                this.approveWeek(event.cargo, false);
+                this.approveOrRejectWeek(event.cargo, false);
                 break;
             case 'autofill':
                 this.autoFillWeek(event.cargo);
                 break;
         }
-        console.log(event.name, event.cargo);
     }    
-
-    private reAssignWeek(week: Week) {
-        this.modalService.confirm({
-            header: 'Sende inn på nytt ?',
-            message: 'Ønsker du å prøve å sende inn aktuell avvist timeliste på nytt?'
-        }).onClose.subscribe(response => {
-            if (response === ConfirmActions.ACCEPT) {
-                this.api.GetGroups(this.CurrentRelationID, week.FirstDay, week.LastDay, StatusCode.Declined)
-                    .subscribe( list => {
-                        Observable.forkJoin(
-                            list.map( x => this.api.Delete(x.ID) )
-                        )
-                        .finally( () => this.busy = false )
-                        .subscribe( result => {
-                            this.assignWeek(week);
-                        }, err => this.errorService.handle(err) );
-                    }, err => {
-                        this.errorService.handle(err);
-                        this.busy = false;
-                    });    
-            }
-        });        
-    }
 
     private reSendWeek(week: Week) {
         this.api.GetGroups(this.CurrentRelationID, week.FirstDay, week.LastDay)
@@ -228,7 +206,7 @@ export class TimeTableReport {
         });         
     }
 
-    private approveWeek(week: Week, approve: boolean) {
+    private approveOrRejectWeek(week: Week, approve: boolean) {
 
         var rel = this.report.Relation.ID;
         var d1 = week.FirstDay;
@@ -237,7 +215,24 @@ export class TimeTableReport {
         week.isBusy = true;
 
         this.api.GetGroups(rel, d1, d2, StatusCode.AwaitingApproval)
-            .subscribe( list => {                    
+            .subscribe( (list: Array<{ID, StatusCode, TaskID}>) => {   
+                
+                // Tasks (approve via dialog) ?
+                var tasks = list.filter( x => !!x.TaskID);
+                if (tasks && tasks.length > 0) {
+                    let details = tasks[0];
+                    this.approveTaskModal.open(details.TaskID, details.ID, 'workitemgroup', approve)
+                        .then( result => {
+                            if (result) {
+                                this.refreshReport(false).then( () => week.isBusy = false );
+                            } else {
+                                week.isBusy = false;
+                            }
+                        });
+                    return;
+                }
+
+                // Direct approval via 'transitions'
                 Observable.forkJoin(
                     list.map( x => { 
                         return approve ? this.api.Approve(x.ID) : this.api.Reject(x.ID); 
@@ -266,12 +261,15 @@ export class TimeTableReport {
             .subscribe( list => {
                 Observable.forkJoin(
                     list.map( x => this.api.GetApprovers(x.ID) )
-                ).subscribe( (results: Array<Array<{ name: string, email: string }>>) => {
-                    var group: string = '';
+                ).subscribe( (results: Array<Array<{ name: string, email: string, statuscode: number }>>) => {
+                    let group: string = '';
+                    let activeCount = 0;
+                    const approvalStatusActive = 50120;
                     results.forEach( nameList => {
                         nameList.forEach( (y, index) => {
                             group += ((!group) ? '' : ( index === nameList.length - 1 ? ' og ' : ', ')) 
-                            + y.name.trim() + (y.email ? ` (${y.email})` : '');
+                            + (y.name ? y.name.trim() : '?') + (y.email ? ` (${y.email})` : '');
+                            activeCount += (y.statuscode === approvalStatusActive) ? 1 : 0;
                         });
                     });
 
@@ -279,9 +277,9 @@ export class TimeTableReport {
                         return;
                     }
 
-                    var msgDetails = {
-                        header: 'Godkjenningstatus for Uke ' + week.WeekNumber,
-                        message: 'Tildelt til: ' + group,
+                    let msgDetails = {
+                        header: 'Uke ' + week.WeekNumber + ' tildelt til:',
+                        message: group + ` - ${activeCount} godkjenning${activeCount > 1 ? 'er' : ''} gjenstår.`,
                         buttonLabels: {
                             reject: 'Lukk',
                         }
@@ -404,14 +402,20 @@ export class TimeTableReport {
     }
 
     private refreshReport(showBusy: boolean) {
-        if (showBusy) { this.busy = true; }
-        var dt = toIso(moment(this.workerService.getIntervalDate(this.currentFilter.interval))
-            .startOf('week').toDate());
-        this.api.GetTimeSheet(this.CurrentRelationID, dt)
-            .subscribe( result => {
-                this.report = this.groupIntoWeeks(<IReport>result);
-                this.busy = false;
-            }, err => this.errorService.handle(err));    
+        return new Promise<boolean>( (resolve, reject) => {
+            if (showBusy) { this.busy = true; }
+            var dt = toIso(moment(this.workerService.getIntervalDate(this.currentFilter.interval))
+                .startOf('week').toDate());
+            this.api.GetTimeSheet(this.CurrentRelationID, dt)
+                .subscribe( result => {
+                    this.report = this.groupIntoWeeks(<IReport>result);
+                    this.busy = false;
+                    resolve(true);
+                }, err => {
+                    this.errorService.handle(err);
+                    resolve(false);
+                });
+        });
     }
 
     private groupIntoWeeks(report: IReport): any {

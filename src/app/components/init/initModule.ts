@@ -38,6 +38,9 @@ import {ConfirmInvite} from './confirmInvite/confirmInvite';
         Login,
         ConfirmInvite
     ],
+    entryComponents: [
+        LoginModal
+    ],
     exports: [
         LoginModal,
         UniInit,

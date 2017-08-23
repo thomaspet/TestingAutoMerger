@@ -2,7 +2,8 @@ import {Component, ViewChild, Type, Input, OnInit} from '@angular/core';
 import {UniModal} from '../../../../../framework/modals/modal';
 import {ReportDefinition, ReportDefinitionParameter} from '../../../../unientities';
 import {ReportDefinitionParameterService, FinancialYearService, ErrorService} from '../../../../services/services';
-import {PreviewModal} from '../preview/previewModal';
+import {UniModalService} from '../../../../../framework/uniModal/barrel';
+import {UniPreviewModal} from '../preview/previewModal';
 import {UniFieldLayout, FieldType} from '../../../../../framework/ui/uniform/index';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 
@@ -138,11 +139,10 @@ export class SupplierAccountReportFilterModal {
     public modalConfig: any = {};
     public type: Type<any> = SupplierAccountReportFilterForm;
 
-    private previewModal: PreviewModal;
-
     constructor(
         private reportDefinitionParameterService: ReportDefinitionParameterService,
-        private errorService: ErrorService
+        private errorService: ErrorService,
+        private modalService: UniModalService
     ) {
         this.modalConfig = {
             title: 'Parametre',
@@ -196,7 +196,9 @@ export class SupplierAccountReportFilterModal {
                         }
 
                         this.modal.close();
-                        this.previewModal.open(this.modalConfig.report);
+                        this.modalService.open(UniPreviewModal, {
+                            data: this.modalConfig.report
+                        });
                     }
                 },
                 {
@@ -211,10 +213,9 @@ export class SupplierAccountReportFilterModal {
         };
     }
 
-    public open(report: ReportDefinition, previewModal: PreviewModal) {
+    public open(report: ReportDefinition) {
         this.modalConfig.title = report.Name;
         this.modalConfig.report = report;
-        this.previewModal = previewModal;
 
         this.reportDefinitionParameterService.GetAll('filter=ReportDefinitionId eq ' + report.ID).subscribe(params => {
             this.modalConfig.report.parameters = params;

@@ -12,6 +12,7 @@ import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService
 import {ToastService, ToastType} from '../../../../../framework/uniToast/toastService';
 import {IToolbarConfig} from './../../../common/toolbar/toolbar';
 import {LedgerAccountReconciliation} from '../../../common/reconciliation/ledgeraccounts/ledgeraccountreconciliation';
+import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {
     DepartmentService,
     ProjectService,
@@ -25,10 +26,6 @@ import {
     CurrencyCodeService,
     UniSearchConfigGeneratorService
 } from '../../../../services/services';
-
-import {BehaviorSubject} from 'rxjs/BehaviorSubject';
-
-import {ConfirmActions} from '../../../../../framework/modals/confirm';
 
 import {
     UniModalService,

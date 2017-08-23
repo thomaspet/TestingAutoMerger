@@ -2,10 +2,14 @@ import { Component, OnInit, ViewChild, Type, Input, OnDestroy } from '@angular/c
 import { UniModal } from '../../../../../framework/modals/modal';
 import { ReportDefinition, ReportDefinitionParameter, PayrollRun, Employee } from '../../../../unientities';
 import {
-    ReportDefinitionParameterService, YearService, ErrorService,
-    PayrollrunService, EmployeeService
+    ReportDefinitionParameterService,
+    YearService,
+    ErrorService,
+    PayrollrunService,
+    EmployeeService
 } from '../../../../services/services';
-import { PreviewModal } from '../preview/previewModal';
+import {UniModalService} from '../../../../../framework/uniModal/barrel';
+import {UniPreviewModal} from '../preview/previewModal';
 import { UniFieldLayout, FieldType } from '../../../../../framework/ui/uniform/index';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import { Observable } from 'rxjs/Observable';
@@ -167,13 +171,17 @@ export class PaycheckReportFilterModalContent implements OnInit, OnDestroy {
     template: `<uni-modal [type]='type' [config]='modalConfig'></uni-modal>`
 })
 export class PayCheckReportFilterModal implements OnInit {
-    @ViewChild(UniModal) private modal: UniModal;
-    private previewModal: PreviewModal;
+    @ViewChild(UniModal)
+    private modal: UniModal;
+
     private modalConfig: ModalConfig;
     public type: Type<any> = PaycheckReportFilterModalContent;
+
     constructor(
         private reportDefinitionParameterService: ReportDefinitionParameterService,
-        private errorService: ErrorService) { }
+        private errorService: ErrorService,
+        private modalService: UniModalService
+    ) {}
 
     public ngOnInit() {
         this.modalConfig = {
@@ -195,7 +203,9 @@ export class PayCheckReportFilterModal implements OnInit {
                             })
                             .do(() => this.modal.close())
                             .subscribe((component: PaycheckReportFilterModalContent) => {
-                                this.previewModal.open(component.config.report);
+                                this.modalService.open(UniPreviewModal, {
+                                    data: component.config.report
+                                });
                             });
                     }
                 },
@@ -207,10 +217,9 @@ export class PayCheckReportFilterModal implements OnInit {
         };
     }
 
-    public open(report: ReportDefinition, previewModal: PreviewModal) {
+    public open(report: ReportDefinition) {
         this.modalConfig.title = report.Name;
         this.modalConfig.report = report;
-        this.previewModal = previewModal;
 
         this.reportDefinitionParameterService
             .GetAll('filter=ReportDefinitionId eq ' + report.ID)

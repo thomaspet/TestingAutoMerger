@@ -100,12 +100,9 @@ dialog.uniModal[open=false]:before
 // NEW MODAL STUFF
 .uni-modal-backdrop
     @include fullscreen
-    box-sizing: border-box
-    border: none
-    padding: 2rem
     transition: opacity 300ms ease
     opacity: 1
-    background: transparentize($uni-color-scale4, .3)
+    background: transparentize($uni-color-scale4, .4)
     display: flex
     align-items: center
     justify-content: center
@@ -122,8 +119,6 @@ dialog.uni-modal
     background: $uni-color-negative
     color: $uni-color-positive
     box-shadow: 0 0 1rem transparentize($uni-color-positive, .9)
-    border: 1px solid $uni-color-scale9
-    padding: 1rem
     box-sizing: border-box
     border-radius: pxToRem(5)
     max-height: 90vh
@@ -131,8 +126,10 @@ dialog.uni-modal
     overflow-x: auto
 
     transform: translateY(-50%)
+    display: block
 
-    @include clearfix
+    padding: 0
+    border: none
 
     &.small
         width: 40vw
@@ -179,10 +176,13 @@ dialog.uni-modal
                 background-size: .7rem
 
     main
-        padding: 1rem .5rem
+        box-sizing: border-box
+        padding: 1rem
 
     footer
         width: 100%
+        box-sizing: border-box
+        padding: 0 1rem 1rem 1rem
         text-align: right
         border-top: 1px solid $uni-color-scale9
 
@@ -210,3 +210,59 @@ uni-bankaccount-modal .uni-modal
                 flex: 1 0 50%
                 padding: 0 .5rem !important
                 min-width: 20rem
+
+uni-send-email-modal
+    textarea
+        height: 12rem
+        overflow: auto
+
+uni-preview-modal dialog.uni-modal
+    max-height: 95vh
+
+    #reportContainer
+        max-height: calc(95vh - 10rem)
+        overflow: auto
+        text-align: center
+
+    .main-action-button
+        border-radius: pxToRem(3) 0 0 pxToRem(3)
+
+    .action-list-toggle
+        @extend %hideText
+        border-radius: 0 pxToRem(3) pxToRem(3) 0
+        margin-left: 0
+        border-left: none
+        float: right
+        min-width: 0
+        width: 2rem
+        background: $uni-color-good unicon-chevron-down($uni-color-negative) center center no-repeat
+        background-size: .75rem auto
+
+        &:hover,
+        &:focus
+            border-left: 0
+            background-color: darken($uni-color-good, 5%)
+
+    .download-action-list
+        @extend %contextMenu
+        bottom: 3rem
+        right: 1rem
+
+uni-login-modal dialog.uni-modal
+    width: 30vw
+
+    button.modal-close-button
+        display: none
+
+    main
+        padding: .5rem 1rem
+
+    small
+        margin-bottom: 1.5rem
+
+    uni-field
+        max-width: none
+        padding-right: 0
+
+    footer button
+        width: 10rem

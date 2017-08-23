@@ -8,7 +8,7 @@ export enum ConfirmActions {
 };
 
 @Component({
-    selector: 'uni-confirm-modal-v2',
+    selector: 'uni-confirm-modal',
     template: `
         <dialog class="uni-modal"
                 (clickOutside)="clickOutsideCancel()"
@@ -18,7 +18,8 @@ export enum ConfirmActions {
             </header>
 
             <main>
-                <p>{{options.message}}</p>
+                <!--<p>{{options.message}}</p>-->
+                <section [innerHtml]="options.message"></section>
                 <p class="warn" *ngIf="options.warning">
                     {{options.warning}}
                 </p>

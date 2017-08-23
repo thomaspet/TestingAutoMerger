@@ -7,6 +7,7 @@ import 'rxjs/add/observable/fromPromise';
 import 'rxjs/add/operator/throttleTime';
 
 import {UniTableConfig, IDeleteButton, ISortInfo, IRowChangeEvent} from './config/unitableConfig';
+import {UniTableColumnType} from './config/unitableColumn';
 import {IRowModelChangeEvent} from './unitableRow';
 import {UnitableEditor} from './editor/editor';
 import {UnitableContextMenu} from './contextMenu';
@@ -176,6 +177,7 @@ export class UniTable implements OnChanges {
         this.sortInfo = {
             field: '',
             direction: 0,
+            type: UniTableColumnType.Text
         };
 
         this.resize$ = Observable.fromEvent(window, 'resize')
@@ -470,6 +472,7 @@ export class UniTable implements OnChanges {
         this.sortInfo = {
             field: field,
             direction: newDirection,
+            type: column.get('type')
         };
 
         this.filterAndSortTable();
@@ -663,7 +666,7 @@ export class UniTable implements OnChanges {
 
             // Sort data
             if (this.sortInfo) {
-                data = this.utils.sort(this.sortInfo.field, this.sortInfo.direction, data);
+                data = this.utils.sort(this.sortInfo.field, this.sortInfo.direction, this.sortInfo.type, data);
             }
 
             this.tableData = (hadEmptyRow) ? data.push(this.tableDataOriginal.last()) : data;

@@ -4,6 +4,8 @@ import {Injectable} from '@angular/core';
 import {UniHttp} from '../../../../../framework/core/http/http';
 import {Observable} from 'rxjs/Observable';
 
+const workitemgroupModelID = 196;
+
 @Injectable()
 export class WorkitemGroupService {
 
@@ -19,9 +21,11 @@ export class WorkitemGroupService {
         var d1 = toIso(fromDate);
         var d2 = toIso(toDate);
         var route = this.routeBuilder('model=workitemgroup', 
-            '&select', 'id as ID,statuscode as StatusCode',
+            '&select', 'id as ID,statuscode as StatusCode,task.id as TaskID', 
+            'join', 'workitemgroup.id eq task.entityid',
             'expand', 'items', 'filter', `workrelationid eq ${relationId}`
-                + ` and items.date ge '${d1}' and items.date le '${d2}'`);
+                + ` and items.date ge '${d1}' and items.date le '${d2}'`
+                + ` and isnull(task.modelid, ${workitemgroupModelID}) eq ${workitemgroupModelID}`);
         if (statuses && statuses.length > 0) {
             route += ' AND (';
             statuses.forEach( (x, index) => 
@@ -32,8 +36,9 @@ export class WorkitemGroupService {
         return this.getStatistics(route).map( x => x.Data );
     }
 
-    public GetApprovers(groupId: number): Observable<Array<{ name: string, email: string }>> {
-        var query = 'model=workitemgroup&select=user.displayname as name,user.email as email'
+    public GetApprovers(groupId: number): Observable<Array<{ name: string, email: string, statuscode: number }>> {
+        var query = 'model=workitemgroup'
+            + '&select=user.displayname as name,user.email as email,approval.statuscode as statuscode'
             + '&filter=task.modelid eq 196 and id eq ' + groupId
             + '&join=workitemgroup.id eq task.entityid and task.id eq approval.taskid and approval.userid eq user.id';
         return this.getStatistics(query).map( x => x.Data );

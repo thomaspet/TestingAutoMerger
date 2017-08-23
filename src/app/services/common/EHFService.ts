@@ -3,7 +3,6 @@ import {BizHttp} from '../../../framework/core/http/BizHttp';
 import {EHFLog} from '../../unientities';
 import {UniHttp} from '../../../framework/core/http/http';
 import {RequestMethod} from '@angular/http';
-
 @Injectable()
 export class EHFService extends BizHttp<EHFLog> {
 
@@ -15,7 +14,7 @@ export class EHFService extends BizHttp<EHFLog> {
         this.DefaultOrderBy = null;
     }
 
-    public Activate(activate) {
+    public activate(activate) {
         return this.ActionWithBody(null, activate, 'activate', RequestMethod.Post);
     }
 }
