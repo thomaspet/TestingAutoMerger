@@ -48,6 +48,7 @@ import {LinkMenu} from './linkMenu/linkMenu';
 import {SellerList} from './seller/sellerList';
 import {SellerLinks} from './seller/sellerLinks';
 import {SellerDetails} from './seller/sellerDetails';
+import {UniInfo} from './uniInfo/uniInfo';
 
 import {routes as AppCommonRoutes} from './appCommonRoutes';
 
@@ -120,7 +121,9 @@ import {routes as AppCommonRoutes} from './appCommonRoutes';
 
         SellerList,
         SellerLinks,
-        SellerDetails
+        SellerDetails,
+
+        UniInfo
     ],
     entryComponents: [
         AccrualForm,
@@ -188,7 +191,9 @@ import {routes as AppCommonRoutes} from './appCommonRoutes';
 
         SellerList,
         SellerLinks,
-        SellerDetails
+        SellerDetails,
+
+        UniInfo
     ]
 })
 export class AppCommonModule {}

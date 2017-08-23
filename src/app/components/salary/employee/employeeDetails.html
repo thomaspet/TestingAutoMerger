@@ -9,6 +9,8 @@
 <!--<employeecategory-buttons class="poster_toolbar" *ngIf="employee?.ID" [selectedEmployee]="employee"></employeecategory-buttons>-->
 <tax-card-modal *ngIf="employee" [employeeID]="employee.ID" (updateEvent)="getTax()"></tax-card-modal>
 
+<uni-information [config]="{headline: 'Hello world', content: 'Hello <b>World!</p>'}"></uni-information>
+
 <article [attr.aria-busy]="busy">
     <uni-tabs [routes]="childRoutes" class="horizontal_nav"></uni-tabs>
     <router-outlet></router-outlet>
