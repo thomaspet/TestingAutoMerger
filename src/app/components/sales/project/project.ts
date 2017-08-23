@@ -92,6 +92,8 @@ export class Project {
                     .subscribe(project => {
                         this.projectService.currentProject.next(project);
                     }, error => this.newProject());
+            } else if (params['id'] === 'new') {
+                this.newProject();
             } else {
                 if (this.table.getRowCount() === 0) {
                     this.newProject();
@@ -106,7 +108,7 @@ export class Project {
     private newProject() {
         this.projectService.setNew();
         this.toolbarconfig.title = 'Nytt prosjekt';
-        this.router.navigateByUrl('/sales/project/0/editmode');
+        this.router.navigateByUrl('/sales/project/new/editmode');
     }
 
     private setUpTable() {
