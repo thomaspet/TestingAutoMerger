@@ -1,6 +1,6 @@
 import { Component, ViewChild } from '@angular/core';
 import { URLSearchParams } from '@angular/http';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { IUniTabsRoute } from '../../layout/uniTabs/uniTabs';
 import { TabService, UniModules } from '../../layout/navbar/tabstrip/tabService';
 import { ProjectService, ErrorService } from '../../../services/services';
@@ -54,7 +54,8 @@ export class Project {
         private tabService: TabService,
         private projectService: ProjectService,
         private errorService: ErrorService,
-        private router: Router) {
+        private router: Router,
+        private route: ActivatedRoute) {
 
         this.tabService.addTab({
             name: 'Prosjekt',
@@ -83,12 +84,23 @@ export class Project {
     }
 
     public onTableReady() {
-        if (this.table.getRowCount() === 0) {
-            this.newProject();
-        } else {
-            let current = this.projectService.currentProject.getValue();
-            this.table.focusRow(current && current['_originalIndex'] ? current['_originalIndex'] : 0);
-        }
+        this.route.firstChild.params.subscribe((params) => {
+            const projectID: number = +params['projectID'];
+            if (projectID && typeof projectID === 'number') {
+                this.projectService
+                    .Get(projectID, ['ProjectTasks.ProjectTaskSchedules', 'ProjectResources'])
+                    .subscribe(project => {
+                        this.projectService.currentProject.next(project);
+                    }, error => this.newProject());
+            } else {
+                if (this.table.getRowCount() === 0) {
+                    this.newProject();
+                } else {
+                    let current = this.projectService.currentProject.getValue();
+                    this.table.focusRow(current && current['_originalIndex'] ? current['_originalIndex'] : 0);
+                }
+            }
+        })
     }
 
     private newProject() {

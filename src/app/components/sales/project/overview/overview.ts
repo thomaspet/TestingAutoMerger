@@ -109,8 +109,6 @@ export class ProjectOverview {
         if (project && project.ID) {
             this.project = project;
             this.getDataAndDrawChart();
-        } else {
-            this.navigateToEditmode();
         }
     }
 
