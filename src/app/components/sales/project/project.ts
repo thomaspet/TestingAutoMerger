@@ -84,8 +84,8 @@ export class Project {
     }
 
     public onTableReady() {
-        this.route.firstChild.params.subscribe((params) => {
-            const projectID: number = +params['projectID'];
+        this.route.params.subscribe((params) => {
+            const projectID: number = +params['id'];
             if (projectID && typeof projectID === 'number') {
                 this.projectService
                     .Get(projectID, ['ProjectTasks.ProjectTaskSchedules', 'ProjectResources'])
@@ -106,7 +106,7 @@ export class Project {
     private newProject() {
         this.projectService.setNew();
         this.toolbarconfig.title = 'Nytt prosjekt';
-        this.router.navigateByUrl('/sales/project/editmode');
+        this.router.navigateByUrl('/sales/project/0/editmode');
     }
 
     private setUpTable() {
@@ -137,6 +137,10 @@ export class Project {
             entityType: 'Project',
             entityID: this.activeProjectID
         };
+        this.router.navigateByUrl('/sales/project/'
+            + this.activeProjectID + '/'
+            + window.location.href.split('/').pop()
+        );
     };
 
     public saveProject(done: Function) {
