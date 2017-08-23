@@ -227,17 +227,36 @@ export class UniTableUtils {
      * Subsequent calls with the same field toggles asc/desc/nosort.
      *
      * @param   {string} field
+     * @param   {string} direction
+     * @param   {number} type
      * @param   {Immutable.List} data
      * @returns {Immutable.List} data param sorted by field
      */
-    public sort(field: string, direction: number, data: Immutable.List<any>): Immutable.List<any> {
+    public sort(field: string, direction: number, type: number, data: Immutable.List<any>): Immutable.List<any> {
         if (direction === 0) {
             return data;
         }
 
         return data.sort((a, b) => {
-            let fst = a.getIn(field.split('.')) ? a.getIn(field.split('.')).toString().toLowerCase() : '';
-            let snd = b.getIn(field.split('.')) ? b.getIn(field.split('.')).toString().toLowerCase() : '';
+            let fst = a.getIn(field.split('.')) || '';
+            let snd = b.getIn(field.split('.')) || '';
+
+            //Different sorting for different types of data
+            switch (type) {
+                case UniTableColumnType.LocalDate:
+                case UniTableColumnType.DateTime:
+                    fst = (fst ? moment(fst) : moment()).unix();
+                    snd = (snd ? moment(snd) : moment()).unix();
+                    break;
+                case UniTableColumnType.Money:
+                case UniTableColumnType.Number:
+                case UniTableColumnType.Percent:
+                    break;
+                default:
+                    fst = fst.toString().toLowerCase();
+                    snd = snd.toString().toLowerCase();
+                    break;
+            }
 
             if (fst === snd) {
                 return 0;

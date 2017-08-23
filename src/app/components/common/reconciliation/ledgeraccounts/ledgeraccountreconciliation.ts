@@ -288,7 +288,7 @@ export class LedgerAccountReconciliation {
             list.push(row);
         });
 
-        exportToFile(arrayToCsv(list), `OpenPosts.csv`);
+        exportToFile(arrayToCsv(list, ['JournalEntryNumber']), `OpenPosts.csv`);
     }
 
     public autoMarkJournalEntries() {
