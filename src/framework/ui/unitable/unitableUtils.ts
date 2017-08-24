@@ -1,6 +1,6 @@
 import {Injectable} from '@angular/core';
 import {ITableFilter, IExpressionFilterValue} from './unitable';
-import {UniTableColumnType} from './config/unitableColumn';
+import {UniTableColumnType, UniTableColumnSortMode} from './config/unitableColumn';
 import * as Immutable from 'immutable';
 import * as moment from 'moment';
 
@@ -229,10 +229,11 @@ export class UniTableUtils {
      * @param   {string} field
      * @param   {string} direction
      * @param   {number} type
+     * @param   {number} mode
      * @param   {Immutable.List} data
      * @returns {Immutable.List} data param sorted by field
      */
-    public sort(field: string, direction: number, type: number, data: Immutable.List<any>): Immutable.List<any> {
+    public sort(field: string, direction: number, type: number, mode: number, data: Immutable.List<any>): Immutable.List<any> {
         if (direction === 0) {
             return data;
         }
@@ -251,6 +252,10 @@ export class UniTableUtils {
                 case UniTableColumnType.Money:
                 case UniTableColumnType.Number:
                 case UniTableColumnType.Percent:
+                    if (mode === UniTableColumnSortMode.Absolute) {
+                        fst = Math.abs(fst);
+                        snd = Math.abs(snd);
+                    }
                     break;
                 default:
                     fst = fst.toString().toLowerCase();

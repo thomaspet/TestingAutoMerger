@@ -1,14 +1,15 @@
 import {ViewChild, Component} from '@angular/core';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
-import {UniForm, FieldType, UniFieldLayout} from '../../../../framework/ui/uniform/index';
+import {UniFieldLayout, FieldType} from '../../../../framework/ui/uniform/index';
 import {UniTableColumn, UniTableColumnType, UniTableConfig, UniTable} from '../../../../framework/ui/unitable/index';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
-import {UniModalService} from '../../../../framework/uniModal/barrel';
+import {UniModalService, ConfirmActions} from '../../../../framework/uniModal/barrel';
 import {IToolbarConfig, IAutoCompleteConfig} from './../../common/toolbar/toolbar';
 import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
 import {IUniSaveAction} from '../../../../framework/save/save';
 import {LedgerAccountReconciliation} from '../../common/reconciliation/ledgeraccounts/ledgeraccountreconciliation';
 import {exportToFile, arrayToCsv} from '../../common/utils/utils';
+import {Observable} from 'rxjs/Observable';
 import {
     Customer,
     Supplier,
@@ -45,46 +46,15 @@ export class PostPost {
     private postpost: LedgerAccountReconciliation
 
     //Save
-    private saveActions: IUniSaveAction[] = [{
-        action: this.save.bind(this),
-        disabled: false,
-        label: 'Lagre',
-    },{
-        action: this.lock.bind(this),
-        disabled: false,
-        label: 'Lås',
-        main: true
-    },{
-        action: this.unlock.bind(this),
-        disabled: false,
-        label: 'Lås opp'
-    },{
-        action: this.automark.bind(this),
-        disabled: false,
-        label: 'Automerk'
-    },{
-        action: this.cancel.bind(this),
-        disabled: false,
-        label: 'Angre'
-    },{
-        action: this.exportAccounts.bind(this),
-        disabled: false,
-        label: 'Eksport kontoliste'
-    },{
-        action: this.exportOpenPosts.bind(this),
-        disabled: false,
-        label: 'Eksport åpne poster'
-    }];
+    private saveActions: IUniSaveAction[];
 
-    //Filter form
-    private model$: BehaviorSubject<any> = new BehaviorSubject({Register: 'customer', AutoLock: true, ShowPosts: 'OPEN'});
-    private formConfig$: BehaviorSubject<any> = new BehaviorSubject({});
-    private fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
+    //Filter
+    private datefield: UniFieldLayout = new UniFieldLayout();
 
     private registers = [
-        {Register: 'customer', DisplayName: 'Kunde'},
-        {Register: 'supplier', DisplayName: 'Leverandør'},
-        {Register: 'account', DisplayName: 'Hovedbok'}
+        {Register: 'customer', _DisplayName: 'Kunde'},
+        {Register: 'supplier', _DisplayName: 'Leverandør'},
+        {Register: 'account', _DisplayName: 'Hovedbok'}
     ];
 
     private showoptions: Array<IFilter> = [
@@ -108,6 +78,7 @@ export class PostPost {
     private registerConfig: any;
     private register: string = 'customer';
     private selectedIndex: number = 0;
+    private autolocking: boolean = true;
 
     constructor(
         private tabService: TabService,
@@ -118,10 +89,11 @@ export class PostPost {
         private statisticsService: StatisticsService,
         private journalEntryLineService: JournalEntryLineService
     ) {
+        this.setupFilter();
         this.setupAccountsTable();
-        this.setupForm();
-        this.extendFormConfig();
+        this.setupSaveActions();
         this.setupToolbarConfig();
+        this.setupRegisterConfig();
         this.setTabTitle();
         this.loadCustomers();
     }
@@ -133,6 +105,23 @@ export class PostPost {
         });
     }
 
+    public canDeactivate(): Observable<boolean> {
+        if (!this.postpost.isDirty) {
+            return Observable.of(true);
+        }
+
+        return this.modalService
+            .openUnsavedChangesModal()
+            .onClose
+            .map(result => {
+                if (result === ConfirmActions.ACCEPT) {
+                    this.postpost.reconciliateJournalEntries();
+                }
+
+                return result !== ConfirmActions.CANCEL;
+            });
+    }
+
     public focusRow(index = undefined) {
         if (this.table) {
             this.table.focusRow(index === undefined ? this.selectedIndex : index);
@@ -140,6 +129,52 @@ export class PostPost {
     }
 
     //Save actions
+
+    private setupSaveActions() {
+        this.saveActions =
+            [{
+            action: this.save.bind(this),
+            disabled: false,
+            label: 'Lagre',
+            main: this.autolocking
+        },{
+            action: this.lock.bind(this),
+            disabled: false,
+            label: 'Lås',
+            main: !this.autolocking
+        },{
+            action: this.unlock.bind(this),
+            disabled: false,
+            label: 'Lås opp'
+        },{
+            action: this.automark.bind(this),
+            disabled: false,
+            label: 'Automerk'
+        },{
+            action: this.cancel.bind(this),
+            disabled: false,
+            label: 'Angre'
+        },{
+            action: this.exportAccounts.bind(this),
+            disabled: false,
+            label: 'Eksport kontoliste'
+        },{
+            action: this.exportOpenPosts.bind(this),
+            disabled: false,
+            label: 'Eksport åpne poster'
+        },{
+            action: this.autolock.bind(this),
+            disabled: false,
+            label: this.autolocking ? 'Deaktiver auto lås' : 'Aktiver auto lås'
+        }];
+    }
+
+    private autolock(done: (message: string) => void) {
+        this.autolocking = !this.autolocking;
+        this.setupSaveActions();
+        done(this.autolocking ? 'Automatisk låsing på' : 'Automatisk låsing av');
+    }
+
     private save(done: (message: string) => void) {
         this.postpost.reconciliateJournalEntries();
         done('Lagret');
@@ -151,6 +186,7 @@ export class PostPost {
     }
 
     private lock(done: (message: string) => void) {
+        this.postpost.markCheckedJournalEntries();
         done('Låst');
     }
 
@@ -189,16 +225,28 @@ export class PostPost {
 
     //
 
+    private setupFilter() {
+        this.datefield.Property = 'PointInTime';
+        this.datefield.Placeholder = 'Til og med dato';
+    }
+
     private setupToolbarConfig() {
         let r = this.registers.find(x => x.Register == this.register);
         this.toolbarconfig = {
-            title: `${r.DisplayName} poster`,
             navigation: {
                 prev: this.previousAccount.bind(this),
                 next: this.nextAccount.bind(this)
             },
             contextmenu: []
         };
+    }
+
+    private setupRegisterConfig() {
+        this.registerConfig = {
+            items: this.registers,
+            selectedItem: this.registers.find(x => x.Register == this.register),
+            placeholder: 'Register'
+        }
     }
 
     private setTabTitle() {
@@ -248,6 +296,10 @@ export class PostPost {
         }
     }
 
+    private onPointInTimeChanged(model) {
+        this.pointInTime$.next(model.PointInTime.currentValue);
+    }
+
     private onFilterClick(filter: IFilter, searchFilter?: string) {
         this.showoptions.forEach(f => f.isSelected = f == filter);
         this.postpost.showHideEntries(filter.name);
@@ -294,11 +346,8 @@ export class PostPost {
             });
     }
 
-    private onFilterChange(changes) {
-
-        if (changes['Register']) {
-            this.register = changes['Register'].currentValue;
-            this.setupToolbarConfig();
+    private changeRegister(register) {
+            this.register = register;
             switch (this.register) {
                 case 'customer':
                     this.supplier$.next(null);
@@ -316,12 +365,6 @@ export class PostPost {
                     this.loadAccounts();
                     break;
             }
-        } else if (changes['ShowPosts']) {
-            this.postpost.showHideEntries(changes['ShowPosts'].currentValue);
-        }
-        else if (changes['PointInTime']) {
-            this.pointInTime$.next(changes['PointInTime'].currentValue);
-        }
     }
 
     private setupAccountsTable() {
@@ -347,49 +390,5 @@ export class PostPost {
             .setMultiRowSelect(false)
             .setAutoAddNewRow(false)
             .setColumns([accountCol, nameCol, sumCol]);
-    }
-
-    //Filter form
-    private extendFormConfig() {
-        let fields = this.fields$.getValue();
-        let register: UniFieldLayout = fields.find(x => x.Property === 'Register');
-        register.Options =  {
-            source: this.registers,
-            valueProperty: 'Register',
-            displayProperty: 'DisplayName',
-            debounceTime: 200
-        };
-    }
-
-    private setupForm() {
-        this.fields$.next([
-            {
-                Legend: 'Filter',
-                FieldSet: 1,
-                FieldSetColumn: 1,
-                Property: 'Register',
-                FieldType: FieldType.DROPDOWN,
-                Label: 'Register',
-                HelpText: 'Velg hvilket register du vil se åpne poster for'
-            },
-            {
-                Legend: 'Filter',
-                FieldSet: 1,
-                FieldSetColumn: 1,
-                Property: 'PointInTime',
-                FieldType: FieldType.LOCAL_DATE_PICKER,
-                Label: 'Dato',
-                HelpText: 'Filtrer frem til og med dato'
-            },
-            {
-                Legend: 'Automatikk',
-                FieldSet: 2,
-                FieldSetColumn: 1,
-                Property: 'AutoLock',
-                FieldType: FieldType.CHECKBOX,
-                Label: 'Auto lås',
-                HelpText: 'Utfør automatisk låsing når merket sum blir 0'
-            }
-        ]);
     }
 }

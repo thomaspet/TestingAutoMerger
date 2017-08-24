@@ -2,7 +2,7 @@ import {Component, ViewChild, Input, SimpleChanges} from '@angular/core';
 import {DomSanitizer} from '@angular/platform-browser';
 import {Router} from '@angular/router';
 import {StatusCodeJournalEntryLine, LocalDate} from '../../../../unientities';
-import {UniTable, UniTableColumn, UniTableConfig, UniTableColumnType, ITableFilter} from '../../../../../framework/ui/unitable/index';
+import {UniTable, UniTableColumn, UniTableConfig, UniTableColumnType, ITableFilter, UniTableColumnSortMode} from '../../../../../framework/ui/unitable/index';
 import {ISummaryConfig} from '../../../common/summary/summary';
 import {ToastService, ToastType, ToastTime} from '../../../../../framework/uniToast/toastService';
 import {UniModalService} from '../../../../../framework/uniModal/barrel';
@@ -42,10 +42,13 @@ export class LedgerAccountReconciliation {
     public pointInTime: LocalDate;
 
     @Input()
-    public autoLock: boolean = true;
+    public autoLocking: boolean = true;
 
     @Input()
     public hideHeader: boolean = false;
+
+    @Input()
+    public modalMode: boolean = false;
 
     @ViewChild(UniTable)
     private table: UniTable;
@@ -88,7 +91,7 @@ export class LedgerAccountReconciliation {
     ) {}
 
     public ngOnChanges(changes: SimpleChanges) {
-        if (changes['autoLock'] && changes['autoLock'].currentValue) {
+        if (changes['autoLocking'] && changes['autoLocking'].currentValue) {
                 if (this.currentMarkingSession.length >= 2) {
                     let currentSessionSum = 0;
                     this.currentMarkingSession.forEach(x => {
@@ -101,7 +104,7 @@ export class LedgerAccountReconciliation {
                 }
         }
 
-        if (!changes['autoLock']) {
+        if (!changes['autoLocking']) {
             this.loadData();
         }
     }
@@ -205,7 +208,7 @@ export class LedgerAccountReconciliation {
                 } else if (currentSessionSum === 0) {
                     // TODO: Add some slack here - allow for e.g. differences of 5 kr ??
                     this.addToCurrentMarkingSession(rowModel);
-                    if (this.autoLock) {
+                    if (this.autoLocking) {
                         this.closeMarkingSession();
                     }
                 } else if ((countPositive === 0 && rowModel.RestAmount < 0)
@@ -241,7 +244,7 @@ export class LedgerAccountReconciliation {
                 // nothing will happen if it is deselected (the user needs to manually use the unlock
                 // button if that was the intent)
                 this.currentMarkingSession = this.currentMarkingSession.filter(x => x.ID !== rowModel.ID);
-                if (this.autoLock) {
+                if (this.autoLocking) {
                     let currentSessionSum = 0;
                     this.currentMarkingSession.forEach(x => {
                         currentSessionSum += x.RestAmount;
@@ -702,7 +705,7 @@ export class LedgerAccountReconciliation {
         );
     }
 
-    private markCheckedJournalEntries() {
+    public markCheckedJournalEntries() {
         // this is used to force a marking of the selected marked rows - even though they
         // might not be an exact match
         this.closeMarkingSession();
@@ -763,16 +766,20 @@ export class LedgerAccountReconciliation {
             new UniTableColumn('FinancialDate', 'Dato', UniTableColumnType.LocalDate),
             new UniTableColumn('InvoiceNumber', 'Fakturanr', UniTableColumnType.Text),
             new UniTableColumn('DueDate', 'Forfall', UniTableColumnType.DateTime),
-            new UniTableColumn('Amount', 'Beløp', UniTableColumnType.Money),
+            new UniTableColumn('Amount', 'Beløp', UniTableColumnType.Money)
+                .setSortMode(UniTableColumnSortMode.Absolute),
             new UniTableColumn('AmountCurrency', 'V-Beløp', UniTableColumnType.Money)
-                .setVisible(false),
+                .setVisible(false)
+                .setSortMode(UniTableColumnSortMode.Absolute),
             new UniTableColumn('CurrencyCodeCode', 'Valuta', UniTableColumnType.Text)
                 .setVisible(false),
             new UniTableColumn('CurrencyExchangeRate', 'V-Kurs', UniTableColumnType.Number)
                 .setVisible(false),
-            new UniTableColumn('RestAmount', 'Restbeløp', UniTableColumnType.Money),
+            new UniTableColumn('RestAmount', 'Restbeløp', UniTableColumnType.Money)
+                .setSortMode(UniTableColumnSortMode.Absolute),
             new UniTableColumn('RestAmountCurrency', 'V-Restbeløp', UniTableColumnType.Money)
-                .setVisible(false),
+                .setVisible(false)
+                .setSortMode(UniTableColumnSortMode.Absolute),
             new UniTableColumn('Description', 'Beskrivelse', UniTableColumnType.Text),
             new UniTableColumn('StatusCode', 'Status', UniTableColumnType.Text)
                 .setWidth('5rem')
@@ -796,6 +803,9 @@ export class LedgerAccountReconciliation {
             .setColumns(columns)
             .setMultiRowSelect(true)
             .setColumnMenuVisible(true)
+            .setConditionalRowCls((row) => {
+                return (row.StatusCode === StatusCodeJournalEntryLine.Marked) ? 'reconciliation-marked-row' : '';
+            })
             .setContextMenu([
                 {
                     action: (item) => { this.editJournalEntry(item.JournalEntryID, item.JournalEntryNumber); },
@@ -808,9 +818,7 @@ export class LedgerAccountReconciliation {
     private getCssClasses(model, field) {
         let cssClasses = '';
 
-        if (model.StatusCode === StatusCodeJournalEntryLine.Marked) {
-            cssClasses += ' reconciliation-marked-row';
-        } else {
+        if (model.StatusCode !== StatusCodeJournalEntryLine.Marked) {
             if (model._isLikelyMatch) {
                 cssClasses += ' reconciliation-likely-match';
             }
@@ -828,7 +836,6 @@ export class LedgerAccountReconciliation {
             if (field === 'RestAmountCurrency') {
                 cssClasses += ' ' + (model.RestAmountCurrency >= 0 ? 'number-good' : 'number-bad');
             }
-
         }
 
         return cssClasses.trim();

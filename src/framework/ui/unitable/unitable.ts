@@ -7,7 +7,7 @@ import 'rxjs/add/observable/fromPromise';
 import 'rxjs/add/operator/throttleTime';
 
 import {UniTableConfig, IDeleteButton, ISortInfo, IRowChangeEvent} from './config/unitableConfig';
-import {UniTableColumnType} from './config/unitableColumn';
+import {UniTableColumnType, UniTableColumnSortMode} from './config/unitableColumn';
 import {IRowModelChangeEvent} from './unitableRow';
 import {UnitableEditor} from './editor/editor';
 import {UnitableContextMenu} from './contextMenu';
@@ -106,6 +106,7 @@ enum Direction { UP, DOWN, LEFT, RIGHT }
             </thead>
             <tbody #tbody>
                 <tr unitable-row *ngFor="let row of getPageData()"
+                                [ngClass]="config.conditionalRowCls(row.toJS())"
                                 [attr.aria-readonly]="config?.isRowReadOnly(row.toJS())"
                                 [attr.aria-selected]="(config.multiRowSelect && row.get('_rowSelected')) || (!config.multiRowSelect && row == lastFocusedRowModel)"
                                 [columns]="tableColumns"
@@ -177,7 +178,8 @@ export class UniTable implements OnChanges {
         this.sortInfo = {
             field: '',
             direction: 0,
-            type: UniTableColumnType.Text
+            type: UniTableColumnType.Text,
+            mode: UniTableColumnSortMode.Normal
         };
 
         this.resize$ = Observable.fromEvent(window, 'resize')
@@ -472,7 +474,8 @@ export class UniTable implements OnChanges {
         this.sortInfo = {
             field: field,
             direction: newDirection,
-            type: column.get('type')
+            type: column.get('type'),
+            mode: column.get('sortMode')
         };
 
         this.filterAndSortTable();
@@ -666,7 +669,7 @@ export class UniTable implements OnChanges {
 
             // Sort data
             if (this.sortInfo) {
-                data = this.utils.sort(this.sortInfo.field, this.sortInfo.direction, this.sortInfo.type, data);
+                data = this.utils.sort(this.sortInfo.field, this.sortInfo.direction, this.sortInfo.type, this.sortInfo.mode, data);
             }
 
             this.tableData = (hadEmptyRow) ? data.push(this.tableDataOriginal.last()) : data;

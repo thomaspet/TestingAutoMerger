@@ -1,6 +1,8 @@
 <uni-toolbar
     [config]="toolbarconfig"
-    [saveactions]="saveActions">
+    [saveactions]="saveActions"
+    [selectConfig]="registerConfig"
+    (selectValueChanged)="changeRegister($event.Register)">
 </uni-toolbar>
 
 <header class="horizontal_nav no-print">
@@ -16,16 +18,14 @@
 
 <section class="application">
 
-    <section class="filterview">
-        <uni-form [fields]="fields$"
-                [model]="model$"
-                [config]="formConfig$"
-                (changeEvent)="onFilterChange($event)">
-        </uni-form>
-    </section>
-
     <section class="splitview">
         <nav class ="splitview_list">
+            <label class="pointintime-filter">
+                <localdate-picker-input
+                        [field]="datefield"
+                        (changeEvent)="onPointInTimeChanged($event)">
+                </localdate-picker-input>
+            </label>
             <uni-table
                     [config]="accountsTableConfig"
                     [resource]="(accounts$ | async)"
@@ -39,8 +39,9 @@
                 [supplierID]="(supplier$ | async)?.ID"
                 [accountID]="(account$ | async)?.ID"
                 [pointInTime]="pointInTime$ | async"
-                [autoLock]="(model$ | async)?.AutoLock"
-                [hideHeader]="true">
+                [autoLocking]="autolocking"
+                [hideHeader]="true"
+                [modalMode]="true">
             </ledger-account-reconciliation>
         </main>
     </section>
