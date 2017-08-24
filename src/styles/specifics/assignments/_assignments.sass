@@ -119,14 +119,25 @@ uni-assignments *
     display: flex
     flex-direction: column
 
-    .assignment-details-header
-        padding: 1rem 12.5% 1rem 2rem
-        background-color: #fff
+    h2
+        padding: 0
+        margin: 0
+        max-width: 10em
+
+    table
+        width: 100%
+        padding: 0.7em
+        white-space: nowrap
         border-bottom:  pxToRem(1) solid $uni-color-scale9
-        h2
-            margin: 0
-            display: inline-block
-            width: calc(100% - 4rem)
+
+        td:last-of-type
+            text-align: right
+            width: pxToRem(30)
+
+        td:first-of-type
+            overflow: hidden
+            text-overflow: ellipsis
+            width: 100%
 
     .assignment-details-content
         overflow: auto
