@@ -2,6 +2,7 @@
 import { TimeTrackingPeriodes } from '../timeentry/timeentry';
 import { WorkerService, IFilter } from '../../../services/timetracking/workerService';
 import { UniTemplateModal } from '../components/newtemplatemodal';
+import { ToastService, ToastType } from '../../../../framework/uniToast/toastService';
 import * as moment from 'moment';
 
 export interface ITimeTrackingTemplate {
@@ -44,7 +45,7 @@ export class SideMenu {
     @Output() public templateSelected: EventEmitter<any> = new EventEmitter();
 
 
-    constructor() {
+    constructor(private toast: ToastService) {
         let temp = localStorage.getItem('timeTrackingTemplates');
         
         if (temp) {
@@ -61,6 +62,15 @@ export class SideMenu {
     }
 
     private createNewTemplate() {
+        //For now, limit number of templates to 5 because of reasons, styling reasons..
+        if (this.timeTrackingTemplates.length >= 5) {
+            this.toast.addToast(
+                'For mange maler',
+                ToastType.warn, 5,
+                'Maler er under utvikling, og du kan derfor kun ha 5 maler foreløpig.'
+                + ' Vennligst slett en for å lage ny, eller rediger en eksisterende');
+            return;
+        }
         this.templateModal.open().then(x => { });
     }
 
@@ -84,6 +94,7 @@ export class SideMenu {
 
     private templateDelete(index) {
         this.timeTrackingTemplates.splice(index, 1);
+        localStorage.setItem('timeTrackingTemplates', JSON.stringify(this.timeTrackingTemplates));
     }
 
     private dummyTemplates(): ITemplate[] {

@@ -4,6 +4,7 @@ import { UniFieldLayout } from '../../../../framework/ui/uniform/index';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import { FieldType } from '../../../../framework/ui/uniform/index';
 import { WorkEditor } from './workeditor';
+import { ToastService, ToastType } from '../../../../framework/uniToast/toastService';
 import {
     UniTable,
     UniTableColumn,
@@ -28,8 +29,8 @@ import * as moment from 'moment';
                     </uni-table>
                     <footer>
                         <button (click)="close('ok')" class="good">Lagre</button>
-                        <button (click)="close('cancel')" class="bad">Avbryt</button>
                         <button (click)="close('delete')" class="bad" *ngIf="onEdit.isEdit">Slett</button>
+                        <button (click)="close('cancel')" class="bad">Avbryt</button>
                     </footer>
                 </article>
             </article>
@@ -55,7 +56,7 @@ export class UniTemplateModal {
     @ViewChild(UniTable)
     private table: UniTable;
 
-    constructor(private worker: WorkEditor) { }
+    constructor(private worker: WorkEditor, private toast: ToastService) { }
 
     private setUpTable() {
         this.tableConfig = new UniTableConfig(true, false)
@@ -91,8 +92,22 @@ export class UniTemplateModal {
     }
 
     public close(src: 'ok' | 'cancel' | 'delete') {
+
         if (src === 'ok') {
             this.template.Items = this.table.getTableData();
+
+            if ((!this.template.Description || !this.template.Name)) {
+                this.toast.addToast('Ikke lagret', ToastType.warn, 5, 'Ukomplett mal! Alle maler må ha navn og beskrivelse');
+                return;
+            }
+
+            for (let i = 0; i < this.template.Items.length; i++) {
+                if (!this.template.Items[i].StartTime || !this.template.Items[i].EndTime || !this.template.Items[i].Worktype) {
+                    this.toast.addToast('Ikke lagret', ToastType.warn, 5, 'Ukomplett mal! Alle linjene må ha start, slutt og timeart!');
+                    return;
+                }
+            }
+
             this.template.Minutes = this.calcMinutesTotal(this.template.Items);
             this.template.StartTime = this.calcStartTime(this.template.Items);
             this.template.EndTime = this.calcEndTime(this.template.Items);
