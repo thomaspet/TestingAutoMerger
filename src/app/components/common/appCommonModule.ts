@@ -49,6 +49,7 @@ import {SellerList} from './seller/sellerList';
 import {SellerLinks} from './seller/sellerLinks';
 import {SellerDetails} from './seller/sellerDetails';
 import {UniInfo} from './uniInfo/uniInfo';
+import {BrowserWarning} from './browserWarning/browserWarning';
 
 import {routes as AppCommonRoutes} from './appCommonRoutes';
 
@@ -123,7 +124,8 @@ import {routes as AppCommonRoutes} from './appCommonRoutes';
         SellerLinks,
         SellerDetails,
 
-        UniInfo
+        UniInfo,
+        BrowserWarning
     ],
     entryComponents: [
         AccrualForm,
@@ -193,7 +195,8 @@ import {routes as AppCommonRoutes} from './appCommonRoutes';
         SellerLinks,
         SellerDetails,
 
-        UniInfo
+        UniInfo,
+        BrowserWarning
     ]
 })
 export class AppCommonModule {}
