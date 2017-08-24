@@ -749,45 +749,59 @@ export class QuoteDetails {
         }
 
         return new Promise((resolve, reject) => {
-             // Save only lines with products from product list
-            if (!TradeItemHelper.IsItemsValid(this.quote.Items)) {
-                const message = 'En eller flere varelinjer mangler produkt';
-                reject(message);
-            }
+
+             if (!TradeItemHelper.IsAnyItemsMissingProductID(this.quote.Items)) {
+                const modalMessage = 'En eller flere produktlinjer mangler produktnummer, all informasjon bortsett fra beskrivelsen vil fjernes fra disse linjene. Vil du forsette? ';
+
+                this.modalService.confirm({
+                    header: 'Vennligst bekreft',
+                    message: modalMessage,
+                    buttonLabels: {
+                        accept: 'Ja, forsett.',
+                        cancel: 'Avbryt'
+                    }
+                }).onClose.subscribe(response => {
+                    if (response === ConfirmActions.ACCEPT) {
+                        TradeItemHelper.clearFieldsInItemsWithNoProductID(this.quote.Items);
 
             // create observable but dont subscribe - resolve it in the promise
-            var request = ((this.quote.ID > 0)
-                ? this.customerQuoteService.Put(this.quote.ID, this.quote)
-                : this.customerQuoteService.Post(this.quote));
+                        var request = ((this.quote.ID > 0)
+                            ? this.customerQuoteService.Put(this.quote.ID, this.quote)
+                            : this.customerQuoteService.Post(this.quote));
 
-            // If a currency other than basecurrency is used, and any lines contains VAT,
-            // validate that this is correct before resolving the promise
-            if (this.quote.CurrencyCodeID !== this.companySettings.BaseCurrencyCodeID) {
-                let linesWithVat = this.quote.Items.filter(x => x.SumVatCurrency > 0);
-                if (linesWithVat.length > 0) {
-                    const modalMessage = 'Er du sikker på at du vil registrere linjer med MVA når det er brukt '
-                        + `${this.getCurrencyCode(this.quote.CurrencyCodeID)} som valuta?`;
+                        // If a currency other than basecurrency is used, and any lines contains VAT,
+                        // validate that this is correct before resolving the promise
+                        if (this.quote.CurrencyCodeID !== this.companySettings.BaseCurrencyCodeID) {
+                            let linesWithVat = this.quote.Items.filter(x => x.SumVatCurrency > 0);
+                            if (linesWithVat.length > 0) {
+                                const modalMessage = 'Er du sikker på at du vil registrere linjer med MVA når det er brukt '
+                                    + `${this.getCurrencyCode(this.quote.CurrencyCodeID)} som valuta?`;
 
-                    this.modalService.confirm({
-                        header: 'Vennligst bekreft',
-                        message: modalMessage,
-                        buttonLabels: {
-                            accept: 'Ja, lagre med MVA',
-                            cancel: 'Avbryt'
-                        }
-                    }).onClose.subscribe(response => {
-                        if (response === ConfirmActions.ACCEPT) {
-                            request.subscribe(res => resolve(res), err => reject(err));
+                                this.modalService.confirm({
+                                    header: 'Vennligst bekreft',
+                                    message: modalMessage,
+                                    buttonLabels: {
+                                        accept: 'Ja, lagre med MVA',
+                                        cancel: 'Avbryt'
+                                    }
+                                }).onClose.subscribe(response => {
+                                    if (response === ConfirmActions.ACCEPT) {
+                                        request.subscribe(res => resolve(res), err => reject(err));
+                                    } else {
+                                        const message = 'Endre MVA kode og lagre på ny';
+                                        reject(message);
+                                    }
+                                });
+                            } else {
+                                request.subscribe(res => resolve(res), err => reject(err));
+                            }
                         } else {
-                            const message = 'Endre MVA kode og lagre på ny';
-                            reject(message);
+                            request.subscribe(res => resolve(res), err => reject(err));
                         }
                     });
                 } else {
-                    request.subscribe(res => resolve(res), err => reject(err));
-                }
-            } else {
-                request.subscribe(res => resolve(res), err => reject(err));
+                const message = 'Oppgi produktnummer på aktuelle linjer, og prøv på ny ...';
+                reject(message);
             }
         });
     }

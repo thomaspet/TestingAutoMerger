@@ -777,50 +777,75 @@ export class OrderDetails {
 
         return new Promise((resolve, reject) => {
             // Save only lines with products from product list
-            if (!TradeItemHelper.IsItemsValid(this.order.Items)) {
-                const message = 'En eller flere varelinjer mangler produkt';
-                reject(message);
-            }
+            //if (!TradeItemHelper.IsItemsValid(this.order.Items)) {
+            //    const message = 'En eller flere varelinjer mangler produkt';
+            //    reject(message);
+            //}
 
-            // create observable but dont subscribe - resolve it in the promise
-            var request = ((this.order.ID > 0)
-                ? this.customerOrderService.Put(this.order.ID, this.order)
-                : this.customerOrderService.Post(this.order));
+            if (!TradeItemHelper.IsAnyItemsMissingProductID(this.order.Items)) {
+                const modalMessage = 'En eller flere produktlinjer mangler produktnummer, all informasjon bortsett fra beskrivelsen vil fjernes fra disse linjene. Vil du forsette? ';
 
-            // If a currency other than basecurrency is used, and any lines contains VAT,
-            // validate that this is correct before resolving the promise
-            if (this.order.CurrencyCodeID !== this.companySettings.BaseCurrencyCodeID) {
-                let linesWithVat = this.order.Items.filter(x => x.SumVatCurrency > 0);
-                if (linesWithVat.length > 0) {
+                this.modalService.confirm({
+                    header: 'Vennligst bekreft',
+                    message: modalMessage,
+                    buttonLabels: {
+                        accept: 'Ja, forsett.',
+                        cancel: 'Avbryt'
+                    }
+                }).onClose.subscribe(response => {
 
-                    const modalMessage = 'Er du sikker på at du vil registrere linjer med MVA når det er brukt '
-                        + `${this.getCurrencyCode(this.order.CurrencyCodeID)} som valuta?`;
+                    if (response === ConfirmActions.ACCEPT) {
 
-                    this.modalService.confirm({
-                        header: 'Vennligst bekreft',
-                        message: modalMessage,
-                        buttonLabels: {
-                            accept: 'Ja, lagre med MVA',
-                            cancel: 'Avbryt'
-                        }
-                    }).onClose.subscribe(response => {
-                        if (response === ConfirmActions.ACCEPT) {
-                            request.subscribe(
-                                res => resolve(res),
-                                err => reject(err)
-                            );
-                        } else {
-                            const message = 'Endre MVA kode og lagre på ny';
-                            reject(message);
-                        }
-                    });
-                } else {
-                    request.subscribe(res => resolve(res), err => reject(err));
-                }
-            } else {
-                request.subscribe(res => resolve(res), err => reject(err));
-            }
-        });
+
+                                TradeItemHelper.clearFieldsInItemsWithNoProductID(this.order.Items);
+
+                                // create observable but dont subscribe - resolve it in the promise
+                                var request = ((this.order.ID > 0)
+                                    ? this.customerOrderService.Put(this.order.ID, this.order)
+                                    : this.customerOrderService.Post(this.order));
+
+                                // If a currency other than basecurrency is used, and any lines contains VAT,
+                                // validate that this is correct before resolving the promise
+                                if (this.order.CurrencyCodeID !== this.companySettings.BaseCurrencyCodeID) {
+                                    let linesWithVat = this.order.Items.filter(x => x.SumVatCurrency > 0);
+                                    if (linesWithVat.length > 0) {
+
+                                        const modalMessage = 'Er du sikker på at du vil registrere linjer med MVA når det er brukt '
+                                            + `${this.getCurrencyCode(this.order.CurrencyCodeID)} som valuta?`;
+
+                                        this.modalService.confirm({
+                                            header: 'Vennligst bekreft',
+                                            message: modalMessage,
+                                            buttonLabels: {
+                                                accept: 'Ja, lagre med MVA',
+                                                cancel: 'Avbryt'
+                                            }
+                                        }).onClose.subscribe(response => {
+                                            if (response === ConfirmActions.ACCEPT) {
+                                                request.subscribe(
+                                                    res => resolve(res),
+                                                    err => reject(err)
+                                                );
+                                            } else {
+                                                const message = 'Endre MVA kode og lagre på ny';
+                                                reject(message);
+                                            }
+                                        });
+                                    } else {
+                                        request.subscribe(res => resolve(res), err => reject(err));
+                                    }
+                                } else {
+                                    request.subscribe(res => resolve(res), err => reject(err));
+                                }
+
+
+
+                    } else {
+                        const message = 'Oppgi produktnummer på aktuelle linjer, og prøv på ny ...';
+                        reject(message);
+                    }
+                });
+            });
     }
 
     private saveAndTransferToInvoice(done: any) {

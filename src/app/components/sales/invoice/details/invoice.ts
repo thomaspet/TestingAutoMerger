@@ -4,22 +4,27 @@ import {Observable} from 'rxjs/Observable';
 import {TradeItemHelper} from '../../salesHelper/tradeItemHelper';
 import {TofHelper} from '../../salesHelper/tofHelper';
 import {IUniSaveAction} from '../../../../../framework/save/save';
+import {CustomerInvoice, CustomerInvoiceItem, CompanySettings, CurrencyCode, InvoicePaymentData, Project} from '../../../../unientities';
 import {StatusCodeCustomerInvoice, LocalDate} from '../../../../unientities';
 import {TradeHeaderCalculationSummary} from '../../../../models/sales/TradeHeaderCalculationSummary';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
-import {ToastService, ToastType} from '../../../../../framework/uniToast/toastService';
+import {ToastService, ToastType, ToastTime} from '../../../../../framework/uniToast/toastService';
 import {IToolbarConfig} from '../../../common/toolbar/toolbar';
 import {UniStatusTrack} from '../../../common/toolbar/statustrack';
 import {ISummaryConfig} from '../../../common/summary/summary';
 import {StatusCode} from '../../salesHelper/salesEnums';
+import {PreviewModal} from '../../../reports/modals/preview/previewModal';
 import {IContextMenuItem} from '../../../../../framework/ui/unitable/index';
+import {SendEmailModal} from '../../../common/modals/sendEmailModal';
 import {SendEmail} from '../../../../models/sendEmail';
 import {InvoiceTypes} from '../../../../models/Sales/InvoiceTypes';
-import {GetPrintStatusText} from '../../../../models/printStatus';
+import {GetPrintStatusText, PrintStatus} from '../../../../models/printStatus';
 import {TradeItemTable} from '../../common/tradeItemTable';
 import {TofHead} from '../../common/tofHead';
 import {CompanySettingsService} from '../../../../services/services';
-import {roundTo} from '../../../common/utils/utils';
+import {ActivateAPModal} from '../../../common/modals/activateAPModal';
+import {ReminderSendingModal} from '../../reminder/sending/reminderSendingModal';
+import {roundTo, safeDec, safeInt, trimLength, capitalizeSentence} from '../../../common/utils/utils';
 import {ActivationEnum} from '../../../../models/activationEnum';
 import {
     StatisticsService,
@@ -240,7 +245,7 @@ export class InvoiceDetails {
     }
 
     private ngAfterViewInit() {
-         this.tofHead.detailsForm.tabbedPastLastField.subscribe((event) => this.tradeItemTable.focusFirstRow());
+        this.tofHead.detailsForm.tabbedPastLastField.subscribe((event) => this.tradeItemTable.focusFirstRow());
     }
 
     private getCollectorStatusText(status: CollectorStatus): string {
@@ -272,9 +277,22 @@ export class InvoiceDetails {
         if (this.companySettings.APActivated && this.companySettings.APGuid) {
             this.askSendEHF(doneHandler);
         } else {
-            this.modalService.open(UniActivateAPModal).onClose.subscribe(status => {
-                if (status === ActivationEnum.ACTIVATED) {
-                    this.askSendEHF(doneHandler);
+            this.activateAPModal.confirm().then((result) => {
+                if (result.status === ConfirmActions.ACCEPT) {
+                    this.ehfService.Activate(result.model).subscribe((status) => {
+                        if (status == ActivationEnum.ACTIVATED) {
+                            this.toastService.addToast('Aktivering', ToastType.good, 3, 'EHF aktivert');
+                            this.askSendEHF(doneHandler);
+                        } else if (status == ActivationEnum.CONFIRMATION) {
+                            this.toastService.addToast('Aktivering på vent', ToastType.good, 5, 'EHF er tidligere aktivert for org.nr. Venter på godkjenning sendt på epost til kontaktepostadresse registerert på Uni Micro sitt aksesspunkt.');
+                        } else {
+                            this.toastService.addToast('Aktivering feilet!', ToastType.bad, 5, 'Noe galt skjedde ved aktivering');
+                        }
+                    },
+                    (err) => {
+                        if (doneHandler) { doneHandler('Feil oppstod ved aktivering!'); }
+                        this.errorService.handle(err);
+                    });
                 }
             });
         }
@@ -513,7 +531,7 @@ export class InvoiceDetails {
                 }
             }
         },
-        err => this.errorService.handle(err));
+            err => this.errorService.handle(err));
     }
 
     private askSendEHF(doneHandler: (msg: string) => void = null) {
@@ -605,21 +623,21 @@ export class InvoiceDetails {
         let reminderStoppedTimeStamp: Date = null;
 
         return new Promise((resolve, reject) => {
-            this.statisticsService.GetAll(`model=AuditLog&orderby=AuditLog.CreatedAt desc&filter=AuditLog.EntityID eq ${this.invoiceID} and EntityType eq 'CustomerInvoice' and Field eq 'DontSendReminders' and NewValue eq 'true'&select=User.DisplayName as Username,Auditlog.CreatedAt as Date&join=AuditLog.CreatedBy eq User.GlobalIdentity ` )
-            .map(data => data.Data ? data.Data : [])
-            .subscribe(brdata => {
-                if (brdata && brdata.length > 0) {
-                    reminderStoppedByText = `Aktivert av ${brdata[0]['Username']} ${moment(new Date(brdata[0]['Date'])).fromNow()}`;
-                    reminderStoppedTimeStamp = new Date(brdata[0]['Date']);
+            this.statisticsService.GetAll(`model=AuditLog&orderby=AuditLog.CreatedAt desc&filter=AuditLog.EntityID eq ${this.invoiceID} and EntityType eq 'CustomerInvoice' and Field eq 'DontSendReminders' and NewValue eq 'true'&select=User.DisplayName as Username,Auditlog.CreatedAt as Date&join=AuditLog.CreatedBy eq User.GlobalIdentity `)
+                .map(data => data.Data ? data.Data : [])
+                .subscribe(brdata => {
+                    if (brdata && brdata.length > 0) {
+                        reminderStoppedByText = `Aktivert av ${brdata[0]['Username']} ${moment(new Date(brdata[0]['Date'])).fromNow()}`;
+                        reminderStoppedTimeStamp = new Date(brdata[0]['Date']);
 
-                    reminderStopSubStatus = {
-                        title: reminderStoppedByText,
-                        state: UniStatusTrack.States.Active,
-                        timestamp: reminderStoppedTimeStamp
-                    };
-                    resolve(reminderStopSubStatus);
-                }
-            }, err => reject(err));
+                        reminderStopSubStatus = {
+                            title: reminderStoppedByText,
+                            state: UniStatusTrack.States.Active,
+                            timestamp: reminderStoppedTimeStamp
+                        };
+                        resolve(reminderStopSubStatus);
+                    }
+                }, err => reject(err));
         });
     }
 
@@ -633,47 +651,47 @@ export class InvoiceDetails {
         switch (colStatus) {
             case CollectorStatus.Reminded: {
                 return new Promise((resolve, reject) => {
-                    this.statisticsService.GetAll(`model=CustomerInvoiceReminder&orderby=CustomerInvoiceReminder.ReminderNumber desc&filter=CustomerInvoiceReminder.CustomerInvoiceID eq ${this.invoiceID}&select=CustomerInvoiceReminder.CreatedAt as Date,CustomerInvoiceReminder.ReminderNumber as ReminderNumber,CustomerInvoiceReminder.DueDate as DueDate ` )
-                    .map(data => data.Data ? data.Data : [])
-                    .subscribe(brdata => {
-                        if (brdata && brdata.length > 0) {
+                    this.statisticsService.GetAll(`model=CustomerInvoiceReminder&orderby=CustomerInvoiceReminder.ReminderNumber desc&filter=CustomerInvoiceReminder.CustomerInvoiceID eq ${this.invoiceID}&select=CustomerInvoiceReminder.CreatedAt as Date,CustomerInvoiceReminder.ReminderNumber as ReminderNumber,CustomerInvoiceReminder.DueDate as DueDate `)
+                        .map(data => data.Data ? data.Data : [])
+                        .subscribe(brdata => {
+                            if (brdata && brdata.length > 0) {
                                 brdata.forEach(element => {
-                                let pastDue: boolean = new Date(element['DueDate']) < new Date();
-                                let pastDueText = pastDue ? 'forfalt for' : 'forfall om';
-                                statusText = `${element['ReminderNumber']}. purring, ${pastDueText} ${moment(new Date(element['DueDate'])).fromNow()}`;
-                                statusTimeStamp = new Date(element['Date']);
-                                subStatux = {
-                                    title: statusText,
-                                    state: UniStatusTrack.States.Active,
-                                    timestamp: statusTimeStamp
-                                };
-                                subStatuses.push(subStatux);
-                            });
-                            resolve(subStatuses);
-                        }
-                    }, err => reject(err));
+                                    let pastDue: boolean = new Date(element['DueDate']) < new Date();
+                                    let pastDueText = pastDue ? 'forfalt for' : 'forfall om';
+                                    statusText = `${element['ReminderNumber']}. purring, ${pastDueText} ${moment(new Date(element['DueDate'])).fromNow()}`;
+                                    statusTimeStamp = new Date(element['Date']);
+                                    subStatux = {
+                                        title: statusText,
+                                        state: UniStatusTrack.States.Active,
+                                        timestamp: statusTimeStamp
+                                    };
+                                    subStatuses.push(subStatux);
+                                });
+                                resolve(subStatuses);
+                            }
+                        }, err => reject(err));
                 });
             }
 
             case CollectorStatus.SendtToDebtCollection: {
                 return new Promise((resolve, reject) => {
-                    this.statisticsService.GetAll(`model=AuditLog&orderby=AuditLog.CreatedAt desc&filter=AuditLog.EntityID eq ${this.invoiceID} and EntityType eq 'CustomerInvoice' and Field eq 'CollectorStatusCode' and NewValue eq '42502'&select=User.DisplayName as Username,Auditlog.CreatedAt as Date&join=AuditLog.CreatedBy eq User.GlobalIdentity ` )
-                    .map(data => data.Data ? data.Data : [])
-                    .subscribe(brdata => {
-                        if (brdata && brdata.length > 0) {
-                            brdata.forEach(element => {
-                                statusText = `Sent av ${element['Username']} ${moment(new Date(element['Date'])).fromNow()}`;
-                                statusTimeStamp = new Date(element['Date']);
-                                subStatux = {
-                                    title: statusText,
-                                    state: UniStatusTrack.States.Active,
-                                    timestamp: statusTimeStamp
-                                };
-                                subStatuses.push(subStatux);
-                            });
-                            resolve(subStatuses);
-                        }
-                    }, err => reject(err));
+                    this.statisticsService.GetAll(`model=AuditLog&orderby=AuditLog.CreatedAt desc&filter=AuditLog.EntityID eq ${this.invoiceID} and EntityType eq 'CustomerInvoice' and Field eq 'CollectorStatusCode' and NewValue eq '42502'&select=User.DisplayName as Username,Auditlog.CreatedAt as Date&join=AuditLog.CreatedBy eq User.GlobalIdentity `)
+                        .map(data => data.Data ? data.Data : [])
+                        .subscribe(brdata => {
+                            if (brdata && brdata.length > 0) {
+                                brdata.forEach(element => {
+                                    statusText = `Sent av ${element['Username']} ${moment(new Date(element['Date'])).fromNow()}`;
+                                    statusTimeStamp = new Date(element['Date']);
+                                    subStatux = {
+                                        title: statusText,
+                                        state: UniStatusTrack.States.Active,
+                                        timestamp: statusTimeStamp
+                                    };
+                                    subStatuses.push(subStatux);
+                                });
+                                resolve(subStatuses);
+                            }
+                        }, err => reject(err));
                 });
             }
         }
@@ -876,13 +894,13 @@ export class InvoiceDetails {
             });
         } else {
             if (this.isDirty && id) {
-                    this.saveActions.push({
+                this.saveActions.push({
                     label: 'Lagre endringer',
                     action: done => this.saveInvoice(done).then(res => {
                         this.customerInvoiceService.Get(this.invoice.ID, this.expandOptions).subscribe((refreshed) => {
                             this.refreshInvoice(refreshed);
                         });
-                    }) ,
+                    }),
                     disabled: false,
                     main: true
                 });
@@ -992,57 +1010,73 @@ export class InvoiceDetails {
 
         return new Promise((resolve, reject) => {
             // Save only lines with products from product list
-            if (!TradeItemHelper.IsItemsValid(this.invoice.Items)) {
-                const message = 'En eller flere varelinjer mangler produkt';
+            if (!TradeItemHelper.IsAnyItemsMissingProductID(this.invoice.Items)) {
+                const modalMessage = 'En eller flere produktlinjer mangler produktnummer, all informasjon bortsett fra beskrivelsen vil fjernes fra disse linjene. Vil du forsette? ';
+
+                this.modalService.confirm({
+                    header: 'Vennligst bekreft',
+                    message: modalMessage,
+                    buttonLabels: {
+                        accept: 'Ja, forsett.',
+                        cancel: 'Avbryt'
+                    }
+                }).onClose.subscribe(response => {
+                    if (response === ConfirmActions.ACCEPT) {
+
+                        TradeItemHelper.clearFieldsInItemsWithNoProductID(this.invoice.Items);
+
+                        let request = (this.invoice.ID > 0)
+                            ? this.customerInvoiceService.Put(this.invoice.ID, this.invoice)
+                            : this.customerInvoiceService.Post(this.invoice);
+
+                        // If a currency other than basecurrency is used, and any lines contains VAT,
+                        // validate that this is correct before resolving the promise
+                        if (this.invoice.CurrencyCodeID !== this.companySettings.BaseCurrencyCodeID) {
+                            let linesWithVat = this.invoice.Items.filter(x => x.SumVatCurrency > 0);
+                            if (linesWithVat.length > 0) {
+                                const modalMessage = 'Er du sikker på at du vil registrere linjer med MVA når det er brukt '
+                                    + `${this.getCurrencyCode(this.invoice.CurrencyCodeID)} som valuta?`;
+
+                                this.modalService.confirm({
+                                    header: 'Vennligst bekreft',
+                                    message: modalMessage,
+                                    buttonLabels: {
+                                        accept: 'Ja, lagre med MVA',
+                                        cancel: 'Avbryt'
+                                    }
+                                }).onClose.subscribe(response => {
+                                    if (response === ConfirmActions.ACCEPT) {
+                                        request.subscribe(
+                                            res => resolve(res),
+                                            err => reject(err)
+                                        );
+                                    } else {
+                                        const message = 'Endre MVA kode og lagre på ny';
+                                        reject(message);
+                                    }
+                                });
+
+                            } else {
+                                request.subscribe(res => {
+                                    resolve(res)
+                                    if (doneHandler) { doneHandler('Fakturaen ble lagret'); }
+                                }, err => reject(err));
+                            }
+                        } else {
+                            request.subscribe(res => {
+                                resolve(res);
+                                if (doneHandler) { doneHandler('Fakturaen ble lagret'); }
+                            }, err => reject(err));
+                        }
+                    }
+                });
+
+            } else {
+                const message = 'Oppgi produktnummer på aktuelle linjer, og prøv på ny ...';
                 reject(message);
             }
-
-            let request = (this.invoice.ID > 0)
-                ? this.customerInvoiceService.Put(this.invoice.ID, this.invoice)
-                : this.customerInvoiceService.Post(this.invoice);
-
-
-
-            // If a currency other than basecurrency is used, and any lines contains VAT,
-            // validate that this is correct before resolving the promise
-            if (this.invoice.CurrencyCodeID !== this.companySettings.BaseCurrencyCodeID) {
-                let linesWithVat = this.invoice.Items.filter(x => x.SumVatCurrency > 0);
-                if (linesWithVat.length > 0) {
-                    const modalMessage = 'Er du sikker på at du vil registrere linjer med MVA når det er brukt '
-                        + `${this.getCurrencyCode(this.invoice.CurrencyCodeID)} som valuta?`;
-
-                    this.modalService.confirm({
-                        header: 'Vennligst bekreft',
-                        message: modalMessage,
-                        buttonLabels: {
-                            accept: 'Ja, lagre med MVA',
-                            cancel: 'Avbryt'
-                        }
-                    }).onClose.subscribe(response => {
-                        if (response === ConfirmActions.ACCEPT) {
-                            request.subscribe(
-                                res => resolve(res),
-                                err => reject(err)
-                            );
-                        } else {
-                            const message = 'Endre MVA kode og lagre på ny';
-                            reject(message);
-                        }
-                    });
-
-                } else {
-                    request.subscribe(res => {
-                        resolve(res)
-                        if (doneHandler) { doneHandler('Fakturaen ble lagret'); }
-                    }, err => reject(err));
-                }
-            } else {
-                request.subscribe(res => {
-                    resolve(res);
-                    if (doneHandler) { doneHandler('Fakturaen ble lagret'); }
-                }, err => reject(err));
-            }
         });
+
     }
 
     private transition(done: any) {
@@ -1097,6 +1131,13 @@ export class InvoiceDetails {
             this.handleSaveError(error, done);
         });
     }
+
+  private onPrinted(event) {
+            this.customerInvoiceService.setPrintStatus(this.invoiceID, this.printStatusPrinted).subscribe((printStatus) => {
+                this.invoice.PrintStatus = +this.printStatusPrinted;
+                this.updateToolbar();
+            }, err => this.errorService.handle(err));
+  }
 
     private saveAsDraft(done) {
         const requiresPageRefresh = !this.invoice.ID;
