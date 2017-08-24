@@ -11,7 +11,7 @@ export interface IUniTabsRoute {
     template: `
         <ul>
             <li *ngFor="let route of routes">
-                <a [routerLink]="[route.path]" routerLinkActive="router-link-active">
+                <a [routerLink]="[route.path]" [queryParamsHandling]="queryParamsHandling" routerLinkActive="router-link-active">
                     {{route.name}} <!-- TODO: i18n -->
                 </a>
             </li>
@@ -20,6 +20,7 @@ export interface IUniTabsRoute {
 })
 export class UniTabs {
     @Input() public routes: IUniTabsRoute[];
+    @Input() public queryParamsHandling: string = '';
 
     constructor(router: Router) {
         // When the user navigates we force routerLink to refresh

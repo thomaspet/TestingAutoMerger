@@ -66,7 +66,7 @@ export const salesRoutes: Routes = [
         canDeactivate: [CanDeactivateGuard]
     },
     {
-        path: 'project/:id',
+        path: 'project',
         component: Project,
         children: ProjectRoutes
     },
