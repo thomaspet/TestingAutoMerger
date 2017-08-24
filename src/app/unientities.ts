@@ -155,6 +155,7 @@ export class WorkItem extends UniEntity {
     public WorkTypeID: number;
     public WorkRelation: WorkRelation;
     public Worktype: WorkType;
+    public Customer: Customer;
     public CustomerOrder: CustomerOrder;
     public Dimensions: Dimensions;
     public CustomFields: any;
@@ -174,8 +175,8 @@ export class WorkItemGroup extends UniEntity {
     public UpdatedAt: Date;
     public UpdatedBy: string;
     public WorkRelationID: number;
-    public WorkRelation: WorkRelation;
     public Items: Array<WorkItem>;
+    public WorkRelation: WorkRelation;
     public CustomFields: any;
 }
 
@@ -250,8 +251,8 @@ export class WorkRelation extends UniEntity {
     public WorkerID: number;
     public WorkPercentage: number;
     public WorkProfileID: number;
-    public Worker: Worker;
     public WorkProfile: WorkProfile;
+    public Worker: Worker;
     public Employment: Employment;
     public Items: Array<WorkItem>;
     public Team: Team;
@@ -571,11 +572,13 @@ export class Customer extends UniEntity {
     public CustomerNumber: number;
     public DefaultSellerLinkID: number;
     public Deleted: boolean;
+    public DeliveryTermsID: number;
     public DimensionsID: number;
     public DontSendReminders: boolean;
     public GLN: string;
     public ID: number;
     public OrgNumber: string;
+    public PaymentTermsID: number;
     public PeppolAddress: string;
     public StatusCode: number;
     public SubAccountNumberSeriesID: number;
@@ -583,6 +586,8 @@ export class Customer extends UniEntity {
     public UpdatedBy: string;
     public WebUrl: string;
     public Info: BusinessRelation;
+    public PaymentTerms: Terms;
+    public DeliveryTerms: Terms;
     public Dimensions: Dimensions;
     public CustomerInvoiceReminderSettings: CustomerInvoiceReminderSettings;
     public CustomerQuotes: Array<CustomerQuote>;
@@ -625,6 +630,7 @@ export class CustomerInvoice extends UniEntity {
     public DeliveryMethod: string;
     public DeliveryName: string;
     public DeliveryTerm: string;
+    public DeliveryTermsID: number;
     public DontSendReminders: boolean;
     public EmailAddress: string;
     public FreeTxt: string;
@@ -652,6 +658,7 @@ export class CustomerInvoice extends UniEntity {
     public PaymentID: string;
     public PaymentInformation: string;
     public PaymentTerm: string;
+    public PaymentTermsID: number;
     public PrintStatus: number;
     public Requisition: string;
     public RestAmount: number;
@@ -677,6 +684,8 @@ export class CustomerInvoice extends UniEntity {
     public YourReference: string;
     public BankAccount: BankAccount;
     public JournalEntry: JournalEntry;
+    public PaymentTerms: Terms;
+    public DeliveryTerms: Terms;
     public Customer: Customer;
     public CurrencyCode: CurrencyCode;
     public InvoiceNumberNumberSeries: NumberSeries;
@@ -758,6 +767,7 @@ export class CustomerOrder extends UniEntity {
     public DeliveryMethod: string;
     public DeliveryName: string;
     public DeliveryTerm: string;
+    public DeliveryTermsID: number;
     public EmailAddress: string;
     public FreeTxt: string;
     public ID: number;
@@ -777,6 +787,7 @@ export class CustomerOrder extends UniEntity {
     public PayableRoundingAmount: number;
     public PayableRoundingCurrencyAmount: number;
     public PaymentTerm: string;
+    public PaymentTermsID: number;
     public PrintStatus: number;
     public Requisition: string;
     public SalesPerson: string;
@@ -798,6 +809,8 @@ export class CustomerOrder extends UniEntity {
     public VatTotalsAmount: number;
     public VatTotalsAmountCurrency: number;
     public YourReference: string;
+    public PaymentTerms: Terms;
+    public DeliveryTerms: Terms;
     public DefaultDimensions: Dimensions;
     public Customer: Customer;
     public CurrencyCode: CurrencyCode;
@@ -878,6 +891,7 @@ export class CustomerQuote extends UniEntity {
     public DeliveryMethod: string;
     public DeliveryName: string;
     public DeliveryTerm: string;
+    public DeliveryTermsID: number;
     public EmailAddress: string;
     public FreeTxt: string;
     public ID: number;
@@ -895,6 +909,7 @@ export class CustomerQuote extends UniEntity {
     public PayableRoundingAmount: number;
     public PayableRoundingCurrencyAmount: number;
     public PaymentTerm: string;
+    public PaymentTermsID: number;
     public PrintStatus: number;
     public QuoteDate: LocalDate;
     public QuoteNumber: number;
@@ -920,6 +935,8 @@ export class CustomerQuote extends UniEntity {
     public VatTotalsAmount: number;
     public VatTotalsAmountCurrency: number;
     public YourReference: string;
+    public PaymentTerms: Terms;
+    public DeliveryTerms: Terms;
     public Customer: Customer;
     public CurrencyCode: CurrencyCode;
     public DefaultDimensions: Dimensions;
@@ -1075,12 +1092,12 @@ export class BusinessRelation extends UniEntity {
     public StatusCode: number;
     public UpdatedAt: Date;
     public UpdatedBy: string;
+    public BankAccounts: Array<BankAccount>;
     public DefaultContact: Contact;
     public Contacts: Array<Contact>;
     public Addresses: Array<Address>;
     public Phones: Array<Phone>;
     public Emails: Array<Email>;
-    public BankAccounts: Array<BankAccount>;
     public InvoiceAddress: Address;
     public ShippingAddress: Address;
     public DefaultPhone: Phone;
@@ -2088,6 +2105,7 @@ export class CompanySettings extends UniEntity {
     public DefaultProductInvoiceReminderID: number;
     public DefaultSalesAccountID: number;
     public Deleted: boolean;
+    public DeliveryTermsID: number;
     public ForceSupplierInvoiceApproval: boolean;
     public GLN: string;
     public ID: number;
@@ -2095,6 +2113,7 @@ export class CompanySettings extends UniEntity {
     public OfficeMunicipalityNo: string;
     public OrganizationNumber: string;
     public PaymentBankIdentification: string;
+    public PaymentTermsID: number;
     public PeriodSeriesAccountID: number;
     public PeriodSeriesVatID: number;
     public RoundingNumberOfDecimals: number;
@@ -2118,6 +2137,8 @@ export class CompanySettings extends UniEntity {
     public DefaultEmail: Email;
     public SupplierAccount: Account;
     public CustomerAccount: Account;
+    public PaymentTerms: Terms;
+    public DeliveryTerms: Terms;
     public BankAccounts: Array<BankAccount>;
     public CompanyBankAccount: BankAccount;
     public TaxBankAccount: BankAccount;
@@ -2945,6 +2966,7 @@ export class ProjectTask extends UniEntity {
     public ProjectID: number;
     public StartDate: LocalDate;
     public StatusCode: number;
+    public SuggestedNumber: string;
     public Total: number;
     public UpdatedAt: Date;
     public UpdatedBy: string;
@@ -4474,6 +4496,7 @@ export class SupplierInvoice extends UniEntity {
     public DeliveryMethod: string;
     public DeliveryName: string;
     public DeliveryTerm: string;
+    public DeliveryTermsID: number;
     public FreeTxt: string;
     public ID: number;
     public InternalNote: string;
@@ -4498,6 +4521,7 @@ export class SupplierInvoice extends UniEntity {
     public PaymentID: string;
     public PaymentInformation: string;
     public PaymentTerm: string;
+    public PaymentTermsID: number;
     public PrintStatus: number;
     public ProjectID: number;
     public Requisition: string;
@@ -5072,9 +5096,9 @@ export class WorkBalanceDto extends UniEntity {
     public ValidFrom: Date;
     public ValidTimeOff: number;
     public WorkRelationID: number;
+    public WorkRelation: WorkRelation;
     public Previous: BalanceInfo;
     public Details: Array<FlexDetail>;
-    public WorkRelation: WorkRelation;
     public CustomFields: any;
 }
 
@@ -5206,6 +5230,32 @@ export class AmeldingAgaAndTaxSums extends UniEntity {
     public MessageID: string;
     public period: number;
     public TaxDraw: number;
+}
+
+
+export class Paycheck extends UniEntity {
+    public employee: Employee;
+    public payroll: PayrollRun;
+    public transactions: Array<SalaryTransaction>;
+    public sumOnPay: SumOnRun;
+    public sumOnYear: SumOnYear;
+    public sumVacationLastYear: VacationPayLastYear;
+}
+
+
+export class SumOnRun extends UniEntity {
+    public netPayment: number;
+    public tax: number;
+}
+
+
+export class SumOnYear extends UniEntity {
+}
+
+
+export class VacationPayLastYear extends UniEntity {
+    public baseVacation: number;
+    public paidHolidayPay: number;
 }
 
 
@@ -6068,10 +6118,13 @@ export enum OnConflict{
 
 
 export enum TimesheetWorkflow{
-    UnApproved = 0,
-    Partial = 1,
-    Approved = 2,
-    Rejected = 3,
+    Draft = 1,
+    PartialAssign = 4,
+    AwaitingApproval = 5,
+    PartialReject = 7,
+    PartialApproval = 8,
+    Rejected = 9,
+    Approved = 10,
 }
 
 
