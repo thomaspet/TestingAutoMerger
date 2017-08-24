@@ -20,7 +20,7 @@ import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 @Component({
     selector: 'uni-activate-ap-modal',
     template: `
-        <dialog class="uni-modal" (keydown.esc)="close()">
+        <dialog class="uni-modal">
             <header>
                 <h1>{{options.header || 'Aktiver aksesspunkt'}}</h1>
             </header>
@@ -74,9 +74,10 @@ export class UniActivateAPModal implements IUniModal {
     ) {}
 
     public ngOnInit() {
-        console.log('init');
         this.formFields$.next(this.getFormFields());
         this.initActivationModel();
+
+        this.options.cancelValue = ActivationEnum.NOT_ACTIVATED;
     }
 
     public initActivationModel() {

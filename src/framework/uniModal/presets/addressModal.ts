@@ -13,9 +13,7 @@ import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 @Component({
     selector: 'uni-address-modal',
     template: `
-        <dialog class="uni-modal"
-                (clickOutside)="close(false)"
-                (keydown.esc)="close(false)">
+        <dialog class="uni-modal">
             <header>
                 <h1>{{options.header || 'Adresse'}}</h1>
             </header>

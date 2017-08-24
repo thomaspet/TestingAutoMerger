@@ -10,15 +10,12 @@ export enum ConfirmActions {
 @Component({
     selector: 'uni-confirm-modal',
     template: `
-        <dialog class="uni-modal"
-                (clickOutside)="clickOutsideCancel()"
-                (keydown.esc)="cancel()">
+        <dialog class="uni-modal">
             <header>
                 <h1 class="new">{{options.header}}</h1>
             </header>
 
             <main>
-                <!--<p>{{options.message}}</p>-->
                 <section [innerHtml]="options.message"></section>
                 <p class="warn" *ngIf="options.warning">
                     {{options.warning}}
@@ -66,11 +63,6 @@ export class UniConfirmModalV2 implements IUniModal {
     }
 
     public cancel() {
-        this.onClose.emit(ConfirmActions.CANCEL);
-    }
-
-    public clickOutsideCancel() {
-        if (this.options.activateClickOutside == false) {return};
         this.onClose.emit(ConfirmActions.CANCEL);
     }
 }

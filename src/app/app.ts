@@ -50,7 +50,10 @@ export class App {
         authService.requestAuthentication$.subscribe((event) => {
             if (!this.loginModalOpen && (location.href.indexOf('login') === -1)) {
                 this.loginModalOpen = true;
-                this.modalService.open(LoginModal).onClose.subscribe(() => {
+                this.modalService.open(LoginModal, {
+                    closeOnEscape: false,
+                    closeOnClickOutside: false
+                }).onClose.subscribe(() => {
                     this.loginModalOpen = false;
                 });
             }

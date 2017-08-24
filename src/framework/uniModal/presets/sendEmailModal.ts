@@ -17,9 +17,7 @@ import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 @Component({
     selector: 'uni-send-email-modal',
     template: `
-        <dialog class="uni-modal"
-                (clickOutside)="close(false)"
-                (keydown.esc)="close(false)">
+        <dialog class="uni-modal">
             <header>
                 <h1>{{options.header || 'Send epost'}}</h1>
             </header>

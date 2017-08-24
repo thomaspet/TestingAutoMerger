@@ -16,9 +16,7 @@ import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 @Component({
     selector: 'uni-bankaccount-modal',
     template: `
-        <dialog class="uni-modal"
-                (clickOutside)="close(false)"
-                (keydown.esc)="close(false)">
+        <dialog class="uni-modal">
             <header>
                 <h1>{{options.header || 'Bankkonto'}}</h1>
             </header>
@@ -87,16 +85,16 @@ export class UniBankAccountModal implements IUniModal {
 
                 confirm.onClose.subscribe((response) => {
                     if (response === ConfirmActions.ACCEPT) {
-                        this.onClose.next(account);
+                        this.onClose.emit(account);
                     } else {
                         return;
                     }
                 });
             } else {
-                this.onClose.next(account);
+                this.onClose.emit(account);
             }
         } else {
-            this.onClose.next(null);
+            this.onClose.emit(null);
         }
     }
 
