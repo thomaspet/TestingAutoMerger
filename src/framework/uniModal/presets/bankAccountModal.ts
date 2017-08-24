@@ -10,7 +10,7 @@ import {
     UniConfirmModalV2,
     ConfirmActions
 } from '../barrel';
-
+import {Observable} from 'rxjs/Observable';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 
 @Component({
@@ -67,8 +67,8 @@ export class UniBankAccountModal implements IUniModal {
     ) {}
 
     public ngOnInit() {
-        let email = this.options.data || {};
-        this.formModel$.next(email);
+        let accountInfo = this.options.data || {};
+        this.formModel$.next(accountInfo);
         this.formFields$.next(this.getFormFields());
     }
 
@@ -98,14 +98,12 @@ export class UniBankAccountModal implements IUniModal {
         } else {
             this.onClose.next(null);
         }
-        // this.onClose.emit(account);
     }
 
     public onFormChange(changes) {
         this.isDirty = true;
-        if (changes['Account']) {
 
-        } else if (changes['AccountNumber']) {
+        if (changes['AccountNumber']) {
             this.toastService.clear();
             this.validAccount = false;
             const account = this.formModel$.getValue();
@@ -200,6 +198,12 @@ export class UniBankAccountModal implements IUniModal {
                         if (account) {
                             return `${account.AccountNumber} - ${account.AccountName}`;
                         }
+                    },
+                    getDefaultData: () => {
+                        let model = this.options && this.options.data || {};
+                        return model.Account
+                            ? Observable.of([model.Account])
+                            : Observable.of([]);
                     },
                     debounceTime: 200,
                     search: (searchValue) => this.accountSearch(searchValue)
