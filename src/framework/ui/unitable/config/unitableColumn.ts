@@ -22,6 +22,11 @@ export enum UniTableColumnType {
     Typeahead = 12
 };
 
+export enum UniTableColumnSortMode {
+    Normal = 0,
+    Absolute = 1
+}
+
 export interface INumberFormat {
     thousandSeparator?: string;
     decimalSeparator?: string;
@@ -55,6 +60,7 @@ export interface IUniTableColumn {
     filterOperator?: string;
     skipOnEnterKeyNavigation?: boolean;
     onCellClickHandler: (rowModel: any) => void;
+    sortMode: UniTableColumnSortMode;
 }
 
 export class UniTableColumn implements IUniTableColumn {
@@ -80,6 +86,7 @@ export class UniTableColumn implements IUniTableColumn {
     public editorOptions: any;
     public editor: any;
     public width: string;
+    public sortMode: UniTableColumnSortMode;
 
     public filterable: boolean;
     public filterOperator: string;
@@ -97,6 +104,7 @@ export class UniTableColumn implements IUniTableColumn {
         this.filterOperator = 'contains';
         this.index = 0;
         this.skipOnEnterKeyNavigation = false;
+        this.sortMode = UniTableColumnSortMode.Normal;
 
         this.conditionalCls = () => {
             return '';
@@ -251,6 +259,11 @@ export class UniTableColumn implements IUniTableColumn {
 
     public setOnCellClick(handler: (rowModel: any) => void): UniTableColumn {
         this.onCellClickHandler = handler;
+        return this;
+    }
+
+    public setSortMode(sortMode: UniTableColumnSortMode) {
+        this.sortMode = sortMode;
         return this;
     }
 

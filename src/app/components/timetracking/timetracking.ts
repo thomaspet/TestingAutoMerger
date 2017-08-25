@@ -13,7 +13,7 @@ import {view as workProfileDetailView} from './workprofile/workprofile';
 import {view as timeentryView} from './timeentry/timeentry';
 
 // Main view (meta)
-export var view = new View('timetracking', 'Timer', 'UniTimetracking', false, '', UniTimetracking);
+export var view = new View('timetracking', 'Timer', 'UniTimetracking', false, '');
 
 // Add subviews (meta)
 view.addSubView(timeentryView);
@@ -26,9 +26,11 @@ view.addSubView(workProfileView);
 view.addSubView(workProfileDetailView);
 
 @Component({
-    selector: 'uni-' + view.name,
+    selector: 'uni-timetracking',
     template: `<router-outlet></router-outlet>`
 })
 export class UniTimetracking {
     constructor() {}
 }
+
+view.component = UniTimetracking;

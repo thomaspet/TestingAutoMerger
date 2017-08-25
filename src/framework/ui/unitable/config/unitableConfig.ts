@@ -1,4 +1,4 @@
-import {UniTableColumn, IUniTableColumn} from './unitableColumn';
+import {UniTableColumn, IUniTableColumn, UniTableColumnType, UniTableColumnSortMode} from './unitableColumn';
 import {IContextMenuItem, ITableFilter, IExpressionFilterValue} from '../unitable';
 
 export interface IDeleteButton {
@@ -9,6 +9,8 @@ export interface IDeleteButton {
 export interface ISortInfo {
     field: string;
     direction: number;
+    type: UniTableColumnType;
+    mode: UniTableColumnSortMode;
 }
 
 export interface IEditorData {
@@ -34,6 +36,7 @@ export interface IUniTableConfig {
     allowConfigChanges?: boolean;
     sortable?: boolean;
     defaultRowData?: Object;
+    conditionalRowCls?: (rowModel: any) => string;
     contextMenu?: {
         items: IContextMenuItem[],
         showDropdownOnSingleItem: boolean,
@@ -72,6 +75,7 @@ export class UniTableConfig implements IUniTableConfig {
     public columnMenuVisible: boolean;
     public autoScrollIfNewCellCloseToBottom: boolean;
     public deleteButton: boolean | IDeleteButton;
+    public conditionalRowCls: (rowModel: any) => string;
     public contextMenu: {
         items: IContextMenuItem[],
         showDropdownOnSingleItem: boolean,
@@ -105,6 +109,9 @@ export class UniTableConfig implements IUniTableConfig {
         this.expressionFilterValues = [];
         this.isRowReadOnly = (rowModel) => {
             return false;
+        };
+        this.conditionalRowCls = () => {
+            return '';
         };
     }
 
@@ -216,13 +223,19 @@ export class UniTableConfig implements IUniTableConfig {
     public setDefaultOrderBy(field: string, direction: number) {
         this.defaultOrderBy = {
             field: field,
-            direction: direction
+            direction: direction,
+            type: UniTableColumnType.Text
         };
         return this;
     }
 
     public setBeforeEdit(beforeEdit: (editorData: IEditorData) => IEditorData) {
         this.beforeEdit = beforeEdit;
+        return this;
+    }
+
+    public setConditionalRowCls(conditionalRowCls: (rowModel: any) => string) {
+        this.conditionalRowCls = conditionalRowCls;
         return this;
     }
 

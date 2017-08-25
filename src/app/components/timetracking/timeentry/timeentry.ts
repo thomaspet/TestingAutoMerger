@@ -70,7 +70,7 @@ export class TimeEntry {
     private customDateSelected: Date = null;
 
     @ViewChild(RegtimeTotals) private regtimeTotals: RegtimeTotals;
-    @ViewChild(TimeTableReport) private regtimeTools: TimeTableReport;
+    @ViewChild(TimeTableReport) private timeTable: TimeTableReport;
     @ViewChild(RegtimeBalance) private regtimeBalance: RegtimeBalance;
     @ViewChild(WorkEditor) private workEditor: WorkEditor;
     @ViewChild(DayBrowser) private dayBrowser: DayBrowser;
@@ -89,7 +89,7 @@ export class TimeEntry {
 
     public tabs: Array<any> = [ { name: 'timeentry', label: 'Registrering', isSelected: true },
             { name: 'timesheet', label: 'Timeliste', activate: (ts: any, filter: any) =>
-                this.regtimeTools.activate(ts, filter) },
+                this.timeTable.activate() },
             { name: 'totals', label: 'Totaler', activate: (ts: any, filter: any) =>
                 this.regtimeTotals.activate(ts, filter) },
             { name: 'flex', label: 'Timesaldo', counter: 0 },
@@ -268,6 +268,7 @@ export class TimeEntry {
         } else {
             this.loadItems();
             this.reloadSums();
+            this.reloadFlex();
         }
     }
 
@@ -392,7 +393,7 @@ export class TimeEntry {
         this.workEditor.EmptyRowDetails.StartTime = def;
     }
 
-    public onVacationSaved() {
+    public reloadFlex() {
         this.loadFlex(this.timeSheet.currentRelation);
     }
 
@@ -747,3 +748,5 @@ export interface IPreSaveConfig {
     askSave(): Promise<boolean>;
     askReload?(): void;
 }
+
+view.component = TimeEntry;

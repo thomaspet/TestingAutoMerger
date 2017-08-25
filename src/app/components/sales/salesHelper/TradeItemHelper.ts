@@ -20,10 +20,46 @@ export class TradeItemHelper  {
     }
 
     public static IsItemsValid(items: Array<CustomerQuoteItem | CustomerOrderItem | CustomerInvoiceItem>) {
+        // let invalidItems = items.filter(x => !x.ProductID);
+
+        return true;
+    }
+
+    public static IsAnyItemsMissingProductID (items: Array<CustomerQuoteItem | CustomerOrderItem | CustomerInvoiceItem>) {
         let invalidItems = items.filter(x => !x.ProductID);
 
         return invalidItems.length === 0;
     }
+
+    public static clearFieldsInItemsWithNoProductID(items: Array<CustomerQuoteItem | CustomerOrderItem | CustomerInvoiceItem>) {
+
+
+        items.forEach(item => {
+            if (item.ProductID === 0 || item.ProductID === null) {
+                item.Account = null;
+                item.AccountID = null;
+                item.Comment = null;
+                item.PriceExVat = 0;
+                item.PriceExVatCurrency = 0;
+                item.PriceIncVat = 0;
+                item.Discount = 0;
+                item.DiscountCurrency = 0;
+                item.NumberOfItems = 0;
+                item.SumTotalExVat = 0;
+                item.SumTotalExVatCurrency = 0;
+                item.SumTotalIncVat = 0;
+                item.SumTotalIncVatCurrency = 0;
+                item.SumVat = 0;
+                item.SumVatCurrency = 0;
+                item.Unit = null;
+                item.VatType = null;
+                item.VatTypeID = null;
+
+            }
+        });
+    }
+
+
 
     public getDefaultTradeItemData(mainEntity) {
         return {

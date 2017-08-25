@@ -38,10 +38,9 @@ export interface ISelectConfig {
 
     <article class="uniSelect_dropdown" [hidden]="!expanded">
         <section class="uniSelect_search" *ngIf="searchable">
-            <input #searchInput
-                   type="search"
-                   [placeholder]="config?.searchPlaceholder || 'Filtrer elementer'"
-                   [formControl]="searchControl"
+            <input #searchInput type="search"
+                [placeholder]="config?.searchPlaceholder || 'Filtrer elementer'"
+                [formControl]="searchControl"
             />
         </section>
 
@@ -331,6 +330,11 @@ export class UniSelect {
             this.close();
         } else {
             this.open();
+            try {
+                setTimeout(() => {
+                    this.searchInput.nativeElement.focus();
+                });
+            } catch (e) {}
         }
     }
 

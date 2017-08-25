@@ -1,4 +1,4 @@
-import {Component, ViewChild, ViewEncapsulation} from '@angular/core';
+import {Component, ViewChild} from '@angular/core';
 import {AuthService} from '../framework/core/authService';
 import {UniHttp} from '../framework/core/http/http';
 import {LoginModal} from './components/init/loginModal';
@@ -10,24 +10,26 @@ import {
     ErrorService,
     StaticRegisterService
 } from './services/services';
-
+import {UniModalService} from '../framework/uniModal/barrel';
 
 @Component({
     selector: 'uni-app',
     templateUrl: './app.html',
 })
 export class App {
-    private isAuthenticated: boolean = false;
+    @ViewChild(CompanySyncModal)
+    private companySyncModal: CompanySyncModal;
 
-    @ViewChild(LoginModal) private loginModal: LoginModal;
-    @ViewChild(CompanySyncModal) private companySyncModal: CompanySyncModal;
+    private isAuthenticated: boolean = false;
+    private loginModalOpen: boolean;
 
     constructor(
         private authService: AuthService,
         private http: UniHttp,
         private staticRegisterService: StaticRegisterService,
         private errorService: ErrorService,
-        private userService: UserService
+        private userService: UserService,
+        private modalService: UniModalService
     ) {
         // prohibit dropping of files unless otherwise specified
         document.addEventListener('dragover', function( event ) {
@@ -39,16 +41,23 @@ export class App {
                 event.dataTransfer.dropEffect = 'none';
             }
         }, false);
+
         document.addEventListener('drop', function( event ) {
             event.preventDefault();
         }, false);
 
         // Open login modal if authService requests re-authentication during runtime
         authService.requestAuthentication$.subscribe((event) => {
-            if (!this.loginModal.isOpen && (location.href.indexOf('login') === -1)) {
-                this.loginModal.open();
+            if (!this.loginModalOpen && (location.href.indexOf('login') === -1)) {
+                this.loginModalOpen = true;
+                this.modalService.open(LoginModal, {
+                    closeOnEscape: false,
+                    closeOnClickOutside: false
+                }).onClose.subscribe(() => {
+                    this.loginModalOpen = false;
+                });
             }
-        } /* don't need error handling */);
+        });
 
         authService.authentication$.subscribe((authDetails) => {
             this.isAuthenticated = authDetails.token && authDetails.activeCompany;

@@ -579,7 +579,7 @@ export class AMeldingView implements OnInit {
                         if (response) {
                             this.setAMelding(response);
                             this.showView = 'receipt';
-                            done('tilbakemelding hentet');
+                            done('Tilbakemelding hentet');
                         }
                     }, err => this.errorService.handle(err));
             });
@@ -596,7 +596,11 @@ export class AMeldingView implements OnInit {
                 }
                 done('A-melding sendt inn');
             }
-        }, err => this.errorService.handle(err));
+        }, err => {
+            this.errorService.handle(err);
+            let msg = err.status === 500 ? 'Sjekk Altinn innstillinger, ' : '';
+            done(msg + err.statusText);
+        });
     }
 
     private openAmeldingTypeModal(done) {

@@ -1,13 +1,12 @@
 import {Component, ViewChild, Type, Input} from '@angular/core';
 import {Http, URLSearchParams} from '@angular/http';
-
 import {UniModal} from '../../../../../framework/modals/modal';
 import {ReportDefinition, ReportDefinitionParameter} from '../../../../unientities';
 import {StatisticsService} from '../../../../services/services';
-
 import {ReportDefinitionParameterService} from '../../../../services/services';
-import {PreviewModal} from '../preview/previewModal';
 import {ErrorService} from '../../../../services/services';
+import {UniModalService} from '../../../../../framework/uniModal/barrel';
+import {UniPreviewModal} from '../preview/previewModal';
 
 @Component({
     selector: 'report-parameter-modal-type',
@@ -35,15 +34,13 @@ export class ParameterModal {
     public modalConfig: any = {};
     public type: Type<any> = ReportparameterModalType;
 
-    private previewModal: PreviewModal;
-
     constructor(
         private reportDefinitionParameterService: ReportDefinitionParameterService,
         private http: Http,
         private statisticsService: StatisticsService,
-        private errorService: ErrorService
-    )
-    {
+        private errorService: ErrorService,
+        private modalService: UniModalService
+    ) {
         this.modalConfig = {
             title: 'Parametre',
             model: null,
@@ -56,7 +53,9 @@ export class ParameterModal {
                     method: () => {
                         this.modal.getContent().then(() => {
                             this.modal.close();
-                            this.previewModal.open(this.modalConfig.report);
+                            this.modalService.open(UniPreviewModal, {
+                                data: this.modalConfig.report
+                            });
                         });
                     }
                 },
@@ -72,11 +71,9 @@ export class ParameterModal {
         };
     }
 
-    public open(report: ReportDefinition, previewModal: PreviewModal)
-    {
+    public open(report: ReportDefinition) {
         this.modalConfig.title = report.Name;
         this.modalConfig.report = report;
-        this.previewModal = previewModal;
 
         this.reportDefinitionParameterService.GetAll('filter=ReportDefinitionId eq ' + report.ID).subscribe(params => {
             // Find param value to be replaced

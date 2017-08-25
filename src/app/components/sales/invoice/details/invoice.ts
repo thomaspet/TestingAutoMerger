@@ -4,27 +4,22 @@ import {Observable} from 'rxjs/Observable';
 import {TradeItemHelper} from '../../salesHelper/tradeItemHelper';
 import {TofHelper} from '../../salesHelper/tofHelper';
 import {IUniSaveAction} from '../../../../../framework/save/save';
-import {CustomerInvoice, CustomerInvoiceItem, CompanySettings, CurrencyCode, InvoicePaymentData, Project} from '../../../../unientities';
 import {StatusCodeCustomerInvoice, LocalDate} from '../../../../unientities';
 import {TradeHeaderCalculationSummary} from '../../../../models/sales/TradeHeaderCalculationSummary';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
-import {ToastService, ToastType, ToastTime} from '../../../../../framework/uniToast/toastService';
+import {ToastService, ToastType} from '../../../../../framework/uniToast/toastService';
 import {IToolbarConfig} from '../../../common/toolbar/toolbar';
 import {UniStatusTrack} from '../../../common/toolbar/statustrack';
 import {ISummaryConfig} from '../../../common/summary/summary';
 import {StatusCode} from '../../salesHelper/salesEnums';
-import {PreviewModal} from '../../../reports/modals/preview/previewModal';
 import {IContextMenuItem} from '../../../../../framework/ui/unitable/index';
-import {SendEmailModal} from '../../../common/modals/sendEmailModal';
 import {SendEmail} from '../../../../models/sendEmail';
 import {InvoiceTypes} from '../../../../models/Sales/InvoiceTypes';
-import {GetPrintStatusText, PrintStatus} from '../../../../models/printStatus';
+import {GetPrintStatusText} from '../../../../models/printStatus';
 import {TradeItemTable} from '../../common/tradeItemTable';
 import {TofHead} from '../../common/tofHead';
 import {CompanySettingsService} from '../../../../services/services';
-import {ActivateAPModal} from '../../../common/modals/activateAPModal';
-import {ReminderSendingModal} from '../../reminder/sending/reminderSendingModal';
-import {roundTo, safeDec, safeInt, trimLength, capitalizeSentence} from '../../../common/utils/utils';
+import {roundTo} from '../../../common/utils/utils';
 import {ActivationEnum} from '../../../../models/activationEnum';
 import {
     StatisticsService,
@@ -45,10 +40,22 @@ import {
     DimensionService
 } from '../../../../services/services';
 import {
+    CustomerInvoice,
+    CustomerInvoiceItem,
+    CompanySettings,
+    CurrencyCode,
+    InvoicePaymentData,
+    Project
+} from '../../../../unientities';
+import {
     UniModalService,
     UniRegisterPaymentModal,
+    UniActivateAPModal,
+    UniSendEmailModal,
     ConfirmActions
 } from '../../../../../framework/uniModal/barrel';
+import {UniReminderSendingModal} from '../../reminder/sending/reminderSendingModal';
+import {UniPreviewModal} from '../../../reports/modals/preview/previewModal';
 
 import * as moment from 'moment';
 declare const _;
@@ -66,23 +73,11 @@ export enum CollectorStatus {
     templateUrl: './invoice.html'
 })
 export class InvoiceDetails {
-    @ViewChild(PreviewModal)
-    public previewModal: PreviewModal;
-
-    @ViewChild(SendEmailModal)
-    private sendEmailModal: SendEmailModal;
-
     @ViewChild(TofHead)
     private tofHead: TofHead;
 
     @ViewChild(TradeItemTable)
     private tradeItemTable: TradeItemTable;
-
-    @ViewChild(ActivateAPModal)
-    public activateAPModal: ActivateAPModal;
-
-    @ViewChild(ReminderSendingModal)
-    public reminderSendingModal: ReminderSendingModal;
 
     @Input()
     public invoiceID: any;
@@ -277,55 +272,44 @@ export class InvoiceDetails {
         if (this.companySettings.APActivated && this.companySettings.APGuid) {
             this.askSendEHF(doneHandler);
         } else {
-            this.activateAPModal.confirm().then((result) => {
-                if (result.status === ConfirmActions.ACCEPT) {
-                    this.ehfService.Activate(result.model).subscribe((status) => {
-                        if (status == ActivationEnum.ACTIVATED) {
-                            this.toastService.addToast('Aktivering', ToastType.good, 3, 'EHF aktivert');
-                            this.askSendEHF(doneHandler);
-                        } else if (status == ActivationEnum.CONFIRMATION) {
-                            this.toastService.addToast('Aktivering på vent', ToastType.good, 5, 'EHF er tidligere aktivert for org.nr. Venter på godkjenning sendt på epost til kontaktepostadresse registerert på Uni Micro sitt aksesspunkt.');
-                        } else {
-                            this.toastService.addToast('Aktivering feilet!', ToastType.bad, 5, 'Noe galt skjedde ved aktivering');
-                        }
-                    },
-                    (err) => {
-                        if (doneHandler) { doneHandler('Feil oppstod ved aktivering!'); }
-                        this.errorService.handle(err);
-                    });
+            this.modalService.open(UniActivateAPModal).onClose.subscribe(status => {
+                if (status === ActivationEnum.ACTIVATED) {
+                    this.askSendEHF(doneHandler);
                 }
             });
         }
     }
 
-    private sendEmailAction(doneHandler: (msg: string) => void = null) {
-        doneHandler('Email-sending åpnet');
+    private sendEmailAction(doneHandler: (msg?: string) => void) {
+        let model = new SendEmail();
+        model.EntityType = 'CustomerInvoice';
+        model.EntityID = this.invoice.ID;
+        model.CustomerID = this.invoice.CustomerID;
 
-        let sendemail = new SendEmail();
-        sendemail.EntityType = 'CustomerInvoice';
-        sendemail.EntityID = this.invoice.ID;
-        sendemail.CustomerID = this.invoice.CustomerID;
-        sendemail.Subject = 'Faktura ' + (this.invoice.InvoiceNumber ? 'nr. ' + this.invoice.InvoiceNumber : 'kladd');
-        sendemail.Message = 'Vedlagt finner du Faktura ' + (this.invoice.InvoiceNumber ? 'nr. ' + this.invoice.InvoiceNumber : 'kladd');
-        this.sendEmailModal.openModal(sendemail);
-        if (this.sendEmailModal.Changed.observers.length === 0) {
-            this.sendEmailModal.Changed.subscribe((email) => {
+        const invoiceNumber = (this.invoice.InvoiceNumber)
+            ? ` nr. ${this.invoice.InvoiceNumber}`
+            : 'kladd';
+
+        model.Subject = 'Faktura' + invoiceNumber;
+        model.Message = 'Vedlagt finner du faktura' + invoiceNumber;
+
+        this.modalService.open(UniSendEmailModal, {
+            data: model
+        }).onClose.subscribe(email => {
+            if (email) {
                 this.reportService.generateReportSendEmail('Faktura id', email, null, doneHandler);
-            }, (err) => {
-                if (doneHandler) { doneHandler('Feil oppstod ved sending av faktura på epost!'); }
-            });
-        }
-
+            } else if (doneHandler) {
+                doneHandler();
+            }
+        });
     }
 
     private sendReminderAction() {
         this.customerInvoiceReminderService.createInvoiceRemindersForInvoicelist([this.invoice.ID])
             .subscribe((reminders) => {
-                this.reminderSendingModal.confirm(reminders).then((action) => {
-                    if (action !== ConfirmActions.CANCEL) {
-                        this.updateToolbar();
-                    }
-                });
+                this.modalService.open(UniReminderSendingModal, {
+                    data: reminders
+                }).onClose.subscribe(() => {});
             }, (err) => this.errorService.handle(err));
     }
 
@@ -1007,10 +991,9 @@ export class InvoiceDetails {
         }
 
         return new Promise((resolve, reject) => {
-            // Save only lines with products from product list
-            if (!TradeItemHelper.IsItemsValid(this.invoice.Items)) {
-                const message = 'En eller flere varelinjer mangler produkt';
-                reject(message);
+
+            if (TradeItemHelper.IsAnyItemsMissingProductID(this.invoice.Items)) {
+                TradeItemHelper.clearFieldsInItemsWithNoProductID(this.invoice.Items);
             }
 
             let request = (this.invoice.ID > 0)
@@ -1114,13 +1097,6 @@ export class InvoiceDetails {
         });
     }
 
-  private onPrinted(event) {
-            this.customerInvoiceService.setPrintStatus(this.invoiceID, this.printStatusPrinted).subscribe((printStatus) => {
-                this.invoice.PrintStatus = +this.printStatusPrinted;
-                this.updateToolbar();
-            }, err => this.errorService.handle(err));
-  }
-
     private saveAsDraft(done) {
         const requiresPageRefresh = !this.invoice.ID;
         if (!this.invoice.StatusCode) {
@@ -1158,15 +1134,25 @@ export class InvoiceDetails {
         }
     }
 
-    private print(id, doneHandler: (msg: string) => void = null) {
+    private print(id, doneHandler: (msg?: string) => void = () => {}) {
         this.reportDefinitionService.getReportByName('Faktura id').subscribe((report) => {
-            this.previewModal.openWithId(report, id, 'Id', doneHandler);
+            report.parameters = [{Name: 'Id', value: id}];
+            this.modalService.open(UniPreviewModal, {
+                data: report
+            }).onClose.subscribe(() => {
+                doneHandler();
+                this.customerInvoiceService.setPrintStatus(this.invoiceID, this.printStatusPrinted).subscribe(
+                    (printStatus) => {
+                        this.invoice.PrintStatus = +this.printStatusPrinted;
+                        this.updateToolbar();
+                    },
+                    err => this.errorService.handle(err)
+                );
+            });
         }, err => {
             this.errorService.handle(err);
-            if (doneHandler) { doneHandler('En feil ved utskrift av faktura'); }
+            doneHandler();
         });
-
-
     }
 
     private creditInvoice(done) {

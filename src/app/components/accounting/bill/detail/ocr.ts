@@ -59,23 +59,43 @@ export class OcrValuables {
         return this._report;
     }
 
-    constructor(result: IOcrServiceResult) {
+    constructor(result) {
         this._report = result;
-        if (result && result.OcrInvoiceReport) {
-            let rep = result.OcrInvoiceReport;
-            this.Orgno = rep.Orgno.Value ? rep.Orgno.Value.value : '';
-            this.PaymentID = rep.Kid.Value ? rep.Kid.Value.value : '';
-            this.BankAccount =  rep.BankAccount.Value ? rep.BankAccount.Value.value : '';
-            this.BankAccountCandidates =
-                rep.BankAccount.Candidates
-                    ? rep.BankAccount.Candidates.sort((a, b) => b.Hit - a.Hit).map(x => x.value)
-                    : rep.BankAccount.Value ? [rep.BankAccount.Value] : [];
-            this.InvoiceDate =  rep.InvoiceDate.Value ? rep.InvoiceDate.Value.DateValue : '';
-            this.PaymentDueDate =  rep.DueDate.Value ? rep.DueDate.Value.DateValue : '';
-            this.TaxInclusiveAmount =  rep.Amount.Value ? rep.Amount.Value.value : '';
-            this.InvoiceNumber =  rep.InvoiceNumber.Value ? rep.InvoiceNumber.Value.value : '';
-            this.Amount = rep.Amount ? (+rep.Amount || 0) : 0;
-            this.SupplierID =  rep.SupplierID;
+        if (result && result.InterpretedProperties) {
+            let props = result.InterpretedProperties;
+
+
+            this.Orgno = this.getProposedValue(props, OcrPropertyType.OfficialNumber)
+                .replace('MVA', '').replace('N0','').replace('NO', '');
+            this.PaymentID = this.getProposedValue(props, OcrPropertyType.CustomerIdentificationNumber);
+            this.BankAccount =  this.getProposedValue(props, OcrPropertyType.BankAccountNumber);
+            this.BankAccountCandidates = [this.BankAccount];
+            this.InvoiceDate = this.getProposedValue(props, OcrPropertyType.InvoiceDate);
+            this.PaymentDueDate =  this.getProposedValue(props, OcrPropertyType.DueDate);
+            this.TaxInclusiveAmount = this.getProposedValue(props, OcrPropertyType.TotalAmount);
+            this.InvoiceNumber = this.getProposedValue(props, OcrPropertyType.InvoiceNumber);
+            this.Amount = +this.TaxInclusiveAmount;
         }
     }
+
+    private getProposedValue(props, propType): string {
+        let prop = props.find(x => x.OcrProperty.PropertyType === propType);
+
+        if (prop && prop.ProposedCandidate) {
+            return prop.ProposedCandidate.Value;
+        }
+
+        return '';
+    }
+}
+
+export enum OcrPropertyType {
+    OfficialNumber = 1,
+    IbanNumber = 2,
+    BankAccountNumber = 3,
+    CustomerIdentificationNumber = 4,
+    InvoiceNumber = 5,
+    TotalAmount = 6,
+    InvoiceDate = 7,
+    DueDate = 8
 }

@@ -9,7 +9,7 @@ export class View {
     public component: any;
 
     // tslint:disable-next-line:max-line-length
-    constructor(public name: string, public label: string, public className: string, public isDetail = false, public folder = '', component: any ) {
+    constructor(public name: string, public label: string, public className: string, public isDetail = false, public folder = '', component?: any ) {
         this.routeName = this.name.substr(0, 1).toUpperCase() + this.name.substr(1);
         this.path = this.name + (this.isDetail ? '/:id' : '');
         this.url = '/' + this.name;
@@ -25,12 +25,8 @@ export class View {
     
     public getRoute(asDefault: boolean): Route {
         return {
-                // useAsDefault: asDefault,
                 path: this.path,
-                // name: this.routeName,
                 component: this.component,
-                // canActivate: [AuthGuard]
-                // loader: () => ComponentProxy.LoadComponentAsync(this.className, './app/components' + this.filepath )
             };
     }
     

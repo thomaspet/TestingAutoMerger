@@ -12,6 +12,7 @@ import {GenericDetailview} from './genericview/detail';
 import {GenericListView} from './genericview/list';
 import {TimeEntry} from './timeentry/timeentry';
 import {TimeTableReport} from './timeentry/timetable/timetable';
+import {ReportWorkflow} from './timeentry/timetable/pipes';
 import {RegtimeTotals} from './timeentry/totals/totals';
 import {RegtimeBalance} from './timeentry/balance/balance';
 import {AppPipesModule} from '../../pipes/appPipesModule';
@@ -35,6 +36,8 @@ import {TeamworkReport} from './components/teamworkreport';
 import {ApproveDetails} from './components/approvedetails';
 import {TimeApproveModal} from './components/popupapprove';
 import {UniFileImport} from './components/popupfileimport';
+import {PopupMenu} from './timeentry/timetable/popupmenu';
+import {UniApproveTaskModal} from './timeentry/timetable/approvetaskmodal';
 
 @NgModule({
     imports: [
@@ -73,10 +76,14 @@ import {UniFileImport} from './components/popupfileimport';
         UniTimeModal,
         UniTemplateModal,
         TeamworkReport,
-        ApproveDetails, TimeApproveModal, UniFileImport
+        ApproveDetails, TimeApproveModal, UniFileImport,
+        ReportWorkflow,
+        PopupMenu,
+        UniApproveTaskModal
     ],
     providers: [
-        CanDeactivateGuard
+        CanDeactivateGuard,
+        ReportWorkflow
     ],
     exports: [
         UniTimetracking,

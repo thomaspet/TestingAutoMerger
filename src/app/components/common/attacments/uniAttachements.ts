@@ -176,7 +176,7 @@ export class UniAttachments {
 
         let data = new FormData();
         data.append('Token', this.token);
-        data.append('CompanyKey', this.activeCompany.Key);
+        data.append('Key', this.activeCompany.Key);
         if (this.entity) {
             data.append('EntityType', this.entity);
         }
@@ -189,10 +189,16 @@ export class UniAttachments {
         this.ngHttp.post(this.baseUrl + '/api/file', data)
             .map(res => res.json())
             .subscribe((res) => {
-                this.uploading = false;
-                this.files.push(res);
-                this.fileUploaded.emit(res);
-                this.imageModal.refreshImages();
+                // files are uploaded to unifiles, and will get an externalid that
+                // references the file in UE - get the UE file and add that to the
+                // collection
+                this.fileService.Get(res.ExternalId)
+                    .subscribe(newFile => {
+                        this.uploading = false;
+                        this.fileUploaded.emit(res);
+                        this.imageModal.refreshImages();
+                        this.files.push(newFile);
+                    }, err => this.errorService.handle(err));
             }, err => this.errorService.handle(err));
     }
 

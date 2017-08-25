@@ -1,6 +1,9 @@
 import { Component, ViewChild } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
-import { WageTypeService, UniCacheService, AccountService, ErrorService } from '../../../../services/services';
+import { 
+    WageTypeService, UniCacheService, AccountService, 
+    ErrorService, SalaryTransactionSuggestedValuesService 
+} from '../../../../services/services';
 import { UniTableColumn, UniTableColumnType, UniTableConfig, UniTable } from '../../../../../framework/ui/unitable/index';
 import {
     Employment, SalaryTransaction, WageType, Dimensions, Department, Project,
@@ -35,7 +38,8 @@ export class RecurringPost extends UniView {
         cacheService: UniCacheService,
         route: ActivatedRoute,
         private _accountService: AccountService,
-        private errorService: ErrorService
+        private errorService: ErrorService,
+        private sugestedValuesService: SalaryTransactionSuggestedValuesService
     ) {
 
         super(router.url, cacheService);
@@ -295,16 +299,18 @@ export class RecurringPost extends UniView {
                 }
 
                 if (rateObservable) {
-                    rateObservable.subscribe(rate => {
-                        row['Rate'] = rate;
-                        this.calcItem(row);
-                        this.updateAndCacheSalaryTransactionRow(row, true);
-                    });
+                    return rateObservable
+                        .map(rate => { 
+                            row['Rate'] = rate;
+                            row['EmployeeID'] = this.employeeID;
+                            return this.calcItem(row); 
+                        })
+                        .switchMap(trans => this.sugestedValuesService.suggestFromDate(trans, true))
+                        .do(trans => this.updateAndCacheSalaryTransactionRow(trans, true));
                 } else {
                     this.updateAndCacheSalaryTransactionRow(row);
+                    return row;
                 }
-
-                return row;
             });
     }
 
@@ -317,7 +323,6 @@ export class RecurringPost extends UniView {
         } else {
             this.recurringPosts.push(row);
         }
-
         if (updateTable) {
             this.uniTable.updateRow(row['_originalIndex'], row);
         }
@@ -424,13 +429,14 @@ export class RecurringPost extends UniView {
         rowModel.Dimensions.DepartmentID = department.ID;
     }
 
-    private calcItem(rowModel) {
+    private calcItem(rowModel): SalaryTransaction {
         let decimals = rowModel['Amount'] ? rowModel['Amount'].toString().split('.')[1] : null;
         let amountPrecision = Math.pow(10, decimals ? decimals.length : 1);
         decimals = rowModel['Rate'] ? rowModel['Rate'].toString().split('.')[1] : null;
         let ratePrecision = Math.pow(10, decimals ? decimals.length : 1);
         let sum = (Math.round((amountPrecision * rowModel['Amount'])) * Math.round((ratePrecision * rowModel['Rate']))) / (amountPrecision * ratePrecision);
         rowModel['Sum'] = sum;
+        return rowModel;
     }
 
     public openSuplementaryInformationModal(row: SalaryTransaction) {

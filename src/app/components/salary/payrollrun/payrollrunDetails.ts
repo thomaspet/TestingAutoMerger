@@ -20,7 +20,7 @@ import { UniStatusTrack } from '../../common/toolbar/statustrack';
 import { ToastService, ToastType, ToastTime } from '../../../../framework/uniToast/toastService';
 import { SalaryTransactionSelectionList } from '../salarytrans/salarytransactionSelectionList';
 import { UniView } from '../../../../framework/core/uniView';
-import { PreviewModal } from '../../reports/modals/preview/previewModal';
+import { UniPreviewModal } from '../../reports/modals/preview/previewModal';
 import { UniModalService, ConfirmActions } from '../../../../framework/uniModal/barrel';
 import { IUniSaveAction } from '../../../../framework/save/save';
 import 'rxjs/add/observable/forkJoin';
@@ -58,7 +58,6 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
     private toolbarconfig: IToolbarConfig;
     private disableFilter: boolean;
     private saveActions: IUniSaveAction[] = [];
-    @ViewChild(PreviewModal) public previewModal: PreviewModal;
     @ViewChild(PaycheckSendingModal) private paycheckSendingModal: PaycheckSendingModal;
     private activeYear: number;
 
@@ -875,7 +874,10 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
 
     public showPaymentList() {
         this._reportDefinitionService.getReportByName('Utbetalingsliste').subscribe((report) => {
-            this.previewModal.openWithId(report, this.payrollrun$.getValue().ID, 'RunID');
+            report.parameters = [{Name: 'RunID', value: this.payrollrun$.getValue().ID}];
+            this.modalService.open(UniPreviewModal, {
+                data: report
+            });
         });
     }
 

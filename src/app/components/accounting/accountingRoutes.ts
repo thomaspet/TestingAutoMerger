@@ -67,7 +67,8 @@ export const accountingRoutes: Routes = [
     },
     {
         path: 'postpost',
-        component: PostPost
+        component: PostPost,
+        canDeactivate: [CanDeactivateGuard]
     }
 ];
 

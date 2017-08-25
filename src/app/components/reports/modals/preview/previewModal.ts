@@ -1,140 +1,101 @@
-import {Component, ViewChild, Output, EventEmitter, Type, Input, ChangeDetectorRef} from '@angular/core';
-import {Http} from '@angular/http';
-import {ReportDefinition, CompanySettings, User} from '../../../../unientities';
-import {UniModal} from '../../../../../framework/modals/modal';
-import {SendEmailModal} from '../../../common/modals/sendEmailModal';
-import {SendEmail} from '../../../../models/sendEmail';
-import {ReportService, Report, ReportParameter, UserService} from '../../../../services/services';
-import {CompanySettingsService, ErrorService} from '../../../../services/services';
-import {ToastService, ToastType} from '../../../../../framework/uniToast/toastService';
-import {IUniSaveAction} from '../../../../../framework/save/save';
+import {Component, Input, Output, EventEmitter, ChangeDetectorRef} from '@angular/core';
+import {IModalOptions, IUniModal} from './../../../../../framework/uniModal/barrel';
 import {ReportFormat} from '../../../../models/reportFormat';
+import {ReportService, Report} from '../../../../services/services';
 
-@Component({
-    selector: 'report-preview-modal-type',
-    templateUrl: './previewModal.html'
-})
-export class ReportPreviewModalType {
-    @Input('config')
-    private config;
-
-    constructor() {
-    }
+interface IDownloadAction {
+    label: string;
+    format: ReportFormat;
 }
 
 @Component({
-    selector: 'report-preview-modal',
+    selector: 'uni-preview-modal',
     template: `
-        <uni-modal [type]="type" [config]="modalConfig"></uni-modal>
-        <send-email-modal></send-email-modal>
+        <dialog class="uni-modal medium"
+            (clickOutside)="close()"
+            (keydown.esc)="close()">
+            <header>
+                <h1>{{options.header || 'Forhåndsvisning'}}</h1>
+            </header>
+            <main>
+                <section id="reportContainer" [innerHtml]="modalConfig?.report | safehtml"></section>
+            </main>
+            <footer>
+                <button class="main-action-button good" (click)="download(actions[0].format)">
+                    {{actions[0].label}}
+                </button>
+                <button class="action-list-toggle good" (click)="showActionList = !showActionList">
+                    Flere valg
+                </button>
+                <ul class="download-action-list" [attr.aria-expanded]="showActionList">
+                    <li *ngFor="let action of actions" (click)="download(action.format)">
+                        {{action.label}}
+                    </li>
+                </ul>
+            </footer>
+        </dialog>
     `
 })
-export class PreviewModal {
-    @ViewChild(UniModal)
-    private modal: UniModal;
-    @ViewChild(SendEmailModal)
-    private sendEmailModal: SendEmailModal;
-    @Output() printed: EventEmitter<any> = new EventEmitter<any>();
-    public modalConfig: any = {};
-    public type: Type<any> = ReportPreviewModalType;
+export class UniPreviewModal implements IUniModal {
+    @Input()
+    public options: IModalOptions = {};
 
-    private reportDefinition: ReportDefinition;
-    private companySettings: CompanySettings;
-    private user: User;
-    private modalDoneHandler: (msg: string) => void;
+    @Output()
+    public onClose: EventEmitter<boolean> = new EventEmitter();
+
+    public showActionList: boolean;
+    private actions: IDownloadAction[];
+    private modalConfig: any;
 
     constructor(
         private reportService: ReportService,
-        private http: Http,
-        private userService: UserService,
-        private toastService: ToastService,
-        private companySettingsService: CompanySettingsService,
-        private errorService: ErrorService,
         private cdr: ChangeDetectorRef
     ) {
-
-        this.companySettingsService.Get(1)
-            .subscribe(
-                settings => this.companySettings = settings,
-                err => this.errorService.handle(err)
-            );
-
-        this.userService.getCurrentUser()
-            .subscribe(
-                user => this.user = user,
-                err => this.errorService.handle(err)
-            );
-
-        this.modalConfig = {
-            title: 'Forhåndsvisning',
-            model: null,
-
-            saveactions: [
-                {
-                    label: 'Last ned PDF',
-                    action: (done) => this.download(ReportFormat.PDF, done),
-                    main: true,
-                    disabled: false
-                },
-                {
-                    label: 'Last ned CSV',
-                    action: (done) => this.download(ReportFormat.CSV, done),
-                    main: true,
-                    disabled: false
-                },
-                {
-                    label: 'Last ned HTML',
-                    action: (done) => this.download(ReportFormat.HTML, done),
-                    main: true,
-                    disabled: false
-                },
-                {
-                    label: 'Last ned Excel',
-                    action: (done) => this.download(ReportFormat.Excel, done),
-                    main: true,
-                    disabled: false
-                },
-                {
-                    label: 'Last ned Word',
-                    action: (done) => this.download(ReportFormat.Word, done),
-                    main: true,
-                    disabled: false
-                }
-            ],
-        };
+        this.actions = [
+            {
+                label: 'Last ned PDF',
+                format: ReportFormat.PDF
+            },
+            {
+                label: 'Last ned CSV',
+                format: ReportFormat.CSV
+            },
+            {
+                label: 'Last ned HTML',
+                format: ReportFormat.HTML
+            },
+            {
+                label: 'Last ned Excel',
+                format: ReportFormat.Excel
+            },
+            {
+                label: 'Last ned Word',
+                format: ReportFormat.Word
+            }
+        ];
     }
 
-    public download(format, done) {
-        this.modal.getContent().then(() => {
-            this.reportService.generateReportFormat(format, this.reportDefinition);
-            this.printed.emit();
-            done(format.toUpper() + ' nedlastet');
-        }).catch(() => {
-            done('Feilet!');
-        });
-    }
+    public ngAfterViewInit() {
+        if (this.options.data) {
+            let reportDefinition: Report = this.options.data;
 
-    public openWithId(report: Report, id: number, name: string = 'Id', doneHandler: (msg: string) => void = null) {
-        var idparam = new ReportParameter();
-        idparam.Name = name;
-        idparam.value = id.toString();
-        report.parameters = [idparam];
-        this.open(report, null, doneHandler);
-    }
+            this.modalConfig = {
+                title: reportDefinition.Name,
+                report: null,
+                reportDefinition: reportDefinition
+            };
 
-    public open(report: Report, parameters = null, doneHandler: (msg: string) => void = null) {
-        this.modalDoneHandler = doneHandler;
-        this.modalConfig.title = report.Name;
-        this.modalConfig.report = null;
-        this.reportDefinition = report;
-        this.modal.open();
-        
-        if (doneHandler !== null) {
-            doneHandler('Skrevet ut');
+            this.reportService.generateReportHtml(this.options.data, this.modalConfig, () => {
+                this.cdr.markForCheck();
+            });
         }
+    }
 
-        this.reportService.generateReportHtml(report, this.modalConfig, () => {
-            this.cdr.markForCheck();
-        });
+    public download(format: string) {
+        this.reportService.generateReportFormat(format, this.modalConfig.reportDefinition);
+    }
+
+    public close(saveBeforeClosing?: boolean) {
+        this.onClose.emit();
     }
 }

@@ -61,7 +61,7 @@ export class UniSearchAttr implements OnInit, OnChanges {
     private hasExternalSearch: boolean = false;
     private hasCreateNewButton: boolean = false;
 
-    constructor(private componentElement: ElementRef, private changeDetector: ChangeDetectorRef) {}
+    constructor(private componentElement: ElementRef, private changeDetector: ChangeDetectorRef) { }
 
     public ngOnInit() {
         if (!this.config) {
@@ -95,6 +95,7 @@ export class UniSearchAttr implements OnInit, OnChanges {
 
             const clickedInside = el.parentNode && el.parentNode.contains(event.target);
             if (!clickedInside) {
+                this.handleUnfinishedValue(this.componentElement.nativeElement.value);
                 this.closeSearchResult();
             }
         });
@@ -118,7 +119,7 @@ export class UniSearchAttr implements OnInit, OnChanges {
         return item ? this.config.inputTemplateFn(item) : '';
     }
 
-    private rowTemplate(item): [string|number] {
+    private rowTemplate(item): [string | number] {
         return item ? this.config.rowTemplateFn(item) : <[string]>[];
     }
 
@@ -222,7 +223,7 @@ export class UniSearchAttr implements OnInit, OnChanges {
         }, err => console.error('Uncaught error in UniSearch! Add a .catch() in the lookup function!'));
     }
 
-    private goBusy(on:boolean=true){
+    private goBusy(on: boolean = true) {
         this.busy = on;
         this.changeDetector.markForCheck();
     }
@@ -251,6 +252,7 @@ export class UniSearchAttr implements OnInit, OnChanges {
                 }
                 break;
             case KeyCodes.TAB:
+                this.handleUnfinishedValue(this.componentElement.nativeElement.value);
                 this.closeSearchResult();
                 break;
             case KeyCodes.ENTER:
@@ -347,6 +349,14 @@ export class UniSearchAttr implements OnInit, OnChanges {
             this.expanded = true;
             this.selectedIndex = 0;
             this.container.nativeElement.scrollTop = 0;
+        }
+    }
+
+    private handleUnfinishedValue(val) {
+        if (val && this.config.unfinishedValueFn) {
+            this.config
+                .unfinishedValueFn(val)
+                .subscribe(entity => this.changeEvent.next(entity));
         }
     }
 

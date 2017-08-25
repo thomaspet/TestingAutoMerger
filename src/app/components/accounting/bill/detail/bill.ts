@@ -617,6 +617,7 @@ export class BillView {
             return;
         }
         let firstFile = files[0];
+
         const current = this.current.getValue();
         if (!current.ID) {
             if (this.unlinkedFiles.findIndex(x => x === firstFile.ID) < 0) {

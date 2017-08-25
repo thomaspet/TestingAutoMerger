@@ -2,10 +2,13 @@ import { Component, OnInit, ViewChild, Type, Input, OnDestroy } from '@angular/c
 import { UniModal } from '../../../../../framework/modals/modal';
 import { ReportDefinition, ReportDefinitionParameter } from '../../../../unientities';
 import {
-    ReportDefinitionParameterService, YearService, ErrorService,
+    ReportDefinitionParameterService,
+    YearService,
+    ErrorService,
     PayrollrunService
 } from '../../../../services/services';
-import { PreviewModal } from '../preview/previewModal';
+import {UniModalService} from '../../../../../framework/uniModal/barrel';
+import {UniPreviewModal} from '../preview/previewModal';
 import { UniFieldLayout, FieldType } from '../../../../../framework/ui/uniform/index';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import { Observable } from 'rxjs/Observable';
@@ -63,14 +66,18 @@ export class SalaryWithholdingAndAGAReportFilterModalContent implements OnInit {
     `
 })
 export class SalaryWithholdingAndAGAReportFilterModal implements OnInit, OnDestroy {
-    @ViewChild(UniModal) private modal: UniModal;
-    private previewModal: PreviewModal;
+    @ViewChild(UniModal)
+    private modal: UniModal;
+
     private modalConfig: ModalConfig;
     public type: Type<any> = SalaryWithholdingAndAGAReportFilterModalContent;
     private subscriptions: any[] = [];
+
     constructor(
         private reportDefinitionParameterService: ReportDefinitionParameterService,
-        private errorService: ErrorService) { }
+        private errorService: ErrorService,
+        private modalService: UniModalService
+    ) {}
 
     public ngOnInit() {
         this.modalConfig = {
@@ -81,9 +88,8 @@ export class SalaryWithholdingAndAGAReportFilterModal implements OnInit, OnDestr
                     text: 'Ok',
                     class: 'good',
                     method: () => {
-                        this.subscriptions
-                            .push(Observable
-                                .fromPromise(this.modal.getContent())
+                        this.subscriptions.push(
+                            Observable.fromPromise(this.modal.getContent())
                                 .switchMap((component: SalaryWithholdingAndAGAReportFilterModalContent) =>
                                     component.model$.map(model => {
                                         component.config.report.parameters.map(param => {
@@ -93,8 +99,12 @@ export class SalaryWithholdingAndAGAReportFilterModal implements OnInit, OnDestr
                                     })
                                 )
                                 .do(() => this.modal.close())
-                                .subscribe((component: SalaryWithholdingAndAGAReportFilterModalContent) =>
-                                    this.previewModal.open(component.config.report)));
+                                .subscribe((component: SalaryWithholdingAndAGAReportFilterModalContent) => {
+                                    this.modalService.open(UniPreviewModal, {
+                                        data: component.config.report
+                                    });
+                                })
+                        );
                     }
                 },
                 {
@@ -109,10 +119,9 @@ export class SalaryWithholdingAndAGAReportFilterModal implements OnInit, OnDestr
         this.subscriptions.map(sub => sub.unsubscribe());
     }
 
-    public open(report: ReportDefinition, previewModal: PreviewModal) {
+    public open(report: ReportDefinition) {
         this.modalConfig.title = report.Name;
         this.modalConfig.report = report;
-        this.previewModal = previewModal;
 
         this.reportDefinitionParameterService.GetAll('filter=ReportDefinitionId eq ' + report.ID)
             .subscribe((params: ReportDefinitionParameter[]) => {

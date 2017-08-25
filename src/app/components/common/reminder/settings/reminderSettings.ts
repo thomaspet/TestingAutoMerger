@@ -9,8 +9,6 @@ import {
 } from '../../../../services/services';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 
-import * as moment from 'moment';
-
 @Component({
     selector: 'reminder-settings',
     templateUrl: './reminderSettings.html'

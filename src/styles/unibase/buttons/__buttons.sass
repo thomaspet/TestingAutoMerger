@@ -71,27 +71,6 @@ $all-buttons: assign-inputs($buttons-list)
         &[aria-busy]:not([aria-busy=false]):before
             margin: 0 5px -2px -5px
 
-@mixin uni-secondary-button($color, $background: $uni-color-negative)
-    background: none
-    box-shadow: none
-    text-shadow: none
-    border-radius: 5px
-    border: 1px solid transparentize($color, .5)
-    padding: 1px 16px
-    color: $uni-color-positive
-    transition: .3s ease all
-
-    &:hover,
-    &:focus
-        background: transparentize($color, .9)
-        border-color: $color
-
-    &[disabled],
-    &[aria-disabled]
-        &:hover,
-        &:focus
-            border-color: transparentize($color, .5)
-
 #{$all-buttons}
     @include uni-button($uni-color-action)
 
@@ -106,21 +85,6 @@ $all-buttons: assign-inputs($buttons-list)
 
     &.c2a
         @include uni-button($uni-color-c2a)
-
-    &.secondary
-        @include uni-secondary-button($uni-color-positive)
-
-        &.good
-            @include uni-secondary-button($uni-color-good)
-
-        &.bad
-            @include uni-secondary-button($uni-color-bad)
-
-        &.warning
-            @include uni-secondary-button($uni-color-warn)
-
-        &.c2a
-            @include uni-secondary-button($uni-color-c2a)
 
 button[type=submit]
     @extend button.c2a

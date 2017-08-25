@@ -1,12 +1,16 @@
 import { Component, OnInit, ViewChild, Type, Input } from '@angular/core';
 import { UniModal } from '../../../../../framework/modals/modal';
 import { ReportDefinition, ReportDefinitionParameter } from '../../../../unientities';
-import { ReportDefinitionParameterService, ErrorService, YearService,
-    PayrollrunService } from '../../../../services/services';
-import { PreviewModal } from '../preview/previewModal';
+import {UniModalService} from '../../../../../framework/uniModal/barrel';
+import {UniPreviewModal} from '../preview/previewModal';
 import { UniFieldLayout, FieldType } from '../../../../../framework/ui/uniform/index';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
-
+import {
+    ReportDefinitionParameterService,
+    ErrorService,
+    YearService,
+    PayrollrunService
+} from '../../../../services/services';
 
 type ModalConfig = {
     report: any,
@@ -41,7 +45,7 @@ export class VacationPayBaseReportFilterModalContent implements OnInit {
 
     private getLayout(reportParameters: ReportDefinitionParameter[]): UniFieldLayout[] {
         return [<any>{
-            FieldType: FieldType.NUMERIC,
+            FieldType: FieldType.TEXT,
             Label: reportParameters[0].Label,
             Property: reportParameters[0].Name,
         }];
@@ -55,13 +59,17 @@ export class VacationPayBaseReportFilterModalContent implements OnInit {
     `
 })
 export class VacationPayBaseReportFilterModal implements OnInit {
-    @ViewChild(UniModal) private modal: UniModal;
-    private previewModal: PreviewModal;
+    @ViewChild(UniModal)
+    private modal: UniModal;
+
     private modalConfig: ModalConfig;
     public type: Type<any> = VacationPayBaseReportFilterModalContent;
+
     constructor(
         private reportDefinitionParameterService: ReportDefinitionParameterService,
-        private errorService: ErrorService) { }
+        private errorService: ErrorService,
+        private modalService: UniModalService
+    ) {}
 
     public ngOnInit() {
         this.modalConfig = {
@@ -73,10 +81,13 @@ export class VacationPayBaseReportFilterModal implements OnInit {
                     class: 'good',
                     method: (model$) => {
                         this.modal.close();
-                        this.previewModal.openWithId(
-                            this.modalConfig.report,
-                            model$.getValue()[this.modalConfig.report.parameters[0].Name],
-                                this.modalConfig.report.parameters[0].Name);
+                        let report = this.modalConfig.report;
+                        let paramName = this.modalConfig.report.parameters[0].Name;
+                        report.parameters = [{Name: paramName, value: model$.getValue()[paramName]}];
+
+                        this.modalService.open(UniPreviewModal, {
+                            data: report
+                        });
                     }
                 },
                 {
@@ -87,10 +98,9 @@ export class VacationPayBaseReportFilterModal implements OnInit {
         };
     }
 
-    public open(report: ReportDefinition, previewModal: PreviewModal) {
+    public open(report: ReportDefinition) {
         this.modalConfig.title = report.Name;
         this.modalConfig.report = report;
-        this.previewModal = previewModal;
 
         this.reportDefinitionParameterService.GetAll('filter=ReportDefinitionId eq ' + report.ID)
             .subscribe((params: ReportDefinitionParameter[]) => {

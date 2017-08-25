@@ -347,6 +347,14 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
             .map(response => response.json());
     }
 
+    public getAccountingLockedDate(): LocalDate {
+        if (this.companySettings) {
+            return this.companySettings.AccountingLockedDate;
+        } else {
+            throw new Error('Companysetting is not set in journalEntryService when calling GetAccountingLockedDate');
+        }
+    }
+
     public validateJournalEntryDataLocal(journalDataEntries: Array<JournalEntryData>, currentFinancialYear: FinancialYear, financialYears: Array<FinancialYear>, companySettings: CompanySettings): ValidationResult {
         let result: ValidationResult = new ValidationResult();
         result.Messages = [];

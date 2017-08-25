@@ -4,7 +4,7 @@ import {IUniModal, IModalOptions} from '../modalService';
 @Component({
     selector: 'uni-unsaved-changes-modal',
     template: `
-        <dialog class="uni-modal" (clickOutside)="close(false)">
+        <dialog class="uni-modal">
             <header>
                 <h1>Ulagrede endringer</h1>
             </header>
@@ -26,7 +26,6 @@ export class UniUnsavedChangesModal implements IUniModal {
 
     @Output()
     public onClose: EventEmitter<any> = new EventEmitter();
-
 
     public close(value) {
         this.onClose.emit(value);

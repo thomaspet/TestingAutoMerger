@@ -15,7 +15,7 @@ import {UniHttp} from '../core/http/http';
 import {AuthService} from '../core/authService';
 import {Observable} from 'rxjs/Observable';
 import {AppConfig} from '../../app/AppConfig';
-import {ErrorService} from '../../app/services/services';
+import {ErrorService, FileService} from '../../app/services/services';
 import {UniModalService, ConfirmActions} from '../uniModal/barrel';
 
 export enum UniImageSize {
@@ -161,11 +161,12 @@ export class UniImage {
         private http: UniHttp,
         private errorService: ErrorService,
         private cdr: ChangeDetectorRef,
-        private modalService: UniModalService
-        authService: AuthService,
+        private fileService: FileService,
+        private modalService: UniModalService,
+        private authService: AuthService,
     ) {
         // Subscribe to authentication/activeCompany changes
-        authService.authentication$.subscribe((authDetails) => {
+        this.authService.authentication$.subscribe((authDetails) => {
             this.token = authDetails.filesToken;
             this.activeCompany = authDetails.activeCompany;
         });
@@ -366,7 +367,7 @@ export class UniImage {
     }
 
     private generateImageUrl(file: File, width: number): string {
-        let url = `${this.baseUrl}/image/?key=${this.activeCompany.Key}&token=${this.token}&id=${file.ID}&width=${width}&page=${this.currentPage}`;
+        let url = `${this.baseUrl}/api/image/?key=${this.activeCompany.Key}&token=${this.token}&id=${file.StorageReference}&width=${width}&page=${this.currentPage}`;
         return encodeURI(url);
     }
 
@@ -424,7 +425,7 @@ export class UniImage {
     private uploadFile(file) {
         let data = new FormData();
         data.append('Token', this.token);
-        data.append('CompanyKey', this.activeCompany.Key);
+        data.append('Key', this.activeCompany.Key);
         if (this.entity) {
             data.append('EntityType', this.entity);
         }
@@ -437,14 +438,20 @@ export class UniImage {
         this.ngHttp.post(this.baseUrl + '/api/file', data)
             .map(res => res.json())
             .subscribe((res) => {
-                this.uploading = false;
-                this.files.push(res);
-                this.fileListReady.emit(this.files);
-                this.currentFileIndex = this.files.length - 1;
-                this.loadImage();
-                if (!this.singleImage) {
-                    this.loadThumbnails();
-                }
+                // files are uploaded to unifiles, and will get an externalid that
+                // references the file in UE - get the UE file and add that to the
+                // collection
+                this.fileService.Get(res.ExternalId)
+                    .subscribe(newFile => {
+                        this.uploading = false;
+                        this.files.push(newFile);
+                        this.fileListReady.emit(this.files);
+                        this.currentFileIndex = this.files.length - 1;
+                        this.loadImage();
+                        if (!this.singleImage) {
+                            this.loadThumbnails();
+                        }
+                    }, err => this.errorService.handle(err));
             }, err => this.errorService.handle(err));
     }
 

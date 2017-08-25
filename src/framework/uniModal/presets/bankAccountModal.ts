@@ -10,15 +10,13 @@ import {
     UniConfirmModalV2,
     ConfirmActions
 } from '../barrel';
-
+import {Observable} from 'rxjs/Observable';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 
 @Component({
     selector: 'uni-bankaccount-modal',
     template: `
-        <dialog class="uni-modal"
-                (clickOutside)="close(false)"
-                (keydown.esc)="close(false)">
+        <dialog class="uni-modal">
             <header>
                 <h1>{{options.header || 'Bankkonto'}}</h1>
             </header>
@@ -67,8 +65,8 @@ export class UniBankAccountModal implements IUniModal {
     ) {}
 
     public ngOnInit() {
-        let email = this.options.data || {};
-        this.formModel$.next(email);
+        let accountInfo = this.options.data || {};
+        this.formModel$.next(accountInfo);
         this.formFields$.next(this.getFormFields());
     }
 
@@ -87,25 +85,23 @@ export class UniBankAccountModal implements IUniModal {
 
                 confirm.onClose.subscribe((response) => {
                     if (response === ConfirmActions.ACCEPT) {
-                        this.onClose.next(account);
+                        this.onClose.emit(account);
                     } else {
                         return;
                     }
                 });
             } else {
-                this.onClose.next(account);
+                this.onClose.emit(account);
             }
         } else {
-            this.onClose.next(null);
+            this.onClose.emit(null);
         }
-        // this.onClose.emit(account);
     }
 
     public onFormChange(changes) {
         this.isDirty = true;
-        if (changes['Account']) {
 
-        } else if (changes['AccountNumber']) {
+        if (changes['AccountNumber']) {
             this.toastService.clear();
             this.validAccount = false;
             const account = this.formModel$.getValue();
@@ -200,6 +196,12 @@ export class UniBankAccountModal implements IUniModal {
                         if (account) {
                             return `${account.AccountNumber} - ${account.AccountName}`;
                         }
+                    },
+                    getDefaultData: () => {
+                        let model = this.options && this.options.data || {};
+                        return model.Account
+                            ? Observable.of([model.Account])
+                            : Observable.of([]);
                     },
                     debounceTime: 200,
                     search: (searchValue) => this.accountSearch(searchValue)

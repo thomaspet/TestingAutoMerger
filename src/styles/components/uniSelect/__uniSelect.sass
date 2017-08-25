@@ -2,8 +2,11 @@
     display: inline-block
     position: relative
 
-.uniSelect_input[role=combobox]
-    background: #fff unicon-chevron-down($uni-color-scale5) center right .5rem no-repeat
+%selectChevron
+    background-color: #fff
+    background-image: unicon-chevron-down($uni-color-scale5)
+    background-position: center right .5rem
+    background-repeat: no-repeat
     background-size: auto .5rem
     padding-right: 2rem
     text-overflow: ellipsis
@@ -13,10 +16,11 @@
     &[readonly]:not([readonly=false])
         @extend input[disabled]
 
+.uniSelect_input[role=combobox]
+    @extend %selectChevron
 
 .uniSelect input[type=text][readonly].uniSelect_input.uniSelect_input
-    background: #fff unicon-chevron-down($uni-color-scale5) center right .5rem no-repeat
-    background-size: auto .5rem
+    @extend %selectChevron
 
 .uniSelect_dropdown
     position: absolute

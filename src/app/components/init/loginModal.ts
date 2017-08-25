@@ -1,68 +1,102 @@
-import {Component} from '@angular/core';
-import {FormControl, Validators} from '@angular/forms';
+import {Component, Input, Output, EventEmitter} from '@angular/core';
 import {AuthService} from '../../../framework/core/authService';
+import {IModalOptions, IUniModal} from '../../../framework/uniModal/barrel';
+import {UniFieldLayout, FieldType} from '../../../framework/ui/uniform/index';
+import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 
 @Component({
-    selector: 'login-modal',
+    selector: 'uni-login-modal',
     template: `
-        <dialog class="uniModal" *ngIf="isOpen">
-            <article class="modal-content authentication-component">
-                <img src="assets/uni-logo.png" alt="Uni Economy logo">
+        <dialog class="uni-modal">
+            <header>
+                <h1>Autentisering</h1>
+            </header>
 
-                <form (submit)="authenticate()">
-                    <label>
-                        Brukernavn
-                        <input type="text" [disabled]="working" [formControl]="usernameControl" placeholder="Brukernavn">
-                    </label>
+            <main>
+                <small class="validation warn" *ngIf="!errorMessage?.length">
+                    Sesjonen din er i ferd med å utløpe. Vennligst autentiser igjen for å unngå å miste arbeid
+                </small>
 
-                    <label>
-                        Passord
-                        <input type="password" [disabled]="working" [formControl]="passwordControl" placeholder="Passord">
-                    </label>
+                <small class="validation error" *ngIf="errorMessage?.length">
+                    {{errorMessage}}
+                </small>
 
-                    <button class="c2a" [attr.aria-busy]="working" [disabled]="working">Logg inn</button>
-                </form>
+                <uni-form
+                    [config]="formConfig$"
+                    [fields]="formFields$"
+                    [model]="formModel$">
+                </uni-form>
+            </main>
 
-                <p>{{errorMessage}}</p>
-            </article>
+            <footer>
+                <button class="good" (click)="authenticate()" [attr.aria-busy]="working">
+                    Logg inn
+                </button>
+            </footer>
         </dialog>
-    `,
-    styles: [
-        'form { width: 20rem; margin: 0 auto; }'
-    ]
+    `
 })
-export class LoginModal {
-    private onAuthenticated: (token) => any;
-    public isOpen: boolean = false;
+export class LoginModal implements IUniModal {
+    @Input()
+    public options: IModalOptions = {};
+
+    @Output()
+    public onClose: EventEmitter<any> = new EventEmitter();
+
+    public formConfig$: BehaviorSubject<any> = new BehaviorSubject({autofocus: true});
+    public formModel$: BehaviorSubject<any> = new BehaviorSubject({});
+    public formFields$: BehaviorSubject<UniFieldLayout[]> = new BehaviorSubject([]);
+
     private working: boolean = false;
     private errorMessage: string = '';
 
-    private usernameControl: FormControl = new FormControl('', Validators.required);
-    private passwordControl: FormControl = new FormControl('', Validators.required);
-
     constructor(private authService: AuthService) {}
 
-    private authenticate() {
-        this.working = true;
-        this.errorMessage = '';
+    public ngOnInit() {
+        this.formFields$.next(this.getFormFields());
+    }
 
-        this.authService.authenticate({
-            username: this.usernameControl.value,
-            password: this.passwordControl.value
-        }).subscribe(
+    private authenticate() {
+        const authDetails = this.formModel$.getValue();
+        if (!authDetails.username || !authDetails.password) {
+            return;
+        }
+
+        this.working = true;
+        this.authService.authenticate(authDetails).subscribe(
             (response) => {
-                this.working = false;
-                this.isOpen = false;
+                this.onClose.emit(true);
             },
             (error) => {
                 this.working = false;
-                this.errorMessage = 'Noe gikk galt. Vennligst sjekk brukernavn og passord, og prøv igjen.';
+                this.errorMessage = 'Autentisering feilet. Vennligst sjekk brukernavn og passord, og prøv igjen.';
             }
         );
     }
 
-    public open() {
-        this.isOpen = true;
+    private getFormFields(): UniFieldLayout[] {
+        return [
+            <any> {
+                Property: 'username',
+                FieldType: FieldType.TEXT,
+                Label: 'Brukernavn',
+            },
+            <any> {
+                Property: 'password',
+                FieldType: FieldType.PASSWORD,
+                Label: 'Passord',
+                Options: {
+                    events: {
+                        'enter': () => {
+                            let focus: any = document.activeElement;
+                            focus.blur();
+                            this.authenticate();
+                            focus.focus();
+                        }
+                    }
+                }
+            }
+        ];
     }
 
 }

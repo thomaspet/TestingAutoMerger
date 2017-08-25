@@ -17,7 +17,6 @@ export class UniApprovals {
     private routeParam: number;
     private approvals: Approval[];
     private selectedApproval: Approval;
-
     private currentUser: User;
     private users: User[];
 
@@ -33,6 +32,33 @@ export class UniApprovals {
         route.params.subscribe((params) => {
             this.routeParam = +params['id'];
         });
+    }    
+
+    public get entityType(): string {
+        if (!(this.selectedApproval && this.selectedApproval.Task)) {
+            return '';
+        }
+        switch (this.selectedApproval.Task.ModelID) {
+            case 196:
+                return 'WorkItemGroup';
+            case 162:
+                return 'SupplierInvoice';
+        }
+    }
+
+    public get entityID(): number {
+        if (!(this.selectedApproval && this.selectedApproval.Task)) {
+            return 0;
+        }
+        return this.selectedApproval.Task.EntityID;
+    }
+
+    public get title(): string {
+        if (!(this.selectedApproval && this.selectedApproval.Task && this.selectedApproval.Task.Title)) {
+            return '';
+        }
+        var title = this.selectedApproval.Task.Title;
+        return title;
     }
 
     public ngOnInit() {

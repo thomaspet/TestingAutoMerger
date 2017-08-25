@@ -14,7 +14,7 @@ label
     background-size: auto .8rem
     background-position: center
     background-repeat: no-repeat
-    border-radius: 9rem
+    border-radius: 1rem
 
     text-indent: 100%
     white-space: nowrap
@@ -28,7 +28,7 @@ label
         background-image: unicon-info($uni-color-scale4)
 
         & + .helpText
-            display: block
+            display: block 
 
 
 .helpText
@@ -53,9 +53,12 @@ label
         width: 0
         border: .7rem solid transparent
         border-top-color: transparentize($uni-color-scale1, .1)
+        border-bottom-width: 0
         top: 100%
         left: calc(50% - .35rem)
 
-    &:hover,
-    &:focus
-        display: block
+uni-checkbox-input
+    & + .helpTextToggle
+        top: .4rem
+        & + .helpText
+            bottom: calc(100% + .4rem)

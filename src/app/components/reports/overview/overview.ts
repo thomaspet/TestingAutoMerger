@@ -3,7 +3,6 @@ import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {ReportDefinition, UniQueryDefinition} from '../../../unientities';
 import {ReportDefinitionService, UniQueryDefinitionService, ErrorService} from '../../../services/services';
 import {ParameterModal} from '../modals/parameter/parameterModal';
-import {PreviewModal} from '../modals/preview/previewModal';
 import {Report} from '../../../models/reports/report';
 import {BalanceReportFilterModal} from '../modals/balanceList/BalanceReportFilterModal';
 import {PostingJournalReportFilterModal} from '../modals/postingJournal/PostingJournalReportFilterModal';
@@ -32,8 +31,7 @@ class ReportCategory {
 export class Overview {
     @ViewChild(ParameterModal)
     private parameterModal: ParameterModal;
-    @ViewChild(PreviewModal)
-    private previewModal: PreviewModal;
+
     @ViewChild(BalanceReportFilterModal)
     private balanceListModal: BalanceReportFilterModal;
     @ViewChild(AccountReportFilterModal)
@@ -69,50 +67,50 @@ export class Overview {
     }
 
     public showModalReportParameters(report: ReportDefinition) {
-        this.parameterModal.open(report, this.previewModal);
+        this.parameterModal.open(report);
     }
 
     public showBalanceListModalReportParameters(report: ReportDefinition) {
-        this.balanceListModal.open(report, this.previewModal);
+        this.balanceListModal.open(report);
     }
 
     public showModalAccountReportFilterModal(report: ReportDefinition) {
-        this.accountReportFilterModal.open(report, this.previewModal);
+        this.accountReportFilterModal.open(report);
     }
     public showPostingJournalModalReportParameters(report: ReportDefinition) {
-        this.postingJournalModal.open(report, this.previewModal);
+        this.postingJournalModal.open(report);
     }
 
     public showResultAndBalanceModalReportParameters(report: ReportDefinition) {
-        this.resultAndBalanceModal.open(report, this.previewModal);
+        this.resultAndBalanceModal.open(report);
     }
 
     public showBalanceGeneralLedgerFilterModal(report: ReportDefinition) {
-        this.balanceGeneralLedgerFilterModal.open(report, this.previewModal);
+        this.balanceGeneralLedgerFilterModal.open(report);
     }
 
     public showCustomerAccountModalReportParameters(report: ReportDefinition) {
-        this.customerAccountModal.open(report, this.previewModal);
+        this.customerAccountModal.open(report);
     }
 
     public showSupplierAccountModalReportParameters(report: ReportDefinition) {
-        this.supplierAccountModal.open(report, this.previewModal);
+        this.supplierAccountModal.open(report);
     }
 
     public showSalaryPaymentListOrPostingSummaryModalReportParameters(report: ReportDefinition) {
-        this.salaryPaymentListFilterModal.open(report, this.previewModal);
+        this.salaryPaymentListFilterModal.open(report);
     }
 
     public showVacationBaseFilterModalReportParameters(report: ReportDefinition) {
-        this.vacationBaseFilterModal.open(report, this.previewModal);
+        this.vacationBaseFilterModal.open(report);
     }
 
     public showSalaryWithholdingAndAgaFilterModalReportParameters(report: ReportDefinition) {
-        this.salaryWithholdingAndAGAReportFilterModal.open(report, this.previewModal);
+        this.salaryWithholdingAndAGAReportFilterModal.open(report);
     }
 
     public showPaycheckFilterModalReportParameters(report: ReportDefinition) {
-        this.paycheckReportFilterModal.open(report, this.previewModal);
+        this.paycheckReportFilterModal.open(report);
     }
 
     public showUniQuery(report: UniQueryDefinition) {

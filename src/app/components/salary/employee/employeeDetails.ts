@@ -27,6 +27,18 @@ import {
 } from '../../../services/services';
 import { Subscription } from 'rxjs/Subscription';
 declare var _;
+const EMPLOYEE_TAX_KEY = 'employeeTaxCard';
+const EMPLOYMENTS_KEY = 'employments';
+const RECURRING_POSTS_KEY = 'recurringPosts';
+const EMPLOYEE_LEAVE_KEY = 'employeeLeave';
+const EMPLOYEE_KEY = 'employee';
+type DirtyStatuses = {
+    employee?: boolean,
+    employeeTaxCard?: boolean,
+    employments?: boolean,
+    employeeLeave?: boolean,
+    recurringPosts?: boolean
+}
 @Component({
     selector: 'uni-employee-details',
     templateUrl: './employeeDetails.html'
@@ -227,6 +239,9 @@ export class EmployeeDetails extends UniView implements OnDestroy {
 
             // Update cache key and clear data variables when employee ID is changed
             super.updateCacheKey(this.router.url);
+            if (!this.employeeID) {
+                this.cacheService.clearPageCache(this.cacheKey);
+            }
 
             this.employments = undefined;
             this.employeeLeave = undefined;
@@ -236,35 +251,35 @@ export class EmployeeDetails extends UniView implements OnDestroy {
             this.taxOptions = undefined;
 
             // (Re)subscribe to state var updates
-            super.getStateSubject('employee')
+            super.getStateSubject(EMPLOYEE_KEY)
                 .do(employee => this.updateTabStrip(employee))
                 .subscribe((employee) => {
-                this.employee = employee;
-                this.posterEmployee.employee = employee;
-                this.posterEmployee = _.cloneDeep(this.posterEmployee);
-                this.toolbarConfig = {
-                    title: employee.BusinessRelationInfo ? employee.BusinessRelationInfo.Name || 'Ny ansatt' : 'Ny ansatt',
-                    subheads: [{
-                        title: this.employee.EmployeeNumber ? 'Ansattnr. ' + this.employee.EmployeeNumber : ''
-                    }],
-                    navigation: {
-                        prev: this.previousEmployee.bind(this),
-                        next: this.nextEmployee.bind(this),
-                        add: this.newEmployee.bind(this)
-                    }
-                };
+                    this.employee = employee;
+                    this.posterEmployee.employee = employee;
+                    this.posterEmployee = _.cloneDeep(this.posterEmployee);
+                    this.toolbarConfig = {
+                        title: employee.BusinessRelationInfo ? employee.BusinessRelationInfo.Name || 'Ny ansatt' : 'Ny ansatt',
+                        subheads: [{
+                            title: this.employee.EmployeeNumber ? 'Ansattnr. ' + this.employee.EmployeeNumber : ''
+                        }],
+                        navigation: {
+                            prev: this.previousEmployee.bind(this),
+                            next: this.nextEmployee.bind(this),
+                            add: this.newEmployee.bind(this)
+                        }
+                    };
 
-                this.saveActions = [{
-                    label: 'Lagre',
-                    action: this.saveAll.bind(this),
-                    main: true,
-                    disabled: true
-                }];
-                this.updatePosterEmployee(this.employee);
-                this.checkDirty();
-            }, err => this.errorService.handle(err));
+                    this.saveActions = [{
+                        label: 'Lagre',
+                        action: this.saveAll.bind(this),
+                        main: true,
+                        disabled: true
+                    }];
+                    this.updatePosterEmployee(this.employee);
+                    this.checkDirty();
+                }, err => this.errorService.handle(err));
 
-            super.getStateSubject('employments').subscribe((employments) => {
+            super.getStateSubject(EMPLOYMENTS_KEY).subscribe((employments) => {
                 this.employments = employments;
                 this.posterEmployee.employments = employments;
                 this.posterEmployee = _.cloneDeep(this.posterEmployee);
@@ -274,12 +289,12 @@ export class EmployeeDetails extends UniView implements OnDestroy {
                 }
             }, err => this.errorService.handle(err));
 
-            super.getStateSubject('recurringPosts').subscribe((recurringPosts) => {
+            super.getStateSubject(RECURRING_POSTS_KEY).subscribe((recurringPosts) => {
                 this.recurringPosts = recurringPosts;
                 this.checkDirty();
             }, err => this.errorService.handle(err));
 
-            super.getStateSubject('employeeLeave').subscribe((employeeLeave) => {
+            super.getStateSubject(EMPLOYEE_LEAVE_KEY).subscribe((employeeLeave) => {
                 this.employeeLeave = employeeLeave;
                 this.checkDirty();
             }, err => this.errorService.handle(err));
@@ -300,7 +315,7 @@ export class EmployeeDetails extends UniView implements OnDestroy {
                 this.wageTypes = wageTypes;
             });
 
-            super.getStateSubject('employeeTaxCard')
+            super.getStateSubject(EMPLOYEE_TAX_KEY)
                 .subscribe((employeeTaxCard) => {
                     this.employeeTaxCard = employeeTaxCard;
                     this.updateTaxAlerts(employeeTaxCard);
@@ -314,7 +329,7 @@ export class EmployeeDetails extends UniView implements OnDestroy {
             // If employee ID was changed by next/prev button clicks employee has been
             // pre-loaded. No need to clear and refresh in these cases
             if (this.employee && this.employee.ID === +params['id']) {
-                super.updateState('employee', this.employee, false);
+                super.updateState(EMPLOYEE_KEY, this.employee, false);
             } else {
                 this.employee = undefined;
             }
@@ -357,7 +372,7 @@ export class EmployeeDetails extends UniView implements OnDestroy {
 
                     if (childRoute === 'employee-leave') {
                         if (!this.employeeLeave) {
-                            super.getStateSubject('employments')
+                            super.getStateSubject(EMPLOYMENTS_KEY)
                                 .take(1)
                                 .subscribe((employments) => {
                                     this.getEmployeeLeave(employments);
@@ -398,29 +413,26 @@ export class EmployeeDetails extends UniView implements OnDestroy {
     public canDeactivate(): Observable<boolean> {
         return Observable
             .of(!super.isDirty() || this.savedNewEmployee)
-            .switchMap(isSaved => {
-                if (isSaved) {
-                    return Observable.of(true);
+            .switchMap(isSaved => isSaved
+                ? Observable.of(ConfirmActions.REJECT)
+                : this.modalService.openUnsavedChangesModal().onClose)
+            .do(action => this.handleSavingOnNavigation(action, '' + this.cacheKey))
+            .map(action => action !== ConfirmActions.CANCEL)
+            .do(canDeactivate => {
+                if (!canDeactivate) {
+                    this.updateTabStrip(this.employee);
                 }
-
-                const modal = this.modalService.openUnsavedChangesModal();
-
-                return modal.onClose.map((action) => {
-                    if (action === ConfirmActions.ACCEPT) {
-                        this.saveAll((m) => {}, false);
-                        return true;
-                    } else {
-                        return action === ConfirmActions.REJECT;
-                    }
-                });
-            })
-            .map(canDeactivate => {
-                canDeactivate
-                    ? this.cacheService.clearPageCache(this.cacheKey)
-                    : this.updateTabStrip(this.employee);
-
-                return canDeactivate;
             });
+    }
+
+    private handleSavingOnNavigation(action: ConfirmActions, cacheKey: string) {
+        let obs = Observable.of(null);
+        if (action === ConfirmActions.ACCEPT) {
+            obs = this.saveAllObs((m) => { }, false);
+        }
+        if (action !== ConfirmActions.CANCEL) {
+            obs.subscribe(() => this.cacheService.clearPageCache(cacheKey));
+        }
     }
 
     public updatePosterEmployee(employee: Employee) {
@@ -647,7 +659,7 @@ export class EmployeeDetails extends UniView implements OnDestroy {
             })
             .subscribe((employee: Employee) => {
                 this.employee = employee;
-                super.updateState('employee', employee, false);
+                super.updateState(EMPLOYEE_KEY, employee, false);
             }, err => this.errorService.handle(err));
     }
 
@@ -662,7 +674,7 @@ export class EmployeeDetails extends UniView implements OnDestroy {
 
     private getTax(): void {
         this.getTaxObservable()
-            .subscribe(taxCard => super.updateState('employeeTaxCard', taxCard, false));
+            .subscribe(taxCard => super.updateState(EMPLOYEE_TAX_KEY, taxCard, false));
     }
 
     private getTaxObservable(): Observable<EmployeeTaxCard> {
@@ -673,7 +685,7 @@ export class EmployeeDetails extends UniView implements OnDestroy {
                 return taxCard
                     ? Observable.of(taxCard)
                     : this.employeeTaxCardService
-                        .GetNewEntity(null, 'EmployeeTaxCard')
+                        .GetNewEntity(null, EMPLOYEE_TAX_KEY)
                         .map((response: EmployeeTaxCard) => {
                             response.EmployeeID = this.employeeID;
                             return response;
@@ -693,7 +705,7 @@ export class EmployeeDetails extends UniView implements OnDestroy {
     private getEmployments() {
         this.getEmploymentsObservable()
             .subscribe((employments) => {
-                super.updateState('employments', employments, false);
+                super.updateState(EMPLOYMENTS_KEY, employments, false);
             }, err => this.errorService.handle(err));
     }
 
@@ -739,7 +751,7 @@ export class EmployeeDetails extends UniView implements OnDestroy {
                 super.updateState('projects', projects, false);
                 super.updateState('departments', departments, false);
                 super.updateState('wageTypes', wageTypes, false);
-                super.updateState('recurringPosts', transes, false);
+                super.updateState(RECURRING_POSTS_KEY, transes, false);
             }, err => this.errorService.handle(err));
     }
 
@@ -778,7 +790,7 @@ export class EmployeeDetails extends UniView implements OnDestroy {
         }
 
         this.employeeLeaveService.GetAll(`filter=${filterParts.join(' or ')}`).subscribe((response) => {
-            super.updateState('employeeLeave', response, false);
+            super.updateState(EMPLOYEE_LEAVE_KEY, response, false);
         }, err => this.errorService.handle(err));
     }
 
@@ -817,11 +829,20 @@ export class EmployeeDetails extends UniView implements OnDestroy {
     }
 
     private saveAll(done: (message: string) => void, refreshEmp: boolean = true) {
-        this.saveEmployee().subscribe(
+        this.saveAllObs(done, refreshEmp).subscribe();
+    }
+
+    private saveAllObs(done: (message: string) => void, refreshEmp: boolean = true): Observable<any[]> {
+        return this.saveEmployee()
+            .catch((error, obs) => {
+                done('Feil ved lagring');
+                return this.errorService.handleRxCatch(error, obs);
+            })
+            .switchMap(
             (employee) => {
 
                 if (!this.employeeID && refreshEmp) {
-                    super.updateState('employee', this.employee, false);
+                    super.updateState(EMPLOYEE_KEY, this.employee, false);
 
                     done('Lagring fullført');
 
@@ -830,63 +851,68 @@ export class EmployeeDetails extends UniView implements OnDestroy {
                     this.router.navigateByUrl(this.url + employee.ID + '/' + childRoute).then(value => {
                         this.savedNewEmployee = false;
                     });
-                    return;
+                    return Observable.of([this.employee]);
                 }
 
                 // REVISIT: GETing the employee after saving is a bad "fix" but currenctly necessary
                 // because response will not contain any new email/address/phone.
                 // Anders is looking for a better way to solve this..
-                this.employeeService.get(this.employeeID).subscribe((emp) => {
-                    if (refreshEmp) {
-                        super.updateState('employee', emp, false);
-                    }
+                return this.employeeService
+                    .get(employee.ID)
+                    .catch((err, obs) => {
+                        done('Feil ved lagring');
+                        return this.errorService.handleRxCatch(err, obs);
+                    })
+                    .switchMap((emp) => {
+                        let obsList: Observable<any>[] = [];
+                        if (refreshEmp) {
+                            super.updateState(EMPLOYEE_KEY, emp, false);
+                        }
 
-                    // super.updateState('employee', employee, false);
+                        // super.updateState(EMPLOYEE_KEY, employee, false);
 
-                    this.saveStatus = {
-                        numberOfRequests: 0,
-                        completeCount: 0,
-                        hasErrors: false,
-                    };
+                        this.saveStatus = {
+                            numberOfRequests: 0,
+                            completeCount: 0,
+                            hasErrors: false,
+                        };
 
-                    if (super.isDirty('employments')) {
-                        this.saveEmployments(done, refreshEmp);
-                        this.saveStatus.numberOfRequests++;
-                    }
+                        if (super.isDirty(EMPLOYMENTS_KEY)) {
+                            obsList.push(this.saveEmploymentsObs(done, refreshEmp));
+                            this.saveStatus.numberOfRequests++;
+                        }
 
-                    if (super.isDirty('recurringPosts')) {
-                        this.saveRecurringPosts(done, refreshEmp);
-                        this.saveStatus.numberOfRequests++;
-                    }
+                        if (super.isDirty(RECURRING_POSTS_KEY)) {
+                            obsList.push(this.saveRecurringPostsObs(done, refreshEmp));
+                            this.saveStatus.numberOfRequests++;
+                        }
 
-                    if (super.isDirty('employeeLeave')) {
-                        this.saveEmployeeLeave(done, refreshEmp);
-                        this.saveStatus.numberOfRequests++;
-                    }
+                        if (super.isDirty(EMPLOYEE_LEAVE_KEY)) {
+                            obsList.push(this.saveEmployeeLeaveObs(done, refreshEmp));
+                            this.saveStatus.numberOfRequests++;
+                        }
 
-                    if (super.isDirty('employeeTaxCard')) {
-                        this.saveTax(done, refreshEmp);
-                        this.saveStatus.numberOfRequests++;
-                    }
+                        if (super.isDirty(EMPLOYEE_TAX_KEY)) {
+                            obsList.push(this.saveTax(done, refreshEmp));
+                            this.saveStatus.numberOfRequests++;
+                        }
 
-                    if (!this.saveStatus.numberOfRequests) {
-                        this.saveActions[0].disabled = true;
-                        done('Lagring fullført');
-                    }
-                });
-            },
-            (error) => {
-                done('Feil ved lagring');
-                this.errorService.handle(error);
+                        if (!this.saveStatus.numberOfRequests) {
+                            this.saveActions[0].disabled = true;
+                            done('Lagring fullført');
+                        }
+
+                        return Observable.forkJoin(obsList);
+                    });
             }
-        );
+            );
     }
 
     private saveEmployee(): Observable<Employee> {
         let brInfo = this.employee.BusinessRelationInfo;
 
         // If employee is untouched and exists in backend we dont have to save it again
-        if (!super.isDirty('employee') && this.employee.ID > 0) {
+        if (!super.isDirty(EMPLOYEE_KEY) && this.employee.ID > 0) {
             return Observable.of(this.employee);
         }
 
@@ -912,7 +938,7 @@ export class EmployeeDetails extends UniView implements OnDestroy {
         }
 
         if (brInfo.DefaultBankAccount) {
-            brInfo.DefaultBankAccount.BankAccountType = 'employee';
+            brInfo.DefaultBankAccount.BankAccountType = EMPLOYEE_KEY;
         }
 
         if (brInfo.Emails) {
@@ -950,13 +976,15 @@ export class EmployeeDetails extends UniView implements OnDestroy {
             brInfo.Emails = brInfo.Emails.filter(email => email !== brInfo.DefaultEmail);
         }
 
+        this.employee['_EmployeeSearchResult'] = undefined;
+
         return (this.employee.ID > 0)
             ? this.employeeService.Put(this.employee.ID, this.employee)
             : this.employeeService.Post(this.employee);
     }
 
     private saveTax(done: (message: string) => void, updateTaxCard: boolean = true) {
-        super.getStateSubject('employeeTaxCard')
+        return super.getStateSubject(EMPLOYEE_TAX_KEY)
             .take(1)
             .switchMap((employeeTaxCard: EmployeeTaxCard) => {
                 if (employeeTaxCard.Year !== this.activeYear) {
@@ -964,7 +992,7 @@ export class EmployeeDetails extends UniView implements OnDestroy {
                     employeeTaxCard.Year = this.activeYear;
                 }
 
-                if (employeeTaxCard && updateTaxCard) {
+                if (employeeTaxCard) {
                     return employeeTaxCard.ID
                         ? this.employeeTaxCardService.Put(employeeTaxCard.ID, employeeTaxCard)
                         : this.employeeTaxCardService.Post(employeeTaxCard);
@@ -972,94 +1000,97 @@ export class EmployeeDetails extends UniView implements OnDestroy {
                     return Observable.of(undefined);
                 }
             })
+            .catch((err, obs) => {
+                this.saveStatus.hasErrors = true;
+                return this.errorService.handleRxCatch(err, obs);
+            })
             .finally(() => {
                 this.saveStatus.completeCount++;
                 this.checkForSaveDone(done);
             })
-            .subscribe(updatedTaxCard => {
-                if (updatedTaxCard) {
-                    super.updateState('employeeTaxCard', updatedTaxCard, false);
+            .do(updatedTaxCard => {
+                if (updatedTaxCard && updateTaxCard) {
+                    super.updateState(EMPLOYEE_TAX_KEY, updatedTaxCard, false);
                 }
-            },
-            err => {
-                this.errorService.handle(err);
-                this.saveStatus.hasErrors = true;
             });
     }
 
-    private saveEmployments(done, updateEmployments: boolean = true) {
-        super.getStateSubject('employments').take(1).subscribe((employments: Employment[]) => {
-            let changes = [];
-            let hasStandard = false;
+    private saveEmploymentsObs(done, updateEmployments: boolean = true): Observable<Employment[]> {
+        return super.getStateSubject(EMPLOYMENTS_KEY)
+            .take(1)
+            .switchMap((employments: Employment[]) => {
+                let changes = [];
+                let hasStandard = false;
 
-            // Build changes array consisting of only changed employments
-            // Check for standard employment
-            employments.forEach((employment) => {
-                if (employment.Standard) {
-                    hasStandard = true;
-                }
-
-                if (employment['_isDirty']) {
-                    employment.EmployeeID = this.employee.ID;
-                    employment.EmployeeNumber = this.employee.EmployeeNumber;
-
-                    if (!employment.DimensionsID && employment.Dimensions) {
-                        employment.Dimensions['_createguid'] = this.employmentService.getNewGuid();
+                // Build changes array consisting of only changed employments
+                // Check for standard employment
+                employments.forEach((employment) => {
+                    if (employment.Standard) {
+                        hasStandard = true;
                     }
 
-                    employment.MonthRate = employment.MonthRate || 0;
-                    employment.HourRate = employment.HourRate || 0;
-                    employment.UserDefinedRate = employment.UserDefinedRate || 0;
-                    employment.WorkPercent = employment.WorkPercent || 0;
-                    employment.HoursPerWeek = employment.HoursPerWeek || 0;
+                    if (employment['_isDirty']) {
+                        employment.EmployeeID = this.employee.ID;
+                        employment.EmployeeNumber = this.employee.EmployeeNumber;
 
-                    changes.push(employment);
-                }
-            });
+                        if (!employment.DimensionsID && employment.Dimensions) {
+                            employment.Dimensions['_createguid'] = this.employmentService.getNewGuid();
+                        }
 
-            if (!hasStandard) {
-                changes[0].Standard = true;
-            }
+                        employment.MonthRate = employment.MonthRate || 0;
+                        employment.HourRate = employment.HourRate || 0;
+                        employment.UserDefinedRate = employment.UserDefinedRate || 0;
+                        employment.WorkPercent = employment.WorkPercent || 0;
+                        employment.HoursPerWeek = employment.HoursPerWeek || 0;
 
-            // Save employments by using complex put on employee
-            let employee = _.cloneDeep(this.employee);
-            employee.Employments = changes;
-
-            employee.Employments.forEach(employment => {
-                const keys = Object.keys(employment);
-                keys.forEach(key => {
-                    if (employment[key] === undefined) {
-                        employment[key] = null; // don't know why undefined values are not mapped in the http call
+                        changes.push(employment);
                     }
                 });
-            });
 
-            this.employeeService.Put(employee.ID, employee)
-                .finally(() => {
-                    this.saveStatus.completeCount++;
-                    this.checkForSaveDone(done);
-                })
-                .subscribe(
-                (res) => {
-                    if (updateEmployments) {
-                        this.getEmployments();
-                    }
-                },
-                (err) => {
-                    this.saveStatus.hasErrors = true;
-
-                    let toastHeader = 'Noe gikk galt ved lagring av arbeidsforhold';
-                    let toastBody = (err.json().Messages) ? err.json().Messages[0].Message : '';
-                    this.toastService.addToast(toastHeader, ToastType.bad, 0, toastBody);
+                if (!hasStandard) {
+                    changes[0].Standard = true;
                 }
-                );
-        }, err => this.errorService.handle(err));
+
+                // Save employments by using complex put on employee
+                let employee = _.cloneDeep(this.employee);
+                employee.Employments = changes;
+
+                employee.Employments.forEach(employment => {
+                    const keys = Object.keys(employment);
+                    keys.forEach(key => {
+                        if (employment[key] === undefined) {
+                            employment[key] = null; // don't know why undefined values are not mapped in the http call
+                        }
+                    });
+                });
+
+                return this.employeeService
+                    .Put(employee.ID, employee)
+                    .catch((err, obs) => {
+                        this.saveStatus.hasErrors = true;
+                        return this.errorService.handleRxCatch(err, obs);
+                    })
+                    .finally(() => {
+                        this.saveStatus.completeCount++;
+                        this.checkForSaveDone(done);
+                    })
+                    .do(
+                    () => {
+                        if (updateEmployments) {
+                            this.getEmployments();
+                        }
+                    })
+                    .map((emp: Employee) => {
+                        return emp.Employments;
+                    });
+            });
     }
 
-    private saveRecurringPosts(done, updatePosts: boolean = true) {
-        super.getStateSubject('recurringPosts')
+    private saveRecurringPostsObs(done, updatePosts: boolean = true): Observable<SalaryTransaction[]> {
+        return super.getStateSubject(RECURRING_POSTS_KEY)
             .take(1)
-            .subscribe((recurringPosts: SalaryTransaction[]) => {
+            .switchMap((recurringPosts: SalaryTransaction[]) => {
+                let obsList: Observable<SalaryTransaction>[] = [];
                 let changeCount = 0;
                 let saveCount = 0;
                 let hasErrors = false;
@@ -1095,7 +1126,7 @@ export class EmployeeDetails extends UniView implements OnDestroy {
                                 ? this.salaryTransService.Put(post.ID, post)
                                 : this.salaryTransService.Post(post);
 
-                            source
+                            let newObs: Observable<SalaryTransaction> = <Observable<SalaryTransaction>>source
                                 .switchMap(trans => {
                                     return Observable.forkJoin(
                                         Observable.of(trans),
@@ -1114,7 +1145,7 @@ export class EmployeeDetails extends UniView implements OnDestroy {
                                             .find(x => x.ID === trans.Dimensions.DepartmentID);
                                     }
                                     trans['_WageType'] = wageTypes.find(wt => wt.ID === trans.WageTypeID);
-                                    return trans;
+                                    return <SalaryTransaction>trans;
                                 })
                                 .finally(() => {
                                     saveCount++;
@@ -1124,7 +1155,7 @@ export class EmployeeDetails extends UniView implements OnDestroy {
                                             this.saveStatus.hasErrors = true;
                                         }
                                         if (updatePosts) {
-                                            super.updateState('recurringPosts',
+                                            super.updateState(RECURRING_POSTS_KEY,
                                                 recurringPosts.filter(x => !x.Deleted),
                                                 recurringPosts.some(trans => trans['_isDirty']));
                                         }
@@ -1132,11 +1163,7 @@ export class EmployeeDetails extends UniView implements OnDestroy {
                                         this.checkForSaveDone(done);
                                     }
                                 })
-                                .subscribe(
-                                (res: SalaryTransaction) => {
-                                    recurringPosts[index] = res;
-                                },
-                                (err) => {
+                                .catch((err, obs) => {
                                     hasErrors = true;
                                     recurringPosts[index].Deleted = false;
                                     let toastHeader =
@@ -1144,11 +1171,19 @@ export class EmployeeDetails extends UniView implements OnDestroy {
                                     let toastBody = (err.json().Messages) ? err.json().Messages[0].Message : '';
                                     this.toastService.addToast(toastHeader, ToastType.bad, 0, toastBody);
                                     this.errorService.handle(err);
-                                }
-                                );
+                                    return Observable.empty();
+                                })
+                                .map(
+                                (res: SalaryTransaction) => {
+                                    recurringPosts[index] = res;
+                                    return res;
+                                });
+
+                            obsList.push(newObs);
                         }
                     });
-            }, err => this.errorService.handle(err));
+                return Observable.forkJoin(obsList);
+            });
     }
 
     private getDimension(post: SalaryTransaction): Observable<Dimensions> {
@@ -1168,49 +1203,53 @@ export class EmployeeDetails extends UniView implements OnDestroy {
         return Observable.of(null);
     }
 
-    private saveEmployeeLeave(done, updateEmployeeLeave: boolean = true) {
-        super.getStateSubject('employeeLeave').take(1).subscribe((employeeLeave: EmployeeLeave[]) => {
-            let changeCount = 0;
-            let saveCount = 0;
-            let hasErrors = false;
+    private saveEmployeeLeaveObs(done, updateEmployeeLeave: boolean = true): Observable<EmployeeLeave[]> {
+        return super.getStateSubject(EMPLOYEE_LEAVE_KEY)
+            .take(1)
+            .switchMap((employeeLeave: EmployeeLeave[]) => {
+                let obsList: Observable<EmployeeLeave>[] = [];
+                let changeCount = 0;
+                let saveCount = 0;
+                let hasErrors = false;
 
-            employeeLeave.forEach((leave) => {
-                if (leave['_isDirty'] || leave.Deleted) {
-                    changeCount++;
+                employeeLeave.forEach((leave) => {
+                    if (leave['_isDirty'] || leave.Deleted) {
+                        changeCount++;
 
-                    let source = (leave.ID > 0)
-                        ? this.employeeLeaveService.Put(leave.ID, leave)
-                        : this.employeeLeaveService.Post(leave);
+                        let source = (leave.ID > 0)
+                            ? this.employeeLeaveService.Put(leave.ID, leave)
+                            : this.employeeLeaveService.Post(leave);
 
-                    // Check if we are done saving all employeeLeave items
-                    source.finally(() => {
-                        if (saveCount === changeCount) {
-                            this.saveStatus.completeCount++;
-                            // If we have errors, indicate this in the main save status
-                            // if not, update employeeLeave cache and set dirty to false
-                            if (hasErrors) {
-                                this.saveStatus.hasErrors = true;
-                            } else if (updateEmployeeLeave) {
-                                super.updateState('employeeLeave', employeeLeave, false);
+                        // Check if we are done saving all employeeLeave items
+                        let newObs = source.finally(() => {
+                            if (saveCount === changeCount) {
+                                this.saveStatus.completeCount++;
+                                // If we have errors, indicate this in the main save status
+                                // if not, update employeeLeave cache and set dirty to false
+                                if (hasErrors) {
+                                    this.saveStatus.hasErrors = true;
+                                } else if (updateEmployeeLeave) {
+                                    super.updateState(EMPLOYEE_LEAVE_KEY, employeeLeave, false);
+                                }
+                                this.checkForSaveDone(done); // check if all save functions are finished
                             }
-                            this.checkForSaveDone(done); // check if all save functions are finished
-                        }
-                    })
-                        .subscribe(
-                        (res: EmployeeLeave) => {
-                            leave = res;
-                            saveCount++;
-                        },
-                        (err) => {
-                            leave.Deleted = false;
-                            hasErrors = true;
-                            saveCount++;
-                            this.errorService.handle(err);
-                        }
-                        );
-                }
+                        })
+                            .catch((err, obs) => {
+                                leave.Deleted = false;
+                                hasErrors = true;
+                                saveCount++;
+                                return this.errorService.handleRxCatch(err, obs);
+                            })
+                            .do((res: EmployeeLeave) => {
+                                leave = res;
+                                saveCount++;
+                            });
+                        obsList.push(newObs);
+                    }
+                });
+
+                return Observable.forkJoin(obsList);
             });
-        }, err => this.errorService.handle(err));
     }
 
     private populateCategoryFilters(categories) {

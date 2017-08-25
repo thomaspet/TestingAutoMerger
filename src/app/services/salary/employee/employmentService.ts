@@ -65,6 +65,12 @@ export class EmploymentService extends BizHttp<Employment> {
         this.entityType = Employment.EntityType;
     }
 
+    public getStandardEmployment(empID: number): Observable<Employment> {
+        return super.GetAll(`filter=Standard eq 'true' and EmployeeID eq ${empID}&top=1`)
+            .map(result => result[0]);
+
+    }
+
     public layout(layoutID: string) {
         return Observable.from([{
             Name: layoutID,

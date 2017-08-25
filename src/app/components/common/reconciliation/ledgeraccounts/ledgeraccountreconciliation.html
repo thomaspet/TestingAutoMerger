@@ -1,9 +1,9 @@
 <section *ngIf="journalEntryLines" [attr.aria-busy]="busy">
     <section class="floating-header">
         <h2>Åpne poster</h2>
-        <section class="action-buttons">
+        <section class="action-buttons" *ngIf="!hideHeader">
             <!--<button class="c2a" (click)="showHideMarkedEntries()">{{showMarkedEntries ? "Vis åpne" : "Vis alle" }}</button>-->
-            <select [value]="displayPostsOption" (change)="showHideEntires($event.target.value)">
+            <select [value]="displayPostsOption" (change)="showHideEntries($event.target.value)">
                 <option value="OPEN">Vis åpne poster</option>
                 <option value="MARKED">Vis lukkede poster</option>
                 <option value="ALL">Vis alle poster</option>
@@ -23,6 +23,7 @@
             </button>
         </section>
     </section>
+
     <uni-table
         [resource]="journalEntryLines"
         [config]="uniTableConfig"

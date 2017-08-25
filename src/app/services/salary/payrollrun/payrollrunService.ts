@@ -105,12 +105,39 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
         return super.GetAll(`filter=ID gt 0${year ? ' and year(PayDate) eq ' + year : ''}&top=1&orderBy=ID DESC`)
             .map(resultSet => resultSet[0]);
     }
+    
+    public getEarliestOpenRun(setYear: number = undefined): Observable<PayrollRun> {
+        return Observable
+            .of(setYear)
+            .switchMap(year => year 
+                ? Observable.of(year)
+                : this.yearService.getActiveYear())
+            .switchMap(year => super.GetAll(
+                `filter=(StatusCode eq null or StatusCode le 1) and year(PayDate) eq ${year}`
+                + `&top=1`
+                + `&orderby=PayDate ASC`))
+            .map(result => result[0]);
+    }
 
     public getLatestSettledRun(year: number = undefined): Observable<PayrollRun> {
         return super.GetAll(`filter=StatusCode ge 1 ${year
             ? 'and year(PayDate) eq ' + year
             : ''}&top=1&orderby=PayDate DESC`)
             .map(resultSet => resultSet[0]);
+    }
+
+    public getEarliestOpenRunOrLatestSettled(setYear: number = undefined): Observable<PayrollRun> {
+        let currYear = setYear;
+        return Observable
+            .of(setYear)
+            .switchMap(year => year 
+                ? Observable.of(year)
+                : this.yearService.getActiveYear())
+            .do((year) => currYear = year)
+            .switchMap(year => this.getEarliestOpenRun(year))
+            .switchMap(run => run 
+                ? Observable.of(run)
+                : this.getLatestSettledRun(currYear));
     }
 
     public getYear(): number {

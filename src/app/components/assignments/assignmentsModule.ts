@@ -17,6 +17,7 @@ import {UniApprovals} from './approvals/approvals';
 
 // Previews
 import {SupplierInvoicePreview} from './previews/supplierInvoicePreview';
+import {WorkApprovalPreview} from './previews/workapprovalpreview';
 
 @NgModule({
     imports: [
@@ -39,7 +40,8 @@ import {SupplierInvoicePreview} from './previews/supplierInvoicePreview';
         UniApprovals,
 
         // Previews
-        SupplierInvoicePreview
+        SupplierInvoicePreview,
+        WorkApprovalPreview
     ]
 })
 export class AssignmentsModule {}

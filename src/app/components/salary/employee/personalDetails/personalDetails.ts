@@ -29,6 +29,8 @@ import { Observable } from 'rxjs/Observable';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import { UniField } from '../../../../../framework/ui/uniform/index';
 
+const EMPLOYEE_KEY = 'employee'
+
 @Component({
     selector: 'employee-personal-details',
     templateUrl: './personalDetails.html'
@@ -88,7 +90,7 @@ export class PersonalDetails extends UniView {
             }
 
             super.updateCacheKey(this.router.url);
-            super.getStateSubject('employee')
+            super.getStateSubject(EMPLOYEE_KEY)
                 .subscribe(
                 employee => {
                     this.employee$.next(employee);
@@ -100,7 +102,7 @@ export class PersonalDetails extends UniView {
             if (!this.fields$.getValue().length) {
                 Observable
                     .combineLatest(
-                    super.getStateSubject('employee'),
+                    super.getStateSubject(EMPLOYEE_KEY),
                     super.getStateSubject('subEntities'))
                     .take(1)
                     .subscribe((result: [Employee, SubEntity[]]) => {
@@ -176,21 +178,6 @@ export class PersonalDetails extends UniView {
                     }
                 }
 
-                // if the user has typed something in Name for a new employee, but has not
-                // selected something from the list or clicked F3, the searchbox is still active,
-                // so we need to get the value from there
-                if (!employee.ID || employee.ID === 0) {
-                    if (!employee.BusinessRelationInfo.Name || employee.BusinessRelationInfo.Name === '') {
-                        let searchInfo = <any>this.uniform.field('_EmployeeSearchResult');
-                        if (searchInfo) {
-                            if (searchInfo.component && searchInfo.component.input) {
-                                employee.BusinessRelationInfo.Name = searchInfo.component.input.value;
-                                this.showHideNameProperties(false, employee);
-                            }
-                        }
-                    }
-                }
-
                 if (changes['SocialSecurityNumber']) {
                     this.updateInfoFromSSN(employee);
                 }
@@ -257,11 +244,11 @@ export class PersonalDetails extends UniView {
             debounceTime: 200,
             template: (obj: SubEntity) =>
                 obj && obj.BusinessRelationInfo
-                ?
-                obj.BusinessRelationInfo.Name
-                    ? `${obj.OrgNumber} - ${obj.BusinessRelationInfo.Name}`
-                    : `${obj.OrgNumber}`
-                : ''
+                    ?
+                    obj.BusinessRelationInfo.Name
+                        ? `${obj.OrgNumber} - ${obj.BusinessRelationInfo.Name}`
+                        : `${obj.OrgNumber}`
+                    : ''
         };
 
         let multiValuePhone: UniFieldLayout = this.findByProperty(fields, 'BusinessRelationInfo.DefaultPhone');
@@ -409,6 +396,16 @@ export class PersonalDetails extends UniView {
                 this.showHideNameProperties(true, employee);
                 return Observable.from([employee]);
             });
+        
+        uniSearchConfig.unfinishedValueFn = (val) => {
+            return this.employee$
+                .asObservable()
+                .take(1)
+                .map((emp: Employee) => {
+                    emp.BusinessRelationInfo.Name = val.toString();
+                    return emp;
+                });
+        };
 
         uniSearchConfig.expandOrCreateFn = (newOrExistingItem: any) => {
             if (newOrExistingItem.ID) {

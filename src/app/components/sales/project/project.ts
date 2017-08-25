@@ -1,6 +1,6 @@
 import { Component, ViewChild } from '@angular/core';
 import { URLSearchParams } from '@angular/http';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { IUniTabsRoute } from '../../layout/uniTabs/uniTabs';
 import { TabService, UniModules } from '../../layout/navbar/tabstrip/tabService';
 import { ProjectService, ErrorService } from '../../../services/services';
@@ -25,9 +25,7 @@ export class Project {
     private table: UniTable;
 
     private childRoutes: IUniTabsRoute[];
-    private projectFilterString: string = '';
-    private activeProjectID: any = '21323';
-    private activeChildRoute: string = '';
+    private activeProjectID: any = '';
 
     private tableConfig: UniTableConfig;
     private lookupFunction: (urlParams: URLSearchParams) => any;
@@ -54,7 +52,8 @@ export class Project {
         private tabService: TabService,
         private projectService: ProjectService,
         private errorService: ErrorService,
-        private router: Router) {
+        private router: Router,
+        private route: ActivatedRoute) {
 
         this.tabService.addTab({
             name: 'Prosjekt',
@@ -80,21 +79,34 @@ export class Project {
             { name: 'Redigering', path: 'editmode' }
         ];
         this.setUpTable();
+
+        this.route.firstChild.queryParams.subscribe((params) => {
+            if (params && +params['projectID']) {
+                this.activeProjectID = +params['projectID'];
+                this.projectService
+                    .Get(this.activeProjectID, ['ProjectTasks.ProjectTaskSchedules', 'ProjectResources'])
+                    .subscribe(project => {
+                        this.projectService.currentProject.next(project);
+                    }, error => this.newProject());
+            }
+        });
     }
 
     public onTableReady() {
-        if (this.table.getRowCount() === 0) {
-            this.newProject();
-        } else {
-            let current = this.projectService.currentProject.getValue();
-            this.table.focusRow(current && current['_originalIndex'] ? current['_originalIndex'] : 0);
+        if (!this.activeProjectID) {
+            if (this.table.getRowCount() === 0) {
+                this.newProject();
+            } else {
+                let current = this.projectService.currentProject.getValue();
+                this.table.focusRow(current && current['_originalIndex'] ? current['_originalIndex'] : 0);
+            }
         }
     }
 
     private newProject() {
         this.projectService.setNew();
         this.toolbarconfig.title = 'Nytt prosjekt';
-        this.router.navigateByUrl('/sales/project/editmode');
+        this.router.navigateByUrl('/sales/project/editmode?projectID=0');
     }
 
     private setUpTable() {
@@ -116,7 +128,7 @@ export class Project {
             ]);
     }
 
-    private onRowSelected(event: any) {
+    public onRowSelected(event: any) {
         this.toolbarconfig.title = event.rowModel.Name;
         this.projectService.currentProject.next(event.rowModel);
         this.activeProjectID = event.rowModel.ID;
@@ -125,7 +137,17 @@ export class Project {
             entityType: 'Project',
             entityID: this.activeProjectID
         };
+        this.setQueryParamAndNavigate(this.activeProjectID);
     };
+
+    public setQueryParamAndNavigate(id: number) {
+        let url = this.router.url.split('?')[0];
+        this.router.navigate([url], {
+            queryParams: {
+                projectID: id
+            }
+        });
+    }
 
     public saveProject(done: Function) {
         const project = this.projectService.currentProject.getValue();

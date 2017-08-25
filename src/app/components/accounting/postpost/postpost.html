@@ -1,14 +1,31 @@
 <uni-toolbar
     [config]="toolbarconfig"
+    [saveactions]="saveActions"
     [selectConfig]="registerConfig"
-    (selectValueChanged)="onRegisterChange($event)">
+    (selectValueChanged)="changeRegister($event.Register)">
 </uni-toolbar>
+
+<header class="horizontal_nav no-print">
+    <ul>
+        <li *ngFor="let filter of showoptions">
+            <a (click)="onFilterClick(filter)" [ngClass]="{'router-link-active': filter.isSelected}" >
+                {{filter.label}}&nbsp;
+                <span *ngIf="filter.count" [class.tab_counter_passive]="filter.passiveCounter" [class.tab_counter_hot]="filter.hotCounter" class="tab_counter">{{filter.count}}</span>
+            </a>
+        </li>
+    </ul>
+</header>
 
 <section class="application">
 
     <section class="splitview">
-
         <nav class ="splitview_list">
+            <label class="pointintime-filter">
+                <localdate-picker-input
+                        [field]="datefield"
+                        (changeEvent)="onPointInTimeChanged($event)">
+                </localdate-picker-input>
+            </label>
             <uni-table
                     [config]="accountsTableConfig"
                     [resource]="(accounts$ | async)"
@@ -18,13 +35,15 @@
 
         <main class="splitview_detail">
             <ledger-account-reconciliation
-                [modalMode]="true"
                 [customerID]="(customer$ | async)?.ID"
                 [supplierID]="(supplier$ | async)?.ID"
-                [accountID]="(account$ | async)?.ID">
+                [accountID]="(account$ | async)?.ID"
+                [pointInTime]="pointInTime$ | async"
+                [autoLocking]="autolocking"
+                [hideHeader]="true"
+                [modalMode]="true">
             </ledger-account-reconciliation>
         </main>
-
     </section>
 
 </section>

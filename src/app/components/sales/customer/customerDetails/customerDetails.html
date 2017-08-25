@@ -70,6 +70,7 @@
             [hidden]="showReportWithID != link.id"
             [ngClass]="{'hidden': showReportWithID != link.id}"
             [queryDefinitionID]="link.id"
+            [customerID]="(customer$ | async)?.ID"
             [externalID]="(customer$ | async)?.ID"
     ></uni-query-read-only>
 </section>

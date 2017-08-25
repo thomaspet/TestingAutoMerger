@@ -1,26 +1,22 @@
-import {Component, Input, ViewChild, EventEmitter, HostListener} from '@angular/core';
-import {Router, ActivatedRoute} from '@angular/router';
-import {Observable} from 'rxjs/Observable';
-import {IUniSaveAction} from '../../../../../framework/save/save';
-import {TradeItemHelper} from '../../salesHelper/tradeItemHelper';
-import {CustomerQuote, Project} from '../../../../unientities';
-import {StatusCodeCustomerQuote, CompanySettings, CustomerQuoteItem, CurrencyCode, LocalDate} from '../../../../unientities';
-import {StatusCode} from '../../salesHelper/salesEnums';
-import {TradeHeaderCalculationSummary} from '../../../../models/sales/TradeHeaderCalculationSummary';
-import {TofHelper} from '../../salesHelper/tofHelper';
-import {PreviewModal} from '../../../reports/modals/preview/previewModal';
-import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
-import {ToastService, ToastType, ToastTime} from '../../../../../framework/uniToast/toastService';
-import {IToolbarConfig} from '../../../common/toolbar/toolbar';
-import {UniStatusTrack} from '../../../common/toolbar/statustrack';
-import {IContextMenuItem} from '../../../../../framework/ui/unitable/index';
-import {SendEmailModal} from '../../../common/modals/sendEmailModal';
-import {SendEmail} from '../../../../models/sendEmail';
-import {ISummaryConfig} from '../../../common/summary/summary';
-import {GetPrintStatusText} from '../../../../models/printStatus';
-import {TofHead} from '../../common/tofHead';
-import {TradeItemTable} from '../../common/tradeItemTable';
-import {UniModalService, ConfirmActions} from '../../../../../framework/uniModal/barrel';
+import { Component, Input, ViewChild, EventEmitter, HostListener } from '@angular/core';
+import { Router, ActivatedRoute } from '@angular/router';
+import { Observable } from 'rxjs/Observable';
+import { IUniSaveAction } from '../../../../../framework/save/save';
+import { TradeItemHelper } from '../../salesHelper/tradeItemHelper';
+import { CustomerQuote, Project } from '../../../../unientities';
+import { StatusCode } from '../../salesHelper/salesEnums';
+import { TradeHeaderCalculationSummary } from '../../../../models/sales/TradeHeaderCalculationSummary';
+import { TofHelper } from '../../salesHelper/tofHelper';
+import { TabService, UniModules } from '../../../layout/navbar/tabstrip/tabService';
+import { ToastService, ToastType } from '../../../../../framework/uniToast/toastService';
+import { IToolbarConfig } from '../../../common/toolbar/toolbar';
+import { UniStatusTrack } from '../../../common/toolbar/statustrack';
+import { IContextMenuItem } from '../../../../../framework/ui/unitable/index';
+import { SendEmail } from '../../../../models/sendEmail';
+import { ISummaryConfig } from '../../../common/summary/summary';
+import { GetPrintStatusText } from '../../../../models/printStatus';
+import { TofHead } from '../../common/tofHead';
+import { TradeItemTable } from '../../common/tradeItemTable';
 import {
     CustomerQuoteService,
     CustomerQuoteItemService,
@@ -35,6 +31,21 @@ import {
     ReportService,
     ProjectService
 } from '../../../../services/services';
+
+import {
+    StatusCodeCustomerQuote,
+    CompanySettings,
+    CustomerQuoteItem,
+    CurrencyCode,
+    LocalDate
+} from '../../../../unientities';
+
+import {
+    UniModalService,
+    UniSendEmailModal,
+    ConfirmActions
+} from '../../../../../framework/uniModal/barrel';
+import { UniPreviewModal } from '../../../reports/modals/preview/previewModal';
 import * as moment from 'moment';
 declare var _;
 
@@ -43,9 +54,6 @@ declare var _;
     templateUrl: './quoteDetails.html',
 })
 export class QuoteDetails {
-    @ViewChild(PreviewModal) private previewModal: PreviewModal;
-    @ViewChild(SendEmailModal) private sendEmailModal: SendEmailModal;
-
     @ViewChild(TofHead)
     private tofHead: TofHead;
 
@@ -102,7 +110,7 @@ export class QuoteDetails {
         private tofHelper: TofHelper,
         private projectService: ProjectService,
         private modalService: UniModalService
-    ){}
+    ) { }
 
     public ngOnInit() {
         this.setSums();
@@ -171,7 +179,7 @@ export class QuoteDetails {
                     projectID ? this.projectService.Get(projectID, null) : Observable.of(null)
                 ).subscribe(
                     (res) => {
-                        let quote = <CustomerQuote> res[0];
+                        let quote = <CustomerQuote>res[0];
                         quote.OurReference = res[1].DisplayName;
                         quote.QuoteDate = new LocalDate(Date());
                         quote.DeliveryDate = new LocalDate(Date());
@@ -200,38 +208,18 @@ export class QuoteDetails {
                         this.refreshQuote(quote);
                     },
                     err => this.errorService.handle(err)
-                );
+                    );
             }
         });
         this.projectService.GetAll(null).subscribe(
-            res => this.projects=res,
+            res => this.projects = res,
             err => this.errorService.handle(err)
         );
 
     }
 
-    private ngAfterViewInit() {
-         this.tofHead.detailsForm.tabbedPastLastField.subscribe((event) => this.tradeItemTable.focusFirstRow());
-    }
-
-    private sendEmailAction(doneHandler: (msg: string) => void = null) {
-        doneHandler('Email-sending åpnet');
-
-        let sendemail = new SendEmail();
-        sendemail.EntityType = 'CustomerQuote';
-        sendemail.EntityID = this.quote.ID;
-        sendemail.CustomerID = this.quote.CustomerID;
-        sendemail.EmailAddress = this.quote.EmailAddress;
-        sendemail.Subject = 'Tilbud ' + (this.quote.QuoteNumber ? 'nr. ' + this.quote.QuoteNumber : 'kladd');
-        sendemail.Message = 'Vedlagt finner du Tilbud ' + (this.quote.QuoteNumber ? 'nr. ' + this.quote.QuoteNumber : 'kladd');
-
-        this.sendEmailModal.openModal(sendemail);
-        if (this.sendEmailModal.Changed.observers.length === 0) {
-                this.sendEmailModal.Changed.subscribe((email) => {
-                this.reportService.generateReportSendEmail('Tilbud id', email, null, doneHandler);
-            });
-        }
-
+    public ngAfterViewInit() {
+        this.tofHead.detailsForm.tabbedPastLastField.subscribe((event) => this.tradeItemTable.focusFirstRow());
     }
 
     @HostListener('keydown', ['$event'])
@@ -273,12 +261,12 @@ export class QuoteDetails {
         }
 
         this.readonly = quote.StatusCode && (
-                quote.StatusCode === StatusCodeCustomerQuote.CustomerAccepted
-                || quote.StatusCode === StatusCodeCustomerQuote.TransferredToOrder
-                || quote.StatusCode === StatusCodeCustomerQuote.TransferredToInvoice
-            );
+            quote.StatusCode === StatusCodeCustomerQuote.CustomerAccepted
+            || quote.StatusCode === StatusCodeCustomerQuote.TransferredToOrder
+            || quote.StatusCode === StatusCodeCustomerQuote.TransferredToInvoice
+        );
 
-        this.newQuoteItem = <any> this.tradeItemHelper.getDefaultTradeItemData(quote);
+        this.newQuoteItem = <any>this.tradeItemHelper.getDefaultTradeItemData(quote);
         this.isDirty = false;
         this.quoteItems = quote.Items;
 
@@ -288,13 +276,6 @@ export class QuoteDetails {
         this.updateToolbar();
         this.updateSaveActions();
     }
-
-        private onPrinted(event) {
-                    this.customerQuoteService.setPrintStatus(this.quoteID, this.printStatusPrinted).subscribe((printStatus) => {
-                        this.quote.PrintStatus = +this.printStatusPrinted;
-                        this.updateToolbar();
-                    }, err => this.errorService.handle(err));
-        }
 
     public onQuoteChange(quote: CustomerQuote) {
         this.isDirty = true;
@@ -319,7 +300,7 @@ export class QuoteDetails {
         }
 
         if (this.quote && this.quote.QuoteDate.toString() !== quote.QuoteDate.toString()) {
-           shouldGetCurrencyRate = true;
+            shouldGetCurrencyRate = true;
         }
 
         if (this.quote && quote.CurrencyCodeID !== this.quote.CurrencyCodeID) {
@@ -453,15 +434,15 @@ export class QuoteDetails {
                         this.recalcItemSums(this.quoteItems);
                     }
                 }, err => this.errorService.handle(err)
-            );
+                );
         }
     }
 
     private didCustomerChange(quote: CustomerQuote): boolean {
         return quote.Customer
             && (!this.quote
-            || (quote.Customer && !this.quote.Customer)
-            || (quote.Customer && this.quote.Customer && quote.Customer.ID !== this.quote.Customer.ID));
+                || (quote.Customer && !this.quote.Customer)
+                || (quote.Customer && this.quote.Customer && quote.Customer.ID !== this.quote.Customer.ID));
     }
 
     private getUpdatedCurrencyExchangeRate(quote): Observable<number> {
@@ -605,9 +586,9 @@ export class QuoteDetails {
         this.toolbarconfig = {
             title: quoteText,
             subheads: [
-                {title: customerText, link: this.quote.Customer ? `#/sales/customer/${this.quote.Customer.ID}` : ''},
-                {title: netSumText},
-                {title: GetPrintStatusText(this.quote.PrintStatus)}
+                { title: customerText, link: this.quote.Customer ? `#/sales/customer/${this.quote.Customer.ID}` : '' },
+                { title: netSumText },
+                { title: GetPrintStatusText(this.quote.PrintStatus) }
             ],
             statustrack: this.getStatustrackConfig(),
             navigation: {
@@ -632,7 +613,7 @@ export class QuoteDetails {
     }
 
     private handleSaveError(error, donehandler) {
-        if (typeof(error) === 'string') {
+        if (typeof (error) === 'string') {
             if (donehandler) {
                 donehandler('Lagring avbrutt. ' + error);
             }
@@ -660,13 +641,33 @@ export class QuoteDetails {
         this.saveActions.push({
             label: 'Skriv ut',
             action: (done) => this.saveAndPrint(done),
-            main:  this.quote.QuoteNumber > 0 && !printStatus && !this.isDirty,
+            main: this.quote.QuoteNumber > 0 && !printStatus && !this.isDirty,
             disabled: false
         });
 
         this.saveActions.push({
             label: 'Send på epost',
-            action: (done) => this.sendEmailAction(done),
+            action: (done) => {
+                let model = new SendEmail();
+                model.EntityType = 'CustomerQuote';
+                model.EntityID = this.quote.ID;
+                model.CustomerID = this.quote.CustomerID;
+                model.EmailAddress = this.quote.EmailAddress;
+
+                const quoteNumber = this.quote.QuoteNumber ? ` nr. ${this.quote.QuoteNumber}` : 'kladd';
+                model.Subject = 'Tilbud' + quoteNumber;
+                model.Message = 'Vedlagt finner du tilbud' + quoteNumber;
+
+                this.modalService.open(UniSendEmailModal, {
+                    data: model
+                }).onClose.subscribe(email => {
+                    if (email) {
+                        this.reportService.generateReportSendEmail('Tilbud id', email, null, done);
+                    } else {
+                        done();
+                    }
+                });
+            },
             main: printStatus === 200 && !this.isDirty,
             disabled: false
         });
@@ -748,10 +749,9 @@ export class QuoteDetails {
         }
 
         return new Promise((resolve, reject) => {
-             // Save only lines with products from product list
-            if (!TradeItemHelper.IsItemsValid(this.quote.Items)) {
-                const message = 'En eller flere varelinjer mangler produkt';
-                reject(message);
+
+            if (!TradeItemHelper.IsAnyItemsMissingProductID(this.quote.Items)) {
+                TradeItemHelper.clearFieldsInItemsWithNoProductID(this.quote.Items);
             }
 
             // create observable but dont subscribe - resolve it in the promise
@@ -820,7 +820,7 @@ export class QuoteDetails {
                 this.refreshQuote();
             }
         }).catch(error => {
-                this.handleSaveError(error, done);
+            this.handleSaveError(error, done);
         });
     }
 
@@ -859,12 +859,27 @@ export class QuoteDetails {
         }
     }
 
-    private print(id, doneHandler: (msg: string) => void = null) {
+    private print(id, doneHandler: (msg?: string) => void = () => { }) {
         this.reportDefinitionService.getReportByName('Tilbud id').subscribe((report) => {
-            if (report) {
-                this.previewModal.openWithId(report, id, 'Id', doneHandler);
-            }
-        });
+            report.parameters = [{ Name: 'Id', value: id }];
+
+            this.modalService.open(UniPreviewModal, {
+                data: report
+            }).onClose.subscribe(() => {
+                doneHandler();
+
+                this.customerQuoteService.setPrintStatus(this.quoteID, this.printStatusPrinted).subscribe(
+                    (printStatus) => {
+                        this.quote.PrintStatus = +this.printStatusPrinted;
+                        this.updateToolbar();
+                    },
+                    err => this.errorService.handle(err)
+                );
+            });
+        },
+            (err) => {
+                doneHandler('En feil oppstod ved utskrift av tilbud');
+            });
     }
 
     private deleteQuote(done) {
@@ -896,32 +911,32 @@ export class QuoteDetails {
 
     private setSums() {
         this.summary = [
-        {
-            value: this.getCurrencyCode(this.currencyCodeID),
-            title: 'Valuta:',
-            description: this.currencyExchangeRate ? 'Kurs: ' + this.numberFormat.asMoney(this.currencyExchangeRate) : ''
-        },
-        {
-            value: this.itemsSummaryData ? this.numberFormat.asMoney(this.itemsSummaryData.SumNoVatBasisCurrency) : '',
-            title: 'Avgiftsfritt',
-        }, {
-            value: this.itemsSummaryData ? this.numberFormat.asMoney(this.itemsSummaryData.SumVatBasisCurrency) : '',
-            title: 'Avgiftsgrunnlag',
-        }, {
-            value: this.itemsSummaryData ? this.numberFormat.asMoney(this.itemsSummaryData.SumDiscountCurrency) : '',
-            title: 'Sum rabatt',
-        }, {
-            value: this.itemsSummaryData ? this.numberFormat.asMoney(this.itemsSummaryData.SumTotalExVatCurrency) : '',
-            title: 'Nettosum',
-        }, {
-            value: this.itemsSummaryData ? this.numberFormat.asMoney(this.itemsSummaryData.SumVatCurrency) : '',
-            title: 'Mva',
-        }, {
-            value: this.itemsSummaryData ? this.numberFormat.asMoney(this.itemsSummaryData.DecimalRoundingCurrency) : '',
-            title: 'Øreavrunding',
-        }, {
-            value: this.itemsSummaryData ? this.numberFormat.asMoney(this.itemsSummaryData.SumTotalIncVatCurrency) : '',
-            title: 'Totalsum',
-        }];
+            {
+                value: this.getCurrencyCode(this.currencyCodeID),
+                title: 'Valuta:',
+                description: this.currencyExchangeRate ? 'Kurs: ' + this.numberFormat.asMoney(this.currencyExchangeRate) : ''
+            },
+            {
+                value: this.itemsSummaryData ? this.numberFormat.asMoney(this.itemsSummaryData.SumNoVatBasisCurrency) : '',
+                title: 'Avgiftsfritt',
+            }, {
+                value: this.itemsSummaryData ? this.numberFormat.asMoney(this.itemsSummaryData.SumVatBasisCurrency) : '',
+                title: 'Avgiftsgrunnlag',
+            }, {
+                value: this.itemsSummaryData ? this.numberFormat.asMoney(this.itemsSummaryData.SumDiscountCurrency) : '',
+                title: 'Sum rabatt',
+            }, {
+                value: this.itemsSummaryData ? this.numberFormat.asMoney(this.itemsSummaryData.SumTotalExVatCurrency) : '',
+                title: 'Nettosum',
+            }, {
+                value: this.itemsSummaryData ? this.numberFormat.asMoney(this.itemsSummaryData.SumVatCurrency) : '',
+                title: 'Mva',
+            }, {
+                value: this.itemsSummaryData ? this.numberFormat.asMoney(this.itemsSummaryData.DecimalRoundingCurrency) : '',
+                title: 'Øreavrunding',
+            }, {
+                value: this.itemsSummaryData ? this.numberFormat.asMoney(this.itemsSummaryData.SumTotalIncVatCurrency) : '',
+                title: 'Totalsum',
+            }];
     }
 }

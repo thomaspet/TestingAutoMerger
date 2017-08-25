@@ -203,6 +203,15 @@ export class TimeSheet {
                     ignore = true;
                 }
                 break;
+            case 'Customer':
+                item['Customer'] = change.value;
+                item.CustomerID = change && change.value && change.value.ID ? change.value.ID : 0;
+                if (!change.value) {
+                    item.CustomerID = null;
+                    item['Customer'] = undefined;
+                    ignore = true;
+                }
+                break;                
         }
         if (!ignore) {
             item[change.name] = change.value;

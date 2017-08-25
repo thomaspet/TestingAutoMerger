@@ -20,17 +20,15 @@ import {ProjectDetails} from './dimensions/project/details/projectDetails';
 import {DepartmentList} from './dimensions/department/list/departmentList';
 import {DepartmentDetails} from './dimensions/department/details/departmentDetails';
 import {UniQueryReadOnly} from './uniQuery/UniQueryReadOnly';
-import {SendEmailForm, SendEmailModal} from './modals/sendEmailModal';
 import {UniSummary} from './summary/summary';
 import {ImageModal, ImageModalContent} from './modals/ImageModal';
 import {UniAttachments} from './attacments/uniAttachements';
 import {UniUploadFileButton} from './attacments/uploadFileButton';
 import {UniPoster, TextWidget, ContactWidget, TableWidget, AlertsWidget, ImageWidget} from './poster/poster';
-import {ActivateAPForm, ActivateAPModal} from './modals/activateAPModal';
 import {LedgerAccountReconciliation} from './reconciliation/ledgeraccounts/ledgeraccountreconciliation';
 import {AccrualForm} from './modals/accrualModal';
 import {AccrualModal} from './modals/accrualModal';
-import {ReminderSettingsModal, ReminderSettingsForm} from './reminder/settings/settingsModal';
+import {UniReminderSettingsModal} from './reminder/settings/reminderSettingsModal';
 import {ReminderSettings} from './reminder/settings/reminderSettings';
 import {ReminderRules} from './reminder/settings/reminderRules';
 import {ContactDetails} from './contact/contactDetails';
@@ -50,6 +48,8 @@ import {LinkMenu} from './linkMenu/linkMenu';
 import {SellerList} from './seller/sellerList';
 import {SellerLinks} from './seller/sellerLinks';
 import {SellerDetails} from './seller/sellerDetails';
+import {UniInfo} from './uniInfo/uniInfo';
+import {BrowserWarning} from './browserWarning/browserWarning';
 
 import {routes as AppCommonRoutes} from './appCommonRoutes';
 
@@ -82,8 +82,6 @@ import {routes as AppCommonRoutes} from './appCommonRoutes';
         UniStatusTrack.StatusTrack,
         UniToolbar,
         UniQueryReadOnly,
-        SendEmailForm,
-        SendEmailModal,
         UniSummary,
         ImageModal,
         ImageModalContent,
@@ -95,8 +93,6 @@ import {routes as AppCommonRoutes} from './appCommonRoutes';
         AlertsWidget,
         ImageWidget,
         UniUploadFileButton,
-        ActivateAPForm,
-        ActivateAPModal,
         UniTags,
         AddPaymentModal,
         AddPaymentForm,
@@ -107,12 +103,10 @@ import {routes as AppCommonRoutes} from './appCommonRoutes';
         SupplierDetails,
         SupplierDetailsModal,
 
-        // reconciliation
         LedgerAccountReconciliation,
 
         ReminderSettings,
-        ReminderSettingsModal,
-        ReminderSettingsForm,
+        UniReminderSettingsModal,
         ReminderRules,
 
         ContactDetails,
@@ -128,18 +122,16 @@ import {routes as AppCommonRoutes} from './appCommonRoutes';
 
         SellerList,
         SellerLinks,
-        SellerDetails
+        SellerDetails,
+
+        UniInfo,
+        BrowserWarning
     ],
     entryComponents: [
         AccrualForm,
         AltinnAuthenticationDataModalContent,
-        SendEmailForm,
-        SendEmailModal,
         ImageModalContent,
-        ActivateAPForm,
-        ActivateAPModal,
-        ReminderSettingsForm,
-        ReminderSettingsModal,
+        UniReminderSettingsModal,
         ReminderSettings,
         AddPaymentForm
     ],
@@ -166,8 +158,6 @@ import {routes as AppCommonRoutes} from './appCommonRoutes';
         ImageModal,
         ImageModalContent,
         UniAttachments,
-        SendEmailForm,
-        SendEmailModal,
         UniPoster,
         TextWidget,
         ContactWidget,
@@ -175,8 +165,6 @@ import {routes as AppCommonRoutes} from './appCommonRoutes';
         AlertsWidget,
         ImageWidget,
         UniUploadFileButton,
-        ActivateAPForm,
-        ActivateAPModal,
         UniTags,
         AddPaymentModal,
         AddPaymentForm,
@@ -187,11 +175,10 @@ import {routes as AppCommonRoutes} from './appCommonRoutes';
         SupplierDetails,
         SupplierDetailsModal,
 
-        // reconciliation
         LedgerAccountReconciliation,
 
         ReminderSettings,
-        ReminderSettingsModal,
+        UniReminderSettingsModal,
 
         ContactDetails,
         Contacts,
@@ -206,8 +193,10 @@ import {routes as AppCommonRoutes} from './appCommonRoutes';
 
         SellerList,
         SellerLinks,
-        SellerDetails
+        SellerDetails,
+
+        UniInfo,
+        BrowserWarning
     ]
 })
-export class AppCommonModule {
-}
+export class AppCommonModule {}

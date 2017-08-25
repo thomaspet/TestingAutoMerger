@@ -11,7 +11,7 @@ export class FileService extends BizHttp<File> {
     constructor(http: UniHttp) {
         super(http);
 
-        this.relativeURL = File.RelativeUrl;
+        this.relativeURL = 'files';
         this.entityType = File.EntityType;
         this.DefaultOrderBy = null;
     }

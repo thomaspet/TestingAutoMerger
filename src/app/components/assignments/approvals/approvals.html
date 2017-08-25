@@ -36,26 +36,33 @@
 
 <!-- Details -->
 <section class="assignment-details">
-    <section class="assignment-details-header">
-        <h2>{{selectedApproval?.Task?.Title}}</h2>
 
-        <!-- TODO: Need to get entity from selectedApproval -->
-        <!-- Hard coded for now. Can backend give us entity type? -->
-        <uni-comments
+    <table class="header">
+        <tr><td><h2>{{title}}</h2></td>
+        <td class="right"><uni-comments
             *ngIf="selectedApproval"
-            [entity]="'SupplierInvoice'"
-            [entityID]="selectedApproval.ID"
+            [entity]="entityType"
+            [entityID]="entityID"
             [toggleMode]="true">
-        </uni-comments>
-    </section>
+        </uni-comments></td>
+        </tr>
+    </table>
 
     <section class="assignment-details-content">
-        <!-- TODO: Need ngSwitch on entityType here -->
-        <!-- Hard coded to supplierInvoice or nothing now -->
+        <!-- Hard coded or nothing now -->
         <!-- Can backend tell us the entity type? -->
-        <supplier-invoice-preview
-            *ngIf="selectedApproval"
-            [task]="selectedApproval?.Task">
-        </supplier-invoice-preview>
+        <article *ngIf="selectedApproval">
+            
+            <supplier-invoice-preview
+                *ngIf="entityType==='SupplierInvoice'"
+                [task]="selectedApproval?.Task">
+            </supplier-invoice-preview>
+            
+            <work-approval-preview
+                *ngIf="entityType==='WorkItemGroup'"
+                [task]="selectedApproval?.Task">
+            </work-approval-preview>            
+
+        </article>
     </section>
 </section>

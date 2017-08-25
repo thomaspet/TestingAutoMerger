@@ -20,6 +20,7 @@ import * as _ from 'lodash';
             (blur)="blurHandler($event)"
             (focus)="focusHandler()"
             [title]="control?.value || ''"
+            (keydown)="onKeydown($event)"
         ></textarea>
         <ng-content></ng-content>
     `
@@ -56,6 +57,10 @@ export class UniTextareaInput extends BaseControl {
         this.controlSubscription = this.control.valueChanges.subscribe((value: string) => {
             this.emitInstantChange(this.lastControlValue, value, true);
         });
+    }
+
+    public onKeydown(event: MouseEvent) {
+        event.stopPropagation();
     }
 
     private blurHandler() {

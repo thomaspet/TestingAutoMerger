@@ -1,7 +1,7 @@
 import {Component, Type, ViewChild} from '@angular/core';
 import {UniModal} from '../../../../../framework/modals/modal';
 import {AccountDetailsReport} from './accountDetailsReport';
-import {ConfirmActions} from '../../../../../framework/modals/confirm';
+import {ConfirmActions} from '../../../../../framework/uniModal/barrel';
 
 @Component({
     selector: 'account-details-report-modal',

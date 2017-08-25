@@ -24,10 +24,10 @@
     table-layout: fixed
     border-collapse: collapse
     cursor: pointer
-    margin-top: 1rem
-    font-size: 10pt
+    margin-top: 1rem    
 
 .timesheet th
+    font-size: 10pt
     text-align: left
     text-overflow: ellipsis
     overflow-x: hidden
@@ -108,3 +108,30 @@ tr.sum td
 
 .timesheet td:last-of-type
     border-right: 0
+
+.timesheet td.good
+    color: $uni-color-c2a
+
+.timesheet button
+    width: 2rem
+    margin: 0 0 pxToRem(2) pxToRem(2)
+    padding: pxToRem(5) pxToRem(2) pxToRem(2) pxToRem(2)
+    background-size: 0.8rem !important
+    background: lighten($uni-color-scale6, 34%) center center no-repeat
+    border: 1px solid #ccc
+    height: 1em
+    overflow: hidden
+
+    &.assign
+        background-image: unicon-letter($uni-color-scale3)
+        fill: $uni-color-c2a
+    
+    &.approve
+        background-image: unicon-check($uni-color-scale3)
+        fill: $uni-color-good
+    
+    &.locked
+        background-image: unicon-lock($uni-color-scale3)
+
+.timesheet td.actions
+    vertical-align: middle

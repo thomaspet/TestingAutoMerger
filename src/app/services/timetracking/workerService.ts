@@ -101,14 +101,19 @@ export class WorkerService extends BizHttp<Worker> {
         return this.GET(route, params);
     }
 
+    public post<T>(route: string, body?: any): Observable<T> {
+        return this.POST(route, undefined, body);
+    }
+
     public createInitialWorkRelation(workerId: number, profile: WorkProfile): Observable<WorkRelation> {
         var route = 'workrelations';
+        var dt = moment();
         var rel = {
             WorkerID: workerId,
             CompanyName: this.user.company,
             WorkPercentage: 100,
             Description: profile.Name,
-            StartDate: moment([moment().year(), moment().month(), 1]).toDate(),
+            StartDate: moment([dt.year(), dt.month(), dt.date()]).toDate(),
             IsActive: true,
             WorkProfileID: profile.ID
         };
@@ -283,7 +288,8 @@ export class WorkerService extends BizHttp<Worker> {
             filter += ' and ( ' + intervalFilter + ' )';
         }
         return this.GET('workitems', { filter: filter, hateoas: 'false',
-            expand: 'WorkType,Dimensions,Dimensions.Project,Dimensions.Department,CustomerOrder',
+            expand: 'WorkType,Dimensions,Dimensions.Project,Dimensions.Department,CustomerOrder'
+                + ',Customer,Customer.Info',
             orderBy: 'StartTime' });
     }
 
