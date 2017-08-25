@@ -46,14 +46,14 @@ import * as _ from 'lodash';
                 <ng-template ngFor let-row [ngForOf]="rows" let-i = "index">
                     <li [attr.aria-selected]="isSelected(row)">
 
-                        <div *ngIf="!row._mode">
+                        <div *ngIf="!row.Deleted && !row._editMode">
                             <span class="uni-multivalue-value"
                                   (click)="selectRow(row)">
                                   {{showDisplayValue(row)}}
                             </span>
                             <button type="button" class="uni-multivalue_edit_action-delete"
                                 *ngIf="field.Options == null || field.Options.allowDeleteValue == null || field.Options.allowDeleteValue === true"
-                                (click)="remove(row, $event)">
+                                (click)="delete(i, $event)">
                                 Delete
                             </button>
                             <button type="button" class="uni-multivalue_edit_action-edit"
@@ -62,7 +62,7 @@ import * as _ from 'lodash';
                             </button>
                         </div>
 
-                        <input *ngIf="row._mode === 1"
+                        <input *ngIf="row._editMode"
                                 #input
                                 class="uni-multivalue_edit"
                                 [(ngModel)]="tempValue"
@@ -71,9 +71,9 @@ import * as _ from 'lodash';
                                 type="text"
                         />
 
-                        <p *ngIf="row._mode === 2" class="uni-multivalue_deleted">
+                        <p *ngIf="row.Deleted" class="uni-multivalue_deleted">
                             Slettet &lsquo;{{showDisplayValue(row)}}&rsquo;.
-                            (<a (click)="putBack(row, $event)">Angre</a>)
+                            (<a (click)="regretDelete(i, $event)">Angre</a>)
                         </p>
 
                     </li>
@@ -384,7 +384,7 @@ export class UniMultivalueInput extends BaseControl {
             return;
         }
 
-        this.rows.forEach(x => x._mode = 0);
+        this.rows.map(x => x._editMode = false);
 
         if (this.field.Options.editor) {
             if (!this.editorIsOpen) {
@@ -413,7 +413,7 @@ export class UniMultivalueInput extends BaseControl {
                     this.emitChange(oldValue, newValue);
                     this.cd.markForCheck();
                     this.moveForwardEvent.emit({event: $event, field: this.field});
-                }).catch((res) => {
+                }).catch((err) => {
                     this.isDirty = false;
                     this.editorIsOpen = false;
                     this.close();
@@ -421,7 +421,7 @@ export class UniMultivalueInput extends BaseControl {
             }
         } else {
             this.tempValue = this.showDisplayValue(row);
-            row._mode = 1;
+            row._editMode = true;
             setTimeout(() => {
                 this.renderer.invokeElementMethod(document.querySelector('.uni-multivalue_edit'), 'focus', []);
                 this.close();
@@ -434,7 +434,7 @@ export class UniMultivalueInput extends BaseControl {
         if ($event.which === 27) {
             $event.preventDefault();
             $event.stopPropagation();
-            row._mode = 0;
+            row._editMode = false;
             this.isDirty = false;
             return;
         }
@@ -442,7 +442,7 @@ export class UniMultivalueInput extends BaseControl {
             $event.preventDefault();
             $event.stopPropagation();
             if (_.get(row, this.field.Options.displayValue) === tempValue) {
-                row._mode = 0;
+                row._editMode = false;
                 this.isDirty = false;
                 return;
             }
@@ -450,41 +450,51 @@ export class UniMultivalueInput extends BaseControl {
             _.set(row, this.field.Options.displayValue, tempValue);
             _.set(this.model, this.field.Property, this.rows);
             this.emitChange(previousValue, this.rows);
-            row._mode = 0;
+            row._editMode = false;
             this.isDirty = false;
         }
     }
 
-    private remove(row, $event) {
+    public delete(index: number, $event) {
         $event.stopPropagation();
         $event.preventDefault();
-        row._mode = 2;
-        const oldrows = [].concat(this.rows);
-        setTimeout(() => {
-            if (row._mode === 2) {
-                var index = this.rows.indexOf(row);
-                this.rows = this.rows.slice(0, index).concat(this.rows.slice(index + 1));
-                let listProperty = this.field.Options.listProperty || this.field.Property;
-                _.set(this.model, listProperty, this.rows);
-                const value = row;
-                if (this.showDisplayValue(row) === this.currentValue) {
-                    _.set(this.model, this.field.Options.storeResultInProperty, null);
-                    if (this.rows.indexOf(row) === -1) {
-                        this.defaultRow = null;
-                        this.currentValue = '';
-                    }
-                    this.isDirty = false;
-                }
-                this.emitChange(oldrows, this.rows);
-                this.cd.markForCheck();
+        let oldrows = [...this.rows];
+
+        // If deleted row was selected row
+        if (this.showDisplayValue(this.rows[index]) === this.currentValue) {
+            if (this.field.Options.storeIdInProperty) {
+                _.set(this.model, this.field.Options.storeIdInProperty, null);
             }
-        }, 5000);
+
+            if (this.field.Options.storeResultInProperty) {
+                _.set(this.model, this.field.Options.storeResultInProperty, null);
+            }
+
+            this.defaultRow = null;
+            this.currentValue = '';
+        }
+
+        // Delete the row
+        if (this.rows[index].ID) {
+            this.rows[index].Deleted = true;
+        } else {
+            this.rows.splice(index, 1);
+        }
+
+        this.emitChange(oldrows, this.rows);
         this.cd.markForCheck();
+
     }
 
-    private putBack(row, $event) {
+    public regretDelete(index: number, $event) {
         $event.stopPropagation();
         $event.preventDefault();
-        row._mode = 0;
+
+        let oldRows = [...this.rows];
+        this.rows[index]._editMode = false;
+        this.rows[index].Deleted = false;
+
+        this.emitChange(oldRows, this.rows);
+        this.cd.markForCheck();
     }
 }
