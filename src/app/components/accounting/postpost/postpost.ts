@@ -79,6 +79,7 @@ export class PostPost {
     private register: string = 'customer';
     private selectedIndex: number = 0;
     private autolocking: boolean = true;
+    private canceled: boolean = false;
 
     constructor(
         private tabService: TabService,
@@ -106,7 +107,7 @@ export class PostPost {
     }
 
     public canDeactivate(): Observable<boolean> {
-        if (!this.postpost.isDirty) {
+        if (!this.postpost.isDirty || this.canceled) {
             return Observable.of(true);
         }
 
@@ -116,6 +117,8 @@ export class PostPost {
             .map(result => {
                 if (result === ConfirmActions.ACCEPT) {
                     this.postpost.reconciliateJournalEntries();
+                } else if (result === ConfirmActions.REJECT) {
+                    this.postpost.isDirty = false;
                 }
 
                 return result !== ConfirmActions.CANCEL;
@@ -281,19 +284,33 @@ export class PostPost {
     }
 
     private onRowSelected(event) {
-        let account = event.rowModel;
-        this.selectedIndex = account._originalIndex;
-        switch (this.register) {
-            case 'customer':
-                this.customer$.next(account);
-                break;
-            case 'supplier':
-                this.supplier$.next(account);
-                break;
-            case 'account':
-                this.account$.next(account);
-                break;
+        if (this.canceled) { 
+            this.canceled = false; 
+            return; 
         }
+        
+        this.canDeactivate().subscribe(allowed => {
+            this.canceled = false;
+
+            if (allowed) {
+                let account = event.rowModel;
+                this.selectedIndex = account._originalIndex;
+                switch (this.register) {
+                    case 'customer':
+                        this.customer$.next(account);
+                        break;
+                    case 'supplier':
+                        this.supplier$.next(account);
+                        break;
+                    case 'account':
+                        this.account$.next(account);
+                        break;
+                }
+            } else {
+                this.canceled = true;
+                this.focusRow();
+            }
+        });
     }
 
     private onPointInTimeChanged(model) {
