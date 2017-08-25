@@ -3,6 +3,7 @@ import {ErrorService, JobService, FileService} from '../../../../services/servic
 import {Http, Headers} from '@angular/http';
 import {AuthService} from '../../../../../framework/core/authService';
 import {TimerObservable} from 'rxjs/observable/TimerObservable';
+import {AppConfig} from '../../../../AppConfig';
 import {
     UniModalService,
     ConfirmActions
@@ -25,9 +26,11 @@ export class SaftExportView implements OnInit {
     private busyFetch: boolean = false;
     private files: Array<ISaftFileInfo> = [];
     private currentFileId: number;
-    private activeCompany: string;
+    private activeCompany: any;
+    private token: string;
     private subscription: any;
     public jobName: string = JOBNAME;
+    private baseUrl: string = AppConfig.BASE_URL_FILES;
 
     constructor(
         private errorService: ErrorService,
@@ -37,9 +40,11 @@ export class SaftExportView implements OnInit {
         private authService: AuthService,
         private modalService: UniModalService
     ) {
-        this.authService.authentication$.subscribe((authDetails) => {
-            this.activeCompany = authDetails.activeCompany.Key;
-        });
+        // Subscribe to authentication/activeCompany changes
+        authService.authentication$.subscribe((authDetails) => {
+            this.token = authDetails.filesToken;
+            this.activeCompany = authDetails.activeCompany;
+        } /* don't need error handling */);
     }
 
     public ngOnInit() {
@@ -192,48 +197,29 @@ export class SaftExportView implements OnInit {
         let ip: any = this.fileInput.nativeElement;
         if (ip && ip.files && ip.files.length > 0) {
             let f: IFile = <IFile>ip.files[0];
-
             this.busy = true;
 
-            this.createFileSlot(f.name).then( (x: IUniFile) => {
-                this.busy = true;
-                this.uploadActualFile(f, x.UploadSlot).then( y => {
-                    this.currentFileId = x.ID;
-                    this.fileService.PostAction(x.ID, 'finalize')
-                    .finally( () => this.busy = false )
-                    .subscribe( result =>
-                        this.refresh()
-                    );
-                });
-            });
-
-        }
-    }
-
-    private createFileSlot(filename: string): Promise<IUniFile> {
-        return new Promise<IUniFile>( (resolve, reject) => {
-            this.fileService.create(<any>{Name: filename})
-                .finally( () => this.busy = false )
-                .subscribe( (result: IUniFile) => {
-                    this.fileService.tag(result.ID, 'SAFT', 1).subscribe();
-                    resolve(result);
-                }
-                , err => { this.busy = false; this.errorService.handle(err); } );
-        });
-    }
-
-    private uploadActualFile(file: IFile, url: string): Promise<boolean> {
-        return new Promise<boolean>( (resolve, reject) => {
             let data = new FormData();
-            data.append('File', <any>file);
-            let hdr = new Headers();
-            hdr.append('x-ms-blob-type', 'BlockBlob');
-            this.ngHttp
-                .put(url, file, { headers: hdr })
+            data.append('Token', this.token);
+            data.append('Key', this.activeCompany.Key);
+            data.append('Caption', ''); // where should we get this from the user?
+            data.append('File', f);
+
+            this.ngHttp.post(this.baseUrl + '/api/file', data)
+                .map(res => res.json())
                 .subscribe((res) => {
-                    resolve(true);
+                    // files are uploaded to unifiles, and will get an externalid that
+                    // references the file in UE - get the UE file and add that to the
+                    // collection
+                    this.fileService.Get(res.ExternalId)
+                        .subscribe(newFile => {
+                            this.fileService.tag(newFile.ID, 'SAFT', 1).subscribe();
+                            this.currentFileId = newFile.ID;
+                            this.busy = false;
+                            this.refresh();
+                        }, err => this.errorService.handle(err));
                 }, err => this.errorService.handle(err));
-        });
+        }
     }
 }
 
