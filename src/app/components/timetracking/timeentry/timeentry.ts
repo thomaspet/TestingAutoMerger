@@ -105,8 +105,7 @@ export class TimeEntry {
 
     private initialContextMenu: Array<any> = [
         { label: 'Import', action: (done) => this.import(done), disabled: () => !this.isEntryTab },
-        { label: 'Eksport', action: (done) => this.export(done), disabled: () => !this.isEntryTab },
-        { label: 'Bytt visning', action: (done) => this.switchView(done), disabled: () => !this.isEntryTab }
+        { label: 'Eksport', action: (done) => this.export(done), disabled: () => !this.isEntryTab }
     ];
     private isEntryTab: boolean = true;
 
@@ -224,10 +223,12 @@ export class TimeEntry {
         workItem.Minutes = template.Minutes;
         workItem.LunchInMinutes = template.LunchInMinutes;
         workItem.Description = template.Description;
-        workItem.Worktype = types.find(t => t.ID === template.Worktype.ID);
+        if (template.Worktype && template.Worktype.ID) {
+            workItem.Worktype = types.find(t => t.ID === template.Worktype.ID);
+        } else {
+            workItem.Worktype = types[0];
+        }
         workItem.WorkTypeID = workItem.Worktype.ID;
-        //workItem.DimensionsID = template.DimensionsID;
-        //workItem.CustomerOrderID = template.CustomerOrderID;
 
         return workItem;
     }
@@ -322,7 +323,6 @@ export class TimeEntry {
     private updateToolbar(name?: string, workRelations?: Array<WorkRelation> ) {
 
         this.userName = name || this.userName;
-        this.checkContextLabels();
         var contextMenus = this.initialContextMenu.slice();
         var list = workRelations || this.workRelations;
         if (list && list.length > 1) {
@@ -354,7 +354,6 @@ export class TimeEntry {
     }
 
     private loadItems(date?: Date) {
-        console.log(date);
         this.workEditor.EmptyRowDetails.Date = new LocalDate(date);
         if (this.timeSheet.currentRelation && this.timeSheet.currentRelation.ID) {
             var obs: any;
@@ -402,7 +401,6 @@ export class TimeEntry {
     }
 
     private loadFlex(rel: WorkRelation) {
-        console.log('loadFlex');
         this.regtimeBalance.refresh(rel);
     }
 
@@ -501,7 +499,6 @@ export class TimeEntry {
             if (canDeactivate) {
                 this.settings.useDayBrowser = !this.settings.useDayBrowser;
                 this.saveSettings();
-                this.checkContextLabels();
                 setTimeout( () => this.refreshViewItems(), 50 );
             }
         });
@@ -517,11 +514,6 @@ export class TimeEntry {
         if (js) {
             this.settings = JSON.parse(js);
         }
-    }
-
-    private checkContextLabels() {
-        this.initialContextMenu[2].label =
-            this.settings.useDayBrowser ? 'Bytt til filtervisning' : 'Bytt til ukevisning';
     }
 
     private flagUnsavedChanged(reset = false, updateCounter: boolean = false) {
@@ -668,47 +660,34 @@ export class TimeEntry {
     private showProgress(date?: any) {
         let endpoint = 'workrelations/' + this.workRelations[0].ID + '?action=timesheet&fromdate=';
 
-        let year = new Date().getFullYear();
-        let month = new Date().getMonth() < 10 ? '0' + (new Date().getMonth() + 1) : new Date().getMonth() + 1;
-        let today = new Date().getDate() < 10 ? '0' + new Date().getDate() : new Date().getDate();
-
         if (date) {
-            let selectedDate = new Date(date);
-
-            let myDate = selectedDate.getFullYear() + '-';
-            myDate += selectedDate.getMonth() < 10 ? '0' + (selectedDate.getMonth() + 1) : selectedDate.getMonth() + 1;
-            myDate += '-' + (selectedDate.getDate() < 10 ? '0' + selectedDate.getDate() : selectedDate.getDate());
-
-            endpoint += myDate + '&todate=' + myDate;
+            endpoint += moment(new Date(date)).format().slice(0, 10) + '&todate=' + moment(new Date(date)).format().slice(0, 10);
         } else {
             switch (this.currentFilter.interval) {
                 case ItemInterval.today:
-                    endpoint += year + '-' + month + '-' + today;
+                    endpoint += moment().format().slice(0, 10);
                     break;
                 case ItemInterval.yesterday:
-                    let yesterdayDate = year + '-' + month + '-';
-                    yesterdayDate += (new Date().getDate() - 1) < 10 ? '0' + (new Date().getDate() - 1) : (new Date().getDate() - 1)
-                    endpoint += yesterdayDate + '&todate=' + yesterdayDate;
+                    endpoint += moment().add(-1, 'days').format().slice(0, 10) + '&todate=' + moment().add(-1, 'days').format().slice(0, 10);
                     break;
                 case ItemInterval.thisWeek:
                     let diff = new Date().getDay() - 1;
-                    endpoint += year + '-' + month + '-' + (new Date().getDate() - diff) + '&todate=' + year + '-' + month + '-' + new Date().getDate();
+                    endpoint += moment().startOf('week').format().slice(0, 10) + '&todate=' + moment().format().slice(0, 10);
                     break;
                 case ItemInterval.thisMonth:
-                    endpoint += year + '-' + month + '-01' + '&todate=' + year + '-' + month + '-' + today;
+                    endpoint += moment().startOf('month').format().slice(0, 10) + '&todate=' + moment().format().slice(0, 10);
                     break;
                 case ItemInterval.lastTwoMonths:
-                    let lastMonth = new Date().getMonth() < 10 ? '0' + (new Date().getMonth()) : new Date().getMonth();
-                    endpoint += year + '-' + lastMonth + '-01' + '&todate=' + year + '-' + month + '-' + today;
+                    endpoint += moment().add(-1, 'months').startOf('month').format().slice(0, 10) + '&todate=' + moment().format().slice(0, 10);
                     break;
                 case ItemInterval.thisYear:
-                    endpoint += year + '-01-01&todate=' + year + '-' + month + '-' + today;
+                    endpoint += moment().startOf('year').format().slice(0, 10) + '&todate=' + moment().format().slice(0, 10);
                     break;
                 case ItemInterval.all:
                     endpoint += '2016-01-01';
                     break;
                 default:
-                    endpoint += year + '-' + month + '-' + today;
+                    endpoint += moment().format().slice(0, 10);
                     break;
             }
         }

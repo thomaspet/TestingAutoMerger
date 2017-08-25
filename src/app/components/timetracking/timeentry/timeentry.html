@@ -53,7 +53,7 @@
 
             </header>
 
-            <workeditor [attr.aria-busy]="busy" [timesheet]="timeSheet" (rowDeleted)="onEditChanged(true)"
+            <workeditor [timesheet]="timeSheet" (rowDeleted)="onEditChanged(true)"
                 (valueChanged)="onEditChanged(true)" >
             </workeditor>
 

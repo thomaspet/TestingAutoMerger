@@ -5,7 +5,7 @@
     
 
 .sidemenu_container
-    background-color: #eceff7
+    background-color: $uni-color-scale9
     min-height: 100%
 
 .sidemenu_calender_container
@@ -17,12 +17,12 @@
         display: block
         position: relative
         box-shadow: none
-        background-color: #eceff7
+        background-color: $uni-color-scale9
         margin: 0
         table
-            background-color: #eceff7
+            background-color: $uni-color-scale9
             caption
-                background-color: #eceff7
+                background-color: $uni-color-scale9
                 font-size: 1.4rem
                 color: #717882
                 a
@@ -45,19 +45,20 @@
                 right: 2%
 
             thead
-                color: #838993
+                color: $uni-color-scale5
 
             tbody > tr > td
                 /*-n+2 selects the last two elements of each tr*/
                 &:nth-last-of-type(-n+2)
-                    background-color: #e2e5ef
+                    background-color: $uni-color-scale8
+                    border-bottom: 1px solid $uni-color-scale8
                 &.selected
-                    background-color: #8d96a9
+                    background-color: $uni-color-scale8
                     border-radius: 100%
-                    color: #fff
+                    color: $uni-color-negative
 
     button
-        background-color: #114880
+        background-color: $uni-color-c2a
         height: 22px
         width: 130px
         padding: 0
@@ -71,27 +72,17 @@
         font-size: 1.3rem
         margin-left: 15px
 
-
-    .sidemenu_template_field
-        width: 84%
-        float: left
-        margin-bottom: 15px
-        padding: 0 3%
-        &:hover
-            background-color: #babcc2
-            cursor: pointer
-
     .sidemenu_template
 
         .template_info_section
-            border-bottom: 1px solid #babcc2
+            border-bottom: 1px solid $uni-color-scale8
             width: calc(85% - 20px)
             float: left
             padding: 10px
             &:last-of-type
                 border: none
             &:hover
-                background-color: #babcc2
+                background-color: $uni-color-scale8
                 cursor: pointer
 
         .sidemenu_template_start_end_time
@@ -137,7 +128,7 @@
         padding: 0 15px
 
     button
-        background-color: #008000
+        background-color: $uni-color-good
         height: 22px
         width: 120px
         padding: 0

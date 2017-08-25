@@ -70,9 +70,7 @@ export class UniTemplateModal {
                 new UniTableColumn('Description', 'Beskrivelse')
                     .setWidth('30%'),
                 this.worker.createLookupColumn('Worktype', 'Timeart', 'Worktype', x => this.worker.lookupType(x))
-                    .setWidth('6rem'),
-                //new UniTableColumn('DimensionsID', 'Prosjekt'),
-                //new UniTableColumn('CustomerOrderID', 'Ordre')
+                    .setWidth('6rem')
             ])
             .setChangeCallback(event => this.onEditChange(event));
     }

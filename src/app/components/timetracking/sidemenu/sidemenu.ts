@@ -36,9 +36,6 @@ export class SideMenu {
 
     private timeTrackingTemplates: ITemplate[] = this.dummyTemplates();
 
-    private timearts: string[] = ['Administarsjon diverse', 'Utvikling/Prosjektarbeid', 'Reisetid', 'Møte']
-    private editTemplateOnClick: boolean = false;
-
     @ViewChild(UniTemplateModal) private templateModal: UniTemplateModal;
     @Input() private periode: IFilter;
     @Output() public dateSelected: EventEmitter<Date> = new EventEmitter();
@@ -112,7 +109,7 @@ export class SideMenu {
                         StartTime: '08:00',
                         EndTime: '09:00',
                         Minutes: 60,
-                        Worktype: {ID: 1},
+                        Worktype: {},
                         LunchInMinutes: 0,
                         Description: 'Morning coffee + mails',
                         DimensionsID: null,
@@ -122,7 +119,7 @@ export class SideMenu {
                         StartTime: '09:00',
                         EndTime: '10:30',
                         Minutes: 90,
-                        Worktype: {ID: 2},
+                        Worktype: {},
                         LunchInMinutes: 0,
                         Description: 'Meetings, blablabla',
                         DimensionsID: null,
@@ -132,7 +129,7 @@ export class SideMenu {
                         StartTime: '10:30',
                         EndTime: '16:00',
                         Minutes: 300,
-                        Worktype: {ID: 1},
+                        Worktype: {},
                         LunchInMinutes: 30,
                         Description: 'Doing awesome work, like always',
                         DimensionsID: null,
@@ -152,7 +149,7 @@ export class SideMenu {
                         StartTime: '08:00',
                         EndTime: '16:00',
                         Minutes: 450,
-                        Worktype: {ID: 1},
+                        Worktype: {},
                         LunchInMinutes: 30,
                         Description: 'Working hard or hardly working',
                         DimensionsID: null,
