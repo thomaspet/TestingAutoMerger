@@ -991,10 +991,9 @@ export class InvoiceDetails {
         }
 
         return new Promise((resolve, reject) => {
-            // Save only lines with products from product list
-            if (!TradeItemHelper.IsItemsValid(this.invoice.Items)) {
-                const message = 'En eller flere varelinjer mangler produkt';
-                reject(message);
+
+            if (TradeItemHelper.IsAnyItemsMissingProductID(this.invoice.Items)) {
+                TradeItemHelper.clearFieldsInItemsWithNoProductID(this.invoice.Items);
             }
 
             let request = (this.invoice.ID > 0)

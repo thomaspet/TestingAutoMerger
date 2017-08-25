@@ -1,22 +1,22 @@
-import {Component, Input, ViewChild, EventEmitter, HostListener} from '@angular/core';
-import {Router, ActivatedRoute} from '@angular/router';
-import {Observable} from 'rxjs/Observable';
-import {IUniSaveAction} from '../../../../../framework/save/save';
-import {TradeItemHelper} from '../../salesHelper/tradeItemHelper';
-import {CustomerQuote, Project} from '../../../../unientities';
-import {StatusCode} from '../../salesHelper/salesEnums';
-import {TradeHeaderCalculationSummary} from '../../../../models/sales/TradeHeaderCalculationSummary';
-import {TofHelper} from '../../salesHelper/tofHelper';
-import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
-import {ToastService, ToastType} from '../../../../../framework/uniToast/toastService';
-import {IToolbarConfig} from '../../../common/toolbar/toolbar';
-import {UniStatusTrack} from '../../../common/toolbar/statustrack';
-import {IContextMenuItem} from '../../../../../framework/ui/unitable/index';
-import {SendEmail} from '../../../../models/sendEmail';
-import {ISummaryConfig} from '../../../common/summary/summary';
-import {GetPrintStatusText} from '../../../../models/printStatus';
-import {TofHead} from '../../common/tofHead';
-import {TradeItemTable} from '../../common/tradeItemTable';
+import { Component, Input, ViewChild, EventEmitter, HostListener } from '@angular/core';
+import { Router, ActivatedRoute } from '@angular/router';
+import { Observable } from 'rxjs/Observable';
+import { IUniSaveAction } from '../../../../../framework/save/save';
+import { TradeItemHelper } from '../../salesHelper/tradeItemHelper';
+import { CustomerQuote, Project } from '../../../../unientities';
+import { StatusCode } from '../../salesHelper/salesEnums';
+import { TradeHeaderCalculationSummary } from '../../../../models/sales/TradeHeaderCalculationSummary';
+import { TofHelper } from '../../salesHelper/tofHelper';
+import { TabService, UniModules } from '../../../layout/navbar/tabstrip/tabService';
+import { ToastService, ToastType } from '../../../../../framework/uniToast/toastService';
+import { IToolbarConfig } from '../../../common/toolbar/toolbar';
+import { UniStatusTrack } from '../../../common/toolbar/statustrack';
+import { IContextMenuItem } from '../../../../../framework/ui/unitable/index';
+import { SendEmail } from '../../../../models/sendEmail';
+import { ISummaryConfig } from '../../../common/summary/summary';
+import { GetPrintStatusText } from '../../../../models/printStatus';
+import { TofHead } from '../../common/tofHead';
+import { TradeItemTable } from '../../common/tradeItemTable';
 import {
     CustomerQuoteService,
     CustomerQuoteItemService,
@@ -45,7 +45,7 @@ import {
     UniSendEmailModal,
     ConfirmActions
 } from '../../../../../framework/uniModal/barrel';
-import {UniPreviewModal} from '../../../reports/modals/preview/previewModal';
+import { UniPreviewModal } from '../../../reports/modals/preview/previewModal';
 import * as moment from 'moment';
 declare var _;
 
@@ -110,7 +110,7 @@ export class QuoteDetails {
         private tofHelper: TofHelper,
         private projectService: ProjectService,
         private modalService: UniModalService
-    ) {}
+    ) { }
 
     public ngOnInit() {
         this.setSums();
@@ -179,7 +179,7 @@ export class QuoteDetails {
                     projectID ? this.projectService.Get(projectID, null) : Observable.of(null)
                 ).subscribe(
                     (res) => {
-                        let quote = <CustomerQuote> res[0];
+                        let quote = <CustomerQuote>res[0];
                         quote.OurReference = res[1].DisplayName;
                         quote.QuoteDate = new LocalDate(Date());
                         quote.DeliveryDate = new LocalDate(Date());
@@ -208,7 +208,7 @@ export class QuoteDetails {
                         this.refreshQuote(quote);
                     },
                     err => this.errorService.handle(err)
-                );
+                    );
             }
         });
         this.projectService.GetAll(null).subscribe(
@@ -219,7 +219,7 @@ export class QuoteDetails {
     }
 
     public ngAfterViewInit() {
-         this.tofHead.detailsForm.tabbedPastLastField.subscribe((event) => this.tradeItemTable.focusFirstRow());
+        this.tofHead.detailsForm.tabbedPastLastField.subscribe((event) => this.tradeItemTable.focusFirstRow());
     }
 
     @HostListener('keydown', ['$event'])
@@ -261,12 +261,12 @@ export class QuoteDetails {
         }
 
         this.readonly = quote.StatusCode && (
-                quote.StatusCode === StatusCodeCustomerQuote.CustomerAccepted
-                || quote.StatusCode === StatusCodeCustomerQuote.TransferredToOrder
-                || quote.StatusCode === StatusCodeCustomerQuote.TransferredToInvoice
-            );
+            quote.StatusCode === StatusCodeCustomerQuote.CustomerAccepted
+            || quote.StatusCode === StatusCodeCustomerQuote.TransferredToOrder
+            || quote.StatusCode === StatusCodeCustomerQuote.TransferredToInvoice
+        );
 
-        this.newQuoteItem = <any> this.tradeItemHelper.getDefaultTradeItemData(quote);
+        this.newQuoteItem = <any>this.tradeItemHelper.getDefaultTradeItemData(quote);
         this.isDirty = false;
         this.quoteItems = quote.Items;
 
@@ -300,7 +300,7 @@ export class QuoteDetails {
         }
 
         if (this.quote && this.quote.QuoteDate.toString() !== quote.QuoteDate.toString()) {
-           shouldGetCurrencyRate = true;
+            shouldGetCurrencyRate = true;
         }
 
         if (this.quote && quote.CurrencyCodeID !== this.quote.CurrencyCodeID) {
@@ -434,15 +434,15 @@ export class QuoteDetails {
                         this.recalcItemSums(this.quoteItems);
                     }
                 }, err => this.errorService.handle(err)
-            );
+                );
         }
     }
 
     private didCustomerChange(quote: CustomerQuote): boolean {
         return quote.Customer
             && (!this.quote
-            || (quote.Customer && !this.quote.Customer)
-            || (quote.Customer && this.quote.Customer && quote.Customer.ID !== this.quote.Customer.ID));
+                || (quote.Customer && !this.quote.Customer)
+                || (quote.Customer && this.quote.Customer && quote.Customer.ID !== this.quote.Customer.ID));
     }
 
     private getUpdatedCurrencyExchangeRate(quote): Observable<number> {
@@ -586,9 +586,9 @@ export class QuoteDetails {
         this.toolbarconfig = {
             title: quoteText,
             subheads: [
-                {title: customerText, link: this.quote.Customer ? `#/sales/customer/${this.quote.Customer.ID}` : ''},
-                {title: netSumText},
-                {title: GetPrintStatusText(this.quote.PrintStatus)}
+                { title: customerText, link: this.quote.Customer ? `#/sales/customer/${this.quote.Customer.ID}` : '' },
+                { title: netSumText },
+                { title: GetPrintStatusText(this.quote.PrintStatus) }
             ],
             statustrack: this.getStatustrackConfig(),
             navigation: {
@@ -613,7 +613,7 @@ export class QuoteDetails {
     }
 
     private handleSaveError(error, donehandler) {
-        if (typeof(error) === 'string') {
+        if (typeof (error) === 'string') {
             if (donehandler) {
                 donehandler('Lagring avbrutt. ' + error);
             }
@@ -641,7 +641,7 @@ export class QuoteDetails {
         this.saveActions.push({
             label: 'Skriv ut',
             action: (done) => this.saveAndPrint(done),
-            main:  this.quote.QuoteNumber > 0 && !printStatus && !this.isDirty,
+            main: this.quote.QuoteNumber > 0 && !printStatus && !this.isDirty,
             disabled: false
         });
 
@@ -749,10 +749,9 @@ export class QuoteDetails {
         }
 
         return new Promise((resolve, reject) => {
-             // Save only lines with products from product list
-            if (!TradeItemHelper.IsItemsValid(this.quote.Items)) {
-                const message = 'En eller flere varelinjer mangler produkt';
-                reject(message);
+
+            if (!TradeItemHelper.IsAnyItemsMissingProductID(this.quote.Items)) {
+                TradeItemHelper.clearFieldsInItemsWithNoProductID(this.quote.Items);
             }
 
             // create observable but dont subscribe - resolve it in the promise
@@ -821,7 +820,7 @@ export class QuoteDetails {
                 this.refreshQuote();
             }
         }).catch(error => {
-                this.handleSaveError(error, done);
+            this.handleSaveError(error, done);
         });
     }
 
@@ -860,9 +859,9 @@ export class QuoteDetails {
         }
     }
 
-    private print(id, doneHandler: (msg?: string) => void = () => {}) {
+    private print(id, doneHandler: (msg?: string) => void = () => { }) {
         this.reportDefinitionService.getReportByName('Tilbud id').subscribe((report) => {
-            report.parameters = [{Name: 'Id', value: id}];
+            report.parameters = [{ Name: 'Id', value: id }];
 
             this.modalService.open(UniPreviewModal, {
                 data: report
@@ -878,9 +877,9 @@ export class QuoteDetails {
                 );
             });
         },
-        (err) => {
-            doneHandler('En feil oppstod ved utskrift av tilbud');
-        });
+            (err) => {
+                doneHandler('En feil oppstod ved utskrift av tilbud');
+            });
     }
 
     private deleteQuote(done) {
@@ -912,32 +911,32 @@ export class QuoteDetails {
 
     private setSums() {
         this.summary = [
-        {
-            value: this.getCurrencyCode(this.currencyCodeID),
-            title: 'Valuta:',
-            description: this.currencyExchangeRate ? 'Kurs: ' + this.numberFormat.asMoney(this.currencyExchangeRate) : ''
-        },
-        {
-            value: this.itemsSummaryData ? this.numberFormat.asMoney(this.itemsSummaryData.SumNoVatBasisCurrency) : '',
-            title: 'Avgiftsfritt',
-        }, {
-            value: this.itemsSummaryData ? this.numberFormat.asMoney(this.itemsSummaryData.SumVatBasisCurrency) : '',
-            title: 'Avgiftsgrunnlag',
-        }, {
-            value: this.itemsSummaryData ? this.numberFormat.asMoney(this.itemsSummaryData.SumDiscountCurrency) : '',
-            title: 'Sum rabatt',
-        }, {
-            value: this.itemsSummaryData ? this.numberFormat.asMoney(this.itemsSummaryData.SumTotalExVatCurrency) : '',
-            title: 'Nettosum',
-        }, {
-            value: this.itemsSummaryData ? this.numberFormat.asMoney(this.itemsSummaryData.SumVatCurrency) : '',
-            title: 'Mva',
-        }, {
-            value: this.itemsSummaryData ? this.numberFormat.asMoney(this.itemsSummaryData.DecimalRoundingCurrency) : '',
-            title: 'Øreavrunding',
-        }, {
-            value: this.itemsSummaryData ? this.numberFormat.asMoney(this.itemsSummaryData.SumTotalIncVatCurrency) : '',
-            title: 'Totalsum',
-        }];
+            {
+                value: this.getCurrencyCode(this.currencyCodeID),
+                title: 'Valuta:',
+                description: this.currencyExchangeRate ? 'Kurs: ' + this.numberFormat.asMoney(this.currencyExchangeRate) : ''
+            },
+            {
+                value: this.itemsSummaryData ? this.numberFormat.asMoney(this.itemsSummaryData.SumNoVatBasisCurrency) : '',
+                title: 'Avgiftsfritt',
+            }, {
+                value: this.itemsSummaryData ? this.numberFormat.asMoney(this.itemsSummaryData.SumVatBasisCurrency) : '',
+                title: 'Avgiftsgrunnlag',
+            }, {
+                value: this.itemsSummaryData ? this.numberFormat.asMoney(this.itemsSummaryData.SumDiscountCurrency) : '',
+                title: 'Sum rabatt',
+            }, {
+                value: this.itemsSummaryData ? this.numberFormat.asMoney(this.itemsSummaryData.SumTotalExVatCurrency) : '',
+                title: 'Nettosum',
+            }, {
+                value: this.itemsSummaryData ? this.numberFormat.asMoney(this.itemsSummaryData.SumVatCurrency) : '',
+                title: 'Mva',
+            }, {
+                value: this.itemsSummaryData ? this.numberFormat.asMoney(this.itemsSummaryData.DecimalRoundingCurrency) : '',
+                title: 'Øreavrunding',
+            }, {
+                value: this.itemsSummaryData ? this.numberFormat.asMoney(this.itemsSummaryData.SumTotalIncVatCurrency) : '',
+                title: 'Totalsum',
+            }];
     }
 }
