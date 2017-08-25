@@ -38,6 +38,7 @@ export class TradeItemTable {
     @Input() public currencyCodeID: number;
     @Input() public currencyExchangeRate: number;
     @Input() public projects: Project[];
+    @Input() public columStorageKey: string;
 
     @Output() public itemsChange: EventEmitter<any> = new EventEmitter();
 
@@ -258,7 +259,9 @@ export class TradeItemTable {
         const sumTotalIncVatCol = new UniTableColumn('SumTotalIncVatCurrency', 'Sum', UniTableColumnType.Money, false);
 
         // Table config
+
         this.tableConfig = new UniTableConfig(!this.readonly)
+            .setColumnStorageKey(this.columStorageKey)
             .setColumns([
                 sortIndexCol, productCol, itemTextCol, numItemsCol, unitCol,
                 exVatCol, accountCol, vatTypeCol, discountPercentCol, discountCol,

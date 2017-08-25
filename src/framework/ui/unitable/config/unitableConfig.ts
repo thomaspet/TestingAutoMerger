@@ -22,6 +22,7 @@ export interface IEditorData {
 }
 
 export interface IUniTableConfig {
+    columnStorageKey?: string;
     columns: IUniTableColumn[];
     editable?: boolean;
     searchable?: boolean;
@@ -62,6 +63,7 @@ export interface IRowChangeEvent {
 }
 
 export class UniTableConfig implements IUniTableConfig {
+    public columnStorageKey: string;
     public columns: IUniTableColumn[];
     public editable: boolean;
     public searchable: boolean;
@@ -182,6 +184,11 @@ export class UniTableConfig implements IUniTableConfig {
 
     public setAutoScrollIfNewCellCloseToBottom(autoscroll: boolean) {
         this.autoScrollIfNewCellCloseToBottom = autoscroll;
+        return this;
+    }
+
+    public setColumnStorageKey(key: string): UniTableConfig {
+        this.columnStorageKey = key;
         return this;
     }
 

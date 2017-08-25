@@ -1,11 +1,64 @@
 import {Injectable} from '@angular/core';
 import {ITableFilter, IExpressionFilterValue} from './unitable';
-import {UniTableColumnType, UniTableColumnSortMode} from './config/unitableColumn';
+import {UniTableColumn, UniTableColumnType, UniTableColumnSortMode} from './config/unitableColumn';
 import * as Immutable from 'immutable';
 import * as moment from 'moment';
 
+// Savable config. Only columns for now. Might be expanded later.
+interface IColumnSetupMap {
+    [key: string]: UniTableColumn[];
+}
+
+const CONFIG_STORAGE_KEY: string = 'uniTable_column_configs';
+
 @Injectable()
 export class UniTableUtils {
+    private columnSetupMap: IColumnSetupMap = {};
+
+    constructor() {
+        try {
+            this.columnSetupMap = JSON.parse(localStorage.getItem(CONFIG_STORAGE_KEY)) || {};
+        } catch (e) {
+            console.log('Error trying to get column setup (constructor)');
+            console.log(e);
+            this.columnSetupMap = {};
+        }
+    }
+
+    public getColumnSetup(key: string): UniTableColumn[] {
+        try {
+            let columnObjects = this.columnSetupMap[key];
+            if (columnObjects) {
+                let columns = [];
+                columnObjects.forEach(obj => columns.push(UniTableColumn.fromObject(obj)));
+                return columns;
+            }
+        } catch (e) {
+            console.log(e);
+        }
+    }
+
+    public saveColumnSetup(key: string, columns: UniTableColumn[]): void {
+        if (!columns) {
+            return;
+        }
+
+        try {
+            this.columnSetupMap[key] = columns;
+            localStorage.setItem(CONFIG_STORAGE_KEY, JSON.stringify(this.columnSetupMap));
+        } catch (e) {
+            console.log(e);
+        }
+    }
+
+    public removeColumnSetup(key: string): void {
+        try {
+            delete this.columnSetupMap[key];
+            localStorage.setItem(CONFIG_STORAGE_KEY, JSON.stringify(this.columnSetupMap));
+        } catch (e) {
+            console.log(e);
+        }
+    }
 
     /**
      * Gets the initial value for an editor based on field value

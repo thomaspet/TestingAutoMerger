@@ -207,7 +207,13 @@ export class UniTable implements OnChanges {
                 this.sortInfo = this.config.defaultOrderBy;
             }
 
-            this.tableColumns = this.makeColumnsImmutable(this.config.columns);
+            let customColumnSetup;
+            if (this.config.columnStorageKey) {
+                customColumnSetup = this.utils.getColumnSetup(this.config.columnStorageKey);
+            }
+
+            let columns = customColumnSetup || this.config.columns;
+            this.tableColumns = this.makeColumnsImmutable(columns);
 
             if (this.config.filters) {
                 this.advancedSearchFilters = this.config.filters;
@@ -420,7 +426,7 @@ export class UniTable implements OnChanges {
                     this.resetFocusedCell();
                 },
                 (error) => {
-                    console.log(error)
+                    console.log(error);
                 });
 
         } else if (deleteResult && typeof deleteResult === 'boolean') {
@@ -435,6 +441,27 @@ export class UniTable implements OnChanges {
         this.tableColumns = this.tableColumns.update(event.index, () => {
             return col;
         });
+
+        if (this.lastFocusPosition) {
+            this.resetFocusedCell();
+        }
+
+        if (this.config.columnStorageKey) {
+            this.utils.saveColumnSetup(
+                this.config.columnStorageKey,
+                this.tableColumns.toJS()
+            );
+        }
+
+        this.columnVisibilityChange.emit(this.tableColumns.toJS());
+    }
+
+    private onResetColVisibility() {
+        if (this.config.columnStorageKey) {
+            this.utils.removeColumnSetup(this.config.columnStorageKey);
+        }
+
+        this.tableColumns = this.makeColumnsImmutable(this.config.columns);
 
         if (this.lastFocusPosition) {
             this.resetFocusedCell();
@@ -516,16 +543,6 @@ export class UniTable implements OnChanges {
 
         this.pageChange.emit(page);
 
-    }
-
-    private onResetColVisibility() {
-        this.tableColumns = this.makeColumnsImmutable(this.config.columns);
-
-        if (this.lastFocusPosition) {
-            this.resetFocusedCell();
-        }
-
-        this.columnVisibilityChange.emit(this.tableColumns.toJS());
     }
 
     private onKeyDown(event: KeyboardEvent) {
@@ -766,12 +783,13 @@ export class UniTable implements OnChanges {
     }
 
     private makeColumnsImmutable(columns): Immutable.List<any> {
-        var immutable = Immutable.List();
-        this.config.columns.forEach((col) => {
+        let immutableColumns = Immutable.List();
+        columns.forEach((col) => {
             let map = Immutable.Map(col);
-            immutable = immutable.push(map);
+            immutableColumns = immutableColumns.push(map);
         });
-        return immutable;
+
+        return immutableColumns;
     }
 
     private makeDataImmutable(data) {
