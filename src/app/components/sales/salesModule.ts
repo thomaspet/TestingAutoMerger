@@ -10,6 +10,7 @@ import {salesRoutes} from './salesRoutes';
 import {Customer} from './customer/customer';
 import {CustomerDetailsModal} from './customer/customerDetails/customerDetailsModal';
 import {CustomerDetails} from './customer/customerDetails/customerDetails';
+import {CustomerProductsSold} from './customer/customerDetails/customerProductsSold';
 import {CustomerList} from './customer/list/customerList';
 import {ReportsModule} from '../reports/reportsModule';
 import {UniTickerModule} from '../uniticker/uniTickerModule';
@@ -73,6 +74,7 @@ import {TreeModule} from 'angular-tree-component';
         Customer,
         CustomerDetailsModal,
         CustomerDetails,
+        CustomerProductsSold,
         CustomerList,
 
         TofHead,
@@ -130,6 +132,7 @@ import {TreeModule} from 'angular-tree-component';
         Customer,
         CustomerDetailsModal,
         CustomerDetails,
+        CustomerProductsSold,
         CustomerList,
         InvoiceList,
         InvoiceList2,

@@ -22,6 +22,12 @@
                     Åpne poster
                 </a>
             </li>
+            <li>
+                <a [class]="activeTab === 'productssold' ? 'router-link-active' : ''"
+                   (click)="showTab('productssold')">
+                    Produkter solgt
+                </a>
+            </li>
             <li *ngFor="let link of reportLinks">
                 <a
                         [class]="activeTab === 'report' && showReportWithID == link.id ? 'router-link-active' : ''"
@@ -64,7 +70,12 @@
             </reminder-settings>
         </div>
     </article>
-    <ledger-account-reconciliation [customerID]="(customer$ | async)?.ID" *ngIf="activeTab === 'reconciliation'"></ledger-account-reconciliation>
+    <ledger-account-reconciliation *ngIf="activeTab === 'reconciliation'"
+            [customerID]="(customer$ | async)?.ID">
+    </ledger-account-reconciliation>
+    <customer-products-sold *ngIf="activeTab === 'productssold'"
+            [customerID]="(customer$ | async)?.ID">
+    </customer-products-sold>
     <uni-query-read-only
             *ngFor="let link of reportLinks"
             [hidden]="showReportWithID != link.id"
