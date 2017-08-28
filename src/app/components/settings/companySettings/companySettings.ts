@@ -587,7 +587,7 @@ export class CompanySettingsComponent implements OnInit {
                 const modal = this.modalService.open(UniBankAccountModal, {
                     data: bankaccount,
                     modalConfig: {
-                        accountVisible: true
+                        ledgerAccountVisible: true
                     }
                 });
 

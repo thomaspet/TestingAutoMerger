@@ -75,7 +75,7 @@ export class UniBankAccountModal implements IUniModal {
         if (emitValue) {
             account = this.formModel$.getValue();
             if (this.options.modalConfig
-                && this.options.modalConfig.accountVisible
+                && this.options.modalConfig.ledgerAccountVisible
                 && !account.AccountID) {
 
                 const confirm = this.modalService.open(UniConfirmModalV2, {
@@ -206,7 +206,7 @@ export class UniBankAccountModal implements IUniModal {
                     debounceTime: 200,
                     search: (searchValue) => this.accountSearch(searchValue)
                 },
-                Hidden: !this.options.modalConfig || !this.options.modalConfig.accountVisible,
+                Hidden: !this.options.modalConfig || !this.options.modalConfig.ledgerAccountVisible,
             },
             <any> {
                 FieldSet: 1,
