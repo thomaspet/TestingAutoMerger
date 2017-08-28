@@ -395,7 +395,7 @@ export class TransqueryDetails implements OnInit {
         let data = this.journalEntryService.getSessionData(0);
         let url = '/accounting/journalentry/manual'
                 + `;journalEntryNumber=${journalEntryNumber}`
-                + `journalEntryID=${journalEntryID};editmode=true`;
+                + `;journalEntryID=${journalEntryID};editmode=true`;
 
         if (data && data.length > 0
             && (!data[0].JournalEntryID || data[0].JournalEntryID.toString() !== journalEntryID.toString())) {
