@@ -277,7 +277,7 @@ export class WorkEditor {
         return this.createFmtColumn(name, label, x => moment(x).format('HH:mm'));
     }
 
-    private createHourColumn(name: string, label: string): UniTableColumn {
+    public createHourColumn(name: string, label: string): UniTableColumn {
         return this.createFmtColumn(name, label, x => (safeDec(x) / 60).toFixed(1));
     }
 

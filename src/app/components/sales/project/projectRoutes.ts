@@ -3,6 +3,7 @@ import { ProjectTasks } from './tasks/tasks';
 import { ProjectEditmode } from './editmode/editmode';
 import { ProjectDocument } from './document/document';
 import { ProjectQueryList } from './lists/querylist';
+import { ProjectHours } from './hours/hours';
 
 export const routes = [
     {
@@ -17,6 +18,10 @@ export const routes = [
     {
         path: 'tasks',
         component: ProjectTasks
+    },
+    {
+        path: 'hours',
+        component: ProjectHours
     },
     {
         path: 'editmode',

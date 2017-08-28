@@ -38,4 +38,15 @@ export class ProjectService extends BizHttp<Project> {
             .send()
             .map(response => response.json());
     };
+
+    public getAllProjectHours(filter: string) {
+        const route = 'workitems?expand=WorkType,Dimensions,Dimensions.Project,WorkRelation.Worker.Info,'
+            + 'Dimensions.Department,CustomerOrder,Customer,Customer.Info'
+            + '&filter=' + filter
+            + '&orderBy=StartTime&hateoas=false';
+        return this.http.asGET()
+            .usingBusinessDomain()
+            .withEndPoint(route)
+            .send();
+    }
 }

@@ -9,6 +9,11 @@ export interface myProject extends Project {
     ProjectCustomerID: number;
 }
 
+interface IMonthAndYear {
+    month: number;
+    year: number;
+}
+
 @Component({
     selector: 'project-overview',
     templateUrl: './overview.html'
@@ -46,6 +51,7 @@ export class ProjectOverview {
     private projectHoursInvoiced: number;
     private customer: Customer;
     private customerName: string;
+    private monthAndYearDataInBarChart: IMonthAndYear[] = [];
 
     private project: myProject;
     private chart = {
@@ -99,6 +105,16 @@ export class ProjectOverview {
 
     public ngAfterViewInit() {
         this.getDataAndDrawChart();
+        this.chartElement1.nativeElement.onclick = (event) => {
+            let temp = this.myChart.getElementAtEvent(event);
+            this.router.navigate(['/sales/project/hours'], {
+                queryParams: {
+                    projectID: this.projectService.currentProject.getValue().ID,
+                    month: this.monthAndYearDataInBarChart[temp[0]._index].month,
+                    year: this.monthAndYearDataInBarChart[temp[0]._index].year
+                }
+            });
+        }
     }
 
     private navigateToEditmode() {
@@ -129,7 +145,7 @@ export class ProjectOverview {
             }
 
             this.projectService.getProjectHours(this.project.ID).subscribe((res) => {
-
+                this.monthAndYearDataInBarChart = [];
                 this.chart.data.labels = [];
                 this.chart.data.datasets[0].data = [];
                 this.chart.data.datasets[1].data = [];
@@ -137,6 +153,7 @@ export class ProjectOverview {
                 this.projectHoursInvoiced = 0;
 
                 res.Data.forEach((data: any) => {
+                    this.monthAndYearDataInBarChart.push({ month: data.mnd, year: data.year });
                     this.chart.data.labels.push(this.MONTHS[data.mnd - 1] + ' ' + data.year);
                     this.chart.data.datasets[0].data.push(data.summinutes / 60);
                     this.chart.data.datasets[1].data.push(data.WorkItemMinutesToOrder / 60);
