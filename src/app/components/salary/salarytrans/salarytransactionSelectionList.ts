@@ -209,10 +209,13 @@ export class SalaryTransactionSelectionList extends UniView implements AfterView
     private setSums(employeeTotals: SalaryTransactionSums) {
         let employee = this.employeeList[this.selectedIndex];
         let taxCard = employee && employee.TaxCards && employee.TaxCards.length ? employee.TaxCards[0] : undefined;
+        let standardTaxPercent = taxCard && taxCard.TaxTable ? '' : ' (50%)';
 
         this.summary = [{
             value: employeeTotals && this.numberFormat.asMoney(employeeTotals.percentTax),
-            title: `Prosenttrekk` + (taxCard && taxCard.TaxPercentage ? ` (${taxCard.TaxPercentage}%)` : ''),
+            title: `Prosenttrekk` + (taxCard && taxCard.TaxPercentage 
+                ? ` (${taxCard.TaxPercentage}%)` 
+                : standardTaxPercent),
             description: employeeTotals
                 && employeeTotals.basePercentTax
                 ? `av ${this.numberFormat.asMoney(employeeTotals.basePercentTax)}` : null
