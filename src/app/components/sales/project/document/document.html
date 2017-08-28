@@ -1,17 +1,21 @@
 <section>
     <label>Prosjekt dokument:</label>
     <h2 *ngIf="!project">Ingen prosjekt valgt</h2>
-    <uni-attachments [entity]="'Project'" *ngIf="project"
-                     [entityID]="project?.ID"
-                     [hideLabel]="true">
-    </uni-attachments>
+    <article *ngIf="project">
+        <uni-attachments [entity]="'Project'" *ngIf="project"
+                         [entityID]="project?.ID"
+                         [hideLabel]="true"
+                         [showFileList]="false"
+                         (fileUploaded)="onFileUploaded()">
+        </uni-attachments>
 
-    <label>Dokument knyttet til faktura/ordre/tilbud:</label>
-    <uni-table
-        [config]="tableConfig"
-        [resource]="(documents$ | async)"
-        (rowSelected)="onRowSelected($event.rowModel)">
-    </uni-table>
+        <uni-table
+            [config]="tableConfig"
+            [resource]="(documents$ | async)"
+            (rowSelected)="onRowSelected($event.rowModel)"
+            (rowDeleted)="onRowDeleted($event.rowModel)">
+        </uni-table>
+    </article>
 </section>
 
 <image-modal></image-modal>
