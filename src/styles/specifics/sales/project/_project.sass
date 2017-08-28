@@ -136,7 +136,13 @@
             font-size: 2rem
 
     .project-edit-form
-        width: 100%
+        @include clearfix
+
+        uni-form
+            float: left
+
+    .project-edit-resources
+        width: calc(100% - 33px)
 
     .project-task-container
         width: calc(100% - 40px)
