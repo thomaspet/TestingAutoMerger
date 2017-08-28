@@ -227,11 +227,12 @@ export class UniTableConfig implements IUniTableConfig {
         return this;
     }
 
-    public setDefaultOrderBy(field: string, direction: number) {
+    public setDefaultOrderBy(field: string, direction: number, mode: number = UniTableColumnSortMode.Normal) {
         this.defaultOrderBy = {
             field: field,
             direction: direction,
-            type: UniTableColumnType.Text
+            type: UniTableColumnType.Text,
+            mode: mode
         };
         return this;
     }

@@ -7,7 +7,7 @@ import {
     CompanySettings,
     CurrencyCode,
     Customer,
-    CustomerInvoice, 
+    CustomerInvoice,
     CustomerInvoiceItem,
     InvoicePaymentData,
     LocalDate,
@@ -117,30 +117,30 @@ export class InvoiceDetails {
 
     private customerExpandOptions: string[] = [
         'DeliveryTerms',
-        'Dimensions', 
-        'Dimensions.Project', 
+        'Dimensions',
+        'Dimensions.Project',
         'Dimensions.Department',
-        'Info', 
-        'Info.Addresses', 
+        'Info',
+        'Info.Addresses',
         'PaymentTerms'
     ];
 
     private expandOptions: Array<string> = [
-        'CurrencyCode', 
-        'Customer', 
+        'CurrencyCode',
+        'Customer',
         'DefaultDimensions',
         'DeliveryTerms',
-        'InvoiceReference', 
-        'Items', 
-        'Items.Product.VatType', 
-        'Items.VatType', 
+        'InvoiceReference',
+        'Items',
+        'Items.Product.VatType',
+        'Items.VatType',
         'Items.Account',
-        'Items.Dimensions', 
-        'Items.Dimensions.Project', 
+        'Items.Dimensions',
+        'Items.Dimensions.Project',
         'Items.Dimensions.Department',
-        'JournalEntry', 
+        'JournalEntry',
         'PaymentTerms',
-        'Sellers', 
+        'Sellers',
         'Sellers.Seller'
     ].concat(this.customerExpandOptions.map(option => 'Customer.' + option));
 
@@ -174,11 +174,11 @@ export class InvoiceDetails {
         private userService: UserService
     ) {
         // set default tab title, this is done to set the correct current module to make the breadcrumb correct
-        this.tabService.addTab({ 
-            url: '/sales/invoices/', 
-            name: 'Faktura', 
-            active: true, 
-            moduleID: UniModules.Invoices 
+        this.tabService.addTab({
+            url: '/sales/invoices/',
+            name: 'Faktura',
+            active: true,
+            moduleID: UniModules.Invoices
         });
     }
 
@@ -199,7 +199,7 @@ export class InvoiceDetails {
             const projectID = +params['projectID'];
 
             this.commentsConfig = {
-                entityType: 'CustomerInvoice',
+                entityName: 'CustomerInvoice',
                 entityID: this.invoiceID
             };
 
@@ -221,16 +221,16 @@ export class InvoiceDetails {
                     let invoice = <CustomerInvoice>res[0];
                     invoice.OurReference = res[1].DisplayName;
                     invoice.InvoiceDate = new LocalDate(Date());
-                    if (invoice.PaymentTerms 
-                        && invoice.PaymentTerms.CreditDays 
+                    if (invoice.PaymentTerms
+                        && invoice.PaymentTerms.CreditDays
                         && (invoice.PaymentTermsID !== this.invoice.PaymentTermsID)) {
                             invoice.PaymentDueDate = this.setPaymentDueDate(invoice);
                     }
-                    
+
 
                     if (res[2]) {
                         invoice = this.tofHelper.mapCustomerToEntity(res[2], invoice);
-                    } 
+                    }
 
                     if (!invoice.CurrencyCodeID) {
                         invoice.CurrencyCodeID = this.companySettings.BaseCurrencyCodeID;
@@ -264,7 +264,7 @@ export class InvoiceDetails {
                     let invoice = res[0];
 
                     this.companySettings = res[1];
-                    
+
                     if (!invoice.CurrencyCodeID) {
                         invoice.CurrencyCodeID = this.companySettings.BaseCurrencyCodeID;
                         invoice.CurrencyExchangeRate = 1;
@@ -433,20 +433,20 @@ export class InvoiceDetails {
             shouldGetCurrencyRate = true;
         }
 
-        let paymentTermChanged: boolean = this.currentPaymentTerm 
+        let paymentTermChanged: boolean = this.currentPaymentTerm
             && invoice.PaymentTerms.ID !== this.currentPaymentTerm.ID;
         this.currentPaymentTerm = invoice.PaymentTerms;
         if (paymentTermChanged
-            && invoice.PaymentTerms 
+            && invoice.PaymentTerms
             && invoice.PaymentTerms.CreditDays) {
                 invoice.PaymentDueDate = this.setPaymentDueDate(invoice);
         }
 
-        let deliveryTermChanged: boolean = this.currentDeliveryTerm 
+        let deliveryTermChanged: boolean = this.currentDeliveryTerm
             && invoice.DeliveryTerms.ID !== this.currentDeliveryTerm.ID;
         this.currentDeliveryTerm = invoice.DeliveryTerms;
-        if (deliveryTermChanged 
-            && invoice.DeliveryTerms 
+        if (deliveryTermChanged
+            && invoice.DeliveryTerms
             && invoice.DeliveryTerms.CreditDays) {
                 invoice.DeliveryDate = this.setDeliveryDate(invoice);
         }
@@ -661,8 +661,8 @@ export class InvoiceDetails {
             let currencyDate: LocalDate = new LocalDate(invoice.InvoiceDate.toString());
 
             return this.currencyService.getCurrencyExchangeRate(
-                invoice.CurrencyCodeID, 
-                this.companySettings.BaseCurrencyCodeID, 
+                invoice.CurrencyCodeID,
+                this.companySettings.BaseCurrencyCodeID,
                 currencyDate
             ).map(x => x.ExchangeRate);
         }
@@ -742,7 +742,7 @@ export class InvoiceDetails {
                         `model=CustomerInvoiceReminder&orderby=CustomerInvoiceReminder.ReminderNumber `
                         + `desc&filter=CustomerInvoiceReminder.CustomerInvoiceID eq ${this.invoiceID}`
                         + `&select=CustomerInvoiceReminder.CreatedAt as Date,CustomerInvoiceReminder.ReminderNumber `
-                        + `as ReminderNumber,CustomerInvoiceReminder.DueDate as DueDate ` 
+                        + `as ReminderNumber,CustomerInvoiceReminder.DueDate as DueDate `
                     )
                     .map(data => data.Data ? data.Data : [])
                     .subscribe(brdata => {
@@ -772,7 +772,7 @@ export class InvoiceDetails {
                         `model=AuditLog&orderby=AuditLog.CreatedAt desc&filter=AuditLog.EntityID eq `
                         + `${this.invoiceID} and EntityType eq 'CustomerInvoice' and Field eq 'CollectorStatusCode' `
                         + `and NewValue eq '42502'&select=User.DisplayName as Username,Auditlog.CreatedAt as `
-                        + `Date&join=AuditLog.CreatedBy eq User.GlobalIdentity ` 
+                        + `Date&join=AuditLog.CreatedBy eq User.GlobalIdentity `
                     )
                     .map(data => data.Data ? data.Data : [])
                     .subscribe(brdata => {
@@ -847,8 +847,8 @@ export class InvoiceDetails {
 
 
 
-        if (this.invoice.CollectorStatusCode > 42500 
-            && this.invoice.CollectorStatusCode < 42505 
+        if (this.invoice.CollectorStatusCode > 42500
+            && this.invoice.CollectorStatusCode < 42505
             && !this.invoice.DontSendReminders
         ) {
             let statusText = this.getCollectorStatusText(this.invoice.CollectorStatusCode);
@@ -940,9 +940,9 @@ export class InvoiceDetails {
         let toolbarconfig: IToolbarConfig = {
             title: invoiceText,
             subheads: [
-                { 
-                    title: customerText, 
-                    link: this.invoice.Customer ? `#/sales/customer/${this.invoice.Customer.ID}` : '' 
+                {
+                    title: customerText,
+                    link: this.invoice.Customer ? `#/sales/customer/${this.invoice.Customer.ID}` : ''
                 },
                 { title: netSumText },
                 { title: GetPrintStatusText(this.invoice.PrintStatus) },
@@ -1271,7 +1271,7 @@ export class InvoiceDetails {
 
         const invoicePaymentData: InvoicePaymentData = {
             Amount: roundTo(this.invoice.RestAmount),
-            AmountCurrency: this.invoice.CurrencyCodeID === this.companySettings.BaseCurrencyCodeID ? 
+            AmountCurrency: this.invoice.CurrencyCodeID === this.companySettings.BaseCurrencyCodeID ?
                 roundTo(this.invoice.RestAmount) : roundTo(this.invoice.RestAmountCurrency),
             BankChargeAmount: 0,
             CurrencyCodeID: this.invoice.CurrencyCodeID,
@@ -1420,59 +1420,59 @@ export class InvoiceDetails {
 
         this.summaryFields = [
             {
-                value: !this.itemsSummaryData ? 
+                value: !this.itemsSummaryData ?
                     '' : this.getCurrencyCode(this.currencyCodeID),
                 title: 'Valuta:',
-                description: this.currencyExchangeRate ? 
-                    'Kurs: ' + this.numberFormat.asMoney(this.currencyExchangeRate) 
+                description: this.currencyExchangeRate ?
+                    'Kurs: ' + this.numberFormat.asMoney(this.currencyExchangeRate)
                     : ''
             },
             {
                 title: 'Avgiftsfritt',
-                value: !this.itemsSummaryData ? 
-                    this.numberFormat.asMoney(0) 
+                value: !this.itemsSummaryData ?
+                    this.numberFormat.asMoney(0)
                     : this.numberFormat.asMoney(this.itemsSummaryData.SumNoVatBasisCurrency)
             },
             {
                 title: 'Avgiftsgrunnlag',
-                value: !this.itemsSummaryData ? 
-                    this.numberFormat.asMoney(0) 
+                value: !this.itemsSummaryData ?
+                    this.numberFormat.asMoney(0)
                     : this.numberFormat.asMoney(this.itemsSummaryData.SumVatBasisCurrency)
             },
             {
                 title: 'Sum rabatt',
-                value: !this.itemsSummaryData ? 
-                    this.numberFormat.asMoney(0) 
+                value: !this.itemsSummaryData ?
+                    this.numberFormat.asMoney(0)
                     : this.numberFormat.asMoney(this.itemsSummaryData.SumDiscountCurrency)
             },
             {
                 title: 'Nettosum',
-                value: !this.itemsSummaryData ? 
-                    this.numberFormat.asMoney(0) 
+                value: !this.itemsSummaryData ?
+                    this.numberFormat.asMoney(0)
                     : this.numberFormat.asMoney(this.itemsSummaryData.SumTotalExVatCurrency)
             },
             {
                 title: 'Mva',
-                value: !this.itemsSummaryData ? 
-                    this.numberFormat.asMoney(0) 
+                value: !this.itemsSummaryData ?
+                    this.numberFormat.asMoney(0)
                     : this.numberFormat.asMoney(this.itemsSummaryData.SumVatCurrency)
             },
             {
                 title: 'Øreavrunding',
-                value: !this.itemsSummaryData ? 
-                    this.numberFormat.asMoney(0) 
+                value: !this.itemsSummaryData ?
+                    this.numberFormat.asMoney(0)
                     : this.numberFormat.asMoney(this.itemsSummaryData.DecimalRoundingCurrency)
             },
             {
                 title: 'Totalsum',
-                value: !this.itemsSummaryData ? 
-                    this.numberFormat.asMoney(0) 
+                value: !this.itemsSummaryData ?
+                    this.numberFormat.asMoney(0)
                     : this.numberFormat.asMoney(this.itemsSummaryData.SumTotalIncVatCurrency)
             },
             {
                 title: 'Restbeløp',
-                value: !this.itemsSummaryData ? 
-                    this.numberFormat.asMoney(0) 
+                value: !this.itemsSummaryData ?
+                    this.numberFormat.asMoney(0)
                     : !this.invoice.ID ? 0 : this.numberFormat.asMoney(this.invoice.RestAmountCurrency)
             },
         ];

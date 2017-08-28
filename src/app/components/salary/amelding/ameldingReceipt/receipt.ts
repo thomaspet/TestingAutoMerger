@@ -186,10 +186,18 @@ export class AmeldingReceiptView {
         let ftrekkCol = new UniTableColumn('mottattAvgiftOgTrekkTotalt.sumForskuddstrekk', 'Forskuddstrekk', UniTableColumnType.Money);
         let periodeCol = new UniTableColumn('periode', 'Periode', UniTableColumnType.Text);
 
-        let orderBy: ISortInfo = {field: 'meldingsId', direction: -1};
-
         this.mottattLeveranserIPeriodenConfig = new UniTableConfig('salary.amelding.ameldingReceipt', false, false)
-        .setColumns([meldingCol, periodeCol, refCol, tidCol, statusCol, antallCol, replaceCol, agaCol, ftrekkCol]);
-        this.mottattLeveranserIPeriodenConfig.defaultOrderBy = orderBy;
+            .setDefaultOrderBy('meldingsId', -1)
+            .setColumns([
+                meldingCol,
+                periodeCol,
+                refCol,
+                tidCol,
+                statusCol,
+                antallCol,
+                replaceCol,
+                agaCol,
+                ftrekkCol
+            ]);
     }
 }

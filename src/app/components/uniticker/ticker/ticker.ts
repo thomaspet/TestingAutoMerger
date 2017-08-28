@@ -517,8 +517,6 @@ export class UniTicker {
                 let columns: Array<UniTableColumn> = [];
                 let selects: Array<string> = [];
 
-                let visibleColumns = JSON.parse(this.storageService.get(this.getColumnVisibilityStorageKey()));
-
                 for (let i = 0; i < this.ticker.Columns.length; i++) {
                     let field = this.ticker.Columns[i];
 
@@ -622,11 +620,7 @@ export class UniTicker {
                             }
                         }
 
-                        if (visibleColumns && visibleColumns.length > 0) {
-                            if (!visibleColumns.find(x => x === field.SelectableFieldName)) {
-                                col.setVisible(false);
-                            }
-                        } else if (field.DefaultHidden) {
+                        if (field.DefaultHidden) {
                             col.setVisible(false);
                         }
 
