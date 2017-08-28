@@ -125,6 +125,7 @@ export class ColumnMenuModal implements IUniModal {
         this.dragElement = event.target;
         this.dragElementIndex = elementIndex;
 
+        event.dataTransfer.setData('text/html', event.target.outerHTML);
         event.dataTransfer.effectAllowed = 'move';
         event.target.classList.add('dragElement');
     }
