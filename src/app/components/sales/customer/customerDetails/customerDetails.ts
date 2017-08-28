@@ -6,7 +6,17 @@ import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {SearchResultItem} from '../../../common/externalSearch/externalSearch';
 import {IUniSaveAction} from '../../../../../framework/save/save';
 import {UniForm, UniFieldLayout, FieldType} from '../../../../../framework/ui/uniform/index';
-import {ComponentLayout, Customer, Contact, Email, Phone, Address, CustomerInvoiceReminderSettings, CurrencyCode} from '../../../../unientities';
+import {
+    ComponentLayout, 
+    Customer, 
+    Contact, 
+    Email, 
+    Phone, 
+    Address, 
+    CustomerInvoiceReminderSettings, 
+    CurrencyCode, 
+    Terms
+} from '../../../../unientities';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
 import {IReference} from '../../../../models/iReference';
 import {ToastService, ToastType, ToastTime} from '../../../../../framework/uniToast/toastService';
@@ -27,6 +37,7 @@ import {
     NumberFormat,
     CustomerInvoiceReminderSettingsService,
     CurrencyCodeService,
+    TermsService,
     UniSearchConfigGeneratorService
 } from '../../../../services/services';
 import {
@@ -35,6 +46,7 @@ import {
     UniEmailModal,
     UniPhoneModal
 } from '../../../../../framework/uniModal/barrel';
+import {UniHttp} from '../../../../../framework/core/http/http';
 declare var _;
 
 @Component({
@@ -60,6 +72,8 @@ export class CustomerDetails {
     private showSellerSection: boolean = false; // used in template
 
     public currencyCodes: Array<CurrencyCode>;
+    public paymentTerms: Terms[];
+    public deliveryTerms: Terms[];
     public dropdownData: any;
     public customer$: BehaviorSubject<Customer> = new BehaviorSubject(null);
     public searchText: string;
@@ -177,7 +191,9 @@ export class CustomerDetails {
         private customerInvoiceReminderSettingsService: CustomerInvoiceReminderSettingsService,
         private currencyCodeService: CurrencyCodeService,
         private uniSearchConfigGeneratorService: UniSearchConfigGeneratorService,
-        private modalService: UniModalService
+        private modalService: UniModalService,
+        private http: UniHttp,
+        private termsService: TermsService
     ) {}
 
     public ngOnInit() {
@@ -328,7 +344,9 @@ export class CustomerDetails {
                         this.customerService.getCustomerStatistics(this.customerID) :
                         Observable.of(null)
                 ),
-                this.currencyCodeService.GetAll(null)
+                this.currencyCodeService.GetAll(null),
+                this.termsService.GetAction(null, 'get-payment-terms'),
+                this.termsService.GetAction(null, 'get-delivery-terms')
             ).subscribe(response => {
                 this.dropdownData = [response[0], response[1]];
 
@@ -353,6 +371,9 @@ export class CustomerDetails {
                 }
 
                 this.currencyCodes = response[7];
+
+                this.paymentTerms = response[8];
+                this.deliveryTerms = response[9];
 
                 this.setTabTitle();
                 this.extendFormConfig();
@@ -448,7 +469,7 @@ export class CustomerDetails {
             source: this.dropdownData[0],
             valueProperty: 'ID',
             template: (item) => {
-                return item !== null ? (item.DepartmentNumber + ': ' + item.Name) : '';
+                return item !== null ? (item.DepartmentNumber + ' - ' + item.Name) : '';
             },
             debounceTime: 200
         };
@@ -458,7 +479,27 @@ export class CustomerDetails {
             source: this.dropdownData[1],
             valueProperty: 'ID',
             template: (item) => {
-                return item !== null ? (item.ProjectNumber + ': ' + item.Name) : '';
+                return item !== null ? (item.ProjectNumber + ' - ' + item.Name) : '';
+            },
+            debounceTime: 200
+        };
+
+        let paymentTerm: UniFieldLayout = fields.find(x => x.Property === 'PaymentTermsID');
+        paymentTerm.Options = {
+            source: this.paymentTerms,
+            valueProperty: 'ID',
+            template: (item) => {
+                return item !== null ? (item.CreditDays + ' kredittdager (' + item.Name + ')') : '';
+            },
+            debounceTime: 200
+        };
+
+        let deliveryTerm: UniFieldLayout = fields.find(x => x.Property === 'DeliveryTermsID');
+        deliveryTerm.Options = {
+            source: this.deliveryTerms,
+            valueProperty: 'ID',
+            template: (item) => {
+                return item !== null ? (item.CreditDays + ' leveringsdager (' + item.Name + ')') : '';
             },
             debounceTime: 200
         };
@@ -552,7 +593,11 @@ export class CustomerDetails {
         let customerSearchResult: UniFieldLayout = fields.find(x => x.Property === '_CustomerSearchResult');
         let customerName: UniFieldLayout = fields.find(x => x.Property === 'Info.Name');
 
-        if (!this.allowSearchCustomer || this.customerID > 0 || (customer && customer.Info.Name !== null && customer.Info.Name !== '')) {
+        if (
+            !this.allowSearchCustomer || 
+            this.customerID > 0 || 
+            (customer && customer.Info.Name !== null && customer.Info.Name !== '')
+        ) {
             customerSearchResult.Hidden = true;
             customerName.Hidden = false;
             this.fields$.next(fields);
@@ -675,11 +720,12 @@ export class CustomerDetails {
                         if (this.modalMode) {
                             this.customerUpdated.next(updatedCustomer);
                         } else {
-                            this.customerService.Get(updatedCustomer.ID, this.expandOptions).subscribe(retrievedCustomer => {
-                                this.setMainContact(retrievedCustomer);
-                                this.customer$.next(retrievedCustomer);
-                                this.setTabTitle();
-                            });
+                            this.customerService.Get(updatedCustomer.ID, this.expandOptions)
+                                .subscribe(retrievedCustomer => {
+                                    this.setMainContact(retrievedCustomer);
+                                    this.customer$.next(retrievedCustomer);
+                                    this.setTabTitle();
+                                });
                         }
                     },
                     (err) => {
@@ -775,7 +821,7 @@ export class CustomerDetails {
                 this.isDisabled = false;
                 this.setupSaveActions();
             } else if (this.isDisabled === false && changes['Info.Name'].currentValue === '') {
-                this.toastService.addToast('Navn er påkrevd', ToastType.warn, ToastTime.short)
+                this.toastService.addToast('Navn er påkrevd', ToastType.warn, ToastTime.short);
                 this.isDisabled = true;
                 this.setupSaveActions();
             }
@@ -938,15 +984,27 @@ export class CustomerDetails {
                 {
                     FieldSet: 3,
                     Legend: 'Betingelser',
-                    Url: 'customers',
                     ComponentLayoutID: 1,
                     EntityType: 'Customer',
-                    Property: 'CreditDays',
+                    Property: 'PaymentTermsID',
                     Placement: 1,
-                    FieldType: FieldType.TEXT,
+                    FieldType: FieldType.DROPDOWN,
                     Sectionheader: 'Betingelser',
                     Alignment: 0,
-                    Label: 'Kredittdager',
+                    Label: 'Betalingsbetingelse',
+                    Section: 0,
+                    ID: 0,
+                },
+                {
+                    FieldSet: 3,
+                    ComponentLayoutID: 1,
+                    EntityType: 'Customer',
+                    Property: 'DeliveryTermsID',
+                    Placement: 1,
+                    FieldType: FieldType.DROPDOWN,
+                    Sectionheader: 'Betingelser',
+                    Alignment: 0,
+                    Label: 'Leveringsbetingelse',
                     Section: 0,
                     ID: 0,
                 },
@@ -1029,7 +1087,7 @@ export class CustomerDetails {
                     Description: '',
                     HelpText: '',
                     FieldSet: 0,
-                    Section: 0, //3, // TODO: > 30.6
+                    Section: 0, // 3, // TODO: > 30.6
                     Sectionheader: 'Konto & bank',
                     Legend: 'Konto & bank',
                     StatusCode: 0,
@@ -1038,4 +1096,5 @@ export class CustomerDetails {
             ]
         };
     }
+
 }

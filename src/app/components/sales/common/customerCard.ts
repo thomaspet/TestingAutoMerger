@@ -88,7 +88,9 @@ export class TofCustomerCard {
         'Dimensions.Project',
         'Dimensions.Department',
         'Sellers',
-        'Sellers.Seller'
+        'Sellers.Seller',
+        'PaymentTerms',
+        'DeliveryTerms'
     ];
 
     constructor(
@@ -188,13 +190,14 @@ export class TofCustomerCard {
             this.entity.CustomerID = null;
             this.entity.CustomerName = null;
         }
+        this.mapCustomerTermsToEntity(customer, this.entity);
 
         if (customer.Info.DefaultEmail) {
             this.entity.EmailAddress = customer.Info.DefaultEmail.EmailAddress;
         }
 
         let sellers = [];
-        if (this.entity.Sellers.length == 0) {
+        if (this.entity.Sellers.length === 0) {
             customer.Sellers.forEach((seller: SellerLink) => {
                 sellers.push({
                     Percent: seller.Percent,
@@ -210,6 +213,18 @@ export class TofCustomerCard {
         this.entity.Customer = customer;
 
         this.entityChange.emit(this.entity);
+    }
+
+    private mapCustomerTermsToEntity(customer: Customer, entity: any) {
+        if (!entity.PaymentTermsID && customer.PaymentTerms) {
+            entity.PaymentTerms = customer.PaymentTerms;
+            entity.PaymentTermsID = customer.PaymentTermsID;
+        }
+
+        if (!entity.DeliveryTermsID && customer.DeliveryTerms) {
+            entity.DeliveryTerms = customer.DeliveryTerms;
+            entity.DeliveryTermsID = customer.DeliveryTermsID;
+        }
     }
 
     private mapAddresses(customer, addresses) {

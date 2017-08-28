@@ -99,6 +99,7 @@ export * from './assignmentServicesModule';
 // export * from './common/staticRegisterService';
 // export * from './common/browserStorageService';
 // export * from './common/cacheService';
+// export * from './common/termsService';
 
 // Reports
 // export * from './reports/reportDefinitionParameterService';

@@ -1,52 +1,42 @@
-import {Component, Input, ViewChild, EventEmitter, HostListener} from '@angular/core';
-import {Router, ActivatedRoute} from '@angular/router';
+import {Component, EventEmitter, HostListener, Input, ViewChild} from '@angular/core';
+import {ActivatedRoute, Router} from '@angular/router';
 import {Observable} from 'rxjs/Observable';
-import {TradeItemHelper} from '../../salesHelper/tradeItemHelper';
-import {TofHelper} from '../../salesHelper/tofHelper';
-import {IUniSaveAction} from '../../../../../framework/save/save';
-import {StatusCodeCustomerInvoice, LocalDate} from '../../../../unientities';
-import {TradeHeaderCalculationSummary} from '../../../../models/sales/TradeHeaderCalculationSummary';
-import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
-import {ToastService, ToastType} from '../../../../../framework/uniToast/toastService';
-import {IToolbarConfig, ICommentsConfig} from '../../../common/toolbar/toolbar';
-import {UniStatusTrack} from '../../../common/toolbar/statustrack';
-import {ISummaryConfig} from '../../../common/summary/summary';
-import {StatusCode} from '../../salesHelper/salesEnums';
-import {IContextMenuItem} from '../../../../../framework/ui/unitable/index';
-import {SendEmail} from '../../../../models/sendEmail';
-import {InvoiceTypes} from '../../../../models/Sales/InvoiceTypes';
-import {GetPrintStatusText} from '../../../../models/printStatus';
-import {TradeItemTable} from '../../common/tradeItemTable';
-import {TofHead} from '../../common/tofHead';
-import {CompanySettingsService} from '../../../../services/services';
-import {roundTo} from '../../../common/utils/utils';
-import {ActivationEnum} from '../../../../models/activationEnum';
+import * as moment from 'moment';
+
 import {
-    StatisticsService,
-    CustomerInvoiceService,
-    CustomerInvoiceItemService,
-    BusinessRelationService,
-    UserService,
-    ReportDefinitionService,
-    CustomerService,
-    NumberFormat,
-    ErrorService,
-    EHFService,
-    CustomerInvoiceReminderService,
-    CurrencyCodeService,
-    CurrencyService,
-    ReportService,
-    ProjectService,
-    DimensionService
-} from '../../../../services/services';
-import {
-    CustomerInvoice,
-    CustomerInvoiceItem,
     CompanySettings,
     CurrencyCode,
+    Customer,
+    CustomerInvoice, 
+    CustomerInvoiceItem,
     InvoicePaymentData,
-    Project
+    LocalDate,
+    Project,
+    StatusCodeCustomerInvoice,
+    Terms
 } from '../../../../unientities';
+
+import {
+    BusinessRelationService,
+    CompanySettingsService,
+    CurrencyCodeService,
+    CurrencyService,
+    CustomerInvoiceItemService,
+    CustomerInvoiceReminderService,
+    CustomerInvoiceService,
+    CustomerService,
+    DimensionService,
+    EHFService,
+    ErrorService,
+    NumberFormat,
+    ProjectService,
+    ReportDefinitionService,
+    ReportService,
+    StatisticsService,
+    TermsService,
+    UserService
+} from '../../../../services/services';
+
 import {
     UniModalService,
     UniRegisterPaymentModal,
@@ -54,10 +44,33 @@ import {
     UniSendEmailModal,
     ConfirmActions
 } from '../../../../../framework/uniModal/barrel';
+import {IUniSaveAction} from '../../../../../framework/save/save';
+import {IContextMenuItem} from '../../../../../framework/ui/unitable/index';
+import {ToastService, ToastTime, ToastType} from '../../../../../framework/uniToast/toastService';
+
+import {ActivationEnum} from '../../../../models/activationEnum';
+import {GetPrintStatusText} from '../../../../models/printStatus';
+import {SendEmail} from '../../../../models/sendEmail';
+import {InvoiceTypes} from '../../../../models/Sales/InvoiceTypes';
+import {TradeHeaderCalculationSummary} from '../../../../models/sales/TradeHeaderCalculationSummary';
+
+import {ISummaryConfig} from '../../../common/summary/summary';
+import {IToolbarConfig, ICommentsConfig} from '../../../common/toolbar/toolbar';
+import {UniStatusTrack} from '../../../common/toolbar/statustrack';
+import {roundTo, safeDec, safeInt, trimLength, capitalizeSentence} from '../../../common/utils/utils';
+
+import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
+
+import {TofHead} from '../../common/tofHead';
+import {TradeItemTable} from '../../common/tradeItemTable';
+
+import {StatusCode} from '../../salesHelper/salesEnums';
+import {TofHelper} from '../../salesHelper/tofHelper';
+import {TradeItemHelper} from '../../salesHelper/tradeItemHelper';
+
 import {UniReminderSendingModal} from '../../reminder/sending/reminderSendingModal';
 import {UniPreviewModal} from '../../../reports/modals/preview/previewModal';
 
-import * as moment from 'moment';
 declare const _;
 
 export enum CollectorStatus {
@@ -73,71 +86,100 @@ export enum CollectorStatus {
     templateUrl: './invoice.html'
 })
 export class InvoiceDetails {
-    @ViewChild(TofHead)
-    private tofHead: TofHead;
+    @ViewChild(TofHead) private tofHead: TofHead;
+    @ViewChild(TradeItemTable) private tradeItemTable: TradeItemTable;
+    @Input() public invoiceID: any;
 
-    @ViewChild(TradeItemTable)
-    private tradeItemTable: TradeItemTable;
-
-    @Input()
-    public invoiceID: any;
-
-    private isDirty: boolean;
     private invoice: CustomerInvoice;
     private invoiceItems: CustomerInvoiceItem[];
-    private newInvoiceItem: CustomerInvoiceItem;
+    private isDirty: boolean;
     private itemsSummaryData: TradeHeaderCalculationSummary;
-    private summaryFields: ISummaryConfig[];
-    private readonly: boolean;
+    private newInvoiceItem: CustomerInvoiceItem;
     private printStatusPrinted: string = '200';
     private projects: Project[];
+    private readonly: boolean;
+    private summaryFields: ISummaryConfig[];
 
+    private contextMenuItems: IContextMenuItem[] = [];
+    private companySettings: CompanySettings;
     private recalcDebouncer: EventEmitter<any> = new EventEmitter();
     private saveActions: IUniSaveAction[] = [];
     private toolbarconfig: IToolbarConfig;
-    private contextMenuItems: IContextMenuItem[] = [];
-    private companySettings: CompanySettings;
 
     private currencyCodes: Array<CurrencyCode>;
     private currencyCodeID: number;
     private currencyExchangeRate: number;
+    private currentCustomer: Customer;
+    private currentPaymentTerm: Terms;
+    private currentDeliveryTerm: Terms;
+    private deliveryTerms: Terms[];
+    private paymentTerms: Terms[];
 
-    private customerExpandOptions: string[] = ['Info', 'Info.Addresses', 'Dimensions', 'Dimensions.Project', 'Dimensions.Department'];
-    private expandOptions: Array<string> = ['Items', 'Items.Product.VatType', 'Items.VatType', 'Items.Account',
-        'Items.Dimensions', 'Items.Dimensions.Project', 'Items.Dimensions.Department',
-        'Customer', 'InvoiceReference', 'JournalEntry', 'CurrencyCode', 'DefaultDimensions',
-        'Sellers', 'Sellers.Seller'].concat(this.customerExpandOptions.map(option => 'Customer.' + option));
+    private customerExpandOptions: string[] = [
+        'DeliveryTerms',
+        'Dimensions', 
+        'Dimensions.Project', 
+        'Dimensions.Department',
+        'Info', 
+        'Info.Addresses', 
+        'PaymentTerms'
+    ];
+
+    private expandOptions: Array<string> = [
+        'CurrencyCode', 
+        'Customer', 
+        'DefaultDimensions',
+        'DeliveryTerms',
+        'InvoiceReference', 
+        'Items', 
+        'Items.Product.VatType', 
+        'Items.VatType', 
+        'Items.Account',
+        'Items.Dimensions', 
+        'Items.Dimensions.Project', 
+        'Items.Dimensions.Department',
+        'JournalEntry', 
+        'PaymentTerms',
+        'Sellers', 
+        'Sellers.Seller'
+    ].concat(this.customerExpandOptions.map(option => 'Customer.' + option));
 
     private commentsConfig: ICommentsConfig;
 
     constructor(
-        private customerInvoiceService: CustomerInvoiceService,
-        private customerInvoiceItemService: CustomerInvoiceItemService,
-        private reportDefinitionService: ReportDefinitionService,
         private businessRelationService: BusinessRelationService,
-        private userService: UserService,
-        private toastService: ToastService,
-        private customerService: CustomerService,
-        private numberFormat: NumberFormat,
-        private router: Router,
-        private route: ActivatedRoute,
-        private tabService: TabService,
-        private tofHelper: TofHelper,
-        private tradeItemHelper: TradeItemHelper,
-        private errorService: ErrorService,
         private companySettingsService: CompanySettingsService,
-        private ehfService: EHFService,
-        private customerInvoiceReminderService: CustomerInvoiceReminderService,
         private currencyCodeService: CurrencyCodeService,
         private currencyService: CurrencyService,
-        private reportService: ReportService,
-        private statisticsService: StatisticsService,
-        private projectService: ProjectService,
+        private customerInvoiceItemService: CustomerInvoiceItemService,
+        private customerInvoiceReminderService: CustomerInvoiceReminderService,
+        private customerInvoiceService: CustomerInvoiceService,
+        private customerService: CustomerService,
         private dimensionService: DimensionService,
-        private modalService: UniModalService
+        private ehfService: EHFService,
+        private errorService: ErrorService,
+        private modalService: UniModalService,
+        private numberFormat: NumberFormat,
+        private projectService: ProjectService,
+        private reportDefinitionService: ReportDefinitionService,
+        private reportService: ReportService,
+        private router: Router,
+        private route: ActivatedRoute,
+        private statisticsService: StatisticsService,
+        private tabService: TabService,
+        private termsService: TermsService,
+        private toastService: ToastService,
+        private tofHelper: TofHelper,
+        private tradeItemHelper: TradeItemHelper,
+        private userService: UserService
     ) {
         // set default tab title, this is done to set the correct current module to make the breadcrumb correct
-        this.tabService.addTab({ url: '/sales/invoices/', name: 'Faktura', active: true, moduleID: UniModules.Invoices });
+        this.tabService.addTab({ 
+            url: '/sales/invoices/', 
+            name: 'Faktura', 
+            active: true, 
+            moduleID: UniModules.Invoices 
+        });
     }
 
     public ngOnInit() {
@@ -165,31 +207,30 @@ export class InvoiceDetails {
                 Observable.forkJoin(
                     this.customerInvoiceService.GetNewEntity(['DefaultDimensions'], CustomerInvoice.EntityType),
                     this.userService.getCurrentUser(),
-                    customerID ? this.customerService.Get(customerID, this.customerExpandOptions) : Observable.of(null),
+                    customerID ? this.customerService.Get(
+                        customerID, this.customerExpandOptions
+                    ) : Observable.of(null),
                     this.companySettingsService.Get(1),
                     this.currencyCodeService.GetAll(null),
+                    this.termsService.GetAction(null, 'get-payment-terms'),
+                    this.termsService.GetAction(null, 'get-delivery-terms'),
                     projectID ? this.projectService.Get(projectID, null) : Observable.of(null)
                 ).subscribe((res) => {
                     this.companySettings = res[3];
 
                     let invoice = <CustomerInvoice>res[0];
                     invoice.OurReference = res[1].DisplayName;
-                    invoice.InvoiceDate = new LocalDate();
+                    invoice.InvoiceDate = new LocalDate(Date());
+                    if (invoice.PaymentTerms 
+                        && invoice.PaymentTerms.CreditDays 
+                        && (invoice.PaymentTermsID !== this.invoice.PaymentTermsID)) {
+                            invoice.PaymentDueDate = this.setPaymentDueDate(invoice);
+                    }
+                    
 
                     if (res[2]) {
                         invoice = this.tofHelper.mapCustomerToEntity(res[2], invoice);
-
-                        invoice.CreditDays = invoice.CreditDays
-                            || invoice.Customer.CreditDays
-                            || this.companySettings.CustomerCreditDays;
-
-                        invoice.PaymentDueDate = new LocalDate(
-                            moment(invoice.InvoiceDate).add(invoice.CreditDays, 'days').toDate()
-                        );
-                    } else {
-                        invoice.PaymentDueDate = null;
-                    }
-
+                    } 
 
                     if (!invoice.CurrencyCodeID) {
                         invoice.CurrencyCodeID = this.companySettings.BaseCurrencyCodeID;
@@ -201,8 +242,11 @@ export class InvoiceDetails {
 
                     this.currencyCodes = res[4];
 
-                    if (res[5]) {
-                        invoice.DefaultDimensions.ProjectID = res[5].ID;
+                    this.paymentTerms = res[5];
+                    this.deliveryTerms = res[6];
+
+                    if (res[7]) {
+                        invoice.DefaultDimensions.ProjectID = res[7].ID;
                     }
 
                     this.setupContextMenuItems();
@@ -213,12 +257,14 @@ export class InvoiceDetails {
                 Observable.forkJoin(
                     this.customerInvoiceService.Get(this.invoiceID, this.expandOptions),
                     this.companySettingsService.Get(1),
-                    this.currencyCodeService.GetAll(null)
+                    this.currencyCodeService.GetAll(null),
+                    this.termsService.GetAction(null, 'get-payment-terms'),
+                    this.termsService.GetAction(null, 'get-delivery-terms')
                 ).subscribe((res) => {
                     let invoice = res[0];
 
                     this.companySettings = res[1];
-
+                    
                     if (!invoice.CurrencyCodeID) {
                         invoice.CurrencyCodeID = this.companySettings.BaseCurrencyCodeID;
                         invoice.CurrencyExchangeRate = 1;
@@ -228,6 +274,9 @@ export class InvoiceDetails {
                     this.currencyExchangeRate = invoice.CurrencyExchangeRate;
 
                     this.currencyCodes = res[2];
+
+                    this.paymentTerms = res[3];
+                    this.deliveryTerms = res[4];
 
                     this.setupContextMenuItems();
                     this.refreshInvoice(invoice);
@@ -359,25 +408,13 @@ export class InvoiceDetails {
                 invoice.CurrencyCodeID = this.companySettings.BaseCurrencyCodeID;
             }
             shouldGetCurrencyRate = true;
-            invoice.CreditDays = null;
-        }
 
-        if (invoice.Customer) {
-            let oldCreditDays = invoice.CreditDays;
-            invoice.CreditDays =
-                invoice.CreditDays
-                || invoice.Customer.CreditDays
-                || this.companySettings.CustomerCreditDays;
+            if (invoice.PaymentTerms && invoice.PaymentTerms.CreditDays) {
+                invoice.PaymentDueDate = this.setPaymentDueDate(invoice);
+            }
 
-            if (invoice.InvoiceDate) {
-                if (!invoice.PaymentDueDate
-                    || customerChanged
-                    || isDifferent(this.invoice.InvoiceDate, invoice.InvoiceDate)
-                    || isDifferent(oldCreditDays, invoice.CreditDays)) {
-                    invoice.PaymentDueDate = new LocalDate(
-                        moment(invoice.InvoiceDate).add(invoice.CreditDays, 'days').toDate()
-                    );
-                }
+            if (invoice.DeliveryTerms && invoice.DeliveryTerms.CreditDays) {
+                invoice.DeliveryDate = this.setDeliveryDate(invoice);
             }
         }
 
@@ -394,6 +431,24 @@ export class InvoiceDetails {
 
         if (this.invoice && invoice.CurrencyCodeID !== this.invoice.CurrencyCodeID) {
             shouldGetCurrencyRate = true;
+        }
+
+        let paymentTermChanged: boolean = this.currentPaymentTerm 
+            && invoice.PaymentTerms.ID !== this.currentPaymentTerm.ID;
+        this.currentPaymentTerm = invoice.PaymentTerms;
+        if (paymentTermChanged
+            && invoice.PaymentTerms 
+            && invoice.PaymentTerms.CreditDays) {
+                invoice.PaymentDueDate = this.setPaymentDueDate(invoice);
+        }
+
+        let deliveryTermChanged: boolean = this.currentDeliveryTerm 
+            && invoice.DeliveryTerms.ID !== this.currentDeliveryTerm.ID;
+        this.currentDeliveryTerm = invoice.DeliveryTerms;
+        if (deliveryTermChanged 
+            && invoice.DeliveryTerms 
+            && invoice.DeliveryTerms.CreditDays) {
+                invoice.DeliveryDate = this.setDeliveryDate(invoice);
         }
 
         this.invoice = _.cloneDeep(invoice);
@@ -424,7 +479,9 @@ export class InvoiceDetails {
                 let diffBaseCurrency: number;
                 let diffBaseCurrencyPercent: number;
 
-                let haveUserDefinedPrices = this.invoiceItems && this.invoiceItems.filter(x => x.PriceSetByUser).length > 0;
+                let haveUserDefinedPrices = this.invoiceItems && this.invoiceItems.filter(
+                    x => x.PriceSetByUser
+                ).length > 0;
 
                 if (haveUserDefinedPrices) {
                     // calculate how much the new currency will affect the amount for the base currency,
@@ -434,7 +491,9 @@ export class InvoiceDetails {
                     diffBaseCurrency = Math.abs(newTotalExVatBaseCurrency - this.itemsSummaryData.SumTotalExVat);
 
                     diffBaseCurrencyPercent =
-                        this.tradeItemHelper.round((diffBaseCurrency * 100) / Math.abs(this.itemsSummaryData.SumTotalExVat), 1);
+                        this.tradeItemHelper.round(
+                            (diffBaseCurrency * 100) / Math.abs(this.itemsSummaryData.SumTotalExVat), 1
+                        );
 
                     // 5% is set as a limit for asking the user now, but this might need to be reconsidered,
                     // or make it possible to override it either on companysettings, customer, or the TOF header
@@ -551,10 +610,46 @@ export class InvoiceDetails {
     }
 
     private didCustomerChange(invoice: CustomerInvoice): boolean {
-        return invoice.Customer
-            && (!this.invoice
-                || (invoice.Customer && !this.invoice.Customer)
-                || (invoice.Customer && this.invoice.Customer && invoice.Customer.ID !== this.invoice.Customer.ID));
+        let change: boolean;
+        if (this.currentCustomer) {
+            change = invoice.Customer.ID !== this.currentCustomer.ID;
+        } else if (invoice.Customer.ID) {
+            change = true;
+        }
+        this.currentCustomer = invoice.Customer;
+        return change;
+    }
+
+    private setPaymentDueDate(invoice: CustomerInvoice): LocalDate {
+        if (invoice.PaymentTerms && invoice.PaymentTerms.CreditDays) {
+            invoice.PaymentDueDate = invoice.InvoiceDate;
+            if (invoice.PaymentTerms.CreditDays < 0) {
+                invoice.PaymentDueDate = new LocalDate(
+                    moment(invoice.InvoiceDate).endOf('month').toDate()
+                );
+            }
+            invoice.PaymentDueDate = new LocalDate(
+                moment(invoice.PaymentDueDate).add(Math.abs(invoice.PaymentTerms.CreditDays), 'days').toDate()
+            );
+        } else {
+            invoice.PaymentDueDate = null;
+        }
+        return invoice.PaymentDueDate;
+    }
+
+    private setDeliveryDate(invoice: CustomerInvoice): LocalDate {
+        if (invoice.DeliveryTerms && invoice.DeliveryTerms.CreditDays) {
+            invoice.DeliveryDate = invoice.InvoiceDate;
+            if (invoice.DeliveryTerms.CreditDays < 0) {
+                invoice.DeliveryDate = new LocalDate(moment(invoice.InvoiceDate).endOf('month').toDate());
+            }
+            invoice.DeliveryDate = new LocalDate(
+                moment(invoice.DeliveryDate).add(Math.abs(invoice.DeliveryTerms.CreditDays), 'days').toDate()
+            );
+        } else {
+            invoice.DeliveryDate = null;
+        }
+        return invoice.DeliveryDate;
     }
 
     private getUpdatedCurrencyExchangeRate(invoice: CustomerInvoice): Observable<number> {
@@ -565,8 +660,11 @@ export class InvoiceDetails {
         } else {
             let currencyDate: LocalDate = new LocalDate(invoice.InvoiceDate.toString());
 
-            return this.currencyService.getCurrencyExchangeRate(invoice.CurrencyCodeID, this.companySettings.BaseCurrencyCodeID, currencyDate)
-                .map(x => x.ExchangeRate);
+            return this.currencyService.getCurrencyExchangeRate(
+                invoice.CurrencyCodeID, 
+                this.companySettings.BaseCurrencyCodeID, 
+                currencyDate
+            ).map(x => x.ExchangeRate);
         }
     }
 
@@ -606,11 +704,17 @@ export class InvoiceDetails {
         let reminderStoppedTimeStamp: Date = null;
 
         return new Promise((resolve, reject) => {
-            this.statisticsService.GetAll(`model=AuditLog&orderby=AuditLog.CreatedAt desc&filter=AuditLog.EntityID eq ${this.invoiceID} and EntityType eq 'CustomerInvoice' and Field eq 'DontSendReminders' and NewValue eq 'true'&select=User.DisplayName as Username,Auditlog.CreatedAt as Date&join=AuditLog.CreatedBy eq User.GlobalIdentity ` )
+            this.statisticsService.GetAll(
+                `model=AuditLog&orderby=AuditLog.CreatedAt desc&filter=AuditLog.EntityID eq ${this.invoiceID} and `
+                + `EntityType eq 'CustomerInvoice' and Field eq 'DontSendReminders' and NewValue eq `
+                + `'true'&select=User.DisplayName as Username,Auditlog.CreatedAt as `
+                + `Date&join=AuditLog.CreatedBy eq User.GlobalIdentity `
+            )
             .map(data => data.Data ? data.Data : [])
             .subscribe(brdata => {
                 if (brdata && brdata.length > 0) {
-                    reminderStoppedByText = `Aktivert av ${brdata[0]['Username']} ${moment(new Date(brdata[0]['Date'])).fromNow()}`;
+                    reminderStoppedByText = `Aktivert av ${brdata[0]['Username']} `
+                        + `${moment(new Date(brdata[0]['Date'])).fromNow()}`;
                     reminderStoppedTimeStamp = new Date(brdata[0]['Date']);
 
                     reminderStopSubStatus = {
@@ -634,14 +738,20 @@ export class InvoiceDetails {
         switch (colStatus) {
             case CollectorStatus.Reminded: {
                 return new Promise((resolve, reject) => {
-                    this.statisticsService.GetAll(`model=CustomerInvoiceReminder&orderby=CustomerInvoiceReminder.ReminderNumber desc&filter=CustomerInvoiceReminder.CustomerInvoiceID eq ${this.invoiceID}&select=CustomerInvoiceReminder.CreatedAt as Date,CustomerInvoiceReminder.ReminderNumber as ReminderNumber,CustomerInvoiceReminder.DueDate as DueDate ` )
+                    this.statisticsService.GetAll(
+                        `model=CustomerInvoiceReminder&orderby=CustomerInvoiceReminder.ReminderNumber `
+                        + `desc&filter=CustomerInvoiceReminder.CustomerInvoiceID eq ${this.invoiceID}`
+                        + `&select=CustomerInvoiceReminder.CreatedAt as Date,CustomerInvoiceReminder.ReminderNumber `
+                        + `as ReminderNumber,CustomerInvoiceReminder.DueDate as DueDate ` 
+                    )
                     .map(data => data.Data ? data.Data : [])
                     .subscribe(brdata => {
                         if (brdata && brdata.length > 0) {
                                 brdata.forEach(element => {
                                 let pastDue: boolean = new Date(element['DueDate']) < new Date();
                                 let pastDueText = pastDue ? 'forfalt for' : 'forfall om';
-                                statusText = `${element['ReminderNumber']}. purring, ${pastDueText} ${moment(new Date(element['DueDate'])).fromNow()}`;
+                                statusText = `${element['ReminderNumber']}. purring, `
+                                    + `${pastDueText} ${moment(new Date(element['DueDate'])).fromNow()}`;
                                 statusTimeStamp = new Date(element['Date']);
                                 subStatux = {
                                     title: statusText,
@@ -658,12 +768,18 @@ export class InvoiceDetails {
 
             case CollectorStatus.SendtToDebtCollection: {
                 return new Promise((resolve, reject) => {
-                    this.statisticsService.GetAll(`model=AuditLog&orderby=AuditLog.CreatedAt desc&filter=AuditLog.EntityID eq ${this.invoiceID} and EntityType eq 'CustomerInvoice' and Field eq 'CollectorStatusCode' and NewValue eq '42502'&select=User.DisplayName as Username,Auditlog.CreatedAt as Date&join=AuditLog.CreatedBy eq User.GlobalIdentity ` )
+                    this.statisticsService.GetAll(
+                        `model=AuditLog&orderby=AuditLog.CreatedAt desc&filter=AuditLog.EntityID eq `
+                        + `${this.invoiceID} and EntityType eq 'CustomerInvoice' and Field eq 'CollectorStatusCode' `
+                        + `and NewValue eq '42502'&select=User.DisplayName as Username,Auditlog.CreatedAt as `
+                        + `Date&join=AuditLog.CreatedBy eq User.GlobalIdentity ` 
+                    )
                     .map(data => data.Data ? data.Data : [])
                     .subscribe(brdata => {
                         if (brdata && brdata.length > 0) {
                             brdata.forEach(element => {
-                                statusText = `Sent av ${element['Username']} ${moment(new Date(element['Date'])).fromNow()}`;
+                                statusText = `Sent av ${element['Username']} `
+                                    + `${moment(new Date(element['Date'])).fromNow()}`;
                                 statusTimeStamp = new Date(element['Date']);
                                 subStatux = {
                                     title: statusText,
@@ -731,7 +847,10 @@ export class InvoiceDetails {
 
 
 
-        if (this.invoice.CollectorStatusCode > 42500 && this.invoice.CollectorStatusCode < 42505 && !this.invoice.DontSendReminders) {
+        if (this.invoice.CollectorStatusCode > 42500 
+            && this.invoice.CollectorStatusCode < 42505 
+            && !this.invoice.DontSendReminders
+        ) {
             let statusText = this.getCollectorStatusText(this.invoice.CollectorStatusCode);
             if (statusText !== '') {
                 this.getCollectionSubStatus(this.invoice.CollectorStatusCode).then(substatus => {
@@ -752,22 +871,15 @@ export class InvoiceDetails {
     private refreshInvoice(invoice: CustomerInvoice) {
 
         this.isDirty = false;
-        if (!invoice.CreditDays && invoice.Customer) {
-            invoice.CreditDays = invoice.CreditDays
-                || invoice.Customer.CreditDays
-                || this.companySettings.CustomerCreditDays;
-        }
-
-        if (invoice.InvoiceDate && !invoice.PaymentDueDate && invoice.CreditDays) {
-            invoice.PaymentDueDate = new LocalDate(
-                moment(invoice.InvoiceDate).add(invoice.CreditDays, 'days').toDate()
-            );
-        }
 
         this.newInvoiceItem = <any>this.tradeItemHelper.getDefaultTradeItemData(invoice);
         this.readonly = invoice.StatusCode && invoice.StatusCode !== StatusCodeCustomerInvoice.Draft;
         this.invoiceItems = invoice.Items.sort(function(itemA, itemB) { return itemA.SortIndex - itemB.SortIndex; });
 
+
+        this.currentCustomer = invoice.Customer;
+        this.currentPaymentTerm = invoice.PaymentTerms;
+        this.currentDeliveryTerm = invoice.DeliveryTerms;
 
         this.invoice = _.cloneDeep(invoice);
         this.recalcDebouncer.next(invoice.Items);
@@ -775,9 +887,6 @@ export class InvoiceDetails {
         this.updateToolbar();
         this.updateSaveActions();
     }
-
-
-
 
     private updateTabTitle() {
         let tabTitle = (this.invoice.InvoiceNumber)
@@ -812,12 +921,15 @@ export class InvoiceDetails {
         let netSumText = '';
 
         if (this.itemsSummaryData) {
-            netSumText = `Netto ${selectedCurrencyCode} ${this.numberFormat.asMoney(this.itemsSummaryData.SumTotalExVatCurrency)}`;
+            netSumText = `Netto ${selectedCurrencyCode} `
+                + `${this.numberFormat.asMoney(this.itemsSummaryData.SumTotalExVatCurrency)}`;
             if (baseCurrencyCode !== selectedCurrencyCode) {
-                netSumText += ` / ${baseCurrencyCode} ${this.numberFormat.asMoney(this.itemsSummaryData.SumTotalExVat)}`;
+                netSumText += ` / ${baseCurrencyCode} `
+                    + `${this.numberFormat.asMoney(this.itemsSummaryData.SumTotalExVat)}`;
             }
         } else {
-            netSumText = `Netto ${selectedCurrencyCode} ${this.numberFormat.asMoney(this.invoice.TaxExclusiveAmountCurrency)}`;
+            netSumText = `Netto ${selectedCurrencyCode} `
+                + `${this.numberFormat.asMoney(this.invoice.TaxExclusiveAmountCurrency)}`;
             if (baseCurrencyCode !== selectedCurrencyCode) {
                 netSumText += ` / ${baseCurrencyCode} ${this.numberFormat.asMoney(this.invoice.TaxExclusiveAmount)}`;
             }
@@ -828,7 +940,10 @@ export class InvoiceDetails {
         let toolbarconfig: IToolbarConfig = {
             title: invoiceText,
             subheads: [
-                { title: customerText, link: this.invoice.Customer ? `#/sales/customer/${this.invoice.Customer.ID}` : '' },
+                { 
+                    title: customerText, 
+                    link: this.invoice.Customer ? `#/sales/customer/${this.invoice.Customer.ID}` : '' 
+                },
                 { title: netSumText },
                 { title: GetPrintStatusText(this.invoice.PrintStatus) },
                 { title: reminderStopText }
@@ -854,7 +969,8 @@ export class InvoiceDetails {
         if (this.invoice.JournalEntry) {
             toolbarconfig.subheads.push({
                 title: `Bilagsnr. ${this.invoice.JournalEntry.JournalEntryNumber}`,
-                link: `#/accounting/transquery/details;JournalEntryNumber=${this.invoice.JournalEntry.JournalEntryNumber}`
+                link: `#/accounting/transquery/details;JournalEntryNumber=`
+                + `${this.invoice.JournalEntry.JournalEntryNumber}`
             });
         }
 
@@ -881,7 +997,8 @@ export class InvoiceDetails {
                     this.saveActions.push({
                     label: 'Lagre endringer',
                     action: done => this.saveInvoice(done).then(res => {
-                        this.customerInvoiceService.Get(this.invoice.ID, this.expandOptions).subscribe((refreshed) => {
+                        this.customerInvoiceService.Get(this.invoice.ID, this.expandOptions)
+                        .subscribe((refreshed) => {
                             this.refreshInvoice(refreshed);
                         });
                     }) ,
@@ -970,28 +1087,6 @@ export class InvoiceDetails {
             }
         });
 
-        if (!this.invoice.CreditDays) {
-            if (this.invoice.PaymentDueDate && this.invoice.InvoiceDate) {
-                this.invoice.CreditDays = moment(this.invoice.PaymentDueDate).diff(moment(this.invoice.InvoiceDate), 'days');
-            } else if (this.invoice.Customer && this.invoice.Customer.CreditDays) {
-                this.invoice.CreditDays = this.invoice.Customer.CreditDays;
-            } else if (this.companySettings && this.companySettings.CustomerCreditDays) {
-                this.invoice.CreditDays = this.companySettings.CustomerCreditDays;
-            } else {
-                this.invoice.CreditDays = 0;
-            }
-        }
-
-        if (!this.invoice.PaymentDueDate) {
-            this.invoice.PaymentDueDate = new LocalDate(
-                moment(this.invoice.InvoiceDate).add(this.invoice.CreditDays, 'days').toDate()
-            );
-        }
-
-        if (!this.invoice.DeliveryDate) {
-            this.invoice.DeliveryDate = this.invoice.InvoiceDate || new LocalDate();
-        }
-
         return new Promise((resolve, reject) => {
 
             if (TradeItemHelper.IsAnyItemsMissingProductID(this.invoice.Items)) {
@@ -1033,7 +1128,7 @@ export class InvoiceDetails {
 
                 } else {
                     request.subscribe(res => {
-                        resolve(res)
+                        resolve(res);
                         if (doneHandler) { doneHandler('Fakturaen ble lagret'); }
                     }, err => reject(err));
                 }
@@ -1171,11 +1266,13 @@ export class InvoiceDetails {
     }
 
     private payInvoice(done) {
-        const title = `Register betaling, Kunde-faktura ${this.invoice.InvoiceNumber || ''}, ${this.invoice.CustomerName || ''}`;
+        const title = `Register betaling, Kunde-faktura ${this.invoice.InvoiceNumber || ''}, `
+            + `${this.invoice.CustomerName || ''}`;
 
         const invoicePaymentData: InvoicePaymentData = {
             Amount: roundTo(this.invoice.RestAmount),
-            AmountCurrency: this.invoice.CurrencyCodeID == this.companySettings.BaseCurrencyCodeID ? roundTo(this.invoice.RestAmount) : roundTo(this.invoice.RestAmountCurrency),
+            AmountCurrency: this.invoice.CurrencyCodeID === this.companySettings.BaseCurrencyCodeID ? 
+                roundTo(this.invoice.RestAmount) : roundTo(this.invoice.RestAmountCurrency),
             BankChargeAmount: 0,
             CurrencyCodeID: this.invoice.CurrencyCodeID,
             CurrencyExchangeRate: 0,
@@ -1308,11 +1405,12 @@ export class InvoiceDetails {
         return currencyCode ? currencyCode.Code : '';
     }
 
-
     // Summary
     public recalcItemSums(invoiceItems: CustomerInvoiceItem[] = null) {
         if (invoiceItems) {
-            this.itemsSummaryData = this.tradeItemHelper.calculateTradeItemSummaryLocal(invoiceItems, this.companySettings.RoundingNumberOfDecimals);
+            this.itemsSummaryData = this.tradeItemHelper.calculateTradeItemSummaryLocal(
+                invoiceItems, this.companySettings.RoundingNumberOfDecimals
+            );
             this.updateSaveActions();
             this.updateToolbar();
         } else {
@@ -1322,41 +1420,60 @@ export class InvoiceDetails {
 
         this.summaryFields = [
             {
-                value: !this.itemsSummaryData ? '' : this.getCurrencyCode(this.currencyCodeID),
+                value: !this.itemsSummaryData ? 
+                    '' : this.getCurrencyCode(this.currencyCodeID),
                 title: 'Valuta:',
-                description: this.currencyExchangeRate ? 'Kurs: ' + this.numberFormat.asMoney(this.currencyExchangeRate) : ''
+                description: this.currencyExchangeRate ? 
+                    'Kurs: ' + this.numberFormat.asMoney(this.currencyExchangeRate) 
+                    : ''
             },
             {
                 title: 'Avgiftsfritt',
-                value: !this.itemsSummaryData ? this.numberFormat.asMoney(0) : this.numberFormat.asMoney(this.itemsSummaryData.SumNoVatBasisCurrency)
+                value: !this.itemsSummaryData ? 
+                    this.numberFormat.asMoney(0) 
+                    : this.numberFormat.asMoney(this.itemsSummaryData.SumNoVatBasisCurrency)
             },
             {
                 title: 'Avgiftsgrunnlag',
-                value: !this.itemsSummaryData ? this.numberFormat.asMoney(0) : this.numberFormat.asMoney(this.itemsSummaryData.SumVatBasisCurrency)
+                value: !this.itemsSummaryData ? 
+                    this.numberFormat.asMoney(0) 
+                    : this.numberFormat.asMoney(this.itemsSummaryData.SumVatBasisCurrency)
             },
             {
                 title: 'Sum rabatt',
-                value: !this.itemsSummaryData ? this.numberFormat.asMoney(0) : this.numberFormat.asMoney(this.itemsSummaryData.SumDiscountCurrency)
+                value: !this.itemsSummaryData ? 
+                    this.numberFormat.asMoney(0) 
+                    : this.numberFormat.asMoney(this.itemsSummaryData.SumDiscountCurrency)
             },
             {
                 title: 'Nettosum',
-                value: !this.itemsSummaryData ? this.numberFormat.asMoney(0) : this.numberFormat.asMoney(this.itemsSummaryData.SumTotalExVatCurrency)
+                value: !this.itemsSummaryData ? 
+                    this.numberFormat.asMoney(0) 
+                    : this.numberFormat.asMoney(this.itemsSummaryData.SumTotalExVatCurrency)
             },
             {
                 title: 'Mva',
-                value: !this.itemsSummaryData ? this.numberFormat.asMoney(0) : this.numberFormat.asMoney(this.itemsSummaryData.SumVatCurrency)
+                value: !this.itemsSummaryData ? 
+                    this.numberFormat.asMoney(0) 
+                    : this.numberFormat.asMoney(this.itemsSummaryData.SumVatCurrency)
             },
             {
                 title: 'Øreavrunding',
-                value: !this.itemsSummaryData ? this.numberFormat.asMoney(0) : this.numberFormat.asMoney(this.itemsSummaryData.DecimalRoundingCurrency)
+                value: !this.itemsSummaryData ? 
+                    this.numberFormat.asMoney(0) 
+                    : this.numberFormat.asMoney(this.itemsSummaryData.DecimalRoundingCurrency)
             },
             {
                 title: 'Totalsum',
-                value: !this.itemsSummaryData ? this.numberFormat.asMoney(0) : this.numberFormat.asMoney(this.itemsSummaryData.SumTotalIncVatCurrency)
+                value: !this.itemsSummaryData ? 
+                    this.numberFormat.asMoney(0) 
+                    : this.numberFormat.asMoney(this.itemsSummaryData.SumTotalIncVatCurrency)
             },
             {
                 title: 'Restbeløp',
-                value: !this.itemsSummaryData ? this.numberFormat.asMoney(0) : !this.invoice.ID ? 0 : this.numberFormat.asMoney(this.invoice.RestAmountCurrency)
+                value: !this.itemsSummaryData ? 
+                    this.numberFormat.asMoney(0) 
+                    : !this.invoice.ID ? 0 : this.numberFormat.asMoney(this.invoice.RestAmountCurrency)
             },
         ];
     }

@@ -1,5 +1,5 @@
 import {Component, ViewChild, Input, Output, EventEmitter} from '@angular/core';
-import {Address} from '../../../unientities';
+import {Address, Terms} from '../../../unientities';
 import {AddressService, BusinessRelationService, ErrorService} from '../../../services/services';
 import {UniForm, FieldType} from '../../../../framework/ui/uniform/index';
 import {UniModalService, UniAddressModal} from '../../../../framework/uniModal/barrel';
@@ -19,20 +19,14 @@ declare const _;
     `
 })
 export class TofDeliveryForm {
-    @ViewChild(UniForm)
-    private form: UniForm;
+    @ViewChild(UniForm) private form: UniForm;
 
-    @Input()
-    public readonly: boolean;
-
-    @Input()
-    public entityType: string;
-
-    @Input()
-    public entity: any;
-
-    @Output()
-    public entityChange: EventEmitter<any> = new EventEmitter();
+    @Input() public readonly: boolean;
+    @Input() public entityType: string;
+    @Input() public entity: any;
+    @Input() public paymentTerms: Terms[];
+    @Input() public deliveryTerms: Terms[];
+    @Output() public entityChange: EventEmitter<any> = new EventEmitter();
 
     private model$: BehaviorSubject<any> = new BehaviorSubject({});
     private formConfig$: BehaviorSubject<any> = new BehaviorSubject({});
@@ -43,9 +37,7 @@ export class TofDeliveryForm {
         private businessRelationService: BusinessRelationService,
         private errorService: ErrorService,
         private modalService: UniModalService
-    ) {
-        this.initFormLayout();
-    }
+    ) {}
 
     public ngOnChanges(changes) {
         this.model$.next(this.entity);
@@ -60,19 +52,22 @@ export class TofDeliveryForm {
             });
         }
 
-        if (this.entity && this.entity.Customer && !this.entity['_shippingAddressID']) {
-            const shippingAddress = this.entity.Customer.Info.Addresses.find((addr) => {
-                return addr.AddressLine1 === this.entity.ShippingAddressLine1
-                    && addr.PostalCode === this.entity.ShippingPostalCode
-                    && addr.City === this.entity.ShippingCity
-                    && addr.Country === this.entity.ShippingCountry;
-            });
+        if (this.entity && this.entity.Customer) {
+            if (!this.entity['_shippingAddressID']) {
+                const shippingAddress = this.entity.Customer.Info.Addresses.find((addr) => {
+                    return addr.AddressLine1 === this.entity.ShippingAddressLine1
+                        && addr.PostalCode === this.entity.ShippingPostalCode
+                        && addr.City === this.entity.ShippingCity
+                        && addr.Country === this.entity.ShippingCountry;
+                });
 
-            if (shippingAddress) {
-                this.entity['_shippingAddress'] = shippingAddress;
-                this.model$.next(this.entity);
+                if (shippingAddress) {
+                    this.entity['_shippingAddress'] = shippingAddress;
+                    this.model$.next(this.entity);
+                }
             }
         }
+        this.initFormLayout();
     }
 
     public onFormReady() {
@@ -83,6 +78,18 @@ export class TofDeliveryForm {
 
     public onFormChange(changes) {
         const model = this.model$.getValue();
+
+        if (changes['PaymentTermsID'] && changes['PaymentTermsID'].currentValue) {
+            model.PaymentTerms = this.paymentTerms.find((term) => {
+                return term.ID ===  changes['PaymentTermsID'].currentValue;
+            });
+        }
+
+        if (changes['DeliveryTermsID'] && changes['DeliveryTermsID'].currentValue) {
+            model.DeliveryTerms = this.deliveryTerms.find((term) => {
+                return term.ID ===  changes['DeliveryTermsID'].currentValue;
+            });
+        }
 
         let shippingAddress = changes['_shippingAddress'];
         if (shippingAddress) {
@@ -150,7 +157,47 @@ export class TofDeliveryForm {
 
         this.fields$.next([
             {
-                Legend: 'Levering',
+                FieldSet: 1,
+                FieldSetColumn: 1,
+                Legend: 'Betingelser og levering',
+                EntityType: this.entityType,
+                Property: 'PaymentTermsID',
+                Placement: 1,
+                FieldType: FieldType.DROPDOWN,
+                Label: 'Betalingsbetingelse',
+                Section: 0,
+                StatusCode: 0,
+                ID: 0,
+                Options: {
+                    source: this.paymentTerms,
+                    valueProperty: 'ID',
+                    template: (item) => {
+                        return item !== null ? (item.CreditDays + ' kredittdager (' + item.Name + ')') : '';
+                    },
+                    debounceTime: 200
+                }
+            },
+            {
+                FieldSet: 1,
+                FieldSetColumn: 1,
+                EntityType: this.entityType,
+                Property: 'DeliveryTermsID',
+                Placement: 1,
+                FieldType: FieldType.DROPDOWN,
+                Label: 'Leveringsbetingelse',
+                Section: 0,
+                StatusCode: 0,
+                ID: 1,
+                Options: {
+                    source: this.deliveryTerms,
+                    valueProperty: 'ID',
+                    template: (item) => {
+                        return item !== null ? (item.CreditDays + ' leveringsdager (' + item.Name + ')') : '';
+                    },
+                    debounceTime: 200
+                }
+            },
+            {
                 FieldSet: 1,
                 FieldSetColumn: 1,
                 EntityType: this.entityType,
@@ -162,11 +209,11 @@ export class TofDeliveryForm {
                 HelpText: '',
                 Section: 0,
                 StatusCode: 0,
-                ID: 1,
+                ID: 2,
             },
             {
                 FieldSet: 1,
-                FieldSetColumn: 1,
+                FieldSetColumn: 2,
                 EntityType: this.entityType,
                 Property: '_ShippingAddress',
                 Placement: 1,
@@ -175,11 +222,12 @@ export class TofDeliveryForm {
                 Description: '',
                 HelpText: '',
                 Options: addressFieldOptions,
-                Section: 0
+                Section: 0,
+                ID: 3
             },
             {
                 FieldSet: 1,
-                FieldSetColumn: 1,
+                FieldSetColumn: 2,
                 EntityType: this.entityType,
                 Property: 'DeliveryName',
                 Placement: 1,
@@ -189,7 +237,7 @@ export class TofDeliveryForm {
                 HelpText: '',
                 Section: 0,
                 StatusCode: 0,
-                ID: 2,
+                ID: 4,
             },
             {
                 FieldSet: 1,
@@ -203,22 +251,8 @@ export class TofDeliveryForm {
                 HelpText: '',
                 Section: 0,
                 StatusCode: 0,
-                ID: 3,
-            },
-            {
-                FieldSet: 1,
-                FieldSetColumn: 2,
-                EntityType: this.entityType,
-                Property: 'DeliveryTerm',
-                Placement: 1,
-                FieldType: FieldType.TEXT,
-                Label: 'Leveringsbetingelse',
-                Description: '',
-                HelpText: '',
-                Section: 0,
-                StatusCode: 0,
-                ID: 4,
-            },
+                ID: 5,
+            }
         ]);
     }
 }

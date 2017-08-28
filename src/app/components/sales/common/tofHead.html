@@ -30,7 +30,9 @@
                            [entity]="data"
                            (entityChange)="onDataChange($event)"
                            [entityType]="entityName"
-                           [readonly]="readonly">
+                           [readonly]="readonly"
+                           [paymentTerms]="paymentTerms"
+                           [deliveryTerms]="deliveryTerms">
         </tof-delivery-form>
 
         <fieldset *ngIf="activeTabIndex === 2" class="freetext-fieldset">

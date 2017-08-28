@@ -1,6 +1,6 @@
 import {Component, Input, Output, ViewChild, EventEmitter, OnChanges, SimpleChanges} from '@angular/core';
 import {FormControl} from '@angular/forms';
-import {CurrencyCode, Project} from '../../../unientities';
+import {CurrencyCode, Project, Terms} from '../../../unientities';
 import {TofCustomerCard} from './customerCard';
 import {TofDetailsForm} from './detailsForm';
 
@@ -18,10 +18,12 @@ export class TofHead implements OnChanges {
     @Input() private data: any;
     @Input() public currencyCodes: Array<CurrencyCode>;
     @Input() public projects: Project;
+    @Input() public paymentTerms: Terms[];
+    @Input() public deliveryTerms: Terms[];
 
     @Output() public dataChange: EventEmitter<any> = new EventEmitter();
 
-    public tabs: string[] = ['Detaljer', 'Levering', 'Fritekst', 'Selgere', 'Dokumenter'];
+    public tabs: string[] = ['Detaljer', 'Betingelser og levering', 'Fritekst', 'Selgere', 'Dokumenter'];
     public activeTabIndex: number = 0;
 
     private freeTextControl: FormControl = new FormControl('');

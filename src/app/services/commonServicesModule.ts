@@ -56,6 +56,7 @@ import {NumberSeriesTypeService} from './common/numberSeriesTypeService';
 import {NumberSeriesTaskService} from './common/numberSeriesTaskService';
 import {ProductCategoryService} from './common/productCategoryService';
 import {TeamService} from './common/teamService';
+import {TermsService} from './common/termsService';
 
 export * from './common/altinnAuthenticationService';
 export * from './common/altinnIntegrationService';
@@ -109,6 +110,7 @@ export * from './common/numberSeriesTypeService';
 export * from './common/numberSeriesTaskService';
 export * from './common/productCategoryService';
 export * from './common/teamService';
+export * from './common/termsService';
 
 @NgModule({})
 export class CommonServicesModule {
@@ -172,7 +174,8 @@ export class CommonServicesModule {
                 NumberSeriesTypeService,
                 NumberSeriesTaskService,
                 ProductCategoryService,
-                TeamService
+                TeamService,
+                TermsService
             ]
         };
     }

@@ -1,23 +1,8 @@
-import { Component, Input, ViewChild, EventEmitter, HostListener } from '@angular/core';
-import { Router, ActivatedRoute } from '@angular/router';
+import {Component, EventEmitter, HostListener, Input, ViewChild} from '@angular/core';
+import {ActivatedRoute, Router} from '@angular/router';
 import { Observable } from 'rxjs/Observable';
-import { IUniSaveAction } from '../../../../../framework/save/save';
-import { TradeItemHelper } from '../../salesHelper/tradeItemHelper';
-import { OrderToInvoiceModal } from '../modals/ordertoinvoice';
-import { TradeHeaderCalculationSummary } from '../../../../models/sales/TradeHeaderCalculationSummary';
-import { TofHelper } from '../../salesHelper/tofHelper';
-import { TabService, UniModules } from '../../../layout/navbar/tabstrip/tabService';
-import { ToastService, ToastType } from '../../../../../framework/uniToast/toastService';
-import { IToolbarConfig } from '../../../common/toolbar/toolbar';
-import { UniStatusTrack } from '../../../common/toolbar/statustrack';
-import { IContextMenuItem } from '../../../../../framework/ui/unitable/index';
-import { SendEmail } from '../../../../models/sendEmail';
-import { ISummaryConfig } from '../../../common/summary/summary';
-import { GetPrintStatusText } from '../../../../models/printStatus';
-import { TradeItemTable } from '../../common/tradeItemTable';
-import { TofHead } from '../../common/tofHead';
-import { StatusCode } from '../../salesHelper/salesEnums';
-import { UniPreviewModal } from '../../../reports/modals/preview/previewModal';
+import * as moment from 'moment';
+
 import {
     UniModalService,
     UniSendEmailModal,
@@ -25,40 +10,70 @@ import {
 } from '../../../../../framework/uniModal/barrel';
 import {
     Address,
-    CustomerOrder,
-    CustomerOrderItem,
-    StatusCodeCustomerOrder,
     CompanySettings,
     CurrencyCode,
+    Customer,
+    CustomerOrder,
+    CustomerOrderItem,
     LocalDate,
-    Project
+    Project,
+    StatusCodeCustomerOrder,
+    Terms
 } from '../../../../unientities';
+
 import {
+    AddressService,
+    BusinessRelationService,
     CompanySettingsService,
+    CurrencyCodeService,
+    CurrencyService,
     CustomerOrderService,
     CustomerOrderItemService,
     CustomerService,
-    BusinessRelationService,
-    UserService,
+    DepartmentService,
     ErrorService,
     NumberFormat,
     ProjectService,
-    DepartmentService,
-    AddressService,
     ReportDefinitionService,
-    CurrencyCodeService,
-    CurrencyService,
-    ReportService
+    ReportService,
+    TermsService,
+    UserService
 } from '../../../../services/services';
+
+import {IUniSaveAction} from '../../../../../framework/save/save';
+import {IContextMenuItem} from '../../../../../framework/ui/unitable/index';
+import {ToastService, ToastType} from '../../../../../framework/uniToast/toastService';
+
+import {GetPrintStatusText} from '../../../../models/printStatus';
+import {SendEmail} from '../../../../models/sendEmail';
+import {TradeHeaderCalculationSummary} from '../../../../models/sales/TradeHeaderCalculationSummary';
+
+import {ISummaryConfig} from '../../../common/summary/summary';
+import {IToolbarConfig} from '../../../common/toolbar/toolbar';
+import {UniStatusTrack} from '../../../common/toolbar/statustrack';
+
+import {UniPreviewModal} from '../../../reports/modals/preview/previewModal';
+import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
+
+import {TofHead} from '../../common/tofHead';
+import {TradeItemTable} from '../../common/tradeItemTable';
+
+import {StatusCode} from '../../salesHelper/salesEnums';
+import {TofHelper} from '../../salesHelper/tofHelper';
+import {TradeItemHelper} from '../../salesHelper/tradeItemHelper';
+
+import {OrderToInvoiceModal} from '../modals/ordertoinvoice';
+
 declare var _;
 
 // TODO: this can be removed when refactor is complete
 class CustomerOrderExt extends CustomerOrder {
     public _InvoiceAddress: Address;
     public _InvoiceAddresses: Array<Address>;
+    public _InvoiceAddressesID: number;
+
     public _ShippingAddress: Address;
     public _ShippingAddresses: Array<Address>;
-    public _InvoiceAddressesID: number;
     public _ShippingAddressesID: number;
 }
 
@@ -69,68 +84,98 @@ class CustomerOrderExt extends CustomerOrder {
 export class OrderDetails {
     @ViewChild(OrderToInvoiceModal)
     private oti: OrderToInvoiceModal;
+    @ViewChild(TofHead) private tofHead: TofHead;
+    @ViewChild(TradeItemTable) private tradeItemTable: TradeItemTable;
 
-    @ViewChild(TofHead)
-    private tofHead: TofHead;
+    @Input() public orderID: any;
 
-    @ViewChild(TradeItemTable)
-    private tradeItemTable: TradeItemTable;
-
-    @Input()
-    public orderID: any;
-
+    private companySettings: CompanySettings;
+    private itemsSummaryData: TradeHeaderCalculationSummary;
     private isDirty: boolean;
+    private newOrderItem: CustomerOrderItem;
     private order: CustomerOrderExt;
     private orderItems: CustomerOrderItem[];
-    private newOrderItem: CustomerOrderItem;
-    private itemsSummaryData: TradeHeaderCalculationSummary;
-    private companySettings: CompanySettings;
-    private saveActions: IUniSaveAction[] = [];
-    private toolbarconfig: IToolbarConfig;
+    
     private contextMenuItems: IContextMenuItem[] = [];
+    private saveActions: IUniSaveAction[] = [];
     public summary: ISummaryConfig[] = [];
+    private toolbarconfig: IToolbarConfig;
 
     private currencyCodes: Array<CurrencyCode>;
     private currencyCodeID: number;
     private currencyExchangeRate: number;
+    private currentCustomer: Customer;
+    private currentDeliveryTerm: Terms;
+    private deliveryTerms: Terms[];
+    private paymentTerms: Terms[];
     private printStatusPrinted: string = '200';
     private projects: Project[];
 
-    private customerExpandOptions: string[] = ['Info', 'Info.Addresses', 'Info.InvoiceAddress', 'Info.ShippingAddress', 'Dimensions', 'Dimensions.Project', 'Dimensions.Department', 'Dimensions.Project.ProjectTasks'];
-    private expandOptions: Array<string> = ['Items', 'Items.Product.VatType', 'Items.VatType',
-        'Items.Dimensions', 'Items.Dimensions.Project', 'Items.Dimensions.Department', 'Items.Account', 'Items.Dimensions.Project.ProjectTasks',
-        'Customer', 'Customer.Info', 'Customer.Info.Addresses', 'Customer.Dimensions', 'Customer.Dimensions.Project', 'Customer.Dimensions.Department', 'DefaultDimensions',
-        'Sellers', 'Sellers.Seller'];
+    private customerExpandOptions: string[] = [
+        'DeliveryTerms',
+        'Dimensions', 
+        'Dimensions.Project', 
+        'Dimensions.Department', 
+        'Dimensions.Project.ProjectTasks',
+        'Info', 
+        'Info.Addresses', 
+        'Info.InvoiceAddress', 
+        'Info.ShippingAddress',
+        'PaymentTerms'
+    ];
+
+    private expandOptions: Array<string> = [
+        'Customer', 
+        'Customer.Info', 
+        'Customer.Info.Addresses', 
+        'Customer.Dimensions', 
+        'Customer.Dimensions.Project', 
+        'Customer.Dimensions.Department', 
+        'DefaultDimensions',
+        'DeliveryTerms',
+        'Items', 
+        'Items.Product.VatType', 
+        'Items.VatType',
+        'Items.Dimensions', 
+        'Items.Dimensions.Project', 
+        'Items.Dimensions.Department', 
+        'Items.Account', 
+        'Items.Dimensions.Project.ProjectTasks',
+        'PaymentTerms',
+        'Sellers', 
+        'Sellers.Seller'
+    ];
 
     // New
-    private recalcDebouncer: EventEmitter<any> = new EventEmitter();
-    private readonly: boolean;
     private commentsConfig: any;
+    private readonly: boolean;
+    private recalcDebouncer: EventEmitter<any> = new EventEmitter();
 
     constructor(
+        private addressService: AddressService,
+        private businessRelationService: BusinessRelationService,
+        private companySettingsService: CompanySettingsService,
+        private currencyCodeService: CurrencyCodeService,
+        private currencyService: CurrencyService,
         private customerService: CustomerService,
         private customerOrderService: CustomerOrderService,
         private customerOrderItemService: CustomerOrderItemService,
         private departmentService: DepartmentService,
-        private projectService: ProjectService,
-        private addressService: AddressService,
-        private reportDefinitionService: ReportDefinitionService,
-        private businessRelationService: BusinessRelationService,
-        private companySettingsService: CompanySettingsService,
-        private toastService: ToastService,
-        private router: Router,
-        private route: ActivatedRoute,
-        private tabService: TabService,
-        private userService: UserService,
-        private numberFormat: NumberFormat,
-        private tradeItemHelper: TradeItemHelper,
         private errorService: ErrorService,
-        private currencyCodeService: CurrencyCodeService,
-        private currencyService: CurrencyService,
+        private modalService: UniModalService,
+        private numberFormat: NumberFormat,
+        private projectService: ProjectService,
+        private reportDefinitionService: ReportDefinitionService,
         private reportService: ReportService,
+        private route: ActivatedRoute,
+        private router: Router,
+        private tabService: TabService,
+        private termsService: TermsService,
+        private toastService: ToastService,
         private tofHelper: TofHelper,
-        private modalService: UniModalService
-    ) { }
+        private tradeItemHelper: TradeItemHelper,
+        private userService: UserService
+   ) {}
 
     public ngOnInit() {
         this.setSums();
@@ -165,7 +210,9 @@ export class OrderDetails {
                 Observable.forkJoin(
                     this.customerOrderService.Get(this.orderID, this.expandOptions),
                     this.companySettingsService.Get(1),
-                    this.currencyCodeService.GetAll(null)
+                    this.currencyCodeService.GetAll(null),
+                    this.termsService.GetAction(null, 'get-payment-terms'),
+                    this.termsService.GetAction(null, 'get-delivery-terms')
                 ).subscribe(res => {
                     let order = <CustomerOrder>res[0];
                     this.companySettings = res[1];
@@ -180,6 +227,9 @@ export class OrderDetails {
 
                     this.currencyCodes = res[2];
 
+                    this.paymentTerms = res[3];
+                    this.deliveryTerms = res[4];
+
                     this.refreshOrder(order);
                 },
                     err => this.errorService.handle(err));
@@ -189,23 +239,31 @@ export class OrderDetails {
                     this.userService.getCurrentUser(),
                     this.companySettingsService.Get(1),
                     this.currencyCodeService.GetAll(null),
-                    customerID ? this.customerService.Get(customerID, this.customerExpandOptions) : Observable.of(null),
+                    this.termsService.GetAction(null, 'get-payment-terms'),
+                    this.termsService.GetAction(null, 'get-delivery-terms'),
+                    customerID ? this.customerService.Get(
+                        customerID, this.customerExpandOptions
+                    ) : Observable.of(null), 
                     projectID ? this.projectService.Get(projectID, null) : Observable.of(null)
                 ).subscribe(
                     (res) => {
                         let order = <CustomerOrder>res[0];
                         order.OurReference = res[1].DisplayName;
                         order.OrderDate = new LocalDate(Date());
-                        order.DeliveryDate = new LocalDate(Date());
-
+                        if (order.DeliveryTerms 
+                            && order.DeliveryTerms.CreditDays 
+                            && (order.DeliveryTermsID !== this.order.DeliveryTermsID)) {
+                                order.DeliveryDate = this.setDeliveryDate(order);
+                        }
+                        
                         this.companySettings = res[2];
 
-                        if (res[4]) {
-                            order = this.tofHelper.mapCustomerToEntity(res[4], order);
+                        if (res[6]) {
+                            order = this.tofHelper.mapCustomerToEntity(res[6], order);
                         }
 
-                        if (res[5]) {
-                            order.DefaultDimensions.ProjectID = res[5].ID;
+                        if (res[7]) {
+                            order.DefaultDimensions.ProjectID = res[7].ID;
                         }
 
                         if (!order.CurrencyCodeID) {
@@ -217,6 +275,9 @@ export class OrderDetails {
                         this.currencyExchangeRate = order.CurrencyExchangeRate;
 
                         this.currencyCodes = res[3];
+
+                        this.paymentTerms = res[4];
+                        this.deliveryTerms = res[5];
 
                         this.refreshOrder(order);
                     },
@@ -282,13 +343,18 @@ export class OrderDetails {
         let shouldGetCurrencyRate: boolean = false;
 
         // update quotes currencycodeid if the customer changed
-        if (this.didCustomerChange(order)) {
+        let customerChanged: boolean = this.didCustomerChange(order);
+        if (customerChanged) {
             if (order.Customer.CurrencyCodeID) {
                 order.CurrencyCodeID = order.Customer.CurrencyCodeID;
             } else {
                 order.CurrencyCodeID = this.companySettings.BaseCurrencyCodeID;
             }
             shouldGetCurrencyRate = true;
+
+            if (order.DeliveryTerms && order.DeliveryTerms.CreditDays) {
+                order.DeliveryDate = this.setDeliveryDate(order);
+            }
         }
 
         if ((!this.currencyCodeID && order.CurrencyCodeID)
@@ -304,6 +370,15 @@ export class OrderDetails {
 
         if (this.order && order.CurrencyCodeID !== this.order.CurrencyCodeID) {
             shouldGetCurrencyRate = true;
+        }
+
+        let deliveryTermChanged: boolean = this.currentDeliveryTerm 
+            && order.DeliveryTerms.ID !== this.currentDeliveryTerm.ID;
+        this.currentDeliveryTerm = order.DeliveryTerms;
+        if (deliveryTermChanged 
+            && order.DeliveryTerms 
+            && order.DeliveryTerms.CreditDays) {
+                order.DeliveryDate = this.setDeliveryDate(order);
         }
 
         this.order = _.cloneDeep(order);
@@ -327,20 +402,26 @@ export class OrderDetails {
                         this.currencyExchangeRate = newCurrencyRate;
                         order.CurrencyExchangeRate = res;
 
-                        let haveUserDefinedPrices = this.orderItems && this.orderItems.filter(x => x.PriceSetByUser).length > 0;
+                        let haveUserDefinedPrices = this.orderItems && this.orderItems.filter(
+                            x => x.PriceSetByUser
+                        ).length > 0;
 
                         if (haveUserDefinedPrices) {
                             // calculate how much the new currency will affect the amount for the base currency,
                             // if it doesnt cause a change larger than 5%, don't bother asking the user what
                             // to do, just use the set prices
                             newTotalExVatBaseCurrency = this.itemsSummaryData.SumTotalExVatCurrency * newCurrencyRate;
-                            diffBaseCurrency = Math.abs(newTotalExVatBaseCurrency - this.itemsSummaryData.SumTotalExVat);
+                            diffBaseCurrency = Math.abs(newTotalExVatBaseCurrency 
+                                - this.itemsSummaryData.SumTotalExVat);
 
                             diffBaseCurrencyPercent =
-                                this.tradeItemHelper.round((diffBaseCurrency * 100) / Math.abs(this.itemsSummaryData.SumTotalExVat), 1);
+                                this.tradeItemHelper.round(
+                                    (diffBaseCurrency * 100) / Math.abs(this.itemsSummaryData.SumTotalExVat), 1
+                                );
 
                             // 5% is set as a limit for asking the user now, but this might need to be reconsidered,
-                            // or make it possible to override it either on companysettings, customer, or the TOF header
+                            // or make it possible to override it either on companysettings, customer, 
+                            // or the TOF header
                             if (diffBaseCurrencyPercent > 5) {
                                 askUserWhatToDo = true;
                             }
@@ -349,12 +430,12 @@ export class OrderDetails {
                         if (askUserWhatToDo) {
                             let baseCurrencyCode = this.getCurrencyCode(this.companySettings.BaseCurrencyCodeID);
 
-                            const modalMessage = 'Endringen førte til at en ny valutakurs ble hentet. '
-                                + 'Du har overstyrt en eller flere priser, '
-                                + 'og dette fører derfor til at totalsum eks. mva '
-                                + `for ${baseCurrencyCode} endres med ${diffBaseCurrencyPercent}% `
-                                + `til ${baseCurrencyCode} ${this.numberFormat.asMoney(newTotalExVatBaseCurrency)}.\n\n`
-                                + `Vil du heller rekalkulere valutaprisene basert på ny kurs og standardprisen på varene?`;
+                            const modalMessage = 'Endringen førte til at en ny valutakurs ble hentet. Du har '
+                                + 'overstyrt en eller flere priser, og dette fører derfor til at totalsum eks. mva '
+                                + `for ${baseCurrencyCode} endres med ${diffBaseCurrencyPercent}% til `
+                                + `${baseCurrencyCode} ${this.numberFormat.asMoney(newTotalExVatBaseCurrency)}.\n\n`
+                                + `Vil du heller rekalkulere valutaprisene basert på ny kurs og standardprisen `
+                                + `på varene?`;
 
                             this.modalService.confirm({
                                 header: 'Rekalkulere valutapriser for varer?',
@@ -371,14 +452,18 @@ export class OrderDetails {
                                         if (item.PriceSetByUser) {
                                             this.recalcPriceAndSumsBasedOnSetPrices(item, this.currencyExchangeRate);
                                         } else {
-                                            this.recalcPriceAndSumsBasedOnBaseCurrencyPrices(item, this.currencyExchangeRate);
+                                            this.recalcPriceAndSumsBasedOnBaseCurrencyPrices(
+                                                item, this.currencyExchangeRate
+                                            );
                                         }
                                     });
                                 } else if (response === ConfirmActions.REJECT) {
                                     // we need to calculate the currency amounts based on the original prices
                                     // defined in the base currency
                                     this.orderItems.forEach(item => {
-                                        this.recalcPriceAndSumsBasedOnBaseCurrencyPrices(item, this.currencyExchangeRate);
+                                        this.recalcPriceAndSumsBasedOnBaseCurrencyPrices(
+                                            item, this.currencyExchangeRate
+                                        );
                                     });
                                 }
 
@@ -431,19 +516,15 @@ export class OrderDetails {
             return;
         }
 
-        if (!order.CreditDays) {
-            if (order.Customer && order.Customer.CreditDays) {
-                order.CreditDays = order.Customer.CreditDays;
-            } else if (this.companySettings) {
-                order.CreditDays = this.companySettings.CustomerCreditDays;
-            }
-        }
-
         this.readonly = order.StatusCode === StatusCodeCustomerOrder.TransferredToInvoice;
         this.newOrderItem = <any>this.tradeItemHelper.getDefaultTradeItemData(order);
         this.orderItems = order.Items.sort(function(itemA, itemB) { return itemA.SortIndex - itemB.SortIndex; });
         this.order = <any>_.cloneDeep(order);
         this.isDirty = false;
+
+        this.currentCustomer = order.Customer;
+        this.currentDeliveryTerm = order.DeliveryTerms;
+
         this.setTabTitle();
         this.updateToolbar();
         this.updateSaveActions();
@@ -451,10 +532,29 @@ export class OrderDetails {
     }
 
     private didCustomerChange(order: CustomerOrder): boolean {
-        return order.Customer
-            && (!this.order
-                || (order.Customer && !this.order.Customer)
-                || (order.Customer && this.order.Customer && order.Customer.ID !== this.order.Customer.ID))
+        let change: boolean;
+        if (this.currentCustomer) {
+            change = order.Customer.ID !== this.currentCustomer.ID;
+        } else if (order.Customer.ID) {
+            change = true;
+        }
+        this.currentCustomer = order.Customer;
+        return change;
+    }
+
+    private setDeliveryDate(order: CustomerOrder): LocalDate {
+        if (order.DeliveryTerms && order.DeliveryTerms.CreditDays) {
+            order.DeliveryDate = order.OrderDate;
+            if (order.DeliveryTerms.CreditDays < 0) {
+                order.DeliveryDate = new LocalDate(moment(order.OrderDate).endOf('month').toDate());
+            }
+            order.DeliveryDate = new LocalDate(
+                moment(order.DeliveryDate).add(Math.abs(order.DeliveryTerms.CreditDays), 'days').toDate()
+            );
+        } else {
+            order.DeliveryDate = null;
+        }
+        return order.DeliveryDate;
     }
 
     private getUpdatedCurrencyExchangeRate(order: CustomerOrder): Observable<number> {
@@ -465,8 +565,11 @@ export class OrderDetails {
         } else {
             let currencyDate: LocalDate = new LocalDate(order.OrderDate.toString());
 
-            return this.currencyService.getCurrencyExchangeRate(order.CurrencyCodeID, this.companySettings.BaseCurrencyCodeID, currencyDate)
-                .map(x => x.ExchangeRate);
+            return this.currencyService.getCurrencyExchangeRate(
+                order.CurrencyCodeID, 
+                this.companySettings.BaseCurrencyCodeID, 
+                currencyDate
+            ).map(x => x.ExchangeRate);
         }
     }
 
@@ -597,12 +700,15 @@ export class OrderDetails {
         let netSumText = '';
 
         if (this.itemsSummaryData) {
-            netSumText = `Netto ${selectedCurrencyCode} ${this.numberFormat.asMoney(this.itemsSummaryData.SumTotalExVatCurrency)}`;
+            netSumText = `Netto ${selectedCurrencyCode} ${this.numberFormat
+                .asMoney(this.itemsSummaryData.SumTotalExVatCurrency)}`;
             if (baseCurrencyCode !== selectedCurrencyCode) {
-                netSumText += ` / ${baseCurrencyCode} ${this.numberFormat.asMoney(this.itemsSummaryData.SumTotalExVat)}`;
+                netSumText += ` / ${baseCurrencyCode} ${this.numberFormat
+                    .asMoney(this.itemsSummaryData.SumTotalExVat)}`;
             }
         } else {
-            netSumText = `Netto ${selectedCurrencyCode} ${this.numberFormat.asMoney(this.order.TaxExclusiveAmountCurrency)}`;
+            netSumText = `Netto ${selectedCurrencyCode} ${this.numberFormat
+                .asMoney(this.order.TaxExclusiveAmountCurrency)}`;
             if (baseCurrencyCode !== selectedCurrencyCode) {
                 netSumText += ` / ${baseCurrencyCode} ${this.numberFormat.asMoney(this.order.TaxExclusiveAmount)}`;
             }
@@ -611,7 +717,10 @@ export class OrderDetails {
         this.toolbarconfig = {
             title: orderText,
             subheads: [
-                { title: customerText, link: this.order.Customer ? `#/sales/customer/${this.order.Customer.ID}` : '' },
+                { 
+                    title: customerText, 
+                    link: this.order.Customer ? `#/sales/customer/${this.order.Customer.ID}` : '' 
+                },
                 { title: netSumText },
                 { title: GetPrintStatusText(this.order.PrintStatus) }
             ],
@@ -746,7 +855,8 @@ export class OrderDetails {
         }
 
         this.order.Items = orderItems;
-        this.itemsSummaryData = this.tradeItemHelper.calculateTradeItemSummaryLocal(orderItems, this.companySettings.RoundingNumberOfDecimals);
+        this.itemsSummaryData = this.tradeItemHelper
+            .calculateTradeItemSummaryLocal(orderItems, this.companySettings.RoundingNumberOfDecimals);
         this.updateToolbar();
         this.setSums();
     }
@@ -837,13 +947,14 @@ export class OrderDetails {
                 var order: CustomerOrder = _.cloneDeep(this.order);
                 order.Items = items;
 
-                this.customerOrderService.ActionWithBody(order.ID, order, 'transfer-to-invoice').subscribe((invoice) => {
-                    this.router.navigateByUrl('/sales/invoices/' + invoice.ID);
-                    done('Lagret og overført til faktura');
-                }, (err) => {
-                    this.errorService.handle(err);
-                    done('Feilet i overføring til faktura');
-                });
+                this.customerOrderService.ActionWithBody(order.ID, order, 'transfer-to-invoice')
+                    .subscribe((invoice) => {
+                        this.router.navigateByUrl('/sales/invoices/' + invoice.ID);
+                        done('Lagret og overført til faktura');
+                    }, (err) => {
+                        this.errorService.handle(err);
+                        done('Feilet i overføring til faktura');
+                    });
             });
         }
 
@@ -940,27 +1051,35 @@ export class OrderDetails {
         this.summary = [{
             value: this.getCurrencyCode(this.currencyCodeID),
             title: 'Valuta:',
-            description: this.currencyExchangeRate ? 'Kurs: ' + this.numberFormat.asMoney(this.currencyExchangeRate) : ''
+                description: this.currencyExchangeRate ? 
+                'Kurs: ' + this.numberFormat.asMoney(this.currencyExchangeRate) : ''
         }, {
-            value: this.itemsSummaryData ? this.numberFormat.asMoney(this.itemsSummaryData.SumNoVatBasisCurrency) : null,
+                value: this.itemsSummaryData ? 
+                    this.numberFormat.asMoney(this.itemsSummaryData.SumNoVatBasisCurrency) : null,
             title: 'Avgiftsfritt',
         }, {
-            value: this.itemsSummaryData ? this.numberFormat.asMoney(this.itemsSummaryData.SumVatBasisCurrency) : null,
+                value: this.itemsSummaryData ? 
+                    this.numberFormat.asMoney(this.itemsSummaryData.SumVatBasisCurrency) : null,
             title: 'Avgiftsgrunnlag',
         }, {
-            value: this.itemsSummaryData ? this.numberFormat.asMoney(this.itemsSummaryData.SumDiscountCurrency) : null,
+                value: this.itemsSummaryData ? 
+                    this.numberFormat.asMoney(this.itemsSummaryData.SumDiscountCurrency) : null,
             title: 'Sum rabatt',
         }, {
-            value: this.itemsSummaryData ? this.numberFormat.asMoney(this.itemsSummaryData.SumTotalExVatCurrency) : null,
+                value: this.itemsSummaryData ? 
+                    this.numberFormat.asMoney(this.itemsSummaryData.SumTotalExVatCurrency) : null,
             title: 'Nettosum',
         }, {
-            value: this.itemsSummaryData ? this.numberFormat.asMoney(this.itemsSummaryData.SumVatCurrency) : null,
+                value: this.itemsSummaryData ? 
+                    this.numberFormat.asMoney(this.itemsSummaryData.SumVatCurrency) : null,
             title: 'Mva',
         }, {
-            value: this.itemsSummaryData ? this.numberFormat.asMoney(this.itemsSummaryData.DecimalRoundingCurrency) : null,
+                value: this.itemsSummaryData ? 
+                    this.numberFormat.asMoney(this.itemsSummaryData.DecimalRoundingCurrency) : null,
             title: 'Øreavrunding',
         }, {
-            value: this.itemsSummaryData ? this.numberFormat.asMoney(this.itemsSummaryData.SumTotalIncVatCurrency) : null,
+                value: this.itemsSummaryData ? 
+                    this.numberFormat.asMoney(this.itemsSummaryData.SumTotalIncVatCurrency) : null,
             title: 'Totalsum',
         }];
     }
