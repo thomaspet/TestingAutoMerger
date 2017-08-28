@@ -565,7 +565,7 @@ export class UniTable implements OnChanges {
         }
 
         // JumpToColumn
-        let jumpToColumn = this.lastFocusedCellColumn.get('jumpToColumn');
+        let jumpToColumn = this.lastFocusedCellColumn && this.lastFocusedCellColumn.get('jumpToColumn');
         let isJumpKey = !event.shiftKey && (key === KeyCodes.ENTER || key === KeyCodes.TAB);
 
         if (jumpToColumn && isJumpKey) {
