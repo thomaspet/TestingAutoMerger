@@ -52,19 +52,17 @@ export class TofDeliveryForm {
             });
         }
 
-        if (this.entity && this.entity.Customer) {
-            if (!this.entity['_shippingAddressID']) {
-                const shippingAddress = this.entity.Customer.Info.Addresses.find((addr) => {
-                    return addr.AddressLine1 === this.entity.ShippingAddressLine1
-                        && addr.PostalCode === this.entity.ShippingPostalCode
-                        && addr.City === this.entity.ShippingCity
-                        && addr.Country === this.entity.ShippingCountry;
-                });
+        if (this.entity && this.entity.Customer && !this.entity['_shippingAddressID']) {
+            const shippingAddress = this.entity.Customer.Info.Addresses.find((addr) => {
+                return addr.AddressLine1 === this.entity.ShippingAddressLine1
+                    && addr.PostalCode === this.entity.ShippingPostalCode
+                    && addr.City === this.entity.ShippingCity
+                    && addr.Country === this.entity.ShippingCountry;
+            });
 
-                if (shippingAddress) {
-                    this.entity['_shippingAddress'] = shippingAddress;
-                    this.model$.next(this.entity);
-                }
+            if (shippingAddress) {
+                this.entity['_shippingAddress'] = shippingAddress;
+                this.model$.next(this.entity);
             }
         }
         this.initFormLayout();
