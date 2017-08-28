@@ -61,6 +61,7 @@ export interface IUniTableColumn {
     skipOnEnterKeyNavigation?: boolean;
     onCellClickHandler: (rowModel: any) => void;
     sortMode: UniTableColumnSortMode;
+    jumpToColumn?: string;
 }
 
 export class UniTableColumn implements IUniTableColumn {
@@ -92,6 +93,7 @@ export class UniTableColumn implements IUniTableColumn {
     public filterOperator: string;
 
     public skipOnEnterKeyNavigation: boolean;
+    public jumpToColumn: string;
 
     public onCellClickHandler: (rowModel: any) => void;
 
@@ -254,6 +256,11 @@ export class UniTableColumn implements IUniTableColumn {
 
     public setSkipOnEnterKeyNavigation(skip: boolean) {
         this.skipOnEnterKeyNavigation = skip;
+        return this;
+    }
+
+    public setJumpToColumn(field: string) {
+        this.jumpToColumn = field;
         return this;
     }
 

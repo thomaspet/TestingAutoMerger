@@ -7,7 +7,7 @@ import 'rxjs/add/observable/fromPromise';
 import 'rxjs/add/operator/throttleTime';
 
 import {UniTableConfig, IDeleteButton, ISortInfo, IRowChangeEvent} from './config/unitableConfig';
-import {UniTableColumnType, UniTableColumnSortMode} from './config/unitableColumn';
+import {UniTableColumn, UniTableColumnType, UniTableColumnSortMode} from './config/unitableColumn';
 import {IRowModelChangeEvent} from './unitableRow';
 import {UnitableEditor} from './editor/editor';
 import {UnitableContextMenu} from './contextMenu';
@@ -40,12 +40,13 @@ enum Direction { UP, DOWN, LEFT, RIGHT }
 @Component({
     selector: 'uni-table',
     template: `
-        <unitable-search *ngIf="config?.searchable"
-                         [columns]="tableColumns"
-                         [configFilters]="advancedSearchFilters"
-                         [allowGroupFilter]="config.allowGroupFilter"
-                         (filtersChange)="onFiltersChange($event)"
-                         (upOrDownArrows)="onFilterInputUpOrDownArrows($event)">
+        <unitable-search
+            *ngIf="config?.searchable"
+            [columns]="tableColumns"
+            [configFilters]="advancedSearchFilters"
+            [allowGroupFilter]="config.allowGroupFilter"
+            (filtersChange)="onFiltersChange($event)"
+            (upOrDownArrows)="onFilterInputUpOrDownArrows($event)">
         </unitable-search>
 
         <table *ngIf="tableData && config?.columns"
@@ -56,6 +57,7 @@ enum Direction { UP, DOWN, LEFT, RIGHT }
             <unitable-editor (valueChange)="onEditorChange($event)"
                              (copyFromAbove)="copyFromCellAbove()">
             </unitable-editor>
+
             <unitable-contextmenu [items]="config.contextMenu.items"></unitable-contextmenu>
 
             <thead>
@@ -80,12 +82,11 @@ enum Direction { UP, DOWN, LEFT, RIGHT }
                     </th>
 
                     <th *ngIf="config.deleteButton" class="select-column">
-                        <unitable-column-menu *ngIf="config?.columnMenuVisible && !config?.contextMenu?.items?.length"
-                                              [columns]="tableColumns"
-                                              [config]="config"
-                                              (toggleVisibility)="onToggleColVisiblity($event)"
-                                              (configChange)="onConfigChange($event)"
-                                              (resetAll)="onResetColVisibility()">
+                        <unitable-column-menu
+                            *ngIf="config?.columnMenuVisible && !config?.contextMenu?.items?.length"
+                            [columns]="tableColumns"
+                            (columnsChange)="onColumnsChange($event)"
+                            (resetAll)="onResetColumnConfig()">
                         </unitable-column-menu>
                     </th>
 
@@ -95,37 +96,40 @@ enum Direction { UP, DOWN, LEFT, RIGHT }
                             'select-column': config?.contextMenu?.items?.length > 1 || config?.contextMenu?.showDropdownOnSingleItem
                         }">
 
-                        <unitable-column-menu *ngIf="config?.columnMenuVisible" [columns]="tableColumns" [config]="config"
-                                    (toggleVisibility)="onToggleColVisiblity($event)"
-                                    (configChange)="onConfigChange($event)"
-                                    (resetAll)="onResetColVisibility()">
+                        <unitable-column-menu
+                            *ngIf="config?.columnMenuVisible"
+                            [columns]="tableColumns"
+                            (columnsChange)="onColumnsChange($event)"
+                            (resetAll)="onResetColumnConfig()">
                         </unitable-column-menu>
 
                     </th>
                 </tr>
             </thead>
             <tbody #tbody>
-                <tr unitable-row *ngFor="let row of getPageData()"
-                                [ngClass]="config.conditionalRowCls(row.toJS())"
-                                [attr.aria-readonly]="config?.isRowReadOnly(row.toJS())"
-                                [attr.aria-selected]="(config.multiRowSelect && row.get('_rowSelected')) || (!config.multiRowSelect && row == lastFocusedRowModel)"
-                                [columns]="tableColumns"
-                                [rowModel]="row"
-                                [config]="config"
-                                (rowModelChange)="onRowChange($event)"
-                                (rowDeleted)="onDeleteRow($event)"
-                                (cellFocused)="onCellFocused($event)"
-                                (cellClicked)="onCellClicked($event)"
-                                (rowSelectionChanged)="onRowSelected($event)"
-                                (contextMenuClicked)="updateContextMenu($event)">
+                <tr unitable-row
+                    *ngFor="let row of getPageData()"
+                    [ngClass]="config.conditionalRowCls(row.toJS())"
+                    [attr.aria-readonly]="config?.isRowReadOnly(row.toJS())"
+                    [attr.aria-selected]="(config.multiRowSelect && row.get('_rowSelected')) || (!config.multiRowSelect && row == lastFocusedRowModel)"
+                    [columns]="tableColumns"
+                    [rowModel]="row"
+                    [config]="config"
+                    (rowModelChange)="onRowChange($event)"
+                    (rowDeleted)="onDeleteRow($event)"
+                    (cellFocused)="onCellFocused($event)"
+                    (cellClicked)="onCellClicked($event)"
+                    (rowSelectionChanged)="onRowSelected($event)"
+                    (contextMenuClicked)="updateContextMenu($event)">
                 </tr>
             </tbody>
         </table>
 
-        <unitable-pagination #pager *ngIf="config?.pageable && rowCount > config?.pageSize"
-                            [pageSize]="config.pageSize"
-                            [rowCount]="rowCount"
-                            (pageChange)="onPageChange($event)">
+        <unitable-pagination #pager
+            *ngIf="config?.pageable && rowCount > config?.pageSize"
+            [pageSize]="config.pageSize"
+            [rowCount]="rowCount"
+            (pageChange)="onPageChange($event)">
         </unitable-pagination>
     `,
     changeDetection: ChangeDetectionStrategy.OnPush,
@@ -212,8 +216,19 @@ export class UniTable implements OnChanges {
                 customColumnSetup = this.utils.getColumnSetup(this.config.columnStorageKey);
             }
 
-            let columns = customColumnSetup || this.config.columns;
-            this.tableColumns = this.makeColumnsImmutable(columns);
+            if (customColumnSetup && customColumnSetup.length) {
+                // Extend the default column config with the custom one.
+                // This is done because localStorage can't hold functions/components etc
+                // So only the "safe" fields are saved
+                let columns = customColumnSetup.map(customCol => {
+                    let originalCol = this.config.columns.find(orig => orig.field === customCol.field);
+                    return Object.assign({}, originalCol, customCol);
+                });
+
+                this.tableColumns = this.makeColumnsImmutable(columns);
+            } else {
+                this.tableColumns = this.makeColumnsImmutable(this.config.columns);
+            }
 
             if (this.config.filters) {
                 this.advancedSearchFilters = this.config.filters;
@@ -435,12 +450,8 @@ export class UniTable implements OnChanges {
         }
     }
 
-    private onToggleColVisiblity(event) {
-        let col = event.column.set('visible', !event.column.get('visible'));
-
-        this.tableColumns = this.tableColumns.update(event.index, () => {
-            return col;
-        });
+    public onColumnsChange(columns) {
+        this.tableColumns = columns;
 
         if (this.lastFocusPosition) {
             this.resetFocusedCell();
@@ -453,10 +464,10 @@ export class UniTable implements OnChanges {
             );
         }
 
-        this.columnVisibilityChange.emit(this.tableColumns.toJS());
+        this.columnsChange.emit(this.tableColumns.toJS());
     }
 
-    private onResetColVisibility() {
+    public onResetColumnConfig() {
         if (this.config.columnStorageKey) {
             this.utils.removeColumnSetup(this.config.columnStorageKey);
         }
@@ -468,18 +479,6 @@ export class UniTable implements OnChanges {
         }
 
         this.columnVisibilityChange.emit(this.tableColumns.toJS());
-    }
-
-    private onConfigChange(event) {
-        this.tableColumns = this.tableColumns.update(event.index, () => {
-            return event.column;
-        });
-
-        if (this.lastFocusPosition) {
-            this.resetFocusedCell();
-        }
-
-        this.columnsChange.emit(this.tableColumns.toJS());
     }
 
     private onSort(column) {
@@ -545,8 +544,44 @@ export class UniTable implements OnChanges {
 
     }
 
+    private getTableCell(rowIndex: number, field: string): HTMLTableCellElement {
+        try {
+            const rows = this.tbody.nativeElement.rows;
+            const cells = rows[rowIndex].cells || [];
+
+            let cellIndex = this.tableColumns.findIndex(col => col.get('field') === field);
+            if (cellIndex >= 0) {
+                return cells[cellIndex];
+            }
+        } catch (e) {
+            console.log('Error in unitable: getTableCell', e);
+        }
+    }
+
     private onKeyDown(event: KeyboardEvent) {
         const key = event.which || event.keyCode;
+
+        // Add new row if we're at the last one as we might need to navigate to it
+        let rowIndex = this.lastFocusedRowModel && this.lastFocusedRowModel.get('_originalIndex');
+        if (key !== KeyCodes.ESCAPE && rowIndex === (this.tableData.size - 1)) {
+            this.addNewRow();
+        }
+
+        // JumpToColumn
+        let jumpToColumn = this.lastFocusedCellColumn.get('jumpToColumn');
+        let isJumpKey = !event.shiftKey && (key === KeyCodes.ENTER || key === KeyCodes.TAB);
+
+        if (jumpToColumn && isJumpKey) {
+            let cell = this.getTableCell(this.lastFocusPosition.rowIndex, jumpToColumn);
+
+            if (cell && !cell.hidden) {
+                setTimeout(() => {
+                    cell.focus();
+                });
+
+                return;
+            }
+        }
 
         switch (key) {
             // Tab
@@ -570,8 +605,9 @@ export class UniTable implements OnChanges {
             case 35:
             case 36:
                 let row = this.tbody.nativeElement.rows[this.lastFocusPosition.rowIndex];
-                let cell = (key === 36) ? this.utils.getFirstFocusableCell(row)
-                                        : this.utils.getLastFocusableCell(row, this.tableColumns, this.config);
+                let cell = (key === 36)
+                    ? this.utils.getFirstFocusableCell(row)
+                    : this.utils.getLastFocusableCell(row, this.tableColumns, this.config);
 
                 cell.focus();
             break;
@@ -1011,7 +1047,7 @@ export class UniTable implements OnChanges {
         }
     }
 
-    public finishEdit(): Promise<IRowChangeEvent> {
+    public finishEdit(): Promise<any> {
         return this.editor.emitAndClose();
     }
 

@@ -1,5 +1,4 @@
 unitable-column-menu
-
     .column-menu-toggle
         @extend %hideText
         background: transparent unicon-columns($uni-color-scale5) center center no-repeat
@@ -18,52 +17,93 @@ unitable-column-menu
         &:focus
             border-color: $uni-color-c2a
 
-    .column-menu-dropdown
-        @extend %contextMenu
-        display: block !important // @FIXME: Remove after UniTable upgrade
-        right: 0
-        top: 1.5rem
+column-menu-modal
+    dialog.uni-modal footer button
+        min-width: 6rem
+
+    .dragIndicator
+        background-color: $uni-color-scale9
+
+    .dragElement
+            opacity: .5
+
+    table
+        text-align: left
+        margin-bottom: 1rem
+
+        tr
+            height: 2.25rem
+
+        tbody tr
+            margin-bottom: .25rem
+            border-radius: pxToRem(5)
+
+        th
+            padding: 0
+            font-weight: normal
+
+            &.visibility-col
+                width: 5rem
+            &.title-col
+                width: 14rem
+            &.jump-col
+                width: 13rem
+
+
+        td.move-icon
+            background: transparent no-repeat center center
+            background-size: 1rem
+            background-image: unicon-hamburger($uni-color-scale2)
+            cursor: move
+            width: 3rem
+            &:hover
+                background-image: unicon-hamburger($uni-color-scale6)
+
+    span.move-icon
+        width: 1.5rem
+        height: 1rem
+        display: inline-block
+        background: transparent no-repeat bottom center
+        background-size: 1rem
+        background-image: unicon-hamburger($uni-color-scale2)
+
+    ul.column-menu-list
+        width: 100%
+        list-style: none
 
         li
-            @extend %contextMenuItem
+            width: 100%
+            height: 2.25rem
+            line-height: 2rem
+            margin-bottom: .25rem
+            border-radius: pxToRem(5)
+            cursor: move
 
-            &:last-of-type:hover
-                cursor: default
-                background: none
+            &:hover
+                background: $uni-color-scale9
 
-            label
-                position: relative
-                padding-left: 1rem
 
-                input[type=checkbox]
-                    margin-right: .5rem
-                    position: absolute
-                    left: -.5rem
-                    width: auto
+    main p
+        margin: 0.25rem
+        &:last-of-type
+            margin-bottom: 1.5rem
 
-            button
-                maring: 2rem auto
-                width: 80%
-
-    .unitable-column-config-editor
-        width: 100%
-
-    .unitable-column-config-editor label
-        padding-left: 0px
-        display: block
-        width: 100%
-
-    .unitable-column-config-editor input
-        width: 100%
-        display: block
-
-    .unitable-column-config-editor select
-        width: 100%
-        display: block
-
-    .show-column-editor-button
-        background-color: #ECEDF4
-        width: 20px !important
-        height: 15px
+    label.checkbox-label
+        @extend %hideText
+        display: inline-block
         padding: 0
-        margin: 0
+        width: 2.5rem
+
+        &:before
+            left: .4rem
+
+        &:after
+            left: 1rem
+
+    select
+        width: 12rem
+        height: 2rem
+        border: pxToRem(1) solid $uni-color-scale8
+        border-radius: pxToRem(2)
+
+

@@ -24,6 +24,8 @@ import {LocalDatePicker} from './controls/localDatePicker/LocalDatePicker';
 import {UniSearchWrapper} from './controls/uniSearchWrapper';
 import {UniSearchModule} from '../unisearch/index';
 
+import {ColumnMenuModal} from './columnMenu/columnMenuModal';
+
 @NgModule({
     imports: [
         CommonModule,
@@ -53,6 +55,7 @@ import {UniSearchModule} from '../unisearch/index';
         // DateUtil,
         UniTablePipe,
         UniSearchWrapper,
+        ColumnMenuModal
     ],
     entryComponents: [
         UnitableTextInput,
@@ -63,6 +66,7 @@ import {UniSearchModule} from '../unisearch/index';
         UnitableSelect,
         LocalDatePicker,
         UniSearchWrapper,
+        ColumnMenuModal
     ],
     providers: [
         COMPILER_PROVIDERS,

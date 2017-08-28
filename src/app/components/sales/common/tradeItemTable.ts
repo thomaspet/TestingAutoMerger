@@ -258,9 +258,9 @@ export class TradeItemTable {
 
         const sumTotalIncVatCol = new UniTableColumn('SumTotalIncVatCurrency', 'Sum', UniTableColumnType.Money, false);
 
-        // Table config
 
         this.tableConfig = new UniTableConfig(!this.readonly)
+            .setAllowConfigChanges(true)
             .setColumnStorageKey(this.columStorageKey)
             .setColumns([
                 sortIndexCol, productCol, itemTextCol, numItemsCol, unitCol,

@@ -26,16 +26,7 @@ export class UniTableUtils {
     }
 
     public getColumnSetup(key: string): UniTableColumn[] {
-        try {
-            let columnObjects = this.columnSetupMap[key];
-            if (columnObjects) {
-                let columns = [];
-                columnObjects.forEach(obj => columns.push(UniTableColumn.fromObject(obj)));
-                return columns;
-            }
-        } catch (e) {
-            console.log(e);
-        }
+        return this.columnSetupMap[key];
     }
 
     public saveColumnSetup(key: string, columns: UniTableColumn[]): void {
@@ -43,9 +34,23 @@ export class UniTableUtils {
             return;
         }
 
+        // Since storage can't hold functions/classes we shouldn't save those parts of a column config
+        // Because of this we only save the fields we can edit in the column modal
+        let safeToSave = [];
+        columns.forEach((col: UniTableColumn) => {
+            safeToSave.push({
+                field: col.field,
+                visible: col.visible,
+                header: col.header,
+                jumpToColumn: col.jumpToColumn
+            });
+        });
+
         try {
-            this.columnSetupMap[key] = columns;
+            this.columnSetupMap[key] = safeToSave;
             localStorage.setItem(CONFIG_STORAGE_KEY, JSON.stringify(this.columnSetupMap));
+
+            console.log('saved', this.columnSetupMap);
         } catch (e) {
             console.log(e);
         }
