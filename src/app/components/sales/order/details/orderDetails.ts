@@ -441,7 +441,7 @@ export class OrderDetails {
 
         this.readonly = order.StatusCode === StatusCodeCustomerOrder.TransferredToInvoice;
         this.newOrderItem = <any>this.tradeItemHelper.getDefaultTradeItemData(order);
-        this.orderItems = order.Items;
+        this.orderItems = order.Items.sort(function(itemA, itemB) { return itemA.SortIndex - itemB.SortIndex; });
         this.order = <any>_.cloneDeep(order);
         this.isDirty = false;
         this.setTabTitle();

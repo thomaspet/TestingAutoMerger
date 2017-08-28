@@ -268,7 +268,7 @@ export class QuoteDetails {
 
         this.newQuoteItem = <any>this.tradeItemHelper.getDefaultTradeItemData(quote);
         this.isDirty = false;
-        this.quoteItems = quote.Items;
+        this.quoteItems = quote.Items.sort(function(itemA, itemB) { return itemA.SortIndex - itemB.SortIndex; });
 
         this.quote = _.cloneDeep(quote);
         this.recalcItemSums(quote.Items);

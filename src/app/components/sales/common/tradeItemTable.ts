@@ -105,6 +105,9 @@ export class TradeItemTable {
 
 
     private initTableConfig() {
+        const sortIndexCol = new UniTableColumn('SortIndex', 'Nr', UniTableColumnType.Number).setWidth('50px')
+            .setVisible(false);
+
         // Columns
         const productCol = new UniTableColumn('Product', 'Varenr', UniTableColumnType.Lookup)
             .setDisplayField('Product.PartName')
@@ -257,7 +260,7 @@ export class TradeItemTable {
         // Table config
         this.tableConfig = new UniTableConfig(!this.readonly)
             .setColumns([
-                productCol, itemTextCol, numItemsCol, unitCol,
+                sortIndexCol, productCol, itemTextCol, numItemsCol, unitCol,
                 exVatCol, accountCol, vatTypeCol, discountPercentCol, discountCol,
                 projectCol, departmentCol, sumTotalExVatCol, sumVatCol, sumTotalIncVatCol, projectTaskCol
             ])

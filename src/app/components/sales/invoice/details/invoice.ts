@@ -216,6 +216,7 @@ export class InvoiceDetails {
                     this.currencyCodeService.GetAll(null)
                 ).subscribe((res) => {
                     let invoice = res[0];
+
                     this.companySettings = res[1];
 
                     if (!invoice.CurrencyCodeID) {
@@ -765,7 +766,8 @@ export class InvoiceDetails {
 
         this.newInvoiceItem = <any>this.tradeItemHelper.getDefaultTradeItemData(invoice);
         this.readonly = invoice.StatusCode && invoice.StatusCode !== StatusCodeCustomerInvoice.Draft;
-        this.invoiceItems = invoice.Items;
+        this.invoiceItems = invoice.Items.sort(function(itemA, itemB) { return itemA.SortIndex - itemB.SortIndex; });
+
 
         this.invoice = _.cloneDeep(invoice);
         this.recalcDebouncer.next(invoice.Items);
