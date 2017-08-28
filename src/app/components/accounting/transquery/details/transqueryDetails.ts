@@ -569,7 +569,7 @@ export class TransqueryDetails implements OnInit {
             });
         }
 
-        return new UniTableConfig(false, false)
+        return new UniTableConfig('accounting.transquery.details', false, false)
             .setPageable(true)
             .setPageSize(20)
             .setColumnMenuVisible(false)
@@ -627,18 +627,6 @@ export class TransqueryDetails implements OnInit {
 
     private onFormFilterChange(event) {
         this.table.refreshTableData();
-    }
-
-    private onColumnVisibilityChange(columns) {
-        let visibleColumns: Array<string> = [];
-
-        columns.forEach(x => {
-            if (x.visible) {
-                visibleColumns.push(x.field);
-            }
-        });
-
-        this.storageService.save(this.COLUMN_VISIBILITY_LOCALSTORAGE_KEY, JSON.stringify(visibleColumns), true);
     }
 
     private getLayout() {

@@ -7,10 +7,9 @@
               *ngIf="allowManualSearch">
     </uni-form>
     <uni-table
-            [resource]="lookupFunction"
-            [config]="uniTableConfig"
-            (filtersChange)="onFiltersChange($event.filter)"
-            (columnVisibilityChange)="onColumnVisibilityChange($event)">
+        [resource]="lookupFunction"
+        [config]="uniTableConfig"
+        (filtersChange)="onFiltersChange($event.filter)">
     </uni-table>
 
     <uni-summary [configs]="summary" *ngIf="summaryData" [attr.aria-busy]="busy"></uni-summary>

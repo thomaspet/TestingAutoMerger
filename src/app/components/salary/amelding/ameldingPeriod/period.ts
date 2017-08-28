@@ -151,7 +151,7 @@ export class AmeldingPeriodSummaryView {
         let amountCol = new UniTableColumn('Sums.baseAGA', 'Grunnlag', UniTableColumnType.Money).setWidth('7rem');
         let agaCol = new UniTableColumn('Sums.calculatedAGA', 'Aga', UniTableColumnType.Money).setWidth('7rem');
 
-        this.systemTableConfig = new UniTableConfig(false, true, 10)
+        this.systemTableConfig = new UniTableConfig('salary.amelding.ameldingPeriod.system', false, true, 10)
             .setColumns([orgnrCol, soneCol, municipalCol, typeCol, rateCol, amountCol, agaCol]);
     }
 
@@ -170,7 +170,7 @@ export class AmeldingPeriodSummaryView {
         let ftrekkCol = new UniTableColumn('Ftrekk', 'Forskuddstrekk', UniTableColumnType.Money);
         let agaCol = new UniTableColumn('Agatrekk', 'Arbeidsgiveravgift', UniTableColumnType.Money);
 
-        this.amldTableConfig = new UniTableConfig(false, true, 10)
+        this.amldTableConfig = new UniTableConfig('salary.amelding.ameldingPeriod.period', false, true, 10)
             .setColumns([periodCol, meldCol, ftrekkCol, agaCol]);
     }
 }

@@ -75,7 +75,7 @@ export class ControlModal implements OnInit, IUniModal {
                 .GetAll(
                 `filter=PayrollRunID eq ${runID} `
                 + `and ((SystemType ne ${StdSystemType.TableTaxDeduction} `
-                + `and SystemType ne ${StdSystemType.PercentTaxDeduction}) ` 
+                + `and SystemType ne ${StdSystemType.PercentTaxDeduction}) `
                 + `or (Sum lt 0))`
                 + `&orderby=Sum desc&nofilter=true`
                 , ['WageType']),
@@ -187,7 +187,7 @@ export class ControlModal implements OnInit, IUniModal {
                 return row.Wagetype.Base_Payment ? 'Ja' : 'Nei';
             });
 
-        this.tableConfig = new UniTableConfig(false, false)
+        this.tableConfig = new UniTableConfig('salary.payrollrun.controlModal', false, false)
             .setColumns([
                 wagetypeNumberCol, wagetypenameCol, accountCol, fromdateCol,
                 toDateCol, amountCol, rateCol, sumCol, paymentCol]);

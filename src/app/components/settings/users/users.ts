@@ -148,7 +148,7 @@ export class Users {
             }
         ];
 
-        this.userTableConfig = new UniTableConfig(false, true, 15)
+        this.userTableConfig = new UniTableConfig('settings.users.users', false, true, 15)
             .setSearchable(true)
             .setContextMenu(contextMenuItems)
             .setColumns([
@@ -158,7 +158,7 @@ export class Users {
                 new UniTableColumn('_StatusText', 'Status')
                     .setTemplate(rowModel => this.getStatusCodeText(rowModel['StatusCode']))]);
 
-        this.roleTableConfig = new UniTableConfig(false, true, 15)
+        this.roleTableConfig = new UniTableConfig('settings.users.roles', false, true, 15)
             .setDeleteButton(true)
             .setColumns([
                 new UniTableColumn('SharedRoleName')

@@ -143,7 +143,7 @@ export class VatTypeDetails implements OnChanges, OnInit {
     }
 
     private generateUniTableConfig(): UniTableConfig {
-        return new UniTableConfig(true, false)
+        return new UniTableConfig('accounting.vatsettings.vattypeDetails', true, false)
             .setColumnMenuVisible(false)
             .setDeleteButton(true)
             .setColumns([

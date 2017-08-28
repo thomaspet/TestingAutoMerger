@@ -77,7 +77,8 @@ export class SelectJournalEntryLineTable implements OnInit {
                 .setTemplate(x => this.journalEntryLineService.getStatusText(x.StatusCode))
         ];
 
-        this.uniTableConfig = new UniTableConfig(false, false, 100)
+        let tableName = 'accounting.journalEntry.selectJournalEntryLineModal';
+        this.uniTableConfig = new UniTableConfig(tableName, false, false, 100)
             .setColumns(columns)
             .setColumnMenuVisible(true);
     }

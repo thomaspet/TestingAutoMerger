@@ -757,9 +757,9 @@ export class UniTicker {
                 }
 
                 // Setup table
-                this.tableConfig = new UniTableConfig(false, true, 20)
+                const configStoreKey = `uniTicker.${this.ticker.Code}`;
+                this.tableConfig = new UniTableConfig(configStoreKey, false, true, 20)
                     .setAllowGroupFilter(true)
-                    .setAllowConfigChanges(true)
                     .setColumnMenuVisible(true)
                     .setSearchable(this.useUniTableFilter)
                     .setMultiRowSelect(false)
@@ -802,21 +802,5 @@ export class UniTicker {
                 err => this.errorService.handle(err));
 
         completeEvent('Eksport kjørt');
-    }
-
-    private onColumnVisibilityChange(columns) {
-        let visibleColumns: Array<string> = [];
-
-        columns.forEach(x => {
-            if (x.visible) {
-                visibleColumns.push(x.field);
-            }
-        });
-
-        this.storageService.save(this.getColumnVisibilityStorageKey(), JSON.stringify(visibleColumns));
-    }
-
-    private getColumnVisibilityStorageKey() {
-        return TICKER_COLUMN_VISIBILITY_STORAGE_KEY + '_' + this.ticker.Code;
     }
 }

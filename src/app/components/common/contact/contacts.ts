@@ -168,7 +168,7 @@ export class Contacts implements AfterViewInit {
         });
 
         // Setup table
-        this.contactTableConfig = new UniTableConfig(true, true, 15)
+        this.contactTableConfig = new UniTableConfig('common.contacts', true, true, 15)
             .setSearchable(false)
             .setSortable(false)
             .setDeleteButton(true)

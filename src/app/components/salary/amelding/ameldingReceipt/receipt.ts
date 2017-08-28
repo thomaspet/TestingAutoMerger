@@ -188,7 +188,7 @@ export class AmeldingReceiptView {
 
         let orderBy: ISortInfo = {field: 'meldingsId', direction: -1};
 
-        this.mottattLeveranserIPeriodenConfig = new UniTableConfig(false, false)
+        this.mottattLeveranserIPeriodenConfig = new UniTableConfig('salary.amelding.ameldingReceipt', false, false)
         .setColumns([meldingCol, periodeCol, refCol, tidCol, statusCol, antallCol, replaceCol, agaCol, ftrekkCol]);
         this.mottattLeveranserIPeriodenConfig.defaultOrderBy = orderBy;
     }

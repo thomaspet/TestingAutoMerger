@@ -166,18 +166,23 @@ export class DistributionPeriodReportPart implements OnChanges {
                 this.distributionPeriodData = distributionPeriodData;
 
                 let periodName = new UniTableColumn('periodName', 'Periode', UniTableColumnType.Text).setWidth('50%');
-                let amountPeriod1 = new UniTableColumn('amountPeriodYear1', this.accountYear1.toString(), UniTableColumnType.Money).setCls('amount')
-                            .setOnCellClick(row => {
-                                this.periodSelected.emit({ periodNo: row.periodNo, year: this.accountYear1});
-                            })
-                            .setNumberFormat(this.numberFormat);
-                let amountPeriod2 = new UniTableColumn('amountPeriodYear2', this.accountYear2.toString(), UniTableColumnType.Money).setCls('amount')
-                            .setOnCellClick(row => {
-                                this.periodSelected.emit({ periodNo: row.periodNo, year: this.accountYear2});
-                            })
-                            .setNumberFormat(this.numberFormat);
+                let amountPeriod1 = new UniTableColumn('amountPeriodYear1', this.accountYear1.toString(), UniTableColumnType.Money)
+                    .setCls('amount')
+                    .setNumberFormat(this.numberFormat)
+                    .setOnCellClick(row => {
+                        this.periodSelected.emit({ periodNo: row.periodNo, year: this.accountYear1});
+                    });
 
-                this.uniTableConfigDistributionPeriod = new UniTableConfig(false, false);
+                let amountPeriod2 = new UniTableColumn('amountPeriodYear2', this.accountYear2.toString(), UniTableColumnType.Money)
+                    .setCls('amount')
+                    .setNumberFormat(this.numberFormat)
+                    .setOnCellClick(row => {
+                        this.periodSelected.emit({ periodNo: row.periodNo, year: this.accountYear2});
+                    });
+
+                const tableName = 'accounting.distributionPeriodReportPart';
+                this.uniTableConfigDistributionPeriod = new UniTableConfig(tableName, false, false);
+
                 if (this.showPreviousAccountYear) {
                     this.uniTableConfigDistributionPeriod.setColumns([periodName, amountPeriod2, amountPeriod1]);
                 } else {

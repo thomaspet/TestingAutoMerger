@@ -177,8 +177,7 @@ export class VacationPaySettingsModal implements OnInit, IUniModal {
         payInHoliday.FieldType = FieldType.DROPDOWN;
         payInHoliday.Options = {
             source:
-            this.m_vacationpaylineService.WageDeductionDueToHolidayArray
-            ,
+            this.m_vacationpaylineService.WageDeductionDueToHolidayArray,
             displayProperty: 'name',
             valueProperty: 'id'
         };
@@ -194,7 +193,7 @@ export class VacationPaySettingsModal implements OnInit, IUniModal {
                 return rowModel.FromDate ? moment(rowModel.FromDate).format('YYYY') : '';
             });
 
-        this.tableConfig = new UniTableConfig(true)
+        this.tableConfig = new UniTableConfig('salary.payrollrun.vacationpaySettingModalContent', true)
             .setColumns([rateCol, rate60Col, dateCol])
             .setPageable(this.vacationRates.length > 10)
             .setChangeCallback((event) => {

@@ -15,13 +15,14 @@
 
 <section class="application">
     <uni-tradeitem-table *ngIf="order"
-                         [readonly]="readonly"
-                         [defaultTradeItem]="newOrderItem"
-                         [projects]="projects"
-                         [(items)]="orderItems"
-                         [currencyCodeID]="currencyCodeID"
-                         [currencyExchangeRate]="currencyExchangeRate"
-                         (itemsChange)="recalcDebouncer.next($event)">
+        [configStoreKey]="'sales.order.tradeitemTable'"
+        [readonly]="readonly"
+        [defaultTradeItem]="newOrderItem"
+        [projects]="projects"
+        [(items)]="orderItems"
+        [currencyCodeID]="currencyCodeID"
+        [currencyExchangeRate]="currencyExchangeRate"
+        (itemsChange)="recalcDebouncer.next($event)">
     </uni-tradeitem-table>
     <uni-summary *ngIf="order" [configs]="summary"></uni-summary>
 </section>

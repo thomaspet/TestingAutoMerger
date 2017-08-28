@@ -73,7 +73,7 @@ export class InvoiceReminders {
             });
 
         // Setup table
-        this.reminderTable = new UniTableConfig(false, true, 4)
+        this.reminderTable = new UniTableConfig('sales.inovice.reminders', false, true, 4)
             .setSearchable(false)
             .setColumnMenuVisible(false)
             .setDeleteButton(false)

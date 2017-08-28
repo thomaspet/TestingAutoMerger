@@ -1,10 +1,10 @@
-<uni-table [resource]="journalEntryLines"
-            [config]="journalEntryTableConfig"
-            (rowChanged)="rowChanged($event)"
-            (rowSelected)="onRowSelected($event)"
-            (columnVisibilityChange)="onColumnVisibilityChange($event)"
-            *ngIf="journalEntryTableConfig">
+<uni-table *ngIf="journalEntryTableConfig"
+    [resource]="journalEntryLines"
+    [config]="journalEntryTableConfig"
+    (rowChanged)="rowChanged($event)"
+    (rowSelected)="onRowSelected($event)">
 </uni-table>
+
 <accrual-modal></accrual-modal>
 <add-payment-modal></add-payment-modal>
 <select-journalentryline-modal></select-journalentryline-modal>

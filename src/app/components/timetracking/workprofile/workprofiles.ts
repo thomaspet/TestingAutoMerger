@@ -35,7 +35,8 @@ export class WorkprofileListview {
             new UniTableColumn('ID', 'Nr.', UniTableColumnType.Number).setWidth('10%').setFilterOperator('startswith'),
             new UniTableColumn('Name', 'Navn', UniTableColumnType.Text).setWidth('40%').setFilterOperator('startswith')
         ];
-        return new UniTableConfig(false, true).setSearchable(true).setColumns(cols);
+
+        return new UniTableConfig('timetracking.workprofiles.list', false, true).setSearchable(true).setColumns(cols);
     }
 
 }

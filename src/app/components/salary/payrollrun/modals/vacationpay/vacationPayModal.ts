@@ -382,7 +382,7 @@ export class VacationPayModal implements OnInit, IUniModal {
         var payoutCol = new UniTableColumn('Withdrawal', 'Utbetales', UniTableColumnType.Money).setWidth('6rem');
 
 
-        this.tableConfig = new UniTableConfig()
+        this.tableConfig = new UniTableConfig('salary.payrollrun.vacationpayModalContent')
             .setColumns([
                 nrCol, over60Col, nameCol, systemGrunnlagCol, manuellGrunnlagCol,
                 rateCol, sixthCol, vacationPayCol, earlierPayCol, payoutCol])

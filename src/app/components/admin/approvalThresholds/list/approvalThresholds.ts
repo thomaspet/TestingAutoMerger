@@ -16,7 +16,7 @@ import {ErrorService, TransitionService} from '../../../../services/services';
 export class ApprovalThresholds implements OnInit {
     @ViewChild(UniTable)
     @ViewChild(UniSelect)
-    
+
     private table: UniTable;
 
     private toolbarConfig: IToolbarConfig;
@@ -41,7 +41,7 @@ export class ApprovalThresholds implements OnInit {
             url: '/admin/thresholds',
             moduleID: UniModules.Thresholds,
             active: true
-            
+
         });
 
         this.toolbarConfig = {
@@ -62,7 +62,7 @@ export class ApprovalThresholds implements OnInit {
     }
 
     private initTableConfig() {
-        this.transitionTableConfig = new UniTableConfig(false, true, 15)
+        this.transitionTableConfig = new UniTableConfig('admin.approvalThreshholds', false, true, 15)
             .setSearchable(true)
             .setColumns([new UniTableColumn('Label')]);
     }

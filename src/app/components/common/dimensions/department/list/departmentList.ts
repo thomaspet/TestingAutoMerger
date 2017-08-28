@@ -40,7 +40,7 @@ export class DepartmentList {
                 .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
         };
 
-        this.tableConfig = new UniTableConfig(false, true, 25)
+        this.tableConfig = new UniTableConfig('common.dimensions.department', false, true, 25)
             .setSearchable(true)
             .setColumns([
                 new UniTableColumn('DepartmentNumber', 'Avdelingsnummer', UniTableColumnType.Text)

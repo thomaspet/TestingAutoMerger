@@ -248,7 +248,12 @@ export class BillsView {
                 return '';
             }),
         ];
-        var cfg = new UniTableConfig(false, true).setSearchable(false).setColumns(cols).setPageSize(12).setColumnMenuVisible(true).setDeleteButton(true);
+        var cfg = new UniTableConfig('accounting.bills.inboxTable', false, true)
+            .setSearchable(false)
+            .setColumns(cols)
+            .setPageSize(12)
+            .setColumnMenuVisible(true)
+            .setDeleteButton(true);
         this.tableConfig = cfg;
     }
 
@@ -315,7 +320,11 @@ export class BillsView {
                     return this.supplierInvoiceService.getStatusText(dataItem.StatusCode);
                 }).setWidth('8%'),
         ];
-        return new UniTableConfig(false, true).setSearchable(false).setColumns(cols).setPageSize(12).setColumnMenuVisible(true);
+        return new UniTableConfig('accounting.bills.mainTable', false, true)
+            .setSearchable(false)
+            .setColumns(cols)
+            .setPageSize(12)
+            .setColumnMenuVisible(true);
     }
 
     public onRowSelected(event) {

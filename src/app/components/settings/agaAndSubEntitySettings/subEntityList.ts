@@ -77,7 +77,8 @@ export class SubEntityList implements OnInit {
             return agaZoneObj ? agaZoneObj.ZoneName : '';
         });
 
-        this.subEntityListConfig = new UniTableConfig(false)
+        const configStoreKey = 'settings.agaAndSubEntitySettings.subEntityList';
+        this.subEntityListConfig = new UniTableConfig(configStoreKey, false)
             .setColumns([name, orgnr, municipal, agaZone])
             .setDeleteButton({
                 deleteHandler: (rowModel) => {

@@ -1,8 +1,8 @@
 import { Component, ViewChild } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
-import { 
-    WageTypeService, UniCacheService, AccountService, 
-    ErrorService, SalaryTransactionSuggestedValuesService 
+import {
+    WageTypeService, UniCacheService, AccountService,
+    ErrorService, SalaryTransactionSuggestedValuesService
 } from '../../../../services/services';
 import { UniTableColumn, UniTableColumnType, UniTableConfig, UniTable } from '../../../../../framework/ui/unitable/index';
 import {
@@ -257,7 +257,7 @@ export class RecurringPost extends UniView {
 
 
 
-        this.tableConfig = new UniTableConfig(this.employeeID ? true : false)
+        this.tableConfig = new UniTableConfig('salary.employee.recurringPost', this.employeeID ? true : false)
             .setDeleteButton(true)
             .setContextMenu([{
                 label: 'Tilleggsopplysninger', action: (row) => {
@@ -301,10 +301,10 @@ export class RecurringPost extends UniView {
 
                 if (rateObservable) {
                     return rateObservable
-                        .map(rate => { 
+                        .map(rate => {
                             row['Rate'] = rate;
                             row['EmployeeID'] = this.employeeID;
-                            return this.calcItem(row); 
+                            return this.calcItem(row);
                         })
                         .switchMap(trans => this.sugestedValuesService.suggestFromDate(trans, true))
                         .do(trans => this.updateAndCacheSalaryTransactionRow(trans, true));

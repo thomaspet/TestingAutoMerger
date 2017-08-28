@@ -90,7 +90,7 @@ export class SellerList {
             });
 
         // Setup table
-        this.sellerTableConfig = new UniTableConfig(false, true, 15)
+        this.sellerTableConfig = new UniTableConfig('common.seller.sellerList', false, true, 15)
             .setSearchable(true)
             .setSortable(false)
             .setColumns([nameCol, userCol, employeeCol, teamCol, projectCol, departmentCol]);

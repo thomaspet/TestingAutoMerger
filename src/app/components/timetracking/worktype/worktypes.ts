@@ -39,7 +39,9 @@ export class WorktypeListview {
                 .setTemplate((rowModel: any) => systemTypePipe.transform(rowModel.SystemType, '')  ).setWidth('20%'),
             new UniTableColumn('Description', 'Beskrivelse', UniTableColumnType.Text).setFilterOperator('startswith')
         ];
-        return new UniTableConfig(false, true).setSearchable(true).setColumns(cols);
+        return new UniTableConfig('timetracking.worktypes.list', false, true)
+            .setSearchable(true)
+            .setColumns(cols);
     }
 
 

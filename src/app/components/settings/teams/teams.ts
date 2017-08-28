@@ -282,15 +282,14 @@ export class Teams {
     }
 
      private initTableConfigs() {
-
-        this.teamTableConfig = new UniTableConfig(false, true, 15)
+        this.teamTableConfig = new UniTableConfig('settings.teams.teams', false, true, 15)
             .setSearchable(true)
             .setColumns([
                 new UniTableColumn('Name', 'Teamnavn')
                     .setTemplate(rowModel => rowModel['Name'])
             ]);
 
-        this.positionTableConfig = new UniTableConfig(true, true, 20)
+        this.positionTableConfig = new UniTableConfig('settings.teams.positions', true, true, 20)
             .setSearchable(false)
             .setColumns([
                 new UniTableColumn('UserID', 'Bruker', UniTableColumnType.Lookup)

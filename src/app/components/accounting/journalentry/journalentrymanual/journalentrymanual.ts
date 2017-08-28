@@ -312,11 +312,6 @@ export class JournalEntryManual implements OnChanges, OnInit {
         }
     }
 
-    public onColumnVisibilityChange(visibleColumns: Array<string>) {
-        this.journalEntrySettings.DefaultVisibleFields = visibleColumns;
-        this.journalEntryService.setJournalEntrySettings(this.journalEntrySettings, this.mode);
-    }
-
     public addJournalEntryData(data: JournalEntryData) {
         data.SameOrNew = '1';
         this.isDirty = true;
@@ -750,7 +745,8 @@ export class JournalEntryManual implements OnChanges, OnInit {
                 .setTemplate(x => this.journalEntryLineService.getStatusText(x.StatusCode))
         ];
 
-        this.openPostTableConfig = new UniTableConfig(false, false, 100)
+        let tableName = 'accounting.journalEntry.journalEntryManual';
+        this.openPostTableConfig = new UniTableConfig(tableName, false, false, 100)
             .setColumns(columns)
             .setMultiRowSelect(true)
             .setColumnMenuVisible(true);

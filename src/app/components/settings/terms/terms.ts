@@ -23,7 +23,7 @@ export class UniTerms {
     ); // Valgt TermsTypes, betaling forhåndsvalgt
     private currentTerms: Terms[] = []; // terms filtrert etter valgt TermsTypes
     private deletables: Array<Terms> = []; // Tabellrader som blir slettet
-    
+
     public terms: Terms[] = []; // Alle terms, begge typer
     public hasUnsavedChanges: boolean = false;
     public busy: boolean = false;
@@ -31,17 +31,17 @@ export class UniTerms {
     public termsTypeTableConfig: UniTableConfig;
     public termsTableConfig: UniTableConfig;
     public saveactions: IUniSaveAction[] = [];
-    
+
     constructor(
         private http: UniHttp,
         private errorService: ErrorService,
         private guidService: GuidService,
         private modalService: UniModalService
     ) {
-        this.initTermsTypeTableConfig(); 
-        this.initPaymentTermsTableConfig(); 
+        this.initTermsTypeTableConfig();
+        this.initPaymentTermsTableConfig();
         this.updateSaveActions();
-        this.getTerms(); 
+        this.getTerms();
         setTimeout(x => {
             this.uniTables.first.focusRow(0);
         }, 500); // Forhåndsvelger TermsTypes betaling
@@ -145,9 +145,9 @@ export class UniTerms {
 
         if (rowIndex >= this.currentTerms.length) {
             if (this.currentTermType.TermsType === TermsType.PaymentTerms) {
-                this.currentTerms.push(this.newPaymentTerm());   
+                this.currentTerms.push(this.newPaymentTerm());
             } else if (this.currentTermType.TermsType === TermsType.DeliveryTerms) {
-                this.currentTerms.push(this.newDeliveryTerm());   
+                this.currentTerms.push(this.newDeliveryTerm());
             }
         }
 
@@ -215,7 +215,7 @@ export class UniTerms {
 
     private save(): Promise<boolean> {
         return new Promise( (resolve, reject) => {
-            if (this.deletables) { 
+            if (this.deletables) {
                 this.deletables.forEach( item => this.currentTerms.push(item) );
             }
             this.currentTerms.forEach(term => {
@@ -236,14 +236,14 @@ export class UniTerms {
                             resolve(false);
                             this.errorService.handle(error);
                         }
-                       
+
                     );
             });
         });
     }
 
     private initTermsTypeTableConfig() {
-        this.termsTypeTableConfig = new UniTableConfig(false, true, 15)
+        this.termsTypeTableConfig = new UniTableConfig('settings.terms.termType', false, true, 15)
             .setSearchable(false)
             .setSortable(false)
             .setColumns([
@@ -252,7 +252,7 @@ export class UniTerms {
     }
 
     private initPaymentTermsTableConfig() {
-        this.termsTableConfig = new UniTableConfig(true, true, 15)
+        this.termsTableConfig = new UniTableConfig('settings.terms.payment', true, true, 15)
             .setColumns([
                 new UniTableColumn('Name', 'Navn', UniTableColumnType.Text)
                     .setWidth('18rem'),
@@ -265,7 +265,7 @@ export class UniTerms {
     }
 
     private initDeliveryTermsTableConfig() {
-        this.termsTableConfig = new UniTableConfig(true, true, 15)
+        this.termsTableConfig = new UniTableConfig('settings.terms.delivery', true, true, 15)
             .setColumns([
                 new UniTableColumn('Name', 'Navn', UniTableColumnType.Text)
                     .setWidth('18rem'),

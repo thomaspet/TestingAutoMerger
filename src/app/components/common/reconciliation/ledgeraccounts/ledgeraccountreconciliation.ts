@@ -799,7 +799,7 @@ export class LedgerAccountReconciliation {
             });
         });
 
-        this.uniTableConfig = new UniTableConfig(false, true, 25)
+        this.uniTableConfig = new UniTableConfig('common.reconciliation.legderaccounts', false, true, 25)
             .setColumns(columns)
             .setMultiRowSelect(true)
             .setColumnMenuVisible(true)

@@ -52,7 +52,7 @@ export class AmeldingSummaryView {
         else{
             this.entitiesWithData = [];
         }
-        
+
     }
 
     private mapData() {
@@ -87,7 +87,7 @@ export class AmeldingSummaryView {
                                 if (arbeidsforhold.permisjon) {
                                     arbeidsforhold.permisjon.forEach(permisjon => {
                                         let startdatePeriod = parseInt(permisjon.startdato.split('-', 2)[1]);
-                                        let enddatePeriod = permisjon.sluttdato 
+                                        let enddatePeriod = permisjon.sluttdato
                                             ? parseInt(permisjon.sluttdato.split('-', 2)[1])
                                             : undefined;
                                         if (startdatePeriod === period || enddatePeriod === period) {
@@ -134,7 +134,7 @@ export class AmeldingSummaryView {
         let startCol = new UniTableColumn('startDate', 'Startdato', UniTableColumnType.LocalDate).setWidth('8rem');
         let endCol = new UniTableColumn('endDate', 'Sluttdato', UniTableColumnType.LocalDate).setWidth('8rem');
 
-        this.employeeTableConfig = new UniTableConfig(false, true, 30)
+        this.employeeTableConfig = new UniTableConfig('salary.amelding.summary.employees', false, true, 30)
         .setColumns([empNoCol, nameCol, emplmntCol, startCol, endCol]);
     }
 
@@ -147,7 +147,7 @@ export class AmeldingSummaryView {
         let pcntCol = new UniTableColumn('permisjonsprosent', 'Prosent', UniTableColumnType.Percent).setWidth('5rem');
         let descCol = new UniTableColumn('beskrivelse', 'Beskrivelse', UniTableColumnType.Text);
 
-        this.leaveTableConfig = new UniTableConfig(false, true, 30)
+        this.leaveTableConfig = new UniTableConfig('salary.amelding.summary.leaves', false, true, 30)
         .setColumns([idCol, numberCol, nameCol, startCol, endCol, pcntCol, descCol]);
     }
 
@@ -175,7 +175,7 @@ export class AmeldingSummaryView {
         .setWidth('6rem')
         .setCls('column-align-right');
 
-        this.transactionTableConfig = new UniTableConfig(false, true, 30)
+        this.transactionTableConfig = new UniTableConfig('salary.amelding.summary.transactions', false, true, 30)
         .setColumns([typeCol, benefitCol, descrCol, taxCol, agaCol, amountCol]);
     }
 }

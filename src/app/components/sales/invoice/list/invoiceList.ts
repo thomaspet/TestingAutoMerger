@@ -472,7 +472,7 @@ export class InvoiceList implements OnInit {
             });
 
         // Setup table
-        this.invoiceTable = new UniTableConfig(false, true)
+        this.invoiceTable = new UniTableConfig('sales.invoice.list', false, true)
             .setPageSize(25)
             .setSearchable(true)
             .setColumnMenuVisible(true)

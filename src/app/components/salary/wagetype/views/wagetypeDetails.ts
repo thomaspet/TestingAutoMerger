@@ -189,7 +189,7 @@ export class WagetypeDetail extends UniView {
         this.setReadOnlyOnField(fields, 'Rate', this.rateIsReadOnly);
         this.setReadOnlyOnField(fields, 'WageTypeNumber', !!wageType.ID);
         this.setReadOnlyOnField(fields, 'AccountNumber_balance', wageType.Base_Payment);
-        
+
         this.editField(fields, 'taxtype', taxtype => {
             taxtype.Options = {
                 source: this.taxType,
@@ -198,8 +198,8 @@ export class WagetypeDetail extends UniView {
                 valueProperty: 'ID',
                 debounceTime: 500,
                 events: {
-                    tab: (event) => {                        
-                        this.uniform.field('AccountNumber').focus();                        
+                    tab: (event) => {
+                        this.uniform.field('AccountNumber').focus();
                     },
                     shift_tab: (event) => {
                         this.uniform.field('RateFactor').focus();
@@ -374,7 +374,7 @@ export class WagetypeDetail extends UniView {
             .map(response => this.setupTilleggsPakker(response, filter))
             .do(response => {
                 this.setFieldHidden(fields, 'SupplementPackage', !filter.Description || !response.length);
-                this.updateUniformFields(fields, response); 
+                this.updateUniformFields(fields, response);
             })
             .catch((err, obs) => this.errorService.handleRxCatch(err, obs))
             .subscribe(response => this.supplementPackages = response);
@@ -639,7 +639,7 @@ export class WagetypeDetail extends UniView {
         tilleggsopplysning.editable = false;
         let suggestedValue = new UniTableColumn('SuggestedValue', 'Fast verdi', UniTableColumnType.Text);
 
-        this.tilleggspakkeConfig = new UniTableConfig(true, true, 15)
+        this.tilleggspakkeConfig = new UniTableConfig('salary.wagetype.details.tilleggspakke', true, true, 15)
             .setFilters([{ field: '_setDelete', operator: 'ne', value: 'true', group: 0 }])
             .setColumns([tilleggsopplysning, suggestedValue])
             .setAutoAddNewRow(false);

@@ -88,7 +88,7 @@ export class SalaryTransactionSupplementList implements OnInit {
         const amountCol = new UniTableColumn('_Amount', 'Antall', UniTableColumnType.Number, false);
         const sumCol = new UniTableColumn('_Sum', 'Beløp', UniTableColumnType.Money, false);
 
-        return new UniTableConfig()
+        return new UniTableConfig('salary.salaryTransactionSupplementsList')
             .setAutoAddNewRow(false)
             .setColumns([employeeCol, wageTypeCol, textCol, supplementTextCol, valueCol,
                 fromDate, toDate, runCol, amountCol, sumCol])
@@ -107,7 +107,7 @@ export class SalaryTransactionSupplementList implements OnInit {
         if (!this.table.getTableData().some(row => row['_isDirty'])) {
             return Observable.of(true);
         }
-        
+
         return this.modalService
             .openUnsavedChangesModal()
             .onClose

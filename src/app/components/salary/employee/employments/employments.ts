@@ -2,8 +2,8 @@ import { Component, ViewChild } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { UniView } from '../../../../../framework/core/uniView';
 import { EmploymentService } from '../../../../services/services';
-import { 
-    UniTable, UniTableConfig, UniTableColumnType, UniTableColumn 
+import {
+    UniTable, UniTableConfig, UniTableColumnType, UniTableColumn
 } from '../../../../../framework/ui/unitable/index';
 import { Employee, Employment, SubEntity, Project, Department } from '../../../../unientities';
 import { UniCacheService, ErrorService } from '../../../../services/services';
@@ -37,7 +37,7 @@ export class Employments extends UniView {
 
         super(router.url, cacheService);
 
-        this.tableConfig = new UniTableConfig(false)
+        this.tableConfig = new UniTableConfig('salary.employee.employments', false)
             .setColumnMenuVisible(false)
             .setColumns([
                 new UniTableColumn('ID', 'Nr', UniTableColumnType.Number).setWidth('4rem'),
@@ -104,10 +104,10 @@ export class Employments extends UniView {
 
         if (this.selectedIndex === undefined && this.employments.length) {
 
-            let focusIndex = this.employments.findIndex(employment => employmentID !== undefined 
-                ? employment.ID === employmentID 
+            let focusIndex = this.employments.findIndex(employment => employmentID !== undefined
+                ? employment.ID === employmentID
                 : employment.Standard);
-                
+
             if (focusIndex === -1) {
                 focusIndex = 0;
             }

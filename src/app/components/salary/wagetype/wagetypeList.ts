@@ -42,7 +42,7 @@ export class WagetypeList implements OnInit {
 
     public ngOnInit() {
         this.busy = true;
-        this.wageTypes$ = 
+        this.wageTypes$ =
         this._wageTypeService
             .GetAll('orderBy=WageTypeNumber ASC')
             .finally(() => this.busy = false)
@@ -60,7 +60,7 @@ export class WagetypeList implements OnInit {
             return wageType.Base_Payment ? 'Ja' : 'Nei';
         });
 
-        this.tableConfig = new UniTableConfig(false, true, 15)
+        this.tableConfig = new UniTableConfig('salary.wagetype.list', false, true, 15)
             .setColumns([idCol, nameCol, accountNumberCol, rateCol, basePaymentCol])
             .setSearchable(true);
     }

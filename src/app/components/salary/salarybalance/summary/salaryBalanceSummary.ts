@@ -3,8 +3,8 @@ import { Observable } from 'rxjs/Observable';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import { UniTableConfig, UniTableColumn, UniTableColumnType } from '../../../../../framework/ui/unitable/index';
 import { SalaryBalance, Employee, SalaryBalanceLine, SalaryTransaction, PayrollRun } from '../../../../unientities';
-import { 
-    SalaryBalanceLineService, ErrorService, EmployeeService, SalaryTransactionService 
+import {
+    SalaryBalanceLineService, ErrorService, EmployeeService, SalaryTransactionService
 } from '../../../../services/services';
 
 @Component({
@@ -98,7 +98,7 @@ export class SalaryBalanceSummary implements OnInit, OnChanges {
 
         let columnList = [nameCol, startDateCol, sumCol, payRunCol];
 
-        this.tableConfig = new UniTableConfig(false, false)
+        this.tableConfig = new UniTableConfig('salary.salarybalance.summary', false, false)
             .setColumns(columnList);
     }
 }

@@ -243,7 +243,7 @@ export class CurrencyOverrides {
             .setWidth('10%');
 
         // Setup table
-        this.overridesTable = new UniTableConfig(true, true, 25)
+        this.overridesTable = new UniTableConfig('currency.currencyoverrides', true, true, 25)
             .setSearchable(true)
             .setColumnMenuVisible(true)
             .setMultiRowSelect(false)

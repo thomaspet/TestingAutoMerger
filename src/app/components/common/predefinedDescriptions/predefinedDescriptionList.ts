@@ -177,11 +177,13 @@ export class PredefinedDescriptionList {
 
 
     private initTableConfigs() {
-        this.predefinedDescriptionTypeTableConfig = new UniTableConfig(false, true, 15)
+        const storageKey1 = 'common.predefinedDescriptions.types';
+        this.predefinedDescriptionTypeTableConfig = new UniTableConfig(storageKey1, false, true, 15)
             .setSearchable(false)
             .setColumns([new UniTableColumn('Name')]);
 
-        this.predefinedDescriptionsConfig = new UniTableConfig(true, true, 15)
+        const storageKey2 = 'common.predefinedDescriptions.descriptions';
+        this.predefinedDescriptionsConfig = new UniTableConfig(storageKey2, true, true, 15)
             .setSearchable(false)
             .setDeleteButton(true)
             .setChangeCallback(event => { return event.rowModel; })

@@ -242,7 +242,7 @@ export class ProductGroups implements OnInit {
         let costpriceCol = new UniTableColumn('ProductCostPrice', 'Innpris eks.mva', UniTableColumnType.Money);
         let priceexvatCol = new UniTableColumn('ProductPriceExVat', 'Utpris eks.mva', UniTableColumnType.Money);
 
-        this.productsConfig = new UniTableConfig(false, false, 25)
+        this.productsConfig = new UniTableConfig('sales.productgroups.products', false, false, 25)
             .setColumns([numberCol, nameCol, unitCol, costpriceCol, priceexvatCol])
             .setSearchable(true);
     }

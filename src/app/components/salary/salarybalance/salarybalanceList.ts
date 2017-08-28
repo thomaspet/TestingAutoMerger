@@ -91,7 +91,7 @@ export class SalarybalanceList implements OnInit {
                     : '')
             .setWidth('14rem');
 
-        this.tableConfig = new UniTableConfig(false, true, 15)
+        this.tableConfig = new UniTableConfig('salary.salarybalance.list', false, true, 15)
             .setColumns([idCol, nameCol, employeeCol, typeCol, balanceCol])
             .setSearchable(true);
     }

@@ -40,7 +40,7 @@ export class OrderToInvoiceTable {
         let numItemsCol = new UniTableColumn('NumberOfItems', 'Antall', UniTableColumnType.Number);
 
         // Setup table
-        this.orderItemTable = new UniTableConfig(false, true, 10)
+        this.orderItemTable = new UniTableConfig('sales.order.orderToInvoice', false, true, 10)
             .setColumns([
                 productNrCol, productNameCol, numItemsCol
             ])

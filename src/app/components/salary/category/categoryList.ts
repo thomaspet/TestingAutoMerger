@@ -29,7 +29,6 @@ export class CategoryList implements OnInit {
     }
 
     public ngOnInit() {
-
         this.categories$ = this._categoryService.GetAll('')
             .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
 
@@ -37,7 +36,7 @@ export class CategoryList implements OnInit {
         idCol.setWidth('7rem');
         const nameCol = new UniTableColumn('Name', 'Navn', UniTableColumnType.Text);
 
-        this.tableConfig = new UniTableConfig(false, true, 15)
+        this.tableConfig = new UniTableConfig('salary.category.categoryList', false, true, 15)
             .setColumns([idCol, nameCol])
             .setSearchable(true);
     }

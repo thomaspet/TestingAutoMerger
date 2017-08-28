@@ -240,7 +240,8 @@ export class DebtCollection implements OnInit {
             }
         });
 
-        this.reminderToDebtCollectTable = new UniTableConfig(false, true, 25)
+        const configStoreKey = 'sales.reminders.reminderToDebtCollect';
+        this.reminderToDebtCollectTable = new UniTableConfig(configStoreKey, false, true, 25)
             .setSearchable(false)
             .setColumnMenuVisible(false)
             .setAutoAddNewRow(false)

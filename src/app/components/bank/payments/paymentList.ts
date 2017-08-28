@@ -689,7 +689,7 @@ export class PaymentList {
         let descriptionCol = new UniTableColumn('Description', 'Beskrivelse', UniTableColumnType.Text).setVisible(false);
 
         // Setup table
-        this.paymentTableConfig = new UniTableConfig(true, true, 25)
+        this.paymentTableConfig = new UniTableConfig('bank.payments.paymentList', true, true, 25)
             .setColumns([
                 paymentDateCol,
                 payToCol,

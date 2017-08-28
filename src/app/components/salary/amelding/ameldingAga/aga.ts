@@ -30,7 +30,7 @@ export class AmeldingAgaView {
             .setWidth('4rem')
             .setCls('column-align-right');
 
-        this.agaTableConfig = new UniTableConfig(false, true, 30)
+        this.agaTableConfig = new UniTableConfig('salary.amelding.ameldingAga', false, true, 30)
         .setColumns([typeCol, zoneCol, sectorCol, amountCol, rateCol]);
     }
 }

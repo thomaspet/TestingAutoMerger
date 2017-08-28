@@ -92,7 +92,7 @@ export class TranslatablesListComponent implements OnChanges {
         this.navigationEvent.unsubscribe();
     }
     private initTableConfig() {
-        this.translatableTableConfig = new UniTableConfig(false, true, 15)
+        this.translatableTableConfig = new UniTableConfig('translations.translatablesList', false, true, 15)
             .setColumns([
                 new UniTableColumn('Model', 'Model'),
                 new UniTableColumn('Value', 'Value')

@@ -15,13 +15,14 @@
 
 <section class="application">
     <uni-tradeitem-table *ngIf="invoice"
-                         [readonly]="readonly"
-                         [projects]="projects"
-                         [(items)]="invoiceItems"
-                         [currencyCodeID]="currencyCodeID"
-                         [currencyExchangeRate]="currencyExchangeRate"
-                         [defaultTradeItem]="newInvoiceItem"
-                         (itemsChange)="recalcDebouncer.next($event)">
+        [configStoreKey]="'sales.invoice.tradeitemTable'"
+        [readonly]="readonly"
+        [projects]="projects"
+        [(items)]="invoiceItems"
+        [currencyCodeID]="currencyCodeID"
+        [currencyExchangeRate]="currencyExchangeRate"
+        [defaultTradeItem]="newInvoiceItem"
+        (itemsChange)="recalcDebouncer.next($event)">
     </uni-tradeitem-table>
     <uni-summary *ngIf="invoice" [configs]="summaryFields"></uni-summary>
 </section>

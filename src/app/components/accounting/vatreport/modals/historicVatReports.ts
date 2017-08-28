@@ -61,7 +61,7 @@ export class HistoricVatReportTable implements OnInit {
     }
 
     private generateUniTableConfig(): UniTableConfig {
-        return new UniTableConfig(false, false)
+        return new UniTableConfig('accounting.vatReports.historicVatReports', false, false)
             .setPageable(true)
             .setPageSize(10)
             .setSearchable(false)

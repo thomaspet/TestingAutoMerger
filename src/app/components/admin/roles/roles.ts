@@ -214,11 +214,11 @@ export class UniRoles {
     }
 
     private initTableConfigs() {
-        this.rolesTableConfig = new UniTableConfig(false, true, 15)
+        this.rolesTableConfig = new UniTableConfig('admin.roles.rolesTable', false, true, 15)
             .setSearchable(true)
             .setColumns([new UniTableColumn('Label')]);
 
-        this.permissionsTableConfig = new UniTableConfig(false, true, 15)
+        this.permissionsTableConfig = new UniTableConfig('admin.roles.permissionsTable', false, true, 15)
             .setDeleteButton(true)
             .setColumns([
                 new UniTableColumn('Permission.Name')

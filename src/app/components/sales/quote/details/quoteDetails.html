@@ -15,14 +15,14 @@
 
 <section class="application">
     <uni-tradeitem-table *ngIf="quote"
-                         [readonly]="readonly"
-                         [projects]="projects"
-                         [defaultTradeItem]="newQuoteItem"
-                         [columStorageKey]="'quote_tradeitem_table'"
-                         [(items)]="quoteItems"
-                         [currencyCodeID]="currencyCodeID"
-                         [currencyExchangeRate]="currencyExchangeRate"
-                         (itemsChange)="recalcDebouncer.emit($event)">
+        [readonly]="readonly"
+        [projects]="projects"
+        [defaultTradeItem]="newQuoteItem"
+        [configStoreKey]="'sales.quote.tradeitemTable'"
+        [(items)]="quoteItems"
+        [currencyCodeID]="currencyCodeID"
+        [currencyExchangeRate]="currencyExchangeRate"
+        (itemsChange)="recalcDebouncer.emit($event)">
     </uni-tradeitem-table>
     <uni-summary *ngIf="quote" [configs]="summary" [ngClass]="{'-is-dirty':dirty}"></uni-summary>
 </section>

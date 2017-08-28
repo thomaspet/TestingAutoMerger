@@ -102,7 +102,6 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
     @Output() public dataLoaded: EventEmitter<JournalEntryData[]> = new EventEmitter<JournalEntryData[]>();
     @Output() public showImageChanged: EventEmitter<boolean> = new EventEmitter<boolean>();
     @Output() public showImageForJournalEntry: EventEmitter<JournalEntryData> = new EventEmitter<JournalEntryData>();
-    @Output() public columnVisibilityChange: EventEmitter<Array<string>> = new EventEmitter<Array<string>>();
     @Output() public rowSelected: EventEmitter<JournalEntryData> = new EventEmitter<JournalEntryData>();
 
     private predefinedDescriptions: Array<any>;
@@ -1027,7 +1026,8 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
             });
         }
 
-        this.journalEntryTableConfig = new UniTableConfig(true, false, 100)
+        const tableName = 'accounting.journalEntry.journalEntryProfessional';
+        this.journalEntryTableConfig = new UniTableConfig(tableName, true, false, 100)
             .setDefaultOrderBy('SameOrNewDetails', 0)
             .setColumns(columns)
             .setAutoAddNewRow(!this.disabled)
@@ -2019,10 +2019,6 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
         }
 
         this.lastImageDisplayFor = journalEntry.JournalEntryNo;
-    }
-
-    private onColumnVisibilityChange(columns: UniTableColumn[]) {
-        this.columnVisibilityChange.emit(columns.filter(c => c.visible).map(c => c.field));
     }
 
     private onRowSelected(event) {

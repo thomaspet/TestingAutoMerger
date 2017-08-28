@@ -212,7 +212,7 @@ export class Payments {
             });
 
         // Setup table
-        this.invoiceTable = new UniTableConfig(false, true)
+        this.invoiceTable = new UniTableConfig('acconting.journalEntry.payments', false, true)
             .setPageSize(25)
             .setSearchable(true)
             .setMultiRowSelect(true)

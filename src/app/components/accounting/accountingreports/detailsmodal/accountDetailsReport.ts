@@ -316,7 +316,8 @@ export class AccountDetailsReport {
             };
         });
 
-        this.uniTableConfigTransactions$.next(new UniTableConfig(false, false)
+        const tableName = 'accounting.accountingreports.detailsmodal';
+        this.uniTableConfigTransactions$.next(new UniTableConfig(tableName, false, false)
             .setPageable(true)
             .setPageSize(20)
             .setSearchable(true)

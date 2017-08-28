@@ -231,7 +231,8 @@ export class PaymentBatchDetails implements OnChanges {
 
 
         // Setup table
-        this.paymentTableConfig = new UniTableConfig(false, true, 15)
+        const configStoreKey = 'bank.payments.paymentBatchDetails';
+        this.paymentTableConfig = new UniTableConfig(configStoreKey, false, true, 15)
             .setColumns([
                 paymentDateCol,
                 payToCol,

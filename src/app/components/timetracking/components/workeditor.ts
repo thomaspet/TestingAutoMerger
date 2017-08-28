@@ -18,10 +18,13 @@ interface ICurrent {
 
 @Component({
     selector: 'workeditor',
-    template: `<uni-table class="compactcells" [resource]="timeSheet?.items" [config]="tableConfig"
-        (rowSelected)="onRowSelected($event)" (rowDeleted)="onRowDeleted($event)"
-        (columnVisibilityChange)="oncolumnVisibilityChange($event)">
-    </uni-table>`
+    template: `
+        <uni-table class="compactcells"
+            [resource]="timeSheet?.items"
+            [config]="tableConfig"
+            (rowSelected)="onRowSelected($event)"
+            (rowDeleted)="onRowDeleted($event)">
+        </uni-table>`
 })
 export class WorkEditor {
     @Input('timesheet') public set TimeSheetSetter(value: TimeSheet) {
@@ -84,15 +87,6 @@ export class WorkEditor {
 
     public onRowSelected(event: any) {
 
-    }
-
-    public oncolumnVisibilityChange(cols: Array<UniTableColumn>) {
-        var map = '';
-        cols.filter( c => c.visible ).forEach( x => map += (map ? ',' : '') + x.field );
-        this.visibleColumns = map.split(',');
-        this.localStore.save('workeditor.columns', map, true);
-        // todo: remove when unitable handles refresh without column-reset
-        this.tableConfig = this.createTableConfig();
     }
 
     private loadUserSettings() {
@@ -167,7 +161,7 @@ export class WorkEditor {
     }
 
     private createTableConfig(): UniTableConfig {
-        var cfg = new UniTableConfig(true, true, 10);
+        var cfg = new UniTableConfig('timetracking.workeditor', true, true, 10);
         cfg.columns = [
             new UniTableColumn('ID', 'ID', UniTableColumnType.Number).setVisible(false).setWidth('3rem')
                 .setEditable(false),
@@ -205,7 +199,7 @@ export class WorkEditor {
 
             this.createLookupColumn('Customer', 'Kunde',
                 'Customer',
-                x => this.lookupAny(x, 'customers', 'CustomerNumber', 'Info.Name', 'info'), 
+                x => this.lookupAny(x, 'customers', 'CustomerNumber', 'Info.Name', 'info'),
                 'CustomerNumber', 'Info.Name' )
                 .setWidth('6rem')
                 .setVisible(false),
@@ -217,7 +211,6 @@ export class WorkEditor {
         cfg.deleteButton = true;
         cfg.autoAddNewRow = true;
         cfg.columnMenuVisible = true;
-        cfg.allowConfigChanges = false;
         cfg.setChangeCallback( x => this.onEditChange(x) );
         cfg.autoScrollIfNewCellCloseToBottom = true;
 
@@ -249,7 +242,7 @@ export class WorkEditor {
         return Observable.from([sublist]);
     }
 
-    public lookupAny(txt: string, route: string = 'projects', 
+    public lookupAny(txt: string, route: string = 'projects',
                      visualIdcol: string = 'id', nameCol: string = 'name', expand?: string) {
         var filter = '', orderBy = nameCol;
         var filtered = filterInput(txt);
@@ -298,7 +291,7 @@ export class WorkEditor {
         return new UniTableColumn(name, label, UniTableColumnType.Lookup)
             .setDisplayField(`${expandCol}.${expandLabel}`)
             .setEditorOptions({
-                itemTemplate: (item) => { 
+                itemTemplate: (item) => {
                     return item[expandKey] + ' - ' + getDeepValue(item, expandLabel);
                 },
                 lookupFunction: lookupFn

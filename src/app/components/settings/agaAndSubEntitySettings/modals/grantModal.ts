@@ -116,29 +116,30 @@ export class GrantModal implements OnInit, IUniModal {
             }
         });
 
-        this.grantTableConfig = new UniTableConfig(true, true, 15)
-        .setDeleteButton({
-                deleteHandler: (rowModel: Grant) => {
-                    if (isNaN(rowModel.ID)) { return true; }
-                    return this._grantService.delete(rowModel.ID);
+        const configStoreKey = 'settings.agaAndSubEntitySettings.grantsModal';
+        this.grantTableConfig = new UniTableConfig(configStoreKey, true, true, 15)
+            .setDeleteButton({
+                    deleteHandler: (rowModel: Grant) => {
+                        if (isNaN(rowModel.ID)) { return true; }
+                        return this._grantService.delete(rowModel.ID);
+                    }
+                })
+            .setColumns([subentCol, dateCol, descCol, amountCol, agaCol])
+            .setChangeCallback((event) => {
+                let row = event.rowModel;
+                if (event.field === '_Subentity') {
+                    const subentity = row['_Subentity'];
+                    row['SubentityID'] = (subentity) ? subentity.ID : null;
+                    row['AffectsAGA'] = true;
                 }
-            })
-        .setColumns([subentCol, dateCol, descCol, amountCol, agaCol])
-        .setChangeCallback((event) => {
-            let row = event.rowModel;
-            if (event.field === '_Subentity') {
-                const subentity = row['_Subentity'];
-                row['SubentityID'] = (subentity) ? subentity.ID : null;
-                row['AffectsAGA'] = true;
-            }
 
-            if (event.field === 'AffectsAGA') {
-                const affAGA = row['AffectsAGA'];
-                row['AffectsAGA'] = affAGA ? row['AffectsAGA'].Value : false;
-            }
+                if (event.field === 'AffectsAGA') {
+                    const affAGA = row['AffectsAGA'];
+                    row['AffectsAGA'] = affAGA ? row['AffectsAGA'].Value : false;
+                }
 
-            return row;
-        });
+                return row;
+            });
     }
 
     public close() {

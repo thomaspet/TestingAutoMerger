@@ -284,11 +284,11 @@ export class PostPost {
     }
 
     private onRowSelected(event) {
-        if (this.canceled) { 
-            this.canceled = false; 
-            return; 
+        if (this.canceled) {
+            this.canceled = false;
+            return;
         }
-        
+
         this.canDeactivate().subscribe(allowed => {
             this.canceled = false;
 
@@ -401,7 +401,7 @@ export class PostPost {
         let sumCol = new UniTableColumn('SumAmount', 'Sum åpne poster', UniTableColumnType.Money)
             .setWidth('2.5em');
 
-        this.accountsTableConfig = new UniTableConfig(false, true, 10)
+        this.accountsTableConfig = new UniTableConfig('accounting.postpost', false, true, 10)
             .setSearchable(true)
             .setColumnMenuVisible(false)
             .setMultiRowSelect(false)
