@@ -40,8 +40,8 @@ export class ProjectHours {
             if (params && params['projectID']) {
                 if (params['month'] && params['year']) {
                     let fromDate = new Date(params['year'], params['month'] - 1, 1);
-                    this.filter += " and ( date ge '" + moment(fromDate).format().slice(0, 10)
-                        + "' and date le '" + moment(fromDate).endOf('months').format().slice(0, 10) + "' )";
+                    this.filter += " and ( date ge '" + moment(fromDate).format('YYYY-MM-DD')
+                        + "' and date le '" + moment(fromDate).endOf('months').format('YYYY-MM-DD') + "' )";
                 } 
                 this.tableConfig = this.getTableConfig();
             }
