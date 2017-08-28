@@ -332,7 +332,7 @@ export class PostPost {
             .GetAllUnwrapped(`model=JournalEntryLine&` +
                              `select=Customer.ID as ID,Customer.CustomerNumber as AccountNumber,Info.Name as AccountName,sum(Amount) as SumAmount&` +
                              `expand=SubAccount,SubAccount.Customer,SubAccount.Customer.Info&` +
-                             `filter=SubAccount.CustomerID gt 0 and StatusCode eq ${StatusCodeJournalEntryLine.Open} ${this.getDateFilter()}&` +
+                             `filter=SubAccount.CustomerID gt 0 and (StatusCode eq ${StatusCodeJournalEntryLine.Open} or StatusCode eq ${StatusCodeJournalEntryLine.PartlyMarked}) ${this.getDateFilter()}&` +
                              `orderby=Customer.CustomerNumber`)
             .subscribe(accounts => {
                 this.accounts$.next(accounts);
@@ -344,7 +344,7 @@ export class PostPost {
             .GetAllUnwrapped(`model=JournalEntryLine&` +
                              `select=Supplier.ID as ID,Supplier.SupplierNumber as AccountNumber,Info.Name as AccountName,sum(Amount) as SumAmount&` +
                              `expand=SubAccount,SubAccount.Supplier,SubAccount.Supplier.Info&` +
-                             `filter=SubAccount.SupplierID gt 0 and StatusCode eq ${StatusCodeJournalEntryLine.Open} ${this.getDateFilter()}&` +
+                             `filter=SubAccount.SupplierID gt 0 and (StatusCode eq ${StatusCodeJournalEntryLine.Open} or StatusCode eq ${StatusCodeJournalEntryLine.PartlyMarked}) ${this.getDateFilter()}&` +
                              `orderby=Supplier.SupplierNumber`)
             .subscribe(accounts => {
                 this.accounts$.next(accounts);
@@ -356,7 +356,7 @@ export class PostPost {
             .GetAllUnwrapped(`model=JournalEntryLine&` +
                              `select=Account.ID as ID,Account.AccountNumber as AccountNumber,Account.AccountName as AccountName,sum(Amount) as SumAmount&` +
                              `expand=Account&` +
-                             `filter=Account.UsePostPost eq 1 and StatusCode eq ${StatusCodeJournalEntryLine.Open} ${this.getDateFilter()}&` +
+                             `filter=Account.UsePostPost eq 1 and (StatusCode eq ${StatusCodeJournalEntryLine.Open} or StatusCode eq ${StatusCodeJournalEntryLine.PartlyMarked}) ${this.getDateFilter()}&` +
                              `orderby=Account.AccountNumber`)
             .subscribe(accounts => {
                 this.accounts$.next(accounts);
