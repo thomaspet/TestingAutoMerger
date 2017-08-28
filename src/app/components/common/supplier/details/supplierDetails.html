@@ -1,5 +1,6 @@
 <uni-toolbar *ngIf="!modalMode" [config]="toolbarconfig"
-             [saveactions]="saveactions">
+             [saveactions]="saveactions"
+             [commentsConfig]="commentsConfig">
 </uni-toolbar>
 
 <header class="supplier_poster" *ngIf="(supplier$|async)">
@@ -15,6 +16,12 @@
                 <a [class]="activeTab === 'reconciliation' ? 'router-link-active' : ''"
                    (click)="showTab('reconciliation')">
                     Åpne poster
+                </a>
+            </li>
+            <li>
+                <a [class]="activeTab === 'attachments' ? 'router-link-active' : ''"
+                   (click)="showTab('attachments')">
+                    Dokumenter
                 </a>
             </li>
             <li *ngFor="let link of reportLinks">
@@ -44,6 +51,12 @@
         </div>
     </article>
     <ledger-account-reconciliation [supplierID]="(supplier$|async)?.ID"  *ngIf="activeTab === 'reconciliation'"></ledger-account-reconciliation>
+    <uni-attachments *ngIf="activeTab === 'attachments'"
+        id="attachments"
+        [entity]="'Supplier'"
+        [entityID]="(supplier$ | async)?.ID"
+        [hideLabel]="true">
+    </uni-attachments>
     <uni-query-read-only
             *ngFor="let link of reportLinks"
             [hidden]="showReportWithID != link.id"
@@ -51,7 +64,6 @@
             [queryDefinitionID]="link.id"
             [externalID]="(supplier$|async)?.ID">
     </uni-query-read-only>
-
 </section>
 
 <uni-save *ngIf="modalMode" [actions]="saveactions" class="uni_save_modal_mode"></uni-save>

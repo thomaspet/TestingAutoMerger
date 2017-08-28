@@ -10,7 +10,7 @@ import {IUniSaveAction} from '../../../../../framework/save/save';
 import {UniForm, UniFieldLayout} from '../../../../../framework/ui/uniform/index';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
 import {ToastService, ToastType} from '../../../../../framework/uniToast/toastService';
-import {IToolbarConfig} from './../../../common/toolbar/toolbar';
+import {IToolbarConfig, ICommentsConfig} from '../../../common/toolbar/toolbar';
 import {LedgerAccountReconciliation} from '../../../common/reconciliation/ledgeraccounts/ledgeraccountreconciliation';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {
@@ -77,6 +77,7 @@ export class SupplierDetails implements OnInit {
     private activeTab: string = 'details';
     public showReportWithID: number;
     private showContactSection: boolean = true; // used in template
+    private commentsConfig: ICommentsConfig;
 
     private expandOptions: Array<string> = [
         'Info',
@@ -139,6 +140,12 @@ export class SupplierDetails implements OnInit {
             this.route.params.subscribe(params => {
                 this.supplierID = +params['id'];
                 this.supplier$.getValue().ID = 0;
+
+                this.commentsConfig = {
+                    entityType: 'Supplier',
+                    entityID: this.supplierID
+                }
+
                 this.setup();
 
                 this.uniQueryDefinitionService.getReferenceByModuleId(UniModules.Suppliers).subscribe(

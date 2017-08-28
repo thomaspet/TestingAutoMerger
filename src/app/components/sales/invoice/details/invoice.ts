@@ -8,7 +8,7 @@ import {StatusCodeCustomerInvoice, LocalDate} from '../../../../unientities';
 import {TradeHeaderCalculationSummary} from '../../../../models/sales/TradeHeaderCalculationSummary';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
 import {ToastService, ToastType} from '../../../../../framework/uniToast/toastService';
-import {IToolbarConfig} from '../../../common/toolbar/toolbar';
+import {IToolbarConfig, ICommentsConfig} from '../../../common/toolbar/toolbar';
 import {UniStatusTrack} from '../../../common/toolbar/statustrack';
 import {ISummaryConfig} from '../../../common/summary/summary';
 import {StatusCode} from '../../salesHelper/salesEnums';
@@ -108,7 +108,7 @@ export class InvoiceDetails {
         'Customer', 'InvoiceReference', 'JournalEntry', 'CurrencyCode', 'DefaultDimensions',
         'Sellers', 'Sellers.Seller'].concat(this.customerExpandOptions.map(option => 'Customer.' + option));
 
-    private commentsConfig: any;
+    private commentsConfig: ICommentsConfig;
 
     constructor(
         private customerInvoiceService: CustomerInvoiceService,

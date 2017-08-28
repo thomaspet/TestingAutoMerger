@@ -1,7 +1,8 @@
 <uni-toolbar
     *ngIf="!modalMode"
     [config]="toolbarconfig"
-    [saveactions]="saveactions">
+    [saveactions]="saveactions"
+    [commentsConfig]="commentsConfig">
 </uni-toolbar>
 
 <uni-poster [widgets]="customerWidgets" *ngIf="customerWidgets && (customer$|async)?.ID"></uni-poster>
@@ -26,6 +27,12 @@
                 <a [class]="activeTab === 'productssold' ? 'router-link-active' : ''"
                    (click)="showTab('productssold')">
                     Produkter solgt
+                </a>
+            </li>
+            <li>
+                <a [class]="activeTab === 'attachments' ? 'router-link-active' : ''"
+                   (click)="showTab('attachments')">
+                    Dokumenter
                 </a>
             </li>
             <li *ngFor="let link of reportLinks">
@@ -76,6 +83,12 @@
     <customer-products-sold *ngIf="activeTab === 'productssold'"
             [customerID]="(customer$ | async)?.ID">
     </customer-products-sold>
+    <uni-attachments *ngIf="activeTab === 'attachments'"
+        id="attachments"
+        [entity]="'Customer'"
+        [entityID]="(customer$ | async)?.ID"
+        [hideLabel]="true">
+    </uni-attachments>
     <uni-query-read-only
             *ngFor="let link of reportLinks"
             [hidden]="showReportWithID != link.id"

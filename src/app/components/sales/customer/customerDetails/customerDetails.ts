@@ -13,6 +13,7 @@ import {ToastService, ToastType, ToastTime} from '../../../../../framework/uniTo
 import {IPosterWidget} from '../../../common/poster/poster';
 import {LedgerAccountReconciliation} from '../../../common/reconciliation/ledgeraccounts/ledgeraccountreconciliation';
 import {ReminderSettings} from '../../../common/reminder/settings/reminderSettings';
+import {IToolbarConfig, ICommentsConfig} from '../../../common/toolbar/toolbar';
 import {
     DepartmentService,
     ProjectService,
@@ -69,6 +70,7 @@ export class CustomerDetails {
     private activeTab: string = 'details';
     public showReportWithID: number;
     private isDisabled: boolean = true;
+    private commentsConfig: ICommentsConfig;
 
     private toolbarconfig: IToolbarConfig = {
         title: 'Kunde',
@@ -186,6 +188,11 @@ export class CustomerDetails {
                     this.customerID = 0;
                 } else {
                     this.customerID = +params['id'];
+                }
+
+                this.commentsConfig = {
+                    entityType: 'Customer',
+                    entityID: this.customerID
                 }
 
                 this.setup();
