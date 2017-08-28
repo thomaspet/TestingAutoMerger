@@ -1,7 +1,17 @@
 <section>
+    <label>Prosjekt dokument:</label>
     <h2 *ngIf="!project">Ingen prosjekt valgt</h2>
     <uni-attachments [entity]="'Project'" *ngIf="project"
                      [entityID]="project?.ID"
                      [hideLabel]="true">
     </uni-attachments>
+
+    <label>Dokument knyttet til faktura/ordre/tilbud:</label>
+    <uni-table
+        [config]="tableConfig"
+        [resource]="(documents$ | async)"
+        (rowSelected)="onRowSelected($event.rowModel)">
+    </uni-table>
 </section>
+
+<image-modal></image-modal>

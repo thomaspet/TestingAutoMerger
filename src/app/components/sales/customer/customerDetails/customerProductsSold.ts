@@ -1,5 +1,4 @@
 import {Component, Input} from '@angular/core';
-import {URLSearchParams} from '@angular/http';
 import {UniTableColumn, UniTableColumnType, UniTableConfig} from '../../../../../framework/ui/unitable/index';
 import {UniFieldLayout, FieldType} from '../../../../../framework/ui/uniform/index';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
@@ -31,7 +30,7 @@ export class CustomerProductsSold {
     private products$: BehaviorSubject<any> = new BehaviorSubject(null);
 
     constructor(
-        private statisticsService: StatisticsService,
+        private statisticsService: StatisticsService
     ) {
         this.setupFilter();
         this.setupProductTable();
@@ -80,7 +79,6 @@ export class CustomerProductsSold {
         // Define columns to use in the table
         let numberOfItemsCol = new UniTableColumn('NumberOfItems', 'Antall', UniTableColumnType.Number)
             .setWidth('5rem');
-        ;
         let partNameCol = new UniTableColumn('ProductPartName', 'Produktnr',  UniTableColumnType.Text)
             .setWidth('15%')
             .setFilterOperator('contains')
