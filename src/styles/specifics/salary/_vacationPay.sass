@@ -1,53 +1,55 @@
 .vacationPay
+    @extend .uni-modal 
+    @extend .medium
+    main
+        h1
+            text-align: left
 
-    h1
-        text-align: left
+        footer button:last-of-type
+            margin-right: 0
 
-    footer button:last-of-type
-        margin-right: 0
+        uni-field
+            text-align: left
 
-    uni-field
-        text-align: left
+        uni-field:first-of-type
+            flex-grow: 1
 
-    uni-field:first-of-type
-        flex-grow: 1
+        uni-radiogroup-input input[type=radio]+label
+            display: block
+            padding-bottom: 0
 
-    uni-radiogroup-input input[type=radio]+label
-        display: block
-        padding-bottom: 0
-
-    .vacationPay_settingsLink
-        @extend a:link
-        display: inline-block
-        float: right
-        margin-top: .5rem
-        cursor: pointer
-
-        &:hover,
-        &:focus
-            @extend a:hover
-
-        &:active
-            @extend a:active
-
-    uni-table
-        @extend uni-table.scrollable
-
-        .icon-column
-            font-size: 0
-            height: 1rem
-
-        .over-sixty
+        .vacationPay_settingsLink
+            @extend a:link
             display: inline-block
-            height: 1rem
-            width: 1rem
-            border-radius: 99rem
-            background: $uni-color-warn unicon-info($uni-color-negative) center center no-repeat
-            background-size: auto 1rem
+            float: right
+            margin-top: .5rem
+            cursor: pointer
 
-        th:nth-child(3),
-        td:nth-child(3)
-            border-left: none
+            &:hover,
+            &:focus
+                @extend a:hover
+
+            &:active
+                @extend a:active
+
+        uni-table
+            @extend uni-table.scrollable
+
+            .icon-column
+                font-size: 0
+                height: 1rem
+
+            .over-sixty
+                display: inline-block
+                height: 1rem
+                width: 1rem
+                border-radius: 99rem
+                background: $uni-color-warn unicon-info($uni-color-negative) center center no-repeat
+                background-size: auto 1rem
+
+            th:nth-child(3),
+            td:nth-child(3)
+                border-left: none
 
     .uniSave
         display: inline-block

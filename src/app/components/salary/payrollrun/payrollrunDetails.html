@@ -21,8 +21,3 @@
 <section class="content" [attr.aria-disabled]="detailsActive" [attr.aria-busy]="busy">
     <salarytrans></salarytrans>
 </section>
-
-<control-modal (updatePayrollRun)="this.getPayrollRun()"></control-modal>
-<postingsummary-modal (updatePayrollRun)="this.getPayrollRun()"></postingsummary-modal>
-<vacationpay-modal (updatePayrollRun)="this.getSalaryTransactions()" (recalc)="this.updateTranses()"></vacationpay-modal>
-<paycheck-sending-modal></paycheck-sending-modal>

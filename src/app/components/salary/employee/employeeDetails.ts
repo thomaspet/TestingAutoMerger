@@ -1,4 +1,4 @@
-import { Component, ViewChild, OnDestroy } from '@angular/core';
+import { Component, ViewChild, OnDestroy, EventEmitter } from '@angular/core';
 import { Observable } from 'rxjs/Observable';
 import { Router, ActivatedRoute, NavigationEnd } from '@angular/router';
 import {
@@ -353,9 +353,22 @@ export class EmployeeDetails extends UniView implements OnDestroy {
                     }
 
                     if (!this.taxOptions) {
+                        let changeEvent: EventEmitter<any> = new EventEmitter<any>();
                         super.updateState('taxCardModalCallback',
-                            { openModal: () => this.taxCardModal.openModal() },
+                            { openModal: () => this.modalService.open(
+                                TaxCardModal, 
+                                {
+                                    data: this.employeeID,
+                                    modalConfig: {
+                                        update: this.getTax,
+                                        changeEvent: changeEvent
+                                    }
+                                }) 
+                            },
                             false);
+                        changeEvent
+                            .take(1)
+                            .subscribe(change => this.getTax());
                     }
 
                     if (!this.employments) {

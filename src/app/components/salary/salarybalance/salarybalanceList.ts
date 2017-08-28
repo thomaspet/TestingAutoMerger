@@ -4,7 +4,6 @@ import { UniTableConfig, UniTableColumnType, UniTableColumn } from '../../../../
 import { SalarybalanceService, ErrorService, NumberFormat } from '../../../services/services';
 import { SalaryBalance, SalBalDrawType } from '../../../unientities';
 import { TabService, UniModules } from '../../layout/navbar/tabstrip/tabService';
-import { SalarybalancelineModal } from './modals/salarybalancelinemodal';
 
 type BalanceActionFormattedType = {
     salaryBalanceID: number,
@@ -19,7 +18,6 @@ export class SalarybalanceList implements OnInit {
 
     private tableConfig: UniTableConfig;
     private salarybalances: SalaryBalance[] = [];
-    @ViewChild(SalarybalancelineModal) private salarybalanceModal: SalarybalancelineModal;
     private empID: number;
 
     constructor(
@@ -55,10 +53,6 @@ export class SalarybalanceList implements OnInit {
 
     public createSalarybalance() {
         this._router.navigateByUrl('/salary/salarybalances/0');
-    }
-
-    public openSalarybalancelineModal(salarybalance: SalaryBalance) {
-        this.salarybalanceModal.openModal(salarybalance, false);
     }
 
     public setData(empID: number = this.empID) {

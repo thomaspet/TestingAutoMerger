@@ -1,40 +1,37 @@
-import { Component, Input, ViewChild, SimpleChanges } from '@angular/core';
-import { BasicAmount, VacationPayLine, CompanySalary } from '../../../../unientities';
-import { UniFieldLayout, FieldType } from '../../../../../framework/ui/uniform/index';
-import { UniTable, UniTableConfig, UniTableColumnType, UniTableColumn } from '../../../../../framework/ui/unitable/index';
+import { Component, OnInit, Input, Output, EventEmitter, ViewChild, SimpleChanges } from '@angular/core';
+import { IUniModal, IModalOptions } from '../../../../../../framework/uniModal/barrel';
+import { BasicAmount, VacationPayLine, CompanySalary } from '../../../../../unientities';
+import { UniFieldLayout, FieldType } from '../../../../../../framework/ui/uniform/index';
+import { UniTable, UniTableConfig, UniTableColumnType, UniTableColumn } from '../../../../../../framework/ui/unitable/index';
 import {
     SalaryTransactionService, BasicAmountService, PayrollrunService,
     VacationpayLineService, YearService, ErrorService, CompanySalaryService,
-    CompanyVacationRateService } from '../../../../../app/services/services';
-import { VacationpaySettingModal } from './vacationPaySettingModal';
-import { ToastService, ToastType } from '../../../../../framework/uniToast/toastService';
+    CompanyVacationRateService
+} from '../../../../../../app/services/services';
+import { VacationPaySettingsModal } from '../../modals/vacationpay/vacationPaySettingsModal';
+import { ToastService, ToastType } from '../../../../../../framework/uniToast/toastService';
 import { Observable } from 'rxjs/Observable';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
-import { UniModalService, ConfirmActions } from '../../../../../framework/uniModal/barrel';
-import { IUniSaveAction } from '../../../../../framework/save/save';
+import { UniModalService, ConfirmActions } from '../../../../../../framework/uniModal/barrel';
+import { IUniSaveAction } from '../../../../../../framework/save/save';
 
-declare var _;
 
 @Component({
-    selector: 'vacationpay-modal-content',
-    templateUrl: './vacationPayModalContent.html'
+    selector: 'vacation-pay-modal',
+    templateUrl: './vacationPayModal.html'
 })
-export class VacationpayModalContent {
-    @Input('config') private config: {
-        hasCancelButton: boolean,
-        cancel: (dueToHolidayChanged: boolean) => void,
-        payrollRunID: number,
-        submit: (dueToHolidayChanged: boolean) => void
-    };
+
+export class VacationPayModal implements OnInit, IUniModal {
+    @Input() public options: IModalOptions;
+    @Output() public onClose: EventEmitter<boolean> = new EventEmitter<boolean>();
     private busy: boolean;
     private basicamountBusy: boolean;
     private vacationHeaderModel$: BehaviorSubject<any> = new BehaviorSubject({});
     private fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
-    private config$: BehaviorSubject<any> = new BehaviorSubject({});
+    public config$: BehaviorSubject<any> = new BehaviorSubject({});
     private basicamounts: BasicAmount[] = [];
     private tableConfig: UniTableConfig;
     private totalPayout: number = 0;
-    @ViewChild(VacationpaySettingModal) private vacationpaySettingModal: VacationpaySettingModal;
     @ViewChild(UniTable) private table: UniTable;
     private vacationpayBasis: VacationPayLine[];
     private vacationBaseYear: number;
@@ -44,7 +41,6 @@ export class VacationpayModalContent {
     private companysalary: CompanySalary;
     private rates: any[] = [];
     private saveactions: IUniSaveAction[] = [];
-
     constructor(
         private _salarytransService: SalaryTransactionService,
         private _basicamountService: BasicAmountService,
@@ -53,14 +49,12 @@ export class VacationpayModalContent {
         private _toastService: ToastService,
         private errorService: ErrorService,
         private yearService: YearService,
-        private m_companysalaryService: CompanySalaryService,
-        private m_companyVacationrateService: CompanyVacationRateService,
+        private companysalaryService: CompanySalaryService,
+        private companyVacationrateService: CompanyVacationRateService,
         private modalService: UniModalService
-    ) {}
+    ) { }
 
     public ngOnInit() {
-        this.config$.next(this.config);
-
         this.busy = true;
         this.dueToHolidayChanged = false;
         this.totalPayout = 0;
@@ -68,8 +62,8 @@ export class VacationpayModalContent {
 
         Observable
             .forkJoin(
-            this.m_companyVacationrateService.GetAll(''),
-            this.m_companysalaryService.getCompanySalary(),
+            this.companyVacationrateService.GetAll(''),
+            this.companysalaryService.getCompanySalary(),
             this._basicamountService.getBasicAmounts(),
             this.yearService.getActiveYear())
             .subscribe((response: any) => {
@@ -94,13 +88,6 @@ export class VacationpayModalContent {
             }, err => this.errorService.handle(err));
     }
 
-    public updateConfig(newConfig: {
-        hasCancelButton: boolean, cancel: (dueToHolidayChanged: boolean) => void,
-        payrollRunID: number, submit: (dueToHolidayChanged: boolean) => void
-    }) {
-        this.config = newConfig;
-    }
-
     public saveVacationpayLines() {
         this.busy = true;
         this.vacationpayBasis = this.table.getTableData();
@@ -123,8 +110,8 @@ export class VacationpayModalContent {
         this.modalService.confirm({
             header: 'Opprett feriepengeposter',
             message: 'Vennligst bekreft overføring av feriepengeposter til lønnsavregning '
-                + this.config.payrollRunID
-                + ` - Totalsum kr ${this.totalPayout}`,
+            + this.options.data.ID
+            + ` - Totalsum kr ${this.totalPayout}`,
             buttonLabels: {
                 accept: 'Overfør',
                 cancel: 'Avbryt'
@@ -135,23 +122,32 @@ export class VacationpayModalContent {
 
                 this._vacationpaylineService.createVacationPay(
                     this.vacationBaseYear,
-                    this.config.payrollRunID,
+                    this.options.data.ID,
                     this.table.getSelectedRows()
                 ).finally(() => this.busy = false)
-                .subscribe(
-                    res => this.config.submit(this.dueToHolidayChanged),
+                    .finally(() => this.closeModal())
+                    .subscribe(
+                    res => {
+                        let config = this.options.modalConfig;
+                        if (config && config.update) {
+                            config.update();
+                        }
+                    },
                     err => this.errorService.handle(err)
-                );
+                    );
             }
         });
     }
 
     public closeModal() {
-        this.config.cancel(this.dueToHolidayChanged);
+        this.onClose.next(this.dueToHolidayChanged);
     }
 
     public openVacationpaySettings() {
-        this.vacationpaySettingModal.openModal();
+        this.modalService
+            .open(VacationPaySettingsModal)
+            .onClose
+            .subscribe(recalc => this.recalc(recalc));
     }
 
     public change(value: SimpleChanges) {
@@ -191,7 +187,7 @@ export class VacationpayModalContent {
 
     private getVacationpayData() {
         this.basicamountBusy = true;
-        this._vacationpaylineService.getVacationpayBasis(this.vacationBaseYear, this.config.payrollRunID)
+        this._vacationpaylineService.getVacationpayBasis(this.vacationBaseYear, this.options.data.ID)
             .subscribe((vpBasis) => {
                 if (vpBasis) {
                     this.vacationpayBasis = vpBasis.map(x => {

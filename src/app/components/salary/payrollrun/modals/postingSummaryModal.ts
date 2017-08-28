@@ -1,51 +1,46 @@
-import { Component, Input, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
-import { UniTableColumn, UniTableColumnType, UniTableConfig } from '../../../../framework/ui/unitable/index';
-import { PostingSummary } from '../../../unientities';
-import { PayrollrunService, ErrorService, ReportDefinitionService, ReportParameter, ReportService } from '../../../../app/services/services';
-import { UniHttp } from '../../../../framework/core/http/http';
+import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
+import { IUniModal, IModalOptions } from '../../../../../framework/uniModal/barrel';
+import { UniTableColumn, UniTableColumnType, UniTableConfig } from '../../../../../framework/ui/unitable/index';
+import { PostingSummary } from '../../../../unientities';
+import { 
+    PayrollrunService, 
+    ErrorService, 
+    ReportDefinitionService, 
+    ReportParameter, 
+    ReportService 
+} from '../../../../../app/services/services';
 import * as moment from 'moment';
 
-export interface IPostingSummaryModalConfig {
-    title: string;
-    hasCancelButton: true;
-    cancel: () => void;
-    actions: {text: string, method: () => void}[];
-};
-
 @Component({
-    selector: 'postingsummary-modal-content',
-    templateUrl: './postingsummaryModalContent.html'
+    selector: 'posting-summary-modal',
+    templateUrl: './postingSummaryModal.html'
 })
-export class PostingsummaryModalContent implements OnInit {
+
+export class PostingSummaryModal implements OnInit, IUniModal {
+    @Input() options: IModalOptions;
+    @Output() onClose: EventEmitter<boolean> = new EventEmitter<boolean>();
     public busy: boolean;
     private showReceipt: boolean = false;
     private accountTableConfig: UniTableConfig;
-    @Input() private config: IPostingSummaryModalConfig;
     private payrollrunID: number;
     private summary: any;
     private journalNumber: string;
     private journalDate: string;
     private headerString: string = 'Konteringssammendrag';
-
     constructor(
         private payrollService: PayrollrunService,
-        private route: ActivatedRoute,
         private errorService: ErrorService,
-        private http: UniHttp,
         private reportService: ReportService,
         private reportDefinitionService: ReportDefinitionService
-    ) {
-        this.route.params.subscribe(params => {
-            this.payrollrunID = +params['id'];
-        });
-    }
+    ) { }
 
-    public ngOnInit() {
+    public ngOnInit() { 
         this.busy = true;
+        this.payrollrunID = this.options.data.ID;
         this.createTableConfig();
 
-        this.payrollService.getPostingsummary(this.payrollrunID)
+        this.payrollService
+            .getPostingsummary(this.payrollrunID)
             .finally(() => this.busy = false)
             .map((postingSummary: PostingSummary) => {
                 postingSummary.PostList
@@ -76,8 +71,8 @@ export class PostingsummaryModalContent implements OnInit {
     }
 
     public postTransactions() {
-        
-        return this.reportDefinitionService
+        this.busy = true;
+        this.reportDefinitionService
             .getReportByName('Konteringssammendrag')
             .switchMap(report => {
                 let parameter = new ReportParameter();
@@ -87,13 +82,24 @@ export class PostingsummaryModalContent implements OnInit {
                 report.TemplateLinkId = 'PostingSummary.mrt';
                 return this.reportService.generateReportPdfFile(report);
             })
-            .switchMap(file => this.payrollService.postTransactions(this.payrollrunID, file));
+            .switchMap(file => this.payrollService.postTransactions(this.payrollrunID, file))
+            .catch((err, obs) => this.errorService.handleRxCatch(err, obs))
+            .do((response) => {
+                let config = this.options.modalConfig;
+                if (response && config && config.update) {
+                    config.update();
+                }
+            })
+            .finally(() => this.busy = false)
+            .subscribe((response) => this.showResponseReceipt(response));
     }
 
     public showResponseReceipt(successResponse: any) {
-        this.showReceipt = true;
-        this.journalNumber = successResponse[0].JournalEntryNumber;
-        this.journalDate = moment(successResponse[0].FinancialDate).format('DD.MM.YYYY');
+        if (successResponse) {
+            this.showReceipt = true;
+            this.journalNumber = successResponse[0].JournalEntryNumber;
+            this.journalDate = moment(successResponse[0].FinancialDate).format('DD.MM.YYYY');
+        }
     }
 
     public getAccountingSum(): number {
@@ -121,12 +127,7 @@ export class PostingsummaryModalContent implements OnInit {
             .setSearchable(false);
     }
 
-    public log(err) {
-        if (err._body) {
-            alert(err._body);
-        } else {
-            alert(JSON.stringify(err));
-        }
+    public close() {
+        this.onClose.next(true);
     }
-
 }

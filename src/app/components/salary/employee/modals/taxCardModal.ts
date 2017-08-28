@@ -1,108 +1,34 @@
-import {Component, Type, ViewChild, Input, Output, OnChanges, AfterViewInit, EventEmitter, OnInit} from '@angular/core';
-import {UniModal} from '../../../../../framework/modals/modal';
-import {UniForm} from '../../../../../framework/ui/uniform/index';
-import {TaxCardRequest} from './taxCardRequest';
-import {ReadTaxCard} from './readTaxCard';
-
-
+import { Component, OnInit, Input, Output, EventEmitter, ViewChild, AfterViewInit } from '@angular/core';
+import { IUniModal, IModalOptions } from '../../../../../framework/uniModal/barrel';
+import { TaxCardRequest } from './taxCardRequest';
+import {AltinnAuthenticationDataModal} from '../../../common/modals/AltinnAuthenticationDataModal';
 @Component({
-    selector: 'tax-card-modal-content',
-    templateUrl: './taxCardModalContent.html'
+    selector: 'tax-card-modal',
+    templateUrl: './taxCardModal.html'
 })
-export class TaxCardModalContent implements OnInit, AfterViewInit {
-    public title: string = '';
-    public exitButton: string = '';
-    public busy: boolean;
-    public sendAltinnVisible: boolean;
-    public error: string = '';
+
+export class TaxCardModal implements OnInit, IUniModal, AfterViewInit {
+    @Output() public onClose: EventEmitter<any> = new EventEmitter<any>();
+    @Input() public options: IModalOptions;
+    @ViewChild(TaxCardRequest) private taxCardRequest: TaxCardRequest;
+    @ViewChild(AltinnAuthenticationDataModal) public altinnModal: AltinnAuthenticationDataModal;
+    private changeEvent: EventEmitter<any>;
     private employeeID: number;
+    constructor() { }
 
-    @Input('config')
-    private config: { hasCancelButton: boolean, cancel: () => void, update: () => void, getEmployeeID: () => number };
-
-    @ViewChild(UniForm)
-    public uniform: UniForm;
-
-    @ViewChild(TaxCardRequest)
-    private taxCardRequest: TaxCardRequest;
-
-    @ViewChild(ReadTaxCard)
-    private readTaxCard: ReadTaxCard;
-
-    constructor() {
-
-    }
-
-    public ngOnInit() {
-        this.employeeID = this.config.getEmployeeID();
+    public ngOnInit() { 
+        this.employeeID = this.options.data;
+        this.changeEvent = this.options.modalConfig.changeEvent;
     }
 
     public ngAfterViewInit() {
-        this.readTaxCard.getReceipts();
         this.taxCardRequest.isActive = true;
         this.taxCardRequest.initialize();
-    }
-
-    public triggerUpdate() {
-        this.config.update();
-    }
-
-    public updateReceipts() {
-        this.readTaxCard.updateReceipts();
     }
 
     public close() {
         this.taxCardRequest.isActive = false;
         this.taxCardRequest.close();
-        this.config.cancel();
+        this.onClose.next();
     }
-
-    public setEmployeeID(empID) {
-        this.employeeID = empID;
-        if (this.taxCardRequest) {
-            this.taxCardRequest.initialize();
-        }
-    }
-
-}
-
-@Component({
-    selector: 'tax-card-modal',
-    template: `
-        <uni-modal [type]="type" [config]="config"></uni-modal>
-    `
-})
-export class TaxCardModal {
-    public type: Type<any> = TaxCardModalContent;
-    public config: any = {};
-
-    @Output()
-    public updateEvent: EventEmitter<boolean> = new EventEmitter<boolean>(true);
-
-    @ViewChild(UniModal)
-    private modal: UniModal;
-
-    @Input() private employeeID: number;
-
-    constructor() {
-        this.config = {
-            hasCancelButton: true,
-            cancel: () => {
-                this.modal.close();
-            },
-            update: () => {
-                this.triggerUpdate();
-            },
-            getEmployeeID: () => this.employeeID
-        };
-    }
-
-    public triggerUpdate() {
-        this.updateEvent.emit(true);
-    }
-
-    public openModal() {
-        this.modal.open();
-    }
-
 }

@@ -9,8 +9,8 @@ import { Subscription } from 'rxjs/Subscription';
 import { SalaryBalance, SalBalType, CompanySalary } from '../../../unientities';
 import { UniModalService, ConfirmActions } from '../../../../framework/uniModal/barrel';
 import { IContextMenuItem } from '../../../../framework/ui/unitable/index';
-import { SalarybalancelineModal } from './modals/salarybalancelinemodal';
-import {UniPreviewModal} from '../../reports/modals/preview/previewModal';
+import { SalaryBalanceLineModal } from './modals/salBalLineModal';
+import { UniPreviewModal } from '../../reports/modals/preview/previewModal';
 import {
     UniCacheService,
     ErrorService,
@@ -37,9 +37,6 @@ export class SalarybalanceView extends UniView implements OnDestroy {
     private companySalary: CompanySalary;
 
     public busy: boolean;
-
-    @ViewChild(SalarybalancelineModal)
-    private salarybalanceModal: SalarybalancelineModal;
 
     constructor(
         private route: ActivatedRoute,
@@ -203,7 +200,18 @@ export class SalarybalanceView extends UniView implements OnDestroy {
     }
 
     public openSalarybalancelineModal() {
-        this.salarybalanceModal.openModal(this.salarybalance, false);
+        this.modalService
+            .open(
+            SalaryBalanceLineModal,
+            {
+                data: this.salarybalance
+            })
+            .onClose
+            .subscribe(needsUpdate => {
+                if (needsUpdate) {
+                    this.getSalarybalance();
+                } 
+            });
     }
 
     private getSalarybalance() {
@@ -300,7 +308,7 @@ export class SalarybalanceView extends UniView implements OnDestroy {
         this.reportDefinitionService
             .getReportByName('Forskuddskvittering')
             .subscribe(report => {
-                report.parameters = [{Name: 'SalaryBalanceID', value: id}];
+                report.parameters = [{ Name: 'SalaryBalanceID', value: id }];
                 this.modalService.open(UniPreviewModal, {
                     data: report
                 });

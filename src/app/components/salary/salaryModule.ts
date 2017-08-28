@@ -18,8 +18,7 @@ import {AmeldingControlView} from './amelding/ameldingControl/control';
 import {AmeldingPeriodSummaryView} from './amelding/ameldingPeriod/period';
 import {AmeldingReceiptView} from './amelding/ameldingReceipt/receipt';
 import {AmeldingSummaryView} from './amelding/ameldingSummary/summary';
-import {SelectAmeldingTypeModalContent} from './amelding/modals/selectAmeldingTypeModal';
-import {SelectAmeldingTypeModal} from './amelding/modals/selectAmeldingTypeModal';
+import {AmeldingTypePickerModal} from './amelding/modals/ameldingTypePickerModal';
 import {ReportsModule} from '../reports/reportsModule';
 
 import {UniEmployee} from './employee/employee';
@@ -29,27 +28,23 @@ import {EmployeeList} from './employee/employeeList';
 import {EmployeeLeaves} from './employee/employeeLeave/employeeLeave';
 import {EmploymentDetails} from './employee/employments/employmentDetails';
 import {Employments} from './employee/employments/employments';
-import {TaxCardModal, TaxCardModalContent} from './employee/modals/taxCardModal';
-import {AltinnResponseModal, AltinnResponseModalContent} from './employee/modals/altinnResponseModal';
+import {TaxCardModal} from './employee/modals/taxCardModal';
+import {TaxResponseModal} from './employee/modals/taxResponseModal';
 import {ReadTaxCard} from './employee/modals/readTaxCard';
 import {TaxCardRequest} from './employee/modals/taxCardRequest';
 import {PersonalDetails} from './employee/personalDetails/personalDetails';
 import {RecurringPost} from './employee/recurringPost/recurringPost';
 import {EmployeeTax} from './employee/employeeTax/employeeTax';
 
-import {VacationpayModal} from './payrollrun/vacationpay/vacationPayModal';
-import {VacationpayModalContent} from './payrollrun/vacationpay/vacationPayModalContent';
-import {VacationpaySettingModal} from './payrollrun/vacationpay/vacationPaySettingModal';
-import {VacationpaySettingModalContent} from './payrollrun/vacationpay/vacationpaySettingModalContent';
-import {ControlModalContent} from './payrollrun/controlModal';
-import {ControlModal} from './payrollrun/controlModal';
+import {VacationPayModal} from './payrollrun/modals/vacationpay/vacationPayModal';
+import {VacationPaySettingsModal} from './payrollrun/modals/vacationpay/vacationPaySettingsModal';
+import {ControlModal} from './payrollrun/modals/controlModal';
 import {PayrollrunDetails} from './payrollrun/payrollrunDetails';
 import {PayrollrunList} from './payrollrun/payrollrunList';
-import {PostingsummaryModal} from './payrollrun/postingsummaryModal';
-import {PostingsummaryModalContent} from './payrollrun/postingsummaryModalContent';
+import {PostingSummaryModal} from './payrollrun/modals/postingSummaryModal';
 import {PaycheckSending} from './payrollrun/sending/paycheckSending';
-import {PaycheckSendingModal, PaycheckSendingModalContent} from './payrollrun/sending/paycheckSendingModal';
-import { PayrollRunPoster } from './payrollrun/poster/payrollRunPoster';
+import {PaycheckSenderModal} from './payrollrun/sending/paycheckSenderModal';
+import {PayrollRunPoster} from './payrollrun/poster/payrollRunPoster';
 
 import {SalaryTransactionSelectionList} from './salarytrans/salarytransactionSelectionList';
 import {SalarytransFilterContent} from './salarytrans/salarytransFilter';
@@ -57,9 +52,8 @@ import {SalarytransFilter} from './salarytrans/salarytransFilter';
 import {SalaryTransactionEmployeeList} from './salarytrans/salarytransList';
 
 import {
-    SalaryTransactionSupplementsModal,
-    SalaryTransactionSupplementsModalContent
-} from './modals/salaryTransactionSupplementsModal';
+    SalaryTransSupplementsModal
+} from './modals/salaryTransSupplementsModal';
 
 import {WageTypeView} from './wagetype/wagetypeView';
 import {WagetypeDetail} from './wagetype/views/wagetypeDetails';
@@ -75,7 +69,7 @@ import {SalarybalanceView} from './salarybalance/salarybalanceView';
 import {SalarybalanceDetail} from './salarybalance/views/salarybalanceDetails';
 import {SalaryBalanceSummary} from './salarybalance/summary/salaryBalanceSummary';
 import {SalarybalanceLine} from './salarybalance/salarybalanceLine';
-import {SalarybalancelineModal, SalarybalancelineModalContent} from './salarybalance/modals/salarybalancelinemodal';
+import {SalaryBalanceLineModal} from './salarybalance/modals/salBalLineModal';
 
 import {SalaryTransactionSupplementList} from './salaryTransactionSupplement/salaryTransactionSupplementsList';
 
@@ -108,8 +102,7 @@ import {CanDeactivateGuard} from '../../canDeactivateGuard';
         AmeldingPeriodSummaryView,
         AmeldingReceiptView,
         AmeldingSummaryView,
-        SelectAmeldingTypeModalContent,
-        SelectAmeldingTypeModal,
+        AmeldingTypePickerModal,
 
         // Employee
         UniEmployee,
@@ -120,29 +113,22 @@ import {CanDeactivateGuard} from '../../canDeactivateGuard';
         EmploymentDetails,
         Employments,
         TaxCardModal,
-        TaxCardModalContent,
         ReadTaxCard,
         TaxCardRequest,
-        AltinnResponseModal,
-        AltinnResponseModalContent,
+        TaxResponseModal,
         PersonalDetails,
         RecurringPost,
         EmployeeTax,
 
         // Payrollrun
-        VacationpayModal,
-        VacationpayModalContent,
-        VacationpaySettingModal,
-        VacationpaySettingModalContent,
-        ControlModalContent,
+        VacationPayModal,
+        VacationPaySettingsModal,
         ControlModal,
         PayrollrunDetails,
         PayrollrunList,
-        PostingsummaryModal,
-        PostingsummaryModalContent,
+        PostingSummaryModal,
         PaycheckSending,
-        PaycheckSendingModal,
-        PaycheckSendingModalContent,
+        PaycheckSenderModal,
         PayrollRunPoster,
 
         // Salarytrans
@@ -150,9 +136,8 @@ import {CanDeactivateGuard} from '../../canDeactivateGuard';
         SalarytransFilterContent,
         SalarytransFilter,
         SalaryTransactionEmployeeList,
-        SalaryTransactionSupplementsModal,
-        SalaryTransactionSupplementsModalContent,
         SalaryTransactionSupplementList,
+        SalaryTransSupplementsModal,
 
         // Wagetype
         WageTypeView,
@@ -171,22 +156,21 @@ import {CanDeactivateGuard} from '../../canDeactivateGuard';
         SalarybalanceDetail,
         SalaryBalanceSummary,
         SalarybalanceLine,
-        SalarybalancelineModal,
-        SalarybalancelineModalContent
+        SalaryBalanceLineModal
     ],
     entryComponents: [
-        TaxCardModalContent,
-        AltinnResponseModalContent,
-        VacationpayModalContent,
-        VacationpaySettingModalContent,
-        ControlModalContent,
-        PostingsummaryModalContent,
+        TaxCardModal,
+        TaxResponseModal,
+        VacationPayModal,
+        VacationPaySettingsModal,
+        ControlModal,
+        PostingSummaryModal,
         SalarytransFilterContent,
-        SelectAmeldingTypeModalContent,
-        SalaryTransactionSupplementsModalContent,
-        SalarybalancelineModalContent,
+        AmeldingTypePickerModal,
         SalarybalanceLine,
-        PaycheckSendingModalContent
+        PaycheckSenderModal,
+        SalaryTransSupplementsModal,
+        SalaryBalanceLineModal
     ],
     providers: [
         CanDeactivateGuard
@@ -202,8 +186,7 @@ import {CanDeactivateGuard} from '../../canDeactivateGuard';
         AmeldingPeriodSummaryView,
         AmeldingReceiptView,
         AmeldingSummaryView,
-        SelectAmeldingTypeModalContent,
-        SelectAmeldingTypeModal,
+        AmeldingTypePickerModal,
 
         // Employee
         UniEmployee,
@@ -214,27 +197,22 @@ import {CanDeactivateGuard} from '../../canDeactivateGuard';
         EmploymentDetails,
         Employments,
         TaxCardModal,
-        TaxCardModalContent,
         ReadTaxCard,
         TaxCardRequest,
-        AltinnResponseModal,
-        AltinnResponseModalContent,
+        TaxResponseModal,
         PersonalDetails,
         RecurringPost,
         EmployeeTax,
 
         // Payrollrun
-        VacationpayModal,
-        VacationpayModalContent,
-        VacationpaySettingModal,
-        VacationpaySettingModalContent,
-        ControlModalContent,
+        VacationPayModal,
+        VacationPaySettingsModal,
         ControlModal,
         PayrollrunDetails,
         PayrollrunList,
-        PostingsummaryModal,
-        PostingsummaryModalContent,
+        PostingSummaryModal,
         PaycheckSending,
+        PaycheckSenderModal,
         PayrollRunPoster,
 
         // Salarytrans
@@ -242,9 +220,8 @@ import {CanDeactivateGuard} from '../../canDeactivateGuard';
         SalarytransFilterContent,
         SalarytransFilter,
         SalaryTransactionEmployeeList,
-        SalaryTransactionSupplementsModal,
-        SalaryTransactionSupplementsModalContent,
         SalaryTransactionSupplementList,
+        SalaryTransSupplementsModal,
 
         // Wagetype
         WageTypeView,
@@ -263,8 +240,7 @@ import {CanDeactivateGuard} from '../../canDeactivateGuard';
         SalarybalanceDetail,
         SalaryBalanceSummary,
         SalarybalanceLine,
-        SalarybalancelineModal,
-        SalarybalancelineModalContent
+        SalaryBalanceLineModal
     ]
 })
 export class SalaryModule {}

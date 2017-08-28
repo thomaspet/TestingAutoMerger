@@ -1,16 +1,18 @@
-import {Component, ViewChild, Type, Input, OnInit} from '@angular/core';
-import {UniModal} from '../../../../../framework/modals/modal';
+import { Component, OnInit, Input, Output, EventEmitter, ViewChild } from '@angular/core';
+import { IUniModal, IModalOptions } from '../../../../../framework/uniModal/barrel';
 import {UniTable, UniTableConfig, UniTableColumn, UniTableColumnType} from '../../../../../framework/ui/unitable/index';
 import {GrantService, SubEntityService, ErrorService} from '../../../../services/services';
 import {Grant, SubEntity} from '../../../../unientities';
 import {Observable} from 'rxjs/Observable';
 
 @Component({
-    selector: 'grants-modal-content',
-    templateUrl: './grantsModal.html'
+    selector: 'grant-modal',
+    templateUrl: './grantModal.html'
 })
-export class GrantsModalContent implements OnInit {
-    @Input() public config: any;
+
+export class GrantModal implements OnInit, IUniModal {
+    @Input() public options: IModalOptions;
+    @Output() public onClose: EventEmitter<boolean> = new EventEmitter<boolean>();
     private grantTableConfig: UniTableConfig;
     private grantData: any[] = [];
     private infoText: string;
@@ -21,8 +23,7 @@ export class GrantsModalContent implements OnInit {
         private _grantService: GrantService,
         private _subentityService: SubEntityService,
         private errorService: ErrorService
-    ) {
-    }
+    ) { }
 
     public ngOnInit() {
         Observable.forkJoin(
@@ -32,7 +33,9 @@ export class GrantsModalContent implements OnInit {
             let [grants, subs] = response;
             this.grantData = grants;
             subs.forEach(subentity => {
-                subentity._Name = subentity.BusinessRelationInfo.Name;
+                subentity['_Name'] = subentity.BusinessRelationInfo 
+                    ? subentity.BusinessRelationInfo.Name
+                    : '';
             });
             this.allSubEntities = subs;
             this.setTableConfig();
@@ -138,40 +141,12 @@ export class GrantsModalContent implements OnInit {
         });
     }
 
-}
-
-@Component({
-    selector: 'grants-modal',
-    template: `<uni-modal [type]="type" [config]="grantsmodalConfig"></uni-modal>`
-})
-export class GrantsModal {
-    @ViewChild(UniModal) private modal: UniModal;
-    public grantsmodalConfig: any = {};
-    public type: Type<any> = GrantsModalContent;
-
-    constructor() {
-        this.grantsmodalConfig = {
-            title: 'Tilskudd',
-            hasCancelButton: true,
-            cancel: () => {
-                this.modal.close();
-            },
-            actions: [
-                {
-                    text: 'Lagre og lukk',
-                    class: 'good',
-                    method: () => {
-                        this.modal.getContent().then((component) => {
-                            component.saveData();
-                            this.modal.close();
-                        });
-                    }
-                }
-            ]
-        };
+    public close() {
+        this.onClose.next(true);
     }
 
-    public openGrantsModal() {
-        this.modal.open();
+    public saveAndClose() {
+        this.saveData();
+        this.close();
     }
 }

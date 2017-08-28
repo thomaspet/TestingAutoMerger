@@ -10,7 +10,8 @@ import {
     SalaryTransactionSupplement, WageTypeSupplement, Account, SalBalType
 } from '../../../../unientities';
 import { UniView } from '../../../../../framework/core/uniView';
-import { SalaryTransactionSupplementsModal } from '../../modals/salaryTransactionSupplementsModal';
+import { SalaryTransSupplementsModal } from '../../modals/salaryTransSupplementsModal';
+import { UniModalService } from '../../../../../framework/uniModal/barrel';
 
 
 @Component({
@@ -30,7 +31,6 @@ export class RecurringPost extends UniView {
     private unsavedEmployments: boolean;
     private refresh: boolean;
     @ViewChild(UniTable) private uniTable: UniTable;
-    @ViewChild(SalaryTransactionSupplementsModal) private supplementModal: SalaryTransactionSupplementsModal;
 
     constructor(
         public router: Router,
@@ -39,7 +39,8 @@ export class RecurringPost extends UniView {
         route: ActivatedRoute,
         private _accountService: AccountService,
         private errorService: ErrorService,
-        private sugestedValuesService: SalaryTransactionSuggestedValuesService
+        private sugestedValuesService: SalaryTransactionSuggestedValuesService,
+        private modalService: UniModalService
     ) {
 
         super(router.url, cacheService);
@@ -440,7 +441,16 @@ export class RecurringPost extends UniView {
     }
 
     public openSuplementaryInformationModal(row: SalaryTransaction) {
-        this.supplementModal.openModal(row, false);
+        this.modalService
+            .open(SalaryTransSupplementsModal, {
+                data: row
+            })
+            .onClose
+            .subscribe((trans: SalaryTransaction) => {
+                if (trans && trans.Supplements && trans.Supplements.length) {
+                    this.updateSupplementsOnTransaction(trans);
+                }
+            })
     }
 
     public navigateToNewAdvance() {

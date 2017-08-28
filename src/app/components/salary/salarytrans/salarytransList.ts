@@ -1,7 +1,9 @@
 import { Component, Input, OnChanges, EventEmitter, Output, ViewChild } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { Observable } from 'rxjs/Observable';
-import { UniTable, UniTableColumnType, UniTableColumn, UniTableConfig, IDeleteButton } from '../../../../framework/ui/unitable/index';
+import { 
+    UniTable, UniTableColumnType, UniTableColumn, UniTableConfig, IDeleteButton 
+} from '../../../../framework/ui/unitable/index';
 import {
     Employee, WageType, PayrollRun, SalaryTransaction, Project, Department,
     WageTypeSupplement, SalaryTransactionSupplement, Account, Dimensions, LocalDate
@@ -11,10 +13,11 @@ import {
     ErrorService, NumberFormat, WageTypeService
 } from '../../../services/services';
 import { UniForm } from '../../../../framework/ui/uniform/index';
-import { SalaryTransactionSupplementsModal } from '../modals/salaryTransactionSupplementsModal';
+import { SalaryTransSupplementsModal } from '../modals/salaryTransSupplementsModal';
 
 import { UniView } from '../../../../framework/core/uniView';
 import { ImageModal, UpdatedFileListEvent } from '../../common/modals/ImageModal';
+import { UniModalService } from '../../../../framework/uniModal/barrel';
 declare var _;
 const PAPERCLIP = '📎'; // It might look empty in your editor, but this is the unicode paperclip
 
@@ -32,7 +35,6 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges 
     public config: any = {};
 
     @ViewChild(UniForm) public uniform: UniForm;
-    @ViewChild(SalaryTransactionSupplementsModal) private supplementModal: SalaryTransactionSupplementsModal;
 
     private employeeID: number;
     @Input() private employee: Employee;
@@ -54,6 +56,7 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges 
     private refresh: boolean;
 
     constructor(
+        private modalService: UniModalService,
         private wageTypeService: WageTypeService,
         private router: Router,
         private route: ActivatedRoute,
@@ -501,7 +504,17 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges 
 
     public openSuplementaryInformationModal(row: SalaryTransaction) {
         if (this.payrollRun) {
-            this.supplementModal.openModal(row, this.payrollRun.StatusCode > 0);
+            this.modalService
+                .open(SalaryTransSupplementsModal, {
+                    data: row, 
+                    modalConfig: { readOnly: !!this.payrollRun.StatusCode }
+                })
+                .onClose
+                .subscribe((trans: SalaryTransaction) => {
+                    if (trans && trans.Supplements && trans.Supplements.length) {
+                        this.updateSalaryChanged(trans, true);
+                    }
+                });
         }
     }
 

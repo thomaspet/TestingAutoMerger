@@ -20,8 +20,8 @@ import {UserSettings} from './userSettings/userSettings';
 import {NumberSeries} from './numberSeries/numberSeries';
 import {UniTerms} from './terms/terms';
 
-import {GrantsModal, GrantsModalContent} from './agaAndSubEntitySettings/modals/grantsModal';
-import {FreeamountModal, FreeamountModalContent} from './agaAndSubEntitySettings/modals/freeamountModal';
+import {GrantModal} from './agaAndSubEntitySettings/modals/grantModal';
+import {FreeAmountModal} from './agaAndSubEntitySettings/modals/freeAmountModal';
 import {WebHookSettings} from './webHookSettings/webHookSettings';
 import {CommonServicesModule} from '../../services/commonServicesModule';
 
@@ -55,16 +55,14 @@ import {RoleSelector} from './users/roleSelector';
         NumberSeries,
         UniTerms,
 
-        GrantsModal,
-        GrantsModalContent,
-        FreeamountModal,
-        FreeamountModalContent,
+        GrantModal,
+        FreeAmountModal,
         WebHookSettings,
         RoleSelector
     ],
     entryComponents: [
-        GrantsModalContent,
-        FreeamountModalContent
+        GrantModal,
+        FreeAmountModal
     ],
     exports: [
         RouterModule,
@@ -79,10 +77,8 @@ import {RoleSelector} from './users/roleSelector';
         UserSettings,
         UniTerms,
 
-        GrantsModal,
-        GrantsModalContent,
-        FreeamountModal,
-        FreeamountModalContent,
+        GrantModal,
+        FreeAmountModal,
         RoleSelector
     ]
 })

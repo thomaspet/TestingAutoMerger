@@ -1,25 +1,30 @@
-import { Component, Input, ViewChild, OnInit } from '@angular/core';
-import { UniFieldLayout, FieldType } from '../../../../../framework/ui/uniform/index';
-import { UniTable, UniTableConfig, UniTableColumnType, UniTableColumn } from '../../../../../framework/ui/unitable/index';
+import { Component, OnInit, Input, Output, EventEmitter, ViewChild } from '@angular/core';
+import { IUniModal, IModalOptions } from '../../../../../../framework/uniModal/barrel';
+import { UniFieldLayout, FieldType } from '../../../../../../framework/ui/uniform/index';
+import {
+    UniTable, UniTableConfig, UniTableColumnType, UniTableColumn
+} from '../../../../../../framework/ui/unitable/index';
 import {
     CompanySalaryService, CompanyVacationRateService, AccountService, ErrorService, VacationpayLineService
-} from '../../../../services/services';
+} from '../../../../../services/services';
 import {
     CompanyVacationRate, Account, LocalDate, WageDeductionDueToHolidayType
-} from '../../../../unientities';
+} from '../../../../../unientities';
 import { Observable } from 'rxjs/Observable';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import * as moment from 'moment';
 
 @Component({
-    selector: 'vacationpay-setting-modal-content',
-    templateUrl: './vacationpaySettingModalContent.html'
+    selector: 'vacation-pay-settings-modal',
+    templateUrl: './vacationPaySettingsModal.html'
 })
-export class VacationpaySettingModalContent implements OnInit {
+
+export class VacationPaySettingsModal implements OnInit, IUniModal {
+    @Input() public options: IModalOptions;
+    @Output() public onClose: EventEmitter<boolean> = new EventEmitter<boolean>();
     private busy: boolean;
     private fields$: BehaviorSubject<UniFieldLayout[]> = new BehaviorSubject([]);
     private companysalaryModel$: BehaviorSubject<any> = new BehaviorSubject({});
-    @Input() public config: any;
     @ViewChild(UniTable) private table: UniTable;
     private formConfig$: BehaviorSubject<any> = new BehaviorSubject({});
     private tableConfig: UniTableConfig;
@@ -29,39 +34,38 @@ export class VacationpaySettingModalContent implements OnInit {
     private originalDeduction: number;
     public dueToHolidayChanged: boolean = false;
     private saveStatus: { numberOfRequests: number, completeCount: number, hasErrors: boolean };
-
     constructor(
         private _companysalaryService: CompanySalaryService,
         private _companyvacationRateService: CompanyVacationRateService,
         private _accountService: AccountService,
         private errorService: ErrorService,
         private m_vacationpaylineService: VacationpayLineService
-    ) {
-
-    }
+    ) { }
 
     public ngOnInit() {
         this.busy = true;
-        Observable.forkJoin(
+        Observable
+            .forkJoin(
             this._companysalaryService.getCompanySalary(),
             this._companyvacationRateService.GetAll('')
-        ).subscribe((response: any) => {
-            var [compsal, rates] = response;
-            this.companysalaryModel$.next(compsal);
-            this.originalDeduction = this.companysalaryModel$.getValue().WageDeductionDueToHoliday;
-            this.vacationRates = rates;
-            this.formConfig$.next({
-                submitText: ''
-            });
-            this.setFormFields();
-            this.setTableConfig();
-            this.done('');
-            this.busy = false;
-        }, err => this.errorService.handle(err));
+            )
+            .finally(() => this.busy = false)
+            .subscribe((response: any) => {
+                var [compsal, rates] = response;
+                this.companysalaryModel$.next(compsal);
+                this.originalDeduction = this.companysalaryModel$.getValue().WageDeductionDueToHoliday;
+                this.vacationRates = rates;
+                this.formConfig$.next({
+                    submitText: ''
+                });
+                this.setFormFields();
+                this.setTableConfig();
+                this.done('');
+            }, err => this.errorService.handle(err));
     }
 
     public saveSettings() {
-
+        this.busy = true;
         this.saveStatus = {
             numberOfRequests: 0,
             completeCount: 0,
@@ -119,12 +123,14 @@ export class VacationpaySettingModalContent implements OnInit {
     }
 
     private checkForSaveDone() {
+        this.busy = false;
         if (this.saveStatus.completeCount === this.saveStatus.numberOfRequests) {
             if (this.saveStatus.hasErrors) {
                 this.done('Feil ved lagring');
             } else {
+                let config = this.options.modalConfig;
                 this.done('Lagring fullført');
-                this.config.cancel();
+                this.close();
             }
         }
     }
@@ -170,8 +176,8 @@ export class VacationpaySettingModalContent implements OnInit {
         payInHoliday.Property = 'WageDeductionDueToHoliday';
         payInHoliday.FieldType = FieldType.DROPDOWN;
         payInHoliday.Options = {
-            source: 
-                this.m_vacationpaylineService.WageDeductionDueToHolidayArray
+            source:
+            this.m_vacationpaylineService.WageDeductionDueToHolidayArray
             ,
             displayProperty: 'name',
             valueProperty: 'id'
@@ -198,5 +204,9 @@ export class VacationpaySettingModalContent implements OnInit {
                     return row;
                 }
             });
+    }
+
+    public close() {
+        this.onClose.next(this.dueToHolidayChanged);
     }
 }

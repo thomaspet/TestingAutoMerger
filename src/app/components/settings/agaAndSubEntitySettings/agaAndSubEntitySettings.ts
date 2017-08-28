@@ -4,8 +4,8 @@ import { IUniSaveAction } from '../../../../framework/save/save';
 import { FieldType, UniForm, UniFieldLayout } from '../../../../framework/ui/uniform/index';
 import { SubEntityList } from './subEntityList';
 import { UniModalService } from '../../../../framework/uniModal/barrel';
-import { GrantsModal } from './modals/grantsModal';
-import { FreeamountModal } from './modals/freeamountModal';
+import { GrantModal } from './modals/grantModal';
+import { FreeAmountModal } from './modals/freeAmountModal';
 import { Observable } from 'rxjs/Observable';
 import {UniSearchAccountConfigGeneratorHelper} from '../../../services/common/uniSearchConfig/uniSearchAccountConfigGeneratorHelper';
 import {
@@ -33,8 +33,6 @@ declare var _;
 export class AgaAndSubEntitySettings implements OnInit {
     @ViewChild(UniForm) public uniform: UniForm;
     @ViewChild(SubEntityList) public subEntityList: SubEntityList;
-    @ViewChild(GrantsModal) public grantsModal: GrantsModal;
-    @ViewChild(FreeamountModal) public freeamountModal: FreeamountModal;
 
     public showSubEntities: boolean = true;
     public isDirty: boolean = false;
@@ -358,11 +356,11 @@ export class AgaAndSubEntitySettings implements OnInit {
     }
 
     public openGrantsModal() {
-        this.grantsModal.openGrantsModal();
+        this.modalService.open(GrantModal);
     }
 
     public openFreeamountModal() {
-        this.freeamountModal.openFreeamountModal();
+        this.modalService.open(FreeAmountModal);
     }
 
     public saveButtonIsDisabled(isDisabled: boolean) {

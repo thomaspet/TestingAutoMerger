@@ -6,7 +6,6 @@ import {ToastService, ToastType} from '../../../../framework/uniToast/toastServi
 import {AmeldingData} from '../../../unientities';
 import {IContextMenuItem} from '../../../../framework/ui/unitable/index';
 import {IUniSaveAction} from '../../../../framework/save/save';
-import {SelectAmeldingTypeModal, IAmeldingTypeEvent} from './modals/selectAmeldingTypeModal';
 import {AltinnAuthenticationDataModal} from '../../common/modals/AltinnAuthenticationDataModal';
 import {IToolbarConfig, IAutoCompleteConfig} from '../../common/toolbar/toolbar';
 import {UniStatusTrack} from '../../common/toolbar/statustrack';
@@ -18,6 +17,8 @@ import {
     SalarySumsService,
     YearService
 } from '../../../services/services';
+import {UniModalService} from '../../../../framework/uniModal/barrel';
+import {AmeldingTypePickerModal, IAmeldingTypeEvent} from './modals/ameldingTypePickerModal';
 import * as moment from 'moment';
 
 @Component({
@@ -50,7 +51,6 @@ export class AMeldingView implements OnInit {
     private totalFtrekkSystemStr: string;
 
     private legalEntityNo: string;
-    @ViewChild(SelectAmeldingTypeModal) private aMeldingTypeModal: SelectAmeldingTypeModal;
     @ViewChild(AltinnAuthenticationDataModal) private altinnAuthModal: AltinnAuthenticationDataModal;
     private saveStatus: {numberOfRequests: number, completeCount: number, hasErrors: boolean};
     public showView: string = '';
@@ -69,7 +69,8 @@ export class AMeldingView implements OnInit {
         private yearService: YearService,
         private numberformat: NumberFormat,
         private router: Router,
-        private errorService: ErrorService
+        private errorService: ErrorService,
+        private modalService: UniModalService
     ) {
         this._tabService.addTab({name: 'A-Melding', url: 'salary/amelding', moduleID: UniModules.Amelding, active: true});
 
@@ -526,6 +527,10 @@ export class AMeldingView implements OnInit {
     }
 
     private checkForSaveDone(done) {
+        if (!done) {
+            return;
+        }
+
         if (this.saveStatus.completeCount === this.saveStatus.numberOfRequests) {
             if (this.saveStatus.hasErrors) {
                 done('Kunne ikke generere A-melding');
@@ -604,7 +609,11 @@ export class AMeldingView implements OnInit {
     }
 
     private openAmeldingTypeModal(done) {
-        this.aMeldingTypeModal.openModal(done);
+        this.modalService
+            .open(AmeldingTypePickerModal, {modalConfig: {done: done}})
+            .onClose
+            .filter(event => event.type >= 0)
+            .subscribe(event => this.createAMelding(event));
     }
 
     private clearAMelding() {

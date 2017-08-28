@@ -34,6 +34,7 @@ export class SalarybalanceLine implements OnInit {
 
     public saveSalaryBalanceLine() {
         this.salaryBalanceLine$
+            .asObservable()
             .take(1)
             .do(() => this.busy = true)
             .finally(() => this.busy = false)
@@ -46,7 +47,6 @@ export class SalarybalanceLine implements OnInit {
             .catch((err, obs) => this.errorService.handleRxCatch(err, obs))
             .do(() => this._toastService.addToast('Trekk lagret', ToastType.good, ToastTime.short))
             .subscribe(() => this.linesSaved.emit(true));
-
     }
 
     private createLayout(): UniComponentLayout {

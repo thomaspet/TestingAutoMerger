@@ -1,22 +1,25 @@
 @import 'employment'
 
 .taxCardRequest
-    @extend .modal-content
-    display: flex
-    align-items: flex-start
-    justify-content: space-between
+    @extend .uni-modal
+    main 
+        display: flex
+        align-items: flex-start
+        justify-content: space-between
 
-    tax-card-request
-        flex-basis: 45%
-    read-tax-card
-        flex-basis: 50%
+        tax-card-request
+            flex-basis: 45%
+        read-tax-card
+            flex-basis: 50%
 
-    h1, h2
-        @extend h2
-        margin: 0
+        h1, h2
+            @extend h2
+            margin: 0
 
-    p
-        margin-top: 0
+        p
+            margin-top: 0
+    
+    min-width: 70%
 
     .taxCardRequestModal
         uni-field

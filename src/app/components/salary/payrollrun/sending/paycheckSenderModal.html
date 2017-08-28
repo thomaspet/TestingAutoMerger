@@ -1,0 +1,24 @@
+<dialog class="uni-modal"
+        (clickOutside)="close(false)"
+        (keydown.esc)="close(false)">
+    <header>
+        <h1>Send/Skriv ut lønnslipp</h1>
+    </header>
+    <main>
+        <paycheck-sending [runID]="options.data"></paycheck-sending>
+    </main>
+    <footer>
+        <button (click)="emailPaychecks()" class="good">
+            Send
+        </button>
+        <button (click)="printPaychecks(false)" class="good">
+            Skriv ut valgte
+        </button>
+        <button (click)="printPaychecks(true)" class="good">
+            Skriv ut alle
+        </button>
+        <button (click)="close()" class="bad">
+            Lukk
+        </button>
+    </footer>
+</dialog>

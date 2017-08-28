@@ -1,24 +1,23 @@
-import {Component, ViewChild, Output, EventEmitter} from '@angular/core';
+import {Component, Output, EventEmitter, Input, OnInit} from '@angular/core';
 import {UniTableConfig, UniTableColumnType, UniTableColumn} from '../../../../../framework/ui/unitable/index';
 import {Observable} from 'rxjs/Observable';
 import {AltinnReceipt} from '../../../../../app/unientities';
 import {AltinnReceiptService, EmployeeService, ErrorService} from '../../../../../app/services/services';
-import {AltinnResponseModal} from './altinnResponseModal';
+import {TaxResponseModal} from './taxResponseModal';
 import {AltinnAuthenticationDataModal} from '../../../common/modals/AltinnAuthenticationDataModal';
 import {AltinnAuthenticationData} from '../../../../models/AltinnAuthenticationData';
+import {UniModalService} from '../../../../../framework/uniModal/barrel';
 declare var _;
 
 @Component({
     selector: 'read-tax-card',
     templateUrl: './readTaxCard.html'
 })
-export class ReadTaxCard {
+export class ReadTaxCard implements OnInit {
 
-    @ViewChild(AltinnAuthenticationDataModal)
+    @Input()
     public altinnAuthModal: AltinnAuthenticationDataModal;
-
-    @ViewChild(AltinnResponseModal)
-    public altinnResponseModal: AltinnResponseModal;
+    @Input() public changeEvent: EventEmitter<any>;
 
     private receiptTable: UniTableConfig;
 
@@ -31,7 +30,8 @@ export class ReadTaxCard {
     constructor(
         private _altinnReceiptService: AltinnReceiptService,
         private _employeeService: EmployeeService,
-        private errorService: ErrorService
+        private errorService: ErrorService,
+        private modalService: UniModalService
     ) {
 
         let dateSendtColumn = new UniTableColumn('TimeStamp', 'Dato sendt', UniTableColumnType.LocalDate).setFormat('DD.MM.YYYY HH:mm');
@@ -60,11 +60,27 @@ export class ReadTaxCard {
 
     }
 
+    public ngOnInit() {
+        this.getReceipts();
+    }
+
     private readTaxCard(receiptID: number) {
-        this.altinnAuthModal.getUserAltinnAuthorizationData()
-            .then((authData: AltinnAuthenticationData) => {
-                this.altinnResponseModal.openModal(receiptID, authData);
-            });
+        this.changeEvent
+            .take(1)
+            .subscribe(() => this.updateReceipts());
+        
+        Observable
+            .fromPromise(this.altinnAuthModal.getUserAltinnAuthorizationData())
+            .switchMap((authData: AltinnAuthenticationData) => this.modalService
+                .open(TaxResponseModal, {
+                    data: {
+                        receiptID: receiptID, 
+                        auth: authData
+                    }, 
+                    modalConfig: {changeEvent: this.changeEvent}
+                })
+                .onClose)
+            .subscribe();
     }
 
     public getReceipts() {
@@ -74,11 +90,6 @@ export class ReadTaxCard {
 
     public updateReceipts() {
         this.altinnReceipts$ = _.cloneDeep(this.altinnReceipts$);
-    }
-
-    public triggerUpdate() {
-        this.updateReceipts();
-        this.updateTax.emit(true);
     }
 
     public selectedRow(event) {

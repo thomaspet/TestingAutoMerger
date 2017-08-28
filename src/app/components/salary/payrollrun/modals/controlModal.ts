@@ -1,17 +1,17 @@
-import { Component, Type, ViewChild, Input, OnInit, EventEmitter, Output } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { UniModal } from '../../../../framework/modals/modal';
-import { UniFieldLayout, FieldType } from '../../../../framework/ui/uniform/index';
-import { UniTableConfig, UniTableColumnType, UniTableColumn } from '../../../../framework/ui/unitable/index';
-import { SalaryTransaction, StdSystemType } from '../../../../app/unientities';
+import { UniFieldLayout, FieldType } from '../../../../../framework/ui/uniform/index';
+import { UniTableConfig, UniTableColumnType, UniTableColumn } from '../../../../../framework/ui/unitable/index';
+import { IUniModal, IModalOptions } from '../../../../../framework/uniModal/barrel';
+import {
+    SalaryTransactionService, PayrollrunService, ErrorService, SalarySumsService
+} from '../../../../services/services';
+import { 
+    SalaryTransactionPay, SalaryTransactionPayLine, SalaryTransactionSums, SalaryTransaction, StdSystemType, PayrollRun
+} from '../../../../unientities';
 import { Observable } from 'rxjs/Observable';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import { ReplaySubject } from 'rxjs/ReplaySubject';
-import { SalaryTransactionPay, SalaryTransactionPayLine, SalaryTransactionSums } from '../../../models/models';
-import {
-    SalaryTransactionService, PayrollrunService, ErrorService, SalarySumsService
-} from '../../../../app/services/services';
-declare var _;
 
 type PaylistSection = {
     employeeInfo: {
@@ -22,13 +22,16 @@ type PaylistSection = {
     },
     paymentLines: SalaryTransaction[],
     collapsed: boolean
-}
+};
 
 @Component({
-    selector: 'control-modal-content',
-    templateUrl: './controlModalContent.html'
+    selector: 'control-modal',
+    templateUrl: './controlModal.html'
 })
-export class ControlModalContent implements OnInit {
+
+export class ControlModal implements OnInit, IUniModal {
+    @Input() public options: IModalOptions;
+    @Output() public onClose: EventEmitter<boolean> = new EventEmitter<boolean>();
     private busy: boolean;
     public formConfig$: BehaviorSubject<any> = new BehaviorSubject({});
     public payList: {
@@ -36,13 +39,6 @@ export class ControlModalContent implements OnInit {
         paymentLines: SalaryTransaction[], collapsed: boolean
     }[] = null;
     private description$: ReplaySubject<string>;
-    private payrollRunID: number;
-    @Input() private config: {
-        hasCancelButton: boolean,
-        cancel: any,
-        update: any,
-        actions: { text: string, method: any }[], payrollRunID: number
-    };
     private transes: SalaryTransaction[];
     private model$: BehaviorSubject<{
         sums: SalaryTransactionSums,
@@ -51,7 +47,6 @@ export class ControlModalContent implements OnInit {
     public tableConfig: UniTableConfig;
     public fields$: BehaviorSubject<UniFieldLayout[]> = new BehaviorSubject([])
     public payrollrunIsSettled: boolean;
-
     constructor(
         private _salaryTransactionService: SalaryTransactionService,
         private _payrollRunService: PayrollrunService,
@@ -59,37 +54,34 @@ export class ControlModalContent implements OnInit {
         private route: ActivatedRoute,
         private errorService: ErrorService,
         private salarySumsService: SalarySumsService
-    ) {
+    ) { 
         this.description$ = new ReplaySubject<string>(1);
-        this.route.params.subscribe(params => {
-            this.payrollRunID = +params['id'];
-        });
-        this.generateHeadingsForm();
-    }
+     }
 
-    public ngOnInit() {
+    public ngOnInit() { 
         this.busy = true;
-        this._payrollRunService.controlPayroll(this.payrollRunID).subscribe((response) => {
-            this.getData().subscribe((data) => {
-                this.setData(data);
-            }, err => this.errorService.handle(err));
-        }, err => this.errorService.handle(err));
+        let runID: number = this.options.data.ID;
+        this.generateHeadingsForm();
+        this._payrollRunService
+            .controlPayroll(runID)
+            .switchMap(response => this.getData(runID))
+            .subscribe(data => this.setData(data));
     }
 
-    public getData() {
+    public getData(runID: number): Observable<[SalaryTransaction[], SalaryTransactionSums, SalaryTransactionPay, PayrollRun]> {
         this.busy = true;
         return Observable.forkJoin(
             this._salaryTransactionService
                 .GetAll(
-                `filter=PayrollRunID eq ${this.payrollRunID} `
+                `filter=PayrollRunID eq ${runID} `
                 + `and ((SystemType ne ${StdSystemType.TableTaxDeduction} `
                 + `and SystemType ne ${StdSystemType.PercentTaxDeduction}) ` 
                 + `or (Sum lt 0))`
                 + `&orderby=Sum desc&nofilter=true`
                 , ['WageType']),
-            this.salarySumsService.getFromPayrollRun(this.payrollRunID),
-            this._payrollRunService.getPaymentList(this.payrollRunID),
-            this._payrollRunService.Get(this.payrollRunID)
+            this.salarySumsService.getFromPayrollRun(runID),
+            this._payrollRunService.getPaymentList(runID),
+            this._payrollRunService.Get(runID)
         );
     }
 
@@ -104,7 +96,7 @@ export class ControlModalContent implements OnInit {
         this.model$.next(model);
         this.description$.next(`Kontroll av lønnsavregning ${payrollrun.ID} - ${payrollrun.Description}`);
 
-        this.generateTableConfigs();
+        this.generateTableConfigs(payrollrun.ID);
         this.busy = false;
     }
 
@@ -174,7 +166,7 @@ export class ControlModalContent implements OnInit {
         ]);
     }
 
-    private generateTableConfigs() {
+    private generateTableConfigs(runID: number) {
 
         this.payList = [];
         let wagetypeNumberCol = new UniTableColumn('WageTypeNumber', 'Lønnsart', UniTableColumnType.Number).setWidth('6rem');
@@ -204,7 +196,7 @@ export class ControlModalContent implements OnInit {
             this.model$.getValue().salaryTransactionPay.PayList.forEach((payline: SalaryTransactionPayLine) => {
 
                 let salaryTranses = this.transes
-                    .filter(x => x.EmployeeNumber === payline.EmployeeNumber && x.PayrollRunID === this.payrollRunID);
+                    .filter(x => x.EmployeeNumber === payline.EmployeeNumber && x.PayrollRunID === runID);
 
                 if (salaryTranses.length) {
                     let section: PaylistSection = {
@@ -226,12 +218,17 @@ export class ControlModalContent implements OnInit {
 
     public runSettling() {
         this.busy = true;
-        this._payrollRunService.runSettling(this.payrollRunID)
+        let runID: number = this.options.data.ID;
+        this._payrollRunService
+            .runSettling(runID)
             .finally(() => this.busy = false)
+            .do(response => this.payrollrunIsSettled = response)
             .subscribe((response: boolean) => {
                 if (response) {
-                    this.payrollrunIsSettled = true;
-                    this.config.update();
+                    let config = this.options.modalConfig;
+                    if (config && config.update) {
+                        config.update();
+                    }
                 }
             },
             (err) => {
@@ -241,7 +238,9 @@ export class ControlModalContent implements OnInit {
 
     public sendPayments() {
         this.busy = true;
-        this._payrollRunService.sendPaymentList(this.payrollRunID)
+        let runID: number = this.options.data.ID;
+        this._payrollRunService
+            .sendPaymentList(runID)
             .subscribe((response: boolean) => {
                 this._router.navigateByUrl('/bank/payments');
             },
@@ -258,37 +257,8 @@ export class ControlModalContent implements OnInit {
             line.collapsed = true;
         });
     }
-}
 
-@Component({
-    selector: 'control-modal',
-    template: `
-        <uni-modal [type]="type" [config]="modalConfig"></uni-modal>
-    `
-})
-export class ControlModal {
-    @ViewChild(UniModal) private modal: UniModal;
-    @Output() public updatePayrollRun: EventEmitter<any> = new EventEmitter<any>(true);
-    private modalConfig: { hasCancelButton: boolean, cancel: any, update: any, actions: { text: string, method: any }[] };
-    public type: Type<any> = ControlModalContent;
-
-    constructor(private route: ActivatedRoute, private errorService: ErrorService) {
-
-        this.modalConfig = {
-            hasCancelButton: true,
-            cancel: () => {
-                this.modal.getContent().then((component: ControlModalContent) => {
-                    component.closeAll();
-                });
-                this.modal.close();
-            },
-            update: () => this.updatePayrollRun.emit(true),
-            actions: []
-        };
-
-    }
-
-    public openModal() {
-        this.modal.open();
+    public close() {
+        this.onClose.next(false);
     }
 }

@@ -9,9 +9,9 @@ import { Observable } from 'rxjs/Observable';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import { ReplaySubject } from 'rxjs/ReplaySubject';
 import { TabService, UniModules } from '../../layout/navbar/tabstrip/tabService';
-import { ControlModal } from './controlModal';
-import { PostingsummaryModal } from './postingsummaryModal';
-import { VacationpayModal } from './vacationpay/vacationPayModal';
+import { ControlModal } from './modals/controlModal';
+import { PostingSummaryModal } from './modals/postingSummaryModal';
+import { VacationPayModal } from './modals/vacationpay/vacationPayModal';
 import { UniForm } from '../../../../framework/ui/uniform/index';
 import { IContextMenuItem } from '../../../../framework/ui/unitable/index';
 import { IToolbarConfig } from '../../common/toolbar/toolbar';
@@ -30,7 +30,7 @@ import {
     YearService, ErrorService, EmployeeCategoryService, FileService,
     JournalEntryService, PayrollRunPaymentStatus
 } from '../../../services/services';
-import { PaycheckSendingModal } from './sending/paycheckSendingModal';
+import { PaycheckSenderModal } from './sending/paycheckSenderModal';
 
 declare var _;
 import * as moment from 'moment';
@@ -49,8 +49,6 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
     private payDate: Date = null;
     private payStatus: string;
     @ViewChild(ControlModal) private controlModal: ControlModal;
-    @ViewChild(PostingsummaryModal) private postingSummaryModal: PostingsummaryModal;
-    @ViewChild(VacationpayModal) private vacationPayModal: VacationpayModal;
     @ViewChild(SalaryTransactionSelectionList) private selectionList: SalaryTransactionSelectionList;
     private busy: boolean = false;
     private url: string = '/salary/payrollrun/';
@@ -58,7 +56,6 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
     private toolbarconfig: IToolbarConfig;
     private disableFilter: boolean;
     private saveActions: IUniSaveAction[] = [];
-    @ViewChild(PaycheckSendingModal) private paycheckSendingModal: PaycheckSendingModal;
     private activeYear: number;
 
     private employees: Employee[];
@@ -800,21 +797,62 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
     }
 
     public openPostingSummaryModal(done) {
-        this.postingSummaryModal.openModal();
+        this.payrollrun$
+            .asObservable()
+            .take(1)
+            .subscribe(run => {
+                this.modalService
+                    .open(
+                        PostingSummaryModal, 
+                        {
+                            data: run, 
+                            modalConfig: {
+                                update: () => this.getPayrollRun()
+                            }
+                        })
+            });
+
         done('');
     }
 
     public openControlModal(done) {
-        this.controlModal.openModal();
+        this.payrollrun$
+            .asObservable()
+            .take(1)
+            .subscribe(run => this.modalService.open(ControlModal, {
+                data: run, 
+                modalConfig: { 
+                    update: () => this.getPayrollRun()
+                }
+            }));
         done('');
     }
 
     public openVacationPayModal() {
-        this.vacationPayModal.openModal();
+        this.payrollrun$
+            .asObservable()
+            .take(1)
+            .switchMap(run => 
+                this.modalService
+                    .open(
+                        VacationPayModal, 
+                        {
+                            modalConfig: 
+                            {
+                                update: () => this.getSalaryTransactions()
+                            },
+                            data: run
+                        })
+                    .onClose)
+            .subscribe(needUpdate => {
+                if (needUpdate) {
+                    this.getPayrollRun();
+                }
+            });
     }
 
     public openPaycheckSendingModal() {
-        this.paycheckSendingModal.openModal();
+        this.modalService.open(PaycheckSenderModal, {data: this.payrollrunID});
     }
 
     public canPost(): boolean {
