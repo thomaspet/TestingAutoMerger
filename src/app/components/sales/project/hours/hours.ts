@@ -57,10 +57,9 @@ export class ProjectHours {
                 .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
         };
 
-        return new UniTableConfig(false, true, 15)
+        return new UniTableConfig('sales.project.hours', false, true, 15)
             .setDeleteButton(false)
             .setSearchable(true)
-            .setSortable(true)
             .setColumns([
                 new UniTableColumn('Date', 'Dato', UniTableColumnType.DateTime),
                 this.getHourTableColumn('StartTime', 'Start'),

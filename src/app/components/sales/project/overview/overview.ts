@@ -108,12 +108,14 @@ export class ProjectOverview {
     public ngOnInit() {
         this.route.queryParams.subscribe((params) => {
             if (!this.projectService.currentProject.getValue()) {
-                this.projectService.Get(
-                    +params['projectID'],
-                    ['ProjectTasks.ProjectTaskSchedules', 'ProjectResources'])
+                if (params && params['projectID']) {
+                    this.projectService.Get(
+                        +params['projectID'],
+                        ['ProjectTasks.ProjectTaskSchedules', 'ProjectResources'])
                     .subscribe((project: Project) => {
                         this.projectChanged(project);
                     });
+                }
             } else {
                 this.projectChanged(this.projectService.currentProject.getValue());
             }
@@ -161,28 +163,6 @@ export class ProjectOverview {
                 this.customerName = '';
             }
 
-            this.projectService.getProjectHours(this.project.ID).subscribe((res) => {
-                this.monthAndYearDataInBarChart = [];
-                this.chart.data.labels = [];
-                this.chart.data.datasets[0].data = [];
-                this.chart.data.datasets[1].data = [];
-                this.projectHoursTotal = 0;
-                this.projectHoursInvoiced = 0;
-
-                res.Data.forEach((data: any) => {
-                    this.monthAndYearDataInBarChart.push({ month: data.mnd, year: data.year });
-                    this.chart.data.labels.push(this.MONTHS[data.mnd - 1] + ' ' + data.year);
-                    this.chart.data.datasets[0].data.push(data.summinutes / 60);
-                    this.chart.data.datasets[1].data.push(data.WorkItemMinutesToOrder / 60);
-                    this.projectHoursTotal += data.summinutes;
-                    this.projectHoursInvoiced += data.WorkItemMinutesToOrder || 0;
-                })
-
-                this.projectHoursTotal /= 60;
-                this.projectHoursInvoiced /= 60;
-                this.drawChart();
-            });
-
             this.remainingTasks = 0;
             this.projectExpectedResult = 0;
             this.currentResult = 0;
@@ -212,6 +192,27 @@ export class ProjectOverview {
                 this.chart2.data.labels.push('Ingen oppgaver på prosjekt');
             }
 
+            this.projectService.getProjectHours(this.project.ID).subscribe((res) => {
+                this.monthAndYearDataInBarChart = [];
+                this.chart.data.labels = [];
+                this.chart.data.datasets[0].data = [];
+                this.chart.data.datasets[1].data = [];
+                this.projectHoursTotal = 0;
+                this.projectHoursInvoiced = 0;
+
+                res.Data.forEach((data: any) => {
+                    this.monthAndYearDataInBarChart.push({ month: data.mnd, year: data.year });
+                    this.chart.data.labels.push(this.MONTHS[data.mnd - 1] + ' ' + data.year);
+                    this.chart.data.datasets[0].data.push(data.summinutes / 60);
+                    this.chart.data.datasets[1].data.push(data.WorkItemMinutesToOrder / 60);
+                    this.projectHoursTotal += data.summinutes;
+                    this.projectHoursInvoiced += data.WorkItemMinutesToOrder || 0;
+                })
+
+                this.projectHoursTotal /= 60;
+                this.projectHoursInvoiced /= 60;
+                this.drawChart();
+            });
         }
     }
 
