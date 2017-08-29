@@ -221,12 +221,10 @@ export class InvoiceDetails {
                     let invoice = <CustomerInvoice>res[0];
                     invoice.OurReference = res[1].DisplayName;
                     invoice.InvoiceDate = new LocalDate(Date());
-                    if (invoice.PaymentTerms
-                        && invoice.PaymentTerms.CreditDays
-                        && (invoice.PaymentTermsID !== this.invoice.PaymentTermsID)) {
-                            invoice.PaymentDueDate = this.setPaymentDueDate(invoice);
-                    }
-
+                    invoice.PaymentDueDate = new LocalDate(		
+                        moment(invoice.InvoiceDate).add(this.companySettings.CustomerCreditDays, 'days').toDate()		
+                    );
+                    invoice.DeliveryDate = invoice.InvoiceDate;
 
                     if (res[2]) {
                         invoice = this.tofHelper.mapCustomerToEntity(res[2], invoice);
@@ -433,23 +431,8 @@ export class InvoiceDetails {
             shouldGetCurrencyRate = true;
         }
 
-        let paymentTermChanged: boolean = this.currentPaymentTerm
-            && invoice.PaymentTerms.ID !== this.currentPaymentTerm.ID;
-        this.currentPaymentTerm = invoice.PaymentTerms;
-        if (paymentTermChanged
-            && invoice.PaymentTerms
-            && invoice.PaymentTerms.CreditDays) {
-                invoice.PaymentDueDate = this.setPaymentDueDate(invoice);
-        }
-
-        let deliveryTermChanged: boolean = this.currentDeliveryTerm
-            && invoice.DeliveryTerms.ID !== this.currentDeliveryTerm.ID;
-        this.currentDeliveryTerm = invoice.DeliveryTerms;
-        if (deliveryTermChanged
-            && invoice.DeliveryTerms
-            && invoice.DeliveryTerms.CreditDays) {
-                invoice.DeliveryDate = this.setDeliveryDate(invoice);
-        }
+        this.setPaymentDueDateIfPaymentTermChanged(invoice);
+        this.setDeliveryDateIfDeliveryTermChanged(invoice);
 
         this.invoice = _.cloneDeep(invoice);
 
@@ -637,6 +620,20 @@ export class InvoiceDetails {
         return invoice.PaymentDueDate;
     }
 
+    private setPaymentDueDateIfPaymentTermChanged(invoice: CustomerInvoice) {
+        let paymentTermChanged: boolean = this.currentPaymentTerm
+            && invoice.PaymentTerms.ID !== this.currentPaymentTerm.ID;
+        if (invoice.PaymentTerms && !this.currentPaymentTerm) {
+            paymentTermChanged = invoice.PaymentTerms.ID !== 0;
+        }
+        this.currentPaymentTerm = invoice.PaymentTerms;
+        if (paymentTermChanged
+            && invoice.PaymentTerms
+            && invoice.PaymentTerms.CreditDays) {
+                invoice.PaymentDueDate = this.setPaymentDueDate(invoice);
+        } 
+    }
+
     private setDeliveryDate(invoice: CustomerInvoice): LocalDate {
         if (invoice.DeliveryTerms && invoice.DeliveryTerms.CreditDays) {
             invoice.DeliveryDate = invoice.InvoiceDate;
@@ -650,6 +647,20 @@ export class InvoiceDetails {
             invoice.DeliveryDate = null;
         }
         return invoice.DeliveryDate;
+    }
+
+    private setDeliveryDateIfDeliveryTermChanged(invoice: CustomerInvoice) {
+        let deliveryTermChanged: boolean = this.currentDeliveryTerm
+            && invoice.DeliveryTerms.ID !== this.currentDeliveryTerm.ID;
+        if (invoice.DeliveryTerms && !this.currentDeliveryTerm) {
+            deliveryTermChanged = invoice.DeliveryTerms.ID !== 0;
+        }
+        this.currentDeliveryTerm = invoice.DeliveryTerms;
+        if (deliveryTermChanged
+            && invoice.DeliveryTerms
+            && invoice.DeliveryTerms.CreditDays) {
+                invoice.DeliveryDate = this.setDeliveryDate(invoice);
+        }
     }
 
     private getUpdatedCurrencyExchangeRate(invoice: CustomerInvoice): Observable<number> {
