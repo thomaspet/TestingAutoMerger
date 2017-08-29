@@ -59,6 +59,8 @@ export class ProjectHours {
 
         return new UniTableConfig(false, true, 15)
             .setDeleteButton(false)
+            .setSearchable(true)
+            .setSortable(true)
             .setColumns([
                 new UniTableColumn('Date', 'Dato', UniTableColumnType.DateTime),
                 this.getHourTableColumn('StartTime', 'Start'),

@@ -1,8 +1,9 @@
 ﻿import { Component, ViewChild, ElementRef } from '@angular/core';
 import { Http } from '@angular/http';
-import { Router } from '@angular/router';
-import { Project, Customer } from '../../../../unientities';
+import { Router, ActivatedRoute } from '@angular/router';
+import { Project, Customer, ProjectTask } from '../../../../unientities';
 import * as Chart from 'chart.js';
+import * as moment from 'moment';
 import { ProjectService, CustomerService } from '../../../../services/services';
 
 export interface myProject extends Project {
@@ -49,6 +50,9 @@ export class ProjectOverview {
     private myChart2: any;
     private projectHoursTotal: number;
     private projectHoursInvoiced: number;
+    private projectExpectedResult: number;
+    private currentResult: number;
+    private remainingTasks: number;
     private customer: Customer;
     private customerName: string;
     private monthAndYearDataInBarChart: IMonthAndYear[] = [];
@@ -77,10 +81,10 @@ export class ProjectOverview {
     private chart2 = {
         type: 'pie',
         data: {
-            labels: ["% ferdigstilt", '% gjennstående'],
+            labels: [],
             datasets: [{
                 label: '% ferdig',
-                data: [84, 16],
+                data: [],
                 backgroundColor: ['#7293cb', '#e1974c'],
                 borderColor: '#FFFFFF',
                 borderWidth: 1
@@ -97,15 +101,28 @@ export class ProjectOverview {
     constructor(
         private projectService: ProjectService,
         private customerService: CustomerService,
-        private router: Router) { }
+        private router: Router,
+        private route: ActivatedRoute) {
+    }
 
     public ngOnInit() {
-        this.projectService.currentProject.subscribe((project: any) => { this.projectChanged(project); });
+        this.route.queryParams.subscribe((params) => {
+            if (!this.projectService.currentProject.getValue()) {
+                this.projectService.Get(
+                    +params['projectID'],
+                    ['ProjectTasks.ProjectTaskSchedules', 'ProjectResources'])
+                    .subscribe((project: Project) => {
+                        this.projectChanged(project);
+                    });
+            } else {
+                this.projectChanged(this.projectService.currentProject.getValue());
+            }
+        })
     }
 
     public ngAfterViewInit() {
-        this.getDataAndDrawChart();
         this.chartElement1.nativeElement.onclick = (event) => {
+            if (!this.myChart || !event) { return; }
             let temp = this.myChart.getElementAtEvent(event);
             this.router.navigate(['/sales/project/hours'], {
                 queryParams: {
@@ -164,7 +181,37 @@ export class ProjectOverview {
                 this.projectHoursTotal /= 60;
                 this.projectHoursInvoiced /= 60;
                 this.drawChart();
-            })
+            });
+
+            this.remainingTasks = 0;
+            this.projectExpectedResult = 0;
+            this.currentResult = 0;
+            this.chart2.data.datasets[0].data = [];
+            this.chart2.data.labels = [];
+
+            this.project.ProjectTasks.forEach((task: ProjectTask) => {
+                if (moment(task.EndDate) > moment()) {
+                    this.remainingTasks++;
+                }
+                this.projectExpectedResult += task.Total;
+            });
+
+            if (this.project.ProjectTasks.length) {
+                let currentPercentCompleted = (((this.project.ProjectTasks.length - this.remainingTasks) || this.project.ProjectTasks.length) / this.project.ProjectTasks.length) * 100;
+                let currentPercentRemaining = (this.remainingTasks / this.project.ProjectTasks.length) * 100;
+
+                this.chart2.data.datasets[0].data.push(this.project.ProjectTasks.length - this.remainingTasks);
+                this.chart2.data.labels.push(currentPercentCompleted + "% av oppgavene er ferdig");
+
+                if (currentPercentRemaining) {
+                    this.chart2.data.datasets[0].data.push(this.remainingTasks);
+                    this.chart2.data.labels.push(currentPercentRemaining + "% gjennstår");
+                }
+            } else {
+                this.chart2.data.datasets[0].data.push(0);
+                this.chart2.data.labels.push('Ingen oppgaver på prosjekt');
+            }
+
         }
     }
 
