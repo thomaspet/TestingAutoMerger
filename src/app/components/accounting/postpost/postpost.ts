@@ -69,10 +69,10 @@ export class PostPost {
     public accountsTableConfig: UniTableConfig;
 
     //Detail view
-    public pointInTime$: BehaviorSubject<LocalDate> = new BehaviorSubject(new LocalDate());
-    public customer$: BehaviorSubject<Customer> = new BehaviorSubject(null);
-    public supplier$: BehaviorSubject<Supplier> = new BehaviorSubject(null);
-    public account$: BehaviorSubject<Account> = new BehaviorSubject(null);
+    public pointInTime$: BehaviorSubject<LocalDate> = new BehaviorSubject();
+    public customer$: BehaviorSubject<Customer> = new BehaviorSubject();
+    public supplier$: BehaviorSubject<Supplier> = new BehaviorSubject();
+    public account$: BehaviorSubject<Account> = new BehaviorSubject();
 
     private toolbarconfig: IToolbarConfig;
     private accountSearch: IAutoCompleteConfig;
