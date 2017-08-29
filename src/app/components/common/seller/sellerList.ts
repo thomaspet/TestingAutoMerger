@@ -10,7 +10,6 @@ import {
     ErrorService,
     ProjectService,
     DepartmentService,
-    TeamService,
     SellerService,
     UserService
 } from '../../../services/services';
@@ -33,7 +32,6 @@ export class SellerList {
                 private tabService: TabService,
                 private projectService: ProjectService,
                 private departmentService: DepartmentService,
-                private teamService: TeamService,
                 private sellerService: SellerService,
                 private userService: UserService) {
         this.setupTable();
