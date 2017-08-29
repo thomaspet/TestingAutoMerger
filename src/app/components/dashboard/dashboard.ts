@@ -135,8 +135,8 @@ export class Dashboard {
                 y: 4,
                 widgetType: 'counter', // TODO: enum
                 config: {
-                    label: 'Innboks',
-                    description: 'Uleste eposter',
+                    label: 'Epost',
+                    description: 'Antall eposter i innboks',
                     icon: 'letter',
                     link: '/accounting/bills?filter=Inbox',
                     dataEndpoint: "/api/statistics?skip=0&model=FileTag&select=count(ID) as count&expand=File&filter=FileTag.Status eq 0 and FileTag.TagName eq 'IncomingMail' and File.Deleted eq 0",
@@ -153,7 +153,7 @@ export class Dashboard {
                 widgetType: 'counter', // TODO: enum
                 config: {
                     label: 'EHF',
-                    description: 'Innkommende EHF',
+                    description: 'Antall EHFer i innboks',
                     icon: 'ehf',
                     link: '/accounting/bills?filter=Inbox',
                     dataEndpoint: "/api/statistics?skip=0&model=FileTag&select=count(ID) as count&expand=File&filter=FileTag.Status eq 0 and FileTag.TagName eq 'IncomingEHF' and File.Deleted eq 0",
