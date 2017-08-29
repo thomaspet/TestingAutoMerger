@@ -6,7 +6,7 @@ import { UniTable, UniTableConfig, UniTableColumnType, UniTableColumn } from '..
 import {
     SalaryTransactionService, BasicAmountService, PayrollrunService,
     VacationpayLineService, YearService, ErrorService, CompanySalaryService,
-    CompanyVacationRateService
+    CompanyVacationRateService, NumberFormat
 } from '../../../../../../app/services/services';
 import { VacationPaySettingsModal } from '../../modals/vacationpay/vacationPaySettingsModal';
 import { ToastService, ToastType } from '../../../../../../framework/uniToast/toastService';
@@ -14,6 +14,7 @@ import { Observable } from 'rxjs/Observable';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import { UniModalService, ConfirmActions } from '../../../../../../framework/uniModal/barrel';
 import { IUniSaveAction } from '../../../../../../framework/save/save';
+import { IUniInfoConfig } from '../../../../common/uniInfo/uniInfo';
 
 
 @Component({
@@ -24,6 +25,7 @@ import { IUniSaveAction } from '../../../../../../framework/save/save';
 export class VacationPayModal implements OnInit, IUniModal {
     @Input() public options: IModalOptions;
     @Output() public onClose: EventEmitter<boolean> = new EventEmitter<boolean>();
+    public infoConfig$: BehaviorSubject<IUniInfoConfig> = new BehaviorSubject<IUniInfoConfig>({ headline: 'Innstillinger' });
     private busy: boolean;
     private basicamountBusy: boolean;
     private vacationHeaderModel$: BehaviorSubject<any> = new BehaviorSubject({});
@@ -51,7 +53,8 @@ export class VacationPayModal implements OnInit, IUniModal {
         private yearService: YearService,
         private companysalaryService: CompanySalaryService,
         private companyVacationrateService: CompanyVacationRateService,
-        private modalService: UniModalService
+        private modalService: UniModalService,
+        private numberFormat: NumberFormat
     ) { }
 
     public ngOnInit() {
@@ -421,14 +424,14 @@ export class VacationPayModal implements OnInit, IUniModal {
     private getSaveactions(): IUniSaveAction[] {
         return [
             {
-                label: 'Lagre',
-                action: this.saveVacationpayLines.bind(this),
+                label: 'Lag feriepengeposter',
+                action: this.createVacationPayments.bind(this),
                 main: false,
                 disabled: false
             },
             {
-                label: 'Generer poster',
-                action: this.createVacationPayments.bind(this),
+                label: 'Lagre',
+                action: this.saveVacationpayLines.bind(this),
                 main: true,
                 disabled: !this.totalPayout
             }

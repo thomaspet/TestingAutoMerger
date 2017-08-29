@@ -2,7 +2,6 @@ import {Component, Input} from '@angular/core';
 
 export interface IUniInfoConfig {
     headline: string;
-    content?: string;
 }
 
 @Component({
@@ -11,7 +10,7 @@ export interface IUniInfoConfig {
     <article class="information_sheet">
         
         <h1>{{config.headline}}</h1>
-        <p [innerHTML]="config.content || ''"></p>
+        <ng-content class="information_content"></ng-content>
         
     </article>
     `

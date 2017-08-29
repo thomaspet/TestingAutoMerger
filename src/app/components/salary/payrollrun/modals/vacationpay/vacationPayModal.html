@@ -1,13 +1,12 @@
-<dialog class="vacationPay">
+<section role="dialog" class="vacationPay">
     <header>
         <h1>Feriepenger - oppsett og utbetaling</h1>
     </header>
-    <main [attr.aria-busy]="busy">
+    <article [attr.aria-busy]="busy">
         <section class="vacationpay_Flexheader">
             <uni-form class="vacationpay_settings_left" [config]="config$" [fields]="fields$" [model]="vacationHeaderModel$" (changeEvent)="change($event)"></uni-form>
-            <section class="infoNote" *ngIf="companysalary">
-                <h3>Innstillinger</h3>
-                <table>
+            <uni-information [config]="infoConfig$ | async" class="infoNote">
+                <table *ngIf="companysalary">
                     <tr>
                         <td>Feriepengesats</td>
                         <td class="vacationpay_settingValues">{{companysalary._Rate | uninumberformat:'percentage'}}</td>
@@ -31,20 +30,41 @@
                     </tr>
                 </table>
                 <a class="vacationPay_settingsLink" (click)="openVacationpaySettings()">Endre feriepengeinnstillinger</a>
-            </section>
+            </uni-information>
         </section>
         <uni-table [resource]="vacationpayBasis" [config]="tableConfig" [attr.aria-busy]="basicamountBusy" (rowChanged)="rowChanged($event)"
             (rowSelectionChanged)="onRowSelectionChange($event)" (dataLoaded)="updatetotalPay()"></uni-table>
         <h4 style="text-align:right">Totalsum utbetales {{totalPayout | unicurrency}}</h4>
-    </main>
+    </article>
 
-    <footer role="group" class="comboButton">
-        <button class="comboButton_btn" type="button" (click)="saveactions[0].action()" [attr.aria-busy]="busy" [disabled]="saveactions[0].disabled">{{saveactions[0].label}}</button>
-        <button class="comboButton_more" (click)="open = !open" aria-owns="saveActionMenu" [attr.aria-expanded]="open">More options</button>
+    <footer>
+        <section role="group" class="comboButton">
+            <button 
+                class="comboButton_btn good" 
+                type="button" 
+                (click)="saveactions[0].action()" 
+                [attr.aria-busy]="busy" 
+                [disabled]="saveactions[0].disabled">{{saveactions[0].label}}</button>
+            <button 
+                class="comboButton_more good" 
+                type="button" 
+                (click)="open = !open" 
+                aria-owns="saveActionMenu" 
+                [attr.aria-expanded]="open">More options</button>
 
-        <ul class="comboButton_moreList" [attr.aria-expanded]="open" role="menu" id="saveActionMenu">
-            <li *ngFor="let action of saveactions" (click)="action.action()" role="menuitem" [attr.aria-disabled]="action.disabled" [title]="action.label">{{action.label}}</li>
-        </ul>
-        <button class="bad"  (click)="closeModal()">Lukk</button>
+            <ul 
+                class="comboButton_moreList" 
+                [attr.aria-expanded]="open" 
+                role="menu">
+                <li *ngFor="let action of saveactions" 
+                    (click)="action.action()" 
+                    role="menuitem" 
+                    [attr.aria-disabled]="action.disabled">{{action.label}}</li>
+            </ul>
+            
+        </section>
+        <section>
+            <button class="bad" (click)="closeModal()">Lukk</button>
+        </section>
     </footer>
-</dialog>
+</section>

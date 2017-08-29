@@ -22,6 +22,7 @@ button[type=button]
         background-repeat: no-repeat
         background-size: .6rem
         padding: .5rem 1rem
+        min-width: 2.5rem // To override the footer button style
 
         &.good
             border-left-color: mix($uni-color-good, $uni-color-negative, 50%)
@@ -41,5 +42,15 @@ button[type=button]
     left: 0
     width: 100%
 
+    footer & //This folds upward.
+        top: auto
+        left: auto
+        right: 0
+        bottom: 2rem
+        min-width: 12rem
+
     &.comboButton_moreList li // Hacking specificity a little here.
         width: 100%
+
+        footer &
+            width: calc(100% - 2rem) // To account for padding
