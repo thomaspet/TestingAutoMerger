@@ -57,6 +57,7 @@ export class PostPost {
         {Register: 'account', _DisplayName: 'Hovedbok'}
     ];
 
+    private currentFilter: string = 'OPEN';
     private showoptions: Array<IFilter> = [
         { label: 'Åpne poster', name: 'OPEN', isSelected: true },
         { label: 'Lukkede poster', name: 'MARKED', isSelected: false },
@@ -80,6 +81,7 @@ export class PostPost {
     private selectedIndex: number = 0;
     private autolocking: boolean = true;
     private canceled: boolean = false;
+    private allSelectedLocked: boolean = false;
 
     constructor(
         private tabService: TabService,
@@ -139,16 +141,17 @@ export class PostPost {
             action: this.save.bind(this),
             disabled: false,
             label: 'Lagre',
-            main: this.autolocking
+            main: this.autolocking && this.currentFilter !== 'MARKED' && !this.allSelectedLocked
         },{
             action: this.lock.bind(this),
             disabled: false,
             label: 'Lås',
-            main: !this.autolocking
+            main: !this.autolocking && this.currentFilter !== 'MARKED' && !this.allSelectedLocked
         },{
             action: this.unlock.bind(this),
             disabled: false,
-            label: 'Lås opp'
+            label: 'Lås opp',
+            main: this.currentFilter === 'MARKED' || this.allSelectedLocked
         },{
             action: this.automark.bind(this),
             disabled: false,
@@ -320,6 +323,13 @@ export class PostPost {
     private onFilterClick(filter: IFilter, searchFilter?: string) {
         this.showoptions.forEach(f => f.isSelected = f == filter);
         this.postpost.showHideEntries(filter.name);
+        this.currentFilter = filter.name;
+        this.setupSaveActions();
+    }
+
+    private onAllSelectedLocked(allLocked) {
+        this.allSelectedLocked = allLocked;
+        this.setupSaveActions();
     }
 
     private getDateFilter(): string {

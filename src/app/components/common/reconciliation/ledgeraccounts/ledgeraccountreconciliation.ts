@@ -1,4 +1,4 @@
-import {Component, ViewChild, Input, SimpleChanges} from '@angular/core';
+import {Component, ViewChild, Input, SimpleChanges, Output, EventEmitter} from '@angular/core';
 import {DomSanitizer} from '@angular/platform-browser';
 import {Router} from '@angular/router';
 import {StatusCodeJournalEntryLine, LocalDate} from '../../../../unientities';
@@ -49,6 +49,9 @@ export class LedgerAccountReconciliation {
 
     @Input()
     public modalMode: boolean = false;
+
+    @Output()
+    public allSelectedLocked: EventEmitter<boolean> = new EventEmitter();
 
     @ViewChild(UniTable)
     private table: UniTable;
@@ -149,7 +152,6 @@ export class LedgerAccountReconciliation {
             let isSelected = rowModel._rowSelected;
 
             if (isSelected) {
-
                 let currentMarkingsWithDifferentCurrencyCode =
                     this.currentMarkingSession.filter(x => x.CurrencyCodeID !== rowModel.CurrencyCodeID);
 
@@ -262,6 +264,11 @@ export class LedgerAccountReconciliation {
 
         setTimeout(() => {
             this.currentSelectedRows = this.table.getSelectedRows();
+
+            this.allSelectedLocked.emit(
+                this.currentSelectedRows.length > 0
+                && this.currentSelectedRows.reduce((p, c) => c.Markings !== null && p, true)
+            );
 
             this.currentSelectedRows.forEach(x => {
                 this.summaryData.SumChecked += x.RestAmount;
