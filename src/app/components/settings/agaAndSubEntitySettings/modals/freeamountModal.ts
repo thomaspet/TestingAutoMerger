@@ -23,7 +23,7 @@ export class FreeAmountModal implements OnInit, IUniModal {
     private freeamountModel$: BehaviorSubject<any> = new BehaviorSubject({});
     private fields$: BehaviorSubject<UniFieldLayout[]> = new BehaviorSubject([]);
     private formConfig$: BehaviorSubject<any>= new BehaviorSubject({submitText: ''});
-    
+
     constructor(
         private _subentityService: SubEntityService,
         private _grantService: GrantService,
@@ -36,7 +36,7 @@ export class FreeAmountModal implements OnInit, IUniModal {
             ).subscribe((response) => {
                 let [subs, grants] = response;
                 this.freeamountData = subs;
-    
+
                 // remove this section when we get data from issue #2041 (backend)
                 this.freeamountData.forEach(freeamount => {
                     let grantAmount: number = 0;
@@ -47,12 +47,12 @@ export class FreeAmountModal implements OnInit, IUniModal {
                     });
                     freeamount.Grants = grantAmount;
                 });
-    
+
                 this.setTableConfig();
                 this.setFormConfig();
             }, err => this.errorService.handle(err));
         }
-    
+
         private setTableConfig() {
             let subentityCol = new UniTableColumn('ID', 'Virksomhet', UniTableColumnType.Text)
             .setTemplate((dataItem: SubEntity) => {
@@ -62,11 +62,12 @@ export class FreeAmountModal implements OnInit, IUniModal {
             let maxCol = new UniTableColumn('AgaRule', 'Maks fribeløp', UniTableColumnType.Money);
             let usedCol = new UniTableColumn('AgaZone', 'Brukt fribeløp', UniTableColumnType.Money);
             let grantCol = new UniTableColumn('Grants', 'Tilskudd', UniTableColumnType.Money);
-    
-            this.freeamountTableConfig = new UniTableConfig(false, true, 10)
-            .setColumns([subentityCol, maxCol, usedCol, grantCol]);
+
+            const configStoreKey = 'settings.agaAndSubEntitySettings.freeAmountModal';
+            this.freeamountTableConfig = new UniTableConfig(configStoreKey, false, true, 10)
+                .setColumns([subentityCol, maxCol, usedCol, grantCol]);
         }
-    
+
         private setFormConfig() {
             let totalFreeamountField = new UniFieldLayout();
             totalFreeamountField.FieldSet = 0;
@@ -78,7 +79,7 @@ export class FreeAmountModal implements OnInit, IUniModal {
             totalFreeamountField.Label = 'Rest fribeløp';
             totalFreeamountField.Options = null;
             totalFreeamountField.ReadOnly = true;
-    
+
             this.fields$.next([totalFreeamountField]);
         }
 

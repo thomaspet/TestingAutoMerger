@@ -11,7 +11,10 @@ import * as _ from 'lodash';
     template: `
         <label
             [class.error]="hasError()">
-            <span [hidden]="!isInput(field?.FieldType)">{{field?.Label}}</span>
+            <span [hidden]="!isInput(field?.FieldType)"
+                  [title]="field?.Label">
+                  {{field?.Label}}
+            </span>
             <uni-autocomplete-input #selectedComponent *ngIf="field?.FieldType === 0"
                 [field]="field"
                 [model]="model"

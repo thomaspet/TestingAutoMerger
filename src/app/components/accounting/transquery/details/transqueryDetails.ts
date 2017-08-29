@@ -395,7 +395,7 @@ export class TransqueryDetails implements OnInit {
         let data = this.journalEntryService.getSessionData(0);
         let url = '/accounting/journalentry/manual'
                 + `;journalEntryNumber=${journalEntryNumber}`
-                + `journalEntryID=${journalEntryID};editmode=true`;
+                + `;journalEntryID=${journalEntryID};editmode=true`;
 
         if (data && data.length > 0
             && (!data[0].JournalEntryID || data[0].JournalEntryID.toString() !== journalEntryID.toString())) {
@@ -569,7 +569,7 @@ export class TransqueryDetails implements OnInit {
             });
         }
 
-        return new UniTableConfig(false, false)
+        return new UniTableConfig('accounting.transquery.details', false, false)
             .setPageable(true)
             .setPageSize(20)
             .setColumnMenuVisible(false)
@@ -627,18 +627,6 @@ export class TransqueryDetails implements OnInit {
 
     private onFormFilterChange(event) {
         this.table.refreshTableData();
-    }
-
-    private onColumnVisibilityChange(columns) {
-        let visibleColumns: Array<string> = [];
-
-        columns.forEach(x => {
-            if (x.visible) {
-                visibleColumns.push(x.field);
-            }
-        });
-
-        this.storageService.save(this.COLUMN_VISIBILITY_LOCALSTORAGE_KEY, JSON.stringify(visibleColumns), true);
     }
 
     private getLayout() {

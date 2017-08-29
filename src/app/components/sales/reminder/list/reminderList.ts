@@ -318,7 +318,7 @@ export class ReminderList {
         });
 
         // Setup table
-        this.reminderTable = new UniTableConfig(true, true, 25)
+        this.reminderTable = new UniTableConfig('sales.reminders.reminderList', true, true, 25)
             .setSearchable(true)
             .setColumnMenuVisible(true)
             .setMultiRowSelect(true)

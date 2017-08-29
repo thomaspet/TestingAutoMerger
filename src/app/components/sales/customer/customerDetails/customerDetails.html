@@ -95,8 +95,8 @@
             [ngClass]="{'hidden': showReportWithID != link.id}"
             [queryDefinitionID]="link.id"
             [customerID]="(customer$ | async)?.ID"
-            [externalID]="(customer$ | async)?.ID"
-    ></uni-query-read-only>
+            [externalID]="(customer$ | async)?.ID">
+    </uni-query-read-only>
 </section>
 
 <uni-save *ngIf="modalMode" [actions]="saveactions" class="uni_save_modal_mode"></uni-save>

@@ -129,7 +129,7 @@ export class ReminderRules implements AfterViewInit {
             }
         });
         // Setup table
-        this.rulesTableConfig = new UniTableConfig(false, true, 25)
+        this.rulesTableConfig = new UniTableConfig('common.reminder.reminderRules', false, true, 25)
             .setSearchable(false)
             .setContextMenu(contextMenuItems)
             .setColumns([reminderNumberCol, titleCol]);

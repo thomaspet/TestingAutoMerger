@@ -1,12 +1,12 @@
 import { Component, ViewChild, Output, EventEmitter, AfterViewInit } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
-import { 
-    UniTable, UniTableConfig, UniTableColumnType, 
+import {
+    UniTable, UniTableConfig, UniTableColumnType,
     UniTableColumn
 } from '../../../../framework/ui/unitable/index';
 import { UniHttp } from '../../../../framework/core/http/http';
-import { 
-    Employee, AGAZone, SalaryTransactionSums, 
+import {
+    Employee, AGAZone, SalaryTransactionSums,
     PayrollRun, EmployeeTaxCard, SalBalType, ValidationLevel } from '../../../unientities';
 import { ISummaryConfig } from '../../common/summary/summary';
 import { UniView } from '../../../../framework/core/uniView';
@@ -141,7 +141,7 @@ export class SalaryTransactionSelectionList extends UniView implements AfterView
             })
             .setWidth('2rem');
 
-        this.salarytransSelectionTableConfig = new UniTableConfig(false)
+        this.salarytransSelectionTableConfig = new UniTableConfig('salary.salarytrans.selectionList', false)
             .setColumnMenuVisible(false)
             .setColumns([
                 employeenumberCol,
@@ -213,8 +213,8 @@ export class SalaryTransactionSelectionList extends UniView implements AfterView
 
         this.summary = [{
             value: employeeTotals && this.numberFormat.asMoney(employeeTotals.percentTax),
-            title: `Prosenttrekk` + (taxCard && taxCard.TaxPercentage 
-                ? ` (${taxCard.TaxPercentage}%)` 
+            title: `Prosenttrekk` + (taxCard && taxCard.TaxPercentage
+                ? ` (${taxCard.TaxPercentage}%)`
                 : standardTaxPercent),
             description: employeeTotals
                 && employeeTotals.basePercentTax

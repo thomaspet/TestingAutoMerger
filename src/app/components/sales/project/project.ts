@@ -118,7 +118,7 @@ export class Project {
                 .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
         };
 
-        this.tableConfig = new UniTableConfig(false, true, 15)
+        this.tableConfig = new UniTableConfig('sales.project.projectList', false, true, 15)
             .setSearchable(true)
             .setColumns([
                 new UniTableColumn('ProjectNumber', 'Nummer', UniTableColumnType.Text)

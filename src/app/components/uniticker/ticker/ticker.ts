@@ -517,8 +517,6 @@ export class UniTicker {
                 let columns: Array<UniTableColumn> = [];
                 let selects: Array<string> = [];
 
-                let visibleColumns = JSON.parse(this.storageService.get(this.getColumnVisibilityStorageKey()));
-
                 for (let i = 0; i < this.ticker.Columns.length; i++) {
                     let field = this.ticker.Columns[i];
 
@@ -622,11 +620,7 @@ export class UniTicker {
                             }
                         }
 
-                        if (visibleColumns && visibleColumns.length > 0) {
-                            if (!visibleColumns.find(x => x === field.SelectableFieldName)) {
-                                col.setVisible(false);
-                            }
-                        } else if (field.DefaultHidden) {
+                        if (field.DefaultHidden) {
                             col.setVisible(false);
                         }
 
@@ -757,9 +751,9 @@ export class UniTicker {
                 }
 
                 // Setup table
-                this.tableConfig = new UniTableConfig(false, true, 20)
+                const configStoreKey = `uniTicker.${this.ticker.Code}`;
+                this.tableConfig = new UniTableConfig(configStoreKey, false, true, 20)
                     .setAllowGroupFilter(true)
-                    .setAllowConfigChanges(true)
                     .setColumnMenuVisible(true)
                     .setSearchable(this.useUniTableFilter)
                     .setMultiRowSelect(false)
@@ -802,21 +796,5 @@ export class UniTicker {
                 err => this.errorService.handle(err));
 
         completeEvent('Eksport kjørt');
-    }
-
-    private onColumnVisibilityChange(columns) {
-        let visibleColumns: Array<string> = [];
-
-        columns.forEach(x => {
-            if (x.visible) {
-                visibleColumns.push(x.field);
-            }
-        });
-
-        this.storageService.save(this.getColumnVisibilityStorageKey(), JSON.stringify(visibleColumns));
-    }
-
-    private getColumnVisibilityStorageKey() {
-        return TICKER_COLUMN_VISIBILITY_STORAGE_KEY + '_' + this.ticker.Code;
     }
 }

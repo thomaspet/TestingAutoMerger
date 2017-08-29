@@ -76,7 +76,7 @@ export class VatDeductionSettings {
     }
 
     private setupUniTable() {
-        this.uniTableConfig = new UniTableConfig(true, false)
+        this.uniTableConfig = new UniTableConfig('accounting.vatsettings.vatdeductionSettings', true, false)
             .setColumnMenuVisible(false)
             .setDeleteButton(false)
             .setColumns([

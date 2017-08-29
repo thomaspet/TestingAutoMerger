@@ -142,7 +142,8 @@ export class CustomerPaymentBatches {
             .setFilterable(false);
 
         // Setup table
-        this.paymentBatchTableConfig = new UniTableConfig(false, true, 25)
+        const configStoreKey = 'bank.payments.customerPaymentBatches';
+        this.paymentBatchTableConfig = new UniTableConfig(configStoreKey, false, true, 25)
             .setSearchable(true)
             .setColumns([dateCol, totalAmountCol, numberOfPaymentsCol, statusCodeCol]);
     }

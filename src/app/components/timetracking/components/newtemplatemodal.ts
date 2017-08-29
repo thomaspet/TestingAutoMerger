@@ -59,7 +59,7 @@ export class UniTemplateModal {
     constructor(private worker: WorkEditor, private toast: ToastService) { }
 
     private setUpTable() {
-        this.tableConfig = new UniTableConfig(true, false)
+        this.tableConfig = new UniTableConfig('timetracking.newtemplate', true, false)
             .setSearchable(false)
             .setColumns([
                 new UniTableColumn('StartTime', 'Start'),

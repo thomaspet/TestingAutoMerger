@@ -36,7 +36,7 @@ export class WorkerListview {
                 .setFilterOperator('startswith'),
             new UniTableColumn('Info.Name', 'Navn').setWidth('40%')
         ];
-        return new UniTableConfig(false, true).setSearchable(true).setColumns(cols);
+        return new UniTableConfig('timetracking.worker.workers', false, true).setSearchable(true).setColumns(cols);
     }
 
 

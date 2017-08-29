@@ -10,7 +10,6 @@ import {
     ErrorService,
     ProjectService,
     DepartmentService,
-    TeamService,
     SellerService,
     UserService
 } from '../../../services/services';
@@ -33,7 +32,6 @@ export class SellerList {
                 private tabService: TabService,
                 private projectService: ProjectService,
                 private departmentService: DepartmentService,
-                private teamService: TeamService,
                 private sellerService: SellerService,
                 private userService: UserService) {
         this.setupTable();
@@ -90,7 +88,7 @@ export class SellerList {
             });
 
         // Setup table
-        this.sellerTableConfig = new UniTableConfig(false, true, 15)
+        this.sellerTableConfig = new UniTableConfig('common.seller.sellerList', false, true, 15)
             .setSearchable(true)
             .setSortable(false)
             .setColumns([nameCol, userCol, employeeCol, teamCol, projectCol, departmentCol]);

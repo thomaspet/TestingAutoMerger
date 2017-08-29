@@ -1,12 +1,12 @@
-<dialog class="uni-modal" [attr.aria-busy]="busy">
+<section role="dialog" class="uni-modal" [attr.aria-busy]="busy">
     <header>
         <h1>Legge til manuelt trekk</h1>
     </header>
-    <main>
+    <article>
         <salarybalanceline [salarybalance]="options.data" (linesSaved)="close(true)"></salarybalanceline>
-    </main>
+    </article>
     <footer>
         <button [attr.aria-busy]="busy" class="good" (click)="saveSalaryBalanceLine()">Lagre</button>
         <button class="bad" (click)="close(false)">Lukk</button>
     </footer>
-</dialog>
+</section>

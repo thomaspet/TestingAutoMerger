@@ -41,7 +41,8 @@
                 [pointInTime]="pointInTime$ | async"
                 [autoLocking]="autolocking"
                 [hideHeader]="true"
-                [modalMode]="true">
+                [modalMode]="true"
+                (allSelectedLocked)="onAllSelectedLocked($event)">
             </ledger-account-reconciliation>
         </main>
     </section>

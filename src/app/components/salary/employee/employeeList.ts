@@ -23,7 +23,7 @@ export class EmployeeList {
         private errorService: ErrorService
     ) {
         this.busy = true;
-        this.employees$ = 
+        this.employees$ =
             _employeeService
                 .GetAll('orderby=EmployeeNumber ASC', ['BusinessRelationInfo.DefaultEmail', 'SubEntity.BusinessRelationInfo'])
                 .finally(() => this.busy = false)
@@ -46,7 +46,7 @@ export class EmployeeList {
 
         var subEntityCol = new UniTableColumn('SubEntity.BusinessRelationInfo.Name', 'Virksomhet', UniTableColumnType.Text);
 
-        this.employeeTableConfig = new UniTableConfig(false)
+        this.employeeTableConfig = new UniTableConfig('salary.employee.employeeList', false)
             .setColumns([idCol, nameCol, emailCol, birthDateCol, subEntityCol])
             .setSearchable(true);
 

@@ -4,7 +4,7 @@ import {Team} from '../../unientities';
 import {UniHttp} from '../../../framework/core/http/http';
 
 @Injectable()
-export class TeamService extends BizHttp<Project> {
+export class TeamService extends BizHttp<Team> {
 
     constructor(http: UniHttp) {
         super(http);

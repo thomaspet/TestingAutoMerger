@@ -146,7 +146,6 @@ export class UniTable implements OnChanges {
     @Output() public rowDeleted: EventEmitter<any> = new EventEmitter();
     @Output() public filtersChange: EventEmitter<any> = new EventEmitter();
     @Output() public columnsChange: EventEmitter<any> = new EventEmitter();
-    @Output() public columnVisibilityChange: EventEmitter<any> = new EventEmitter();
     @Output() public pageChange: EventEmitter<any> = new EventEmitter();
     @Output() public dataLoaded: EventEmitter<any> = new EventEmitter();
 
@@ -212,8 +211,8 @@ export class UniTable implements OnChanges {
             }
 
             let customColumnSetup;
-            if (this.config.columnStorageKey) {
-                customColumnSetup = this.utils.getColumnSetup(this.config.columnStorageKey);
+            if (this.config.configStoreKey) {
+                customColumnSetup = this.utils.getColumnSetup(this.config.configStoreKey);
             }
 
             if (customColumnSetup && customColumnSetup.length) {
@@ -457,9 +456,9 @@ export class UniTable implements OnChanges {
             this.resetFocusedCell();
         }
 
-        if (this.config.columnStorageKey) {
+        if (this.config.configStoreKey) {
             this.utils.saveColumnSetup(
-                this.config.columnStorageKey,
+                this.config.configStoreKey,
                 this.tableColumns.toJS()
             );
         }
@@ -468,8 +467,8 @@ export class UniTable implements OnChanges {
     }
 
     public onResetColumnConfig() {
-        if (this.config.columnStorageKey) {
-            this.utils.removeColumnSetup(this.config.columnStorageKey);
+        if (this.config.configStoreKey) {
+            this.utils.removeColumnSetup(this.config.configStoreKey);
         }
 
         this.tableColumns = this.makeColumnsImmutable(this.config.columns);
@@ -477,8 +476,6 @@ export class UniTable implements OnChanges {
         if (this.lastFocusPosition) {
             this.resetFocusedCell();
         }
-
-        this.columnVisibilityChange.emit(this.tableColumns.toJS());
     }
 
     private onSort(column) {
@@ -568,7 +565,7 @@ export class UniTable implements OnChanges {
         }
 
         // JumpToColumn
-        let jumpToColumn = this.lastFocusedCellColumn.get('jumpToColumn');
+        let jumpToColumn = this.lastFocusedCellColumn && this.lastFocusedCellColumn.get('jumpToColumn');
         let isJumpKey = !event.shiftKey && (key === KeyCodes.ENTER || key === KeyCodes.TAB);
 
         if (jumpToColumn && isJumpKey) {

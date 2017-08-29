@@ -49,7 +49,7 @@ export class ReadTaxCard implements OnInit {
             }
         };
 
-        this.receiptTable = new UniTableConfig()
+        this.receiptTable = new UniTableConfig('salary.employee.modals.readTaxCard')
             .setColumns([
                 dateSendtColumn, receiptIDColumn, signatureColumn, isReadColumn
             ])

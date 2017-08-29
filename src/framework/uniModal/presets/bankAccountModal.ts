@@ -16,18 +16,18 @@ import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 @Component({
     selector: 'uni-bankaccount-modal',
     template: `
-        <dialog class="uni-modal">
+        <section role="dialog" class="uni-modal">
             <header>
                 <h1>{{options.header || 'Bankkonto'}}</h1>
             </header>
-            <main>
+            <article>
                 <uni-form
                     [config]="formConfig$"
                     [fields]="formFields$"
                     [model]="formModel$"
                     (changeEvent)="onFormChange($event)">
                 </uni-form>
-            </main>
+            </article>
 
             <footer>
                 <button class="good"
@@ -37,7 +37,7 @@ import {BehaviorSubject} from 'rxjs/BehaviorSubject';
                 </button>
                 <button class="bad" (click)="close(false)">Avbryt</button>
             </footer>
-        </dialog>
+        </section>
     `
 })
 export class UniBankAccountModal implements IUniModal {
@@ -75,7 +75,7 @@ export class UniBankAccountModal implements IUniModal {
         if (emitValue) {
             account = this.formModel$.getValue();
             if (this.options.modalConfig
-                && this.options.modalConfig.accountVisible
+                && this.options.modalConfig.ledgerAccountVisible
                 && !account.AccountID) {
 
                 const confirm = this.modalService.open(UniConfirmModalV2, {
@@ -206,7 +206,7 @@ export class UniBankAccountModal implements IUniModal {
                     debounceTime: 200,
                     search: (searchValue) => this.accountSearch(searchValue)
                 },
-                Hidden: !this.options.modalConfig || !this.options.modalConfig.accountVisible,
+                Hidden: !this.options.modalConfig || !this.options.modalConfig.ledgerAccountVisible,
             },
             <any> {
                 FieldSet: 1,

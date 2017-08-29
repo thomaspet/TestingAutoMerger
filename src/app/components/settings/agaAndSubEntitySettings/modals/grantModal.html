@@ -1,13 +1,13 @@
-<dialog class="uni-modal">
+<section role="dialog" class="uni-modal">
     <header>
         <h1>Tilskudd</h1>
     </header>
-    <main>
+    <article>
         <uni-table [config]="grantTableConfig" [resource]="grantData"></uni-table>
-    </main>
+    </article>
     <footer>
         {{infoText}}
         <button class="good" (click)="saveAndClose()">Lagre og lukk</button>
         <button class="bad" (click)="close()">Avbryt</button>
     </footer>
-</dialog>
+</section>

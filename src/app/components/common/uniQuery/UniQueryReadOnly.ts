@@ -154,7 +154,6 @@ export class UniQueryReadOnly implements OnChanges {
     }
 
     private setupTableConfig() {
-
         // Define columns to use in the table
         let columns: Array<UniTableColumn> = [];
         let expands: Array<string> = [];
@@ -268,7 +267,10 @@ export class UniQueryReadOnly implements OnChanges {
         }
 
         // Setup table
-        this.tableConfig = new UniTableConfig(false, true, 50)
+        const companyKey = this.authService.getCompanyKey();
+        const configStoreKey = `uniQueryReadonly.${companyKey}.${this.queryDefinitionID}`;
+
+        this.tableConfig = new UniTableConfig(configStoreKey, false, true, 50)
             .setSearchable(true)
             .setAllowGroupFilter(true)
             .setColumnMenuVisible(true)

@@ -20,17 +20,17 @@ import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 @Component({
     selector: 'uni-activate-ap-modal',
     template: `
-        <dialog class="uni-modal">
+        <section role="dialog" class="uni-modal">
             <header>
                 <h1>{{options.header || 'Aktiver aksesspunkt'}}</h1>
             </header>
-            <main>
+            <article>
                 <uni-form
                     [config]="formConfig$"
                     [fields]="formFields$"
                     [model]="formModel$">
                 </uni-form>
-            </main>
+            </article>
 
             <footer>
                 <button class="warning" (click)="confirmTerms()">
@@ -45,7 +45,7 @@ import {BehaviorSubject} from 'rxjs/BehaviorSubject';
                     Avbryt
                 </button>
             </footer>
-        </dialog>
+        </section>
     `
 })
 export class UniActivateAPModal implements IUniModal {

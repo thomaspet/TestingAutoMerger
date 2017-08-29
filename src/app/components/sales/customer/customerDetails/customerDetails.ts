@@ -1,4 +1,3 @@
-import {IToolbarConfig} from './../../../common/toolbar/toolbar';
 import {Component, Input, ViewChild, Output, EventEmitter, SimpleChanges} from '@angular/core';
 import {Router, ActivatedRoute} from '@angular/router';
 import {Observable} from 'rxjs/Observable';
@@ -7,14 +6,14 @@ import {SearchResultItem} from '../../../common/externalSearch/externalSearch';
 import {IUniSaveAction} from '../../../../../framework/save/save';
 import {UniForm, UniFieldLayout, FieldType} from '../../../../../framework/ui/uniform/index';
 import {
-    ComponentLayout, 
-    Customer, 
-    Contact, 
-    Email, 
-    Phone, 
-    Address, 
-    CustomerInvoiceReminderSettings, 
-    CurrencyCode, 
+    ComponentLayout,
+    Customer,
+    Contact,
+    Email,
+    Phone,
+    Address,
+    CustomerInvoiceReminderSettings,
+    CurrencyCode,
     Terms
 } from '../../../../unientities';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
@@ -207,9 +206,9 @@ export class CustomerDetails {
                 }
 
                 this.commentsConfig = {
-                    entityType: 'Customer',
+                    entityName: 'Customer',
                     entityID: this.customerID
-                }
+                };
 
                 this.setup();
 
@@ -594,8 +593,8 @@ export class CustomerDetails {
         let customerName: UniFieldLayout = fields.find(x => x.Property === 'Info.Name');
 
         if (
-            !this.allowSearchCustomer || 
-            this.customerID > 0 || 
+            !this.allowSearchCustomer ||
+            this.customerID > 0 ||
             (customer && customer.Info.Name !== null && customer.Info.Name !== '')
         ) {
             customerSearchResult.Hidden = true;

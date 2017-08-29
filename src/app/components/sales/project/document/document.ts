@@ -107,7 +107,7 @@ export class ProjectDocument {
             });
 
         // Setup table
-        this.tableConfig = new UniTableConfig(false, false, 25)
+        this.tableConfig = new UniTableConfig('sales.project.documents', false, false, 25)
             .setSearchable(true)
             .setDeleteButton(true)
             .setColumns([nameCol, invoiceCol, orderCol, quoteCol]);

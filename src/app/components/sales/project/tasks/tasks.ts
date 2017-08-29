@@ -52,9 +52,9 @@ export class ProjectTasks implements OnInit {
     }
 
     private getTableConfig(): UniTableConfig {
-        let totalRow = new UniTableColumn('Total', 'Total', UniTableColumnType.Money);
-        totalRow.editable = false;
-        return new UniTableConfig(true, true, 15)
+        let totalRow = new UniTableColumn('Total', 'Total', UniTableColumnType.Money, false);
+
+        return new UniTableConfig('sales.project.tasks', true, true, 15)
             .setDeleteButton(true)
             .setColumns([
                 new UniTableColumn('Number', 'Nr'),

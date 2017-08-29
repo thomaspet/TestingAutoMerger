@@ -241,7 +241,7 @@ export class View {
             statusCol
         ];
 
-        var cfg = new UniTableConfig(false, true)
+        var cfg = new UniTableConfig('timetracking.worker.balances', false, true)
             .setSearchable(false)
             .setColumns(cols)
             .setColumnMenuVisible(true)

@@ -200,7 +200,8 @@ export class DimensionsOverviewReportPart {
                     .setWidth('4%')
                     .setCls('percentage');
 
-                this.uniTableConfigDimension = new UniTableConfig(false, false)
+                const tableName = 'accounting.dimensionOverviewReportPart';
+                this.uniTableConfigDimension = new UniTableConfig(tableName, false, false)
                     .setPageable(true)
                     .setPageSize(25);
 

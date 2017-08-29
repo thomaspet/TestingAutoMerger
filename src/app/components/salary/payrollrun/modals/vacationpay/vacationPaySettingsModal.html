@@ -1,14 +1,16 @@
-<dialog class="uni-modal">
+<section role="dialog" class="uni-modal">
     <header>
         <h1>Faste innstillinger feriepenger</h1>
     </header>
-    <main [attr.aria-busy]="busy">
+
+    <article [attr.aria-busy]="busy">
         <uni-form [config]="formConfig$" [fields]="fields$" [model]="companysalaryModel$"></uni-form>
         <uni-table [config]="tableConfig" [resource]="vacationRates"></uni-table>
-    </main>
+    </article>
+
     <footer>
         {{infoText}}
         <button [disabled]="busy" class="good" (click)="saveSettings()">Lagre</button>
         <button [disabled]="busy" class="bad" (click)="close()">Lukk</button>
     </footer>
-</dialog>
+</section>

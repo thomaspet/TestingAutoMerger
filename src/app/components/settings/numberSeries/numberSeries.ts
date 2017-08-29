@@ -275,7 +275,7 @@ export class NumberSeries {
     }
 
     private initTableConfigs() {
-        this.seriesTableConfig = new UniTableConfig(false, true, 15)
+        this.seriesTableConfig = new UniTableConfig('settings.numberSeries.series', false, true, 15)
             .setSearchable(false)
             .setSortable(false)
             .setColumns([
@@ -286,7 +286,7 @@ export class NumberSeries {
     }
 
     private initAccountingTableConfig() {
-        this.listTableConfig = new UniTableConfig(true, true, 15)
+        this.listTableConfig = new UniTableConfig('settings.numberSeries.accountingList', true, true, 15)
             .setSearchable(false)
             .setAutoAddNewRow(true)
             .setMultiRowSelect(true)
@@ -359,7 +359,7 @@ export class NumberSeries {
     }
 
     private initSaleTableConfig() {
-        this.listTableConfig = new UniTableConfig(true, true, 15)
+        this.listTableConfig = new UniTableConfig('settings.numberSeries.salesList', true, true, 15)
             .setSearchable(false)
             .setAutoAddNewRow(true)
             .setColumns([
@@ -410,7 +410,7 @@ export class NumberSeries {
     }
 
     private initAccountsTableConfig() {
-        this.listTableConfig = new UniTableConfig(true, true, 15)
+        this.listTableConfig = new UniTableConfig('settings.numberSeries.accountList', true, true, 15)
             .setSearchable(false)
             .setAutoAddNewRow(true)
             .setColumns([
@@ -454,7 +454,7 @@ export class NumberSeries {
     }
 
     private initOtherSeriesTableConfig() {
-        this.listTableConfig = new UniTableConfig(true, true, 15)
+        this.listTableConfig = new UniTableConfig('settings.numberSeries.othersList', true, true, 15)
             .setSearchable(false)
             .setAutoAddNewRow(true)
             .setColumns([

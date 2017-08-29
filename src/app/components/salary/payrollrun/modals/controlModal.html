@@ -1,27 +1,27 @@
-<dialog class="uni-modal">
+<section role="dialog" class="uni-modal">
     <header> <h1>{{description$ | async}}</h1> </header>
-    <main [attr.aria-busy]="busy">
+    <article [attr.aria-busy]="busy">
         <section class="payrollControl_header">
             <h3>Hovedtall for lønnsavregningen: </h3>
             <uni-form [config]="formConfig$" [fields]="fields$" [model]="model$"></uni-form>
         </section>
-    
+
         <ol *ngIf="payList" class="payrollControl_payList">
             <li *ngFor="let payLine of payList; let index = index" class="payrollControll_payee" [ngClass]="{'-is-expanded':!payList[index].collapsed}">
-    
+
                 <h4 (click)="toggleCollapsed(index)">{{payLine.employeeInfo.number}}, {{payLine.employeeInfo.name}}, Netto utbetalt: {{payLine.employeeInfo.payment | unicurrency}}
                     <em title="Mangler skattekort" class="-is-missing-info" *ngIf="!payLine.employeeInfo.hasTaxInfo"></em>
                 </h4>
-    
+
                 <uni-table [resource]="payLine.paymentLines" [config]="tableConfig" *ngIf="!payList[index].collapsed"></uni-table>
-    
+
             </li>
         </ol>
-    </main>
+    </article>
 
     <footer class="payrollControl_footer">
         <button [disabled]="payrollrunIsSettled || busy" (click)="runSettling()" class="good">Avregn</button>
         <button [disabled]="!payrollrunIsSettled || busy" (click)="sendPayments()" class="good">Til utbetaling</button>
         <button (click)="close()" class="bad">Avbryt</button>
     </footer>
-</dialog>
+</section>

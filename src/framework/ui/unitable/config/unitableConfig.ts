@@ -22,7 +22,7 @@ export interface IEditorData {
 }
 
 export interface IUniTableConfig {
-    columnStorageKey?: string;
+    configStoreKey?: string;
     columns: IUniTableColumn[];
     editable?: boolean;
     searchable?: boolean;
@@ -34,7 +34,6 @@ export interface IUniTableConfig {
     dataMapper?: (data) => Array<any>;
     autoAddNewRow?: boolean;
     allowGroupFilter?: boolean;
-    allowConfigChanges?: boolean;
     sortable?: boolean;
     defaultRowData?: Object;
     conditionalRowCls?: (rowModel: any) => string;
@@ -63,7 +62,7 @@ export interface IRowChangeEvent {
 }
 
 export class UniTableConfig implements IUniTableConfig {
-    public columnStorageKey: string;
+    public configStoreKey: string;
     public columns: IUniTableColumn[];
     public editable: boolean;
     public searchable: boolean;
@@ -71,7 +70,6 @@ export class UniTableConfig implements IUniTableConfig {
     public pageSize: number;
     public autoAddNewRow: boolean;
     public allowGroupFilter: boolean;
-    public allowConfigChanges: boolean;
     public sortable: boolean;
     public multiRowSelect: boolean;
     public columnMenuVisible: boolean;
@@ -94,14 +92,21 @@ export class UniTableConfig implements IUniTableConfig {
 
     public beforeEdit: (event: IEditorData) => IEditorData;
 
-    constructor(editable?: boolean, pageable?: boolean, pageSize?: number) {
+    /**
+     * @constructor
+     * @param tableName Unique name for the table. This is used as key when saving column setup.
+     * @param editable
+     * @param pageable
+     * @param pageSize
+     */
+    constructor(configStoreKey: string, editable?: boolean, pageable?: boolean, pageSize?: number) {
+        this.configStoreKey = configStoreKey;
         this.editable = (editable !== undefined) ? editable : true;
         this.pageable = (pageable !== undefined) ? pageable : true;
         this.columnMenuVisible = false;
         this.pageSize = pageSize || 25;
         this.autoAddNewRow = true;
         this.allowGroupFilter = false;
-        this.allowConfigChanges = false;
         this.sortable = true;
         this.multiRowSelect = false;
         this.deleteButton = false;
@@ -172,11 +177,6 @@ export class UniTableConfig implements IUniTableConfig {
         return this;
     }
 
-    public setAllowConfigChanges(allowConfigChanges: boolean) {
-        this.allowConfigChanges = allowConfigChanges;
-        return this;
-    }
-
     public setMultiRowSelect(multirowSelect: boolean) {
         this.multiRowSelect = multirowSelect;
         return this;
@@ -187,8 +187,8 @@ export class UniTableConfig implements IUniTableConfig {
         return this;
     }
 
-    public setColumnStorageKey(key: string): UniTableConfig {
-        this.columnStorageKey = key;
+    public setConfigStoreKey(key: string): UniTableConfig {
+        this.configStoreKey = key;
         return this;
     }
 
@@ -227,11 +227,12 @@ export class UniTableConfig implements IUniTableConfig {
         return this;
     }
 
-    public setDefaultOrderBy(field: string, direction: number) {
+    public setDefaultOrderBy(field: string, direction: number, mode: number = UniTableColumnSortMode.Normal) {
         this.defaultOrderBy = {
             field: field,
             direction: direction,
-            type: UniTableColumnType.Text
+            type: UniTableColumnType.Text,
+            mode: mode
         };
         return this;
     }
@@ -246,8 +247,8 @@ export class UniTableConfig implements IUniTableConfig {
         return this;
     }
 
-    public static fromObject(obj: IUniTableConfig) {
-        let config = new UniTableConfig();
+    public static fromObject(obj: IUniTableConfig, configStoreKey: string) {
+        let config = new UniTableConfig(configStoreKey);
 
         Object.keys(obj).forEach((key) => {
             if (key  === 'columns') {

@@ -99,21 +99,32 @@ dialog.uniModal[open=false]:before
 
 // NEW MODAL STUFF
 .uni-modal-backdrop
-    @include fullscreen
+    position: fixed
+    bottom: 0
+    left: 0
+    height: 100vh
+    width: 100vw
     transition: opacity 300ms ease
     opacity: 1
     background: transparentize($uni-color-scale4, .4)
-    display: flex
-    align-items: center
-    justify-content: center
     overflow: auto
     z-index: map-get($zindex, modal)
+
+    display: -ms-flexbox
+    display: -webkit-flex
+    display: flex
+
+    -ms-flex-align: center
+    -webkit-align-items: center
+    -webkit-box-align: center
+    align-items: center
+    justify-content: center
 
     @supports (backdrop-filter: blur(.2rem))
         backdrop-filter: blur(.2rem)
         background: transparentize($uni-color-scale4, .4)
 
-dialog.uni-modal
+.uni-modal
     width: 40vw
     margin: 0 auto
     background: $uni-color-negative
@@ -124,8 +135,6 @@ dialog.uni-modal
     max-height: 90vh
     overflow-y: visible
     overflow-x: auto
-
-    transform: translateY(-50%)
     display: block
 
     padding: 0
@@ -175,7 +184,7 @@ dialog.uni-modal
                 background: transparent unicon-close($uni-color-scale1) center no-repeat
                 background-size: .7rem
 
-    main
+    article
         box-sizing: border-box
         padding: 1rem
 
@@ -254,7 +263,7 @@ uni-login-modal dialog.uni-modal
     button.modal-close-button
         display: none
 
-    main
+    article
         padding: .5rem 1rem
 
     small

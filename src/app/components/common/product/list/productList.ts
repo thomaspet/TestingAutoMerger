@@ -66,7 +66,7 @@ export class ProductList {
             .setTemplate((data: Product) => {return data.Dimensions && data.Dimensions.Project ? data.Dimensions.Project.ProjectNumber + ': ' + data.Dimensions.Project.Name : ''; });
 
         // Setup table
-        this.productTable = new UniTableConfig(false, true, 25)
+        this.productTable = new UniTableConfig('common.productList', false, true, 25)
             .setSearchable(true)
             .setColumns([partNameCol, nameCol, priceExVatCol, priceIncVatCol, departmentCol, projectCol]);
     }

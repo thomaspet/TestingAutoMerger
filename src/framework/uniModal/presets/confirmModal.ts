@@ -10,17 +10,17 @@ export enum ConfirmActions {
 @Component({
     selector: 'uni-confirm-modal',
     template: `
-        <dialog class="uni-modal">
+        <section role="dialog" class="uni-modal">
             <header>
                 <h1 class="new">{{options.header}}</h1>
             </header>
 
-            <main>
+            <article>
                 <section [innerHtml]="options.message"></section>
                 <p class="warn" *ngIf="options.warning">
                     {{options.warning}}
                 </p>
-            </main>
+            </article>
 
             <footer>
                 <button *ngIf="options.buttonLabels.accept" class="good" (click)="accept()">
@@ -35,7 +35,7 @@ export enum ConfirmActions {
                     {{options.buttonLabels.cancel}}
                 </button>
             </footer>
-        </dialog>
+        </section>
     `
 })
 export class UniConfirmModalV2 implements IUniModal {

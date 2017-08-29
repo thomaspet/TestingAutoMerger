@@ -334,10 +334,7 @@ export class PersonalDetails extends UniView {
                 }
 
                 const modal = this.modalService.open(UniBankAccountModal, {
-                    data: bankaccount,
-                    modalConfig: {
-                        accountVisible: true
-                    }
+                    data: bankaccount
                 });
 
                 return modal.onClose.take(1).toPromise();
@@ -396,7 +393,7 @@ export class PersonalDetails extends UniView {
                 this.showHideNameProperties(true, employee);
                 return Observable.from([employee]);
             });
-        
+
         uniSearchConfig.unfinishedValueFn = (val) => {
             return this.employee$
                 .asObservable()

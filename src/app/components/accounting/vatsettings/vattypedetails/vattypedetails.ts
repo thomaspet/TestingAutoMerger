@@ -143,9 +143,9 @@ export class VatTypeDetails implements OnChanges, OnInit {
     }
 
     private generateUniTableConfig(): UniTableConfig {
-        return new UniTableConfig(true, false)
+        return new UniTableConfig('accounting.vatsettings.vattypeDetails', false, false)
             .setColumnMenuVisible(false)
-            .setDeleteButton(true)
+            .setDeleteButton(false)
             .setColumns([
                 new UniTableColumn('Account', 'Konto ', UniTableColumnType.Lookup)
                     .setDisplayField('Account.AccountNumber')

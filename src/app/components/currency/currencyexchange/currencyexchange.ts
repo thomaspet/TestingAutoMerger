@@ -231,7 +231,7 @@ export class CurrencyExchange {
         };
 
         // Setup table
-        this.exchangeTable = new UniTableConfig(false, true, 25)
+        this.exchangeTable = new UniTableConfig('currency.currencyexchange', false, true, 25)
             .setSearchable(true)
             .setColumnMenuVisible(false)
             .setMultiRowSelect(false)

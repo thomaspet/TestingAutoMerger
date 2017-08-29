@@ -2,12 +2,12 @@ import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { IUniModal, IModalOptions } from '../../../../../framework/uniModal/barrel';
 import { UniTableColumn, UniTableColumnType, UniTableConfig } from '../../../../../framework/ui/unitable/index';
 import { PostingSummary } from '../../../../unientities';
-import { 
-    PayrollrunService, 
-    ErrorService, 
-    ReportDefinitionService, 
-    ReportParameter, 
-    ReportService 
+import {
+    PayrollrunService,
+    ErrorService,
+    ReportDefinitionService,
+    ReportParameter,
+    ReportService
 } from '../../../../../app/services/services';
 import * as moment from 'moment';
 
@@ -34,7 +34,7 @@ export class PostingSummaryModal implements OnInit, IUniModal {
         private reportDefinitionService: ReportDefinitionService
     ) { }
 
-    public ngOnInit() { 
+    public ngOnInit() {
         this.busy = true;
         this.payrollrunID = this.options.data.ID;
         this.createTableConfig();
@@ -65,7 +65,7 @@ export class PostingSummaryModal implements OnInit, IUniModal {
                 this.headerString = 'Konteringssammendrag: '
                     + this.summary.PayrollRun.ID + ' - ' + this.summary.PayrollRun.Description
                     + ', utbetales ' + moment(this.summary.PayrollRun.PayDate.toString()).format('DD.MM.YYYY');
-            }, err =>  { 
+            }, err =>  {
                 this.errorService.handle(err);
             });
     }
@@ -121,7 +121,7 @@ export class PostingSummaryModal implements OnInit, IUniModal {
             .setWidth('6rem');
         let project = new UniTableColumn('_Project', 'Prosjekt', UniTableColumnType.Number)
             .setWidth('6rem');
-        this.accountTableConfig = new UniTableConfig(false, false)
+        this.accountTableConfig = new UniTableConfig('salary.payrollrun.postingSummaryModalContent', false, false)
             .setColumns([accountCol, nameCol, sumCol, project, department])
             .setColumnMenuVisible(false)
             .setSearchable(false);

@@ -47,7 +47,7 @@ export class PayrollrunList implements OnInit {
         const fromdateCol = new UniTableColumn('FromDate', 'Fra dato', UniTableColumnType.LocalDate);
         const todateCol = new UniTableColumn('ToDate', 'Til dato', UniTableColumnType.LocalDate);
 
-        this.payrollrunListConfig = new UniTableConfig(false)
+        this.payrollrunListConfig = new UniTableConfig('salary.payrollrun.payrollrunList', false)
             .setColumns([idCol, nameCol, statusCol, payStatusCol, paydateCol, fromdateCol, todateCol])
             .setSearchable(true);
     }

@@ -1,6 +1,6 @@
-﻿import {Component, OnInit, ViewChild, SimpleChanges} from '@angular/core';
+﻿import {Component, OnInit, SimpleChanges, ViewChild} from '@angular/core';
 import {IUniSaveAction} from '../../../../framework/save/save';
-import {UniForm, FieldType} from '../../../../framework/ui/uniform/index';
+import {FieldType, UniForm} from '../../../../framework/ui/uniform/index';
 import {UniFieldLayout} from '../../../../framework/ui/uniform/index';
 import {IUploadConfig} from '../../../../framework/uniImage/uniImage';
 import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
@@ -8,54 +8,55 @@ import {SearchResultItem} from '../../common/externalSearch/externalSearch';
 import {AuthService} from '../../../../framework/core/authService';
 import {ReminderSettings} from '../../common/reminder/settings/reminderSettings';
 import {
-    FinancialYear,
-    CompanyType,
-    CompanySettings,
-    VatReportForm,
-    PeriodSeries,
-    CurrencyCode,
-    AccountGroup,
     Account,
-    BankAccount,
-    Municipal,
+    AccountGroup,
+    AccountVisibilityGroup,
     Address,
-    Phone,
+    BankAccount,
+    CompanySettings,
+    CompanyType,
+    CurrencyCode,
     Email,
-    AccountVisibilityGroup
+    FinancialYear,
+    Municipal,
+    PeriodSeries,
+    Phone,
+    VatReportForm
 } from '../../../unientities';
 import {
-    CompanySettingsService,
-    CurrencyCodeService,
-    VatTypeService,
     AccountService,
     AccountGroupSetService,
+    AccountVisibilityGroupService,
+    AddressService,
+    BankAccountService,
+    CompanyService,
+    CompanySettingsService,
+    CompanyTypeService,
+    CurrencyCodeService,
+    CurrencyService,
+    EHFService,
+    EmailService,
+    ErrorService,
+    FinancialYearService,
+    MunicipalService,
     PeriodSeriesService,
     PhoneService,
-    EmailService,
-    CompanyTypeService,
-    VatReportFormService,
-    MunicipalService,
-    BankAccountService,
-    AddressService,
-    AccountVisibilityGroupService,
-    ErrorService,
-    CompanyService,
     UniSearchConfigGeneratorService,
-    CurrencyService,
-    FinancialYearService,
-    EHFService
+    VatReportFormService,
+    VatTypeService
 } from '../../../services/services';
 import {
-    UniModalService,
+    UniActivateAPModal,
     UniAddressModal,
-    UniEmailModal,
-    UniPhoneModal,
     UniBankAccountModal,
-    UniActivateAPModal
+    UniEmailModal,
+    UniModalService,
+    UniPhoneModal,
 } from '../../../../framework/uniModal/barrel';
 
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {Observable} from 'rxjs/Observable';
+
 declare var _;
 
 @Component({
@@ -129,8 +130,8 @@ export class CompanySettingsComponent implements OnInit {
     private roundingNumberOfDecimals: {Decimals: number, Label: string}[] = [
         {Decimals: 0, Label: 'Ingen desimaler'},
         {Decimals: 2, Label: '2 desimaler'},
-        //{Decimals: 3, Label: '3 desimaler'},
-        //{Decimals: 4, Label: '4 desimaler'}
+        // {Decimals: 3, Label: '3 desimaler'},
+        // {Decimals: 4, Label: '4 desimaler'}
     ];
 
     constructor(
@@ -235,7 +236,8 @@ export class CompanySettingsComponent implements OnInit {
         // this is done to make it easy to use the multivalue component - this works with arrays
         // so we create dummy arrays and put our default address, phone and email in the arrays
         // even though we actually only have one of each
-        companySettings.DefaultAddress = companySettings.DefaultAddress ? companySettings.DefaultAddress : this.emptyAddress;
+        companySettings.DefaultAddress = companySettings.DefaultAddress 
+            ? companySettings.DefaultAddress : this.emptyAddress;
         companySettings['Addresses'] = [companySettings.DefaultAddress];
         companySettings.DefaultPhone = companySettings.DefaultPhone ? companySettings.DefaultPhone : this.emptyPhone;
         companySettings['Phones'] = [companySettings.DefaultPhone];
@@ -257,7 +259,7 @@ export class CompanySettingsComponent implements OnInit {
         company.DefaultPhone.Number = searchInfo.tlf;
         company.WebAddress = searchInfo.url;
 
-        let companyType = this.companyTypes.find(x => x != null && x.Name === searchInfo.organisasjonsform);
+        let companyType = this.companyTypes.find(x => x !== null && x.Name === searchInfo.organisasjonsform);
         if (companyType) {
             company.CompanyTypeID = companyType.ID;
         }
@@ -318,7 +320,12 @@ export class CompanySettingsComponent implements OnInit {
             if (organizationnumber === ''
                 || isNaN(<any>organizationnumber)
                 || organizationnumber.length !== 9) {
-                this.organizationnumbertoast = this.toastService.addToast('Organisasjonsnummer', ToastType.warn, 5, 'Vennligst oppgi et gyldig organisasjonsnr');
+                this.organizationnumbertoast = this.toastService.addToast(
+                    'Organisasjonsnummer', 
+                    ToastType.warn, 
+                    5, 
+                    'Vennligst oppgi et gyldig organisasjonsnr'
+                );
             } else {
                 if (this.organizationnumbertoast) {
                     this.toastService.removeToast(this.organizationnumbertoast);
@@ -531,12 +538,14 @@ export class CompanySettingsComponent implements OnInit {
             valueProperty: 'MunicipalityNo',
             displayProperty: 'MunicipalityNo',
             debounceTime: 200,
-            template: (obj: Municipal) => obj ? `${obj.MunicipalityNo} - ${obj.MunicipalityName.substr(0, 1).toUpperCase() + obj.MunicipalityName.substr(1).toLowerCase()}` : ''
+            template: (obj: Municipal) => obj ? `${obj.MunicipalityNo} - `
+                + `${obj.MunicipalityName.substr(0, 1).toUpperCase() 
+                + obj.MunicipalityName.substr(1).toLowerCase()}` : ''
         };
 
         let periodSeriesAccountID: UniFieldLayout = fields.find(x => x.Property === 'PeriodSeriesAccountID');
         periodSeriesAccountID.Options = {
-            source: this.periodSeries.filter((value) => value.SeriesType == 1),
+            source: this.periodSeries.filter((value) => value.SeriesType === 1),
             valueProperty: 'ID',
             displayProperty: 'Name',
             debounceTime: 200
@@ -544,7 +553,7 @@ export class CompanySettingsComponent implements OnInit {
 
         let periodSeriesVatID: UniFieldLayout = fields.find(x => x.Property === 'PeriodSeriesVatID');
         periodSeriesVatID.Options = {
-            source: this.periodSeries.filter((value) => value.SeriesType == 0),
+            source: this.periodSeries.filter((value) => value.SeriesType === 0),
             valueProperty: 'ID',
             displayProperty: 'Name',
             debounceTime: 200
@@ -587,7 +596,7 @@ export class CompanySettingsComponent implements OnInit {
                 const modal = this.modalService.open(UniBankAccountModal, {
                     data: bankaccount,
                     modalConfig: {
-                        accountVisible: true
+                        ledgerAccountVisible: true
                     }
                 });
 
@@ -1475,7 +1484,12 @@ export class CompanySettingsComponent implements OnInit {
                 this.vatTypeService.PutAction(null, 'synchronize')
                     .subscribe(() => {
                         console.log('2/2 VatTypes synkronisert');
-                        this.toastService.addToast('Synkronisert', ToastType.good, 5, 'Kontoplan og momskoder synkronisert');
+                        this.toastService.addToast(
+                            'Synkronisert', 
+                            ToastType.good, 
+                            5, 
+                            'Kontoplan og momskoder synkronisert'
+                        );
                     },
                     err => this.errorService.handle(err)
                     );

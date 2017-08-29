@@ -1,19 +1,19 @@
-<dialog class="uni-modal"
+<section role="dialog" class="uni-modal"
         (clickOutside)="close(false)"
         (keydown.esc)="close(false)">
     <header>
         <h1>Utvalg a-melding</h1>
     </header>
-    <main>
-        <uni-form 
-            [config]="formConfig$" 
-            [fields]="fields$" 
+    <article>
+        <uni-form
+            [config]="formConfig$"
+            [fields]="fields$"
             [model]="ameldingModel$">
         </uni-form>
-    </main>
+    </article>
 
     <footer>
         <button class="good" (click)="close(true)">Lag a-melding</button>
         <button class="bad" (click)="close(false)">Avbryt</button>
     </footer>
-</dialog>
+</section>

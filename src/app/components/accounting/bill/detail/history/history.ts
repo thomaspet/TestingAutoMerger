@@ -148,7 +148,11 @@ export class BillHistoryView {
             new UniTableColumn('DepartmentDepartmentNumber', 'Avd.nr.').setVisible(false),
 
         ];
-        return new UniTableConfig(false, true).setSearchable(false).setColumns(cols).setPageSize(12).setColumnMenuVisible(true);
+        return new UniTableConfig('accounting.bill.history', false, true)
+            .setSearchable(false)
+            .setColumns(cols)
+            .setPageSize(12)
+            .setColumnMenuVisible(true);
     }
 
     public onRowSelected(event) {

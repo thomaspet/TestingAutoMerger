@@ -92,7 +92,7 @@ export class EmployeeLeaves extends UniView {
         const employmentIDCol = new UniTableColumn('Employment', 'Arbeidsforhold', UniTableColumnType.Lookup)
             .setTemplate((dataItem) => {
                 let employment = this.employments.find(e => e.ID === dataItem.EmploymentID);
-                return employment 
+                return employment
                     ? employment.JobName ? `${employment.ID} - ${employment.JobName}` : employment.ID.toString()
                     : '';
             })
@@ -103,7 +103,7 @@ export class EmployeeLeaves extends UniView {
                 lookupFunction: (searchValue) => this.lookupEmployment(searchValue)
             });
 
-        this.tableConfig = new UniTableConfig(this.employeeID ? true : false)
+        this.tableConfig = new UniTableConfig('salary.employee.employeeLeave', this.employeeID ? true : false)
             .setDeleteButton(true)
             .setColumns([
                 fromDateCol, toDateCol, leavePercentCol,
@@ -134,7 +134,7 @@ export class EmployeeLeaves extends UniView {
 
     private lookupEmployment(searchValue): Employment[] {
         return this.employments
-            .filter(employment => isNaN(searchValue) 
+            .filter(employment => isNaN(searchValue)
                 ? employment.JobName.indexOf(searchValue) > -1
                 : employment.ID.toString().startsWith(searchValue));
     }

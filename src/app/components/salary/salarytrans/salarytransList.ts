@@ -294,7 +294,8 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges 
                 this.openDocumentsOnRow(row);
             });
 
-        this.salarytransEmployeeTableConfig = new UniTableConfig(this.payrollRun ? this.payrollRun.StatusCode < 1 : true)
+        const editable = this.payrollRun ? this.payrollRun.StatusCode < 1 : true;
+        this.salarytransEmployeeTableConfig = new UniTableConfig('salary.salarytrans.list', editable)
             .setContextMenu([{
                 label: 'Tilleggsopplysninger', action: (row) => {
                     this.openSuplementaryInformationModal(row);

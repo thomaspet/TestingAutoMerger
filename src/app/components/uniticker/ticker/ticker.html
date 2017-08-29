@@ -19,8 +19,6 @@
                 *ngIf="ticker.Type === 'table'"
                 [resource]="lookupFunction"
                 [config]="tableConfig"
-                (columnsChange)="onColumnsChange($event)"
-                (columnVisibilityChange)="onColumnVisibilityChange($event)"
                 (rowSelected)="onRowSelected($event)">
             </uni-table>
 

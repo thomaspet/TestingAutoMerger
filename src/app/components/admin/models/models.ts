@@ -162,11 +162,11 @@ export class UniModels {
     }
 
     private initTableConfigs() {
-        this.modelsTable = new UniTableConfig(false, true, 15)
+        this.modelsTable = new UniTableConfig('admin.models.modelsTable', false, true, 15)
             .setSearchable(true)
             .setColumns([new UniTableColumn('Name')]);
 
-        this.fieldsTable = new UniTableConfig(true)
+        this.fieldsTable = new UniTableConfig('admin.models.fieldsTable', true)
             .setColumns([
                 new UniTableColumn('Name', 'Navn', UniTableColumnType.Text, false),
                 new UniTableColumn('Label', 'Label'),

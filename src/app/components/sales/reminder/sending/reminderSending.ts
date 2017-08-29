@@ -474,7 +474,7 @@ export class ReminderSending implements OnInit {
                 return (+item.RestAmount >= 0) ? 'number-good' : 'number-bad';
             });
 
-        this.reminderTable = new UniTableConfig(true, true, 25)
+        this.reminderTable = new UniTableConfig('sales.reminders.reminderSending', true, true, 25)
             .setSearchable(false)
             .setColumnMenuVisible(false)
             .setAutoAddNewRow(false)

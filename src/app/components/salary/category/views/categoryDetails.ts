@@ -84,7 +84,8 @@ export class CategoryDetail extends UniView {
         numberCol.setWidth('7rem');
         let nameCol = new UniTableColumn('BusinessRelationInfo.Name', 'Navn', UniTableColumnType.Text);
 
-        this.categoriesUsedInEmployeesConfig = new UniTableConfig(false, true, 15)
+        const configStoreKey = 'salary.category.details.employees';
+        this.categoriesUsedInEmployeesConfig = new UniTableConfig(configStoreKey, false, true, 15)
             .setColumns([numberCol, nameCol])
             .setAutoAddNewRow(false);
     }
@@ -94,7 +95,8 @@ export class CategoryDetail extends UniView {
         numberCol.setWidth('7rem');
         let descriptionCol = new UniTableColumn('Description', 'Beskrivelse', UniTableColumnType.Text);
 
-        this.categoriesUsedInPayrollrunConfig = new UniTableConfig(false, true, 15)
+        const configStoreKey = 'salary.category.details.payrollRuns';
+        this.categoriesUsedInPayrollrunConfig = new UniTableConfig(configStoreKey, false, true, 15)
             .setColumns([numberCol, descriptionCol])
             .setAutoAddNewRow(false);
     }

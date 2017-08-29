@@ -69,7 +69,7 @@ export class VatTypeList {
             .setFilterOperator('eq');
 
         // Setup table
-        this.vatTableConfig = new UniTableConfig(false, true, 25)
+        this.vatTableConfig = new UniTableConfig('accounting.vatsettings.vattypeList', false, true, 25)
             .setSearchable(true)
             .setColumns([groupCol, codeCol, aliasCol, nameCol, incomingAccountCol, outgoingAccountCol, percentCol]);
     }

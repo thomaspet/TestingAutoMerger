@@ -127,7 +127,7 @@ export class PaycheckSending implements OnInit {
         let employeenameCol = new UniTableColumn('BusinessRelationInfo.Name', 'Navn', UniTableColumnType.Text);
         let emailCol = new UniTableColumn('BusinessRelationInfo.DefaultEmail.EmailAddress', 'Epost', UniTableColumnType.Text);
 
-        this.paycheckTableConfig = new UniTableConfig(true, true, 25)
+        this.paycheckTableConfig = new UniTableConfig('salary.payrollrun.sending.paycheck', true, true, 25)
             .setSearchable(false)
             .setColumnMenuVisible(false)
             .setAutoAddNewRow(false)
@@ -135,7 +135,7 @@ export class PaycheckSending implements OnInit {
             .setDeleteButton(false)
             .setColumns([employeenumberCol, employeenameCol, emailCol]);
 
-        this.paycheckPrintTableConfig = new UniTableConfig(true, true, 25)
+        this.paycheckPrintTableConfig = new UniTableConfig('salary.payrollrun.sending.print', true, true, 25)
             .setSearchable(false)
             .setColumnMenuVisible(false)
             .setAutoAddNewRow(false)

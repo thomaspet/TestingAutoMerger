@@ -105,7 +105,7 @@ export class AccountList {
             .setWidth('5rem');
 
         // Setup table
-        this.accountTable = new UniTableConfig(false, true, 15)
+        this.accountTable = new UniTableConfig('accounting.accountSettings.accountList', false, true, 15)
             .setSearchable(true)
             .setColumns([accountNumberCol, accountNameCol, accountGroupNameCol, vatTypeCol, lockedCol]);
     }

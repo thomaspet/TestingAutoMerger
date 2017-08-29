@@ -40,7 +40,7 @@ export class ProjectList {
                 .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
         };
 
-        this.tableConfig = new UniTableConfig(false, true, 25)
+        this.tableConfig = new UniTableConfig('common.dimensions.project', false, true, 25)
             .setSearchable(true)
             .setColumns([
                 new UniTableColumn('ProjectNumber', 'Prosjektnummer', UniTableColumnType.Text)

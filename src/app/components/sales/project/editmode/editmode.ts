@@ -169,7 +169,7 @@ export class ProjectEditmode {
     private setupTable() {
         this.userService.GetAll('').subscribe(users => {
             this.users = users;
-            this.tableConfig = new UniTableConfig(true, true, 5)
+            this.tableConfig = new UniTableConfig('sales.project.editmode.users', true, true, 5)
                 .setDeleteButton(true)
                 .setSearchable(false)
                 .setAutoAddNewRow(true)

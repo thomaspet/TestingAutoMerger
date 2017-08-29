@@ -264,7 +264,8 @@ export class CustomerPaymentBatchDetails implements OnChanges {
         statusCodeCol.editable = false;
 
         // Setup table
-        this.paymentTableConfig = new UniTableConfig(true, true, 15)
+        const configStoreKey = 'bank.payments.customerPaymentBatchDetails';
+        this.paymentTableConfig = new UniTableConfig(configStoreKey, true, true, 15)
             .setAutoAddNewRow(false)
             .setColumns([
                 invoiceNoCol,

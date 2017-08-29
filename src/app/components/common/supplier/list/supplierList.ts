@@ -59,7 +59,7 @@ export class SupplierList {
             .setTemplate((data: Supplier) => {return data.Dimensions && data.Dimensions.Project ? data.Dimensions.Project.ProjectNumber + ': ' + data.Dimensions.Project.Name : ''; });
 
         // Setup table
-        this.supplierTable = new UniTableConfig(false, true, 25)
+        this.supplierTable = new UniTableConfig('common.supplier.supplierList', false, true, 25)
             .setSearchable(true)
             .setColumnMenuVisible(true)
             .setColumns([numberCol, nameCol, orgNoCol, peppolCol, glnCol, departmentCol, projectCol]);

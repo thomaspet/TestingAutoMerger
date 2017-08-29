@@ -21,7 +21,7 @@ export class DimensionList {
         let idCol = new UniTableColumn('ID', 'Nr', UniTableColumnType.Number).setWidth('4rem');
         let nameCol = new UniTableColumn('Name', 'Navn', UniTableColumnType.Text);
 
-        this.dimensionsTable = new UniTableConfig(false, false, 25)
+        this.dimensionsTable = new UniTableConfig('accounting.accountSettings.dimensionList', false, false, 25)
             .setColumns([typeCol, idCol, nameCol]);
     }
 

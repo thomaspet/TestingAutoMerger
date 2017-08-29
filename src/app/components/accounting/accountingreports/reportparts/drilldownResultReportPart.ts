@@ -333,7 +333,7 @@ export class DrilldownResultReportPart implements OnChanges {
     }
 
     private setupTable() {
-        this.uniTableConfig = new UniTableConfig(false, false)
+        this.uniTableConfig = new UniTableConfig('accounting.drilldownResultReportPart', false, false)
             .setColumnMenuVisible(true)
             .setColumns([
                 new UniTableColumn('number', 'Konto/kontogruppe', UniTableColumnType.Text).setWidth('50%').setTemplate(item => item.number + ': ' + item.name),

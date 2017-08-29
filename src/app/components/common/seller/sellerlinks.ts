@@ -174,7 +174,7 @@ export class SellerLinks implements AfterViewInit {
         });
 
         // Setup table
-        this.sellerTableConfig = new UniTableConfig(true, true, 15)
+        this.sellerTableConfig = new UniTableConfig('common.seller.sellerlinks', true, true, 15)
             .setSearchable(false)
             .setSortable(false)
             .setDefaultRowData(defaultRowModel)

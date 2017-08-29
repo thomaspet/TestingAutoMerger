@@ -8,7 +8,6 @@ import {
 } from '../../../../unientities';
 import {
     StatisticsService,
-    Service, 
     ErrorService
 } from '../../../../services/services';
 
@@ -95,7 +94,7 @@ export class CustomerProductsSold {
             .setWidth('15%');
 
         // Setup table
-        this.tableConfig = new UniTableConfig(false, false, 25)
+        this.tableConfig = new UniTableConfig('sales.customer.details.productsSold', false, false, 25)
             .setSearchable(true)
             .setColumns([numberOfItemsCol, partNameCol, nameCol, priceExVatCol, priceIncVatCol]);
     }
