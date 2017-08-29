@@ -1,12 +1,14 @@
-<dialog class="uni-modal">
+<section role="dialog" class="uni-modal">
     <header>
         <h1 *ngIf="responseMessage">Resultat</h1>
         <h1 *ngIf="!responseMessage">Henter skattekort</h1>
     </header>
-    <main [attr.aria-busy]="!responseMessage">
+
+    <article [attr.aria-busy]="!responseMessage">
         <p class="preformatted"> {{responseMessage}} </p>
-    </main>
+    </article>
+
     <footer>
         <button (click)="close()">Lukk</button>
     </footer>
-</dialog>
+</section>

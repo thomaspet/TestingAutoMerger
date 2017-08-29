@@ -7,12 +7,12 @@ import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 @Component({
     selector: 'uni-login-modal',
     template: `
-        <dialog class="uni-modal">
+        <section role="dialog" class="uni-modal">
             <header>
                 <h1>Autentisering</h1>
             </header>
 
-            <main>
+            <article>
                 <small class="validation warn" *ngIf="!errorMessage?.length">
                     Sesjonen din er i ferd med å utløpe. Vennligst autentiser igjen for å unngå å miste arbeid
                 </small>
@@ -26,14 +26,14 @@ import {BehaviorSubject} from 'rxjs/BehaviorSubject';
                     [fields]="formFields$"
                     [model]="formModel$">
                 </uni-form>
-            </main>
+            </article>
 
             <footer>
                 <button class="good" (click)="authenticate()" [attr.aria-busy]="working">
                     Logg inn
                 </button>
             </footer>
-        </dialog>
+        </section>
     `
 })
 export class LoginModal implements IUniModal {

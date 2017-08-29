@@ -13,24 +13,24 @@ import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 @Component({
     selector: 'uni-address-modal',
     template: `
-        <dialog class="uni-modal">
+        <section role="dialog" class="uni-modal">
             <header>
                 <h1>{{options.header || 'Adresse'}}</h1>
             </header>
-            <main>
+            <article>
                 <uni-form
                     [config]="formConfig$"
                     [fields]="formFields$"
                     [model]="formModel$"
                     (changeEvent)="formChange($event)">
                 </uni-form>
-            </main>
+            </article>
 
             <footer>
                 <button class="good" (click)="close(true)">Ok</button>
                 <button class="bad" (click)="close(false)">Avbryt</button>
             </footer>
-        </dialog>
+        </section>
     `
 })
 export class UniAddressModal implements IUniModal {

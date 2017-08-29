@@ -5,11 +5,11 @@ import * as Immutable from 'immutable';
 @Component({
     selector: 'column-menu-modal',
     template: `
-        <dialog class="uni-modal">
+        <section role="dialog" class="uni-modal">
             <header>
                 <h1>{{'Kolonneoppsett'}}</h1>
             </header>
-            <main>
+            <article>
                 <p>Her kan du bestemme synlighet, tittel, rekkefølge og posisjon på kolonnene.</p>
                 <p>"Hopp til kolonne" definere hvilken kolonne man skal gå til ved tab/enter klikk.</p>
                 <p>For å endre posisjon på en kolonne drar du <span class="move-icon"></span> ikonet opp eller ned.</p>
@@ -27,7 +27,7 @@ import * as Immutable from 'immutable';
                         <tr *ngFor="let column of columns; let idx = index"
                             draggable="true"
                             (dragstart)="onDragStart($event, idx)"
-                            (dragover)="onDragEnter($event)"
+                            (dragover)="onDragOver($event)"
                             (dragleave)="onDragLeave($event)"
                             (drop)="onDrop($event, idx)"
                             (dragend)="onDragEnd($event)">
@@ -62,14 +62,14 @@ import * as Immutable from 'immutable';
                         </tr>
                     </tbody>
                 </table>
-            </main>
+            </article>
 
             <footer>
                 <button class="good" (click)="close(true)">Lagre</button>
                 <button class="bad" (click)="resetAll()">Nullstill</button>
                 <button class="cancel" (click)="close(false)">Avbryt</button>
             </footer>
-        </dialog>
+        </section>
     `,
     changeDetection: ChangeDetectionStrategy.OnPush
 })
@@ -130,7 +130,7 @@ export class ColumnMenuModal implements IUniModal {
         event.target.classList.add('dragElement');
     }
 
-    public onDragEnter(event) {
+    public onDragOver(event) {
         let row = event.target;
         if (row.tagName !== 'TR') {
             row = row.closest('TR');

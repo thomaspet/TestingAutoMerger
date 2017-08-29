@@ -4,20 +4,20 @@ import {IUniModal, IModalOptions} from '../modalService';
 @Component({
     selector: 'uni-unsaved-changes-modal',
     template: `
-        <dialog class="uni-modal">
+        <section role="dialog" class="uni-modal">
             <header>
                 <h1>Ulagrede endringer</h1>
             </header>
 
-            <main>
+            <article>
                 <p>Du har ulagrede endringer. Ønsker du å forkaste disse?</p>
-            </main>
+            </article>
 
             <footer>
                 <button (click)="close(true)" class="bad">Forkast endringer</button>
                 <button (click)="close(false)" class="warning">Avbryt</button>
             </footer>
-        </dialog>
+        </section>
     `
 })
 export class UniUnsavedChangesModal implements IUniModal {

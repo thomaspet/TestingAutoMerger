@@ -17,24 +17,24 @@ import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 @Component({
     selector: 'uni-send-email-modal',
     template: `
-        <dialog class="uni-modal">
+        <section role="dialog" class="uni-modal">
             <header>
                 <h1>{{options.header || 'Send epost'}}</h1>
             </header>
-            <main>
+            <article>
                 <uni-form
                     [config]="formConfig$"
                     [fields]="formFields$"
                     [model]="formModel$">
                 </uni-form>
-            </main>
+            </article>
 
             <footer>
                 <span class="warn" *ngIf="invalidEmail">Ugyldig epost</span>
                 <button class="good" (click)="close(true)">Send</button>
                 <button class="bad" (click)="close(false)">Avbryt</button>
             </footer>
-        </dialog>
+        </section>
     `
 })
 export class UniSendEmailModal implements IUniModal {
