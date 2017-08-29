@@ -131,7 +131,7 @@ export class UniModalService {
         let componentRootNode = (componentRef.hostView as EmbeddedViewRef<any>)
             .rootNodes[0] as HTMLElement;
 
-        let dialogElement = componentRootNode.querySelector('dialog');
+        let dialogElement = componentRootNode.querySelector('.uni-modal');
         if (dialogElement) {
             dialogElement.setAttribute('open', 'true');
 
