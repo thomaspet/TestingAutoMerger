@@ -10,7 +10,8 @@ import * as _ from 'lodash';
     host: {'[class]': 'buildClassString()'},
     template: `
         <label
-            [class.error]="hasError()">
+            [class.error]="hasError()"
+            *ngIf="field?.FieldType !== 1">
             <span [hidden]="!isInput(field?.FieldType)"
                   [title]="field?.Label">
                   {{field?.Label}}
@@ -24,15 +25,6 @@ import * as _ from 'lodash';
                 (inputEvent)="onInputHandler($event)"
                 (focusEvent)="onFocusHandler($event)"
             ></uni-autocomplete-input>
-            <uni-button-input #selectedComponent *ngIf="field?.FieldType === 1"
-                [field]="field"
-                [model]="model"
-                [asideGuid]="asideGuid"
-                (readyEvent)="onReadyHandler($event)"
-                (changeEvent)="onChangeHandler($event)"
-                (inputEvent)="onInputHandler($event)"
-                (focusEvent)="onFocusHandler($event)"
-            ></uni-button-input>
             <uni-date-input #selectedComponent *ngIf="field?.FieldType === 2"
                 [field]="field"
                 [model]="model"
@@ -187,6 +179,16 @@ import * as _ from 'lodash';
             <aside [id]="asideGuid" class="helpText" *ngIf="field?.HelpText" [innerHTML]="field?.HelpText"></aside>
             <show-error [control]="control" [messages]="messages"></show-error>
         </label>
+
+        <uni-button-input #selectedComponent *ngIf="field?.FieldType === 1"
+            [field]="field"
+            [model]="model"
+            [asideGuid]="asideGuid"
+            (readyEvent)="onReadyHandler($event)"
+            (changeEvent)="onChangeHandler($event)"
+            (inputEvent)="onInputHandler($event)"
+            (focusEvent)="onFocusHandler($event)"
+        ></uni-button-input>
     `,
     changeDetection: ChangeDetectionStrategy.OnPush
 })
