@@ -260,6 +260,14 @@ export class InvoiceDetails {
                     this.termsService.GetAction(null, 'get-delivery-terms')
                 ).subscribe((res) => {
                     let invoice = res[0];
+                    if (!invoice.PaymentTerms && !invoice.PaymentDueDate) {
+                        invoice.PaymentDueDate = new LocalDate(		
+                            moment(invoice.InvoiceDate).add(this.companySettings.CustomerCreditDays, 'days').toDate()
+                        );
+                    } else if (!invoice.PaymentDueDate) {
+                        this.setPaymentDueDate(invoice);
+                    }
+                    
 
                     this.companySettings = res[1];
 
@@ -426,11 +434,11 @@ export class InvoiceDetails {
             shouldGetCurrencyRate = true;
 
             if (invoice.PaymentTerms && invoice.PaymentTerms.CreditDays) {
-                invoice.PaymentDueDate = this.setPaymentDueDate(invoice);
+                this.setPaymentDueDate(invoice);
             }
 
             if (invoice.DeliveryTerms && invoice.DeliveryTerms.CreditDays) {
-                invoice.DeliveryDate = this.setDeliveryDate(invoice);
+                this.setDeliveryDate(invoice);
             }
         }
 
@@ -448,9 +456,6 @@ export class InvoiceDetails {
         if (this.invoice && invoice.CurrencyCodeID !== this.invoice.CurrencyCodeID) {
             shouldGetCurrencyRate = true;
         }
-
-        this.setPaymentDueDateIfPaymentTermChanged(invoice);
-        this.setDeliveryDateIfDeliveryTermChanged(invoice);
 
         this.invoice = _.cloneDeep(invoice);
 
@@ -625,7 +630,7 @@ export class InvoiceDetails {
         return change;
     }
 
-    private setPaymentDueDate(invoice: CustomerInvoice): LocalDate {
+    private setPaymentDueDate(invoice: CustomerInvoice) {
         if (invoice.PaymentTerms && invoice.PaymentTerms.CreditDays) {
             invoice.PaymentDueDate = invoice.InvoiceDate;
             if (invoice.PaymentTerms.CreditDays < 0) {
@@ -639,24 +644,9 @@ export class InvoiceDetails {
         } else {
             invoice.PaymentDueDate = null;
         }
-        return invoice.PaymentDueDate;
     }
 
-    private setPaymentDueDateIfPaymentTermChanged(invoice: CustomerInvoice) {
-        let paymentTermChanged: boolean = this.currentPaymentTerm
-            && invoice.PaymentTerms.ID !== this.currentPaymentTerm.ID;
-        if (invoice.PaymentTerms && !this.currentPaymentTerm) {
-            paymentTermChanged = invoice.PaymentTerms.ID !== 0;
-        }
-        this.currentPaymentTerm = invoice.PaymentTerms;
-        if (paymentTermChanged
-            && invoice.PaymentTerms
-            && invoice.PaymentTerms.CreditDays) {
-                invoice.PaymentDueDate = this.setPaymentDueDate(invoice);
-        }
-    }
-
-    private setDeliveryDate(invoice: CustomerInvoice): LocalDate {
+    private setDeliveryDate(invoice: CustomerInvoice) {
         if (invoice.DeliveryTerms && invoice.DeliveryTerms.CreditDays) {
             invoice.DeliveryDate = invoice.InvoiceDate;
             if (invoice.DeliveryTerms.CreditDays < 0) {
@@ -667,21 +657,6 @@ export class InvoiceDetails {
             );
         } else {
             invoice.DeliveryDate = null;
-        }
-        return invoice.DeliveryDate;
-    }
-
-    private setDeliveryDateIfDeliveryTermChanged(invoice: CustomerInvoice) {
-        let deliveryTermChanged: boolean = this.currentDeliveryTerm
-            && invoice.DeliveryTerms.ID !== this.currentDeliveryTerm.ID;
-        if (invoice.DeliveryTerms && !this.currentDeliveryTerm) {
-            deliveryTermChanged = invoice.DeliveryTerms.ID !== 0;
-        }
-        this.currentDeliveryTerm = invoice.DeliveryTerms;
-        if (deliveryTermChanged
-            && invoice.DeliveryTerms
-            && invoice.DeliveryTerms.CreditDays) {
-                invoice.DeliveryDate = this.setDeliveryDate(invoice);
         }
     }
 

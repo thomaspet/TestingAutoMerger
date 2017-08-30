@@ -250,11 +250,7 @@ export class OrderDetails {
                         let order = <CustomerOrder>res[0];
                         order.OurReference = res[1].DisplayName;
                         order.OrderDate = new LocalDate(Date());
-                        if (order.DeliveryTerms 
-                            && order.DeliveryTerms.CreditDays 
-                            && (order.DeliveryTermsID !== this.order.DeliveryTermsID)) {
-                                order.DeliveryDate = this.setDeliveryDate(order);
-                        }
+                        order.DeliveryDate = order.OrderDate;
                         
                         this.companySettings = res[2];
 
@@ -353,7 +349,7 @@ export class OrderDetails {
             shouldGetCurrencyRate = true;
 
             if (order.DeliveryTerms && order.DeliveryTerms.CreditDays) {
-                order.DeliveryDate = this.setDeliveryDate(order);
+                this.setDeliveryDate(order);
             }
         }
 
@@ -370,15 +366,6 @@ export class OrderDetails {
 
         if (this.order && order.CurrencyCodeID !== this.order.CurrencyCodeID) {
             shouldGetCurrencyRate = true;
-        }
-
-        let deliveryTermChanged: boolean = this.currentDeliveryTerm 
-            && order.DeliveryTerms.ID !== this.currentDeliveryTerm.ID;
-        this.currentDeliveryTerm = order.DeliveryTerms;
-        if (deliveryTermChanged 
-            && order.DeliveryTerms 
-            && order.DeliveryTerms.CreditDays) {
-                order.DeliveryDate = this.setDeliveryDate(order);
         }
 
         this.order = _.cloneDeep(order);
@@ -542,7 +529,7 @@ export class OrderDetails {
         return change;
     }
 
-    private setDeliveryDate(order: CustomerOrder): LocalDate {
+    private setDeliveryDate(order: CustomerOrder) {
         if (order.DeliveryTerms && order.DeliveryTerms.CreditDays) {
             order.DeliveryDate = order.OrderDate;
             if (order.DeliveryTerms.CreditDays < 0) {
@@ -554,7 +541,6 @@ export class OrderDetails {
         } else {
             order.DeliveryDate = null;
         }
-        return order.DeliveryDate;
     }
 
     private getUpdatedCurrencyExchangeRate(order: CustomerOrder): Observable<number> {

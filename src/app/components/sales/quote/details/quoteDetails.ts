@@ -226,11 +226,7 @@ export class QuoteDetails {
                         let quote = <CustomerQuote>res[0];
                         quote.OurReference = res[1].DisplayName;
                         quote.QuoteDate = new LocalDate(Date());
-                        if (quote.DeliveryTerms 
-                            && quote.DeliveryTerms.CreditDays 
-                            && (quote.DeliveryTermsID !== this.quote.DeliveryTermsID)) {
-                                quote.DeliveryDate = this.setDeliveryDate(quote);
-                        }
+                        quote.DeliveryDate = quote.QuoteDate;
                         quote.ValidUntilDate = null;
 
                         if (res[6]) {
@@ -346,7 +342,7 @@ export class QuoteDetails {
             shouldGetCurrencyRate = true;
 
             if (quote.DeliveryTerms && quote.DeliveryTerms.CreditDays) {
-                quote.DeliveryDate = this.setDeliveryDate(quote);
+                this.setDeliveryDate(quote);
             }
         }
 
@@ -367,15 +363,6 @@ export class QuoteDetails {
 
         if (quote.QuoteDate && !quote.ValidUntilDate) {
             quote.ValidUntilDate = new LocalDate(moment(quote.QuoteDate).add(1, 'month').toDate());
-        }
-
-        let deliveryTermChanged: boolean = this.currentDeliveryTerm 
-            && quote.DeliveryTerms.ID !== this.currentDeliveryTerm.ID;
-        this.currentDeliveryTerm = quote.DeliveryTerms;
-        if (deliveryTermChanged 
-            && quote.DeliveryTerms 
-            && quote.DeliveryTerms.CreditDays) {
-                quote.DeliveryDate = this.setDeliveryDate(quote);
         }
 
         this.quote = _.cloneDeep(quote);
@@ -517,7 +504,7 @@ export class QuoteDetails {
         return change;
     }
 
-    private setDeliveryDate(quote: CustomerQuote): LocalDate {
+    private setDeliveryDate(quote: CustomerQuote) {
         if (quote.DeliveryTerms && quote.DeliveryTerms.CreditDays) {
             quote.DeliveryDate = quote.QuoteDate;
             if (quote.DeliveryTerms.CreditDays < 0) {
@@ -529,7 +516,6 @@ export class QuoteDetails {
         } else {
             quote.DeliveryDate = null;
         }
-        return quote.DeliveryDate;
     }
 
     private getUpdatedCurrencyExchangeRate(quote): Observable<number> {

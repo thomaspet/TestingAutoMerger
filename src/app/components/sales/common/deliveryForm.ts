@@ -1,10 +1,11 @@
 import {Component, ViewChild, Input, Output, EventEmitter} from '@angular/core';
-import {Address, Terms} from '../../../unientities';
+import {Address, LocalDate, Terms} from '../../../unientities';
 import {AddressService, BusinessRelationService, ErrorService} from '../../../services/services';
 import {UniForm, FieldType} from '../../../../framework/ui/uniform/index';
 import {UniModalService, UniAddressModal} from '../../../../framework/uniModal/barrel';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {Observable} from 'rxjs/Observable';
+import * as moment from 'moment';
 declare const _;
 
 @Component({
@@ -81,12 +82,18 @@ export class TofDeliveryForm {
             model.PaymentTerms = this.paymentTerms.find((term) => {
                 return term.ID ===  changes['PaymentTermsID'].currentValue;
             });
+
+            if (this.entityType === 'CustomerInvoice') {
+                this.setPaymentDueDate(this.entity);
+            }
         }
 
         if (changes['DeliveryTermsID'] && changes['DeliveryTermsID'].currentValue) {
             model.DeliveryTerms = this.deliveryTerms.find((term) => {
                 return term.ID ===  changes['DeliveryTermsID'].currentValue;
             });
+
+            this.setDeliveryDate(this.entity);
         }
 
         let shippingAddress = changes['_shippingAddress'];
@@ -252,5 +259,35 @@ export class TofDeliveryForm {
                 ID: 5,
             }
         ]);
+    }
+
+    private setPaymentDueDate(invoice) {
+        if (invoice.PaymentTerms && invoice.PaymentTerms.CreditDays) {
+            invoice.PaymentDueDate = invoice.InvoiceDate;
+            if (invoice.PaymentTerms.CreditDays < 0) {
+                invoice.PaymentDueDate = new LocalDate(
+                    moment(invoice.InvoiceDate).endOf('month').toDate()
+                );
+            }
+            invoice.PaymentDueDate = new LocalDate(
+                moment(invoice.PaymentDueDate).add(Math.abs(invoice.PaymentTerms.CreditDays), 'days').toDate()
+            );
+        } else {
+            invoice.PaymentDueDate = null;
+        }
+    }
+
+    private setDeliveryDate(entity) {
+        if (entity.DeliveryTerms && entity.DeliveryTerms.CreditDays) {
+            entity.DeliveryDate = entity.InvoiceDate;
+            if (entity.DeliveryTerms.CreditDays < 0) {
+                entity.DeliveryDate = new LocalDate(moment(entity.InvoiceDate).endOf('month').toDate());
+            }
+            entity.DeliveryDate = new LocalDate(
+                moment(entity.DeliveryDate).add(Math.abs(entity.DeliveryTerms.CreditDays), 'days').toDate()
+            );
+        } else {
+            entity.DeliveryDate = null;
+        }
     }
 }
