@@ -1,28 +1,28 @@
-import { Component, ViewChild, OnDestroy, SimpleChanges } from '@angular/core';
-import { ActivatedRoute, Router, NavigationEnd } from '@angular/router';
+import {Component, ViewChild, OnDestroy, SimpleChanges} from '@angular/core';
+import {ActivatedRoute, Router, NavigationEnd} from '@angular/router';
 import {
     PayrollRun, SalaryTransaction, Employee, SalaryTransactionSupplement, WageType, Account, EmployeeTaxCard,
     CompanySalary, CompanySalaryPaymentInterval, Project, Department, TaxDrawFactor, EmployeeCategory,
     JournalEntry, LocalDate
 } from '../../../unientities';
-import { Observable } from 'rxjs/Observable';
-import { BehaviorSubject } from 'rxjs/BehaviorSubject';
-import { ReplaySubject } from 'rxjs/ReplaySubject';
-import { TabService, UniModules } from '../../layout/navbar/tabstrip/tabService';
-import { ControlModal } from './modals/controlModal';
-import { PostingSummaryModal } from './modals/postingSummaryModal';
-import { VacationPayModal } from './modals/vacationpay/vacationPayModal';
-import { UniForm } from '../../../../framework/ui/uniform/index';
-import { IContextMenuItem } from '../../../../framework/ui/unitable/index';
-import { IToolbarConfig } from '../../common/toolbar/toolbar';
-import { IUniTagsConfig, ITag } from '../../common/toolbar/tags';
-import { UniStatusTrack } from '../../common/toolbar/statustrack';
-import { ToastService, ToastType, ToastTime } from '../../../../framework/uniToast/toastService';
-import { SalaryTransactionSelectionList } from '../salarytrans/salarytransactionSelectionList';
-import { UniView } from '../../../../framework/core/uniView';
-import { UniPreviewModal } from '../../reports/modals/preview/previewModal';
-import { UniModalService, ConfirmActions } from '../../../../framework/uniModal/barrel';
-import { IUniSaveAction } from '../../../../framework/save/save';
+import {Observable} from 'rxjs/Observable';
+import {BehaviorSubject} from 'rxjs/BehaviorSubject';
+import {ReplaySubject} from 'rxjs/ReplaySubject';
+import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
+import {ControlModal} from './modals/controlModal';
+import {PostingSummaryModal} from './modals/postingSummaryModal';
+import {VacationPayModal} from './modals/vacationpay/vacationPayModal';
+import {UniForm} from '../../../../framework/ui/uniform/index';
+import {IContextMenuItem} from '../../../../framework/ui/unitable/index';
+import {IToolbarConfig} from '../../common/toolbar/toolbar';
+import {IUniTagsConfig, ITag} from '../../common/toolbar/tags';
+import {UniStatusTrack} from '../../common/toolbar/statustrack';
+import {ToastService, ToastType, ToastTime} from '../../../../framework/uniToast/toastService';
+import {SalaryTransactionSelectionList} from '../salarytrans/salarytransactionSelectionList';
+import {UniView} from '../../../../framework/core/uniView';
+import {UniPreviewModal} from '../../reports/modals/preview/previewModal';
+import {UniModalService, ConfirmActions} from '../../../../framework/uniModal/barrel';
+import {IUniSaveAction} from '../../../../framework/save/save';
 import 'rxjs/add/observable/forkJoin';
 import {
     PayrollrunService, UniCacheService, SalaryTransactionService, EmployeeService, WageTypeService,
@@ -30,7 +30,7 @@ import {
     YearService, ErrorService, EmployeeCategoryService, FileService,
     JournalEntryService, PayrollRunPaymentStatus
 } from '../../../services/services';
-import { PaycheckSenderModal } from './sending/paycheckSenderModal';
+import {PaycheckSenderModal} from './sending/paycheckSenderModal';
 
 declare var _;
 import * as moment from 'moment';
@@ -803,9 +803,9 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
             .subscribe(run => {
                 this.modalService
                     .open(
-                        PostingSummaryModal, 
+                        PostingSummaryModal,
                         {
-                            data: run, 
+                            data: run,
                             modalConfig: {
                                 update: () => this.getPayrollRun()
                             }
@@ -820,8 +820,8 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
             .asObservable()
             .take(1)
             .subscribe(run => this.modalService.open(ControlModal, {
-                data: run, 
-                modalConfig: { 
+                data: run,
+                modalConfig: {
                     update: () => this.getPayrollRun()
                 }
             }));
@@ -832,12 +832,12 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
         this.payrollrun$
             .asObservable()
             .take(1)
-            .switchMap(run => 
+            .switchMap(run =>
                 this.modalService
                     .open(
-                        VacationPayModal, 
+                        VacationPayModal,
                         {
-                            modalConfig: 
+                            modalConfig:
                             {
                                 update: () => this.getSalaryTransactions()
                             },

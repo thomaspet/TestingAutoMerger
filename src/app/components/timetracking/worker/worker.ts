@@ -6,7 +6,7 @@ import {Worker, WorkRelation} from '../../../unientities';
 import {GenericDetailview, IAfterSaveInfo, IResult} from '../genericview/detail';
 import {View as RelationsSubView} from './relations';
 import {View as BalancesSubView} from './balances';
-import { UniModules } from '../../layout/navbar/tabstrip/tabService';
+import {UniModules} from '../../layout/navbar/tabstrip/tabService';
 
 export var view = new View('workers', 'Person', 'WorkerDetailview', true, '', WorkerDetailview);
 

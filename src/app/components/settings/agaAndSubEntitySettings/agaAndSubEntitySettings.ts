@@ -1,12 +1,12 @@
-﻿import { Component, OnInit, ViewChild } from '@angular/core';
-import { BehaviorSubject } from 'rxjs/BehaviorSubject';
-import { IUniSaveAction } from '../../../../framework/save/save';
-import { FieldType, UniForm, UniFieldLayout } from '../../../../framework/ui/uniform/index';
-import { SubEntityList } from './subEntityList';
-import { UniModalService } from '../../../../framework/uniModal/barrel';
-import { GrantModal } from './modals/grantModal';
-import { FreeAmountModal } from './modals/freeAmountModal';
-import { Observable } from 'rxjs/Observable';
+﻿import {Component, OnInit, ViewChild} from '@angular/core';
+import {BehaviorSubject} from 'rxjs/BehaviorSubject';
+import {IUniSaveAction} from '../../../../framework/save/save';
+import {FieldType, UniForm, UniFieldLayout} from '../../../../framework/ui/uniform/index';
+import {SubEntityList} from './subEntityList';
+import {UniModalService} from '../../../../framework/uniModal/barrel';
+import {GrantModal} from './modals/grantModal';
+import {FreeAmountModal} from './modals/freeAmountModal';
+import {Observable} from 'rxjs/Observable';
 import {UniSearchAccountConfigGeneratorHelper} from '../../../services/common/uniSearchConfig/uniSearchAccountConfigGeneratorHelper';
 import {
     CompanySalary,

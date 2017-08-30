@@ -1,8 +1,8 @@
-import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
+import {Component, OnInit, Input, Output, EventEmitter} from '@angular/core';
 import {IModalOptions, IUniModal} from '../../../../framework/uniModal/barrel';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
-import { UniFieldLayout, FieldType } from '../../../../framework/ui/uniform/index';
-import { SalaryTransaction, SalaryTransactionSupplement, Valuetype } from '../../../unientities';
+import {UniFieldLayout, FieldType} from '../../../../framework/ui/uniform/index';
+import {SalaryTransaction, SalaryTransactionSupplement, Valuetype} from '../../../unientities';
 
 @Component({
     selector: 'salary-trans-supplements-modal',
@@ -17,7 +17,7 @@ export class SalaryTransSupplementsModal implements OnInit, IUniModal {
     private fields$: BehaviorSubject<UniFieldLayout[]> = new BehaviorSubject([]);
     constructor() { }
 
-    public ngOnInit() { 
+    public ngOnInit() {
         this.salaryTransaction$.next(this.options.data);
         this.load();
     }

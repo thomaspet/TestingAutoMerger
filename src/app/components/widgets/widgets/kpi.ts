@@ -1,7 +1,7 @@
-﻿import { Component, ViewChild, ElementRef } from '@angular/core';
-import { IUniWidget } from '../uniWidget';
-import { WidgetDataService } from '../widgetDataService';
-import { FinancialYearService } from '../../../services/services';
+﻿import {Component, ViewChild, ElementRef} from '@angular/core';
+import {IUniWidget} from '../uniWidget';
+import {WidgetDataService} from '../widgetDataService';
+import {FinancialYearService} from '../../../services/services';
 import * as Chart from 'chart.js';
 
 interface IKeyNumberObject {

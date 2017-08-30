@@ -1,11 +1,11 @@
-import { Component, ViewChild, OnInit, EventEmitter, Output } from '@angular/core';
-import { UniTable, UniTableConfig, UniTableColumnType, UniTableColumn } from '../../../../framework/ui/unitable/index';
-import { ToastService, ToastType } from '../../../../framework/uniToast/toastService';
-import { Observable } from 'rxjs/Observable';
-import { SubEntityService, AgaZoneService, MunicipalService, ErrorService } from '../../../services/services';
-import { SubEntity, Municipal, AGAZone } from '../../../unientities';
-import { SubEntityDetails } from './subEntityDetails';
-import { UniModalService, UniConfirmModalV2, ConfirmActions } from '../../../../framework/uniModal/barrel';
+import {Component, ViewChild, OnInit, EventEmitter, Output} from '@angular/core';
+import {UniTable, UniTableConfig, UniTableColumnType, UniTableColumn} from '../../../../framework/ui/unitable/index';
+import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
+import {Observable} from 'rxjs/Observable';
+import {SubEntityService, AgaZoneService, MunicipalService, ErrorService} from '../../../services/services';
+import {SubEntity, Municipal, AGAZone} from '../../../unientities';
+import {SubEntityDetails} from './subEntityDetails';
+import {UniModalService, UniConfirmModalV2, ConfirmActions} from '../../../../framework/uniModal/barrel';
 
 
 @Component({

@@ -1,9 +1,9 @@
 import {NgModule} from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { UniFrameworkModule } from '../../../framework/frameworkModule';
+import {CommonModule} from '@angular/common';
+import {UniFrameworkModule} from '../../../framework/frameworkModule';
 import {UniWidgetCanvas} from './widgetCanvas';
-import { UniWidget, WidgetContainer } from './uniWidget';
-import { WidgetDataService } from './widgetDataService';
+import {UniWidget, WidgetContainer} from './uniWidget';
+import {WidgetDataService} from './widgetDataService';
 import {UNI_WIDGETS} from './widgets/barrel';
 
 @NgModule({

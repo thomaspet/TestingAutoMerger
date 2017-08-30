@@ -1,7 +1,7 @@
-import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
-import { AltinnAuthenticationData } from '../../../../models/AltinnAuthenticationData';
-import { AltinnIntegrationService, ErrorService } from '../../../../../app/services/services';
-import { IUniModal, IModalOptions } from '../../../../../framework/uniModal/barrel';
+import {Component, OnInit, Input, Output, EventEmitter} from '@angular/core';
+import {AltinnAuthenticationData} from '../../../../models/AltinnAuthenticationData';
+import {AltinnIntegrationService, ErrorService} from '../../../../../app/services/services';
+import {IUniModal, IModalOptions} from '../../../../../framework/uniModal/barrel';
 
 type TaxInfo = {
     receiptID: number,
@@ -23,7 +23,7 @@ export class TaxResponseModal implements OnInit, IUniModal {
         private errorService: ErrorService
     ) { }
 
-    public ngOnInit() { 
+    public ngOnInit() {
         let info: TaxInfo = this.options.data;
         let config = this.options.modalConfig;
         this.altinnService

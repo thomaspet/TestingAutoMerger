@@ -1,6 +1,6 @@
-﻿import { Component, Input } from '@angular/core';
-import { IUniWidget } from '../uniWidget';
-import { WidgetDataService } from '../widgetDataService';
+﻿import {Component, Input} from '@angular/core';
+import {IUniWidget} from '../uniWidget';
+import {WidgetDataService} from '../widgetDataService';
 
 @Component({
     selector: 'uni-rss',

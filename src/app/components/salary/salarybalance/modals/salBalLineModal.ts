@@ -1,6 +1,6 @@
-import { Component, OnInit, Input, Output, EventEmitter, ViewChild } from '@angular/core';
-import { IUniModal, IModalOptions } from '../../../../../framework/uniModal/barrel';
-import { SalarybalanceLine } from '../salarybalanceLine';
+import {Component, OnInit, Input, Output, EventEmitter, ViewChild} from '@angular/core';
+import {IUniModal, IModalOptions} from '../../../../../framework/uniModal/barrel';
+import {SalarybalanceLine} from '../salarybalanceLine';
 
 @Component({
     selector: 'salary-balance-line-modal',

@@ -1,5 +1,5 @@
-import { ErrorHandler, Inject } from '@angular/core';
-import { ErrorService } from './services/services';
+import {ErrorHandler, Inject} from '@angular/core';
+import {ErrorService} from './services/services';
 
 type WrappedError = {
     originalError: string | WrappedError

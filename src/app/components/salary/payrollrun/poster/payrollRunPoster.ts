@@ -1,11 +1,11 @@
-import { Component, OnInit, OnChanges, Input, ChangeDetectionStrategy, SimpleChanges, Output, EventEmitter } from '@angular/core';
-import { IPosterWidget } from '../../../common/poster/poster';
-import { PayrollRun, Employee, SalaryTransactionSums } from '../../../../unientities';
-import { 
-    SalarySumsService, EmployeeService, NumberFormat, 
-    ErrorService, PayrollrunService, PayrollRunPaymentStatus } from '../../../../services/services';
+import {Component, OnInit, OnChanges, Input, ChangeDetectionStrategy, SimpleChanges, Output, EventEmitter} from '@angular/core';
+import {IPosterWidget} from '../../../common/poster/poster';
+import {PayrollRun, Employee, SalaryTransactionSums} from '../../../../unientities';
+import {
+    SalarySumsService, EmployeeService, NumberFormat,
+    ErrorService, PayrollrunService, PayrollRunPaymentStatus} from '../../../../services/services';
 import * as moment from 'moment';
-import { BehaviorSubject } from 'rxjs/BehaviorSubject';
+import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 
 enum PosterElements {
     Period = 0,
@@ -161,7 +161,7 @@ export class PayrollRunPoster implements OnInit, OnChanges {
     }
 
     private payrollRunPaymentText(payrollRun: PayrollRun): string {
-        return payrollRun[this.payrollRunService.payStatusProp] === PayrollRunPaymentStatus.Paid 
+        return payrollRun[this.payrollRunService.payStatusProp] === PayrollRunPaymentStatus.Paid
             ? 'Utbetalt beløp'
             : 'Beløp til utbetaling';
     }

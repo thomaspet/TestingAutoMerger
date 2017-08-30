@@ -1,12 +1,12 @@
-import { Component, Input } from '@angular/core';
+import {Component, Input} from '@angular/core';
 import {
     SubEntityService, AgaZoneService, MunicipalService, StatisticsService, ErrorService
 } from '../../../services/services';
-import { SubEntity, PostalCode, Municipal } from '../../../unientities';
-import { UniFieldLayout } from '../../../../framework/ui/uniform/index';
-import { Observable } from 'rxjs/Observable';
+import {SubEntity, PostalCode, Municipal} from '../../../unientities';
+import {UniFieldLayout} from '../../../../framework/ui/uniform/index';
+import {Observable} from 'rxjs/Observable';
 declare var _;
-import { BehaviorSubject } from 'rxjs/BehaviorSubject';
+import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 
 @Component({
     selector: 'sub-entity-details',

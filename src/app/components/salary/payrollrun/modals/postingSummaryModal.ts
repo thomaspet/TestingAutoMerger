@@ -1,7 +1,7 @@
-import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
-import { IUniModal, IModalOptions } from '../../../../../framework/uniModal/barrel';
-import { UniTableColumn, UniTableColumnType, UniTableConfig } from '../../../../../framework/ui/unitable/index';
-import { PostingSummary } from '../../../../unientities';
+import {Component, OnInit, Input, Output, EventEmitter} from '@angular/core';
+import {IUniModal, IModalOptions} from '../../../../../framework/uniModal/barrel';
+import {UniTableColumn, UniTableColumnType, UniTableConfig} from '../../../../../framework/ui/unitable/index';
+import {PostingSummary} from '../../../../unientities';
 import {
     PayrollrunService,
     ErrorService,

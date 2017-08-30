@@ -7,8 +7,8 @@ import {Observable} from 'rxjs/Observable';
 
 import {WageType} from '../../../unientities';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
-import { IContextMenuItem } from '../../../../framework/ui/unitable/index';
-import { ToastService, ToastType } from '../../../../framework/uniToast/toastService';
+import {IContextMenuItem} from '../../../../framework/ui/unitable/index';
+import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
 
 @Component({
     selector: 'wagetypes',

@@ -1,11 +1,11 @@
-﻿import { Component, ViewChild } from '@angular/core';
-import { UniModalService, UniAddressModal } from '../../../../../framework/uniModal/barrel';
-import { UniFieldLayout } from '../../../../../framework/ui/uniform/index';
-import { FieldType } from '../../../../../framework/ui/uniform/index';
-import { IUniSearchConfig } from '../../../../../framework/ui/unisearch/index';
-import { BehaviorSubject } from 'rxjs/BehaviorSubject';
-import { ProjectResponsibility } from '../../../../models/models';
-import { Observable } from 'rxjs/Observable';
+﻿import {Component, ViewChild} from '@angular/core';
+import {UniModalService, UniAddressModal} from '../../../../../framework/uniModal/barrel';
+import {UniFieldLayout} from '../../../../../framework/ui/uniform/index';
+import {FieldType} from '../../../../../framework/ui/uniform/index';
+import {IUniSearchConfig} from '../../../../../framework/ui/unisearch/index';
+import {BehaviorSubject} from 'rxjs/BehaviorSubject';
+import {ProjectResponsibility} from '../../../../models/models';
+import {Observable} from 'rxjs/Observable';
 import {
     Project,
     Customer,

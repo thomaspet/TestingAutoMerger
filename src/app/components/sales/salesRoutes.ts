@@ -16,10 +16,10 @@ import {OrderList} from './order/list/orderList';
 import {OrderDetails} from './order/details/orderDetails';
 
 import {Reminder} from './reminder/reminder';
-import { routes as ReminderRoutes } from './reminder/reminderRoutes';
-import { Project } from './project/project';
-import { routes as ProjectRoutes } from './project/projectRoutes';
-import { routes as ProductGroupRoutes } from './productgroup/productGroupRoutes';
+import {routes as ReminderRoutes} from './reminder/reminderRoutes';
+import {Project} from './project/project';
+import {routes as ProjectRoutes} from './project/projectRoutes';
+import {routes as ProductGroupRoutes} from './productgroup/productGroupRoutes';
 
 import {ProductGroups} from './productgroup/productgroups';
 

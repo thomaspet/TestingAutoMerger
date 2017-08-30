@@ -1,8 +1,8 @@
-import { Component, ViewChild, OnInit } from '@angular/core';
-import { Project } from '../../../../unientities';
-import { UniFieldLayout, FieldType } from '../../../../../framework/ui/uniform/index';
-import { IUniSearchConfig } from '../../../../../framework/ui/unisearch/index';
-import { BehaviorSubject } from 'rxjs/BehaviorSubject';
+import {Component, ViewChild, OnInit} from '@angular/core';
+import {Project} from '../../../../unientities';
+import {UniFieldLayout, FieldType} from '../../../../../framework/ui/uniform/index';
+import {IUniSearchConfig} from '../../../../../framework/ui/unisearch/index';
+import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {
     ProjectService,
     ErrorService

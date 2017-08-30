@@ -1,10 +1,10 @@
 import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/observable/of';
-import { CompanySettings } from '../../unientities';
-import { Injectable } from '@angular/core';
+import {CompanySettings} from '../../unientities';
+import {Injectable} from '@angular/core';
 import {CompanySettingsService} from './companySettingsService';
-import { BehaviorSubject } from 'rxjs/BehaviorSubject';
-import { TabService} from '../../components/layout/navbar/tabstrip/tabService';
+import {BehaviorSubject} from 'rxjs/BehaviorSubject';
+import {TabService} from '../../components/layout/navbar/tabstrip/tabService';
 import {Router} from '@angular/router';
 
 @Injectable()

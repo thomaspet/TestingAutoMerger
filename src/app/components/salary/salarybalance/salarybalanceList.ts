@@ -1,9 +1,9 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
-import { Router, ActivatedRoute } from '@angular/router';
-import { UniTableConfig, UniTableColumnType, UniTableColumn } from '../../../../framework/ui/unitable/index';
-import { SalarybalanceService, ErrorService, NumberFormat } from '../../../services/services';
-import { SalaryBalance, SalBalDrawType } from '../../../unientities';
-import { TabService, UniModules } from '../../layout/navbar/tabstrip/tabService';
+import {Component, OnInit, ViewChild} from '@angular/core';
+import {Router, ActivatedRoute} from '@angular/router';
+import {UniTableConfig, UniTableColumnType, UniTableColumn} from '../../../../framework/ui/unitable/index';
+import {SalarybalanceService, ErrorService, NumberFormat} from '../../../services/services';
+import {SalaryBalance, SalBalDrawType} from '../../../unientities';
+import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 
 type BalanceActionFormattedType = {
     salaryBalanceID: number,

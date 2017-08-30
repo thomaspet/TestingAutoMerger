@@ -1,19 +1,19 @@
-import { Component, ViewChild, Output, EventEmitter, AfterViewInit } from '@angular/core';
-import { Router, ActivatedRoute } from '@angular/router';
+import {Component, ViewChild, Output, EventEmitter, AfterViewInit} from '@angular/core';
+import {Router, ActivatedRoute} from '@angular/router';
 import {
     UniTable, UniTableConfig, UniTableColumnType,
     UniTableColumn
 } from '../../../../framework/ui/unitable/index';
-import { UniHttp } from '../../../../framework/core/http/http';
+import {UniHttp} from '../../../../framework/core/http/http';
 import {
     Employee, AGAZone, SalaryTransactionSums,
-    PayrollRun, EmployeeTaxCard, SalBalType, ValidationLevel } from '../../../unientities';
-import { ISummaryConfig } from '../../common/summary/summary';
-import { UniView } from '../../../../framework/core/uniView';
-import { SalaryTransactionEmployeeList } from './salarytransList';
-import { ILinkMenuItem } from '../../common/linkMenu/linkMenu';
-import { ReplaySubject } from 'rxjs/ReplaySubject';
-import { Observable } from 'rxjs/Observable';
+    PayrollRun, EmployeeTaxCard, SalBalType, ValidationLevel} from '../../../unientities';
+import {ISummaryConfig} from '../../common/summary/summary';
+import {UniView} from '../../../../framework/core/uniView';
+import {SalaryTransactionEmployeeList} from './salarytransList';
+import {ILinkMenuItem} from '../../common/linkMenu/linkMenu';
+import {ReplaySubject} from 'rxjs/ReplaySubject';
+import {Observable} from 'rxjs/Observable';
 import {
     EmployeeService,
     PayrollrunService,

@@ -1,9 +1,9 @@
-import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
-import { UniComponentLayout, LayoutBuilder, FieldType, FieldSize } from '../../../../framework/ui/uniform/index';
-import { ErrorService, SalaryBalanceLineService } from '../../../services/services';
-import { SalaryBalance, SalaryBalanceLine } from '../../../unientities';
-import { BehaviorSubject } from 'rxjs/BehaviorSubject';
-import { ToastService, ToastType, ToastTime } from '../../../../framework/uniToast/toastService';
+import {Component, OnInit, Input, Output, EventEmitter} from '@angular/core';
+import {UniComponentLayout, LayoutBuilder, FieldType, FieldSize} from '../../../../framework/ui/uniform/index';
+import {ErrorService, SalaryBalanceLineService} from '../../../services/services';
+import {SalaryBalance, SalaryBalanceLine} from '../../../unientities';
+import {BehaviorSubject} from 'rxjs/BehaviorSubject';
+import {ToastService, ToastType, ToastTime} from '../../../../framework/uniToast/toastService';
 
 @Component({
     selector: 'salarybalanceline',
@@ -40,7 +40,7 @@ export class SalarybalanceLine implements OnInit {
             .finally(() => this.busy = false)
             .switchMap(salaryBalanceLine => {
                 salaryBalanceLine.SalaryBalanceID = this.salarybalance.ID;
-                return salaryBalanceLine.ID 
+                return salaryBalanceLine.ID
                     ? this._salarybalancelineService.Put(salaryBalanceLine.ID, salaryBalanceLine)
                     : this._salarybalancelineService.Post(salaryBalanceLine);
             })

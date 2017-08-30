@@ -1,7 +1,7 @@
-import { Component } from '@angular/core';
-import { WidgetDataService } from '../widgetDataService';
-import { IUniWidget } from '../uniWidget';
-import { Router } from '@angular/router';
+import {Component} from '@angular/core';
+import {WidgetDataService} from '../widgetDataService';
+import {IUniWidget} from '../uniWidget';
+import {Router} from '@angular/router';
 
 @Component({
     selector: 'uni-overdue-invoice',

@@ -1,7 +1,7 @@
-import { Component, Type, Input, ViewChild, OnInit, EventEmitter, Output } from '@angular/core';
+import {Component, Type, Input, ViewChild, OnInit, EventEmitter, Output} from '@angular/core';
 import {UniFieldLayout, FieldType} from '../../../../../../../framework/ui/uniform/index';
-import { BehaviorSubject } from 'rxjs/BehaviorSubject';
-import { UniModal } from '../../../../../../../framework/modals/modal';
+import {BehaviorSubject} from 'rxjs/BehaviorSubject';
+import {UniModal} from '../../../../../../../framework/modals/modal';
 
 
 @Component({
@@ -15,43 +15,43 @@ import { UniModal } from '../../../../../../../framework/modals/modal';
      private config$: BehaviorSubject<any>; // config
      private yearModel$: BehaviorSubject<any>; // model
      private model: any = {};
-     
+
 
      constructor() {
-               
+
      }
 
-     public ngOnInit() {        
-        
+     public ngOnInit() {
+
 
         this.config$ = new BehaviorSubject({});
         this.config$.next(this.config);
 
-        this.yearModel$ = new BehaviorSubject(this.config);        
+        this.yearModel$ = new BehaviorSubject(this.config);
         this.lay$ = new BehaviorSubject<any>(this.config$.getValue);
-        
+
         this.createModalConfig();
-        
+
      }
 
      private createModalConfig()
-    {      
-        
+    {
+
         let inputYear = new UniFieldLayout();
-        inputYear.Label = 'År';        
+        inputYear.Label = 'År';
         inputYear.FieldType = FieldType.TEXT;
         inputYear.ReadOnly = false;
-        inputYear.Property = 'chosen';        
+        inputYear.Property = 'chosen';
         inputYear.EntityType = 'config';
-        
+
         let fieldcheck = new UniFieldLayout();
         fieldcheck.EntityType =  'config';
-        fieldcheck.Label = 'Standard for klient';         
+        fieldcheck.Label = 'Standard for klient';
         fieldcheck.FieldType = FieldType.CHECKBOX;
         fieldcheck.ReadOnly = false;
         fieldcheck.LookupField = false;
         fieldcheck.Property = 'checkStandard';
-    
+
         this.lay$.next([inputYear, fieldcheck]);
     }
 
@@ -72,34 +72,34 @@ export class YearModal implements OnInit {
 
     @ViewChild(UniModal)
     private modal: UniModal;
-    
+
     @Output() public changeYear: EventEmitter<any> = new EventEmitter<ChangeYear>();
-    
+
     public onClose: () => void = () =>  {
-        this.Emit(null); this.close(); 
+        this.Emit(null); this.close();
     }
 
     public ngOnInit() {
-        
+
     }
 
     constructor()
     {
         this.modalConfig = {
-            title: 'Velg År',            
+            title: 'Velg År',
             chosen: new Date().getFullYear(),
             checkStandard: false,
-            cancel: () => {                
-                this.Emit(null);                
-                this.modal.close();                                
-            },            
+            cancel: () => {
+                this.Emit(null);
+                this.modal.close();
+            },
             disabled: true,
             actions: [{
                 text: 'Endre',
                 class: 'good',
                 enabled: false,
                 method: () => {
-                    this.modal.getContent().then((ct) => {                         
+                    this.modal.getContent().then((ct) => {
                          let yr:  ChangeYear = {
                              checkStandard: this.modalConfig.checkStandard,
                              year: parseInt(this.modalConfig.chosen)
@@ -107,7 +107,7 @@ export class YearModal implements OnInit {
                          this.Emit(yr);
                          this.modal.close();
                          this.close();
-                    } );           
+                    } );
                 }
             },
             {
@@ -115,24 +115,24 @@ export class YearModal implements OnInit {
                 class: 'bad',
                 enabled: true,
                 method: () => {
-                    this.modal.getContent().then((ct) => {                                                  
+                    this.modal.getContent().then((ct) => {
                          this.Emit(null);
                          this.modal.close();
-                    } );           
+                    } );
                 }
             }
-            ]          
+            ]
         };
     }
 
 
     public Emit(chYr: ChangeYear){
-        this.changeYear.emit(chYr);        
+        this.changeYear.emit(chYr);
     }
 
 
     public close(): void {
-        this.modal.close();    
+        this.modal.close();
     }
 
     public openModal(){

@@ -1,4 +1,4 @@
-import { Component, ViewChildren, QueryList, ViewChild } from '@angular/core';
+import {Component, ViewChildren, QueryList, ViewChild} from '@angular/core';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {UniTable, UniTableColumn, UniTableConfig, UniTableColumnType} from '../../../../framework/ui/unitable/index';
 import {Model} from '../../../unientities';

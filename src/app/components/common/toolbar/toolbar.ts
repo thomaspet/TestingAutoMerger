@@ -1,11 +1,11 @@
-import { IUniSaveAction } from './../../../../framework/save/save';
-import { Component, Input, Output, EventEmitter } from '@angular/core';
-import { UniStatusTrack } from '../../common/toolbar/statustrack';
-import { IContextMenuItem } from '../../../../framework/ui/unitable/index';
-import { UniFieldLayout, FieldType } from '../../../../framework/ui/uniform/index';
-import { Observable } from 'rxjs/Observable';
-import { IUniTagsConfig, ITag } from './tags';
-import { ISelectConfig } from '../../../../framework/ui/uniform/index';
+import {IUniSaveAction} from './../../../../framework/save/save';
+import {Component, Input, Output, EventEmitter} from '@angular/core';
+import {UniStatusTrack} from '../../common/toolbar/statustrack';
+import {IContextMenuItem} from '../../../../framework/ui/unitable/index';
+import {UniFieldLayout, FieldType} from '../../../../framework/ui/uniform/index';
+import {Observable} from 'rxjs/Observable';
+import {IUniTagsConfig, ITag} from './tags';
+import {ISelectConfig} from '../../../../framework/ui/uniform/index';
 
 declare const _; // lodash
 

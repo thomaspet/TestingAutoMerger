@@ -1,6 +1,6 @@
 import {Component, EventEmitter, HostListener, Input, ViewChild} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
-import { Observable } from 'rxjs/Observable';
+import {Observable} from 'rxjs/Observable';
 import * as moment from 'moment';
 
 import {
@@ -94,29 +94,29 @@ export class QuoteDetails {
     private toolbarconfig: IToolbarConfig;
     private contextMenuItems: IContextMenuItem[] = [];
     public summary: ISummaryConfig[] = [];
-    
+
     private customerExpandOptions: string[] = [
-        'Info', 
-        'Info.Addresses', 
-        'Info.InvoiceAddress', 
-        'Info.ShippingAddress', 
-        'Dimensions', 
-        'Dimensions.Project', 
+        'Info',
+        'Info.Addresses',
+        'Info.InvoiceAddress',
+        'Info.ShippingAddress',
+        'Dimensions',
+        'Dimensions.Project',
         'Dimensions.Department',
         'PaymentTerms',
         'DeliveryTerms'
     ];
     private expandOptions: Array<string> = [
-        'Items', 
-        'Items.Product.VatType', 
-        'Items.VatType', 
+        'Items',
+        'Items.Product.VatType',
+        'Items.VatType',
         'Items.Account',
-        'Items.Dimensions', 
-        'Items.Dimensions.Project', 
-        'Items.Dimensions.Department', 
-        'Customer', 
+        'Items.Dimensions',
+        'Items.Dimensions.Project',
+        'Items.Dimensions.Department',
+        'Customer',
         'DefaultDimensions',
-        'Sellers', 
+        'Sellers',
         'Sellers.Seller',
         'PaymentTerms',
         'DeliveryTerms'
@@ -248,7 +248,7 @@ export class QuoteDetails {
                         this.currencyExchangeRate = quote.CurrencyExchangeRate;
 
                         this.currencyCodes = res[3];
-                        
+
                         this.paymentTerms = res[4];
                         this.deliveryTerms = res[5];
 
@@ -402,8 +402,8 @@ export class QuoteDetails {
                                 (diffBaseCurrency * 100) / Math.abs(this.itemsSummaryData.SumTotalExVat), 1
                             );
 
-                            // 5% is set as a limit for asking the user now, but this might 
-                            // need to be reconsidered, or make it possible to override it 
+                            // 5% is set as a limit for asking the user now, but this might
+                            // need to be reconsidered, or make it possible to override it
                             // either on companysettings, customer, or the TOF header
                             if (diffBaseCurrencyPercent > 5) {
                                 askUserWhatToDo = true;
@@ -527,8 +527,8 @@ export class QuoteDetails {
             let currencyDate: LocalDate = new LocalDate(quote.QuoteDate.toString());
 
             return this.currencyService.getCurrencyExchangeRate(
-                quote.CurrencyCodeID, 
-                this.companySettings.BaseCurrencyCodeID, 
+                quote.CurrencyCodeID,
+                this.companySettings.BaseCurrencyCodeID,
                 currencyDate
             ).map(x => x.ExchangeRate);
         }
@@ -664,9 +664,9 @@ export class QuoteDetails {
         this.toolbarconfig = {
             title: quoteText,
             subheads: [
-                { 
-                    title: customerText, 
-                    link: this.quote.Customer ? `#/sales/customer/${this.quote.Customer.ID}` : '' 
+                {
+                    title: customerText,
+                    link: this.quote.Customer ? `#/sales/customer/${this.quote.Customer.ID}` : ''
                 },
                 { title: netSumText },
                 { title: GetPrintStatusText(this.quote.PrintStatus) }
@@ -689,7 +689,7 @@ export class QuoteDetails {
         }
 
         this.itemsSummaryData = this.tradeItemHelper.calculateTradeItemSummaryLocal(
-            quoteItems, 
+            quoteItems,
             this.companySettings.RoundingNumberOfDecimals
         );
         this.updateToolbar();
@@ -768,9 +768,9 @@ export class QuoteDetails {
                 });
             },
             disabled: !this.quote.ID,
-            main: this.isDirty 
-                || (this.quote.ID > 0 
-                    && this.quote.StatusCode !== StatusCodeCustomerQuote.Draft 
+            main: this.isDirty
+                || (this.quote.ID > 0
+                    && this.quote.StatusCode !== StatusCodeCustomerQuote.Draft
                     && printStatus === 100)
         });
 
@@ -1001,35 +1001,35 @@ export class QuoteDetails {
             {
                 value: this.getCurrencyCode(this.currencyCodeID),
                 title: 'Valuta:',
-            description: this.currencyExchangeRate ? 
+            description: this.currencyExchangeRate ?
                 'Kurs: ' + this.numberFormat.asMoney(this.currencyExchangeRate) : ''
             },
             {
-            value: this.itemsSummaryData ? 
+            value: this.itemsSummaryData ?
                 this.numberFormat.asMoney(this.itemsSummaryData.SumNoVatBasisCurrency) : '',
                 title: 'Avgiftsfritt',
             }, {
-            value: this.itemsSummaryData ? 
+            value: this.itemsSummaryData ?
                 this.numberFormat.asMoney(this.itemsSummaryData.SumVatBasisCurrency) : '',
                 title: 'Avgiftsgrunnlag',
             }, {
-            value: this.itemsSummaryData ? 
+            value: this.itemsSummaryData ?
                 this.numberFormat.asMoney(this.itemsSummaryData.SumDiscountCurrency) : '',
                 title: 'Sum rabatt',
             }, {
-            value: this.itemsSummaryData ? 
+            value: this.itemsSummaryData ?
                 this.numberFormat.asMoney(this.itemsSummaryData.SumTotalExVatCurrency) : '',
                 title: 'Nettosum',
             }, {
-            value: this.itemsSummaryData ? 
+            value: this.itemsSummaryData ?
                 this.numberFormat.asMoney(this.itemsSummaryData.SumVatCurrency) : '',
                 title: 'Mva',
             }, {
-            value: this.itemsSummaryData ? 
+            value: this.itemsSummaryData ?
                 this.numberFormat.asMoney(this.itemsSummaryData.DecimalRoundingCurrency) : '',
                 title: 'Øreavrunding',
             }, {
-            value: this.itemsSummaryData ? 
+            value: this.itemsSummaryData ?
                 this.numberFormat.asMoney(this.itemsSummaryData.SumTotalIncVatCurrency) : '',
                 title: 'Totalsum',
             }];

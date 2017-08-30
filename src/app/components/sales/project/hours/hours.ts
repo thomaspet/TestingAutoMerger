@@ -1,7 +1,7 @@
-﻿import { Component, ViewChild } from '@angular/core';
-import { URLSearchParams } from '@angular/http';
-import { ActivatedRoute } from '@angular/router';
-import { WorkEditor } from '../../../timetracking/components/workeditor';
+﻿import {Component, ViewChild} from '@angular/core';
+import {URLSearchParams} from '@angular/http';
+import {ActivatedRoute} from '@angular/router';
+import {WorkEditor} from '../../../timetracking/components/workeditor';
 import {
     ProjectService,
     ErrorService
@@ -42,7 +42,7 @@ export class ProjectHours {
                     let fromDate = new Date(params['year'], params['month'] - 1, 1);
                     this.filter += " and ( date ge '" + moment(fromDate).format('YYYY-MM-DD')
                         + "' and date le '" + moment(fromDate).endOf('months').format('YYYY-MM-DD') + "' )";
-                } 
+                }
                 this.tableConfig = this.getTableConfig();
             }
         });

@@ -1,16 +1,16 @@
-import { Component, ViewChild, OnDestroy } from '@angular/core';
-import { UniView } from '../../../../framework/core/uniView';
-import { ActivatedRoute, Router, NavigationEnd } from '@angular/router';
-import { IUniSaveAction } from '../../../../framework/save/save';
-import { IToolbarConfig } from '../../common/toolbar/toolbar';
-import { TabService, UniModules } from '../../layout/navbar/tabstrip/tabService';
-import { Observable } from 'rxjs/Observable';
-import { Subscription } from 'rxjs/Subscription';
-import { SalaryBalance, SalBalType, CompanySalary } from '../../../unientities';
-import { UniModalService, ConfirmActions } from '../../../../framework/uniModal/barrel';
-import { IContextMenuItem } from '../../../../framework/ui/unitable/index';
-import { SalaryBalanceLineModal } from './modals/salBalLineModal';
-import { UniPreviewModal } from '../../reports/modals/preview/previewModal';
+import {Component, ViewChild, OnDestroy} from '@angular/core';
+import {UniView} from '../../../../framework/core/uniView';
+import {ActivatedRoute, Router, NavigationEnd} from '@angular/router';
+import {IUniSaveAction} from '../../../../framework/save/save';
+import {IToolbarConfig} from '../../common/toolbar/toolbar';
+import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
+import {Observable} from 'rxjs/Observable';
+import {Subscription} from 'rxjs/Subscription';
+import {SalaryBalance, SalBalType, CompanySalary} from '../../../unientities';
+import {UniModalService, ConfirmActions} from '../../../../framework/uniModal/barrel';
+import {IContextMenuItem} from '../../../../framework/ui/unitable/index';
+import {SalaryBalanceLineModal} from './modals/salBalLineModal';
+import {UniPreviewModal} from '../../reports/modals/preview/previewModal';
 import {
     UniCacheService,
     ErrorService,
@@ -210,7 +210,7 @@ export class SalarybalanceView extends UniView implements OnDestroy {
             .subscribe(needsUpdate => {
                 if (needsUpdate) {
                     this.getSalarybalance();
-                } 
+                }
             });
     }
 

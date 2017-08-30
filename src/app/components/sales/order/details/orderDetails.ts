@@ -1,6 +1,6 @@
 import {Component, EventEmitter, HostListener, Input, ViewChild} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
-import { Observable } from 'rxjs/Observable';
+import {Observable} from 'rxjs/Observable';
 import * as moment from 'moment';
 
 import {
@@ -95,7 +95,7 @@ export class OrderDetails {
     private newOrderItem: CustomerOrderItem;
     private order: CustomerOrderExt;
     private orderItems: CustomerOrderItem[];
-    
+
     private contextMenuItems: IContextMenuItem[] = [];
     private saveActions: IUniSaveAction[] = [];
     public summary: ISummaryConfig[] = [];
@@ -113,36 +113,36 @@ export class OrderDetails {
 
     private customerExpandOptions: string[] = [
         'DeliveryTerms',
-        'Dimensions', 
-        'Dimensions.Project', 
-        'Dimensions.Department', 
+        'Dimensions',
+        'Dimensions.Project',
+        'Dimensions.Department',
         'Dimensions.Project.ProjectTasks',
-        'Info', 
-        'Info.Addresses', 
-        'Info.InvoiceAddress', 
+        'Info',
+        'Info.Addresses',
+        'Info.InvoiceAddress',
         'Info.ShippingAddress',
         'PaymentTerms'
     ];
 
     private expandOptions: Array<string> = [
-        'Customer', 
-        'Customer.Info', 
-        'Customer.Info.Addresses', 
-        'Customer.Dimensions', 
-        'Customer.Dimensions.Project', 
-        'Customer.Dimensions.Department', 
+        'Customer',
+        'Customer.Info',
+        'Customer.Info.Addresses',
+        'Customer.Dimensions',
+        'Customer.Dimensions.Project',
+        'Customer.Dimensions.Department',
         'DefaultDimensions',
         'DeliveryTerms',
-        'Items', 
-        'Items.Product.VatType', 
+        'Items',
+        'Items.Product.VatType',
         'Items.VatType',
-        'Items.Dimensions', 
-        'Items.Dimensions.Project', 
-        'Items.Dimensions.Department', 
-        'Items.Account', 
+        'Items.Dimensions',
+        'Items.Dimensions.Project',
+        'Items.Dimensions.Department',
+        'Items.Account',
         'Items.Dimensions.Project.ProjectTasks',
         'PaymentTerms',
-        'Sellers', 
+        'Sellers',
         'Sellers.Seller'
     ];
 
@@ -243,7 +243,7 @@ export class OrderDetails {
                     this.termsService.GetAction(null, 'get-delivery-terms'),
                     customerID ? this.customerService.Get(
                         customerID, this.customerExpandOptions
-                    ) : Observable.of(null), 
+                    ) : Observable.of(null),
                     projectID ? this.projectService.Get(projectID, null) : Observable.of(null)
                 ).subscribe(
                     (res) => {
@@ -251,7 +251,7 @@ export class OrderDetails {
                         order.OurReference = res[1].DisplayName;
                         order.OrderDate = new LocalDate(Date());
                         order.DeliveryDate = order.OrderDate;
-                        
+
                         this.companySettings = res[2];
 
                         if (res[6]) {
@@ -398,7 +398,7 @@ export class OrderDetails {
                             // if it doesnt cause a change larger than 5%, don't bother asking the user what
                             // to do, just use the set prices
                             newTotalExVatBaseCurrency = this.itemsSummaryData.SumTotalExVatCurrency * newCurrencyRate;
-                            diffBaseCurrency = Math.abs(newTotalExVatBaseCurrency 
+                            diffBaseCurrency = Math.abs(newTotalExVatBaseCurrency
                                 - this.itemsSummaryData.SumTotalExVat);
 
                             diffBaseCurrencyPercent =
@@ -407,7 +407,7 @@ export class OrderDetails {
                                 );
 
                             // 5% is set as a limit for asking the user now, but this might need to be reconsidered,
-                            // or make it possible to override it either on companysettings, customer, 
+                            // or make it possible to override it either on companysettings, customer,
                             // or the TOF header
                             if (diffBaseCurrencyPercent > 5) {
                                 askUserWhatToDo = true;
@@ -552,8 +552,8 @@ export class OrderDetails {
             let currencyDate: LocalDate = new LocalDate(order.OrderDate.toString());
 
             return this.currencyService.getCurrencyExchangeRate(
-                order.CurrencyCodeID, 
-                this.companySettings.BaseCurrencyCodeID, 
+                order.CurrencyCodeID,
+                this.companySettings.BaseCurrencyCodeID,
                 currencyDate
             ).map(x => x.ExchangeRate);
         }
@@ -703,9 +703,9 @@ export class OrderDetails {
         this.toolbarconfig = {
             title: orderText,
             subheads: [
-                { 
-                    title: customerText, 
-                    link: this.order.Customer ? `#/sales/customer/${this.order.Customer.ID}` : '' 
+                {
+                    title: customerText,
+                    link: this.order.Customer ? `#/sales/customer/${this.order.Customer.ID}` : ''
                 },
                 { title: netSumText },
                 { title: GetPrintStatusText(this.order.PrintStatus) }
@@ -1037,34 +1037,34 @@ export class OrderDetails {
         this.summary = [{
             value: this.getCurrencyCode(this.currencyCodeID),
             title: 'Valuta:',
-                description: this.currencyExchangeRate ? 
+                description: this.currencyExchangeRate ?
                 'Kurs: ' + this.numberFormat.asMoney(this.currencyExchangeRate) : ''
         }, {
-                value: this.itemsSummaryData ? 
+                value: this.itemsSummaryData ?
                     this.numberFormat.asMoney(this.itemsSummaryData.SumNoVatBasisCurrency) : null,
             title: 'Avgiftsfritt',
         }, {
-                value: this.itemsSummaryData ? 
+                value: this.itemsSummaryData ?
                     this.numberFormat.asMoney(this.itemsSummaryData.SumVatBasisCurrency) : null,
             title: 'Avgiftsgrunnlag',
         }, {
-                value: this.itemsSummaryData ? 
+                value: this.itemsSummaryData ?
                     this.numberFormat.asMoney(this.itemsSummaryData.SumDiscountCurrency) : null,
             title: 'Sum rabatt',
         }, {
-                value: this.itemsSummaryData ? 
+                value: this.itemsSummaryData ?
                     this.numberFormat.asMoney(this.itemsSummaryData.SumTotalExVatCurrency) : null,
             title: 'Nettosum',
         }, {
-                value: this.itemsSummaryData ? 
+                value: this.itemsSummaryData ?
                     this.numberFormat.asMoney(this.itemsSummaryData.SumVatCurrency) : null,
             title: 'Mva',
         }, {
-                value: this.itemsSummaryData ? 
+                value: this.itemsSummaryData ?
                     this.numberFormat.asMoney(this.itemsSummaryData.DecimalRoundingCurrency) : null,
             title: 'Øreavrunding',
         }, {
-                value: this.itemsSummaryData ? 
+                value: this.itemsSummaryData ?
                     this.numberFormat.asMoney(this.itemsSummaryData.SumTotalIncVatCurrency) : null,
             title: 'Totalsum',
         }];

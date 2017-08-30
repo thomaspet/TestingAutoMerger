@@ -1,10 +1,10 @@
-import { Component, HostListener, ChangeDetectorRef, ChangeDetectionStrategy, ViewChild } from '@angular/core';
-import { Router } from '@angular/router';
-import { UniHttp } from '../core/http/http';
-import { ErrorService, CompanyService } from '../../app/services/services';
-import { Notification, NotificationStatus, Company } from '../../app/unientities';
-import { Observable } from 'rxjs/Observable';
-import { AuthService } from '../core/authService';
+import {Component, HostListener, ChangeDetectorRef, ChangeDetectionStrategy, ViewChild} from '@angular/core';
+import {Router} from '@angular/router';
+import {UniHttp} from '../core/http/http';
+import {ErrorService, CompanyService} from '../../app/services/services';
+import {Notification, NotificationStatus, Company} from '../../app/unientities';
+import {Observable} from 'rxjs/Observable';
+import {AuthService} from '../core/authService';
 import {UniModalService, ConfirmActions} from '../uniModal/barrel';
 
 import * as moment from 'moment';

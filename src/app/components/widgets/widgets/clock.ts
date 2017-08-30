@@ -1,5 +1,5 @@
-﻿import { Component, ChangeDetectorRef } from '@angular/core';
-import { IUniWidget } from '../uniWidget';
+﻿import {Component, ChangeDetectorRef} from '@angular/core';
+import {IUniWidget} from '../uniWidget';
 import * as moment from 'moment';
 
 @Component({

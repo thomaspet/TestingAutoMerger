@@ -1,10 +1,10 @@
-﻿import { Component, ViewChild, ElementRef } from '@angular/core';
-import { Http } from '@angular/http';
-import { Router, ActivatedRoute } from '@angular/router';
-import { Project, Customer, ProjectTask } from '../../../../unientities';
+﻿import {Component, ViewChild, ElementRef} from '@angular/core';
+import {Http} from '@angular/http';
+import {Router, ActivatedRoute} from '@angular/router';
+import {Project, Customer, ProjectTask} from '../../../../unientities';
 import * as Chart from 'chart.js';
 import * as moment from 'moment';
-import { ProjectService, CustomerService } from '../../../../services/services';
+import {ProjectService, CustomerService} from '../../../../services/services';
 
 export interface myProject extends Project {
     ProjectCustomerID: number;

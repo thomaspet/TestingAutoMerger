@@ -1,7 +1,7 @@
-import { Component, OnInit, Input, Output, EventEmitter, SimpleChanges } from '@angular/core';
-import { IUniModal, IModalOptions } from '../../../../../framework/uniModal/barrel';
-import { BehaviorSubject } from 'rxjs/BehaviorSubject';
-import { UniFieldLayout, FieldType } from '../../../../../framework/ui/uniform/index';
+import {Component, OnInit, Input, Output, EventEmitter, SimpleChanges} from '@angular/core';
+import {IUniModal, IModalOptions} from '../../../../../framework/uniModal/barrel';
+import {BehaviorSubject} from 'rxjs/BehaviorSubject';
+import {UniFieldLayout, FieldType} from '../../../../../framework/ui/uniform/index';
 
 export interface IAmeldingTypeEvent {
     type: number;
@@ -21,7 +21,7 @@ export class AmeldingTypePickerModal implements OnInit, IUniModal {
     public ameldingModel$: BehaviorSubject<any> = new BehaviorSubject({});
     constructor() { }
 
-    public ngOnInit() { 
+    public ngOnInit() {
         this.createFormConfig();
         this.ameldingModel$.next({type: 0});
      }
@@ -39,7 +39,7 @@ export class AmeldingTypePickerModal implements OnInit, IUniModal {
                 return {
                     type: model ? model.type : -1,
                     done: this.options.modalConfig.done
-                }; 
+                };
             })
             .subscribe(event => this.onClose.next(event));
     }

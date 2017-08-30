@@ -4,7 +4,7 @@ import {createFormField, FieldSize, ControlTypes} from '../../common/utils/utils
 import {IViewConfig} from '../genericview/list';
 import {WorkProfile} from '../../../unientities';
 import {GenericDetailview} from '../genericview/detail';
-import { UniModules } from '../../layout/navbar/tabstrip/tabService';
+import {UniModules} from '../../layout/navbar/tabstrip/tabService';
 
 export var view = new View('workprofiles', 'Stillingsmal', 'WorkprofileDetailview', true, '', WorkprofileDetailview);
 

@@ -1,20 +1,20 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
-import { UniTableConfig, UniTableColumn, UniTableColumnType, UniTable } from '../../../../framework/ui/unitable/index';
-import { IUniSaveAction } from '../../../../framework/save/save';
-import { IToolbarConfig } from '../../common/toolbar/toolbar';
+import {Component, OnInit, ViewChild} from '@angular/core';
+import {ActivatedRoute} from '@angular/router';
+import {UniTableConfig, UniTableColumn, UniTableColumnType, UniTable} from '../../../../framework/ui/unitable/index';
+import {IUniSaveAction} from '../../../../framework/save/save';
+import {IToolbarConfig} from '../../common/toolbar/toolbar';
 import {
     PayrollrunService, EmployeeService, ErrorService,
     SalaryTransactionService, YearService, SupplementService
 } from '../../../services/services';
-import { TabService, UniModules } from '../../layout/navbar/tabstrip/tabService';
+import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {
     PayrollRun, SalaryTransaction, Employee, SalaryTransactionSupplement,
     Valuetype
 } from '../../../unientities';
-import { Observable } from 'rxjs/Observable';
-import { ReplaySubject } from 'rxjs/ReplaySubject';
-import { UniModalService, ConfirmActions } from '../../../../framework/uniModal/barrel';
+import {Observable} from 'rxjs/Observable';
+import {ReplaySubject} from 'rxjs/ReplaySubject';
+import {UniModalService, ConfirmActions} from '../../../../framework/uniModal/barrel';
 
 type HashMap<T> = {
     [key: string]: T;

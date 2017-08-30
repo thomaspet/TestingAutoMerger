@@ -1,16 +1,16 @@
-import { Component, OnInit, SimpleChanges } from '@angular/core';
-import { Router, ActivatedRoute } from '@angular/router';
-import { UniFieldLayout } from '../../../../../framework/ui/uniform/index';
-import { BehaviorSubject } from 'rxjs/BehaviorSubject';
-import { EmployeeTaxCard, Employee, Municipal } from '../../../../unientities';
-import { UniView } from '../../../../../framework/core/uniView';
-import { 
-    UniCacheService, 
-    ErrorService, 
-    EmployeeTaxCardService, 
-    MunicipalService 
+import {Component, OnInit, SimpleChanges} from '@angular/core';
+import {Router, ActivatedRoute} from '@angular/router';
+import {UniFieldLayout} from '../../../../../framework/ui/uniform/index';
+import {BehaviorSubject} from 'rxjs/BehaviorSubject';
+import {EmployeeTaxCard, Employee, Municipal} from '../../../../unientities';
+import {UniView} from '../../../../../framework/core/uniView';
+import {
+    UniCacheService,
+    ErrorService,
+    EmployeeTaxCardService,
+    MunicipalService
 } from '../../../../services/services';
-import { Observable } from 'rxjs/Observable';
+import {Observable} from 'rxjs/Observable';
 
 @Component({
     selector: 'employee-tax',
@@ -55,7 +55,7 @@ export class EmployeeTax extends UniView implements OnInit {
                 .do(taxCard => this.fields$.next(this.toggleReadOnly(taxCard)))
                 .catch((err, obs) => this.errorService.handleRxCatch(err, obs))
                 .subscribe(taxCard => this.employeeTaxCard$.next(taxCard));
-            
+
             employee$
                 .filter(emp => emp && emp.ID)
                 .subscribe((emp) => this.fields$.next(this.toggleTaxButtonActive(emp)));
@@ -65,8 +65,8 @@ export class EmployeeTax extends UniView implements OnInit {
     public ngOnInit() { }
 
     private getTaxLayout(
-        taxCardOptions: { openModal: () => void }, 
-        employee: Employee, 
+        taxCardOptions: { openModal: () => void },
+        employee: Employee,
         employeeTaxCard: EmployeeTaxCard) {
         this.employeeTaxCardService.getLayout('EmployeeTaxCardForm').subscribe(layout => {
             let taxButton = this.findByProperty(layout.Fields, 'TaxBtn');
@@ -130,7 +130,7 @@ export class EmployeeTax extends UniView implements OnInit {
 
     private toggleReadOnly(taxCard: EmployeeTaxCard, fields: UniFieldLayout[] = undefined): UniFieldLayout[] {
         fields = fields || this.fields$.getValue();
-        fields.filter(field => 
+        fields.filter(field =>
             field.Property !== 'TaxBtn')
                 .forEach(field =>
                     field.Property === '_lastUpdated' ? field.ReadOnly = true : field.ReadOnly = !taxCard.EmployeeID

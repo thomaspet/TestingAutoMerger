@@ -1,7 +1,7 @@
 import {NgModule} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
-import { COMPILER_PROVIDERS } from '@angular/compiler';
+import {COMPILER_PROVIDERS} from '@angular/compiler';
 import {UniTable} from './unitable';
 import {UniTableUtils} from './unitableUtils';
 import {UniTableRow} from './unitableRow';

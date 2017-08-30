@@ -1,9 +1,9 @@
-import { Component, ViewChild } from '@angular/core';
-import { IReference } from '../../../../models/iReference';
-import { TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
-import { ActivatedRoute } from '@angular/router';
-import { ISummaryConfig } from '../../../common/summary/summary';
-import { Project } from '../../../../unientities';
+import {Component, ViewChild} from '@angular/core';
+import {IReference} from '../../../../models/iReference';
+import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
+import {ActivatedRoute} from '@angular/router';
+import {ISummaryConfig} from '../../../common/summary/summary';
+import {Project} from '../../../../unientities';
 import {
     ProjectService,
     ErrorService,

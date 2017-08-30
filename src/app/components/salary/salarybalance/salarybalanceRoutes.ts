@@ -1,4 +1,4 @@
-import { SalarybalanceDetail } from './views/salarybalanceDetails';
+import {SalarybalanceDetail} from './views/salarybalanceDetails';
 
 export const routes = [
     {

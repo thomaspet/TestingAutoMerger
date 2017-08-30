@@ -1,10 +1,10 @@
-import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
-import { UniTableConfig, UniTableColumnType, UniTableColumn } from '../../../../framework/ui/unitable/index';
-import { TabService, UniModules } from '../../layout/navbar/tabstrip/tabService';
-import { PayrollRun } from '../../../unientities';
-import { PayrollrunService, ErrorService } from '../../../services/services';
-import { Observable } from 'rxjs/Observable';
+import {Component, OnInit} from '@angular/core';
+import {Router} from '@angular/router';
+import {UniTableConfig, UniTableColumnType, UniTableColumn} from '../../../../framework/ui/unitable/index';
+import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
+import {PayrollRun} from '../../../unientities';
+import {PayrollrunService, ErrorService} from '../../../services/services';
+import {Observable} from 'rxjs/Observable';
 
 @Component({
     selector: 'payrollrun-list',

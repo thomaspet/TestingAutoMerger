@@ -1,8 +1,8 @@
-﻿import { Component, Input, Output, EventEmitter, ViewChild } from '@angular/core';
-import { TimeTrackingPeriodes } from '../timeentry/timeentry';
-import { WorkerService, IFilter } from '../../../services/timetracking/workerService';
-import { UniTemplateModal } from '../components/newtemplatemodal';
-import { ToastService, ToastType } from '../../../../framework/uniToast/toastService';
+﻿import {Component, Input, Output, EventEmitter, ViewChild} from '@angular/core';
+import {TimeTrackingPeriodes} from '../timeentry/timeentry';
+import {WorkerService, IFilter} from '../../../services/timetracking/workerService';
+import {UniTemplateModal} from '../components/newtemplatemodal';
+import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
 import * as moment from 'moment';
 
 export interface ITimeTrackingTemplate {
@@ -44,7 +44,7 @@ export class SideMenu {
 
     constructor(private toast: ToastService) {
         let temp = localStorage.getItem('timeTrackingTemplates');
-        
+
         if (temp) {
             this.timeTrackingTemplates = JSON.parse(temp);
         }

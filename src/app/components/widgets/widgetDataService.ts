@@ -1,7 +1,7 @@
-﻿import { Injectable } from '@angular/core';
-import { UniHttp } from '../../../framework/core/http/http';
-import { AuthService } from '../../../framework/core/authService';
-import { YearService } from '../../services/services';
+﻿import {Injectable} from '@angular/core';
+import {UniHttp} from '../../../framework/core/http/http';
+import {AuthService} from '../../../framework/core/authService';
+import {YearService} from '../../services/services';
 
 
 @Injectable()

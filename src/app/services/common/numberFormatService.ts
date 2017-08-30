@@ -1,4 +1,4 @@
-import { INumberOptions } from '../../../framework/ui/uniform/index';
+import {INumberOptions} from '../../../framework/ui/uniform/index';
 import {Injectable} from '@angular/core';
 
 const HAIRSPACE = '\u200A';

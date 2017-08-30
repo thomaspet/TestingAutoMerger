@@ -1,9 +1,9 @@
-import { Component, ViewChild, ChangeDetectorRef } from '@angular/core';
+import {Component, ViewChild, ChangeDetectorRef} from '@angular/core';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {View} from '../../../models/view/view';
-import { WorkRelation, WorkItem, Worker, WorkBalance, LocalDate } from '../../../unientities';
-import { WorkerService, IFilter, ItemInterval } from '../../../services/timetracking/workerService';
-import { exportToFile, arrayToCsv, safeInt, trimLength, parseTime } from '../../common/utils/utils';
+import {WorkRelation, WorkItem, Worker, WorkBalance, LocalDate} from '../../../unientities';
+import {WorkerService, IFilter, ItemInterval} from '../../../services/timetracking/workerService';
+import {exportToFile, arrayToCsv, safeInt, trimLength, parseTime} from '../../common/utils/utils';
 import {TimesheetService, TimeSheet} from '../../../services/timetracking/timesheetService';
 import {IsoTimePipe} from '../../common/utils/pipes';
 import {IUniSaveAction} from '../../../../framework/save/save';
@@ -16,11 +16,11 @@ import {ActivatedRoute, Router} from '@angular/router';
 import {ErrorService} from '../../../services/services';
 import {UniModalService, ConfirmActions} from '../../../../framework/uniModal/barrel';
 import {WorkEditor} from '../components/workeditor';
-import { DayBrowser, Day, ITimeSpan, INavDirection } from '../components/daybrowser';
-import { SideMenu, ITemplate, ITimeTrackingTemplate } from '../sidemenu/sidemenu';
+import {DayBrowser, Day, ITimeSpan, INavDirection} from '../components/daybrowser';
+import {SideMenu, ITemplate, ITimeTrackingTemplate} from '../sidemenu/sidemenu';
 import {TeamworkReport, Team} from '../components/teamworkreport';
-import { UniFileImport } from '../components/popupfileimport';
-import { UniHttp } from '../../../../framework/core/http/http';
+import {UniFileImport} from '../components/popupfileimport';
+import {UniHttp} from '../../../../framework/core/http/http';
 import * as moment from 'moment';
 
 type colName = 'Date' | 'StartTime' | 'EndTime' | 'WorkTypeID' | 'LunchInMinutes' |
@@ -183,7 +183,7 @@ export class TimeEntry {
             this.busy = true;
             this.loadItems(event);
             this.customDateSelected = new Date(event);
-            //Unselect upper right selector when selecting other date then today or yesterday 
+            //Unselect upper right selector when selecting other date then today or yesterday
             if (new Date(event).getDate() === new Date().getDate()) {
                 this.currentFilter = this.filters[0];
                 this.filters.forEach((value: any) => value.isSelected = false);
@@ -217,7 +217,7 @@ export class TimeEntry {
         } else {
             workItem.Date = new LocalDate(this.currentFilter.date);
         }
-        
+
         workItem.StartTime = template.StartTime ? parseTime(template.StartTime) : parseTime('8');
         workItem.EndTime = template.EndTime ? parseTime(template.EndTime) : parseTime('8');
         workItem.Minutes = template.Minutes;
@@ -705,7 +705,7 @@ export class TimeEntry {
 
             this.workedToday = Math.floor(totalTime) + ' timer og ' + Math.floor((totalTime * 60) % 60) + ' minutter'
 
-            //Find percentage of hours worked (Max 100) 
+            //Find percentage of hours worked (Max 100)
             let percentageWorked = totalTime / (expectedTime / 100);
             percentageWorked = percentageWorked > 100 ? 100 : percentageWorked;
 

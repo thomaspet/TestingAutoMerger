@@ -1,11 +1,11 @@
-import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
-import { IUniModal, IModalOptions } from '../../../../../framework/uniModal/barrel';
-import { UniTableConfig, UniTableColumn, UniTableColumnType } from '../../../../../framework/ui/unitable/index';
-import { GrantService, SubEntityService, ErrorService } from '../../../../services/services';
-import { Observable } from 'rxjs/Observable';
-import { BehaviorSubject } from 'rxjs/BehaviorSubject';
-import { UniFieldLayout, FieldType } from '../../../../../framework/ui/uniform/index';
-import { SubEntity } from './../../../../unientities';
+import {Component, OnInit, Input, Output, EventEmitter} from '@angular/core';
+import {IUniModal, IModalOptions} from '../../../../../framework/uniModal/barrel';
+import {UniTableConfig, UniTableColumn, UniTableColumnType} from '../../../../../framework/ui/unitable/index';
+import {GrantService, SubEntityService, ErrorService} from '../../../../services/services';
+import {Observable} from 'rxjs/Observable';
+import {BehaviorSubject} from 'rxjs/BehaviorSubject';
+import {UniFieldLayout, FieldType} from '../../../../../framework/ui/uniform/index';
+import {SubEntity} from './../../../../unientities';
 
 @Component({
     selector: 'free-amount-modal',

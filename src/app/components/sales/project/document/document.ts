@@ -1,11 +1,11 @@
-import { Component, ViewChild } from '@angular/core';
-import { Project } from '../../../../unientities';
-import { BehaviorSubject } from 'rxjs/BehaviorSubject';
-import { Observable } from 'rxjs/Observable';
-import { UniTableColumn, UniTableColumnType, UniTableConfig } from '../../../../../framework/ui/unitable/index';
-import { ImageModal } from '../../../common/modals/ImageModal';
-import { UniImage, UniImageSize } from '../../../../../framework/uniImage/uniImage';
-import { ToastService, ToastTime, ToastType } from '../../../../../framework/uniToast/toastService';
+import {Component, ViewChild} from '@angular/core';
+import {Project} from '../../../../unientities';
+import {BehaviorSubject} from 'rxjs/BehaviorSubject';
+import {Observable} from 'rxjs/Observable';
+import {UniTableColumn, UniTableColumnType, UniTableConfig} from '../../../../../framework/ui/unitable/index';
+import {ImageModal} from '../../../common/modals/ImageModal';
+import {UniImage, UniImageSize} from '../../../../../framework/uniImage/uniImage';
+import {ToastService, ToastTime, ToastType} from '../../../../../framework/uniToast/toastService';
 import {
     ProjectService,
     ErrorService,

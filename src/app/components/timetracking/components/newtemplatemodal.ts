@@ -1,10 +1,10 @@
-﻿import { Component, ViewChild, Output, EventEmitter } from '@angular/core';
-import { ITimeTrackingTemplate, ITemplate } from '../sidemenu/sidemenu';
-import { UniFieldLayout } from '../../../../framework/ui/uniform/index';
-import { BehaviorSubject } from 'rxjs/BehaviorSubject';
-import { FieldType } from '../../../../framework/ui/uniform/index';
-import { WorkEditor } from './workeditor';
-import { ToastService, ToastType } from '../../../../framework/uniToast/toastService';
+﻿import {Component, ViewChild, Output, EventEmitter} from '@angular/core';
+import {ITimeTrackingTemplate, ITemplate} from '../sidemenu/sidemenu';
+import {UniFieldLayout} from '../../../../framework/ui/uniform/index';
+import {BehaviorSubject} from 'rxjs/BehaviorSubject';
+import {FieldType} from '../../../../framework/ui/uniform/index';
+import {WorkEditor} from './workeditor';
+import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
 import {
     UniTable,
     UniTableColumn,

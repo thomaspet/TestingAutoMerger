@@ -1,5 +1,5 @@
 //import {Component, Type, ViewChild, Input, Output, EventEmitter, SimpleChanges} from '@angular/core';
-import { Component, ViewChild, Input, Output, EventEmitter, SimpleChanges, Type } from '@angular/core';
+import {Component, ViewChild, Input, Output, EventEmitter, SimpleChanges, Type} from '@angular/core';
 import {UniModal} from '../../../../../../../framework/modals/modal';
 
 
@@ -8,8 +8,8 @@ import {UniModal} from '../../../../../../../framework/modals/modal';
     template: '<H2>hello</H2>'
 })
 export class TestModalContent {
-    
-    
+
+
 };
 
 
@@ -26,7 +26,7 @@ export class TestModal {
     };
 
     public type: Type<any> = TestModalContent;
-    
+
 
     constructor(){
         this.modalConfig = {

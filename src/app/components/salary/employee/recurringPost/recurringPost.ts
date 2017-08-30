@@ -1,17 +1,17 @@
-import { Component, ViewChild } from '@angular/core';
-import { Router, ActivatedRoute } from '@angular/router';
+import {Component, ViewChild} from '@angular/core';
+import {Router, ActivatedRoute} from '@angular/router';
 import {
     WageTypeService, UniCacheService, AccountService,
     ErrorService, SalaryTransactionSuggestedValuesService
 } from '../../../../services/services';
-import { UniTableColumn, UniTableColumnType, UniTableConfig, UniTable } from '../../../../../framework/ui/unitable/index';
+import {UniTableColumn, UniTableColumnType, UniTableConfig, UniTable} from '../../../../../framework/ui/unitable/index';
 import {
     Employment, SalaryTransaction, WageType, Dimensions, Department, Project,
     SalaryTransactionSupplement, WageTypeSupplement, Account, SalBalType
 } from '../../../../unientities';
-import { UniView } from '../../../../../framework/core/uniView';
-import { SalaryTransSupplementsModal } from '../../modals/salaryTransSupplementsModal';
-import { UniModalService } from '../../../../../framework/uniModal/barrel';
+import {UniView} from '../../../../../framework/core/uniView';
+import {SalaryTransSupplementsModal} from '../../modals/salaryTransSupplementsModal';
+import {UniModalService} from '../../../../../framework/uniModal/barrel';
 
 
 @Component({

@@ -1,9 +1,9 @@
-import { Injectable } from '@angular/core';
-import { BizHttp } from '../../../../framework/core/http/BizHttp';
-import { UniHttp } from '../../../../framework/core/http/http';
-import { SalaryTransactionSums } from '../../../unientities';
+import {Injectable} from '@angular/core';
+import {BizHttp} from '../../../../framework/core/http/BizHttp';
+import {UniHttp} from '../../../../framework/core/http/http';
+import {SalaryTransactionSums} from '../../../unientities';
 
-import { Observable } from 'rxjs/Observable';
+import {Observable} from 'rxjs/Observable';
 
 @Injectable()
 export class SalarySumsService extends BizHttp<SalaryTransactionSums> {

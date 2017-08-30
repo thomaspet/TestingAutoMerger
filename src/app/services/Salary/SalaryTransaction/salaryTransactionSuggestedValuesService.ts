@@ -1,8 +1,8 @@
-import { Injectable } from '@angular/core';
-import { EmploymentService } from '../employee/employmentService';
-import { PayrollrunService } from '../payrollrun/payrollRunService';
-import { SalaryTransaction, LocalDate } from '../../../unientities';
-import { Observable } from 'rxjs/Observable';
+import {Injectable} from '@angular/core';
+import {EmploymentService} from '../employee/employmentService';
+import {PayrollrunService} from '../payrollrun/payrollRunService';
+import {SalaryTransaction, LocalDate} from '../../../unientities';
+import {Observable} from 'rxjs/Observable';
 import * as moment from 'moment';
 
 @Injectable()

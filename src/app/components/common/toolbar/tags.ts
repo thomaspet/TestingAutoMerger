@@ -1,7 +1,7 @@
-import { Component, Input, Output, EventEmitter, OnChanges, ViewChild } from '@angular/core';
-import { Observable } from 'rxjs/Observable';
-import { UniFieldLayout, FieldType, UniAutocompleteInput } from '../../../../framework/ui/uniform/index';
-import { ErrorService } from '../../../services/services';
+import {Component, Input, Output, EventEmitter, OnChanges, ViewChild} from '@angular/core';
+import {Observable} from 'rxjs/Observable';
+import {UniFieldLayout, FieldType, UniAutocompleteInput} from '../../../../framework/ui/uniform/index';
+import {ErrorService} from '../../../services/services';
 import * as _ from 'lodash';
 
 export interface IUniTagsConfig {
@@ -205,7 +205,7 @@ export class UniTags implements OnChanges {
         if ((tag1.linkID || tag2.linkID)) {
             return false;
         }
-        
+
         return tag1.title === tag2.title;
     }
 

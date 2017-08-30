@@ -1,6 +1,6 @@
-import { Component, OnInit, ViewChild, Type, Input, OnDestroy } from '@angular/core';
-import { UniModal } from '../../../../../framework/modals/modal';
-import { ReportDefinition, ReportDefinitionParameter } from '../../../../unientities';
+import {Component, OnInit, ViewChild, Type, Input, OnDestroy} from '@angular/core';
+import {UniModal} from '../../../../../framework/modals/modal';
+import {ReportDefinition, ReportDefinitionParameter} from '../../../../unientities';
 import {
     ReportDefinitionParameterService,
     YearService,
@@ -9,9 +9,9 @@ import {
 } from '../../../../services/services';
 import {UniModalService} from '../../../../../framework/uniModal/barrel';
 import {UniPreviewModal} from '../preview/previewModal';
-import { UniFieldLayout, FieldType } from '../../../../../framework/ui/uniform/index';
-import { BehaviorSubject } from 'rxjs/BehaviorSubject';
-import { Observable } from 'rxjs/Observable';
+import {UniFieldLayout, FieldType} from '../../../../../framework/ui/uniform/index';
+import {BehaviorSubject} from 'rxjs/BehaviorSubject';
+import {Observable} from 'rxjs/Observable';
 import * as moment from 'moment';
 
 type ModalConfig = {

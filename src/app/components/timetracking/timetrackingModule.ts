@@ -25,13 +25,13 @@ import {WorkprofileListview} from './workprofile/workprofiles';
 import {WorktypeDetailview} from './worktype/worktype';
 import {WorktypeListview} from './worktype/worktypes';
 import {View as VacationView} from './timeentry/vacation/vacation';
-import { View as WorkBalancesView } from './worker/balances';
-import { SideMenu } from './sidemenu/sidemenu';
+import {View as WorkBalancesView} from './worker/balances';
+import {SideMenu} from './sidemenu/sidemenu';
 import {CanDeactivateGuard} from '../../canDeactivateGuard';
 import {WorkEditor} from './components/workeditor';
 import {DayBrowser} from './components/daybrowser';
-import { UniTimeModal } from './components/popupeditor';
-import { UniTemplateModal } from './components/newtemplatemodal';
+import {UniTimeModal} from './components/popupeditor';
+import {UniTemplateModal} from './components/newtemplatemodal';
 import {TeamworkReport} from './components/teamworkreport';
 import {ApproveDetails} from './components/approvedetails';
 import {TimeApproveModal} from './components/popupapprove';
@@ -46,7 +46,7 @@ import {UniApproveTaskModal} from './timeentry/timetable/approvetaskmodal';
         ReactiveFormsModule,
         HttpModule,
         AppPipesModule,
-        
+
         RouterModule.forChild(timetrackingRoutes),
 
         UniFrameworkModule,

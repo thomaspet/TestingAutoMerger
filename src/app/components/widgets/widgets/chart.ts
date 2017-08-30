@@ -1,8 +1,8 @@
-﻿import { Component, ViewChild, ElementRef } from '@angular/core';
-import { IUniWidget } from '../uniWidget';
-import { WidgetDatasetBuilder, ChartColorEnum } from '../widgetDatasetBuilder';
-import { WidgetDataService } from '../widgetDataService';
-import { Observable } from 'rxjs/Observable';
+﻿import {Component, ViewChild, ElementRef} from '@angular/core';
+import {IUniWidget} from '../uniWidget';
+import {WidgetDatasetBuilder, ChartColorEnum} from '../widgetDatasetBuilder';
+import {WidgetDataService} from '../widgetDataService';
+import {Observable} from 'rxjs/Observable';
 import * as Chart from 'chart.js';
 
 @Component({

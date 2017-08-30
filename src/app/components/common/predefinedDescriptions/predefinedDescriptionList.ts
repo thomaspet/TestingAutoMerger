@@ -8,7 +8,7 @@ import {PredefinedDescription} from '../../../unientities';
 import {Observable} from 'rxjs/Observable';
 import {UniModalService} from '../../../../framework/uniModal/barrel';
 
-import { PredefinedDescriptionService, ErrorService } from '../../../services/services';
+import {PredefinedDescriptionService, ErrorService} from '../../../services/services';
 
 
 @Component({

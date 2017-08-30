@@ -13,14 +13,14 @@ import {
 } from '../../../../unientities';
 import {UniStatusTrack} from '../../../common/toolbar/statustrack';
 import {IUniSaveAction} from '../../../../../framework/save/save';
-import { UniForm, FieldType} from '../../../../../framework/ui/uniform/index';
+import {UniForm, FieldType} from '../../../../../framework/ui/uniform/index';
 import {Location} from '@angular/common';
 import {BillSimpleJournalEntryView} from './journal/simple';
 import {IOcrServiceResult, OcrValuables} from './ocr';
 import {billViewLanguage as lang, billStatusflowLabels as workflowLabels} from './lang';
 import {BillHistoryView} from './history/history';
-import { ImageModal } from '../../../common/modals/ImageModal';
-import { UniImageSize, UniImage } from '../../../../../framework/uniImage/uniImage';
+import {ImageModal} from '../../../common/modals/ImageModal';
+import {UniImageSize, UniImage} from '../../../../../framework/uniImage/uniImage';
 import {IUniSearchConfig} from '../../../../../framework/ui/unisearch/index';
 import {UniAssignModal, AssignDetails} from './assignmodal';
 import {UniApproveModal, ApprovalDetails} from './approvemodal';

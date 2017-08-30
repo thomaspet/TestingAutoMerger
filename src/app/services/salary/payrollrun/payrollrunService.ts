@@ -1,18 +1,18 @@
-import { Injectable } from '@angular/core';
-import { BizHttp } from '../../../../framework/core/http/BizHttp';
-import { UniHttp } from '../../../../framework/core/http/http';
+import {Injectable} from '@angular/core';
+import {BizHttp} from '../../../../framework/core/http/BizHttp';
+import {UniHttp} from '../../../../framework/core/http/http';
 import {
     PayrollRun, TaxDrawFactor, EmployeeCategory,
     Employee, SalaryTransaction, Tracelink, Payment
 } from '../../../unientities';
-import { Observable } from 'rxjs/Observable';
-import { ErrorService } from '../../common/errorService';
-import { FieldType } from '../../../../framework/ui/uniform/index';
-import { ToastService, ToastTime, ToastType } from '../../../../framework/uniToast/toastService';
-import { SalaryTransactionService } from '../salarytransaction/salaryTransactionService';
-import { StatisticsService } from '../../common/statisticsService';
-import { YearService } from '../../common/yearService';
-import { ITag } from '../../../components/common/toolbar/tags';
+import {Observable} from 'rxjs/Observable';
+import {ErrorService} from '../../common/errorService';
+import {FieldType} from '../../../../framework/ui/uniform/index';
+import {ToastService, ToastTime, ToastType} from '../../../../framework/uniToast/toastService';
+import {SalaryTransactionService} from '../salarytransaction/salaryTransactionService';
+import {StatisticsService} from '../../common/statisticsService';
+import {YearService} from '../../common/yearService';
+import {ITag} from '../../../components/common/toolbar/tags';
 enum StatusCodePayment {
     Queued = 44001,
     TransferredToBank = 44002, //Note: NOT in Use yet

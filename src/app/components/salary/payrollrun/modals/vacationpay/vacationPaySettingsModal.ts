@@ -1,6 +1,6 @@
-import { Component, OnInit, Input, Output, EventEmitter, ViewChild } from '@angular/core';
-import { IUniModal, IModalOptions } from '../../../../../../framework/uniModal/barrel';
-import { UniFieldLayout, FieldType } from '../../../../../../framework/ui/uniform/index';
+import {Component, OnInit, Input, Output, EventEmitter, ViewChild} from '@angular/core';
+import {IUniModal, IModalOptions} from '../../../../../../framework/uniModal/barrel';
+import {UniFieldLayout, FieldType} from '../../../../../../framework/ui/uniform/index';
 import {
     UniTable, UniTableConfig, UniTableColumnType, UniTableColumn
 } from '../../../../../../framework/ui/unitable/index';
@@ -10,8 +10,8 @@ import {
 import {
     CompanyVacationRate, Account, LocalDate, WageDeductionDueToHolidayType
 } from '../../../../../unientities';
-import { Observable } from 'rxjs/Observable';
-import { BehaviorSubject } from 'rxjs/BehaviorSubject';
+import {Observable} from 'rxjs/Observable';
+import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import * as moment from 'moment';
 
 @Component({

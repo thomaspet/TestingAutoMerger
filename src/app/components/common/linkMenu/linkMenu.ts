@@ -1,5 +1,5 @@
-import { Component, OnInit, Input, ChangeDetectionStrategy, OnChanges } from '@angular/core';
-import { ValidationLevel } from '../../../unientities';
+import {Component, OnInit, Input, ChangeDetectionStrategy, OnChanges} from '@angular/core';
+import {ValidationLevel} from '../../../unientities';
 
 export interface ILinkMenuItem {
     title?: string;

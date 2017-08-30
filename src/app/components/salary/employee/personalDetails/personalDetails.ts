@@ -1,7 +1,7 @@
-import { Component, ViewChild, SimpleChanges } from '@angular/core';
-import { Router, ActivatedRoute } from '@angular/router';
-import { UniForm, UniFieldLayout } from '../../../../../framework/ui/uniform/index';
-import { UniView } from '../../../../../framework/core/uniView';
+import {Component, ViewChild, SimpleChanges} from '@angular/core';
+import {Router, ActivatedRoute} from '@angular/router';
+import {UniForm, UniFieldLayout} from '../../../../../framework/ui/uniform/index';
+import {UniView} from '../../../../../framework/core/uniView';
 import {
     OperationType, Operator, ValidationLevel, Employee, Email, Phone,
     Address, SubEntity, BankAccount, User
@@ -25,9 +25,9 @@ import {
 } from '../../../../services/services';
 declare var _;
 
-import { Observable } from 'rxjs/Observable';
-import { BehaviorSubject } from 'rxjs/BehaviorSubject';
-import { UniField } from '../../../../../framework/ui/uniform/index';
+import {Observable} from 'rxjs/Observable';
+import {BehaviorSubject} from 'rxjs/BehaviorSubject';
+import {UniField} from '../../../../../framework/ui/uniform/index';
 
 const EMPLOYEE_KEY = 'employee'
 

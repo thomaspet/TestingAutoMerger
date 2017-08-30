@@ -1,20 +1,20 @@
-import { Component, ViewChild, OnDestroy, EventEmitter } from '@angular/core';
-import { Observable } from 'rxjs/Observable';
-import { Router, ActivatedRoute, NavigationEnd } from '@angular/router';
+import {Component, ViewChild, OnDestroy, EventEmitter} from '@angular/core';
+import {Observable} from 'rxjs/Observable';
+import {Router, ActivatedRoute, NavigationEnd} from '@angular/router';
 import {
     Employee, Employment, EmployeeLeave, SalaryTransaction, Project, Dimensions,
     Department, SubEntity, SalaryTransactionSupplement, EmployeeTaxCard,
     WageType, EmployeeCategory, BusinessRelation
 } from '../../../unientities';
-import { TabService, UniModules } from '../../layout/navbar/tabstrip/tabService';
-import { ToastService, ToastType } from '../../../../framework/uniToast/toastService';
-import { IUniSaveAction } from '../../../../framework/save/save';
-import { IToolbarConfig, IAutoCompleteConfig } from '../../common/toolbar/toolbar';
-import { IUniTagsConfig, ITag } from '../../common/toolbar/tags';
-import { IPosterWidget } from '../../common/poster/poster';
-import { UniHttp } from '../../../../framework/core/http/http';
-import { UniView } from '../../../../framework/core/uniView';
-import { TaxCardModal } from './modals/taxCardModal';
+import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
+import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
+import {IUniSaveAction} from '../../../../framework/save/save';
+import {IToolbarConfig, IAutoCompleteConfig} from '../../common/toolbar/toolbar';
+import {IUniTagsConfig, ITag} from '../../common/toolbar/tags';
+import {IPosterWidget} from '../../common/poster/poster';
+import {UniHttp} from '../../../../framework/core/http/http';
+import {UniView} from '../../../../framework/core/uniView';
+import {TaxCardModal} from './modals/taxCardModal';
 import {
     UniModalService,
     ConfirmActions
@@ -25,7 +25,7 @@ import {
     NumberFormat, WageTypeService, SalarySumsService, YearService, BankAccountService, EmployeeCategoryService,
     ModulusService
 } from '../../../services/services';
-import { Subscription } from 'rxjs/Subscription';
+import {Subscription} from 'rxjs/Subscription';
 declare var _;
 const EMPLOYEE_TAX_KEY = 'employeeTaxCard';
 const EMPLOYMENTS_KEY = 'employments';
@@ -356,14 +356,14 @@ export class EmployeeDetails extends UniView implements OnDestroy {
                         let changeEvent: EventEmitter<any> = new EventEmitter<any>();
                         super.updateState('taxCardModalCallback',
                             { openModal: () => this.modalService.open(
-                                TaxCardModal, 
+                                TaxCardModal,
                                 {
                                     data: this.employeeID,
                                     modalConfig: {
                                         update: this.getTax,
                                         changeEvent: changeEvent
                                     }
-                                }) 
+                                })
                             },
                             false);
                         changeEvent

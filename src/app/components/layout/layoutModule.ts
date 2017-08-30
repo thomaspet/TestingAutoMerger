@@ -13,8 +13,8 @@ import {UniCompanyDropdown} from './navbar/userinfo/companyDropdown/companyDropd
 import {UniFrameworkModule} from '../../../framework/frameworkModule';
 import {UniTabs} from './uniTabs/uniTabs';
 import {UniFeedback} from '../common/feedback/feedback';
-import { UniNumberFormatPipe } from '../../pipes/uniNumberFormatPipe';
-import { YearModal, YearModalContent } from './navbar/userinfo/companyDropdown/modals/yearModal';
+import {UniNumberFormatPipe} from '../../pipes/uniNumberFormatPipe';
+import {YearModal, YearModalContent} from './navbar/userinfo/companyDropdown/modals/yearModal';
 
 @NgModule({
     imports: [

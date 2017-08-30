@@ -1,8 +1,8 @@
-import { Component, Input, OnChanges, EventEmitter, Output, ViewChild } from '@angular/core';
-import { Router, ActivatedRoute } from '@angular/router';
-import { Observable } from 'rxjs/Observable';
-import { 
-    UniTable, UniTableColumnType, UniTableColumn, UniTableConfig, IDeleteButton 
+import {Component, Input, OnChanges, EventEmitter, Output, ViewChild} from '@angular/core';
+import {Router, ActivatedRoute} from '@angular/router';
+import {Observable} from 'rxjs/Observable';
+import {
+    UniTable, UniTableColumnType, UniTableColumn, UniTableConfig, IDeleteButton
 } from '../../../../framework/ui/unitable/index';
 import {
     Employee, WageType, PayrollRun, SalaryTransaction, Project, Department,
@@ -12,12 +12,12 @@ import {
     AccountService, ReportDefinitionService, UniCacheService,
     ErrorService, NumberFormat, WageTypeService
 } from '../../../services/services';
-import { UniForm } from '../../../../framework/ui/uniform/index';
-import { SalaryTransSupplementsModal } from '../modals/salaryTransSupplementsModal';
+import {UniForm} from '../../../../framework/ui/uniform/index';
+import {SalaryTransSupplementsModal} from '../modals/salaryTransSupplementsModal';
 
-import { UniView } from '../../../../framework/core/uniView';
-import { ImageModal, UpdatedFileListEvent } from '../../common/modals/ImageModal';
-import { UniModalService } from '../../../../framework/uniModal/barrel';
+import {UniView} from '../../../../framework/core/uniView';
+import {ImageModal, UpdatedFileListEvent} from '../../common/modals/ImageModal';
+import {UniModalService} from '../../../../framework/uniModal/barrel';
 declare var _;
 const PAPERCLIP = '📎'; // It might look empty in your editor, but this is the unicode paperclip
 
@@ -507,7 +507,7 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges 
         if (this.payrollRun) {
             this.modalService
                 .open(SalaryTransSupplementsModal, {
-                    data: row, 
+                    data: row,
                     modalConfig: { readOnly: !!this.payrollRun.StatusCode }
                 })
                 .onClose

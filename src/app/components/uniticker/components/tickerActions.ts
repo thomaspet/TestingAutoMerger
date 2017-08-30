@@ -1,6 +1,6 @@
 import {Component, ViewChild, Input, Output, EventEmitter, SimpleChanges, ChangeDetectionStrategy} from '@angular/core';
 import {Ticker, TickerAction, ITickerActionOverride} from '../../../services/common/uniTickerService';
-import { IContextMenuItem } from '../../../../framework/ui/unitable/index';
+import {IContextMenuItem} from '../../../../framework/ui/unitable/index';
 
 @Component({
     selector: 'uni-ticker-actions',

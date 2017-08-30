@@ -1,6 +1,6 @@
-import { Component, OnInit, Input, Output, EventEmitter, ViewChild, AfterViewInit } from '@angular/core';
-import { IUniModal, IModalOptions } from '../../../../../framework/uniModal/barrel';
-import { TaxCardRequest } from './taxCardRequest';
+import {Component, OnInit, Input, Output, EventEmitter, ViewChild, AfterViewInit} from '@angular/core';
+import {IUniModal, IModalOptions} from '../../../../../framework/uniModal/barrel';
+import {TaxCardRequest} from './taxCardRequest';
 @Component({
     selector: 'tax-card-modal',
     templateUrl: './taxCardModal.html'
@@ -14,7 +14,7 @@ export class TaxCardModal implements OnInit, IUniModal, AfterViewInit {
     private employeeID: number;
     constructor() { }
 
-    public ngOnInit() { 
+    public ngOnInit() {
         this.employeeID = this.options.data;
         this.changeEvent = this.options.modalConfig.changeEvent;
     }

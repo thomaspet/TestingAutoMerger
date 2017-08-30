@@ -1,11 +1,11 @@
-import { Component, OnInit } from '@angular/core';
-import { IUniSaveAction } from '../../../../framework/save/save';
-import { Altinn } from '../../../unientities';
-import { Observable } from 'rxjs/Observable';
-import { UniFieldLayout } from '../../../../framework/ui/uniform/index';
-import { ErrorService, IntegrationServerCaller, AltinnIntegrationService } from '../../../services/services';
-import { BehaviorSubject } from 'rxjs/BehaviorSubject';
-import { UniModalService } from '../../../../framework/uniModal/barrel';
+import {Component, OnInit} from '@angular/core';
+import {IUniSaveAction} from '../../../../framework/save/save';
+import {Altinn} from '../../../unientities';
+import {Observable} from 'rxjs/Observable';
+import {UniFieldLayout} from '../../../../framework/ui/uniform/index';
+import {ErrorService, IntegrationServerCaller, AltinnIntegrationService} from '../../../services/services';
+import {BehaviorSubject} from 'rxjs/BehaviorSubject';
+import {UniModalService} from '../../../../framework/uniModal/barrel';
 
 @Component({
     selector: 'altinn-settings',
@@ -72,13 +72,13 @@ export class AltinnSettings implements OnInit {
                     })
                 }
             })
-            .switchMap(altinn => altinn.SystemPw 
+            .switchMap(altinn => altinn.SystemPw
                 ? this.integrate.checkSystemLogin(
-                    company.OrganizationNumber, 
-                    altinn.SystemID, 
-                    altinn.SystemPw, 
+                    company.OrganizationNumber,
+                    altinn.SystemID,
+                    altinn.SystemPw,
                     altinn.Language)
-                    .map(result => result 
+                    .map(result => result
                         ? 'Login ok'
                         : 'Failed to log in with given credentials')
                 : Observable.of('Missing password'))

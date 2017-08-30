@@ -1,12 +1,12 @@
-import { Injectable } from '@angular/core';
-import { BizHttp } from '../../../../framework/core/http/BizHttp';
-import { UniHttp } from '../../../../framework/core/http/http';
-import { WageType, Account, LimitType } from '../../../unientities';
-import { BehaviorSubject } from 'rxjs/BehaviorSubject';
-import { AccountService } from '../../accounting/accountService';
-import { Observable } from 'rxjs/Observable';
+import {Injectable} from '@angular/core';
+import {BizHttp} from '../../../../framework/core/http/BizHttp';
+import {UniHttp} from '../../../../framework/core/http/http';
+import {WageType, Account, LimitType} from '../../../unientities';
+import {BehaviorSubject} from 'rxjs/BehaviorSubject';
+import {AccountService} from '../../accounting/accountService';
+import {Observable} from 'rxjs/Observable';
 import 'rxjs/Observable';
-import { FieldType } from '../../../../framework/ui/uniform/index';
+import {FieldType} from '../../../../framework/ui/uniform/index';
 
 export enum WageTypeBaseOptions {
     VacationPay = 0,

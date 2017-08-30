@@ -1,6 +1,6 @@
-import { Component, Input, ChangeDetectorRef } from '@angular/core';
-import { UniHttp } from '../core/http/http';
-import { UserService, NumberFormat, ErrorService } from '../../app/services/services';
+import {Component, Input, ChangeDetectorRef} from '@angular/core';
+import {UniHttp} from '../core/http/http';
+import {UserService, NumberFormat, ErrorService} from '../../app/services/services';
 import * as Chart from 'chart.js';
 
 @Component({

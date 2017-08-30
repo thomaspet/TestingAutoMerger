@@ -1,7 +1,7 @@
-﻿import { Component } from '@angular/core';
-import { Router } from '@angular/router';
-import { IUniWidget } from '../uniWidget';
-import { WidgetDataService } from '../widgetDataService';
+﻿import {Component} from '@angular/core';
+import {Router} from '@angular/router';
+import {IUniWidget} from '../uniWidget';
+import {WidgetDataService} from '../widgetDataService';
 
 import * as moment from 'moment';
 

@@ -1,22 +1,22 @@
-import { Component, SimpleChanges, ViewChild } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
-import { UniView } from '../../../../../framework/core/uniView';
+import {Component, SimpleChanges, ViewChild} from '@angular/core';
+import {ActivatedRoute, Router} from '@angular/router';
+import {UniView} from '../../../../../framework/core/uniView';
 import {
     UniCacheService, ErrorService, SalarybalanceService,
     WageTypeService, EmployeeService, SupplierService, ModulusService
 } from '../../../../services/services';
-import { BehaviorSubject } from 'rxjs/BehaviorSubject';
-import { ReplaySubject } from 'rxjs/ReplaySubject';
-import { Observable } from 'rxjs/Observable';
-import { UniFieldLayout, UniForm } from '../../../../../framework/ui/uniform/index';
+import {BehaviorSubject} from 'rxjs/BehaviorSubject';
+import {ReplaySubject} from 'rxjs/ReplaySubject';
+import {Observable} from 'rxjs/Observable';
+import {UniFieldLayout, UniForm} from '../../../../../framework/ui/uniform/index';
 import {
     SalaryBalance, SalBalType, WageType, Employee, Supplier, SalBalDrawType, StdWageType, CompanySalary
 } from '../../../../unientities';
 import {
     ToastService, ToastType, ToastTime
 } from '../../../../../framework/uniToast/toastService';
-import { UniImage, UniImageSize } from '../../../../../framework/uniImage/uniImage';
-import { ImageModal } from '../../../common/modals/ImageModal';
+import {UniImage, UniImageSize} from '../../../../../framework/uniImage/uniImage';
+import {ImageModal} from '../../../common/modals/ImageModal';
 type UniFormTabEvent = {
     event: KeyboardEvent,
     prev: UniFieldLayout,

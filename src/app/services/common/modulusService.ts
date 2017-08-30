@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import {Injectable} from '@angular/core';
 
 export interface ICheckSums {
     checkSum1: number;
@@ -57,7 +57,7 @@ export class ModulusService {
 
     private checkSSNCheckSums(ssn: string) {
         let checkSums = this.getSSNMod11CheckSums(ssn);
-        return +ssn.charAt(ssn.length - 2) === checkSums.checkSum1 
+        return +ssn.charAt(ssn.length - 2) === checkSums.checkSum1
         && +ssn.charAt(ssn.length - 1) === checkSums.checkSum2;
     }
 
@@ -65,9 +65,9 @@ export class ModulusService {
         if (!numberToCheck) {
             return false;
         }
-        
+
         numberToCheck = this.removeStandardSeparators(numberToCheck);
-        return (numberToCheck.length === 11 && !isNaN(+numberToCheck)); 
+        return (numberToCheck.length === 11 && !isNaN(+numberToCheck));
     }
 
     private removeStandardSeparators(numberToCheck: string) {

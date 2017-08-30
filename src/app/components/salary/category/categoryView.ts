@@ -1,16 +1,16 @@
-import { Component, ViewChild } from '@angular/core';
-import { Router, ActivatedRoute, NavigationEnd } from '@angular/router';
-import { EmployeeCategory } from '../../../unientities';
-import { TabService, UniModules } from '../../layout/navbar/tabstrip/tabService';
-import { EmployeeCategoryService, UniCacheService, ErrorService } from '../../../services/services';
-import { ToastService } from '../../../../framework/uniToast/toastService';
-import { IUniSaveAction } from '../../../../framework/save/save';
-import { IToolbarConfig } from '../../common/toolbar/toolbar';
+import {Component, ViewChild} from '@angular/core';
+import {Router, ActivatedRoute, NavigationEnd} from '@angular/router';
+import {EmployeeCategory} from '../../../unientities';
+import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
+import {EmployeeCategoryService, UniCacheService, ErrorService} from '../../../services/services';
+import {ToastService} from '../../../../framework/uniToast/toastService';
+import {IUniSaveAction} from '../../../../framework/save/save';
+import {IToolbarConfig} from '../../common/toolbar/toolbar';
 
-import { UniView } from '../../../../framework/core/uniView';
-import { UniModalService, ConfirmActions } from '../../../../framework/uniModal/barrel';
+import {UniView} from '../../../../framework/core/uniView';
+import {UniModalService, ConfirmActions} from '../../../../framework/uniModal/barrel';
 
-import { Observable } from 'rxjs/Observable';
+import {Observable} from 'rxjs/Observable';
 
 @Component({
     selector: 'uni-employeecategory-view',

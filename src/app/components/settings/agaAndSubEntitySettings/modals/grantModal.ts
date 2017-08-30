@@ -1,5 +1,5 @@
-import { Component, OnInit, Input, Output, EventEmitter, ViewChild } from '@angular/core';
-import { IUniModal, IModalOptions } from '../../../../../framework/uniModal/barrel';
+import {Component, OnInit, Input, Output, EventEmitter, ViewChild} from '@angular/core';
+import {IUniModal, IModalOptions} from '../../../../../framework/uniModal/barrel';
 import {UniTable, UniTableConfig, UniTableColumn, UniTableColumnType} from '../../../../../framework/ui/unitable/index';
 import {GrantService, SubEntityService, ErrorService} from '../../../../services/services';
 import {Grant, SubEntity} from '../../../../unientities';
@@ -33,7 +33,7 @@ export class GrantModal implements OnInit, IUniModal {
             let [grants, subs] = response;
             this.grantData = grants;
             subs.forEach(subentity => {
-                subentity['_Name'] = subentity.BusinessRelationInfo 
+                subentity['_Name'] = subentity.BusinessRelationInfo
                     ? subentity.BusinessRelationInfo.Name
                     : '';
             });

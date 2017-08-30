@@ -2,8 +2,8 @@ import {Injectable} from '@angular/core';
 import {BizHttp} from '../../../framework/core/http/BizHttp';
 import {Project} from '../../unientities';
 import {UniHttp} from '../../../framework/core/http/http';
-import { AuthService } from '../../../framework/core/authService';
-import { BehaviorSubject } from 'rxjs/BehaviorSubject';
+import {AuthService} from '../../../framework/core/authService';
+import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 
 @Injectable()
 export class ProjectService extends BizHttp<Project> {

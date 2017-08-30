@@ -5,7 +5,7 @@ import {IViewConfig} from '../genericview/list';
 import {WorkType} from '../../../unientities';
 import {GenericDetailview} from '../genericview/detail';
 import {SYSTEMTYPES} from '../../common/utils/pipes';
-import { UniModules } from '../../layout/navbar/tabstrip/tabService';
+import {UniModules} from '../../layout/navbar/tabstrip/tabService';
 
 export var view = new View('worktypes', 'Timeart', 'WorktypeDetailview', true, '', WorktypeDetailview);
 

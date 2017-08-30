@@ -1,12 +1,12 @@
-import { Injectable } from '@angular/core';
-import { BizHttp } from '../../../../framework/core/http/BizHttp';
-import { UniHttp } from '../../../../framework/core/http/http';
-import { Employee, Operator, EmployeeCategory } from '../../../unientities';
-import { Observable } from 'rxjs/Observable';
+import {Injectable} from '@angular/core';
+import {BizHttp} from '../../../../framework/core/http/BizHttp';
+import {UniHttp} from '../../../../framework/core/http/http';
+import {Employee, Operator, EmployeeCategory} from '../../../unientities';
+import {Observable} from 'rxjs/Observable';
 import {ErrorService} from '../../common/errorService';
-import { ITag } from '../../../components/common/toolbar/tags';
+import {ITag} from '../../../components/common/toolbar/tags';
 import {FieldType} from '../../../../framework/ui/uniform/index';
-import { UserService } from '../../common/userService';
+import {UserService} from '../../common/userService';
 
 @Injectable()
 export class EmployeeService extends BizHttp<Employee> {

@@ -14,7 +14,7 @@ import {
     YearService
 } from '../../../../../services/services';
 
-import { YearModal, ChangeYear } from "./modals/yearModal";
+import {YearModal, ChangeYear} from "./modals/yearModal";
 
 
 @Component({

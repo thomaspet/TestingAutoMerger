@@ -1,17 +1,17 @@
-import { Component, ViewChild } from '@angular/core';
-import { URLSearchParams } from '@angular/http';
-import { Router, ActivatedRoute } from '@angular/router';
-import { IUniTabsRoute } from '../../layout/uniTabs/uniTabs';
-import { TabService, UniModules } from '../../layout/navbar/tabstrip/tabService';
-import { ProjectService, ErrorService } from '../../../services/services';
+import {Component, ViewChild} from '@angular/core';
+import {URLSearchParams} from '@angular/http';
+import {Router, ActivatedRoute} from '@angular/router';
+import {IUniTabsRoute} from '../../layout/uniTabs/uniTabs';
+import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
+import {ProjectService, ErrorService} from '../../../services/services';
 import {
     UniTable,
     UniTableColumn,
     UniTableColumnType,
     UniTableConfig
 } from '../../../../framework/ui/unitable/index';
-import { IToolbarConfig } from '../../common/toolbar/toolbar';
-import { IUniSaveAction } from '../../../../framework/save/save';
+import {IToolbarConfig} from '../../common/toolbar/toolbar';
+import {IUniSaveAction} from '../../../../framework/save/save';
 
 declare var _;
 

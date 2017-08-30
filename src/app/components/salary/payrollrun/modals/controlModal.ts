@@ -1,17 +1,17 @@
-import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
-import { UniFieldLayout, FieldType } from '../../../../../framework/ui/uniform/index';
-import { UniTableConfig, UniTableColumnType, UniTableColumn } from '../../../../../framework/ui/unitable/index';
-import { IUniModal, IModalOptions } from '../../../../../framework/uniModal/barrel';
+import {Component, OnInit, Input, Output, EventEmitter} from '@angular/core';
+import {ActivatedRoute, Router} from '@angular/router';
+import {UniFieldLayout, FieldType} from '../../../../../framework/ui/uniform/index';
+import {UniTableConfig, UniTableColumnType, UniTableColumn} from '../../../../../framework/ui/unitable/index';
+import {IUniModal, IModalOptions} from '../../../../../framework/uniModal/barrel';
 import {
     SalaryTransactionService, PayrollrunService, ErrorService, SalarySumsService
 } from '../../../../services/services';
-import { 
+import {
     SalaryTransactionPay, SalaryTransactionPayLine, SalaryTransactionSums, SalaryTransaction, StdSystemType, PayrollRun
 } from '../../../../unientities';
-import { Observable } from 'rxjs/Observable';
-import { BehaviorSubject } from 'rxjs/BehaviorSubject';
-import { ReplaySubject } from 'rxjs/ReplaySubject';
+import {Observable} from 'rxjs/Observable';
+import {BehaviorSubject} from 'rxjs/BehaviorSubject';
+import {ReplaySubject} from 'rxjs/ReplaySubject';
 
 type PaylistSection = {
     employeeInfo: {
@@ -54,11 +54,11 @@ export class ControlModal implements OnInit, IUniModal {
         private route: ActivatedRoute,
         private errorService: ErrorService,
         private salarySumsService: SalarySumsService
-    ) { 
+    ) {
         this.description$ = new ReplaySubject<string>(1);
      }
 
-    public ngOnInit() { 
+    public ngOnInit() {
         this.busy = true;
         let runID: number = this.options.data.ID;
         this.generateHeadingsForm();

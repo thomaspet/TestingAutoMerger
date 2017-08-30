@@ -1,5 +1,5 @@
-import { GroupDetails } from './groupDetails/groupDetails';
-import { ProductsInGroup } from './productsInGroup/productsInGroup';
+import {GroupDetails} from './groupDetails/groupDetails';
+import {ProductsInGroup} from './productsInGroup/productsInGroup';
 
 export const routes = [
     {

@@ -1,6 +1,6 @@
-import { Component, OnInit, Input, Output, EventEmitter, ViewChild } from '@angular/core';
-import { PaycheckSending } from './paycheckSending';
-import { IUniModal, IModalOptions } from '../../../../../framework/uniModal/barrel';
+import {Component, OnInit, Input, Output, EventEmitter, ViewChild} from '@angular/core';
+import {PaycheckSending} from './paycheckSending';
+import {IUniModal, IModalOptions} from '../../../../../framework/uniModal/barrel';
 
 @Component({
     selector: 'paycheck-sender-modal',

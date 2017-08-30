@@ -1,11 +1,11 @@
-import { Component,ViewChild } from '@angular/core';
-import { UniForm } from '../../../../../framework/ui/uniform/index';
-import { ActivatedRoute, Router } from '@angular/router';
-import { WageType, LimitType, StdWageType, SpecialAgaRule } from '../../../../unientities';
-import { WageTypeService, UniCacheService, ErrorService } from '../../../../services/services';
-import { UniView } from '../../../../../framework/core/uniView';
+import {Component,ViewChild} from '@angular/core';
+import {UniForm} from '../../../../../framework/ui/uniform/index';
+import {ActivatedRoute, Router} from '@angular/router';
+import {WageType, LimitType, StdWageType, SpecialAgaRule} from '../../../../unientities';
+import {WageTypeService, UniCacheService, ErrorService} from '../../../../services/services';
+import {UniView} from '../../../../../framework/core/uniView';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
-import { Observable } from 'rxjs/Observable';
+import {Observable} from 'rxjs/Observable';
 
 @Component({
     selector: 'uni-wagetype-settings',
@@ -65,7 +65,7 @@ export class WageTypeSettings extends UniView {
                 });
         });
     }
-    
+
     private change(event) {
         let wagetype = this.wageType$.getValue();
         this.updateFields(wagetype);
@@ -75,13 +75,13 @@ export class WageTypeSettings extends UniView {
     private setup(wagetype: WageType) {
         return Observable
             .forkJoin(this.getSources(wagetype))
-            .map((response: any) => {                
+            .map((response: any) => {
                 let [layout, limitTypes, used] = response;
                 layout.Fields = this.wagetypeService.manageReadOnlyIfCalculated(layout.Fields, used);
                 if (layout.Fields) {
                     this.fields$.next(layout.Fields);
                 }
-                this.limitTypes = limitTypes;                
+                this.limitTypes = limitTypes;
                 this.extendFields(layout.Fields, wagetype);
                 this.updateFields(wagetype);
                 return wagetype;
@@ -89,7 +89,7 @@ export class WageTypeSettings extends UniView {
             .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
     }
     private extendFields(fields: any[], wagetype: WageType)    {
-        
+
         this.editField(fields, 'SpecialAgaRule', specialAgaRule => {
             specialAgaRule.Options = {
                 source: this.specialAgaRule,
@@ -99,14 +99,14 @@ export class WageTypeSettings extends UniView {
             };
         });
 
-        this.editField(fields, 'StandardWageTypeFor', standardWageTypeFor => {            
+        this.editField(fields, 'StandardWageTypeFor', standardWageTypeFor => {
             standardWageTypeFor.Options = {
                 source: this.stdWageType,
                 displayProperty: 'Name',
-                valueProperty: 'ID'                
+                valueProperty: 'ID'
             };
         });
-        
+
     }
 
     private editField(fields: any[], prop: string, edit: (field: any) => void) {
@@ -116,18 +116,18 @@ export class WageTypeSettings extends UniView {
             }
         });
     }
-    
+
 
     private getSources(wagetype: WageType): any {
         let source =  [
             this.wagetypeService.specialSettingsLayout('wagetypeSettings', this.wagetypeService.GetAll(null)),
             this.wagetypeService.getLimitTypes()
-        ];  
+        ];
 
         if (wagetype.WageTypeNumber) {
             source.push(this.wagetypeService.usedInPayrollrun(wagetype.WageTypeNumber));
-        }  
-        
+        }
+
         return source;
     }
 

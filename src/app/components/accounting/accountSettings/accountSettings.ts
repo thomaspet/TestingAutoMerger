@@ -1,4 +1,4 @@
-﻿import { IToolbarConfig } from '../../common/toolbar/toolbar';
+﻿import {IToolbarConfig} from '../../common/toolbar/toolbar';
 import {Component, ViewChild} from '@angular/core';
 import {AccountList} from './accountList/accountList';
 import {AccountDetails} from './accountDetails/accountDetails';

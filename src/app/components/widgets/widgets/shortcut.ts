@@ -1,5 +1,5 @@
-﻿import { Component, ChangeDetectionStrategy } from '@angular/core';
-import { Router } from '@angular/router';
+﻿import {Component, ChangeDetectionStrategy} from '@angular/core';
+import {Router} from '@angular/router';
 import {IUniWidget} from '../uniWidget';
 
 @Component({

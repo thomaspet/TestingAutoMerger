@@ -1,4 +1,4 @@
-import { IToolbarConfig } from './../../common/toolbar/toolbar';
+import {IToolbarConfig} from './../../common/toolbar/toolbar';
 import {Component, ViewChild} from '@angular/core';
 import {VatTypeList} from './vattypelist/vatTypeList';
 import {VatTypeDetails} from './vattypedetails/vattypedetails';

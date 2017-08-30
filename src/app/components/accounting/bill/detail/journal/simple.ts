@@ -1,8 +1,8 @@
-import { ViewChild, Component, Input, Output, EventEmitter, Pipe, PipeTransform} from '@angular/core';
-import {FinancialYear, VatType, SupplierInvoice, 
+import {ViewChild, Component, Input, Output, EventEmitter, Pipe, PipeTransform} from '@angular/core';
+import {FinancialYear, VatType, SupplierInvoice,
     JournalEntryLineDraft, JournalEntry, Account, StatusCodeSupplierInvoice} from '../../../../../unientities';
-import {ICopyEventDetails, IConfig as ITableConfig, Column, ColumnType, 
-    IChangeEvent, ITypeSearch, Editable, 
+import {ICopyEventDetails, IConfig as ITableConfig, Column, ColumnType,
+    IChangeEvent, ITypeSearch, Editable,
     ILookupDetails, IStartEdit} from '../../../../common/utils/editable/editable';
 import {ToastService, ToastType} from '../../../../../../framework/uniToast/toastService';
 import {roundTo, safeDec, safeInt, trimLength} from '../../../../common/utils/utils';
@@ -61,7 +61,7 @@ export class BillSimpleJournalEntryView {
                 this.calcRemainder();
             } else {
                 this.calcRemainder();
-            }            
+            }
         });
     }
 
@@ -71,20 +71,20 @@ export class BillSimpleJournalEntryView {
         }
         this.hasMultipleEntries = false;
         this.analyzeEntries(invoice);
-        this.journalEntryNumber = invoice && invoice.JournalEntry ? 
+        this.journalEntryNumber = invoice && invoice.JournalEntry ?
             invoice.JournalEntry.JournalEntryNumber : undefined;
     }
 
     public closeEditor() {
         if (this.editable) {
             this.editable.closeEditor();
-        }        
+        }
     }
 
     public lookupHistory() {
         this.suggestions = [];
         this.hasSuggestions = false;
-        if (this.costItems && this.costItems.length > 0 
+        if (this.costItems && this.costItems.length > 0
             && this.costItems[0].AccountID > 0) {
             this.hasSuggestions = false;
             return;
@@ -148,7 +148,7 @@ export class BillSimpleJournalEntryView {
 
     private calcRemainder(): number {
         var sumItems = 0;
-        var total: number = this.current && this.current.TaxInclusiveAmountCurrency 
+        var total: number = this.current && this.current.TaxInclusiveAmountCurrency
             ? this.current.TaxInclusiveAmountCurrency : 0;
         var sumVat: number = 0;
         if (total) {
@@ -243,7 +243,7 @@ export class BillSimpleJournalEntryView {
             events: {
 
                 onChange: (event: IChangeEvent) => {
-                    return this.lookup.checkAsyncLookup(event, (e) => this.updateChange(e), 
+                    return this.lookup.checkAsyncLookup(event, (e) => this.updateChange(e),
                         (e) => this.asyncValidationFailed(e)) || this.updateChange(event);
                 },
 
@@ -318,7 +318,7 @@ export class BillSimpleJournalEntryView {
             row.AmountCurrency = this.sumRemainder;
         }
         if ((!row.Description) && (this.current && this.current.Supplier && this.current.Supplier.Info)) {
-            row.Description = this.current.Supplier.SupplierNumber + ' - ' 
+            row.Description = this.current.Supplier.SupplierNumber + ' - '
                 + this.current.Supplier.Info.Name + ' - ' + 'fakturanr.' + this.current.InvoiceNumber;
         }
     }
@@ -499,7 +499,7 @@ export class BillSimpleJournalEntryView {
             event.userTypedValue = false;
             this.updateChange(event);
         } else {
-            this.toast.addToast(event.columnDefinition.label, ToastType.bad, 3, 
+            this.toast.addToast(event.columnDefinition.label, ToastType.bad, 3,
                 `Ugyldig ${event.columnDefinition.label}: ${event.value}`);
         }
     }
@@ -573,7 +573,7 @@ export class TrimTextPipe implements PipeTransform {
 
 interface IJournalHistoryItem {
     AccountID: number;
-    AccountNumber: number; 
+    AccountNumber: number;
     Amount: number;
     AccountName: string;
     Counter: number;
