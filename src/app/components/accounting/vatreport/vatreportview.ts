@@ -9,10 +9,11 @@ import {
 import {Observable} from 'rxjs/Observable';
 import {Subscription} from 'rxjs/Subscription';
 import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
+import {UniModalService} from '../../../../framework/uniModal/barrel';
 import {CreateCorrectedVatReportModal} from './modals/createCorrectedVatReport';
 import {HistoricVatReportModal} from './modals/historicVatReports';
 import {IContextMenuItem} from '../../../../framework/ui/unitable/index';
-import {AltinnAuthenticationDataModal} from '../../common/modals/AltinnAuthenticationDataModal';
+import {AltinnAuthenticationModal} from '../../common/modals/AltinnAuthenticationModal';
 import {ReceiptVat} from './receipt/receipt';
 import {IToolbarConfig} from '../../common/toolbar/toolbar';
 import {UniStatusTrack} from '../../common/toolbar/statustrack';
@@ -32,7 +33,6 @@ import {
 export class VatReportView implements OnInit, OnDestroy {
     @ViewChild(CreateCorrectedVatReportModal) private createCorrectedVatReportModal: CreateCorrectedVatReportModal;
     @ViewChild(HistoricVatReportModal) private historicVatReportModal: HistoricVatReportModal;
-    @ViewChild(AltinnAuthenticationDataModal) private altinnAuthenticationDataModal: AltinnAuthenticationDataModal;
     @ViewChild(ReceiptVat) private receiptVat: ReceiptVat;
 
     public internalComment: FormControl = new FormControl();
@@ -61,7 +61,8 @@ export class VatReportView implements OnInit, OnDestroy {
         private vatTypeService: VatTypeService,
         private toastService: ToastService,
         private altinnAuthenticationService: AltinnAuthenticationService,
-        private errorService: ErrorService
+        private errorService: ErrorService,
+        private modalService: UniModalService
     ) {
         this.periodDateFormat = new PeriodDateFormatPipe(this.errorService);
         this.tabService.addTab({ name: 'MVA melding', url: '/accounting/vatreport', active: true, moduleID: UniModules.VatReport });
@@ -378,49 +379,51 @@ export class VatReportView implements OnInit, OnDestroy {
     }
 
     public signVatReport(done) {
-        this.altinnAuthenticationDataModal.getUserAltinnAuthorizationData()
-            .then(authData => {
-                this.vatReportService.signReport(this.currentVatReport.ID, authData)
-                    .subscribe((signing: AltinnSigning) => {
-                        if (signing.StatusCode === StatusCodeAltinnSigning.Failed) {
-                            // error occured while signing - not technical error
-                            this.toastService.addToast('Feil oppsto', ToastType.bad, 0, signing.StatusText);
-                            done('Feil ved signering');
-                        } else {
-                            this.vatReportService.Get(this.currentVatReport.ID, ['TerminPeriod', 'JournalEntry', 'VatReportArchivedSummary'])
-                                .subscribe(vatreport => {
-                                    this.setVatreport(vatreport);
-                                    this.showView = 'receipt';
+        let authData; 
+        this.modalService
+            .open(AltinnAuthenticationModal)
+            .onClose
+            .filter(auth => !!auth)
+            .do(auth => authData = auth)
+            .switchMap(() => this.vatReportService.signReport(this.currentVatReport.ID, authData))
+            .subscribe((signing: AltinnSigning) => {
+                if (signing.StatusCode === StatusCodeAltinnSigning.Failed) {
+                    // error occured while signing - not technical error
+                    this.toastService.addToast('Feil oppsto', ToastType.bad, 0, signing.StatusText);
+                    done('Feil ved signering');
+                } else {
+                    this.vatReportService.Get(this.currentVatReport.ID, ['TerminPeriod', 'JournalEntry', 'VatReportArchivedSummary'])
+                        .subscribe(vatreport => {
+                            this.setVatreport(vatreport);
+                            this.showView = 'receipt';
 
-                                    this.toastService.addToast('Signert OK', ToastType.good);
-                                    done('Signert OK');
+                            this.toastService.addToast('Signert OK', ToastType.good);
+                            done('Signert OK');
 
-                                    // check for receipt, this should be ready now - but use setTimeout to allow angular to switch views first
-                                    setTimeout(() => {
-                                        this.receiptVat.checkForReceipt();
-                                    });
-                                },
-                                err => {
-                                    this.errorService.handle(err);
-                                    done('Det skjedde en feil, forsøk igjen senere');
-                                }
-                                );
+                            // check for receipt, this should be ready now - but use setTimeout to allow angular to switch views first
+                            setTimeout(() => {
+                                this.receiptVat.checkForReceipt();
+                            });
+                        },
+                        err => {
+                            this.errorService.handle(err);
+                            done('Det skjedde en feil, forsøk igjen senere');
                         }
-                    },
-                    err => {
-                        // something is not working with the altinnauthentication it seems, clear the pincode to make
-                        // the user log in again
-                        if (err.status === 403) {
-                            console.log('nullstiller pin');
-                            authData.pin = '';
-                            this.altinnAuthenticationService.storeAltinnAuthenticationDataInLocalstorage(authData);
-                        }
-
-                        this.errorService.handle(err)
-                        done('Det skjedde en feil, forsøk igjen senere');
-                    });
+                        );
                 }
-            );
+            },
+            err => {
+                // something is not working with the altinnauthentication it seems, clear the pincode to make
+                // the user log in again
+                if (err.status === 403) {
+                    console.log('nullstiller pin');
+                    authData.pin = '';
+                    this.altinnAuthenticationService.storeAltinnAuthenticationDataInLocalstorage(authData);
+                }
+
+                this.errorService.handle(err)
+                done('Det skjedde en feil, forsøk igjen senere');
+            });
     }
 
 

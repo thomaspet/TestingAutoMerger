@@ -6,7 +6,6 @@ import {ToastService, ToastType} from '../../../../framework/uniToast/toastServi
 import {AmeldingData} from '../../../unientities';
 import {IContextMenuItem} from '../../../../framework/ui/unitable/index';
 import {IUniSaveAction} from '../../../../framework/save/save';
-import {AltinnAuthenticationDataModal} from '../../common/modals/AltinnAuthenticationDataModal';
 import {IToolbarConfig, IAutoCompleteConfig} from '../../common/toolbar/toolbar';
 import {UniStatusTrack} from '../../common/toolbar/statustrack';
 import {
@@ -19,6 +18,7 @@ import {
 } from '../../../services/services';
 import {UniModalService} from '../../../../framework/uniModal/barrel';
 import {AmeldingTypePickerModal, IAmeldingTypeEvent} from './modals/ameldingTypePickerModal';
+import {AltinnAuthenticationModal} from '../../common/modals/AltinnAuthenticationModal';
 import * as moment from 'moment';
 
 @Component({
@@ -51,7 +51,6 @@ export class AMeldingView implements OnInit {
     private totalFtrekkSystemStr: string;
 
     private legalEntityNo: string;
-    @ViewChild(AltinnAuthenticationDataModal) private altinnAuthModal: AltinnAuthenticationDataModal;
     private saveStatus: {numberOfRequests: number, completeCount: number, hasErrors: boolean};
     public showView: string = '';
     private toolbarConfig: IToolbarConfig;
@@ -577,18 +576,18 @@ export class AMeldingView implements OnInit {
     }
 
     private getFeedback(done) {
-        this.altinnAuthModal.getUserAltinnAuthorizationData()
-            .then(authData => {
-                this._ameldingService.getAmeldingFeedback(this.currentAMelding.ID, authData)
-                    .subscribe((response: AmeldingData) => {
-                        if (response) {
-                            this.setAMelding(response);
-                            this.showView = 'receipt';
-                            done('Tilbakemelding hentet');
-                        }
-                    }, err => this.errorService.handle(err));
-            });
-
+        this.modalService
+            .open(AltinnAuthenticationModal)
+            .onClose
+            .filter(auth => !!auth)
+            .switchMap(authData => this._ameldingService.getAmeldingFeedback(this.currentAMelding.ID, authData))
+            .subscribe((response: AmeldingData) => {
+                if (response) {
+                    this.setAMelding(response);
+                    this.showView = 'receipt';
+                    done('Tilbakemelding hentet');
+                }
+            }, err => this.errorService.handle(err));
     }
 
     private sendAmelding(done) {

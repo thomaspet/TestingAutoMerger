@@ -1,5 +1,5 @@
-import {Component, Type, ViewChild, Input, EventEmitter, ElementRef, OnInit} from '@angular/core';
-import {UniModal} from '../../../../framework/modals/modal';
+import {Component, Type, ViewChild, Input, Output, EventEmitter, ElementRef, OnInit} from '@angular/core';
+import {IUniModal, IModalOptions} from '../../../../framework/uniModal/barrel';
 import {UniFieldLayout} from '../../../../framework/ui/uniform/index';
 import {AltinnAuthRequest} from '../../../unientities';
 import {FieldType} from '../../../../framework/ui/uniform/index';
@@ -16,44 +16,50 @@ enum LoginState {
 }
 
 @Component({
-    selector: 'altinn-authentication-data-modal-content',
+    selector: 'altinn-authentication-modal',
     template: `
-        <article class="modal-content" [attr.aria-busy]="busy">
-            <h1>{{atLogin ? "Personlig pålogging Altinn" : "Resultat"}}</h1>
+        <section role="dialog" class="uni-modal">
+            <header>
+                <h1>{{atLogin ? "Personlig pålogging Altinn" : "Resultat"}}</h1>
+            </header>
             <p [innerHTML]="userMessage"></p>
-            <div *ngIf="formState === LOGIN_STATE_ENUM.UsernameAndPasswordAndPinType">
-                <uni-form
-                    [config]="emptyConfig$"
-                    [fields]="usernameAndPasswordFormFields$"
-                    [model]="userLoginData$"
-                ></uni-form>
+            <div *ngIf="formState === LOGIN_STATE_ENUM.UsernameAndPasswordAndPinType" [attr.aria-busy]="busy">
+                <article>
+                    <uni-form
+                        [config]="emptyConfig$"
+                        [fields]="usernameAndPasswordFormFields$"
+                        [model]="userLoginData$"
+                    ></uni-form>
+                </article>
                 <footer>
                     <button (click)="submitUsernameAndPasswordAndPinType()">OK</button>
-                    <button *ngIf="config" (click)="config.close()">Avbryt</button>
+                    <button (click)="close()">Avbryt</button>
                 </footer>
             </div>
-            <div *ngIf="formState === LOGIN_STATE_ENUM.Pin">
-                <uni-form
-                    [config]="emptyConfig$"
-                    [fields]="pinFormFields$"
-                    [model]="userLoginData$"
-                ></uni-form>
+            <div *ngIf="formState === LOGIN_STATE_ENUM.Pin" [attr.aria-busy]="busy">
+                <article>
+                    <uni-form
+                        [config]="emptyConfig$"
+                        [fields]="pinFormFields$"
+                        [model]="userLoginData$"
+                    ></uni-form>
+                </article>
                 <footer>
-                    <button *ngIf="config" (click)="config.close()">Avbryt</button>
+                    <button (click)="close()">Avbryt</button>
                     <button (click)="submitPin()" class="good">OK</button>
                 </footer>
             </div>
-            <div *ngIf="formState === LOGIN_STATE_ENUM.LoggedIn">
+            <div *ngIf="formState === LOGIN_STATE_ENUM.LoggedIn" [attr.aria-busy]="busy">
                 <footer>
-                    <button *ngIf="config" (click)="config.close()">OK</button>
+                    <button (click)="close()">OK</button>
                 </footer>
             </div>
-        </article>`
+        </section>`
 })
-export class AltinnAuthenticationDataModalContent implements OnInit {
-    @Input()
-    public config: { close: () => void };
 
+export class AltinnAuthenticationModal implements OnInit, IUniModal {
+    @Output() public onClose: EventEmitter<AltinnAuthenticationData> = new EventEmitter<AltinnAuthenticationData>();
+    @Input() public options: IModalOptions;
     // Done so that angular template can access the enum
     public LOGIN_STATE_ENUM: any = LoginState;
     public userLoginData$: BehaviorSubject<AltinnAuthenticationData> = new BehaviorSubject(new AltinnAuthenticationData());
@@ -69,12 +75,19 @@ export class AltinnAuthenticationDataModalContent implements OnInit {
         new EventEmitter<AltinnAuthenticationData>();
     private userSubmittedPin: EventEmitter<AltinnAuthenticationData> =
         new EventEmitter<AltinnAuthenticationData>();
+    private getAuthenticationDataFromLocalstorage: () => AltinnAuthenticationData =
+        () => this.altinnAuthService.getAltinnAuthenticationDataFromLocalstorage();
 
-
+    private storeAuthenticationDataInLocalstorage: (auth: AltinnAuthenticationData) => AltinnAuthenticationData =
+        authData => {
+            this.altinnAuthService.storeAltinnAuthenticationDataInLocalstorage(authData);
+            return authData;
+        };
+    
     constructor(
         private altinnAuthService: AltinnAuthenticationService,
         private toastService: ToastService,
-        private elementRef: ElementRef,
+        private elementRef: ElementRef, 
         private errorService: ErrorService
     ) {}
 
@@ -87,6 +100,22 @@ export class AltinnAuthenticationDataModalContent implements OnInit {
                 this.submitPin();
             }
         });
+        this.handleAuthentication()
+            .then(auth => this.onClose.next(auth));
+    }
+
+    private handleAuthentication(): Promise<AltinnAuthenticationData> {
+        const authorizationData = this.getAuthenticationDataFromLocalstorage();
+        if (!authorizationData) {
+            return this.getAltinnAuthenticationData()
+                .then(this.storeAuthenticationDataInLocalstorage);
+        } else if (authorizationData.isValid()) {
+            return Promise.resolve(authorizationData);
+        } else {
+            this.altinnAuthService.clearAltinnAuthenticationDataFromLocalstorage();
+            return this.completeAltinnAuthenticationData(authorizationData)
+                .then(this.storeAuthenticationDataInLocalstorage);
+        }
     }
 
     private createUsernameAndPasswordForm(): UniFieldLayout[] {
@@ -210,72 +239,8 @@ export class AltinnAuthenticationDataModalContent implements OnInit {
         this.busy = true;
         this.userSubmittedPin.emit(this.userLoginData$.getValue());
     }
-}
 
-@Component({
-    selector: 'altinn-authentication-data-modal',
-    template: '<uni-modal [type]="type" [config]="config"></uni-modal>'
-})
-export class AltinnAuthenticationDataModal {
-    public config: { close: () => void };
-    public type: Type<any> = AltinnAuthenticationDataModalContent;
-
-    @ViewChild(UniModal)
-    private modal: UniModal;
-
-    private closeThisModal: (data: AltinnAuthenticationData) => AltinnAuthenticationData = (authData) => {
-        this.modal.close();
-        return authData;
-    };
-
-    private getAuthenticationDataFromLocalstorage: () => AltinnAuthenticationData =
-        () => this.altinnAuthService.getAltinnAuthenticationDataFromLocalstorage();
-
-    private storeAuthenticationDataInLocalstorage: (auth: AltinnAuthenticationData) => AltinnAuthenticationData =
-        authData => {
-            this.altinnAuthService.storeAltinnAuthenticationDataInLocalstorage(authData);
-            return authData;
-        };
-
-    constructor(private altinnAuthService: AltinnAuthenticationService, private errorService: ErrorService) {
-        this.config = {
-            close: () => {
-                this.modal.getContent().then((component: AltinnAuthenticationDataModalContent) => {
-                    this.modal.close();
-                });
-            },
-        };
-    }
-
-    public getUserAltinnAuthorizationData(): Promise<AltinnAuthenticationData> {
-        // KE: Should not be opened here, only when needed, but because of problem after upgrade
-        // to RC6 this does not work. Open it, and close it automatically for now to fix the
-        // problem right now
-        this.modal.open();
-
-        return this.modal.getContent().then((component: AltinnAuthenticationDataModalContent) => {
-            const authorizationData = this.getAuthenticationDataFromLocalstorage();
-
-            if (!authorizationData) {
-                // should be opened here instead of the start of this function
-                // this.modal.open();
-                return component.getAltinnAuthenticationData()
-                    .then(this.storeAuthenticationDataInLocalstorage)
-                    .then(this.closeThisModal);
-
-            } else if (authorizationData.isValid()) {
-                // this should not be done, the modal shouldn't have been opened at all
-                this.modal.close();
-                return Promise.resolve(authorizationData);
-
-            } else {
-                this.altinnAuthService.clearAltinnAuthenticationDataFromLocalstorage();
-                // should be opened here instead of the start of this function
-                // this.modal.open();
-                return component.completeAltinnAuthenticationData(authorizationData)
-                    .then(this.storeAuthenticationDataInLocalstorage)
-                    .then(this.closeThisModal);
-            }
-        }, err => this.errorService.handle(err));
+    public close() {
+        this.onClose.next();
     }
 }

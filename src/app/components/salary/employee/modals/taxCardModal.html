@@ -5,10 +5,9 @@
     </header>
     <main>
         <tax-card-request [employeeID]="employeeID"></tax-card-request>
-        <read-tax-card [altinnAuthModal]="altinnModal" [changeEvent]="changeEvent" (updateTax)="triggerUpdate()"></read-tax-card>
+        <read-tax-card [changeEvent]="changeEvent" (updateTax)="triggerUpdate()"></read-tax-card>
     </main>
     <footer>
         <button class="bad" (click)="close()">Avbryt</button>
     </footer>
 </dialog>
-<altinn-authentication-data-modal></altinn-authentication-data-modal>

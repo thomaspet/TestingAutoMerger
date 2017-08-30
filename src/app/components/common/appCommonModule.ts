@@ -7,9 +7,8 @@ import {ContextMenu} from './contextMenu/contextMenu';
 import {ExternalSearch} from './externalSearch/externalSearch';
 import {ProductDetails} from './product/details/productDetails';
 import {ProductList} from './product/list/productList';
-import {AltinnAuthenticationDataModalContent} from './modals/AltinnAuthenticationDataModal';
 import {UniFrameworkModule} from '../../../framework/frameworkModule';
-import {AltinnAuthenticationDataModal} from './modals/AltinnAuthenticationDataModal';
+import {AltinnAuthenticationModal} from './modals/AltinnAuthenticationModal';
 import {UniBreadcrumbs} from './toolbar/breadcrumbs';
 import {UniStatusTrack} from './toolbar/statustrack';
 import {UniTags} from './toolbar/tags';
@@ -76,8 +75,7 @@ import {routes as AppCommonRoutes} from './appCommonRoutes';
         ProductList,
         AccrualForm,
         AccrualModal,
-        AltinnAuthenticationDataModalContent,
-        AltinnAuthenticationDataModal,
+        AltinnAuthenticationModal,
         UniBreadcrumbs,
         UniStatusTrack.StatusTrack,
         UniToolbar,
@@ -129,7 +127,7 @@ import {routes as AppCommonRoutes} from './appCommonRoutes';
     ],
     entryComponents: [
         AccrualForm,
-        AltinnAuthenticationDataModalContent,
+        AltinnAuthenticationModal,
         ImageModalContent,
         UniReminderSettingsModal,
         ReminderSettings,
@@ -148,8 +146,7 @@ import {routes as AppCommonRoutes} from './appCommonRoutes';
         ProductList,
         AccrualForm,
         AccrualModal,
-        AltinnAuthenticationDataModalContent,
-        AltinnAuthenticationDataModal,
+        AltinnAuthenticationModal,
         UniBreadcrumbs,
         UniStatusTrack.StatusTrack,
         UniToolbar,

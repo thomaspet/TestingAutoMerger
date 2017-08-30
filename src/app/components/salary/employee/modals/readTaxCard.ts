@@ -4,7 +4,7 @@ import {Observable} from 'rxjs/Observable';
 import {AltinnReceipt} from '../../../../../app/unientities';
 import {AltinnReceiptService, EmployeeService, ErrorService} from '../../../../../app/services/services';
 import {TaxResponseModal} from './taxResponseModal';
-import {AltinnAuthenticationDataModal} from '../../../common/modals/AltinnAuthenticationDataModal';
+import {AltinnAuthenticationModal} from '../../../common/modals/AltinnAuthenticationModal';
 import {AltinnAuthenticationData} from '../../../../models/AltinnAuthenticationData';
 import {UniModalService} from '../../../../../framework/uniModal/barrel';
 declare var _;
@@ -14,9 +14,6 @@ declare var _;
     templateUrl: './readTaxCard.html'
 })
 export class ReadTaxCard implements OnInit {
-
-    @Input()
-    public altinnAuthModal: AltinnAuthenticationDataModal;
     @Input() public changeEvent: EventEmitter<any>;
 
     private receiptTable: UniTableConfig;
@@ -69,18 +66,20 @@ export class ReadTaxCard implements OnInit {
             .take(1)
             .subscribe(() => this.updateReceipts());
         
-        Observable
-            .fromPromise(this.altinnAuthModal.getUserAltinnAuthorizationData())
+        this.modalService
+            .open(AltinnAuthenticationModal)
+            .onClose
+            .filter(auth => !!auth)
             .switchMap((authData: AltinnAuthenticationData) => this.modalService
-                .open(TaxResponseModal, {
-                    data: {
-                        receiptID: receiptID, 
-                        auth: authData
-                    }, 
-                    modalConfig: {changeEvent: this.changeEvent}
-                })
-                .onClose)
-            .subscribe();
+            .open(TaxResponseModal, {
+                data: {
+                    receiptID: receiptID, 
+                    auth: authData
+                }, 
+                modalConfig: {changeEvent: this.changeEvent}
+            })
+            .onClose)
+        .subscribe();
     }
 
     public getReceipts() {
