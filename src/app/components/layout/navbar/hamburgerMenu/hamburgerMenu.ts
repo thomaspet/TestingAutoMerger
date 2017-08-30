@@ -103,12 +103,6 @@ export class HamburgerMenu {
                 componentListUrl: '/',
                 componentList: [
                     {componentName: 'Skrivebord', componentUrl: '/', moduleID: UniModules.Dashboard},
-                    {componentName: 'Brukerinnstillinger', componentUrl: '/settings/user', hidden: true},
-                    {componentName: 'Firmainnstillinger', componentUrl: '/settings/company', hidden: true},
-                    {componentName: 'Aga-innstillinger', componentUrl: '/settings/aga-and-subentities', hidden: true},
-                    {componentName: 'Legg til bruker', componentUrl: '/settings/users', hidden: true},
-                    {componentName: 'Brukere og roller', componentUrl: '/settings/users', hidden: true},
-                    {componentName: 'Altinn', componentUrl: '/settings/altinn', hidden: true},
                     {componentName: 'Oversikt', componentUrl: '/tickers', moduleID: UniModules.UniTicker},
                     {componentName: 'Regnskapsoversikt', componentUrl: '/accounting/accountingreports', moduleID: UniModules.AccountingReports},
                     {componentName: 'Rapporter', componentUrl: '/reports', moduleID: UniModules.Reports},
@@ -221,8 +215,21 @@ export class HamburgerMenu {
                 componentList: [
                     {componentName: 'Versjoner', componentUrl: '/about/versions', moduleID: UniModules.Versions}
                 ]
+            },
+            {
+                componentListName: 'Innstillinger',
+                componentListHeader: 'Innstillinger',
+                componentListUrl: '/settings',
+                componentList: [
+                    {componentName: 'Brukerinnstillinger', componentUrl: '/settings/user'},
+                    {componentName: 'Firmainnstillinger', componentUrl: '/settings/company'},
+                    {componentName: 'Aga-innstillinger', componentUrl: '/settings/aga-and-subentities'},
+                    {componentName: 'Legg til bruker', componentUrl: '/settings/users'},
+                    {componentName: 'Brukere og roller', componentUrl: '/settings/users'},
+                    {componentName: 'Altinn', componentUrl: '/settings/altinn'},
+                ]
             }
-        ]
+        ];
     }
 
 }
