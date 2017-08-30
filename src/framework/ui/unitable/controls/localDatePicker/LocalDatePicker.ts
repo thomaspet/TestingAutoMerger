@@ -59,7 +59,11 @@ export class  LocalDatePicker {
         let date;
 
         if (value && value.length) {
-            date = this.dateUtil.autocompleteDate(value) || null;
+            if (value === '*') { 
+                date = new Date();
+            } else {
+                date = this.dateUtil.autocompleteDate(value) || null;
+            }
         }
 
         this.selectedDate = date;

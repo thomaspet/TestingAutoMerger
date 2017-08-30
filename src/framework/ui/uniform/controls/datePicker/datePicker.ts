@@ -66,7 +66,11 @@ export class DateTimePickerInput extends BaseControl {
             let value = _.get(this.model, this.field.Property, '');
 
             if (value) {
-                this.selectedDate = new Date(value);
+                if (value === '*') {
+                    this.selectedDate = new Date();
+                } else {
+                    this.selectedDate = new Date(value);
+                }
                 this.control.setValue(moment(this.selectedDate).format('L'));
             }
         }
@@ -145,7 +149,11 @@ export class DateTimePickerInput extends BaseControl {
         let date;
 
         if ((value && value.length) || this.options.autocompleteEmptyValue) {
-            date = autocompleteDate(value) || null;
+            if (value === '*') {
+                date = new Date();
+            } else {
+                date = autocompleteDate(value) || null;
+            }
         } else {
             date = null;
         }
