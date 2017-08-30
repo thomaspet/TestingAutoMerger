@@ -1,17 +1,17 @@
-import { Component, ViewChild } from '@angular/core';
-import { URLSearchParams } from '@angular/http';
-import { Router, ActivatedRoute } from '@angular/router';
-import { IUniTabsRoute } from '../../layout/uniTabs/uniTabs';
-import { TabService, UniModules } from '../../layout/navbar/tabstrip/tabService';
-import { ProjectService, ErrorService } from '../../../services/services';
+﻿import {Component, ViewChild} from '@angular/core';
+import {URLSearchParams} from '@angular/http';
+import {Router, ActivatedRoute} from '@angular/router';
+import {IUniTabsRoute} from '../../layout/uniTabs/uniTabs';
+import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
+import {ProjectService, ErrorService } from '../../../services/services';
 import {
     UniTable,
     UniTableColumn,
     UniTableColumnType,
     UniTableConfig
 } from '../../../../framework/ui/unitable/index';
-import { IToolbarConfig } from '../../common/toolbar/toolbar';
-import { IUniSaveAction } from '../../../../framework/save/save';
+import {IToolbarConfig} from '../../common/toolbar/toolbar';
+import {IUniSaveAction} from '../../../../framework/save/save';
 
 declare var _;
 
@@ -26,6 +26,9 @@ export class Project {
 
     private childRoutes: IUniTabsRoute[];
     private activeProjectID: any = '';
+    private currentPage: number = 1;
+    private isStart: boolean = true;
+
 
     private tableConfig: UniTableConfig;
     private lookupFunction: (urlParams: URLSearchParams) => any;
@@ -71,28 +74,46 @@ export class Project {
             { name: 'Timer', path: 'hours' },
             { name: 'Inng.faktura', path: 'supplierinvoices'},
             { name: 'Dokumenter', path: 'documents' },
-            //{ name: 'Budsjett', path: 'budget' },     // TODO: uncomment when available
-            //{ name: 'Ordre', path: 'orders' },        // TODO: uncomment when available
-            //{ name: 'Rapport', path: 'reports' },     // TODO: uncomment when available
-            //{ name: 'Nøkkeltall', path: 'kpi' },      // TODO: uncomment when available
-            //{ name: 'Tidslinje', path: 'timeline' },  // TODO: uncomment when available
+            // { name: 'Budsjett', path: 'budget' },     // TODO: uncomment when available
+            // { name: 'Ordre', path: 'orders' },        // TODO: uncomment when available
+            // { name: 'Rapport', path: 'reports' },     // TODO: uncomment when available
+            // { name: 'Nøkkeltall', path: 'kpi' },      // TODO: uncomment when available
+            // { name: 'Tidslinje', path: 'timeline' },  // TODO: uncomment when available
             { name: 'Redigering', path: 'editmode' }
         ];
         this.setUpTable();
 
-        this.route.firstChild.queryParams.subscribe((params) => {
+        this.route.queryParams.subscribe((params) => {
             if (params && +params['projectID']) {
                 this.activeProjectID = +params['projectID'];
                 this.projectService
                     .Get(this.activeProjectID, ['ProjectTasks.ProjectTaskSchedules', 'ProjectResources'])
                     .subscribe(project => {
+                        this.toolbarconfig.title = project.Name;
                         this.projectService.currentProject.next(project);
                     }, error => this.newProject());
+            };
+
+            if (params && params['page']) {
+                if (this.table) {
+                    if (this.currentPage !== +params['page']) {
+                        this.table.goToPage(+params['page']);
+                    } else {
+                        this.markSelectedProject();
+                    }
+                }
+                this.currentPage = +params['page'];
             }
         });
     }
 
     public onTableReady() {
+        if (this.currentPage > 1 && this.isStart) {
+            this.table.goToPage(this.currentPage);
+            this.isStart = false;
+            return;
+        }
+
         if (!this.activeProjectID) {
             if (this.table.getRowCount() === 0) {
                 this.newProject();
@@ -100,7 +121,14 @@ export class Project {
                 let current = this.projectService.currentProject.getValue();
                 this.table.focusRow(current && current['_originalIndex'] ? current['_originalIndex'] : 0);
             }
+        } else {
+            this.markSelectedProject();
         }
+    }
+
+    public onPageChange(page) {
+        this.currentPage = page;
+        this.setQueryParamAndNavigate(this.activeProjectID);
     }
 
     private newProject() {
@@ -128,8 +156,17 @@ export class Project {
             ]);
     }
 
+    private markSelectedProject() {
+        let projects = this.table.getTableData();
+        for (let i = 0; i < projects.length; i++) {
+            if (projects[i].ID === this.activeProjectID) {
+                this.table.focusRow(i);
+                break;
+            }
+        }
+    }
+
     public onRowSelected(event: any) {
-        this.toolbarconfig.title = event.rowModel.Name;
         this.projectService.currentProject.next(event.rowModel);
         this.activeProjectID = event.rowModel.ID;
 
@@ -141,11 +178,20 @@ export class Project {
     };
 
     public setQueryParamAndNavigate(id: number) {
+        // Gets URL from current URL without queryparams
         let url = this.router.url.split('?')[0];
+
+        // Update the tabURL with new before routing
+        this.tabService.currentActiveTab.url = url + '?projectID=' + id
+            + '&page=' + this.currentPage;
+
+        // Route to new URL with QueryParams
         this.router.navigate([url], {
             queryParams: {
-                projectID: id
-            }
+                projectID: id,
+                page: this.currentPage
+            },
+            skipLocationChange: false
         });
     }
 
