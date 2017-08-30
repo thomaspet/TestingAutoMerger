@@ -1,8 +1,9 @@
 import {Component, Input, Output, ViewChild, EventEmitter, SimpleChanges} from '@angular/core';
 import {UniForm, FieldType, UniFieldLayout} from '../../../../framework/ui/uniform/index';
-import {CurrencyCode, Project} from '../../../unientities';
+import {CompanySettings, CurrencyCode, LocalDate, Project} from '../../../unientities';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {Dimension} from '../../../services/common/dimensionService';
+import * as moment from 'moment';
 
 declare const _;
 
@@ -25,6 +26,7 @@ export class TofDetailsForm {
     @Input() public entity: any;
     @Input() public currencyCodes: Array<CurrencyCode>;
     @Input() public projects: Project;
+    @Input() public companySettings: CompanySettings;
     @Output() public entityChange: EventEmitter<any> = new EventEmitter();
 
     public tabbedPastLastField: EventEmitter<any> = new EventEmitter();
@@ -108,6 +110,15 @@ export class TofDetailsForm {
         keys.forEach(key => {
             _.set(this.entity, key, changes[key].currentValue);
         });
+
+        if (changes['QuoteDate'] && changes['QuoteDate'].currentValue) {
+            this.setDates(changes['QuoteDate'].currentValue);
+        } else if (changes['OrderDate'] && changes['OrderDate'].currentValue) {
+            this.setDates(changes['OrderDate'].currentValue);
+        } else if (changes['InvoiceDate'] && changes['InvoiceDate'].currentValue) {
+            this.setDates(changes['InvoiceDate'].currentValue);
+        }
+
         this.entityChange.emit(this.entity);
     }
 
@@ -254,6 +265,38 @@ export class TofDetailsForm {
             }
 
             this.fields$.next(fields);
+        }
+    }
+
+    private setDates(entityDate: LocalDate) {
+        if (this.entityType === 'CustomerInvoice') {
+            this.entity.PaymentDueDate = entityDate;
+            if (!this.entity.PaymentTerms) {
+                this.entity.PaymentDueDate = new LocalDate(		
+                    moment(this.entity.PaymentDueDate).add(this.companySettings.CustomerCreditDays, 'days').toDate()
+                );
+            } else if (this.entity.PaymentTerms.CreditDays) {
+                if (this.entity.PaymentTerms.CreditDays < 0) {
+                    this.entity.PaymentDueDate = new LocalDate(
+                        moment(this.entity.PaymentDueDate).endOf('month').toDate()
+                    );
+                }
+                this.entity.PaymentDueDate = new LocalDate(
+                    moment(this.entity.PaymentDueDate).add(Math.abs(this.entity.PaymentTerms.CreditDays), 'days')
+                        .toDate()
+                );
+            }
+        }
+        
+        if (this.entity.DeliveryTerms && this.entity.DeliveryTerms.CreditDays) {
+            this.entity.DeliveryDate = entityDate;
+            if (this.entity.DeliveryTerms.CreditDays < 0) {
+                this.entity.DeliveryDate = new LocalDate(moment(this.entity.DeliveryDate).endOf('month').toDate());
+            }
+
+            this.entity.DeliveryDate = new LocalDate(
+                moment(this.entity.DeliveryDate).add(Math.abs(this.entity.DeliveryTerms.CreditDays), 'days').toDate()
+            );
         }
     }
 }

@@ -538,8 +538,6 @@ export class OrderDetails {
             order.DeliveryDate = new LocalDate(
                 moment(order.DeliveryDate).add(Math.abs(order.DeliveryTerms.CreditDays), 'days').toDate()
             );
-        } else {
-            order.DeliveryDate = null;
         }
     }
 

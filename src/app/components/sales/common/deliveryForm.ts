@@ -261,19 +261,19 @@ export class TofDeliveryForm {
         ]);
     }
 
-    private setPaymentDueDate(invoice) {
-        if (invoice.PaymentTerms && invoice.PaymentTerms.CreditDays) {
-            invoice.PaymentDueDate = invoice.InvoiceDate;
-            if (invoice.PaymentTerms.CreditDays < 0) {
-                invoice.PaymentDueDate = new LocalDate(
-                    moment(invoice.InvoiceDate).endOf('month').toDate()
+    private setPaymentDueDate(entity) {
+        if (entity.PaymentTerms && entity.PaymentTerms.CreditDays) {
+            entity.PaymentDueDate = entity.InvoiceDate;
+            if (entity.PaymentTerms.CreditDays < 0) {
+                entity.PaymentDueDate = new LocalDate(
+                    moment(entity.InvoiceDate).endOf('month').toDate()
                 );
             }
-            invoice.PaymentDueDate = new LocalDate(
-                moment(invoice.PaymentDueDate).add(Math.abs(invoice.PaymentTerms.CreditDays), 'days').toDate()
+            entity.PaymentDueDate = new LocalDate(
+                moment(entity.PaymentDueDate).add(Math.abs(entity.PaymentTerms.CreditDays), 'days').toDate()
             );
         } else {
-            invoice.PaymentDueDate = null;
+            entity.PaymentDueDate = null;
         }
     }
 

@@ -641,8 +641,6 @@ export class InvoiceDetails {
             invoice.PaymentDueDate = new LocalDate(
                 moment(invoice.PaymentDueDate).add(Math.abs(invoice.PaymentTerms.CreditDays), 'days').toDate()
             );
-        } else {
-            invoice.PaymentDueDate = null;
         }
     }
 
@@ -655,8 +653,6 @@ export class InvoiceDetails {
             invoice.DeliveryDate = new LocalDate(
                 moment(invoice.DeliveryDate).add(Math.abs(invoice.DeliveryTerms.CreditDays), 'days').toDate()
             );
-        } else {
-            invoice.DeliveryDate = null;
         }
     }
 

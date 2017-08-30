@@ -513,8 +513,6 @@ export class QuoteDetails {
             quote.DeliveryDate = new LocalDate(
                 moment(quote.DeliveryDate).add(Math.abs(quote.DeliveryTerms.CreditDays), 'days').toDate()
             );
-        } else {
-            quote.DeliveryDate = null;
         }
     }
 
