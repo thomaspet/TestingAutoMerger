@@ -136,6 +136,7 @@ dialog.uniModal[open=false]:before
     overflow-y: visible
     overflow-x: auto
     display: block
+    position: relative
 
     padding: 0
     border: none
@@ -225,7 +226,7 @@ uni-send-email-modal
         height: 12rem
         overflow: auto
 
-uni-preview-modal dialog.uni-modal
+uni-preview-modal .uni-modal
     max-height: 95vh
 
     #reportContainer
@@ -257,7 +258,7 @@ uni-preview-modal dialog.uni-modal
         bottom: 3rem
         right: 1rem
 
-uni-login-modal dialog.uni-modal
+uni-login-modal .uni-modal
     width: 30vw
 
     button.modal-close-button

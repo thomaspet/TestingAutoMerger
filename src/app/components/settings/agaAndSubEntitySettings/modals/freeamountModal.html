@@ -1,12 +1,12 @@
-<dialog class="uni-modal medium">
+<section class="uni-modal medium">
     <header>
         <h1>Fribeløp pr virksomhet</h1>
     </header>
-    <main>
+    <article>
         <uni-table [config]="freeamountTableConfig" [resource]="freeamountData"></uni-table>
         <uni-form [config]="formConfig$" [fields]="fields$" [model]="freeamountModel$"></uni-form>
-    </main>
+    </article>
     <footer>
         <button class="bad" (click)="close()">Lukk</button>
     </footer>
-</dialog>
+</section>

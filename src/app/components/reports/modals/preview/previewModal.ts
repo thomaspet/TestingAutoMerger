@@ -11,15 +11,15 @@ interface IDownloadAction {
 @Component({
     selector: 'uni-preview-modal',
     template: `
-        <dialog class="uni-modal medium"
+        <section class="uni-modal medium"
             (clickOutside)="close()"
             (keydown.esc)="close()">
             <header>
                 <h1>{{options.header || 'Forhåndsvisning'}}</h1>
             </header>
-            <main>
+            <article>
                 <section id="reportContainer" [innerHtml]="modalConfig?.report | safehtml"></section>
-            </main>
+            </article>
             <footer>
                 <button class="main-action-button good" (click)="download(actions[0].format)">
                     {{actions[0].label}}
@@ -33,7 +33,7 @@ interface IDownloadAction {
                     </li>
                 </ul>
             </footer>
-        </dialog>
+        </section>
     `
 })
 export class UniPreviewModal implements IUniModal {

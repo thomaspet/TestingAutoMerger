@@ -5,7 +5,7 @@ import {ReminderSending} from './reminderSending';
 @Component({
     selector: 'uni-reminder-settings-modal',
     template: `
-        <dialog class="uni-modal medium"
+        <section class="uni-modal medium"
             (clickOutside)="close()"
             (keydown.esc)="close()">
 
@@ -13,9 +13,9 @@ import {ReminderSending} from './reminderSending';
                 <h1>Utsendelse av purringer</h1>
             </header>
 
-            <main>
+            <article>
                 <reminder-sending [modalMode]="true"></reminder-sending>
-            </main>
+            </article>
 
             <footer>
                 <button class="good" (click)="send()">Send valgte</button>
@@ -23,7 +23,7 @@ import {ReminderSending} from './reminderSending';
                 <button class="good" (click)="save()">Lagre endringer</button>
                 <button class="bad" (click)="close()">Avbryt</button>
             </footer>
-        </dialog>
+        </section>
     `
 })
 export class UniReminderSendingModal implements IUniModal {
