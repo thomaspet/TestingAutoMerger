@@ -14,7 +14,6 @@ import {AppPipesModule} from '../../pipes/appPipesModule';
 
 // routes
 import {routes as ReportRoutes} from './reportsRoutes';
-import {Overview} from './overview/overview';
 import {AccountReportFilterForm} from './modals/account/AccountReportFilterModal';
 import {AccountReportFilterModal} from './modals/account/AccountReportFilterModal';
 import {BalanceGeneralLedgerFilterForm} from './modals/balanceGeneralLedgerFilter/BalanceGeneralLedgerFilterModal';
@@ -71,7 +70,6 @@ import {UniReports} from './reports';
     ],
     declarations: [
         UniReports,
-        Overview,
         AccountReportFilterForm,
         AccountReportFilterModal,
         BalanceGeneralLedgerFilterForm,
@@ -115,7 +113,6 @@ import {UniReports} from './reports';
     ],
     exports: [
         UniReports,
-        Overview,
         AccountReportFilterForm,
         AccountReportFilterModal,
         BalanceGeneralLedgerFilterForm,
