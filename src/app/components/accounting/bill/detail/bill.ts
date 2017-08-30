@@ -528,8 +528,8 @@ export class BillView {
     private handleEHFResult(invoice: SupplierInvoice) {
         // Supplier
         if (!invoice.SupplierID && invoice.Supplier) {
-            var title = `${lang.create_supplier} '${invoice.InvoiceReceiverName}' ?`;
-            var msg = `${invoice.InvoiceAddressLine1 || ''} ${invoice.InvoicePostalCode || ''}. ${lang.org_number}: ${invoice.Supplier.OrgNumber}`;
+            let title = `${lang.create_supplier} '${invoice.InvoiceReceiverName}' ?`;
+            let msg = `${invoice.InvoiceAddressLine1 || ''} ${invoice.InvoicePostalCode || ''}. ${lang.org_number}: ${invoice.Supplier.OrgNumber}`;
             this.toast.clear();
 
             const modal = this.modalService.open(UniConfirmModalV2, {
@@ -1888,10 +1888,7 @@ export class BillView {
     }
 
     private isEHF(file): Boolean {
-        if (file.Extension && file.Extension.toLowerCase() === '.ehf') {return true; }
-
-        var ending = file.Name.toLowerCase().split('.').pop();
-        return ending === 'ehf';
-
+        let name = (file.Name || '').toLowerCase();
+        return name.indexOf('.xml') !== -1 || name.indexOf('.ehf') !== -1);
     }
 }
