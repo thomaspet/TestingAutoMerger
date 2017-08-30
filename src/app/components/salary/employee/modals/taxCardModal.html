@@ -1,13 +1,12 @@
-<dialog class="taxCardRequest" 
-    (keydown.esc)="close()">
+<section role="dialog" class="taxCardRequest">
     <header>
         <h1>Elektronisk skattekort</h1>
     </header>
-    <main>
+    <article>
         <tax-card-request [employeeID]="employeeID"></tax-card-request>
         <read-tax-card [changeEvent]="changeEvent" (updateTax)="triggerUpdate()"></read-tax-card>
-    </main>
+    </article>
     <footer>
         <button class="bad" (click)="close()">Avbryt</button>
     </footer>
-</dialog>
+</section>
