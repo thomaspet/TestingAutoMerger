@@ -55,7 +55,7 @@ export class PaymentRelationsTable implements OnInit {
                 new UniTableColumn('TracelinkSourceEntityName', 'Entitet', UniTableColumnType.Text)
                     .setTemplate(data => {
                         if (data.TracelinkSourceEntityName === 'SupplierInvoice') {
-                            return `<a href='/#/accounting/bill/${data.TracelinkSourceInstanceID}' target='_blank'>${data.TracelinkSourceEntityName}</a>`;
+                            return `<a href='/#/accounting/bills/${data.TracelinkSourceInstanceID}' target='_blank'>${data.TracelinkSourceEntityName}</a>`;
                         } else if (data.TracelinkSourceEntityName === 'CustomerInvoice') {
                             return `<a href='/#/sales/invoices/${data.TracelinkSourceInstanceID}' target='_blank'>${data.TracelinkSourceEntityName}</a>`;
                         } else if (data.TracelinkSourceEntityName === 'Employee') {

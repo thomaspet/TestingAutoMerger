@@ -140,7 +140,7 @@ export class UniListWidget {
                 break;
             case 'SupplierInvoice':
                 item.module = 'Leverandørfaktura' + ' ' + item[this.widget.config.listItemKeys.moduleID];
-                item.link = '/accounting/bill/' + item[this.widget.config.listItemKeys.moduleID];
+                item.link = '/accounting/bills/' + item[this.widget.config.listItemKeys.moduleID];
                 break;
             case 'NumberSeries':
                 item.module = 'Nummerserie' + ' ' + item[this.widget.config.listItemKeys.moduleID];

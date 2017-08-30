@@ -1,8 +1,8 @@
 // Used to map entitytype on a notification to correct frontend route
 
 export const accountingRouteMap = {
-    'supplierinvoice': 'bill/:id',
-    'supplierinvoiceitem': 'bill/:id'
+    'supplierinvoice': 'bills/:id',
+    'supplierinvoiceitem': 'bills/:id'
 };
 
 export const salaryRouteMap = {

@@ -129,7 +129,7 @@ export class UniNotifications {
         } else if (commonRouteMap[entityType]) {
             route = commonRouteMap[entityType];
         } else if (notification.EntityType === 'File' && notification.SenderDisplayName === 'Uni Micro AP') {
-            route = '/accounting/bill/0?fileid=:id';
+            route = '/accounting/bills/0?fileid=:id';
         }
 
         route = route.replace(/:id/i, notification.EntityID.toString());

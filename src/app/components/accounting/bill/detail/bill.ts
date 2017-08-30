@@ -255,7 +255,7 @@ export class BillView {
         let current = this.current.getValue();
         id = id || (current ? current.ID : 0);
         this.tabLabel = label || lang.title_with_id + id;
-        var url = '/accounting/bill/' + id;
+        var url = '/accounting/bills/' + id;
         this.tabService.addTab({ name: this.tabLabel, url: url, moduleID: UniModules.Bills, active: true });
         if (this.location.path(false) !== url) {
             this.location.go(url);
@@ -1774,7 +1774,7 @@ export class BillView {
                 next: () => this.navigateTo('next'),
                 add: () => {
                     this.newInvoice(false);
-                    this.router.navigateByUrl('/accounting/bill/0');
+                    this.router.navigateByUrl('/accounting/bills/0');
                 }
             },
             entityID: doc && doc.ID ? doc.ID : null,

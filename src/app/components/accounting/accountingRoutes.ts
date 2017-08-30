@@ -57,7 +57,7 @@ export const accountingRoutes: Routes = [
         component: BillsView
     },
     {
-        path: 'bill/:id',
+        path: 'bills/:id',
         component: BillView,
         canDeactivate: [CanDeactivateGuard]
     },

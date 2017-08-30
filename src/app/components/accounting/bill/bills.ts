@@ -331,9 +331,9 @@ export class BillsView {
         var item = event.rowModel;
         if (item) {
             if (this.currentFilter.name === 'Inbox') {
-                this.router.navigateByUrl('/accounting/bill/0?fileid=' + item.ID);
+                this.router.navigateByUrl('/accounting/bills/0?fileid=' + item.ID);
             } else {
-                this.router.navigateByUrl('/accounting/bill/' + item.ID);
+                this.router.navigateByUrl('/accounting/bills/' + item.ID);
             }
         }
     }
@@ -372,7 +372,7 @@ export class BillsView {
     }
 
     public onAddNew() {
-        this.router.navigateByUrl('/accounting/bill/0');
+        this.router.navigateByUrl('/accounting/bills/0');
     }
 
     public onFilterClick(filter: IFilter, searchFilter?: string) {
