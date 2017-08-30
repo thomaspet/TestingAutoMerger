@@ -3,7 +3,7 @@ import {IModalOptions, IUniModal} from './../../../../../framework/uniModal/barr
 import {ReminderSending} from './reminderSending';
 
 @Component({
-    selector: 'uni-reminder-settings-modal',
+    selector: 'uni-reminder-sending-modal',
     template: `
         <section class="uni-modal medium"
             (clickOutside)="close()"

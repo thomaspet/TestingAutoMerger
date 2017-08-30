@@ -5,7 +5,7 @@ import {ReminderSettings} from './reminderSettings';
 @Component({
     selector: 'uni-reminder-settings-modal',
     template: `
-        <dialog class="uni-modal medium"
+        <section class="uni-modal medium"
             (clickOutside)="close(false)"
             (keydown.esc)="close(false)">
 
@@ -13,15 +13,15 @@ import {ReminderSettings} from './reminderSettings';
                 <h1>Instillinger for purring</h1>
             </header>
 
-            <main>
+            <article>
                 <reminder-settings></reminder-settings>
-            </main>
+            </article>
 
             <footer>
                 <button class="good" (click)="close(true)">Lagre</button>
                 <button class="bad" (click)="close(false)">Avbryt</button>
             </footer>
-        </dialog>
+        </section>
     `
 })
 export class UniReminderSettingsModal implements IUniModal {
