@@ -1,0 +1,11 @@
+<fieldset>
+    <legend>Gruppedetaljer</legend>
+    <aside>
+        <uni-form
+            [config]="config$"
+            [fields]="fields$"
+            [model]="group$"
+            (changeEvent)="change($event)">
+        </uni-form>
+    </aside>
+</fieldset>

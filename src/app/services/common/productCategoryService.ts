@@ -5,9 +5,13 @@ import {UniHttp} from '../../../framework/core/http/http';
 import {Observable} from 'rxjs/Observable';
 import {ITag} from '../../components/common/toolbar/tags';
 import {StatisticsService} from './statisticsService';
+import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 
 @Injectable()
 export class ProductCategoryService extends BizHttp<ProductCategory> {
+
+    public currentProductGroup: BehaviorSubject<ProductCategory> = new BehaviorSubject(null);
+    public isDirty: boolean;
 
     constructor(http: UniHttp, private statisticsService: StatisticsService) {
         super(http);
@@ -15,6 +19,10 @@ export class ProductCategoryService extends BizHttp<ProductCategory> {
         this.relativeURL = ProductCategory.RelativeUrl;
         this.entityType = ProductCategory.EntityType;
         this.DefaultOrderBy = null;
+    }
+
+    public setNew() {
+        this.currentProductGroup.next(new ProductCategory);
     }
 
     public searchCategories(query: string, ignoreFilter: string): Observable<ProductCategory[]> {

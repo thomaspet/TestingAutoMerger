@@ -124,7 +124,7 @@ export class HamburgerMenu {
                     {componentName: 'Ordre', componentUrl: '/sales/orders', moduleID: UniModules.Orders},
                     {componentName: 'Faktura', componentUrl: '/sales/invoices', moduleID: UniModules.Invoices},
                     {componentName: 'Produkter', componentUrl: '/products', moduleID: UniModules.Products},
-                    {componentName: 'Produktgrupper', componentUrl: '/sales/productgroups', moduleID: UniModules.ProductGroup},
+                    {componentName: 'Produktgrupper', componentUrl: '/sales/productgroups/', moduleID: UniModules.ProductGroup},
                     {componentName: 'Purring', componentUrl: '/sales/reminders', moduleID: UniModules.Reminders},
                     {componentName: 'Prosjekt', componentUrl: '/sales/project/overview', moduleID: UniModules.Projects},
                     {componentName: 'Selgere', componentUrl: '/sellers', moduleID: UniModules.Sellers}

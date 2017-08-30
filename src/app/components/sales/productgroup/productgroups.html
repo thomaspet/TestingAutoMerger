@@ -1,0 +1,26 @@
+<uni-toolbar
+    [config]="toolbarconfig"
+    [saveactions]="saveactions"
+    [commentsConfig]="commentsConfig"
+    [contextmenu]="contextMenuItems">
+</uni-toolbar>
+
+<uni-tabs [routes]="childRoutes" [queryParamsHandling]="'preserve'" class="horizontal_nav"></uni-tabs>
+
+<section class="application">
+    <nav>
+        <span *ngIf="!nodes.length">Ingen grupper, lag din første.</span>
+
+        <div class="treeContainer">
+            <tree-root #tree
+                [nodes]="nodes"
+                [options]="treeoptions"
+                (moveNode)="nodeMoved($event)"
+                (activate)="nodeActive($event)"
+                (deactivate)="nodeDeactivated($event)">
+             </tree-root>
+        </div>
+    </nav>
+</section>
+
+<router-outlet></router-outlet>

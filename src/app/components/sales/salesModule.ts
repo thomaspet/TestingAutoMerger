@@ -49,8 +49,10 @@ import {TofHelper} from './salesHelper/tofHelper';
 import {TradeItemTable} from './common/tradeItemTable';
 import {CanDeactivateGuard} from '../../canDeactivateGuard';
 import {WidgetModule} from '../widgets/widgetModule';
-import {ProductGroups} from './productgroup/groups/productgroups';
+import {ProductGroups} from './productgroup/productgroups';
 import {TreeModule} from 'angular-tree-component';
+import {GroupDetails} from './productgroup/groupDetails/groupDetails';
+import {ProductsInGroup} from './productgroup/productsInGroup/productsInGroup';
 
 @NgModule({
     imports: [
@@ -114,7 +116,9 @@ import {TreeModule} from 'angular-tree-component';
         DebtCollection,
         InvoiceReminders,
 
-        ProductGroups
+        ProductGroups,
+        ProductsInGroup,
+        GroupDetails
     ],
     entryComponents: [
         OrderToInvoiceModalType,
@@ -158,7 +162,9 @@ import {TreeModule} from 'angular-tree-component';
         ReminderSending,
         UniReminderSendingModal,
         InvoiceReminders,
-        ProductGroups
+        ProductGroups,
+        ProductsInGroup,
+        GroupDetails
     ]
 })
 export class SalesModule {

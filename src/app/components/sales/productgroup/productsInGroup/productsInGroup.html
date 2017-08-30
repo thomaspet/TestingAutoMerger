@@ -1,0 +1,10 @@
+<fieldset>
+    <legend>Produkter i gruppe</legend>
+    <aside>
+        <uni-table
+            [resource]="products$ | async"
+            [config]="productsConfig">
+        </uni-table>
+    </aside>
+
+</fieldset>
