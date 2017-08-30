@@ -221,8 +221,8 @@ export class InvoiceDetails {
                     let invoice = <CustomerInvoice>res[0];
                     invoice.OurReference = res[1].DisplayName;
                     invoice.InvoiceDate = new LocalDate(Date());
-                    invoice.PaymentDueDate = new LocalDate(		
-                        moment(invoice.InvoiceDate).add(this.companySettings.CustomerCreditDays, 'days').toDate()		
+                    invoice.PaymentDueDate = new LocalDate(
+                        moment(invoice.InvoiceDate).add(this.companySettings.CustomerCreditDays, 'days').toDate()
                     );
                     invoice.DeliveryDate = invoice.InvoiceDate;
 
@@ -326,6 +326,24 @@ export class InvoiceDetails {
                 }
             });
         }
+    }
+
+    private askAddressSettings(doneHandler: (msg?: string) => void) {
+        this.modalService.confirm({
+            header: 'Ditt firma mangler adresse informasjon',
+            message: 'Gå til firmainnstillinger for å fylle ut minimum adresselinje 1?',
+            buttonLabels: {
+                accept: 'Ja',
+                cancel: 'Nei'
+            }
+        }).onClose.subscribe(response => {
+            if (response === ConfirmActions.ACCEPT) {
+                doneHandler('');
+                this.router.navigate(['/settings/company']);
+            } else {
+                doneHandler('Husk å fylle ut minimum adresselinje 1 i firmainnstillingene for å sende EHF');
+            }
+        });
     }
 
     private sendEmailAction(doneHandler: (msg?: string) => void) {
@@ -560,23 +578,27 @@ export class InvoiceDetails {
     }
 
     private askSendEHF(doneHandler: (msg: string) => void = null) {
-        if (this.invoice.PrintStatus === 300) {
-            this.modalService.confirm({
-                header: 'Bekreft EHF sending',
-                message: 'Vil du sende EHF på nytt?',
-                buttonLabels: {
-                    accept: 'Send',
-                    cancel: 'Avbryt'
-                }
-            }).onClose.subscribe(response => {
-                if (response === ConfirmActions.ACCEPT) {
-                    this.sendEHF(doneHandler);
-                } else {
-                    doneHandler('');
-                }
-            });
+        if (this.companySettings.DefaultAddress && this.companySettings.DefaultAddress.AddressLine1) {
+            if (this.invoice.PrintStatus === 300) {
+                this.modalService.confirm({
+                    header: 'Bekreft EHF sending',
+                    message: 'Vil du sende EHF på nytt?',
+                    buttonLabels: {
+                        accept: 'Send',
+                        cancel: 'Avbryt'
+                    }
+                }).onClose.subscribe(response => {
+                    if (response === ConfirmActions.ACCEPT) {
+                        this.sendEHF(doneHandler);
+                    } else {
+                        doneHandler('');
+                    }
+                });
+            } else {
+                this.sendEHF(doneHandler);
+            }
         } else {
-            this.sendEHF(doneHandler);
+            this.askAddressSettings(doneHandler);
         }
     }
 
@@ -631,7 +653,7 @@ export class InvoiceDetails {
             && invoice.PaymentTerms
             && invoice.PaymentTerms.CreditDays) {
                 invoice.PaymentDueDate = this.setPaymentDueDate(invoice);
-        } 
+        }
     }
 
     private setDeliveryDate(invoice: CustomerInvoice): LocalDate {
