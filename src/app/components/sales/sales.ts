@@ -119,7 +119,7 @@ export class UniSales {
                     label: 'Prosjekt',
                     description: 'Prosjektmodul',
                     icon: '',
-                    link: '/sales/project/overview'
+                    link: '/dimensions/projects/overview'
                 }
             },
 

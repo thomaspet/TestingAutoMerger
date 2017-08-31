@@ -60,7 +60,7 @@ export class Project {
 
         this.tabService.addTab({
             name: 'Prosjekt',
-            url: '/sales/project/overview',
+            url: '/dimensions/projects/overview',
             moduleID: UniModules.Projects,
             active: true
         });
@@ -134,7 +134,7 @@ export class Project {
     private newProject() {
         this.projectService.setNew();
         this.toolbarconfig.title = 'Nytt prosjekt';
-        this.router.navigateByUrl('/sales/project/editmode?projectID=0');
+        this.router.navigateByUrl('/dimensions/projects/editmode?projectID=0');
     }
 
     private setUpTable() {

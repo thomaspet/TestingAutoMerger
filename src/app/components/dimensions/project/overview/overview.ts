@@ -127,7 +127,7 @@ export class ProjectOverview {
         this.chartElement1.nativeElement.onclick = (event) => {
             if (!this.myChart || !event) { return; }
             let temp = this.myChart.getElementAtEvent(event);
-            this.router.navigate(['/sales/project/hours'], {
+            this.router.navigate(['/dimensions/projects/hours'], {
                 queryParams: {
                     projectID: this.projectService.currentProject.getValue().ID,
                     page: this.pageStateService.getPageState().page || 1,
@@ -139,7 +139,7 @@ export class ProjectOverview {
     }
 
     private navigateToEditmode() {
-        this.router.navigateByUrl('/sales/project/editmode');
+        this.router.navigateByUrl('/dimensions/projects/editmode');
     }
 
     private projectChanged(project: myProject) {

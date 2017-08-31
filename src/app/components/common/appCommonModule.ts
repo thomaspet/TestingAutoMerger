@@ -11,11 +11,6 @@ import {UniBreadcrumbs} from './toolbar/breadcrumbs';
 import {UniStatusTrack} from './toolbar/statustrack';
 import {UniTags} from './toolbar/tags';
 import {UniToolbar} from './toolbar/toolbar';
-import {UniDimensions} from './dimensions/UniDimensions';
-import {ProjectList} from './dimensions/project/list/projectList';
-import {ProjectDetails} from './dimensions/project/details/projectDetails';
-import {DepartmentList} from './dimensions/department/list/departmentList';
-import {DepartmentDetails} from './dimensions/department/details/departmentDetails';
 import {UniQueryReadOnly} from './uniQuery/UniQueryReadOnly';
 import {UniSummary} from './summary/summary';
 import {ImageModal, ImageModalContent} from './modals/ImageModal';
@@ -55,12 +50,7 @@ import {routes as AppCommonRoutes} from './appCommonRoutes';
         AppCommonRoutes,
     ],
     declarations: [
-        UniDimensions,
-        ProjectList,
-        ProjectDetails,
         PredefinedDescriptionList,
-        DepartmentList,
-        DepartmentDetails,
         ContextMenu,
         ExternalSearch,
         AccrualForm,
@@ -114,12 +104,7 @@ import {routes as AppCommonRoutes} from './appCommonRoutes';
         AddPaymentForm
     ],
     exports: [
-        UniDimensions,
-        ProjectList,
-        ProjectDetails,
         PredefinedDescriptionList,
-        DepartmentList,
-        DepartmentDetails,
         ContextMenu,
         ExternalSearch,
         AccrualForm,

@@ -25,13 +25,7 @@ import {OrderToInvoiceModalType} from './order/modals/ordertoinvoice';
 import {OrderToInvoiceModal} from './order/modals/ordertoinvoice';
 import {QuoteDetails} from './quote/details/quoteDetails';
 import {QuoteList} from './quote/list/quoteList';
-import {Project} from './project/project';
-import {ProjectOverview} from './project/overview/overview';
-import {ProjectTasks} from './project/tasks/tasks';
-import {ProjectEditmode} from './project/editmode/editmode';
-import {ProjectDocument} from './project/document/document';
-import {ProjectQueryList} from './project/lists/querylist';
-import {ProjectHours} from './project/hours/hours';
+
 import {UniSales} from './sales';
 import {InvoiceDetails} from './invoice/details/invoice';
 import {InvoiceReminders} from './invoice/reminders/reminders';
@@ -104,14 +98,6 @@ import {SellerDetails} from './sellers/sellerDetails';
         QuoteDetails,
         QuoteList,
 
-        Project,
-        ProjectOverview,
-        ProjectTasks,
-        ProjectEditmode,
-        ProjectDocument,
-        ProjectQueryList,
-        ProjectHours,
-
         Reminder,
         ReminderList,
         ReminderConfirmModal,
@@ -162,13 +148,6 @@ import {SellerDetails} from './sellers/sellerDetails';
         OrderToInvoiceModal,
         QuoteDetails,
         QuoteList,
-        Project,
-        ProjectOverview,
-        ProjectTasks,
-        ProjectEditmode,
-        ProjectDocument,
-        ProjectQueryList,
-        ProjectHours,
         Reminder,
         ReminderList,
         ReminderSending,

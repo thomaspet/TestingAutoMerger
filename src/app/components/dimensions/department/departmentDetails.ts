@@ -1,14 +1,14 @@
 import {Component, OnInit} from '@angular/core';
 import {Router, ActivatedRoute} from '@angular/router';
-import {Department} from '../../../../../unientities';
-import {FieldType} from '../../../../../../framework/ui/uniform/index';
-import {IUniSaveAction} from '../../../../../../framework/save/save';
-import {TabService, UniModules} from '../../../../layout/navbar/tabstrip/tabService';
-import {ToastService, ToastType} from '../../../../../../framework/uniToast/toastService';
-import {DepartmentService, ErrorService} from '../../../../../services/services';
-import {UniFieldLayout} from '../../../../../../framework/ui/uniform/index';
+import {Department} from '../../../unientities';
+import {FieldType} from '../../../../framework/ui/uniform/index';
+import {IUniSaveAction} from '../../../../framework/save/save';
+import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
+import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
+import {DepartmentService, ErrorService} from '../../../services/services';
+import {UniFieldLayout} from '../../../../framework/ui/uniform/index';
+import {IToolbarConfig} from '../../common/toolbar/toolbar';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
-import {IToolbarConfig} from './../../../../common/toolbar/toolbar';
 
 @Component({
     selector: 'department-dimensions-details',
@@ -68,7 +68,12 @@ export class DepartmentDetails implements OnInit {
         this.department$.next(department);
         const tabTitle = department.ID ? 'Avdeling ' + department.Name : 'Avdeling (ny)';
         const ID = department.ID ? department.ID : 'new';
-        this.tabService.addTab({url: '/dimensions/department/' + ID, name: tabTitle, active: true, moduleID: UniModules.Departments});
+        this.tabService.addTab({
+            url: '/dimensions/departments/' + ID,
+            name: tabTitle,
+            active: true,
+            moduleID: UniModules.Departments
+        });
 
         this.toolbarconfig.title = department.ID ? department.Name : 'Ny avdeling';
         this.toolbarconfig.subheads = department.ID ? [{title: 'Avdelingsnr. ' + department.DepartmentNumber}] : [];
@@ -79,7 +84,7 @@ export class DepartmentDetails implements OnInit {
             .subscribe(
                 departmentID => {
                     if (departmentID) {
-                        this.router.navigateByUrl('/dimensions/department/' + departmentID);
+                        this.router.navigateByUrl('/dimensions/departments/' + departmentID);
                     } else {
                         this.toastService.addToast('Warning', ToastType.warn, 0, 'Ikke flere avdelinger etter denne');
                     }
@@ -93,7 +98,7 @@ export class DepartmentDetails implements OnInit {
             .subscribe(
                 departmentID => {
                     if (departmentID) {
-                        this.router.navigateByUrl('/dimensions/department/' + departmentID);
+                        this.router.navigateByUrl('/dimensions/departments/' + departmentID);
                     } else {
                         this.toastService.addToast('Warning', ToastType.warn, 0, 'Ikke flere avdelinger før denne');
                     }
@@ -103,7 +108,7 @@ export class DepartmentDetails implements OnInit {
     }
 
     public add() {
-        this.router.navigateByUrl('/dimensions/department/new');
+        this.router.navigateByUrl('/dimensions/departments/new');
     }
 
     private save(done: Function) {
@@ -111,7 +116,7 @@ export class DepartmentDetails implements OnInit {
             this.departmentService.Put(this.department$.getValue().ID, this.department$.getValue())
                 .subscribe(
                     updatedDepartment => {
-                        this.router.navigateByUrl('/dimensions/department/' + updatedDepartment.ID);
+                        this.router.navigateByUrl('/dimensions/departments/' + updatedDepartment.ID);
                         done('Avdeling lagret');
                     },
                     err => {
@@ -125,7 +130,7 @@ export class DepartmentDetails implements OnInit {
             this.departmentService.Post(this.department$.getValue())
                 .subscribe(
                     newDepartment => {
-                        this.router.navigateByUrl('/dimensions/department/' + newDepartment.ID);
+                        this.router.navigateByUrl('/dimensions/departments/' + newDepartment.ID);
                         done('Avdeling lagret');
                     },
                     err => this.errorService.handle(err));

@@ -1,6 +1,7 @@
 import {RouterModule} from '@angular/router';
 import {Dashboard} from './components/dashboard/dashboard';
 import {AuthGuard} from './authGuard';
+import {UniDimensions, dimensionsRoutes} from './components/dimensions/dimensionsModule';
 
 export const routes = ([
     {
@@ -8,6 +9,17 @@ export const routes = ([
         pathMatch: 'full',
         component: Dashboard,
         canActivate: [AuthGuard]
+    },
+
+    {
+        path: 'dimensions',
+        component: UniDimensions,
+        canActivate: [AuthGuard],
+        children: [{
+            path: '',
+            canActivateChild: [AuthGuard],
+            children: dimensionsRoutes
+        }],
     },
 
     // Lazy loaded modules

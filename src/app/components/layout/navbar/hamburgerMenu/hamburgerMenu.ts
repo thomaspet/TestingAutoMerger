@@ -128,7 +128,6 @@ export class HamburgerMenu {
                     {componentName: 'Produkter', componentUrl: '/sales/products', moduleID: UniModules.Products},
                     {componentName: 'Produktgrupper', componentUrl: '/sales/productgroups/', moduleID: UniModules.ProductGroup},
                     {componentName: 'Purring', componentUrl: '/sales/reminders', moduleID: UniModules.Reminders},
-                    {componentName: 'Prosjekt', componentUrl: '/sales/project/overview', moduleID: UniModules.Projects},
                     {componentName: 'Selgere', componentUrl: '/sales/sellers', moduleID: UniModules.Sellers}
                 ]
             },
@@ -190,8 +189,8 @@ export class HamburgerMenu {
                 componentListHeader: 'Dimensjoner',
                 componentListUrl: '/dimensions',
                 componentList: [
-                    {componentName: 'Prosjekt', componentUrl: '/sales/project', moduleID: UniModules.Projects},
-                    {componentName: 'Avdeling', componentUrl: '/dimensions/department', moduleID: UniModules.Departments}
+                    {componentName: 'Prosjekt', componentUrl: '/dimensions/projects', moduleID: UniModules.Projects},
+                    {componentName: 'Avdeling', componentUrl: '/dimensions/departments', moduleID: UniModules.Departments}
                 ]
             },
             {

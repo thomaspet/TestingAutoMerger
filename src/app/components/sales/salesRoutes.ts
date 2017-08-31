@@ -24,12 +24,8 @@ import {ProductDetails} from './products/productDetails';
 import {SellerList} from './sellers/sellerList';
 import {SellerDetails} from './sellers/sellerDetails';
 
-// TODO: move to dimensions
-import {Project} from './project/project';
-import {routes as ProjectRoutes} from './project/projectRoutes';
-import {routes as ProductGroupRoutes} from './productgroup/productGroupRoutes';
-
 import {ProductGroups} from './productgroup/productgroups';
+import {routes as ProductGroupRoutes} from './productgroup/productGroupRoutes';
 
 export const salesRoutes: Routes = [
     {
@@ -73,11 +69,6 @@ export const salesRoutes: Routes = [
         path: 'orders/:id',
         component: OrderDetails,
         canDeactivate: [CanDeactivateGuard]
-    },
-    {
-        path: 'project',
-        component: Project,
-        children: ProjectRoutes
     },
     {
         path: 'reminders',

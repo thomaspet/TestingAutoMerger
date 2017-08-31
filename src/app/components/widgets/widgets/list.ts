@@ -218,7 +218,7 @@ export class UniListWidget {
                 break;
             case 'Dimensions':
                 item.module = 'Dimensions' + ' ' + item[this.widget.config.listItemKeys.moduleID];
-                item.link = '/dimensions/project';
+                item.link = '/dimensions/projects';
                 break;
             case 'File':
                 item.module = 'File' + ' ' + item[this.widget.config.listItemKeys.moduleID];
@@ -230,11 +230,11 @@ export class UniListWidget {
                 break;
             case 'Project':
                 item.module = 'Prosjekt' + ' ' + item[this.widget.config.listItemKeys.moduleID];
-                item.link = '/dimensions/project/' + item[this.widget.config.listItemKeys.moduleID];
+                item.link = '/dimensions/projects/' + item[this.widget.config.listItemKeys.moduleID];
                 break;
             case 'Department':
                 item.module = 'Avdeling' + ' ' + item[this.widget.config.listItemKeys.moduleID];
-                item.link = '/dimensions/department/' + item[this.widget.config.listItemKeys.moduleID];
+                item.link = '/dimensions/departments/' + item[this.widget.config.listItemKeys.moduleID];
                 break;
             case 'User':
                 item.module = 'Bruker' + ' ' + item[this.widget.config.listItemKeys.moduleID];
