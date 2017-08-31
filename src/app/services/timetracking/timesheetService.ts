@@ -211,7 +211,7 @@ export class TimeSheet {
                     item['Customer'] = undefined;
                     ignore = true;
                 }
-                break;                
+                break;
         }
         if (!ignore) {
             item[change.name] = change.value;
@@ -359,24 +359,30 @@ export class TimesheetService {
     constructor(public workerService: WorkerService) {}
 
     public initUser(userid = 0, autoCreate = false): Observable<TimeSheet> {
-        if (userid === 0) {
-            var p = this.workerService.getCurrentUserId();
-            return Observable.fromPromise(p).mergeMap((id: number) => this.initUser(id, autoCreate));
-        } else {
-            var result;
+        let userIDSource = userid > 0
+            ? Observable.of(userid)
+            : Observable.fromPromise(this.workerService.getCurrentUserId());
+
+        return userIDSource.switchMap(userID => {
+            if (!userID) {
+                return Observable.throw('Could not get userID in TimesheetService');
+            }
+
+            let relationsSource;
             if (autoCreate) {
-                result = this.workerService.getRelationsForUser(userid);
+                relationsSource = this.workerService.getRelationsForUser(userid);
             } else {
                 let route = `workrelations?expand=worker&filter=worker.userid eq ${userid}&hateoas=false`;
-                result = this.workerService.get<Observable<WorkRelation[]>>(route);
+                relationsSource = this.workerService.get<Observable<WorkRelation[]>>(route);
             }
-            return result.mergeMap((list: WorkRelation[]) => {
-               var first = list[0];
-               var ts = this.newTimeSheet(first);
+
+            return relationsSource.map((list: WorkRelation[]) => {
+               let first = list[0];
+               let timesheet = this.newTimeSheet(first);
                this.workRelations = list;
-               return Observable.of(ts);
+               return Observable.of(timesheet);
            });
-        }
+        });
     }
 
     public initWorker(workerId: number): Observable<TimeSheet> {

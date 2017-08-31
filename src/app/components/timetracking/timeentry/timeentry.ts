@@ -288,8 +288,10 @@ export class TimeEntry {
     }
 
     private initWorker(workerid?: number, autoCreate = false) {
-        var obs = workerid ? this.timesheetService.initWorker(workerid) :
-            this.timesheetService.initUser(undefined, autoCreate);
+        var obs = workerid
+            ? this.timesheetService.initWorker(workerid)
+            : this.timesheetService.initUser(undefined, autoCreate);
+
         obs.subscribe((ts: TimeSheet) => {
             this.workRelations = this.timesheetService.workRelations;
             if ((!this.workRelations) || (this.workRelations.length === 0)) {
