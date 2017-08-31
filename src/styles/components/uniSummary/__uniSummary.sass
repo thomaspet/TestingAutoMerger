@@ -44,6 +44,10 @@ uni-summary .unisummary
         order: 2
         flex-basis: 100%
 
+    @include media('medium', 'max-width')
+        &
+            display: block
+
 uni-summary.-is-dirty
     .unisummary
         color: $uni-color-scale7
