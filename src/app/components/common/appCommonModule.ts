@@ -33,9 +33,6 @@ import {Contacts} from './contact/contacts';
 import {AddPaymentModal, AddPaymentForm} from './modals/addPaymentModal';
 import {ModelTreeView} from './modeltreeview/modeltreeview';
 import {ModelTreeRelationNode} from './modeltreeview/relationNode';
-import {SupplierDetailsModal} from './supplier/details/supplierDetailModal';
-import {SupplierDetails} from './supplier/details/supplierDetails';
-import {SupplierList} from './supplier/list/supplierList';
 import {Editable} from './utils/editable/editable';
 import {IsoTimePipe, HoursPipe} from './utils/pipes';
 import {MinutesToHoursPipe} from './utils/pipes';
@@ -89,11 +86,6 @@ import {routes as AppCommonRoutes} from './appCommonRoutes';
         AddPaymentForm,
         ModelTreeView,
         ModelTreeRelationNode,
-
-        SupplierList,
-        SupplierDetails,
-        SupplierDetailsModal,
-
         LedgerAccountReconciliation,
 
         ReminderSettings,
@@ -153,11 +145,6 @@ import {routes as AppCommonRoutes} from './appCommonRoutes';
         AddPaymentForm,
         ModelTreeView,
         ModelTreeRelationNode,
-
-        SupplierList,
-        SupplierDetails,
-        SupplierDetailsModal,
-
         LedgerAccountReconciliation,
 
         ReminderSettings,

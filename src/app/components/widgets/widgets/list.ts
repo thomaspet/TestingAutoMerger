@@ -277,7 +277,7 @@ export class UniListWidget {
 
             case 'Supplier':
                 item.module = 'Leverandør ' + item[this.widget.config.listItemKeys.moduleID];
-                item.link = '/suppliers/' + item[this.widget.config.listItemKeys.moduleID];
+                item.link = '/accounting/suppliers/' + item[this.widget.config.listItemKeys.moduleID];
                 break;
 
             case 'WorkRelation':

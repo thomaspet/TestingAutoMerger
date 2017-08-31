@@ -194,7 +194,7 @@ export class SupplierDetails implements OnInit {
             this.supplierService.getNextID(this.supplier$.getValue().ID)
                 .subscribe((ID) => {
                         if (ID) {
-                            this.router.navigateByUrl('/suppliers/' + ID);
+                            this.router.navigateByUrl('/accounting/suppliers/' + ID);
                         } else {
                             this.toastService.addToast('Warning', ToastType.warn, 0, 'Ikke flere leverandører etter denne');
                         }
@@ -212,7 +212,7 @@ export class SupplierDetails implements OnInit {
             this.supplierService.getPreviousID(this.supplier$.getValue().ID)
                 .subscribe((ID) => {
                         if (ID) {
-                            this.router.navigateByUrl('/suppliers/' + ID);
+                            this.router.navigateByUrl('/accounting/suppliers/' + ID);
                         } else {
                             this.toastService.addToast('Warning', ToastType.warn, 0, 'Ikke flere leverandører før denne');
                         }
@@ -227,7 +227,7 @@ export class SupplierDetails implements OnInit {
                 return;
             }
 
-            this.router.navigateByUrl('/suppliers/0');
+            this.router.navigateByUrl('/accounting/suppliers/0');
         });
     }
 
@@ -238,7 +238,7 @@ export class SupplierDetails implements OnInit {
         }
         let tabTitle = supplier.SupplierNumber ? 'Leverandørnr. ' + supplier.SupplierNumber : 'Ny leverandør';
         this.tabService.addTab({
-            url: '/sales/suppliers/' + supplier.ID,
+            url: '/accounting/suppliers/' + supplier.ID,
             name: tabTitle,
             active: true,
             moduleID: UniModules.Suppliers
@@ -662,7 +662,7 @@ export class SupplierDetails implements OnInit {
                         (newSupplier) => {
                             this.isDirty = false;
                             if (!this.modalMode) {
-                                this.router.navigateByUrl('/suppliers/' + newSupplier.ID);
+                                this.router.navigateByUrl('/accounting/suppliers/' + newSupplier.ID);
                                 this.setTabTitle();
                             }
                             completeEvent('Ny leverandør lagret');
@@ -722,9 +722,9 @@ export class SupplierDetails implements OnInit {
 
         uniSearchConfig.expandOrCreateFn = (newOrExistingItem: any) => {
             if (newOrExistingItem.ID) {
-                // If an existing customer is selected, navigate to that customer instead
-                // of populating the fields for a new customer
-                this.router.navigateByUrl(`/sales/suppliers/${newOrExistingItem.ID}`);
+                // If an existing supplier is selected, navigate to that supplier instead
+                // of populating the fields for a new supplier
+                this.router.navigateByUrl(`/accounting/suppliers/${newOrExistingItem.ID}`);
                 return Observable.empty();
             } else {
                 let supplierData = this.uniSearchConfigGeneratorService

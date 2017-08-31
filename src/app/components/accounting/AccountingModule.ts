@@ -61,6 +61,9 @@ import {VatTypeDetails} from './vatsettings/vattypedetails/vattypedetails';
 import {VatTypeList} from './vatsettings/vattypelist/vatTypeList';
 import {VatDeductionSettings} from './vatsettings/vatdeductions/vatdeductionsettings';
 import {PostPost} from './postpost/postpost';
+import {SupplierDetailsModal} from './supplier/details/supplierDetailsModal';
+import {SupplierDetails} from './supplier/details/supplierDetails';
+import {SupplierList} from './supplier/list/supplierList';
 
 @NgModule({
     imports: [
@@ -92,6 +95,10 @@ import {PostPost} from './postpost/postpost';
 
         NewAccountModal,
         NewAccountForm,
+
+        SupplierList,
+        SupplierDetails,
+        SupplierDetailsModal,
 
         // journalentry
         JournalEntryProfessional,
@@ -154,6 +161,9 @@ import {PostPost} from './postpost/postpost';
         VatTypeDetails,
         VatTypeList,
         VatDeductionSettings,
+        SupplierList,
+        SupplierDetails,
+        SupplierDetailsModal,
 
         // journalentry
         JournalEntryProfessional,

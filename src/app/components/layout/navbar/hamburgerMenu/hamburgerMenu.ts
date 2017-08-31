@@ -147,7 +147,7 @@ export class HamburgerMenu {
                     {componentName: 'Kontoplan', componentUrl: '/accounting/accountsettings', moduleID: UniModules.Accountsettings},
                     {componentName: 'MVA innstillinger', componentUrl: '/accounting/vatsettings', moduleID: UniModules.Vatsettings},
                     {componentName: 'MVA-melding', componentUrl: '/accounting/vatreport', moduleID: UniModules.VatReport},
-                    {componentName: 'Leverandører', componentUrl: '/suppliers', moduleID: UniModules.Suppliers}
+                    {componentName: 'Leverandører', componentUrl: '/accounting/suppliers', moduleID: UniModules.Suppliers}
                 ]
             },
             {

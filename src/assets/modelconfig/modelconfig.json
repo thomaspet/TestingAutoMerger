@@ -244,7 +244,7 @@
         {
             "Name": "Supplier",
             "Translated": "Leverandør",
-            "Url": "/suppliers/:ID"
+            "Url": "/accounting/suppliers/:ID"
         },
         {
             "Name": "SupplierInvoice",

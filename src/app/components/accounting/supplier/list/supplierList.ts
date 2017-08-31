@@ -21,16 +21,16 @@ export class SupplierList {
         private tabService: TabService,
         private errorService: ErrorService
     ) {
-        this.tabService.addTab({ name: 'Leverandører', url: '/suppliers', active: true, moduleID: UniModules.Suppliers });
+        this.tabService.addTab({ name: 'Leverandører', url: '/accounting/suppliers', active: true, moduleID: UniModules.Suppliers });
         this.setupSupplierTable();
     }
 
     private createSupplier() {
-        this.router.navigateByUrl('/suppliers/0');
+        this.router.navigateByUrl('/accounting/suppliers/0');
     }
 
     private onRowSelected (event) {
-        this.router.navigateByUrl('/suppliers/' + event.rowModel.ID);
+        this.router.navigateByUrl('/accounting/suppliers/' + event.rowModel.ID);
     };
 
     private setupSupplierTable() {
