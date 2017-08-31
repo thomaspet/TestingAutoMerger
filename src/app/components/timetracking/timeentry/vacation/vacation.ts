@@ -1,4 +1,4 @@
-import {Component, Input, Output, EventEmitter} from '@angular/core';
+﻿import {Component, Input, Output, EventEmitter} from '@angular/core';
 import {WorkerService} from '../../../../services/timetracking/workerService';
 import {WorkTimeOff, LocalDate} from '../../../../unientities';
 import {Router} from '@angular/router';
@@ -224,9 +224,9 @@ export class View {
                 factory: () => { return new WorkTimeOff(); }
             },
             Fields: [
-                createFormField('Description', 'Beskrivelse av ferie/fri',  ControlTypes.TextInput, FieldSize.Full),
-                createFormField('FromDate', 'Fra og med dato',  ControlTypes.LocalDate, FieldSize.Double ),
-                createFormField('ToDate', 'Til og med dato',  ControlTypes.LocalDate, FieldSize.Double )
+                createFormField('Description', 'Beskrivelse av ferie/fri', ControlTypes.TextInput, FieldSize.Full),
+                createFormField('FromDate', 'Fra og med dato', ControlTypes.LocalDate, FieldSize.Full),
+                createFormField('ToDate', 'Til og med dato',  ControlTypes.LocalDate, FieldSize.Full )
             ],
         };
 

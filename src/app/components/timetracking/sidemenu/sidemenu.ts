@@ -40,6 +40,7 @@ export class SideMenu {
     @Input() private periode: IFilter;
     @Output() public dateSelected: EventEmitter<Date> = new EventEmitter();
     @Output() public templateSelected: EventEmitter<any> = new EventEmitter();
+    private sidemenuMinified: boolean = false;
 
 
     constructor(private toast: ToastService) {
@@ -47,6 +48,14 @@ export class SideMenu {
 
         if (temp) {
             this.timeTrackingTemplates = JSON.parse(temp);
+        }
+    }
+
+    private ngAfterViewInit() {
+        if (window.innerWidth < 1200) {
+            setTimeout(() => {
+                this.hideShowSideMenu();
+            });
         }
     }
 
@@ -92,6 +101,30 @@ export class SideMenu {
     private templateDelete(index) {
         this.timeTrackingTemplates.splice(index, 1);
         localStorage.setItem('timeTrackingTemplates', JSON.stringify(this.timeTrackingTemplates));
+    }
+
+    private hideShowSideMenu() {
+        this.sidemenuMinified = !this.sidemenuMinified;
+
+        let element = document.getElementById('sidemenu_timetracking_component');
+        let button = document.getElementById('sidemeny_hide_show_button_id');
+        let containter = document.getElementById('regtime_container_id');
+
+        if (this.sidemenuMinified) {
+            element.style.width = '80px';
+            button.style.left = '10px';
+            button.style.top = '180px';
+            button.style.transform = 'rotate(-180deg)';
+            containter.style.width = 'calc(100% - 150px)';
+        } else {
+            element.style.width = '335px';
+            button.style.left = '280px';
+            button.style.top = '50vh';
+            button.style.transform = 'rotate(0deg)';
+            containter.style.width = 'calc(100% - 400px)';
+        }
+
+        
     }
 
     private dummyTemplates(): ITemplate[] {
