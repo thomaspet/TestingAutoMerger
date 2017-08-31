@@ -53,6 +53,11 @@ import {ProductGroups} from './productgroup/productgroups';
 import {TreeModule} from 'angular-tree-component';
 import {GroupDetails} from './productgroup/groupDetails/groupDetails';
 import {ProductsInGroup} from './productgroup/productsInGroup/productsInGroup';
+import {ProductDetails} from './products/productDetails';
+import {ProductList} from './products/productList';
+import {SellerList} from './sellers/sellerList';
+import {SellerLinks} from './sellers/sellerLinks';
+import {SellerDetails} from './sellers/sellerDetails';
 
 @NgModule({
     imports: [
@@ -118,7 +123,14 @@ import {ProductsInGroup} from './productgroup/productsInGroup/productsInGroup';
 
         ProductGroups,
         ProductsInGroup,
-        GroupDetails
+        GroupDetails,
+
+        ProductDetails,
+        ProductList,
+
+        SellerList,
+        SellerLinks,
+        SellerDetails,
     ],
     entryComponents: [
         OrderToInvoiceModalType,
@@ -164,7 +176,14 @@ import {ProductsInGroup} from './productgroup/productsInGroup/productsInGroup';
         InvoiceReminders,
         ProductGroups,
         ProductsInGroup,
-        GroupDetails
+        GroupDetails,
+
+        ProductDetails,
+        ProductList,
+
+        SellerList,
+        SellerLinks,
+        SellerDetails,
     ]
 })
 export class SalesModule {

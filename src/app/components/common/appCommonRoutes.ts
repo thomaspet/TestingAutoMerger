@@ -8,8 +8,6 @@ import {SupplierDetails} from './supplier/details/supplierDetails';
 import {SupplierList} from './supplier/list/supplierList';
 import {ContactDetails} from './contact/contactDetails';
 import {PredefinedDescriptionList} from './predefinedDescriptions/predefinedDescriptionList';
-import {SellerList} from './seller/sellerList';
-import {SellerDetails} from './seller/sellerDetails';
 
 const commonRoutes: Routes = [
     {
@@ -41,15 +39,6 @@ const commonRoutes: Routes = [
         component: PredefinedDescriptionList,
         canDeactivate: [CanDeactivateGuard]
     },
-    {
-        path: 'sellers',
-        component: SellerList,
-    },
-    {
-        path: 'sellers/:id',
-        component: SellerDetails,
-        canDeactivate: [CanDeactivateGuard]
-    }
 ];
 
 export const routes: ModuleWithProviders = RouterModule.forChild(commonRoutes);

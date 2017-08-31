@@ -186,7 +186,7 @@ export class UniListWidget {
                 break;
             case 'Product':
                 item.module = 'Produkt' + ' ' + item[this.widget.config.listItemKeys.moduleID];
-                item.link = '/products/' + item[this.widget.config.listItemKeys.moduleID];
+                item.link = '/sales/products/' + item[this.widget.config.listItemKeys.moduleID];
                 break;
             case 'SalaryTransaction':
                 item.module = 'SalaryTransaction' + ' ' + item[this.widget.config.listItemKeys.moduleID];

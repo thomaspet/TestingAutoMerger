@@ -17,6 +17,14 @@ import {OrderDetails} from './order/details/orderDetails';
 
 import {Reminder} from './reminder/reminder';
 import {routes as ReminderRoutes} from './reminder/reminderRoutes';
+
+import {ProductList} from './products/productList';
+import {ProductDetails} from './products/productDetails';
+
+import {SellerList} from './sellers/sellerList';
+import {SellerDetails} from './sellers/sellerDetails';
+
+// TODO: move to dimensions
 import {Project} from './project/project';
 import {routes as ProjectRoutes} from './project/projectRoutes';
 import {routes as ProductGroupRoutes} from './productgroup/productGroupRoutes';
@@ -77,6 +85,15 @@ export const salesRoutes: Routes = [
         children: ReminderRoutes
     },
     {
+        path: 'products',
+        component: ProductList
+    },
+
+    {
+        path: 'products/:id',
+        component: ProductDetails
+    },
+    {
         path: 'productgroups',
         component: ProductGroups,
         children: ProductGroupRoutes,
@@ -85,6 +102,15 @@ export const salesRoutes: Routes = [
     {
         path: 'productgroups/:id',
         component: ProductGroups,
+        canDeactivate: [CanDeactivateGuard]
+    },
+    {
+        path: 'sellers',
+        component: SellerList,
+    },
+    {
+        path: 'sellers/:id',
+        component: SellerDetails,
         canDeactivate: [CanDeactivateGuard]
     }
 ];

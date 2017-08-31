@@ -1,22 +1,20 @@
 import {Component, Input, ViewChild, SimpleChanges, ElementRef} from '@angular/core';
 import {Router, ActivatedRoute} from '@angular/router';
 import {FormControl} from '@angular/forms';
-import {Observable} from 'rxjs/Observable';
-import 'rxjs/add/observable/forkJoin';
-import {Product, Account, VatType} from '../../../../unientities';
-import {FieldType} from '../../../../../framework/ui/uniform/index';
-import {IUniSaveAction} from '../../../../../framework/save/save';
-import {UniForm, UniField, UniFieldLayout} from '../../../../../framework/ui/uniform/index';
-import {IUploadConfig} from '../../../../../framework/uniImage/uniImage';
-import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
-import {IToolbarConfig} from './../../../common/toolbar/toolbar';
-import {IUniTagsConfig, ITag} from './../../../common/toolbar/tags';
-import {ToastService, ToastTime, ToastType} from '../../../../../framework/uniToast/toastService';
+import {Product, Account, VatType} from '../../../unientities';
+import {FieldType} from '../../../../framework/ui/uniform/index';
+import {IUniSaveAction} from '../../../../framework/save/save';
+import {UniForm, UniField, UniFieldLayout} from '../../../../framework/ui/uniform/index';
+import {IUploadConfig} from '../../../../framework/uniImage/uniImage';
+import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
+import {IToolbarConfig} from '../../common/toolbar/toolbar';
+import {IUniTagsConfig, ITag} from '../../common/toolbar/tags';
+import {ToastService, ToastTime, ToastType} from '../../../../framework/uniToast/toastService';
 import {
     Project,
     Department,
     ProductCategory
-} from '../../../../unientities';
+} from '../../../unientities';
 import {
     ErrorService,
     ProductService,
@@ -26,8 +24,9 @@ import {
     DepartmentService,
     CompanySettingsService,
     ProductCategoryService
-} from '../../../../services/services';
+} from '../../../services/services';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
+import {Observable} from 'rxjs/Observable';
 declare const _; // lodash
 
 @Component({
@@ -201,7 +200,7 @@ export class ProductDetails {
 
     private setTabTitle() {
         let tabTitle = this.product$.getValue().PartName ? 'Produktnr. ' + this.product$.getValue().PartName : 'Produkt (kladd)';
-        this.tabService.addTab({ url: '/products/' + this.product$.getValue().ID, name: tabTitle, active: true, moduleID: UniModules.Products });
+        this.tabService.addTab({ url: '/sales/products/' + this.product$.getValue().ID, name: tabTitle, active: true, moduleID: UniModules.Products });
     }
 
     private textareaChange() {
@@ -261,7 +260,7 @@ export class ProductDetails {
                 .subscribe(
                     (newProduct) => {
                         completeEvent('Produkt lagret');
-                        this.router.navigateByUrl('/products/' + newProduct.ID);
+                        this.router.navigateByUrl('/sales/products/' + newProduct.ID);
                     },
                     (err) => {
                         completeEvent('Feil oppsto ved lagring');
@@ -294,7 +293,7 @@ export class ProductDetails {
         this.productService.getPreviousID(this.product$.getValue().ID)
             .subscribe((ID) => {
                 if (ID) {
-                    this.router.navigateByUrl('/products/' + ID);
+                    this.router.navigateByUrl('/sales/products/' + ID);
                 } else {
                     this.toastService.addToast('Ingen flere produkter før denne!', ToastType.warn, ToastTime.short);
                 }
@@ -305,7 +304,7 @@ export class ProductDetails {
         this.productService.getNextID(this.product$.getValue().ID)
             .subscribe((ID) => {
                 if (ID) {
-                    this.router.navigateByUrl('/products/' + ID);
+                    this.router.navigateByUrl('/sales/products/' + ID);
                 } else {
                     this.toastService.addToast('Ingen flere produkter etter denne!', ToastType.warn, ToastTime.short);
                 }
@@ -313,7 +312,7 @@ export class ProductDetails {
     }
 
     private addProduct() {
-        this.router.navigateByUrl('/products/0');
+        this.router.navigateByUrl('/sales/products/0');
     }
 
     private extendFormConfig() {

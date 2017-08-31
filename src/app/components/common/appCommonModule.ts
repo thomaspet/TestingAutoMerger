@@ -5,8 +5,6 @@ import {HttpModule} from '@angular/http';
 import {RouterModule} from '@angular/router';
 import {ContextMenu} from './contextMenu/contextMenu';
 import {ExternalSearch} from './externalSearch/externalSearch';
-import {ProductDetails} from './product/details/productDetails';
-import {ProductList} from './product/list/productList';
 import {UniFrameworkModule} from '../../../framework/frameworkModule';
 import {AltinnAuthenticationModal} from './modals/AltinnAuthenticationModal';
 import {UniBreadcrumbs} from './toolbar/breadcrumbs';
@@ -44,9 +42,6 @@ import {MinutesToHoursPipe} from './utils/pipes';
 import {WorkTypeSystemTypePipe} from './utils/pipes';
 import {PredefinedDescriptionList} from './predefinedDescriptions/predefinedDescriptionList';
 import {LinkMenu} from './linkMenu/linkMenu';
-import {SellerList} from './seller/sellerList';
-import {SellerLinks} from './seller/sellerLinks';
-import {SellerDetails} from './seller/sellerDetails';
 import {UniInfo} from './uniInfo/uniInfo';
 import {BrowserWarning} from './browserWarning/browserWarning';
 
@@ -71,8 +66,6 @@ import {routes as AppCommonRoutes} from './appCommonRoutes';
         DepartmentDetails,
         ContextMenu,
         ExternalSearch,
-        ProductDetails,
-        ProductList,
         AccrualForm,
         AccrualModal,
         AltinnAuthenticationModal,
@@ -117,11 +110,6 @@ import {routes as AppCommonRoutes} from './appCommonRoutes';
         WorkTypeSystemTypePipe,
 
         LinkMenu,
-
-        SellerList,
-        SellerLinks,
-        SellerDetails,
-
         UniInfo,
         BrowserWarning
     ],
@@ -142,8 +130,6 @@ import {routes as AppCommonRoutes} from './appCommonRoutes';
         DepartmentDetails,
         ContextMenu,
         ExternalSearch,
-        ProductDetails,
-        ProductList,
         AccrualForm,
         AccrualModal,
         AltinnAuthenticationModal,
@@ -187,10 +173,6 @@ import {routes as AppCommonRoutes} from './appCommonRoutes';
         WorkTypeSystemTypePipe,
 
         LinkMenu,
-
-        SellerList,
-        SellerLinks,
-        SellerDetails,
 
         UniInfo,
         BrowserWarning
