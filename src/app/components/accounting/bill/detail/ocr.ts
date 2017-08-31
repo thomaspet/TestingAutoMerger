@@ -64,12 +64,11 @@ export class OcrValuables {
         if (result && result.InterpretedProperties) {
             let props = result.InterpretedProperties;
 
-
             this.Orgno = this.getProposedValue(props, OcrPropertyType.OfficialNumber)
                 .replace('MVA', '').replace('N0','').replace('NO', '');
             this.PaymentID = this.getProposedValue(props, OcrPropertyType.CustomerIdentificationNumber);
             this.BankAccount =  this.getProposedValue(props, OcrPropertyType.BankAccountNumber);
-            this.BankAccountCandidates = [this.BankAccount];
+            this.BankAccountCandidates = this.BankAccount && this.BankAccount !== '' ? [this.BankAccount] : [];
             this.InvoiceDate = this.getProposedValue(props, OcrPropertyType.InvoiceDate);
             this.PaymentDueDate =  this.getProposedValue(props, OcrPropertyType.DueDate);
             this.TaxInclusiveAmount = this.getProposedValue(props, OcrPropertyType.TotalAmount);

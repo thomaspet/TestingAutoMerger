@@ -16,7 +16,7 @@ import {IUniSaveAction} from '../../../../../framework/save/save';
 import {UniForm, FieldType} from '../../../../../framework/ui/uniform/index';
 import {Location} from '@angular/common';
 import {BillSimpleJournalEntryView} from './journal/simple';
-import {IOcrServiceResult, OcrValuables} from './ocr';
+import {IOcrServiceResult, OcrValuables, OcrPropertyType} from './ocr';
 import {billViewLanguage as lang, billStatusflowLabels as workflowLabels} from './lang';
 import {BillHistoryView} from './history/history';
 import {ImageModal} from '../../../common/modals/ImageModal';
@@ -93,7 +93,7 @@ export class BillView {
     public currentFileID: number = 0;
     public hasStartupFileID: boolean = false;
     public historyCount: number = 0;
-    public ocrData: IOcrServiceResult;
+    public ocrData: any;
 
     private files: Array<any>;
     private fileIds: Array<number> = [];
@@ -822,34 +822,36 @@ export class BillView {
 
         this.uniImage.removeHighlight();
 
-        let candidates;
+        let property = null;
 
         switch (event.field.Property) {
             case 'InvoiceDate':
-                candidates = this.ocrData.OcrInvoiceReport.InvoiceDate.Candidates;
+                property = this.ocrData.InterpretedProperties.find(x => x.OcrProperty.PropertyType === OcrPropertyType.InvoiceDate);
                 break;
             case 'PaymentDueDate':
-                candidates = this.ocrData.OcrInvoiceReport.DueDate.Candidates;
+                property = this.ocrData.InterpretedProperties.find(x => x.OcrProperty.PropertyType === OcrPropertyType.DueDate);
                 break;
             case 'InvoiceNumber':
-                candidates = this.ocrData.OcrInvoiceReport.InvoiceNumber.Candidates;
+                property = this.ocrData.InterpretedProperties.find(x => x.OcrProperty.PropertyType === OcrPropertyType.InvoiceNumber);
                 break;
             case 'BankAccountID':
-                candidates = this.ocrData.OcrInvoiceReport.BankAccount.Candidates;
+                property = this.ocrData.InterpretedProperties.find(x => x.OcrProperty.PropertyType === OcrPropertyType.BankAccountNumber);
                 break;
             case 'PaymentID':
-                candidates = this.ocrData.OcrInvoiceReport.Kid.Candidates;
+                property = this.ocrData.InterpretedProperties.find(x => x.OcrProperty.PropertyType === OcrPropertyType.CustomerIdentificationNumber);
                 break;
             case 'TaxInclusiveAmountCurrency':
-                candidates = this.ocrData.OcrInvoiceReport.Amount.Candidates;
+                property = this.ocrData.InterpretedProperties.find(x => x.OcrProperty.PropertyType === OcrPropertyType.TotalAmount);
                 break;
         }
 
-        if (candidates && candidates.length && candidates[0].boundingBox) {
+        let candidate = property ? property.ProposedCandidate : null;
+
+        if (candidate) {
             this.uniImage.highlight(
-                candidates[0].boundingBox.split(','),
-                this.ocrData.MaxWidth,
-                this.ocrData.MaxTop
+                [candidate.Left, candidate.Top, candidate.Width, candidate.Height],
+                this.ocrData.ImageWidth,
+                this.ocrData.ImageHeight
             );
         }
     }
