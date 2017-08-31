@@ -325,7 +325,12 @@ export class TransqueryDetails implements OnInit {
             this.configuredFilter += `VatDate ge '${routeParams['vatFromDate']}' and VatDate le '${routeParams['vatToDate']}' and TaxBasisAmount ne 0 ` ;
 
             if (vatCodesAndAccountNumbers && vatCodesAndAccountNumbers.length > 0) {
-                this.configuredFilter += ' and (';
+                if (vatCodesAndAccountNumbers.length > 1) {
+                    this.configuredFilter += ' and ('; }
+                else {
+                    this.configuredFilter += ' and ';
+                }
+
                 for (let index = 0; index < vatCodesAndAccountNumbers.length; index++) {
                     let vatCodeAndAccountNumber = vatCodesAndAccountNumbers[index].split('|');
 
@@ -337,7 +342,7 @@ export class TransqueryDetails implements OnInit {
                     this.configuredFilter += `( VatType.VatCode eq '${vatCode}' and Account.AccountNumber eq ${accountNo} )`;
                 }
 
-                this.configuredFilter += ') ';
+                if (vatCodesAndAccountNumbers.length > 1) { this.configuredFilter += ') '; }
 
                 this.allowManualSearch = false;
             }
