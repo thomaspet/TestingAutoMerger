@@ -10,7 +10,7 @@ uni-poster
     background: lighten($uni-color-scale9, 5%)
     padding: .5rem 6.5%
     display: flex
-    flex-wrap: wrap
+    flex-wrap: nowrap
     align-items: stretch
     align-content: stretch
     box-sizing: border-box
@@ -34,18 +34,19 @@ uni-poster
         line-height: 150%
 
     h1
-        color: $uni-color-decorative
+        color: $uni-color-c2a
         font-weight: 300
         line-height: 100%
+        font-size: 1.7em
 
         &.large
-            font-size: 3rem
+            font-size: 2.5em
 
     .large
-        font-size: 1.5rem
+        font-size: 1.3em
 
     .small
-        font-size: 1rem
+        font-size: 1em
 
     .good
         color: $uni-color-good
@@ -58,3 +59,16 @@ uni-poster
 
     .highlighted
         color: $uni-color-decorative
+
+    @include media(medium)
+        font-size: .9rem
+
+        .widget:last-of-type
+            display: none
+
+    @include media(small)
+        font-size: .8rem
+
+        .widget:nth-of-type(3),
+        .widget:last-of-type
+            display: none
