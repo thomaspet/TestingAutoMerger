@@ -50,12 +50,17 @@ uni-toolbar
         order: 5
         line-height: 100%
         font-weight: 300
+        flex-wrap: wrap
 
         small
             @extend p
             color: transparentize(white, .2)
             flex-basis: fit-content
-            margin: 0 0 0 1rem
+            margin: 0 1rem 0 0
+            white-space: nowrap
+
+            &:first-child:not(.tags_toggle)
+                margin-left: 1rem
 
         a:link,
         a:visited
@@ -82,7 +87,9 @@ uni-toolbar
     nav
         flex-basis: fit-content
         flex-grow: 0
-        align-self: flex-start
+        align-self: baseline
+        position: relative
+        top: -.3rem
         order: 6
 
         input[type=search]
@@ -91,3 +98,16 @@ uni-toolbar
             position: relative
             top: .4rem
 
+@include media('large', 'max-width')
+    uni-toolbar
+        position: relative
+        $topPadding: -5.5rem
+        top: $topPadding
+        margin-bottom: $topPadding
+        height: auto
+
+        & > *:not(uni-breadcrumbs)
+            margin-left: 1rem
+
+        h1
+            margin-top: .7rem
