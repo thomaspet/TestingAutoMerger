@@ -370,9 +370,9 @@ export class TimesheetService {
 
             let relationsSource;
             if (autoCreate) {
-                relationsSource = this.workerService.getRelationsForUser(userid);
+                relationsSource = this.workerService.getRelationsForUser(userID);
             } else {
-                let route = `workrelations?expand=worker&filter=worker.userid eq ${userid}&hateoas=false`;
+                let route = `workrelations?expand=worker&filter=worker.userid eq ${userID}&hateoas=false`;
                 relationsSource = this.workerService.get<Observable<WorkRelation[]>>(route);
             }
 
@@ -380,7 +380,7 @@ export class TimesheetService {
                let first = list[0];
                let timesheet = this.newTimeSheet(first);
                this.workRelations = list;
-               return Observable.of(timesheet);
+               return timesheet;
            });
         });
     }
