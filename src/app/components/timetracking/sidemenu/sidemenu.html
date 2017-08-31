@@ -1,7 +1,7 @@
 ﻿<section class="sidemenu_container">
     <section class="icons_for_small" [hidden]="!sidemenuMinified">
-        <a class="sidemenu_minified_calender_icon" (click)="hideShowSideMenu(event)"></a>
-        <p class="sidemenu_minified_to_from" (click)="hideShowSideMenu(event)">Calender</p>
+        <a class="sidemenu_minified_calender_icon" (click)="hideShowSideMenu()"></a>
+        <p class="sidemenu_minified_to_from" (click)="hideShowSideMenu()">Calender</p>
         <section *ngFor="let template of timeTrackingTemplates; let i = index;">
             <a class="sidemenu_minified_template_icon" (click)="onTemplateSelected(template)"></a>
             <p class="sidemenu_minified_to_from">{{ template.StartTime }} - {{ template.EndTime }}</p>
@@ -35,6 +35,6 @@
         </h4>
         <button (click)="createNewTemplate()">Ny mal...</button>
     </section>
-    <button class="sidemenu_hide_button" id="sidemeny_hide_show_button_id" (click)="hideShowSideMenu(event)"></button>
+    <button class="sidemenu_hide_button" id="sidemeny_hide_show_button_id" (click)="hideShowSideMenu()"></button>
 </section>
 <uni-template-modal (onSaveAndClose)="templateSave($event)" (onDeleteAndClose)="templateDelete($event)"></uni-template-modal>

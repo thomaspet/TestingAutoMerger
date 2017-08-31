@@ -51,6 +51,14 @@ export class SideMenu {
         }
     }
 
+    private ngAfterViewInit() {
+        if (window.innerWidth < 1200) {
+            setTimeout(() => {
+                this.hideShowSideMenu();
+            });
+        }
+    }
+
     private onTemplateSelected(template: any) {
         this.templateSelected.emit(template);
     }
@@ -95,7 +103,7 @@ export class SideMenu {
         localStorage.setItem('timeTrackingTemplates', JSON.stringify(this.timeTrackingTemplates));
     }
 
-    private hideShowSideMenu(event) {
+    private hideShowSideMenu() {
         this.sidemenuMinified = !this.sidemenuMinified;
 
         let element = document.getElementById('sidemenu_timetracking_component');
