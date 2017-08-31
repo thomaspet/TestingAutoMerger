@@ -11,25 +11,25 @@
     </ul>
 </aside>
 
-<sidemenu [hidden]="missingWorker || !tabs[0].isSelected" class="sidemenu_timetracking_component" [(periode)]="currentFilter" (dateSelected)="onDateSelected($event)" (templateSelected)="onTemplateSelected($event)"></sidemenu>
-<section class='regtimecontainer' 
-    [class.app-splitview]="tabs[0]!.isSelected" >
+<sidemenu [hidden]="missingWorker || !tabs[0].isSelected"
+          [(periode)]="currentFilter"
+          id="sidemenu_timetracking_component"  
+          (dateSelected)="onDateSelected($event)" 
+          (templateSelected)="onTemplateSelected($event)">
+</sidemenu>
 
-<section class='regtimecontainer'>
+<section class='regtimecontainer' [class.app-splitview]="tabs[0]!.isSelected" id="regtime_container_id">
     <section class="regtime_tabs">
 
-        <section [hidden]="missingWorker || !tabs[0].isSelected"
-            [class.wideapplication]="workEditor.numberOfVisibleColumns > 9"
-            [class.application]="workEditor.numberOfVisibleColumns <= 9" >
+        <section [hidden]="missingWorker || !tabs[0].isSelected" class="wideapplication">
 
             <header>
-                <section style="float: left; padding-left: 15px; margin-bottom: 15px" id="timetracker_date_and_progress">
-                    <h3 style="font-size: 1.7rem; font-weight: 400; color: #0f4880; margin-bottom: 15px;"> {{ currentFilter.bigLabel }} </h3>
-                    {{workEditor.numberOfVisibleColumns}}
+                <section class="timetracking_progress_section" id="timetracker_date_and_progress">
+                    <h3> {{ currentFilter.bigLabel }} </h3>
                     <div id="timetracking_progress_bar">
                         <div></div>
-                    </div>
-                    <span class="timetracking_worked_today_text">{{ workedToday }}</span>
+                    </div><br />
+                    <p class="timetracking_worked_today_text">{{ workedToday }}</p>
                 </section>
                  
                 <ul class="timetracking_periode_selector" id="timetracking_periode_selector_id">
