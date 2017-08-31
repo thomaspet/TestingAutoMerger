@@ -28,7 +28,9 @@ export class RemoveHidden {
                     <ul class="hamburger_submenu">
                         <h3>{{componentList.componentListHeader}}</h3>
                         <li *ngFor="let component of componentList.componentList | removehidden"
-                            (click)="navigate(component.componentUrl)">
+                        [attr.data-header]="component.groupHeader"
+                        (click)="navigate(component.componentUrl)"
+                        class="hamburger_component">
                             {{component.componentName}}
                         </li>
                     </ul>

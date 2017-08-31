@@ -71,19 +71,34 @@
         line-height: 2rem
         margin-bottom: 0
 
-    & > li
-        white-space: nowrap
-        width: 15rem
-        text-transform: none
-        cursor: pointer
-
-        &:hover,
-        &:focus
-            color: $navbarBackground
-            text-decoration: underline
 
     .hamburger_item.is-active &
         display: block
+
+.hamburger_component
+    white-space: nowrap
+    width: 15rem
+    text-transform: none
+    cursor: pointer
+
+    &:hover,
+    &:focus
+        color: $navbarBackground
+        text-decoration: underline
+
+    &[data-header]
+        margin-top: 3rem
+
+        &:before
+            content: attr(data-header)
+            color: $uni-color-c2a
+            text-transform: uppercase
+            font-weight: 600
+            pointer-events: none
+            display: block
+            position: absolute
+            margin-top: -2rem
+
 
 @for $hero from 1 through 7
     .hamburger_item:nth-of-type(#{$hero}) .hamburger_submenu
