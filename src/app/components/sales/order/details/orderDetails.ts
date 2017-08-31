@@ -231,6 +231,7 @@ export class OrderDetails {
                     this.deliveryTerms = res[4];
 
                     this.refreshOrder(order);
+                    this.tofHead.focus();
                 },
                     err => this.errorService.handle(err));
             } else {
@@ -524,7 +525,7 @@ export class OrderDetails {
         let change: boolean;
         if (this.currentCustomer) {
             change = order.Customer.ID !== this.currentCustomer.ID;
-        } else if (order.Customer.ID) {
+        } else if (order.Customer && order.Customer.ID) {
             change = true;
         }
         this.currentCustomer = order.Customer;
@@ -624,7 +625,10 @@ export class OrderDetails {
     }
 
     public addOrder() {
-        this.router.navigateByUrl('/sales/orders/0');
+        event.preventDefault();
+        this.router.navigateByUrl('/sales/orders/0').then(res => {
+            this.tofHead.focus();
+        });
     }
 
     public nextOrder() {

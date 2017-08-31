@@ -500,7 +500,7 @@ export class QuoteDetails {
         let change: boolean;
         if (this.currentCustomer) {
             change = quote.Customer.ID !== this.currentCustomer.ID;
-        } else if (quote.Customer.ID) {
+        } else if (quote.Customer && quote.Customer.ID) {
             change = true;
         }
         this.currentCustomer = quote.Customer;

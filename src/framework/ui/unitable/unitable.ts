@@ -1067,11 +1067,16 @@ export class UniTable implements OnChanges {
                 return;
             }
 
+            const firstVisibleCellIndex = this.tableColumns.findIndex(col  => {
+                return col.get('visible');
+            });
+
             const index = this.tableData.findIndex(row => row.get('_originalIndex') === originalIndex);
             const rows = this.tbody.nativeElement.rows;
-
             if (rows && index < rows.length) {
-                rows[index].cells[0].focus();
+                if (firstVisibleCellIndex >= 0) {
+                    rows[index].cells[firstVisibleCellIndex].focus();
+                }
             }
         });
     }

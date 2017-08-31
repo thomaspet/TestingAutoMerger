@@ -250,6 +250,7 @@ export class InvoiceDetails {
                     this.setupContextMenuItems();
                     this.refreshInvoice(invoice);
                     this.recalcItemSums(null);
+                    this.tofHead.focus();
                 }, err => this.errorService.handle(err));
             } else {
                 Observable.forkJoin(
@@ -286,6 +287,7 @@ export class InvoiceDetails {
 
                     this.setupContextMenuItems();
                     this.refreshInvoice(invoice);
+                    this.tofHead.focus();
                 }, err => this.errorService.handle(err));
             }
         }, err => this.errorService.handle(err));
@@ -623,9 +625,14 @@ export class InvoiceDetails {
 
     private didCustomerChange(invoice: CustomerInvoice): boolean {
         let change: boolean;
+
+        if (!this.currentCustomer && !invoice.Customer) {
+            return false;
+        }
+
         if (this.currentCustomer) {
             change = invoice.Customer.ID !== this.currentCustomer.ID;
-        } else if (invoice.Customer.ID) {
+        } else if (invoice.Customer && invoice.Customer.ID) {
             change = true;
         }
         this.currentCustomer = invoice.Customer;
@@ -958,7 +965,13 @@ export class InvoiceDetails {
             navigation: {
                 prev: this.previousInvoice.bind(this),
                 next: this.nextInvoice.bind(this),
-                add: () => this.router.navigateByUrl('/sales/invoices/0')
+                add: () => {
+                    event.preventDefault();
+                    this.router.navigateByUrl('/sales/invoices/0').then(res => {
+                        this.tofHead.focus();
+                    });
+
+                }
             },
             contextmenu: this.contextMenuItems,
             entityID: this.invoiceID,

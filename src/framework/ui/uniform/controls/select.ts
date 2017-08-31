@@ -105,6 +105,11 @@ export class UniSelectInput extends BaseControl {
         const valueIsDefined = (value !== null && value !== undefined);
         let previousValue = _.get(this.model, this.field.Property);
         let currentValue = valueIsDefined ? value : item;
+
+        if (previousValue === currentValue) {
+            return;
+        }
+
         _.set(this.model, this.field.Property, currentValue);
         this.emitChange(previousValue, currentValue);
         this.emitInstantChange(previousValue, currentValue, true);

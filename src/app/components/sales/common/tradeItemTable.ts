@@ -147,6 +147,7 @@ export class TradeItemTable {
                 const account = row['Account'];
                 return (account) ? `${account.AccountNumber} : ${account.AccountName}` : '';
             })
+            .setVisible(false)
             .setEditorOptions({
                 itemTemplate: item => `${item.AccountNumber} : ${item.AccountName}`,
                lookupFunction: (searchValue) => {

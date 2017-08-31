@@ -228,13 +228,7 @@ export class TofDetailsForm {
                     HelpText: '',
                     Section: 0,
                     StatusCode: 0,
-                    ID: 7,
-                    Options: {
-                        events: {
-                            tab: (event) => this.tabbedPastLastField.emit(event),
-                            enter: (event) => this.tabbedPastLastField.emit(event)
-                        }
-                    }
+                    ID: 7
                 },
                 <any> {
                     FieldSet: 1,
@@ -248,8 +242,12 @@ export class TofDetailsForm {
                         source: this.projects,
                         valueProperty: 'ID',
                         displayProperty: 'Name',
-                        debounceTime: 200
-                    }
+                        debounceTime: 200,
+                        events: {
+                            tab: (event) => this.tabbedPastLastField.emit(event),
+                            enter: (event) => this.tabbedPastLastField.emit(event)
+                        }
+                    },
                 }
             ];
 
@@ -272,7 +270,7 @@ export class TofDetailsForm {
         if (this.entityType === 'CustomerInvoice') {
             this.entity.PaymentDueDate = entityDate;
             if (!this.entity.PaymentTerms) {
-                this.entity.PaymentDueDate = new LocalDate(		
+                this.entity.PaymentDueDate = new LocalDate(
                     moment(this.entity.PaymentDueDate).add(this.companySettings.CustomerCreditDays, 'days').toDate()
                 );
             } else if (this.entity.PaymentTerms.CreditDays) {
@@ -287,7 +285,7 @@ export class TofDetailsForm {
                 );
             }
         }
-        
+
         if (this.entity.DeliveryTerms && this.entity.DeliveryTerms.CreditDays) {
             this.entity.DeliveryDate = entityDate;
             if (this.entity.DeliveryTerms.CreditDays < 0) {
