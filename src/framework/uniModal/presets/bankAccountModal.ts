@@ -1,6 +1,6 @@
 import {Component, Input, Output, EventEmitter} from '@angular/core';
 import {UniFieldLayout, FieldType} from '../../ui/uniform/index';
-import {BankAccount, Account} from '../../../app/unientities';
+import {Bank, BankAccount, Account} from '../../../app/unientities';
 import {ToastService, ToastType} from '../../uniToast/toastService';
 import {AccountService, BankService, ErrorService} from '../../../app/services/services';
 import {
@@ -56,6 +56,7 @@ export class UniBankAccountModal implements IUniModal {
 
     private isDirty: boolean;
     private validAccount: boolean = true;
+    private isBankChanged: boolean = false;
 
     constructor(
         private bankService: BankService,
@@ -72,8 +73,20 @@ export class UniBankAccountModal implements IUniModal {
 
     public close(emitValue?: boolean) {
         let account: BankAccount;
+
         if (emitValue) {
             account = this.formModel$.getValue();
+
+            if (account.Bank.BIC === '' || account.Bank.BIC === null) {
+               this.toastService.addToast('Mangler BIC!', ToastType.bad, 5, 'Du må oppgi en BIC for Banken.') ;
+               return;
+            }
+
+            if (this.isBankChanged) {
+                this.bankService.Put<Bank>(account.Bank.ID, account.Bank)
+                .subscribe(item => {}, err => this.errorService.handle(err));
+            }
+
             if (this.options.modalConfig
                 && this.options.modalConfig.ledgerAccountVisible
                 && !account.AccountID) {
@@ -100,6 +113,10 @@ export class UniBankAccountModal implements IUniModal {
 
     public onFormChange(changes) {
         this.isDirty = true;
+
+        if (changes['Bank.BIC']) {
+            this.isBankChanged = true;
+        }
 
         if (changes['AccountNumber']) {
             this.toastService.clear();
@@ -223,7 +240,7 @@ export class UniBankAccountModal implements IUniModal {
                 EntityType: 'Bank',
                 Property: 'Bank.BIC',
                 FieldType: FieldType.TEXT,
-                ReadOnly: true,
+                ReadOnly: false,
                 Label: 'BIC',
             },
             <any> {
