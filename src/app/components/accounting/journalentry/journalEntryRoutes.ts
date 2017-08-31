@@ -11,8 +11,7 @@ export const routes = [
     },
     {
         path: 'manual',
-        component: JournalEntries,
-        canDeactivate: [CanDeactivateGuard]
+        component: JournalEntries
     },
     {
         path: 'payments',
