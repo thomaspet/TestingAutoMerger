@@ -32,7 +32,8 @@ import {
     UniAddressModal,
     UniEmailModal,
     UniPhoneModal,
-    UniBankAccountModal
+    UniBankAccountModal,
+    ConfirmActions
 } from '../../../../../framework/uniModal/barrel';
 
 declare const _; // lodash
@@ -78,6 +79,7 @@ export class SupplierDetails implements OnInit {
     public showReportWithID: number;
     private showContactSection: boolean = true; // used in template
     private commentsConfig: ICommentsConfig;
+    private isDirty: boolean = false;
 
     private expandOptions: Array<string> = [
         'Info',
@@ -157,6 +159,8 @@ export class SupplierDetails implements OnInit {
     }
 
     public supplierDetailsChange(changes: SimpleChanges) {
+        this.isDirty = true;
+
         if (changes['Info.DefaultBankAccountID']) {
             this.bankaccountService.deleteRemovedBankAccounts(changes['Info.DefaultBankAccountID']);
         }
@@ -182,31 +186,49 @@ export class SupplierDetails implements OnInit {
     }
 
     public nextSupplier() {
-        this.supplierService.getNextID(this.supplier$.getValue().ID)
-            .subscribe((ID) => {
-                    if (ID) {
-                        this.router.navigateByUrl('/suppliers/' + ID);
-                    } else {
-                        this.toastService.addToast('Warning', ToastType.warn, 0, 'Ikke flere leverandører etter denne');
-                    }
-                },
-                err => this.errorService.handle(err));
+        this.canDeactivate().subscribe(canDeactivate => {
+            if (!canDeactivate) {
+                return;
+            }
+
+            this.supplierService.getNextID(this.supplier$.getValue().ID)
+                .subscribe((ID) => {
+                        if (ID) {
+                            this.router.navigateByUrl('/suppliers/' + ID);
+                        } else {
+                            this.toastService.addToast('Warning', ToastType.warn, 0, 'Ikke flere leverandører etter denne');
+                        }
+                    },
+                    err => this.errorService.handle(err));
+        });
     }
 
     public previousSupplier() {
-        this.supplierService.getPreviousID(this.supplier$.getValue().ID)
-            .subscribe((ID) => {
-                    if (ID) {
-                        this.router.navigateByUrl('/suppliers/' + ID);
-                    } else {
-                        this.toastService.addToast('Warning', ToastType.warn, 0, 'Ikke flere leverandører før denne');
-                    }
-                },
-                err => this.errorService.handle(err));
+        this.canDeactivate().subscribe(canDeactivate => {
+            if (!canDeactivate) {
+                return;
+            }
+
+            this.supplierService.getPreviousID(this.supplier$.getValue().ID)
+                .subscribe((ID) => {
+                        if (ID) {
+                            this.router.navigateByUrl('/suppliers/' + ID);
+                        } else {
+                            this.toastService.addToast('Warning', ToastType.warn, 0, 'Ikke flere leverandører før denne');
+                        }
+                    },
+                    err => this.errorService.handle(err));
+        });
     }
 
     public addSupplier() {
-        this.router.navigateByUrl('/suppliers/0');
+        this.canDeactivate().subscribe(canDeactivate => {
+            if (!canDeactivate) {
+                return;
+            }
+
+            this.router.navigateByUrl('/suppliers/0');
+        });
     }
 
     private setTabTitle() {
@@ -227,31 +249,39 @@ export class SupplierDetails implements OnInit {
     }
 
     public showTab(tab: string, reportid: number = null) {
-
         if (this.activeTab === 'reconciliation'
             && this.ledgerAccountReconciliation
             && this.ledgerAccountReconciliation.isDirty) {
 
-            const modal = this.modalService.deprecated_openUnsavedChangesModal();
-            modal.onClose.subscribe(canClose => {
-                if (canClose) {
-                    this.activeTab = tab;
-                    this.showReportWithID = reportid;
+            this.canDeactivate().subscribe(canDeactivate => {
+                if (!canDeactivate) {
+                    return;
                 }
+
+                this.activeTab = tab;
+                this.showReportWithID = reportid;
             });
+
+
         } else {
             this.activeTab = tab;
             this.showReportWithID = reportid;
         }
     }
 
-    public canDeactivate(): boolean|Observable<boolean> {
-        if (!this.ledgerAccountReconciliation || !this.ledgerAccountReconciliation.isDirty) {
-            return true;
-        }
+    public canDeactivate(): Observable<boolean> {
+        return !this.isDirty && !(this.ledgerAccountReconciliation && this.ledgerAccountReconciliation.isDirty)
+            ? Observable.of(true)
+            : this.modalService
+                .openUnsavedChangesModal()
+                .onClose
+                .map(result => {
+                    if (result === ConfirmActions.ACCEPT) {
+                        this.saveSupplier(() => {});
+                    }
 
-        const modal = this.modalService.deprecated_openUnsavedChangesModal();
-        return modal.onClose;
+                    return result !== ConfirmActions.CANCEL;
+                });
     }
 
     private setup() {
@@ -611,6 +641,7 @@ export class SupplierDetails implements OnInit {
                 this.supplierService.Put(supplier.ID, supplier)
                     .subscribe(
                         (updatedValue) => {
+                            this.isDirty = false;
                             completeEvent('Leverandør lagret');
 
                             this.supplierService.Get(supplier.ID, this.expandOptions).subscribe(supplier => {
@@ -629,6 +660,7 @@ export class SupplierDetails implements OnInit {
                 this.supplierService.Post(supplier)
                     .subscribe(
                         (newSupplier) => {
+                            this.isDirty = false;
                             if (!this.modalMode) {
                                 this.router.navigateByUrl('/suppliers/' + newSupplier.ID);
                                 this.setTabTitle();
@@ -654,6 +686,8 @@ export class SupplierDetails implements OnInit {
             contact['_createguid'] = this.supplierService.getNewGuid();
             contact.Info['_createguid'] = this.supplierService.getNewGuid();
         }
+
+        this.isDirty = true;
 
         // prepare for save
         if (!contact.Info.DefaultEmail.ID) {

@@ -13,7 +13,7 @@ import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {IUniSaveAction} from '../../../../framework/save/save';
 import {Observable} from 'rxjs/Observable';
 import {CurrencyCode} from '../../../unientities';
-import {UniModalService} from '../../../../framework/uniModal/barrel';
+import {UniModalService, ConfirmActions} from '../../../../framework/uniModal/barrel';
 import {CurrencyOverride, LocalDate, CurrencySourceEnum} from '../../../unientities';
 import {
     NumberFormat,
@@ -91,19 +91,18 @@ export class CurrencyOverrides {
     }
 
     public canDeactivate(): boolean | Observable<boolean> {
-        if (!this.isDirty) {
-            return true;
-        }
+        return !this.isDirty
+            ? Observable.of(true)
+            : this.modalService
+                .openUnsavedChangesModal()
+                .onClose
+                .switchMap((result) => {
+                    if (result === ConfirmActions.ACCEPT) {
+                        return this.save();
+                    }
 
-        return this.modalService.deprecated_openUnsavedChangesModal()
-            .onClose
-            .map(canDeactivate => {
-                if (!canDeactivate) {
-                    this.addTab();
-                }
-
-                return canDeactivate;
-            });
+                    return Observable.of(result !== ConfirmActions.CANCEL);
+                });
     }
 
     private rowChanged(event) {
@@ -115,7 +114,16 @@ export class CurrencyOverrides {
 
         this.saveActions.push({
             label: 'Lagre',
-            action: (done) => this.save(done, null),
+            action: (done) => {
+                if(!this.table.getTableData().find(x => x._isDirty)) {
+                    done('Ingen endringer');
+                } else {
+                    this.save().subscribe(savedOk => {
+                        if (savedOk) { this.loadData(); }
+                        done(savedOk ? 'Lagret endringer' : 'Lagring feilet');
+                    });
+                }
+            },
             disabled: false
         });
     }
@@ -125,8 +133,7 @@ export class CurrencyOverrides {
         return <Observable<T>>source.finally(() => this.isBusy = false);
     }
 
-    private save(doneHandler: (status: string) => any, nextAction: () => any) {
-
+    private save(): Observable<boolean> {
         let tableData = this.table.getTableData();
 
         // set up observables (requests)
@@ -136,27 +143,17 @@ export class CurrencyOverrides {
                     : this.currencyOverridesService.Post(currencyoverride);
         });
 
-        if (requests.length > 0) {
-            Observable.forkJoin(requests)
-                .subscribe(resp => {
+        return requests.length === 0
+            ? Observable.of(true)
+            : Observable
+                .forkJoin(requests)
+                .map(() => {
                     this.isDirty = false;
-                    if (!nextAction) {
-                        doneHandler('Lagret endringer');
-                        this.loadData();
-                    } else {
-                        nextAction();
-                    }
-                }, (err) => {
-                    doneHandler('Feil ved lagring av data');
+                    return true;
+                }).catch(err => {
                     this.errorService.handle(err);
+                    return Observable.of(false);
                 });
-        } else {
-            if (!nextAction) {
-                doneHandler('Ingen endringer funnet');
-            } else {
-                nextAction();
-            }
-        }
     }
 
     private isEmpty(obj) {

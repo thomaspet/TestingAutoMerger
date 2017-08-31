@@ -219,12 +219,13 @@ export class JournalEntries {
     }
 
     public canDeactivate(): Observable<boolean> {
-        if (!this.journalEntryManual.isDirty) {
-            return Observable.of(true);
-        }
-
-        const modal = this.modalService.deprecated_openUnsavedChangesModal();
-        return modal.onClose;
+        return !this.journalEntryManual.isDirty
+            ? Observable.of(true)
+            : this.modalService.openRejectChangesModal()
+                .onClose
+                .map(result => {
+                    return result !== ConfirmActions.CANCEL;
+                });
     }
 
     private showPrevious() {

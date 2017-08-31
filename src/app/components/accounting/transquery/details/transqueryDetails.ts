@@ -399,14 +399,14 @@ export class TransqueryDetails implements OnInit {
 
         if (data && data.length > 0
             && (!data[0].JournalEntryID || data[0].JournalEntryID.toString() !== journalEntryID.toString())) {
-                const modal = this.modalService.deprecated_openUnsavedChangesModal();
-                modal.onClose.subscribe((canDeactivate) => {
-                    if (canDeactivate) {
-                        this.journalEntryService.setSessionData(0, []);
-                        this.router.navigateByUrl(url);
-                    }
-                });
-
+                this.modalService.openRejectChangesModal()
+                    .onClose
+                    .subscribe(result => {
+                        if (result === ConfirmActions.REJECT) {
+                            this.journalEntryService.setSessionData(0, []);
+                            this.router.navigateByUrl(url);
+                        }
+                    });
         } else {
             this.router.navigateByUrl(url);
         }

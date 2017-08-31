@@ -1930,14 +1930,15 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
             return;
         }
 
-        const modal = this.modalService.deprecated_openUnsavedChangesModal();
-        modal.onClose.subscribe(canRemove => {
-            if (canRemove) {
-                this.clearListInternal(completeCallback);
-            } else {
-                completeCallback(null);
-            }
-        });
+        this.modalService.openRejectChangesModal()
+            .onClose
+            .subscribe(result => {
+                if (result === ConfirmActions.REJECT) {
+                    this.clearListInternal(completeCallback);
+                } else {
+                    completeCallback(null);
+                }
+            });
     }
 
     private clearListInternal(completeCallback: (msg: string) => void) {

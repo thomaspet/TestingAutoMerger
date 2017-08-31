@@ -261,13 +261,13 @@ export class InvoiceDetails {
                 ).subscribe((res) => {
                     let invoice = res[0];
                     if (!invoice.PaymentTerms && !invoice.PaymentDueDate) {
-                        invoice.PaymentDueDate = new LocalDate(		
+                        invoice.PaymentDueDate = new LocalDate(
                             moment(invoice.InvoiceDate).add(this.companySettings.CustomerCreditDays, 'days').toDate()
                         );
                     } else if (!invoice.PaymentDueDate) {
                         this.setPaymentDueDate(invoice);
                     }
-                    
+
 
                     this.companySettings = res[1];
 
@@ -400,20 +400,22 @@ export class InvoiceDetails {
         }
     }
 
-    public canDeactivate(): boolean | Observable<boolean> {
-        if (!this.isDirty) {
-            return true;
-        }
+    public canDeactivate(): Observable<boolean> {
+        return !this.isDirty
+            ? Observable.of(true)
+            : this.modalService
+                .openUnsavedChangesModal()
+                .onClose
+                .map(result => {
+                    if (result === ConfirmActions.ACCEPT) {
+                        this.saveInvoice();
+                    }
+                    if (result !== ConfirmActions.CANCEL) {
+                        this.updateTabTitle();
+                    }
 
-        return this.modalService.deprecated_openUnsavedChangesModal()
-            .onClose
-            .map(canDeactivate => {
-                if (!canDeactivate) {
-                    this.updateTabTitle();
-                }
-
-                return canDeactivate;
-            });
+                    return result !== ConfirmActions.CANCEL;
+                });
     }
 
     public onInvoiceChange(invoice: CustomerInvoice) {

@@ -282,21 +282,24 @@ export class QuoteDetails {
         }
     }
 
-    public canDeactivate(): boolean | Observable<boolean> {
-        if (!this.isDirty) {
-            return true;
-        }
+    public canDeactivate(): Observable<boolean> {
+        return !this.isDirty
+            ? Observable.of(true)
+            : this.modalService
+                .openUnsavedChangesModal()
+                .onClose
+                .map(result => {
+                    if (result === ConfirmActions.ACCEPT) {
+                        this.saveQuote();
+                    }
+                    if (result !== ConfirmActions.CANCEL) {
+                        this.setTabTitle();
+                    }
 
-        return this.modalService.deprecated_openUnsavedChangesModal()
-            .onClose
-            .map(canDeactivate => {
-                if (!canDeactivate) {
-                    this.setTabTitle();
-                }
-
-                return canDeactivate;
-            });
+                    return result !== ConfirmActions.CANCEL;
+                });
     }
+
 
     private refreshQuote(quote?: CustomerQuote) {
         if (!quote) {

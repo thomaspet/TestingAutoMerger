@@ -5,7 +5,7 @@ import {StatusCodeJournalEntryLine, LocalDate} from '../../../../unientities';
 import {UniTable, UniTableColumn, UniTableConfig, UniTableColumnType, ITableFilter, UniTableColumnSortMode} from '../../../../../framework/ui/unitable/index';
 import {ISummaryConfig} from '../../../common/summary/summary';
 import {ToastService, ToastType, ToastTime} from '../../../../../framework/uniToast/toastService';
-import {UniModalService} from '../../../../../framework/uniModal/barrel';
+import {UniModalService, ConfirmActions} from '../../../../../framework/uniModal/barrel';
 import {exportToFile, arrayToCsv} from '../../../common/utils/utils';
 import {
     ErrorService,
@@ -569,11 +569,14 @@ export class LedgerAccountReconciliation {
     }
 
     public canDiscardChanges(): Observable<boolean> {
-        if (!this.isDirty) {
-            return Observable.of(true);
-        }
-
-        return this.modalService.deprecated_openUnsavedChangesModal().onClose;
+        return !this.isDirty
+            ? Observable.of(true)
+            : this.modalService
+                .openRejectChangesModal()
+                .onClose
+                .map(result => {
+                    return result === ConfirmActions.REJECT;
+                });
     }
 
     public showHideEntries(newValue) {
@@ -727,16 +730,18 @@ export class LedgerAccountReconciliation {
             && (!data[0].JournalEntryID || data[0].JournalEntryID.toString() !== journalEntryID.toString());
 
         if (isNewJournalEntry) {
-            this.modalService.deprecated_openUnsavedChangesModal().onClose.subscribe(canEdit => {
-                if (canEdit) {
-                    this.journalEntryService.setSessionData(0, []);
-                    this.router.navigateByUrl(
-                        `/accounting/journalentry/manual;journalEntryNumber=${journalEntryNumber}
-                        ;journalEntryID=${journalEntryID}
-                        ;editmode=true`
-                    );
-                }
-            });
+            this.modalService.openRejectChangesModal()
+                .onClose
+                .subscribe(result => {
+                    if (result === ConfirmActions.REJECT) {
+                        this.journalEntryService.setSessionData(0, []);
+                        this.router.navigateByUrl(
+                            `/accounting/journalentry/manual;journalEntryNumber=${journalEntryNumber}
+                            ;journalEntryID=${journalEntryID}
+                            ;editmode=true`
+                        );
+                    }
+                });
         } else {
             this.router.navigateByUrl(
                 `/accounting/journalentry/manual;journalEntryNumber=${journalEntryNumber}

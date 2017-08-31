@@ -4,7 +4,7 @@ import {Observable} from 'rxjs/Observable';
 import {IUniSaveAction} from '../../../../framework/save/save';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {IToolbarConfig} from './../../common/toolbar/toolbar';
-import {UniModalService} from '../../../../framework/uniModal/barrel';
+import {UniModalService, ConfirmActions} from '../../../../framework/uniModal/barrel';
 import {IUniTabsRoute} from '../../layout/uniTabs/uniTabs';
 import {ProductCategory} from '../../../unientities';
 import {TreeComponent} from 'angular-tree-component';
@@ -178,19 +178,19 @@ export class ProductGroups implements OnInit {
         this.router.navigateByUrl('/sales/productgroups/groupDetails?productGroupID=0');
     }
 
-    public canDeactivate(): boolean | Observable<boolean> {
-        if (!this.productCategoryService.isDirty) {
-            return true;
-        }
+    public canDeactivate(): Observable<boolean> {
+        return !this.productCategoryService.isDirty
+            ? Observable.of(true)
+            : this.modalService
+                .openUnsavedChangesModal()
+                .onClose
+                .map(result => {
+                    if (result === ConfirmActions.ACCEPT) {
+                        this.saveProductGroup(() => {});
+                    }
 
-        return this.modalService.deprecated_openUnsavedChangesModal()
-            .onClose
-            .map(canDeactivate => {
-                if (!canDeactivate) {
-                    this.addTab();
-                }
-                return canDeactivate;
-            });
+                    return result !== ConfirmActions.CANCEL;
+                });
     }
 
     private treeStructureToNodes(tree, root = null): any {

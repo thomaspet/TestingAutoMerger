@@ -52,6 +52,7 @@ import {
     UniEmailModal,
     UniModalService,
     UniPhoneModal,
+    ConfirmActions
 } from '../../../../framework/uniModal/barrel';
 
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
@@ -236,7 +237,7 @@ export class CompanySettingsComponent implements OnInit {
         // this is done to make it easy to use the multivalue component - this works with arrays
         // so we create dummy arrays and put our default address, phone and email in the arrays
         // even though we actually only have one of each
-        companySettings.DefaultAddress = companySettings.DefaultAddress 
+        companySettings.DefaultAddress = companySettings.DefaultAddress
             ? companySettings.DefaultAddress : this.emptyAddress;
         companySettings['Addresses'] = [companySettings.DefaultAddress];
         companySettings.DefaultPhone = companySettings.DefaultPhone ? companySettings.DefaultPhone : this.emptyPhone;
@@ -267,13 +268,19 @@ export class CompanySettingsComponent implements OnInit {
         this.company$.next(company);
     }
 
-    public canDeactivate(): boolean|Observable<boolean> {
-        if (!this.isDirty && (!this.reminderSettings || !this.reminderSettings.isDirty)) {
-           return true;
-        }
+    public canDeactivate(): Observable<boolean> {
+        return !this.isDirty && (!this.reminderSettings || !this.reminderSettings.isDirty)
+            ? Observable.of(true)
+            : this.modalService
+                .openUnsavedChangesModal()
+                .onClose
+                .map(result => {
+                    if (result === ConfirmActions.ACCEPT) {
+                        this.saveSettings(() => {});
+                    }
 
-        const modal = this.modalService.deprecated_openUnsavedChangesModal();
-        return modal.onClose;
+                    return result !== ConfirmActions.CANCEL;
+                });
     }
 
     public companySettingsChange(changes: SimpleChanges) {
@@ -321,9 +328,9 @@ export class CompanySettingsComponent implements OnInit {
                 || isNaN(<any>organizationnumber)
                 || organizationnumber.length !== 9) {
                 this.organizationnumbertoast = this.toastService.addToast(
-                    'Organisasjonsnummer', 
-                    ToastType.warn, 
-                    5, 
+                    'Organisasjonsnummer',
+                    ToastType.warn,
+                    5,
                     'Vennligst oppgi et gyldig organisasjonsnr'
                 );
             } else {
@@ -539,7 +546,7 @@ export class CompanySettingsComponent implements OnInit {
             displayProperty: 'MunicipalityNo',
             debounceTime: 200,
             template: (obj: Municipal) => obj ? `${obj.MunicipalityNo} - `
-                + `${obj.MunicipalityName.substr(0, 1).toUpperCase() 
+                + `${obj.MunicipalityName.substr(0, 1).toUpperCase()
                 + obj.MunicipalityName.substr(1).toLowerCase()}` : ''
         };
 
@@ -1485,9 +1492,9 @@ export class CompanySettingsComponent implements OnInit {
                     .subscribe(() => {
                         console.log('2/2 VatTypes synkronisert');
                         this.toastService.addToast(
-                            'Synkronisert', 
-                            ToastType.good, 
-                            5, 
+                            'Synkronisert',
+                            ToastType.good,
+                            5,
                             'Kontoplan og momskoder synkronisert'
                         );
                     },

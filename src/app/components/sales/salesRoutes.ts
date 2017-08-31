@@ -79,7 +79,8 @@ export const salesRoutes: Routes = [
     {
         path: 'productgroups',
         component: ProductGroups,
-        children: ProductGroupRoutes
+        children: ProductGroupRoutes,
+        canDeactivate: [CanDeactivateGuard]
     },
     {
         path: 'productgroups/:id',

@@ -87,6 +87,19 @@ export class UniModalService {
         return componentRef.instance;
     }
 
+    public openRejectChangesModal(): IUniModal {
+        return this.confirm({
+            header: 'Ulagrede endringer',
+            message: 'Du har ulagrede endringer. Forkaste?',
+            buttonLabels: {
+                reject: 'Forkast',
+                cancel: 'Avbryt'
+            },
+            closeOnClickOutside: false,
+            closeOnEscape: false
+        });
+    }
+
     public openUnsavedChangesModal(): IUniModal {
         return this.confirm({
             header: 'Ulagrede endringer',

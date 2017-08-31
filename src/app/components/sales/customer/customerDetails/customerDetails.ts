@@ -43,7 +43,8 @@ import {
     UniModalService,
     UniAddressModal,
     UniEmailModal,
-    UniPhoneModal
+    UniPhoneModal,
+    ConfirmActions
 } from '../../../../../framework/uniModal/barrel';
 import {UniHttp} from '../../../../../framework/core/http/http';
 declare var _;
@@ -84,6 +85,7 @@ export class CustomerDetails {
     public showReportWithID: number;
     private isDisabled: boolean = true;
     private commentsConfig: ICommentsConfig;
+    private isDirty: boolean = false;
 
     private toolbarconfig: IToolbarConfig = {
         title: 'Kunde',
@@ -230,35 +232,53 @@ export class CustomerDetails {
     }
 
     public nextCustomer() {
-        this.customerService.getNextID(this.customerID ? this.customerID : 0)
-            .subscribe(id => {
-                    if (id) {
-                        this.router.navigateByUrl('/sales/customer/' + id);
-                    } else {
-                        this.toastService.addToast('Warning', ToastType.warn, 0, 'Ikke flere kunder etter denne');
-                    }
-                },
-                err => this.errorService.handle(err)
-            );
+        this.canDeactivate().subscribe(canDeactivate => {
+            if (!canDeactivate) {
+                return;
+            }
+
+            this.customerService.getNextID(this.customerID ? this.customerID : 0)
+                .subscribe(id => {
+                        if (id) {
+                            this.router.navigateByUrl('/sales/customer/' + id);
+                        } else {
+                            this.toastService.addToast('Warning', ToastType.warn, 0, 'Ikke flere kunder etter denne');
+                        }
+                    },
+                    err => this.errorService.handle(err)
+                );
+        });
     }
 
     public previousCustomer() {
-        this.customerService.getPreviousID(this.customerID ? this.customerID : 0)
-            .subscribe(id => {
-                    if (id) {
-                        this.router.navigateByUrl('/sales/customer/' + id);
-                    } else {
-                        this.toastService.addToast('Warning', ToastType.warn, 0, 'Ikke flere kunder før denne');
-                    }
-                },
-                err => this.errorService.handle(err)
-            );
+        this.canDeactivate().subscribe(canDeactivate => {
+            if (!canDeactivate) {
+                return;
+            }
+
+            this.customerService.getPreviousID(this.customerID ? this.customerID : 0)
+                .subscribe(id => {
+                        if (id) {
+                            this.router.navigateByUrl('/sales/customer/' + id);
+                        } else {
+                            this.toastService.addToast('Warning', ToastType.warn, 0, 'Ikke flere kunder før denne');
+                        }
+                    },
+                    err => this.errorService.handle(err)
+                );
+        });
     }
 
     public addCustomer() {
-        this.router.navigateByUrl('/sales/customer/new');
-        this.isDisabled = true;
-        this.setupSaveActions();
+        this.canDeactivate().subscribe(canDeactivate => {
+            if (!canDeactivate) {
+                return;
+            }
+
+            this.router.navigateByUrl('/sales/customer/new');
+            this.isDisabled = true;
+            this.setupSaveActions();
+        });
     }
 
     private setTabTitle() {
@@ -278,13 +298,19 @@ export class CustomerDetails {
         this.toolbarconfig.subheads = customer.ID ? [{title: 'Kundenr. ' + customer.CustomerNumber}] : [];
     }
 
-    public canDeactivate(): boolean|Observable<boolean> {
-        // Check if ledgeraccountdetails is dirty - if so, warn user before we continue
-        if (!this.ledgerAccountReconciliation || !this.ledgerAccountReconciliation.isDirty) {
-           return true;
-        }
+    public canDeactivate(): Observable<boolean> {
+        return !this.isDirty && !(this.ledgerAccountReconciliation && this.ledgerAccountReconciliation.isDirty)
+            ? Observable.of(true)
+            : this.modalService
+                .openUnsavedChangesModal()
+                .onClose
+                .map(result => {
+                    if (result === ConfirmActions.ACCEPT) {
+                        this.saveCustomer(() => {});
+                    }
 
-        return this.modalService.deprecated_openUnsavedChangesModal().onClose;
+                    return result !== ConfirmActions.CANCEL;
+                });
     }
 
     public showTab(tab: string, reportid: number = null) {
@@ -292,12 +318,13 @@ export class CustomerDetails {
             && this.ledgerAccountReconciliation
             && this.ledgerAccountReconciliation.isDirty) {
 
-            const modal = this.modalService.deprecated_openUnsavedChangesModal();
-            modal.onClose.subscribe(canChangeTab => {
-                if (canChangeTab) {
-                    this.activeTab = tab;
-                    this.showReportWithID = reportid;
+            this.canDeactivate().subscribe(canDeactivate => {
+                if (!canDeactivate) {
+                    return;
                 }
+
+                this.activeTab = tab;
+                this.showReportWithID = reportid;
             });
         } else {
             this.activeTab = tab;
@@ -715,6 +742,7 @@ export class CustomerDetails {
             if (this.customerID > 0) {
                 this.customerService.Put(customer.ID, customer).subscribe(
                     (updatedCustomer) => {
+                        this.isDirty = false;
                         completeEvent('Kunde lagret');
                         if (this.modalMode) {
                             this.customerUpdated.next(updatedCustomer);
@@ -735,6 +763,7 @@ export class CustomerDetails {
             } else {
                 this.customerService.Post(customer).subscribe(
                     (newCustomer) => {
+                        this.isDirty = false;
                         completeEvent('Kunde lagret');
                         if (this.modalMode) {
                             this.customerUpdated.next(newCustomer);
@@ -815,6 +844,8 @@ export class CustomerDetails {
     }
 
     private onChange(changes: SimpleChanges) {
+        this.isDirty = true;
+
         if (changes['Info.Name']) {
             if (this.isDisabled === true && changes['Info.Name'].currentValue !== '') {
                 this.isDisabled = false;

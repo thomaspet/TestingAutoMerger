@@ -25,7 +25,8 @@ import {
     UniModalService,
     UniAddressModal,
     UniPhoneModal,
-    UniEmailModal
+    UniEmailModal,
+    ConfirmActions
 } from '../../../../framework/uniModal/barrel';
 
 @Component({
@@ -174,13 +175,19 @@ export class ContactDetails {
         this.isDirty = true;
     }
 
-    public canDeactivate(): boolean|Observable<boolean> {
-        if (!this.isDirty) {
-            return;
-        }
+    public canDeactivate(): Observable<boolean> {
+        return !this.isDirty
+            ? Observable.of(true)
+            : this.modalService
+                .openUnsavedChangesModal()
+                .onClose
+                .map(result => {
+                    if (result === ConfirmActions.ACCEPT) {
+                        this.saveContact(() => {});
+                    }
 
-        const modal = this.modalService.deprecated_openUnsavedChangesModal();
-        return modal.onClose;
+                    return result !== ConfirmActions.CANCEL;
+                });
     }
 
     public reset() {
