@@ -10,7 +10,8 @@
         [resource]="lookupFunction"
         [config]="tableConfig"
         (rowSelected)="onRowSelected($event)"
-        (dataLoaded)="onTableReady()">
+        (dataLoaded)="onTableReady()"
+        (pageChange)="onPageChange($event)">
     </uni-table>
 </section>
 

@@ -2,9 +2,9 @@
 import {Http} from '@angular/http';
 import {Router, ActivatedRoute} from '@angular/router';
 import {Project, Customer, ProjectTask} from '../../../../unientities';
+import {ProjectService, CustomerService, PageStateService} from '../../../../services/services';
 import * as Chart from 'chart.js';
 import * as moment from 'moment';
-import {ProjectService, CustomerService} from '../../../../services/services';
 
 export interface myProject extends Project {
     ProjectCustomerID: number;
@@ -101,6 +101,7 @@ export class ProjectOverview {
     constructor(
         private projectService: ProjectService,
         private customerService: CustomerService,
+        private pageStateService: PageStateService,
         private router: Router,
         private route: ActivatedRoute) {
     }
@@ -129,6 +130,7 @@ export class ProjectOverview {
             this.router.navigate(['/sales/project/hours'], {
                 queryParams: {
                     projectID: this.projectService.currentProject.getValue().ID,
+                    page: this.pageStateService.getPageState().page || 1,
                     month: this.monthAndYearDataInBarChart[temp[0]._index].month,
                     year: this.monthAndYearDataInBarChart[temp[0]._index].year
                 }
