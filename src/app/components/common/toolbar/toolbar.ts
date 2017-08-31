@@ -6,6 +6,7 @@ import {UniFieldLayout, FieldType} from '../../../../framework/ui/uniform/index'
 import {Observable} from 'rxjs/Observable';
 import {IUniTagsConfig, ITag} from './tags';
 import {ISelectConfig} from '../../../../framework/ui/uniform/index';
+import {VideoMappingService} from '../../../services/services';
 
 declare const _; // lodash
 
@@ -103,10 +104,18 @@ export class UniToolbar {
     @Output()
     public selectValueChanged: EventEmitter<any> = new EventEmitter();
 
+    public videoURL: Promise<string|null>;
+
     private uniSelectConfig: ISelectConfig = {
         displayProperty: '_DisplayName',
         searchable: false
     };
+
+    constructor(private videoMappingService: VideoMappingService) {}
+    
+    public ngOnInit() {
+        this.videoURL = this.videoMappingService.getVideo(window.location.href);
+    }
 
     public ngOnChanges(change) {
         if (this.config) {
@@ -156,5 +165,9 @@ export class UniToolbar {
         if (subhead.event) {
             return subhead.event();
         }
+    }
+
+    public openVideo() {
+        this.videoURL.then(url => window.open(url, '_blank'));
     }
 }

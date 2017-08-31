@@ -58,6 +58,7 @@ import {ProductCategoryService} from './common/productCategoryService';
 import {TeamService} from './common/teamService';
 import {TermsService} from './common/termsService';
 import {UniFilesService} from './common/uniFilesService';
+import {VideoMappingService} from './common/videoMappingService'
 
 export * from './common/altinnAuthenticationService';
 export * from './common/altinnIntegrationService';
@@ -113,6 +114,7 @@ export * from './common/productCategoryService';
 export * from './common/teamService';
 export * from './common/termsService';
 export * from './common/uniFilesService';
+export * from './common/videoMappingService'
 
 @NgModule({})
 export class CommonServicesModule {
@@ -178,7 +180,8 @@ export class CommonServicesModule {
                 ProductCategoryService,
                 TeamService,
                 TermsService,
-                UniFilesService
+                UniFilesService,
+                VideoMappingService
             ]
         };
     }

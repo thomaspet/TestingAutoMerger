@@ -47,6 +47,11 @@
 
 <nav class="toolbar_tools">
 
+    <button *ngIf="(videoURL | async)?.length"
+            class="info"
+            type="button"
+            (click)="openVideo()">Vis video</button>
+
     <input *ngIf="config?.navigation?.find"
         #query
         type="search"

@@ -6,6 +6,7 @@ const runSequence = require('run-sequence');
 const rename = require('gulp-rename');
 require('./gulp/entities');
 require('./gulp/zip');
+require('./gulp/video-mapping');
 
 gulp.task('sass', function () {
   return gulp.src('./src/styles/main.sass')

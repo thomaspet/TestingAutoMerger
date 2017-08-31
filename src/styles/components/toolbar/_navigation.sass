@@ -32,6 +32,7 @@
         @extend %toolbarButton
         cursor: pointer
 
+    .info,
     .previous,
     .next
         width: 3rem
@@ -43,6 +44,14 @@
         &:hover,
         &:focus
             background-image: unicon-prev(white)
+            background-position: center center
+            background-repeat: no-repeat
+
+    .info
+        background-image: unicon-info($uni-color-scale9)
+        &:hover,
+        &:focus
+            background-image: unicon-info(white)
             background-position: center center
             background-repeat: no-repeat
     .next
