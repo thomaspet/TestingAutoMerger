@@ -43,7 +43,8 @@ import {
     PhoneService,
     UniSearchConfigGeneratorService,
     VatReportFormService,
-    VatTypeService
+    VatTypeService,
+    UniFilesService
 } from '../../../services/services';
 import {
     UniActivateAPModal,
@@ -158,7 +159,8 @@ export class CompanySettingsComponent implements OnInit {
         private currencyService: CurrencyService,
         private financialYearService: FinancialYearService,
         private ehfService: EHFService,
-        private modalService: UniModalService
+        private modalService: UniModalService,
+        private uniFilesService: UniFilesService
     ) {}
 
     public ngOnInit() {
@@ -397,6 +399,11 @@ export class CompanySettingsComponent implements OnInit {
                         this.isDirty = false;
                         this.toastService.addToast('Innstillinger lagret', ToastType.good, 3);
                         complete('Innstillinger lagret');
+
+                        // just start this after saving settings - it wont matter much if it
+                        // fails, so the service will fail silently if the updated settings
+                        // cant be synced
+                        this.uniFilesService.syncUniEconomyCompanySettings();
                     }).catch((err) => {
                         this.errorService.handle(err);
                         complete('Purreinnstillinger feilet i lagring');
