@@ -65,7 +65,15 @@ export class OcrValuables {
             let props = result.InterpretedProperties;
 
             this.Orgno = this.getProposedValue(props, OcrPropertyType.OfficialNumber)
-                .replace('MVA', '').replace('N0','').replace('NO', '');
+                .replace('MVA', '').replace('N0', '').replace('NO', '');
+
+            if (this.Orgno && this.Orgno.length > 9) {
+                let tmpOrgNo = this.Orgno.replace(/[^0-9]/g, '');
+                if (tmpOrgNo.length === 9) {
+                    this.Orgno = tmpOrgNo;
+                }
+            }
+
             this.PaymentID = this.getProposedValue(props, OcrPropertyType.CustomerIdentificationNumber);
             this.BankAccount =  this.getProposedValue(props, OcrPropertyType.BankAccountNumber);
             this.BankAccountCandidates = this.BankAccount && this.BankAccount !== '' ? [this.BankAccount] : [];
