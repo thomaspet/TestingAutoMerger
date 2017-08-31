@@ -19,6 +19,7 @@
             <button class="comboButton_more good"
                 type="button"
                 (click)="open = !open"
+                (clickOutside)="open = false"
                 aria-owns="saveActionMenu"
                 [attr.aria-expanded]="open">
                 More options
