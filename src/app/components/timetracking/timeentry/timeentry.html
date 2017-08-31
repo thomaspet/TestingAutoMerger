@@ -13,7 +13,7 @@
 
 <sidemenu [hidden]="missingWorker || !tabs[0].isSelected" class="sidemenu_timetracking_component" [(periode)]="currentFilter" (dateSelected)="onDateSelected($event)" (templateSelected)="onTemplateSelected($event)"></sidemenu>
 <section class='regtimecontainer' 
-    [class.application]="workEditor.numberOfVisibleColumns <= 9" style="width: calc(100% - 400px); float: left;">
+    [class.app-splitview]="tabs[0]!.isSelected" >
 
 <section class='regtimecontainer'>
     <section class="regtime_tabs">
@@ -25,6 +25,7 @@
             <header>
                 <section style="float: left; padding-left: 15px; margin-bottom: 15px" id="timetracker_date_and_progress">
                     <h3 style="font-size: 1.7rem; font-weight: 400; color: #0f4880; margin-bottom: 15px;"> {{ currentFilter.bigLabel }} </h3>
+                    {{workEditor.numberOfVisibleColumns}}
                     <div id="timetracking_progress_bar">
                         <div></div>
                     </div>
