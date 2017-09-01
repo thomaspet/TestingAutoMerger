@@ -261,6 +261,8 @@ export class InvoiceDetails {
                     this.termsService.GetAction(null, 'get-delivery-terms')
                 ).subscribe((res) => {
                     let invoice = res[0];
+                    this.companySettings = res[1];
+
                     if (!invoice.PaymentTerms && !invoice.PaymentDueDate) {
                         invoice.PaymentDueDate = new LocalDate(
                             moment(invoice.InvoiceDate).add(this.companySettings.CustomerCreditDays, 'days').toDate()
@@ -268,9 +270,6 @@ export class InvoiceDetails {
                     } else if (!invoice.PaymentDueDate) {
                         this.setPaymentDueDate(invoice);
                     }
-
-
-                    this.companySettings = res[1];
 
                     if (!invoice.CurrencyCodeID) {
                         invoice.CurrencyCodeID = this.companySettings.BaseCurrencyCodeID;
