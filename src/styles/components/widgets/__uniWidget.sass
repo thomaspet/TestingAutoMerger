@@ -181,6 +181,10 @@ uni-widget-canvas
         background-color: #0a2e52
     &:active
         transform: scale(0.97)
+    &[disabled=true],
+    &[disabled=true] *
+        cursor: not-allowed
+        background-color: desaturate(mix(#06457a, $uni-color-negative, 70%), 10%)
 
 .dashboard-shortcut-icon
     @extend %hideText

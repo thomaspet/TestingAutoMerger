@@ -1,14 +1,16 @@
-﻿import {Component, ChangeDetectionStrategy} from '@angular/core';
+﻿import {Component, ChangeDetectionStrategy, ChangeDetectorRef} from '@angular/core';
 import {Router} from '@angular/router';
 import {IUniWidget} from '../uniWidget';
+import {UserService} from '../../../services/services';
 
 @Component({
     selector: 'uni-shortcut',
     template: `
-        <div *ngIf="widget"
-            [ngClass]="widget.config.class"
+        <div [ngClass]="widget.config.class"
+             [attr.disabled]="disabled"
              class="uni-widget-shortcut-tile uni-widget-tile-content"
              (click)="onClickNavigate()">
+
             <a *ngIf="widget?.config?.icon" [ngClass]="getIconClass()"></a><br />
             <a class="uni-shortcut-link">{{ widget.config.label }}</a>
         </div>
@@ -17,8 +19,13 @@ import {IUniWidget} from '../uniWidget';
 })
 export class UniShortcutWidget {
     public widget: IUniWidget;
+    private disabled: boolean;
 
-    constructor(private router: Router) { }
+    constructor(
+        private router: Router,
+        private userService: UserService,
+        private cdr: ChangeDetectorRef
+    ) {}
 
     public onClickNavigate() {
         if (!this.widget._editMode) {
@@ -27,6 +34,15 @@ export class UniShortcutWidget {
             } else if (this.widget.config.method) {
                 this.widget.config.method();
             }
+        }
+    }
+
+    public ngAfterViewInit() {
+        if (this.widget && this.widget.config && this.widget.config.link) {
+            this.userService.canActivateUrl(this.widget.config.link).subscribe(canActivate => {
+                this.disabled = !canActivate;
+                this.cdr.detectChanges();
+            });
         }
     }
 

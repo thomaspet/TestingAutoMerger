@@ -2,7 +2,8 @@
 import {Router} from '@angular/router';
 import {routes} from '../../../../routes';
 import {UniModules} from '../../../layout/navbar/tabstrip/tabService';
-import {UniMenuAim} from '../../../../services/services';
+import {UniMenuAim, UserService} from '../../../../services/services';
+import {AuthService} from '../../../../../framework/core/authService';
 
 @Pipe({name: 'removehidden'})
 export class RemoveHidden {
@@ -46,7 +47,7 @@ export class HamburgerMenu {
     private open: boolean = false;
 
     public routes: any[] = routes;
-    public availableComponents: Array<any>;
+    public availableComponents: Array<any> = [];
     private activeSection: HTMLElement;
     public selectionIndex: number = 0;
 
@@ -60,19 +61,25 @@ export class HamburgerMenu {
     constructor(
         public router: Router,
         private menuaim: UniMenuAim,
-        private cdr: ChangeDetectorRef
+        private cdr: ChangeDetectorRef,
+        private userService: UserService,
+        private authService: AuthService
     ) {
-        this.availableComponents = HamburgerMenu.getAvailableComponents();
-    }
+        this.authService.authentication$.subscribe(authChange => {
+            this.userService.getCurrentUser().subscribe(user => {
+                this.availableComponents = this.getAllowedRoutes(user);
+                this.activeSection = this.sectionList.nativeElement.children[0];
+                this.cdr.markForCheck();
 
-    public ngAfterViewInit() {
-        this.menuaim.aim(this.sectionList.nativeElement, '.hamburger_item', (selectedIndex: number) => {
-            this.selectionIndex = selectedIndex;
-            this.cdr.markForCheck();
+                // Allow list element to initialize before we start UniMenuAim
+                setTimeout(() => {
+                    this.menuaim.aim(this.sectionList.nativeElement, '.hamburger_item', (selectedIndex: number) => {
+                        this.selectionIndex = selectedIndex;
+                        this.cdr.markForCheck();
+                    });
+                });
+            });
         });
-
-        this.activeSection = this.sectionList.nativeElement.children[0];
-        this.cdr.markForCheck();
     }
 
     private toggle(event) {
@@ -93,6 +100,24 @@ export class HamburgerMenu {
     public activeSectionIndex() {
         const elems = this.sectionList.nativeElement.children;
         return [].indexOf.call(elems, this.activeSection);
+    }
+
+    private getAllowedRoutes(user): any[] {
+        let routeSections = HamburgerMenu.getAvailableComponents();
+        const before = performance.now();
+
+        routeSections.forEach(section => {
+            section.componentList = section.componentList.filter(item => {
+                return this.userService.checkAccessToRoute(item.componentUrl, user);
+            });
+        });
+
+        routeSections = routeSections.filter(section => section.componentList.length > 0);
+
+        const after = performance.now();
+        console.log((after - before) + 'ms (filtering hamburger)');
+
+        return routeSections;
     }
 
     public static getAvailableComponents(): Array<any> {

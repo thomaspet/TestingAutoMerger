@@ -175,8 +175,8 @@ export class WorkItemGroup extends UniEntity {
     public UpdatedAt: Date;
     public UpdatedBy: string;
     public WorkRelationID: number;
-    public Items: Array<WorkItem>;
     public WorkRelation: WorkRelation;
+    public Items: Array<WorkItem>;
     public CustomFields: any;
 }
 
@@ -1092,12 +1092,12 @@ export class BusinessRelation extends UniEntity {
     public StatusCode: number;
     public UpdatedAt: Date;
     public UpdatedBy: string;
-    public BankAccounts: Array<BankAccount>;
     public DefaultContact: Contact;
     public Contacts: Array<Contact>;
     public Addresses: Array<Address>;
     public Phones: Array<Phone>;
     public Emails: Array<Email>;
+    public BankAccounts: Array<BankAccount>;
     public InvoiceAddress: Address;
     public ShippingAddress: Address;
     public DefaultPhone: Phone;
@@ -1663,8 +1663,8 @@ export class EmployeeCategoryLink extends UniEntity {
     public StatusCode: number;
     public UpdatedAt: Date;
     public UpdatedBy: string;
-    public EmployeeCategory: EmployeeCategory;
     public Employee: Employee;
+    public EmployeeCategory: EmployeeCategory;
     public CustomFields: any;
 }
 
@@ -2105,7 +2105,6 @@ export class CompanySettings extends UniEntity {
     public DefaultProductInvoiceReminderID: number;
     public DefaultSalesAccountID: number;
     public Deleted: boolean;
-    public DeliveryTermsID: number;
     public ForceSupplierInvoiceApproval: boolean;
     public GLN: string;
     public ID: number;
@@ -2113,7 +2112,6 @@ export class CompanySettings extends UniEntity {
     public OfficeMunicipalityNo: string;
     public OrganizationNumber: string;
     public PaymentBankIdentification: string;
-    public PaymentTermsID: number;
     public PeriodSeriesAccountID: number;
     public PeriodSeriesVatID: number;
     public RoundingNumberOfDecimals: number;
@@ -2132,25 +2130,23 @@ export class CompanySettings extends UniEntity {
     public VatLockedDate: LocalDate;
     public VatReportFormID: number;
     public WebAddress: string;
-    public BaseCurrencyCode: CurrencyCode;
-    public SalaryBankAccount: BankAccount;
-    public CompanyBankAccount: BankAccount;
-    public DefaultProductInvoiceReminder: Product;
-    public CustomerInvoiceReminderSettings: CustomerInvoiceReminderSettings;
     public DefaultAddress: Address;
     public DefaultPhone: Phone;
     public DefaultEmail: Email;
     public SupplierAccount: Account;
     public CustomerAccount: Account;
-    public PaymentTerms: Terms;
-    public DeliveryTerms: Terms;
     public BankAccounts: Array<BankAccount>;
+    public CompanyBankAccount: BankAccount;
     public TaxBankAccount: BankAccount;
+    public SalaryBankAccount: BankAccount;
     public SettlementVatAccount: Account;
     public DefaultSalesAccount: Account;
     public APContact: Contact;
     public APIncomming: Array<AccessPointFormat>;
     public APOutgoing: Array<AccessPointFormat>;
+    public CustomerInvoiceReminderSettings: CustomerInvoiceReminderSettings;
+    public DefaultProductInvoiceReminder: Product;
+    public BaseCurrencyCode: CurrencyCode;
     public AgioGainAccount: Account;
     public AgioLossAccount: Account;
     public BankChargeAccount: Account;
@@ -5368,42 +5364,24 @@ export class Forskuddstrekk extends UniEntity {
 }
 
 
-export class OcrResult extends UniEntity {
-    public language: string;
-    public MaxTop: number;
-    public MaxWidth: number;
-    public orientation: string;
-    public textAngle: string;
-    public regions: Array<Region>;
-    public OcrInvoiceReport: OcrInvoiceReport;
-}
+export class UserDto extends UniEntity {
+    public static RelativeUrl = '';
+    public static EntityType = 'UserDto';
 
-
-export class OcrInvoiceReport extends UniEntity {
-    public SupplierID: number;
-    public Orgno: SuggestedValue;
-    public Kid: SuggestedValue;
-    public BankAccount: SuggestedValue;
-    public InvoiceDate: SuggestedValue;
-    public DueDate: SuggestedValue;
-    public DeliveryDate: SuggestedValue;
-    public Amount: SuggestedValue;
-    public InvoiceNumber: SuggestedValue;
-}
-
-
-export class SuggestedValue extends UniEntity {
-    public Candidates: Array<HitWord>;
-    public Value: HitWord;
-}
-
-
-export class HitWord extends UniEntity {
-    public boundingBox: string;
-    public DateValue: Date;
-    public Hit: string;
-    public text: string;
-    public value: string;
+    public CreatedAt: Date;
+    public CreatedBy: string;
+    public Deleted: boolean;
+    public DisplayName: string;
+    public Email: string;
+    public GlobalIdentity: string;
+    public ID: number;
+    public LastLogin: Date;
+    public PhoneNumber: string;
+    public StatusCode: number;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public UserName: string;
+    public CustomFields: any;
 }
 
 

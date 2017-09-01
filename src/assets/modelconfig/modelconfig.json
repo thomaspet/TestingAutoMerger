@@ -249,7 +249,7 @@
         {
             "Name": "SupplierInvoice",
             "Translated": "Fakturamottak",
-            "Url": "/accounting/bill/:ID"
+            "Url": "/accounting/bills/:ID"
         },
         {
             "Name": "JournalEntry",

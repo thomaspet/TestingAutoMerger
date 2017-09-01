@@ -35,3 +35,4 @@ import 'rxjs/add/operator/first';
 import 'rxjs/add/operator/do';
 import 'rxjs/add/operator/merge';
 import 'rxjs/add/operator/share';
+import 'rxjs/add/operator/publishReplay';
