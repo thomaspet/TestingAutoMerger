@@ -183,6 +183,7 @@ export class NavbarSearch implements AfterViewInit {
             this.inputControl.setValue('', { emitEvent: false });
             this.isExpanded = false;
             this.inputElement.nativeElement.blur();
+            this.cdr.detectChanges();
         }, 120);
 
     }
