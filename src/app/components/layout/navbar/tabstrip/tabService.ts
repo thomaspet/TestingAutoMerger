@@ -1,6 +1,6 @@
 import {Injectable, EventEmitter, TRANSLATIONS} from '@angular/core';
 import {IUniTab} from './tabStrip';
-import {Router} from '@angular/router';
+import {Router, NavigationEnd} from '@angular/router';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 
 // The enum is numbered based on its parent app:
@@ -90,7 +90,7 @@ export class TabService {
     public activeTab$: BehaviorSubject<IUniTab> = new BehaviorSubject(null);
 
     constructor(private router: Router) {
-        this.tabs = this.getMemStore() || this.getDefaultTabs();
+        this.tabs = this.getMemStore() || [];
 
         this.tabs.forEach((tab, i) => {
             if (tab.active) {
@@ -98,6 +98,12 @@ export class TabService {
                 this.currentActiveIndex = i;
             }
         });
+
+        this.router.events
+            .filter(event => event instanceof NavigationEnd)
+            .subscribe((navigationEvent: NavigationEnd) => {
+                this.onNavigateComplete(navigationEvent);
+            });
 
         this.tabs$.next(this.tabs);
         this.activeTab$.next(this.currentActiveTab);
@@ -153,15 +159,42 @@ export class TabService {
 
 
     public activateTab(index: number): void {
-        this.tabs.map(tab => tab.active = false);
-        this.tabs[index].active = true;
-        this.currentActiveIndex = index;
-        this.currentActiveTab = this.tabs[index];
+        // Only navigate for now. Setting tab as active is done in onNavigateComplete
+        // because we dont want it to happen if a router guard stops the navigation
+        this.router.navigateByUrl(this.tabs[index].url);
+    }
+
+    public onNavigateComplete(event: NavigationEnd) {
+        // Home tab is static (in tabstrip.ts template) and not in this.tabs
+        // Deactivate current tab and don't activate anything else
+        if (event.url === '/') {
+            this.tabs.map(tab => tab.active = false);
+            this.currentActiveIndex = undefined;
+            this.currentActiveTab = undefined;
+        } else {
+            // If we're not going home, find the correct tab and activate it
+            let index = this.tabs.findIndex(tab => tab.url === event.url);
+            if (index >= 0) {
+                this.tabs.map(tab => tab.active = false);
+                this.tabs[index].active = true;
+                this.currentActiveIndex = index;
+                this.currentActiveTab = this.tabs[index];
+            }
+        }
+
+        this.updateMemStore();
+        this.tabs$.next(this.tabs);
+        this.activeTab$.next(this.currentActiveTab);
+    }
+
+    public deactivateCurrentTab() {
+        this.tabs[this.currentActiveIndex].active = false;
+        this.currentActiveIndex = undefined;
+        this.currentActiveTab = undefined;
         this.updateMemStore();
 
         this.tabs$.next(this.tabs);
         this.activeTab$.next(this.currentActiveTab);
-        this.router.navigateByUrl(this.tabs[index].url);
     }
 
     public activateNextTab() {
@@ -188,19 +221,13 @@ export class TabService {
         this.updateMemStore();
     }
 
-    private getDefaultTabs(): IUniTab[] {
-        return [{
-            url: '/',
-            name: 'Hjem',
-            moduleID: UniModules.Dashboard,
-            active: true
-        }];
-    }
-
     private getMemStore(): IUniTab[] {
         let tabs: IUniTab[] = JSON.parse(localStorage.getItem(this.storageKey));
 
-        if (tabs && tabs.length && tabs[0].moduleID !== UniModules.Dashboard) {
+        // TODO: this can be removed after some time (added 04.09.17)
+        // It's only here to remove old tab store entries that includes Dashboard
+        // Because they would cause duplicate home tabs (no biggie, but looks weird)
+        if (tabs && tabs.length && tabs[0].moduleID === UniModules.Dashboard) {
             this.clearMemStore();
             return undefined;
         }

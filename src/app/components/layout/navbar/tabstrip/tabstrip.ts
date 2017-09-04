@@ -1,5 +1,5 @@
 import {Component, ChangeDetectorRef, ChangeDetectionStrategy} from '@angular/core';
-import {Router} from '@angular/router';
+import {Router, NavigationEnd} from '@angular/router';
 import {TabService, UniModules} from './tabService';
 import {AuthService} from '../../../../../framework/core/authService';
 import {Subscription} from 'rxjs/Subscription';
@@ -15,14 +15,12 @@ export interface IUniTab {
     selector: 'uni-tabstrip',
     template: `
         <ol class="navbar_tabs">
+            <li class="home-tab" title="Hjem"
+                (click)="activateHomeTab()"
+                [ngClass]="{'router-tab-active': homeTabActive}">
+            </li>
             <ng-template ngFor let-tab let-idx="index" [ngForOf]="tabs">
-                <li *ngIf="isHomeTab(tab)" class="home-tab"
-                    (click)="activateTab(idx)"
-                    [ngClass]="{'router-tab-active': tab.active}"
-                    [title]="tab.name">
-                </li>
-
-                <li *ngIf="!isHomeTab(tab)"
+                <li
                     (click)="activateTab(idx)"
                     (mousedown)="possiblyCloseTab(idx, $event)"
                     [ngClass]="{'router-tab-active': tab.active}"
@@ -38,6 +36,7 @@ export interface IUniTab {
 export class UniTabStrip {
     private tabs: IUniTab[] = [];
     private tabSubscription: Subscription;
+    private homeTabActive: boolean;
 
     constructor(
         private router: Router,
@@ -58,6 +57,14 @@ export class UniTabStrip {
         this.authService.companyChange.subscribe((change) => {
             this.tabService.removeAllTabs();
         });
+
+        this.router.events
+            .filter(event => event instanceof NavigationEnd)
+            .subscribe((navigationEvent: NavigationEnd) => {
+                this.homeTabActive = navigationEvent.url === '/';
+                this.cdr.detectChanges();
+            });
+
     }
 
     public ngAfterViewInit() {
@@ -75,9 +82,7 @@ export class UniTabStrip {
         // check for middle mouse button
         if (event.button === 1) {
             event.preventDefault();
-            if (!this.isHomeTab(this.tabs[index])) {
-                this.tabService.closeTab(index);
-            }
+            this.tabService.closeTab(index);
         }
     }
 
@@ -85,12 +90,11 @@ export class UniTabStrip {
         this.tabService.activateTab(index);
     }
 
-    public isHomeTab(tab: IUniTab): boolean {
-        return tab.moduleID === UniModules.Dashboard;
+    public activateHomeTab() {
+        this.router.navigateByUrl('/');
     }
 
     public closeTab(index: number): void {
         this.tabService.closeTab(index);
     }
-
 }
