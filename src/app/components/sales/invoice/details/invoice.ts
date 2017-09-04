@@ -411,9 +411,6 @@ export class InvoiceDetails {
                     if (result === ConfirmActions.ACCEPT) {
                         this.saveInvoice();
                     }
-                    if (result !== ConfirmActions.CANCEL) {
-                        this.updateTabTitle();
-                    }
 
                     return result !== ConfirmActions.CANCEL;
                 });

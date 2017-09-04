@@ -136,20 +136,7 @@ export class UniRoles {
             return true;
         }
 
-        return this.modalService.deprecated_openUnsavedChangesModal()
-            .onClose
-            .map((canDeactivate) => {
-                if (!canDeactivate) {
-                    this.tabService.addTab({
-                        name: 'Roller',
-                        url: '/admin/roles',
-                        moduleID: UniModules.Roles,
-                        active: true
-                    });
-                }
-
-                return canDeactivate;
-            });
+        return this.modalService.deprecated_openUnsavedChangesModal().onClose;
     }
 
 

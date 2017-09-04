@@ -97,20 +97,7 @@ export class UniModels {
             return true;
         }
 
-        return this.modalService.deprecated_openUnsavedChangesModal()
-            .onClose
-            .map((canDeactivate) => {
-                if (!canDeactivate) {
-                    this.tabService.addTab({
-                        name: 'Modeller',
-                        url: '/admin/models',
-                        moduleID: UniModules.Models,
-                        active: true
-                    });
-                }
-
-                return canDeactivate;
-            });
+        return this.modalService.deprecated_openUnsavedChangesModal().onClose;
     }
 
 

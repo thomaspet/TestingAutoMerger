@@ -104,7 +104,6 @@ export class HamburgerMenu {
 
     private getAllowedRoutes(user): any[] {
         let routeSections = HamburgerMenu.getAvailableComponents();
-        const before = performance.now();
 
         routeSections.forEach(section => {
             section.componentList = section.componentList.filter(item => {
@@ -113,10 +112,6 @@ export class HamburgerMenu {
         });
 
         routeSections = routeSections.filter(section => section.componentList.length > 0);
-
-        const after = performance.now();
-        console.log((after - before) + 'ms (filtering hamburger)');
-
         return routeSections;
     }
 

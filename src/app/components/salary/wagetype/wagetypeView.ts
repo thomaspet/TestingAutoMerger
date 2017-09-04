@@ -121,9 +121,9 @@ export class WageTypeView extends UniView {
                             }
                         }))
             .map(canDeactivate => {
-                canDeactivate
-                    ? this.cacheService.clearPageCache(this.cacheKey)
-                    : this.updateTabStrip(this.wagetypeID, this.wageType);
+                if (canDeactivate) {
+                    this.cacheService.clearPageCache(this.cacheKey);
+                }
 
                 return canDeactivate;
             });

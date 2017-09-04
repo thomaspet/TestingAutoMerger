@@ -147,8 +147,6 @@ export class SalarybalanceView extends UniView implements OnDestroy {
             .map(canDeactivate => {
                 if (canDeactivate) {
                     this.cacheService.clearPageCache(this.cacheKey);
-                } else {
-                    this.updateTabStrip(this.salarybalanceID);
                 }
 
                 return canDeactivate;

@@ -488,8 +488,6 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
             .map(canDeactivate => {
                 if (canDeactivate) {
                     this.cacheService.clearPageCache(this.cacheKey);
-                } else {
-                    this.updateTabStrip(this.payrollrunID);
                 }
 
                 return canDeactivate;

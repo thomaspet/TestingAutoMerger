@@ -1707,7 +1707,6 @@ export class BillView {
                     resolve(true);
                 } else {
                     resolve(false);
-                    this.updateTabInfo();
                 }
             });
         });

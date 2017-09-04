@@ -292,9 +292,6 @@ export class QuoteDetails {
                     if (result === ConfirmActions.ACCEPT) {
                         this.saveQuote();
                     }
-                    if (result !== ConfirmActions.CANCEL) {
-                        this.setTabTitle();
-                    }
 
                     return result !== ConfirmActions.CANCEL;
                 });

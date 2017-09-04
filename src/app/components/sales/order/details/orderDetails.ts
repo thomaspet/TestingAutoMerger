@@ -328,9 +328,6 @@ export class OrderDetails {
                     if (result === ConfirmActions.ACCEPT) {
                         this.saveOrder();
                     }
-                    if (result !== ConfirmActions.CANCEL) {
-                        this.setTabTitle();
-                    }
 
                     return result !== ConfirmActions.CANCEL;
                 });

@@ -53,11 +53,17 @@ export class SalaryTransactionSupplementList implements OnInit {
         private modalService: UniModalService
     ) {
         this.tableConfig$ = new ReplaySubject<UniTableConfig>(1);
+
+        this.tabService.addTab({
+            moduleID: UniModules.Supplements,
+            name: 'Tilleggsopplysninger',
+            url: 'salary/supplements'
+        });
+
         this.route.params.subscribe(params => {
             let payrollRunID = +params['runID'] || undefined;
-            this.updateTabStrip();
             this.yearService.selectedYear$.subscribe( year => {
-                if((!this.model$ || !payrollRunID)){
+                if ((!this.model$ || !payrollRunID)){
                     this.model$ = this.getModel(payrollRunID, year);
                 }
             });
@@ -117,13 +123,6 @@ export class SalaryTransactionSupplementList implements OnInit {
                 }
 
                 return result !== ConfirmActions.CANCEL;
-            })
-            .map(canDeactivate => {
-                if (!canDeactivate) {
-                    this.updateTabStrip();
-                }
-
-                return canDeactivate;
             });
     }
 
@@ -201,14 +200,6 @@ export class SalaryTransactionSupplementList implements OnInit {
                                 return trans;
                             }), empIDs];
                 }));
-    }
-
-    private updateTabStrip() {
-        this.tabService.addTab({
-            moduleID: UniModules.Supplements,
-            name: 'Tilleggsopplysninger',
-            url: 'salary/supplements'
-        });
     }
 
     private save(done: (message: string) => void) {
