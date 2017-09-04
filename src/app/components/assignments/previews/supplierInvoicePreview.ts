@@ -17,7 +17,6 @@ export class SupplierInvoicePreview {
     public invoice: SupplierInvoice;
     public settingsCurrency: string;
     public showCurrency: boolean;
-    public entityID: number;
     public invoiceInfoShow: boolean;
     public mva: number;
 
@@ -48,7 +47,6 @@ export class SupplierInvoicePreview {
                 .subscribe(
                     res => {
                         this.invoice = res;
-                        this.entityID = res._task.EntityID;
 
                         let draftLines = res.JournalEntry && res.JournalEntry.DraftLines;
                         if (draftLines && draftLines.length) {

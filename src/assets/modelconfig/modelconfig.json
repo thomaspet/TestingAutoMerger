@@ -232,24 +232,24 @@
             "Url": "/sales/customer/:ID"
         },
         {
+            "Name": "Product",
+            "Translated": "Produkt",
+            "Url": "/sales/products/:ID"
+        },
+        {
             "Name": "Contact",
             "Translated": "Kontakt",
             "Url": "/contacts/:ID"
         },
         {
-            "Name": "Product",
-            "Translated": "Produkt",
-            "Url": "/products/:ID"
-        },
-        {
             "Name": "Supplier",
             "Translated": "Leverandør",
-            "Url": "/suppliers/:ID"
+            "Url": "/accounting/suppliers/:ID"
         },
         {
             "Name": "SupplierInvoice",
             "Translated": "Fakturamottak",
-            "Url": "/accounting/bill/:ID"
+            "Url": "/accounting/bills/:ID"
         },
         {
             "Name": "JournalEntry",

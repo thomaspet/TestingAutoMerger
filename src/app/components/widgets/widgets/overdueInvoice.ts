@@ -30,6 +30,10 @@ export class UniOverdueInvoiceWidget {
     public ngAfterViewInit() {
         this.widgetDataService.getData("/api/statistics?skip=0&top=50&model=CustomerInvoice&select=sum(CustomerInvoice.RestAmount) as sum&filter=(CustomerInvoice.PaymentDueDate le 'getdate()' )")
             .subscribe((res) => {
+                if (!res || !res.Data) {
+                    return;
+                }
+
                 this.positive = res.Data[0].sum <= 0;
 
                 // "Animate" counting of the numbers

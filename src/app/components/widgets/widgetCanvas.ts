@@ -14,6 +14,7 @@ import {UniWidget, IUniWidget} from './uniWidget';
 import {CanvasHelper} from './canvasHelper';
 import {ToastService, ToastType} from '../../../framework/uniToast/toastService';
 import {WIDGET_CONFIGS} from './configs/presetConfigs';
+import {UserService} from '../../services/services';
 import {AuthService} from '../../../framework/core/authService';
 
 import * as $ from 'jquery';
@@ -83,6 +84,7 @@ export class UniWidgetCanvas {
         this.widgetMargin = 10;
 
         this.authService.companyChange.subscribe(change => {
+
             this.refreshWidgets();
         });
 
@@ -277,7 +279,7 @@ export class UniWidgetCanvas {
 
         this.canvasHelper.releaseGridSpace(widget);
 
-        this.mouseMove
+        (this.mouseMove as Observable<any>)
             .throttleTime(5)
             .takeUntil(Observable.fromEvent(document, 'mouseup').take(1))
             .finally(() => this.stopDrag(widget))
@@ -288,7 +290,7 @@ export class UniWidgetCanvas {
                 this.drawAnchorCell.next(widget);
             });
 
-        this.drawAnchorCell
+        (this.drawAnchorCell as Observable<any>)
             .throttleTime(50)
             .subscribe((w: IUniWidget) => {
                 const gridIndex = this.canvasHelper.getClosestGridIndex(

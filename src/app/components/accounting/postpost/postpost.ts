@@ -402,7 +402,7 @@ export class PostPost {
                     case 'customer':
                         return `<a href='/#/sales/customer/${account.ID}'>${account.AccountNumber}</a>`;
                     case 'supplier':
-                        return `<a href='/#/suppliers/${account.ID}'>${account.AccountNumber}</a>`;
+                        return `<a href='/#/accounting/suppliers/${account.ID}'>${account.AccountNumber}</a>`;
                 }
                 return account.AccountNumber;
             });

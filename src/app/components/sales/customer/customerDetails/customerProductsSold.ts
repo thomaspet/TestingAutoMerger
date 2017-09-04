@@ -82,7 +82,7 @@ export class CustomerProductsSold {
             .setWidth('15%')
             .setFilterOperator('contains')
             .setTemplate((product) => {
-                return `<a href='/#/products/${product.ProductID}'>${product.ProductPartName}</a>`;
+                return `<a href='/#/sales/products/${product.ProductID}'>${product.ProductPartName}</a>`;
             });
         let nameCol = new UniTableColumn('ProductName', 'Navn',  UniTableColumnType.Text)
             .setFilterOperator('contains');

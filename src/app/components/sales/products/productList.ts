@@ -1,11 +1,11 @@
 import {Component} from '@angular/core';
-import {URLSearchParams} from '@angular/http';
-import {UniTableColumn, UniTableColumnType, UniTableConfig} from '../../../../../framework/ui/unitable/index';
 import {Router} from '@angular/router';
-import {UniHttp} from '../../../../../framework/core/http/http';
-import {ProductService, ErrorService} from '../../../../services/services';
-import {Product} from '../../../../unientities';
-import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
+import {URLSearchParams} from '@angular/http';
+import {UniTableColumn, UniTableColumnType, UniTableConfig} from '../../../../framework/ui/unitable/index';
+import {UniHttp} from '../../../../framework/core/http/http';
+import {ProductService, ErrorService} from '../../../services/services';
+import {Product} from '../../../unientities';
+import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 
 @Component({
     selector: 'product-list',
@@ -23,15 +23,20 @@ export class ProductList {
         private errorService: ErrorService
     ) {
         this.setupProductTable();
-        this.tabService.addTab({ name: "Produkter", url: "/products", active: true, moduleID: UniModules.Products });
+        this.tabService.addTab({
+            name: 'Produkter',
+            url: '/sales/products',
+            active: true,
+            moduleID: UniModules.Products
+        });
     }
 
     private createProduct() {
-        this.router.navigateByUrl('/products/0');
+        this.router.navigateByUrl('/sales/products/0');
     }
 
     private onRowSelected (event) {
-        this.router.navigateByUrl('/products/' + event.rowModel.ID);
+        this.router.navigateByUrl('/sales/products/' + event.rowModel.ID);
     };
 
     private setupProductTable() {

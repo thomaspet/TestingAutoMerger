@@ -63,6 +63,19 @@ export class UniSales {
                 y: 0,
                 widgetType: 'shortcut',
                 config: {
+                    label: 'Produkter',
+                    description: 'Produktoversikt',
+                    icon: '',
+                    link: '/sales/products'
+                }
+            },
+            {
+                width: 1,
+                height: 1,
+                x: 2,
+                y: 0,
+                widgetType: 'shortcut',
+                config: {
                     label: 'Tilbud',
                     description: 'Tilbudsoversikt',
                     icon: '',
@@ -72,7 +85,7 @@ export class UniSales {
             {
                 width: 1,
                 height: 1,
-                x: 2,
+                x: 3,
                 y: 0,
                 widgetType: 'shortcut',
                 config: {
@@ -85,7 +98,7 @@ export class UniSales {
             {
                 width: 1,
                 height: 1,
-                x: 3,
+                x: 4,
                 y: 0,
                 widgetType: 'shortcut',
                 config: {
@@ -99,21 +112,21 @@ export class UniSales {
             {
                 width: 1,
                 height: 1,
-                x: 4,
+                x: 5,
                 y: 0,
                 widgetType: 'shortcut',
                 config: {
                     label: 'Prosjekt',
                     description: 'Prosjektmodul',
                     icon: '',
-                    link: '/sales/project/overview'
+                    link: '/dimensions/projects/overview'
                 }
             },
 
             {
                 width: 1,
                 height: 1,
-                x: 5,
+                x: 6,
                 y: 0,
                 widgetType: 'shortcut',
                 config: {
@@ -127,7 +140,7 @@ export class UniSales {
             {
                 width: 2,
                 height: 1,
-                x: 6,
+                x: 7,
                 y: 0,
                 widgetType: 'overdue',
                 config: {}

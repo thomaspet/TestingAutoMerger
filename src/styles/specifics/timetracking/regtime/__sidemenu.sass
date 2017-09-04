@@ -1,4 +1,4 @@
-﻿.sidemenu_timetracking_component
+﻿#sidemenu_timetracking_component
     width: 335px
     float: left
     height: calc(100vh - 160px)
@@ -7,6 +7,7 @@
 .sidemenu_container
     background-color: $uni-color-scale9
     min-height: 100%
+    overflow-x: scroll
 
 .sidemenu_calender_container
     width: 80%
@@ -15,6 +16,7 @@
     margin: 0 auto
     .sidemenu_calender
         display: block
+        z-index: 1
         position: relative
         box-shadow: none
         background-color: $uni-color-scale9
@@ -134,6 +136,63 @@
         padding: 0
         float: right
         margin: 15px 7px
+
+.sidemenu_minified_calender_icon
+    @extend %hideText
+    display: inline-block
+    height: 2rem
+    width: 2rem
+    margin: 70px 0 0 0
+    background-size: contain
+    background-position: center center
+    background-repeat: no-repeat
+    position: relative
+    top: .2rem
+    left: calc(40px - 1rem)
+    border-bottom-color: transparent
+    background-image: unicon-calendar(#628cb2)
+    cursor: pointer
+
+.sidemenu_minified_template_icon
+    @extend %hideText
+    display: inline-block
+    height: 2rem
+    width: 2rem
+    background-size: contain
+    background-position: center center
+    background-repeat: no-repeat
+    position: relative
+    top: .2rem
+    left: calc(40px - 1rem)
+    border-bottom-color: transparent
+    background-image: unicon-edit(#628cb2)
+    cursor: pointer
+
+.sidemenu_minified_to_from
+    font-size: 0.7rem
+    text-align: center
+    cursor: pointer
+
+.sidemenu_hide_button
+    background-color: transparent
+    color: $uni-color-c2a
+    position: absolute
+    top: 50vh
+    left: 280px
+    @extend %hideText
+    display: inline-block
+    height: 1rem
+    width: 1rem
+    background-size: contain
+    background-position: center center
+    background-repeat: no-repeat
+    border-bottom-color: transparent
+    background-image: unicon-prev(#628cb2)
+    cursor: pointer
+    transition: linear .3s
+
+    &:hover, &:focus
+        background-color: transparent
 
 .uni_template_modal_content
     footer

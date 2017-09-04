@@ -4,13 +4,13 @@ import {Router} from '@angular/router';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 
 // The enum is numbered based on its parent app:
-//      1×× - Core
+//      1×× - Key figures
 //      2×× - Sales
 //      3×× - Accounting
 //      4×× - Bank
 //      5×× - Salary
 //      6×× - Timetracking
-//      7×× - Dimensions
+//      7×× - Settings
 //      9×× - Discontinued
 export enum UniModules {
     Dashboard       = 100,
@@ -29,8 +29,8 @@ export enum UniModules {
     Reminders       = 206,
     Contacts        = 207,
     ProductGroup    = 208,
-    Projects        = 209,
-    Sellers         = 210,
+    Sellers         = 209,
+    Projects        = 210,
 
     Accounting      = 300,
     Transquery      = 301,
@@ -45,6 +45,9 @@ export enum UniModules {
     PredefinedDescription = 310,
     PostPost        = 311,
     Bills           = 312,
+    Departments     = 313,
+    CurrencyExchange = 314,
+    CurrencyOverride = 315,
 
     Bank            = 450,
     Payment         = 451,
@@ -65,21 +68,14 @@ export enum UniModules {
     WorkTypes       = 602,
     Timesheets      = 603,
 
-    Dimensions      = 700,
-    //Projects        = 701,
-    Departments     = 702,
-
-    CurrencyExchange = 800,
-    CurrencyOverride = 801,
-
-    Jobs            = 900,
-    Translations    = 901,
-    Models          = 902,
-    Roles           = 903,
-	Thresholds		= 904,
-
-    About           = 1000,
-    Versions        = 1001
+    Jobs            = 700,
+    Translations    = 701,
+    Models          = 702,
+    Roles           = 703,
+    Thresholds      = 704,
+    Dimensions      = 705,
+    About           = 706,
+    Versions        = 707
 }
 
 @Injectable()

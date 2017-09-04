@@ -25,13 +25,7 @@ import {OrderToInvoiceModalType} from './order/modals/ordertoinvoice';
 import {OrderToInvoiceModal} from './order/modals/ordertoinvoice';
 import {QuoteDetails} from './quote/details/quoteDetails';
 import {QuoteList} from './quote/list/quoteList';
-import {Project} from './project/project';
-import {ProjectOverview} from './project/overview/overview';
-import {ProjectTasks} from './project/tasks/tasks';
-import {ProjectEditmode} from './project/editmode/editmode';
-import {ProjectDocument} from './project/document/document';
-import {ProjectQueryList} from './project/lists/querylist';
-import {ProjectHours} from './project/hours/hours';
+
 import {UniSales} from './sales';
 import {InvoiceDetails} from './invoice/details/invoice';
 import {InvoiceReminders} from './invoice/reminders/reminders';
@@ -53,6 +47,11 @@ import {ProductGroups} from './productgroup/productgroups';
 import {TreeModule} from 'angular-tree-component';
 import {GroupDetails} from './productgroup/groupDetails/groupDetails';
 import {ProductsInGroup} from './productgroup/productsInGroup/productsInGroup';
+import {ProductDetails} from './products/productDetails';
+import {ProductList} from './products/productList';
+import {SellerList} from './sellers/sellerList';
+import {SellerLinks} from './sellers/sellerLinks';
+import {SellerDetails} from './sellers/sellerDetails';
 
 @NgModule({
     imports: [
@@ -99,14 +98,6 @@ import {ProductsInGroup} from './productgroup/productsInGroup/productsInGroup';
         QuoteDetails,
         QuoteList,
 
-        Project,
-        ProjectOverview,
-        ProjectTasks,
-        ProjectEditmode,
-        ProjectDocument,
-        ProjectQueryList,
-        ProjectHours,
-
         Reminder,
         ReminderList,
         ReminderConfirmModal,
@@ -118,7 +109,14 @@ import {ProductsInGroup} from './productgroup/productsInGroup/productsInGroup';
 
         ProductGroups,
         ProductsInGroup,
-        GroupDetails
+        GroupDetails,
+
+        ProductDetails,
+        ProductList,
+
+        SellerList,
+        SellerLinks,
+        SellerDetails,
     ],
     entryComponents: [
         OrderToInvoiceModalType,
@@ -150,13 +148,6 @@ import {ProductsInGroup} from './productgroup/productsInGroup/productsInGroup';
         OrderToInvoiceModal,
         QuoteDetails,
         QuoteList,
-        Project,
-        ProjectOverview,
-        ProjectTasks,
-        ProjectEditmode,
-        ProjectDocument,
-        ProjectQueryList,
-        ProjectHours,
         Reminder,
         ReminderList,
         ReminderSending,
@@ -164,7 +155,14 @@ import {ProductsInGroup} from './productgroup/productsInGroup/productsInGroup';
         InvoiceReminders,
         ProductGroups,
         ProductsInGroup,
-        GroupDetails
+        GroupDetails,
+
+        ProductDetails,
+        ProductList,
+
+        SellerList,
+        SellerLinks,
+        SellerDetails,
     ]
 })
 export class SalesModule {

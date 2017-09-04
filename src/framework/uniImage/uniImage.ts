@@ -352,6 +352,10 @@ export class UniImage {
 
     private loadImage() {
         const file = this.files[this.currentFileIndex];
+        if (!file) {
+            return;
+        }
+
         this.fileInfo = file.Name;
         if (file.Pages > 1) {
             this.fileInfo += ` (${this.currentPage}/${file.Pages})`;
@@ -448,6 +452,8 @@ export class UniImage {
                         this.fileListReady.emit(this.files);
                         this.currentFileIndex = this.files.length - 1;
                         this.loadImage();
+
+
                         if (!this.singleImage) {
                             this.loadThumbnails();
                         }

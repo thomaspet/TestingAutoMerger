@@ -12,6 +12,9 @@ import {AccountDetailsReport} from './accountingreports/detailsmodal/accountDeta
 import {BillsView} from './bill/bills';
 import {BillView} from './bill/detail/bill';
 
+import {SupplierDetails} from './supplier/details/supplierDetails';
+import {SupplierList} from './supplier/list/supplierList';
+
 import {PostPost} from './postpost/postpost';
 
 import {routes as JournalEntryRoutes} from './journalentry/journalentryRoutes';
@@ -59,6 +62,15 @@ export const accountingRoutes: Routes = [
     {
         path: 'bills/:id',
         component: BillView,
+        canDeactivate: [CanDeactivateGuard]
+    },
+    {
+        path: 'suppliers',
+        component: SupplierList
+    },
+    {
+        path: 'suppliers/:id',
+        component: SupplierDetails,
         canDeactivate: [CanDeactivateGuard]
     },
     {

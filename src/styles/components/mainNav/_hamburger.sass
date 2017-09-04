@@ -1,4 +1,5 @@
 ﻿$burgerSectionWidth: 12rem
+$burgerHeight: 40rem
 
 %burgerbuns
     color: $uni-color-scale2
@@ -6,7 +7,7 @@
     box-shadow: 0 0 .6rem transparentize($uni-color-scale1, .7)
     cursor: default
     background: #fff
-    height: 23rem
+    height: $burgerHeight
     list-style: none
     display: none
     z-index: map-get($zindex, hamburger)
@@ -64,7 +65,7 @@
     padding-right: 15rem
     background-position: top right
     background-repeat: no-repeat
-    background-size: contain
+    background-size: cover
 
     h3
         color: $navbarBackground

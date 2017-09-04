@@ -17,11 +17,15 @@ import {OrderDetails} from './order/details/orderDetails';
 
 import {Reminder} from './reminder/reminder';
 import {routes as ReminderRoutes} from './reminder/reminderRoutes';
-import {Project} from './project/project';
-import {routes as ProjectRoutes} from './project/projectRoutes';
-import {routes as ProductGroupRoutes} from './productgroup/productGroupRoutes';
+
+import {ProductList} from './products/productList';
+import {ProductDetails} from './products/productDetails';
+
+import {SellerList} from './sellers/sellerList';
+import {SellerDetails} from './sellers/sellerDetails';
 
 import {ProductGroups} from './productgroup/productgroups';
+import {routes as ProductGroupRoutes} from './productgroup/productGroupRoutes';
 
 export const salesRoutes: Routes = [
     {
@@ -67,14 +71,18 @@ export const salesRoutes: Routes = [
         canDeactivate: [CanDeactivateGuard]
     },
     {
-        path: 'project',
-        component: Project,
-        children: ProjectRoutes
-    },
-    {
         path: 'reminders',
         component: Reminder,
         children: ReminderRoutes
+    },
+    {
+        path: 'products',
+        component: ProductList
+    },
+
+    {
+        path: 'products/:id',
+        component: ProductDetails
     },
     {
         path: 'productgroups',
@@ -85,6 +93,15 @@ export const salesRoutes: Routes = [
     {
         path: 'productgroups/:id',
         component: ProductGroups,
+        canDeactivate: [CanDeactivateGuard]
+    },
+    {
+        path: 'sellers',
+        component: SellerList,
+    },
+    {
+        path: 'sellers/:id',
+        component: SellerDetails,
         canDeactivate: [CanDeactivateGuard]
     }
 ];

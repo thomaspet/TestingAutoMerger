@@ -26,24 +26,30 @@ export class SellerList {
     private sellerTableConfig: UniTableConfig;
     private lookupFunction: (urlParams: URLSearchParams) => any;
 
-    constructor(private router: Router,
-                private errorService: ErrorService,
-                private toastService: ToastService,
-                private tabService: TabService,
-                private projectService: ProjectService,
-                private departmentService: DepartmentService,
-                private sellerService: SellerService,
-                private userService: UserService) {
+    constructor(
+        private router: Router,
+        private errorService: ErrorService,
+        private toastService: ToastService,
+        private tabService: TabService,
+        private projectService: ProjectService,
+        private departmentService: DepartmentService,
+        private sellerService: SellerService,
+        private userService: UserService
+    ) {
         this.setupTable();
-        this.tabService.addTab({ name: "Selgere", url: "/sellers", active: true, moduleID: UniModules.Sellers });
+        this.tabService.addTab({
+            name: 'Selgere',
+            url: '/sales/sellers',
+            active: true, moduleID: UniModules.Sellers
+        });
     }
 
     private createSeller() {
-        this.router.navigateByUrl('/sellers/0');
+        this.router.navigateByUrl('/sales/sellers/0');
     }
 
     private onRowSelected(event) {
-        this.router.navigateByUrl('/sellers/' + event.rowModel.ID);
+        this.router.navigateByUrl('/sales/sellers/' + event.rowModel.ID);
     }
 
     private setupTable() {

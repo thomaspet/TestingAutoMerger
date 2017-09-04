@@ -28,9 +28,9 @@ import {AppCommonModule} from './components/common/appCommonModule';
 import {DashboardModule} from './components/dashboard/dashboardModule';
 import {ReportsModule} from './components/reports/reportsModule';
 import {InitModule} from './components/init/initModule';
-import {BankModule} from './components/bank/bankModule';
 import {AdminModule} from './components/admin/adminModule';
 import {CurrencyModule} from './components/currency/currencyModule';
+import {DimensionsModule} from './components/dimensions/dimensionsModule';
 import {UniTickerModule} from './components/uniticker/uniTickerModule';
 import {TranslationsModule} from './components/translations/module';
 import {WidgetModule} from './components/widgets/widgetModule';
@@ -48,6 +48,7 @@ import {AdminServicesModule} from './services/adminServicesModule';
 import {AssignmentServicesModule} from './services/assignmentServicesModule';
 
 import {CanDeactivateGuard} from './canDeactivateGuard';
+import {CanActivateGuard} from './canActivateGuard';
 import {AboutModule} from './components/about/aboutModule';
 
 // Set moment locale
@@ -88,6 +89,7 @@ if (window.ENV === 'production') {
         InitModule,
         AdminModule,
         CurrencyModule,
+        DimensionsModule,
         UniTickerModule,
         TranslationsModule,
         DashboardModule,
@@ -102,6 +104,7 @@ if (window.ENV === 'production') {
         AuthService,
         AuthGuard,
         CanDeactivateGuard,
+        CanActivateGuard,
         TabService,
         ToastService,
         COMPILER_PROVIDERS,

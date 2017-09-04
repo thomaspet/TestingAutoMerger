@@ -156,7 +156,7 @@ export class SellerDetails {
                 (newSeller) => {
                     complete('Selger lagret');
                     this.isDirty = false;
-                    this.router.navigateByUrl('/sellers/' + newSeller.ID);
+                    this.router.navigateByUrl('/sales/sellers/' + newSeller.ID);
                 },
                 (err) => {
                     complete('Feil oppstod ved lagring');
@@ -189,7 +189,7 @@ export class SellerDetails {
         this.sellerService.getPreviousID(this.seller$.getValue().ID)
             .subscribe((ID) => {
                 if (ID) {
-                    this.router.navigateByUrl('/sellers/' + ID);
+                    this.router.navigateByUrl('/sales/sellers/' + ID);
                 } else {
                     this.toastService.addToast('Ingen flere selgere før denne!', ToastType.warn, ToastTime.short);
                 }
@@ -200,7 +200,7 @@ export class SellerDetails {
         this.sellerService.getNextID(this.seller$.getValue().ID)
             .subscribe((ID) => {
                 if (ID) {
-                    this.router.navigateByUrl('/sellers/' + ID);
+                    this.router.navigateByUrl('/sales/sellers/' + ID);
                 } else {
                     this.toastService.addToast('Ingen flere selgere etter denne!', ToastType.warn, ToastTime.short);
                 }
@@ -208,7 +208,7 @@ export class SellerDetails {
     }
 
     private addSeller() {
-        this.router.navigateByUrl('/sellers/0');
+        this.router.navigateByUrl('/sales/sellers/0');
     }
 
     private onFormChange(event) {

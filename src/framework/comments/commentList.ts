@@ -34,7 +34,7 @@ export class UniCommentList {
     public ngOnChanges() {
         if (this.comments) {
             this.commentsWithMentions = this.comments.map((comment) => {
-                let words = comment.Text && comment.Text.split(' ');
+                let words = comment.Text ? comment.Text.split(' ') : [];
                 words = words.map((word) => {
                     return word.startsWith('@')
                         ? `<span class="mention">${word}</span>`

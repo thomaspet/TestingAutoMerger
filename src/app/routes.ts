@@ -1,8 +1,9 @@
 import {RouterModule} from '@angular/router';
 import {Dashboard} from './components/dashboard/dashboard';
-import {ProductList} from './components/common/product/list/productList';
-import {ProductDetails} from './components/common/product/details/productDetails';
 import {AuthGuard} from './authGuard';
+
+import {UniDimensions, dimensionsRoutes} from './components/dimensions/dimensionsModule';
+import {CanActivateGuard} from './canActivateGuard';
 
 export const routes = ([
     {
@@ -13,47 +14,52 @@ export const routes = ([
     },
 
     {
-        path: 'products',
-        component: ProductList,
-        canActivate: [AuthGuard]
-    },
-
-    {
-        path: 'products/:id',
-        component: ProductDetails,
-        canActivate: [AuthGuard]
+        path: 'dimensions',
+        component: UniDimensions,
+        canActivate: [AuthGuard],
+        children: [{
+            path: '',
+            canActivateChild: [AuthGuard],
+            children: dimensionsRoutes
+        }],
     },
 
     // Lazy loaded modules
     {
         path: 'accounting',
         loadChildren: './components/accounting/AccountingModule#AccountingModule',
-        canActivate: [AuthGuard]
+        canActivate: [AuthGuard],
+        canActivateChild: [CanActivateGuard]
     },
     {
         path: 'salary',
         loadChildren: './components/salary/salaryModule#SalaryModule',
-        canActivate: [AuthGuard]
+        canActivate: [AuthGuard],
+        canActivateChild: [CanActivateGuard]
     },
     {
         path: 'sales',
         loadChildren: './components/sales/salesModule#SalesModule',
-        canActivate: [AuthGuard]
+        canActivate: [AuthGuard],
+        canActivateChild: [CanActivateGuard]
     },
     {
         path: 'timetracking',
         loadChildren: './components/timetracking/timetrackingModule#TimetrackingModule',
-        canActivate: [AuthGuard]
+        canActivate: [AuthGuard],
+        canActivateChild: [CanActivateGuard]
     },
     {
         path: 'settings',
         loadChildren: './components/settings/settingsModule#SettingsModule',
-        canActivate: [AuthGuard]
+        canActivate: [AuthGuard],
+        canActivateChild: [CanActivateGuard]
     },
     {
         path: 'bank',
         loadChildren: './components/bank/bankModule#BankModule',
-        canActivate: [AuthGuard]
+        canActivate: [AuthGuard],
+        canActivateChild: [CanActivateGuard]
     },
 
 

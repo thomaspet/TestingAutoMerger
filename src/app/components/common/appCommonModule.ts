@@ -5,19 +5,12 @@ import {HttpModule} from '@angular/http';
 import {RouterModule} from '@angular/router';
 import {ContextMenu} from './contextMenu/contextMenu';
 import {ExternalSearch} from './externalSearch/externalSearch';
-import {ProductDetails} from './product/details/productDetails';
-import {ProductList} from './product/list/productList';
 import {UniFrameworkModule} from '../../../framework/frameworkModule';
 import {AltinnAuthenticationModal} from './modals/AltinnAuthenticationModal';
 import {UniBreadcrumbs} from './toolbar/breadcrumbs';
 import {UniStatusTrack} from './toolbar/statustrack';
 import {UniTags} from './toolbar/tags';
 import {UniToolbar} from './toolbar/toolbar';
-import {UniDimensions} from './dimensions/UniDimensions';
-import {ProjectList} from './dimensions/project/list/projectList';
-import {ProjectDetails} from './dimensions/project/details/projectDetails';
-import {DepartmentList} from './dimensions/department/list/departmentList';
-import {DepartmentDetails} from './dimensions/department/details/departmentDetails';
 import {UniQueryReadOnly} from './uniQuery/UniQueryReadOnly';
 import {UniSummary} from './summary/summary';
 import {ImageModal, ImageModalContent} from './modals/ImageModal';
@@ -35,18 +28,12 @@ import {Contacts} from './contact/contacts';
 import {AddPaymentModal, AddPaymentForm} from './modals/addPaymentModal';
 import {ModelTreeView} from './modeltreeview/modeltreeview';
 import {ModelTreeRelationNode} from './modeltreeview/relationNode';
-import {SupplierDetailsModal} from './supplier/details/supplierDetailModal';
-import {SupplierDetails} from './supplier/details/supplierDetails';
-import {SupplierList} from './supplier/list/supplierList';
 import {Editable} from './utils/editable/editable';
 import {IsoTimePipe, HoursPipe} from './utils/pipes';
 import {MinutesToHoursPipe} from './utils/pipes';
 import {WorkTypeSystemTypePipe} from './utils/pipes';
 import {PredefinedDescriptionList} from './predefinedDescriptions/predefinedDescriptionList';
 import {LinkMenu} from './linkMenu/linkMenu';
-import {SellerList} from './seller/sellerList';
-import {SellerLinks} from './seller/sellerLinks';
-import {SellerDetails} from './seller/sellerDetails';
 import {UniInfo} from './uniInfo/uniInfo';
 import {BrowserWarning} from './browserWarning/browserWarning';
 
@@ -63,16 +50,9 @@ import {routes as AppCommonRoutes} from './appCommonRoutes';
         AppCommonRoutes,
     ],
     declarations: [
-        UniDimensions,
-        ProjectList,
-        ProjectDetails,
         PredefinedDescriptionList,
-        DepartmentList,
-        DepartmentDetails,
         ContextMenu,
         ExternalSearch,
-        ProductDetails,
-        ProductList,
         AccrualForm,
         AccrualModal,
         AltinnAuthenticationModal,
@@ -96,11 +76,6 @@ import {routes as AppCommonRoutes} from './appCommonRoutes';
         AddPaymentForm,
         ModelTreeView,
         ModelTreeRelationNode,
-
-        SupplierList,
-        SupplierDetails,
-        SupplierDetailsModal,
-
         LedgerAccountReconciliation,
 
         ReminderSettings,
@@ -117,11 +92,6 @@ import {routes as AppCommonRoutes} from './appCommonRoutes';
         WorkTypeSystemTypePipe,
 
         LinkMenu,
-
-        SellerList,
-        SellerLinks,
-        SellerDetails,
-
         UniInfo,
         BrowserWarning
     ],
@@ -134,16 +104,9 @@ import {routes as AppCommonRoutes} from './appCommonRoutes';
         AddPaymentForm
     ],
     exports: [
-        UniDimensions,
-        ProjectList,
-        ProjectDetails,
         PredefinedDescriptionList,
-        DepartmentList,
-        DepartmentDetails,
         ContextMenu,
         ExternalSearch,
-        ProductDetails,
-        ProductList,
         AccrualForm,
         AccrualModal,
         AltinnAuthenticationModal,
@@ -167,11 +130,6 @@ import {routes as AppCommonRoutes} from './appCommonRoutes';
         AddPaymentForm,
         ModelTreeView,
         ModelTreeRelationNode,
-
-        SupplierList,
-        SupplierDetails,
-        SupplierDetailsModal,
-
         LedgerAccountReconciliation,
 
         ReminderSettings,
@@ -187,10 +145,6 @@ import {routes as AppCommonRoutes} from './appCommonRoutes';
         WorkTypeSystemTypePipe,
 
         LinkMenu,
-
-        SellerList,
-        SellerLinks,
-        SellerDetails,
 
         UniInfo,
         BrowserWarning

@@ -114,7 +114,7 @@ export class UniAccounting {
                     label: 'Leverandører',
                     description: 'Leverandører',
                     icon: '',
-                    link: '/suppliers'
+                    link: '/accounting/suppliers'
                 }
             },
             {
@@ -127,7 +127,7 @@ export class UniAccounting {
                     label: 'Leverandører',
                     description: 'Leverandører',
                     icon: '',
-                    link: '/suppliers'
+                    link: '/accounting/suppliers'
                 }
             },
             {

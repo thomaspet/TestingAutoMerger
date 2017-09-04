@@ -44,6 +44,11 @@ export class Settings {
         }
     ];
 
+    public toolbarconfig: IToolbarConfig = {
+        title: 'Innstillinger',
+        hideBreadcrumbs: true
+    };
+
     constructor(
         private tabService: TabService,
         private companySettingsService: CompanySettingsService,
@@ -69,11 +74,6 @@ export class Settings {
             { name: 'Betalings- og leveringsbetingelser', path: 'terms' }
         ];
     }
-
-    private toolbarconfig: IToolbarConfig = {
-                title: 'Innstillinger'
-    };
-
 
     public ngOnInit() {
         Observable.forkJoin(

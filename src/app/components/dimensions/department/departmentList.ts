@@ -1,9 +1,9 @@
 import {Component} from '@angular/core';
 import {URLSearchParams} from '@angular/http';
 import {Router} from '@angular/router';
-import {UniTableColumn, UniTableColumnType, UniTableConfig} from '../../../../../../framework/ui/unitable/index';
-import {TabService, UniModules} from '../../../../layout/navbar/tabstrip/tabService';
-import {DepartmentService, ErrorService} from '../../../../../services/services';
+import {UniTableColumn, UniTableColumnType, UniTableConfig} from '../../../../framework/ui/unitable/index';
+import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
+import {DepartmentService, ErrorService} from '../../../services/services';
 
 @Component({
     selector: 'department-dimensions-list',
@@ -20,16 +20,22 @@ export class DepartmentList {
         private tabService: TabService,
         private errorService: ErrorService
     ) {
-        this.tabService.addTab({ name: 'Avdelinger', url: '/dimensions/department', active: true, moduleID: UniModules.Departments });
+        this.tabService.addTab({
+            name: 'Avdelinger',
+            url: '/dimensions/departments',
+            active: true,
+            moduleID: UniModules.Departments
+        });
+
         this.setupTable();
     }
 
     public createNew() {
-        this.router.navigateByUrl('/dimensions/department/new');
+        this.router.navigateByUrl('/dimensions/departments/new');
     }
 
     public onRowSelected (event) {
-        this.router.navigateByUrl('/dimensions/department/' + event.rowModel.ID);
+        this.router.navigateByUrl('/dimensions/departments/' + event.rowModel.ID);
     };
 
     private setupTable() {
