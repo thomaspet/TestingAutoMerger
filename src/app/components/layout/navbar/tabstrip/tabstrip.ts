@@ -36,6 +36,7 @@ export interface IUniTab {
 export class UniTabStrip {
     private tabs: IUniTab[] = [];
     private tabSubscription: Subscription;
+    private navigationSubscription: Subscription;
     private homeTabActive: boolean;
 
     constructor(
@@ -58,7 +59,7 @@ export class UniTabStrip {
             this.tabService.removeAllTabs();
         });
 
-        this.router.events
+        this.navigationSubscription = this.router.events
             .filter(event => event instanceof NavigationEnd)
             .subscribe((navigationEvent: NavigationEnd) => {
                 this.homeTabActive = navigationEvent.url === '/';
@@ -76,6 +77,7 @@ export class UniTabStrip {
 
     public ngOnDestroy() {
         this.tabSubscription.unsubscribe();
+        this.navigationSubscription.unsubscribe();
     }
 
     public possiblyCloseTab(index: number, event: MouseEvent) {
