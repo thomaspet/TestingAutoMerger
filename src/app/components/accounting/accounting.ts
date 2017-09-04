@@ -59,6 +59,19 @@ export class UniAccounting {
                 y: 0,
                 widgetType: 'shortcut',
                 config: {
+                    label: 'Åpne poster',
+                    description: 'Åpne poster',
+                    icon: '',
+                    link: '/accounting/postpost'
+                }
+            },
+            {
+                width: 1,
+                height: 1,
+                x: 3,
+                y: 0,
+                widgetType: 'shortcut',
+                config: {
                     label: 'Forespørsel bilag',
                     description: 'Forespørsel bilag',
                     icon: '',
@@ -68,7 +81,7 @@ export class UniAccounting {
             {
                 width: 1,
                 height: 1,
-                x: 3,
+                x: 4,
                 y: 0,
                 widgetType: 'shortcut',
                 config: {
@@ -81,7 +94,7 @@ export class UniAccounting {
             {
                 width: 1,
                 height: 1,
-                x: 4,
+                x: 5,
                 y: 0,
                 widgetType: 'shortcut',
                 config: {
@@ -94,7 +107,7 @@ export class UniAccounting {
             {
                 width: 1,
                 height: 1,
-                x: 5,
+                x: 6,
                 y: 0,
                 widgetType: 'shortcut',
                 config: {
@@ -107,33 +120,33 @@ export class UniAccounting {
             {
                 width: 1,
                 height: 1,
-                x: 6,
-                y: 0,
-                widgetType: 'shortcut',
-                config: {
-                    label: 'Leverandører',
-                    description: 'Leverandører',
-                    icon: '',
-                    link: '/accounting/suppliers'
-                }
-            },
-            {
-                width: 1,
-                height: 1,
-                x: 6,
-                y: 0,
-                widgetType: 'shortcut',
-                config: {
-                    label: 'Leverandører',
-                    description: 'Leverandører',
-                    icon: '',
-                    link: '/accounting/suppliers'
-                }
-            },
-            {
-                width: 1,
-                height: 1,
                 x: 7,
+                y: 0,
+                widgetType: 'shortcut',
+                config: {
+                    label: 'Leverandører',
+                    description: 'Leverandører',
+                    icon: '',
+                    link: '/accounting/suppliers'
+                }
+            },
+            {
+                width: 1,
+                height: 1,
+                x: 8,
+                y: 0,
+                widgetType: 'shortcut',
+                config: {
+                    label: 'Leverandører',
+                    description: 'Leverandører',
+                    icon: '',
+                    link: '/accounting/suppliers'
+                }
+            },
+            {
+                width: 1,
+                height: 1,
+                x: 9,
                 y: 0,
                 widgetType: 'counter', // TODO: enum
                 config: {
@@ -150,7 +163,7 @@ export class UniAccounting {
             {
                 width: 1,
                 height: 1,
-                x: 8,
+                x: 10,
                 y: 0,
                 widgetType: 'counter', // TODO: enum
                 config: {
@@ -167,7 +180,7 @@ export class UniAccounting {
             {
                 width: 1,
                 height: 1,
-                x: 9,
+                x: 11,
                 y: 0,
                 widgetType: 'counter', // TODO: enum
                 config: {
