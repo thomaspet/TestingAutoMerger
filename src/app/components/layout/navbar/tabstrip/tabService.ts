@@ -209,10 +209,23 @@ export class TabService {
         }
     }
 
-    public closeTab(index: number = this.currentActiveIndex): void {
-        this.tabs.splice(index, 1);
-        if (this.tabs.length) {
+    public closeTab(closeIndex: number = this.currentActiveIndex): void {
+        this.tabs.splice(closeIndex, 1);
+
+        // If we removed the last tab go to dashboard
+        if (!this.tabs.length) {
+            this.router.navigateByUrl('/');
+            return;
+        }
+
+        if (closeIndex === this.currentActiveIndex) {
+            // If we removed the current active tab activate another one
             this.activateTab(this.tabs.length - 1);
+        } else {
+            // If not, just update currentActiveIndex
+            this.currentActiveIndex = closeIndex > this.currentActiveIndex
+                ? this.currentActiveIndex
+                : this.currentActiveIndex - 1;
         }
     }
 
