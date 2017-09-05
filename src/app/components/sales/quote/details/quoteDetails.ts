@@ -12,7 +12,9 @@ import {
     LocalDate,
     Project,
     StatusCodeCustomerQuote,
-    Terms
+    Terms,
+    NumberSeriesTask,
+    NumberSeries
 } from '../../../../unientities';
 
 import {
@@ -28,7 +30,10 @@ import {
     ReportDefinitionService,
     ReportService,
     TermsService,
-    UserService
+    UserService,
+    NumberSeriesTypeService,
+    NumberSeriesService,
+    NumberSeriesTaskService
 } from '../../../../services/services';
 
 import {
@@ -95,6 +100,10 @@ export class QuoteDetails {
     private contextMenuItems: IContextMenuItem[] = [];
     public summary: ISummaryConfig[] = [];
 
+    private selectedNumberSeries: NumberSeries;
+    private selectedNumberSeriesTaskID: number;
+    private selectConfig: any;
+
     private customerExpandOptions: string[] = [
         'Info',
         'Info.Addresses',
@@ -144,7 +153,10 @@ export class QuoteDetails {
         private tofHelper: TofHelper,
         private projectService: ProjectService,
         private modalService: UniModalService,
-        private termsService: TermsService
+        private termsService: TermsService,
+        private numberSeriesTypeService: NumberSeriesTypeService,
+        private numberSeriesService: NumberSeriesService,
+        private numberSeriesTaskService: NumberSeriesTaskService
     ) { }
 
     public ngOnInit() {
@@ -170,6 +182,12 @@ export class QuoteDetails {
             settings => this.companySettings = settings,
             err => this.errorService.handle(err)
         );
+
+        this.numberSeriesTaskService
+            .getActiveNumberSeriesTasks('CustomerQuote')
+            .subscribe(series => {
+                series.forEach(x => this.numberSeriesTaskService.translateTask(x));
+            });
 
         // Subscribe to route param changes and update invoice data
         this.route.params.subscribe(params => {

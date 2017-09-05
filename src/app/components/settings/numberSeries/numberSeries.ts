@@ -231,6 +231,10 @@ export class NumberSeries {
                 row.Name = row._DisplayName;
             }
 
+            if (!row.ID && row.FromNumber && (!row.NextNumber || row.NextNumber < row.FromNumber)) {
+                row.NextNumber = row.FromNumber;
+            }
+
             if (row._AsInvoiceNumber.ID && (row.UseNumbersFromNumberSeriesID === null || row.UseNumbersFromNumberSeriesID == 0)) {
                 this.modalService.confirm({
                     header: 'Vennligst bekreft',
@@ -257,13 +261,20 @@ export class NumberSeries {
                 });
 
             } else {
-                row.NumberSeriesType = this.types.find(x => x.Name == (row._Yearly && row._Yearly.ID ? 'JournalEntry number series type yearly' : 'JournalEntry number series type NOT yearly'));
-                row.NumberSeriesTypeID = row.NumberSeriesType ? row.NumberSeriesType.ID : 0;
-                row.UseNumbersFromNumberSeriesID = null;
-
-                if (!row.NumberSeriesType.Yearly) {
-                    row.AccountYear = 0;
+                if (row._Register) {
+                    if (row._Register.EntityType !== 'JournalEntry') {
+                        row.NumberSeriesType = this.types.find(x => x.EntityType === row._Register.EntityType);
+                        row.NumberSeriesTypeID = row.NumberSeriesType ? row.NumberSeriesType.ID : 0;
+                    } else {
+                        row.NumberSeriesType = this.types.find(x => x.Name == (row._Yearly && row._Yearly.ID ? 'JournalEntry number series type yearly' : 'JournalEntry number series type NOT yearly'));
+                        row.NumberSeriesTypeID = row.NumberSeriesType ? row.NumberSeriesType.ID : 0;
+                        if (!row.NumberSeriesType.Yearly) {
+                            row.AccountYear = 0;
+                        }
+                    }
                 }
+
+                row.UseNumbersFromNumberSeriesID = null;
 
                 this.current[index] = row;
                 this.current = _.cloneDeep(this.current);
@@ -327,14 +338,6 @@ export class NumberSeries {
                         displayField: '_DisplayName',
                         resource: this.tasks
                     }),
-                new UniTableColumn('_Register', 'Register', UniTableColumnType.Select)
-                    .setEditable(false)
-                    .setTemplate(row => row._Register.DisplayName)
-                    .setEditorOptions({
-                        hideNotChosenOption: true,
-                        displayField: 'DisplayName',
-                        resource: this.numberSeriesService.registers
-                    }),
                 new UniTableColumn('_AsInvoiceNumber', 'Lik fakturanr.', UniTableColumnType.Select)
                     .setEditable(row => !row.ID && row._rowSelected && row.Name == 'JournalEntry invoice number series type')
                     .setTemplate(row => row.Name == 'JournalEntry invoice number series type' ? row._AsInvoiceNumber.DisplayName : '')
@@ -377,7 +380,7 @@ export class NumberSeries {
                 new UniTableColumn('NextNumber', 'Neste nr', UniTableColumnType.Number)
                     .setEditable(true),
                 new UniTableColumn('NumberSeriesTask', 'Oppgave', UniTableColumnType.Select)
-                    .setEditable(false)
+                    .setEditable(row => !row.ID)
                     .setTemplate(row => row.NumberSeriesTask ? row.NumberSeriesTask._DisplayName : '')
                     .setEditorOptions({
                         hideNotChosenOption: true,
@@ -386,12 +389,12 @@ export class NumberSeries {
                         resource: this.tasks
                     }),
                 new UniTableColumn('_Register', 'Register', UniTableColumnType.Select)
-                    .setEditable(false)
+                    .setEditable(row => !row.ID)
                     .setTemplate(row => row._Register ? row._Register.DisplayName : '')
                     .setEditorOptions({
                         hideNotChosenOption: true,
                         displayField: 'DisplayName',
-                        resource: this.numberSeriesService.registers
+                        resource: this.numberSeriesService.registers.filter(x => x.Sale)
                     })
             ])
             .setChangeCallback(event => this.onRowChanged(event))
@@ -399,7 +402,7 @@ export class NumberSeries {
                 Name: null,
                 FromNumber: null,
                 ToNumber: null,
-                NextNumber: null,
+                NextNumber: 0,
                 NumberSeriesTaskID: 0,
                 NumberSeriesTask: null,
                 _DisplayName: '',
@@ -427,6 +430,14 @@ export class NumberSeries {
                     .setTemplate(row => `${row.ToNumber == MAXNUMBER ? 'max' : row.ToNumber ? row.ToNumber : ''}`),
                 new UniTableColumn('NextNumber', 'Neste nr', UniTableColumnType.Number)
                     .setEditable(true),
+                new UniTableColumn('_Register', 'Register', UniTableColumnType.Select)
+                    .setEditable(row => !row.ID)
+                    .setTemplate(row => row._Register ? row._Register.DisplayName : '')
+                    .setEditorOptions({
+                        hideNotChosenOption: true,
+                        displayField: 'DisplayName',
+                        resource: this.numberSeriesService.registers.filter(x => x.EntityType === 'Customer' || x.EntityType === 'Supplier')
+                    }),
                 new UniTableColumn('CollectionAccount', 'Samlekonto', UniTableColumnType.Number)
                     .setEditable(false)
                     .setTemplate(row => {
@@ -445,9 +456,7 @@ export class NumberSeries {
                 FromNumber: null,
                 ToNumber: null,
                 NextNumber: null,
-                NumberSeriesTaskID: 0,
-                NumberSeriesTask: {},
-                _Register: null,
+                _Register: this.numberSeriesService.registers.find(x => x.EntityType == 'Customer'),
                 _AsInvoiceNumber: this.numberSeriesService.asinvoicenumber[0],
                 _rowSelected: false
             });
@@ -456,7 +465,7 @@ export class NumberSeries {
     private initOtherSeriesTableConfig() {
         this.listTableConfig = new UniTableConfig('settings.numberSeries.othersList', true, true, 15)
             .setSearchable(false)
-            .setAutoAddNewRow(true)
+            .setAutoAddNewRow(false)
             .setColumns([
                 new UniTableColumn('_DisplayName', 'Navn', UniTableColumnType.Text)
                     .setEditable(false)
@@ -561,6 +570,10 @@ export class NumberSeries {
                     x.NumberSeriesTask = this.numberSeriesTaskService.translateTask(x.NumberSeriesTask);
                 }
 
+                if (x.NumberSeriesType && x.NumberSeriesType.EntityType !== 'JournalEntry') {
+                    x._Register = this.numberSeriesService.registers.find(r => r.EntityType === x.NumberSeriesType.EntityType);
+                }
+
                 x._AsInvoiceNumber = this.numberSeriesService.asinvoicenumber[this.asinvoicenumberserie == x.UseNumbersFromNumberSeriesID ? 1 : 0];
 
                 return x;
@@ -628,6 +641,12 @@ export class NumberSeries {
                     break;
                 case 'Project number series':
                     x._Register = this.numberSeriesService.registers.find(x => x.EntityType == 'Project');
+                    break;
+                case 'Customer number series':
+                    x._Register = this.numberSeriesService.registers.find(x => x.EntityType == 'Customer');
+                    break;
+                case 'Supplier number series':
+                    x._Register = this.numberSeriesService.registers.find(x => x.EntityType == 'Supplier');
                     break;
             }
 

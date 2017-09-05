@@ -57,14 +57,16 @@ export class NumberSeriesService extends BizHttp<NumberSeries> {
     ];
 
     public registers: any[] = [
-        {EntityType: 'JournalEntry', DisplayName: 'Bilag'},
-        {EntityType: 'CustomerInvoice', DisplayName: 'Faktura'},
-        {EntityType: 'CustomerOrder', DisplayName: 'Ordre'},
-        {EntityType: 'CustomerQuote', DisplayName: 'Tilbud'},
-        {EntityType: 'Reminder', DisplayName: 'Purring'},
-        {EntityType: 'Project', DisplayName: 'Prosjekt'},
-        {EntityType: 'Department', DisplayName: 'Avdeling'},
-        {EntityType: 'Employee', DisplayName: 'Ansatt'},
+        {EntityType: 'JournalEntry', DisplayName: 'Bilag', Sale: false},
+        {EntityType: 'Customer', DisplayName: 'Kunde', Sale: false},
+        {EntityType: 'Supplier', DisplayName: 'Leverandør', Sale: false},
+        {EntityType: 'CustomerInvoice', DisplayName: 'Faktura', Sale: true},
+        {EntityType: 'CustomerOrder', DisplayName: 'Ordre', Sale: true},
+        {EntityType: 'CustomerQuote', DisplayName: 'Tilbud', Sale: true},
+        {EntityType: 'Reminder', DisplayName: 'Purring', Sale: true},
+        {EntityType: 'Project', DisplayName: 'Prosjekt', Sale: false},
+        {EntityType: 'Department', DisplayName: 'Avdeling', Sale: false},
+        {EntityType: 'Employee', DisplayName: 'Ansatt', Sale: false},
     ];
 
     public translateSerie(serie) {
