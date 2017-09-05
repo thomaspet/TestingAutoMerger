@@ -89,27 +89,35 @@ export class AuthService {
             });
     }
 
-    public authenticateUniFiles() {
-        if (!this.jwt) {
-            return;
-        }
+    public authenticateUniFiles(): Promise<string> {
+        return new Promise<string>((resolve, reject) => {
+            if (!this.jwt) {
+                reject('No jwt set');
+            }
 
-        const uniFilesUrl = AppConfig.BASE_URL_FILES + '/api/init/sign-in';
-        this.http.post(uniFilesUrl, JSON.stringify(this.jwt), {headers: this.headers}).subscribe(
-            res => {
-                if (res && res.status === 200) {
-                    this.filesToken = res.json();
-                    localStorage.setItem('filesToken', this.filesToken);
+            const uniFilesUrl = AppConfig.BASE_URL_FILES + '/api/init/sign-in';
+            this.http.post(uniFilesUrl, JSON.stringify(this.jwt), {headers: this.headers}).subscribe(
+                res => {
+                    if (res && res.status === 200) {
+                        this.filesToken = res.json();
+                        localStorage.setItem('filesToken', this.filesToken);
 
-                    this.authentication$.next({
-                        token: this.jwt,
-                        filesToken: this.filesToken,
-                        activeCompany: this.activeCompany
-                    });
+                        this.authentication$.next({
+                            token: this.jwt,
+                            filesToken: this.filesToken,
+                            activeCompany: this.activeCompany
+                        });
+
+                        resolve(this.filesToken);
+                    }
+                },
+                err => {
+                    reject('Error authenticating');
+                    console.log('Error authenticating:', err);
                 }
-            },
-            err => console.log(err)
-        );
+            );
+
+        })
     }
 
     /**

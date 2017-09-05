@@ -35,6 +35,26 @@ export class UniFilesService {
                 console.log('error syncing settings to uni files', err);
             });
     }
+
+    public checkAuthentication(): Promise<boolean> {
+        var options = new RequestOptions({
+            headers: new Headers({
+                'Accept': 'application/json',
+                'Token': this.uniFilesToken,
+                'Key': this.activeCompany.Key
+            })
+        });
+
+        return new Promise<boolean>((resolve, reject) => {
+            this.http
+                .get(this.uniFilesBaseUrl + '/api/init/check-auth', options)
+                .subscribe((res) => {
+                    resolve(true);
+                }, err => {
+                    reject('Not authenticated');
+                });
+        });
+    }
 }
 
 

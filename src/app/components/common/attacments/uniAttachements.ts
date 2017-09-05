@@ -3,7 +3,7 @@ import {Http} from '@angular/http';
 import {File} from '../../../unientities';
 import {UniHttp} from '../../../../framework/core/http/http';
 import {AuthService} from '../../../../framework/core/authService';
-import {FileService, ErrorService} from '../../../services/services';
+import {FileService, ErrorService, UniFilesService} from '../../../services/services';
 import {ImageUploader} from '../../../../framework/uniImage/imageUploader';
 import {AppConfig} from '../../../AppConfig';
 import {ImageModal} from '../modals/ImageModal';
@@ -82,6 +82,7 @@ export class UniAttachments {
 
     private token: any;
     private activeCompany: any;
+    private didTryReAuthenticate: boolean = false;
 
     private uploading: boolean;
 
@@ -93,7 +94,8 @@ export class UniAttachments {
         private imageUploader: ImageUploader,
         private errorService: ErrorService,
         private fileService: FileService,
-        authService: AuthService) {
+        private uniFilesService: UniFilesService,
+        private authService: AuthService) {
         // Subscribe to authentication/activeCompany changes
         authService.authentication$.subscribe((authDetails) => {
             this.token = authDetails.filesToken;
@@ -199,7 +201,41 @@ export class UniAttachments {
                         this.imageModal.refreshImages();
                         this.files.push(newFile);
                     }, err => this.errorService.handle(err));
-            }, err => this.errorService.handle(err));
+            }, err => {
+                if (!this.didTryReAuthenticate) {
+                    // run reauthentication and try to upload the file once more
+                    // so the user doesnt have to
+                    this.reauthenticate(() => {
+                        this.uploadFile(file);
+                    });
+                } else {
+                    this.errorService.handle(err);
+                }
+            });
+    }
+
+    public reauthenticate(runAfterReauth) {
+        if (!this.didTryReAuthenticate) {
+            // set flag to avoid "authentication loop" if the new authentication
+            // also throws an error
+            this.didTryReAuthenticate = true;
+
+            this.uniFilesService.checkAuthentication()
+                .then(res => {
+                    // authentication is ok - something else caused the problem
+                }).catch(err => {
+                    // authentication failed, try to reauthenticated
+                    this.authService.authenticateUniFiles()
+                        .then(res => {
+                            if (runAfterReauth) {
+                                runAfterReauth();
+                            }
+                        }).catch((errAuth) => {
+                            // not able to reauthenticate
+                            this.errorService.handle(err);
+                        });
+                });
+        }
     }
 
     private removeDocument(fileID: number) {

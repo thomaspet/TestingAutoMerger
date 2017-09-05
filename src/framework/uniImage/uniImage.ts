@@ -15,7 +15,7 @@ import {UniHttp} from '../core/http/http';
 import {AuthService} from '../core/authService';
 import {Observable} from 'rxjs/Observable';
 import {AppConfig} from '../../app/AppConfig';
-import {ErrorService, FileService} from '../../app/services/services';
+import {ErrorService, FileService, UniFilesService} from '../../app/services/services';
 import {UniModalService, ConfirmActions} from '../uniModal/barrel';
 
 export enum UniImageSize {
@@ -47,6 +47,7 @@ export interface IUploadConfig {
                     #image
                     [attr.src]="imgUrl"
                     alt=""
+                    (error)="onLoadImageError($event)"
                     (load)="finishedLoadingImage()"
                     *ngIf="currentFileIndex >= 0">
             </picture>
@@ -141,6 +142,7 @@ export class UniImage {
 
     private token: any;
     private activeCompany: any;
+    private didTryReAuthenticate: boolean = false;
 
     private uploading: boolean;
     private keyListener: any;
@@ -164,6 +166,7 @@ export class UniImage {
         private fileService: FileService,
         private modalService: UniModalService,
         private authService: AuthService,
+        private uniFilesService: UniFilesService
     ) {
         // Subscribe to authentication/activeCompany changes
         this.authService.authentication$.subscribe((authDetails) => {
@@ -336,6 +339,38 @@ export class UniImage {
         });
     }
 
+    public onLoadImageError(error) {
+        this.reauthenticate(() => {
+            setTimeout(() => {
+                // run in setTimeout to allow authService to update the filestoken
+                this.refreshFiles();
+            });
+        });
+    }
+
+    public reauthenticate(runAfterReauth) {
+        if (!this.didTryReAuthenticate) {
+            // set flag to avoid "authentication loop" if the new authentication
+            // also throws an error
+            this.didTryReAuthenticate = true;
+
+            this.uniFilesService.checkAuthentication()
+                .then(res => {
+                    // authentication is ok - something else caused the problem
+                }).catch(err => {
+                    // authentication failed, try to reauthenticated
+                    this.authService.authenticateUniFiles()
+                        .then(res => {
+                            if (runAfterReauth) {
+                                runAfterReauth();
+                            }
+                        }).catch((errAuth) => {
+                            this.errorService.handle(err);
+                        });
+                });
+        }
+    }
+
     public onImageClick() {
         const img: HTMLImageElement = this.image.nativeElement;
         if (this.expandInNewTab && img) {
@@ -453,12 +488,23 @@ export class UniImage {
                         this.currentFileIndex = this.files.length - 1;
                         this.loadImage();
 
-
                         if (!this.singleImage) {
                             this.loadThumbnails();
                         }
                     }, err => this.errorService.handle(err));
-            }, err => this.errorService.handle(err));
+            }, err => {
+                // if an error occurs, try to reauthenticate to unifiles - typically
+                // this happens if unifiles is deployed while the user is logged in
+                if (!this.didTryReAuthenticate) {
+                    // run reauthentication and try to upload the file once more
+                    // so the user doesnt have to
+                    this.reauthenticate(() => {
+                        this.uploadFile(file);
+                    });
+                } else {
+                    this.errorService.handle(err);
+                }
+            });
     }
 
     // Coordinates param should contain positions top and left + height and width of highlight element
