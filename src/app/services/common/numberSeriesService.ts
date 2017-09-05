@@ -19,7 +19,7 @@ export class NumberSeriesService extends BizHttp<NumberSeries> {
         return this.http
             .asGET()
             .usingBusinessDomain()
-            .withEndPoint('number-series?hateoas=false&orderby=FromNumber,NumberSeriesTaskID,AccountYear desc&expand=NumberSeriesType,NumberSeriesTask&filter=disabled eq 0')
+            .withEndPoint('number-series?hateoas=false&orderby=FromNumber,NumberSeriesTaskID,AccountYear desc&expand=NumberSeriesType,NumberSeriesTask,MainAccount&filter=disabled eq 0')
             .send().map(response => response.json());
     }
 
