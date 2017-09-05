@@ -1055,30 +1055,38 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
                 if (grossAmountCurrency) {
                     res.amountGrossCurrency = grossAmountCurrency;
 
-                    res.amountNetCurrency =
-                        vattype.ReversedTaxDutyVat ?
-                            vattype.IncomingAccountID && vattype.OutgoingAccountID ?
-                                (res.amountGrossCurrency * deductionpercent / 100)
-                                : (res.amountGrossCurrency * (1 + vattype.VatPercent / 100)) * deductionpercent / 100
-                            : res.amountGrossCurrency * deductionpercent / 100 / (1 + vattype.VatPercent / 100);
+                    if (!vattype.IncomingAccountID && !vattype.OutgoingAccountID) {
+                        res.amountNetCurrency = res.amountGrossCurrency;
+                    } else {
+                        res.amountNetCurrency =
+                            vattype.ReversedTaxDutyVat ?
+                                vattype.IncomingAccountID && vattype.OutgoingAccountID ?
+                                    (res.amountGrossCurrency * deductionpercent / 100)
+                                    : (res.amountGrossCurrency * (1 + vattype.VatPercent / 100)) * deductionpercent / 100
+                                : res.amountGrossCurrency * deductionpercent / 100 / (1 + vattype.VatPercent / 100);
 
-                    if (deductionpercent !== 100) {
-                        res.amountNetCurrency += vattype.ReversedTaxDutyVat ?
-                            res.amountGrossCurrency * (100 - deductionpercent) / 100 + (res.amountGrossCurrency * vattype.VatPercent / 100) * ((100 - deductionpercent) / 100)
-                                        : res.amountGrossCurrency - res.amountNetCurrency - res.amountNetCurrency * vattype.VatPercent / 100;
+                        if (deductionpercent !== 100) {
+                            res.amountNetCurrency += vattype.ReversedTaxDutyVat ?
+                                res.amountGrossCurrency * (100 - deductionpercent) / 100 + (res.amountGrossCurrency * vattype.VatPercent / 100) * ((100 - deductionpercent) / 100)
+                                            : res.amountGrossCurrency - res.amountNetCurrency - res.amountNetCurrency * vattype.VatPercent / 100;
+                        }
                     }
                 } else if (netAmountCurrency) {
                     res.amountNetCurrency = netAmountCurrency;
 
-                    if (deductionpercent > 0 && deductionpercent < 100) {
-                        console.error('calculateJournalEntryData called for netAmountCurrency with deduction percent set, this is not supported');
-                    }
+                    if (!vattype.IncomingAccountID && !vattype.OutgoingAccountID) {
+                        res.amountGrossCurrency = res.amountNetCurrency;
+                    } else {
+                        if (deductionpercent > 0 && deductionpercent < 100) {
+                            console.error('calculateJournalEntryData called for netAmountCurrency with deduction percent set, this is not supported');
+                        }
 
-                    res.amountGrossCurrency = vattype.ReversedTaxDutyVat ?
-                        vattype.IncomingAccountID && vattype.OutgoingAccountID ?
-                            res.amountNetCurrency
-                            : res.amountNetCurrency / (1 + (vattype.VatPercent / 100))
-                        : res.amountNetCurrency * (1 + (vattype.VatPercent / 100));
+                        res.amountGrossCurrency = vattype.ReversedTaxDutyVat ?
+                            vattype.IncomingAccountID && vattype.OutgoingAccountID ?
+                                res.amountNetCurrency
+                                : res.amountNetCurrency / (1 + (vattype.VatPercent / 100))
+                            : res.amountNetCurrency * (1 + (vattype.VatPercent / 100));
+                    }
                 }
 
                 let taxBasisAmount =
