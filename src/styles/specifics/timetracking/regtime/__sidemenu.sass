@@ -97,6 +97,14 @@
             &:after
                 clear: both
 
+        .sidemenu_temmplate_name
+            font-size: 0.8rem
+            color: #638bb2
+            max-width: 50%
+            overflow-x: hidden
+            white-space: nowrap
+            display: inline-block
+
         .sidemenu_template_description
             width: 70%
             display: inline-block
@@ -165,7 +173,7 @@
     top: .2rem
     left: calc(40px - 1rem)
     border-bottom-color: transparent
-    background-image: unicon-edit(#628cb2)
+    background-image: unicon-hourreg(#628cb2)
     cursor: pointer
 
 .sidemenu_minified_to_from
@@ -187,7 +195,7 @@
     background-position: center center
     background-repeat: no-repeat
     border-bottom-color: transparent
-    background-image: unicon-prev(#628cb2)
+    background-image: unicode-chevron-left(#628cb2)
     cursor: pointer
     transition: linear .3s
 
@@ -206,4 +214,8 @@
     input
         width: 50%
         margin-right: 2%
+
+.sidemenu_minified_container_class
+    width: calc(100% - 150px) 
+
         
