@@ -20,20 +20,16 @@ $entityDetailsHeight: 20rem
 
 @keyframes slideblur
     from
-        filter: blur(0)
         transform: translateX(0)
 
     to
-        filter: blur(.2rem)
         transform: translateY($entityDetailsHeight)
 
 @keyframes slideunblur
     to
-        filter: blur(0)
         transform: translateX(0)
 
     from
-        filter: blur(.2rem)
         transform: translateY($entityDetailsHeight)
 
 
@@ -87,7 +83,6 @@ $entityDetailsHeight: 20rem
     & + .content
         &[aria-disabled=true]
             pointer-events: none
-            filter: blur(.2rem)
             transform: translateY($entityDetailsHeight)
             animation: 300ms ease slideblur
 
@@ -106,5 +101,5 @@ $entityDetailsHeight: 20rem
             top: -100vh
             bottom: -100vh
             z-index: #{map-get($zindex, 'toolbar') - 1}
-            background: transparentize($uni-color-scale9, .25)
+            background: transparentize($uni-color-scale4, .4)
             animation: 300ms ease fadein
