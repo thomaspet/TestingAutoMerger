@@ -1,6 +1,8 @@
 <uni-toolbar [config]="toolbarconfig"
              [saveactions]="saveActions"
-             [commentsConfig]="commentsConfig">
+             [commentsConfig]="commentsConfig"
+             [selectConfig]="selectConfig"
+             (selectValueChanged)="numberSeriesChange($event)">
 </uni-toolbar>
 
 <uni-tof-head [readonly]="readonly"

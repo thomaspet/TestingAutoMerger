@@ -23,6 +23,15 @@ export class NumberSeriesService extends BizHttp<NumberSeries> {
             .send().map(response => response.json());
     }
 
+    public getSelectConfig(ID: number, numberSeries: Array, numberSerieName: string): any {
+        return numberSeries && numberSeries.length > 1 && ID === 0 ?
+            {
+                items: numberSeries,
+                selectedItem: numberSeries.find(x => x.Name === numberSerieName),
+                label: 'Nummerserie:'
+            } : null;
+    }
+
     public save<T>(item: T): Observable<T> {
         var itemX: any = item;
         if (itemX && itemX.ID) {

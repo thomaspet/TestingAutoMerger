@@ -217,7 +217,9 @@ export class CustomerDetails {
                     entityID: this.customerID
                 };
 
-                this.setupNumberSeriesSelect();
+                this.selectConfig = this.numberSeriesService.getSelectConfig(
+                    this.customerID, this.numberSeries, 'Customer number series'
+                );
                 this.setup();
 
                 this.uniQueryDefinitionService.getReferenceByModuleId(UniModules.Customers)
@@ -379,7 +381,10 @@ export class CustomerDetails {
                 this.currencyCodeService.GetAll(null),
                 this.termsService.GetAction(null, 'get-payment-terms'),
                 this.termsService.GetAction(null, 'get-delivery-terms'),
-                this.numberSeriesService.GetAll(`filter=NumberSeriesType.Name eq 'Customer Account number series' and Empty eq false`, ['NumberSeriesType'])
+                this.numberSeriesService.GetAll(
+                    `filter=NumberSeriesType.Name eq 'Customer Account number series' and Empty eq false and Disabled eq false`,
+                    ['NumberSeriesType']
+                )
             ).subscribe(response => {
                 this.dropdownData = [response[0], response[1]];
                 this.emptyPhone = response[3];
@@ -404,7 +409,9 @@ export class CustomerDetails {
                 }
 
 
-                this.setupNumberSeriesSelect();
+                this.selectConfig = this.numberSeriesService.getSelectConfig(
+                    this.customerID, this.numberSeries, 'Customer number series'
+                );
                 this.setTabTitle();
                 this.extendFormConfig();
                 this.showHideNameProperties();
@@ -445,16 +452,7 @@ export class CustomerDetails {
         }
     }
 
-    private setupNumberSeriesSelect() {
-        this.selectConfig = this.numberSeries && this.numberSeries.length > 1 && this.customerID === 0 ?
-            {
-                items: this.numberSeries,
-                selectedItem: this.numberSeries.find(x => x.Name === 'Customer number series'),
-                label: 'Nummerserie:'
-            } : null;
-    }
-
-    private numberSeriesTaskChanged(selectedSerie) {
+    private numberSeriesChange(selectedSerie) {
         let customer = this.customer$.getValue();
         customer.SubAccountNumberSeriesID = selectedSerie.ID;
         this.customer$.next(customer);

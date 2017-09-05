@@ -4,7 +4,7 @@
     [saveactions]="saveactions"
     [commentsConfig]="commentsConfig"
     [selectConfig]="selectConfig"
-    (selectValueChanged)="numberSeriesTaskChanged($event)">
+    (selectValueChanged)="numberSeriesChange($event)">
 </uni-toolbar>
 
 <uni-poster [widgets]="customerWidgets" *ngIf="customerWidgets && (customer$|async)?.ID"></uni-poster>

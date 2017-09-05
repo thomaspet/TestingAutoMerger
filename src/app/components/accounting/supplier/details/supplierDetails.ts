@@ -162,7 +162,9 @@ export class SupplierDetails implements OnInit {
                     entityID: this.supplierID
                 }
 
-                this.setupNumberSeriesSelect();
+                this.selectConfig = this.numberSeriesService.getSelectConfig(
+                    this.supplierID, this.numberSeries, 'Supplier number series'
+                );
                 this.setup();
 
                 this.uniQueryDefinitionService.getReferenceByModuleId(UniModules.Suppliers).subscribe(
@@ -246,16 +248,7 @@ export class SupplierDetails implements OnInit {
         });
     }
 
-    private setupNumberSeriesSelect() {
-        this.selectConfig = this.numberSeries && this.numberSeries.length > 1 && this.supplierID === 0 ?
-            {
-                items: this.numberSeries,
-                selectedItem: this.numberSeries.find(x => x.Name === 'Supplier number series'),
-                label: 'Nummerserie:'
-            } : null;
-    }
-
-    private numberSeriesTaskChanged(selectedSerie) {
+    private numberSeriesChange(selectedSerie) {
         let supplier = this.supplier$.getValue();
         supplier.SubAccountNumberSeriesID = selectedSerie.ID;
         this.supplier$.next(supplier);
@@ -333,7 +326,10 @@ export class SupplierDetails implements OnInit {
                 this.addressService.GetNewEntity(null, 'Address'),
                 this.bankaccountService.GetNewEntity(),
                 this.currencyCodeService.GetAll(null),
-                this.numberSeriesService.GetAll(`filter=NumberSeriesType.Name eq 'Supplier Account number series' and Empty eq false`, ['NumberSeriesType'])
+                this.numberSeriesService.GetAll(
+                    `filter=NumberSeriesType.Name eq 'Supplier Account number series' and Empty eq false and Disabled eq false`,
+                    ['NumberSeriesType']
+                )
             ).subscribe(response => {
                 this.dropdownData = [response[0], response[1]];
 
@@ -350,7 +346,9 @@ export class SupplierDetails implements OnInit {
                 this.setDefaultContact(supplier);
                 this.supplier$.next(supplier);
 
-                this.setupNumberSeriesSelect();
+                this.selectConfig = this.numberSeriesService.getSelectConfig(
+                    this.supplierID, this.numberSeries, 'Supplier number series'
+                );
                 this.setTabTitle();
                 this.extendFormConfig();
                 this.showHideNameProperties();

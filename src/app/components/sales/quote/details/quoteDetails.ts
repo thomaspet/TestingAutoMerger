@@ -32,8 +32,7 @@ import {
     TermsService,
     UserService,
     NumberSeriesTypeService,
-    NumberSeriesService,
-    NumberSeriesTaskService
+    NumberSeriesService
 } from '../../../../services/services';
 
 import {
@@ -103,6 +102,7 @@ export class QuoteDetails {
     private selectedNumberSeries: NumberSeries;
     private selectedNumberSeriesTaskID: number;
     private selectConfig: any;
+    private numberSeries: NumberSeries[];
 
     private customerExpandOptions: string[] = [
         'Info',
@@ -155,8 +155,7 @@ export class QuoteDetails {
         private modalService: UniModalService,
         private termsService: TermsService,
         private numberSeriesTypeService: NumberSeriesTypeService,
-        private numberSeriesService: NumberSeriesService,
-        private numberSeriesTaskService: NumberSeriesTaskService
+        private numberSeriesService: NumberSeriesService
     ) { }
 
     public ngOnInit() {
@@ -182,12 +181,6 @@ export class QuoteDetails {
             settings => this.companySettings = settings,
             err => this.errorService.handle(err)
         );
-
-        this.numberSeriesTaskService
-            .getActiveNumberSeriesTasks('CustomerQuote')
-            .subscribe(series => {
-                series.forEach(x => this.numberSeriesTaskService.translateTask(x));
-            });
 
         // Subscribe to route param changes and update invoice data
         this.route.params.subscribe(params => {
@@ -238,7 +231,8 @@ export class QuoteDetails {
                     customerID ? this.customerService.Get(
                         customerID, this.customerExpandOptions
                     ) : Observable.of(null),
-                    projectID ? this.projectService.Get(projectID, null) : Observable.of(null)
+                    projectID ? this.projectService.Get(projectID, null) : Observable.of(null),
+                    this.numberSeriesService.GetAll(`filter=NumberSeriesType.Name eq 'Customer Quote number series' and Empty eq false and Disabled eq false`, ['NumberSeriesType'])
                 ).subscribe(
                     (res) => {
                         let quote = <CustomerQuote>res[0];
@@ -269,6 +263,11 @@ export class QuoteDetails {
 
                         this.paymentTerms = res[4];
                         this.deliveryTerms = res[5];
+
+                        this.numberSeries = res[8].map(x => this.numberSeriesService.translateSerie(x));
+                        this.selectConfig = this.numberSeriesService.getSelectConfig(
+                            this.quoteID, this.numberSeries, 'Customer Quote number series'
+                        );
 
                         this.refreshQuote(quote);
                     },
@@ -315,6 +314,9 @@ export class QuoteDetails {
                 });
     }
 
+    private numberSeriesChange(selectedSerie) {
+        this.quote.QuoteNumberSeriesID = selectedSerie.ID;
+    }
 
     private refreshQuote(quote?: CustomerQuote) {
         if (!quote) {
@@ -879,17 +881,26 @@ export class QuoteDetails {
                         }
                     }).onClose.subscribe(response => {
                         if (response === ConfirmActions.ACCEPT) {
-                            request.subscribe(res => resolve(res), err => reject(err));
+                            request.subscribe(res => {
+                                if (res.QuoteNumber) { this.selectConfig = undefined; }
+                                resolve(res);
+                            }, err => reject(err));
                         } else {
                             const message = 'Endre MVA kode og lagre på ny';
                             reject(message);
                         }
                     });
                 } else {
-                    request.subscribe(res => resolve(res), err => reject(err));
+                    request.subscribe(res => {
+                        if (res.QuoteNumber) { this.selectConfig = undefined; }
+                        resolve(res);
+                    }, err => reject(err));
                 }
             } else {
-                request.subscribe(res => resolve(res), err => reject(err));
+                request.subscribe(res => {
+                    if (res.QuoteNumber) { this.selectConfig = undefined; }
+                    resolve(res);
+                }, err => reject(err));
             }
         });
     }
@@ -901,6 +912,7 @@ export class QuoteDetails {
             this.saveQuote().then(res => {
                 done('Registrering fullført');
                 this.quoteID = res.ID;
+                this.selectConfig = undefined;
 
                 this.isDirty = false;
                 this.router.navigateByUrl('/sales/quotes/' + res.ID);
@@ -932,6 +944,7 @@ export class QuoteDetails {
             this.isDirty = false;
             this.customerQuoteService.Transition(this.quote.ID, this.quote, transition).subscribe(
                 (res) => {
+                    this.selectConfig = undefined;
                     done(doneText);
                     if (transition === 'toOrder') {
                         this.router.navigateByUrl('/sales/orders/' + res.CustomerOrderID);
