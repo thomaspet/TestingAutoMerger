@@ -1,6 +1,8 @@
 <uni-toolbar *ngIf="!modalMode" [config]="toolbarconfig"
              [saveactions]="saveactions"
-             [commentsConfig]="commentsConfig">
+             [commentsConfig]="commentsConfig"
+             [selectConfig]="selectConfig"
+             (selectValueChanged)="numberSeriesTaskChanged($event)">
 </uni-toolbar>
 
 <header class="supplier_poster" *ngIf="(supplier$|async)">

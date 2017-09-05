@@ -5,7 +5,6 @@ import 'rxjs/add/observable/forkJoin';
 import {FieldType} from '../../../../../framework/ui/uniform/index';
 import {SearchResultItem} from '../../../common/externalSearch/externalSearch';
 import {IReference} from '../../../../models/iReference';
-import {Supplier, Contact, Email, Phone, Address, BankAccount, CurrencyCode} from '../../../../unientities';
 import {IUniSaveAction} from '../../../../../framework/save/save';
 import {UniForm, UniFieldLayout} from '../../../../../framework/ui/uniform/index';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
@@ -13,6 +12,17 @@ import {ToastService, ToastType} from '../../../../../framework/uniToast/toastSe
 import {IToolbarConfig, ICommentsConfig} from '../../../common/toolbar/toolbar';
 import {LedgerAccountReconciliation} from '../../../common/reconciliation/ledgeraccounts/ledgeraccountreconciliation';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
+import {
+    Supplier,
+    Contact,
+    Email,
+    Phone,
+    Address,
+    BankAccount,
+    CurrencyCode,
+    NumberSeries
+} from '../../../../unientities';
+
 import {
     DepartmentService,
     ProjectService,
@@ -24,7 +34,8 @@ import {
     ErrorService,
     UniQueryDefinitionService,
     CurrencyCodeService,
-    UniSearchConfigGeneratorService
+    UniSearchConfigGeneratorService,
+    NumberSeriesService
 } from '../../../../services/services';
 
 import {
@@ -66,6 +77,7 @@ export class SupplierDetails implements OnInit {
     private bankAccountCanceled: any;
 
     private currencyCodes: Array<CurrencyCode>;
+    private numberSeries: NumberSeries[];
     private dropdownData: any;
     private supplier$: BehaviorSubject<Supplier> = new BehaviorSubject(new Supplier());
     private searchText: string;
@@ -80,6 +92,7 @@ export class SupplierDetails implements OnInit {
     private showContactSection: boolean = true; // used in template
     private commentsConfig: ICommentsConfig;
     private isDirty: boolean = false;
+    private selectConfig: any;
 
     private expandOptions: Array<string> = [
         'Info',
@@ -134,7 +147,8 @@ export class SupplierDetails implements OnInit {
                 private errorService: ErrorService,
                 private currencyCodeService: CurrencyCodeService,
                 private uniSearchConfigGeneratorService: UniSearchConfigGeneratorService,
-                private modalService: UniModalService) {
+                private modalService: UniModalService,
+                private numberSeriesService: NumberSeriesService) {
     }
 
     public ngOnInit() {
@@ -148,6 +162,7 @@ export class SupplierDetails implements OnInit {
                     entityID: this.supplierID
                 }
 
+                this.setupNumberSeriesSelect();
                 this.setup();
 
                 this.uniQueryDefinitionService.getReferenceByModuleId(UniModules.Suppliers).subscribe(
@@ -231,6 +246,21 @@ export class SupplierDetails implements OnInit {
         });
     }
 
+    private setupNumberSeriesSelect() {
+        this.selectConfig = this.numberSeries && this.numberSeries.length > 1 && this.supplierID === 0 ?
+            {
+                items: this.numberSeries,
+                selectedItem: this.numberSeries.find(x => x.Name === 'Supplier number series'),
+                label: 'Nummerserie:'
+            } : null;
+    }
+
+    private numberSeriesTaskChanged(selectedSerie) {
+        let supplier = this.supplier$.getValue();
+        supplier.SubAccountNumberSeriesID = selectedSerie.ID;
+        this.supplier$.next(supplier);
+    }
+
     private setTabTitle() {
         const supplier = this.supplier$.getValue();
         if (this.modalMode) {
@@ -302,7 +332,8 @@ export class SupplierDetails implements OnInit {
                 this.emailService.GetNewEntity(),
                 this.addressService.GetNewEntity(null, 'Address'),
                 this.bankaccountService.GetNewEntity(),
-                this.currencyCodeService.GetAll(null)
+                this.currencyCodeService.GetAll(null),
+                this.numberSeriesService.GetAll(`filter=NumberSeriesType.Name eq 'Supplier Account number series' and Empty eq false`, ['NumberSeriesType'])
             ).subscribe(response => {
                 this.dropdownData = [response[0], response[1]];
 
@@ -312,11 +343,14 @@ export class SupplierDetails implements OnInit {
                 this.emptyBankAccount = response[6];
 
                 this.currencyCodes = response[7];
+                this.numberSeries = response[8].map(x => this.numberSeriesService.translateSerie(x));
 
-                let supplier = response[2];
+                let supplier: Supplier = response[2];
+                supplier.SubAccountNumberSeriesID = this.numberSeries.find(x => x.Name === 'Supplier number series').ID;
                 this.setDefaultContact(supplier);
                 this.supplier$.next(supplier);
 
+                this.setupNumberSeriesSelect();
                 this.setTabTitle();
                 this.extendFormConfig();
                 this.showHideNameProperties();
