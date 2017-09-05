@@ -2,15 +2,14 @@ import {Injectable} from '@angular/core';
 import {BizHttp} from '../../../framework/core/http/BizHttp';
 import {Customer} from '../../unientities';
 import {UniHttp} from '../../../framework/core/http/http';
-import {AuthService} from '../../../framework/core/authService';
 import {StatisticsService} from '../common/statisticsService';
 import {Observable} from 'rxjs/Observable';
 
 @Injectable()
 export class CustomerService extends BizHttp<Customer> {
 
-    constructor(http: UniHttp, authService: AuthService, private statisticsService: StatisticsService) {
-        super(http, authService);
+    constructor(http: UniHttp, private statisticsService: StatisticsService) {
+        super(http);
 
         this.relativeURL = Customer.RelativeUrl;
 

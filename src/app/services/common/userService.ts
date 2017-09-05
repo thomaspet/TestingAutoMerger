@@ -2,7 +2,6 @@ import {Injectable} from '@angular/core';
 import {BizHttp} from '../../../framework/core/http/BizHttp';
 import {User} from '../../unientities';
 import {UniHttp} from '../../../framework/core/http/http';
-import {AuthService} from '../../../framework/core/authService';
 import {Observable} from 'rxjs/Observable';
 
 const PUBLIC_ROUTES = ['init', 'about', 'assignments', 'tickers', 'uniqueries'];
@@ -11,15 +10,15 @@ const PUBLIC_ROUTES = ['init', 'about', 'assignments', 'tickers', 'uniqueries'];
 export class UserService extends BizHttp<User> {
     private userObservable: Observable<User>;
 
-    constructor(http: UniHttp, authService: AuthService) {
-        super(http, authService);
+    constructor(http: UniHttp) {
+        super(http);
         this.relativeURL = User.RelativeUrl;
         this.entityType = User.EntityType;
         this.DefaultOrderBy = null;
 
-        this.authService.authentication$.subscribe((auth) => {
-            this.userObservable = undefined;
-        });
+        // this.authService.authentication$.subscribe((auth) => {
+        //     this.userObservable = undefined;
+        // });
     }
 
     public getCurrentUser(): Observable<User> {

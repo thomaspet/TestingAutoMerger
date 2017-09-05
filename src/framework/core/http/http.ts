@@ -33,7 +33,8 @@ export class UniHttp {
     private lastReAuthentication: Date;
     private reAuthenticated$: EventEmitter<any> = new EventEmitter();
 
-    constructor(public http: Http, private authService: AuthService) {
+    // AuthService is used by BizHttp for caching, don't remove!
+    constructor(public http: Http, public authService: AuthService) {
         var headers = AppConfig.DEFAULT_HEADERS;
         this.headers = new Headers();
         this.appendHeaders(headers);

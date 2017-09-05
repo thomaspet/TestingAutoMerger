@@ -3,7 +3,6 @@ import {BizHttp} from '../../../framework/core/http/BizHttp';
 import {CustomerQuote, CustomerQuoteItem, LocalDate} from '../../unientities';
 import {StatusCodeCustomerQuote} from '../../unientities';
 import {UniHttp} from '../../../framework/core/http/http';
-import {AuthService} from '../../../framework/core/authService';
 import {Observable} from 'rxjs/Observable';
 import {ErrorService} from '../common/errorService';
 import * as moment from 'moment';
@@ -43,8 +42,8 @@ export class CustomerQuoteService extends BizHttp<CustomerQuote> {
     };
 
 
-    constructor(http: UniHttp, authService: AuthService, private errorService: ErrorService) {
-        super(http, authService);
+    constructor(http: UniHttp, private errorService: ErrorService) {
+        super(http);
         this.relativeURL = CustomerQuote.RelativeUrl;
         this.entityType = CustomerQuote.EntityType;
         this.DefaultOrderBy = null;

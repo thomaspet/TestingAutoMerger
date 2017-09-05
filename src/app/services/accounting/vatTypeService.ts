@@ -2,14 +2,13 @@ import {Injectable} from '@angular/core';
 import {BizHttp} from '../../../framework/core/http/BizHttp';
 import {VatType} from '../../unientities';
 import {UniHttp} from '../../../framework/core/http/http';
-import {AuthService} from '../../../framework/core/authService';
 import {Observable} from 'rxjs/Observable';
 
 @Injectable()
 export class VatTypeService extends BizHttp<VatType> {
 
-    constructor(http: UniHttp, authService: AuthService) {
-        super(http, authService);
+    constructor(http: UniHttp) {
+        super(http);
 
         this.relativeURL = VatType.RelativeUrl;
 

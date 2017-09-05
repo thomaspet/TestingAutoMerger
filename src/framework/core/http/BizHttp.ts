@@ -29,10 +29,10 @@ export class BizHttp<T> {
     public relativeURL: string;
     protected entityType: string;
 
-    constructor(protected http: UniHttp, protected authService?: AuthService) {
-        if (this.authService) {
-            this.authService.authentication$.subscribe(change => this.invalidateCache());
-        }
+    constructor(protected http: UniHttp) {
+        this.http.authService
+            .authentication$
+            .subscribe(change => this.invalidateCache());
     }
 
     /**
@@ -56,7 +56,7 @@ export class BizHttp<T> {
     }
 
     protected getFromCache(hash: number): T|T[] {
-        if (this.authService && this.cache.length) {
+        if (this.cache && this.cache.length) {
             const index = this.cache.findIndex(x => x.hash === hash);
             if (index >= 0) {
                 const entry = this.cache[index];
@@ -73,17 +73,15 @@ export class BizHttp<T> {
     }
 
     protected storeInCache(hash: number, data: T|T[]) {
-        if (this.authService) {
-            if (this.cache.length >= (this.cacheSettings.maxEntries || 50)) {
-                this.cache.pop();
-            }
-
-            this.cache.push({
-                hash: hash,
-                timestamp: performance.now(),
-                data: data
-            });
+        if (this.cache.length >= (this.cacheSettings.maxEntries || 50)) {
+            this.cache.pop();
         }
+
+        this.cache.push({
+            hash: hash,
+            timestamp: performance.now(),
+            data: data
+        });
     }
 
     public invalidateCache(): void {

@@ -2,13 +2,12 @@ import {Injectable} from '@angular/core';
 import {BizHttp} from '../../../../framework/core/http/BizHttp';
 import {Translatable} from '../../../unientities';
 import {UniHttp} from '../../../../framework/core/http/http';
-import {AuthService} from '../../../../framework/core/authService';
 
 @Injectable()
 export class TranslatableService extends BizHttp<Translatable> {
 
-    constructor(protected http: UniHttp, protected authService?: AuthService) {
-        super(http, authService);
+    constructor(protected http: UniHttp) {
+        super(http);
         this.relativeURL = Translatable.RelativeUrl;
         this.entityType = Translatable.EntityType;
         this.DefaultOrderBy = 'ID';

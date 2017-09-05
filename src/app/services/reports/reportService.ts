@@ -11,7 +11,6 @@ import {SendEmail} from '../../models/sendEmail';
 import {ToastService, ToastType} from '../../../framework/uniToast/toastService';
 import {ReportDefinition, ReportDefinitionParameter, ReportDefinitionDataSource} from '../../unientities';
 import {AppConfig} from '../../AppConfig';
-import {AuthService} from '../../../framework/core/authService';
 
 @Injectable()
 export class ReportService extends BizHttp<string> {
@@ -23,14 +22,13 @@ export class ReportService extends BizHttp<string> {
 
     constructor(
         http: UniHttp,
-        authService: AuthService,
         private errorService: ErrorService,
         private reportGenerator: StimulsoftReportWrapper,
         private emailService: EmailService,
         private toastService: ToastService,
         private reportDefinitionService: ReportDefinitionService
     ) {
-        super(http, authService);
+        super(http);
 
         this.relativeURL = 'report';
         this.entityType = null;

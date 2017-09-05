@@ -3,7 +3,6 @@ import {BizHttp} from '../../../framework/core/http/BizHttp';
 import {CustomerOrderItem} from '../../unientities';
 import {StatusCodeCustomerOrderItem} from '../../unientities';
 import {UniHttp} from '../../../framework/core/http/http';
-import {AuthService} from '../../../framework/core/authService';
 
 @Injectable()
 export class CustomerOrderItemService extends BizHttp<CustomerOrderItem> {
@@ -17,8 +16,8 @@ export class CustomerOrderItemService extends BizHttp<CustomerOrderItem> {
         { Code: StatusCodeCustomerOrderItem.Completed, Text: 'Avsluttet'}
     ];
 
-    constructor(http: UniHttp, authService: AuthService) {
-        super(http, authService);
+    constructor(http: UniHttp) {
+        super(http);
         this.relativeURL = CustomerOrderItem.RelativeUrl;
         this.entityType = CustomerOrderItem.EntityType;
         this.DefaultOrderBy = null;

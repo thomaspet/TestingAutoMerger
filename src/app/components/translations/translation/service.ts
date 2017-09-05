@@ -2,15 +2,14 @@ import {Injectable} from '@angular/core';
 import {Translation} from '../../../unientities';
 import {BizHttp} from '../../../../framework/core/http/BizHttp';
 import {UniHttp} from '../../../../framework/core/http/http';
-import {AuthService} from '../../../../framework/core/authService';
 import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/operator/switchMap';
 
 @Injectable()
 export class TranslationService extends BizHttp<Translation> {
 
-    constructor(protected http: UniHttp, protected authService?: AuthService) {
-        super(http, authService);
+    constructor(protected http: UniHttp) {
+        super(http);
         this.relativeURL = Translation.RelativeUrl;
         this.entityType = Translation.EntityType;
         this.DefaultOrderBy = 'ID';

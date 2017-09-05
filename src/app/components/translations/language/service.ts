@@ -2,7 +2,6 @@ import {Injectable} from '@angular/core';
 import {Language} from '../../../unientities';
 import {BizHttp} from '../../../../framework/core/http/BizHttp';
 import {UniHttp} from '../../../../framework/core/http/http';
-import {AuthService} from '../../../../framework/core/authService';
 import {AppConfig} from '../../../AppConfig';
 import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/observable/from';
@@ -19,8 +18,8 @@ const calculatePercentage = (data) => {
 @Injectable()
 export class LanguageService extends BizHttp<Language> {
 
-    constructor(protected http: UniHttp, protected authService?: AuthService) {
-        super(http, authService);
+    constructor(protected http: UniHttp) {
+        super(http);
         this.relativeURL = Language.RelativeUrl;
         this.entityType = Language.EntityType;
         this.DefaultOrderBy = 'ID';
