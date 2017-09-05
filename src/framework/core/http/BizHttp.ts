@@ -21,19 +21,15 @@ export class BizHttp<T> {
     protected cache: IHttpCacheEntry<T>[] = [];
     protected cacheSettings: IHttpCacheSettings = {};
 
-    protected BaseURL: string;
-    protected LogAll: boolean;
     protected DefaultOrderBy: string;
     protected defaultExpand: string[];
     protected debounceTime: number = 500;
+
     // should be found based on type of T. Set in childclass constructor now
     public relativeURL: string;
     protected entityType: string;
 
     constructor(protected http: UniHttp, protected authService?: AuthService) {
-        this.BaseURL = http.getBaseUrl();
-        this.LogAll = true;
-
         if (this.authService) {
             this.authService.authentication$.subscribe(change => this.invalidateCache());
         }
