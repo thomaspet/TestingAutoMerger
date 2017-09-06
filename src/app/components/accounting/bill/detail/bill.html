@@ -26,6 +26,7 @@
             [config]='formConfig'
             [fields]='fields$'
             [model]='current'
+            (readyEvent)="onFormReady($event)"
             (changeEvent)="onFormChange($event)"
             (inputEvent)="onFormInput($event)"
             (focusEvent)="onFocusEvent($event)">

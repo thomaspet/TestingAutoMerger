@@ -100,6 +100,7 @@ export class BillView {
     private unlinkedFiles: Array<number> = [];
     private supplierIsReadOnly: boolean = false;
     private commentsConfig: any;
+    private formReady: boolean;
 
     private currencyCodes: Array<CurrencyCode>;
     private companySettings: CompanySettings;
@@ -1359,7 +1360,15 @@ export class BillView {
         });
     }
 
+    public onFormReady() {
+        this.formReady = true;
+        this.checkLockStatus();
+    }
+
     private checkLockStatus() {
+        if (!this.formReady) {
+            return;
+        }
 
         this.supplierIsReadOnly = true;
         let current = this.current.getValue();
