@@ -57,7 +57,7 @@ export class BizHttp<T> {
         return hval >>> 0;
     }
 
-    protected getFromCache(hash: number): Observable<T|T[]> {
+    protected getFromCache(hash: number): Observable<any> {
         const entry = this.cacheStore[hash];
         if (entry) {
             // Verify that the entry is not timed out
