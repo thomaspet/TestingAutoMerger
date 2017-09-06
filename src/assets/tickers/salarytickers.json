@@ -605,6 +605,53 @@
         "SubTickersCodes": [
             "payrollrun_details",
             "salarytransaction_list"
+        ],
+        "Filters": [
+            {
+                "Name": "Alle",
+                "Code": "all_payrollruns",
+                "UseAllCriterias": true,
+                "FilterGroups": [
+                    {
+                        "UseAllCriterias": true,
+                        "FieldFilters": []
+                    }
+                ]
+            },
+            {
+                "Name": "Dette år",
+                "Code": "this_year_payrollruns",
+                "UseAllCriterias": true,
+                "FilterGroups": [
+                    {
+                        "UseAllCriterias": true,
+                        "FieldFilters": [
+                            {
+                                "Field": "year(PayDate)",
+                                "Operator": "eq",
+                                "Value": ":currentaccountingyear"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "Name": "Tidligere år",
+                "Code": "previous_year_payrollruns",
+                "UseAllCriterias": true,
+                "FilterGroups": [
+                    {
+                        "UseAllCriterias": true,
+                        "FieldFilters": [
+                            {
+                                "Field": "year(PayDate)",
+                                "Operator": "lt",
+                                "Value": ":currentaccountingyear"
+                            }
+                        ]
+                    }
+                ]
+            }
         ]
     },
     {
