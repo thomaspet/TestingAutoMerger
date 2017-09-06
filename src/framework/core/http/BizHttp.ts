@@ -1,14 +1,16 @@
 import {Injectable} from '@angular/core';
 import {URLSearchParams, RequestMethod} from '@angular/http';
 import {UniHttp} from './http';
-import {AuthService} from '../authService';
 import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/operator/concatMap';
 
+interface IHttpCacheStore<T> {
+    [hash: number]: IHttpCacheEntry<T>;
+}
+
 interface IHttpCacheEntry<T> {
-    hash: number;
-    timestamp: number;
-    data: T | T[];
+    timeout: number;
+    data: Observable<T|T[]>;
 }
 
 interface IHttpCacheSettings {
@@ -18,7 +20,7 @@ interface IHttpCacheSettings {
 
 @Injectable()
 export class BizHttp<T> {
-    protected cache: IHttpCacheEntry<T>[] = [];
+    protected cacheStore: IHttpCacheStore<T> = {};
     protected cacheSettings: IHttpCacheSettings = {};
 
     protected DefaultOrderBy: string;
@@ -55,37 +57,39 @@ export class BizHttp<T> {
         return hval >>> 0;
     }
 
-    protected getFromCache(hash: number): T|T[] {
-        if (this.cache && this.cache.length) {
-            const index = this.cache.findIndex(x => x.hash === hash);
-            if (index >= 0) {
-                const entry = this.cache[index];
-
-                // Verify that entry is not older than timeout (30 sec default)
-                const timeout = this.cacheSettings.timeout || 30000;
-                if (performance.now() - entry.timestamp < timeout) {
-                    return entry.data;
-                } else {
-                    this.cache.splice(index, 1);
-                }
+    protected getFromCache(hash: number): Observable<T|T[]> {
+        const entry = this.cacheStore[hash];
+        if (entry) {
+            // Verify that the entry is not timed out
+            if (!entry.timeout || (performance.now() < entry.timeout)) {
+                return entry.data;
+            } else {
+                delete this.cacheStore[hash];
             }
         }
     }
 
-    protected storeInCache(hash: number, data: T|T[]) {
-        if (this.cache.length >= (this.cacheSettings.maxEntries || 50)) {
-            this.cache.pop();
+    protected storeInCache(hash: number, requestObservable: Observable<T|T[]>, withTimeout: boolean = true) {
+        // Delete first entry if store is full
+        let keys = Object.keys(this.cacheStore);
+
+        if (keys.length >= (this.cacheSettings.maxEntries || 50)) {
+            delete this.cacheStore[keys[0]];
         }
 
-        this.cache.push({
-            hash: hash,
-            timestamp: performance.now(),
-            data: data
-        });
+        let timeout: number;
+        if (withTimeout) {
+            timeout = performance.now() + (this.cacheSettings.timeout || 30000);
+        }
+
+        this.cacheStore[hash] = {
+            timeout: timeout,
+            data: requestObservable
+        };
     }
 
     public invalidateCache(): void {
-        this.cache = [];
+        this.cacheStore = {};
     }
 
     public Get<T>(ID: number|string, expand?: string[]): Observable<any> {
@@ -100,21 +104,22 @@ export class BizHttp<T> {
         }
 
         const hash = this.hashFnv32a(this.relativeURL + ID + expandStr);
-        const cached = this.getFromCache(hash);
+        let request = this.getFromCache(hash);
 
-        if (cached) {
-            return Observable.of(cached);
-        } else {
-            return this.http
+        if (!request) {
+            request = this.http
                 .usingBusinessDomain()
                 .asGET()
                 .withEndPoint(this.relativeURL + '/' + ID)
                 .send({expand: expandStr})
-                .map((res) => {
-                    this.storeInCache(hash, res.json());
-                    return res.json();
-                });
+                .map((res) => res.json())
+                .publishReplay(1)
+                .refCount();
+
+            this.storeInCache(hash, request);
         }
+
+        return request;
     }
 
     public GetOneByQuery(query: string, expand?: string[]): Observable<any> {
@@ -162,21 +167,22 @@ export class BizHttp<T> {
         }
 
         const hash = this.hashFnv32a(this.relativeURL + query + expandStr);
-        const cached = this.getFromCache(hash);
+        let request = this.getFromCache(hash);
 
-        if (cached) {
-            return Observable.of(cached);
-        } else {
-            return this.http
+        if (!request) {
+            request = this.http
                 .usingBusinessDomain()
                 .asGET()
                 .withEndPoint(this.relativeURL + (query ? '?' + query : ''))
                 .send({expand: expandStr})
-                .map((res) => {
-                    this.storeInCache(hash, res.json());
-                    return res.json();
-                });
+                .map((res) => res.json())
+                .publishReplay(1)
+                .refCount();
+
+            this.storeInCache(hash, request);
         }
+
+        return request;
     }
 
     public Post<T>(entity: T): Observable<any> {
@@ -268,15 +274,27 @@ export class BizHttp<T> {
 
         // TODO. Needs a more robust way to handle the Singular Url needed for this request.
         // let relativeUrlSingular = this.relativeURL.slice(0, this.relativeURL.length - 1);
-        let relativeUrlSingular = entityname != null ? entityname : this.relativeURL.slice(0, this.relativeURL.length - 1);
-        return this.http
-            .usingMetadataDomain()
-            .asGET()
-            .withEndPoint(relativeUrlSingular + '/new')
-            .send({
-                expand: expandStr
-            })
-            .map(response => response.json());
+        let relativeUrlSingular = entityname != null
+            ? entityname
+            : this.relativeURL.slice(0, this.relativeURL.length - 1);
+
+        const hash = this.hashFnv32a(relativeUrlSingular + expandStr);
+        let request = this.getFromCache(hash);
+
+        if (!request) {
+            request = this.http
+                .usingMetadataDomain()
+                .asGET()
+                .withEndPoint(relativeUrlSingular + '/new')
+                .send({expand: expandStr})
+                .map((res) => res.json())
+                .publishReplay(1)
+                .refCount();
+
+            this.storeInCache(hash, request, false);
+        }
+
+        return request;
     }
 
     public GetLayout(ID: string) {
@@ -287,18 +305,6 @@ export class BizHttp<T> {
             .withEndPoint(endPoint)
             .send()
             .map(response => response.json());
-    }
-
-    public GetLayoutAndEntity(LayoutID: string, EntityID: number) {
-        var layout, self = this;
-        return this.GetLayout(LayoutID)
-            .concatMap((data: any) => {
-                layout = data;
-                return self.Get(EntityID, data.Expands);
-            })
-            .map((entity: any) => {
-                return [layout, entity];
-            });
     }
 
     public getNewGuid(): string {
@@ -318,7 +324,6 @@ export class BizHttp<T> {
                 return response.Data.length > 0 ? response.Data[0].ID : null;
             });
     }
-
 
     public getPreviousID(currentID: number): Observable<number> {
         type statisticsResponse = {Data: {ID: number}[]};
