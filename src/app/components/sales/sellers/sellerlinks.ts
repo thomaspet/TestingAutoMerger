@@ -132,15 +132,16 @@ export class SellerLinks implements AfterViewInit {
         contextMenuItems.push({
             label: 'Vis selgerdetaljer',
             action: (rowModel) => {
-                this.router.navigateByUrl('/sales/sellers/' + rowModel.Seller.ID)
+                this.router.navigateByUrl('/sales/sellers/' + rowModel.Seller.ID);
             },
-            disabled: (rowModel) => {
-                if (!rowModel || !rowModel.ID || rowModel.ID === 0) {
-                    return true;
-                }
-
-                return false;
-            }
+            disabled: (rowModel) => !rowModel.SellerID
+        },
+        {
+            label: 'Vis selger sine salg',
+            action: (rowModel) => {
+                this.router.navigateByUrl('/sales/sellers/' + rowModel.Seller.ID + '/sales');
+            },
+            disabled: (rowModel) => !rowModel.SellerID
         },
         {
             label: 'Sett som hovedselger',

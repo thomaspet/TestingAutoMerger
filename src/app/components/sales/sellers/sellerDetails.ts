@@ -69,7 +69,7 @@ export class SellerDetails {
                 private userService: UserService,
                 private employeeService: EmployeeService,
                 private modalService: UniModalService) {
-        this.route.params.subscribe(params => {
+        this.route.parent.params.subscribe(params => {
             this.sellerId = +params['id'];
             this.setupForm();
         });
@@ -169,14 +169,8 @@ export class SellerDetails {
     // Navigation
 
     private setupToolbar() {
-        let subheads = [];
-        if (this.sellerId > 0) {
-            subheads.push({title: this.seller$.getValue().Name});
-        }
-
         this.toolbarconfig = {
-            title: this.sellerId > 0 ? 'Selger' : 'Ny selger',
-            subheads: subheads,
+            title: this.sellerId > 0 ? this.seller$.getValue().Name : 'Ny selger',
             navigation: {
                 prev: () => this.previousSeller(),
                 next: () => this.nextSeller(),
@@ -191,7 +185,7 @@ export class SellerDetails {
                 if (ID) {
                     this.router.navigateByUrl('/sales/sellers/' + ID);
                 } else {
-                    this.toastService.addToast('Ingen flere selgere før denne!', ToastType.warn, ToastTime.short);
+                    this.toastService.addToast('Ingen flere selgere før denne selgeren!', ToastType.warn, ToastTime.short);
                 }
             }, err => this.errorService.handle(err));
     }
@@ -202,7 +196,7 @@ export class SellerDetails {
                 if (ID) {
                     this.router.navigateByUrl('/sales/sellers/' + ID);
                 } else {
-                    this.toastService.addToast('Ingen flere selgere etter denne!', ToastType.warn, ToastTime.short);
+                    this.toastService.addToast('Ingen flere selgere etter denne selgeren!', ToastType.warn, ToastTime.short);
                 }
             }, err => this.errorService.handle(err));
     }
