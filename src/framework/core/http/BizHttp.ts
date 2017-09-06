@@ -274,18 +274,20 @@ export class BizHttp<T> {
 
         // TODO. Needs a more robust way to handle the Singular Url needed for this request.
         // let relativeUrlSingular = this.relativeURL.slice(0, this.relativeURL.length - 1);
-        let relativeUrlSingular = entityname != null
+        let endpoint = !!entityname
             ? entityname
             : this.relativeURL.slice(0, this.relativeURL.length - 1);
 
-        const hash = this.hashFnv32a(relativeUrlSingular + expandStr);
+        endpoint += '/new';
+
+        const hash = this.hashFnv32a(endpoint + expandStr);
         let request = this.getFromCache(hash);
 
         if (!request) {
             request = this.http
                 .usingMetadataDomain()
                 .asGET()
-                .withEndPoint(relativeUrlSingular + '/new')
+                .withEndPoint(endpoint)
                 .send({expand: expandStr})
                 .map((res) => res.json())
                 .publishReplay(1)
