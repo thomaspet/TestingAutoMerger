@@ -20,7 +20,7 @@ import * as moment from 'moment';
             <article class="uniModal_bounds">
                 <button (click)="close('cancel')" class="closeBtn"></button>
                 <article class="modal-content uni_template_modal_content" [attr.aria-busy]="busy" >
-                    <h3>Opprett ny modal</h3>
+                    <h3>Opprett ny mal</h3>
                     <label>Navn: </label><input type="text" [(ngModel)]="template.Name"><br>
                     <label>Beskrivelse: </label><input type="text" [(ngModel)]="template.Description">
                     <uni-table
@@ -204,7 +204,7 @@ export class UniTemplateModal {
     private formatHours(value: string): string {
         let returnValue = '';
         if (value) {
-            let parsedValue: number = parseInt(value);
+            let parsedValue: number = parseInt(value.replace(':', ''));
             if (typeof parsedValue === 'number' && !isNaN(parsedValue)) {
                 if (parsedValue > 0 && parsedValue < 10) {
                     returnValue = '0' + parsedValue + ':00';

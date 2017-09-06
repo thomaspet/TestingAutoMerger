@@ -41,6 +41,10 @@ export class SideMenu {
     @Output() public dateSelected: EventEmitter<Date> = new EventEmitter();
     @Output() public templateSelected: EventEmitter<any> = new EventEmitter();
     private sidemenuMinified: boolean = false;
+    private calendarConfig: any = {
+        allowSelection: true,
+        dailyProgress: []
+    }
 
 
     constructor(private toast: ToastService) {
@@ -115,13 +119,13 @@ export class SideMenu {
             button.style.left = '10px';
             button.style.top = '180px';
             button.style.transform = 'rotate(-180deg)';
-            containter.style.width = 'calc(100% - 150px)';
+            containter.classList.add('sidemenu_minified_container_class');
         } else {
             element.style.width = '335px';
             button.style.left = '280px';
             button.style.top = '50vh';
             button.style.transform = 'rotate(0deg)';
-            containter.style.width = 'calc(100% - 400px)';
+            containter.classList.remove('sidemenu_minified_container_class');
         }
 
         

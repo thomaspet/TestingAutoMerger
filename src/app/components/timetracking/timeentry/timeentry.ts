@@ -1,4 +1,4 @@
-import {Component, ViewChild, ChangeDetectorRef} from '@angular/core';
+﻿import {Component, ViewChild, ChangeDetectorRef} from '@angular/core';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {View} from '../../../models/view/view';
 import {WorkRelation, WorkItem, Worker, WorkBalance, LocalDate} from '../../../unientities';
@@ -180,23 +180,46 @@ export class TimeEntry {
 
     private onDateSelected(event) {
         this.checkSave().then(() => {
-            this.busy = true;
-            this.loadItems(event);
-            this.customDateSelected = new Date(event);
-            //Unselect upper right selector when selecting other date then today or yesterday
-            if (new Date(event).getDate() === new Date().getDate()) {
-                this.currentFilter = this.filters[0];
-                this.filters.forEach((value: any) => value.isSelected = false);
-                this.currentFilter.isSelected = true;
-            } else if (new Date(event).getDate() === (new Date().getDate() - 1)) {
-                this.currentFilter = this.filters[1];
-                this.filters.forEach((value: any) => value.isSelected = false);
-                this.currentFilter.isSelected = true;
-            } else {
+            if (event.date) {
+                this.busy = true;
+                let toDate;
+                let fromDate;
+                if (moment(event.date) < moment(event.firstDate)) {
+                    fromDate = event.date;
+                    toDate = event.firstDate;
+                } else {
+                    toDate = event.date;
+                    fromDate = event.firstDate;
+                }
                 this.currentFilter.isSelected = false;
+                this.currentFilter.bigLabel = moment(fromDate).format('DD.MM.YYYY') + '  -  ' + moment(toDate).format('DD.MM.YYYY');
+                this.customDateSelected = new Date(fromDate);
+                this.loadItems(fromDate, toDate);
+                this.showProgress(fromDate, toDate);
+            } else {
+                this.busy = true;
+                this.customDateSelected = new Date(event);
+                //Unselect upper right selector when selecting other date then today or yesterday
+                if (new Date(event).getDate() === new Date().getDate()
+                    && new Date(event).getMonth() === new Date().getMonth()
+                    && new Date(event).getFullYear() === new Date().getFullYear()) {
+                    this.currentFilter = this.filters[0];
+                    this.filters.forEach((value: any) => value.isSelected = false);
+                    this.currentFilter.isSelected = true;
+                } else if (new Date(event).getDate() === (new Date().getDate() - 1)
+                    && new Date(event).getMonth() === new Date().getMonth()
+                    && new Date(event).getFullYear() === new Date().getFullYear()) {
+                    this.currentFilter = this.filters[1];
+                    this.filters.forEach((value: any) => value.isSelected = false);
+                    this.currentFilter.isSelected = true;
+                } else {
+                    this.currentFilter.isSelected = false;
+                }
+                this.loadItems(event);
+                this.currentFilter.bigLabel = moment(event).format('Do MMMM YYYY');
+                this.showProgress(event);
             }
-            this.currentFilter.bigLabel = moment(event).format('Do MMMM YYYY');
-            this.showProgress(event);
+            
         });
     }
 
@@ -356,12 +379,15 @@ export class TimeEntry {
         };
     }
 
-    private loadItems(date?: Date) {
+    private loadItems(date?: Date, toDate?: Date) {
         this.workEditor.EmptyRowDetails.Date = new LocalDate(date);
         if (this.timeSheet.currentRelation && this.timeSheet.currentRelation.ID) {
             var obs: any;
             var dt: Date;
-            if (!!date) {
+            if (!!toDate) {
+                obs = this.timeSheet.loadItemsByPeriod(date, toDate);
+                dt = date;
+            } else if (!!date) {
                 obs = this.timeSheet.loadItemsByPeriod(date, date);
                 dt = date;
             } else {
@@ -654,16 +680,20 @@ export class TimeEntry {
             filter.isSelected = true;
             this.currentFilter = filter;
             this.busy = true;
+
+            //If customer date is selected, use this to show filter 
             this.loadItems();
             this.customDateSelected = null;
             this.showProgress();
         });
     }
 
-    private showProgress(date?: any) {
+    private showProgress(date?: any, toDate?: any) {
         let endpoint = 'workrelations/' + this.workRelations[0].ID + '?action=timesheet&fromdate=';
 
-        if (date) {
+        if (toDate) {
+            endpoint += moment(new Date(date)).format().slice(0, 10) + '&todate=' + moment(new Date(toDate)).format().slice(0, 10);
+        } else if (date) {
             endpoint += moment(new Date(date)).format().slice(0, 10) + '&todate=' + moment(new Date(date)).format().slice(0, 10);
         } else {
             switch (this.currentFilter.interval) {
@@ -704,8 +734,7 @@ export class TimeEntry {
                 expectedTime += item.ExpectedTime;
                 totalTime += item.TotalTime;
             })
-
-            this.workedToday = Math.floor(totalTime) + ' timer og ' + Math.floor((totalTime * 60) % 60) + ' minutter'
+            this.workedToday = totalTime + ' timer';
 
             //Find percentage of hours worked (Max 100)
             let percentageWorked = totalTime / (expectedTime / 100);
