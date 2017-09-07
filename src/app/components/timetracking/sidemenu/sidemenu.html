@@ -14,7 +14,7 @@
                                (dateChange)="onCalendarDateChange($event)"
                                (monthChange)="onCalendarMonthChange($event)"
                                (keydown.esc)="hideCalendar()"
-                               [date]="periode.date"
+                               [date]="initDate"
                                [config]="calendarConfig"></unitable-calendar>
         <button (click)="setTodayAsCurrentDay()">Gå til idag</button>
         

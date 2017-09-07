@@ -2,7 +2,7 @@
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {View} from '../../../models/view/view';
 import {WorkRelation, WorkItem, Worker, WorkBalance, LocalDate} from '../../../unientities';
-import {WorkerService, IFilter, ItemInterval} from '../../../services/timetracking/workerService';
+import {WorkerService, IFilter, ItemInterval, IFilterInterval} from '../../../services/timetracking/workerService';
 import {exportToFile, arrayToCsv, safeInt, trimLength, parseTime} from '../../common/utils/utils';
 import {TimesheetService, TimeSheet} from '../../../services/timetracking/timesheetService';
 import {IsoTimePipe} from '../../common/utils/pipes';
@@ -68,6 +68,7 @@ export class TimeEntry {
     };
     private workedToday: string = '';
     private customDateSelected: Date = null;
+    private currentDate: Date = new Date();
 
     @ViewChild(RegtimeTotals) private regtimeTotals: RegtimeTotals;
     @ViewChild(TimeTableReport) private timeTable: TimeTableReport;
@@ -134,7 +135,7 @@ export class TimeEntry {
     ) {
 
         this.loadSettings();
-        this.filters = service.getIntervalItems();
+        this.filters = service.getFilterIntervalItems();
         this.initApplicationTab();
 
         route.queryParams.first().subscribe((item: { workerId; workRelationId; }) => {
@@ -189,6 +190,7 @@ export class TimeEntry {
     private onDateSelected(event) {
         this.checkSave().then(() => {
             if (event.date) {
+                this.currentDate = event.date;
                 this.busy = true;
                 let toDate;
                 let fromDate;
@@ -199,30 +201,19 @@ export class TimeEntry {
                     toDate = event.date;
                     fromDate = event.firstDate;
                 }
-                this.currentFilter.isSelected = false;
+                //this.currentFilter.isSelected = false;
                 this.currentFilter.bigLabel = moment(fromDate).format('DD.MM.YYYY') + '  -  ' + moment(toDate).format('DD.MM.YYYY');
                 this.customDateSelected = new Date(fromDate);
                 this.loadItems(fromDate, toDate);
                 this.showProgress(fromDate, toDate);
             } else {
+                this.currentDate = event;
                 this.busy = true;
                 this.customDateSelected = new Date(event);
-                //Unselect upper right selector when selecting other date then today or yesterday
-                if (new Date(event).getDate() === new Date().getDate()
-                    && new Date(event).getMonth() === new Date().getMonth()
-                    && new Date(event).getFullYear() === new Date().getFullYear()) {
-                    this.currentFilter = this.filters[0];
-                    this.filters.forEach((value: any) => value.isSelected = false);
-                    this.currentFilter.isSelected = true;
-                } else if (new Date(event).getDate() === (new Date().getDate() - 1)
-                    && new Date(event).getMonth() === new Date().getMonth()
-                    && new Date(event).getFullYear() === new Date().getFullYear()) {
-                    this.currentFilter = this.filters[1];
-                    this.filters.forEach((value: any) => value.isSelected = false);
-                    this.currentFilter.isSelected = true;
-                } else {
-                    this.currentFilter.isSelected = false;
-                }
+                this.currentFilter.isSelected = false;
+                this.currentFilter = this.filters[0];
+                this.currentFilter.isSelected = true;
+
                 this.loadItems(event);
                 this.currentFilter.bigLabel = moment(event).format('Do MMMM YYYY');
                 this.showProgress(event);
@@ -435,8 +426,8 @@ export class TimeEntry {
                 obs = this.timeSheet.loadItemsByPeriod(date, date);
                 dt = date;
             } else {
-                obs = this.timeSheet.loadItems(this.currentFilter.interval);
-                dt = this.timesheetService.workerService.getIntervalDate(this.currentFilter.interval);
+                obs = this.timeSheet.loadItems(this.currentFilter.interval, this.currentDate);
+                dt = this.timesheetService.workerService.getFilterIntervalDate(this.currentFilter.interval, this.currentDate);
             }
             obs.subscribe((itemCount: number) => {
                 if (this.workEditor) { this.workEditor.closeEditor(); }
@@ -742,14 +733,18 @@ export class TimeEntry {
     }
 
     public onFilterClick(filter: IFilter) {
+        if (filter.isSelected) {
+            return;
+        }
         this.checkSave().then((success: boolean) => {
             if (!success) { return; }
-            filter.bigLabel = this.service.getBigLabel(filter.interval);
+            filter.bigLabel = this.service.getBigLabel(filter.interval, this.currentDate || new Date());
             this.filters.forEach((value: any) => value.isSelected = false);
             filter.isSelected = true;
+            filter.date = this.currentDate;
             this.currentFilter = filter;
             this.busy = true;
-
+            this.sideMenu.calendar.onFilterChange(this.currentFilter);
             //If customer date is selected, use this to show filter 
             this.loadItems();
             this.customDateSelected = null;
@@ -766,26 +761,27 @@ export class TimeEntry {
             endpoint += moment(new Date(date)).format().slice(0, 10) + '&todate=' + moment(new Date(date)).format().slice(0, 10);
         } else {
             switch (this.currentFilter.interval) {
-                case ItemInterval.today:
-                    endpoint += moment().format().slice(0, 10);
+                case IFilterInterval.day:
+                    endpoint += moment(this.currentDate).format().slice(0, 10) + '&todate=' + moment(this.currentDate).format().slice(0, 10);;
                     break;
-                case ItemInterval.yesterday:
-                    endpoint += moment().add(-1, 'days').format().slice(0, 10) + '&todate=' + moment().add(-1, 'days').format().slice(0, 10);
+                case IFilterInterval.week:
+                    endpoint += moment(this.currentDate).startOf('week').format().slice(0, 10)
+                        + '&todate=' + moment(this.currentDate).endOf('week').format().slice(0, 10);
                     break;
-                case ItemInterval.thisWeek:
+                case IFilterInterval.twoweeks:
                     let diff = new Date().getDay() - 1;
-                    endpoint += moment().startOf('week').format().slice(0, 10) + '&todate=' + moment().format().slice(0, 10);
+                    endpoint += moment(this.currentDate).subtract(1, 'week').startOf('week').format().slice(0, 10)
+                        + '&todate=' + moment(this.currentDate).endOf('week').format().slice(0, 10);
                     break;
-                case ItemInterval.thisMonth:
-                    endpoint += moment().startOf('month').format().slice(0, 10) + '&todate=' + moment().format().slice(0, 10);
+                case IFilterInterval.month:
+                    endpoint += moment(this.currentDate).startOf('month').format().slice(0, 10)
+                        + '&todate=' + moment(this.currentDate).endOf('month').format().slice(0, 10);
                     break;
-                case ItemInterval.lastTwoMonths:
-                    endpoint += moment().add(-1, 'months').startOf('month').format().slice(0, 10) + '&todate=' + moment().format().slice(0, 10);
+                case IFilterInterval.year:
+                    endpoint += moment(this.currentDate).startOf('year').format().slice(0, 10)
+                        + '&todate=' + moment(this.currentDate).endOf('year').format().slice(0, 10);
                     break;
-                case ItemInterval.thisYear:
-                    endpoint += moment().startOf('year').format().slice(0, 10) + '&todate=' + moment().format().slice(0, 10);
-                    break;
-                case ItemInterval.all:
+                case IFilterInterval.all:
                     endpoint += '2016-01-01';
                     break;
                 default:

@@ -38,7 +38,7 @@ export class SideMenu {
     private timeTrackingTemplates: ITemplate[] = this.dummyTemplates();
 
     @ViewChild(UniTemplateModal) private templateModal: UniTemplateModal;
-    @ViewChild(UniCalendar) private calendar: UniCalendar;
+    @ViewChild(UniCalendar) public calendar: UniCalendar;
     @Input() private periode: IFilter;
     @Output() public dateSelected: EventEmitter<Date> = new EventEmitter();
     @Output() public monthChanged: EventEmitter<any> = new EventEmitter();
@@ -48,6 +48,7 @@ export class SideMenu {
         allowSelection: true,
         dailyProgress: []
     }
+    private initDate: Date = new Date();
 
 
     constructor(private toast: ToastService) {
@@ -99,7 +100,7 @@ export class SideMenu {
         if (this.calendar.calendarDate.month() !== new Date().getMonth()) {
             this.monthChanged.emit(moment(new Date()));
         }
-        this.periode.date = new Date();
+        this.initDate = new Date();
         this.dateSelected.emit(new Date());
     }
 

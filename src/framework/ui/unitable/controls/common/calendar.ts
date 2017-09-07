@@ -1,4 +1,5 @@
-﻿import {Component, Input, Output, EventEmitter, HostListener} from '@angular/core';
+﻿import { Component, Input, Output, EventEmitter, HostListener } from '@angular/core';
+import { IFilterInterval } from '../../../../../app/services/timetracking/workerService';
 import * as moment from 'moment';
 
 @Component({
@@ -56,6 +57,7 @@ export class UniCalendar {
     private isCtrlDown: boolean = false;
     private previousIndex: number[] = [];
     private monthHasChanged: boolean = false;
+    private lastOfMonthNumber: number;
 
     constructor() {
         this.weekdays = (<any>moment).weekdaysMin(true);
@@ -107,6 +109,7 @@ export class UniCalendar {
         }
 
         // Fill with next months dates until we have a full calendar page (42)
+        this.lastOfMonthNumber = days.length;
         const nextMonth = date.month() + 1;
         const numDaysFromNextMonth = 42 - days.length;
         for (let i = 1; i <= numDaysFromNextMonth; i++) {
@@ -132,11 +135,7 @@ export class UniCalendar {
         document.getSelection().removeAllRanges();
 
         // Remove all selected
-        this.calendarWeeks.forEach((calendarWeek: any[]) => {
-            calendarWeek.forEach((calendarDay: any) => {
-                calendarDay.selected = false;
-            });
-        });
+        this.removeAllSelectedDates();
 
         this.selectedDate.year(date.year);
         this.selectedDate.month(date.month);
@@ -165,24 +164,7 @@ export class UniCalendar {
                 lastSelected = temp;
             }
 
-            // Loop all the days from startDay to endDay and mark them as selected
-            for (var weekIndex = firstSelected[0]; weekIndex <= lastSelected[0]; weekIndex++) {
-                for (var dayIndex = 0; dayIndex < 7; dayIndex++) {
-
-                    // If startday is not a monday, start first iteration at startDay
-                    if (weekIndex === firstSelected[0] && dayIndex === 0 && firstSelected[1] !== 0) {
-                        dayIndex = firstSelected[1];
-                    }
-
-                    this.calendarWeeks[weekIndex][dayIndex].selected = true;
-
-                    // When reaching endDay, break out  of for loop..
-                    if (weekIndex === lastSelected[0] && dayIndex === lastSelected[1]) {
-                        break;
-                    }
-                }
-            }
-
+            this.fillInSelection(firstSelected, lastSelected);
 
             this.dateChange.emit({ date: this.selectedDate.toDate(), firstDate: firstDate.toDate() });
         } else {
@@ -207,5 +189,78 @@ export class UniCalendar {
         this.monthChange.emit(this.calendarDate)
     }
 
+    private removeAllSelectedDates() {
+        this.calendarWeeks.forEach((calendarWeek: any[]) => {
+            calendarWeek.forEach((calendarDay: any) => {
+                calendarDay.selected = false;
+            });
+        });
+    }
+
+    private fillInSelection(firstSelected: any[], lastSelected: any[]) {
+        // Loop all the days from startDay to endDay and mark them as selected
+        for (var weekIndex = firstSelected[0]; weekIndex <= lastSelected[0]; weekIndex++) {
+            for (var dayIndex = 0; dayIndex < 7; dayIndex++) {
+
+                // If startday is not a monday, start first iteration at startDay
+                if (weekIndex === firstSelected[0] && dayIndex === 0 && firstSelected[1] !== 0) {
+                    dayIndex = firstSelected[1];
+                }
+
+                this.calendarWeeks[weekIndex][dayIndex].selected = true;
+
+                // When reaching endDay, break out  of for loop..
+                if (weekIndex === lastSelected[0] && dayIndex === lastSelected[1]) {
+                    break;
+                }
+            }
+        }
+    }
+
+    public onFilterChange(filter: any) {
+        // If user has changed month, but not selected a date in new month, change back to last selected date
+        if (this.monthHasChanged && moment(filter.date).month() !== this.calendarDate.month()) {
+            this.calendarDate = moment(filter.date);
+        }
+
+        // Remove all selected dates
+        this.removeAllSelectedDates();
+
+        // Select which/how many dates mark based on interval
+        switch (filter.interval) {
+            case IFilterInterval.day:
+                this.fillInSelection(this.previousIndex, this.previousIndex);
+                break;
+            case IFilterInterval.week:
+                this.fillInSelection([this.previousIndex[0], 0], [this.previousIndex[0], 6]);
+                break;
+            case IFilterInterval.twoweeks:
+                if (this.previousIndex[0] === 0) {
+                    this.prevMonth();
+                    this.fillInSelection([4, 0], [5, 6]);
+                } else {
+                    this.fillInSelection([this.previousIndex[0] - 1, 0], [this.previousIndex[0], 6]);
+                }
+                break;
+            case IFilterInterval.month:
+                let firstOfMonthIndex = 0;
+                for (let indexInFirstWeek = 0; indexInFirstWeek < 7; indexInFirstWeek++) {
+                    if (this.calendarWeeks[0][indexInFirstWeek].day === 1) {
+                        firstOfMonthIndex = indexInFirstWeek;
+                        break;
+                    }
+                }
+
+                this.fillInSelection([0, firstOfMonthIndex],
+                    [Math.floor(this.lastOfMonthNumber / 7), (this.lastOfMonthNumber % 7) - 1]);
+                break;
+            case IFilterInterval.year:
+                this.fillInSelection(this.previousIndex, this.previousIndex);
+                break;
+            case IFilterInterval.all:
+                this.fillInSelection(this.previousIndex, this.previousIndex);
+                break;
+        }
+    }
 
 }
