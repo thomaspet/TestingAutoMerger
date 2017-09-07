@@ -46,7 +46,7 @@ import {
     PageStateService,
     checkGuid,
     EHFService,
-    UniSearchConfigGeneratorService,
+    UniSearchSupplierConfig,
     ModulusService,
     ProjectService,
     DepartmentService
@@ -154,7 +154,7 @@ export class BillView {
         private currencyCodeService: CurrencyCodeService,
         private currencyService: CurrencyService,
         private ehfService: EHFService,
-        private uniSearchConfigGeneratorService: UniSearchConfigGeneratorService,
+        private uniSearchSupplierConfig: UniSearchSupplierConfig,
         private modulusService: ModulusService,
         private projectService: ProjectService,
         private departmentService: DepartmentService,
@@ -323,8 +323,8 @@ export class BillView {
             },
         ];
 
-        this.uniSearchConfig = this.uniSearchConfigGeneratorService
-            .generate(Supplier, <[string]>this.supplierExpandOptions);
+        this.uniSearchConfig = this.uniSearchSupplierConfig
+            .generate(this.supplierExpandOptions);
 
         // Extend config with stuff that can't come from layout system
         let supplierField = fields.find(f => f.Property === 'SupplierID');

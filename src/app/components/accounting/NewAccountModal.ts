@@ -6,7 +6,7 @@ import {Account, BusinessRelation, Email, Phone, Address, Customer, Supplier} fr
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {IUniSearchConfig} from '../../../framework/ui/unisearch/index';
 import {AccountService, CustomerService, SupplierService} from '../../services/services';
-import {UniSearchCustomerConfigGeneratorHelper} from '../../services/common/uniSearchConfig/uniSearchCustomerConfigGeneratorHelper';
+import {UniSearchCustomerConfig} from '../../services/common/uniSearchConfig/uniSearchCustomerConfig';
 
 declare const _; // lodash
 
@@ -61,9 +61,9 @@ export class NewAccountForm implements OnChanges {
 
 
     constructor(
-        private uniSearchCustomerConfigGeneratorHelper: UniSearchCustomerConfigGeneratorHelper
+        private uniSearchCustomerConfig: UniSearchCustomerConfig
     ) {
-        this.uniSearchConfig = this.uniSearchCustomerConfigGeneratorHelper.generateOnlyExternalSearch();
+        this.uniSearchConfig = this.uniSearchCustomerConfig.generateOnlyExternalSearch();
 
     }
 

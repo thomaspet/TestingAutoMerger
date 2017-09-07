@@ -37,12 +37,11 @@ import {UniCacheService} from './common/cacheService';
 import {StaticRegisterService} from './common/staticRegisterService';
 import {DimensionService} from './common/dimensionService';
 import {EmailService} from './common/emailService';
-import {UniSearchConfigGeneratorService} from './common/uniSearchConfig/uniSearchConfigGeneratorService';
 import {UmhService} from './common/UmhService';
-import {UniSearchAccountConfigGeneratorHelper} from './common/uniSearchConfig/uniSearchAccountConfigGeneratorHelper';
-import {UniSearchCustomerConfigGeneratorHelper} from './common/uniSearchConfig/uniSearchCustomerConfigGeneratorHelper';
-import {UniSearchSupplierConfigGeneratorHelper} from './common/uniSearchConfig/uniSearchSupplierConfigGeneratorHelper';
-import {UniSearchEmployeeConfigGeneratorHelper} from './common/uniSearchConfig/uniSearchEmployeeConfigGeneratorHelper';
+import {UniSearchAccountConfig} from './common/uniSearchConfig/uniSearchAccountConfig';
+import {UniSearchCustomerConfig} from './common/uniSearchConfig/uniSearchCustomerConfig';
+import {UniSearchSupplierConfig} from './common/uniSearchConfig/uniSearchSupplierConfig';
+import {UniSearchEmployeeConfig} from './common/uniSearchConfig/uniSearchEmployeeConfig';
 import {CurrencyOverridesService} from './common/currencyOverridesService';
 import {ApiModelService} from './common/apiModelService';
 import {YearService} from './common/yearService';
@@ -98,7 +97,6 @@ export * from './common/cacheService';
 export * from './common/staticRegisterService';
 export * from './common/dimensionService';
 export * from './common/emailService';
-export * from './common/uniSearchConfig/uniSearchConfigGeneratorService';
 export * from './common/currencyOverridesService';
 export * from './common/apiModelService';
 export * from './common/yearService';
@@ -114,7 +112,11 @@ export * from './common/productCategoryService';
 export * from './common/teamService';
 export * from './common/termsService';
 export * from './common/uniFilesService';
-export * from './common/videoMappingService'
+export * from './common/videoMappingService';
+export * from './common/uniSearchConfig/uniSearchAccountConfig';
+export * from './common/uniSearchConfig/uniSearchCustomerConfig';
+export * from './common/uniSearchConfig/uniSearchEmployeeConfig';
+export * from './common/uniSearchConfig/uniSearchSupplierConfig';
 
 @NgModule({})
 export class CommonServicesModule {
@@ -159,11 +161,10 @@ export class CommonServicesModule {
                 DimensionService,
                 EmailService,
                 UmhService,
-                UniSearchConfigGeneratorService,
-                UniSearchAccountConfigGeneratorHelper,
-                UniSearchCustomerConfigGeneratorHelper,
-                UniSearchSupplierConfigGeneratorHelper,
-                UniSearchEmployeeConfigGeneratorHelper,
+                UniSearchAccountConfig,
+                UniSearchCustomerConfig,
+                UniSearchSupplierConfig,
+                UniSearchEmployeeConfig,
                 CurrencyOverridesService,
                 CurrencyCodeService,
                 UniTickerService,

@@ -119,8 +119,8 @@ export class UniSearchAttr implements OnInit, OnChanges {
         return item ? this.config.inputTemplateFn(item) : '';
     }
 
-    private rowTemplate(item): [string | number] {
-        return item ? this.config.rowTemplateFn(item) : <[string]>[];
+    private rowTemplate(item): string[] | number[] {
+        return item ? this.config.rowTemplateFn(item) : <string[]>[];
     }
 
     private selectItem() {

@@ -20,7 +20,7 @@ import {
     BusinessRelationService,
     ErrorService,
     UniCacheService,
-    UniSearchConfigGeneratorService,
+    UniSearchEmployeeConfig,
     UserService
 } from '../../../../services/services';
 declare var _;
@@ -66,7 +66,7 @@ export class PersonalDetails extends UniView {
         private errorService: ErrorService,
         private bankaccountService: BankAccountService,
         private businessRelationService: BusinessRelationService,
-        private uniSearchConfigGeneratorService: UniSearchConfigGeneratorService,
+        private uniSearchEmployeeConfig: UniSearchEmployeeConfig,
         private userService: UserService,
         private modalService: UniModalService
     ) {
@@ -374,9 +374,8 @@ export class PersonalDetails extends UniView {
     }
 
     private getEmployeeLookupOptions() {
-        let uniSearchConfig = this.uniSearchConfigGeneratorService.generate(
-            Employee,
-            <[string]>this.expands,
+        let uniSearchConfig = this.uniSearchEmployeeConfig.generate(
+            this.expands,
             () => {
                 let employee = this.employee$.getValue();
                 let searchInfo = <any>this.uniform.field('_EmployeeSearchResult');
@@ -411,8 +410,7 @@ export class PersonalDetails extends UniView {
                 this.router.navigateByUrl(`/salary/employees/${newOrExistingItem.ID}`);
                 return Observable.empty();
             } else {
-                let employeeData = this.uniSearchConfigGeneratorService
-                    .employeeGenerator
+                let employeeData = this.uniSearchEmployeeConfig
                     .customStatisticsObjToEmployee(newOrExistingItem);
 
                 return Observable.from([employeeData]);

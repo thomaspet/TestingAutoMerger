@@ -1,68 +1,67 @@
 import {Injectable} from '@angular/core';
-import {UniEntity, Supplier, BusinessRelation, Address, Phone, Email} from '../../../unientities';
+import {UniEntity, Employee, BusinessRelation, Address, Phone, Email} from '../../../unientities';
 import {Observable} from 'rxjs/Observable';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {StatisticsService} from '../statisticsService';
-import {SupplierService} from '../../accounting/supplierService';
+import {EmployeeService} from '../../salary/employee/employeeService';
 import {ErrorService} from '../errorService';
 import {IntegrationServerCaller} from '../integrationServerCaller';
-import {MAX_RESULTS} from './uniSearchConfigGeneratorService';
 import {BusinessRelationSearch} from '../../../models/Integration/BusinessRelationSearch';
+import {IUniSearchConfig} from '../../../../framework/ui/unisearch/IUniSearchConfig';
+
+const MAX_RESULTS = 50;
 
 class CustomStatisticsResultItem {
     /* tslint:disable */
     public ID: number;
     public Name: string;
-    public OrgNumber: string;
     public PhoneNumber: string;
     public AddressLine1: string;
     public PostalCode: string;
     public City: string;
     public CountryCode: string;
     public EmailAddress: string;
-    public WebUrl: string;
 }
 
 @Injectable()
-export class UniSearchSupplierConfigGeneratorHelper {
+export class UniSearchEmployeeConfig {
 
     constructor(
         private statisticsService: StatisticsService,
-        private supplierService: SupplierService,
+        private employeeService: EmployeeService,
         private errorService: ErrorService,
         private integrationServerCaller: IntegrationServerCaller
     ) {}
 
     public generate(
-        expands: [string] = ['Info.Addresses'],
+        expands: string[] = ['BusinessRelationInfo.Addresses','BusinessRelationInfo.Phones'],
         newItemModalFn?: () => Observable<UniEntity>
-    ): any {
-        return {
+    ): IUniSearchConfig {
+        return <IUniSearchConfig>{
             lookupFn: searchTerm => this
                 .statisticsService
-                .GetAllUnwrapped(this.generateSupplierStatisticsQuery(searchTerm))
+                .GetAllUnwrapped(this.generateEmployeeStatisticsQuery(searchTerm))
                 .catch((err, obs) => this.errorService.handleRxCatch(err, obs)),
             expandOrCreateFn: (newOrExistingItem: CustomStatisticsResultItem) => {
                 if (newOrExistingItem.ID) {
-                    return this.supplierService.Get(newOrExistingItem.ID, expands)
+                    return this.employeeService.Get(newOrExistingItem.ID, expands)
                         .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
                 } else {
-                    return this.supplierService.Post(this.customStatisticsObjToSupplier(newOrExistingItem))
-                        .switchMap(item => this.supplierService.Get(item.ID, expands))
+                    return this.employeeService.Post(this.customStatisticsObjToEmployee(newOrExistingItem))
+                        .switchMap(item => this.employeeService.Get(item.ID, expands))
                         .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
                 }
             },
             initialItem$: new BehaviorSubject(null),
-            tableHeader: ['Leverandørnr', 'Navn', 'Tlf', 'Adresse', 'Poststed', 'Org.Nr'],
+            tableHeader: ['Ansattnr', 'Navn', 'Tlf', 'Adresse', 'Poststed'],
             rowTemplateFn: item => [
-                item.SupplierNumber,
+                item.EmployeeNumber,
                 item.Name,
                 item.PhoneNumber,
                 item.AddressLine1,
-                `${item.PostalCode || ''} ${item.City || ''}`,
-                item.OrgNumber
+                `${item.PostalCode || ''} ${item.City || ''}`
             ],
-            inputTemplateFn: item => `${item.SupplierNumber || ''}${item.Info && item.Info.Name ? ' ' + item.Info.Name : ''}`,
+            inputTemplateFn: item => `${item.EmployeeNumber || ''}${item.BusinessRelationInfo && item.BusinessRelationInfo.Name ? ' ' + item.BusinessRelationInfo.Name : ''}`,
             newItemModalFn: newItemModalFn,
             externalLookupFn: query =>
                 this.integrationServerCaller
@@ -76,29 +75,27 @@ export class UniSearchSupplierConfigGeneratorHelper {
         };
     }
 
-    private generateSupplierStatisticsQuery(searchTerm: string): string {
-        const model = 'Supplier';
-        const expand = 'Info.DefaultPhone,Info.InvoiceAddress,Info.DefaultEmail,Info.Phones';
+    private generateEmployeeStatisticsQuery(searchTerm: string): string {
+        const model = 'Employee';
+        const expand = 'BusinessRelationInfo.DefaultPhone,BusinessRelationInfo.InvoiceAddress,BusinessRelationInfo.DefaultEmail,BusinessRelationInfo.Phones';
         const startNumber = this.getNumberFromStartOfString(searchTerm);
-        let filter = `contains(Info.Name,'${searchTerm}')`;
-        let orderBy = 'Info.Name';
+        let filter = `contains(BusinessRelationInfo.Name,'${searchTerm}')`;
+        let orderBy = 'BusinessRelationInfo.Name';
         if (startNumber) {
-            filter = ['Supplier.OrgNumber', 'Supplier.SupplierNumber', 'Phones.Number']
+            filter = ['Employee.EmployeeNumber', 'Phones.Number']
                 .map(x => `startswith(${x},'${startNumber}')`).join(' or ');
-            orderBy = 'Supplier.SupplierNumber';
+            orderBy = 'Employee.EmployeeNumber';
         }
         const select = [
-            'Supplier.ID as ID',
-            'Info.Name as Name',
-            'Supplier.OrgNumber as OrgNumber',
-            'Supplier.SupplierNumber as SupplierNumber',
+            'Employee.ID as ID',
+            'BusinessRelationInfo.Name as Name',
             'DefaultPhone.Number as PhoneNumber',
             'InvoiceAddress.AddressLine1 as AddressLine1',
             'InvoiceAddress.PostalCode as PostalCode',
             'InvoiceAddress.City as City',
             'InvoiceAddress.CountryCode as CountryCode',
             'DefaultEmail.EmailAddress as EmailAddress',
-            'Supplier.WebUrl as WebUrl'
+            'Employee.EmployeeNumber as EmployeeNumber'
         ].join(',');
         const skip = 0;
         const top = MAX_RESULTS;
@@ -117,7 +114,6 @@ export class UniSearchSupplierConfigGeneratorHelper {
     ): CustomStatisticsResultItem {
         return {
             ID: undefined,
-            OrgNumber: businessRelationSearch.OrganizationNumber,
             Name: businessRelationSearch.Name,
             PhoneNumber: businessRelationSearch.Phone,
             AddressLine1: businessRelationSearch.Streetaddress,
@@ -125,17 +121,16 @@ export class UniSearchSupplierConfigGeneratorHelper {
             City: businessRelationSearch.City,
             CountryCode: businessRelationSearch.CountryCode,
             EmailAddress: businessRelationSearch.EmailAddress,
-            WebUrl: businessRelationSearch.Url
         };
     }
 
-    public customStatisticsObjToSupplier(statObj: CustomStatisticsResultItem): Supplier {
-        const supplier = new Supplier();
-        supplier.OrgNumber = statObj.OrgNumber;
-        supplier.WebUrl = statObj.WebUrl;
-        supplier.Info = new BusinessRelation();
-        supplier.Info.Name = statObj.Name;
-        supplier.Info.Addresses = [];
+    public customStatisticsObjToEmployee(statObj: CustomStatisticsResultItem): Employee {
+        const employee = new Employee();
+        employee.BusinessRelationInfo = new BusinessRelation();
+        employee.BusinessRelationInfo.Name = statObj.Name;
+        employee.BusinessRelationInfo.Addresses = [];
+        employee.BusinessRelationInfo.Phones = [];
+        employee.BusinessRelationInfo.Emails = [];
 
         if (statObj.AddressLine1 || statObj.City || statObj.CountryCode || statObj.PostalCode) {
 
@@ -145,25 +140,29 @@ export class UniSearchSupplierConfigGeneratorHelper {
             address.City = statObj.City;
             address.CountryCode = statObj.CountryCode;
 
-            supplier.Info.InvoiceAddress = address;
-            supplier.Info.ShippingAddress = address;
+            employee.BusinessRelationInfo.InvoiceAddress = address;
+            employee.BusinessRelationInfo.ShippingAddress = address;
 
-            supplier.Info.Addresses.push(address);
+            employee.BusinessRelationInfo.Addresses.push(address);
         }
 
         if (statObj.PhoneNumber) {
             const phone = new Phone();
             phone.Number = statObj.PhoneNumber;
-            supplier.Info.DefaultPhone = phone;
+            employee.BusinessRelationInfo.DefaultPhone = phone;
+
+            employee.BusinessRelationInfo.Phones.push(phone);
         }
 
         if (statObj.EmailAddress) {
             const mail = new Email();
             mail.EmailAddress = statObj.EmailAddress;
-            supplier.Info.DefaultEmail = mail;
+            employee.BusinessRelationInfo.DefaultEmail = mail;
+
+            employee.BusinessRelationInfo.Emails.push(mail);
         }
 
-        return supplier;
+        return employee;
     }
 
     private getNumberFromStartOfString(str: string): number {

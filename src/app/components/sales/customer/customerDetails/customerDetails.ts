@@ -38,7 +38,7 @@ import {
     CustomerInvoiceReminderSettingsService,
     CurrencyCodeService,
     TermsService,
-    UniSearchConfigGeneratorService,
+    UniSearchCustomerConfig,
     NumberSeriesService
 } from '../../../../services/services';
 import {
@@ -195,7 +195,7 @@ export class CustomerDetails {
         private numberFormat: NumberFormat,
         private customerInvoiceReminderSettingsService: CustomerInvoiceReminderSettingsService,
         private currencyCodeService: CurrencyCodeService,
-        private uniSearchConfigGeneratorService: UniSearchConfigGeneratorService,
+        private uniSearchCustomerConfig: UniSearchCustomerConfig,
         private modalService: UniModalService,
         private http: UniHttp,
         private termsService: TermsService,
@@ -820,9 +820,8 @@ export class CustomerDetails {
     }
 
     private getCustomerLookupOptions() {
-        let uniSearchConfig = this.uniSearchConfigGeneratorService.generate(
-            Customer,
-            <[string]>this.expandOptions,
+        let uniSearchConfig = this.uniSearchCustomerConfig.generate(
+            this.expandOptions,
             () => {
                 let customer = this.customer$.getValue();
                 const searchInfo = this.form.field('_CustomerSearchResult');
@@ -850,8 +849,7 @@ export class CustomerDetails {
                 this.router.navigateByUrl(`/sales/customer/${newOrExistingItem.ID}`);
                 return Observable.empty();
             } else {
-                let customerData = this.uniSearchConfigGeneratorService
-                            .customerGenerator
+                let customerData = this.uniSearchCustomerConfig
                             .customStatisticsObjToCustomer(newOrExistingItem);
 
                 return Observable.from([customerData]);

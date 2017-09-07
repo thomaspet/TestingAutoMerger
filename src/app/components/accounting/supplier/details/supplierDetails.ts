@@ -34,7 +34,7 @@ import {
     ErrorService,
     UniQueryDefinitionService,
     CurrencyCodeService,
-    UniSearchConfigGeneratorService,
+    UniSearchSupplierConfig,
     NumberSeriesService
 } from '../../../../services/services';
 
@@ -146,7 +146,7 @@ export class SupplierDetails implements OnInit {
                 private uniQueryDefinitionService: UniQueryDefinitionService,
                 private errorService: ErrorService,
                 private currencyCodeService: CurrencyCodeService,
-                private uniSearchConfigGeneratorService: UniSearchConfigGeneratorService,
+                private uniSearchSupplierConfig: UniSearchSupplierConfig,
                 private modalService: UniModalService,
                 private numberSeriesService: NumberSeriesService) {
     }
@@ -732,9 +732,8 @@ export class SupplierDetails implements OnInit {
     }
 
     private getSupplierLookupOptions() {
-        let uniSearchConfig = this.uniSearchConfigGeneratorService.generate(
-            Supplier,
-            <[string]>this.expandOptions,
+        let uniSearchConfig = this.uniSearchSupplierConfig.generate(
+            this.expandOptions,
             () => {
                 let supplier = this.supplier$.getValue();
                 let searchInfo = <any>this.form.field('_SupplierSearchResult');
@@ -759,8 +758,7 @@ export class SupplierDetails implements OnInit {
                 this.router.navigateByUrl(`/accounting/suppliers/${newOrExistingItem.ID}`);
                 return Observable.empty();
             } else {
-                let supplierData = this.uniSearchConfigGeneratorService
-                            .supplierGenerator
+                let supplierData = this.uniSearchSupplierConfig
                             .customStatisticsObjToSupplier(newOrExistingItem);
 
                 return Observable.from([supplierData]);

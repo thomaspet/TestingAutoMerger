@@ -9,7 +9,7 @@ import {
 import {
     CompanySettingsService,
     ErrorService,
-    UniSearchConfigGeneratorService,
+    UniSearchAccountConfig,
     CurrencyService,
 } from '../../../app/services/services';
 import {
@@ -74,7 +74,7 @@ export class UniRegisterPaymentModal implements IUniModal {
         private errorService: ErrorService,
         private currencyService: CurrencyService,
         private toastService: ToastService,
-        private searchConfigService: UniSearchConfigGeneratorService
+        private uniSearchAccountConfig: UniSearchAccountConfig
     ) {}
 
     public ngOnInit() {
@@ -337,7 +337,7 @@ export class UniRegisterPaymentModal implements IUniModal {
                 Label: 'Konto',
                 Placeholder: 'Konto for bilagsføring av agio',
                 Options: {
-                    uniSearchConfig: this.searchConfigService.generate(Account),
+                    uniSearchConfig: this.uniSearchAccountConfig.generateOnlyMainAccountsConfig(),
                     valueProperty: 'ID'
                 },
             },
@@ -365,7 +365,7 @@ export class UniRegisterPaymentModal implements IUniModal {
                 Label: 'Konto',
                 Placeholder: 'Konto for bilagsføring av gebyr',
                 Options: {
-                    uniSearchConfig: this.searchConfigService.generate(Account),
+                    uniSearchConfig: this.uniSearchAccountConfig.generateOnlyMainAccountsConfig(),
                     valueProperty: 'ID'
                 },
             }

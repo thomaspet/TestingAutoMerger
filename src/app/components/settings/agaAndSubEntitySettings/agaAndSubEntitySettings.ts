@@ -7,7 +7,7 @@ import {UniModalService} from '../../../../framework/uniModal/barrel';
 import {GrantModal} from './modals/grantModal';
 import {FreeAmountModal} from './modals/freeAmountModal';
 import {Observable} from 'rxjs/Observable';
-import {UniSearchAccountConfigGeneratorHelper} from '../../../services/common/uniSearchConfig/uniSearchAccountConfigGeneratorHelper';
+import {UniSearchAccountConfig} from '../../../services/common/uniSearchConfig/uniSearchAccountConfig';
 import {
     CompanySalary,
     Account,
@@ -67,7 +67,7 @@ export class AgaAndSubEntitySettings implements OnInit {
         private subentityService: SubEntityService,
         private agazoneService: AgaZoneService,
         private errorService: ErrorService,
-        private uniSearchAccountConfig: UniSearchAccountConfigGeneratorHelper,
+        private uniSearchAccountConfig: UniSearchAccountConfig,
         private modalService: UniModalService
     ) {
         this.formConfig$.next({
