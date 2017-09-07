@@ -126,7 +126,10 @@ export class InvoiceDetails {
         'Dimensions.Department',
         'Info',
         'Info.Addresses',
-        'PaymentTerms'
+        'Info.Emails',
+        'PaymentTerms',
+        'Sellers',
+        'Sellers.Seller'
     ];
 
     private expandOptions: Array<string> = [
@@ -230,13 +233,23 @@ export class InvoiceDetails {
                     let invoice = <CustomerInvoice>res[0];
                     invoice.OurReference = res[1].DisplayName;
                     invoice.InvoiceDate = new LocalDate(Date());
-                    invoice.PaymentDueDate = new LocalDate(
-                        moment(invoice.InvoiceDate).add(this.companySettings.CustomerCreditDays, 'days').toDate()
-                    );
-                    invoice.DeliveryDate = invoice.InvoiceDate;
 
                     if (res[2]) {
                         invoice = this.tofHelper.mapCustomerToEntity(res[2], invoice);
+                    }
+
+                    if (!invoice.PaymentTerms && !invoice.PaymentDueDate) {
+                        invoice.PaymentDueDate = new LocalDate(
+                            moment(invoice.InvoiceDate).add(this.companySettings.CustomerCreditDays, 'days').toDate()
+                        );
+                    } else {
+                        this.setPaymentDueDate(invoice);
+                    }
+                    
+                    if (invoice.DeliveryTerms && invoice.DeliveryTerms.CreditDays) {
+                        this.setDeliveryDate(invoice);
+                    } else {
+                        invoice.DeliveryDate = invoice.InvoiceDate;
                     }
 
                     if (!invoice.CurrencyCodeID) {

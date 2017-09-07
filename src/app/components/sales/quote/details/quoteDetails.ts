@@ -107,13 +107,16 @@ export class QuoteDetails {
     private customerExpandOptions: string[] = [
         'Info',
         'Info.Addresses',
+        'Info.Emails',
         'Info.InvoiceAddress',
         'Info.ShippingAddress',
         'Dimensions',
         'Dimensions.Project',
         'Dimensions.Department',
         'PaymentTerms',
-        'DeliveryTerms'
+        'DeliveryTerms',
+        'Sellers',
+        'Sellers.Seller'
     ];
     private expandOptions: Array<string> = [
         'Items',
@@ -238,11 +241,16 @@ export class QuoteDetails {
                         let quote = <CustomerQuote>res[0];
                         quote.OurReference = res[1].DisplayName;
                         quote.QuoteDate = new LocalDate(Date());
-                        quote.DeliveryDate = quote.QuoteDate;
                         quote.ValidUntilDate = null;
 
                         if (res[6]) {
                             quote = this.tofHelper.mapCustomerToEntity(res[6], quote);
+                            
+                            if (quote.DeliveryTerms && quote.DeliveryTerms.CreditDays) {
+                                this.setDeliveryDate(quote);
+                            } 
+                        } else {
+                            quote.DeliveryDate = quote.QuoteDate;
                         }
 
                         if (res[7]) {

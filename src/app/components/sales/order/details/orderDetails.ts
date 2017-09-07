@@ -123,9 +123,12 @@ export class OrderDetails {
         'Dimensions.Project.ProjectTasks',
         'Info',
         'Info.Addresses',
+        'Info.Emails',
         'Info.InvoiceAddress',
         'Info.ShippingAddress',
-        'PaymentTerms'
+        'PaymentTerms',
+        'Sellers',
+        'Sellers.Seller'
     ];
 
     private expandOptions: Array<string> = [
@@ -260,12 +263,17 @@ export class OrderDetails {
                         let order = <CustomerOrder>res[0];
                         order.OurReference = res[1].DisplayName;
                         order.OrderDate = new LocalDate(Date());
-                        order.DeliveryDate = order.OrderDate;
 
                         this.companySettings = res[2];
 
                         if (res[6]) {
                             order = this.tofHelper.mapCustomerToEntity(res[6], order);
+                            
+                            if (order.DeliveryTerms && order.DeliveryTerms.CreditDays) {
+                                this.setDeliveryDate(order);
+                            } 
+                        } else {
+                            order.DeliveryDate = order.OrderDate;
                         }
 
                         if (res[7]) {
