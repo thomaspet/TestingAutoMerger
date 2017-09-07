@@ -21,7 +21,6 @@ import {UniQueryDefinitionService} from './common/uniQueryDefinitionService';
 import {UniTickerService} from './common/uniTickerService';
 import {CountryService} from './common/countryService';
 import {PostalCodeService} from './common/postalCodeService';
-import {UniMenuAim} from './common/uniMenuAim';
 import {NumberFormat} from './common/numberFormatService';
 import {StatusService} from './common/statusService';
 import {SettingsService} from './common/settingsService';
@@ -81,7 +80,6 @@ export * from './common/uniQueryDefinitionService';
 export * from './common/uniTickerService';
 export * from './common/countryService';
 export * from './common/postalCodeService';
-export * from './common/uniMenuAim';
 export * from './common/numberFormatService';
 export * from './common/statusService';
 export * from './common/settingsService';
@@ -145,7 +143,6 @@ export class CommonServicesModule {
                 StatisticsService,
                 CountryService,
                 PostalCodeService,
-                UniMenuAim,
                 NumberFormat,
                 StatusService,
                 SettingsService,
