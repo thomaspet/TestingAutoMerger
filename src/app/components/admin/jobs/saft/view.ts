@@ -1,6 +1,6 @@
 import {Component, OnInit, ViewChild} from '@angular/core';
 import {ErrorService, JobService, FileService} from '../../../../services/services';
-import {Http, Headers} from '@angular/http';
+import {Http} from '@angular/http';
 import {AuthService} from '../../../../../framework/core/authService';
 import {TimerObservable} from 'rxjs/observable/TimerObservable';
 import {AppConfig} from '../../../../AppConfig';
@@ -8,7 +8,7 @@ import {
     UniModalService,
     ConfirmActions
 } from '../../../../../framework/uniModal/barrel';
-
+import {SaftImportModal} from './saftimportmodal';
 import * as moment from 'moment';
 
 const JOBNAME: string = 'ImportSaft';
@@ -19,9 +19,7 @@ const COMPLETEMESSAGE: string = 'Import completed';
     templateUrl: './view.html'
 })
 export class SaftExportView implements OnInit {
-    @ViewChild('fileInput')
-    private fileInput: any;
-
+    @ViewChild('fileInput') private fileInput: any;
     private busy: boolean = false;
     private busyFetch: boolean = false;
     private files: Array<ISaftFileInfo> = [];
@@ -72,35 +70,31 @@ export class SaftExportView implements OnInit {
     }
 
     public onJobStart(file: ISaftFileInfo) {
-        this.modalService.confirm({
-            header: 'SAF-T IMPORT',
-            message: `Starte SAF-T import av ${file.FileName}?`,
-            buttonLabels: {
-                accept: 'Importer med IB',
-                reject: 'Importer uten IB',
-                cancel: 'Avbryt'
-            },
-            warning: 'PS! Du kan lese inn filen flere ganger dersom det skulle oppstå problemer'
-        }).onClose.subscribe(response => {
-            if (response === ConfirmActions.CANCEL) {
-                return;
+
+        this.modalService.open(SaftImportModal, 
+            { header: 'SAF-T IMPORT', data: { 
+                IncludeStartingBalance: true, 
+                ReuseExistingNumbers: true, 
+                file: file } })
+        .onClose.subscribe(response => {
+            if (response) { 
+                file.busy = true;
+                this.currentFileId = file.FileID;
+                const details = {
+                    FileID: file.FileID,
+                    FileName: file.FileName,
+                    CompanyKey: this.activeCompany.Key,
+                    IncludeStartingBalance: response.IncludeStartingBalance,
+                    ReuseExistingNumbers: response.ReuseExistingNumbers
+                };
+
+                this.jobService.startJob(JOBNAME, undefined, details)
+                    .finally(() => file.busy = false)
+                    .subscribe((jobID: number) => {
+                        this.fileService.tag(file.FileID, 'jobid', jobID)
+                            .subscribe(() => this.refresh());
+                    });
             }
-
-            file.busy = true;
-            this.currentFileId = file.FileID;
-            const details = {
-                FileID: file.FileID,
-                FileName: file.FileName,
-                CompanyKey: this.activeCompany,
-                IncludeStartingBalance: response === ConfirmActions.ACCEPT
-            };
-
-            this.jobService.startJob(JOBNAME, undefined, details)
-                .finally(() => file.busy = false)
-                .subscribe((jobID: number) => {
-                    this.fileService.tag(file.FileID, 'jobid', jobID)
-                        .subscribe(() => this.refresh());
-                });
         });
     }
 
@@ -132,8 +126,7 @@ export class SaftExportView implements OnInit {
 
     private loadList() {
         this.busyFetch = true;
-        this.files = [];
-        // tslint:disable-next-line:max-line-length
+        this.files = [];        
         this.fileService.getStatistics('model=file&select=id,name,size,statuscode,contenttype'
             + ',filetag.tagname as tag,filetag.status as status'
             + "&filter=statuscode eq 20001 and (filetag.tagname eq 'SAFT' or filetag.tagname eq 'jobid')"
@@ -173,27 +166,29 @@ export class SaftExportView implements OnInit {
         this.jobService.getJobRun(JOBNAME, <any>file.jobid, 2)
             .finally( () => file.busyFetch = false )
             .subscribe( x => {
-                file.jobStatus = (x && x.Progress && x.Progress.length > 0) ? x.Progress[0].Progress : '';
-                if (file.jobStatus && file.jobStatus.indexOf(COMPLETEMESSAGE) >= 0) {
-                    file.disabled = false;
-                    file.hasActiveJob = false;
-                } else {
-                    var lastProgress = x.Progress && x.Progress.length > 0 ? moment(x.Progress[0].Created) : moment();
-                    var diff = moment.duration(moment().diff(moment(lastProgress)));
-                    file.diff = parseInt(diff.asMinutes().toFixed(0));
-                    file.hasActiveJob = file.diff < 6;
-                    file.disabled = file.hasActiveJob;
-                }
-                if (x.Exception) {
-                    file.disabled = false;
-                    file.hasActiveJob = false;
-                    file.hasError = true;
+                if (x) {
+                    file.jobStatus = (x.Progress && x.Progress.length > 0) ? x.Progress[0].Progress : '';
+                    if (file.jobStatus && file.jobStatus.indexOf(COMPLETEMESSAGE) >= 0) {
+                        file.disabled = false;
+                        file.hasActiveJob = false;
+                    } else {
+                        var lastProgress = x.Progress && x.Progress.length > 0 ? 
+                            moment(x.Progress[0].Created) : moment();
+                        var diff = moment.duration(moment().diff(moment(lastProgress)));
+                        file.diff = parseInt(diff.asMinutes().toFixed(0));
+                        file.hasActiveJob = file.diff < 6;
+                        file.disabled = file.hasActiveJob;
+                    }
+                    if (x.Exception) {
+                        file.disabled = false;
+                        file.hasActiveJob = false;
+                        file.hasError = true;
+                    }
                 }
             });
     }
 
     public onUploadClick() {
-        // debugger;
         let ip: any = this.fileInput.nativeElement;
         if (ip && ip.files && ip.files.length > 0) {
             let f: IFile = <IFile>ip.files[0];
@@ -203,7 +198,7 @@ export class SaftExportView implements OnInit {
             data.append('Token', this.token);
             data.append('Key', this.activeCompany.Key);
             data.append('Caption', ''); // where should we get this from the user?
-            data.append('File', f);
+            data.append('File', <any>f);
 
             this.ngHttp.post(this.baseUrl + '/api/file', data)
                 .map(res => res.json())
@@ -213,10 +208,11 @@ export class SaftExportView implements OnInit {
                     // collection
                     this.fileService.Get(res.ExternalId)
                         .subscribe(newFile => {
-                            this.fileService.tag(newFile.ID, 'SAFT', 1).subscribe();
+                            this.fileService.tag(newFile.ID, 'SAFT', 1).subscribe(
+                                x => this.refresh()
+                            );
                             this.currentFileId = newFile.ID;
-                            this.busy = false;
-                            this.refresh();
+                            this.busy = false;                            
                         }, err => this.errorService.handle(err));
                 }, err => this.errorService.handle(err));
         }

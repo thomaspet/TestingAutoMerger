@@ -1,6 +1,7 @@
 // angular
 import {Component, OnInit} from '@angular/core';
 import {Router} from '@angular/router';
+import {PageStateService} from '../../../../services/services';
 import {UniTableConfig, UniTableColumn} 
     from '../../../../../framework/ui/unitable/index';
 import * as moment from 'moment';
@@ -32,16 +33,30 @@ export class JobList implements OnInit {
         private tabService: TabService,
         private router: Router,
         private jobService: JobService,
-        private errorService: ErrorService) {
+        private errorService: ErrorService,
+        private pageStateService: PageStateService) {
     }
 
     public ngOnInit() {
+
         this.tabService.addTab({
             url: '/admin/jobs',
             name: 'Jobber',
             active: true,
             moduleID: UniModules.Jobs
         });
+        
+        // Select view?
+        var params = this.pageStateService.getPageState(); 
+        if (params.jobtype) {
+            let ix = this.filterTabs.findIndex( t => t.name === params.jobtype);
+            if (ix >= 0) {
+                this.activeTab = this.filterTabs[ix];
+                if (this.activeTab.name === 'saft') {
+                    return;
+                }
+            }
+        }
 
         this.setupJobTable();
     }
@@ -132,5 +147,9 @@ export class JobList implements OnInit {
 
     public onTabChange(tab) {
         this.activeTab = tab;
+        this.pageStateService.setPageState('jobtype', tab.name);
+        if (!this.jobRunsConfig) {
+            this.setupJobTable();
+        }
     }
 }
