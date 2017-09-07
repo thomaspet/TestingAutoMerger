@@ -3,6 +3,7 @@ import {IUniWidget} from '../uniWidget';
 import {WidgetDatasetBuilder, ChartColorEnum} from '../widgetDatasetBuilder';
 import {WidgetDataService} from '../widgetDataService';
 import {Observable} from 'rxjs/Observable';
+import {FinancialYearService} from '../../../services/services';
 import * as Chart from 'chart.js';
 
 @Component({
@@ -32,7 +33,8 @@ export class UniChartWidget {
 
     constructor(
         private widgetDataService: WidgetDataService,
-        private el: ElementRef
+        private el: ElementRef,
+        private yearService: FinancialYearService
     ) {
         Observable.fromEvent(window, 'resize')
             .throttleTime(100)
@@ -82,13 +84,13 @@ export class UniChartWidget {
             this.myChart.destroy();
         }
 
-        let obs = [];
+        let sources = [];
         this.widget.config.dataEndpoint.forEach((endpoint) => {
-            obs.push(this.widgetDataService.getData(endpoint));
+            sources.push(this.widgetDataService.getData(endpoint));
         });
 
-        Observable.forkJoin(obs).subscribe(
-            (res: any) => {
+        Observable.forkJoin(sources).subscribe(
+            res => {
                 res.forEach((item: any, i) => {
                     if (item.Success) {
                         this.datasets.push(this.builder.buildSingleColorDataset(
@@ -105,6 +107,8 @@ export class UniChartWidget {
             },
             err => console.log(err)
         );
+
+
     }
 
     private drawChart() {
