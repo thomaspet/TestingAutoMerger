@@ -12,6 +12,7 @@
     <section class="sidemenu_calender_container"  [hidden]="sidemenuMinified">
             <unitable-calendar class="sidemenu_calender"
                                (dateChange)="onCalendarDateChange($event)"
+                               (monthChange)="onCalendarMonthChange($event)"
                                (keydown.esc)="hideCalendar()"
                                [date]="periode.date"
                                [config]="calendarConfig"></unitable-calendar>

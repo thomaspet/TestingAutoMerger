@@ -2,6 +2,7 @@
 import {TimeTrackingPeriodes} from '../timeentry/timeentry';
 import {WorkerService, IFilter} from '../../../services/timetracking/workerService';
 import {UniTemplateModal} from '../components/newtemplatemodal';
+import {UniCalendar} from '../../../../framework/ui/unitable/controls/common/calendar'
 import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
 import * as moment from 'moment';
 
@@ -37,11 +38,13 @@ export class SideMenu {
     private timeTrackingTemplates: ITemplate[] = this.dummyTemplates();
 
     @ViewChild(UniTemplateModal) private templateModal: UniTemplateModal;
+    @ViewChild(UniCalendar) private calendar: UniCalendar;
     @Input() private periode: IFilter;
     @Output() public dateSelected: EventEmitter<Date> = new EventEmitter();
+    @Output() public monthChanged: EventEmitter<any> = new EventEmitter();
     @Output() public templateSelected: EventEmitter<any> = new EventEmitter();
     private sidemenuMinified: boolean = false;
-    private calendarConfig: any = {
+    public calendarConfig: any = {
         allowSelection: true,
         dailyProgress: []
     }
@@ -84,11 +87,18 @@ export class SideMenu {
         this.templateModal.open().then(x => { });
     }
 
+    private onCalendarMonthChange(month: any) {
+        this.monthChanged.emit(month);
+    }
+
     private onCalendarDateChange(date: Date) {
         this.dateSelected.emit(date);
     }
 
     private setTodayAsCurrentDay() {
+        if (this.calendar.calendarDate.month() !== new Date().getMonth()) {
+            this.monthChanged.emit(moment(new Date()));
+        }
         this.periode.date = new Date();
         this.dateSelected.emit(new Date());
     }

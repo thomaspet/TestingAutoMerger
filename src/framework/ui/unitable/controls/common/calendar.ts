@@ -26,6 +26,10 @@ import * as moment from 'moment';
                             'selected': weekday.selected
                         }">
                         {{weekday.day}}
+                        <div 
+                            *ngIf="config?.dailyProgress.length" 
+                            [ngClass]="config.dailyProgress[outerIndex][innerIndex]">
+                        </div>
                     </td>
                 </tr>
             </tbody>
@@ -37,14 +41,17 @@ export class UniCalendar {
     private date: Date;
 
     @Input()
-    private config: any;
+    private config: any; 
 
     @Output()
     private dateChange: EventEmitter<any> = new EventEmitter<any>();
 
+    @Output()
+    private monthChange: EventEmitter<any> = new EventEmitter<any>();
+
     private weekdays: string[];
     private selectedDate: moment.Moment;
-    private calendarDate: moment.Moment;
+    public calendarDate: moment.Moment;
     private calendarWeeks: any[] = [];
     private isCtrlDown: boolean = false;
     private previousIndex: number[] = [];
@@ -54,13 +61,13 @@ export class UniCalendar {
         this.weekdays = (<any>moment).weekdaysMin(true);
 
         document.onkeydown = (e) => {
-            if (e.keyCode === 17) {
+            if (e.keyCode === 16) {
                 this.isCtrlDown = true;
             }
         };
 
         document.onkeyup = (e) => {
-            if (e.keyCode === 17) {
+            if (e.keyCode === 16) {
                 this.isCtrlDown = false;
             }
         }
@@ -107,7 +114,7 @@ export class UniCalendar {
         }
 
         this.calendarWeeks = [];
-        for (let i = 0; i <= 4; i++) {
+        for (let i = 0; i <= 5; i++) {
             this.calendarWeeks[i] = days.splice(0, 7);
             for (var j = 0; j < this.calendarWeeks[i].length; j++) {
                 if (this.calendarWeeks[i][j].selected) {
@@ -120,6 +127,9 @@ export class UniCalendar {
     public dateSelected(date, week, day) {
         // Make this previous selected date
         let firstDate = this.selectedDate.clone();
+
+        //Makes sure that numbers are not marked as selected text
+        document.getSelection().removeAllRanges();
 
         // Remove all selected
         this.calendarWeeks.forEach((calendarWeek: any[]) => {
@@ -187,12 +197,14 @@ export class UniCalendar {
         this.monthHasChanged = true;
         this.calendarDate.subtract(1, 'month');
         this.generateCalendarPage(this.calendarDate);
+        this.monthChange.emit(this.calendarDate);
     }
 
     public nextMonth() {
         this.monthHasChanged = true;
         this.calendarDate.add(1, 'month');
         this.generateCalendarPage(this.calendarDate);
+        this.monthChange.emit(this.calendarDate)
     }
 
 

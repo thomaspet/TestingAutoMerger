@@ -84,18 +84,25 @@ export class TimeEntry {
     };
 
     private actions: IUniSaveAction[] = [
-            { label: 'Lagre endringer', action: (done) => this.save(done), main: true, disabled: true }
-        ];
+        { label: 'Lagre endringer', action: (done) => this.save(done), main: true, disabled: true }
+    ];
 
-    public tabs: Array<any> = [ { name: 'timeentry', label: 'Registrering', isSelected: true },
-            { name: 'timesheet', label: 'Timeliste', activate: (ts: any, filter: any) =>
-                this.timeTable.activate() },
-            { name: 'totals', label: 'Totaler', activate: (ts: any, filter: any) =>
-                this.regtimeTotals.activate(ts, filter) },
-            { name: 'flex', label: 'Timesaldo', counter: 0 },
-            { name: 'vacation', label: 'Ferie', activate: (ts: any, filter: any) => {
-                this.tabs[4].activated = true; } },
-            ];
+    public tabs: Array<any> = [{ name: 'timeentry', label: 'Registrering', isSelected: true },
+    {
+        name: 'timesheet', label: 'Timeliste', activate: (ts: any, filter: any) =>
+            this.timeTable.activate()
+    },
+    {
+        name: 'totals', label: 'Totaler', activate: (ts: any, filter: any) =>
+            this.regtimeTotals.activate(ts, filter)
+    },
+    { name: 'flex', label: 'Timesaldo', counter: 0 },
+    {
+        name: 'vacation', label: 'Ferie', activate: (ts: any, filter: any) => {
+            this.tabs[4].activated = true;
+        }
+    },
+    ];
     public tabPositions: Array<number> = [0, 1, 2, 3, 4];
 
     public toolbarConfig: any = {
@@ -148,12 +155,13 @@ export class TimeEntry {
 
     private init(workerId?: number) {
         if (workerId) {
-            this.service.getByID(workerId, 'workers', 'Info').subscribe( (worker: Worker) => {
+            this.service.getByID(workerId, 'workers', 'Info').subscribe((worker: Worker) => {
                 this.updateToolbar(worker.Info.Name);
             }, err => this.errorService.handle(err));
         } else {
             this.userName = this.service.user.name;
         }
+
         this.currentFilter = this.filters[0];
         this.initWorker(workerId);
     }
@@ -219,8 +227,29 @@ export class TimeEntry {
                 this.currentFilter.bigLabel = moment(event).format('Do MMMM YYYY');
                 this.showProgress(event);
             }
-            
+
         });
+    }
+
+    private onMonthChanged(event) {
+        let endpoint;
+        if (event.month() === new Date().getMonth() && event.year() === new Date().getFullYear()) {
+            endpoint = 'workrelations/' + this.workRelations[0].ID + '?action=timesheet&fromdate='
+                + moment().startOf('month').startOf('week').format().slice(0, 10)
+                + '&todate=' + moment().format().slice(0, 10);
+        } else if (event.year() >= new Date().getFullYear() && event.month() > new Date().getMonth()) {
+            this.prepFlexData({ Items: []});
+            return;
+        } else {
+            endpoint = 'workrelations/' + this.workRelations[0].ID + '?action=timesheet&fromdate='
+                + moment().year(event.year()).month(event.month()).startOf('month').startOf('week').format().slice(0, 10)
+                + '&todate=' + moment().year(event.year()).month(event.month()).endOf('month').add(1, 'week').endOf('week').format().slice(0, 10);
+        }
+
+
+        this.getProgressData(endpoint).subscribe((data: any) => {
+            this.prepFlexData(data);
+        })
     }
 
     private onTemplateSelected(event: ITemplate) {
@@ -261,7 +290,7 @@ export class TimeEntry {
     }
 
     private indexOfTab(name: string): number {
-        return this.tabs.findIndex( x => x.name === name);
+        return this.tabs.findIndex(x => x.name === name);
     }
 
     public onTabClick(tab: ITab) {
@@ -321,6 +350,9 @@ export class TimeEntry {
                 this.initNewUser();
                 return;
             }
+
+            this.getFlexDataForCurrentMonth();
+
             this.timeSheet = ts;
             this.loadItems();
             this.updateToolbar(!workerid ? this.service.user.name : '', this.workRelations);
@@ -346,15 +378,27 @@ export class TimeEntry {
         });
     }
 
-    private updateToolbar(name?: string, workRelations?: Array<WorkRelation> ) {
+    private getFlexDataForCurrentMonth() {
+    console.log('Hello world')
+        let endpoint = 'workrelations/' + this.workRelations[0].ID + '?action=timesheet&fromdate='
+            + moment().startOf('month').startOf('week').format().slice(0, 10)
+            + '&todate=' + moment().format().slice(0, 10);
+
+
+        this.getProgressData(endpoint).subscribe((data: any) => {
+            this.prepFlexData(data);
+        })
+    }
+
+    private updateToolbar(name?: string, workRelations?: Array<WorkRelation>) {
 
         this.userName = name || this.userName;
         var contextMenus = this.initialContextMenu.slice();
         var list = workRelations || this.workRelations;
         if (list && list.length > 1) {
-            list.forEach( x => {
+            list.forEach(x => {
                 var label = `Stilling: ${x.Description || ''} ${x.WorkPercentage}%`;
-                contextMenus.push( { label: label, action: () => this.setWorkRelationById(x.ID) });
+                contextMenus.push({ label: label, action: () => this.setWorkRelationById(x.ID) });
             });
         }
 
@@ -431,6 +475,31 @@ export class TimeEntry {
 
     private loadFlex(rel: WorkRelation) {
         this.regtimeBalance.refresh(rel);
+    }
+
+    // Formats flex data and sends it to calendar component
+    private prepFlexData(data: any) {
+        let flexDays = [];
+        let flexWeeks = [];
+        console.log(data);
+        data.Items.forEach((item) => {
+            if (item.IsWeekend) {
+                flexDays.push('');
+            } else {
+                flexDays.push(item.Flextime >= 0 ? 'calendar_flexplus' : 'calendar_flexminus');
+            }
+        })
+
+        //Fill the month up
+        for (let indexInFlexDays = flexDays.length - 1; indexInFlexDays < 42; indexInFlexDays++) {
+            flexDays.push('');
+        }
+
+        for (let i = 0; i <= 5; i++) {
+            flexWeeks.push(flexDays.splice(0, 7))
+        }
+
+        this.sideMenu.calendarConfig.dailyProgress = flexWeeks;
     }
 
     private save(done?: any): Promise<boolean> {
