@@ -16,9 +16,9 @@ export class UserService extends BizHttp<User> {
         this.entityType = User.EntityType;
         this.DefaultOrderBy = null;
 
-        // this.authService.authentication$.subscribe((auth) => {
-        //     this.userObservable = undefined;
-        // });
+        this.http.authService.authentication$.subscribe((auth) => {
+            this.userObservable = undefined;
+        });
     }
 
     public getCurrentUser(): Observable<User> {
