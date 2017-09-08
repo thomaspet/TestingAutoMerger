@@ -41,7 +41,7 @@ export class UniShortcutWidget {
         if (this.widget && this.widget.config && this.widget.config.link) {
             this.userService.canActivateUrl(this.widget.config.link).subscribe(canActivate => {
                 this.disabled = !canActivate;
-                this.cdr.detectChanges();
+                this.cdr.markForCheck();
             });
         }
     }
