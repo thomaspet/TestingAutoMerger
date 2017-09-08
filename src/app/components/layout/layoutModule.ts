@@ -15,6 +15,7 @@ import {UniTabs} from './uniTabs/uniTabs';
 import {UniFeedback} from '../common/feedback/feedback';
 import {UniNumberFormatPipe} from '../../pipes/uniNumberFormatPipe';
 import {YearModal, YearModalContent} from './navbar/userinfo/companyDropdown/modals/yearModal';
+import {UniHelpText} from './helpText/helpText';
 
 @NgModule({
     imports: [
@@ -36,7 +37,8 @@ import {YearModal, YearModalContent} from './navbar/userinfo/companyDropdown/mod
         UniCompanyDropdown,
         YearModal,
         YearModalContent,
-        UniFeedback
+        UniFeedback,
+        UniHelpText
     ],
     providers: [
         UniNumberFormatPipe
@@ -54,7 +56,8 @@ import {YearModal, YearModalContent} from './navbar/userinfo/companyDropdown/mod
         UniCompanyDropdown,
         YearModal,
         YearModalContent,
-        UniFeedback
+        UniFeedback,
+        UniHelpText
     ]
 })
 export class LayoutModule {}
