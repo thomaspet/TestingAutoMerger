@@ -578,20 +578,16 @@ export class WagetypeDetail extends UniView {
     private showTilleggsPakker(wageType: WageType, fields: any[]): void {
         let selectedPackage: any = this.supplementPackages.find(x => x.uninavn === wageType.SupplementPackage);
         this.showSupplementaryInformations = false;
+        
         if (selectedPackage) {
-            let supInfo: Array<any> = [];
+            let supInfo: WageTypeSupplement[] = [];
             selectedPackage.additions.forEach(addition => {
                 supInfo.push(addition);
             });
 
-            if (supInfo && supInfo.length > 0) {
-                this.setDeleteOnDuplicates(supInfo, wageType);
-            } else {
-                wageType.SupplementaryInformations.forEach(supplement => {
-                    supplement['_setDelete'] = true;
-                });
-            }
-            if (!!wageType.SupplementaryInformations.length) {
+            this.setDeleteOnDuplicates(supInfo, wageType);
+
+            if (!!wageType.SupplementaryInformations.length && supInfo.length) {
                 this.showSupplementaryInformations = true;
                 fields.map(field => {
                     if (field.Property === 'SupplementPackage') {
@@ -602,21 +598,12 @@ export class WagetypeDetail extends UniView {
         }
     }
 
-    private setDeleteOnDuplicates(additions, wageType: WageType): void {
-        // filter out not saved supplements
+    private setDeleteOnDuplicates(additions: WageTypeSupplement[], wageType: WageType): void {
         wageType.SupplementaryInformations = wageType.SupplementaryInformations.filter(x => x.ID);
-        // set delete for those supplements thats not in selected addition-package
+        
         if (wageType.SupplementaryInformations && wageType.SupplementaryInformations.length) {
             for (var g = 0; g < wageType.SupplementaryInformations.length; g++) {
-                let setDelete = true;
-                for (var h = 0; h < additions.length; h++) {
-                    if (additions[h].Name === wageType.SupplementaryInformations[g].Name) {
-                        setDelete = false;
-                    }
-                }
-                if (setDelete) {
-                    wageType.SupplementaryInformations[g].Deleted = true;
-                }
+                wageType.SupplementaryInformations[g]['_setDelete'] = true;
             }
         }
 
@@ -640,7 +627,10 @@ export class WagetypeDetail extends UniView {
         let suggestedValue = new UniTableColumn('SuggestedValue', 'Fast verdi', UniTableColumnType.Text);
 
         this.tilleggspakkeConfig = new UniTableConfig('salary.wagetype.details.tilleggspakke', true, true, 15)
-            .setFilters([{ field: '_setDelete', operator: 'ne', value: 'true', group: 0 }])
+            .setFilters([
+                { field: '_setDelete', operator: 'ne', value: 'true', group: 0 },
+                { field: 'Deleted', operator: 'ne', value: 'true', group: 0 }
+            ])
             .setColumns([tilleggsopplysning, suggestedValue])
             .setAutoAddNewRow(false);
     }

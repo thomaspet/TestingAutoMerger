@@ -167,7 +167,7 @@ export class WageTypeView extends UniView {
 
         saver.subscribe((wageType: WageType) => {
             if (updateView) {
-                super.updateState('wagetype', this.wageType, false);
+                super.updateState('wagetype', wageType, false);
                 let childRoute = this.router.url.split('/').pop();
                 this.router.navigateByUrl(this.url + wageType.ID + '/' + childRoute);
                 done('lagring fullført');
