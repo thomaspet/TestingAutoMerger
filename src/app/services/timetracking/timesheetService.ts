@@ -1,6 +1,6 @@
-import {Injectable} from '@angular/core';
-import {WorkItem, WorkRelation, WorkBalance} from '../../unientities';
-import {WorkerService, ItemInterval} from './workerService';
+﻿import {Injectable} from '@angular/core';
+import { WorkItem, WorkRelation, WorkBalance } from '../../unientities';
+import { WorkerService, ItemInterval, IFilterInterval } from './workerService';
 import {Observable} from 'rxjs/Observable';
 import {parseTime, toIso, parseDate, ChangeMap, safeInt, safeDec} from '../../components/common/utils/utils';
 import {Dimension} from '../common/dimensionService';
@@ -54,9 +54,9 @@ export class TimeSheet {
         this.analyzeItems(this.items);
     }
 
-    public loadItems(interval?: ItemInterval): Observable<number> {
+    public loadItems(interval?: IFilterInterval, date?: Date): Observable<number> {
         this.changeMap.clear();
-        var filter = this.ts.workerService.getIntervalFilter(interval);
+        var filter = this.ts.workerService.getIntervalFilter(interval, date);
         var obs = this.ts.getWorkItems(this.currentRelation.ID, filter);
         return <Observable<number>>obs.mergeMap((items: WorkItem[]) => {
             this.analyzeItems(items);

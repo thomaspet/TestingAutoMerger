@@ -1,4 +1,4 @@
-import {Component, ViewChild, Input} from '@angular/core';
+﻿import {Component, ViewChild, Input} from '@angular/core';
 import {TimeSheet, TimesheetService, WorkerService} from '../../../../services/services';
 import {ItemInterval, IFilter} from '../../../../services/timetracking/workerService';
 import {toIso} from '../../../common/utils/utils';

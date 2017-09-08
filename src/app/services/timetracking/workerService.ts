@@ -1,4 +1,4 @@
-import {Injectable} from '@angular/core';
+﻿import {Injectable} from '@angular/core';
 import {BizHttp} from '../../../framework/core/http/BizHttp';
 import {Worker, WorkRelation, WorkProfile, WorkItem} from '../../unientities';
 import {UniHttp} from '../../../framework/core/http/http';
@@ -21,11 +21,20 @@ export enum ItemInterval {
     thisYear = 8
 }
 
+export enum IFilterInterval {
+    day = 0,
+    week = 1,
+    twoweeks = 2,
+    month = 3,
+    year = 4,
+    all = 5
+}
+
 export interface IFilter {
     name: string;
     label: string;
     isSelected?: boolean;
-    interval: ItemInterval;
+    interval: ItemInterval | IFilterInterval;
     bigLabel?: string;
     date?: Date;
 }
@@ -128,37 +137,27 @@ export class WorkerService extends BizHttp<Worker> {
         return "date ge '" + toIso(fromDate) + "' and date le '" + toIso(toDate) + "'";
     }
 
-    public getIntervalFilter(interval: ItemInterval): string {
+    public getIntervalFilter(interval: IFilterInterval, date: Date): string {
         switch (interval) {
-            case ItemInterval.today:
-                return "date eq '" + toIso(new Date()) + "'";
-            case ItemInterval.yesterday:
-                return "date eq '" + toIso(this.getLastWorkDay()) + "'";
-            case ItemInterval.thisWeek:
-                return "date ge '" + toIso(moment().startOf('week').toDate()) + "' and date le '" +
-                toIso(moment().endOf('week').toDate()) + "'";
-            case ItemInterval.thisMonth:
-                return "date ge '" + toIso(moment().startOf('month').toDate()) + "' and date le '" +
-                toIso(moment().endOf('month').toDate()) + "'";
-            case ItemInterval.lastTwoWeeks:
-                return "date ge '" + toIso(moment().startOf('week').add(-1)
-                    .startOf('week').toDate()) + "' and date le '" +
-                toIso(moment().endOf('month').toDate()) + "'";            
-            case ItemInterval.lastTwoMonths:
-                return "date ge '" + toIso(moment().add(-1, 'month').startOf('month').toDate()) + "' and date le '" +
-                toIso(moment().endOf('month').toDate()) + "'";
-            case ItemInterval.lastThreeMonths:
-                return "date ge '" + toIso(moment().add(-2, 'month').startOf('month').toDate()) + "' and date le '" +
-                toIso(moment().endOf('month').toDate()) + "'";
-            case ItemInterval.thisYear:
-                return "date ge '" + toIso(moment().startOf('year').toDate()) + "' and date le '" +
-                toIso(moment().endOf('year').toDate()) + "'";
+            case IFilterInterval.day:
+                return "date eq '" + toIso(date) + "'";
+            case IFilterInterval.week:
+                return "date ge '" + toIso(moment(date).startOf('week').toDate()) + "' and date le '" +
+                    toIso(moment(date).endOf('week').toDate()) + "'";
+            case IFilterInterval.twoweeks:
+                return "date ge '" + toIso(moment(date).subtract(1, 'week').startOf('week').toDate()) + "' and date le '" +
+                    toIso(moment(date).endOf('week').toDate()) + "'";
+            case IFilterInterval.month:
+                return "date ge '" + toIso(moment(date).startOf('month').toDate()) + "' and date le '" +
+                    toIso(moment(date).endOf('month').toDate()) + "'";
+            case IFilterInterval.year:
+                return "date ge '" + toIso(moment(date).startOf('year').toDate()) + "' and date le '" + toIso(moment(date).endOf('year').toDate()) + "'";
             default:
                 return '';
         }
     }
 
-    public getIntervalDate(interval: ItemInterval): Date {
+    public getIntervalDate(interval: ItemInterval | IFilterInterval): Date {
         switch (interval) {
             case ItemInterval.today:
                 return new Date();
@@ -181,58 +180,68 @@ export class WorkerService extends BizHttp<Worker> {
         }
     }
 
-    public getIntervalItems(): Array<IFilter> {
+    public getFilterIntervalDate(interval: IFilterInterval, date: Date): Date {
+        switch (interval) {
+            case IFilterInterval.day:
+                return new Date(date);
+            case IFilterInterval.week:
+                return moment(date).startOf('week').toDate();
+            case IFilterInterval.twoweeks:
+                return moment(date).subtract(1, 'week').startOf('week').toDate();
+            case IFilterInterval.month:
+                return moment(date).startOf('month').startOf('week').toDate();
+            case IFilterInterval.year:
+                return moment(date).startOf('year').toDate();
+            default:
+                return new Date();
+        }
+    }
+
+    public getFilterIntervalItems(): Array<IFilter> {
         let date = new Date();
         return [
             {
-                name: 'today',
-                label: 'I dag',
+                name: 'day',
+                label: 'Dag',
                 isSelected: true,
-                interval: ItemInterval.today,
-                bigLabel: this.getBigLabel(ItemInterval.today),
+                interval: IFilterInterval.day,
+                bigLabel: this.getBigLabel(IFilterInterval.day),
                 date: new Date()
             },
             {
-                name: 'yesterday',
-                label: this.getLastWorkDayName(),
+                name: 'week',
+                label: 'Uke',
                 isSelected: false,
-                interval: ItemInterval.yesterday,
-                bigLabel: this.getBigLabel(ItemInterval.yesterday),
+                interval: IFilterInterval.week,
+                bigLabel: this.getBigLabel(IFilterInterval.week),
                 date: new Date(date.setDate(date.getDate() - 1))
             },
             {
-                name: 'week',
-                label: 'Denne uke',
-                interval: ItemInterval.thisWeek,
-                bigLabel: this.getBigLabel(ItemInterval.thisWeek),
+                name: 'twoweek',
+                label: '2 uker',
+                interval: IFilterInterval.twoweeks,
+                bigLabel: this.getBigLabel(IFilterInterval.twoweeks),
                 date: new Date()
             },
             {
                 name: 'month',
-                label: 'Denne måned',
-                interval: ItemInterval.thisMonth,
-                bigLabel: this.getBigLabel(ItemInterval.thisMonth),
-                date: new Date()
-            },
-            {
-                name: 'months',
-                label: 'Siste 2 måneder',
-                interval: ItemInterval.lastTwoMonths,
-                bigLabel: this.getBigLabel(ItemInterval.lastTwoMonths),
+                label: 'Måned',
+                interval: IFilterInterval.month,
+                bigLabel: this.getBigLabel(IFilterInterval.month),
                 date: new Date()
             },
             {
                 name: 'year',
-                label: 'Dette år',
-                interval: ItemInterval.thisYear,
-                bigLabel: this.getBigLabel(ItemInterval.thisYear),
+                label: 'År',
+                interval: IFilterInterval.year,
+                bigLabel: this.getBigLabel(IFilterInterval.year),
                 date: new Date()
             },
             {
                 name: 'all',
                 label: 'Alt',
-                interval: ItemInterval.all,
-                bigLabel: this.getBigLabel(ItemInterval.all),
+                interval: IFilterInterval.all,
+                bigLabel: this.getBigLabel(IFilterInterval.all),
                 date: new Date()
             }
         ];
@@ -249,28 +258,25 @@ export class WorkerService extends BizHttp<Worker> {
         return dt.toDate();
     }
 
-    public getBigLabel(item: ItemInterval) {
+    public getBigLabel(item: IFilterInterval, date: Date = new Date()) {
         let bigLabel = '';
         switch (item) {
-            case ItemInterval.today:
-                bigLabel += moment().format('Do MMMM YYYY');
+            case IFilterInterval.day:
+                bigLabel += moment(date).format('Do MMMM YYYY');
                 break;
-            case ItemInterval.yesterday:
-                bigLabel += moment().add(-1, 'days').format('Do MMMM YYYY');
+            case IFilterInterval.week:
+                bigLabel += 'Uke ' + moment(new Date(date)).week();
                 break;
-            case ItemInterval.thisWeek:
-                bigLabel += 'Uke ' + moment(new Date()).week();
+            case IFilterInterval.twoweeks:
+                bigLabel += 'Uke ' + moment(new Date(date)).subtract(1, 'week').week() + ' & ' + moment(new Date(date)).week();
                 break;
-            case ItemInterval.thisMonth:
-                bigLabel += capitalizeFirstLetter(moment().format('MMMM'));
+            case IFilterInterval.month:
+                bigLabel += capitalizeFirstLetter(moment(date).format('MMMM'));
                 break;
-            case ItemInterval.lastTwoMonths:
-                bigLabel += capitalizeFirstLetter(moment().add(-1, 'months').format('MMMM')) + ' og ' + capitalizeFirstLetter(moment().format('MMMM'));
+            case IFilterInterval.year:
+                bigLabel += date.getFullYear();
                 break;
-            case ItemInterval.thisYear:
-                bigLabel += moment().format('YYYY');
-                break;
-            case ItemInterval.all:
+            case IFilterInterval.all:
                 bigLabel += 'Alle registrerte timer';
                 break;
         }
