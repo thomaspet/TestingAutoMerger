@@ -67,6 +67,12 @@ export class SaftImportModal implements IUniModal {
                 Property: 'ReuseExistingNumbers',
                 FieldType: FieldType.CHECKBOX,
                 Label: 'Behold kunde- og leverandørnummer'
+            },
+            <any> {
+                EntityType: 'JobDetails',
+                Property: 'UpdateExistingData',
+                FieldType: FieldType.CHECKBOX,
+                Label: 'Oppdater eksisterende kunder/leverandører'
             }
         ];
     }

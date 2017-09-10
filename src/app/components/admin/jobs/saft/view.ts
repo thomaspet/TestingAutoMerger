@@ -74,7 +74,8 @@ export class SaftExportView implements OnInit {
         this.modalService.open(SaftImportModal, 
             { header: 'SAF-T IMPORT', data: { 
                 IncludeStartingBalance: true, 
-                ReuseExistingNumbers: true, 
+                ReuseExistingNumbers: true,
+                UpdateExistingData: false, 
                 file: file } })
         .onClose.subscribe(response => {
             if (response) { 
@@ -85,7 +86,8 @@ export class SaftExportView implements OnInit {
                     FileName: file.FileName,
                     CompanyKey: this.activeCompany.Key,
                     IncludeStartingBalance: response.IncludeStartingBalance,
-                    ReuseExistingNumbers: response.ReuseExistingNumbers
+                    ReuseExistingNumbers: response.ReuseExistingNumbers,
+                    UpdateExistingData: response.UpdateExistingData
                 };
 
                 this.jobService.startJob(JOBNAME, undefined, details)
