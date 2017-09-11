@@ -330,10 +330,12 @@ export class TimeTableReport {
                 });
             return;
         } 
+
         this.defaultWorkTypeID = workTypeId;
 
         var ts = new TimeSheet(this.timesheetService);
         ts.currentRelationId = this.CurrentRelationID;
+        ts.currentRelation = this.currentRelation;
         week.Items.forEach( x => {
             if (x.ExpectedTime > 0) {
                 var offset = moment().utcOffset();
