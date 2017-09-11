@@ -105,11 +105,11 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
         return super.GetAll(`filter=ID gt 0${year ? ' and year(PayDate) eq ' + year : ''}&top=1&orderBy=ID DESC`)
             .map(resultSet => resultSet[0]);
     }
-    
+
     public getEarliestOpenRun(setYear: number = undefined): Observable<PayrollRun> {
         return Observable
             .of(setYear)
-            .switchMap(year => year 
+            .switchMap(year => year
                 ? Observable.of(year)
                 : this.yearService.getActiveYear())
             .switchMap(year => super.GetAll(
@@ -130,12 +130,12 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
         let currYear = setYear;
         return Observable
             .of(setYear)
-            .switchMap(year => year 
+            .switchMap(year => year
                 ? Observable.of(year)
                 : this.yearService.getActiveYear())
             .do((year) => currYear = year)
             .switchMap(year => this.getEarliestOpenRun(year))
-            .switchMap(run => run 
+            .switchMap(run => run
                 ? Observable.of(run)
                 : this.getLatestSettledRun(currYear));
     }
@@ -319,10 +319,10 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
                 let filter = queryList.filter(x => x.toLowerCase().includes('filter'))[0] || '';
                 queryList = queryList.filter(x => !x.toLowerCase().includes('filter'));
                 if (!filter.toLowerCase().includes('year(paydate)')) {
-                    filter = (filter ? `(${filter}) and ` : 'filter=') 
-                        + `(year(PayDate) eq ${year})`; 
+                    filter = (filter ? `(${filter}) and ` : 'filter=')
+                        + `(year(PayDate) eq ${year})`;
                 }
-                
+
                 queryList.push(filter);
                 if (includePayments) {
                     queryList.push('includePayments=true');
@@ -332,9 +332,9 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
             .map(payrollRuns => this.setPaymentStatusOnPayrollList(payrollRuns));
     }
     public setPaymentStatusOnPayrollList(payrollRuns: PayrollRun[]): PayrollRun[] {
-        return payrollRuns 
+        return payrollRuns
             ? payrollRuns
-                .map(run => this.markPaymentStatus(run)) 
+                .map(run => this.markPaymentStatus(run))
             : [];
     }
 
@@ -343,13 +343,23 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
         switch (status) {
             case PayrollRunPaymentStatus.SendtToPayment:
                 return 'Sendt til utbetaling';
-            case PayrollRunPaymentStatus.PartlyPaid: 
+            case PayrollRunPaymentStatus.PartlyPaid:
                 return 'Delbetalt';
             case PayrollRunPaymentStatus.Paid:
                 return 'Utbetalt';
             default:
                 return '';
         }
+    }
+
+    public deletePayrollRun(id: number): Observable<boolean> {
+        return this.http
+            .asDELETE()
+            .usingBusinessDomain()
+            .withEndPoint(this.relativeURL + '/' + id)
+            .send()
+            .catch((err, obs) => this.errorService.handleRxCatch(err, obs))
+            .map(res => res.json());
     }
 
     private markPaymentStatus(payrollRun: PayrollRun, payments: Payment[] = undefined): PayrollRun {

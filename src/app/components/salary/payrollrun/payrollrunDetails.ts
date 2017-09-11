@@ -302,6 +302,17 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
                 disabled: (rowModel) => {
                     return this.payrollrun$.getValue() && this.payrollrunID ? this.payrollrun$.getValue().StatusCode < 1 : true;
                 }
+            },
+            {
+                label: 'Slett lønnsavregning',
+                action: () => {
+                    this.payrollrunService
+                        .deletePayrollRun(this.payrollrunID)
+                        .subscribe(() => this.router.navigateByUrl(this.url + 0));
+                },
+                disabled: () => {
+                    return this.payrollrun$.getValue() && !!this.payrollrun$.getValue().StatusCode;
+                }
             }
         ];
 
