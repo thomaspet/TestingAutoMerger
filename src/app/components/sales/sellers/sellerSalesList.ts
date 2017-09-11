@@ -1,6 +1,6 @@
 import {Component, ViewChild, Input, Output, EventEmitter, SimpleChanges} from '@angular/core';
 import {Router, ActivatedRoute} from '@angular/router';
-import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig, IContextMenuItem} from '../../../../framework/ui/unitable/index';
+import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig, IContextMenuItem, ITableFilter} from '../../../../framework/ui/unitable/index';
 import {ToastService, ToastTime, ToastType} from '../../../../framework/uniToast/toastService';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {IUniSaveAction} from '../../../../framework/save/save';
@@ -10,7 +10,8 @@ import {IPosterWidget} from '../../common/poster/poster';
 import {
     ErrorService,
     StatisticsService,
-    SellerService
+    SellerService,
+    CustomerInvoiceService
 } from '../../../services/services';
 
 declare const _;
@@ -35,7 +36,8 @@ export class SellerSalesList {
         private toastService: ToastService,
         private tabService: TabService,
         private statisticsService: StatisticsService,
-        private sellerService: SellerService
+        private sellerService: SellerService,
+        private invoiceService: CustomerInvoiceService
     ) {
         this.setupTable();
     }
@@ -57,13 +59,16 @@ export class SellerSalesList {
             `expand=Customer,Customer.Info&` +
             `select=InvoiceDate as InvoiceDate,InvoiceNumber as InvoiceNumber,ID as CustomerInvoiceID,` +
                    `TaxInclusiveAmount as TaxInclusiveAmount,TaxExclusiveAmount as TaxExclusiveAmount,` +
-                   `SellerLink.Percent,` +
+                   `SellerLink.Percent,StatusCode as StatusCode,InvoiceType as InvoiceType,` +
                    `CustomerID as CustomerID,Customer.CustomerNumber as CustomerNumber,Info.Name as CustomerName&` +
             `join=CustomerInvoice.ID eq SellerLink.CustomerInvoiceID&` +
             `filter=SellerLink.SellerID eq ${this.sellerId} and StatusCode ne ${StatusCodeCustomerInvoice.Draft}&` +
             `orderBy=InvoiceDate desc,InvoiceNumber desc`
         ).subscribe(sales => {
             this.salesList = sales;
+            this.salesList.map(row => {
+                row.StatusCode = this.invoiceService.getStatusText(row.StatusCode, row.InvoiceType);
+            });
             this.busy = false;
         });
     }
@@ -110,6 +115,11 @@ export class SellerSalesList {
     }
 
     private setupTable() {
+        // setup default filter
+        const filter: ITableFilter[] = [];
+        filter.push({field: 'StatusCode', operator: 'eq', value: 'Betalt', group: 0});
+        
+        // setup table
         let invoiceDateCol = new UniTableColumn('InvoiceDate', 'Fakturadato', UniTableColumnType.LocalDate)
             .setWidth('7rem');
 
@@ -137,12 +147,17 @@ export class SellerSalesList {
                 return (row.TaxInclusiveAmount * row.SellerLinkPercent / 100).toString();
             });
 
+        let statusCol = new UniTableColumn('StatusCode', 'Status', UniTableColumnType.Text)
+            .setWidth('7rem');
+
         // Setup table
         this.salesTableConfig = new UniTableConfig('common.seller.sellerSalesList', false, true, 25)
             .setSearchable(true)
             .setSortable(true)
+            .setFilters(filter)            
             .setColumns([
-                invoiceDateCol, invoiceCol, customerNumberCol, customerNameCol, totalExAmountCol, totalIncAmountCol,
+                invoiceCol, invoiceDateCol, statusCol,
+                customerNumberCol, customerNameCol, totalExAmountCol, totalIncAmountCol,
                 sellerPercentCol, sellerIncAmountCol
             ]);
     }

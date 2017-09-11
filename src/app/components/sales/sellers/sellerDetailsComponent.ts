@@ -28,7 +28,7 @@ export class SellerDetailsComponent {
             config: {
                 topText: [
                     { text: 'Totalsum inkl. mva', class: 'large' },
-                    { text: 'solgt hittill i år', class: 'small' }
+                    { text: 'fakturert hittil i år', class: 'small' }
                 ],
                 mainText: { text: '' }
             }
@@ -39,7 +39,7 @@ export class SellerDetailsComponent {
             config: {
                 topText: [
                     { text: 'Selgersum inkl. mva', class: 'large' },
-                    { text: 'solgt hittill i år', class: 'small' }
+                    { text: 'fakturert hittil i år', class: 'small' }
                 ],
                 mainText: { text: '' }
             }
@@ -50,7 +50,7 @@ export class SellerDetailsComponent {
             config: {
                 topText: [
                     { text: 'Antall salg', class: 'large' },
-                    { text: 'antall hittill i år', class: 'small' }
+                    { text: 'antall hittil i år', class: 'small' }
                 ],
                 mainText: { text: '' }
             }
@@ -68,7 +68,7 @@ export class SellerDetailsComponent {
                 path: 'details'
             },
             {
-                name: 'Fakturert',
+                name: 'Solgt',
                 path: 'sales'
             }
         ];
