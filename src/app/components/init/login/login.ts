@@ -41,11 +41,10 @@ export class Login {
         this.selectConfig = {
             displayProperty: 'Name',
             placeholder: 'Velg selskap',
-
         };
     }
 
-    private login(event: Event) {
+    public login(event: Event) {
         event.preventDefault();
         this.errorMessage = '';
         this.working = true;
@@ -123,6 +122,7 @@ export class Login {
         if (company) {
             this._authService.setActiveCompany(company);
         }
+
         this.navigate();
     }
 

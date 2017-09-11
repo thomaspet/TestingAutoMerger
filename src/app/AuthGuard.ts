@@ -6,7 +6,7 @@ import {AuthService} from '../framework/core/authService';
 export class AuthGuard implements CanActivate, CanActivateChild {
     constructor(private authService: AuthService, private router: Router) {}
 
-    public canActivate(next: ActivatedRouteSnapshot, state: RouterStateSnapshot) {        
+    public canActivate(next: ActivatedRouteSnapshot, state: RouterStateSnapshot) {
         // Route user to login if not authenticated and trying to reach protected route
         if (!this.authService.isAuthenticated() || !this.authService.hasActiveCompany()) {
             if (!next.url.length || next.url[0].path !== 'init') {

@@ -48,7 +48,7 @@ import {AdminServicesModule} from './services/adminServicesModule';
 import {AssignmentServicesModule} from './services/assignmentServicesModule';
 
 import {CanDeactivateGuard} from './canDeactivateGuard';
-import {CanActivateGuard} from './canActivateGuard';
+import {RoutePermissionGuard} from './routePermissionGuard';
 import {AboutModule} from './components/about/aboutModule';
 
 // Set moment locale
@@ -103,8 +103,8 @@ if (window.ENV === 'production') {
     providers: [
         AuthService,
         AuthGuard,
+        RoutePermissionGuard,
         CanDeactivateGuard,
-        CanActivateGuard,
         TabService,
         ToastService,
         COMPILER_PROVIDERS,

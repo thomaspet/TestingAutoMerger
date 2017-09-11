@@ -7,7 +7,7 @@ import {ResetPassword} from './resetPassword/resetPassword';
 import {ConfirmInvite} from './confirmInvite/confirmInvite';
 
 
-export const childRoutes = [
+export const initRoutes = [
     {
         path: '',
         pathMatch: 'full',
@@ -31,16 +31,16 @@ export const childRoutes = [
     },
 ];
 
-const initRoutes: Routes = [
-    {
-        path: 'init',
-        component: UniInit,
-        children: [{
-            path: '',
-            children: childRoutes
-        }],
+// const initRoutes: Routes = [
+//     {
+//         path: 'init',
+//         component: UniInit,
+//         children: [{
+//             path: '',
+//             children: childRoutes
+//         }],
 
-    }
-];
+//     }
+// ];
 
 export const routes: ModuleWithProviders = RouterModule.forChild(initRoutes);

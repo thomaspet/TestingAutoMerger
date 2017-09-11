@@ -2,18 +2,19 @@ import {Inject} from '@angular/core';
 import {UserService} from './services/services';
 import {
     Router,
+    CanActivate,
     CanActivateChild,
     ActivatedRouteSnapshot,
     RouterStateSnapshot
 } from '@angular/router';
 
-export class CanActivateGuard implements CanActivateChild {
+export class RoutePermissionGuard implements CanActivate, CanActivateChild {
     constructor(
         @Inject(UserService) private userService,
         @Inject(Router) private router
     ) {}
 
-    public canActivateChild(route: ActivatedRouteSnapshot, state: RouterStateSnapshot) {
+    public canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot) {
         return this.userService.canActivateUrl(state.url).map(canActivate => {
             if (canActivate) {
                 return true;
@@ -28,5 +29,9 @@ export class CanActivateGuard implements CanActivateChild {
                 return false;
             }
         });
+    }
+
+    public canActivateChild(route: ActivatedRouteSnapshot, state: RouterStateSnapshot) {
+        return this.canActivate(route, state);
     }
 }

@@ -33,7 +33,7 @@ export class UniFeedback {
         this.headers = new Headers();
         this.headers.append('Content-Type', 'application/json');
         this.headers.append('Authorization', 'Bearer ' + this.authService.getToken());
-        this.headers.append('CompanyKey', this.authService.getActiveCompany()['Key']);
+        this.headers.append('CompanyKey', this.authService.getCompanyKey());
     }
 
     private initForm() {
