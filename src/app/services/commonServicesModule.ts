@@ -41,6 +41,7 @@ import {UniSearchAccountConfig} from './common/uniSearchConfig/uniSearchAccountC
 import {UniSearchCustomerConfig} from './common/uniSearchConfig/uniSearchCustomerConfig';
 import {UniSearchSupplierConfig} from './common/uniSearchConfig/uniSearchSupplierConfig';
 import {UniSearchEmployeeConfig} from './common/uniSearchConfig/uniSearchEmployeeConfig';
+import {UniSearchProductConfig} from './common/uniSearchConfig/uniSearchProductConfig';
 import {CurrencyOverridesService} from './common/currencyOverridesService';
 import {ApiModelService} from './common/apiModelService';
 import {YearService} from './common/yearService';
@@ -56,7 +57,7 @@ import {ProductCategoryService} from './common/productCategoryService';
 import {TeamService} from './common/teamService';
 import {TermsService} from './common/termsService';
 import {UniFilesService} from './common/uniFilesService';
-import {VideoMappingService} from './common/videoMappingService'
+import {VideoMappingService} from './common/videoMappingService';
 
 export * from './common/altinnAuthenticationService';
 export * from './common/altinnIntegrationService';
@@ -115,6 +116,7 @@ export * from './common/uniSearchConfig/uniSearchAccountConfig';
 export * from './common/uniSearchConfig/uniSearchCustomerConfig';
 export * from './common/uniSearchConfig/uniSearchEmployeeConfig';
 export * from './common/uniSearchConfig/uniSearchSupplierConfig';
+export * from './common/uniSearchConfig/uniSearchProductConfig';
 
 @NgModule({})
 export class CommonServicesModule {
@@ -162,6 +164,7 @@ export class CommonServicesModule {
                 UniSearchCustomerConfig,
                 UniSearchSupplierConfig,
                 UniSearchEmployeeConfig,
+                UniSearchProductConfig,
                 CurrencyOverridesService,
                 CurrencyCodeService,
                 UniTickerService,
@@ -184,4 +187,3 @@ export class CommonServicesModule {
         };
     }
 }
-

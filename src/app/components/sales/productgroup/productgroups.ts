@@ -60,12 +60,10 @@ export class ProductGroups implements OnInit {
         private modalService: UniModalService
     ) {
         this.addTab();
-        this.loadGroups();
         this.setupToolbar();
 
         this.childRoutes = [
             { name: 'Gruppedetaljer', path: 'groupDetails' },
-            { name: 'Produkter i gruppe', path: 'productsInGroup' }
         ];
 
         this.contextMenuItems = [{
@@ -76,20 +74,49 @@ export class ProductGroups implements OnInit {
     }
 
     public ngOnInit() {
+        this.loadGroups();
+
         this.route.queryParams.subscribe(params => {
             this.activeProductGroupID = +params['productGroupID'];
             if (this.activeProductGroupID > 0) {
                 this.productCategoryService.Get(this.activeProductGroupID).subscribe((group) => {
-                    this.productCategoryService.currentProductGroup.next(group);
-                });
-            }
-        });
+                    setTimeout(() => {
+                        let currentNode = this.treeComponent.treeModel.getNodeById(this.activeProductGroupID);
 
-        if (!this.activeProductGroupID) {
-          if (!this.nodes) {
-              this.productCategoryService.setNew();
-          }
-      }
+                        this.productCategoryService.currentProductGroup.next(group);
+
+                        this.toolbarconfig.title = group.Name;
+                        this.toolbarconfig.subheads = [];
+
+                        this.commentsConfig = {
+                            entityType: 'ProductCategory',
+                            entityID: group.ID
+                        };
+
+                        if (currentNode) {
+                            if (currentNode.parent.data.Name) {
+                                this.setSubheadTitle(currentNode.parent.data.Name);
+                            }
+
+                            if (currentNode.isActive) {
+                                return;
+                            }
+                            return currentNode.ensureVisible().toggleActivated();
+                        }
+                    });
+                });
+                return;
+            } else if (this.activeProductGroupID === 0) {
+                this.clearInfo();
+                if (this.parentId) {
+                    let currentNode = this.treeComponent.treeModel.getNodeById(this.parentId);
+
+                    this.setSubheadTitle(currentNode.data.Name);
+                }
+                return;
+            }
+            return this.clearInfo();
+        });
     }
 
     private addTab() {
@@ -103,52 +130,38 @@ export class ProductGroups implements OnInit {
 
     private deleteProductGroup(id: number) {
         this.productCategoryService.Remove(id, null).subscribe(res => {
-            this.clearAndRouteToStart();
             this.loadGroups();
+            this.router.navigateByUrl('/sales/productgroups/groupDetails');
         });
     }
 
-    private nodeDeactivated(event: any) {
-        this.clearAndRouteToStart();
-    }
-
-    private clearAndRouteToStart() {
+    private clearInfo() {
         this.treeComponent.treeModel.setFocusedNode(null);
-        this.activeProductGroupID = '';
         this.toolbarconfig.title = 'Ny produktgruppe';
         this.toolbarconfig.subheads = [];
         this.commentsConfig = {};
         this.productCategoryService.setNew();
-        this.router.navigateByUrl('/sales/productgroups/groupDetails');
+        this.productCategoryService.currentProductGroup.next(null);
     }
 
     private nodeActive(event: any) {
         let node = event.node;
-        let subheads = [];
 
-        this.toolbarconfig.title = node.data.Name;
-        this.productCategoryService.currentProductGroup.next(node.data);
-        this.activeProductGroupID = node.data.ID;
-        this.parentId = node.data.ParentID;
-
-        if (node.parent.data.Name) {
-            subheads.push({title: 'i gruppen ' + node.parent.data.Name});
-        }
-        this.toolbarconfig.subheads = subheads;
-
-        this.commentsConfig = {
-            entityType: 'ProductCategory',
-            entityID: node.data.ID
-        };
-        this.setQueryParamAndNavigate(this.activeProductGroupID);
+        this.parentId = node.parent.data.ID;
+        this.setQueryParamAndNavigate(node.data.ID);
     }
 
     public setQueryParamAndNavigate(id: number) {
         let url = this.router.url.split('?')[0];
+
+        if (this.activeProductGroupID === id) {
+            return;
+        }
         this.router.navigate([url], {
             queryParams: {
                 productGroupID: id
-            }
+            },
+            skipLocationChange: false
         });
     }
 
@@ -162,19 +175,14 @@ export class ProductGroups implements OnInit {
         };
     }
 
-    private addProductGroup() {
-        let subheads = [];
-        let subheadGroup = this.productCategoryService.currentProductGroup.value.Name;
-
-        this.toolbarconfig.title = 'Ny produktgruppe';
-        this.parentId = this.productCategoryService.currentProductGroup.value.ID;
-
-        if (subheadGroup) {
-            subheads.push({title: 'i gruppen ' + subheadGroup});
+    private setSubheadTitle(name: string) {
+        if (name) {
+            this.toolbarconfig.subheads = [{title: 'i gruppen ' + name}];
         }
-        this.toolbarconfig.subheads = subheads;
+    }
 
-        this.productCategoryService.setNew();
+    private addProductGroup() {
+        this.parentId = this.productCategoryService.currentProductGroup.value.ID;
         this.router.navigateByUrl('/sales/productgroups/groupDetails?productGroupID=0');
     }
 
@@ -216,19 +224,6 @@ export class ProductGroups implements OnInit {
             let root = groups.find(x => x.ParentID === 0);
             this.parentId = root.ID;
             this.nodes = this.treeStructureToNodes(groups);
-
-            if (this.activeProductGroupID) {
-                setTimeout(() => {
-                    const currentNode = this.treeComponent.treeModel.getNodeById(this.activeProductGroupID);
-
-                    currentNode.ensureVisible().focus().toggleActivated();
-                    this.toolbarconfig.title = currentNode.data.Name;
-
-                    if (currentNode.parent.data.Name) {
-                        this.toolbarconfig.subheads = [{title: 'i gruppen ' + currentNode.parent.data.Name}];
-                    }
-                });
-            }
         }, err => this.errorService.handle(err));
     }
 
@@ -246,7 +241,7 @@ export class ProductGroups implements OnInit {
                     completeEvent('Produktgruppe lagret');
                     this.loadGroups();
                     this.setupToolbar();
-                    this.productCategoryService.setNew();
+                    this.clearInfo();
                 },
                 (err) => {
                     completeEvent('Feil oppsto ved lagring');
@@ -254,7 +249,8 @@ export class ProductGroups implements OnInit {
                 }
             );
         } else {
-            if (this.activeProductGroupID !== '') {
+            productgroup.ParentID = 1;
+            if (this.parentId && this.parentId !== 1) {
                 productgroup.ParentID = this.parentId;
             }
             this.productCategoryService.Post(productgroup)
@@ -263,7 +259,7 @@ export class ProductGroups implements OnInit {
                         this.productCategoryService.isDirty = false;
                         completeEvent('Produktgruppe lagret');
                         this.loadGroups();
-                        this.productCategoryService.setNew();
+                        this.clearInfo();
                     },
                     (err) => {
                         completeEvent('Feil oppsto ved lagring');

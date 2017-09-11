@@ -46,7 +46,6 @@ import {WidgetModule} from '../widgets/widgetModule';
 import {ProductGroups} from './productgroup/productgroups';
 import {TreeModule} from 'angular-tree-component';
 import {GroupDetails} from './productgroup/groupDetails/groupDetails';
-import {ProductsInGroup} from './productgroup/productsInGroup/productsInGroup';
 import {ProductDetails} from './products/productDetails';
 import {ProductList} from './products/productList';
 import {SellerList} from './sellers/sellerList';
@@ -110,7 +109,6 @@ import {SellerDetailsComponent} from './sellers/sellerDetailsComponent';
         InvoiceReminders,
 
         ProductGroups,
-        ProductsInGroup,
         GroupDetails,
 
         ProductDetails,
@@ -158,7 +156,6 @@ import {SellerDetailsComponent} from './sellers/sellerDetailsComponent';
         UniReminderSendingModal,
         InvoiceReminders,
         ProductGroups,
-        ProductsInGroup,
         GroupDetails,
 
         ProductDetails,
