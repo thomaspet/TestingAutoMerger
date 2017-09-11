@@ -1,9 +1,10 @@
 ﻿import {Component, Input, Output, EventEmitter, ViewChild} from '@angular/core';
 import {TimeTrackingPeriodes} from '../timeentry/timeentry';
-import {WorkerService, IFilter} from '../../../services/timetracking/workerService';
-import {UniTemplateModal} from '../components/newtemplatemodal';
+import { WorkerService, IFilter } from '../../../services/timetracking/workerService';
+import { UniTemplateModal, TemplateCloseOptions, ITemplateReturnObject } from '../components/newtemplatemodal';
 import {UniCalendar} from '../../../../framework/ui/unitable/controls/common/calendar'
-import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
+import { ToastService, ToastType } from '../../../../framework/uniToast/toastService';
+import { UniModalService } from '../../../../framework/uniModal/barrel';
 import * as moment from 'moment';
 
 export interface ITimeTrackingTemplate {
@@ -15,6 +16,7 @@ export interface ITimeTrackingTemplate {
     Description: string;
     DimensionsID: number;
     CustomerOrderID: number;
+    Project: any;
 }
 
 export interface ITemplate {
@@ -25,7 +27,6 @@ export interface ITemplate {
     LunchInMinutes: number;
     Description: string;
     Items: ITimeTrackingTemplate[];
-
 }
 
 @Component({
@@ -51,7 +52,7 @@ export class SideMenu {
     private initDate: Date = new Date();
 
 
-    constructor(private toast: ToastService) {
+    constructor(private toast: ToastService, private modalService: UniModalService) {
         let temp = localStorage.getItem('timeTrackingTemplates');
 
         if (temp) {
@@ -72,7 +73,38 @@ export class SideMenu {
     }
 
     private onTemplateEdit(template: any, index: number) {
-        this.templateModal.open(template, index).then(x => { });
+        this.modalService.open(UniTemplateModal,
+            {
+                data: {
+                    template: template,
+                    index: index
+                }
+            }).onClose.subscribe((item: ITemplateReturnObject) => {
+                this.onTemplateModalClose(item);
+            });
+    }
+
+    private onTemplateModalClose(item: ITemplateReturnObject) {
+        // Item is null when modal closes on backdrop click
+        if (!item) {
+            return;
+        }
+        switch (item.closeOption) {
+            case TemplateCloseOptions.save:
+                if (item.index || item.index === 0) {
+                    this.timeTrackingTemplates.splice(item.index, 1, item.template);
+                } else {
+                    this.timeTrackingTemplates.push(item.template);
+                }
+                localStorage.setItem('timeTrackingTemplates', JSON.stringify(this.timeTrackingTemplates));
+                break;
+            case TemplateCloseOptions.delete:
+                this.timeTrackingTemplates.splice(item.index, 1);
+                localStorage.setItem('timeTrackingTemplates', JSON.stringify(this.timeTrackingTemplates));
+                break;
+            case TemplateCloseOptions.cancel:
+                break;
+        }
     }
 
     private createNewTemplate() {
@@ -85,7 +117,16 @@ export class SideMenu {
                 + ' Vennligst slett en for å lage ny, eller rediger en eksisterende');
             return;
         }
-        this.templateModal.open().then(x => { });
+
+        this.modalService.open(UniTemplateModal,
+            {
+                data: {
+                    template: false,
+                    index: undefined
+                }
+            }).onClose.subscribe((item: ITemplateReturnObject) => {
+                this.onTemplateModalClose(item);
+            });
     }
 
     private onCalendarMonthChange(month: any) {
@@ -102,20 +143,6 @@ export class SideMenu {
         }
         this.initDate = new Date();
         this.dateSelected.emit(new Date());
-    }
-
-    private templateSave(event) {
-        if (event.index || event.index === 0) {
-            this.timeTrackingTemplates.splice(event.index, 1, event.template);
-        } else {
-            this.timeTrackingTemplates.push(event.template);
-        }
-        localStorage.setItem('timeTrackingTemplates', JSON.stringify(this.timeTrackingTemplates));
-    }
-
-    private templateDelete(index) {
-        this.timeTrackingTemplates.splice(index, 1);
-        localStorage.setItem('timeTrackingTemplates', JSON.stringify(this.timeTrackingTemplates));
     }
 
     private hideShowSideMenu() {
@@ -161,7 +188,8 @@ export class SideMenu {
                         LunchInMinutes: 0,
                         Description: 'Morning coffee + mails',
                         DimensionsID: null,
-                        CustomerOrderID: null
+                        CustomerOrderID: null,
+                        Project: null
                     },
                     {
                         StartTime: '09:00',
@@ -171,7 +199,8 @@ export class SideMenu {
                         LunchInMinutes: 0,
                         Description: 'Meetings, blablabla',
                         DimensionsID: null,
-                        CustomerOrderID: null
+                        CustomerOrderID: null,
+                        Project: null
                     },
                     {
                         StartTime: '10:30',
@@ -181,7 +210,8 @@ export class SideMenu {
                         LunchInMinutes: 30,
                         Description: 'Doing awesome work, like always',
                         DimensionsID: null,
-                        CustomerOrderID: null
+                        CustomerOrderID: null,
+                        Project: null
                     }
                 ]
             },
@@ -201,7 +231,8 @@ export class SideMenu {
                         LunchInMinutes: 30,
                         Description: 'Working hard or hardly working',
                         DimensionsID: null,
-                        CustomerOrderID: null
+                        CustomerOrderID: null,
+                        Project: null
                     }
                 ]
             }

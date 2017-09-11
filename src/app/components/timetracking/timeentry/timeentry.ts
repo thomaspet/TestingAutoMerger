@@ -3,8 +3,8 @@ import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {View} from '../../../models/view/view';
 import {WorkRelation, WorkItem, Worker, WorkBalance, LocalDate} from '../../../unientities';
 import {WorkerService, IFilter, ItemInterval, IFilterInterval} from '../../../services/timetracking/workerService';
-import {exportToFile, arrayToCsv, safeInt, trimLength, parseTime} from '../../common/utils/utils';
-import {TimesheetService, TimeSheet} from '../../../services/timetracking/timesheetService';
+import { exportToFile, arrayToCsv, safeInt, trimLength, parseTime } from '../../common/utils/utils';
+import { TimesheetService, TimeSheet, ValueItem } from '../../../services/timetracking/timesheetService';
 import {IsoTimePipe} from '../../common/utils/pipes';
 import {IUniSaveAction} from '../../../../framework/save/save';
 import {Lookupservice, BrowserStorageService} from '../../../services/services';
@@ -245,7 +245,16 @@ export class TimeEntry {
 
     private onTemplateSelected(event: ITemplate) {
         event.Items.forEach((item: ITimeTrackingTemplate) => {
-            this.timeSheet.addItem(this.mapTemplateToWorkItem({}, item))
+            this.timeSheet.addItem(this.mapTemplateToWorkItem({}, item));
+            if (item && item.Project && item.Project.ID) {
+                let value: ValueItem = {
+                    name: 'Dimensions.ProjectID',
+                    value: item.Project,
+                    isParsed: false,
+                    rowIndex: this.timeSheet.items.length - 1
+                }
+                this.timeSheet.setItemValue(value);
+            }
         })
 
         this.timeSheet.recalc();

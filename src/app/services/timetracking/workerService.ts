@@ -137,7 +137,7 @@ export class WorkerService extends BizHttp<Worker> {
         return "date ge '" + toIso(fromDate) + "' and date le '" + toIso(toDate) + "'";
     }
 
-    public getIntervalFilter(interval: IFilterInterval, date: Date): string {
+    public getIntervalFilter(interval: IFilterInterval | ItemInterval, date: Date): string {
         switch (interval) {
             case IFilterInterval.day:
                 return "date eq '" + toIso(date) + "'";
@@ -180,7 +180,7 @@ export class WorkerService extends BizHttp<Worker> {
         }
     }
 
-    public getFilterIntervalDate(interval: IFilterInterval, date: Date): Date {
+    public getFilterIntervalDate(interval: IFilterInterval | ItemInterval, date: Date): Date {
         switch (interval) {
             case IFilterInterval.day:
                 return new Date(date);
@@ -258,7 +258,7 @@ export class WorkerService extends BizHttp<Worker> {
         return dt.toDate();
     }
 
-    public getBigLabel(item: IFilterInterval, date: Date = new Date()) {
+    public getBigLabel(item: IFilterInterval | ItemInterval, date: Date = new Date()) {
         let bigLabel = '';
         switch (item) {
             case IFilterInterval.day:
@@ -268,7 +268,8 @@ export class WorkerService extends BizHttp<Worker> {
                 bigLabel += 'Uke ' + moment(new Date(date)).week();
                 break;
             case IFilterInterval.twoweeks:
-                bigLabel += 'Uke ' + moment(new Date(date)).subtract(1, 'week').week() + ' & ' + moment(new Date(date)).week();
+                bigLabel += 'Uke ' + moment(new Date(date)).subtract(1, 'week').week()
+                    + ' & ' + moment(new Date(date)).week();
                 break;
             case IFilterInterval.month:
                 bigLabel += capitalizeFirstLetter(moment(date).format('MMMM'));

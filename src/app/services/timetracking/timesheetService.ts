@@ -54,7 +54,7 @@ export class TimeSheet {
         this.analyzeItems(this.items);
     }
 
-    public loadItems(interval?: IFilterInterval, date?: Date): Observable<number> {
+    public loadItems(interval?: IFilterInterval | ItemInterval, date?: Date): Observable<number> {
         this.changeMap.clear();
         var filter = this.ts.workerService.getIntervalFilter(interval, date);
         var obs = this.ts.getWorkItems(this.currentRelation.ID, filter);
