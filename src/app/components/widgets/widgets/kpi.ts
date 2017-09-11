@@ -23,7 +23,9 @@ interface IKeyNumberObject {
                 <section>
                     <div>
                         <h2>Lønnsomhet</h2>
-                        <p class="uni-kpi-widget-value" [ngStyle]="{'color': profitability.textColor}">{{ profitability.value }}</p>
+                        <p class="uni-kpi-widget-value" [ngStyle]="{'color': profitability.textColor}">
+                            {{ profitability.value }}
+                        </p>
                     </div>
                     <div>
                         <a class="uni-kpi-widget-chevron" [ngClass]="profitability.class">link</a>
@@ -37,11 +39,15 @@ interface IKeyNumberObject {
                 <section>
                     <div>
                         <h2>Likviditet</h2>
-                        <p class="uni-kpi-widget-value" [ngStyle]="{'color': liquidity.textColor}">{{ liquidity.value }}</p>
+                        <p class="uni-kpi-widget-value" [ngStyle]="{'color': liquidity.textColor}">
+                            {{ liquidity.value }}
+                        </p>
                     </div>
                     <div>
                         <a class="uni-kpi-widget-chevron" [ngClass]="liquidity.class">link</a>
-                        <p [ngStyle]="{'color': liquidity.textColor}">{{ liquidity.grade }} </p>
+                        <p [ngStyle]="{'color': liquidity.textColor}">
+                            {{ liquidity.grade }} 
+                        </p>
                     </div>
                     <div>
                         <canvas #liquidityCanvas> </canvas>
@@ -51,7 +57,9 @@ interface IKeyNumberObject {
                 <section>
                     <div>
                         <h2>Soliditet</h2>
-                        <p class="uni-kpi-widget-value" [ngStyle]="{'color': solidity.textColor}">{{ solidity.value }}</p>
+                        <p class="uni-kpi-widget-value" [ngStyle]="{'color': solidity.textColor}">
+                            {{ solidity.value }}
+                        </p>
                     </div>
                     <div>
                         <a class="uni-kpi-widget-chevron" [ngClass]="solidity.class">link</a>
@@ -157,7 +165,7 @@ export class UniKPIWidget {
 
     public initProfitabilityIndicator(data) {
         if (data.sumTK) {
-            this.profitability.value = (((data.resultat * -1) * 100) / data.sumTK || 1).toFixed(1);
+            this.profitability.value = ((data.resultat * 100) / data.sumTK || 1).toFixed(1);
             this.checkNumbers(this.profitability, [1, 5, 9, 15]);
 
             this.drawIndicator(
