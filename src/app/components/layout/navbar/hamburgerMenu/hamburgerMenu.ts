@@ -1,6 +1,5 @@
 ﻿import {Component, ElementRef, Pipe, ChangeDetectionStrategy, ChangeDetectorRef, ViewChild} from '@angular/core';
 import {Router} from '@angular/router';
-import {routes} from '../../../../routes';
 import {UniModules} from '../../../layout/navbar/tabstrip/tabService';
 import {UserService} from '../../../../services/services';
 import {AuthService} from '../../../../../framework/core/authService';
@@ -49,7 +48,6 @@ export class HamburgerMenu {
 
     private open: boolean = false;
 
-    public routes: any[] = routes;
     public availableComponents: Array<any> = [];
     public selectionIndex: number = 0;
 
@@ -74,11 +72,13 @@ export class HamburgerMenu {
         private userService: UserService,
         private authService: AuthService
     ) {
-        this.authService.authentication$.subscribe(authChange => {
-            this.userService.getCurrentUser().subscribe(user => {
-                this.availableComponents = this.getAllowedRoutes(user);
-                this.cdr.markForCheck();
-            });
+        this.authService.authentication$.subscribe(auth => {
+            if (auth.token && auth.activeCompany) {
+                this.userService.getCurrentUser().subscribe(user => {
+                    this.availableComponents = this.getAllowedRoutes(user);
+                    this.cdr.markForCheck();
+                });
+            }
         });
     }
 

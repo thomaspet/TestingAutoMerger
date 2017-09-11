@@ -71,7 +71,11 @@ export class AuthService {
         let url = AppConfig.BASE_URL_INIT + AppConfig.API_DOMAINS.INIT + 'sign-in';
 
         return this.http.post(url, JSON.stringify(credentials), {headers: this.headers})
-            .finally(() => this.authenticateUniFiles())
+            .finally(() => {
+                if (this.jwt) {
+                    this.authenticateUniFiles();
+                }
+            })
             .switchMap((apiAuth) => {
                 if (apiAuth.status !== 200) {
                     return Observable.of(apiAuth.json());
@@ -116,8 +120,7 @@ export class AuthService {
                     console.log('Error authenticating:', err);
                 }
             );
-
-        })
+        });
     }
 
     /**
@@ -154,18 +157,10 @@ export class AuthService {
     }
 
     /**
-     * Returns the current active company
-     * @returns {Object}
-     */
-    public getActiveCompany() {
-        return this.activeCompany;
-    }
-
-    /**
      * Returns the current active companykey string
      */
     public getCompanyKey(): string {
-        return this.getActiveCompany()['Key'];
+        return this.activeCompany && this.activeCompany.Key;
     }
 
     /**
@@ -202,6 +197,7 @@ export class AuthService {
             'Authorization': 'Bearer ' + this.jwt,
             'CompanyKey': this.activeCompany
         });
+
         this.http.post(url, '', {headers: headers})
             .subscribe(
                 () => console.log('User logged out sucessfully'),
