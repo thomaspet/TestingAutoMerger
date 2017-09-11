@@ -1,19 +1,15 @@
 ﻿import {Component, ViewChild, Input, Output, EventEmitter} from '@angular/core';
 import {ITimeTrackingTemplate, ITemplate} from '../sidemenu/sidemenu';
-import {UniFieldLayout} from '../../../../framework/ui/uniform/index';
-import {BehaviorSubject} from 'rxjs/BehaviorSubject';
-import { FieldType } from '../../../../framework/ui/uniform/index';
-import { safeDec, filterInput, getDeepValue } from '../../common/utils/utils';
+import {getDeepValue} from '../../common/utils/utils';
 import {WorkEditor} from './workeditor';
-import { ToastService, ToastType } from '../../../../framework/uniToast/toastService';
-import { IUniModal, IModalOptions } from '../../../../framework/uniModal/barrel';
+import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
+import {IUniModal, IModalOptions} from '../../../../framework/uniModal/barrel';
 import {
     UniTable,
     UniTableColumn,
     UniTableColumnType,
     UniTableConfig
 } from '../../../../framework/ui/unitable/index';
-import * as moment from 'moment';
 
 export interface ITemplateReturnObject {
     closeOption: TemplateCloseOptions;
@@ -33,9 +29,9 @@ export enum TemplateCloseOptions {
         <section role="dialog" class="uni-modal template_modal_size">
             <header><h1>Opprett ny mal</h1></header>
 
-            <article> 
-                <label>Navn: </label><input type="text" [(ngModel)]="template.Name"><br>
-                <label>Beskrivelse: </label><input type="text" [(ngModel)]="template.Description">
+            <article>
+                <label>Navn </label><input type="text" [(ngModel)]="template.Name"><br>
+                <label>Beskrivelse </label><input type="text" [(ngModel)]="template.Description">
                 <uni-table
                     [resource]="template?.Items"
                     [config]="tableConfig" style="margin: 1.2rem 0;">
@@ -75,7 +71,7 @@ export class UniTemplateModal implements IUniModal {
     public ngOnInit() {
         this.template = this.options.data.template || this.getCleanTemplate();
 
-        if (this.options.data.index || this.options.data.index === 0) {
+        if (this.options.data.index >= 0) {
             this.onEdit.isEdit = true;
             this.onEdit.index = this.options.data.index;
         }
@@ -108,13 +104,23 @@ export class UniTemplateModal implements IUniModal {
             this.template.Items = this.table.getTableData();
 
             if ((!this.template.Description || !this.template.Name)) {
-                this.toast.addToast('Ikke lagret', ToastType.warn, 5, 'Ukomplett mal! Alle maler må ha navn og beskrivelse');
+                this.toast.addToast(
+                    'Ikke lagret',
+                    ToastType.warn,
+                    5,
+                    'Ukomplett mal! Alle maler må ha navn og beskrivelse');
                 return;
             }
 
             for (let i = 0; i < this.template.Items.length; i++) {
-                if (!this.template.Items[i].StartTime || !this.template.Items[i].EndTime || !this.template.Items[i].Worktype) {
-                    this.toast.addToast('Ikke lagret', ToastType.warn, 5, 'Ukomplett mal! Alle linjene må ha start, slutt og timeart!');
+                if (!this.template.Items[i].StartTime
+                    || !this.template.Items[i].EndTime
+                    || !this.template.Items[i].Worktype) {
+                    this.toast.addToast(
+                        'Ikke lagret',
+                        ToastType.warn,
+                        5,
+                        'Ukomplett mal! Alle linjene må ha start, slutt og timeart!');
                     return;
                 }
             }
@@ -122,14 +128,13 @@ export class UniTemplateModal implements IUniModal {
             this.template.Minutes = this.calcMinutesTotal(this.template.Items);
             this.template.StartTime = this.calcStartTime(this.template.Items);
             this.template.EndTime = this.calcEndTime(this.template.Items);
-        } 
+        }
 
-        this.onClose.emit(
-            {
+        this.onClose.emit({
                 closeOption: TemplateCloseOptions[src],
                 template: this.template,
                 index: this.onEdit.index
-            })
+            });
 
         this.onEdit.isEdit = false;
         this.onEdit.index = null;
@@ -188,7 +193,7 @@ export class UniTemplateModal implements IUniModal {
         let totalMinutes = 0;
         items.forEach((temp) => {
             totalMinutes += temp.Minutes;
-        })
+        });
         return totalMinutes;
     }
 
@@ -199,7 +204,7 @@ export class UniTemplateModal implements IUniModal {
             if (parseInt(item.StartTime.replace(':', '')) < parseInt(earliestHour.replace(':', ''))) {
                 earliestHour = item.StartTime;
             }
-        })
+        });
         return earliestHour;
     }
 
@@ -210,7 +215,7 @@ export class UniTemplateModal implements IUniModal {
             if (parseInt(item.EndTime.replace(':', '')) > parseInt(latestHour.replace(':', ''))) {
                 latestHour = item.EndTime;
             }
-        })
+        });
         return latestHour;
     }
 
@@ -244,8 +249,13 @@ export class UniTemplateModal implements IUniModal {
     }
 
     public createLookupColumn(
-        name: string, label: string, expandCol: string, lookupFn?: any,
-        expandKey = 'ID', expandLabel = 'Name'): UniTableColumn {
+        name: string,
+        label: string,
+        expandCol: string,
+        lookupFn?: any,
+        expandKey = 'ID',
+        expandLabel = 'Name'
+    ): UniTableColumn {
         return new UniTableColumn(name, label, UniTableColumnType.Lookup)
             .setDisplayField(`${expandCol}.${expandLabel}`)
             .setEditorOptions({
