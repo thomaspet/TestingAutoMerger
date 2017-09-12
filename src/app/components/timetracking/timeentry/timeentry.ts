@@ -325,9 +325,10 @@ export class TimeEntry {
     }
 
     private reloadSums() {
-        if (this.settings.useDayBrowser) {
-            this.dayBrowser.reloadSums();
-        }
+        // if (this.settings.useDayBrowser) {
+        //     this.dayBrowser.reloadSums();
+        // }
+        return;
     }
 
     public onRowActionClicked(rowIndex: number, item: any) {
@@ -440,11 +441,10 @@ export class TimeEntry {
             }
             obs.subscribe((itemCount: number) => {
                 if (this.workEditor) { this.workEditor.closeEditor(); }
-                if (this.settings.useDayBrowser) {
-                    this.dayBrowser.current = new Day(dt, true, this.timeSheet.totals.Minutes);
-                }
+                // if (this.settings.useDayBrowser) {
+                //     this.dayBrowser.current = new Day(dt, true, this.timeSheet.totals.Minutes);
+                // }
                 this.flagUnsavedChanged(true, false);
-                this.suggestTime();
                 this.busy = false;
             }, err => this.errorService.handle(err));
         } else {
@@ -453,16 +453,7 @@ export class TimeEntry {
     }
 
     public onEditChanged(rowDeleted: boolean) {
-        this.suggestTime();
         this.flagUnsavedChanged(false, true);
-    }
-
-    private suggestTime() {
-        var def = moment().hours(8).minutes(0).seconds(0).toDate();
-        if (this.timeSheet && this.timeSheet.items && this.timeSheet.items.length > 0) {
-            def = this.timeSheet.items[this.timeSheet.items.length - 1].EndTime;
-        }
-        this.workEditor.EmptyRowDetails.StartTime = def;
     }
 
     public reloadFlex() {
@@ -490,7 +481,7 @@ export class TimeEntry {
             }
         })
 
-        //Fill the month up
+        // Fill the month up
         for (let indexInFlexDays = flexDays.length - 1; indexInFlexDays < 42; indexInFlexDays++) {
             flexDays.push('');
         }
@@ -569,7 +560,6 @@ export class TimeEntry {
                 if (success) {
                     let ts = this.timeSheet.clone();
                     let importedList = this.fileImport.getWorkItems();
-                    //return;
                     if (importedList && importedList.length > 0) {
                         var types = this.workEditor.getWorkTypes();
                         importedList.forEach( (x, index) => {
@@ -592,16 +582,15 @@ export class TimeEntry {
         });
     }
 
-    private switchView(done) {
-        this.checkSave().then((canDeactivate) => {
-            if (canDeactivate) {
-                this.settings.useDayBrowser = !this.settings.useDayBrowser;
-                this.saveSettings();
-                setTimeout( () => this.refreshViewItems(), 50 );
-            }
-        });
-
-    }
+    // private switchView(done) {
+    //     this.checkSave().then((canDeactivate) => {
+    //         if (canDeactivate) {
+    //             this.settings.useDayBrowser = !this.settings.useDayBrowser;
+    //             this.saveSettings();
+    //             setTimeout( () => this.refreshViewItems(), 50 );
+    //         }
+    //     });
+    // }
 
     private saveSettings() {
         this.localStore.save('timeentry.settings', JSON.stringify(this.settings), false );
@@ -616,9 +605,9 @@ export class TimeEntry {
 
     private flagUnsavedChanged(reset = false, updateCounter: boolean = false) {
         this.actions[0].disabled = reset;
-        if (updateCounter && this.settings.useDayBrowser) {
-            this.dayBrowser.setDayCounter( this.dayBrowser.current.date, this.timeSheet.totals.Minutes);
-        }
+        // if (updateCounter && this.settings.useDayBrowser) {
+        //     this.dayBrowser.setDayCounter( this.dayBrowser.current.date, this.timeSheet.totals.Minutes);
+        // }
     }
 
     public onClickDay(event: Day) {
@@ -754,7 +743,7 @@ export class TimeEntry {
             this.currentFilter = filter;
             this.busy = true;
             this.sideMenu.calendar.onFilterChange(this.currentFilter);
-            //If customer date is selected, use this to show filter 
+            //If customer date is selected, use this to show filter
             this.loadItems();
             this.customDateSelected = null;
             this.showProgress();

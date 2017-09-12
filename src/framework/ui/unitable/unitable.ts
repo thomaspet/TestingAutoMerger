@@ -1099,7 +1099,7 @@ export class UniTable implements OnChanges {
     }
 
     public removeRow(originalIndex) {
-        if (this.tableDataOriginal.get(originalIndex).get('_isEmpty')) {
+        if (this.tableDataOriginal.get(originalIndex).get('_isEmpty') && originalIndex === 0) {
             return;
         }
         this.tableDataOriginal = this.tableDataOriginal.delete(originalIndex);
