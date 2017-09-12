@@ -24,7 +24,7 @@ enum StatusCodePayment {
 
 export enum PayrollRunPaymentStatus {
     None = 0,
-    SendtToPayment = 1,
+    SentToPayment = 1,
     PartlyPaid = 2,
     Paid = 3
 }
@@ -341,7 +341,7 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
     public GetPaymentStatusText(payrollRun: PayrollRun) {
         const status: PayrollRunPaymentStatus = payrollRun[this.payStatusProp];
         switch (status) {
-            case PayrollRunPaymentStatus.SendtToPayment:
+            case PayrollRunPaymentStatus.SentToPayment:
                 return 'Sendt til utbetaling';
             case PayrollRunPaymentStatus.PartlyPaid:
                 return 'Delbetalt';
@@ -367,7 +367,7 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
         if (payments.length <= 0) {
             payrollRun[this.payStatusProp] = PayrollRunPaymentStatus.None;
         } else if (!payments.some(pay => pay.StatusCode === StatusCodePayment.Completed)) {
-            payrollRun[this.payStatusProp] = PayrollRunPaymentStatus.SendtToPayment;
+            payrollRun[this.payStatusProp] = PayrollRunPaymentStatus.SentToPayment;
         } else if (payments.some(pay => pay.StatusCode !== StatusCodePayment.Completed)) {
             payrollRun[this.payStatusProp] = PayrollRunPaymentStatus.PartlyPaid;
         } else {
