@@ -39,6 +39,8 @@ export class VatReportView implements OnInit, OnDestroy {
     public externalComment: FormControl = new FormControl();
     public companySettings: CompanySettings;
     public vatReportSummary: VatReportSummary[];
+    public vatReportSummaryFromPreviousPeriods: VatReportSummary[];
+    public previousPeriodsHelpText: string;
     public reportSummaryPerPost: VatReportSummaryPerPost[];
     public reportMessages: VatReportMessage[];
     public currentVatReport: VatReport = new VatReport();
@@ -258,7 +260,20 @@ export class VatReportView implements OnInit, OnDestroy {
             .subscribe(
             data => {
                 this.vatReportSummary = data;
-                if (data != null && data.length > 0) {
+                this.vatReportService.getVatReportSummaryFromPreviousPeriods(vatReport.ID, vatReport.TerminPeriodID)
+                    .subscribe(
+                        dataPrevious => {
+                            this.vatReportSummaryFromPreviousPeriods = dataPrevious;
+                            if (this.vatReportSummaryFromPreviousPeriods.length > 0) {
+                                this.previousPeriodsHelpText = "Akkmulert fra tidligere perioder: "
+                                +  (dataPrevious[0].SumTaxBasisAmount * -1).toFixed(2);
+                            } else {
+                                this.previousPeriodsHelpText = "";
+                            }
+                        },
+                        errPrevious => this.errorService.handle(errPrevious)
+                    );
+                if (data !== null && data.length > 0) {
                     this.isHistoricData = data[0].IsHistoricData;
                 }
             },
@@ -379,7 +394,7 @@ export class VatReportView implements OnInit, OnDestroy {
     }
 
     public signVatReport(done) {
-        let authData; 
+        let authData;
         this.modalService
             .open(AltinnAuthenticationModal)
             .onClose
