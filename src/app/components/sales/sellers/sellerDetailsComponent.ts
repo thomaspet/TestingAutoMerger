@@ -84,7 +84,7 @@ export class SellerDetailsComponent {
        this.statisticsService.GetAllUnwrapped(
             `model=CustomerInvoice&` +
             `select=sum(TaxInclusiveAmount) as TotalAmount,` +
-                   `sum(TaxInclusiveAmount mul SellerLink.Percent div 100) as SellerTotalAmount,` +
+                   `sum(TaxInclusiveAmount mul casewhen(SellerLink.Percent gt 0,SellerLink.Percent,100) div 100) as SellerTotalAmount,` +
                    `count(ID) as TotalCount&` +
             `join=CustomerInvoice.ID eq SellerLink.CustomerInvoiceID&` +
             `filter=SellerLink.SellerID eq ${this.sellerId} and StatusCode ne ${StatusCodeCustomerInvoice.Draft} ` +
