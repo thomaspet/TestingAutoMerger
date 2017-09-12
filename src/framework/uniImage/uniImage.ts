@@ -56,6 +56,8 @@ export interface IUploadConfig {
                 <a class="prev" (click)="previous()"></a>
                 <label>{{fileInfo}}</label>
 
+                <a class="printOutPdf" (click)="printOutPdf()">Print</a>
+
                 <a class="trash" (click)="deleteImage()" *ngIf="!readonly"></a>
                 <a class="next" (click)="next()"></a>
             </section>
