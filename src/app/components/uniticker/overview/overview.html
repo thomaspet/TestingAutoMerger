@@ -3,11 +3,6 @@
     [saveactions]="saveactions">
 </uni-toolbar>
 
-<!-- <uni-ticker-search-history
-    [lastSearch]="lastSearch"
-    (showSearch)="onShowSearch($event)">
-</uni-ticker-search-history> -->
-
 <section class="wtf-wrapper">
     <!-- REVISIT: Should this be a component? -->
     <ul class="ticker-list">
@@ -24,9 +19,7 @@
     </ul>
 
     <uni-ticker-container
-        [showSubTickers]="showSubTickers"
-        [showFilters]="!selectedTicker || (selectedTicker && !selectedTicker.DisableFiltering)"
-        [ticker]="selectedTicker"
-        (urlPropertiesChanged)="onUrlChanged()">
+        [showFilters]="!selectedTicker || !selectedTicker.DisableFiltering"
+        [ticker]="selectedTicker">
     </uni-ticker-container>
 </section>

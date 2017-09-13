@@ -13,7 +13,7 @@
 <ul class="ticker-predefined-filters">
     <li *ngFor="let filter of filters"
         (click)="onFilterSelected(filter)"
-        [attr.aria-selected]="selectedFilter.Code === filter.Code">
+        [attr.aria-selected]="filter.Code === selectedFilter?.Code">
 
         {{filter.Name?.toUpperCase()}}
         <span *ngIf="filter.CurrentCount" class="ticker-filter-count">
