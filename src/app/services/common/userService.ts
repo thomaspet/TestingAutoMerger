@@ -59,7 +59,7 @@ export class UserService extends BizHttp<User> {
 
         // First check if the route is a public route
         const rootRoute = this.getRootRoute(url);
-        if (PUBLIC_ROUTES.some(route => route === rootRoute)) {
+        if (!rootRoute || PUBLIC_ROUTES.some(route => route === rootRoute)) {
             return true;
         }
 
