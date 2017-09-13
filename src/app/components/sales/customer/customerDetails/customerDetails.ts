@@ -14,7 +14,8 @@ import {
     Address,
     CustomerInvoiceReminderSettings,
     CurrencyCode,
-    Terms
+    Terms,
+    NumberSeries
 } from '../../../../unientities';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
 import {IReference} from '../../../../models/iReference';
@@ -37,7 +38,8 @@ import {
     CustomerInvoiceReminderSettingsService,
     CurrencyCodeService,
     TermsService,
-    UniSearchConfigGeneratorService
+    UniSearchCustomerConfig,
+    NumberSeriesService
 } from '../../../../services/services';
 import {
     UniModalService,
@@ -74,6 +76,7 @@ export class CustomerDetails {
     public currencyCodes: Array<CurrencyCode>;
     public paymentTerms: Terms[];
     public deliveryTerms: Terms[];
+    public numberSeries: NumberSeries[];
     public dropdownData: any;
     public customer$: BehaviorSubject<Customer> = new BehaviorSubject(null);
     public searchText: string;
@@ -86,6 +89,7 @@ export class CustomerDetails {
     private isDisabled: boolean = true;
     private commentsConfig: ICommentsConfig;
     private isDirty: boolean = false;
+    private selectConfig: any;
 
     private toolbarconfig: IToolbarConfig = {
         title: 'Kunde',
@@ -191,10 +195,11 @@ export class CustomerDetails {
         private numberFormat: NumberFormat,
         private customerInvoiceReminderSettingsService: CustomerInvoiceReminderSettingsService,
         private currencyCodeService: CurrencyCodeService,
-        private uniSearchConfigGeneratorService: UniSearchConfigGeneratorService,
+        private uniSearchCustomerConfig: UniSearchCustomerConfig,
         private modalService: UniModalService,
         private http: UniHttp,
-        private termsService: TermsService
+        private termsService: TermsService,
+        private numberSeriesService: NumberSeriesService
     ) {}
 
     public ngOnInit() {
@@ -212,6 +217,9 @@ export class CustomerDetails {
                     entityID: this.customerID
                 };
 
+                this.selectConfig = this.numberSeriesService.getSelectConfig(
+                    this.customerID, this.numberSeries, 'Customer number series'
+                );
                 this.setup();
 
                 this.uniQueryDefinitionService.getReferenceByModuleId(UniModules.Customers)
@@ -372,35 +380,38 @@ export class CustomerDetails {
                 ),
                 this.currencyCodeService.GetAll(null),
                 this.termsService.GetAction(null, 'get-payment-terms'),
-                this.termsService.GetAction(null, 'get-delivery-terms')
+                this.termsService.GetAction(null, 'get-delivery-terms'),
+                this.numberSeriesService.GetAll(
+                    `filter=NumberSeriesType.Name eq 'Customer Account number series' and Empty eq false and Disabled eq false`,
+                    ['NumberSeriesType']
+                )
             ).subscribe(response => {
                 this.dropdownData = [response[0], response[1]];
-
-                let customer = response[2];
-
-                this.isDisabled = !customer.Info.Name;
-                this.setupSaveActions();
-
-                this.setMainContact(customer);
-
-                this.customer$.next(customer);
-
                 this.emptyPhone = response[3];
                 this.emptyEmail = response[4];
                 this.emptyAddress = response[5];
-
                 this.customerStatisticsData = response[6];
+                this.currencyCodes = response[7];
+                this.paymentTerms = response[8];
+                this.deliveryTerms = response[9];
+                this.numberSeries = response[10].map(x => this.numberSeriesService.translateSerie(x));
+
+                let customer: Customer = response[2];
+                customer.SubAccountNumberSeriesID = this.numberSeries.find(x => x.Name === 'Customer number series').ID;
+                this.isDisabled = !customer.Info.Name;
+                this.setupSaveActions();
+                this.setMainContact(customer);
+                this.customer$.next(customer);
 
                 if (customer.CustomerInvoiceReminderSettings === null) {
                     customer.CustomerInvoiceReminderSettings = new CustomerInvoiceReminderSettings();
                     customer.CustomerInvoiceReminderSettings['_createguid'] = this.customerInvoiceReminderSettingsService.getNewGuid();
                 }
 
-                this.currencyCodes = response[7];
 
-                this.paymentTerms = response[8];
-                this.deliveryTerms = response[9];
-
+                this.selectConfig = this.numberSeriesService.getSelectConfig(
+                    this.customerID, this.numberSeries, 'Customer number series'
+                );
                 this.setTabTitle();
                 this.extendFormConfig();
                 this.showHideNameProperties();
@@ -439,6 +450,12 @@ export class CustomerDetails {
                 this.updateCustomerWidgets();
             }, err => this.errorService.handle(err));
         }
+    }
+
+    private numberSeriesChange(selectedSerie) {
+        let customer = this.customer$.getValue();
+        customer.SubAccountNumberSeriesID = selectedSerie.ID;
+        this.customer$.next(customer);
     }
 
     private setMainContact(customer: Customer) {
@@ -765,6 +782,7 @@ export class CustomerDetails {
                     (newCustomer) => {
                         this.isDirty = false;
                         completeEvent('Kunde lagret');
+                        this.selectConfig = undefined;
                         if (this.modalMode) {
                             this.customerUpdated.next(newCustomer);
                         } else {
@@ -802,9 +820,8 @@ export class CustomerDetails {
     }
 
     private getCustomerLookupOptions() {
-        let uniSearchConfig = this.uniSearchConfigGeneratorService.generate(
-            Customer,
-            <[string]>this.expandOptions,
+        let uniSearchConfig = this.uniSearchCustomerConfig.generate(
+            this.expandOptions,
             () => {
                 let customer = this.customer$.getValue();
                 const searchInfo = this.form.field('_CustomerSearchResult');
@@ -832,8 +849,7 @@ export class CustomerDetails {
                 this.router.navigateByUrl(`/sales/customer/${newOrExistingItem.ID}`);
                 return Observable.empty();
             } else {
-                let customerData = this.uniSearchConfigGeneratorService
-                            .customerGenerator
+                let customerData = this.uniSearchCustomerConfig
                             .customStatisticsObjToCustomer(newOrExistingItem);
 
                 return Observable.from([customerData]);

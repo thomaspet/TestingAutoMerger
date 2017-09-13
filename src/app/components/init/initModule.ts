@@ -6,7 +6,6 @@ import {RouterModule} from '@angular/router';
 import {UniFrameworkModule} from '../../../framework/frameworkModule';
 import {LayoutModule} from '../layout/layoutModule';
 import {AppCommonModule} from '../common/appCommonModule';
-import {routes as InitRoutes} from './initRoutes';
 import {LoginModal} from './loginModal';
 import {UniInit} from './init';
 import {CompanySyncModal} from './companySyncModal';
@@ -26,8 +25,6 @@ import {ConfirmInvite} from './confirmInvite/confirmInvite';
         UniFrameworkModule,
         LayoutModule,
         AppCommonModule,
-
-        InitRoutes
     ],
     declarations: [
         LoginModal,

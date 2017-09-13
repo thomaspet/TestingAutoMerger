@@ -3,11 +3,25 @@ import {Component, ViewChildren, QueryList} from '@angular/core';
 import {TabService} from '../../layout/navbar/tabstrip/tabService';
 import {UniHttp} from '../../../../framework/core/http/http';
 import {UniTableConfig, UniTableColumn, UniTableColumnType, UniTable} from '../../../../framework/ui/unitable/index';
-import {ErrorService, GuidService, StatisticsService, YearService, NumberSeriesService, NumberSeriesTypeService, NumberSeriesTaskService} from '../../../services/services';
 import {UniModalService, ConfirmActions} from '../../../../framework/uniModal/barrel';
 import {Observable} from 'rxjs/Observable';
 import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
 import {IUniSaveAction} from '../../../../framework/save/save';
+
+import {
+    Account
+} from '../../../../unientities';
+
+import {
+    ErrorService,
+    GuidService,
+    StatisticsService,
+    YearService,
+    NumberSeriesService,
+    NumberSeriesTypeService,
+    NumberSeriesTaskService,
+    AccountService
+} from '../../../services/services';
 
 declare var _;
 const MAXNUMBER = 2147483647;
@@ -30,8 +44,8 @@ export class NumberSeries {
     private currentYear: number;
     private currentSerie: any = this.numberSeriesService.series.find(x => x.ID == 'JournalEntry');
     private asinvoicenumberserie: number = null;
-    private customeraccountnumber: number = null;
-    private supplieraccountnumber: number = null;
+    private customerAccount: Account = null;
+    private supplierAccount: Account = null;
 
     public hasUnsavedChanges: boolean = false;
     public busy: boolean = false;
@@ -53,7 +67,8 @@ export class NumberSeries {
         private numberSeriesService: NumberSeriesService,
         private numberSeriesTypeService: NumberSeriesTypeService,
         private numberSeriesTaskService: NumberSeriesTaskService,
-        private modalService: UniModalService
+        private modalService: UniModalService,
+        private accountService: AccountService
     ) {
         this.series = this.numberSeriesService.series;
         this.initTableConfigs();
@@ -198,6 +213,7 @@ export class NumberSeries {
         return new Promise((resolve, reject) => {
             var all = this.uniTables.last.getVisibleTableData();
             let saveObserveables: Observable<any>[] = all.filter(x => (x._isDirty && this.currentSerie.ID == 'Accounting' && x._rowSelected) || (x._isDirty && this.currentSerie != 'Accounting')).map(x => {
+                delete x.MainAccount;
                 return this.numberSeriesService.save(x);
             });
             if (saveObserveables.length == 0) { resolve(true); }
@@ -231,6 +247,14 @@ export class NumberSeries {
                 row.Name = row._DisplayName;
             }
 
+            if (!row.ID && row.FromNumber && (!row.NextNumber || row.NextNumber < row.FromNumber)) {
+                row.NextNumber = row.FromNumber;
+            }
+
+            if (row.MainAccount) {
+                row.MainAccountID = row.MainAccount.ID;
+            }
+
             if (row._AsInvoiceNumber.ID && (row.UseNumbersFromNumberSeriesID === null || row.UseNumbersFromNumberSeriesID == 0)) {
                 this.modalService.confirm({
                     header: 'Vennligst bekreft',
@@ -257,13 +281,20 @@ export class NumberSeries {
                 });
 
             } else {
-                row.NumberSeriesType = this.types.find(x => x.Name == (row._Yearly && row._Yearly.ID ? 'JournalEntry number series type yearly' : 'JournalEntry number series type NOT yearly'));
-                row.NumberSeriesTypeID = row.NumberSeriesType ? row.NumberSeriesType.ID : 0;
-                row.UseNumbersFromNumberSeriesID = null;
-
-                if (!row.NumberSeriesType.Yearly) {
-                    row.AccountYear = 0;
+                if (row._Register) {
+                    if (row._Register.EntityType !== 'JournalEntry') {
+                        row.NumberSeriesType = this.types.find(x => x.EntityType === row._Register.EntityType);
+                        row.NumberSeriesTypeID = row.NumberSeriesType ? row.NumberSeriesType.ID : 0;
+                    } else {
+                        row.NumberSeriesType = this.types.find(x => x.Name == (row._Yearly && row._Yearly.ID ? 'JournalEntry number series type yearly' : 'JournalEntry number series type NOT yearly'));
+                        row.NumberSeriesTypeID = row.NumberSeriesType ? row.NumberSeriesType.ID : 0;
+                        if (!row.NumberSeriesType.Yearly) {
+                            row.AccountYear = 0;
+                        }
+                    }
                 }
+
+                row.UseNumbersFromNumberSeriesID = null;
 
                 this.current[index] = row;
                 this.current = _.cloneDeep(this.current);
@@ -327,14 +358,6 @@ export class NumberSeries {
                         displayField: '_DisplayName',
                         resource: this.tasks
                     }),
-                new UniTableColumn('_Register', 'Register', UniTableColumnType.Select)
-                    .setEditable(false)
-                    .setTemplate(row => row._Register.DisplayName)
-                    .setEditorOptions({
-                        hideNotChosenOption: true,
-                        displayField: 'DisplayName',
-                        resource: this.numberSeriesService.registers
-                    }),
                 new UniTableColumn('_AsInvoiceNumber', 'Lik fakturanr.', UniTableColumnType.Select)
                     .setEditable(row => !row.ID && row._rowSelected && row.Name == 'JournalEntry invoice number series type')
                     .setTemplate(row => row.Name == 'JournalEntry invoice number series type' ? row._AsInvoiceNumber.DisplayName : '')
@@ -377,7 +400,7 @@ export class NumberSeries {
                 new UniTableColumn('NextNumber', 'Neste nr', UniTableColumnType.Number)
                     .setEditable(true),
                 new UniTableColumn('NumberSeriesTask', 'Oppgave', UniTableColumnType.Select)
-                    .setEditable(false)
+                    .setEditable(row => !row.ID)
                     .setTemplate(row => row.NumberSeriesTask ? row.NumberSeriesTask._DisplayName : '')
                     .setEditorOptions({
                         hideNotChosenOption: true,
@@ -386,12 +409,12 @@ export class NumberSeries {
                         resource: this.tasks
                     }),
                 new UniTableColumn('_Register', 'Register', UniTableColumnType.Select)
-                    .setEditable(false)
+                    .setEditable(row => !row.ID)
                     .setTemplate(row => row._Register ? row._Register.DisplayName : '')
                     .setEditorOptions({
                         hideNotChosenOption: true,
                         displayField: 'DisplayName',
-                        resource: this.numberSeriesService.registers
+                        resource: this.numberSeriesService.registers.filter(x => x.Sale)
                     })
             ])
             .setChangeCallback(event => this.onRowChanged(event))
@@ -399,7 +422,7 @@ export class NumberSeries {
                 Name: null,
                 FromNumber: null,
                 ToNumber: null,
-                NextNumber: null,
+                NextNumber: 0,
                 NumberSeriesTaskID: 0,
                 NumberSeriesTask: null,
                 _DisplayName: '',
@@ -427,27 +450,49 @@ export class NumberSeries {
                     .setTemplate(row => `${row.ToNumber == MAXNUMBER ? 'max' : row.ToNumber ? row.ToNumber : ''}`),
                 new UniTableColumn('NextNumber', 'Neste nr', UniTableColumnType.Number)
                     .setEditable(true),
-                new UniTableColumn('CollectionAccount', 'Samlekonto', UniTableColumnType.Number)
-                    .setEditable(false)
+                new UniTableColumn('_Register', 'Register', UniTableColumnType.Select)
+                    .setEditable(row => !row.ID)
+                    .setTemplate(row => row._Register ? row._Register.DisplayName : '')
+                    .setEditorOptions({
+                        hideNotChosenOption: true,
+                        displayField: 'DisplayName',
+                        resource: this.numberSeriesService.registers.filter(x => x.EntityType === 'Customer' || x.EntityType === 'Supplier')
+                    }),
+                new UniTableColumn('MainAccount', 'Samlekonto', UniTableColumnType.Lookup)
+                    .setEditable(row => !row.ID)
                     .setTemplate(row => {
-                        switch (row.Name) {
-                            case 'Customer number series':
-                                return this.customeraccountnumber.toString();
-                            case 'Supplier number series':
-                                return this.supplieraccountnumber.toString();
-                            default:
-                                return '';
+                        let account;
+                        if (row.MainAccount) {
+                            account = row.MainAccount;
+                        } else if (row.ID) {
+                            switch (row._Register.EntityType) {
+                                case 'Customer':
+                                    account = this.customerAccount;
+                                case 'Supplier':
+                                    account = this.supplierAccount;
+                            }
                         }
+
+                        return account
+                            ? account.AccountNumber + ': ' + account.AccountName
+                            : '';
                     })
-            ])
+                    .setEditorOptions({
+                        itemTemplate: (selectedItem) => {
+                            return (selectedItem.AccountNumber + ' - ' + selectedItem.AccountName);
+                        },
+                        lookupFunction: (searchValue) => {
+                            return this.accountSearch(searchValue);
+                        }
+                    }),
+                ])
             .setChangeCallback(event => this.onRowChanged(event))
             .setDefaultRowData({
                 FromNumber: null,
                 ToNumber: null,
                 NextNumber: null,
-                NumberSeriesTaskID: 0,
-                NumberSeriesTask: {},
-                _Register: null,
+                CollectionAccount: null,
+                _Register: this.numberSeriesService.registers.find(x => x.EntityType == 'Customer'),
                 _AsInvoiceNumber: this.numberSeriesService.asinvoicenumber[0],
                 _rowSelected: false
             });
@@ -456,7 +501,7 @@ export class NumberSeries {
     private initOtherSeriesTableConfig() {
         this.listTableConfig = new UniTableConfig('settings.numberSeries.othersList', true, true, 15)
             .setSearchable(false)
-            .setAutoAddNewRow(true)
+            .setAutoAddNewRow(false)
             .setColumns([
                 new UniTableColumn('_DisplayName', 'Navn', UniTableColumnType.Text)
                     .setEditable(false)
@@ -486,6 +531,27 @@ export class NumberSeries {
                 _AsInvoiceNumber: this.numberSeriesService.asinvoicenumber[0],
                 _rowSelected: false
             });
+    }
+
+    private accountSearch(searchValue: string): Observable<any> {
+
+        let filter = '';
+        if (searchValue === '') {
+            filter = `Visible eq 'true' and isnull(AccountID,0) eq 0`;
+        } else {
+            let copyPasteFilter = '';
+
+            if (searchValue.indexOf(':') > 0) {
+                let accountNumberPart = searchValue.split(':')[0].trim();
+                let accountNamePart = searchValue.split(':')[1].trim();
+
+                copyPasteFilter = ` or (AccountNumber eq '${accountNumberPart}' and AccountName eq '${accountNamePart}')`;
+            }
+
+            filter = `Visible eq 'true' and (startswith(AccountNumber\,'${searchValue}') or contains(AccountName\,'${searchValue}')${copyPasteFilter} )`;
+        }
+
+        return this.accountService.searchAccounts(filter, searchValue !== '' ? 100 : 500);
     }
 
     private onRowSelectionChange(event) {
@@ -552,13 +618,17 @@ export class NumberSeries {
 
             this.types = types;
             this.tasks = tasks.map(x => this.numberSeriesTaskService.translateTask(x));
-            this.customeraccountnumber = settings.CustomerAccount.AccountNumber;
-            this.supplieraccountnumber = settings.SupplierAccount.AccountNumber;
+            this.customerAccount = settings.CustomerAccount;
+            this.supplierAccount = settings.SupplierAccount;
 
             this.asinvoicenumberserie = numberseries.find(x => x.Name == 'Customer Invoice number series').ID
             this.numberseries = this.addCustomFields(numberseries).map(x => {
                 if (x.NumberSeriesTask && x.NumberSeriesTask.Name) {
                     x.NumberSeriesTask = this.numberSeriesTaskService.translateTask(x.NumberSeriesTask);
+                }
+
+                if (x.NumberSeriesType && x.NumberSeriesType.EntityType !== 'JournalEntry') {
+                    x._Register = this.numberSeriesService.registers.find(r => r.EntityType === x.NumberSeriesType.EntityType);
                 }
 
                 x._AsInvoiceNumber = this.numberSeriesService.asinvoicenumber[this.asinvoicenumberserie == x.UseNumbersFromNumberSeriesID ? 1 : 0];
@@ -628,6 +698,12 @@ export class NumberSeries {
                     break;
                 case 'Project number series':
                     x._Register = this.numberSeriesService.registers.find(x => x.EntityType == 'Project');
+                    break;
+                case 'Customer number series':
+                    x._Register = this.numberSeriesService.registers.find(x => x.EntityType == 'Customer');
+                    break;
+                case 'Supplier number series':
+                    x._Register = this.numberSeriesService.registers.find(x => x.EntityType == 'Supplier');
                     break;
             }
 

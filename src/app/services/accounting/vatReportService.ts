@@ -111,6 +111,16 @@ export class VatReportService extends BizHttp<VatReport> {
             .map(response => response.json());
     }
 
+      public getVatReportSummaryFromPreviousPeriods(vatReportId: number, periodId: number): Observable<VatReportSummary[]> {
+        return this.http
+            .asGET()
+            .usingBusinessDomain()
+            .withEndPoint(this.relativeURL + `/${vatReportId}?action=get-vat-report-summary-from-previous-periods&periodID=${periodId}`)
+            .send()
+            .map(response => response.json());
+    }
+
+
     public getVatReportSummaryPerPost(vatReportID: number, periodID: number): Observable<VatReportSummaryPerPost[]> {
         return this.http
             .asGET()

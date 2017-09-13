@@ -60,6 +60,7 @@ export class SupplierInvoiceService extends BizHttp<SupplierInvoice> {
     }
 
     public assign(supplierInvoiceId: number, details: IAssignDetails): Observable<boolean> {
+        super.invalidateCache();
         return this.http
             .asPOST()
             .usingBusinessDomain()
@@ -70,6 +71,7 @@ export class SupplierInvoiceService extends BizHttp<SupplierInvoice> {
     }
 
     public journal(supplierInvoiceId: number) {
+        super.invalidateCache();
         return this.http
             .asPOST()
             .usingBusinessDomain()
@@ -79,6 +81,7 @@ export class SupplierInvoiceService extends BizHttp<SupplierInvoice> {
     }
 
     public sendForPayment(supplierInvoiceId: number) {
+        super.invalidateCache();
         return this.http
             .asPOST()
             .usingBusinessDomain()
@@ -88,6 +91,7 @@ export class SupplierInvoiceService extends BizHttp<SupplierInvoice> {
     }
 
     public payinvoice(supplierInvoiceId: number, supplierInvoiceData: InvoicePaymentData) {
+        super.invalidateCache();
         return this.http
             .asPUT()
             .withBody(supplierInvoiceData)

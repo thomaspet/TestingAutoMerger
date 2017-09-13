@@ -1,13 +1,12 @@
-﻿import {Component, ElementRef, Pipe, ChangeDetectorRef, ViewChild} from '@angular/core';
+﻿import {Component, ElementRef, Pipe, ChangeDetectionStrategy, ChangeDetectorRef, ViewChild} from '@angular/core';
 import {Router} from '@angular/router';
-import {routes} from '../../../../routes';
 import {UniModules} from '../../../layout/navbar/tabstrip/tabService';
-import {UniMenuAim, UserService} from '../../../../services/services';
+import {UserService} from '../../../../services/services';
 import {AuthService} from '../../../../../framework/core/authService';
 
 @Pipe({name: 'removehidden'})
 export class RemoveHidden {
-    private transform(componentList) {
+    public transform(componentList) {
         return componentList.filter((x) => !(x.hidden || false));
     }
 }
@@ -20,10 +19,12 @@ export class RemoveHidden {
             (click)="toggle($event)"
             (clickOutside)="close()">
 
-            <ul class="hamburger_menu" #menu>
+            <ul class="hamburger_menu" #menu (mousemove)="mouseMoveHandler($event)">
                 <li class="hamburger_item"
                     *ngFor="let componentList of availableComponents; let idx = index"
+                    (mouseenter)="mouseEnterHandler($event, idx)"
                     [ngClass]="{'is-active': idx === selectionIndex}">
+
                     {{componentList.componentListName}}
 
                     <ul class="hamburger_submenu">
@@ -38,7 +39,8 @@ export class RemoveHidden {
                 </li>
             </ul>
         </nav>
-    `
+    `,
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class HamburgerMenu {
     @ViewChild('menu')
@@ -46,10 +48,16 @@ export class HamburgerMenu {
 
     private open: boolean = false;
 
-    public routes: any[] = routes;
     public availableComponents: Array<any> = [];
-    private activeSection: HTMLElement;
     public selectionIndex: number = 0;
+
+    // Menu aim
+    private timeoutReference: any;
+    private tolerance: number = 75;
+    private timeout: number = 500;
+    private movements: {x: number, y: number}[] = [];
+    private lastDelayLocation: {x: number, y: number};
+
 
     // Get the corresponding parent app to a given module.
     public static getParentApp(moduleID): any {
@@ -60,51 +68,37 @@ export class HamburgerMenu {
 
     constructor(
         public router: Router,
-        private menuaim: UniMenuAim,
         private cdr: ChangeDetectorRef,
         private userService: UserService,
         private authService: AuthService
     ) {
-        this.authService.authentication$.subscribe(authChange => {
-            this.userService.getCurrentUser().subscribe(user => {
-                this.availableComponents = this.getAllowedRoutes(user);
-                this.activeSection = this.sectionList.nativeElement.children[0];
-                this.cdr.markForCheck();
-
-                // Allow list element to initialize before we start UniMenuAim
-                setTimeout(() => {
-                    this.menuaim.aim(this.sectionList.nativeElement, '.hamburger_item', (selectedIndex: number) => {
-                        this.selectionIndex = selectedIndex;
-                        this.cdr.markForCheck();
-                    });
+        this.authService.authentication$.subscribe(auth => {
+            if (auth.token && auth.activeCompany) {
+                this.userService.getCurrentUser().subscribe(user => {
+                    this.availableComponents = this.getAllowedRoutes(user);
+                    this.cdr.markForCheck();
                 });
-            });
+            }
         });
     }
 
-    private toggle(event) {
+    public toggle(event) {
         if (event.target.tagName === 'NAV') {
             this.open = !this.open;
         }
     }
 
-    private close() {
+    public close() {
         this.open = false;
     }
 
-    private navigate(url: string): void {
+    public navigate(url: string): void {
         this.open = false;
         this.router.navigateByUrl(url);
     }
 
-    public activeSectionIndex() {
-        const elems = this.sectionList.nativeElement.children;
-        return [].indexOf.call(elems, this.activeSection);
-    }
-
     private getAllowedRoutes(user): any[] {
         let routeSections = HamburgerMenu.getAvailableComponents();
-        const before = performance.now();
 
         routeSections.forEach(section => {
             section.componentList = section.componentList.filter(item => {
@@ -113,12 +107,105 @@ export class HamburgerMenu {
         });
 
         routeSections = routeSections.filter(section => section.componentList.length > 0);
-
-        const after = performance.now();
-        console.log((after - before) + 'ms (filtering hamburger)');
-
         return routeSections;
     }
+
+
+    // Menu aim
+    public mouseMoveHandler(event: MouseEvent) {
+        this.movements.push({
+            x: event.clientX,
+            y: event.clientY
+        });
+
+        if (this.movements.length >= 3) {
+            this.movements.shift();
+        }
+    }
+
+    public mouseEnterHandler(event: MouseEvent, index) {
+        if (this.timeoutReference) {
+            clearTimeout(this.timeoutReference);
+        }
+
+        this.possiblyActivate(event.target, index);
+    }
+
+    private activationDelay() {
+        let menu = this.sectionList.nativeElement;
+
+        let offset = {left: menu.offsetLeft, top: menu.offsetTop};
+
+        let upperLeft = {
+            x: offset.left,
+            y: offset.top - 75
+        };
+
+        let upperRight = {
+            x: offset.left + menu.offsetWidth,
+            y: upperLeft.y
+        };
+
+        let lowerLeft = {
+            x: offset.left,
+            y: offset.top + menu.offsetHeight + this.tolerance
+        };
+
+        let lowerRight = {
+            x: offset.left + menu.offsetWidth,
+            y: lowerLeft.y
+        };
+
+        let loc = this.movements[this.movements.length - 1];
+        let prevLoc = this.movements[0];
+
+        if (!loc || !prevLoc) {
+            return 0;
+        }
+
+        if (this.lastDelayLocation &&
+            loc.x === this.lastDelayLocation.x && loc.y === this.lastDelayLocation.y
+        ) {
+            // If the mouse hasn't moved since the last time we checked
+            // for activation status, immediately activate.
+            return 0;
+        }
+
+        let slope = (a, b) => {
+            return (b.y - a.y) / (b.x - a.x);
+        };
+
+        var decreasingSlope = slope(loc, upperRight),
+            increasingSlope = slope(loc, lowerRight),
+            prevDecreasingSlope = slope(prevLoc, upperRight),
+            prevIncreasingSlope = slope(prevLoc, lowerRight);
+
+        if (decreasingSlope < prevDecreasingSlope &&
+                increasingSlope > prevIncreasingSlope) {
+            // Mouse is moving from previous location towards the
+            // currently activated submenu. Delay before activating a
+            // new menu row, because user may be moving into submenu.
+            this.lastDelayLocation = loc;
+            return this.timeout;
+        }
+
+        this.lastDelayLocation = null;
+        return 0;
+    }
+
+    private possiblyActivate(element, index) {
+        let delay = this.activationDelay();
+
+        if (delay) {
+            this.timeoutReference = setTimeout(() => {
+                this.possiblyActivate(element, index);
+            }, delay);
+        } else {
+            this.selectionIndex = index;
+            this.cdr.markForCheck();
+        }
+    };
+
 
     public static getAvailableComponents(): Array<any> {
         return [
@@ -167,7 +254,7 @@ export class HamburgerMenu {
                     {componentName: 'Leverandør', componentUrl: '/accounting/suppliers', moduleID: UniModules.Suppliers, groupHeader: 'Register'},
                     {componentName: 'Kontoplan', componentUrl: '/accounting/accountsettings', moduleID: UniModules.Accountsettings},
                     {componentName: 'MVA-innstillinger', componentUrl: '/accounting/vatsettings', moduleID: UniModules.Vatsettings},
-                    {componentName: 'Valuta', componentUrl: '/currency/exchange', moduleID: UniModules.CurrencyExchange}
+                    {componentName: 'Valuta', componentUrl: '/currency/exchange', moduleID: UniModules.CurrencyExchange},
                     {componentName: 'Prosjekt', componentUrl: '/dimensions/projects', moduleID: UniModules.Projects, groupHeader: 'Dimensjoner'},
                     {componentName: 'Avdeling', componentUrl: '/dimensions/departments', moduleID: UniModules.Departments},
                     {componentName: 'Betaling', componentUrl: '/accounting/journalentry/payments', hidden: true}

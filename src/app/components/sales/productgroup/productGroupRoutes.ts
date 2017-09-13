@@ -1,5 +1,4 @@
 import {GroupDetails} from './groupDetails/groupDetails';
-import {ProductsInGroup} from './productsInGroup/productsInGroup';
 
 export const routes = [
     {
@@ -10,9 +9,5 @@ export const routes = [
     {
         path: 'groupDetails',
         component: GroupDetails
-    },
-    {
-        path: 'productsInGroup',
-        component: ProductsInGroup
     }
 ];

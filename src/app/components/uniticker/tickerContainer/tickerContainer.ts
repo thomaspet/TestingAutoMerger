@@ -6,7 +6,7 @@ import {Ticker, TickerGroup, TickerAction, TickerFilter, TickerColumn, IExpressi
 import {UniTicker} from '../ticker/ticker';
 import {UniSubTickerContainer} from '../subTickerContainer/subTickerContainer';
 import {UniTickerFilters} from '../components/tickerFilters';
-import {UniTickerService, PageStateService} from '../../../services/services';
+import {UniTickerService, PageStateService, YearService} from '../../../services/services';
 import {AuthService} from '../../../../framework/core/authService';
 
 declare const _; // lodash
@@ -37,17 +37,28 @@ export class UniTickerContainer {
     private selectedRow: any;
     private expressionFilters: Array<IExpressionFilterValue> = [];
     private currentUserGlobalIdentity: string;
+    private currentAccountingYear: string;
 
-    constructor(private pageStateService: PageStateService, private authService: AuthService) {
+    constructor(private pageStateService: PageStateService, private authService: AuthService, private yearService: YearService) {
         let token = this.authService.getTokenDecoded();
         if (token) {
             this.currentUserGlobalIdentity = token.nameid;
 
-            this.expressionFilters = [];
-            this.expressionFilters.push({
-                Expression: 'currentuserid',
-                Value: this.currentUserGlobalIdentity
-            });
+            this.yearService.getActiveYear()
+                .subscribe(activeyear => {
+                    this.currentAccountingYear = activeyear.toString();
+                    
+                    this.expressionFilters = [];
+                    this.expressionFilters.push({
+                        Expression: 'currentuserid',
+                        Value: this.currentUserGlobalIdentity
+                    });
+
+                    this.expressionFilters.push({
+                        Expression: 'currentaccountingyear',
+                        Value: this.currentAccountingYear
+                    });
+                });
         }
     }
 

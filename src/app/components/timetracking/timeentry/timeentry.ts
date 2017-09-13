@@ -1,10 +1,10 @@
-import {Component, ViewChild, ChangeDetectorRef} from '@angular/core';
+﻿import {Component, ViewChild, ChangeDetectorRef} from '@angular/core';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {View} from '../../../models/view/view';
 import {WorkRelation, WorkItem, Worker, WorkBalance, LocalDate} from '../../../unientities';
-import {WorkerService, IFilter, ItemInterval} from '../../../services/timetracking/workerService';
-import {exportToFile, arrayToCsv, safeInt, trimLength, parseTime} from '../../common/utils/utils';
-import {TimesheetService, TimeSheet} from '../../../services/timetracking/timesheetService';
+import {WorkerService, IFilter, ItemInterval, IFilterInterval} from '../../../services/timetracking/workerService';
+import { exportToFile, arrayToCsv, safeInt, trimLength, parseTime } from '../../common/utils/utils';
+import { TimesheetService, TimeSheet, ValueItem } from '../../../services/timetracking/timesheetService';
 import {IsoTimePipe} from '../../common/utils/pipes';
 import {IUniSaveAction} from '../../../../framework/save/save';
 import {Lookupservice, BrowserStorageService} from '../../../services/services';
@@ -68,6 +68,7 @@ export class TimeEntry {
     };
     private workedToday: string = '';
     private customDateSelected: Date = null;
+    private currentDate: Date = new Date();
 
     @ViewChild(RegtimeTotals) private regtimeTotals: RegtimeTotals;
     @ViewChild(TimeTableReport) private timeTable: TimeTableReport;
@@ -84,18 +85,25 @@ export class TimeEntry {
     };
 
     private actions: IUniSaveAction[] = [
-            { label: 'Lagre endringer', action: (done) => this.save(done), main: true, disabled: true }
-        ];
+        { label: 'Lagre endringer', action: (done) => this.save(done), main: true, disabled: true }
+    ];
 
-    public tabs: Array<any> = [ { name: 'timeentry', label: 'Registrering', isSelected: true },
-            { name: 'timesheet', label: 'Timeliste', activate: (ts: any, filter: any) =>
-                this.timeTable.activate() },
-            { name: 'totals', label: 'Totaler', activate: (ts: any, filter: any) =>
-                this.regtimeTotals.activate(ts, filter) },
-            { name: 'flex', label: 'Timesaldo', counter: 0 },
-            { name: 'vacation', label: 'Ferie', activate: (ts: any, filter: any) => {
-                this.tabs[4].activated = true; } },
-            ];
+    public tabs: Array<any> = [{ name: 'timeentry', label: 'Registrering', isSelected: true },
+    {
+        name: 'timesheet', label: 'Timeliste', activate: (ts: any, filter: any) =>
+            this.timeTable.activate()
+    },
+    {
+        name: 'totals', label: 'Totaler', activate: (ts: any, filter: any) =>
+            this.regtimeTotals.activate(ts, filter)
+    },
+    { name: 'flex', label: 'Timesaldo', counter: 0 },
+    {
+        name: 'vacation', label: 'Ferie', activate: (ts: any, filter: any) => {
+            this.tabs[4].activated = true;
+        }
+    },
+    ];
     public tabPositions: Array<number> = [0, 1, 2, 3, 4];
 
     public toolbarConfig: any = {
@@ -127,7 +135,7 @@ export class TimeEntry {
     ) {
 
         this.loadSettings();
-        this.filters = service.getIntervalItems();
+        this.filters = service.getFilterIntervalItems();
         this.initApplicationTab();
 
         route.queryParams.first().subscribe((item: { workerId; workRelationId; }) => {
@@ -148,12 +156,13 @@ export class TimeEntry {
 
     private init(workerId?: number) {
         if (workerId) {
-            this.service.getByID(workerId, 'workers', 'Info').subscribe( (worker: Worker) => {
+            this.service.getByID(workerId, 'workers', 'Info').subscribe((worker: Worker) => {
                 this.updateToolbar(worker.Info.Name);
             }, err => this.errorService.handle(err));
         } else {
             this.userName = this.service.user.name;
         }
+
         this.currentFilter = this.filters[0];
         this.initWorker(workerId);
     }
@@ -180,29 +189,72 @@ export class TimeEntry {
 
     private onDateSelected(event) {
         this.checkSave().then(() => {
-            this.busy = true;
-            this.loadItems(event);
-            this.customDateSelected = new Date(event);
-            //Unselect upper right selector when selecting other date then today or yesterday
-            if (new Date(event).getDate() === new Date().getDate()) {
-                this.currentFilter = this.filters[0];
-                this.filters.forEach((value: any) => value.isSelected = false);
-                this.currentFilter.isSelected = true;
-            } else if (new Date(event).getDate() === (new Date().getDate() - 1)) {
-                this.currentFilter = this.filters[1];
-                this.filters.forEach((value: any) => value.isSelected = false);
-                this.currentFilter.isSelected = true;
+            if (event.date) {
+                this.currentDate = event.date;
+                this.busy = true;
+                let toDate;
+                let fromDate;
+                if (moment(event.date) < moment(event.firstDate)) {
+                    fromDate = event.date;
+                    toDate = event.firstDate;
+                } else {
+                    toDate = event.date;
+                    fromDate = event.firstDate;
+                }
+                //this.currentFilter.isSelected = false;
+                this.currentFilter.bigLabel = moment(fromDate).format('DD.MM.YYYY') + '  -  ' + moment(toDate).format('DD.MM.YYYY');
+                this.customDateSelected = new Date(fromDate);
+                this.loadItems(fromDate, toDate);
+                this.showProgress(fromDate, toDate);
             } else {
+                this.currentDate = event;
+                this.busy = true;
+                this.customDateSelected = new Date(event);
                 this.currentFilter.isSelected = false;
+                this.currentFilter = this.filters[0];
+                this.currentFilter.isSelected = true;
+
+                this.loadItems(event);
+                this.currentFilter.bigLabel = moment(event).format('Do MMMM YYYY');
+                this.showProgress(event);
             }
-            this.currentFilter.bigLabel = moment(event).format('Do MMMM YYYY');
-            this.showProgress(event);
+
         });
+    }
+
+    private onMonthChanged(event) {
+        let endpoint;
+        if (event.month() === new Date().getMonth() && event.year() === new Date().getFullYear()) {
+            endpoint = 'workrelations/' + this.workRelations[0].ID + '?action=timesheet&fromdate='
+                + moment().startOf('month').startOf('week').format().slice(0, 10)
+                + '&todate=' + moment().format().slice(0, 10);
+        } else if (event.year() >= new Date().getFullYear() && event.month() > new Date().getMonth()) {
+            this.prepFlexData({ Items: []});
+            return;
+        } else {
+            endpoint = 'workrelations/' + this.workRelations[0].ID + '?action=timesheet&fromdate='
+                + moment().year(event.year()).month(event.month()).startOf('month').startOf('week').format().slice(0, 10)
+                + '&todate=' + moment().year(event.year()).month(event.month()).endOf('month').add(1, 'week').endOf('week').format().slice(0, 10);
+        }
+
+
+        this.getProgressData(endpoint).subscribe((data: any) => {
+            this.prepFlexData(data);
+        })
     }
 
     private onTemplateSelected(event: ITemplate) {
         event.Items.forEach((item: ITimeTrackingTemplate) => {
-            this.timeSheet.addItem(this.mapTemplateToWorkItem({}, item))
+            this.timeSheet.addItem(this.mapTemplateToWorkItem({}, item));
+            if (item && item.Project && item.Project.ID) {
+                let value: ValueItem = {
+                    name: 'Dimensions.ProjectID',
+                    value: item.Project,
+                    isParsed: false,
+                    rowIndex: this.timeSheet.items.length - 1
+                }
+                this.timeSheet.setItemValue(value);
+            }
         })
 
         this.timeSheet.recalc();
@@ -238,7 +290,7 @@ export class TimeEntry {
     }
 
     private indexOfTab(name: string): number {
-        return this.tabs.findIndex( x => x.name === name);
+        return this.tabs.findIndex(x => x.name === name);
     }
 
     public onTabClick(tab: ITab) {
@@ -298,6 +350,9 @@ export class TimeEntry {
                 this.initNewUser();
                 return;
             }
+
+            this.getFlexDataForCurrentMonth();
+
             this.timeSheet = ts;
             this.loadItems();
             this.updateToolbar(!workerid ? this.service.user.name : '', this.workRelations);
@@ -323,15 +378,27 @@ export class TimeEntry {
         });
     }
 
-    private updateToolbar(name?: string, workRelations?: Array<WorkRelation> ) {
+    private getFlexDataForCurrentMonth() {
+    console.log('Hello world')
+        let endpoint = 'workrelations/' + this.workRelations[0].ID + '?action=timesheet&fromdate='
+            + moment().startOf('month').startOf('week').format().slice(0, 10)
+            + '&todate=' + moment().format().slice(0, 10);
+
+
+        this.getProgressData(endpoint).subscribe((data: any) => {
+            this.prepFlexData(data);
+        })
+    }
+
+    private updateToolbar(name?: string, workRelations?: Array<WorkRelation>) {
 
         this.userName = name || this.userName;
         var contextMenus = this.initialContextMenu.slice();
         var list = workRelations || this.workRelations;
         if (list && list.length > 1) {
-            list.forEach( x => {
+            list.forEach(x => {
                 var label = `Stilling: ${x.Description || ''} ${x.WorkPercentage}%`;
-                contextMenus.push( { label: label, action: () => this.setWorkRelationById(x.ID) });
+                contextMenus.push({ label: label, action: () => this.setWorkRelationById(x.ID) });
             });
         }
 
@@ -356,17 +423,20 @@ export class TimeEntry {
         };
     }
 
-    private loadItems(date?: Date) {
+    private loadItems(date?: Date, toDate?: Date) {
         this.workEditor.EmptyRowDetails.Date = new LocalDate(date);
         if (this.timeSheet.currentRelation && this.timeSheet.currentRelation.ID) {
             var obs: any;
             var dt: Date;
-            if (!!date) {
+            if (!!toDate) {
+                obs = this.timeSheet.loadItemsByPeriod(date, toDate);
+                dt = date;
+            } else if (!!date) {
                 obs = this.timeSheet.loadItemsByPeriod(date, date);
                 dt = date;
             } else {
-                obs = this.timeSheet.loadItems(this.currentFilter.interval);
-                dt = this.timesheetService.workerService.getIntervalDate(this.currentFilter.interval);
+                obs = this.timeSheet.loadItems(this.currentFilter.interval, this.currentDate);
+                dt = this.timesheetService.workerService.getFilterIntervalDate(this.currentFilter.interval, this.currentDate);
             }
             obs.subscribe((itemCount: number) => {
                 if (this.workEditor) { this.workEditor.closeEditor(); }
@@ -405,6 +475,31 @@ export class TimeEntry {
 
     private loadFlex(rel: WorkRelation) {
         this.regtimeBalance.refresh(rel);
+    }
+
+    // Formats flex data and sends it to calendar component
+    private prepFlexData(data: any) {
+        let flexDays = [];
+        let flexWeeks = [];
+        console.log(data);
+        data.Items.forEach((item) => {
+            if (item.IsWeekend) {
+                flexDays.push('');
+            } else {
+                flexDays.push(item.Flextime >= 0 ? 'calendar_flexplus' : 'calendar_flexminus');
+            }
+        })
+
+        //Fill the month up
+        for (let indexInFlexDays = flexDays.length - 1; indexInFlexDays < 42; indexInFlexDays++) {
+            flexDays.push('');
+        }
+
+        for (let i = 0; i <= 5; i++) {
+            flexWeeks.push(flexDays.splice(0, 7))
+        }
+
+        this.sideMenu.calendarConfig.dailyProgress = flexWeeks;
     }
 
     private save(done?: any): Promise<boolean> {
@@ -647,46 +742,55 @@ export class TimeEntry {
     }
 
     public onFilterClick(filter: IFilter) {
+        if (filter.isSelected) {
+            return;
+        }
         this.checkSave().then((success: boolean) => {
             if (!success) { return; }
-            filter.bigLabel = this.service.getBigLabel(filter.interval);
+            filter.bigLabel = this.service.getBigLabel(filter.interval, this.currentDate || new Date());
             this.filters.forEach((value: any) => value.isSelected = false);
             filter.isSelected = true;
+            filter.date = this.currentDate;
             this.currentFilter = filter;
             this.busy = true;
+            this.sideMenu.calendar.onFilterChange(this.currentFilter);
+            //If customer date is selected, use this to show filter 
             this.loadItems();
             this.customDateSelected = null;
             this.showProgress();
         });
     }
 
-    private showProgress(date?: any) {
+    private showProgress(date?: any, toDate?: any) {
         let endpoint = 'workrelations/' + this.workRelations[0].ID + '?action=timesheet&fromdate=';
 
-        if (date) {
+        if (toDate) {
+            endpoint += moment(new Date(date)).format().slice(0, 10) + '&todate=' + moment(new Date(toDate)).format().slice(0, 10);
+        } else if (date) {
             endpoint += moment(new Date(date)).format().slice(0, 10) + '&todate=' + moment(new Date(date)).format().slice(0, 10);
         } else {
             switch (this.currentFilter.interval) {
-                case ItemInterval.today:
-                    endpoint += moment().format().slice(0, 10);
+                case IFilterInterval.day:
+                    endpoint += moment(this.currentDate).format().slice(0, 10) + '&todate=' + moment(this.currentDate).format().slice(0, 10);;
                     break;
-                case ItemInterval.yesterday:
-                    endpoint += moment().add(-1, 'days').format().slice(0, 10) + '&todate=' + moment().add(-1, 'days').format().slice(0, 10);
+                case IFilterInterval.week:
+                    endpoint += moment(this.currentDate).startOf('week').format().slice(0, 10)
+                        + '&todate=' + moment(this.currentDate).endOf('week').format().slice(0, 10);
                     break;
-                case ItemInterval.thisWeek:
+                case IFilterInterval.twoweeks:
                     let diff = new Date().getDay() - 1;
-                    endpoint += moment().startOf('week').format().slice(0, 10) + '&todate=' + moment().format().slice(0, 10);
+                    endpoint += moment(this.currentDate).subtract(1, 'week').startOf('week').format().slice(0, 10)
+                        + '&todate=' + moment(this.currentDate).endOf('week').format().slice(0, 10);
                     break;
-                case ItemInterval.thisMonth:
-                    endpoint += moment().startOf('month').format().slice(0, 10) + '&todate=' + moment().format().slice(0, 10);
+                case IFilterInterval.month:
+                    endpoint += moment(this.currentDate).startOf('month').format().slice(0, 10)
+                        + '&todate=' + moment(this.currentDate).endOf('month').format().slice(0, 10);
                     break;
-                case ItemInterval.lastTwoMonths:
-                    endpoint += moment().add(-1, 'months').startOf('month').format().slice(0, 10) + '&todate=' + moment().format().slice(0, 10);
+                case IFilterInterval.year:
+                    endpoint += moment(this.currentDate).startOf('year').format().slice(0, 10)
+                        + '&todate=' + moment(this.currentDate).endOf('year').format().slice(0, 10);
                     break;
-                case ItemInterval.thisYear:
-                    endpoint += moment().startOf('year').format().slice(0, 10) + '&todate=' + moment().format().slice(0, 10);
-                    break;
-                case ItemInterval.all:
+                case IFilterInterval.all:
                     endpoint += '2016-01-01';
                     break;
                 default:
@@ -704,8 +808,7 @@ export class TimeEntry {
                 expectedTime += item.ExpectedTime;
                 totalTime += item.TotalTime;
             })
-
-            this.workedToday = Math.floor(totalTime) + ' timer og ' + Math.floor((totalTime * 60) % 60) + ' minutter'
+            this.workedToday = totalTime + ' timer';
 
             //Find percentage of hours worked (Max 100)
             let percentageWorked = totalTime / (expectedTime / 100);

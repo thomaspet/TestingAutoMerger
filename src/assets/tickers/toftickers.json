@@ -6,7 +6,7 @@
         "IsTopLevelTicker": true,
         "Group": "Salg",
         "Model": "CustomerInvoice",
-        "Expand": "Customer.Info,CurrencyCode,InvoiceReference,DefaultDimensions.Project",
+        "Expand": "Customer.Info,CurrencyCode,InvoiceReference,DefaultDimensions.Project,DefaultSeller.Seller",
         "OrderBy": "ID DESC",
         "Columns": [
             {
@@ -101,6 +101,11 @@
                 "Header": "Fakturatype",
                 "Field": "InvoiceType",
                 "Type": "dontdisplay"
+            },
+            {
+                "Header": "Hovedselger",
+                "Field": "DefaultSeller.Seller.Name",
+                "DefaultHidden": true
             },
             {
                 "Header": "Purrestatus",
@@ -591,7 +596,7 @@
         "IsTopLevelTicker": true,
         "Group": "Salg",
         "Model": "CustomerQuote",
-        "Expand": "Customer.Info,CurrencyCode",
+        "Expand": "Customer.Info,CurrencyCode,DefaultSeller.Seller",
         "OrderBy": "ID DESC",
         "Columns": [
             {
@@ -645,6 +650,11 @@
                 "Header": "Sum inkl mva [BASECURRENCY]",
                 "Field": "TaxInclusiveAmount",
                 "Format": "NumberPositiveNegative",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "Hovedselger",
+                "Field": "DefaultSeller.Seller.Name",
                 "DefaultHidden": true
             },
             {
@@ -992,7 +1002,7 @@
         "IsTopLevelTicker": true,
         "Group": "Salg",
         "Model": "CustomerOrder",
-        "Expand": "Customer.Info,CurrencyCode",
+        "Expand": "Customer.Info,CurrencyCode,DefaultSeller.Seller",
         "OrderBy": "ID DESC",
         "Columns": [
             {
@@ -1040,6 +1050,11 @@
                 "Header": "Sum inkl mva [BASECURRENCY]",
                 "Field": "TaxInclusiveAmount",
                 "Format": "NumberPositiveNegative",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "Hovedselger",
+                "Field": "DefaultSeller.Seller.Name",
                 "DefaultHidden": true
             },
             {

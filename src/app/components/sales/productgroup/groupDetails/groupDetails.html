@@ -1,4 +1,4 @@
-<fieldset>
+<fieldset class="uniForm">
     <legend>Gruppedetaljer</legend>
     <aside>
         <uni-form
@@ -7,5 +7,20 @@
             [model]="group$"
             (changeEvent)="change($event)">
         </uni-form>
+    </aside>
+</fieldset>
+
+<fieldset class="uniTable" *ngIf="this.productCategoryService?.currentProductGroup?.value?.Name">
+    <legend>Produkter i gruppe</legend>
+    <aside>
+        <div class="uniSearchDiv">
+            <label for="unisearch">Legg til produkt</label>
+            <uni-search [config]="uniSearchConfig" (changeEvent)="selectItem($event)"></uni-search>
+        </div>
+
+        <uni-table
+            [resource]="products$ | async"
+            [config]="productsConfig">
+        </uni-table>
     </aside>
 </fieldset>

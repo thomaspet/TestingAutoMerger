@@ -24,17 +24,27 @@
             <table class="vatreport_poster_figures" *ngIf="vatReportSummary?.length > 0">
                 <tr *ngIf="vatReportSummary?.length > 0">
                     <td></td>
+
                     <th>Grunnlag</th>
+                    <th></th>
                     <th>Avgift</th>
                 </tr>
-                <tr *ngFor="let summaryItem of vatReportSummary">
+                <tr *ngFor="let summaryItem of vatReportSummary; let i = index;">
                     <th>{{summaryItem.VatCodeGroupName}}</th>
+
                     <td class="currency">
+
+
+
                         <a *ngIf="summaryItem.HasTaxBasis && !isHistoricData" href="#/accounting/transquery/details;showTaxBasisAmount={{summaryItem.HasTaxBasis}};vatCodesAndAccountNumbers={{vatReportSummaryToVatCodeAndAccountNumbers(summaryItem)}};vatFromDate={{currentVatReport?.TerminPeriod.FromDate}};vatToDate={{currentVatReport?.TerminPeriod.ToDate}}">
                             {{summaryItem.SumTaxBasisAmount * -1 | unicurrency:2}}
                         </a>
+
                         <span *ngIf="summaryItem.HasTaxBasis && isHistoricData">{{summaryItem.SumTaxBasisAmount * -1 | unicurrency:2}}</span>
                     </td>
+                    <td style="width: 20pt;">
+                            <uni-helptext style="margin-top: 6pt; width: 22pt; height:22pt;" *ngIf="summaryItem.VatCodeGroupNo === 'A' && vatReportSummaryFromPreviousPeriods?.length > 0"
+                                [text]="previousPeriodsHelpText"></uni-helptext></td>
                     <td class="currency">
                         <a *ngIf="summaryItem.HasTaxAmount && !isHistoricData" href="#/accounting/transquery/details;showTaxBasisAmount={{summaryItem.HasTaxBasis}};vatCodesAndAccountNumbers={{vatReportSummaryToVatCodeAndAccountNumbers(summaryItem)}};vatFromDate={{currentVatReport?.TerminPeriod.FromDate}};vatToDate={{currentVatReport?.TerminPeriod.ToDate}}">
                             {{summaryItem.SumVatAmount * -1 | unicurrency:2}}

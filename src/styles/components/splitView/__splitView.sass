@@ -16,3 +16,17 @@
 .splitview_list,
 .splitview_detail
     align-self: flex-start
+
+
+@include media(large, max-width)
+    .splitview
+        flex-wrap: wrap
+        justify-content: center
+
+    .splitview_list.splitview_list,
+    .splitview_detail.splitview_detail
+        min-width: 85.2%
+
+    .splitview_list
+        max-height: 14rem
+        overflow-y: auto

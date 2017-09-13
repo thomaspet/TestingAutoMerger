@@ -18,10 +18,11 @@ import {PayCheckReportFilterModal} from './modals/paycheck/paycheckReportFilterM
 import {Router} from '@angular/router';
 import {Observable} from 'rxjs/Observable';
 
-class ReportCategory {
-    public name: string;
-    public reports: Array<any>;
-    public priority: number;
+class ReportCategories {
+    public sale: Array<Array<Report>> = [[], [], []];
+    public accounting: Array<Array<Report>> = [[], [], []];
+    public salary: Array<Array<Report>> = [[]];
+    public custom: Array<Array<Report>> = [];
 }
 
 @Component({
@@ -32,30 +33,44 @@ export class UniReports {
     // TODO: rewrite old modals..
     @ViewChild(ParameterModal)
     private parameterModal: ParameterModal;
-    @ViewChild(BalanceReportFilterModal)
+
+    @ViewChild(BalanceReportFilterModal) 
     private balanceListModal: BalanceReportFilterModal;
-    @ViewChild(AccountReportFilterModal)
+
+    @ViewChild(AccountReportFilterModal) 
     private accountReportFilterModal: AccountReportFilterModal;
-    @ViewChild(PostingJournalReportFilterModal)
+    
+    @ViewChild(PostingJournalReportFilterModal) 
     private postingJournalModal: PostingJournalReportFilterModal;
-    @ViewChild(ResultAndBalanceReportFilterModal)
+    
+    @ViewChild(ResultAndBalanceReportFilterModal) 
     private resultAndBalanceModal: ResultAndBalanceReportFilterModal;
-    @ViewChild(BalanceGeneralLedgerFilterModal)
+    
+    @ViewChild(BalanceGeneralLedgerFilterModal) 
     private balanceGeneralLedgerFilterModal: BalanceGeneralLedgerFilterModal;
-    @ViewChild(CustomerAccountReportFilterModal)
+    
+    @ViewChild(CustomerAccountReportFilterModal) 
     private customerAccountModal: CustomerAccountReportFilterModal;
-    @ViewChild(SupplierAccountReportFilterModal)
+    
+    @ViewChild(SupplierAccountReportFilterModal) 
     private supplierAccountModal: SupplierAccountReportFilterModal;
-    @ViewChild(SalaryPaymentListReportFilterModal)
+    
+    @ViewChild(SalaryPaymentListReportFilterModal) 
     private salaryPaymentListFilterModal: SalaryPaymentListReportFilterModal;
-    @ViewChild(VacationPayBaseReportFilterModal)
+    
+    @ViewChild(VacationPayBaseReportFilterModal) 
     private vacationBaseFilterModal: VacationPayBaseReportFilterModal;
-    @ViewChild(SalaryWithholdingAndAGAReportFilterModal)
+    
+    @ViewChild(SalaryWithholdingAndAGAReportFilterModal) 
     private salaryWithholdingAndAGAReportFilterModal: SalaryWithholdingAndAGAReportFilterModal;
-    @ViewChild(PayCheckReportFilterModal)
+    
+    @ViewChild(PayCheckReportFilterModal) 
     private paycheckReportFilterModal: PayCheckReportFilterModal;
 
-    public reportCategories: Array<ReportCategory>;
+    public reportCategories: ReportCategories = new ReportCategories();
+    public tabs: string[] = ['Salg', 'Regnskap', 'Lønn', 'Egendefinert'];
+    public activeTabIndex: number = 0;
+    public activeCategory: Array<any>;
 
     constructor(
         private tabService: TabService,
@@ -132,40 +147,80 @@ export class UniReports {
             response[1].forEach(x => x.IsQuery = true);
             let reportAndQueries = response[0].concat(response[1]);
 
-            this.reportCategories = new Array<ReportCategory>();
+            let customCategories: Array<string> = [];
 
             for (const report of reportAndQueries) {
-                // array contains both reports and uniqueries, display visible reports and all uniqueries (for now)
                 if (report.Visible || report.IsQuery) {
-                    let reportName = report.Category || report.MainModelName;
-                    let reportCategory: ReportCategory = this.reportCategories.find(category => category.name === reportName);
-
-                    if (typeof reportCategory === 'undefined') {
-                        reportCategory = new ReportCategory();
-
-                        reportCategory.name = reportName;
-                        reportCategory.reports = new Array<Report>();
-                        reportCategory.priority = this.priorityByCategoryName(reportCategory.name);
-
-                        this.reportCategories.push(reportCategory);
+                    // If the custom report category == a regular category, placing this code outside the switch adds
+                    // the report to both the custom AND the according regular category
+                    if (report.Category === null 
+                        || ((report.Category.search('Sales') 
+                            && report.Category.search('Accounting') 
+                            && report.Category.search('Salary')) === -1)) {
+                                if (report.Category === null) {
+                                    report.Category = 'Ukategorisert';
+                                }
+                                if (!customCategories.find(category => category === report.Category)) {
+                                    
+                                    customCategories.push(report.Category);
+                                    this.reportCategories.custom.push([]);
+                                }
+                                this.reportCategories.custom[customCategories.indexOf(report.Category)].push(report);
                     }
-
-                    reportCategory.reports.push(report);
+                    switch (report.Category) {            
+                        case 'Sales.Quote':
+                        case 'Tilbud':
+                            report.Category = 'Tilbud';
+                            this.reportCategories.sale[0].push(report);
+                            break;
+                        case 'Sales.Order':
+                        case 'Ordre':
+                            report.Category = 'Ordre';
+                            this.reportCategories.sale[1].push(report);
+                            break;
+                        case 'Sales.Invoice':
+                        case 'Faktura':
+                            report.Category = 'Faktura';
+                            this.reportCategories.sale[2].push(report);
+                            break;
+                        case 'Accounting.AccountStatement':
+                        case 'Kontoutskrifter':
+                            report.Category = 'Kontoutskrifter';
+                            this.reportCategories.accounting[0].push(report);
+                            break;
+                        case 'Accounting.Balance':
+                        case 'Saldolister':
+                            report.Category = 'Saldolister';
+                            this.reportCategories.accounting[1].push(report);
+                            break;
+                        case 'Accounting.Result':
+                        case 'Resultat':
+                            report.Category = 'Resultat';
+                            this.reportCategories.accounting[2].push(report);
+                            break;
+                        case 'Salary':
+                        case 'Lønn':
+                            report.Category = 'Lønn';
+                            this.reportCategories.salary[0].push(report);
+                            break;
+                        
+                    }
                 }
             }
-
-            this.reportCategories.sort((a, b) => a.priority - b.priority);
+            this.activeCategory = this.reportCategories.sale;
         }, err => this.errorService.handle(err));
     }
 
-    private priorityByCategoryName(name: string): number {
-        switch (name) {
-            case 'Faktura':
-            case 'Tilbud':
-            case 'Ordre':
-                return 1;
-            default:
-                return 0;
+    private onTabSelection() {
+        switch (this.activeTabIndex) {
+            case 0:
+                return this.activeCategory = this.reportCategories.sale;
+            case 1:
+                return this.activeCategory = this.reportCategories.accounting;
+            case 2:
+                return this.activeCategory = this.reportCategories.salary;
+            case 3:
+                return this.activeCategory = this.reportCategories.custom;
         }
     }
 }

@@ -4,10 +4,11 @@ import {Observable} from 'rxjs/Observable';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {StatisticsService} from '../statisticsService';
 import {ErrorService} from '../errorService';
-import {MAX_RESULTS} from './uniSearchConfigGeneratorService';
 import {IUniSearchConfig} from '../../../../framework/ui/unisearch/index';
 import {AccountService} from '../../accounting/accountService';
 import {BrowserStorageService} from '../browserStorageService';
+
+const MAX_RESULTS = 50;
 
 class CustomStatisticsResultItem {
     /* tslint:disable */
@@ -17,7 +18,7 @@ class CustomStatisticsResultItem {
 }
 
 @Injectable()
-export class UniSearchAccountConfigGeneratorHelper {
+export class UniSearchAccountConfig {
 
     constructor(
         private statisticsService: StatisticsService,
@@ -27,25 +28,25 @@ export class UniSearchAccountConfigGeneratorHelper {
     ) {}
 
     public generateOnlyMainAccountsConfig(
-        expands: [string] = <[string]>[],
+        expands: string[] = <string[]>[],
         newItemModalFn?: () => Observable<UniEntity>
     ): IUniSearchConfig {
         return this.generateAccountsConfig(expands, newItemModalFn, false);
     }
 
     public generateAllAccountsConfig(
-        expands: [string] = <[string]>[],
+        expands: string[] = <string[]>[],
         newItemModalFn?: () => Observable<UniEntity>
     ): IUniSearchConfig {
         return this.generateAccountsConfig(expands, newItemModalFn, true);
     }
 
     private generateAccountsConfig(
-        expands: [string] = <[string]>[],
+        expands: string[] = <string[]>[],
         newItemModalFn?: () => Observable<UniEntity>,
         all: boolean = false
     ): IUniSearchConfig {
-        return {
+        return <IUniSearchConfig>{
             lookupFn: searchTerm => this
                 .statisticsService
                 .GetAllUnwrapped(this.generateAccountsStatisticsQuery(searchTerm, all))
@@ -80,7 +81,7 @@ export class UniSearchAccountConfigGeneratorHelper {
         expands: string[] = [],
         newItemModalFn?: () => Observable<UniEntity>
     ): IUniSearchConfig {
-        return {
+        return <IUniSearchConfig>{
 
             lookupFn: searchTerm => this.statisticsService
                 .GetAllUnwrapped(this.generate17XXAccountsStatisticsQuery(searchTerm, all))

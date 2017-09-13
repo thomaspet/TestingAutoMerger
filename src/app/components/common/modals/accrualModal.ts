@@ -15,8 +15,8 @@ import {
 import {FieldType} from '../../../../framework/ui/uniform/index';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {
-    UniSearchAccountConfigGeneratorHelper
-} from '../../../services/common/uniSearchConfig/uniSearchAccountConfigGeneratorHelper';
+    UniSearchAccountConfig
+} from '../../../services/common/uniSearchConfig/uniSearchAccountConfig';
 
 declare const _; // lodash
 
@@ -119,7 +119,7 @@ export class AccrualForm implements OnChanges {
         private yearService: FinancialYearService,
         private periodService: PeriodService,
         private toastService: ToastService,
-        private uniSearchAccountConfigGeneratorHelper: UniSearchAccountConfigGeneratorHelper,
+        private uniSearchAccountConfig: UniSearchAccountConfig,
         private browserStorageService: BrowserStorageService,
         private journalEntryService: JournalEntryService
     ) {
@@ -594,7 +594,7 @@ export class AccrualForm implements OnChanges {
                 hasLineBreak: false,
                 Validations: [],
                 Options: {
-                    uniSearchConfig: this.uniSearchAccountConfigGeneratorHelper.generate17XXAccountsConfig(),
+                    uniSearchConfig: this.uniSearchAccountConfig.generate17XXAccountsConfig(),
                     valueProperty: 'ID'
                 }
             },

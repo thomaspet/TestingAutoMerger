@@ -13,7 +13,8 @@ import {
     LocalDate,
     Project,
     StatusCodeCustomerInvoice,
-    Terms
+    Terms,
+    NumberSeries
 } from '../../../../unientities';
 
 import {
@@ -34,7 +35,8 @@ import {
     ReportService,
     StatisticsService,
     TermsService,
-    UserService
+    UserService,
+    NumberSeriesService
 } from '../../../../services/services';
 
 import {
@@ -114,6 +116,8 @@ export class InvoiceDetails {
     private currentDeliveryTerm: Terms;
     private deliveryTerms: Terms[];
     private paymentTerms: Terms[];
+    private selectConfig: any;
+    private numberSeries: NumberSeries[];
 
     private customerExpandOptions: string[] = [
         'DeliveryTerms',
@@ -122,7 +126,10 @@ export class InvoiceDetails {
         'Dimensions.Department',
         'Info',
         'Info.Addresses',
-        'PaymentTerms'
+        'Info.Emails',
+        'PaymentTerms',
+        'Sellers',
+        'Sellers.Seller'
     ];
 
     private expandOptions: Array<string> = [
@@ -171,7 +178,8 @@ export class InvoiceDetails {
         private toastService: ToastService,
         private tofHelper: TofHelper,
         private tradeItemHelper: TradeItemHelper,
-        private userService: UserService
+        private userService: UserService,
+        private numberSeriesService: NumberSeriesService
     ) {
         // set default tab title, this is done to set the correct current module to make the breadcrumb correct
         this.tabService.addTab({
@@ -214,20 +222,34 @@ export class InvoiceDetails {
                     this.currencyCodeService.GetAll(null),
                     this.termsService.GetAction(null, 'get-payment-terms'),
                     this.termsService.GetAction(null, 'get-delivery-terms'),
-                    projectID ? this.projectService.Get(projectID, null) : Observable.of(null)
+                    projectID ? this.projectService.Get(projectID, null) : Observable.of(null),
+                    this.numberSeriesService.GetAll(
+                        `filter=NumberSeriesType.Name eq 'Customer Invoice number series' and Empty eq false and Disabled eq false`,
+                        ['NumberSeriesType']
+                    )
                 ).subscribe((res) => {
                     this.companySettings = res[3];
 
                     let invoice = <CustomerInvoice>res[0];
                     invoice.OurReference = res[1].DisplayName;
                     invoice.InvoiceDate = new LocalDate(Date());
-                    invoice.PaymentDueDate = new LocalDate(
-                        moment(invoice.InvoiceDate).add(this.companySettings.CustomerCreditDays, 'days').toDate()
-                    );
-                    invoice.DeliveryDate = invoice.InvoiceDate;
 
                     if (res[2]) {
                         invoice = this.tofHelper.mapCustomerToEntity(res[2], invoice);
+                    }
+
+                    if (!invoice.PaymentTerms && !invoice.PaymentDueDate) {
+                        invoice.PaymentDueDate = new LocalDate(
+                            moment(invoice.InvoiceDate).add(this.companySettings.CustomerCreditDays, 'days').toDate()
+                        );
+                    } else {
+                        this.setPaymentDueDate(invoice);
+                    }
+                    
+                    if (invoice.DeliveryTerms && invoice.DeliveryTerms.CreditDays) {
+                        this.setDeliveryDate(invoice);
+                    } else {
+                        invoice.DeliveryDate = invoice.InvoiceDate;
                     }
 
                     if (!invoice.CurrencyCodeID) {
@@ -246,6 +268,11 @@ export class InvoiceDetails {
                     if (res[7]) {
                         invoice.DefaultDimensions.ProjectID = res[7].ID;
                     }
+
+                    this.numberSeries = res[8].map(x => this.numberSeriesService.translateSerie(x));
+                    this.selectConfig = this.numberSeriesService.getSelectConfig(
+                        this.invoiceID, this.numberSeries, 'Customer Invoice number series'
+                    );
 
                     this.setupContextMenuItems();
                     this.refreshInvoice(invoice);
@@ -298,6 +325,10 @@ export class InvoiceDetails {
 
     private ngAfterViewInit() {
          this.tofHead.detailsForm.tabbedPastLastField.subscribe((event) => this.tradeItemTable.focusFirstRow());
+    }
+
+    private numberSeriesChange(selectedSerie) {
+        this.invoice.InvoiceNumberSeriesID = selectedSerie.ID;
     }
 
     private getCollectorStatusText(status: CollectorStatus): string {
@@ -410,9 +441,6 @@ export class InvoiceDetails {
                 .map(result => {
                     if (result === ConfirmActions.ACCEPT) {
                         this.saveInvoice();
-                    }
-                    if (result !== ConfirmActions.CANCEL) {
-                        this.updateTabTitle();
                     }
 
                     return result !== ConfirmActions.CANCEL;
@@ -1135,7 +1163,10 @@ export class InvoiceDetails {
                     }).onClose.subscribe(response => {
                         if (response === ConfirmActions.ACCEPT) {
                             request.subscribe(
-                                res => resolve(res),
+                                res => {
+                                    if (res.InvoiceNumber) { this.selectConfig = undefined; }
+                                    resolve(res);
+                                },
                                 err => reject(err)
                             );
                         } else {
@@ -1146,6 +1177,7 @@ export class InvoiceDetails {
 
                 } else {
                     request.subscribe(res => {
+                        if (res.InvoiceNumber) { this.selectConfig = undefined; }
                         resolve(res);
                         if (doneHandler) { doneHandler('Fakturaen ble lagret'); }
                     }, err => reject(err));
@@ -1183,6 +1215,7 @@ export class InvoiceDetails {
 
             this.customerInvoiceService.Transition(invoice.ID, null, 'invoice').subscribe(
                 (res) => {
+                    this.selectConfig = undefined;
                     done(doneText);
                 },
                 (err) => {

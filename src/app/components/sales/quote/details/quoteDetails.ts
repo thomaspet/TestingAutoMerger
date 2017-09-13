@@ -12,7 +12,9 @@ import {
     LocalDate,
     Project,
     StatusCodeCustomerQuote,
-    Terms
+    Terms,
+    NumberSeriesTask,
+    NumberSeries
 } from '../../../../unientities';
 
 import {
@@ -28,7 +30,9 @@ import {
     ReportDefinitionService,
     ReportService,
     TermsService,
-    UserService
+    UserService,
+    NumberSeriesTypeService,
+    NumberSeriesService
 } from '../../../../services/services';
 
 import {
@@ -95,16 +99,24 @@ export class QuoteDetails {
     private contextMenuItems: IContextMenuItem[] = [];
     public summary: ISummaryConfig[] = [];
 
+    private selectedNumberSeries: NumberSeries;
+    private selectedNumberSeriesTaskID: number;
+    private selectConfig: any;
+    private numberSeries: NumberSeries[];
+
     private customerExpandOptions: string[] = [
         'Info',
         'Info.Addresses',
+        'Info.Emails',
         'Info.InvoiceAddress',
         'Info.ShippingAddress',
         'Dimensions',
         'Dimensions.Project',
         'Dimensions.Department',
         'PaymentTerms',
-        'DeliveryTerms'
+        'DeliveryTerms',
+        'Sellers',
+        'Sellers.Seller'
     ];
     private expandOptions: Array<string> = [
         'Items',
@@ -144,7 +156,9 @@ export class QuoteDetails {
         private tofHelper: TofHelper,
         private projectService: ProjectService,
         private modalService: UniModalService,
-        private termsService: TermsService
+        private termsService: TermsService,
+        private numberSeriesTypeService: NumberSeriesTypeService,
+        private numberSeriesService: NumberSeriesService
     ) { }
 
     public ngOnInit() {
@@ -220,17 +234,23 @@ export class QuoteDetails {
                     customerID ? this.customerService.Get(
                         customerID, this.customerExpandOptions
                     ) : Observable.of(null),
-                    projectID ? this.projectService.Get(projectID, null) : Observable.of(null)
+                    projectID ? this.projectService.Get(projectID, null) : Observable.of(null),
+                    this.numberSeriesService.GetAll(`filter=NumberSeriesType.Name eq 'Customer Quote number series' and Empty eq false and Disabled eq false`, ['NumberSeriesType'])
                 ).subscribe(
                     (res) => {
                         let quote = <CustomerQuote>res[0];
                         quote.OurReference = res[1].DisplayName;
                         quote.QuoteDate = new LocalDate(Date());
-                        quote.DeliveryDate = quote.QuoteDate;
                         quote.ValidUntilDate = null;
 
                         if (res[6]) {
                             quote = this.tofHelper.mapCustomerToEntity(res[6], quote);
+                            
+                            if (quote.DeliveryTerms && quote.DeliveryTerms.CreditDays) {
+                                this.setDeliveryDate(quote);
+                            } 
+                        } else {
+                            quote.DeliveryDate = quote.QuoteDate;
                         }
 
                         if (res[7]) {
@@ -251,6 +271,11 @@ export class QuoteDetails {
 
                         this.paymentTerms = res[4];
                         this.deliveryTerms = res[5];
+
+                        this.numberSeries = res[8].map(x => this.numberSeriesService.translateSerie(x));
+                        this.selectConfig = this.numberSeriesService.getSelectConfig(
+                            this.quoteID, this.numberSeries, 'Customer Quote number series'
+                        );
 
                         this.refreshQuote(quote);
                     },
@@ -292,14 +317,14 @@ export class QuoteDetails {
                     if (result === ConfirmActions.ACCEPT) {
                         this.saveQuote();
                     }
-                    if (result !== ConfirmActions.CANCEL) {
-                        this.setTabTitle();
-                    }
 
                     return result !== ConfirmActions.CANCEL;
                 });
     }
 
+    private numberSeriesChange(selectedSerie) {
+        this.quote.QuoteNumberSeriesID = selectedSerie.ID;
+    }
 
     private refreshQuote(quote?: CustomerQuote) {
         if (!quote) {
@@ -864,17 +889,26 @@ export class QuoteDetails {
                         }
                     }).onClose.subscribe(response => {
                         if (response === ConfirmActions.ACCEPT) {
-                            request.subscribe(res => resolve(res), err => reject(err));
+                            request.subscribe(res => {
+                                if (res.QuoteNumber) { this.selectConfig = undefined; }
+                                resolve(res);
+                            }, err => reject(err));
                         } else {
                             const message = 'Endre MVA kode og lagre på ny';
                             reject(message);
                         }
                     });
                 } else {
-                    request.subscribe(res => resolve(res), err => reject(err));
+                    request.subscribe(res => {
+                        if (res.QuoteNumber) { this.selectConfig = undefined; }
+                        resolve(res);
+                    }, err => reject(err));
                 }
             } else {
-                request.subscribe(res => resolve(res), err => reject(err));
+                request.subscribe(res => {
+                    if (res.QuoteNumber) { this.selectConfig = undefined; }
+                    resolve(res);
+                }, err => reject(err));
             }
         });
     }
@@ -886,6 +920,7 @@ export class QuoteDetails {
             this.saveQuote().then(res => {
                 done('Registrering fullført');
                 this.quoteID = res.ID;
+                this.selectConfig = undefined;
 
                 this.isDirty = false;
                 this.router.navigateByUrl('/sales/quotes/' + res.ID);
@@ -917,6 +952,7 @@ export class QuoteDetails {
             this.isDirty = false;
             this.customerQuoteService.Transition(this.quote.ID, this.quote, transition).subscribe(
                 (res) => {
+                    this.selectConfig = undefined;
                     done(doneText);
                     if (transition === 'toOrder') {
                         this.router.navigateByUrl('/sales/orders/' + res.CustomerOrderID);

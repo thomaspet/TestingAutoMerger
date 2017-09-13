@@ -24,7 +24,7 @@ enum StatusCodePayment {
 
 export enum PayrollRunPaymentStatus {
     None = 0,
-    SendtToPayment = 1,
+    SentToPayment = 1,
     PartlyPaid = 2,
     Paid = 3
 }
@@ -105,11 +105,11 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
         return super.GetAll(`filter=ID gt 0${year ? ' and year(PayDate) eq ' + year : ''}&top=1&orderBy=ID DESC`)
             .map(resultSet => resultSet[0]);
     }
-    
+
     public getEarliestOpenRun(setYear: number = undefined): Observable<PayrollRun> {
         return Observable
             .of(setYear)
-            .switchMap(year => year 
+            .switchMap(year => year
                 ? Observable.of(year)
                 : this.yearService.getActiveYear())
             .switchMap(year => super.GetAll(
@@ -130,12 +130,12 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
         let currYear = setYear;
         return Observable
             .of(setYear)
-            .switchMap(year => year 
+            .switchMap(year => year
                 ? Observable.of(year)
                 : this.yearService.getActiveYear())
             .do((year) => currYear = year)
             .switchMap(year => this.getEarliestOpenRun(year))
-            .switchMap(run => run 
+            .switchMap(run => run
                 ? Observable.of(run)
                 : this.getLatestSettledRun(currYear));
     }
@@ -319,10 +319,10 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
                 let filter = queryList.filter(x => x.toLowerCase().includes('filter'))[0] || '';
                 queryList = queryList.filter(x => !x.toLowerCase().includes('filter'));
                 if (!filter.toLowerCase().includes('year(paydate)')) {
-                    filter = (filter ? `(${filter}) and ` : 'filter=') 
-                        + `(year(PayDate) eq ${year})`; 
+                    filter = (filter ? `(${filter}) and ` : 'filter=')
+                        + `(year(PayDate) eq ${year})`;
                 }
-                
+
                 queryList.push(filter);
                 if (includePayments) {
                     queryList.push('includePayments=true');
@@ -332,18 +332,18 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
             .map(payrollRuns => this.setPaymentStatusOnPayrollList(payrollRuns));
     }
     public setPaymentStatusOnPayrollList(payrollRuns: PayrollRun[]): PayrollRun[] {
-        return payrollRuns 
+        return payrollRuns
             ? payrollRuns
-                .map(run => this.markPaymentStatus(run)) 
+                .map(run => this.markPaymentStatus(run))
             : [];
     }
 
     public GetPaymentStatusText(payrollRun: PayrollRun) {
         const status: PayrollRunPaymentStatus = payrollRun[this.payStatusProp];
         switch (status) {
-            case PayrollRunPaymentStatus.SendtToPayment:
+            case PayrollRunPaymentStatus.SentToPayment:
                 return 'Sendt til utbetaling';
-            case PayrollRunPaymentStatus.PartlyPaid: 
+            case PayrollRunPaymentStatus.PartlyPaid:
                 return 'Delbetalt';
             case PayrollRunPaymentStatus.Paid:
                 return 'Utbetalt';
@@ -352,12 +352,22 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
         }
     }
 
+    public deletePayrollRun(id: number): Observable<boolean> {
+        return this.http
+            .asDELETE()
+            .usingBusinessDomain()
+            .withEndPoint(this.relativeURL + '/' + id)
+            .send()
+            .catch((err, obs) => this.errorService.handleRxCatch(err, obs))
+            .map(res => res.json());
+    }
+
     private markPaymentStatus(payrollRun: PayrollRun, payments: Payment[] = undefined): PayrollRun {
         payments = payments || payrollRun['Payments'] || [];
         if (payments.length <= 0) {
             payrollRun[this.payStatusProp] = PayrollRunPaymentStatus.None;
         } else if (!payments.some(pay => pay.StatusCode === StatusCodePayment.Completed)) {
-            payrollRun[this.payStatusProp] = PayrollRunPaymentStatus.SendtToPayment;
+            payrollRun[this.payStatusProp] = PayrollRunPaymentStatus.SentToPayment;
         } else if (payments.some(pay => pay.StatusCode !== StatusCodePayment.Completed)) {
             payrollRun[this.payStatusProp] = PayrollRunPaymentStatus.PartlyPaid;
         } else {

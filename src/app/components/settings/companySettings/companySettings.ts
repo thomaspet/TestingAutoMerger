@@ -8,7 +8,6 @@ import {SearchResultItem} from '../../common/externalSearch/externalSearch';
 import {AuthService} from '../../../../framework/core/authService';
 import {ReminderSettings} from '../../common/reminder/settings/reminderSettings';
 import {
-    Account,
     AccountGroup,
     AccountVisibilityGroup,
     Address,
@@ -41,7 +40,7 @@ import {
     MunicipalService,
     PeriodSeriesService,
     PhoneService,
-    UniSearchConfigGeneratorService,
+    UniSearchAccountConfig,
     VatReportFormService,
     VatTypeService,
     UniFilesService
@@ -155,7 +154,7 @@ export class CompanySettingsComponent implements OnInit {
         private companyService: CompanyService,
         private authService: AuthService,
         private errorService: ErrorService,
-        private uniSearchConfigGeneratorService: UniSearchConfigGeneratorService,
+        private uniSearchAccountConfig: UniSearchAccountConfig,
         private currencyService: CurrencyService,
         private financialYearService: FinancialYearService,
         private ehfService: EHFService,
@@ -1089,7 +1088,7 @@ export class CompanySettingsComponent implements OnInit {
                 hasLineBreak: false,
                 Validations: [],
                 Options: {
-                    uniSearchConfig: this.uniSearchConfigGeneratorService.generate(Account),
+                    uniSearchConfig: this.uniSearchAccountConfig.generateOnlyMainAccountsConfig(),
                     valueProperty: 'ID'
                 }
             },
@@ -1114,7 +1113,7 @@ export class CompanySettingsComponent implements OnInit {
                 hasLineBreak: false,
                 Validations: [],
                 Options: {
-                    uniSearchConfig: this.uniSearchConfigGeneratorService.generate(Account),
+                    uniSearchConfig: this.uniSearchAccountConfig.generateOnlyMainAccountsConfig(),
                     valueProperty: 'ID'
                 }
             },
@@ -1139,7 +1138,7 @@ export class CompanySettingsComponent implements OnInit {
                 hasLineBreak: false,
                 Validations: [],
                 Options: {
-                    uniSearchConfig: this.uniSearchConfigGeneratorService.generate(Account),
+                    uniSearchConfig: this.uniSearchAccountConfig.generateOnlyMainAccountsConfig(),
                     valueProperty: 'ID'
                 }
             },
@@ -1187,7 +1186,7 @@ export class CompanySettingsComponent implements OnInit {
                 hasLineBreak: false,
                 Validations: [],
                 Options: {
-                    uniSearchConfig: this.uniSearchConfigGeneratorService.generate(Account),
+                    uniSearchConfig: this.uniSearchAccountConfig.generateOnlyMainAccountsConfig(),
                     valueProperty: 'ID'
                 }
             },
@@ -1212,7 +1211,7 @@ export class CompanySettingsComponent implements OnInit {
                 hasLineBreak: false,
                 Validations: [],
                 Options: {
-                    uniSearchConfig: this.uniSearchConfigGeneratorService.generate(Account),
+                    uniSearchConfig: this.uniSearchAccountConfig.generateOnlyMainAccountsConfig(),
                     valueProperty: 'ID'
                 }
             },
@@ -1264,7 +1263,7 @@ export class CompanySettingsComponent implements OnInit {
                 hasLineBreak: false,
                 Validations: [],
                 Options: {
-                    uniSearchConfig: this.uniSearchConfigGeneratorService.generate(Account),
+                    uniSearchConfig: this.uniSearchAccountConfig.generateOnlyMainAccountsConfig(),
                     valueProperty: 'ID'
                 }
             },
@@ -1421,7 +1420,7 @@ export class CompanySettingsComponent implements OnInit {
                 hasLineBreak: false,
                 Validations: [],
                 Options: {
-                    uniSearchConfig: this.uniSearchConfigGeneratorService.generate(Account),
+                    uniSearchConfig: this.uniSearchAccountConfig.generateOnlyMainAccountsConfig(),
                     valueProperty: 'ID'
                 }
             },

@@ -23,14 +23,14 @@ export class ReportService extends BizHttp<string> {
 
     constructor(
         http: UniHttp,
-        authService: AuthService,
         private errorService: ErrorService,
         private reportGenerator: StimulsoftReportWrapper,
         private emailService: EmailService,
         private toastService: ToastService,
-        private reportDefinitionService: ReportDefinitionService
+        private reportDefinitionService: ReportDefinitionService,
+        private authService: AuthService
     ) {
-        super(http, authService);
+        super(http);
 
         this.relativeURL = 'report';
         this.entityType = null;

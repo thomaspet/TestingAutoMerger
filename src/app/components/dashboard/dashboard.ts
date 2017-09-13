@@ -1,18 +1,9 @@
 /// <reference path="../../../../typings/modules/chart.js/index.d.ts" />
 import {Component, ViewChild} from '@angular/core';
-import {TabService, UniModules} from '../layout/navbar/tabstrip/tabService';
 import {UniHttp} from '../../../framework/core/http/http';
-import {Router} from '@angular/router';
-import {ErrorService, CompanySettingsService} from '../../services/services';
+import {YearService} from '../../services/services';
 import {UniWidgetCanvas} from '../widgets/widgetCanvas';
-import {
-    UniModalService,
-    ConfirmActions,
-    UniConfirmModalV2,
-    UniAddressModal,
-    UniPhoneModal,
-    UniEmailModal
-} from '../../../framework/uniModal/barrel';
+
 import * as Chart from 'chart.js';
 
 export interface IChartDataSet {
@@ -34,21 +25,22 @@ export class Dashboard {
 
     public welcomeHidden: boolean = JSON.parse(localStorage.getItem('welcomeHidden'));
     private layout: any[] = [];
+    private activeYear: number;
 
     constructor(
-        private tabService: TabService,
         private http: UniHttp,
-        private router: Router,
-        private errorService: ErrorService,
-        private companySettingsService: CompanySettingsService,
-        private modalService: UniModalService
+        private yearService: YearService
     ) {
-        this.tabService.addTab({ name: 'Skrivebord', url: '/', active: true, moduleID: UniModules.Dashboard });
-
         // Avoid compile error. Seems to be something weird with the chart.js typings file
         (<any> Chart).defaults.global.maintainAspectRatio = false;
-        this.layout = this.initLayout();
+        // this.layout = this.initLayout();
+
+        this.yearService.selectedYear$.subscribe(year => {
+            this.activeYear = year;
+            this.layout = this.initLayout();
+        });
     }
+
 
     public initLayout() {
         return [
@@ -218,12 +210,12 @@ export class Dashboard {
                 y: 1,
                 widgetType: 'chart',
                 config: {
-                    header: 'Driftsresultater',
+                    header: `Driftsresultater (${this.activeYear})`,
                     chartType: 'line',
                     labels: ['Jan', '', '', 'Apr', '', '', 'Jul', '', 'Sep', '', '', 'Dec'],
                     colors: ['#7293cb'],
                     backgroundColors: ['transparent'],
-                    dataEndpoint: ['/api/statistics?model=JournalEntryLine&select=month(financialdate),sum(amount)&join=journalentryline.accountid eq account.id&filter=account.accountnumber ge 3000 and account.accountnumber le 9999 &range=monthfinancialdate'],
+                    dataEndpoint: ['/api/statistics?model=JournalEntryLine&select=month(financialdate),sum(amount)&join=journalentryline.accountid eq account.id&filter=year(financialdate) eq <year> and account.accountnumber ge 3000 and account.accountnumber le 9999 &range=monthfinancialdate'],
                     dataKey: ['sumamount'],
                     multiplyValue: -1,
                     dataset: [],
@@ -242,7 +234,7 @@ export class Dashboard {
                 y: 1,
                 widgetType: 'kpi',
                 config: {
-                    header: 'Nøkkeltall'
+                    header: `Nøkkeltall (${this.activeYear})`
                 }
             },
             {

@@ -30,7 +30,7 @@ export class AMeldingService extends BizHttp<AmeldingData> {
             {period: 12, name: 'Desember'}
         ];
     }
-
+    
     constructor(http: UniHttp) {
         super(http);
         this.relativeURL = AmeldingData.RelativeUrl;
@@ -57,6 +57,15 @@ export class AMeldingService extends BizHttp<AmeldingData> {
             .asGET()
             .usingBusinessDomain()
             .withEndPoint(this.relativeURL + `/${id}?action=get-amelding`)
+            .send()
+            .map(response => response.json());
+    }
+
+    public getAmeldingFeedbackFile(id: number) {
+        return this.http
+            .asGET()
+            .usingBusinessDomain()
+            .withEndPoint(this.relativeURL + `/${id}?action=get-feedback`)
             .send()
             .map(response => response.json());
     }

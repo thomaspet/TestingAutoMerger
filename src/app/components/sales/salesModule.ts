@@ -46,12 +46,13 @@ import {WidgetModule} from '../widgets/widgetModule';
 import {ProductGroups} from './productgroup/productgroups';
 import {TreeModule} from 'angular-tree-component';
 import {GroupDetails} from './productgroup/groupDetails/groupDetails';
-import {ProductsInGroup} from './productgroup/productsInGroup/productsInGroup';
 import {ProductDetails} from './products/productDetails';
 import {ProductList} from './products/productList';
 import {SellerList} from './sellers/sellerList';
 import {SellerLinks} from './sellers/sellerLinks';
 import {SellerDetails} from './sellers/sellerDetails';
+import {SellerSalesList} from './sellers/sellerSalesList';
+import {SellerDetailsComponent} from './sellers/sellerDetailsComponent';
 
 @NgModule({
     imports: [
@@ -108,7 +109,6 @@ import {SellerDetails} from './sellers/sellerDetails';
         InvoiceReminders,
 
         ProductGroups,
-        ProductsInGroup,
         GroupDetails,
 
         ProductDetails,
@@ -117,6 +117,8 @@ import {SellerDetails} from './sellers/sellerDetails';
         SellerList,
         SellerLinks,
         SellerDetails,
+        SellerSalesList,
+        SellerDetailsComponent
     ],
     entryComponents: [
         OrderToInvoiceModalType,
@@ -154,7 +156,6 @@ import {SellerDetails} from './sellers/sellerDetails';
         UniReminderSendingModal,
         InvoiceReminders,
         ProductGroups,
-        ProductsInGroup,
         GroupDetails,
 
         ProductDetails,
@@ -163,6 +164,7 @@ import {SellerDetails} from './sellers/sellerDetails';
         SellerList,
         SellerLinks,
         SellerDetails,
+        SellerSalesList
     ]
 })
 export class SalesModule {

@@ -26,8 +26,12 @@ import {PermissionSelector} from './roles/permissionSelector';
 import {ApprovalThresholds} from './approvalThresholds/list/approvalThresholds';
 import {ApprovalThresholdRules} from './approvalThresholds/details/approvalThresholdRules';
 import {SaftExportView} from './jobs/saft/view';
+import {SaftImportModal} from './jobs/saft/saftimportmodal';
 
 @NgModule({
+    entryComponents: [
+        SaftImportModal
+    ],
     imports: [
         BrowserModule,
         FormsModule,
@@ -52,7 +56,8 @@ import {SaftExportView} from './jobs/saft/view';
         PermissionSelector,
         ApprovalThresholds,
         ApprovalThresholdRules,
-        SaftExportView
+        SaftExportView,
+        SaftImportModal
     ],
     exports: [
         UniAdmin,

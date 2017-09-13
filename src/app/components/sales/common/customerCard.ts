@@ -5,7 +5,7 @@ import {CustomerDetailsModal} from '../customer/customerDetails/customerDetailsM
 import {
     AddressService,
     EHFService,
-    UniSearchConfigGeneratorService,
+    UniSearchCustomerConfig,
     CustomerService,
     ErrorService,
     SellerLinkService
@@ -80,7 +80,7 @@ export class TofCustomerCard {
     private emailControl: FormControl = new FormControl('');
     private yourRefControl: FormControl = new FormControl('');
 
-    private customerExpands: [string] = [
+    private customerExpands: string[] = [
         'Info.Addresses',
         'Info.ShippingAddress',
         'Info.InvoiceAddress',
@@ -97,13 +97,12 @@ export class TofCustomerCard {
         private addressService: AddressService,
         private ehfService: EHFService,
         private elementRef: ElementRef,
-        private uniSearchConfigGeneratorService: UniSearchConfigGeneratorService,
+        private uniSearchCustomerConfig: UniSearchCustomerConfig,
         private customerService: CustomerService,
         private errorService: ErrorService,
         private sellerLinkService: SellerLinkService
     ) {
-        this.uniSearchConfig = this.uniSearchConfigGeneratorService.generate(
-            Customer,
+        this.uniSearchConfig = this.uniSearchCustomerConfig.generate(
             this.customerExpands,
             () => this.openCustomerModal()
         );

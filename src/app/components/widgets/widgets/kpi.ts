@@ -23,7 +23,9 @@ interface IKeyNumberObject {
                 <section>
                     <div>
                         <h2>Lønnsomhet</h2>
-                        <p class="uni-kpi-widget-value" [ngStyle]="{'color': profitability.textColor}">{{ profitability.value }}</p>
+                        <p class="uni-kpi-widget-value" [ngStyle]="{'color': profitability.textColor}">
+                            {{ profitability.value }}
+                        </p>
                     </div>
                     <div>
                         <a class="uni-kpi-widget-chevron" [ngClass]="profitability.class">link</a>
@@ -37,11 +39,15 @@ interface IKeyNumberObject {
                 <section>
                     <div>
                         <h2>Likviditet</h2>
-                        <p class="uni-kpi-widget-value" [ngStyle]="{'color': liquidity.textColor}">{{ liquidity.value }}</p>
+                        <p class="uni-kpi-widget-value" [ngStyle]="{'color': liquidity.textColor}">
+                            {{ liquidity.value }}
+                        </p>
                     </div>
                     <div>
                         <a class="uni-kpi-widget-chevron" [ngClass]="liquidity.class">link</a>
-                        <p [ngStyle]="{'color': liquidity.textColor}">{{ liquidity.grade }} </p>
+                        <p [ngStyle]="{'color': liquidity.textColor}">
+                            {{ liquidity.grade }} 
+                        </p>
                     </div>
                     <div>
                         <canvas #liquidityCanvas> </canvas>
@@ -51,7 +57,9 @@ interface IKeyNumberObject {
                 <section>
                     <div>
                         <h2>Soliditet</h2>
-                        <p class="uni-kpi-widget-value" [ngStyle]="{'color': solidity.textColor}">{{ solidity.value }}</p>
+                        <p class="uni-kpi-widget-value" [ngStyle]="{'color': solidity.textColor}">
+                            {{ solidity.value }}
+                        </p>
                     </div>
                     <div>
                         <a class="uni-kpi-widget-chevron" [ngClass]="solidity.class">link</a>
@@ -113,7 +121,20 @@ export class UniKPIWidget {
 
     public ngAfterViewInit() {
         this.financialYearService.getActiveYear().subscribe((year: number) => {
-            this.widgetDataService.getData('/api/statistics?skip=0&top=50&model=JournalEntryLine&select=sum(casewhen(Account.AccountNumber%20ge%201400%20and%20Account.AccountNumber%20le%201999,Amount,0))%20as%20sumOmlopsmidler,sum(casewhen(Account.AccountNumber%20ge%202300%20and%20Account.AccountNumber%20le%202999,Amount,0))%20as%20sumkortsiktiggjeld,sum(casewhen(Account.AccountNumber%20ge%201000%20and%20Account.AccountNumber%20le%201999,Amount,0))%20as%20sumTK,sum(casewhen(Account.AccountNumber%20ge%202000%20and%20Account.AccountNumber%20le%202099,Amount,0))%20as%20sumEK,sum(casewhen(Account.AccountNumber%20ge%203000%20and%20Account.AccountNumber%20le%208299 and Period.AccountYear eq ' + year + ',Amount,0))%20as%20resultat&expand=Account,Period&distinct=false')
+            this.widgetDataService.getData(
+                '/api/statistics?skip=0&top=50&model=JournalEntryLine'
+                + '&select=sum(casewhen(Account.AccountNumber ge 1400 '
+                + 'and Account.AccountNumber le 1999,Amount,0)) as sumOmlopsmidler,'
+                + 'sum(casewhen(Account.AccountNumber ge 2300 '
+                + 'and Account.AccountNumber le 2999,Amount,0)) as sumkortsiktiggjeld,'
+                + 'sum(casewhen(Account.AccountNumber ge 2000 '
+                + 'and Account.AccountNumber le 2999,Amount,0)) as sumTK,'
+                + 'sum(casewhen(Account.AccountNumber ge 2000 '
+                + 'and Account.AccountNumber le 2099,Amount,0)) as sumEK,'
+                + 'sum(casewhen(Account.AccountNumber ge 3000 '
+                + 'and Account.AccountNumber le 8299 '
+                + 'and Period.AccountYear eq ' + year + ',Amount,0)) as resultat'
+                + '&expand=Account,Period&distinct=false')
                 .subscribe(
                     (data) => {
                         if (!data || !data.Data) {
@@ -144,7 +165,7 @@ export class UniKPIWidget {
 
     public initProfitabilityIndicator(data) {
         if (data.sumTK) {
-            this.profitability.value = (((data.resultat * -1) * 100) / data.sumTK || 1).toFixed(1);
+            this.profitability.value = ((data.resultat * 100) / data.sumTK || 1).toFixed(1);
             this.checkNumbers(this.profitability, [1, 5, 9, 15]);
 
             this.drawIndicator(

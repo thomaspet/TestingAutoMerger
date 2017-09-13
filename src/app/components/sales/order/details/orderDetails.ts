@@ -18,7 +18,8 @@ import {
     LocalDate,
     Project,
     StatusCodeCustomerOrder,
-    Terms
+    Terms,
+    NumberSeries
 } from '../../../../unientities';
 
 import {
@@ -37,7 +38,8 @@ import {
     ReportDefinitionService,
     ReportService,
     TermsService,
-    UserService
+    UserService,
+    NumberSeriesService
 } from '../../../../services/services';
 
 import {IUniSaveAction} from '../../../../../framework/save/save';
@@ -110,6 +112,8 @@ export class OrderDetails {
     private paymentTerms: Terms[];
     private printStatusPrinted: string = '200';
     private projects: Project[];
+    private selectConfig: any;
+    private numberSeries: NumberSeries[];
 
     private customerExpandOptions: string[] = [
         'DeliveryTerms',
@@ -119,9 +123,12 @@ export class OrderDetails {
         'Dimensions.Project.ProjectTasks',
         'Info',
         'Info.Addresses',
+        'Info.Emails',
         'Info.InvoiceAddress',
         'Info.ShippingAddress',
-        'PaymentTerms'
+        'PaymentTerms',
+        'Sellers',
+        'Sellers.Seller'
     ];
 
     private expandOptions: Array<string> = [
@@ -174,7 +181,8 @@ export class OrderDetails {
         private toastService: ToastService,
         private tofHelper: TofHelper,
         private tradeItemHelper: TradeItemHelper,
-        private userService: UserService
+        private userService: UserService,
+        private numberSeriesService: NumberSeriesService
    ) {}
 
     public ngOnInit() {
@@ -245,18 +253,27 @@ export class OrderDetails {
                     customerID ? this.customerService.Get(
                         customerID, this.customerExpandOptions
                     ) : Observable.of(null),
-                    projectID ? this.projectService.Get(projectID, null) : Observable.of(null)
+                    projectID ? this.projectService.Get(projectID, null) : Observable.of(null),
+                    this.numberSeriesService.GetAll(
+                        `filter=NumberSeriesType.Name eq 'Customer Order number series' and Empty eq false and Disabled eq false`,
+                        ['NumberSeriesType']
+                    )
                 ).subscribe(
                     (res) => {
                         let order = <CustomerOrder>res[0];
                         order.OurReference = res[1].DisplayName;
                         order.OrderDate = new LocalDate(Date());
-                        order.DeliveryDate = order.OrderDate;
 
                         this.companySettings = res[2];
 
                         if (res[6]) {
                             order = this.tofHelper.mapCustomerToEntity(res[6], order);
+                            
+                            if (order.DeliveryTerms && order.DeliveryTerms.CreditDays) {
+                                this.setDeliveryDate(order);
+                            } 
+                        } else {
+                            order.DeliveryDate = order.OrderDate;
                         }
 
                         if (res[7]) {
@@ -275,6 +292,11 @@ export class OrderDetails {
 
                         this.paymentTerms = res[4];
                         this.deliveryTerms = res[5];
+
+                        this.numberSeries = res[8].map(x => this.numberSeriesService.translateSerie(x));
+                        this.selectConfig = this.numberSeriesService.getSelectConfig(
+                            this.orderID, this.numberSeries, 'Customer Order number series'
+                        );
 
                         this.refreshOrder(order);
                     },
@@ -305,6 +327,10 @@ export class OrderDetails {
         }
     }
 
+    private numberSeriesChange(selectedSerie) {
+        this.order.OrderNumberSeriesID = selectedSerie.ID;
+    }
+
     private handleSaveError(error, donehandler) {
         if (typeof (error) === 'string') {
             if (donehandler) {
@@ -327,9 +353,6 @@ export class OrderDetails {
                 .map(result => {
                     if (result === ConfirmActions.ACCEPT) {
                         this.saveOrder();
-                    }
-                    if (result !== ConfirmActions.CANCEL) {
-                        this.setTabTitle();
                     }
 
                     return result !== ConfirmActions.CANCEL;
@@ -914,10 +937,16 @@ export class OrderDetails {
                         }
                     });
                 } else {
-                    request.subscribe(res => resolve(res), err => reject(err));
+                    request.subscribe(res => {
+                        if (res.OrderNumber) { this.selectConfig = undefined; }
+                        resolve(res);
+                    }, err => reject(err));
                 }
             } else {
-                request.subscribe(res => resolve(res), err => reject(err));
+                request.subscribe(res => {
+                    if (res.OrderNumber) { this.selectConfig = undefined; }
+                    resolve(res);
+                }, err => reject(err));
             }
 
         });
@@ -962,6 +991,7 @@ export class OrderDetails {
         this.saveOrder().then((order) => {
             this.customerOrderService.Transition(order.ID, this.order, transition).subscribe(
                 (res) => {
+                    this.selectConfig = undefined;
                     done(doneText);
                     this.refreshOrder();
                 },

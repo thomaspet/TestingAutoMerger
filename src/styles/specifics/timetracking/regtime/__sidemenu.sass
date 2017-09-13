@@ -7,7 +7,7 @@
 .sidemenu_container
     background-color: $uni-color-scale9
     min-height: 100%
-    overflow-x: scroll
+    overflow-x: hidden
 
 .sidemenu_calender_container
     width: 80%
@@ -97,6 +97,14 @@
             &:after
                 clear: both
 
+        .sidemenu_temmplate_name
+            font-size: 0.8rem
+            color: #638bb2
+            max-width: 50%
+            overflow-x: hidden
+            white-space: nowrap
+            display: inline-block
+
         .sidemenu_template_description
             width: 70%
             display: inline-block
@@ -165,7 +173,7 @@
     top: .2rem
     left: calc(40px - 1rem)
     border-bottom-color: transparent
-    background-image: unicon-edit(#628cb2)
+    background-image: unicon-hourreg(#628cb2)
     cursor: pointer
 
 .sidemenu_minified_to_from
@@ -187,7 +195,7 @@
     background-position: center center
     background-repeat: no-repeat
     border-bottom-color: transparent
-    background-image: unicon-prev(#628cb2)
+    background-image: unicode-chevron-left(#628cb2)
     cursor: pointer
     transition: linear .3s
 
@@ -197,6 +205,29 @@
 .uni_template_modal_content
     footer
         margin-top: 3rem
+
+.sidemenu_minified_container_class
+    width: calc(100% - 150px) 
+
+.calendar_flexplus
+    width: 60%
+    margin: 0 auto
+    position: relative
+    bottom: 5px
+    border-bottom: 2px solid $uni-color-good
+    opacity: 0.6
+
+.calendar_flexminus
+    width: 60%
+    margin: 0 auto
+    position: relative
+    bottom: 5px
+    border-bottom: 2px solid $uni-color-bad
+    opacity: 0.6
+
+.template_modal_size
+    width: 75%
+
     label
         width: 100px
         display: inline-block
@@ -206,4 +237,4 @@
     input
         width: 50%
         margin-right: 2%
-        
+

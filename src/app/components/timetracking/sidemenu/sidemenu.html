@@ -2,17 +2,20 @@
     <section class="icons_for_small" [hidden]="!sidemenuMinified">
         <a class="sidemenu_minified_calender_icon" (click)="hideShowSideMenu()"></a>
         <p class="sidemenu_minified_to_from" (click)="hideShowSideMenu()">Calender</p>
-        <section *ngFor="let template of timeTrackingTemplates; let i = index;">
-            <a class="sidemenu_minified_template_icon" (click)="onTemplateSelected(template)"></a>
-            <p class="sidemenu_minified_to_from">{{ template.StartTime }} - {{ template.EndTime }}</p>
+        <section *ngFor="let template of timeTrackingTemplates; let i = index;" (click)="onTemplateSelected(template)">
+            <a class="sidemenu_minified_template_icon"></a>
+            <p class="sidemenu_minified_to_from" style="margin: 0;">{{ template.Name }}</p>
+            <p class="sidemenu_minified_to_from" style="margin-top: 0;">{{ template.StartTime }} - {{ template.EndTime }}</p>
         </section>
         
     </section>
     <section class="sidemenu_calender_container"  [hidden]="sidemenuMinified">
             <unitable-calendar class="sidemenu_calender"
                                (dateChange)="onCalendarDateChange($event)"
+                               (monthChange)="onCalendarMonthChange($event)"
                                (keydown.esc)="hideCalendar()"
-                               [date]="periode.date"></unitable-calendar>
+                               [date]="initDate"
+                               [config]="calendarConfig"></unitable-calendar>
         <button (click)="setTodayAsCurrentDay()">Gå til idag</button>
         
     </section>
@@ -21,7 +24,7 @@
         <h3>Maler</h3>
         <article class="sidemenu_template" *ngFor="let template of timeTrackingTemplates; let i = index;">
             <section class="template_info_section" (click)="onTemplateSelected(template)">
-                <span style="font-size: 0.8rem; color: #638bb3;">{{ template.Name }}</span>
+                <a class="sidemenu_temmplate_name">{{ template.Name }}</a>
                 <time style="float: right; margin: 0; font-size: 0.9rem;">{{ template.StartTime }} - {{ template.EndTime }}</time><br />
                 <span class="sidemenu_template_timeart">{{ template.Description }}</span>
                 <time class="sidemenu_template_time_total">{{ (template.Minutes / 60).toFixed(1) }}</time>
@@ -37,4 +40,3 @@
     </section>
     <button class="sidemenu_hide_button" id="sidemeny_hide_show_button_id" (click)="hideShowSideMenu()"></button>
 </section>
-<uni-template-modal (onSaveAndClose)="templateSave($event)" (onDeleteAndClose)="templateDelete($event)"></uni-template-modal>

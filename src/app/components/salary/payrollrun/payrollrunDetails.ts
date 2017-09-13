@@ -302,6 +302,17 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
                 disabled: (rowModel) => {
                     return this.payrollrun$.getValue() && this.payrollrunID ? this.payrollrun$.getValue().StatusCode < 1 : true;
                 }
+            },
+            {
+                label: 'Slett lønnsavregning',
+                action: () => {
+                    this.payrollrunService
+                        .deletePayrollRun(this.payrollrunID)
+                        .subscribe(() => this.router.navigateByUrl(this.url + 0));
+                },
+                disabled: () => {
+                    return this.payrollrun$.getValue() && !!this.payrollrun$.getValue().StatusCode;
+                }
             }
         ];
 
@@ -341,10 +352,10 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
             },
             {
                 label: 'Til utbetaling',
-                action: this.sendPaymentList.bind(this),
+                action: this.SendIfNotAlreadySent.bind(this),
                 main: payrollRun
                     ? payrollRun.StatusCode > 1
-                        && (!this.paymentStatus || this.paymentStatus < PayrollRunPaymentStatus.SendtToPayment)
+                        && (!this.paymentStatus || this.paymentStatus < PayrollRunPaymentStatus.SentToPayment)
                     : false,
                 disabled: payrollRun ? payrollRun.StatusCode < 1 : true
             },
@@ -353,7 +364,7 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
                 action: this.sendPaychecks.bind(this),
                 main: payrollRun
                     ? payrollRun.StatusCode > 1
-                        && this.paymentStatus && this.paymentStatus >= PayrollRunPaymentStatus.SendtToPayment
+                        && this.paymentStatus && this.paymentStatus >= PayrollRunPaymentStatus.SentToPayment
                     : false,
                 disabled: payrollRun ? payrollRun.StatusCode < 1 : true
             },
@@ -488,8 +499,6 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
             .map(canDeactivate => {
                 if (canDeactivate) {
                     this.cacheService.clearPageCache(this.cacheKey);
-                } else {
-                    this.updateTabStrip(this.payrollrunID);
                 }
 
                 return canDeactivate;
@@ -919,14 +928,35 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
         });
     }
 
+    private SendIfNotAlreadySent(done) {
+        if (this.paymentStatus && this.paymentStatus >= PayrollRunPaymentStatus.SentToPayment) {
+            this.modalService.confirm({
+                header: "Utbetale en gang til",
+                message: 'Denne lønnsavregningen er allerede sendt til utbetaling, vennligst bekreft at du vil sende lønnsavregningen til utbetaling igjen',
+                buttonLabels: {
+                    accept: 'Utbetal',
+                    cancel: 'Avbryt'
+                }
+            }).onClose.subscribe(response => {
+                if (response === ConfirmActions.ACCEPT) {
+                    this.sendPaymentList();
+                } else {
+                    done('Utbetaling avbrutt');
+                }
+            });
+        } else {
+            this.sendPaymentList();
+        }
+    }
+
     public sendPaymentList() {
         this.payrollrunService.sendPaymentList(this.payrollrunID)
-            .subscribe((response: boolean) => {
-                this.router.navigateByUrl('/bank/payments');
-            },
-            (err) => {
-                this.errorService.handle(err);
-            });
+        .subscribe((response: boolean) => {
+            this.router.navigateByUrl('/bank/payments');
+        },
+        (err) => {
+            this.errorService.handle(err);
+        });
     }
 
     public sendPaychecks(done) {

@@ -112,8 +112,6 @@ export class CategoryView extends UniView {
             .map(allowed => {
                 if (allowed) {
                     this.cacheService.clearPageCache(this.cacheKey);
-                } else {
-                    this.updateTabStrip(this.categoryID, this.currentCategory);
                 }
 
                 return allowed;

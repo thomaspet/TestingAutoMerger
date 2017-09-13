@@ -11,7 +11,7 @@ import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {FieldType} from '../../../../../framework/ui/uniform/index';
 import {FinancialYear, Account} from '../../../../unientities';
 import {ToastService, ToastType} from '../../../../../framework/uniToast/toastService';
-import {UniSearchAccountConfigGeneratorHelper} from '../../../../services/common/uniSearchConfig/uniSearchAccountConfigGeneratorHelper';
+import {UniSearchAccountConfig} from '../../../../services/common/uniSearchConfig/uniSearchAccountConfig';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
 import {
     StatisticsService,
@@ -62,7 +62,7 @@ export class AccountDetailsReport {
                 private financialYearService: FinancialYearService,
                 private accountService: AccountService,
                 private toastService: ToastService,
-                private uniSearchAccountConfig: UniSearchAccountConfigGeneratorHelper,
+                private uniSearchAccountConfig: UniSearchAccountConfig,
                 private tabService: TabService) {
 
        this.config = {

@@ -332,7 +332,9 @@ export class UniSelect {
             this.open();
             try {
                 setTimeout(() => {
-                    this.searchInput.nativeElement.focus();
+                    if (this.searchInput) {
+                      this.searchInput.nativeElement.focus();
+                    }
                 });
             } catch (e) {}
         }

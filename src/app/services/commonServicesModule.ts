@@ -21,7 +21,6 @@ import {UniQueryDefinitionService} from './common/uniQueryDefinitionService';
 import {UniTickerService} from './common/uniTickerService';
 import {CountryService} from './common/countryService';
 import {PostalCodeService} from './common/postalCodeService';
-import {UniMenuAim} from './common/uniMenuAim';
 import {NumberFormat} from './common/numberFormatService';
 import {StatusService} from './common/statusService';
 import {SettingsService} from './common/settingsService';
@@ -37,12 +36,12 @@ import {UniCacheService} from './common/cacheService';
 import {StaticRegisterService} from './common/staticRegisterService';
 import {DimensionService} from './common/dimensionService';
 import {EmailService} from './common/emailService';
-import {UniSearchConfigGeneratorService} from './common/uniSearchConfig/uniSearchConfigGeneratorService';
 import {UmhService} from './common/UmhService';
-import {UniSearchAccountConfigGeneratorHelper} from './common/uniSearchConfig/uniSearchAccountConfigGeneratorHelper';
-import {UniSearchCustomerConfigGeneratorHelper} from './common/uniSearchConfig/uniSearchCustomerConfigGeneratorHelper';
-import {UniSearchSupplierConfigGeneratorHelper} from './common/uniSearchConfig/uniSearchSupplierConfigGeneratorHelper';
-import {UniSearchEmployeeConfigGeneratorHelper} from './common/uniSearchConfig/uniSearchEmployeeConfigGeneratorHelper';
+import {UniSearchAccountConfig} from './common/uniSearchConfig/uniSearchAccountConfig';
+import {UniSearchCustomerConfig} from './common/uniSearchConfig/uniSearchCustomerConfig';
+import {UniSearchSupplierConfig} from './common/uniSearchConfig/uniSearchSupplierConfig';
+import {UniSearchEmployeeConfig} from './common/uniSearchConfig/uniSearchEmployeeConfig';
+import {UniSearchProductConfig} from './common/uniSearchConfig/uniSearchProductConfig';
 import {CurrencyOverridesService} from './common/currencyOverridesService';
 import {ApiModelService} from './common/apiModelService';
 import {YearService} from './common/yearService';
@@ -58,7 +57,7 @@ import {ProductCategoryService} from './common/productCategoryService';
 import {TeamService} from './common/teamService';
 import {TermsService} from './common/termsService';
 import {UniFilesService} from './common/uniFilesService';
-import {VideoMappingService} from './common/videoMappingService'
+import {VideoMappingService} from './common/videoMappingService';
 
 export * from './common/altinnAuthenticationService';
 export * from './common/altinnIntegrationService';
@@ -82,7 +81,6 @@ export * from './common/uniQueryDefinitionService';
 export * from './common/uniTickerService';
 export * from './common/countryService';
 export * from './common/postalCodeService';
-export * from './common/uniMenuAim';
 export * from './common/numberFormatService';
 export * from './common/statusService';
 export * from './common/settingsService';
@@ -98,7 +96,6 @@ export * from './common/cacheService';
 export * from './common/staticRegisterService';
 export * from './common/dimensionService';
 export * from './common/emailService';
-export * from './common/uniSearchConfig/uniSearchConfigGeneratorService';
 export * from './common/currencyOverridesService';
 export * from './common/apiModelService';
 export * from './common/yearService';
@@ -114,7 +111,12 @@ export * from './common/productCategoryService';
 export * from './common/teamService';
 export * from './common/termsService';
 export * from './common/uniFilesService';
-export * from './common/videoMappingService'
+export * from './common/videoMappingService';
+export * from './common/uniSearchConfig/uniSearchAccountConfig';
+export * from './common/uniSearchConfig/uniSearchCustomerConfig';
+export * from './common/uniSearchConfig/uniSearchEmployeeConfig';
+export * from './common/uniSearchConfig/uniSearchSupplierConfig';
+export * from './common/uniSearchConfig/uniSearchProductConfig';
 
 @NgModule({})
 export class CommonServicesModule {
@@ -143,7 +145,6 @@ export class CommonServicesModule {
                 StatisticsService,
                 CountryService,
                 PostalCodeService,
-                UniMenuAim,
                 NumberFormat,
                 StatusService,
                 SettingsService,
@@ -159,11 +160,11 @@ export class CommonServicesModule {
                 DimensionService,
                 EmailService,
                 UmhService,
-                UniSearchConfigGeneratorService,
-                UniSearchAccountConfigGeneratorHelper,
-                UniSearchCustomerConfigGeneratorHelper,
-                UniSearchSupplierConfigGeneratorHelper,
-                UniSearchEmployeeConfigGeneratorHelper,
+                UniSearchAccountConfig,
+                UniSearchCustomerConfig,
+                UniSearchSupplierConfig,
+                UniSearchEmployeeConfig,
+                UniSearchProductConfig,
                 CurrencyOverridesService,
                 CurrencyCodeService,
                 UniTickerService,
@@ -186,4 +187,3 @@ export class CommonServicesModule {
         };
     }
 }
-

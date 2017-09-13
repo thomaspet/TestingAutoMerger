@@ -757,9 +757,7 @@ export class PaymentList {
                 dirtyRows.push(x);
             }
         });
-
-        console.log('candeactivate', dirtyRows, tableData);
-
+        
         if (!dirtyRows.length) {
             return true;
         }

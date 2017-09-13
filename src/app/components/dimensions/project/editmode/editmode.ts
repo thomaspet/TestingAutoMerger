@@ -22,7 +22,7 @@ import {
 import {
     ProjectService,
     ErrorService,
-    UniSearchConfigGeneratorService,
+    UniSearchCustomerConfig,
     AddressService,
     UserService
 } from '../../../../services/services';
@@ -55,7 +55,7 @@ export class ProjectEditmode {
     constructor(
         private projectService: ProjectService,
         private errorService: ErrorService,
-        private uniSearchConfigGeneratorService: UniSearchConfigGeneratorService,
+        private uniSearchCustomerConfig: UniSearchCustomerConfig,
         private addressService: AddressService,
         private userService: UserService,
         private modalService: UniModalService
@@ -84,8 +84,8 @@ export class ProjectEditmode {
     private extendFormConfig() {
         let fields = this.fields$.getValue();
 
-        this.uniSearchConfig = this.uniSearchConfigGeneratorService
-            .generate(Customer, <[string]>this.customerExpandOptions);
+        this.uniSearchConfig = this.uniSearchCustomerConfig
+            .generate(this.customerExpandOptions);
 
         let status: UniFieldLayout = fields[2];
         status.Options = {

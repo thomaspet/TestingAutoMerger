@@ -3,7 +3,6 @@ import {BizHttp} from '../../../framework/core/http/BizHttp';
 import {CustomerInvoice, CustomerInvoiceItem, LocalDate} from '../../unientities';
 import {StatusCodeCustomerInvoice} from '../../unientities';
 import {UniHttp} from '../../../framework/core/http/http';
-import {AuthService} from '../../../framework/core/authService';
 import {Observable} from 'rxjs/Observable';
 import {ErrorService} from '../common/errorService';
 import * as moment from 'moment';
@@ -27,8 +26,8 @@ export class CustomerInvoiceService extends BizHttp<CustomerInvoice> {
         { Code: StatusCodeCustomerInvoice.Paid, Text: 'Betalt(Kreditnota)' },
     ];
 
-    constructor(http: UniHttp, authService: AuthService, private errorService: ErrorService) {
-        super(http, authService);
+    constructor(http: UniHttp, private errorService: ErrorService) {
+        super(http);
         this.relativeURL = CustomerInvoice.RelativeUrl;
         this.entityType = CustomerInvoice.EntityType;
         this.DefaultOrderBy = null;

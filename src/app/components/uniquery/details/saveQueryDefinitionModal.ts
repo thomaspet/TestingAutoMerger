@@ -7,7 +7,8 @@ import {Observable} from 'rxjs/Observable';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {UniForm, FieldType} from '../../../../framework/ui/uniform/index';
 import {UniModules} from '../../layout/navbar/tabstrip/tabService';
-import {ErrorService} from '../../../services/services';;
+import {ErrorService} from '../../../services/services';
+import {UniHttp} from '../../../../framework/core/http/http';
 
 @Component({
     selector: 'save-query-definition-form',
@@ -16,7 +17,8 @@ import {ErrorService} from '../../../services/services';;
             <h1 *ngIf="config.title">{{config.title}}</h1>
             <uni-form [config]="formConfig$"
                       [fields]="fields$"
-                      [model]="model$">
+                      [model]="model$"
+                      (changeEvent)="change($event)">
             </uni-form>
             <footer>
                 <button *ngFor="let action of config.actions; let i=index"
@@ -38,12 +40,17 @@ export class SaveQueryDefinitionForm implements OnInit {
     private formConfig$: BehaviorSubject<any> = new BehaviorSubject({});
     private model$: BehaviorSubject<any> = new BehaviorSubject(null);
 
-    constructor(private toastService: ToastService) {
-    }
+    private categories: string[];
+    private newCategory: boolean = false;
+
+    constructor(
+        private toastService: ToastService, 
+        private http: UniHttp, 
+        private errorService: ErrorService
+    ) {}
 
     public ngOnInit() {
-        this.model$.next(this.config.model);
-        this.setupForm();
+        this.getQueryDefinitionCategoriesAndSetupForm();
     }
 
     public ngOnChanges() {
@@ -76,7 +83,31 @@ export class SaveQueryDefinitionForm implements OnInit {
                 EntityType: 'QueryDefinition',
                 Property: 'Category',
                 Placement: 1,
-                Hidden: false,
+                Hidden: this.newCategory,
+                FieldType: FieldType.DROPDOWN,
+                ReadOnly: false,
+                LookupField: false,
+                Label: 'Kategori',
+                Placeholder: 'F.eks. "Faktura", brukes til gruppering av uttrekk',
+                Description: '',
+                HelpText: '',
+                FieldSet: 0,
+                Section: 0,
+                Legend: '',
+                Classes: 'large-field',
+                Options: {
+                    source: this.categories,
+                    valueProperty: 'name',
+                    template: category => category && category.name,
+                    debounceTime: 100,
+                }
+            },
+            {
+                ComponentLayoutID: 1,
+                EntityType: 'QueryDefinition',
+                Property: 'Category',
+                Placement: 1,
+                Hidden: !this.newCategory,
                 FieldType: FieldType.TEXT,
                 ReadOnly: false,
                 LookupField: false,
@@ -188,6 +219,36 @@ export class SaveQueryDefinitionForm implements OnInit {
                 Legend: ''
             }
         ]);
+    }
+
+    private getQueryDefinitionCategoriesAndSetupForm() {
+        this.http.asGET()
+            .usingBusinessDomain()
+            .withEndPoint('uniquerydefinitions?action=get-distinct-querydefinition-categories')
+            .send().map(response => response.json())
+            .subscribe(
+                result => {
+                    this.categories = this.transformArray(result);
+                    this.model$.next(this.config.model);
+                    this.setupForm();
+                },
+                error => this.errorService.handle(error)
+            );
+    }
+
+    private transformArray(data) {
+        const newData = [];
+        newData.push({name: 'Legg til ny...'});
+        data.forEach(x => newData.push({name: x}));
+        return newData;
+    }
+
+    private change(data) {
+        if (data.Category && data.Category.currentValue === 'Legg til ny...') {
+            this.newCategory = true;
+            this.model$.value.Category = '';
+            this.setupForm();
+        }
     }
 }
 

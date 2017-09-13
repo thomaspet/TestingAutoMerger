@@ -402,7 +402,7 @@ export class UniTickerService { //extends BizHttp<UniQueryDefinition> {
                             throw Error('No row selected, cannot execute transition ' + action.Options.Transition);
                         }
 
-                        let service = new BizHttp<any>(this.uniHttp, this.authService);
+                        let service = new BizHttp<any>(this.uniHttp);
                         service.relativeURL = uniEntityClass.RelativeUrl;
 
                         // TBD: should consider some throttling here if a lot of rows are selected - could potentially

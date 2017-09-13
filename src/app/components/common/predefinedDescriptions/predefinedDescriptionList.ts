@@ -120,25 +120,12 @@ export class PredefinedDescriptionList {
         this.setHasUnsavedChangeds(this.changedPreDefinedDescriptions.length > 0);
    }
 
-    public canDeactivate() {
+    public canDeactivate(): Observable<boolean> {
         if (!this.hasUnsavedChanges) {
             return Observable.of(true);
         }
 
-        return this.modalService.deprecated_openUnsavedChangesModal()
-            .onClose
-            .map(canDeactivate => {
-                if (!canDeactivate) {
-                    this.tabService.addTab({
-                        name: 'Faste tekster',
-                        url: '/predefinedDescriptions/predefineddescriptions',
-                        moduleID: UniModules.PredefinedDescription,
-                        active: true
-                    });
-                }
-
-                return canDeactivate;
-            });
+        return this.modalService.deprecated_openUnsavedChangesModal().onClose;
     }
 
 

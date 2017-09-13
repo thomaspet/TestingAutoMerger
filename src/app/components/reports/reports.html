@@ -1,8 +1,19 @@
 <uni-toolbar [config]="{title: 'Rapportoversikt', omitFinalCrumb: true}"></uni-toolbar>
+
+<section class="horizontal_nav">
+    <ul>
+        <li *ngFor="let tab of tabs; let idx = index">
+            <a (click)="activeTabIndex = idx; onTabSelection()" [ngClass]="{'router-link-active': activeTabIndex === idx}">
+                {{tab}}
+            </a>
+        </li>
+    </ul>
+</section>
+
 <div class="report_overview_page application">
-    <figure class="report_group_card" *ngFor="let reportCategory of reportCategories">
-        <h2>{{ reportCategory.name }}</h2>
-        <div *ngFor="let report of reportCategory.reports" style="margin-left:4px">
+    <figure class="report_group_card" *ngFor="let reportCategory of activeCategory">
+        <h1>{{ reportCategory[0].Category }}</h1>
+        <div *ngFor="let report of reportCategory">
             <!-- Uni Query -->
             <div *ngIf="report.IsQuery">
                 <a (click)="showUniQuery(report)">
@@ -86,6 +97,7 @@
         </div>
     </figure>
 </div>
+
 <report-parameter-modal></report-parameter-modal>
 <balance-report-filter-modal></balance-report-filter-modal>
 <account-report-filter-modal></account-report-filter-modal>

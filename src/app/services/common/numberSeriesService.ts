@@ -19,8 +19,17 @@ export class NumberSeriesService extends BizHttp<NumberSeries> {
         return this.http
             .asGET()
             .usingBusinessDomain()
-            .withEndPoint('number-series?hateoas=false&orderby=FromNumber,NumberSeriesTaskID,AccountYear desc&expand=NumberSeriesType,NumberSeriesTask&filter=disabled eq 0')
+            .withEndPoint('number-series?hateoas=false&orderby=FromNumber,NumberSeriesTaskID,AccountYear desc&expand=NumberSeriesType,NumberSeriesTask,MainAccount&filter=disabled eq 0')
             .send().map(response => response.json());
+    }
+
+    public getSelectConfig(ID: number, numberSeries: Array, numberSerieName: string): any {
+        return numberSeries && numberSeries.length > 1 && ID === 0 ?
+            {
+                items: numberSeries,
+                selectedItem: numberSeries.find(x => x.Name === numberSerieName),
+                label: 'Nummerserie:'
+            } : null;
     }
 
     public save<T>(item: T): Observable<T> {
@@ -57,14 +66,16 @@ export class NumberSeriesService extends BizHttp<NumberSeries> {
     ];
 
     public registers: any[] = [
-        {EntityType: 'JournalEntry', DisplayName: 'Bilag'},
-        {EntityType: 'CustomerInvoice', DisplayName: 'Faktura'},
-        {EntityType: 'CustomerOrder', DisplayName: 'Ordre'},
-        {EntityType: 'CustomerQuote', DisplayName: 'Tilbud'},
-        {EntityType: 'Reminder', DisplayName: 'Purring'},
-        {EntityType: 'Project', DisplayName: 'Prosjekt'},
-        {EntityType: 'Department', DisplayName: 'Avdeling'},
-        {EntityType: 'Employee', DisplayName: 'Ansatt'},
+        {EntityType: 'JournalEntry', DisplayName: 'Bilag', Sale: false},
+        {EntityType: 'Customer', DisplayName: 'Kunde', Sale: false},
+        {EntityType: 'Supplier', DisplayName: 'Leverandør', Sale: false},
+        {EntityType: 'CustomerInvoice', DisplayName: 'Faktura', Sale: true},
+        {EntityType: 'CustomerOrder', DisplayName: 'Ordre', Sale: true},
+        {EntityType: 'CustomerQuote', DisplayName: 'Tilbud', Sale: true},
+        {EntityType: 'Reminder', DisplayName: 'Purring', Sale: true},
+        {EntityType: 'Project', DisplayName: 'Prosjekt', Sale: false},
+        {EntityType: 'Department', DisplayName: 'Avdeling', Sale: false},
+        {EntityType: 'Employee', DisplayName: 'Ansatt', Sale: false},
     ];
 
     public translateSerie(serie) {

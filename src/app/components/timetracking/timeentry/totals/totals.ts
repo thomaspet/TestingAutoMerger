@@ -1,4 +1,4 @@
-import {Component} from '@angular/core';
+﻿import {Component} from '@angular/core';
 import {TimeSheet, TimesheetService} from '../../../../services/timetracking/timesheetService';
 import {WorkerService, IFilter} from '../../../../services/timetracking/workerService';
 import {ICol, Column, ColumnType} from '../../../common/utils/editable/interfaces';
@@ -33,7 +33,7 @@ export class RegtimeTotals {
         private timesheetService: TimesheetService,
         private errorService: ErrorService
     ) {
-        this.filters = workerService.getIntervalItems();
+        this.filters = workerService.getFilterIntervalItems();
     }
 
     public activate(ts: TimeSheet, filter?: IFilter) {

@@ -1663,8 +1663,8 @@ export class EmployeeCategoryLink extends UniEntity {
     public StatusCode: number;
     public UpdatedAt: Date;
     public UpdatedBy: string;
-    public Employee: Employee;
     public EmployeeCategory: EmployeeCategory;
+    public Employee: Employee;
     public CustomFields: any;
 }
 

@@ -104,6 +104,15 @@ export class AMeldingView implements OnInit {
                 }
             },
             {
+                label: 'Hent tilbakemeldingsfil',
+                action: () => {
+                    this.getFeedbackFile();
+                },
+                disabled: () => {
+                    return this.currentAMelding ? (this.currentAMelding.status <= 2 ? true : false) : true;
+                }
+            },
+            {
                 label: 'Tilleggsopplysninger',
                 action: () => this.router.navigate(['salary/supplements'])
             }
@@ -184,6 +193,26 @@ export class AMeldingView implements OnInit {
                     a.remove();
 
                 }, err => this.errorService.handle(err));
+        }
+    }
+
+    public getFeedbackFile() {
+        if (this.currentAMelding) {
+            this._ameldingService.getAmeldingFeedbackFile(this.currentAMelding.ID)
+                .subscribe(feedbackfile => {
+                    var a = document.createElement('a');
+                    var dataURI = 'data:text/xml;base64,' + btoa(feedbackfile);
+                    a.href = dataURI;
+                    let prd: string = this.currentPeriod < 10 ? '0' + this.currentPeriod.toString() : this.currentPeriod.toString();
+                    a['download'] = `tilbakemelding_${prd}_${this.currentAMelding.ID}.xml`;
+
+                    var e = document.createEvent('MouseEvents');
+                    e.initMouseEvent('click', true, false, document.defaultView, 0, 0, 0, 0, 0, false, false, false, false, 0 , null);
+
+                    a.dispatchEvent(e);
+                    a.remove();
+                },
+                err => this.errorService.handle(err));
         }
     }
 

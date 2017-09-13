@@ -430,12 +430,7 @@ export class EmployeeDetails extends UniView implements OnDestroy {
                 ? Observable.of(ConfirmActions.REJECT)
                 : this.modalService.openUnsavedChangesModal().onClose)
             .do(action => this.handleSavingOnNavigation(action, '' + this.cacheKey))
-            .map(action => action !== ConfirmActions.CANCEL)
-            .do(canDeactivate => {
-                if (!canDeactivate) {
-                    this.updateTabStrip(this.employee);
-                }
-            });
+            .map(action => action !== ConfirmActions.CANCEL);
     }
 
     private handleSavingOnNavigation(action: ConfirmActions, cacheKey: string) {

@@ -33,7 +33,8 @@ export class UniHttp {
     private lastReAuthentication: Date;
     private reAuthenticated$: EventEmitter<any> = new EventEmitter();
 
-    constructor(public http: Http, private authService: AuthService) {
+    // AuthService is used by BizHttp for caching, don't remove!
+    constructor(public http: Http, public authService: AuthService) {
         var headers = AppConfig.DEFAULT_HEADERS;
         this.headers = new Headers();
         this.appendHeaders(headers);
@@ -185,15 +186,15 @@ export class UniHttp {
 
     public send(request: IUniHttpRequest = {}, searchParams: URLSearchParams = null): Observable<any> {
         let token = this.authService.getToken();
-        let activeCompany = this.authService.getActiveCompany();
+        let companyKey = this.authService.getCompanyKey();
         const year = localStorage.getItem('activeFinancialYear');
 
         if (token) {
             this.headers.set('Authorization', 'Bearer ' + token);
         }
 
-        if (activeCompany) {
-            this.headers.set('CompanyKey', activeCompany.Key);
+        if (companyKey) {
+            this.headers.set('CompanyKey', companyKey);
         }
 
         if (year) {
