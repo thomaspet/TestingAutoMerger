@@ -205,7 +205,7 @@ export class ReportService extends BizHttp<string> {
     private addLogoUrl() {
         let logoKeyParam = new CustomReportDefinitionParameter();
         logoKeyParam.Name = 'LogoUrl';
-        logoKeyParam.value = AppConfig.BASE_URL_FILES + 'api/image/?key=' + this.authService.getCompanyKey() + '&id=logo';
+        logoKeyParam.value = AppConfig.BASE_URL_FILES + 'api/image/?key=' + this.http.authService.getCompanyKey() + '&id=logo';
         this.report.parameters.push(logoKeyParam);
     }
 }

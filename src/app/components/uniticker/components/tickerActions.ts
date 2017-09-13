@@ -28,9 +28,9 @@ export class UniTickerActions {
                 let actionOverride = this.actionOverrides.find(x => action.Code === x.Code);
 
                 if (action.NeedsActionOverride && !actionOverride) {
-                    console.log(`Action ${action.Code} needs an ActionOverride to function correctly, and that is not specified`);
+                    // console.log(`Action ${action.Code} needs an ActionOverride to function correctly, and that is not specified`);
                 } else if (action.Type === 'action' && !actionOverride) {
-                    console.log(`Action ${action.Code} not available because of missing action override`);
+                    // console.log(`Action ${action.Code} not available because of missing action override`);
                 } else {
                     if (this.ticker.Type === 'table' && action.DisplayInActionBar && action.DisplayForSubTickers) {
                         this.contextmenu.push({

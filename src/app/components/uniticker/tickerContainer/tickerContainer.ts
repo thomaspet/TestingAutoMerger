@@ -20,7 +20,6 @@ export class UniTickerContainer {
     @Input() private showActions: boolean;
     @Input() private showFilters: boolean = true;
     @Input() private useUniTableFilter: boolean = false;
-    @Input() private showFiltersAsNavbar: boolean = false;
     @Input() private showSubTickers: boolean = false;
     @Input() private actionOverrides: Array<ITickerActionOverride> = [];
     @Input() private columnOverrides: Array<ITickerColumnOverride> = [];
@@ -47,7 +46,7 @@ export class UniTickerContainer {
             this.yearService.getActiveYear()
                 .subscribe(activeyear => {
                     this.currentAccountingYear = activeyear.toString();
-                    
+
                     this.expressionFilters = [];
                     this.expressionFilters.push({
                         Expression: 'currentuserid',

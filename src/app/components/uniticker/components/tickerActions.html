@@ -1,14 +1,12 @@
-<span *ngIf="!isSubTicker">
-    <div class="menu-container">
-        <a *ngFor="let action of actions"
-            (click)="onActionClicked(action, $event)"
-            [hidden]="action.DisplayInActionBar != null && !action.DisplayInActionBar">
-            {{action.Name}}
-        </a>
-    </div>
-</span>
-<span *ngIf="isSubTicker">
-    <uni-context-menu *ngIf="contextmenu"
+<div class="ticker-horizontal-menu" *ngIf="!isSubTicker; else contextMenuElement">
+    <a *ngFor="let action of actions"
+        (click)="onActionClicked(action, $event)"
+        [hidden]="action.DisplayInActionBar != null && !action.DisplayInActionBar">
+        {{action.Name}}
+    </a>
+</div>
+<ng-template #contextMenuElement>
+    <uni-context-menu *ngIf="contextmenu" class="ticker-context-menu"
         [actions]="contextmenu">
     </uni-context-menu>
-</span>
+</ng-template>

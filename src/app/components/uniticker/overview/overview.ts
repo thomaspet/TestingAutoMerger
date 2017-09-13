@@ -42,27 +42,32 @@ export class UniTickerOverview {
          }
     ];
 
-    constructor(private tabService: TabService,
+    constructor(
+        private tabService: TabService,
         private uniTickerService: UniTickerService,
         private router: Router,
         private route: ActivatedRoute,
         private pageStateService: PageStateService,
         private location: Location,
-        private cdr: ChangeDetectorRef) {
+        private cdr: ChangeDetectorRef
+    ) {
 
-        this.tabService.addTab({ name: 'Oversikt', url: '/tickers/overview', moduleID: UniModules.UniTicker, active: true });
+        this.tabService.addTab({
+            name: 'Oversikt',
+            url: '/tickers/overview',
+            moduleID: UniModules.UniTicker,
+            active: true
+        });
 
         this.route.params.subscribe((params) => {
             this.setupView(params['code']);
         });
     }
 
-    public ngOnInit() {
 
-    }
-
-    private onUrlChanged() {
+    public onUrlChanged() {
         let url = this.location.path(false);
+        console.log('onUrlChanged', url);
 
         this.updateTabService(url);
 
@@ -94,11 +99,11 @@ export class UniTickerOverview {
 
     private updateTabService(url: string) {
         this.tabService.addTab({
-                name: this.selectedTicker ? 'Utvalg: ' + this.selectedTicker.Name : 'Utvalg',
-                url: url,
-                moduleID: UniModules.UniTicker,
-                active: true
-            });
+            name: this.selectedTicker ? `Oversikt: ${this.selectedTicker.Name}` : 'Oversikt',
+            url: url,
+            moduleID: UniModules.UniTicker,
+            active: true
+        });
     }
 
     private setupView(selectedTickerCode: string = null) {
@@ -147,7 +152,7 @@ export class UniTickerOverview {
     }
 
     private showTicker(selectedTickerCode: string) {
-        this.selectedTicker = _.cloneDeep(this.tickers.find(x => x.Code === selectedTickerCode));
+        this.selectedTicker = this.tickers.find(x => x.Code === selectedTickerCode);
 
         let url = this.location.path(false);
         this.updateTabService(url);

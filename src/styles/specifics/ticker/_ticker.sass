@@ -1,44 +1,9 @@
 uni-ticker
     font-size: .9rem
 
-    .ticket-container > &
-        @extend %query-arrows-out
-        &:before
-            border-left-color: $uni-color-scale3
-        &:after
-            border-left-color: $uni-color-negative
-
-        & > section
-            @extend %query-arrows-in
-            &:before, &:after
-                margin-top: -.45rem
-
-    .filter-info
-        border: pxToRem(1) solid $uni-color-scale6
-        border-radius: pxToRem(3)
-        padding: .3rem 3rem .3rem 1rem
-        width: calc(100vw - 26.1rem)
-        background: #fff
-        position: fixed // Because we want to keep the parent relative (for the arrows), absolute doesn't work here.
-        left: 11rem
-        margin-top: -3.333rem
-        font-size: 1rem
-        background-image: unicon-search($uni-color-scale9)
-        background-repeat: no-repeat
-        background-position: center right 1rem
-        background-size: 1rem auto
-        display: none // hide for now - this is not used now, so it just takes up a lot of space in the top
-
-    .ticker-data
-        margin-top: 1.5rem
-        border: pxToRem(1) solid $uni-color-scale6
-        border-radius: pxToRem(7)
-
-    .menu-container
-        background: #d4dfee // $uni-color-scale9 (should be replaced with uni-color?)
-        border-bottom: pxToRem(1) solid $uni-color-scale6
-        padding: 0 1rem
-        border-radius: pxToRem(7) pxToRem(7) 0 0
+    .ticker-horizontal-menu
+        padding-left: .25rem
+        border-radius: pxToRem(3) pxToRem(3) 0 0
         height: 2.25rem
         line-height: 2.25rem
 
@@ -46,27 +11,38 @@ uni-ticker
             margin-right: 2rem
             cursor: pointer
 
-    uni-context-menu
-        float: right
-        margin-top: 2rem
+    .ticker-data
+        border-radius: pxToRem(3)
 
-        .contextmenu_button[type=button]
-            background-color: transparent
-            border-width: 0
 
     .data-container
         background-color: white
         height: calc(100vh - #{pxToRem(220)} - 2.35rem)
         border-radius: 0 0 pxToRem(7) pxToRem(7)
-        padding: 1rem 1rem 0rem
         box-sizing: border-box
         overflow-y: auto
 
     uni-table
         font-size: .9rem
 
+        th, td
+            border-left: none
         th
+            border-bottom: none
+            background: mix($uni-color-scale9, $uni-color-negative, 60%)
+
+        tr:nth-of-type(even)
+            background: $uni-color-negative
+        tr:nth-of-type(odd)
             background: #fff
+
+        tr[aria-selected]:not([aria-selected=false]),
+        tr:focus
+            background: #d4dfee !important
+            color: $uni-color-positive !important
+            td a
+                color: $uni-color-positive !important
+
 
 uni-ticker-detail-view
     font-size: .8rem
@@ -104,56 +80,94 @@ uni-ticker-detail-view
             flex-basis: 40%
 
 uni-sub-ticker-container
-    @extend %query-arrows-in
-
-    .sub-ticker-header
-        @extend %ticker-headers
-        opacity: 1
-        transition: opacity 300ms ease
-        margin-left: 1rem
-
-    &.expanded .sub-ticker-header
-        opacity: 0
-
     .sub-ticker-container
-        height: calc(100vh - #{pxToRem(220)})
         display: inline-block
         width: 100%
         font-weight: 300
+        margin-top: 2.25rem
         margin-left: 0
         background-color: #d4dfee // $uni-color-scale9 (should be replace by uni-color?)
-        border: pxToRem(1) solid $uni-color-scale6
-        border-radius: pxToRem(7) 0 0 pxToRem(7)
-        border-right-width: 0
-        overflow-y: auto
+        overflow-y: visible
+        position: relative
 
-    .sub-ticker-container-expanded
-        padding: .5rem 2rem
+        uni-ticker
+            margin-bottom: 1rem
 
-    .sub-ticker-empty
-        width: 5rem
-        padding-left: 1rem
-        padding-top: 1rem
-        padding-bottom: 1rem
-        font-weight: 600
+            .ticker-header
+                height: 2.25rem
+                background: $uni-color-toolbar
+                padding: 0 4rem 0 2rem
 
-    .sub-ticker-summary
-        overflow: hidden
-        width: 9rem
-        padding: 0 0 0 1rem
+                span.ticker-title
+                    color: #fff
+                    line-height: 2.25rem
+                    font-size: 1.15rem
 
-        dl
-            font-size: .8rem
+                uni-ticker-actions
+                    display: block
+                    float: right
+                    width: 2rem
 
-        dd
-            margin-top: .5rem
-            margin-left: 0
-            white-space: nowrap
-            font-weight: 600
+                // .ticker-context-menu
+                //     position: relative
+                //     right: 0
+                //     top: 0
 
-        dt
-            font-weight: 300
-            white-space: nowrap
+                .contextmenu_button[type=button]
+                    border: none
+                    height: 2.25rem
+                    top: 0
+                    background: unicon-more($uni-color-negative) center no-repeat
+                    background-size: 1rem
+                    &:hover
+                        background: unicon-more($uni-color-positive) center no-repeat
+                        background-size: 1rem
+
+        .closeBtn
+            @extend %hideText
+            position: absolute
+            top: 0
+            right: 1rem
+            height: 2.25rem
+            width: 2rem
+            margin: 0
+            background: unicon-close($uni-color-negative) center no-repeat
+            background-size: .8rem
+            &:hover
+                background: unicon-close($uni-color-positive) center no-repeat
+                background-size: .8rem
+
+
+        .ticker-data
+            padding: 1rem 1rem 2rem 1rem
+
+    // .sub-ticker-container-expanded
+        // padding: .5rem 2rem
+
+    // .sub-ticker-empty
+    //     width: 5rem
+    //     padding-left: 1rem
+    //     padding-top: 1rem
+    //     padding-bottom: 1rem
+    //     font-weight: 600
+
+    // .sub-ticker-summary
+    //     overflow: hidden
+    //     width: 9rem
+    //     padding: 0 0 0 1rem
+
+    //     dl
+    //         font-size: .8rem
+
+    //     dd
+    //         margin-top: .5rem
+    //         margin-left: 0
+    //         white-space: nowrap
+    //         font-weight: 600
+
+    //     dt
+    //         font-weight: 300
+    //         white-space: nowrap
 
     uni-ticker
         width: 100%
@@ -168,9 +182,10 @@ uni-sub-ticker-container
 
     h3
         @extend h2
+        margin-top: 0
         font-weight: 400
         margin-bottom: .5rem
-        width: calc(100% - 3rem)
+        width: calc(100% - 5rem)
         float: left
 
     .sub-ticker-container .data-container

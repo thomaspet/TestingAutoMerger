@@ -1,19 +1,18 @@
 <section *ngIf="ticker && prefetchDataLoaded && canShowTicker">
-    <section class="filter-info" *ngIf="selectedFilter">
-        Filter: {{selectedFilter.Name}} {{getFilterText()}}
+    <section class="ticker-header" [ngClass]="{'sub-ticker': !!parentModel}">
+        <span class="ticker-title" *ngIf="header?.length">{{header}}</span>
+        <uni-ticker-actions
+            *ngIf="ticker.Actions?.length || (ticker.UseParentTickerActions && parentTicker?.Actions?.length)"
+            [ticker]="ticker"
+            [model]="model"
+            [actions]="getTickerActions()"
+            [actionOverrides]="actionOverrides"
+            (executeAction)="onExecuteAction($event)"
+            [isSubTicker]="!!parentModel">
+        </uni-ticker-actions>
     </section>
+
     <section class="ticker-data">
-        <h3 *ngIf="header && header.length > 0">{{header}}</h3>
-        <section *ngIf="(ticker.Actions && ticker.Actions.length > 0) || (ticker.UseParentTickerActions && parentTicker && parentTicker.Actions && parentTicker.Actions.length > 0)">
-            <uni-ticker-actions
-                [ticker]="ticker"
-                [model]="model"
-                [actions]="getTickerActions()"
-                [actionOverrides]="actionOverrides"
-                (executeAction)="onExecuteAction($event)"
-                [isSubTicker]="!!parentModel">
-            </uni-ticker-actions>
-        </section>
         <section class="data-container" (click)="letUniTableHandleIsOwnClicks($event)">
             <uni-table
                 *ngIf="ticker.Type === 'table'"

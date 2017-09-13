@@ -1,5 +1,5 @@
 <uni-ticker-filters-nav-bar
-    *ngIf="ticker && showFiltersAsNavbar"
+    *ngIf="ticker?.Filters"
     [ticker]="ticker"
     [filters]="ticker.Filters"
     [selectedFilter]="selectedFilter"
@@ -7,8 +7,8 @@
     (filterSelected)="onFilterSelected($event)">
 </uni-ticker-filters-nav-bar>
 
-<section *ngIf="ticker" class="ticket-container">
-    <uni-ticker-filters
+<section *ngIf="ticker" class="ticker-container">
+    <!-- <uni-ticker-filters
         *ngIf="showFilters"
         (click)="setExpanded('filter', true)"
         (close)="setExpanded('ticker')"
@@ -21,7 +21,8 @@
         [expanded]="expanded === 'filter'"
         [expressionFilters]="expressionFilters"
         [class]="expanded === 'filter' ? 'expanded' : ''">
-    </uni-ticker-filters>
+    </uni-ticker-filters> -->
+
     <uni-ticker
         (click)="setExpanded('ticker')"
         (rowSelected)="onRowSelected($event)"
@@ -36,7 +37,7 @@
         [columnOverrides]="columnOverrides">
     </uni-ticker>
     <uni-sub-ticker-container
-        *ngIf="showSubTickers && ticker.SubTickers && ticker.SubTickers.length > 0"
+        *ngIf="showSubTickers && ticker?.SubTickers?.length"
         (click)="setExpanded('subticker', true)"
         (close)="setExpanded('ticker')"
         [parentModel]="selectedRow"

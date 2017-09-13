@@ -1,25 +1,36 @@
-import {Component, ViewChild, Input, Output, EventEmitter, SimpleChanges, ChangeDetectionStrategy, ChangeDetectorRef} from '@angular/core';
-import {Ticker, TickerFilter, TickerFieldFilter, UniTickerService, IExpressionFilterValue} from '../../../services/common/uniTickerService';
-import {ApiModel} from '../../../services/common/apiModelService';
+import {
+    Component,
+    Input,
+    Output,
+    OnChanges,
+    EventEmitter,
+    SimpleChanges,
+    ChangeDetectionStrategy,
+    ChangeDetectorRef
+} from '@angular/core';
+import {
+    Ticker,
+    TickerFilter,
+    TickerFieldFilter,
+    UniTickerService,
+    IExpressionFilterValue
+} from '../../../services/common/uniTickerService';
 import {StatusService, StatisticsService, ErrorService} from '../../../services/services';
-
-declare const _; // lodash
 
 @Component({
     selector: 'uni-ticker-filters-nav-bar',
     templateUrl: './tickerFiltersNavBar.html',
     changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class UniTickerFiltersNavBar {
+export class UniTickerFiltersNavBar implements OnChanges {
     @Input() private filters: Array<TickerFilter>;
     @Input() private ticker: Ticker;
-    @Input() private expanded: boolean = false;
     @Input() private selectedFilter: TickerFilter;
     @Input() private expressionFilters: Array<IExpressionFilterValue> = [];
 
-    @Output() filterSelected: EventEmitter<TickerFilter> = new EventEmitter<TickerFilter>();
+    @Output()
+    public filterSelected: EventEmitter<TickerFilter> = new EventEmitter();
 
-    private selectedMainModel: ApiModel;
     private operators: Array<any>;
     private didLoadFilterCounters: boolean = false;
 
@@ -28,30 +39,19 @@ export class UniTickerFiltersNavBar {
         private statusService: StatusService,
         private statisticsService: StatisticsService,
         private errorService: ErrorService,
-        private cdr: ChangeDetectorRef) {
+        private cdr: ChangeDetectorRef
+    ) {
         this.operators = uniTickerService.getOperators();
     }
 
-    public ngOnInit() {
-
-    }
-
-    public onFilterSelected(filter: TickerFilter, event) {
-        this.filters.forEach(x => {
-            x.IsActive = false;
-        });
-
-        filter.IsActive = true;
-
+    public onFilterSelected(filter: TickerFilter) {
         this.selectedFilter = filter;
-
         this.filterSelected.emit(filter);
 
         this.cdr.markForCheck();
-        this.stopPropagation(event);
     }
 
-    private ngOnChanges(changes: SimpleChanges) {
+    public ngOnChanges(changes: SimpleChanges) {
         if (changes['ticker'] && this.didLoadFilterCounters) {
             // if ticker changed, we need to reload the counters
             if (changes['ticker'].previousValue && changes['ticker'].previousValue.Code !== this.ticker.Code) {
