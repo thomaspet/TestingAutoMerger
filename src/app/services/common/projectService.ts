@@ -48,4 +48,39 @@ export class ProjectService extends BizHttp<Project> {
             .withEndPoint(route)
             .send();
     }
+
+    public FindProjects<T>(params: URLSearchParams, baseFilter?: string) {
+        // use default orderby for service if no orderby is specified
+        if (!params.get('orderby') && this.DefaultOrderBy !== null) {
+            params.set('orderby', this.DefaultOrderBy);
+        }
+
+        // use default expands for service if no expand is specified
+        if (!params.get('expand') && this.defaultExpand) {
+            params.set('expand', this.defaultExpand.join());
+        }
+
+        // Apply basefilter?
+        var userFilter = params.get('filter');
+        if (baseFilter) {
+            params.set('filter', userFilter ? userFilter + ' and ( ' + baseFilter + ' )' : baseFilter);
+        }
+
+        if (userFilter === '' && (!baseFilter)) {
+            params.delete('filter');
+        }
+
+        var result = this.http
+            .usingBusinessDomain()
+            .asGET()
+            .withEndPoint(this.relativeURL)
+            .send({}, <any>params);
+
+        // Restore user-defined-filter
+        if (baseFilter) {
+            params.set('filter', userFilter);
+        }
+
+        return result;
+    }    
 }

@@ -18,28 +18,28 @@
             <canvas #chartElement2> </canvas>
         </section>
 
-        <section>
-            <section class="project-overview-info-tiles">
+        <section class="project-overview-info-tiles">
+            <section>
                 <p>Loggede timer:</p>
-                <h3>{{ projectHoursTotal }}</h3>
+                <h3>{{ projectHoursTotal | hours }}</h3>
             </section>
 
-            <section class="project-overview-info-tiles">
+            <section>
                 <p>Fakturerte timer:</p>
                 <h3>{{ projectHoursInvoiced }}</h3>
             </section>
 
-            <section class="project-overview-info-tiles">
+            <section>
                 <p>Forventet resultat:</p>
                 <h3>{{ projectExpectedResult }}</h3>
             </section>
 
-            <section class="project-overview-info-tiles">
+            <section>
                 <p>Resultat nå:</p>
                 <h3>{{ currentResult }}</h3>
             </section>
 
-            <section class="project-overview-info-tiles">
+            <section>
                 <p>Gjennstående oppgaver</p>
                 <h3>{{ remainingTasks }}</h3>
             </section>

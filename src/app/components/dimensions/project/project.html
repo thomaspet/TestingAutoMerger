@@ -6,7 +6,14 @@
 <uni-tabs [routes]="childRoutes" [queryParamsHandling]="'preserve'" class="horizontal_nav"></uni-tabs>
 
 <section class="project-list">
-    <uni-table
+
+    <header class="mini-nav">
+        <ul>
+            <li (click)="onFilterClick(item)" *ngFor="let item of filters" [class.is-active]="item.isActive">{{item.label}}</li>
+        </ul>
+    </header>    
+
+    <uni-table [attr.aria-busy]="busy"
         [resource]="lookupFunction"
         [config]="tableConfig"
         (rowSelected)="onRowSelected($event)"

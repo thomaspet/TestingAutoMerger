@@ -44,8 +44,10 @@ export class ProjectEditmode {
     private customerExpandOptions: Array<string> = ['Info.Name'];
     private STATUS = [
         { ID: 42201, Name: 'Registrert' },
-        { ID: 2, Name: 'Aktivt' },
-        { ID: 3, Name: 'Avsluttet'}
+        { ID: 42202, Name: 'Tilbudsfase' },
+        { ID: 42203, Name: 'Pågår' },
+        { ID: 42204, Name: 'Avsluttet' },
+        { ID: 42205, Name: 'Slettet' },
     ];
 
     private tableConfig: UniTableConfig;
@@ -229,7 +231,8 @@ export class ProjectEditmode {
                 Property: 'StatusCode',
                 Section: 0,
                 FieldSet: 1,
-                FieldSetColumn: 1
+                FieldSetColumn: 1,
+                ReadOnly: true
             },
             <any>{
                 FieldType: FieldType.TEXT,
