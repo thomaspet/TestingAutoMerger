@@ -4,6 +4,7 @@ import {UniHttp} from '../../../../framework/core/http/http';
 import {SalaryBalance, WageType, Employee, Supplier, SalBalType, SalBalDrawType} from '../../../unientities';
 import {Observable} from 'rxjs/Observable';
 import {FieldType, UniValidationOperators} from '../../../../framework/ui/uniform/index';
+import {UniTableColumnType} from '../../../../framework/ui/unitable/index';
 import {SalaryBalanceLineService} from './salaryBalanceLineService';
 import {ErrorService} from '../../commonServicesModule';
 import {URLSearchParams} from '@angular/http';
@@ -48,6 +49,10 @@ export class SalarybalanceService extends BizHttp<SalaryBalance> {
             salarybalance.ID = 0;
         } else {
             refreshLines = true;
+        }
+
+        if(!salarybalance.KID) {
+            salarybalance.KID = '0';
         }
 
         let saver = salarybalance.ID
@@ -275,7 +280,10 @@ export class SalarybalanceService extends BizHttp<SalaryBalance> {
                         FieldSet: 0,
                         Section: 0,
                         Placeholder: null,
-                        Options: null,
+                        Options: {
+                            format: 'money',
+                            decimalLength: 2
+                        },
                         LineBreak: null,
                         Combo: null,
                         Sectionheader: ''
@@ -295,7 +303,10 @@ export class SalarybalanceService extends BizHttp<SalaryBalance> {
                         FieldSet: 0,
                         Section: 0,
                         Placeholder: null,
-                        Options: null,
+                        Options: {
+                            format: 'money',
+                            decimalLength: 2
+                        },
                         LineBreak: null,
                         Combo: null,
                         Sectionheader: ''
