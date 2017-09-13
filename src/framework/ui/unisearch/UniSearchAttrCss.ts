@@ -64,7 +64,7 @@ table tr th {
 table tr th {
     border-left: 1px solid #bbb;
     text-align: left;
-    font-weight: bold;
+    font-weight: 600;
     padding: 2px 6px;
 }
 table tr td {
