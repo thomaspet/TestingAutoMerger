@@ -311,6 +311,7 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges 
                 amountCol, rateCol, sumCol, payoutCol, projectCol, departmentCol, fileCol
             ])
             .setColumnMenuVisible(true)
+            .setDefaultOrderBy('WageTypeNumber', 1)
             .setDeleteButton(this.payrollRun ? (this.payrollRun.StatusCode < 1 ? this.deleteButton : false) : false)
             .setPageable(false)
             .setChangeCallback((event) => {

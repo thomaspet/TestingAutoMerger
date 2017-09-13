@@ -143,6 +143,7 @@ export class SalaryTransactionSelectionList extends UniView implements AfterView
 
         this.salarytransSelectionTableConfig = new UniTableConfig('salary.salarytrans.selectionList', false)
             .setColumnMenuVisible(false)
+            .setDefaultOrderBy('EmployeeNumber', 1)
             .setColumns([
                 employeenumberCol,
                 nameCol,
