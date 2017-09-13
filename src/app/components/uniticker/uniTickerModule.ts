@@ -17,7 +17,6 @@ import {ReportsModule} from '../reports/reportsModule';
 import {routes as UniTickerRoutes} from './uniTickerRoutes';
 import {UniTickers} from './uniTickers';
 import {UniTickerOverview} from './overview/overview';
-import {UniTickerList} from './list/tickerList';
 import {UniTicker} from './ticker/ticker';
 import {UniTickerWrapper} from './tickerWrapper/tickerWrapper';
 import {UniTickerContainer} from './tickerContainer/tickerContainer';
@@ -51,7 +50,6 @@ import {UniTickerFieldFilterEditorSimple} from './components/tickerFieldFilterEd
     declarations: [
         UniTickers,
         UniTickerOverview,
-        UniTickerList,
         UniTickerContainer,
         UniTicker,
         UniTickerWrapper,
@@ -71,7 +69,6 @@ import {UniTickerFieldFilterEditorSimple} from './components/tickerFieldFilterEd
     exports: [
         UniTickers,
         UniTickerOverview,
-        UniTickerList,
         UniTickerContainer,
         UniTicker,
         UniTickerWrapper,
