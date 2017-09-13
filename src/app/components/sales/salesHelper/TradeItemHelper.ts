@@ -70,10 +70,16 @@ export class TradeItemHelper  {
             Unit: '',
             Dimensions: {
                 ID: 0,
-                Project: mainEntity.Customer && mainEntity.Customer.Dimensions ? mainEntity.Customer.Dimensions.Project : null,
-                ProjectID: mainEntity.Customer && mainEntity.Customer.Dimensions ? mainEntity.Customer.Dimensions.ProjectID : null,
-                Department: mainEntity.Customer && mainEntity.Customer.Dimensions ? mainEntity.Customer.Dimensions.Department : null,
-                DepartmentID: mainEntity.Customer && mainEntity.Customer.Dimensions ? mainEntity.Customer.Dimensions.DepartmentID : null
+                Project: (mainEntity.DefaultDimensions ? mainEntity.DefaultDimensions.Project : null)
+                    || (mainEntity.Customer && mainEntity.Customer.Dimensions
+                        ? mainEntity.Customer.Dimensions.Project : null),
+                ProjectID: (mainEntity.DefaultDimensions ? mainEntity.DefaultDimensions.ProjectID : null)
+                    || (mainEntity.Customer && mainEntity.Customer.Dimensions
+                        ? mainEntity.Customer.Dimensions.ProjectID : null),
+                Department: mainEntity.Customer && mainEntity.Customer.Dimensions 
+                    ? mainEntity.Customer.Dimensions.Department : null,
+                DepartmentID: mainEntity.Customer && mainEntity.Customer.Dimensions 
+                    ? mainEntity.Customer.Dimensions.DepartmentID : null
             },
             NumberOfItems: null,
             PriceExVat: null,

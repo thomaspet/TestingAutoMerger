@@ -84,8 +84,7 @@ class CustomerOrderExt extends CustomerOrder {
     templateUrl: './orderDetails.html'
 })
 export class OrderDetails {
-    @ViewChild(OrderToInvoiceModal)
-    private oti: OrderToInvoiceModal;
+    @ViewChild(OrderToInvoiceModal) private oti: OrderToInvoiceModal;
     @ViewChild(TofHead) private tofHead: TofHead;
     @ViewChild(TradeItemTable) private tradeItemTable: TradeItemTable;
 
@@ -114,6 +113,7 @@ export class OrderDetails {
     private projects: Project[];
     private selectConfig: any;
     private numberSeries: NumberSeries[];
+    private projectID: number;
 
     private customerExpandOptions: string[] = [
         'DeliveryTerms',
@@ -220,24 +220,26 @@ export class OrderDetails {
                     this.companySettingsService.Get(1),
                     this.currencyCodeService.GetAll(null),
                     this.termsService.GetAction(null, 'get-payment-terms'),
-                    this.termsService.GetAction(null, 'get-delivery-terms')
+                    this.termsService.GetAction(null, 'get-delivery-terms'),
+                    this.projectService.GetAll(null)
                 ).subscribe(res => {
                     let order = <CustomerOrder>res[0];
                     this.companySettings = res[1];
+                    this.currencyCodes = res[2];
+                    this.paymentTerms = res[3];
+                    this.deliveryTerms = res[4];
+                    this.projects = res[5];
 
                     if (!order.CurrencyCodeID) {
                         order.CurrencyCodeID = this.companySettings.BaseCurrencyCodeID;
                         order.CurrencyExchangeRate = 1;
                     }
-
                     this.currencyCodeID = order.CurrencyCodeID;
                     this.currencyExchangeRate = order.CurrencyExchangeRate;
 
-                    this.currencyCodes = res[2];
-
-                    this.paymentTerms = res[3];
-                    this.deliveryTerms = res[4];
-
+                    this.projectID = order.DefaultDimensions && order.DefaultDimensions.ProjectID;
+                    order.DefaultDimensions.Project = this.projects.find(project => project.ID === this.projectID);
+                    
                     this.refreshOrder(order);
                     this.tofHead.focus();
                 },
@@ -255,48 +257,45 @@ export class OrderDetails {
                     ) : Observable.of(null),
                     projectID ? this.projectService.Get(projectID, null) : Observable.of(null),
                     this.numberSeriesService.GetAll(
-                        `filter=NumberSeriesType.Name eq 'Customer Order number series' and Empty eq false and Disabled eq false`,
+                        `filter=NumberSeriesType.Name eq 'Customer Order number `
+                        + `series' and Empty eq false and Disabled eq false`,
                         ['NumberSeriesType']
-                    )
+                    ),
+                    this.projectService.GetAll(null)
                 ).subscribe(
                     (res) => {
                         let order = <CustomerOrder>res[0];
                         order.OurReference = res[1].DisplayName;
-                        order.OrderDate = new LocalDate(Date());
-
                         this.companySettings = res[2];
-
+                        this.currencyCodes = res[3];
+                        this.paymentTerms = res[4];
+                        this.deliveryTerms = res[5];
                         if (res[6]) {
                             order = this.tofHelper.mapCustomerToEntity(res[6], order);
-                            
                             if (order.DeliveryTerms && order.DeliveryTerms.CreditDays) {
                                 this.setDeliveryDate(order);
                             } 
                         } else {
                             order.DeliveryDate = order.OrderDate;
                         }
-
                         if (res[7]) {
                             order.DefaultDimensions.ProjectID = res[7].ID;
+                            order.DefaultDimensions.Project = res[7];
                         }
+                        this.numberSeries = res[8].map(x => this.numberSeriesService.translateSerie(x));
+                        this.selectConfig = this.numberSeriesService.getSelectConfig(
+                            this.orderID, this.numberSeries, 'Customer Order number series'
+                        );
+                        this.projects = res[9];
+
+                        order.OrderDate = new LocalDate(Date());
 
                         if (!order.CurrencyCodeID) {
                             order.CurrencyCodeID = this.companySettings.BaseCurrencyCodeID;
                             order.CurrencyExchangeRate = 1;
                         }
-
                         this.currencyCodeID = order.CurrencyCodeID;
                         this.currencyExchangeRate = order.CurrencyExchangeRate;
-
-                        this.currencyCodes = res[3];
-
-                        this.paymentTerms = res[4];
-                        this.deliveryTerms = res[5];
-
-                        this.numberSeries = res[8].map(x => this.numberSeriesService.translateSerie(x));
-                        this.selectConfig = this.numberSeriesService.getSelectConfig(
-                            this.orderID, this.numberSeries, 'Customer Order number series'
-                        );
 
                         this.refreshOrder(order);
                     },
@@ -304,10 +303,6 @@ export class OrderDetails {
                     );
             }
         });
-        this.projectService.GetAll(null).subscribe(
-            res => this.projects = res,
-            err => this.errorService.handle(err)
-        );
     }
 
     public ngAfterViewInit() {
@@ -364,21 +359,46 @@ export class OrderDetails {
         this.updateSaveActions();
         let shouldGetCurrencyRate: boolean = false;
 
-        // update quotes currencycodeid if the customer changed
         let customerChanged: boolean = this.didCustomerChange(order);
         if (customerChanged) {
+            if (order.DeliveryTerms && order.DeliveryTerms.CreditDays) {
+                this.setDeliveryDate(order);
+            }
+
+            // new projectID if customer changed and customer has projectID, otherwise null
+            this.projectID = order.DefaultDimensions ? order.DefaultDimensions.ProjectID : null;
+
+            // update currency code in detailsForm to customer's currency code
             if (order.Customer.CurrencyCodeID) {
                 order.CurrencyCodeID = order.Customer.CurrencyCodeID;
             } else {
                 order.CurrencyCodeID = this.companySettings.BaseCurrencyCodeID;
             }
             shouldGetCurrencyRate = true;
-
-            if (order.DeliveryTerms && order.DeliveryTerms.CreditDays) {
-                this.setDeliveryDate(order);
-            }
         }
 
+        // update projects in detailsForm and tradeItemTable to selected project
+        if ((!this.projectID && order.DefaultDimensions.ProjectID)
+            || this.projectID !== order.DefaultDimensions.ProjectID) {
+            this.modalService.confirm({
+                header: `Endre prosjekt på alle varelinjer?`,
+                message: `Vil du endre til prosjektet ${this.projects.find(project => 
+                    project.ID === order.DefaultDimensions.ProjectID).Name} på alle eksisterende varelinjer?`,
+                buttonLabels: {
+                    accept: 'Ja',
+                    reject: 'Nei'
+                }
+            }).onClose.subscribe(response => {
+                let replaceItemsProject: boolean = (response === ConfirmActions.ACCEPT);
+                this.projectID = order.DefaultDimensions.ProjectID;
+                this.tradeItemTable.setDefaultProjectAndRefreshItems(this.projectID, replaceItemsProject);
+            });
+        } else {
+            this.tradeItemTable.setDefaultProjectAndRefreshItems(this.projectID, true);
+        }
+
+        // update currency code in detailsForm and tradeItemTable to selected currency code if selected
+        // or from customer
         if ((!this.currencyCodeID && order.CurrencyCodeID)
             || this.currencyCodeID !== order.CurrencyCodeID) {
             this.currencyCodeID = order.CurrencyCodeID;
@@ -546,11 +566,17 @@ export class OrderDetails {
 
     private didCustomerChange(order: CustomerOrder): boolean {
         let change: boolean;
+
+        if (!this.currentCustomer && !order.Customer) {
+            return false;
+        }
+
         if (this.currentCustomer) {
             change = order.Customer.ID !== this.currentCustomer.ID;
         } else if (order.Customer && order.Customer.ID) {
             change = true;
         }
+
         this.currentCustomer = order.Customer;
         return change;
     }
@@ -558,9 +584,11 @@ export class OrderDetails {
     private setDeliveryDate(order: CustomerOrder) {
         if (order.DeliveryTerms && order.DeliveryTerms.CreditDays) {
             order.DeliveryDate = order.OrderDate;
+
             if (order.DeliveryTerms.CreditDays < 0) {
                 order.DeliveryDate = new LocalDate(moment(order.OrderDate).endOf('month').toDate());
             }
+            
             order.DeliveryDate = new LocalDate(
                 moment(order.DeliveryDate).add(Math.abs(order.DeliveryTerms.CreditDays), 'days').toDate()
             );

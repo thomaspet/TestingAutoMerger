@@ -70,7 +70,6 @@ declare var _;
 })
 export class QuoteDetails {
     @ViewChild(TofHead) private tofHead: TofHead;
-
     @ViewChild(TradeItemTable) private tradeItemTable: TradeItemTable;
 
     @Input() public quoteID: number;
@@ -103,6 +102,7 @@ export class QuoteDetails {
     private selectedNumberSeriesTaskID: number;
     private selectConfig: any;
     private numberSeries: NumberSeries[];
+    private projectID: number;
 
     private customerExpandOptions: string[] = [
         'Info',
@@ -202,24 +202,25 @@ export class QuoteDetails {
                     this.companySettingsService.Get(1),
                     this.currencyCodeService.GetAll(null),
                     this.termsService.GetAction(null, 'get-payment-terms'),
-                    this.termsService.GetAction(null, 'get-delivery-terms')
+                    this.termsService.GetAction(null, 'get-delivery-terms'),
+                    this.projectService.GetAll(null)
                 ).subscribe((res) => {
                     let quote = res[0];
-
                     this.companySettings = res[1];
+                    this.currencyCodes = res[2];
+                    this.paymentTerms = res[3];
+                    this.deliveryTerms = res[4];
+                    this.projects = res[5];
 
                     if (!quote.CurrencyCodeID) {
                         quote.CurrencyCodeID = this.companySettings.BaseCurrencyCodeID;
                         quote.CurrencyExchangeRate = 1;
                     }
-
                     this.currencyCodeID = quote.CurrencyCodeID;
                     this.currencyExchangeRate = quote.CurrencyExchangeRate;
 
-                    this.currencyCodes = res[2];
-
-                    this.paymentTerms = res[3];
-                    this.deliveryTerms = res[4];
+                    this.projectID = quote.DefaultDimensions && quote.DefaultDimensions.ProjectID;
+                    quote.DefaultDimensions.Project = this.projects.find(project => project.ID === this.projectID);
 
                     this.refreshQuote(quote);
                 });
@@ -235,14 +236,18 @@ export class QuoteDetails {
                         customerID, this.customerExpandOptions
                     ) : Observable.of(null),
                     projectID ? this.projectService.Get(projectID, null) : Observable.of(null),
-                    this.numberSeriesService.GetAll(`filter=NumberSeriesType.Name eq 'Customer Quote number series' and Empty eq false and Disabled eq false`, ['NumberSeriesType'])
+                    this.numberSeriesService.GetAll(`filter=NumberSeriesType.Name eq 'Customer Quote number `
+                    + `series' and Empty eq false and Disabled eq false`, 
+                    ['NumberSeriesType']),
+                    this.projectService.GetAll(null)
                 ).subscribe(
                     (res) => {
                         let quote = <CustomerQuote>res[0];
                         quote.OurReference = res[1].DisplayName;
-                        quote.QuoteDate = new LocalDate(Date());
-                        quote.ValidUntilDate = null;
-
+                        this.companySettings = res[2];
+                        this.currencyCodes = res[3];
+                        this.paymentTerms = res[4];
+                        this.deliveryTerms = res[5];
                         if (res[6]) {
                             quote = this.tofHelper.mapCustomerToEntity(res[6], quote);
                             
@@ -252,30 +257,24 @@ export class QuoteDetails {
                         } else {
                             quote.DeliveryDate = quote.QuoteDate;
                         }
-
                         if (res[7]) {
                             quote.DefaultDimensions.ProjectID = res[7].ID;
                         }
+                        this.numberSeries = res[8].map(x => this.numberSeriesService.translateSerie(x));
+                        this.selectConfig = this.numberSeriesService.getSelectConfig(
+                            this.quoteID, this.numberSeries, 'Customer Quote number series'
+                        );
+                        this.projects = res[9];
 
-                        this.companySettings = res[2];
+                        quote.QuoteDate = new LocalDate(Date());
+                        quote.ValidUntilDate = null;
 
                         if (!quote.CurrencyCodeID) {
                             quote.CurrencyCodeID = this.companySettings.BaseCurrencyCodeID;
                             quote.CurrencyExchangeRate = 1;
                         }
-
                         this.currencyCodeID = quote.CurrencyCodeID;
                         this.currencyExchangeRate = quote.CurrencyExchangeRate;
-
-                        this.currencyCodes = res[3];
-
-                        this.paymentTerms = res[4];
-                        this.deliveryTerms = res[5];
-
-                        this.numberSeries = res[8].map(x => this.numberSeriesService.translateSerie(x));
-                        this.selectConfig = this.numberSeriesService.getSelectConfig(
-                            this.quoteID, this.numberSeries, 'Customer Quote number series'
-                        );
 
                         this.refreshQuote(quote);
                     },
@@ -283,11 +282,6 @@ export class QuoteDetails {
                     );
             }
         });
-        this.projectService.GetAll(null).subscribe(
-            res => this.projects = res,
-            err => this.errorService.handle(err)
-        );
-
     }
 
     public ngAfterViewInit() {
@@ -360,20 +354,45 @@ export class QuoteDetails {
         this.updateSaveActions();
         let shouldGetCurrencyRate: boolean = false;
 
-        // update quotes currencycodeid if the customer changed
         if (this.didCustomerChange(quote)) {
+            if (quote.DeliveryTerms && quote.DeliveryTerms.CreditDays) {
+                this.setDeliveryDate(quote);
+            }
+
+            // new projectID if customer changed and customer has projectID, otherwise null
+            this.projectID = quote.DefaultDimensions ? quote.DefaultDimensions.ProjectID : null;
+
+            // update currency code in detailsForm to customer's currency code
             if (quote.Customer.CurrencyCodeID) {
                 quote.CurrencyCodeID = quote.Customer.CurrencyCodeID;
             } else {
                 quote.CurrencyCodeID = this.companySettings.BaseCurrencyCodeID;
             }
             shouldGetCurrencyRate = true;
-
-            if (quote.DeliveryTerms && quote.DeliveryTerms.CreditDays) {
-                this.setDeliveryDate(quote);
-            }
         }
 
+        // update projects in detailsForm and tradeItemTable to selected project
+        if ((!this.projectID && quote.DefaultDimensions.ProjectID)
+            || this.projectID !== quote.DefaultDimensions.ProjectID) {
+            this.modalService.confirm({
+                header: `Endre prosjekt på alle varelinjer?`,
+                message: `Vil du endre til prosjektet ${this.projects.find(project => 
+                    project.ID === quote.DefaultDimensions.ProjectID).Name} på alle eksisterende varelinjer?`,
+                buttonLabels: {
+                    accept: 'Ja',
+                    reject: 'Nei'
+                }
+            }).onClose.subscribe(response => {
+                let replaceItemsProject: boolean = (response === ConfirmActions.ACCEPT);
+                this.projectID = quote.DefaultDimensions.ProjectID;
+                this.tradeItemTable.setDefaultProjectAndRefreshItems(this.projectID, replaceItemsProject);
+            });
+        } else {
+            this.tradeItemTable.setDefaultProjectAndRefreshItems(this.projectID, true);
+        }
+        
+        // update currency code in detailsForm and tradeItemTable to selected currency code if selected
+        // or from customer
         if ((!this.currencyCodeID && quote.CurrencyCodeID)
             || this.currencyCodeID !== quote.CurrencyCodeID) {
             this.currencyCodeID = quote.CurrencyCodeID;
@@ -523,11 +542,17 @@ export class QuoteDetails {
 
     private didCustomerChange(quote: CustomerQuote): boolean {
         let change: boolean;
+
+        if (!this.currentCustomer && !quote.Customer) {
+            return false;
+        }
+
         if (this.currentCustomer) {
             change = quote.Customer.ID !== this.currentCustomer.ID;
         } else if (quote.Customer && quote.Customer.ID) {
             change = true;
         }
+
         this.currentCustomer = quote.Customer;
         return change;
     }
@@ -535,9 +560,11 @@ export class QuoteDetails {
     private setDeliveryDate(quote: CustomerQuote) {
         if (quote.DeliveryTerms && quote.DeliveryTerms.CreditDays) {
             quote.DeliveryDate = quote.QuoteDate;
+
             if (quote.DeliveryTerms.CreditDays < 0) {
                 quote.DeliveryDate = new LocalDate(moment(quote.QuoteDate).endOf('month').toDate());
             }
+
             quote.DeliveryDate = new LocalDate(
                 moment(quote.DeliveryDate).add(Math.abs(quote.DeliveryTerms.CreditDays), 'days').toDate()
             );

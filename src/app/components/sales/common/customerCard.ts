@@ -56,20 +56,13 @@ import {IUniSearchConfig} from '../../../../framework/ui/unisearch/index';
 export class TofCustomerCard {
     private searchInput: HTMLElement;
 
-    @ViewChild(CustomerDetailsModal)
-    public customerDetailsModal: CustomerDetailsModal;
+    @ViewChild(CustomerDetailsModal) public customerDetailsModal: CustomerDetailsModal;
 
-    @Input()
-    private readonly: boolean;
+    @Input() private readonly: boolean;
+    @Input() private entity: any;
+    @Input() private entityType: string;
 
-    @Input()
-    private entity: any;
-
-    @Input()
-    private entityType: string;
-
-    @Output()
-    private entityChange: EventEmitter<any> = new EventEmitter();
+    @Output() private entityChange: EventEmitter<any> = new EventEmitter();
 
     private ehfEnabled: boolean;
     public uniSearchConfig: IUniSearchConfig;
@@ -184,12 +177,13 @@ export class TofCustomerCard {
             this.entity.CustomerName = customer.Info.Name;
 
             const addresses = customer.Info.Addresses || [];
-            this.mapAddresses(customer, addresses);
+            this.mapAddressesToEntity(customer, addresses);
         } else {
             this.entity.CustomerID = null;
             this.entity.CustomerName = null;
         }
-        this.mapCustomerTermsToEntity(customer, this.entity);
+        this.mapProjectToEntity(customer, this.entity);
+        this.mapTermsToEntity(customer, this.entity);
 
         if (customer.Info.DefaultEmail) {
             this.entity.EmailAddress = customer.Info.DefaultEmail.EmailAddress;
@@ -214,19 +208,28 @@ export class TofCustomerCard {
         this.entityChange.emit(this.entity);
     }
 
-    private mapCustomerTermsToEntity(customer: Customer, entity: any) {
-        if (!entity.PaymentTermsID && customer.PaymentTerms) {
+    private mapProjectToEntity(customer: Customer, entity: any) {
+        if (entity.DefaultDimensions && customer.Dimensions) {
+            entity.DefaultDimensions.ProjectID = customer.Dimensions.ProjectID;
+        } else {
+            entity.DefaultDimensions.ProjectID = null;
+            entity.DefaultDimensions.Project = null;
+        }
+    }
+
+    private mapTermsToEntity(customer: Customer, entity: any) {
+        if (customer.PaymentTerms) {
             entity.PaymentTerms = customer.PaymentTerms;
             entity.PaymentTermsID = customer.PaymentTermsID;
         }
 
-        if (!entity.DeliveryTermsID && customer.DeliveryTerms) {
+        if (customer.DeliveryTerms) {
             entity.DeliveryTerms = customer.DeliveryTerms;
             entity.DeliveryTermsID = customer.DeliveryTermsID;
         }
     }
 
-    private mapAddresses(customer, addresses) {
+    private mapAddressesToEntity(customer, addresses) {
         const info = customer.Info || {};
         if (info.InvoiceAddressID) {
             let invoiceAddress = addresses.find(addr => addr.ID === info.InvoiceAddressID);
