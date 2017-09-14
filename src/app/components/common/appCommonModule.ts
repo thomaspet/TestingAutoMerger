@@ -29,7 +29,7 @@ import {AddPaymentModal, AddPaymentForm} from './modals/addPaymentModal';
 import {ModelTreeView} from './modeltreeview/modeltreeview';
 import {ModelTreeRelationNode} from './modeltreeview/relationNode';
 import {Editable} from './utils/editable/editable';
-import {IsoTimePipe, HoursPipe} from './utils/pipes';
+import {IsoTimePipe, HoursPipe, NumberPipe} from './utils/pipes';
 import {MinutesToHoursPipe} from './utils/pipes';
 import {WorkTypeSystemTypePipe} from './utils/pipes';
 import {PredefinedDescriptionList} from './predefinedDescriptions/predefinedDescriptionList';
@@ -88,6 +88,7 @@ import {routes as AppCommonRoutes} from './appCommonRoutes';
         Editable,
         IsoTimePipe,
         HoursPipe,
+        NumberPipe,
         MinutesToHoursPipe,
         WorkTypeSystemTypePipe,
 
@@ -142,6 +143,7 @@ import {routes as AppCommonRoutes} from './appCommonRoutes';
         IsoTimePipe,
         MinutesToHoursPipe,
         HoursPipe,
+        NumberPipe,
         WorkTypeSystemTypePipe,
 
         LinkMenu,

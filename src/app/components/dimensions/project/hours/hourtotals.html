@@ -1,0 +1,27 @@
+<section class="project-router-outlet">
+    <section class="project-subview">
+        <div [attr.aria-busy]="busy">
+            <div *ngFor="let group of report">
+                <table>
+                    <thead><tr>
+                        <th>{{group.title}}</th>
+                        <th>Sum</th>
+                        <th class="prc">%</th>
+                        <th *ngFor="let hc of group.columns">{{hc}}</th>
+                    </tr></thead>
+                    <tr *ngFor="let row of group.rows">
+                        <td>{{row.title}}</td>
+                        <td>{{row.sum|min2hours:'decimalz'}}</td>
+                        <td class="prc">{{row.prc|numpipe:'0'}}</td>
+                        <td *ngFor="let col of row.items">{{col.tsum | min2hours:'decimalz'}}</td>
+                    </tr>
+                    <tr>
+                        <td>Sum {{group.title}}</td>
+                        <td class="left" colspan="14">{{group.sum|min2hours}}</td>
+                    </tr>
+                </table>        
+                <br/>
+            </div>
+        </div>
+    </section>
+</section>
