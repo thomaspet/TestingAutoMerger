@@ -4,6 +4,7 @@ import {UniHttp} from '../../../../framework/core/http/http';
 import {WageType, Account, LimitType} from '../../../unientities';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {AccountService} from '../../accounting/accountService';
+import {ErrorService} from '../../common/errorService';
 import {Observable} from 'rxjs/Observable';
 import 'rxjs/Observable';
 import {FieldType} from '../../../../framework/ui/uniform/index';
@@ -33,7 +34,11 @@ export class WageTypeService extends BizHttp<WageType> {
         { Type: LimitType.Sum, Name: 'Beløp' }
     ];
 
-    constructor(http: UniHttp, private accountService: AccountService) {
+    constructor(
+        protected http: UniHttp,
+        private accountService: AccountService,
+        private errorService: ErrorService
+    ) {
         super(http);
         this.relativeURL = WageType.RelativeUrl;
         this.entityType = WageType.EntityType;
@@ -147,6 +152,16 @@ export class WageTypeService extends BizHttp<WageType> {
             search: (query: string) => this.accountService
                 .GetAll(`top=50&filter=startswith(AccountNumber, '${query}') or contains(AccountName, '${query}')`)
         };
+    }
+
+    public deleteWageType(id: number): Observable<boolean> {
+        return this.http
+            .asDELETE()
+            .usingBusinessDomain()
+            .withEndPoint(`${this.relativeURL}/${id}`)
+            .send()
+            .map(res => res.json())
+            .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
     }
 
     public layout(layoutID: string, wageType$: BehaviorSubject<WageType>) {
