@@ -30,16 +30,28 @@ export class MyStringFilterPipe implements PipeTransform {
             <header><h1>Tildeling</h1></header>
             <article>
                 <article>
-                    Velg team:
-                    <select [(ngModel)]="currentTeam" (change)="onTeamSelect($event)">
-                        <option [ngValue]="team" *ngFor="let team of teams">{{team.Name}}</option></select>
-                        <span class="members">{{currentTeam?.Names}}</span>
+                    <a  (click)="hideShowUsers('assingTeamListID')"
+                        class="multiselectADropdown">
+                        {{ currentTeam?.Name || 'Velg team'}}
+                    </a>
+                    <ul id="assingTeamListID" class="multiselectListElement">
+                        <li> <input type="text" [(ngModel)]="teamString"
+                            style="height: 1.7rem; width: 75%"
+                            placeholder="Søk etter team" />
+                        </li>
+                        <li *ngFor="let team of teams | stringFilter:teamString:'Name'; let i = index"
+                        (click)="onTeamSelect(team)">
+                            <label class="" for="{{ 'assignteam' + i }}">
+                                {{team.Name}}
+                            </label>
+                        </li>
+                    </ul>
                 </article>
 
                <article>
                     <a  (click)="hideShowUsers('assingUserListID')"
                         class="multiselectADropdown">
-                        Velg bruker
+                        Velg bruker {{ !currentSelectedUsers.length ? '' : '(' + currentSelectedUsers.length + ')' }}
                     </a>
                     <ul id="assingUserListID" class="multiselectListElement">
                         <li> <input type="text" [(ngModel)]="searchString"
@@ -66,10 +78,11 @@ export class MyStringFilterPipe implements PipeTransform {
                         </li>
                         <div style="clear: both;"></div>
                     </ul>
-                    <h3 *ngIf="currentTeam" class="currentTeamText"
+                    <section *ngIf="currentTeam" class="currentTeamText"
                         (dblclick)="currentTeam = null;" title="Dobbelklikk for å fjerne valgt">
-                        Valgt team: <strong>{{ currentTeam.Name }}</strong>, {{currentTeam?.Names}}
-                    </h3>
+                        <p>Team: <strong>{{ currentTeam.Name }}</strong></p>
+                        <p>{{ currentTeam?.Names }}</p>
+                    </section>
                 </article>
             </article>
             <footer>
@@ -95,6 +108,7 @@ export class UniAssignModal implements IUniModal {
     private currentSelectedUsers: Array<any> = [];
     public userListIsShown: boolean = false;
     public searchString: string = '';
+    public teamString: string = '';
 
     @Output() public okclicked: EventEmitter<AssignDetails> = new EventEmitter();
 
@@ -166,7 +180,10 @@ export class UniAssignModal implements IUniModal {
         return details;
     }
 
-    public onTeamSelect(item: any) {
+    public onTeamSelect(team: Team) {
+        this.currentTeam = team;
+        // Hide meny onselect like a normal select dropdown
+        this.hideShowUsers('assingTeamListID');
         // Remove users when selecting team
         this.currentSelectedUsers = [];
         this.users.forEach(user => user.selected = false);
@@ -192,6 +209,8 @@ export class UniAssignModal implements IUniModal {
     public hideShowUsers(element: string) {
         if (this.userListIsShown) {
             document.getElementById(element).style.display = 'none';
+            // Remove event listener when hit
+            document.removeEventListener('mouseup');
         } else {
             document.getElementById(element).style.display = 'block';
             // Event listener to close on click outside
@@ -200,8 +219,6 @@ export class UniAssignModal implements IUniModal {
                 // Check if target is UL or child of UL
                 if (e.target !== doc && !doc.contains(e.target)) {
                     this.hideShowUsers(element);
-                    // Remove event listener when hit
-                    document.removeEventListener('mouseup');
                 }
             };
         }
@@ -219,6 +236,7 @@ export class UniAssignModal implements IUniModal {
             this.currentSelectedUsers.splice(index, 1);
         } else {
             this.currentSelectedUsers.push(user);
+
             // Remove current team when selecting user
             if (this.currentTeam) {
                 this.currentTeam = null;

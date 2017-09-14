@@ -210,9 +210,9 @@ bill-simple-journalentry
     position: absolute
     background: #f8f9fd
     width: 30vw
-    border: 1px solid #c3c3c3
+    border: 1px solid $uni-color-scale5
     border-radius: 0.25rem
-    margin-top: 0
+    margin-top: -7px
     max-height: calc(50vh - 150px)
     overflow-y: scroll
 
@@ -266,10 +266,19 @@ bill-simple-journalentry
     padding-left: 5px
     @extend input
     @extend %selectChevron
+    &:last-of-type
+        margin-top: 1rem
 
 .currentTeamText
-    margin: 0
-    padding: 0
-    font-weight: 300
-    font-size: 1.2rem
+    width: 50%
     cursor: pointer
+    padding: .6rem
+    border: 1px solid $uni-color-scale5
+    border-radius: .125re
+
+    p
+        margin: 0
+        &:first-of-type
+            font-size: 1.15rem
+        &:last-of-type
+            margin-top: .125rem
