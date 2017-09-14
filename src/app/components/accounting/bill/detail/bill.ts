@@ -1170,6 +1170,7 @@ export class BillView {
 
     public onTaskApproval(details: ApprovalDetails) {
         if (details.approved || details.rejected) {
+            this.supplierInvoiceService.invalidateCache();
             this.fetchInvoice(this.currentID, true);
             if (details.rejected) {
                 // todo: update toolbar comments...
