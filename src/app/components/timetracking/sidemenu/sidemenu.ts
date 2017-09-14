@@ -1,10 +1,9 @@
 ﻿import {Component, Input, Output, EventEmitter, ViewChild} from '@angular/core';
-import {TimeTrackingPeriodes} from '../timeentry/timeentry';
-import { WorkerService, IFilter } from '../../../services/timetracking/workerService';
-import { UniTemplateModal, TemplateCloseOptions, ITemplateReturnObject } from '../components/newtemplatemodal';
-import {UniCalendar} from '../../../../framework/ui/unitable/controls/common/calendar'
-import { ToastService, ToastType } from '../../../../framework/uniToast/toastService';
-import { UniModalService } from '../../../../framework/uniModal/barrel';
+import {IFilter} from '../../../services/timetracking/workerService';
+import {UniTemplateModal, TemplateCloseOptions, ITemplateReturnObject} from '../components/newtemplatemodal';
+import {UniCalendar} from '../../../../framework/ui/unitable/controls/common/calendar';
+import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
+import {UniModalService} from '../../../../framework/uniModal/barrel';
 import * as moment from 'moment';
 
 export interface ITimeTrackingTemplate {
@@ -38,9 +37,9 @@ export class SideMenu {
 
     private timeTrackingTemplates: ITemplate[] = this.dummyTemplates();
 
-    @ViewChild(UniTemplateModal) private templateModal: UniTemplateModal;
+    @ViewChild(UniTemplateModal) public templateModal: UniTemplateModal;
     @ViewChild(UniCalendar) public calendar: UniCalendar;
-    @Input() private periode: IFilter;
+    @Input() public periode: IFilter;
     @Output() public dateSelected: EventEmitter<Date> = new EventEmitter();
     @Output() public monthChanged: EventEmitter<any> = new EventEmitter();
     @Output() public templateSelected: EventEmitter<any> = new EventEmitter();
@@ -48,7 +47,7 @@ export class SideMenu {
     public calendarConfig: any = {
         allowSelection: true,
         dailyProgress: []
-    }
+    };
     private initDate: Date = new Date();
 
 
@@ -60,7 +59,7 @@ export class SideMenu {
         }
     }
 
-    private ngAfterViewInit() {
+    public ngAfterViewInit() {
         if (window.innerWidth < 1200) {
             setTimeout(() => {
                 this.hideShowSideMenu();
@@ -68,11 +67,11 @@ export class SideMenu {
         }
     }
 
-    private onTemplateSelected(template: any) {
+    public onTemplateSelected(template: any) {
         this.templateSelected.emit(template);
     }
 
-    private onTemplateEdit(template: any, index: number) {
+    public onTemplateEdit(template: any, index: number) {
         this.modalService.open(UniTemplateModal,
             {
                 data: {
@@ -107,8 +106,8 @@ export class SideMenu {
         }
     }
 
-    private createNewTemplate() {
-        //For now, limit number of templates to 5 because of reasons, styling reasons..
+    public createNewTemplate() {
+        // For now, limit number of templates to 5 because of reasons, styling reasons..
         if (this.timeTrackingTemplates.length >= 5) {
             this.toast.addToast(
                 'For mange maler',
@@ -129,15 +128,15 @@ export class SideMenu {
             });
     }
 
-    private onCalendarMonthChange(month: any) {
+    public onCalendarMonthChange(month: any) {
         this.monthChanged.emit(month);
     }
 
-    private onCalendarDateChange(date: Date) {
+    public onCalendarDateChange(date: Date) {
         this.dateSelected.emit(date);
     }
 
-    private setTodayAsCurrentDay() {
+    public setTodayAsCurrentDay() {
         if (this.calendar.calendarDate.month() !== new Date().getMonth()) {
             this.monthChanged.emit(moment(new Date()));
         }
@@ -166,7 +165,7 @@ export class SideMenu {
             containter.classList.remove('sidemenu_minified_container_class');
         }
 
-        
+
     }
 
     private dummyTemplates(): ITemplate[] {
@@ -236,6 +235,6 @@ export class SideMenu {
                     }
                 ]
             }
-        ]
+        ];
     }
 }
