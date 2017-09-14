@@ -111,7 +111,6 @@ export class BillView {
     @ViewChild(BillHistoryView) private historyView: BillHistoryView;
     @ViewChild(ImageModal) public imageModal: ImageModal;
     @ViewChild(UniImage) public uniImage: UniImage;
-    @ViewChild(UniAssignModal) private assignModal: UniAssignModal;
     @ViewChild(UniApproveModal) private approveModal: UniApproveModal;
 
     // tslint:disable:max-line-length
@@ -1180,12 +1179,9 @@ export class BillView {
 
     public onAssignClickOk(details: AssignDetails) {
         let id = this.currentID;
-        if (!id) { return; }
-        this.assignModal.goBusy(true);
+        if (!id || !details) { return; }
         this.supplierInvoiceService.assign(id, details)
-            .finally( () => this.assignModal.goBusy(false) )
             .subscribe( x => {
-                this.assignModal.close();
                 this.fetchInvoice(id, true);
             }, (err) => {
                 this.errorService.handle(err);
@@ -1196,7 +1192,8 @@ export class BillView {
         let current = this.current.getValue();
         switch (key) {
             case 'assign':
-                this.assignModal.open();
+                this.modalService.open(UniAssignModal, {closeOnClickOutside: false})
+                    .onClose.subscribe(details => this.onAssignClickOk(details));
                 done();
                 break;
 
