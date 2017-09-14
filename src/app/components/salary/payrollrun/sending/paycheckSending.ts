@@ -52,6 +52,7 @@ export class PaycheckSending implements OnInit {
                 return response;
             });
     }
+    
 
     public printPaychecks(all) {
         let prints = all ? this.getSelected() : this.getSelectedPrint();
