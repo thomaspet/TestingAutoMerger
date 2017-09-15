@@ -312,14 +312,19 @@ export class UniImage {
                 .subscribe(res => {
                     let url = JSON.parse(res._body) + '&attachment=false';
                     this.modalService.open(UniPrintModal, {data: {url: url}})
-                        .onClose.subscribe(() => {});
+                        .onClose.subscribe(
+                            () => {},
+                            err => this.errorService(err)
+                    );
                 });
         }
         return this.fileService.printFile(this.files[this.currentFileIndex].ID)
             .subscribe(res => {
                 let url = JSON.parse(res._body) + '&attachment=false';
                 this.printImage(url);
-            });
+            },
+                err => this.errorService(err)
+            );
     }
 
     private imageToPrint(source: string) {
