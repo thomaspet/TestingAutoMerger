@@ -27,7 +27,6 @@ import {PostingJournalReportFilterForm} from './modals/postingJournal/PostingJou
 import {PostingJournalReportFilterModal} from './modals/postingJournal/PostingJournalReportFilterModal';
 
 import {UniPreviewModal} from './modals/preview/previewModal';
-import {UniPrintModal} from './modals/print/printModal';
 
 import {ResultAndBalanceReportFilterForm} from './modals/resultAndBalance/ResultAndBalanceReportFilterModal';
 import {ResultAndBalanceReportFilterModal} from './modals/resultAndBalance/ResultAndBalanceReportFilterModal';
@@ -95,8 +94,7 @@ import {UniReports} from './reports';
         SalaryWithholdingAndAGAReportFilterModalContent,
         PayCheckReportFilterModal,
         PaycheckReportFilterModalContent,
-        ReportparameterModalType,
-        UniPrintModal
+        ReportparameterModalType
     ],
     entryComponents: [
         BalanceReportFilterForm,
@@ -111,8 +109,7 @@ import {UniReports} from './reports';
         SalaryWithholdingAndAGAReportFilterModalContent,
         PaycheckReportFilterModalContent,
         ReportparameterModalType,
-        UniPreviewModal,
-        UniPrintModal
+        UniPreviewModal
     ],
     exports: [
         UniReports,
