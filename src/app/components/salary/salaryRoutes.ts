@@ -1,7 +1,6 @@
 import {Routes} from '@angular/router';
 
 import {UniSalary} from './salary';
-import {AuthGuard} from '../../authGuard';
 import {CanDeactivateGuard} from '../../canDeactivateGuard';
 
 import {WageTypeView} from './wagetype/wagetypeView';

@@ -1,9 +1,6 @@
 import {ModuleWithProviders} from '@angular/core';
 import {RouterModule, Routes} from '@angular/router';
-import {AuthGuard} from '../../authGuard';
-
 import {UniTickers} from './uniTickers';
-
 import {UniTickerOverview} from './overview/overview';
 
 export const childRoutes = [
@@ -26,13 +23,7 @@ const uniQueryRoutes: Routes = [
     {
         path: 'tickers',
         component: UniTickers,
-        canActivate: [AuthGuard],
-        children: [{
-            path: '',
-            canActivateChild: [AuthGuard],
-            children: childRoutes
-        }],
-
+        children: childRoutes
     }
 ];
 
