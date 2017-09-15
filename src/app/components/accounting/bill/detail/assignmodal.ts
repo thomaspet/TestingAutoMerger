@@ -191,9 +191,6 @@ export class UniAssignModal implements IUniModal {
 
     private onCloseAction(src: 'ok' | 'cancel') {
         if (src === 'ok') {
-            if (this.currentSelectedUsers.length === 0) {
-                return;
-            }
             this.onClose.emit(this.currentDetails);
         } else {
             this.onClose.emit(null);
