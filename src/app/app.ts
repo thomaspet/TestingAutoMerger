@@ -11,6 +11,7 @@ import {
     StaticRegisterService
 } from './services/services';
 import {UniModalService} from '../framework/uniModal/barrel';
+import {ToastService} from '../framework/uniToast/toastService';
 
 @Component({
     selector: 'uni-app',
@@ -29,7 +30,8 @@ export class App {
         private staticRegisterService: StaticRegisterService,
         private errorService: ErrorService,
         private userService: UserService,
-        private modalService: UniModalService
+        private modalService: UniModalService,
+        private toastService: ToastService
     ) {
         // prohibit dropping of files unless otherwise specified
         document.addEventListener('dragover', function( event ) {
@@ -62,6 +64,7 @@ export class App {
         authService.authentication$.subscribe((authDetails) => {
             this.isAuthenticated = authDetails.token && authDetails.activeCompany;
             if (this.isAuthenticated) {
+                this.toastService.clear();
                 this.initialize();
             }
         } /* don't need error handling */);

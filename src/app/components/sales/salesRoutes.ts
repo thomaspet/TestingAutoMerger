@@ -121,19 +121,3 @@ export const salesRoutes: Routes = [
         ]
     }
 ];
-
-// const salesRoutes: Routes = [
-//     {
-//         path: 'sales',
-//         component: UniSales,
-//         canActivate: [AuthGuard],
-//         children: [{
-//             path: '',
-//             canActivateChild: [AuthGuard],
-//             children: childRoutes
-//         }],
-
-//     }
-// ];
-
-// export const routes: ModuleWithProviders = RouterModule.forChild(salesRoutes);

@@ -83,21 +83,3 @@ export const accountingRoutes: Routes = [
         canDeactivate: [CanDeactivateGuard]
     }
 ];
-
-
-// const accountingRoutes: Routes = [
-//     {
-//         path: 'accounting',
-//         component: UniAccounting,
-//         canActivate: [AuthGuard],
-//         children: [{
-//             path: '',
-//             canActivateChild: [AuthGuard],
-//             children: childRoutes
-//         }],
-
-//     }
-// ];
-
-// export const routes: ModuleWithProviders = RouterModule.forChild(accountingRoutes);
-

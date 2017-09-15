@@ -1,9 +1,6 @@
 import {ModuleWithProviders} from '@angular/core';
 import {RouterModule, Routes} from '@angular/router';
-import {AuthGuard} from '../../authGuard';
-
 import {UniQueries} from './uniQueries';
-
 import {UniQueryOverview} from './overview/overview';
 import {UniQueryDetails} from './details/uniQueryDetails';
 
@@ -27,13 +24,7 @@ const uniQueryRoutes: Routes = [
     {
         path: 'uniqueries',
         component: UniQueries,
-        canActivate: [AuthGuard],
-        children: [{
-            path: '',
-            canActivateChild: [AuthGuard],
-            children: childRoutes
-        }],
-
+        children: childRoutes
     }
 ];
 

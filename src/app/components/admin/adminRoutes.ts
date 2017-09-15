@@ -1,9 +1,7 @@
 import {ModuleWithProviders} from '@angular/core';
 import {RouterModule, Routes} from '@angular/router';
-import {AuthGuard} from '../../authGuard';
 import {CanDeactivateGuard} from '../../canDeactivateGuard';
 
-// module
 import {UniAdmin} from './admin';
 import {JobList} from './jobs/list/jobList';
 import {JobDetails} from './jobs/details/jobDetails';
@@ -47,12 +45,7 @@ const adminRoutes: Routes = [
     {
         path: 'admin',
         component: UniAdmin,
-        canActivate: [AuthGuard],
-        children: [{
-            path: '',
-            canActivateChild: [AuthGuard],
-            children: childRoutes
-        }],
+        children: childRoutes,
 
     }
 ];
