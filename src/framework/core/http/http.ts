@@ -241,7 +241,7 @@ export class UniHttp {
         return this.http.request(new Request(options)).catch((err) => {
             if (err.status === 401) {
                 this.authService.clearAuthAndGotoLogin();
-                return Observable.empty();
+                return Observable.throw('Sesjonen din er utløpt, vennligst logg inn på ny');
             }
 
             return Observable.throw(err);
