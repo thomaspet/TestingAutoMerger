@@ -87,7 +87,7 @@ export class MinutesToHoursPipe implements PipeTransform {
                 return !!value ? this.decFmt(parsed) : '';
             case 'decimal-':
                 return !!value ? this.decFmt(parsed) + 't' : '-';
-            case 'decimalz':
+            case 'int':
                 return !!value ? parsed.decimal.toFixed(0) : '';
             default:
                 return this.longFmt(parsed);

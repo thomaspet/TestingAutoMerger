@@ -1,5 +1,5 @@
-﻿<uni-toolbar [config]="toolbarconfig"
-             [saveactions]="saveActions"
+﻿<uni-toolbar [config]="projectService?.toolbarConfig | async"
+             [saveactions]="projectService?.saveActions | async"
              [commentsConfig]="commentsConfig">
 </uni-toolbar>
 

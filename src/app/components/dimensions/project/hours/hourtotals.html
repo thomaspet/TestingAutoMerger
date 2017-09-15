@@ -4,16 +4,16 @@
             <div *ngFor="let group of report">
                 <table>
                     <thead><tr>
-                        <th>{{group.title}}</th>
+                        <th>Antall timer i {{group.title}}</th>
                         <th>Sum</th>
                         <th class="prc">%</th>
                         <th *ngFor="let hc of group.columns">{{hc}}</th>
                     </tr></thead>
                     <tr *ngFor="let row of group.rows">
                         <td>{{row.title}}</td>
-                        <td>{{row.sum|min2hours:'decimalz'}}</td>
+                        <td>{{row.sum|min2hours:'int'}}</td>
                         <td class="prc">{{row.prc|numpipe:'0'}}</td>
-                        <td *ngFor="let col of row.items">{{col.tsum | min2hours:'decimalz'}}</td>
+                        <td *ngFor="let col of row.items">{{col.tsum | min2hours:'int'}}</td>
                     </tr>
                     <tr>
                         <td>Sum {{group.title}}</td>

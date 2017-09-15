@@ -318,7 +318,8 @@ export function exportToFile(text: string, fileName: string) {
     document.body.removeChild(link);
 }
 
-export function arrayToCsv(data: Array<any>, columnAsFormula: Array<string> = [], columnDelimiter = ';', lineDelimiter = '\r\n') {
+export function arrayToCsv(data: Array<any>, columnAsFormula: Array<string> = [], 
+                           columnDelimiter = ';', lineDelimiter = '\r\n', includeHeader = true) {
     var result, ctr, keys;
 
     if (data === null || !data.length) {
@@ -328,10 +329,12 @@ export function arrayToCsv(data: Array<any>, columnAsFormula: Array<string> = []
     keys = Object.keys(data[0]);
 
     result = '';
-    keys.forEach((key: string) => {
-        result += (result.length > 0 ? columnDelimiter : '') + '"' + key + '"';
-    });
-    result += lineDelimiter;
+    if (includeHeader) {
+        keys.forEach((key: string) => {
+            result += (result.length > 0 ? columnDelimiter : '') + '"' + key + '"';
+        });
+        result += lineDelimiter;
+    }
 
     data.forEach(function(item) {
         var prop: string;
@@ -376,4 +379,39 @@ export function capitalizeSentence(value: string, limitWords = 5) {
         }
     }
     return output.join(' ');
+}
+
+export function addContextMenu(toolbarConfig: any, name: string, label: string, 
+                               action: (done) => void, disabled?: () => boolean ) {
+    toolbarConfig.contextmenu = toolbarConfig.contextmenu || [];
+    if (!toolbarConfig.contextmenu.find( x => x.name === name)) {
+        toolbarConfig.contextmenu.push( {
+            label: label,
+            name: name,
+            action: action,
+            disabled: disabled
+        });
+    }
+}
+
+export function removeContextMenu(toolbarConfig: any, name: string) {
+    var list = (<Array<any>>toolbarConfig.contextmenu);
+    if (list && list.length > 0) {
+        var index = list.findIndex( x => x.name === name);
+        if (index >= 0) {
+            list.splice(index, 1);
+        }
+    }
+}
+
+
+export function createRow(cells: number, emptyValue: any, ...values: any[]) {
+    var row = [];
+    values.forEach( item => {
+        row.push(item);
+    });
+    for (var i = row.length; i < cells; i++) {
+        row.push(emptyValue);
+    }
+    return row;
 }

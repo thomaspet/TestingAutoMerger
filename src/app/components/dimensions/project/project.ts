@@ -1,11 +1,13 @@
 ﻿import {Component, ViewChild} from '@angular/core';
 import {URLSearchParams} from '@angular/http';
 import {Router, ActivatedRoute} from '@angular/router';
+import {Project as ProjectModel} from '../../../unientities';
 import {IUniTabsRoute} from '../../layout/uniTabs/uniTabs';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {ProjectService, ErrorService, UserService} from '../../../services/services';
 import {ToastService} from '../../../../framework/uniToast/toastService';
 import {UniModalService, ConfirmActions} from '../../../../framework/uniModal/barrel';
+import {trimLength} from '../../common/utils/utils';
 import {
     UniTable,
     UniTableColumn,
@@ -14,6 +16,7 @@ import {
 } from '../../../../framework/ui/unitable/index';
 import {IToolbarConfig} from '../../common/toolbar/toolbar';
 import {IUniSaveAction} from '../../../../framework/save/save';
+import {UniStatusTrack} from '../../common/toolbar/statustrack';
 
 declare var _;
 
@@ -31,11 +34,13 @@ export class Project {
     private currentPage: number = 1;
     private isStart: boolean = true;
     private currentUser: { DisplayName: string, Email: string, GlobalIdentity: string, ID: number };
+
     public filters: Array<{ label: string, name: string, isActive: boolean, filter?: string}> = [
         { label: 'Mine', name: 'mine', isActive: true },
         { label: 'Aktive', name: 'active', isActive: false, filter: '( statuscode le 42204 )' },
         { label: 'Alle', name: 'all', isActive: false  }
     ];
+
     private get currentFilter(): { name: string, isActive: boolean, filter?: string } {
         return this.filters.find( x => x.isActive);
     }
@@ -54,7 +59,7 @@ export class Project {
             action: (completeEvent) => setTimeout(this.saveProject(completeEvent)),
             main: true,
             disabled: false
-        }
+        }        
     ];
     private commentsConfig: any;
 
@@ -111,8 +116,12 @@ export class Project {
                 this.projectService
                     .Get(this.activeProjectID, ['ProjectTasks.ProjectTaskSchedules', 'ProjectResources'])
                     .subscribe(project => {
-                        this.toolbarconfig.title = project.Name;
+                        this.toolbarconfig.title = trimLength(project.Name, 40, true);
+                        this.toolbarconfig.subheads = [ 
+                            { title: project.ProjectNumber ? `prosjekt nr. ${project.ProjectNumber}` : '' },
+                        ]; 
                         this.projectService.currentProject.next(project);
+                        this.updateToolbar();
                     }, error => this.newProject());
             }
 
@@ -127,6 +136,40 @@ export class Project {
                 this.currentPage = +params['page'];
             }
         });
+
+        this.updateToolbar();
+    }
+
+    private updateToolbar() {
+        this.projectService.currentProject.subscribe( p => {
+            this.toolbarconfig.statustrack = this.buildStatusTrack(p);
+            this.projectService.toolbarConfig.next(this.toolbarconfig);
+            this.projectService.saveActions.next(this.saveActions);
+        });
+    }
+
+    private buildStatusTrack(current: ProjectModel): Array<UniStatusTrack.IStatus> {
+        var track: UniStatusTrack.IStatus[] = [];
+        var defaultStatus = this.projectService.statusTypes[0].Code;
+        var activeStatus = current ? current.StatusCode || defaultStatus : defaultStatus;
+        this.projectService.statusTypes.forEach( status => {
+            var _state: UniStatusTrack.States;
+            if (status.Code > activeStatus) {
+                _state = UniStatusTrack.States.Future;
+            } else if (status.Code < activeStatus) {
+                _state = UniStatusTrack.States.Completed;
+            } else if (status.Code === activeStatus) {
+                _state = UniStatusTrack.States.Active;
+            }
+            if (status.isPrimary || status.Code === activeStatus) {
+                track.push({
+                    title: status.Text,
+                    state: _state,
+                    code: status.Code
+                });
+            }
+        });
+        return track;
     }
 
     private initDefaultActions() {
@@ -174,7 +217,9 @@ export class Project {
     private newProject() {
         this.projectService.setNew();
         this.toolbarconfig.title = 'Nytt prosjekt';
+        this.toolbarconfig.subheads = [];
         this.router.navigateByUrl('/dimensions/projects/editmode?projectID=0');
+        this.updateToolbar();
     }
 
     private setUpTable() {
@@ -250,6 +295,10 @@ export class Project {
             },
             err => this.errorService.handle(err)
         );
+    }
+
+    public exportProject(done: Function) {
+
     }
 
     public onFilterClick(item: { name: string, isActive: boolean }) {
