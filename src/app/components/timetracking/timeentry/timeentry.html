@@ -13,9 +13,9 @@
 
 <sidemenu [hidden]="missingWorker || !tabs[0].isSelected"
           [(periode)]="currentFilter"
-          id="sidemenu_timetracking_component"  
-          (dateSelected)="onDateSelected($event)" 
-          (monthChanged)="onMonthChanged($event)" 
+          id="sidemenu_timetracking_component"
+          (dateSelected)="onDateSelected($event)"
+          (monthChanged)="onMonthChanged($event)"
           (templateSelected)="onTemplateSelected($event)">
 </sidemenu>
 
@@ -26,13 +26,23 @@
 
             <header>
                 <section class="timetracking_progress_section" id="timetracker_date_and_progress">
-                    <h3 id="timeentry_biglabel"> {{ currentFilter.bigLabel }} </h3>
-                    <div id="timetracking_progress_bar">
-                        <div></div>
-                    </div><br />
-                    <p class="timetracking_worked_today_text">{{ workedToday }}</p>
+                    <h2 class="timeentry_biglabel">
+                        {{ currentFilter.bigLabel }}
+                    </h2>
+
+                    <progress class="timetracking_progress_bar"
+                        [value]="percentage" max="100"
+                        [ngClass]="{
+                            '-is-complete': percentage >= 100,
+                            '-is-empty': percentage === 0
+                        }">
+                    </progress>
+
+                    <p class="timetracking_worked_today_text">
+                        {{ workedToday }}
+                    </p>
                 </section>
-                 
+
                 <ul class="timetracking_periode_selector" id="timetracking_periode_selector_id">
                     <li *ngFor="let periode of filters"
                         [ngClass]="{'timetracking_periode_selected': periode.isSelected}"
@@ -41,13 +51,13 @@
                     </li>
                 </ul>
 
-                
-                <!--<daybrowser *ngIf="settings.useDayBrowser" 
-                            (clickday)="onClickDay($event)" 
-                            (requestsums)="onRequestDaySums($event)" 
+
+                <!--<daybrowser *ngIf="settings.useDayBrowser"
+                            (clickday)="onClickDay($event)"
+                            (requestsums)="onRequestDaySums($event)"
                             (navigate)="onNavigateDays($event)">
                 </daybrowser>
-                
+
                 <aside *ngIf="!settings.useDayBrowser" class="regtime_filters no-print">
                     <br/>
                     <ul>
@@ -55,7 +65,7 @@
                             <a (click)="onFilterClick(filter)" [ngClass]="{'router-link-active': filter.isSelected}" >{{filter.label}}</a>
                         </li>
                     </ul>
-                </aside>-->                                
+                </aside>-->
 
             </header>
 

@@ -63,6 +63,7 @@ export class TimeEntry {
     public currentBalance: WorkBalanceDto;
     public incomingBalance: WorkBalance;
     public teams: Array<Team>;
+    public percentage: number = 0;
     private settings: ISettings = {
         useDayBrowser: false
     };
@@ -801,17 +802,10 @@ export class TimeEntry {
 
             //Find percentage of hours worked (Max 100)
             let percentageWorked = totalTime / (expectedTime / 100);
-            percentageWorked = percentageWorked > 100 ? 100 : percentageWorked;
+            percentageWorked = isNaN(percentageWorked) ? 0 : percentageWorked;
 
-            //Add styling to the progress bar
-            let progressBar: any = document.getElementById('timetracking_progress_bar').children[0];
-            progressBar.style.width = isNaN(percentageWorked) ? 0 : percentageWorked + '%';
-            if (percentageWorked >= 100) {
-                progressBar.style.backgroundColor = '#008000';
-            } else {
-                progressBar.style.backgroundColor = '#0f4880';
-            }
-        })
+            this.percentage = Math.round(percentageWorked);
+        });
     }
 
     private getProgressData(endpoint: string) {
