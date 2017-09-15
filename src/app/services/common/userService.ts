@@ -32,7 +32,10 @@ export class UserService extends BizHttp<User> {
                 .refCount();
         }
 
-        return this.userObservable;
+        return this.userObservable
+            // Re-throw errors because of issue where hot observables
+            // stop emitting errors if one subscriber doesn't catch
+            .catch(err => Observable.throw(err));
     }
 
     // override bizhttp put with cache invalidation
