@@ -282,7 +282,7 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
             .withBody(emps)
             .send();
     }
-    
+
 
     public getPaymentsOnPayrollRun(id: number): Observable<Payment[]> {
         return this.http
@@ -375,6 +375,16 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
             payrollRun[this.payStatusProp] = PayrollRunPaymentStatus.Paid;
         }
         return payrollRun;
+    }
+
+    private getTaxHelpText() {
+        let halfTax = 'Halv skatt(desember): Vil gi halv skatt på lønnsavregninger med månedslønn' +
+        ' og ikke skatt på lønnsavregninger med 14-dagerslønn.' +
+        ' Eventuelle unntak fra dette håndteres ut fra oppgitt skattekort.';
+        let noTax =  'Ikke skatt: Systemet vil ikke beregne forskuddstrekk.' +
+        ' Det er kun poster du taster manuelt som vil bli tatt med.' +
+        ' Dette valget bør derfor kun benyttes for historikk og eventuelle korreksjoner.';
+        return halfTax + `<br><br>` + noTax;
     }
 
     public layout(layoutID: string) {
@@ -472,7 +482,7 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
                     LookupField: false,
                     Label: 'Skattetrekk',
                     Description: null,
-                    HelpText: null,
+                    HelpText: this.getTaxHelpText(),
                     FieldSet: 1,
                     Section: 0,
                     Placeholder: null,
@@ -483,7 +493,7 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
                     Options: {
                         source: [
                             { Indx: TaxDrawFactor.Standard, Name: 'Full skatt' },
-                            { Indx: TaxDrawFactor.Half, Name: 'Halv skatt' },
+                            { Indx: TaxDrawFactor.Half, Name: 'Halv skatt(desember)' },
                             { Indx: TaxDrawFactor.None, Name: 'Ikke skatt' }],
                         displayProperty: 'Name',
                         valueProperty: 'Indx'
