@@ -17,6 +17,7 @@ import {Observable} from 'rxjs/Observable';
 import {AppConfig} from '../../app/AppConfig';
 import {ErrorService, FileService, UniFilesService} from '../../app/services/services';
 import {UniModalService, ConfirmActions} from '../uniModal/barrel';
+import {UniPrintModal} from '../../app/components/reports/modals/print/printModal';
 
 export enum UniImageSize {
     small = 150,
@@ -55,6 +56,8 @@ export interface IUploadConfig {
             <section class="uni-image-pager">
                 <a *ngIf="files.length > 1" class="prev" (click)="previous()"></a>
                 <label>{{fileInfo}}</label>
+
+                <a class="print" (click)="printOutPdf()"></a>
 
                 <a class="trash" (click)="deleteImage()" *ngIf="!readonly"></a>
                 <a *ngIf="files.length > 1" class="next" (click)="next()"></a>
@@ -156,6 +159,7 @@ export class UniImage {
     private imgUrl: string = '';
     private imgUrl2x: string = '';
     private highlightStyle: any;
+    private pdfUrl: string;
 
     constructor(
         private ngHttp: Http,
@@ -300,6 +304,37 @@ export class UniImage {
             this.currentPage = 1;
             this.loadImage();
         }
+    }
+
+    private printOutPdf() {
+        if (this.files[this.currentFileIndex].Name.includes('.pdf')) {
+            return this.fileService.printFile(this.files[this.currentFileIndex].ID)
+                .subscribe(res => {
+                    let url = JSON.parse(res._body) + '&attachment=false';
+                    this.modalService.open(UniPrintModal, {data: {url: url}})
+                        .onClose.subscribe(() => {});
+                });
+        }
+        return this.fileService.printFile(this.files[this.currentFileIndex].ID)
+            .subscribe(res => {
+                let url = JSON.parse(res._body) + '&attachment=false';
+                this.printImage(url);
+            });
+    }
+
+    private imageToPrint(source: string) {
+        return "<html><head><script>function step1(){\n" +
+            "setTimeout('step2()', 10);}\n" +
+            "function step2(){window.print();window.close()}\n" +
+            "</scri" + "pt></head><body onload='step1()'>\n" +
+            "<img src='" + source + "' /></body></html>";
+    }
+
+    private printImage(source: string) {
+        var pwa = window.open('_new');
+        pwa.document.open();
+        pwa.document.write(this.imageToPrint(source));
+        pwa.document.close();
     }
 
     private deleteImage() {

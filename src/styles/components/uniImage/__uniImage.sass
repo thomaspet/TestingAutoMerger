@@ -78,7 +78,7 @@ uni-image
 
         label
             position: absolute
-            width: calc(100% - 4rem)
+            width: calc(100% - 10rem)
             left: 2rem
             text-align: center
             line-height: 3rem
@@ -105,6 +105,23 @@ uni-image
         .next
             right: 1%
 
+        .print
+            position: absolute
+            cursor: pointer
+            right: calc(1% + 6rem)
+            transform: rotate(180deg)
+
+            &:before
+                height: 3rem
+                width: 2rem
+                display: block
+                content: ''
+                background: unicon-trash($uni-color-negative) center center no-repeat
+                background-size: .8rem
+
+            &:hover:before
+                background-size: .9rem
+
         .trash
             position: absolute
             cursor: pointer
@@ -128,6 +145,52 @@ uni-image
             min-width: 13rem
             top: -0.5rem
             left: 41rem
+
+    .uni-thumbnail-list
+        display: block
+        list-style: none
+
+        li
+            height: 50px
+            max-width: 5rem
+            display: block
+            float: left
+            cursor: pointer
+
+            &:not(:first-of-type)
+                margin-left: pxToRem(5)
+
+            &:last-of-type
+                @include clearfix()
+
+            img
+                width: auto
+                height: 100%
+                max-width: 100%
+
+            // REVISIT: Quickfix. Get help from Jørgen!
+            &[aria-busy]:not([aria-busy=false])
+                min-height: 50px !important
+                box-sizing: border-box !important
+                cursor: not-allowed
+
+            .uni-image-upload
+                display: block
+                height: 50px
+                min-width: 4rem
+                border: 1px dashed $uni-color-scale8
+                border-radius: pxToRem(5)
+                box-sizing: border-box
+                cursor: pointer
+                background: unicon-plus($uni-color-scale8) center center no-repeat
+                background-size: 1rem
+
+                &[aria-disabled]:not([aria-disabled=false])
+                    cursor: not-allowed
+
+                input[type=file]
+                    // "visible" only for screen readers
+                    @extend %visuallyHidden
 
 uni-modal .uni-thumbnail-list.-has-thumbnails
     position: static
