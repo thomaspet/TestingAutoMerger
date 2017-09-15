@@ -41,7 +41,7 @@
     </fieldset>
 
     <fieldset [hidden]="!tabs[1].isSelected">
-        <legend>Dokument</legend>
+        <legend>Dokument ({{this.files?.length || 0}})</legend>
 
         <div *ngIf="!(current | async)?.ID">
             <uni-image

@@ -10,11 +10,58 @@ uni-image
         background-color: rgba(255, 216, 0, 0.4)
 
     picture img
+        display: inline-block
         width: auto
         max-width: 100%
+        cursor: pointer
 
     picture:hover.clickable
         cursor: zoom-in
+
+    .uni-thumbnail-list
+        display: block
+        list-style: none
+
+        li
+            height: pxToRem(50)
+            max-width: 5rem
+            display: inline-block
+            float: left
+            cursor: pointer
+
+            &:not(:first-of-type)
+                margin: pxToRem(1)
+
+            &:last-of-type
+                @include clearfix()
+
+            img
+                width: auto
+                height: 100%
+                max-width: 100%
+
+            // REVISIT: Quickfix. Get help from Jørgen!
+            &[aria-busy]:not([aria-busy=false])
+                box-sizing: border-box !important
+                cursor: not-allowed
+
+            .uni-image-upload
+                display: block
+                height: 50px
+                min-width: 4rem
+                border: 1px dashed $uni-color-scale8
+                border-radius: pxToRem(5)
+                box-sizing: border-box
+                cursor: pointer
+                background: unicon-plus($uni-color-scale8) center center no-repeat
+                background-size: 1rem
+
+                &[aria-disabled]:not([aria-disabled=false])
+                    cursor: not-allowed
+
+                input[type=file]
+                    // "visible" only for screen readers
+                    @extend %visuallyHidden
 
     &:focus,
     picture:hover + .uni-image-pager,
@@ -74,49 +121,14 @@ uni-image
             &:hover:before
                 background-size: .9rem
 
-    .uni-thumbnail-list
-        display: block
-        list-style: none
+    .uni-thumbnail-list.-has-thumbnails
+        @media (min-width: 1600px)
+            position: absolute
+            max-width: 13rem
+            min-width: 13rem
+            top: -0.5rem
+            left: 41rem
 
-        li
-            height: 50px
-            max-width: 5rem
-            display: block
-            float: left
-            cursor: pointer
-
-            &:not(:first-of-type)
-                margin-left: pxToRem(5)
-
-            &:last-of-type
-                @include clearfix()
-
-            img
-                width: auto
-                height: 100%
-                max-width: 100%
-
-            // REVISIT: Quickfix. Get help from Jørgen!
-            &[aria-busy]:not([aria-busy=false])
-                min-height: 50px !important
-                box-sizing: border-box !important
-                cursor: not-allowed
-
-            .uni-image-upload
-                display: block
-                height: 50px
-                min-width: 4rem
-                border: 1px dashed $uni-color-scale8
-                border-radius: pxToRem(5)
-                box-sizing: border-box
-                cursor: pointer
-                background: unicon-plus($uni-color-scale8) center center no-repeat
-                background-size: 1rem
-
-                &[aria-disabled]:not([aria-disabled=false])
-                    cursor: not-allowed
-
-                input[type=file]
-                    // "visible" only for screen readers
-                    @extend %visuallyHidden
-
+uni-modal .uni-thumbnail-list.-has-thumbnails
+    position: static
+    max-width: none
