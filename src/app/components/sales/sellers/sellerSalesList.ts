@@ -115,10 +115,6 @@ export class SellerSalesList {
     }
 
     private setupTable() {
-        // setup default filter
-        const filter: ITableFilter[] = [];
-        filter.push({field: 'StatusCode', operator: 'eq', value: 'Betalt', group: 0});
-
         // setup table
         let invoiceDateCol = new UniTableColumn('InvoiceDate', 'Fakturadato', UniTableColumnType.LocalDate)
             .setWidth('7rem');
@@ -140,7 +136,10 @@ export class SellerSalesList {
         let totalIncAmountCol = new UniTableColumn('TaxInclusiveAmount', 'Sum inkl. mva', UniTableColumnType.Money)
 
         let sellerPercentCol = new UniTableColumn('SellerLinkPercent', '%', UniTableColumnType.Percent)
-            .setWidth('4rem');
+            .setWidth('4rem')
+            .setTemplate(row => {
+                return row.SellerLinkPercent || '100';
+            });
 
         let sellerIncAmountCol = new UniTableColumn('SellerAmount', 'Selgersum inkl. mva', UniTableColumnType.Money)
             .setTemplate(row => {
@@ -154,7 +153,6 @@ export class SellerSalesList {
         this.salesTableConfig = new UniTableConfig('common.seller.sellerSalesList', false, true, 25)
             .setSearchable(true)
             .setSortable(true)
-            .setFilters(filter)
             .setColumns([
                 invoiceCol, invoiceDateCol, statusCol,
                 customerNumberCol, customerNameCol, totalExAmountCol, totalIncAmountCol,
