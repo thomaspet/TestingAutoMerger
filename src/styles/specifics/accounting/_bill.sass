@@ -202,3 +202,83 @@ bill-simple-journalentry
 
 .supplierinvoice-listview header:nth-of-type(2)
 	margin-top: pxToRem(10) !important
+
+.multiselectListElement
+    list-style: none
+    display: none
+    transition: .4s linear
+    position: absolute
+    background: #f8f9fd
+    width: 30vw
+    border: 1px solid $uni-color-scale5
+    border-radius: 0.25rem
+    margin-top: -7px
+    max-height: calc(50vh - 150px)
+    overflow-y: scroll
+
+    li
+        padding: .5rem 1rem
+
+        &:hover
+            background-color: $uni-color-scale8
+            cursor: pointer
+            &:first-of-type
+                background-color: #f8f9fd
+
+        label
+            display: block
+            padding-left: 15px
+            text-indent: -15px
+            cursor: pointer
+
+        input[type='checkbox']
+            width: 18px
+            height: 18px
+            padding: 0
+            margin: 0 1.5rem 0 0
+            vertical-align: bottom
+            cursor: pointer
+            position: relative
+            top: -2px
+
+.selectedSection
+    min-height: 62px
+
+.selectedAssigneeUsersList
+    list-style: none
+    margin-bottom: 0
+
+    li
+        float: left
+        width: auto
+        padding: 0 .6rem
+        cursor: pointer
+        border: 1px solid $uni-color-scale5
+        border-radius: .125rem
+        margin: 0 .5rem .5rem 0
+
+.multiselectADropdown
+    cursor: pointer
+    display: inline-block
+    width: 100%
+    background-color: $uni-color-negative
+    border: 1px solid $uni-color-scale5
+    padding-left: 5px
+    @extend input
+    @extend %selectChevron
+    &:last-of-type
+        margin-top: 1rem
+
+.currentTeamText
+    width: 50%
+    cursor: pointer
+    padding: .6rem
+    border: 1px solid $uni-color-scale5
+    border-radius: .125re
+
+    p
+        margin: 0
+        &:first-of-type
+            font-size: 1.15rem
+        &:last-of-type
+            margin-top: .125rem
