@@ -291,6 +291,7 @@ export class UniAutocompleteInput extends BaseControl {
     }
 
     private confirmSelection(item) {
+        const undefinedToNull = val => val === undefined ? null : val;
         let previousValue = this.currentValue;
         this.isExpanded$.next(false); // = false;
         this.focusPositionTop = 0;
@@ -310,7 +311,8 @@ export class UniAutocompleteInput extends BaseControl {
         const current = _.get(this.model, this.field.Property);
         _.set(this.model, this.field.Property, this.value);
         if (this.field.Options && this.field.Options.events && this.field.Options.events.select) {
-            if (current !== this.value) { // just select if we change the value
+            // just select if we change the value
+            if (undefinedToNull(current) !== undefinedToNull(this.value)) {
                 this.field.Options.events.select(this.model, this.currentValue);
             }
         }
