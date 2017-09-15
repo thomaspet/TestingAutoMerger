@@ -6,7 +6,7 @@ import {FieldType} from '../../../../framework/ui/uniform/index';
 import {AltinnAuthenticationService, ErrorService} from '../../../services/services';
 import {AltinnAuthenticationData} from '../../../models/AltinnAuthenticationData';
 import {ToastService} from '../../../../framework/uniToast/toastService';
-import {KeyCodes} from '../../../services/common/KeyCodes';
+import {KeyCodes} from '../../../services/common/keyCodes';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 
 enum LoginState {
@@ -83,11 +83,11 @@ export class AltinnAuthenticationModal implements OnInit, IUniModal {
             this.altinnAuthService.storeAltinnAuthenticationDataInLocalstorage(authData);
             return authData;
         };
-    
+
     constructor(
         private altinnAuthService: AltinnAuthenticationService,
         private toastService: ToastService,
-        private elementRef: ElementRef, 
+        private elementRef: ElementRef,
         private errorService: ErrorService
     ) {}
 

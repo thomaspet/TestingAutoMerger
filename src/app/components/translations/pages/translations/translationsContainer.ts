@@ -13,7 +13,7 @@ import * as fromTranslatable from '../../translatable/reducer';
 import {TranslationsState} from '../../reducers';
 
 import {Language, Translation, Translatable} from '../../../../unientities';
-import {KeyCodes} from '../../../../services/common/KeyCodes';
+import {KeyCodes} from '../../../../services/common/keyCodes';
 
 import {IToolbarConfig} from '../../../common/toolbar/toolbar';
 import {IUniSaveAction} from '../../../../../framework/save/save';

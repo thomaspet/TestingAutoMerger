@@ -2,7 +2,7 @@ import {Component, ViewChild, ElementRef, Output, EventEmitter} from '@angular/c
 import {FormControl} from '@angular/forms';
 import {User} from '../../app/unientities';
 import {ErrorService, UserService} from '../../app/services/services';
-import {KeyCodes} from '../../app/services/common/KeyCodes';
+import {KeyCodes} from '../../app/services/common/keyCodes';
 
 @Component({
     selector: 'uni-comment-input',

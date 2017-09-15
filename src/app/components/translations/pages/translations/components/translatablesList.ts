@@ -3,7 +3,7 @@ import {
     SimpleChanges, OnChanges, ViewChild, ElementRef
 } from '@angular/core';
 import {Translatable, Language} from '../../../../../unientities';
-import {KeyCodes} from '../../../../../services/common/KeyCodes';
+import {KeyCodes} from '../../../../../services/common/keyCodes';
 import {Observable} from 'rxjs/Observable';
 import {Subscription} from 'rxjs/Subscription';
 import 'rxjs/add/observable/fromEvent';
