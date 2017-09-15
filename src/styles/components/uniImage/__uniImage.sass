@@ -74,6 +74,22 @@ uni-image
             &:hover:before
                 background-size: .9rem
 
+        .print
+            position: absolute
+            cursor: pointer
+            right: calc(1% + 6rem)
+
+            &:before
+                height: 3rem
+                width: 2rem
+                display: block
+                content: ''
+                background: unicon-trash($uni-color-negative) center center no-repeat
+                background-size: .8rem
+
+            &:hover:before
+                background-size: .9rem
+
     .uni-thumbnail-list
         display: block
         list-style: none
@@ -119,4 +135,3 @@ uni-image
                 input[type=file]
                     // "visible" only for screen readers
                     @extend %visuallyHidden
-
