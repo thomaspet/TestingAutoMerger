@@ -68,8 +68,16 @@ export class SellerDetailsComponent {
                 path: 'details'
             },
             {
-                name: 'Solgt',
-                path: 'sales'
+                name: 'Faktura',
+                path: 'invoices'
+            },
+            {
+                name: 'Ordre',
+                path: 'orders'
+            },
+            {
+                name: 'Tilbud',
+                path: 'quotes'
             }
         ];
 

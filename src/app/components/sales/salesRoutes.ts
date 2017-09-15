@@ -115,7 +115,7 @@ export const salesRoutes: Routes = [
                 component: SellerDetails
             },
             {
-                path: 'sales',
+                path: ':mode',
                 component: SellerSalesList
             }
         ]
