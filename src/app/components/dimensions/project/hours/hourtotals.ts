@@ -212,7 +212,7 @@ class ReportRow implements IReportRow {
     public items: Array<{tsum: number}>;    
     constructor(title: string) {
         this.title = title;
-        this.items = utils.createRow(12, { tsum: 0 });
+        this.items = utils.createRow(12, () => { return { tsum: 0 }; });
         this.sum = 0;
         this.prc = 0;
     }   

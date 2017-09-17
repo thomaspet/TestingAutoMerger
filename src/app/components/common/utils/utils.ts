@@ -411,7 +411,11 @@ export function createRow(cells: number, emptyValue: any, ...values: any[]) {
         row.push(item);
     });
     for (var i = row.length; i < cells; i++) {
-        row.push(emptyValue);
+        if (typeof emptyValue === 'function') {
+            row.push(emptyValue());
+        } else {
+            row.push(emptyValue);
+        }
     }
     return row;
 }
