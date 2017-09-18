@@ -26,11 +26,18 @@ export class UniComments {
         private userService: UserService,
         private errorService: ErrorService,
         private cdr: ChangeDetectorRef
-    ) {}
+    ) {
+        this.commentService.comments$.subscribe(comments => {
+            this.comments = comments;
+            this.cdr.markForCheck();
+        });
+    }
 
     public ngOnChanges() {
         if (this.entity && this.entityID) {
-            this.getComments();
+            // Loading into ReplaySubject in commentService and reading from the subject
+            // Allows the list to be updated with new comments without triggering a manual refresh here
+            this.commentService.loadComments(this.entity, this.entityID);
         }
     }
 

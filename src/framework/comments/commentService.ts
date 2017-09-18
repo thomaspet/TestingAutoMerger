@@ -1,11 +1,15 @@
 import {Injectable} from '@angular/core';
 import {UniHttp} from '../core/http/http';
 import {Comment} from '../../app/unientities';
+import {ReplaySubject} from 'rxjs/ReplaySubject';
 
 @Injectable()
 export class CommentService {
+    public comments$: ReplaySubject<Comment[]> = new ReplaySubject(1);
 
-    constructor(protected http: UniHttp) {}
+    constructor(protected http: UniHttp) {
+        this.comments$.next([]);
+    }
 
     public getAll(entity: string, entityID: number) {
         const route = `comments?filter=entitytype eq '${entity}' and entityid eq ${entityID}`;
@@ -20,6 +24,12 @@ export class CommentService {
                     return comment;
                 });
             });
+    }
+
+    public loadComments(entity: string, entityID: number) {
+        this.getAll(entity, entityID).subscribe((res) => {
+            this.comments$.next(res);
+        });
     }
 
     public post(entity: string, entityID: number, message: string) {

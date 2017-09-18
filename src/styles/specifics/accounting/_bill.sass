@@ -242,7 +242,6 @@ bill-simple-journalentry
             top: -2px
 
 .selectedSection
-    min-height: 62px
 
 .selectedAssigneeUsersList
     list-style: none
@@ -255,7 +254,7 @@ bill-simple-journalentry
         cursor: pointer
         border: 1px solid $uni-color-scale5
         border-radius: .125rem
-        margin: 0 .5rem .5rem 0
+        margin: 0 pxToRem(16) pxToRem(16) 0
 
 .multiselectADropdown
     cursor: pointer
@@ -275,6 +274,7 @@ bill-simple-journalentry
     padding: .6rem
     border: 1px solid $uni-color-scale5
     border-radius: .125re
+    margin-bottom: pxToRem(16)
 
     p
         margin: 0

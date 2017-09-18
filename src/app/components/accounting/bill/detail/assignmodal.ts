@@ -84,6 +84,7 @@ export class MyStringFilterPipe implements PipeTransform {
                         <p>{{ currentTeam?.Names }}</p>
                     </section>
                 </article>
+                <textarea [(ngModel)]="comment" placeholder="Kommentar"></textarea>
             </article>
             <footer>
                 <button (click)="onCloseAction('ok')"
@@ -109,6 +110,7 @@ export class UniAssignModal implements IUniModal {
     public userListIsShown: boolean = false;
     public searchString: string = '';
     public teamString: string = '';
+    public comment: string = '';
 
     @Output() public okclicked: EventEmitter<AssignDetails> = new EventEmitter();
 
@@ -169,7 +171,7 @@ export class UniAssignModal implements IUniModal {
 
     public get currentDetails(): AssignDetails {
         var details = new AssignDetails();
-        details.Message = '';
+        details.Message = this.comment;
         details.UserIDs = this.currentSelectedUsers.map(item => item.ID);
         details.TeamIDs = [];
 
