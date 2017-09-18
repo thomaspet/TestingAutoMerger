@@ -25,6 +25,7 @@ import {IUniSearchConfig} from '../../../../../framework/ui/unisearch/index';
 import {UniAssignModal, AssignDetails} from './assignmodal';
 import {UniApproveModal, ApprovalDetails} from './approvemodal';
 import {UniMath} from '../../../../../framework/core/uniMath';
+import {CommentService} from '../../../../../framework/comments/commentService';
 import {NumberSeriesTaskIds} from '../../../../models/models';
 import {
     UniModalService,
@@ -49,7 +50,8 @@ import {
     UniSearchSupplierConfig,
     ModulusService,
     ProjectService,
-    DepartmentService
+    DepartmentService,
+
 } from '../../../../services/services';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {UniFieldLayout} from '../../../../../framework/ui/uniform/index';
@@ -157,7 +159,8 @@ export class BillView {
         private modulusService: ModulusService,
         private projectService: ProjectService,
         private departmentService: DepartmentService,
-        private modalService: UniModalService
+        private modalService: UniModalService,
+        private commentService: CommentService
     ) {
         this.actions = this.rootActions;
     }
@@ -574,6 +577,11 @@ export class BillView {
                 }
             });
         }
+    }
+
+    private addComment(comment: string) {
+        this.commentService.post(this.commentsConfig.entityType, this.commentsConfig.entityID, comment)
+        .subscribe(() => {});
     }
 
     /// =============================
@@ -1184,6 +1192,9 @@ export class BillView {
         this.supplierInvoiceService.assign(id, details)
             .subscribe( x => {
                 this.fetchInvoice(id, true);
+                if (details.Message && details.Message !== '') {
+                    this.addComment(details.Message);
+                }
             }, (err) => {
                 this.errorService.handle(err);
             });
