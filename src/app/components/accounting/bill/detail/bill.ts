@@ -182,7 +182,6 @@ export class BillView {
     private initFromRoute() {
         this.route.params.subscribe((params: any) => {
             var id = params.id;
-
             if (safeInt(id) > 0) {
                 Observable.forkJoin(
                     this.companySettingsService.Get(1),
@@ -216,9 +215,8 @@ export class BillView {
                     this.extendFormConfig();
                 }, err => this.errorService.handle(err));
             }
-
             this.commentsConfig = {
-                entityType: SupplierInvoice.EntityType,
+                entityType: 'SupplierInvoice',
                 entityID: +params.id
             };
         });
@@ -581,7 +579,9 @@ export class BillView {
 
     private addComment(comment: string) {
         this.commentService.post(this.commentsConfig.entityType, this.commentsConfig.entityID, comment)
-        .subscribe(() => {});
+        .subscribe(() => {
+            this.commentService.loadComments(this.commentsConfig.entityType, this.commentsConfig.entityID);
+        });
     }
 
     /// =============================
@@ -1491,6 +1491,7 @@ export class BillView {
             obs.subscribe((result) => {
                 this.currentSupplierID = result.ID;
                 this.hasUnsavedChanges = false;
+                this.commentsConfig.entityID = result.ID;
                 if (this.unlinkedFiles.length > 0) {
                     this.linkFiles(this.currentSupplierID, this.unlinkedFiles, 'SupplierInvoice', 40001).then(() => {
                         this.hasStartupFileID = false;
@@ -1777,6 +1778,10 @@ export class BillView {
         var doc: SupplierInvoice = this.current.getValue();
         var stConfig = this.getStatustrackConfig();
         var jnr = doc && doc.JournalEntry && doc.JournalEntry.JournalEntryNumber ? doc.JournalEntry.JournalEntryNumber : undefined;
+        this.commentsConfig = {
+            entityID: doc.ID || 0,
+            entityType: SupplierInvoice.EntityType
+        }
         this.toolbarConfig = {
             title: doc && doc.Supplier && doc.Supplier.Info ? `${trimLength(doc.Supplier.Info.Name, 20)}` : lang.headliner_new,
             subheads: [

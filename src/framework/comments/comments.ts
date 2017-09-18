@@ -26,11 +26,16 @@ export class UniComments {
         private userService: UserService,
         private errorService: ErrorService,
         private cdr: ChangeDetectorRef
-    ) {}
+    ) {
+        this.commentService.comments$.subscribe(comments => {
+            this.comments = comments;
+            this.cdr.markForCheck();
+        });
+    }
 
     public ngOnChanges() {
         if (this.entity && this.entityID) {
-            this.getComments();
+            this.commentService.loadComments(this.entity, this.entityID);
         }
     }
 
