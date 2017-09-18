@@ -24,6 +24,7 @@ import * as _ from 'lodash';
         />
         <button class="uni-url-openBtn"
                 (click)="openUrl()"
+                type="button"
                 [disabled]="!validateURL(control?.value)">...</button>
         <ng-content></ng-content>
     `
