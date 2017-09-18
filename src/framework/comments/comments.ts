@@ -35,6 +35,8 @@ export class UniComments {
 
     public ngOnChanges() {
         if (this.entity && this.entityID) {
+            // Loading into ReplaySubject in commentService and reading from the subject
+            // Allows the list to be updated with new comments without triggering a manual refresh here
             this.commentService.loadComments(this.entity, this.entityID);
         }
     }
