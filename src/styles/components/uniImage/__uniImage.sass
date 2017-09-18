@@ -78,7 +78,7 @@ uni-image
 
         label
             position: absolute
-            width: calc(100% - 4rem)
+            width: calc(100% - 10rem)
             left: 2rem
             text-align: center
             line-height: 3rem
@@ -104,6 +104,22 @@ uni-image
 
         .next
             right: 1%
+
+        .print
+            position: absolute
+            cursor: pointer
+            right: calc(1% + 6rem)
+
+            &:before
+                height: 3rem
+                width: 2rem
+                display: block
+                content: ''
+                background: url('assets/print_white.png') center center no-repeat
+                background-size: 1.1rem
+
+            &:hover:before
+                background-size: 1.2rem
 
         .trash
             position: absolute
