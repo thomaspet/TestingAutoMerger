@@ -297,10 +297,6 @@ export class Project {
         );
     }
 
-    public exportProject(done: Function) {
-
-    }
-
     public onFilterClick(item: { name: string, isActive: boolean }) {
         this.filters.forEach( x => x.isActive = false);
         item.isActive = true;

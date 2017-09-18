@@ -1,5 +1,5 @@
 import {Component} from '@angular/core';
-import {ActivatedRoute} from '@angular/router';
+import {Router, ActivatedRoute} from '@angular/router';
 import {UniHttp} from '../../../../../framework/core/http/http';
 import {Project} from '../../../../unientities';
 import * as utils from '../../../common/utils/utils';
@@ -29,10 +29,15 @@ export class ProjectHourTotals {
     private busy: boolean = false;
     private report: Array<IReport>;
     private toolbarConfig: IToolbarConfig;
+    public filters: Array<{ label: string, name: string, isActive: boolean}> = [
+        { label: 'Personer', name: 'persons', isActive: false },
+        { label: 'Timearter', name: 'worktypes', isActive: true }
+    ];
 
     constructor(
         private pageState: PageStateService,
         private http: UniHttp,
+        private router: Router,
         private route: ActivatedRoute,
         private userService: UserService,
         private errorService: ErrorService,
@@ -42,7 +47,7 @@ export class ProjectHourTotals {
 
     public ngOnInit() {        
         this.route.queryParams.subscribe((params) => {
-            this.createFilter();
+            this.createFilter(this.filters.find( x => x.isActive).name);
         });
 
         this.projectService.toolbarConfig.subscribe( cfg => {
@@ -58,7 +63,17 @@ export class ProjectHourTotals {
         this.removeContextMenu();
     }
 
-    private createFilter() {
+    public onAddHoursClick() {
+        this.router.navigateByUrl('/timetracking/timeentry');
+    }
+
+    public onFilterClick(filter: { name: string, isActive: boolean }) {
+        this.filters.forEach( x => x.isActive = false);
+        filter.isActive = true;
+        this.createFilter(filter.name);
+    }
+
+    private createFilter(name: string) {
 
         var state: IPageState = this.pageState.getPageState();
         if (state.projectID) {
@@ -69,12 +84,25 @@ export class ProjectHourTotals {
             return;
         }
 
-        this.filter = 'model=workitem'
-            + `&select=sum(minutes) as tsum,year(date) as yr,month(date) as md,worktype.name as title`
-            + `&join=worker.businessrelationid eq businessrelation.id`
-            + `&expand=dimensions,worktype,workrelation.worker`
-            + `&orderby=year(date) desc,month(date)`
-            + `&filter=dimensions.projectid eq ${this.currentProjectID || 0} and year(date) gt 1980`;
+        switch (name) {
+            default:
+            case 'worktypes':
+                this.filter = 'model=workitem'
+                    + `&select=sum(minutes) as tsum,year(date) as yr,month(date) as md,worktype.name as title`
+                    + `&expand=dimensions,worktype`
+                    + `&orderby=year(date) desc,month(date)`
+                    + `&filter=dimensions.projectid eq ${this.currentProjectID || 0} and year(date) gt 1980`;
+                    break;
+
+            case 'persons':
+                    this.filter = 'model=workitem'
+                    + `&select=sum(minutes) as tsum,year(date) as yr,month(date) as md,businessrelation.name as title`
+                    + `&join=worker.businessrelationid eq businessrelation.id`
+                    + `&expand=dimensions,workrelation.worker`
+                    + `&orderby=year(date) desc,month(date)`
+                    + `&filter=dimensions.projectid eq ${this.currentProjectID || 0} and year(date) gt 1980`;
+                    break;
+        }
 
         if (state.year) {
             this.filter += ` and year(date) eq ${parseInt(state.year)}`;
