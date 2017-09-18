@@ -256,6 +256,10 @@ export class UniTable implements OnChanges {
         }
     }
 
+    public removeSelection() {
+        this.lastFocusPosition = undefined;
+    }
+
     // Event hooks
     public onCellFocused(event) {
         const cell = event.target;
@@ -727,6 +731,7 @@ export class UniTable implements OnChanges {
             // after data is filtered, emit event to notify parent that the data has changed
             setTimeout(() => {
                 this.dataLoaded.emit();
+                this.removeSelection();
             });
 
             if (!this.remoteData) {
@@ -805,6 +810,7 @@ export class UniTable implements OnChanges {
                     // after data is filtered, emit event to notify parent that the data has changed
                     setTimeout(() => {
                         this.dataLoaded.emit();
+                        this.removeSelection();
                     });
 
                     if (this.config.editable && this.lastFocusPosition) {
