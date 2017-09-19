@@ -11,9 +11,10 @@ export class InntektService extends BizHttp<code> {
     }
 
     public getSalaryValidValue(type: string = '') {
-        let url = 'salaryvalidvalues';
+        let url = `salaryvalidvalues?action=getall`;
+        
         if (type) {
-            url = url + '?type=' + type; 
+            url = url + `&type=${type}`;
         }
         
         return this.http
@@ -28,7 +29,7 @@ export class InntektService extends BizHttp<code> {
         return this.http
             .asGET()
             .usingBusinessDomain()
-            .withEndPoint('salaryvalidvalue/types')
+            .withEndPoint(`salaryvalidvalue/types?action=getall`)
             .send()
             .map(response => response.json());
     }

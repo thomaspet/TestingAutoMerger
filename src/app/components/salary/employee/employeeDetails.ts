@@ -493,7 +493,7 @@ export class EmployeeDetails extends UniView implements OnDestroy {
                                 this.employeeWidgets[1] = posterSalary;
                             }, 10);
                         } else {
-                            posterSalary.config.mainText.text = this.numberformat.asMoney(data.netPayment);
+                            posterSalary.config.mainText.text = this.numberformat.asMoney(0);
                             this.employeeWidgets[1] = posterSalary;
                         }
                     }, err => this.errorService.handle(err));

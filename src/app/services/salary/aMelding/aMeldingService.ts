@@ -115,7 +115,7 @@ export class AMeldingService extends BizHttp<AmeldingData> {
         return this.http
             .asGET()
             .usingBusinessDomain()
-            .withEndPoint(`ameldingsums/${id}`)
+            .withEndPoint(`ameldingsums?action=get-sumup&id=${id}`)
             .send()
             .map(response => response.json());
     }
