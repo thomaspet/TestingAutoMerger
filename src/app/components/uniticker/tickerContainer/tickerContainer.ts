@@ -85,18 +85,25 @@ export class UniTickerContainer {
 
     public ngAfterViewInit() {
         this.route.queryParamMap.subscribe(params => {
-            if (!this.ticker) {
-                return;
-            }
-
             const filterCode = params.get('filter');
             if (filterCode && (!this.selectedFilter || this.selectedFilter.Code !== filterCode)) {
-                this.selectedFilter = this.ticker.Filters.find(f => f.Code === filterCode);
+                this.setFilterFromFilterCode(filterCode, 0);
             }
 
             this.urlParamsChange.next(params);
             this.cdr.markForCheck();
         });
+    }
+
+    private setFilterFromFilterCode(filterCode: string, retryCount: number) {
+        if (this.ticker) {
+            this.selectedFilter = this.ticker.Filters.find(f => f.Code === filterCode);
+            this.cdr.markForCheck();
+        } else if (retryCount <= 5) {
+            setTimeout(() => {
+                this.setFilterFromFilterCode(filterCode, retryCount++);
+            }, 100);
+        }
     }
 
     private updateQueryParams() {
