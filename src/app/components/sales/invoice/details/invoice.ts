@@ -462,9 +462,6 @@ export class InvoiceDetails {
                 this.setDeliveryDate(invoice);
             }
 
-            // new projectID if customer changed and customer has projectID, otherwise null
-            this.projectID = invoice.DefaultDimensions ? invoice.DefaultDimensions.ProjectID : null;
-
             // update currency code in detailsForm to customer's currency code
             if (invoice.Customer.CurrencyCodeID) {
                 invoice.CurrencyCodeID = invoice.Customer.CurrencyCodeID;
@@ -474,24 +471,25 @@ export class InvoiceDetails {
             shouldGetCurrencyRate = true;
         }
 
-        // update projects in detailsForm and tradeItemTable to selected project
-        if ((!this.projectID && invoice.DefaultDimensions.ProjectID)
-            || this.projectID !== invoice.DefaultDimensions.ProjectID) {
-            this.modalService.confirm({
-                header: `Endre prosjekt på alle varelinjer?`,
-                message: `Vil du endre til prosjektet ${this.projects.find(project => 
-                    project.ID === invoice.DefaultDimensions.ProjectID).Name} på alle eksisterende varelinjer?`,
-                buttonLabels: {
-                    accept: 'Ja',
-                    reject: 'Nei'
-                }
-            }).onClose.subscribe(response => {
-                let replaceItemsProject: boolean = (response === ConfirmActions.ACCEPT);
-                this.projectID = invoice.DefaultDimensions.ProjectID;
-                this.tradeItemTable.setDefaultProjectAndRefreshItems(this.projectID, replaceItemsProject);
-            });
-        } else {
-            this.tradeItemTable.setDefaultProjectAndRefreshItems(this.projectID, true);
+        // refresh items if project changed
+        if (invoice.DefaultDimensions && invoice.DefaultDimensions.ProjectID !== this.projectID) {
+            this.projectID = invoice.DefaultDimensions.ProjectID;
+
+            if (this.invoiceItems.length) {
+                this.modalService.confirm({
+                    header: `Endre prosjekt på alle varelinjer?`,
+                    message: `Vil du endre til dette prosjektet på alle eksisterende varelinjer?`,
+                    buttonLabels: {
+                        accept: 'Ja',
+                        reject: 'Nei'
+                    }
+                }).onClose.subscribe(response => {
+                    let replaceItemsProject: boolean = (response === ConfirmActions.ACCEPT);
+                    this.tradeItemTable.setDefaultProjectAndRefreshItems(this.projectID, replaceItemsProject);
+                });
+            } else {        
+                this.tradeItemTable.setDefaultProjectAndRefreshItems(this.projectID, true);
+            }
         }
 
         if (this.invoice && this.invoice.InvoiceDate.toString() !== invoice.InvoiceDate.toString()) {
