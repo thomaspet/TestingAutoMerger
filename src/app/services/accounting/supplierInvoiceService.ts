@@ -49,7 +49,7 @@ export class SupplierInvoiceService extends BizHttp<SupplierInvoice> {
         var obsUsers = this.http.asGET().usingBusinessDomain()
             .withEndPoint('users/?hateoas=false?orderby=displayname&filter=statuscode eq 110001').send()
             .map(response => response.json());
-        
+
         return Observable.forkJoin( obsTeams, obsUsers )
             .switchMap( result => {
                  return Observable.of({
@@ -85,7 +85,7 @@ export class SupplierInvoiceService extends BizHttp<SupplierInvoice> {
         return this.http
             .asPOST()
             .usingBusinessDomain()
-            .withEndPoint(`${this.relativeURL}/${supplierInvoiceId}`)
+            .withEndPoint(`${this.relativeURL}/${supplierInvoiceId}?action=sendForPayment`)
             .send()
             .map(response => response.json());
     }
@@ -127,10 +127,15 @@ export class SupplierInvoiceService extends BizHttp<SupplierInvoice> {
         .map(response => response.json().Data);
     }
 
-    public getInvoiceList(urlSearchParams: URLSearchParams): Observable<any> {
+    public getInvoiceList(urlSearchParams: URLSearchParams, userIDFilter: string = ''): Observable<any> {
+
+        if (userIDFilter !== '' && userIDFilter !== null) {
+            userIDFilter = ' and user.id eq ' + userIDFilter;
+        }
+
         var flds = this.selectBuilder('ID', 'StatusCode',
             'Supplier.SupplierNumber', 'Info.Name', 'PaymentDueDate', 'InvoiceDate',
-            'InvoiceNumber', 'BankAccount.AccountNumber', 'PaymentInformation',
+            'InvoiceNumber', 'stuff(user.displayname) as Assignees', 'BankAccount.AccountNumber', 'PaymentInformation',
             'TaxInclusiveAmount', 'TaxInclusiveAmountCurrency',
             'PaymentID', 'JournalEntry.JournalEntryNumber',
             'RestAmount', 'Project.Name', 'Project.Projectnumber', 'Department.Name',
@@ -138,9 +143,10 @@ export class SupplierInvoiceService extends BizHttp<SupplierInvoice> {
             'CurrencyCodeID', 'CurrencyCode.Code');
         var route = '?model=SupplierInvoice' +
             '&select=' + flds +
+            '&join=supplierinvoice.id eq task.entityid and task.id eq approval.taskid and approval.userid eq user.id' +
             '&expand=supplier.info,journalentry,dimensions.project,dimensions.department,bankaccount,CurrencyCode' +
             '&orderby=id desc' +
-            '&filter=( isnull(deleted,0) eq 0 )';
+            '&filter=( isnull(deleted,0) eq 0 ' + (userIDFilter === null ? '' : userIDFilter)  + ' )';
 
         if (urlSearchParams) {
             let filter = urlSearchParams.get('filter');
@@ -158,9 +164,14 @@ export class SupplierInvoiceService extends BizHttp<SupplierInvoice> {
         .map(response => response.json().Data);
     }
 
-    public getInvoiceListGroupedTotals(): Observable<Array<IStatTotal>> {
+    public getInvoiceListGroupedTotals(userIDFilter: string = ''): Observable<Array<IStatTotal>> {
+        if (userIDFilter !== '' && userIDFilter !== null) {
+            userIDFilter = ' and user.id eq ' + userIDFilter;
+        }
         // tslint:disable-next-line:max-line-length
-        var route = '?model=supplierinvoice&select=count(id),statuscode,sum(TaxInclusiveAmount),sum(RestAmount)&filter=isnull(deleted,0) eq 0';
+        var route = '?model=supplierinvoice&select=count(id),statuscode,sum(TaxInclusiveAmount),sum(RestAmount)' +
+        '&join=supplierinvoice.id eq task.entityid and task.id eq approval.taskid and approval.userid eq user.id' +
+        '&filter=isnull(deleted,0) eq 0' + (userIDFilter === null ? '' : userIDFilter);
         return this.http.asGET().usingStatisticsDomain()
         .withEndPoint(route).send()
         .map(response => response.json().Data);

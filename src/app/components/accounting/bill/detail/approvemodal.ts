@@ -9,13 +9,13 @@ import {billViewLanguage as lang, approvalStatusLabels as statusLabels} from './
 @Component({
     selector: 'uni-approve-modal',
     template: `
-        <dialog class="uniModal" [attr.open]="isOpen">            
-            <article class="uniModal_bounds">                
-                <button (click)="close('cancel')" class="closeBtn"></button>                
+        <dialog class="uniModal" [attr.open]="isOpen">
+            <article class="uniModal_bounds">
+                <button (click)="close('cancel')" class="closeBtn"></button>
                 <article class="modal-content" [attr.aria-busy]="busy" >
-                    
+
                     <h3>{{currentTask?.Title}}</h3>
-                    
+
                     <header class="regtime_filters no-print">
                         <ul>
                             <li>
@@ -29,11 +29,11 @@ import {billViewLanguage as lang, approvalStatusLabels as statusLabels} from './
                                 </a>
                             </li>
                         </ul>
-                    </header>    
+                    </header>
 
                     <section class="tab-page">
 
-                        <article [hidden]="rejectTab">     
+                        <article [hidden]="rejectTab">
                             <strong>Status:</strong>
                             <table>
                                 <tr *ngFor="let approval of currentTask?.Approvals">
@@ -42,7 +42,7 @@ import {billViewLanguage as lang, approvalStatusLabels as statusLabels} from './
                                 </tr>
                             </table>
                         </article>
-                        
+
                         <article [hidden]="!rejectTab">
                             Avvis med kommentar:
                             <textarea [(ngModel)]="rejectMessage"></textarea>
@@ -50,7 +50,7 @@ import {billViewLanguage as lang, approvalStatusLabels as statusLabels} from './
 
                     </section>
 
-                    <footer>                         
+                    <footer>
                         <button [disabled]="!canApprove" (click)="onCloseAction('ok')" class="good">{{okButtonLabel}}</button>
                         <button (click)="onCloseAction('cancel')" class="bad">Avbryt</button>
                     </footer>
@@ -59,7 +59,7 @@ import {billViewLanguage as lang, approvalStatusLabels as statusLabels} from './
             </article>
         </dialog>
     `,
-    changeDetection: ChangeDetectionStrategy.OnPush    
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class UniApproveModal {
 
@@ -104,11 +104,11 @@ export class UniApproveModal {
         } else {
             details.approved = true;
         }
-        return details;        
+        return details;
     }
 
     private onCloseAction(src: 'ok' | 'cancel') {
-        
+
         if (src === 'ok') {
 
             if (this.rejectTab && !this.rejectMessage) {
@@ -117,14 +117,14 @@ export class UniApproveModal {
             }
 
             var prom: Promise<boolean> = (this.rejectTab) ? this.reject() : this.approve();
-            prom.then( () => this.okclicked.emit( this.currentDetails) );                        
+            prom.then( () => this.okclicked.emit( this.currentDetails) );
             return;
-        } 
-        
+        }
+
         this.isOpen = false;
         this.onClose(false);
         this.refresh();
-    }    
+    }
 
     private approve(): Promise<boolean> {
         this.goBusy(true);
@@ -133,8 +133,8 @@ export class UniApproveModal {
                 .finally( () => this.goBusy(false) )
                 .subscribe( result => {
                     resolve(true);
-                    }, 
-                    err => this.errorService.handle(err) 
+                    },
+                    err => this.errorService.handle(err)
                 );
         });
     }
@@ -149,12 +149,12 @@ export class UniApproveModal {
                 .finally( () => this.goBusy(false) )
                 .subscribe( result => {
                     resolve(true);
-                    }, 
-                    err => this.errorService.handle(err) 
+                    },
+                    err => this.errorService.handle(err)
                 );
         });
     }
-    
+
     public goBusy(busy: boolean = true) {
         this.busy = busy;
         this.refresh();
@@ -167,9 +167,9 @@ export class UniApproveModal {
         this.refresh();
     }
 
-    private onClose: (ok: boolean) => void = () => {};
+    public onClose: (ok: boolean) => void = () => {};
 
-    @HostListener('keydown', ['$event']) 
+    @HostListener('keydown', ['$event'])
     public keyHandler(event: KeyboardEvent) {
         if (!this.isOpen) { return; }
         switch (event.keyCode) {
@@ -206,13 +206,13 @@ export class UniApproveModal {
 
         this.goBusy(true);
         this.supplierInvoiceService.getTeamsAndUsers().subscribe( x => {
-            
+
             this.teams = x.teams;
             this.users = x.users;
-            
+
             this.sorByProp(this.users, 'DisplayName');
             this.currentUser = this.users && this.users.length > 0 ? this.users[0] : undefined;
-            
+
             // Extract-displaynames from users and inject into teams
             if (this.teams) {
                 this.teams.forEach( t => {
@@ -224,7 +224,7 @@ export class UniApproveModal {
                                 p['User'] = user;
                                 names += ( names ? ', ' : '' ) + user.DisplayName;
                             }
-                        });                
+                        });
                     }
                     t['Names'] = names;
                 });
@@ -238,11 +238,11 @@ export class UniApproveModal {
                     approvals.forEach( a => {
                         let user = this.users.find( u => u.ID === a.UserID );
                         if (user) {
-                            a['userName'] = user.DisplayName; 
+                            a['userName'] = user.DisplayName;
                         }
                     });
                 }
-            }            
+            }
 
             this.goBusy(false);
 
@@ -250,15 +250,15 @@ export class UniApproveModal {
 
         this.isOpen = true;
         return new Promise((resolve, reject) => {
-            this.onClose = ok => resolve(ok);            
+            this.onClose = ok => resolve(ok);
         });
     }
 
     private sorByProp(list: Array<any>, prop: string) {
-        list.sort( (a, b) => a[prop].toLowerCase() < b[prop].toLowerCase() ? -1 : 
+        list.sort( (a, b) => a[prop].toLowerCase() < b[prop].toLowerCase() ? -1 :
                 a[prop].toLowerCase() === b[prop].toLowerCase() ? 0 : 1 );
     }
-    
+
     private refresh() {
         if (this.changeDetectorRef) {
             this.changeDetectorRef.markForCheck();
