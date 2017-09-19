@@ -3,8 +3,8 @@
 </uni-toolbar>
 <section class=" application">
     <section class="splitview">
-        <button class="new-button" (click)="createNew()">Ny konto</button>
         <nav class="splitview_list">
+            <button class="new-button" (click)="createNew()">Ny konto</button>
             <account-list (uniAccountChange)="changeAccount($event)"></account-list>
         </nav>
         <main class="splitview_detail">
