@@ -1,10 +1,8 @@
 
-<!-- FIX: Stopping propagation on click should not be necessary -->
-<section *ngIf="subTickers?.length && parentModel" class="sub-ticker-container" (click)="stopPropagation($event)">
-    <button (click)="closeSubtickers($event)" class="closeBtn">close</button>
+<section *ngIf="subTickers?.length && parentModel" class="sub-ticker-container">
+    <button (click)="closeSubtickers()" class="closeBtn">close</button>
     <uni-ticker
         *ngFor="let subTicker of subTickers"
-        [header]="subTicker.Name"
         [ticker]="subTicker"
         [parentModel]="parentModel"
         [parentTicker]="parentTicker"
@@ -12,61 +10,3 @@
         [columnOverrides]="columnOverrides">
     </uni-ticker>
 </section>
-
-<!-- <section *ngIf="subTickers?.length">
-    <div *ngIf="parentModel">
-        <div class="sub-ticker-container" *ngIf="expanded">
-            <button (click)="closeSubtickers($event)" class="closeBtn">close</button>
-            <div class="sub-ticker-container-expanded" (click)="stopPropagation($event)">
-                <ng-template ngFor let-subTicker [ngForOf]="subTickers">
-                    <uni-ticker
-                        [header]="subTicker.Name"
-                        [ticker]="subTicker"
-                        [parentModel]="parentModel"
-                        [parentTicker]="parentTicker"
-                        [actionOverrides]="actionOverrides"
-                        [columnOverrides]="columnOverrides">
-                    </uni-ticker>
-                </ng-template>
-            </div>
-        </div>
-    </div>
-</section> -->
-
-
-<!-- <section *ngIf="subTickers?.length">
-    <div *ngIf="parentModel">
-        <div class="sub-ticker-container" *ngIf="expanded">
-            <button (click)="closeSubtickers($event)" class="closeBtn">close</button>
-            <div class="sub-ticker-container-expanded" (click)="stopPropagation($event)">
-                <ng-template ngFor let-subTicker [ngForOf]="subTickers">
-                    <uni-ticker
-                        [header]="subTicker.Name"
-                        [ticker]="subTicker"
-                        [parentModel]="parentModel"
-                        [parentTicker]="parentTicker"
-                        [actionOverrides]="actionOverrides"
-                        [columnOverrides]="columnOverrides">
-                    </uni-ticker>
-                </ng-template>
-            </div>
-        </div>
-
-        <div class="sub-ticker-container" *ngIf="!expanded">
-            <dl class="sub-ticker-summary">
-                <ng-template ngFor let-column [ngForOf]="getParentTickerColumns()">
-                    <dd>{{column.Header}}</dd>
-                    <dt [innerHtml]="getFieldValue(column, parentModel) | safehtml"></dt>
-                </ng-template>
-            </dl>
-        </div>
-
-    </div>
-
-    <div class="sub-ticker-container" *ngIf="!parentModel">
-        <div class="sub-ticker-empty">
-            Velg en rad for å se detaljer
-        </div>
-    </div>
-
-</section> -->

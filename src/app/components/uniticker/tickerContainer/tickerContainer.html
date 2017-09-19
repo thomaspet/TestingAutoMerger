@@ -1,25 +1,25 @@
-<uni-ticker-filters-nav-bar
+<uni-ticker-predefined-filters
     *ngIf="ticker?.Filters"
+    [filtersAsNavbar]="filtersAsNavbar"
     [ticker]="ticker"
     [filters]="ticker.Filters"
     [expressionFilters]="expressionFilters"
     [selectedFilter]="selectedFilter"
     (filterSelected)="onFilterSelected($event)">
-</uni-ticker-filters-nav-bar>
+</uni-ticker-predefined-filters>
 
 <section *ngIf="ticker" class="ticker-container">
 
     <uni-ticker
-        (rowSelected)="onRowSelected($event)"
         [ticker]="ticker"
         [selectedFilter]="selectedFilter"
-        [expanded]="expanded === 'ticker'"
         [expressionFilters]="expressionFilters"
         [class.expanded]="expanded === 'ticker' "
         [class.nofilter]="!showFilters"
         [actionOverrides]="actionOverrides"
         [useUniTableFilter]="useUniTableFilter"
-        [columnOverrides]="columnOverrides">
+        [columnOverrides]="columnOverrides"
+        (rowSelected)="onRowSelected($event)">
     </uni-ticker>
 
     <uni-sub-ticker-container

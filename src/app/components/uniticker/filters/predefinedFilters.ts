@@ -17,12 +17,13 @@ import {
 import {StatusService, StatisticsService, ErrorService} from '../../../services/services';
 
 @Component({
-    selector: 'uni-ticker-filters-nav-bar',
-    templateUrl: './tickerFiltersNavBar.html',
+    selector: 'uni-ticker-predefined-filters',
+    templateUrl: './predefinedFilters.html',
     changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class UniTickerFiltersNavBar implements OnChanges {
+export class UniTickerPredefinedFilters implements OnChanges {
     @Input() public filters: Array<TickerFilter>;
+    @Input() public filtersAsNavbar: boolean;
     @Input() public ticker: Ticker;
     @Input() public selectedFilter: TickerFilter;
     @Input() public expressionFilters: Array<IExpressionFilterValue> = [];

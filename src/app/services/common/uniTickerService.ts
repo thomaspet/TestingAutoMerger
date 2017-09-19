@@ -460,16 +460,15 @@ export class UniTickerService { //extends BizHttp<UniQueryDefinition> {
     public getFieldValue(column: TickerColumn, data: any, ticker: Ticker, columnOverrides: Array<ITickerColumnOverride>) {
         let fieldValue: any = this.getFieldValueInternal(column, data);
 
-        if (!fieldValue) {
-            fieldValue = '';
-        }
-
         if (columnOverrides) {
             let columnOverride = columnOverrides.find(x => x.Field === column.Field);
-
             if (columnOverride) {
-                return columnOverride.Template(data);
+                fieldValue = columnOverride.Template(data);
             }
+        }
+
+        if (!fieldValue) {
+            fieldValue = column.Placeholder || '';
         }
 
         let formattedFieldValue = fieldValue;
@@ -948,6 +947,7 @@ export class TickerColumn {
     public LinkNavigationProperties?: string[];
     public FilterOperator?: string;
     public SubFields?: Array<TickerColumn>;
+    public Placeholder?: string;
 }
 
 export interface ITickerColumnOverride {

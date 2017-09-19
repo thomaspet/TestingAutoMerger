@@ -1,18 +1,30 @@
-uni-ticker
-
+uni-ticker-wrapper uni-ticker
     .ticker-horizontal-menu
-        padding-left: .25rem
-        border-radius: pxToRem(3) pxToRem(3) 0 0
-        height: 2.25rem
-        line-height: 2.25rem
+        display: inline-block
+        position: absolute
+        top: .55rem
+        left: 16rem
+        z-index: map-get($zindex, toolbar)
 
         a
-            margin-right: 2rem
+            margin-right: 1rem
             cursor: pointer
+            &:hover, &:focus
+                text-decoration: underline
 
+uni-ticker
+    position: relative
+
+    // Only visible when inside uni-ticker-wrapper
+    // Important actions should be in toolbar in overview.ts
+    .ticker-horizontal-menu
+        display: none
 
     uni-table
         font-size: .9rem
+
+        unitable-search
+            display: inline-block
 
         th, td
             border-left: none
@@ -29,8 +41,55 @@ uni-ticker
         tr:focus
             background: #d4dfee !important
             color: $uni-color-positive !important
-            td a
-                color: $uni-color-positive !important
+            .contextMenu button
+                background-image: unicon-more($uni-color-scale5)
+                background-size: 1rem
+
+        td a
+            // TODO: Fix in typography
+            // border: none !important
+            // background: transparent !important
+            // text-decoration: underline !important
+
+        // th.ticker-open-col
+        //     width: 2rem
+
+        // td.ticker-open-col
+        //     position: relative
+        //     border-right: 1px solid #eee !important
+
+        //     a.ticker-open-link
+        //         @extend %hideText
+        //         background: unicon-edit($uni-color-scale5) no-repeat center !important
+        //         background-size: .8rem !important
+        //         position: absolute
+        //         top: 0
+        //         left: 0
+        //         height: 100%
+        //         width: 100%
+
+        // td.entity-link a
+        //     display: block
+        //     width: 100%
+        //     position: relative
+        //     text-overflow: ellipsis
+        //     overflow: hidden
+
+        //     padding-right: 1.5rem !important // make room for icon
+
+        //     &:before
+        //         content: ''
+        //         display: inline-block
+        //         width: 1rem
+        //         height: 100%
+        //         position: absolute
+        //         padding: 0 .25rem
+
+        //         right: 0
+        //         border-left: pxToRem(1) solid #eee
+
+        //         background: unicon-share(mix($uni-color-c2a, $uni-color-scale5, 50%)) no-repeat center
+        //         background-size: .8rem
 
 
 uni-ticker-detail-view
@@ -73,7 +132,7 @@ uni-sub-ticker-container
         display: inline-block
         width: 100%
         font-weight: 300
-        margin-top: 2.25rem
+        // margin-top: 2.25rem
         margin-left: 0
         background-color: #d4dfee
         overflow-y: visible
@@ -82,17 +141,20 @@ uni-sub-ticker-container
         uni-ticker
             margin-bottom: 1rem
 
+            &:first-of-type .ticker-header
+                padding-right: 3.5rem
+
             .ticker-header
                 height: 2.25rem
                 background: $uni-color-toolbar
-                padding: 0 4rem 0 2rem
+                padding: 0 1.25rem 0 2rem
 
                 span.ticker-title
                     color: #fff
                     line-height: 2.25rem
                     font-size: 1.15rem
 
-                uni-ticker-actions
+                .ticker-context-menu
                     display: block
                     float: right
                     width: 2rem
@@ -110,8 +172,9 @@ uni-sub-ticker-container
         .closeBtn
             @extend %hideText
             position: absolute
+            z-index: 999
             top: 0
-            right: 1rem
+            right: 1.25rem
             height: 2.25rem
             width: 2rem
             margin: 0

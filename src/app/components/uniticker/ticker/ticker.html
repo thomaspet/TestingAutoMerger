@@ -1,16 +1,24 @@
 <section *ngIf="ticker && prefetchDataLoaded && canShowTicker">
-    <section class="ticker-header" [ngClass]="{'sub-ticker': !!parentModel}">
-        <span class="ticker-title" *ngIf="header?.length">{{header}}</span>
-        <uni-ticker-actions
-            *ngIf="ticker.Actions?.length || (ticker.UseParentTickerActions && parentTicker?.Actions?.length)"
-            [ticker]="ticker"
-            [model]="model"
-            [actions]="getTickerActions()"
-            [actionOverrides]="actionOverrides"
-            (executeAction)="onExecuteAction($event)"
-            [isSubTicker]="!!parentModel">
-        </uni-ticker-actions>
+    <!-- Main ticker header -->
+    <section *ngIf="!parentModel; else subTickerHeader" class="ticker-horizontal-menu">
+        <a *ngFor="let action of getTickerActions()"
+            (click)="onExecuteAction(action)"
+            [hidden]="action.DisplayInActionBar != null && !action.DisplayInActionBar">
+            {{action.Name}}
+        </a>
     </section>
+
+    <!-- Sub ticker header (ng else) -->
+    <ng-template #subTickerHeader>
+        <section class="ticker-header" [ngClass]="{'sub-ticker': !!parentModel}">
+            <span class="ticker-title" *ngIf="ticker.Name">{{ticker.Name}}</span>
+            <uni-context-menu
+                *ngIf="contextMenuItems?.length"
+                [actions]="contextMenuItems"
+                class="ticker-context-menu">
+            </uni-context-menu>
+        </section>
+    </ng-template>
 
     <section class="ticker-data">
         <section class="data-container" (click)="letUniTableHandleIsOwnClicks($event)">

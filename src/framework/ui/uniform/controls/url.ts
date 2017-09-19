@@ -22,7 +22,7 @@ import * as _ from 'lodash';
             (focus)="focusHandler()"
             [title]="control?.value || ''"
         />
-        <button class="uni-url-openBtn"
+        <button class="uni-url-openBtn" type="button"
                 (click)="openUrl()"
                 type="button"
                 [disabled]="!validateURL(control?.value)">...</button>

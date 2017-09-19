@@ -152,7 +152,7 @@
                 "Header": "Nr",
                 "Field": "ID",
                 "Width": "100px",
-                "Type": "text"
+                "Type": "Link"
             },
             {
                 "Header": "Leverandør",
@@ -453,7 +453,8 @@
             {
                 "Header": "Leverandørnr",
                 "Field": "Supplier.SupplierNumber",
-                "Type": "text",
+                "Type": "Link",
+                "LinkNavigationProperty": "Supplier.ID",
                 "Width": "120px"
             },
             {

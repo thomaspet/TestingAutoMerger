@@ -3,7 +3,7 @@
     [saveactions]="saveactions">
 </uni-toolbar>
 
-<section class="wtf-wrapper">
+<section class="ticker-overview">
     <!-- REVISIT: Should this be a component? -->
     <ul class="ticker-list">
         <li *ngFor="let group of tickerGroups">
@@ -19,7 +19,7 @@
     </ul>
 
     <uni-ticker-container
-        [showFilters]="!selectedTicker || !selectedTicker.DisableFiltering"
-        [ticker]="selectedTicker">
+        [ticker]="selectedTicker"
+        (urlParamsChange)="onTickerParamsChange($event)">
     </uni-ticker-container>
 </section>

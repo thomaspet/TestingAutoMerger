@@ -1,13 +1,35 @@
-import {Component, ViewChild, Input, SimpleChanges, Output, EventEmitter, ChangeDetectorRef, ChangeDetectionStrategy} from '@angular/core';
+import {
+    Component,
+    ViewChild,
+    Input,
+    SimpleChanges,
+    Output,
+    EventEmitter,
+    ChangeDetectorRef,
+    ChangeDetectionStrategy
+} from '@angular/core';
 import {URLSearchParams, Http} from '@angular/http';
 import {TabService} from '../../layout/navbar/tabstrip/tabService';
 import {Router, ActivatedRoute} from '@angular/router';
-import {Ticker, TickerAction, TickerFilter, IExpressionFilterValue, ITickerActionOverride, ITickerColumnOverride} from '../../../services/common/uniTickerService';
+import {
+    Ticker,
+    TickerAction,
+    TickerFilter,
+    IExpressionFilterValue,
+    ITickerActionOverride,
+    ITickerColumnOverride
+} from '../../../services/common/uniTickerService';
+import {
+    UniTable,
+    UniTableColumn,
+    IContextMenuItem,
+    UniTableColumnType,
+    UniTableConfig
+} from '../../../../framework/ui/unitable/index';
 import {StatisticsService, StatusService} from '../../../services/services';
 import {UniHttp} from '../../../../framework/core/http/http';
 import {ToastService, ToastType, ToastTime} from '../../../../framework/uniToast/toastService';
 import {ErrorService, UniTickerService, ApiModelService, ReportDefinitionService} from '../../../services/services';
-import {UniTable, UniTableColumn, IContextMenuItem, UniTableColumnType, UniTableConfig} from '../../../../framework/ui/unitable/index';
 import {Observable} from 'rxjs/Observable';
 import {ImageModal} from '../../common/modals/ImageModal';
 import {BrowserStorageService} from '../../../services/common/browserStorageService';
@@ -18,7 +40,6 @@ import * as moment from 'moment';
 import {saveAs} from 'file-saver';
 
 const PAPERCLIP = '📎'; // It might look empty in your editor, but this is the unicode paperclip
-const TICKER_COLUMN_VISIBILITY_STORAGE_KEY = 'TickerColumnVisibility';
 
 @Component({
     selector: 'uni-ticker',
@@ -26,23 +47,19 @@ const TICKER_COLUMN_VISIBILITY_STORAGE_KEY = 'TickerColumnVisibility';
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class UniTicker {
-    @Input() private ticker: Ticker;
-    @Input() private showActions: boolean;
-    @Input() private showFilters: boolean;
-    @Input() private showSubTickers: boolean = false;
-    @Input() private expanded: boolean = true;
-    @Input() private parentModel: any;
-    @Input() private useUniTableFilter: boolean = false;
-    @Input() private selectedFilter: TickerFilter;
-    @Input() private header: string;
-    @Input() private parentTicker: Ticker;
-    @Input() private expressionFilters: Array<IExpressionFilterValue> = [];
-    @Input() private actionOverrides: Array<ITickerActionOverride> = [];
+    @Input() public ticker: Ticker;
+    @Input() public parentModel: any;
+    @Input() public useUniTableFilter: boolean = false;
+    @Input() public selectedFilter: TickerFilter;
+    @Input() public parentTicker: Ticker;
+    @Input() public expressionFilters: Array<IExpressionFilterValue> = [];
+    @Input() public actionOverrides: Array<ITickerActionOverride> = [];
     @Input() public columnOverrides: Array<ITickerColumnOverride> = [];
 
-    @Output() private rowSelected: EventEmitter<any> = new EventEmitter<any>();
+    @Output() public rowSelected: EventEmitter<any> = new EventEmitter<any>();
+    @Output() public contextMenuItemsChange: EventEmitter<any[]> = new EventEmitter();
 
-    @ViewChild(UniTable) unitable: UniTable;
+    @ViewChild(UniTable) public unitable: UniTable;
     @ViewChild(ImageModal) private imageModal: ImageModal;
 
     private model: any;
@@ -53,8 +70,9 @@ export class UniTicker {
     private prefetchDataLoaded: boolean = false;
 
     private selectedRow: any = null;
-
     private canShowTicker: boolean = true;
+
+    private contextMenuItems: any[];
 
     constructor(
         private uniHttpService: UniHttp,
@@ -93,6 +111,99 @@ export class UniTicker {
                 }
             };
     }
+
+    public ngOnChanges(changes: SimpleChanges) {
+        if (changes['ticker']) {
+            // if ticker was changed, check that the selectedFilter is
+            if (this.selectedFilter) {
+                if (!this.ticker.Filters.find(
+                        x => x.Code === this.selectedFilter.Code &&
+                        x.Filter === this.selectedFilter.Filter)) {
+                    this.selectedFilter = null;
+                }
+            }
+        }
+
+        if (changes['selectedFilter'] || (this.selectedFilter && !this.selectedFilter.IsActive)) {
+            if (this.selectedFilter) {
+                if (this.ticker && this.ticker.Filters && this.ticker.Filters.length > 0) {
+                    this.ticker.Filters.forEach(x => {
+                        if (x.Code !== this.selectedFilter.Code) {
+                            x.IsActive = false;
+                        }
+                    });
+                }
+
+                this.selectedFilter.IsActive = true;
+            }
+        }
+
+        // if we depend on parent filters or some other parameters, check that we are able to
+        // to get data before trying
+        this.checkCanShowTicker();
+
+        if (this.canShowTicker && this.ticker) {
+            this.contextMenuItems = this.actionsToContextMenuItems();
+
+            // run this even if it is not a table, because it prepares the query as well.
+            // Consider splitting this function to avoid this later
+            this.setupTableConfig().then(() => {
+                let tickerType = this.ticker.Type;
+                if (tickerType === 'table') {
+                    // let uni-table get its own data
+                } else {
+                    // get detaildata using the same lookupfunction as uni-table, but no point in
+                    // retrieving more than one row
+                    this.loadDetailTickerData();
+                }
+
+                this.cdr.markForCheck();
+            });
+
+            this.cdr.markForCheck();
+        }
+    }
+
+    public actionsToContextMenuItems() {
+        let actions = this.getTickerActions();
+        if (!actions) {
+            return;
+        }
+
+        let contextMenuItems = actions.map(action => {
+            let override = this.actionOverrides.find(x => action.Code === x.Code);
+            if ((action.NeedsActionOverride || action.Type === 'action') && !override) {
+                console.warn(`Ticker action ${action.Code} not available because of missing action override`);
+                return;
+            }
+
+            return {
+                label: action.Name,
+                disabled: () => {
+                    if (this.model && override && override.CheckActionIsDisabled !== undefined) {
+                        return override.CheckActionIsDisabled([this.model]);
+                    }
+
+                    if (action.Type === 'transition' && this.model) {
+                        if (!this.model._links) {
+                            throw Error('Cannot setup transition action, hateoas is not retrieved');
+                        } else if (this.model._links.transitions[action.Options.Transition]) {
+                            return true;
+                        }
+                    }
+
+                    return false;
+                },
+                action: () => {
+                    this.onExecuteAction(action);
+                }
+            };
+        });
+
+        // Filter out undefined items (actions missing override)
+        return contextMenuItems.filter(item => !!item);
+    }
+
 
     private checkCanShowTicker() {
         let canShowTicker = true;
@@ -206,54 +317,6 @@ export class UniTicker {
         return params;
     }
 
-    public ngOnChanges(changes: SimpleChanges) {
-        if (changes['ticker']) {
-            // if ticker was changed, check that the selectedFilter is
-            if (this.selectedFilter) {
-                if (!this.ticker.Filters.find(
-                        x => x.Code === this.selectedFilter.Code &&
-                        x.Filter === this.selectedFilter.Filter)) {
-                    this.selectedFilter = null;
-                }
-            }
-        }
-
-        if (changes['selectedFilter'] || (this.selectedFilter && !this.selectedFilter.IsActive)) {
-            if (this.selectedFilter) {
-                if (this.ticker && this.ticker.Filters && this.ticker.Filters.length > 0) {
-                    this.ticker.Filters.forEach(x => {
-                        if (x.Code !== this.selectedFilter.Code) {
-                            x.IsActive = false;
-                        }
-                    });
-                }
-
-                this.selectedFilter.IsActive = true;
-            }
-        }
-
-        // if we depend on parent filters or some other parameters, check that we are able to
-        // to get data before trying
-        this.checkCanShowTicker();
-
-        if (this.canShowTicker && this.ticker) {
-            // run this even if it is not a table, because it prepares the query as well.
-            // Consider splitting this function to avoid this later
-            this.setupTableConfig().then(() => {
-                let tickerType = this.ticker.Type;
-                if (tickerType === 'table') {
-                    // let uni-table get its own data
-                } else {
-                    // get detaildata using the same lookupfunction as uni-table, but no point in
-                    // retrieving more than one row
-                    this.loadDetailTickerData();
-                }
-
-                this.cdr.markForCheck();
-            });
-        }
-    }
-
     private loadDetailTickerData() {
         this.lookupFunction(new URLSearchParams('top=1'))
             .map(data => data.json())
@@ -286,7 +349,7 @@ export class UniTicker {
         this.rowSelected.emit(this.selectedRow);
     }
 
-    private onExecuteAction(action: TickerAction) {
+    public onExecuteAction(action: TickerAction) {
         let selectedRows = [];
         if (this.unitable) {
             selectedRows = this.unitable.getSelectedRows();
@@ -493,8 +556,6 @@ export class UniTicker {
         return this.modelService
             .loadModelCache()
             .then(() => {
-                let model = this.modelService.getModel(this.ticker.Model);
-
                 if (!this.ticker.Columns) {
                     // TODO: if no columns are defined, we should get defaults based on the model
                     this.ticker.Columns = [];
@@ -514,8 +575,8 @@ export class UniTicker {
                 }
 
                 // Define columns to use in the table
-                let columns: Array<UniTableColumn> = [];
-                let selects: Array<string> = [];
+                let columns: UniTableColumn[] = [];
+                let selects: string[] = [];
 
                 for (let i = 0; i < this.ticker.Columns.length; i++) {
                     let field = this.ticker.Columns[i];
@@ -560,9 +621,11 @@ export class UniTicker {
                         col.width = field.Width;
                         col.sumFunction = field.SumFunction;
 
+                        if (field.CssClass) {
+                            col.cls = field.CssClass;
+                        }
 
                         let columnOverride = this.columnOverrides.find(x => x.Field === field.Field);
-
                         if (columnOverride) {
                             col.setTemplate(row => {
                                 // use the tickerservice to get and format value based on override template

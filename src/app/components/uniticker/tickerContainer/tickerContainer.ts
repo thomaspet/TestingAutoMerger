@@ -3,14 +3,14 @@ import {
     ViewChild,
     Input,
     Output,
-    EventEmitter
+    EventEmitter,
+    ChangeDetectionStrategy,
+    ChangeDetectorRef
 } from '@angular/core';
+import {Router, ActivatedRoute, ParamMap} from '@angular/router';
 import {
     Ticker,
-    // TickerGroup,
-    // TickerAction,
     TickerFilter,
-    // TickerColumn,
     IExpressionFilterValue,
     ITickerActionOverride,
     ITickerColumnOverride
@@ -21,17 +21,21 @@ import {AuthService} from '../../../../framework/core/authService';
 
 @Component({
     selector: 'uni-ticker-container',
-    templateUrl: './tickerContainer.html'
+    templateUrl: './tickerContainer.html',
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class UniTickerContainer {
-    @ViewChild(UniTicker) private uniTicker: UniTicker;
+    @ViewChild(UniTicker) private mainTicker: UniTicker;
 
     @Input() public ticker: Ticker;
     @Input() public showActions: boolean;
     @Input() public showFilters: boolean = true;
+    @Input() public filtersAsNavbar: boolean;
     @Input() public useUniTableFilter: boolean = false;
     @Input() public actionOverrides: Array<ITickerActionOverride> = [];
     @Input() public columnOverrides: Array<ITickerColumnOverride> = [];
+
+    @Output() public urlParamsChange: EventEmitter<ParamMap> = new EventEmitter();
 
     public showSubTickers: boolean;
     public selectedFilter: TickerFilter;
@@ -43,7 +47,10 @@ export class UniTickerContainer {
 
     constructor(
         private authService: AuthService,
-        private yearService: YearService
+        private yearService: YearService,
+        private router: Router,
+        private route: ActivatedRoute,
+        private cdr: ChangeDetectorRef
     ) {
         let token = this.authService.getTokenDecoded();
         if (token) {
@@ -67,13 +74,45 @@ export class UniTickerContainer {
     }
 
     public ngOnChanges(changes) {
-        if (changes['ticker'] && this.ticker && this.ticker.Filters) {
-            this.selectedFilter = this.ticker.Filters[0];
+        if (changes['ticker'] && this.ticker) {
+            this.selectedRow = undefined;
+            this.showSubTickers = false;
+            if (!this.selectedFilter && this.ticker.Filters) {
+                this.selectedFilter = this.ticker.Filters[0];
+            }
         }
     }
 
-    public onRowSelected(selectedRow: any) {
-        this.selectedRow = selectedRow;
+    public ngAfterViewInit() {
+        this.route.queryParamMap.subscribe(params => {
+            if (!this.ticker) {
+                return;
+            }
+
+            const filterCode = params.get('filter');
+            if (filterCode && (!this.selectedFilter || this.selectedFilter.Code !== filterCode)) {
+                this.selectedFilter = this.ticker.Filters.find(f => f.Code === filterCode);
+            }
+
+            this.urlParamsChange.next(params);
+            this.cdr.markForCheck();
+        });
+    }
+
+    private updateQueryParams() {
+        const url = this.router.url.split('?')[0];
+
+        this.router.navigate([url], {
+            queryParams: {
+                filter: this.selectedFilter && this.selectedFilter.Code,
+                rowIndex: this.selectedRow ? this.selectedRow['_originalIndex'] : undefined
+            },
+            skipLocationChange: false
+        });
+    }
+
+    public onRowSelected(row) {
+        this.selectedRow = row;
         this.showSubTickers = true;
     }
 
@@ -81,10 +120,18 @@ export class UniTickerContainer {
         if (filter !== this.selectedFilter) {
             this.selectedFilter = filter;
             this.selectedRow = null;
+            this.showSubTickers = false;
+            this.updateQueryParams();
         }
     }
 
     public exportToExcel(completeEvent) {
-        this.uniTicker.exportToExcel(completeEvent);
+        this.mainTicker.exportToExcel(completeEvent);
+    }
+
+    public runAction(action) {
+        if (this.mainTicker) {
+            this.mainTicker.onExecuteAction(action);
+        }
     }
 }

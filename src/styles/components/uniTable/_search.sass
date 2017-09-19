@@ -1,3 +1,7 @@
+unitable-search
+    display: block
+    margin-bottom: .5rem
+
 .unitableSearch_advanced
     list-style: none
 
@@ -6,20 +10,32 @@
 
 .unitableSearch_advancedBtn,
 .unitableSearch_advancedBtn:active
-    @extend a:link
-    display: inline-block
-    background: none
-    box-shadow: none
-    text-shadow: none
-    border: none
-    padding: 0
-    margin-left: .3rem
-    text-decoration: none
+    @extend %hideText
+    background: transparent unicon-settings($uni-color-scale5) center center no-repeat
+    background-size: 1rem
+    height: 1.2rem
+    width: 1.2rem
+    margin-left: .25rem
 
     &:hover,
     &:focus
-        text-decoration: underline
-        background: none
+        background: transparent unicon-settings($uni-color-scale3) center center no-repeat
+        background-size: 1rem
+
+    // @extend a:link
+    // display: inline-block
+    // background: none
+    // box-shadow: none
+    // text-shadow: none
+    // border: none
+    // padding: 0
+    // margin-left: .3rem
+    // text-decoration: none
+
+    // &:hover,
+    // &:focus
+    //     text-decoration: underline
+    //     background: none
 
 .unitableSearch_advanced_filter
     display: flex
