@@ -9,7 +9,7 @@ import {
     Supplier, SupplierInvoice, JournalEntryLineDraft,
     StatusCodeSupplierInvoice, BankAccount, LocalDate,
     InvoicePaymentData, CurrencyCode, CompanySettings, Task,
-    Project, Department
+    Project, Department, User, ApprovalStatus, Approval
 } from '../../../../unientities';
 import {UniStatusTrack} from '../../../common/toolbar/statustrack';
 import {IUniSaveAction} from '../../../../../framework/save/save';
@@ -51,7 +51,7 @@ import {
     ModulusService,
     ProjectService,
     DepartmentService,
-
+    UserService
 } from '../../../../services/services';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {UniFieldLayout} from '../../../../../framework/ui/uniform/index';
@@ -97,6 +97,7 @@ export class BillView {
     public historyCount: number = 0;
     public ocrData: any;
 
+    private myUser: User;
     private files: Array<any>;
     private fileIds: Array<number> = [];
     private unlinkedFiles: Array<number> = [];
@@ -160,9 +161,13 @@ export class BillView {
         private projectService: ProjectService,
         private departmentService: DepartmentService,
         private modalService: UniModalService,
+        private userService: UserService,
         private commentService: CommentService
     ) {
         this.actions = this.rootActions;
+        userService.getCurrentUser().subscribe( usr => {
+            this.myUser = usr;
+        });
     }
 
     public ngOnInit() {
@@ -222,6 +227,7 @@ export class BillView {
         });
 
     }
+
     public extendFormConfig() {
         let fields: UniFieldLayout[] = this.fields$.getValue();
 
@@ -1086,8 +1092,8 @@ export class BillView {
         if (it && it._links) {
             var list: IUniSaveAction[] = [];
             this.rootActions.forEach(x => list.push(x));
-            var hasBilag = (!!(it.JournalEntry && it.JournalEntry.JournalEntryNumber));
-            let filter = ((it.StatusCode === 30105 && hasBilag) ? ['journal'] : undefined);
+            var hasJournalEntry = (!!(it.JournalEntry && it.JournalEntry.JournalEntryNumber));
+            let filter = ((it.StatusCode === StatusCodeSupplierInvoice.ToPayment && hasJournalEntry) ? ['journal'] : undefined);
             this.addActions(it._links.transitions, list, true, ['assign', 'approve', 'journal', 'pay'], filter);
             /* todo: add smartbooking whenever it works properly..
             if (it._links.actions && it._links.actions.smartbooking) {
@@ -1110,8 +1116,24 @@ export class BillView {
                     action = this.newAction(lang.task_reject, 'task_reject',
                         `api/biz/approvals/${approval.ID}?action=approve`, false);
                     list.push(action);
+
+                    // Godkjenn og Bokfør, Godkjenn, Bokfør og Til betaling
+                    if (it.StatusCode === StatusCodeSupplierInvoice.ForApproval) {
+                        let toJournalAction = this.newAction(lang.task_approve_and_journal, 'task_approve_and_journal', `api/biz/approvals/${approval.ID}?action=approve`);
+                        list.push(toJournalAction);
+
+                        let topaymentaction = this.newAction(lang.task_approve_and_journal_and_topayment, 'task_approve_and_journal_and_topayment', `api/biz/approvals/${approval.ID}?action=approve`);
+                        list.push(topaymentaction);
+                    }
                 }
             }
+
+            // Bokfør og Til betaling
+            if (it.StatusCode === StatusCodeSupplierInvoice.Approved) {
+                let toPaymentAction = this.newAction(lang.task_journal_and_topayment, 'task_journal_and_topayment', '');
+                list.push(toPaymentAction);
+            }
+
             this.actions = list;
         } else {
             this.initDefaultActions();
@@ -1210,26 +1232,9 @@ export class BillView {
                 break;
 
             case 'journal':
-                this.modalService.open(UniConfirmModalV2, {
-                    header: lang.ask_journal_title + current.Supplier.Info.Name,
-                    message: lang.ask_journal_msg + current.TaxInclusiveAmountCurrency.toFixed(2) + '?',
-                    warning: lang.warning_action_not_reversable,
-                    buttonLabels: {
-                        accept: 'Bokfør',
-                        cancel: 'Avbryt'
-                    }
-                }).onClose.subscribe(response => {
-                    if (response === ConfirmActions.ACCEPT) {
-                        this.busy = true;
-                        this.tryJournal(href).then((status: ILocalValidation) => {
-                            this.busy = false;
-                            this.hasUnsavedChanges = false;
-                            done(lang.save_success);
-                        }).catch((err: ILocalValidation) => {
-                            this.busy = false;
-                            done(err.errorMessage);
-                            this.userMsg(err.errorMessage, lang.warning, 10);
-                        });
+                this.journal(true, href).subscribe(result => {
+                    if (result) {
+                        done(lang.save_success);
                     } else {
                         done();
                     }
@@ -1277,9 +1282,194 @@ export class BillView {
                 done();
                 return true;
 
+            case 'task_approve_and_journal':
+                this.readyToApprove().subscribe(myApproval => {
+                    if (myApproval) {
+                        this.askApproveAndJournal()
+                            .switchMap(response => {
+                                return response === ConfirmActions.ACCEPT
+                                    ? this.approve(myApproval)
+                                    : Observable.of(false);
+                            })
+                            .switchMap(approved => {
+                                return approved
+                                    ? this.journal(false, href)
+                                    : Observable.of(false)
+                            })
+                            .subscribe(result => {
+                                this.fetchInvoice(current.ID, false);
+                                done(result ? 'Godkjent og bokført' : '');
+                             });
+                    } else {
+                        done('Ikke mulig å godkjenne');
+                    }
+                });
+
+                return true;
+
+            case 'task_approve_and_journal_and_topayment':
+                this.readyToApprove().subscribe(myApproval => {
+                    if (myApproval) {
+                        this.askApproveAndJournalAndToPayment()
+                            .switchMap(response => {
+                                return response === ConfirmActions.ACCEPT
+                                    ? this.approve(myApproval)
+                                    : Observable.of(false);
+                            })
+                            .switchMap(approved => {
+                                return approved
+                                    ? this.journal(false, href)
+                                    : Observable.of(false);
+                            })
+                            .switchMap(journaled => {
+                                return journaled
+                                    ? this.sendForPayment()
+                                    : Observable.of(false);
+                            })
+                            .subscribe(result => {
+                                this.fetchInvoice(current.ID, false);
+                                done(result ? 'Godkjent, bokført og til betaling' : '');
+                            });
+                    } else {
+                        done('Ikke mulig å godkjenne');
+                    }
+                });
+
+                return true;
+
+            case 'task_journal_and_topayment':
+                this.askJournalAndToPayment()
+                    .switchMap(response => {
+                        return response === ConfirmActions.ACCEPT
+                            ? this.journal(false, href)
+                            : Observable.of(false);
+                    })
+                    .switchMap(journaled => {
+                        return journaled
+                            ? this.sendForPayment()
+                            : Observable.of(false);
+                    })
+                    .subscribe(result => {
+                        this.fetchInvoice(current.ID, false);
+                        done(result ? 'Bokført og til betaling' : '');
+                    });
+
+                return true;
+
             default:
                 return this.RunActionOnCurrent(key, done);
         }
+    }
+
+    private sendForPayment(): Observable<boolean> {
+        let current = this.current.getValue();
+        return this.supplierInvoiceService.PostAction(current.ID, 'sendForPayment')
+                   .switchMap(result => Observable.of(true))
+                   .catch(err => Observable.of(false));
+    }
+
+    private journal(ask: boolean, href: string): Observable<boolean> {
+        let current = this.current.getValue();
+
+        let obs = ask
+            ? this.modalService.open(UniConfirmModalV2, {
+                header: lang.ask_journal_title + current.Supplier.Info.Name,
+                message: lang.ask_journal_msg + current.TaxInclusiveAmountCurrency.toFixed(2) + '?',
+                warning: lang.warning_action_not_reversable,
+                buttonLabels: {
+                    accept: 'Bokfør',
+                    cancel: 'Avbryt'
+                }
+              }).onClose.map(response => response === ConfirmActions.ACCEPT)
+            : Observable.of(true);
+
+        return obs.switchMap(response => {
+            if (!response) { return Observable.of(false); }
+
+            this.busy = true;
+            return Observable.fromPromise(
+                this.tryJournal(href).then((status: ILocalValidation) => {
+                    this.busy = false;
+                    this.hasUnsavedChanges = false;
+                    this.fetchInvoice(current.ID, false);
+                    return true;
+                }).catch((err: ILocalValidation) => {
+                    this.busy = false;
+                    this.userMsg(err.errorMessage, lang.warning, 10);
+                    return false;
+                }).then(response => {
+                    return Observable.of(response);
+                })
+            );
+        });
+    }
+
+    private askApproveAndJournal(): Observable<any> {
+        let current = this.current.getValue();
+        return this.modalService.open(UniConfirmModalV2, {
+            header: lang.ask_approve_and_journal_title + current.Supplier.Info.Name,
+            message: lang.ask_journal_msg + current.TaxInclusiveAmountCurrency.toFixed(2) + '?',
+            warning: lang.warning_action_not_reversable,
+            buttonLabels: {
+                accept: lang.task_approve_and_journal,
+                cancel: 'Avbryt'
+            }
+        }).onClose;
+    }
+
+    private askApproveAndJournalAndToPayment(): Observable<any> {
+        let current = this.current.getValue();
+        return this.modalService.open(UniConfirmModalV2, {
+            header: lang.ask_approve_and_journal_and_topayment_title + current.Supplier.Info.Name,
+            message: lang.ask_journal_msg + current.TaxInclusiveAmountCurrency.toFixed(2) + '?',
+            warning: lang.warning_action_not_reversable,
+            buttonLabels: {
+                accept: lang.task_approve_and_journal_and_topayment,
+                cancel: 'Avbryt'
+            }
+        }).onClose;
+    }
+
+    private askJournalAndToPayment(): Observable<any> {
+        let current = this.current.getValue();
+        return this.modalService.open(UniConfirmModalV2, {
+            header: lang.ask_journal_and_topayment_title + current.Supplier.Info.Name,
+            message: lang.ask_journal_msg + current.TaxInclusiveAmountCurrency.toFixed(2) + '?',
+            warning: lang.warning_action_not_reversable,
+            buttonLabels: {
+                accept: lang.task_journal_and_topayment,
+                cancel: 'Avbryt'
+            }
+        }).onClose;
+    }
+
+    private readyToApprove() : Observable<any> {
+        if (this.CurrentTask) {
+            let approvals = this.CurrentTask.Approvals;
+            if (approvals) {
+                let myApproval = approvals.find(x =>
+                    x.UserID === this.myUser.ID &&
+                    x.StatusCode === ApprovalStatus.Active);
+
+                if (myApproval) {
+                    return Observable.of(myApproval);
+                }
+            }
+        }
+
+        return Observable.of(null);
+    }
+
+    private approve(myApproval: Approval): Observable<boolean> {
+        let current = this.current.getValue();
+        return this.supplierInvoiceService.send(`approvals/${myApproval.ID}?action=approve`)
+            .switchMap(result => {
+                return Observable.of(true);
+            })
+            .catch(err => {
+                this.errorService.handle(err);
+                return Observable.of(false);
+            });
     }
 
     private RunActionOnCurrent(action: string, done?: (msg) => {}, successMsg?: string): boolean {
@@ -1288,7 +1478,6 @@ export class BillView {
         this.supplierInvoiceService.PostAction(current.ID, action)
             .finally(() => this.busy = false)
             .subscribe(() => {
-                this.fetchInvoice(current.ID, true);
                 if (done) { done(successMsg); }
             }, (err) => {
                 this.errorService.handle(err);
