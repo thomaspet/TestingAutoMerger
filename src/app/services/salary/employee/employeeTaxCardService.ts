@@ -104,7 +104,10 @@ export class EmployeeTaxCardService extends BizHttp<EmployeeTaxCard> {
                     FieldSet: 1,
                     Section: 0,
                     Placeholder: null,
-                    Options: null,
+                    Options: {
+                        format: 'Money',
+                        decimalLength: 2
+                    },
                     LineBreak: null,
                     Combo: null,
                     Sectionheader: '',
