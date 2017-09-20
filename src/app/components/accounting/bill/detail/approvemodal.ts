@@ -1,67 +1,62 @@
-import {Component, Output, ChangeDetectionStrategy, ChangeDetectorRef
+import {Component, Output, Input, ChangeDetectionStrategy, ChangeDetectorRef
     , HostListener, EventEmitter} from '@angular/core';
 import {ErrorService, SupplierInvoiceService, UserService} from '../../../../services/services';
 import {User, Team, Task, SupplierInvoice, ApprovalStatus, Approval} from '../../../../unientities';
 import {billViewLanguage as lang, approvalStatusLabels as statusLabels} from './lang';
+import {IUniModal, IModalOptions} from '../../../../../framework/uniModal/barrel';
 
 // tslint:disable:max-line-length
 
 @Component({
     selector: 'uni-approve-modal',
     template: `
-        <dialog class="uniModal" [attr.open]="isOpen">
-            <article class="uniModal_bounds">
-                <button (click)="close('cancel')" class="closeBtn"></button>
-                <article class="modal-content" [attr.aria-busy]="busy" >
+        <section role="dialog" class="uni-modal uni-approve-modal-class">
 
-                    <h3>{{currentTask?.Title}}</h3>
+            <header>
+                <h1 style="width: 50%">
+                    {{ modalTitle }}
+                </h1>
+            </header>
 
-                    <header class="regtime_filters no-print">
-                        <ul>
-                            <li>
-                                <a (click)="switchTab(0)" [ngClass]="{'router-link-active': !rejectTab}">
-                                    Godkjenning
-                                </a>
-                            </li>
-                            <li>
-                                <a (click)="switchTab(1)" [ngClass]="{'router-link-active': rejectTab}">
-                                    Avvis
-                                </a>
-                            </li>
-                        </ul>
-                    </header>
+            <article [attr.aria-busy]="busy">
+                <ul class="approveModalAssignRejectUl">
+                    <li (click)="switchTab(0)" [ngClass]="{'selected_tab_view': !rejectTab}">
+                        Godkjenning
+                    </li>
+                    <li (click)="switchTab(1)" [ngClass]="{'selected_tab_view': rejectTab}">
+                        Avvis
+                    </li>
+                    <div style="clear: both"></div>
+                </ul>
 
-                    <section class="tab-page">
+                <section class="tab-page">
 
-                        <article [hidden]="rejectTab">
-                            <strong>Status:</strong>
-                            <table>
-                                <tr *ngFor="let approval of currentTask?.Approvals">
-                                    <td>{{approval.userName}}</td>
-                                    <td>{{approval.statusLabel}}</td>
-                                </tr>
-                            </table>
-                        </article>
+                    <article [hidden]="rejectTab">
+                        <strong>Status:</strong>
+                        <table>
+                            <tr *ngFor="let approval of currentTask?.Approvals">
+                                <td>{{approval.userName}}</td>
+                                <td>{{approval.statusLabel}}</td>
+                            </tr>
+                        </table>
+                        <textarea [(ngModel)]="comment" placeholder="Kommentar" style="margin-top: 20px"></textarea>
+                    </article>
 
-                        <article [hidden]="!rejectTab">
-                            Avvis med kommentar:
-                            <textarea [(ngModel)]="rejectMessage"></textarea>
-                        </article>
+                    <article [hidden]="!rejectTab">
+                        <textarea [(ngModel)]="comment" placeholder="Kommentar"></textarea>
+                    </article>
 
-                    </section>
-
-                    <footer>
-                        <button [disabled]="!canApprove" (click)="onCloseAction('ok')" class="good">{{okButtonLabel}}</button>
-                        <button (click)="onCloseAction('cancel')" class="bad">Avbryt</button>
-                    </footer>
-
-                </article>
+                </section>
             </article>
-        </dialog>
+            <footer>
+                <button [disabled]="!canApprove" (click)="onCloseAction('ok')" class="good">{{okButtonLabel}}</button>
+                <button (click)="onCloseAction('cancel')" class="bad">Avbryt</button>
+            </footer>
+        </section>
     `,
     changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class UniApproveModal {
+export class UniApproveModal implements IUniModal {
 
     private isOpen: boolean = false;
     private busy: boolean = false;
@@ -71,16 +66,21 @@ export class UniApproveModal {
     private currentTeam: Team;
     private currentUser: User;
     private okButtonLabel: string = lang.task_approve;
+    private modalTitle: string = '';
     private invoice: SupplierInvoice;
     private get currentTask(): Task {
         return <any>(this.invoice ? this.invoice['_task'] : undefined);
     }
-    private rejectMessage: string = '';
     private canApprove: boolean = false;
     private myApproval: Approval;
     private myUser: User;
+    public comment: string = '';
 
-    @Output() public okclicked: EventEmitter<ApprovalDetails> = new EventEmitter();
+    @Input()
+    public options: IModalOptions = {};
+
+    @Output()
+    public onClose: EventEmitter<ApprovalDetails> = new EventEmitter();
 
     constructor(
         private supplierInvoiceService: SupplierInvoiceService,
@@ -92,104 +92,15 @@ export class UniApproveModal {
             });
     }
 
-    public switchTab(index: number) {
-        this.rejectTab = index === 1;
-        this.okButtonLabel = this.rejectTab ? lang.task_reject : lang.task_approve;
-    }
-
-    public get currentDetails(): ApprovalDetails {
-        var details = new ApprovalDetails();
-        if (this.rejectTab) {
-            details.rejected = true;
-        } else {
-            details.approved = true;
-        }
-        return details;
-    }
-
-    private onCloseAction(src: 'ok' | 'cancel') {
-
-        if (src === 'ok') {
-
-            if (this.rejectTab && !this.rejectMessage) {
-                this.errorService.addErrorToast(lang.err_missing_comment);
-                return;
-            }
-
-            var prom: Promise<boolean> = (this.rejectTab) ? this.reject() : this.approve();
-            prom.then( () => this.okclicked.emit( this.currentDetails) );
+    public ngOnInit() {
+        if (!this.options || !this.options.data) {
             return;
         }
-
-        this.isOpen = false;
-        this.onClose(false);
-        this.refresh();
-    }
-
-    private approve(): Promise<boolean> {
-        this.goBusy(true);
-        return new Promise<boolean>( (resolve, reject) => {
-            this.supplierInvoiceService.send(`approvals/${this.myApproval.ID}?action=approve`)
-                .finally( () => this.goBusy(false) )
-                .subscribe( result => {
-                    resolve(true);
-                    },
-                    err => this.errorService.handle(err)
-                );
-        });
-    }
-
-    private reject(): Promise<boolean> {
-        this.goBusy(true);
-        return new Promise<boolean>( (resolve, reject) => {
-            var msg = `${this.rejectMessage} : ${this.myUser.DisplayName}`;
-            this.supplierInvoiceService.send(`comments/supplierinvoice/${this.invoice.ID}`, undefined, 'POST', { Text: msg })
-                .subscribe( commentResult => {} );
-            this.supplierInvoiceService.send(`approvals/${this.myApproval.ID}?action=reject`)
-                .finally( () => this.goBusy(false) )
-                .subscribe( result => {
-                    resolve(true);
-                    },
-                    err => this.errorService.handle(err)
-                );
-        });
-    }
-
-    public goBusy(busy: boolean = true) {
-        this.busy = busy;
-        this.refresh();
-    }
-
-    public close() {
-        this.goBusy(false);
-        this.isOpen = false;
-        this.onClose(true);
-        this.refresh();
-    }
-
-    public onClose: (ok: boolean) => void = () => {};
-
-    @HostListener('keydown', ['$event'])
-    public keyHandler(event: KeyboardEvent) {
-        if (!this.isOpen) { return; }
-        switch (event.keyCode) {
-            case 27: // ESC
-                this.onCloseAction('cancel');
-                break;
-            case 83: // S
-                if (event.ctrlKey) {
-                    this.onCloseAction('ok');
-                }
-                break;
-        }
-    }
-
-    public open(invoice: SupplierInvoice, forApproval: boolean = true): Promise<boolean> {
-
-        this.invoice = invoice;
+        this.invoice = this.options.data.invoice;
         this.canApprove = false;
-        this.okButtonLabel = forApproval ? lang.task_approve : lang.task_reject;
-        this.rejectTab = !forApproval;
+        this.okButtonLabel = this.options.data.forApproval ? lang.task_approve : lang.task_reject;
+        this.modalTitle = this.options.data.forApproval ? lang.task_approve : lang.task_reject;
+        this.rejectTab = !this.options.data.forApproval;
 
         if (this.currentTask) {
             let approvals = this.currentTask.Approvals;
@@ -247,11 +158,99 @@ export class UniApproveModal {
             this.goBusy(false);
 
         });
+    }
 
-        this.isOpen = true;
-        return new Promise((resolve, reject) => {
-            this.onClose = ok => resolve(ok);
+    public switchTab(index: number) {
+        this.rejectTab = index === 1;
+        this.okButtonLabel = this.rejectTab ? lang.task_reject : lang.task_approve;
+        this.modalTitle = this.rejectTab ? lang.task_reject : lang.task_approve;
+    }
+
+    public get currentDetails(): ApprovalDetails {
+        var details = new ApprovalDetails();
+        if (this.rejectTab) {
+            details.rejected = true;
+        } else {
+            details.approved = true;
+        }
+        details.message = this.comment;
+
+        return details;
+    }
+
+    private onCloseAction(src: 'ok' | 'cancel') {
+
+        if (src === 'ok') {
+
+            if (this.rejectTab && !this.comment) {
+                this.errorService.addErrorToast(lang.err_missing_comment);
+                return;
+            }
+
+            var prom: Promise<boolean> = (this.rejectTab) ? this.reject() : this.approve();
+            prom.then( () => this.onClose.emit( this.currentDetails) );
+            return;
+        }
+
+        this.isOpen = false;
+        this.onClose.emit(null);
+        this.refresh();
+    }
+
+    private approve(): Promise<boolean> {
+        this.goBusy(true);
+        return new Promise<boolean>( (resolve, reject) => {
+            this.supplierInvoiceService.send(`approvals/${this.myApproval.ID}?action=approve`)
+                .finally( () => this.goBusy(false) )
+                .subscribe( result => {
+                    resolve(true);
+                    },
+                    err => this.errorService.handle(err)
+                );
         });
+    }
+
+    private reject(): Promise<boolean> {
+        this.goBusy(true);
+        return new Promise<boolean>( (resolve, reject) => {
+            var msg = `${this.comment} : ${this.myUser.DisplayName}`;
+            this.supplierInvoiceService.send(`comments/supplierinvoice/${this.invoice.ID}`, undefined, 'POST', { Text: msg })
+                .subscribe( commentResult => {} );
+            this.supplierInvoiceService.send(`approvals/${this.myApproval.ID}?action=reject`)
+                .finally( () => this.goBusy(false) )
+                .subscribe( result => {
+                    resolve(true);
+                    },
+                    err => this.errorService.handle(err)
+                );
+        });
+    }
+
+    public goBusy(busy: boolean = true) {
+        this.busy = busy;
+        this.refresh();
+    }
+
+    public close() {
+        this.goBusy(false);
+        this.isOpen = false;
+        this.onClose.emit(null);
+        this.refresh();
+    }
+
+    @HostListener('keydown', ['$event'])
+    public keyHandler(event: KeyboardEvent) {
+        if (!this.isOpen) { return; }
+        switch (event.keyCode) {
+            case 27: // ESC
+                this.onCloseAction('cancel');
+                break;
+            case 83: // S
+                if (event.ctrlKey) {
+                    this.onCloseAction('ok');
+                }
+                break;
+        }
     }
 
     private sorByProp(list: Array<any>, prop: string) {
@@ -272,4 +271,5 @@ export class ApprovalDetails {
     public taskCompleted: boolean;
     public approved: boolean;
     public rejected: boolean;
+    public message?: string;
 }

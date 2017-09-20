@@ -114,7 +114,6 @@ export class BillView {
     @ViewChild(BillHistoryView) private historyView: BillHistoryView;
     @ViewChild(ImageModal) public imageModal: ImageModal;
     @ViewChild(UniImage) public uniImage: UniImage;
-    @ViewChild(UniApproveModal) private approveModal: UniApproveModal;
 
     // tslint:disable:max-line-length
     private supplierExpandOptions: Array<string> = ['Info', 'Info.BankAccounts', 'Info.DefaultBankAccount', 'CurrencyCode'];
@@ -1198,14 +1197,16 @@ export class BillView {
     }
 
     public onTaskApproval(details: ApprovalDetails) {
+        if (!details) {
+            return;
+        }
         if (details.approved || details.rejected) {
             this.supplierInvoiceService.invalidateCache();
             this.fetchInvoice(this.currentID, true);
-            if (details.rejected) {
-                // todo: update toolbar comments...
+            if (details.message && details.message !== '') {
+                this.addComment(details.message);
             }
         }
-        this.approveModal.close();
     }
 
     public onAssignClickOk(details: AssignDetails) {
@@ -1273,12 +1274,26 @@ export class BillView {
                 return true;
 
             case 'task_approval':
-                this.approveModal.open(current, true);
+                this.modalService.open(UniApproveModal, {
+                    data: {
+                        invoice: current,
+                        forApproval: true
+                    }
+                }).onClose.subscribe((details: ApprovalDetails) => {
+                    this.onTaskApproval(details);
+                });
                 done();
                 return true;
 
             case 'task_reject':
-                this.approveModal.open(current, false);
+                this.modalService.open(UniApproveModal, {
+                    data: {
+                        invoice: current,
+                        forApproval: false
+                    }
+                }).onClose.subscribe((details: ApprovalDetails) => {
+                    this.onTaskApproval(details);
+                });
                 done();
                 return true;
 

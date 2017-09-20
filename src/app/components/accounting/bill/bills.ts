@@ -59,7 +59,6 @@ interface SearchParams {
     templateUrl: './bills.html'
 })
 export class BillsView {
-    @ViewChild(UniApproveModal) private approveModal: UniApproveModal;
     @ViewChild(UniTable)
     private unitable: UniTable;
 

@@ -151,7 +151,8 @@ import {SupplierList} from './supplier/list/supplierList';
         AccountDetailsReport,
         SelectJournalEntryLineTable,
         NewAccountForm,
-        UniAssignModal
+        UniAssignModal,
+        UniApproveModal
     ],
     exports: [
         AccountSettings,
