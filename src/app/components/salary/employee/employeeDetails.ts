@@ -609,7 +609,7 @@ export class EmployeeDetails extends UniView implements OnDestroy {
 
     private taxBoolChecks(employeeTaxCard: EmployeeTaxCard, year): { hasTaxCard: any, taxCardIsUpToDate: boolean } {
         return {
-            hasTaxCard: employeeTaxCard && (employeeTaxCard.TaxPercentage || employeeTaxCard.TaxTable),
+            hasTaxCard: employeeTaxCard && (employeeTaxCard.Percent || employeeTaxCard.Table),
             taxCardIsUpToDate: employeeTaxCard && employeeTaxCard.Year === year
         };
     }
@@ -700,8 +700,8 @@ export class EmployeeDetails extends UniView implements OnDestroy {
                         });
             })
             .map(taxCard => {
-                if (!taxCard.TaxPercentage) {
-                    taxCard.TaxPercentage = undefined;
+                if (!taxCard.Percent) {
+                    taxCard.Percent = undefined;
                 }
                 if (!taxCard.NonTaxableAmount) {
                     taxCard.NonTaxableAmount = undefined;

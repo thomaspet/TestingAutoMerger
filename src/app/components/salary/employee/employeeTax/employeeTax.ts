@@ -2,13 +2,12 @@ import {Component, OnInit, SimpleChanges} from '@angular/core';
 import {Router, ActivatedRoute} from '@angular/router';
 import {UniFieldLayout} from '../../../../../framework/ui/uniform/index';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
-import {EmployeeTaxCard, Employee, Municipal} from '../../../../unientities';
+import {EmployeeTaxCard, Employee} from '../../../../unientities';
 import {UniView} from '../../../../../framework/core/uniView';
 import {
     UniCacheService,
     ErrorService,
-    EmployeeTaxCardService,
-    MunicipalService
+    EmployeeTaxCardService
 } from '../../../../services/services';
 import {Observable} from 'rxjs/Observable';
 
@@ -26,8 +25,7 @@ export class EmployeeTax extends UniView implements OnInit {
         protected router: Router,
         private route: ActivatedRoute,
         private errorService: ErrorService,
-        private employeeTaxCardService: EmployeeTaxCardService,
-        private municipalService: MunicipalService
+        private employeeTaxCardService: EmployeeTaxCardService
     ) {
         super(router.url, cacheService);
         route.parent.params.subscribe((params) => {
@@ -78,28 +76,6 @@ export class EmployeeTax extends UniView implements OnInit {
 
             this.toggleTaxButtonActive(employee, <any>layout.Fields);
             this.toggleReadOnly(employeeTaxCard, <any>layout.Fields);
-
-            let municipality = this.findByProperty(layout.Fields, 'MunicipalityNo');
-            municipality.Options = {
-                getDefaultData: () => employeeTaxCard && employeeTaxCard.MunicipalityNo
-                    ? this.municipalService
-                        .GetAll(`filter=MunicipalityNo eq ${employeeTaxCard.MunicipalityNo}`)
-                        .catch((err, obs) => this.errorService.handleRxCatch(err, obs))
-                    : Observable.of([]),
-                search: (query: string) => this.municipalService
-                    .GetAll(`filter=
-                        startswith(MunicipalityNo, '${query}')
-                        or contains(MunicipalityName, '${query}')
-                        &top=50`)
-                    .catch((err, obs) => this.errorService.handleRxCatch(err, obs)),
-                valueProperty: 'MunicipalityNo',
-                displayProperty: 'MunicipalityNo',
-                debounceTime: 200,
-                template: (obj: Municipal) => obj
-                    ? `${obj.MunicipalityNo} - ${obj.MunicipalityName.substr(0, 1).toUpperCase()
-                    + obj.MunicipalityName.substr(1).toLowerCase()}`
-                    : ''
-            };
             this.fields$.next(layout.Fields);
         }, err => this.errorService.handle(err));
     }

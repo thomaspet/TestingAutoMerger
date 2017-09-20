@@ -155,8 +155,8 @@ export class SalaryTransactionSelectionList extends UniView implements AfterView
         let error = '';
         let taxError = !employee.TaxCards
             || !employee.TaxCards.length
-            || (!employee.TaxCards[0].TaxTable
-                && !employee.TaxCards[0].TaxPercentage);
+            || (!employee.TaxCards[0].Table
+                && !employee.TaxCards[0].Percent);
         let accountError = !employee.BusinessRelationID
             || !employee.BusinessRelationInfo.DefaultBankAccountID;
         let notUpdated = !taxError
@@ -210,19 +210,19 @@ export class SalaryTransactionSelectionList extends UniView implements AfterView
     private setSums(employeeTotals: SalaryTransactionSums) {
         let employee = this.employeeList[this.selectedIndex];
         let taxCard = employee && employee.TaxCards && employee.TaxCards.length ? employee.TaxCards[0] : undefined;
-        let standardTaxPercent = taxCard && taxCard.TaxTable ? '' : ' (50%)';
+        let standardTaxPercent = taxCard && taxCard.Table ? '' : ' (50%)';
 
         this.summary = [{
             value: employeeTotals && this.numberFormat.asMoney(employeeTotals.percentTax),
-            title: `Prosenttrekk` + (taxCard && taxCard.TaxPercentage
-                ? ` (${taxCard.TaxPercentage}%)`
+            title: `Prosenttrekk` + (taxCard && taxCard.Percent
+                ? ` (${taxCard.Percent}%)`
                 : standardTaxPercent),
             description: employeeTotals
                 && employeeTotals.basePercentTax
                 ? `av ${this.numberFormat.asMoney(employeeTotals.basePercentTax)}` : null
         }, {
             value: employeeTotals && this.numberFormat.asMoney(employeeTotals.tableTax),
-            title: 'Tabelltrekk' + (taxCard && taxCard.TaxTable ? ` (${taxCard.TaxTable})` : ''),
+            title: 'Tabelltrekk' + (taxCard && taxCard.Table ? ` (${taxCard.Table})` : ''),
             description: employeeTotals
                 && employeeTotals.baseTableTax
                 ? `av ${this.numberFormat.asMoney(employeeTotals.baseTableTax)}` : null
@@ -277,7 +277,7 @@ export class SalaryTransactionSelectionList extends UniView implements AfterView
         let error =
             `Gå til <a href="/#/salary/employees/${employee.ID}">${name}</a> for å legge inn `;
         let noBankAccounts = !employee.BusinessRelationID || !employee.BusinessRelationInfo.DefaultBankAccountID;
-        let noTax = !taxCard || !taxCard.TaxTable && !taxCard.TaxPercentage;
+        let noTax = !taxCard || !taxCard.Table && !taxCard.Percent;
 
         if (noBankAccounts && noTax) {
             error = 'Skatteinfo og kontonummer mangler. ' + error + 'skatteinfo og kontonummer.';
@@ -293,7 +293,7 @@ export class SalaryTransactionSelectionList extends UniView implements AfterView
     public generateWarningMessage(): string {
         let employee = this.employeeList[this.selectedIndex];
         let taxCard = this.getTaxcard(employee);
-        let noTax = !taxCard || !taxCard.TaxTable && !taxCard.TaxPercentage;
+        let noTax = !taxCard || !taxCard.Table && !taxCard.Percent;
         let notUpdated = !noTax && this.payrollRun && taxCard.Year < new Date(this.payrollRun.PayDate).getFullYear();
         let ret: string = '';
         if (notUpdated) {
@@ -310,14 +310,14 @@ export class SalaryTransactionSelectionList extends UniView implements AfterView
     public hasWarning(): boolean {
         let employee = this.employeeList[this.selectedIndex];
         let taxCard = this.getTaxcard(employee);
-        let noTax = !taxCard || !taxCard.TaxTable && !taxCard.TaxPercentage;
+        let noTax = !taxCard || !taxCard.Table && !taxCard.Percent;
         return !noTax && this.payrollRun && taxCard.Year < new Date(this.payrollRun.PayDate).getFullYear();
     }
 
     public hasError(employee: Employee): boolean {
         let taxCard = employee && employee.TaxCards && employee.TaxCards.length ? employee.TaxCards[0] : undefined;
         let noBankAccounts = !employee.BusinessRelationID || !employee.BusinessRelationInfo.DefaultBankAccountID;
-        let noTax = !taxCard || !taxCard.TaxTable && !taxCard.TaxPercentage;
+        let noTax = !taxCard || !taxCard.Table && !taxCard.Percent;
 
         return noBankAccounts || noTax;
     }
