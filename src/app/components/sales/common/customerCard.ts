@@ -77,6 +77,7 @@ export class TofCustomerCard {
         'Info.Addresses',
         'Info.ShippingAddress',
         'Info.InvoiceAddress',
+        'Info.DefaultContact.Info',
         'Info.DefaultEmail',
         'Dimensions.Project',
         'Dimensions.Department',
@@ -185,9 +186,8 @@ export class TofCustomerCard {
         this.mapProjectToEntity(customer, this.entity);
         this.mapTermsToEntity(customer, this.entity);
 
-        if (customer.Info.DefaultEmail) {
-            this.entity.EmailAddress = customer.Info.DefaultEmail.EmailAddress;
-        }
+        this.entity.YourReference = customer.Info.DefaultContact && customer.Info.DefaultContact.Info.Name;
+        this.entity.EmailAddress = customer.Info.DefaultEmail && customer.Info.DefaultEmail.EmailAddress;
 
         let sellers = [];
         if (this.entity.Sellers.length === 0) {

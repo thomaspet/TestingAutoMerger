@@ -107,6 +107,7 @@ export class QuoteDetails {
     private customerExpandOptions: string[] = [
         'Info',
         'Info.Addresses',
+        'Info.DefaultContact.Info',
         'Info.Emails',
         'Info.InvoiceAddress',
         'Info.ShippingAddress',

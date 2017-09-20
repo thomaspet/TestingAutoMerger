@@ -123,6 +123,7 @@ export class OrderDetails {
         'Dimensions.Project.ProjectTasks',
         'Info',
         'Info.Addresses',
+        'Info.DefaultContact.Info',
         'Info.Emails',
         'Info.InvoiceAddress',
         'Info.ShippingAddress',

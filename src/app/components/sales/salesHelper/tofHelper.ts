@@ -35,14 +35,13 @@ export class TofHelper {
             }
 
             entity.CurrencyCodeID = customer.CurrencyCodeID;
+            entity.YourReference = customer.Info.DefaultContact && customer.Info.DefaultContact.Info.Name;
         }
 
         if (customer.Dimensions && customer.Dimensions.ProjectID) {
             entity.DefaultDimensions.ProjectID = customer.Dimensions.ProjectID;
             entity.DefaultDimensions.Project = customer.Dimensions.Project;
         }
-        
-
         
         if (customer.PaymentTermsID) {
             entity.PaymentTermsID = customer.PaymentTermsID;

@@ -128,6 +128,7 @@ export class InvoiceDetails {
         'Dimensions.Department',
         'Info',
         'Info.Addresses',
+        'Info.DefaultContact.Info',
         'Info.Emails',
         'PaymentTerms',
         'Sellers',
