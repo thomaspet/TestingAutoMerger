@@ -24,13 +24,17 @@ uni-image
 
         li
             height: pxToRem(50)
-            max-width: 5rem
+            max-width: 3rem
             display: inline-block
             float: left
             cursor: pointer
 
-            &:not(:first-of-type)
-                margin: pxToRem(1)
+            @media (min-width: pxToRem(1600px))
+                padding-bottom: 0.4rem
+
+            @media (max-width: pxToRem(1600px))
+                &:not(:first-of-type)
+                    margin-left: pxToRem(5)
 
             &:last-of-type
                 @include clearfix()
@@ -39,6 +43,7 @@ uni-image
                 width: auto
                 height: 100%
                 max-width: 100%
+                border: solid $uni-color-scale8 0.03rem
 
             // REVISIT: Quickfix. Get help from Jørgen!
             &[aria-busy]:not([aria-busy=false])
@@ -48,7 +53,7 @@ uni-image
             .uni-image-upload
                 display: block
                 height: 50px
-                min-width: 4rem
+                min-width: 2.4rem
                 border: 1px dashed $uni-color-scale8
                 border-radius: pxToRem(5)
                 box-sizing: border-box
@@ -138,11 +143,11 @@ uni-image
                 background-size: .9rem
 
     .uni-thumbnail-list.-has-thumbnails
-        @media (min-width: 1600px)
+        @media (min-width: pxToRem(1600px))
             position: absolute
-            max-width: 13rem
-            min-width: 13rem
-            top: -0.5rem
+            max-width: 2.2rem
+            min-width: 2.2rem
+            top: -1rem
             left: 41rem
 
 uni-modal .uni-thumbnail-list.-has-thumbnails

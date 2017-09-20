@@ -57,7 +57,7 @@ export interface IUploadConfig {
                 <a *ngIf="files.length > 1" class="prev" (click)="previous()"></a>
                 <label>{{fileInfo}}</label>
 
-                <a class="print" (click)="print()"></a>
+                <a *ngIf="this.printOut" class="print" (click)="print()"></a>
 
                 <a class="trash" (click)="deleteImage()" *ngIf="!readonly"></a>
                 <a *ngIf="files.length > 1" class="next" (click)="next()"></a>
@@ -113,6 +113,9 @@ export class UniImage {
 
     @Input()
     public singleImage: boolean;
+
+    @Input()
+    public printOut: boolean;
 
     @Input()
     public expandInNewTab: boolean;
