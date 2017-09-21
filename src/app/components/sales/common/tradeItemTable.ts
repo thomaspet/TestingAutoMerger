@@ -321,7 +321,8 @@ export class TradeItemTable {
 
                 this.itemsChange.next(this.items);
                 return updatedRow;
-            });
+            })
+            .setCopyFromCellAbove(false);
     }
 
     public onRowDeleted(row) {

@@ -105,7 +105,7 @@ export class TradeItemHelper  {
             newRow.Dimensions._createguid = this.guidService.guid();
 
             // Default antall for ny rad
-            if (newRow.NumberOfItems === null) {
+            if ((newRow.NumberOfItems === null) && newRow.Product) {
                 newRow.NumberOfItems = 1;
             }
         }
