@@ -49,8 +49,6 @@ export class UniTableUtils {
         try {
             this.columnSetupMap[key] = safeToSave;
             localStorage.setItem(CONFIG_STORAGE_KEY, JSON.stringify(this.columnSetupMap));
-
-            console.log('saved', this.columnSetupMap);
         } catch (e) {
             console.log(e);
         }

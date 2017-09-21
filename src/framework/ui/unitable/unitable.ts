@@ -217,12 +217,23 @@ export class UniTable implements OnChanges {
 
             if (customColumnSetup && customColumnSetup.length) {
                 // Extend the default column config with the custom one.
-                // This is done because localStorage can't hold functions/components etc
-                // So only the "safe" fields are saved
-                let columns = customColumnSetup.map(customCol => {
-                    let originalCol = this.config.columns.find(orig => orig.field === customCol.field);
-                    return Object.assign({}, originalCol, customCol);
-                });
+                // Extending because localStorage can't hold functions/components etc
+                // So only a set of pre-defined fields are saved
+                let columns = [];
+                for (let customColumn of customColumnSetup) {
+                    let originalCol = this.config.columns.find(c => c.field === customColumn.field);
+                    if (originalCol) {
+                        columns.push(Object.assign({}, originalCol, customColumn));
+                    } else {
+                        // If we can't find an original column with the same field
+                        // it means either the default config changed or a table with the
+                        // same name and different config exists somewhere in the app.
+                        // At this point we need to reset in order to avoid crashing
+                        this.onResetColumnConfig();
+                        columns = this.config.columns;
+                        break;
+                    }
+                }
 
                 this.tableColumns = this.makeColumnsImmutable(columns);
             } else {
