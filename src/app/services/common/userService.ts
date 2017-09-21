@@ -68,7 +68,24 @@ export class UserService extends BizHttp<User> {
 
         // If not, check if the user has permission to view the route
         let permissionKey: string = this.getPermissionKey(url);
+
+        // Check for direct match
         let hasPermission = user['Permissions'].some(permission => permission === permissionKey);
+
+        // If no direct match: pop route parts one by one and check for
+        // permission to everything under that.
+        // E.g no permission for 'ui_salary_employees_employments
+        // but permission for 'ui_salary_employees' and therefore employments
+        if (!hasPermission) {
+            let permissionParts = permissionKey.split('_');
+            while (permissionParts.length) {
+                permissionParts.pop();
+                if (user['Permissions'].some(p => p === permissionParts.join('_'))) {
+                    hasPermission = true;
+                    break;
+                }
+            }
+        }
 
         return hasPermission;
     }
