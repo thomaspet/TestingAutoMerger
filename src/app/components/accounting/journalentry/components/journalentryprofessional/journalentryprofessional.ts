@@ -966,10 +966,12 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
             FileIDs: []
         };
 
-        let columns: Array<UniTableColumn> = [];
+        let columns: UniTableColumn[] = [];
+        let tableName: string;
 
         if (this.mode === JournalEntryMode.Payment) {
             // Payment == "Innbetaling"
+            tableName = 'accounting.journalEntry.payments';
             debitAccountCol.setSkipOnEnterKeyNavigation(true);
             debitVatTypeCol.setSkipOnEnterKeyNavigation(true);
             creditAccountCol.setSkipOnEnterKeyNavigation(true);
@@ -994,6 +996,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
             ];
         } else {
             // Manual == "Bilagsregistrering"
+            tableName = 'accounting.journalEntry.manual';
             columns = [
                 sameOrNewCol,
                 financialDateCol,
@@ -1026,7 +1029,6 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
             });
         }
 
-        const tableName = 'accounting.journalEntry.journalEntryProfessional';
         this.journalEntryTableConfig = new UniTableConfig(tableName, true, false, 100)
             .setDefaultOrderBy('SameOrNewDetails', 0)
             .setColumns(columns)

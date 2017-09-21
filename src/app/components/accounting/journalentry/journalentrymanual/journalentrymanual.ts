@@ -745,8 +745,8 @@ export class JournalEntryManual implements OnChanges, OnInit {
                 .setTemplate(x => this.journalEntryLineService.getStatusText(x.StatusCode))
         ];
 
-        let tableName = 'accounting.journalEntry.journalEntryManual';
-        this.openPostTableConfig = new UniTableConfig(tableName, false, false, 100)
+        let tableConfigStoreKey = 'accounting.journalEntry.openPostTable';
+        this.openPostTableConfig = new UniTableConfig(tableConfigStoreKey, false, false, 100)
             .setColumns(columns)
             .setMultiRowSelect(true)
             .setColumnMenuVisible(true);
