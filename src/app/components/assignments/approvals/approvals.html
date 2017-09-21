@@ -22,11 +22,11 @@
             </section>
 
             <section class="assignment-buttons">
-                <button *ngIf="approval._activeApproval" class="bad" (click)="reject(approval)">
+                <button *ngIf="approval._activeApproval" class="bad" (click)="approveOrReject(approval, false)">
                     Avvis
                 </button>
 
-                <button *ngIf="approval._activeApproval" class="good" (click)="approve(approval)">
+                <button *ngIf="approval._activeApproval" class="good" (click)="approveOrReject(approval, true)">
                     Godkjenn
                 </button>
             </section>
@@ -52,16 +52,16 @@
         <!-- Hard coded or nothing now -->
         <!-- Can backend tell us the entity type? -->
         <article *ngIf="selectedApproval">
-            
+
             <supplier-invoice-preview
                 *ngIf="entityType==='SupplierInvoice'"
                 [task]="selectedApproval?.Task">
             </supplier-invoice-preview>
-            
+
             <work-approval-preview
                 *ngIf="entityType==='WorkItemGroup'"
                 [task]="selectedApproval?.Task">
-            </work-approval-preview>            
+            </work-approval-preview>
 
         </article>
     </section>

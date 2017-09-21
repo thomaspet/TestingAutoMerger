@@ -8,6 +8,7 @@ import {LayoutModule} from '../layout/layoutModule';
 import {UniFrameworkModule} from '../../../framework/frameworkModule';
 import {AppCommonModule} from '../common/appCommonModule';
 import {AppPipesModule} from '../../pipes/appPipesModule';
+import {AccountingModule} from '../accounting/AccountingModule';
 
 import {ROUTES} from './assignmentsRoutes';
 
@@ -31,6 +32,7 @@ import {WorkApprovalPreview} from './previews/workapprovalpreview';
         LayoutModule,
         AppCommonModule,
         AppPipesModule,
+        AccountingModule,
 
         ROUTES
     ],
