@@ -17,7 +17,7 @@ interface IKeyNumberObject {
     selector: 'uni-kpi-widget',
     template: `
         <div class="uni-kpi-widget">
-            <div class="uni-dashboard-chart-header"> <span> {{ widget.config.header }} </span></div>
+            <div class="uni-widget-header"> <span> {{ widget.config.header }} </span></div>
             <section>
 
                 <section>

@@ -139,16 +139,14 @@ export class UniCompanyDropdown {
         this.authService.companyChange.subscribe((company) => {
             this.activeCompany = company;
             this.loadCompanyData();
+            this.cdr.markForCheck();
         });
-
 
         this.yearService.selectedYear$.subscribe(val => {
             this.selectYear = this.getYearComboSelection(val);
             this.activeYear = val;
         });
-
     }
-
 
     public openYearModal()  {
         this.yearModal.changeYear.subscribe((val: ChangeYear) => {
@@ -188,8 +186,8 @@ export class UniCompanyDropdown {
 
     private getYearComboSelection(curYear): string[]     {
         return [
-            curYear - 1,
-            curYear + 1,
+            `${curYear - 1}`,
+            `${curYear + 1}`,
             '...'];
     }
 

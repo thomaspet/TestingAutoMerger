@@ -14,11 +14,12 @@ import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 //      9×× - Discontinued
 export enum UniModules {
     Dashboard       = 100,
-    Settings        = 101,
-    Reports         = 102,
-    UniQuery        = 103,
-    UniTicker       = 104,
-    Assignments     = 105,
+    BureauDashboard = 101,
+    Settings        = 102,
+    Reports         = 103,
+    UniQuery        = 104,
+    UniTicker       = 105,
+    Assignments     = 106,
 
     Sales           = 200,
     Customers       = 201,

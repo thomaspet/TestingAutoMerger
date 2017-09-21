@@ -1,5 +1,6 @@
 import {RouterModule} from '@angular/router';
 import {Dashboard} from './components/dashboard/dashboard';
+import {BureauDashboard} from './components/bureau/bureauDashboard';
 import {AuthGuard} from './authGuard';
 
 import {UniDimensions, dimensionsRoutes} from './components/dimensions/dimensionsModule';
@@ -12,6 +13,10 @@ const routes = [
         path: '',
         pathMatch: 'full',
         component: Dashboard,
+    },
+    {
+        path: 'bureau',
+        component: BureauDashboard
     },
     {
         path: 'dimensions',

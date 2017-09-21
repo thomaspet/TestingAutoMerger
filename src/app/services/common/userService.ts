@@ -4,7 +4,7 @@ import {User} from '../../unientities';
 import {UniHttp} from '../../../framework/core/http/http';
 import {Observable} from 'rxjs/Observable';
 
-const PUBLIC_ROUTES = ['init', 'about', 'assignments', 'tickers', 'uniqueries'];
+const PUBLIC_ROUTES = ['init', 'bureau', 'about', 'assignments', 'tickers', 'uniqueries'];
 
 @Injectable()
 export class UserService extends BizHttp<User> {
