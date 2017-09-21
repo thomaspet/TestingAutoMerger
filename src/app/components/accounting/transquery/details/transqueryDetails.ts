@@ -1,7 +1,14 @@
 import {IToolbarConfig} from '../../../../components/common/toolbar/toolbar';
 import {Component, OnInit, ViewChild} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
-import {UniTable, UniTableColumn, UniTableConfig, UniTableColumnType, ITableFilter} from '../../../../../framework/ui/unitable/index';
+import {
+    UniTable,
+    UniTableColumn,
+    UniTableConfig,
+    UniTableColumnType,
+    ITableFilter,
+    ICellClickEvent
+} from '../../../../../framework/ui/unitable/index';
 import {TransqueryDetailsCalculationsSummary} from '../../../../models/accounting/TransqueryDetailsCalculationsSummary';
 import {URLSearchParams, Response} from '@angular/http';
 import {Observable} from 'rxjs/Observable';
@@ -557,7 +564,6 @@ export class TransqueryDetails implements OnInit {
                     .setTemplate(line => line.Attachments ? PAPERCLIP : '')
                     .setWidth('40px')
                     .setFilterable(false)
-                    .setOnCellClick(line => this.imageModal.open(JournalEntry.EntityType, line.JournalEntryID))
             ];
 
         columns.forEach(x => {
@@ -604,6 +610,12 @@ export class TransqueryDetails implements OnInit {
                 }
             ])
             .setColumns(columns);
+    }
+
+    public onCellClick(event: ICellClickEvent) {
+        if (event.column.field === 'ID') {
+            this.imageModal.open(JournalEntry.EntityType, event.row.JournalEntryID);
+        }
     }
 
     private getCssClasses(data, field) {

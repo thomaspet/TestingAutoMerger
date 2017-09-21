@@ -24,7 +24,7 @@ import {ToastService, ToastTime, ToastType} from '../../../../framework/uniToast
                 type="search"
                 placeholder="Filtrer klienter"
                 [formControl]="searchControl" />
-                
+
             <button
                 type="button"
                 (click)="onNewCompanyClick($event)"
@@ -33,7 +33,7 @@ import {ToastService, ToastTime, ToastType} from '../../../../framework/uniToast
             <uni-table
                 [resource]="filteredCompanies"
                 [config]="tableConfig"
-                (cellSelected)="onCellClick($event)">
+                (cellClick)="onCellClick($event)">
             </uni-table>
         </section>
     `

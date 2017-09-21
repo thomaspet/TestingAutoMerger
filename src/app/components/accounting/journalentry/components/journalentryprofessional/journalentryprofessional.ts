@@ -10,7 +10,13 @@ import {
     ChangeDetectorRef
 } from '@angular/core';
 import {Observable} from 'rxjs/Observable';
-import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig} from '../../../../../../framework/ui/unitable/index';
+import {
+    UniTable,
+    UniTableColumn,
+    UniTableColumnType,
+    UniTableConfig,
+    ICellClickEvent
+} from '../../../../../../framework/ui/unitable/index';
 import {UniHttp} from '../../../../../../framework/core/http/http';
 import {
     Account,
@@ -948,8 +954,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
             .setTemplate(line => line.FileIDs && line.FileIDs.length > 0 ? PAPERCLIP : '')
             .setWidth('30px')
             .setFilterable(false)
-            .setSkipOnEnterKeyNavigation(true)
-            .setOnCellClick(line => this.toggleImageVisibility(line));
+            .setSkipOnEnterKeyNavigation(true);
 
         let defaultRowData = {
             Dimensions: {},
@@ -1205,6 +1210,12 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
             }
         });
 
+    }
+
+    public onCellClick(event: ICellClickEvent) {
+        if (event.column.field === 'ID') {
+            this.toggleImageVisibility(event.row);
+        }
     }
 
     public showAgioDialogPostPost(journalEntryRow: JournalEntryData): Promise<JournalEntryData> {

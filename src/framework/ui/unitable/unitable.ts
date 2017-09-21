@@ -35,6 +35,11 @@ export interface IExpressionFilterValue {
     value: string;
 }
 
+export interface ICellClickEvent {
+    row: any;
+    column: UniTableColumn;
+}
+
 enum Direction { UP, DOWN, LEFT, RIGHT }
 
 @Component({
@@ -142,7 +147,7 @@ export class UniTable implements OnChanges {
 
     @Output() public rowSelectionChanged: EventEmitter<any> = new EventEmitter();
     @Output() public rowSelected: EventEmitter<any> = new EventEmitter();
-    @Output() public cellSelected: EventEmitter<{row: any, column: any}> = new EventEmitter();
+    @Output() public cellClick: EventEmitter<ICellClickEvent> = new EventEmitter();
     @Output() public rowChanged: EventEmitter<IRowChangeEvent> = new EventEmitter();
     @Output() public rowDeleted: EventEmitter<any> = new EventEmitter();
     @Output() public filtersChange: EventEmitter<any> = new EventEmitter();
@@ -360,7 +365,7 @@ export class UniTable implements OnChanges {
         const row = event.rowModel.toJS();
         const col = event.column.toJS();
 
-        this.cellSelected.next({
+        this.cellClick.next({
             row: row,
             column: col
         });
@@ -658,7 +663,7 @@ export class UniTable implements OnChanges {
     // Helpers
     private copyFromCellAbove() {
         if (!this.config.copyFromCellAbove) { return; }
-        
+
         const field = this.lastFocusedCellColumn.get('field');
         let rowIndex = this.lastFocusPosition.rowIndex;
         if (!this.remoteData && this.pager) {

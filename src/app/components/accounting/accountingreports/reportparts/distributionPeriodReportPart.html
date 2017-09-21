@@ -4,7 +4,8 @@
         <uni-table
             [resource]="distributionPeriodData"
             [config]="uniTableConfigDistributionPeriod"
-            (rowSelected)="onRowSelected($event)">
+            (rowSelected)="onRowSelected($event)"
+            (cellClick)="onCellClick($event)">
         </uni-table>
     </div>
     <div class="distribution-periods-chart">
