@@ -1,6 +1,5 @@
 ﻿import {Component, ViewChild, ElementRef} from '@angular/core';
 import {IUniWidget} from '../uniWidget';
-import {WidgetDataService} from '../widgetDataService';
 import {FinancialYearService, StatisticsService, ErrorService} from '../../../services/services';
 import * as Chart from 'chart.js';
 
@@ -115,7 +114,6 @@ export class UniKPIWidget {
     };
 
     constructor(
-        private widgetDataService: WidgetDataService,
         private financialYearService: FinancialYearService,
         private statService: StatisticsService,
         private errorService: ErrorService
