@@ -69,10 +69,10 @@ export class PostPost {
     public accountsTableConfig: UniTableConfig;
 
     //Detail view
-    public pointInTime$: BehaviorSubject<LocalDate> = new BehaviorSubject();
-    public customer$: BehaviorSubject<Customer> = new BehaviorSubject();
-    public supplier$: BehaviorSubject<Supplier> = new BehaviorSubject();
-    public account$: BehaviorSubject<Account> = new BehaviorSubject();
+    public pointInTime$: BehaviorSubject<LocalDate> = new BehaviorSubject(null);
+    public customer$: BehaviorSubject<Customer> = new BehaviorSubject(null);
+    public supplier$: BehaviorSubject<Supplier> = new BehaviorSubject(null);
+    public account$: BehaviorSubject<Account> = new BehaviorSubject(null);
 
     private toolbarconfig: IToolbarConfig;
     private accountSearch: IAutoCompleteConfig;
@@ -392,6 +392,18 @@ export class PostPost {
                     this.loadAccounts();
                     break;
             }
+    }
+
+    private onFiltersChange(filter) {
+        setTimeout(() => {
+            if (filter != '') {
+                let row = this.table.getTableData()[0];
+                if (this.table.getRowCount() === 1 && row._originalIndex != this.selectedIndex) {
+                    this.selectedIndex = row._originalIndex;
+                    this.table.focusRow(this.selectedIndex);
+                }
+            }
+        });
     }
 
     private setupAccountsTable() {
