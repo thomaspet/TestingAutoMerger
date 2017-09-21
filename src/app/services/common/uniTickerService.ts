@@ -566,7 +566,7 @@ export class UniTickerService { //extends BizHttp<UniQueryDefinition> {
             }
 
             if (url !== '' && formattedFieldValue !== '') {
-                formattedFieldValue = `<a href="/#${url}">${formattedFieldValue}</a>`;
+                formattedFieldValue = `<a class="ticker-link" href="/#${url}">${formattedFieldValue}</a>`;
             }
         } else if (columnType === 'external-link') {
             if (formattedFieldValue !== '' && fieldValue && fieldValue !== '') {

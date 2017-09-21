@@ -34,62 +34,29 @@ uni-ticker
 
         tr:nth-of-type(even)
             background: $uni-color-negative
+
         tr:nth-of-type(odd)
             background: #fff
 
         tr[aria-selected]:not([aria-selected=false]),
-        tr:focus
+        tr:focus,
+        tr:hover
             background: #d4dfee !important
             color: $uni-color-positive !important
             .contextMenu button
                 background-image: unicon-more($uni-color-scale5)
                 background-size: 1rem
 
+        th.ticker-link-col
+            text-align: center !important
+
+        td a.ticker-link
+            text-align: center
+            &:hover
+                background: darken(#d4dfee, 5%)
+
         td a
-            // TODO: Fix in typography
-            // border: none !important
-            // background: transparent !important
-            // text-decoration: underline !important
-
-        // th.ticker-open-col
-        //     width: 2rem
-
-        // td.ticker-open-col
-        //     position: relative
-        //     border-right: 1px solid #eee !important
-
-        //     a.ticker-open-link
-        //         @extend %hideText
-        //         background: unicon-edit($uni-color-scale5) no-repeat center !important
-        //         background-size: .8rem !important
-        //         position: absolute
-        //         top: 0
-        //         left: 0
-        //         height: 100%
-        //         width: 100%
-
-        // td.entity-link a
-        //     display: block
-        //     width: 100%
-        //     position: relative
-        //     text-overflow: ellipsis
-        //     overflow: hidden
-
-        //     padding-right: 1.5rem !important // make room for icon
-
-        //     &:before
-        //         content: ''
-        //         display: inline-block
-        //         width: 1rem
-        //         height: 100%
-        //         position: absolute
-        //         padding: 0 .25rem
-
-        //         right: 0
-        //         border-left: pxToRem(1) solid #eee
-
-        //         background: unicon-share(mix($uni-color-c2a, $uni-color-scale5, 50%)) no-repeat center
-        //         background-size: .8rem
+            display: block
 
 
 uni-ticker-detail-view

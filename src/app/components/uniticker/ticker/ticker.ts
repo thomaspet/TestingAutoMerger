@@ -621,6 +621,10 @@ export class UniTicker {
                         col.width = field.Width;
                         col.sumFunction = field.SumFunction;
 
+                        if (field.Type === 'link') {
+                            col.headerCls = 'ticker-link-col';
+                        }
+
                         if (field.CssClass) {
                             col.cls = field.CssClass;
                         }
