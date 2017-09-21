@@ -657,6 +657,8 @@ export class UniTable implements OnChanges {
 
     // Helpers
     private copyFromCellAbove() {
+        if (!this.config.copyFromCellAbove) { return; }
+        
         const field = this.lastFocusedCellColumn.get('field');
         let rowIndex = this.lastFocusPosition.rowIndex;
         if (!this.remoteData && this.pager) {
