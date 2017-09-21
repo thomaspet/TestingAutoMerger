@@ -142,6 +142,7 @@ export class UniTable implements OnChanges {
 
     @Output() public rowSelectionChanged: EventEmitter<any> = new EventEmitter();
     @Output() public rowSelected: EventEmitter<any> = new EventEmitter();
+    @Output() public cellSelected: EventEmitter<{row: any, column: any}> = new EventEmitter();
     @Output() public rowChanged: EventEmitter<IRowChangeEvent> = new EventEmitter();
     @Output() public rowDeleted: EventEmitter<any> = new EventEmitter();
     @Output() public filtersChange: EventEmitter<any> = new EventEmitter();
@@ -356,11 +357,13 @@ export class UniTable implements OnChanges {
     }
 
     public onCellClicked(event) {
-        const handler = event.column.get('onCellClickHandler');
-        if (handler) {
-            const rowModel = event.rowModel.toJS();
-            handler(rowModel);
-        }
+        const row = event.rowModel.toJS();
+        const col = event.column.toJS();
+
+        this.cellSelected.next({
+            row: row,
+            column: col
+        });
     }
 
     public onEditorChange(event: IRowModelChangeEvent) {
