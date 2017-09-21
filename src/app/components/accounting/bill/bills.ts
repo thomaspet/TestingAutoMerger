@@ -89,12 +89,13 @@ export class BillsView {
 
     public filters: Array<IFilter> = [
         { label: 'Innboks', name: 'Inbox', route: 'filetags/IncomingMail|IncomingEHF/0', onDataReady: (data) => this.onInboxDataReady(data), isSelected: true, hotCounter: true },
-        { label: 'Kladd', name: 'Draft', filter: 'isnull(statuscode,30101) eq 30101', isSelected: false, passiveCounter: true },
-        { label: 'Tildelt', name: 'ForApproval', filter: 'statuscode eq 30102', passiveCounter: true },
-        { label: 'Godkjent', name: 'Approved', filter: 'statuscode eq 30103', passiveCounter: true },
-        { label: 'Bokført', name: 'Journaled', filter: 'statuscode eq 30104', showJournalID: true, passiveCounter: true },
-        { label: 'Betalingsliste', name: 'ToPayment', filter: 'statuscode eq 30105', showJournalID: true, passiveCounter: true },
-        { label: 'Betalt', name: 'Paid', filter: 'statuscode eq 30107 or statuscode eq 30106', showStatus: true, showJournalID: true, passiveCounter: true },
+        { label: 'Kladd', name: 'Draft', filter: 'isnull(statuscode,' + StatusCodeSupplierInvoice.Draft + ') eq ' + StatusCodeSupplierInvoice.Draft, isSelected: false, passiveCounter: true },
+        { label: 'Avvist', name: 'Rejected', filter: 'isnull(statuscode,' + StatusCodeSupplierInvoice.Rejected + ') eq ' + StatusCodeSupplierInvoice.Rejected, isSelected: false, passiveCounter: true },
+        { label: 'Tildelt', name: 'ForApproval', filter: 'statuscode eq ' + StatusCodeSupplierInvoice.ForApproval, passiveCounter: true },
+        { label: 'Godkjent', name: 'Approved', filter: 'statuscode eq ' + StatusCodeSupplierInvoice.Approved, passiveCounter: true },
+        { label: 'Bokført', name: 'Journaled', filter: 'statuscode eq ' + StatusCodeSupplierInvoice.Journaled, showJournalID: true, passiveCounter: true },
+        { label: 'Betalingsliste', name: 'ToPayment', filter: 'statuscode eq ' + StatusCodeSupplierInvoice.ToPayment, showJournalID: true, passiveCounter: true },
+        { label: 'Betalt', name: 'Paid', filter: 'statuscode eq ' + StatusCodeSupplierInvoice.Payed + ' or statuscode eq ' + StatusCodeSupplierInvoice.PartlyPayed, showStatus: true, showJournalID: true, passiveCounter: true },
         { label: 'Alle', name: 'All', filter: '', showStatus: true, showJournalID: true, passiveCounter: true }
     ];
 
@@ -199,7 +200,7 @@ export class BillsView {
                 disabled: false
         });
 
-        if (supplierInvoiceStatusCode === 30101) {
+        if (supplierInvoiceStatusCode === StatusCodeSupplierInvoice.Draft) {
             this.saveActions.push({
                 label: 'Tildel',
                 action: (done) => setTimeout(this.assignSupplierInvoices(done)),
@@ -208,7 +209,7 @@ export class BillsView {
             });
         }
 
-        if (supplierInvoiceStatusCode === 30102) {
+        if (supplierInvoiceStatusCode === StatusCodeSupplierInvoice.ForApproval) {
             this.saveActions.push({
                 label: 'Godkjenn',
                 action: (done) => setTimeout(this.approveSupplierInvoices(done)),
@@ -224,7 +225,16 @@ export class BillsView {
             });
         }
 
-        if (supplierInvoiceStatusCode === 30103) {
+        if (supplierInvoiceStatusCode === StatusCodeSupplierInvoice.Rejected) {
+            this.saveActions.push({
+                label: 'Tildel',
+                action: (done) => setTimeout(this.assignSupplierInvoices(done)),
+                main: true,
+                disabled: false
+            });
+        }
+
+        if (supplierInvoiceStatusCode === StatusCodeSupplierInvoice.Approved) {
             this.saveActions.push({
                 label: 'Bokfør',
                 action: (done) => setTimeout(this.journalSupplierInvoies(done)),
@@ -233,7 +243,7 @@ export class BillsView {
             });
         }
 
-        if (supplierInvoiceStatusCode === 30104) {
+        if (supplierInvoiceStatusCode === StatusCodeSupplierInvoice.Journaled) {
             this.saveActions.push({
                 label: 'Til betalingsliste',
                 action: (done) => setTimeout(this.sendForPaymentSupplierInvoices(done)),
@@ -241,9 +251,6 @@ export class BillsView {
                 disabled: false
             });
         }
-
-
-
     }
 
     public assignSupplierInvoices(done: any) {
@@ -377,13 +384,9 @@ export class BillsView {
                                     }
                                 );
                             });
-
-
                         },
-
                         err => this.errorService.handle(err)
                     );
-
                 done();
             }
 

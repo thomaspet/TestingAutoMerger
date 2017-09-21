@@ -5199,6 +5199,55 @@ export class AmeldingAgaAndTaxSums extends UniEntity {
 }
 
 
+export class AmeldingSumUp extends UniEntity {
+    public entities: Array<AmeldingEntity>;
+    public agadetails: Array<AGADetails>;
+    public totals: Totals;
+}
+
+
+export class AmeldingEntity extends UniEntity {
+    public sums: Sums;
+    public employees: Array<Employees>;
+    public transactionTypes: Array<TransactionTypes>;
+}
+
+
+export class Sums extends UniEntity {
+}
+
+
+export class Employees extends UniEntity {
+    public arbeidsforhold: Array<Employments>;
+}
+
+
+export class Employments extends UniEntity {
+    public permisjon: Array<EmploymentLeaves>;
+}
+
+
+export class EmploymentLeaves extends UniEntity {
+}
+
+
+export class TransactionTypes extends UniEntity {
+}
+
+
+export class AGADetails extends UniEntity {
+    public baseAmount: number;
+    public rate: number;
+    public sectorName: string;
+    public type: string;
+    public zoneName: string;
+}
+
+
+export class Totals extends UniEntity {
+}
+
+
 export class Paycheck extends UniEntity {
     public employee: Employee;
     public payroll: PayrollRun;
@@ -5581,55 +5630,6 @@ export class JournalEntryPeriodData extends UniEntity {
     public PeriodNo: number;
     public PeriodSumYear1: number;
     public PeriodSumYear2: number;
-}
-
-
-export class AmeldingSumUp extends UniEntity {
-    public entities: Array<AmeldingEntity>;
-    public agadetails: Array<AGADetails>;
-    public totals: Totals;
-}
-
-
-export class AmeldingEntity extends UniEntity {
-    public sums: Sums;
-    public employees: Array<Employees>;
-    public transactionTypes: Array<TransactionTypes>;
-}
-
-
-export class Sums extends UniEntity {
-}
-
-
-export class Employees extends UniEntity {
-    public arbeidsforhold: Array<Employments>;
-}
-
-
-export class Employments extends UniEntity {
-    public permisjon: Array<EmploymentLeaves>;
-}
-
-
-export class EmploymentLeaves extends UniEntity {
-}
-
-
-export class TransactionTypes extends UniEntity {
-}
-
-
-export class AGADetails extends UniEntity {
-    public baseAmount: number;
-    public rate: number;
-    public sectorName: string;
-    public type: string;
-    public zoneName: string;
-}
-
-
-export class Totals extends UniEntity {
 }
 
 
@@ -6221,6 +6221,7 @@ export enum StatusCodeSupplierInvoice{
     ToPayment = 30105,
     PartlyPayed = 30106,
     Payed = 30107,
+    Rejected = 30108,
 }
 
 

@@ -15,13 +15,14 @@ export class SupplierInvoiceService extends BizHttp<SupplierInvoice> {
     public statusTypes: Array<any> = [
         { Code: StatusCodeSupplierInvoice.Draft, Text: 'Kladd', isPrimary: true},
         { Code: StatusCodeSupplierInvoice.ForApproval, Text: 'For godkjenning', isPrimary: false },
+        { Code: StatusCodeSupplierInvoice.Rejected, Text: 'Avvist', isPrimary: false},
         { Code: StatusCodeSupplierInvoice.Approved, Text: 'Godkjent', isPrimary: true },
         { Code: StatusCodeSupplierInvoice.Journaled, Text: 'Bokført', isPrimary: true },
         { Code: StatusCodeSupplierInvoice.ToPayment, Text: 'Til betaling', isPrimary: false },
         { Code: StatusCodeSupplierInvoice.PartlyPayed, Text: 'Delvis betalt', isPrimary: false },
         { Code: StatusCodeSupplierInvoice.Payed, Text: 'Betalt', isPrimary: true },
         { Code: 40001, Text: 'Arkivert', isPrimary: false },
-        { Code: 90001, Text: 'Avvist', isPrimary: false }
+        { Code: 90001, Text: 'Slettet', isPrimary: false }
     ];
 
     constructor(http: UniHttp, private errorService: ErrorService, private userService: UserService) {
@@ -158,7 +159,6 @@ export class SupplierInvoiceService extends BizHttp<SupplierInvoice> {
                 route += '&top=' + top;
             }
         }
-
         return this.http.asGET().usingStatisticsDomain()
         .withEndPoint(route).send()
         .map(response => response.json().Data);
@@ -170,7 +170,6 @@ export class SupplierInvoiceService extends BizHttp<SupplierInvoice> {
         }
         // tslint:disable-next-line:max-line-length
         var route = '?model=supplierinvoice&select=count(id),statuscode,sum(TaxInclusiveAmount),sum(RestAmount)' +
-        '&join=supplierinvoice.id eq task.entityid and task.id eq approval.taskid and approval.userid eq user.id' +
         '&filter=isnull(deleted,0) eq 0' + (userIDFilter === null ? '' : userIDFilter);
         return this.http.asGET().usingStatisticsDomain()
         .withEndPoint(route).send()
