@@ -30,7 +30,7 @@ export class AMeldingService extends BizHttp<AmeldingData> {
             {period: 12, name: 'Desember'}
         ];
     }
-    
+
     constructor(http: UniHttp) {
         super(http);
         this.relativeURL = AmeldingData.RelativeUrl;
@@ -115,7 +115,7 @@ export class AMeldingService extends BizHttp<AmeldingData> {
         return this.http
             .asGET()
             .usingBusinessDomain()
-            .withEndPoint(`ameldingsums?action=get-sumup&id=${id}`)
+            .withEndPoint(`ameldingsums/${id}?action=get-sumup`)
             .send()
             .map(response => response.json());
     }
