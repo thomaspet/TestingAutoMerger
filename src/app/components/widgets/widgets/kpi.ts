@@ -1,7 +1,7 @@
 ﻿import {Component, ViewChild, ElementRef} from '@angular/core';
 import {IUniWidget} from '../uniWidget';
 import {WidgetDataService} from '../widgetDataService';
-import {FinancialYearService} from '../../../services/services';
+import {FinancialYearService, StatisticsService, ErrorService} from '../../../services/services';
 import * as Chart from 'chart.js';
 
 interface IKeyNumberObject {
@@ -46,7 +46,7 @@ interface IKeyNumberObject {
                     <div>
                         <a class="uni-kpi-widget-chevron" [ngClass]="liquidity.class">link</a>
                         <p [ngStyle]="{'color': liquidity.textColor}">
-                            {{ liquidity.grade }} 
+                            {{ liquidity.grade }}
                         </p>
                     </div>
                     <div>
@@ -116,13 +116,14 @@ export class UniKPIWidget {
 
     constructor(
         private widgetDataService: WidgetDataService,
-        private financialYearService: FinancialYearService
+        private financialYearService: FinancialYearService,
+        private statService: StatisticsService,
+        private errorService: ErrorService
     ) {}
 
     public ngAfterViewInit() {
         this.financialYearService.getActiveYear().subscribe((year: number) => {
-            this.widgetDataService.getData(
-                '/api/statistics?skip=0&top=50&model=JournalEntryLine'
+            this.statService.GetAll('model=JournalEntryLine'
                 + '&select=sum(casewhen(Account.AccountNumber ge 1400 '
                 + 'and Account.AccountNumber le 1999,Amount,0)) as sumOmlopsmidler,'
                 + 'sum(casewhen(Account.AccountNumber ge 2300 '
@@ -145,7 +146,7 @@ export class UniKPIWidget {
                         this.initProfitabilityIndicator(data.Data[0]);
                         this.initSolidityIndicator(data.Data[0]);
                     },
-                    err => console.log(err)
+                    err => this.errorService.handle(err)
                 );
         });
     }
