@@ -92,14 +92,14 @@ export class BillView {
     public currentSupplierID: number = 0;
     public collapseSimpleJournal: boolean = false;
     public hasUnsavedChanges: boolean = false;
-    public currentFileID: number = 0;
+    public currentFile: any;
     public hasStartupFileID: boolean = false;
     public historyCount: number = 0;
     public ocrData: any;
+    public startUpFileID: Array<number> = [];
 
     private myUser: User;
     private files: Array<any>;
-    private fileIds: Array<number> = [];
     private unlinkedFiles: Array<number> = [];
     private supplierIsReadOnly: boolean = false;
     private commentsConfig: any;
@@ -114,8 +114,13 @@ export class BillView {
     @ViewChild(BillHistoryView) private historyView: BillHistoryView;
     @ViewChild(ImageModal) public imageModal: ImageModal;
     @ViewChild(UniImage) public uniImage: UniImage;
-
-    private supplierExpandOptions: Array<string> = ['Info', 'Info.BankAccounts', 'Info.DefaultBankAccount', 'CurrencyCode'];
+  
+    private supplierExpandOptions: Array<string> = [
+        'Info',
+        'Info.BankAccounts',
+        'Info.DefaultBankAccount',
+        'CurrencyCode'
+    ];
 
     private tabLabel: string;
     public tabs: Array<ITab> = [
@@ -505,11 +510,11 @@ export class BillView {
     private runConverter(files: Array<any>): Promise<boolean> {
         return new Promise((resolve, reject) => {
             if (files && files.length > 0) {
-                let firstFile = files[0];
-                if (this.isOCR(firstFile)) {
-                    this.runOcr(firstFile);
-                } else if (this.isEHF(firstFile)) {
-                    this.runEHF(firstFile);
+                let file = this.currentFile || files[0];
+                if (this.isOCR(file)) {
+                    return this.runOcr(file);
+                } else if (this.isEHF(file)) {
+                    return this.runEHF(file);
                 }
             }
         });
@@ -598,49 +603,37 @@ export class BillView {
 
     /// =============================
 
-    public onImageClicked(file) {
+    public onImageClicked(file: any) {
         let current = this.current.getValue();
         let entityID = current.ID || 0;
-
-        // makes a new array without duplicates of file.ID
-        if (this.fileIds.length > 0) {
-            this.fileIds = this.fileIds.filter(x => x !== parseInt(file.ID));
-        }
 
         if (entityID > 0) {
             this.imageModal.openReadOnly('SupplierInvoice', entityID, file.ID, UniImageSize.large);
         } else {
-            // if image is not bound to an entity push its id to the fileIds array,
-            // parse it to a number and open that image
-            this.fileIds.push(parseInt(file.ID));
-            this.imageModal.openReadOnlyFileIds('SupplierInvoice', this.fileIds, file.ID, UniImageSize.large);
+            let fileIds = this.files.map(file => file.ID);
+            this.imageModal.openReadOnlyFileIds('SupplierInvoice', fileIds, file.ID, UniImageSize.large);
         }
     }
 
+    public onImageDeleted(file: any) {
+        this.files = this.files.filter(x => file !== x)
+    }
+
+    public onThumbnailImageClicked(file: any) {
+        this.currentFile = file;
+    }
+
     public onFileListReady(files: Array<any>) {
+        let current = this.current.value;
         this.files = files;
+
         if (files && files.length) {
             if (!this.hasValidSupplier()) {
                 this.runConverter(files);
             }
-            this.checkNewFiles(files);
-        }
-    }
-
-    private checkNewFiles(files: Array<any>) {
-
-        if ((!files) || files.length === 0) {
-            return;
-        }
-        let firstFile = files[0];
-
-        const current = this.current.getValue();
-        if (!current.ID) {
-            if (this.unlinkedFiles.findIndex(x => x === firstFile.ID) < 0) {
-                this.unlinkedFiles.push(firstFile.ID);
-                if (this.hasStartupFileID !== firstFile.ID) {
-                    this.tagFileStatus(firstFile.ID, 0);
-                }
+            if (!current.ID) {
+                this.unlinkedFiles = files.map(file => file.ID);
+                this.rootActions[0].disabled = false;
             }
         }
     }
@@ -834,7 +827,7 @@ export class BillView {
 
     public onFocusEvent(event) {
 
-        if (!this.currentFileID || !this.ocrData) { return; }
+        if (!this.currentFile || !this.ocrData) { return; }
 
         this.uniImage.removeHighlight();
 
@@ -1060,8 +1053,7 @@ export class BillView {
         this.flagActionBar(actionBar.delete, false);
         this.supplierIsReadOnly = false;
         this.hasUnsavedChanges = false;
-        this.currentFileID = 0;
-        this.fileIds = [];
+        this.currentFile = {};
         this.unlinkedFiles = [];
         this.files = undefined;
         this.setHistoryCounter(0);
@@ -1544,7 +1536,7 @@ export class BillView {
 
     private fetchInvoice(id: number | string, flagBusy: boolean): Promise<any> {
         if (flagBusy) { this.busy = true; }
-        this.currentFileID = 0;
+        this.currentFile = {};
         this.files = undefined;
         this.setHistoryCounter(0);
         return new Promise((resolve, reject) => {
@@ -1702,7 +1694,7 @@ export class BillView {
                 if (this.unlinkedFiles.length > 0) {
                     this.linkFiles(this.currentSupplierID, this.unlinkedFiles, 'SupplierInvoice', 40001).then(() => {
                         this.hasStartupFileID = false;
-                        this.currentFileID = 0;
+                        this.currentFile = {};
                         this.unlinkedFiles = [];
                         reload();
                     });
@@ -2053,8 +2045,8 @@ export class BillView {
 
     private loadFromFileID(fileID: number | string) {
         this.hasStartupFileID = true;
-        this.fileIds = [safeInt(fileID)];
-        this.currentFileID = safeInt(fileID);
+        this.startUpFileID = [safeInt(fileID)];
+        this.currentFile.ID = safeInt(fileID);
     }
 
     private linkFiles(ID: any, fileIDs: Array<any>, entityType: string, flagFileStatus?: any): Promise<any> {
@@ -2107,12 +2099,15 @@ export class BillView {
         );
     }
 
-    private isOCR(file): Boolean {
+    private isOCR(file: any): Boolean {
+        if (!file.Name) { return false; }
+
         if (file.ContentType) {
             if (file.ContentType === 'application/xml') { return false; }
             if (file.ContentType.startsWith('image')) { return true; }
         }
         if (file.Extension && file.Extension === '.xml') { return false; }
+
         var ocrformats = ['pdf', 'png', 'jpeg', 'jpg', 'gif', 'tiff'];
         var ending = file.Name.toLowerCase().split('.').pop();
         return ocrformats.indexOf(ending) >= 0;

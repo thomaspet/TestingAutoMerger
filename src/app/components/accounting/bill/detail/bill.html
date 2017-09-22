@@ -45,11 +45,12 @@
 
         <div *ngIf="!(current | async)?.ID">
             <uni-image
-                [singleImage]="true"
                 [uploadWithoutEntity]="true"
-                [fileIDs]="fileIds"
+                [fileIDs]="startUpFileID"
                 (fileListReady)="onFileListReady($event)"
-                (imageClicked)="onImageClicked($event)">
+                (imageClicked)="onImageClicked($event)"
+                (imageDeleted)="onImageDeleted($event)"
+                (thumbnailImageClicked)="onThumbnailImageClicked($event)">
             </uni-image>
         </div>
 
@@ -59,7 +60,9 @@
             [printOut]="true"
             [entityID]="(current | async)?.ID"
             (fileListReady)="onFileListReady($event)"
-            (imageClicked)="onImageClicked($event)" >
+            (imageDeleted)="onImageDeleted($event)"
+            (imageClicked)="onImageClicked($event)"
+            (thumbnailImageClicked)="onThumbnailImageClicked($event)">
         </uni-image>
     </fieldset>
 

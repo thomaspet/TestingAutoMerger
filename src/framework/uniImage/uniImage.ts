@@ -141,6 +141,9 @@ export class UniImage {
     @Output()
     public imageClicked: EventEmitter<File> = new EventEmitter<File>();
 
+    @Output()
+    public thumbnailImageClicked: EventEmitter<File> = new EventEmitter<File>();
+
     public imageIsLoading: boolean = true;
 
     private baseUrl: string = AppConfig.BASE_URL_FILES;
@@ -206,7 +209,7 @@ export class UniImage {
                 .withEndPoint(`files?filter=${requestFilter}`)
                 .send()
                 .subscribe((res) => {
-                    this.files = res.json();
+                    this.files = res.json().filter(x => x !== null);
                     this.fileListReady.emit(this.files);
                     if (this.files.length) {
                         this.currentPage = 1;
@@ -223,7 +226,7 @@ export class UniImage {
                 .withEndPoint(`files/${this.entity}/${this.entityID}`)
                 .send()
                 .subscribe((res) => {
-                    this.files = res.json();
+                    this.files = res.json().filter(x => x !== null);
                     this.fileListReady.emit(this.files);
                     if (this.files.length) {
                         this.currentPage = 1;
@@ -283,6 +286,8 @@ export class UniImage {
         if (this.currentFileIndex !== index) {
             this.currentFileIndex = index;
             this.loadImage();
+
+            this.thumbnailImageClicked.emit(this.files[index]);
         }
     }
 
@@ -359,10 +364,8 @@ export class UniImage {
                     .subscribe(
                         res => {
                             let current = this.files[this.currentFileIndex];
-                            let fileIDsIndex = this.fileIDs.indexOf(current.ID);
 
                             this.files.splice(this.currentFileIndex, 1);
-                            if (fileIDsIndex !== -1) { this.fileIDs.splice(fileIDsIndex, 1); }
                             this.currentFileIndex--;
                             if (this.currentFileIndex < 0 && this.files.length > 0) { this.currentFileIndex = 0; }
 
