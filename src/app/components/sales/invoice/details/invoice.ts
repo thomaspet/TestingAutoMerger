@@ -272,7 +272,7 @@ export class InvoiceDetails {
                     if (invoice.DeliveryTerms && invoice.DeliveryTerms.CreditDays) {
                         this.setDeliveryDate(invoice);
                     } else {
-                        invoice.DeliveryDate = invoice.InvoiceDate;
+                        invoice.DeliveryDate = null;
                     }
 
                     this.selectConfig = this.numberSeriesService.getSelectConfig(

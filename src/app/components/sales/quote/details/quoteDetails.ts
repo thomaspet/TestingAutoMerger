@@ -260,7 +260,7 @@ export class QuoteDetails {
                                 this.setDeliveryDate(quote);
                             } 
                         } else {
-                            quote.DeliveryDate = quote.QuoteDate;
+                            quote.DeliveryDate =  null;
                         }
                         if (res[7]) {
                             quote.DefaultDimensions = quote.DefaultDimensions || new Dimensions();
@@ -274,7 +274,7 @@ export class QuoteDetails {
                         this.projects = res[9];
 
                         quote.QuoteDate = new LocalDate(Date());
-                        quote.ValidUntilDate = null;
+                        quote.ValidUntilDate = new LocalDate(moment(quote.QuoteDate).add(1, 'month').toDate());
 
                         if (!quote.CurrencyCodeID) {
                             quote.CurrencyCodeID = this.companySettings.BaseCurrencyCodeID;

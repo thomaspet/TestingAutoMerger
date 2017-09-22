@@ -281,7 +281,7 @@ export class OrderDetails {
                                 this.setDeliveryDate(order);
                             } 
                         } else {
-                            order.DeliveryDate = order.OrderDate;
+                            order.DeliveryDate = null;
                         }
                         if (res[7]) {
                             order.DefaultDimensions = order.DefaultDimensions || new Dimensions();
