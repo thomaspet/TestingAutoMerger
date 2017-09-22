@@ -1,8 +1,6 @@
 import {ModuleWithProviders} from '@angular/core';
-import {RouterModule, Routes} from '@angular/router';
-import {UniInit} from './init';
+import {RouterModule} from '@angular/router';
 import {Login} from './login/login';
-import {Signup} from './signup/signup';
 import {ResetPassword} from './resetPassword/resetPassword';
 import {ConfirmInvite} from './confirmInvite/confirmInvite';
 
@@ -16,10 +14,6 @@ export const initRoutes = [
     {
         path: 'login',
         component: Login
-    },
-    {
-        path: 'signup',
-        component: Signup
     },
     {
         path: 'reset-password',
