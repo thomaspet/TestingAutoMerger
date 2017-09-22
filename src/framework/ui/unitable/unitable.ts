@@ -363,12 +363,16 @@ export class UniTable implements OnChanges {
 
     public onCellClicked(event) {
         const row = event.rowModel.toJS();
-        const col = event.column.toJS();
+        const col: UniTableColumn = event.column.toJS();
 
         this.cellClick.next({
             row: row,
             column: col
         });
+
+        if (col.onCellClick) {
+            col.onCellClick(row);
+        }
     }
 
     public onEditorChange(event: IRowModelChangeEvent) {

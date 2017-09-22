@@ -651,12 +651,10 @@ export class UniTicker {
                             });
                         } else if (field.Type === 'attachment') {
                             col.setTemplate(line => line.Attachments ? PAPERCLIP : '');
-                            // TODO: Fix cell click!
-                            //    .setOnCellClick(line =>
-                            //         this.imageModal.open(
-                            //             field.ExternalModel ? field.ExternalModel : this.ticker.Model,
-                            //             line.JournalEntryID)
-                            //    );
+                            col.setOnCellClick(row => {
+                                const entity = field.ExternalModel ? field.ExternalModel : this.ticker.Model;
+                                this.imageModal.open(entity, row.JournalEntryID);
+                            });
                         }
 
                         if (field.Type === 'link' || field.Type === 'mailto' || (field.SubFields && field.SubFields.length > 0)) {
