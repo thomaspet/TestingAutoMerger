@@ -1,5 +1,5 @@
 import {Component, Input, Output, ElementRef, ViewChild, EventEmitter, ChangeDetectorRef, SimpleChanges} from '@angular/core';
-import {UniFieldLayout, KeyCodes} from '../../interfaces';
+import {UniFieldLayout} from '../../interfaces';
 import {autocompleteDate} from '../../shared/autocompleteDate';
 import {UniCalendar} from '../calendar';
 import * as moment from 'moment';
@@ -7,6 +7,7 @@ import {Observable} from 'rxjs/Observable';
 import {LocalDate} from './LocalDate';
 import {BaseControl} from '../baseControl';
 import * as _ from 'lodash';
+import {KeyCodes} from '../../../../../app/services/common/keyCodes';
 
 @Component({
     selector: 'localdate-picker-input',
@@ -68,7 +69,7 @@ export class LocalDatePickerInput extends BaseControl{
             let value = <any>_.get(this.model, this.field.Property);
 
             if (value) {
-                if (value === '*') { 
+                if (value === '*') {
                     this.selectedDate = new Date();
                 } else {
                     this.selectedDate = new Date(value);
@@ -90,8 +91,8 @@ export class LocalDatePickerInput extends BaseControl{
             return event.keyCode === KeyCodes.F4 || event.keyCode === KeyCodes.SPACE;
         });
         const arrowDownEvent = keyDownEvent.filter((event: KeyboardEvent) => {
-            return (event.keyCode === KeyCodes.ARROW_UP
-                || event.keyCode === KeyCodes.ARROW_DOWN)
+            return (event.keyCode === KeyCodes.UP_ARROW
+                || event.keyCode === KeyCodes.DOWN_ARROW)
                 && event.altKey;
         });
 
@@ -102,7 +103,7 @@ export class LocalDatePickerInput extends BaseControl{
                 this.toggle();
             });
 
-        keyDownEvent.filter((event: KeyboardEvent) => event.keyCode === KeyCodes.ESC)
+        keyDownEvent.filter((event: KeyboardEvent) => event.keyCode === KeyCodes.ESCAPE)
             .subscribe((event: KeyboardEvent) => {
                 event.preventDefault();
                 event.stopPropagation();
@@ -151,7 +152,7 @@ export class LocalDatePickerInput extends BaseControl{
         let date;
 
         if ((value && value.length) || this.options.autocompleteEmptyValue) {
-            if (value === '*') { 
+            if (value === '*') {
                 date = new Date();
             } else {
                 date = autocompleteDate(value) || null;
@@ -216,22 +217,22 @@ export class LocalDatePickerInput extends BaseControl{
         .filter(() => this.calendarOpen)
         .filter((event: KeyboardEvent) => !event.altKey);
 
-        keyDownEvent.filter((event: KeyboardEvent) => event.keyCode === KeyCodes.PAGEUP)
+        keyDownEvent.filter((event: KeyboardEvent) => event.keyCode === KeyCodes.PAGE_UP)
         .subscribe(() => this.calendar.nextMonth());
 
-        keyDownEvent.filter((event: KeyboardEvent) => event.keyCode === KeyCodes.PAGEDOWN)
+        keyDownEvent.filter((event: KeyboardEvent) => event.keyCode === KeyCodes.PAGE_DOWN)
         .subscribe(() => this.calendar.prevMonth());
 
-        keyDownEvent.filter((event: KeyboardEvent) => event.keyCode === KeyCodes.ARROW_LEFT)
+        keyDownEvent.filter((event: KeyboardEvent) => event.keyCode === KeyCodes.LEFT_ARROW)
         .subscribe(() => this.calendar.prevDay());
 
-        keyDownEvent.filter((event: KeyboardEvent) => event.keyCode === KeyCodes.ARROW_RIGHT)
+        keyDownEvent.filter((event: KeyboardEvent) => event.keyCode === KeyCodes.RIGHT_ARROW)
         .subscribe(() => this.calendar.nextDay());
 
-        keyDownEvent.filter((event: KeyboardEvent) => event.keyCode === KeyCodes.ARROW_UP)
+        keyDownEvent.filter((event: KeyboardEvent) => event.keyCode === KeyCodes.UP_ARROW)
         .subscribe(() => this.calendar.prevWeek());
 
-        keyDownEvent.filter((event: KeyboardEvent) => event.keyCode === KeyCodes.ARROW_DOWN)
+        keyDownEvent.filter((event: KeyboardEvent) => event.keyCode === KeyCodes.DOWN_ARROW)
         .subscribe(() => this.calendar.nextWeek());
 
         keyDownEvent.filter((event: KeyboardEvent) => event.keyCode === KeyCodes.ENTER)

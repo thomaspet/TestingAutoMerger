@@ -11,7 +11,6 @@ import {
     ChangeDetectorRef,
     SimpleChanges
 } from '@angular/core';
-import {KeyCodes} from './KeyCodes';
 import html from './UniSearchAttrHtml';
 import css from './UniSearchAttrCss';
 import {IUniSearchConfig} from './IUniSearchConfig';
@@ -21,6 +20,7 @@ import 'rxjs/add/operator/do';
 import 'rxjs/add/operator/debounceTime';
 import 'rxjs/add/operator/switchMap';
 import 'rxjs/add/operator/map';
+import {KeyCodes} from '../../../app/services/common/keyCodes';
 
 export enum SearchType {
     INTERNAL,

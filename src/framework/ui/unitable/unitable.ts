@@ -14,8 +14,8 @@ import {UnitableContextMenu} from './contextMenu';
 import {UniTablePagination} from './pagination/pagination';
 import {UniTableUtils} from './unitableUtils';
 import * as Immutable from 'immutable';
-import {KeyCodes} from './KeyCodes';
 import {List} from 'immutable';
+import {KeyCodes} from '../../../app/services/common/keyCodes';
 
 export interface IContextMenuItem {
     label: string;

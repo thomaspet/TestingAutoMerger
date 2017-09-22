@@ -5,7 +5,7 @@ import {ITableFilter} from '../unitable';
 import * as Immutable from 'immutable';
 import {Observable} from 'rxjs/Observable';
 import {Subject} from 'rxjs/Subject';
-import {KeyCodes} from '../KeyCodes';
+import {KeyCodes} from '../../../../app/services/common/keyCodes';
 
 interface IUniTableSearchOperator {
     verb: string;
