@@ -115,7 +115,6 @@ export class BillView {
     @ViewChild(ImageModal) public imageModal: ImageModal;
     @ViewChild(UniImage) public uniImage: UniImage;
 
-    // tslint:disable:max-line-length
     private supplierExpandOptions: Array<string> = ['Info', 'Info.BankAccounts', 'Info.DefaultBankAccount', 'CurrencyCode'];
 
     private tabLabel: string;
@@ -400,6 +399,10 @@ export class BillView {
                     );
                 });
             }),
+            display: (bankAccount: BankAccount) => {
+                return bankAccount.AccountNumber ? (bankAccount.AccountNumber.substr(0, 4) + ' ' 
+                    + bankAccount.AccountNumber.substr(4, 2) + ' ' + bankAccount.AccountNumber.substr(6)) : '';
+            }
         };
 
 
