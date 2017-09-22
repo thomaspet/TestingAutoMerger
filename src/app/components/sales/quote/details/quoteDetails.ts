@@ -9,6 +9,7 @@ import {
     Customer,
     CustomerQuote,
     CustomerQuoteItem,
+    Dimensions,
     LocalDate,
     Project,
     StatusCodeCustomerQuote,
@@ -220,7 +221,10 @@ export class QuoteDetails {
                     this.currencyCodeID = quote.CurrencyCodeID;
                     this.currencyExchangeRate = quote.CurrencyExchangeRate;
 
-                    this.projectID = quote.DefaultDimensions && quote.DefaultDimensions.ProjectID;
+                    quote.DefaultDimensions = quote.DefaultDimensions || new Dimensions();
+                    if (quote.DefaultDimensions) {
+                        this.projectID = quote.DefaultDimensions.ProjectID;
+                    }
                     quote.DefaultDimensions.Project = this.projects.find(project => project.ID === this.projectID);
 
                     this.refreshQuote(quote);
@@ -259,7 +263,9 @@ export class QuoteDetails {
                             quote.DeliveryDate = quote.QuoteDate;
                         }
                         if (res[7]) {
+                            quote.DefaultDimensions = quote.DefaultDimensions || new Dimensions();
                             quote.DefaultDimensions.ProjectID = res[7].ID;
+                            quote.DefaultDimensions.Project = res[7];
                         }
                         this.numberSeries = res[8].map(x => this.numberSeriesService.translateSerie(x));
                         this.selectConfig = this.numberSeriesService.getSelectConfig(

@@ -9,6 +9,7 @@ import {
     Customer,
     CustomerInvoice,
     CustomerInvoiceItem,
+    Dimensions,
     InvoicePaymentData,
     LocalDate,
     Project,
@@ -243,7 +244,9 @@ export class InvoiceDetails {
                     this.paymentTerms = res[5];
                     this.deliveryTerms = res[6];
                     if (res[7]) {
+                        invoice.DefaultDimensions = invoice.DefaultDimensions || new Dimensions();
                         invoice.DefaultDimensions.ProjectID = res[7].ID;
+                        invoice.DefaultDimensions.Project = res[7];
                     }
                     this.numberSeries = res[8].map(x => this.numberSeriesService.translateSerie(x));
                     this.projects = res[9];
@@ -313,7 +316,10 @@ export class InvoiceDetails {
                         this.setPaymentDueDate(invoice);
                     }
 
-                    this.projectID = invoice.DefaultDimensions && invoice.DefaultDimensions.ProjectID;
+                    invoice.DefaultDimensions = invoice.DefaultDimensions || new Dimensions();
+                    if (invoice.DefaultDimensions) {
+                        this.projectID = invoice.DefaultDimensions.ProjectID;
+                    }
                     invoice.DefaultDimensions.Project = this.projects.find(project => project.ID === this.projectID);
 
                     this.setupContextMenuItems();
