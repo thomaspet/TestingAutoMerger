@@ -114,7 +114,7 @@ export class BillView {
     @ViewChild(BillHistoryView) private historyView: BillHistoryView;
     @ViewChild(ImageModal) public imageModal: ImageModal;
     @ViewChild(UniImage) public uniImage: UniImage;
-  
+
     private supplierExpandOptions: Array<string> = [
         'Info',
         'Info.BankAccounts',
@@ -405,7 +405,7 @@ export class BillView {
                 });
             }),
             display: (bankAccount: BankAccount) => {
-                return bankAccount.AccountNumber ? (bankAccount.AccountNumber.substr(0, 4) + ' ' 
+                return bankAccount.AccountNumber ? (bankAccount.AccountNumber.substr(0, 4) + ' '
                     + bankAccount.AccountNumber.substr(4, 2) + ' ' + bankAccount.AccountNumber.substr(6)) : '';
             }
         };
@@ -510,7 +510,7 @@ export class BillView {
     private runConverter(files: Array<any>): Promise<boolean> {
         return new Promise((resolve, reject) => {
             if (files && files.length > 0) {
-                let file = this.currentFile || files[0];
+                let file = this.uniImage.getCurrentFile() || files[0];
                 if (this.isOCR(file)) {
                     return this.runOcr(file);
                 } else if (this.isEHF(file)) {

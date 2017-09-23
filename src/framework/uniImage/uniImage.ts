@@ -258,6 +258,10 @@ export class UniImage {
         }
     }
 
+    public getCurrentFile(): File {
+        return this.files[this.currentFileIndex];
+    }
+
     private isDefined(value: any) {
         return (value !== undefined && value !== null);
     }
@@ -315,7 +319,7 @@ export class UniImage {
 
     private print() {
         return this.fileService.printFile(this.files[this.currentFileIndex].ID)
-            .subscribe(res => {
+            .subscribe((res: any) => {
                 let url = JSON.parse(res._body) + '&attachment=false';
 
                 if (this.files[this.currentFileIndex].Name.includes('.pdf')) {
