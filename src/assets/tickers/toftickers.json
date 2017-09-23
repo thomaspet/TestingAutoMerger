@@ -12,23 +12,24 @@
             {
                 "Header": "Fakturanr",
                 "Field": "InvoiceNumber",
-                "Width": "85px",
+                "Alias": "InvoiceNumber",
+                "Placeholder": "Kladd",
+                "Width": "8rem",
                 "Type": "link",
                 "FilterOperator": "startswith"
             },
             {
                 "Header": "Kundenr",
                 "Field": "Customer.CustomerNumber",
-                "Type": "text",
-                "Width": "90px",
+                "Type": "Link",
+                "LinkNavigationProperty": "Customer.ID",
+                "Width": "8rem",
                 "FilterOperator": "startswith"
             },
             {
                 "Header": "Kundenavn",
                 "Field": "Customer.Info.Name",
-                "Type": "link",
                 "ExternalModel": "Customer",
-                "LinkNavigationProperty": "Customer.ID",
                 "FilterOperator": "contains"
             },
             {
@@ -135,7 +136,7 @@
                 "Code": "open_invoice",
                 "Type": "details",
                 "DisplayInContextMenu": true,
-                "DisplayInActionBar": true
+                "DisplayInActionBar": false
             },
             {
                 "Name": "Eksporter",
@@ -602,23 +603,24 @@
             {
                 "Header": "Tilbudnr",
                 "Field": "QuoteNumber",
-                "Width": "80px",
+                "Alias": "QuoteNumber",
+                "Placeholder": "Kladd",
                 "Type": "Link",
+                "Width": "8rem",
                 "FilterOperator": "startswith"
             },
             {
                 "Header": "Kundenr",
                 "Field": "Customer.CustomerNumber",
-                "Type": "text",
-                "Width": "90px",
+                "Type": "Link",
+                "LinkNavigationProperty": "Customer.ID",
+                "Width": "8rem",
                 "FilterOperator": "startswith"
             },
             {
                 "Header": "Kundenavn",
                 "Field": "Customer.Info.Name",
-                "Type": "link",
                 "ExternalModel": "Customer",
-                "LinkNavigationProperty": "Customer.ID",
                 "FilterOperator": "contains"
             },
             {
@@ -680,14 +682,14 @@
                 "Code": "open_quote",
                 "Type": "details",
                 "DisplayInContextMenu": true,
-                "DisplayInActionBar": true
+                "DisplayInActionBar": false
             },
             {
                 "Name": "Eksporter",
                 "Code": "export_quotes",
                 "Type": "export",
                 "ExecuteWithMultipleSelections": true,
-                "ExecuteWithoutSelection": false
+                "ExecuteWithoutSelection": true
             },
             {
                 "Name": "Skriv ut",
@@ -1008,23 +1010,24 @@
             {
                 "Header": "Ordrenr",
                 "Field": "OrderNumber",
-                "Width": "80px",
+                "Alias": "OrderNumber",
+                "Placeholder": "Kladd",
+                "Width": "8rem",
                 "Type": "Link",
                 "FilterOperator": "startswith"
             },
             {
                 "Header": "Kundenr",
                 "Field": "Customer.CustomerNumber",
-                "Type": "text",
-                "Width": "90px",
+                "Type": "Link",
+                "LinkNavigationProperty": "Customer.ID",
+                "Width": "8rem",
                 "FilterOperator": "startswith"
             },
             {
                 "Header": "Kundenavn",
                 "Field": "Customer.Info.Name",
-                "Type": "link",
                 "ExternalModel": "Customer",
-                "LinkNavigationProperty": "Customer.ID",
                 "FilterOperator": "contains"
             },
             {
@@ -1079,7 +1082,14 @@
                 "Code": "open_order",
                 "Type": "details",
                 "DisplayInContextMenu": true,
-                "DisplayInActionBar": true
+                "DisplayInActionBar": false
+            },
+            {
+                "Name": "Eksporter",
+                "Code": "export_orders",
+                "Type": "export",
+                "ExecuteWithMultipleSelections": true,
+                "ExecuteWithoutSelection": true
             },
             {
                 "Name": "Avslutt",

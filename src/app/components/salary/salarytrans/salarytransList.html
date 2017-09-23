@@ -1,7 +1,9 @@
 <section [attr.aria-busy]="busy" class="detail_tables">
-    <uni-table [resource]="filteredTranses" 
-               [config]="salarytransEmployeeTableConfig" 
-               (rowChanged)="rowChanged($event)"
-               class="maintable"></uni-table>
+    <uni-table class="maintable"
+        [resource]="filteredTranses"
+        [config]="salarytransEmployeeTableConfig"
+        (rowChanged)="rowChanged($event)"
+        (cellClick)="onCellClick($event)">
+    </uni-table>
 </section>
 <image-modal (updatedFileList)="updateFileList($event)"></image-modal>

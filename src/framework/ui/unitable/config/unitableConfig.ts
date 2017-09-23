@@ -81,6 +81,7 @@ export class UniTableConfig implements IUniTableConfig {
         showDropdownOnSingleItem: boolean,
         disableOnReadonlyRows: boolean
     };
+    public copyFromCellAbove: boolean;
 
     public filters: ITableFilter[];
     public expressionFilterValues: IExpressionFilterValue[];
@@ -120,6 +121,7 @@ export class UniTableConfig implements IUniTableConfig {
         this.conditionalRowCls = () => {
             return '';
         };
+        this.copyFromCellAbove = true;
     }
 
     public setEditable(editable: boolean) {
@@ -244,6 +246,11 @@ export class UniTableConfig implements IUniTableConfig {
 
     public setConditionalRowCls(conditionalRowCls: (rowModel: any) => string) {
         this.conditionalRowCls = conditionalRowCls;
+        return this;
+    }
+
+    public setCopyFromCellAbove(copyFromCellAbove: boolean){
+        this.copyFromCellAbove = copyFromCellAbove;
         return this;
     }
 

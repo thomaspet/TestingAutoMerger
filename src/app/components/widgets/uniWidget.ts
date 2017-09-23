@@ -7,7 +7,7 @@ import {
     EventEmitter,
     ViewChild,
     ComponentFactoryResolver,
-    ComponentRef
+    ComponentRef,
 } from '@angular/core';
 
 // Import known widgets. Loading third party stuff needs to be solved
@@ -22,7 +22,8 @@ import {
     UniCompanyLogoWidget,
     UniOverdueInvoiceWidget,
     UniKPIWidget,
-    UniFlexWidget
+    UniFlexWidget,
+    UniCompanyListWidget
 } from './widgets/barrel';
 
 export interface IUniWidget {
@@ -77,6 +78,7 @@ export class UniWidget {
         'chart': UniChartWidget,
         'rss': UniRSSWidget,
         'list': UniListWidget,
+        'companyList': UniCompanyListWidget,
         'clock': UniClockWidget,
         'overdue': UniOverdueInvoiceWidget,
         'kpi': UniKPIWidget,
@@ -86,7 +88,7 @@ export class UniWidget {
 
     private widgetComponent: ComponentRef<any>;
 
-    constructor(private componentFactoryResolver: ComponentFactoryResolver) {}
+    constructor(private factoryResolver: ComponentFactoryResolver) {}
 
     public ngOnChanges() {
         if (this.widget) {
@@ -101,7 +103,7 @@ export class UniWidget {
 
     private loadWidget() {
         const widget = this.widgetMap[this.widget.widgetType];
-        const componentFactory = this.componentFactoryResolver.resolveComponentFactory(widget);
+        const componentFactory = this.factoryResolver.resolveComponentFactory(widget);
 
         let viewContainerRef = this.widgetContainer.viewContainerRef;
         viewContainerRef.clear();
@@ -113,5 +115,4 @@ export class UniWidget {
     public removeWidget() {
         this.widgetRemoved.next(this.widget);
     }
-
 }

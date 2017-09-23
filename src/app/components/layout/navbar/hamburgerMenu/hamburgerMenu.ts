@@ -215,7 +215,8 @@ export class HamburgerMenu {
                 componentListUrl: '/',
                 componentList: [
                     {componentName: 'Skrivebord', componentUrl: '/', moduleID: UniModules.Dashboard},
-                    {componentName: 'Oversikt', componentUrl: '/tickers', moduleID: UniModules.UniTicker},
+                    {componentName: 'Klienter', componentUrl: '/bureau', moduleID: UniModules.BureauDashboard},
+                    {componentName: 'Oversikt', componentUrl: '/overview', moduleID: UniModules.UniTicker},
                     {componentName: 'Resultat og balanse', componentUrl: '/accounting/accountingreports', moduleID: UniModules.AccountingReports},
                     {componentName: 'Rapporter', componentUrl: '/reports', moduleID: UniModules.Reports},
                     {componentName: 'Uttrekk', componentUrl: '/uniqueries', moduleID: UniModules.UniQuery},

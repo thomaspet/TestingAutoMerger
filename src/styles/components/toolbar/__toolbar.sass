@@ -98,13 +98,14 @@ uni-toolbar
             position: relative
             top: .4rem
 
-@include media('1300px', 'max-width')
+@include media(large, 'max-width')
     uni-toolbar
         position: relative
         $topPadding: -5.5rem
         top: $topPadding
         margin-bottom: $topPadding
         height: auto
+        padding: .5rem 1rem .5rem 0
 
         & > *:not(uni-breadcrumbs)
             margin-left: 1rem

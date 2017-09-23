@@ -240,7 +240,6 @@ export class SalarybalanceDetail extends UniView {
                     accountField.Hidden = this.isHiddenByInstalmentType(salaryBalance);
                 });
                 this.editField(fields, 'Amount', amountField => {
-                    amountField.Options = {};
                     amountField.Label = salaryBalance.InstalmentType === SalBalType.Advance ? 'Beløp' : 'Saldo';
                     amountField.Hidden = this.salarybalanceID > 0
                         || salaryBalance.InstalmentType === SalBalType.Contribution;

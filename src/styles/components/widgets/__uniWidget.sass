@@ -1,4 +1,5 @@
 @import 'listWidget'
+@import 'companyListWidget'
 
 uni-widget-canvas
     display: block
@@ -151,9 +152,13 @@ uni-widget-canvas
         color: #fff
 
 .uni-shortcut-link
+    display: inline-block
     cursor: pointer
     position: relative
     top: calc(50% - 2rem)
+    width: 100%
+    overflow: hidden
+    text-overflow: ellipsis
 
     color: #fff
     text-decoration: none
@@ -162,7 +167,7 @@ uni-widget-canvas
         color: #fff
         text-decoration: none
 
-.uni-dashboard-chart-header
+.uni-widget-header
     font-size: 1rem
     color: #fff
     margin: 0
@@ -256,6 +261,9 @@ uni-widget-canvas
 
 .dashboard-shortcut-icon-sale
     background-image: unicon-sale($uni-color-negative)
+
+.dashboard-shortcut-icon-search
+    background-image: unicon-search($uni-color-negative)
 
 .dashboard-notification-icon-paperclip
     background-image: unicon-paperclip(rgba(255,255,255,.3))

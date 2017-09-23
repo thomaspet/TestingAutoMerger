@@ -26,6 +26,7 @@ import {UniQueryModule} from './components/uniquery/uniqueryModule';
 import {LayoutModule} from './components/layout/layoutModule';
 import {AppCommonModule} from './components/common/appCommonModule';
 import {DashboardModule} from './components/dashboard/dashboardModule';
+import {BureauModule} from './components/bureau/bureauModule';
 import {ReportsModule} from './components/reports/reportsModule';
 import {InitModule} from './components/init/initModule';
 import {AdminModule} from './components/admin/adminModule';
@@ -93,6 +94,7 @@ if (window.ENV === 'production') {
         UniTickerModule,
         TranslationsModule,
         DashboardModule,
+        BureauModule,
         AboutModule,
         AssignmentsModule
     ],

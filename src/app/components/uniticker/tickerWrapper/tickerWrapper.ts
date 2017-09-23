@@ -1,8 +1,16 @@
-import {Component, ViewChild, Input, SimpleChanges, ChangeDetectionStrategy, ChangeDetectorRef} from '@angular/core';
+import {
+    Component,
+    Input,
+    SimpleChanges,
+    ChangeDetectionStrategy,
+    ChangeDetectorRef
+} from '@angular/core';
+import {
+    Ticker,
+    ITickerActionOverride,
+    ITickerColumnOverride,
+} from '../../../services/common/uniTickerService';
 import {UniTickerService} from '../../../services/services';
-import {Ticker, TickerGroup, TickerHistory, ITickerActionOverride, ITickerColumnOverride, TickerAction, TickerActionOptions} from '../../../services/common/uniTickerService';
-import {UniTickerContainer} from '../tickerContainer/tickerContainer';
-
 declare const _; // lodash
 
 @Component({
@@ -11,7 +19,6 @@ declare const _; // lodash
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class UniTickerWrapper {
-    @ViewChild(UniTickerContainer) private tickerContainer: UniTickerContainer;
     @Input() public tickerCode: string;
     @Input() public showFiltersAsNavbar: boolean = false;
     @Input() public actionOverrides: Array<ITickerActionOverride> = [];
@@ -19,10 +26,11 @@ export class UniTickerWrapper {
 
     private tickers: Array<Ticker>;
     private selectedTicker: Ticker;
-    private showSubTickers: boolean = true;
 
-    constructor(private uniTickerService: UniTickerService, private cdr: ChangeDetectorRef) {
-    }
+    constructor(
+        private uniTickerService: UniTickerService,
+        private cdr: ChangeDetectorRef
+    ) {}
 
     public ngOnChanges(changes: SimpleChanges) {
         if (changes['tickerCode'] && this.tickerCode) {

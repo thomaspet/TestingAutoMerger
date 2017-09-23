@@ -1,74 +1,55 @@
 uni-ticker-container
+    width: 100%
     position: relative
     font-size: 0.9rem
 
-    .ticket-container
-        margin-top: .5rem
+    .ticker-container
+        margin-top: 1rem
         display: flex
         flex-direction: row
         width: calc(100% - #{pxToRem(1)}) // Or else it overflows in Canary for some reason.
 
-    uni-ticker-filters
-        margin-right: 1rem
-        flex: 0 0 10rem
-        width: 10rem
+    .ticker-predefined-filters
+        display: inline-block
+        list-style: none
+        border-bottom: 1px solid $uni-color-scale8
 
-        &.expanded
-            flex: 0 1 60%
+        li
+            @extend h3
+            display: inline-block
+            margin-right: 1.25rem
+            padding: 0 .25rem
+            color: $uni-color-scale5
+            cursor: pointer
+
+            &[aria-selected]:not([aria-selected=false])
+                border-bottom: pxToRem(3) solid $uni-color-c2a
+
+            &:last-of-type
+                margin-right: 0
+
+            .ticker-filter-count
+                font-size: 1.15rem
+                color: $uni-color-c2a
 
     uni-ticker
         margin-right: 1rem
-        flex: 1 1 auto
+        flex: 1 1 15rem
 
-        &:not(.expanded)
-            flex: 1 1 15rem
+uni-sub-ticker-container
+    flex: 0 1 45%
 
-        &.nofilter
-            margin-left: 1rem
+uni-ticker-wrapper
+    position: absolute
+    width: 100%
 
-    uni-sub-ticker-container
-        flex: 0 0 10rem
+    .ticker-container
+        box-sizing: border-box
+        margin: 1rem
+        width: calc(100% - 2rem)
 
-        &.expanded
-            flex: 0 1 45%
+        uni-table table
+            border: 1px solid #eee
 
-
-    .closeBtn
-        @extend %hideText
-        position: relative
-        top: 3rem
-        right: -.5rem
-        height: 2.5rem
-        width: 2.5rem
-        padding: 0
-        box-shadow: none
-        border: none
-        background: transparent unicon-close($uni-color-positive) center no-repeat
-        background-size: .8rem
-        margin-top: -2.5rem
-        float: right
-
-        &:hover
-            background-color: $uni-color-scale8
-            border-radius: 99rem
-            background-size: .8rem
-
-    .openBtn
-        @extend %hideText
-        position: relative
-        top: 3rem
-        right: -.5rem
-        height: 2rem
-        width: 2rem
-        padding: 0
-        box-shadow: none
-        border: none
-        background: transparent unicon-search($uni-color-positive) center no-repeat
-        background-size: .8rem
-        margin-top: -2.5rem
-        float: right
-
-        &:hover
-            background-color: $uni-color-scale8
-            border-radius: 99rem
-            background-size: .8rem
+        .sub-ticker-container
+            margin-top: 3.2rem

@@ -19,6 +19,7 @@ import {ProjectEditmode} from './project/editmode/editmode';
 import {ProjectDocument} from './project/document/document';
 import {ProjectQueryList} from './project/lists/querylist';
 import {ProjectHours} from './project/hours/hours';
+import {ProjectHourTotals} from './project/hours/hourtotals';
 
 export * from './uniDimensions';
 export * from './dimensionsRoutes';
@@ -48,7 +49,8 @@ export * from './dimensionsRoutes';
         ProjectEditmode,
         ProjectDocument,
         ProjectQueryList,
-        ProjectHours
+        ProjectHours,
+        ProjectHourTotals
     ]
 })
 export class DimensionsModule {}

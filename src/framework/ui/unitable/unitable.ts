@@ -14,8 +14,8 @@ import {UnitableContextMenu} from './contextMenu';
 import {UniTablePagination} from './pagination/pagination';
 import {UniTableUtils} from './unitableUtils';
 import * as Immutable from 'immutable';
-import {KeyCodes} from './KeyCodes';
 import {List} from 'immutable';
+import {KeyCodes} from '../../../app/services/common/keyCodes';
 
 export interface IContextMenuItem {
     label: string;
@@ -33,6 +33,11 @@ export interface ITableFilter {
 export interface IExpressionFilterValue {
     expression: string;
     value: string;
+}
+
+export interface ICellClickEvent {
+    row: any;
+    column: UniTableColumn;
 }
 
 enum Direction { UP, DOWN, LEFT, RIGHT }
@@ -142,6 +147,7 @@ export class UniTable implements OnChanges {
 
     @Output() public rowSelectionChanged: EventEmitter<any> = new EventEmitter();
     @Output() public rowSelected: EventEmitter<any> = new EventEmitter();
+    @Output() public cellClick: EventEmitter<ICellClickEvent> = new EventEmitter();
     @Output() public rowChanged: EventEmitter<IRowChangeEvent> = new EventEmitter();
     @Output() public rowDeleted: EventEmitter<any> = new EventEmitter();
     @Output() public filtersChange: EventEmitter<any> = new EventEmitter();
@@ -267,6 +273,10 @@ export class UniTable implements OnChanges {
         }
     }
 
+    public removeSelection() {
+        this.lastFocusPosition = undefined;
+    }
+
     // Event hooks
     public onCellFocused(event) {
         const cell = event.target;
@@ -352,11 +362,13 @@ export class UniTable implements OnChanges {
     }
 
     public onCellClicked(event) {
-        const handler = event.column.get('onCellClickHandler');
-        if (handler) {
-            const rowModel = event.rowModel.toJS();
-            handler(rowModel);
-        }
+        const row = event.rowModel.toJS();
+        const col = event.column.toJS();
+
+        this.cellClick.next({
+            row: row,
+            column: col
+        });
     }
 
     public onEditorChange(event: IRowModelChangeEvent) {
@@ -650,6 +662,8 @@ export class UniTable implements OnChanges {
 
     // Helpers
     private copyFromCellAbove() {
+        if (!this.config.copyFromCellAbove) { return; }
+
         const field = this.lastFocusedCellColumn.get('field');
         let rowIndex = this.lastFocusPosition.rowIndex;
         if (!this.remoteData && this.pager) {
@@ -738,6 +752,7 @@ export class UniTable implements OnChanges {
             // after data is filtered, emit event to notify parent that the data has changed
             setTimeout(() => {
                 this.dataLoaded.emit();
+                this.removeSelection();
             });
 
             if (!this.remoteData) {
@@ -816,6 +831,7 @@ export class UniTable implements OnChanges {
                     // after data is filtered, emit event to notify parent that the data has changed
                     setTimeout(() => {
                         this.dataLoaded.emit();
+                        this.removeSelection();
                     });
 
                     if (this.config.editable && this.lastFocusPosition) {
@@ -1110,7 +1126,7 @@ export class UniTable implements OnChanges {
     }
 
     public removeRow(originalIndex) {
-        if (this.tableDataOriginal.get(originalIndex).get('_isEmpty')) {
+        if (this.tableDataOriginal.get(originalIndex).get('_isEmpty') && originalIndex === 0) {
             return;
         }
         this.tableDataOriginal = this.tableDataOriginal.delete(originalIndex);

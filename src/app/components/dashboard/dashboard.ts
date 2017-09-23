@@ -110,15 +110,36 @@ export class Dashboard {
                 }
             },
             {
-                width: 3,
+                width: 1,
                 height: 1,
                 x: 5,
+                y: 0,
+                widgetType: 'shortcut',
+                config: {
+                    label: 'Oversikt',
+                    description: 'Oversikt',
+                    icon: 'search',
+                    link: '/overview'
+                }
+            },
+            {
+                width: 3,
+                height: 1,
+                x: 6,
                 y: 0,
                 widgetType: 'clock',
                 config: {
                     dateColor: '#7698bd',
                     showSeconds: true
                 }
+            },
+            {
+                width: 2,
+                height: 1,
+                x: 9,
+                y: 0,
+                widgetType: 'companyLogo',
+                config: {}
             },
             {
                 width: 1,
@@ -318,12 +339,6 @@ export class Dashboard {
                         numberToDisplay: 10
                     }
                 }
-            },
-            {
-                width: 2,
-                height: 1,
-                widgetType: 'companyLogo',
-                config: {}
             }
         ];
 

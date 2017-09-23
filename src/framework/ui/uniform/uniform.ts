@@ -2,13 +2,14 @@ import {
     Component, EventEmitter, Input, Output, HostBinding, ViewChildren, QueryList, ElementRef,
     ChangeDetectorRef, Pipe, PipeTransform, SimpleChanges
 } from '@angular/core';
-import {UniComponentLayout, UniFieldLayout, KeyCodes} from './interfaces';
+import {UniComponentLayout, UniFieldLayout} from './interfaces';
 import {UniField} from './unifield';
 import {UniSection} from './unisection';
 import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/observable/fromEvent';
 import 'rxjs/add/observable/merge';
 import * as _ from 'lodash';
+import {KeyCodes} from '../../../app/services/common/keyCodes';
 
 @Pipe({
     name: 'sectionIndexes',
@@ -498,7 +499,7 @@ export class UniForm {
             return event.shiftKey;
         });
         const ctrlArrow = ctrlEvent.filter((event: KeyboardEvent) => {
-            return event.keyCode === KeyCodes.ARROW_UP || event.keyCode === KeyCodes.ARROW_DOWN;
+            return event.keyCode === KeyCodes.UP_ARROW || event.keyCode === KeyCodes.DOWN_ARROW;
         });
 
         ctrlArrow.subscribe((event: KeyboardEvent) => {
@@ -507,7 +508,7 @@ export class UniForm {
 
             let nextSectionID: number;
             const cmp: UniField = this.currentComponent;
-            if (event.keyCode === KeyCodes.ARROW_UP) {
+            if (event.keyCode === KeyCodes.UP_ARROW) {
                 nextSectionID = cmp.field.Section - 1;
             } else {
                 nextSectionID = cmp.field.Section + 1;

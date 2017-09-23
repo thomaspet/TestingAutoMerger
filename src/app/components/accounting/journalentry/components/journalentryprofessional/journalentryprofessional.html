@@ -2,7 +2,8 @@
     [resource]="journalEntryLines"
     [config]="journalEntryTableConfig"
     (rowChanged)="rowChanged($event)"
-    (rowSelected)="onRowSelected($event)">
+    (rowSelected)="onRowSelected($event)"
+    (cellClick)="onCellClick($event)">
 </uni-table>
 
 <accrual-modal></accrual-modal>

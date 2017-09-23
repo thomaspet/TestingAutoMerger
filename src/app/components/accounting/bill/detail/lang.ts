@@ -51,6 +51,9 @@ export const billViewLanguage = {
     ask_archive: 'Arkivere faktura ',
     ask_journal_msg: 'Bokføre fakturamottak med beløp ',
     ask_journal_title: 'Bokføre fakturamottak fra ',
+    ask_approve_and_journal_title: 'Godkjenne og bokføre fakturamottak fra ',
+    ask_approve_and_journal_and_topayment_title: 'Godkjenne, bokføre og til betaling av fakturamottak fra ',
+    ask_journal_and_topayment_title: 'Bokføre og til betaling av fakturamottak fra ',
     warning_action_not_reversable: 'Merk! Dette steget er det ikke mulig å reversere.',
 
     ask_delete: 'Vil du virkelig slette faktura ',
@@ -76,6 +79,9 @@ export const billViewLanguage = {
     task_approval: 'Godkjenning',
     task_approve: 'Godkjenn',
     task_reject: 'Avvis',
+    task_approve_and_journal: 'Godkjenn og bokfør',
+    task_approve_and_journal_and_topayment: 'Godkjenn, Bokfør og Til betaling',
+    task_journal_and_topayment: 'Bokfør og Til betaling',
 
     err_missing_comment: 'Du må skrive en kommentar som forklarer avvisningen.'
 

@@ -16,6 +16,16 @@ export class FileService extends BizHttp<File> {
         this.DefaultOrderBy = null;
     }
 
+    public printFile(fileID: number) {
+        return this.http
+            .asGET()
+            .withDefaultHeaders()
+            .usingBusinessDomain()
+            .withEndPoint(`files/${fileID}?action=download`)
+            .send()
+            .map((urlResponse: Response) => urlResponse);
+    }
+
     public downloadFile(fileID: number, contentType: string) {
         return this.http
             .asGET()

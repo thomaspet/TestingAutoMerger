@@ -67,9 +67,9 @@ export class DepartmentDetails implements OnInit {
     private setDepartment(department: Department) {
         this.department$.next(department);
         const tabTitle = department.ID ? 'Avdeling ' + department.Name : 'Avdeling (ny)';
-        const ID = department.ID ? department.ID : 'new';
+
         this.tabService.addTab({
-            url: '/dimensions/departments/' + ID,
+            url: '/dimensions/departments/' + department.ID || '0',
             name: tabTitle,
             active: true,
             moduleID: UniModules.Departments
@@ -108,7 +108,7 @@ export class DepartmentDetails implements OnInit {
     }
 
     public add() {
-        this.router.navigateByUrl('/dimensions/departments/new');
+        this.router.navigateByUrl('/dimensions/departments/0');
     }
 
     private save(done: Function) {

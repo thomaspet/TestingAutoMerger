@@ -17,14 +17,20 @@ export class SalarySumsService extends BizHttp<SalaryTransactionSums> {
         return this.http
             .asGET()
             .usingBusinessDomain()
-            .withEndPoint(this.relativeURL + `/${id}?${filter ? 'filter=' + filter : ''}`)
+            .withEndPoint(this.relativeURL + `?action=get-sums&id=${id}${filter ? '&filter=' + filter : ''}`)
             .send()
             .map(response => response.json());
     }
 
     public getSumsInYear(year: number, employeeID: number = null): Observable<SalaryTransactionSums> {
         let filter = `year(PayDate) eq ${year} and transactions.EmployeeID eq ${employeeID} and StatusCode gt ${0}`;
-        return this.GetAll('fromPayrollRun=true&filter=' + filter).map(response => response[0]);
+        
+        return this.http
+            .asGET()
+            .usingBusinessDomain()
+            .withEndPoint(this.relativeURL + `?action=getall&fromPayrollRun=true&filter=${filter}`)
+            .send()
+            .map(response => response.json());
     }
 
     public getSumsInPeriod(fromPeriod: number, toPeriod: number, transYear: number) {

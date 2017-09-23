@@ -17,6 +17,7 @@ import {Observable} from 'rxjs/Observable';
 import {AppConfig} from '../../app/AppConfig';
 import {ErrorService, FileService, UniFilesService} from '../../app/services/services';
 import {UniModalService, ConfirmActions} from '../uniModal/barrel';
+import {UniPrintModal} from '../../app/components/reports/modals/print/printModal';
 
 export enum UniImageSize {
     small = 150,
@@ -32,7 +33,7 @@ export interface IUploadConfig {
 @Component({
     selector: 'uni-image',
     template: `
-        <article (click)="onClick()" (clickOutside)="offClick()">
+        <article class="uniImage" (click)="onClick()" (clickOutside)="offClick()">
             <picture
                 #imageContainer
                 *ngIf="imgUrl.length"
@@ -53,17 +54,18 @@ export interface IUploadConfig {
             </picture>
 
             <section class="uni-image-pager">
-                <a class="prev" (click)="previous()"></a>
+                <a *ngIf="files.length > 1" class="prev" (click)="previous()"></a>
                 <label>{{fileInfo}}</label>
 
+                <a *ngIf="this.printOut" class="print" (click)="print()"></a>
+
                 <a class="trash" (click)="deleteImage()" *ngIf="!readonly"></a>
-                <a class="next" (click)="next()"></a>
+                <a *ngIf="files.length > 1" class="next" (click)="next()"></a>
             </section>
 
             <span id="span-area-highlighter" class="span-area-highlight-class" [ngStyle]="highlightStyle"></span>
 
-            <ul class="uni-thumbnail-list">
-
+            <ul class="uni-thumbnail-list" [ngClass]="{'-has-thumbnails': this.thumbnails.length > 0}">
                 <li *ngFor="let thumbnail of thumbnails; let idx = index">
                     <img
                         [attr.src]="thumbnail"
@@ -113,6 +115,9 @@ export class UniImage {
     public singleImage: boolean;
 
     @Input()
+    public printOut: boolean;
+
+    @Input()
     public expandInNewTab: boolean;
 
     @Input()
@@ -135,6 +140,9 @@ export class UniImage {
 
     @Output()
     public imageClicked: EventEmitter<File> = new EventEmitter<File>();
+
+    @Output()
+    public thumbnailImageClicked: EventEmitter<File> = new EventEmitter<File>();
 
     public imageIsLoading: boolean = true;
 
@@ -201,7 +209,7 @@ export class UniImage {
                 .withEndPoint(`files?filter=${requestFilter}`)
                 .send()
                 .subscribe((res) => {
-                    this.files = res.json();
+                    this.files = res.json().filter(x => x !== null);
                     this.fileListReady.emit(this.files);
                     if (this.files.length) {
                         this.currentPage = 1;
@@ -218,7 +226,7 @@ export class UniImage {
                 .withEndPoint(`files/${this.entity}/${this.entityID}`)
                 .send()
                 .subscribe((res) => {
-                    this.files = res.json();
+                    this.files = res.json().filter(x => x !== null);
                     this.fileListReady.emit(this.files);
                     if (this.files.length) {
                         this.currentPage = 1;
@@ -250,6 +258,10 @@ export class UniImage {
         }
     }
 
+    public getCurrentFile(): File {
+        return this.files[this.currentFileIndex];
+    }
+
     private isDefined(value: any) {
         return (value !== undefined && value !== null);
     }
@@ -278,6 +290,8 @@ export class UniImage {
         if (this.currentFileIndex !== index) {
             this.currentFileIndex = index;
             this.loadImage();
+
+            this.thumbnailImageClicked.emit(this.files[index]);
         }
     }
 
@@ -303,6 +317,39 @@ export class UniImage {
         }
     }
 
+    private print() {
+        return this.fileService.printFile(this.files[this.currentFileIndex].ID)
+            .subscribe((res: any) => {
+                let url = JSON.parse(res._body) + '&attachment=false';
+
+                if (this.files[this.currentFileIndex].Name.includes('.pdf')) {
+                    return this.modalService.open(UniPrintModal, {data: {url: url}})
+                        .onClose.subscribe(
+                            () => {},
+                            err => this.errorService(err)
+                        );
+                }
+                return this.printImage(url);
+            },
+            err => this.errorService(err)
+        );
+    }
+
+    private imageToPrint(source: string) {
+        return "<html><head><script>function step1(){\n" +
+            "setTimeout('step2()', 10);}\n" +
+            "function step2(){window.print();window.close()}\n" +
+            "</scri" + "pt></head><body onload='step1()'>\n" +
+            "<img src='" + source + "' /></body></html>";
+    }
+
+    private printImage(source: string) {
+        var pwa = window.open('_new');
+        pwa.document.open();
+        pwa.document.write(this.imageToPrint(source));
+        pwa.document.close();
+    }
+
     private deleteImage() {
         this.modalService.confirm({
             header: 'Bekreft sletting',
@@ -321,10 +368,8 @@ export class UniImage {
                     .subscribe(
                         res => {
                             let current = this.files[this.currentFileIndex];
-                            let fileIDsIndex = this.fileIDs.indexOf(current.ID);
 
                             this.files.splice(this.currentFileIndex, 1);
-                            if (fileIDsIndex !== -1) { this.fileIDs.splice(fileIDsIndex, 1); }
                             this.currentFileIndex--;
                             if (this.currentFileIndex < 0 && this.files.length > 0) { this.currentFileIndex = 0; }
 

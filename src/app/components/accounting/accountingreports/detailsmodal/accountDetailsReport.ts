@@ -2,7 +2,13 @@ import {Component, ViewChild, Input} from '@angular/core';
 import {URLSearchParams, Response} from '@angular/http';
 import {Observable} from 'rxjs/Observable';
 import {PeriodFilter, PeriodFilterHelper} from '../periodFilter/periodFilter';
-import {UniTableColumn, UniTableConfig, UniTableColumnType, UniTable} from '../../../../../framework/ui/unitable/index';
+import {
+    UniTableColumn,
+    UniTableConfig,
+    UniTableColumnType,
+    UniTable,
+    ICellClickEvent
+} from '../../../../../framework/ui/unitable/index';
 import {DistributionPeriodReportPart} from '../reportparts/distributionPeriodReportPart';
 import {JournalEntry} from '../../../../unientities';
 import {ImageModal} from '../../../common/modals/ImageModal';
@@ -282,8 +288,13 @@ export class AccountDetailsReport {
         this.setupLookupTransactions();
     }
 
-    private setupTransactionsTable() {
+    public onCellClick(event: ICellClickEvent) {
+        if (event.column.field === 'ID') {
+            this.imageModal.open(JournalEntry.EntityType, event.row.JournalEntryID);
+        }
+    }
 
+    private setupTransactionsTable() {
         let columns = [
             new UniTableColumn('JournalEntryNumber', 'Bilagsnr')
                     .setFilterOperator('contains'),
@@ -307,7 +318,6 @@ export class AccountDetailsReport {
                     .setTemplate(line => line.Attachments ? PAPERCLIP : '')
                     .setWidth('40px')
                     .setFilterable(false)
-                    .setOnCellClick(line => this.imageModal.open(JournalEntry.EntityType, line.JournalEntryID))
         ];
 
         columns.forEach(x => {

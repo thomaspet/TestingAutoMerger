@@ -2,7 +2,12 @@ import {Component, Input, OnChanges, EventEmitter, Output, ViewChild} from '@ang
 import {Router, ActivatedRoute} from '@angular/router';
 import {Observable} from 'rxjs/Observable';
 import {
-    UniTable, UniTableColumnType, UniTableColumn, UniTableConfig, IDeleteButton
+    UniTable,
+    UniTableColumnType,
+    UniTableColumn,
+    UniTableConfig,
+    IDeleteButton,
+    ICellClickEvent
 } from '../../../../framework/ui/unitable/index';
 import {
     Employee, WageType, PayrollRun, SalaryTransaction, Project, Department,
@@ -289,10 +294,7 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges 
         let fileCol = new UniTableColumn('_FileIDs', PAPERCLIP, UniTableColumnType.Text, false)
             .setTemplate(row => row['_FileIDs'] && row['_FileIDs'].length ? PAPERCLIP : '')
             .setWidth('2rem')
-            .setSkipOnEnterKeyNavigation(true)
-            .setOnCellClick(row => {
-                this.openDocumentsOnRow(row);
-            });
+            .setSkipOnEnterKeyNavigation(true);
 
         const editable = this.payrollRun ? this.payrollRun.StatusCode < 1 : true;
         this.salarytransEmployeeTableConfig = new UniTableConfig('salary.salarytrans.list', editable)
@@ -311,6 +313,7 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges 
                 amountCol, rateCol, sumCol, payoutCol, projectCol, departmentCol, fileCol
             ])
             .setColumnMenuVisible(true)
+            .setDefaultOrderBy('WageTypeNumber', 1)
             .setDeleteButton(this.payrollRun ? (this.payrollRun.StatusCode < 1 ? this.deleteButton : false) : false)
             .setPageable(false)
             .setChangeCallback((event) => {
@@ -363,6 +366,13 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges 
                 return row;
             })
             .setIsRowReadOnly((rowModel: SalaryTransaction) => rowModel.IsRecurringPost || !!rowModel.SalaryBalanceID);
+    }
+
+    public onCellClick(event: ICellClickEvent) {
+        console.log(event);
+        if (event.column.field === '_FileIDs') {
+            this.openDocumentsOnRow(event.row);
+        }
     }
 
     private mapWagetypeToTrans(rowModel) {

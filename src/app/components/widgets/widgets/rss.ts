@@ -5,7 +5,7 @@ import {WidgetDataService} from '../widgetDataService';
 @Component({
     selector: 'uni-rss',
     template: `
-        <div class="uni-dashboard-chart-header" style="color: #fff; text-align: center"> <span> {{ widget.config.header }} </span></div>
+        <div class="uni-widget-header" style="color: #fff; text-align: center"> <span> {{ widget.config.header }} </span></div>
         <ul style="list-style: none; height: calc(100% - 35px); overflow-y: scroll; margin: 0;">
             <li *ngFor="let item of items" style="margin-top: 10px;">
                 <aside class="image-container">
@@ -14,7 +14,7 @@ import {WidgetDataService} from '../widgetDataService';
 
                 <article>
                     <p style="margin: 0; text-align: left; font-size: 0.8rem">{{ item.PubDate | date: 'dd.MM.yyyy' }}</p>
-                    <p style="margin: 0; padding: 0; font-size: 1rem; font-weight: bold; color: black; text-align: left;"> {{ item.Title  }} </p>
+                    <p style="margin: 0; padding: 0; font-size: 1rem; font-weight: 600; color: black; text-align: left;"> {{ item.Title  }} </p>
                     <p style="margin: 0; font-size: 0.8rem; text-align: left; line-height: 1.6em;"> {{ item.desc }} </p>
                     <a target="_black" [href]="item.Link" style="margin: 0; float: left; font-size: 0.9rem; text-decoration: none;">Les mer</a>
                 </article>

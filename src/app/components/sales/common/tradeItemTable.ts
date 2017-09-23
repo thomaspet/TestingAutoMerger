@@ -6,7 +6,8 @@ import {
     VatType,
     Account,
     CompanySettings,
-    Project
+    Project,
+    Dimensions
 } from '../../../unientities';
 import {
     ProductService,
@@ -48,6 +49,7 @@ export class TradeItemTable {
     private tableConfig: UniTableConfig;
     private tableData: any[];
     private settings: CompanySettings;
+    private defaultProject: Project;
 
     constructor(
         private productService: ProductService,
@@ -104,6 +106,22 @@ export class TradeItemTable {
         }
     }
 
+    public setDefaultProjectAndRefreshItems(projectID: number, replaceItemsProject: boolean) {
+        this.defaultProject = this.projects.find(project => project.ID === projectID);
+        this.defaultTradeItem.Dimensions.ProjectID = projectID;
+        this.defaultTradeItem.Dimensions.Project = this.defaultProject;
+        this.tableConfig = this.tableConfig.setDefaultRowData(this.defaultTradeItem);
+        if (replaceItemsProject) {
+            this.tableData = this.items.map(item => {
+                item.Dimensions = item.Dimensions || new Dimensions();
+                item.Dimensions.ProjectID = projectID;
+                item.Dimensions.Project = this.defaultProject;
+                return item;
+            });
+        } else {
+            this.tableData = this.items.map(item => { return item; });
+        }
+    }
 
     private initTableConfig() {
         const sortIndexCol = new UniTableColumn('SortIndex', 'Nr', UniTableColumnType.Number).setWidth('50px')
@@ -305,7 +323,8 @@ export class TradeItemTable {
 
                 this.itemsChange.next(this.items);
                 return updatedRow;
-            });
+            })
+            .setCopyFromCellAbove(false);
     }
 
     public onRowDeleted(row) {

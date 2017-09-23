@@ -9,7 +9,7 @@ import {
     Supplier, SupplierInvoice, JournalEntryLineDraft,
     StatusCodeSupplierInvoice, BankAccount, LocalDate,
     InvoicePaymentData, CurrencyCode, CompanySettings, Task,
-    Project, Department
+    Project, Department, User, ApprovalStatus, Approval
 } from '../../../../unientities';
 import {UniStatusTrack} from '../../../common/toolbar/statustrack';
 import {IUniSaveAction} from '../../../../../framework/save/save';
@@ -25,6 +25,7 @@ import {IUniSearchConfig} from '../../../../../framework/ui/unisearch/index';
 import {UniAssignModal, AssignDetails} from './assignmodal';
 import {UniApproveModal, ApprovalDetails} from './approvemodal';
 import {UniMath} from '../../../../../framework/core/uniMath';
+import {CommentService} from '../../../../../framework/comments/commentService';
 import {NumberSeriesTaskIds} from '../../../../models/models';
 import {
     UniModalService,
@@ -49,7 +50,8 @@ import {
     UniSearchSupplierConfig,
     ModulusService,
     ProjectService,
-    DepartmentService
+    DepartmentService,
+    UserService
 } from '../../../../services/services';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {UniFieldLayout} from '../../../../../framework/ui/uniform/index';
@@ -90,13 +92,14 @@ export class BillView {
     public currentSupplierID: number = 0;
     public collapseSimpleJournal: boolean = false;
     public hasUnsavedChanges: boolean = false;
-    public currentFileID: number = 0;
+    public currentFile: any;
     public hasStartupFileID: boolean = false;
     public historyCount: number = 0;
     public ocrData: any;
+    public startUpFileID: Array<number> = [];
 
+    private myUser: User;
     private files: Array<any>;
-    private fileIds: Array<number> = [];
     private unlinkedFiles: Array<number> = [];
     private supplierIsReadOnly: boolean = false;
     private commentsConfig: any;
@@ -111,11 +114,13 @@ export class BillView {
     @ViewChild(BillHistoryView) private historyView: BillHistoryView;
     @ViewChild(ImageModal) public imageModal: ImageModal;
     @ViewChild(UniImage) public uniImage: UniImage;
-    @ViewChild(UniAssignModal) private assignModal: UniAssignModal;
-    @ViewChild(UniApproveModal) private approveModal: UniApproveModal;
 
-    // tslint:disable:max-line-length
-    private supplierExpandOptions: Array<string> = ['Info', 'Info.BankAccounts', 'Info.DefaultBankAccount', 'CurrencyCode'];
+    private supplierExpandOptions: Array<string> = [
+        'Info',
+        'Info.BankAccounts',
+        'Info.DefaultBankAccount',
+        'CurrencyCode'
+    ];
 
     private tabLabel: string;
     public tabs: Array<ITab> = [
@@ -158,9 +163,14 @@ export class BillView {
         private modulusService: ModulusService,
         private projectService: ProjectService,
         private departmentService: DepartmentService,
-        private modalService: UniModalService
+        private modalService: UniModalService,
+        private userService: UserService,
+        private commentService: CommentService
     ) {
         this.actions = this.rootActions;
+        userService.getCurrentUser().subscribe( usr => {
+            this.myUser = usr;
+        });
     }
 
     public ngOnInit() {
@@ -180,7 +190,6 @@ export class BillView {
     private initFromRoute() {
         this.route.params.subscribe((params: any) => {
             var id = params.id;
-
             if (safeInt(id) > 0) {
                 Observable.forkJoin(
                     this.companySettingsService.Get(1),
@@ -214,14 +223,14 @@ export class BillView {
                     this.extendFormConfig();
                 }, err => this.errorService.handle(err));
             }
-
             this.commentsConfig = {
-                entityType: SupplierInvoice.EntityType,
+                entityType: 'SupplierInvoice',
                 entityID: +params.id
             };
         });
 
     }
+
     public extendFormConfig() {
         let fields: UniFieldLayout[] = this.fields$.getValue();
 
@@ -395,6 +404,10 @@ export class BillView {
                     );
                 });
             }),
+            display: (bankAccount: BankAccount) => {
+                return bankAccount.AccountNumber ? (bankAccount.AccountNumber.substr(0, 4) + ' '
+                    + bankAccount.AccountNumber.substr(4, 2) + ' ' + bankAccount.AccountNumber.substr(6)) : '';
+            }
         };
 
 
@@ -497,11 +510,11 @@ export class BillView {
     private runConverter(files: Array<any>): Promise<boolean> {
         return new Promise((resolve, reject) => {
             if (files && files.length > 0) {
-                let firstFile = files[0];
-                if (this.isOCR(firstFile)) {
-                    this.runOcr(firstFile);
-                } else if (this.isEHF(firstFile)) {
-                    this.runEHF(firstFile);
+                let file = this.uniImage.getCurrentFile() || files[0];
+                if (this.isOCR(file)) {
+                    return this.runOcr(file);
+                } else if (this.isEHF(file)) {
+                    return this.runEHF(file);
                 }
             }
         });
@@ -577,55 +590,50 @@ export class BillView {
         }
     }
 
+    private addComment(comment: string) {
+        this.commentService.post(this.commentsConfig.entityType, this.commentsConfig.entityID, comment)
+        .subscribe(() => {
+            this.commentService.loadComments(this.commentsConfig.entityType, this.commentsConfig.entityID);
+        });
+    }
+
     /// =============================
 
     ///     FILES AND OCR
 
     /// =============================
 
-    public onImageClicked(file) {
+    public onImageClicked(file: any) {
         let current = this.current.getValue();
         let entityID = current.ID || 0;
-
-        // makes a new array without duplicates of file.ID
-        if (this.fileIds.length > 0) {
-            this.fileIds = this.fileIds.filter(x => x !== parseInt(file.ID));
-        }
 
         if (entityID > 0) {
             this.imageModal.openReadOnly('SupplierInvoice', entityID, file.ID, UniImageSize.large);
         } else {
-            // if image is not bound to an entity push its id to the fileIds array,
-            // parse it to a number and open that image
-            this.fileIds.push(parseInt(file.ID));
-            this.imageModal.openReadOnlyFileIds('SupplierInvoice', this.fileIds, file.ID, UniImageSize.large);
+            let fileIds = this.files.map(file => file.ID);
+            this.imageModal.openReadOnlyFileIds('SupplierInvoice', fileIds, file.ID, UniImageSize.large);
         }
     }
 
+    public onImageDeleted(file: any) {
+        this.files = this.files.filter(x => file !== x)
+    }
+
+    public onThumbnailImageClicked(file: any) {
+        this.currentFile = file;
+    }
+
     public onFileListReady(files: Array<any>) {
+        let current = this.current.value;
         this.files = files;
+
         if (files && files.length) {
             if (!this.hasValidSupplier()) {
                 this.runConverter(files);
             }
-            this.checkNewFiles(files);
-        }
-    }
-
-    private checkNewFiles(files: Array<any>) {
-
-        if ((!files) || files.length === 0) {
-            return;
-        }
-        let firstFile = files[0];
-
-        const current = this.current.getValue();
-        if (!current.ID) {
-            if (this.unlinkedFiles.findIndex(x => x === firstFile.ID) < 0) {
-                this.unlinkedFiles.push(firstFile.ID);
-                if (this.hasStartupFileID !== firstFile.ID) {
-                    this.tagFileStatus(firstFile.ID, 0);
-                }
+            if (!current.ID) {
+                this.unlinkedFiles = files.map(file => file.ID);
+                this.rootActions[0].disabled = false;
             }
         }
     }
@@ -819,7 +827,7 @@ export class BillView {
 
     public onFocusEvent(event) {
 
-        if (!this.currentFileID || !this.ocrData) { return; }
+        if (!this.currentFile || !this.ocrData) { return; }
 
         this.uniImage.removeHighlight();
 
@@ -1045,8 +1053,7 @@ export class BillView {
         this.flagActionBar(actionBar.delete, false);
         this.supplierIsReadOnly = false;
         this.hasUnsavedChanges = false;
-        this.currentFileID = 0;
-        this.fileIds = [];
+        this.currentFile = {};
         this.unlinkedFiles = [];
         this.files = undefined;
         this.setHistoryCounter(0);
@@ -1079,8 +1086,8 @@ export class BillView {
         if (it && it._links) {
             var list: IUniSaveAction[] = [];
             this.rootActions.forEach(x => list.push(x));
-            var hasBilag = (!!(it.JournalEntry && it.JournalEntry.JournalEntryNumber));
-            let filter = ((it.StatusCode === 30105 && hasBilag) ? ['journal'] : undefined);
+            var hasJournalEntry = (!!(it.JournalEntry && it.JournalEntry.JournalEntryNumber));
+            let filter = ((it.StatusCode === StatusCodeSupplierInvoice.ToPayment && hasJournalEntry) ? ['journal'] : undefined);
             this.addActions(it._links.transitions, list, true, ['assign', 'approve', 'journal', 'pay'], filter);
             /* todo: add smartbooking whenever it works properly..
             if (it._links.actions && it._links.actions.smartbooking) {
@@ -1103,8 +1110,24 @@ export class BillView {
                     action = this.newAction(lang.task_reject, 'task_reject',
                         `api/biz/approvals/${approval.ID}?action=approve`, false);
                     list.push(action);
+
+                    // Godkjenn og Bokfør, Godkjenn, Bokfør og Til betaling
+                    if (it.StatusCode === StatusCodeSupplierInvoice.ForApproval) {
+                        let toJournalAction = this.newAction(lang.task_approve_and_journal, 'task_approve_and_journal', `api/biz/approvals/${approval.ID}?action=approve`);
+                        list.push(toJournalAction);
+
+                        let topaymentaction = this.newAction(lang.task_approve_and_journal_and_topayment, 'task_approve_and_journal_and_topayment', `api/biz/approvals/${approval.ID}?action=approve`);
+                        list.push(topaymentaction);
+                    }
                 }
             }
+
+            // Bokfør og Til betaling
+            if (it.StatusCode === StatusCodeSupplierInvoice.Approved) {
+                let toPaymentAction = this.newAction(lang.task_journal_and_topayment, 'task_journal_and_topayment', '');
+                list.push(toPaymentAction);
+            }
+
             this.actions = list;
         } else {
             this.initDefaultActions();
@@ -1169,25 +1192,27 @@ export class BillView {
     }
 
     public onTaskApproval(details: ApprovalDetails) {
+        if (!details) {
+            return;
+        }
         if (details.approved || details.rejected) {
             this.supplierInvoiceService.invalidateCache();
             this.fetchInvoice(this.currentID, true);
-            if (details.rejected) {
-                // todo: update toolbar comments...
+            if (details.message && details.message !== '') {
+                this.addComment(details.message);
             }
         }
-        this.approveModal.close();
     }
 
     public onAssignClickOk(details: AssignDetails) {
         let id = this.currentID;
-        if (!id) { return; }
-        this.assignModal.goBusy(true);
+        if (!id || !details) { return; }
         this.supplierInvoiceService.assign(id, details)
-            .finally( () => this.assignModal.goBusy(false) )
             .subscribe( x => {
-                this.assignModal.close();
                 this.fetchInvoice(id, true);
+                if (details.Message && details.Message !== '') {
+                    this.addComment(details.Message);
+                }
             }, (err) => {
                 this.errorService.handle(err);
             });
@@ -1197,31 +1222,15 @@ export class BillView {
         let current = this.current.getValue();
         switch (key) {
             case 'assign':
-                this.assignModal.open();
+                this.modalService.open(UniAssignModal, {closeOnClickOutside: false})
+                    .onClose.subscribe(details => this.onAssignClickOk(details));
                 done();
                 break;
 
             case 'journal':
-                this.modalService.open(UniConfirmModalV2, {
-                    header: lang.ask_journal_title + current.Supplier.Info.Name,
-                    message: lang.ask_journal_msg + current.TaxInclusiveAmountCurrency.toFixed(2) + '?',
-                    warning: lang.warning_action_not_reversable,
-                    buttonLabels: {
-                        accept: 'Bokfør',
-                        cancel: 'Avbryt'
-                    }
-                }).onClose.subscribe(response => {
-                    if (response === ConfirmActions.ACCEPT) {
-                        this.busy = true;
-                        this.tryJournal(href).then((status: ILocalValidation) => {
-                            this.busy = false;
-                            this.hasUnsavedChanges = false;
-                            done(lang.save_success);
-                        }).catch((err: ILocalValidation) => {
-                            this.busy = false;
-                            done(err.errorMessage);
-                            this.userMsg(err.errorMessage, lang.warning, 10);
-                        });
+                this.journal(true, href).subscribe(result => {
+                    if (result) {
+                        done(lang.save_success);
                     } else {
                         done();
                     }
@@ -1260,18 +1269,217 @@ export class BillView {
                 return true;
 
             case 'task_approval':
-                this.approveModal.open(current, true);
+                this.modalService.open(UniApproveModal, {
+                    data: {
+                        invoice: current,
+                        forApproval: true
+                    }
+                }).onClose.subscribe((details: ApprovalDetails) => {
+                    this.onTaskApproval(details);
+                });
                 done();
                 return true;
 
             case 'task_reject':
-                this.approveModal.open(current, false);
+                this.modalService.open(UniApproveModal, {
+                    data: {
+                        invoice: current,
+                        forApproval: false
+                    }
+                }).onClose.subscribe((details: ApprovalDetails) => {
+                    this.onTaskApproval(details);
+                });
                 done();
+                return true;
+
+            case 'task_approve_and_journal':
+                this.readyToApprove().subscribe(myApproval => {
+                    if (myApproval) {
+                        this.askApproveAndJournal()
+                            .switchMap(response => {
+                                return response === ConfirmActions.ACCEPT
+                                    ? this.approve(myApproval)
+                                    : Observable.of(false);
+                            })
+                            .switchMap(approved => {
+                                return approved
+                                    ? this.journal(false, href)
+                                    : Observable.of(false)
+                            })
+                            .subscribe(result => {
+                                this.fetchInvoice(current.ID, false);
+                                done(result ? 'Godkjent og bokført' : '');
+                             });
+                    } else {
+                        done('Ikke mulig å godkjenne');
+                    }
+                });
+
+                return true;
+
+            case 'task_approve_and_journal_and_topayment':
+                this.readyToApprove().subscribe(myApproval => {
+                    if (myApproval) {
+                        this.askApproveAndJournalAndToPayment()
+                            .switchMap(response => {
+                                return response === ConfirmActions.ACCEPT
+                                    ? this.approve(myApproval)
+                                    : Observable.of(false);
+                            })
+                            .switchMap(approved => {
+                                return approved
+                                    ? this.journal(false, href)
+                                    : Observable.of(false);
+                            })
+                            .switchMap(journaled => {
+                                return journaled
+                                    ? this.sendForPayment()
+                                    : Observable.of(false);
+                            })
+                            .subscribe(result => {
+                                this.fetchInvoice(current.ID, false);
+                                done(result ? 'Godkjent, bokført og til betaling' : '');
+                            });
+                    } else {
+                        done('Ikke mulig å godkjenne');
+                    }
+                });
+
+                return true;
+
+            case 'task_journal_and_topayment':
+                this.askJournalAndToPayment()
+                    .switchMap(response => {
+                        return response === ConfirmActions.ACCEPT
+                            ? this.journal(false, href)
+                            : Observable.of(false);
+                    })
+                    .switchMap(journaled => {
+                        return journaled
+                            ? this.sendForPayment()
+                            : Observable.of(false);
+                    })
+                    .subscribe(result => {
+                        this.fetchInvoice(current.ID, false);
+                        done(result ? 'Bokført og til betaling' : '');
+                    });
+
                 return true;
 
             default:
                 return this.RunActionOnCurrent(key, done);
         }
+    }
+
+    private sendForPayment(): Observable<boolean> {
+        let current = this.current.getValue();
+        return this.supplierInvoiceService.PostAction(current.ID, 'sendForPayment')
+                   .switchMap(result => Observable.of(true))
+                   .catch(err => Observable.of(false));
+    }
+
+    private journal(ask: boolean, href: string): Observable<boolean> {
+        let current = this.current.getValue();
+
+        let obs = ask
+            ? this.modalService.open(UniConfirmModalV2, {
+                header: lang.ask_journal_title + current.Supplier.Info.Name,
+                message: lang.ask_journal_msg + current.TaxInclusiveAmountCurrency.toFixed(2) + '?',
+                warning: lang.warning_action_not_reversable,
+                buttonLabels: {
+                    accept: 'Bokfør',
+                    cancel: 'Avbryt'
+                }
+              }).onClose.map(response => response === ConfirmActions.ACCEPT)
+            : Observable.of(true);
+
+        return obs.switchMap(response => {
+            if (!response) { return Observable.of(false); }
+
+            this.busy = true;
+            return Observable.fromPromise(
+                this.tryJournal(href).then((status: ILocalValidation) => {
+                    this.busy = false;
+                    this.hasUnsavedChanges = false;
+                    this.fetchInvoice(current.ID, false);
+                    return true;
+                }).catch((err: ILocalValidation) => {
+                    this.busy = false;
+                    this.userMsg(err.errorMessage, lang.warning, 10);
+                    return false;
+                }).then(response => {
+                    return Observable.of(response);
+                })
+            );
+        });
+    }
+
+    private askApproveAndJournal(): Observable<any> {
+        let current = this.current.getValue();
+        return this.modalService.open(UniConfirmModalV2, {
+            header: lang.ask_approve_and_journal_title + current.Supplier.Info.Name,
+            message: lang.ask_journal_msg + current.TaxInclusiveAmountCurrency.toFixed(2) + '?',
+            warning: lang.warning_action_not_reversable,
+            buttonLabels: {
+                accept: lang.task_approve_and_journal,
+                cancel: 'Avbryt'
+            }
+        }).onClose;
+    }
+
+    private askApproveAndJournalAndToPayment(): Observable<any> {
+        let current = this.current.getValue();
+        return this.modalService.open(UniConfirmModalV2, {
+            header: lang.ask_approve_and_journal_and_topayment_title + current.Supplier.Info.Name,
+            message: lang.ask_journal_msg + current.TaxInclusiveAmountCurrency.toFixed(2) + '?',
+            warning: lang.warning_action_not_reversable,
+            buttonLabels: {
+                accept: lang.task_approve_and_journal_and_topayment,
+                cancel: 'Avbryt'
+            }
+        }).onClose;
+    }
+
+    private askJournalAndToPayment(): Observable<any> {
+        let current = this.current.getValue();
+        return this.modalService.open(UniConfirmModalV2, {
+            header: lang.ask_journal_and_topayment_title + current.Supplier.Info.Name,
+            message: lang.ask_journal_msg + current.TaxInclusiveAmountCurrency.toFixed(2) + '?',
+            warning: lang.warning_action_not_reversable,
+            buttonLabels: {
+                accept: lang.task_journal_and_topayment,
+                cancel: 'Avbryt'
+            }
+        }).onClose;
+    }
+
+    private readyToApprove() : Observable<any> {
+        if (this.CurrentTask) {
+            let approvals = this.CurrentTask.Approvals;
+            if (approvals) {
+                let myApproval = approvals.find(x =>
+                    x.UserID === this.myUser.ID &&
+                    x.StatusCode === ApprovalStatus.Active);
+
+                if (myApproval) {
+                    return Observable.of(myApproval);
+                }
+            }
+        }
+
+        return Observable.of(null);
+    }
+
+    private approve(myApproval: Approval): Observable<boolean> {
+        let current = this.current.getValue();
+        return this.supplierInvoiceService.send(`approvals/${myApproval.ID}?action=approve`)
+            .switchMap(result => {
+                return Observable.of(true);
+            })
+            .catch(err => {
+                this.errorService.handle(err);
+                return Observable.of(false);
+            });
     }
 
     private RunActionOnCurrent(action: string, done?: (msg) => {}, successMsg?: string): boolean {
@@ -1280,7 +1488,6 @@ export class BillView {
         this.supplierInvoiceService.PostAction(current.ID, action)
             .finally(() => this.busy = false)
             .subscribe(() => {
-                this.fetchInvoice(current.ID, true);
                 if (done) { done(successMsg); }
             }, (err) => {
                 this.errorService.handle(err);
@@ -1329,7 +1536,7 @@ export class BillView {
 
     private fetchInvoice(id: number | string, flagBusy: boolean): Promise<any> {
         if (flagBusy) { this.busy = true; }
-        this.currentFileID = 0;
+        this.currentFile = {};
         this.files = undefined;
         this.setHistoryCounter(0);
         return new Promise((resolve, reject) => {
@@ -1483,10 +1690,11 @@ export class BillView {
             obs.subscribe((result) => {
                 this.currentSupplierID = result.ID;
                 this.hasUnsavedChanges = false;
+                this.commentsConfig.entityID = result.ID;
                 if (this.unlinkedFiles.length > 0) {
                     this.linkFiles(this.currentSupplierID, this.unlinkedFiles, 'SupplierInvoice', 40001).then(() => {
                         this.hasStartupFileID = false;
-                        this.currentFileID = 0;
+                        this.currentFile = {};
                         this.unlinkedFiles = [];
                         reload();
                     });
@@ -1769,6 +1977,10 @@ export class BillView {
         var doc: SupplierInvoice = this.current.getValue();
         var stConfig = this.getStatustrackConfig();
         var jnr = doc && doc.JournalEntry && doc.JournalEntry.JournalEntryNumber ? doc.JournalEntry.JournalEntryNumber : undefined;
+        this.commentsConfig = {
+            entityID: doc.ID || 0,
+            entityType: SupplierInvoice.EntityType
+        }
         this.toolbarConfig = {
             title: doc && doc.Supplier && doc.Supplier.Info ? `${trimLength(doc.Supplier.Info.Name, 20)}` : lang.headliner_new,
             subheads: [
@@ -1833,8 +2045,8 @@ export class BillView {
 
     private loadFromFileID(fileID: number | string) {
         this.hasStartupFileID = true;
-        this.fileIds = [safeInt(fileID)];
-        this.currentFileID = safeInt(fileID);
+        this.startUpFileID = [safeInt(fileID)];
+        this.currentFile.ID = safeInt(fileID);
     }
 
     private linkFiles(ID: any, fileIDs: Array<any>, entityType: string, flagFileStatus?: any): Promise<any> {
@@ -1887,12 +2099,15 @@ export class BillView {
         );
     }
 
-    private isOCR(file): Boolean {
+    private isOCR(file: any): Boolean {
+        if (!file.Name) { return false; }
+
         if (file.ContentType) {
             if (file.ContentType === 'application/xml') { return false; }
             if (file.ContentType.startsWith('image')) { return true; }
         }
         if (file.Extension && file.Extension === '.xml') { return false; }
+
         var ocrformats = ['pdf', 'png', 'jpeg', 'jpg', 'gif', 'tiff'];
         var ending = file.Name.toLowerCase().split('.').pop();
         return ocrformats.indexOf(ending) >= 0;

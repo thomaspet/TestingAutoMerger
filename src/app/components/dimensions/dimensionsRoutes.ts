@@ -8,6 +8,7 @@ import {ProjectEditmode} from './project/editmode/editmode';
 import {ProjectDocument} from './project/document/document';
 import {ProjectQueryList} from './project/lists/querylist';
 import {ProjectHours} from './project/hours/hours';
+import {ProjectHourTotals} from './project/hours/hourtotals';
 
 export const dimensionsRoutes = [
     {
@@ -42,7 +43,7 @@ export const dimensionsRoutes = [
             },
             {
                 path: 'hours',
-                component: ProjectHours
+                component: ProjectHourTotals // ProjectHours
             },
             {
                 path: 'editmode',

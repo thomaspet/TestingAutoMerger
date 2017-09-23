@@ -1,4 +1,8 @@
-<uni-toolbar [config]="toolbarConfig"></uni-toolbar>
+<uni-toolbar
+    [config]="toolbarConfig"
+    [saveactions]="saveActions">
+
+</uni-toolbar>
 
 <section class="supplierinvoice-listview">
 
@@ -14,22 +18,30 @@
     </header>
 
     <header class="application">
-        <table class='toolbar'><tr>
-        <td>
-            <input type="search" placeholder="Søk" [formControl]="searchControl" >
-            <button class="good" (click)="onAddNew()">Nytt fakturamottak</button>
-        </td>
-        <td></td>
-        </tr></table>
+        <table class='toolbar'>
+        <tr>
+            <td>
+                    <uni-form [config]="config$"
+                    [fields]="fields$"
+                    [model]="searchParams$"
+                    (changeEvent)="onFormFilterChange($event)"
+                    >
+                </uni-form><br/>
+                    <input type="search" placeholder="Søk" [formControl]="searchControl" ><button class="good" (click)="onAddNew()">Nytt fakturamottak</button>
+            </td>
+            <td>
+            </td>
+        </tr>
+    </table>
     </header>
 
     <article class="application" [attr.aria-busy]="busy" >
-
         <uni-table [resource]="listOfInvoices"
             [config]="tableConfig"
             (rowSelected)="onRowSelected($event)"
             (rowDeleted)="onRowDeleted($event.rowModel)"
-            (pageChange)="onPageChange($event)">
+            (pageChange)="onPageChange($event)"
+            (rowSelectionChanged)="onRowSelectionChanged($event ? $event.rowModel : null)">
         </uni-table>
 
         <div class="right total" *ngIf="this.currentFilter.name === 'Inbox'">

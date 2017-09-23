@@ -3,11 +3,16 @@ import {BizHttp} from '../../../framework/core/http/BizHttp';
 import {Project} from '../../unientities';
 import {UniHttp} from '../../../framework/core/http/http';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
+import {ReplaySubject} from 'rxjs/ReplaySubject';
+import {IToolbarConfig} from '../../components/common/toolbar/toolbar';
+import {IUniSaveAction} from '../../../framework/save/save';
 
 @Injectable()
 export class ProjectService extends BizHttp<Project> {
 
     public currentProject: BehaviorSubject<Project> = new BehaviorSubject(null);
+    public toolbarConfig: ReplaySubject<IToolbarConfig> = new ReplaySubject(null);
+    public saveActions: ReplaySubject<Array<IUniSaveAction>> = new ReplaySubject(null);
     public allProjects: Project[];
     public isDirty: boolean;
 
@@ -18,6 +23,15 @@ export class ProjectService extends BizHttp<Project> {
         this.entityType = Project.EntityType;
         this.DefaultOrderBy = null;
     }
+
+    // tslint:disable-next-line:member-ordering
+    public statusTypes: Array<any> = [
+        { Code: 42201, Text: 'Kladd', isPrimary: true},
+        { Code: 42202, Text: 'Tilbudsfase', isPrimary: false },
+        { Code: 42203, Text: 'Pågår', isPrimary: true },
+        { Code: 42204, Text: 'Fullført', isPrimary: true },
+        { Code: 42205, Text: 'Arkivert', isPrimary: false },
+    ];    
 
     public setNew() {
         this.currentProject.next(new Project);
@@ -48,4 +62,39 @@ export class ProjectService extends BizHttp<Project> {
             .withEndPoint(route)
             .send();
     }
+
+    public FindProjects<T>(params: URLSearchParams, baseFilter?: string) {
+        // use default orderby for service if no orderby is specified
+        if (!params.get('orderby') && this.DefaultOrderBy !== null) {
+            params.set('orderby', this.DefaultOrderBy);
+        }
+
+        // use default expands for service if no expand is specified
+        if (!params.get('expand') && this.defaultExpand) {
+            params.set('expand', this.defaultExpand.join());
+        }
+
+        // Apply basefilter?
+        var userFilter = params.get('filter');
+        if (baseFilter) {
+            params.set('filter', userFilter ? userFilter + ' and ( ' + baseFilter + ' )' : baseFilter);
+        }
+
+        if (userFilter === '' && (!baseFilter)) {
+            params.delete('filter');
+        }
+
+        var result = this.http
+            .usingBusinessDomain()
+            .asGET()
+            .withEndPoint(this.relativeURL)
+            .send({}, <any>params);
+
+        // Restore user-defined-filter
+        if (baseFilter) {
+            params.set('filter', userFilter);
+        }
+
+        return result;
+    }    
 }

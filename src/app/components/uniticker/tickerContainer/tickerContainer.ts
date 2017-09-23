@@ -1,37 +1,43 @@
-import {Component, ViewChild, Input, SimpleChanges, Output, EventEmitter} from '@angular/core';
-import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
-import {UniTabs} from '../../layout/uniTabs/uniTabs';
-import {Router, ActivatedRoute, RouterLink} from '@angular/router';
-import {Ticker, TickerGroup, TickerAction, TickerFilter, TickerColumn, IExpressionFilterValue, ITickerActionOverride, ITickerColumnOverride} from '../../../services/common/uniTickerService';
+import {
+    Component,
+    ViewChild,
+    Input,
+    Output,
+    EventEmitter,
+    ChangeDetectionStrategy,
+    ChangeDetectorRef
+} from '@angular/core';
+import {Router, ActivatedRoute, ParamMap} from '@angular/router';
+import {
+    Ticker,
+    TickerFilter,
+    IExpressionFilterValue,
+    ITickerActionOverride,
+    ITickerColumnOverride
+} from '../../../services/common/uniTickerService';
 import {UniTicker} from '../ticker/ticker';
-import {UniSubTickerContainer} from '../subTickerContainer/subTickerContainer';
-import {UniTickerFilters} from '../components/tickerFilters';
-import {UniTickerService, PageStateService, YearService} from '../../../services/services';
+import {YearService} from '../../../services/services';
 import {AuthService} from '../../../../framework/core/authService';
-
-declare const _; // lodash
 
 @Component({
     selector: 'uni-ticker-container',
-    templateUrl: './tickerContainer.html'
+    templateUrl: './tickerContainer.html',
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class UniTickerContainer {
-    @Input() private ticker: Ticker;
-    @Input() private showActions: boolean;
-    @Input() private showFilters: boolean = true;
-    @Input() private useUniTableFilter: boolean = false;
-    @Input() private showFiltersAsNavbar: boolean = false;
-    @Input() private showSubTickers: boolean = false;
-    @Input() private actionOverrides: Array<ITickerActionOverride> = [];
-    @Input() private columnOverrides: Array<ITickerColumnOverride> = [];
+    @ViewChild(UniTicker) private mainTicker: UniTicker;
 
-    @Output() private urlPropertiesChanged: EventEmitter<any> = new EventEmitter<any>();
+    @Input() public ticker: Ticker;
+    @Input() public showActions: boolean;
+    @Input() public showFilters: boolean = true;
+    @Input() public filtersAsNavbar: boolean;
+    @Input() public useUniTableFilter: boolean = false;
+    @Input() public actionOverrides: Array<ITickerActionOverride> = [];
+    @Input() public columnOverrides: Array<ITickerColumnOverride> = [];
 
-    @ViewChild(UniTicker) private uniTicker: UniTicker;
-    @ViewChild(UniSubTickerContainer) private uniSubTickerContainer: UniSubTickerContainer;
-    @ViewChild(UniTickerFilters) private uniTickerFilters: UniTickerFilters;
+    @Output() public urlParamsChange: EventEmitter<ParamMap> = new EventEmitter();
 
-    private expanded: string = 'ticker';
+    public showSubTickers: boolean;
     public selectedFilter: TickerFilter;
 
     private selectedRow: any;
@@ -39,118 +45,100 @@ export class UniTickerContainer {
     private currentUserGlobalIdentity: string;
     private currentAccountingYear: string;
 
-    constructor(private pageStateService: PageStateService, private authService: AuthService, private yearService: YearService) {
+    constructor(
+        private authService: AuthService,
+        private yearService: YearService,
+        private router: Router,
+        private route: ActivatedRoute,
+        private cdr: ChangeDetectorRef
+    ) {
         let token = this.authService.getTokenDecoded();
         if (token) {
             this.currentUserGlobalIdentity = token.nameid;
 
-            this.yearService.getActiveYear()
-                .subscribe(activeyear => {
-                    this.currentAccountingYear = activeyear.toString();
-                    
-                    this.expressionFilters = [];
-                    this.expressionFilters.push({
-                        Expression: 'currentuserid',
-                        Value: this.currentUserGlobalIdentity
-                    });
+            this.yearService.getActiveYear().subscribe(activeyear => {
+                this.currentAccountingYear = activeyear.toString();
 
-                    this.expressionFilters.push({
-                        Expression: 'currentaccountingyear',
-                        Value: this.currentAccountingYear
-                    });
+                this.expressionFilters = [];
+                this.expressionFilters.push({
+                    Expression: 'currentuserid',
+                    Value: this.currentUserGlobalIdentity
                 });
+
+                this.expressionFilters.push({
+                    Expression: 'currentaccountingyear',
+                    Value: this.currentAccountingYear
+                });
+            });
         }
     }
 
-    public ngOnInit() {
-
-    }
-
-    public ngOnChanges(changes: SimpleChanges) {
-        if (changes['ticker']) {
-            let pageState = this.pageStateService.getPageState();
-
-            if (pageState.filter && pageState.filter !== '' && this.ticker && this.ticker.Filters) {
-                this.selectedFilter = this.ticker.Filters.find(x => x.Code === pageState.filter);
-
-                if (!this.selectedFilter) {
-                    this.selectedFilter = this.ticker.Filters[0];
-                }
-            } else {
-                this.selectedFilter = null;
-
-                if (this.ticker && this.ticker.Filters && this.ticker.Filters.length > 0) {
-                    this.selectedFilter = this.ticker.Filters[0];
-                }
-            }
-
-            // set expand based on what was expanded - but dont expand subticker, because
-            // that requires that the data are loaded first - this will be handled
-            // automatically when setting the selected row in the next section of this function
-            if (pageState.expanded && pageState.expanded !== '' && pageState.expanded !== 'subticker') {
-                this.setExpanded(pageState.expanded);
-            } else {
-                this.setExpanded('ticker');
+    public ngOnChanges(changes) {
+        if (changes['ticker'] && this.ticker) {
+            this.selectedRow = undefined;
+            this.showSubTickers = false;
+            if (!this.selectedFilter && this.ticker.Filters) {
+                this.selectedFilter = this.ticker.Filters[0];
             }
         }
     }
 
-    private setExpanded(newExpand: string, doToggleToTicker: boolean = false) {
-
-        if (newExpand === this.expanded && doToggleToTicker) {
-            this.expanded = 'ticker';
-        } else {
-            if (newExpand === 'subticker' && !this.selectedRow) {
-                alert('Velg en rad i tabellen for å se detaljer');
-            } else {
-                this.expanded = newExpand;
+    public ngAfterViewInit() {
+        this.route.queryParamMap.subscribe(params => {
+            const filterCode = params.get('filter');
+            if (filterCode && (!this.selectedFilter || this.selectedFilter.Code !== filterCode)) {
+                this.setFilterFromFilterCode(filterCode, 0);
             }
-        }
 
-        this.pageStateService.setPageState('expanded', this.expanded);
-        this.urlPropertiesChanged.emit();
+            this.urlParamsChange.next(params);
+            this.cdr.markForCheck();
+        });
     }
 
-    private onRowSelected(selectedRow: any) {
-        this.selectedRow = selectedRow;
-
-        if (this.ticker.SubTickers && this.ticker.SubTickers.length > 0 && this.selectedRow) {
-            this.setExpanded('subticker');
+    private setFilterFromFilterCode(filterCode: string, retryCount: number) {
+        if (this.ticker) {
+            this.selectedFilter = this.ticker.Filters.find(f => f.Code === filterCode);
+            this.cdr.markForCheck();
+        } else if (retryCount <= 5) {
+            setTimeout(() => {
+                this.setFilterFromFilterCode(filterCode, retryCount++);
+            }, 100);
         }
     }
 
-    private onFilterSelected(filter: TickerFilter) {
+    private updateQueryParams() {
+        const url = this.router.url.split('?')[0];
+
+        this.router.navigate([url], {
+            queryParams: {
+                filter: this.selectedFilter && this.selectedFilter.Code,
+                rowIndex: this.selectedRow ? this.selectedRow['_originalIndex'] : undefined
+            },
+            skipLocationChange: false
+        });
+    }
+
+    public onRowSelected(row) {
+        this.selectedRow = row;
+        this.showSubTickers = true;
+    }
+
+    public onFilterSelected(filter: TickerFilter) {
         if (filter !== this.selectedFilter) {
-
             this.selectedFilter = filter;
             this.selectedRow = null;
-
-            this.setExpanded('ticker');
-
-            this.pageStateService.setPageState('selected', null);
-            this.pageStateService.setPageState('filter', filter.Code);
-
-            this.urlPropertiesChanged.emit();
+            this.showSubTickers = false;
+            this.updateQueryParams();
         }
-    }
-
-    private onFilterChanged(filter: TickerFilter) {
-        this.selectedFilter = _.cloneDeep(filter);
-        this.selectedRow = null;
-
-        // if filter.Filter is changed, this means the user has activly clicked a
-        // button - so close the filterbox and expand the tickerview instead
-        if (filter && filter.Filter && filter.Filter.length > 0) {
-            this.setExpanded('ticker');
-        }
-
-        this.pageStateService.setPageState('selected', null);
-        this.pageStateService.setPageState('filter', filter ? filter.Code : null);
-
-        this.urlPropertiesChanged.emit();
     }
 
     public exportToExcel(completeEvent) {
-        this.uniTicker.exportToExcel(completeEvent);
+        this.mainTicker.exportToExcel(completeEvent);
+    }
+
+    public runAction(action) {
+        if (this.mainTicker) {
+            this.mainTicker.onExecuteAction(action);
+        }
     }
 }

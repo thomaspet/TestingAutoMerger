@@ -6,20 +6,34 @@ import {ToastService, ToastType} from '../../../../framework/uniToast/toastServi
 import {URLSearchParams} from '@angular/http';
 import {ActivatedRoute} from '@angular/router';
 import {Router} from '@angular/router';
-import {StatusCodeSupplierInvoice, CompanySettings} from '../../../unientities';
+import { SupplierInvoice, StatusCodeSupplierInvoice, CompanySettings, JournalEntryLineDraft, ApprovalStatus } from '../../../unientities';
 import {safeInt} from '../../common/utils/utils';
+import {UniAssignModal, AssignDetails} from './detail/assignmodal';
+import {UniApproveModal, ApprovalDetails} from './detail/approvemodal';
 import {UniModalService, UniConfirmModalV2, ConfirmActions} from '../../../../framework/uniModal/barrel';
 import {
+    ApprovalService,
     SettingsService,
     ViewSettings,
     SupplierInvoiceService,
     IStatTotal,
     ErrorService,
     PageStateService,
-    CompanySettingsService
+    CompanySettingsService,
+    UserService
 } from '../../../services/services';
 
 import * as moment from 'moment';
+import { FieldType } from "../../../../framework/ui/uniform/fieldTypes";
+import { BehaviorSubject } from "rxjs/BehaviorSubject";
+import {IToolbarConfig} from '../../common/toolbar/toolbar';
+import {IUniSaveAction} from '../../../../framework/save/save';
+import { Observable } from "rxjs/Observable";
+
+interface ILocalValidation {
+    success: boolean;
+    errorMessage?: string;
+}
 
 interface IFilter {
     name: string;
@@ -34,6 +48,10 @@ interface IFilter {
     onDataReady?: (data) => void;
     passiveCounter?: boolean;
     hotCounter?: boolean;
+}
+
+interface SearchParams {
+    userID?: number;
 }
 
 @Component({
@@ -60,17 +78,24 @@ export class BillsView {
     private hasQueriedTotals: boolean = false;
     private startupPage: number = 0;
 
+    private searchParams$: BehaviorSubject<SearchParams> = new BehaviorSubject({});
+    private fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
+    private config$: BehaviorSubject<any> = new BehaviorSubject({autofocus: true});
+
     private companySettings: CompanySettings;
     private baseCurrencyCode: string;
+    private currentUserFilter: string;
+    public selectedItems: SupplierInvoice[];
 
     public filters: Array<IFilter> = [
         { label: 'Innboks', name: 'Inbox', route: 'filetags/IncomingMail|IncomingEHF/0', onDataReady: (data) => this.onInboxDataReady(data), isSelected: true, hotCounter: true },
-        { label: 'Kladd', name: 'Draft', filter: 'isnull(statuscode,30101) eq 30101', isSelected: false, passiveCounter: true },
-        { label: 'Tildelt', name: 'ForApproval', filter: 'statuscode eq 30102', passiveCounter: true },
-        { label: 'Godkjent', name: 'Approved', filter: 'statuscode eq 30103', passiveCounter: true },
-        { label: 'Bokført', name: 'Journaled', filter: 'statuscode eq 30104', showJournalID: true, passiveCounter: true },
-        { label: 'Betalingsliste', name: 'ToPayment', filter: 'statuscode eq 30105', showJournalID: true, passiveCounter: true },
-        { label: 'Betalt', name: 'Paid', filter: 'statuscode eq 30107 or statuscode eq 30106', showStatus: true, showJournalID: true, passiveCounter: true },
+        { label: 'Kladd', name: 'Draft', filter: 'isnull(statuscode,' + StatusCodeSupplierInvoice.Draft + ') eq ' + StatusCodeSupplierInvoice.Draft, isSelected: false, passiveCounter: true },
+        { label: 'Avvist', name: 'Rejected', filter: 'isnull(statuscode,' + StatusCodeSupplierInvoice.Rejected + ') eq ' + StatusCodeSupplierInvoice.Rejected, isSelected: false, passiveCounter: true },
+        { label: 'Tildelt', name: 'ForApproval', filter: 'statuscode eq ' + StatusCodeSupplierInvoice.ForApproval, passiveCounter: true },
+        { label: 'Godkjent', name: 'Approved', filter: 'statuscode eq ' + StatusCodeSupplierInvoice.Approved, passiveCounter: true },
+        { label: 'Bokført', name: 'Journaled', filter: 'statuscode eq ' + StatusCodeSupplierInvoice.Journaled, showJournalID: true, passiveCounter: true },
+        { label: 'Betalingsliste', name: 'ToPayment', filter: 'statuscode eq ' + StatusCodeSupplierInvoice.ToPayment, showJournalID: true, passiveCounter: true },
+        { label: 'Betalt', name: 'Paid', filter: 'statuscode eq ' + StatusCodeSupplierInvoice.Payed + ' or statuscode eq ' + StatusCodeSupplierInvoice.PartlyPayed, showStatus: true, showJournalID: true, passiveCounter: true },
         { label: 'Alle', name: 'All', filter: '', showStatus: true, showJournalID: true, passiveCounter: true }
     ];
 
@@ -88,13 +113,23 @@ export class BillsView {
         private errorService: ErrorService,
         private companySettingsService: CompanySettingsService,
         private pageStateService: PageStateService,
-        private modalService: UniModalService
+        private modalService: UniModalService,
+        private userService: UserService,
+        private approvalService: ApprovalService
     ) {
 
         this.viewSettings = settingsService.getViewSettings('economy.bills.settings');
         tabService.addTab({ name: 'Fakturamottak', url: '/accounting/bills', moduleID: UniModules.Bills, active: true });
         this.checkPath();
     }
+
+    public saveActions: IUniSaveAction[] = [
+        {
+        label: 'Nytt fakturamottak',
+        action: (completeEvent) => setTimeout(this.onAddNew()),
+        main: true,
+        disabled: false
+    }];
 
     public ngOnInit() {
         this.companySettingsService.Get(1)
@@ -108,6 +143,12 @@ export class BillsView {
                 } else {
                     this.refreshList(this.currentFilter, true);
                 }
+                this.updateSaveActions(0);
+                let searchParams: SearchParams = {
+                    userID: null
+                };
+
+                this.fields$.next(this.getLayout().Fields);
 
                 this.searchControl.valueChanges
                     .debounceTime(300)
@@ -119,6 +160,297 @@ export class BillsView {
 
             }, err => this.errorService.handle(err)
             );
+    }
+
+    private onFormFilterChange(event) {
+        this.currentUserFilter = event.ID.currentValue;
+        this.refreshList(this.currentFilter, true, null, this.currentUserFilter);
+    }
+
+    private onRowSelectionChanged() {
+        this.selectedItems = this.unitable.getSelectedRows();
+        if (this.selectedItems && this.selectedItems.length > 0) {
+            let status = this.selectedItems[0].StatusCode;
+            let warn = false;
+            this.selectedItems.forEach(inv => {
+                if (inv.StatusCode !== status) {
+                    warn = true;
+                }
+            });
+            if (warn) {
+                this.toast.addToast('Du kan bare massebehandle fakturaer med lik status', ToastType.warn, 4);
+                this.updateSaveActions(0);
+            } else {
+                this.updateSaveActions(status);
+            }
+        } else {
+            this.updateSaveActions(0);
+        }
+    }
+
+    private updateSaveActions(supplierInvoiceStatusCode: number) {
+
+
+        this.saveActions = [];
+
+        this.saveActions.push ({
+                label: 'Nytt fakturamottak',
+                action: (completeEvent) => setTimeout(this.onAddNew()),
+                main: false,
+                disabled: false
+        });
+
+        if (supplierInvoiceStatusCode === StatusCodeSupplierInvoice.Draft) {
+            this.saveActions.push({
+                label: 'Tildel',
+                action: (done) => setTimeout(this.assignSupplierInvoices(done)),
+                main: true,
+                disabled: false
+            });
+        }
+
+        if (supplierInvoiceStatusCode === StatusCodeSupplierInvoice.ForApproval) {
+            this.saveActions.push({
+                label: 'Godkjenn',
+                action: (done) => setTimeout(this.approveSupplierInvoices(done)),
+                main: true,
+                disabled: false
+            });
+
+            this.saveActions.push({
+                label: 'Avvis',
+                action: (done) => setTimeout(this.rejectSupplierInvoices(done)),
+                main: false,
+                disabled: false
+            });
+        }
+
+        if (supplierInvoiceStatusCode === StatusCodeSupplierInvoice.Rejected) {
+            this.saveActions.push({
+                label: 'Tildel',
+                action: (done) => setTimeout(this.assignSupplierInvoices(done)),
+                main: true,
+                disabled: false
+            });
+        }
+
+        if (supplierInvoiceStatusCode === StatusCodeSupplierInvoice.Approved) {
+            this.saveActions.push({
+                label: 'Bokfør',
+                action: (done) => setTimeout(this.journalSupplierInvoies(done)),
+                main: true,
+                disabled: false
+            });
+        }
+
+        if (supplierInvoiceStatusCode === StatusCodeSupplierInvoice.Journaled) {
+            this.saveActions.push({
+                label: 'Til betalingsliste',
+                action: (done) => setTimeout(this.sendForPaymentSupplierInvoices(done)),
+                main: true,
+                disabled: false
+            });
+        }
+    }
+
+    public assignSupplierInvoices(done: any) {
+        this.modalService.open(UniAssignModal).onClose.subscribe(details => {
+            this.onAssignSupplierInvoicesClickOk(details);
+        })
+        done();
+    }
+
+    public onAssignSupplierInvoicesClickOk(details: AssignDetails) {
+        const assignRequests = this.selectedItems.map(invoice =>
+            this.supplierInvoiceService.assign(invoice.ID, details)
+            .map(res => ({ ID: invoice.ID, success: true}))
+            .catch(err => Observable.of({ID: invoice.ID, success: false}))
+        );
+
+        Observable.forkJoin(assignRequests).subscribe(
+            res => {
+                this.refreshList(this.currentFilter, true, null, this.currentUserFilter);
+                let numberOfFailed = res.filter(r => !r.success).length;
+                if (numberOfFailed > 0) {
+                    this.toast.addToast(this.selectedItems.length - numberOfFailed + ' fakturaer ble tildelt' + '<BR/>' + numberOfFailed + ' fakturaer feilet ved tildeling.', ToastType.bad, 3);
+                    this.selectedItems = null;
+                } else {
+                    this.toast.addToast(this.selectedItems.length - numberOfFailed + ' fakturaer ble tildelt', ToastType.good, 3);
+                }
+                this.updateSaveActions(0);
+            },
+            err => {
+                this.errorService.handle(err);
+                this.updateSaveActions(0);
+            }
+        );
+    }
+
+    public approveSupplierInvoices(done: any) {
+
+
+        // first of all - load approvals
+        this.approvalService.invalidateCache();
+        this.userService.getCurrentUser().subscribe(res => {
+                let filterString = 'filter=UserID eq ' + res.ID;
+                filterString += ' and StatusCode eq ' + ApprovalStatus.Active;
+
+                if (this.selectedItems.length > 0) {
+                    filterString += ' and (';
+                    this.selectedItems.forEach(inv => {
+                        filterString += ' Task.EntityID eq ' + inv.ID + ' or';
+                    });
+                    filterString = filterString.substr(0, filterString.length - 2) + ')';
+                }
+
+                this.approvalService.GetAll(filterString, ['Task.Model']).subscribe(
+
+                    approvals => {
+                        const approvalsReq = approvals.map(app =>
+                            this.approvalService.PostAction(app.ID, 'approve')
+                                .map(res2 => ({ ID: app.ID, success: true}))
+                                .catch(err => Observable.of({ID: app.ID, success: false}))
+                            );
+
+                        Observable.forkJoin(approvalsReq).subscribe(
+                            res2 => {
+                                this.refreshList(this.currentFilter, true, null, this.currentUserFilter);
+                                let numberOfFailed = res2.filter(r => !r.success).length;
+                                if (numberOfFailed > 0) {
+                                    this.toast.addToast(this.selectedItems.length - numberOfFailed + ' fakturaer ble godkjent. ' +  numberOfFailed + ' fakturaer feilet ved godkjenning. Merk også at fakturaer du ikke var tildelt ble ignorert.', ToastType.bad, 3);
+                                    this.selectedItems = null;
+                                } else {
+                                    this.toast.addToast(this.selectedItems.length - numberOfFailed + ' fakturaer ble godkjent', ToastType.good, 3);
+                                }
+                                this.updateSaveActions(0);
+                            },
+                            err => {
+                                this.errorService.handle(err);
+                                this.updateSaveActions(0);
+                            }
+                        );
+                    });
+
+
+                },
+
+                err => this.errorService.handle(err)
+            );
+
+        done();
+    }
+
+    public rejectSupplierInvoices(done: any) {
+
+
+                // first of all - load approvals
+                this.approvalService.invalidateCache();
+                this.userService.getCurrentUser().subscribe(res => {
+                        let filterString = 'filter=UserID eq ' + res.ID;
+                        filterString += ' and StatusCode eq ' + ApprovalStatus.Active;
+
+                        if (this.selectedItems.length > 0) {
+                            filterString += ' and (';
+                            this.selectedItems.forEach(inv => {
+                                filterString += ' Task.EntityID eq ' + inv.ID + ' or';
+                            });
+                            filterString = filterString.substr(0, filterString.length - 2) + ')';
+                        }
+
+                        this.approvalService.GetAll(filterString, ['Task.Model']).subscribe(
+
+                            approvals => {
+                                const approvalsReq = approvals.map(app =>
+                                    this.approvalService.PostAction(app.ID, 'reject')
+                                        .map(res2 => ({ ID: app.ID, success: true}))
+                                        .catch(err => Observable.of({ID: app.ID, success: false}))
+                                    );
+
+                                Observable.forkJoin(approvalsReq).subscribe(
+                                    res2 => {
+                                        this.refreshList(this.currentFilter, true, null, this.currentUserFilter);
+                                        let numberOfFailed = res2.filter(r => !r.success).length;
+                                        if (numberOfFailed > 0) {
+                                            this.toast.addToast(this.selectedItems.length - numberOfFailed + ' fakturaer ble avvist. ' +  numberOfFailed + ' fakturaer feilet ved avvising. Merk også at fakturaer du ikke var tildelt ble ignorert.', ToastType.bad, 3);
+                                            this.selectedItems = null;
+                                        } else {
+                                            this.toast.addToast(this.selectedItems.length - numberOfFailed + ' fakturaer ble avsist', ToastType.good, 3);
+                                        }
+                                        this.updateSaveActions(0);
+                                    },
+                                    err => {
+                                        this.errorService.handle(err);
+                                        this.updateSaveActions(0);
+                                    }
+                                );
+                            });
+                        },
+                        err => this.errorService.handle(err)
+                    );
+                done();
+            }
+
+
+
+    public onApproveSupplierInvoicesClickOk(details: ApprovalDetails) {
+
+    }
+
+    public sendForPaymentSupplierInvoices(done: any) {
+        const payRequests = this.selectedItems.map(invoice =>
+            this.supplierInvoiceService.sendForPayment(invoice.ID)
+            .map(res => ({ ID: invoice.ID, success: true}))
+            .catch(err => Observable.of({ID: invoice.ID, success: false}))
+        );
+
+        Observable.forkJoin(payRequests).subscribe(
+            res => {
+                this.refreshList(this.currentFilter, true, null, this.currentUserFilter);
+                let numberOfFailed = res.filter(r => !r.success).length;
+                if (numberOfFailed > 0) {
+                    this.toast.addToast(this.selectedItems.length - numberOfFailed + ' fakturaer ble sendt til betalingsliste.' + '<BR/>' + numberOfFailed + ' fakturaer feilet.', ToastType.bad, 3);
+                } else {
+                    this.toast.addToast(this.selectedItems.length - numberOfFailed + ' fakturaer ble sendt til betalingsliste.', ToastType.good, 3);
+                }
+                this.selectedItems = null;
+                this.updateSaveActions(0);
+                done();
+            },
+            err => {
+                this.errorService.handle(err);
+                this.updateSaveActions(0);
+                done();
+            }
+        );
+    }
+
+    public journalSupplierInvoies(done: any) {
+        const journalRequests = this.selectedItems.map(invoice =>
+            this.supplierInvoiceService.journal(invoice.ID)
+            .map(res => ({ ID: invoice.ID, success: true}))
+            .catch(err => Observable.of({ID: invoice.ID, success: false}))
+        );
+
+        Observable.forkJoin(journalRequests).subscribe(
+            res => {
+                this.refreshList(this.currentFilter, true, null, this.currentUserFilter);
+                let numberOfFailed = res.filter(r => !r.success).length;
+                if (numberOfFailed > 0) {
+                    this.toast.addToast(this.selectedItems.length - numberOfFailed + ' fakturaer ble bokført.' + '<BR/>' + numberOfFailed + ' fakturaer feilet ved bokføring.', ToastType.bad, 3);
+                    this.selectedItems = null;
+                } else {
+                    this.toast.addToast(this.selectedItems.length - numberOfFailed + ' fakturaer ble bokført.', ToastType.good, 3);
+                }
+                this.selectedItems = null;
+                this.updateSaveActions(0);
+                done();
+            },
+            err => {
+                this.errorService.handle(err);
+                this.updateSaveActions(0);
+                done();
+            }
+        );
     }
 
     private refreshWihtSearchText(value: string) {
@@ -146,7 +478,7 @@ export class BillsView {
         return v.replace(/[`~!@#$%^&*()_|+\=?;:'",.<>\{\}\[\]\\\/]/gi, '');
     }
 
-    private refreshList(filter?: IFilter, refreshTotals: boolean = false, searchFilter?: string) {
+    private refreshList(filter?: IFilter, refreshTotals: boolean = false, searchFilter?: string, filterOnUserID?: string) {
         this.busy = true;
         var params = new URLSearchParams();
         if (filter && filter.filter) {
@@ -158,7 +490,7 @@ export class BillsView {
         if (filter.route) {
             this.hasQueriedInboxCount = filter.name === 'Inbox';
         }
-        let obs = filter.route ?  this.supplierInvoiceService.fetch(filter.route) : this.supplierInvoiceService.getInvoiceList(params);
+        let obs = filter.route ?  this.supplierInvoiceService.fetch(filter.route) : this.supplierInvoiceService.getInvoiceList(params, this.currentUserFilter);
         obs.subscribe((result) => {
             if (filter.onDataReady) {
                 filter.onDataReady(result);
@@ -250,6 +582,7 @@ export class BillsView {
         ];
         var cfg = new UniTableConfig('accounting.bills.inboxTable', false, true)
             .setSearchable(false)
+            .setMultiRowSelect(true)
             .setColumns(cols)
             .setPageSize(12)
             .setColumnMenuVisible(true)
@@ -258,7 +591,7 @@ export class BillsView {
     }
 
     private refreshTotals() {
-        this.supplierInvoiceService.getInvoiceListGroupedTotals().subscribe((result: Array<IStatTotal>) => {
+        this.supplierInvoiceService.getInvoiceListGroupedTotals(this.currentUserFilter).subscribe((result: Array<IStatTotal>) => {
             this.hasQueriedTotals = true;
             this.filters.forEach(x => { if (x.name !== 'Inbox') { x.count = 0; x.total = 0; } });
             var count = 0;
@@ -281,7 +614,7 @@ export class BillsView {
     }
 
     private createTableConfig(filter: IFilter): UniTableConfig {
-        var cols = [
+        const cols = [
             new UniTableColumn('InvoiceNumber', 'Fakturanr').setWidth('8%'),
             new UniTableColumn('SupplierSupplierNumber', 'Lev.nr.').setVisible(false).setWidth('4em'),
             new UniTableColumn('InfoName', 'Leverandør', UniTableColumnType.Text).setFilterOperator('startswith').setWidth('15em'),
@@ -311,6 +644,7 @@ export class BillsView {
                 .setConditionalCls(item =>
                     item.TaxInclusiveAmountCurrency >= 0 ? 'supplier-invoice-table-plus' : 'supplier-invoice-table-minus'
                 ),
+            new UniTableColumn('Assignees', "Tildelt / Godkjent av").setVisible(true),
             new UniTableColumn('ProjectName', 'Prosjektnavn').setVisible(false),
             new UniTableColumn('ProjectProjectNumber', 'ProsjektNr.').setVisible(false),
             new UniTableColumn('DepartmentName', 'Avdelingsnavn').setVisible(false),
@@ -322,6 +656,7 @@ export class BillsView {
         ];
         return new UniTableConfig('accounting.bills.mainTable', false, true)
             .setSearchable(false)
+            .setMultiRowSelect(true)
             .setColumns(cols)
             .setPageSize(12)
             .setColumnMenuVisible(true);
@@ -375,6 +710,10 @@ export class BillsView {
         this.router.navigateByUrl('/accounting/bills/0');
     }
 
+    public onAssignBillsTo() {
+
+    }
+
     public onFilterClick(filter: IFilter, searchFilter?: string) {
         this.filters.forEach(f => f.isSelected = false);
         this.refreshList(filter, !this.hasQueriedTotals, searchFilter);
@@ -422,5 +761,63 @@ export class BillsView {
             }
         }
     }
+
+    private getLayout() {
+        return {
+            Name: 'Assignees',
+            BaseEntity: 'User',
+            StatusCode: 0,
+            Deleted: false,
+            CreatedAt: null,
+            UpdatedAt: null,
+            CreatedBy: null,
+            UpdatedBy: null,
+            ID: 1,
+            CustomFields: null,
+            Fields: [
+                {
+                    ComponentLayoutID: 1,
+                    EntityType: 'User',
+                    Property: 'ID',
+                    Placement: 4,
+                    Hidden: false,
+                    FieldType: FieldType.AUTOCOMPLETE,
+                    ReadOnly: false,
+                    LookupField: false,
+                    Label: 'Filtrer på tildelt/godkjent av:',
+                    Description: '',
+                    HelpText: '',
+                    FieldSet: 0,
+                    Section: 0,
+                    Placeholder: null,
+                    LineBreak: null,
+                    Combo: null,
+                    Legend: '',
+                    StatusCode: 0,
+                    ID: 1,
+                    Deleted: false,
+                    CreatedAt: null,
+                    UpdatedAt: null,
+                    CreatedBy: null,
+                    UpdatedBy: null,
+                    CustomFields: null,
+                    Options: {
+                        search: (query: string) => {
+                            return this.userService.GetAll(null);
+
+                        },
+                        displayProperty: 'DisplayName',
+                        valueProperty: 'ID',
+                        minLength: 0,
+                        debounceTime: 200
+                    }
+
+                }
+            ]
+        };
+    }
+
+
+
 
 }

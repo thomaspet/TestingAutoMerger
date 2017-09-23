@@ -12,8 +12,10 @@ import {IToolbarConfig} from '../../common/toolbar/toolbar';
 
 import {UniView} from '../../../../framework/core/uniView';
 import {UniModalService, ConfirmActions} from '../../../../framework/uniModal/barrel';
+import {IContextMenuItem} from '../../../../framework/ui/unitable/index';
 
 import {Observable} from 'rxjs/Observable';
+import {ReplaySubject} from 'rxjs/ReplaySubject';
 
 
 @Component({
@@ -30,6 +32,7 @@ export class WageTypeView extends UniView {
     private toolbarConfig: IToolbarConfig;
 
     private childRoutes: any[];
+    private contextMenuItems$: ReplaySubject<IContextMenuItem[]> = new ReplaySubject<IContextMenuItem[]>(1);
 
     constructor(
         private route: ActivatedRoute,
@@ -46,8 +49,8 @@ export class WageTypeView extends UniView {
         super(router.url, cacheService);
 
         this.childRoutes = [
-            { name: 'Lønnsart', path: 'details' },
-            { name: 'Innstillinger', path: 'spesial-settings' }
+            {name: 'Lønnsart', path: 'details'},
+            {name: 'Innstillinger', path: 'spesial-settings'}
         ];
 
         this.saveActions = [{
@@ -59,6 +62,11 @@ export class WageTypeView extends UniView {
 
         this.route.params.subscribe((params) => {
             this.wagetypeID = +params['id'];
+            this.contextMenuItems$.next([{
+                label: 'Slett lønnsart',
+                action: () => this.handleDelete(this.wagetypeID),
+                disabled: () => !this.wagetypeID
+            }]);
 
             super.updateCacheKey(this.router.url);
 
@@ -90,7 +98,6 @@ export class WageTypeView extends UniView {
                 this.wageType = undefined;
             }
 
-
         });
 
         this.router.events.subscribe((event: any) => {
@@ -114,7 +121,7 @@ export class WageTypeView extends UniView {
                         .onClose
                         .map((action: ConfirmActions) => {
                             if (action === ConfirmActions.ACCEPT) {
-                                this.saveWageType((m) => { }, false);
+                                this.saveWageType((m) => {}, false);
                                 return true;
                             } else {
                                 return action === ConfirmActions.REJECT;
@@ -221,6 +228,12 @@ export class WageTypeView extends UniView {
         this.wageType.taxtype = TaxType.Tax_None;
         this.wageType.StandardWageTypeFor = StdWageType.None;
         this.wageType.GetRateFrom = GetRateFrom.WageType;
+    }
+
+    private handleDelete(id: number): void {
+        this.wageTypeService
+            .deleteWageType(id)
+            .subscribe(res => this.router.navigateByUrl(this.url + 0));
     }
 
     public previousWagetype() {

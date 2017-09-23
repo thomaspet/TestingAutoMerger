@@ -9,6 +9,7 @@ import {
     Customer,
     CustomerInvoice,
     CustomerInvoiceItem,
+    Dimensions,
     InvoicePaymentData,
     LocalDate,
     Project,
@@ -90,6 +91,7 @@ export enum CollectorStatus {
 export class InvoiceDetails {
     @ViewChild(TofHead) private tofHead: TofHead;
     @ViewChild(TradeItemTable) private tradeItemTable: TradeItemTable;
+
     @Input() public invoiceID: any;
 
     private invoice: CustomerInvoice;
@@ -118,6 +120,7 @@ export class InvoiceDetails {
     private paymentTerms: Terms[];
     private selectConfig: any;
     private numberSeries: NumberSeries[];
+    private projectID: number;
 
     private customerExpandOptions: string[] = [
         'DeliveryTerms',
@@ -126,6 +129,7 @@ export class InvoiceDetails {
         'Dimensions.Department',
         'Info',
         'Info.Addresses',
+        'Info.DefaultContact.Info',
         'Info.Emails',
         'PaymentTerms',
         'Sellers',
@@ -224,33 +228,30 @@ export class InvoiceDetails {
                     this.termsService.GetAction(null, 'get-delivery-terms'),
                     projectID ? this.projectService.Get(projectID, null) : Observable.of(null),
                     this.numberSeriesService.GetAll(
-                        `filter=NumberSeriesType.Name eq 'Customer Invoice number series' and Empty eq false and Disabled eq false`,
+                        `filter=NumberSeriesType.Name eq 'Customer Invoice number `
+                        + `series' and Empty eq false and Disabled eq false`,
                         ['NumberSeriesType']
-                    )
+                    ),
+                    this.projectService.GetAll(null)
                 ).subscribe((res) => {
-                    this.companySettings = res[3];
-
                     let invoice = <CustomerInvoice>res[0];
                     invoice.OurReference = res[1].DisplayName;
-                    invoice.InvoiceDate = new LocalDate(Date());
-
                     if (res[2]) {
                         invoice = this.tofHelper.mapCustomerToEntity(res[2], invoice);
                     }
+                    this.companySettings = res[3];
+                    this.currencyCodes = res[4];
+                    this.paymentTerms = res[5];
+                    this.deliveryTerms = res[6];
+                    if (res[7]) {
+                        invoice.DefaultDimensions = invoice.DefaultDimensions || new Dimensions();
+                        invoice.DefaultDimensions.ProjectID = res[7].ID;
+                        invoice.DefaultDimensions.Project = res[7];
+                    }
+                    this.numberSeries = res[8].map(x => this.numberSeriesService.translateSerie(x));
+                    this.projects = res[9];
 
-                    if (!invoice.PaymentTerms && !invoice.PaymentDueDate) {
-                        invoice.PaymentDueDate = new LocalDate(
-                            moment(invoice.InvoiceDate).add(this.companySettings.CustomerCreditDays, 'days').toDate()
-                        );
-                    } else {
-                        this.setPaymentDueDate(invoice);
-                    }
-                    
-                    if (invoice.DeliveryTerms && invoice.DeliveryTerms.CreditDays) {
-                        this.setDeliveryDate(invoice);
-                    } else {
-                        invoice.DeliveryDate = invoice.InvoiceDate;
-                    }
+                    invoice.InvoiceDate = new LocalDate(Date());
 
                     if (!invoice.CurrencyCodeID) {
                         invoice.CurrencyCodeID = this.companySettings.BaseCurrencyCodeID;
@@ -260,16 +261,20 @@ export class InvoiceDetails {
                     this.currencyCodeID = invoice.CurrencyCodeID;
                     this.currencyExchangeRate = invoice.CurrencyExchangeRate;
 
-                    this.currencyCodes = res[4];
-
-                    this.paymentTerms = res[5];
-                    this.deliveryTerms = res[6];
-
-                    if (res[7]) {
-                        invoice.DefaultDimensions.ProjectID = res[7].ID;
+                    if (!invoice.PaymentTerms && !invoice.PaymentDueDate) {
+                        invoice.PaymentDueDate = new LocalDate(
+                            moment(invoice.InvoiceDate).add(this.companySettings.CustomerCreditDays, 'days').toDate()
+                        );
+                    } else {
+                        this.setPaymentDueDate(invoice);
                     }
 
-                    this.numberSeries = res[8].map(x => this.numberSeriesService.translateSerie(x));
+                    if (invoice.DeliveryTerms && invoice.DeliveryTerms.CreditDays) {
+                        this.setDeliveryDate(invoice);
+                    } else {
+                        invoice.DeliveryDate = null;
+                    }
+
                     this.selectConfig = this.numberSeriesService.getSelectConfig(
                         this.invoiceID, this.numberSeries, 'Customer Invoice number series'
                     );
@@ -285,18 +290,15 @@ export class InvoiceDetails {
                     this.companySettingsService.Get(1),
                     this.currencyCodeService.GetAll(null),
                     this.termsService.GetAction(null, 'get-payment-terms'),
-                    this.termsService.GetAction(null, 'get-delivery-terms')
+                    this.termsService.GetAction(null, 'get-delivery-terms'),
+                    this.projectService.GetAll(null)
                 ).subscribe((res) => {
                     let invoice = res[0];
                     this.companySettings = res[1];
-
-                    if (!invoice.PaymentTerms && !invoice.PaymentDueDate) {
-                        invoice.PaymentDueDate = new LocalDate(
-                            moment(invoice.InvoiceDate).add(this.companySettings.CustomerCreditDays, 'days').toDate()
-                        );
-                    } else if (!invoice.PaymentDueDate) {
-                        this.setPaymentDueDate(invoice);
-                    }
+                    this.currencyCodes = res[2];
+                    this.paymentTerms = res[3];
+                    this.deliveryTerms = res[4];
+                    this.projects = res[5];
 
                     if (!invoice.CurrencyCodeID) {
                         invoice.CurrencyCodeID = this.companySettings.BaseCurrencyCodeID;
@@ -306,10 +308,19 @@ export class InvoiceDetails {
                     this.currencyCodeID = invoice.CurrencyCodeID;
                     this.currencyExchangeRate = invoice.CurrencyExchangeRate;
 
-                    this.currencyCodes = res[2];
+                    if (!invoice.PaymentTerms && !invoice.PaymentDueDate) {
+                        invoice.PaymentDueDate = new LocalDate(
+                            moment(invoice.InvoiceDate).add(this.companySettings.CustomerCreditDays, 'days').toDate()
+                        );
+                    } else if (!invoice.PaymentDueDate) {
+                        this.setPaymentDueDate(invoice);
+                    }
 
-                    this.paymentTerms = res[3];
-                    this.deliveryTerms = res[4];
+                    invoice.DefaultDimensions = invoice.DefaultDimensions || new Dimensions();
+                    if (invoice.DefaultDimensions) {
+                        this.projectID = invoice.DefaultDimensions.ProjectID;
+                    }
+                    invoice.DefaultDimensions.Project = this.projects.find(project => project.ID === this.projectID);
 
                     this.setupContextMenuItems();
                     this.refreshInvoice(invoice);
@@ -317,10 +328,6 @@ export class InvoiceDetails {
                 }, err => this.errorService.handle(err));
             }
         }, err => this.errorService.handle(err));
-        this.projectService.GetAll(null).subscribe(
-            res => this.projects = res,
-            err => this.errorService.handle(err)
-        );
     }
 
     private ngAfterViewInit() {
@@ -449,38 +456,59 @@ export class InvoiceDetails {
 
     public onInvoiceChange(invoice: CustomerInvoice) {
         const isDifferent = (a, b) => a.toString() !== b.toString();
-
         this.isDirty = true;
         this.updateSaveActions();
         let shouldGetCurrencyRate: boolean = false;
 
-        // update invoices currencycodeid if the customer changed
         let customerChanged: boolean = this.didCustomerChange(invoice);
         if (customerChanged) {
+            if (invoice.PaymentTerms && invoice.PaymentTerms.CreditDays) {
+                this.setPaymentDueDate(invoice);
+            }
+            if (invoice.DeliveryTerms && invoice.DeliveryTerms.CreditDays) {
+                this.setDeliveryDate(invoice);
+            }
+
+            // update currency code in detailsForm to customer's currency code
             if (invoice.Customer.CurrencyCodeID) {
                 invoice.CurrencyCodeID = invoice.Customer.CurrencyCodeID;
             } else {
                 invoice.CurrencyCodeID = this.companySettings.BaseCurrencyCodeID;
             }
             shouldGetCurrencyRate = true;
+        }
 
-            if (invoice.PaymentTerms && invoice.PaymentTerms.CreditDays) {
-                this.setPaymentDueDate(invoice);
-            }
+        // refresh items if project changed
+        if (invoice.DefaultDimensions && invoice.DefaultDimensions.ProjectID !== this.projectID) {
+            this.projectID = invoice.DefaultDimensions.ProjectID;
 
-            if (invoice.DeliveryTerms && invoice.DeliveryTerms.CreditDays) {
-                this.setDeliveryDate(invoice);
+            if (this.invoiceItems.length) {
+                this.modalService.confirm({
+                    header: `Endre prosjekt på alle varelinjer?`,
+                    message: `Vil du endre til dette prosjektet på alle eksisterende varelinjer?`,
+                    buttonLabels: {
+                        accept: 'Ja',
+                        reject: 'Nei'
+                    }
+                }).onClose.subscribe(response => {
+                    let replaceItemsProject: boolean = (response === ConfirmActions.ACCEPT);
+                    this.tradeItemTable.setDefaultProjectAndRefreshItems(this.projectID, replaceItemsProject);
+                });
+            } else {        
+                this.tradeItemTable.setDefaultProjectAndRefreshItems(this.projectID, true);
             }
         }
 
+        if (this.invoice && this.invoice.InvoiceDate.toString() !== invoice.InvoiceDate.toString()) {
+            shouldGetCurrencyRate = true;
+        }
+
+        // update currency code in detailsForm and tradeItemTable to selected currency code if selected
+        // or from customer
         if ((!this.currencyCodeID && invoice.CurrencyCodeID)
             || this.currencyCodeID !== invoice.CurrencyCodeID) {
             this.currencyCodeID = invoice.CurrencyCodeID;
             this.tradeItemTable.updateAllItemVatCodes(this.currencyCodeID);
-            shouldGetCurrencyRate = true;
-        }
-
-        if (this.invoice && this.invoice.InvoiceDate.toString() !== invoice.InvoiceDate.toString()) {
             shouldGetCurrencyRate = true;
         }
 
@@ -662,6 +690,7 @@ export class InvoiceDetails {
         } else if (invoice.Customer && invoice.Customer.ID) {
             change = true;
         }
+
         this.currentCustomer = invoice.Customer;
         return change;
     }
@@ -669,11 +698,13 @@ export class InvoiceDetails {
     private setPaymentDueDate(invoice: CustomerInvoice) {
         if (invoice.PaymentTerms && invoice.PaymentTerms.CreditDays) {
             invoice.PaymentDueDate = invoice.InvoiceDate;
+
             if (invoice.PaymentTerms.CreditDays < 0) {
                 invoice.PaymentDueDate = new LocalDate(
                     moment(invoice.InvoiceDate).endOf('month').toDate()
                 );
             }
+
             invoice.PaymentDueDate = new LocalDate(
                 moment(invoice.PaymentDueDate).add(Math.abs(invoice.PaymentTerms.CreditDays), 'days').toDate()
             );
@@ -683,9 +714,11 @@ export class InvoiceDetails {
     private setDeliveryDate(invoice: CustomerInvoice) {
         if (invoice.DeliveryTerms && invoice.DeliveryTerms.CreditDays) {
             invoice.DeliveryDate = invoice.InvoiceDate;
+
             if (invoice.DeliveryTerms.CreditDays < 0) {
                 invoice.DeliveryDate = new LocalDate(moment(invoice.InvoiceDate).endOf('month').toDate());
             }
+
             invoice.DeliveryDate = new LocalDate(
                 moment(invoice.DeliveryDate).add(Math.abs(invoice.DeliveryTerms.CreditDays), 'days').toDate()
             );
@@ -916,7 +949,6 @@ export class InvoiceDetails {
         this.readonly = invoice.StatusCode && invoice.StatusCode !== StatusCodeCustomerInvoice.Draft;
         this.invoiceItems = invoice.Items.sort(function(itemA, itemB) { return itemA.SortIndex - itemB.SortIndex; });
 
-
         this.currentCustomer = invoice.Customer;
         this.currentPaymentTerm = invoice.PaymentTerms;
         this.currentDeliveryTerm = invoice.DeliveryTerms;
@@ -993,7 +1025,7 @@ export class InvoiceDetails {
                 prev: this.previousInvoice.bind(this),
                 next: this.nextInvoice.bind(this),
                 add: () => {
-                    event.preventDefault();
+                    
                     this.router.navigateByUrl('/sales/invoices/0').then(res => {
                         this.tofHead.focus();
                     });

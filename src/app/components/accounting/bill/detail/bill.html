@@ -41,24 +41,28 @@
     </fieldset>
 
     <fieldset [hidden]="!tabs[1].isSelected">
-        <legend>Dokument</legend>
+        <legend>Dokument ({{this.files?.length || 0}})</legend>
 
         <div *ngIf="!(current | async)?.ID">
             <uni-image
-                [singleImage]="true"
                 [uploadWithoutEntity]="true"
-                [fileIDs]="fileIds"
+                [fileIDs]="startUpFileID"
                 (fileListReady)="onFileListReady($event)"
-                (imageClicked)="onImageClicked($event)">
+                (imageClicked)="onImageClicked($event)"
+                (imageDeleted)="onImageDeleted($event)"
+                (thumbnailImageClicked)="onThumbnailImageClicked($event)">
             </uni-image>
         </div>
 
         <uni-image
             *ngIf="(current | async)?.ID"
             [entity]="'SupplierInvoice'"
+            [printOut]="true"
             [entityID]="(current | async)?.ID"
             (fileListReady)="onFileListReady($event)"
-            (imageClicked)="onImageClicked($event)" >
+            (imageDeleted)="onImageDeleted($event)"
+            (imageClicked)="onImageClicked($event)"
+            (thumbnailImageClicked)="onThumbnailImageClicked($event)">
         </uni-image>
     </fieldset>
 
@@ -75,5 +79,3 @@
 </section>
 
 <image-modal></image-modal>
-<uni-assign-modal (okclicked)="onAssignClickOk($event)"></uni-assign-modal>
-<uni-approve-modal (okclicked)="onTaskApproval($event)"></uni-approve-modal>

@@ -363,8 +363,6 @@ export class AMeldingView implements OnInit {
     }
 
     private getSumUpForAmelding() {
-
-
         this._ameldingService.getAmeldingSumUp(this.currentAMelding.ID)
         .subscribe((response) => {
             this.currentSumUp = response;

@@ -3,13 +3,21 @@ account-settings
         min-width: 66%
         max-width: 66%
 
-        @include media(small)
+        @media (max-width: pxToRem(1400px))
+            top: 3rem
             width: 100%
+            z-index: 10
+            background: white
+            position: sticky
 
     .splitview_detail
         max-width: 33%
         min-width: 33%
         margin-top: 2.5rem
+
+        @media (max-width: pxToRem(1400px))
+            z-index: 5
+            overflow: auto
 
 account-details
     fieldset
@@ -47,3 +55,7 @@ account-details
     background: transparent unicon-plus($uni-color-positive) no-repeat
     background-size: 0.8rem
     background-position: 0.3rem 0.4rem
+
+@media only screen and (min-width: pxToRem(1400px))
+    main .splitview_detail uni-form fieldset:nth-child(odd), .splitview_detail uni-form fieldset:nth-of-type(even)
+        min-width: 100%

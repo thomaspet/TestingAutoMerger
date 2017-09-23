@@ -12,7 +12,7 @@ import {
 } from '@angular/core';
 import {Observable} from 'rxjs/Observable';
 import {BaseControl} from './baseControl';
-import {UniFieldLayout, KeyCodes} from '../interfaces';
+import {UniFieldLayout} from '../interfaces';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 
 import 'rxjs/add/observable/of';
@@ -26,6 +26,7 @@ import 'rxjs/add/operator/merge';
 import 'rxjs/add/operator/share';
 
 import * as _ from 'lodash';
+import {KeyCodes} from '../../../../app/services/common/keyCodes';
 
 
 export class UniAutocompleteConfig {
@@ -291,6 +292,7 @@ export class UniAutocompleteInput extends BaseControl {
     }
 
     private confirmSelection(item) {
+        const undefinedToNull = val => val === undefined ? null : val;
         let previousValue = this.currentValue;
         this.isExpanded$.next(false); // = false;
         this.focusPositionTop = 0;
@@ -310,7 +312,8 @@ export class UniAutocompleteInput extends BaseControl {
         const current = _.get(this.model, this.field.Property);
         _.set(this.model, this.field.Property, this.value);
         if (this.field.Options && this.field.Options.events && this.field.Options.events.select) {
-            if (current !== this.value) { // just select if we change the value
+            // just select if we change the value
+            if (undefinedToNull(current) !== undefinedToNull(this.value)) {
                 this.field.Options.events.select(this.model, this.currentValue);
             }
         }
@@ -385,7 +388,7 @@ export class UniAutocompleteInput extends BaseControl {
                     this.selectedIndex = -1;
                 }
                 break;
-            case KeyCodes.ESC:
+            case KeyCodes.ESCAPE:
                 this.isExpanded$.next(false);
                 this.selectedIndex = -1;
                 this.selectedItem = null;
@@ -402,7 +405,7 @@ export class UniAutocompleteInput extends BaseControl {
                     this.toggle();
                 }
                 break;
-            case KeyCodes.ARROW_UP:
+            case KeyCodes.UP_ARROW:
                 event.preventDefault();
                 if (this.selectedIndex >= 0) {
                     this.selectedIndex--;
@@ -410,7 +413,7 @@ export class UniAutocompleteInput extends BaseControl {
                     this.scrollToListItem();
                 }
                 break;
-            case KeyCodes.ARROW_DOWN:
+            case KeyCodes.DOWN_ARROW:
                 event.preventDefault();
                 if (event.altKey && !this.isExpanded$.getValue()) {
                     this.open();

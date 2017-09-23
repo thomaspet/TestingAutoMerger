@@ -5,13 +5,16 @@ import {ToastService, ToastTime, ToastType} from '../../../../framework/uniToast
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {IUniSaveAction} from '../../../../framework/save/save';
 import {IToolbarConfig} from './../../common/toolbar/toolbar';
-import {StatusCodeCustomerInvoice} from '../../../unientities';
+import {StatusCodeCustomerInvoice, StatusCodeCustomerOrder, StatusCodeCustomerQuote} from '../../../unientities';
 import {IPosterWidget} from '../../common/poster/poster';
+import {Observable} from 'rxjs/Observable';
 import {
     ErrorService,
     StatisticsService,
     SellerService,
-    CustomerInvoiceService
+    CustomerInvoiceService,
+    CustomerOrderService,
+    CustomerQuoteService
 } from '../../../services/services';
 
 declare const _;
@@ -28,6 +31,7 @@ export class SellerSalesList {
     private sellerId: number;
     private salesList: any;
     private busy: boolean = true;
+    private mode: string;
 
     constructor(
         private router: Router,
@@ -37,40 +41,73 @@ export class SellerSalesList {
         private tabService: TabService,
         private statisticsService: StatisticsService,
         private sellerService: SellerService,
-        private invoiceService: CustomerInvoiceService
+        private invoiceService: CustomerInvoiceService,
+        private orderService: CustomerOrderService,
+        private quoteService: CustomerQuoteService
     ) {
-        this.setupTable();
     }
 
     private ngOnInit() {
-        this.route.parent.params.subscribe(params => {
-            this.sellerId = +params['id'];
-
-            this.loadSales();
-            this.sellerService.Get(this.sellerId).subscribe(seller => {
-                this.setupToolbar(seller.Name);
+        this.route.params.subscribe(params => {
+            this.mode = params['mode'];
+            this.route.parent.params.subscribe(parent => {
+                this.sellerId = +parent['id'];
+            
+                this.setupTable();                
+                this.loadSales();
+                this.sellerService.Get(this.sellerId).subscribe(seller => {
+                    this.setupToolbar(seller.Name);
+                });    
             });
-        });
+        })
     }
 
     private loadSales() {
+        let entity;
+        let statusDraft: number;
+        let type = '';
+        switch (this.mode) {
+            case 'orders':
+                entity = 'Order';
+                statusDraft = StatusCodeCustomerOrder.Draft;
+                break;
+            case 'quotes':
+                entity = 'Quote';
+                statusDraft = StatusCodeCustomerQuote.Draft;
+                break;
+            default:
+                entity = 'Invoice';
+                statusDraft = StatusCodeCustomerInvoice.Draft;
+                type = 'InvoiceType as InvoiceType,';
+        }
+
         this.statisticsService.GetAllUnwrapped(
-            `model=CustomerInvoice&` +
+            `model=Customer${entity}&` +
             `expand=Customer,Customer.Info&` +
-            `select=InvoiceDate as InvoiceDate,InvoiceNumber as InvoiceNumber,ID as CustomerInvoiceID,` +
+            `select=${entity}Date as Date,${entity}Number as Number,ID as ID,` +
                    `TaxInclusiveAmount as TaxInclusiveAmount,TaxExclusiveAmount as TaxExclusiveAmount,` +
-                   `SellerLink.Percent,StatusCode as StatusCode,InvoiceType as InvoiceType,` +
+                   `SellerLink.Percent,StatusCode as StatusCode,${type}` +
                    `CustomerID as CustomerID,Customer.CustomerNumber as CustomerNumber,Info.Name as CustomerName&` +
-            `join=CustomerInvoice.ID eq SellerLink.CustomerInvoiceID&` +
-            `filter=SellerLink.SellerID eq ${this.sellerId} and StatusCode ne ${StatusCodeCustomerInvoice.Draft}&` +
-            `orderBy=InvoiceDate desc,InvoiceNumber desc`
+            `join=Customer${entity}.ID eq SellerLink.Customer${entity}ID&` +
+            `filter=SellerLink.SellerID eq ${this.sellerId} and StatusCode ne ${statusDraft}&` +
+            `orderBy=${entity}Date desc,${entity}Number desc`
         ).subscribe(sales => {
             this.salesList = sales;
             this.salesList.map(row => {
-                row.StatusCode = this.invoiceService.getStatusText(row.StatusCode, row.InvoiceType);
+                switch (this.mode) {
+                    case 'orders':
+                        row.StatusCode = this.orderService.getStatusText(row.StatusCode);
+                        break;                
+                    case 'quotes':
+                        row.StatusCode = this.quoteService.getStatusText(row.StatusCode);
+                        break;
+                    default:
+                        row.StatusCode = this.invoiceService.getStatusText(row.StatusCode, row.InvoiceType);
+                }
             });
             this.busy = false;
         });
+
     }
 
     private setupToolbar(seller: string) {
@@ -115,17 +152,23 @@ export class SellerSalesList {
     }
 
     private setupTable() {
-        // setup default filter
-        const filter: ITableFilter[] = [];
-        filter.push({field: 'StatusCode', operator: 'eq', value: 'Betalt', group: 0});
+        let modeText = 'Faktura';
+        switch (this.mode) {
+            case 'orders':
+                modeText = 'Ordre';
+                break;
+            case 'quotes':
+                modeText = 'Tilbud';
+                break;
+        }
 
         // setup table
-        let invoiceDateCol = new UniTableColumn('InvoiceDate', 'Fakturadato', UniTableColumnType.LocalDate)
+        let dateCol = new UniTableColumn('Date', `${modeText}dato`, UniTableColumnType.LocalDate)
             .setWidth('7rem');
 
-        let invoiceCol = new UniTableColumn('InvoiceNumber', 'Fakturanr', UniTableColumnType.Text)
+        let numberCol = new UniTableColumn('Number', `${modeText}nr`, UniTableColumnType.Text)
             .setTemplate(row => {
-                return `<a href='/#/sales/invoices/${row.CustomerInvoiceID}'>${row.InvoiceNumber}</a>`;
+                return `<a href='/#/sales/${this.mode}/${row.ID}'>${row.Number}</a>`;
             })
             .setWidth('7rem');
 
@@ -140,7 +183,10 @@ export class SellerSalesList {
         let totalIncAmountCol = new UniTableColumn('TaxInclusiveAmount', 'Sum inkl. mva', UniTableColumnType.Money)
 
         let sellerPercentCol = new UniTableColumn('SellerLinkPercent', '%', UniTableColumnType.Percent)
-            .setWidth('4rem');
+            .setWidth('4rem')
+            .setTemplate(row => {
+                return row.SellerLinkPercent || '100';
+            });
 
         let sellerIncAmountCol = new UniTableColumn('SellerAmount', 'Selgersum inkl. mva', UniTableColumnType.Money)
             .setTemplate(row => {
@@ -154,9 +200,8 @@ export class SellerSalesList {
         this.salesTableConfig = new UniTableConfig('common.seller.sellerSalesList', false, true, 25)
             .setSearchable(true)
             .setSortable(true)
-            .setFilters(filter)
             .setColumns([
-                invoiceCol, invoiceDateCol, statusCol,
+                numberCol, dateCol, statusCol,
                 customerNumberCol, customerNameCol, totalExAmountCol, totalIncAmountCol,
                 sellerPercentCol, sellerIncAmountCol
             ]);

@@ -1,6 +1,12 @@
 import {Component, Input, Output, OnChanges, EventEmitter} from '@angular/core';
 import {Observable} from 'rxjs/Observable';
-import {UniTableColumn, UniTableConfig, UniTableColumnType, INumberFormat} from '../../../../../framework/ui/unitable/index';
+import {
+    UniTableColumn,
+    UniTableConfig,
+    UniTableColumnType,
+    INumberFormat,
+    ICellClickEvent
+} from '../../../../../framework/ui/unitable/index';
 import {ChartHelper} from '../chartHelper';
 import {
     StatisticsService,
@@ -168,17 +174,11 @@ export class DistributionPeriodReportPart implements OnChanges {
                 let periodName = new UniTableColumn('periodName', 'Periode', UniTableColumnType.Text).setWidth('50%');
                 let amountPeriod1 = new UniTableColumn('amountPeriodYear1', this.accountYear1.toString(), UniTableColumnType.Money)
                     .setCls('amount')
-                    .setNumberFormat(this.numberFormat)
-                    .setOnCellClick(row => {
-                        this.periodSelected.emit({ periodNo: row.periodNo, year: this.accountYear1});
-                    });
+                    .setNumberFormat(this.numberFormat);
 
                 let amountPeriod2 = new UniTableColumn('amountPeriodYear2', this.accountYear2.toString(), UniTableColumnType.Money)
                     .setCls('amount')
-                    .setNumberFormat(this.numberFormat)
-                    .setOnCellClick(row => {
-                        this.periodSelected.emit({ periodNo: row.periodNo, year: this.accountYear2});
-                    });
+                    .setNumberFormat(this.numberFormat);
 
                 const tableName = 'accounting.distributionPeriodReportPart';
                 this.uniTableConfigDistributionPeriod = new UniTableConfig(tableName, false, false);
@@ -191,6 +191,16 @@ export class DistributionPeriodReportPart implements OnChanges {
 
                 this.setupDistributionPeriodChart();
             }, err => this.errorService.handle(err));
+        }
+    }
+
+    public onCellClick(event: ICellClickEvent) {
+        const field = event.column.field;
+        if (field === 'amountPeriodYear1' || field === 'amountPeriodYear2') {
+            this.periodSelected.emit({
+                periodNo: event.row.periodNo,
+                year: (field === 'amountPeriodYear1') ? this.accountYear1 : this.accountYear2
+            });
         }
     }
 

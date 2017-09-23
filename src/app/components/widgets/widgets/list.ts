@@ -17,7 +17,7 @@ interface IListItem {
     selector: 'uni-widget-list',
     template: `
                 <article class="uniListWidget">
-                    <h1 class="uni-dashboard-chart-header">
+                    <h1 class="uni-widget-header">
                         {{ widget.config.header }}
                     </h1>
 

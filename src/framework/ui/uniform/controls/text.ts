@@ -69,9 +69,19 @@ export class UniTextInput extends BaseControl {
         }
         if (this.control.valid) {
             let previousValue = lodash.get(this.model, this.field.Property);
+            
+            // update template on blur if set
+            const template = this.field.Options && this.field.Options.template;
+            let actualValue;
+            if (template) {
+                const formattedValue = template(this.control.value);
+                actualValue = this.control.value;
+                this.control.setValue(formattedValue);
+            }
+
             lodash.set(this.model, this.field.Property, this.control.value);
             this.lastControlValue = this.control.value;
-            this.emitChange(previousValue, this.control.value);
+            this.emitChange(previousValue, actualValue);
         }
     }
 }

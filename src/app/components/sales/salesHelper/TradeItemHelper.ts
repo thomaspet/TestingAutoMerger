@@ -28,7 +28,7 @@ export class TradeItemHelper  {
     public static IsAnyItemsMissingProductID (items: Array<CustomerQuoteItem | CustomerOrderItem | CustomerInvoiceItem>) {
         let invalidItems = items.filter(x => !x.ProductID);
 
-        return invalidItems.length === 0;
+        return invalidItems.length !== 0;
     }
 
     public static clearFieldsInItemsWithNoProductID(items: Array<CustomerQuoteItem | CustomerOrderItem | CustomerInvoiceItem>) {
@@ -70,10 +70,16 @@ export class TradeItemHelper  {
             Unit: '',
             Dimensions: {
                 ID: 0,
-                Project: mainEntity.Customer && mainEntity.Customer.Dimensions ? mainEntity.Customer.Dimensions.Project : null,
-                ProjectID: mainEntity.Customer && mainEntity.Customer.Dimensions ? mainEntity.Customer.Dimensions.ProjectID : null,
-                Department: mainEntity.Customer && mainEntity.Customer.Dimensions ? mainEntity.Customer.Dimensions.Department : null,
-                DepartmentID: mainEntity.Customer && mainEntity.Customer.Dimensions ? mainEntity.Customer.Dimensions.DepartmentID : null
+                Project: (mainEntity.DefaultDimensions ? mainEntity.DefaultDimensions.Project : null)
+                    || (mainEntity.Customer && mainEntity.Customer.Dimensions
+                        ? mainEntity.Customer.Dimensions.Project : null),
+                ProjectID: (mainEntity.DefaultDimensions ? mainEntity.DefaultDimensions.ProjectID : null)
+                    || (mainEntity.Customer && mainEntity.Customer.Dimensions
+                        ? mainEntity.Customer.Dimensions.ProjectID : null),
+                Department: mainEntity.Customer && mainEntity.Customer.Dimensions 
+                    ? mainEntity.Customer.Dimensions.Department : null,
+                DepartmentID: mainEntity.Customer && mainEntity.Customer.Dimensions 
+                    ? mainEntity.Customer.Dimensions.DepartmentID : null
             },
             NumberOfItems: null,
             PriceExVat: null,
@@ -99,7 +105,7 @@ export class TradeItemHelper  {
             newRow.Dimensions._createguid = this.guidService.guid();
 
             // Default antall for ny rad
-            if (newRow.NumberOfItems === null) {
+            if ((newRow.NumberOfItems === null) && newRow.Product) {
                 newRow.NumberOfItems = 1;
             }
         }
@@ -265,17 +271,19 @@ export class TradeItemHelper  {
             rowModel.VatTypeID = product.Account.VatTypeID;
         }
 
-        if (!rowModel.Dimensions.ProjectID) {
-            if (product.Dimensions && product.Dimensions.ProjectID) {
-                rowModel.Dimensions.ProjectID = product.Dimensions.ProjectID;
-                rowModel.Dimensions.Project = product.Dimensions.Project;
+        if (rowModel.Dimensions) {
+            if (!rowModel.Dimensions.ProjectID) {
+                if (product.Dimensions && product.Dimensions.ProjectID) {
+                    rowModel.Dimensions.ProjectID = product.Dimensions.ProjectID;
+                    rowModel.Dimensions.Project = product.Dimensions.Project;
+                }
             }
-        }
-
-        if (!rowModel.Dimensions.DepartmentID) {
-            if (product.Dimensions && product.Dimensions.DepartmentID) {
-                rowModel.Dimensions.DepartmentID = product.Dimensions.DepartmentID;
-                rowModel.Dimensions.Department = product.Dimensions.Department;
+    
+            if (!rowModel.Dimensions.DepartmentID) {
+                if (product.Dimensions && product.Dimensions.DepartmentID) {
+                    rowModel.Dimensions.DepartmentID = product.Dimensions.DepartmentID;
+                    rowModel.Dimensions.Department = product.Dimensions.Department;
+                }
             }
         }
     }

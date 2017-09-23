@@ -124,6 +124,9 @@ export class PaycheckReportFilterModalContent implements OnInit, OnDestroy {
                             ? 'and (' + filteredEmployees.map(emp => 'EmployeeID eq ' + emp.ID).join(' or ') + ')'
                             : '');
                     params['EmployeeFilter'] = filteredEmployees.map(emp => 'ID eq ' + emp.ID).join(' or ');
+
+                    params['EmpFrom'] = model.FromEmpNo;
+                    params['EmpTo'] = model.ToEmpNo;
                 }
                 return model;
             })

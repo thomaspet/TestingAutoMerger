@@ -59,7 +59,6 @@ export interface IUniTableColumn {
     filterable: boolean;
     filterOperator?: string;
     skipOnEnterKeyNavigation?: boolean;
-    onCellClickHandler: (rowModel: any) => void;
     sortMode: UniTableColumnSortMode;
     jumpToColumn?: string;
 }
@@ -94,8 +93,6 @@ export class UniTableColumn implements IUniTableColumn {
 
     public skipOnEnterKeyNavigation: boolean;
     public jumpToColumn: string;
-
-    public onCellClickHandler: (rowModel: any) => void;
 
     constructor(field?: string, header?: string, type?: UniTableColumnType, editable: boolean | ((rowModel) => boolean) = true) {
         this.header = header || '';
@@ -261,11 +258,6 @@ export class UniTableColumn implements IUniTableColumn {
 
     public setJumpToColumn(field: string) {
         this.jumpToColumn = field;
-        return this;
-    }
-
-    public setOnCellClick(handler: (rowModel: any) => void): UniTableColumn {
-        this.onCellClickHandler = handler;
         return this;
     }
 

@@ -38,13 +38,13 @@ export class WorkEditor {
     private timeSheet: TimeSheet = new TimeSheet();
     private workTypes: Array<WorkType> = [];
     private visibleColumns: Array<string>;
-    private defaultRow: { Date: LocalDate, StartTime?: Date } = { Date: new LocalDate() };
+    private defaultRow: any = { Date: new LocalDate() };
 
     public get numberOfVisibleColumns(): number {
         return this.visibleColumns.length;
     }
 
-    public get EmptyRowDetails(): { Date: LocalDate, StartTime?: Date } {
+    public get EmptyRowDetails(): { Date: LocalDate } {
         return this.defaultRow;
     }
 
@@ -96,7 +96,18 @@ export class WorkEditor {
         }
     }
 
+    private keepUpWithUniTable(originalIndex) {
+        for (let i = this.timeSheet.items.length; i < originalIndex; i++) {
+            this.timeSheet.addRow();
+        }
+    }
+
     public onRowDeleted(event: any) {
+
+        // Make sure UniTable and TimeSheet are up to speed
+        if (event.rowModel._originalIndex >= this.timeSheet.items.length) {
+            this.keepUpWithUniTable(event.originalIndex);
+        }
         var row = event.rowModel;
         var index = row['_originalIndex'];
         if (index === 0 || !!index ) {
@@ -108,6 +119,11 @@ export class WorkEditor {
     }
 
     public onEditChange(event) {
+
+        // Make sure UniTable and TimeSheet are up to speed
+        if (event.originalIndex >= this.timeSheet.items.length) {
+            this.keepUpWithUniTable(event.originalIndex);
+        }
 
         var rowIndex = event.originalIndex;
         var newRow = event.rowModel;
@@ -215,6 +231,37 @@ export class WorkEditor {
         cfg.autoScrollIfNewCellCloseToBottom = true;
 
         cfg.defaultRowData = this.defaultRow;
+
+        cfg.beforeEdit = (event) => {
+            // If the tables are not in sync, the line above will not exist, just return
+            if (event.rowModel._originalIndex !== 0
+                && event.rowModel._originalIndex > this.timeSheet.items.length) {
+                    return event;
+                }
+
+            // Add a suggested time when user enters empty Start field
+            if (event.column.field === 'StartTime' && !event.initValue) {
+                if (!event.rowModel._originalIndex) {
+                    event.initValue = '08:00';
+                    event.initAsDirty = true;
+                } else {
+                    let rowAbove = this.timeSheet.items[event.rowModel._originalIndex - 1];
+                    let isSameDate = moment(rowAbove.Date).month() === moment(event.rowModel.Date).month();
+                    isSameDate = isSameDate && moment(rowAbove.Date).day() === moment(event.rowModel.Date).day();
+                    if (rowAbove.EndTime && isSameDate) {
+                        event.initValue = moment(this.timeSheet.items[event.rowModel._originalIndex - 1].EndTime)
+                        .format('HH:mm');
+                        event.initAsDirty = true;
+                    } else if (!isSameDate) {
+                        event.initValue = '08:00';
+                        event.initAsDirty = true;
+                    } else {
+                        event.initValue = '';
+                    }
+                }
+            }
+            return event;
+        }
 
         if (!this.visibleColumns) {
             this.visibleColumns = [];

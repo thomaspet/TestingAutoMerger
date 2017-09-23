@@ -1,8 +1,7 @@
 import {Component, ViewChild, ChangeDetectionStrategy, ChangeDetectorRef} from '@angular/core';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
-import {UniTabs} from '../../layout/uniTabs/uniTabs';
-import {UniTickerService, PageStateService} from '../../../services/services';
-import {Ticker, TickerGroup, TickerHistory} from '../../../services/common/uniTickerService';
+import {UniTickerService} from '../../../services/services';
+import {Ticker, TickerGroup} from '../../../services/common/uniTickerService';
 import {Router, ActivatedRoute} from '@angular/router';
 import {Location} from '@angular/common';
 import {IToolbarConfig} from '../../common/toolbar/toolbar';
@@ -17,142 +16,110 @@ declare const _; // lodash
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class UniTickerOverview {
-    @ViewChild(UniTickerContainer) private tickerContainer: UniTickerContainer;
-    private tickers: Array<Ticker>;
-    private tickerGroups: Array<TickerGroup>;
-    private selectedTicker: Ticker;
+    @ViewChild(UniTickerContainer)
+    private tickerContainer: UniTickerContainer;
 
-    private showSubTickers: boolean = true;
-    private lastSearch: TickerHistory;
+    private tickers: Ticker[];
+    private tickerGroups: TickerGroup[];
+    private selectedTicker: Ticker;
 
 
     private toolbarConfig: IToolbarConfig = {
         title: 'Oversikt',
         omitFinalCrumb: true,
-        contextmenu: [
-        ]
+        contextmenu: []
     };
 
-    private saveactions: IUniSaveAction[] = [
-         {
-             label: 'Eksporter til Excel',
-             action: (completeEvent) => this.exportToExcel(completeEvent),
-             main: true,
-             disabled: false
-         }
-    ];
+    public saveactions: IUniSaveAction[] = [{
+        label: 'Eksporter til Excel',
+        action: (completeEvent) => this.exportToExcel(completeEvent),
+        main: true,
+        disabled: false
+    }];
 
-    constructor(private tabService: TabService,
+    constructor(
+        private tabService: TabService,
         private uniTickerService: UniTickerService,
         private router: Router,
         private route: ActivatedRoute,
-        private pageStateService: PageStateService,
         private location: Location,
-        private cdr: ChangeDetectorRef) {
-
-        this.tabService.addTab({ name: 'Oversikt', url: '/tickers/overview', moduleID: UniModules.UniTicker, active: true });
-
-        this.route.params.subscribe((params) => {
-            this.setupView(params['code']);
+        private cdr: ChangeDetectorRef
+    ) {
+        this.tabService.addTab({
+            name: 'Oversikt',
+            url: '/overview',
+            moduleID: UniModules.UniTicker,
+            active: true
         });
     }
 
-    public ngOnInit() {
+    public ngAfterViewInit() {
+        this.uniTickerService.getTickers().then(tickers => {
+            this.tickers = tickers;
+            this.tickerGroups = this.uniTickerService.getGroupedTopLevelTickers(tickers);
 
-    }
-
-    private onUrlChanged() {
-        let url = this.location.path(false);
-
-        this.updateTabService(url);
-
-        if (this.selectedTicker) {
-            setTimeout(() => {
-                this.lastSearch =
-                    this.uniTickerService.addSearchHistoryItem(
-                        this.selectedTicker,
-                        this.tickerContainer.selectedFilter,
-                        url
-                    );
-            });
-        }
-    }
-
-    private onShowSearch(search: TickerHistory) {
-        // navigate - this is done to set the URL props - but it will not actually do
-        // much unless the ticker changes - so set the ticker manually afterwards to
-        // force the view to update itself if the ticker is the same (but another
-        // filter is used)
-        this.router.navigateByUrl(search.Url);
-
-        if (this.selectedTicker && this.selectedTicker.Code === search.TickerCode) {
-            setTimeout(() => {
-                this.showTicker(search.TickerCode);
-            });
-        }
-    }
-
-    private updateTabService(url: string) {
-        this.tabService.addTab({
-                name: this.selectedTicker ? 'Utvalg: ' + this.selectedTicker.Name : 'Utvalg',
-                url: url,
-                moduleID: UniModules.UniTicker,
-                active: true
-            });
-    }
-
-    private setupView(selectedTickerCode: string = null) {
-        if (!this.tickers) {
-            this.uniTickerService.getTickers()
-                .then(tickers => {
-                    this.tickers = tickers;
-                    this.tickerGroups = this.uniTickerService.getGroupedTopLevelTickers(tickers);
-
-                    if (selectedTickerCode) {
-                        this.showTicker(selectedTickerCode);
-                    }
-
-                    if (!this.selectedTicker) {
-                        this.navigateToTicker(this.tickerGroups[0].Tickers[0]);
-                    }
-
-                    let contextMenuItems = [];
-                    this.tickerGroups.forEach((tickerGroup: TickerGroup) => {
-                        tickerGroup.Tickers.forEach((ticker: Ticker) => {
-                            contextMenuItems.push({
-                                label: `${tickerGroup.Name}: ${ticker.Name}`,
-                                action: () => {
-                                    this.navigateToTicker(ticker);
-                                }
-                            });
-                        });
-                    });
-
-                    this.toolbarConfig.contextmenu = contextMenuItems;
-                    this.toolbarConfig = _.cloneDeep(this.toolbarConfig);
-
-                    this.cdr.markForCheck();
-                });
-        } else {
-            if (selectedTickerCode) {
-                if (!this.selectedTicker || this.selectedTicker.Code !== selectedTickerCode) {
-                    this.showTicker(selectedTickerCode);
+            this.route.params.subscribe((params) => {
+                const tickerCode = params['code'];
+                if (tickerCode) {
+                    this.selectTicker(tickerCode);
+                } else {
+                    this.navigateToTicker(this.tickerGroups[0].Tickers[0]);
                 }
+            });
+        });
+    }
+
+    private updateTab() {
+        const urlWithParams = this.location.path(false);
+        this.tabService.addTab({
+            name: 'Oversikt',
+            url: urlWithParams,
+            moduleID: UniModules.UniTicker,
+            active: true
+        });
+    }
+
+    private updateToolbar() {
+        let title = 'Oversikt';
+        if (this.selectedTicker) {
+            title += ': ' + this.selectedTicker.Name;
+        }
+
+        let config: IToolbarConfig = {
+            title: title,
+            omitFinalCrumb: true,
+            contextmenu: []
+        };
+
+        if (this.selectedTicker.Actions) {
+            const newAction = this.selectedTicker.Actions.find(a => a.Type === 'new');
+            if (!!newAction) {
+                config.navigation = {
+                    add: () => {
+                        this.tickerContainer.runAction(newAction);
+                    }
+                };
             }
         }
+
+        this.toolbarConfig = config;
     }
 
     private navigateToTicker(ticker: Ticker) {
-        this.router.navigateByUrl('/tickers/ticker/' + ticker.Code);
+        this.router.navigateByUrl('/overview/' + ticker.Code);
     }
 
-    private showTicker(selectedTickerCode: string) {
-        this.selectedTicker = _.cloneDeep(this.tickers.find(x => x.Code === selectedTickerCode));
+    private selectTicker(selectedTickerCode: string) {
+        this.selectedTicker = this.tickers.find(x => x.Code === selectedTickerCode);
 
-        let url = this.location.path(false);
-        this.updateTabService(url);
+        this.updateTab();
+        this.updateToolbar();
 
         this.cdr.markForCheck();
+    }
+
+    public onTickerParamsChange(params) {
+        this.updateTab();
     }
 
     private exportToExcel(completeEvent) {

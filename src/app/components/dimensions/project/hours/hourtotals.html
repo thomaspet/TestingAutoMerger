@@ -1,0 +1,47 @@
+<section class="project-router-outlet">
+    <section class="project-subview">
+
+        <table class="toolbar">
+            <tr>
+                <td class="right">
+                    <header class="filter-nav">
+                        <ul>
+                            <li (click)="onFilterClick(item)" *ngFor="let item of filters" [class.is-active]="item.isActive">{{item.label}}</li>
+                        </ul>
+                    </header>   
+                </td>
+                <td><button (click)="onAddHoursClick()" class="good">Registrere timer</button></td>
+            </tr>
+        </table>
+
+        <div [attr.aria-busy]="busy">
+
+            <p *ngIf="report?.length == 0 || (!report)">
+                Ingen timer registrert på prosjektet. Velg 'Registrer timer' for å legge inn noen timer.
+            </p>
+
+            <div *ngFor="let group of report">
+                <table class="report">
+                    <thead><tr>
+                        <th>Antall timer i {{group.title}}</th>
+                        <th>Sum</th>
+                        <th class="prc">%</th>
+                        <th *ngFor="let hc of group.columns">{{hc}}</th>
+                    </tr></thead>
+                    <tr *ngFor="let row of group.rows">
+                        <td>{{row.title}}</td>
+                        <td>{{row.sum|min2hours:'int'}}</td>
+                        <td class="prc">{{row.prc|numpipe:'0'}}</td>
+                        <td *ngFor="let col of row.items">{{col.tsum | min2hours:'int'}}</td>
+                    </tr>
+                    <tr>
+                        <td>Sum {{group.title}}</td>
+                        <td class="left" colspan="14">{{group.sum|min2hours}}</td>
+                    </tr>
+                </table>        
+                <br/>
+            </div>
+
+        </div>
+    </section>
+</section>

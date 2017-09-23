@@ -251,8 +251,8 @@ export class WorkRelation extends UniEntity {
     public WorkerID: number;
     public WorkPercentage: number;
     public WorkProfileID: number;
-    public WorkProfile: WorkProfile;
     public Worker: Worker;
+    public WorkProfile: WorkProfile;
     public Employment: Employment;
     public Items: Array<WorkItem>;
     public Team: Team;
@@ -1392,13 +1392,24 @@ export class EmployeeTaxCard extends UniEntity {
     public Deleted: boolean;
     public EmployeeID: number;
     public EmployeeNumber: number;
+    public ForeignBorderCommuterPercent: number;
+    public ForeignBorderCommuterTable: string;
+    public ForeignCitizenInsurancePercent: number;
+    public ForeignCitizenInsuranceTable: string;
+    public ForeignOfficialPercent: number;
+    public ForeignOfficialTable: string;
     public ID: number;
     public MunicipalityNo: string;
     public NonTaxableAmount: number;
     public NotMainEmployer: boolean;
+    public NumberOfDrawMonths: number;
+    public PensionPercent: number;
+    public PensionTable: string;
+    public Percent: number;
+    public SecondaryPercent: number;
+    public SecondaryTable: string;
     public StatusCode: number;
-    public TaxPercentage: number;
-    public TaxTable: string;
+    public Table: string;
     public UpdatedAt: Date;
     public UpdatedBy: string;
     public Year: number;
@@ -2177,26 +2188,6 @@ export class User extends UniEntity {
 }
 
 
-export class TreeStructure extends UniEntity {
-    public static RelativeUrl = '';
-    public static EntityType = 'TreeStructure';
-
-    public _createguid: string;
-    public CreatedAt: Date;
-    public CreatedBy: string;
-    public Deleted: boolean;
-    public Depth: number;
-    public ID: number;
-    public Lft: number;
-    public ParentID: number;
-    public Rght: number;
-    public StatusCode: number;
-    public UpdatedAt: Date;
-    public UpdatedBy: string;
-    public CustomFields: any;
-}
-
-
 export class ProductCategory extends UniEntity {
     public static RelativeUrl = 'productcategories';
     public static EntityType = 'ProductCategory';
@@ -2861,28 +2852,6 @@ export class AltinnReceipt extends UniEntity {
 }
 
 
-export class AltinnCorrespondanceReader extends UniEntity {
-    public static RelativeUrl = '';
-    public static EntityType = 'AltinnCorrespondanceReader';
-
-    public _createguid: string;
-    public CreatedAt: Date;
-    public CreatedBy: string;
-    public Deleted: boolean;
-    public ID: number;
-    public Pin: string;
-    public PreferredLogin: string;
-    public ReceiptID: number;
-    public ResponseMessage: string;
-    public StatusCode: number;
-    public UpdatedAt: Date;
-    public UpdatedBy: string;
-    public UserID: string;
-    public UserPassword: string;
-    public CustomFields: any;
-}
-
-
 export class ProjectResourceSchedule extends UniEntity {
     public static RelativeUrl = 'projects-schedules-resources';
     public static EntityType = 'ProjectResourceSchedule';
@@ -3470,45 +3439,6 @@ export class AGAZone extends UniEntity {
 }
 
 
-export class Company extends UniEntity {
-    public static RelativeUrl = 'companies';
-    public static EntityType = 'Company';
-
-    public _createguid: string;
-    public ConnectionString: string;
-    public CreatedAt: Date;
-    public CreatedBy: string;
-    public Deleted: boolean;
-    public FileFlowEmail: string;
-    public ID: number;
-    public IsTest: boolean;
-    public Key: string;
-    public Name: string;
-    public SchemaName: string;
-    public UpdatedAt: Date;
-    public UpdatedBy: string;
-    public WebHookSubscriberId: string;
-    public CustomFields: any;
-}
-
-
-export class CompanyAccess extends UniEntity {
-    public static RelativeUrl = 'companies-access';
-    public static EntityType = 'CompanyAccess';
-
-    public _createguid: string;
-    public CompanyID: number;
-    public CreatedAt: Date;
-    public CreatedBy: string;
-    public Deleted: boolean;
-    public GlobalIdentity: string;
-    public ID: number;
-    public UpdatedAt: Date;
-    public UpdatedBy: string;
-    public CustomFields: any;
-}
-
-
 export class CompanyType extends UniEntity {
     public static RelativeUrl = 'companytypes';
     public static EntityType = 'CompanyType';
@@ -3523,6 +3453,7 @@ export class CompanyType extends UniEntity {
     public FullName: string;
     public ID: number;
     public Name: string;
+    public Priority: boolean;
     public UpdatedAt: Date;
     public UpdatedBy: string;
     public CustomFields: any;
@@ -3936,6 +3867,45 @@ export class Notification extends UniEntity {
     public SourceEntityID: number;
     public SourceEntityType: string;
     public StatusCode: number;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public CustomFields: any;
+}
+
+
+export class Company extends UniEntity {
+    public static RelativeUrl = 'companies';
+    public static EntityType = 'Company';
+
+    public _createguid: string;
+    public ConnectionString: string;
+    public CreatedAt: Date;
+    public CreatedBy: string;
+    public Deleted: boolean;
+    public FileFlowEmail: string;
+    public ID: number;
+    public IsTest: boolean;
+    public Key: string;
+    public Name: string;
+    public SchemaName: string;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public WebHookSubscriberId: string;
+    public CustomFields: any;
+}
+
+
+export class CompanyAccess extends UniEntity {
+    public static RelativeUrl = 'companies-access';
+    public static EntityType = 'CompanyAccess';
+
+    public _createguid: string;
+    public CompanyID: number;
+    public CreatedAt: Date;
+    public CreatedBy: string;
+    public Deleted: boolean;
+    public GlobalIdentity: string;
+    public ID: number;
     public UpdatedAt: Date;
     public UpdatedBy: string;
     public CustomFields: any;
@@ -5092,9 +5062,9 @@ export class WorkBalanceDto extends UniEntity {
     public ValidFrom: Date;
     public ValidTimeOff: number;
     public WorkRelationID: number;
-    public WorkRelation: WorkRelation;
     public Previous: BalanceInfo;
     public Details: Array<FlexDetail>;
+    public WorkRelation: WorkRelation;
     public CustomFields: any;
 }
 
@@ -5229,6 +5199,55 @@ export class AmeldingAgaAndTaxSums extends UniEntity {
 }
 
 
+export class AmeldingSumUp extends UniEntity {
+    public entities: Array<AmeldingEntity>;
+    public agadetails: Array<AGADetails>;
+    public totals: Totals;
+}
+
+
+export class AmeldingEntity extends UniEntity {
+    public sums: Sums;
+    public employees: Array<Employees>;
+    public transactionTypes: Array<TransactionTypes>;
+}
+
+
+export class Sums extends UniEntity {
+}
+
+
+export class Employees extends UniEntity {
+    public arbeidsforhold: Array<Employments>;
+}
+
+
+export class Employments extends UniEntity {
+    public permisjon: Array<EmploymentLeaves>;
+}
+
+
+export class EmploymentLeaves extends UniEntity {
+}
+
+
+export class TransactionTypes extends UniEntity {
+}
+
+
+export class AGADetails extends UniEntity {
+    public baseAmount: number;
+    public rate: number;
+    public sectorName: string;
+    public type: string;
+    public zoneName: string;
+}
+
+
+export class Totals extends UniEntity {
+}
+
+
 export class Paycheck extends UniEntity {
     public employee: Employee;
     public payroll: PayrollRun;
@@ -5240,6 +5259,7 @@ export class Paycheck extends UniEntity {
 
 
 export class SumOnRun extends UniEntity {
+    public employeeID: number;
     public netPayment: number;
     public tax: number;
 }
@@ -5251,6 +5271,7 @@ export class SumOnYear extends UniEntity {
 
 export class VacationPayLastYear extends UniEntity {
     public baseVacation: number;
+    public employeeID: number;
     public paidHolidayPay: number;
 }
 
@@ -5609,55 +5630,6 @@ export class JournalEntryPeriodData extends UniEntity {
     public PeriodNo: number;
     public PeriodSumYear1: number;
     public PeriodSumYear2: number;
-}
-
-
-export class AmeldingSumUp extends UniEntity {
-    public entities: Array<AmeldingEntity>;
-    public agadetails: Array<AGADetails>;
-    public totals: Totals;
-}
-
-
-export class AmeldingEntity extends UniEntity {
-    public sums: Sums;
-    public employees: Array<Employees>;
-    public transactionTypes: Array<TransactionTypes>;
-}
-
-
-export class Sums extends UniEntity {
-}
-
-
-export class Employees extends UniEntity {
-    public arbeidsforhold: Array<Employments>;
-}
-
-
-export class Employments extends UniEntity {
-    public permisjon: Array<EmploymentLeaves>;
-}
-
-
-export class EmploymentLeaves extends UniEntity {
-}
-
-
-export class TransactionTypes extends UniEntity {
-}
-
-
-export class AGADetails extends UniEntity {
-    public baseAmount: number;
-    public rate: number;
-    public sectorName: string;
-    public type: string;
-    public zoneName: string;
-}
-
-
-export class Totals extends UniEntity {
 }
 
 
@@ -6249,6 +6221,7 @@ export enum StatusCodeSupplierInvoice{
     ToPayment = 30105,
     PartlyPayed = 30106,
     Payed = 30107,
+    Rejected = 30108,
 }
 
 

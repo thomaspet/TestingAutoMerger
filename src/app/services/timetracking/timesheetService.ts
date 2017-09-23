@@ -120,7 +120,7 @@ export class TimeSheet {
         for (var i = 0; i < list.length; i++) {
             let rowIndex = list[i];
             item = this.items[rowIndex];
-            if (!item.WorkTypeID) {
+            if (!item || !item.WorkTypeID) {
                 result.ok = false;
                 result.message = 'Du må fylle ut timeart på rad ' + (rowIndex + 1);
                 result.fld = 'WorkTypeID';

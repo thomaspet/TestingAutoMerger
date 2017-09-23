@@ -1,5 +1,4 @@
-﻿$primaryblue: #0f4880
-$primaryBorder: 1px solid $primaryblue
+﻿$primaryBorder: pxToRem(1) solid $uni-color-c2a
 @media print
     .no-print, .no-print *
         display: none !important
@@ -70,7 +69,7 @@ $primaryBorder: 1px solid $primaryblue
             height: 2rem
             box-sizing: border-box
             line-height: 2rem
-            border-radius: 5px 5px 0 0
+            border-radius: pxToRem(5) pxToRem(5) 0 0
 
             &:last-of-type
                 border-right: none
@@ -90,9 +89,9 @@ $primaryBorder: 1px solid $primaryblue
 
     .flexitime
         margin-left: 1em
-        padding: 3px
-        color: red
-        font-size: 9px
+        padding: pxToRem(3)
+        color: $uni-color-bad
+        font-size: pxToRem(9)
 
 .timeentry-scrollview
     max-width: 100%
@@ -156,17 +155,17 @@ $primaryBorder: 1px solid $primaryblue
 
 .timeentriesTable td.sum
     height: 2rem
-    border-top: 1px solid #000 !important
+    border-top: pxToRem(1) solid $uni-color-negative !important
     font-weight: 600
 
 tr.sum td
-    border-bottom: 2px solid lighten($uni-color-scale6, 20%) !important
+    border-bottom: pxToRem(2) solid lighten($uni-color-scale6, 20%) !important
     font-weight: 600
-    padding-bottom: 0.4em
+    padding-bottom: 0.4rem
 
 .timeentriesTable td.sumright
     font-weight: 600
-    border-left: 1px solid $uni-color-scale6
+    border-left: pxToRem(1) solid $uni-color-scale6
 
 
 .timeentriesTable th.sum
@@ -174,7 +173,7 @@ tr.sum td
 
 .timeentriesTable td.left
     text-align: left
-    padding-left: 1em;
+    padding-left: 1em
 
 .timeentriesTable td.center
     text-align: center
@@ -198,7 +197,7 @@ tr.sum td
     width: pxToRem(15)
 
 .timeentriesTable tr:last-of-type td.timeSheet_actions button
-    visibility: hidden;
+    visibility: hidden
 
 .timeentriesTable tr td.timeSheet_actions button
     width: 2rem
@@ -219,7 +218,7 @@ tr.sum td
 
     td
         padding: pxToRem(4)
-        border-bottom: 1px solid $uni-color-scale7
+        border-bottom: pxToRem(1) solid $uni-color-scale7
 
     td.spacer
         width: 1.6rem
@@ -232,7 +231,7 @@ tr.sum td
         text-align: right
         width: 6rem
         font-weight: 600
-        border-left: 1px solid $uni-color-scale7
+        border-left: pxToRem(1) solid $uni-color-scale7
 
     td.grandtotal
         background-color: lighten($uni-color-c2a, 66%)
@@ -253,7 +252,7 @@ button.normal
     top: pxToRem(-7)
     right: pxToRem(1)
     letter-spacing: 0
-    font-size: 10px
+    font-size: pxToRem(10)
     color: $uni-color-scale7
 
 .flex-detail
@@ -264,8 +263,8 @@ button.normal
 
     td, th
         padding: pxToRem(4)
-        border-bottom: 1px solid $uni-color-scale6
-        border-right: 1px solid $uni-color-scale6
+        border-bottom: pxToRem(1) solid $uni-color-scale6
+        border-right: pxToRem(1) solid $uni-color-scale6
         margin-top: pxToRem(10)
 
     tr td:not(:first-child):not(:last-child)
@@ -274,7 +273,7 @@ button.normal
 
     tr td:first-child
         padding-right: 4rem
-        border-left: 1px solid left $uni-color-scale6
+        border-left: pxToRem(1) solid left $uni-color-scale6
 
     tr td:last-child
         padding-left: 4rem
@@ -313,6 +312,7 @@ button.normal
 .wideapplication
     margin-left: 1em
     margin-right: 1em
+    position: relative
 
 .clickablecell
     @extend %clickable
@@ -367,40 +367,43 @@ uni-file-import input
 .timetracking_periode_selector
     list-style: none
     float: right
-    border-radius: 3px
+    border-radius: pxToRem(3)
+    position: absolute
+    top: 0
+    right: 0
 
     &:after
         clear: both
 
     li
         float: left
-        width: 105px
+        width: pxToRem(105)
         text-align: center
-        height: 30px
-        line-height: 30px
+        height: 1.5rem
+        line-height: 1.5rem
         vertical-align: middle
         border-top: $primaryBorder
         border-bottom: $primaryBorder
         border-left: $primaryBorder
-        color: $primaryblue
+        color: $uni-color-c2a
         font-size: 0.8rem
 
         &:first-of-type
-            border-top-left-radius: 4px
-            border-bottom-left-radius: 4px
+            border-top-left-radius: pxToRem(4)
+            border-bottom-left-radius: pxToRem(4)
 
         &:last-of-type
             border-right: $primaryBorder
-            border-top-right-radius: 4px
-            border-bottom-right-radius: 4px
+            border-top-right-radius: pxToRem(4)
+            border-bottom-right-radius: pxToRem(4)
 
         @media screen and (max-width: 1250px)
             float: none
             border: none
             border-bottom: none
-            border-radius: 4px
-            height: 20px
-            line-height: 20px
+            border-radius: pxToRem(4)
+            height: pxToRem(20)
+            line-height: pxToRem(20)
             vertical-align: middle
 
             &:last-of-type
@@ -410,51 +413,54 @@ uni-file-import input
             clear: both
 
         &.timetracking_periode_selected
-            background-color: $primaryblue
+            background-color: $uni-color-c2a
             color: #fff
 
         &:hover
             cursor: pointer
-            background-color: $primaryblue
+            background-color: $uni-color-c2a
             color: #fff
 
-.timetracking_progress_section
+.timeentry_biglabel
+    font-weight: 400
+    color: $uni-color-c2a
+    margin-bottom: 0
+
+.timetracking_progress_bar
+    -webkit-appearance: none
+    appearance: none
+    border-radius: 9rem
+    height: .3rem
+    width: 5rem
+    border: pxToRem(1) solid $uni-color-negative
+    box-shadow: 0 0 0 pxToRem(1) $uni-color-c2a
     float: left
-    padding-left: 15px
-    margin-bottom: 15px
-    text-align: center
+    margin-right: 1rem
 
-    h3
-        font-size: 1.3rem
-        font-weight: 400
-        color: $primaryblue
-        margin-bottom: 15px
+    &::-webkit-progress-bar
+        background: $uni-color-negative
+        border-radius: 9rem
 
-#timetracking_progress_bar
-    width: 220px
-    border: 1px solid #0f4880
-    border-radius: 12px
-    height: 12px
-    padding: 1px
-    margin-top: 5px
+    &::-webkit-progress-value
+        background: $uni-color-c2a
+        border-radius: 9rem
+        transition: all 300ms ease
 
-    div
-        width: 10%
-        height: 100%
-        background-color: #0f4880
-        border-radius: 12px
-        transition: linear 1s
+    &.-is-complete
+        box-shadow: 0 0 0 pxToRem(1) $uni-color-good
 
+        &::-webkit-progress-value
+            background: $uni-color-good
 
 .timetracking_worked_today_text
-    margin-top: -12px
-    color: #0f4880
+    margin-top: pxToRem(-11)
+    color: $uni-color-c2a
 
 .horizontal_nav li
     white-space: nowrap
 
 .app-splitview
-    width: calc(100% - 400px)
+    width: calc(100% - #{pxToRem(400)})
     float: left
 
 .vacation_section

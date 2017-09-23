@@ -9,7 +9,8 @@
     <uni-table
         [resource]="lookupFunction"
         [config]="uniTableConfig"
-        (filtersChange)="onFiltersChange($event.filter)">
+        (filtersChange)="onFiltersChange($event.filter)"
+        (cellClick)="onCellClick($event)">
     </uni-table>
 
     <uni-summary [configs]="summary" *ngIf="summaryData" [attr.aria-busy]="busy"></uni-summary>

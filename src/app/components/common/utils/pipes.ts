@@ -62,6 +62,16 @@ export class HoursPipe implements PipeTransform {
 }
 
 @Pipe({
+    name: 'numpipe'
+})
+export class NumberPipe implements PipeTransform {
+    public transform(value: any, format?: string) {
+        if (!value) { return ''; }
+        return value.toFixed(format ? parseInt(format) : 1);
+    }
+}
+
+@Pipe({
   name: 'min2hours'
 })
 export class MinutesToHoursPipe implements PipeTransform {
@@ -77,6 +87,8 @@ export class MinutesToHoursPipe implements PipeTransform {
                 return !!value ? this.decFmt(parsed) : '';
             case 'decimal-':
                 return !!value ? this.decFmt(parsed) + 't' : '-';
+            case 'int':
+                return !!value ? parsed.decimal.toFixed(0) : '';
             default:
                 return this.longFmt(parsed);
         }

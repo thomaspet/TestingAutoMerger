@@ -31,13 +31,36 @@ export class EmployeeTaxCardService extends BizHttp<EmployeeTaxCard> {
                     ComponentLayoutID: 1,
 
                     EntityType: 'EmployeeTaxCard',
-                    Property: 'TaxTable',
+                    Property: 'TaxBtn',
                     Placement: 1,
+                    Hidden: false,
+                    FieldType: FieldType.BUTTON,
+                    ReadOnly: false,
+                    LookupField: false,
+                    Label: 'Elektronisk skattekort',
+                    Description: null,
+                    HelpText: null,
+                    FieldSet: 1,
+                    Legend: 'Skatt',
+                    Section: 0,
+                    Placeholder: null,
+                    Options: null,
+                    LineBreak: null,
+                    Combo: null,
+                    Sectionheader: null,
+                    IsLookUp: false
+                },
+                {
+                    ComponentLayoutID: 1,
+
+                    EntityType: 'EmployeeTaxCard',
+                    Property: 'Table',
+                    Placement: 2,
                     Hidden: false,
                     FieldType: FieldType.TEXT,
                     ReadOnly: false,
                     LookupField: false,
-                    Label: 'Skattetabell',
+                    Label: 'Hovedarbeidsgiver tabell',
                     Description: null,
                     HelpText: null,
                     FieldSet: 1,
@@ -60,19 +83,22 @@ export class EmployeeTaxCardService extends BizHttp<EmployeeTaxCard> {
                     ComponentLayoutID: 1,
 
                     EntityType: 'EmployeeTaxCard',
-                    Property: 'TaxPercentage',
-                    Placement: 2,
+                    Property: 'Percent',
+                    Placement: 3,
                     Hidden: false,
                     FieldType: FieldType.NUMERIC,
                     ReadOnly: false,
                     LookupField: false,
-                    Label: 'Skatteprosent',
+                    Label: 'Hovedarbeidsgiver prosent',
                     Description: null,
                     HelpText: null,
                     FieldSet: 1,
                     Section: 0,
                     Placeholder: null,
-                    Options: null,
+                    Options: {
+                        format: 'Money',
+                        decimalLength: 2
+                    },
                     LineBreak: null,
                     Combo: null,
                     Sectionheader: '',
@@ -89,19 +115,54 @@ export class EmployeeTaxCardService extends BizHttp<EmployeeTaxCard> {
                     ComponentLayoutID: 1,
 
                     EntityType: 'EmployeeTaxCard',
-                    Property: 'NonTaxableAmount',
+                    Property: 'SecondaryTable',
+                    Placement: 4,
+                    Hidden: false,
+                    FieldType: FieldType.TEXT,
+                    ReadOnly: false,
+                    LookupField: false,
+                    Label: 'Biarbeidsgiver tabell',
+                    Description: null,
+                    HelpText: null,
+                    FieldSet: 1,
+                    Section: 0,
+                    Placeholder: null,
+                    Options: {
+                        format: 'Money',
+                        decimalLength: 2
+                    },
+                    LineBreak: null,
+                    Combo: null,
+                    IsLookUp: false,
+                    openByDefault: true,
+                    Validations: [
+                        {
+                            ErrorMessage: 'Required field',
+                            Level: 3,
+                            Operator: 7 // required
+                        }
+                    ]
+                },
+                {
+                    ComponentLayoutID: 1,
+
+                    EntityType: 'EmployeeTaxCard',
+                    Property: 'SecondaryPercent',
                     Placement: 5,
                     Hidden: false,
                     FieldType: FieldType.NUMERIC,
                     ReadOnly: false,
                     LookupField: false,
-                    Label: 'Fri inntekt',
+                    Label: 'Biarbeidsgiver prosent',
                     Description: null,
                     HelpText: null,
                     FieldSet: 1,
                     Section: 0,
                     Placeholder: null,
-                    Options: null,
+                    Options: {
+                        format: 'Money',
+                        decimalLength: 2
+                    },
                     LineBreak: null,
                     Combo: null,
                     Sectionheader: '',
@@ -118,13 +179,13 @@ export class EmployeeTaxCardService extends BizHttp<EmployeeTaxCard> {
                     ComponentLayoutID: 1,
 
                     EntityType: 'EmployeeTaxCard',
-                    Property: 'MunicipalityNo',
-                    Placement: 7,
+                    Property: '_lastUpdated',
+                    Placement: 6,
                     Hidden: false,
-                    FieldType: FieldType.AUTOCOMPLETE,
-                    ReadOnly: false,
+                    FieldType: FieldType.DATE_TIME_PICKER,
+                    ReadOnly: true,
                     LookupField: false,
-                    Label: 'Kommune',
+                    Label: 'Sist oppdatert',
                     Description: null,
                     HelpText: null,
                     FieldSet: 1,
@@ -133,22 +194,15 @@ export class EmployeeTaxCardService extends BizHttp<EmployeeTaxCard> {
                     Options: null,
                     LineBreak: null,
                     Combo: null,
-                    Sectionheader: '',
                     IsLookUp: false,
-                    Validations: [
-                        {
-                            ErrorMessage: 'Required field',
-                            Level: 3,
-                            Operator: 7 // required
-                        }
-                    ]
+                    openByDefault: true,
                 },
                 {
                     ComponentLayoutID: 1,
 
                     EntityType: 'EmployeeTaxCard',
                     Property: 'NotMainEmployer',
-                    Placement: 6,
+                    Placement: 7,
                     Hidden: false,
                     FieldType: FieldType.CHECKBOX,
                     ReadOnly: false,
@@ -170,16 +224,81 @@ export class EmployeeTaxCardService extends BizHttp<EmployeeTaxCard> {
                     ComponentLayoutID: 1,
 
                     EntityType: 'EmployeeTaxCard',
-                    Property: '_lastUpdated',
-                    Placement: 1,
+                    Property: 'NonTaxableAmount',
+                    Placement: 8,
                     Hidden: false,
-                    FieldType: FieldType.DATE_TIME_PICKER,
-                    ReadOnly: true,
+                    FieldType: FieldType.NUMERIC,
+                    ReadOnly: false,
                     LookupField: false,
-                    Label: 'Sist oppdatert',
+                    Label: 'Fri inntekt',
                     Description: null,
                     HelpText: null,
                     FieldSet: 1,
+                    Section: 0,
+                    Placeholder: null,
+                    Options: {
+                        format: 'Money',
+                        decimalLength: 2
+                    },
+                    LineBreak: null,
+                    Combo: null,
+                    Sectionheader: '',
+                    IsLookUp: false,
+                    Validations: [
+                        {
+                            ErrorMessage: 'Required field',
+                            Level: 3,
+                            Operator: 7 // required
+                        }
+                    ]
+                },
+                {
+                    ComponentLayoutID: 1,
+
+                    EntityType: 'EmployeeTaxCard',
+                    Property: 'NumberOfDrawMonths',
+                    Placement: 8,
+                    Hidden: false,
+                    FieldType: FieldType.NUMERIC,
+                    ReadOnly: true,
+                    LookupField: false,
+                    Label: 'Antall måneder for trekk',
+                    Description: null,
+                    HelpText: null,
+                    FieldSet: 1,
+                    Section: 0,
+                    Placeholder: null,
+                    Options: {
+                        format: 'Money',
+                        decimalLength: 2
+                    },
+                    LineBreak: null,
+                    Combo: null,
+                    Sectionheader: '',
+                    IsLookUp: false,
+                    Validations: [
+                        {
+                            ErrorMessage: 'Required field',
+                            Level: 3,
+                            Operator: 7 // required
+                        }
+                    ]
+                },
+                {
+                    ComponentLayoutID: 1,
+
+                    EntityType: 'EmployeeTaxCard',
+                    Property: 'PensionTable',
+                    Placement: 9,
+                    Hidden: false,
+                    FieldType: FieldType.TEXT,
+                    ReadOnly: false,
+                    LookupField: false,
+                    Label: 'Pensjon tabell',
+                    Description: null,
+                    HelpText: null,
+                    FieldSet: 2,
+                    Legend: 'Spesielle skattekort',
                     Section: 0,
                     Placeholder: null,
                     Options: null,
@@ -187,29 +306,167 @@ export class EmployeeTaxCardService extends BizHttp<EmployeeTaxCard> {
                     Combo: null,
                     IsLookUp: false,
                     openByDefault: true,
+                    Validations: [
+                        {
+                            ErrorMessage: 'Required field',
+                            Level: 3,
+                            Operator: 7 // required
+                        }
+                    ]
                 },
                 {
                     ComponentLayoutID: 1,
 
                     EntityType: 'EmployeeTaxCard',
-                    Property: 'TaxBtn',
-                    Placement: 3,
+                    Property: 'PensionPercent',
+                    Placement: 10,
                     Hidden: false,
-                    FieldType: FieldType.BUTTON,
+                    FieldType: FieldType.NUMERIC,
                     ReadOnly: false,
                     LookupField: false,
-                    Label: 'Elektronisk skattekort',
+                    Label: 'Pensjon prosent',
                     Description: null,
                     HelpText: null,
-                    FieldSet: 1,
-                    Legend: 'Skatt',
+                    FieldSet: 2,
+                    Section: 0,
+                    Placeholder: null,
+                    Options: {
+                        format: 'Money',
+                        decimalLength: 2
+                    },
+                    LineBreak: null,
+                    Combo: null,
+                    Sectionheader: '',
+                    IsLookUp: false,
+                    Validations: [
+                        {
+                            ErrorMessage: 'Required field',
+                            Level: 3,
+                            Operator: 7 // required
+                        }
+                    ]
+                },
+                {
+                    ComponentLayoutID: 1,
+
+                    EntityType: 'EmployeeTaxCard',
+                    Property: 'ForeignCitizenInsuranceTable',
+                    Placement: 11,
+                    Hidden: false,
+                    FieldType: FieldType.TEXT,
+                    ReadOnly: false,
+                    LookupField: false,
+                    Label: 'Trygdeavgift utenlandsk borger tabell',
+                    Description: null,
+                    HelpText: null,
+                    FieldSet: 2,
                     Section: 0,
                     Placeholder: null,
                     Options: null,
                     LineBreak: null,
                     Combo: null,
-                    Sectionheader: null,
-                    IsLookUp: false
+                    IsLookUp: false,
+                    openByDefault: true,
+                    Validations: [
+                        {
+                            ErrorMessage: 'Required field',
+                            Level: 3,
+                            Operator: 7 // required
+                        }
+                    ]
+                },
+                {
+                    ComponentLayoutID: 1,
+
+                    EntityType: 'EmployeeTaxCard',
+                    Property: 'ForeignCitizenInsurancePercent',
+                    Placement: 12,
+                    Hidden: false,
+                    FieldType: FieldType.NUMERIC,
+                    ReadOnly: false,
+                    LookupField: false,
+                    Label: 'Trygdeavgift utenlandsk borger prosent',
+                    Description: null,
+                    HelpText: null,
+                    FieldSet: 2,
+                    Section: 0,
+                    Placeholder: null,
+                    Options: {
+                        format: 'Money',
+                        decimalLength: 2
+                    },
+                    LineBreak: null,
+                    Combo: null,
+                    Sectionheader: '',
+                    IsLookUp: false,
+                    Validations: [
+                        {
+                            ErrorMessage: 'Required field',
+                            Level: 3,
+                            Operator: 7 // required
+                        }
+                    ]
+                },
+                {
+                    ComponentLayoutID: 1,
+
+                    EntityType: 'EmployeeTaxCard',
+                    Property: 'ForeignBorderCommuterTable',
+                    Placement: 11,
+                    Hidden: false,
+                    FieldType: FieldType.TEXT,
+                    ReadOnly: false,
+                    LookupField: false,
+                    Label: 'Trygdeavgift utenlandsk borger grensegjenger tabell',
+                    Description: null,
+                    HelpText: null,
+                    FieldSet: 2,
+                    Section: 0,
+                    Placeholder: null,
+                    Options: null,
+                    LineBreak: null,
+                    Combo: null,
+                    IsLookUp: false,
+                    openByDefault: true,
+                    Validations: [
+                        {
+                            ErrorMessage: 'Required field',
+                            Level: 3,
+                            Operator: 7 // required
+                        }
+                    ]
+                },
+                {
+                    ComponentLayoutID: 1,
+
+                    EntityType: 'EmployeeTaxCard',
+                    Property: 'ForeignBorderCommuterPercent',
+                    Placement: 12,
+                    Hidden: false,
+                    FieldType: FieldType.NUMERIC,
+                    ReadOnly: false,
+                    LookupField: false,
+                    Label: 'Trygdeavgift utenlandsk borger grensegjenger prosent',
+                    Description: null,
+                    HelpText: null,
+                    FieldSet: 2,
+                    Section: 0,
+                    Placeholder: null,
+                    Options: {
+                        format: 'Money',
+                        decimalLength: 2
+                    },
+                    LineBreak: null,
+                    Combo: null,
+                    Sectionheader: '',
+                    IsLookUp: false,
+                    Validations: [
+                        {
+                            ErrorMessage: 'Required field',
+                            Level: 3,
+                            Operator: 7 // required
+                        }
+                    ]
                 }]
         }]);
     }

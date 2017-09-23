@@ -31,7 +31,7 @@ export class DepartmentList {
     }
 
     public createNew() {
-        this.router.navigateByUrl('/dimensions/departments/new');
+        this.router.navigateByUrl('/dimensions/departments/0');
     }
 
     public onRowSelected (event) {

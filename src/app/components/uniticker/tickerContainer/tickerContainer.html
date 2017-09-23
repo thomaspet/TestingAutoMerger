@@ -1,50 +1,36 @@
-<uni-ticker-filters-nav-bar
-    *ngIf="ticker && showFiltersAsNavbar"
+<uni-ticker-predefined-filters
+    *ngIf="ticker?.Filters"
+    [filtersAsNavbar]="filtersAsNavbar"
     [ticker]="ticker"
     [filters]="ticker.Filters"
-    [selectedFilter]="selectedFilter"
     [expressionFilters]="expressionFilters"
+    [selectedFilter]="selectedFilter"
     (filterSelected)="onFilterSelected($event)">
-</uni-ticker-filters-nav-bar>
+</uni-ticker-predefined-filters>
 
-<section *ngIf="ticker" class="ticket-container">
-    <uni-ticker-filters
-        *ngIf="showFilters"
-        (click)="setExpanded('filter', true)"
-        (close)="setExpanded('ticker')"
-        [ticker]="ticker"
-        [filters]="ticker.Filters"
-        [showPredefinedFilters]="!showFiltersAsNavbar"
-        [selectedFilter]="selectedFilter"
-        (filterSelected)="onFilterSelected($event)"
-        (filterChanged)="onFilterChanged($event)"
-        [expanded]="expanded === 'filter'"
-        [expressionFilters]="expressionFilters"
-        [class]="expanded === 'filter' ? 'expanded' : ''">
-    </uni-ticker-filters>
+<section *ngIf="ticker" class="ticker-container">
+
     <uni-ticker
-        (click)="setExpanded('ticker')"
-        (rowSelected)="onRowSelected($event)"
         [ticker]="ticker"
         [selectedFilter]="selectedFilter"
-        [expanded]="expanded === 'ticker'"
         [expressionFilters]="expressionFilters"
         [class.expanded]="expanded === 'ticker' "
         [class.nofilter]="!showFilters"
         [actionOverrides]="actionOverrides"
         [useUniTableFilter]="useUniTableFilter"
-        [columnOverrides]="columnOverrides">
+        [columnOverrides]="columnOverrides"
+        (rowSelected)="onRowSelected($event)">
     </uni-ticker>
+
     <uni-sub-ticker-container
-        *ngIf="showSubTickers && ticker.SubTickers && ticker.SubTickers.length > 0"
-        (click)="setExpanded('subticker', true)"
-        (close)="setExpanded('ticker')"
+        *ngIf="showSubTickers && ticker?.SubTickers?.length"
+        (close)="showSubTickers = false"
         [parentModel]="selectedRow"
         [parentTicker]="ticker"
         [subTickers]="ticker.SubTickers"
-        [expanded]="expanded === 'subticker'"
-        [class]="expanded === 'subticker' ? 'expanded' : ''"
+        [ngClass]="{'expanded': showSubTickers}"
         [actionOverrides]="actionOverrides"
         [columnOverrides]="columnOverrides">
     </uni-sub-ticker-container>
+
 </section>

@@ -32,7 +32,8 @@
             <uni-table
                 [resource]="transactionsLookupFunction"
                 [config]="uniTableConfigTransactions$ | async"
-                ></uni-table>
+                (cellClick)="onCellClick($event)">
+            </uni-table>
         </section>
     </section>
 </article>

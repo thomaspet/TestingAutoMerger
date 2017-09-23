@@ -24,7 +24,8 @@ import {
     templateUrl: './invoiceList2.html'
 })
 export class InvoiceList2 implements OnInit {
-    private actionOverrides: Array<ITickerActionOverride> = [
+    public tickercode: string = 'invoice_list';
+    public actionOverrides: Array<ITickerActionOverride> = [
         {
             Code: 'invoice_registerpayment',
             ExecuteActionHandler: (selectedRows) => this.onRegisterPayment(selectedRows),
@@ -49,13 +50,14 @@ export class InvoiceList2 implements OnInit {
         }
     ];
 
-
-    private columnOverrides: Array<ITickerColumnOverride> = [
+    public columnOverrides: Array<ITickerColumnOverride> = [
         {
             Field: 'StatusCode',
             Template: (dataItem) => {
-
-                let statusText: string = this.customerInvoiceService.getStatusText(dataItem.CustomerInvoiceStatusCode, dataItem.CustomerInvoiceInvoiceType);
+                let statusText: string = this.customerInvoiceService.getStatusText(
+                    dataItem.CustomerInvoiceStatusCode,
+                    dataItem.CustomerInvoiceInvoiceType
+                );
 
                 if (((dataItem.CustomerInvoiceTaxInclusiveAmount * -1) === dataItem.CustomerInvoiceCreditedAmount) &&
                         (dataItem.CustomerInvoiceCreditedAmount > 0 || dataItem.CustomerInvoiceCreditedAmount < 0 )) {
@@ -73,12 +75,11 @@ export class InvoiceList2 implements OnInit {
                 if (dataItem.CustomerInvoiceCollectorStatusCode === 42502) {
                     statusText = 'Inkasso';
                 }
+
                 return statusText;
             }
         }
     ];
-
-    private tickercode: string = 'invoice_list';
 
     private companySettings: CompanySettings;
     private baseCurrencyCode: string;
