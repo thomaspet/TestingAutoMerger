@@ -19,7 +19,7 @@ import {DomSanitizer} from '@angular/platform-browser';
 
 export class UniPrintModal implements IUniModal{
     @Input()
-    private options: IModalOptions = {};
+    public options: IModalOptions = {};
 
     @Output()
     public onClose: EventEmitter<boolean> = new EventEmitter();

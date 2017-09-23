@@ -326,12 +326,12 @@ export class UniImage {
                     return this.modalService.open(UniPrintModal, {data: {url: url}})
                         .onClose.subscribe(
                             () => {},
-                            err => this.errorService(err)
+                            err => this.errorService.handle(err)
                         );
                 }
                 return this.printImage(url);
             },
-            err => this.errorService(err)
+            err => this.errorService.handle(err)
         );
     }
 
