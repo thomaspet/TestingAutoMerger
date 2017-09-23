@@ -680,8 +680,7 @@ export class OrderDetails {
     }
 
     public addOrder() {
-        event.preventDefault();
-        this.router.navigateByUrl('/sales/orders/0').then(res => {
+            this.router.navigateByUrl('/sales/orders/0').then(res => {
             this.tofHead.focus();
         });
     }

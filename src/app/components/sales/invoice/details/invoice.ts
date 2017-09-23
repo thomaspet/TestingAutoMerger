@@ -1025,7 +1025,7 @@ export class InvoiceDetails {
                 prev: this.previousInvoice.bind(this),
                 next: this.nextInvoice.bind(this),
                 add: () => {
-                    event.preventDefault();
+                    
                     this.router.navigateByUrl('/sales/invoices/0').then(res => {
                         this.tofHead.focus();
                     });
