@@ -96,35 +96,48 @@
         },
         "Columns": [
             {
+                "FieldSetColumn": 1,
                 "Header": "Kundenr",
                 "Field": "Customer.CustomerNumber",
-                "Type": "text",
-                "Width": "120px"
-            },
-            {
-                "Header": "Navn",
-                "Field": "Info.Name",
-                "Width": "250px",
                 "Type": "link"
             },
             {
+                "FieldSetColumn": 1,
+                "Header": "Navn",
+                "Field": "Info.Name"
+            },
+            {
+                "FieldSetColumn": 1,
                 "Header": "Telefon",
                 "Field": "Info.DefaultPhone.Number"
             },
             {
+                "FieldSetColumn": 1,
                 "Header": "Epost",
                 "Field": "Info.DefaultEmail.EmailAddress",
                 "Type": "mailto"
             },
             {
+                "FieldSetColumn": 1,
                 "Header": "Web",
                 "Field": "WebUrl",
                 "Type": "external-link"
             },
             {
+                "FieldSetColumn": 1,
+                "Header": "Kredittdager",
+                "Field": "CreditDays"
+            },
+            {
+                "FieldSetColumn": 1,
+                "Header": "Foretrukket valuta",
+                "Field": "CurrencyCode.Code"
+            },
+            {
+                "FieldSetColumn": 2,
                 "Header": "Fakturaadresse",
                 "Field": "Info.InvoiceAddress.AddressLine1",
-                "Size": "medium",
+                "Type": "address",
                 "SubFields": [
                     {
                         "Field": "Info.InvoiceAddress.PostalCode"
@@ -135,9 +148,10 @@
                 ]
             },
             {
+                "FieldSetColumn": 2,
                 "Header": "Leveringsadresse",
                 "Field": "Info.ShippingAddress.AddressLine1",
-                "Size": "medium",
+                "Type": "address",
                 "SubFields": [
                     {
                         "Field": "Info.ShippingAddress.PostalCode"
@@ -146,14 +160,6 @@
                         "Field": "Info.ShippingAddress.City"
                     }
                 ]
-            },
-            {
-                "Header": "Kredittdager",
-                "Field": "CreditDays"
-            },
-            {
-                "Header": "Foretrukket valuta",
-                "Field": "CurrencyCode.Code"
             }
         ]
     }
