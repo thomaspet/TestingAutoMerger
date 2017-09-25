@@ -136,6 +136,7 @@
                 "Code": "open_invoice",
                 "Type": "details",
                 "DisplayInContextMenu": true,
+                "ExecuteWithoutSelection": true,
                 "DisplayInActionBar": false
             },
             {
@@ -699,6 +700,7 @@
                 "Code": "open_quote",
                 "Type": "details",
                 "DisplayInContextMenu": true,
+                "ExecuteWithoutSelection": true,
                 "DisplayInActionBar": false
             },
             {
@@ -1105,6 +1107,7 @@
                 "Code": "open_order",
                 "Type": "details",
                 "DisplayInContextMenu": true,
+                "ExecuteWithoutSelection": true,
                 "DisplayInActionBar": false
             },
             {

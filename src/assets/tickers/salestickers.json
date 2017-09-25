@@ -55,10 +55,11 @@
                 "Type": "new"
             },
             {
-                "Name": "Vis kunde",
+                "Name": "Åpne kunde",
                 "Code": "open_customer",
                 "Type": "details",
                 "DisplayInContextMenu": true,
+                "ExecuteWithoutSelection": true,
                 "DisplayInActionBar": true
             },
             {

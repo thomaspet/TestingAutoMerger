@@ -73,6 +73,7 @@ export class UniTicker {
     private canShowTicker: boolean = true;
 
     private contextMenuItems: any[];
+    private openAction: TickerAction;
 
     constructor(
         private uniHttpService: UniHttp,
@@ -143,7 +144,12 @@ export class UniTicker {
         this.checkCanShowTicker();
 
         if (this.canShowTicker && this.ticker) {
-            this.contextMenuItems = this.actionsToContextMenuItems();
+            let actions = this.getTickerActions();
+            this.contextMenuItems = this.actionsToContextMenuItems(actions);
+
+            this.openAction = actions && actions.find(action => {
+                return action.Type === 'details' && action.ExecuteWithoutSelection;
+            });
 
             // run this even if it is not a table, because it prepares the query as well.
             // Consider splitting this function to avoid this later
@@ -164,9 +170,8 @@ export class UniTicker {
         }
     }
 
-    public actionsToContextMenuItems() {
-        let actions = this.getTickerActions();
-        if (!actions) {
+    private actionsToContextMenuItems(actions) {
+        if (!actions || !actions.length) {
             return;
         }
 
@@ -374,42 +379,13 @@ export class UniTicker {
         }
 
         let rowIdentifier = 'ID';
-        if ((action.Type === 'details' || action.Type === 'print') && action.Options.ParameterProperty !== '') {
+        if ((action.Type === 'details' || action.Type === 'print') && action.Options.ParameterProperty) {
             rowIdentifier = action.Options.ParameterProperty;
         }
 
-        if (!allowNoRows && selectedRows.length === 0 && !this.selectedRow) {
-            if (this.unitable) {
-                let allRows: Array<any> = this.unitable.getTableData();
-                let hasMultipleIDs = false;
-                let lastID = null;
-
-                for (let i = 0; i < allRows.length && !hasMultipleIDs; i++) {
-                    let row = allRows[i];
-
-                    if (lastID && row[rowIdentifier] !== lastID) {
-                        hasMultipleIDs = true;
-                    }
-
-                    lastID = row[rowIdentifier];
-
-                    if (hasMultipleIDs) {
-                        alert(`Du må velge ${allowMultipleRows ? 'minst en' : 'en'} rad før du trykker ${action.Name}`);
-                        return;
-                    }
-                }
-
-                // we havent selected any rows, but all rows have the same identifier (normally ID, but this
-                // can be overridden), so we just create a simulated selectedRow and run the action - this will
-                // normally just occur if you only have one row in the table, or if we are using a list ticker
-                // as a subticker with filter for the identifier property
-                let selectedRow = {};
-                selectedRow[rowIdentifier] = lastID;
-                this.selectedRow = selectedRow;
-            } else {
-                alert(`Du må velge ${allowMultipleRows ? 'minst en' : 'en'} rad før du trykker ${action.Name}`);
-                return;
-            }
+        if (!allowNoRows && !selectedRows.length && !this.selectedRow) {
+            alert(`Du må velge ${allowMultipleRows ? 'minst en' : 'en'} rad før du trykker ${action.Name}`);
+            return;
         }
 
         if (!allowMultipleRows && selectedRows.length > 1) {
@@ -821,7 +797,7 @@ export class UniTicker {
                 this.tableConfig = new UniTableConfig(configStoreKey, false, true, 20)
                     .setAllowGroupFilter(true)
                     .setColumnMenuVisible(true)
-                    .setSearchable(this.useUniTableFilter)
+                    .setSearchable(true)
                     .setMultiRowSelect(false)
                     .setDataMapper((data) => {
                         if (this.ticker.Model) {
