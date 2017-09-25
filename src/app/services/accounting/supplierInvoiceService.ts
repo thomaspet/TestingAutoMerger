@@ -27,6 +27,7 @@ export class SupplierInvoiceService extends BizHttp<SupplierInvoice> {
 
     constructor(http: UniHttp, private errorService: ErrorService, private userService: UserService) {
         super(http);
+        super.disableCache();
 
         this.relativeURL = SupplierInvoice.RelativeUrl;
 

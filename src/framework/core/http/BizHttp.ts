@@ -20,6 +20,7 @@ interface IHttpCacheSettings {
 
 @Injectable()
 export class BizHttp<T> {
+    protected noCache: boolean;
     protected cacheStore: IHttpCacheStore<T> = {};
     protected cacheSettings: IHttpCacheSettings = {};
 
@@ -35,6 +36,10 @@ export class BizHttp<T> {
         this.http.authService
             .authentication$
             .subscribe(change => this.invalidateCache());
+    }
+
+    protected disableCache() {
+        this.noCache = true;
     }
 
     /**
@@ -58,6 +63,10 @@ export class BizHttp<T> {
     }
 
     protected getFromCache(hash: number): Observable<any> {
+        if (this.noCache) {
+            return;
+        }
+
         const entry = this.cacheStore[hash];
         if (entry) {
             // Verify that the entry is not timed out
@@ -70,6 +79,10 @@ export class BizHttp<T> {
     }
 
     protected storeInCache(hash: number, requestObservable: Observable<T|T[]>, withTimeout: boolean = true) {
+        if (this.noCache) {
+            return;
+        }
+
         // Delete first entry if store is full
         let keys = Object.keys(this.cacheStore);
 
