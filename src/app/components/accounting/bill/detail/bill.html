@@ -49,8 +49,7 @@
                 [fileIDs]="startUpFileID"
                 (fileListReady)="onFileListReady($event)"
                 (imageClicked)="onImageClicked($event)"
-                (imageDeleted)="onImageDeleted($event)"
-                (thumbnailImageClicked)="onThumbnailImageClicked($event)">
+                (imageDeleted)="onImageDeleted($event)">
             </uni-image>
         </div>
 
@@ -61,8 +60,7 @@
             [entityID]="(current | async)?.ID"
             (fileListReady)="onFileListReady($event)"
             (imageDeleted)="onImageDeleted($event)"
-            (imageClicked)="onImageClicked($event)"
-            (thumbnailImageClicked)="onThumbnailImageClicked($event)">
+            (imageClicked)="onImageClicked($event)">
         </uni-image>
     </fieldset>
 

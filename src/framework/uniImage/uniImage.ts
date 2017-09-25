@@ -141,9 +141,6 @@ export class UniImage {
     @Output()
     public imageClicked: EventEmitter<File> = new EventEmitter<File>();
 
-    @Output()
-    public thumbnailImageClicked: EventEmitter<File> = new EventEmitter<File>();
-
     public imageIsLoading: boolean = true;
 
     private baseUrl: string = AppConfig.BASE_URL_FILES;
@@ -290,8 +287,6 @@ export class UniImage {
         if (this.currentFileIndex !== index) {
             this.currentFileIndex = index;
             this.loadImage();
-
-            this.thumbnailImageClicked.emit(this.files[index]);
         }
     }
 

@@ -92,7 +92,6 @@ export class BillView {
     public currentSupplierID: number = 0;
     public collapseSimpleJournal: boolean = false;
     public hasUnsavedChanges: boolean = false;
-    public currentFile: any;
     public hasStartupFileID: boolean = false;
     public historyCount: number = 0;
     public ocrData: any;
@@ -619,10 +618,6 @@ export class BillView {
         this.files = this.files.filter(x => file !== x)
     }
 
-    public onThumbnailImageClicked(file: any) {
-        this.currentFile = file;
-    }
-
     public onFileListReady(files: Array<any>) {
         let current = this.current.value;
         this.files = files;
@@ -827,7 +822,7 @@ export class BillView {
 
     public onFocusEvent(event) {
 
-        if (!this.currentFile || !this.ocrData) { return; }
+        if (!this.uniImage.getCurrentFile() || !this.ocrData) { return; }
 
         this.uniImage.removeHighlight();
 
@@ -1053,7 +1048,6 @@ export class BillView {
         this.flagActionBar(actionBar.delete, false);
         this.supplierIsReadOnly = false;
         this.hasUnsavedChanges = false;
-        this.currentFile = {};
         this.unlinkedFiles = [];
         this.files = undefined;
         this.setHistoryCounter(0);
@@ -1536,7 +1530,6 @@ export class BillView {
 
     private fetchInvoice(id: number | string, flagBusy: boolean): Promise<any> {
         if (flagBusy) { this.busy = true; }
-        this.currentFile = {};
         this.files = undefined;
         this.setHistoryCounter(0);
         return new Promise((resolve, reject) => {
@@ -1694,7 +1687,6 @@ export class BillView {
                 if (this.unlinkedFiles.length > 0) {
                     this.linkFiles(this.currentSupplierID, this.unlinkedFiles, 'SupplierInvoice', 40001).then(() => {
                         this.hasStartupFileID = false;
-                        this.currentFile = {};
                         this.unlinkedFiles = [];
                         reload();
                     });
@@ -2046,7 +2038,6 @@ export class BillView {
     private loadFromFileID(fileID: number | string) {
         this.hasStartupFileID = true;
         this.startUpFileID = [safeInt(fileID)];
-        this.currentFile.ID = safeInt(fileID);
     }
 
     private linkFiles(ID: any, fileIDs: Array<any>, entityType: string, flagFileStatus?: any): Promise<any> {
