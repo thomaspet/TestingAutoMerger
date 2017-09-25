@@ -31,7 +31,6 @@ export class UniTickerContainer {
     @Input() public showActions: boolean;
     @Input() public showFilters: boolean = true;
     @Input() public filtersAsNavbar: boolean;
-    @Input() public useUniTableFilter: boolean = false;
     @Input() public actionOverrides: Array<ITickerActionOverride> = [];
     @Input() public columnOverrides: Array<ITickerColumnOverride> = [];
 

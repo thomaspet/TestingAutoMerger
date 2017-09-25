@@ -49,7 +49,6 @@ const PAPERCLIP = '📎'; // It might look empty in your editor, but this is the
 export class UniTicker {
     @Input() public ticker: Ticker;
     @Input() public parentModel: any;
-    @Input() public useUniTableFilter: boolean = false;
     @Input() public selectedFilter: TickerFilter;
     @Input() public parentTicker: Ticker;
     @Input() public expressionFilters: Array<IExpressionFilterValue> = [];
