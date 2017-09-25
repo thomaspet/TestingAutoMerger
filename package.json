@@ -59,6 +59,7 @@
     "@types/jquery": "2.0.47",
     "@types/lodash": "4.14.49",
     "@types/node": "^6.0.38",
+    "@types/handlebars": "4.0.33",
     "add-asset-html-webpack-plugin": "^1.0.2",
     "angular-router-loader": "~0.5.0",
     "angular2-template-loader": "^0.6.0",
