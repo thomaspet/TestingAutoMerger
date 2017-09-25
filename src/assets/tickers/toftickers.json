@@ -1314,36 +1314,31 @@
         },
         "Columns": [
             {
+                "FieldSetColumn": 1,
                 "Header": "Ordrenr",
                 "Field": "OrderNumber",
-                "Type": "text"
+                "Type": "link"
             },
             {
+                "FieldSetColumn": 1,
+                "Header": "Status",
+                "Field": "StatusCode"
+            },
+            {
+                "FieldSetColumn": 1,
+                "Header": "Kundenummer",
+                "Field": "Customer.CustomerNumber"
+            },
+            {
+                "FieldSetColumn": 1,
                 "Header": "Kundenavn",
-                "Field": "Customer.CustomerNumber",
-                "Size": "medium",
-                "Type": "link",
-                "SubFields": [
-                    {
-                        "Field": "Customer.Info.Name"
-                    }
-                ],
-                "ExternalModel": "Customer",
-                "LinkNavigationProperty": "Customer.ID"
+                "Field": "Customer.Info.Name"
             },
             {
-                "Header": "Ordredato",
-                "Field": "OrderDate",
-                "Format": "DatePassed"
-            },
-            {
-                "Header": "Vår referanse",
-                "Field": "OurReference"
-            },
-            {
+                "FieldSetColumn": 1,
                 "Header": "Fakturaadresse",
+                "Type": "address",
                 "Field": "InvoiceAddressLine1",
-                "Size": "medium",
                 "SubFields": [
                     {
                         "Field": "InvoicePostalCode"
@@ -1354,9 +1349,10 @@
                 ]
             },
             {
+                "FieldSetColumn": 1,
                 "Header": "Leveringsadresse",
+                "Type": "address",
                 "Field": "ShippingAddressLine1",
-                "Size": "medium",
                 "SubFields": [
                     {
                         "Field": "ShippingPostalCode"
@@ -1367,25 +1363,36 @@
                 ]
             },
             {
-                "Header": "Deres ref",
-                "Field": "YourReference"
+                "FieldSetColumn": 2,
+                "Header": "Ordredato",
+                "Field": "OrderDate",
+                "Format": "DatePassed"
             },
             {
-                "Header": "Valuta",
-                "Field": "CurrencyCode.Code"
-            },
-            {
+                "FieldSetColumn": 2,
                 "Header": "Sum inkl mva",
                 "Field": "TaxInclusiveAmountCurrency"
             },
             {
+                "FieldSetColumn": 2,
+                "Header": "Valuta",
+                "Field": "CurrencyCode.Code"
+            },
+            {
+                "FieldSetColumn": 2,
+                "Header": "Vår referanse",
+                "Field": "OurReference"
+            },
+            {
+                "FieldSetColumn": 2,
+                "Header": "Deres referanse",
+                "Field": "YourReference"
+            },
+            {
+                "FieldSetColumn": 2,
                 "Header": "Kommentar",
                 "Field": "Comment",
                 "Size": "medium"
-            },
-            {
-                "Header": "Status",
-                "Field": "StatusCode"
             }
         ]
     }
