@@ -37,6 +37,8 @@ export class UniTickerDetailView {
 
     private setValuesOnFields(fields: TickerColumn[]): TickerColumn[] {
         return fields.map(field => {
+            field['_class'] = '';
+
             let value: string = this.tickerService.getFieldValue(
                 field,
                 this.model,
@@ -49,7 +51,7 @@ export class UniTickerDetailView {
                 value = valueParts.shift() + '<br>' + valueParts.join(' ');
             }
 
-            if (field.Format === 'DatePassed') {
+            if (field.Format === 'DatePassed' && value) {
                 let date = _.get(this.model, (field.Alias || field.Field));
                 field['_class'] = moment(date).isAfter(moment())
                     ? 'date-good'
