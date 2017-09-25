@@ -51,6 +51,7 @@ import {BillView} from './bill/detail/bill';
 import {BillSimpleJournalEntryView, AccountPipe, VatCodePipe, TrimTextPipe} from './bill/detail/journal/simple';
 import {BillHistoryView} from './bill/detail/history/history';
 import {UniAssignModal} from './bill/detail/assignmodal';
+import {UniAddFileModal} from './bill/detail/addFileModal';
 import {MyStringFilterPipe} from './bill/detail/assignmodal';
 import {UniApproveModal} from './bill/detail/approvemodal';
 import {AccountSettings} from './accountSettings/accountSettings';
@@ -112,7 +113,7 @@ import {SupplierList} from './supplier/list/supplierList';
         BillSimpleJournalEntryView, BillHistoryView,
         AccountPipe, VatCodePipe, TrimTextPipe,
         SelectJournalEntryLineModal, SelectJournalEntryLineTable,
-        UniAssignModal, UniApproveModal,MyStringFilterPipe,
+        UniAssignModal, UniApproveModal,MyStringFilterPipe,UniAddFileModal,
 
         // vatreport
         CheckListVat,
@@ -152,7 +153,8 @@ import {SupplierList} from './supplier/list/supplierList';
         SelectJournalEntryLineTable,
         NewAccountForm,
         UniAssignModal,
-        UniApproveModal
+        UniApproveModal,
+        UniAddFileModal
     ],
     exports: [
         AccountSettings,

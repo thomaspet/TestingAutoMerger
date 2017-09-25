@@ -24,6 +24,7 @@ import {UniImageSize, UniImage} from '../../../../../framework/uniImage/uniImage
 import {IUniSearchConfig} from '../../../../../framework/ui/unisearch/index';
 import {UniAssignModal, AssignDetails} from './assignmodal';
 import {UniApproveModal, ApprovalDetails} from './approvemodal';
+import {UniAddFileModal} from './addFileModal';
 import {UniMath} from '../../../../../framework/core/uniMath';
 import {CommentService} from '../../../../../framework/comments/commentService';
 import {NumberSeriesTaskIds} from '../../../../models/models';
@@ -1223,6 +1224,15 @@ export class BillView {
             });
     }
 
+    public openAddFileModal() {
+        this.modalService.open(UniAddFileModal).onClose.subscribe((element) => {
+            if (element) {
+                this.fileIds = [safeInt(element.ID)];
+                this.currentFileID = safeInt(element.ID);
+            }
+        });
+    }
+
     private handleActionAfterCheckSave(key: string, label: string, href: string, done: any): boolean {
         let current = this.current.getValue();
         switch (key) {
@@ -1687,36 +1697,69 @@ export class BillView {
 
             var obs: any;
             let current = this.current.getValue();
-            if (current.ID) {
-                obs = this.supplierInvoiceService.Put(current.ID, current);
-            } else {
-                obs = this.supplierInvoiceService.Post(current);
-            }
-            obs.subscribe((result) => {
-                this.currentSupplierID = result.ID;
-                this.hasUnsavedChanges = false;
-                this.commentsConfig.entityID = result.ID;
-                if (this.unlinkedFiles.length > 0) {
-                    this.linkFiles(this.currentSupplierID, this.unlinkedFiles, 'SupplierInvoice', 40001).then(() => {
-                        this.hasStartupFileID = false;
-                        this.currentFileID = 0;
-                        this.unlinkedFiles = [];
+
+            let saveFunc = () => {
+                if (current.ID) {
+                    obs = this.supplierInvoiceService.Put(current.ID, current);
+                } else {
+                    obs = this.supplierInvoiceService.Post(current);
+                }
+                obs.subscribe((result) => {
+                    this.currentSupplierID = result.ID;
+                    this.hasUnsavedChanges = false;
+                    this.commentsConfig.entityID = result.ID;
+                    if (this.unlinkedFiles.length > 0) {
+                        this.linkFiles(this.currentSupplierID, this.unlinkedFiles, 'SupplierInvoice', 40001).then(() => {
+                            this.hasStartupFileID = false;
+                            this.currentFileID = 0;
+                            this.unlinkedFiles = [];
+                            reload();
+                        });
+                    } else {
                         reload();
-                    });
-                } else {
-                    reload();
-                }
-            }, (error) => {
-                var msg = error.statusText;
-                if (error._body) {
-                    msg = trimLength(error._body, 150, true);
-                    this.showErrMsg(msg, true);
-                } else {
-                    this.userMsg(lang.save_error);
-                }
-                if (done) { done(lang.save_error + ': ' + msg); }
-                reject({ success: false, errorMessage: msg });
-            });
+                    }
+                }, (error) => {
+                    var msg = error.statusText;
+                    if (error._body) {
+                        msg = trimLength(error._body, 150, true);
+                        this.showErrMsg(msg, true);
+                    } else {
+                        this.userMsg(lang.save_error);
+                    }
+                    if (done) { done(lang.save_error + ': ' + msg); }
+                    reject({ success: false, errorMessage: msg });
+                });
+            };
+
+            if (current.ID) {
+                saveFunc();
+            } else {
+                // Query to see if invoiceID/supplierID combo has been used before
+                this.supplierInvoiceService.checkInvoiceData(current.InvoiceNumber, current.SupplierID).subscribe((data: any) => {
+                    if (data && data.Data && data.Data[0].countid > 0) {
+                        this.modalService.open(UniConfirmModalV2,
+                            {
+                                buttonLabels: {
+                                    accept: 'Fortsett',
+                                    cancel: 'Avbryt'
+                                },
+                                header: 'Vil du lagre? ',
+                                message: 'En faktura med dette fakturanr og samme leverandør er allerede lagret. Er  du sikker på at du vil fortsette?'
+                            }).onClose.subscribe((res) => {
+                                if (res === ConfirmActions.ACCEPT) {
+                                    saveFunc();
+                                } else {
+                                    resolve({ success: false });
+                                    if (done) {
+                                        done('Lagring avbrutt');
+                                    }
+                                }
+                            });
+                    } else {
+                        saveFunc();
+                    }
+                });
+            }
         });
     }
 

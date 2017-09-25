@@ -45,7 +45,7 @@
 
         <div *ngIf="!(current | async)?.ID">
             <uni-image
-                [singleImage]="true"
+                [singleImage]="false"
                 [uploadWithoutEntity]="true"
                 [fileIDs]="fileIds"
                 (fileListReady)="onFileListReady($event)"
@@ -61,6 +61,7 @@
             (fileListReady)="onFileListReady($event)"
             (imageClicked)="onImageClicked($event)" >
         </uni-image>
+        <button class="document_from_flow_button" (click)="openAddFileModal()"> Hent dokument fra flyt</button>
     </fieldset>
 
     <fieldset [hidden]="!tabs[4].isSelected">

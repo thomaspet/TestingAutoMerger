@@ -198,6 +198,15 @@ export class SupplierInvoiceService extends BizHttp<SupplierInvoice> {
         .map(response => response.json());
     }
 
+    public checkInvoiceData(invoiceNumber: any, supplierID: number) {
+        return this.http.asGET()
+        .usingStatisticsDomain()
+        .withEndPoint("?model=SupplierInvoice&filter=InvoiceNumber eq '"
+        + invoiceNumber + "' and SupplierID eq '" + supplierID + "'")
+        .send()
+        .map(response => response.json());
+    }
+
     private selectBuilder(...args: any[]): string {
         var select = '';
         var alias = '', item = '';
