@@ -60,46 +60,49 @@ uni-ticker
 
 
 uni-ticker-detail-view
-    font-size: .8rem
     margin-bottom: 1rem
     width: 100%
 
-    section
+    *
+        box-sizing: border-box
+
+    .ticker-detail-container
         display: flex
         flex-wrap: wrap
         width: 100%
 
-    .ticker-field
-        background-color: white
-        height: 3rem
-        float: left
-        padding: .5rem 1rem
-        margin-left: pxToRem(2)
-        margin-bottom: pxToRem(2)
-        flex-grow: 1
+    .ticker-fieldset-column
+        flex: 1 0 50%
 
-        label
+        .ticker-field
             display: block
-            font-weight: 600
+            width: 100%
+            padding: .25rem 1rem
 
-        div
-            font-weight: 300
-            white-space: nowrap
-            overflow: hidden
-            text-overflow: ellipsis
+            label
+                display: inline-block
+                float: left
+                width: 8rem
+                font-weight: 600
 
-        &.small
-            flex-basis: 20%
+            span
+                display: inline-block
+                min-height: 1.5rem
+                width: calc(100% - 8.5rem)
+                padding: 0 1rem
+                background: mix($uni-color-negative, $uni-color-c2a, 98%)
+                border-radius: pxToRem(3)
 
-        &.medium
-            flex-basis: 40%
+                &.date-good
+                    background: mix($uni-color-negative, $uni-color-good, 60%)
+                &.date-bad
+                    background: mix($uni-color-negative, $uni-color-bad, 60%)
 
 uni-sub-ticker-container
     .sub-ticker-container
         display: inline-block
         width: 100%
         font-weight: 300
-        // margin-top: 2.25rem
         margin-left: 0
         background-color: #d4dfee
         overflow-y: visible

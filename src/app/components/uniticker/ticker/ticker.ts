@@ -674,11 +674,11 @@ export class UniTicker {
                                     );
                                     break;
                                 case 'DatePassed':
-                                    col.setConditionalCls(row =>
-                                        moment(row[field.Alias]).isBefore(moment()) ?
-                                            'date-bad'
-                                            : 'date-good'
-                                    );
+                                    col.setConditionalCls(row => {
+                                        return moment(row[field.Alias]).isBefore(moment())
+                                            ? 'date-bad'
+                                            : 'date-good';
+                                    });
                                     break;
                                 case 'json':
                                     col.setTemplate(row => JSON.stringify(row));
