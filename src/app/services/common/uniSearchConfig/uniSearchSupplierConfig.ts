@@ -44,12 +44,12 @@ export class UniSearchSupplierConfig {
                 .statisticsService
                 .GetAllUnwrapped(this.generateSupplierStatisticsQuery(searchTerm))
                 .catch((err, obs) => this.errorService.handleRxCatch(err, obs)),
-            expandOrCreateFn: (newOrExistingItem: CustomStatisticsResultItem) => {
-                if (newOrExistingItem.ID) {
-                    return this.supplierService.Get(newOrExistingItem.ID, expands)
+            onSelect: (selectedItem: CustomStatisticsResultItem) => {
+                if (selectedItem.ID) {
+                    return this.supplierService.Get(selectedItem.ID, expands)
                         .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
                 } else {
-                    return this.supplierService.Post(this.customStatisticsObjToSupplier(newOrExistingItem))
+                    return this.supplierService.Post(this.customStatisticsObjToSupplier(selectedItem))
                         .switchMap(item => this.supplierService.Get(item.ID, expands))
                         .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
                 }

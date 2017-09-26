@@ -42,12 +42,12 @@ export class UniSearchEmployeeConfig {
                 .statisticsService
                 .GetAllUnwrapped(this.generateEmployeeStatisticsQuery(searchTerm))
                 .catch((err, obs) => this.errorService.handleRxCatch(err, obs)),
-            expandOrCreateFn: (newOrExistingItem: CustomStatisticsResultItem) => {
-                if (newOrExistingItem.ID) {
-                    return this.employeeService.Get(newOrExistingItem.ID, expands)
+            onSelect: (selectedItem: CustomStatisticsResultItem) => {
+                if (selectedItem.ID) {
+                    return this.employeeService.Get(selectedItem.ID, expands)
                         .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
                 } else {
-                    return this.employeeService.Post(this.customStatisticsObjToEmployee(newOrExistingItem))
+                    return this.employeeService.Post(this.customStatisticsObjToEmployee(selectedItem))
                         .switchMap(item => this.employeeService.Get(item.ID, expands))
                         .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
                 }

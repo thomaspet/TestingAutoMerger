@@ -403,15 +403,15 @@ export class PersonalDetails extends UniView {
                 });
         };
 
-        uniSearchConfig.expandOrCreateFn = (newOrExistingItem: any) => {
-            if (newOrExistingItem.ID) {
+        uniSearchConfig.onSelect = (selectedItem: any) => {
+            if (selectedItem.ID) {
                 // If an existing employee is selected, navigate to that employee instead
                 // of populating the fields for a new employee
-                this.router.navigateByUrl(`/salary/employees/${newOrExistingItem.ID}`);
+                this.router.navigateByUrl(`/salary/employees/${selectedItem.ID}`);
                 return Observable.empty();
             } else {
                 let employeeData = this.uniSearchEmployeeConfig
-                    .customStatisticsObjToEmployee(newOrExistingItem);
+                    .customStatisticsObjToEmployee(selectedItem);
 
                 return Observable.from([employeeData]);
             }

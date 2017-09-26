@@ -842,15 +842,15 @@ export class CustomerDetails {
                 return customer;
             });
 
-        uniSearchConfig.expandOrCreateFn = (newOrExistingItem: any) => {
-            if (newOrExistingItem.ID) {
+        uniSearchConfig.onSelect = (selectedItem: any) => {
+            if (selectedItem.ID) {
                 // If an existing customer is selected, navigate to that customer instead
                 // of populating the fields for a new customer
-                this.router.navigateByUrl(`/sales/customer/${newOrExistingItem.ID}`);
+                this.router.navigateByUrl(`/sales/customer/${selectedItem.ID}`);
                 return Observable.empty();
             } else {
                 let customerData = this.uniSearchCustomerConfig
-                            .customStatisticsObjToCustomer(newOrExistingItem);
+                            .customStatisticsObjToCustomer(selectedItem);
 
                 return Observable.from([customerData]);
             }

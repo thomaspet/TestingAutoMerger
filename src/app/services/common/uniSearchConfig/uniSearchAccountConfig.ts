@@ -51,12 +51,12 @@ export class UniSearchAccountConfig {
                 .statisticsService
                 .GetAllUnwrapped(this.generateAccountsStatisticsQuery(searchTerm, all))
                 .catch((err, obs) => this.errorService.handleRxCatch(err, obs)),
-            expandOrCreateFn: (newOrExistingItem: CustomStatisticsResultItem) => {
-                if (newOrExistingItem.ID) {
-                    return this.accountService.Get(newOrExistingItem.ID, expands)
+            onSelect: (selectedItem: CustomStatisticsResultItem) => {
+                if (selectedItem.ID) {
+                    return this.accountService.Get(selectedItem.ID, expands)
                         .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
                 } else {
-                    return this.accountService.Post(this.customStatisticsObjToAccount(newOrExistingItem))
+                    return this.accountService.Post(this.customStatisticsObjToAccount(selectedItem))
                         .switchMap(item => this.accountService.Get(item.ID, expands))
                         .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
                 }
@@ -86,17 +86,17 @@ export class UniSearchAccountConfig {
             lookupFn: searchTerm => this.statisticsService
                 .GetAllUnwrapped(this.generate17XXAccountsStatisticsQuery(searchTerm, all))
                 .catch((err, obs) => this.errorService.handleRxCatch(err, obs)),
-            expandOrCreateFn: (newOrExistingItem: CustomStatisticsResultItem) => {
+            onSelect: (selectedItem: CustomStatisticsResultItem) => {
                 // saving to localStorage to have last selected search be stored and used in accrualModal
                 // to get initial data in that field
-                if(newOrExistingItem.ID && newOrExistingItem.AccountNumber) {
-                    this.browserStorageService.save('BalanceAccountID', JSON.stringify(newOrExistingItem.ID));
+                if(selectedItem.ID && selectedItem.AccountNumber) {
+                    this.browserStorageService.save('BalanceAccountID', JSON.stringify(selectedItem.ID));
                 }
-                if (newOrExistingItem.ID) {
-                    return this.accountService.Get(newOrExistingItem.ID, expands)
+                if (selectedItem.ID) {
+                    return this.accountService.Get(selectedItem.ID, expands)
                         .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
                 } else {
-                    return this.accountService.Post(this.customStatisticsObjToAccount(newOrExistingItem))
+                    return this.accountService.Post(this.customStatisticsObjToAccount(selectedItem))
                         .switchMap(item => this.accountService.Get(item.ID, expands))
                         .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
                 }

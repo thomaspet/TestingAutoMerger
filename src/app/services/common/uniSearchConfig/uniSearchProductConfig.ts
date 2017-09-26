@@ -34,11 +34,11 @@ export class UniSearchProductConfig {
             lookupFn: searchTerm => this.statisticsService
                 .GetAllUnwrapped(this.generateProductStatisticsQuery(searchTerm, all))
                 .catch((err, obs) => this.errorService.handleRxCatch(err, obs)),
-            expandOrCreateFn: (newOrExistingItem: CustomStatisticsResultItem) => {
-                if(newOrExistingItem.ID) {
-                    return this.productService.Get(newOrExistingItem.ID);
+            onSelect: (selectedItem: CustomStatisticsResultItem) => {
+                if(selectedItem.ID) {
+                    return this.productService.Get(selectedItem.ID);
                 }
-                return this.productService.Post(newOrExistingItem);
+                return this.productService.Post(selectedItem);
             },
             initialItem$: new BehaviorSubject(null),
             tableHeader: ['Produkt delnavn', 'Produkt navn'],

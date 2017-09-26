@@ -751,15 +751,15 @@ export class SupplierDetails implements OnInit {
                 return Observable.from([supplier]);
             });
 
-        uniSearchConfig.expandOrCreateFn = (newOrExistingItem: any) => {
-            if (newOrExistingItem.ID) {
+        uniSearchConfig.onSelect = (selectedItem: any) => {
+            if (selectedItem.ID) {
                 // If an existing supplier is selected, navigate to that supplier instead
                 // of populating the fields for a new supplier
-                this.router.navigateByUrl(`/accounting/suppliers/${newOrExistingItem.ID}`);
+                this.router.navigateByUrl(`/accounting/suppliers/${selectedItem.ID}`);
                 return Observable.empty();
             } else {
                 let supplierData = this.uniSearchSupplierConfig
-                            .customStatisticsObjToSupplier(newOrExistingItem);
+                            .customStatisticsObjToSupplier(selectedItem);
 
                 return Observable.from([supplierData]);
             }

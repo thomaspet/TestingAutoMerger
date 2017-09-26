@@ -105,7 +105,7 @@ export class UniSearchWrapper extends BaseControl implements OnInit, AfterViewIn
                         this.field.Options.uniSearchConfig.initialItem$.next(source);
                     });
                 } else if (value && this.field.Property.endsWith('ID')) {
-                    this.field.Options.uniSearchConfig.expandOrCreateFn({ID: value})
+                    this.field.Options.uniSearchConfig.onSelect({ID: value})
                         .subscribe(expandedModel => {
                             this.field.Options.uniSearchConfig.initialItem$.next(expandedModel);
                             this.previousModelValue = this.field.Options.valueProperty

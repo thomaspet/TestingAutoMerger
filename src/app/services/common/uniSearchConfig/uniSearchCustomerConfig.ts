@@ -44,12 +44,12 @@ export class UniSearchCustomerConfig {
                 .statisticsService
                 .GetAllUnwrapped(this.generateCustomerStatisticsQuery(searchTerm))
                 .catch((err, obs) => this.errorService.handleRxCatch(err, obs)),
-            expandOrCreateFn: (newOrExistingItem: CustomStatisticsResultItem) => {
-                if (newOrExistingItem.ID) {
-                    return this.customerService.Get(newOrExistingItem.ID, expands)
+            onSelect: (selectedItem: CustomStatisticsResultItem) => {
+                if (selectedItem.ID) {
+                    return this.customerService.Get(selectedItem.ID, expands)
                         .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
                 } else {
-                    return this.customerService.Post(this.customStatisticsObjToCustomer(newOrExistingItem))
+                    return this.customerService.Post(this.customStatisticsObjToCustomer(selectedItem))
                         .switchMap(item => this.customerService.Get(item.ID, expands))
                         .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
                 }
@@ -179,7 +179,7 @@ export class UniSearchCustomerConfig {
                         )
                     )
                     .catch((err, obs) => this.errorService.handleRxCatch(err, obs)),
-            expandOrCreateFn: (item: CustomStatisticsResultItem) => Observable.of(item),
+            onSelect: (item: CustomStatisticsResultItem) => Observable.of(item),
             initialItem$: new BehaviorSubject(null),
             tableHeader: ['Navn', 'Tlf', 'Adresse', 'Poststed', 'Org.Nr'],
             rowTemplateFn: item => [

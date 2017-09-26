@@ -154,7 +154,7 @@ export class UniSearchAttr implements OnInit, OnChanges {
         this.initialDisplayValue = this.componentElement.nativeElement.value;
         if (item) {
             this.goBusy();
-            this.config.expandOrCreateFn(item)
+            this.config.onSelect(item)
                 .do(() => this.changeDetector.markForCheck())
                 .do(() => this.goBusy(false))
                 .subscribe(expandedItem => {
@@ -183,7 +183,7 @@ export class UniSearchAttr implements OnInit, OnChanges {
         this.closeSearchResult();
         this.config.newItemModalFn()
             .do(() => this.goBusy())
-            .switchMap(item => this.config.expandOrCreateFn(item))
+            .switchMap(item => this.config.onSelect(item))
             .subscribe(expandedItem => {
                 this.componentElement.nativeElement.value = this.inputTemplate(expandedItem);
                 this.changeEvent.next(expandedItem);
