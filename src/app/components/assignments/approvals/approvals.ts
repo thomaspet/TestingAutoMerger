@@ -141,7 +141,7 @@ export class UniApprovals {
                 }
             }).onClose.subscribe((res: any) => {
                 if (res && res.message) {
-                    this.addComment(approval.Task.Model.Label, approval.Task.EntityID, res.message);
+                    this.addComment(approval.Task.Model.Name, approval.Task.EntityID, res.message);
                 }
                 this.loadApprovals();
 

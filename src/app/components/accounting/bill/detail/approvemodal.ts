@@ -213,9 +213,6 @@ export class UniApproveModal implements IUniModal {
     private reject(): Promise<boolean> {
         this.goBusy(true);
         return new Promise<boolean>( (resolve, reject) => {
-            var msg = `${this.comment} : ${this.myUser.DisplayName}`;
-            this.supplierInvoiceService.send(`comments/supplierinvoice/${this.invoice.ID}`, undefined, 'POST', { Text: msg })
-                .subscribe( commentResult => {} );
             this.supplierInvoiceService.send(`approvals/${this.myApproval.ID}?action=reject`)
                 .finally( () => this.goBusy(false) )
                 .subscribe( result => {
