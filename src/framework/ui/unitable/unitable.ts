@@ -120,7 +120,6 @@ enum Direction { UP, DOWN, LEFT, RIGHT }
                     [columns]="tableColumns"
                     [rowModel]="row"
                     [config]="config"
-                    (rowModelChange)="onRowChange($event)"
                     (rowDeleted)="onDeleteRow($event)"
                     (cellFocused)="onCellFocused($event)"
                     (cellClicked)="onCellClicked($event)"
@@ -267,10 +266,6 @@ export class UniTable implements OnChanges {
 
             this.lastFocusPosition = undefined;
         }
-    }
-
-    public removeSelection() {
-        this.lastFocusPosition = undefined;
     }
 
     // Event hooks
@@ -527,24 +522,24 @@ export class UniTable implements OnChanges {
         this.filterAndSortTable();
     }
 
-    private onFiltersChange(event) {
+    public onFiltersChange(event) {
         this.basicSearchFilters = event.basicSearchFilters;
         this.advancedSearchFilters = event.advancedSearchFilters;
-
+        this.lastFocusPosition = undefined;
         this.filterAndSortTable(true);
     }
 
-    private onFilterInputUpOrDownArrows(event: KeyboardEvent) {
+    public onFilterInputUpOrDownArrows(event: KeyboardEvent) {
         const key = (event.keyCode || event.which);
         if (key === KeyCodes.UP_ARROW) {
-            this.moveUpOrDownReadonly(Direction.UP)
+            this.moveUpOrDownReadonly(Direction.UP);
         } else if (key === KeyCodes.DOWN_ARROW) {
-            this.moveUpOrDownReadonly(Direction.DOWN)
+            this.moveUpOrDownReadonly(Direction.DOWN);
         }
     }
 
 
-    private onPageChange(page) {
+    public onPageChange(page) {
         this.skip = this.config.pageSize * (page - 1);
 
         if (this.remoteData) {
@@ -768,7 +763,6 @@ export class UniTable implements OnChanges {
             // after data is filtered, emit event to notify parent that the data has changed
             setTimeout(() => {
                 this.dataLoaded.emit();
-                this.removeSelection();
             });
 
             if (!this.remoteData) {
@@ -847,7 +841,6 @@ export class UniTable implements OnChanges {
                     // after data is filtered, emit event to notify parent that the data has changed
                     setTimeout(() => {
                         this.dataLoaded.emit();
-                        this.removeSelection();
                     });
 
                     if (this.config.editable && this.lastFocusPosition) {
