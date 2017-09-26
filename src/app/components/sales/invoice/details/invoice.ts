@@ -336,6 +336,11 @@ export class InvoiceDetails {
     }
 
     private ehfReadyUpdateSaveActions() {
+        if (!this.invoice || !!!this.invoice.Customer) {
+            this.ehfEnabled = false
+            return;
+        }
+
         // Possible to receive EHF for this customer?
         let peppoladdress = this.invoice.Customer.PeppolAddress ? this.invoice.Customer.PeppolAddress : '9908:' + this.invoice.Customer.OrgNumber;
         if (peppoladdress !== this.lastPeppolAddressChecked) {
