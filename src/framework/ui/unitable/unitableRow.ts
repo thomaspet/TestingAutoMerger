@@ -47,17 +47,9 @@ export interface IRowModelChangeEvent {
 })
 
 export class UniTableRow {
-    @Input()
-    private rowModel: any;
-
-    @Input()
-    private columns: any;
-
-    @Input()
-    private config: any;
-
-    @Output()
-    private rowModelChange: EventEmitter<any> = new EventEmitter(false);
+    @Input() public rowModel: any;
+    @Input() public columns: any;
+    @Input() public config: any;
 
     @Output()
     private rowDeleted: EventEmitter<any> = new EventEmitter(false);
@@ -104,15 +96,7 @@ export class UniTableRow {
         }
     }
 
-    private onInputChange(event) {
-        this.rowModelChange.emit({
-            field: event.field,
-            newValue: event.newValue,
-            rowModel: this.rowModel
-        });
-    }
-
-    private onCellFocus(event, column) {
+    public onCellFocus(event, column) {
         setTimeout(() => {
             this.cellFocused.emit({
                 target: event.target,
@@ -122,7 +106,7 @@ export class UniTableRow {
         });
     }
 
-    private onCellClick(event, column) {
+    public onCellClick(event, column) {
         setTimeout(() => {
             this.cellClicked.emit({
                 event: event,
@@ -132,20 +116,20 @@ export class UniTableRow {
         });
     }
 
-    private onDeleteRow() {
+    public onDeleteRow() {
         this.rowDeleted.emit({
             rowModel: this.rowModel
         });
     }
 
-    private onRowSelectionChanged(checked: boolean) {
+    public onRowSelectionChanged(checked: boolean) {
         const updatedRow = this.rowModel.set('_rowSelected', checked);
         this.rowSelectionChanged.emit({
             rowModel: updatedRow
         });
     }
 
-    private getTabIndex(column) {
+    public getTabIndex(column) {
         return column.get('editable') ? 1 : -1;
     }
 
