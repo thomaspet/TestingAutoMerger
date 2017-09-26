@@ -48,8 +48,8 @@ export interface IUniTableConfig {
     isRowReadOnly?: (rowModel) => boolean;
     defaultOrderBy?: ISortInfo;
     autoScrollIfNewCellCloseToBottom?: boolean;
-
     beforeEdit?: (editorData: IEditorData) => IEditorData;
+    insertRowHandler?: (index: number) => void;
 }
 
 export interface IRowChangeEvent {
@@ -82,6 +82,7 @@ export class UniTableConfig implements IUniTableConfig {
         disableOnReadonlyRows: boolean
     };
     public copyFromCellAbove: boolean;
+    public insertRowHandler?: (index: number) => void;
 
     public filters: ITableFilter[];
     public expressionFilterValues: IExpressionFilterValue[];
@@ -251,6 +252,11 @@ export class UniTableConfig implements IUniTableConfig {
 
     public setCopyFromCellAbove(copyFromCellAbove: boolean){
         this.copyFromCellAbove = copyFromCellAbove;
+        return this;
+    }
+
+    public setInsertRowHandler(handler: (index: number) => void) {
+        this.insertRowHandler = handler;
         return this;
     }
 

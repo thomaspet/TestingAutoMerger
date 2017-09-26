@@ -242,7 +242,7 @@ export class QuoteDetails {
                     ) : Observable.of(null),
                     projectID ? this.projectService.Get(projectID, null) : Observable.of(null),
                     this.numberSeriesService.GetAll(`filter=NumberSeriesType.Name eq 'Customer Quote number `
-                    + `series' and Empty eq false and Disabled eq false`, 
+                    + `series' and Empty eq false and Disabled eq false`,
                     ['NumberSeriesType']),
                     this.projectService.GetAll(null)
                 ).subscribe(
@@ -255,10 +255,10 @@ export class QuoteDetails {
                         this.deliveryTerms = res[5];
                         if (res[6]) {
                             quote = this.tofHelper.mapCustomerToEntity(res[6], quote);
-                            
+
                             if (quote.DeliveryTerms && quote.DeliveryTerms.CreditDays) {
                                 this.setDeliveryDate(quote);
-                            } 
+                            }
                         } else {
                             quote.DeliveryDate =  null;
                         }
@@ -391,11 +391,11 @@ export class QuoteDetails {
                     let replaceItemsProject: boolean = (response === ConfirmActions.ACCEPT);
                     this.tradeItemTable.setDefaultProjectAndRefreshItems(this.projectID, replaceItemsProject);
                 });
-            } else {        
+            } else {
                 this.tradeItemTable.setDefaultProjectAndRefreshItems(this.projectID, true);
             }
         }
-        
+
         // update currency code in detailsForm and tradeItemTable to selected currency code if selected
         // or from customer
         if ((!this.currencyCodeID && quote.CurrencyCodeID)
@@ -868,7 +868,11 @@ export class QuoteDetails {
     }
 
     private saveQuote(): Promise<CustomerQuote> {
-        this.quote.Items = this.quoteItems;
+        // Update sortIndex on items in case we deleted or added a new row on a specific index
+        this.quote.Items = this.quoteItems.map((item, index) => {
+            item.SortIndex = index + 1;
+            return item;
+        });
 
         // return a promise that resolves
         this.quote.Items.forEach(item => {

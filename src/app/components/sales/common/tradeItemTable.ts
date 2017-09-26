@@ -33,14 +33,14 @@ import {
 })
 export class TradeItemTable {
     @ViewChild(UniTable) private table: UniTable;
+
     @Input() public readonly: boolean;
     @Input() public defaultTradeItem: any;
-    @Input() public items: any;
     @Input() public currencyCodeID: number;
     @Input() public currencyExchangeRate: number;
     @Input() public projects: Project[];
     @Input() public configStoreKey: string;
-
+    @Input() public items: any;
     @Output() public itemsChange: EventEmitter<any> = new EventEmitter();
 
     private vatTypes: VatType[] = [];
@@ -287,8 +287,8 @@ export class TradeItemTable {
             .setColumnMenuVisible(true)
             .setDefaultRowData(this.defaultTradeItem)
             .setDeleteButton(!this.readonly)
+            .setCopyFromCellAbove(false)
             .setChangeCallback((rowModel) => {
-
                 const updatedRow = this.tradeItemHelper.tradeItemChangeCallback(
                     rowModel,
                     this.currencyCodeID,
@@ -312,7 +312,6 @@ export class TradeItemTable {
                     }
                 }
 
-
                 const index = updatedRow['_originalIndex'];
 
                 if (index >= 0) {
@@ -324,7 +323,16 @@ export class TradeItemTable {
                 this.itemsChange.next(this.items);
                 return updatedRow;
             })
-            .setCopyFromCellAbove(false);
+            .setInsertRowHandler((index) => {
+                let newRow = <any> this.tableConfig.defaultRowData;
+                newRow['_createguid'] = this.productService.getNewGuid();
+                newRow.Dimensions._createguid = this.productService.getNewGuid();
+
+                this.items.splice(index, 0, newRow);
+                this.itemsChange.emit(this.items);
+
+                this.tableData = this.items.filter(row => !row.Deleted); // trigger change detection
+            });
     }
 
     public onRowDeleted(row) {

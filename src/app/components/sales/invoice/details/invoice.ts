@@ -1164,7 +1164,11 @@ export class InvoiceDetails {
     }
 
     private saveInvoice(doneHandler: (msg: string) => void = null): Promise<CustomerInvoice> {
-        this.invoice.Items = this.invoiceItems;
+        // Update sortIndex on items in case we deleted or added a new row on a specific index
+        this.invoice.Items = this.invoiceItems.map((item, index) => {
+            item.SortIndex = index + 1;
+            return item;
+        });
 
         // Prep new orderlines for complex put
         this.invoice.Items.forEach(item => {

@@ -76,15 +76,15 @@ export class TradeItemHelper  {
                 ProjectID: (mainEntity.DefaultDimensions ? mainEntity.DefaultDimensions.ProjectID : null)
                     || (mainEntity.Customer && mainEntity.Customer.Dimensions
                         ? mainEntity.Customer.Dimensions.ProjectID : null),
-                Department: mainEntity.Customer && mainEntity.Customer.Dimensions 
+                Department: mainEntity.Customer && mainEntity.Customer.Dimensions
                     ? mainEntity.Customer.Dimensions.Department : null,
-                DepartmentID: mainEntity.Customer && mainEntity.Customer.Dimensions 
+                DepartmentID: mainEntity.Customer && mainEntity.Customer.Dimensions
                     ? mainEntity.Customer.Dimensions.DepartmentID : null
             },
             NumberOfItems: null,
             PriceExVat: null,
             Discount: null,
-            DiscountPercent: null,
+            DiscountPercent: 0,
             AccountID: null,
             Account: null
         };
@@ -278,7 +278,7 @@ export class TradeItemHelper  {
                     rowModel.Dimensions.Project = product.Dimensions.Project;
                 }
             }
-    
+
             if (!rowModel.Dimensions.DepartmentID) {
                 if (product.Dimensions && product.Dimensions.DepartmentID) {
                     rowModel.Dimensions.DepartmentID = product.Dimensions.DepartmentID;

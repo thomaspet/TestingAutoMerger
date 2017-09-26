@@ -578,7 +578,7 @@ export class UniTable implements OnChanges {
         }
     }
 
-    private onKeyDown(event: KeyboardEvent) {
+    public onKeyDown(event: KeyboardEvent) {
         const key = event.which || event.keyCode;
 
         // Add new row if we're at the last one as we might need to navigate to it
@@ -655,6 +655,16 @@ export class UniTable implements OnChanges {
             case 83:
                 if (event.ctrlKey) {
                     this.triggerChange();
+                }
+            break;
+            // Insert
+            case 45:
+                if (event.shiftKey && this.config.insertRowHandler) {
+                    this.blur();
+                    setTimeout(() => {
+                        this.config.insertRowHandler(this.lastFocusPosition.rowIndex);
+                        this.resetFocusedCell();
+                    });
                 }
             break;
         }

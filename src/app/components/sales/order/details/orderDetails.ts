@@ -244,7 +244,7 @@ export class OrderDetails {
                         this.projectID = order.DefaultDimensions.ProjectID;
                     }
                     order.DefaultDimensions.Project = this.projects.find(project => project.ID === this.projectID);
-                    
+
                     this.refreshOrder(order);
                     this.tofHead.focus();
                 },
@@ -279,7 +279,7 @@ export class OrderDetails {
                             order = this.tofHelper.mapCustomerToEntity(res[6], order);
                             if (order.DeliveryTerms && order.DeliveryTerms.CreditDays) {
                                 this.setDeliveryDate(order);
-                            } 
+                            }
                         } else {
                             order.DeliveryDate = null;
                         }
@@ -396,7 +396,7 @@ export class OrderDetails {
                     let replaceItemsProject: boolean = (response === ConfirmActions.ACCEPT);
                     this.tradeItemTable.setDefaultProjectAndRefreshItems(this.projectID, replaceItemsProject);
                 });
-            } else {        
+            } else {
                 this.tradeItemTable.setDefaultProjectAndRefreshItems(this.projectID, true);
             }
         }
@@ -592,7 +592,7 @@ export class OrderDetails {
             if (order.DeliveryTerms.CreditDays < 0) {
                 order.DeliveryDate = new LocalDate(moment(order.OrderDate).endOf('month').toDate());
             }
-            
+
             order.DeliveryDate = new LocalDate(
                 moment(order.DeliveryDate).add(Math.abs(order.DeliveryTerms.CreditDays), 'days').toDate()
             );
@@ -906,7 +906,12 @@ export class OrderDetails {
     }
 
     private saveOrder(): Promise<CustomerOrder> {
-        this.order.Items = this.orderItems;
+        // Update sortIndex on items in case we deleted or added a new row on a specific index
+        this.order.Items = this.orderItems.map((item, index) => {
+            item.SortIndex = index + 1;
+            return item;
+        });
+
         this.order.Items.forEach(item => {
             if (item.Dimensions && item.Dimensions.ID === 0) {
                 item.Dimensions['_createguid'] = this.customerOrderService.getNewGuid();
