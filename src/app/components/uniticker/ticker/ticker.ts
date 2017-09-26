@@ -54,6 +54,7 @@ export class UniTicker {
     @Input() public expressionFilters: Array<IExpressionFilterValue> = [];
     @Input() public actionOverrides: Array<ITickerActionOverride> = [];
     @Input() public columnOverrides: Array<ITickerColumnOverride> = [];
+    @Input() public unitableSearchVisible: boolean;
 
     @Output() public rowSelected: EventEmitter<any> = new EventEmitter<any>();
     @Output() public contextMenuItemsChange: EventEmitter<any[]> = new EventEmitter();
@@ -796,7 +797,7 @@ export class UniTicker {
                 this.tableConfig = new UniTableConfig(configStoreKey, false, true, 20)
                     .setAllowGroupFilter(true)
                     .setColumnMenuVisible(true)
-                    .setSearchable(true)
+                    .setSearchable(this.unitableSearchVisible)
                     .setMultiRowSelect(false)
                     .setDataMapper((data) => {
                         if (this.ticker.Model) {
