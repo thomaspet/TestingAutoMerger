@@ -766,41 +766,12 @@ export class BillsView {
         return {
             Name: 'Assignees',
             BaseEntity: 'User',
-            StatusCode: 0,
-            Deleted: false,
-            CreatedAt: null,
-            UpdatedAt: null,
-            CreatedBy: null,
-            UpdatedBy: null,
-            ID: 1,
-            CustomFields: null,
             Fields: [
                 {
-                    ComponentLayoutID: 1,
                     EntityType: 'User',
                     Property: 'ID',
-                    Placement: 4,
-                    Hidden: false,
                     FieldType: FieldType.AUTOCOMPLETE,
-                    ReadOnly: false,
-                    LookupField: false,
                     Label: 'Filtrer på tildelt/godkjent av:',
-                    Description: '',
-                    HelpText: '',
-                    FieldSet: 0,
-                    Section: 0,
-                    Placeholder: null,
-                    LineBreak: null,
-                    Combo: null,
-                    Legend: '',
-                    StatusCode: 0,
-                    ID: 1,
-                    Deleted: false,
-                    CreatedAt: null,
-                    UpdatedAt: null,
-                    CreatedBy: null,
-                    UpdatedBy: null,
-                    CustomFields: null,
                     Options: {
                         search: (query: string) => {
                             return this.userService.GetAll(null);
@@ -816,8 +787,4 @@ export class BillsView {
             ]
         };
     }
-
-
-
-
 }

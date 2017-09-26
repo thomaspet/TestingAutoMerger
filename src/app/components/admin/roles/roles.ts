@@ -217,70 +217,22 @@ export class UniRoles {
         this.formConfig$.next({});
         this.formFields$.next([
             <any> {
-                ComponentLayoutID: 1,
                 EntityType: 'Role',
                 Property: 'Label',
-                Placement: 1,
-                Hidden: false,
                 FieldType: FieldType.TEXT,
-                ReadOnly: false,
-                LookupField: false,
-                Label: 'Label',
-                Description: null,
-                HelpText: null,
-                FieldSet: 0,
-                Section: 0,
-                Placeholder: null,
-                Options: null,
-                LineBreak: null,
-                Combo: null,
-                Sectionheader: '',
-                hasLineBreak: false,
-                Validations: []
+                Label: 'Label'
             },
             <any>{
-                ComponentLayoutID: 1,
                 EntityType: 'Role',
                 Property: 'Name',
-                Placement: 1,
-                Hidden: false,
                 FieldType: FieldType.TEXT,
-                ReadOnly: false,
-                LookupField: false,
-                Label: 'Navn',
-                Description: null,
-                HelpText: null,
-                FieldSet: 0,
-                Section: 0,
-                Placeholder: null,
-                Options: null,
-                LineBreak: null,
-                Combo: null,
-                Sectionheader: '',
-                hasLineBreak: false,
-                Validations: []
+                Label: 'Navn'
             },
             <any>{
-                ComponentLayoutID: 1,
                 EntityType: 'Role',
                 Property: 'Description',
-                Placement: 1,
-                Hidden: false,
                 FieldType: FieldType.TEXTAREA,
-                ReadOnly: false,
-                LookupField: false,
-                Label: 'Beskrivelse',
-                Description: null,
-                HelpText: null,
-                FieldSet: 0,
-                Section: 0,
-                Placeholder: null,
-                Options: null,
-                LineBreak: null,
-                Combo: null,
-                Sectionheader: '',
-                hasLineBreak: false,
-                Validations: []
+                Label: 'Beskrivelse'
             },
         ]);
     }

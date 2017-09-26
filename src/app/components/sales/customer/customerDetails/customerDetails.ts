@@ -895,209 +895,130 @@ export class CustomerDetails {
         return {
             Name: 'Customer',
             BaseEntity: 'Customer',
-            StatusCode: 0,
-            Deleted: false,
-            CreatedAt: null,
-            UpdatedAt: null,
-            CreatedBy: null,
-            UpdatedBy: null,
-            ID: 1,
-            CustomFields: null,
             Fields: [
                 // Fieldset 1 (Kunde)
                 {
                     FieldSet: 1,
                     Legend: 'Kunde',
-                    ComponentLayoutID: 3,
                     EntityType: 'BusinessRelation',
                     Property: 'Info.Name',
-                    Placement: 1,
                     FieldType: FieldType.TEXT,
                     Label: 'Navn',
-                    Description: '',
-                    HelpText: '',
                     Section: 0,
-                    Validations: [],
-                    StatusCode: 0,
-                    ID: 2,
                 },
                 {
                     FieldSet: 1,
                     Legend: 'Kunde',
-                    ComponentLayoutID: 1,
                     EntityType: 'Customer',
                     Property: '_CustomerSearchResult',
-                    Placement: 1,
                     Hidden: true,
                     FieldType: FieldType.UNI_SEARCH,
                     Label: 'Navn',
                     Section: 0,
-                    Sectionheader: '',
-                    Validations: [],
                     Options: {
                         uniSearchConfig: this.getCustomerLookupOptions()
                     }
                 },
                 {
                     FieldSet: 1,
-                    ComponentLayoutID: 3,
                     EntityType: 'Customer',
                     Property: 'OrgNumber',
-                    Placement: 1,
                     FieldType: FieldType.TEXT,
                     Label: 'Organisasjonsnummer',
-                    Description: '',
-                    HelpText: '',
-                    Section: 0,
-                    StatusCode: 0,
-                    ID: 3,
+                    Section: 0
                 },
                 {
                     FieldSet: 1,
-                    ComponentLayoutID: 3,
                     EntityType: 'Customer',
                     Property: 'WebUrl',
-                    Placement: 1,
                     FieldType: FieldType.URL,
                     Label: 'Webadresse',
-                    Description: '',
-                    HelpText: '',
-                    Section: 0,
-                    StatusCode: 0,
-                    ID: 7,
+                    Section: 0
                 },
 
                 // Fieldset 2 (Kontaktinformasjon)
                 {
                     FieldSet: 2,
                     Legend: 'Kontaktinformasjon',
-                    ComponentLayoutID: 3,
                     EntityType: 'Customer',
                     Property: 'Info.InvoiceAddress',
-                    Placement: 1,
                     FieldType: FieldType.MULTIVALUE,
                     Label: 'Fakturaadresse',
-                    Description: '',
-                    HelpText: '',
-                    Section: 0,
-                    StatusCode: 0,
-                    ID: 4,
+                    Section: 0
                 },
                 {
                     FieldSet: 2,
-                    ComponentLayoutID: 3,
                     EntityType: 'Customer',
                     Property: 'Info.ShippingAddress',
-                    Placement: 1,
                     FieldType: FieldType.MULTIVALUE,
                     Label: 'Leveringsadresse',
-                    Description: '',
-                    HelpText: '',
-                    Section: 0,
-                    StatusCode: 0,
-                    ID: 5,
+                    Section: 0
                 },
                 {
                     FieldSet: 2,
-                    ComponentLayoutID: 3,
                     EntityType: 'Customer',
                     Property: 'Info.DefaultEmail',
-                    Placement: 1,
                     FieldType: FieldType.MULTIVALUE,
                     Label: 'E-post adresser',
-                    Description: '',
-                    HelpText: '',
-                    Section: 0,
-                    StatusCode: 0,
-                    ID: 5,
+                    Section: 0
                 },
                 {
                     FieldSet: 2,
-                    ComponentLayoutID: 3,
                     EntityType: 'Customer',
                     Property: 'Info.DefaultPhone',
-                    Placement: 1,
                     FieldType: FieldType.MULTIVALUE,
                     Label: 'Telefonnumre',
-                    Description: '',
-                    HelpText: '',
-                    Section: 0,
-                    StatusCode: 0,
-                    ID: 6,
+                    Section: 0
                 },
 
                 // Fieldset 3 (Betingelser)
                 {
                     FieldSet: 3,
                     Legend: 'Betingelser',
-                    ComponentLayoutID: 1,
                     EntityType: 'Customer',
                     Property: 'PaymentTermsID',
-                    Placement: 1,
                     FieldType: FieldType.DROPDOWN,
                     Sectionheader: 'Betingelser',
-                    Alignment: 0,
                     Label: 'Betalingsbetingelse',
-                    Section: 0,
-                    ID: 0,
+                    Section: 0
                 },
                 {
                     FieldSet: 3,
-                    ComponentLayoutID: 1,
                     EntityType: 'Customer',
                     Property: 'DeliveryTermsID',
-                    Placement: 1,
                     FieldType: FieldType.DROPDOWN,
                     Sectionheader: 'Betingelser',
-                    Alignment: 0,
                     Label: 'Leveringsbetingelse',
-                    Section: 0,
-                    ID: 0,
+                    Section: 0
                 },
                 {
                     FieldSet: 3,
-                    ComponentLayoutID: 1,
                     EntityType: 'Customer',
                     Property: 'CurrencyCodeID',
-                    Placement: 1,
                     FieldType: FieldType.DROPDOWN,
                     Sectionheader: 'Betingelser',
-                    Alignment: 0,
                     Label: 'Foretrukket valuta',
-                    Section: 0,
-                    ID: 0,
+                    Section: 0
                 },
 
                 // Fieldset 4 (Dimensjoner)
                 {
                     FieldSet: 4,
                     Legend: 'Dimensjoner',
-                    ComponentLayoutID: 3,
                     EntityType: 'Project',
                     Property: 'Dimensions.ProjectID',
-                    Placement: 4,
                     FieldType: FieldType.DROPDOWN,
                     Label: 'Prosjekt',
-                    Description: '',
-                    HelpText: '',
                     Section: 0,
-                    Sectionheader: 'Dimensjoner',
-                    StatusCode: 0,
-                    ID: 8,
+                    Sectionheader: 'Dimensjoner'
                 },
                 {
                     FieldSet: 4,
-                    ComponentLayoutID: 3,
                     EntityType: 'Department',
                     Property: 'Dimensions.DepartmentID',
-                    Placement: 4,
                     FieldType: FieldType.DROPDOWN,
                     Label: 'Avdeling',
-                    Description: '',
-                    HelpText: '',
-                    Section: 0,
-                    StatusCode: 0,
-                    ID: 9,
+                    Section: 0
                 },
 
                 // Fieldset 5 (EHF)
@@ -1123,21 +1044,15 @@ export class CustomerDetails {
 
                 // Hidden field
                 {
-                    ComponentLayoutID: 3,
                     EntityType: 'Customer',
                     Property: 'DefaultBankAccountID',
-                    Placement: 4,
                     Hidden: true, // false, // TODO: > 30.6
                     FieldType: FieldType.DROPDOWN,
                     Label: 'Bankkonto',
-                    Description: '',
-                    HelpText: '',
                     FieldSet: 0,
                     Section: 0, // 3, // TODO: > 30.6
                     Sectionheader: 'Konto & bank',
                     Legend: 'Konto & bank',
-                    StatusCode: 0,
-                    ID: 10,
                 }
             ]
         };
