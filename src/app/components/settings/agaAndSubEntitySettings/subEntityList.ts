@@ -98,7 +98,7 @@ export class SubEntityList implements OnInit {
                         .filter(response => response === ConfirmActions.ACCEPT)
                         .subscribe(() => {
                             if (rowModel['ID']) {
-                                this._subEntityService.delete(rowModel.ID).subscribe(response => {
+                                this._subEntityService.Remove(rowModel.ID).subscribe(response => {
                                     this.removeSubEntity(rowModel, false);
                                 }, err => this.errorService.handle(err));
                             } else {
