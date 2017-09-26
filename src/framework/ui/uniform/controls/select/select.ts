@@ -4,8 +4,8 @@ import {
 } from '@angular/core';
 import {FormControl} from '@angular/forms';
 import {Observable} from 'rxjs/Observable';
-import {KeyCodes} from '../../interfaces';
 import * as _ from 'lodash';
+import {KeyCodes} from '../../../../../app/services/common/keyCodes';
 
 export interface ISelectConfig {
     valueProperty?: string;
@@ -146,8 +146,8 @@ export class UniSelect {
             return event.keyCode === KeyCodes.F4 || event.keyCode === KeyCodes.SPACE;
         });
         const arrowDownEvent = keyDownEvent.filter((event: KeyboardEvent) => {
-            return (event.keyCode === KeyCodes.ARROW_UP
-                || event.keyCode === KeyCodes.ARROW_DOWN)
+            return (event.keyCode === KeyCodes.UP_ARROW
+                || event.keyCode === KeyCodes.DOWN_ARROW)
                 && event.altKey;
         });
 
@@ -158,7 +158,7 @@ export class UniSelect {
                 this.toggle();
             });
 
-        keyDownEvent.filter((event: KeyboardEvent) => event.keyCode === KeyCodes.ESC)
+        keyDownEvent.filter((event: KeyboardEvent) => event.keyCode === KeyCodes.ESCAPE)
             .subscribe((event: KeyboardEvent) => {
                 event.preventDefault();
                 event.stopPropagation();
@@ -214,10 +214,10 @@ export class UniSelect {
         const arrowsEvents = Observable.fromEvent(this.el.nativeElement, 'keydown')
             .filter((event: KeyboardEvent) => !(event.altKey || event.shiftKey || event.ctrlKey))
             .filter((event: KeyboardEvent) => {
-                return event.keyCode === KeyCodes.ARROW_UP
-                    || event.keyCode === KeyCodes.ARROW_DOWN
-                    || event.keyCode === KeyCodes.ARROW_RIGHT
-                    || event.keyCode === KeyCodes.ARROW_LEFT;
+                return event.keyCode === KeyCodes.UP_ARROW
+                    || event.keyCode === KeyCodes.DOWN_ARROW
+                    || event.keyCode === KeyCodes.RIGHT_ARROW
+                    || event.keyCode === KeyCodes.LEFT_ARROW;
             });
 
 
@@ -228,15 +228,15 @@ export class UniSelect {
             let index = -1;
 
             switch (event.keyCode) {
-                case KeyCodes.ARROW_UP:
-                case KeyCodes.ARROW_LEFT:
+                case KeyCodes.UP_ARROW:
+                case KeyCodes.LEFT_ARROW:
                     index = this.focusedIndex - 1;
                     if (index < 0) {
                         index = 0;
                     }
                     break;
-                case KeyCodes.ARROW_DOWN:
-                case KeyCodes.ARROW_RIGHT:
+                case KeyCodes.DOWN_ARROW:
+                case KeyCodes.RIGHT_ARROW:
                     index = this.focusedIndex + 1;
                     if (index > this.filteredItems.length - 1) {
                         index = this.filteredItems.length - 1;
