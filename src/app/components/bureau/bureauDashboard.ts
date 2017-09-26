@@ -24,8 +24,8 @@ export class BureauDashboard {
     public getWidgetLayout(): IUniWidget[] {
         return [
             {
+                height: 8,
                 width: 9,
-                height: 0,
                 x: 0,
                 y: 0,
                 widgetType: 'companyList',
