@@ -51,8 +51,17 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
         private salaryTransactionService: SalaryTransactionService,
         private toastService: ToastService,
         private statisticsService: StatisticsService,
-        private yearService: YearService) {
+        private yearService: YearService
+    ) {
         super(http);
+        // Anders 26.09
+        // Disabling BizHttp's cache for now.
+        // Done because actions in this service are written using UniHttp instead
+        // of using the PutAction method we inherit from BizHttp.
+        // Because of this BizHttp is never notified that an action is ran, and cache is not invalidated
+        // Don't want to start messing with these requests so close to launch,
+        // but they should be re-written to use the request helpers we inherit from BizHttp
+        super.disableCache();
         this.relativeURL = PayrollRun.RelativeUrl;
         this.entityType = PayrollRun.EntityType;
     }
