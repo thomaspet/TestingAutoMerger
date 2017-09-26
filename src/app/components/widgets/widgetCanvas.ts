@@ -41,6 +41,12 @@ export interface IWidgetLayout {
     small?: IUniWidget[];
 }
 
+enum LAYOUT_WIDTH {
+    large = 12,
+    medium = 8,
+    small = 4
+};
+
 @Component({
     selector: 'uni-widget-canvas',
     templateUrl: './widgetCanvas.html',
@@ -84,7 +90,6 @@ export class UniWidgetCanvas {
         this.widgetMargin = 10;
 
         this.authService.companyChange.subscribe(change => {
-
             this.refreshWidgets();
         });
 
@@ -105,15 +110,10 @@ export class UniWidgetCanvas {
 
     public ngOnChanges() {
         if (this.defaultLayout) {
-            this.layout = this.canvasHelper.getLayout(this.layoutName);
-            // console.log(typeof this.layout);
+            this.layout = this.canvasHelper.getSavedLayout(this.layoutName);
 
             if (!this.layout) {
-                this.layout = {
-                    large: this.deepCopyWidgets(this.defaultLayout),
-                    medium: this.deepCopyWidgets(this.defaultLayout),
-                    small: this.deepCopyWidgets(this.defaultLayout),
-                };
+                this.layout = this.buildResponsiveLayout(this.defaultLayout);
             }
 
             this.drawLayout();
@@ -132,13 +132,13 @@ export class UniWidgetCanvas {
 
         if (window.innerWidth <= 768) {
             size = 'small';
-            numCols = 4;
+            numCols = LAYOUT_WIDTH.small;
         } else if (window.innerWidth <= 1200) {
             size = 'medium';
-            numCols = 8;
+            numCols = LAYOUT_WIDTH.medium;
         } else {
             size = 'large';
-            numCols = 12;
+            numCols = LAYOUT_WIDTH.large;
         }
 
         this.widgetMargin = window.innerWidth <= 1500 ? 10 : 13;
@@ -242,11 +242,7 @@ export class UniWidgetCanvas {
         }
 
         this.canvasHelper.removeLayout(this.layoutName);
-        this.layout = {
-            small: this.deepCopyWidgets(this.defaultLayout),
-            medium: this.deepCopyWidgets(this.defaultLayout),
-            large: this.deepCopyWidgets(this.defaultLayout)
-        };
+        this.layout = this.buildResponsiveLayout(this.defaultLayout);
 
         this.canvasHelper.resetGrid();
         this.unsavedChanges = false;
@@ -366,6 +362,27 @@ export class UniWidgetCanvas {
 
         this.canvasHelper.releaseGridSpace(widget);
         this.unsavedChanges = true;
+    }
+
+    private buildResponsiveLayout(widgets: IUniWidget[]): IWidgetLayout {
+        return {
+            large: this.setWidgetWidths(widgets, LAYOUT_WIDTH.large),
+            medium: this.setWidgetWidths(widgets, LAYOUT_WIDTH.medium),
+            small: this.setWidgetWidths(widgets, LAYOUT_WIDTH.small)
+        };
+    }
+
+    private setWidgetWidths(widgets: IUniWidget[], maxWidth: number): IUniWidget[] {
+        return widgets.map(widget => {
+            // Make sure the widgets in each size layout has no references to each other
+            widget = Object.assign({}, widget);
+
+            if (widget.width > maxWidth) {
+                widget.width = maxWidth;
+            }
+
+            return widget;
+        });
     }
 
     private deepCopyWidgets(widgets: IUniWidget[]): IUniWidget[] {

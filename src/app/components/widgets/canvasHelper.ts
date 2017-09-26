@@ -5,7 +5,7 @@ export class CanvasHelper {
     private numColumns: number;
     private numRows: number;
 
-    public getLayout(name: string): IWidgetLayout {
+    public getSavedLayout(name: string): IWidgetLayout {
         if (!name || !name.length) {
             return;
         }
