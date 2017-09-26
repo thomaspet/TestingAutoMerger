@@ -15,6 +15,7 @@ export class PostPostService extends BizHttp<PostPost> {
 
 
     public markPosts(journalEntryLineCouples: Array<any>): Observable<any> {
+        super.invalidateCache();
         return this.http
             .asPOST()
             .usingBusinessDomain()
@@ -25,6 +26,7 @@ export class PostPostService extends BizHttp<PostPost> {
     }
 
     public revertPostpostMarking(journalEntryLineIDs: Array<number>): Observable<any> {
+        super.invalidateCache();
         return this.http
             .asPOST()
             .usingBusinessDomain()

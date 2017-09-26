@@ -32,6 +32,8 @@ export class VatReportService extends BizHttp<VatReport> {
 
     constructor(http: UniHttp) {
         super(http);
+        super.disableCache();
+
         this.relativeURL = VatReport.RelativeUrl;
         this.entityType = VatReport.EntityType;
     }

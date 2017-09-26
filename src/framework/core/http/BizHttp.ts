@@ -220,7 +220,7 @@ export class BizHttp<T> {
             .map(response => response.json());
     }
 
-    public Remove<T>(ID: number, entity: T): Observable<any> {
+    public Remove<T>(ID: number, entity?: T): Observable<any> {
         // maybe not neccessary to include entity as parameter?
         // could be useful for validating if entity could be deleted?
         this.invalidateCache();

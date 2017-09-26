@@ -26,6 +26,8 @@ export class AltinnIntegrationService extends BizHttp<Altinn> {
 
     constructor(http: UniHttp, private subEntityService: SubEntityService, private integrate: IntegrationServerCaller) {
         super(http);
+        super.disableCache();
+
         this.relativeURL = Altinn.RelativeUrl;
         this.entityType = Altinn.EntityType;
         this.inServer = integrate;
@@ -50,8 +52,8 @@ export class AltinnIntegrationService extends BizHttp<Altinn> {
     }
 
     public sendTaxRequestAction(
-        option: string, 
-        empId: number = 0, 
+        option: string,
+        empId: number = 0,
         empsAndChanged: boolean = false): Observable<AltinnReceipt> {
         return this.PostAction(1, 'sendtaxrequest', 'option=' + option + '&empId=' + empId + '&requestAllChanges=' + empsAndChanged);
     }
