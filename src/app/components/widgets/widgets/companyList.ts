@@ -40,15 +40,15 @@ enum KPI_STATUS {
             <table class="uni-table unitable-main-table">
             <thead>
             <tr>
-                <th>Klienter</th>
-                <th>Godkjenninger</th>
-                <th>Fakturainnboks</th>
+                <th (click)="sortBy('Name')" >Klienter <i>{{getSortArrow('Name')}}</i></th>
+                <th (click)="sortByKpi('Inbox')">Fakturainnboks <i>{{getSortArrow('Inbox')}}</i></th>
+                <th (click)="sortByKpi('Approved')">Godkjente regninger <i>{{getSortArrow('Approved')}}</i></th>
             </tr>
             </thead>
             <tr *ngFor="let company of filteredCompanies">
                 <td (click)="onCompanyNameClick(company)">{{company.Name}}</td>
-                <td (click)="onCompanyApprovalsClick(company)">{{getKpiCount(company, 'Approvals')}}</td>
                 <td (click)="onCompanyInboxClick(company)">{{getKpiCount(company, 'Inbox')}}</td>
+                <td (click)="onCompanyApprovalsClick(company)">{{getKpiCount(company, 'Approved')}}</td>
             </tr>
             </table>
         </section>
@@ -59,6 +59,8 @@ export class UniCompanyListWidget {
     private filteredCompanies: Company[];
     private searchControl: FormControl = new FormControl('');
     public busy: boolean = false;
+    public currentSortField: string;
+    public sortIsDesc: boolean = true;
 
     constructor(
         private errorService: ErrorService,
@@ -98,7 +100,7 @@ export class UniCompanyListWidget {
         if (kpi) {
             switch (kpi.ValueStatus) {
                 case KPI_STATUS.StatusReady:
-                    return kpi.Counter;
+                    return kpi.Counter != 0 ? kpi.Counter : '';
                 case KPI_STATUS.StatusError:
                     return 'Feil';
                 case KPI_STATUS.StatusInProgress:
@@ -139,21 +141,63 @@ export class UniCompanyListWidget {
             .send();
     }
 
+    public sortByKpi(key) {
+        if (this.currentSortField === key) {
+            this.sortIsDesc = !this.sortIsDesc;
+        }
+        this.currentSortField = key;
+        this.filteredCompanies.sort((companyA, companyB) => {
+            const a = this.getKpiCount(companyA, key);
+            const b = this.getKpiCount(companyB, key);
+            if (a > b) {
+                return this.sortIsDesc ? -1 : 1;
+            }
+            if (a < b) {
+                return this.sortIsDesc ? 1 : -1;
+            }
+            return 0;
+        })
+    }
+
+    public sortBy(key) {
+        if (this.currentSortField === key) {
+            this.sortIsDesc = !this.sortIsDesc;
+        }
+        this.currentSortField = key;
+        this.filteredCompanies.sort((a, b) => {
+            a = typeof a[key] === "string" ? a[key].toLowerCase() : a[key];
+            b = typeof b[key] === "string" ? b[key].toLowerCase() : b[key];
+            if (a > b) {
+                return this.sortIsDesc ? -1 : 1;
+            }
+            if (a < b) {
+                return this.sortIsDesc ? 1 : -1;
+            }
+            return 0;
+        })
+    }
+
+    public getSortArrow(key) {
+        if (this.currentSortField === key) {
+            return this.sortIsDesc ? '▲' : '▼';
+        }
+    }
+
     public onCompanyNameClick(company: Company) {
         this.authService.setActiveCompany(company);
         this.busy = true;
         this.router.navigateByUrl('/');
     }
 
-    public onCompanyApprovalsClick(company: Company) {
-        this.authService.setActiveCompany(company);
-        this.busy = true;
-        this.router.navigateByUrl('/assignments/approvals');
-    }
-
     public onCompanyInboxClick(company: Company) {
         this.authService.setActiveCompany(company);
         this.busy = true;
         this.router.navigateByUrl('/accounting/bills?filter=Inbox');
+    }
+
+    public onCompanyApprovalsClick(company: Company) {
+        this.authService.setActiveCompany(company);
+        this.busy = true;
+        this.router.navigateByUrl('/accounting/bills?filter=Approved');
     }
 }
