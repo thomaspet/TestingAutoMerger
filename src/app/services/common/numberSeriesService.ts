@@ -23,7 +23,7 @@ export class NumberSeriesService extends BizHttp<NumberSeries> {
             .send().map(response => response.json());
     }
 
-    public getSelectConfig(ID: number, numberSeries: Array, numberSerieName: string): any {
+    public getSelectConfig(ID: number, numberSeries: any[], numberSerieName: string): any {
         return numberSeries && numberSeries.length > 1 && ID === 0 ?
             {
                 items: numberSeries,

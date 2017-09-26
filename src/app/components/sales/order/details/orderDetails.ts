@@ -15,6 +15,7 @@ import {
     Customer,
     CustomerOrder,
     CustomerOrderItem,
+    Dimensions,
     LocalDate,
     Project,
     StatusCodeCustomerOrder,
@@ -238,7 +239,10 @@ export class OrderDetails {
                     this.currencyCodeID = order.CurrencyCodeID;
                     this.currencyExchangeRate = order.CurrencyExchangeRate;
 
-                    this.projectID = order.DefaultDimensions && order.DefaultDimensions.ProjectID;
+                    order.DefaultDimensions = order.DefaultDimensions || new Dimensions();
+                    if (order.DefaultDimensions) {
+                        this.projectID = order.DefaultDimensions.ProjectID;
+                    }
                     order.DefaultDimensions.Project = this.projects.find(project => project.ID === this.projectID);
                     
                     this.refreshOrder(order);
@@ -277,9 +281,10 @@ export class OrderDetails {
                                 this.setDeliveryDate(order);
                             } 
                         } else {
-                            order.DeliveryDate = order.OrderDate;
+                            order.DeliveryDate = null;
                         }
                         if (res[7]) {
+                            order.DefaultDimensions = order.DefaultDimensions || new Dimensions();
                             order.DefaultDimensions.ProjectID = res[7].ID;
                             order.DefaultDimensions.Project = res[7];
                         }
@@ -675,8 +680,7 @@ export class OrderDetails {
     }
 
     public addOrder() {
-        event.preventDefault();
-        this.router.navigateByUrl('/sales/orders/0').then(res => {
+            this.router.navigateByUrl('/sales/orders/0').then(res => {
             this.tofHead.focus();
         });
     }

@@ -71,6 +71,7 @@ export class AMeldingService extends BizHttp<AmeldingData> {
     }
 
     public sendAMelding(id: number) {
+        super.invalidateCache();
         return this.http
             .asPUT()
             .usingBusinessDomain()
@@ -80,6 +81,7 @@ export class AMeldingService extends BizHttp<AmeldingData> {
     }
 
     public postAMelding(period: number, amldType: number, currYear: number) {
+        super.invalidateCache();
         return this.http
             .asPOST()
             .usingBusinessDomain()

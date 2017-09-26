@@ -91,6 +91,7 @@ export class CustomerQuoteService extends BizHttp<CustomerQuote> {
     }
 
     public calculateQuoteSummary(quoteItems: Array<CustomerQuoteItem>): Observable<any> {
+        super.invalidateCache();
         return this.http
             .asPOST()
             .usingBusinessDomain()

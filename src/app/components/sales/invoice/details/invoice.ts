@@ -9,6 +9,7 @@ import {
     Customer,
     CustomerInvoice,
     CustomerInvoiceItem,
+    Dimensions,
     InvoicePaymentData,
     LocalDate,
     Project,
@@ -120,6 +121,7 @@ export class InvoiceDetails {
     private selectConfig: any;
     private numberSeries: NumberSeries[];
     private projectID: number;
+    private ehfEnabled: boolean = false;
 
     private customerExpandOptions: string[] = [
         'DeliveryTerms',
@@ -243,7 +245,9 @@ export class InvoiceDetails {
                     this.paymentTerms = res[5];
                     this.deliveryTerms = res[6];
                     if (res[7]) {
+                        invoice.DefaultDimensions = invoice.DefaultDimensions || new Dimensions();
                         invoice.DefaultDimensions.ProjectID = res[7].ID;
+                        invoice.DefaultDimensions.Project = res[7];
                     }
                     this.numberSeries = res[8].map(x => this.numberSeriesService.translateSerie(x));
                     this.projects = res[9];
@@ -269,7 +273,7 @@ export class InvoiceDetails {
                     if (invoice.DeliveryTerms && invoice.DeliveryTerms.CreditDays) {
                         this.setDeliveryDate(invoice);
                     } else {
-                        invoice.DeliveryDate = invoice.InvoiceDate;
+                        invoice.DeliveryDate = null;
                     }
 
                     this.selectConfig = this.numberSeriesService.getSelectConfig(
@@ -313,7 +317,10 @@ export class InvoiceDetails {
                         this.setPaymentDueDate(invoice);
                     }
 
-                    this.projectID = invoice.DefaultDimensions && invoice.DefaultDimensions.ProjectID;
+                    invoice.DefaultDimensions = invoice.DefaultDimensions || new Dimensions();
+                    if (invoice.DefaultDimensions) {
+                        this.projectID = invoice.DefaultDimensions.ProjectID;
+                    }
                     invoice.DefaultDimensions.Project = this.projects.find(project => project.ID === this.projectID);
 
                     this.setupContextMenuItems();
@@ -326,6 +333,20 @@ export class InvoiceDetails {
 
     private ngAfterViewInit() {
          this.tofHead.detailsForm.tabbedPastLastField.subscribe((event) => this.tradeItemTable.focusFirstRow());
+    }
+
+    private ehfReadyUpdateSaveActions() {
+        // Possible to receive EHF for this customer?
+        let peppoladdress = this.invoice.Customer.PeppolAddress ? this.invoice.Customer.PeppolAddress : '9908:' + this.invoice.Customer.OrgNumber;
+        if (peppoladdress !== this.lastPeppolAddressChecked) {
+            this.ehfService.GetAction(
+                null, 'is-ehf-receiver',
+                'peppoladdress=' + peppoladdress + '&entitytype=CustomerInvoice'
+            ).subscribe(enabled => {
+                this.ehfEnabled = enabled;
+                this.updateSaveActions();
+            }, err => this.errorService.handle(err));
+        }
     }
 
     private numberSeriesChange(selectedSerie) {
@@ -488,7 +509,7 @@ export class InvoiceDetails {
                     let replaceItemsProject: boolean = (response === ConfirmActions.ACCEPT);
                     this.tradeItemTable.setDefaultProjectAndRefreshItems(this.projectID, replaceItemsProject);
                 });
-            } else {        
+            } else {
                 this.tradeItemTable.setDefaultProjectAndRefreshItems(this.projectID, true);
             }
         }
@@ -951,7 +972,7 @@ export class InvoiceDetails {
         this.recalcDebouncer.next(invoice.Items);
         this.updateTabTitle();
         this.updateToolbar();
-        this.updateSaveActions();
+        this.ehfReadyUpdateSaveActions();
     }
 
     private updateTabTitle() {
@@ -1019,7 +1040,7 @@ export class InvoiceDetails {
                 prev: this.previousInvoice.bind(this),
                 next: this.nextInvoice.bind(this),
                 add: () => {
-                    event.preventDefault();
+
                     this.router.navigateByUrl('/sales/invoices/0').then(res => {
                         this.tofHead.focus();
                     });
@@ -1100,7 +1121,7 @@ export class InvoiceDetails {
             label: 'Skriv ut',
             action: (done) => this.print(this.invoiceID, done),
             disabled: false,
-            main: !printStatus && status === StatusCodeCustomerInvoice.Invoiced && !this.isDirty
+            main: !printStatus && !this.ehfEnabled && status === StatusCodeCustomerInvoice.Invoiced && !this.isDirty
         });
 
         this.saveActions.push({
@@ -1114,7 +1135,7 @@ export class InvoiceDetails {
             label: 'Send EHF',
             action: (done) => this.sendEHFAction(done),
             disabled: status < StatusCodeCustomerInvoice.Invoiced,
-            main: printStatus === 100 && status === StatusCodeCustomerInvoice.Invoiced && !this.isDirty
+            main: this.ehfEnabled && status === StatusCodeCustomerInvoice.Invoiced && !this.isDirty
         });
 
         this.saveActions.push({

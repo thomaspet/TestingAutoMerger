@@ -32,6 +32,7 @@ export class ProductCategoryService extends BizHttp<ProductCategory> {
 
     public saveCategoryTag(currentID: number, category: ProductCategory): Observable<ITag>  {
         if (currentID && category) {
+            super.invalidateCache();
             return this.http.asPOST()
                 .usingBusinessDomain()
                 .withEndPoint(ProductCategoryLink.RelativeUrl)

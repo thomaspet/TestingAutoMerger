@@ -380,8 +380,7 @@ export class TimeEntry {
         });
     }
 
-    private getFlexDataForCurrentMonth() {
-    console.log('Hello world')
+    private getFlexDataForCurrentMonth() {    
         let endpoint = 'workrelations/' + this.workRelations[0].ID + '?action=timesheet&fromdate='
             + moment().startOf('month').startOf('week').format().slice(0, 10)
             + '&todate=' + moment().format().slice(0, 10);
@@ -473,14 +472,13 @@ export class TimeEntry {
     private prepFlexData(data: any) {
         let flexDays = [];
         let flexWeeks = [];
-        console.log(data);
         data.Items.forEach((item) => {
             if (item.IsWeekend) {
                 flexDays.push('');
             } else {
                 flexDays.push(item.Flextime >= 0 ? 'calendar_flexplus' : 'calendar_flexminus');
             }
-        })
+        });
 
         // Fill the month up
         for (let indexInFlexDays = flexDays.length - 1; indexInFlexDays < 42; indexInFlexDays++) {
@@ -800,8 +798,8 @@ export class TimeEntry {
             })
             this.workedToday = totalTime + ' timer';
 
-            //Find percentage of hours worked (Max 100)
-            let percentageWorked = totalTime / (expectedTime / 100);
+            // Find percentage of hours worked (Max 100)
+            let percentageWorked = totalTime / ((expectedTime || 1) / 100);
             percentageWorked = isNaN(percentageWorked) ? 0 : percentageWorked;
 
             this.percentage = Math.round(percentageWorked);

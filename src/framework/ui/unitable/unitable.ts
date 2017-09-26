@@ -14,8 +14,8 @@ import {UnitableContextMenu} from './contextMenu';
 import {UniTablePagination} from './pagination/pagination';
 import {UniTableUtils} from './unitableUtils';
 import * as Immutable from 'immutable';
-import {KeyCodes} from './KeyCodes';
 import {List} from 'immutable';
+import {KeyCodes} from '../../../app/services/common/keyCodes';
 
 export interface IContextMenuItem {
     label: string;
@@ -75,8 +75,8 @@ enum Direction { UP, DOWN, LEFT, RIGHT }
                         }"
                         bind-class="column.get('headerCls')"
                         [ngClass]="{
-                            isSortedAsc: ((column.get('displayField') || column.get('field')) === sortInfo.field) && (sortInfo.direction === 1),
-                            isSortedDesc: ((column.get('displayField') || column.get('field')) === sortInfo.field) && (sortInfo.direction === -1)
+                            isSortedAsc: ((column.get('displayField') || column.get('field')) === sortInfo?.field) && (sortInfo?.direction === 1),
+                            isSortedDesc: ((column.get('displayField') || column.get('field')) === sortInfo?.field) && (sortInfo?.direction === -1)
                         }"
 
                         [hidden]="!column.get('visible')"
@@ -184,13 +184,6 @@ export class UniTable implements OnChanges {
 
     // Life-cycle hooks
     public ngOnInit() {
-        this.sortInfo = {
-            field: '',
-            direction: 0,
-            type: UniTableColumnType.Text,
-            mode: UniTableColumnSortMode.Normal
-        };
-
         this.resize$ = Observable.fromEvent(window, 'resize')
             .throttleTime(200)
             .subscribe((event) => {
@@ -212,9 +205,12 @@ export class UniTable implements OnChanges {
                 this.config.columns = this.config.columns.sort((a, b) => a.index - b.index);
             }
 
-            if (this.config.defaultOrderBy) {
-                this.sortInfo = this.config.defaultOrderBy;
-            }
+            this.sortInfo = this.config.defaultOrderBy || {
+                field: '',
+                direction: 0,
+                type: UniTableColumnType.Text,
+                mode: UniTableColumnSortMode.Normal
+            };
 
             let customColumnSetup;
             if (this.config.configStoreKey) {
@@ -363,12 +359,16 @@ export class UniTable implements OnChanges {
 
     public onCellClicked(event) {
         const row = event.rowModel.toJS();
-        const col = event.column.toJS();
+        const col: UniTableColumn = event.column.toJS();
 
         this.cellClick.next({
             row: row,
             column: col
         });
+
+        if (col.onCellClick) {
+            col.onCellClick(row);
+        }
     }
 
     public onEditorChange(event: IRowModelChangeEvent) {
@@ -744,7 +744,13 @@ export class UniTable implements OnChanges {
 
             // Sort data
             if (this.sortInfo) {
-                data = this.utils.sort(this.sortInfo.field, this.sortInfo.direction, this.sortInfo.type, this.sortInfo.mode, data);
+                data = this.utils.sort(
+                    this.sortInfo.field,
+                    this.sortInfo.direction,
+                    this.sortInfo.type,
+                    this.sortInfo.mode,
+                    data
+                );
             }
 
             this.tableData = (hadEmptyRow) ? data.push(this.tableDataOriginal.last()) : data;

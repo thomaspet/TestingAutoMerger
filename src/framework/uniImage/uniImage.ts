@@ -206,7 +206,7 @@ export class UniImage {
                 .withEndPoint(`files?filter=${requestFilter}`)
                 .send()
                 .subscribe((res) => {
-                    this.files = res.json();
+                    this.files = res.json().filter(x => x !== null);
                     this.fileListReady.emit(this.files);
                     if (this.files.length) {
                         this.currentPage = 1;
@@ -223,7 +223,7 @@ export class UniImage {
                 .withEndPoint(`files/${this.entity}/${this.entityID}`)
                 .send()
                 .subscribe((res) => {
-                    this.files = res.json();
+                    this.files = res.json().filter(x => x !== null);
                     this.fileListReady.emit(this.files);
                     if (this.files.length) {
                         this.currentPage = 1;
@@ -253,6 +253,10 @@ export class UniImage {
         } else {
             return 0;
         }
+    }
+
+    public getCurrentFile(): File {
+        return this.files[this.currentFileIndex];
     }
 
     private isDefined(value: any) {
@@ -310,19 +314,19 @@ export class UniImage {
 
     private print() {
         return this.fileService.printFile(this.files[this.currentFileIndex].ID)
-            .subscribe(res => {
+            .subscribe((res: any) => {
                 let url = JSON.parse(res._body) + '&attachment=false';
 
                 if (this.files[this.currentFileIndex].Name.includes('.pdf')) {
                     return this.modalService.open(UniPrintModal, {data: {url: url}})
                         .onClose.subscribe(
                             () => {},
-                            err => this.errorService(err)
+                            err => this.errorService.handle(err)
                         );
                 }
                 return this.printImage(url);
             },
-            err => this.errorService(err)
+            err => this.errorService.handle(err)
         );
     }
 
@@ -359,10 +363,8 @@ export class UniImage {
                     .subscribe(
                         res => {
                             let current = this.files[this.currentFileIndex];
-                            let fileIDsIndex = this.fileIDs.indexOf(current.ID);
 
                             this.files.splice(this.currentFileIndex, 1);
-                            if (fileIDsIndex !== -1) { this.fileIDs.splice(fileIDsIndex, 1); }
                             this.currentFileIndex--;
                             if (this.currentFileIndex < 0 && this.files.length > 0) { this.currentFileIndex = 0; }
 

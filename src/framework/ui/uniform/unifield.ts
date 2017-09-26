@@ -2,8 +2,9 @@ import {
     Component, Input, Output, HostBinding, EventEmitter, ViewChild, ChangeDetectorRef, SimpleChange, HostListener,
     ChangeDetectionStrategy, ElementRef
 } from '@angular/core';
-import {UniFieldLayout, KeyCodes} from './interfaces';
+import {UniFieldLayout} from './interfaces';
 import * as _ from 'lodash';
+import {KeyCodes} from '../../../app/services/common/keyCodes';
 
 @Component({
     selector: 'uni-field',
@@ -313,7 +314,7 @@ export class UniField {
 
     @HostListener('keydown', ['$event'])
     public keyDownHandler(event: KeyboardEvent) {
-        const key: string = KeyCodes[event.which];
+        const key: string = KeyCodes[event.which || event.keyCode];
         const ctrl: boolean = event.ctrlKey;
         const shift: boolean = event.shiftKey;
         var combination: string[] = [];

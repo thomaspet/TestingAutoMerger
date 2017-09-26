@@ -62,6 +62,7 @@ export class CustomerInvoiceService extends BizHttp<CustomerInvoice> {
     }
 
     public calculateInvoiceSummary(invoiceItems: Array<CustomerInvoiceItem>): Observable<any> {
+        super.invalidateCache();
         return this.http
             .asPOST()
             .usingBusinessDomain()

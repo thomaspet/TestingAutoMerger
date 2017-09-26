@@ -56,11 +56,12 @@
                 "DisplayForSubTickers": false
             },
             {
-                "Name": "Vis ansatt",
+                "Name": "Åpne ansatt",
                 "Code": "open_employee",
                 "Type": "details",
                 "DisplayInContextMenu": true,
-                "DisplayInActionBar": true
+                "ExecuteWithoutSelection": true,
+                "DisplayInActionBar": false
             }
         ],
         "ParentFilter": {
@@ -190,19 +191,6 @@
             "Operator": "eq",
             "Value": "ID"
         },
-        "Actions": [{
-            "Name": "Vis arbeidsforhold",
-            "Code": "open_employment",
-            "Type": "details",
-            "DisplayInContextMenu": true,
-            "DisplayInActionBar": true,
-            "Options": {
-                "ParameterProperties": [
-                    "Employment.EmployeeID",
-                    "ID"
-                ]
-            }
-        }],
         "SubTickersCodes": [
             "employment_details",
             "leave_items"
@@ -308,11 +296,12 @@
             "Value": "ID"
         },
         "Actions": [{
-            "Name": "Vis arbeidsforhold",
+            "Name": "Åpne arbeidsforhold",
             "Code": "open_employment",
             "Type": "details",
             "DisplayInContextMenu": true,
-            "DisplayInActionBar": true,
+            "ExecuteWithoutSelection": true,
+            "DisplayInActionBar": false,
             "Options": {
                 "ParameterProperties": [
                     "Employment.EmployeeID",

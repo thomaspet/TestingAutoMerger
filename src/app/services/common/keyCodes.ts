@@ -29,32 +29,14 @@ export enum KeyCodes {
     NUMBER_7         = 55,
     NUMBER_8         = 56,
     NUMBER_9         = 57,
-    A                = 65,
-    B                = 66,
-    C                = 67,
-    D                = 68,
-    E                = 69,
-    F                = 70,
-    G                = 71,
-    H                = 72,
-    I                = 73,
-    J                = 74,
-    K                = 75,
-    L                = 76,
-    M                = 77,
-    N                = 78,
-    O                = 79,
-    P                = 80,
-    Q                = 81,
-    R                = 82,
-    S                = 83,
-    T                = 84,
-    U                = 85,
-    V                = 86,
-    W                = 87,
-    X                = 88,
-    Y                = 89,
-    Z                = 90,
+        /* key codes 65 --> 90 is A-Z, but we have removed that because you need to use event
+         * "keypress" instead of "keydown" and this code snippet to get the characters
+         * (because of non US languages, think æøå)
+         * ```
+         *     const keyCode = event.which || event.keyCode;
+         *     const character = String.fromCharCode(keyCode);
+         * ```
+         * */
     LEFT_WINDOW_KEY  = 91,
     RIGHT_WINDOW_KEY = 92,
     SELECT_KEY       = 93,

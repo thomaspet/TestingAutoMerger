@@ -25,7 +25,7 @@ export class BureauDashboard {
         return [
             {
                 width: 9,
-                height: 6,
+                height: 0,
                 x: 0,
                 y: 0,
                 widgetType: 'companyList',

@@ -66,6 +66,7 @@ export class CustomerOrderService extends BizHttp<CustomerOrder> {
     }
 
     public calculateOrderSummary(orderItems: Array<CustomerOrderItem>): Observable<any> {
+        super.invalidateCache();
         return this.http
             .asPOST()
             .usingBusinessDomain()

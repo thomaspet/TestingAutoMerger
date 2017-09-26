@@ -1,16 +1,22 @@
 import {Component} from '@angular/core';
 import {Router} from '@angular/router';
 import {FormControl} from '@angular/forms';
-import {CompanyService, ErrorService} from '../../../services/services';
+import {ErrorService} from '../../../services/services';
 import {Company, User} from '../../../unientities';
 import {AuthService} from '../../../../framework/core/authService';
-import {UniTableConfig, UniTableColumn} from '../../../../framework/ui/unitable/index';
 import {UniModalService} from '../../../../framework/uniModal/barrel';
 import {UniNewCompanyModal} from './newCompanyModal';
 import {UniHttp} from '../../../../framework/core/http/http';
 import {UserService} from '../../../services/common/userService';
 import {Observable} from 'rxjs/Observable';
 import {ToastService, ToastTime, ToastType} from '../../../../framework/uniToast/toastService';
+
+enum KPI_STATUS {
+    StatusUnknown = 0,
+    StatusInProgress = 1,
+    StatusError = 2,
+    StatusReady = 3
+}
 
 @Component({
     selector: 'uni-companylist-widget',
@@ -19,7 +25,8 @@ import {ToastService, ToastTime, ToastType} from '../../../../framework/uniToast
             Mine klienter
         </section>
 
-        <section class="list-content">
+        <section class="list-content"
+            [attr.aria-busy]="busy">
             <input class="table-filter"
                 type="search"
                 placeholder="Filtrer klienter"
@@ -30,23 +37,31 @@ import {ToastService, ToastTime, ToastType} from '../../../../framework/uniToast
                 (click)="onNewCompanyClick($event)"
             >Lag ny bedrift</button>
 
-            <uni-table
-                [resource]="filteredCompanies"
-                [config]="tableConfig"
-                (cellClick)="onCellClick($event)">
-            </uni-table>
+            <table class="uni-table unitable-main-table">
+            <thead>
+            <tr>
+                <th>Klienter</th>
+                <th>Godkjenninger</th>
+                <th>Fakturainnboks</th>
+            </tr>
+            </thead>
+            <tr *ngFor="let company of filteredCompanies">
+                <td (click)="onCompanyNameClick(company)">{{company.Name}}</td>
+                <td (click)="onCompanyApprovalsClick(company)">{{getKpiCount(company, 'Approvals')}}</td>
+                <td (click)="onCompanyInboxClick(company)">{{getKpiCount(company, 'Inbox')}}</td>
+            </tr>
+            </table>
         </section>
     `
 })
 export class UniCompanyListWidget {
     private companies: Company[];
     private filteredCompanies: Company[];
-    private tableConfig: UniTableConfig;
     private searchControl: FormControl = new FormControl('');
+    public busy: boolean = false;
 
     constructor(
         private errorService: ErrorService,
-        private companyService: CompanyService,
         private authService: AuthService,
         private router: Router,
         private uniModalService: UniModalService,
@@ -56,8 +71,6 @@ export class UniCompanyListWidget {
     ) {}
 
     public ngOnInit() {
-        this.tableConfig = this.getTableConfig();
-
         this.searchControl.valueChanges
             .subscribe((searchValue) => {
                 this.filteredCompanies = this.companies.filter(company => {
@@ -66,17 +79,35 @@ export class UniCompanyListWidget {
                 });
             });
 
-        this.companyService.GetAll(null).subscribe(
-            res => this.filteredCompanies = this.companies = res.map(c => this.setCountsOnCompany(c)),
-            err => this.errorService.handle(err)
-        );
+        this.busy = true;
+            this.uniHttp
+                .asGET()
+                .usingRootDomain()
+                .withEndPoint('kpi/companies')
+                .send()
+                .map(res => res.json())
+                .do(() => this.busy = false)
+                .subscribe(
+                    res => this.filteredCompanies = this.companies = res,
+                    err => this.errorService.handle(err)
+                );
     }
 
-    private setCountsOnCompany(company: Company): Company {
-        // TODO: implement when we have a backend solution for this
-        company['_approvals'] = Math.floor(Math.random() * 10);
-        company['_inbox'] = Math.floor(Math.random() * 10);
-        return company;
+    public getKpiCount(company, kpiName): string {
+        const kpi = company.Kpi.find(kpi => kpi.Name === kpiName);
+        if (kpi) {
+            switch (kpi.ValueStatus) {
+                case KPI_STATUS.StatusReady:
+                    return kpi.Counter;
+                case KPI_STATUS.StatusError:
+                    return 'Feil';
+                case KPI_STATUS.StatusInProgress:
+                    return 'Loading...';
+                case KPI_STATUS.StatusUnknown:
+                    return 'Ukjent status';
+            }
+        }
+        return '';
     }
 
     public onNewCompanyClick() {
@@ -108,42 +139,21 @@ export class UniCompanyListWidget {
             .send();
     }
 
-    private getTableConfig(): UniTableConfig {
-        return new UniTableConfig('widgest.companyList', false, true, 14)
-            .setSearchable(false)
-            .setColumns([
-                new UniTableColumn('Name', 'Klient'),
-                // this.getCountCol('_approvals', 'Godkjenninger'),
-                // this.getCountCol('_inbox', 'Fakturainnboks')
-            ]);
+    public onCompanyNameClick(company: Company) {
+        this.authService.setActiveCompany(company);
+        this.busy = true;
+        this.router.navigateByUrl('/');
     }
 
-    private getCountCol(field: string, header: string) {
-        return new UniTableColumn(field, header)
-            .setTemplate(row => row[field] || '0')
-            .setHeaderCls('count-col')
-            .setAlignment('center')
-            .setConditionalCls((row) => {
-                const value = +row[field] || 0;
-                return value === 0 ? 'number-good' : 'number-bad';
-            });
+    public onCompanyApprovalsClick(company: Company) {
+        this.authService.setActiveCompany(company);
+        this.busy = true;
+        this.router.navigateByUrl('/assignments/approvals');
     }
 
-    public onCellClick(event: {row: Company, column: UniTableColumn}) {
-        this.authService.setActiveCompany(event.row);
-
-        let url = '/';
-        const field = event.column.field;
-
-        switch (field) {
-            case '_approvals':
-                url = '/assignments/approvals';
-            break;
-            case '_inbox':
-                url = '/accounting/bills?filter=Inbox';
-            break;
-        }
-
-        this.router.navigateByUrl(url);
+    public onCompanyInboxClick(company: Company) {
+        this.authService.setActiveCompany(company);
+        this.busy = true;
+        this.router.navigateByUrl('/accounting/bills?filter=Inbox');
     }
 }

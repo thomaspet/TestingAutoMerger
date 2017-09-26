@@ -268,6 +268,9 @@ export class UniWidgetCanvas {
     }
 
     public startDrag(event: MouseEvent, widget: IUniWidget) {
+        if (!this.editMode) {
+            return;
+        }
         event.preventDefault();
         let widgetElement = $(event.srcElement || event.target).closest('uni-widget')[0];
 

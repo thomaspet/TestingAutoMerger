@@ -1,7 +1,5 @@
 <article class="authentication-component">
     <section #loginForm>
-        <p>Ny konto? <a [routerLink]="['../signup']">Registrer deg</a><br></p>
-
         <form (submit)="login($event)">
             <small class="validation error" *ngIf="errorMessage.length">{{errorMessage}}</small>
             <label>

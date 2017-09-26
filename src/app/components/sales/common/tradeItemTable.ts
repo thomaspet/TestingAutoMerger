@@ -6,7 +6,8 @@ import {
     VatType,
     Account,
     CompanySettings,
-    Project
+    Project,
+    Dimensions
 } from '../../../unientities';
 import {
     ProductService,
@@ -112,6 +113,7 @@ export class TradeItemTable {
         this.tableConfig = this.tableConfig.setDefaultRowData(this.defaultTradeItem);
         if (replaceItemsProject) {
             this.tableData = this.items.map(item => {
+                item.Dimensions = item.Dimensions || new Dimensions();
                 item.Dimensions.ProjectID = projectID;
                 item.Dimensions.Project = this.defaultProject;
                 return item;

@@ -2,8 +2,8 @@ import {Component, Input, ElementRef, ViewChild} from '@angular/core';
 import {FormControl} from '@angular/forms';
 import * as moment from 'moment';
 import {LocalDate} from './LocalDate';
-import {KeyCodes} from '../../KeyCodes';
 import {DateUtil} from '../common/DateUtil';
+import {KeyCodes} from '../../../../../app/services/common/keyCodes';
 
 
 @Component({
@@ -59,7 +59,7 @@ export class  LocalDatePicker {
         let date;
 
         if (value && value.length) {
-            if (value === '*') { 
+            if (value === '*') {
                 date = new Date();
             } else {
                 date = this.dateUtil.autocompleteDate(value) || null;

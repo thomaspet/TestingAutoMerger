@@ -53,6 +53,12 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
         public authService: AuthService
     ) {
         super(http);
+        // Anders 25.09
+        // Looks like this service has implemented caching on it's own,
+        // and I dont want to mess with this code so close to release..
+        // Disabling BizHttp cache to avoid sync issues
+        super.disableCache();
+
         this.relativeURL = JournalEntry.RelativeUrl;
         this.entityType = JournalEntry.EntityType;
         this.DefaultOrderBy = null;

@@ -11,11 +11,12 @@ import {
     SimpleChanges
 } from '@angular/core';
 import {FormControl} from '@angular/forms';
-import {UniFieldLayout, KeyCodes} from '../interfaces';
+import {UniFieldLayout} from '../interfaces';
 import {Observable} from 'rxjs/Observable';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {BaseControl} from './baseControl';
 import * as _ from 'lodash';
+import {KeyCodes} from '../../../../app/services/common/keyCodes';
 
 @Component({
     selector: 'uni-multivalue-input',
@@ -130,8 +131,8 @@ export class UniMultivalueInput extends BaseControl {
             const openKeys = [
               KeyCodes.F4,
               KeyCodes.SPACE,
-              KeyCodes.ARROW_UP,
-              KeyCodes.ARROW_DOWN
+              KeyCodes.UP_ARROW,
+              KeyCodes.DOWN_ARROW
             ];
 
             const alphanumeric = event.key && event.key.length === 1 && /[A-Za-z0-9]/.test(event.key);
@@ -140,7 +141,7 @@ export class UniMultivalueInput extends BaseControl {
                 event.preventDefault();
                 event.stopPropagation();
                 this.toggle();
-            } else if (event.keyCode === KeyCodes.ESC) {
+            } else if (event.keyCode === KeyCodes.ESCAPE) {
                 event.preventDefault();
                 event.stopPropagation();
                 this.close();
@@ -157,7 +158,7 @@ export class UniMultivalueInput extends BaseControl {
         let keydownEvent3 = Observable.fromEvent(this.inputElement.nativeElement, 'keydown');
         let events = Observable.merge(keydownEvent, keydownEvent2, keydownEvent3);
         let arrowsEvent = events.filter((event: KeyboardEvent) => {
-            return (event.keyCode === KeyCodes.ARROW_DOWN || event.keyCode === KeyCodes.ARROW_UP) && !event.altKey;
+            return (event.keyCode === KeyCodes.DOWN_ARROW || event.keyCode === KeyCodes.UP_ARROW) && !event.altKey;
         });
         keydownEvent.subscribe((event: KeyboardEvent) => {
             if (event.keyCode === KeyCodes.ENTER) {
@@ -182,7 +183,7 @@ export class UniMultivalueInput extends BaseControl {
             }
             this.addButtonHasFocus = false;
             switch (event.keyCode) {
-                case KeyCodes.ARROW_DOWN:
+                case KeyCodes.DOWN_ARROW:
                     index = index + 1;
                     if (index === this.rows.length && this.listIsVisible$.getValue()) {
                         // set focus on button
@@ -191,7 +192,7 @@ export class UniMultivalueInput extends BaseControl {
                     }
                     index = index < this.rows.length ? index : this.rows.length - 1;
                     break;
-                case KeyCodes.ARROW_UP:
+                case KeyCodes.UP_ARROW:
                     index = index - 1;
                     index = index < 0 ? 0 : index;
                     this.queryElement.nativeElement.focus();
@@ -262,8 +263,8 @@ export class UniMultivalueInput extends BaseControl {
         if (!event || event.keyCode === KeyCodes.ENTER || event.keyCode === KeyCodes.TAB
         || event.keyCode === KeyCodes.F4
         || event.keyCode === KeyCodes.SPACE
-        || (event.keyCode === KeyCodes.ARROW_DOWN && event.altKey)
-        || (event.keyCode === KeyCodes.ARROW_UP && event.altKey)) {
+        || (event.keyCode === KeyCodes.DOWN_ARROW && event.altKey)
+        || (event.keyCode === KeyCodes.UP_ARROW && event.altKey)) {
             return;
         }
         if (this.rows && !this.rows.length) {

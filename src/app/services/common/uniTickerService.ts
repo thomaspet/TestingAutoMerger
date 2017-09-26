@@ -888,6 +888,8 @@ export class UniTickerService { //extends BizHttp<UniQueryDefinition> {
     }
 }
 
+// Refactor: no need for these to be classes??
+// Also, lowerCamelCase por favor
 export class TickerGroup {
     public Name: string;
     public Tickers: Array<Ticker>;
@@ -948,6 +950,7 @@ export class TickerColumn {
     public FilterOperator?: string;
     public SubFields?: Array<TickerColumn>;
     public Placeholder?: string;
+    public FieldSetColumn?: number;
 }
 
 export interface ITickerColumnOverride {

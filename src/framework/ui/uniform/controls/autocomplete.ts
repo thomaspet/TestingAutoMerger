@@ -12,7 +12,7 @@ import {
 } from '@angular/core';
 import {Observable} from 'rxjs/Observable';
 import {BaseControl} from './baseControl';
-import {UniFieldLayout, KeyCodes} from '../interfaces';
+import {UniFieldLayout} from '../interfaces';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 
 import 'rxjs/add/observable/of';
@@ -26,6 +26,7 @@ import 'rxjs/add/operator/merge';
 import 'rxjs/add/operator/share';
 
 import * as _ from 'lodash';
+import {KeyCodes} from '../../../../app/services/common/keyCodes';
 
 
 export class UniAutocompleteConfig {
@@ -387,7 +388,7 @@ export class UniAutocompleteInput extends BaseControl {
                     this.selectedIndex = -1;
                 }
                 break;
-            case KeyCodes.ESC:
+            case KeyCodes.ESCAPE:
                 this.isExpanded$.next(false);
                 this.selectedIndex = -1;
                 this.selectedItem = null;
@@ -404,7 +405,7 @@ export class UniAutocompleteInput extends BaseControl {
                     this.toggle();
                 }
                 break;
-            case KeyCodes.ARROW_UP:
+            case KeyCodes.UP_ARROW:
                 event.preventDefault();
                 if (this.selectedIndex >= 0) {
                     this.selectedIndex--;
@@ -412,7 +413,7 @@ export class UniAutocompleteInput extends BaseControl {
                     this.scrollToListItem();
                 }
                 break;
-            case KeyCodes.ARROW_DOWN:
+            case KeyCodes.DOWN_ARROW:
                 event.preventDefault();
                 if (event.altKey && !this.isExpanded$.getValue()) {
                     this.open();

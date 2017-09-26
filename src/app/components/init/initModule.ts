@@ -9,7 +9,6 @@ import {AppCommonModule} from '../common/appCommonModule';
 import {LoginModal} from './loginModal';
 import {UniInit} from './init';
 import {CompanySyncModal} from './companySyncModal';
-import {Signup} from './signup/signup';
 import {ResetPassword} from './resetPassword/resetPassword';
 import {Login} from './login/login';
 import {ConfirmInvite} from './confirmInvite/confirmInvite';
@@ -30,7 +29,6 @@ import {ConfirmInvite} from './confirmInvite/confirmInvite';
         LoginModal,
         UniInit,
         CompanySyncModal,
-        Signup,
         ResetPassword,
         Login,
         ConfirmInvite
@@ -42,7 +40,6 @@ import {ConfirmInvite} from './confirmInvite/confirmInvite';
         LoginModal,
         UniInit,
         CompanySyncModal,
-        Signup,
         ResetPassword,
         Login,
         ConfirmInvite
