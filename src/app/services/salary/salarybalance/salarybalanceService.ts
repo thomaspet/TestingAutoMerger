@@ -264,7 +264,8 @@ export class SalarybalanceService extends BizHttp<SalaryBalance> {
                         Property: 'CreatePayment',
                         FieldType: FieldType.CHECKBOX,
                         ReadOnly: true,
-                        Label: 'Utbetales til leverandør ved lønnsutbetaling',
+                        HelpText: 'Lag utbetalingspost til leverandør ved utbetaling av lønnsavregning',
+                        Label: 'Lag utbetaling',
                         FieldSet: 0,
                         Section: 0
                     }
