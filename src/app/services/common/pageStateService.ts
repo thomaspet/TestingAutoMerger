@@ -26,44 +26,58 @@ export class PageStateService {
     /// </summary>
     public getPageState(): any {
         return this.mapFromUrl(this.location.path(false));
-    }   
+    }
 
-    private mapIntoUrl(url: string, parameterName: string, value: string): string {
-        var parts: string[] = [];
-        var ixParams = url.indexOf('?');
-        if (ixParams > 0) {
-            let tParts = url.substr(ixParams + 1);
-            url = url.substr(0, ixParams);        
-            if (tParts.length > 0) {
-                parts = tParts.split('&');
-                for (var i = 0; i < parts.length; i++) {
-                    if (parts[i].indexOf(parameterName + '=') === 0) {
-                        parts[i] = parameterName + '=' + value;
-                        return url + '?' + parts.join('&');
+    public deletePageState(parameterName: string) {
+        const input = this.location.path(false);
+        const output = this.mapIntoUrl(input, parameterName, undefined, false);
+        if (input !== output) {
+            this.location.replaceState(output);
+        }
+    }
+
+
+
+    private mapIntoUrl(url: string, parameterName: string, value: string, allowUndefined = true): string {
+        let parameters: string[] = [];
+        const queryDelimiterIndex = url.indexOf('?');
+        if (queryDelimiterIndex > 0) {
+            const query = url.substr(queryDelimiterIndex + 1);
+            url = url.substr(0, queryDelimiterIndex);
+            if (query.length > 0) {
+                parameters = query.split('&');
+                for (const i = 0; i < parameters.length; i++) {
+                    if (parameters[i].indexOf(parameterName + '=') === 0) {
+                        parameters[i] = parameterName + '=' + value;
+                        break;
                     }
                 }
-            }            
+            }
         }
-        parts.push(`${parameterName}=${value}`);
-        return url + (parts.length > 0 ? ('?' + parts.join('&')) : '');
-    }  
+        parameters.push(`${parameterName}=${value}`);
+        if (!allowUndefined) {
+            parameters = parameters.filter(parameter => !parameter.endsWith('undefined') )
+        }
+
+        return url + (parameters.length > 0 ? ('?' + parameters.join('&')) : '');
+    }
 
     private mapFromUrl(url: string): any {
         var keyValues: any = {};
         var ixParams = url.indexOf('?');
         if (ixParams > 0) {
             let tParts = url.substr(ixParams + 1);
-            url = url.substr(0, ixParams);        
+            url = url.substr(0, ixParams);
             if (tParts.length > 0) {
                 let parts = tParts.split('&');
                 for (var i = 0; i < parts.length; i++) {
                     let keyValue = parts[i].split('=');
                     if (keyValue.length >= 2) {
-                        keyValues[keyValue[0]] = keyValue[1]; 
-                    } 
+                        keyValues[keyValue[0]] = keyValue[1];
+                    }
                 }
-            }                        
-        }   
-        return keyValues;     
-    }    
+            }
+        }
+        return keyValues;
+    }
 }

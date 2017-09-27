@@ -165,6 +165,13 @@ export class BillsView {
     private onFormFilterChange(event) {
         this.currentUserFilter = event.ID.currentValue;
         this.refreshList(this.currentFilter, true, null, this.currentUserFilter);
+
+        if (this.currentUserFilter) {
+            this.pageStateService.setPageState('assignee', this.currentUserFilter);
+        } else {
+            this.pageStateService.deletePageState('assignee');
+        }
+
     }
 
     private onRowSelectionChanged() {
@@ -596,16 +603,18 @@ export class BillsView {
             this.filters.forEach(x => { if (x.name !== 'Inbox') { x.count = 0; x.total = 0; } });
             var count = 0;
             var total = 0;
-            result.forEach(x => {
-                count += x.countid;
-                total += x.sumTaxInclusiveAmount;
-                var statusCode = x.SupplierInvoiceStatusCode ? x.SupplierInvoiceStatusCode.toString() : '0';
-                var ix = this.filters.findIndex(y => y.filter ? y.filter.indexOf(statusCode) > 0 : false);
-                if (ix >= 0) {
-                    this.filters[ix].count += x.countid;
-                    this.filters[ix].total += x.sumTaxInclusiveAmount;
-                }
-            });
+            if (result) {
+                result.forEach(x => {
+                    count += x.countid;
+                    total += x.sumTaxInclusiveAmount;
+                    var statusCode = x.SupplierInvoiceStatusCode ? x.SupplierInvoiceStatusCode.toString() : '0';
+                    var ix = this.filters.findIndex(y => y.filter ? y.filter.indexOf(statusCode) > 0 : false);
+                    if (ix >= 0) {
+                        this.filters[ix].count += x.countid;
+                        this.filters[ix].total += x.sumTaxInclusiveAmount;
+                    }
+                });
+            }
             let ixAll = this.filters.findIndex(x => x.name === 'All');
             this.filters[ixAll].count = count;
             this.filters[ixAll].total = total;
@@ -737,6 +746,21 @@ export class BillsView {
                 this.currentFilter.isSelected = true;
             }
         }
+
+        if (params.assignee){
+
+            if (params.assigneename) {
+
+                // this.searchParams$.next({ID:+params.assignee});
+
+                // this.searchControl.setValue(params.assigneename);
+
+            }
+            this.currentUserFilter = params.assignee;
+           // this.searchParams$.next({userID:+this.currentUserFilter});
+
+        }
+
         if (params.search) {
             this.startupWithSearchText = params.search;
             this.searchControl.setValue(this.startupWithSearchText, { emitEvent: false });
@@ -763,6 +787,7 @@ export class BillsView {
     }
 
     private getLayout() {
+        var params = this.pageStateService.getPageState();
         return {
             Name: 'Assignees',
             BaseEntity: 'User',
@@ -773,6 +798,13 @@ export class BillsView {
                     FieldType: FieldType.AUTOCOMPLETE,
                     Label: 'Filtrer på tildelt/godkjent av:',
                     Options: {
+                        getDefaultData: () => {
+                            if (params.assignee) {
+                             return this.userService.Get(params.assignee).map(user => [user]);
+                            }
+                            return Observable.of([]);
+                        },
+
                         search: (query: string) => {
                             return this.userService.GetAll(null);
 

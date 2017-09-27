@@ -166,12 +166,10 @@ export class SupplierInvoiceService extends BizHttp<SupplierInvoice> {
     }
 
     public getInvoiceListGroupedTotals(userIDFilter: string = ''): Observable<Array<IStatTotal>> {
-        if (userIDFilter !== '' && userIDFilter !== null) {
-            userIDFilter = ' and user.id eq ' + userIDFilter;
-        }
+
         // tslint:disable-next-line:max-line-length
         var route = '?model=supplierinvoice&select=count(id),statuscode,sum(TaxInclusiveAmount),sum(RestAmount)' +
-        '&filter=isnull(deleted,0) eq 0' + (userIDFilter === null ? '' : userIDFilter);
+        '&filter=isnull(deleted,0) eq 0';
         return this.http.asGET().usingStatisticsDomain()
         .withEndPoint(route).send()
         .map(response => response.json().Data);
