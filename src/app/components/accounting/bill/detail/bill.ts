@@ -3,8 +3,13 @@ import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService
 import {ToastService, ToastType} from '../../../../../framework/uniToast/toastService';
 import {Router, ActivatedRoute} from '@angular/router';
 import {Observable} from 'rxjs/Observable';
-import {safeInt, roundTo, safeDec, filterInput, trimLength,
-    createFormField, FieldSize, ControlTypes} from '../../../common/utils/utils';
+import {
+    safeInt,
+    roundTo,
+    safeDec,
+    filterInput,
+    trimLength
+} from '../../../common/utils/utils';
 import {
     Supplier, SupplierInvoice, JournalEntryLineDraft,
     StatusCodeSupplierInvoice, BankAccount, LocalDate,
@@ -99,8 +104,9 @@ export class BillView {
     public startUpFileID: Array<number> = [];
 
     private myUser: User;
-    private files: Array<any>;
+    private files: Array<any> = [];
     private unlinkedFiles: Array<number> = [];
+    private documentsInUse: number[] = [];
     private supplierIsReadOnly: boolean = false;
     private commentsConfig: any;
     private formReady: boolean;
@@ -134,9 +140,12 @@ export class BillView {
     public actions: IUniSaveAction[];
 
     private rootActions: IUniSaveAction[] = [
-        { label: lang.tool_save, action: (done) => this.save(done), main: true, disabled: true },
-        { label: lang.tool_delete, action: (done) => this.tryDelete(done), main: false, disabled: true },
-        { label: lang.converter, action: (done) => this.runConverter(this.files).then(() => done()), main: false, disabled: false },
+        { label: lang.tool_save, action:
+            (done) => this.save(done), main: true, disabled: true },
+        { label: lang.tool_delete, action:
+            (done) => this.tryDelete(done), main: false, disabled: true },
+        { label: lang.converter, action:
+            (done) => this.runConverter(this.files).then(() => done()), main: false, disabled: false },
     ];
 
     private projects: Project[];
@@ -616,13 +625,15 @@ export class BillView {
     }
 
     public onImageDeleted(file: any) {
-        this.files = this.files.filter(x => file !== x)
+        this.files = this.files.filter(x => file !== x);
+        this.unlinkedFiles = this.files.map(f => f.ID);
+        this.documentsInUse = this.unlinkedFiles;
     }
 
     public onFileListReady(files: Array<any>) {
+
         let current = this.current.value;
         this.files = files;
-
         if (files && files.length) {
             if (!this.hasValidSupplier()) {
                 this.runConverter(files);
@@ -630,6 +641,16 @@ export class BillView {
             if (!current.ID) {
                 this.unlinkedFiles = files.map(file => file.ID);
                 this.rootActions[0].disabled = false;
+                // Check what ID's in unlinkedfiles have not been tagged
+                this.unlinkedFiles.forEach((id: number) => {
+                    // If ID is not tagged, tag it with status 30 = inUse
+                    if (this.documentsInUse.indexOf(id) === -1) {
+                        this.tagFileStatus(id, 30);
+                    }
+                });
+
+                // Set documentsinuse to match unlinkedfiles
+                this.documentsInUse = this.unlinkedFiles;
             }
         }
     }
@@ -1050,7 +1071,7 @@ export class BillView {
         this.supplierIsReadOnly = false;
         this.hasUnsavedChanges = false;
         this.unlinkedFiles = [];
-        this.files = undefined;
+        this.files = [];
         this.setHistoryCounter(0);
         this.busy = false;
 
@@ -1224,11 +1245,12 @@ export class BillView {
     public openAddFileModal() {
         this.modalService.open(UniAddFileModal).onClose.subscribe((element) => {
             if (element) {
-                if(this.startUpFileID.length === 0) {
+                if (this.files.length === 0) {
                     this.startUpFileID = [safeInt(element.ID)];
                 } else {
-                    this.startUpFileID.push(safeInt(element.ID));
+                    this.uniImage.fetchDocumentWithID(safeInt(element.ID));
                 }
+                this.hasUnsavedChanges = true;
             }
         });
     }
@@ -1717,6 +1739,7 @@ export class BillView {
                             () => {
                             this.hasStartupFileID = false;
                             this.unlinkedFiles = [];
+                            this.documentsInUse = [];
                             reload();
                         });
                     } else {
@@ -1960,27 +1983,59 @@ export class BillView {
         }
 
         return new Promise((resolve, reject) => {
-            this.modalService.open(UniConfirmModalV2, {
-                header: 'Ulagrede endringer',
-                message: 'Du har ulagrede endringer. Ønsker du å lagre disse før vi fortsetter?',
-                buttonLabels: {
-                    accept: 'Lagre',
-                    reject: 'Forkast',
-                    cancel: 'Avbryt'
-                }
-            }).onClose.subscribe(response => {
-                if (response === ConfirmActions.ACCEPT) {
-                    this.busy = false;
-                    this.save().then(() => {
+            let func = () => {
+                this.modalService.open(UniConfirmModalV2, {
+                    header: 'Ulagrede endringer',
+                    message: 'Du har ulagrede endringer. Ønsker du å lagre disse før vi fortsetter?',
+                    buttonLabels: {
+                        accept: 'Lagre',
+                        reject: 'Forkast',
+                        cancel: 'Avbryt'
+                    }
+                }).onClose.subscribe(response => {
+                    if (response === ConfirmActions.ACCEPT) {
                         this.busy = false;
+                        this.save().then(() => {
+                            this.busy = false;
+                            resolve(true);
+                        });
+                    } else if (response === ConfirmActions.REJECT) {
                         resolve(true);
-                    });
-                } else if (response === ConfirmActions.REJECT) {
-                    resolve(true);
-                } else {
-                    resolve(false);
-                }
-            });
+                    } else {
+                        resolve(false);
+                    }
+                });
+            }
+
+            if (this.documentsInUse.length > 0) {
+                this.modalService.open(UniConfirmModalV2, {
+                    header: 'Ubehandlede dokumenter',
+                    message: 'Du har ubehandlede dokumenter. Hva ønsker du å gjøre med disse?',
+                    buttonLabels: {
+                        accept: 'Legg i innboks',
+                        reject: 'Slett',
+                        cancel: 'Avbryt'
+                    }
+                }).onClose.subscribe(response => {
+                    if (response === ConfirmActions.ACCEPT) {
+                        this.documentsInUse.forEach((fileID) => {
+                            this.tagFileStatus(fileID, 0);
+                        });
+                        func();
+                    } else if (response === ConfirmActions.REJECT) {
+                        this.documentsInUse.forEach((fileID) => {
+                            this.supplierInvoiceService.send('files/' + fileID, undefined, 'DELETE')
+                            .subscribe(null, err => this.errorService.handle(err));
+                        });
+                        func();
+                    } else {
+                        return Promise.resolve(true);
+                    }
+                });
+            } else {
+                func();
+            }
+
         });
     }
 
@@ -2118,12 +2173,14 @@ export class BillView {
         var pageParams = this.pageStateService.getPageState();
         if (pageParams.fileid) {
             this.loadFromFileID(pageParams.fileid);
+            // Tag file with used
+
         }
     }
 
     private tagFileStatus(fileID: number, flagFileStatus: number) {
-        var file = this.files.find(x => x.ID === fileID);
-        var tag = this.isOCR(file) ? 'IncomingMail' : 'IncomingEHF';
+        let file = this.files.find(x => x.ID === fileID);
+        let tag = this.isOCR(file) ? 'IncomingMail' : 'IncomingEHF';
 
         this.supplierInvoiceService.send(
             `filetags/${fileID}`,

@@ -16,7 +16,7 @@ import {
     selector: 'add-file-modal',
     template: `
         <section role="dialog" class="uni-modal uni-approve-modal-class large">
-            <header><h1>Legg til fil fra flyt</h1></header>
+            <header><h1>Legg til fil fra innboks</h1></header>
 
             <section style="padding: 2rem">
                 <uni-table

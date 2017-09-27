@@ -63,7 +63,7 @@
             (imageDeleted)="onImageDeleted($event)"
             (imageClicked)="onImageClicked($event)">
         </uni-image>
-        <button class="document_from_flow_button" (click)="openAddFileModal()"> Hent fra innboks</button>
+        <button *ngIf="!(current | async)?.ID" class="document_from_flow_button" (click)="openAddFileModal()"> Hent fra innboks</button>
     </fieldset>
 
     <fieldset [hidden]="!tabs[4].isSelected">

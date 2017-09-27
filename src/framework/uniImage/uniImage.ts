@@ -183,7 +183,6 @@ export class UniImage {
     public ngOnChanges(changes: SimpleChanges) {
         this.imgUrl = this.imgUrl2x = '';
         this.thumbnails = [];
-
         if ((changes['entity'] || changes['entityID']) && this.entity && this.isDefined(this.entityID)) {
             this.refreshFiles();
         } else if (changes['fileIDs']) {
@@ -200,7 +199,6 @@ export class UniImage {
     public refreshFiles() {
         if (this.fileIDs && this.fileIDs.length > 0) {
             let requestFilter = 'ID eq ' + this.fileIDs.join(' or ID eq ');
-
             this.http.asGET()
                 .usingBusinessDomain()
                 .withEndPoint(`files?filter=${requestFilter}`)
@@ -244,6 +242,11 @@ export class UniImage {
         if (this.files && this.currentFileIndex) {
             this.imageLoaded.emit(this.files[this.currentFileIndex]);
         }
+    }
+
+    public fetchDocumentWithID(id: number) {
+        this.fileIDs.push(id);
+        this.refreshFiles();
     }
 
     private getChosenFileIndex() {
@@ -524,6 +527,7 @@ export class UniImage {
                     .subscribe(newFile => {
                         this.uploading = false;
                         this.files.push(newFile);
+                        this.fileIDs.push(newFile.ID);
                         this.fileListReady.emit(this.files);
                         this.currentFileIndex = this.files.length - 1;
                         this.loadImage();
