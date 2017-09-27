@@ -17,7 +17,7 @@ import * as _ from 'lodash';
             [readonly]="field?.ReadOnly"
             [placeholder]="field?.Placeholder || ''"
             (blur)="blurHandler()"
-            (focus)="focusHandler()" 
+            (focus)="focusHandler()"
             [title]="control?.value || ''"
         />
         <ng-content></ng-content>
@@ -62,26 +62,17 @@ export class UniTextInput extends BaseControl {
         });
     }
 
-    private blurHandler() {
+    public blurHandler() {
         var lodash = _;
         if (this.lastControlValue === this.control.value) {
             return;
         }
         if (this.control.valid) {
             let previousValue = lodash.get(this.model, this.field.Property);
-            
-            // update template on blur if set
-            const template = this.field.Options && this.field.Options.template;
-            let actualValue;
-            if (template) {
-                const formattedValue = template(this.control.value);
-                actualValue = this.control.value;
-                this.control.setValue(formattedValue);
-            }
 
             lodash.set(this.model, this.field.Property, this.control.value);
             this.lastControlValue = this.control.value;
-            this.emitChange(previousValue, actualValue);
+            this.emitChange(previousValue, this.control.value);
         }
     }
 }
