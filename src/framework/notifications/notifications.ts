@@ -132,6 +132,10 @@ export class UniNotifications {
             route = '/accounting/bills/0?fileid=:id';
         }
 
+        if (!route) {
+            route = '';
+        }
+
         route = route.replace(/:id/i, notification.EntityID.toString());
         this.router.navigateByUrl(route);
     }
