@@ -578,7 +578,7 @@ export class UniTable implements OnChanges {
 
         // Add new row if we're at the last one as we might need to navigate to it
         let rowIndex = this.lastFocusedRowModel && this.lastFocusedRowModel.get('_originalIndex');
-        if (key !== KeyCodes.ESCAPE && rowIndex === (this.tableData.size - 1)) {
+        if (this.config.editable && key !== KeyCodes.ESCAPE && rowIndex === (this.tableData.size - 1)) {
             this.addNewRow();
         }
 
@@ -654,7 +654,7 @@ export class UniTable implements OnChanges {
             break;
             // Insert
             case 45:
-                if (event.shiftKey && this.config.insertRowHandler) {
+                if (event.shiftKey && this.config.editable && this.config.insertRowHandler) {
                     this.blur();
                     setTimeout(() => {
                         this.config.insertRowHandler(this.lastFocusPosition.rowIndex);
