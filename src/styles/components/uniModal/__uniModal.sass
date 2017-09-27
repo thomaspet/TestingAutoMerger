@@ -98,6 +98,10 @@ dialog.uniModal[open=false]:before
 
 
 // NEW MODAL STUFF
+body.modal-open
+    overflow: hidden
+
+
 .uni-modal-backdrop
     position: fixed
     bottom: 0
@@ -130,6 +134,7 @@ dialog.uniModal[open=false]:before
     border-radius: pxToRem(5)
     max-height: 95vh
     overflow: visible
+    overflow-x: auto
     display: block
 
     padding: 0

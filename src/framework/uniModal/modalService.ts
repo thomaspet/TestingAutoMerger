@@ -136,6 +136,11 @@ export class UniModalService {
             // Remove backdrop
             const backdropElements = this.containerElement.querySelectorAll('.uni-modal-backdrop');
             this.containerElement.removeChild(backdropElements.item(index));
+
+            // Remove modalOpen class from body to allow scroll again
+            if (!this.openModalRefs || !this.openModalRefs.length) {
+                document.body.classList.remove('modal-open');
+            }
         }
     }
 
@@ -169,6 +174,10 @@ export class UniModalService {
         componentRootNode.style.margin = '0 auto';
         let backdrop = this.createBackdrop(options);
         backdrop.appendChild(componentRootNode);
+
+        // Set class modal-open on body to prevent background scroll
+        // when scrolling modal
+        document.body.classList.add('modal-open');
 
         return componentRef;
     }
