@@ -1,7 +1,13 @@
 import {Component, Input, Output, EventEmitter, ViewChild} from '@angular/core';
 import {Observable} from 'rxjs/Observable';
-import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig} from '../../../../framework/ui/unitable/index';
 import {TradeItemHelper} from '../salesHelper/tradeItemHelper';
+import {
+    UniTable,
+    UniTableColumn,
+    UniTableColumnType,
+    UniTableConfig,
+    IRowChangeEvent
+} from '../../../../framework/ui/unitable/index';
 import {
     VatType,
     Account,
@@ -27,6 +33,7 @@ import {
         <uni-table *ngIf="settings"
                    [resource]="tableData"
                    [config]="tableConfig"
+                   (rowChanged)="onRowChange($event)"
                    (rowDeleted)="onRowDeleted($event.rowModel)">
         </uni-table>
     `
@@ -288,9 +295,9 @@ export class TradeItemTable {
             .setDefaultRowData(this.defaultTradeItem)
             .setDeleteButton(!this.readonly)
             .setCopyFromCellAbove(false)
-            .setChangeCallback((rowModel) => {
+            .setChangeCallback((event) => {
                 const updatedRow = this.tradeItemHelper.tradeItemChangeCallback(
-                    rowModel,
+                    event,
                     this.currencyCodeID,
                     this.currencyExchangeRate,
                     this.settings,
@@ -312,34 +319,80 @@ export class TradeItemTable {
                     }
                 }
 
-                const index = updatedRow['_originalIndex'];
-
-                if (index >= 0) {
-                    this.items[index] = updatedRow;
-                } else {
-                    this.items.push(updatedRow);
+                const updatedIndex = updatedRow['_originalIndex'];
+                if (updatedIndex >= 0) {
+                    this.items[updatedIndex] = updatedRow;
                 }
 
-                this.itemsChange.next(this.items);
                 return updatedRow;
+                // Splitting text larger than 250 characters and emitting
+                // item change is handled in rowChange event hook (onRowChange)
+                // because this should happen after changeCallback has finished
             })
             .setInsertRowHandler((index) => {
-                let newRow = <any> this.tableConfig.defaultRowData;
-                newRow['_createguid'] = this.productService.getNewGuid();
-                newRow.Dimensions._createguid = this.productService.getNewGuid();
-
-                this.items.splice(index, 0, newRow);
+                this.items.splice(index, 0, this.getEmptyRow());
                 this.itemsChange.emit(this.items);
 
                 this.tableData = this.items.filter(row => !row.Deleted); // trigger change detection
             });
     }
 
+    public onRowChange(event: IRowChangeEvent) {
+        let updatedRow = event.rowModel;
+        let updatedIndex = event.originalIndex;
+
+        // If freetext on row is more than 250 characters we need
+        // to split it into multiple rows
+        if (updatedRow.ItemText && updatedRow.ItemText.length > 250) {
+            // Split the text into parts of 250 characters
+            let stringParts = updatedRow.ItemText.match(/.{1,250}/g);
+
+            updatedRow.ItemText = stringParts.shift();
+
+            // Add the remaining string parts to new rows below
+            stringParts.forEach((text, extraRowCounter) => {
+                let newRow = this.getEmptyRow();
+                newRow.ItemText = text;
+
+                const insertIndex = updatedIndex + extraRowCounter + 1;
+                this.items.splice(insertIndex, 0, newRow);
+            });
+
+            this.items[updatedIndex] = updatedRow;
+
+            // Trigger change in table
+            this.tableData = this.items.filter(row => !row.Deleted);
+        }
+
+        // Emit change event
+        this.itemsChange.next(this.items);
+    }
+
+    private getEmptyRow() {
+        // Object.assign to make sure the row is a copy, not a reference
+        let row: any = Object.assign({}, this.defaultTradeItem);
+        row['_isEmpty'] = false; // avoid unitable filtering it out
+        row['_createguid'] = this.productService.getNewGuid();
+        row.Dimensions._createguid = this.productService.getNewGuid();
+
+        return row;
+    }
+
     public onRowDeleted(row) {
-        if (row.ID) {
-            this.items[row['_originalIndex']].Deleted = true;
-        } else {
-            this.items.splice(row['_originalIndex'], 1);
+        let deleteIndex = this.items.findIndex(item => {
+            if (row.ID) {
+                return item.ID === row.ID;
+            } else {
+                return item['_createguid'] === row['_createguid'];
+            }
+        });
+
+        if (deleteIndex >= 0) {
+            if (this.items[deleteIndex].ID) {
+                this.items[deleteIndex].Deleted = true;
+            } else {
+                this.items.splice(deleteIndex, 1);
+            }
         }
 
         this.itemsChange.next(this.items);
