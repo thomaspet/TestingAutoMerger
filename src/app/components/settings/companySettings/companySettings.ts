@@ -960,6 +960,7 @@ export class CompanySettingsComponent implements OnInit {
                 Property: 'SalaryBankAccount',
                 FieldType: FieldType.MULTIVALUE,
                 Label: 'Lønnskonto',
+                HelpText: 'Dersom lønnskonto ikke er fylt ut vil lønn bruke driftskonto ved utbetaling',
                 FieldSet: 6,
                 Section: 1,
                 Sectionheader: 'Bankkontoer'
