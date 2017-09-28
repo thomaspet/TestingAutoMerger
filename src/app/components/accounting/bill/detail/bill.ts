@@ -1071,7 +1071,9 @@ export class BillView {
         this.supplierIsReadOnly = false;
         this.hasUnsavedChanges = false;
         this.unlinkedFiles = [];
+        this.documentsInUse = [];
         this.files = [];
+        this.startUpFileID = [];
         this.setHistoryCounter(0);
         this.busy = false;
 
@@ -1983,58 +1985,59 @@ export class BillView {
         }
 
         return new Promise((resolve, reject) => {
-            let func = () => {
-                this.modalService.open(UniConfirmModalV2, {
-                    header: 'Ulagrede endringer',
-                    message: 'Du har ulagrede endringer. Ønsker du å lagre disse før vi fortsetter?',
-                    buttonLabels: {
-                        accept: 'Lagre',
-                        reject: 'Forkast',
-                        cancel: 'Avbryt'
-                    }
-                }).onClose.subscribe(response => {
-                    if (response === ConfirmActions.ACCEPT) {
-                        this.busy = false;
-                        this.save().then(() => {
-                            this.busy = false;
+            let unhandledDocuments = () => {
+                if (this.documentsInUse.length > 0) {
+                    this.modalService.open(UniConfirmModalV2, {
+                        header: 'Ubehandlede dokumenter',
+                        message: 'Du har ubehandlede dokumenter. Hva ønsker du å gjøre med disse?',
+                        buttonLabels: {
+                            accept: 'Legg i innboks',
+                            reject: 'Slett',
+                            cancel: 'Avbryt'
+                        }
+                    }).onClose.subscribe(response => {
+                        if (response === ConfirmActions.ACCEPT) {
+                            this.documentsInUse.forEach((fileID) => {
+                                this.tagFileStatus(fileID, 0);
+                            });
                             resolve(true);
-                        });
-                    } else if (response === ConfirmActions.REJECT) {
-                        resolve(true);
-                    } else {
-                        resolve(false);
-                    }
-                });
-            }
+                        } else if (response === ConfirmActions.REJECT) {
+                            this.documentsInUse.forEach((fileID) => {
+                                this.supplierInvoiceService.send('files/' + fileID, undefined, 'DELETE')
+                                .subscribe(null, err => this.errorService.handle(err));
+                            });
+                            resolve(true);
+                        } else {
+                           resolve(false);
+                        }
+                    });
+                } else {
+                    resolve(true);
+                }
+            };
 
-            if (this.documentsInUse.length > 0) {
-                this.modalService.open(UniConfirmModalV2, {
-                    header: 'Ubehandlede dokumenter',
-                    message: 'Du har ubehandlede dokumenter. Hva ønsker du å gjøre med disse?',
-                    buttonLabels: {
-                        accept: 'Legg i innboks',
-                        reject: 'Slett',
-                        cancel: 'Avbryt'
-                    }
-                }).onClose.subscribe(response => {
-                    if (response === ConfirmActions.ACCEPT) {
-                        this.documentsInUse.forEach((fileID) => {
-                            this.tagFileStatus(fileID, 0);
-                        });
-                        func();
-                    } else if (response === ConfirmActions.REJECT) {
-                        this.documentsInUse.forEach((fileID) => {
-                            this.supplierInvoiceService.send('files/' + fileID, undefined, 'DELETE')
-                            .subscribe(null, err => this.errorService.handle(err));
-                        });
-                        func();
-                    } else {
-                        return Promise.resolve(true);
-                    }
-                });
-            } else {
-                func();
-            }
+            this.modalService.open(UniConfirmModalV2, {
+                header: 'Ulagrede endringer',
+                message: 'Du har ulagrede endringer. Ønsker du å lagre disse før vi fortsetter?',
+                buttonLabels: {
+                    accept: 'Lagre',
+                    reject: 'Forkast',
+                    cancel: 'Avbryt'
+                }
+            }).onClose.subscribe(response => {
+                if (response === ConfirmActions.ACCEPT) {
+                    this.busy = false;
+                    this.save().then(() => {
+                        this.busy = false;
+                        unhandledDocuments();
+                    });
+                } else if (response === ConfirmActions.REJECT) {
+                    unhandledDocuments();
+                } else {
+                    resolve(false);
+                }
+            });
+
 
         });
     }
@@ -2105,8 +2108,13 @@ export class BillView {
                 prev: () => this.navigateTo('prev'),
                 next: () => this.navigateTo('next'),
                 add: () => {
-                    this.newInvoice(false);
-                    this.router.navigateByUrl('/accounting/bills/0');
+                    this.checkSave().then((res: boolean) => {
+                        if (res) {
+                            this.newInvoice(false);
+                            this.router.navigateByUrl('/accounting/bills/0');
+                        }
+                    });
+
                 }
             },
             entityID: doc && doc.ID ? doc.ID : null,
@@ -2155,6 +2163,7 @@ export class BillView {
     private loadFromFileID(fileID: number | string) {
         this.hasStartupFileID = true;
         this.startUpFileID = [safeInt(fileID)];
+        this.hasUnsavedChanges = true;
     }
 
     private linkFiles(ID: any, fileIDs: Array<any>, entityType: string, flagFileStatus?: any): Promise<any> {
@@ -2173,8 +2182,6 @@ export class BillView {
         var pageParams = this.pageStateService.getPageState();
         if (pageParams.fileid) {
             this.loadFromFileID(pageParams.fileid);
-            // Tag file with used
-
         }
     }
 
