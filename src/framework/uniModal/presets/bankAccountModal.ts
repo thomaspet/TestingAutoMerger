@@ -7,9 +7,9 @@ import {
     IModalOptions,
     IUniModal,
     UniModalService,
-    UniConfirmModalV2,
     ConfirmActions
-} from '../barrel';
+} from '../modalService';
+import {UniConfirmModalV2} from './confirmModal';
 import {Observable} from 'rxjs/Observable';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 

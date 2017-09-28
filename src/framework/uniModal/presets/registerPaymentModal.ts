@@ -16,9 +16,9 @@ import {
     IModalOptions,
     IUniModal,
     UniModalService,
-    UniConfirmModalV2,
     ConfirmActions
-} from '../barrel';
+} from '../modalService';
+import {UniConfirmModalV2} from './confirmModal';
 
 import {UniMath} from '../../core/uniMath';
 import {ToastService, ToastType} from '../../uniToast/toastService';

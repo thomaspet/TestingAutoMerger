@@ -5,7 +5,7 @@ import {ToastService, ToastType} from '../../uniToast/toastService';
 import {CompanySettings, User} from '../../../../src/app/unientities';
 import {ActivateAP} from '../../../../src/app/models/activateAP';
 import {ActivationEnum} from '../../../../src/app/models/activationEnum';
-import {UniModalService, ConfirmActions} from '../barrel';
+import {UniModalService, ConfirmActions} from '../modalService';
 import {
     EHFService,
     UserService,

@@ -8,12 +8,19 @@ import {
     EventEmitter,
     Type
 } from '@angular/core';
-import {
-    UniUnsavedChangesModal,
-    UniConfirmModalV2,
-    ConfirmActions
-} from './barrel';
+import {UniUnsavedChangesModal} from './presets/unsavedChangesModal';
+import {UniConfirmModalV2} from './presets/confirmModal';
+// import {
+//     UniUnsavedChangesModal,
+//     UniConfirmModalV2,
+// } from './barrel';
 import {Observable} from 'rxjs/Observable';
+
+export enum ConfirmActions {
+    ACCEPT,
+    REJECT,
+    CANCEL
+};
 
 export interface IModalOptions {
     data?: any;

@@ -1,11 +1,6 @@
 import {Component, Input, Output, EventEmitter} from '@angular/core';
-import {IUniModal, IModalOptions} from '../modalService';
+import {IUniModal, IModalOptions, ConfirmActions} from '../modalService';
 
-export enum ConfirmActions {
-    ACCEPT,
-    REJECT,
-    CANCEL
-};
 
 @Component({
     selector: 'uni-confirm-modal',
