@@ -151,7 +151,8 @@ export class UniKPIWidget {
 
     public initSolidityIndicator(data) {
         if (data.sumTK) {
-            this.solidity.value = ((data.sumEK * 100) / data.sumTK).toFixed(1);
+            // Add result to give a more up-to-date view of the solidity
+            this.solidity.value = (((data.sumEK + data.resultat) * 100) / (data.sumTK + data.resultat)).toFixed(1);
             this.checkNumbers(this.solidity, [3, 10, 18, 40]);
 
             this.drawIndicator(
