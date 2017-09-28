@@ -1164,42 +1164,12 @@ export class InvoiceDetails {
     }
 
     private saveInvoice(doneHandler: (msg: string) => void = null): Promise<CustomerInvoice> {
-        // Update sortIndex on items in case we deleted or added a new row on a specific index
-        this.invoice.Items = this.invoiceItems.map((item, index) => {
-            item.SortIndex = index + 1;
-            return item;
-        });
-
-        // Prep new orderlines for complex put
-        this.invoice.Items.forEach(item => {
-            if (item.ID && item['_createguid']) {
-                delete item['_createguid'];
-            }
-
-            if (item.VatType) {
-                item.VatType = null;
-            }
-
-            if (item.Product) {
-                item.Product = null;
-            }
-
-            if (item.Account) {
-                item.Account = null;
-            }
-        });
+        this.invoice.Items = this.tradeItemHelper.prepareItemsForSave(this.invoiceItems);
 
         return new Promise((resolve, reject) => {
-
-            if (TradeItemHelper.IsAnyItemsMissingProductID(this.invoice.Items)) {
-                TradeItemHelper.clearFieldsInItemsWithNoProductID(this.invoice.Items);
-            }
-
             let request = (this.invoice.ID > 0)
                 ? this.customerInvoiceService.Put(this.invoice.ID, this.invoice)
                 : this.customerInvoiceService.Post(this.invoice);
-
-
 
             // If a currency other than basecurrency is used, and any lines contains VAT,
             // validate that this is correct before resolving the promise

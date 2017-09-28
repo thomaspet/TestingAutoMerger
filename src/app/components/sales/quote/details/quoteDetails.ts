@@ -868,41 +868,13 @@ export class QuoteDetails {
     }
 
     private saveQuote(): Promise<CustomerQuote> {
-        // Update sortIndex on items in case we deleted or added a new row on a specific index
-        this.quote.Items = this.quoteItems.map((item, index) => {
-            item.SortIndex = index + 1;
-            return item;
-        });
-
-        // return a promise that resolves
-        this.quote.Items.forEach(item => {
-            if (item.Dimensions && item.Dimensions.ID === 0) {
-                item.Dimensions['_createguid'] = this.customerQuoteItemService.getNewGuid();
-            }
-
-            if (item.VatType) {
-                item.VatType = null;
-            }
-
-            if (item.Product) {
-                item.Product = null;
-            }
-
-            if (item.Account) {
-                item.Account = null;
-            }
-        });
+        this.quote.Items = this.tradeItemHelper.prepareItemsForSave(this.quoteItems);
 
         if (this.quote.DefaultDimensions && !this.quote.DefaultDimensions.ID) {
             this.quote.DefaultDimensions._createguid = this.customerQuoteService.getNewGuid();
         }
 
         return new Promise((resolve, reject) => {
-
-            if (!TradeItemHelper.IsAnyItemsMissingProductID(this.quote.Items)) {
-                TradeItemHelper.clearFieldsInItemsWithNoProductID(this.quote.Items);
-            }
-
             // create observable but dont subscribe - resolve it in the promise
             var request = ((this.quote.ID > 0)
                 ? this.customerQuoteService.Put(this.quote.ID, this.quote)

@@ -5,38 +5,29 @@ import {
     Project,
     ProjectTask,
     Department,
-    CustomerQuoteItem,
-    CustomerOrderItem,
-    CustomerInvoiceItem,
     CompanySettings,
     VatType
 } from '../../../unientities';
 
 @Injectable()
 export class TradeItemHelper  {
+    constructor(private guidService: GuidService) {}
 
-    constructor(private guidService: GuidService) {
+    public prepareItemsForSave(items) {
+        return items.map((item, index) => {
+            item.SortIndex = index + 1;
 
-    }
+            if (item.Dimensions && !item.Dimensions.ID) {
+                item.Dimensions['_createguid'] = this.guidService.guid();
+            }
 
-    public static IsItemsValid(items: Array<CustomerQuoteItem | CustomerOrderItem | CustomerInvoiceItem>) {
-        // let invalidItems = items.filter(x => !x.ProductID);
+            // ID is enough
+            item.VatType = null;
+            item.Product = null;
+            item.Account = null;
 
-        return true;
-    }
-
-    public static IsAnyItemsMissingProductID (items: Array<CustomerQuoteItem | CustomerOrderItem | CustomerInvoiceItem>) {
-        let invalidItems = items.filter(x => !x.ProductID);
-
-        return invalidItems.length !== 0;
-    }
-
-    public static clearFieldsInItemsWithNoProductID(items: Array<CustomerQuoteItem | CustomerOrderItem | CustomerInvoiceItem>) {
-
-
-        items.forEach(item => {
-            if (item.ProductID === 0 || item.ProductID === null) {
-                item.Account = null;
+            // Copy paste from old function..
+            if (!item.ProductID) {
                 item.AccountID = null;
                 item.Comment = null;
                 item.PriceExVat = 0;
@@ -52,14 +43,12 @@ export class TradeItemHelper  {
                 item.SumVat = 0;
                 item.SumVatCurrency = 0;
                 item.Unit = null;
-                item.VatType = null;
                 item.VatTypeID = null;
-
             }
+
+            return item;
         });
     }
-
-
 
     public getDefaultTradeItemData(mainEntity) {
         return {
@@ -81,23 +70,31 @@ export class TradeItemHelper  {
                 DepartmentID: mainEntity.Customer && mainEntity.Customer.Dimensions
                     ? mainEntity.Customer.Dimensions.DepartmentID : null
             },
-            NumberOfItems: null,
-            PriceExVat: null,
-            Discount: null,
+            NumberOfItems: 0,
+            PriceExVat: 0,
+            Discount: 0,
             DiscountPercent: 0,
             AccountID: null,
-            Account: null
+            Account: null,
+            SumVat: 0
         };
     }
 
     public tradeItemChangeCallback(event, currencyCodeID: number, currencyExchangeRate: number, companySettings: CompanySettings, foreignVatType: VatType) {
         var newRow = event.rowModel;
 
+        newRow.SumVat = newRow.SumVat || 0;
+        newRow.SumVatCurrency = newRow.SumVatCurrency || 0;
+
         // if not currencyExchangeRate has been defined from the parent component, assume no
         // currency is select - i.e. the currency amounts will be the same as the base currency
         // amounts - this is accomplished by setting the currencyExchangeRate to 1
         if (!currencyExchangeRate || currencyExchangeRate === 0) {
             currencyExchangeRate = 1;
+        }
+
+        if (!newRow.Dimensions) {
+            newRow.Dimensions = {};
         }
 
         if (newRow.ID === 0) {
@@ -113,7 +110,7 @@ export class TradeItemHelper  {
         if (event.field === 'Product') {
             if (newRow['Product']) {
                 this.mapProductToQuoteItem(newRow, currencyExchangeRate);
-                if(currencyCodeID !== companySettings.BaseCurrencyCodeID && foreignVatType) {
+                if (currencyCodeID !== companySettings.BaseCurrencyCodeID && foreignVatType) {
                     newRow.VatType = foreignVatType;
                     newRow.VatTypeID = foreignVatType.ID;
                 }
@@ -311,14 +308,14 @@ export class TradeItemHelper  {
         rowModel.Discount = discountExVat || 0;
         rowModel.SumTotalExVat = (rowModel.NumberOfItems * rowModel.PriceExVat) - discountExVat;
         rowModel.SumTotalIncVat = (rowModel.NumberOfItems * rowModel.PriceIncVat) - discountIncVat;
-        rowModel.SumVat = rowModel.SumTotalIncVat - rowModel.SumTotalExVat;
+        rowModel.SumVat = (rowModel.SumTotalIncVat - rowModel.SumTotalExVat) || 0;
 
         let discountExVatCurrency = discountExVat / currencyExchangeRate;
         let discountIncVatCurrency = discountIncVat / currencyExchangeRate;
         rowModel.DiscountCurrency = discountExVatCurrency || 0;
         rowModel.SumTotalExVatCurrency = ((rowModel.NumberOfItems * rowModel.PriceExVatCurrency) - discountExVatCurrency) ;
         rowModel.SumTotalIncVatCurrency = ((rowModel.NumberOfItems * rowModel.PriceIncVatCurrency) - discountIncVatCurrency);
-        rowModel.SumVatCurrency = rowModel.SumTotalIncVatCurrency - rowModel.SumTotalExVatCurrency;
+        rowModel.SumVatCurrency = (rowModel.SumTotalIncVatCurrency - rowModel.SumTotalExVatCurrency) || 0;
     }
 
     public calculateTradeItemSummaryLocal(items: Array<any>, decimals: number): TradeHeaderCalculationSummary {

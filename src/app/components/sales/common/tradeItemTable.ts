@@ -52,7 +52,6 @@ export class TradeItemTable {
 
     private vatTypes: VatType[] = [];
     private foreignVatType: VatType;
-    private accounts: Account[] = [];
     private tableConfig: UniTableConfig;
     private tableData: any[];
     private settings: CompanySettings;
@@ -68,16 +67,16 @@ export class TradeItemTable {
         private projectTaskService: ProjectTaskService,
         private errorService: ErrorService,
         private companySettingsService: CompanySettingsService
-    ) {
-        this.companySettingsService.Get(1).subscribe(settings => {
-            this.settings = settings;
-        });
-    }
+    ) {}
 
     public ngOnInit() {
-        this.vatTypeService.GetAll('filter=OutputVat eq true').subscribe(
-            (vattypes) => {
-                this.vatTypes = vattypes;
+        Observable.forkJoin(
+            this.companySettingsService.Get(1),
+            this.vatTypeService.GetAll('filter=OutputVat eq true')
+        ).subscribe(
+            res => {
+                this.settings = res[0];
+                this.vatTypes = res[1];
                 this.foreignVatType = this.vatTypes.find(vt => vt.VatCode === '52');
                 this.initTableConfig();
             },
@@ -303,6 +302,7 @@ export class TradeItemTable {
                     this.settings,
                     this.foreignVatType
                 );
+
                 updatedRow['_isDirty'] = true;
 
                 if (updatedRow.VatTypeID && !updatedRow.VatType) {
@@ -373,7 +373,7 @@ export class TradeItemTable {
         let row: any = Object.assign({}, this.defaultTradeItem);
         row['_isEmpty'] = false; // avoid unitable filtering it out
         row['_createguid'] = this.productService.getNewGuid();
-        row.Dimensions._createguid = this.productService.getNewGuid();
+        row.Dimensions = null;
 
         return row;
     }
@@ -382,7 +382,7 @@ export class TradeItemTable {
         let deleteIndex = this.items.findIndex(item => {
             if (row.ID) {
                 return item.ID === row.ID;
-            } else {
+            } else if (row['_createguid']) {
                 return item['_createguid'] === row['_createguid'];
             }
         });

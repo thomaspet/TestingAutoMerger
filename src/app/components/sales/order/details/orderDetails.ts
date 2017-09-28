@@ -903,40 +903,13 @@ export class OrderDetails {
     }
 
     private saveOrder(): Promise<CustomerOrder> {
-        // Update sortIndex on items in case we deleted or added a new row on a specific index
-        this.order.Items = this.orderItems.map((item, index) => {
-            item.SortIndex = index + 1;
-            return item;
-        });
-
-        this.order.Items.forEach(item => {
-            if (item.Dimensions && item.Dimensions.ID === 0) {
-                item.Dimensions['_createguid'] = this.customerOrderService.getNewGuid();
-            }
-
-            if (item.VatType) {
-                item.VatType = null;
-            }
-
-            if (item.Product) {
-                item.Product = null;
-            }
-
-            if (item.Account) {
-                item.Account = null;
-            }
-        });
+        this.order.Items = this.tradeItemHelper.prepareItemsForSave(this.orderItems);
 
         if (this.order.DefaultDimensions && !this.order.DefaultDimensions.ID) {
             this.order.DefaultDimensions._createguid = this.customerOrderService.getNewGuid();
         }
 
         return new Promise((resolve, reject) => {
-
-            if (TradeItemHelper.IsAnyItemsMissingProductID(this.order.Items)) {
-                TradeItemHelper.clearFieldsInItemsWithNoProductID(this.order.Items);
-            }
-
             // create observable but dont subscribe - resolve it in the promise
             var request = ((this.order.ID > 0)
                 ? this.customerOrderService.Put(this.order.ID, this.order)
