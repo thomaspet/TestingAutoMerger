@@ -20,9 +20,7 @@ import {InvoiceList2} from './invoice/list/invoiceList2';
 import {OrderDetails} from './order/details/orderDetails';
 import {TradeItemHelper} from './salesHelper/tradeItemHelper';
 import {OrderList} from './order/list/orderList';
-import {OrderToInvoiceTable} from './order/modals/ordertoinvoice';
-import {OrderToInvoiceModalType} from './order/modals/ordertoinvoice';
-import {OrderToInvoiceModal} from './order/modals/ordertoinvoice';
+import {UniOrderToInvoiceModal} from './order/orderToInvoiceModal';
 import {QuoteDetails} from './quote/details/quoteDetails';
 import {QuoteList} from './quote/list/quoteList';
 
@@ -92,9 +90,7 @@ import {SellerDetailsComponent} from './sellers/sellerDetailsComponent';
 
         OrderDetails,
         OrderList,
-        OrderToInvoiceTable,
-        OrderToInvoiceModalType,
-        OrderToInvoiceModal,
+        UniOrderToInvoiceModal,
 
         QuoteDetails,
         QuoteList,
@@ -121,8 +117,7 @@ import {SellerDetailsComponent} from './sellers/sellerDetailsComponent';
         SellerDetailsComponent
     ],
     entryComponents: [
-        OrderToInvoiceModalType,
-        OrderToInvoiceTable,
+        UniOrderToInvoiceModal,
         ReminderConfirmForm,
         UniReminderSendingModal,
         ReminderSending,
@@ -145,9 +140,7 @@ import {SellerDetailsComponent} from './sellers/sellerDetailsComponent';
         InvoiceDetails,
         OrderDetails,
         OrderList,
-        OrderToInvoiceTable,
-        OrderToInvoiceModalType,
-        OrderToInvoiceModal,
+        UniOrderToInvoiceModal,
         QuoteDetails,
         QuoteList,
         Reminder,

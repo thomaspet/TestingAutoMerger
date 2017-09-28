@@ -1,7 +1,6 @@
 import {Component, EventEmitter, HostListener, Input, ViewChild} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
 import {Observable} from 'rxjs/Observable';
-import * as moment from 'moment';
 
 import {
     UniModalService,
@@ -22,7 +21,6 @@ import {
     Terms,
     NumberSeries
 } from '../../../../unientities';
-
 import {
     AddressService,
     BusinessRelationService,
@@ -65,8 +63,8 @@ import {StatusCode} from '../../salesHelper/salesEnums';
 import {TofHelper} from '../../salesHelper/tofHelper';
 import {TradeItemHelper} from '../../salesHelper/tradeItemHelper';
 
-import {OrderToInvoiceModal} from '../modals/ordertoinvoice';
-
+import {UniOrderToInvoiceModal} from '../orderToInvoiceModal';
+import * as moment from 'moment';
 declare var _;
 
 // TODO: this can be removed when refactor is complete
@@ -85,7 +83,6 @@ class CustomerOrderExt extends CustomerOrder {
     templateUrl: './orderDetails.html'
 })
 export class OrderDetails {
-    @ViewChild(OrderToInvoiceModal) private oti: OrderToInvoiceModal;
     @ViewChild(TofHead) private tofHead: TofHead;
     @ViewChild(TradeItemTable) private tradeItemTable: TradeItemTable;
 
@@ -989,35 +986,25 @@ export class OrderDetails {
     }
 
     private saveAndTransferToInvoice(done: any) {
-        // Set up subscription to listen to when items has been selected and button clicked in modal window.
-        // Only setup one subscription - this is done to avoid problems with multiple callbacks
-        if (this.oti.changed.observers.length === 0) {
-            this.oti.changed.subscribe(items => {
-                // Do not transfer to invoice if no items
-                if (items.length === 0) {
-                    this.toastService.addToast('Kan ikke overføre en ordre uten linjer', ToastType.warn, 5);
-                    return;
-                }
-
-                var order: CustomerOrder = _.cloneDeep(this.order);
-                order.Items = items;
-
-                this.customerOrderService.ActionWithBody(order.ID, order, 'transfer-to-invoice')
-                    .subscribe((invoice) => {
-                        this.router.navigateByUrl('/sales/invoices/' + invoice.ID);
-                        done('Lagret og overført til faktura');
-                    }, (err) => {
-                        this.errorService.handle(err);
-                        done('Feilet i overføring til faktura');
-                    });
-            });
-        }
-
         // save order and open modal to select what to transfer to invoice
-        this.saveOrder().then(res => {
+        this.saveOrder().then(success => {
             done('Ordre lagret');
             this.isDirty = false;
-            this.oti.openModal(this.order);
+
+            this.modalService.open(UniOrderToInvoiceModal, {
+                data: this.order.ID
+            }).onClose.subscribe(order => {
+                if (order && order.Items && order.Items.length) {
+                    this.customerOrderService.ActionWithBody(
+                        order.ID,
+                        order,
+                        'transfer-to-invoice'
+                    ).subscribe(
+                        res => this.router.navigateByUrl('/sales/invoices/' + res.ID),
+                        err => this.errorService.handle(err)
+                    );
+                }
+            });
         }).catch(error => {
             this.handleSaveError(error, done);
         });
