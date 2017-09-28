@@ -161,37 +161,7 @@ export class BillsView {
             }, err => this.errorService.handle(err)
             );
         }
-            private onFormFilterChange(event) {
-                this.currentUserFilter = event.ID.currentValue;
-                this.refreshList(this.currentFilter, true, null, this.currentUserFilter);
-            }
 
-    private onFormFilterChange(event) {
-        this.currentUserFilter = event.ID.currentValue;
-        this.refreshList(this.currentFilter, true, null, this.currentUserFilter);
-    }
-
-    private onRowSelectionChanged() {
-        this.selectedItems = this.unitable.getSelectedRows();
-        if (this.selectedItems && this.selectedItems.length > 0) {
-                let status = this.selectedItems[0].StatusCode;
-                let warn = false;
-                this.selectedItems.forEach(inv => {
-                    if (inv.StatusCode !== status) {
-                        warn = true;
-
-                        if (warn) {
-                            this.toast.addToast('Du kan bare massebehandle fakturaer med lik status', ToastType.warn, 4);
-                            this.updateSaveActions(0);
-                        } else {
-                            this.updateSaveActions(status);
-                        }
-                    } else {
-                        this.updateSaveActions(0);
-                    }
-                });
-            }
-        };
 
     private onFormFilterChange(event) {
         this.currentUserFilter = event.ID.currentValue;
@@ -214,19 +184,28 @@ export class BillsView {
                 if (inv.StatusCode !== status) {
                     warn = true;
                 }
+            });
+
+            if (warn) {
+                this.toast.addToast('Du kan bare massebehandle fakturaer med lik status', ToastType.warn, 4);
+                this.updateSaveActions(0);
+            } else {
+                this.updateSaveActions(status);
             }
+        } else {
+            this.updateSaveActions(0);
+        }
+    }
 
-            private updateSaveActions(supplierInvoiceStatusCode: number) {
+    private updateSaveActions(supplierInvoiceStatusCode: number) {
+        this.saveActions = [];
 
-
-                this.saveActions = [];
-
-                this.saveActions.push ({
-                        label: 'Nytt fakturamottak',
-                        action: (completeEvent) => setTimeout(this.onAddNew()),
-                        main: false,
-                        disabled: false
-                });
+        this.saveActions.push ({
+            label: 'Nytt fakturamottak',
+            action: (completeEvent) => setTimeout(this.onAddNew()),
+            main: false,
+            disabled: false
+        });
 
         if (supplierInvoiceStatusCode === StatusCodeSupplierInvoice.Draft) {
             this.saveActions.push({
