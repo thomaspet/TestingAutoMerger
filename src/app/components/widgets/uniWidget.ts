@@ -22,8 +22,7 @@ import {
     UniCompanyLogoWidget,
     UniOverdueInvoiceWidget,
     UniKPIWidget,
-    UniFlexWidget,
-    UniCompanyListWidget
+    UniFlexWidget
 } from './widgets/barrel';
 
 export interface IUniWidget {
@@ -78,7 +77,6 @@ export class UniWidget {
         'chart': UniChartWidget,
         'rss': UniRSSWidget,
         'list': UniListWidget,
-        'companyList': UniCompanyListWidget,
         'clock': UniClockWidget,
         'overdue': UniOverdueInvoiceWidget,
         'kpi': UniKPIWidget,
