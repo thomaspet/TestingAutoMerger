@@ -23,13 +23,13 @@ import {
     UniSearchEmployeeConfig,
     UserService
 } from '../../../../services/services';
-declare var _;
+declare const _;
 
 import {Observable} from 'rxjs/Observable';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {UniField} from '../../../../../framework/ui/uniform/index';
 
-const EMPLOYEE_KEY = 'employee'
+const EMPLOYEE_KEY = 'employee';
 
 @Component({
     selector: 'employee-personal-details',
@@ -269,7 +269,8 @@ export class PersonalDetails extends UniView {
             display: (phone: Phone) => {
                 let displayVal = '';
                 if (phone.Number) {
-                    displayVal = (phone.CountryCode && phone.Number.substr(0, 3) !== phone.CountryCode ? phone.CountryCode + ' ' : '') + phone.Number;
+                    displayVal = (phone.CountryCode && phone.Number.substr(0, 3) !== phone.CountryCode
+                            ? phone.CountryCode + ' ' : '') + phone.Number;
                 }
                 return displayVal;
             }
@@ -317,7 +318,8 @@ export class PersonalDetails extends UniView {
             }
 
         };
-        let defaultBankAccount: UniFieldLayout = this.findByProperty(fields, 'BusinessRelationInfo.DefaultBankAccount');
+        let defaultBankAccount: UniFieldLayout;
+        defaultBankAccount = this.findByProperty(fields, 'BusinessRelationInfo.DefaultBankAccount');
         defaultBankAccount.Options = {
             entity: BankAccount,
             listProperty: 'BusinessRelationInfo.BankAccounts',
@@ -360,7 +362,7 @@ export class PersonalDetails extends UniView {
                         return emp && emp.UserID
                             ? this.userService.Get(emp.UserID).map(u => [u])
                             : Observable.of([]);
-                    })
+                    });
             },
             template: (obj: User) => obj && obj.ID ? `${obj.DisplayName}` : '',
             search: (query) => this.userService

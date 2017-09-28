@@ -51,7 +51,7 @@ export class WidgetContainer {
 @Component({
     selector: 'uni-widget',
     template: `
-        <template widget-container></template>
+        <ng-template widget-container></ng-template>
         <button class="widget-remove-btn"
                 (click)="removeWidget()"
                 *ngIf="widget?._editMode">
