@@ -275,7 +275,7 @@ export class BillView {
     private initForm() {
         let fields = [
             <any> {
-                Property: 'SupplierID',
+                Property: 'Supplier',
                 FieldType: FieldType.UNI_SEARCH,
                 Label: 'Leverandør',
             },
@@ -332,14 +332,14 @@ export class BillView {
             },
         ];
 
+
         this.uniSearchConfig = this.uniSearchSupplierConfig
-            .generate(this.supplierExpandOptions);
+            .generateDoNotCreateNew(this.supplierExpandOptions);
 
         // Extend config with stuff that can't come from layout system
-        let supplierField = fields.find(f => f.Property === 'SupplierID');
+        let supplierField = fields.find(f => f.Property === 'Supplier');
         supplierField.Options = {
-            uniSearchConfig: this.uniSearchConfig,
-            valueProperty: 'ID'
+            uniSearchConfig: this.uniSearchConfig
         };
 
         let sumField = fields.find(f => f.Property === 'TaxInclusiveAmountCurrency');
@@ -865,9 +865,17 @@ export class BillView {
 
         let model = this.current.getValue();
 
+
+
         if (change['SupplierID']) {
             this.fetchNewSupplier(model.SupplierID);
         }
+
+        if (change['Supplier'])  {
+            console.log(change['Supplier'].currentValue.ID);
+            model.SupplierID = change['Supplier'].currentValue.ID;
+        }
+
 
         if (change['InvoiceDate']) {
             let creditdays = model.Supplier ? model.Supplier.CreditDays : null;
@@ -1703,6 +1711,7 @@ export class BillView {
             let current = this.current.getValue();
 
             let saveFunc = () => {
+
                 if (current.ID) {
                     obs = this.supplierInvoiceService.Put(current.ID, current);
                 } else {

@@ -160,7 +160,38 @@ export class BillsView {
 
             }, err => this.errorService.handle(err)
             );
+        }
+            private onFormFilterChange(event) {
+                this.currentUserFilter = event.ID.currentValue;
+                this.refreshList(this.currentFilter, true, null, this.currentUserFilter);
+            }
+
+    private onFormFilterChange(event) {
+        this.currentUserFilter = event.ID.currentValue;
+        this.refreshList(this.currentFilter, true, null, this.currentUserFilter);
     }
+
+    private onRowSelectionChanged() {
+        this.selectedItems = this.unitable.getSelectedRows();
+        if (this.selectedItems && this.selectedItems.length > 0) {
+                let status = this.selectedItems[0].StatusCode;
+                let warn = false;
+                this.selectedItems.forEach(inv => {
+                    if (inv.StatusCode !== status) {
+                        warn = true;
+
+                        if (warn) {
+                            this.toast.addToast('Du kan bare massebehandle fakturaer med lik status', ToastType.warn, 4);
+                            this.updateSaveActions(0);
+                        } else {
+                            this.updateSaveActions(status);
+                        }
+                    } else {
+                        this.updateSaveActions(0);
+                    }
+                });
+            }
+        };
 
     private onFormFilterChange(event) {
         this.currentUserFilter = event.ID.currentValue;
@@ -183,29 +214,19 @@ export class BillsView {
                 if (inv.StatusCode !== status) {
                     warn = true;
                 }
-            });
-            if (warn) {
-                this.toast.addToast('Du kan bare massebehandle fakturaer med lik status', ToastType.warn, 4);
-                this.updateSaveActions(0);
-            } else {
-                this.updateSaveActions(status);
             }
-        } else {
-            this.updateSaveActions(0);
-        }
-    }
 
-    private updateSaveActions(supplierInvoiceStatusCode: number) {
+            private updateSaveActions(supplierInvoiceStatusCode: number) {
 
 
-        this.saveActions = [];
+                this.saveActions = [];
 
-        this.saveActions.push ({
-                label: 'Nytt fakturamottak',
-                action: (completeEvent) => setTimeout(this.onAddNew()),
-                main: false,
-                disabled: false
-        });
+                this.saveActions.push ({
+                        label: 'Nytt fakturamottak',
+                        action: (completeEvent) => setTimeout(this.onAddNew()),
+                        main: false,
+                        disabled: false
+                });
 
         if (supplierInvoiceStatusCode === StatusCodeSupplierInvoice.Draft) {
             this.saveActions.push({
@@ -791,12 +812,41 @@ export class BillsView {
         return {
             Name: 'Assignees',
             BaseEntity: 'User',
+            StatusCode: 0,
+            Deleted: false,
+            CreatedAt: null,
+            UpdatedAt: null,
+            CreatedBy: null,
+            UpdatedBy: null,
+            ID: 1,
+            CustomFields: null,
             Fields: [
                 {
+                    ComponentLayoutID: 1,
                     EntityType: 'User',
                     Property: 'ID',
+                    Placement: 4,
+                    Hidden: false,
                     FieldType: FieldType.AUTOCOMPLETE,
+                    ReadOnly: false,
+                    LookupField: false,
                     Label: 'Filtrer på tildelt/godkjent av:',
+                    Description: '',
+                    HelpText: '',
+                    FieldSet: 0,
+                    Section: 0,
+                    Placeholder: null,
+                    LineBreak: null,
+                    Combo: null,
+                    Legend: '',
+                    StatusCode: 0,
+                    ID: 1,
+                    Deleted: false,
+                    CreatedAt: null,
+                    UpdatedAt: null,
+                    CreatedBy: null,
+                    UpdatedBy: null,
+                    CustomFields: null,
                     Options: {
                         getDefaultData: () => {
                             if (params.assignee) {
@@ -819,4 +869,8 @@ export class BillsView {
             ]
         };
     }
+
+
+
+
 }

@@ -4,6 +4,7 @@ import {Observable} from 'rxjs/Observable';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {StatisticsService} from '../statisticsService';
 import {CustomerService} from '../../sales/customerService';
+import {GuidService} from '../guidService';
 import {ErrorService} from '../errorService';
 import {IntegrationServerCaller} from '../integrationServerCaller';
 import {BusinessRelationSearch} from '../../../models/Integration/BusinessRelationSearch';
@@ -32,7 +33,8 @@ export class UniSearchCustomerConfig {
         private statisticsService: StatisticsService,
         private customerService: CustomerService,
         private errorService: ErrorService,
-        private integrationServerCaller: IntegrationServerCaller
+        private integrationServerCaller: IntegrationServerCaller,
+        private guidService: GuidService
     ) {}
 
     public generate(
@@ -52,6 +54,63 @@ export class UniSearchCustomerConfig {
                     return this.customerService.Post(this.customStatisticsObjToCustomer(selectedItem))
                         .switchMap(item => this.customerService.Get(item.ID, expands))
                         .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
+                }
+            },
+            initialItem$: new BehaviorSubject(null),
+            tableHeader: ['Kundenr', 'Navn', 'Tlf', 'Adresse', 'Poststed', 'Org.Nr'],
+            rowTemplateFn: item => [
+                item.CustomerNumber,
+                item.Name,
+                item.PhoneNumber,
+                item.AddressLine1,
+                `${item.PostalCode || ''} ${item.City || ''}`,
+                item.OrgNumber
+            ],
+            inputTemplateFn: item => `${item.CustomerNumber || ''}${item.Info && item.Info.Name ? ' ' + item.Info.Name : ''}`,
+            newItemModalFn: newItemModalFn,
+            externalLookupFn: query =>
+                this.integrationServerCaller
+                    .businessRelationSearch(query, MAX_RESULTS)
+                    .map(results =>
+                        results.map(result =>
+                            this.mapExternalSearchToCustomStatisticsObj(result)
+                        )
+                    ),
+            maxResultsLength: MAX_RESULTS
+        };
+    }
+
+    public generateDoNotCreate(
+        expands: string[] = ['Info.Addresses'],
+        newItemModalFn?: () => Observable<UniEntity>
+    ): IUniSearchConfig {
+        return <IUniSearchConfig>{
+            lookupFn: searchTerm => this
+                .statisticsService
+                .GetAllUnwrapped(this.generateCustomerStatisticsQuery(searchTerm))
+                .catch((err, obs) => this.errorService.handleRxCatch(err, obs)),
+            onSelect: (selectedItem: CustomStatisticsResultItem) => {
+                if (selectedItem.ID) {
+                    return this.customerService.Get(selectedItem.ID, expands)
+                        .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
+                } else {
+                    const it = this.customStatisticsObjToCustomer(selectedItem);
+                    it._createguid = this.guidService.guid();
+                    if (it.Info) it.Info._createguid = this.guidService.guid();
+
+                    if (it.Info.InvoiceAddress) {
+                        it.Info.InvoiceAddress._createguid = this.guidService.guid();
+                    }
+                    if (it.Info.ShippingAddress) {
+                        it.Info.ShippingAddress._createguid = this.guidService.guid();
+                    }
+                    if (it.Info.DefaultPhone) {
+                        it.Info.DefaultPhone._createguid = this.guidService.guid();
+                    }
+                    if (it.Info.DefaultEmail) {
+                        it.Info.DefaultEmail._createguid = this.guidService.guid();
+                    }
+                    return Observable.of(it);
                 }
             },
             initialItem$: new BehaviorSubject(null),
@@ -131,8 +190,9 @@ export class UniSearchCustomerConfig {
         };
     }
 
-    public customStatisticsObjToCustomer(statObj: CustomStatisticsResultItem): Customer {
+    public customStatisticsObjToCustomer(statObj: CustomStatisticsResultItem, setDefaults: boolean = true): Customer {
         const customer = new Customer();
+        customer.ID = 0;
         customer.OrgNumber = statObj.OrgNumber;
         customer.WebUrl = statObj.WebUrl;
         customer.Info = new BusinessRelation();
@@ -146,11 +206,8 @@ export class UniSearchCustomerConfig {
             address.PostalCode = statObj.PostalCode;
             address.City = statObj.City;
             address.CountryCode = statObj.CountryCode;
-
             customer.Info.InvoiceAddress = address;
             customer.Info.ShippingAddress = address;
-
-            customer.Info.Addresses.push(address);
         }
 
         if (statObj.PhoneNumber) {
