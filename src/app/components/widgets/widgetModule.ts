@@ -1,18 +1,16 @@
 import {NgModule} from '@angular/core';
 import {CommonModule} from '@angular/common';
-import {ReactiveFormsModule} from '@angular/forms';
 import {UniFrameworkModule} from '../../../framework/frameworkModule';
 import {UniWidgetCanvas} from './widgetCanvas';
 import {UniWidget, WidgetContainer} from './uniWidget';
 import {WidgetDataService} from './widgetDataService';
 import {UNI_WIDGETS} from './widgets/barrel';
-import {UniNewCompanyModal} from './widgets/newCompanyModal';
+import {UniNewCompanyModal} from '../bureau/newCompanyModal';
 
 @NgModule({
     imports: [
         CommonModule,
-        UniFrameworkModule,
-        ReactiveFormsModule
+        UniFrameworkModule
     ],
     declarations: [
         UniWidgetCanvas,

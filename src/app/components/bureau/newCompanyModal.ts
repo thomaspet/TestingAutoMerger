@@ -1,8 +1,8 @@
 import {Component, Input, Output, EventEmitter} from '@angular/core';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
-import {IUniModal, IModalOptions} from '../../../../framework/uniModal/modalService';
-import {UniFieldLayout} from '../../../../framework/ui/uniform/interfaces';
-import {FieldType} from '../../../unientities';
+import {IUniModal, IModalOptions} from '../../../framework/uniModal/modalService';
+import {UniFieldLayout} from '../../../framework/ui/uniform/interfaces';
+import {FieldType} from '../../unientities';
 
 @Component({
     selector: 'uni-new-company-modal',

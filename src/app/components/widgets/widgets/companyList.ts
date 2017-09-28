@@ -5,7 +5,7 @@ import {ErrorService} from '../../../services/services';
 import {Company, User} from '../../../unientities';
 import {AuthService} from '../../../../framework/core/authService';
 import {UniModalService} from '../../../../framework/uniModal/barrel';
-import {UniNewCompanyModal} from './newCompanyModal';
+import {UniNewCompanyModal} from '../../bureau/newCompanyModal';
 import {UniHttp} from '../../../../framework/core/http/http';
 import {UserService} from '../../../services/common/userService';
 import {Observable} from 'rxjs/Observable';

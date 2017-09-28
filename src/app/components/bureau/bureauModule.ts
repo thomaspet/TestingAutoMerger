@@ -1,7 +1,7 @@
 import {NgModule} from '@angular/core';
 import {CommonModule} from '@angular/common';
+import {ReactiveFormsModule} from '@angular/forms';
 import {UniFrameworkModule} from '../../../framework/frameworkModule';
-import {WidgetModule} from '../widgets/widgetModule';
 
 import {BureauDashboard} from './bureauDashboard';
 
@@ -9,7 +9,7 @@ import {BureauDashboard} from './bureauDashboard';
     imports: [
         CommonModule,
         UniFrameworkModule,
-        WidgetModule
+        ReactiveFormsModule
     ],
     declarations: [
         BureauDashboard
