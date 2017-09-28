@@ -8,7 +8,7 @@ import {Observable} from 'rxjs/Observable';
 @Injectable()
 export class SubEntityService extends BizHttp<SubEntity> {
 
-    constructor(http: UniHttp) {
+    constructor(protected http: UniHttp) {
         super(http);
 
         this.relativeURL = SubEntity.RelativeUrl;
@@ -21,12 +21,7 @@ export class SubEntityService extends BizHttp<SubEntity> {
     }
 
     public getFromEnhetsRegister(orgno: string) {
-        return this.http
-            .asGET()
-            .usingBusinessDomain()
-            .withEndPoint('subentities?action=sub-entities-from-brreg&orgno=' + orgno)
-            .send()
-            .map(response => response.json());
+        return super.GetAction(null, 'sub-entities-from-brreg', 'orgno=' + orgno);
     }
 
     public getLayout(layoutID: string) {

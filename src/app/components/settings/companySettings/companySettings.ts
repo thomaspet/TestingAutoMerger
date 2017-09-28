@@ -45,6 +45,7 @@ import {
     VatTypeService,
     UniFilesService
 } from '../../../services/services';
+import {SubEntitySettingsService} from '../agaAndSubEntitySettings/services/subEntitySettingsService';
 import {
     UniActivateAPModal,
     UniAddressModal,
@@ -85,6 +86,7 @@ export class CompanySettingsComponent implements OnInit {
     ];
 
     private company$: BehaviorSubject<CompanySettings> = new BehaviorSubject(null);
+    private savedCompanyOrgValue: string;
 
     private companyTypes: Array<CompanyType> = [];
     private vatReportForms: Array<VatReportForm> = [];
@@ -159,7 +161,8 @@ export class CompanySettingsComponent implements OnInit {
         private financialYearService: FinancialYearService,
         private ehfService: EHFService,
         private modalService: UniModalService,
-        private uniFilesService: UniFilesService
+        private uniFilesService: UniFilesService,
+        private subEntitySettingsService: SubEntitySettingsService
     ) {}
 
     public ngOnInit() {
@@ -200,6 +203,7 @@ export class CompanySettingsComponent implements OnInit {
 
                 // do this after getting emptyPhone/email/address
                 this.company$.next(this.setupCompanySettingsData(dataset[5]));
+                this.savedCompanyOrgValue = dataset[5].OrganizationNumber;
                 this.companyService.Get(this.authService.activeCompany.ID).subscribe(
                     company => {
                         let data = this.company$.getValue();
@@ -388,7 +392,17 @@ export class CompanySettingsComponent implements OnInit {
             company.BankAccounts = company.BankAccounts.filter(x => x !== company.SalaryBankAccount);
         }
 
-        this.companySettingsService.Put(company.ID, company).subscribe(
+        this.companySettingsService
+            .Put(company.ID, company)
+            .do((companySettings: CompanySettings) => {
+                if (companySettings.OrganizationNumber !== this.savedCompanyOrgValue) {
+                    this.subEntitySettingsService
+                        .addSubEntitiesFromExternal(companySettings.OrganizationNumber)
+                        .subscribe();
+                }
+                this.savedCompanyOrgValue = companySettings.OrganizationNumber;
+            })
+            .subscribe(
             (reponse) => {
                 this.companySettingsService.Get(1).subscribe(retrievedCompany => {
                     this.company$.next(this.setupCompanySettingsData(retrievedCompany));
