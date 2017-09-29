@@ -11,16 +11,17 @@ import {FieldType} from '../../unientities';
                 (clickOutside)="close(false)"
                 (keydown.esc)="close(false)">
             <header>
-                <h1>{{options.header || 'Firmanavn'}}</h1>
+                <h1>{{options.header || 'Opprett ny klient'}}</h1>
             </header>
-            <main>
-                <uni-form
-                    [config]="formConfig$"
-                    [fields]="formFields$"
-                    [model]="formModel$">
-                </uni-form>
-            </main>
-
+            <article>
+                <main>
+                    <uni-form
+                        [config]="formConfig$"
+                        [fields]="formFields$"
+                        [model]="formModel$">
+                    </uni-form>
+                </main>
+            </article>
             <footer>
                 <button class="good" (click)="close(true)">Ok</button>
                 <button class="bad" (click)="close(false)">Avbryt</button>
