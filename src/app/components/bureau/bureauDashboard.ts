@@ -41,7 +41,7 @@ export class BureauDashboard {
         private toastService: ToastService,
         tabService: TabService
     ) {
-        tabService.addTab({ name: 'Klienter', url: '/bureau', moduleID: UniModules.BureauDashboard, active: true });
+        tabService.addTab({ name: 'Selskaper', url: '/bureau', moduleID: UniModules.BureauDashboard, active: true });
     }
 
     public ngOnInit() {

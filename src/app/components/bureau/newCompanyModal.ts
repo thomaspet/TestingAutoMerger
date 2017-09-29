@@ -11,7 +11,7 @@ import {FieldType} from '../../unientities';
                 (clickOutside)="close(false)"
                 (keydown.esc)="close(false)">
             <header>
-                <h1>{{options.header || 'Opprett ny klient'}}</h1>
+                <h1>{{options.header || 'Opprett nytt selskap'}}</h1>
             </header>
             <article>
                 <main>
