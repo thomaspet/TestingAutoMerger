@@ -3,7 +3,12 @@ import {IUniSaveAction} from '../../../../framework/save/save';
 import {Altinn} from '../../../unientities';
 import {Observable} from 'rxjs/Observable';
 import {UniFieldLayout} from '../../../../framework/ui/uniform/index';
-import {ErrorService, IntegrationServerCaller, AltinnIntegrationService} from '../../../services/services';
+import {
+    ErrorService,
+    IntegrationServerCaller,
+    AltinnIntegrationService,
+    CompanySettingsService
+} from '../../../services/services';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {UniModalService} from '../../../../framework/uniModal/barrel';
 
@@ -34,7 +39,8 @@ export class AltinnSettings implements OnInit {
         private _altinnService: AltinnIntegrationService,
         private integrate: IntegrationServerCaller,
         private errorService: ErrorService,
-        private modalService: UniModalService
+        private modalService: UniModalService,
+        private companySettingsService: CompanySettingsService
     ) {}
 
     public ngOnInit() {
@@ -54,39 +60,43 @@ export class AltinnSettings implements OnInit {
     }
 
     public check() {
-
         this.loginErr = '';
-        let company = JSON.parse(localStorage.getItem('companySettings'));
 
-        this.altinn$
-            .asObservable()
-            .do(() => this.busy = true)
-            .take(1)
-            .switchMap(altinn => {
-                if (altinn.SystemPw) {
-                    return Observable.of(altinn);
-                } else {
-                    return this._altinnService.getPassword().map(password => {
-                        altinn.SystemPw = password;
-                        return altinn;
-                    })
-                }
-            })
-            .switchMap(altinn => altinn.SystemPw
-                ? this.integrate.checkSystemLogin(
-                    company.OrganizationNumber,
-                    altinn.SystemID,
-                    altinn.SystemPw,
-                    altinn.Language)
-                    .map(result => result
-                        ? 'Login ok'
-                        : 'Failed to log in with given credentials')
-                : Observable.of('Missing password'))
-            .finally(() => this.busy = false)
-            .subscribe(response => this.loginErr = response,
-            err => {
-                this.errorService.handle(err);
-                this.loginErr = err;
+        this.companySettingsService.Get(1).subscribe(company => {
+            this.altinn$
+                .asObservable()
+                .do(() => this.busy = true)
+                .take(1)
+                .switchMap(altinn => {
+                    if (altinn.SystemPw) {
+                        return Observable.of(altinn);
+                    } else {
+                        return this._altinnService.getPassword().map(password => {
+                            altinn.SystemPw = password;
+                            return altinn;
+                        });
+                    }
+                })
+                .switchMap(altinn => {
+                    if (!altinn.SystemPw) {
+                        return Observable.of('Missing password');
+                    }
+
+                    return this.integrate.checkSystemLogin(
+                        company.OrganizationNumber,
+                        altinn.SystemID,
+                        altinn.SystemPw,
+                        altinn.Language
+                    ).map(result => result ? 'Login ok' : 'Failed to log in with given credentials');
+                })
+                .finally(() => this.busy = false)
+                .subscribe(
+                    response => this.loginErr = response,
+                    err => {
+                        this.errorService.handle(err);
+                        this.loginErr = err;
+                    }
+                );
             });
     }
 

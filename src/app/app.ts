@@ -99,18 +99,6 @@ export class App {
     // }
 
     private initialize() {
-
-        // Get companysettings
-        this.http.asGET()
-            .usingBusinessDomain()
-            .withEndPoint('companysettings')
-            .send()
-            .map(response => response.json())
-            .subscribe(
-                response => localStorage.setItem('companySettings', JSON.stringify(response[0])),
-                err => this.errorService.handle(err)
-            );
-
         // Check if company needs to be initialized
         this.http.asGET()
             .usingBusinessDomain()
