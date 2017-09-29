@@ -40,7 +40,6 @@ export class WidgetDataService {
         const hash = this.hashFnv32a(endpoint);
 
         if (!this.requestCache[hash]) {
-            console.log('adding to cache');
             this.requestCache[hash] = this.http
                 .asGET()
                 .usingEmptyDomain()
@@ -48,8 +47,6 @@ export class WidgetDataService {
                 .send()
                 .map(res => res.json())
                 .share();
-        } else {
-            console.log('already in cache');
         }
 
         return this.requestCache[hash];
