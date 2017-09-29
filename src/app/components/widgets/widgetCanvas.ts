@@ -108,7 +108,7 @@ export class UniWidgetCanvas {
     }
 
     public ngOnChanges() {
-        if (this.defaultLayout) {
+        if (this.defaultLayout && this.layoutName) {
             this.layout = this.canvasHelper.getSavedLayout(this.layoutName);
 
             if (!this.layout) {
