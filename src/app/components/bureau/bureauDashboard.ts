@@ -88,6 +88,7 @@ export class BureauDashboard {
         let companyName: string;
         let user: User;
         this.uniModalService.open(UniNewCompanyModal).onClose.asObservable()
+            .filter(modalResult => !!modalResult)
             .do(modalResult => companyName = modalResult.CompanyName)
             .flatMap(() => companyName ? this.userService.getCurrentUser() : Observable.empty())
             .do(currentUser => user = currentUser)
