@@ -54,14 +54,6 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
         private yearService: YearService
     ) {
         super(http);
-        // Anders 26.09
-        // Disabling BizHttp's cache for now.
-        // Done because actions in this service are written using UniHttp instead
-        // of using the PutAction method we inherit from BizHttp.
-        // Because of this BizHttp is never notified that an action is ran, and cache is not invalidated
-        // Don't want to start messing with these requests so close to launch,
-        // but they should be re-written to use the request helpers we inherit from BizHttp
-        super.disableCache();
         this.relativeURL = PayrollRun.RelativeUrl;
         this.entityType = PayrollRun.EntityType;
     }
@@ -89,12 +81,7 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
     }
 
     public getLatestSettledPeriod(id: number, yr: number) {
-        return this.http
-            .asGET()
-            .usingBusinessDomain()
-            .withEndPoint(this.relativeURL + `/${id}?action=latestperiod&currYear=${yr}`)
-            .send()
-            .map(response => response.json());
+        return super.GetAction(id, 'latestperiod', `currYear=${yr}`);
     }
 
     public getPrevious(ID: number) {
@@ -161,77 +148,36 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
                 this.validateTransesOnRun(transes, done);
             })
             .filter((trans: SalaryTransaction[]) => !!trans.length)
-            .switchMap(transes => this.http
-                .asPUT()
-                .usingBusinessDomain()
-                .withEndPoint(this.relativeURL + '/' + ID + '?action=calculate')
-                .send())
-            .map(response => response.json());
-        /*return this.http
-            .asPUT()
-            .usingBusinessDomain()
-            .withEndPoint(this.relativeURL + '/' + ID + '?action=calculate')
-            .send()
-            .map(response => response.json());*/
+            .switchMap(transes => super.PutAction(ID, 'calculate'));
     }
 
     public controlPayroll(ID) {
-        return this.http
-            .asPUT()
-            .usingBusinessDomain()
-            .withEndPoint(this.relativeURL + '/' + ID + '?action=control')
-            .send()
-            .map(response => response.json());
+        return super.PutAction(ID, 'control');
     }
 
     public resetSettling(ID: number) {
-        return this.http
-            .asPUT()
-            .usingBusinessDomain()
-            .withEndPoint(this.relativeURL + '/' + ID + '?action=resetrun')
-            .send()
-            .map(response => response.json());
+        return super.PutAction(ID, 'resetrun');
     }
 
     public getPaymentList(ID: number) {
-        return this.http
-            .usingBusinessDomain()
-            .asGET()
-            .withEndPoint(this.relativeURL + '/' + ID)
-            .send({ action: 'paymentlist' })
-            .map(response => response.json());
+        return super.GetAction(ID, 'paymentlist');
     }
 
     public sendPaymentList(payrollrunID: number) {
-        return this.http
-            .usingBusinessDomain()
-            .asPOST()
-            .withEndPoint(this.relativeURL + '/' + payrollrunID)
-            .send({ action: 'sendpaymentlist' })
-            .map(response => response.json());
+        return super.PostAction(payrollrunID, 'sendpaymentlist');
     }
 
     public getPostingsummary(ID: number) {
-        return this.http
-            .asGET()
-            .usingBusinessDomain()
-            .withEndPoint(this.relativeURL + '/' + ID + '?action=postingsummary')
-            .send()
-            .map(response => response.json());
+        return super.GetAction(ID, 'postingsummary');
     }
 
     public postTransactions(ID: number, report: string = null) {
-        return this.http
-            .asPUT()
-            .usingBusinessDomain()
-            .withEndPoint(this.relativeURL + '/' + ID + '?action=book')
-            .withBody(report)
-            .send()
-            .map(response => response.json());
+        return super.ActionWithBody(ID, report, 'book');
     }
 
     public saveCategoryOnRun(id: number, category: EmployeeCategory): Observable<EmployeeCategory> {
         if (id && category) {
+            this.invalidateCache();
             let saveObs = category.ID ? this.http.asPUT() : this.http.asPOST();
             return saveObs
                 .usingBusinessDomain()
@@ -250,11 +196,7 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
     }
 
     public deleteCategoryOnRun(id: number, catID: number): Observable<boolean> {
-        return this.http
-            .asDELETE()
-            .usingBusinessDomain()
-            .withEndPoint(this.relativeURL + '/' + id + '/category/' + catID)
-            .send();
+        return super.Remove(`${id}/category/${catID}`);
     }
 
     public deletePayrollTag(runID, tag: ITag): Observable<boolean> {
@@ -265,41 +207,21 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
 
     public getCategoriesOnRun(id: number) {
         return id
-            ? this.http
-                .asGET()
-                .usingBusinessDomain()
-                .withEndPoint(this.relativeURL + `/${id}/category`)
-                .send()
-                .map(response => response.json())
+            ? super.Get(`/${id}/category`)
             : Observable.of([]);
     }
 
     public getEmployeesOnPayroll(id: number, expands: string[]) {
-        return this.http
-            .asGET()
-            .usingBusinessDomain()
-            .withEndPoint(this.relativeURL + `/${id}?action=employeesonrun&expand=${expands.join(',')}`)
-            .send()
-            .map(response => response.json());
+        return super.GetAction(id, 'employeesonrun', `expand=${expands.join(',')}`);
     }
 
     public emailPaychecks(emps: Employee[], runID: number) {
-        return this.http
-            .asPUT()
-            .usingBusinessDomain()
-            .withEndPoint(this.relativeURL + '/' + runID + '?action=email-paychecks')
-            .withBody(emps)
-            .send();
+        return super.ActionWithBody(runID, emps, 'email-paychecks');
     }
 
 
     public getPaymentsOnPayrollRun(id: number): Observable<Payment[]> {
-        return this.http
-            .asGET()
-            .usingBusinessDomain()
-            .withEndPoint(`${this.relativeURL}/${id}?action=payments-on-runs`)
-            .send()
-            .map(response => response.json());
+        return super.GetAction(id, 'payments-on-runs');
     }
 
     public validateTransesOnRun(transes: SalaryTransaction[], done: (message: string) => void = null) {
@@ -360,16 +282,6 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
             default:
                 return '';
         }
-    }
-
-    public deletePayrollRun(id: number): Observable<boolean> {
-        return this.http
-            .asDELETE()
-            .usingBusinessDomain()
-            .withEndPoint(this.relativeURL + '/' + id)
-            .send()
-            .catch((err, obs) => this.errorService.handleRxCatch(err, obs))
-            .map(res => res.json());
     }
 
     private markPaymentStatus(payrollRun: PayrollRun, payments: Payment[] = undefined): PayrollRun {
