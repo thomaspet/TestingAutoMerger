@@ -4,6 +4,7 @@ import {ReactiveFormsModule} from '@angular/forms';
 import {UniFrameworkModule} from '../../../framework/frameworkModule';
 
 import {BureauDashboard} from './bureauDashboard';
+import {UniNewCompanyModal} from './newCompanyModal';
 
 @NgModule({
     imports: [
@@ -12,7 +13,11 @@ import {BureauDashboard} from './bureauDashboard';
         ReactiveFormsModule
     ],
     declarations: [
-        BureauDashboard
+        BureauDashboard,
+        UniNewCompanyModal
+    ],
+    entryComponents: [
+        UniNewCompanyModal
     ],
     exports: [
         CommonModule
