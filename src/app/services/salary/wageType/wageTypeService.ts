@@ -7,7 +7,7 @@ import {AccountService} from '../../accounting/accountService';
 import {ErrorService} from '../../common/errorService';
 import {Observable} from 'rxjs/Observable';
 import 'rxjs/Observable';
-import {FieldType} from '../../../../framework/ui/uniform/index';
+import {FieldType, UniFieldLayout} from '../../../../framework/ui/uniform/index';
 
 export enum WageTypeBaseOptions {
     VacationPay = 0,
@@ -28,10 +28,10 @@ export class WageTypeService extends BizHttp<WageType> {
         'SupplementaryInformations'
     ];
 
-    private limitTypes: { Type: LimitType, Name: string }[] = [
-        { Type: LimitType.None, Name: 'Ingen' },
-        { Type: LimitType.Amount, Name: 'Antall' },
-        { Type: LimitType.Sum, Name: 'Beløp' }
+    private limitTypes: {Type: LimitType, Name: string}[] = [
+        {Type: LimitType.None, Name: 'Ingen'},
+        {Type: LimitType.Amount, Name: 'Antall'},
+        {Type: LimitType.Sum, Name: 'Beløp'}
     ];
 
     constructor(
@@ -164,6 +164,19 @@ export class WageTypeService extends BizHttp<WageType> {
             .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
     }
 
+    public washWageType(wt: WageType): WageType {
+
+        wt.AccountNumber = wt.AccountNumber || 0;
+        wt.AccountNumber_balance = wt.AccountNumber_balance || 0;
+        wt.Rate = wt.Rate || 0;
+        wt.RateFactor = wt.RateFactor || 0;
+        wt.Limit_newRate = wt.Limit_newRate || 0;
+        wt.Limit_value = wt.Limit_value || 0;
+        wt.Limit_WageTypeNumber = wt.Limit_WageTypeNumber || 0;
+
+        return wt;
+    }
+
     public layout(layoutID: string, wageType$: BehaviorSubject<WageType>) {
         return Observable.from([{
             Name: layoutID,
@@ -219,7 +232,7 @@ export class WageTypeService extends BizHttp<WageType> {
                     Label: 'Utbetales med tillegg i prosent',
                     FieldSet: 2,
                     Section: 0,
-                    Options: { format: 'percent' }
+                    Options: {format: 'percent'}
                 },
                 {
                     EntityType: 'wagetype',
@@ -241,9 +254,9 @@ export class WageTypeService extends BizHttp<WageType> {
                     Options: {
                         multivalue: true,
                         source: [
-                            { ID: WageTypeBaseOptions.VacationPay, Name: 'Feriepenger' },
-                            { ID: WageTypeBaseOptions.AGA, Name: 'Aga' },
-                            { ID: WageTypeBaseOptions.Pension, Name: 'Pensjon' }
+                            {ID: WageTypeBaseOptions.VacationPay, Name: 'Feriepenger'},
+                            {ID: WageTypeBaseOptions.AGA, Name: 'Aga'},
+                            {ID: WageTypeBaseOptions.Pension, Name: 'Pensjon'}
                         ],
                         valueProperty: 'ID',
                         labelProperty: 'Name'
@@ -375,7 +388,7 @@ export class WageTypeService extends BizHttp<WageType> {
                     {
                         EntityType: 'wagetype',
                         Property: 'SpecialAgaRule',
-                        FieldType: FieldType.DROPDOWN
+                        FieldType: FieldType.DROPDOWN,
                         Label: 'Type lønnsart',
                         FieldSet: 1,
                         Section: 0

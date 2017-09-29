@@ -224,7 +224,6 @@ export class SalarybalanceView extends UniView implements OnDestroy {
 
     private saveSalarybalance(done: (message: string) => void, updateView = true) {
         this.handlePaymentCreation(this.salarybalance)
-            .map(salaryBalance => this.washSalaryBalance(salaryBalance))
             .switchMap(salaryBalance => this.salarybalanceService.save(salaryBalance))
             .do(salaryBalance => {
                 if (this.salarybalance['_newFiles'] && this.salarybalance['_newFiles'].length > 0) {
@@ -247,15 +246,6 @@ export class SalarybalanceView extends UniView implements OnDestroy {
                 this.errorService.handle(err);
                 done('Lagring feilet');
             });
-    }
-
-    private washSalaryBalance(salaryBalance: SalaryBalance): SalaryBalance {
-        let cleanSalBal: SalaryBalance = new SalaryBalance();
-        Object
-            .keys(salaryBalance)
-            .filter(key => !!salaryBalance[key] || salaryBalance[key] === 0)
-            .map(key => cleanSalBal[key] = salaryBalance[key]);
-        return cleanSalBal;
     }
 
     private linkNewFiles(ID: any, fileIDs: Array<any>, entityType: string): Promise<any> {

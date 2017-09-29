@@ -41,25 +41,28 @@ export class SalarybalanceService extends BizHttp<SalaryBalance> {
     }
 
     public save(salarybalance: SalaryBalance): Observable<SalaryBalance> {
-        if (!salarybalance.Name) {
-            salarybalance.Name = this.getName(salarybalance);
-        }
         let refreshLines: boolean;
-        if (!salarybalance.ID) {
-            salarybalance.ID = 0;
-        } else {
-            refreshLines = true;
-        }
+        return Observable
+            .of(salarybalance)
+            .map(salBal => {
+                if (!salBal.Name) {
+                    salBal.Name = this.getName(salBal);
+                }
+                if (!salBal.ID) {
+                    salBal.ID = 0;
+                } else {
+                    refreshLines = true;
+                }
 
-        if(!salarybalance.KID) {
-            salarybalance.KID = '0';
-        }
-
-        let saver = salarybalance.ID
-            ? this.Put(salarybalance.ID, salarybalance)
-            : this.Post(salarybalance);
-
-        return saver
+                if (!salBal.KID) {
+                    salBal.KID = '0';
+                }
+                return salBal;
+            })
+            .map(salBal => this.washSalaryBalance(salBal))
+            .switchMap(salBal => salBal.ID
+                ? this.Put(salBal.ID, salBal)
+                : this.Post(salBal))
             .switchMap((salbal: SalaryBalance) => refreshLines
                 ? this.salaryBalanceLineService
                     .GetAll(`filter=SalaryBalanceID eq ${salbal.ID}`)
@@ -127,6 +130,17 @@ export class SalarybalanceService extends BizHttp<SalaryBalance> {
 
     public hasBalance(salaryBalance: SalaryBalance): boolean {
         return salaryBalance.InstalmentType === SalBalType.Advance || salaryBalance.Type !== SalBalDrawType.FixedAmount;
+    }
+
+    public washSalaryBalance(salaryBalance: SalaryBalance): SalaryBalance {
+        salaryBalance.EmployeeID = salaryBalance.EmployeeID || 0;
+        salaryBalance.SupplierID = salaryBalance.SupplierID || 0;
+        salaryBalance.WageTypeNumber = salaryBalance.WageTypeNumber || 0;
+        salaryBalance.Instalment = salaryBalance.Instalment || 0;
+        salaryBalance.InstalmentPercent = salaryBalance.InstalmentPercent || 0;
+        salaryBalance.Amount = salaryBalance.Amount || 0;
+
+        return salaryBalance;
     }
 
     public layout(layoutID: string) {
