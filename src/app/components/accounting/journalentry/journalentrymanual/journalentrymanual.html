@@ -95,11 +95,14 @@
     </div>
 </section>
 
-<section *ngIf="journalEntrySettings && journalEntrySettings.AttachmentsVisible && this.mode !== 1" class="journalentry-image-area">
+<section *ngIf="journalEntrySettings && journalEntrySettings.AttachmentsVisible" class="journalentry-image-area">
     <span>
         Vedlegg for bilagsnr {{showImagesForJournalEntryNo ? showImagesForJournalEntryNo : "(nytt bilag)"}}
 
-        <uni-image [uploadWithoutEntity]="'true'" [fileIDs]="currentJournalEntryImages"
-                    (fileListReady)="onFileListReady($event)"></uni-image>
+        <uni-image
+            [uploadWithoutEntity]="true"
+            [fileIDs]="currentJournalEntryImages"
+            (fileListReady)="onFileListReady($event)">
+        </uni-image>
     </span>
 </section>
