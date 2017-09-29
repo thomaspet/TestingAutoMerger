@@ -40,6 +40,17 @@ export interface IUniWidget {
     };
 }
 
+export const WIDGET_MAP = {
+    shortcut: UniShortcutWidget,
+    counter: UniCounterWidget,
+    chart: UniChartWidget,
+    rss: UniRSSWidget,
+    clock: UniClockWidget,
+    overdue: UniOverdueInvoiceWidget,
+    kpi: UniKPIWidget,
+    companyLogo: UniCompanyLogoWidget,
+    flex: UniFlexWidget
+};
 
 @Directive({
     selector: '[widget-container]'
@@ -69,19 +80,6 @@ export class UniWidget {
     @Output()
     public widgetRemoved: EventEmitter<IUniWidget> = new EventEmitter();
 
-    // This could be moved somewhere else?
-    private widgetMap: any = {
-        'shortcut': UniShortcutWidget,
-        'counter': UniCounterWidget,
-        'chart': UniChartWidget,
-        'rss': UniRSSWidget,
-        'clock': UniClockWidget,
-        'overdue': UniOverdueInvoiceWidget,
-        'kpi': UniKPIWidget,
-        'companyLogo': UniCompanyLogoWidget,
-        'flex': UniFlexWidget
-    };
-
     private widgetComponent: ComponentRef<any>;
 
     constructor(private factoryResolver: ComponentFactoryResolver) {}
@@ -98,7 +96,7 @@ export class UniWidget {
     }
 
     private loadWidget() {
-        const widget = this.widgetMap[this.widget.widgetType];
+        const widget = WIDGET_MAP[this.widget.widgetType];
         const componentFactory = this.factoryResolver.resolveComponentFactory(widget);
 
         let viewContainerRef = this.widgetContainer.viewContainerRef;

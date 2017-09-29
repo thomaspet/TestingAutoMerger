@@ -14,7 +14,6 @@ import {UniWidget, IUniWidget} from './uniWidget';
 import {CanvasHelper} from './canvasHelper';
 import {ToastService, ToastType} from '../../../framework/uniToast/toastService';
 import {WIDGET_CONFIGS} from './configs/presetConfigs';
-import {UserService} from '../../services/services';
 import {AuthService} from '../../../framework/core/authService';
 
 import * as $ from 'jquery';
