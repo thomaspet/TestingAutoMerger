@@ -62,7 +62,7 @@ export class AltinnSettings implements OnInit {
     public check() {
         this.loginErr = '';
 
-        this.companySettingsService.Get(1).subscribe(company => {
+        this.companySettingsService.getCompanySettings().subscribe(company => {
             this.altinn$
                 .asObservable()
                 .do(() => this.busy = true)

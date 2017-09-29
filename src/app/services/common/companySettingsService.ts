@@ -26,4 +26,8 @@ export class CompanySettingsService extends BizHttp<CompanySettings> {
             'BaseCurrencyCode'
         ];
     }
+
+    public getCompanySettings(expand?: string[]) {
+        return super.GetAll('top=1', expand).map(res => res[0]);
+    }
 }
