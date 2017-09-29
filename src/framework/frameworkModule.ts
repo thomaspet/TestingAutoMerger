@@ -8,7 +8,6 @@ import {UniSave} from './save/save';
 import {UniImage} from './uniImage/uniImage';
 import {UniToast} from './uniToast/toast';
 import {UniToastList} from './uniToast/toastList';
-import {WidgetPoster} from './widgetPoster/widgetPoster';
 import {ImageUploader} from './uniImage/imageUploader';
 import {ToastService} from './uniToast/toastService';
 import {StimulsoftReportWrapper} from './wrappers/reporting/reportWrapper';
@@ -53,7 +52,6 @@ import {UniModalService, MODALS} from './uniModal/barrel';
         UniToastList,
         UniNotifications,
         UniComments,
-        WidgetPoster,
         UniMultiLevelSelect,
         UniCommentInput,
         UniCommentList,
@@ -88,7 +86,6 @@ import {UniModalService, MODALS} from './uniModal/barrel';
         UniToastList,
         UniNotifications,
         UniComments,
-        WidgetPoster,
         UniMultiLevelSelect,
         UniCommentInput,
         UniCommentList,
