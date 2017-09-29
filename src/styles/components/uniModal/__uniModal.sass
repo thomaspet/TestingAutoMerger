@@ -68,8 +68,7 @@ dialog.uniModal
         box-sizing: border-box
         border-radius: pxToRem(5)
         max-height: 90vh
-        overflow-y: visible
-        overflow-x: auto
+        overflow: visible
         @include clearfix
 
         @media(small)
@@ -104,9 +103,9 @@ body.modal-open
 
 .uni-modal-backdrop
     position: fixed
-    bottom: 0
+    top: 0
     left: 0
-    height: 100vh
+    min-height: 100vh
     width: 100vw
     transition: opacity 300ms ease
     opacity: 1
@@ -132,13 +131,17 @@ body.modal-open
     box-shadow: 0 0 1rem transparentize($uni-color-positive, .9)
     box-sizing: border-box
     border-radius: pxToRem(5)
-    max-height: 95vh
     overflow: visible
-    overflow-x: auto
     display: block
 
     padding: 0
     border: none
+
+    &.top-aligned
+        position: absolute
+        top: 1rem
+        left: 50%
+        transform: translateX(-50%)
 
     &.small
         width: 40vw

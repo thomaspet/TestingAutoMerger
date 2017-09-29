@@ -66,6 +66,15 @@ export class UniModalService {
                 }
             }
         });
+
+        Observable.fromEvent(window, 'resize')
+            .throttleTime(350)
+            .subscribe(() => {
+                if (this.openModalRefs.length) {
+                    const activeModal = this.openModalRefs[this.openModalRefs.length - 1];
+                    this.checkModalHeight(activeModal);
+                }
+            });
     }
 
     public forceClose(modalRef: ComponentRef<IUniModal>): void {
@@ -176,6 +185,10 @@ export class UniModalService {
             if (options.class) {
                 dialogElement.classList.add(...options.class.split(' '));
             }
+
+            setTimeout(() => {
+                this.checkModalHeight(componentRef);
+            });
         }
 
         componentRootNode.style.margin = '0 auto';
@@ -187,6 +200,22 @@ export class UniModalService {
         document.body.classList.add('modal-open');
 
         return componentRef;
+    }
+
+    public checkModalHeight(modalRef: ComponentRef<IUniModal>) {
+        try {
+            let dialogElement = (modalRef.hostView as EmbeddedViewRef<any>)
+                .rootNodes[0]
+                .querySelector('.uni-modal');
+
+            if (dialogElement.clientHeight > window.innerHeight) {
+                dialogElement.classList.add('top-aligned');
+            } else {
+                dialogElement.classList.remove('top-aligned');
+            }
+        } catch (e) {
+            console.log('Error in modalService checkModalHeight', e);
+        }
     }
 
     /** Injects a new UniModal into the container and returns it's ComponentRef */
