@@ -1,7 +1,7 @@
 export const AppConfig = ({
-    BASE_URL_INIT: 'https://pilot-api.unieconomy.no',
+    BASE_URL_INIT: '',
 
-    BASE_URL: 'https://pilot-api.unieconomy.no',
+    BASE_URL: '',
 
     BASE_URL_INTEGRATION: 'https://pilot-integration.unieconomy.no/',
 
