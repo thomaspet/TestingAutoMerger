@@ -1,7 +1,7 @@
 import {Component, ViewChild, ChangeDetectorRef} from '@angular/core';
 import {Observable} from 'rxjs/Observable';
 import {UniSelect, ISelectConfig} from '../../../../framework/ui/uniform/index';
-import {AuthService} from '../../../../framework/core/authService';
+import {AuthService} from '../../../authService';
 import {UniModalService} from '../../../../framework/uniModal/barrel';
 import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
 import {CompanyService, ErrorService} from '../../../services/services';

@@ -2,8 +2,10 @@ import {Injectable, Output, EventEmitter} from '@angular/core';
 import {Router} from '@angular/router';
 import {Http, Headers} from '@angular/http';
 import {Observable} from 'rxjs/Observable';
-import {AppConfig} from '../../app/AppConfig';
+import {AppConfig} from './AppConfig';
+import {User} from './unientities';
 import {ReplaySubject} from 'rxjs/ReplaySubject';
+import {Subject} from 'rxjs/Subject';
 import 'rxjs/add/operator/map';
 
 // declare const jwt_decode: (token: string) => any; // node_module/jwt_decode
@@ -20,9 +22,6 @@ export class AuthService {
     @Output()
     public requestAuthentication$: EventEmitter<any> = new EventEmitter();
 
-    @Output()
-    public companyChange: EventEmitter<any> = new EventEmitter();
-
     private headers: Headers = new Headers({
         'Content-Type': 'application/json',
         'Accept': 'application/json'
@@ -36,8 +35,10 @@ export class AuthService {
     public filesToken: string;
 
     constructor(private router: Router, private http: Http) {
-        this.activeCompany = JSON.parse(localStorage.getItem('activeCompany')) || undefined;
-        this.jwt = localStorage.getItem('jwt') || undefined;
+        console.log('CONSTRUCTOR');
+        this.activeCompany = JSON.parse(localStorage.getItem('activeCompany'));
+
+        this.jwt = localStorage.getItem('jwt');
         this.jwtDecoded = this.decodeToken(this.jwt);
         this.filesToken = localStorage.getItem('filesToken');
 
@@ -48,6 +49,19 @@ export class AuthService {
                 activeCompany: this.activeCompany
             });
         }
+
+        // this.activeCompany = JSON.parse(localStorage.getItem('activeCompany')) || undefined;
+        // this.jwt = localStorage.getItem('jwt') || undefined;
+        // this.jwtDecoded = this.decodeToken(this.jwt);
+        // this.filesToken = localStorage.getItem('filesToken');
+
+        // if (this.isAuthenticated()) {
+        //     this.authentication$.next({
+        //         token: this.jwt,
+        //         filesToken: this.filesToken,
+        //         activeCompany: this.activeCompany
+        //     });
+        // }
 
         // Check expired status every minute, with a 10 minute offset on the expiration check
         // This allows the user to re-authenticate before http calls start 401'ing.
@@ -62,6 +76,7 @@ export class AuthService {
             }
         }, 60000);
     }
+
     /**
      * Authenticates the user and returns an observable of the response
      * @param {Object} credentials
@@ -124,6 +139,59 @@ export class AuthService {
     }
 
     /**
+     * Sets the current active company
+     * @param {Object} activeCompany
+     */
+    public setActiveCompany(activeCompany, redirectUrl?: string): Subject<User> {
+        localStorage.setItem('activeCompany', JSON.stringify(activeCompany));
+        localStorage.setItem('lastActiveCompanyKey', activeCompany.Key);
+
+        this.activeCompany = activeCompany;
+
+        let loader = document.body.querySelector('#loader-wrapper');
+        loader.classList.add('active');
+
+        let sessionSubject = new Subject<User>();
+        this.getCurrentUser()
+            // .finally(() => loader.classList.remove('active'))
+            .subscribe((user) => {
+                this.authentication$.next({
+                    token: this.jwt,
+                    filesToken: this.filesToken,
+                    activeCompany: activeCompany
+                });
+
+                // Redirect then remove loading overlay and emit
+                this.router.navigateByUrl(redirectUrl || '').then(() => {
+                    loader.classList.remove('active');
+                    sessionSubject.next(user);
+                });
+            });
+
+        return sessionSubject;
+    }
+
+    private getCurrentUser(): Observable<User> {
+        const headers = new Headers({
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'Authorization': `Bearer ${this.jwt}`,
+            'CompanyKey': this.activeCompany.Key
+        });
+
+        const url = AppConfig.BASE_URL
+            + AppConfig.API_DOMAINS.BUSINESS
+            + 'users?action=current-session';
+
+        return this.http.get(url, {headers: headers})
+            .map(res => res.json())
+            .catch(err => {
+                console.log(err);
+                return Observable.of(null);
+            });
+    }
+
+    /**
      * Returns web token or redirects to /login if user is not authenticated
      * @returns {String}
      */
@@ -137,23 +205,6 @@ export class AuthService {
      */
     public getTokenDecoded(): any {
         return this.jwtDecoded;
-    }
-
-    /**
-     * Sets the current active company
-     * @param {Object} activeCompany
-     */
-    public setActiveCompany(activeCompany: any): void {
-        localStorage.setItem('activeCompany', JSON.stringify(activeCompany));
-        localStorage.setItem('lastActiveCompanyKey', activeCompany.Key);
-
-        this.activeCompany = activeCompany;
-        this.authentication$.next({
-            token: this.jwt,
-            filesToken: this.filesToken,
-            activeCompany: activeCompany
-        });
-        this.companyChange.emit(this.activeCompany);
     }
 
     /**

@@ -1,7 +1,7 @@
 import {Injectable} from '@angular/core';
 import {Http, Headers, RequestOptions} from '@angular/http';
 import {AppConfig} from '../../AppConfig';
-import {AuthService} from '../../../framework/core/authService';
+import {AuthService} from '../../authService';
 
 @Injectable()
 export class UniFilesService {

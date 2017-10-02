@@ -6,7 +6,7 @@ import {Http} from '@angular/http';
 import {BrowserStorageService} from './browserStorageService';
 import {Observable} from 'rxjs/Observable';
 import {NumberFormat} from './numberFormatService';
-import {AuthService} from '../../../framework/core/authService';
+import {AuthService} from '../../authService';
 import {ApiModelService, ModuleConfig, ApiModel} from './apiModelService';
 import {ErrorService} from './errorService';
 import {StatusService} from './statusService';

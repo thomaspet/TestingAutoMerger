@@ -17,7 +17,7 @@ import {
 } from '../../../services/common/uniTickerService';
 import {UniTicker} from '../ticker/ticker';
 import {YearService} from '../../../services/services';
-import {AuthService} from '../../../../framework/core/authService';
+import {AuthService} from '../../../authService';
 
 @Component({
     selector: 'uni-ticker-container',

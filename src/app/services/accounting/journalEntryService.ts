@@ -35,7 +35,7 @@ import * as moment from 'moment';
 import {CompanySettingsService} from '../common/companySettingsService';
 import {ErrorService} from '../common/errorService';
 import {UniMath} from '../../../framework/core/uniMath';
-import {AuthService, IAuthDetails} from '../../../framework/core/authService';
+import {AuthService, IAuthDetails} from '../../authService';
 
 @Injectable()
 export class JournalEntryService extends BizHttp<JournalEntry> {

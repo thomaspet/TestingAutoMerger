@@ -12,7 +12,7 @@ import {
 import {Http} from '@angular/http';
 import {File} from '../../app/unientities';
 import {UniHttp} from '../core/http/http';
-import {AuthService} from '../core/authService';
+import {AuthService} from '../../app/authService';
 import {Observable} from 'rxjs/Observable';
 import {AppConfig} from '../../app/AppConfig';
 import {ErrorService, FileService, UniFilesService} from '../../app/services/services';

@@ -4,7 +4,7 @@ import {UniHttp} from '../core/http/http';
 import {ErrorService, CompanyService} from '../../app/services/services';
 import {Notification, NotificationStatus, Company} from '../../app/unientities';
 import {Observable} from 'rxjs/Observable';
-import {AuthService} from '../core/authService';
+import {AuthService} from '../../app/authService';
 import {UniModalService, ConfirmActions} from '../uniModal/barrel';
 
 import * as moment from 'moment';

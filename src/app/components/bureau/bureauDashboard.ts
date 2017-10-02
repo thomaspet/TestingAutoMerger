@@ -3,7 +3,7 @@ import {Router} from '@angular/router';
 import {FormControl} from '@angular/forms';
 import {Company, User} from '../../unientities';
 import {ErrorService} from '../../services/common/errorService';
-import {AuthService} from '../../../framework/core/authService';
+import {AuthService} from '../../authService';
 import {UniModalService} from '../../../framework/uniModal/modalService';
 import {UniHttp} from '../../../framework/core/http/http';
 import {UserService} from '../../services/common/userService';

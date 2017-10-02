@@ -1,7 +1,7 @@
 import {Component, ChangeDetectorRef, ChangeDetectionStrategy} from '@angular/core';
 import {Router, NavigationEnd} from '@angular/router';
 import {TabService, UniModules} from './tabService';
-import {AuthService} from '../../../../../framework/core/authService';
+import {AuthService} from '../../../../authService';
 import {Subscription} from 'rxjs/Subscription';
 
 export interface IUniTab {

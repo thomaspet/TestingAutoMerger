@@ -2,7 +2,7 @@
 import {Router} from '@angular/router';
 import {UniModules} from '../../../layout/navbar/tabstrip/tabService';
 import {UserService} from '../../../../services/services';
-import {AuthService} from '../../../../../framework/core/authService';
+import {AuthService} from '../../../../authService';
 
 @Pipe({name: 'removehidden'})
 export class RemoveHidden {

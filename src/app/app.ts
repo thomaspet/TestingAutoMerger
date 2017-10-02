@@ -1,5 +1,5 @@
 import {Component, ViewChild} from '@angular/core';
-import {AuthService} from '../framework/core/authService';
+import {AuthService} from './authService';
 import {UniHttp} from '../framework/core/http/http';
 import {LoginModal} from './components/init/loginModal';
 import {CompanySyncModal} from './components/init/companySyncModal';

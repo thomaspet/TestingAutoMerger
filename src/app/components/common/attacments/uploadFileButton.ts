@@ -4,7 +4,7 @@ import {File} from '../../../unientities';
 import {UniHttp} from '../../../../framework/core/http/http';
 import {AppConfig} from '../../../AppConfig';
 import {ErrorService, FileService, UniFilesService} from '../../../services/services';
-import {AuthService} from '../../../../framework/core/authService';
+import {AuthService} from '../../../authService';
 
 
 export interface IUploadConfig {

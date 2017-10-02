@@ -26,7 +26,6 @@ import {UniFormModule} from './ui/uniform/uniform.module';
 import {UniTableModule} from './ui/unitable/unitableModule';
 
 import {ClickOutsideDirective} from './core/clickOutside';
-import {AuthService} from './core/authService';
 import {UniHttp} from './core/http/http';
 import {UniComponentLoader} from './core/componentLoader';
 import {ComponentCreator} from './core/dynamic/UniComponentCreator';
@@ -70,7 +69,6 @@ import {UniModalService, MODALS} from './uniModal/barrel';
     providers: [
         ToastService,
         UniModalService,
-        AuthService,
         UniHttp,
         ComponentCreator,
         Logger,

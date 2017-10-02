@@ -2,7 +2,7 @@ import {Component, Input, SimpleChanges, ViewChild, Output, EventEmitter} from '
 import {Http} from '@angular/http';
 import {File} from '../../../unientities';
 import {UniHttp} from '../../../../framework/core/http/http';
-import {AuthService} from '../../../../framework/core/authService';
+import {AuthService} from '../../../authService';
 import {FileService, ErrorService, UniFilesService} from '../../../services/services';
 import {ImageUploader} from '../../../../framework/uniImage/imageUploader';
 import {AppConfig} from '../../../AppConfig';
