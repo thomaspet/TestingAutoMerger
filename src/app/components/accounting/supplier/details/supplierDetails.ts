@@ -319,7 +319,7 @@ export class SupplierDetails implements OnInit {
                 (
                     this.supplierID > 0 ?
                         this.supplierService.Get(this.supplierID, this.expandOptions)
-                        : this.supplierService.GetNewEntity(this.expandOptions)
+                        : this.supplierService.GetNewEntity()
                 ),
                 this.phoneService.GetNewEntity(),
                 this.emailService.GetNewEntity(),
@@ -360,7 +360,7 @@ export class SupplierDetails implements OnInit {
                 (
                     this.supplierID > 0 ?
                         this.supplierService.Get(this.supplierID, this.expandOptions)
-                        : this.supplierService.GetNewEntity(this.expandOptions)
+                        : this.supplierService.GetNewEntity()
                 )
             ).subscribe(response => {
                 let supplier = response[0];
@@ -387,7 +387,7 @@ export class SupplierDetails implements OnInit {
         let supplierSearchResult: UniFieldLayout = fields.find(x => x.Property === '_SupplierSearchResult');
         let supplierName: UniFieldLayout = fields.find(x => x.Property === 'Info.Name');
 
-        if (!this.allowSearchSupplier || this.supplierID > 0 || (supplier && supplier.Info.Name !== null && supplier.Info.Name !== '')) {
+        if (!this.allowSearchSupplier || this.supplierID > 0 || (supplier && supplier.Info && supplier.Info.Name !== null && supplier.Info.Name !== '')) {
             supplierSearchResult.Hidden = true;
             supplierName.Hidden = false;
             this.fields$.next(fields);

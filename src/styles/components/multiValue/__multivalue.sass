@@ -28,17 +28,34 @@
   position: absolute
   list-style: none
   width: 100%
+  min-width: 15rem
+  right: 0
+  margin-top: 1.95rem
   border: pxToRem(1) solid $uni-color-scale7
   background-color: #fff
-  margin-top: 1.68rem
   z-index: map-get($zindex, picker)
-  border-bottom-left-radius: pxToRem(3)
-  border-bottom-right-radius: pxToRem(3)
+  border-radius: pxToRem(3)
   display: none
 
-  &.-is-active,
   &[aria-expanded]:not([aria-expanded=false])
     display: block
+
+  li.multivalue-help
+    cursor: default
+    small
+      cursor: default
+      display: inline-block
+      margin: .25rem .5rem
+      a
+        cursor: pointer
+        color: $uni-color-c2a
+        text-decoration: underline
+
+    // no hover effect for this one
+    &[aria-selected]:not([aria-selected=false]),
+    &:hover,
+    &:focus
+      background-color: #fff
 
   li
     padding: .2rem .5rem
@@ -96,10 +113,8 @@ input[type=text].uni-multivalue_edit
 // THE ADD BUTTON
 .uni-multivalue-addBtn
   @extend button.good
-  width: calc(100% + 1rem)
-  margin: -.2rem -.5rem -1rem
+  width: calc(100% - 2rem)
   box-shadow: none
-  border-radius: 0 0 pxToRem(3)
   height: 2rem
 
 // LINE ACTION BUTTONS

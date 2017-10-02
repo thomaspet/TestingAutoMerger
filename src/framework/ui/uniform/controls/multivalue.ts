@@ -12,87 +12,108 @@ import {
 } from '@angular/core';
 import {FormControl} from '@angular/forms';
 import {UniFieldLayout} from '../interfaces';
-import {Observable} from 'rxjs/Observable';
-import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {BaseControl} from './baseControl';
 import * as _ from 'lodash';
+import {GuidService} from '../../../../app/services/common/guidService';
 import {KeyCodes} from '../../../../app/services/common/keyCodes';
 
 @Component({
     selector: 'uni-multivalue-input',
     template: `
-        <section (clickOutside)="close()" class="uni-multivalue-ng" (keyup.esc)="close()"
+        <section (clickOutside)="close()"
+                class="uni-multivalue-ng"
+                (keyup.esc)="close()"
+                (keydown)="keyDownHandler($event)"
                 [class.-has-values]="rows?.length">
 
-            <input type="text" #query
+            <input type="text"
+                   #mainInput
                    [attr.aria-describedby]="asideGuid"
-                   [(ngModel)]="currentValue"
+                   [(ngModel)]="displayValue"
                    [class.-has-editor]="field?.Options?.editor"
-                   [readonly]="field?.ReadOnly"
                    [placeholder]="field?.Placeholder || ''"
                    (focus)="focusHandler()"
                    [title]="control?.value || ''"
+                   (keypress)="keyPressHandler($event)"
+                   readonly
             />
 
             <button type="button"
                     #openbtn
                     class="uni-multivalue-moreBtn"
-                    (click)="showDropdown($event)"
+                    (click)="toggle()"
                     tabindex="-1"
                     [disabled]="field?.ReadOnly">Ny</button>
 
-            <ng-content></ng-content>
+            <ul class="uni-multivalue-values" [attr.aria-expanded]="isOpen">
+                <li class="multivalue-help">
+                    <small>Slett rad (del)</small>
+                    <small>Rediger rad (F1)</small>
+                    <small><a (click)="addNew(filter)">Legg til (F3)</a></small>
+                </li>
+                <li>
+                    <input type="search"
+                           [formControl]="filterFormControl"
+                           placeholder="filter"
+                           [(ngModel)]="filter"
+                           [attr.aria-expanded]="rows?.length > 1"
+                           #filterElement
+                    />
+                </li>
 
-            <ul class="uni-multivalue-values" [class.-is-active]="listIsVisible$ | async">
-                <ng-template ngFor let-row [ngForOf]="rows" let-i = "index">
-                    <li [attr.aria-selected]="isSelected(row)">
+                <li [attr.aria-selected]="!focusedRow"
+                    (mouseover)="focusedRow = null"
+                    (click)="clearSelection()">
+                    Ikke valgt
+                </li>
+                
+                <ng-template ngFor let-row [ngForOf]="filteredRows">
+                    <li [attr.aria-selected]="focusedRow === row"
+                        (mouseover)="focusedRow = row"
+                        (click)="selectRow(row)">
 
-                        <div *ngIf="!row.Deleted && !row._editMode">
-                            <span class="uni-multivalue-value"
-                                  (click)="selectRow(row)">
-                                  {{showDisplayValue(row)}}
+                        <div *ngIf="!row.Deleted">
+                            <span class="uni-multivalue-value">
+                                  {{row._displayValue}}
                             </span>
-                            <button type="button" class="uni-multivalue_edit_action-delete"
-                                *ngIf="field.Options == null || field.Options.allowDeleteValue == null || field.Options.allowDeleteValue === true"
-                                (click)="delete(i, $event)">
+
+                            <button type="button"
+                                    class="uni-multivalue_edit_action-delete"
+                                    (click)="delete(row, $event)">
                                 Delete
                             </button>
-                            <button type="button" class="uni-multivalue_edit_action-edit"
-                                (click)="edit(row, $event)">
-                                Rediger {{showDisplayValue(row)}}
+
+                            <button type="button"
+                                    class="uni-multivalue_edit_action-edit"
+                                    (click)="edit(row, $event)">
+                                Edit
                             </button>
                         </div>
 
-                        <input *ngIf="row._editMode"
-                                #input
-                                class="uni-multivalue_edit"
-                                [(ngModel)]="tempValue"
-                                (blur)="save(row, input.value, $event)"
-                                (keypress)="save(row, input.value, $event)"
-                                type="text"
-                        />
-
                         <p *ngIf="row.Deleted" class="uni-multivalue_deleted">
-                            Slettet &lsquo;{{showDisplayValue(row)}}&rsquo;.
-                            (<a (click)="regretDelete(i, $event)">Angre</a>)
+                            Slettet &lsquo;{{row._displayValue}}&rsquo;.
+                            (<a (click)="regretDelete(row, $event)">Angre</a>)
                         </p>
-
                     </li>
                 </ng-template>
-                <li [hidden]="field.Options.allowAddValue === false">
+
+                <li *ngIf="field.Options.allowAddValue !== false">
                     <button class="uni-multivalue-addBtn"
                             #addButton
                             type="button"
-                            (click)="addValue($event)">
-                                Legg til&hellip;
+                            (click)="addNew(filter)">
+                        Legg til ny
                     </button>
                 </li>
+
             </ul>
-            <small *ngIf="successMessage" class="good">Lagret.</small>
         </section>
     `
 })
 export class UniMultivalueInput extends BaseControl {
+    @ViewChild('filterElement') private filterInput: ElementRef;
+    @ViewChild('mainInput') private mainInput: ElementRef;
+
     @Input() public field: UniFieldLayout;
     @Input() public model: any;
     @Input() public control: FormControl;
@@ -104,145 +125,96 @@ export class UniMultivalueInput extends BaseControl {
     @Output() public focusEvent: EventEmitter<UniMultivalueInput> = new EventEmitter<UniMultivalueInput>(true);
     @Output() public moveForwardEvent: EventEmitter<any> = new EventEmitter<any>(true);
 
-    @ViewChild('openbtn')
-    private inputElement: ElementRef;
-    @ViewChild('query')
-    private queryElement: ElementRef;
-    @ViewChild('addButton')
-    private addButtonElement: ElementRef;
+    private isOpen: boolean;
+    private editorIsOpen: boolean;
 
-    private listIsVisible$: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
-    private currentValue: string = '';
-    private tempValue: string;
+    private displayValue: string = '';
     private rows: any[] = [];
-    private defaultRow: any;
-    private editorIsOpen: boolean = false;
-    private isDirty: boolean = false;
-    private addButtonHasFocus: boolean = false;
-    constructor(public renderer: Renderer, public el: ElementRef, private cd: ChangeDetectorRef) {
+    private filteredRows: any[] = [];
+
+    public filter: string = '';
+    public filterFormControl: FormControl = new FormControl();
+
+
+    private selectedRow: any;
+    private focusedRow: any;
+
+    constructor(
+        public renderer: Renderer,
+        public el: ElementRef,
+        private cd: ChangeDetectorRef,
+        private guidService: GuidService
+    ) {
         super();
-    }
-
-    private createOpenCloseListeners() {
-        const target = <any>this.el.nativeElement.children[0].children[0];
-        const keyDownEvent = Observable.fromEvent(target, 'keydown');
-
-        keyDownEvent.subscribe((event: KeyboardEvent) => {
-            const openKeys = [
-              KeyCodes.F4,
-              KeyCodes.SPACE,
-              KeyCodes.UP_ARROW,
-              KeyCodes.DOWN_ARROW
-            ];
-
-            const alphanumeric = event.key && event.key.length === 1 && /[A-Za-z0-9]/.test(event.key);
-
-            if (openKeys.some(key => key === event.keyCode)) {
-                event.preventDefault();
-                event.stopPropagation();
-                this.toggle();
-            } else if (event.keyCode === KeyCodes.ESCAPE) {
-                event.preventDefault();
-                event.stopPropagation();
-                this.close();
-            } else if (alphanumeric && !this.editorIsOpen) {
-                this.queryElement.nativeElement.blur();
-                this.edit(this.defaultRow, event);
-            }
-        });
-    }
-
-    public createListNavigationListeners() {
-        let keydownEvent = Observable.fromEvent(this.queryElement.nativeElement, 'keydown');
-        let keydownEvent2 = Observable.fromEvent(this.addButtonElement.nativeElement, 'keydown');
-        let keydownEvent3 = Observable.fromEvent(this.inputElement.nativeElement, 'keydown');
-        let events = Observable.merge(keydownEvent, keydownEvent2, keydownEvent3);
-        let arrowsEvent = events.filter((event: KeyboardEvent) => {
-            return (event.keyCode === KeyCodes.DOWN_ARROW || event.keyCode === KeyCodes.UP_ARROW) && !event.altKey;
-        });
-        keydownEvent.subscribe((event: KeyboardEvent) => {
-            if (event.keyCode === KeyCodes.ENTER) {
-                if (!this.rows || this.rows.length === 0) {
-                    event.preventDefault();
-                    event.stopPropagation();
-                    this.addValue(event);
-                    return;
-                }
-            }
-            if (event.keyCode === KeyCodes.TAB) {
-                this.close();
-            }
-        });
-        arrowsEvent.subscribe((event: KeyboardEvent) => {
-            event.preventDefault();
-            event.stopPropagation();
-
-            let index: number = this.rows.indexOf(this.defaultRow);
-            if (this.addButtonHasFocus) {
-                index = this.rows.length;
-            }
-            this.addButtonHasFocus = false;
-            switch (event.keyCode) {
-                case KeyCodes.DOWN_ARROW:
-                    index = index + 1;
-                    if (index === this.rows.length && this.listIsVisible$.getValue()) {
-                        // set focus on button
-                        this.addButtonElement.nativeElement.focus();
-                        this.addButtonHasFocus = true;
-                    }
-                    index = index < this.rows.length ? index : this.rows.length - 1;
-                    break;
-                case KeyCodes.UP_ARROW:
-                    index = index - 1;
-                    index = index < 0 ? 0 : index;
-                    this.queryElement.nativeElement.focus();
-                    break;
-            }
-
-            this.defaultRow = this.rows[index];
-            this.setAsDefault(this.defaultRow);
-        });
-    }
-
-    public focus() {
-        this.renderer.invokeElementMethod(this.el.nativeElement.children[0].children[0], 'focus', []);
-        this.renderer.invokeElementMethod(this.el.nativeElement.children[0].children[0], 'select', []);
-        this.cd.markForCheck();
-        return this;
     }
 
     public ngOnChanges() {
         this.field.Options = this.field.Options || {};
-        this.currentValue = '';
+        this.displayValue = '';
         this.readOnly$.next(this.field && this.field.ReadOnly);
+
         // update default option
         if (this.field.Options.storeResultInProperty) {
             if (this.field.Options.listProperty) {
-                this.rows = _.get(this.model, this.field.Options.listProperty, []);
+                this.filteredRows = this.rows = _.get(this.model, this.field.Options.listProperty, []);
             } else {
-                this.rows = _.get(this.model, this.field.Property, []);
-            }
-            let foreignValue = _.get(this.model, this.field.Options.storeResultInProperty);
-            foreignValue = this.showDisplayValue(foreignValue);
-            if (this.rows) {
-                this.rows.forEach((row) => {
-                    let value = this.showDisplayValue(row);
-                    if (value === foreignValue) {
-                        this.setAsDefault(row);
-                    }
-                });
+                this.filteredRows = this.rows = _.get(this.model, this.field.Property, []);
             }
 
+            let modelValue = _.get(this.model, this.field.Options.storeResultInProperty);
+            this.displayValue = this.getDisplayValue(modelValue);
+
+            // Add some metadata to the rows so we don't have to check too much in template
+            this.rows.forEach(row => {
+                row['_displayValue'] = this.getDisplayValue(row);
+                // Check specifically for false as we want default to be true
+                row['_hasDeleteButton'] = !this.field.Options || this.field.Options.allowDeleteValue !== false;
+
+                return row;
+            });
+            this.focusedRow = this.selectedRow = this.rows.find(row => row['_displayValue'] == this.displayValue);
+
             if (this.field.Options.onChange) {
-                this.changeEvent.subscribe(value => this.field.Options.onChange(this.defaultRow));
+                this.changeEvent.subscribe(value => this.field.Options.onChange(this.selectedRow));
             }
         }
     }
 
     public ngAfterViewInit() {
+        this.filteredRows = this.rows;
+        this.filterFormControl.valueChanges
+            .subscribe(() => {
+                this.filteredRows = this.rows.filter(row => {
+                    if (!!this.filter) {
+                        return row['_displayValue'].toLowerCase().startsWith(this.filter.toLowerCase());
+                    }
+                    return true;
+                });
+                this.updateFocusedRow();
+            });
         this.readyEvent.emit(this);
-        this.createOpenCloseListeners();
-        this.createListNavigationListeners();
+    }
+
+    private updateFocusedRow() {
+        const exactMatch = this.filteredRows.find(row => row['_displayValue'] === this.displayValue);
+        const startsWithMatch = this.filteredRows
+            .find(row => row['_displayValue'].toLowerCase().startsWith(this.filter.toLowerCase()));
+
+        if (exactMatch >= 0) {
+            this.focusedRow = exactMatch;
+        } else {
+            this.focusedRow = startsWithMatch;
+        }
+    }
+
+    public focus() {
+        const input = this.el.nativeElement.querySelector('input');
+        if (input) {
+            this.renderer.invokeElementMethod(input, 'focus', []);
+            this.renderer.invokeElementMethod(input, 'select', []);
+            this.cd.markForCheck();
+            return this;
+        }
     }
 
     public emitChange(previousValue, currentValue) {
@@ -251,47 +223,15 @@ export class UniMultivalueInput extends BaseControl {
         let change = {};
         change[property] = changeValue;
         this.changeEvent.emit(change);
+
         change[property]['valid'] = true;
         this.inputEvent.emit(change);
+
+        this.moveForwardEvent.emit({event: null, field: this.field});
     }
 
-    private shouldStoreID() {
-        return !!this.field.Options.storeIdInProperty;
-    }
-
-    private showDropdown(event: KeyboardEvent) {
-        if (!event || event.keyCode === KeyCodes.ENTER || event.keyCode === KeyCodes.TAB
-        || event.keyCode === KeyCodes.F4
-        || event.keyCode === KeyCodes.SPACE
-        || (event.keyCode === KeyCodes.DOWN_ARROW && event.altKey)
-        || (event.keyCode === KeyCodes.UP_ARROW && event.altKey)) {
-            return;
-        }
-        if (this.rows && !this.rows.length) {
-            if (!this.editorIsOpen) {
-                this.addValue(event);
-            }
-        }
-        if (document.activeElement === event.target) {
-            if (event.target === this.inputElement.nativeElement) {
-                if (event instanceof MouseEvent) {
-                    this.toggle();
-                    return;
-                }
-            }
-            if (!this.editorIsOpen) {
-                const letterNumber = /^[0-9a-zA-Z]+$/;
-                // if it is alphanumeric
-                if (event.key.length === 1 && event.key.match(letterNumber)) {
-                    this.open();
-                    this.isDirty = true;
-                }
-            }
-        }
-    }
-
-    private toggle() {
-        if (this.listIsVisible$.getValue()) {
+    public toggle() {
+        if (this.isOpen) {
             this.close();
         } else {
             this.open();
@@ -299,170 +239,141 @@ export class UniMultivalueInput extends BaseControl {
     }
 
     private open() {
-        if (this.field.ReadOnly) {
-            return;
-        }
-        this.listIsVisible$.next(true);
+        this.isOpen = true;
+        this.filter = "";
+        let listProperty = this.field.Options.listProperty || this.field.Property;
+        this.rows = this.filteredRows = _.get(this.model, listProperty, []);
+        setTimeout(() => this.filterInput.nativeElement.focus());
     }
 
     private close() {
-        if (this.isDirty) {
-            this.setAsDefault(this.defaultRow);
-            this.isDirty = false;
+        this.isOpen = false;
+        this.filter = "";
+        this.focusedRow = this.selectedRow;
+    }
+
+    public clearSelection() {
+        let previousValue = _.cloneDeep(this.selectedRow);
+        this.focusedRow = this.rows[0];
+        this.selectedRow = null;
+        this.displayValue = '';
+
+        _.set(this.model, this.field.Options.storeResultInProperty, null);
+        if (this.field.Options.storeIdInProperty) {
+            _.set(this.model, this.field.Options.storeIdInProperty, null);
         }
-        this.listIsVisible$.next(false);
-    }
 
-    private isSelected(row) {
-        return row === this.defaultRow && !this.addButtonHasFocus;
-    }
-
-    public selectRow(row) {
-        let previousValue = this.defaultRow;
-        this.setAsDefault(row);
-        let nextValue = this.defaultRow;
-        this.emitChange(previousValue, nextValue);
-        this.close();
+        this.emitChange(previousValue, null);
         this.moveForwardEvent.emit({event: null, field: this.field});
-        if (this.isDirty) {
-            this.isDirty = false;
-        }
-
     }
 
-    private setAsDefault(row) {
-        let oldValue = _.get(this.model, this.field.Property);
-        let storeResultInProperty = this.field.Options.storeResultInProperty;
-        let linkProperty = this.field.Options.linkProperty;
-        let currentValue = row;
-        let fp = _.get(this.model, storeResultInProperty);
-        let lp = row;
-
-        this.defaultRow = row;
-        this.currentValue = this.showDisplayValue(row);
-        if (fp === lp && oldValue === currentValue) {
-            return; // no emit changes since it is not updated;
+    public selectRow(row: any) {
+        if (row && row.Deleted) {
+            return;
         }
-        _.set(this.model, storeResultInProperty, lp);
-        this.cd.markForCheck(); // update input value after update defaultRow;
-        this.isDirty = false;
-        if (this.shouldStoreID()) {
-            let value = _.get(row, linkProperty);
-            _.set(this.model, this.field.Options.storeIdInProperty, value || null);
-        }
-    }
-
-    private showDisplayValue(row) {
-        if (!this.field.Options.display) {
-            return _.get(row, this.field.Options.displayValue);
-        }
-        if (!row) {
-            return '';
-        }
-        return this.field.Options.display(row);
-    }
-
-    private addValue($event) {
-        if ($event instanceof KeyboardEvent) {
-            const letterNumber = /^[0-9a-zA-Z]+$/;
-            // if it is alphanumeric
-            if ($event.key.length === 1 && $event.key.match(letterNumber)) {
-                if (!this.isDirty) {
-                    this.isDirty = true;
-                }
-            }
-        }
-
-        let newEntity = {ID: 0};
-        this.edit(newEntity, $event);
-    }
-
-    private edit(row, $event) {
-        $event.preventDefault();
-        $event.stopPropagation();
-
-        if (this.editorIsOpen) {
+        this.close();
+        if (row === this.selectedRow) {
             return;
         }
 
-        this.rows.map(x => x._editMode = false);
+        let previousValue = _.cloneDeep(this.selectedRow);
+        this.focusedRow = this.selectedRow = row || null;
+        this.displayValue = this.getDisplayValue(row);
+
+        _.set(this.model, this.field.Options.storeResultInProperty, row);
+
+        if (this.field.Options.storeIdInProperty) {
+            let linkValue = !!row
+                ? _.get(row, this.field.Options.linkProperty) || null
+                : null;
+
+            _.set(this.model, this.field.Options.storeIdInProperty, linkValue);
+        }
+
+        this.emitChange(previousValue, row);
+        this.moveForwardEvent.emit({event: null, field: this.field});
+    }
+
+    private getDisplayValue(row): string {
+        if (!row) {
+            return '';
+        }
+
+        return this.field.Options.display
+            ? this.field.Options.display(row)
+            : _.get(row, this.field.Options.displayValue);
+    }
+
+    public addNew(initValue?: string) {
+        this.edit({
+            ID: 0,
+            _initValue: initValue,
+            _createguid: this.guidService.guid()
+        });
+    }
+
+    private edit(row, event?: Event) {
+        if (event) {
+            event.preventDefault();
+            event.stopPropagation();
+        }
+
+        if (this.editorIsOpen || !row) {
+            return;
+        }
+
+        let listProperty = this.field.Options.listProperty || this.field.Property;
+        this.rows = this.filteredRows = _.get(this.model, listProperty, []);
 
         if (this.field.Options.editor) {
             if (!this.editorIsOpen) {
-                const oldValue = Object.assign({}, row);
                 this.editorIsOpen = true;
+                this.close();
 
                 this.field.Options.editor(row).then(editedEntity => {
-                    this.isDirty = false;
                     this.editorIsOpen = false;
                     if (!editedEntity) {
                         this.focus();
-                        return;
+                        return this.rows;
                     }
 
-                    const index = this.rows.indexOf(row);
+                    row['_displayValue'] = this.getDisplayValue(row);
+
+                    let index = this.rows.findIndex(r => r === row);
                     if (index >= 0) {
                         this.rows[index] = editedEntity;
+                        this.selectRow(editedEntity);
                     } else {
                         this.rows.push(editedEntity);
+                        this.selectRow(editedEntity);
                     }
-
-                    this.close();
-
-                    this.setAsDefault(editedEntity);
-                    const newValue = editedEntity;
-                    this.emitChange(oldValue, newValue);
-                    this.cd.markForCheck();
-                    this.moveForwardEvent.emit({event: $event, field: this.field});
-                }).catch((err) => {
-                    this.isDirty = false;
+                    return this.rows;
+                })
+                .then(rows => this.filteredRows = rows)
+                .then(rows => {
+                    let listProperty = this.field.Options.listProperty || this.field.Property;
+                    _.set(this.model, listProperty, rows);
+                })
+                .catch((err) => {
                     this.editorIsOpen = false;
                     this.close();
                 });
             }
         } else {
-            this.tempValue = this.showDisplayValue(row);
-            row._editMode = true;
-            setTimeout(() => {
-                this.renderer.invokeElementMethod(document.querySelector('.uni-multivalue_edit'), 'focus', []);
-                this.close();
-                this.moveForwardEvent.emit({event: $event, field: this.field});
-            }, 200);
+            console.warn('MultiValue is missing an editor');
         }
     }
 
-    private save(row, tempValue, $event) {
-        if ($event.which === 27) {
-            $event.preventDefault();
-            $event.stopPropagation();
-            row._editMode = false;
-            this.isDirty = false;
-            return;
+    public delete(row, event?: Event) {
+        if (event) {
+            event.stopPropagation();
+            event.preventDefault();
         }
-        if ($event.which === 13 || $event.type === 'blur') {
-            $event.preventDefault();
-            $event.stopPropagation();
-            if (_.get(row, this.field.Options.displayValue) === tempValue) {
-                row._editMode = false;
-                this.isDirty = false;
-                return;
-            }
-            let previousValue = _.get(this.model, this.field.Property);
-            _.set(row, this.field.Options.displayValue, tempValue);
-            _.set(this.model, this.field.Property, this.rows);
-            this.emitChange(previousValue, this.rows);
-            row._editMode = false;
-            this.isDirty = false;
-        }
-    }
 
-    public delete(index: number, $event) {
-        $event.stopPropagation();
-        $event.preventDefault();
         let oldrows = [...this.rows];
 
         // If deleted row was selected row
-        if (this.showDisplayValue(this.rows[index]) === this.currentValue) {
+        if (this.getDisplayValue(row) === this.displayValue) {
             if (this.field.Options.storeIdInProperty) {
                 _.set(this.model, this.field.Options.storeIdInProperty, null);
             }
@@ -471,31 +382,121 @@ export class UniMultivalueInput extends BaseControl {
                 _.set(this.model, this.field.Options.storeResultInProperty, null);
             }
 
-            this.defaultRow = null;
-            this.currentValue = '';
+            let listProperty = this.field.Options.listProperty || this.field.Property;
+            _.set(this.model, listProperty, this.rows);
+
+            this.selectedRow = null;
+            this.updateFocusedRow();
+            this.displayValue = '';
         }
 
         // Delete the row
-        if (this.rows[index].ID) {
-            this.rows[index].Deleted = true;
+        if (row.ID) {
+            row.Deleted = true;
         } else {
-            this.rows.splice(index, 1);
+            this.rows.splice(this.rows.indexOf(row), 1);
+            this.filteredRows.splice(this.rows.indexOf(row), 1);
         }
 
         this.emitChange(oldrows, this.rows);
         this.cd.markForCheck();
-
     }
 
-    public regretDelete(index: number, $event) {
-        $event.stopPropagation();
-        $event.preventDefault();
+    public regretDelete(row, event) {
+        event.stopPropagation();
+        event.preventDefault();
 
         let oldRows = [...this.rows];
-        this.rows[index]._editMode = false;
-        this.rows[index].Deleted = false;
+        row.Deleted = false;
 
         this.emitChange(oldRows, this.rows);
         this.cd.markForCheck();
+    }
+
+    public keyDownHandler(event: KeyboardEvent) {
+        const keyCode = event.which || event.keyCode;
+
+
+        switch (keyCode) {
+            case KeyCodes.TAB:
+            case KeyCodes.ENTER:
+                if (this.isOpen) {
+                    event.preventDefault();
+                    this.selectRow(this.focusedRow);
+                }
+                break;
+
+            case KeyCodes.DOWN_ARROW:
+                event.preventDefault();
+                if (!this.isOpen) {
+                    this.isOpen = true;
+                    return;
+                }
+                let selectedRowIndex = this.filteredRows.findIndex(row => row === this.focusedRow);
+                selectedRowIndex = selectedRowIndex === undefined ? 0 : selectedRowIndex;
+                if (selectedRowIndex < this.filteredRows.length -1) {
+                    this.focusedRow = this.filteredRows[selectedRowIndex + 1];
+                }
+                break;
+
+            case KeyCodes.UP_ARROW:
+                event.preventDefault();
+                if (!this.isOpen) {
+                    this.isOpen = true;
+                    return;
+                }
+                const selectedRowIndex = this.filteredRows.findIndex(row => row === this.focusedRow);
+                if (selectedRowIndex >= 0) { // allow to go lower than 0 and highlight "not selected" row
+                    this.focusedRow = this.filteredRows[selectedRowIndex - 1];
+                }
+                break;
+
+            case KeyCodes.DELETE:
+                if (!this.isOpen) {
+                    this.clearSelection();
+                }
+                break;
+
+            case KeyCodes.F1:
+                event.preventDefault();
+                this.edit(this.focusedRow);
+                break;
+
+            case KeyCodes.F3:
+                event.preventDefault();
+                this.addNew(this.filter);
+                break;
+
+            case KeyCodes.SPACE:
+                if (!this.isOpen) {
+                    event.preventDefault();
+                    this.open();
+                }
+                break;
+            case KeyCodes.F4:
+                event.preventDefault();
+                this.toggle();
+                break;
+            case KeyCodes.ESCAPE:
+                event.preventDefault();
+                this.mainInput.nativeElement.focus();
+                break;
+        }
+    }
+
+
+    public keyPressHandler(event: KeyboardEvent) {
+            const keyCode = event.which || event.keyCode;
+            const character = String.fromCharCode(keyCode);
+
+            if (!this.rows.length && character) {
+                this.addNew(character);
+            } else if (character) {
+                if (!this.isOpen) {
+                    this.open();
+                }
+                this.filter = character;
+                setTimeout(() => this.filterInput.nativeElement.focus());
+            }
     }
 }

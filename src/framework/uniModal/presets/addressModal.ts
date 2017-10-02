@@ -1,4 +1,4 @@
-import {Component, Input, Output, EventEmitter} from '@angular/core';
+import {Component, Input, Output, EventEmitter, ElementRef} from '@angular/core';
 import {IModalOptions, IUniModal} from '../modalService';
 import {Address, Country} from '../../../app/unientities';
 import {UniFieldLayout, FieldType} from '../../ui/uniform/index';
@@ -9,6 +9,8 @@ import {
 } from '../../../app/services/services';
 
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
+import {Observable} from 'rxjs/Observable';
+import {KeyCodes} from '../../../app/services/common/keyCodes';
 
 @Component({
     selector: 'uni-address-modal',
@@ -22,7 +24,8 @@ import {BehaviorSubject} from 'rxjs/BehaviorSubject';
                     [config]="formConfig$"
                     [fields]="formFields$"
                     [model]="formModel$"
-                    (changeEvent)="formChange($event)">
+                    (changeEvent)="formChange($event)"
+                    (readyEvent)="onReady($event)">
                 </uni-form>
             </article>
 
@@ -40,21 +43,27 @@ export class UniAddressModal implements IUniModal {
     @Output()
     public onClose: EventEmitter<any> = new EventEmitter();
 
-    public formConfig$: BehaviorSubject<any> = new BehaviorSubject({autofocus: true});
+    public formConfig$: BehaviorSubject<any> = new BehaviorSubject({autofocus: false});
     private formModel$: BehaviorSubject<Address> = new BehaviorSubject(null);
     private formFields$: BehaviorSubject<UniFieldLayout[]> = new BehaviorSubject([]);
 
     constructor(
         private countryService: CountryService,
         private postalCodeService: PostalCodeService,
-        private errorService: ErrorService
+        private errorService: ErrorService,
+        private elementRef: ElementRef
     ) {}
 
     public ngOnInit() {
-        let address = this.options.data || {};
+        const address = this.options.data || {};
+        const fields = this.getFormFields();
+
+        if (address._initValue && fields[0]) {
+            address[fields[0].Property] = address._initValue;
+        }
         this.formModel$.next(address);
 
-        this.formFields$.next(this.getFormFields());
+        this.formFields$.next(fields);
     }
 
     public formChange(changes) {
@@ -71,12 +80,26 @@ export class UniAddressModal implements IUniModal {
         }
     }
 
-    public close(emitValue?: boolean) {
-        const address: Address = emitValue
-            ? this.formModel$.getValue()
-            : null;
+    public onReady() {
+        const inputs = <HTMLInputElement[]> this.elementRef.nativeElement.querySelectorAll('input');
+        if (inputs.length) {
+            const first = inputs[0];
+            first.focus();
+            first.value = first.value; // set cursor at end of text
 
-        this.onClose.emit(address);
+            const last = inputs[inputs.length - 1];
+            Observable.fromEvent(last, 'keydown')
+                .filter(event => (event.which || event.keyCode) === KeyCodes.ENTER)
+                .subscribe(() => this.close(true));
+        }
+    }
+
+    public close(emitValue?: boolean) {
+        if (emitValue) {
+            this.onClose.emit(this.formModel$.getValue());
+        } else {
+            this.onClose.emit(null);
+        }
     }
 
     private getFormFields(): UniFieldLayout[] {
