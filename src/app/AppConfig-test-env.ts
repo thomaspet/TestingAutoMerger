@@ -1,7 +1,7 @@
 export const AppConfig = ({
-    BASE_URL_INIT: 'https://test-api.unieconomy.no',
+    BASE_URL_INIT: '',
 
-    BASE_URL: 'https://test-api.unieconomy.no',
+    BASE_URL: '',
 
     BASE_URL_INTEGRATION: 'https://test-integration.unieconomy.no/',
 

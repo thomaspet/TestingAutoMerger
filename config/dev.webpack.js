@@ -3,12 +3,22 @@ const webpackMerge = require('webpack-merge');
 const commonConfig = require('./common.webpack.js');
 const DefinePlugin = require('webpack/lib/DefinePlugin');
 
-module.exports = function(options) {
+module.exports = function (options) {
+    if (!options || !options.apiServer) {
+        throw new Error('--env.apiServer is required argument for UniMicro webpack-dev-server command')
+    }
     var config = webpackMerge(commonConfig, {
         devServer: {
             contentBase: 'dist/',
             historyApiFallback: true,
             stats: 'minimal',
+            proxy: {
+                "/api": {
+                    target: options.apiServer,
+                    secure: false,
+                    changeOrigin: true
+                }
+            },
             watchOptions: {
                 aggregateTimeout: 300,
                 poll: 1000
@@ -37,4 +47,4 @@ module.exports = function(options) {
     }
 
     return config;
-}
+};

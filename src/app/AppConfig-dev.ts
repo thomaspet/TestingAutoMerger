@@ -1,7 +1,7 @@
 export const AppConfig = ({
-    BASE_URL_INIT: 'https://devapi.unieconomy.no',
+    BASE_URL_INIT: '',
 
-    BASE_URL: 'https://devapi.unieconomy.no',
+    BASE_URL: '',
 
     BASE_URL_INTEGRATION: 'https://devintegrations-unieconomy.azurewebsites.net/',
 
