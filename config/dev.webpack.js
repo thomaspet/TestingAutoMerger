@@ -3,9 +3,15 @@ const webpackMerge = require('webpack-merge');
 const commonConfig = require('./common.webpack.js');
 const DefinePlugin = require('webpack/lib/DefinePlugin');
 
+const isJenkinsBuild = !!process.env.JENKINS_HOME;
+
 module.exports = function (options) {
     if (!options || !options.apiServer) {
-        throw new Error('--env.apiServer is required argument for UniMicro webpack-dev-server command')
+        if (isJenkinsBuild) {
+            options = options || {}; // ignoring apiServer url since we don't use dev server on jenkins
+        } else {
+            throw new Error('--env.apiServer is required argument for UniMicro webpack-dev-server command')
+        }
     }
     var config = webpackMerge(commonConfig, {
         devServer: {
