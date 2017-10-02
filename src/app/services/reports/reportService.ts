@@ -102,7 +102,7 @@ export class ReportService extends BizHttp<string> {
         this.report = <Report>report;
         return this.generateReportObservable()
             .switchMap(dataSources => this.getDataSourcesObservable())
-            .map((response: { dataSources: any }) =>
+            .switchMap((response: { dataSources: any }) =>
                 this.reportGenerator.printReport(
                     this.report.templateJson,
                     this.report.dataSources,
@@ -174,31 +174,31 @@ export class ReportService extends BizHttp<string> {
             this.reportGenerator.showReport(this.report.templateJson, dataSources, this.report.parameters, this.target);
             if (doneHandler) { doneHandler(''); }
         } else {
-            var attachment = this.reportGenerator.printReport(this.report.templateJson, dataSources, this.report.parameters, !this.sendemail, this.format);
-
-            if (this.sendemail) {
-                let body = {
-                    ToAddresses: [this.sendemail.EmailAddress],
-                    CopyAddress: this.sendemail.SendCopy ? this.sendemail.CopyAddress : '',
-                    Subject: this.sendemail.Subject,
-                    Message: this.sendemail.Message,
-                    Attachments: [{
-                        Attachment: attachment,
-                        FileName: this.sendemail.Subject + '.' + this.format
-                    }],
-                    EntityType: this.sendemail.EntityType,
-                    EntityID: this.sendemail.EntityID
-                };
-
-                this.emailService.ActionWithBody(null, body, 'send', RequestMethod.Post).subscribe(() => {
-                    this.toastService.removeToast(this.emailtoast);
-                    this.toastService.addToast('Epost sendt', ToastType.good, 3);
-                    if (doneHandler) { doneHandler('Epost sendt'); }
-                }, err => {
-                    if (doneHandler) { doneHandler('Feil oppstod ved sending av epost'); }
-                    this.errorService.handle(err);
-                });
-            }
+            this.reportGenerator.printReport(this.report.templateJson, dataSources, this.report.parameters, !this.sendemail, this.format).then(attachment => {
+                if (this.sendemail) {
+                    let body = {
+                        ToAddresses: [this.sendemail.EmailAddress],
+                        CopyAddress: this.sendemail.SendCopy ? this.sendemail.CopyAddress : '',
+                        Subject: this.sendemail.Subject,
+                        Message: this.sendemail.Message,
+                        Attachments: [{
+                            Attachment: attachment,
+                            FileName: this.sendemail.Subject + '.' + this.format
+                        }],
+                        EntityType: this.sendemail.EntityType,
+                        EntityID: this.sendemail.EntityID
+                    };
+    
+                    this.emailService.ActionWithBody(null, body, 'send', RequestMethod.Post).subscribe(() => {
+                        this.toastService.removeToast(this.emailtoast);
+                        this.toastService.addToast('Epost sendt', ToastType.good, 3);
+                        if (doneHandler) { doneHandler('Epost sendt'); }
+                    }, err => {
+                        if (doneHandler) { doneHandler('Feil oppstod ved sending av epost'); }
+                        this.errorService.handle(err);
+                    });
+                }    
+            });
         }
     }
 
