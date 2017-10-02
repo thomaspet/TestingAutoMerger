@@ -128,7 +128,6 @@ export class BillView {
         'CurrencyCode'
     ];
 
-    private tabLabel: string;
     public tabs: Array<ITab> = [
         { label: lang.tab_invoice, name: 'head', isHidden: true },
         { label: lang.tab_document, name: 'docs', isSelected: true },
@@ -198,46 +197,34 @@ export class BillView {
 
     private initFromRoute() {
         this.route.params.subscribe((params: any) => {
-            var id = params.id;
-            if (safeInt(id) > 0) {
-                Observable.forkJoin(
-                    this.companySettingsService.Get(1),
-                    this.currencyCodeService.GetAll(null),
-                    this.projectService.GetAll(null),
-                    this.departmentService.GetAll(null)
-                ).subscribe((res) => {
-                    this.companySettings = res[0];
-                    this.currencyCodes = res[1];
-                    this.projects = res[2];
-                    this.departments = res[3];
+            let id = safeInt(params.id);
 
-                    this.updateTabInfo(id);
+            Observable.forkJoin(
+                this.companySettingsService.Get(1),
+                this.currencyCodeService.GetAll(null),
+                this.projectService.GetAll(null),
+                this.departmentService.GetAll(null)
+            ).subscribe((res) => {
+                this.companySettings = res[0];
+                this.currencyCodes = res[1];
+                this.projects = res[2];
+                this.departments = res[3];
+
+                if (id > 0) {
                     this.fetchInvoice(id, true);
-                    this.extendFormConfig();
-                }, err => this.errorService.handle(err));
-            } else {
-                Observable.forkJoin(
-                    this.companySettingsService.Get(1),
-                    this.currencyCodeService.GetAll(null),
-                    this.projectService.GetAll(null),
-                    this.departmentService.GetAll(null)
-                ).subscribe((res) => {
-                    this.companySettings = res[0];
-                    this.currencyCodes = res[1];
-                    this.projects = res[2];
-                    this.departments = res[3];
-
+                } else {
                     this.newInvoice(true);
                     this.checkPath();
-                    this.extendFormConfig();
-                }, err => this.errorService.handle(err));
-            }
+                }
+
+                this.extendFormConfig();
+            }, err => this.errorService.handle(err));
+
             this.commentsConfig = {
                 entityType: 'SupplierInvoice',
-                entityID: +params.id
+                entityID: id
             };
         });
-
     }
 
     public extendFormConfig() {
@@ -270,15 +257,14 @@ export class BillView {
         this.fields$.next(fields);
     }
 
-    private updateTabInfo(id?: number | string, label?: string) {
-        let current = this.current.getValue();
-        id = id || (current ? current.ID : 0);
-        this.tabLabel = label || lang.title_with_id + id;
-        var url = '/accounting/bills/' + id;
-        this.tabService.addTab({ name: this.tabLabel, url: url, moduleID: UniModules.Bills, active: true });
-        if (this.location.path(false) !== url) {
-            this.location.go(url);
-        }
+    private addTab(id: number = 0) {
+        let label = id > 0 ? trimLength(this.toolbarConfig.title, 12) : lang.title_new;
+        this.tabService.addTab({
+            name: label,
+            url : '/accounting/bills/' + id,
+            moduleID: UniModules.Bills,
+            active: true
+        });
     }
 
     private initForm() {
@@ -1068,11 +1054,10 @@ export class BillView {
             });
         }
 
-        this.tabLabel = lang.title_new;
         this.currentSupplierID = 0;
         this.simpleJournalentry.clear();
-        this.tabService.currentActiveTab.name = this.tabLabel;
         this.setupToolbar();
+        this.addTab(0);
         this.flagUnsavedChanged(true);
         this.initDefaultActions();
         this.flagActionBar(actionBar.delete, false);
@@ -1602,7 +1587,7 @@ export class BillView {
                 if (result.Supplier === null) { result.Supplier = new Supplier(); };
                 this.current.next(result);
                 this.setupToolbar();
-                this.updateTabInfo(id, trimLength(this.toolbarConfig.title, 12));
+                this.addTab(+id);
                 this.flagActionBar(actionBar.delete, result.StatusCode <= StatusCodeSupplierInvoice.Draft);
                 this.flagActionBar(actionBar.ocr, result.StatusCode <= StatusCodeSupplierInvoice.Draft);
                 this.loadActionsFromEntity();
@@ -2272,6 +2257,6 @@ export class BillView {
 
     private isEHF(file): Boolean {
         let name = (file.Name || '').toLowerCase();
-        return name.indexOf('.xml') !== -1 || name.indexOf('.ehf') !== -1);
+        return name.indexOf('.xml') !== -1 || name.indexOf('.ehf') !== -1;
     }
 }
