@@ -10,10 +10,6 @@ import {
 } from '@angular/core';
 import {UniUnsavedChangesModal} from './presets/unsavedChangesModal';
 import {UniConfirmModalV2} from './presets/confirmModal';
-// import {
-//     UniUnsavedChangesModal,
-//     UniConfirmModalV2,
-// } from './barrel';
 import {Observable} from 'rxjs/Observable';
 
 export enum ConfirmActions {

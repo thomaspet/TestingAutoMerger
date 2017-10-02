@@ -69,6 +69,8 @@ if (window.ENV === 'production') {
         HttpModule,
         RouterModule,
 
+        UniFrameworkModule,
+
         CommonServicesModule.forRoot(),
         ReportServicesModule.forRoot(),
         AccountingServicesModule.forRoot(),
@@ -79,7 +81,7 @@ if (window.ENV === 'production') {
         AssignmentServicesModule.forRoot(),
 
         APP_ROUTES,
-        UniFrameworkModule,
+
 
         // COMMON MODULES
         LayoutModule,
@@ -103,12 +105,10 @@ if (window.ENV === 'production') {
     ],
     bootstrap: [App],
     providers: [
-        AuthService,
         AuthGuard,
         RoutePermissionGuard,
         CanDeactivateGuard,
         TabService,
-        ToastService,
         COMPILER_PROVIDERS,
         {provide: LocationStrategy, useClass: HashLocationStrategy},
         {provide: ErrorHandler, useClass: UniMicroAngularInternalErrorHandlerOverride}
