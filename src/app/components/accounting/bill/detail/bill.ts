@@ -1647,10 +1647,26 @@ export class BillView {
                     return;
 
                 case StatusCodeSupplierInvoice.Journaled:
-                    this.uniForm.readMode();
-                    this.uniForm.field('PaymentDueDate').editMode();
-                    this.uniForm.field('BankAccountID').editMode();
-                    this.uniForm.field('PaymentID').editMode();
+                    // temporary fix for disabling fields on journaled invoices
+                    let readOnlyFields: string[] = [
+                        'Supplier',
+                        'InvoiceDate',
+                        'PaymentDueDate',
+                        'InvoiceNumber',
+                        'CurrencyCodeID',
+                        'TaxInclusiveAmountCurrency'
+                    ];
+
+                    this.setFieldsReadonly(readOnlyFields);
+
+                    // use this when readMode is fixed in uniForm
+
+                    // this.uniForm.readMode();
+                    // this.uniForm.field('PaymentID').editMode();
+                    // this.uniForm.field('PaymentDueDate').editMode();
+                    // this.uniForm.field('DefaultDimensions.ProjectID').editMode();
+                    // this.uniForm.field('DefaultDimensions.DepartmentID').editMode();
+                    // this.uniForm.field('BankAccountID').editMode();
                     return;
 
                 case StatusCodeSupplierInvoice.ForApproval:
@@ -1664,6 +1680,21 @@ export class BillView {
 
         this.uniForm.editMode();
         this.supplierIsReadOnly = false;
+    }
+
+    public setFieldsReadonly(fieldPropertyNames: string[]) {
+        setTimeout(() => {
+            let fields = this.fields$.value;
+            if (fieldPropertyNames) {
+                fieldPropertyNames.forEach(fieldPropertyName => {
+                    let field = fields.find((f) => f['Property'] === fieldPropertyName);
+                    if (field) {
+                        field['ReadOnly'] = true;
+                    }
+                });
+                this.fields$.next(fields);
+            }
+        });
     }
 
     private getSupplierName(): string {

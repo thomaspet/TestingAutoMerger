@@ -25,6 +25,7 @@ type eventListenerRemover = () => void;
         <uni-search
             [config]="field.Options.uniSearchConfig"
             (changeEvent)="onChange($event)"
+            [disabled]="field?.ReadOnly"
         ></uni-search>
         <ng-content></ng-content>
     `
