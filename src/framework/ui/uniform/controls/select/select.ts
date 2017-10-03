@@ -10,6 +10,7 @@ import {KeyCodes} from '../../../../../app/services/common/keyCodes';
 export interface ISelectConfig {
     valueProperty?: string;
     displayProperty?: string;
+    addEmptyValue?: boolean;
     template?: (item) => string;
     placeholder?: string;
     searchable?: boolean;
