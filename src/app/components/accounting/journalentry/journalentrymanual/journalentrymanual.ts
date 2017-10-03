@@ -401,7 +401,7 @@ export class JournalEntryManual implements OnChanges, OnInit {
             // save journalentries to sessionStorage - this is done in case the user switches tabs while entering
             this.journalEntryService.setSessionData(this.mode, data);
 
-            this.validateJournalEntryData(data, this.currentJournalEntryData['_originalIndex']);
+            this.validateJournalEntryData(data);
             this.calculateItemSums(data);
 
             this.getOpenPostsForRow();
@@ -593,12 +593,12 @@ export class JournalEntryManual implements OnChanges, OnInit {
         */
     }
 
-    private validateJournalEntryData(data: JournalEntryData[], index?: number) {
+    private validateJournalEntryData(data: JournalEntryData[]) {
          this.journalEntryService.validateJournalEntryDataLocal(
              data,
              this.currentFinancialYear,
              this.financialYears,
-             this.companySettings, index)
+             this.companySettings)
              .then(result => this.validationResult = result );
 
         /*

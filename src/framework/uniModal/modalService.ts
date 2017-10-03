@@ -28,6 +28,9 @@ export interface IModalOptions {
     header?: string;
     message?: string;
     warning?: string;
+    list?: any[];
+    listkey?: string;
+    listMessage?: string;
     buttonLabels?: {
         accept?: string;
         reject?: string;

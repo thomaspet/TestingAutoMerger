@@ -38,6 +38,8 @@ import {
     UniBankAccountModal,
     UniRegisterPaymentModal,
     UniConfirmModalV2,
+    UniConfirmModalWithList,
+    IConfirmModalWithListReturnValue,
     ConfirmActions
 } from '../../../../../framework/uniModal/barrel';
 import {
@@ -102,6 +104,9 @@ export class BillView {
     public historyCount: number = 0;
     public ocrData: any;
     public startUpFileID: Array<number> = [];
+    // Stores a boolean value per document, true if document is from client pc, not inbox
+    private hasUploaded: boolean = false;
+    private numberOfDocuments: number = 0;
 
     private myUser: User;
     private files: Array<any> = [];
@@ -611,9 +616,16 @@ export class BillView {
     }
 
     public onImageDeleted(file: any) {
-        this.files = this.files.filter(x => file !== x);
-        this.unlinkedFiles = this.files.map(f => f.ID);
-        this.documentsInUse = this.unlinkedFiles;
+        let index = this.files.findIndex(f => f.ID === file.ID);
+        // Remove file from all arrays holding it
+        this.files.splice(index, 1);
+        if (this.files.length === 0) {
+            this.resetDocuments();
+        } else {
+            this.unlinkedFiles = this.files.map(f => f.ID);
+            this.documentsInUse = this.unlinkedFiles;
+            this.numberOfDocuments--;
+        }
     }
 
     public onFileListReady(files: Array<any>) {
@@ -621,6 +633,9 @@ export class BillView {
         let current = this.current.value;
         this.files = files;
         if (files && files.length) {
+            if(this.files.length !== this.numberOfDocuments) {
+                this.hasUploaded = true;
+            }
             if (!this.hasValidSupplier()) {
                 this.runConverter(files);
             }
@@ -1063,8 +1078,7 @@ export class BillView {
         this.flagActionBar(actionBar.delete, false);
         this.supplierIsReadOnly = false;
         this.hasUnsavedChanges = false;
-        this.unlinkedFiles = [];
-        this.documentsInUse = [];
+        this.resetDocuments();
         this.files = [];
         this.startUpFileID = [];
         this.setHistoryCounter(0);
@@ -1090,6 +1104,13 @@ export class BillView {
 
     private flagActionBar(index: actionBar, enable = true) {
         this.actions[index].disabled = !enable;
+    }
+
+    private resetDocuments() {
+        this.unlinkedFiles = [];
+        this.documentsInUse = [];
+        this.numberOfDocuments = 0;
+        this.hasUploaded = false;
     }
 
     private loadActionsFromEntity() {
@@ -1245,6 +1266,7 @@ export class BillView {
                 } else {
                     this.uniImage.fetchDocumentWithID(safeInt(element.ID));
                 }
+                this.numberOfDocuments++;
                 this.hasUnsavedChanges = true;
             }
         });
@@ -1765,8 +1787,7 @@ export class BillView {
                         this.linkFiles(this.currentSupplierID, this.unlinkedFiles, 'SupplierInvoice', 40001).then(
                             () => {
                             this.hasStartupFileID = false;
-                            this.unlinkedFiles = [];
-                            this.documentsInUse = [];
+                            this.resetDocuments();
                             reload();
                         });
                     } else {
@@ -2012,28 +2033,31 @@ export class BillView {
         return new Promise((resolve, reject) => {
             let unhandledDocuments = () => {
                 if (this.documentsInUse.length > 0) {
-                    this.modalService.open(UniConfirmModalV2, {
+                    this.modalService.open(UniConfirmModalWithList, {
                         header: 'Ubehandlede dokumenter',
                         message: 'Du har ubehandlede dokumenter. Hva ønsker du å gjøre med disse?',
                         buttonLabels: {
-                            accept: 'Legg i innboks',
-                            reject: 'Slett',
-                            cancel: 'Avbryt'
-                        }
-                    }).onClose.subscribe(response => {
-                        if (response === ConfirmActions.ACCEPT) {
-                            this.documentsInUse.forEach((fileID) => {
-                                this.tagFileStatus(fileID, 0);
-                            });
-                            resolve(true);
-                        } else if (response === ConfirmActions.REJECT) {
-                            this.documentsInUse.forEach((fileID) => {
-                                this.supplierInvoiceService.send('files/' + fileID, undefined, 'DELETE')
-                                .subscribe(null, err => this.errorService.handle(err));
+                            accept: 'Fullfør',
+                            reject: 'Avbryt'
+                        },
+                        list: this.files,
+                        listkey: 'Name',
+                        listMessage: 'Marker de dokumentene du ønsker å legge i innboksen, de andre slettes.'
+
+                    }).onClose.subscribe((response: IConfirmModalWithListReturnValue) => {
+                        if (response.action === ConfirmActions.ACCEPT) {
+                            response.list.forEach((bool: boolean, index: number) => {
+                                if (bool) {
+                                    this.tagFileStatus(this.documentsInUse[index], 0);
+                                } else {
+                                    this.supplierInvoiceService
+                                    .send('files/' + this.documentsInUse[index], undefined, 'DELETE')
+                                    .subscribe(null, err => this.errorService.handle(err));
+                                }
                             });
                             resolve(true);
                         } else {
-                           resolve(false);
+                            resolve(false);
                         }
                     });
                 } else {
@@ -2054,10 +2078,17 @@ export class BillView {
                     this.busy = false;
                     this.save().then(() => {
                         this.busy = false;
-                        unhandledDocuments();
+                        resolve(true);
                     });
                 } else if (response === ConfirmActions.REJECT) {
-                    unhandledDocuments();
+                    if (this.hasUploaded) {
+                        unhandledDocuments();
+                    } else {
+                        this.documentsInUse.forEach((fileID) => {
+                            this.tagFileStatus(fileID, 0);
+                        });
+                        resolve(true);
+                    }
                 } else {
                     resolve(false);
                 }
@@ -2188,6 +2219,7 @@ export class BillView {
     private loadFromFileID(fileID: number | string) {
         this.hasStartupFileID = true;
         this.startUpFileID = [safeInt(fileID)];
+        this.numberOfDocuments++;
         this.hasUnsavedChanges = true;
     }
 

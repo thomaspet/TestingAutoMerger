@@ -376,8 +376,7 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
         journalDataEntries: Array<JournalEntryData>,
         currentFinancialYear: FinancialYear,
         financialYears: Array<FinancialYear>,
-        companySettings: CompanySettings,
-        index: number = 0): Promise<ValidationResult> {
+        companySettings: CompanySettings): Promise<ValidationResult> {
         let result: ValidationResult = new ValidationResult();
         result.Messages = [];
 
