@@ -144,6 +144,9 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
         // TODO: User should also be able to change dimensions for existing entries
         // so consider changing to filtering for dirty rows (and only allow the
         // unitable to edit the dimension fields for existing rows)
+        if (!journalEntryData[0].FinancialDate) {
+            journalEntryData[0].FinancialDate = journalEntryData[0].VatDate;
+        }
         let journalEntryDataNew = journalEntryData.filter(x => !x.StatusCode);
 
         let journalEntryDataWithJournalEntryID =
@@ -270,7 +273,7 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
             draftLine.InvoiceNumber = journalEntryData.InvoiceNumber;
             draftLine.RegisteredDate = new LocalDate(Date());
 
-            draftLine.VatDate = journalEntryData.FinancialDate;
+            draftLine.VatDate = journalEntryData.VatDate;
             draftLine.VatTypeID = journalEntryData.DebitVatTypeID;
             draftLine.VatType = debitVatType;
             draftLine.CustomerOrderID = journalEntryData.CustomerOrderID;
@@ -314,7 +317,7 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
             draftLine.FinancialDate = journalEntryData.FinancialDate;
             draftLine.InvoiceNumber = journalEntryData.InvoiceNumber;
             draftLine.RegisteredDate = new LocalDate(Date());
-            draftLine.VatDate = journalEntryData.FinancialDate;
+            draftLine.VatDate = journalEntryData.VatDate;
             draftLine.VatTypeID = journalEntryData.CreditVatTypeID;
             draftLine.VatType = creditVatType;
             draftLine.CustomerOrderID = journalEntryData.CustomerOrderID;
@@ -416,7 +419,7 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
             }
 
 
-            let invalidRows = journalDataEntries.filter(x => !x.Amount || !x.FinancialDate || (!x.CreditAccountID && !x.DebitAccountID));
+            let invalidRows = journalDataEntries.filter(x => !x.Amount || !x.VatDate || (!x.CreditAccountID && !x.DebitAccountID));
 
             if (invalidRows.length > 0) {
                 let message = new ValidationMessage();
@@ -694,6 +697,7 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
         if (!jed) {
             jed = new JournalEntryData();
             jed.FinancialDate = line.FinancialDate;
+            jed.VatDate = line.VatDate;
             jed.Amount = line.Amount;
             jed.AmountCurrency = line.AmountCurrency;
             jed.CurrencyID = line.CurrencyCodeID;
