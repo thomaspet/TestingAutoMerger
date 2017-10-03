@@ -353,6 +353,17 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
             .map(response => response.json());
     }
 
+    public checkInvoiceCreditAccountCombo(invoiceNumber, supplierID) {
+        return this.http.asGET()
+        .usingStatisticsDomain()
+        .withEndPoint('?model=JournalEntryLine&select=count(id)'
+        + '&filter=subaccount.supplierID eq '
+        + supplierID + " and InvoiceNumber eq '"
+        + invoiceNumber + "' and StatusCode ne 31004&expand=subaccount")
+        .send()
+        .map(response => response.json());
+    }
+
     public getAccountingLockedDate(): LocalDate {
         if (this.companySettings) {
             return this.companySettings.AccountingLockedDate;
@@ -361,203 +372,241 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
         }
     }
 
-    public validateJournalEntryDataLocal(journalDataEntries: Array<JournalEntryData>, currentFinancialYear: FinancialYear, financialYears: Array<FinancialYear>, companySettings: CompanySettings): ValidationResult {
+    public validateJournalEntryDataLocal(
+        journalDataEntries: Array<JournalEntryData>,
+        currentFinancialYear: FinancialYear,
+        financialYears: Array<FinancialYear>,
+        companySettings: CompanySettings,
+        index: number = 0): Promise<ValidationResult> {
         let result: ValidationResult = new ValidationResult();
         result.Messages = [];
 
-        let dblPaymentsInvoiceNo: Array<string> = [];
-        journalDataEntries.forEach(row => {
-            if (row.InvoiceNumber) {
-                let duplicatePayments = journalDataEntries.filter(entry =>
-                    entry.InvoiceNumber === row.InvoiceNumber && entry.InvoiceNumber
-                    && ((entry.DebitAccount && entry.DebitAccount.UsePostPost)
-                    || (entry.CreditAccount && entry.CreditAccount.UsePostPost))
+        return new Promise((resolve, reject) => {
+
+            let dblPaymentsInvoiceNo: Array<string> = [];
+            journalDataEntries.forEach(row => {
+                if (row.InvoiceNumber) {
+                    let duplicatePayments = journalDataEntries.filter(entry =>
+                        entry.InvoiceNumber === row.InvoiceNumber && entry.InvoiceNumber
+                        && ((entry.DebitAccount && entry.DebitAccount.UsePostPost)
+                        || (entry.CreditAccount && entry.CreditAccount.UsePostPost))
+                    );
+
+                    if (duplicatePayments.length > 1) {
+                        if (!dblPaymentsInvoiceNo.find(x => x === row.InvoiceNumber)) {
+                            dblPaymentsInvoiceNo.push(row.InvoiceNumber);
+                        }
+                    }
+                }
+            });
+
+            if (dblPaymentsInvoiceNo.length > 0) {
+                let invPaymValidation = new ValidationMessage();
+                let subMsg: string = '';
+                dblPaymentsInvoiceNo.forEach(invoiceNo => {
+                    subMsg += invoiceNo + ', ';
+                });
+
+                invPaymValidation.Level = ValidationLevel.Warning;
+                let subNoMsg = dblPaymentsInvoiceNo.length > 1 ? 'numrene ' : 'nr ';
+
+                invPaymValidation.Message =
+                    'Faktura' + subNoMsg + subMsg.substring(0, subMsg.length - 2) + ' har flere betalinger.';
+
+                result.Messages.push(invPaymValidation);
+            }
+
+
+            let invalidRows = journalDataEntries.filter(x => !x.Amount || !x.FinancialDate || (!x.CreditAccountID && !x.DebitAccountID));
+
+            if (invalidRows.length > 0) {
+                let message = new ValidationMessage();
+                message.Level = ValidationLevel.Error;
+                message.Message = 'Dato, beløp og enten debet eller kreditkonto må fylles ut på alle radene';
+                result.Messages.push(message);
+            }
+
+            let rowsWithInvalidAccounts =
+                journalDataEntries.filter(x =>
+                    (x.DebitAccount && (x.DebitAccount.Locked || x.DebitAccount.LockManualPosts))
+                    || (x.CreditAccount && (x.CreditAccount.Locked || x.CreditAccount.LockManualPosts))
                 );
 
-                if (duplicatePayments.length > 1) {
-                    if (!dblPaymentsInvoiceNo.find(x => x === row.InvoiceNumber)) {
-                        dblPaymentsInvoiceNo.push(row.InvoiceNumber);
+            if (rowsWithInvalidAccounts.length > 0) {
+                rowsWithInvalidAccounts.forEach(row => {
+                    let errorMsg = 'Kan ikke føre bilag på kontonr ';
+                    if (row.DebitAccount && (row.DebitAccount.Locked || row.DebitAccount.LockManualPosts)) {
+                        errorMsg += row.DebitAccount.AccountNumber;
+                        errorMsg += ', kontoen er sperret' + (row.DebitAccount.LockManualPosts ? ' for manuelle føringer' : '');
+                    } else if (row.CreditAccount && (row.CreditAccount.Locked || row.CreditAccount.LockManualPosts)) {
+                        errorMsg += row.CreditAccount.AccountNumber;
+                        errorMsg += ', kontoen er sperret' + (row.CreditAccount.LockManualPosts ? ' for manuelle føringer' : '');
+                    }
+
+                    // only notify once about each locked account
+                    if (!result.Messages.find(x => x.Message === errorMsg)) {
+                        let message = new ValidationMessage();
+                        message.Level = ValidationLevel.Error;
+                        message.Message = errorMsg;
+                        result.Messages.push(message);
+                    }
+                });
+            }
+
+            if (companySettings && companySettings.AccountingLockedDate) {
+                let invalidDates = journalDataEntries.filter(x => !x.StatusCode && x.FinancialDate
+                    && moment(x.FinancialDate).isSameOrBefore(moment(companySettings.AccountingLockedDate)));
+
+                if (invalidDates.length > 0) {
+                    let message = new ValidationMessage();
+                    message.Level = ValidationLevel.Error;
+                    message.Message = `Regnskapet er låst til ${moment(companySettings.AccountingLockedDate).format('L')}, ${invalidDates.length} linje${invalidDates.length > 1 ? 'r' : ''} har dato tidligere enn dette`;
+                    result.Messages.push(message);
+                }
+            }
+            if (companySettings && companySettings.VatLockedDate) {
+
+                let invalidVatDates = journalDataEntries.filter(x => !x.StatusCode && x.FinancialDate && (x.DebitVatType || x.CreditVatType)
+                    && moment(x.FinancialDate).isSameOrBefore(moment(companySettings.VatLockedDate)));
+
+                if (invalidVatDates.length > 0) {
+                    let message = new ValidationMessage();
+                    message.Level = ValidationLevel.Error;
+                    message.Message = `MVA er låst til ${moment(companySettings.VatLockedDate).format('L')}, ${invalidVatDates.length} linje${invalidVatDates.length > 1 ? 'r' : ''} har dato tidligere enn dette`;
+                    result.Messages.push(message);
+                }
+            }
+
+            let sortedJournalEntries = journalDataEntries.sort((a, b) => a.JournalEntryNo > b.JournalEntryNo ? 1 : 0);
+
+            let lastJournalEntryNo: string = '';
+            let currentSumDebit: number = 0;
+            let currentSumCredit: number = 0;
+            let lastJournalEntryFinancialDate: LocalDate;
+
+            sortedJournalEntries.forEach(entry => {
+                if (lastJournalEntryNo !== entry.JournalEntryNo) {
+                    if (UniMath.round(currentSumDebit, 2) !== UniMath.round(currentSumCredit * -1, 2)) {
+                        let message = new ValidationMessage();
+                        message.Level = ValidationLevel.Error;
+                        message.Message = `Bilag ${lastJournalEntryNo} går ikke i balanse. Sum debet og sum kredit må være lik`;
+                        result.Messages.push(message);
+                    }
+
+                    lastJournalEntryNo = entry.JournalEntryNo;
+                    currentSumCredit = 0;
+                    currentSumDebit = 0;
+                    lastJournalEntryFinancialDate = null;
+                }
+
+                if (entry.JournalEntryDataAccrual) {
+                    let isDebitResultAccount = (entry.DebitAccount && entry.DebitAccount.TopLevelAccountGroup
+                        && entry.DebitAccount.TopLevelAccountGroup.GroupNumber >= 3);
+                    let isCreditResultAccount = (entry.CreditAccount && entry.CreditAccount.TopLevelAccountGroup
+                        && entry.CreditAccount.TopLevelAccountGroup.GroupNumber >= 3);
+
+                    if ((isDebitResultAccount && isCreditResultAccount) ||
+                        (!isDebitResultAccount && !isCreditResultAccount)) {
+
+                        let message = new ValidationMessage();
+                        message.Level = ValidationLevel.Error;
+                        if (isDebitResultAccount) {
+                            message.Message = `Bilag ${lastJournalEntryNo} har en periodisering med 2 resultatkontoer `;
+                        } else {
+                            message.Message = `Bilag ${lastJournalEntryNo} har en periodisering uten resultatkonto `;
+                        }
+                        result.Messages.push(message);
                     }
                 }
-            }
-        });
 
-        if (dblPaymentsInvoiceNo.length > 0) {
-            let invPaymValidation = new ValidationMessage();
-            let subMsg: string = '';
-            dblPaymentsInvoiceNo.forEach(invoiceNo => {
-                subMsg += invoiceNo + ', ';
-            });
+                let financialYearEntry: FinancialYear;
 
-            invPaymValidation.Level = ValidationLevel.Warning;
-            let subNoMsg = dblPaymentsInvoiceNo.length > 1 ? 'numrene ' : 'nr ';
+                if (entry.FinancialDate) {
+                    financialYearEntry = financialYears.find(x => moment(entry.FinancialDate).isSameOrAfter(moment(x.ValidFrom), 'day') && moment(entry.FinancialDate).isSameOrBefore(moment(x.ValidTo), 'day'));
 
-            invPaymValidation.Message =
-                'Faktura' + subNoMsg + subMsg.substring(0, subMsg.length - 2) + ' har flere betalinger.';
-
-            result.Messages.push(invPaymValidation);
-        }
-
-
-        let invalidRows = journalDataEntries.filter(x => !x.Amount || !x.FinancialDate || (!x.CreditAccountID && !x.DebitAccountID));
-
-        if (invalidRows.length > 0) {
-            let message = new ValidationMessage();
-            message.Level = ValidationLevel.Error;
-            message.Message = 'Dato, beløp og enten debet eller kreditkonto må fylles ut på alle radene';
-            result.Messages.push(message);
-        }
-
-        let rowsWithInvalidAccounts =
-            journalDataEntries.filter(x =>
-                (x.DebitAccount && (x.DebitAccount.Locked || x.DebitAccount.LockManualPosts))
-                || (x.CreditAccount && (x.CreditAccount.Locked || x.CreditAccount.LockManualPosts))
-            );
-
-        if (rowsWithInvalidAccounts.length > 0) {
-            rowsWithInvalidAccounts.forEach(row => {
-                let errorMsg = 'Kan ikke føre bilag på kontonr ';
-                if (row.DebitAccount && (row.DebitAccount.Locked || row.DebitAccount.LockManualPosts)) {
-                    errorMsg += row.DebitAccount.AccountNumber;
-                    errorMsg += ', kontoen er sperret' + (row.DebitAccount.LockManualPosts ? ' for manuelle føringer' : '');
-                } else if (row.CreditAccount && (row.CreditAccount.Locked || row.CreditAccount.LockManualPosts)) {
-                    errorMsg += row.CreditAccount.AccountNumber;
-                    errorMsg += ', kontoen er sperret' + (row.CreditAccount.LockManualPosts ? ' for manuelle føringer' : '');
-                }
-
-                // only notify once about each locked account
-                if (!result.Messages.find(x => x.Message === errorMsg)) {
-                    let message = new ValidationMessage();
-                    message.Level = ValidationLevel.Error;
-                    message.Message = errorMsg;
-                    result.Messages.push(message);
-                }
-            });
-        }
-
-        if (companySettings && companySettings.AccountingLockedDate) {
-            let invalidDates = journalDataEntries.filter(x => !x.StatusCode && x.FinancialDate
-                && moment(x.FinancialDate).isSameOrBefore(moment(companySettings.AccountingLockedDate)));
-
-            if (invalidDates.length > 0) {
-                let message = new ValidationMessage();
-                message.Level = ValidationLevel.Error;
-                message.Message = `Regnskapet er låst til ${moment(companySettings.AccountingLockedDate).format('L')}, ${invalidDates.length} linje${invalidDates.length > 1 ? 'r' : ''} har dato tidligere enn dette`;
-                result.Messages.push(message);
-            }
-        }
-        if (companySettings && companySettings.VatLockedDate) {
-
-            let invalidVatDates = journalDataEntries.filter(x => !x.StatusCode && x.FinancialDate && (x.DebitVatType || x.CreditVatType)
-                && moment(x.FinancialDate).isSameOrBefore(moment(companySettings.VatLockedDate)));
-
-            if (invalidVatDates.length > 0) {
-                let message = new ValidationMessage();
-                message.Level = ValidationLevel.Error;
-                message.Message = `MVA er låst til ${moment(companySettings.VatLockedDate).format('L')}, ${invalidVatDates.length} linje${invalidVatDates.length > 1 ? 'r' : ''} har dato tidligere enn dette`;
-                result.Messages.push(message);
-            }
-        }
-
-        let sortedJournalEntries = journalDataEntries.sort((a, b) => a.JournalEntryNo > b.JournalEntryNo ? 1 : 0);
-
-        let lastJournalEntryNo: string = '';
-        let currentSumDebit: number = 0;
-        let currentSumCredit: number = 0;
-        let lastJournalEntryFinancialDate: LocalDate;
-
-        sortedJournalEntries.forEach(entry => {
-            if (lastJournalEntryNo !== entry.JournalEntryNo) {
-                if (UniMath.round(currentSumDebit, 2) !== UniMath.round(currentSumCredit * -1, 2)) {
-                    let message = new ValidationMessage();
-                    message.Level = ValidationLevel.Error;
-                    message.Message = `Bilag ${lastJournalEntryNo} går ikke i balanse. Sum debet og sum kredit må være lik`;
-                    result.Messages.push(message);
-                }
-
-                lastJournalEntryNo = entry.JournalEntryNo;
-                currentSumCredit = 0;
-                currentSumDebit = 0;
-                lastJournalEntryFinancialDate = null;
-            }
-
-            if (entry.JournalEntryDataAccrual) {
-                let isDebitResultAccount = (entry.DebitAccount && entry.DebitAccount.TopLevelAccountGroup
-                    && entry.DebitAccount.TopLevelAccountGroup.GroupNumber >= 3);
-                let isCreditResultAccount = (entry.CreditAccount && entry.CreditAccount.TopLevelAccountGroup
-                    && entry.CreditAccount.TopLevelAccountGroup.GroupNumber >= 3);
-
-                if ((isDebitResultAccount && isCreditResultAccount) ||
-                    (!isDebitResultAccount && !isCreditResultAccount)) {
-
-                    let message = new ValidationMessage();
-                    message.Level = ValidationLevel.Error;
-                    if (isDebitResultAccount) {
-                        message.Message = `Bilag ${lastJournalEntryNo} har en periodisering med 2 resultatkontoer `;
-                    } else {
-                        message.Message = `Bilag ${lastJournalEntryNo} har en periodisering uten resultatkonto `;
+                    if (!financialYearEntry) {
+                        let message = new ValidationMessage();
+                        message.Level = ValidationLevel.Warning;
+                        message.Message = `Bilag ${lastJournalEntryNo} har en dato som ikke finnes i noen eksisterende regnskapsår (${moment(entry.FinancialDate).format('DD.MM.YYYY')}). Et nytt regnskapsår vil bli opprettet ved lagring`;
+                        result.Messages.push(message);
+                    } else if (entry.FinancialDate && moment(entry.FinancialDate).isAfter(currentFinancialYear.ValidTo, 'day')
+                        || moment(entry.FinancialDate).isBefore(currentFinancialYear.ValidFrom, 'day')) {
+                        let message = new ValidationMessage();
+                        message.Level = ValidationLevel.Warning;
+                        message.Message = `Bilag ${entry.JournalEntryNo} har en dato som ikke er innenfor regnskapsåret ${currentFinancialYear.Year} (${moment(entry.FinancialDate).format('DD.MM.YYYY')})`;
+                        result.Messages.push(message);
                     }
-                    result.Messages.push(message);
                 }
-            }
 
-            let financialYearEntry: FinancialYear;
+                if (lastJournalEntryFinancialDate && entry.FinancialDate) {
+                    // Find the financialyear for the lastJournalEntryFinancialDate.FinancialDate and log an
+                    // error if they are not equal. Note that the year of the date might be different without
+                    // causing an error, e.g. if the financialyear is defined from 01.07.XXXX to 30.06.XXXX+1
+                    let financialYearLastEntry = financialYears.find(x => moment(lastJournalEntryFinancialDate).isSameOrAfter(moment(x.ValidFrom), 'day') && moment(lastJournalEntryFinancialDate).isSameOrBefore(moment(x.ValidTo), 'day'));
 
-            if (entry.FinancialDate) {
-                financialYearEntry = financialYears.find(x => moment(entry.FinancialDate).isSameOrAfter(moment(x.ValidFrom), 'day') && moment(entry.FinancialDate).isSameOrBefore(moment(x.ValidTo), 'day'));
-
-                if (!financialYearEntry) {
-                    let message = new ValidationMessage();
-                    message.Level = ValidationLevel.Warning;
-                    message.Message = `Bilag ${lastJournalEntryNo} har en dato som ikke finnes i noen eksisterende regnskapsår (${moment(entry.FinancialDate).format('DD.MM.YYYY')}). Et nytt regnskapsår vil bli opprettet ved lagring`;
-                    result.Messages.push(message);
-                } else if (entry.FinancialDate && moment(entry.FinancialDate).isAfter(currentFinancialYear.ValidTo, 'day')
-                    || moment(entry.FinancialDate).isBefore(currentFinancialYear.ValidFrom, 'day')) {
-                    let message = new ValidationMessage();
-                    message.Level = ValidationLevel.Warning;
-                    message.Message = `Bilag ${entry.JournalEntryNo} har en dato som ikke er innenfor regnskapsåret ${currentFinancialYear.Year} (${moment(entry.FinancialDate).format('DD.MM.YYYY')})`;
-                    result.Messages.push(message);
+                    if (financialYearLastEntry !== financialYearEntry) {
+                        let message = new ValidationMessage();
+                        message.Level = ValidationLevel.Error;
+                        message.Message = `Bilag ${lastJournalEntryNo} er fordelt over flere regnskapsår - dette er ikke lov. Vennligst velg samme år, eller endre bilagsnr på linjene som har forskjellig år`;
+                        result.Messages.push(message);
+                    }
                 }
-            }
 
-            if (lastJournalEntryFinancialDate && entry.FinancialDate) {
-                // Find the financialyear for the lastJournalEntryFinancialDate.FinancialDate and log an
-                // error if they are not equal. Note that the year of the date might be different without
-                // causing an error, e.g. if the financialyear is defined from 01.07.XXXX to 30.06.XXXX+1
-                let financialYearLastEntry = financialYears.find(x => moment(lastJournalEntryFinancialDate).isSameOrAfter(moment(x.ValidFrom), 'day') && moment(lastJournalEntryFinancialDate).isSameOrBefore(moment(x.ValidTo), 'day'));
-
-                if (financialYearLastEntry !== financialYearEntry) {
-                    let message = new ValidationMessage();
-                    message.Level = ValidationLevel.Error;
-                    message.Message = `Bilag ${lastJournalEntryNo} er fordelt over flere regnskapsår - dette er ikke lov. Vennligst velg samme år, eller endre bilagsnr på linjene som har forskjellig år`;
-                    result.Messages.push(message);
+                if ((entry.DebitAccount && entry.CreditAccount)
+                    || (entry.DebitAccount && !entry.CreditAccount && entry.Amount > 0)) {
+                    currentSumDebit += entry.Amount;
                 }
-            }
 
-            if ((entry.DebitAccount && entry.CreditAccount)
-                || (entry.DebitAccount && !entry.CreditAccount && entry.Amount > 0)) {
-                currentSumDebit += entry.Amount;
-            }
+                if ((entry.DebitAccount && entry.CreditAccount)
+                    || (!entry.DebitAccount && entry.CreditAccount)) {
+                    currentSumCredit -= entry.Amount;
+                } else if (entry.DebitAccount && !entry.CreditAccount && entry.Amount < 0) {
+                    currentSumCredit += entry.Amount;
+                }
 
-            if ((entry.DebitAccount && entry.CreditAccount)
-                || (!entry.DebitAccount && entry.CreditAccount)) {
-                currentSumCredit -= entry.Amount;
-            } else if (entry.DebitAccount && !entry.CreditAccount && entry.Amount < 0) {
-                currentSumCredit += entry.Amount;
-            }
+                lastJournalEntryFinancialDate = entry.FinancialDate;
+            });
 
-            lastJournalEntryFinancialDate = entry.FinancialDate;
+            if (UniMath.round(currentSumDebit, 2) !== UniMath.round(currentSumCredit * -1, 2)) {
+                let diff = UniMath.round((UniMath.round(currentSumDebit, 2)
+                    - UniMath.round(currentSumCredit * -1, 2)), 2);
+                let message = new ValidationMessage();
+                message.Level = ValidationLevel.Error;
+                message.Message = `Bilag ${lastJournalEntryNo}
+                går ikke i balanse. Sum debet og sum kredit må være lik (differanse: ${diff})`;
+                result.Messages.push(message);
+            }
+            // FORKJOIN CHECKS
+            let obs = [];
+            let indexes = [];
+            sortedJournalEntries.forEach((entry, ind) => {
+                if (entry.InvoiceNumber &&
+                    entry.CreditAccount &&
+                    entry.CreditAccount.SupplierID) {
+                        indexes.push(ind);
+                        obs.push(this.checkInvoiceCreditAccountCombo(
+                            entry.InvoiceNumber,
+                            entry.CreditAccount.SupplierID));
+                    }
+            });
+            if (obs.length) {
+                Observable.forkJoin(obs).subscribe((data) => {
+                    data.forEach((res: any, i) => {
+                        if (res && res.Data && res.Data[0].countid > 0) {
+                            let warning = new ValidationMessage();
+                            warning.Level = ValidationLevel.Warning;
+                            warning.Message = 'Bilagslinje med fakturanr. '
+                            + sortedJournalEntries[indexes[i]].InvoiceNumber + ' og leverandør '
+                            + sortedJournalEntries[indexes[i]].CreditAccount.AccountName + ' finnes allerede lagret.';
+                            result.Messages.push(warning);
+                        }
+                    });
+                    resolve(result);
+                }, (err) => { resolve(result); });
+            } else {
+                resolve(result);
+            }
         });
-
-        if (UniMath.round(currentSumDebit, 2) !== UniMath.round(currentSumCredit * -1, 2)) {
-            let diff = UniMath.round((UniMath.round(currentSumDebit, 2) - UniMath.round(currentSumCredit * -1, 2)), 2);
-            let message = new ValidationMessage();
-            message.Level = ValidationLevel.Error;
-            message.Message = `Bilag ${lastJournalEntryNo} går ikke i balanse. Sum debet og sum kredit må være lik (differanse: ${diff})`;
-            result.Messages.push(message);
-        }
-
-        return result;
     }
 
     public validateJournalEntryData(journalDataEntries: Array<JournalEntryData>): Observable<any> {

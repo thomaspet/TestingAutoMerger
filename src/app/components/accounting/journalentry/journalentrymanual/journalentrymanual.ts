@@ -9,7 +9,7 @@ import {
     JournalEntryLine,
     NumberSeriesTask
 } from '../../../../unientities';
-import {ValidationResult} from '../../../../models/validationResult';
+import {ValidationResult, ValidationMessage} from '../../../../models/validationResult';
 import {JournalEntryData} from '../../../../models/models';
 import {JournalEntrySimpleCalculationSummary} from '../../../../models/accounting/JournalEntrySimpleCalculationSummary';
 import {JournalEntryAccountCalculationSummary} from '../../../../models/accounting/JournalEntryAccountCalculationSummary';
@@ -365,7 +365,8 @@ export class JournalEntryManual implements OnChanges, OnInit {
         setTimeout(() => {
             if (this.journalEntryProfessional) {
                 if (this.journalEntryProfessional.dataChanged.observers.length === 0) {
-                    this.journalEntryProfessional.dataChanged.debounceTime(300).subscribe((values) => this.onDataChanged(values));
+                    this.journalEntryProfessional.dataChanged.debounceTime(300)
+                    .subscribe((values) => this.onDataChanged(values));
                 }
             }
         });
@@ -400,7 +401,7 @@ export class JournalEntryManual implements OnChanges, OnInit {
             // save journalentries to sessionStorage - this is done in case the user switches tabs while entering
             this.journalEntryService.setSessionData(this.mode, data);
 
-            this.validateJournalEntryData(data);
+            this.validateJournalEntryData(data, this.currentJournalEntryData['_originalIndex']);
             this.calculateItemSums(data);
 
             this.getOpenPostsForRow();
@@ -409,22 +410,29 @@ export class JournalEntryManual implements OnChanges, OnInit {
         });
     }
 
-    private onDataLoaded(data: JournalEntryData[]) {
+    public onDataLoaded(data: JournalEntryData[]) {
         this.calculateItemSums(data);
     }
 
-    private onRowSelected(selectedRow: JournalEntryData) {
+    public onRowSelected(selectedRow: JournalEntryData) {
         this.currentJournalEntryData = selectedRow;
 
         if (this.journalEntryProfessional) {
             let data = this.journalEntryProfessional.getTableData();
 
             if (this.currentFinancialYear){
-                this.journalEntryService.getAccountBalanceInfo(data, this.accountBalanceInfoData, this.currentFinancialYear)
+                this.journalEntryService.getAccountBalanceInfo(
+                    data,
+                    this.accountBalanceInfoData,
+                    this.currentFinancialYear)
                     .subscribe(accountBalanceData => {
                         this.accountBalanceInfoData = accountBalanceData;
                         this.itemAccountInfoData =
-                            this.journalEntryService.calculateJournalEntryAccountSummaryLocal(data, this.accountBalanceInfoData, this.vatDeductions, this.currentJournalEntryData);
+                            this.journalEntryService.calculateJournalEntryAccountSummaryLocal(
+                                data,
+                                this.accountBalanceInfoData,
+                                this.vatDeductions,
+                                this.currentJournalEntryData);
                     });
             }
         }
@@ -432,7 +440,7 @@ export class JournalEntryManual implements OnChanges, OnInit {
         this.getOpenPostsForRow();
     }
 
-    private openPostSelected(selectedRow: any) {
+    public openPostSelected(selectedRow: any) {
         if (selectedRow) {
             let selectedLine: JournalEntryLine = selectedRow.rowModel;
 
@@ -440,8 +448,10 @@ export class JournalEntryManual implements OnChanges, OnInit {
                 if (selectedLine['_rowSelected']) {
                     this.currentJournalEntryData.AmountCurrency = Math.abs(selectedLine.RestAmountCurrency);
                     this.currentJournalEntryData.NetAmountCurrency = Math.abs(selectedLine.RestAmountCurrency);
-                    this.currentJournalEntryData.Amount = Math.abs(selectedLine.RestAmountCurrency * selectedLine.CurrencyExchangeRate);
-                    this.currentJournalEntryData.NetAmount = Math.abs(selectedLine.RestAmountCurrency * selectedLine.CurrencyExchangeRate);
+                    this.currentJournalEntryData.Amount =
+                        Math.abs(selectedLine.RestAmountCurrency * selectedLine.CurrencyExchangeRate);
+                    this.currentJournalEntryData.NetAmount =
+                        Math.abs(selectedLine.RestAmountCurrency * selectedLine.CurrencyExchangeRate);
                     this.currentJournalEntryData.CurrencyID = selectedLine.CurrencyCodeID;
                     this.currentJournalEntryData.CurrencyCode = selectedLine.CurrencyCode;
                     this.currentJournalEntryData.CurrencyExchangeRate = selectedLine.CurrencyExchangeRate;
@@ -583,11 +593,17 @@ export class JournalEntryManual implements OnChanges, OnInit {
         */
     }
 
-    private validateJournalEntryData(data: JournalEntryData[]) {
-        this.validationResult = this.journalEntryService.validateJournalEntryDataLocal(data, this.currentFinancialYear, this.financialYears, this.companySettings);
+    private validateJournalEntryData(data: JournalEntryData[], index?: number) {
+         this.journalEntryService.validateJournalEntryDataLocal(
+             data,
+             this.currentFinancialYear,
+             this.financialYears,
+             this.companySettings, index)
+             .then(result => this.validationResult = result );
 
         /*
-        KE 08.11.2016: Switch to running the validations locally. The serverside validation is executed when posting anyway
+        KE 08.11.2016: Switch to running the validations locally.
+        The serverside validation is executed when posting anyway
         this.journalEntryService.validateJournalEntryData(data)
             .subscribe(
             result => {
