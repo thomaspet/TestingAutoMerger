@@ -32,7 +32,7 @@ export interface ISelectConfig {
         tabindex="0"
         [value]="getDisplayValue(selectedItem)"
         [placeholder]="config?.Placeholder || ''"
-        [readonly]="readonly"
+        [attr.aria-readonly]="readonly"
         (click)="toggle()"
         [title]="getTitle()"
         readonly />
@@ -80,31 +80,31 @@ export interface ISelectConfig {
 export class UniSelect {
     @ViewChild('searchInput') public searchInput: ElementRef;
     @ViewChild('valueInput') public valueInput: ElementRef;
-    @ViewChild('itemDropdown') private itemDropdown: ElementRef;
+    @ViewChild('itemDropdown') public itemDropdown: ElementRef;
 
-    @Input() private items: any[];
-    @Input() private newButtonAction: Function;
-    @Input() private readonly: boolean;
-    @Input() private config: ISelectConfig;
+    @Input() public items: any[];
+    @Input() public newButtonAction: Function;
+    @Input() public readonly: boolean;
+    @Input() public config: ISelectConfig;
     @Input() public value: any;
 
     @Output() public valueChange: EventEmitter<any> = new EventEmitter<any>();
     @Output() public readyEvent: EventEmitter<UniSelect> = new EventEmitter<UniSelect>(true);
 
-    private guid: string;
-    private expanded: boolean = false;
+    public guid: string;
+    public expanded: boolean = false;
 
-    private searchable: boolean = true;
-    private searchControl: FormControl = new FormControl('');
-    private filteredItems: any[];
-    private filterString: string = '';
+    public searchable: boolean = true;
+    public searchControl: FormControl = new FormControl('');
+    public filteredItems: any[];
+    public filterString: string = '';
 
-    private selectedItem: any;
-    private focusedIndex: any = -1;
-    private initialItem: any;
-    private activeDecentantId: string;
+    public selectedItem: any;
+    public focusedIndex: any = -1;
+    public initialItem: any;
+    public activeDecentantId: string;
 
-    constructor(private renderer: Renderer, private cd: ChangeDetectorRef, private el: ElementRef) {
+    constructor(public renderer: Renderer, public cd: ChangeDetectorRef, public el: ElementRef) {
         // Set a guid for DOM elements, etc.
         this.guid = (new Date()).getTime().toString();
     }
@@ -323,12 +323,13 @@ export class UniSelect {
         this.close();
     }
 
-    private toggle() {
+    public toggle() {
         if (this.readonly) {
             return;
         }
         if (this.expanded) {
             this.close();
+            this.focus();
         } else {
             this.open();
             try {
