@@ -486,17 +486,22 @@ export class UniMultivalueInput extends BaseControl {
 
 
     public keyPressHandler(event: KeyboardEvent) {
-            const keyCode = event.which || event.keyCode;
-            const character = String.fromCharCode(keyCode);
+        const ignoredKeyCodes = [KeyCodes.ESCAPE, KeyCodes.TAB];
+        const keyCode = event.which || event.keyCode;
+        const character = String.fromCharCode(keyCode);
 
-            if (!this.rows.length && character) {
-                this.addNew(character);
-            } else if (character) {
-                if (!this.isOpen) {
-                    this.open();
-                }
-                this.filter = character;
-                setTimeout(() => this.filterInput.nativeElement.focus());
+        if (ignoredKeyCodes.indexOf(keyCode) > -1) {
+            return;
+        }
+
+        if (!this.rows.length && character) {
+            this.addNew(character);
+        } else if (character) {
+            if (!this.isOpen) {
+                this.open();
             }
+            this.filter = character;
+            setTimeout(() => this.filterInput.nativeElement.focus());
+        }
     }
 }

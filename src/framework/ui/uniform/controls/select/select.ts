@@ -180,7 +180,13 @@ export class UniSelect {
         const keypressEvent = Observable.fromEvent(this.el.nativeElement, 'keypress');
         keypressEvent.filter((event: KeyboardEvent) => event.keyCode !== KeyCodes.ENTER)
             .subscribe((event: KeyboardEvent) => {
-                const character = String.fromCharCode(event.which);
+                const ignoredKeyCodes = [KeyCodes.ESCAPE, KeyCodes.TAB];
+                const keyCode = event.which || event.keyCode;
+                const character = String.fromCharCode(keyCode);
+
+                if (ignoredKeyCodes.indexOf(keyCode) > -1) {
+                    return;
+                }
                 if (!this.searchable) {
                     const focusIndex = this.items.findIndex((item) => {
                         try {
