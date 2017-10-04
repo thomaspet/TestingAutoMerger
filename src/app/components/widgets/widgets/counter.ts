@@ -33,12 +33,15 @@ export class UniCounterWidget {
     public ngAfterViewInit() {
         if (this.widget) {
             const config = this.widget.config;
-            this.widgetDataService.getData(config.dataEndpoint).subscribe(res => {
-                if (config.valueKey) {
-                    this.count = _.get(res, config.valueKey) || 0;
-                    this.cdr.markForCheck();
-                }
-            });
+            this.widgetDataService.getData(config.dataEndpoint).subscribe(
+                res => {
+                    if (config.valueKey) {
+                        this.count = _.get(res, config.valueKey) || 0;
+                        this.cdr.markForCheck();
+                    }
+                },
+                err => {}
+            );
         }
     }
 

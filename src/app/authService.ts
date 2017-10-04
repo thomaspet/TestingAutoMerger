@@ -274,11 +274,7 @@ export class AuthService {
             'CompanyKey': this.activeCompany
         });
 
-        this.http.post(url, '', {headers: headers})
-            .subscribe(
-                () => console.log('User logged out sucessfully'),
-                err => console.error('Error:JWT token is still valid.', err)
-            );
+        this.http.post(url, '', {headers: headers}).subscribe();
 
         localStorage.removeItem('jwt');
         localStorage.removeItem('activeCompany');

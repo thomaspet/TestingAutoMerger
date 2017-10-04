@@ -128,7 +128,7 @@ export class UniKPIWidget {
     ) {}
 
     public ngAfterViewInit() {
-        this.financialYearService.getActiveYear().subscribe((year: number) => {
+        this.financialYearService.getActiveYear().switchMap((year: number) => {
             const endpoint = '/api/statistics?model=JournalEntryLine'
                 + '&select=sum(casewhen(Account.AccountNumber ge 1400 '
                 + 'and Account.AccountNumber le 1999,Amount,0)) as sumOmlopsmidler,'
@@ -143,7 +143,9 @@ export class UniKPIWidget {
                 + 'and Period.AccountYear eq ' + year + ',Amount,0)) as resultat'
                 + '&expand=Account,Period&distinct=false';
 
-            this.dataService.getData(endpoint).subscribe(data => {
+            return this.dataService.getData(endpoint);
+        }).subscribe(
+            data => {
                 if (!data || !data.Data) {
                     return;
                 }
@@ -153,8 +155,9 @@ export class UniKPIWidget {
                 this.initSolidityIndicator(data.Data[0]);
 
                 this.dataLoaded.emit(true);
-            }, err => console.log(err));
-        });
+            },
+            err => this.dataLoaded.emit(true)
+        );
     }
 
     public initSolidityIndicator(data) {

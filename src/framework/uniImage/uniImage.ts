@@ -177,7 +177,9 @@ export class UniImage {
         this.authService.authentication$.subscribe((authDetails) => {
             this.token = authDetails.filesToken;
             this.activeCompany = authDetails.activeCompany;
-            this.refreshFiles();
+            if (this.token && this.activeCompany) {
+                this.refreshFiles();
+            }
         });
     }
 

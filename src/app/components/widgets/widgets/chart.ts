@@ -62,8 +62,8 @@ export class UniChartWidget {
             this.myChart.destroy();
         }
 
-        this.widgetDataService.getData(this.widget.config.dataEndpoint[0])
-            .subscribe(res => {
+        this.widgetDataService.getData(this.widget.config.dataEndpoint[0]).subscribe(
+            res => {
                 if (!res.Success) {
                     return;
                 }
@@ -72,7 +72,11 @@ export class UniChartWidget {
                 this.labels = builderResult.labels;
                 this.datasets = builderResult.dataset;
                 this.drawChart();
-            });
+            },
+            err => {
+                this.dataLoaded.emit(true);
+            }
+        );
     }
 
     private loadChartWidget() {
@@ -86,25 +90,24 @@ export class UniChartWidget {
             sources.push(this.widgetDataService.getData(endpoint));
         });
 
-        Observable.forkJoin(sources)
-            .subscribe(
-                res => {
-                    res.forEach((item: any, i) => {
-                        if (item.Success) {
-                            this.datasets.push(this.builder.buildSingleColorDataset(
-                                item.Data,
-                                i,
-                                this.widget.config
-                            ));
+        Observable.forkJoin(sources).subscribe(
+            res => {
+                res.forEach((item: any, i) => {
+                    if (item.Success) {
+                        this.datasets.push(this.builder.buildSingleColorDataset(
+                            item.Data,
+                            i,
+                            this.widget.config
+                        ));
 
-                            this.labels = this.widget.config.labels;
-                        }
-                    });
+                        this.labels = this.widget.config.labels;
+                    }
+                });
 
-                    this.drawChart();
-                },
-                err => console.log(err)
-            );
+                this.drawChart();
+            },
+            err => this.dataLoaded.emit(true)
+        );
     }
 
     private drawChart() {
