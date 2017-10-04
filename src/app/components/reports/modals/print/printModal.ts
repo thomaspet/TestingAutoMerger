@@ -9,7 +9,15 @@ import {DomSanitizer} from '@angular/platform-browser';
             <h1>Skriv ut</h1>
         </header>
         <article>
-            <iframe style="min-height: 80vh; min-width: 87vw;" type="application/pdf" [src]="returnUrl()" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen ></iframe>
+            <iframe
+                style="min-height: 80vh; min-width: 87vw;"
+                type="application/pdf"
+                [src]="returnUrl()"
+                frameborder="0"
+                webkitallowfullscreen
+                mozallowfullscreen
+                allowfullscreen>
+            </iframe>
         </article>
         <footer>
             <button (click)="onCloseAction()">Cancel</button>

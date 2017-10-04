@@ -74,10 +74,11 @@ export class UniSearchAttr implements OnInit, OnChanges {
         el.parentNode.appendChild(el.firstElementChild);
 
         Observable.fromEvent(el, 'input')
-            .do(() => this.goBusy())
+            .do(() => this.busy = true)
             .debounceTime(INPUT_DEBOUNCE_TIME)
             .do(() => this.openSearchResult())
             .map(event => (<any>event).target.value)
+            .do(() => this.changeDetector.markForCheck())
             .subscribe(value => this.performLookup(value));
 
         this.config.initialItem$.subscribe(model => {
@@ -153,10 +154,10 @@ export class UniSearchAttr implements OnInit, OnChanges {
         this.selectedIndex = -1;
         this.initialDisplayValue = this.componentElement.nativeElement.value;
         if (item) {
-            this.goBusy();
+            this.busy = true;
             this.config.onSelect(item)
                 .do(() => this.changeDetector.markForCheck())
-                .do(() => this.goBusy(false))
+                .do(() => this.busy = false)
                 .subscribe(expandedItem => {
                     this.changeEvent.next(expandedItem);
                     this.componentElement.nativeElement.value = this.inputTemplate(expandedItem);
@@ -182,12 +183,12 @@ export class UniSearchAttr implements OnInit, OnChanges {
     private createNewItem() {
         this.closeSearchResult();
         this.config.newItemModalFn()
-            .do(() => this.goBusy())
+            .do(() => this.busy = true)
             .switchMap(item => this.config.onSelect(item))
+            .do(() => this.busy = false)
             .subscribe(expandedItem => {
                 this.componentElement.nativeElement.value = this.inputTemplate(expandedItem);
                 this.changeEvent.next(expandedItem);
-                this.goBusy(false);
             }, err => console.error(
                 'Uncaught error in UniSearch! Add a .catch() on the observable before passing it to UniSearch!'
             ));
@@ -206,7 +207,7 @@ export class UniSearchAttr implements OnInit, OnChanges {
 
     private performLookup(query: string) {
         this.lookupResults = null;
-        this.goBusy();
+        this.busy = true;
         if (typeof this.config.lookupFn !== 'function') {
             throw new Error('Tried to preform UniSearch lookup without supplying a lookup function');
         }
@@ -219,13 +220,9 @@ export class UniSearchAttr implements OnInit, OnChanges {
         lookupFn.subscribe(response => {
             this.lookupResults = response;
             this.selectedIndex = this.componentElement.nativeElement.value ? 0 : -1;
-            this.goBusy(false)
+            this.busy = false;
+            this.changeDetector.markForCheck();
         }, err => console.error('Uncaught error in UniSearch! Add a .catch() in the lookup function!'));
-    }
-
-    private goBusy(on: boolean = true) {
-        this.busy = on;
-        this.changeDetector.markForCheck();
     }
 
     private onKeydown(event: KeyboardEvent) {

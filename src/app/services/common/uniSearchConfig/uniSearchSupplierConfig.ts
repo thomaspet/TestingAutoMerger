@@ -46,6 +46,10 @@ export class UniSearchSupplierConfig {
                 .GetAllUnwrapped(this.generateSupplierStatisticsQuery(searchTerm))
                 .catch((err, obs) => this.errorService.handleRxCatch(err, obs)),
             onSelect: (selectedItem: CustomStatisticsResultItem) => {
+                if (!selectedItem) {
+                    return Observable.empty();
+                }
+
                 if (selectedItem.ID) {
                     return this.supplierService.Get(selectedItem.ID, expands)
                         .catch((err, obs) => this.errorService.handleRxCatch(err, obs));

@@ -65,6 +65,7 @@ import {
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {UniFieldLayout} from '../../../../../framework/ui/uniform/index';
 import * as moment from 'moment';
+import {UniNewSupplierModal} from '../../supplier/details/newSupplierModal';
 declare var _;
 
 interface ITab {
@@ -335,7 +336,10 @@ export class BillView {
 
 
         this.uniSearchConfig = this.uniSearchSupplierConfig
-            .generateDoNotCreateNew(this.supplierExpandOptions);
+            .generateDoNotCreateNew(
+                this.supplierExpandOptions,
+                () => this.modalService.open(UniNewSupplierModal, { data: {} }).onClose
+            );
 
         // Extend config with stuff that can't come from layout system
         let supplierField = fields.find(f => f.Property === 'Supplier');
