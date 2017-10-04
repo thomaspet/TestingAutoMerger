@@ -50,8 +50,8 @@ export class Users {
         this.initTableConfigs();
         this.initFormConfigs();
 
-    this.newUserForm = new FormGroup({
-    Email: new FormControl('', this.isInvalidEmail)
+        this.newUserForm = new FormGroup({
+            Email: new FormControl('', this.isInvalidEmail)
         });
         this.roleService.GetAll(null).subscribe(
             (res) => {
@@ -281,6 +281,7 @@ export class Users {
                 EntityType: 'User',
                 Property: 'Email',
                 FieldType: FieldType.TEXT,
+                ReadOnly: true,
                 Label: 'Epost',
                 FieldSet: 0,
                 Section: 0
