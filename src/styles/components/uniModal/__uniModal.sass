@@ -100,13 +100,12 @@ dialog.uniModal[open=false]:before
 body.modal-open
     overflow: hidden
 
-
 .uni-modal-backdrop
     position: fixed
     top: 0
     left: 0
-    min-height: 100vh
-    width: 100vw
+    bottom: 0
+    right: 0
     transition: opacity 300ms ease
     opacity: 1
     background: transparentize($uni-color-scale4, .4)
@@ -123,6 +122,11 @@ body.modal-open
     align-items: center
     justify-content: center
 
+    > *:first-child
+        display: block !important
+        margin: auto auto !important
+        padding: 1rem 0 !important
+
 .uni-modal
     width: 40vw
     margin: 0 auto
@@ -133,15 +137,8 @@ body.modal-open
     border-radius: pxToRem(5)
     overflow: visible
     display: block
-
     padding: 0
     border: none
-
-    &.top-aligned
-        position: absolute
-        top: 1rem
-        left: 50%
-        transform: translateX(-50%)
 
     &.small
         width: 40vw
@@ -160,6 +157,7 @@ body.modal-open
 
     header
         background: $uni-color-toolbar
+        border-radius: pxToRem(4) pxToRem(4) 0 0
 
         h1
             @extend p
