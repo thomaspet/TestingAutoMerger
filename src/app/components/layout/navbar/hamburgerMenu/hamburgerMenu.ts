@@ -1,7 +1,6 @@
 ﻿import {Component, ElementRef, Pipe, ChangeDetectionStrategy, ChangeDetectorRef, ViewChild} from '@angular/core';
 import {Router} from '@angular/router';
 import {UniModules} from '../../../layout/navbar/tabstrip/tabService';
-import {UserService} from '../../../../services/services';
 import {AuthService} from '../../../../authService';
 
 @Pipe({name: 'removehidden'})
@@ -69,15 +68,12 @@ export class HamburgerMenu {
     constructor(
         public router: Router,
         private cdr: ChangeDetectorRef,
-        private userService: UserService,
         private authService: AuthService
     ) {
         this.authService.authentication$.subscribe(auth => {
-            if (auth.token && auth.activeCompany) {
-                this.userService.getCurrentUser().subscribe(user => {
-                    this.availableComponents = this.getAllowedRoutes(user);
-                    this.cdr.markForCheck();
-                });
+            if (auth.user) {
+                this.availableComponents = this.getAllowedRoutes(auth.user);
+                this.cdr.markForCheck();
             }
         });
     }
@@ -102,7 +98,7 @@ export class HamburgerMenu {
 
         routeSections.forEach(section => {
             section.componentList = section.componentList.filter(item => {
-                return this.userService.checkAccessToRoute(item.componentUrl, user);
+                return this.authService.canActivateRoute(user, item.componentUrl);
             });
         });
 

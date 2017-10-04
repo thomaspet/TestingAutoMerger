@@ -2,11 +2,21 @@ import {RouterModule} from '@angular/router';
 import {Dashboard} from './components/dashboard/dashboard';
 import {BureauDashboard} from './components/bureau/bureauDashboard';
 import {AuthGuard} from './authGuard';
-
 import {UniDimensions, dimensionsRoutes} from './components/dimensions/dimensionsModule';
 import {RoutePermissionGuard} from './routePermissionGuard';
 import {UniInit} from './components/init/init';
 import {initRoutes} from './components/init/init.routes';
+
+// Anything in this const will not be permission checked in route guard
+// see authService.canActivateRoute()
+export const PUBLIC_ROUTES = [
+    'init',
+    'bureau',
+    'about',
+    'assignments',
+    'tickers',
+    'uniqueries'
+];
 
 const routes = [
     {

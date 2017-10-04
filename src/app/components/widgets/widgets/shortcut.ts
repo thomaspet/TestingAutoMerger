@@ -1,7 +1,7 @@
 ﻿import {Component, ChangeDetectionStrategy, ChangeDetectorRef} from '@angular/core';
 import {Router} from '@angular/router';
 import {IUniWidget} from '../uniWidget';
-import {UserService} from '../../../services/services';
+import {AuthService} from '../../../authService';
 
 @Component({
     selector: 'uni-shortcut',
@@ -26,7 +26,7 @@ export class UniShortcutWidget {
 
     constructor(
         private router: Router,
-        private userService: UserService,
+        private authService: AuthService,
         private cdr: ChangeDetectorRef
     ) {}
 
@@ -42,10 +42,17 @@ export class UniShortcutWidget {
 
     public ngAfterViewInit() {
         if (this.widget && this.widget.config && this.widget.config.link) {
-            this.userService.canActivateUrl(this.widget.config.link).subscribe(canActivate => {
-                this.disabled = !canActivate;
-                this.cdr.markForCheck();
-            });
+            this.authService.authentication$
+                .asObservable()
+                .take(1)
+                .subscribe(auth => {
+                    this.disabled = !this.authService.canActivateRoute(
+                        auth.user,
+                        this.widget.config.link
+                    );
+
+                    this.cdr.markForCheck();
+                });
         }
     }
 }

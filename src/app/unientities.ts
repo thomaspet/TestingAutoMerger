@@ -2691,8 +2691,8 @@ export class Team extends UniEntity {
     public StatusCode: number;
     public UpdatedAt: Date;
     public UpdatedBy: string;
-    public Positions: Array<TeamPosition>;
     public Dimensions: Dimensions;
+    public Positions: Array<TeamPosition>;
     public CustomFields: any;
 }
 
@@ -3955,6 +3955,31 @@ export class CompanyAccess extends UniEntity {
 }
 
 
+export class KpiDefinition extends UniEntity {
+    public static RelativeUrl = '';
+    public static EntityType = 'KpiDefinition';
+
+    public _createguid: string;
+    public Application: string;
+    public CompanyID: number;
+    public CreatedAt: Date;
+    public CreatedBy: string;
+    public Deleted: boolean;
+    public ID: number;
+    public Interval: string;
+    public IsPerUser: boolean;
+    public Name: string;
+    public RefreshModels: string;
+    public RoleNames: string;
+    public Route: string;
+    public SourceType: KpiSourceType;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public ValueType: KpiValueType;
+    public CustomFields: any;
+}
+
+
 export class KpiValue extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'KpiValue';
@@ -4580,10 +4605,10 @@ export class SupplierInvoice extends UniEntity {
     public VatTotalsAmount: number;
     public VatTotalsAmountCurrency: number;
     public YourReference: string;
-    public Supplier: Supplier;
     public BankAccount: BankAccount;
     public JournalEntry: JournalEntry;
     public DefaultDimensions: Dimensions;
+    public Supplier: Supplier;
     public CurrencyCode: CurrencyCode;
     public Items: Array<SupplierInvoiceItem>;
     public InvoiceReference: SupplierInvoice;
@@ -5352,6 +5377,7 @@ export class SalaryTransactionSums extends UniEntity {
     public calculatedVacationPay: number;
     public Employee: number;
     public grossPayment: number;
+    public manualTax: number;
     public netPayment: number;
     public paidAdvance: number;
     public paidPension: number;
@@ -5495,6 +5521,7 @@ export class SendEmail extends UniEntity {
     public EntityType: string;
     public FromAddress: string;
     public Message: string;
+    public ReportName: string;
     public Subject: string;
     public Attachments: Array<SendEmailAttachment>;
 }
@@ -6117,6 +6144,20 @@ export enum PlanTypeEnum{
 export enum PeriodSeriesType{
     m = 0,
     r = 1,
+}
+
+
+export enum KpiSourceType{
+    SourceStatistics = 0,
+    SourceCountRecords = 1,
+    SourceRecordValue = 2,
+}
+
+
+export enum KpiValueType{
+    ValueTypeCounter = 0,
+    ValueTypeDecimal = 1,
+    ValueTypeText = 2,
 }
 
 

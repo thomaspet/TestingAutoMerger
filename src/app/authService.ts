@@ -3,10 +3,12 @@ import {Router} from '@angular/router';
 import {Http, Headers} from '@angular/http';
 import {Observable} from 'rxjs/Observable';
 import {AppConfig} from './AppConfig';
-import {Company} from './unientities';
+import {Company, User} from './unientities';
 import {ReplaySubject} from 'rxjs/ReplaySubject';
 import {Subject} from 'rxjs/Subject';
 import 'rxjs/add/operator/map';
+
+import {PUBLIC_ROUTES} from './routes';
 
 import * as $ from 'jquery';
 import * as jwt_decode from 'jwt-decode';
@@ -14,6 +16,7 @@ import * as jwt_decode from 'jwt-decode';
 export interface IAuthDetails {
     token: string;
     activeCompany: any;
+    user: User;
 }
 
 @Injectable()
@@ -185,31 +188,11 @@ export class AuthService {
         return this.http.get(url, {headers: headers}).map(res => {
             return {
                 token: this.jwt,
-                activeCompany: this.activeCompany
-                // REVISIT: add user here?
+                activeCompany: this.activeCompany,
+                user: res.json()
             };
         });
     }
-
-    // private getCurrentUser(): Observable<User> {
-    //     const headers = new Headers({
-    //         'Content-Type': 'application/json',
-    //         'Accept': 'application/json',
-    //         'Authorization': `Bearer ${this.jwt}`,
-    //         'CompanyKey': this.activeCompany.Key
-    //     });
-
-    //     const url = AppConfig.BASE_URL
-    //         + AppConfig.API_DOMAINS.BUSINESS
-    //         + 'users?action=current-session';
-
-    //     return this.http.get(url, {headers: headers})
-    //         .map(res => res.json())
-    //         .catch(err => {
-    //             console.log(err);
-    //             return Observable.of(null);
-    //         });
-    // }
 
     /**
      * Returns web token or redirects to /login if user is not authenticated
@@ -259,18 +242,18 @@ export class AuthService {
      */
     public clearAuthAndGotoLogin(): void  {
         if (this.isAuthenticated()) {
-            this.authentication$.next({token: undefined, activeCompany: undefined});
+            this.authentication$.next({token: undefined, activeCompany: undefined, user: undefined});
             this.filesToken$.next(undefined);
+
+            let url = AppConfig.BASE_URL_INIT + AppConfig.API_DOMAINS.INIT + 'log-out';
+            let headers = new Headers({
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + this.jwt,
+                'CompanyKey': this.activeCompany
+            });
+
+            this.http.post(url, '', {headers: headers}).subscribe();
         }
-
-        let url = AppConfig.BASE_URL_INIT + AppConfig.API_DOMAINS.INIT + 'log-out';
-        let headers = new Headers({
-            'Content-Type': 'application/json',
-            'Authorization': 'Bearer ' + this.jwt,
-            'CompanyKey': this.activeCompany
-        });
-
-        this.http.post(url, '', {headers: headers}).subscribe();
 
         localStorage.removeItem('jwt');
         localStorage.removeItem('activeCompany');
@@ -311,5 +294,70 @@ export class AuthService {
         let expires = new Date(0);
         expires.setUTCSeconds(this.jwtDecoded.exp);
         return (expires.valueOf() < new Date().valueOf() + (offsetMinutes * 60000));
+    }
+
+    public canActivateRoute(user: User, url: string): boolean {
+        // First check if the route is a public route
+        const rootRoute = this.getRootRoute(url);
+        if (!rootRoute || PUBLIC_ROUTES.some(route => route === rootRoute)) {
+            return true;
+        }
+
+        if (!user) {
+            return false;
+        }
+
+        // Treat empty permissions array as access to everything for now
+        if (!user['Permissions'] || !user['Permissions'].length) {
+            return true;
+        }
+
+        let permissionKey: string = this.getPermissionKey(url);
+
+        // Check for direct match
+        let hasPermission = user['Permissions'].some(permission => permission === permissionKey);
+
+        // If no direct match: pop route parts one by one and check for
+        // permission to everything under that.
+        // E.g no permission for 'ui_salary_employees_employments
+        // but permission for 'ui_salary_employees' and therefore employments
+        if (!hasPermission) {
+            let permissionParts = permissionKey.split('_');
+            while (permissionParts.length) {
+                permissionParts.pop();
+                if (user['Permissions'].some(p => p === permissionParts.join('_'))) {
+                    hasPermission = true;
+                    break;
+                }
+            }
+        }
+
+        return hasPermission;
+    }
+
+    private getRootRoute(url): string {
+        let routeParts = url.split('/');
+        routeParts = routeParts.filter(part => part !== '');
+
+        return routeParts[0];
+    }
+
+    private getPermissionKey(url: string): string {
+        if (!url) {
+            return '';
+        }
+
+        // Remove query params first
+        let noQueryParams = url.split('?')[0];
+        noQueryParams = noQueryParams.split(';')[0];
+
+
+        let urlParts = noQueryParams.split('/');
+        urlParts = urlParts.filter(part => {
+            // Remove empty url parts and numeric url parts (ID params)
+            return part !== '' && isNaN(parseInt(part));
+        });
+
+        return 'ui_' + urlParts.join('_');
     }
 }
