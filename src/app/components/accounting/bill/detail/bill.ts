@@ -1466,8 +1466,6 @@ export class BillView {
                     this.busy = false;
                     this.userMsg(err.errorMessage, lang.warning, 10);
                     return false;
-                }).then(response => {
-                    return Observable.of(response);
                 })
             );
         });
