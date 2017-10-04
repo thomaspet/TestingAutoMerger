@@ -33,7 +33,8 @@ import {
     TermsService,
     UserService,
     NumberSeriesTypeService,
-    NumberSeriesService
+    NumberSeriesService,
+    EmailService
 } from '../../../../services/services';
 
 import {
@@ -160,7 +161,8 @@ export class QuoteDetails {
         private modalService: UniModalService,
         private termsService: TermsService,
         private numberSeriesTypeService: NumberSeriesTypeService,
-        private numberSeriesService: NumberSeriesService
+        private numberSeriesService: NumberSeriesService,
+        private emailService: EmailService
     ) { }
 
     public ngOnInit() {
@@ -804,7 +806,7 @@ export class QuoteDetails {
                     data: model
                 }).onClose.subscribe(email => {
                     if (email) {
-                        this.reportService.generateReportSendEmail('Tilbud id', email, null, done);
+                        this.emailService.sendEmailWithReportAttachment('Tilbud id', email, null, done);
                     } else {
                         done();
                     }

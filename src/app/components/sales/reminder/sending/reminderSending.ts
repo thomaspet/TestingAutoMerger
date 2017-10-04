@@ -15,7 +15,7 @@ import {
     ReportDefinitionService,
     CustomerInvoiceReminderService,
     NumberFormat,
-    ReportService
+    EmailService
 } from '../../../../services/services';
 import {
     UniTable,
@@ -94,8 +94,8 @@ export class ReminderSending implements OnInit {
         private reminderService: CustomerInvoiceReminderService,
         private reportDefinitionService: ReportDefinitionService,
         private numberFormat: NumberFormat,
-        private reportService: ReportService,
-        private modalService: UniModalService
+        private modalService: UniModalService,
+        private emailService: EmailService
     ) {}
 
     public ngOnInit() {
@@ -371,7 +371,7 @@ export class ReminderSending implements OnInit {
                 email.Message = `Vedlagt finner du purring ${r.ReminderNumber} for faktura ${r.InvoiceNumber}`;
 
                 let parameters = [{Name: 'odatafilter', value: `ID eq ${r.ID}`}];
-                this.reportService.generateReportSendEmail('Purring', email, parameters, doneHandler);
+                this.emailService.sendEmailWithReportAttachment('Purring', email, parameters, doneHandler);
             });
         });
     }

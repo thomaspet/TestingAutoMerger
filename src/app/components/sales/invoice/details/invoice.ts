@@ -37,7 +37,8 @@ import {
     StatisticsService,
     TermsService,
     UserService,
-    NumberSeriesService
+    NumberSeriesService,
+    EmailService
 } from '../../../../services/services';
 
 import {
@@ -184,7 +185,8 @@ export class InvoiceDetails {
         private tofHelper: TofHelper,
         private tradeItemHelper: TradeItemHelper,
         private userService: UserService,
-        private numberSeriesService: NumberSeriesService
+        private numberSeriesService: NumberSeriesService,
+        private emailService: EmailService
     ) {
         // set default tab title, this is done to set the correct current module to make the breadcrumb correct
         this.tabService.addTab({
@@ -428,7 +430,7 @@ export class InvoiceDetails {
             data: model
         }).onClose.subscribe(email => {
             if (email) {
-                this.reportService.generateReportSendEmail('Faktura id', email, null, doneHandler);
+                this.emailService.sendEmailWithReportAttachment('Faktura id', email, null, doneHandler);
             } else if (doneHandler) {
                 doneHandler();
             }

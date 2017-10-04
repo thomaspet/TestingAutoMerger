@@ -111,7 +111,7 @@ export class ReportService extends BizHttp<string> {
                 )
             );
     }
-
+    
     public generateReportSendEmail(name: string, sendemail: SendEmail, parameters = null, doneHandler: (msg: string) => void = null) {
         if (!sendemail.EmailAddress || sendemail.EmailAddress.indexOf('@') <= 0) {
             this.toastService.addToast(

@@ -11,7 +11,8 @@ import {
     ReportDefinitionService,
     ErrorService,
     CompanySettingsService,
-    ReportService
+    ReportService,
+    EmailService
 } from '../../../../services/services';
 import {
     UniModalService,
@@ -95,7 +96,8 @@ export class InvoiceList2 implements OnInit {
         private errorService: ErrorService,
         private companySettingsService: CompanySettingsService,
         private reportService: ReportService,
-        private modalService: UniModalService
+        private modalService: UniModalService,
+        private emailService: EmailService
     ) { }
 
     public ngOnInit() {
@@ -285,7 +287,7 @@ export class InvoiceList2 implements OnInit {
                 data: model
             }).onClose.subscribe(email => {
                 if (email) {
-                    this.reportService.generateReportSendEmail('Faktura id', email);
+                    this.emailService.sendEmailWithReportAttachment('Faktura id', email);
                 }
                 resolve();
             });

@@ -38,7 +38,8 @@ import {
     ReportService,
     TermsService,
     UserService,
-    NumberSeriesService
+    NumberSeriesService,
+    EmailService
 } from '../../../../services/services';
 
 import {IUniSaveAction} from '../../../../../framework/save/save';
@@ -181,7 +182,8 @@ export class OrderDetails {
         private tofHelper: TofHelper,
         private tradeItemHelper: TradeItemHelper,
         private userService: UserService,
-        private numberSeriesService: NumberSeriesService
+        private numberSeriesService: NumberSeriesService,
+        private emailService: EmailService
    ) {}
 
     public ngOnInit() {
@@ -828,7 +830,7 @@ export class OrderDetails {
                     data: model
                 }).onClose.subscribe(email => {
                     if (email) {
-                        this.reportService.generateReportSendEmail('Ordre id', email, null, done);
+                        this.emailService.sendEmailWithReportAttachment('Ordre id', email, null, done);
                     } else {
                         done();
                     }

@@ -13,7 +13,7 @@ import {
     ReportDefinitionService,
     ErrorService,
     CompanySettingsService,
-    ReportService
+    EmailService
 } from '../../../../services/services';
 
 @Component({
@@ -49,8 +49,8 @@ export class QuoteList implements OnInit {
         private toastService: ToastService,
         private errorService: ErrorService,
         private companySettingsService: CompanySettingsService,
-        private reportService: ReportService,
-        private modalService: UniModalService
+        private modalService: UniModalService,
+        private emailService: EmailService
     ) {}
 
     public ngOnInit() {
@@ -93,7 +93,7 @@ export class QuoteList implements OnInit {
                 data: model
             }).onClose.subscribe(email => {
                 if (email) {
-                    this.reportService.generateReportSendEmail('Tilbud id', email, null);
+                    this.emailService.sendEmailWithReportAttachment('Tilbud id', email, null);
                 }
                 resolve();
             });
