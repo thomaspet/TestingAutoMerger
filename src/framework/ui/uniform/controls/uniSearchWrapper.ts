@@ -25,7 +25,7 @@ type eventListenerRemover = () => void;
         <uni-search
             [config]="field.Options.uniSearchConfig"
             (changeEvent)="onChange($event)"
-            [disabled]="field?.ReadOnly"
+            [disabled]="readOnly$ | async"
         ></uni-search>
         <ng-content></ng-content>
     `
@@ -134,16 +134,6 @@ export class UniSearchWrapper extends BaseControl implements OnInit, AfterViewIn
     public focus() {
         this.input.focus();
         this.input.select();
-    }
-
-    public readMode() {
-        this.field.ReadOnly = true;
-        this.cd.markForCheck();
-    }
-
-    public editMode() {
-        this.field.ReadOnly = false;
-        this.cd.markForCheck();
     }
 
     public ngOnDestroy() {

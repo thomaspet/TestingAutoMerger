@@ -436,7 +436,7 @@ export class UniAutocompleteInput extends BaseControl {
 
     private openEditor(event) {
         this.field.Options.editor(this.control.value);
-            //.then(result => this.lookupResults.push(result));
+            // .then(result => this.lookupResults.push(result));
     }
 
     private scrollToListItem() {

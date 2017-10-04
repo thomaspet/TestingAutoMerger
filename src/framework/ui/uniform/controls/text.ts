@@ -14,7 +14,7 @@ import * as _ from 'lodash';
             type="text"
             [attr.aria-describedby]="asideGuid"
             [formControl]="control"
-            [readonly]="field?.ReadOnly"
+            [readonly]="readOnly$ | async"
             [placeholder]="field?.Placeholder || ''"
             (blur)="blurHandler()"
             (focus)="focusHandler()"

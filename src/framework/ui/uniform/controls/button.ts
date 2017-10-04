@@ -13,7 +13,7 @@ import * as _ from 'lodash';
         <button #button
             [attr.aria-describedby]="asideGuid"
             [class]="field?.Options?.class"
-            [disabled]="field?.ReadOnly"
+            [disabled]="readOnly$ | async"
             (click)="clickHandler($event)"
             (focus)="focusHandler($event)"
             type="button" 

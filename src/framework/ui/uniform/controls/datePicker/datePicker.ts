@@ -19,7 +19,7 @@ import {KeyCodes} from '../../../../../app/services/common/keyCodes';
                 (change)="inputChange()"
                 (focus)="onFocus()"
                 [formControl]="control"
-                [readonly]="field?.ReadOnly"
+                [readonly]="readOnly$ | async"
                 [placeholder]="field?.Placeholder || ''"
                 class="uni-datepicker-input" 
                 [title]="control?.value || ''"
@@ -28,7 +28,7 @@ import {KeyCodes} from '../../../../../app/services/common/keyCodes';
                 tabindex="-1"
                 class="uni-datepicker-calendarBtn"
                 (click)="calendarOpen = !calendarOpen"
-                [disabled]="field?.ReadOnly"
+                [disabled]="readOnly$ | async"
                 (focus)="focus()"
             >Kalender</button>
             <ng-content></ng-content>
@@ -135,14 +135,6 @@ export class DateTimePickerInput extends BaseControl {
     public focus() {
         this.inputElement.nativeElement.focus();
         this.inputElement.nativeElement.select();
-    }
-
-    public readMode() {
-        this.field.ReadOnly = true;
-    }
-
-    public editMode() {
-        this.field.ReadOnly = false;
     }
 
     public inputChange() {

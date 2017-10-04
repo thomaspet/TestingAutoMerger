@@ -16,7 +16,7 @@ import * as _ from 'lodash';
             *ngIf="control"
             type="url"
             [formControl]="control"
-            [readonly]="field?.ReadOnly"
+            [readonly]="readOnly$ | async"
             [placeholder]="field?.Placeholder || ''"
             (blur)="blurHandler()"
             (focus)="focusHandler()"
