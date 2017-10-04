@@ -122,7 +122,7 @@ export class InvoiceDetails {
     private numberSeries: NumberSeries[];
     private projectID: number;
     private ehfEnabled: boolean = false;
-
+    
     private customerExpandOptions: string[] = [
         'DeliveryTerms',
         'Dimensions',
@@ -343,15 +343,13 @@ export class InvoiceDetails {
 
         // Possible to receive EHF for this customer?
         let peppoladdress = this.invoice.Customer.PeppolAddress ? this.invoice.Customer.PeppolAddress : '9908:' + this.invoice.Customer.OrgNumber;
-        if (peppoladdress !== this.lastPeppolAddressChecked) {
-            this.ehfService.GetAction(
-                null, 'is-ehf-receiver',
-                'peppoladdress=' + peppoladdress + '&entitytype=CustomerInvoice'
-            ).subscribe(enabled => {
-                this.ehfEnabled = enabled;
-                this.updateSaveActions();
-            }, err => this.errorService.handle(err));
-        }
+        this.ehfService.GetAction(
+            null, 'is-ehf-receiver',
+            'peppoladdress=' + peppoladdress + '&entitytype=CustomerInvoice'
+        ).subscribe(enabled => {
+            this.ehfEnabled = enabled;
+            this.updateSaveActions();
+        }, err => this.errorService.handle(err));
     }
 
     private numberSeriesChange(selectedSerie) {
@@ -1133,14 +1131,14 @@ export class InvoiceDetails {
             label: 'Send på epost',
             action: (done) => this.sendEmailAction(done),
             disabled: false,
-            main: printStatus === 200 && status === StatusCodeCustomerInvoice.Invoiced && !this.isDirty
+            main: printStatus === 200 && !this.ehfEnabled && status === StatusCodeCustomerInvoice.Invoiced && !this.isDirty
         });
 
         this.saveActions.push({
             label: 'Send EHF',
             action: (done) => this.sendEHFAction(done),
             disabled: status < StatusCodeCustomerInvoice.Invoiced,
-            main: this.ehfEnabled && status === StatusCodeCustomerInvoice.Invoiced && !this.isDirty
+            main: printStatus !== 300 && this.ehfEnabled && status === StatusCodeCustomerInvoice.Invoiced && !this.isDirty
         });
 
         this.saveActions.push({
