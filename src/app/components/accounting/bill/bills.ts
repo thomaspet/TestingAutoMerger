@@ -312,16 +312,16 @@ export class BillsView {
                 this.approvalService.GetAll(filterString, ['Task.Model']).subscribe(
 
                     approvals => {
-                        const approvalsReq = approvals.map(app =>
+                        const approvalsRequests = approvals.map(app =>
                             this.approvalService.PostAction(app.ID, 'approve')
                                 .map(res2 => ({ ID: app.ID, success: true}))
                                 .catch(err => Observable.of({ID: app.ID, success: false}))
                             );
 
-                        Observable.forkJoin(approvalsReq).subscribe(
-                            res2 => {
+                        Observable.forkJoin(approvalsRequests).subscribe(
+                            approvalResponses => {
                                 this.refreshList(this.currentFilter, true, null, this.currentUserFilter);
-                                let numberOfFailed = res2.filter(r => !r.success).length;
+                                let numberOfFailed = approvalResponses.filter((response: any) => !response.success).length;
                                 if (numberOfFailed > 0) {
                                     this.toast.addToast(this.selectedItems.length - numberOfFailed + ' fakturaer ble godkjent. ' +  numberOfFailed + ' fakturaer feilet ved godkjenning. Merk også at fakturaer du ikke var tildelt ble ignorert.', ToastType.bad, 3);
                                     this.selectedItems = null;
@@ -366,16 +366,16 @@ export class BillsView {
                         this.approvalService.GetAll(filterString, ['Task.Model']).subscribe(
 
                             approvals => {
-                                const approvalsReq = approvals.map(app =>
+                                const approvalRequests = approvals.map(app =>
                                     this.approvalService.PostAction(app.ID, 'reject')
                                         .map(res2 => ({ ID: app.ID, success: true}))
                                         .catch(err => Observable.of({ID: app.ID, success: false}))
                                     );
 
-                                Observable.forkJoin(approvalsReq).subscribe(
-                                    res2 => {
+                                Observable.forkJoin(approvalRequests).subscribe(
+                                    approvalResponses => {
                                         this.refreshList(this.currentFilter, true, null, this.currentUserFilter);
-                                        let numberOfFailed = res2.filter(r => !r.success).length;
+                                        let numberOfFailed = approvalResponses.filter((response: any) => !response.success).length;
                                         if (numberOfFailed > 0) {
                                             this.toast.addToast(this.selectedItems.length - numberOfFailed + ' fakturaer ble avvist. ' +  numberOfFailed + ' fakturaer feilet ved avvising. Merk også at fakturaer du ikke var tildelt ble ignorert.', ToastType.bad, 3);
                                             this.selectedItems = null;

@@ -432,10 +432,10 @@ export class UniMultivalueInput extends BaseControl {
                     this.isOpen = true;
                     return;
                 }
-                let selectedRowIndex = this.filteredRows.findIndex(row => row === this.focusedRow);
-                selectedRowIndex = selectedRowIndex === undefined ? 0 : selectedRowIndex;
-                if (selectedRowIndex < this.filteredRows.length -1) {
-                    this.focusedRow = this.filteredRows[selectedRowIndex + 1];
+                let selectedRowIndexDown = this.filteredRows.findIndex(row => row === this.focusedRow);
+                selectedRowIndexDown = selectedRowIndexDown === undefined ? 0 : selectedRowIndexDown;
+                if (selectedRowIndexDown < this.filteredRows.length -1) {
+                    this.focusedRow = this.filteredRows[selectedRowIndexDown + 1];
                 }
                 break;
 
@@ -445,9 +445,9 @@ export class UniMultivalueInput extends BaseControl {
                     this.isOpen = true;
                     return;
                 }
-                const selectedRowIndex = this.filteredRows.findIndex(row => row === this.focusedRow);
-                if (selectedRowIndex >= 0) { // allow to go lower than 0 and highlight "not selected" row
-                    this.focusedRow = this.filteredRows[selectedRowIndex - 1];
+                const selectedRowIndexUp = this.filteredRows.findIndex(row => row === this.focusedRow);
+                if (selectedRowIndexUp >= 0) { // allow to go lower than 0 and highlight "not selected" row
+                    this.focusedRow = this.filteredRows[selectedRowIndexUp - 1];
                 }
                 break;
 

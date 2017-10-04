@@ -91,7 +91,7 @@ export class BureauDashboard {
             .filter(modalResult => !!modalResult)
             .do(modalResult => companyName = modalResult.CompanyName)
             .flatMap(() => companyName ? this.userService.getCurrentUser() : Observable.empty())
-            .do(currentUser => user = currentUser)
+            .do((currentUser: User) => user = currentUser)
             .flatMap(() => this.createCompany(companyName, user.Email))
             .catch((err, obs) => this.errorService.handleRxCatch(err, obs))
             .subscribe(() => this.toastService.addToast(

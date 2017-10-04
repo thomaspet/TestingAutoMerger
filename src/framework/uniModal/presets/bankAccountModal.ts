@@ -88,7 +88,7 @@ export class UniBankAccountModal implements IUniModal {
 
             const last = inputs[inputs.length - 1];
             Observable.fromEvent(last, 'keydown')
-                .filter(event => (event.which || event.keyCode) === KeyCodes.ENTER)
+                .filter((event: KeyboardEvent) => (event.which || event.keyCode) === KeyCodes.ENTER)
                 .subscribe(() => this.close(true));
         }
     }

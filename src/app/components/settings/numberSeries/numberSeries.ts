@@ -9,10 +9,6 @@ import {ToastService, ToastType} from '../../../../framework/uniToast/toastServi
 import {IUniSaveAction} from '../../../../framework/save/save';
 
 import {
-    Account
-} from '../../../../unientities';
-
-import {
     ErrorService,
     GuidService,
     StatisticsService,
@@ -22,6 +18,7 @@ import {
     NumberSeriesTaskService,
     AccountService
 } from '../../../services/services';
+import {Account} from '../../../unientities';
 
 declare var _;
 const MAXNUMBER = 2147483647;

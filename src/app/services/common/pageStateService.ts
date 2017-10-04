@@ -46,7 +46,7 @@ export class PageStateService {
             url = url.substr(0, queryDelimiterIndex);
             if (query.length > 0) {
                 parameters = query.split('&');
-                for (var i = 0; i < parameters.length; i++) {
+                for (let i = 0; i < parameters.length; i++) {
                     if (parameters[i].indexOf(parameterName + '=') === 0) {
                         parameters[i] = parameterName + '=' + value;
                         break;

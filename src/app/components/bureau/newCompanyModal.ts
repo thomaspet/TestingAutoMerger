@@ -4,6 +4,8 @@ import {IUniModal, IModalOptions} from '../../../framework/uniModal/modalService
 import {UniFieldLayout} from '../../../framework/ui/uniform/interfaces';
 import {FieldType} from '../../unientities';
 
+type FormModel = {CompanyName: string}
+
 @Component({
     selector: 'uni-new-company-modal',
     template: `
@@ -37,7 +39,7 @@ export class UniNewCompanyModal implements IUniModal {
     public onClose: EventEmitter<{CompanyName: string}> = new EventEmitter();
 
     public formConfig$: BehaviorSubject<any> = new BehaviorSubject({autofocus: true});
-    private formModel$: BehaviorSubject<string> = new BehaviorSubject(null);
+    private formModel$: BehaviorSubject<FormModel> = new BehaviorSubject(null);
     private formFields$: BehaviorSubject<UniFieldLayout[]> = new BehaviorSubject([]);
 
     public ngOnInit() {
@@ -48,7 +50,7 @@ export class UniNewCompanyModal implements IUniModal {
 
     public close(emitValue?: boolean) {
         if (emitValue) {
-            this.onClose.emit(<{CompanyName: string}>this.formModel$.getValue());
+            this.onClose.emit(this.formModel$.getValue());
         } else {
             this.onClose.emit();
         }

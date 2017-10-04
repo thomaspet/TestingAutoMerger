@@ -613,7 +613,8 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges 
 
     public updateFileList(event: UpdatedFileListEvent) {
         let update: boolean;
-        this.salaryTransactions.forEach(x => {
+        //TODO: x is a shitty name and we need to figure out why Files is a string in SalaryTransaction...
+        this.salaryTransactions.forEach((x: any) => {
             if (x.ID === event.entityID && x['_FileIDs'].length !== event.files.length) {
                 x['_FileIDs'] = event.files.map(file => file.ID);
                 this.table.updateRow(this.filteredTranses.find(trans => trans.ID === x.ID)['_originalIndex'], x);
