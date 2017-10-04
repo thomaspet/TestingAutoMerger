@@ -95,12 +95,13 @@ export class UniAttachments {
         private errorService: ErrorService,
         private fileService: FileService,
         private uniFilesService: UniFilesService,
-        private authService: AuthService) {
-        // Subscribe to authentication/activeCompany changes
+        private authService: AuthService
+    ) {
         authService.authentication$.subscribe((authDetails) => {
-            this.token = authDetails.filesToken;
             this.activeCompany = authDetails.activeCompany;
-        } /* don't need error handling */);
+        });
+
+        authService.filesToken$.subscribe(token => this.token = token);
     }
 
     public ngOnChanges(changes: SimpleChanges) {

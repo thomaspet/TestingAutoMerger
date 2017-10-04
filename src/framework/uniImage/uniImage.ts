@@ -173,13 +173,14 @@ export class UniImage {
         private authService: AuthService,
         private uniFilesService: UniFilesService
     ) {
-        // Subscribe to authentication/activeCompany changes
         this.authService.authentication$.subscribe((authDetails) => {
-            this.token = authDetails.filesToken;
             this.activeCompany = authDetails.activeCompany;
-            if (this.token && this.activeCompany) {
-                this.refreshFiles();
-            }
+            this.refreshFiles();
+        });
+
+        this.authService.filesToken$.subscribe(token => {
+            this.token = token;
+            this.refreshFiles();
         });
     }
 
@@ -202,6 +203,10 @@ export class UniImage {
     }
 
     public refreshFiles() {
+        if (!this.token || !this.activeCompany) {
+            return;
+        }
+
         if (this.fileIDs && this.fileIDs.length > 0) {
             let requestFilter = 'ID eq ' + this.fileIDs.join(' or ID eq ');
             this.http.asGET()

@@ -10,11 +10,11 @@ export class UniFilesService {
     private activeCompany: any;
 
     constructor(private http: Http, authService: AuthService) {
-        // Subscribe to authentication/activeCompany changes
         authService.authentication$.subscribe((authDetails) => {
-            this.uniFilesToken = authDetails.filesToken;
             this.activeCompany = authDetails.activeCompany;
-        } /* don't need error handling */);
+        });
+
+        authService.filesToken$.subscribe(token => this.uniFilesToken = token);
     }
 
     public syncUniEconomyCompanySettings() {

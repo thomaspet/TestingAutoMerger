@@ -40,9 +40,10 @@ export class SaftExportView implements OnInit {
     ) {
         // Subscribe to authentication/activeCompany changes
         authService.authentication$.subscribe((authDetails) => {
-            this.token = authDetails.filesToken;
             this.activeCompany = authDetails.activeCompany;
-        } /* don't need error handling */);
+        });
+
+        authService.filesToken$.subscribe(token => this.token = token);
     }
 
     public ngOnInit() {

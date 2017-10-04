@@ -13,7 +13,6 @@ import * as jwt_decode from 'jwt-decode';
 
 export interface IAuthDetails {
     token: string;
-    filesToken: string;
     activeCompany: any;
 }
 
@@ -23,6 +22,7 @@ export class AuthService {
     public companyChange: EventEmitter<Company> = new EventEmitter();
 
     public authentication$: ReplaySubject<IAuthDetails> = new ReplaySubject<IAuthDetails>(1);
+    public filesToken$: ReplaySubject<string> = new ReplaySubject(1);
     public jwt: string;
     public jwtDecoded: any;
     public activeCompany: any;
@@ -46,6 +46,7 @@ export class AuthService {
             this.verifyAuthentication().subscribe(
                 res => {
                     this.authentication$.next(res);
+                    this.filesToken$.next(this.filesToken);
                     // Give the app a bit of time to initialise before we remove spinner
                     // (less visual noise on startup)
                     setTimeout(() => this.setLoadIndicatorVisibility(false), 250);
@@ -125,12 +126,7 @@ export class AuthService {
                         this.filesToken = res.json();
                         localStorage.setItem('filesToken', this.filesToken);
 
-                        this.authentication$.next({
-                            token: this.jwt,
-                            filesToken: this.filesToken,
-                            activeCompany: this.activeCompany
-                        });
-
+                        this.filesToken$.next(this.filesToken);
                         resolve(this.filesToken);
                     }
                 },
@@ -189,7 +185,6 @@ export class AuthService {
         return this.http.get(url, {headers: headers}).map(res => {
             return {
                 token: this.jwt,
-                filesToken: this.filesToken,
                 activeCompany: this.activeCompany
                 // REVISIT: add user here?
             };
@@ -264,7 +259,8 @@ export class AuthService {
      */
     public clearAuthAndGotoLogin(): void  {
         if (this.isAuthenticated()) {
-            this.authentication$.next({token: undefined, filesToken: undefined, activeCompany: undefined});
+            this.authentication$.next({token: undefined, activeCompany: undefined});
+            this.filesToken$.next(undefined);
         }
 
         let url = AppConfig.BASE_URL_INIT + AppConfig.API_DOMAINS.INIT + 'log-out';
