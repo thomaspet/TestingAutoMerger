@@ -133,7 +133,7 @@ export class UniAccounting {
             {
                 width: 1,
                 height: 1,
-                x: 9,
+                x: 8,
                 y: 0,
                 widgetType: 'counter', // TODO: enum
                 config: {
@@ -150,7 +150,7 @@ export class UniAccounting {
             {
                 width: 1,
                 height: 1,
-                x: 10,
+                x: 9,
                 y: 0,
                 widgetType: 'counter', // TODO: enum
                 config: {
@@ -167,7 +167,7 @@ export class UniAccounting {
             {
                 width: 1,
                 height: 1,
-                x: 11,
+                x: 10,
                 y: 0,
                 widgetType: 'counter', // TODO: enum
                 config: {
