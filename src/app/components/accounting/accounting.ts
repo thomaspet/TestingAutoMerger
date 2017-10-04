@@ -133,19 +133,6 @@ export class UniAccounting {
             {
                 width: 1,
                 height: 1,
-                x: 8,
-                y: 0,
-                widgetType: 'shortcut',
-                config: {
-                    label: 'Leverandører',
-                    description: 'Leverandører',
-                    icon: '',
-                    link: '/accounting/suppliers'
-                }
-            },
-            {
-                width: 1,
-                height: 1,
                 x: 9,
                 y: 0,
                 widgetType: 'counter', // TODO: enum
