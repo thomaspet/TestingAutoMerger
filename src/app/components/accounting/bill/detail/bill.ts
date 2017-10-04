@@ -28,7 +28,6 @@ import {ImageModal} from '../../../common/modals/ImageModal';
 import {UniImageSize, UniImage} from '../../../../../framework/uniImage/uniImage';
 import {IUniSearchConfig} from '../../../../../framework/ui/unisearch/index';
 import {UniAssignModal, AssignDetails} from './assignmodal';
-import {UniApproveModal, ApprovalDetails} from './approvemodal';
 import {UniAddFileModal} from './addFileModal';
 import {UniMath} from '../../../../../framework/core/uniMath';
 import {CommentService} from '../../../../../framework/comments/commentService';
@@ -40,7 +39,9 @@ import {
     UniConfirmModalV2,
     UniConfirmModalWithList,
     IConfirmModalWithListReturnValue,
-    ConfirmActions
+    ConfirmActions,
+    UniApproveModal,
+    ApprovalDetails
 } from '../../../../../framework/uniModal/barrel';
 import {
     SupplierInvoiceService,

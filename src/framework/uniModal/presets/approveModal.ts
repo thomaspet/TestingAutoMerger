@@ -1,9 +1,12 @@
 import {Component, Output, Input, ChangeDetectionStrategy, ChangeDetectorRef
     , HostListener, EventEmitter} from '@angular/core';
-import {ErrorService, SupplierInvoiceService, UserService} from '../../../../services/services';
-import {User, Team, Task, SupplierInvoice, ApprovalStatus, Approval} from '../../../../unientities';
-import {billViewLanguage as lang, approvalStatusLabels as statusLabels} from './lang';
-import {IUniModal, IModalOptions} from '../../../../../framework/uniModal/barrel';
+import {ErrorService, SupplierInvoiceService, UserService} from '../../../app/services/services';
+import {User, Team, Task, SupplierInvoice, ApprovalStatus, Approval} from '../../../app/unientities';
+import {
+    billViewLanguage as lang,
+    approvalStatusLabels as statusLabels}
+from '../../../app/components/accounting/bill/detail/lang';
+import {IModalOptions, IUniModal} from '../modalService';
 
 // tslint:disable:max-line-length
 

@@ -9,7 +9,6 @@ import {Router} from '@angular/router';
 import { SupplierInvoice, StatusCodeSupplierInvoice, CompanySettings, JournalEntryLineDraft, ApprovalStatus } from '../../../unientities';
 import {safeInt} from '../../common/utils/utils';
 import {UniAssignModal, AssignDetails} from './detail/assignmodal';
-import {UniApproveModal, ApprovalDetails} from './detail/approvemodal';
 import {UniModalService, UniConfirmModalV2, ConfirmActions} from '../../../../framework/uniModal/barrel';
 import {
     ApprovalService,
@@ -396,12 +395,6 @@ export class BillsView {
                     );
                 done();
             }
-
-
-
-    public onApproveSupplierInvoicesClickOk(details: ApprovalDetails) {
-
-    }
 
     public sendForPaymentSupplierInvoices(done: any) {
         const payRequests = this.selectedItems.map(invoice =>

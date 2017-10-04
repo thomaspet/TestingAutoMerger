@@ -4,8 +4,7 @@ import {Observable} from 'rxjs/Observable';
 import {Approval, ApprovalStatus, User} from '../../../unientities';
 import {ApprovalService, UserService, ErrorService} from '../../../services/services';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
-import {UniApproveModal} from '../../accounting/bill/detail/approvemodal';
-import {UniModalService} from '../../../../framework/uniModal/barrel';
+import {UniModalService, UniApproveModal} from '../../../../framework/uniModal/barrel';
 import {CommentService} from '../../../../framework/comments/commentService';
 import * as moment from 'moment';
 
