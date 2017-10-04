@@ -1,4 +1,4 @@
-import {Component} from '@angular/core';
+import {Component, ChangeDetectionStrategy} from '@angular/core';
 import {IUniWidget} from '../uniWidget';
 
 @Component({
@@ -13,7 +13,8 @@ import {IUniWidget} from '../uniWidget';
                 [readonly]="true">
             </uni-image>
         </section>
-    `
+    `,
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class UniCompanyLogoWidget {
     public widget: IUniWidget;

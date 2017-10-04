@@ -11,7 +11,10 @@ import {UserService} from '../../../services/services';
              class="uni-widget-shortcut-tile uni-widget-tile-content"
              (click)="onClickNavigate()">
 
-            <a *ngIf="widget?.config?.icon" [ngClass]="getIconClass()"></a><br />
+            <a *ngIf="widget?.config?.icon"
+                class="dashboard-shortcut-icon"
+                [ngClass]="'dashboard-shortcut-icon-' + widget.config.icon">
+            </a><br>
             <a class="uni-shortcut-link">{{ widget.config.label }}</a>
         </div>
     `,
@@ -44,9 +47,5 @@ export class UniShortcutWidget {
                 this.cdr.markForCheck();
             });
         }
-    }
-
-    public getIconClass() {
-        return 'dashboard-shortcut-icon dashboard-shortcut-icon-' + this.widget.config.icon;
     }
 }

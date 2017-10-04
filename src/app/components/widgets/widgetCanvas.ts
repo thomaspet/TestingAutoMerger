@@ -88,8 +88,10 @@ export class UniWidgetCanvas {
         this.canvasHelper = new CanvasHelper();
         this.widgetMargin = 10;
 
-        this.authService.companyChange.subscribe(change => {
-            this.refreshWidgets();
+        this.authService.authentication$.subscribe(change => {
+            if (this.layout) {
+                this.refreshWidgets();
+            }
         });
 
         Observable.fromEvent(window, 'resize')

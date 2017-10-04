@@ -16,8 +16,6 @@ export class WidgetDataService {
         this.authService.authentication$.subscribe(authChange => {
             this.requestCache = {};
         });
-
-        this.yearService.selectedYear$.subscribe()
     }
 
     public getData(endpoint: string) {
@@ -27,10 +25,9 @@ export class WidgetDataService {
         }
 
         if (endpoint.includes('<year>')) {
-            return this.yearService.getActiveYear()
-                .switchMap((year) => {
-                    return this.request(endpoint.replace('<year>', year.toString()));
-                });
+            return this.yearService.getActiveYear().switchMap((year) => {
+                return this.request(endpoint.replace('<year>', year.toString()));
+            });
         }
 
         return this.request(endpoint);
@@ -46,7 +43,8 @@ export class WidgetDataService {
                 .withEndPoint(endpoint)
                 .send()
                 .map(res => res.json())
-                .share();
+                .publishReplay(1)
+                .refCount();
         }
 
         return this.requestCache[hash];

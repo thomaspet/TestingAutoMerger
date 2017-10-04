@@ -77,6 +77,11 @@ uni-widget-canvas
         margin: 0
 
 uni-widget
+    [aria-busy]:not([aria-busy=false])
+        background: #fff !important
+        border: none !important
+        border-radius: none !important
+
     .widget-remove-btn
         @extend %hideText
         position: absolute
@@ -110,7 +115,7 @@ uni-multilevel-select
     position: absolute
     left: calc(50% - 7.5rem)
 
-// Background image
+
 uni-widget-canvas
     display: block
     position: absolute
@@ -173,10 +178,20 @@ uni-widget-canvas
     font-weight: 400
     width: 100%
     background-color: #06457a
-    border-radius: 2px
+    border-top-left-radius: pxToRem(2)
+    border-top-right-radius: pxToRem(2)
     height: 35px
     line-height: 35px
     text-align: center
+
+.uni-widget-content
+    height: calc(100% - 35px)
+    background: #fff
+    border-bottom-left-radius: pxToRem(2)
+    border-bottom-right-radius: pxToRem(2)
+    position: relative
+    box-sizing: border-box
+    padding: 20px
 
 .uni-widget-shortcut-tile
     text-align: center
@@ -191,31 +206,219 @@ uni-widget-canvas
         cursor: not-allowed
         background-color: desaturate(mix(#06457a, $uni-color-negative, 70%), 10%)
 
-.dashboard-shortcut-icon
-    @extend %hideText
-    display: inline-block
-    height: 2.5rem
-    width: 2.5rem
-    background-size: contain
-    background-position: center center
-    background-repeat: no-repeat
-    position: relative
-    top: .9rem
-    border-bottom-color: transparent
-
+.dashboard-shortcut-icon,
 .dashboard-notification-icon
     @extend %hideText
     display: inline-block
-    height: 6.5rem
-    width: 6.5rem
     background-size: contain
     background-position: center center
     background-repeat: no-repeat
+    border-bottom-color: transparent
     position: relative
+
+.dashboard-shortcut-icon,
+    height: 2.5rem
+    width: 2.5rem
+    top: .9rem
+
+.dashboard-notification-icon
+    height: 6.5rem
+    width: 6.5rem
     top: -1.9rem
     left: -2rem
-    border-bottom-color: transparent
 
+
+.uni-widget-notification-tile
+    position: relative
+    p
+        position: absolute
+        left: 2rem
+        bottom: 1.5rem
+
+.uni-widget-notification-orange
+    background-color: #dc9346
+    &:hover
+        background-color: #bb6700
+
+.uni-widget-notification-green
+    background-color: #479354
+    &:hover
+        background-color: #579354
+
+.uni-widget-notification-lite-blue
+    background-color: #7698bd
+    &:hover
+        background-color: #597a9e
+
+uni-clock,
+.uni-widget-clock
+    border-radius: inherit
+
+.uni-widget-clock
+    width: 100%
+    height: 100%
+    background-color: #fff
+
+    div
+        float: left
+        height: 100%
+        &:after
+            clear: both
+
+.uni-widget-clock-date
+    width: 33.33333%
+    border-top-left-radius: inherit
+    border-bottom-left-radius: inherit
+
+
+.uni-widget-clock-time
+    width: 66.66666%
+    color: #000
+
+    span
+        font-size: 4rem
+        display: inline
+        vertical-align: middle
+        position: relative
+        top: 38%
+        transform: translateY(-50%)
+
+        &:first-of-type
+            color: $uni-color-scale4
+
+        &:last-of-type
+            color: $uni-color-scale6
+
+    &.long-time span
+        font-size: 2.8rem
+
+
+
+uni-kpi-widget .uni-widget-content
+    padding: 0
+
+.kpi-widget-row
+    display: flex
+    flex-flow: row nowrap
+    height: 33%
+    box-sizing: border-box
+    border-bottom: 1px solid #85898b
+    &:last-of-type
+        border-bottom: none
+
+    .kpi-widget-column
+        height: 100%
+        flex: 1 0 33%
+        max-width: 33%
+        color: $uni-color-positive
+        align-items: center
+
+        display: flex
+        justify-content: center
+        flex-direction: column
+        text-align: center
+
+        span
+            display: block
+
+            &.kpi-widget-title
+                font-size: 1.25rem
+                font-weight: 100
+
+            &.kpi-widget-value
+                font-size: 1.25rem
+
+        canvas
+            width: 90%
+            height: 70%
+            max-height: 70%
+            // margin-top: 10%
+
+        .kpi-widget-arrow
+            @extend %hideText
+            display: block
+            height: 1.2rem
+            width: 1.2rem
+            background-size: 1.2rem
+            background-position: center center
+            background-repeat: no-repeat
+            position: relative
+            border-bottom-color: transparent
+
+
+.widget-logo-wrapper
+    display: block
+    width: 100%
+    height: 100%
+    background-color: $uni-color-negative
+    border-radius: pxToRem(3)
+
+
+    uni-image,
+    uni-image > article,
+    img
+        height: 100%
+        max-width: 100%
+        cursor: default
+
+
+uni-rss
+    display: block
+    height: 100%
+    width: 100%
+    background-color: #fff
+
+    aside,
+    article
+        box-sizing: border-box
+        padding: 0 2%
+        float: left
+
+    aside
+        width: 30%
+
+        img
+            object-fit: contain
+            max-width: 100%
+            max-height: 100%
+            padding-top: 1rem
+
+    article
+        width: 70%
+
+.positive-negative-widget
+    width: 100%
+    height: 100%
+    border-radius: 3px
+    padding-top: 1rem
+    box-sizing: border-box
+    text-align: center
+
+    background-color: #77b655
+    &:hover
+        cursor: pointer
+        background-color: #4aa526
+
+    &.negative
+        background-color: #d65f63
+        &:hover
+            background-color: #df4d52
+
+    .title
+        display: block
+        margin: 0
+        margin-top: -3%
+        color: #fefefe
+        font-size: 1em
+
+    .value
+        display: block
+        margin: 0
+        margin-top: 6%
+        color: #fefefe
+        font-size: 2em
+
+// Icons
 .dashboard-shortcut-icon-fallback
     background-image: unicon-plus($uni-color-negative)
 
@@ -312,194 +515,3 @@ uni-widget-canvas
 
 .kpi-widget-level5
     background-image: unicon-arrow(rgba(119,182,85, 1))
-
-
-.uni-widget-notification-tile
-    position: relative
-    p
-        position: absolute
-        left: 2rem
-        bottom: 1.5rem
-
-.uni-widget-notification-orange
-    background-color: #dc9346
-    &:hover
-        background-color: #bb6700
-
-.uni-widget-notification-green
-    background-color: #479354
-    &:hover
-        background-color: #579354
-
-.uni-widget-notification-lite-blue
-    background-color: #7698bd
-    &:hover
-        background-color: #597a9e
-
-uni-clock,
-.uni-widget-clock
-    border-radius: inherit
-
-.uni-widget-clock
-    width: 100%
-    height: 100%
-    background-color: #fff
-
-    div
-        float: left
-        height: 100%
-        &:after
-            clear: both
-
-.uni-widget-clock-date
-    width: 33.33333%
-    border-top-left-radius: inherit
-    border-bottom-left-radius: inherit
-
-
-.uni-widget-clock-time
-    width: 66.66666%
-    color: #000
-    // border-top-right-radius: inherit
-    // border-bottom-left-radius: inherit
-
-    span
-        font-size: 4rem
-        display: inline
-        vertical-align: middle
-        position: relative
-        top: 38%
-        transform: translateY(-50%)
-
-        &:first-of-type
-            color: $uni-color-scale4
-
-        &:last-of-type
-            color: $uni-color-scale6
-
-    &.long-time span
-        font-size: 3rem
-
-.uni-kpi-widget
-    height: 100%
-
-    section
-        height: calc(100% - 35px)
-        color: #000
-        background-color: #fff
-
-        section
-            height: 33.3333%
-            border-bottom: 1px solid #85898b
-            box-sizing: border-box
-            display: flex
-            flex-flow: row nowrap
-
-            div
-                order: 1
-                flex: 1 0 33%
-                height: 100%
-                max-height: 100%
-
-                h2
-                    font-size: 1.4rem
-                    margin-bottom: 0
-                    margin-top: 10px
-                    font-weight: 100
-
-                canvas
-                    width: 90%
-                    height: 70%
-                    max-height: 70%
-                    margin-top: 10%
-
-        &:last-of-type
-            border: none
-
-.uni-kpi-widget-value
-    margin: 0
-    font-size: 2rem
-
-.uni-kpi-widget-chevron
-    @extend %hideText
-    display: inline-block
-    height: 1.2rem
-    width: 1.2rem
-    background-size: 1.2rem
-    background-position: center center
-    background-repeat: no-repeat
-    position: relative
-    top: 1.2rem
-    border-bottom-color: transparent
-
-.widget-logo-wrapper
-    display: block
-    width: 100%
-    height: 100%
-    background-color: $uni-color-negative
-    border-radius: pxToRem(3)
-
-
-    uni-image,
-    uni-image > article,
-    img
-        height: 100%
-        max-width: 100%
-        cursor: default
-
-
-uni-rss
-    display: block
-    height: 100%
-    width: 100%
-    background-color: #fff
-
-    aside,
-    article
-        box-sizing: border-box
-        padding: 0 2%
-        float: left
-
-    aside
-        width: 30%
-
-        img
-            object-fit: contain
-            max-width: 100%
-            max-height: 100%
-            padding-top: 1rem
-
-    article
-        width: 70%
-
-.positive-negative-widget
-    width: 100%
-    height: 100%
-    border-radius: 3px
-    padding-top: 1rem
-    box-sizing: border-box
-    text-align: center
-
-    background-color: #77b655
-    &:hover
-        cursor: pointer
-        background-color: #4aa526
-
-    &.negative
-        background-color: #d65f63
-        &:hover
-            background-color: #df4d52
-
-    .title
-        display: block
-        margin: 0
-        margin-top: -3%
-        color: #fefefe
-        font-size: 1em
-
-    .value
-        display: block
-        margin: 0
-        margin-top: 6%
-        color: #fefefe
-        font-size: 2em

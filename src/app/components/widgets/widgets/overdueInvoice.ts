@@ -1,4 +1,4 @@
-import {Component} from '@angular/core';
+import {Component, ChangeDetectionStrategy, ChangeDetectorRef} from '@angular/core';
 import {WidgetDataService} from '../widgetDataService';
 import {IUniWidget} from '../uniWidget';
 import {Router} from '@angular/router';
@@ -14,7 +14,8 @@ import {Router} from '@angular/router';
             <span class="title">Forfalte ubetalte faktura</span>
             <span class="value">{{displayValue}}</span>
         </div>
-    `
+    `,
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 
 export class UniOverdueInvoiceWidget {
@@ -24,7 +25,8 @@ export class UniOverdueInvoiceWidget {
 
     constructor(
         private widgetDataService: WidgetDataService,
-        private router: Router
+        private router: Router,
+        private cdr: ChangeDetectorRef
     ) {}
 
     public ngAfterViewInit() {
@@ -34,20 +36,13 @@ export class UniOverdueInvoiceWidget {
                     return;
                 }
 
-                this.positive = res.Data[0].sum <= 0;
+                const sum = res.Data[0] && (res.Data[0].sum || 0);
+                this.positive = sum <= 0;
+                this.displayValue = sum.toFixed(2)
+                    .replace(/\B(?=(\d{3})+(?!\d))/g, ' ')
+                    .replace('.', ',');
 
-                // "Animate" counting of the numbers
-                let counter = 0;
-                let myInterval = setInterval(() => {
-                    counter += (res.Data[0].sum) / 50;
-                    this.displayValue = counter.toFixed(2)
-                        .replace(/\B(?=(\d{3})+(?!\d))/g, ' ')
-                        .replace('.', ',');
-
-                    if (counter >= res.Data[0].sum) {
-                        clearInterval(myInterval);
-                    }
-                }, 20);
+                this.cdr.markForCheck();
             });
     }
 

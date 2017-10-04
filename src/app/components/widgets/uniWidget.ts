@@ -8,6 +8,8 @@ import {
     ViewChild,
     ComponentFactoryResolver,
     ComponentRef,
+    ChangeDetectionStrategy,
+    ChangeDetectorRef
 } from '@angular/core';
 
 // Import known widgets. Loading third party stuff needs to be solved

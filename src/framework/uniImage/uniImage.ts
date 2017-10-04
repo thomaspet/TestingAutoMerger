@@ -177,21 +177,24 @@ export class UniImage {
         this.authService.authentication$.subscribe((authDetails) => {
             this.token = authDetails.filesToken;
             this.activeCompany = authDetails.activeCompany;
+            this.refreshFiles();
         });
     }
 
     public ngOnChanges(changes: SimpleChanges) {
         this.imgUrl = this.imgUrl2x = '';
         this.thumbnails = [];
-        if ((changes['entity'] || changes['entityID']) && this.entity && this.isDefined(this.entityID)) {
-            this.refreshFiles();
-        } else if (changes['fileIDs']) {
-            this.refreshFiles();
-        } else if (changes['showFileID'] && this.files && this.files.length) {
-            this.currentFileIndex = this.getChosenFileIndex();
-            this.loadImage();
-            if (!this.singleImage) {
-                this.loadThumbnails();
+        if (this.activeCompany) {
+            if ((changes['entity'] || changes['entityID']) && this.entity && this.isDefined(this.entityID)) {
+                this.refreshFiles();
+            } else if (changes['fileIDs']) {
+                this.refreshFiles();
+            } else if (changes['showFileID'] && this.files && this.files.length) {
+                this.currentFileIndex = this.getChosenFileIndex();
+                this.loadImage();
+                if (!this.singleImage) {
+                    this.loadThumbnails();
+                }
             }
         }
     }
