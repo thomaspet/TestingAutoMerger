@@ -1,58 +1,163 @@
 @keyframes spinner
-  to
-    transform: rotate(360deg)
+	to
+		transform: rotate(360deg)
 
 *[aria-busy]:not([aria-busy=false]):not(button):not(input):not(label):not(.progress-item), .loading
-  @extend %hideText
-  position: relative
-  display: block
-  background-color: transparentize($uni-color-scale9, .5)
-  border-radius: pxToRem(5)
-  min-height: 4rem
-  border: pxToRem(1) dashed $uni-color-scale8
+	@extend %hideText
+	position: relative
+	display: block
+	background-color: transparentize($uni-color-scale9, .5)
+	border-radius: pxToRem(5)
+	min-height: 4rem
+	border: pxToRem(1) dashed $uni-color-scale8
 
-  *
-    opacity: 0
-    transition: opacity 1000ms ease
-    pointer-events: none
-    cursor: default
+	*
+		opacity: 0
+		transition: opacity 1000ms ease
+		pointer-events: none
+		cursor: default
 
-  &:before
-    content: ''
-    position: absolute
-    top: 50%
-    left: 50%
-    width: 2rem
-    height: 2rem
-    margin-top: -1rem
-    margin-left: -1rem
-    border-radius: 50%
-    border-top: .2rem solid $uni-color-scale7
-    border-right: .2rem solid transparent
-    animation: spinner 600ms linear infinite
-    opacity: 1
+	&:before
+		content: ''
+		position: absolute
+		top: 50%
+		left: 50%
+		width: 2rem
+		height: 2rem
+		margin-top: -1rem
+		margin-left: -1rem
+		border-radius: 50%
+		border-top: .2rem solid $uni-color-scale7
+		border-right: .2rem solid transparent
+		animation: spinner 600ms linear infinite
+		opacity: 1
 
 label[aria-busy]
-  position: relative
-  white-space: nowrap
+	position: relative
+	white-space: nowrap
 
-  &:before
-    content: ''
-    display: block
-    height: 1rem
-    width: 1rem
-    position: absolute
-    top: 1.8rem
-    right: .5rem
-    border-radius: 50%
-    border-top: .1rem solid $uni-color-scale7
-    border-right: .1rem solid transparent
-    animation: spinner 600ms linear infinite
+	&:before
+		content: ''
+		display: block
+		height: 1rem
+		width: 1rem
+		position: absolute
+		top: 1.8rem
+		right: .5rem
+		border-radius: 50%
+		border-top: .1rem solid $uni-color-scale7
+		border-right: .1rem solid transparent
+		animation: spinner 600ms linear infinite
 
-  input[type=text]
-    @extend input[type=text][disabled]
-    color: $uni-color-scale5
-    pointer-events: none
+	input[type=text]
+		@extend input[type=text][disabled]
+		color: $uni-color-scale5
+		pointer-events: none
 
-  *
-    white-space: normal
+	*
+		white-space: normal
+
+
+// Full page spinner
+#app-loading-spinner
+	background: $uni-color-negative
+	display: block
+
+#data-loading-spinner
+	background: $uni-color-negative
+	display: none
+#app-loading-spinner,
+#data-loading-spinner
+	position: fixed
+	top: 0
+	left: 0
+	width: 100%
+	height: 100%
+	z-index: 1000
+	text-align: center
+	color: rgb(103, 106, 108)
+
+	.app-spinner-wrapper
+		width: 50rem
+		max-width: 90%
+		height: 25rem
+		margin: 0
+		position: relative
+		top: 50%
+		left: 50%
+		transform: translate(-50%, -50%)
+		background: $uni-color-negative
+		border-radius: pxToRem(3)
+
+	h1
+		display: block
+		position: relative
+		top: 18rem
+		width: 100%
+		height: 150px
+
+
+	#spinner
+		display: block
+		position: absolute
+		top: 5rem
+		left: calc(50% - 75px)
+		width: 150px
+		height: 150px
+		margin: 0
+		border-radius: 50%
+		border: 3px solid transparent
+		border-top-color: #3498db
+		-webkit-animation: spin 2s linear infinite
+		animation: spin 2s linear infinite
+
+	#spinner:before
+		content: ""
+		position: absolute
+		top: 5px
+		left: 5px
+		right: 5px
+		bottom: 5px
+		border-radius: 50%
+		border: 3px solid transparent
+		border-top-color: #e74c3c
+		-webkit-animation: spin 3s linear infinite
+		animation: spin 3s linear infinite
+
+	#spinner:after
+		content: ""
+		position: absolute
+		top: 15px
+		left: 15px
+		right: 15px
+		bottom: 15px
+		border-radius: 50%
+		border: 3px solid transparent
+		border-top-color: #f9c922
+		-webkit-animation: spin 1.5s linear infinite
+		animation: spin 1.5s linear infinite
+
+@-webkit-keyframes spin
+	0%
+		-webkit-transform: rotate(0deg)
+		-ms-transform: rotate(0deg)
+		transform: rotate(0deg)
+
+
+	100%
+		-webkit-transform: rotate(360deg)
+		-ms-transform: rotate(360deg)
+		transform: rotate(360deg)
+
+
+@keyframes spin
+	0%
+		-webkit-transform: rotate(0deg)
+		-ms-transform: rotate(0deg)
+		transform: rotate(0deg)
+
+
+	100%
+		-webkit-transform: rotate(360deg)
+		-ms-transform: rotate(360deg)
+		transform: rotate(360deg)

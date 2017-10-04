@@ -1,14 +1,14 @@
-import {Injectable, Output, EventEmitter} from '@angular/core';
+import {Injectable, EventEmitter} from '@angular/core';
 import {Router} from '@angular/router';
 import {Http, Headers} from '@angular/http';
 import {Observable} from 'rxjs/Observable';
 import {AppConfig} from './AppConfig';
-import {User} from './unientities';
+import {Company} from './unientities';
 import {ReplaySubject} from 'rxjs/ReplaySubject';
 import {Subject} from 'rxjs/Subject';
 import 'rxjs/add/operator/map';
 
-// declare const jwt_decode: (token: string) => any; // node_module/jwt_decode
+import * as $ from 'jquery';
 import * as jwt_decode from 'jwt-decode';
 
 export interface IAuthDetails {
@@ -19,13 +19,8 @@ export interface IAuthDetails {
 
 @Injectable()
 export class AuthService {
-    @Output()
     public requestAuthentication$: EventEmitter<any> = new EventEmitter();
-
-    private headers: Headers = new Headers({
-        'Content-Type': 'application/json',
-        'Accept': 'application/json'
-    });
+    public companyChange: EventEmitter<Company> = new EventEmitter();
 
     public authentication$: ReplaySubject<IAuthDetails> = new ReplaySubject<IAuthDetails>(1);
     public jwt: string;
@@ -34,34 +29,39 @@ export class AuthService {
     public companySettings: any;
     public filesToken: string;
 
+    private headers: Headers = new Headers({
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+    });
+
     constructor(private router: Router, private http: Http) {
-        console.log('CONSTRUCTOR');
         this.activeCompany = JSON.parse(localStorage.getItem('activeCompany'));
 
         this.jwt = localStorage.getItem('jwt');
         this.jwtDecoded = this.decodeToken(this.jwt);
         this.filesToken = localStorage.getItem('filesToken');
 
-        if (this.isAuthenticated()) {
-            this.authentication$.next({
-                token: this.jwt,
-                filesToken: this.filesToken,
-                activeCompany: this.activeCompany
-            });
+        if (this.jwt && this.activeCompany) {
+            this.setLoadIndicatorVisibility(true);
+            this.verifyAuthentication().subscribe(
+                res => {
+                    this.authentication$.next(res);
+                    // Give the app half a second to initialise before we remove spinner
+                    // (less visual noise on startup)
+                    setTimeout(() => this.setLoadIndicatorVisibility(false), 500);
+                },
+                err => {
+                    this.clearAuthAndGotoLogin();
+                    this.setLoadIndicatorVisibility(false);
+                }
+            );
+
+                // .finally(() => {
+                //     setTimeout(() => this.setLoadIndicatorVisibility(false), 500);
+                // })
+        } else {
+            this.clearAuthAndGotoLogin();
         }
-
-        // this.activeCompany = JSON.parse(localStorage.getItem('activeCompany')) || undefined;
-        // this.jwt = localStorage.getItem('jwt') || undefined;
-        // this.jwtDecoded = this.decodeToken(this.jwt);
-        // this.filesToken = localStorage.getItem('filesToken');
-
-        // if (this.isAuthenticated()) {
-        //     this.authentication$.next({
-        //         token: this.jwt,
-        //         filesToken: this.filesToken,
-        //         activeCompany: this.activeCompany
-        //     });
-        // }
 
         // Check expired status every minute, with a 10 minute offset on the expiration check
         // This allows the user to re-authenticate before http calls start 401'ing.
@@ -75,6 +75,14 @@ export class AuthService {
                 this.authenticateUniFiles();
             }
         }, 60000);
+    }
+
+    private setLoadIndicatorVisibility(visible: boolean) {
+        if (visible) {
+            $('#data-loading-spinner').fadeIn(250);
+        } else {
+            $('#data-loading-spinner').fadeOut(250);
+        }
     }
 
     /**
@@ -142,36 +150,35 @@ export class AuthService {
      * Sets the current active company
      * @param {Object} activeCompany
      */
-    public setActiveCompany(activeCompany, redirectUrl?: string): Subject<User> {
+    public setActiveCompany(activeCompany, redirectUrl?: string): Subject<IAuthDetails> {
         localStorage.setItem('activeCompany', JSON.stringify(activeCompany));
         localStorage.setItem('lastActiveCompanyKey', activeCompany.Key);
 
         this.activeCompany = activeCompany;
+        this.companyChange.emit(activeCompany);
+        this.setLoadIndicatorVisibility(true);
 
-        let loader = document.body.querySelector('#loader-wrapper');
-        loader.classList.add('active');
+        // Return a subject so other components can subscribe to know when everything is ready.
+        // Subject instead of just returning the Observable from user GET because observables
+        // are cold, and would require a subscribe to run.
+        // By returning a subject instead we have the option to not subscribe,
+        // without screwing up something in the authentication flow
+        let authSubject = new Subject<IAuthDetails>();
 
-        let sessionSubject = new Subject<User>();
-        this.getCurrentUser()
-            // .finally(() => loader.classList.remove('active'))
-            .subscribe((user) => {
-                this.authentication$.next({
-                    token: this.jwt,
-                    filesToken: this.filesToken,
-                    activeCompany: activeCompany
-                });
-
-                // Redirect then remove loading overlay and emit
-                this.router.navigateByUrl(redirectUrl || '').then(() => {
-                    loader.classList.remove('active');
-                    sessionSubject.next(user);
-                });
+        this.verifyAuthentication().subscribe(authDetails => {
+            this.authentication$.next(authDetails);
+            this.router.navigateByUrl(redirectUrl || '').then(() => {
+                // TODO: Navigation removes spinner..
+                // REVISIT: Does it make a difference if we do this after or just before?
+                this.setLoadIndicatorVisibility(false);
+                authSubject.next(authDetails);
             });
+        });
 
-        return sessionSubject;
+        return authSubject;
     }
 
-    private getCurrentUser(): Observable<User> {
+    private verifyAuthentication(): Observable<IAuthDetails> {
         const headers = new Headers({
             'Content-Type': 'application/json',
             'Accept': 'application/json',
@@ -183,13 +190,35 @@ export class AuthService {
             + AppConfig.API_DOMAINS.BUSINESS
             + 'users?action=current-session';
 
-        return this.http.get(url, {headers: headers})
-            .map(res => res.json())
-            .catch(err => {
-                console.log(err);
-                return Observable.of(null);
-            });
+        return this.http.get(url, {headers: headers}).map(res => {
+            return {
+                token: this.jwt,
+                filesToken: this.filesToken,
+                activeCompany: this.activeCompany
+                // REVISIT: add user here?
+            };
+        });
     }
+
+    // private getCurrentUser(): Observable<User> {
+    //     const headers = new Headers({
+    //         'Content-Type': 'application/json',
+    //         'Accept': 'application/json',
+    //         'Authorization': `Bearer ${this.jwt}`,
+    //         'CompanyKey': this.activeCompany.Key
+    //     });
+
+    //     const url = AppConfig.BASE_URL
+    //         + AppConfig.API_DOMAINS.BUSINESS
+    //         + 'users?action=current-session';
+
+    //     return this.http.get(url, {headers: headers})
+    //         .map(res => res.json())
+    //         .catch(err => {
+    //             console.log(err);
+    //             return Observable.of(null);
+    //         });
+    // }
 
     /**
      * Returns web token or redirects to /login if user is not authenticated

@@ -232,6 +232,7 @@ export class TabService {
 
     public removeAllTabs() {
         this.tabs = [];
+        this.tabs$.next(this.tabs);
         this.updateMemStore();
     }
 

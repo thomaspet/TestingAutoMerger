@@ -8,19 +8,21 @@ export class AuthGuard implements CanActivate, CanActivateChild {
 
     public canActivate(next: ActivatedRouteSnapshot, state: RouterStateSnapshot) {
         // Route user to login if not authenticated and trying to reach protected route
-        if (!this.authService.isAuthenticated() || !this.authService.hasActiveCompany()) {
-            if (!next.url.length || next.url[0].path !== 'init') {
-                // Store navigation attempt so we can reroute after login
-                localStorage.setItem('lastNavigationAttempt', state.url);
-                this.router.navigate(['/init/login']);
-                return false;
-            }
-        }
-
-        return true;
+        return this.authService.authentication$
+            .asObservable()
+            .map((authDetails) => {
+                if (!authDetails.token || !authDetails.activeCompany) {
+                    // Store navigation attempt so we can reroute after login
+                    localStorage.setItem('lastNavigationAttempt', state.url);
+                    this.router.navigate(['/init/login']);
+                    return false;
+                } else {
+                    return true;
+                }
+            });
     }
 
-    public canActivateChild(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): boolean {
+    public canActivateChild(route: ActivatedRouteSnapshot, state: RouterStateSnapshot) {
         return this.canActivate(route, state);
     }
 }

@@ -120,15 +120,10 @@ export class Login {
 
     private onCompanySelected(company) {
         if (company) {
-            this._authService.setActiveCompany(company);
+            const url = localStorage.getItem('lastNavigationAttempt') || '/';
+            localStorage.removeItem('lastNavigationAttempt');
+            // this._router.navigateByUrl(url);
+            this._authService.setActiveCompany(company, url);
         }
-
-        this.navigate();
-    }
-
-    private navigate() {
-        const url = localStorage.getItem('lastNavigationAttempt') || '/';
-        localStorage.removeItem('lastNavigationAttempt');
-        this._router.navigateByUrl(url);
     }
 }

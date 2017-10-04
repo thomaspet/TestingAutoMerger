@@ -17,6 +17,7 @@ export class App {
 
     private isAuthenticated: boolean = false;
     private loginModalOpen: boolean;
+    public showSpinner: boolean;
 
     constructor(
         private authService: AuthService,
@@ -60,7 +61,6 @@ export class App {
                 this.initialize();
             }
         } /* don't need error handling */);
-
     }
 
     private initialize() {
