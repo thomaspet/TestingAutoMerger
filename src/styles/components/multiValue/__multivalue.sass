@@ -1,27 +1,28 @@
 .uni-multivalue-ng
-  position: relative
+    input[aria-readonly]:not([aria-readonly=false])
+        background: #edf0f7 !important
 
-  *
-    box-sizing: border-box
+    position: relative
 
-  // THE INPUT
-  input[type=text]
-    @extend %inputButtonParent
+    *
+        box-sizing: border-box
 
-    &.-has-editor
-      background: #fff
+    // THE INPUT
+    input[type=text]
+        @extend %inputButtonParent
 
-  // THE ADD-BUTTON
-  .uni-multivalue-moreBtn
-    @extend %inputButton
-    background-image: unicon-plus($uni-color-scale4)
+        background: #fff
 
-  &.-has-values .uni-multivalue-moreBtn
-    background-image: unicon-down($uni-color-scale4)
+    // THE ADD-BUTTON
+    .uni-multivalue-moreBtn
+        @extend %inputButton
+        background-image: unicon-plus($uni-color-scale4)
 
-  input:focus + .uni-multivalue-moreBtn
-    border-color: $uni-color-c2a
+    &.-has-values .uni-multivalue-moreBtn
+        background-image: unicon-down($uni-color-scale4)
 
+    input:focus + .uni-multivalue-moreBtn
+        border-color: $uni-color-c2a
 
 // THE VALUE LIST
 .uni-multivalue-values

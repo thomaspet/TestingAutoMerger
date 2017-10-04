@@ -35,6 +35,7 @@ import {KeyCodes} from '../../../../app/services/common/keyCodes';
                    (focus)="focusHandler()"
                    [title]="control?.value || ''"
                    (keypress)="keyPressHandler($event)"
+                   [attr.aria-readonly]="readOnly$ | async"
                    readonly
             />
 
@@ -43,7 +44,7 @@ import {KeyCodes} from '../../../../app/services/common/keyCodes';
                     class="uni-multivalue-moreBtn"
                     (click)="toggle()"
                     tabindex="-1"
-                    [disabled]="field?.ReadOnly">Ny</button>
+                    [disabled]="readOnly$ | async">Ny</button>
 
             <ul class="uni-multivalue-values" [attr.aria-expanded]="isOpen">
                 <li class="multivalue-help">
@@ -66,7 +67,7 @@ import {KeyCodes} from '../../../../app/services/common/keyCodes';
                     (click)="clearSelection()">
                     Ikke valgt
                 </li>
-                
+
                 <ng-template ngFor let-row [ngForOf]="filteredRows">
                     <li [attr.aria-selected]="focusedRow === row"
                         (mouseover)="focusedRow = row"
