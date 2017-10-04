@@ -130,7 +130,14 @@ export class SupplierDetails implements OnInit {
             prev: this.previousSupplier.bind(this),
             next: this.nextSupplier.bind(this),
             add: this.addSupplier.bind(this)
-        }
+        },
+        contextmenu: [
+            {
+                label: 'Slett leverandør',
+                action: () => this.deleteSupplier(this.supplierID),
+                disabled: () => !this.supplierID
+            }
+        ]
     };
 
     constructor(private departmentService: DepartmentService,
@@ -247,6 +254,14 @@ export class SupplierDetails implements OnInit {
 
             this.router.navigateByUrl('/accounting/suppliers/0');
         });
+    }
+
+    private deleteSupplier(id: number) {
+        if(confirm('Vil du slette denne leverandøren?')) {
+            this.supplierService.deleteSupplier(id).subscribe(res => {
+                this.router.navigateByUrl('/accounting/suppliers');
+            }, err => this.errorService.handle(err));
+        }
     }
 
     private numberSeriesChange(selectedSerie) {

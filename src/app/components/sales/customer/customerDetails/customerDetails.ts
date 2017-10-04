@@ -113,6 +113,11 @@ export class CustomerDetails {
                 label: 'Ny faktura',
                 action: () => this.router.navigateByUrl(`/sales/invoices/0;customerID=${this.customerID}`),
                 disabled: () => !this.customerID
+            },
+            {
+                label: 'Slett kunde',
+                action: () => this.deleteCustomer(this.customerID),
+                disabled: () => !this.customerID
             }
         ]
     };
@@ -287,6 +292,14 @@ export class CustomerDetails {
             this.isDisabled = true;
             this.setupSaveActions();
         });
+    }
+
+    private deleteCustomer(id: number) {
+        if(confirm('Vil du slette denne kunden?')) {
+            this.customerService.deleteCustomer(id).subscribe(res => {
+                this.router.navigateByUrl('/sales/customers/');
+            }, err => this.errorService.handle(err));
+        }
     }
 
     private setTabTitle() {
