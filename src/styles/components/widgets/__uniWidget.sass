@@ -368,23 +368,31 @@ uni-rss
     width: 100%
     background-color: #fff
 
-    aside,
-    article
-        box-sizing: border-box
-        padding: 0 2%
-        float: left
+    ul
+        list-style: none
+        height: calc(100% - 35px)
+        overflow-y: auto
+        margin: 0
+        padding: 0 1rem
 
-    aside
-        width: 30%
+    .rss-item
+        margin-top: 10px
+        color: $uni-color-positive
+        text-align: left
 
-        img
-            object-fit: contain
-            max-width: 100%
-            max-height: 100%
-            padding-top: 1rem
+        header
+            height: 1.75rem
+            font-weight: 600
+            small
+                float: right
+                font-weight: 400
 
-    article
-        width: 70%
+        article
+            max-height: 6rem
+            overflow: hidden
+
+        a
+            text-decoration: none !important
 
 .positive-negative-widget
     width: 100%
