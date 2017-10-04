@@ -167,7 +167,6 @@ export class QuoteDetails {
 
     public ngOnInit() {
         this.setSums();
-
         // Subscribe and debounce recalc on table changes
         this.recalcDebouncer.debounceTime(500).subscribe((quoteitems) => {
             if (quoteitems.length) {
@@ -378,10 +377,11 @@ export class QuoteDetails {
         }
 
         // refresh items if project changed
-        if (quote.DefaultDimensions && quote.DefaultDimensions.ProjectID !== this.projectID) {
-            this.projectID = quote.DefaultDimensions.ProjectID;
+        if (quote.DefaultDimensions
+                && quote.DefaultDimensions.ProjectID !== this.projectID
+                && this.quoteItems.length) {
 
-            if (this.quoteItems.length) {
+            if (this.projectID) {
                 this.modalService.confirm({
                     header: `Endre prosjekt på alle varelinjer?`,
                     message: `Vil du endre til dette prosjektet på alle eksisterende varelinjer?`,
@@ -391,11 +391,13 @@ export class QuoteDetails {
                     }
                 }).onClose.subscribe(response => {
                     let replaceItemsProject: boolean = (response === ConfirmActions.ACCEPT);
-                    this.tradeItemTable.setDefaultProjectAndRefreshItems(this.projectID, replaceItemsProject);
+                    this.tradeItemTable
+                        .setDefaultProjectAndRefreshItems(quote.DefaultDimensions.ProjectID, replaceItemsProject);
                 });
             } else {
-                this.tradeItemTable.setDefaultProjectAndRefreshItems(this.projectID, true);
+                this.tradeItemTable.setDefaultProjectAndRefreshItems(quote.DefaultDimensions.ProjectID, true);
             }
+            this.projectID = quote.DefaultDimensions.ProjectID;
         }
 
         // update currency code in detailsForm and tradeItemTable to selected currency code if selected
@@ -735,7 +737,7 @@ export class QuoteDetails {
             navigation: {
                 prev: this.previousQuote.bind(this),
                 next: this.nextQuote.bind(this),
-                add: () => this.router.navigateByUrl('/sales/quotes/0')
+                add: () => this.quote.ID ? this.router.navigateByUrl('sales/quotes/0') : this.ngOnInit()
             },
             contextmenu: this.contextMenuItems,
             entityID: this.quoteID,

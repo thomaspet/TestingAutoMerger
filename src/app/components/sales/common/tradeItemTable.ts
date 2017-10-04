@@ -124,8 +124,6 @@ export class TradeItemTable {
                 item.Dimensions.Project = this.defaultProject;
                 return item;
             });
-        } else {
-            this.tableData = this.items.map(item => { return item; });
         }
     }
 

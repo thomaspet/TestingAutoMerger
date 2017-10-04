@@ -380,10 +380,12 @@ export class OrderDetails {
         }
 
         // refresh items if project changed
-        if (order.DefaultDimensions && order.DefaultDimensions.ProjectID !== this.projectID) {
-            this.projectID = order.DefaultDimensions.ProjectID;
+        if (order.DefaultDimensions
+                && order.DefaultDimensions.ProjectID !== this.projectID
+                && this.orderItems.length) {
 
-            if (this.orderItems.length) {
+
+            if (this.projectID) {
                 this.modalService.confirm({
                     header: `Endre prosjekt på alle varelinjer?`,
                     message: `Vil du endre til dette prosjektet på alle eksisterende varelinjer?`,
@@ -393,11 +395,13 @@ export class OrderDetails {
                     }
                 }).onClose.subscribe(response => {
                     let replaceItemsProject: boolean = (response === ConfirmActions.ACCEPT);
-                    this.tradeItemTable.setDefaultProjectAndRefreshItems(this.projectID, replaceItemsProject);
+                    this.tradeItemTable
+                        .setDefaultProjectAndRefreshItems(order.DefaultDimensions.ProjectID, replaceItemsProject);
                 });
             } else {
-                this.tradeItemTable.setDefaultProjectAndRefreshItems(this.projectID, true);
+                this.tradeItemTable.setDefaultProjectAndRefreshItems(order.DefaultDimensions.ProjectID, true);
             }
+            this.projectID = order.DefaultDimensions.ProjectID;
         }
 
         // update currency code in detailsForm and tradeItemTable to selected currency code if selected
@@ -678,12 +682,6 @@ export class OrderDetails {
         return statustrack;
     }
 
-    public addOrder() {
-            this.router.navigateByUrl('/sales/orders/0').then(res => {
-            this.tofHead.focus();
-        });
-    }
-
     public nextOrder() {
         this.customerOrderService.getNextID(this.order.ID).subscribe(
             (ID) => {
@@ -771,7 +769,7 @@ export class OrderDetails {
             navigation: {
                 prev: this.previousOrder.bind(this),
                 next: this.nextOrder.bind(this),
-                add: this.addOrder.bind(this)
+                add: () => this.order.ID ? this.router.navigateByUrl('sales/orders/0') : this.ngOnInit()
             },
             contextmenu: this.contextMenuItems,
             entityID: this.orderID,

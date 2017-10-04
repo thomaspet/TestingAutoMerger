@@ -499,10 +499,11 @@ export class InvoiceDetails {
         }
 
         // refresh items if project changed
-        if (invoice.DefaultDimensions && invoice.DefaultDimensions.ProjectID !== this.projectID) {
-            this.projectID = invoice.DefaultDimensions.ProjectID;
+        if (invoice.DefaultDimensions
+                && invoice.DefaultDimensions.ProjectID !== this.projectID
+                && this.invoiceItems.length) {
 
-            if (this.invoiceItems.length) {
+            if (this.projectID) {
                 this.modalService.confirm({
                     header: `Endre prosjekt på alle varelinjer?`,
                     message: `Vil du endre til dette prosjektet på alle eksisterende varelinjer?`,
@@ -512,11 +513,13 @@ export class InvoiceDetails {
                     }
                 }).onClose.subscribe(response => {
                     let replaceItemsProject: boolean = (response === ConfirmActions.ACCEPT);
-                    this.tradeItemTable.setDefaultProjectAndRefreshItems(this.projectID, replaceItemsProject);
+                    this.tradeItemTable
+                        .setDefaultProjectAndRefreshItems(invoice.DefaultDimensions.ProjectID, replaceItemsProject);
                 });
             } else {
-                this.tradeItemTable.setDefaultProjectAndRefreshItems(this.projectID, true);
+                this.tradeItemTable.setDefaultProjectAndRefreshItems(invoice.DefaultDimensions.ProjectID, true);
             }
+            this.projectID = invoice.DefaultDimensions.ProjectID;
         }
 
         if (this.invoice && this.invoice.InvoiceDate.toString() !== invoice.InvoiceDate.toString()) {
@@ -1044,13 +1047,7 @@ export class InvoiceDetails {
             navigation: {
                 prev: this.previousInvoice.bind(this),
                 next: this.nextInvoice.bind(this),
-                add: () => {
-
-                    this.router.navigateByUrl('/sales/invoices/0').then(res => {
-                        this.tofHead.focus();
-                    });
-
-                }
+                add: () => this.invoice.ID ? this.router.navigateByUrl('/sales/invoices/0') : this.ngOnInit()
             },
             contextmenu: this.contextMenuItems,
             entityID: this.invoiceID,

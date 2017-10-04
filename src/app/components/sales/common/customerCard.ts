@@ -189,8 +189,10 @@ export class TofCustomerCard {
         this.mapProjectToEntity(customer, this.entity);
         this.mapTermsToEntity(customer, this.entity);
 
-        this.entity.YourReference = customer.Info.DefaultContact && customer.Info.DefaultContact.Info.Name;
-        this.entity.EmailAddress = customer.Info.DefaultEmail && customer.Info.DefaultEmail.EmailAddress;
+        this.entity.YourReference = customer.Info.DefaultContact && customer.Info.DefaultContact.Info.Name
+            ? customer.Info.DefaultContact.Info.Name : this.entity.YourReference;
+        this.entity.EmailAddress = customer.Info.DefaultEmail && customer.Info.DefaultEmail.EmailAddress
+            ? customer.Info.DefaultEmail.EmailAddress : this.entity.EmailAddress;
 
         let sellers = [];
         if (this.entity.Sellers.length === 0 && customer.ID > 0) {
@@ -211,11 +213,8 @@ export class TofCustomerCard {
     }
 
     private mapProjectToEntity(customer: Customer, entity: any) {
-        if (entity.DefaultDimensions && customer.Dimensions) {
+        if (entity.DefaultDimensions && customer.Dimensions && customer.Dimensions.ProjectID) {
             entity.DefaultDimensions.ProjectID = customer.Dimensions.ProjectID;
-        } else {
-            entity.DefaultDimensions.ProjectID = null;
-            entity.DefaultDimensions.Project = null;
         }
     }
 
