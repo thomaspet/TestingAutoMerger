@@ -17,7 +17,6 @@ export class App {
 
     private isAuthenticated: boolean = false;
     private loginModalOpen: boolean;
-    public showSpinner: boolean;
 
     constructor(
         private authService: AuthService,

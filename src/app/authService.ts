@@ -46,19 +46,15 @@ export class AuthService {
             this.verifyAuthentication().subscribe(
                 res => {
                     this.authentication$.next(res);
-                    // Give the app half a second to initialise before we remove spinner
+                    // Give the app a bit of time to initialise before we remove spinner
                     // (less visual noise on startup)
-                    setTimeout(() => this.setLoadIndicatorVisibility(false), 500);
+                    setTimeout(() => this.setLoadIndicatorVisibility(false), 250);
                 },
                 err => {
                     this.clearAuthAndGotoLogin();
                     this.setLoadIndicatorVisibility(false);
                 }
             );
-
-                // .finally(() => {
-                //     setTimeout(() => this.setLoadIndicatorVisibility(false), 500);
-                // })
         } else {
             this.clearAuthAndGotoLogin();
         }
