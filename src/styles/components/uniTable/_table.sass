@@ -1,7 +1,7 @@
 $cellpadding: pxToRem(3) pxToRem(10)
 
 %unitable-selected-cell
-    box-shadow: inset 0 0 0 pxToRem(2) $uni-color-c2a
+    box-shadow: inset 0 0 0 pxToRem(1) $uni-color-c2a
     padding: $cellpadding
     margin: pxToRem(1)
     min-height: calc(1.5rem + #{pxToRem(10)})
@@ -156,6 +156,7 @@ unitable-editor
     input[type=week],
     input
         @extend %unitable-selected-cell
+        margin: 0
         display: block
 
 .unitable_autocomplete_results
@@ -238,8 +239,11 @@ unitable-contextmenu
 unitable-autocomplete
     .autocomplete
         .uni-autocomplete-searchBtn
-            margin-top: pxToRem(1)
             min-height: calc(1.5rem + #{pxToRem(10)})
+            border: 1px solid $uni-color-scale8
+            border-left: none
+            border-radius: 0
+            // border: none
 
         .uniTable_dropdown_list
             margin-top: calc(1.5rem + #{pxToRem(12)})
@@ -262,19 +266,12 @@ unitable-select
         .uniTable_dropdown_list
             margin-top: 0
 
-unitable-datepicker
-    .uni-datepicker
-        .uni-datepicker-calendarBtn
-            margin-top: pxToRem(1)
-            min-height: calc(1.5rem + #{pxToRem(10)})
+uni-table .uni-datepicker
+    height: 100%
 
-        uni-calendar
-            margin: calc(1.5rem + #{pxToRem(12)}) pxToRem(1)
-
-            td
-                text-overflow: clip
-                line-height: 1.5rem
-
+    .uni-datepicker-calendarBtn
+        height: 100%
+        border-radius: 0
 
 .uniTable_dropdown_list
     position: absolute
@@ -285,6 +282,7 @@ unitable-datepicker
     overflow-y: auto
 
     visibility: hidden
+    left: 0
 
     &[aria-expanded]:not([aria-expanded=false])
         visibility: visible
