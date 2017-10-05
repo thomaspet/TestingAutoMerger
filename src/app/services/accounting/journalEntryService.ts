@@ -144,9 +144,6 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
         // TODO: User should also be able to change dimensions for existing entries
         // so consider changing to filtering for dirty rows (and only allow the
         // unitable to edit the dimension fields for existing rows)
-        if (!journalEntryData[0].FinancialDate) {
-            journalEntryData[0].FinancialDate = journalEntryData[0].VatDate;
-        }
         let journalEntryDataNew = journalEntryData.filter(x => !x.StatusCode);
 
         let journalEntryDataWithJournalEntryID =
@@ -269,7 +266,9 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
             draftLine.CurrencyCodeID = journalEntryData.CurrencyCode.ID;
             draftLine.Description = journalEntryData.Description;
             draftLine.Dimensions = journalEntryData.Dimensions;
-            draftLine.FinancialDate = journalEntryData.FinancialDate;
+            draftLine.FinancialDate = journalEntryData.FinancialDate
+                ? journalEntryData.FinancialDate
+                : journalEntryData.VatDate;
             draftLine.InvoiceNumber = journalEntryData.InvoiceNumber;
             draftLine.RegisteredDate = new LocalDate(Date());
 
@@ -314,7 +313,9 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
             draftLine.CurrencyCode = journalEntryData.CurrencyCode;
             draftLine.Description = journalEntryData.Description;
             draftLine.Dimensions = journalEntryData.Dimensions;
-            draftLine.FinancialDate = journalEntryData.FinancialDate;
+            draftLine.FinancialDate = journalEntryData.FinancialDate
+                ? journalEntryData.FinancialDate
+                : journalEntryData.VatDate;
             draftLine.InvoiceNumber = journalEntryData.InvoiceNumber;
             draftLine.RegisteredDate = new LocalDate(Date());
             draftLine.VatDate = journalEntryData.VatDate;
