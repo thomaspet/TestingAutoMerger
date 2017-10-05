@@ -337,8 +337,8 @@ export class UniTable implements OnChanges {
             let position = {
                 top: cell.offsetTop + 'px',
                 left: cell.offsetLeft + 'px',
-                width: cell.clientWidth + 'px',
-                height: cell.clientHeight + 'px',
+                width: cell.offsetWidth + 'px',
+                height: cell.offsetHeight + 'px',
                 tabIndex: cell.tabIndex
             };
 

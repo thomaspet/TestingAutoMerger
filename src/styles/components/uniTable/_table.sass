@@ -6,13 +6,25 @@ $cellpadding: pxToRem(3) pxToRem(10)
     margin: pxToRem(1)
     min-height: calc(1.5rem + #{pxToRem(10)})
 
-uni-table, table.uni-table
+.uni-table:not(.editable-table) tr
+    &[aria-selected]:not([aria-selected=false]):not([aria-readonly=true]),
+    &:focus:not([aria-readonly=true])
+        background: #d4dfee
+        outline: none
+
+uni-table,
+table.uni-table
+
     table.editable-table
         -webkit-user-select: none
         -moz-user-select: none
         -ms-user-select: none
 
     position: relative
+    table
+        border-left: none
+        border-collapse: separate
+        border-spacing: 0
 
     table *
         border-color: transparent
@@ -25,6 +37,7 @@ uni-table, table.uni-table
         position: sticky
         top: 0
         z-index: map-get($zindex, picker - 1)
+        border: pxToRem(1) solid $uni-color-scale9
 
     td, th
         padding: $cellpadding
@@ -34,8 +47,8 @@ uni-table, table.uni-table
         overflow: hidden
         text-overflow: ellipsis
 
-        &:first-of-type
-            border-left: none
+        &:last-of-type
+            border-right: pxToRem(1) solid $uni-color-scale9
 
         &.noTruncation
             text-overflow: clip
@@ -52,15 +65,16 @@ uni-table, table.uni-table
         &.date-bad
             color: $uni-color-bad
 
+        &.focus
+            border: 1px solid $uni-color-c2a
+
     tr
-        border-bottom: pxToRem(1) solid $uni-color-scale9
+        box-sizing: border-box
+        background: #fff
+        border-bottom: 1px solid $uni-color-scale9
 
-        &:nth-of-type(odd)
-            background: mix($uni-color-scale9, $uni-color-negative, 30%)
-
-        &:hover
-            background: mix($uni-color-c2a, $uni-color-negative, 15%)
-
+        &:nth-of-type(even)
+            background: $uni-color-negative
 
         &[aria-readonly]:not([aria-readonly=false])
             $disabled-stripe1: mix($uni-color-scale9, $uni-color-negative, 60%)
@@ -68,19 +82,12 @@ uni-table, table.uni-table
             background: repeating-linear-gradient(-45deg, $disabled-stripe1, $disabled-stripe1 1rem, $disabled-stripe2 1rem, $disabled-stripe2 2rem)
             color: $uni-color-scale4
 
-    table:not(.editable-table) tr
-        &[aria-selected]:not([aria-selected=false]):not([aria-readonly=true]),
-        &:focus:not([aria-readonly=true])
-            background: $uni-color-c2a
-            color: $uni-color-negative
-            outline: none
-
-            td
-                border-left-color: mix($uni-color-negative, $uni-color-c2a, 20%)
+        &:hover
+            background: #d4dfee
 
     th
-        background: $uni-color-negative
-        border-bottom: pxToRem(1) solid $uni-color-scale8
+        border-bottom: none
+        background: mix($uni-color-scale9, $uni-color-negative, 60%)
         margin-bottom: pxToRem(-1)
         color: $uni-color-positive
         font-weight: 600
@@ -105,7 +112,7 @@ uni-table, table.uni-table
             content: '\25BC'
 
     table.editable-table td:focus
-        @extend %unitable-selected-cell
+        border: 1px solid $uni-color-c2a
 
     table:not(.editable-table) tr
         cursor: pointer
@@ -121,6 +128,8 @@ th:last-of-type
         left: 0
 
         .column-menu-toggle
+            position: absolute
+            top: 0
             float: none
             height: 100%
             width: 100%
@@ -243,7 +252,6 @@ unitable-autocomplete
             border: 1px solid $uni-color-scale8
             border-left: none
             border-radius: 0
-            // border: none
 
         .uniTable_dropdown_list
             margin-top: calc(1.5rem + #{pxToRem(12)})
