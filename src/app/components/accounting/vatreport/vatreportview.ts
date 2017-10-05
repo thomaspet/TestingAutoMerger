@@ -201,18 +201,17 @@ export class VatReportView implements OnInit, OnDestroy {
         });
 
         this.actions.push({
-            label: 'Godkjenn manuelt',
-            action: (done) => this.approveManually(done),
-            disabled: this.IsApproveActionDisabled()
-        });
-
-        this.actions.push({
             label: 'Opprett endringsmelding ',
             action: (done) => this.createCorrectiveVatReport(done),
             disabled: this.IsCreateCorrectionMessageAcionDisabled(),
             main: !this.IsCreateCorrectionMessageAcionDisabled()
         });
 
+        this.actions.push({
+            label: 'Godkjenn manuelt',
+            action: (done) => this.approveManually(done),
+            disabled: this.IsSendActionDisabled()
+        });
 
     }
 
@@ -444,12 +443,12 @@ export class VatReportView implements OnInit, OnDestroy {
 
     public approveManually(done) {
         if (confirm('Er du sikker på at du vil godkjenne manuelt? Det er normalt bedre å bruke signering hvis mulig')) {
-            this.vatReportService.Transition(this.currentVatReport.ID, this.currentVatReport, 'approve')
+            this.vatReportService.Transition(this.currentVatReport.ID, this.currentVatReport, 'approveManually')
                 .subscribe(() => {
                     this.vatReportService.Get(this.currentVatReport.ID, ['TerminPeriod', 'JournalEntry', 'VatReportArchivedSummary'])
                         .subscribe(vatreport => {
                             this.setVatreport(vatreport);
-                            done('Godkjent');
+                            done('Godkjent manuelt');
                         },
                         err => {
                             done('Feilet å hente vatreport');
@@ -457,7 +456,7 @@ export class VatReportView implements OnInit, OnDestroy {
                         });
                 },
                 err => {
-                    done('Godkjenning feilet');
+                    done('Manuell godkjenning feilet');
                     this.errorService.handle(err);
                 }
                 );
