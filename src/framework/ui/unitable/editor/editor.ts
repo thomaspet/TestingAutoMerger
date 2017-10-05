@@ -15,11 +15,11 @@ import {
 import {FormControl} from '@angular/forms';
 import {UniTableColumnType} from '../config/unitableColumn';
 import {IEditorData} from '../config/unitableConfig';
-import {LocalDate} from '../controls/localDatePicker/LocalDate';
 import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/observable/fromPromise';
 import * as moment from 'moment';
 import * as Immutable from 'immutable';
+import {LocalDate} from '../../../../app/unientities';
 
 export interface IEditorChangeEvent {
     rowModel: any;
