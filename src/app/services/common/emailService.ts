@@ -6,6 +6,7 @@ import {UniHttp} from '../../../framework/core/http/http';
 import {SendEmail} from '../../models/sendEmail';
 import {ToastService, ToastType} from '../../../framework/uniToast/toastService';
 import {ErrorService} from '../common/errorService';
+import {AppConfig} from '../../AppConfig';
 
 @Injectable()
 export class EmailService extends BizHttp<Email> {
@@ -35,8 +36,9 @@ export class EmailService extends BizHttp<Email> {
         } else {
             this.emailtoast = this.toastService.addToast('Sender epost til ' + sendemail.EmailAddress, ToastType.warn, 0, sendemail.Subject);
 
-            if (parameters == null) { parameters = [{ Name: 'Id', value: sendemail.EntityID }]; }
-            else { parameters.Add({ Name: 'Id', value: sendemail.EntityID }); }
+            if (parameters == null) { parameters = []; }
+            parameters.push({ Name: 'Id', value: sendemail.EntityID }); }
+            parameters.push({ Name: 'LogoUrl', value: AppConfig.BASE_URL_FILES + 'api/image/?key=' + this.http.authService.getCompanyKey() + '&id=logo'})
 
             let email = {
                 ToAddresses: [sendemail.EmailAddress],
