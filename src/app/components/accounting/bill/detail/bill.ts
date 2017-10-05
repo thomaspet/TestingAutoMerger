@@ -78,8 +78,9 @@ interface ITab {
 
 enum actionBar {
     save = 0,
-    delete = 1,
-    ocr = 2
+    saveWithNewDocument = 1,
+    delete = 2,
+    ocr = 3
 };
 
 
@@ -148,6 +149,8 @@ export class BillView {
     private rootActions: IUniSaveAction[] = [
         { label: lang.tool_save, action:
             (done) => this.save(done), main: true, disabled: true },
+        { label: lang.tool_save_and_new, action:
+            (done) => this.saveAndGetNewDocument(done), main: true, disabled: true },
         { label: lang.tool_delete, action:
             (done) => this.tryDelete(done), main: false, disabled: true },
         { label: lang.converter, action:
@@ -638,7 +641,7 @@ export class BillView {
         let current = this.current.value;
         this.files = files;
         if (files && files.length) {
-            if(this.files.length !== this.numberOfDocuments) {
+            if (this.files.length !== this.numberOfDocuments) {
                 this.hasUploaded = true;
             }
             if (!this.hasValidSupplier()) {
@@ -646,7 +649,8 @@ export class BillView {
             }
             if (!current.ID) {
                 this.unlinkedFiles = files.map(file => file.ID);
-                this.rootActions[0].disabled = false;
+                this.rootActions[actionBar.save].disabled = false;
+                this.rootActions[actionBar.saveWithNewDocument].disabled = false;
                 // Check what ID's in unlinkedfiles have not been tagged
                 this.unlinkedFiles.forEach((id: number) => {
                     // If ID is not tagged, tag it with status 30 = inUse
@@ -1097,9 +1101,11 @@ export class BillView {
 
     private flagUnsavedChanged(reset = false) {
         this.flagActionBar(actionBar.save, !reset);
+        this.flagActionBar(actionBar.saveWithNewDocument, !reset);
         if (!reset) {
             this.actions.forEach(x => x.main = false);
             this.actions[actionBar.save].main = true;
+            this.actions[actionBar.saveWithNewDocument].main = true;
 
             this.actions = this.actions.concat();
         }
@@ -1741,6 +1747,25 @@ export class BillView {
         });
     }
 
+    private saveAndGetNewDocument(done?) {
+        return this.save(done).then(() => {
+            this.supplierInvoiceService.fetch('filetags/IncomingMail|IncomingEHF/0').subscribe((res) => {
+                if (res && res.length > 0) {
+                    this.newInvoice(false);
+                    this.hasStartupFileID = true;
+                    this.startUpFileID = [res[0].ID];
+                    if (done) { done(lang.save_success); }
+                } else {
+                    this.toast.addToast('Ingen flere dokumenter i flyten', ToastType.good, 2);
+                }
+            }, (err) => {
+                // In case of error fetching documents, get current and show error
+                this.errorService.handle(err);
+                this.toast.addToast('Kunne ikke laste nytt dokument', ToastType.bad, 2);
+            } );
+        });
+    }
+
 
     public save(done?): Promise<ILocalValidation> {
         this.preSave();
@@ -1748,14 +1773,14 @@ export class BillView {
 
             var reload = () => {
                 this.fetchInvoice(this.currentSupplierID, (!!done))
-                    .then(() => {
-                        resolve({ success: true });
-                        if (done) { done(lang.save_success); }
-                    })
-                    .catch((msg) => {
-                        reject({ success: false, errorMessage: msg });
-                        if (done) { done(msg); }
-                    });
+                .then(() => {
+                    resolve({ success: true });
+                    if (done) { done(lang.save_success); }
+                })
+                .catch((msg) => {
+                    reject({ success: false, errorMessage: msg });
+                    if (done) { done(msg); }
+                });
             };
 
             var obs: any;

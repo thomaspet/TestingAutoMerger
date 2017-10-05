@@ -111,6 +111,7 @@ if (window.ENV === 'production') {
         CanDeactivateGuard,
         TabService,
         COMPILER_PROVIDERS,
+        ToastService,
         {provide: LocationStrategy, useClass: HashLocationStrategy},
         {provide: ErrorHandler, useClass: UniMicroAngularInternalErrorHandlerOverride}
     ],

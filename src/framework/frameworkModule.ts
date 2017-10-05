@@ -67,7 +67,6 @@ import {UniModalService, MODALS} from './uniModal/barrel';
         ...MODALS
     ],
     providers: [
-        ToastService,
         UniModalService,
         UniHttp,
         ComponentCreator,
