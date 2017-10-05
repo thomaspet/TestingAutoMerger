@@ -159,18 +159,17 @@ export class BureauDashboard {
     public onCompanyNameClick(company: Company) {
         this.authService.setActiveCompany(company);
         this.busy = true;
-        this.router.navigateByUrl('/');
     }
 
     public onCompanyInboxClick(company: Company) {
-        this.authService.setActiveCompany(company);
+        const redirectUrl = '/accounting/bills?filter=Inbox';
+        this.authService.setActiveCompany(company, redirectUrl);
         this.busy = true;
-        this.router.navigateByUrl('/accounting/bills?filter=Inbox');
     }
 
     public onCompanyApprovalsClick(company: Company) {
-        this.authService.setActiveCompany(company);
+        const redirectUrl = '/accounting/bills?filter=Approved';
+        this.authService.setActiveCompany(company, redirectUrl);
         this.busy = true;
-        this.router.navigateByUrl('/accounting/bills?filter=Approved');
     }
 }
