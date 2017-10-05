@@ -2177,17 +2177,20 @@ export class BillView {
         var params = '?model=supplierinvoice';
         var resultFld = 'minid';
         var id = this.current.getValue().ID;
+        let status = this.current.getValue().StatusCode;
 
         if (direction === 'next') {
-            params += '&select=min(id)&filter=deleted eq \'false\'' + (id ? ' and id gt ' + id : '');
+            params += '&select=min(id)&filter=deleted eq \'false\''
+                + (id ? ' and id gt ' + id + ' and StatusCode eq ' + status : '');
         } else {
-            params += '&select=max(id)&filter=deleted eq \'false\'' + (id ? ' and id lt ' + id : '');
+            params += '&select=max(id)&filter=deleted eq \'false\''
+                + (id ? ' and id lt ' + id + ' and StatusCode eq ' + status : '');
             resultFld = 'maxid';
         }
 
         this.simpleJournalentry.closeEditor();
 
-        // TODO: should use BizHttp.getNextID() / BizHttp.getPreviousID()
+
         return new Promise((resolve, reject) => {
             this.supplierInvoiceService.getStatQuery(params).subscribe((items) => {
                 if (items && items.length > 0) {
