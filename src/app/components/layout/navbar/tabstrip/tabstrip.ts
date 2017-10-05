@@ -26,7 +26,7 @@ export interface IUniTab {
                     [ngClass]="{'router-tab-active': tab.active}"
                     [title]="tab.name">
                     {{tab.name}}
-                    <span class="close" (click)="closeTab(idx)"></span>
+                    <span class="close" (click)="closeTab(idx, $event)"></span>
                 </li>
             </ng-template>
         </ol>
@@ -96,7 +96,11 @@ export class UniTabStrip {
         this.router.navigateByUrl('/');
     }
 
-    public closeTab(index: number): void {
+    public closeTab(index: number, event?: MouseEvent): void {
+        if (event) {
+            event.stopPropagation();
+        }
+
         this.tabService.closeTab(index);
     }
 }

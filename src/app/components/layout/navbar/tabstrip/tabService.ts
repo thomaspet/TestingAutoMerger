@@ -134,7 +134,7 @@ export class TabService {
         if (moduleCheck.exists) {
             newTab.active = true;
             this.tabs[moduleCheck.index] = newTab;
-            this.updateMemStore();
+            this.updateTabStorage();
             this.currentActiveIndex = moduleCheck.index;
             duplicate = true;
         }
@@ -142,7 +142,7 @@ export class TabService {
         if (!duplicate) {
             newTab.active = true;
             this.tabs.push(newTab);
-            this.updateMemStore();
+            this.updateTabStorage();
             this.currentActiveIndex = this.tabs.length - 1;
         }
 
@@ -159,10 +159,10 @@ export class TabService {
     }
 
 
-    public activateTab(index: number): void {
+    public activateTab(index: number): Promise<boolean> {
         // Only navigate for now. Setting tab as active is done in onNavigateComplete
         // because we dont want it to happen if a router guard stops the navigation
-        this.router.navigateByUrl(this.tabs[index].url);
+        return this.router.navigateByUrl(this.tabs[index].url);
     }
 
     public onNavigateComplete(event: NavigationEnd) {
@@ -183,7 +183,7 @@ export class TabService {
             }
         }
 
-        this.updateMemStore();
+        this.updateTabStorage();
         this.tabs$.next(this.tabs);
         this.activeTab$.next(this.currentActiveTab);
     }
@@ -192,7 +192,7 @@ export class TabService {
         this.tabs[this.currentActiveIndex].active = false;
         this.currentActiveIndex = undefined;
         this.currentActiveTab = undefined;
-        this.updateMemStore();
+        this.updateTabStorage();
 
         this.tabs$.next(this.tabs);
         this.activeTab$.next(this.currentActiveTab);
@@ -211,29 +211,41 @@ export class TabService {
     }
 
     public closeTab(closeIndex: number = this.currentActiveIndex): void {
-        this.tabs.splice(closeIndex, 1);
+        const removeAndUpdate = (index) => {
+            this.tabs.splice(index, 1);
+            this.tabs$.next(this.tabs);
+            this.updateTabStorage();
+            this.currentActiveIndex = this.tabs.findIndex(t => t.active);
+        };
 
-        // If we removed the last tab go to dashboard
-        if (!this.tabs.length) {
-            this.router.navigateByUrl('/');
-            return;
-        }
-
+        // If closed tab is active then we need to first check that we can
+        // navigate away from it, then actually remove the tab
         if (closeIndex === this.currentActiveIndex) {
-            // If we removed the current active tab activate another one
-            this.activateTab(this.tabs.length - 1);
+            let navigationPromise: Promise<boolean>;
+
+            if (this.tabs[closeIndex + 1]) {
+                navigationPromise = this.activateTab(closeIndex + 1);
+            } else if (this.tabs[closeIndex - 1]) {
+                navigationPromise = this.activateTab(closeIndex - 1);
+            } else {
+                navigationPromise = this.router.navigateByUrl('/');
+            }
+
+            navigationPromise.then(navigationSuccess => {
+                if (navigationSuccess) {
+                    removeAndUpdate(closeIndex);
+                }
+            }).catch((err) => {});
         } else {
-            // If not, just update currentActiveIndex
-            this.currentActiveIndex = closeIndex > this.currentActiveIndex
-                ? this.currentActiveIndex
-                : this.currentActiveIndex - 1;
+            // If tab is not active we don't have to check anything, just remove it
+            removeAndUpdate(closeIndex);
         }
     }
 
     public removeAllTabs() {
         this.tabs = [];
         this.tabs$.next(this.tabs);
-        this.updateMemStore();
+        this.updateTabStorage();
     }
 
     private getMemStore(): IUniTab[] {
@@ -243,18 +255,18 @@ export class TabService {
         // It's only here to remove old tab store entries that includes Dashboard
         // Because they would cause duplicate home tabs (no biggie, but looks weird)
         if (tabs && tabs.length && tabs[0].moduleID === UniModules.Dashboard) {
-            this.clearMemStore();
+            this.clearTabStorage();
             return undefined;
         }
 
         return tabs;
     }
 
-    private updateMemStore() {
+    private updateTabStorage() {
         localStorage.setItem(this.storageKey, JSON.stringify(this.tabs));
     }
 
-    private clearMemStore() {
+    private clearTabStorage() {
         localStorage.removeItem(this.storageKey);
     }
 
