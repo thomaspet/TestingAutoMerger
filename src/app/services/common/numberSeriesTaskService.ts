@@ -15,11 +15,11 @@ export class NumberSeriesTaskService extends BizHttp<NumberSeriesTask> {
         this.DefaultOrderBy = null;
     }
 
-    public getActiveNumberSeriesTasks(entityType: string): Observable<any> {
+    public getActiveNumberSeriesTasks(entityType: string, year: number): Observable<any> {
         return this.http
             .asGET()
             .usingBusinessDomain()
-            .withEndPoint(this.relativeURL + '?action=get-active-numberseriestasks&entityType=' + entityType)
+            .withEndPoint(`${this.relativeURL}?action=get-active-numberseriestasks&entityType=${entityType}&year=${year}`)
             .send()
             .map(response => response.json());
     }

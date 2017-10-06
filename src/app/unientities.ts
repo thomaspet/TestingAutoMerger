@@ -251,8 +251,8 @@ export class WorkRelation extends UniEntity {
     public WorkerID: number;
     public WorkPercentage: number;
     public WorkProfileID: number;
-    public WorkProfile: WorkProfile;
     public Worker: Worker;
+    public WorkProfile: WorkProfile;
     public Employment: Employment;
     public Items: Array<WorkItem>;
     public Team: Team;
@@ -387,8 +387,8 @@ export class RolePermission extends UniEntity {
     public RoleID: number;
     public UpdatedAt: Date;
     public UpdatedBy: string;
-    public Permission: Permission;
     public Role: Role;
+    public Permission: Permission;
     public CustomFields: any;
 }
 
@@ -1953,7 +1953,6 @@ export class SalaryTransaction extends UniEntity {
     public EmployeeID: number;
     public EmployeeNumber: number;
     public EmploymentID: number;
-    public Files: string;
     public FromDate: Date;
     public HolidayPayDeduction: boolean;
     public ID: number;
@@ -2214,6 +2213,7 @@ export class User extends UniEntity {
     public static EntityType = 'User';
 
     public _createguid: string;
+    public BankIntegrationUserName: string;
     public CreatedAt: Date;
     public CreatedBy: string;
     public Deleted: boolean;
@@ -3074,6 +3074,7 @@ export class NumberSeries extends UniEntity {
     public Empty: boolean;
     public FromNumber: number;
     public ID: number;
+    public IsDefaultForTask: boolean;
     public MainAccountID: number;
     public Name: string;
     public NextNumber: number;
@@ -4047,6 +4048,27 @@ export class Accrual extends UniEntity {
     public JournalEntryLineDraft: JournalEntryLineDraft;
     public JournalEntryLines: Array<JournalEntryLine>;
     public Periods: Array<AccrualPeriod>;
+    public CustomFields: any;
+}
+
+
+export class BankIntegrationAgreement extends UniEntity {
+    public static RelativeUrl = 'bank-agreements';
+    public static EntityType = 'BankIntegrationAgreement';
+
+    public _createguid: string;
+    public CreatedAt: Date;
+    public CreatedBy: string;
+    public Deleted: boolean;
+    public ID: number;
+    public Name: string;
+    public Password: string;
+    public PropertiesJson: string;
+    public ServiceID: string;
+    public ServiceTemplateID: string;
+    public StatusCode: number;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
     public CustomFields: any;
 }
 
@@ -5154,9 +5176,9 @@ export class WorkBalanceDto extends UniEntity {
     public ValidFrom: Date;
     public ValidTimeOff: number;
     public WorkRelationID: number;
-    public WorkRelation: WorkRelation;
     public Previous: BalanceInfo;
     public Details: Array<FlexDetail>;
+    public WorkRelation: WorkRelation;
     public CustomFields: any;
 }
 
@@ -5482,6 +5504,7 @@ export class UserDto extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'UserDto';
 
+    public BankIntegrationUserName: string;
     public CreatedAt: Date;
     public CreatedBy: string;
     public Deleted: boolean;
@@ -5496,6 +5519,12 @@ export class UserDto extends UniEntity {
     public UpdatedBy: string;
     public UserName: string;
     public CustomFields: any;
+}
+
+
+export class ActiveNumberSeriesTask extends UniEntity {
+    public NumberSeriesTask: NumberSeriesTask;
+    public DefaultNumberSeries: NumberSeries;
 }
 
 
@@ -5524,12 +5553,19 @@ export class SendEmail extends UniEntity {
     public ReportName: string;
     public Subject: string;
     public Attachments: Array<SendEmailAttachment>;
+    public Parameters: Array<ReportParameter>;
 }
 
 
 export class SendEmailAttachment extends UniEntity {
     public Attachment: string;
     public FileName: string;
+}
+
+
+export class ReportParameter extends UniEntity {
+    public Name: string;
+    public Value: string;
 }
 
 

@@ -37,7 +37,8 @@ import {
     VatDeductionService,
     CompanySettingsService,
     JournalEntryLineService,
-    NumberSeriesTaskService
+    NumberSeriesTaskService,
+    NumberSeriesService
 } from '../../../../services/services';
 import {
     UniModalService,
@@ -107,6 +108,7 @@ export class JournalEntryManual implements OnChanges, OnInit {
         private vatDeductionService: VatDeductionService,
         private companySettingsService: CompanySettingsService,
         private journalEntryLineService: JournalEntryLineService,
+        private numberSeriesService: NumberSeriesService,
         private numberSeriesTaskService: NumberSeriesTaskService,
         private modalService: UniModalService
     ) {}
@@ -118,25 +120,31 @@ export class JournalEntryManual implements OnChanges, OnInit {
             this.financialYearService.GetAll(null),
             this.financialYearService.getActiveFinancialYear(),
             this.vatDeductionService.GetAll(null),
-            this.companySettingsService.Get(1),
-            this.numberSeriesTaskService.getActiveNumberSeriesTasks('JournalEntry')
+            this.companySettingsService.Get(1)
         ).subscribe(data => {
                 this.financialYears = data[0];
                 this.currentFinancialYear = data[1];
                 this.vatDeductions = data[2];
                 this.companySettings = data[3];
-                data[4].forEach(x => x = this.numberSeriesTaskService.translateTask(x));
-                this.numberSeriesTasks = data[4];
 
-                if (!this.hasLoadedData) {
-                    this.loadData();
-                }
+                this.numberSeriesTaskService.getActiveNumberSeriesTasks('JournalEntry', this.currentFinancialYear.Year).subscribe((tasks) => {
+                    tasks.forEach(x => {
+                        var task = this.numberSeriesTaskService.translateTask(x.NumberSeriesTask);
+                        var serie = this.numberSeriesService.translateSerie(x.DefaultNumberSeries);
+                        task._DisplayName = serie._DisplayName + ' (' + task._DisplayName + ')';
+                    });
+                    this.numberSeriesTasks = tasks.map(x => x.NumberSeriesTask);
 
-                this.setSums();
-                this.setupSubscriptions();
+                    if (!this.hasLoadedData) {
+                        this.loadData();
+                    }
 
-                setTimeout(() => {
-                    this.componentInitialized.emit();
+                    this.setSums();
+                    this.setupSubscriptions();
+
+                    setTimeout(() => {
+                        this.componentInitialized.emit();
+                    });
                 });
             },
             err => this.errorService.handle(err)

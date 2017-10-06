@@ -2,12 +2,17 @@
 import {Component, ViewChildren, QueryList} from '@angular/core';
 import {TabService} from '../../layout/navbar/tabstrip/tabService';
 import {UniHttp} from '../../../../framework/core/http/http';
-import {UniTableConfig, UniTableColumn, UniTableColumnType, UniTable} from '../../../../framework/ui/unitable/index';
 import {UniModalService, ConfirmActions} from '../../../../framework/uniModal/barrel';
 import {Observable} from 'rxjs/Observable';
 import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
 import {IUniSaveAction} from '../../../../framework/save/save';
-
+import {
+    UniTableConfig,
+    UniTableColumn,
+    UniTableColumnType,
+    UniTable,
+    IContextMenuItem
+} from '../../../../framework/ui/unitable/index';
 import {
     ErrorService,
     GuidService,
@@ -209,7 +214,7 @@ export class NumberSeries {
     private Save(): Promise<boolean> {
         return new Promise((resolve, reject) => {
             var all = this.uniTables.last.getVisibleTableData();
-            let saveObserveables: Observable<any>[] = all.filter(x => (x._isDirty && this.currentSerie.ID == 'Accounting' && x._rowSelected) || (x._isDirty && this.currentSerie != 'Accounting')).map(x => {
+            let saveObserveables: Observable<any>[] = all.filter(x => (x._isDirty && this.currentSerie.ID == 'JournalEntry' && x._rowSelected) || (x._isDirty && this.currentSerie.ID != 'JournalEntry')).map(x => {
                 delete x.MainAccount;
                 return this.numberSeriesService.save(x);
             });
@@ -370,6 +375,24 @@ export class NumberSeries {
                     })
             ])
             .setChangeCallback(event => this.onRowChanged(event))
+            .setContextMenu([
+                {
+                    label: 'Sett som standard for angitt oppgave',
+                    disabled: (serie) => !serie.NumberSeriesTask || serie.IsDefaultForTask,
+                    action: (serie) => {
+                        this.current.filter(x => x.IsDefaultForTask && x.AccountYear == serie.AccountYear && x.NumberSeriesTaskID == serie.NumberSeriesTaskID).map(x => {
+                            x.IsDefaultForTask = false;
+                        });
+
+                        serie.IsDefaultForTask = true;
+                        serie._isDirty = true;
+                        this.current[serie._originalIndex] = serie;
+                        this.hasUnsavedChanges = true;
+                        this.current = _.cloneDeep(this.current);
+                    }
+                }
+            ])
+            .setConditionalRowCls((serie) => serie.IsDefaultForTask ? 'numberseries-isdefaultfortask-row' : '')
             .setDefaultRowData({
                 NumberSeriesTask: this.tasks.find(x => x.Name == 'Journal'),
                 _Register: this.numberSeriesService.registers.find(x => x.EntityType == 'JournalEntry'),
