@@ -1,7 +1,7 @@
 import {NumberFormat} from './../../../../services/services';
 import {Component, Input} from '@angular/core';
 import {UniTableConfig, UniTableColumn, UniTableColumnType} from '../../../../../framework/ui/unitable/index';
-import {AmeldingData} from '../../../../unientities';
+import {AmeldingData, SalaryTransactionPeriodSums} from '../../../../unientities';
 import {ISummaryConfig} from '../../../common/summary/summary';
 import * as moment from 'moment';
 
@@ -25,7 +25,7 @@ export class AmeldingPeriodSummaryView {
     private systemPeriodSums: ISummaryConfig[] = [];
     private ameldingPeriodSums: ISummaryConfig[] = [];
 
-    @Input() private systemData: any[] = [];
+    @Input() private systemData: SalaryTransactionPeriodSums[] = [];
     @Input() private currentAMelding: any;
     @Input() public aMeldingerInPeriod: AmeldingData[];
 
@@ -42,10 +42,11 @@ export class AmeldingPeriodSummaryView {
             this.sumForskuddstrekk = 0;
 
             this.systemData.forEach(dataElement => {
-                dataElement._type = 'Grunnlag';
+                dataElement['_type'] = 'Grunnlag';
+                let sums = dataElement.Sums;
                 this.sumGrunnlagAga += dataElement.Sums.baseAGA;
                 this.sumCalculatedAga += dataElement.Sums.calculatedAGA;
-                this.sumForskuddstrekk += dataElement.Sums.percentTax + dataElement.Sums.tableTax;
+                this.sumForskuddstrekk += sums.tableTax + sums.percentTax + sums.manualTax;
             });
 
             this.systemPeriodSums = [
