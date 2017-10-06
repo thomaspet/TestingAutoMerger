@@ -38,6 +38,10 @@ export class UniTickerWrapper {
         }
     }
 
+    public refreshTicker() {
+        this.showTicker(this.selectedTicker.Code);
+    }
+
     private setupView(selectedTickerCode: string = null) {
         if (!this.tickers) {
             this.uniTickerService.getTickers()

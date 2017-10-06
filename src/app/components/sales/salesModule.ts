@@ -16,7 +16,6 @@ import {ReportsModule} from '../reports/reportsModule';
 import {UniTickerModule} from '../uniticker/uniTickerModule';
 
 import {InvoiceList} from './invoice/list/invoiceList';
-import {InvoiceList2} from './invoice/list/invoiceList2';
 import {OrderDetails} from './order/details/orderDetails';
 import {TradeItemHelper} from './salesHelper/tradeItemHelper';
 import {OrderList} from './order/list/orderList';
@@ -85,7 +84,6 @@ import {SellerDetailsComponent} from './sellers/sellerDetailsComponent';
         TradeItemTable,
 
         InvoiceList,
-        InvoiceList2,
         InvoiceDetails,
 
         OrderDetails,
@@ -136,7 +134,6 @@ import {SellerDetailsComponent} from './sellers/sellerDetailsComponent';
         CustomerProductsSold,
         CustomerList,
         InvoiceList,
-        InvoiceList2,
         InvoiceDetails,
         OrderDetails,
         OrderList,
