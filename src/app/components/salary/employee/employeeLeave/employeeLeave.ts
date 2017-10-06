@@ -4,6 +4,7 @@ import {Employment, Employee, EmployeeLeave} from '../../../../unientities';
 import {UniTableConfig, UniTableColumnType, UniTableColumn} from '../../../../../framework/ui/unitable/index';
 import {UniCacheService, ErrorService} from '../../../../services/services';
 import {UniView} from '../../../../../framework/core/uniView';
+import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 
 @Component({
     selector: 'employee-permision',
@@ -11,16 +12,15 @@ import {UniView} from '../../../../../framework/core/uniView';
 
 })
 export class EmployeeLeaves extends UniView {
-    private employee: Employee;
     private employeeID: number;
     private employments: Employment[] = [];
     private employeeleaveItems: EmployeeLeave[] = [];
     private tableConfig: UniTableConfig;
-    private unsavedEmployments: boolean;
+    private unsavedEmployments$: BehaviorSubject<boolean> = new BehaviorSubject(false);
 
     private leaveTypes: any[] = [
-        { typeID: '1', text: 'Permisjon' },
-        { typeID: '2', text: 'Permittering' }
+        {typeID: '1', text: 'Permisjon'},
+        {typeID: '2', text: 'Permittering'}
     ];
 
     constructor(
@@ -34,25 +34,25 @@ export class EmployeeLeaves extends UniView {
         // Update cache key and (re)subscribe when param changes (different employee selected)
         route.parent.params.subscribe((paramsChange) => {
             super.updateCacheKey(router.url);
+            this.unsavedEmployments$.next(false);
 
             this.employeeID = +paramsChange['id'];
 
-            super.getStateSubject('employee')
-                .subscribe(
-                    employee => this.employee = employee,
-                    err => this.errorService.handle(err)
-                );
             super.getStateSubject('employeeLeave')
                 .subscribe(
-                    employeeleave => this.employeeleaveItems = employeeleave,
-                    err => this.errorService.handle(err)
+                employeeleave => this.employeeleaveItems = employeeleave,
+                err => this.errorService.handle(err)
                 );
 
-            super.getStateSubject('employments').subscribe((employments: Employment[]) => {
-                this.employments = (employments || []).filter(emp => emp.ID > 0);
-                this.unsavedEmployments = this.employments.length !== employments.length;
-                this.buildTableConfig();
-            }, err => this.errorService.handle(err));
+            super.getStateSubject('employments')
+                .do((employments: Employment[]) => {
+                    this.unsavedEmployments$
+                        .next(employments.some(emp => !emp.ID) && super.isDirty('employments'));
+                })
+                .subscribe((employments: Employment[]) => {
+                    this.employments = (employments || []).filter(emp => emp.ID > 0);
+                    this.buildTableConfig();
+                }, err => this.errorService.handle(err));
         });
     }
 
