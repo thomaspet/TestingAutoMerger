@@ -79,23 +79,44 @@ export class VatReportView implements OnInit, OnDestroy {
         ];
 
         this.vatReportService.refreshVatReport$.subscribe((vatReport: VatReport) => {
-            this.toolbarconfig = {
-                title: vatReport.TerminPeriod ? 'Termin ' + vatReport.TerminPeriod.No : '',
-                subheads: [
-                    {
-                        title: vatReport.Title + ', ' + this.periodDateFormat.transform(vatReport.TerminPeriod)
-                    }
-                ],
-                statustrack: this.getStatustrackConfig(),
-                navigation: {
-                    prev: this.onBackPeriod.bind(this),
-                    next: this.onForwardPeriod.bind(this),
-                },
-                contextmenu: this.contextMenuItems,
-                entityID: vatReport.ID,
-                entityType: 'VatReport'
-            };
+            if (this.currentVatReport) {
+                this.updateToolbar();
+            }
         } /* No error handling necessary, can't produce errors */);
+    }
+
+    private updateToolbar() {
+        let journalEntryNumber;
+        let journalEntryID;
+        if (this.vatReportsInPeriod && this.vatReportsInPeriod[0]) {
+            journalEntryNumber = this.vatReportsInPeriod[0].JournalEntry.JournalEntryNumber;
+            journalEntryID = this.vatReportsInPeriod[0].JournalEntryID;
+        }
+        const journalEntryLink = journalEntryNumber && journalEntryID
+            ? `/#/accounting/journalentry/manual;journalEntryNumber=${journalEntryNumber};journalEntryID=${journalEntryID}`
+            : undefined;
+
+        this.toolbarconfig = {
+            title: this.currentVatReport.TerminPeriod ? 'Termin ' + this.currentVatReport.TerminPeriod.No : '',
+            subheads: [
+                {
+                    title: this.currentVatReport.Title + ', ' + this.periodDateFormat.transform(this.currentVatReport.TerminPeriod)
+                },
+                {
+                    title: journalEntryID ? 'Bokført på bilagnr: ' + journalEntryNumber : 'Ikke Bokført',
+                    link: journalEntryLink
+                }
+
+            ],
+            statustrack: this.getStatustrackConfig(),
+            navigation: {
+                prev: this.onBackPeriod.bind(this),
+                next: this.onForwardPeriod.bind(this),
+            },
+            contextmenu: this.contextMenuItems,
+            entityID: this.currentVatReport.ID,
+            entityType: 'VatReport'
+        };
     }
 
     private getStatustrackConfig() {
@@ -299,11 +320,15 @@ export class VatReportView implements OnInit, OnDestroy {
 
     private getVatReportsInPeriod() {
         // Get list of credit notes for an invoice
-        this.vatReportService.GetAll('filter=TerminPeriodID eq ' + this.currentVatReport.TerminPeriodID)
+        this.vatReportService.GetAll(`filter=TerminPeriodID eq ${this.currentVatReport.TerminPeriodID}&expand=JournalEntry`)
             .subscribe((response: VatReport[]) => {
                 this.vatReportsInPeriod = response;
+                if (this.currentVatReport) {
+                    this.updateToolbar();
+                }
             }, err => this.errorService.handle(err));
     }
+
     private updateStatusText() {
         this.statusText = this.vatReportService.getStatusText(this.currentVatReport.StatusCode);
     }
