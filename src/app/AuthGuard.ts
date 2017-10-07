@@ -11,7 +11,7 @@ export class AuthGuard implements CanActivate, CanActivateChild {
         return this.authService.authentication$
             .asObservable()
             .map((authDetails) => {
-                if (!authDetails.token || !authDetails.activeCompany) {
+                if (!authDetails.user && state.url.indexOf('init') < 0) {
                     // Store navigation attempt so we can reroute after login
                     localStorage.setItem('lastNavigationAttempt', state.url);
                     this.router.navigate(['/init/login']);

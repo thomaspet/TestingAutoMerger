@@ -55,12 +55,20 @@ export class AuthService {
                     setTimeout(() => this.setLoadIndicatorVisibility(false), 250);
                 },
                 err => {
-                    this.clearAuthAndGotoLogin();
                     this.setLoadIndicatorVisibility(false);
+                    this.authentication$.next({
+                        activeCompany: undefined,
+                        token: undefined,
+                        user: undefined
+                    });
                 }
             );
         } else {
-            this.clearAuthAndGotoLogin();
+            this.authentication$.next({
+                activeCompany: undefined,
+                token: undefined,
+                user: undefined
+            });
         }
 
         // Check expired status every minute, with a 10 minute offset on the expiration check
