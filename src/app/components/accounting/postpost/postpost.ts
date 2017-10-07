@@ -145,12 +145,12 @@ export class PostPost {
         },{
             action: this.lock.bind(this),
             disabled: false,
-            label: 'Lås',
+            label: 'Lukk valgte',
             main: !this.autolocking && this.currentFilter !== 'MARKED' && !this.allSelectedLocked
         },{
             action: this.unlock.bind(this),
             disabled: false,
-            label: 'Lås opp',
+            label: 'Gjenåpne valgte',
             main: this.currentFilter === 'MARKED' || this.allSelectedLocked
         },{
             action: this.automark.bind(this),
@@ -171,14 +171,14 @@ export class PostPost {
         },{
             action: this.autolock.bind(this),
             disabled: false,
-            label: this.autolocking ? 'Deaktiver auto lås' : 'Aktiver auto lås'
+            label: this.autolocking ? 'Deaktiver autolukking' : 'Aktiver autolukking'
         }];
     }
 
     private autolock(done: (message: string) => void) {
         this.autolocking = !this.autolocking;
         this.setupSaveActions();
-        done(this.autolocking ? 'Automatisk låsing på' : 'Automatisk låsing av');
+        done(this.autolocking ? 'Automatisk lukking på' : 'Automatisk lukking av');
     }
 
     private save(done: (message: string) => void) {
@@ -193,12 +193,12 @@ export class PostPost {
 
     private lock(done: (message: string) => void) {
         this.postpost.markCheckedJournalEntries();
-        done('Låst');
+        done('Lukket');
     }
 
     private unlock(done: (message: string) => void) {
         this.postpost.unlockJournalEntries();
-        done('Opplåst');
+        done('Gjenåpnet');
     }
 
     private cancel(done: (message: string) => void) {
