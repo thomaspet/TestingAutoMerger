@@ -41,3 +41,25 @@ uni-bureau-dashboard
             i
                 font-style: normal
                 float: right
+    .right-side
+        background-color: $uni-color-legend
+
+        table
+            width: 100%
+        th, td
+            width: 50%
+
+        td:nth-child(2)
+            background-color: $uni-color-negative
+            border-radius: 2px
+            border-bottom-width: 2px
+            border-color: $uni-color-scale7
+            border-style: solid
+
+        th ~ th
+            border-top: 2px solid $uni-color-positive
+            padding-top: 8px
+
+        hr
+            border-color: $uni-color-positive
+            height: 35px

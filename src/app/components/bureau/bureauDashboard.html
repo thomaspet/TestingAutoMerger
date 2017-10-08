@@ -14,18 +14,29 @@
         (click)="onNewCompanyClick($event)"
     >Lag ny bedrift</button>
 
-    <table class="uni-table unitable-main-table">
-        <thead>
-        <tr>
-            <th (click)="sortBy('Name')" >Selskaper <i>{{getSortArrow('Name')}}</i></th>
-            <th (click)="sortByKpi('Inbox')">Fakturainnboks <i>{{getSortArrow('Inbox')}}</i></th>
-            <th (click)="sortByKpi('Approved')">Godkjente regninger <i>{{getSortArrow('Approved')}}</i></th>
-        </tr>
-        </thead>
-        <tr *ngFor="let company of filteredCompanies">
-            <td (click)="onCompanyNameClick(company)">{{company.Name}}</td>
-            <td (click)="onCompanyInboxClick(company)">{{getKpiCount(company, 'Inbox')}}</td>
-            <td (click)="onCompanyApprovalsClick(company)">{{getKpiCount(company, 'Approved')}}</td>
-        </tr>
-    </table>
+    <section class="uni-split-view-container">
+        <section class="left-side">
+            <table class="uni-table unitable-main-table">
+                <thead>
+                <tr>
+                    <th (click)="sortBy('Name')" >Selskaper <i>{{getSortArrow('Name')}}</i></th>
+                    <th (click)="sortByKpi('Inbox')">Fakturainnboks <i>{{getSortArrow('Inbox')}}</i></th>
+                    <th (click)="sortByKpi('Approved')">Godkjente regninger <i>{{getSortArrow('Approved')}}</i></th>
+                </tr>
+                </thead>
+                <tr *ngFor="let company of filteredCompanies"
+                    (click)="onRowClick(company)"
+                    [attr.aria-selected]="company === highlightedCompany">
+                    <td><a (click)="onCompanyNameClick(company)">{{company.Name}}</a></td>
+                    <td><a (click)="onCompanyInboxClick(company)">{{getKpiCount(company, 'Inbox')}}</a></td>
+                    <td><a (click)="onCompanyApprovalsClick(company)">{{getKpiCount(company, 'Approved')}}</a></td>
+                </tr>
+            </table>
+        </section>
+        <section class="right-side" *ngIf="!!highlightedCompany">
+            <uni-dashboard-detail-view
+                [company]="highlightedCompany"
+            ></uni-dashboard-detail-view>
+        </section>
+    </section>
 </section>

@@ -1,7 +1,7 @@
 import {Component} from '@angular/core';
 import {Router} from '@angular/router';
 import {FormControl} from '@angular/forms';
-import {Company, User} from '../../unientities';
+import {User, LocalDate} from '../../unientities';
 import {ErrorService} from '../../services/common/errorService';
 import {AuthService} from '../../authService';
 import {UniModalService} from '../../../framework/uniModal/modalService';
@@ -19,17 +19,36 @@ enum KPI_STATUS {
     StatusReady = 3
 }
 
+type KpiCompany = {
+    FileFlowEmail: string;
+    ID: number;
+    Name: string;
+    IsTest: boolean;
+    Key: string;
+    Kpi: {
+        ID: number;
+        KpiDefinitionID: number;
+        Name: string;
+        Application: string;
+        CompanyID: number;
+        Counter: number;
+        ValueStatus: KPI_STATUS;
+        LastUpdated: LocalDate;
+    }[]
+}
+
 @Component({
     selector: 'uni-bureau-dashboard',
     templateUrl: './bureauDashboard.html'
 })
 export class BureauDashboard {
-    private companies: Company[];
-    private filteredCompanies: Company[];
+    private companies: KpiCompany[];
+    private filteredCompanies: KpiCompany[];
     private searchControl: FormControl = new FormControl('');
     public busy: boolean = false;
     public currentSortField: string;
     public sortIsDesc: boolean = true;
+    public highlightedCompany: KpiCompany;
 
     constructor(
         private errorService: ErrorService,
@@ -156,20 +175,24 @@ export class BureauDashboard {
         }
     }
 
-    public onCompanyNameClick(company: Company) {
+    public onCompanyNameClick(company: KpiCompany) {
         this.authService.setActiveCompany(company);
         this.busy = true;
     }
 
-    public onCompanyInboxClick(company: Company) {
+    public onCompanyInboxClick(company: KpiCompany) {
         const redirectUrl = '/accounting/bills?filter=Inbox';
         this.authService.setActiveCompany(company, redirectUrl);
         this.busy = true;
     }
 
-    public onCompanyApprovalsClick(company: Company) {
+    public onCompanyApprovalsClick(company: KpiCompany) {
         const redirectUrl = '/accounting/bills?filter=Approved';
         this.authService.setActiveCompany(company, redirectUrl);
         this.busy = true;
+    }
+
+    public onRowClick(company: KpiCompany) {
+        this.highlightedCompany = company;
     }
 }

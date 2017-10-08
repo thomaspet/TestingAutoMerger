@@ -5,6 +5,11 @@ import {UniFrameworkModule} from '../../../framework/frameworkModule';
 
 import {BureauDashboard} from './bureauDashboard';
 import {UniNewCompanyModal} from './newCompanyModal';
+import {BureauDetails} from './detailView/bureauDetails';
+import {BureauCustomHttpService} from './bureauCustomHttpService';
+import {BureauAccountingTab} from './detailView/bureauAccountingTab';
+import {ValueLoader} from './valueLoader';
+import {BureauSalesTab} from './detailView/bureauSalesTab';
 
 @NgModule({
     imports: [
@@ -14,13 +19,17 @@ import {UniNewCompanyModal} from './newCompanyModal';
     ],
     declarations: [
         BureauDashboard,
+        BureauDetails,
+        BureauAccountingTab,
+        BureauSalesTab,
+        ValueLoader,
         UniNewCompanyModal
+    ],
+    providers: [
+        BureauCustomHttpService
     ],
     entryComponents: [
         UniNewCompanyModal
-    ],
-    exports: [
-        CommonModule
     ]
 })
 export class BureauModule {}
