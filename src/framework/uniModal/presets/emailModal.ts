@@ -47,7 +47,7 @@ export class UniEmailModal implements IUniModal {
         const email = this.options.data || {};
         const fields = this.getFormFields();
 
-        if (email._initValue && fields[0]) {
+        if (email._initValue && fields[0] && !email[fields[0].Property]) {
             email[fields[0].Property] = email._initValue;
         }
 

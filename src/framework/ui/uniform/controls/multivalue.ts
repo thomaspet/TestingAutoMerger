@@ -29,7 +29,7 @@ import {KeyCodes} from '../../../../app/services/common/keyCodes';
             <input type="text"
                    #mainInput
                    [attr.aria-describedby]="asideGuid"
-                   [(ngModel)]="displayValue"
+                   [ngModel]="getDisplayValue(selectedRow)"
                    [class.-has-editor]="field?.Options?.editor"
                    [placeholder]="field?.Placeholder || ''"
                    (focus)="focusHandler()"
@@ -75,7 +75,7 @@ import {KeyCodes} from '../../../../app/services/common/keyCodes';
 
                         <div *ngIf="!row.Deleted">
                             <span class="uni-multivalue-value">
-                                  {{row._displayValue}}
+                                  {{getDisplayValue(row)}}
                             </span>
 
                             <button type="button"
@@ -92,7 +92,7 @@ import {KeyCodes} from '../../../../app/services/common/keyCodes';
                         </div>
 
                         <p *ngIf="row.Deleted" class="uni-multivalue_deleted">
-                            Slettet &lsquo;{{row._displayValue}}&rsquo;.
+                            Slettet &lsquo;{{getDisplayValue(row)}}&rsquo;.
                             (<a (click)="regretDelete(row, $event)">Angre</a>)
                         </p>
                     </li>
@@ -165,15 +165,7 @@ export class UniMultivalueInput extends BaseControl {
             let modelValue = _.get(this.model, this.field.Options.storeResultInProperty);
             this.displayValue = this.getDisplayValue(modelValue);
 
-            // Add some metadata to the rows so we don't have to check too much in template
-            this.rows.forEach(row => {
-                row['_displayValue'] = this.getDisplayValue(row);
-                // Check specifically for false as we want default to be true
-                row['_hasDeleteButton'] = !this.field.Options || this.field.Options.allowDeleteValue !== false;
-
-                return row;
-            });
-            this.focusedRow = this.selectedRow = this.rows.find(row => row['_displayValue'] == this.displayValue);
+            this.focusedRow = this.selectedRow = this.rows.find(row => this.getDisplayValue(row) == this.displayValue);
 
             if (this.field.Options.onChange) {
                 this.changeEvent.subscribe(value => this.field.Options.onChange(this.selectedRow));
@@ -187,7 +179,7 @@ export class UniMultivalueInput extends BaseControl {
             .subscribe(() => {
                 this.filteredRows = this.rows.filter(row => {
                     if (!!this.filter) {
-                        return row['_displayValue'].toLowerCase().startsWith(this.filter.toLowerCase());
+                        return this.getDisplayValue(row).toLowerCase().startsWith(this.filter.toLowerCase());
                     }
                     return true;
                 });
@@ -197,9 +189,9 @@ export class UniMultivalueInput extends BaseControl {
     }
 
     private updateFocusedRow() {
-        const exactMatch = this.filteredRows.find(row => row['_displayValue'] === this.displayValue);
+        const exactMatch = this.filteredRows.find(row => this.getDisplayValue(row) === this.displayValue);
         const startsWithMatch = this.filteredRows
-            .find(row => row['_displayValue'].toLowerCase().startsWith(this.filter.toLowerCase()));
+            .find(row => this.getDisplayValue(row).toLowerCase().startsWith(this.filter.toLowerCase()));
 
         if (exactMatch >= 0) {
             this.focusedRow = exactMatch;
@@ -300,9 +292,11 @@ export class UniMultivalueInput extends BaseControl {
             return '';
         }
 
-        return this.field.Options.display
+        const value = this.field.Options.display
             ? this.field.Options.display(row)
             : _.get(row, this.field.Options.displayValue);
+
+        return value || '';
     }
 
     public addNew(initValue?: string) {
@@ -338,8 +332,6 @@ export class UniMultivalueInput extends BaseControl {
                         return this.rows;
                     }
 
-                    row['_displayValue'] = this.getDisplayValue(row);
-
                     let index = this.rows.findIndex(r => r === row);
                     if (index >= 0) {
                         this.rows[index] = editedEntity;
@@ -358,7 +350,8 @@ export class UniMultivalueInput extends BaseControl {
                 .catch((err) => {
                     this.editorIsOpen = false;
                     this.close();
-                });
+                })
+                .then(() => this.cd.markForCheck());
             }
         } else {
             console.warn('MultiValue is missing an editor');
@@ -374,7 +367,7 @@ export class UniMultivalueInput extends BaseControl {
         let oldrows = [...this.rows];
 
         // If deleted row was selected row
-        if (this.getDisplayValue(row) === this.displayValue) {
+        if (row === this.selectedRow) {
             if (this.field.Options.storeIdInProperty) {
                 _.set(this.model, this.field.Options.storeIdInProperty, null);
             }
@@ -388,7 +381,6 @@ export class UniMultivalueInput extends BaseControl {
 
             this.selectedRow = null;
             this.updateFocusedRow();
-            this.displayValue = '';
         }
 
         // Delete the row

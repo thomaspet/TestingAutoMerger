@@ -58,7 +58,7 @@ export class UniAddressModal implements IUniModal {
         const address = this.options.data || {};
         const fields = this.getFormFields();
 
-        if (address._initValue && fields[0]) {
+        if (address._initValue && fields[0] && !address[fields[0].Property]) {
             address[fields[0].Property] = address._initValue;
         }
         this.formModel$.next(address);

@@ -47,7 +47,7 @@ export class UniPhoneModal implements IUniModal {
         const phone = this.options.data || {};
         const fields = this.getFormFields();
 
-        if (phone._initValue && fields[0]) {
+        if (phone._initValue && fields[0] && !phone[fields[0].Property]) {
             phone[fields[0].Property] = phone._initValue;
         }
         this.formModel$.next(phone);

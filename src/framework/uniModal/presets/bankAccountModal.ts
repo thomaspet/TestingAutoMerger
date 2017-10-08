@@ -72,7 +72,7 @@ export class UniBankAccountModal implements IUniModal {
         const accountInfo = this.options.data || {};
         const fields = this.getFormFields();
 
-        if (accountInfo._initValue && fields[0]) {
+        if (accountInfo._initValue && fields[0] && !accountInfo[fields[0].Property]) {
             accountInfo[fields[0].Property] = accountInfo._initValue;
         }
         this.formModel$.next(accountInfo);
