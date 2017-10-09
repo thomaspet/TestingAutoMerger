@@ -234,6 +234,13 @@ export class VatReportView implements OnInit, OnDestroy {
             disabled: this.IsSendActionDisabled()
         });
 
+        this.actions.push({
+            label: 'Godkjenn manuelt',
+            action: (done) => this.approveManually(done),
+            disabled: this.IsSignActionDisabled ()
+        });
+
+
     }
 
     private IsExecuteActionDisabled() {
@@ -468,7 +475,9 @@ export class VatReportView implements OnInit, OnDestroy {
 
     public approveManually(done) {
         if (confirm('Er du sikker på at du vil godkjenne manuelt? Det er normalt bedre å bruke signering hvis mulig')) {
-            this.vatReportService.Transition(this.currentVatReport.ID, this.currentVatReport, 'approveManually')
+
+            const transName = this.currentVatReport.StatusCode === 32002 ? 'setToApproved' : 'approveManually';
+            this.vatReportService.Transition(this.currentVatReport.ID, this.currentVatReport, transName)
                 .subscribe(() => {
                     this.vatReportService.Get(this.currentVatReport.ID, ['TerminPeriod', 'JournalEntry', 'VatReportArchivedSummary'])
                         .subscribe(vatreport => {
