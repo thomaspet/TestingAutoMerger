@@ -73,7 +73,7 @@ export class StimulsoftReportWrapper {
         }
 
         this.loadStimulsoft().then(() => {
-            // Stimulsoft.Base.StiLicense.key = AppConfig.STIMULSOFT_LICENSE; // Needed for newer versions
+             Stimulsoft.Base.StiLicense.key = AppConfig.STIMULSOFT_LICENSE; // Needed for newer versions
             let report = this.generateReport(template, reportData, parameters)
             if (report) {
                 // Create a text writer objects.
