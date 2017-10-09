@@ -54,7 +54,8 @@ import {
     ErrorService,
     StatisticsService,
     NumberFormat,
-    PredefinedDescriptionService
+    PredefinedDescriptionService,
+    SupplierService
 } from '../../../../../services/services';
 
 import {
@@ -144,7 +145,8 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
         private companySettingsService: CompanySettingsService,
         private journalEntryLineService: JournalEntryLineService,
         private predefinedDescriptionService: PredefinedDescriptionService,
-        private modalService: UniModalService
+        private modalService: UniModalService,
+        private supplierService: SupplierService
     ) {}
 
     public ngOnInit() {
@@ -1742,9 +1744,26 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                     payment.FromBankAccountID = this.companySettings.CompanyBankAccountID;
                 }
 
-                // we dont know what date to use, so just set the items financial date a suggestion
-                payment.PaymentDate = item.FinancialDate;
-                payment.DueDate = item.FinancialDate;
+                // if no customerCreditDays are set it adds 14 days to PaymentDate and DueDate
+                let customerCreditDays = this.companySettings.CustomerCreditDays
+                    ? this.companySettings.CustomerCreditDays
+                    : 14;
+
+                if (item.CreditAccount) {
+                    this.supplierService.Get(item.CreditAccount.SupplierID).subscribe(
+                        res => {
+                           customerCreditDays =  res.CreditDays ? res.CreditDays : customerCreditDays;
+                        },
+                        err => this.errorService.handle(err)
+                    );
+                }
+
+                // if journalentry has VatDate it sends it to the modal + supplier/companysettings creditdays
+                payment.PaymentDate = item.VatDate ? this.addDaysToDates(item.VatDate, customerCreditDays) : null;
+                payment.DueDate =  item.VatDate ? this.addDaysToDates(item.VatDate, customerCreditDays) : null;
+
+                // passing in InvoiceNumber from journalentry if it has one
+                payment.InvoiceNumber = item.InvoiceNumber ? item.InvoiceNumber : '';
 
                 this.addPaymentModal.openModal(payment, title);
 
@@ -1772,6 +1791,11 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 });
             });
         }
+    }
+
+    public addDaysToDates(date: any, days: number) {
+        let result = new Date(date);
+        return new LocalDate(moment(result.setDate(result.getDate() + days)).toDate());
     }
 
     private getBusinessRelationDataFromStatisticsSearch(statisticsdata): BusinessRelation {

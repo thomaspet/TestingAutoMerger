@@ -1,7 +1,7 @@
 import {Component, Type, Input, Output, ViewChild, EventEmitter, OnInit} from '@angular/core';
 import {UniModal} from '../../../../framework/modals/modal';
 import {UniForm, FieldType} from '../../../../framework/ui/uniform/index';
-import {Payment, BankAccount, BusinessRelation} from '../../../unientities';
+import {Payment, BankAccount, BusinessRelation, CustomerInvoice} from '../../../unientities';
 import {PaymentService, StatisticsService, ErrorService} from '../../../services/services';
 import {Observable} from 'rxjs/Observable';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
@@ -216,8 +216,16 @@ export class AddPaymentForm implements OnInit {
                 Section: 0
             },
             {
+                EntityType: 'CustomerInvoice',
+                Property: 'InvoiceNumber',
+                FieldType: FieldType.TEXT,
+                Label: 'Fakturanr',
+                FieldSet: 0,
+                Section: 0
+            },
+            {
                 EntityType: 'Payment',
-                Property: 'Amount',
+                Property: 'AmountCurrency',
                 FieldType: FieldType.TEXT,
                 Label: 'Beløp',
                 FieldSet: 0,
