@@ -1,10 +1,3 @@
-%mainNavDropdown
-    color: $uni-color-positive
-    background: #fff
-    border: pxToRem(1) solid $uni-color-scale8
-    box-shadow: 0 0 .6rem transparentize($uni-color-scale1, .7)
-    border-radius: 0 0 pxToRem(3) pxToRem(3)
-
 uni-company-dropdown
     text-align: right
 
@@ -22,7 +15,7 @@ uni-company-dropdown
 .navbar_company_title
     @extend %clickable
     display: inline-block
-    padding: .5rem 2.2rem 0 1rem
+    padding: .5rem .5rem 0 .5rem
     white-space: nowrap
     overflow: hidden
     text-overflow: ellipsis
@@ -55,7 +48,7 @@ uni-company-dropdown
         border-right: $size solid transparent
 
 .navbar_company_title_name
-    max-width: 12rem
+    max-width: calc(100% - 3rem)
     display: block
     overflow: hidden
     text-overflow: ellipsis

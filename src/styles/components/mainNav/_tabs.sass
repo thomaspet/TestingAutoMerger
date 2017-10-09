@@ -1,3 +1,46 @@
+uni-tabstrip
+    position: relative
+
+.collapsed-tab-container
+    position: relative
+    padding: .5rem 2.5rem .5rem .5rem
+
+    &:after
+        content: ''
+        background: unicon-chevron-down($uni-color-negative) center no-repeat
+        background-size: .6rem
+        width: 2rem
+        height: 2.5rem
+        display: block
+        position: absolute
+        top: 0
+        right: 0
+
+    &:hover, &:focus
+        .collapsed-tab-list
+            visibility: visible
+
+    .collapsed-tab-list
+        @extend %mainNavDropdown
+        position: fixed
+        top: 2.5rem
+        margin-left: -0.7rem
+        min-width: 12rem
+        list-style: none
+        background: #fff
+        padding: 0
+        visibility: hidden
+
+        li
+            display: block
+            padding: .25rem .5rem .25rem .8rem
+            color: $uni-color-positive
+            text-align: left
+
+            &:hover,
+            &.active
+                background: transparentize($uni-color-c2a, .9)
+
 .navbar_tabs
     margin: 0
     white-space: nowrap

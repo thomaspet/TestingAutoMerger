@@ -2,6 +2,13 @@ $navbarBackground: $uni-color-c2a
 $navbarTextColor: contrasting($navbarBackground, $uni-color-negative, $uni-color-positive, 60)
 $navbarActive: $uni-color-toolbar
 
+%mainNavDropdown
+    color: $uni-color-positive
+    background: #fff
+    border: pxToRem(1) solid $uni-color-scale8
+    box-shadow: 0 0 .6rem transparentize($uni-color-scale1, .7)
+    border-radius: 0 0 pxToRem(3) pxToRem(3)
+
 @import 'hamburger'
 @import 'tabs'
 @import 'search'
@@ -49,12 +56,12 @@ uni-navbar-search
 uni-company-dropdown
     height: 2.5rem
     margin: 0 .5rem
-    max-width: pxToRem(180)
+    max-width: 15rem
 
     > *
         height: 100%
 
-@media screen and (max-width: 1515px)
+@include media(large, max-width)
     uni-tabstrip
         flex-grow: 2
         flex-shrink: 1
