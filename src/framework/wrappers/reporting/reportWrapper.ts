@@ -101,7 +101,7 @@ export class StimulsoftReportWrapper {
                 return this.loadStimulsoft().then(() => {
                     // Stimulsoft.Base.StiLicense.key = AppConfig.STIMULSOFT_LICENSE; // Needed for newer versions
                     Stimulsoft.Base.StiFontCollection.addOpentypeFontFile(
-                        'assets/SourceSansPro-Regular.otf',
+                        'assets/SourceSansPro-Regular.ttf',
                         'Source Sans Pro'
                     );
         
