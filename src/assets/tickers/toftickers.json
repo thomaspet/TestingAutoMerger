@@ -38,7 +38,14 @@
             "Format": "DatePassed",
             "FilterOperator": "gt",
             "Width": "103px"
-        }, {
+        },{
+            "Header": "Leveringsdato",
+            "Field": "DeliveryDate",
+            "FilterOperator": "gt",
+            "Width": "100px",
+            "DefaultHidden": true
+        },
+         {
             "Header": "Valuta",
             "Field": "CurrencyCode.Code",
             "Width": "70px",
@@ -584,6 +591,13 @@
             "Width": "100px",
             "FilterOperator": "gt"
         }, {
+            "Header": "Leveringsdato",
+            "Field": "DeliveryDate",
+            "FilterOperator": "gt",
+            "Width": "100px",
+            "DefaultHidden": true
+        },
+        {
             "Header": "Valuta",
             "Field": "CurrencyCode.Code",
             "Width": "70px",
@@ -949,7 +963,14 @@
             "Field": "OrderDate",
             "FilterOperator": "gt",
             "Width": "100px"
-        }, {
+        },{
+            "Header": "Leveringsdato",
+            "Field": "DeliveryDate",
+            "FilterOperator": "gt",
+            "Width": "100px",
+            "DefaultHidden": true
+        },
+         {
             "Header": "Valuta",
             "Field": "CurrencyCode.Code",
             "Width": "70px",
