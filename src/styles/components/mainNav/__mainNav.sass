@@ -39,17 +39,22 @@ body
 uni-hamburger-menu
     flex-grow: 0
 
-uni-tabstrip,
-uni-navbar-search,
-uni-company-dropdown
+uni-tabstrip
     flex-grow: 1
+
+uni-navbar-search
+    margin-left: auto
+    flex-basis: 15rem
 
 uni-company-dropdown
     height: 2.5rem
+    margin: 0 .5rem
+    max-width: pxToRem(180)
+
     > *
         height: 100%
 
-@include media(large, max-width)
+@media screen and (max-width: 1515px)
     uni-tabstrip
         flex-grow: 2
         flex-shrink: 1
