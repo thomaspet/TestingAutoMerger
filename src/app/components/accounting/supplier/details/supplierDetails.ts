@@ -20,7 +20,8 @@ import {
     Address,
     BankAccount,
     CurrencyCode,
-    NumberSeries
+    NumberSeries,
+    BusinessRelation
 } from '../../../../unientities';
 
 import {
@@ -68,6 +69,7 @@ export class SupplierDetails implements OnInit {
     private ledgerAccountReconciliation: LedgerAccountReconciliation;
 
     public supplierID: number;
+    public supplierNameFromUniSearch: string;
     public allowSearchSupplier: boolean = true;
     private config$: BehaviorSubject<any> = new BehaviorSubject({autofocus: true});
     private fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
@@ -323,8 +325,9 @@ export class SupplierDetails implements OnInit {
                 });
     }
 
-    public openInModalMode(id?: number) {
+    public openInModalMode(id?: number, inputValue?: string) {
         this.supplierID = id ? id : 0;
+        this.supplierNameFromUniSearch = inputValue ? inputValue : '';
         this.allowSearchSupplier = false;
         this.setup();
     }
@@ -364,6 +367,12 @@ export class SupplierDetails implements OnInit {
                 this.numberSeries = response[8].map(x => this.numberSeriesService.translateSerie(x));
 
                 let supplier: Supplier = response[2];
+
+                // to pass value to newSupplierModal - Supplier.Info.Name field from unisearch
+                if (this.supplierNameFromUniSearch) {
+                    supplier.Info = <BusinessRelation>{'Name': this.supplierNameFromUniSearch};
+                }
+
                 supplier.SubAccountNumberSeriesID = this.numberSeries.find(x => x.Name === 'Supplier number series').ID;
                 this.setDefaultContact(supplier);
                 this.supplier$.next(supplier);

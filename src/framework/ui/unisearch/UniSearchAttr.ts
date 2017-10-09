@@ -57,6 +57,7 @@ export class UniSearchAttr implements OnInit, OnChanges {
     private heightOfNewButtonPadding: number = 0;
     private currentSearchType: SearchType = SearchType.INTERNAL;
     private SearchTypeEnum = SearchType;
+    private currentInputValue: string;
 
     private hasExternalSearch: boolean = false;
     private hasCreateNewButton: boolean = false;
@@ -79,7 +80,10 @@ export class UniSearchAttr implements OnInit, OnChanges {
             .do(() => this.openSearchResult())
             .map(event => (<any>event).target.value)
             .do(() => this.changeDetector.markForCheck())
-            .subscribe(value => this.performLookup(value));
+            .subscribe(value => {
+                this.performLookup(value);
+                this.currentInputValue = value;
+            });
 
         this.config.initialItem$.subscribe(model => {
             // this.componentElement.nativeElement.value = this.inputTemplate(model);
@@ -182,7 +186,7 @@ export class UniSearchAttr implements OnInit, OnChanges {
 
     private createNewItem() {
         this.closeSearchResult();
-        this.config.newItemModalFn()
+        this.config.newItemModalFn(this.currentInputValue)
             .do(() => this.busy = true)
             .switchMap(item => this.config.onSelect(item))
             .do(() => this.busy = false)

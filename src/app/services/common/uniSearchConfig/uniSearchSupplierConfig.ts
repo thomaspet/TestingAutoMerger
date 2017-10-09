@@ -39,7 +39,7 @@ export class UniSearchSupplierConfig {
 
     public generate(
         expands: string[] = ['Info.Addresses'],
-        newItemModalFn?: () => Observable<UniEntity>
+        newItemModalFn?: (inputValue?: string) => Observable<UniEntity>
     ): IUniSearchConfig {
         return <IUniSearchConfig>{
             lookupFn: searchTerm => this.statisticsService
@@ -85,7 +85,7 @@ export class UniSearchSupplierConfig {
 
     public generateDoNotCreateNew(
         expands: string[] = ['Info.Addresses'],
-        newItemModalFn?: () => Observable<UniEntity>
+        newItemModalFn?: (inputValue?: string) => Observable<UniEntity>
     ): IUniSearchConfig {
         return <IUniSearchConfig> {
             lookupFn: searchTerm => this.statisticsService

@@ -338,11 +338,16 @@ export class BillView {
         ];
 
 
-        this.uniSearchConfig = this.uniSearchSupplierConfig
-            .generateDoNotCreateNew(
-                this.supplierExpandOptions,
-                () => this.modalService.open(UniNewSupplierModal, { data: {} }).onClose
-            );
+        this.uniSearchConfig = this.uniSearchSupplierConfig.generateDoNotCreateNew(
+            this.supplierExpandOptions,
+            (currentInputValue) => {
+                return this.modalService.open(UniNewSupplierModal, {
+                    data: currentInputValue
+                }).onClose.asObservable().map((returnValue) => {
+                    this.uniForm.field('Supplier').focus();
+                    return returnValue;
+                });
+            });
 
         // Extend config with stuff that can't come from layout system
         let supplierField = fields.find(f => f.Property === 'Supplier');
@@ -896,14 +901,11 @@ export class BillView {
 
         let model = this.current.getValue();
 
-
-
         if (change['SupplierID']) {
             this.fetchNewSupplier(model.SupplierID);
         }
 
         if (change['Supplier'])  {
-            console.log(change['Supplier'].currentValue.ID);
             model.SupplierID = change['Supplier'].currentValue.ID;
         }
 
