@@ -88,12 +88,16 @@ export class VatReportView implements OnInit, OnDestroy {
     private updateToolbar() {
         let journalEntryNumber;
         let journalEntryID;
+
         if (this.vatReportsInPeriod && this.vatReportsInPeriod[0]) {
-            journalEntryNumber = this.vatReportsInPeriod[0].JournalEntry.JournalEntryNumber;
+
+            journalEntryNumber = this.vatReportsInPeriod[0].JournalEntry
+            ? this.vatReportsInPeriod[0].JournalEntry.JournalEntryNumber : null;
             journalEntryID = this.vatReportsInPeriod[0].JournalEntryID;
+
         }
         const journalEntryLink = journalEntryNumber && journalEntryID
-            ? `/#/accounting/journalentry/manual;journalEntryNumber=${journalEntryNumber};journalEntryID=${journalEntryID}`
+            ? `/#/accounting/transquery/details;JournalEntryNumber=${journalEntryNumber};journalEntryID=${journalEntryID}`
             : undefined;
 
         this.toolbarconfig = {
