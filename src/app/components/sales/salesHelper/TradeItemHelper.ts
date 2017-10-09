@@ -100,15 +100,11 @@ export class TradeItemHelper  {
         if (newRow.ID === 0) {
             newRow._createguid = this.guidService.guid();
             newRow.Dimensions._createguid = this.guidService.guid();
-
-            // Default antall for ny rad
-            if ((newRow.NumberOfItems === null) && newRow.Product) {
-                newRow.NumberOfItems = 1;
-            }
         }
 
         if (event.field === 'Product') {
             if (newRow['Product']) {
+                newRow.NumberOfItems = 1;
                 this.mapProductToQuoteItem(newRow, currencyExchangeRate);
                 if (currencyCodeID !== companySettings.BaseCurrencyCodeID && foreignVatType) {
                     newRow.VatType = foreignVatType;

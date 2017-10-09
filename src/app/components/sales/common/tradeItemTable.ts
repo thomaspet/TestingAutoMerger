@@ -302,11 +302,6 @@ export class TradeItemTable {
                     this.foreignVatType
                 );
 
-                // TODO: Product will get own Amount value later! Then remove this
-                if (event.field === 'Product') {
-                    updatedRow.NumberOfItems = 1;
-                }
-
                 updatedRow['_isDirty'] = true;
 
                 if (updatedRow.VatTypeID && !updatedRow.VatType) {
