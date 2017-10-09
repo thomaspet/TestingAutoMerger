@@ -307,7 +307,7 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
                 label: 'Slett lønnsavregning',
                 action: () => {
                     this.payrollrunService
-                        .deletePayrollRun(this.payrollrunID)
+                        .Remove(this.payrollrunID)
                         .subscribe(() => this.router.navigateByUrl(this.url + 0));
                 },
                 disabled: () => {
@@ -1000,6 +1000,7 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
         this.setEditableOnChildren(false);
 
         this.savePayrollrun()
+            .do(() => this._salaryTransactionService.invalidateCache())
             .filter(() => updateView)
             .switchMap((payrollRun: PayrollRun) => {
                 this.payrollrun$.next(payrollRun);

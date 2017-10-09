@@ -37,7 +37,8 @@ import {
     StatisticsService,
     TermsService,
     UserService,
-    NumberSeriesService
+    NumberSeriesService,
+    EmailService
 } from '../../../../services/services';
 
 import {
@@ -121,7 +122,8 @@ export class InvoiceDetails {
     private selectConfig: any;
     private numberSeries: NumberSeries[];
     private projectID: number;
-
+    private ehfEnabled: boolean = false;
+    
     private customerExpandOptions: string[] = [
         'DeliveryTerms',
         'Dimensions',
@@ -183,7 +185,8 @@ export class InvoiceDetails {
         private tofHelper: TofHelper,
         private tradeItemHelper: TradeItemHelper,
         private userService: UserService,
-        private numberSeriesService: NumberSeriesService
+        private numberSeriesService: NumberSeriesService,
+        private emailService: EmailService
     ) {
         // set default tab title, this is done to set the correct current module to make the breadcrumb correct
         this.tabService.addTab({
@@ -334,6 +337,23 @@ export class InvoiceDetails {
          this.tofHead.detailsForm.tabbedPastLastField.subscribe((event) => this.tradeItemTable.focusFirstRow());
     }
 
+    private ehfReadyUpdateSaveActions() {
+        if (!this.invoice || !!!this.invoice.Customer) {
+            this.ehfEnabled = false
+            return;
+        }
+
+        // Possible to receive EHF for this customer?
+        let peppoladdress = this.invoice.Customer.PeppolAddress ? this.invoice.Customer.PeppolAddress : '9908:' + this.invoice.Customer.OrgNumber;
+        this.ehfService.GetAction(
+            null, 'is-ehf-receiver',
+            'peppoladdress=' + peppoladdress + '&entitytype=CustomerInvoice'
+        ).subscribe(enabled => {
+            this.ehfEnabled = enabled;
+            this.updateSaveActions();
+        }, err => this.errorService.handle(err));
+    }
+
     private numberSeriesChange(selectedSerie) {
         this.invoice.InvoiceNumberSeriesID = selectedSerie.ID;
     }
@@ -410,7 +430,7 @@ export class InvoiceDetails {
             data: model
         }).onClose.subscribe(email => {
             if (email) {
-                this.reportService.generateReportSendEmail('Faktura id', email, null, doneHandler);
+                this.emailService.sendEmailWithReportAttachment('Faktura id', email, null, doneHandler);
             } else if (doneHandler) {
                 doneHandler();
             }
@@ -479,10 +499,11 @@ export class InvoiceDetails {
         }
 
         // refresh items if project changed
-        if (invoice.DefaultDimensions && invoice.DefaultDimensions.ProjectID !== this.projectID) {
-            this.projectID = invoice.DefaultDimensions.ProjectID;
+        if (invoice.DefaultDimensions
+                && invoice.DefaultDimensions.ProjectID !== this.projectID
+                && this.invoiceItems.length) {
 
-            if (this.invoiceItems.length) {
+            if (this.projectID) {
                 this.modalService.confirm({
                     header: `Endre prosjekt på alle varelinjer?`,
                     message: `Vil du endre til dette prosjektet på alle eksisterende varelinjer?`,
@@ -492,11 +513,13 @@ export class InvoiceDetails {
                     }
                 }).onClose.subscribe(response => {
                     let replaceItemsProject: boolean = (response === ConfirmActions.ACCEPT);
-                    this.tradeItemTable.setDefaultProjectAndRefreshItems(this.projectID, replaceItemsProject);
+                    this.tradeItemTable
+                        .setDefaultProjectAndRefreshItems(invoice.DefaultDimensions.ProjectID, replaceItemsProject);
                 });
-            } else {        
-                this.tradeItemTable.setDefaultProjectAndRefreshItems(this.projectID, true);
+            } else {
+                this.tradeItemTable.setDefaultProjectAndRefreshItems(invoice.DefaultDimensions.ProjectID, true);
             }
+            this.projectID = invoice.DefaultDimensions.ProjectID;
         }
 
         if (this.invoice && this.invoice.InvoiceDate.toString() !== invoice.InvoiceDate.toString()) {
@@ -957,7 +980,7 @@ export class InvoiceDetails {
         this.recalcDebouncer.next(invoice.Items);
         this.updateTabTitle();
         this.updateToolbar();
-        this.updateSaveActions();
+        this.ehfReadyUpdateSaveActions();
     }
 
     private updateTabTitle() {
@@ -1024,13 +1047,7 @@ export class InvoiceDetails {
             navigation: {
                 prev: this.previousInvoice.bind(this),
                 next: this.nextInvoice.bind(this),
-                add: () => {
-                    
-                    this.router.navigateByUrl('/sales/invoices/0').then(res => {
-                        this.tofHead.focus();
-                    });
-
-                }
+                add: () => this.invoice.ID ? this.router.navigateByUrl('/sales/invoices/0') : this.ngOnInit()
             },
             contextmenu: this.contextMenuItems,
             entityID: this.invoiceID,
@@ -1106,21 +1123,21 @@ export class InvoiceDetails {
             label: 'Skriv ut',
             action: (done) => this.print(this.invoiceID, done),
             disabled: false,
-            main: !printStatus && status === StatusCodeCustomerInvoice.Invoiced && !this.isDirty
+            main: !printStatus && !this.ehfEnabled && status === StatusCodeCustomerInvoice.Invoiced && !this.isDirty
         });
 
         this.saveActions.push({
             label: 'Send på epost',
             action: (done) => this.sendEmailAction(done),
             disabled: false,
-            main: printStatus === 200 && status === StatusCodeCustomerInvoice.Invoiced && !this.isDirty
+            main: printStatus === 200 && !this.ehfEnabled && status === StatusCodeCustomerInvoice.Invoiced && !this.isDirty
         });
 
         this.saveActions.push({
             label: 'Send EHF',
             action: (done) => this.sendEHFAction(done),
             disabled: status < StatusCodeCustomerInvoice.Invoiced,
-            main: printStatus === 100 && status === StatusCodeCustomerInvoice.Invoiced && !this.isDirty
+            main: printStatus !== 300 && this.ehfEnabled && status === StatusCodeCustomerInvoice.Invoiced && !this.isDirty
         });
 
         this.saveActions.push({
@@ -1144,38 +1161,12 @@ export class InvoiceDetails {
     }
 
     private saveInvoice(doneHandler: (msg: string) => void = null): Promise<CustomerInvoice> {
-        this.invoice.Items = this.invoiceItems;
-
-        // Prep new orderlines for complex put
-        this.invoice.Items.forEach(item => {
-            if (item.ID && item['_createguid']) {
-                delete item['_createguid'];
-            }
-
-            if (item.VatType) {
-                item.VatType = null;
-            }
-
-            if (item.Product) {
-                item.Product = null;
-            }
-
-            if (item.Account) {
-                item.Account = null;
-            }
-        });
+        this.invoice.Items = this.tradeItemHelper.prepareItemsForSave(this.invoiceItems);
 
         return new Promise((resolve, reject) => {
-
-            if (TradeItemHelper.IsAnyItemsMissingProductID(this.invoice.Items)) {
-                TradeItemHelper.clearFieldsInItemsWithNoProductID(this.invoice.Items);
-            }
-
             let request = (this.invoice.ID > 0)
                 ? this.customerInvoiceService.Put(this.invoice.ID, this.invoice)
                 : this.customerInvoiceService.Post(this.invoice);
-
-
 
             // If a currency other than basecurrency is used, and any lines contains VAT,
             // validate that this is correct before resolving the promise

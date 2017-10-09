@@ -1,8 +1,8 @@
-import {Component} from '@angular/core';
+import {Component, ChangeDetectionStrategy, ChangeDetectorRef} from '@angular/core';
 import {WidgetDataService} from '../widgetDataService';
 import {IUniWidget} from '../uniWidget';
 import {Router} from '@angular/router';
-import {AuthService} from '../../../../framework/core/authService';
+import {AuthService} from '../../../authService';
 import {WorkerService, TimesheetService} from '../../../services/services';
 import * as moment from 'moment';
 
@@ -17,7 +17,8 @@ import * as moment from 'moment';
             <span class="title">Timesaldo</span>
             <span class="value">{{displayValue}}</span>
         </div>
-    `
+    `,
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class UniFlexWidget {
     public widget: IUniWidget;
@@ -30,7 +31,8 @@ export class UniFlexWidget {
         private router: Router,
         private authService: AuthService,
         private workerService: WorkerService,
-        private timesheetService: TimesheetService
+        private timesheetService: TimesheetService,
+        private cdr: ChangeDetectorRef
     ) {}
 
     public ngAfterViewInit() {
@@ -39,6 +41,7 @@ export class UniFlexWidget {
                 this.getFlexBalance(timesheet.currentRelation.ID);
             } else {
                 this.displayValue = '0';
+                this.cdr.markForCheck();
             }
         });
     }
@@ -62,6 +65,7 @@ export class UniFlexWidget {
                 const hours  = (minutes / 60);
                 this.displayValue = hours.toFixed(1) + ' timer';
                 this.negative = hours < 0;
+                this.cdr.markForCheck();
             }
         );
     }

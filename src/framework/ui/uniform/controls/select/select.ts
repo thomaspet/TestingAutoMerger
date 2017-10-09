@@ -4,12 +4,13 @@ import {
 } from '@angular/core';
 import {FormControl} from '@angular/forms';
 import {Observable} from 'rxjs/Observable';
-import {KeyCodes} from '../../interfaces';
 import * as _ from 'lodash';
+import {KeyCodes} from '../../../../../app/services/common/keyCodes';
 
 export interface ISelectConfig {
     valueProperty?: string;
     displayProperty?: string;
+    addEmptyValue?: boolean;
     template?: (item) => string;
     placeholder?: string;
     searchable?: boolean;
@@ -31,7 +32,7 @@ export interface ISelectConfig {
         tabindex="0"
         [value]="getDisplayValue(selectedItem)"
         [placeholder]="config?.Placeholder || ''"
-        [readonly]="readonly"
+        [attr.aria-readonly]="readonly"
         (click)="toggle()"
         [title]="getTitle()"
         readonly />
@@ -79,31 +80,31 @@ export interface ISelectConfig {
 export class UniSelect {
     @ViewChild('searchInput') public searchInput: ElementRef;
     @ViewChild('valueInput') public valueInput: ElementRef;
-    @ViewChild('itemDropdown') private itemDropdown: ElementRef;
+    @ViewChild('itemDropdown') public itemDropdown: ElementRef;
 
-    @Input() private items: any[];
-    @Input() private newButtonAction: Function;
-    @Input() private readonly: boolean;
-    @Input() private config: ISelectConfig;
+    @Input() public items: any[];
+    @Input() public newButtonAction: Function;
+    @Input() public readonly: boolean;
+    @Input() public config: ISelectConfig;
     @Input() public value: any;
 
     @Output() public valueChange: EventEmitter<any> = new EventEmitter<any>();
     @Output() public readyEvent: EventEmitter<UniSelect> = new EventEmitter<UniSelect>(true);
 
-    private guid: string;
-    private expanded: boolean = false;
+    public guid: string;
+    public expanded: boolean = false;
 
-    private searchable: boolean = true;
-    private searchControl: FormControl = new FormControl('');
-    private filteredItems: any[];
-    private filterString: string = '';
+    public searchable: boolean = true;
+    public searchControl: FormControl = new FormControl('');
+    public filteredItems: any[];
+    public filterString: string = '';
 
-    private selectedItem: any;
-    private focusedIndex: any = -1;
-    private initialItem: any;
-    private activeDecentantId: string;
+    public selectedItem: any;
+    public focusedIndex: any = -1;
+    public initialItem: any;
+    public activeDecentantId: string;
 
-    constructor(private renderer: Renderer, private cd: ChangeDetectorRef, private el: ElementRef) {
+    constructor(public renderer: Renderer, public cd: ChangeDetectorRef, public el: ElementRef) {
         // Set a guid for DOM elements, etc.
         this.guid = (new Date()).getTime().toString();
     }
@@ -146,8 +147,8 @@ export class UniSelect {
             return event.keyCode === KeyCodes.F4 || event.keyCode === KeyCodes.SPACE;
         });
         const arrowDownEvent = keyDownEvent.filter((event: KeyboardEvent) => {
-            return (event.keyCode === KeyCodes.ARROW_UP
-                || event.keyCode === KeyCodes.ARROW_DOWN)
+            return (event.keyCode === KeyCodes.UP_ARROW
+                || event.keyCode === KeyCodes.DOWN_ARROW)
                 && event.altKey;
         });
 
@@ -158,7 +159,7 @@ export class UniSelect {
                 this.toggle();
             });
 
-        keyDownEvent.filter((event: KeyboardEvent) => event.keyCode === KeyCodes.ESC)
+        keyDownEvent.filter((event: KeyboardEvent) => event.keyCode === KeyCodes.ESCAPE)
             .subscribe((event: KeyboardEvent) => {
                 event.preventDefault();
                 event.stopPropagation();
@@ -179,7 +180,13 @@ export class UniSelect {
         const keypressEvent = Observable.fromEvent(this.el.nativeElement, 'keypress');
         keypressEvent.filter((event: KeyboardEvent) => event.keyCode !== KeyCodes.ENTER)
             .subscribe((event: KeyboardEvent) => {
-                const character = String.fromCharCode(event.which);
+                const ignoredKeyCodes = [KeyCodes.ESCAPE, KeyCodes.TAB];
+                const keyCode = event.which || event.keyCode;
+                const character = String.fromCharCode(keyCode);
+
+                if (ignoredKeyCodes.indexOf(keyCode) > -1) {
+                    return;
+                }
                 if (!this.searchable) {
                     const focusIndex = this.items.findIndex((item) => {
                         try {
@@ -214,10 +221,10 @@ export class UniSelect {
         const arrowsEvents = Observable.fromEvent(this.el.nativeElement, 'keydown')
             .filter((event: KeyboardEvent) => !(event.altKey || event.shiftKey || event.ctrlKey))
             .filter((event: KeyboardEvent) => {
-                return event.keyCode === KeyCodes.ARROW_UP
-                    || event.keyCode === KeyCodes.ARROW_DOWN
-                    || event.keyCode === KeyCodes.ARROW_RIGHT
-                    || event.keyCode === KeyCodes.ARROW_LEFT;
+                return event.keyCode === KeyCodes.UP_ARROW
+                    || event.keyCode === KeyCodes.DOWN_ARROW
+                    || event.keyCode === KeyCodes.RIGHT_ARROW
+                    || event.keyCode === KeyCodes.LEFT_ARROW;
             });
 
 
@@ -228,15 +235,15 @@ export class UniSelect {
             let index = -1;
 
             switch (event.keyCode) {
-                case KeyCodes.ARROW_UP:
-                case KeyCodes.ARROW_LEFT:
+                case KeyCodes.UP_ARROW:
+                case KeyCodes.LEFT_ARROW:
                     index = this.focusedIndex - 1;
                     if (index < 0) {
                         index = 0;
                     }
                     break;
-                case KeyCodes.ARROW_DOWN:
-                case KeyCodes.ARROW_RIGHT:
+                case KeyCodes.DOWN_ARROW:
+                case KeyCodes.RIGHT_ARROW:
                     index = this.focusedIndex + 1;
                     if (index > this.filteredItems.length - 1) {
                         index = this.filteredItems.length - 1;
@@ -322,12 +329,13 @@ export class UniSelect {
         this.close();
     }
 
-    private toggle() {
+    public toggle() {
         if (this.readonly) {
             return;
         }
         if (this.expanded) {
             this.close();
+            this.focus();
         } else {
             this.open();
             try {

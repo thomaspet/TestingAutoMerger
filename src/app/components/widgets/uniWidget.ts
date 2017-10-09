@@ -8,6 +8,8 @@ import {
     ViewChild,
     ComponentFactoryResolver,
     ComponentRef,
+    ChangeDetectionStrategy,
+    ChangeDetectorRef
 } from '@angular/core';
 
 // Import known widgets. Loading third party stuff needs to be solved
@@ -17,13 +19,11 @@ import {
     UniCounterWidget,
     UniChartWidget,
     UniRSSWidget,
-    UniListWidget,
     UniClockWidget,
     UniCompanyLogoWidget,
     UniOverdueInvoiceWidget,
     UniKPIWidget,
-    UniFlexWidget,
-    UniCompanyListWidget
+    UniFlexWidget
 } from './widgets/barrel';
 
 export interface IUniWidget {
@@ -42,6 +42,17 @@ export interface IUniWidget {
     };
 }
 
+export const WIDGET_MAP = {
+    shortcut: UniShortcutWidget,
+    counter: UniCounterWidget,
+    chart: UniChartWidget,
+    rss: UniRSSWidget,
+    clock: UniClockWidget,
+    overdue: UniOverdueInvoiceWidget,
+    kpi: UniKPIWidget,
+    companyLogo: UniCompanyLogoWidget,
+    flex: UniFlexWidget
+};
 
 @Directive({
     selector: '[widget-container]'
@@ -53,7 +64,7 @@ export class WidgetContainer {
 @Component({
     selector: 'uni-widget',
     template: `
-        <template widget-container></template>
+        <ng-template widget-container></ng-template>
         <button class="widget-remove-btn"
                 (click)="removeWidget()"
                 *ngIf="widget?._editMode">
@@ -71,21 +82,6 @@ export class UniWidget {
     @Output()
     public widgetRemoved: EventEmitter<IUniWidget> = new EventEmitter();
 
-    // This could be moved somewhere else?
-    private widgetMap: any = {
-        'shortcut': UniShortcutWidget,
-        'counter': UniCounterWidget,
-        'chart': UniChartWidget,
-        'rss': UniRSSWidget,
-        'list': UniListWidget,
-        'companyList': UniCompanyListWidget,
-        'clock': UniClockWidget,
-        'overdue': UniOverdueInvoiceWidget,
-        'kpi': UniKPIWidget,
-        'companyLogo': UniCompanyLogoWidget,
-        'flex': UniFlexWidget
-    };
-
     private widgetComponent: ComponentRef<any>;
 
     constructor(private factoryResolver: ComponentFactoryResolver) {}
@@ -102,7 +98,7 @@ export class UniWidget {
     }
 
     private loadWidget() {
-        const widget = this.widgetMap[this.widget.widgetType];
+        const widget = WIDGET_MAP[this.widget.widgetType];
         const componentFactory = this.factoryResolver.resolveComponentFactory(widget);
 
         let viewContainerRef = this.widgetContainer.viewContainerRef;

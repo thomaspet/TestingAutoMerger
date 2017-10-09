@@ -8,12 +8,15 @@ import {
     EventEmitter,
     Type
 } from '@angular/core';
-import {
-    UniUnsavedChangesModal,
-    UniConfirmModalV2,
-    ConfirmActions
-} from './barrel';
+import {UniUnsavedChangesModal} from './presets/unsavedChangesModal';
+import {UniConfirmModalV2} from './presets/confirmModal';
 import {Observable} from 'rxjs/Observable';
+
+export enum ConfirmActions {
+    ACCEPT,
+    REJECT,
+    CANCEL
+};
 
 export interface IModalOptions {
     data?: any;
@@ -21,6 +24,9 @@ export interface IModalOptions {
     header?: string;
     message?: string;
     warning?: string;
+    list?: any[];
+    listkey?: string;
+    listMessage?: string;
     buttonLabels?: {
         accept?: string;
         reject?: string;
@@ -136,6 +142,11 @@ export class UniModalService {
             // Remove backdrop
             const backdropElements = this.containerElement.querySelectorAll('.uni-modal-backdrop');
             this.containerElement.removeChild(backdropElements.item(index));
+
+            // Remove modalOpen class from body to allow scroll again
+            if (!this.openModalRefs || !this.openModalRefs.length) {
+                document.body.classList.remove('modal-open');
+            }
         }
     }
 
@@ -169,6 +180,10 @@ export class UniModalService {
         componentRootNode.style.margin = '0 auto';
         let backdrop = this.createBackdrop(options);
         backdrop.appendChild(componentRootNode);
+
+        // Set class modal-open on body to prevent background scroll
+        // when scrolling modal
+        document.body.classList.add('modal-open');
 
         return componentRef;
     }

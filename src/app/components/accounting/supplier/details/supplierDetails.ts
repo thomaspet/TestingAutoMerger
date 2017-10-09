@@ -46,6 +46,7 @@ import {
     UniBankAccountModal,
     ConfirmActions
 } from '../../../../../framework/uniModal/barrel';
+import {UniNewSupplierModal} from './newSupplierModal';
 
 declare const _; // lodash
 
@@ -129,7 +130,14 @@ export class SupplierDetails implements OnInit {
             prev: this.previousSupplier.bind(this),
             next: this.nextSupplier.bind(this),
             add: this.addSupplier.bind(this)
-        }
+        },
+        contextmenu: [
+            {
+                label: 'Slett leverandør',
+                action: () => this.deleteSupplier(this.supplierID),
+                disabled: () => !this.supplierID
+            }
+        ]
     };
 
     constructor(private departmentService: DepartmentService,
@@ -248,6 +256,14 @@ export class SupplierDetails implements OnInit {
         });
     }
 
+    private deleteSupplier(id: number) {
+        if(confirm('Vil du slette denne leverandøren?')) {
+            this.supplierService.deleteSupplier(id).subscribe(res => {
+                this.router.navigateByUrl('/accounting/suppliers');
+            }, err => this.errorService.handle(err));
+        }
+    }
+
     private numberSeriesChange(selectedSerie) {
         let supplier = this.supplier$.getValue();
         supplier.SubAccountNumberSeriesID = selectedSerie.ID;
@@ -307,6 +323,12 @@ export class SupplierDetails implements OnInit {
                 });
     }
 
+    public openInModalMode(id?: number) {
+        this.supplierID = id ? id : 0;
+        this.allowSearchSupplier = false;
+        this.setup();
+    }
+
     private setup() {
         this.showReportWithID = null;
 
@@ -319,7 +341,7 @@ export class SupplierDetails implements OnInit {
                 (
                     this.supplierID > 0 ?
                         this.supplierService.Get(this.supplierID, this.expandOptions)
-                        : this.supplierService.GetNewEntity(this.expandOptions)
+                        : this.supplierService.GetNewEntity()
                 ),
                 this.phoneService.GetNewEntity(),
                 this.emailService.GetNewEntity(),
@@ -360,7 +382,7 @@ export class SupplierDetails implements OnInit {
                 (
                     this.supplierID > 0 ?
                         this.supplierService.Get(this.supplierID, this.expandOptions)
-                        : this.supplierService.GetNewEntity(this.expandOptions)
+                        : this.supplierService.GetNewEntity()
                 )
             ).subscribe(response => {
                 let supplier = response[0];
@@ -387,7 +409,7 @@ export class SupplierDetails implements OnInit {
         let supplierSearchResult: UniFieldLayout = fields.find(x => x.Property === '_SupplierSearchResult');
         let supplierName: UniFieldLayout = fields.find(x => x.Property === 'Info.Name');
 
-        if (!this.allowSearchSupplier || this.supplierID > 0 || (supplier && supplier.Info.Name !== null && supplier.Info.Name !== '')) {
+        if (!this.allowSearchSupplier || this.supplierID > 0 || (supplier && supplier.Info && supplier.Info.Name !== null && supplier.Info.Name !== '')) {
             supplierSearchResult.Hidden = true;
             supplierName.Hidden = false;
             this.fields$.next(fields);
@@ -545,168 +567,173 @@ export class SupplierDetails implements OnInit {
         this.fields$.next(fields);
     }
 
-    private saveSupplier(completeEvent: any) {
-        // small timeout to allow uniform and unitable to update the sources before saving
-        setTimeout(() => {
-            let supplier = this.supplier$.getValue();
+    public getCurrentSupplier() {
+        return this.supplier$.value;
+    }
 
-            // if the user has typed something in Name for a new supplier, but has not
-            // selected something from the list or clicked F3, the searchbox is still active,
-            // so we need to get the value from there
-            if (!supplier.ID || supplier.ID === 0) {
-                if (!supplier.Info.Name || supplier.Info.Name === '') {
-                    let searchInfo = <any>this.form.field('_SupplierSearchResult');
-                    if (searchInfo) {
-                        if (searchInfo.component && searchInfo.component.input) {
-                            supplier.Info.Name = searchInfo.component.input.value;
-                        }
+    public saveSupplier(completeEvent?: any) {
+        let supplier = this.supplier$.getValue();
+
+        // if the user has typed something in Name for a new supplier, but has not
+        // selected something from the list or clicked F3, the searchbox is still active,
+        // so we need to get the value from there
+        if (!supplier.ID || supplier.ID === 0) {
+            if (!supplier.Info.Name || supplier.Info.Name === '') {
+                let searchInfo = <any>this.form.field('_SupplierSearchResult');
+                if (searchInfo) {
+                    if (searchInfo.component && searchInfo.component.input) {
+                        supplier.Info.Name = searchInfo.component.input.value;
                     }
                 }
             }
+        }
 
-            // add createGuid for new entities and remove duplicate entities
-            if (!supplier.Info.Emails) {
-                supplier.Info.Emails = [];
+        // add createGuid for new entities and remove duplicate entities
+        if (!supplier.Info.Emails) {
+            supplier.Info.Emails = [];
+        }
+
+        supplier.Info.Emails.forEach(email => {
+            if (email.ID === 0 || !email.ID) {
+                email['_createguid'] = this.supplierService.getNewGuid();
             }
+        });
 
-            supplier.Info.Emails.forEach(email => {
-                if (email.ID === 0 || !email.ID) {
-                    email['_createguid'] = this.supplierService.getNewGuid();
+        if (supplier.Info.DefaultEmail) {
+            supplier.Info.Emails = supplier.Info.Emails.filter(x => x !== supplier.Info.DefaultEmail);
+        }
+
+        if (!supplier.Info.Phones) {
+            supplier.Info.Phones = [];
+        }
+        supplier.Info.Phones.forEach(phone => {
+            if (phone.ID === 0 || !phone.ID) {
+                phone['_createguid'] = this.supplierService.getNewGuid();
+            }
+        });
+
+        if (supplier.Info.DefaultPhone) {
+            supplier.Info.Phones = supplier.Info.Phones.filter(x => x !== supplier.Info.DefaultPhone);
+        }
+
+        if (!supplier.Info.Addresses) {
+            supplier.Info.Addresses = [];
+        }
+        supplier.Info.Addresses.forEach(address => {
+            if (address.ID === 0 || !address.ID) {
+                address['_createguid'] = this.supplierService.getNewGuid();
+            }
+        });
+
+        if (supplier.Info.ShippingAddress) {
+            supplier.Info.Addresses = supplier.Info.Addresses.filter(x => x !== supplier.Info.ShippingAddress);
+        }
+
+        if (supplier.Info.InvoiceAddress) {
+            supplier.Info.Addresses = supplier.Info.Addresses.filter(x => x !== supplier.Info.InvoiceAddress);
+        }
+
+        if (!supplier.Info.DefaultPhone && supplier.Info.DefaultPhoneID === 0) {
+            supplier.Info.DefaultPhoneID = null;
+        }
+
+        if (!supplier.Info.DefaultEmail && supplier.Info.DefaultEmailID === 0) {
+            supplier.Info.DefaultEmailID = null;
+        }
+
+        if (!supplier.Info.ShippingAddress && supplier.Info.ShippingAddressID === 0) {
+            supplier.Info.ShippingAddressID = null;
+        }
+
+        if (!supplier.Info.InvoiceAddress && supplier.Info.InvoiceAddressID === 0) {
+            supplier.Info.InvoiceAddressID = null;
+        }
+
+        if (supplier.Dimensions && (!supplier.Dimensions.ID || supplier.Dimensions.ID === 0)) {
+            supplier.Dimensions['_createguid'] = this.supplierService.getNewGuid();
+        }
+
+        if (supplier.Info.DefaultBankAccount && (!supplier.Info.DefaultBankAccount.AccountNumber || supplier.Info.DefaultBankAccount.AccountNumber === '')) {
+            supplier.Info.DefaultBankAccount = null;
+        }
+
+        if (supplier.Info.DefaultBankAccount && (!supplier.Info.DefaultBankAccount.ID || supplier.Info.DefaultBankAccount.ID === 0)) {
+            supplier.Info.DefaultBankAccount['_createguid'] = this.supplierService.getNewGuid();
+        }
+
+        if (supplier.Info.BankAccounts) {
+            supplier.Info.BankAccounts.forEach(bankaccount => {
+                if (bankaccount.ID === 0 || !bankaccount.ID) {
+                    bankaccount['_createguid'] = this.bankaccountService.getNewGuid();
                 }
             });
-
-            if (supplier.Info.DefaultEmail) {
-                supplier.Info.Emails = supplier.Info.Emails.filter(x => x !== supplier.Info.DefaultEmail);
-            }
-
-            if (!supplier.Info.Phones) {
-                supplier.Info.Phones = [];
-            }
-            supplier.Info.Phones.forEach(phone => {
-                if (phone.ID === 0 || !phone.ID) {
-                    phone['_createguid'] = this.supplierService.getNewGuid();
-                }
-            });
-
-            if (supplier.Info.DefaultPhone) {
-                supplier.Info.Phones = supplier.Info.Phones.filter(x => x !== supplier.Info.DefaultPhone);
-            }
-
-            if (!supplier.Info.Addresses) {
-                supplier.Info.Addresses = [];
-            }
-            supplier.Info.Addresses.forEach(address => {
-                if (address.ID === 0 || !address.ID) {
-                    address['_createguid'] = this.supplierService.getNewGuid();
-                }
-            });
-
-            if (supplier.Info.ShippingAddress) {
-                supplier.Info.Addresses = supplier.Info.Addresses.filter(x => x !== supplier.Info.ShippingAddress);
-            }
-
-            if (supplier.Info.InvoiceAddress) {
-                supplier.Info.Addresses = supplier.Info.Addresses.filter(x => x !== supplier.Info.InvoiceAddress);
-            }
-
-            if (!supplier.Info.DefaultPhone && supplier.Info.DefaultPhoneID === 0) {
-                supplier.Info.DefaultPhoneID = null;
-            }
-
-            if (!supplier.Info.DefaultEmail && supplier.Info.DefaultEmailID === 0) {
-                supplier.Info.DefaultEmailID = null;
-            }
-
-            if (!supplier.Info.ShippingAddress && supplier.Info.ShippingAddressID === 0) {
-                supplier.Info.ShippingAddressID = null;
-            }
-
-            if (!supplier.Info.InvoiceAddress && supplier.Info.InvoiceAddressID === 0) {
-                supplier.Info.InvoiceAddressID = null;
-            }
-
-            if (supplier.Dimensions && (!supplier.Dimensions.ID || supplier.Dimensions.ID === 0)) {
-                supplier.Dimensions['_createguid'] = this.supplierService.getNewGuid();
-            }
-
-            if (supplier.Info.DefaultBankAccount && (!supplier.Info.DefaultBankAccount.AccountNumber || supplier.Info.DefaultBankAccount.AccountNumber === '')) {
-                supplier.Info.DefaultBankAccount = null;
-            }
-
-            if (supplier.Info.DefaultBankAccount && (!supplier.Info.DefaultBankAccount.ID || supplier.Info.DefaultBankAccount.ID === 0)) {
-                supplier.Info.DefaultBankAccount['_createguid'] = this.supplierService.getNewGuid();
-            }
-
-            if (supplier.Info.BankAccounts) {
-                supplier.Info.BankAccounts.forEach(bankaccount => {
-                    if (bankaccount.ID === 0 || !bankaccount.ID) {
-                        bankaccount['_createguid'] = this.bankaccountService.getNewGuid();
-                    }
-                });
-
-                if (supplier.Info.DefaultBankAccount) {
-                    supplier.Info.BankAccounts = supplier.Info.BankAccounts
-                        .filter(x => x !== supplier.Info.DefaultBankAccount);
-                }
-            }
 
             if (supplier.Info.DefaultBankAccount) {
-                supplier.Info.DefaultBankAccount.BankAccountType = 'supplier';
+                supplier.Info.BankAccounts = supplier.Info.BankAccounts
+                    .filter(x => x !== supplier.Info.DefaultBankAccount);
             }
+        }
 
-            if (!supplier.Info.Contacts) {
-                supplier.Info.Contacts = [];
+        if (supplier.Info.DefaultBankAccount) {
+            supplier.Info.DefaultBankAccount.BankAccountType = 'supplier';
+        }
+
+        if (!supplier.Info.Contacts) {
+            supplier.Info.Contacts = [];
+        }
+
+        supplier.Info.Contacts.forEach(contact => {
+            if (contact.ID === 0 || !contact.ID) {
+                contact['_createguid'] = this.supplierService.getNewGuid();
             }
+        });
 
-            supplier.Info.Contacts.forEach(contact => {
-                if (contact.ID === 0 || !contact.ID) {
-                    contact['_createguid'] = this.supplierService.getNewGuid();
-                }
-            });
+        if (supplier.Info.Contacts.filter(x => !x.ID && x.Info.Name === '')) {
+            // remove new contacts where name is not set, probably an empty row anyway
+            supplier.Info.Contacts = supplier.Info.Contacts.filter(x => !(!x.ID && x.Info.Name === ''));
+        }
 
-            if (supplier.Info.Contacts.filter(x => !x.ID && x.Info.Name === '')) {
-                // remove new contacts where name is not set, probably an empty row anyway
-                supplier.Info.Contacts = supplier.Info.Contacts.filter(x => !(!x.ID && x.Info.Name === ''));
-            }
+        if (this.modalMode) {
+            return this.supplierService.Post(supplier);
+        }
 
-            if (this.supplierID > 0) {
-                this.supplierService.Put(supplier.ID, supplier)
-                    .subscribe(
-                        (updatedValue) => {
-                            this.isDirty = false;
-                            completeEvent('Leverandør lagret');
+        if (this.supplierID > 0) {
+            this.supplierService.Put(supplier.ID, supplier)
+                .subscribe(
+                    (updatedValue) => {
+                        this.isDirty = false;
+                        completeEvent('Leverandør lagret');
 
-                            this.supplierService.Get(supplier.ID, this.expandOptions).subscribe(supplier => {
-                                supplier['BankAccounts'] = [supplier.DefaultBankAccount || this.emptyBankAccount];
-                                this.setDefaultContact(supplier);
-                                this.supplier$.next(supplier);
-                                this.setTabTitle();
-                            });
-                        },
-                        (err) => {
-                            completeEvent('Feil ved lagring');
-                            this.errorService.handle(err);
+                        this.supplierService.Get(supplier.ID, this.expandOptions).subscribe(supplier => {
+                            supplier['BankAccounts'] = [supplier.DefaultBankAccount || this.emptyBankAccount];
+                            this.setDefaultContact(supplier);
+                            this.supplier$.next(supplier);
+                            this.setTabTitle();
+                        });
+                    },
+                    (err) => {
+                        completeEvent('Feil ved lagring');
+                        this.errorService.handle(err);
+                    }
+                );
+        } else {
+            this.supplierService.Post(supplier)
+                .subscribe(
+                    (newSupplier) => {
+                        this.isDirty = false;
+                        if (!this.modalMode) {
+                            this.router.navigateByUrl('/accounting/suppliers/' + newSupplier.ID);
+                            this.setTabTitle();
                         }
-                    );
-            } else {
-                this.supplierService.Post(supplier)
-                    .subscribe(
-                        (newSupplier) => {
-                            this.isDirty = false;
-                            if (!this.modalMode) {
-                                this.router.navigateByUrl('/accounting/suppliers/' + newSupplier.ID);
-                                this.setTabTitle();
-                            }
-                            completeEvent('Ny leverandør lagret');
-                            this.createdNewSupplier.emit(newSupplier);
-                        },
-                        (err) => {
-                            completeEvent('Feil ved lagring');
-                            this.errorService.handle(err);
-                        }
-                    );
-            }
-        }, 100);
+                        completeEvent('Ny leverandør lagret');
+                        this.createdNewSupplier.emit(newSupplier);
+                    },
+                    (err) => {
+                        completeEvent('Feil ved lagring');
+                        this.errorService.handle(err);
+                    }
+                );
+        }
     }
 
     public onContactChanged(contact: Contact) {
@@ -751,15 +778,15 @@ export class SupplierDetails implements OnInit {
                 return Observable.from([supplier]);
             });
 
-        uniSearchConfig.expandOrCreateFn = (newOrExistingItem: any) => {
-            if (newOrExistingItem.ID) {
+        uniSearchConfig.onSelect = (selectedItem: any) => {
+            if (selectedItem.ID) {
                 // If an existing supplier is selected, navigate to that supplier instead
                 // of populating the fields for a new supplier
-                this.router.navigateByUrl(`/accounting/suppliers/${newOrExistingItem.ID}`);
+                this.router.navigateByUrl(`/accounting/suppliers/${selectedItem.ID}`);
                 return Observable.empty();
             } else {
                 let supplierData = this.uniSearchSupplierConfig
-                            .customStatisticsObjToSupplier(newOrExistingItem);
+                            .customStatisticsObjToSupplier(selectedItem);
 
                 return Observable.from([supplierData]);
             }

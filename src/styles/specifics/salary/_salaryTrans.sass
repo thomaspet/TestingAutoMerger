@@ -134,39 +134,12 @@ section.salarytrans-filter
     a, button
         min-height: 2rem
 
-salarytrans .k-grid tbody td>.k-grid-delete
-    @extend %unbutton
-    display: block
-    height: 1rem
-    width: 1rem
-    background: unicon-close($uni-color-scale6) center center no-repeat
-    background-size: .5rem
-    font-size: 0
-
-    &:hover,
-    &:focus
-        background: transparent unicon-close($uni-color-scale2) center center no-repeat
-        background-size: .5rem
-
 salarytrans .detail_tables
     margin-top: 1rem
 
     .maintable
         font-size: .9rem
         font-weight: 400
-        overflow-x: auto
-
-        .k-grid-content
-            overflow: hidden
-
-        div.k-grid-header
-            padding-right: 0 !important
-
-        .k-grid-toolbar
-            text-align: right
-
-    .k-grid-content
-        padding-right: 1px
 
 .summarytable
     display: block
@@ -188,32 +161,14 @@ salarytrans .detail_tables
     &.-is-dirty
         margin-bottom: .7rem
 
-    .k-grid,
     table
-        .k-grid-header tr,
         tr:nth-of-type(odd),
         tr:nth-of-type(even),
         td,
         th,
-        .k-grid-content
             background: transparent
             overflow: visible
             text-align: left !important
-
-        div.k-grid-header
-            padding-right: 0 !important
-
-        .k-grid-toolbar
-            display: none
-
-        .k-grid-header-wrap,
-        th, tr, thead
-            border-bottom: none
-
-        .k-grid-header th.k-header>.k-link
-            color: $uni-color-scale3
-            text-transform: lowercase
-            font-variant: small-caps
 
         td
             font-weight: 400

@@ -41,19 +41,17 @@ export class EmploymentDetails implements OnChanges {
     private config$: BehaviorSubject<any> = new BehaviorSubject({});
     private fields$: BehaviorSubject<UniFieldLayout[]> = new BehaviorSubject([]);
     private formReady: boolean;
-    private employment$: BehaviorSubject<Employment> = new BehaviorSubject(new Employment())
+    private employment$: BehaviorSubject<Employment> = new BehaviorSubject(new Employment());
+    private searchCache: any[] = [];
+    private jobCodeInitValue: Observable<any>;
+
     constructor(
         private employeeService: EmployeeService,
         private employmentService: EmploymentService,
         private accountService: AccountService,
         private statisticsService: StatisticsService,
         private errorService: ErrorService
-    ) {
-    }
-
-    public ngOnInit() {
-        this.employment$.next(this.employment);
-    }
+    ) {}
 
     public ngOnChanges(change) {
         if (!this.formReady) {
@@ -70,6 +68,16 @@ export class EmploymentDetails implements OnChanges {
                     this.focusJobCode = true;
                 }
             }
+
+            if (this.employment.JobCode) {
+                this.jobCodeInitValue = this.statisticsService
+                    .GetAll('model=STYRKCode&select=styrk as styrk,tittel as tittel&filter=styrk eq ' + this.employment.JobCode)
+                    .map(res => res.Data)
+                    .share();
+            } else {
+                this.jobCodeInitValue = Observable.of([{ styrk: '', tittel: '' }]);
+            }
+
             this.employment$.next(change['employment'].currentValue);
         }
 
@@ -106,19 +114,21 @@ export class EmploymentDetails implements OnChanges {
                         ? `${obj.OrgNumber} - ${obj.BusinessRelationInfo.Name}`
                         : `${obj.OrgNumber}`
                     : ''
-            }
+            };
 
             let jobCodeField = layout.Fields.find(field => field.Property === 'JobCode');
             jobCodeField.Options = {
-                getDefaultData: () => this.employment && this.employment.JobCode
-                    ? this.statisticsService
-                        .GetAll('model=STYRKCode&select=styrk as styrk,tittel as tittel&filter=styrk eq ' + this.employment.JobCode)
-                        .map(x => x.Data)
-                    : Observable.of([{ styrk: '', tittel: '' }]),
+                getDefaultData: () => this.jobCodeInitValue,
                 template: (obj) => obj && obj.styrk ? `${obj.styrk} - ${obj.tittel}` : '',
-                search: (query: string) => this.statisticsService
-                    .GetAll(`top=50&model=STYRKCode&select=styrk as styrk,tittel as tittel&filter=startswith(styrk,'${query}') or contains(tittel,'${query}')`)
-                    .map(x => x.Data),
+                search: (query: string) => {
+                    if (this.searchCache[query]) {
+                        return this.searchCache[query];
+                    }
+                    return this.statisticsService
+                        .GetAll(`top=50&model=STYRKCode&select=styrk as styrk,tittel as tittel&filter=startswith(styrk,'${query}') or contains(tittel,'${query}')`)
+                        .do(x => this.searchCache[query] = Observable.of(x.Data))
+                        .map(x => x.Data);
+                },
                 displayProperty: 'styrk',
                 valueProperty: 'styrk',
                 debounceTime: 200,
@@ -150,7 +160,7 @@ export class EmploymentDetails implements OnChanges {
         }, err => this.errorService.handle(err));
     }
 
-    private setSourceOn(searchField: string, source: any) {
+    public setSourceOn(searchField: string, source: any) {
         let fields = this.fields$.getValue();
         let currentField = fields.find(field => field.Property === searchField);
         if (currentField) {
@@ -159,7 +169,7 @@ export class EmploymentDetails implements OnChanges {
         this.fields$.next(fields);
     }
 
-    private updateTitle(styrk) {
+    public updateTitle(styrk) {
         if (styrk) {
             this.statisticsService
                 .GetAll(`top=50&model=STYRKCode&select=styrk as styrk,tittel as tittel&filter=styrk eq '${styrk}'`)
@@ -178,11 +188,11 @@ export class EmploymentDetails implements OnChanges {
         }
     }
 
-    private onFormChange(value: SimpleChanges) {
+    public onFormChange(value: SimpleChanges) {
         this.employmentChange.emit(this.employment$.getValue());
     }
 
-    private onFormReady(value) {
+    public onFormReady(value) {
         if (this.focusJobCode) {
             this.form.field('JobCode').focus();
             this.focusJobCode = false;

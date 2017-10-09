@@ -1,7 +1,7 @@
 import {Component, OnInit, ViewChild} from '@angular/core';
 import {ErrorService, JobService, FileService} from '../../../../services/services';
 import {Http} from '@angular/http';
-import {AuthService} from '../../../../../framework/core/authService';
+import {AuthService} from '../../../../authService';
 import {TimerObservable} from 'rxjs/observable/TimerObservable';
 import {AppConfig} from '../../../../AppConfig';
 import {
@@ -40,9 +40,10 @@ export class SaftExportView implements OnInit {
     ) {
         // Subscribe to authentication/activeCompany changes
         authService.authentication$.subscribe((authDetails) => {
-            this.token = authDetails.filesToken;
             this.activeCompany = authDetails.activeCompany;
-        } /* don't need error handling */);
+        });
+
+        authService.filesToken$.subscribe(token => this.token = token);
     }
 
     public ngOnInit() {
@@ -71,14 +72,14 @@ export class SaftExportView implements OnInit {
 
     public onJobStart(file: ISaftFileInfo) {
 
-        this.modalService.open(SaftImportModal, 
-            { header: 'SAF-T IMPORT', data: { 
-                IncludeStartingBalance: true, 
+        this.modalService.open(SaftImportModal,
+            { header: 'SAF-T IMPORT', data: {
+                IncludeStartingBalance: true,
                 ReuseExistingNumbers: true,
-                UpdateExistingData: false, 
+                UpdateExistingData: false,
                 file: file } })
         .onClose.subscribe(response => {
-            if (response) { 
+            if (response) {
                 file.busy = true;
                 this.currentFileId = file.FileID;
                 const details = {
@@ -128,7 +129,7 @@ export class SaftExportView implements OnInit {
 
     private loadList() {
         this.busyFetch = true;
-        this.files = [];        
+        this.files = [];
         this.fileService.getStatistics('model=file&select=id,name,size,statuscode,contenttype'
             + ',filetag.tagname as tag,filetag.status as status'
             + "&filter=statuscode eq 20001 and (filetag.tagname eq 'SAFT' or filetag.tagname eq 'jobid')"
@@ -174,7 +175,7 @@ export class SaftExportView implements OnInit {
                         file.disabled = false;
                         file.hasActiveJob = false;
                     } else {
-                        var lastProgress = x.Progress && x.Progress.length > 0 ? 
+                        var lastProgress = x.Progress && x.Progress.length > 0 ?
                             moment(x.Progress[0].Created) : moment();
                         var diff = moment.duration(moment().diff(moment(lastProgress)));
                         file.diff = parseInt(diff.asMinutes().toFixed(0));
@@ -214,7 +215,7 @@ export class SaftExportView implements OnInit {
                                 x => this.refresh()
                             );
                             this.currentFileId = newFile.ID;
-                            this.busy = false;                            
+                            this.busy = false;
                         }, err => this.errorService.handle(err));
                 }, err => this.errorService.handle(err));
         }

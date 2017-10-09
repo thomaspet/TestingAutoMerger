@@ -19,7 +19,7 @@ import {TabService} from './components/layout/navbar/tabstrip/tabService';
 import {ToastService} from '../framework/uniToast/toastService';
 
 import {UniFrameworkModule} from '../framework/frameworkModule';
-import {AuthService} from '../framework/core';
+import {AuthService} from './authService';
 import {AuthGuard} from './authGuard';
 import {UniMicroAngularInternalErrorHandlerOverride} from './UniErrorHandler';
 import {UniQueryModule} from './components/uniquery/uniqueryModule';
@@ -69,6 +69,8 @@ if (window.ENV === 'production') {
         HttpModule,
         RouterModule,
 
+        UniFrameworkModule,
+
         CommonServicesModule.forRoot(),
         ReportServicesModule.forRoot(),
         AccountingServicesModule.forRoot(),
@@ -79,7 +81,7 @@ if (window.ENV === 'production') {
         AssignmentServicesModule.forRoot(),
 
         APP_ROUTES,
-        UniFrameworkModule,
+
 
         // COMMON MODULES
         LayoutModule,
@@ -108,8 +110,8 @@ if (window.ENV === 'production') {
         RoutePermissionGuard,
         CanDeactivateGuard,
         TabService,
-        ToastService,
         COMPILER_PROVIDERS,
+        ToastService,
         {provide: LocationStrategy, useClass: HashLocationStrategy},
         {provide: ErrorHandler, useClass: UniMicroAngularInternalErrorHandlerOverride}
     ],

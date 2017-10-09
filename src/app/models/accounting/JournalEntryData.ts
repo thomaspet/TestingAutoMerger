@@ -40,6 +40,7 @@ export class JournalEntryData {
     Description: string;
 
     FinancialDate: LocalDate;
+    VatDate: LocalDate;
 
     CustomerInvoiceID: number;
     SupplierInvoiceID: number;

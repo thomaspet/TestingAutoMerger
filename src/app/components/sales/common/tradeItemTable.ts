@@ -1,7 +1,13 @@
 import {Component, Input, Output, EventEmitter, ViewChild} from '@angular/core';
 import {Observable} from 'rxjs/Observable';
-import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig} from '../../../../framework/ui/unitable/index';
 import {TradeItemHelper} from '../salesHelper/tradeItemHelper';
+import {
+    UniTable,
+    UniTableColumn,
+    UniTableColumnType,
+    UniTableConfig,
+    IRowChangeEvent
+} from '../../../../framework/ui/unitable/index';
 import {
     VatType,
     Account,
@@ -27,25 +33,25 @@ import {
         <uni-table *ngIf="settings"
                    [resource]="tableData"
                    [config]="tableConfig"
+                   (rowChanged)="onRowChange($event)"
                    (rowDeleted)="onRowDeleted($event.rowModel)">
         </uni-table>
     `
 })
 export class TradeItemTable {
     @ViewChild(UniTable) private table: UniTable;
+
     @Input() public readonly: boolean;
     @Input() public defaultTradeItem: any;
-    @Input() public items: any;
     @Input() public currencyCodeID: number;
     @Input() public currencyExchangeRate: number;
     @Input() public projects: Project[];
     @Input() public configStoreKey: string;
-
+    @Input() public items: any;
     @Output() public itemsChange: EventEmitter<any> = new EventEmitter();
 
     private vatTypes: VatType[] = [];
     private foreignVatType: VatType;
-    private accounts: Account[] = [];
     private tableConfig: UniTableConfig;
     private tableData: any[];
     private settings: CompanySettings;
@@ -61,16 +67,16 @@ export class TradeItemTable {
         private projectTaskService: ProjectTaskService,
         private errorService: ErrorService,
         private companySettingsService: CompanySettingsService
-    ) {
-        this.companySettingsService.Get(1).subscribe(settings => {
-            this.settings = settings;
-        });
-    }
+    ) {}
 
     public ngOnInit() {
-        this.vatTypeService.GetAll('filter=OutputVat eq true').subscribe(
-            (vattypes) => {
-                this.vatTypes = vattypes;
+        Observable.forkJoin(
+            this.companySettingsService.Get(1),
+            this.vatTypeService.GetAll('filter=OutputVat eq true')
+        ).subscribe(
+            res => {
+                this.settings = res[0];
+                this.vatTypes = res[1];
                 this.foreignVatType = this.vatTypes.find(vt => vt.VatCode === '52');
                 this.initTableConfig();
             },
@@ -118,8 +124,6 @@ export class TradeItemTable {
                 item.Dimensions.Project = this.defaultProject;
                 return item;
             });
-        } else {
-            this.tableData = this.items.map(item => { return item; });
         }
     }
 
@@ -287,15 +291,22 @@ export class TradeItemTable {
             .setColumnMenuVisible(true)
             .setDefaultRowData(this.defaultTradeItem)
             .setDeleteButton(!this.readonly)
-            .setChangeCallback((rowModel) => {
-
+            .setCopyFromCellAbove(false)
+            .setIsRowReadOnly(row => row.StatusCode === 41103)
+            .setChangeCallback((event) => {
                 const updatedRow = this.tradeItemHelper.tradeItemChangeCallback(
-                    rowModel,
+                    event,
                     this.currencyCodeID,
                     this.currencyExchangeRate,
                     this.settings,
                     this.foreignVatType
                 );
+
+                // TODO: Product will get own Amount value later! Then remove this
+                if (event.field === 'Product') {
+                    updatedRow.NumberOfItems = 1;
+                }
+
                 updatedRow['_isDirty'] = true;
 
                 if (updatedRow.VatTypeID && !updatedRow.VatType) {
@@ -312,26 +323,80 @@ export class TradeItemTable {
                     }
                 }
 
-
-                const index = updatedRow['_originalIndex'];
-
-                if (index >= 0) {
-                    this.items[index] = updatedRow;
-                } else {
-                    this.items.push(updatedRow);
+                const updatedIndex = updatedRow['_originalIndex'];
+                if (updatedIndex >= 0) {
+                    this.items[updatedIndex] = updatedRow;
                 }
 
-                this.itemsChange.next(this.items);
                 return updatedRow;
+                // Splitting text larger than 250 characters and emitting
+                // item change is handled in rowChange event hook (onRowChange)
+                // because this should happen after changeCallback has finished
             })
-            .setCopyFromCellAbove(false);
+            .setInsertRowHandler((index) => {
+                this.items.splice(index, 0, this.getEmptyRow());
+                this.itemsChange.emit(this.items);
+
+                this.tableData = this.items.filter(row => !row.Deleted); // trigger change detection
+            });
+    }
+
+    public onRowChange(event: IRowChangeEvent) {
+        let updatedRow = event.rowModel;
+        let updatedIndex = event.originalIndex;
+
+        // If freetext on row is more than 250 characters we need
+        // to split it into multiple rows
+        if (updatedRow.ItemText && updatedRow.ItemText.length > 250) {
+            // Split the text into parts of 250 characters
+            let stringParts = updatedRow.ItemText.match(/.{1,250}/g);
+
+            updatedRow.ItemText = stringParts.shift();
+
+            // Add the remaining string parts to new rows below
+            stringParts.forEach((text, extraRowCounter) => {
+                let newRow = this.getEmptyRow();
+                newRow.ItemText = text;
+
+                const insertIndex = updatedIndex + extraRowCounter + 1;
+                this.items.splice(insertIndex, 0, newRow);
+            });
+
+            this.items[updatedIndex] = updatedRow;
+
+            // Trigger change in table
+            this.tableData = this.items.filter(row => !row.Deleted);
+        }
+
+        // Emit change event
+        this.itemsChange.next(this.items);
+    }
+
+    private getEmptyRow() {
+        // Object.assign to make sure the row is a copy, not a reference
+        let row: any = Object.assign({}, this.defaultTradeItem);
+        row['_isEmpty'] = false; // avoid unitable filtering it out
+        row['_createguid'] = this.productService.getNewGuid();
+        row.Dimensions = null;
+
+        return row;
     }
 
     public onRowDeleted(row) {
-        if (row.ID) {
-            this.items[row['_originalIndex']].Deleted = true;
-        } else {
-            this.items.splice(row['_originalIndex'], 1);
+        let deleteIndex = this.items.findIndex(item => {
+            if (row.ID) {
+                return item.ID === row.ID;
+            } else if (row['_createguid']) {
+                return item['_createguid'] === row['_createguid'];
+            }
+        });
+
+        if (deleteIndex >= 0) {
+            if (this.items[deleteIndex].ID) {
+                this.items[deleteIndex].Deleted = true;
+            } else {
+                this.items.splice(deleteIndex, 1);
+            }
         }
 
         this.itemsChange.next(this.items);

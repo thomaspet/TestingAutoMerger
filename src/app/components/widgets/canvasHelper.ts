@@ -1,11 +1,23 @@
-import {IUniWidget, IWidgetLayout} from './widgetCanvas';
+import {IWidgetLayout} from './widgetCanvas';
+import {IUniWidget, WIDGET_MAP} from './uniWidget';
 
 export class CanvasHelper {
     public canvasGrid: boolean[][];
     private numColumns: number;
     private numRows: number;
 
-    public getLayout(name: string): IWidgetLayout {
+    public verifyCustomLayout(layout: IWidgetLayout) {
+        const widgets = [
+            ...layout.large,
+            ...layout.medium,
+            ...layout.small
+        ];
+
+        // Verify that all widgets are in our map of available widgets
+        return widgets.every(w => !!WIDGET_MAP[w.widgetType]);
+    }
+
+    public getSavedLayout(name: string): IWidgetLayout {
         if (!name || !name.length) {
             return;
         }
@@ -13,7 +25,13 @@ export class CanvasHelper {
         try {
             const layoutStore = JSON.parse(localStorage.getItem('uni_widget_layouts'));
             if (layoutStore[name]) {
-                return layoutStore[name];
+                let layout =  layoutStore[name];
+                if (this.verifyCustomLayout(layout)) {
+                    return layout;
+                } else {
+                    window.alert('Something wrong with custom layout, resetting!');
+                    this.removeLayout(name);
+                }
             }
         } catch (e) {}
     }

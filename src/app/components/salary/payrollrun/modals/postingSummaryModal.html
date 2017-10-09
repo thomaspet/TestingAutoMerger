@@ -1,13 +1,13 @@
-<dialog class="postingsummary">
+<section role="dialog" class="postingsummary">
     <header>
         <h1>{{headerString}}</h1>
     </header>
-    <main [attr.aria-busy]="busy">
+    <article [attr.aria-busy]="busy">
         <section *ngIf="!showReceipt" class="unitableWidthAuto">
             <uni-table *ngIf="summary" [resource]="summary.PostList" [config]="accountTableConfig"></uni-table>
             <label>Kontrollsum totalt: </label> {{getAccountingSum() | unicurrency }}
         </section>
-            
+
         <section *ngIf="showReceipt">
             <p>Bilaget er bokført i ditt regnskap</p>
             <p>
@@ -17,7 +17,7 @@
             </p>
             <p>Dato {{journalDate}}</p>
         </section>
-    </main>
+    </article>
 
     <footer class="postingsummary_footer">
         <section *ngIf="!showReceipt">
@@ -26,4 +26,4 @@
         </section>
         <button [disabled]="busy" *ngIf="showReceipt" (click)="close()" class="good">OK</button>
     </footer>
-</dialog>
+</section>

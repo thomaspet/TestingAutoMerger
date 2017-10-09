@@ -32,6 +32,7 @@ const EMPLOYMENTS_KEY = 'employments';
 const RECURRING_POSTS_KEY = 'recurringPosts';
 const EMPLOYEE_LEAVE_KEY = 'employeeLeave';
 const EMPLOYEE_KEY = 'employee';
+const SUB_ENTITIES_KEY = 'subEntities';
 type DirtyStatuses = {
     employee?: boolean,
     employeeTaxCard?: boolean,
@@ -241,6 +242,28 @@ export class EmployeeDetails extends UniView implements OnDestroy {
             super.updateCacheKey(this.router.url);
             if (!this.employeeID) {
                 this.cacheService.clearPageCache(this.cacheKey);
+
+                Observable
+                    .combineLatest(
+                    super.getStateSubject(EMPLOYEE_KEY),
+                    super.getStateSubject(SUB_ENTITIES_KEY)
+                    )
+                    .take(1)
+                    .map((result: [Employee, SubEntity[]]) => {
+                        let [emp, subEntities] = result;
+
+                        if (!emp.SubEntityID) {
+                            if (subEntities && subEntities.length > 1) {
+                                subEntities = subEntities.filter(sub => sub.SuperiorOrganizationID);
+                            }
+                            if (subEntities && subEntities.length === 1) {
+                                emp.SubEntityID = subEntities[0].ID;
+                            }
+                        }
+
+                        return emp;
+                    })
+                    .subscribe(emp => super.updateState(EMPLOYEE_KEY, emp, super.isDirty(EMPLOYEE_KEY)));
             }
 
             this.employments = undefined;
@@ -299,7 +322,7 @@ export class EmployeeDetails extends UniView implements OnDestroy {
                 this.checkDirty();
             }, err => this.errorService.handle(err));
 
-            super.getStateSubject('subEntities').subscribe((subEntities: SubEntity[]) => {
+            super.getStateSubject(SUB_ENTITIES_KEY).subscribe((subEntities: SubEntity[]) => {
                 this.subEntities = subEntities;
             }, err => this.errorService.handle(err));
 

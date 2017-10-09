@@ -76,7 +76,7 @@
                 "DisplayForSubTickers": false
             },
             {
-                "Name": "Vis bilag",
+                "Name": "Åpne bilag",
                 "Code": "open_journalentry",
                 "Type": "details",
                 "DisplayInContextMenu": true,
@@ -214,7 +214,8 @@
                 "Code": "open_supplierinvoice",
                 "Type": "details",
                 "DisplayInContextMenu": true,
-                "DisplayInActionBar": true
+                "ExecuteWithoutSelection": true,
+                "DisplayInActionBar": false
             },
             {
                 "Name": "Eksporter",
@@ -502,11 +503,12 @@
                 "Type": "new"
             },
             {
-                "Name": "Vis leverandør",
+                "Name": "Åpne leverandør",
                 "Code": "open_supplier",
                 "Type": "details",
                 "DisplayInContextMenu": true,
-                "DisplayInActionBar": true
+                "ExecuteWithoutSelection": true,
+                "DisplayInActionBar": false
             },
             {
                 "Name": "Eksporter",

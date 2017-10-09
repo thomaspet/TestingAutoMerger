@@ -18,7 +18,9 @@ export class UniBreadcrumbs {
     private moduleID: UniModules;
     private crumbs: any[] = [];
 
-    constructor(private tabService: TabService) {
+    constructor(private tabService: TabService) {}
+
+    public ngOnChanges() {
         this.tabService.activeTab$.subscribe((activeTab) => {
             if (activeTab) {
                 this.moduleID = activeTab.moduleID;

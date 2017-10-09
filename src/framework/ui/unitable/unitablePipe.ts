@@ -1,7 +1,6 @@
 import {Pipe, PipeTransform} from '@angular/core';
 import {UniTableColumnType} from './config/unitableColumn';
 import * as moment from 'moment';
-import {LocalDate} from './controls/localDatePicker/LocalDate';
 import * as Immutable from 'immutable';
 
 @Pipe({

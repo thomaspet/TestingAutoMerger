@@ -25,6 +25,7 @@ type eventListenerRemover = () => void;
         <uni-search
             [config]="field.Options.uniSearchConfig"
             (changeEvent)="onChange($event)"
+            [disabled]="readOnly$ | async"
         ></uni-search>
         <ng-content></ng-content>
     `
@@ -105,7 +106,7 @@ export class UniSearchWrapper extends BaseControl implements OnInit, AfterViewIn
                         this.field.Options.uniSearchConfig.initialItem$.next(source);
                     });
                 } else if (value && this.field.Property.endsWith('ID')) {
-                    this.field.Options.uniSearchConfig.expandOrCreateFn({ID: value})
+                    this.field.Options.uniSearchConfig.onSelect({ID: value})
                         .subscribe(expandedModel => {
                             this.field.Options.uniSearchConfig.initialItem$.next(expandedModel);
                             this.previousModelValue = this.field.Options.valueProperty
@@ -133,16 +134,6 @@ export class UniSearchWrapper extends BaseControl implements OnInit, AfterViewIn
     public focus() {
         this.input.focus();
         this.input.select();
-    }
-
-    public readMode() {
-        this.field.ReadOnly = true;
-        this.cd.markForCheck();
-    }
-
-    public editMode() {
-        this.field.ReadOnly = false;
-        this.cd.markForCheck();
     }
 
     public ngOnDestroy() {

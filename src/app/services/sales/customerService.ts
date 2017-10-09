@@ -20,6 +20,12 @@ export class CustomerService extends BizHttp<Customer> {
         this.defaultExpand = ["Info"];
     }
 
+    public deleteCustomer(id: any): any {
+        return this.http.asDELETE().withDefaultHeaders().usingBusinessDomain().withEndPoint('customers/' + id)
+            .send();
+    }
+
+
     public getCustomerStatistics(customerID: number): Observable<CustomerStatisticsData> {
         return Observable.forkJoin(
            this.statisticsService

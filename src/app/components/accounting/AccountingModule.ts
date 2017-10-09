@@ -51,8 +51,8 @@ import {BillView} from './bill/detail/bill';
 import {BillSimpleJournalEntryView, AccountPipe, VatCodePipe, TrimTextPipe} from './bill/detail/journal/simple';
 import {BillHistoryView} from './bill/detail/history/history';
 import {UniAssignModal} from './bill/detail/assignmodal';
+import {UniAddFileModal} from './bill/detail/addFileModal';
 import {MyStringFilterPipe} from './bill/detail/assignmodal';
-import {UniApproveModal} from './bill/detail/approvemodal';
 import {AccountSettings} from './accountSettings/accountSettings';
 import {DimensionList} from './accountSettings/dimensionList/dimensionList';
 import {AccountList} from './accountSettings/accountList/accountList';
@@ -62,7 +62,7 @@ import {VatTypeDetails} from './vatsettings/vattypedetails/vattypedetails';
 import {VatTypeList} from './vatsettings/vattypelist/vatTypeList';
 import {VatDeductionSettings} from './vatsettings/vatdeductions/vatdeductionsettings';
 import {PostPost} from './postpost/postpost';
-import {SupplierDetailsModal} from './supplier/details/supplierDetailsModal';
+import {UniNewSupplierModal} from './supplier/details/newSupplierModal';
 import {SupplierDetails} from './supplier/details/supplierDetails';
 import {SupplierList} from './supplier/list/supplierList';
 
@@ -99,7 +99,7 @@ import {SupplierList} from './supplier/list/supplierList';
 
         SupplierList,
         SupplierDetails,
-        SupplierDetailsModal,
+        UniNewSupplierModal,
 
         // journalentry
         JournalEntryProfessional,
@@ -112,7 +112,7 @@ import {SupplierList} from './supplier/list/supplierList';
         BillSimpleJournalEntryView, BillHistoryView,
         AccountPipe, VatCodePipe, TrimTextPipe,
         SelectJournalEntryLineModal, SelectJournalEntryLineTable,
-        UniAssignModal, UniApproveModal,MyStringFilterPipe,
+        UniAssignModal, MyStringFilterPipe, UniAddFileModal,
 
         // vatreport
         CheckListVat,
@@ -152,7 +152,8 @@ import {SupplierList} from './supplier/list/supplierList';
         SelectJournalEntryLineTable,
         NewAccountForm,
         UniAssignModal,
-        UniApproveModal
+        UniAddFileModal,
+        UniNewSupplierModal
     ],
     exports: [
         AccountSettings,
@@ -166,7 +167,6 @@ import {SupplierList} from './supplier/list/supplierList';
         VatDeductionSettings,
         SupplierList,
         SupplierDetails,
-        SupplierDetailsModal,
 
         // journalentry
         JournalEntryProfessional,

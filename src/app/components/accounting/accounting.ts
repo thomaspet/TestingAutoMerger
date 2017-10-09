@@ -135,19 +135,6 @@ export class UniAccounting {
                 height: 1,
                 x: 8,
                 y: 0,
-                widgetType: 'shortcut',
-                config: {
-                    label: 'Leverandører',
-                    description: 'Leverandører',
-                    icon: '',
-                    link: '/accounting/suppliers'
-                }
-            },
-            {
-                width: 1,
-                height: 1,
-                x: 9,
-                y: 0,
                 widgetType: 'counter', // TODO: enum
                 config: {
                     label: 'Epost',
@@ -163,7 +150,7 @@ export class UniAccounting {
             {
                 width: 1,
                 height: 1,
-                x: 10,
+                x: 9,
                 y: 0,
                 widgetType: 'counter', // TODO: enum
                 config: {
@@ -180,7 +167,7 @@ export class UniAccounting {
             {
                 width: 1,
                 height: 1,
-                x: 11,
+                x: 10,
                 y: 0,
                 widgetType: 'counter', // TODO: enum
                 config: {
@@ -231,27 +218,6 @@ export class UniAccounting {
                 widgetType: 'kpi',
                 config: {
                     header: 'Nøkkeltall'
-                }
-            },
-
-            {
-                width: 4,
-                height: 3,
-                x: 8,
-                y: 1,
-                widgetType: 'list',
-                config: {
-                    header: 'Siste endringer',
-                    dataEndPoint: "/api/statistics?model=AuditLog&select=id,entitytype,transaction,route,action,entityid,User.ID,field,User.displayname,createdat,updatedat&filter=field eq 'updatedby' and ( not contains(entitytype,'item') ) &join=auditlog.createdby eq user.globalidentity&top=50&orderby=id desc",
-                    listItemKeys: {
-                        username: 'UserDisplayName',
-                        module: 'AuditLogEntityType',
-                        action: 'AuditLogField',
-                        moduleID: 'AuditLogEntityID',
-                        time: 'AuditLogCreatedAt',
-                        uniqueID: 'AuditLogTransaction',
-                        numberToDisplay: 10
-                    }
                 }
             }
         ];

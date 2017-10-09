@@ -145,7 +145,7 @@ export class Dashboard {
                 width: 1,
                 height: 1,
                 x: 8,
-                y: 4,
+                y: 1,
                 widgetType: 'counter', // TODO: enum
                 config: {
                     label: 'Epost',
@@ -162,7 +162,7 @@ export class Dashboard {
                 width: 1,
                 height: 1,
                 x: 9,
-                y: 4,
+                y: 1,
                 widgetType: 'counter', // TODO: enum
                 config: {
                     label: 'EHF',
@@ -179,7 +179,7 @@ export class Dashboard {
                 width: 1,
                 height: 1,
                 x: 10,
-                y: 4,
+                y: 1,
                 widgetType: 'counter', // TODO: enum
                 config: {
                     label: 'Tildelte',
@@ -196,7 +196,7 @@ export class Dashboard {
                 width: 1,
                 height: 1,
                 x: 11,
-                y: 4,
+                y: 1,
                 widgetType: 'counter', // TODO: enum
                 config: {
                     label: 'Varsler',
@@ -212,7 +212,7 @@ export class Dashboard {
                 width: 2,
                 height: 1,
                 x: 8,
-                y: 5,
+                y: 2,
                 widgetType: 'flex', // TODO: enum
                 config: {}
             },
@@ -220,7 +220,7 @@ export class Dashboard {
                 width: 2,
                 height: 1,
                 x: 10,
-                y: 5,
+                y: 2,
                 widgetType: 'overdue', // TODO: enum
                 config: {}
             },
@@ -317,26 +317,6 @@ export class Dashboard {
                         legend: {
                             position: 'bottom'
                         }
-                    }
-                }
-            },
-            {
-                width: 4,
-                height: 3,
-                x: 8,
-                y: 1,
-                widgetType: 'list',
-                config: {
-                    header: 'Siste endringer',
-                    dataEndPoint: "/api/statistics?model=AuditLog&select=id,entitytype,transaction,route,action,entityid,User.ID,field,User.displayname,createdat,updatedat&filter=field eq 'updatedby' and ( not contains(entitytype,'item') ) &join=auditlog.createdby eq user.globalidentity&top=50&orderby=id desc",
-                    listItemKeys: {
-                        username: 'UserDisplayName',
-                        module: 'AuditLogEntityType',
-                        action: 'AuditLogField',
-                        moduleID: 'AuditLogEntityID',
-                        time: 'AuditLogCreatedAt',
-                        uniqueID: 'AuditLogTransaction',
-                        numberToDisplay: 10
                     }
                 }
             }

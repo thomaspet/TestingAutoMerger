@@ -536,7 +536,6 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
     }
 
     private setDescriptionProperties(rowModel: JournalEntryData): JournalEntryData {
-
         let journalEntryLineDescription = rowModel.Description;
         if (journalEntryLineDescription == null) { return rowModel; }
         let macroCodesInDescription: Array<string> = [];
@@ -736,7 +735,12 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 return item.JournalEntryNo ? item.JournalEntryNo : '';
             });
 
-        let financialDateCol = new UniTableColumn('FinancialDate', 'Dato', UniTableColumnType.LocalDate).setWidth('110px');
+        let vatDateCol = new UniTableColumn('VatDate', 'Dato', UniTableColumnType.LocalDate)
+            .setWidth('110px');
+
+        let financialDateCol = new UniTableColumn('FinancialDate', 'Regnskapsdato', UniTableColumnType.LocalDate)
+            .setWidth('110px')
+            .setVisible(false);
 
         let invoiceNoCol = new UniTableColumn('CustomerInvoice', 'Faktura', UniTableColumnType.Lookup)
             .setDisplayField('InvoiceNumber')
@@ -988,6 +992,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
             columns = [
                 sameOrNewCol,
                 invoiceNoCol,
+                vatDateCol,
                 financialDateCol,
                 debitAccountCol,
                 creditAccountCol,
@@ -1004,6 +1009,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
             tableName = 'accounting.journalEntry.manual';
             columns = [
                 sameOrNewCol,
+                vatDateCol,
                 financialDateCol,
                 invoiceNoTextCol,
                 dueDateCol,
@@ -1120,8 +1126,8 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 } else if (event.field === 'CurrencyCode') {
                     if (this.mode === JournalEntryMode.Manual && row.CurrencyCode) {
                         rowOrPromise = this.getExternalCurrencyExchangeRate(row)
-                            .then(row => this.calculateAmount(row))
-                            .then(row => this.calculateNetAmountAndNetAmountCurrency(row));
+                            .then(r => this.calculateAmount(r))
+                            .then(r => this.calculateNetAmountAndNetAmountCurrency(r));
                     } else {
                         row = this.calculateAmount(row);
                         row = this.calculateNetAmountAndNetAmountCurrency(row);
@@ -1129,12 +1135,12 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 } else if (event.field === 'NetAmountCurrency') {
                     row = this.calculateGrossAmount(row);
                     row = this.calculateAmount(row);
-                } else if (event.field === 'FinancialDate') {
+                } else if (event.field === 'VatDate') {
                     if (this.mode === JournalEntryMode.Manual && row.CurrencyCode) {
                         rowOrPromise = this.getExternalCurrencyExchangeRate(row)
-                            .then(row => this.setVatDeductionPercent(row))
-                            .then(row => this.calculateNetAmountAndNetAmountCurrency(row))
-                            .then(row => this.calculateAmount(row));
+                            .then(r => this.setVatDeductionPercent(r))
+                            .then(r => this.calculateNetAmountAndNetAmountCurrency(r))
+                            .then(r => this.calculateAmount(r));
                     } else {
                         row = this.setVatDeductionPercent(row);
                         row = this.calculateNetAmountAndNetAmountCurrency(row);
@@ -1482,6 +1488,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
         oppositeRow.InvoiceNumber = journalEntryData.InvoiceNumber;
         oppositeRow.CustomerInvoice = journalEntryData.CustomerInvoice;
         oppositeRow.CustomerInvoiceID = journalEntryData.CustomerInvoiceID;
+        oppositeRow.VatDate = journalEntryData.VatDate;
         oppositeRow.FinancialDate = journalEntryData.FinancialDate;
         oppositeRow.Dimensions = journalEntryData.Dimensions;
         oppositeRow.Description = journalEntryData.Description;
@@ -1508,6 +1515,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
         agioRow.CustomerInvoice = journalEntryData.CustomerInvoice;
         agioRow.SameOrNew = journalEntryData.SameOrNew;
         agioRow.JournalEntryNo = journalEntryData.JournalEntryNo;
+        agioRow.VatDate = journalEntryData.VatDate;
         agioRow.FinancialDate = journalEntryData.FinancialDate;
         agioRow.Dimensions = journalEntryData.Dimensions;
         agioRow.Description = journalEntryData.Description;

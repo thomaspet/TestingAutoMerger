@@ -15,7 +15,7 @@ import {
     ReportDefinitionService,
     CustomerInvoiceReminderService,
     NumberFormat,
-    ReportService
+    EmailService
 } from '../../../../services/services';
 import {
     UniTable,
@@ -94,8 +94,8 @@ export class ReminderSending implements OnInit {
         private reminderService: CustomerInvoiceReminderService,
         private reportDefinitionService: ReportDefinitionService,
         private numberFormat: NumberFormat,
-        private reportService: ReportService,
-        private modalService: UniModalService
+        private modalService: UniModalService,
+        private emailService: EmailService
     ) {}
 
     public ngOnInit() {
@@ -371,7 +371,7 @@ export class ReminderSending implements OnInit {
                 email.Message = `Vedlagt finner du purring ${r.ReminderNumber} for faktura ${r.InvoiceNumber}`;
 
                 let parameters = [{Name: 'odatafilter', value: `ID eq ${r.ID}`}];
-                this.reportService.generateReportSendEmail('Purring', email, parameters, doneHandler);
+                this.emailService.sendEmailWithReportAttachment('Purring', email, parameters, doneHandler);
             });
         });
     }
@@ -498,41 +498,14 @@ export class ReminderSending implements OnInit {
         return {
             Name: 'RunNumberList',
             BaseEntity: 'CustomerInvoiceReminder',
-            StatusCode: 0,
-            Deleted: false,
-            CreatedAt: null,
-            UpdatedAt: null,
-            CreatedBy: null,
-            UpdatedBy: null,
-            ID: 1,
-            CustomFields: null,
             Fields: [
                 {
-                    ComponentLayoutID: 1,
                     EntityType: 'CustomerInvoiceReminder',
                     Property: 'RunNumber',
-                    Placement: 4,
-                    Hidden: false,
                     FieldType: FieldType.DROPDOWN,
-                    ReadOnly: false,
-                    LookupField: false,
                     Label: 'Velg jobb',
-                    Description: '',
-                    HelpText: '',
                     FieldSet: 0,
                     Section: 0,
-                    Placeholder: null,
-                    LineBreak: null,
-                    Combo: null,
-                    Legend: '',
-                    StatusCode: 0,
-                    ID: 1,
-                    Deleted: false,
-                    CreatedAt: null,
-                    UpdatedAt: null,
-                    CreatedBy: null,
-                    UpdatedBy: null,
-                    CustomFields: null,
                     Options: {
                         source: this.runNumbers,
                         valueProperty: 'RunNumber',

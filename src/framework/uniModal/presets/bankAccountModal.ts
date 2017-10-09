@@ -1,4 +1,4 @@
-import {Component, Input, Output, EventEmitter} from '@angular/core';
+import {Component, Input, Output, EventEmitter, ElementRef} from '@angular/core';
 import {UniFieldLayout, FieldType} from '../../ui/uniform/index';
 import {Bank, BankAccount, Account} from '../../../app/unientities';
 import {ToastService, ToastType} from '../../uniToast/toastService';
@@ -7,11 +7,12 @@ import {
     IModalOptions,
     IUniModal,
     UniModalService,
-    UniConfirmModalV2,
     ConfirmActions
-} from '../barrel';
+} from '../modalService';
+import {UniConfirmModalV2} from './confirmModal';
 import {Observable} from 'rxjs/Observable';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
+import {KeyCodes} from '../../../app/services/common/keyCodes';
 
 @Component({
     selector: 'uni-bankaccount-modal',
@@ -25,6 +26,7 @@ import {BehaviorSubject} from 'rxjs/BehaviorSubject';
                     [config]="formConfig$"
                     [fields]="formFields$"
                     [model]="formModel$"
+                    (readyEvent)="onReady($event)"
                     (changeEvent)="onFormChange($event)">
                 </uni-form>
             </article>
@@ -50,7 +52,7 @@ export class UniBankAccountModal implements IUniModal {
     @Output()
     public onClose: EventEmitter<any> = new EventEmitter();
 
-    public formConfig$: BehaviorSubject<any> = new BehaviorSubject({autofocus: true});
+    public formConfig$: BehaviorSubject<any> = new BehaviorSubject({autofocus: false});
     private formModel$: BehaviorSubject<BankAccount> = new BehaviorSubject(null);
     private formFields$: BehaviorSubject<UniFieldLayout[]> = new BehaviorSubject([]);
 
@@ -62,13 +64,33 @@ export class UniBankAccountModal implements IUniModal {
         private bankService: BankService,
         private accountService: AccountService,
         private errorService: ErrorService,
-        private toastService: ToastService
+        private toastService: ToastService,
+        private elementRef: ElementRef
     ) {}
 
     public ngOnInit() {
-        let accountInfo = this.options.data || {};
+        const accountInfo = this.options.data || {};
+        const fields = this.getFormFields();
+
+        if (accountInfo._initValue && fields[0] && !accountInfo[fields[0].Property]) {
+            accountInfo[fields[0].Property] = accountInfo._initValue;
+        }
         this.formModel$.next(accountInfo);
         this.formFields$.next(this.getFormFields());
+    }
+
+    public onReady() {
+        const inputs = <HTMLInputElement[]> this.elementRef.nativeElement.querySelectorAll('input');
+        if (inputs.length) {
+            const first = inputs[0];
+            first.focus();
+            first.value = first.value; // set cursor at end of text
+
+            const last = inputs[inputs.length - 1];
+            Observable.fromEvent(last, 'keydown')
+                .filter((event: KeyboardEvent) => (event.which || event.keyCode) === KeyCodes.ENTER)
+                .subscribe(() => this.close(true));
+        }
     }
 
     public close(emitValue?: boolean) {
@@ -77,7 +99,7 @@ export class UniBankAccountModal implements IUniModal {
         if (emitValue) {
             account = this.formModel$.getValue();
 
-            if (account.Bank.BIC === '' || account.Bank.BIC === null) {
+            if (!account.Bank || account.Bank.BIC === '' || account.Bank.BIC === null) {
                this.toastService.addToast('Mangler BIC!', ToastType.bad, 5, 'Du må oppgi en BIC for Banken.') ;
                return;
             }

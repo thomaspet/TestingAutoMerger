@@ -1,7 +1,7 @@
 import {Component, ChangeDetectorRef, ChangeDetectionStrategy} from '@angular/core';
 import {Router, NavigationEnd} from '@angular/router';
 import {TabService, UniModules} from './tabService';
-import {AuthService} from '../../../../../framework/core/authService';
+import {AuthService} from '../../../../authService';
 import {Subscription} from 'rxjs/Subscription';
 
 export interface IUniTab {
@@ -26,7 +26,7 @@ export interface IUniTab {
                     [ngClass]="{'router-tab-active': tab.active}"
                     [title]="tab.name">
                     {{tab.name}}
-                    <span class="close" (click)="closeTab(idx)"></span>
+                    <span class="close" (click)="closeTab(idx, $event)"></span>
                 </li>
             </ng-template>
         </ol>
@@ -96,7 +96,11 @@ export class UniTabStrip {
         this.router.navigateByUrl('/');
     }
 
-    public closeTab(index: number): void {
+    public closeTab(index: number, event?: MouseEvent): void {
+        if (event) {
+            event.stopPropagation();
+        }
+
         this.tabService.closeTab(index);
     }
 }

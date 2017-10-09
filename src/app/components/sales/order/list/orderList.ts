@@ -1,10 +1,11 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, OnInit, ViewChild} from '@angular/core';
 import {Router} from '@angular/router';
 import {UniHttp} from '../../../../../framework/core/http/http';
 import {CompanySettings} from '../../../../unientities';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
 import {SendEmail} from '../../../../models/sendEmail';
 import {ToastService} from '../../../../../framework/uniToast/toastService';
+import {UniTickerWrapper} from '../../../uniticker/tickerWrapper/tickerWrapper';
 import {
     ITickerActionOverride,
     ITickerColumnOverride
@@ -14,11 +15,12 @@ import {
     ReportDefinitionService,
     ErrorService,
     CompanySettingsService,
-    ReportService
+    EmailService
 } from '../../../../services/services';
 import {
     UniModalService,
-    UniSendEmailModal
+    UniSendEmailModal,
+    ConfirmActions
 } from '../../../../../framework/uniModal/barrel';
 
 @Component({
@@ -26,10 +28,16 @@ import {
     templateUrl: './orderList.html'
 })
 export class OrderList implements OnInit {
+    @ViewChild(UniTickerWrapper) private tickerWrapper: UniTickerWrapper;
     private actionOverrides: Array<ITickerActionOverride> = [
         {
             Code: 'order_sendemail',
             ExecuteActionHandler: (selectedRows) => this.onSendEmail(selectedRows)
+        },
+        {
+            Code: 'order_delete',
+            ExecuteActionHandler: (selectedRows) => this.deleteOrders(selectedRows)
+
         }
     ];
 
@@ -58,8 +66,8 @@ export class OrderList implements OnInit {
         private toastService: ToastService,
         private errorService: ErrorService,
         private companySettingsService: CompanySettingsService,
-        private reportService: ReportService,
-        private modalService: UniModalService
+        private modalService: UniModalService,
+        private emailService: EmailService
     ) {}
 
     public ngOnInit() {
@@ -85,6 +93,31 @@ export class OrderList implements OnInit {
     }
 
 
+
+    private deleteOrders(selectedRows: Array<any>): Promise<any> {
+        let order = selectedRows[0];
+        return new Promise((resolve, reject) => {
+            this.modalService.confirm({
+                header: 'Slette ordre',
+                message: 'Vil du slette denne ordren?',
+                buttonLabels: {
+                    accept: 'Slett',
+                    cancel: 'Avbryt'
+                }
+            }).onClose.subscribe(answer => {
+                if (answer === ConfirmActions.ACCEPT) {
+                    resolve(
+                        this.customerOrderService.Remove(order.ID, null)
+                            .toPromise()
+                            .then(() => this.tickerWrapper.refreshTicker())
+                            .catch(err => this.errorService.handle(err))
+                    );
+                }
+                resolve();
+            });
+        });
+    }
+
     private onSendEmail(selectedRows: Array<any>): Promise<any> {
         let order = selectedRows[0];
 
@@ -102,7 +135,7 @@ export class OrderList implements OnInit {
                 data: model
             }).onClose.subscribe(email => {
                 if (email) {
-                    this.reportService.generateReportSendEmail('Ordre id', email);
+                    this.emailService.sendEmailWithReportAttachment('Ordre id', email);
                 }
                 resolve();
             });

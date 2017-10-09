@@ -29,6 +29,10 @@ export class ErrorService {
 
         this.logger.exception(error);
 
+        if (error.status === 401) {
+            return;
+        }
+
         this.addErrorToast(toastMsg || message);
     }
 

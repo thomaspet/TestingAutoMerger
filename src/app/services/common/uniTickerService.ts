@@ -6,7 +6,7 @@ import {Http} from '@angular/http';
 import {BrowserStorageService} from './browserStorageService';
 import {Observable} from 'rxjs/Observable';
 import {NumberFormat} from './numberFormatService';
-import {AuthService} from '../../../framework/core/authService';
+import {AuthService} from '../../authService';
 import {ApiModelService, ModuleConfig, ApiModel} from './apiModelService';
 import {ErrorService} from './errorService';
 import {StatusService} from './statusService';
@@ -888,6 +888,8 @@ export class UniTickerService { //extends BizHttp<UniQueryDefinition> {
     }
 }
 
+// Refactor: no need for these to be classes??
+// Also, lowerCamelCase por favor
 export class TickerGroup {
     public Name: string;
     public Tickers: Array<Ticker>;
@@ -948,6 +950,7 @@ export class TickerColumn {
     public FilterOperator?: string;
     public SubFields?: Array<TickerColumn>;
     public Placeholder?: string;
+    public FieldSetColumn?: number;
 }
 
 export interface ITickerColumnOverride {

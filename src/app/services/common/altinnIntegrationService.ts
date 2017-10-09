@@ -26,6 +26,8 @@ export class AltinnIntegrationService extends BizHttp<Altinn> {
 
     constructor(http: UniHttp, private subEntityService: SubEntityService, private integrate: IntegrationServerCaller) {
         super(http);
+        super.disableCache();
+
         this.relativeURL = Altinn.RelativeUrl;
         this.entityType = Altinn.EntityType;
         this.inServer = integrate;
@@ -50,8 +52,8 @@ export class AltinnIntegrationService extends BizHttp<Altinn> {
     }
 
     public sendTaxRequestAction(
-        option: string, 
-        empId: number = 0, 
+        option: string,
+        empId: number = 0,
         empsAndChanged: boolean = false): Observable<AltinnReceipt> {
         return this.PostAction(1, 'sendtaxrequest', 'option=' + option + '&empId=' + empId + '&requestAllChanges=' + empsAndChanged);
     }
@@ -77,101 +79,40 @@ export class AltinnIntegrationService extends BizHttp<Altinn> {
 
     public getLayout() {
         return Observable.from([{
-            StatusCode: 0,
             Name: 'Altinn',
             BaseEntity: 'Altinn',
-            Deleted: false,
-            CreatedAt: null,
-            UpdatedAt: null,
-            CreatedBy: null,
-            UpdatedBy: null,
-            ID: 1,
-            CustomFields: null,
             Fields: [
                 {
-                    ComponentLayoutID: 1,
                     EntityType: 'Altinn',
                     Property: 'SystemID',
-                    Placement: 1,
-                    ID: 1,
-                    Hidden: false,
                     FieldType: FieldType.TEXT,
-                    ReadOnly: false,
-                    LookupField: false,
                     Label: 'ID fra Altinn',
                     Description: 'Description',
                     HelpText: 'Tall, Id fås av Altinn ved oppsett av datasystem (minst 6 tegn)',
                     FieldSet: 0,
                     Section: 0,
-                    Placeholder: null,
-                    Options: null,
-                    LineBreak: null,
-                    Combo: null,
                     Legend: 'Legend',
-                    StatusCode: 0,
-                    Deleted: false,
-                    CreatedAt: null,
-                    UpdatedAt: null,
-                    CreatedBy: null,
-                    UpdatedBy: null,
-                    CustomFields: null,
                     hasLineBreak: true
                 },
                 {
-                    ComponentLayoutID: 1,
                     EntityType: 'Altinn',
                     Property: 'SystemPw',
-                    Placement: 2,
-                    ID: 1,
-                    Hidden: false,
                     FieldType: FieldType.PASSWORD,
-                    ReadOnly: false,
-                    LookupField: false,
                     Label: 'Passord',
-                    Description: '',
                     HelpText: 'Samme passord som ble satt opp i Altinn ved oppsett datasystem',
                     FieldSet: 0,
                     Section: 0,
-                    Placeholder: null,
-                    Options: null,
-                    LineBreak: null,
-                    Combo: null,
-                    Legend: '',
-                    StatusCode: 0,
-                    Deleted: false,
-                    CreatedAt: null,
-                    UpdatedAt: null,
-                    CreatedBy: null,
-                    UpdatedBy: null,
-                    CustomFields: null,
                     hasLineBreak: true
                 },
                 {
-                    ComponentLayoutID: 1,
                     EntityType: 'Altinn',
                     Property: 'Language',
-                    Placement: 3,
-                    ID: 1,
-                    Hidden: false,
                     FieldType: FieldType.DROPDOWN,
-                    ReadOnly: false,
-                    LookupField: false,
                     Label: 'Foretrukket språk',
                     Description: '',
                     HelpText: 'Her kan en velge det foretrukne språket for dette firmaet for Altinn (nynorsk, bokmål, samisk, engelsk)',
                     FieldSet: 0,
                     Section: 0,
-                    Placeholder: null,
-                    LineBreak: null,
-                    Combo: null,
-                    Legend: '',
-                    StatusCode: 0,
-                    Deleted: false,
-                    CreatedAt: null,
-                    UpdatedAt: null,
-                    CreatedBy: null,
-                    UpdatedBy: null,
-                    CustomFields: null,
                     IsLookUp: true,
                     Options: {
                         source: this.languages,

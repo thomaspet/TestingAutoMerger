@@ -27,6 +27,7 @@ export class SupplierInvoiceService extends BizHttp<SupplierInvoice> {
 
     constructor(http: UniHttp, private errorService: ErrorService, private userService: UserService) {
         super(http);
+        super.disableCache();
 
         this.relativeURL = SupplierInvoice.RelativeUrl;
 
@@ -165,12 +166,10 @@ export class SupplierInvoiceService extends BizHttp<SupplierInvoice> {
     }
 
     public getInvoiceListGroupedTotals(userIDFilter: string = ''): Observable<Array<IStatTotal>> {
-        if (userIDFilter !== '' && userIDFilter !== null) {
-            userIDFilter = ' and user.id eq ' + userIDFilter;
-        }
+
         // tslint:disable-next-line:max-line-length
         var route = '?model=supplierinvoice&select=count(id),statuscode,sum(TaxInclusiveAmount),sum(RestAmount)' +
-        '&filter=isnull(deleted,0) eq 0' + (userIDFilter === null ? '' : userIDFilter);
+        '&filter=isnull(deleted,0) eq 0';
         return this.http.asGET().usingStatisticsDomain()
         .withEndPoint(route).send()
         .map(response => response.json().Data);
@@ -195,6 +194,15 @@ export class SupplierInvoiceService extends BizHttp<SupplierInvoice> {
         }
         return ht.usingBusinessDomain()
         .withEndPoint(route).send( body ? { body: body } : undefined, urlSearchParams)
+        .map(response => response.json());
+    }
+
+    public checkInvoiceData(invoiceNumber: any, supplierID: number) {
+        return this.http.asGET()
+        .usingStatisticsDomain()
+        .withEndPoint("?model=SupplierInvoice&filter=InvoiceNumber eq '"
+        + invoiceNumber + "' and SupplierID eq '" + supplierID + "'")
+        .send()
         .map(response => response.json());
     }
 

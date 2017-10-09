@@ -75,8 +75,8 @@ enum Direction { UP, DOWN, LEFT, RIGHT }
                         }"
                         bind-class="column.get('headerCls')"
                         [ngClass]="{
-                            isSortedAsc: ((column.get('displayField') || column.get('field')) === sortInfo.field) && (sortInfo.direction === 1),
-                            isSortedDesc: ((column.get('displayField') || column.get('field')) === sortInfo.field) && (sortInfo.direction === -1)
+                            isSortedAsc: ((column.get('displayField') || column.get('field')) === sortInfo?.field) && (sortInfo?.direction === 1),
+                            isSortedDesc: ((column.get('displayField') || column.get('field')) === sortInfo?.field) && (sortInfo?.direction === -1)
                         }"
 
                         [hidden]="!column.get('visible')"
@@ -120,7 +120,6 @@ enum Direction { UP, DOWN, LEFT, RIGHT }
                     [columns]="tableColumns"
                     [rowModel]="row"
                     [config]="config"
-                    (rowModelChange)="onRowChange($event)"
                     (rowDeleted)="onDeleteRow($event)"
                     (cellFocused)="onCellFocused($event)"
                     (cellClicked)="onCellClicked($event)"
@@ -184,13 +183,6 @@ export class UniTable implements OnChanges {
 
     // Life-cycle hooks
     public ngOnInit() {
-        this.sortInfo = {
-            field: '',
-            direction: 0,
-            type: UniTableColumnType.Text,
-            mode: UniTableColumnSortMode.Normal
-        };
-
         this.resize$ = Observable.fromEvent(window, 'resize')
             .throttleTime(200)
             .subscribe((event) => {
@@ -212,9 +204,12 @@ export class UniTable implements OnChanges {
                 this.config.columns = this.config.columns.sort((a, b) => a.index - b.index);
             }
 
-            if (this.config.defaultOrderBy) {
-                this.sortInfo = this.config.defaultOrderBy;
-            }
+            this.sortInfo = this.config.defaultOrderBy || {
+                field: '',
+                direction: 0,
+                type: UniTableColumnType.Text,
+                mode: UniTableColumnSortMode.Normal
+            };
 
             let customColumnSetup;
             if (this.config.configStoreKey) {
@@ -271,10 +266,6 @@ export class UniTable implements OnChanges {
 
             this.lastFocusPosition = undefined;
         }
-    }
-
-    public removeSelection() {
-        this.lastFocusPosition = undefined;
     }
 
     // Event hooks
@@ -346,8 +337,8 @@ export class UniTable implements OnChanges {
             let position = {
                 top: cell.offsetTop + 'px',
                 left: cell.offsetLeft + 'px',
-                width: cell.clientWidth + 'px',
-                height: cell.clientHeight + 'px',
+                width: cell.offsetWidth + 'px',
+                height: cell.offsetHeight + 'px',
                 tabIndex: cell.tabIndex
             };
 
@@ -363,12 +354,16 @@ export class UniTable implements OnChanges {
 
     public onCellClicked(event) {
         const row = event.rowModel.toJS();
-        const col = event.column.toJS();
+        const col: UniTableColumn = event.column.toJS();
 
         this.cellClick.next({
             row: row,
             column: col
         });
+
+        if (col.onCellClick) {
+            col.onCellClick(row);
+        }
     }
 
     public onEditorChange(event: IRowModelChangeEvent) {
@@ -527,24 +522,24 @@ export class UniTable implements OnChanges {
         this.filterAndSortTable();
     }
 
-    private onFiltersChange(event) {
+    public onFiltersChange(event) {
         this.basicSearchFilters = event.basicSearchFilters;
         this.advancedSearchFilters = event.advancedSearchFilters;
-
+        this.lastFocusPosition = undefined;
         this.filterAndSortTable(true);
     }
 
-    private onFilterInputUpOrDownArrows(event: KeyboardEvent) {
+    public onFilterInputUpOrDownArrows(event: KeyboardEvent) {
         const key = (event.keyCode || event.which);
         if (key === KeyCodes.UP_ARROW) {
-            this.moveUpOrDownReadonly(Direction.UP)
+            this.moveUpOrDownReadonly(Direction.UP);
         } else if (key === KeyCodes.DOWN_ARROW) {
-            this.moveUpOrDownReadonly(Direction.DOWN)
+            this.moveUpOrDownReadonly(Direction.DOWN);
         }
     }
 
 
-    private onPageChange(page) {
+    public onPageChange(page) {
         this.skip = this.config.pageSize * (page - 1);
 
         if (this.remoteData) {
@@ -578,12 +573,12 @@ export class UniTable implements OnChanges {
         }
     }
 
-    private onKeyDown(event: KeyboardEvent) {
+    public onKeyDown(event: KeyboardEvent) {
         const key = event.which || event.keyCode;
 
         // Add new row if we're at the last one as we might need to navigate to it
         let rowIndex = this.lastFocusedRowModel && this.lastFocusedRowModel.get('_originalIndex');
-        if (key !== KeyCodes.ESCAPE && rowIndex === (this.tableData.size - 1)) {
+        if (this.config.editable && key !== KeyCodes.ESCAPE && rowIndex === (this.tableData.size - 1)) {
             this.addNewRow();
         }
 
@@ -655,6 +650,16 @@ export class UniTable implements OnChanges {
             case 83:
                 if (event.ctrlKey) {
                     this.triggerChange();
+                }
+            break;
+            // Insert
+            case 45:
+                if (event.shiftKey && this.config.editable && this.config.insertRowHandler) {
+                    this.blur();
+                    setTimeout(() => {
+                        this.config.insertRowHandler(this.lastFocusPosition.rowIndex);
+                        this.resetFocusedCell();
+                    });
                 }
             break;
         }
@@ -744,7 +749,13 @@ export class UniTable implements OnChanges {
 
             // Sort data
             if (this.sortInfo) {
-                data = this.utils.sort(this.sortInfo.field, this.sortInfo.direction, this.sortInfo.type, this.sortInfo.mode, data);
+                data = this.utils.sort(
+                    this.sortInfo.field,
+                    this.sortInfo.direction,
+                    this.sortInfo.type,
+                    this.sortInfo.mode,
+                    data
+                );
             }
 
             this.tableData = (hadEmptyRow) ? data.push(this.tableDataOriginal.last()) : data;
@@ -752,7 +763,6 @@ export class UniTable implements OnChanges {
             // after data is filtered, emit event to notify parent that the data has changed
             setTimeout(() => {
                 this.dataLoaded.emit();
-                this.removeSelection();
             });
 
             if (!this.remoteData) {
@@ -831,7 +841,6 @@ export class UniTable implements OnChanges {
                     // after data is filtered, emit event to notify parent that the data has changed
                     setTimeout(() => {
                         this.dataLoaded.emit();
-                        this.removeSelection();
                     });
 
                     if (this.config.editable && this.lastFocusPosition) {

@@ -9,7 +9,7 @@ import {
     JournalEntryLine,
     NumberSeriesTask
 } from '../../../../unientities';
-import {ValidationResult} from '../../../../models/validationResult';
+import {ValidationResult, ValidationMessage} from '../../../../models/validationResult';
 import {JournalEntryData} from '../../../../models/models';
 import {JournalEntrySimpleCalculationSummary} from '../../../../models/accounting/JournalEntrySimpleCalculationSummary';
 import {JournalEntryAccountCalculationSummary} from '../../../../models/accounting/JournalEntryAccountCalculationSummary';
@@ -37,7 +37,8 @@ import {
     VatDeductionService,
     CompanySettingsService,
     JournalEntryLineService,
-    NumberSeriesTaskService
+    NumberSeriesTaskService,
+    NumberSeriesService
 } from '../../../../services/services';
 import {
     UniModalService,
@@ -107,6 +108,7 @@ export class JournalEntryManual implements OnChanges, OnInit {
         private vatDeductionService: VatDeductionService,
         private companySettingsService: CompanySettingsService,
         private journalEntryLineService: JournalEntryLineService,
+        private numberSeriesService: NumberSeriesService,
         private numberSeriesTaskService: NumberSeriesTaskService,
         private modalService: UniModalService
     ) {}
@@ -118,25 +120,31 @@ export class JournalEntryManual implements OnChanges, OnInit {
             this.financialYearService.GetAll(null),
             this.financialYearService.getActiveFinancialYear(),
             this.vatDeductionService.GetAll(null),
-            this.companySettingsService.Get(1),
-            this.numberSeriesTaskService.getActiveNumberSeriesTasks('JournalEntry')
+            this.companySettingsService.Get(1)
         ).subscribe(data => {
                 this.financialYears = data[0];
                 this.currentFinancialYear = data[1];
                 this.vatDeductions = data[2];
                 this.companySettings = data[3];
-                data[4].forEach(x => x = this.numberSeriesTaskService.translateTask(x));
-                this.numberSeriesTasks = data[4];
 
-                if (!this.hasLoadedData) {
-                    this.loadData();
-                }
+                this.numberSeriesTaskService.getActiveNumberSeriesTasks('JournalEntry', this.currentFinancialYear.Year).subscribe((tasks) => {
+                    tasks.forEach(x => {
+                        var task = this.numberSeriesTaskService.translateTask(x.NumberSeriesTask);
+                        var serie = this.numberSeriesService.translateSerie(x.DefaultNumberSeries);
+                        task._DisplayName = serie._DisplayName + ' (' + task._DisplayName + ')';
+                    });
+                    this.numberSeriesTasks = tasks.map(x => x.NumberSeriesTask);
 
-                this.setSums();
-                this.setupSubscriptions();
+                    if (!this.hasLoadedData) {
+                        this.loadData();
+                    }
 
-                setTimeout(() => {
-                    this.componentInitialized.emit();
+                    this.setSums();
+                    this.setupSubscriptions();
+
+                    setTimeout(() => {
+                        this.componentInitialized.emit();
+                    });
                 });
             },
             err => this.errorService.handle(err)
@@ -365,7 +373,8 @@ export class JournalEntryManual implements OnChanges, OnInit {
         setTimeout(() => {
             if (this.journalEntryProfessional) {
                 if (this.journalEntryProfessional.dataChanged.observers.length === 0) {
-                    this.journalEntryProfessional.dataChanged.debounceTime(300).subscribe((values) => this.onDataChanged(values));
+                    this.journalEntryProfessional.dataChanged.debounceTime(300)
+                    .subscribe((values) => this.onDataChanged(values));
                 }
             }
         });
@@ -409,22 +418,29 @@ export class JournalEntryManual implements OnChanges, OnInit {
         });
     }
 
-    private onDataLoaded(data: JournalEntryData[]) {
+    public onDataLoaded(data: JournalEntryData[]) {
         this.calculateItemSums(data);
     }
 
-    private onRowSelected(selectedRow: JournalEntryData) {
+    public onRowSelected(selectedRow: JournalEntryData) {
         this.currentJournalEntryData = selectedRow;
 
         if (this.journalEntryProfessional) {
             let data = this.journalEntryProfessional.getTableData();
 
             if (this.currentFinancialYear){
-                this.journalEntryService.getAccountBalanceInfo(data, this.accountBalanceInfoData, this.currentFinancialYear)
+                this.journalEntryService.getAccountBalanceInfo(
+                    data,
+                    this.accountBalanceInfoData,
+                    this.currentFinancialYear)
                     .subscribe(accountBalanceData => {
                         this.accountBalanceInfoData = accountBalanceData;
                         this.itemAccountInfoData =
-                            this.journalEntryService.calculateJournalEntryAccountSummaryLocal(data, this.accountBalanceInfoData, this.vatDeductions, this.currentJournalEntryData);
+                            this.journalEntryService.calculateJournalEntryAccountSummaryLocal(
+                                data,
+                                this.accountBalanceInfoData,
+                                this.vatDeductions,
+                                this.currentJournalEntryData);
                     });
             }
         }
@@ -432,7 +448,7 @@ export class JournalEntryManual implements OnChanges, OnInit {
         this.getOpenPostsForRow();
     }
 
-    private openPostSelected(selectedRow: any) {
+    public openPostSelected(selectedRow: any) {
         if (selectedRow) {
             let selectedLine: JournalEntryLine = selectedRow.rowModel;
 
@@ -440,8 +456,10 @@ export class JournalEntryManual implements OnChanges, OnInit {
                 if (selectedLine['_rowSelected']) {
                     this.currentJournalEntryData.AmountCurrency = Math.abs(selectedLine.RestAmountCurrency);
                     this.currentJournalEntryData.NetAmountCurrency = Math.abs(selectedLine.RestAmountCurrency);
-                    this.currentJournalEntryData.Amount = Math.abs(selectedLine.RestAmountCurrency * selectedLine.CurrencyExchangeRate);
-                    this.currentJournalEntryData.NetAmount = Math.abs(selectedLine.RestAmountCurrency * selectedLine.CurrencyExchangeRate);
+                    this.currentJournalEntryData.Amount =
+                        Math.abs(selectedLine.RestAmountCurrency * selectedLine.CurrencyExchangeRate);
+                    this.currentJournalEntryData.NetAmount =
+                        Math.abs(selectedLine.RestAmountCurrency * selectedLine.CurrencyExchangeRate);
                     this.currentJournalEntryData.CurrencyID = selectedLine.CurrencyCodeID;
                     this.currentJournalEntryData.CurrencyCode = selectedLine.CurrencyCode;
                     this.currentJournalEntryData.CurrencyExchangeRate = selectedLine.CurrencyExchangeRate;
@@ -584,10 +602,16 @@ export class JournalEntryManual implements OnChanges, OnInit {
     }
 
     private validateJournalEntryData(data: JournalEntryData[]) {
-        this.validationResult = this.journalEntryService.validateJournalEntryDataLocal(data, this.currentFinancialYear, this.financialYears, this.companySettings);
+         this.journalEntryService.validateJournalEntryDataLocal(
+             data,
+             this.currentFinancialYear,
+             this.financialYears,
+             this.companySettings)
+             .then(result => this.validationResult = result );
 
         /*
-        KE 08.11.2016: Switch to running the validations locally. The serverside validation is executed when posting anyway
+        KE 08.11.2016: Switch to running the validations locally.
+        The serverside validation is executed when posting anyway
         this.journalEntryService.validateJournalEntryData(data)
             .subscribe(
             result => {

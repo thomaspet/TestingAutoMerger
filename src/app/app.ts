@@ -1,15 +1,9 @@
 import {Component, ViewChild} from '@angular/core';
-import {AuthService} from '../framework/core/authService';
+import {AuthService} from './authService';
 import {UniHttp} from '../framework/core/http/http';
 import {LoginModal} from './components/init/loginModal';
 import {CompanySyncModal} from './components/init/companySyncModal';
-import {PushMapper} from './models/PushMapper';
-import {AppConfig} from './AppConfig';
-import {
-    UserService,
-    ErrorService,
-    StaticRegisterService
-} from './services/services';
+import {ErrorService} from './services/services';
 import {UniModalService} from '../framework/uniModal/barrel';
 import {ToastService} from '../framework/uniToast/toastService';
 
@@ -27,9 +21,7 @@ export class App {
     constructor(
         private authService: AuthService,
         private http: UniHttp,
-        private staticRegisterService: StaticRegisterService,
         private errorService: ErrorService,
-        private userService: UserService,
         private modalService: UniModalService,
         private toastService: ToastService
     ) {
@@ -68,49 +60,9 @@ export class App {
                 this.initialize();
             }
         } /* don't need error handling */);
-
     }
 
-    // private setOneSignal() {
-    //     if (AppConfig.UNI_PUSH_ADAPTER_URL) {
-    //         OneSignal.push(() => {
-    //             OneSignal.getUserId((userID) => {
-    //                 this.userService.getCurrentUser().subscribe(
-    //                     (user) => {
-    //                         const body: PushMapper = {
-    //                             DeviceToken: userID,
-    //                             UserIdentity: user.GlobalIdentity
-    //                         };
-
-    //                         this.http.asPOST()
-    //                             .withBody(body)
-    //                             .withHeader('Content-Type', 'application/json')
-    //                             .sendToUrl(AppConfig.UNI_PUSH_ADAPTER_URL + '/api/devices')
-    //                             .subscribe(
-    //                                 res => null,
-    //                                 err => this.errorService.handle(err)
-    //                             );
-    //                     },
-    //                     err => this.errorService.handle(err)
-    //                 );
-    //             });
-    //         });
-    //     }
-    // }
-
     private initialize() {
-
-        // Get companysettings
-        this.http.asGET()
-            .usingBusinessDomain()
-            .withEndPoint('companysettings')
-            .send()
-            .map(response => response.json())
-            .subscribe(
-                response => localStorage.setItem('companySettings', JSON.stringify(response[0])),
-                err => this.errorService.handle(err)
-            );
-
         // Check if company needs to be initialized
         this.http.asGET()
             .usingBusinessDomain()
@@ -123,12 +75,5 @@ export class App {
                 }
             }, err => this.errorService.handle(err));
 
-        // KE: For now, don't load static registers - these are slow because of to much data in local storage
-        // this.staticRegisterService.checkForStaticRegisterUpdate();
-
-        // OneSignal
-        // if (window.ENV === 'production') {
-        //     this.setOneSignal();
-        // }
     }
 }

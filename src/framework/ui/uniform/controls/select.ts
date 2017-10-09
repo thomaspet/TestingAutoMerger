@@ -79,16 +79,18 @@ export class UniSelectInput extends BaseControl {
             } else if (!this.field.Options.source) {
                 this.items = [];
             } else if (this.field.Options.source.constructor === Array) {
-                this.items = this.field.Options.source;
+                this.items = this.addEmptyValue(this.field.Options.source);
             } else if (this.field.Options.source.subscribe) {
-                this.field.Options.source.subscribe(items => this.items = items);
+                this.field.Options.source.subscribe(items => {
+                    this.items = this.addEmptyValue(items);
+                });
             } else if (typeof this.field.Options.source === 'string') {
                 // TODO: manage lookup url;
             }
         }
     }
 
-    private createFocusListener(component: UniSelect) {
+    public createFocusListener(component: UniSelect) {
         const self = this;
         if (component.valueInput) {
             Observable.fromEvent(component.valueInput.nativeElement, 'focus').subscribe(() => {
@@ -97,7 +99,7 @@ export class UniSelectInput extends BaseControl {
         }
     }
 
-    private onChange(item) {
+    public onChange(item) {
         let value;
         if (this.field.Options.valueProperty) {
             value = _.get(item, this.field.Options.valueProperty);
@@ -113,5 +115,21 @@ export class UniSelectInput extends BaseControl {
         _.set(this.model, this.field.Property, currentValue);
         this.emitChange(previousValue, currentValue);
         this.emitInstantChange(previousValue, currentValue, true);
+    }
+
+    public addEmptyValue(source: any[]): any[] {
+        let emptyItem = {};
+        if (this.field.Options && !this.field.Options.addEmptyValue) {
+            return [].concat(source);
+        }
+        if (this.field.Options && this.field.Options.addEmptyValue) {
+            const valueProperty = this.field.Options.valueProperty;
+            const displayProperty = this.field.Options.displayProperty;
+            if (valueProperty) {
+                emptyItem[valueProperty] = null;
+                emptyItem[displayProperty] = '';
+            }
+        }
+        return [].concat(emptyItem, source);
     }
 }

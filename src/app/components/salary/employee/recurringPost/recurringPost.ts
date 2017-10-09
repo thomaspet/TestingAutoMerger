@@ -12,6 +12,7 @@ import {
 import {UniView} from '../../../../../framework/core/uniView';
 import {SalaryTransSupplementsModal} from '../../modals/salaryTransSupplementsModal';
 import {UniModalService} from '../../../../../framework/uniModal/barrel';
+import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 
 
 @Component({
@@ -28,7 +29,7 @@ export class RecurringPost extends UniView {
     private wagetypes: WageType[] = [];
     private projects: Project[] = [];
     private departments: Department[] = [];
-    private unsavedEmployments: boolean;
+    private unsavedEmployments$: BehaviorSubject<boolean> = new BehaviorSubject(false);
     private refresh: boolean;
     @ViewChild(UniTable) private uniTable: UniTable;
 
@@ -85,10 +86,13 @@ export class RecurringPost extends UniView {
                 }
             });
 
-            employmentSubject.take(1).subscribe(employments => {
-                this.employments = (employments || []).filter(emp => emp.ID > 0);
-                this.unsavedEmployments = this.employments.length !== employments.length;
-            });
+            employmentSubject
+                .take(1)
+                .do(employments => this.unsavedEmployments$
+                    .next(employments.some(x => !x.ID) && super.isDirty('employments')))
+                .subscribe(employments => {
+                    this.employments = (employments || []).filter(emp => emp.ID > 0);
+                });
         });
     }
 
@@ -456,17 +460,17 @@ export class RecurringPost extends UniView {
     public navigateToNewAdvance() {
         this.router
             .navigate([`salary/salarybalances/0/details`,
-                { employeeID: this.employeeID, instalmentType: SalBalType.Advance }]);
+                {employeeID: this.employeeID, instalmentType: SalBalType.Advance}]);
     }
 
     public navigateToNewDraw() {
         this.router
-            .navigate([`salary/salarybalances/0/details`, { employeeID: this.employeeID }]);
+            .navigate([`salary/salarybalances/0/details`, {employeeID: this.employeeID}]);
     }
 
     public navigateToSalaryBalanceList() {
         this.router
-            .navigate(['salary/salarybalances', { empID: this.employeeID }]);
+            .navigate(['salary/salarybalances', {empID: this.employeeID}]);
     }
 
     public updateSupplementsOnTransaction(trans: SalaryTransaction) {

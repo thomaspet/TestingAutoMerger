@@ -83,10 +83,12 @@ export class BaseControl implements IBaseControl {
     }
 
     public readMode() {
+        this.field.ReadOnly = true;
         this.readOnly$.next(true);
     }
 
     public editMode() {
+        this.field.ReadOnly = false;
         this.readOnly$.next(false);
     }
 

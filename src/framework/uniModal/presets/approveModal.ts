@@ -1,9 +1,12 @@
 import {Component, Output, Input, ChangeDetectionStrategy, ChangeDetectorRef
     , HostListener, EventEmitter} from '@angular/core';
-import {ErrorService, SupplierInvoiceService, UserService} from '../../../../services/services';
-import {User, Team, Task, SupplierInvoice, ApprovalStatus, Approval} from '../../../../unientities';
-import {billViewLanguage as lang, approvalStatusLabels as statusLabels} from './lang';
-import {IUniModal, IModalOptions} from '../../../../../framework/uniModal/barrel';
+import {ErrorService, SupplierInvoiceService, UserService} from '../../../app/services/services';
+import {User, Team, Task, SupplierInvoice, ApprovalStatus, Approval} from '../../../app/unientities';
+import {
+    billViewLanguage as lang,
+    approvalStatusLabels as statusLabels}
+from '../../../app/components/accounting/bill/detail/lang';
+import {IModalOptions, IUniModal} from '../modalService';
 
 // tslint:disable:max-line-length
 
@@ -213,9 +216,6 @@ export class UniApproveModal implements IUniModal {
     private reject(): Promise<boolean> {
         this.goBusy(true);
         return new Promise<boolean>( (resolve, reject) => {
-            var msg = `${this.comment} : ${this.myUser.DisplayName}`;
-            this.supplierInvoiceService.send(`comments/supplierinvoice/${this.invoice.ID}`, undefined, 'POST', { Text: msg })
-                .subscribe( commentResult => {} );
             this.supplierInvoiceService.send(`approvals/${this.myApproval.ID}?action=reject`)
                 .finally( () => this.goBusy(false) )
                 .subscribe( result => {

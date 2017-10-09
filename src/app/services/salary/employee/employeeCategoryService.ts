@@ -57,12 +57,12 @@ export class EmployeeCategoryService extends BizHttp<EmployeeCategory> {
         return super.GetAll(`filter=ID lt ${ID}&top=1&orderBy=ID desc`, expands ? expands : this.defaultExpands)
             .map(resultSet => resultSet[0]);
     }
-    
+
     public getNext(ID: number, expands: string[] = null) {
         return super.GetAll(`filter=ID gt ${ID}&top=1&orderBy=ID`, expands ? expands : this.defaultExpands)
             .map(resultSet => resultSet[0]);
     }
-    
+
     public saveCategory(category: EmployeeCategory) {
         return super.Post(category);
     }
@@ -73,25 +73,12 @@ export class EmployeeCategoryService extends BizHttp<EmployeeCategory> {
             BaseEntity: 'currentcategory',
             Fields: [
                 {
-                    ComponentLayoutID: 1,
                     EntityType: 'currentcategory',
                     Property: 'Name',
-                    Placement: 1,
-                    Hidden: false,
                     FieldType: FieldType.TEXT,
-                    ReadOnly: false,
-                    LookupField: false,
                     Label: 'Navn',
-                    Description: null,
-                    HelpText: null,
                     FieldSet: 0,
-                    Section: 0,
-                    Placeholder: null,
-                    Options: null,
-                    LineBreak: null,
-                    Combo: null,
-                    Sectionheader: '',
-                    hasLineBreak: false
+                    Section: 0
                 }
             ]
         }]);

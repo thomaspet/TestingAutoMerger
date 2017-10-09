@@ -157,7 +157,7 @@ export class RegtimeTotals {
         }
         this.busy = true;
         var query = 'model=workitem';
-        var filter = this.workerService.getIntervalFilter(this.currentFilter.interval);
+        var filter = this.workerService.getIntervalFilter(this.currentFilter.interval, new Date());
         query += this.createArg('select', 'sum(minutes),WorkType.Name,' + src.pivotColName);
         query += this.createArg('filter', 'deleted eq \'false\'' + (filter ? ' and ( ' +  filter + ' )' : ''));
         if (src.filter) { query += ' and ( ' + src.filter + ' )'; }

@@ -12,15 +12,14 @@
     text-overflow: ellipsis
     overflow: hidden
 
-    &[disabled]:not([disabled=false])
-    &[readonly]:not([readonly=false])
-        @extend input[disabled]
-
 .uniSelect_input[role=combobox]
     @extend %selectChevron
 
-.uniSelect input[type=text][readonly].uniSelect_input.uniSelect_input
+.uniSelect input[type=text][readonly].uniSelect_input
     @extend %selectChevron
+
+.uniSelect input[aria-readonly]:not([aria-readonly=false]).uniSelect_input
+    @extend input[disabled]
 
 .uniSelect_dropdown
     position: absolute

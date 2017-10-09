@@ -515,7 +515,7 @@ export class UniForm {
             }
             if (!nextSectionID) {
                 const f: UniField = this.field(this._layout.Fields[0].Property);
-                f.focus();
+                f && f.focus();
                 return;
             }
             const section: UniSection = this.section(nextSectionID);

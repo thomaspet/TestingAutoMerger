@@ -2,7 +2,7 @@ import {Component, Input, SimpleChanges, ViewChild, Output, EventEmitter} from '
 import {Http} from '@angular/http';
 import {File} from '../../../unientities';
 import {UniHttp} from '../../../../framework/core/http/http';
-import {AuthService} from '../../../../framework/core/authService';
+import {AuthService} from '../../../authService';
 import {FileService, ErrorService, UniFilesService} from '../../../services/services';
 import {ImageUploader} from '../../../../framework/uniImage/imageUploader';
 import {AppConfig} from '../../../AppConfig';
@@ -95,12 +95,13 @@ export class UniAttachments {
         private errorService: ErrorService,
         private fileService: FileService,
         private uniFilesService: UniFilesService,
-        private authService: AuthService) {
-        // Subscribe to authentication/activeCompany changes
+        private authService: AuthService
+    ) {
         authService.authentication$.subscribe((authDetails) => {
-            this.token = authDetails.filesToken;
             this.activeCompany = authDetails.activeCompany;
-        } /* don't need error handling */);
+        });
+
+        authService.filesToken$.subscribe(token => this.token = token);
     }
 
     public ngOnChanges(changes: SimpleChanges) {

@@ -155,50 +155,62 @@ export class WageTypeView extends UniView {
     }
 
     private saveWageType(done: (message: string) => void, updateView: boolean = true) {
+        super.getStateSubject('wagetype')
+            .take(1)
+            .map(wt => this.wageTypeService.washWageType(wt))
+            .switchMap(wt => this.checkValidYearAndCreateNew(wt))
+            .map(wageType => {
+                if (wageType.WageTypeNumber === null) {
+                    wageType.WageTypeNumber = 0;
+                }
 
-        if (this.wageType.WageTypeNumber === null) {
-            this.wageType.WageTypeNumber = 0;
-        }
+                if (wageType.SupplementaryInformations) {
+                    wageType.SupplementaryInformations.forEach(supplement => {
+                        if (supplement['_setDelete']) {
+                            supplement['Deleted'] = true;
+                        }
+                    });
+                }
 
-        this.checkValidYearAndCreateNew();
-
-        this.wageType.SupplementaryInformations.forEach(supplement => {
-            if (supplement['_setDelete']) {
-                supplement['Deleted'] = true;
-            }
-        });
-
-        let saver = (this.wageType.ID > 0)
-            ? this.wageTypeService.Put(this.wageType.ID, this.wageType)
-            : this.wageTypeService.Post(this.wageType);
-
-        saver.subscribe((wageType: WageType) => {
-            if (updateView) {
-                super.updateState('wagetype', wageType, false);
-                let childRoute = this.router.url.split('/').pop();
-                this.router.navigateByUrl(this.url + wageType.ID + '/' + childRoute);
-                done('lagring fullført');
-                this.saveActions[0].disabled = true;
-            }
-        },
+                return wageType;
+            })
+            .switchMap(wageType => (wageType.ID > 0)
+                ? this.wageTypeService.Put(wageType.ID, wageType)
+                : this.wageTypeService.Post(wageType))
+            .subscribe((wageType: WageType) => {
+                if (updateView) {
+                    super.updateState('wagetype', wageType, false);
+                    let childRoute = this.router.url.split('/').pop();
+                    this.router.navigateByUrl(this.url + wageType.ID + '/' + childRoute);
+                    done('lagring fullført');
+                    this.saveActions[0].disabled = true;
+                }
+            },
             (error) => {
                 done('Lagring feilet');
                 this.errorService.handle(error);
             });
     }
 
-    private checkValidYearAndCreateNew() {
-        this.yearService.selectedYear$.subscribe((year: number) => {
-            if (this.wageType.ValidYear !== year) {
-                this.wageType.ID = 0;
-                this.wageType.ValidYear = year;
+    private checkValidYearAndCreateNew(wageType: WageType): Observable<WageType> {
+        return this.yearService
+            .selectedYear$
+            .asObservable()
+            .take(1)
+            .map((year: number) => {
+                if (wageType.ValidYear !== year) {
+                    wageType.ID = 0;
+                    wageType.ValidYear = year;
+                    if (wageType.SupplementaryInformations) {
+                        wageType.SupplementaryInformations.forEach(supplement => {
+                            supplement.ID = 0;
+                            supplement.WageTypeID = 0;
+                        });
+                    }
+                }
 
-                this.wageType.SupplementaryInformations.forEach(supplement => {
-                    supplement.ID = 0;
-                    supplement.WageTypeID = 0;
-                });
-            }
-        });
+                return wageType;
+            });
     }
 
     private checkDirty() {

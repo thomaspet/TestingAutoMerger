@@ -15,6 +15,7 @@ export class PaymentService extends BizHttp<Payment> {
 
 
     public createPaymentBatch(paymentIDs: Array<number>): Observable<any> {
+        super.invalidateCache();
         return this.http
             .asPOST()
             .usingBusinessDomain()

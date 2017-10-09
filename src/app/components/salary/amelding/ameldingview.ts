@@ -262,8 +262,8 @@ export class AMeldingView implements OnInit {
     private getSumsInPeriod() {
         this._salarySumsService
         .getSumsInPeriod(this.currentPeriod, this.currentPeriod, this.activeYear)
-            .subscribe((response) => {
-                this.currentSumsInPeriod = response;
+            .subscribe((currentSumsInPeriod) => {
+                this.currentSumsInPeriod = currentSumsInPeriod;
 
                 this.totalAGAFeedback = 0;
                 this.totalFtrekkFeedback = 0;
@@ -273,9 +273,10 @@ export class AMeldingView implements OnInit {
                 this.totalAGASystem = 0;
                 this.totalFtrekkSystem = 0;
 
-                this.currentSumsInPeriod.forEach(dataElement => {
+                currentSumsInPeriod.forEach(dataElement => {
+                    let sums = dataElement.Sums;
                     this.totalAGASystem += dataElement.Sums.calculatedAGA;
-                    this.totalFtrekkSystem += dataElement.Sums.percentTax + dataElement.Sums.tableTax;
+                    this.totalFtrekkSystem += sums.tableTax + sums.percentTax + sums.manualTax;
                 });
 
                 this.totalAGASystemStr = this.numberformat.asMoney(this.totalAGASystem, {decimalLength: 0});

@@ -9,7 +9,6 @@ import {Router} from '@angular/router';
 import { SupplierInvoice, StatusCodeSupplierInvoice, CompanySettings, JournalEntryLineDraft, ApprovalStatus } from '../../../unientities';
 import {safeInt} from '../../common/utils/utils';
 import {UniAssignModal, AssignDetails} from './detail/assignmodal';
-import {UniApproveModal, ApprovalDetails} from './detail/approvemodal';
 import {UniModalService, UniConfirmModalV2, ConfirmActions} from '../../../../framework/uniModal/barrel';
 import {
     ApprovalService,
@@ -160,11 +159,19 @@ export class BillsView {
 
             }, err => this.errorService.handle(err)
             );
-    }
+        }
+
 
     private onFormFilterChange(event) {
         this.currentUserFilter = event.ID.currentValue;
         this.refreshList(this.currentFilter, true, null, this.currentUserFilter);
+
+        if (this.currentUserFilter) {
+            this.pageStateService.setPageState('assignee', this.currentUserFilter);
+        } else {
+            this.pageStateService.deletePageState('assignee');
+        }
+
     }
 
     private onRowSelectionChanged() {
@@ -177,6 +184,7 @@ export class BillsView {
                     warn = true;
                 }
             });
+
             if (warn) {
                 this.toast.addToast('Du kan bare massebehandle fakturaer med lik status', ToastType.warn, 4);
                 this.updateSaveActions(0);
@@ -189,15 +197,13 @@ export class BillsView {
     }
 
     private updateSaveActions(supplierInvoiceStatusCode: number) {
-
-
         this.saveActions = [];
 
         this.saveActions.push ({
-                label: 'Nytt fakturamottak',
-                action: (completeEvent) => setTimeout(this.onAddNew()),
-                main: false,
-                disabled: false
+            label: 'Nytt fakturamottak',
+            action: (completeEvent) => setTimeout(this.onAddNew()),
+            main: false,
+            disabled: false
         });
 
         if (supplierInvoiceStatusCode === StatusCodeSupplierInvoice.Draft) {
@@ -306,16 +312,16 @@ export class BillsView {
                 this.approvalService.GetAll(filterString, ['Task.Model']).subscribe(
 
                     approvals => {
-                        const approvalsReq = approvals.map(app =>
+                        const approvalsRequests = approvals.map(app =>
                             this.approvalService.PostAction(app.ID, 'approve')
                                 .map(res2 => ({ ID: app.ID, success: true}))
                                 .catch(err => Observable.of({ID: app.ID, success: false}))
                             );
 
-                        Observable.forkJoin(approvalsReq).subscribe(
-                            res2 => {
+                        Observable.forkJoin(approvalsRequests).subscribe(
+                            approvalResponses => {
                                 this.refreshList(this.currentFilter, true, null, this.currentUserFilter);
-                                let numberOfFailed = res2.filter(r => !r.success).length;
+                                let numberOfFailed = approvalResponses.filter((response: any) => !response.success).length;
                                 if (numberOfFailed > 0) {
                                     this.toast.addToast(this.selectedItems.length - numberOfFailed + ' fakturaer ble godkjent. ' +  numberOfFailed + ' fakturaer feilet ved godkjenning. Merk også at fakturaer du ikke var tildelt ble ignorert.', ToastType.bad, 3);
                                     this.selectedItems = null;
@@ -360,16 +366,16 @@ export class BillsView {
                         this.approvalService.GetAll(filterString, ['Task.Model']).subscribe(
 
                             approvals => {
-                                const approvalsReq = approvals.map(app =>
+                                const approvalRequests = approvals.map(app =>
                                     this.approvalService.PostAction(app.ID, 'reject')
                                         .map(res2 => ({ ID: app.ID, success: true}))
                                         .catch(err => Observable.of({ID: app.ID, success: false}))
                                     );
 
-                                Observable.forkJoin(approvalsReq).subscribe(
-                                    res2 => {
+                                Observable.forkJoin(approvalRequests).subscribe(
+                                    approvalResponses => {
                                         this.refreshList(this.currentFilter, true, null, this.currentUserFilter);
-                                        let numberOfFailed = res2.filter(r => !r.success).length;
+                                        let numberOfFailed = approvalResponses.filter((response: any) => !response.success).length;
                                         if (numberOfFailed > 0) {
                                             this.toast.addToast(this.selectedItems.length - numberOfFailed + ' fakturaer ble avvist. ' +  numberOfFailed + ' fakturaer feilet ved avvising. Merk også at fakturaer du ikke var tildelt ble ignorert.', ToastType.bad, 3);
                                             this.selectedItems = null;
@@ -389,12 +395,6 @@ export class BillsView {
                     );
                 done();
             }
-
-
-
-    public onApproveSupplierInvoicesClickOk(details: ApprovalDetails) {
-
-    }
 
     public sendForPaymentSupplierInvoices(done: any) {
         const payRequests = this.selectedItems.map(invoice =>
@@ -596,16 +596,18 @@ export class BillsView {
             this.filters.forEach(x => { if (x.name !== 'Inbox') { x.count = 0; x.total = 0; } });
             var count = 0;
             var total = 0;
-            result.forEach(x => {
-                count += x.countid;
-                total += x.sumTaxInclusiveAmount;
-                var statusCode = x.SupplierInvoiceStatusCode ? x.SupplierInvoiceStatusCode.toString() : '0';
-                var ix = this.filters.findIndex(y => y.filter ? y.filter.indexOf(statusCode) > 0 : false);
-                if (ix >= 0) {
-                    this.filters[ix].count += x.countid;
-                    this.filters[ix].total += x.sumTaxInclusiveAmount;
-                }
-            });
+            if (result) {
+                result.forEach(x => {
+                    count += x.countid;
+                    total += x.sumTaxInclusiveAmount;
+                    var statusCode = x.SupplierInvoiceStatusCode ? x.SupplierInvoiceStatusCode.toString() : '0';
+                    var ix = this.filters.findIndex(y => y.filter ? y.filter.indexOf(statusCode) > 0 : false);
+                    if (ix >= 0) {
+                        this.filters[ix].count += x.countid;
+                        this.filters[ix].total += x.sumTaxInclusiveAmount;
+                    }
+                });
+            }
             let ixAll = this.filters.findIndex(x => x.name === 'All');
             this.filters[ixAll].count = count;
             this.filters[ixAll].total = total;
@@ -737,6 +739,21 @@ export class BillsView {
                 this.currentFilter.isSelected = true;
             }
         }
+
+        if (params.assignee){
+
+            if (params.assigneename) {
+
+                // this.searchParams$.next({ID:+params.assignee});
+
+                // this.searchControl.setValue(params.assigneename);
+
+            }
+            this.currentUserFilter = params.assignee;
+           // this.searchParams$.next({userID:+this.currentUserFilter});
+
+        }
+
         if (params.search) {
             this.startupWithSearchText = params.search;
             this.searchControl.setValue(this.startupWithSearchText, { emitEvent: false });
@@ -763,6 +780,7 @@ export class BillsView {
     }
 
     private getLayout() {
+        var params = this.pageStateService.getPageState();
         return {
             Name: 'Assignees',
             BaseEntity: 'User',
@@ -802,6 +820,13 @@ export class BillsView {
                     UpdatedBy: null,
                     CustomFields: null,
                     Options: {
+                        getDefaultData: () => {
+                            if (params.assignee) {
+                             return this.userService.Get(params.assignee).map(user => [user]);
+                            }
+                            return Observable.of([]);
+                        },
+
                         search: (query: string) => {
                             return this.userService.GetAll(null);
 

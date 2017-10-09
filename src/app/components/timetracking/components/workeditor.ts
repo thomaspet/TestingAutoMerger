@@ -44,7 +44,7 @@ export class WorkEditor {
         return this.visibleColumns.length;
     }
 
-    public get EmptyRowDetails(): { Date: LocalDate } {
+    public get EmptyRowDetails(): { Date: LocalDate, StartTime: Date } {
         return this.defaultRow;
     }
 

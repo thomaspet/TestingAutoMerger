@@ -1,7 +1,7 @@
 import {Component, ViewChild, ElementRef} from '@angular/core';
 import {FormControl, Validators} from '@angular/forms';
 import {Router} from '@angular/router';
-import {AuthService} from '../../../../framework/core/authService';
+import {AuthService} from '../../../authService';
 import {UniHttp} from '../../../../framework/core/http/http';
 import {UniSelect, ISelectConfig} from '../../../../framework/ui/uniform/index';
 import {Logger} from '../../../../framework/core/logger';
@@ -120,15 +120,10 @@ export class Login {
 
     private onCompanySelected(company) {
         if (company) {
-            this._authService.setActiveCompany(company);
+            const url = localStorage.getItem('lastNavigationAttempt') || '/';
+            localStorage.removeItem('lastNavigationAttempt');
+            // this._router.navigateByUrl(url);
+            this._authService.setActiveCompany(company, url);
         }
-
-        this.navigate();
-    }
-
-    private navigate() {
-        const url = localStorage.getItem('lastNavigationAttempt') || '/';
-        localStorage.removeItem('lastNavigationAttempt');
-        this._router.navigateByUrl(url);
     }
 }

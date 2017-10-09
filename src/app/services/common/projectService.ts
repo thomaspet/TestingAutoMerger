@@ -6,6 +6,7 @@ import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {ReplaySubject} from 'rxjs/ReplaySubject';
 import {IToolbarConfig} from '../../components/common/toolbar/toolbar';
 import {IUniSaveAction} from '../../../framework/save/save';
+import {URLSearchParams} from '@angular/http';
 
 @Injectable()
 export class ProjectService extends BizHttp<Project> {
@@ -31,7 +32,7 @@ export class ProjectService extends BizHttp<Project> {
         { Code: 42203, Text: 'Pågår', isPrimary: true },
         { Code: 42204, Text: 'Fullført', isPrimary: true },
         { Code: 42205, Text: 'Arkivert', isPrimary: false },
-    ];    
+    ];
 
     public setNew() {
         this.currentProject.next(new Project);
@@ -96,5 +97,5 @@ export class ProjectService extends BizHttp<Project> {
         }
 
         return result;
-    }    
+    }
 }

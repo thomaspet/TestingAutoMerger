@@ -4,10 +4,10 @@ import {autocompleteDate} from '../../shared/autocompleteDate';
 import {UniCalendar} from '../calendar';
 import * as moment from 'moment';
 import {Observable} from 'rxjs/Observable';
-import {LocalDate} from './LocalDate';
 import {BaseControl} from '../baseControl';
 import * as _ from 'lodash';
 import {KeyCodes} from '../../../../../app/services/common/keyCodes';
+import {LocalDate} from '../../../../../app/unientities';
 
 @Component({
     selector: 'localdate-picker-input',
@@ -19,7 +19,7 @@ import {KeyCodes} from '../../../../../app/services/common/keyCodes';
                 (change)="inputChange()"
                 (focus)="onFocus()"
                 [formControl]="control"
-                [readonly]="field?.ReadOnly"
+                [readonly]="readOnly$ | async"
                 [placeholder]="field?.Placeholder || ''"
                 class="uni-datepicker-input"
                 [title]="control?.value || ''"
@@ -28,7 +28,7 @@ import {KeyCodes} from '../../../../../app/services/common/keyCodes';
                 tabindex="-1"
                 class="uni-datepicker-calendarBtn"
                 (click)="calendarOpen = !calendarOpen"
-                [disabled]="field?.ReadOnly"
+                [disabled]="readOnly$ | async"
                 (focus)="focus()"
             >Kalender</button>
 
@@ -137,14 +137,6 @@ export class LocalDatePickerInput extends BaseControl{
     public focus() {
         this.inputElement.nativeElement.focus();
         this.inputElement.nativeElement.select();
-    }
-
-    public readMode() {
-        this.field.ReadOnly = true;
-    }
-
-    public editMode() {
-        this.field.ReadOnly = false;
     }
 
     public inputChange() {

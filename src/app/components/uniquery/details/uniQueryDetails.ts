@@ -6,7 +6,7 @@ import {UniHttp} from '../../../../framework/core/http/http';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {IUniSaveAction} from '../../../../framework/save/save';
 import {StatisticsService, UniQueryDefinitionService, StatusService} from '../../../services/services';
-import {AuthService} from '../../../../framework/core/authService';
+import {AuthService} from '../../../authService';
 import {SaveQueryDefinitionModal} from './saveQueryDefinitionModal';
 import {UniQueryDefinition, UniQueryField, UniQueryFilter} from '../../../../app/unientities';
 import {IContextMenuItem} from '../../../../framework/ui/unitable/index';

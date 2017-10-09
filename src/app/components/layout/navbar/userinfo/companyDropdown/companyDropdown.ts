@@ -3,7 +3,7 @@ import {Router} from '@angular/router';
 import {Observable} from 'rxjs/Observable';
 import {CompanySettings, FinancialYear} from '../../../../../unientities';
 import {UniSelect, ISelectConfig} from '../../../../../../framework/ui/uniform/index';
-import {AuthService} from '../../../../../../framework/core/authService';
+import {AuthService} from '../../../../../authService';
 import {
     CompanySettingsService,
     CompanyService,
@@ -136,8 +136,8 @@ export class UniCompanyDropdown {
         };
 
         this.loadCompanyData();
-        this.authService.companyChange.subscribe((company) => {
-            this.activeCompany = company;
+        this.authService.authentication$.subscribe(auth => {
+            this.activeCompany = auth.activeCompany;
             this.loadCompanyData();
             this.cdr.markForCheck();
         });
@@ -207,12 +207,11 @@ export class UniCompanyDropdown {
     }
 
 
-    private companySelected(selectedCompany): void {
+    public companySelected(selectedCompany): void {
         this.close();
         if (selectedCompany && selectedCompany !== this.activeCompany) {
             this.yearService.clearActiveYear();
             this.authService.setActiveCompany(selectedCompany);
-            this.router.navigateByUrl('/');
         }
     }
 

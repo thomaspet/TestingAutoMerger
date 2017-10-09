@@ -10,6 +10,7 @@ import {settingsRoutes} from './settingsRoutes';
 import {Settings} from './settings';
 
 import {AgaAndSubEntitySettings} from './agaAndSubEntitySettings/agaAndSubEntitySettings';
+import {SubEntitySettingsService} from './agaAndSubEntitySettings/services/subEntitySettingsService'
 import {SubEntityDetails} from './agaAndSubEntitySettings/subEntityDetails';
 import {SubEntityList} from './agaAndSubEntitySettings/subEntityList';
 import {AltinnSettings} from './altinnSettings/altinnSettings';
@@ -80,6 +81,9 @@ import {RoleSelector} from './users/roleSelector';
         GrantModal,
         FreeAmountModal,
         RoleSelector
+    ],
+    providers: [
+        SubEntitySettingsService
     ]
 })
 export class SettingsModule {

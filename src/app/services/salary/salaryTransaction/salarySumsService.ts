@@ -1,7 +1,7 @@
 import {Injectable} from '@angular/core';
 import {BizHttp} from '../../../../framework/core/http/BizHttp';
 import {UniHttp} from '../../../../framework/core/http/http';
-import {SalaryTransactionSums} from '../../../unientities';
+import {SalaryTransactionSums, SalaryTransactionPeriodSums} from '../../../unientities';
 
 import {Observable} from 'rxjs/Observable';
 
@@ -24,7 +24,7 @@ export class SalarySumsService extends BizHttp<SalaryTransactionSums> {
 
     public getSumsInYear(year: number, employeeID: number = null): Observable<SalaryTransactionSums> {
         let filter = `year(PayDate) eq ${year} and transactions.EmployeeID eq ${employeeID} and StatusCode gt ${0}`;
-        
+
         return this.http
             .asGET()
             .usingBusinessDomain()
@@ -33,7 +33,7 @@ export class SalarySumsService extends BizHttp<SalaryTransactionSums> {
             .map(response => response.json());
     }
 
-    public getSumsInPeriod(fromPeriod: number, toPeriod: number, transYear: number) {
+    public getSumsInPeriod(fromPeriod: number, toPeriod: number, transYear: number): Observable<SalaryTransactionPeriodSums[]> {
         return this.http
             .usingBusinessDomain()
             .asGET()

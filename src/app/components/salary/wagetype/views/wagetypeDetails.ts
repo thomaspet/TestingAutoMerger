@@ -578,7 +578,7 @@ export class WagetypeDetail extends UniView {
     private showTilleggsPakker(wageType: WageType, fields: any[]): void {
         let selectedPackage: any = this.supplementPackages.find(x => x.uninavn === wageType.SupplementPackage);
         this.showSupplementaryInformations = false;
-        
+
         if (selectedPackage) {
             let supInfo: WageTypeSupplement[] = [];
             selectedPackage.additions.forEach(addition => {
@@ -600,7 +600,7 @@ export class WagetypeDetail extends UniView {
 
     private setDeleteOnDuplicates(additions: WageTypeSupplement[], wageType: WageType): void {
         wageType.SupplementaryInformations = wageType.SupplementaryInformations.filter(x => x.ID);
-        
+
         if (wageType.SupplementaryInformations && wageType.SupplementaryInformations.length) {
             for (var g = 0; g < wageType.SupplementaryInformations.length; g++) {
                 wageType.SupplementaryInformations[g]['_setDelete'] = true;
@@ -632,7 +632,20 @@ export class WagetypeDetail extends UniView {
                 { field: 'Deleted', operator: 'ne', value: 'true', group: 0 }
             ])
             .setColumns([tilleggsopplysning, suggestedValue])
-            .setAutoAddNewRow(false);
+            .setAutoAddNewRow(false)
+            .setChangeCallback(event => {
+                this.wageType$
+                    .asObservable()
+                    .take(1)
+                    .map(wt => {
+                        let suppIndex = wt.SupplementaryInformations
+                            .findIndex(x => x['_originalIndex'] === event['originalIndex']);
+                        wt.SupplementaryInformations[suppIndex] = event.rowModel;
+                        return wt;
+                    })
+                    .subscribe(wt => super.updateState('wagetype', wt, true));
+                return event.rowModel;
+            });
     }
 
     public change(changes: SimpleChanges) {

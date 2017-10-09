@@ -96,7 +96,7 @@ export class TofCustomerCard {
         private errorService: ErrorService,
         private sellerLinkService: SellerLinkService
     ) {
-        this.uniSearchConfig = this.uniSearchCustomerConfig.generate(
+        this.uniSearchConfig = this.uniSearchCustomerConfig.generateDoNotCreate(
             this.customerExpands,
             () => this.openCustomerModal()
         );
@@ -121,8 +121,6 @@ export class TofCustomerCard {
                     }
                 });
             }
-
-
             if (customer && customer.ID) {
                 let peppoladdress = customer.PeppolAddress ? customer.PeppolAddress : '9908:' + customer.OrgNumber;
 
@@ -136,7 +134,10 @@ export class TofCustomerCard {
                     }, err => this.errorService.handle(err));
                 }
 
-                if (customer.ID !== this.lastCheckedStatisticsCustomerID) {
+
+
+
+                if (customer.ID && customer.ID !== this.lastCheckedStatisticsCustomerID) {
                     this.customerService.getCustomerStatistics(customer.ID)
                         .subscribe(x => {
                             this.lastCheckedStatisticsCustomerID = customer.ID;
@@ -173,7 +174,8 @@ export class TofCustomerCard {
     }
 
     public customerSelected(customer: Customer) {
-        if (customer) {
+
+        if (customer && customer.ID > 0) {
             this.entity.CustomerID = customer.ID;
             this.entity.CustomerName = customer.Info.Name;
 
@@ -181,16 +183,19 @@ export class TofCustomerCard {
             this.mapAddressesToEntity(customer, addresses);
         } else {
             this.entity.CustomerID = null;
-            this.entity.CustomerName = null;
+            let cName = customer ? customer.Info.Name : null;
+            this.entity.CustomerName = cName;
         }
         this.mapProjectToEntity(customer, this.entity);
         this.mapTermsToEntity(customer, this.entity);
 
-        this.entity.YourReference = customer.Info.DefaultContact && customer.Info.DefaultContact.Info.Name;
-        this.entity.EmailAddress = customer.Info.DefaultEmail && customer.Info.DefaultEmail.EmailAddress;
+        this.entity.YourReference = customer.Info.DefaultContact && customer.Info.DefaultContact.Info.Name
+            ? customer.Info.DefaultContact.Info.Name : this.entity.YourReference;
+        this.entity.EmailAddress = customer.Info.DefaultEmail && customer.Info.DefaultEmail.EmailAddress
+            ? customer.Info.DefaultEmail.EmailAddress : this.entity.EmailAddress;
 
         let sellers = [];
-        if (this.entity.Sellers.length === 0) {
+        if (this.entity.Sellers.length === 0 && customer.ID > 0) {
             customer.Sellers.forEach((seller: SellerLink) => {
                 sellers.push({
                     Percent: seller.Percent,
@@ -204,16 +209,12 @@ export class TofCustomerCard {
         }
 
         this.entity.Customer = customer;
-
         this.entityChange.emit(this.entity);
     }
 
     private mapProjectToEntity(customer: Customer, entity: any) {
-        if (entity.DefaultDimensions && customer.Dimensions) {
+        if (entity.DefaultDimensions && customer.Dimensions && customer.Dimensions.ProjectID) {
             entity.DefaultDimensions.ProjectID = customer.Dimensions.ProjectID;
-        } else {
-            entity.DefaultDimensions.ProjectID = null;
-            entity.DefaultDimensions.Project = null;
         }
     }
 

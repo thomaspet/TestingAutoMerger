@@ -28,7 +28,7 @@ export class TestDataService {
                     .slice(0, RESULT_LIMIT)
             )
                 .delay(SERVICE_DELAY_MS),
-            expandOrCreateFn: item =>
+            onSelect: item =>
                 item.ID
                     ? Observable.of(this.CUSTOMERS.find(customer => customer.ID === item.ID)).delay(SERVICE_DELAY_MS)
                     : Observable.of(this.externalSearchToCustomerMapper(item)).delay(SERVICE_DELAY_MS),

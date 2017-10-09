@@ -12,11 +12,19 @@
     <ng-template #subTickerHeader>
         <section class="ticker-header" [ngClass]="{'sub-ticker': !!parentModel}">
             <span class="ticker-title" *ngIf="ticker.Name">{{ticker.Name}}</span>
+
             <uni-context-menu
                 *ngIf="contextMenuItems?.length"
                 [actions]="contextMenuItems"
                 class="ticker-context-menu">
             </uni-context-menu>
+
+            <button *ngIf="openAction"
+                    type="button"
+                    class="sub-ticker-open-button"
+                    (click)="onExecuteAction(openAction)">
+                Åpne
+            </button>
         </section>
     </ng-template>
 

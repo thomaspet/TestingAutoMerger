@@ -5,18 +5,6 @@
     [tagConfig]="tagConfig">
 </uni-toolbar>
 
-<header class="product_poster" *ngIf="product">
-     <!-- Widget poster -->
-    <section class="poster_overview">
-        <uni-widget-poster [model]="product">
-            <section class="application">
-                <section>Utpris eks. MVA: kr. {{product.PriceExVat }}</section>
-                <section>Utpris ink. MVA: kr. {{product.PriceIncVat }}</section>
-            </section>
-        </uni-widget-poster>
-    </section>
-</header>
-
 <section *ngIf="(product$ | async)" class="product-details application">
     <uni-form
             [config]="config$"

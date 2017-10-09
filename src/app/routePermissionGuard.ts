@@ -1,5 +1,6 @@
 import {Inject} from '@angular/core';
 import {UserService} from './services/services';
+import {AuthService} from './authService';
 import {
     Router,
     CanActivate,
@@ -7,27 +8,20 @@ import {
     ActivatedRouteSnapshot,
     RouterStateSnapshot
 } from '@angular/router';
-import {Observable} from 'rxjs/Observable';
 
 export class RoutePermissionGuard implements CanActivate, CanActivateChild {
     constructor(
         @Inject(UserService) private userService,
-        @Inject(Router) private router
+        @Inject(Router) private router,
+        @Inject(AuthService) private authService: AuthService
     ) {}
 
     public canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot) {
-        return this.userService.getCurrentUser()
-            .catch(err => {
-                return Observable.of(null);
-            })
-            .map(user => {
-                // Redirect on 401 is handled by UniHttp
-                if (!user) {
-                    return true;
-                }
-
-                let canActivate = this.userService.checkAccessToRoute(state.url, user);
-
+        return this.authService.authentication$
+            .asObservable()
+            .take(1)
+            .map(auth => {
+                let canActivate = this.authService.canActivateRoute(auth.user, state.url);
                 /*
                     If user does not have access to the route, check if he entered
                     the app from this url, or if he's already on an allowed route

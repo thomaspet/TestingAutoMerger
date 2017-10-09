@@ -68,8 +68,7 @@ dialog.uniModal
         box-sizing: border-box
         border-radius: pxToRem(5)
         max-height: 90vh
-        overflow-y: visible
-        overflow-x: auto
+        overflow: visible
         @include clearfix
 
         @media(small)
@@ -98,12 +97,15 @@ dialog.uniModal[open=false]:before
 
 
 // NEW MODAL STUFF
+body.modal-open
+    overflow: hidden
+
 .uni-modal-backdrop
     position: fixed
-    bottom: 0
+    top: 0
     left: 0
-    height: 100vh
-    width: 100vw
+    bottom: 0
+    right: 0
     transition: opacity 300ms ease
     opacity: 1
     background: transparentize($uni-color-scale4, .4)
@@ -120,6 +122,11 @@ dialog.uniModal[open=false]:before
     align-items: center
     justify-content: center
 
+    > *:first-child
+        display: block !important
+        margin: auto auto !important
+        padding: 1rem 0 !important
+
 .uni-modal
     width: 40vw
     margin: 0 auto
@@ -128,10 +135,8 @@ dialog.uniModal[open=false]:before
     box-shadow: 0 0 1rem transparentize($uni-color-positive, .9)
     box-sizing: border-box
     border-radius: pxToRem(5)
-    max-height: 95vh
     overflow: visible
     display: block
-
     padding: 0
     border: none
 
@@ -152,6 +157,7 @@ dialog.uniModal[open=false]:before
 
     header
         background: $uni-color-toolbar
+        border-radius: pxToRem(4) pxToRem(4) 0 0
 
         h1
             @extend p

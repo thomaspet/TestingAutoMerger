@@ -16,13 +16,10 @@ import {ReportsModule} from '../reports/reportsModule';
 import {UniTickerModule} from '../uniticker/uniTickerModule';
 
 import {InvoiceList} from './invoice/list/invoiceList';
-import {InvoiceList2} from './invoice/list/invoiceList2';
 import {OrderDetails} from './order/details/orderDetails';
 import {TradeItemHelper} from './salesHelper/tradeItemHelper';
 import {OrderList} from './order/list/orderList';
-import {OrderToInvoiceTable} from './order/modals/ordertoinvoice';
-import {OrderToInvoiceModalType} from './order/modals/ordertoinvoice';
-import {OrderToInvoiceModal} from './order/modals/ordertoinvoice';
+import {UniOrderToInvoiceModal} from './order/orderToInvoiceModal';
 import {QuoteDetails} from './quote/details/quoteDetails';
 import {QuoteList} from './quote/list/quoteList';
 
@@ -87,14 +84,11 @@ import {SellerDetailsComponent} from './sellers/sellerDetailsComponent';
         TradeItemTable,
 
         InvoiceList,
-        InvoiceList2,
         InvoiceDetails,
 
         OrderDetails,
         OrderList,
-        OrderToInvoiceTable,
-        OrderToInvoiceModalType,
-        OrderToInvoiceModal,
+        UniOrderToInvoiceModal,
 
         QuoteDetails,
         QuoteList,
@@ -121,8 +115,7 @@ import {SellerDetailsComponent} from './sellers/sellerDetailsComponent';
         SellerDetailsComponent
     ],
     entryComponents: [
-        OrderToInvoiceModalType,
-        OrderToInvoiceTable,
+        UniOrderToInvoiceModal,
         ReminderConfirmForm,
         UniReminderSendingModal,
         ReminderSending,
@@ -141,13 +134,10 @@ import {SellerDetailsComponent} from './sellers/sellerDetailsComponent';
         CustomerProductsSold,
         CustomerList,
         InvoiceList,
-        InvoiceList2,
         InvoiceDetails,
         OrderDetails,
         OrderList,
-        OrderToInvoiceTable,
-        OrderToInvoiceModalType,
-        OrderToInvoiceModal,
+        UniOrderToInvoiceModal,
         QuoteDetails,
         QuoteList,
         Reminder,

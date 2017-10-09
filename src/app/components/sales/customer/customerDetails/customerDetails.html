@@ -91,14 +91,15 @@
         [entityID]="(customer$ | async)?.ID"
         [hideLabel]="true">
     </uni-attachments>
-    <uni-query-read-only
-            *ngFor="let link of reportLinks"
-            [hidden]="showReportWithID != link.id"
-            [ngClass]="{'hidden': showReportWithID != link.id}"
-            [queryDefinitionID]="link.id"
-            [customerID]="(customer$ | async)?.ID"
-            [externalID]="(customer$ | async)?.ID">
-    </uni-query-read-only>
+    <div *ngFor="let link of reportLinks">
+        <uni-query-read-only
+                *ngIf="showReportWithID === link.id"
+                [ngClass]="{'hidden': showReportWithID != link.id}"
+                [queryDefinitionID]="link.id"
+                [customerID]="(customer$ | async)?.ID"
+                [externalID]="(customer$ | async)?.ID">
+        </uni-query-read-only>
+    </div>
 </section>
 
 <uni-save *ngIf="modalMode" [actions]="saveactions" class="uni_save_modal_mode"></uni-save>

@@ -3,8 +3,13 @@ import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService
 import {ToastService, ToastType} from '../../../../../framework/uniToast/toastService';
 import {Router, ActivatedRoute} from '@angular/router';
 import {Observable} from 'rxjs/Observable';
-import {safeInt, roundTo, safeDec, filterInput, trimLength,
-    createFormField, FieldSize, ControlTypes} from '../../../common/utils/utils';
+import {
+    safeInt,
+    roundTo,
+    safeDec,
+    filterInput,
+    trimLength
+} from '../../../common/utils/utils';
 import {
     Supplier, SupplierInvoice, JournalEntryLineDraft,
     StatusCodeSupplierInvoice, BankAccount, LocalDate,
@@ -23,7 +28,7 @@ import {ImageModal} from '../../../common/modals/ImageModal';
 import {UniImageSize, UniImage} from '../../../../../framework/uniImage/uniImage';
 import {IUniSearchConfig} from '../../../../../framework/ui/unisearch/index';
 import {UniAssignModal, AssignDetails} from './assignmodal';
-import {UniApproveModal, ApprovalDetails} from './approvemodal';
+import {UniAddFileModal} from './addFileModal';
 import {UniMath} from '../../../../../framework/core/uniMath';
 import {CommentService} from '../../../../../framework/comments/commentService';
 import {NumberSeriesTaskIds} from '../../../../models/models';
@@ -32,7 +37,11 @@ import {
     UniBankAccountModal,
     UniRegisterPaymentModal,
     UniConfirmModalV2,
-    ConfirmActions
+    UniConfirmModalWithList,
+    IConfirmModalWithListReturnValue,
+    ConfirmActions,
+    UniApproveModal,
+    ApprovalDetails
 } from '../../../../../framework/uniModal/barrel';
 import {
     SupplierInvoiceService,
@@ -56,6 +65,7 @@ import {
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {UniFieldLayout} from '../../../../../framework/ui/uniform/index';
 import * as moment from 'moment';
+import {UniNewSupplierModal} from '../../supplier/details/newSupplierModal';
 declare var _;
 
 interface ITab {
@@ -68,8 +78,9 @@ interface ITab {
 
 enum actionBar {
     save = 0,
-    delete = 1,
-    ocr = 2
+    saveWithNewDocument = 1,
+    delete = 2,
+    ocr = 3
 };
 
 
@@ -92,15 +103,18 @@ export class BillView {
     public currentSupplierID: number = 0;
     public collapseSimpleJournal: boolean = false;
     public hasUnsavedChanges: boolean = false;
-    public currentFile: any;
     public hasStartupFileID: boolean = false;
     public historyCount: number = 0;
     public ocrData: any;
     public startUpFileID: Array<number> = [];
+    // Stores a boolean value per document, true if document is from client pc, not inbox
+    private hasUploaded: boolean = false;
+    private numberOfDocuments: number = 0;
 
     private myUser: User;
-    private files: Array<any>;
+    private files: Array<any> = [];
     private unlinkedFiles: Array<number> = [];
+    private documentsInUse: number[] = [];
     private supplierIsReadOnly: boolean = false;
     private commentsConfig: any;
     private formReady: boolean;
@@ -122,7 +136,6 @@ export class BillView {
         'CurrencyCode'
     ];
 
-    private tabLabel: string;
     public tabs: Array<ITab> = [
         { label: lang.tab_invoice, name: 'head', isHidden: true },
         { label: lang.tab_document, name: 'docs', isSelected: true },
@@ -134,9 +147,14 @@ export class BillView {
     public actions: IUniSaveAction[];
 
     private rootActions: IUniSaveAction[] = [
-        { label: lang.tool_save, action: (done) => this.save(done), main: true, disabled: true },
-        { label: lang.tool_delete, action: (done) => this.tryDelete(done), main: false, disabled: true },
-        { label: lang.converter, action: (done) => this.runConverter(this.files).then(() => done()), main: false, disabled: false },
+        { label: lang.tool_save, action:
+            (done) => this.save(done), main: true, disabled: true },
+        { label: lang.tool_save_and_new, action:
+            (done) => this.saveAndGetNewDocument(done), main: true, disabled: true },
+        { label: lang.tool_delete, action:
+            (done) => this.tryDelete(done), main: false, disabled: true },
+        { label: lang.converter, action:
+            (done) => this.runConverter(this.files).then(() => done()), main: false, disabled: false },
     ];
 
     private projects: Project[];
@@ -189,46 +207,34 @@ export class BillView {
 
     private initFromRoute() {
         this.route.params.subscribe((params: any) => {
-            var id = params.id;
-            if (safeInt(id) > 0) {
-                Observable.forkJoin(
-                    this.companySettingsService.Get(1),
-                    this.currencyCodeService.GetAll(null),
-                    this.projectService.GetAll(null),
-                    this.departmentService.GetAll(null)
-                ).subscribe((res) => {
-                    this.companySettings = res[0];
-                    this.currencyCodes = res[1];
-                    this.projects = res[2];
-                    this.departments = res[3];
+            let id = safeInt(params.id);
 
-                    this.updateTabInfo(id);
+            Observable.forkJoin(
+                this.companySettingsService.Get(1),
+                this.currencyCodeService.GetAll(null),
+                this.projectService.GetAll(null),
+                this.departmentService.GetAll(null)
+            ).subscribe((res) => {
+                this.companySettings = res[0];
+                this.currencyCodes = res[1];
+                this.projects = res[2];
+                this.departments = res[3];
+
+                if (id > 0) {
                     this.fetchInvoice(id, true);
-                    this.extendFormConfig();
-                }, err => this.errorService.handle(err));
-            } else {
-                Observable.forkJoin(
-                    this.companySettingsService.Get(1),
-                    this.currencyCodeService.GetAll(null),
-                    this.projectService.GetAll(null),
-                    this.departmentService.GetAll(null)
-                ).subscribe((res) => {
-                    this.companySettings = res[0];
-                    this.currencyCodes = res[1];
-                    this.projects = res[2];
-                    this.departments = res[3];
-
+                } else {
                     this.newInvoice(true);
                     this.checkPath();
-                    this.extendFormConfig();
-                }, err => this.errorService.handle(err));
-            }
+                }
+
+                this.extendFormConfig();
+            }, err => this.errorService.handle(err));
+
             this.commentsConfig = {
                 entityType: 'SupplierInvoice',
-                entityID: +params.id
+                entityID: id
             };
         });
-
     }
 
     public extendFormConfig() {
@@ -261,21 +267,20 @@ export class BillView {
         this.fields$.next(fields);
     }
 
-    private updateTabInfo(id?: number | string, label?: string) {
-        let current = this.current.getValue();
-        id = id || (current ? current.ID : 0);
-        this.tabLabel = label || lang.title_with_id + id;
-        var url = '/accounting/bills/' + id;
-        this.tabService.addTab({ name: this.tabLabel, url: url, moduleID: UniModules.Bills, active: true });
-        if (this.location.path(false) !== url) {
-            this.location.go(url);
-        }
+    private addTab(id: number = 0) {
+        let label = id > 0 ? trimLength(this.toolbarConfig.title, 12) : lang.title_new;
+        this.tabService.addTab({
+            name: label,
+            url : '/accounting/bills/' + id,
+            moduleID: UniModules.Bills,
+            active: true
+        });
     }
 
     private initForm() {
         let fields = [
             <any> {
-                Property: 'SupplierID',
+                Property: 'Supplier',
                 FieldType: FieldType.UNI_SEARCH,
                 Label: 'Leverandør',
             },
@@ -332,14 +337,17 @@ export class BillView {
             },
         ];
 
+
         this.uniSearchConfig = this.uniSearchSupplierConfig
-            .generate(this.supplierExpandOptions);
+            .generateDoNotCreateNew(
+                this.supplierExpandOptions,
+                () => this.modalService.open(UniNewSupplierModal, { data: {} }).onClose
+            );
 
         // Extend config with stuff that can't come from layout system
-        let supplierField = fields.find(f => f.Property === 'SupplierID');
+        let supplierField = fields.find(f => f.Property === 'Supplier');
         supplierField.Options = {
-            uniSearchConfig: this.uniSearchConfig,
-            valueProperty: 'ID'
+            uniSearchConfig: this.uniSearchConfig
         };
 
         let sumField = fields.find(f => f.Property === 'TaxInclusiveAmountCurrency');
@@ -616,24 +624,43 @@ export class BillView {
     }
 
     public onImageDeleted(file: any) {
-        this.files = this.files.filter(x => file !== x)
-    }
-
-    public onThumbnailImageClicked(file: any) {
-        this.currentFile = file;
+        let index = this.files.findIndex(f => f.ID === file.ID);
+        // Remove file from all arrays holding it
+        this.files.splice(index, 1);
+        if (this.files.length === 0) {
+            this.resetDocuments();
+        } else {
+            this.unlinkedFiles = this.files.map(f => f.ID);
+            this.documentsInUse = this.unlinkedFiles;
+            this.numberOfDocuments--;
+        }
     }
 
     public onFileListReady(files: Array<any>) {
+
         let current = this.current.value;
         this.files = files;
-
         if (files && files.length) {
+            if (this.files.length !== this.numberOfDocuments) {
+                this.hasUploaded = true;
+            }
             if (!this.hasValidSupplier()) {
                 this.runConverter(files);
             }
             if (!current.ID) {
                 this.unlinkedFiles = files.map(file => file.ID);
-                this.rootActions[0].disabled = false;
+                this.rootActions[actionBar.save].disabled = false;
+                this.rootActions[actionBar.saveWithNewDocument].disabled = false;
+                // Check what ID's in unlinkedfiles have not been tagged
+                this.unlinkedFiles.forEach((id: number) => {
+                    // If ID is not tagged, tag it with status 30 = inUse
+                    if (this.documentsInUse.indexOf(id) === -1) {
+                        this.tagFileStatus(id, 30);
+                    }
+                });
+
+                // Set documentsinuse to match unlinkedfiles
+                this.documentsInUse = this.unlinkedFiles;
             }
         }
     }
@@ -827,7 +854,7 @@ export class BillView {
 
     public onFocusEvent(event) {
 
-        if (!this.currentFile || !this.ocrData) { return; }
+        if (!this.uniImage.getCurrentFile() || !this.ocrData) { return; }
 
         this.uniImage.removeHighlight();
 
@@ -869,9 +896,17 @@ export class BillView {
 
         let model = this.current.getValue();
 
+
+
         if (change['SupplierID']) {
             this.fetchNewSupplier(model.SupplierID);
         }
+
+        if (change['Supplier'])  {
+            console.log(change['Supplier'].currentValue.ID);
+            model.SupplierID = change['Supplier'].currentValue.ID;
+        }
+
 
         if (change['InvoiceDate']) {
             let creditdays = model.Supplier ? model.Supplier.CreditDays : null;
@@ -1043,19 +1078,18 @@ export class BillView {
             });
         }
 
-        this.tabLabel = lang.title_new;
         this.currentSupplierID = 0;
         this.simpleJournalentry.clear();
-        this.tabService.currentActiveTab.name = this.tabLabel;
         this.setupToolbar();
+        this.addTab(0);
         this.flagUnsavedChanged(true);
         this.initDefaultActions();
         this.flagActionBar(actionBar.delete, false);
         this.supplierIsReadOnly = false;
         this.hasUnsavedChanges = false;
-        this.currentFile = {};
-        this.unlinkedFiles = [];
-        this.files = undefined;
+        this.resetDocuments();
+        this.files = [];
+        this.startUpFileID = [];
         this.setHistoryCounter(0);
         this.busy = false;
 
@@ -1067,9 +1101,11 @@ export class BillView {
 
     private flagUnsavedChanged(reset = false) {
         this.flagActionBar(actionBar.save, !reset);
+        this.flagActionBar(actionBar.saveWithNewDocument, !reset);
         if (!reset) {
             this.actions.forEach(x => x.main = false);
             this.actions[actionBar.save].main = true;
+            this.actions[actionBar.saveWithNewDocument].main = true;
 
             this.actions = this.actions.concat();
         }
@@ -1081,13 +1117,21 @@ export class BillView {
         this.actions[index].disabled = !enable;
     }
 
+    private resetDocuments() {
+        this.unlinkedFiles = [];
+        this.documentsInUse = [];
+        this.numberOfDocuments = 0;
+        this.hasUploaded = false;
+    }
+
     private loadActionsFromEntity() {
         var it: any = this.current.getValue();
         if (it && it._links) {
             var list: IUniSaveAction[] = [];
             this.rootActions.forEach(x => list.push(x));
             var hasJournalEntry = (!!(it.JournalEntry && it.JournalEntry.JournalEntryNumber));
-            let filter = ((it.StatusCode === StatusCodeSupplierInvoice.ToPayment && hasJournalEntry) ? ['journal'] : undefined);
+            let filter = ((it.StatusCode === StatusCodeSupplierInvoice.ToPayment
+                && hasJournalEntry) ? ['journal'] : undefined);
             this.addActions(it._links.transitions, list, true, ['assign', 'approve', 'journal', 'pay'], filter);
             /* todo: add smartbooking whenever it works properly..
             if (it._links.actions && it._links.actions.smartbooking) {
@@ -1113,10 +1157,16 @@ export class BillView {
 
                     // Godkjenn og Bokfør, Godkjenn, Bokfør og Til betaling
                     if (it.StatusCode === StatusCodeSupplierInvoice.ForApproval) {
-                        let toJournalAction = this.newAction(lang.task_approve_and_journal, 'task_approve_and_journal', `api/biz/approvals/${approval.ID}?action=approve`);
+                        let toJournalAction = this.newAction(
+                            lang.task_approve_and_journal,
+                            'task_approve_and_journal',
+                            `api/biz/approvals/${approval.ID}?action=approve`);
                         list.push(toJournalAction);
 
-                        let topaymentaction = this.newAction(lang.task_approve_and_journal_and_topayment, 'task_approve_and_journal_and_topayment', `api/biz/approvals/${approval.ID}?action=approve`);
+                        let topaymentaction = this.newAction(
+                            lang.task_approve_and_journal_and_topayment,
+                            'task_approve_and_journal_and_topayment',
+                            `api/biz/approvals/${approval.ID}?action=approve`);
                         list.push(topaymentaction);
                     }
                 }
@@ -1124,7 +1174,8 @@ export class BillView {
 
             // Bokfør og Til betaling
             if (it.StatusCode === StatusCodeSupplierInvoice.Approved) {
-                let toPaymentAction = this.newAction(lang.task_journal_and_topayment, 'task_journal_and_topayment', '');
+                let toPaymentAction =
+                    this.newAction(lang.task_journal_and_topayment, 'task_journal_and_topayment', '');
                 list.push(toPaymentAction);
             }
 
@@ -1216,6 +1267,20 @@ export class BillView {
             }, (err) => {
                 this.errorService.handle(err);
             });
+    }
+
+    public openAddFileModal() {
+        this.modalService.open(UniAddFileModal).onClose.subscribe((element) => {
+            if (element) {
+                if (this.files.length === 0) {
+                    this.startUpFileID = [safeInt(element.ID)];
+                } else {
+                    this.uniImage.fetchDocumentWithID(safeInt(element.ID));
+                }
+                this.numberOfDocuments++;
+                this.hasUnsavedChanges = true;
+            }
+        });
     }
 
     private handleActionAfterCheckSave(key: string, label: string, href: string, done: any): boolean {
@@ -1407,8 +1472,6 @@ export class BillView {
                     this.busy = false;
                     this.userMsg(err.errorMessage, lang.warning, 10);
                     return false;
-                }).then(response => {
-                    return Observable.of(response);
                 })
             );
         });
@@ -1536,14 +1599,18 @@ export class BillView {
 
     private fetchInvoice(id: number | string, flagBusy: boolean): Promise<any> {
         if (flagBusy) { this.busy = true; }
-        this.currentFile = {};
         this.files = undefined;
         this.setHistoryCounter(0);
         return new Promise((resolve, reject) => {
             this.supplierInvoiceService.Get(
                 id,
-                ['Supplier.Info.BankAccounts', 'JournalEntry.DraftLines.Account,JournalEntry.DraftLines.VatType', 'CurrencyCode', 'BankAccount', 'DefaultDimensions']
-            ).finally( () => {
+                [
+                    'Supplier.Info.BankAccounts',
+                    'JournalEntry.DraftLines.Account,JournalEntry.DraftLines.VatType',
+                    'CurrencyCode',
+                    'BankAccount',
+                    'DefaultDimensions'
+                ]).finally( () => {
                 this.flagUnsavedChanged(true);
              })
             .subscribe(result => {
@@ -1551,7 +1618,7 @@ export class BillView {
                 if (result.Supplier === null) { result.Supplier = new Supplier(); };
                 this.current.next(result);
                 this.setupToolbar();
-                this.updateTabInfo(id, trimLength(this.toolbarConfig.title, 12));
+                this.addTab(+id);
                 this.flagActionBar(actionBar.delete, result.StatusCode <= StatusCodeSupplierInvoice.Draft);
                 this.flagActionBar(actionBar.ocr, result.StatusCode <= StatusCodeSupplierInvoice.Draft);
                 this.loadActionsFromEntity();
@@ -1597,9 +1664,11 @@ export class BillView {
 
                 case StatusCodeSupplierInvoice.Journaled:
                     this.uniForm.readMode();
-                    this.uniForm.field('PaymentDueDate').editMode();
-                    this.uniForm.field('BankAccountID').editMode();
                     this.uniForm.field('PaymentID').editMode();
+                    this.uniForm.field('PaymentDueDate').editMode();
+                    this.uniForm.field('DefaultDimensions.ProjectID').editMode();
+                    this.uniForm.field('DefaultDimensions.DepartmentID').editMode();
+                    this.uniForm.field('BankAccountID').editMode();
                     return;
 
                 case StatusCodeSupplierInvoice.ForApproval:
@@ -1613,6 +1682,21 @@ export class BillView {
 
         this.uniForm.editMode();
         this.supplierIsReadOnly = false;
+    }
+
+    public setFieldsReadonly(fieldPropertyNames: string[]) {
+        setTimeout(() => {
+            let fields = this.fields$.value;
+            if (fieldPropertyNames) {
+                fieldPropertyNames.forEach(fieldPropertyName => {
+                    let field = fields.find((f) => f['Property'] === fieldPropertyName);
+                    if (field) {
+                        field['ReadOnly'] = true;
+                    }
+                });
+                this.fields$.next(fields);
+            }
+        });
     }
 
     private getSupplierName(): string {
@@ -1663,6 +1747,25 @@ export class BillView {
         });
     }
 
+    private saveAndGetNewDocument(done?) {
+        return this.save(done).then(() => {
+            this.supplierInvoiceService.fetch('filetags/IncomingMail|IncomingEHF/0').subscribe((res) => {
+                if (res && res.length > 0) {
+                    this.newInvoice(false);
+                    this.hasStartupFileID = true;
+                    this.startUpFileID = [res[0].ID];
+                    if (done) { done(lang.save_success); }
+                } else {
+                    this.toast.addToast('Ingen flere dokumenter i flyten', ToastType.good, 2);
+                }
+            }, (err) => {
+                // In case of error fetching documents, get current and show error
+                this.errorService.handle(err);
+                this.toast.addToast('Kunne ikke laste nytt dokument', ToastType.bad, 2);
+            } );
+        });
+    }
+
 
     public save(done?): Promise<ILocalValidation> {
         this.preSave();
@@ -1670,48 +1773,84 @@ export class BillView {
 
             var reload = () => {
                 this.fetchInvoice(this.currentSupplierID, (!!done))
-                    .then(() => {
-                        resolve({ success: true });
-                        if (done) { done(lang.save_success); }
-                    })
-                    .catch((msg) => {
-                        reject({ success: false, errorMessage: msg });
-                        if (done) { done(msg); }
-                    });
+                .then(() => {
+                    resolve({ success: true });
+                    if (done) { done(lang.save_success); }
+                })
+                .catch((msg) => {
+                    reject({ success: false, errorMessage: msg });
+                    if (done) { done(msg); }
+                });
             };
 
             var obs: any;
             let current = this.current.getValue();
-            if (current.ID) {
-                obs = this.supplierInvoiceService.Put(current.ID, current);
-            } else {
-                obs = this.supplierInvoiceService.Post(current);
-            }
-            obs.subscribe((result) => {
-                this.currentSupplierID = result.ID;
-                this.hasUnsavedChanges = false;
-                this.commentsConfig.entityID = result.ID;
-                if (this.unlinkedFiles.length > 0) {
-                    this.linkFiles(this.currentSupplierID, this.unlinkedFiles, 'SupplierInvoice', 40001).then(() => {
-                        this.hasStartupFileID = false;
-                        this.currentFile = {};
-                        this.unlinkedFiles = [];
+
+            let saveFunc = () => {
+
+                if (current.ID) {
+                    obs = this.supplierInvoiceService.Put(current.ID, current);
+                } else {
+                    obs = this.supplierInvoiceService.Post(current);
+                }
+                obs.subscribe((result) => {
+                    this.currentSupplierID = result.ID;
+                    this.hasUnsavedChanges = false;
+                    this.commentsConfig.entityID = result.ID;
+                    if (this.unlinkedFiles.length > 0) {
+                        this.linkFiles(this.currentSupplierID, this.unlinkedFiles, 'SupplierInvoice', 40001).then(
+                            () => {
+                            this.hasStartupFileID = false;
+                            this.resetDocuments();
+                            reload();
+                        });
+                    } else {
                         reload();
-                    });
-                } else {
-                    reload();
-                }
-            }, (error) => {
-                var msg = error.statusText;
-                if (error._body) {
-                    msg = trimLength(error._body, 150, true);
-                    this.showErrMsg(msg, true);
-                } else {
-                    this.userMsg(lang.save_error);
-                }
-                if (done) { done(lang.save_error + ': ' + msg); }
-                reject({ success: false, errorMessage: msg });
-            });
+                    }
+                }, (error) => {
+                    var msg = error.statusText;
+                    if (error._body) {
+                        msg = trimLength(error._body, 150, true);
+                        this.showErrMsg(msg, true);
+                    } else {
+                        this.userMsg(lang.save_error);
+                    }
+                    if (done) { done(lang.save_error + ': ' + msg); }
+                    reject({ success: false, errorMessage: msg });
+                });
+            };
+
+            if (current.ID) {
+                saveFunc();
+            } else {
+                // Query to see if invoiceID/supplierID combo has been used before
+                this.supplierInvoiceService.checkInvoiceData(current.InvoiceNumber, current.SupplierID)
+                .subscribe((data: any) => {
+                    if (data && data.Data && data.Data[0].countid > 0) {
+                        this.modalService.open(UniConfirmModalV2,
+                            {
+                                buttonLabels: {
+                                    accept: 'Fortsett',
+                                    cancel: 'Avbryt'
+                                },
+                                header: 'Vil du lagre? ',
+                                message: `En faktura med dette fakturanr og samme leverandør er allerede lagret.
+                                Er  du sikker på at du vil fortsette?`
+                            }).onClose.subscribe((res) => {
+                                if (res === ConfirmActions.ACCEPT) {
+                                    saveFunc();
+                                } else {
+                                    resolve({ success: false });
+                                    if (done) {
+                                        done('Lagring avbrutt');
+                                    }
+                                }
+                            });
+                    } else {
+                        saveFunc();
+                    }
+                });
+            }
         });
     }
 
@@ -1906,6 +2045,40 @@ export class BillView {
         }
 
         return new Promise((resolve, reject) => {
+            let unhandledDocuments = () => {
+                if (this.documentsInUse.length > 0) {
+                    this.modalService.open(UniConfirmModalWithList, {
+                        header: 'Ubehandlede dokumenter',
+                        message: 'Du har ubehandlede dokumenter. Hva ønsker du å gjøre med disse?',
+                        buttonLabels: {
+                            accept: 'Fullfør',
+                            reject: 'Avbryt'
+                        },
+                        list: this.files,
+                        listkey: 'Name',
+                        listMessage: 'Marker de dokumentene du ønsker å legge i innboksen, de andre slettes.'
+
+                    }).onClose.subscribe((response: IConfirmModalWithListReturnValue) => {
+                        if (response.action === ConfirmActions.ACCEPT) {
+                            response.list.forEach((bool: boolean, index: number) => {
+                                if (bool) {
+                                    this.tagFileStatus(this.documentsInUse[index], 0);
+                                } else {
+                                    this.supplierInvoiceService
+                                    .send('files/' + this.documentsInUse[index], undefined, 'DELETE')
+                                    .subscribe(null, err => this.errorService.handle(err));
+                                }
+                            });
+                            resolve(true);
+                        } else {
+                            resolve(false);
+                        }
+                    });
+                } else {
+                    resolve(true);
+                }
+            };
+
             this.modalService.open(UniConfirmModalV2, {
                 header: 'Ulagrede endringer',
                 message: 'Du har ulagrede endringer. Ønsker du å lagre disse før vi fortsetter?',
@@ -1922,11 +2095,20 @@ export class BillView {
                         resolve(true);
                     });
                 } else if (response === ConfirmActions.REJECT) {
-                    resolve(true);
+                    if (this.hasUploaded) {
+                        unhandledDocuments();
+                    } else {
+                        this.documentsInUse.forEach((fileID) => {
+                            this.tagFileStatus(fileID, 0);
+                        });
+                        resolve(true);
+                    }
                 } else {
                     resolve(false);
                 }
             });
+
+
         });
     }
 
@@ -1996,8 +2178,13 @@ export class BillView {
                 prev: () => this.navigateTo('prev'),
                 next: () => this.navigateTo('next'),
                 add: () => {
-                    this.newInvoice(false);
-                    this.router.navigateByUrl('/accounting/bills/0');
+                    this.checkSave().then((res: boolean) => {
+                        if (res) {
+                            this.newInvoice(false);
+                            this.router.navigateByUrl('/accounting/bills/0');
+                        }
+                    });
+
                 }
             },
             entityID: doc && doc.ID ? doc.ID : null,
@@ -2015,17 +2202,20 @@ export class BillView {
         var params = '?model=supplierinvoice';
         var resultFld = 'minid';
         var id = this.current.getValue().ID;
+        let status = this.current.getValue().StatusCode;
 
         if (direction === 'next') {
-            params += '&select=min(id)&filter=deleted eq \'false\'' + (id ? ' and id gt ' + id : '');
+            params += '&select=min(id)&filter=deleted eq \'false\''
+                + (id ? ' and id gt ' + id + ' and StatusCode eq ' + status : '');
         } else {
-            params += '&select=max(id)&filter=deleted eq \'false\'' + (id ? ' and id lt ' + id : '');
+            params += '&select=max(id)&filter=deleted eq \'false\''
+                + (id ? ' and id lt ' + id + ' and StatusCode eq ' + status : '');
             resultFld = 'maxid';
         }
 
         this.simpleJournalentry.closeEditor();
 
-        // TODO: should use BizHttp.getNextID() / BizHttp.getPreviousID()
+
         return new Promise((resolve, reject) => {
             this.supplierInvoiceService.getStatQuery(params).subscribe((items) => {
                 if (items && items.length > 0) {
@@ -2046,7 +2236,8 @@ export class BillView {
     private loadFromFileID(fileID: number | string) {
         this.hasStartupFileID = true;
         this.startUpFileID = [safeInt(fileID)];
-        this.currentFile.ID = safeInt(fileID);
+        this.numberOfDocuments++;
+        this.hasUnsavedChanges = true;
     }
 
     private linkFiles(ID: any, fileIDs: Array<any>, entityType: string, flagFileStatus?: any): Promise<any> {
@@ -2069,8 +2260,8 @@ export class BillView {
     }
 
     private tagFileStatus(fileID: number, flagFileStatus: number) {
-        var file = this.files.find(x => x.ID === fileID);
-        var tag = this.isOCR(file) ? 'IncomingMail' : 'IncomingEHF';
+        let file = this.files.find(x => x.ID === fileID);
+        let tag = this.isOCR(file) ? 'IncomingMail' : 'IncomingEHF';
 
         this.supplierInvoiceService.send(
             `filetags/${fileID}`,
@@ -2115,6 +2306,6 @@ export class BillView {
 
     private isEHF(file): Boolean {
         let name = (file.Name || '').toLowerCase();
-        return name.indexOf('.xml') !== -1 || name.indexOf('.ehf') !== -1);
+        return name.indexOf('.xml') !== -1 || name.indexOf('.ehf') !== -1;
     }
 }

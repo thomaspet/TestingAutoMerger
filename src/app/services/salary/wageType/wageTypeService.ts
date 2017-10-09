@@ -7,7 +7,7 @@ import {AccountService} from '../../accounting/accountService';
 import {ErrorService} from '../../common/errorService';
 import {Observable} from 'rxjs/Observable';
 import 'rxjs/Observable';
-import {FieldType} from '../../../../framework/ui/uniform/index';
+import {FieldType, UniFieldLayout} from '../../../../framework/ui/uniform/index';
 
 export enum WageTypeBaseOptions {
     VacationPay = 0,
@@ -28,10 +28,10 @@ export class WageTypeService extends BizHttp<WageType> {
         'SupplementaryInformations'
     ];
 
-    private limitTypes: { Type: LimitType, Name: string }[] = [
-        { Type: LimitType.None, Name: 'Ingen' },
-        { Type: LimitType.Amount, Name: 'Antall' },
-        { Type: LimitType.Sum, Name: 'Beløp' }
+    private limitTypes: {Type: LimitType, Name: string}[] = [
+        {Type: LimitType.None, Name: 'Ingen'},
+        {Type: LimitType.Amount, Name: 'Antall'},
+        {Type: LimitType.Sum, Name: 'Beløp'}
     ];
 
     constructor(
@@ -164,349 +164,177 @@ export class WageTypeService extends BizHttp<WageType> {
             .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
     }
 
+    public washWageType(wt: WageType): WageType {
+
+        wt.AccountNumber = wt.AccountNumber || 0;
+        wt.AccountNumber_balance = wt.AccountNumber_balance || 0;
+        wt.Rate = wt.Rate || 0;
+        wt.RateFactor = wt.RateFactor || 0;
+        wt.Limit_newRate = wt.Limit_newRate || 0;
+        wt.Limit_value = wt.Limit_value || 0;
+        wt.Limit_WageTypeNumber = wt.Limit_WageTypeNumber || 0;
+
+        return wt;
+    }
+
     public layout(layoutID: string, wageType$: BehaviorSubject<WageType>) {
         return Observable.from([{
             Name: layoutID,
             BaseEntity: 'wagetype',
             Fields: [
                 {
-                    ComponentLayoutID: 1,
                     EntityType: 'wagetype',
                     Property: 'WageTypeNumber',
-                    Placement: 1,
-                    Hidden: false,
                     FieldType: FieldType.NUMERIC,
                     ReadOnly: true,
-                    LookupField: false,
                     Label: 'Nr',
-                    Description: null,
-                    HelpText: null,
                     FieldSet: 1,
                     Legend: 'Lønnsart',
                     Section: 0,
                     Placeholder: 'La stå tom for neste ledige',
-                    LineBreak: null,
-                    Combo: null,
-                    Sectionheader: '',
-                    hasLineBreak: false,
                     Options: {
                         format: 'none'
                     }
                 },
                 {
-                    ComponentLayoutID: 1,
                     EntityType: 'wagetype',
                     Property: 'WageTypeName',
-                    Placement: 1,
-                    Hidden: false,
                     FieldType: FieldType.TEXT,
-                    ReadOnly: false,
-                    LookupField: false,
                     Label: 'Navn',
-                    Description: null,
-                    HelpText: null,
                     FieldSet: 1,
-                    Section: 0,
-                    Placeholder: null,
-                    Options: null,
-                    LineBreak: null,
-                    Combo: null,
-                    Sectionheader: '',
-                    hasLineBreak: false
+                    Section: 0
                 },
                 {
-                    ComponentLayoutID: 1,
                     EntityType: 'wagetype',
                     Property: 'GetRateFrom',
-                    Placement: 1,
-                    Hidden: false,
                     FieldType: FieldType.DROPDOWN,
-                    ReadOnly: false,
-                    LookupField: false,
                     Label: 'Sats hentes fra',
                     Legend: 'Sats',
-                    Description: null,
-                    HelpText: null,
                     FieldSet: 2,
                     Section: 0,
-                    Placeholder: null,
-                    Options: null,
-                    LineBreak: null,
-                    Combo: null,
-                    Sectionheader: 'Sats',
-                    hasLineBreak: false,
+                    Sectionheader: 'Sats'
                 },
                 {
-                    ComponentLayoutID: 1,
                     EntityType: 'wagetype',
                     Property: 'Rate',
-                    Placement: 1,
-                    Hidden: false,
                     FieldType: FieldType.NUMERIC,
-                    ReadOnly: false,
-                    LookupField: false,
                     Label: 'Sats',
-                    Description: null,
-                    HelpText: null,
                     FieldSet: 2,
                     Section: 0,
-                    Placeholder: null,
                     Options: {
                         format: 'money'
-                    },
-                    LineBreak: null,
-                    Combo: null,
-                    Sectionheader: '',
-                    hasLineBreak: false,
+                    }
                 },
                 {
-                    ComponentLayoutID: 1,
                     EntityType: 'wagetype',
                     Property: 'RateFactor',
-                    Placement: 1,
-                    Hidden: false,
                     FieldType: FieldType.NUMERIC,
-                    ReadOnly: false,
-                    LookupField: false,
                     Label: 'Utbetales med tillegg i prosent',
-                    Description: null,
-                    HelpText: null,
                     FieldSet: 2,
                     Section: 0,
-                    Placeholder: null,
-                    Options: { format: 'percent' },
-                    LineBreak: null,
-                    Combo: null,
-                    Sectionheader: '',
-                    hasLineBreak: false,
+                    Options: {format: 'percent'}
                 },
                 {
-                    ComponentLayoutID: 1,
                     EntityType: 'wagetype',
                     Property: 'taxtype',
-                    Placement: 1,
-                    Hidden: false,
                     FieldType: FieldType.DROPDOWN,
-                    ReadOnly: false,
                     LookupField: 'Name',
                     Label: 'Behandlingsregel skattetrekk',
-                    Description: null,
-                    HelpText: null,
                     FieldSet: 3,
                     Legend: 'Behandling',
-                    Section: 0,
-                    Placeholder: null,
-                    LineBreak: null,
-                    Combo: null,
-                    Sectionheader: '',
-                    Options: null,
-                    hasLineBreak: false
+                    Section: 0
                 },
                 {
-                    ComponentLayoutID: 1,
                     EntityType: 'wagetype',
                     Property: '_baseOptions',
-                    Placement: 1,
-                    Hidden: false,
                     FieldType: FieldType.CHECKBOXGROUP,
-                    ReadOnly: false,
-                    LookupField: false,
                     Label: 'Med i grunnlag for: ',
-                    Description: null,
-                    HelpText: null,
                     FieldSet: 3,
                     Section: 0,
-                    Placeholder: null,
                     Options: {
                         multivalue: true,
                         source: [
-                            { ID: WageTypeBaseOptions.VacationPay, Name: 'Feriepenger' },
-                            { ID: WageTypeBaseOptions.AGA, Name: 'Aga' },
-                            { ID: WageTypeBaseOptions.Pension, Name: 'Pensjon' }
+                            {ID: WageTypeBaseOptions.VacationPay, Name: 'Feriepenger'},
+                            {ID: WageTypeBaseOptions.AGA, Name: 'Aga'},
+                            {ID: WageTypeBaseOptions.Pension, Name: 'Pensjon'}
                         ],
                         valueProperty: 'ID',
                         labelProperty: 'Name'
-                    },
-                    LineBreak: null,
-                    Combo: null,
-                    hasLineBreak: false
+                    }
                 },
                 {
-                    ComponentLayoutID: 1,
                     EntityType: 'wagetype',
                     Property: 'AccountNumber',
-                    Placement: 1,
-                    Hidden: false,
                     FieldType: FieldType.AUTOCOMPLETE,
-                    ReadOnly: false,
-                    LookupField: false,
                     Label: 'Hovedbokskonto',
                     Legend: 'Regnskapsinnstillinger',
-                    Description: null,
-                    HelpText: null,
                     FieldSet: 4,
                     Section: 0,
-                    Placeholder: null,
-                    Options: this.getAccountSearchOptions(wageType$, 'AccountNumber'),
-                    LineBreak: null,
-                    Combo: null,
-                    Sectionheader: '',
-                    hasLineBreak: false
+                    Options: this.getAccountSearchOptions(wageType$, 'AccountNumber')
                 },
                 {
-                    ComponentLayoutID: 1,
                     EntityType: 'wagetype',
                     Property: 'Base_Payment',
-                    Placement: 1,
-                    Hidden: false,
                     FieldType: FieldType.CHECKBOX,
-                    ReadOnly: false,
-                    LookupField: false,
                     Label: 'Utbetales',
-                    Description: null,
-                    HelpText: null,
                     FieldSet: 4,
-                    Section: 0,
-                    Placeholder: null,
-                    Options: null,
-                    LineBreak: null,
-                    Combo: null,
-                    Sectionheader: '',
-                    hasLineBreak: false
+                    Section: 0
                 },
                 {
-                    ComponentLayoutID: 1,
                     EntityType: 'wagetype',
                     Property: 'AccountNumber_balance',
-                    Placement: 1,
-                    Hidden: false,
                     FieldType: FieldType.AUTOCOMPLETE,
-                    ReadOnly: false,
-                    LookupField: false,
                     Label: 'Motkonto kredit',
-                    Description: null,
-                    HelpText: null,
                     FieldSet: 4,
                     Section: 0,
-                    Placeholder: null,
-                    Options: this.getAccountSearchOptions(wageType$, 'AccountNumber_balance'),
-                    LineBreak: null,
-                    Combo: null,
-                    Sectionheader: '',
-                    hasLineBreak: false
+                    Options: this.getAccountSearchOptions(wageType$, 'AccountNumber_balance')
                 },
                 {
-                    ComponentLayoutID: 1,
                     EntityType: 'wagetype',
                     Property: 'IncomeType',
-                    Placement: 1,
-                    Hidden: false,
                     FieldType: FieldType.AUTOCOMPLETE,
-                    ReadOnly: false,
-                    LookupField: false,
                     Label: 'Inntektstype',
-                    Description: null,
-                    HelpText: null,
                     FieldSet: 1,
                     Section: 2,
-                    Placeholder: null,
-                    Options: null,
-                    LineBreak: null,
-                    Combo: null,
                     Sectionheader: 'A-meldingsinformasjon',
                     Legend: 'A-meldingsinformasjon',
-                    hasLineBreak: false,
                     openByDefault: true,
                 },
                 {
-                    ComponentLayoutID: 1,
                     EntityType: 'wagetype',
                     Property: 'Benefit',
-                    Placement: 1,
-                    Hidden: false,
                     FieldType: FieldType.AUTOCOMPLETE,
-                    ReadOnly: false,
-                    LookupField: false,
                     Label: 'Fordel',
-                    Description: null,
-                    HelpText: null,
                     FieldSet: 1,
-                    Section: 2,
-                    Placeholder: null,
-                    Options: null,
-                    LineBreak: null,
-                    Combo: null,
-                    Sectionheader: '',
-                    hasLineBreak: false,
+                    Section: 2
                 },
                 {
-                    ComponentLayoutID: 1,
                     EntityType: 'wagetype',
                     Property: 'Description',
-                    Placement: 1,
-                    Hidden: false,
                     FieldType: FieldType.AUTOCOMPLETE,
-                    ReadOnly: false,
-                    LookupField: false,
                     Label: 'Beskrivelse',
-                    Description: null,
-                    HelpText: null,
                     FieldSet: 1,
-                    Section: 2,
-                    Placeholder: null,
-                    Options: null,
-                    LineBreak: null,
-                    Combo: null,
-                    Sectionheader: '',
-                    hasLineBreak: false,
+                    Section: 2
                 },
                 {
-                    ComponentLayoutID: 1,
                     EntityType: 'wagetype',
                     Property: 'SpecialTaxAndContributionsRule',
-                    Placement: 1,
-                    Hidden: false,
                     FieldType: FieldType.DROPDOWN,
-                    ReadOnly: false,
-                    LookupField: false,
                     Label: 'Skatte- og avgiftsregel',
-                    Description: null,
-                    HelpText: null,
                     FieldSet: 1,
-                    Section: 2,
-                    Placeholder: null,
-                    Options: null,
-                    LineBreak: null,
-                    Combo: null,
-                    Sectionheader: '',
-                    hasLineBreak: false,
+                    Section: 2
                 },
                 {
-                    ComponentLayoutID: 1,
                     EntityType: 'wagetype',
                     Property: 'SupplementPackage',
-                    Placement: 1,
-                    Hidden: false,
                     FieldType: FieldType.DROPDOWN,
-                    ReadOnly: false,
-                    LookupField: false,
                     Label: 'Tilleggsinformasjon pakke',
-                    Description: null,
-                    HelpText: null,
                     FieldSet: 1,
-                    Section: 2,
-                    Placeholder: null,
-                    Options: null,
-                    LineBreak: null,
-                    Combo: null,
-                    Sectionheader: '',
-                    hasLineBreak: false,
+                    Section: 2
                 },
                 {
                     Property: '_AMeldingHelp',
                     FieldType: FieldType.HYPERLINK,
-                    ReadOnly: false,
-                    LookupField: false,
                     Label: 'Hjelp',
                     HelpText: 'Hjelp til a-ordningen',
                     FieldSet: 1,
@@ -529,188 +357,91 @@ export class WageTypeService extends BizHttp<WageType> {
                 BaseEntity: 'wagetype',
                 Fields: [
                     {
-                        ComponentLayoutID: 1,
                         EntityType: 'wagetype',
                         Property: 'FixedSalaryHolidayDeduction',
-                        Placement: 1,
-                        Hidden: false,
                         FieldType: FieldType.CHECKBOX,
-                        ReadOnly: false,
-                        LookupField: false,
                         Label: 'Trekk i fastlønn for ferie',
-                        Description: null,
                         HelpText: 'Kryss av dersom du ønsker trekk (negativ post) på lønnsarten når du på lønnsavregningen har krysset av for Trekk i fastlønn for ferie.',
                         FieldSet: 1,
                         Legend: 'Innstillinger',
-                        Section: 0,
-                        Placeholder: null,
-                        Options: null,
-                        LineBreak: null,
-                        Combo: null,
-                        Sectionheader: '',
-                        hasLineBreak: false
+                        Section: 0
                     },
                     {
-                        ComponentLayoutID: 1,
                         EntityType: 'wagetype',
                         Property: 'HideFromPaycheck',
-                        Placement: 1,
-                        Hidden: false,
                         FieldType: FieldType.CHECKBOX,
-                        ReadOnly: false,
-                        LookupField: false,
                         Label: 'Skjul på lønnslipp',
-                        Description: null,
                         HelpText: 'Skjul lønnsarten på lønnsslipp. Bare mulig for lønnsarter som ikke fører til en utbetaling.',
                         FieldSet: 1,
-                        Section: 0,
-                        Placeholder: null,
-                        Options: null,
-                        LineBreak: null,
-                        Combo: null,
-                        Sectionheader: '',
-                        hasLineBreak: false
+                        Section: 0
                     },
                     {
-                        ComponentLayoutID: 1,
                         EntityType: 'wagetype',
                         Property: 'StandardWageTypeFor',
-                        Placement: 1,
-                        Hidden: false,
                         FieldType: FieldType.DROPDOWN,
-                        ReadOnly: false,
                         LookupField: 'Name',
-                        Options: null,
                         HelpText: 'Lønnsarter som brukes til spesielle ting, for eksempel skatt, ferie og lignende må settes opp med korrekt type her.',
                         Label: 'Systemets lønnsart',
-                        Description: null,
                         FieldSet: 1,
-                        Section: 0,
-                        Placeholder: null,
-                        LineBreak: null,
-                        Combo: null,
-                        Sectionheader: '',
-                        hasLineBreak: false
+                        Section: 0
                     },
                     {
-                        ComponentLayoutID: 1,
                         EntityType: 'wagetype',
                         Property: 'SpecialAgaRule',
-                        Placement: 1,
-                        Hidden: false,
                         FieldType: FieldType.DROPDOWN,
-                        ReadOnly: false,
-                        LookupField: false,
                         Label: 'Type lønnsart',
-                        Description: null,
-                        HelpText: null,
                         FieldSet: 1,
-                        Section: 0,
-                        Placeholder: null,
-                        Options: null,
-                        LineBreak: null,
-                        Combo: null,
-                        Sectionheader: '',
-                        hasLineBreak: false,
+                        Section: 0
                     },
                     {
-                        ComponentLayoutID: 1,
                         EntityType: 'wagetype',
                         Property: 'Limit_type',
-                        Placement: 1,
-                        Hidden: false,
                         FieldType: FieldType.DROPDOWN,
-                        ReadOnly: false,
-                        LookupField: false,
                         Label: 'Grenseverdi type',
-                        Description: null,
-                        HelpText: null,
                         FieldSet: 2,
                         Legend: 'Grenseverdi',
                         Section: 0,
-                        Placeholder: null,
                         Options: {
                             source: this.limitTypes,
                             valueProperty: 'Type',
                             template: (obj: any) => obj
                                 ? `${obj.Type} - ${obj.Name}`
                                 : '',
-                        },
-                        LineBreak: null,
-                        Combo: null,
-                        Sectionheader: '',
-                        hasLineBreak: false
+                        }
                     },
                     {
-                        ComponentLayoutID: 1,
                         EntityType: 'wagetype',
                         Property: 'Limit_value',
-                        Placement: 1,
-                        Hidden: false,
                         FieldType: FieldType.TEXT,
-                        ReadOnly: false,
-                        LookupField: false,
                         Label: 'Grenseverdi',
-                        Description: null,
-                        HelpText: null,
                         FieldSet: 2,
-                        Section: 0,
-                        Placeholder: null,
-                        Options: null,
-                        LineBreak: null,
-                        Combo: null,
-                        Sectionheader: '',
-                        hasLineBreak: false
+                        Section: 0
                     },
                     {
-                        ComponentLayoutID: 1,
                         EntityType: 'wagetype',
                         Property: 'Limit_newRate',
-                        Placement: 1,
-                        Hidden: false,
                         FieldType: FieldType.NUMERIC,
-                        ReadOnly: false,
-                        LookupField: false,
                         Label: 'Ny sats',
-                        Description: null,
-                        HelpText: null,
                         FieldSet: 2,
                         Section: 0,
-                        Placeholder: null,
                         Options: {
                             format: 'money'
-                        },
-                        LineBreak: null,
-                        Combo: null,
-                        Sectionheader: '',
-                        hasLineBreak: false
+                        }
                     },
                     {
-                        ComponentLayoutID: 1,
                         EntityType: 'wagetype',
                         Property: 'Limit_WageTypeNumber',
-                        Placement: 1,
-                        Hidden: false,
                         FieldType: FieldType.AUTOCOMPLETE,
-                        ReadOnly: false,
-                        LookupField: false,
                         Label: 'Ny lønnsart',
-                        Description: null,
-                        HelpText: null,
                         FieldSet: 2,
                         Section: 0,
-                        Placeholder: null,
                         Options: {
                             source: wageTypes,
                             valueProperty: 'WageTypeNumber',
                             template: (wt: WageType) => wt
                                 ? `${wt.WageTypeNumber} - ${wt.WageTypeName}`
                                 : ''
-                        },
-                        LineBreak: null,
-                        Combo: null,
-                        Sectionheader: '',
-                        hasLineBreak: false
+                        }
                     }
                 ]
             }]));

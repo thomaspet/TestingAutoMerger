@@ -12,7 +12,7 @@ import {
 import {Http} from '@angular/http';
 import {File} from '../../app/unientities';
 import {UniHttp} from '../core/http/http';
-import {AuthService} from '../core/authService';
+import {AuthService} from '../../app/authService';
 import {Observable} from 'rxjs/Observable';
 import {AppConfig} from '../../app/AppConfig';
 import {ErrorService, FileService, UniFilesService} from '../../app/services/services';
@@ -141,9 +141,6 @@ export class UniImage {
     @Output()
     public imageClicked: EventEmitter<File> = new EventEmitter<File>();
 
-    @Output()
-    public thumbnailImageClicked: EventEmitter<File> = new EventEmitter<File>();
-
     public imageIsLoading: boolean = true;
 
     private baseUrl: string = AppConfig.BASE_URL_FILES;
@@ -176,34 +173,42 @@ export class UniImage {
         private authService: AuthService,
         private uniFilesService: UniFilesService
     ) {
-        // Subscribe to authentication/activeCompany changes
         this.authService.authentication$.subscribe((authDetails) => {
-            this.token = authDetails.filesToken;
             this.activeCompany = authDetails.activeCompany;
+            this.refreshFiles();
+        });
+
+        this.authService.filesToken$.subscribe(token => {
+            this.token = token;
+            this.refreshFiles();
         });
     }
 
     public ngOnChanges(changes: SimpleChanges) {
         this.imgUrl = this.imgUrl2x = '';
         this.thumbnails = [];
-
-        if ((changes['entity'] || changes['entityID']) && this.entity && this.isDefined(this.entityID)) {
-            this.refreshFiles();
-        } else if (changes['fileIDs']) {
-            this.refreshFiles();
-        } else if (changes['showFileID'] && this.files && this.files.length) {
-            this.currentFileIndex = this.getChosenFileIndex();
-            this.loadImage();
-            if (!this.singleImage) {
-                this.loadThumbnails();
+        if (this.activeCompany) {
+            if ((changes['entity'] || changes['entityID']) && this.entity && this.isDefined(this.entityID)) {
+                this.refreshFiles();
+            } else if (changes['fileIDs']) {
+                this.refreshFiles();
+            } else if (changes['showFileID'] && this.files && this.files.length) {
+                this.currentFileIndex = this.getChosenFileIndex();
+                this.loadImage();
+                if (!this.singleImage) {
+                    this.loadThumbnails();
+                }
             }
         }
     }
 
     public refreshFiles() {
+        if (!this.token || !this.activeCompany) {
+            return;
+        }
+
         if (this.fileIDs && this.fileIDs.length > 0) {
             let requestFilter = 'ID eq ' + this.fileIDs.join(' or ID eq ');
-
             this.http.asGET()
                 .usingBusinessDomain()
                 .withEndPoint(`files?filter=${requestFilter}`)
@@ -249,6 +254,11 @@ export class UniImage {
         }
     }
 
+    public fetchDocumentWithID(id: number) {
+        this.fileIDs.push(id);
+        this.refreshFiles();
+    }
+
     private getChosenFileIndex() {
         const chosenFileIndex = this.files.findIndex(file => file.ID === this.showFileID);
         if (chosenFileIndex > 0) {
@@ -290,8 +300,6 @@ export class UniImage {
         if (this.currentFileIndex !== index) {
             this.currentFileIndex = index;
             this.loadImage();
-
-            this.thumbnailImageClicked.emit(this.files[index]);
         }
     }
 
@@ -529,6 +537,7 @@ export class UniImage {
                     .subscribe(newFile => {
                         this.uploading = false;
                         this.files.push(newFile);
+                        this.fileIDs.push(newFile.ID);
                         this.fileListReady.emit(this.files);
                         this.currentFileIndex = this.files.length - 1;
                         this.loadImage();

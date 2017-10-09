@@ -44,8 +44,8 @@ export class SaveQueryDefinitionForm implements OnInit {
     private newCategory: boolean = false;
 
     constructor(
-        private toastService: ToastService, 
-        private http: UniHttp, 
+        private toastService: ToastService,
+        private http: UniHttp,
         private errorService: ErrorService
     ) {}
 
@@ -62,38 +62,23 @@ export class SaveQueryDefinitionForm implements OnInit {
         // TODO: turn to 'ComponentLayout when the object respects the interface
         this.fields$.next([
             {
-                ComponentLayoutID: 1,
                 EntityType: 'QueryDefinition',
                 Property: 'Name',
-                Placement: 1,
-                Hidden: false,
                 FieldType: FieldType.TEXT,
-                ReadOnly: false,
-                LookupField: false,
                 Label: 'Navn',
-                Description: '',
-                HelpText: '',
                 FieldSet: 0,
                 Section: 0,
-                Legend: '',
                 Classes: 'large-field'
             },
             {
-                ComponentLayoutID: 1,
                 EntityType: 'QueryDefinition',
                 Property: 'Category',
-                Placement: 1,
                 Hidden: this.newCategory,
                 FieldType: FieldType.DROPDOWN,
-                ReadOnly: false,
-                LookupField: false,
                 Label: 'Kategori',
                 Placeholder: 'F.eks. "Faktura", brukes til gruppering av uttrekk',
-                Description: '',
-                HelpText: '',
                 FieldSet: 0,
                 Section: 0,
-                Legend: '',
                 Classes: 'large-field',
                 Options: {
                     source: this.categories,
@@ -103,94 +88,55 @@ export class SaveQueryDefinitionForm implements OnInit {
                 }
             },
             {
-                ComponentLayoutID: 1,
                 EntityType: 'QueryDefinition',
                 Property: 'Category',
-                Placement: 1,
                 Hidden: !this.newCategory,
                 FieldType: FieldType.TEXT,
-                ReadOnly: false,
-                LookupField: false,
                 Label: 'Kategori',
                 Placeholder: 'F.eks. "Faktura", brukes til gruppering av uttrekk',
-                Description: '',
-                HelpText: '',
                 FieldSet: 0,
                 Section: 0,
-                Legend: '',
                 Classes: 'large-field'
             },
             {
-                ComponentLayoutID: 1,
                 EntityType: 'QueryDefinition',
                 Property: 'Description',
-                Placement: 1,
-                Hidden: false,
                 FieldType: FieldType.TEXT,
-                ReadOnly: false,
-                LookupField: false,
                 Label: 'Beskrivelse',
-                Description: '',
-                HelpText: '',
                 FieldSet: 0,
                 Section: 0,
-                Legend: '',
                 Classes: 'large-field'
             },
             {
-                ComponentLayoutID: 1,
                 EntityType: 'QueryDefinition',
                 Property: 'ClickUrl',
-                Placement: 1,
-                Hidden: false,
                 FieldType: FieldType.TEXT,
-                ReadOnly: false,
-                LookupField: false,
                 Label: 'URL ved klikk',
                 Placeholder: 'URL brukeren sendes til, inkludert parametre, f.eks. /sales/customer/:Customer.ID',
-                Description: '',
-                HelpText: '',
                 FieldSet: 0,
                 Section: 1,
                 Sectionheader: 'Avansert',
-                Legend: '',
                 Classes: 'large-field'
             },
             {
-                ComponentLayoutID: 1,
                 EntityType: 'QueryDefinition',
                 Property: 'ClickParam',
-                Placement: 1,
-                Hidden: false,
                 FieldType: FieldType.TEXT,
-                ReadOnly: false,
-                LookupField: false,
                 Label: 'Kolonne som URL parameter',
                 Placeholder: 'Kommaseparart liste med navn på felt/kolonne, f.eks. Customer.ID',
-                Description: '',
-                HelpText: '',
                 FieldSet: 0,
                 Section: 1,
                 Sectionheader: 'Avansert',
-                Legend: '',
                 Classes: 'large-field'
             },
             {
-                ComponentLayoutID: 1,
                 EntityType: 'QueryDefinition',
                 Property: 'ModuleID',
-                Placement: 1,
-                Hidden: false,
                 FieldType: FieldType.DROPDOWN,
-                ReadOnly: false,
-                LookupField: false,
                 Label: 'Hvilket skjermbilde den vises på',
-                Description: '',
-                HelpText: '',
                 FieldSet: 0,
                 Section: 1,
                 Sectionheader: 'Avansert',
-                Legend: '',
                 Classes: 'large-field',
                 Options: {
                     source: Object.keys(UniModules)
@@ -202,21 +148,13 @@ export class SaveQueryDefinitionForm implements OnInit {
                 }
             },
             {
-                ComponentLayoutID: 1,
                 EntityType: 'QueryDefinition',
                 Property: 'IsShared',
-                Placement: 1,
-                Hidden: false,
                 FieldType: FieldType.CHECKBOX,
-                ReadOnly: false,
-                LookupField: false,
                 Label: 'Delt uttrekk',
-                Description: '',
-                HelpText: '',
                 FieldSet: 0,
                 Section: 1,
-                Sectionheader: 'Avansert',
-                Legend: ''
+                Sectionheader: 'Avansert'
             }
         ]);
     }

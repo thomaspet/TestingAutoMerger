@@ -25,7 +25,7 @@ uni-bill
 		display: inline-block
 		width: 50%
 
-		&:nth-of-type(odd) label span
+		&:nth-of-type(odd) label > span
 			width: 8rem
 			margin-left: 1rem
 
@@ -40,11 +40,6 @@ uni-bill
 
 	label span+*
 		width: 100%
-
-uni-multivalue-input .uni-multivalue-values
-	margin-top: 2rem
-	width: 12rem
-	right: 0
 
 article.collapsable h4
 	box-sizing: border-box
@@ -310,3 +305,30 @@ bill-simple-journalentry
 .selected_tab_view
     color: $uni-color-negative
     background-color: $uni-color-c2a
+
+.document_from_flow_button
+    margin-left: 0
+    background-color: $uni-color-good
+
+    &:hover
+        background-color: #006700
+
+.confirm_modal_list
+
+    list-style: none
+
+    label
+        display: block
+        padding-left: 15px
+        text-indent: -15px
+        cursor: pointer
+
+    input[type='checkbox']
+	    width: 18px
+	    height: 18px
+	    padding: 0
+	    margin: 0 1.5rem 0 0
+	    vertical-align: bottom
+	    cursor: pointer
+	    position: relative
+	    top: -2px

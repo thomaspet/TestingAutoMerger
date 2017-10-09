@@ -410,6 +410,45 @@ export class Permission extends UniEntity {
 }
 
 
+export class ItemSource extends UniEntity {
+    public static RelativeUrl = '';
+    public static EntityType = 'ItemSource';
+
+    public _createguid: string;
+    public CreatedAt: Date;
+    public CreatedBy: string;
+    public Deleted: boolean;
+    public ID: number;
+    public StatusCode: number;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public Details: Array<ItemSourceDetail>;
+    public CustomFields: any;
+}
+
+
+export class ItemSourceDetail extends UniEntity {
+    public static RelativeUrl = '';
+    public static EntityType = 'ItemSourceDetail';
+
+    public _createguid: string;
+    public Amount: number;
+    public CreatedAt: Date;
+    public CreatedBy: string;
+    public Deleted: boolean;
+    public Description: string;
+    public ID: number;
+    public ItemSourceID: number;
+    public SourceFK: number;
+    public SourceType: string;
+    public StatusCode: number;
+    public Tag: string;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public CustomFields: any;
+}
+
+
 export class Seller extends UniEntity {
     public static RelativeUrl = 'sellers';
     public static EntityType = 'Seller';
@@ -717,6 +756,7 @@ export class CustomerInvoiceItem extends UniEntity {
     public DiscountCurrency: number;
     public DiscountPercent: number;
     public ID: number;
+    public ItemSourceID: number;
     public ItemText: string;
     public NumberOfItems: number;
     public PriceExVat: number;
@@ -741,6 +781,7 @@ export class CustomerInvoiceItem extends UniEntity {
     public Dimensions: Dimensions;
     public Account: Account;
     public CurrencyCode: CurrencyCode;
+    public ItemSource: ItemSource;
     public CustomFields: any;
 }
 
@@ -841,6 +882,7 @@ export class CustomerOrderItem extends UniEntity {
     public DiscountCurrency: number;
     public DiscountPercent: number;
     public ID: number;
+    public ItemSourceID: number;
     public ItemText: string;
     public NumberOfItems: number;
     public PriceExVat: number;
@@ -865,6 +907,7 @@ export class CustomerOrderItem extends UniEntity {
     public Dimensions: Dimensions;
     public Account: Account;
     public CurrencyCode: CurrencyCode;
+    public ItemSource: ItemSource;
     public CustomFields: any;
 }
 
@@ -1910,7 +1953,6 @@ export class SalaryTransaction extends UniEntity {
     public EmployeeID: number;
     public EmployeeNumber: number;
     public EmploymentID: number;
-    public Files: string;
     public FromDate: Date;
     public HolidayPayDeduction: boolean;
     public ID: number;
@@ -2171,6 +2213,7 @@ export class User extends UniEntity {
     public static EntityType = 'User';
 
     public _createguid: string;
+    public BankIntegrationUserName: string;
     public CreatedAt: Date;
     public CreatedBy: string;
     public Deleted: boolean;
@@ -3031,6 +3074,7 @@ export class NumberSeries extends UniEntity {
     public Empty: boolean;
     public FromNumber: number;
     public ID: number;
+    public IsDefaultForTask: boolean;
     public MainAccountID: number;
     public Name: string;
     public NextNumber: number;
@@ -3912,6 +3956,55 @@ export class CompanyAccess extends UniEntity {
 }
 
 
+export class KpiDefinition extends UniEntity {
+    public static RelativeUrl = '';
+    public static EntityType = 'KpiDefinition';
+
+    public _createguid: string;
+    public Application: string;
+    public CompanyID: number;
+    public CreatedAt: Date;
+    public CreatedBy: string;
+    public Deleted: boolean;
+    public ID: number;
+    public Interval: string;
+    public IsPerUser: boolean;
+    public Name: string;
+    public RefreshModels: string;
+    public RoleNames: string;
+    public Route: string;
+    public SourceType: KpiSourceType;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public ValueType: KpiValueType;
+    public CustomFields: any;
+}
+
+
+export class KpiValue extends UniEntity {
+    public static RelativeUrl = '';
+    public static EntityType = 'KpiValue';
+
+    public _createguid: string;
+    public CompanyID: number;
+    public Counter: number;
+    public CreatedAt: Date;
+    public CreatedBy: string;
+    public Deleted: boolean;
+    public ID: number;
+    public KpiDefinitionID: number;
+    public KpiName: string;
+    public LastUpdated: Date;
+    public Text: string;
+    public Total: number;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public UserIdentity: string;
+    public ValueStatus: KpiValueStatus;
+    public CustomFields: any;
+}
+
+
 export class AccrualPeriod extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'AccrualPeriod';
@@ -3955,6 +4048,27 @@ export class Accrual extends UniEntity {
     public JournalEntryLineDraft: JournalEntryLineDraft;
     public JournalEntryLines: Array<JournalEntryLine>;
     public Periods: Array<AccrualPeriod>;
+    public CustomFields: any;
+}
+
+
+export class BankIntegrationAgreement extends UniEntity {
+    public static RelativeUrl = 'bank-agreements';
+    public static EntityType = 'BankIntegrationAgreement';
+
+    public _createguid: string;
+    public CreatedAt: Date;
+    public CreatedBy: string;
+    public Deleted: boolean;
+    public ID: number;
+    public Name: string;
+    public Password: string;
+    public PropertiesJson: string;
+    public ServiceID: string;
+    public ServiceTemplateID: string;
+    public StatusCode: number;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
     public CustomFields: any;
 }
 
@@ -5285,6 +5399,7 @@ export class SalaryTransactionSums extends UniEntity {
     public calculatedVacationPay: number;
     public Employee: number;
     public grossPayment: number;
+    public manualTax: number;
     public netPayment: number;
     public paidAdvance: number;
     public paidPension: number;
@@ -5389,6 +5504,7 @@ export class UserDto extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'UserDto';
 
+    public BankIntegrationUserName: string;
     public CreatedAt: Date;
     public CreatedBy: string;
     public Deleted: boolean;
@@ -5403,6 +5519,12 @@ export class UserDto extends UniEntity {
     public UpdatedBy: string;
     public UserName: string;
     public CustomFields: any;
+}
+
+
+export class ActiveNumberSeriesTask extends UniEntity {
+    public NumberSeriesTask: NumberSeriesTask;
+    public DefaultNumberSeries: NumberSeries;
 }
 
 
@@ -5428,14 +5550,22 @@ export class SendEmail extends UniEntity {
     public EntityType: string;
     public FromAddress: string;
     public Message: string;
+    public ReportName: string;
     public Subject: string;
     public Attachments: Array<SendEmailAttachment>;
+    public Parameters: Array<ReportParameter>;
 }
 
 
 export class SendEmailAttachment extends UniEntity {
     public Attachment: string;
     public FileName: string;
+}
+
+
+export class ReportParameter extends UniEntity {
+    public Name: string;
+    public Value: string;
 }
 
 
@@ -6050,6 +6180,28 @@ export enum PlanTypeEnum{
 export enum PeriodSeriesType{
     m = 0,
     r = 1,
+}
+
+
+export enum KpiSourceType{
+    SourceStatistics = 0,
+    SourceCountRecords = 1,
+    SourceRecordValue = 2,
+}
+
+
+export enum KpiValueType{
+    ValueTypeCounter = 0,
+    ValueTypeDecimal = 1,
+    ValueTypeText = 2,
+}
+
+
+export enum KpiValueStatus{
+    StatusUnknown = 0,
+    StatusInProgress = 1,
+    StatusError = 2,
+    StatusReady = 3,
 }
 
 

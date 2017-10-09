@@ -5,6 +5,8 @@ export class SendEmail {
     public Format: string;
     public Message: string;
     public SendCopy: boolean;
+    public ReportName: string;
+    public Parameters: object;
     public EntityType: string;
     public EntityID: number;
     public CustomerID: number;
@@ -16,6 +18,8 @@ export class SendEmail {
         this.Format = 'pdf';
         this.Message = '';
         this.SendCopy = false;
+        this.ReportName = '';
+        this.Parameters = null;
         this.EntityType = '';
         this.EntityID = 0;
         this.CustomerID = 0;

@@ -4,6 +4,7 @@ import {Observable} from 'rxjs/Observable';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {StatisticsService} from '../statisticsService';
 import {SupplierService} from '../../accounting/supplierService';
+import {GuidService} from '../guidService';
 import {ErrorService} from '../errorService';
 import {IntegrationServerCaller} from '../integrationServerCaller';
 import {BusinessRelationSearch} from '../../../models/Integration/BusinessRelationSearch';
@@ -32,7 +33,8 @@ export class UniSearchSupplierConfig {
         private statisticsService: StatisticsService,
         private supplierService: SupplierService,
         private errorService: ErrorService,
-        private integrationServerCaller: IntegrationServerCaller
+        private integrationServerCaller: IntegrationServerCaller,
+        private guidService: GuidService
     ) {}
 
     public generate(
@@ -40,18 +42,82 @@ export class UniSearchSupplierConfig {
         newItemModalFn?: () => Observable<UniEntity>
     ): IUniSearchConfig {
         return <IUniSearchConfig>{
-            lookupFn: searchTerm => this
-                .statisticsService
+            lookupFn: searchTerm => this.statisticsService
                 .GetAllUnwrapped(this.generateSupplierStatisticsQuery(searchTerm))
                 .catch((err, obs) => this.errorService.handleRxCatch(err, obs)),
-            expandOrCreateFn: (newOrExistingItem: CustomStatisticsResultItem) => {
-                if (newOrExistingItem.ID) {
-                    return this.supplierService.Get(newOrExistingItem.ID, expands)
+            onSelect: (selectedItem: CustomStatisticsResultItem) => {
+                if (!selectedItem) {
+                    return Observable.empty();
+                }
+
+                if (selectedItem.ID) {
+                    return this.supplierService.Get(selectedItem.ID, expands)
                         .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
                 } else {
-                    return this.supplierService.Post(this.customStatisticsObjToSupplier(newOrExistingItem))
+                    return this.supplierService.Post(this.customStatisticsObjToSupplier(selectedItem))
                         .switchMap(item => this.supplierService.Get(item.ID, expands))
                         .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
+                }
+            },
+            initialItem$: new BehaviorSubject(null),
+            tableHeader: ['Leverandørnr', 'Navn', 'Tlf', 'Adresse', 'Poststed', 'Org.Nr'],
+            rowTemplateFn: item => [
+                item.SupplierNumber,
+                item.Name,
+                item.PhoneNumber,
+                item.AddressLine1,
+                `${item.PostalCode || ''} ${item.City || ''}`,
+                item.OrgNumber
+            ],
+            inputTemplateFn: item => `${item.SupplierNumber || ''}${item.Info && item.Info.Name ? ' ' + item.Info.Name : ''}`,
+            newItemModalFn: newItemModalFn,
+            externalLookupFn: query =>
+                this.integrationServerCaller
+                    .businessRelationSearch(query, MAX_RESULTS)
+                    .map(results =>
+                        results.map(result =>
+                            this.mapExternalSearchToCustomStatisticsObj(result)
+                        )
+                    ),
+            maxResultsLength: MAX_RESULTS
+        };
+    }
+
+    public generateDoNotCreateNew(
+        expands: string[] = ['Info.Addresses'],
+        newItemModalFn?: () => Observable<UniEntity>
+    ): IUniSearchConfig {
+        return <IUniSearchConfig> {
+            lookupFn: searchTerm => this.statisticsService
+                .GetAllUnwrapped(this.generateSupplierStatisticsQuery(searchTerm))
+                .catch((err, obs) => this.errorService.handleRxCatch(err, obs)),
+            onSelect: (selectedItem: CustomStatisticsResultItem) => {
+                if (selectedItem.ID) {
+                    return this.supplierService.Get(selectedItem.ID, expands)
+                        .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
+                } else {
+                    const it = this.customStatisticsObjToSupplier(selectedItem);
+                    it._createguid = this.guidService.guid();
+                    if (it.Info) it.Info._createguid = this.guidService.guid();
+
+                    if (it.Info.InvoiceAddress) {
+                        it.Info.InvoiceAddress._createguid = this.guidService.guid();
+                    }
+
+                    if (it.Info.ShippingAddress) {
+                        it.Info.ShippingAddress._createguid = this.guidService.guid();
+                    }
+
+                    if (it.Info.DefaultPhone) {
+                        it.Info.DefaultPhone._createguid = this.guidService.guid();
+                    }
+
+                    if (it.Info.DefaultEmail) {
+                        it.Info.DefaultEmail._createguid = this.guidService.guid();
+                    }
+
+
+                    return Observable.of(it);
                 }
             },
             initialItem$: new BehaviorSubject(null),
@@ -133,6 +199,7 @@ export class UniSearchSupplierConfig {
 
     public customStatisticsObjToSupplier(statObj: CustomStatisticsResultItem): Supplier {
         const supplier = new Supplier();
+        supplier.ID = 0;
         supplier.OrgNumber = statObj.OrgNumber;
         supplier.WebUrl = statObj.WebUrl;
         supplier.Info = new BusinessRelation();
@@ -146,11 +213,9 @@ export class UniSearchSupplierConfig {
             address.PostalCode = statObj.PostalCode;
             address.City = statObj.City;
             address.CountryCode = statObj.CountryCode;
-
             supplier.Info.InvoiceAddress = address;
             supplier.Info.ShippingAddress = address;
 
-            supplier.Info.Addresses.push(address);
         }
 
         if (statObj.PhoneNumber) {

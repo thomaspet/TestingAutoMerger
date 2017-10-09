@@ -3,7 +3,7 @@ import {UniTable, UniTableColumn, UniTableConfig, ITableFilter, IExpressionFilte
 import {Router} from '@angular/router';
 import {URLSearchParams} from '@angular/http';
 import {StatisticsService, UniQueryDefinitionService, StatusService, ErrorService} from '../../../services/services';
-import {AuthService} from '../../../../framework/core/authService';
+import {AuthService} from '../../../authService';
 import {UniQueryDefinition, UniQueryField, UniQueryFilter} from '../../../../app/unientities';
 import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';

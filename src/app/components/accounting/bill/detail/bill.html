@@ -45,12 +45,12 @@
 
         <div *ngIf="!(current | async)?.ID">
             <uni-image
+                [singleImage]="false"
                 [uploadWithoutEntity]="true"
                 [fileIDs]="startUpFileID"
                 (fileListReady)="onFileListReady($event)"
                 (imageClicked)="onImageClicked($event)"
-                (imageDeleted)="onImageDeleted($event)"
-                (thumbnailImageClicked)="onThumbnailImageClicked($event)">
+                (imageDeleted)="onImageDeleted($event)">
             </uni-image>
         </div>
 
@@ -61,9 +61,9 @@
             [entityID]="(current | async)?.ID"
             (fileListReady)="onFileListReady($event)"
             (imageDeleted)="onImageDeleted($event)"
-            (imageClicked)="onImageClicked($event)"
-            (thumbnailImageClicked)="onThumbnailImageClicked($event)">
+            (imageClicked)="onImageClicked($event)">
         </uni-image>
+        <button *ngIf="!(current | async)?.ID" class="document_from_flow_button" (click)="openAddFileModal()"> Hent fra innboks</button>
     </fieldset>
 
     <fieldset [hidden]="!tabs[4].isSelected">

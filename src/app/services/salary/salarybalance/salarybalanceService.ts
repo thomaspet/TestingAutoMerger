@@ -41,25 +41,28 @@ export class SalarybalanceService extends BizHttp<SalaryBalance> {
     }
 
     public save(salarybalance: SalaryBalance): Observable<SalaryBalance> {
-        if (!salarybalance.Name) {
-            salarybalance.Name = this.getName(salarybalance);
-        }
         let refreshLines: boolean;
-        if (!salarybalance.ID) {
-            salarybalance.ID = 0;
-        } else {
-            refreshLines = true;
-        }
+        return Observable
+            .of(salarybalance)
+            .map(salBal => {
+                if (!salBal.Name) {
+                    salBal.Name = this.getName(salBal);
+                }
+                if (!salBal.ID) {
+                    salBal.ID = 0;
+                } else {
+                    refreshLines = true;
+                }
 
-        if(!salarybalance.KID) {
-            salarybalance.KID = '0';
-        }
-
-        let saver = salarybalance.ID
-            ? this.Put(salarybalance.ID, salarybalance)
-            : this.Post(salarybalance);
-
-        return saver
+                if (!salBal.KID) {
+                    salBal.KID = '0';
+                }
+                return salBal;
+            })
+            .map(salBal => this.washSalaryBalance(salBal))
+            .switchMap(salBal => salBal.ID
+                ? this.Put(salBal.ID, salBal)
+                : this.Post(salBal))
             .switchMap((salbal: SalaryBalance) => refreshLines
                 ? this.salaryBalanceLineService
                     .GetAll(`filter=SalaryBalanceID eq ${salbal.ID}`)
@@ -129,6 +132,17 @@ export class SalarybalanceService extends BizHttp<SalaryBalance> {
         return salaryBalance.InstalmentType === SalBalType.Advance || salaryBalance.Type !== SalBalDrawType.FixedAmount;
     }
 
+    public washSalaryBalance(salaryBalance: SalaryBalance): SalaryBalance {
+        salaryBalance.EmployeeID = salaryBalance.EmployeeID || 0;
+        salaryBalance.SupplierID = salaryBalance.SupplierID || 0;
+        salaryBalance.WageTypeNumber = salaryBalance.WageTypeNumber || 0;
+        salaryBalance.Instalment = salaryBalance.Instalment || 0;
+        salaryBalance.InstalmentPercent = salaryBalance.InstalmentPercent || 0;
+        salaryBalance.Amount = salaryBalance.Amount || 0;
+
+        return salaryBalance;
+    }
+
     public layout(layoutID: string) {
         return Observable.from([
             {
@@ -136,285 +150,138 @@ export class SalarybalanceService extends BizHttp<SalaryBalance> {
                 BaseEntity: 'salarybalance',
                 Fields: [
                     {
-                        ComponentLayoutID: 1,
                         EntityType: 'salarybalance',
                         Property: 'InstalmentType',
-                        Placement: 1,
-                        Hidden: false,
                         FieldType: FieldType.DROPDOWN,
-                        ReadOnly: false,
-                        LookupField: false,
                         Label: 'Type',
-                        Description: null,
-                        HelpText: null,
                         FieldSet: 0,
                         Section: 0,
-                        Placeholder: null,
-                        Options: null,
-                        LineBreak: null,
-                        Combo: null,
-                        Sectionheader: ''
                     },
                     {
-                        ComponentLayoutID: 1,
                         EntityType: 'salarybalance',
                         Property: 'Name',
-                        Placement: 2,
-                        Hidden: false,
                         FieldType: FieldType.TEXT,
-                        ReadOnly: false,
-                        LookupField: false,
                         Label: 'Tekst til lønnspost',
-                        Description: null,
-                        HelpText: null,
                         FieldSet: 0,
                         Section: 0,
-                        Placeholder: null,
-                        Options: null,
                         LineBreak: true,
-                        Combo: null,
-                        Sectionheader: ''
                     },
                     {
-                        ComponentLayoutID: 1,
                         EntityType: 'salarybalance',
                         Property: 'EmployeeID',
-                        Placement: 3,
-                        Hidden: false,
                         FieldType: FieldType.AUTOCOMPLETE,
-                        ReadOnly: false,
-                        LookupField: false,
                         Label: 'Ansatt',
-                        Description: null,
-                        HelpText: null,
                         FieldSet: 0,
                         Section: 0,
-                        Placeholder: null,
                         Options: {
                             valueProperty: 'ID',
                             template: (employee: Employee) => employee
                                 ? `${employee.EmployeeNumber} - ${employee.BusinessRelationInfo.Name}`
                                 : ''
-                        },
-                        LineBreak: null,
-                        Combo: null,
-                        Sectionheader: ''
+                        }
                     },
                     {
-                        ComponentLayoutID: 1,
                         EntityType: 'salarybalance',
                         Property: 'WageTypeNumber',
-                        Placement: 4,
-                        Hidden: false,
                         FieldType: FieldType.AUTOCOMPLETE,
-                        ReadOnly: false,
-                        LookupField: false,
                         Label: 'Lønnsart',
-                        Description: null,
-                        HelpText: null,
                         FieldSet: 0,
                         Section: 0,
-                        Placeholder: null,
                         Options: {
                             valueProperty: 'WageTypeNumber',
                             template: (wagetype: WageType) => wagetype
                                 ? `${wagetype.WageTypeNumber} - ${wagetype.WageTypeName}`
                                 : ''
-                        },
-                        LineBreak: null,
-                        Combo: null,
-                        Sectionheader: ''
+                        }
                     },
                     {
-                        ComponentLayoutID: 1,
                         EntityType: 'salarybalance',
                         Property: 'FromDate',
-                        Placement: 5,
-                        Hidden: false,
                         FieldType: FieldType.LOCAL_DATE_PICKER,
-                        ReadOnly: false,
-                        LookupField: false,
                         Label: 'Fra dato',
-                        Description: null,
-                        HelpText: null,
                         FieldSet: 0,
-                        Section: 0,
-                        Placeholder: null,
-                        Options: null,
-                        LineBreak: null,
-                        Combo: null,
-                        Sectionheader: ''
+                        Section: 0
                     },
                     {
-                        ComponentLayoutID: 1,
                         EntityType: 'salarybalance',
                         Property: 'ToDate',
-                        Placement: 6,
-                        Hidden: false,
                         FieldType: FieldType.LOCAL_DATE_PICKER,
-                        ReadOnly: false,
-                        LookupField: false,
                         Label: 'Til dato',
-                        Description: null,
-                        HelpText: null,
                         FieldSet: 0,
-                        Section: 0,
-                        Placeholder: null,
-                        Options: null,
-                        LineBreak: null,
-                        Combo: null,
-                        Sectionheader: ''
+                        Section: 0
                     },
                     {
-                        ComponentLayoutID: 1,
                         EntityType: 'salarybalance',
                         Property: 'Amount',
-                        Placement: 7,
-                        Hidden: false,
                         FieldType: FieldType.NUMERIC,
-                        ReadOnly: false,
-                        LookupField: false,
                         Label: 'Beløp',
-                        Description: null,
-                        HelpText: null,
                         FieldSet: 0,
                         Section: 0,
-                        Placeholder: null,
                         Options: {
                             format: 'money',
                             decimalLength: 2
-                        },
-                        LineBreak: null,
-                        Combo: null,
-                        Sectionheader: ''
+                        }
                     },
                     {
-                        ComponentLayoutID: 1,
                         EntityType: 'salarybalance',
                         Property: 'Instalment',
-                        Placement: 8,
-                        Hidden: false,
                         FieldType: FieldType.NUMERIC,
-                        ReadOnly: false,
-                        LookupField: false,
                         Label: 'Avdrag',
-                        Description: null,
-                        HelpText: null,
                         FieldSet: 0,
                         Section: 0,
-                        Placeholder: null,
                         Options: {
                             format: 'money',
                             decimalLength: 2
-                        },
-                        LineBreak: null,
-                        Combo: null,
-                        Sectionheader: ''
+                        }
                     },
                     {
-                        ComponentLayoutID: 1,
                         EntityType: 'salarybalance',
                         Property: 'InstalmentPercent',
-                        Placement: 9,
-                        Hidden: false,
                         FieldType: FieldType.TEXT,
-                        ReadOnly: false,
-                        LookupField: false,
                         Label: 'Avdrag prosent',
-                        Description: null,
-                        HelpText: null,
                         FieldSet: 0,
-                        Section: 0,
-                        Placeholder: null,
-                        Options: null,
-                        LineBreak: null,
-                        Combo: null,
-                        Sectionheader: ''
+                        Section: 0
                     },
                     {
-                        ComponentLayoutID: 1,
                         EntityType: 'salarybalance',
                         Property: 'SupplierID',
-                        Placement: 10,
-                        Hidden: false,
                         FieldType: FieldType.AUTOCOMPLETE,
-                        ReadOnly: false,
-                        LookupField: false,
                         Label: 'Leverandør',
-                        Description: null,
-                        HelpText: null,
                         FieldSet: 0,
                         Section: 0,
-                        Placeholder: null,
                         Options: {
                             valueProperty: 'ID',
                             template: (supplier: Supplier) => supplier
                                 ? `${supplier.SupplierNumber} - ${supplier.Info.Name}`
                                 : ''
-                        },
-                        LineBreak: null,
-                        Combo: null,
-                        Sectionheader: ''
+                        }
                     },
                     {
-                        ComponentLayoutID: 1,
                         EntityType: 'salarybalance',
                         Property: 'KID',
-                        Placement: 11,
-                        Hidden: false,
                         FieldType: FieldType.TEXT,
-                        ReadOnly: false,
-                        LookupField: false,
                         Label: 'Kid',
-                        Description: null,
-                        HelpText: null,
                         FieldSet: 0,
-                        Section: 0,
-                        Placeholder: null,
-                        Options: null,
-                        LineBreak: null,
-                        Combo: null,
-                        Sectionheader: ''
+                        Section: 0
                     },
                     {
-                        ComponentLayoutID: 1,
                         EntityType: 'salarybalance',
                         Property: 'Supplier.Info.DefaultBankAccount.AccountNumber',
-                        Placement: 12,
-                        Hidden: false,
                         FieldType: FieldType.TEXT,
                         ReadOnly: true,
-                        LookupField: false,
                         Label: 'Kontonummer',
-                        Description: null,
-                        HelpText: null,
                         FieldSet: 0,
-                        Section: 0,
-                        Placeholder: null,
-                        Options: null,
-                        LineBreak: null,
-                        Combo: null,
-                        Sectionheader: ''
+                        Section: 0
                     },
                     {
-                        ComponentLayoutID: 1,
                         EntityType: 'salarybalance',
                         Property: 'CreatePayment',
-                        Placement: 13,
-                        Hidden: false,
                         FieldType: FieldType.CHECKBOX,
                         ReadOnly: true,
-                        LookupField: false,
-                        Label: 'Utbetales til leverandør ved lønnsutbetaling',
-                        Description: null,
-                        HelpText: null,
+                        HelpText: 'Lag utbetalingspost til leverandør ved utbetaling av lønnsavregning',
+                        Label: 'Lag utbetaling',
                         FieldSet: 0,
-                        Section: 0,
-                        Placeholder: null,
-                        Options: null,
-                        LineBreak: null,
-                        Combo: null,
-                        Sectionheader: ''
+                        Section: 0
                     }
                 ]
             }

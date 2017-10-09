@@ -15,6 +15,7 @@ export class EHFService extends BizHttp<EHFLog> {
     }
 
     public activate(activate) {
+        super.invalidateCache();
         return this.ActionWithBody(null, activate, 'activate', RequestMethod.Post);
     }
 }

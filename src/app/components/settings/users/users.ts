@@ -50,8 +50,8 @@ export class Users {
         this.initTableConfigs();
         this.initFormConfigs();
 
-    this.newUserForm = new FormGroup({
-    Email: new FormControl('', this.isInvalidEmail)
+        this.newUserForm = new FormGroup({
+            Email: new FormControl('', this.isInvalidEmail)
         });
         this.roleService.GetAll(null).subscribe(
             (res) => {
@@ -269,48 +269,22 @@ export class Users {
         this.formConfig$.next({});
         this.formFields$.next([
             <any> {
-                ComponentLayoutID: 1,
                 EntityType: 'User',
                 Property: 'DisplayName',
-                Placement: 1,
-                Hidden: false,
                 FieldType: FieldType.TEXT,
                 ReadOnly: true,
-                LookupField: false,
                 Label: 'Visningsnavn',
-                Description: null,
-                HelpText: null,
                 FieldSet: 0,
-                Section: 0,
-                Placeholder: null,
-                Options: null,
-                LineBreak: null,
-                Combo: null,
-                Sectionheader: '',
-                hasLineBreak: false,
-                Validations: []
+                Section: 0
             },
             <any>{
-                ComponentLayoutID: 1,
                 EntityType: 'User',
                 Property: 'Email',
-                Placement: 1,
-                Hidden: false,
                 FieldType: FieldType.TEXT,
-                ReadOnly: false,
-                LookupField: false,
+                ReadOnly: true,
                 Label: 'Epost',
-                Description: null,
-                HelpText: null,
                 FieldSet: 0,
-                Section: 0,
-                Placeholder: null,
-                Options: null,
-                LineBreak: null,
-                Combo: null,
-                Sectionheader: '',
-                hasLineBreak: false,
-                Validations: []
+                Section: 0
             }
          ]);
       }

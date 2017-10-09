@@ -33,7 +33,8 @@ import {
     TermsService,
     UserService,
     NumberSeriesTypeService,
-    NumberSeriesService
+    NumberSeriesService,
+    EmailService
 } from '../../../../services/services';
 
 import {
@@ -160,12 +161,12 @@ export class QuoteDetails {
         private modalService: UniModalService,
         private termsService: TermsService,
         private numberSeriesTypeService: NumberSeriesTypeService,
-        private numberSeriesService: NumberSeriesService
+        private numberSeriesService: NumberSeriesService,
+        private emailService: EmailService
     ) { }
 
     public ngOnInit() {
         this.setSums();
-
         // Subscribe and debounce recalc on table changes
         this.recalcDebouncer.debounceTime(500).subscribe((quoteitems) => {
             if (quoteitems.length) {
@@ -242,7 +243,7 @@ export class QuoteDetails {
                     ) : Observable.of(null),
                     projectID ? this.projectService.Get(projectID, null) : Observable.of(null),
                     this.numberSeriesService.GetAll(`filter=NumberSeriesType.Name eq 'Customer Quote number `
-                    + `series' and Empty eq false and Disabled eq false`, 
+                    + `series' and Empty eq false and Disabled eq false`,
                     ['NumberSeriesType']),
                     this.projectService.GetAll(null)
                 ).subscribe(
@@ -255,10 +256,10 @@ export class QuoteDetails {
                         this.deliveryTerms = res[5];
                         if (res[6]) {
                             quote = this.tofHelper.mapCustomerToEntity(res[6], quote);
-                            
+
                             if (quote.DeliveryTerms && quote.DeliveryTerms.CreditDays) {
                                 this.setDeliveryDate(quote);
-                            } 
+                            }
                         } else {
                             quote.DeliveryDate =  null;
                         }
@@ -376,10 +377,11 @@ export class QuoteDetails {
         }
 
         // refresh items if project changed
-        if (quote.DefaultDimensions && quote.DefaultDimensions.ProjectID !== this.projectID) {
-            this.projectID = quote.DefaultDimensions.ProjectID;
+        if (quote.DefaultDimensions
+                && quote.DefaultDimensions.ProjectID !== this.projectID
+                && this.quoteItems.length) {
 
-            if (this.quoteItems.length) {
+            if (this.projectID) {
                 this.modalService.confirm({
                     header: `Endre prosjekt på alle varelinjer?`,
                     message: `Vil du endre til dette prosjektet på alle eksisterende varelinjer?`,
@@ -389,13 +391,15 @@ export class QuoteDetails {
                     }
                 }).onClose.subscribe(response => {
                     let replaceItemsProject: boolean = (response === ConfirmActions.ACCEPT);
-                    this.tradeItemTable.setDefaultProjectAndRefreshItems(this.projectID, replaceItemsProject);
+                    this.tradeItemTable
+                        .setDefaultProjectAndRefreshItems(quote.DefaultDimensions.ProjectID, replaceItemsProject);
                 });
-            } else {        
-                this.tradeItemTable.setDefaultProjectAndRefreshItems(this.projectID, true);
+            } else {
+                this.tradeItemTable.setDefaultProjectAndRefreshItems(quote.DefaultDimensions.ProjectID, true);
             }
+            this.projectID = quote.DefaultDimensions.ProjectID;
         }
-        
+
         // update currency code in detailsForm and tradeItemTable to selected currency code if selected
         // or from customer
         if ((!this.currencyCodeID && quote.CurrencyCodeID)
@@ -733,7 +737,7 @@ export class QuoteDetails {
             navigation: {
                 prev: this.previousQuote.bind(this),
                 next: this.nextQuote.bind(this),
-                add: () => this.router.navigateByUrl('/sales/quotes/0')
+                add: () => this.quote.ID ? this.router.navigateByUrl('sales/quotes/0') : this.ngOnInit()
             },
             contextmenu: this.contextMenuItems,
             entityID: this.quoteID,
@@ -804,7 +808,7 @@ export class QuoteDetails {
                     data: model
                 }).onClose.subscribe(email => {
                     if (email) {
-                        this.reportService.generateReportSendEmail('Tilbud id', email, null, done);
+                        this.emailService.sendEmailWithReportAttachment('Tilbud id', email, null, done);
                     } else {
                         done();
                     }
@@ -868,37 +872,13 @@ export class QuoteDetails {
     }
 
     private saveQuote(): Promise<CustomerQuote> {
-        this.quote.Items = this.quoteItems;
-
-        // return a promise that resolves
-        this.quote.Items.forEach(item => {
-            if (item.Dimensions && item.Dimensions.ID === 0) {
-                item.Dimensions['_createguid'] = this.customerQuoteItemService.getNewGuid();
-            }
-
-            if (item.VatType) {
-                item.VatType = null;
-            }
-
-            if (item.Product) {
-                item.Product = null;
-            }
-
-            if (item.Account) {
-                item.Account = null;
-            }
-        });
+        this.quote.Items = this.tradeItemHelper.prepareItemsForSave(this.quoteItems);
 
         if (this.quote.DefaultDimensions && !this.quote.DefaultDimensions.ID) {
             this.quote.DefaultDimensions._createguid = this.customerQuoteService.getNewGuid();
         }
 
         return new Promise((resolve, reject) => {
-
-            if (!TradeItemHelper.IsAnyItemsMissingProductID(this.quote.Items)) {
-                TradeItemHelper.clearFieldsInItemsWithNoProductID(this.quote.Items);
-            }
-
             // create observable but dont subscribe - resolve it in the promise
             var request = ((this.quote.ID > 0)
                 ? this.customerQuoteService.Put(this.quote.ID, this.quote)

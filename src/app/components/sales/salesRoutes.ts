@@ -9,7 +9,6 @@ import {QuoteList} from './quote/list/quoteList';
 import {QuoteDetails} from './quote/details/quoteDetails';
 
 import {InvoiceList} from './invoice/list/invoiceList';
-import {InvoiceList2} from './invoice/list/invoiceList2';
 import {InvoiceDetails} from './invoice/details/invoice';
 
 import {OrderList} from './order/list/orderList';
@@ -56,7 +55,7 @@ export const salesRoutes: Routes = [
     },
     {
         path: 'invoices',
-        component: InvoiceList2
+        component: InvoiceList
     },
     {
         path: 'invoices/:id',
@@ -90,11 +89,6 @@ export const salesRoutes: Routes = [
         path: 'productgroups',
         component: ProductGroups,
         children: ProductGroupRoutes,
-        canDeactivate: [CanDeactivateGuard]
-    },
-    {
-        path: 'productgroups/:id',
-        component: ProductGroups,
         canDeactivate: [CanDeactivateGuard]
     },
     {

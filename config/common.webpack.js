@@ -40,6 +40,7 @@ module.exports = {
         new CopyWebpackPlugin([
             {from: 'src/styles/main.css'},
             {from: 'src/assets', to: 'assets/'},
+            {from: 'src/robots.txt', to: ''},
         ]),
 
         new AddAssetHtmlPlugin([{

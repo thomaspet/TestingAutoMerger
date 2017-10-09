@@ -195,13 +195,10 @@ export class DistributionPeriodReportPart implements OnChanges {
     }
 
     public onCellClick(event: ICellClickEvent) {
-        const field = event.column.field;
-        if (field === 'amountPeriodYear1' || field === 'amountPeriodYear2') {
-            this.periodSelected.emit({
-                periodNo: event.row.periodNo,
-                year: (field === 'amountPeriodYear1') ? this.accountYear1 : this.accountYear2
-            });
-        }
+        this.periodSelected.emit({
+            periodNo: event.row.periodNo,
+            year: (event.column.field === 'amountPeriodYear1') ? this.accountYear1 : this.accountYear2
+        });
     }
 
     private setupDistributionPeriodChart() {

@@ -57,8 +57,8 @@ export class JournalEntryLineService extends BizHttp<JournalEntryLine> {
 
     public StatusTypes: Array<any> = [
         { Code: '31001', Text: 'Åpen' },
-        { Code: '31002', Text: 'Delmerket' },
-        { Code: '31003', Text: 'Merket' },
+        { Code: '31002', Text: 'Delvis åpen' },
+        { Code: '31003', Text: 'Lukket' },
         { Code: '31004', Text: 'Kreditert'}
     ];
 

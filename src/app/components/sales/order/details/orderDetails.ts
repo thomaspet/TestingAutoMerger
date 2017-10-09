@@ -1,7 +1,6 @@
 import {Component, EventEmitter, HostListener, Input, ViewChild} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
 import {Observable} from 'rxjs/Observable';
-import * as moment from 'moment';
 
 import {
     UniModalService,
@@ -22,7 +21,6 @@ import {
     Terms,
     NumberSeries
 } from '../../../../unientities';
-
 import {
     AddressService,
     BusinessRelationService,
@@ -40,7 +38,8 @@ import {
     ReportService,
     TermsService,
     UserService,
-    NumberSeriesService
+    NumberSeriesService,
+    EmailService
 } from '../../../../services/services';
 
 import {IUniSaveAction} from '../../../../../framework/save/save';
@@ -65,8 +64,8 @@ import {StatusCode} from '../../salesHelper/salesEnums';
 import {TofHelper} from '../../salesHelper/tofHelper';
 import {TradeItemHelper} from '../../salesHelper/tradeItemHelper';
 
-import {OrderToInvoiceModal} from '../modals/ordertoinvoice';
-
+import {UniOrderToInvoiceModal} from '../orderToInvoiceModal';
+import * as moment from 'moment';
 declare var _;
 
 // TODO: this can be removed when refactor is complete
@@ -85,7 +84,6 @@ class CustomerOrderExt extends CustomerOrder {
     templateUrl: './orderDetails.html'
 })
 export class OrderDetails {
-    @ViewChild(OrderToInvoiceModal) private oti: OrderToInvoiceModal;
     @ViewChild(TofHead) private tofHead: TofHead;
     @ViewChild(TradeItemTable) private tradeItemTable: TradeItemTable;
 
@@ -184,7 +182,8 @@ export class OrderDetails {
         private tofHelper: TofHelper,
         private tradeItemHelper: TradeItemHelper,
         private userService: UserService,
-        private numberSeriesService: NumberSeriesService
+        private numberSeriesService: NumberSeriesService,
+        private emailService: EmailService
    ) {}
 
     public ngOnInit() {
@@ -244,7 +243,7 @@ export class OrderDetails {
                         this.projectID = order.DefaultDimensions.ProjectID;
                     }
                     order.DefaultDimensions.Project = this.projects.find(project => project.ID === this.projectID);
-                    
+
                     this.refreshOrder(order);
                     this.tofHead.focus();
                 },
@@ -279,7 +278,7 @@ export class OrderDetails {
                             order = this.tofHelper.mapCustomerToEntity(res[6], order);
                             if (order.DeliveryTerms && order.DeliveryTerms.CreditDays) {
                                 this.setDeliveryDate(order);
-                            } 
+                            }
                         } else {
                             order.DeliveryDate = null;
                         }
@@ -381,10 +380,12 @@ export class OrderDetails {
         }
 
         // refresh items if project changed
-        if (order.DefaultDimensions && order.DefaultDimensions.ProjectID !== this.projectID) {
-            this.projectID = order.DefaultDimensions.ProjectID;
+        if (order.DefaultDimensions
+                && order.DefaultDimensions.ProjectID !== this.projectID
+                && this.orderItems.length) {
 
-            if (this.orderItems.length) {
+
+            if (this.projectID) {
                 this.modalService.confirm({
                     header: `Endre prosjekt på alle varelinjer?`,
                     message: `Vil du endre til dette prosjektet på alle eksisterende varelinjer?`,
@@ -394,11 +395,13 @@ export class OrderDetails {
                     }
                 }).onClose.subscribe(response => {
                     let replaceItemsProject: boolean = (response === ConfirmActions.ACCEPT);
-                    this.tradeItemTable.setDefaultProjectAndRefreshItems(this.projectID, replaceItemsProject);
+                    this.tradeItemTable
+                        .setDefaultProjectAndRefreshItems(order.DefaultDimensions.ProjectID, replaceItemsProject);
                 });
-            } else {        
-                this.tradeItemTable.setDefaultProjectAndRefreshItems(this.projectID, true);
+            } else {
+                this.tradeItemTable.setDefaultProjectAndRefreshItems(order.DefaultDimensions.ProjectID, true);
             }
+            this.projectID = order.DefaultDimensions.ProjectID;
         }
 
         // update currency code in detailsForm and tradeItemTable to selected currency code if selected
@@ -592,7 +595,7 @@ export class OrderDetails {
             if (order.DeliveryTerms.CreditDays < 0) {
                 order.DeliveryDate = new LocalDate(moment(order.OrderDate).endOf('month').toDate());
             }
-            
+
             order.DeliveryDate = new LocalDate(
                 moment(order.DeliveryDate).add(Math.abs(order.DeliveryTerms.CreditDays), 'days').toDate()
             );
@@ -677,12 +680,6 @@ export class OrderDetails {
             }
         });
         return statustrack;
-    }
-
-    public addOrder() {
-            this.router.navigateByUrl('/sales/orders/0').then(res => {
-            this.tofHead.focus();
-        });
     }
 
     public nextOrder() {
@@ -772,7 +769,7 @@ export class OrderDetails {
             navigation: {
                 prev: this.previousOrder.bind(this),
                 next: this.nextOrder.bind(this),
-                add: this.addOrder.bind(this)
+                add: () => this.order.ID ? this.router.navigateByUrl('sales/orders/0') : this.ngOnInit()
             },
             contextmenu: this.contextMenuItems,
             entityID: this.orderID,
@@ -831,7 +828,7 @@ export class OrderDetails {
                     data: model
                 }).onClose.subscribe(email => {
                     if (email) {
-                        this.reportService.generateReportSendEmail('Ordre id', email, null, done);
+                        this.emailService.sendEmailWithReportAttachment('Ordre id', email, null, done);
                     } else {
                         done();
                     }
@@ -906,35 +903,13 @@ export class OrderDetails {
     }
 
     private saveOrder(): Promise<CustomerOrder> {
-        this.order.Items = this.orderItems;
-        this.order.Items.forEach(item => {
-            if (item.Dimensions && item.Dimensions.ID === 0) {
-                item.Dimensions['_createguid'] = this.customerOrderService.getNewGuid();
-            }
-
-            if (item.VatType) {
-                item.VatType = null;
-            }
-
-            if (item.Product) {
-                item.Product = null;
-            }
-
-            if (item.Account) {
-                item.Account = null;
-            }
-        });
+        this.order.Items = this.tradeItemHelper.prepareItemsForSave(this.orderItems);
 
         if (this.order.DefaultDimensions && !this.order.DefaultDimensions.ID) {
             this.order.DefaultDimensions._createguid = this.customerOrderService.getNewGuid();
         }
 
         return new Promise((resolve, reject) => {
-
-            if (TradeItemHelper.IsAnyItemsMissingProductID(this.order.Items)) {
-                TradeItemHelper.clearFieldsInItemsWithNoProductID(this.order.Items);
-            }
-
             // create observable but dont subscribe - resolve it in the promise
             var request = ((this.order.ID > 0)
                 ? this.customerOrderService.Put(this.order.ID, this.order)
@@ -984,35 +959,25 @@ export class OrderDetails {
     }
 
     private saveAndTransferToInvoice(done: any) {
-        // Set up subscription to listen to when items has been selected and button clicked in modal window.
-        // Only setup one subscription - this is done to avoid problems with multiple callbacks
-        if (this.oti.changed.observers.length === 0) {
-            this.oti.changed.subscribe(items => {
-                // Do not transfer to invoice if no items
-                if (items.length === 0) {
-                    this.toastService.addToast('Kan ikke overføre en ordre uten linjer', ToastType.warn, 5);
-                    return;
-                }
-
-                var order: CustomerOrder = _.cloneDeep(this.order);
-                order.Items = items;
-
-                this.customerOrderService.ActionWithBody(order.ID, order, 'transfer-to-invoice')
-                    .subscribe((invoice) => {
-                        this.router.navigateByUrl('/sales/invoices/' + invoice.ID);
-                        done('Lagret og overført til faktura');
-                    }, (err) => {
-                        this.errorService.handle(err);
-                        done('Feilet i overføring til faktura');
-                    });
-            });
-        }
-
         // save order and open modal to select what to transfer to invoice
-        this.saveOrder().then(res => {
+        this.saveOrder().then(success => {
             done('Ordre lagret');
             this.isDirty = false;
-            this.oti.openModal(this.order);
+
+            this.modalService.open(UniOrderToInvoiceModal, {
+                data: this.order.ID
+            }).onClose.subscribe(order => {
+                if (order && order.Items && order.Items.length) {
+                    this.customerOrderService.ActionWithBody(
+                        order.ID,
+                        order,
+                        'transfer-to-invoice'
+                    ).subscribe(
+                        res => this.router.navigateByUrl('/sales/invoices/' + res.ID),
+                        err => this.errorService.handle(err)
+                    );
+                }
+            });
         }).catch(error => {
             this.handleSaveError(error, done);
         });

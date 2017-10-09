@@ -11,7 +11,7 @@ import {
     ErrorService,
     CustomerInvoiceService,
     AccountService,
-    CompanySettingsService
+    CompanySettingsService,
 } from '../../../../services/services';
 
 import * as moment from 'moment';

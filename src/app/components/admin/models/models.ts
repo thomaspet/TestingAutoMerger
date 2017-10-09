@@ -167,70 +167,22 @@ export class UniModels {
         this.formConfig$.next({});
         this.formFields$.next([
             <any> {
-                ComponentLayoutID: 1,
                 EntityType: 'Model',
                 Property: 'Label',
-                Placement: 1,
-                Hidden: false,
                 FieldType: FieldType.TEXT,
-                ReadOnly: false,
-                LookupField: false,
-                Label: 'Label',
-                Description: null,
-                HelpText: null,
-                FieldSet: 0,
-                Section: 0,
-                Placeholder: null,
-                Options: null,
-                LineBreak: null,
-                Combo: null,
-                Sectionheader: '',
-                hasLineBreak: false,
-                Validations: []
+                Label: 'Label'
             },
             <any>{
-                ComponentLayoutID: 1,
                 EntityType: 'Model',
                 Property: 'LabelPlural',
-                Placement: 1,
-                Hidden: false,
                 FieldType: FieldType.TEXT,
-                ReadOnly: false,
-                LookupField: false,
-                Label: 'Label plural',
-                Description: null,
-                HelpText: null,
-                FieldSet: 0,
-                Section: 0,
-                Placeholder: null,
-                Options: null,
-                LineBreak: null,
-                Combo: null,
-                Sectionheader: '',
-                hasLineBreak: false,
-                Validations: []
+                Label: 'Label plural'
             },
             <any>{
-                ComponentLayoutID: 1,
                 EntityType: 'Model',
                 Property: 'Description',
-                Placement: 1,
-                Hidden: false,
                 FieldType: FieldType.TEXTAREA,
-                ReadOnly: false,
-                LookupField: false,
-                Label: 'Description',
-                Description: null,
-                HelpText: null,
-                FieldSet: 0,
-                Section: 0,
-                Placeholder: null,
-                Options: null,
-                LineBreak: null,
-                Combo: null,
-                Sectionheader: '',
-                hasLineBreak: false,
-                Validations: []
+                Label: 'Description'
             }
          ]);
       }

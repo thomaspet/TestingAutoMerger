@@ -203,29 +203,7 @@ export class UniSales {
                         }
                     }
                 }
-            },
-
-            {
-                width: 4,
-                height: 3,
-                x: 8,
-                y: 1,
-                widgetType: 'list',
-                config: {
-                    header: 'Siste endringer',
-                    dataEndPoint: "/api/statistics?model=AuditLog&select=id,entitytype,transaction,route,action,entityid,User.ID,field,User.displayname,createdat,updatedat&filter=field eq 'updatedby' and ( not contains(entitytype,'item') ) &join=auditlog.createdby eq user.globalidentity&top=50&orderby=id desc",
-                    listItemKeys: {
-                        username: 'UserDisplayName',
-                        module: 'AuditLogEntityType',
-                        action: 'AuditLogField',
-                        moduleID: 'AuditLogEntityID',
-                        time: 'AuditLogCreatedAt',
-                        uniqueID: 'AuditLogTransaction',
-                        numberToDisplay: 10
-                    }
-                }
-            },
-
+            }
         ];
     }
 }

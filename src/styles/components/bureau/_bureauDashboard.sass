@@ -1,4 +1,4 @@
-uni-companylist-widget
+uni-bureau-dashboard
     text-align: left
 
     .list-content
@@ -11,10 +11,10 @@ uni-companylist-widget
             margin: 1rem 2rem
             width: 20rem
 
-        uni-table
-            display: block
+        .uni-table
             position: relative
             height: calc(100% - 4rem)
+            cursor: pointer
 
             .unitableSearch_advancedBtn
                 display: none
@@ -37,3 +37,29 @@ uni-companylist-widget
 
             td:hover
                 background: darken(mix($uni-color-c2a, $uni-color-negative, 15%), 5%)
+
+            i
+                font-style: normal
+                float: right
+    .right-side
+        background-color: $uni-color-legend
+
+        table
+            width: 100%
+        th, td
+            width: 50%
+
+        td:nth-child(2)
+            background-color: $uni-color-negative
+            border-radius: 2px
+            border-bottom-width: 2px
+            border-color: $uni-color-scale7
+            border-style: solid
+
+        th ~ th
+            border-top: 2px solid $uni-color-positive
+            padding-top: 8px
+
+        hr
+            border-color: $uni-color-positive
+            height: 35px

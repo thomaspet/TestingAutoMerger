@@ -4,7 +4,7 @@ import {File} from '../../../unientities';
 import {UniHttp} from '../../../../framework/core/http/http';
 import {AppConfig} from '../../../AppConfig';
 import {ErrorService, FileService, UniFilesService} from '../../../services/services';
-import {AuthService} from '../../../../framework/core/authService';
+import {AuthService} from '../../../authService';
 
 
 export interface IUploadConfig {
@@ -48,13 +48,14 @@ export class UniUploadFileButton {
         private errorService: ErrorService,
         private authService: AuthService,
         private uniFilesService: UniFilesService,
-        private fileService: FileService) {
-            // Subscribe to authentication/activeCompany changes
-            authService.authentication$.subscribe((authDetails) => {
-                this.token = authDetails.filesToken;
-                this.activeCompany = authDetails.activeCompany;
-            } /* don't need error handling */);
-        }
+        private fileService: FileService
+    ) {
+        authService.authentication$.subscribe((authDetails) => {
+            this.activeCompany = authDetails.activeCompany;
+        });
+
+        authService.filesToken$.subscribe(token => this.token = token);
+    }
 
     public uploadFileChange(event) {
         const source = event.srcElement || event.target;

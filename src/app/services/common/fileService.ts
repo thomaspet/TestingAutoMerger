@@ -10,6 +10,7 @@ export class FileService extends BizHttp<File> {
 
     constructor(http: UniHttp) {
         super(http);
+        super.disableCache();
 
         this.relativeURL = 'files';
         this.entityType = File.EntityType;

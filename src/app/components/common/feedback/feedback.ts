@@ -1,7 +1,7 @@
 import {Component, ChangeDetectorRef, ChangeDetectionStrategy} from '@angular/core';
 import {Http, Headers} from '@angular/http';
 import {FormControl} from '@angular/forms';
-import {AuthService} from '../../../../framework/core/authService';
+import {AuthService} from '../../../authService';
 import {ToastService, ToastType, ToastTime} from '../../../../framework/uniToast/toastService';
 import {AppConfig} from '../../../AppConfig';
 import {ErrorService} from '../../../services/services';

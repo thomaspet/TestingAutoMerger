@@ -1,9 +1,11 @@
-import {Component, Input, Output, EventEmitter} from '@angular/core';
+import {Component, Input, Output, EventEmitter, ElementRef} from '@angular/core';
 import {IModalOptions, IUniModal} from '../modalService';
 import {UniFieldLayout, FieldType} from '../../ui/uniform/index';
 import {Email} from '../../../app/unientities';
 
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
+import {Observable} from 'rxjs/Observable';
+import {KeyCodes} from '../../../app/services/common/keyCodes';
 
 @Component({
     selector: 'uni-email-modal',
@@ -16,6 +18,7 @@ import {BehaviorSubject} from 'rxjs/BehaviorSubject';
                 <uni-form
                     [config]="formConfig$"
                     [fields]="formFields$"
+                    (readyEvent)="onReady($event)"
                     [model]="formModel$">
                 </uni-form>
             </article>
@@ -34,14 +37,36 @@ export class UniEmailModal implements IUniModal {
     @Output()
     public onClose: EventEmitter<any> = new EventEmitter();
 
-    public formConfig$: BehaviorSubject<any> = new BehaviorSubject({autofocus: true});
+    public formConfig$: BehaviorSubject<any> = new BehaviorSubject({autofocus: false});
     private formModel$: BehaviorSubject<Email> = new BehaviorSubject(null);
     private formFields$: BehaviorSubject<UniFieldLayout[]> = new BehaviorSubject([]);
 
+    constructor(private elementRef: ElementRef) {}
+
     public ngOnInit() {
-        let email = this.options.data || {};
+        const email = this.options.data || {};
+        const fields = this.getFormFields();
+
+        if (email._initValue && fields[0] && !email[fields[0].Property]) {
+            email[fields[0].Property] = email._initValue;
+        }
+
         this.formModel$.next(email);
         this.formFields$.next(this.getFormFields());
+    }
+
+    public onReady() {
+        const inputs = <HTMLInputElement[]> this.elementRef.nativeElement.querySelectorAll('input');
+        if (inputs.length) {
+            const first = inputs[0];
+            first.focus();
+            first.value = first.value; // set cursor at end of text
+
+            const last = inputs[inputs.length - 1];
+            Observable.fromEvent(last, 'keydown')
+                .filter((event: KeyboardEvent) => (event.which || event.keyCode) === KeyCodes.ENTER)
+                .subscribe(() => this.close(true));
+        }
     }
 
     public close(emitValue?: boolean) {

@@ -10,19 +10,20 @@ export class IntegrationServerCaller {
 
     constructor(protected http: UniHttp) {}
 
-
     public checkSystemLogin(orgno: string, sysuser: string, syspw: string, lang: string): Observable<any> {
-        return this.http.withNewHeaders().
-        withHeaders( {'sysusername': sysuser,
-            'syspassword': syspw,
-            'lang': lang,
-            'orgno': orgno}).
-        asGET().
-        send({
-            baseUrl: AppConfig.BASE_URL_INTEGRATION,
-            apiDomain: AppConfig.INTEGRATION_DOMAINS.ALTINN,
-            endPoint: '/testsystem'
-        })
+        return this.http.withNewHeaders()
+            .withHeaders({
+                'sysusername': sysuser,
+                'syspassword': syspw,
+                'lang': lang,
+                'orgno': orgno
+            })
+            .asGET()
+            .send({
+                baseUrl: AppConfig.BASE_URL_INTEGRATION,
+                apiDomain: AppConfig.INTEGRATION_DOMAINS.ALTINN,
+                endPoint: '/testsystem'
+            })
             .map(response => response.json());
     }
 

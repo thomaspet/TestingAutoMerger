@@ -1,9 +1,9 @@
 import {Component, Input, ElementRef, ViewChild} from '@angular/core';
 import {FormControl} from '@angular/forms';
 import * as moment from 'moment';
-import {LocalDate} from './LocalDate';
 import {DateUtil} from '../common/DateUtil';
 import {KeyCodes} from '../../../../../app/services/common/keyCodes';
+import {LocalDate} from '../../../../../app/unientities';
 
 
 @Component({

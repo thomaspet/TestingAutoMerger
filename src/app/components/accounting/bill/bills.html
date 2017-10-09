@@ -21,13 +21,14 @@
         <table class='toolbar'>
         <tr>
             <td>
-                    <uni-form [config]="config$"
+                <input type="search" placeholder="Søk" [formControl]="searchControl" ><button class="good" (click)="onAddNew()">Nytt fakturamottak</button>
+            </td>
+            <td>
+                <uni-form *ngIf="!(filters[0].isSelected || filters[1].isSelected)" [config]="config$"
                     [fields]="fields$"
                     [model]="searchParams$"
-                    (changeEvent)="onFormFilterChange($event)"
-                    >
-                </uni-form><br/>
-                    <input type="search" placeholder="Søk" [formControl]="searchControl" ><button class="good" (click)="onAddNew()">Nytt fakturamottak</button>
+                    (changeEvent)="onFormFilterChange($event)">
+                </uni-form>
             </td>
             <td>
             </td>

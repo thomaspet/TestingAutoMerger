@@ -1,6 +1,11 @@
-﻿import {Component, ViewChild, ElementRef} from '@angular/core';
+﻿import {
+    Component,
+    ViewChild,
+    ElementRef,
+    EventEmitter
+} from '@angular/core';
 import {IUniWidget} from '../uniWidget';
-import {WidgetDatasetBuilder, ChartColorEnum} from '../widgetDatasetBuilder';
+import {WidgetDatasetBuilder} from '../widgetDatasetBuilder';
 import {WidgetDataService} from '../widgetDataService';
 import {Observable} from 'rxjs/Observable';
 import {FinancialYearService} from '../../../services/services';
@@ -9,20 +14,18 @@ import * as Chart from 'chart.js';
 @Component({
     selector: 'uni-chart',
     template: `
-        <figure #chartContainer style="margin: 0; color: white; text-align: center; background-color: #fff; max-height: 100%; height: 100%;">
-            <div class="uni-widget-header"> <span> {{ widget.config.header }} </span></div>
-            <section style="padding: 20px;">
-                <canvas #chartElement> </canvas>
-            </section>
-        </figure>`
-})
+        <section class="uni-widget-header">
+            {{widget.config.header}}
+        </section>
 
+        <section class="uni-widget-content" [attr.aria-busy]="!(dataLoaded | async)">
+            <canvas #chartElement></canvas>
+        </section>
+    `,
+})
 export class UniChartWidget {
     @ViewChild('chartElement')
     private chartElement: ElementRef;
-
-    @ViewChild('chartContainer')
-    private container: ElementRef;
 
     private builder: WidgetDatasetBuilder = new WidgetDatasetBuilder();
     public widget: IUniWidget;
@@ -30,20 +33,13 @@ export class UniChartWidget {
 
     private labels: string[];
     private datasets: any[] = [];
+    public dataLoaded: EventEmitter<boolean> = new EventEmitter();
 
     constructor(
         private widgetDataService: WidgetDataService,
         private el: ElementRef,
         private yearService: FinancialYearService
-    ) {
-        Observable.fromEvent(window, 'resize')
-            .throttleTime(100)
-            .subscribe(res => {
-                const height = this.container.nativeElement.clientHeight - 64;
-                this.chartElement.nativeElement.style.height = height + 'px';
-            });
-    }
-
+    ) {}
 
     public ngAfterViewInit() {
         if (this.widget) {
@@ -66,16 +62,21 @@ export class UniChartWidget {
             this.myChart.destroy();
         }
 
-        this.widgetDataService.getData(this.widget.config.dataEndpoint[0]).subscribe(res => {
-            if (!res.Success) {
-                return;
-            }
+        this.widgetDataService.getData(this.widget.config.dataEndpoint[0]).subscribe(
+            res => {
+                if (!res.Success) {
+                    return;
+                }
 
-            const builderResult = this.builder.buildPieDataset(res.Data, this.widget.config);
-            this.labels = builderResult.labels;
-            this.datasets = builderResult.dataset;
-            this.drawChart();
-        });
+                const builderResult = this.builder.buildPieDataset(res.Data, this.widget.config);
+                this.labels = builderResult.labels;
+                this.datasets = builderResult.dataset;
+                this.drawChart();
+            },
+            err => {
+                this.dataLoaded.emit(true);
+            }
+        );
     }
 
     private loadChartWidget() {
@@ -105,27 +106,25 @@ export class UniChartWidget {
 
                 this.drawChart();
             },
-            err => console.log(err)
+            err => this.dataLoaded.emit(true)
         );
-
-
     }
 
     private drawChart() {
-        let myElement = this.chartElement.nativeElement;
+        let options = this.widget.config.options || {};
+        options.responsive = true;
+        options.maintainAspectRatio = false;
 
-        // 64px is 2 * 20px padding in parent + 24px in the header.. Canvas hack! Jørgen Lom fix it..
-        myElement.style.height = ((100 * this.widget.height + (this.widget.height - 1) * 20) - 64) + 'px';
-        myElement.style.maxHeight = ((100 * this.widget.height + (this.widget.height - 1) * 20) - 64) + 'px';
-
-        this.myChart = new Chart(<any>myElement, {
+        this.myChart = new Chart(<any> this.chartElement.nativeElement, {
             type: this.widget.config.chartType,
             data: {
                 labels: this.labels,
                 datasets: this.datasets
             },
-            options: this.widget.config.options
+            options: options
         });
+
+        this.dataLoaded.emit(true);
     }
 }
 

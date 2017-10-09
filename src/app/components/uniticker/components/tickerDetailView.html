@@ -1,9 +1,8 @@
-<section *ngIf="ticker && model">
-    <div *ngFor="let column of getVisibleColumns()"
-        class="ticker-field"
-        [class.small]="!column.Size || column.Size === 'small'"
-        [class.medium]="column.Size === 'medium'">
-        <label>{{column.Header}}</label>
-        <div [innerHtml]="getFieldValue(column, model) | safehtml"></div>
-    </div>
+<section class="ticker-detail-container" *ngIf="ticker && model">
+    <section *ngFor="let group of fieldGroups" class="ticker-fieldset-column">
+        <span *ngFor="let field of group" class="ticker-field">
+            <label>{{field.Header}}</label>
+            <span [ngClass]="field._class" [innerHtml]="field._value | safehtml"></span>
+        </span>
+    </section>
 </section>

@@ -4,6 +4,8 @@ import {Observable} from 'rxjs/Observable';
 import {Approval, ApprovalStatus, User} from '../../../unientities';
 import {ApprovalService, UserService, ErrorService} from '../../../services/services';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
+import {UniModalService, UniApproveModal} from '../../../../framework/uniModal/barrel';
+import {CommentService} from '../../../../framework/comments/commentService';
 import * as moment from 'moment';
 
 @Component({
@@ -27,12 +29,14 @@ export class UniApprovals {
         private errorService: ErrorService,
         private approvalService: ApprovalService,
         private userService: UserService,
-        private route: ActivatedRoute
+        private route: ActivatedRoute,
+        private modalService: UniModalService,
+        private commentService: CommentService
     ) {
         route.params.subscribe((params) => {
             this.routeParam = +params['id'];
         });
-    }    
+    }
 
     public get entityType(): string {
         if (!(this.selectedApproval && this.selectedApproval.Task)) {
@@ -122,18 +126,25 @@ export class UniApprovals {
         return approval;
     }
 
-    public approve(approval: Approval): void {
-        this.approvalService.PostAction(approval.ID, 'approve').subscribe(
-            res => this.loadApprovals(), // TODO: updateTaskAfterApproval?
-            err => this.errorService.handle(err)
-        );
-    }
+    public approveOrReject(approval: Approval, isApprove: boolean): void {
+        let invoice = {
+            ID: approval.Task.EntityID,
+            _task: approval.Task
+        };
+        invoice._task.Approvals = [approval];
+        this.modalService.open(UniApproveModal,
+            {
+                data: {
+                    invoice: invoice,
+                    forApproval: isApprove
+                }
+            }).onClose.subscribe((res: any) => {
+                if (res && res.message) {
+                    this.addComment(approval.Task.Model.Name, approval.Task.EntityID, res.message);
+                }
+                this.loadApprovals();
 
-    public reject(approval: Approval): void {
-        this.approvalService.PostAction(approval.ID, 'reject').subscribe(
-            res => this.loadApprovals(),
-            err => this.errorService.handle(err)
-        );
+        }, err => this.errorService.handle(err));
     }
 
     public toggleShowCompleted() {
@@ -148,7 +159,7 @@ export class UniApprovals {
             if (!listItem) {
                 return;
             }
-            
+
             const bottom = list.scrollTop + list.offsetHeight - listItem.offsetHeight;
 
             if (listItem.offsetTop <= list.scrollTop) {
@@ -159,4 +170,8 @@ export class UniApprovals {
         });
     }
 
+    private addComment(type: string, ID: number, comment: string) {
+        this.commentService.post(type, ID, comment)
+        .subscribe(() => { });
+    }
 }

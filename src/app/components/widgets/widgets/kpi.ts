@@ -1,6 +1,7 @@
-﻿import {Component, ViewChild, ElementRef} from '@angular/core';
+﻿import {Component, ViewChild, ElementRef, EventEmitter} from '@angular/core';
 import {IUniWidget} from '../uniWidget';
-import {FinancialYearService, StatisticsService, ErrorService} from '../../../services/services';
+import {FinancialYearService, ErrorService} from '../../../services/services';
+import {WidgetDataService} from '../widgetDataService';
 import * as Chart from 'chart.js';
 
 interface IKeyNumberObject {
@@ -15,65 +16,71 @@ interface IKeyNumberObject {
 @Component({
     selector: 'uni-kpi-widget',
     template: `
-        <div class="uni-kpi-widget">
-            <div class="uni-widget-header"> <span> {{ widget.config.header }} </span></div>
-            <section>
+        <section class="uni-widget-header">
+            {{ widget.config.header }}
+        </section>
 
-                <section>
-                    <div>
-                        <h2>Lønnsomhet</h2>
-                        <p class="uni-kpi-widget-value" [ngStyle]="{'color': profitability.textColor}">
-                            {{ profitability.value }}
-                        </p>
-                    </div>
-                    <div>
-                        <a class="uni-kpi-widget-chevron" [ngClass]="profitability.class">link</a>
-                        <p [ngStyle]="{'color': profitability.textColor}">{{ profitability.grade }} </p>
-                    </div>
-                    <div>
-                        <canvas #profitabilityCanvas> </canvas>
-                    </div>
+        <section class="uni-widget-content" [attr.aria-busy]="!(dataLoaded | async)">
+            <section class="kpi-widget-row">
+                <section class="kpi-widget-column">
+                    <span class="kpi-widget-title">Lønnsomhet</span>
+                    <span class="kpi-widget-value" [ngStyle]="{'color': profitability.textColor}">
+                        {{ profitability.value }}
+                    </span>
                 </section>
 
-                <section>
-                    <div>
-                        <h2>Likviditet</h2>
-                        <p class="uni-kpi-widget-value" [ngStyle]="{'color': liquidity.textColor}">
-                            {{ liquidity.value }}
-                        </p>
-                    </div>
-                    <div>
-                        <a class="uni-kpi-widget-chevron" [ngClass]="liquidity.class">link</a>
-                        <p [ngStyle]="{'color': liquidity.textColor}">
-                            {{ liquidity.grade }}
-                        </p>
-                    </div>
-                    <div>
-                        <canvas #liquidityCanvas> </canvas>
-                    </div>
+                <section class="kpi-widget-column">
+                    <span class="kpi-widget-arrow" [ngClass]="profitability.class">link</span>
+                    <span [ngStyle]="{'color': profitability.textColor}">
+                        {{ profitability.grade }}
+                    </span>
                 </section>
 
-                <section>
-                    <div>
-                        <h2>Soliditet</h2>
-                        <p class="uni-kpi-widget-value" [ngStyle]="{'color': solidity.textColor}">
-                            {{ solidity.value }}
-                        </p>
-                    </div>
-                    <div>
-                        <a class="uni-kpi-widget-chevron" [ngClass]="solidity.class">link</a>
-                        <p [ngStyle]="{'color': solidity.textColor}">{{ solidity.grade }} </p>
-                    </div>
-                    <div>
-                        <canvas #solidityCanvas> </canvas>
-                    </div>
+                <section class="kpi-widget-column">
+                    <canvas #profitabilityCanvas> </canvas>
                 </section>
-
             </section>
-        </div>
-    `
-})
 
+            <section class="kpi-widget-row">
+                <section class="kpi-widget-column">
+                    <span class="kpi-widget-title">Likviditet</span>
+                    <span class="kpi-widget-value" [ngStyle]="{'color': liquidity.textColor}">
+                        {{ liquidity.value }}
+                    </span>
+                </section>
+
+                <section class="kpi-widget-column">
+                    <span class="kpi-widget-arrow" [ngClass]="liquidity.class">link</span>
+                    <span [ngStyle]="{'color': liquidity.textColor}">
+                        {{ liquidity.grade }}
+                    </span>
+                </section>
+
+                <section class="kpi-widget-column">
+                    <canvas #liquidityCanvas> </canvas>
+                </section>
+            </section>
+
+            <section class="kpi-widget-row">
+                <section class="kpi-widget-column">
+                    <span class="kpi-widget-title">Soliditet</span>
+                    <span class="kpi-widget-value" [ngStyle]="{'color': solidity.textColor}">
+                        {{ solidity.value }}
+                    </span>
+                </section>
+
+                <section class="kpi-widget-column">
+                    <span class="kpi-widget-arrow" [ngClass]="solidity.class">link</span>
+                    <span [ngStyle]="{'color': solidity.textColor}">{{ solidity.grade }}</span>
+                </section>
+
+                <section class="kpi-widget-column">
+                    <canvas #solidityCanvas></canvas>
+                </section>
+            </section>
+        </section>
+    `,
+})
 export class UniKPIWidget {
     @ViewChild('profitabilityCanvas')
     private profitabilityCanvas: ElementRef;
@@ -85,6 +92,7 @@ export class UniKPIWidget {
     private solidityCanvas: ElementRef;
 
     public widget: IUniWidget;
+    public dataLoaded: EventEmitter<boolean> = new EventEmitter();
 
     public liquidity: IKeyNumberObject = {
         value: '-',
@@ -115,13 +123,13 @@ export class UniKPIWidget {
 
     constructor(
         private financialYearService: FinancialYearService,
-        private statService: StatisticsService,
+        private dataService: WidgetDataService,
         private errorService: ErrorService
     ) {}
 
     public ngAfterViewInit() {
-        this.financialYearService.getActiveYear().subscribe((year: number) => {
-            this.statService.GetAll('model=JournalEntryLine'
+        this.financialYearService.getActiveYear().switchMap((year: number) => {
+            const endpoint = '/api/statistics?model=JournalEntryLine'
                 + '&select=sum(casewhen(Account.AccountNumber ge 1400 '
                 + 'and Account.AccountNumber le 1999,Amount,0)) as sumOmlopsmidler,'
                 + 'sum(casewhen(Account.AccountNumber ge 2300 '
@@ -133,25 +141,29 @@ export class UniKPIWidget {
                 + 'sum(casewhen(Account.AccountNumber ge 3000 '
                 + 'and Account.AccountNumber le 8299 '
                 + 'and Period.AccountYear eq ' + year + ',Amount,0)) as resultat'
-                + '&expand=Account,Period&distinct=false')
-                .subscribe(
-                    (data) => {
-                        if (!data || !data.Data) {
-                            return;
-                        }
+                + '&expand=Account,Period&distinct=false';
 
-                        this.initLiquidityIndicator(data.Data[0]);
-                        this.initProfitabilityIndicator(data.Data[0]);
-                        this.initSolidityIndicator(data.Data[0]);
-                    },
-                    err => this.errorService.handle(err)
-                );
-        });
+            return this.dataService.getData(endpoint);
+        }).subscribe(
+            data => {
+                if (!data || !data.Data) {
+                    return;
+                }
+
+                this.initLiquidityIndicator(data.Data[0]);
+                this.initProfitabilityIndicator(data.Data[0]);
+                this.initSolidityIndicator(data.Data[0]);
+
+                this.dataLoaded.emit(true);
+            },
+            err => this.dataLoaded.emit(true)
+        );
     }
 
     public initSolidityIndicator(data) {
         if (data.sumTK) {
-            this.solidity.value = ((data.sumEK * 100) / data.sumTK).toFixed(1);
+            // Add result to give a more up-to-date view of the solidity
+            this.solidity.value = (((data.sumEK + data.resultat) * 100) / (data.sumTK + data.resultat)).toFixed(1);
             this.checkNumbers(this.solidity, [3, 10, 18, 40]);
 
             this.drawIndicator(

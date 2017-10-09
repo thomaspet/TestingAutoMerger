@@ -1,8 +1,7 @@
 ﻿import {Component, ElementRef, Pipe, ChangeDetectionStrategy, ChangeDetectorRef, ViewChild} from '@angular/core';
 import {Router} from '@angular/router';
 import {UniModules} from '../../../layout/navbar/tabstrip/tabService';
-import {UserService} from '../../../../services/services';
-import {AuthService} from '../../../../../framework/core/authService';
+import {AuthService} from '../../../../authService';
 
 @Pipe({name: 'removehidden'})
 export class RemoveHidden {
@@ -69,15 +68,12 @@ export class HamburgerMenu {
     constructor(
         public router: Router,
         private cdr: ChangeDetectorRef,
-        private userService: UserService,
         private authService: AuthService
     ) {
         this.authService.authentication$.subscribe(auth => {
-            if (auth.token && auth.activeCompany) {
-                this.userService.getCurrentUser().subscribe(user => {
-                    this.availableComponents = this.getAllowedRoutes(user);
-                    this.cdr.markForCheck();
-                });
+            if (auth.user) {
+                this.availableComponents = this.getAllowedRoutes(auth.user);
+                this.cdr.markForCheck();
             }
         });
     }
@@ -102,7 +98,7 @@ export class HamburgerMenu {
 
         routeSections.forEach(section => {
             section.componentList = section.componentList.filter(item => {
-                return this.userService.checkAccessToRoute(item.componentUrl, user);
+                return this.authService.canActivateRoute(user, item.componentUrl);
             });
         });
 
@@ -215,7 +211,7 @@ export class HamburgerMenu {
                 componentListUrl: '/',
                 componentList: [
                     {componentName: 'Skrivebord', componentUrl: '/', moduleID: UniModules.Dashboard},
-                    {componentName: 'Klienter', componentUrl: '/bureau', moduleID: UniModules.BureauDashboard},
+                    {componentName: 'Selskaper', componentUrl: '/bureau', moduleID: UniModules.BureauDashboard},
                     {componentName: 'Oversikt', componentUrl: '/overview', moduleID: UniModules.UniTicker},
                     {componentName: 'Resultat og balanse', componentUrl: '/accounting/accountingreports', moduleID: UniModules.AccountingReports},
                     {componentName: 'Rapporter', componentUrl: '/reports', moduleID: UniModules.Reports},
@@ -235,7 +231,7 @@ export class HamburgerMenu {
                     {componentName: 'Prosjekt', componentUrl: '/dimensions/projects', moduleID: UniModules.Projects},
                     {componentName: 'Kunder', componentUrl: '/sales/customer', moduleID: UniModules.Customers, groupHeader: 'Register'},
                     {componentName: 'Produkter', componentUrl: '/sales/products', moduleID: UniModules.Products},
-                    {componentName: 'Produktgrupper', componentUrl: '/sales/productgroups/', moduleID: UniModules.ProductGroup},
+                    {componentName: 'Produktgrupper', componentUrl: '/sales/productgroups', moduleID: UniModules.ProductGroup},
                     {componentName: 'Selgere', componentUrl: '/sales/sellers', moduleID: UniModules.Sellers},
                     {componentName: 'Valuta', componentUrl: '/currency/exchange', moduleID: UniModules.CurrencyExchange}
                 ]

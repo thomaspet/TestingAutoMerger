@@ -1,11 +1,11 @@
 import {Component, ViewChild, OnInit, EventEmitter, Output} from '@angular/core';
 import {UniTable, UniTableConfig, UniTableColumnType, UniTableColumn} from '../../../../framework/ui/unitable/index';
-import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
 import {Observable} from 'rxjs/Observable';
 import {SubEntityService, AgaZoneService, MunicipalService, ErrorService} from '../../../services/services';
 import {SubEntity, Municipal, AGAZone} from '../../../unientities';
 import {SubEntityDetails} from './subEntityDetails';
 import {UniModalService, UniConfirmModalV2, ConfirmActions} from '../../../../framework/uniModal/barrel';
+import {SubEntitySettingsService} from './services/subEntitySettingsService';
 
 
 @Component({
@@ -34,9 +34,9 @@ export class SubEntityList implements OnInit {
         private _subEntityService: SubEntityService,
         private _agaZoneService: AgaZoneService,
         private _municipalService: MunicipalService,
-        private _toastService: ToastService,
         private modalService: UniModalService,
-        private errorService: ErrorService
+        private errorService: ErrorService,
+        private subEntitySettingsService: SubEntitySettingsService
     ) {
     }
 
@@ -98,7 +98,7 @@ export class SubEntityList implements OnInit {
                         .filter(response => response === ConfirmActions.ACCEPT)
                         .subscribe(() => {
                             if (rowModel['ID']) {
-                                this._subEntityService.delete(rowModel.ID).subscribe(response => {
+                                this._subEntityService.Remove(rowModel.ID).subscribe(response => {
                                     this.removeSubEntity(rowModel, false);
                                 }, err => this.errorService.handle(err));
                             } else {
@@ -172,65 +172,11 @@ export class SubEntityList implements OnInit {
     }
 
     public addSubEntitiesFromExternal() {
-        let subEntities: SubEntity[] = [];
-        this._subEntityService.getFromEnhetsRegister(this.mainOrg.OrgNumber).subscribe((response: SubEntity[]) => {
-            this.busy = true;
-            subEntities = response;
-            if (subEntities && subEntities.length > 0) {
-                this.modalService
-                    .open(UniConfirmModalV2, {
-                        header: 'Bekreft import',
-                        message: `Enhetsregisteret har ${subEntities.length} virksomheter knyttet til din juridiske enhet. Ønsker du å importere disse?`,
-                        buttonLabels: {
-                            accept: 'Ja',
-                            cancel: 'Nei'
-                        }
-                    })
-                    .onClose
-                    .subscribe((reply) => {
-                        if (reply === ConfirmActions.ACCEPT) {
-                            this.saveIsDisabled.emit(true);
-                            let saveObservable: Observable<any>[] = [];
-                            subEntities.forEach(subEntity => {
-                                let entity = this.allSubEntities.find(x => x.OrgNumber === subEntity.OrgNumber);
-                                if (entity) {
-                                    subEntity.ID = entity.ID;
-                                }
-                                if (subEntity.BusinessRelationInfo) {
-                                    if (!subEntity.BusinessRelationID) {
-                                        subEntity.BusinessRelationInfo['_createguid'] = this._subEntityService.getNewGuid();
-
-                                        if (!subEntity.BusinessRelationInfo.InvoiceAddressID) {
-                                            subEntity.BusinessRelationInfo.InvoiceAddress['_createguid'] = this._subEntityService.getNewGuid();
-                                        }
-                                    }
-                                }
-
-                                if (subEntity.ID) {
-                                    saveObservable.push(this._subEntityService.Put(subEntity.ID, subEntity));
-                                } else {
-                                    saveObservable.push(this._subEntityService.Post(subEntity));
-                                }
-
-                            });
-
-                            Observable.forkJoin(saveObservable)
-                                .finally(() => this.saveIsDisabled.emit(false))
-                                .subscribe(saveResponse => {
-                                    this.busy = false;
-                                    this.refreshList();
-                                }, err => this.errorService.handle(err));
-                        } else {
-                            this.busy = false;
-                        }
-                    });
-
-            } else {
-                this._toastService.addToast('Ingen virksomheter', ToastType.warn, 10, 'Fant ingen virksomheter på juridisk enhet');
-                this.busy = false;
-            }
-
-        });
+        this.busy = true;
+        this.subEntitySettingsService
+            .addSubEntitiesFromExternal(this.mainOrg.OrgNumber, true, this.allSubEntities)
+            .finally(() => this.busy = false)
+            .subscribe();
     }
 
     public saveSubEntity() {

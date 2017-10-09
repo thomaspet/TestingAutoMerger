@@ -1,4 +1,4 @@
-import {Component, ViewChild, OnDestroy} from '@angular/core';
+import {Component, OnDestroy} from '@angular/core';
 import {UniView} from '../../../../framework/core/uniView';
 import {ActivatedRoute, Router, NavigationEnd} from '@angular/router';
 import {IUniSaveAction} from '../../../../framework/save/save';
@@ -26,7 +26,7 @@ import {
 })
 export class SalarybalanceView extends UniView implements OnDestroy {
     private url: string = '/salary/salarybalances/';
-    readonly SALARY_BALANCE_KEY: string = 'salarybalance'
+    private readonly SALARY_BALANCE_KEY: string = 'salarybalance';
     private salarybalanceID: number;
     private salarybalance: SalaryBalance;
     private saveActions: IUniSaveAction[];
@@ -227,7 +227,7 @@ export class SalarybalanceView extends UniView implements OnDestroy {
             .switchMap(salaryBalance => this.salarybalanceService.save(salaryBalance))
             .do(salaryBalance => {
                 if (this.salarybalance['_newFiles'] && this.salarybalance['_newFiles'].length > 0) {
-                    this.linkNewFiles(salaryBalance.ID, this.salarybalance['_newFiles'], 'SalaryBalance')
+                    this.linkNewFiles(salaryBalance.ID, this.salarybalance['_newFiles'], 'SalaryBalance');
                 }
 
                 if (!salaryBalance['CreatePayment'] && this.salarybalance.InstalmentType === SalBalType.Advance) {
