@@ -1,0 +1,40 @@
+<section *ngIf="statusMessage?.length" class="uni-save-status" role="status">
+    {{statusMessage}}
+</section>
+
+<section class="save-buttons">
+    <!-- TODO: check for print/email action -->
+    <button type="button" class="toolbar-print">
+        Skriv ut
+    </button>
+
+    <button type="button" class="toolbar-email">
+        Send på epost
+    </button>
+
+    <button type="button" *ngIf="main"
+        class="toolbar-save"
+        (click)="onSave(main)"
+        [attr.aria-busy]="busy"
+        [disabled]="main.disabled">
+        {{main.label}}
+    </button>
+
+    <button class="toolbar-save-toggle" *ngIf="actions?.length > 1"
+        (click)="open = !open"
+        (clickOutside)="close()"
+        aria-owns="saveActionMenu"
+        [attr.aria-expanded]="open">
+        More options
+    </button>
+
+    <ul class="toolbar-save-dropdown" [attr.aria-expanded]="open" role="menu" id="saveActionMenu">
+        <li *ngFor="let action of actions"
+            (click)="onSave(action)"
+            role="menuitem"
+            [attr.aria-disabled]="action.disabled"
+            [title]="action.label">
+            {{action.label}}
+        </li>
+    </ul>
+</section>
