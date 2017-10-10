@@ -139,7 +139,6 @@ export class InvoiceDetails {
     ];
 
     private expandOptions: Array<string> = [
-        'CurrencyCode',
         'Customer',
         'DefaultDimensions',
         'DeliveryTerms',
