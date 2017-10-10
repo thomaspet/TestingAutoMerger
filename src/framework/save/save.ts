@@ -20,7 +20,13 @@ export interface IUniSaveAction {
     selector: 'uni-save',
     template: `
         <footer (clickOutside)="close()" class="uniSave">
-            <p *ngIf="status" class="uniSave-status" role="status">
+            <p *ngIf="status"
+                class="uniSave-status"
+                role="status"
+                title="Lukk melding"
+                (click)="clearStatus(0)"
+                (mouseenter)="abortTimeOut()"
+                (mouseleave)="clearStatus(3000)">
                 {{status.message}}
                 <time [attr.datetime]="status.when">
                     {{fromNow()}}
@@ -70,6 +76,7 @@ export class UniSave {
     private busy: boolean = false;
     private status: {message: string, when: Date};
     private main: IUniSaveAction;
+    private timeoutHolder: any;
 
     public ngOnChanges(changes: SimpleChanges) {
         if (changes['actions']) {
@@ -122,6 +129,7 @@ export class UniSave {
             when: new Date()
         };
         this.busy = false;
+        this.clearStatus(3000);
     }
 
     private onSave(action) {
@@ -143,13 +151,25 @@ export class UniSave {
             };
         }
         this.busy = false;
+        this.clearStatus(3000);
     }
 
-    private fromNow() {
+    private clearStatus(timeout: number) {
+        let that = this;
+        this.timeoutHolder = setTimeout(function() {
+            that.status = undefined;
+        }, timeout);
+    }
+
+    public abortTimeOut() {
+        clearTimeout(this.timeoutHolder);
+    }
+
+    public fromNow() {
         return moment(this.status.when).fromNow();
     }
 
-    private close() {
+    public close() {
         this.open = false;
     }
 }
