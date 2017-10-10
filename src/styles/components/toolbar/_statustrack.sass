@@ -5,7 +5,7 @@ $statustrack-border: .0625rem
 .poster_statustrack,
 uni-statustrack > ol
     display: flex
-    border-radius: pxToRem(3)
+    border-radius: pxToRem(5)
     background: $statustrack-background
     box-sizing: border-box
     height: $statustrack-height + $statustrack-border
@@ -18,6 +18,15 @@ uni-statustrack > ol
         color: $uni-color-positive
         cursor: pointer
 
+        &:first-of-type
+            border-radius: pxToRem(5) 0 0 pxToRem(5)
+
+        &:last-of-type
+            border-radius: 0 pxToRem(5) pxToRem(5) 0
+
+        &.completed
+            background: mix($uni-color-c2a, #fff, 20%)
+
         &.future
             color: $uni-color-scale5
 
@@ -28,12 +37,6 @@ uni-statustrack > ol
             color: $uni-color-negative
             font-weight: 600
 
-            &:first-of-type
-                border-radius: pxToRem(2) 0 0 pxToRem(2)
-
-            &:last-of-type
-                border-radius: 0 pxToRem(2) pxToRem(2) 0
-
         &.obsolete
             background: $uni-color-warn
 
@@ -43,6 +46,9 @@ uni-statustrack > ol
 
             &:before
                 border-left-color: $uni-color-scale7
+
+            &.completed:after
+                border-left-color: mix($uni-color-c2a, #fff, 20%)
 
             &.active:after
                 border-left-color: $uni-color-c2a
