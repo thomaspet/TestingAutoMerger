@@ -41,6 +41,7 @@ import {VacationPaySettingsModal} from './payrollrun/modals/vacationpay/vacation
 import {ControlModal} from './payrollrun/modals/controlModal';
 import {PayrollrunDetails} from './payrollrun/payrollrunDetails';
 import {PayrollrunList} from './payrollrun/payrollrunList';
+import {PayrollRunDetailsService} from './payrollrun/services/payrollRunDetailsService';
 import {PostingSummaryModal} from './payrollrun/modals/postingSummaryModal';
 import {PaycheckSending} from './payrollrun/sending/paycheckSending';
 import {PaycheckSenderModal} from './payrollrun/sending/paycheckSenderModal';
@@ -59,6 +60,7 @@ import {WageTypeView} from './wagetype/wagetypeView';
 import {WagetypeDetail} from './wagetype/views/wagetypeDetails';
 import {WageTypeSettings} from './wagetype/views/wagetypeSettings';
 import {WagetypeList} from './wagetype/wagetypeList';
+import {WageTypeViewService} from './wagetype/services/wageTypeViewService'
 
 import {CategoryList} from './category/categoryList';
 import {CategoryView} from './category/categoryView';
@@ -173,7 +175,9 @@ import {CanDeactivateGuard} from '../../canDeactivateGuard';
         SalaryBalanceLineModal
     ],
     providers: [
-        CanDeactivateGuard
+        CanDeactivateGuard,
+        PayrollRunDetailsService,
+        WageTypeViewService
     ],
     exports: [
         UniSalary,
