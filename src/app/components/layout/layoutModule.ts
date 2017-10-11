@@ -12,7 +12,6 @@ import {UniTabStrip} from './navbar/tabstrip/tabStrip';
 import {UniCompanyDropdown} from './navbar/userinfo/companyDropdown/companyDropdown';
 import {UniFrameworkModule} from '../../../framework/frameworkModule';
 import {UniTabs} from './uniTabs/uniTabs';
-import {UniFeedback} from '../common/feedback/feedback';
 import {UniNumberFormatPipe} from '../../pipes/uniNumberFormatPipe';
 import {YearModal, YearModalContent} from './navbar/userinfo/companyDropdown/modals/yearModal';
 import {UniHelpText} from './helpText/helpText';
@@ -37,7 +36,6 @@ import {UniHelpText} from './helpText/helpText';
         UniCompanyDropdown,
         YearModal,
         YearModalContent,
-        UniFeedback,
         UniHelpText
     ],
     providers: [
@@ -56,7 +54,6 @@ import {UniHelpText} from './helpText/helpText';
         UniCompanyDropdown,
         YearModal,
         YearModalContent,
-        UniFeedback,
         UniHelpText
     ]
 })
