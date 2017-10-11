@@ -1,9 +1,10 @@
 import {Injectable} from '@angular/core';
 import {BizHttp} from '../../../../framework/core/http/BizHttp';
 import {UniHttp} from '../../../../framework/core/http/http';
-import {Employee, Operator, EmployeeCategory} from '../../../unientities';
+import {Employee, Operator, EmployeeCategory, Municipal} from '../../../unientities';
 import {Observable} from 'rxjs/Observable';
 import {ErrorService} from '../../common/errorService';
+import {MunicipalService} from '../../common/municipalsService';
 import {ITag} from '../../../components/common/toolbar/tags';
 import {FieldType} from '../../../../framework/ui/uniform/index';
 import {UserService} from '../../common/userService';
@@ -26,7 +27,9 @@ export class EmployeeService extends BizHttp<Employee> {
     constructor(
         http: UniHttp,
         private errorService: ErrorService,
-        private userService: UserService) {
+        private userService: UserService,
+        private municipalService: MunicipalService
+    ) {
         super(http);
         this.relativeURL = Employee.RelativeUrl;
         this.entityType = Employee.EntityType;
@@ -128,7 +131,26 @@ export class EmployeeService extends BizHttp<Employee> {
             .map(resultSet => resultSet[0]);
     }
 
-    public layout(layoutID: string) {
+    private queryMunicipals(query: string): Observable<Municipal> {
+        return this.municipalService
+            .GetAll(`filter=startswith(MunicipalityNo,'${query}') or contains(MunicipalityName,'${query}')`);
+    }
+
+    private getMunicipalityOptions(employee: Employee) {
+        let defaultValue = employee.MunicipalityNo
+            ? this.municipalService.GetAll(`filter=MunicipalityNo eq ${employee.MunicipalityNo}&top=1`)
+            : Observable.of([{MunicipalityNo: '', MunicipalityName: ''}]);
+
+        return {
+            getDefaultData: () => defaultValue,
+            template: (obj: Municipal) => obj && obj.MunicipalityNo ? `${obj.MunicipalityNo} - ${obj.MunicipalityName}` : '',
+            search: (query: string) => this.queryMunicipals(query),
+            valueProperty: 'MunicipalityNo',
+            debounceTime: 200
+        };
+    }
+
+    public layout(layoutID: string, employee: Employee) {
         return Observable.from([{
             Name: layoutID,
             BaseEntity: 'Employee',
@@ -217,6 +239,15 @@ export class EmployeeService extends BizHttp<Employee> {
                     FieldSet: 2,
                     Section: 0,
                     Placeholder: 'Legg til telefon',
+                },
+                {
+                    EntityType: 'Employee',
+                    Property: 'MunicipalityNo',
+                    FieldType: FieldType.AUTOCOMPLETE,
+                    Options: this.getMunicipalityOptions(employee),
+                    Label: 'Kommunenummer',
+                    FieldSet: 2,
+                    Section: 0
                 },
                 {
                     EntityType: 'Employee',

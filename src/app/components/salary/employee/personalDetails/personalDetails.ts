@@ -114,7 +114,7 @@ export class PersonalDetails extends UniView {
     }
 
     private getLayout(subEntities: SubEntity[], employee: Employee) {
-        this.employeeService.layout('EmployeePersonalDetailsForm').subscribe(
+        this.employeeService.layout('EmployeePersonalDetailsForm', employee).subscribe(
             (layout: any) => {
                 layout.Fields[0].Validators = [{
                     'EntityType': 'BusinessRelation',
