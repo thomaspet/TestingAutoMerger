@@ -116,6 +116,9 @@ table.uni-table
 
     table:not(.editable-table) tr
         cursor: pointer
+        &[aria-selected]:not([aria-selected=false]):not([aria-readonly=true]),
+        &:focus:not([aria-readonly=true])
+            background: #d4dfee
 
 th:last-of-type
     position: relative

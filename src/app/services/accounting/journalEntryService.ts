@@ -420,7 +420,7 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
             }
 
 
-            let invalidRows = journalDataEntries.filter(x => !x.Amount || !x.VatDate || (!x.CreditAccountID && !x.DebitAccountID));
+            let invalidRows = journalDataEntries.filter(x => !x.Amount || !x.FinancialDate || (!x.CreditAccountID && !x.DebitAccountID));
 
             if (invalidRows.length > 0) {
                 let message = new ValidationMessage();

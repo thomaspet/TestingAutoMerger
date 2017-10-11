@@ -6,6 +6,7 @@ import {ToastService, ToastType} from '../../../../framework/uniToast/toastServi
 import {URLSearchParams} from '@angular/http';
 import {ActivatedRoute} from '@angular/router';
 import {Router} from '@angular/router';
+import {JournalEntryData, JournalEntryExtended} from '../../../models/models';
 import { SupplierInvoice, StatusCodeSupplierInvoice, CompanySettings, JournalEntryLineDraft, ApprovalStatus } from '../../../unientities';
 import {safeInt} from '../../common/utils/utils';
 import {UniAssignModal, AssignDetails} from './detail/assignmodal';
@@ -19,7 +20,8 @@ import {
     ErrorService,
     PageStateService,
     CompanySettingsService,
-    UserService
+    UserService,
+    JournalEntryService
 } from '../../../services/services';
 
 import * as moment from 'moment';
@@ -66,6 +68,7 @@ export class BillsView {
     public tableConfig: UniTableConfig;
     public listOfInvoices: Array<any> = [];
     public busy: boolean = true;
+    public loadingPreview: boolean = false;
     public totals: { grandTotal: number } = { grandTotal: 0 };
     public searchTotals: { grandTotal: number, count: number } = { grandTotal: 0, count: 0 };
     public currentFilter: IFilter;
@@ -85,6 +88,7 @@ export class BillsView {
     private baseCurrencyCode: string;
     private currentUserFilter: string;
     public selectedItems: SupplierInvoice[];
+    private fileID;
 
     public filters: Array<IFilter> = [
         { label: 'Innboks', name: 'Inbox', route: 'filetags/IncomingMail|IncomingEHF/0', onDataReady: (data) => this.onInboxDataReady(data), isSelected: true, hotCounter: true },
@@ -97,6 +101,13 @@ export class BillsView {
         { label: 'Betalt', name: 'Paid', filter: 'statuscode eq ' + StatusCodeSupplierInvoice.Payed + ' or statuscode eq ' + StatusCodeSupplierInvoice.PartlyPayed, showStatus: true, showJournalID: true, passiveCounter: true },
         { label: 'Alle', name: 'All', filter: '', showStatus: true, showJournalID: true, passiveCounter: true }
     ];
+
+    public saveActions: IUniSaveAction[] = [{
+        label: 'Nytt fakturamottak',
+        action: (completeEvent) => setTimeout(this.onAddNew()),
+        main: true,
+        disabled: false
+    }];
 
     public toolbarConfig: any = {
         title: 'Fakturamottak'
@@ -114,21 +125,19 @@ export class BillsView {
         private pageStateService: PageStateService,
         private modalService: UniModalService,
         private userService: UserService,
-        private approvalService: ApprovalService
+        private approvalService: ApprovalService,
+        private journalEntryService: JournalEntryService
     ) {
 
         this.viewSettings = settingsService.getViewSettings('economy.bills.settings');
-        tabService.addTab({ name: 'Fakturamottak', url: '/accounting/bills', moduleID: UniModules.Bills, active: true });
+        tabService.addTab({
+            name: 'Fakturamottak',
+            url: '/accounting/bills',
+            moduleID: UniModules.Bills,
+            active: true
+        });
         this.checkPath();
     }
-
-    public saveActions: IUniSaveAction[] = [
-        {
-        label: 'Nytt fakturamottak',
-        action: (completeEvent) => setTimeout(this.onAddNew()),
-        main: true,
-        disabled: false
-    }];
 
     public ngOnInit() {
         this.companySettingsService.Get(1)
@@ -566,23 +575,34 @@ export class BillsView {
         }
         if (this.totals) { this.totals.grandTotal = 0; }
         var cols = [
-            new UniTableColumn('ID', 'Nr.', UniTableColumnType.Number).setWidth('4rem').setFilterOperator('startswith'),
-            new UniTableColumn('Name', 'Filnavn').setWidth('18rem').setFilterOperator('startswith'),
-            new UniTableColumn('Description', 'Tekst').setFilterOperator('contains'),
-            new UniTableColumn('Size', 'Størrelse', UniTableColumnType.Number).setVisible(false).setWidth('6rem').setFilterOperator('startswith'),
-            new UniTableColumn('Source', 'Kilde', UniTableColumnType.Lookup).setWidth('6rem').setFilterOperator('startswith').setTemplate((rowModel) => {
-                if (rowModel.FileTags) {
-                    switch(rowModel.FileTags[0].TagName) {
-                        case 'IncomingMail': return 'Epost';
-                        case 'IncomingEHF': return 'EHF';
+            new UniTableColumn('ID', 'Nr.', UniTableColumnType.Number)
+                .setWidth('4rem')
+                .setFilterOperator('startswith'),
+            new UniTableColumn('Name', 'Filnavn')
+                .setWidth('18rem')
+                .setFilterOperator('startswith'),
+            new UniTableColumn('Description', 'Tekst')
+                .setFilterOperator('contains'),
+            new UniTableColumn('Size', 'Størrelse', UniTableColumnType.Number)
+                .setVisible(false)
+                .setWidth('6rem')
+                .setFilterOperator('startswith'),
+            new UniTableColumn('Source', 'Kilde', UniTableColumnType.Lookup)
+                .setWidth('6rem')
+                .setFilterOperator('startswith')
+                .setTemplate((rowModel) => {
+                    if (rowModel.FileTags) {
+                        switch (rowModel.FileTags[0].TagName) {
+                            case 'IncomingMail': return 'Epost';
+                            case 'IncomingEHF': return 'EHF';
+                        }
                     }
-                }
-                return '';
+                    return '';
             }),
         ];
         var cfg = new UniTableConfig('accounting.bills.inboxTable', false, true)
             .setSearchable(false)
-            .setMultiRowSelect(true)
+            .setMultiRowSelect(false)
             .setColumns(cols)
             .setPageSize(12)
             .setColumnMenuVisible(true)
@@ -668,7 +688,7 @@ export class BillsView {
         var item = event.rowModel;
         if (item) {
             if (this.currentFilter.name === 'Inbox') {
-                this.router.navigateByUrl('/accounting/bills/0?fileid=' + item.ID);
+                this.previewDocument(item);
             } else {
                 this.router.navigateByUrl('/accounting/bills/' + item.ID);
             }
@@ -691,6 +711,10 @@ export class BillsView {
 
                 modal.onClose.subscribe(response => {
                     if (response === ConfirmActions.ACCEPT) {
+                        if (fileId === this.fileID[0]) {
+                            this.fileID = null;
+                            this.hidePreview();
+                        }
                         this.supplierInvoiceService.send('files/' + fileId, undefined, 'DELETE').subscribe(
                             res => {
                                 this.toast.addToast('Filen er slettet', ToastType.good, 2);
@@ -717,6 +741,10 @@ export class BillsView {
     }
 
     public onFilterClick(filter: IFilter, searchFilter?: string) {
+        if (filter.name !== 'Inbox') {
+            this.hidePreview();
+            this.fileID = null;
+        }
         this.filters.forEach(f => f.isSelected = false);
         this.refreshList(filter, !this.hasQueriedTotals, searchFilter);
         filter.isSelected = true;
@@ -776,6 +804,39 @@ export class BillsView {
             if (!this.currentFilter) {
                 this.currentFilter = this.filters[0];
             }
+        }
+    }
+
+    private previewDocument(item) {
+        document.getElementById('preview_container_id').style.display = 'block';
+        this.loadingPreview = true;
+        this.fileID = [item.ID];
+    }
+
+    private hidePreview() {
+        document.getElementById('preview_container_id').style.display = 'none';
+    }
+
+    public onFileListReady(event) {
+        this.loadingPreview = false;
+    }
+
+    public documentSelected(useWithSupplierInvoice: boolean) {
+        if (useWithSupplierInvoice) {
+            this.router.navigateByUrl('/accounting/bills/0?fileid=' + this.fileID);
+        } else {
+            // add a journalentry with the selected file as the first item and redirect
+            var journalentries = this.journalEntryService.getSessionData(0);
+            if (!journalentries) {
+                journalentries = [];
+            }
+            var newEntry = new JournalEntryData();
+            newEntry.FileIDs = [this.fileID];
+            journalentries.unshift(newEntry);
+
+            this.journalEntryService.setSessionData(0, journalentries);
+
+            this.router.navigateByUrl('/accounting/journalentry/manual');
         }
     }
 
@@ -841,8 +902,4 @@ export class BillsView {
             ]
         };
     }
-
-
-
-
 }

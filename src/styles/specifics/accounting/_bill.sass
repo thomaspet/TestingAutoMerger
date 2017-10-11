@@ -332,3 +332,33 @@ bill-simple-journalentry
 	    cursor: pointer
 	    position: relative
 	    top: -2px
+
+.accounting_inbox_container
+    box-sizing: border-box
+    display: flex
+    flex-direction: row
+    align-items: flex-start
+
+.accounting_inbox_list_container
+	flex: 1 0 55%
+
+#preview_container_id
+    flex: 1 0 45%
+    margin-left: 2rem
+    display: none
+
+.accounting_preview_links
+    float: right
+    background-color: transparent
+    background-size: .7rem
+    background-position: left
+    background-repeat: no-repeat
+    background-image: unicon-share($uni-color-c2a)
+    padding-left: 1rem
+    margin-left: 2rem
+    transition: .1s linear
+
+    &:hover, &:active, &:focus
+        color: darken($uni-color-c2a, 50%)
+        cursor: pointer
+        background-size: .9rem

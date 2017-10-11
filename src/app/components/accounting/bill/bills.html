@@ -18,7 +18,7 @@
     </header>
 
     <header class="application">
-        <table class='toolbar'>
+        <table class='toolbar' style="float: left">
         <tr>
             <td>
                 <input type="search" placeholder="Søk" [formControl]="searchControl" ><button class="good" (click)="onAddNew()">Nytt fakturamottak</button>
@@ -34,23 +34,39 @@
             </td>
         </tr>
     </table>
+    <a *ngIf="fileID" class="accounting_preview_links" (click)="documentSelected(true)">Bruk i fakturamottak</a>
+    <a *ngIf="fileID" class="accounting_preview_links" (click)="documentSelected(false)">Bruk i bilagsregistrering</a>
     </header>
 
-    <article class="application" [attr.aria-busy]="busy" >
-        <uni-table [resource]="listOfInvoices"
-            [config]="tableConfig"
-            (rowSelected)="onRowSelected($event)"
-            (rowDeleted)="onRowDeleted($event.rowModel)"
-            (pageChange)="onPageChange($event)"
-            (rowSelectionChanged)="onRowSelectionChanged($event ? $event.rowModel : null)">
-        </uni-table>
+    <article class="application accounting_inbox_container" [attr.aria-busy]="busy">
+        <!--Article container for the table-->
+        <article class="accounting_inbox_list_container">
+            <uni-table [resource]="listOfInvoices"
+                [config]="tableConfig"
+                (rowSelected)="onRowSelected($event)"
+                (rowDeleted)="onRowDeleted($event.rowModel)"
+                (pageChange)="onPageChange($event)"
+                (rowSelectionChanged)="onRowSelectionChanged($event ? $event.rowModel : null)">
+            </uni-table>
 
-        <div class="right total" *ngIf="this.currentFilter.name === 'Inbox'">
-            {{currentFilter.label}} ({{currentFilter.count}} stk.)
-        </div>
-        <div class="right total" *ngIf="this.currentFilter.name !== 'Inbox'">
-            Sum {{currentFilter.label}} ({{currentFilter.count}} stk.) : {{totals.grandTotal | unicurrency}}
-        </div>
+            <div class="right total" *ngIf="this.currentFilter.name === 'Inbox'">
+                {{currentFilter.label}} ({{currentFilter.count}} stk.)
+            </div>
+            <div class="right total" *ngIf="this.currentFilter.name !== 'Inbox'">
+                Sum {{currentFilter.label}} ({{currentFilter.count}} stk.) : {{totals.grandTotal | unicurrency}}
+            </div>
 
+        </article>
+
+        <!--Article container for the preview -->
+        <article class="preview_container" id="preview_container_id" [attr.aria-busy]="loadingPreview">
+            <uni-image
+                [singleImage]="true"
+                [readonly]="true"
+                [uploadWithoutEntity]="true"
+                [fileIDs]="fileID"
+                (fileListReady)="onFileListReady($event)">
+            </uni-image>
+        </article>
     </article>
 </section>
