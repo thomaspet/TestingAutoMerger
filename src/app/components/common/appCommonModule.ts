@@ -11,6 +11,7 @@ import {UniBreadcrumbs} from './toolbar/breadcrumbs';
 import {UniStatusTrack} from './toolbar/statustrack';
 import {UniTags} from './toolbar/tags';
 import {UniToolbar} from './toolbar/toolbar';
+import {UniToolbarHelp} from './toolbar/help';
 import {UniQueryReadOnly} from './uniQuery/UniQueryReadOnly';
 import {UniSummary} from './summary/summary';
 import {ImageModal, ImageModalContent} from './modals/ImageModal';
@@ -59,6 +60,7 @@ import {routes as AppCommonRoutes} from './appCommonRoutes';
         UniBreadcrumbs,
         UniStatusTrack.StatusTrack,
         UniToolbar,
+        UniToolbarHelp,
         UniQueryReadOnly,
         UniSummary,
         ImageModal,

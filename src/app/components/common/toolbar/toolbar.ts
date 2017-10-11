@@ -104,17 +104,17 @@ export class UniToolbar {
     @Output()
     public selectValueChanged: EventEmitter<any> = new EventEmitter();
 
-    public videoURL: Promise<string|null>;
+    public videoURLResolver: Promise<string|null>;
 
-    private uniSelectConfig: ISelectConfig = {
+    public uniSelectConfig: ISelectConfig = {
         displayProperty: '_DisplayName',
         searchable: false
     };
 
     constructor(private videoMappingService: VideoMappingService) {}
-    
+
     public ngOnInit() {
-        this.videoURL = this.videoMappingService.getVideo(window.location.href);
+        this.videoURLResolver = this.videoMappingService.getVideo(window.location.href);
     }
 
     public ngOnChanges(change) {
@@ -161,13 +161,9 @@ export class UniToolbar {
         this.selectValueChanged.emit(selectedItem);
     }
 
-    private triggerSubheadEvent(subhead) {
+    public triggerSubheadEvent(subhead) {
         if (subhead.event) {
             return subhead.event();
         }
-    }
-
-    public openVideo() {
-        this.videoURL.then(url => window.open(url, '_blank'));
     }
 }

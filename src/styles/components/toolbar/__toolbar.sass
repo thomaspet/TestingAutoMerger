@@ -18,7 +18,7 @@ uni-toolbar
 .toolbar-content
     @include unigrid-flush(14)
     margin: 0 auto
-    padding: 0 1rem
+    padding: 0 .5rem 0 1rem
     display: flex
     flex-direction: column
     flex-wrap: nowrap
@@ -38,25 +38,37 @@ uni-toolbar
             .breadcrumbs
                 padding: 0
 
-        .name-me
+        uni-toolbar-help
             order: 2
             flex: 0 1 auto
             margin: auto
-            small
-                @extend p
-                color: transparentize(white, .2)
-                flex-basis: fit-content
-                margin: 0 1rem 0 0
-                white-space: nowrap
+            display: block
+            position: relative
 
-                &:first-child:not(.tags_toggle)
-                    margin-left: 1rem
+            a
+                color: $uni-color-negative
+                cursor: pointer
+                user-select: none
 
-            a:link,
-            a:visited
-                @extend p
-                color: transparentize(white, .2)
-                border-color: transparentize(white, .2)
+                &:after
+                    content: ''
+                    height: 1rem
+                    width: 1rem
+                    background: unicon-chevron-down($uni-color-negative) center center no-repeat
+                    background-size: .45rem
+                    float: right
+                    margin-top: .3rem
+                &:hover
+                    color: darken($uni-color-negative, 10%)
+
+            .toolbar-help-dropdown
+                @extend %contextMenu
+                position: absolute
+                top: .75rem
+                right: 0
+                text-align: center
+                li
+                    width: 11rem
 
     .toolbar-bottom-row
         order: 2
