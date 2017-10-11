@@ -10,13 +10,14 @@ import {ReplaySubject} from 'rxjs/ReplaySubject';
 import {Observable} from 'rxjs/Observable';
 import {UniFieldLayout, UniForm} from '../../../../../framework/ui/uniform/index';
 import {
-    SalaryBalance, SalBalType, WageType, Employee, Supplier, SalBalDrawType, StdWageType, CompanySalary
+    SalaryBalance, SalBalType, WageType, Employee, Supplier, StdWageType
 } from '../../../../unientities';
 import {
     ToastService, ToastType, ToastTime
 } from '../../../../../framework/uniToast/toastService';
 import {UniImage, UniImageSize} from '../../../../../framework/uniImage/uniImage';
 import {ImageModal} from '../../../common/modals/ImageModal';
+import {Subscription} from 'rxjs/Subscription';
 type UniFormTabEvent = {
     event: KeyboardEvent,
     prev: UniFieldLayout,
@@ -32,12 +33,15 @@ export class SalarybalanceDetail extends UniView {
     private wagetypes: WageType[];
     private employees: Employee[];
     private suppliers: Supplier[];
+
     private invalidKID: boolean;
     private cachedSalaryBalance$: ReplaySubject<SalaryBalance> = new ReplaySubject<SalaryBalance>(1);
+    private lastChanges$: BehaviorSubject<SimpleChanges> = new BehaviorSubject({});
     private salarybalance$: BehaviorSubject<SalaryBalance> = new BehaviorSubject(new SalaryBalance());
+    private subscriptions: Subscription[] = [];
 
-    public config$: BehaviorSubject<any> = new BehaviorSubject({ autofocus: true });
-    public fields$: BehaviorSubject<any> = new BehaviorSubject([]);
+    public config$: BehaviorSubject<any> = new BehaviorSubject({autofocus: true});
+    public fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
     public unlinkedFiles: Array<number> = [];
     public collapseSummary: boolean = false;
 
@@ -59,54 +63,56 @@ export class SalarybalanceDetail extends UniView {
     ) {
         super(router.url, cacheService);
 
-        this.route.parent.params.subscribe(params => {
-            super.updateCacheKey(router.url);
-            super.getStateSubject('salarybalance').subscribe(salaryBalance => {
-                this.cachedSalaryBalance$.next(salaryBalance);
-            });
-            this.invalidKID = false;
-        });
+        this.route
+            .parent
+            .params
+            .do(params => {
+                this.subscriptions.forEach(sub => sub.unsubscribe());
+                super.updateCacheKey(router.url);
+                this.invalidKID = false;
+            })
+            .switchMap(params => this.getStateSubject('salarybalance'))
+            .subscribe(salaryBalance => this.cachedSalaryBalance$.next(salaryBalance));
 
-        this.route.params.subscribe(params => {
+        this.route.params.switchMap(params => {
             let employeeID: number = +params['employeeID'] || undefined;
             let type: SalBalType = +params['instalmentType'] || undefined;
-            this.cachedSalaryBalance$
-                .switchMap((salarybalance: SalaryBalance) => {
-                    if (salarybalance.ID !== this.salarybalanceID) {
-                        if (!salarybalance.ID) {
-                            if (employeeID) {
-                                salarybalance.EmployeeID = employeeID;
-                            }
-                            if (type) {
-                                salarybalance.InstalmentType = type;
-                            }
-                        }
-                        return this.setup().map(response => this.setWagetype(salarybalance, response[1]));
+            return this.cachedSalaryBalance$
+                .asObservable()
+                .map(salaryBalance => {
+                    if (salaryBalance.ID) {
+                        return salaryBalance;
                     }
-                    return Observable.of(salarybalance);
-                })
-                .subscribe((salarybalance: SalaryBalance) => {
-                    this.salarybalance$.next(salarybalance);
-                    if (!salarybalance.FromDate) { salarybalance.FromDate = new Date(); }
-                    this.salarybalanceID = salarybalance.ID;
-                    this.updateFields(salarybalance);
-                }, err => this.errorService.handle(err));
+                    if (employeeID) {
+                        salaryBalance.EmployeeID = employeeID;
+                    }
+                    if (type) {
+                        salaryBalance.InstalmentType = type;
+                    }
 
-            Observable
-                .combineLatest(this.cachedSalaryBalance$, super.getStateSubject('CompanySalary'))
-                .subscribe((result: [SalaryBalance, CompanySalary]) => {
-                    let [salaryBalance, companySalary] = result;
-                    if (!salaryBalance.ID) {
-                        salaryBalance.CreatePayment = companySalary.RemitRegularTraits;
+                    return salaryBalance;
+                })
+                .switchMap((salarybalance: SalaryBalance) => (salarybalance.ID === this.salarybalanceID)
+                    ? Observable.of(salarybalance)
+                    : this.setup(salarybalance))
+                .map(salarybalance => {
+                    if (!salarybalance.FromDate) {
+                        salarybalance.FromDate = new Date();
                     }
-                    this.updateFields(salaryBalance);
-                });
-        });
+                    return salarybalance;
+                })
+                .switchMap(salarybalance => this.updateFields(salarybalance, this.salarybalanceID !== salarybalance.ID))
+                .do(salarybalance => this.salarybalanceID = salarybalance.ID)
+                .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
+        })
+            .subscribe(salaryBalance => this.salarybalance$.next(salaryBalance));
     }
+
 
 
     public change(changes: SimpleChanges) {
         this.salarybalance$
+            .asObservable()
             .take(1)
             .filter(() => Object
                 .keys(changes)
@@ -144,6 +150,7 @@ export class SalarybalanceDetail extends UniView {
 
                 return model;
             })
+            .do(() => this.lastChanges$.next(changes))
             .subscribe(model => super.updateState('salarybalance', model, true));
     }
 
@@ -175,106 +182,87 @@ export class SalarybalanceDetail extends UniView {
         this.salarybalance$.next(current);
     }
 
-    private setup(): Observable<any> {
+    private setup(salaryBalance: SalaryBalance): Observable<SalaryBalance> {
+        return this.refreshLayout(salaryBalance)
+            .map(response => this.setWagetype(salaryBalance));
+    }
+
+    private refreshLayout(salaryBalance: SalaryBalance): Observable<UniFieldLayout[]> {
         return Observable
-            .forkJoin(this.getSources())
-            .map((response: any) => {
-                let [layout, wagetypes, employees, suppliers] = response;
+            .forkJoin(
+            this.wageTypesObs(),
+            this.employeesObs(),
+            this.suppliersObs())
+            .switchMap((result: [WageType[], Employee[], Supplier[]]) => {
+                let [wagetypes, employees, suppliers] = result;
+                return this.salarybalanceService
+                    .layout('SalarybalanceDetails', salaryBalance, wagetypes, employees, suppliers);
+            })
+            .do(layout => {
                 if (layout.Fields) {
                     this.fields$.next(layout.Fields);
                 }
-                this.wagetypes = wagetypes;
-                this.employees = employees;
-                this.suppliers = suppliers;
-
-                return response;
-            }, err => this.errorService.handle(err));
-    }
-
-    private getSources() {
-        return [
-            this.salarybalanceService.layout('SalarybalanceDetails'),
-            this.wagetypeService.GetAll(null),
-            this.employeeService.GetAll(null),
-            this.supplierService.GetAll(null, ['Info', 'Info.DefaultBankAccount'])
-        ];
-    }
-
-    private updateFields(salaryBalance: SalaryBalance) {
-        this.fields$
-            .take(1)
-            .map(fields => {
-                this.editField(fields, 'InstalmentType', typeField => {
-                    typeField.Options = {
-                        source: this.salarybalanceService.getInstalmentTypes(),
-                        displayProperty: 'Name',
-                        valueProperty: 'ID',
-                        debounceTime: 500
-                    };
-                });
-                this.editField(fields, 'WageTypeNumber', wagetypeField => {
-                    wagetypeField.Options.source = this.wagetypes;
-                    wagetypeField.ReadOnly = salaryBalance.ID;
-                });
-                this.editField(fields, 'EmployeeID', employeeField => {
-                    employeeField.Options.source = this.employees;
-                    employeeField.ReadOnly = salaryBalance.ID;
-                });
-                this.editField(fields, 'Instalment', instalmentField => {
-                    instalmentField.ReadOnly = salaryBalance.InstalmentPercent;
-                });
-                this.editField(fields, 'InstalmentPercent', percentField => {
-                    percentField.Hidden = salaryBalance.InstalmentType === SalBalType.Advance;
-                    percentField.ReadOnly = salaryBalance.Instalment;
-                });
-                this.editField(fields, 'SupplierID', supplierField => {
-                    supplierField.Options.source = this.suppliers;
-                    supplierField.Hidden = this.isHiddenByInstalmentType(salaryBalance);
-                });
-                this.editField(fields, 'KID', kidField => {
-                    kidField.Options = {};
-                    kidField.Hidden = this.isHiddenByInstalmentType(salaryBalance);
-                });
-                this.editField(fields, 'Supplier.Info.DefaultBankAccount.AccountNumber', accountField => {
-                    accountField.Options = {};
-                    accountField.Hidden = this.isHiddenByInstalmentType(salaryBalance);
-                });
-                this.editField(fields, 'Amount', amountField => {
-                    amountField.Label = salaryBalance.InstalmentType === SalBalType.Advance ? 'Beløp' : 'Saldo';
-                    amountField.Hidden = this.salarybalanceID > 0
-                        || salaryBalance.InstalmentType === SalBalType.Contribution;
-                });
-                this.editField(fields, 'CreatePayment', createPayment => {
-                    createPayment.Hidden = this.isHiddenByInstalmentType(salaryBalance);
-                });
-                return fields;
             })
-            .subscribe(fields => this.fields$.next(fields));
+            .map(layout => <UniFieldLayout[]>layout.Fields)
+            .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
     }
 
-    private isHiddenByInstalmentType(salaryBalance: SalaryBalance) {
-        return (salaryBalance.InstalmentType !== SalBalType.Contribution)
-            && (salaryBalance.InstalmentType !== SalBalType.Outlay)
-            && (salaryBalance.InstalmentType !== SalBalType.Other);
+    private wageTypesObs(): Observable<WageType[]> {
+        return this.wagetypes
+            ? Observable.of(this.wagetypes)
+            : this.wagetypeService.GetAll('').do(wt => this.wagetypes = wt);
     }
 
-    private editField(fields: any[], prop: string, edit: (field: any) => void): void {
-        let field = fields.find(fld => fld.Property === prop);
-        if (field) {
-            edit(field);
+    private employeesObs(): Observable<Employee[]> {
+        return this.employees
+            ? Observable.of(this.employees)
+            : this.employeeService.GetAll('').do(emps => this.employees = emps);
+    }
+
+    private suppliersObs(): Observable<Supplier[]> {
+        return this.suppliers
+            ? Observable.of(this.suppliers)
+            : this.supplierService.GetAll('', ['Info', 'Info.DefaultBankAccount']).do(sup => this.suppliers = sup);
+    }
+
+    private updateFields(salaryBalance: SalaryBalance, updateLayout: boolean = false): Observable<SalaryBalance> {
+        return this.lastChanges$
+            .asObservable()
+            .take(1)
+            .map(changes => Object.keys(changes))
+            .do((changesKey) => {
+                if (!updateLayout && this.form && !changesKey.some(x => x === 'InstalmentType')) {
+                    this.salarybalanceService
+                        .GetFieldFuncs(salaryBalance)
+                        .forEach(fieldfunc => this.editFormField(this.form, fieldfunc.prop, fieldfunc.func));
+                } else {
+                    this.refreshLayout(salaryBalance)
+                        .subscribe();
+                }
+            })
+            .map(() => salaryBalance);
+    }
+
+    private editFormField(
+        form: UniForm,
+        prop: string,
+        edit: (field: UniFieldLayout) => UniFieldLayout): UniFieldLayout {
+        let field = form ? form.field(prop) : null;
+        if (field && field.field) {
+            return edit(field.field);
         }
+        return null;
     }
 
     private validateKID(salaryBalance: SalaryBalance) {
-        this.invalidKID = !this.isHiddenByInstalmentType(salaryBalance)
+        this.invalidKID = !this.salarybalanceService.isHiddenByInstalmentType(salaryBalance)
             && !this.modulusService.isValidKID(salaryBalance.KID);
     }
 
-    private setWagetype(salarybalance: SalaryBalance, wagetypes = null): SalaryBalance {
+    private setWagetype(salarybalance: SalaryBalance, wagetypes = this.wagetypes): SalaryBalance {
         let wagetype: WageType;
-        wagetypes = wagetypes || this.wagetypes;
 
-        if (!salarybalance.WageTypeNumber && wagetypes) {
+        if (!salarybalance.ID && wagetypes) {
             switch (salarybalance.InstalmentType) {
                 case SalBalType.Advance:
                     wagetype = wagetypes.find(wt => wt.StandardWageTypeFor === StdWageType.AdvancePayment);
@@ -293,39 +281,5 @@ export class SalarybalanceDetail extends UniView {
         }
 
         return salarybalance;
-    }
-
-    private tabForward(event: UniFormTabEvent) {
-        this.fields$
-            .take(1)
-            .filter(fields => event.prev.Placement > event.next.Placement)
-            .map(fields => {
-                let newNextField = fields
-                    .filter(field => !field.Hidden)
-                    .find(field => field.Placement > event.prev.Placement) || {};
-                return newNextField.Property || '';
-            })
-            .subscribe(prop => {
-                if (prop) {
-                    this.form.field(prop).focus();
-                }
-            });
-    }
-
-    private tabBackward(event: UniFormTabEvent) {
-        this.fields$
-            .take(1)
-            .map(fields => {
-                let newPrevfield = fields
-                    .filter(field => !field.Hidden)
-                    .sort((fieldA, fieldB) => fieldB.Placement - fieldA.Placement)
-                    .find(field => field.Placement < event.prev.Placement) || {};
-                return newPrevfield.Property || '';
-            })
-            .subscribe(prop => {
-                if (prop) {
-                    this.form.field(prop).focus();
-                }
-            });
     }
 }
