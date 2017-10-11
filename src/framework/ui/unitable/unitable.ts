@@ -67,7 +67,7 @@ enum Direction { UP, DOWN, LEFT, RIGHT }
 
             <thead>
                 <tr>
-                    <th *ngIf="config.multiRowSelect" class="select-column"><input type="checkbox" #allRowSelector (change)="onSelectAllRowsChanged(allRowSelector.checked)"  /></th>
+                    <th *ngIf="config.multiRowSelect" class="select-column"><input type="checkbox" #allRowSelector (change)="onSelectAllRowsChanged(allRowSelector.checked)" checked="config.multiRowSelectDefaultValue" /></th>
                     <th *ngFor="let column of tableColumns"
                         [ngStyle]="{
                             'width': column.get('width'),
@@ -257,6 +257,9 @@ export class UniTable implements OnChanges {
             }
 
             this.filterAndSortTable(true);
+            if (this.tableData) {
+                this.onSelectAllRowsChanged(this.config.multiRowSelectDefaultValue);
+            }
         }
     }
 

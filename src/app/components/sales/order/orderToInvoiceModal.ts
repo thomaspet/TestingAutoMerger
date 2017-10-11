@@ -81,7 +81,7 @@ export class UniOrderToInvoiceModal implements IUniModal {
 
     private getTableConfig(): UniTableConfig {
         return new UniTableConfig('sales.order.orderToInvoice', false, true)
-            .setMultiRowSelect(true)
+            .setMultiRowSelect(true, true)
             .setColumns([
                 new UniTableColumn('Product.PartName', 'Produktnr'),
                 new UniTableColumn('ItemText', 'Tekst'),

@@ -72,6 +72,7 @@ export class UniTableConfig implements IUniTableConfig {
     public allowGroupFilter: boolean;
     public sortable: boolean;
     public multiRowSelect: boolean;
+    public multiRowSelectDefaultValue: boolean;
     public columnMenuVisible: boolean;
     public autoScrollIfNewCellCloseToBottom: boolean;
     public deleteButton: boolean | IDeleteButton;
@@ -111,6 +112,7 @@ export class UniTableConfig implements IUniTableConfig {
         this.allowGroupFilter = false;
         this.sortable = true;
         this.multiRowSelect = false;
+        this.multiRowSelectDefaultValue = false;
         this.deleteButton = false;
         this.autoScrollIfNewCellCloseToBottom = false;
         this.contextMenu = {items: [], disableOnReadonlyRows: false, showDropdownOnSingleItem: true};
@@ -180,8 +182,9 @@ export class UniTableConfig implements IUniTableConfig {
         return this;
     }
 
-    public setMultiRowSelect(multirowSelect: boolean) {
+    public setMultiRowSelect(multirowSelect: boolean, multiRowSelectDefaultValue?: boolean) {
         this.multiRowSelect = multirowSelect;
+        this.multiRowSelectDefaultValue = multiRowSelectDefaultValue || false;
         return this;
     }
 
