@@ -83,8 +83,7 @@ export class ProductDetails {
 
     public categoryFilter: ITag[] = [];
     public tagConfig: IUniTagsConfig = {
-        description: 'Kategori ',
-        helpText: 'Produktkategorier: ',
+        helpText: 'Produktkategorier',
         truncate: 20,
         autoCompleteConfig: {
             template: (obj: ProductCategory) => obj ? obj.Name : '',
@@ -472,7 +471,6 @@ export class ProductDetails {
         this.categoryFilter = categories.map(x => {
             return { linkID: x.ProductCategoryLinkID, title: x.ProductCategoryName };
         });
-        this.tagConfig.description = this.categoryFilter.length ? 'Kategori: ' : 'Kategori';
     }
 
     // TODO: return ComponentLayout when the object respects the interface

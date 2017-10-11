@@ -66,38 +66,61 @@ uni-toolbar
 
         h1
             order: 1
-            flex: 0 1 auto
+            flex: 0 1 auto // revisit: needed?
             line-height: inherit
-            margin: auto 0
+            margin: 0
+            max-width: 25rem
+            overflow: hidden
+            text-overflow: ellipsis
+            white-space: nowrap
 
         uni-statustrack
             order: 2
-            margin: auto 2rem
+            margin: .1rem 0 .1rem 1.5rem
 
-        // TODO !!!
-        // .toolbar_uniselect
-        //     margin-left: 1rem
-        //     font-size: 1rem
+        .toolbar-extras
+            order: 3
+            margin: .1rem 0
 
-        //     .uniSelect
-        //         width: 10rem
+            small
+                @extend p
+                color: transparentize(white, .2)
+                flex-basis: fit-content
+                margin: 0 0 0 1rem
+                white-space: nowrap
 
-        //         .uniSelect_input
-        //             color: white
-        //             background: transparentize($uni-color-c2a, .5) unicon-chevron-down($uni-color-scale9) center right .5rem no-repeat !important
-        //             background-size: auto .5rem !important
-        //             border-color: transparentize($uni-color-negative, .5)
 
-        //         .uniSelect_dropdown_list
-        //             color: black
+            a:link,
+            a:visited,
+                @extend p
+                color: transparentize(white, .2)
+                border-color: transparentize(white, .2)
+
+            .toolbar_uniselect
+                margin-left: 1rem
+                font-size: 1rem
+                font-weight: 300
+
+                .uniSelect
+                    width: 12rem
+
+                    .uniSelect_input
+                        height: 1.75rem
+                        color: white
+                        background: transparentize($uni-color-c2a, .5) unicon-chevron-down($uni-color-scale9) center right .5rem no-repeat !important
+                        background-size: auto .5rem !important
+                        border-color: transparentize($uni-color-negative, .5)
+
+                    .uniSelect_dropdown_list
+                        color: black
 
 
         .toolbar_tools
-            order: 3
+            order: 4
             margin: auto 0 auto auto
 
         uni-save
-            order: 4
+            order: 5
             margin: auto 0 auto 1rem
 
 // .toolbar-top-row

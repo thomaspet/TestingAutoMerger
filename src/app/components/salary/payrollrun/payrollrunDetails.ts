@@ -167,19 +167,13 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
 
                     this.toolbarconfig = {
                         title: payrollRun && payrollRun.ID
-                            ? (payrollRun.Description
-                                ? payrollRun.Description
-                                : 'Lønnsavregning ' + this.payrollrunID)
+                            ? payrollRun.ID + ' - ' + (payrollRun.Description || 'Lønnsavregning')
                             : 'Ny lønnsavregning',
-                        subheads: [{
-                            title: payrollRun && payrollRun.ID ?
-                                (payrollRun.Description ? 'Lønnsavregning ' + this.payrollrunID : '')
-                                : ''
-                        },
+                        subheads: [
                         {
                             title: payrollRun.JournalEntryNumber ?
                                 'Bilag ' + payrollRun.JournalEntryNumber
-                                : 'Ikke bokført',
+                                : '',
                             link: payrollRun.JournalEntryNumber
                                 ? '#/accounting/transquery/details;journalEntryNumber=' + payrollRun.JournalEntryNumber
                                 : ''

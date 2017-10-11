@@ -72,8 +72,7 @@ export class EmployeeDetails extends UniView implements OnDestroy {
 
     public categoryFilter: ITag[] = [];
     public tagConfig: IUniTagsConfig = {
-        description: 'Utvalg ',
-        helpText: 'Kategorier på ansatt: ',
+        helpText: 'Kategorier på ansatt',
         truncate: 20,
         autoCompleteConfig: {
             template: (obj: EmployeeCategory) => obj ? obj.Name : '',
@@ -1287,7 +1286,6 @@ export class EmployeeDetails extends UniView implements OnDestroy {
         this.categoryFilter = categories.map(x => {
             return { linkID: x.ID, title: x.Name };
         });
-        this.tagConfig.description = this.categoryFilter.length ? 'Utvalg: ' : 'Utvalg';
     }
 
 }
