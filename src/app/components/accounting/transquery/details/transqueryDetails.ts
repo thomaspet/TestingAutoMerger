@@ -580,9 +580,18 @@ export class TransqueryDetails implements OnInit {
             });
         }
 
+        let pageSize = window.innerHeight // Window size
+            - 144 // Form height
+            - 208 // Body margin and padding
+            - 32 // Application class margin
+            - 64 // Unitable pagination
+            - 91; // Unitable filter and thead
+
+        pageSize = pageSize <= 33 ? 10 : Math.floor(pageSize / 34); // 34 = heigth of a single row
+
         return new UniTableConfig('accounting.transquery.details', false, false)
             .setPageable(true)
-            .setPageSize(20)
+            .setPageSize(pageSize)
             .setColumnMenuVisible(false)
             .setSearchable(this.allowManualSearch)
             .setFilters(unitableFilter)
