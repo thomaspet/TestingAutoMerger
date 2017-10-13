@@ -3,7 +3,7 @@ import {BizHttp} from '../../../../framework/core/http/BizHttp';
 import {UniHttp} from '../../../../framework/core/http/http';
 import {
     PayrollRun, TaxDrawFactor, EmployeeCategory,
-    Employee, SalaryTransaction, Tracelink, Payment
+    Employee, SalaryTransaction, Tracelink, Payment, LocalDate
 } from '../../../unientities';
 import {Observable} from 'rxjs/Observable';
 import {ErrorService} from '../../common/errorService';
@@ -175,8 +175,8 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
         return super.GetAction(ID, 'postingsummary');
     }
 
-    public postTransactions(ID: number, report: string = null) {
-        return super.ActionWithBody(ID, report, 'book');
+    public postTransactions(ID: number, date: LocalDate = null, report: string = null) {
+        return super.ActionWithBody(ID, report, 'book', undefined, `accountingDate=${date}`);
     }
 
     public saveCategoryOnRun(id: number, category: EmployeeCategory): Observable<EmployeeCategory> {

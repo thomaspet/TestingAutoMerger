@@ -4,6 +4,11 @@
     </header>
     <article [attr.aria-busy]="busy">
         <section *ngIf="!showReceipt" class="unitableWidthAuto">
+            <uni-form
+                [config]="config$"
+                [fields]="fields$"
+                [model]="formModel$"
+                (changeEvent)="change($event)"></uni-form>
             <uni-table *ngIf="summary" [resource]="summary.PostList" [config]="accountTableConfig"></uni-table>
             <label>Kontrollsum totalt: </label> {{getAccountingSum() | unicurrency }}
         </section>
@@ -11,7 +16,7 @@
         <section *ngIf="showReceipt">
             <p>Bilaget er bokført i ditt regnskap</p>
             <p>
-                <a href="#/accounting/transquery/details;journalEntryNumber={{journalNumber}}">
+                <a (click)="close()" href="#/accounting/transquery/details;journalEntryNumber={{journalNumber}}">
                     Bilagsnummer: {{journalNumber}}
                 </a>
             </p>
