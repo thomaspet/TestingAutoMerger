@@ -21,7 +21,6 @@ export interface IUniSaveAction {
 })
 export class UniSave {
     @Input() public actions: IUniSaveAction[];
-    @Output() public save: EventEmitter<any> = new EventEmitter();
 
     private open: boolean = false;
     private busy: boolean = false;

@@ -35,35 +35,27 @@
 
     .previous
         background-image: unicon-prev($uni-color-negative)
-        &:hover,
-        &:focus
-            background-image: unicon-prev($uni-color-negative)
-            background-position: center center
-            background-repeat: no-repeat
 
     .info
         background-image: unicon-info($uni-color-negative)
-        &:hover,
-        &:focus
-            background-image: unicon-info($uni-color-negative)
-            background-position: center center
-            background-repeat: no-repeat
     .next
         background-image: unicon-next($uni-color-negative)
-        &:hover,
-        &:focus
-            background-image: unicon-next($uni-color-negative)
-            background-position: center center
-            background-repeat: no-repeat
     .new
         background-image: unicon-new($uni-color-negative)
-        &:hover,
-        &:focus
-            background-image: unicon-new($uni-color-negative)
-            background-position: center center
-            background-repeat: no-repeat
 
     .contextmenu_button[type=button]
         background-image: unicon-more($uni-color-negative) !important
 
+    uni-toolbar-share
+        position: relative
+        .toolbar-share
+            background-image: unicon-share($uni-color-negative)
 
+            &[aria-busy]:not([aria-busy=false])
+                background-image: none
+
+                &:before
+                    border: 1px solid $uni-color-negative
+                    border-top: 1px solid $uni-color-scale7
+                    position: absolute
+                    top: 25%

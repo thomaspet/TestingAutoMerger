@@ -133,6 +133,10 @@ export class UniModalService {
     }
 
     public onModalClosed(componentRef: ComponentRef<IUniModal>): void {
+        setTimeout(() => {
+            componentRef.instance.onClose.complete();
+        });
+
         let index = this.openModalRefs.findIndex(ref => ref === componentRef);
         componentRef.destroy();
 

@@ -50,6 +50,12 @@ export interface IAutoCompleteConfig {
     valueProperty: string;
 }
 
+export interface IShareAction {
+    label: string;
+    action: () => Observable<any>;
+    disabled?: () => boolean;
+}
+
 @Component({
     selector: 'uni-toolbar',
     templateUrl: './toolbar.html'
@@ -63,6 +69,9 @@ export class UniToolbar {
 
     @Input()
     public config: IToolbarConfig;
+
+    @Input()
+    public shareActions: IShareAction[];
 
     @Input()
     public saveactions: IUniSaveAction[];

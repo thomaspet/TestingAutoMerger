@@ -1,17 +1,4 @@
-<section *ngIf="statusMessage?.length" class="uni-save-status" role="status">
-    {{statusMessage}}
-</section>
-
 <section class="save-buttons">
-    <!-- TODO: check for print/email action -->
-    <button type="button" class="toolbar-print">
-        Skriv ut
-    </button>
-
-    <button type="button" class="toolbar-email">
-        Send på epost
-    </button>
-
     <button type="button" *ngIf="main"
         class="toolbar-save"
         (click)="onSave(main)"
@@ -37,4 +24,9 @@
             {{action.label}}
         </li>
     </ul>
+</section>
+
+<!-- Fixed position on the bottom of the page -->
+<section *ngIf="statusMessage?.length" class="uni-save-status" role="status">
+    {{statusMessage}}
 </section>

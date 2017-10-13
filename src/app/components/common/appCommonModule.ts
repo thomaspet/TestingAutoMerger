@@ -12,6 +12,7 @@ import {UniStatusTrack} from './toolbar/statustrack';
 import {UniTags} from './toolbar/tags';
 import {UniToolbar} from './toolbar/toolbar';
 import {UniToolbarHelp} from './toolbar/help';
+import {UniToolbarShare} from './toolbar/share';
 import {UniQueryReadOnly} from './uniQuery/UniQueryReadOnly';
 import {UniSummary} from './summary/summary';
 import {ImageModal, ImageModalContent} from './modals/ImageModal';
@@ -61,6 +62,7 @@ import {routes as AppCommonRoutes} from './appCommonRoutes';
         UniStatusTrack.StatusTrack,
         UniToolbar,
         UniToolbarHelp,
+        UniToolbarShare,
         UniQueryReadOnly,
         UniSummary,
         ImageModal,

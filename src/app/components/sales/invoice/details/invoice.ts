@@ -63,7 +63,7 @@ import {InvoiceTypes} from '../../../../models/Sales/InvoiceTypes';
 import {TradeHeaderCalculationSummary} from '../../../../models/sales/TradeHeaderCalculationSummary';
 
 import {ISummaryConfig} from '../../../common/summary/summary';
-import {IToolbarConfig, ICommentsConfig} from '../../../common/toolbar/toolbar';
+import {IToolbarConfig, ICommentsConfig, IShareAction} from '../../../common/toolbar/toolbar';
 import {UniStatusTrack} from '../../../common/toolbar/statustrack';
 import {roundTo, safeDec, safeInt, trimLength, capitalizeSentence} from '../../../common/utils/utils';
 
@@ -113,6 +113,7 @@ export class InvoiceDetails {
     private companySettings: CompanySettings;
     private recalcDebouncer: EventEmitter<any> = new EventEmitter();
     private saveActions: IUniSaveAction[] = [];
+    private shareActions: IShareAction[];
     private toolbarconfig: IToolbarConfig;
 
     private currencyCodes: Array<CurrencyCode>;
@@ -215,6 +216,7 @@ export class InvoiceDetails {
         this.recalcDebouncer.debounceTime(500).subscribe((invoiceItems) => {
             if (invoiceItems.length) {
                 this.recalcItemSums(invoiceItems);
+                this.isDirty = invoiceItems.some(item => item._isDirty);
             }
         });
 
@@ -295,7 +297,6 @@ export class InvoiceDetails {
                         this.invoiceID, this.numberSeries, 'Customer Invoice number series'
                     );
 
-                    this.setupContextMenuItems();
                     this.refreshInvoice(invoice);
                     this.recalcItemSums(null);
                     this.tofHead.focus();
@@ -340,7 +341,6 @@ export class InvoiceDetails {
                     }
                     invoice.DefaultDimensions.Project = this.projects.find(project => project.ID === this.projectID);
 
-                    this.setupContextMenuItems();
                     this.refreshInvoice(invoice);
                     this.tofHead.focus();
                 }, err => this.errorService.handle(err));
@@ -388,16 +388,6 @@ export class InvoiceDetails {
         return statusText;
     }
 
-    private setupContextMenuItems() {
-        this.contextMenuItems = [
-            {
-                label: 'Send purring',
-                action: () => this.sendReminderAction(),
-                disabled: () => this.invoice.DontSendReminders || this.invoice.StatusCode === StatusCode.Completed
-            }
-        ];
-    }
-
     private sendEHFAction(doneHandler: (msg: string) => void = null) {
         if (this.companySettings.APActivated && this.companySettings.APGuid) {
             this.askSendEHF(doneHandler);
@@ -426,39 +416,6 @@ export class InvoiceDetails {
                 doneHandler('Husk å fylle ut minimum adresselinje 1 i firmainnstillingene for å sende EHF');
             }
         });
-    }
-
-    private sendEmailAction(doneHandler: (msg?: string) => void) {
-        let model = new SendEmail();
-        model.EntityType = 'CustomerInvoice';
-        model.EntityID = this.invoice.ID;
-        model.CustomerID = this.invoice.CustomerID;
-
-        const invoiceNumber = (this.invoice.InvoiceNumber)
-            ? ` nr. ${this.invoice.InvoiceNumber}`
-            : 'kladd';
-
-        model.Subject = 'Faktura' + invoiceNumber;
-        model.Message = 'Vedlagt finner du faktura' + invoiceNumber;
-
-        this.modalService.open(UniSendEmailModal, {
-            data: model
-        }).onClose.subscribe(email => {
-            if (email) {
-                this.emailService.sendEmailWithReportAttachment('Faktura id', email, null, doneHandler);
-            } else if (doneHandler) {
-                doneHandler();
-            }
-        });
-    }
-
-    private sendReminderAction() {
-        this.customerInvoiceReminderService.createInvoiceRemindersForInvoicelist([this.invoice.ID])
-            .subscribe((reminders) => {
-                this.modalService.open(UniReminderSendingModal, {
-                    data: reminders
-                }).onClose.subscribe(() => {});
-            }, (err) => this.errorService.handle(err));
     }
 
     @HostListener('keydown', ['$event'])
@@ -985,19 +942,19 @@ export class InvoiceDetails {
 
     private refreshInvoice(invoice: CustomerInvoice): Promise<boolean> {
         return new Promise((resolve) => {
-            const orderObservable = !!invoice 
-                ? Observable.of(invoice) 
+            const orderObservable = !!invoice
+                ? Observable.of(invoice)
                 : this.customerInvoiceService.Get(this.invoiceID, this.expandOptions);
 
             orderObservable.subscribe(res => {
                 if (!invoice) { invoice = res; }
 
                 this.isDirty = false;
-                
+
                 this.newInvoiceItem = <any>this.tradeItemHelper.getDefaultTradeItemData(invoice);
                 this.readonly = invoice.StatusCode && invoice.StatusCode !== StatusCodeCustomerInvoice.Draft;
                 this.invoiceItems = invoice.Items.sort(function(itemA, itemB) { return itemA.SortIndex - itemB.SortIndex; });
-        
+
                 this.currentCustomer = invoice.Customer;
                 this.currentPaymentTerm = invoice.PaymentTerms;
                 this.currentDeliveryTerm = invoice.DeliveryTerms;
@@ -1009,11 +966,11 @@ export class InvoiceDetails {
                 this.updateTabTitle();
                 this.updateToolbar();
                 this.ehfReadyUpdateSaveActions();
-                
+
 
                 resolve(true);
             });
-        });        
+        });
     }
 
     private updateTabTitle() {
@@ -1102,10 +1059,31 @@ export class InvoiceDetails {
             });
         }
 
+        this.updateShareActions();
         this.toolbarconfig = toolbarconfig;
     }
 
     // Save actions
+    private updateShareActions() {
+        this.shareActions = [
+            {
+                label: 'Skriv ut',
+                action: () => this.printAction(this.invoiceID),
+                disabled: () => !this.invoice.ID
+            },
+            {
+                label: 'Send på epost',
+                action: () => this.sendEmailAction(),
+                disabled: () => !this.invoice.ID
+            },
+            {
+                label: 'Send purring',
+                action: () => this.sendReminderAction(),
+                disabled: () => this.invoice.DontSendReminders || this.invoice.StatusCode === StatusCode.Completed
+            }
+        ];
+    }
+
     private updateSaveActions() {
         if (!this.invoice) { return; }
         this.saveActions = [];
@@ -1152,20 +1130,6 @@ export class InvoiceDetails {
             action: done => this.transition(done),
             disabled: id > 0 && !transitions['invoice'] && !transitions['credit'],
             main: !id || (transitions && (transitions['invoice'] || transitions['credit']))
-        });
-
-        this.saveActions.push({
-            label: 'Skriv ut',
-            action: (done) => this.print(this.invoiceID, done),
-            disabled: false,
-            main: !printStatus && !this.ehfEnabled && status === StatusCodeCustomerInvoice.Invoiced && !this.isDirty
-        });
-
-        this.saveActions.push({
-            label: 'Send på epost',
-            action: (done) => this.sendEmailAction(done),
-            disabled: false,
-            main: printStatus === 200 && !this.ehfEnabled && status === StatusCodeCustomerInvoice.Invoiced && !this.isDirty
         });
 
         this.saveActions.push({
@@ -1351,39 +1315,66 @@ export class InvoiceDetails {
         });
     }
 
-    private saveAndPrint(doneHandler: (msg: string) => void = null) {
-        if (this.isDirty) {
-            this.saveInvoice().then((invoice) => {
-                this.isDirty = false;
-                this.print(invoice.ID, doneHandler);
-            }).catch(error => {
-                this.errorService.handle(error);
-                if (doneHandler) { doneHandler('En feil oppstod ved lagring og skriv ut av faktura!'); }
-            });
-        } else {
-            this.print(this.invoice.ID, doneHandler);
-        }
-    }
 
-    private print(id, doneHandler: (msg?: string) => void = () => {}) {
-        this.reportDefinitionService.getReportByName('Faktura id').subscribe((report) => {
-            report.parameters = [{Name: 'Id', value: id}];
-            this.modalService.open(UniPreviewModal, {
-                data: report
-            }).onClose.subscribe(() => {
-                doneHandler();
-                this.customerInvoiceService.setPrintStatus(this.invoiceID, this.printStatusPrinted).subscribe(
-                    (printStatus) => {
+    private printAction(id): Observable<any> {
+        const savedInvoice = this.isDirty
+            ? Observable.fromPromise(this.saveInvoice())
+            : Observable.of(this.invoice);
+
+        return savedInvoice.switchMap((invoice) => {
+            return this.reportDefinitionService.getReportByName('Faktura id').switchMap((report) => {
+                report.parameters = [{Name: 'Id', value: id}];
+
+                return this.modalService.open(UniPreviewModal, {
+                    data: report
+                }).onClose.switchMap(() => {
+                    return this.customerInvoiceService.setPrintStatus(
+                        invoice.ID,
+                        this.printStatusPrinted
+                    ).finally(() => {
                         this.invoice.PrintStatus = +this.printStatusPrinted;
                         this.updateToolbar();
-                    },
-                    err => this.errorService.handle(err)
-                );
+                    });
+                });
             });
-        }, err => {
-            this.errorService.handle(err);
-            doneHandler();
         });
+    }
+
+    private sendEmailAction(): Observable<any> {
+        const savedInvoice = this.isDirty
+            ? Observable.fromPromise(this.saveInvoice())
+            : Observable.of(this.invoice);
+
+        return savedInvoice.switchMap(invoice => {
+            let model = new SendEmail();
+            model.EntityType = 'CustomerInvoice';
+            model.EntityID = this.invoice.ID;
+            model.CustomerID = this.invoice.CustomerID;
+
+            const invoiceNumber = (this.invoice.InvoiceNumber)
+                ? ` nr. ${this.invoice.InvoiceNumber}`
+                : 'kladd';
+
+            model.Subject = 'Faktura' + invoiceNumber;
+            model.Message = 'Vedlagt finner du faktura' + invoiceNumber;
+
+            return this.modalService.open(UniSendEmailModal, {
+                data: model
+            }).onClose.map(email => {
+                if (email) {
+                    this.emailService.sendEmailWithReportAttachment('Faktura id', email, null);
+                }
+            });
+        });
+    }
+
+    private sendReminderAction(): Observable<any> {
+        return this.customerInvoiceReminderService.createInvoiceRemindersForInvoicelist([this.invoice.ID])
+            .switchMap((reminders) => {
+                return this.modalService.open(UniReminderSendingModal, {
+                    data: reminders
+                }).onClose;
+            });
     }
 
     private creditInvoice(done) {

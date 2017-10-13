@@ -94,6 +94,10 @@ export class TradeItemTable {
         }
     }
 
+    public ngOnDestroy() {
+        console.log('destroy');
+    }
+
     public blurTable() {
         this.table.blur();
     }

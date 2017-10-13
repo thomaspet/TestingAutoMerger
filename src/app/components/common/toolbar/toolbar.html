@@ -53,6 +53,7 @@
 
         <nav class="toolbar_tools">
             <button *ngIf="config?.navigation?.prev"
+                title="Forrige"
                 class="previous"
                 type="button"
                 (click)="navigate('prev')">
@@ -60,6 +61,7 @@
             </button>
 
             <button *ngIf="config?.navigation?.next"
+                title="Neste"
                 class="next"
                 type="button"
                 (click)="navigate('next')">
@@ -67,6 +69,7 @@
             </button>
 
             <button *ngIf="config?.navigation?.add"
+                title="Opprett ny"
                 class="new"
                 type="button"
                 (click)="navigate('add')">
@@ -76,6 +79,8 @@
             <uni-context-menu *ngIf="contextmenu || config?.contextmenu"
                 [actions]="contextmenu || config.contextmenu">
             </uni-context-menu>
+
+            <uni-toolbar-share [shareActions]="shareActions"></uni-toolbar-share>
         </nav>
 
         <uni-save *ngIf="saveactions || config?.saveactions"
