@@ -10,6 +10,8 @@ import {ErrorService} from '../../common/errorService';
 import {FieldType} from '../../../../framework/ui/uniform/index';
 import {ToastService, ToastTime, ToastType} from '../../../../framework/uniToast/toastService';
 import {SalaryTransactionService} from '../salarytransaction/salaryTransactionService';
+import {SalarybalanceService} from '../salarybalance/salarybalanceService';
+import {SalaryBalanceLineService} from '../salarybalance/salaryBalanceLineService';
 import {StatisticsService} from '../../common/statisticsService';
 import {YearService} from '../../common/yearService';
 import {ITag} from '../../../components/common/toolbar/tags';
@@ -35,14 +37,14 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
     readonly payStatusProp = '_payStatus';
 
     public payStatusTable: any = [
-        { ID: null, text: 'Opprettet' },
-        { ID: 0, text: 'Opprettet' },
-        { ID: 1, text: 'Avregnet' },
-        { ID: 2, text: 'Godkjent' },
-        { ID: 3, text: 'Sendt til utbetaling' },
-        { ID: 4, text: 'Utbetalt' },
-        { ID: 5, text: 'Bokført' },
-        { ID: 6, text: 'Slettet' }
+        {ID: null, text: 'Opprettet'},
+        {ID: 0, text: 'Opprettet'},
+        {ID: 1, text: 'Avregnet'},
+        {ID: 2, text: 'Godkjent'},
+        {ID: 3, text: 'Sendt til utbetaling'},
+        {ID: 4, text: 'Utbetalt'},
+        {ID: 5, text: 'Bokført'},
+        {ID: 6, text: 'Slettet'}
     ];
 
     constructor(
@@ -51,7 +53,9 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
         private salaryTransactionService: SalaryTransactionService,
         private toastService: ToastService,
         private statisticsService: StatisticsService,
-        private yearService: YearService
+        private yearService: YearService,
+        private salaryBalanceService: SalarybalanceService,
+        private salaryBalanceLineService: SalaryBalanceLineService
     ) {
         super(http);
         this.relativeURL = PayrollRun.RelativeUrl;
@@ -192,7 +196,7 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
     public savePayrollTag(runID, category: EmployeeCategory): Observable<ITag> {
         return this.saveCategoryOnRun(runID, category)
             .filter(cat => !!cat)
-            .map(cat => { return { title: cat.Name, linkID: cat.ID }; });
+            .map(cat => {return {title: cat.Name, linkID: cat.ID};});
     }
 
     public deleteCategoryOnRun(id: number, catID: number): Observable<boolean> {
@@ -298,13 +302,29 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
         return payrollRun;
     }
 
+    public deletePayrollRun(payrollRunID: number): Observable<any> {
+        return super.Remove(payrollRunID)
+            .do(() => this.clearRelatedCaches());
+    }
+
+    public savePayrollRun(payrollRun: PayrollRun): Observable<PayrollRun> {
+        return payrollRun.ID
+            ? super.Put(payrollRun.ID, payrollRun)
+            : super.Post(payrollRun);
+    }
+
+    private clearRelatedCaches(): void {
+        this.salaryBalanceLineService.invalidateCache();
+        this.salaryBalanceService.invalidateCache();
+    }
+
     private getTaxHelpText() {
         let halfTax = 'Halv skatt(desember): Vil gi halv skatt på lønnsavregninger med månedslønn' +
-        ' og ikke skatt på lønnsavregninger med 14-dagerslønn.' +
-        ' Eventuelle unntak fra dette håndteres ut fra oppgitt skattekort.';
-        let noTax =  'Ikke skatt: Systemet vil ikke beregne forskuddstrekk.' +
-        ' Det er kun poster du taster manuelt som vil bli tatt med.' +
-        ' Dette valget bør derfor kun benyttes for historikk og eventuelle korreksjoner.';
+            ' og ikke skatt på lønnsavregninger med 14-dagerslønn.' +
+            ' Eventuelle unntak fra dette håndteres ut fra oppgitt skattekort.';
+        let noTax = 'Ikke skatt: Systemet vil ikke beregne forskuddstrekk.' +
+            ' Det er kun poster du taster manuelt som vil bli tatt med.' +
+            ' Dette valget bør derfor kun benyttes for historikk og eventuelle korreksjoner.';
         return halfTax + `<br><br>` + noTax;
     }
 
@@ -369,9 +389,9 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
                     Classes: 'payrollDetails_taxdrawfactor',
                     Options: {
                         source: [
-                            { Indx: TaxDrawFactor.Standard, Name: 'Full skatt' },
-                            { Indx: TaxDrawFactor.Half, Name: 'Halv skatt(desember)' },
-                            { Indx: TaxDrawFactor.None, Name: 'Ikke skatt' }],
+                            {Indx: TaxDrawFactor.Standard, Name: 'Full skatt'},
+                            {Indx: TaxDrawFactor.Half, Name: 'Halv skatt(desember)'},
+                            {Indx: TaxDrawFactor.None, Name: 'Ikke skatt'}],
                         displayProperty: 'Name',
                         valueProperty: 'Indx'
                     }
@@ -387,11 +407,11 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
                     hasLineBreak: true,
                     Options: {
                         source: [
-                            { Indx: 0, Name: 'Vanlig' },
-                            { Indx: 1, Name: 'Ferielønn (+1/26)' },
-                            { Indx: 2, Name: 'Ferielønn (-1/26)' },
-                            { Indx: 1, Name: 'Ferielønn (-4/26)' },
-                            { Indx: 2, Name: 'Ferielønn (-3/22)' }],
+                            {Indx: 0, Name: 'Vanlig'},
+                            {Indx: 1, Name: 'Ferielønn (+1/26)'},
+                            {Indx: 2, Name: 'Ferielønn (-1/26)'},
+                            {Indx: 1, Name: 'Ferielønn (-4/26)'},
+                            {Indx: 2, Name: 'Ferielønn (-3/22)'}],
                         displayProperty: 'Name',
                         valueProperty: 'Indx'
                     },

@@ -87,12 +87,8 @@ export class SalarybalanceView extends UniView implements OnDestroy {
                 return params;
             })
             .map((params) => this.salarybalance)
-            .subscribe(salaryBalance => {
-                if (salaryBalance) {
-                    return;
-                }
-                this.getSalarybalance();
-            });
+            .filter(salaryBalance => !salaryBalance)
+            .subscribe(salaryBalance => this.getSalarybalance());
     }
 
     public ngOnDestroy() {
@@ -101,9 +97,6 @@ export class SalarybalanceView extends UniView implements OnDestroy {
 
     public canDeactivate(): Observable<boolean> {
 
-        if (!super.isDirty(SALARY_BALANCE_KEY)) {
-            return Observable.of(true);
-        }
         let obs = !super.isDirty(SALARY_BALANCE_KEY)
             ? Observable.of(ConfirmActions.REJECT)
             : this.modalService.openUnsavedChangesModal().onClose;
@@ -119,6 +112,7 @@ export class SalarybalanceView extends UniView implements OnDestroy {
             .map(canDeactivate => {
                 if (canDeactivate) {
                     this.cacheService.clearPageCache(this.cacheKey);
+                    this.salarybalance = undefined;
                     if (!this.salarybalanceID) {
                         this.salarybalanceService.invalidateCache();
                     }
@@ -130,6 +124,7 @@ export class SalarybalanceView extends UniView implements OnDestroy {
 
     private setupCache(salarybalanceID: number) {
         super.updateCacheKey(this.router.url);
+
         let sub = super.getStateSubject(SALARY_BALANCE_KEY)
             .do(salaryBalance => {
                 if (this.contextMenuItems.length) {

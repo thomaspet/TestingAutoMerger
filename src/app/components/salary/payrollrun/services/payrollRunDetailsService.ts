@@ -26,7 +26,7 @@ export class PayrollRunDetailsService {
             })
             .onClose
             .switchMap((result: ConfirmActions) => result === ConfirmActions.ACCEPT
-                ? this.payrollRunService.Remove(id).map(() => result)
+                ? this.payrollRunService.deletePayrollRun(id).map(() => result)
                 : Observable.of(result))
             .subscribe((result) => {
                 if (result !== ConfirmActions.ACCEPT) {
