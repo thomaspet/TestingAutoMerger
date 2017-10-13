@@ -251,8 +251,8 @@ export class WorkRelation extends UniEntity {
     public WorkerID: number;
     public WorkPercentage: number;
     public WorkProfileID: number;
-    public Worker: Worker;
     public WorkProfile: WorkProfile;
+    public Worker: Worker;
     public Employment: Employment;
     public Items: Array<WorkItem>;
     public Team: Team;
@@ -1442,7 +1442,6 @@ export class EmployeeTaxCard extends UniEntity {
     public ForeignOfficialPercent: number;
     public ForeignOfficialTable: string;
     public ID: number;
-    public MunicipalityNo: string;
     public NonTaxableAmount: number;
     public NotMainEmployer: boolean;
     public NumberOfDrawMonths: number;
@@ -2002,6 +2001,7 @@ export class Employee extends UniEntity {
     public InternasjonalIDCountry: string;
     public InternasjonalIDType: InternationalIDType;
     public InternationalID: string;
+    public MunicipalityNo: string;
     public PaymentInterval: PaymentInterval;
     public PhotoID: number;
     public Sex: GenderEnum;
@@ -3803,6 +3803,7 @@ export class ReportDefinition extends UniEntity {
     public ID: number;
     public Md5: string;
     public Name: string;
+    public ReportSource: string;
     public TemplateLinkId: string;
     public UpdatedAt: Date;
     public UpdatedBy: string;
@@ -5176,9 +5177,9 @@ export class WorkBalanceDto extends UniEntity {
     public ValidFrom: Date;
     public ValidTimeOff: number;
     public WorkRelationID: number;
+    public WorkRelation: WorkRelation;
     public Previous: BalanceInfo;
     public Details: Array<FlexDetail>;
-    public WorkRelation: WorkRelation;
     public CustomFields: any;
 }
 

@@ -76,8 +76,8 @@ export class PersonalDetails extends UniView {
         this.config$.next({
             submitText: '',
             sections: {
-                1: { isOpen: true },
-                2: { isOpen: true }
+                1: {isOpen: true},
+                2: {isOpen: true}
             }
         });
 
@@ -99,17 +99,15 @@ export class PersonalDetails extends UniView {
                 err => this.errorService.handle(err)
                 );
 
-            if (!this.fields$.getValue().length) {
-                Observable
-                    .combineLatest(
-                    super.getStateSubject(EMPLOYEE_KEY),
-                    super.getStateSubject('subEntities'))
-                    .take(1)
-                    .subscribe((result: [Employee, SubEntity[]]) => {
-                        let [employee, subEntities] = result;
-                        this.getLayout(subEntities, employee);
-                    });
-            }
+            Observable
+                .combineLatest(
+                super.getStateSubject(EMPLOYEE_KEY),
+                super.getStateSubject('subEntities'))
+                .take(1)
+                .subscribe((result: [Employee, SubEntity[]]) => {
+                    let [employee, subEntities] = result;
+                    this.getLayout(subEntities, employee);
+                });
         });
     }
 
@@ -270,7 +268,7 @@ export class PersonalDetails extends UniView {
                 let displayVal = '';
                 if (phone.Number) {
                     displayVal = (phone.CountryCode && phone.Number.substr(0, 3) !== phone.CountryCode
-                            ? phone.CountryCode + ' ' : '') + phone.Number;
+                        ? phone.CountryCode + ' ' : '') + phone.Number;
                 }
                 return displayVal;
             }

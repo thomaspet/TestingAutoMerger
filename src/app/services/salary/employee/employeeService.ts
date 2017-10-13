@@ -137,15 +137,19 @@ export class EmployeeService extends BizHttp<Employee> {
     }
 
     private getMunicipalityOptions(employee: Employee) {
-        let defaultValue = employee.MunicipalityNo
-            ? this.municipalService.GetAll(`filter=MunicipalityNo eq ${employee.MunicipalityNo}&top=1`)
-            : Observable.of([{MunicipalityNo: '', MunicipalityName: ''}]);
+        let defaultValue = Observable
+            .of(employee)
+            .switchMap(emp => emp && emp.MunicipalityNo
+                ? this.municipalService.GetAll(`filter=MunicipalityNo eq ${emp.MunicipalityNo}&top=1`)
+                : Observable.of([{MunicipalityNo: '', MunicipalityName: ''}]))
+            .take(1);
 
         return {
             getDefaultData: () => defaultValue,
             template: (obj: Municipal) => obj && obj.MunicipalityNo ? `${obj.MunicipalityNo} - ${obj.MunicipalityName}` : '',
             search: (query: string) => this.queryMunicipals(query),
             valueProperty: 'MunicipalityNo',
+            displayProperty: 'MunicipalityName',
             debounceTime: 200
         };
     }
