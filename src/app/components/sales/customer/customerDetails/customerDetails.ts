@@ -15,7 +15,8 @@ import {
     CustomerInvoiceReminderSettings,
     CurrencyCode,
     Terms,
-    NumberSeries
+    NumberSeries,
+    SellerLink
 } from '../../../../unientities';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
 import {IReference} from '../../../../models/iReference';
@@ -39,7 +40,8 @@ import {
     CurrencyCodeService,
     TermsService,
     UniSearchCustomerConfig,
-    NumberSeriesService
+    NumberSeriesService,
+    SellerLinkService
 } from '../../../../services/services';
 import {
     UniModalService,
@@ -90,6 +92,7 @@ export class CustomerDetails {
     private commentsConfig: ICommentsConfig;
     private isDirty: boolean = false;
     private selectConfig: any;
+    private deletables: SellerLink[] = [];
 
     private toolbarconfig: IToolbarConfig = {
         title: 'Kunde',
@@ -175,7 +178,8 @@ export class CustomerDetails {
         'Info.Contacts.Info.DefaultEmail',
         'Info.Contacts.Info.DefaultPhone',
         'Sellers',
-        'Sellers.Seller'
+        'Sellers.Seller',
+        'DefaultSeller'
         ];
 
 
@@ -204,7 +208,8 @@ export class CustomerDetails {
         private modalService: UniModalService,
         private http: UniHttp,
         private termsService: TermsService,
-        private numberSeriesService: NumberSeriesService
+        private numberSeriesService: NumberSeriesService,
+        private sellerLinkService: SellerLinkService
     ) {}
 
     public ngOnInit() {
@@ -421,6 +426,7 @@ export class CustomerDetails {
                     customer.CustomerInvoiceReminderSettings['_createguid'] = this.customerInvoiceReminderSettingsService.getNewGuid();
                 }
 
+                customer.DefaultSeller = customer.DefaultSeller || new SellerLink();
 
                 this.selectConfig = this.numberSeriesService.getSelectConfig(
                     this.customerID, this.numberSeries, 'Customer number series'
@@ -457,9 +463,8 @@ export class CustomerDetails {
                     customer.CustomerInvoiceReminderSettings['_createguid'] = this.customerInvoiceReminderSettingsService.getNewGuid();
                 }
 
-                this.showHideNameProperties();
-
                 this.setTabTitle();
+                this.showHideNameProperties();
                 this.updateCustomerWidgets();
             }, err => this.errorService.handle(err));
         }
@@ -769,6 +774,22 @@ export class CustomerDetails {
 
             customer['_CustomerSearchResult'] = undefined;
 
+            // if main seller does not exist in 'Sellers', create and add it
+            if (customer.DefaultSeller && customer.DefaultSeller.SellerID 
+                && !customer.DefaultSeller._createguid && !customer.Sellers.find(sellerLink => 
+                    sellerLink.SellerID === customer.DefaultSeller.SellerID
+            )) {
+                customer.DefaultSeller._createguid = this.sellerLinkService.getNewGuid();
+                customer.Sellers.push(customer.DefaultSeller);
+            } else if (customer.DefaultSeller && !customer.DefaultSeller.SellerID) {
+                customer.DefaultSeller = null;
+            }
+            
+            // add deleted sellers back to 'Sellers' to delete with 'Deleted' property, was sliced locally/in view
+            if (this.deletables) {
+                this.deletables.forEach(sellerLink => customer.Sellers.push(sellerLink));
+            }
+
             if (this.customerID > 0) {
                 this.customerService.Put(customer.ID, customer).subscribe(
                     (updatedCustomer) => {
@@ -901,6 +922,23 @@ export class CustomerDetails {
                 this.showHideNameProperties();
             }
         }
+    }
+
+    public onMainSellerSet(sellerLink: SellerLink) {
+        let customer = this.customer$.getValue();
+        customer.DefaultSellerLinkID = sellerLink.ID;
+        customer.DefaultSeller = sellerLink;
+        this.customer$.next(customer);
+    }
+
+    public onSellerLinkDeleted(sellerLink: SellerLink) {
+        let customer = this.customer$.getValue();
+        this.deletables.push(sellerLink);
+        if (customer.DefaultSeller && sellerLink.SellerID === customer.DefaultSeller.SellerID) {
+            customer.DefaultSeller = new SellerLink();
+            customer.DefaultSellerLinkID = null;
+        }
+        this.customer$.next(customer);
     }
 
     // TODO: remove later on when backend is fixed - Info.InvoiceAddress vs InvoiceAddress

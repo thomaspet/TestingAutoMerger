@@ -13,6 +13,8 @@ import {
     InvoicePaymentData,
     LocalDate,
     Project,
+    Seller,
+    SellerLink,
     StatusCodeCustomerInvoice,
     Terms,
     NumberSeries
@@ -38,7 +40,9 @@ import {
     TermsService,
     UserService,
     NumberSeriesService,
-    EmailService
+    EmailService,
+    SellerService,
+    SellerLinkService
 } from '../../../../services/services';
 
 import {
@@ -123,6 +127,8 @@ export class InvoiceDetails {
     private numberSeries: NumberSeries[];
     private projectID: number;
     private ehfEnabled: boolean = false;
+    private sellers: Seller[];
+    private deletables: SellerLink[] = [];
     
     private customerExpandOptions: string[] = [
         'DeliveryTerms',
@@ -135,7 +141,9 @@ export class InvoiceDetails {
         'Info.Emails',
         'PaymentTerms',
         'Sellers',
-        'Sellers.Seller'
+        'Sellers.Seller',
+        'DefaultSeller',
+        'DefaultSeller.Seller'
     ];
 
     private expandOptions: Array<string> = [
@@ -153,7 +161,9 @@ export class InvoiceDetails {
         'JournalEntry',
         'PaymentTerms',
         'Sellers',
-        'Sellers.Seller'
+        'Sellers.Seller',
+        'DefaultSeller',
+        'DefaultSeller.Seller'
     ].concat(this.customerExpandOptions.map(option => 'Customer.' + option));
 
     private commentsConfig: ICommentsConfig;
@@ -185,7 +195,9 @@ export class InvoiceDetails {
         private tradeItemHelper: TradeItemHelper,
         private userService: UserService,
         private numberSeriesService: NumberSeriesService,
-        private emailService: EmailService
+        private emailService: EmailService,
+        private sellerService: SellerService,
+        private sellerLinkService: SellerLinkService
     ) {
         // set default tab title, this is done to set the correct current module to make the breadcrumb correct
         this.tabService.addTab({
@@ -234,7 +246,8 @@ export class InvoiceDetails {
                         + `series' and Empty eq false and Disabled eq false`,
                         ['NumberSeriesType']
                     ),
-                    this.projectService.GetAll(null)
+                    this.projectService.GetAll(null),
+                    this.sellerService.GetAll(null)
                 ).subscribe((res) => {
                     let invoice = <CustomerInvoice>res[0];
                     invoice.OurReference = res[1].DisplayName;
@@ -252,6 +265,7 @@ export class InvoiceDetails {
                     }
                     this.numberSeries = res[8].map(x => this.numberSeriesService.translateSerie(x));
                     this.projects = res[9];
+                    this.sellers = res[10];
 
                     invoice.InvoiceDate = new LocalDate(Date());
 
@@ -293,7 +307,8 @@ export class InvoiceDetails {
                     this.currencyCodeService.GetAll(null),
                     this.termsService.GetAction(null, 'get-payment-terms'),
                     this.termsService.GetAction(null, 'get-delivery-terms'),
-                    this.projectService.GetAll(null)
+                    this.projectService.GetAll(null),
+                    this.sellerService.GetAll(null)
                 ).subscribe((res) => {
                     let invoice = res[0];
                     this.companySettings = res[1];
@@ -301,6 +316,7 @@ export class InvoiceDetails {
                     this.paymentTerms = res[3];
                     this.deliveryTerms = res[4];
                     this.projects = res[5];
+                    this.sellers = res[6];
 
                     if (!invoice.CurrencyCodeID) {
                         invoice.CurrencyCodeID = this.companySettings.BaseCurrencyCodeID;
@@ -663,6 +679,10 @@ export class InvoiceDetails {
         err => this.errorService.handle(err));
     }
 
+    public onSellerDelete(sellerLink: SellerLink) {
+        this.deletables.push(sellerLink);
+    }
+
     private askSendEHF(doneHandler: (msg: string) => void = null) {
         if (this.companySettings.DefaultAddress && this.companySettings.DefaultAddress.AddressLine1) {
             if (this.invoice.PrintStatus === 300) {
@@ -707,7 +727,7 @@ export class InvoiceDetails {
             return false;
         }
 
-        if (this.currentCustomer) {
+        if (invoice.Customer && this.currentCustomer) {
             change = invoice.Customer.ID !== this.currentCustomer.ID;
         } else if (invoice.Customer && invoice.Customer.ID) {
             change = true;
@@ -979,6 +999,8 @@ export class InvoiceDetails {
                 this.currentCustomer = invoice.Customer;
                 this.currentPaymentTerm = invoice.PaymentTerms;
                 this.currentDeliveryTerm = invoice.DeliveryTerms;
+  
+                invoice.DefaultSeller = invoice.DefaultSeller || new SellerLink();
         
                 this.invoice = _.cloneDeep(invoice);
                 this.recalcDebouncer.next(invoice.Items);
@@ -1171,6 +1193,28 @@ export class InvoiceDetails {
 
     private saveInvoice(doneHandler: (msg: string) => void = null): Promise<CustomerInvoice> {
         this.invoice.Items = this.tradeItemHelper.prepareItemsForSave(this.invoiceItems);
+
+        if (this.invoice.DefaultDimensions && !this.invoice.DefaultDimensions.ID) {
+            this.invoice.DefaultDimensions._createguid = this.customerInvoiceService.getNewGuid();
+        } else if (this.invoice.DefaultDimensions && this.invoice.DefaultDimensions.ID) {
+            this.invoice.DefaultDimensions = undefined;
+        }
+
+        // if main seller does not exist in 'Sellers', create and add it
+        if (this.invoice.DefaultSeller && this.invoice.DefaultSeller.SellerID 
+            && !this.invoice.DefaultSeller._createguid && !this.invoice.Sellers.find(sellerLink => 
+                sellerLink.SellerID === this.invoice.DefaultSeller.SellerID
+            )) {
+            this.invoice.DefaultSeller._createguid = this.sellerLinkService.getNewGuid();
+            this.invoice.Sellers.push(this.invoice.DefaultSeller);
+        } else if (this.invoice.DefaultSeller && !this.invoice.DefaultSeller.SellerID) {
+            this.invoice.DefaultSeller = null;
+        }
+
+        // add deleted sellers back to 'Sellers' to delete with 'Deleted' property, was sliced locally/in view
+        if (this.deletables) {
+            this.deletables.forEach(sellerLink => this.invoice.Sellers.push(sellerLink));
+        }
 
         return new Promise((resolve, reject) => {
             let request = (this.invoice.ID > 0)

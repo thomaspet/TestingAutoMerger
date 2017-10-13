@@ -113,7 +113,9 @@ export class TradeItemTable {
     }
 
     public setDefaultProjectAndRefreshItems(projectID: number, replaceItemsProject: boolean) {
-        this.defaultProject = this.projects.find(project => project.ID === projectID);
+        if (this.projects) {
+            this.defaultProject = this.projects.find(project => project.ID === projectID);
+        }
         this.defaultTradeItem.Dimensions.ProjectID = projectID;
         this.defaultTradeItem.Dimensions.Project = this.defaultProject;
         this.tableConfig = this.tableConfig.setDefaultRowData(this.defaultTradeItem);

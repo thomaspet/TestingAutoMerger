@@ -164,6 +164,20 @@ export class TofDeliveryForm {
             {
                 FieldSet: 1,
                 FieldSetColumn: 1,
+                EntityType: this.entityType,
+                Property: 'Requisition',
+                Placement: 1,
+                FieldType: FieldType.TEXT,
+                Label: 'Rekvisisjon',
+                Description: '',
+                HelpText: '',
+                Section: 0,
+                StatusCode: 0,
+                ID: 6
+            },
+            {
+                FieldSet: 1,
+                FieldSetColumn: 1,
                 Legend: 'Betingelser og levering',
                 EntityType: this.entityType,
                 Property: 'PaymentTermsID',
@@ -204,7 +218,7 @@ export class TofDeliveryForm {
             },
             {
                 FieldSet: 1,
-                FieldSetColumn: 1,
+                FieldSetColumn: 2,
                 EntityType: this.entityType,
                 Property: 'DeliveryDate',
                 Placement: 1,

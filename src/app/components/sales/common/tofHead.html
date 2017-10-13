@@ -24,6 +24,7 @@
                           [readonly]="readonly"
                           [currencyCodes]="currencyCodes"
                           [projects]="projects"
+                          [sellers]="sellers"
                           [companySettings]="companySettings">
         </tof-details-form>
 
@@ -54,7 +55,9 @@
             <legend>Selgere</legend>
             <seller-links
                 [parent]="data"
-                (sellerChanged)="onDataChange()">
+                (sellerChanged)="onDataChange()"
+                (mainSellerSet)="onMainSellerSet($event)"
+                (deleted)="onSellerLinkDeleted($event)">
             </seller-links>
         </fieldset>
 
