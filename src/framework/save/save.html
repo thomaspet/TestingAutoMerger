@@ -28,7 +28,7 @@
         More options
     </button>
 
-    <ul class="toolbar-save-dropdown" [attr.aria-expanded]="open" role="menu" id="saveActionMenu">
+    <ul class="toolbar-dropdown-list" [attr.aria-expanded]="open" role="menu" id="saveActionMenu">
         <li *ngFor="let action of actions"
             (click)="onSave(action)"
             role="menuitem"

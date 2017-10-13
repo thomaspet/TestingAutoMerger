@@ -1,8 +1,6 @@
 import {
     Component,
     Input,
-    Output,
-    EventEmitter,
     SimpleChanges
 } from '@angular/core';
 
@@ -32,17 +30,14 @@ export class UniSave {
 
     public ngOnChanges(changes: SimpleChanges) {
         if (changes['actions']) {
-            this.main = this.mainAction();
+            this.main = this.getMainAction();
         }
     }
 
-    public mainAction() {
-        let _declaredMain = this.actions.filter(action => action.main);
-
-        if (_declaredMain.length) {
-            return _declaredMain[0];
-        } else {
-            return this.actions[0];
+    public getMainAction(): IUniSaveAction {
+        if (this.actions && this.actions.length) {
+            let mainAction = this.actions.find(action => action.main);
+            return mainAction || this.actions[0];
         }
     }
 
@@ -60,7 +55,7 @@ export class UniSave {
             // Give components a chance to update disabled state
             // because there might be changes triggered by ctrl+s (table blur etc)
             setTimeout(() => {
-                this.onSave(this.mainAction());
+                this.onSave(this.getMainAction());
 
                 if (activeElement && activeElement.focus) {
                     activeElement.focus();

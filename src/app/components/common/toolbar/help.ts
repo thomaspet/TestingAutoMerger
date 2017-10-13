@@ -7,13 +7,14 @@ import {UniModalService, UniFeedbackModal} from '../../../../framework/uniModal/
     template: `
         <a (click)="isExpanded = !isExpanded" (clickOutside)="isExpanded = false">Hjelp</a>
 
-        <ul class="toolbar-help-dropdown" [attr.aria-expanded]="isExpanded">
+        <ul class="toolbar-dropdown-list" [attr.aria-expanded]="isExpanded">
             <li *ngIf="videoURL?.length" (click)="goToVideo()">Opplæringsvideo for skjermbilde</li>
             <li (click)="goToServiceDesk()">Kundesenter</li>
             <li (click)="goToAbout()">Systeminfo</li>
             <li (click)="openFeedbackModal()">Gi tilbakemelding</li>
         </ul>
     `,
+    styles: ['.toolbar-dropdown-list { top: 0.7rem; }'],
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class UniToolbarHelp {
