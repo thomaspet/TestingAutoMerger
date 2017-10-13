@@ -150,7 +150,7 @@ export class UniSave {
                 when: new Date()
             };
         }
-        this.busy = false;
+        setTimeout(() => { this.busy = false; }, 500);
         this.clearStatus(3000);
     }
 

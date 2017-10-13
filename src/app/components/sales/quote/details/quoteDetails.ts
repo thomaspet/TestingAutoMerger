@@ -328,33 +328,32 @@ export class QuoteDetails {
         this.quote.QuoteNumberSeriesID = selectedSerie.ID;
     }
 
-    private refreshQuote(quote?: CustomerQuote) {
-        if (!quote) {
-            this.customerQuoteService.Get(this.quoteID, this.expandOptions).subscribe(
-                res => this.refreshQuote(res),
-                err => this.errorService.handle(err)
-            );
-            return;
-        }
+    private refreshQuote(quote?: CustomerQuote): Promise<boolean> {
+        return new Promise((resolve) => {
+            const orderObservable = !!quote 
+                ? Observable.of(quote) 
+                : this.customerQuoteService.Get(this.quoteID, this.expandOptions);
 
-        this.readonly = quote.StatusCode && (
-            quote.StatusCode === StatusCodeCustomerQuote.CustomerAccepted
-            || quote.StatusCode === StatusCodeCustomerQuote.TransferredToOrder
-            || quote.StatusCode === StatusCodeCustomerQuote.TransferredToInvoice
-        );
+            orderObservable.subscribe(res => {
+                this.readonly = res.StatusCode === StatusCodeCustomerQuote.TransferredToInvoice;
+                this.newQuoteItem = <any>this.tradeItemHelper.getDefaultTradeItemData(quote);
+                this.quoteItems = res.Items.sort(
+                    function(itemA, itemB) { return itemA.SortIndex - itemB.SortIndex; }
+                );
+                this.quote = <any>_.cloneDeep(quote);
+                this.isDirty = false;
+        
+                this.currentCustomer = res.Customer;
+                this.currentDeliveryTerm = res.DeliveryTerms;
+        
+                this.setTabTitle();
+                this.updateToolbar();
+                this.updateSaveActions();
+                this.recalcDebouncer.next(res.Items);
 
-        this.newQuoteItem = <any>this.tradeItemHelper.getDefaultTradeItemData(quote);
-        this.isDirty = false;
-        this.quoteItems = quote.Items.sort(function(itemA, itemB) { return itemA.SortIndex - itemB.SortIndex; });
-
-        this.currentCustomer = quote.Customer;
-        this.currentDeliveryTerm = quote.DeliveryTerms;
-
-        this.quote = _.cloneDeep(quote);
-        this.recalcItemSums(quote.Items);
-        this.setTabTitle();
-        this.updateToolbar();
-        this.updateSaveActions();
+                resolve(true);
+            });
+        }); 
     }
 
     public onQuoteChange(quote: CustomerQuote) {
@@ -965,14 +964,16 @@ export class QuoteDetails {
             this.customerQuoteService.Transition(this.quote.ID, this.quote, transition).subscribe(
                 (res) => {
                     this.selectConfig = undefined;
-                    done(doneText);
                     if (transition === 'toOrder') {
-                        this.router.navigateByUrl('/sales/orders/' + res.CustomerOrderID);
+                        this.router.navigateByUrl('/sales/orders/' + res.CustomerOrderID)
+                            .then(() => done(doneText));
                     } else if (transition === 'toInvoice') {
-                        this.router.navigateByUrl('/sales/invoices/' + res.CustomerInvoiceID);
+                        this.router.navigateByUrl('/sales/invoices/' + res.CustomerInvoiceID)
+                            .then(() => done(doneText));
                     } else {
                         this.quoteID = quote.ID;
-                        this.refreshQuote();
+                        this.refreshQuote()
+                            .then(() => done(doneText));
                     }
                 }
             );

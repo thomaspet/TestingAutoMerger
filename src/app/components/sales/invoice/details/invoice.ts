@@ -963,23 +963,33 @@ export class InvoiceDetails {
         return statustrack;
     }
 
-    private refreshInvoice(invoice: CustomerInvoice) {
+    private refreshInvoice(invoice: CustomerInvoice): Promise<boolean> {
+        return new Promise((resolve) => {
+            const orderObservable = !!invoice 
+                ? Observable.of(invoice) 
+                : this.customerInvoiceService.Get(this.invoiceID, this.expandOptions);
 
-        this.isDirty = false;
+            orderObservable.subscribe(res => {
+                this.isDirty = false;
+                
+                this.newInvoiceItem = <any>this.tradeItemHelper.getDefaultTradeItemData(invoice);
+                this.readonly = invoice.StatusCode && invoice.StatusCode !== StatusCodeCustomerInvoice.Draft;
+                this.invoiceItems = invoice.Items.sort(function(itemA, itemB) { return itemA.SortIndex - itemB.SortIndex; });
+        
+                this.currentCustomer = invoice.Customer;
+                this.currentPaymentTerm = invoice.PaymentTerms;
+                this.currentDeliveryTerm = invoice.DeliveryTerms;
+        
+                this.invoice = _.cloneDeep(invoice);
+                this.recalcDebouncer.next(invoice.Items);
+                this.updateTabTitle();
+                this.updateToolbar();
+                this.ehfReadyUpdateSaveActions();
+                
 
-        this.newInvoiceItem = <any>this.tradeItemHelper.getDefaultTradeItemData(invoice);
-        this.readonly = invoice.StatusCode && invoice.StatusCode !== StatusCodeCustomerInvoice.Draft;
-        this.invoiceItems = invoice.Items.sort(function(itemA, itemB) { return itemA.SortIndex - itemB.SortIndex; });
-
-        this.currentCustomer = invoice.Customer;
-        this.currentPaymentTerm = invoice.PaymentTerms;
-        this.currentDeliveryTerm = invoice.DeliveryTerms;
-
-        this.invoice = _.cloneDeep(invoice);
-        this.recalcDebouncer.next(invoice.Items);
-        this.updateTabTitle();
-        this.updateToolbar();
-        this.ehfReadyUpdateSaveActions();
+                resolve(true);
+            });
+        });        
     }
 
     private updateTabTitle() {
@@ -1230,23 +1240,19 @@ export class InvoiceDetails {
             }
 
             if (!isDraft) {
-                done(doneText);
                 this.router.navigateByUrl('sales/invoices/' + invoice.ID);
                 return;
             }
 
             this.customerInvoiceService.Transition(invoice.ID, null, 'invoice').subscribe(
-                (res) => {
-                    this.selectConfig = undefined;
-                    done(doneText);
-                },
-                (err) => {
-                    done(errText);
-                    this.errorService.handle(err);
-                },
+                (res) => this.selectConfig = undefined,
+                (err) => this.errorService.handle(err),
                 () => {
                     this.customerInvoiceService.Get(this.invoice.ID, this.expandOptions)
-                        .subscribe(res => this.refreshInvoice(res));
+                        .subscribe(res => {
+                            this.refreshInvoice(res);
+                            done(doneText);
+                        });
                 }
             );
         }).catch(error => {

@@ -547,28 +547,32 @@ export class OrderDetails {
         }
     }
 
-    private refreshOrder(order?: CustomerOrder) {
-        if (!order) {
-            this.customerOrderService.Get(this.orderID, this.expandOptions).subscribe(
-                res => this.refreshOrder(res),
-                err => this.errorService.handle(err)
-            );
-            return;
-        }
+    private refreshOrder(order?: CustomerOrder): Promise<boolean> {
+        return new Promise((resolve) => {
+            const orderObservable = !!order 
+                ? Observable.of(order) 
+                : this.customerOrderService.Get(this.orderID, this.expandOptions);
 
-        this.readonly = order.StatusCode === StatusCodeCustomerOrder.TransferredToInvoice;
-        this.newOrderItem = <any>this.tradeItemHelper.getDefaultTradeItemData(order);
-        this.orderItems = order.Items.sort(function(itemA, itemB) { return itemA.SortIndex - itemB.SortIndex; });
-        this.order = <any>_.cloneDeep(order);
-        this.isDirty = false;
+            orderObservable.subscribe(res => {
+                this.readonly = res.StatusCode === StatusCodeCustomerOrder.TransferredToInvoice;
+                this.newOrderItem = <any>this.tradeItemHelper.getDefaultTradeItemData(order);
+                this.orderItems = res.Items.sort(
+                    function(itemA, itemB) { return itemA.SortIndex - itemB.SortIndex; }
+                );
+                this.order = <any>_.cloneDeep(order);
+                this.isDirty = false;
+        
+                this.currentCustomer = res.Customer;
+                this.currentDeliveryTerm = res.DeliveryTerms;
+        
+                this.setTabTitle();
+                this.updateToolbar();
+                this.updateSaveActions();
+                this.recalcDebouncer.next(res.Items);
 
-        this.currentCustomer = order.Customer;
-        this.currentDeliveryTerm = order.DeliveryTerms;
-
-        this.setTabTitle();
-        this.updateToolbar();
-        this.updateSaveActions();
-        this.recalcDebouncer.next(order.Items);
+                resolve(true);
+            });
+        });        
     }
 
     private didCustomerChange(order: CustomerOrder): boolean {
@@ -988,8 +992,8 @@ export class OrderDetails {
             this.customerOrderService.Transition(order.ID, this.order, transition).subscribe(
                 (res) => {
                     this.selectConfig = undefined;
-                    done(doneText);
-                    this.refreshOrder();
+                    this.refreshOrder()
+                        .then(() => done(doneText));
                 },
                 (err) => {
                     done('Lagring feilet');
