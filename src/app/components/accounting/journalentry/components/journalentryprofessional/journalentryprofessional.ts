@@ -57,7 +57,6 @@ import {
     PredefinedDescriptionService,
     SupplierService
 } from '../../../../../services/services';
-
 import {
     UniModalService,
     UniRegisterPaymentModal,
@@ -71,7 +70,6 @@ import {CurrencyService} from '../../../../../services/common/currencyService';
 import {SelectJournalEntryLineModal} from '../selectJournalEntryLineModal';
 import {UniMath} from '../../../../../../framework/core/uniMath';
 const PAPERCLIP = '📎'; // It might look empty in your editor, but this is the unicode paperclip
-
 declare const _; // lodash
 
 @Component({
@@ -151,7 +149,6 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
 
     public ngOnInit() {
         this.setupJournalEntryTable();
-
 
         this.selectedNumberSeriesTaskID = NumberSeriesTaskIds.Journal;
     }
@@ -956,6 +953,10 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 }
             });
 
+        let addedPaymentCol = new UniTableColumn('JournalEntryPaymentData', '$', UniTableColumnType.Text, false)
+            .setTemplate(line => line.JournalEntryPaymentData ? '$' : '')
+            .setWidth('30px');
+
         let fileCol = new UniTableColumn('ID', PAPERCLIP, UniTableColumnType.Text, false).setFilterOperator('contains')
             .setTemplate(line => line.FileIDs && line.FileIDs.length > 0 ? PAPERCLIP : '')
             .setWidth('30px')
@@ -1004,6 +1005,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 amountCol,
                 CurrencyExchangeRate,
                 descriptionCol,
+                addedPaymentCol,
                 fileCol
             ];
         } else {
@@ -1028,6 +1030,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 projectCol,
                 departmentCol,
                 descriptionCol,
+                addedPaymentCol,
                 fileCol
             ];
         }
@@ -1749,10 +1752,11 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                     ? this.companySettings.CustomerCreditDays
                     : 14;
 
-                if (item.CreditAccount) {
+                if (item.CreditAccount && item.CreditAccount.SupplierID) {
+                    // some instances SupplierID was 0 and brought an error
                     this.supplierService.Get(item.CreditAccount.SupplierID).subscribe(
                         res => {
-                           customerCreditDays =  res.CreditDays ? res.CreditDays : customerCreditDays;
+                        customerCreditDays =  res.CreditDays ? res.CreditDays : customerCreditDays;
                         },
                         err => this.errorService.handle(err)
                     );
@@ -1761,6 +1765,11 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 // if journalentry has VatDate it sends it to the modal + supplier/companysettings creditdays
                 payment.PaymentDate = item.VatDate ? this.addDaysToDates(item.VatDate, customerCreditDays) : null;
                 payment.DueDate =  item.VatDate ? this.addDaysToDates(item.VatDate, customerCreditDays) : null;
+                // if it has a duedate overwrite other dates
+                if (item.DueDate) {
+                    payment.DueDate = item.DueDate;
+                    payment.PaymentDate = item.DueDate;
+                }
 
                 // passing in InvoiceNumber from journalentry if it has one
                 payment.InvoiceNumber = item.InvoiceNumber ? item.InvoiceNumber : '';

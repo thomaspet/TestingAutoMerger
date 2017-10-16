@@ -237,7 +237,8 @@ export class AddPaymentForm implements OnInit {
                 FieldType: FieldType.LOCAL_DATE_PICKER,
                 Label: 'Forfallsdato',
                 FieldSet: 0,
-                Section: 0
+                Section: 0,
+                ReadOnly: true
             }
         ];
     }
@@ -279,6 +280,7 @@ export class AddPaymentModal {
                 },
                 {
                     text: 'Avbryt',
+                    class: 'bad',
                     method: () => {
                         this.modal.close();
                         this.Canceled.emit(true);
