@@ -258,7 +258,9 @@ export class UniTable implements OnChanges {
 
             this.filterAndSortTable(true);
             if (this.tableData) {
-                this.onSelectAllRowsChanged(this.config.multiRowSelectDefaultValue);
+                setTimeout(() => {
+                    this.onSelectAllRowsChanged(this.config.multiRowSelectDefaultValue);
+                });
             }
         }
     }
