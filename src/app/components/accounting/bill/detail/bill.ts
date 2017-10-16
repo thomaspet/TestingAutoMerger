@@ -147,14 +147,30 @@ export class BillView {
     public actions: IUniSaveAction[];
 
     private rootActions: IUniSaveAction[] = [
-        { label: lang.tool_save, action:
-            (done) => this.save(done), main: true, disabled: true },
-        { label: lang.tool_save_and_new, action:
-            (done) => this.saveAndGetNewDocument(done), main: true, disabled: true },
-        { label: lang.tool_delete, action:
-            (done) => this.tryDelete(done), main: false, disabled: true },
-        { label: lang.converter, action:
-            (done) => this.runConverter(this.files).then(() => done()), main: false, disabled: false },
+        { 
+            label: lang.tool_save, 
+            action: (done) => this.save(done), 
+            main: true, 
+            disabled: true 
+        },
+        { 
+            label: lang.tool_save_and_new, 
+            action: (done) => this.saveAndGetNewDocument(done), 
+            main: true, 
+            disabled: true 
+        },
+        { 
+            label: lang.tool_delete, 
+            action: (done) => this.tryDelete(done), 
+            main: false, 
+            disabled: true 
+        },
+        { 
+            label: lang.converter, 
+            action: (done) => { this.runConverter(this.files); done(); }, 
+            main: false, 
+            disabled: false 
+        },
     ];
 
     private projects: Project[];
@@ -520,17 +536,15 @@ export class BillView {
 
     /// =============================
 
-    private runConverter(files: Array<any>): Promise<boolean> {
-        return new Promise((resolve, reject) => {
-            if (files && files.length > 0) {
-                let file = this.uniImage.getCurrentFile() || files[0];
-                if (this.isOCR(file)) {
-                    return this.runOcr(file);
-                } else if (this.isEHF(file)) {
-                    return this.runEHF(file);
-                }
+    private runConverter(files: Array<any>) {
+        if (files && files.length > 0) {
+            let file = this.uniImage.getCurrentFile() || files[0];
+            if (this.isOCR(file)) {
+                this.runOcr(file);
+            } else if (this.isEHF(file)) {
+                this.runEHF(file);
             }
-        });
+        }
     }
 
     /// =============================
