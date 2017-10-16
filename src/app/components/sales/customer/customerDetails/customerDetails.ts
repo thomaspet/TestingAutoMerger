@@ -66,14 +66,11 @@ export class CustomerDetails {
 
     private customerID: any;
     private allowSearchCustomer: boolean = true;
-    private config$: BehaviorSubject<any> = new BehaviorSubject({autofocus: false});
+    public config$: BehaviorSubject<any> = new BehaviorSubject({autofocus: false});
     private fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
-    private addressChanged: any;
-    private emailChanged: any;
-    private phoneChanged: any;
-    private showReminderSection: boolean = false; // used in template
-    private showContactSection: boolean = false; // used in template
-    private showSellerSection: boolean = false; // used in template
+    public showReminderSection: boolean = false; // used in template
+    public showContactSection: boolean = false; // used in template
+    public showSellerSection: boolean = false; // used in template
 
     public currencyCodes: Array<CurrencyCode>;
     public paymentTerms: Terms[];
@@ -300,7 +297,7 @@ export class CustomerDetails {
     }
 
     private deleteCustomer(id: number) {
-        if(confirm('Vil du slette denne kunden?')) {
+        if (confirm('Vil du slette denne kunden?')) {
             this.customerService.deleteCustomer(id).subscribe(res => {
                 this.router.navigateByUrl('/sales/customers/');
             }, err => this.errorService.handle(err));
@@ -400,7 +397,8 @@ export class CustomerDetails {
                 this.termsService.GetAction(null, 'get-payment-terms'),
                 this.termsService.GetAction(null, 'get-delivery-terms'),
                 this.numberSeriesService.GetAll(
-                    `filter=NumberSeriesType.Name eq 'Customer Account number series' and Empty eq false and Disabled eq false`,
+                    `filter=NumberSeriesType.Name eq 'Customer Account number series'
+                    and Empty eq false and Disabled eq false`,
                     ['NumberSeriesType']
                 )
             ).subscribe(response => {
@@ -415,7 +413,8 @@ export class CustomerDetails {
                 this.numberSeries = response[10].map(x => this.numberSeriesService.translateSerie(x));
 
                 let customer: Customer = response[2];
-                customer.SubAccountNumberSeriesID = this.numberSeries.find(x => x.Name === 'Customer number series').ID;
+                customer.SubAccountNumberSeriesID =
+                    this.numberSeries.find(x => x.Name === 'Customer number series').ID;
                 this.isDisabled = !customer.Info.Name;
                 this.setupSaveActions();
                 this.setMainContact(customer);
@@ -423,7 +422,8 @@ export class CustomerDetails {
 
                 if (customer.CustomerInvoiceReminderSettings === null) {
                     customer.CustomerInvoiceReminderSettings = new CustomerInvoiceReminderSettings();
-                    customer.CustomerInvoiceReminderSettings['_createguid'] = this.customerInvoiceReminderSettingsService.getNewGuid();
+                    customer.CustomerInvoiceReminderSettings['_createguid'] =
+                        this.customerInvoiceReminderSettingsService.getNewGuid();
                 }
 
                 customer.DefaultSeller = customer.DefaultSeller || new SellerLink();
@@ -460,7 +460,8 @@ export class CustomerDetails {
 
                 if (customer.CustomerInvoiceReminderSettings === null) {
                     customer.CustomerInvoiceReminderSettings = new CustomerInvoiceReminderSettings();
-                    customer.CustomerInvoiceReminderSettings['_createguid'] = this.customerInvoiceReminderSettingsService.getNewGuid();
+                    customer.CustomerInvoiceReminderSettings['_createguid'] =
+                        this.customerInvoiceReminderSettingsService.getNewGuid();
                 }
 
                 this.setTabTitle();
@@ -470,7 +471,7 @@ export class CustomerDetails {
         }
     }
 
-    private numberSeriesChange(selectedSerie) {
+    public numberSeriesChange(selectedSerie) {
         let customer = this.customer$.getValue();
         customer.SubAccountNumberSeriesID = selectedSerie.ID;
         this.customer$.next(customer);
@@ -775,8 +776,8 @@ export class CustomerDetails {
             customer['_CustomerSearchResult'] = undefined;
 
             // if main seller does not exist in 'Sellers', create and add it
-            if (customer.DefaultSeller && customer.DefaultSeller.SellerID 
-                && !customer.DefaultSeller._createguid && !customer.Sellers.find(sellerLink => 
+            if (customer.DefaultSeller && customer.DefaultSeller.SellerID
+                && !customer.DefaultSeller._createguid && !customer.Sellers.find(sellerLink =>
                     sellerLink.SellerID === customer.DefaultSeller.SellerID
             )) {
                 customer.DefaultSeller._createguid = this.sellerLinkService.getNewGuid();
@@ -784,7 +785,7 @@ export class CustomerDetails {
             } else if (customer.DefaultSeller && !customer.DefaultSeller.SellerID) {
                 customer.DefaultSeller = null;
             }
-            
+
             // add deleted sellers back to 'Sellers' to delete with 'Deleted' property, was sliced locally/in view
             if (this.deletables) {
                 this.deletables.forEach(sellerLink => customer.Sellers.push(sellerLink));
@@ -883,8 +884,9 @@ export class CustomerDetails {
                 this.router.navigateByUrl(`/sales/customer/${selectedItem.ID}`);
                 return Observable.empty();
             } else {
-                let customerData = this.uniSearchCustomerConfig
-                            .customStatisticsObjToCustomer(selectedItem);
+                let customerData =
+                this.uniSearchCustomerConfig
+                    .customStatisticsObjToCustomer(selectedItem, true, this.customer$.getValue());
 
                 return Observable.from([customerData]);
             }
@@ -893,7 +895,7 @@ export class CustomerDetails {
         return uniSearchConfig;
     }
 
-    private onChange(changes: SimpleChanges) {
+    public onChange(changes: SimpleChanges) {
         this.isDirty = true;
 
         if (changes['Info.Name']) {

@@ -22,6 +22,7 @@ export class UniQueryReadOnly implements OnChanges {
     @Input() public queryDefinitionID: number;
     @Input() public customerID: number;
     @Input() public hidden: boolean;
+    @Input() public projectID: number;
 
     @ViewChild(UniTable) public table: UniTable;
 
@@ -163,13 +164,13 @@ export class UniQueryReadOnly implements OnChanges {
             var title = this.queryDefinition.MainModelName.slice(8, this.queryDefinition.MainModelName.length);
             if (title === 'Quote') {
                 this.buttonTitle = 'Nytt tilbud';
-                navigateURL = `/sales/quotes/0;customerID=${this.customerID};projectID=${this.externalID}`;
+                navigateURL = `/sales/quotes/0;customerID=${this.customerID};projectID=${this.projectID}`;
             } else if (title === 'Order') {
                 this.buttonTitle = 'Ny ordre';
-                navigateURL = `/sales/orders/0;customerID=${this.customerID};projectID=${this.externalID}`;
+                navigateURL = `/sales/orders/0;customerID=${this.customerID};projectID=${this.projectID}`;
             } else if (title === 'Invoice') {
                 this.buttonTitle = 'Ny faktura';
-                navigateURL = `/sales/invoices/0;customerID=${this.customerID};projectID=${this.externalID}`;
+                navigateURL = `/sales/invoices/0;customerID=${this.customerID};projectID=${this.projectID}`;
             }
             this.buttonAction = () => this.router.navigateByUrl(navigateURL);
         } else {
