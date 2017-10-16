@@ -40,7 +40,10 @@ import {AccountDetailsReportModal} from './accountingreports/detailsmodal/accoun
 import {AccountDetailsReport} from './accountingreports/detailsmodal/accountDetailsReport';
 import {PeriodPicker} from './accountingreports/periodFilter/periodpicker';
 import {DrilldownResultReportPart} from './accountingreports/reportparts/drilldownResultReportPart';
-import {DistributionPeriodReportPart} from './accountingreports/reportparts/distributionPeriodReportPart';
+import {
+    DistributionPeriodReportPart,
+    NumberAsMoneyPipe
+} from './accountingreports/reportparts/distributionPeriodReportPart';
 import {DimensionsOverviewReportPart}  from './accountingreports/reportparts/dimensionsOverviewReportPart';
 import {DrilldownBalanceReportPart}  from './accountingreports/reportparts/drilldownBalanceReportPart';
 import {CreateCorrectedVatReportModal} from './vatreport/modals/createCorrectedVatReport';
@@ -112,7 +115,8 @@ import {SupplierList} from './supplier/list/supplierList';
         BillSimpleJournalEntryView, BillHistoryView,
         AccountPipe, VatCodePipe, TrimTextPipe,
         SelectJournalEntryLineModal, SelectJournalEntryLineTable,
-        UniAssignModal, MyStringFilterPipe, UniAddFileModal,
+        UniAssignModal, MyStringFilterPipe,
+        UniAddFileModal, NumberAsMoneyPipe,
 
         // vatreport
         CheckListVat,

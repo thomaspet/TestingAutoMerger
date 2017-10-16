@@ -1,17 +1,20 @@
-import {Component, Input, Output, OnChanges, EventEmitter} from '@angular/core';
-import {Observable} from 'rxjs/Observable';
 import {
-    UniTableColumn,
-    UniTableConfig,
-    UniTableColumnType,
-    INumberFormat,
-    ICellClickEvent
-} from '../../../../../framework/ui/unitable/index';
+    Component,
+    Input,
+    Output,
+    OnChanges,
+    EventEmitter,
+    Pipe,
+    PipeTransform
+} from '@angular/core';
+import {Observable} from 'rxjs/Observable';
+import {INumberFormat} from '../../../../../framework/ui/unitable/index';
 import {ChartHelper} from '../chartHelper';
 import {
     StatisticsService,
     DimensionService,
-    ErrorService
+    ErrorService,
+    NumberFormat
 } from '../../../../services/services';
 import * as moment from 'moment';
 
@@ -27,6 +30,27 @@ export class Period {
     public year: number;
 }
 
+@Pipe({
+    name: 'numberAsMoney'
+})
+export class NumberAsMoneyPipe implements PipeTransform {
+
+    public transform(value: any, options: INumberFormat) {
+        if (!value) {
+             return '';
+        }
+        let stringValue = value.toString().replace(',', '.');
+        stringValue = parseFloat(stringValue).toFixed(options.decimalLength);
+
+        let [integer, decimal] = stringValue.split('.');
+        integer = integer.replace(/\B(?=(\d{3})+(?!\d))/g, options.thousandSeparator);
+
+        stringValue = decimal ? (integer + options.decimalSeparator + decimal) : integer;
+
+        return stringValue;
+    }
+}
+
 @Component({
     selector: 'distribution-period-report-part',
     templateUrl: './distributionPeriodReportPart.html',
@@ -35,22 +59,24 @@ export class DistributionPeriodReportPart implements OnChanges {
     @Input() private accountYear1: number;
     @Input() private accountYear2: number;
     @Input() private accountIDs: number[];
-    @Input() private showHeader: boolean = false;
+    @Input() public showHeader: boolean = false;
     @Input() private doTurnAmounts: boolean = false;
-    @Input() private activeDistributionElement: string;
+    @Input() public activeDistributionElement: string;
     @Input() private dimensionType: number;
     @Input() private dimensionId: number;
     @Input() private includeIncomingBalance: boolean = false;
     @Input() private filter: any;
 
-    @Output() private rowSelected: EventEmitter<any> = new EventEmitter();
     @Output() private periodSelected: EventEmitter<Period> = new EventEmitter();
+    @Output() private yearChange: EventEmitter<boolean> = new EventEmitter();
 
-    private uniTableConfigDistributionPeriod: UniTableConfig;
     private distributionPeriodData: Array<DistributionPeriodData> = [];
     private dimensionEntityName: string;
     private showPercent: boolean = true;
     private showPreviousAccountYear: boolean = true;
+    private currentPeriode: number;
+    private currentIndex: number;
+    private isShiftDown: boolean;
     private numberFormat: INumberFormat = {
         thousandSeparator: ' ',
         decimalSeparator: '.',
@@ -59,7 +85,22 @@ export class DistributionPeriodReportPart implements OnChanges {
 
     private colors: Array<string> = ['#7293CB', '#84BA5B'];
 
-    constructor(private statisticsService: StatisticsService, private errorService: ErrorService) {
+    constructor(
+        private statisticsService: StatisticsService,
+        private errorService: ErrorService,
+        private numberFormatService: NumberFormat
+    ) {
+        document.onkeydown = (e) => {
+            if (e.keyCode === 16) {
+                this.isShiftDown = true;
+            }
+        };
+
+        document.onkeyup = (e) => {
+            if (e.keyCode === 16) {
+                this.isShiftDown = false;
+            }
+        };
     }
 
     public ngOnChanges() {
@@ -77,14 +118,11 @@ export class DistributionPeriodReportPart implements OnChanges {
     }
 
     public loadData() {
-        // angular needs to load the component before setting up the tables or the dom (and the chart component) wont be ready
+        // Angular needs to load the component before setting up
+        // the tables or the dom (and the chart component) wont be ready
         setTimeout(() => {
             this.setupDistributionPeriodTable();
         });
-    }
-
-    private onRowSelected(event) {
-        this.rowSelected.emit(event);
     }
 
     private setupDistributionPeriodTable() {
@@ -93,29 +131,40 @@ export class DistributionPeriodReportPart implements OnChanges {
         moment.locale();
 
         if (this.accountIDs && this.accountYear1 && this.accountYear2) {
-            let accountIdFilter = this.accountIDs.length > 0 ? ' (AccountID eq ' + this.accountIDs.join(' or AccountID eq ') + ') ' : '';
+            let accountIdFilter = this.accountIDs.length > 0
+                ? ' (AccountID eq ' + this.accountIDs.join(' or AccountID eq ') + ') '
+                : '';
 
             if (accountIdFilter === '') {
                 accountIdFilter = 'TopLevelAccountGroup.GroupNumber ge 3';
             }
 
-            let dimensionFilter = this.dimensionEntityName ? ` and isnull(Dimensions.${this.dimensionEntityName}ID,0) eq ${this.dimensionId}` : '';
-            let projectFilter = this.filter && this.filter.ProjectID ? ` and isnull(Dimensions.ProjectID,0) eq ${this.filter.ProjectID}` : '';
-            let departmentFilter = this.filter && this.filter.DepartmentID ? ` and isnull(Dimensions.DepartmentID,0) eq ${this.filter.DepartmentID}` : '';
+            let dimensionFilter = this.dimensionEntityName
+                ? ` and isnull(Dimensions.${this.dimensionEntityName}ID,0) eq ${this.dimensionId}`
+                : '';
+            let projectFilter = this.filter && this.filter.ProjectID
+                ? ` and isnull(Dimensions.ProjectID,0) eq ${this.filter.ProjectID}`
+                : '';
+            let departmentFilter = this.filter && this.filter.DepartmentID
+                ? ` and isnull(Dimensions.DepartmentID,0) eq ${this.filter.DepartmentID}`
+                : '';
 
-            let periodQuery = 'model=JournalEntryLine&expand=Period,Account.TopLevelAccountGroup,Dimensions' +
-                                      `&filter=${accountIdFilter} ${dimensionFilter}${projectFilter}${departmentFilter} and (Period.AccountYear eq ${this.accountYear1} or Period.AccountYear eq ${this.accountYear2})` +
-                                      '&orderby=Period.AccountYear,Period.No' +
-                                      `&select=Period.AccountYear as PeriodAccountYear,Period.No as PeriodNo,sum(JournalEntryLine.Amount) as SumAmount`;
+            let periodQuery = 'model=JournalEntryLine&expand=Period,Account.TopLevelAccountGroup,Dimensions'
+                + `&filter=${accountIdFilter} ${dimensionFilter}${projectFilter}${departmentFilter} and `
+                + `(Period.AccountYear eq ${this.accountYear1} or Period.AccountYear eq ${this.accountYear2})`
+                + `&orderby=Period.AccountYear,Period.No&select=Period.AccountYear as PeriodAccountYear,`
+                + `Period.No as PeriodNo,sum(JournalEntryLine.Amount) as SumAmount`;
 
             let subject = null;
 
             if (this.includeIncomingBalance) {
                 subject = Observable.forkJoin(
                     this.statisticsService.GetAll(periodQuery),
-                    this.statisticsService.GetAll('model=JournalEntryLine&expand=Period,Account.TopLevelAccountGroup,Dimensions' +
-                                        `&filter=${accountIdFilter} ${dimensionFilter}${projectFilter}${departmentFilter}` +
-                                        `&select=sum(casewhen(Period.AccountYear lt ${this.accountYear1}\\,JournalEntryLine.Amount\\,0)) as SumIBPeriod1,sum(casewhen(Period.AccountYear lt ${this.accountYear2}\\,JournalEntryLine.Amount\\,0)) as SumIBPeriod2`)                   //
+                    this.statisticsService.GetAll('model=JournalEntryLine&expand=Period,Account.TopLevelAccountGroup,'
+                    + `Dimensions&filter=${accountIdFilter} ${dimensionFilter}${projectFilter}${departmentFilter}`
+                    + `&select=sum(casewhen(Period.AccountYear lt ${this.accountYear1}\\,`
+                    + `JournalEntryLine.Amount\\,0)) as SumIBPeriod1,sum(casewhen(Period.AccountYear `
+                    + `lt ${this.accountYear2}\\,JournalEntryLine.Amount\\,0)) as SumIBPeriod2`)                   //
                     );
             } else {
                 // dont ask for incoming balances if they aren't going to be displayed anyway
@@ -153,8 +202,12 @@ export class DistributionPeriodReportPart implements OnChanges {
                     let incomingBalanceDistributionData = {
                         periodNo: 0,
                         periodName: 'Inngående balanse',
-                        amountPeriodYear1: !this.doTurnAmounts ? data[1].Data[0].SumIBPeriod1 : data[1].Data[0].SumIBPeriod1 * -1,
-                        amountPeriodYear2: !this.doTurnAmounts ? data[1].Data[0].SumIBPeriod2 : data[1].Data[0].SumIBPeriod2 * -1
+                        amountPeriodYear1: !this.doTurnAmounts
+                            ? data[1].Data[0].SumIBPeriod1
+                            : data[1].Data[0].SumIBPeriod1 * -1,
+                        amountPeriodYear2: !this.doTurnAmounts
+                            ? data[1].Data[0].SumIBPeriod2
+                            : data[1].Data[0].SumIBPeriod2 * -1
                     };
 
                     distributionPeriodData.unshift(incomingBalanceDistributionData);
@@ -168,37 +221,57 @@ export class DistributionPeriodReportPart implements OnChanges {
                 };
 
                 distributionPeriodData.push(sumDistributionData);
-
                 this.distributionPeriodData = distributionPeriodData;
-
-                let periodName = new UniTableColumn('periodName', 'Periode', UniTableColumnType.Text).setWidth('50%');
-                let amountPeriod1 = new UniTableColumn('amountPeriodYear1', this.accountYear1.toString(), UniTableColumnType.Money)
-                    .setCls('amount')
-                    .setNumberFormat(this.numberFormat);
-
-                let amountPeriod2 = new UniTableColumn('amountPeriodYear2', this.accountYear2.toString(), UniTableColumnType.Money)
-                    .setCls('amount')
-                    .setNumberFormat(this.numberFormat);
-
-                const tableName = 'accounting.distributionPeriodReportPart';
-                this.uniTableConfigDistributionPeriod = new UniTableConfig(tableName, false, false);
-
-                if (this.showPreviousAccountYear) {
-                    this.uniTableConfigDistributionPeriod.setColumns([periodName, amountPeriod2, amountPeriod1]);
-                } else {
-                    this.uniTableConfigDistributionPeriod.setColumns([periodName, amountPeriod2]);
-                }
 
                 this.setupDistributionPeriodChart();
             }, err => this.errorService.handle(err));
         }
     }
 
-    public onCellClick(event: ICellClickEvent) {
+    public onCellClick(row: any, year: number, index: number) {
+        // If not a month has been clicked, return
+        if (row.periodNo === 0 || row.periodNo === 13) {
+            return;
+        }
+
+        let periodeClicked = row.periodNo;
+
+        // Makes sure that numbers are not marked as selected text
+        document.getSelection().removeAllRanges();
+
+        if (this.currentPeriode
+            && (this.currentIndex || this.currentIndex === 0)
+            && this.isShiftDown
+            && this.currentPeriode !== periodeClicked) {
+            if (this.currentPeriode > periodeClicked) {
+                periodeClicked = (periodeClicked * 100) + this.currentPeriode;
+                this.markSelection(index, this.currentIndex);
+            } else {
+                periodeClicked = (this.currentPeriode * 100) + periodeClicked;
+                this.markSelection(this.currentIndex, index);
+            }
+        } else {
+            this.markSelection(index, index);
+        }
+
+        // Check if SHIFT key is held down..
         this.periodSelected.emit({
-            periodNo: event.row.periodNo,
-            year: (event.column.field === 'amountPeriodYear1') ? this.accountYear1 : this.accountYear2
+            periodNo: periodeClicked,
+            year: year
         });
+        this.currentPeriode = row.periodNo;
+        this.currentIndex = index;
+    }
+
+    private markSelection(startIndex: number, endIndex: number) {
+        this.distributionPeriodData.map((row, index) => {
+            row['_isSelected'] = index >= startIndex && index <= endIndex;
+            return row;
+         });
+    }
+
+    public onYearChange(previousYear: boolean) {
+        this.yearChange.emit(previousYear);
     }
 
     private setupDistributionPeriodChart() {
