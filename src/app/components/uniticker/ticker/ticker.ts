@@ -452,8 +452,10 @@ export class UniTicker {
 
                 this.reportDefinitionService.getReportByName(action.Options.ReportName).subscribe((report) => {
                     if (report) {
-                        let id = this.selectedRow ? this.selectedRow.rowIdentifier : selectedRows[0].rowIdentifier;
-                        report.parameters = [{Name: 'Id', id}];
+                        let id = this.ticker.Type === 'details'
+                            ? this.selectedRow[rowIdentifier]
+                            : selectedRows[0][rowIdentifier];
+                        report.parameters = [{Name: 'Id', value: id}];
 
                         this.modalService.open(UniPreviewModal, {
                             data: report

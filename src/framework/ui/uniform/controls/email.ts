@@ -49,11 +49,8 @@ export class UniEmailInput extends BaseControl {
         return this;
     }
 
-    public ngOnInit() {
-        this.createControl();
-    }
-
     public ngOnChanges() {
+        this.createControl();
         this.lastControlValue = this.control.value;
         if (this.controlSubscription) {
             this.controlSubscription.unsubscribe();
