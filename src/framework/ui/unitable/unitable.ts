@@ -257,11 +257,6 @@ export class UniTable implements OnChanges {
             }
 
             this.filterAndSortTable(true);
-            if (this.tableData) {
-                setTimeout(() => {
-                    this.onSelectAllRowsChanged(this.config.multiRowSelectDefaultValue);
-                });
-            }
         }
     }
 
@@ -872,7 +867,7 @@ export class UniTable implements OnChanges {
 
             // allow user to send a default value to specify if the row should be selected when loaded
             if (!item._rowSelected) {
-                item._rowSelected = false;
+                item._rowSelected = this.config.multiRowSelectDefaultValue || false;
             }
         });
         let immutable = Immutable.fromJS(data);
