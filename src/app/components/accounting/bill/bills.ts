@@ -831,9 +831,8 @@ export class BillsView {
                 journalentries = [];
             }
             var newEntry = new JournalEntryData();
-            newEntry.FileIDs = [this.fileID];
+            newEntry.FileIDs = this.fileID;
             journalentries.unshift(newEntry);
-
             this.journalEntryService.setSessionData(0, journalentries);
 
             this.router.navigateByUrl('/accounting/journalentry/manual');
