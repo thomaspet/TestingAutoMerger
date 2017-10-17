@@ -1084,6 +1084,9 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 // from the table, and reapply the changes made by this event
                 let row = this.table.getRow(rowModel['_originalIndex']);
 
+                // keep the originalFieldValue, this is sometimes needed when comparing data
+                let originalFieldValue = row[event.field];
+
                 row[event.field] = rowModel[event.field];
                 // for some reason unitable returns rows as empty, but it is not,
                 // so just set it to false
@@ -1141,6 +1144,13 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                     row = this.calculateGrossAmount(row);
                     row = this.calculateAmount(row);
                 } else if (event.field === 'VatDate') {
+                    // set FinancialDate based on VatDate if FinancialDate has not been set, or
+                    // if the FinancialDate was the same as the previous value for VatDate
+                    if (!row.FinancialDate && row.VatDate ||
+                        (originalFieldValue && row.FinancialDate && row.FinancialDate.toString() === originalFieldValue.toString())) {
+                        row.FinancialDate = row.VatDate;
+                    }
+
                     if (this.mode === JournalEntryMode.Manual && row.CurrencyCode) {
                         rowOrPromise = this.getExternalCurrencyExchangeRate(row)
                             .then(r => this.setVatDeductionPercent(r))
