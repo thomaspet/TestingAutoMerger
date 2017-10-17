@@ -990,6 +990,8 @@ export class InvoiceDetails {
                 : this.customerInvoiceService.Get(this.invoiceID, this.expandOptions);
 
             orderObservable.subscribe(res => {
+                if (!invoice) { invoice = res; }
+
                 this.isDirty = false;
                 
                 this.newInvoiceItem = <any>this.tradeItemHelper.getDefaultTradeItemData(invoice);

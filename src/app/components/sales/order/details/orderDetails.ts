@@ -574,6 +574,8 @@ export class OrderDetails {
                 : this.customerOrderService.Get(this.orderID, this.expandOptions);
 
             orderObservable.subscribe(res => {
+                if (!order) { order = res; }
+
                 this.readonly = res.StatusCode === StatusCodeCustomerOrder.TransferredToInvoice;
                 this.newOrderItem = <any>this.tradeItemHelper.getDefaultTradeItemData(order);
                 this.orderItems = res.Items.sort(

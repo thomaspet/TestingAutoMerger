@@ -351,6 +351,8 @@ export class QuoteDetails {
                 : this.customerQuoteService.Get(this.quoteID, this.expandOptions);
 
             orderObservable.subscribe(res => {
+                if (!quote) { quote = res; }
+                
                 this.readonly = quote.StatusCode && (
                     quote.StatusCode === StatusCodeCustomerQuote.CustomerAccepted
                     || quote.StatusCode === StatusCodeCustomerQuote.TransferredToOrder
