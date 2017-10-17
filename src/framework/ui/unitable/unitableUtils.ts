@@ -261,7 +261,8 @@ export class UniTableUtils {
     }
 
     private getFilterValueFromFilter(filter: ITableFilter, expressionFilterValues: IExpressionFilterValue[]): string {
-        let filterValue = filter.value.toString();
+
+        let filterValue = filter.searchValue ? filter.searchValue.toString() :  filter.value.toString();
 
         // if expressionfiltervalues are defined, e.g. ":currentuserid", check if any of the defined filters
         // should inject the expressionfiltervalue

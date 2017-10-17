@@ -210,7 +210,7 @@ export class UniTableSearch implements OnChanges {
         if (!this.advancedSearchFilters) {
             this.advancedSearchFilters = [];
         }
-        this.advancedSearchFilters.push({field: '', operator: 'contains', value: '', group: 0});
+        this.advancedSearchFilters.push({field: '', operator: 'contains', value: '', group: 0, searchValue: ''});
     }
 
     private removeFilter(filter) {
@@ -264,6 +264,25 @@ export class UniTableSearch implements OnChanges {
     private getAdvancedFilters() {
         var filters = [];
         this.advancedSearchFilters.forEach((filter) => {
+
+            filter.searchValue = filter.value.toString();
+
+            let cols = this.columns.filter(c => c.get('field') === filter.field);
+
+            cols.forEach(col => {
+                if (col.get('type') === UniTableColumnType.DateTime || col.get('type') === UniTableColumnType.LocalDate) {
+                    if (filter.value.toString().includes('.')) {
+
+                        let dateParts = filter.value.toString().split('.', 3);
+                        if (dateParts.length === 3) {
+                            filter.searchValue = dateParts[2] + '-' + dateParts[1] + '-' + dateParts[0];
+                        }
+                        if (dateParts.length === 2) {
+                            filter.searchValue = dateParts[1] + '-' + dateParts[0];
+                        }
+                    }
+                }
+            });
             filters.push(filter);
         });
 

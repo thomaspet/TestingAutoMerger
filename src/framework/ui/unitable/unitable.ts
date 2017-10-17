@@ -28,6 +28,7 @@ export interface ITableFilter {
     operator: string;
     value: string | number;
     group: number;
+    searchValue: string;
 }
 
 export interface IExpressionFilterValue {
