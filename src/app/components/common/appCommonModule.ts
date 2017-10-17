@@ -13,6 +13,7 @@ import {UniTags} from './toolbar/tags';
 import {UniToolbar} from './toolbar/toolbar';
 import {UniToolbarHelp} from './toolbar/help';
 import {UniToolbarShare} from './toolbar/share';
+import {UniToolbarSearch} from './toolbar/toolbarSearch';
 import {UniQueryReadOnly} from './uniQuery/UniQueryReadOnly';
 import {UniSummary} from './summary/summary';
 import {ImageModal, ImageModalContent} from './modals/ImageModal';
@@ -63,6 +64,7 @@ import {routes as AppCommonRoutes} from './appCommonRoutes';
         UniToolbar,
         UniToolbarHelp,
         UniToolbarShare,
+        UniToolbarSearch,
         UniQueryReadOnly,
         UniSummary,
         ImageModal,

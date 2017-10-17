@@ -23,12 +23,14 @@
         border-color: $uni-color-negative
 
 .toolbar_tools
-    min-width: 14rem
+    min-width: 12rem
     text-align: right
     color: $uni-color-positive
 
-    a,
-    button
+    > button,
+    .comments_toggle,
+    .toolbar-share,
+    .contextmenu_button[type=button]
         @extend %toolbarButton
         cursor: pointer
         background-size: auto .8rem
@@ -44,6 +46,7 @@
         background-image: unicon-new($uni-color-negative)
 
     .contextmenu_button[type=button]
+        background-size: auto .25rem
         background-image: unicon-more($uni-color-negative) !important
 
     uni-toolbar-share

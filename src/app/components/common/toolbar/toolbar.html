@@ -11,8 +11,13 @@
     </section>
 
     <section class="toolbar-bottom-row">
-        <!-- TODO: input[search] -->
-        <h1>{{config?.title}}</h1>
+        <uni-toolbar-search *ngIf="searchConfig; else textHeader"
+            [config]="searchConfig">
+        </uni-toolbar-search>
+
+        <ng-template #textHeader>
+            <h1 class="toolbar-title">{{config?.title}}</h1>
+        </ng-template>
 
         <uni-statustrack
             *ngIf="statustrack || config?.statustrack"
@@ -22,7 +27,7 @@
             (statusSelectEvent)="selectStatus($event)">
         </uni-statustrack>
 
-        <section class="toolbar-extras">
+        <section class="toolbar-extras" #toolbarExtras>
             <section *ngIf="selectConfig" class="toolbar_uniselect">
                 {{selectConfig.label}}
                 <uni-select
@@ -52,6 +57,12 @@
         </section>
 
         <nav class="toolbar_tools">
+            <uni-comments *ngIf="commentsConfig?.entityID > 0"
+                [entity]="commentsConfig.entityType"
+                [entityID]="commentsConfig.entityID"
+                [toggleMode]="true">
+            </uni-comments>
+
             <button *ngIf="config?.navigation?.prev"
                 title="Forrige"
                 class="previous"
@@ -89,65 +100,3 @@
 
     </section>
 </section>
-
-
-<!-- <uni-autocomplete-input *ngIf="autocompleteField"
-    [field]="autocompleteField"
-    [model]="autocompleteModel"
-    (readyEvent)="autocompleteReadyEvent"
-    (changeEvent)="autocompleteChangeEvent"
-    (focusEvent)="autocompleteFocusEvent">
-</uni-autocomplete-input>
-
-<h1>{{config?.title}}
-
-
-
-    <section *ngIf="selectConfig" class="toolbar_uniselect">
-        {{selectConfig.label}}
-        <uni-select
-                    [config]="uniSelectConfig"
-                    [items]="selectConfig.items"
-                    [value]="selectConfig.selectedItem"
-                    (valueChange)="selectValueSelected($event)">
-        </uni-select>
-    </section>
-</h1>
-
-<nav class="toolbar_tools">
-
-    <button *ngIf="(videoURL | async)?.length"
-            class="info"
-            type="button"
-            (click)="openVideo()">Vis video</button>
-
-    <input *ngIf="config?.navigation?.find"
-        #query
-        type="search"
-        class="find"
-        (keydown.enter)="navigate('find', query.value)" />
-
-    <button *ngIf="config?.navigation?.prev"
-        class="previous"
-        type="button"
-        (click)="navigate('prev')">Forrige</button>
-
-    <button *ngIf="config?.navigation?.next"
-        class="next"
-        type="button"
-        (click)="navigate('next')">Neste</button>
-
-    <button *ngIf="config?.navigation?.add"
-        class="new"
-        type="button"
-        (click)="navigate('add')">Ny</button>
-
-    <uni-context-menu *ngIf="contextmenu || config?.contextmenu"
-                      [actions]="contextmenu || config.contextmenu">
-    </uni-context-menu>
-
-    <uni-save *ngIf="saveactions || config?.saveactions"
-              [actions]="saveactions || config.saveactions">
-    </uni-save>
-
-</nav> -->

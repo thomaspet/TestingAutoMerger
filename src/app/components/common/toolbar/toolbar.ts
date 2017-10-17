@@ -1,5 +1,5 @@
+import {Component, Input, Output, EventEmitter, ViewChild, ElementRef} from '@angular/core';
 import {IUniSaveAction} from './../../../../framework/save/save';
-import {Component, Input, Output, EventEmitter} from '@angular/core';
 import {UniStatusTrack} from '../../common/toolbar/statustrack';
 import {IContextMenuItem} from '../../../../framework/ui/unitable/index';
 import {UniFieldLayout, FieldType} from '../../../../framework/ui/uniform/index';
@@ -7,9 +7,10 @@ import {Observable} from 'rxjs/Observable';
 import {IUniTagsConfig, ITag} from './tags';
 import {ISelectConfig} from '../../../../framework/ui/uniform/index';
 import {VideoMappingService} from '../../../services/services';
-
+import {IToolbarSearchConfig} from './toolbarSearch';
 declare const _; // lodash
 
+export {IToolbarSearchConfig} from './toolbarSearch';
 export interface IToolbarConfig {
     title?: string;
     subheads?: {
@@ -61,38 +62,21 @@ export interface IShareAction {
     templateUrl: './toolbar.html'
 })
 export class UniToolbar {
-    @Input()
-    public tags: ITag[];
+    @ViewChild('toolbarExtras')
+    private extrasElement: ElementRef;
 
-    @Input()
-    public tagConfig: IUniTagsConfig;
-
-    @Input()
-    public config: IToolbarConfig;
-
-    @Input()
-    public shareActions: IShareAction[];
-
-    @Input()
-    public saveactions: IUniSaveAction[];
-
-    @Input()
-    public contextmenu: IContextMenuItem[];
-
-    @Input()
-    public statustrack: UniStatusTrack.IStatus[];
-
-    @Input()
-    public commentsConfig: ICommentsConfig;
-
-    @Input()
-    public autocompleteConfig: IAutoCompleteConfig;
-
-    @Input()
-    public autocompleteModel: any = {};
-
-    @Input()
-    public selectConfig: any = {};
+    @Input() public tags: ITag[];
+    @Input() public tagConfig: IUniTagsConfig;
+    @Input() public config: IToolbarConfig;
+    @Input() public shareActions: IShareAction[];
+    @Input() public saveactions: IUniSaveAction[];
+    @Input() public contextmenu: IContextMenuItem[];
+    @Input() public statustrack: UniStatusTrack.IStatus[];
+    @Input() public commentsConfig: ICommentsConfig;
+    @Input() public autocompleteConfig: IAutoCompleteConfig;
+    @Input() public autocompleteModel: any = {};
+    @Input() public searchConfig: IToolbarSearchConfig;
+    @Input() public selectConfig: any = {};
 
     @Output()
     public tagsChange: EventEmitter<any> = new EventEmitter();
@@ -108,11 +92,11 @@ export class UniToolbar {
 
     @Output()
     public autocompleteFocusEvent: EventEmitter<any> = new EventEmitter();
-    private autocompleteField: UniFieldLayout;
 
     @Output()
     public selectValueChanged: EventEmitter<any> = new EventEmitter();
 
+    private autocompleteField: UniFieldLayout;
     public videoURLResolver: Promise<string|null>;
 
     public uniSelectConfig: ISelectConfig = {
@@ -128,6 +112,8 @@ export class UniToolbar {
 
     public ngOnChanges(change) {
         if (this.config) {
+            this.checkExtrasOverflow();
+
             if (this.config.saveactions) {
                 console.warn(`
                     ATTN. DEVELOPERS
@@ -151,6 +137,23 @@ export class UniToolbar {
 
         if (change['selectConfig']) {
             this.selectConfig = _.cloneDeep(this.selectConfig);
+        }
+    }
+
+    public ngAfterViewInit() {
+        Observable.fromEvent(window, 'resize')
+            .throttleTime(250)
+            .subscribe(() => {
+                this.checkExtrasOverflow();
+            });
+    }
+
+    public checkExtrasOverflow() {
+        let extras: HTMLElement = this.extrasElement && this.extrasElement.nativeElement;
+        if (extras && extras.offsetWidth > extras.clientWidth) {
+            extras.style.position = 'absolute';
+            extras.style.top = '0';
+            extras.style.left = '18%';
         }
     }
 

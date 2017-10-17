@@ -1,10 +1,12 @@
 <header class="poster">
-    <uni-toolbar [config]="toolbarConfig" 
-                 [saveactions]="actions" 
-                 [contextmenu]="contextMenuItems" 
-                 [statustrack]="getStatusTrackConfig()"
-                 [autocompleteConfig]="periodeSearch"
-                 (statusSelectEvent)="setAmeldingFromEvent($event)"></uni-toolbar>
+    <uni-toolbar
+        [config]="toolbarConfig"
+        [saveactions]="actions"
+        [contextmenu]="contextMenuItems"
+        [statustrack]="getStatusTrackConfig()"
+        [searchConfig]="toolbarSearchConfig"
+        (statusSelectEvent)="setAmeldingFromEvent($event)">
+    </uni-toolbar>
 
     <section class="amelding_poster">
 

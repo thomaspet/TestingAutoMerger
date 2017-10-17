@@ -1,4 +1,4 @@
-import {Component, OnInit, ViewChild} from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 import {Router} from '@angular/router';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {Observable} from 'rxjs/Observable';
@@ -6,7 +6,7 @@ import {ToastService, ToastType} from '../../../../framework/uniToast/toastServi
 import {AmeldingData} from '../../../unientities';
 import {IContextMenuItem} from '../../../../framework/ui/unitable/index';
 import {IUniSaveAction} from '../../../../framework/save/save';
-import {IToolbarConfig, IAutoCompleteConfig} from '../../common/toolbar/toolbar';
+import {IToolbarConfig, IAutoCompleteConfig, IToolbarSearchConfig} from '../../common/toolbar/toolbar';
 import {UniStatusTrack} from '../../common/toolbar/statustrack';
 import {
     PayrollrunService,
@@ -54,10 +54,10 @@ export class AMeldingView implements OnInit {
     private saveStatus: {numberOfRequests: number, completeCount: number, hasErrors: boolean};
     public showView: string = '';
     private toolbarConfig: IToolbarConfig;
+    private toolbarSearchConfig: IToolbarSearchConfig;
     private periodStatus: string;
     private alleAvvikStatuser: any[] = [];
     private activeYear: number;
-    private periodeSearch: IAutoCompleteConfig;
 
     constructor(
         private _tabService: TabService,
@@ -71,23 +71,12 @@ export class AMeldingView implements OnInit {
         private errorService: ErrorService,
         private modalService: UniModalService
     ) {
-        this._tabService.addTab({name: 'A-Melding', url: 'salary/amelding', moduleID: UniModules.Amelding, active: true});
-
-        this.periodeSearch = {
-            events: {
-                select: (model, value: any) => {
-                    if (value) {
-                        this.gotoPeriod(value.period);
-                    }
-                }
-            },
-            valueProperty: 'period',
-            template: (obj: any) =>
-                obj
-                    ? `${obj.period} - ${obj.name}`
-                    : '',
-            source: _ameldingService.periodsInYear()
-        };
+        this._tabService.addTab({
+            name: 'A-Melding',
+            url: 'salary/amelding',
+            moduleID: UniModules.Amelding,
+            active: true
+        });
 
         this.contextMenuItems = [
             {
@@ -127,19 +116,21 @@ export class AMeldingView implements OnInit {
         });
     }
 
-    private loadYearData()
-    {
+    private loadYearData() {
         this.yearService
-        .getActiveYear()
-        .do(year => this.activeYear = year)
-        .switchMap(financialYear => this._payrollService.getLatestSettledPeriod(1, financialYear))
-        .subscribe((period) => {
-            this.currentPeriod = period;
-            this.currentMonth = moment.months()[this.currentPeriod - 1];
-            this.getSumsInPeriod();
-            this.getAMeldingForPeriod();
-            this.updateToolbar();
-        }, err => this.errorService.handle(err));
+            .getActiveYear()
+            .do(year => this.activeYear = year)
+            .switchMap(financialYear => this._payrollService.getLatestSettledPeriod(1, financialYear))
+            .subscribe(
+                (period) => {
+                    this.currentPeriod = period;
+                    this.currentMonth = moment.months()[this.currentPeriod - 1];
+                    this.getSumsInPeriod();
+                    this.getAMeldingForPeriod();
+                    this.updateToolbar();
+                },
+                err => this.errorService.handle(err)
+            );
     }
 
     public prevPeriod() {
@@ -300,9 +291,23 @@ export class AMeldingView implements OnInit {
                 next: this.nextPeriod.bind(this)
             }
         };
+
+        this.toolbarSearchConfig = {
+            initValue: `Periode ${this.currentPeriod}`,
+            lookupFunction: (searchVal) => {
+                const filtered = this._ameldingService.periodsInYear().filter(period => {
+                    return period.period === +searchVal
+                        || (period.name.toLowerCase()).indexOf(searchVal.toLowerCase()) >= 0;
+                });
+
+                return Observable.of(filtered);
+            },
+            itemTemplate: period => `${period.period} - ${period.name}`,
+            onSelect: period => this.gotoPeriod(period.period)
+        };
     }
 
-    private getStatusTrackConfig() {
+    public getStatusTrackConfig() {
         let statustrack: UniStatusTrack.IStatus[] = [];
         let activeStatus = this.currentAMelding ? (this.currentAMelding.status ? this.currentAMelding.status : 1) : 0;
         this._ameldingService.internalAmeldingStatus.forEach((amldStatus, indx) => {
@@ -343,7 +348,7 @@ export class AMeldingView implements OnInit {
         return statustrack;
     }
 
-    private setAmeldingFromEvent(event) {
+    public setAmeldingFromEvent(event) {
         if (!event[0] || !event[0].data) { return; }
         this.setAMelding(event[0].data);
     }

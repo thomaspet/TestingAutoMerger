@@ -9,7 +9,7 @@ import {
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
 import {IUniSaveAction} from '../../../../framework/save/save';
-import {IToolbarConfig, IAutoCompleteConfig} from '../../common/toolbar/toolbar';
+import {IToolbarConfig, IAutoCompleteConfig, IToolbarSearchConfig} from '../../common/toolbar/toolbar';
 import {IUniTagsConfig, ITag} from '../../common/toolbar/tags';
 import {IPosterWidget} from '../../common/poster/poster';
 import {UniHttp} from '../../../../framework/core/http/http';
@@ -62,6 +62,7 @@ export class EmployeeDetails extends UniView implements OnDestroy {
     private departments: Department[];
     private saveActions: IUniSaveAction[];
     private toolbarConfig: IToolbarConfig;
+    private toolbarSearchConfig: IToolbarSearchConfig;
     private employeeTaxCard: EmployeeTaxCard;
     private wageTypes: WageType[] = [];
     private activeYear: number;
@@ -163,6 +164,7 @@ export class EmployeeDetails extends UniView implements OnDestroy {
             { name: 'Permisjon', path: 'employee-leave' }
         ];
 
+        // TODO: remove me!
         this.employeeSearch = {
             events: {
                 select: (model, value: Employee) => {
@@ -279,8 +281,10 @@ export class EmployeeDetails extends UniView implements OnDestroy {
                     this.employee = employee;
                     this.posterEmployee.employee = employee;
                     this.posterEmployee = _.cloneDeep(this.posterEmployee);
+
+                    const info = employee && employee.BusinessRelationInfo;
                     this.toolbarConfig = {
-                        title: employee.BusinessRelationInfo ? employee.BusinessRelationInfo.Name || 'Ny ansatt' : 'Ny ansatt',
+                        title: (info && info.Name) || 'Ny ansatt',
                         subheads: [{
                             title: this.employee.EmployeeNumber ? 'Ansattnr. ' + this.employee.EmployeeNumber : ''
                         }],
@@ -289,6 +293,20 @@ export class EmployeeDetails extends UniView implements OnDestroy {
                             next: this.nextEmployee.bind(this),
                             add: this.newEmployee.bind(this)
                         }
+                    };
+
+                    this.toolbarSearchConfig = {
+                        lookupFunction: (query) => this.employeeService.GetAll(
+                            `filter=startswith(EmployeeNumber, '${query}') `
+                                + `or (BusinessRelationID gt 0 and contains(BusinessRelationInfo.Name, '${query}'))`
+                                + `&top50&hateoas=false`,
+                            ['BusinessrelationInfo']
+                        ),
+                        itemTemplate: (item) => `${item.EmployeeNumber} - `
+                            + `${item.BusinessRelationInfo && item.BusinessRelationInfo.Name}`,
+
+                        initValue: (info && info.Name) || 'Ny ansatt',
+                        onSelect: selected => this.router.navigate(['salary/employees/' + selected.ID])
                     };
 
                     this.saveActions = [{
