@@ -581,8 +581,8 @@ export class UniImage {
                 display: 'block',
                 height: coordinates[3] + 'px',
                 width: coordinates[2] + 'px',
-                left: (coordinates[0] - coordinates[2]) * widthRatio + 'px',
-                top: (coordinates[1] - coordinates[3]) * heightRatio + 'px'
+                left: (coordinates[0]) * widthRatio + 'px',
+                top: (coordinates[1]) * heightRatio + 'px'
             };
         }
     }
