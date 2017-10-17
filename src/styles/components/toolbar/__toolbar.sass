@@ -56,6 +56,9 @@ uni-toolbar
         display: block
         position: relative
 
+        .toolbar-dropdown-list
+            top: 0.7rem
+
         a
             color: $uni-color-negative
             cursor: pointer
@@ -146,6 +149,33 @@ uni-toolbar
         order: 5
         flex: 0 0 auto
         margin: auto 0 auto 1rem
+
+@media screen and (max-width: 600px)
+    .toolbar-content
+        padding-left: .5rem
+
+    .toolbar-title,
+    .comments_toggle,
+    uni-toolbar-search,
+    uni-statustrack,
+        display: none !important
+
+    .toolbar-bottom-row .toolbar_tools
+        margin-left: 0
+        margin-right: auto
+
+    .toolbar-dropdown-list
+        position: fixed
+        top: 6rem
+        left: 2.5%
+        width: 95%
+        text-align: center
+        li
+            width: 100%
+            box-sizing: border-box
+
+    uni-toolbar-help .toolbar-dropdown-list
+        top: 3.5rem !important
 
 @media screen and (max-width: 768px)
     .toolbar-extras

@@ -14,7 +14,6 @@ import {UniModalService, UniFeedbackModal} from '../../../../framework/uniModal/
             <li (click)="openFeedbackModal()">Gi tilbakemelding</li>
         </ul>
     `,
-    styles: ['.toolbar-dropdown-list { top: 0.7rem; }'],
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class UniToolbarHelp {
