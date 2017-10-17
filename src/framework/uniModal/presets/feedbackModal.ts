@@ -45,11 +45,15 @@ import {Observable} from 'rxjs/Observable';
     `,
     styles: [`
         input {
-            margin-bottom: 1rem
+            margin-bottom: 1rem;
         }
 
         .warn {
-            margin-top: 0
+            margin-top: 0;
+        }
+
+        textarea {
+            height: 20rem;
         }
     `]
 })

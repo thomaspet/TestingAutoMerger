@@ -5,7 +5,7 @@ $statustrack-border: .0625rem
 .poster_statustrack,
 uni-statustrack > ol
     display: flex
-    border-radius: pxToRem(5)
+    border-radius: pxToRem(3)
     background: $statustrack-background
     box-sizing: border-box
     height: $statustrack-height + $statustrack-border
@@ -19,10 +19,10 @@ uni-statustrack > ol
         cursor: pointer
 
         &:first-of-type
-            border-radius: pxToRem(5) 0 0 pxToRem(5)
+            border-radius: pxToRem(3) 0 0 pxToRem(3)
 
         &:last-of-type
-            border-radius: 0 pxToRem(5) pxToRem(5) 0
+            border-radius: 0 pxToRem(3) pxToRem(3) 0
 
         &.completed
             background: mix($uni-color-c2a, #fff, 20%)
@@ -84,9 +84,10 @@ uni-statustrack > ol
     content: attr(data-badge)
     display: block
     position: absolute
-    top: -.7rem
-    right: -1rem
-    background: $uni-color-scale2
+    top: -.5rem
+    right: -.5rem
+    background: $uni-color-negative
+    color: $uni-color-c2a
     border-radius: 99rem
     min-width: 1.2rem
     line-height: 1.2rem
@@ -97,6 +98,8 @@ uni-statustrack > ol
 .statustrack_substati
     @extend %popover
     padding: 0 1rem
+    top: 2rem
+    right: 0
 
     li:hover &,
     li:focus &
