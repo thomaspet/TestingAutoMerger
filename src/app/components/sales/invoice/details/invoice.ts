@@ -518,7 +518,7 @@ export class InvoiceDetails {
                 && invoice.DefaultDimensions.ProjectID !== this.projectID
                 && this.invoiceItems.length) {
 
-            if (this.projectID) {
+            if (this.invoiceItems.length && this.projectID) {
                 this.modalService.confirm({
                     header: `Endre prosjekt på alle varelinjer?`,
                     message: `Vil du endre til dette prosjektet på alle eksisterende varelinjer?`,

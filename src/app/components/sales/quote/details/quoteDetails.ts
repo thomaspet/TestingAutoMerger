@@ -401,7 +401,7 @@ export class QuoteDetails {
                 && quote.DefaultDimensions.ProjectID !== this.projectID
                 && this.quoteItems.length) {
 
-            if (this.projectID) {
+            if (this.quoteItems.length && this.projectID) {
                 this.modalService.confirm({
                     header: `Endre prosjekt på alle varelinjer?`,
                     message: `Vil du endre til dette prosjektet på alle eksisterende varelinjer?`,
