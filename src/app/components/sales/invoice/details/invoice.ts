@@ -1125,11 +1125,13 @@ export class InvoiceDetails {
                     this.saveActions.push({
                     label: 'Lagre endringer',
                     action: done => this.saveInvoice(done).then(res => {
-                        this.customerInvoiceService.Get(this.invoice.ID, this.expandOptions)
-                        .subscribe((refreshed) => {
-                            this.refreshInvoice(refreshed);
-                        });
-                    }) ,
+                        if (res) {
+                            this.customerInvoiceService.Get(this.invoice.ID, this.expandOptions)
+                            .subscribe((refreshed) => {
+                                this.refreshInvoice(refreshed);
+                            });
+                        }
+                    }),
                     disabled: false,
                     main: true
                 });
@@ -1193,7 +1195,7 @@ export class InvoiceDetails {
         });
     }
 
-    private saveInvoice(doneHandler: (msg: string) => void = null): Promise<CustomerInvoice> {
+    private saveInvoice(doneHandler: (msg: string) => void = null): Promise<any> {
         this.invoice.Items = this.tradeItemHelper.prepareItemsForSave(this.invoiceItems);
 
         if (this.invoice.DefaultDimensions && !this.invoice.DefaultDimensions.ID) {
@@ -1222,6 +1224,10 @@ export class InvoiceDetails {
             let request = (this.invoice.ID > 0)
                 ? this.customerInvoiceService.Put(this.invoice.ID, this.invoice)
                 : this.customerInvoiceService.Post(this.invoice);
+
+            if (this.invoice.PaymentDueDate < this.invoice.InvoiceDate) {
+                return reject('Forfallsdato må være lik eller senere enn fakturadato.');
+            }
 
             // If a currency other than basecurrency is used, and any lines contains VAT,
             // validate that this is correct before resolving the promise
@@ -1266,6 +1272,9 @@ export class InvoiceDetails {
                     if (doneHandler) { doneHandler('Fakturaen ble lagret'); }
                 }, err => reject(err));
             }
+        }).catch(err => {
+            this.errorService.handle(err);
+            doneHandler('');
         });
     }
 
