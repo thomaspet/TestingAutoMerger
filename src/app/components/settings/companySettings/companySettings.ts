@@ -572,7 +572,7 @@ export class CompanySettingsComponent implements OnInit {
 
         let periodSeriesAccountID: UniFieldLayout = fields.find(x => x.Property === 'PeriodSeriesAccountID');
         periodSeriesAccountID.Options = {
-            source: this.periodSeries.filter((value) => value.SeriesType === 1),
+            source: this.periodSeries.filter((value) => value.SeriesType.toString() === '1'),
             valueProperty: 'ID',
             displayProperty: 'Name',
             debounceTime: 200
@@ -580,7 +580,7 @@ export class CompanySettingsComponent implements OnInit {
 
         let periodSeriesVatID: UniFieldLayout = fields.find(x => x.Property === 'PeriodSeriesVatID');
         periodSeriesVatID.Options = {
-            source: this.periodSeries.filter((value) => value.SeriesType === 0),
+            source: this.periodSeries.filter((value) => value.SeriesType.toString() === '0'),
             valueProperty: 'ID',
             displayProperty: 'Name',
             debounceTime: 200
