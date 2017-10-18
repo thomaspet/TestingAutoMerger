@@ -6,14 +6,26 @@
     </header>
 
     <article>
-        <paycheck-sending [runID]="options.data"></paycheck-sending>
+        <paycheck-sending
+            [runID]="options.data"
+            (busy)="setBusy($event)"
+            (selectedEmails)="checkedEmails($event)"
+            (selectedPrints)="checkedPrints($event)">
+        </paycheck-sending>
     </article>
 
     <footer>
-        <button (click)="emailPaychecks()" class="good">
+        <button
+            (click)="emailPaychecks()"
+            [disabled]="!checkedEmailEmps"
+            [attr.aria-busy]="busy"
+            class="good">
             Send
         </button>
-        <button (click)="printPaychecks(false)" class="good">
+        <button
+            (click)="printPaychecks(false)"
+            [disabled]="!checkedPrintEmps"
+            class="good">
             Skriv ut valgte
         </button>
         <button (click)="printPaychecks(true)" class="good">
