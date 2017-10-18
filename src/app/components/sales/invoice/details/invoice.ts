@@ -471,10 +471,7 @@ export class InvoiceDetails {
         }
 
         // refresh items if project changed
-        if (invoice.DefaultDimensions
-                && invoice.DefaultDimensions.ProjectID !== this.projectID
-                && this.invoiceItems.length) {
-
+        if (invoice.DefaultDimensions && invoice.DefaultDimensions.ProjectID !== this.projectID) {
             if (this.invoiceItems.length && this.projectID) {
                 this.modalService.confirm({
                     header: `Endre prosjekt på alle varelinjer?`,

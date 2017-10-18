@@ -399,10 +399,7 @@ export class QuoteDetails {
         }
 
         // refresh items if project changed
-        if (quote.DefaultDimensions
-                && quote.DefaultDimensions.ProjectID !== this.projectID
-                && this.quoteItems.length) {
-
+        if (quote.DefaultDimensions && quote.DefaultDimensions.ProjectID !== this.projectID) {
             if (this.quoteItems.length && this.projectID) {
                 this.modalService.confirm({
                     header: `Endre prosjekt på alle varelinjer?`,

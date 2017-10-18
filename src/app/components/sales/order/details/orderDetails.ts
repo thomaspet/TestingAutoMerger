@@ -396,11 +396,7 @@ export class OrderDetails {
         }
 
         // refresh items if project changed
-        if (order.DefaultDimensions
-                && order.DefaultDimensions.ProjectID !== this.projectID
-                && this.orderItems.length) {
-
-
+        if (order.DefaultDimensions && order.DefaultDimensions.ProjectID !== this.projectID) {
             if (this.orderItems.length && this.projectID) {
                 this.modalService.confirm({
                     header: `Endre prosjekt på alle varelinjer?`,
