@@ -84,12 +84,15 @@ export class DistributionPeriodReportPart implements OnChanges {
     };
 
     private colors: Array<string> = ['#7293CB', '#84BA5B'];
+    public chartID: string;
 
     constructor(
         private statisticsService: StatisticsService,
         private errorService: ErrorService,
         private numberFormatService: NumberFormat
     ) {
+        this.chartID = this.statisticsService.getNewGuid();
+
         document.onkeydown = (e) => {
             if (e.keyCode === 16) {
                 this.isShiftDown = true;
@@ -323,6 +326,6 @@ export class DistributionPeriodReportPart implements OnChanges {
             data: null
         };
 
-        ChartHelper.generateChart('accountDetailsReportPeriodDistributionChart', chartConfig);
+        ChartHelper.generateChart(this.chartID, chartConfig);
     }
 }

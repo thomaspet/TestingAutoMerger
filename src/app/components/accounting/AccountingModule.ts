@@ -157,7 +157,8 @@ import {SupplierList} from './supplier/list/supplierList';
         NewAccountForm,
         UniAssignModal,
         UniAddFileModal,
-        UniNewSupplierModal
+        UniNewSupplierModal,
+        AccountDetailsReportModal
     ],
     exports: [
         AccountSettings,

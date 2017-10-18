@@ -1,7 +1,8 @@
 import {Component, Input, ViewChild, OnChanges} from '@angular/core';
 import {Observable} from 'rxjs/Observable';
 import {PeriodFilter} from '../periodFilter/periodFilter';
-import {AccountDetailsReportModal} from '../detailsmodal/accountDetailsReportModal';
+import {AccountDetailsReportModal, IDetailsModalInput} from '../detailsmodal/accountDetailsReportModal';
+import {UniModalService} from '../../../../../framework/uniModal/barrel';
 import {UniTableColumn, UniTableConfig, UniTableColumnType, INumberFormat} from '../../../../../framework/ui/unitable/index';
 import {ChartHelper} from '../chartHelper';
 import {
@@ -34,8 +35,6 @@ export class ResultSummaryData {
     templateUrl: './drilldownResultReportPart.html',
 })
 export class DrilldownResultReportPart implements OnChanges {
-
-    @ViewChild(AccountDetailsReportModal) private accountDetailsReportModal: AccountDetailsReportModal;
     @Input() private periodFilter1: PeriodFilter;
     @Input() private periodFilter2: PeriodFilter;
     @Input() private dimensionType: number;
@@ -62,7 +61,8 @@ export class DrilldownResultReportPart implements OnChanges {
         private statisticsService: StatisticsService,
         private accountGroupService: AccountGroupService,
         private errorService: ErrorService,
-        private numberFormatService: NumberFormat
+        private numberFormatService: NumberFormat,
+        private modalService: UniModalService
     ) {
 
     }
@@ -109,9 +109,19 @@ export class DrilldownResultReportPart implements OnChanges {
         }
     }
 
-    private rowClicked(summaryData: ResultSummaryData) {
+    public rowClicked(summaryData: ResultSummaryData) {
         if (summaryData.isAccount) {
-            this.accountDetailsReportModal.open(summaryData.id, summaryData.number, summaryData.name, this.dimensionType, this.dimensionId);
+            let data: IDetailsModalInput = {
+                modalMode: true,
+                accountID: summaryData.id,
+                subaccountID: null,
+                accountName: summaryData.name,
+                accountNumber: summaryData.number,
+                dimensionType: this.dimensionType,
+                dimensionId: this.dimensionId,
+                close: null
+            };
+            this.modalService.open(AccountDetailsReportModal,{ data: data });
         } else {
             summaryData.expanded = !summaryData.expanded;
 

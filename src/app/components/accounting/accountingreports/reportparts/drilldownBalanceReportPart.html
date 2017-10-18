@@ -22,5 +22,3 @@
         <td *ngIf="showPreviousAccountYear" class="amount" [ngClass]="summaryData.amountOBPeriod2 < 0 ? 'negative' : 'positive'">{{numberFormatService.asMoney(summaryData.amountOBPeriod2, numberFormat)}}</td>
     </tr>
 </table>
-
-<account-details-report-modal></account-details-report-modal>
