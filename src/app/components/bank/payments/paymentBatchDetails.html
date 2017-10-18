@@ -12,6 +12,7 @@
             <button (click)="togglesendtopaymentModal()" *ngIf="paymentBatch.StatusCode === 45002">{{ 'Send till betaling' }}</button>
             <button (click)="downloadPaymentFile()" *ngIf="paymentBatch.PaymentFileID">Last ned betalingsfil</button>
             <button (click)="toggleReceiptFilesVisible()" *ngIf="paymentBatch.StatusCode === 45009">{{ !receiptFilesVisible ? 'Vis kvitteringsfiler' : 'Skjul kvitteringsfiler' }}</button>
+            
         </div>
         <section *ngIf="receiptFilesVisible">
             <uni-attachments [entity]="'PaymentBatch'" [entityID]="paymentBatch?.ID" [downloadAsAttachment]="downloadFilesAsAttachments" [headerText]="'Kvitteringsfiler tilknyttet denne bunten'"></uni-attachments>

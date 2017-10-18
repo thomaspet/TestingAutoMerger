@@ -1716,8 +1716,8 @@ export class EmployeeCategoryLink extends UniEntity {
     public StatusCode: number;
     public UpdatedAt: Date;
     public UpdatedBy: string;
-    public EmployeeCategory: EmployeeCategory;
     public Employee: Employee;
+    public EmployeeCategory: EmployeeCategory;
     public CustomFields: any;
 }
 
@@ -3957,6 +3957,7 @@ export class CompanyAccess extends UniEntity {
 }
 
 
+
 export class KpiDefinition extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'KpiDefinition';
@@ -3980,6 +3981,10 @@ export class KpiDefinition extends UniEntity {
     public ValueType: KpiValueType;
     public CustomFields: any;
 }
+
+
+
+
 
 
 export class KpiValue extends UniEntity {
@@ -4053,6 +4058,8 @@ export class Accrual extends UniEntity {
 }
 
 
+
+
 export class BankIntegrationAgreement extends UniEntity {
     public static RelativeUrl = 'bank-agreements';
     public static EntityType = 'BankIntegrationAgreement';
@@ -4072,6 +4079,11 @@ export class BankIntegrationAgreement extends UniEntity {
     public UpdatedBy: string;
     public CustomFields: any;
 }
+
+
+
+
+
 
 
 export class JournalEntryType extends UniEntity {
@@ -4628,12 +4640,12 @@ export class SupplierInvoice extends UniEntity {
     public VatTotalsAmount: number;
     public VatTotalsAmountCurrency: number;
     public YourReference: string;
+    public CurrencyCode: CurrencyCode;
     public BankAccount: BankAccount;
+    public Supplier: Supplier;
+    public Items: Array<SupplierInvoiceItem>;
     public JournalEntry: JournalEntry;
     public DefaultDimensions: Dimensions;
-    public Supplier: Supplier;
-    public CurrencyCode: CurrencyCode;
-    public Items: Array<SupplierInvoiceItem>;
     public InvoiceReference: SupplierInvoice;
     public CustomFields: any;
 }
@@ -5529,6 +5541,9 @@ export class ActiveNumberSeriesTask extends UniEntity {
 }
 
 
+
+
+
 export class AltinnAuthChallenge extends UniEntity {
     public Message: string;
     public Status: string;
@@ -5562,6 +5577,7 @@ export class SendEmailAttachment extends UniEntity {
     public Attachment: string;
     public FileName: string;
 }
+
 
 
 export class ReportParameter extends UniEntity {

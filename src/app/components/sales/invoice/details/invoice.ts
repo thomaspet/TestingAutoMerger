@@ -50,6 +50,7 @@ import {
     UniRegisterPaymentModal,
     UniActivateAPModal,
     UniSendEmailModal,
+    UniSendVippsInvoiceModal,
     ConfirmActions
 } from '../../../../../framework/uniModal/barrel';
 import {IUniSaveAction} from '../../../../../framework/save/save';
@@ -418,6 +419,14 @@ export class InvoiceDetails {
         });
     }
 
+    private sendToVipps(id, doneHandler: (msg?: string) => void = null) {
+        this.modalService.open(UniSendVippsInvoiceModal, {
+            data:new Object({InvoiceID: id})
+        }).onClose.subscribe(Text => {
+            doneHandler();
+        });
+     }
+     
     @HostListener('keydown', ['$event'])
     public onKeyDown(event: KeyboardEvent) {
         const key = event.which || event.keyCode;
@@ -1134,6 +1143,12 @@ export class InvoiceDetails {
             action: (done) => this.sendEHFAction(done),
             disabled: status < StatusCodeCustomerInvoice.Invoiced,
             main: printStatus !== 300 && this.ehfEnabled && status === StatusCodeCustomerInvoice.Invoiced && !this.isDirty
+        });
+        
+        this.saveActions.push({
+            label: 'Send til Vipps',
+            action: (done) => this.sendToVipps(this.invoiceID, done),
+            disabled: false,
         });
 
         this.saveActions.push({
