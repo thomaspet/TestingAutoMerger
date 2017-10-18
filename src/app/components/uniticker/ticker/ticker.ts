@@ -60,7 +60,6 @@ export class UniTicker {
     @Output() public contextMenuItemsChange: EventEmitter<any[]> = new EventEmitter();
 
     @ViewChild(UniTable) public unitable: UniTable;
-    @ViewChild(ImageModal) private imageModal: ImageModal;
 
     private model: any;
 
@@ -630,8 +629,15 @@ export class UniTicker {
                         } else if (field.Type === 'attachment') {
                             col.setTemplate(line => line.Attachments ? PAPERCLIP : '');
                             col.setOnCellClick(row => {
-                                const entity = field.ExternalModel ? field.ExternalModel : this.ticker.Model;
-                                this.imageModal.open(entity, row.JournalEntryID);
+                                if (row.Attachments) {
+                                    const entity = field.ExternalModel ? field.ExternalModel : this.ticker.Model;
+                                    let data = {
+                                        entity: entity,
+                                        entityID: row.JournalEntryID
+                                    };
+
+                                    this.modalService.open(ImageModal, { data: data });
+                                }
                             });
                         }
 

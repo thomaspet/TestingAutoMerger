@@ -8,6 +8,7 @@ import {ImageUploader} from '../../../../framework/uniImage/imageUploader';
 import {AppConfig} from '../../../AppConfig';
 import {ImageModal} from '../modals/ImageModal';
 import {UniImageSize} from '../../../../framework/uniImage/uniImage';
+import {UniModalService} from '../../../../framework/uniModal/barrel';
 import {saveAs} from 'file-saver';
 
 export interface IUploadConfig {
@@ -39,11 +40,9 @@ export interface IUploadConfig {
                 </label>
             </section>
         </article>
-        <image-modal></image-modal>
     `,
 })
 export class UniAttachments {
-    @ViewChild(ImageModal) public imageModal: ImageModal;
 
     @Input()
     public entity: string;
@@ -95,7 +94,8 @@ export class UniAttachments {
         private errorService: ErrorService,
         private fileService: FileService,
         private uniFilesService: UniFilesService,
-        private authService: AuthService
+        private authService: AuthService,
+        private modalService: UniModalService
     ) {
         authService.authentication$.subscribe((authDetails) => {
             this.activeCompany = authDetails.activeCompany;
@@ -130,7 +130,15 @@ export class UniAttachments {
 
     public attachmentClicked(attachment: File) {
         if (!this.downloadAsAttachment) {
-            this.imageModal.openReadOnly(this.entity, this.entityID, attachment.ID);
+            let data = {
+                entity: this.entity,
+                entityID: this.entityID,
+                showFileID: attachment.ID,
+                readonly: true
+            };
+
+            this.modalService.open(ImageModal, { data: data });
+
         } else {
             this.fileService
                 .downloadFile(attachment.ID, 'application/xml')
@@ -199,7 +207,6 @@ export class UniAttachments {
                     .subscribe(newFile => {
                         this.uploading = false;
                         this.fileUploaded.emit(res);
-                        this.imageModal.refreshImages();
                         this.files.push(newFile);
                     }, err => this.errorService.handle(err));
             }, err => {

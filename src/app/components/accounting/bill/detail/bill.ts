@@ -126,7 +126,6 @@ export class BillView {
     @ViewChild(UniForm) public uniForm: UniForm;
     @ViewChild(BillSimpleJournalEntryView) private simpleJournalentry: BillSimpleJournalEntryView;
     @ViewChild(BillHistoryView) private historyView: BillHistoryView;
-    @ViewChild(ImageModal) public imageModal: ImageModal;
     @ViewChild(UniImage) public uniImage: UniImage;
 
     private supplierExpandOptions: Array<string> = [
@@ -147,29 +146,29 @@ export class BillView {
     public actions: IUniSaveAction[];
 
     private rootActions: IUniSaveAction[] = [
-        { 
-            label: lang.tool_save, 
-            action: (done) => this.save(done), 
-            main: true, 
-            disabled: true 
+        {
+            label: lang.tool_save,
+            action: (done) => this.save(done),
+            main: true,
+            disabled: true
         },
-        { 
-            label: lang.tool_save_and_new, 
-            action: (done) => this.saveAndGetNewDocument(done), 
-            main: true, 
-            disabled: true 
+        {
+            label: lang.tool_save_and_new,
+            action: (done) => this.saveAndGetNewDocument(done),
+            main: true,
+            disabled: true
         },
-        { 
-            label: lang.tool_delete, 
-            action: (done) => this.tryDelete(done), 
-            main: false, 
-            disabled: true 
+        {
+            label: lang.tool_delete,
+            action: (done) => this.tryDelete(done),
+            main: false,
+            disabled: true
         },
-        { 
-            label: lang.converter, 
-            action: (done) => { this.runConverter(this.files); done(); }, 
-            main: false, 
-            disabled: false 
+        {
+            label: lang.converter,
+            action: (done) => { this.runConverter(this.files); done(); },
+            main: false,
+            disabled: false
         },
     ];
 
@@ -632,14 +631,19 @@ export class BillView {
 
     public onImageClicked(file: any) {
         let current = this.current.getValue();
-        let entityID = current.ID || 0;
+        let data = {
+            entity: 'SupplierInvoice',
+            entityID: current.ID || 0,
+            fileIDs: null,
+            showFileID: file.ID,
+            readonly: false,
+            size: UniImageSize.large
+        };
 
-        if (entityID > 0) {
-            this.imageModal.openReadOnly('SupplierInvoice', entityID, file.ID, UniImageSize.large);
-        } else {
-            let fileIds = this.files.map(file => file.ID);
-            this.imageModal.openReadOnlyFileIds('SupplierInvoice', fileIds, file.ID, UniImageSize.large);
+        if (data.entityID <= 0) {
+            data.fileIDs = this.files.map(f => f.ID);
         }
+        this.modalService.open(ImageModal, { data: data });
     }
 
     public onImageDeleted(file: any) {

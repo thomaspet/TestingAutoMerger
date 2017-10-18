@@ -52,7 +52,6 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges 
     @Output() public salarytransListReady: EventEmitter<any> = new EventEmitter<any>(true);
 
     @ViewChild(UniTable) public table: UniTable;
-    @ViewChild(ImageModal) public imageModal: ImageModal;
 
     private busy: boolean;
     private salaryTransactions: SalaryTransaction[];
@@ -596,7 +595,14 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges 
 
     private openDocumentsOnRow(row: SalaryTransaction): void {
         if (row.ID) {
-            this.imageModal.open('SalaryTransaction', row.ID);
+            let data = {
+                entity: 'SalaryTransaction',
+                entityID: row.ID
+            };
+
+            this.modalService.open(ImageModal, { data: data }).onClose.subscribe((list: UpdatedFileListEvent) => {
+                this.updateFileList(list);
+            });
         }
     }
 

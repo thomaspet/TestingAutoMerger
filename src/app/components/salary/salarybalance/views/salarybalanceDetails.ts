@@ -16,6 +16,7 @@ import {
     ToastService, ToastType, ToastTime
 } from '../../../../../framework/uniToast/toastService';
 import {UniImage, UniImageSize} from '../../../../../framework/uniImage/uniImage';
+import {UniModalService} from '../../../../../framework/uniModal/barrel';
 import {ImageModal} from '../../../common/modals/ImageModal';
 import {Subscription} from 'rxjs/Subscription';
 type UniFormTabEvent = {
@@ -46,7 +47,6 @@ export class SalarybalanceDetail extends UniView {
     public collapseSummary: boolean = false;
 
     @ViewChild(UniImage) public uniImage: UniImage;
-    @ViewChild(ImageModal) public imageModal: ImageModal;
     @ViewChild(UniForm) public form: UniForm;
 
     constructor(
@@ -59,7 +59,8 @@ export class SalarybalanceDetail extends UniView {
         private toastService: ToastService,
         protected cacheService: UniCacheService,
         private errorService: ErrorService,
-        private modulusService: ModulusService
+        private modulusService: ModulusService,
+        private modalService: UniModalService
     ) {
         super(router.url, cacheService);
 
@@ -156,7 +157,16 @@ export class SalarybalanceDetail extends UniView {
 
     public onImageClicked(file) {
         if (this.salarybalanceID > 0) {
-            this.imageModal.openReadOnly('SalaryBalance', this.salarybalanceID, file.ID, UniImageSize.large);
+            let data = {
+                entity: 'SalaryBalance',
+                entityID: this.salarybalanceID,
+                fileIDs: null,
+                showFileID: file.ID,
+                readonly: true,
+                size: UniImageSize.large
+            };
+
+            this.modalService.open(ImageModal, { data: data });
         }
     }
 

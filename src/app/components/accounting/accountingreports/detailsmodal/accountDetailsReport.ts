@@ -12,6 +12,7 @@ import {
 import {DistributionPeriodReportPart} from '../reportparts/distributionPeriodReportPart';
 import {JournalEntry} from '../../../../unientities';
 import {ImageModal} from '../../../common/modals/ImageModal';
+import {UniModalService} from '../../../../../framework/uniModal/barrel';
 import {IToolbarConfig} from './../../../common/toolbar/toolbar';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {FieldType} from '../../../../../framework/ui/uniform/index';
@@ -37,10 +38,23 @@ declare var _;
     templateUrl: './accountDetailsReport.html',
 })
 export class AccountDetailsReport {
-    @Input() public config: { close: () => void, modalMode: boolean, accountID: number, subaccountID, accountNumber: number, accountName: string, dimensionType: number, dimensionId: number };
-    @ViewChild(ImageModal) private imageModal: ImageModal;
-    @ViewChild(UniTable) private transactionsTable: UniTable;
-    @ViewChild(DistributionPeriodReportPart) private distributionPeriodReportPart: DistributionPeriodReportPart;
+    @Input()
+    public config: {
+        close: () => void,
+        modalMode: boolean,
+        accountID: number,
+        subaccountID,
+        accountNumber: number,
+        accountName: string,
+        dimensionType: number,
+        dimensionId: number
+    };
+
+    @ViewChild(UniTable)
+    public transactionsTable: UniTable;
+
+    @ViewChild(DistributionPeriodReportPart)
+    public distributionPeriodReportPart: DistributionPeriodReportPart;
 
     private uniTableConfigTransactions$: BehaviorSubject<UniTableConfig> = new BehaviorSubject<UniTableConfig>(null);
 
@@ -63,13 +77,16 @@ export class AccountDetailsReport {
 
     private toolbarconfig: IToolbarConfig;
 
-    constructor(private statisticsService: StatisticsService,
-                private errorService: ErrorService,
-                private financialYearService: FinancialYearService,
-                private accountService: AccountService,
-                private toastService: ToastService,
-                private uniSearchAccountConfig: UniSearchAccountConfig,
-                private tabService: TabService) {
+    constructor(
+        private statisticsService: StatisticsService,
+        private errorService: ErrorService,
+        private financialYearService: FinancialYearService,
+        private accountService: AccountService,
+        private toastService: ToastService,
+        private uniSearchAccountConfig: UniSearchAccountConfig,
+        private tabService: TabService,
+        private modalService: UniModalService
+    ) {
 
        this.config = {
             close: () => {},
@@ -301,7 +318,12 @@ export class AccountDetailsReport {
 
     public onCellClick(event: ICellClickEvent) {
         if (event.column.field === 'ID') {
-            this.imageModal.open(JournalEntry.EntityType, event.row.JournalEntryID);
+            let data = {
+                entity: JournalEntry.EntityType,
+                entityID: event.row.JournalEntryID
+
+            };
+            this.modalService.open(ImageModal, { data: data });
         }
     }
 
