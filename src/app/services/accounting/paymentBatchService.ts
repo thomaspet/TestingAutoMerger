@@ -60,4 +60,15 @@ export class PaymentBatchService extends BizHttp<PaymentBatch> {
 
         return 'Ukjent status: ' + statusCode;
     }
+
+    public SendToPayment(password: string, paymentBatchID: number): Observable<any> {
+        super.invalidateCache();
+        return this.http
+            .asPUT()
+            .usingBusinessDomain()
+            .withBody(password)
+            .withEndPoint(this.relativeURL + '?action=send-to-payment&fileId='+ paymentBatchID)
+            .send()
+            .map(response => response.json());
+    }
 }

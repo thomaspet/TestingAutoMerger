@@ -13,7 +13,7 @@ import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig} from '../.
 import {URLSearchParams} from '@angular/http';
 import {PaymentRelationsModal} from './relationModal';
 import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
-import {UniModalService, ConfirmActions} from '../../../../framework/uniModal/barrel';
+import {UniModalService, ConfirmActions, UniSendPaymentModal} from '../../../../framework/uniModal/barrel';
 import {saveAs} from 'file-saver';
 import * as moment from 'moment';
 
@@ -170,6 +170,12 @@ export class PaymentBatchDetails implements OnChanges {
 
     private toggleReceiptFilesVisible() {
         this.receiptFilesVisible = !this.receiptFilesVisible;
+    }
+
+    private togglesendtopaymentModal(){
+        this.modalService.open(UniSendPaymentModal, {
+            data: { PaymentBatchID:this.paymentBatchID }
+        })
     }
 
     private loadPaymentBatchData() {

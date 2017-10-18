@@ -4,6 +4,7 @@ import {UniAddressModal} from './presets/addressModal';
 import {UniPhoneModal} from './presets/phoneModal';
 import {UniEmailModal} from './presets/emailModal';
 import {UniSendEmailModal} from './presets/sendEmailModal';
+import {UniSendPaymentModal} from './presets/sendPaymentModal';
 import {UniBankAccountModal} from './presets/bankAccountModal';
 import {UniUnsavedChangesModal} from './presets/unsavedChangesModal';
 import {UniRegisterPaymentModal} from './presets/registerPaymentModal';
@@ -18,6 +19,7 @@ export * from './presets/addressModal';
 export * from './presets/phoneModal';
 export * from './presets/emailModal';
 export * from './presets/sendEmailModal';
+export * from './presets/sendPaymentModal';
 export * from './presets/bankAccountModal';
 export * from './presets/unsavedChangesModal';
 export * from './presets/registerPaymentModal';
@@ -32,6 +34,7 @@ export const MODALS = [
     UniPhoneModal,
     UniEmailModal,
     UniSendEmailModal,
+    UniSendPaymentModal,
     UniBankAccountModal,
     UniUnsavedChangesModal,
     UniRegisterPaymentModal,

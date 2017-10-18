@@ -9,6 +9,7 @@
         <span>Totalbeløp: {{paymentBatch.TotalAmount  | unicurrency}} {{companySettings?.BaseCurrencyCode?.ShortCode}}   Antall betalinger: {{paymentBatch.NumberOfPayments}}</span>
         <div class="file-buttons">
             <button (click)="createPaymentFile()" *ngIf="!paymentBatch.PaymentFileID">Opprett betalingsfil</button>
+            <button (click)="togglesendtopaymentModal()" *ngIf="paymentBatch.StatusCode === 45002">{{ 'Send till betaling' }}</button>
             <button (click)="downloadPaymentFile()" *ngIf="paymentBatch.PaymentFileID">Last ned betalingsfil</button>
             <button (click)="toggleReceiptFilesVisible()" *ngIf="paymentBatch.StatusCode === 45009">{{ !receiptFilesVisible ? 'Vis kvitteringsfiler' : 'Skjul kvitteringsfiler' }}</button>
         </div>
