@@ -91,7 +91,9 @@ export class ReminderList {
             field: 'RestAmount',
             operator: 'gt',
             value: this.reminderSettings.MinimumAmountToRemind,
-            group: 0
+            group: 0,
+            searchValue: '',
+            selectConfig: null
         });
 
         // Due date
@@ -99,7 +101,9 @@ export class ReminderList {
             field: 'PaymentDueDate',
             operator: 'lt',
             value: new LocalDate().toString(),
-            group: 0
+            group: 0,
+            searchValue: '',
+            selectConfig: null
         });
 
         return filters;

@@ -299,21 +299,21 @@ export class TransqueryDetails implements OnInit {
         ) {
             const accountYear = `01.01.${routeParams['year']}`;
             const nextAccountYear = `01.01.${parseInt(routeParams['year']) + 1}`;
-            filter.push({field: 'Account.AccountNumber', operator: 'eq', searchValue: routeParams['Account_AccountNumber'], value: routeParams['Account_AccountNumber'], group: 0});
+            filter.push({field: 'Account.AccountNumber', operator: 'eq', searchValue: routeParams['Account_AccountNumber'], value: routeParams['Account_AccountNumber'], group: 0, selectConfig: null});
             if (+routeParams['period'] === 0) {
-                filter.push({field: 'FinancialDate', operator: 'lt', searchValue: accountYear, value: accountYear, group: 0});
+                filter.push({field: 'FinancialDate', operator: 'lt', searchValue: accountYear, value: accountYear, group: 0, selectConfig: null});
             } else if (+routeParams['period'] === 13) {
                 if (routeParams['isIncomingBalance'] === 'true') {
-                    filter.push({field: 'FinancialDate', operator: 'lt',searchValue: nextAccountYear, value: nextAccountYear, group: 0});
+                    filter.push({field: 'FinancialDate', operator: 'lt',searchValue: nextAccountYear, value: nextAccountYear, group: 0, selectConfig: null});
                 } else {
-                    filter.push({field: 'FinancialDate', operator: 'ge', searchValue: accountYear ,value: accountYear, group: 0});
-                    filter.push({field: 'FinancialDate', operator: 'lt', searchValue: nextAccountYear ,value: nextAccountYear, group: 0});
+                    filter.push({field: 'FinancialDate', operator: 'ge', searchValue: accountYear ,value: accountYear, group: 0, selectConfig: null});
+                    filter.push({field: 'FinancialDate', operator: 'lt', searchValue: nextAccountYear ,value: nextAccountYear, group: 0, selectConfig: null});
                 }
             } else {
                 const periodDates = this.journalEntryLineService
                     .periodNumberToPeriodDates(routeParams['period'], routeParams['year']);
-                filter.push({field: 'FinancialDate', operator: 'ge', searchValue: periodDates.firstDayOfPeriod, value: periodDates.firstDayOfPeriod, group: 0});
-                filter.push({field: 'FinancialDate', operator: 'le', searchValue: periodDates.lastDayOfPeriod, value: periodDates.lastDayOfPeriod, group: 0});
+                filter.push({field: 'FinancialDate', operator: 'ge', searchValue: periodDates.firstDayOfPeriod, value: periodDates.firstDayOfPeriod, group: 0, selectConfig: null});
+                filter.push({field: 'FinancialDate', operator: 'le', searchValue: periodDates.lastDayOfPeriod, value: periodDates.lastDayOfPeriod, group: 0, selectConfig: null});
             }
         } else if (routeParams['Account_AccountNumber']) {
             searchParams.AccountID = null;
@@ -359,7 +359,8 @@ export class TransqueryDetails implements OnInit {
                 operator: 'eq',
                 value: routeParams['journalEntryNumber'],
                 searchValue: routeParams['journalEntryNumber'],
-                group: 0
+                group: 0,
+                selectConfig: null
             });
 
             this.allowManualSearch = false;
@@ -370,7 +371,8 @@ export class TransqueryDetails implements OnInit {
                     operator: 'eq',
                     value: routeParams[field],
                     searchValue: routeParams[field],
-                    group: 0
+                    group: 0,
+                    selectConfig: null
                 });
             }
         }

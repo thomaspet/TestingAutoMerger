@@ -679,6 +679,18 @@ export class UniTicker {
                         } else {
                             col.filterable = false;
                         }
+
+                        if (field.SelectableFieldName.toLowerCase().endsWith('statuscode')) {
+                            let statusCodes = this.statusService.getStatusCodesForEntity(this.ticker.Model);
+                            if (statusCodes && statusCodes.length > 0) {
+                                col.selectConfig = {
+                                    options: statusCodes,
+                                    dislayField: 'name',
+                                    valueField: 'statusCode'
+                                };
+                            }
+                        }
+
                         columns.push(col);
                     }
                 }

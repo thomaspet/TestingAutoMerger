@@ -128,6 +128,17 @@ export class UniQueryReadOnly implements OnChanges {
                             f.width = field.Width;
                             f.index = field.Index;
 
+                            if (f.field.toLowerCase().endsWith('statuscode')) {
+                                let statusCodes = this.statusService.getStatusCodesForEntity(this.queryDefinition.MainModelName);
+                                if (statusCodes && statusCodes.length > 0) {
+                                    f.selectConfig = {
+                                        options: statusCodes,
+                                        dislayField: 'name',
+                                        valueField: 'statusCode'
+                                    };
+                                }
+                            }
+
                             this.fields.push(f);
                         });
 
@@ -136,7 +147,9 @@ export class UniQueryReadOnly implements OnChanges {
                                 field: field.Field,
                                 operator: field.Operator,
                                 value: field.Value,
-                                group: field.Group
+                                group: field.Group,
+                                searchValue: '',
+                                selectConfig: null
                             };
 
                             this.filters.push(f);
@@ -218,6 +231,8 @@ export class UniQueryReadOnly implements OnChanges {
             if (selectableColName.toLowerCase().endsWith('statuscode')) {
                 col.template = (rowModel) => this.statusCodeToText(rowModel[aliasColName]);
             }
+
+            col.selectConfig = field.selectConfig;
 
             columns.push(col);
 

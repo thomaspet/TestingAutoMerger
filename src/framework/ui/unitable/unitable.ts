@@ -29,6 +29,7 @@ export interface ITableFilter {
     value: string | number;
     group: number;
     searchValue: string;
+    selectConfig: {options: Array<any>, valueField: string, displayField: string};
 }
 
 export interface IExpressionFilterValue {
@@ -699,7 +700,9 @@ export class UniTable implements OnChanges {
             let advancedFilter = this.utils.getFilterString(this.advancedSearchFilters, this.config.expressionFilterValues);
 
             if (basicFilter.length && advancedFilter.length) {
-                filterString = `(${basicFilter}) and (${advancedFilter})`;
+                // extra spaces before/after filters is intentional, missing spaces sometimes causes
+                // problems in the api when using functions in filters in parentheses
+                filterString = `( ${basicFilter} ) and ( ${advancedFilter} )`;
             } else {
                 filterString = (basicFilter.length) ? basicFilter : advancedFilter;
             }
