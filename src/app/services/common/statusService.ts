@@ -4,14 +4,22 @@ import {StatisticsService} from './statisticsService';
 import {ErrorService} from './errorService';
 import {UserService} from './userService';
 import {User} from '../../unientities';
+import {CustomerInvoiceService} from '../sales/customerInvoiceService';
+import {CustomerOrderService} from '../sales/customerOrderService';
+import {CustomerQuoteService} from '../sales/customerQuoteService';
 
 @Injectable()
 export class StatusService {
     private statusDictionary: {[StatusCode: number]: {name: string, entityType: string}};
 
-    constructor(private statisticsService: StatisticsService, private userService: UserService, private errorService: ErrorService) {
-
-    }
+    constructor(
+        private statisticsService: StatisticsService,
+        private userService: UserService,
+        private errorService: ErrorService,
+        private customerInvoiceService: CustomerInvoiceService
+        private customerOrderService: CustomerOrderService,
+        private customerQuoteService: CustomerQuoteService
+    ) {}
 
     public getStatusText(statusCode: number): string {
         if (this.statusDictionary) {
@@ -49,8 +57,21 @@ export class StatusService {
                         if (data.Data) {
                             this.statusDictionary = {};
                             data.Data.forEach(item => {
+                                let name: string = item.StatusDescription;
+                                switch (item.StatusEntityType) {
+                                    case 'CustomerInvoice':
+                                        name = this.customerInvoiceService.getStatusText(item.StatusStatusCode, 0);
+                                        break;
+                                    case 'CustomerOrder':
+                                        name = this.customerOrderService.getStatusText(item.StatusStatusCode);
+                                        break;
+                                    case 'CustomerQuote':
+                                        name = this.customerQuoteService.getStatusText(item.StatusStatusCode);
+                                        break;
+                                }
+
                                 this.statusDictionary[item.StatusStatusCode] = {
-                                    name: item.StatusDescription,
+                                    name: name,
                                     entityType: item.StatusEntityType
                                 };
                             });
