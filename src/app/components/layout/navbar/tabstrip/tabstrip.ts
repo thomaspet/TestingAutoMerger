@@ -3,7 +3,7 @@ import {Router, NavigationEnd} from '@angular/router';
 import {TabService, UniModules} from './tabService';
 import {AuthService} from '../../../../authService';
 import {Observable} from 'rxjs/Observable';
-import {Subscription} from 'rxjs/Subscription';
+import {Subject} from 'rxjs/Subject';
 
 export interface IUniTab {
     url: string;
@@ -58,12 +58,11 @@ export interface IUniTab {
 })
 export class UniTabStrip {
     private tabs: IUniTab[] = [];
-    private tabSubscription: Subscription;
-    private navigationSubscription: Subscription;
     private homeTabActive: boolean;
-    private lastActiveTab: string;
+    private lastActiveTab: IUniTab;
 
     private collapseTabs: boolean;
+    private componentDestroyedSubject: Subject<any> = new Subject();
 
     constructor(
         private router: Router,
@@ -71,29 +70,33 @@ export class UniTabStrip {
         private authService: AuthService,
         private cdr: ChangeDetectorRef
     ) {
-        window.addEventListener('keydown', (event) => {
-            if (event.keyCode === 87 && event.altKey) {
-                this.tabService.closeTab();
-            } else if (event.keyCode === 37 && event.altKey) {
-                this.tabService.activatePrevTab();
-            } else if (event.keyCode === 39 && event.altKey) {
-                this.tabService.activateNextTab();
-            }
-        });
-
         this.authService.companyChange.subscribe((change) => {
             this.tabService.removeAllTabs();
         });
 
-        this.navigationSubscription = this.router.events
+        this.router.events
+            .takeUntil(this.componentDestroyedSubject)
             .filter(event => event instanceof NavigationEnd)
             .subscribe((navigationEvent: NavigationEnd) => {
                 this.homeTabActive = navigationEvent.url === '/';
                 this.cdr.detectChanges();
             });
 
+        Observable.fromEvent(window, 'keydown')
+            .takeUntil(this.componentDestroyedSubject)
+            .subscribe((event: KeyboardEvent) => {
+                if (event.keyCode === 87 && event.altKey) {
+                    this.tabService.closeTab();
+                } else if (event.keyCode === 37 && event.altKey) {
+                    this.tabService.activatePrevTab();
+                } else if (event.keyCode === 39 && event.altKey) {
+                    this.tabService.activateNextTab();
+                }
+            });
+
         this.collapseTabs = window.innerWidth <= 1250;
         Observable.fromEvent(window, 'resize')
+            .takeUntil(this.componentDestroyedSubject)
             .throttleTime(200)
             .subscribe(event => {
                 let collapseTabs = window.innerWidth <= 1250;
@@ -107,22 +110,24 @@ export class UniTabStrip {
     }
 
     public ngAfterViewInit() {
-        this.tabSubscription = this.tabService.tabs$.subscribe((tabs) => {
-            this.tabs = tabs;
-            let activeTab = tabs.find(tab => tab.active);
-            if (activeTab) {
-                this.lastActiveTab = activeTab;
-            } else if (!this.lastActiveTab) {
-                this.lastActiveTab = tabs && tabs[0];
-            }
+        this.tabService.tabs$
+            .asObservable()
+            .takeUntil(this.componentDestroyedSubject)
+            .subscribe((tabs) => {
+                this.tabs = tabs;
+                let activeTab = tabs.find(tab => tab.active);
+                if (activeTab) {
+                    this.lastActiveTab = activeTab;
+                } else if (!this.lastActiveTab) {
+                    this.lastActiveTab = tabs && tabs[0];
+                }
 
-            this.cdr.detectChanges();
-        });
+                this.cdr.detectChanges();
+            });
     }
 
     public ngOnDestroy() {
-        this.tabSubscription.unsubscribe();
-        this.navigationSubscription.unsubscribe();
+        this.componentDestroyedSubject.next();
     }
 
     public possiblyCloseTab(index: number, event: MouseEvent) {
