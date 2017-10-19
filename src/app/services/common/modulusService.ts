@@ -50,7 +50,7 @@ export class ModulusService {
         if (KID) {
             return !KID
             .split('')
-            .some(x => isNaN(+x)) && this.modulus10(KID) && this.modulus11(KID);
+            .some(x => isNaN(+x)) && (this.modulus10(KID) || this.modulus11(KID));
         }
         return true;
     }
