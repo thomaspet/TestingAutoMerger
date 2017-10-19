@@ -1250,7 +1250,7 @@ export class InvoiceDetails {
             }
         }).catch(err => {
             this.errorService.handle(err);
-            doneHandler('');
+            if (doneHandler) { doneHandler('Fakturaen ble IKKE lagret'); }
         });
     }
 
