@@ -4,6 +4,8 @@ import {NumberSeries} from '../../unientities';
 import {UniHttp} from '../../../framework/core/http/http';
 import {Observable} from 'rxjs/Observable';
 
+const MAXNUMBER = 2147483647;
+
 @Injectable()
 export class NumberSeriesService extends BizHttp<NumberSeries> {
 
@@ -41,11 +43,11 @@ export class NumberSeriesService extends BizHttp<NumberSeries> {
     }
 
     public suggestions: any[] = [
-        {Name: 'JournalEntry invoice number series type', _DisplayName: 'Faktura bilag (salg)', _Task: 'CustomerInvoice', _Register: 'Bilag', NextNumber: null, _FromNumber: 50000, _ToNumber: 59999, _NextNumber: 50000, UseNumbersFromNumberSeriesID: null},
         {Name: 'JournalEntry supplierinvoice number series type', _DisplayName: 'Faktura bilag (innkjøp)', _Task: 'SupplierInvoice', _Register: 'Bilag', NextNumber: null, _FromNumber: 60000, _ToNumber: 69999, _NextNumber: 60000, UseNumbersFromNumberSeriesID: null},
         {Name: 'JournalEntry salary number series type', _DisplayName: 'Lønnsbilag', _Task: 'Salary', _Register: 'Bilag', NextNumber: null, _FromNumber: 70000, _ToNumber: 79999, _NextNumber: 70000, UseNumbersFromNumberSeriesID: null},
         {Name: 'JournalEntry bank number series type', _DisplayName: 'Bank', _Task: 'Bank', _Register: 'Bilag', NextNumber: null, _FromNumber: 80000, _ToNumber: 89999, _NextNumber: 80000, UseNumbersFromNumberSeriesID: null},
-        {Name: 'JournalEntry vatreport number series type', _DisplayName: 'MVA', _Task: 'VatReport', _Register: 'Bilag', NextNumber: null, _FromNumber: 90000, _ToNumber: 99999, _NextNumber: 60000, UseNumbersFromNumberSeriesID: null}
+        {Name: 'JournalEntry vatreport number series type', _DisplayName: 'MVA', _Task: 'VatReport', _Register: 'Bilag', NextNumber: null, _FromNumber: 90000, _ToNumber: 99999, _NextNumber: 60000, UseNumbersFromNumberSeriesID: null},
+        {Name: 'JournalEntry invoice number series type', _DisplayName: 'Faktura bilag (salg)', _Task: 'CustomerInvoice', _Register: 'Bilag', NextNumber: null, _FromNumber: 100000, _ToNumber: MAXNUMBER, _NextNumber: 100000, UseNumbersFromNumberSeriesID: null},
     ];
 
     public yearly: any[] = [
