@@ -150,7 +150,7 @@ export class UniToolbar {
 
     public checkExtrasOverflow() {
         let extras: HTMLElement = this.extrasElement && this.extrasElement.nativeElement;
-        if (extras && extras.offsetWidth > extras.clientWidth) {
+        if (extras && extras.scrollHeight > extras.clientHeight) {
             extras.style.position = 'absolute';
             extras.style.top = '0';
             extras.style.left = '18%';
