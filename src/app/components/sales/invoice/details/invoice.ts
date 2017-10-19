@@ -1239,18 +1239,18 @@ export class InvoiceDetails {
                     request.subscribe(res => {
                         if (res.InvoiceNumber) { this.selectConfig = undefined; }
                         resolve(res);
-                        if (doneHandler) { doneHandler('Fakturaen ble lagret'); }
+                        if (doneHandler) { doneHandler('Lagring fullført'); }
                     }, err => reject(err));
                 }
             } else {
                 request.subscribe(res => {
                     resolve(res);
-                    if (doneHandler) { doneHandler('Fakturaen ble lagret'); }
+                    if (doneHandler) { doneHandler('Lagring fullført'); }
                 }, err => reject(err));
             }
         }).catch(err => {
             this.errorService.handle(err);
-            if (doneHandler) { doneHandler('Fakturaen ble IKKE lagret'); }
+            if (doneHandler) { doneHandler('Lagring feilet'); }
         });
     }
 
@@ -1262,30 +1262,34 @@ export class InvoiceDetails {
         const errText = isCreditNote ? 'Kreditering feiler' : 'Fakturering feilet';
 
         this.saveInvoice().then((invoice) => {
-            this.isDirty = false;
+            if (invoice) {
+                this.isDirty = false;
 
-            // Update ID to avoid posting multiple times
-            // in case any of the following requests fail
-            if (invoice.ID && !this.invoice.ID) {
-                this.invoice.ID = invoice.ID;
-            }
-
-            if (!isDraft) {
-                this.router.navigateByUrl('sales/invoices/' + invoice.ID);
-                return;
-            }
-
-            this.customerInvoiceService.Transition(invoice.ID, null, 'invoice').subscribe(
-                (res) => this.selectConfig = undefined,
-                (err) => this.errorService.handle(err),
-                () => {
-                    this.customerInvoiceService.Get(this.invoice.ID, this.expandOptions)
-                        .subscribe(res => {
-                            this.refreshInvoice(res);
-                            done(doneText);
-                        });
+                // Update ID to avoid posting multiple times
+                // in case any of the following requests fail
+                if (invoice.ID && !this.invoice.ID) {
+                    this.invoice.ID = invoice.ID;
                 }
-            );
+
+                if (!isDraft) {
+                    this.router.navigateByUrl('sales/invoices/' + invoice.ID);
+                    return;
+                }
+
+                this.customerInvoiceService.Transition(invoice.ID, null, 'invoice').subscribe(
+                    (res) => this.selectConfig = undefined,
+                    (err) => this.errorService.handle(err),
+                    () => {
+                        this.customerInvoiceService.Get(this.invoice.ID, this.expandOptions)
+                            .subscribe(res => {
+                                this.refreshInvoice(res);
+                                done(doneText);
+                            });
+                    }
+                );
+            } else {
+                done('Lagring feilet');
+            }
         }).catch(error => {
             this.handleSaveError(error, done);
         });
@@ -1295,10 +1299,14 @@ export class InvoiceDetails {
         this.invoice.DontSendReminders = !this.invoice.DontSendReminders;
 
         this.saveInvoice().then((invoice) => {
-            this.isDirty = false;
-            this.updateToolbar();
-            this.updateSaveActions();
-            done(this.invoice.DontSendReminders ? 'Purrestopp aktivert' : 'Purrestopp opphevet');
+            if (invoice) {
+                this.isDirty = false;
+                this.updateToolbar();
+                this.updateSaveActions();
+                done(this.invoice.DontSendReminders ? 'Purrestopp aktivert' : 'Purrestopp opphevet');
+            } else {
+                done('Lagring feilet');
+            }
         }).catch(error => {
             this.handleSaveError(error, done);
         });
@@ -1311,17 +1319,21 @@ export class InvoiceDetails {
         }
 
         this.saveInvoice().then((invoice) => {
-            this.isDirty = false;
-            if (requiresPageRefresh) {
-                this.router.navigateByUrl('sales/invoices/' + invoice.ID);
+            if (invoice) {
+                this.isDirty = false;
+                if (requiresPageRefresh) {
+                    this.router.navigateByUrl('sales/invoices/' + invoice.ID);
+                } else {
+                    this.customerInvoiceService.Get(invoice.ID, this.expandOptions)
+                        .subscribe(
+                        res => this.refreshInvoice(res),
+                        err => this.errorService.handle(err)
+                        );
+                }
+                done('Lagring fullført');
             } else {
-                this.customerInvoiceService.Get(invoice.ID, this.expandOptions)
-                    .subscribe(
-                    res => this.refreshInvoice(res),
-                    err => this.errorService.handle(err)
-                    );
+                done('Lagring feilet');
             }
-            done('Lagring fullført');
         }).catch(error => {
             this.handleSaveError(error, done);
         });
