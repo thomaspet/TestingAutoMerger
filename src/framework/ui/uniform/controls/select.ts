@@ -118,18 +118,9 @@ export class UniSelectInput extends BaseControl {
     }
 
     public addEmptyValue(source: any[]): any[] {
-        let emptyItem = {};
         if (this.field.Options && !this.field.Options.addEmptyValue) {
             return [].concat(source);
         }
-        if (this.field.Options && this.field.Options.addEmptyValue) {
-            const valueProperty = this.field.Options.valueProperty;
-            const displayProperty = this.field.Options.displayProperty;
-            if (valueProperty) {
-                emptyItem[valueProperty] = null;
-                emptyItem[displayProperty] = '';
-            }
-        }
-        return [].concat(emptyItem, source);
+        return [].concat(null, source);
     }
 }

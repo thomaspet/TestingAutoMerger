@@ -114,6 +114,7 @@ export class OrderDetails {
     private paymentTerms: Terms[];
     private printStatusPrinted: string = '200';
     private projects: Project[];
+    private currentDefaultProjectID: number;
     private selectConfig: any;
     private numberSeries: NumberSeries[];
     private projectID: number;
@@ -397,7 +398,9 @@ export class OrderDetails {
 
         // refresh items if project changed
         if (order.DefaultDimensions && order.DefaultDimensions.ProjectID !== this.projectID) {
-            if (this.orderItems.length && this.projectID) {
+            this.projectID = order.DefaultDimensions.ProjectID;
+
+            if (this.orderItems.length) {
                 this.modalService.confirm({
                     header: `Endre prosjekt på alle varelinjer?`,
                     message: `Vil du endre til dette prosjektet på alle eksisterende varelinjer?`,
@@ -413,7 +416,6 @@ export class OrderDetails {
             } else {
                 this.tradeItemTable.setDefaultProjectAndRefreshItems(order.DefaultDimensions.ProjectID, true);
             }
-            this.projectID = order.DefaultDimensions.ProjectID;
         }
 
         // update currency code in detailsForm and tradeItemTable to selected currency code if selected
@@ -584,6 +586,7 @@ export class OrderDetails {
                 this.currentDeliveryTerm = res.DeliveryTerms;
 
                 order.DefaultSeller = order.DefaultSeller || new SellerLink();
+                this.currentDefaultProjectID = order.DefaultDimensions.ProjectID;
         
                 this.setTabTitle();
                 this.updateToolbar();
@@ -931,8 +934,9 @@ export class OrderDetails {
 
         if (this.order.DefaultDimensions && !this.order.DefaultDimensions.ID) {
             this.order.DefaultDimensions._createguid = this.customerOrderService.getNewGuid();
-        } else if (this.order.DefaultDimensions && this.order.DefaultDimensions.ID) {
-            this.order.DefaultDimensions = undefined;
+        } else if (this.order.DefaultDimensions 
+            && this.order.DefaultDimensions.ProjectID === this.currentDefaultProjectID) {
+                this.order.DefaultDimensions = undefined;
         }
 
         // if main seller does not exist in 'Sellers', create and add it

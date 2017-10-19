@@ -533,7 +533,8 @@ export class CustomerDetails {
             template: (item) => {
                 return item !== null ? (item.DepartmentNumber + ' - ' + item.Name) : '';
             },
-            debounceTime: 200
+            debounceTime: 200,
+            addEmptyValue: true
         };
 
         let project: UniFieldLayout = fields.find(x => x.Property === 'Dimensions.ProjectID');
@@ -543,7 +544,8 @@ export class CustomerDetails {
             template: (item) => {
                 return item !== null ? (item.ProjectNumber + ' - ' + item.Name) : '';
             },
-            debounceTime: 200
+            debounceTime: 200,
+            addEmptyValue: true
         };
 
         let paymentTerm: UniFieldLayout = fields.find(x => x.Property === 'PaymentTermsID');
@@ -553,7 +555,8 @@ export class CustomerDetails {
             template: (item) => {
                 return item !== null ? (item.CreditDays + ' kredittdager (' + item.Name + ')') : '';
             },
-            debounceTime: 200
+            debounceTime: 200,
+            addEmptyValue: true
         };
 
         let deliveryTerm: UniFieldLayout = fields.find(x => x.Property === 'DeliveryTermsID');
@@ -563,7 +566,8 @@ export class CustomerDetails {
             template: (item) => {
                 return item !== null ? (item.CreditDays + ' leveringsdager (' + item.Name + ')') : '';
             },
-            debounceTime: 200
+            debounceTime: 200,
+            addEmptyValue: true
         };
 
         // MultiValue

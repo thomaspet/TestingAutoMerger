@@ -107,6 +107,7 @@ export class InvoiceDetails {
     private newInvoiceItem: CustomerInvoiceItem;
     private printStatusPrinted: string = '200';
     private projects: Project[];
+    private currentDefaultProjectID: number;
     private readonly: boolean;
     private summaryFields: ISummaryConfig[];
 
@@ -481,7 +482,9 @@ export class InvoiceDetails {
 
         // refresh items if project changed
         if (invoice.DefaultDimensions && invoice.DefaultDimensions.ProjectID !== this.projectID) {
-            if (this.invoiceItems.length && this.projectID) {
+            this.projectID = invoice.DefaultDimensions.ProjectID;
+            
+            if (this.invoiceItems.length) {
                 this.modalService.confirm({
                     header: `Endre prosjekt på alle varelinjer?`,
                     message: `Vil du endre til dette prosjektet på alle eksisterende varelinjer?`,
@@ -497,7 +500,6 @@ export class InvoiceDetails {
             } else {
                 this.tradeItemTable.setDefaultProjectAndRefreshItems(invoice.DefaultDimensions.ProjectID, true);
             }
-            this.projectID = invoice.DefaultDimensions.ProjectID;
         }
 
         if (this.invoice && this.invoice.InvoiceDate.toString() !== invoice.InvoiceDate.toString()) {
@@ -966,6 +968,7 @@ export class InvoiceDetails {
                 this.currentDeliveryTerm = invoice.DeliveryTerms;
   
                 invoice.DefaultSeller = invoice.DefaultSeller || new SellerLink();
+                this.currentDefaultProjectID = invoice.DefaultDimensions.ProjectID;
         
                 this.invoice = _.cloneDeep(invoice);
                 this.recalcDebouncer.next(invoice.Items);
@@ -1176,8 +1179,9 @@ export class InvoiceDetails {
 
         if (this.invoice.DefaultDimensions && !this.invoice.DefaultDimensions.ID) {
             this.invoice.DefaultDimensions._createguid = this.customerInvoiceService.getNewGuid();
-        } else if (this.invoice.DefaultDimensions && this.invoice.DefaultDimensions.ID) {
-            this.invoice.DefaultDimensions = undefined;
+        } else if (this.invoice.DefaultDimensions 
+            && this.invoice.DefaultDimensions.ProjectID === this.currentDefaultProjectID) {
+                this.invoice.DefaultDimensions = undefined;
         }
 
         // if main seller does not exist in 'Sellers', create and add it

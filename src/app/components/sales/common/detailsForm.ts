@@ -122,21 +122,27 @@ export class TofDetailsForm {
 
          // if selected default SellerLink exists on customer, set new DefaultSeller and DefaultSellerLinkId 
         // - if not, set new DefaultSeller.Seller and clear DefaultSellerLinkId
-        if (changes['DefaultSeller.SellerID'] && changes['DefaultSeller.SellerID'].currentValue) {
-            let defaultSeller = this.entity.Sellers.find(sellerLink => 
-                sellerLink.SellerID === changes['DefaultSeller.SellerID'].currentValue
-            ) || new SellerLink();
+        if (changes['DefaultSeller.SellerID']) {
+            if (changes['DefaultSeller.SellerID'].currentValue) {
+                let defaultSeller = this.entity.Sellers.find(sellerLink => 
+                    sellerLink.SellerID === changes['DefaultSeller.SellerID'].currentValue
+                ) || new SellerLink();
 
-            if (defaultSeller.ID) {
-                this.entity.DefaultSellerLinkID = defaultSeller.ID;
+                if (defaultSeller.ID) {
+                    this.entity.DefaultSellerLinkID = defaultSeller.ID;
+                } else {
+                    defaultSeller.Seller = this.sellers.find(seller => 
+                        seller.ID === changes['DefaultSeller.SellerID'].currentValue
+                    );
+                    defaultSeller.SellerID = defaultSeller.Seller.ID;
+                    this.entity.DefaultSellerLinkID = null;
+                }
+                this.entity.DefaultSeller = _.cloneDeep(defaultSeller);
             } else {
-                defaultSeller.Seller = this.sellers.find(seller => 
-                    seller.ID === changes['DefaultSeller.SellerID'].currentValue
-                );
-                defaultSeller.SellerID = defaultSeller.Seller.ID;
+                // runs if main seller dropdown is reset/chosen as empty value, to empty the entity
+                this.entity.DefaultSeller = null;
                 this.entity.DefaultSellerLinkID = null;
             }
-            this.entity.DefaultSeller = _.cloneDeep(defaultSeller);
         }
 
         this.entityChange.emit(this.entity);
@@ -235,7 +241,8 @@ export class TofDetailsForm {
                         events: {
                             tab: (event) => this.tabbedPastLastField.emit(event),
                             enter: (event) => this.tabbedPastLastField.emit(event)
-                        }
+                        },
+                        addEmptyValue: true
                     },
                     ID: 7
                 },
@@ -252,7 +259,8 @@ export class TofDetailsForm {
                         source: this.sellers,
                         valueProperty: 'ID',
                         displayProperty: 'Name',
-                        debounceTime: 200
+                        debounceTime: 200,
+                        addEmptyValue: true
                     },
                     ID: 8
                 },

@@ -99,6 +99,7 @@ export class QuoteDetails {
     private deliveryTerms: Terms[];
     private paymentTerms: Terms[];
     private projects: Project[];
+    private currentDefaultProjectID: number;
     private sellers: Seller[];
     private deletables: SellerLink[] = [];
 
@@ -367,6 +368,7 @@ export class QuoteDetails {
                 this.currentDeliveryTerm = quote.DeliveryTerms;
 
                 quote.DefaultSeller = quote.DefaultSeller || new SellerLink();
+                this.currentDefaultProjectID = quote.DefaultDimensions.ProjectID;
 
                 this.quote = _.cloneDeep(quote);
                 this.recalcItemSums(quote.Items);
@@ -400,7 +402,9 @@ export class QuoteDetails {
 
         // refresh items if project changed
         if (quote.DefaultDimensions && quote.DefaultDimensions.ProjectID !== this.projectID) {
-            if (this.quoteItems.length && this.projectID) {
+            this.projectID = quote.DefaultDimensions.ProjectID;
+            
+            if (this.quoteItems.length) {
                 this.modalService.confirm({
                     header: `Endre prosjekt på alle varelinjer?`,
                     message: `Vil du endre til dette prosjektet på alle eksisterende varelinjer?`,
@@ -416,7 +420,6 @@ export class QuoteDetails {
             } else {
                 this.tradeItemTable.setDefaultProjectAndRefreshItems(quote.DefaultDimensions.ProjectID, true);
             }
-            this.projectID = quote.DefaultDimensions.ProjectID;
         }
 
         // update currency code in detailsForm and tradeItemTable to selected currency code if selected
@@ -899,8 +902,9 @@ export class QuoteDetails {
 
         if (this.quote.DefaultDimensions && !this.quote.DefaultDimensions.ID) {
             this.quote.DefaultDimensions._createguid = this.customerQuoteService.getNewGuid();
-        } else if (this.quote.DefaultDimensions && this.quote.DefaultDimensions.ID) {
-            this.quote.DefaultDimensions = undefined;
+        } else if (this.quote.DefaultDimensions 
+            && this.quote.DefaultDimensions.ProjectID === this.currentDefaultProjectID) {
+                this.quote.DefaultDimensions = undefined;
         }
 
         // if main seller does not exist in 'Sellers', create and add it
