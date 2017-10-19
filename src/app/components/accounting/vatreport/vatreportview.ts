@@ -1,5 +1,6 @@
 import {Component, OnInit, OnDestroy, ViewChild} from '@angular/core';
 import {FormControl} from '@angular/forms';
+import {Router, ActivatedRoute} from '@angular/router';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {IUniSaveAction} from '../../../../framework/save/save';
 import {
@@ -64,7 +65,8 @@ export class VatReportView implements OnInit, OnDestroy {
         private toastService: ToastService,
         private altinnAuthenticationService: AltinnAuthenticationService,
         private errorService: ErrorService,
-        private modalService: UniModalService
+        private modalService: UniModalService,
+        private router: Router,
     ) {
         this.periodDateFormat = new PeriodDateFormatPipe(this.errorService);
         this.tabService.addTab({ name: 'MVA melding', url: '/accounting/vatreport', active: true, moduleID: UniModules.VatReport });
@@ -243,6 +245,12 @@ export class VatReportView implements OnInit, OnDestroy {
             action: (done) => this.approveManually(done),
             disabled: this.IsSignActionDisabled ()
         });
+
+        this.actions.push({
+            label: 'Angre kjøring',
+            action: (done) => this.UndoExecution(done),
+            disabled: this.IsSendActionDisabled()
+        })
 
 
     }
@@ -474,6 +482,15 @@ export class VatReportView implements OnInit, OnDestroy {
                 this.errorService.handle(err)
                 done('Det skjedde en feil, forsøk igjen senere');
             });
+    }
+
+
+    public UndoExecution(done) {
+        this.vatReportService.Action(this.currentVatReport.ID, 'undo-execute')
+            .subscribe(() =>
+            this.router.navigateByUrl('#/accounting/vatreport'),
+            err => { done('Feil ved angring av kjøring.'); }
+        );
     }
 
 
