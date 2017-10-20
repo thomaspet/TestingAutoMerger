@@ -99,7 +99,7 @@ export class UniSelect {
     public filteredItems: any[];
     public filterString: string = '';
 
-    public selectedItem: any;
+    public selectedItem: any = null;
     public focusedIndex: any = -1;
     public initialItem: any;
     public activeDecentantId: string;

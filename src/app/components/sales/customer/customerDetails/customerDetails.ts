@@ -961,7 +961,7 @@ export class CustomerDetails {
                     Property: 'Info.Name',
                     FieldType: FieldType.TEXT,
                     Label: 'Navn',
-                    Section: 0,
+                    Section: 0
                 },
                 {
                     FieldSet: 1,

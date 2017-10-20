@@ -1,9 +1,9 @@
 import {NgModule} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
-import {BySectionPipe, SectionIndexesPipe, UniForm} from './uniform';
+import { BySectionPipe, SectionIndexesPipe, UniForm, UniformErrorTemplatePipe } from './uniform';
 import {UniSelect} from './controls/select/select';
-import {UniField} from './unifield';
+import { IsRequiredPipe, UniField } from './unifield';
 import {
     byFieldSetPipe, columnIndexesPipe, fieldsetIndexesPipe, getLegendPipe, noFieldSetPipe,
     UniSection
@@ -40,7 +40,9 @@ import {UniSearchModule} from '../unisearch/index';
         getLegendPipe,
         byFieldSetPipe,
         fieldsetIndexesPipe,
-        columnIndexesPipe
+        columnIndexesPipe,
+        UniformErrorTemplatePipe,
+        IsRequiredPipe
     ],
     providers: [
         LayoutBuilder

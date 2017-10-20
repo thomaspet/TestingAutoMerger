@@ -3,7 +3,7 @@ import {
     ChangeDetectorRef, Pipe, PipeTransform, SimpleChanges
 } from '@angular/core';
 import {UniComponentLayout, UniFieldLayout} from './interfaces';
-import {UniField} from './unifield';
+import { UniField, UniFormError } from './unifield';
 import {UniSection} from './unisection';
 import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/observable/fromEvent';
@@ -41,6 +41,15 @@ export class BySectionPipe implements PipeTransform {
         return filteredFields;
     }
 }
+@Pipe({
+    name: 'uniformErrorTemplate',
+    pure: false
+})
+export class UniformErrorTemplatePipe implements PipeTransform {
+    public transform(error: UniFormError): string {
+        return _.template(error.errorMessage)(error);
+    }
+}
 /**
  * Form component that wraps form elements
  */
@@ -60,6 +69,7 @@ export class BySectionPipe implements PipeTransform {
                     (focusEvent)="onFocusHandler($event)"
                     (moveForwardEvent)="onMoveForward($event)"
                     (moveBackwardEvent)="onMoveBackward($event)"
+                    (errorEvent)="onError($event)"
                 >
                 </uni-section>
             </ng-template>
@@ -83,17 +93,21 @@ export class UniForm {
     @Output() public moveForwardEvent: EventEmitter<Object> = new EventEmitter<Object>(true);
     @Output() public moveBackwardEvent: EventEmitter<Object> = new EventEmitter<Object>(true);
     @Output() public moveOutEvent: EventEmitter<Object> = new EventEmitter<Object>(true);
+    @Output() public errorEvent: EventEmitter<Object> = new EventEmitter<Object>(true);
 
     @ViewChildren(UniSection) public sectionElements: QueryList<UniSection>;
 
-    private _layout: UniComponentLayout;
-    private _model: any;
-    private _config: any;
+    public _layout: UniComponentLayout;
+    public _model: any;
+    public _config: any;
 
-    private readyFields: number;
-    private hidden: boolean = false;
+    public readyFields: number;
+    public hidden: boolean = false;
     public currentComponent: UniField;
     public lastLayout: UniComponentLayout = null;
+    public errorList: {[id: string]: UniFormError} = {};
+    public propertyKeys: any = Object.keys;
+    public valid = true;
 
     @HostBinding('hidden')
     public get Hidden() {
@@ -105,7 +119,7 @@ export class UniForm {
     }
 
     constructor(
-        private elementRef: ElementRef,
+        public elementRef: ElementRef,
         public changeDetector: ChangeDetectorRef) {
     }
     public ngOnChanges() {
@@ -172,7 +186,7 @@ export class UniForm {
         this.addNavigationEvents();
     }
 
-    private changesFields(fields) {
+    public changesFields(fields) {
         if (!this._layout) {
             this._layout = new UniComponentLayout();
             this._layout.Fields = _.cloneDeep(fields);
@@ -197,7 +211,7 @@ export class UniForm {
         });
     }
 
-    private changesLayout(layout) {
+    public changesLayout(layout) {
         this._layout = _.cloneDeep(layout);
         setTimeout(() => {
             if (this.currentComponent) {
@@ -220,6 +234,7 @@ export class UniForm {
     public onFocusHandler(event) {
         this.currentComponent = event;
         this.focusEvent.emit(event);
+        this.validateForm();
     }
 
     public focusFirstElement() {
@@ -420,17 +435,28 @@ export class UniForm {
         }
     }
 
-    private submit(event) {
+    public onError(event) {
+        _.assign(this.errorList, event);
+        this.valid = true;
+        for (let error in this.errorList) {
+            if (error.length > 0) {
+                this.valid = false;
+            }
+        }
+        this.errorEvent.emit(event);
+    }
+
+    public submit(event) {
         event.preventDefault();
         this.submitEvent.emit(this._model);
     }
 
-    private findFirstNotHiddenComponent() {
+    public findFirstNotHiddenComponent() {
         const f = this._layout.Fields.find(x => !x.Hidden);
         return this.field(f.Property);
     }
 
-    private addNavigationEvents() {
+    public addNavigationEvents() {
         /*const target = this.elementRef.nativeElement;
         const enterEvent = Observable.fromEvent(target, 'keydown')
             .filter((event: KeyboardEvent) => event.keyCode === KeyCodes.ENTER)
@@ -463,7 +489,7 @@ export class UniForm {
         });*/
     }
 
-    private hasEvent(event: string) {
+    public hasEvent(event: string) {
         const cmp = this.currentComponent;
         if (!cmp.field.Options) {
             return false;
@@ -477,7 +503,7 @@ export class UniForm {
         return false;
     }
 
-    private findNextElementFormLastFocusedComponent() {
+    public findNextElementFormLastFocusedComponent() {
         const cmp: UniField = this.currentComponent;
         let index = this._layout.Fields.indexOf(cmp.field);
         if (index < 0) {
@@ -492,7 +518,7 @@ export class UniForm {
         return this.field(this._layout.Fields[index + 1].Property);
     }
 
-    private addSectionEvents() {
+    public addSectionEvents() {
         const target = this.elementRef.nativeElement;
         const keyUpEvent = Observable.fromEvent(target, 'keydown');
         const ctrlEvent = keyUpEvent.filter((event: KeyboardEvent) => {
@@ -530,5 +556,25 @@ export class UniForm {
             // we need some time to open the section
             setTimeout(() => field.focus());
         });
-    };
+    }
+
+    public validateForm() {
+        this.sectionElements.forEach((section: UniSection) => {
+            section.fieldElements.forEach((field: UniField) => {
+                if (field.touched) {
+                    const value = _.get(field.model, field.field.Property);
+                    field.validateModel(value);
+                }
+            });
+        });
+    }
+
+    public forceValidation() {
+        this.sectionElements.forEach((section: UniSection) => {
+            section.fieldElements.forEach((field: UniField) => {
+                const value = _.get(field.model, field.field.Property);
+                field.validateModel(value);
+            });
+        });
+    }
 }

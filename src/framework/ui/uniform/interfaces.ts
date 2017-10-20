@@ -58,6 +58,7 @@ export class UniFieldLayout extends FieldLayoutDto {
     public AsyncValidators: any;
     public SyncValidators: any;
     public Classes: string;
+    public Required: boolean;
 
     constructor() {
         super();

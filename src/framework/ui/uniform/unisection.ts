@@ -98,12 +98,14 @@ export class byFieldSetPipe implements PipeTransform {
                     <uni-field *ngIf="!item?.Hidden"
                                [field]="item"
                                [model]="model"
+                               [formConfig]="formConfig"
                                (readyEvent)="onReadyHandler($event)"
                                (changeEvent)="onChangeHandler($event)"
                                (inputEvent)="onInputHandler($event)"
                                (focusEvent)="onFocusHandler($event)"
                                (moveForwardEvent)="onMoveForward($event)"
                                (moveBackwardEvent)="onMoveBackward($event)"
+                               (errorEvent)="onError($event)"
                     >
                     </uni-field>
                     <uni-linebreak *ngIf="hasLineBreak(item)"></uni-linebreak>
@@ -119,12 +121,14 @@ export class byFieldSetPipe implements PipeTransform {
                                     <uni-field *ngIf="!item?.Hidden"
                                                [field]="item"
                                                [model]="model"
+                                               [formConfig]="formConfig"
                                                (readyEvent)="onReadyHandler($event)"
                                                (changeEvent)="onChangeHandler($event)"
                                                (inputEvent)="onInputHandler($event)"
                                                (focusEvent)="onFocusHandler($event)"
                                                (moveForwardEvent)="onMoveForward($event)"
                                                (moveBackwardEvent)="onMoveBackward($event)"
+                                               (errorEvent)="onError($event)"
                                     >
                                     </uni-field>
                                    <uni-linebreak *ngIf="hasLineBreak(item)"></uni-linebreak>
@@ -151,6 +155,7 @@ export class UniSection {
     @Output() public focusEvent: EventEmitter<UniSection> = new EventEmitter<UniSection>(true);
     @Output() public moveForwardEvent: EventEmitter<Object> = new EventEmitter<Object>(true);
     @Output() public moveBackwardEvent: EventEmitter<Object> = new EventEmitter<Object>(true);
+    @Output() public errorEvent: EventEmitter<Object> = new EventEmitter<Object>(true);
 
     @ViewChildren(UniField) public fieldElements: QueryList<UniField>;
 
@@ -260,7 +265,11 @@ export class UniSection {
         });
     }
 
-    private hasLineBreak(item: UniFieldLayout) {
+    public onError(event) {
+        this.errorEvent.emit(event);
+    }
+
+    public hasLineBreak(item: UniFieldLayout) {
         return item.LineBreak;
     }
 }
