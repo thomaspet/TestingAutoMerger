@@ -166,14 +166,7 @@ export class EmployeeService extends BizHttp<Employee> {
                     Label: 'Navn',
                     FieldSet: 1,
                     Legend: 'Ansatt',
-                    Section: 0,
-                    Validations: [
-                        {
-                            ErrorMessage: 'Required field',
-                            Level: 3,
-                            Operator: 7 // required
-                        }
-                    ]
+                    Section: 0
                 },
                 {
                     EntityType: 'Employee',
@@ -190,14 +183,7 @@ export class EmployeeService extends BizHttp<Employee> {
                     FieldType: FieldType.AUTOCOMPLETE,
                     Label: 'Virksomhet',
                     FieldSet: 1,
-                    Section: 0,
-                    Validations: [
-                        {
-                            ErrorMessage: 'Required field',
-                            Level: 3,
-                            Operator: 7 // required
-                        }
-                    ]
+                    Section: 0
                 },
                 {
                     EntityType: 'Employee',
@@ -263,14 +249,7 @@ export class EmployeeService extends BizHttp<Employee> {
                     Section: 0,
                     Options: {
                         mask: '000000 00000'
-                    },
-                    Validations: [
-                        {
-                            ErrorMessage: 'Required field',
-                            Level: 3,
-                            Operator: 7 // required
-                        }
-                    ]
+                    }
                 },
                 {
                     EntityType: 'Employee',
@@ -278,14 +257,7 @@ export class EmployeeService extends BizHttp<Employee> {
                     FieldType: FieldType.LOCAL_DATE_PICKER,
                     Label: 'Fødselsdato',
                     FieldSet: 3,
-                    Section: 0,
-                    Validations: [
-                        {
-                            ErrorMessage: 'Required field',
-                            Level: 3,
-                            Operator: 7 // required
-                        }
-                    ]
+                    Section: 0
                 },
                 {
                     EntityType: 'Employee',
@@ -302,14 +274,7 @@ export class EmployeeService extends BizHttp<Employee> {
                         template: (obj) => `${obj.id} - ${obj.name}`,
                         valueProperty: 'id',
                         displayProperty: 'name'
-                    },
-                    Validations: [
-                        {
-                            ErrorMessage: 'Required field',
-                            Level: 3,
-                            Operator: Operator.Required
-                        }
-                    ]
+                    }
                 },
 
                 // {
