@@ -62,10 +62,7 @@ export class ReadTaxCard implements OnInit {
     }
 
     private readTaxCard(receiptID: number) {
-        this.changeEvent
-            .take(1)
-            .subscribe(() => this.updateReceipts());
-        
+
         this.modalService
             .open(AltinnAuthenticationModal)
             .onClose
@@ -73,22 +70,21 @@ export class ReadTaxCard implements OnInit {
             .switchMap((authData: AltinnAuthenticationData) => this.modalService
             .open(TaxResponseModal, {
                 data: {
-                    receiptID: receiptID, 
+                    receiptID: receiptID,
                     auth: authData
-                }, 
-                modalConfig: {changeEvent: this.changeEvent}
+                },
+                modalConfig: {update: () => {
+                    this.getReceipts();
+                    this.updateTax.next();
+                }}
             })
             .onClose)
         .subscribe();
     }
 
     public getReceipts() {
-        this.altinnReceipts$ = this._altinnReceiptService.GetAll('orderby=ID DESC&filter=Form eq \'RF-1211\'')
+        this.altinnReceipts$ = this._altinnReceiptService.GetAll(`orderby=ID DESC&filter=Form eq 'RF-1211'`)
             .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
-    }
-
-    public updateReceipts() {
-        this.altinnReceipts$ = _.cloneDeep(this.altinnReceipts$);
     }
 
     public selectedRow(event) {

@@ -1,5 +1,5 @@
 import {BizHttp} from '../../../framework/core/http/BizHttp';
-import {Altinn, AltinnReceipt} from '../../unientities';
+import {Altinn, AltinnReceipt, TaxCardReadStatus} from '../../unientities';
 import {UniHttp} from '../../../framework/core/http/http';
 import {Observable} from 'rxjs/Observable';
 import {SubEntityService} from '../common/subEntityService';
@@ -58,7 +58,7 @@ export class AltinnIntegrationService extends BizHttp<Altinn> {
         return this.PostAction(1, 'sendtaxrequest', 'option=' + option + '&empId=' + empId + '&requestAllChanges=' + empsAndChanged);
     }
 
-    public readTaxCard(authData: AltinnAuthenticationData, receiptID: number): Observable<string> {
+    public readTaxCard(authData: AltinnAuthenticationData, receiptID: number): Observable<TaxCardReadStatus> {
 
         const headers = {
             'x-altinn-userid': authData.userID,

@@ -30,6 +30,7 @@ import {EmploymentDetails} from './employee/employments/employmentDetails';
 import {Employments} from './employee/employments/employments';
 import {TaxCardModal} from './employee/modals/taxCardModal';
 import {TaxResponseModal} from './employee/modals/taxResponseModal';
+import {TaxCardReadStatusComponent} from './employee/modals/taxCardReadStatus';
 import {ReadTaxCard} from './employee/modals/readTaxCard';
 import {TaxCardRequest} from './employee/modals/taxCardRequest';
 import {PersonalDetails} from './employee/personalDetails/personalDetails';
@@ -118,6 +119,7 @@ import {CanDeactivateGuard} from '../../canDeactivateGuard';
         ReadTaxCard,
         TaxCardRequest,
         TaxResponseModal,
+        TaxCardReadStatusComponent,
         PersonalDetails,
         RecurringPost,
         EmployeeTax,
@@ -203,6 +205,7 @@ import {CanDeactivateGuard} from '../../canDeactivateGuard';
         TaxCardModal,
         ReadTaxCard,
         TaxCardRequest,
+        TaxCardReadStatusComponent,
         TaxResponseModal,
         PersonalDetails,
         RecurringPost,

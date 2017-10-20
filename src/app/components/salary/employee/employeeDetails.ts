@@ -393,22 +393,17 @@ export class EmployeeDetails extends UniView implements OnDestroy {
                     }
 
                     if (!this.taxOptions) {
-                        let changeEvent: EventEmitter<any> = new EventEmitter<any>();
                         super.updateState('taxCardModalCallback',
                             { openModal: () => this.modalService.open(
                                 TaxCardModal,
                                 {
                                     data: this.employeeID,
                                     modalConfig: {
-                                        update: this.getTax,
-                                        changeEvent: changeEvent
+                                        update: () => this.getTax()
                                     }
                                 })
                             },
                             false);
-                        changeEvent
-                            .take(1)
-                            .subscribe(change => this.getTax());
                     }
 
                     if (!this.employments) {

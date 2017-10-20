@@ -2,11 +2,14 @@ import {Component, OnInit, Input, Output, EventEmitter} from '@angular/core';
 import {AltinnAuthenticationData} from '../../../../models/AltinnAuthenticationData';
 import {AltinnIntegrationService, ErrorService} from '../../../../../app/services/services';
 import {IUniModal, IModalOptions} from '../../../../../framework/uniModal/barrel';
+import {TaxCardReadStatus} from '../../../../unientities';
+import {BehaviorSubject} from 'rxjs/BehaviorSubject';
+import {Observable} from 'rxjs/Observable';
 
 type TaxInfo = {
     receiptID: number,
     auth: AltinnAuthenticationData
-}
+};
 
 @Component({
     selector: 'tax-response-modal',
@@ -16,7 +19,7 @@ type TaxInfo = {
 export class TaxResponseModal implements OnInit, IUniModal {
     @Input() public options: IModalOptions;
     @Output() public onClose: EventEmitter<any> = new EventEmitter<any>();
-    private responseMessage: string;
+    private taxStatus$: BehaviorSubject<TaxCardReadStatus> = new BehaviorSubject(new TaxCardReadStatus());
     public busy: boolean;
     constructor(
         private altinnService: AltinnIntegrationService,
@@ -24,22 +27,22 @@ export class TaxResponseModal implements OnInit, IUniModal {
     ) { }
 
     public ngOnInit() {
-        let info: TaxInfo = this.options.data;
-        let config = this.options.modalConfig;
-        this.altinnService
-            .readTaxCard(info.auth, info.receiptID)
+        Observable
+            .of(<TaxInfo>this.options.data)
+            .do(() => this.busy = true)
+            .switchMap(info => this.altinnService.readTaxCard(info.auth, info.receiptID))
             .catch((err, obs) => this.errorService.handleRxCatch(err, obs))
             .do(() => {
+                let config = this.options.modalConfig;
                 if (config.changeEvent) {
                     config.changeEvent.next(true);
                 }
             })
-            .subscribe((responseMessage) => {
-                this.responseMessage = responseMessage;
-            });
+            .finally(() => this.busy = false)
+            .subscribe((responseMessage) => this.taxStatus$.next(responseMessage));
     }
 
     public close() {
-        this.onClose.next(!!this.responseMessage);
+        this.onClose.next();
     }
 }

@@ -251,8 +251,8 @@ export class WorkRelation extends UniEntity {
     public WorkerID: number;
     public WorkPercentage: number;
     public WorkProfileID: number;
-    public WorkProfile: WorkProfile;
     public Worker: Worker;
+    public WorkProfile: WorkProfile;
     public Employment: Employment;
     public Items: Array<WorkItem>;
     public Team: Team;
@@ -1716,8 +1716,8 @@ export class EmployeeCategoryLink extends UniEntity {
     public StatusCode: number;
     public UpdatedAt: Date;
     public UpdatedBy: string;
-    public Employee: Employee;
     public EmployeeCategory: EmployeeCategory;
+    public Employee: Employee;
     public CustomFields: any;
 }
 
@@ -3957,7 +3957,6 @@ export class CompanyAccess extends UniEntity {
 }
 
 
-
 export class KpiDefinition extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'KpiDefinition';
@@ -3981,10 +3980,6 @@ export class KpiDefinition extends UniEntity {
     public ValueType: KpiValueType;
     public CustomFields: any;
 }
-
-
-
-
 
 
 export class KpiValue extends UniEntity {
@@ -4058,8 +4053,6 @@ export class Accrual extends UniEntity {
 }
 
 
-
-
 export class BankIntegrationAgreement extends UniEntity {
     public static RelativeUrl = 'bank-agreements';
     public static EntityType = 'BankIntegrationAgreement';
@@ -4079,11 +4072,6 @@ export class BankIntegrationAgreement extends UniEntity {
     public UpdatedBy: string;
     public CustomFields: any;
 }
-
-
-
-
-
 
 
 export class JournalEntryType extends UniEntity {
@@ -4640,12 +4628,12 @@ export class SupplierInvoice extends UniEntity {
     public VatTotalsAmount: number;
     public VatTotalsAmountCurrency: number;
     public YourReference: string;
-    public CurrencyCode: CurrencyCode;
     public BankAccount: BankAccount;
-    public Supplier: Supplier;
-    public Items: Array<SupplierInvoiceItem>;
     public JournalEntry: JournalEntry;
     public DefaultDimensions: Dimensions;
+    public Supplier: Supplier;
+    public CurrencyCode: CurrencyCode;
+    public Items: Array<SupplierInvoiceItem>;
     public InvoiceReference: SupplierInvoice;
     public CustomFields: any;
 }
@@ -4907,6 +4895,32 @@ export class VatType extends UniEntity {
     public OutgoingAccount: Account;
     public VatCodeGroup: VatCodeGroup;
     public VatReportReferences: Array<VatReportReference>;
+    public CustomFields: any;
+}
+
+
+export class VippsInvoice extends UniEntity {
+    public static RelativeUrl = 'vipps-invoices';
+    public static EntityType = 'VippsInvoice';
+
+    public _createguid: string;
+    public Amount: number;
+    public CreatedAt: Date;
+    public CreatedBy: string;
+    public Deleted: boolean;
+    public DueDate: string;
+    public ID: number;
+    public InvoiceHotelID: string;
+    public InvoiceID: string;
+    public MerchantSerialNumber: string;
+    public MobileNumber: string;
+    public Receipt: string;
+    public RequestID: string;
+    public StatusCode: number;
+    public Text: string;
+    public TimeStamp: string;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
     public CustomFields: any;
 }
 
@@ -5189,9 +5203,9 @@ export class WorkBalanceDto extends UniEntity {
     public ValidFrom: Date;
     public ValidTimeOff: number;
     public WorkRelationID: number;
-    public WorkRelation: WorkRelation;
     public Previous: BalanceInfo;
     public Details: Array<FlexDetail>;
+    public WorkRelation: WorkRelation;
     public CustomFields: any;
 }
 
@@ -5513,6 +5527,30 @@ export class Forskuddstrekk extends UniEntity {
 }
 
 
+export class TaxCardReadStatus extends UniEntity {
+    public mainStatus: string;
+    public Text: string;
+    public Title: string;
+    public employeestatus: Array<EmployeeStatus>;
+}
+
+
+export class EmployeeStatus extends UniEntity {
+    public employeeID: number;
+    public info: string;
+    public status: string;
+    public year: number;
+    public changedFields: Array<FieldsChanged>;
+}
+
+
+export class FieldsChanged extends UniEntity {
+    public fieldName: string;
+    public valFrom: string;
+    public valTo: string;
+}
+
+
 export class UserDto extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'UserDto';
@@ -5539,9 +5577,6 @@ export class ActiveNumberSeriesTask extends UniEntity {
     public NumberSeriesTask: NumberSeriesTask;
     public DefaultNumberSeries: NumberSeries;
 }
-
-
-
 
 
 export class AltinnAuthChallenge extends UniEntity {
@@ -5577,7 +5612,6 @@ export class SendEmailAttachment extends UniEntity {
     public Attachment: string;
     public FileName: string;
 }
-
 
 
 export class ReportParameter extends UniEntity {
@@ -6391,6 +6425,14 @@ export enum StatusCodeSupplierInvoice{
     PartlyPayed = 30106,
     Payed = 30107,
     Rejected = 30108,
+}
+
+
+export enum VippsProcessStatus{
+    Pending = 45000,
+    Processed = 46000,
+    Failed = 47000,
+    Paid = 48000,
 }
 
 
