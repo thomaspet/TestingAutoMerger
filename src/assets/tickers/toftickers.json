@@ -45,6 +45,13 @@
             "FilterOperator": "gt",
             "Width": "100px",
             "DefaultHidden": true
+        },{
+            "Header": "Vår ref",
+            "Field": "OurReference"            
+        },{
+            "Header": "Deres ref",
+            "Field": "YourReference",
+            "DefaultHidden": true
         },
          {
             "Header": "Valuta",
