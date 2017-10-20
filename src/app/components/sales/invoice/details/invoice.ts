@@ -132,7 +132,7 @@ export class InvoiceDetails {
     private ehfEnabled: boolean = false;
     private sellers: Seller[];
     private deletables: SellerLink[] = [];
-    
+
     private customerExpandOptions: string[] = [
         'DeliveryTerms',
         'Dimensions',
@@ -427,7 +427,7 @@ export class InvoiceDetails {
             doneHandler();
         });
      }
-     
+
     @HostListener('keydown', ['$event'])
     public onKeyDown(event: KeyboardEvent) {
         const key = event.which || event.keyCode;
@@ -483,7 +483,7 @@ export class InvoiceDetails {
         // refresh items if project changed
         if (invoice.DefaultDimensions && invoice.DefaultDimensions.ProjectID !== this.projectID) {
             this.projectID = invoice.DefaultDimensions.ProjectID;
-            
+
             if (this.invoiceItems.length) {
                 this.modalService.confirm({
                     header: `Endre prosjekt på alle varelinjer?`,
@@ -966,10 +966,10 @@ export class InvoiceDetails {
                 this.currentCustomer = invoice.Customer;
                 this.currentPaymentTerm = invoice.PaymentTerms;
                 this.currentDeliveryTerm = invoice.DeliveryTerms;
-  
+
                 invoice.DefaultSeller = invoice.DefaultSeller || new SellerLink();
                 this.currentDefaultProjectID = invoice.DefaultDimensions.ProjectID;
-        
+
                 this.invoice = _.cloneDeep(invoice);
                 this.recalcDebouncer.next(invoice.Items);
                 this.updateTabTitle();
@@ -1147,7 +1147,7 @@ export class InvoiceDetails {
             disabled: status < StatusCodeCustomerInvoice.Invoiced,
             main: printStatus !== 300 && this.ehfEnabled && status === StatusCodeCustomerInvoice.Invoiced && !this.isDirty
         });
-        
+
         this.saveActions.push({
             label: 'Send til Vipps',
             action: (done) => this.sendToVipps(this.invoiceID, done),
@@ -1179,14 +1179,14 @@ export class InvoiceDetails {
 
         if (this.invoice.DefaultDimensions && !this.invoice.DefaultDimensions.ID) {
             this.invoice.DefaultDimensions._createguid = this.customerInvoiceService.getNewGuid();
-        } else if (this.invoice.DefaultDimensions 
+        } else if (this.invoice.DefaultDimensions
             && this.invoice.DefaultDimensions.ProjectID === this.currentDefaultProjectID) {
                 this.invoice.DefaultDimensions = undefined;
         }
 
         // if main seller does not exist in 'Sellers', create and add it
-        if (this.invoice.DefaultSeller && this.invoice.DefaultSeller.SellerID 
-            && !this.invoice.DefaultSeller._createguid && !this.invoice.Sellers.find(sellerLink => 
+        if (this.invoice.DefaultSeller && this.invoice.DefaultSeller.SellerID
+            && !this.invoice.DefaultSeller._createguid && !this.invoice.Sellers.find(sellerLink =>
                 sellerLink.SellerID === this.invoice.DefaultSeller.SellerID
             )) {
             this.invoice.DefaultSeller._createguid = this.sellerLinkService.getNewGuid();
@@ -1378,6 +1378,7 @@ export class InvoiceDetails {
             model.EntityType = 'CustomerInvoice';
             model.EntityID = this.invoice.ID;
             model.CustomerID = this.invoice.CustomerID;
+            model.EmailAddress = this.invoice.EmailAddress;
 
             const invoiceNumber = (this.invoice.InvoiceNumber)
                 ? ` nr. ${this.invoice.InvoiceNumber}`
