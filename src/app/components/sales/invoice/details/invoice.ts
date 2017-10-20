@@ -1441,7 +1441,7 @@ export class InvoiceDetails {
             data: invoicePaymentData,
             modalConfig: {
                 entityName: 'CustomerInvoice',
-                currencyCode: this.invoice.CurrencyCode,
+                currencyCode: this.currencyCodeID ? this.getCurrencyCode(this.currencyCodeID) : '',
                 currencyExchangeRate: this.invoice.CurrencyExchangeRate
             }
         });
