@@ -74,6 +74,7 @@ export class UniBankAccountModal implements IUniModal {
 
         if (accountInfo._initValue && fields[0] && !accountInfo[fields[0].Property]) {
             accountInfo[fields[0].Property] = accountInfo._initValue;
+            this.validateAccountNumber(accountInfo);
         }
         this.formModel$.next(accountInfo);
         this.formFields$.next(this.getFormFields());
@@ -143,21 +144,24 @@ export class UniBankAccountModal implements IUniModal {
         if (changes['AccountNumber']) {
             this.toastService.clear();
             this.validAccount = false;
-            const account = this.formModel$.getValue();
+            const account = this.formModel$.value;
 
-            // Simple check first
-            const valid = account
-                && account.AccountNumber
-                && /^\d{11}$/.test(account.AccountNumber);
-
-            if (!valid) {
-                this.toastService.addToast('Ugyldig kontonummer');
-                this.validAccount = false;
-                return;
-            }
-
-            this.getAccountDetails(account);
+            this.validateAccountNumber(account);
         }
+    }
+
+    private validateAccountNumber(account: any) {
+        const valid = account
+            && account.AccountNumber
+            && /^\d{11}$/.test(account.AccountNumber);
+
+        if (!valid) {
+            this.toastService.addToast('Ugyldig kontonummer');
+            this.validAccount = false;
+            return;
+        }
+
+        this.getAccountDetails(account);
     }
 
     private getAccountDetails(account: BankAccount) {

@@ -1693,6 +1693,12 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
             payment = item.JournalEntryPaymentData.PaymentData;
             title = 'Endre betaling';
             this.addPaymentModal.openModal(payment, title);
+
+            this.paymentModalValueChanged = this.addPaymentModal.Changed.subscribe(modalval => {
+                item.JournalEntryPaymentData.PaymentData = modalval;
+                this.table.updateRow(item['_originalIndex'], item);
+                this.rowChanged();
+            });
         } else {
             // generate suggestion for payment based on accounts used in item
             payment = new Payment();
@@ -1807,6 +1813,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                     }
                     */
                     this.table.updateRow(item['_originalIndex'], item);
+                    this.rowChanged();
                 });
             });
         }
@@ -2094,7 +2101,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
         this.rowSelected.emit(event.rowModel);
     }
 
-    private rowChanged(event) {
+    private rowChanged(event?) {
         var tableData = this.table.getTableData();
         this.dataChanged.emit(tableData);
     }
