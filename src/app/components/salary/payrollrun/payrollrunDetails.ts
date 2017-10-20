@@ -575,7 +575,6 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
                             trans['_Project'] = projects ? projects
                                 .find(x => x.ID === trans.Dimensions.ProjectID) : undefined;
                         }
-
                         trans['_FileIDs'] = trans['Files'].map(x => x.ID);
 
                         let account = new Account();

@@ -74,6 +74,7 @@ export class ImageModal implements IUniModal {
 
     public fileListReady(files: File[]) {
         this.files = files;
+        this.options.cancelValue = {entity: this.config.entity, entityID: this.config.entityID, files: this.files};
     }
 
     public close() {
