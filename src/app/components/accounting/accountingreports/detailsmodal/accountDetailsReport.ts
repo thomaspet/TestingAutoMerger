@@ -330,7 +330,10 @@ export class AccountDetailsReport {
     private setupTransactionsTable() {
         let columns = [
             new UniTableColumn('JournalEntryNumber', 'Bilagsnr')
-                    .setFilterOperator('contains'),
+                    .setFilterOperator('contains')
+                    .setTemplate(line => {
+                        return this.config.modalMode ? line.JournalEntryNumber : `<a href="#/accounting/transquery/details;journalEntryNumber=${line.JournalEntryNumber}">${line.JournalEntryNumber}</a>`;
+                    }),
                 new UniTableColumn('FinancialDate', 'Regnskapsdato', UniTableColumnType.LocalDate)
                     .setFilterOperator('contains')
                     .setFormat('DD.MM.YYYY')
