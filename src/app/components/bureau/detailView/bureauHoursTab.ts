@@ -12,37 +12,39 @@ import {AppConfig} from '../../../AppConfig';
 import {BureauCustomHttpService} from '../bureauCustomHttpService';
 import {YearService} from '../../../services/common/yearService';
 import {Observable} from 'rxjs/Observable';
+import {UniMath} from '../../../../framework/core/uniMath';
 import {AuthService} from '../../../authService';
 
 const BASE = AppConfig.BASE_URL;
 
 @Component({
-    selector: 'uni-bureau-sales-tab',
+    selector: 'uni-bureau-hours-tab',
     changeDetection: ChangeDetectionStrategy.OnPush,
     template: `
 <table *ngIf="!!viewData">
-    <tr><th>Faktura</th></tr>
+    <tr><th>Timeføring</th></tr>
     <tr>
-        <td>Salgsfaktura i {{accountingYear}} sum og antall</td>
-        <td><a href="#" (click)="navigateToCompanyUrl('/sales/invoices?filter=all_invoices')">{{viewData[0].sumtaxexclusiveamount | unicurrency}} kr ({{viewData[0].countid}})</a></td>
-    </tr>
-    <tr>
-        <td>Forfalte ubetalte faktura</td>
-        <td><a href="#" (click)="navigateToCompanyUrl('/sales/invoices?filter=all_invoices')">{{viewData[1]  | unicurrency}} kr</a></td>
+        <td>Sum i {{accountingYear}} (Antall timeføringer)</td>
+        <td><a href="#" (click)="navigateToCompanyUrl('/timetracking/timeentry')">{{round(viewData[0].sum/60, 1)}} timer ({{viewData[0].counter}})</a></td>
     </tr>
     <tr><td colspan="2"><hr/></td></tr>
-    <tr><th>Ordre</th></tr>
+    <tr><th>Fakturering</th></tr>
     <tr>
-        <td>Ordrereserve</td>
-        <td><a href="#" (click)="navigateToCompanyUrl('/sales/invoices?filter=all_invoices')">{{viewData[2] | unicurrency}} kr</a></td>
+        <td>Ufakturerte (fakturerbare) timer</td>
+        <td><a href="#" (click)="navigateToCompanyUrl('/timetracking/timeentry')">{{viewData[1]}}</a></td>
+    </tr>
+    <tr>
+        <td>Fakturerte timer</td>
+        <td><a href="#" (click)="navigateToCompanyUrl('/timetracking/timeentry')">{{viewData[2]}}</a></td>
     </tr>
 </table>`
 })
-export class BureauSalesTab implements OnChanges {
+export class BureauHoursTab implements OnChanges {
     @Input() public company: KpiCompany;
 
     public accountingYear: number;
     public viewData: any[];
+    public round = UniMath.round;
 
     constructor(
         private element: ElementRef,
@@ -57,9 +59,9 @@ export class BureauSalesTab implements OnChanges {
     public ngOnChanges(changes: SimpleChanges) {
         this.element.nativeElement.setAttribute('aria-busy', true);
         Observable.forkJoin(
-            this.getSalesInvoices(),
-            this.getDueSalesInvoices(),
-            this.getOrderReserve()
+            this.getNumberOfTimeTracings(),
+            this.getUnInvoicedHours(),
+            this.getInvoicedHours()
         )
             .do(() => this.element.nativeElement.setAttribute('aria-busy', false))
             .do(() => this.cd.markForCheck())
@@ -68,35 +70,36 @@ export class BureauSalesTab implements OnChanges {
             );
     }
 
-    public getSalesInvoices() {
+    public getNumberOfTimeTracings(): Observable<number> {
         const year = this.accountingYear;
         return this.customHttpService.get(
-            `${BASE}/api/statistics?model=customerinvoice&select=sum(taxexclusiveamount),count(id)&filter=year(invoicedate) eq ${year} and statuscode ge 42002`,
+            `${BASE}/api/statistics?model=workitem&select=sum(minutes) as sum,count(id) as counter&filter=(worktype.systemtype le 10 or worktype.systemtype eq 12) and year(date) eq ${year}&join=&expand=worktype&top=50`,
             this.company.Key
         )
-            .map(this.customHttpService.singleStatisticsExtractor)
+            .map(this.customHttpService.singleStatisticsExtractor);
     }
 
-    public getDueSalesInvoices() {
+    public getUnInvoicedHours(): Observable<string> {
         return this.customHttpService.get(
-            `${BASE}/api/statistics?model=customerinvoice&select=sum(RestAmount),count(id)&filter=now() ge PaymentDueDate and (StatusCode eq 42002 or StatusCode eq 42003) and restamount gt 0`,
+            `${BASE}/api/statistics?model=workitem&select=sum(casewhen(minutestoorder eq 0\,minutes\,minutestoorder)) as SumMinutes&filter=(Invoiceable eq 1 or minutestoorder gt 0 or customerorderid gt 0) and transferedtoorder eq 0`,
             this.company.Key
         )
             .map(this.customHttpService.singleStatisticsExtractor)
-            .map(result => result.sumRestAmount)
+            .map(result => result.SumMinutes)
             .map(sum => sum === null ? 0 : sum);
     }
 
-    public getOrderReserve() {
+    public getInvoicedHours() {
+        const year = this.accountingYear;
         return this.customHttpService.get(
-            `${BASE}/api/statistics?model=customerorder&select=sum(items.SumTotalExVat) as sum,count(id) as counter&filter=items.statuscode eq 41102 and (statuscode eq 41002 or statuscode eq 41003)&join=&expand=items`,
+            `${BASE}/api/statistics?model=workitem&select=sum(casewhen(minutestoorder eq 0\,minutes\,minutestoorder)) as SumMinutes&filter=(Invoiceable eq 1 or minutestoorder gt 0 or customerorderid gt 0) and transferedtoorder eq 1 and year(date) eq ${year}`,
             this.company.Key
         )
             .map(this.customHttpService.singleStatisticsExtractor)
-            .map(result => result.sum)
+            .map(result => result.SumMinutes)
             .map(sum => sum === null ? 0 : sum);
     }
-    
+
     public navigateToCompanyUrl(url: string) {
         this.authService.setActiveCompany(<any>this.company, url);
         this.element.nativeElement.setAttribute('aria-busy', true);

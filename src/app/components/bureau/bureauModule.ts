@@ -5,24 +5,21 @@ import {UniFrameworkModule} from '../../../framework/frameworkModule';
 
 import {BureauDashboard} from './bureauDashboard';
 import {UniNewCompanyModal} from './newCompanyModal';
-import {BureauDetails} from './detailView/bureauDetails';
+import {BureauDetails, TABS} from './detailView/bureauDetails';
 import {BureauCustomHttpService} from './bureauCustomHttpService';
-import {BureauAccountingTab} from './detailView/bureauAccountingTab';
-import {ValueLoader} from './valueLoader';
-import {BureauSalesTab} from './detailView/bureauSalesTab';
+import {AppPipesModule} from '../../pipes/appPipesModule';
 
 @NgModule({
     imports: [
         CommonModule,
         UniFrameworkModule,
-        ReactiveFormsModule
+        ReactiveFormsModule,
+        AppPipesModule
     ],
     declarations: [
         BureauDashboard,
         BureauDetails,
-        BureauAccountingTab,
-        BureauSalesTab,
-        ValueLoader,
+        ...TABS,
         UniNewCompanyModal
     ],
     providers: [

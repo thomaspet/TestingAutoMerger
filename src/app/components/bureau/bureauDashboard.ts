@@ -176,19 +176,19 @@ export class BureauDashboard {
     }
 
     public onCompanyNameClick(company: KpiCompany) {
-        this.authService.setActiveCompany(company);
+        this.authService.setActiveCompany(<any>company);
         this.busy = true;
     }
 
     public onCompanyInboxClick(company: KpiCompany) {
         const redirectUrl = '/accounting/bills?filter=Inbox';
-        this.authService.setActiveCompany(company, redirectUrl);
+        this.authService.setActiveCompany(<any>company, redirectUrl);
         this.busy = true;
     }
 
     public onCompanyApprovalsClick(company: KpiCompany) {
         const redirectUrl = '/accounting/bills?filter=Approved';
-        this.authService.setActiveCompany(company, redirectUrl);
+        this.authService.setActiveCompany(<any>company, redirectUrl);
         this.busy = true;
     }
 
