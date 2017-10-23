@@ -5,8 +5,8 @@ import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {HttpModule} from '@angular/http';
 import {RouterModule} from '@angular/router';
 import {UniNavbar} from './navbar/navbar';
-import {HamburgerMenu} from './navbar/hamburgerMenu/hamburgerMenu';
-import {RemoveHidden} from './navbar/hamburgerMenu/hamburgerMenu';
+import {HamburgerMenu, RemoveHidden} from './navbar/hamburgerMenu/hamburgerMenu';
+import {UniShortcut} from './navbar/shortcut/shortcut';
 import {NavbarSearch} from './navbar/search/search';
 import {UniTabStrip} from './navbar/tabstrip/tabStrip';
 import {UniCompanyDropdown} from './navbar/userinfo/companyDropdown/companyDropdown';
@@ -31,6 +31,7 @@ import {UniHelpText} from './helpText/helpText';
         UniNavbar,
         HamburgerMenu,
         RemoveHidden,
+        UniShortcut,
         NavbarSearch,
         UniTabStrip,
         UniCompanyDropdown,
@@ -48,6 +49,7 @@ import {UniHelpText} from './helpText/helpText';
         UniNavbar,
         HamburgerMenu,
         RemoveHidden,
+        UniShortcut,
         NavbarSearch,
         UniTabStrip,
         UniCompanyDropdown,

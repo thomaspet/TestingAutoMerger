@@ -1,0 +1,33 @@
+.shortcut_icon
+    background: unicon-plus($uni-color-negative) no-repeat center center
+    background-size: 1.1rem
+    height: 2.5rem
+    padding-top: 0
+    padding-bottom: 0
+    width: 3rem
+    display: block
+
+    &:hover,&:focus,&.is-opened
+        background-color: darken($navbarBackground, 10%)
+        cursor: pointer
+
+.shortcut_list
+    position: absolute
+    top: 40px
+    list-style: none
+    color: $uni-color-scale2
+    background: #fff
+    box-shadow: 0 0 .6rem transparentize($uni-color-scale1, .7)
+    box-sizing: border-box
+    width: 12rem
+    margin: 0
+
+    li
+        line-height: 2rem
+        padding: .1rem 1rem
+
+        &:hover
+            cursor: pointer
+            background-color: $uni-color-negative
+            color: $navbarBackground
+            font-weight: 600
