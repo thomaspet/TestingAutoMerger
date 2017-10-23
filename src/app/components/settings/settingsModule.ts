@@ -15,6 +15,7 @@ import {SubEntityDetails} from './agaAndSubEntitySettings/subEntityDetails';
 import {SubEntityList} from './agaAndSubEntitySettings/subEntityList';
 import {AltinnSettings} from './altinnSettings/altinnSettings';
 import {CompanySettingsComponent} from './companySettings/companySettings';
+import {CompanySettingsViewService} from './companySettings/services/companySettingsViewService';
 import {Users} from './users/users';
 import {Teams} from './teams/teams';
 import {UserSettings} from './userSettings/userSettings';
@@ -83,7 +84,8 @@ import {RoleSelector} from './users/roleSelector';
         RoleSelector
     ],
     providers: [
-        SubEntitySettingsService
+        SubEntitySettingsService,
+        CompanySettingsViewService
     ]
 })
 export class SettingsModule {

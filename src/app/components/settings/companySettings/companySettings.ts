@@ -46,6 +46,7 @@ import {
     UniFilesService
 } from '../../../services/services';
 import {SubEntitySettingsService} from '../agaAndSubEntitySettings/services/subEntitySettingsService';
+import {CompanySettingsViewService} from './services/companySettingsViewService';
 import {
     UniActivateAPModal,
     UniAddressModal,
@@ -162,7 +163,8 @@ export class CompanySettingsComponent implements OnInit {
         private ehfService: EHFService,
         private modalService: UniModalService,
         private uniFilesService: UniFilesService,
-        private subEntitySettingsService: SubEntitySettingsService
+        private subEntitySettingsService: SubEntitySettingsService,
+        private companySettingsViewService: CompanySettingsViewService
     ) {}
 
     public ngOnInit() {
@@ -342,6 +344,11 @@ export class CompanySettingsComponent implements OnInit {
                 if (this.organizationnumbertoast) {
                     this.toastService.removeToast(this.organizationnumbertoast);
                 }
+
+                this.company$
+                    .asObservable()
+                    .take(1)
+                    .subscribe(compSettings => this.promptImportFromBrregIfNeeded(compSettings));
             }
         }
     }
@@ -394,14 +401,7 @@ export class CompanySettingsComponent implements OnInit {
 
         this.companySettingsService
             .Put(company.ID, company)
-            .do((companySettings: CompanySettings) => {
-                if (companySettings.OrganizationNumber !== this.savedCompanyOrgValue) {
-                    this.subEntitySettingsService
-                        .addSubEntitiesFromExternal(companySettings.OrganizationNumber)
-                        .subscribe();
-                }
-                this.savedCompanyOrgValue = companySettings.OrganizationNumber;
-            })
+            .do((companySettings: CompanySettings) => this.promptUpdateOfSubEntitiesIfNeeded(companySettings))
             .subscribe(
             (reponse) => {
                 this.companySettingsService.Get(1).subscribe(retrievedCompany => {
@@ -428,6 +428,34 @@ export class CompanySettingsComponent implements OnInit {
                 complete('Lagring feilet.');
             }
         );
+    }
+
+    private promptUpdateOfSubEntitiesIfNeeded(companySettings: CompanySettings) {
+        if (companySettings.OrganizationNumber !== this.savedCompanyOrgValue) {
+            this.subEntitySettingsService
+                .addSubEntitiesFromExternal(companySettings.OrganizationNumber)
+                .subscribe(subEntities => this.savedCompanyOrgValue = companySettings.OrganizationNumber);
+        }
+    }
+
+    private promptImportFromBrregIfNeeded(companySettings: CompanySettings) {
+        if (!!this.savedCompanyOrgValue && this.savedCompanyOrgValue !== '-') {
+            return;
+        }
+
+        this.companySettingsViewService
+            .askUserAboutBrregImport(companySettings)
+            .subscribe(result => {
+                let [compSettings, confirmAction] = result;
+
+                if (confirmAction !== ConfirmActions.ACCEPT) {
+                    return;
+                }
+
+                this.savedCompanyOrgValue = compSettings.OrganizationNumber;
+                this.company$.next(compSettings);
+                this.saveSettings(() => {});
+            });
     }
 
     private updateMunicipalityName() {
