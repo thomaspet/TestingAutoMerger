@@ -13,7 +13,7 @@ import {UniCompanyDropdown} from './navbar/userinfo/companyDropdown/companyDropd
 import {UniFrameworkModule} from '../../../framework/frameworkModule';
 import {UniTabs} from './uniTabs/uniTabs';
 import {UniNumberFormatPipe} from '../../pipes/uniNumberFormatPipe';
-import {YearModal, YearModalContent} from './navbar/userinfo/companyDropdown/modals/yearModal';
+import {YearModal} from './navbar/userinfo/companyDropdown/modals/yearModal';
 import {UniHelpText} from './helpText/helpText';
 
 @NgModule({
@@ -35,14 +35,13 @@ import {UniHelpText} from './helpText/helpText';
         UniTabStrip,
         UniCompanyDropdown,
         YearModal,
-        YearModalContent,
         UniHelpText
     ],
     providers: [
         UniNumberFormatPipe
     ],
     entryComponents: [
-        YearModalContent
+        YearModal
     ],
     exports: [
         UniTabs,
@@ -53,7 +52,6 @@ import {UniHelpText} from './helpText/helpText';
         UniTabStrip,
         UniCompanyDropdown,
         YearModal,
-        YearModalContent,
         UniHelpText
     ]
 })
