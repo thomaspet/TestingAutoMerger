@@ -27,9 +27,9 @@
                 <tr *ngFor="let company of filteredCompanies"
                     (click)="onRowClick(company)"
                     [attr.aria-selected]="company === highlightedCompany">
-                    <td><a href="#" (click)="onCompanyNameClick(company)">{{company.Name}}</a></td>
-                    <td><a href="#" (click)="onCompanyInboxClick(company)">{{getKpiCount(company, 'Inbox')}}</a></td>
-                    <td><a href="#" (click)="onCompanyApprovalsClick(company)">{{getKpiCount(company, 'Approved')}}</a></td>
+                    <td><a (click)="onCompanyNameClick(company)">{{company.Name}}</a></td>
+                    <td><a (click)="onCompanyInboxClick(company)">{{getKpiCount(company, 'Inbox')}}</a></td>
+                    <td><a (click)="onCompanyApprovalsClick(company)">{{getKpiCount(company, 'Approved')}}</a></td>
                 </tr>
             </table>
         </section>
