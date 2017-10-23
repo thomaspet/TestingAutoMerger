@@ -71,15 +71,9 @@ export class UnitableSelect {
 
             if (Array.isArray(this.editorOptions.resource)) {
                 this.items = [...<any[]> this.editorOptions.resource];
-                if (!this.editorOptions.hideNotChosenOption) {
-                    this.items.unshift(null);
-                }
             } else {
                 (<Observable<any>> this.editorOptions.resource).subscribe((res) => {
                     this.items = res;
-                    if (!this.editorOptions.hideNotChosenOption) {
-                        this.items.unshift(null);
-                    }
                 });
             }
         }
