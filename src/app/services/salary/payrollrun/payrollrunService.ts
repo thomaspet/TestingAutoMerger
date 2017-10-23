@@ -343,14 +343,7 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
                     Legend: 'Lønnsavregning',
                     FieldSet: 1,
                     Section: 0,
-                    Classes: 'payrollDetails_ID',
-                    Validations: [
-                        {
-                            ErrorMessage: 'Required field',
-                            Level: 3,
-                            Operator: 'REQUIRED'
-                        }
-                    ]
+                    Classes: 'payrollDetails_ID'
                 },
                 {
                     EntityType: 'payrollrun',
@@ -359,14 +352,7 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
                     Label: 'Beskrivelse',
                     FieldSet: 1,
                     Section: 0,
-                    Classes: 'payrollDetails_description',
-                    Validations: [
-                        {
-                            ErrorMessage: 'Required field',
-                            Level: 3,
-                            Operator: 'REQUIRED'
-                        }
-                    ]
+                    Classes: 'payrollDetails_description'
                 },
                 {
                     EntityType: 'payrollrun',
@@ -415,19 +401,7 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
                             {Indx: 2, Name: 'Ferielønn (-3/22)'}],
                         displayProperty: 'Name',
                         valueProperty: 'Indx'
-                    },
-                    Validations: [
-                        {
-                            ErrorMessage: 'should be a valid date',
-                            Operator: 'DATE',
-                            Level: 3
-                        },
-                        {
-                            ErrorMessage: 'Required field',
-                            Level: 3,
-                            Operator: 'REQUIRED'
-                        }
-                    ]
+                    }
                 },
                 {
                     EntityType: 'payrollrun',
@@ -436,19 +410,7 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
                     Label: 'Inkluder faste poster/trekk',
                     FieldSet: 1,
                     Section: 0,
-                    Classes: 'payrollDetails_excludeRecurringPosts',
-                    Validations: [
-                        {
-                            ErrorMessage: 'should be a valid date',
-                            Operator: 'DATE',
-                            Level: 3
-                        },
-                        {
-                            ErrorMessage: 'Required field',
-                            Level: 3,
-                            Operator: 'REQUIRED'
-                        }
-                    ]
+                    Classes: 'payrollDetails_excludeRecurringPosts'
                 },
                 {
                     EntityType: 'payrollrun',
@@ -468,19 +430,7 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
                     Label: 'Ansatte med negativ lønn utelates',
                     FieldSet: 1,
                     Section: 0,
-                    hasLineBreak: true,
-                    Validations: [
-                        {
-                            ErrorMessage: 'should be a valid date',
-                            Operator: 'DATE',
-                            Level: 3
-                        },
-                        {
-                            ErrorMessage: 'Required field',
-                            Level: 3,
-                            Operator: 'REQUIRED'
-                        }
-                    ]
+                    hasLineBreak: true
                 },
                 {
                     EntityType: 'payrollrun',
@@ -490,19 +440,7 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
                     FieldSet: 2,
                     Legend: 'Datoer og fritekst',
                     Section: 0,
-                    Classes: 'payrollDetails_fromDate',
-                    Validations: [
-                        {
-                            ErrorMessage: 'should be a valid date',
-                            Operator: 'DATE',
-                            Level: 3
-                        },
-                        {
-                            ErrorMessage: 'Required field',
-                            Level: 3,
-                            Operator: 'REQUIRED'
-                        }
-                    ]
+                    Classes: 'payrollDetails_fromDate'
                 },
                 {
                     EntityType: 'payrollrun',
@@ -512,19 +450,7 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
                     FieldSet: 2,
                     Section: 0,
                     Classes: 'payrollDetails_toDate',
-                    hasLineBreak: true,
-                    Validations: [
-                        {
-                            ErrorMessage: 'should be a valid date',
-                            Operator: 'DATE',
-                            Level: 3
-                        },
-                        {
-                            ErrorMessage: 'Required field',
-                            Level: 3,
-                            Operator: 'REQUIRED'
-                        }
-                    ]
+                    hasLineBreak: true
                 },
                 {
                     EntityType: 'payrollrun',
@@ -533,19 +459,7 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
                     Label: 'Utbetalingsdato',
                     FieldSet: 2,
                     Section: 0,
-                    Classes: 'payrollDetails_payDate',
-                    Validations: [
-                        {
-                            ErrorMessage: 'should be a valid date',
-                            Operator: 'DATE',
-                            Level: 3
-                        },
-                        {
-                            ErrorMessage: 'Required field',
-                            Level: 3,
-                            Operator: 'REQUIRED'
-                        }
-                    ]
+                    Classes: 'payrollDetails_payDate'
                 },
                 {
                     EntityType: 'payrollrun',
