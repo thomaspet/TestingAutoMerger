@@ -155,12 +155,7 @@ export class WageTypeService extends BizHttp<WageType> {
     }
 
     public deleteWageType(id: number): Observable<boolean> {
-        return this.http
-            .asDELETE()
-            .usingBusinessDomain()
-            .withEndPoint(`${this.relativeURL}/${id}`)
-            .send()
-            .map(res => res.json())
+        return super.Remove(id)
             .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
     }
 

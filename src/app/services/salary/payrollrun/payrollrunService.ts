@@ -304,7 +304,8 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
 
     public deletePayrollRun(payrollRunID: number): Observable<any> {
         return super.Remove(payrollRunID)
-            .do(() => this.clearRelatedCaches());
+            .do(() => this.clearRelatedCaches())
+            .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
     }
 
     public savePayrollRun(payrollRun: PayrollRun): Observable<PayrollRun> {

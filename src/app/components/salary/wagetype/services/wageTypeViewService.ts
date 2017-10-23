@@ -29,7 +29,7 @@ export class WageTypeViewService {
             })
             .onClose
             .switchMap((result: ConfirmActions) => result === ConfirmActions.ACCEPT
-                ? this.wageTypeService.Remove(id).map(() => result)
+                ? this.wageTypeService.deleteWageType(id).map(() => result)
                 : Observable.of(result))
             .subscribe((result) => {
                 if (result !== ConfirmActions.ACCEPT) {
