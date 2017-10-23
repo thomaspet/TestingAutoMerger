@@ -200,6 +200,25 @@ export class TradeItemTable {
                     });
 
                     return filtered;
+                },
+                groupConfig:  {
+                    groupKey: 'VatCodeGroupingValue',
+                    visibleValueKey: 'Visible',
+                    groups: [
+                        {
+                            key: 4,
+                            header: 'Salg/inntekter'
+                        },
+                        {
+                            key: 5,
+                            header: 'Salg uten mva.'
+                        },
+                        {
+                            key: 7,
+                            header: 'Egendefinerte koder'
+                        }
+
+                    ]
                 }
             });
 

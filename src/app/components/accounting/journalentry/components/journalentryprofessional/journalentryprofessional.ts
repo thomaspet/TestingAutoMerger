@@ -17,6 +17,7 @@ import {
     UniTableConfig,
     ICellClickEvent
 } from '../../../../../../framework/ui/unitable/index';
+import {IGroupConfig} from '../../../../../../framework/ui/unitable/controls/autocomplete';
 import {UniHttp} from '../../../../../../framework/core/http/http';
 import {
     Account,
@@ -124,6 +125,44 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
     private lastImageDisplayFor: string = '';
 
     private defaultAccountPayments: Account = null;
+    private groupConfig: IGroupConfig = {
+        groupKey: 'VatCodeGroupingValue',
+        visibleValueKey: 'Visible',
+        groups: [
+            {
+                key: 1,
+                header: 'Kjøp/kostnader.'
+            },
+            {
+                key: 2,
+                header: 'Kjøp/Importfaktura'
+            },
+            {
+                key: 3,
+                header: 'Import/Mva-beregning'
+            },
+            {
+                key: 4,
+                header: 'Salg/inntekter'
+            }
+            ,
+            {
+                key: 5,
+                header: 'Salg uten mva.'
+            }
+            ,
+            {
+                key: 6,
+                header: 'Kjøpskoder, spesielle'
+            }
+            ,
+            {
+                key: 7,
+                header: 'Egendefinerte koder'
+            }
+
+        ]
+    }
 
     constructor(
         private changeDetector: ChangeDetectorRef,
@@ -803,7 +842,8 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 },
                 lookupFunction: (searchValue) => {
                     return Observable.from([this.vattypes.filter((vattype) => vattype.VatCode === searchValue || vattype.VatPercent == searchValue || vattype.Name.toLowerCase().indexOf(searchValue.toLowerCase()) >= 0 || searchValue === `${vattype.VatCode}: ${vattype.Name} - ${vattype.VatPercent}%` || searchValue === `${vattype.VatCode}: ${vattype.VatPercent}%`)]);
-                }
+                },
+                groupConfig: this.groupConfig
             });
 
         let creditAccountCol = new UniTableColumn('CreditAccount', 'Kredit', UniTableColumnType.Lookup)
@@ -848,7 +888,8 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 },
                 lookupFunction: (searchValue) => {
                     return Observable.from([this.vattypes.filter((vattype) => vattype.VatCode === searchValue || vattype.VatPercent == searchValue || vattype.Name.toLowerCase().indexOf(searchValue.toLowerCase()) >= 0 || searchValue === `${vattype.VatCode}: ${vattype.Name} - ${vattype.VatPercent}%` || searchValue === `${vattype.VatCode}: ${vattype.VatPercent}%`)]);
-                }
+                },
+                groupConfig: this.groupConfig
             });
 
         let deductionPercentCol = new UniTableColumn('VatDeductionPercent', 'Fradrag %', UniTableColumnType.Number)
