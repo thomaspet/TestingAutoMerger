@@ -5,6 +5,41 @@
     a
         color: $uni-color-scale7 !important
 
-transquery
-    uni-field
-        margin-left: 0
+transquery-details
+    .application
+        position: relative
+
+    .transquery-filter-form
+        position: absolute
+        top: .4rem
+        left: 15rem
+        z-index: #{map-get($zindex, toolbar) - 2}
+
+        uni-field
+            width: auto
+            padding: 0
+            padding-left: 2rem
+
+            label span
+                width: auto
+                padding-right: 1rem
+
+            label span+*
+                width: auto
+
+        .collapsable.-is-open > .collapsable-content
+            justify-content: left
+
+@media screen and (max-width: 1240px)
+    transquery-details .transquery-filter-form
+        position: static
+        @include labelLength(7rem)
+
+        uni-field
+            width: 25rem
+
+            label span
+                width: 7rem
+
+            label span+*
+                width: calc(100% - 7rem)

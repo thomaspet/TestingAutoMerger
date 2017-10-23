@@ -1,11 +1,14 @@
 <uni-toolbar [config]="toolbarconfig"></uni-toolbar>
 <section class="application">
-    <uni-form [config]="config$"
-              [fields]="fields$"
-              [model]="searchParams$"
-              (changeEvent)="onFormFilterChange($event)"
-              *ngIf="allowManualSearch">
-    </uni-form>
+    <article class="transquery-search">
+        <uni-form class="transquery-filter-form" 
+                [config]="config$"
+                [fields]="fields$"
+                [model]="searchParams$"
+                (changeEvent)="onFormFilterChange($event)"
+                *ngIf="allowManualSearch">
+        </uni-form>
+    </article>
     <uni-table
         [resource]="lookupFunction"
         [config]="uniTableConfig"

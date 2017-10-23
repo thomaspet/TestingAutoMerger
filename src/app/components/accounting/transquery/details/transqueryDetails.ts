@@ -673,7 +673,7 @@ export class TransqueryDetails implements OnInit {
                     EntityType: 'JournalEntryLine',
                     Property: 'JournalEntryNumberNumeric',
                     FieldType: FieldType.AUTOCOMPLETE,
-                    Label: 'Filtrer på bilagsnr',
+                    Label: 'Bilagsnr',
                     Options: {
                         search: (query: string) => {
                             const searchParams = this.searchParams$.getValue();
@@ -700,7 +700,7 @@ export class TransqueryDetails implements OnInit {
                     EntityType: 'JournalEntryLine',
                     Property: 'AccountID',
                     FieldType: FieldType.AUTOCOMPLETE,
-                    Label: 'Filtrer på konto',
+                    Label: 'Kontonr',
                     Options: {
                         getDefaultData: () => {
                             let searchParams = this.searchParams$.getValue();
@@ -730,7 +730,7 @@ export class TransqueryDetails implements OnInit {
                     EntityType: 'JournalEntryLine',
                     Property: 'AccountYear',
                     FieldType: FieldType.DROPDOWN,
-                    Label: 'Filtrer på regnskapsår',
+                    Label: 'Regnskapsår',
                     Options: {
                         source: this.financialYears,
                         valueProperty: 'Year',
