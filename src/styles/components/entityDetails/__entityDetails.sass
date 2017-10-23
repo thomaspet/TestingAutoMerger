@@ -57,7 +57,7 @@ $entityDetailsHeight: 20rem
 .entityDetails
     background-color: $uni-color-negative
     position: absolute
-    z-index: map-get($zindex, 'toolbar')
+    z-index: #{map-get($zindex, toolbar) - 1}
     left: 0
     right: 0
     top: 7.15rem
