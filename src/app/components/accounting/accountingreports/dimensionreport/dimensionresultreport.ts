@@ -2,7 +2,6 @@ import {Component, ViewChild} from '@angular/core';
 import {Router, ActivatedRoute} from '@angular/router';
 import {TabService} from '../../../layout/navbar/tabstrip/tabService';
 import {PeriodFilter, PeriodFilterHelper} from '../periodFilter/periodFilter';
-import {AccountDetailsReportModal} from '../detailsmodal/accountDetailsReportModal';
 import {DrilldownResultReportPart} from '../reportparts/drilldownResultReportPart';
 import {ResultSummaryData} from '../resultreport/resultreport';
 import {IToolbarConfig} from '../../../common/toolbar/toolbar';
@@ -17,8 +16,6 @@ import {
     templateUrl: './dimensionresultreport.html',
 })
 export class DimensionResultReport {
-
-    @ViewChild(AccountDetailsReportModal) private accountDetailsReportModal: AccountDetailsReportModal;
     @ViewChild(DrilldownResultReportPart) private drilldownResultReportPart: DrilldownResultReportPart;
 
     private periodFilter1: PeriodFilter;

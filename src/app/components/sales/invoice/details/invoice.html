@@ -1,5 +1,6 @@
 <uni-toolbar [config]="toolbarconfig"
              [saveactions]="saveActions"
+             [shareActions]="shareActions"
              [commentsConfig]="commentsConfig"
              [selectConfig]="selectConfig"
              (selectValueChanged)="numberSeriesChange($event)">
@@ -12,8 +13,10 @@
               [projects]="projects"
               [paymentTerms]="paymentTerms"
               [deliveryTerms]="deliveryTerms"
+              [sellers]="sellers"
               [companySettings]="companySettings"
-              (dataChange)="onInvoiceChange($event)">
+              (dataChange)="onInvoiceChange($event)"
+              (sellerDelete)="onSellerDelete($event)">
 </uni-tof-head>
 
 <section class="application">

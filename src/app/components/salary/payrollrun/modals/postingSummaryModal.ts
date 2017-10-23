@@ -1,7 +1,8 @@
 import {Component, OnInit, Input, Output, EventEmitter} from '@angular/core';
 import {IUniModal, IModalOptions} from '../../../../../framework/uniModal/barrel';
 import {UniTableColumn, UniTableColumnType, UniTableConfig} from '../../../../../framework/ui/unitable/index';
-import {PostingSummary} from '../../../../unientities';
+import {UniFieldLayout, FieldType} from '../../../../../framework/ui/uniform/index';
+import {PostingSummary, LocalDate, PayrollRun} from '../../../../unientities';
 import {
     PayrollrunService,
     ErrorService,
@@ -10,6 +11,7 @@ import {
     ReportService
 } from '../../../../../app/services/services';
 import * as moment from 'moment';
+import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 
 @Component({
     selector: 'posting-summary-modal',
@@ -20,6 +22,9 @@ export class PostingSummaryModal implements OnInit, IUniModal {
     @Input() options: IModalOptions;
     @Output() onClose: EventEmitter<boolean> = new EventEmitter<boolean>();
     public busy: boolean;
+    public config$: BehaviorSubject<any> = new BehaviorSubject({});
+    public fields$: BehaviorSubject<UniFieldLayout[]> = new BehaviorSubject([]);
+    public formModel$: BehaviorSubject<{date: LocalDate}> = new BehaviorSubject({date: new LocalDate()});
     private showReceipt: boolean = false;
     private accountTableConfig: UniTableConfig;
     private payrollrunID: number;
@@ -36,8 +41,18 @@ export class PostingSummaryModal implements OnInit, IUniModal {
 
     public ngOnInit() {
         this.busy = true;
+        let run: PayrollRun = this.options.data;
         this.payrollrunID = this.options.data.ID;
+        this.formModel$.next({date: new LocalDate(run.PayDate)});
         this.createTableConfig();
+
+        let newFields: any[] = [{
+            Property: 'date',
+            FieldType: FieldType.LOCAL_DATE_PICKER,
+            Label: 'Bokføringsdato'
+        }];
+
+        this.fields$.next(newFields);
 
         this.payrollService
             .getPostingsummary(this.payrollrunID)
@@ -72,6 +87,7 @@ export class PostingSummaryModal implements OnInit, IUniModal {
 
     public postTransactions() {
         this.busy = true;
+        let date = this.formModel$.getValue().date;
         this.reportDefinitionService
             .getReportByName('Konteringssammendrag')
             .switchMap(report => {
@@ -82,7 +98,7 @@ export class PostingSummaryModal implements OnInit, IUniModal {
                 report.TemplateLinkId = 'PostingSummary.mrt';
                 return this.reportService.generateReportPdfFile(report);
             })
-            .switchMap(file => this.payrollService.postTransactions(this.payrollrunID, file))
+            .switchMap(file => this.payrollService.postTransactions(this.payrollrunID, date, file))
             .catch((err, obs) => this.errorService.handleRxCatch(err, obs))
             .do((response) => {
                 let config = this.options.modalConfig;

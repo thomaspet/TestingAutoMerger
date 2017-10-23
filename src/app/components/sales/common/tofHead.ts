@@ -1,6 +1,6 @@
 import {Component, Input, Output, ViewChild, EventEmitter, OnChanges, SimpleChanges} from '@angular/core';
 import {FormControl} from '@angular/forms';
-import {CompanySettings, CurrencyCode, Project, Terms} from '../../../unientities';
+import {CompanySettings, CurrencyCode, Project, Terms, Seller, SellerLink} from '../../../unientities';
 import {TofCustomerCard} from './customerCard';
 import {TofDetailsForm} from './detailsForm';
 
@@ -20,9 +20,11 @@ export class TofHead implements OnChanges {
     @Input() public projects: Project;
     @Input() public paymentTerms: Terms[];
     @Input() public deliveryTerms: Terms[];
+    @Input() public sellers: Seller[];
     @Input() public companySettings: CompanySettings;
 
     @Output() public dataChange: EventEmitter<any> = new EventEmitter();
+    @Output() public sellerDelete: EventEmitter<SellerLink> = new EventEmitter<SellerLink>();
 
     public tabs: string[] = ['Detaljer', 'Betingelser og levering', 'Fritekst', 'Selgere', 'Dokumenter'];
     public activeTabIndex: number = 0;
@@ -45,6 +47,21 @@ export class TofHead implements OnChanges {
 
         this.dataChange.emit(updatedEntity);
         this.data = _.cloneDeep(updatedEntity);
+    }
+
+    public onMainSellerSet(sellerLink: SellerLink) {
+        this.data.DefaultSellerLinkID = sellerLink.ID;
+        this.data.DefaultSeller = sellerLink;
+        this.dataChange.emit(this.data);
+    }
+
+    public onSellerLinkDeleted(sellerLink: SellerLink) {
+        if (this.data.DefaultSeller && sellerLink.SellerID === this.data.DefaultSeller.SellerID) {
+            this.data.DefaultSeller = new SellerLink();
+            this.data.DefaultSellerLinkID = null;
+        }
+        this.sellerDelete.emit(sellerLink);
+        this.dataChange.emit(this.data);
     }
 
     public ngOnInit() {

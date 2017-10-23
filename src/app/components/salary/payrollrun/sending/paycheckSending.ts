@@ -1,4 +1,4 @@
-import {Component, OnInit, Input, ViewChildren, QueryList, ViewChild} from '@angular/core';
+import {Component, OnInit, Input, ViewChildren, QueryList, Output, EventEmitter} from '@angular/core';
 import {Employee, PayrollRun} from '../../../../unientities';
 import {Observable} from 'rxjs/Observable';
 import {UniPreviewModal} from '../../../reports/modals/preview/previewModal';
@@ -9,6 +9,7 @@ import {
     UniTableColumnType,
     UniTable
 } from '../../../../../framework/ui/unitable/index';
+import {ToastService, ToastTime, ToastType} from '../../../../../framework/uniToast/toastService';
 import {
     ErrorService,
     PayrollrunService,
@@ -21,11 +22,11 @@ import {
     templateUrl: './paycheckSending.html'
 })
 export class PaycheckSending implements OnInit {
-    @Input()
-    private runID: number;
-
-    @ViewChildren(UniTable)
-    private tables: QueryList<UniTable>;
+    @Input() public runID: number;
+    @Output() public busy: EventEmitter<boolean> = new EventEmitter();
+    @Output() public selectedEmails: EventEmitter<number> = new EventEmitter();
+    @Output() public selectedPrints: EventEmitter<number> = new EventEmitter();
+    @ViewChildren(UniTable) private tables: QueryList<UniTable>;
 
     private paychecksEmail: Employee[] = [];
     private paychecksPrint: Employee[] = [];
@@ -37,7 +38,8 @@ export class PaycheckSending implements OnInit {
         private reportdefinitionService: ReportDefinitionService,
         private financialYearService: FinancialYearService,
         private errorService: ErrorService,
-        private modalService: UniModalService
+        private modalService: UniModalService,
+        private toastService: ToastService
     ) {}
 
     public ngOnInit() {
@@ -46,13 +48,37 @@ export class PaycheckSending implements OnInit {
     }
 
     public emailPaychecks() {
-        let emps: Employee[] = this.getSelectedEmail();
-        this.payrollrunService.emailPaychecks(emps, this.runID)
+        Observable
+            .of(this.getSelectedEmail())
+            .filter(emps => !!emps.length)
+            .do(() => this.busy.next(true))
+            .switchMap(emps => this.payrollrunService.emailPaychecks(emps, this.runID))
+            .catch((err, obs) => this.errorService.handleRxCatch(err, obs))
+            .finally(() => this.busy.next(false))
+            .do((response: boolean) => {
+                if (!response) {
+                    return;
+                }
+
+                this.resetRowSelection(this.tables.toArray()[0]);
+                this.emailRowSelectionChanged();
+            })
             .subscribe((response: boolean) => {
-                return response;
+                response
+                    ? this.toastService
+                        .addToast(
+                        'Lønnslipper er sendt',
+                        ToastType.good,
+                        ToastTime.short,
+                        'Valgte lønnslipper er sendt til ansatte')
+                    : this.toastService
+                        .addToast(
+                        'Feil',
+                        ToastType.bad,
+                        ToastTime.short,
+                        'Sending av valgte lønnslipper feilet');
             });
     }
-    
 
     public printPaychecks(all) {
         let prints = all ? this.getSelected() : this.getSelectedPrint();
@@ -63,30 +89,38 @@ export class PaycheckSending implements OnInit {
             this.reportdefinitionService.getReportByName('Lønnslipp'),
             this.payrollrunService.get(this.runID),
             this.financialYearService.getActiveYear())
-        .subscribe((response: [any, PayrollRun, number]) => {
-            let [report, payrollRun, thisYear] = response;
-            if ( report) {
-                let employeeTransFilter = '(' + prints
-                    .map((emp: Employee) => 'EmployeeID eq ' + emp.ID)
-                    .join( ' or ') + ')';
-                let transFilter = employeeTransFilter + ` and (PayrollRunID eq ${this.runID})`;
-                let employeeFilter = prints
-                    .map(emp => 'ID eq ' + emp.ID)
-                    .join(' or ');
+            .subscribe((response: [any, PayrollRun, number]) => {
+                let [report, payrollRun, thisYear] = response;
+                if (report) {
+                    let employeeTransFilter = '(' + prints
+                        .map((emp: Employee) => 'EmployeeID eq ' + emp.ID)
+                        .join(' or ') + ')';
+                    let transFilter = employeeTransFilter + ` and (PayrollRunID eq ${this.runID})`;
+                    let employeeFilter = prints
+                        .map(emp => 'ID eq ' + emp.ID)
+                        .join(' or ');
 
 
-                report.parameters = [
-                    {Name: 'TransFilter', value: transFilter},
-                    {Name: 'ThisYear', value: thisYear},
-                    {Name: 'LastYear', value: thisYear - 1},
-                    {Name: 'PayDate', value: payrollRun.PayDate},
-                    {Name: 'EmployeeFilter', value: employeeFilter},
-                    {Name: 'RunID', value: this.runID}
-                ];
+                    report.parameters = [
+                        {Name: 'TransFilter', value: transFilter},
+                        {Name: 'ThisYear', value: thisYear},
+                        {Name: 'LastYear', value: thisYear - 1},
+                        {Name: 'PayDate', value: payrollRun.PayDate},
+                        {Name: 'EmployeeFilter', value: employeeFilter},
+                        {Name: 'RunID', value: this.runID}
+                    ];
 
-                this.modalService.open(UniPreviewModal, {data: report});
-            }
-        }, err => this.errorService.handle(err));
+                    this.modalService.open(UniPreviewModal, {data: report});
+                }
+            }, err => this.errorService.handle(err));
+    }
+
+    private resetRowSelection(table: UniTable) {
+        table.getSelectedRows()
+            .forEach(row => {
+                row['_rowSelected'] = false;
+                table.updateRow(row['_originalIndex'], row);
+            });
     }
 
     private getSelected(): Employee[] {
@@ -112,7 +146,10 @@ export class PaycheckSending implements OnInit {
             ['BusinessRelationInfo', 'BusinessRelationInfo.DefaultEmail'])
             .subscribe((emps: Employee[]) => {
                 emps.forEach(employee => {
-                    if (employee.BusinessRelationInfo && employee.BusinessRelationInfo.DefaultEmail) {
+                    if (employee.BusinessRelationInfo &&
+                        employee.BusinessRelationInfo.DefaultEmail &&
+                        employee.BusinessRelationInfo.DefaultEmail.EmailAddress) {
+
                         tmpEmail.push(employee);
                     } else {
                         tmpPrint.push(employee);
@@ -144,4 +181,13 @@ export class PaycheckSending implements OnInit {
             .setDeleteButton(false)
             .setColumns([employeenumberCol, employeenameCol]);
     }
+
+    public emailRowSelectionChanged() {
+        this.selectedEmails.next(this.getSelectedEmail().length);
+    }
+
+    public printRowSelectionChanged() {
+        this.selectedPrints.next(this.getSelectedPrint().length);
+    }
+
 }

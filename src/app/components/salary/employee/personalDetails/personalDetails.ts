@@ -76,8 +76,8 @@ export class PersonalDetails extends UniView {
         this.config$.next({
             submitText: '',
             sections: {
-                1: { isOpen: true },
-                2: { isOpen: true }
+                1: {isOpen: true},
+                2: {isOpen: true}
             }
         });
 
@@ -99,34 +99,21 @@ export class PersonalDetails extends UniView {
                 err => this.errorService.handle(err)
                 );
 
-            if (!this.fields$.getValue().length) {
-                Observable
-                    .combineLatest(
-                    super.getStateSubject(EMPLOYEE_KEY),
-                    super.getStateSubject('subEntities'))
-                    .take(1)
-                    .subscribe((result: [Employee, SubEntity[]]) => {
-                        let [employee, subEntities] = result;
-                        this.getLayout(subEntities, employee);
-                    });
-            }
+            Observable
+                .combineLatest(
+                super.getStateSubject(EMPLOYEE_KEY),
+                super.getStateSubject('subEntities'))
+                .take(1)
+                .subscribe((result: [Employee, SubEntity[]]) => {
+                    let [employee, subEntities] = result;
+                    this.getLayout(subEntities, employee);
+                });
         });
     }
 
     private getLayout(subEntities: SubEntity[], employee: Employee) {
-        this.employeeService.layout('EmployeePersonalDetailsForm').subscribe(
+        this.employeeService.layout('EmployeePersonalDetailsForm', employee).subscribe(
             (layout: any) => {
-                layout.Fields[0].Validators = [{
-                    'EntityType': 'BusinessRelation',
-                    'PropertyName': 'BusinessRelationInfo.Name',
-                    'Operator': Operator.Required,
-                    'Operation': OperationType.CreateAndUpdate, // not used now. Operation is applied in all levels
-                    'Level': ValidationLevel.Error, // not used now. All messages are errors
-                    'Value': null,
-                    'ErrorMessage': 'Employee name is required',
-                    'ID': 1,
-                    'Deleted': false
-                }];
                 this.fields$.next(this.extendFormConfig(layout.Fields, subEntities, employee));
             }
             , err => this.errorService.handle(err)
@@ -270,7 +257,7 @@ export class PersonalDetails extends UniView {
                 let displayVal = '';
                 if (phone.Number) {
                     displayVal = (phone.CountryCode && phone.Number.substr(0, 3) !== phone.CountryCode
-                            ? phone.CountryCode + ' ' : '') + phone.Number;
+                        ? phone.CountryCode + ' ' : '') + phone.Number;
                 }
                 return displayVal;
             }

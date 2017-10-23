@@ -1,6 +1,6 @@
 import {Component, Input, Output, ViewChild, EventEmitter, SimpleChanges} from '@angular/core';
 import {UniForm, FieldType, UniFieldLayout} from '../../../../framework/ui/uniform/index';
-import {CompanySettings, CurrencyCode, LocalDate, Project} from '../../../unientities';
+import {CompanySettings, CurrencyCode, LocalDate, Project, Seller, SellerLink} from '../../../unientities';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {Dimension} from '../../../services/common/dimensionService';
 import * as moment from 'moment';
@@ -26,6 +26,7 @@ export class TofDetailsForm {
     @Input() public entity: any;
     @Input() public currencyCodes: Array<CurrencyCode>;
     @Input() public projects: Project;
+    @Input() public sellers: Seller[];
     @Input() public companySettings: CompanySettings;
     @Output() public entityChange: EventEmitter<any> = new EventEmitter();
 
@@ -119,6 +120,31 @@ export class TofDetailsForm {
             this.setDates(changes['InvoiceDate'].currentValue);
         }
 
+         // if selected default SellerLink exists on customer, set new DefaultSeller and DefaultSellerLinkId 
+        // - if not, set new DefaultSeller.Seller and clear DefaultSellerLinkId
+        if (changes['DefaultSeller.SellerID']) {
+            if (changes['DefaultSeller.SellerID'].currentValue) {
+                let defaultSeller = this.entity.Sellers.find(sellerLink => 
+                    sellerLink.SellerID === changes['DefaultSeller.SellerID'].currentValue
+                ) || new SellerLink();
+
+                if (defaultSeller.ID) {
+                    this.entity.DefaultSellerLinkID = defaultSeller.ID;
+                } else {
+                    defaultSeller.Seller = this.sellers.find(seller => 
+                        seller.ID === changes['DefaultSeller.SellerID'].currentValue
+                    );
+                    defaultSeller.SellerID = defaultSeller.Seller.ID;
+                    this.entity.DefaultSellerLinkID = null;
+                }
+                this.entity.DefaultSeller = _.cloneDeep(defaultSeller);
+            } else {
+                // runs if main seller dropdown is reset/chosen as empty value, to empty the entity
+                this.entity.DefaultSeller = null;
+                this.entity.DefaultSellerLinkID = null;
+            }
+        }
+
         this.entityChange.emit(this.entity);
     }
 
@@ -131,11 +157,8 @@ export class TofDetailsForm {
                     FieldSetColumn: 1,
                     EntityType: this.entityType,
                     Property: 'InvoiceDate',
-                    Placement: 2,
                     FieldType: FieldType.LOCAL_DATE_PICKER,
                     Label: 'Fakturadato',
-                    Description: '',
-                    HelpText: '',
                     Section: 0,
                     StatusCode: 0,
                     ID: 1,
@@ -148,8 +171,6 @@ export class TofDetailsForm {
                     Placement: 2,
                     FieldType: FieldType.LOCAL_DATE_PICKER,
                     Label: 'Forfallsdato',
-                    Description: '',
-                    HelpText: '',
                     Section: 0,
                     StatusCode: 0,
                     ID: 2,
@@ -159,11 +180,8 @@ export class TofDetailsForm {
                     FieldSetColumn: 1,
                     EntityType: this.entityType,
                     Property: 'CurrencyCodeID',
-                    Placement: 1,
                     FieldType: FieldType.DROPDOWN,
                     Label: 'Valuta',
-                    Description: '',
-                    HelpText: '',
                     Section: 0,
                     StatusCode: 0,
                     ID: 3,
@@ -179,11 +197,8 @@ export class TofDetailsForm {
                     FieldSetColumn: 1,
                     EntityType: this.entityType,
                     Property: 'OurReference',
-                    Placement: 1,
                     FieldType: FieldType.TEXT,
                     Label: 'Vår referanse',
-                    Description: '',
-                    HelpText: '',
                     Section: 0,
                     StatusCode: 0,
                     ID: 5
@@ -193,11 +208,8 @@ export class TofDetailsForm {
                     FieldSetColumn: 2,
                     EntityType: this.entityType,
                     Property: 'YourReference',
-                    Placement: 1,
                     FieldType: FieldType.TEXT,
                     Label: 'Deres referanse',
-                    Description: '',
-                    HelpText: '',
                     Section: 0,
                     StatusCode: 0,
                     ID: 6,
@@ -207,28 +219,11 @@ export class TofDetailsForm {
                     FieldSetColumn: 2,
                     EntityType: this.entityType,
                     Property: 'EmailAddress',
-                    Placement: 1,
                     FieldType: FieldType.TEXT,
                     Label: 'Epost adresse',
-                    Description: '',
-                    HelpText: '',
                     Section: 0,
                     StatusCode: 0,
                     ID: 4,
-                },
-                <any> {
-                    FieldSet: 1,
-                    FieldSetColumn: 2,
-                    EntityType: this.entityType,
-                    Property: 'Requisition',
-                    Placement: 1,
-                    FieldType: FieldType.TEXT,
-                    Label: 'Rekvisisjon',
-                    Description: '',
-                    HelpText: '',
-                    Section: 0,
-                    StatusCode: 0,
-                    ID: 7
                 },
                 <any> {
                     FieldSet: 1,
@@ -246,9 +241,29 @@ export class TofDetailsForm {
                         events: {
                             tab: (event) => this.tabbedPastLastField.emit(event),
                             enter: (event) => this.tabbedPastLastField.emit(event)
-                        }
+                        },
+                        addEmptyValue: true
                     },
-                }
+                    ID: 7
+                },
+                <any> {
+                    FieldSet: 1,
+                    FieldSetColumn: 2,
+                    EntityType: this.entityType,
+                    Property: 'DefaultSeller.SellerID',
+                    FieldType: FieldType.DROPDOWN,
+                    Label: 'Hovedselger',
+                    Section: 0,
+                    StatusCode: 0,
+                    Options: {
+                        source: this.sellers,
+                        valueProperty: 'ID',
+                        displayProperty: 'Name',
+                        debounceTime: 200,
+                        addEmptyValue: true
+                    },
+                    ID: 8
+                },
             ];
 
             if (this.entityType === 'CustomerQuote') {

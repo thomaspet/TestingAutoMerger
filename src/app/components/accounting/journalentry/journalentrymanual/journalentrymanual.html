@@ -104,5 +104,6 @@
             [fileIDs]="currentJournalEntryImages"
             (fileListReady)="onFileListReady($event)">
         </uni-image>
+        <button *ngIf="currentJournalEntryImages.length <= 0" class="document_from_flow_button" (click)="openAddFileModal()"> Hent fra innboks</button>
     </span>
 </section>

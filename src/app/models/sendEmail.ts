@@ -6,7 +6,7 @@ export class SendEmail {
     public Message: string;
     public SendCopy: boolean;
     public ReportName: string;
-    public Parameters: object;
+    public Parameters: any;
     public EntityType: string;
     public EntityID: number;
     public CustomerID: number;

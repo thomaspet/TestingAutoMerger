@@ -17,6 +17,7 @@ import {
     UniTableConfig,
     ICellClickEvent
 } from '../../../../../../framework/ui/unitable/index';
+import {IGroupConfig} from '../../../../../../framework/ui/unitable/controls/autocomplete';
 import {UniHttp} from '../../../../../../framework/core/http/http';
 import {
     Account,
@@ -54,9 +55,9 @@ import {
     ErrorService,
     StatisticsService,
     NumberFormat,
-    PredefinedDescriptionService
+    PredefinedDescriptionService,
+    SupplierService
 } from '../../../../../services/services';
-
 import {
     UniModalService,
     UniRegisterPaymentModal,
@@ -70,7 +71,6 @@ import {CurrencyService} from '../../../../../services/common/currencyService';
 import {SelectJournalEntryLineModal} from '../selectJournalEntryLineModal';
 import {UniMath} from '../../../../../../framework/core/uniMath';
 const PAPERCLIP = '📎'; // It might look empty in your editor, but this is the unicode paperclip
-
 declare const _; // lodash
 
 @Component({
@@ -125,6 +125,44 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
     private lastImageDisplayFor: string = '';
 
     private defaultAccountPayments: Account = null;
+    private groupConfig: IGroupConfig = {
+        groupKey: 'VatCodeGroupingValue',
+        visibleValueKey: 'Visible',
+        groups: [
+            {
+                key: 1,
+                header: 'Kjøp/kostnader.'
+            },
+            {
+                key: 2,
+                header: 'Kjøp/Importfaktura'
+            },
+            {
+                key: 3,
+                header: 'Import/Mva-beregning'
+            },
+            {
+                key: 4,
+                header: 'Salg/inntekter'
+            }
+            ,
+            {
+                key: 5,
+                header: 'Salg uten mva.'
+            }
+            ,
+            {
+                key: 6,
+                header: 'Kjøpskoder, spesielle'
+            }
+            ,
+            {
+                key: 7,
+                header: 'Egendefinerte koder'
+            }
+
+        ]
+    }
 
     constructor(
         private changeDetector: ChangeDetectorRef,
@@ -144,12 +182,12 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
         private companySettingsService: CompanySettingsService,
         private journalEntryLineService: JournalEntryLineService,
         private predefinedDescriptionService: PredefinedDescriptionService,
-        private modalService: UniModalService
+        private modalService: UniModalService,
+        private supplierService: SupplierService
     ) {}
 
     public ngOnInit() {
         this.setupJournalEntryTable();
-
 
         this.selectedNumberSeriesTaskID = NumberSeriesTaskIds.Journal;
     }
@@ -804,7 +842,8 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 },
                 lookupFunction: (searchValue) => {
                     return Observable.from([this.vattypes.filter((vattype) => vattype.VatCode === searchValue || vattype.VatPercent == searchValue || vattype.Name.toLowerCase().indexOf(searchValue.toLowerCase()) >= 0 || searchValue === `${vattype.VatCode}: ${vattype.Name} - ${vattype.VatPercent}%` || searchValue === `${vattype.VatCode}: ${vattype.VatPercent}%`)]);
-                }
+                },
+                groupConfig: this.groupConfig
             });
 
         let creditAccountCol = new UniTableColumn('CreditAccount', 'Kredit', UniTableColumnType.Lookup)
@@ -849,7 +888,8 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 },
                 lookupFunction: (searchValue) => {
                     return Observable.from([this.vattypes.filter((vattype) => vattype.VatCode === searchValue || vattype.VatPercent == searchValue || vattype.Name.toLowerCase().indexOf(searchValue.toLowerCase()) >= 0 || searchValue === `${vattype.VatCode}: ${vattype.Name} - ${vattype.VatPercent}%` || searchValue === `${vattype.VatCode}: ${vattype.VatPercent}%`)]);
-                }
+                },
+                groupConfig: this.groupConfig
             });
 
         let deductionPercentCol = new UniTableColumn('VatDeductionPercent', 'Fradrag %', UniTableColumnType.Number)
@@ -954,6 +994,10 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 }
             });
 
+        let addedPaymentCol = new UniTableColumn('JournalEntryPaymentData', '$', UniTableColumnType.Text, false)
+            .setTemplate(line => line.JournalEntryPaymentData ? '$' : '')
+            .setWidth('30px');
+
         let fileCol = new UniTableColumn('ID', PAPERCLIP, UniTableColumnType.Text, false).setFilterOperator('contains')
             .setTemplate(line => line.FileIDs && line.FileIDs.length > 0 ? PAPERCLIP : '')
             .setWidth('30px')
@@ -1002,6 +1046,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 amountCol,
                 CurrencyExchangeRate,
                 descriptionCol,
+                addedPaymentCol,
                 fileCol
             ];
         } else {
@@ -1026,6 +1071,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 projectCol,
                 departmentCol,
                 descriptionCol,
+                addedPaymentCol,
                 fileCol
             ];
         }
@@ -1078,6 +1124,9 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 // because some of the events sometimes are async. Therefore, get the row
                 // from the table, and reapply the changes made by this event
                 let row = this.table.getRow(rowModel['_originalIndex']);
+
+                // keep the originalFieldValue, this is sometimes needed when comparing data
+                let originalFieldValue = row[event.field];
 
                 row[event.field] = rowModel[event.field];
                 // for some reason unitable returns rows as empty, but it is not,
@@ -1136,6 +1185,13 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                     row = this.calculateGrossAmount(row);
                     row = this.calculateAmount(row);
                 } else if (event.field === 'VatDate') {
+                    // set FinancialDate based on VatDate if FinancialDate has not been set, or
+                    // if the FinancialDate was the same as the previous value for VatDate
+                    if (!row.FinancialDate && row.VatDate ||
+                        (originalFieldValue && row.FinancialDate && row.FinancialDate.toString() === originalFieldValue.toString())) {
+                        row.FinancialDate = row.VatDate;
+                    }
+
                     if (this.mode === JournalEntryMode.Manual && row.CurrencyCode) {
                         rowOrPromise = this.getExternalCurrencyExchangeRate(row)
                             .then(r => this.setVatDeductionPercent(r))
@@ -1678,6 +1734,12 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
             payment = item.JournalEntryPaymentData.PaymentData;
             title = 'Endre betaling';
             this.addPaymentModal.openModal(payment, title);
+
+            this.paymentModalValueChanged = this.addPaymentModal.Changed.subscribe(modalval => {
+                item.JournalEntryPaymentData.PaymentData = modalval;
+                this.table.updateRow(item['_originalIndex'], item);
+                this.rowChanged();
+            });
         } else {
             // generate suggestion for payment based on accounts used in item
             payment = new Payment();
@@ -1742,9 +1804,32 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                     payment.FromBankAccountID = this.companySettings.CompanyBankAccountID;
                 }
 
-                // we dont know what date to use, so just set the items financial date a suggestion
-                payment.PaymentDate = item.FinancialDate;
-                payment.DueDate = item.FinancialDate;
+                // if no customerCreditDays are set it adds 14 days to PaymentDate and DueDate
+                let customerCreditDays = this.companySettings.CustomerCreditDays
+                    ? this.companySettings.CustomerCreditDays
+                    : 14;
+
+                if (item.CreditAccount && item.CreditAccount.SupplierID) {
+                    // some instances SupplierID was 0 and brought an error
+                    this.supplierService.Get(item.CreditAccount.SupplierID).subscribe(
+                        res => {
+                        customerCreditDays =  res.CreditDays ? res.CreditDays : customerCreditDays;
+                        },
+                        err => this.errorService.handle(err)
+                    );
+                }
+
+                // if journalentry has VatDate it sends it to the modal + supplier/companysettings creditdays
+                payment.PaymentDate = item.VatDate ? this.addDaysToDates(item.VatDate, customerCreditDays) : null;
+                payment.DueDate =  item.VatDate ? this.addDaysToDates(item.VatDate, customerCreditDays) : null;
+                // if it has a duedate overwrite other dates
+                if (item.DueDate) {
+                    payment.DueDate = item.DueDate;
+                    payment.PaymentDate = item.DueDate;
+                }
+
+                // passing in InvoiceNumber from journalentry if it has one
+                payment.InvoiceNumber = item.InvoiceNumber ? item.InvoiceNumber : '';
 
                 this.addPaymentModal.openModal(payment, title);
 
@@ -1769,9 +1854,15 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                     }
                     */
                     this.table.updateRow(item['_originalIndex'], item);
+                    this.rowChanged();
                 });
             });
         }
+    }
+
+    public addDaysToDates(date: any, days: number) {
+        let result = new Date(date);
+        return new LocalDate(moment(result.setDate(result.getDate() + days)).toDate());
     }
 
     private getBusinessRelationDataFromStatisticsSearch(statisticsdata): BusinessRelation {
@@ -2051,7 +2142,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
         this.rowSelected.emit(event.rowModel);
     }
 
-    private rowChanged(event) {
+    private rowChanged(event?) {
         var tableData = this.table.getTableData();
         this.dataChanged.emit(tableData);
     }

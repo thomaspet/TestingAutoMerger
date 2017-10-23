@@ -1,4 +1,4 @@
-import {Component, ViewChild} from '@angular/core';
+import {Component} from '@angular/core';
 import {Router, ActivatedRoute, NavigationEnd} from '@angular/router';
 import {
     WageType, SpecialAgaRule, SpecialTaxAndContributionsRule,
@@ -6,6 +6,7 @@ import {
 } from '../../../unientities';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {WageTypeService, UniCacheService, ErrorService, YearService} from '../../../services/services';
+import {WageTypeViewService} from './services/wageTypeViewService';
 import {ToastService} from '../../../../framework/uniToast/toastService';
 import {IUniSaveAction} from '../../../../framework/save/save';
 import {IToolbarConfig} from '../../common/toolbar/toolbar';
@@ -17,6 +18,7 @@ import {IContextMenuItem} from '../../../../framework/ui/unitable/index';
 import {Observable} from 'rxjs/Observable';
 import {ReplaySubject} from 'rxjs/ReplaySubject';
 
+const WAGETYPE_KEY = 'wagetype';
 
 @Component({
     selector: 'uni-wagetype-view',
@@ -43,7 +45,8 @@ export class WageTypeView extends UniView {
         public cacheService: UniCacheService,
         private errorService: ErrorService,
         private yearService: YearService,
-        private modalService: UniModalService
+        private modalService: UniModalService,
+        private wageTypeViewService: WageTypeViewService
     ) {
 
         super(router.url, cacheService);
@@ -64,13 +67,13 @@ export class WageTypeView extends UniView {
             this.wagetypeID = +params['id'];
             this.contextMenuItems$.next([{
                 label: 'Slett lønnsart',
-                action: () => this.handleDelete(this.wagetypeID),
+                action: () => this.wageTypeViewService.deleteWageType(this.wageType),
                 disabled: () => !this.wagetypeID
             }]);
 
             super.updateCacheKey(this.router.url);
 
-            super.getStateSubject('wagetype').subscribe((wageType: WageType) => {
+            super.getStateSubject(WAGETYPE_KEY).subscribe((wageType: WageType) => {
                 this.wageType = wageType;
                 this.toolbarConfig = {
                     title: this.wageType.ID ? this.wageType.WageTypeName : 'Ny lønnsart',
@@ -240,12 +243,6 @@ export class WageTypeView extends UniView {
         this.wageType.taxtype = TaxType.Tax_None;
         this.wageType.StandardWageTypeFor = StdWageType.None;
         this.wageType.GetRateFrom = GetRateFrom.WageType;
-    }
-
-    private handleDelete(id: number): void {
-        this.wageTypeService
-            .deleteWageType(id)
-            .subscribe(res => this.router.navigateByUrl(this.url + 0));
     }
 
     public previousWagetype() {

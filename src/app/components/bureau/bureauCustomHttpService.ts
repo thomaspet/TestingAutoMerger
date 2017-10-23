@@ -2,7 +2,7 @@ import {Injectable} from '@angular/core';
 import {Http, Headers, BaseRequestOptions, Request, Response} from '@angular/http';
 import {AuthService} from '../../authService';
 import {BrowserStorageService} from '../../services/common/browserStorageService';
-import {Observable} from 'rxjs/observable';
+import {Observable} from 'rxjs/Observable';
 import {ErrorService} from '../../services/common/errorService';
 import {StatisticsResponse} from '../../models/StatisticsResponse';
 @Injectable()
@@ -26,8 +26,14 @@ export class BureauCustomHttpService {
         options.url = url;
         options.headers = headers;
         options.body = '';
-        return this.http
-            .request(new Request(options))
+        return this.http.request(new Request(options)).catch((err) => {
+            if (err.status === 401) {
+                this.authService.clearAuthAndGotoLogin();
+                return Observable.throw('Sesjonen din er utløpt, vennligst logg inn på ny');
+            }
+
+            return Observable.throw(err);
+        })
             .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
     }
 

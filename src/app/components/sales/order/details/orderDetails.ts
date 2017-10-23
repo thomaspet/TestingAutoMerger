@@ -17,6 +17,8 @@ import {
     Dimensions,
     LocalDate,
     Project,
+    Seller,
+    SellerLink,
     StatusCodeCustomerOrder,
     Terms,
     NumberSeries
@@ -39,7 +41,9 @@ import {
     TermsService,
     UserService,
     NumberSeriesService,
-    EmailService
+    EmailService,
+    SellerService,
+    SellerLinkService
 } from '../../../../services/services';
 
 import {IUniSaveAction} from '../../../../../framework/save/save';
@@ -110,9 +114,12 @@ export class OrderDetails {
     private paymentTerms: Terms[];
     private printStatusPrinted: string = '200';
     private projects: Project[];
+    private currentDefaultProjectID: number;
     private selectConfig: any;
     private numberSeries: NumberSeries[];
     private projectID: number;
+    private sellers: Seller[];
+    private deletables: SellerLink[] = [];
 
     private customerExpandOptions: string[] = [
         'DeliveryTerms',
@@ -128,7 +135,9 @@ export class OrderDetails {
         'Info.ShippingAddress',
         'PaymentTerms',
         'Sellers',
-        'Sellers.Seller'
+        'Sellers.Seller',
+        'DefaultSeller',
+        'DefaultSeller.Seller'
     ];
 
     private expandOptions: Array<string> = [
@@ -150,7 +159,9 @@ export class OrderDetails {
         'Items.Dimensions.Project.ProjectTasks',
         'PaymentTerms',
         'Sellers',
-        'Sellers.Seller'
+        'Sellers.Seller',
+        'DefaultSeller',
+        'DefaultSeller.Seller'
     ];
 
     // New
@@ -183,7 +194,9 @@ export class OrderDetails {
         private tradeItemHelper: TradeItemHelper,
         private userService: UserService,
         private numberSeriesService: NumberSeriesService,
-        private emailService: EmailService
+        private emailService: EmailService,
+        private sellerService: SellerService,
+        private sellerLinkService: SellerLinkService
    ) {}
 
     public ngOnInit() {
@@ -222,7 +235,8 @@ export class OrderDetails {
                     this.currencyCodeService.GetAll(null),
                     this.termsService.GetAction(null, 'get-payment-terms'),
                     this.termsService.GetAction(null, 'get-delivery-terms'),
-                    this.projectService.GetAll(null)
+                    this.projectService.GetAll(null),
+                    this.sellerService.GetAll(null)
                 ).subscribe(res => {
                     let order = <CustomerOrder>res[0];
                     this.companySettings = res[1];
@@ -230,6 +244,7 @@ export class OrderDetails {
                     this.paymentTerms = res[3];
                     this.deliveryTerms = res[4];
                     this.projects = res[5];
+                    this.sellers = res[6];
 
                     if (!order.CurrencyCodeID) {
                         order.CurrencyCodeID = this.companySettings.BaseCurrencyCodeID;
@@ -265,7 +280,8 @@ export class OrderDetails {
                         + `series' and Empty eq false and Disabled eq false`,
                         ['NumberSeriesType']
                     ),
-                    this.projectService.GetAll(null)
+                    this.projectService.GetAll(null),
+                    this.sellerService.GetAll(null)
                 ).subscribe(
                     (res) => {
                         let order = <CustomerOrder>res[0];
@@ -292,6 +308,7 @@ export class OrderDetails {
                             this.orderID, this.numberSeries, 'Customer Order number series'
                         );
                         this.projects = res[9];
+                        this.sellers = res[10];
 
                         order.OrderDate = new LocalDate(Date());
 
@@ -380,12 +397,10 @@ export class OrderDetails {
         }
 
         // refresh items if project changed
-        if (order.DefaultDimensions
-                && order.DefaultDimensions.ProjectID !== this.projectID
-                && this.orderItems.length) {
+        if (order.DefaultDimensions && order.DefaultDimensions.ProjectID !== this.projectID) {
+            this.projectID = order.DefaultDimensions.ProjectID;
 
-
-            if (this.projectID) {
+            if (this.orderItems.length) {
                 this.modalService.confirm({
                     header: `Endre prosjekt på alle varelinjer?`,
                     message: `Vil du endre til dette prosjektet på alle eksisterende varelinjer?`,
@@ -401,7 +416,6 @@ export class OrderDetails {
             } else {
                 this.tradeItemTable.setDefaultProjectAndRefreshItems(order.DefaultDimensions.ProjectID, true);
             }
-            this.projectID = order.DefaultDimensions.ProjectID;
         }
 
         // update currency code in detailsForm and tradeItemTable to selected currency code if selected
@@ -547,28 +561,41 @@ export class OrderDetails {
         }
     }
 
-    private refreshOrder(order?: CustomerOrder) {
-        if (!order) {
-            this.customerOrderService.Get(this.orderID, this.expandOptions).subscribe(
-                res => this.refreshOrder(res),
-                err => this.errorService.handle(err)
-            );
-            return;
-        }
+    public onSellerDelete(sellerLink: SellerLink) {
+        this.deletables.push(sellerLink);
+    }
 
-        this.readonly = order.StatusCode === StatusCodeCustomerOrder.TransferredToInvoice;
-        this.newOrderItem = <any>this.tradeItemHelper.getDefaultTradeItemData(order);
-        this.orderItems = order.Items.sort(function(itemA, itemB) { return itemA.SortIndex - itemB.SortIndex; });
-        this.order = <any>_.cloneDeep(order);
-        this.isDirty = false;
+    private refreshOrder(order?: CustomerOrder): Promise<boolean> {
+        return new Promise((resolve) => {
+            const orderObservable = !!order 
+                ? Observable.of(order) 
+                : this.customerOrderService.Get(this.orderID, this.expandOptions);
 
-        this.currentCustomer = order.Customer;
-        this.currentDeliveryTerm = order.DeliveryTerms;
+            orderObservable.subscribe(res => {
+                if (!order) { order = res; }
 
-        this.setTabTitle();
-        this.updateToolbar();
-        this.updateSaveActions();
-        this.recalcDebouncer.next(order.Items);
+                this.readonly = res.StatusCode === StatusCodeCustomerOrder.TransferredToInvoice;
+                this.newOrderItem = <any>this.tradeItemHelper.getDefaultTradeItemData(order);
+                this.orderItems = res.Items.sort(
+                    function(itemA, itemB) { return itemA.SortIndex - itemB.SortIndex; }
+                );
+                this.order = <any>_.cloneDeep(order);
+                this.isDirty = false;
+        
+                this.currentCustomer = res.Customer;
+                this.currentDeliveryTerm = res.DeliveryTerms;
+
+                order.DefaultSeller = order.DefaultSeller || new SellerLink();
+                this.currentDefaultProjectID = order.DefaultDimensions.ProjectID;
+        
+                this.setTabTitle();
+                this.updateToolbar();
+                this.updateSaveActions();
+                this.recalcDebouncer.next(res.Items);
+
+                resolve(true);
+            });
+        });        
     }
 
     private didCustomerChange(order: CustomerOrder): boolean {
@@ -578,7 +605,7 @@ export class OrderDetails {
             return false;
         }
 
-        if (this.currentCustomer) {
+        if (order.Customer && this.currentCustomer) {
             change = order.Customer.ID !== this.currentCustomer.ID;
         } else if (order.Customer && order.Customer.ID) {
             change = true;
@@ -907,6 +934,25 @@ export class OrderDetails {
 
         if (this.order.DefaultDimensions && !this.order.DefaultDimensions.ID) {
             this.order.DefaultDimensions._createguid = this.customerOrderService.getNewGuid();
+        } else if (this.order.DefaultDimensions 
+            && this.order.DefaultDimensions.ProjectID === this.currentDefaultProjectID) {
+                this.order.DefaultDimensions = undefined;
+        }
+
+        // if main seller does not exist in 'Sellers', create and add it
+        if (this.order.DefaultSeller && this.order.DefaultSeller.SellerID 
+            && !this.order.DefaultSeller._createguid && !this.order.Sellers.find(sellerLink => 
+                sellerLink.SellerID === this.order.DefaultSeller.SellerID
+            )) {
+            this.order.DefaultSeller._createguid = this.sellerLinkService.getNewGuid();
+            this.order.Sellers.push(this.order.DefaultSeller);
+        } else if (this.order.DefaultSeller && !this.order.DefaultSeller.SellerID) {
+            this.order.DefaultSeller = null;
+        }
+
+        // add deleted sellers back to 'Sellers' to delete with 'Deleted' property, was sliced locally/in view
+        if (this.deletables) {
+            this.deletables.forEach(sellerLink => this.order.Sellers.push(sellerLink));
         }
 
         return new Promise((resolve, reject) => {
@@ -988,8 +1034,8 @@ export class OrderDetails {
             this.customerOrderService.Transition(order.ID, this.order, transition).subscribe(
                 (res) => {
                     this.selectConfig = undefined;
-                    done(doneText);
-                    this.refreshOrder();
+                    this.refreshOrder()
+                        .then(() => done(doneText));
                 },
                 (err) => {
                     done('Lagring feilet');

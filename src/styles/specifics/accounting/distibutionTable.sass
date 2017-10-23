@@ -1,0 +1,60 @@
+.account_query_table_rows
+    td
+        text-align: right
+
+        &:hover
+            background-color: $uni-color-scale8
+
+        &:first-of-type
+            text-align: left
+
+    &:hover
+        cursor: pointer
+
+    &:last-of-type
+        cursor: default
+        margin-top: 1rem
+        border-bottom: .1875rem solid $uni-color-scale1
+        border-bottom-style: double
+
+    &:nth-last-child(2)
+        border-bottom: .0625rem solid $uni-color-scale1
+
+.prev_year_navigation
+    height: 2rem
+    min-height: 2rem
+    width: 4rem
+    background-color: transparent
+    background-size: contain
+    background-position: 10%
+    background-size: .5rem
+    background-repeat: no-repeat
+    border-bottom-color: transparent
+    background-image: unicon-chevron-left(#628cb2)
+    float: left
+    padding: 0 1rem
+
+.next_year_navigation
+    height: 2rem
+    min-height: 2rem
+    width: 4rem
+    background-color: transparent
+    background-size: contain
+    background-position: 90%
+    background-size: .5rem
+    background-repeat: no-repeat
+    border-bottom-color: transparent
+    background-image: unicon-chevron-right(#628cb2)
+    float: right
+    padding: 0 1rem
+
+.year_buttons
+    text-align: center
+    margin-top: .5rem
+    border-radius: .125rem
+    &:hover
+        cursor: pointer
+        background-color: $uni-color-scale8
+
+.year_display_text
+    line-height: 1.9rem

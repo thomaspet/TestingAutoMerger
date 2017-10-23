@@ -1,11 +1,11 @@
 <section role="dialog" class="uni-modal">
     <header>
-        <h1 *ngIf="responseMessage">Resultat</h1>
-        <h1 *ngIf="!responseMessage">Henter skattekort</h1>
+        <h1 *ngIf="!busy">Resultat</h1>
+        <h1 *ngIf="busy">Henter skattekort</h1>
     </header>
 
-    <article [attr.aria-busy]="!responseMessage">
-        <p class="preformatted"> {{responseMessage}} </p>
+    <article [attr.aria-busy]="busy">
+        <tax-card-read-status [status]="taxStatus$ | async"></tax-card-read-status>
     </article>
 
     <footer>

@@ -299,21 +299,21 @@ export class TransqueryDetails implements OnInit {
         ) {
             const accountYear = `01.01.${routeParams['year']}`;
             const nextAccountYear = `01.01.${parseInt(routeParams['year']) + 1}`;
-            filter.push({field: 'Account.AccountNumber', operator: 'eq', value: routeParams['Account_AccountNumber'], group: 0});
+            filter.push({field: 'Account.AccountNumber', operator: 'eq', searchValue: routeParams['Account_AccountNumber'], value: routeParams['Account_AccountNumber'], group: 0, selectConfig: null});
             if (+routeParams['period'] === 0) {
-                filter.push({field: 'FinancialDate', operator: 'lt', value: accountYear, group: 0});
+                filter.push({field: 'FinancialDate', operator: 'lt', searchValue: accountYear, value: accountYear, group: 0, selectConfig: null});
             } else if (+routeParams['period'] === 13) {
                 if (routeParams['isIncomingBalance'] === 'true') {
-                    filter.push({field: 'FinancialDate', operator: 'lt', value: nextAccountYear, group: 0});
+                    filter.push({field: 'FinancialDate', operator: 'lt',searchValue: nextAccountYear, value: nextAccountYear, group: 0, selectConfig: null});
                 } else {
-                    filter.push({field: 'FinancialDate', operator: 'ge', value: accountYear, group: 0});
-                    filter.push({field: 'FinancialDate', operator: 'lt', value: nextAccountYear, group: 0});
+                    filter.push({field: 'FinancialDate', operator: 'ge', searchValue: accountYear ,value: accountYear, group: 0, selectConfig: null});
+                    filter.push({field: 'FinancialDate', operator: 'lt', searchValue: nextAccountYear ,value: nextAccountYear, group: 0, selectConfig: null});
                 }
             } else {
                 const periodDates = this.journalEntryLineService
                     .periodNumberToPeriodDates(routeParams['period'], routeParams['year']);
-                filter.push({field: 'FinancialDate', operator: 'ge', value: periodDates.firstDayOfPeriod, group: 0});
-                filter.push({field: 'FinancialDate', operator: 'le', value: periodDates.lastDayOfPeriod, group: 0});
+                filter.push({field: 'FinancialDate', operator: 'ge', searchValue: periodDates.firstDayOfPeriod, value: periodDates.firstDayOfPeriod, group: 0, selectConfig: null});
+                filter.push({field: 'FinancialDate', operator: 'le', searchValue: periodDates.lastDayOfPeriod, value: periodDates.lastDayOfPeriod, group: 0, selectConfig: null});
             }
         } else if (routeParams['Account_AccountNumber']) {
             searchParams.AccountID = null;
@@ -358,7 +358,9 @@ export class TransqueryDetails implements OnInit {
                 field: 'JournalEntryNumber',
                 operator: 'eq',
                 value: routeParams['journalEntryNumber'],
-                group: 0
+                searchValue: routeParams['journalEntryNumber'],
+                group: 0,
+                selectConfig: null
             });
 
             this.allowManualSearch = false;
@@ -368,7 +370,9 @@ export class TransqueryDetails implements OnInit {
                     field: field.replace('_', '.'),
                     operator: 'eq',
                     value: routeParams[field],
-                    group: 0
+                    searchValue: routeParams[field],
+                    group: 0,
+                    selectConfig: null
                 });
             }
         }
@@ -580,9 +584,18 @@ export class TransqueryDetails implements OnInit {
             });
         }
 
+        let pageSize = window.innerHeight // Window size
+            - 144 // Form height
+            - 208 // Body margin and padding
+            - 32 // Application class margin
+            - 64 // Unitable pagination
+            - 91; // Unitable filter and thead
+
+        pageSize = pageSize <= 33 ? 10 : Math.floor(pageSize / 34); // 34 = heigth of a single row
+
         return new UniTableConfig('accounting.transquery.details', false, false)
             .setPageable(true)
-            .setPageSize(20)
+            .setPageSize(pageSize)
             .setColumnMenuVisible(false)
             .setSearchable(this.allowManualSearch)
             .setFilters(unitableFilter)
@@ -614,7 +627,12 @@ export class TransqueryDetails implements OnInit {
 
     public onCellClick(event: ICellClickEvent) {
         if (event.column.field === 'ID') {
-            this.imageModal.open(JournalEntry.EntityType, event.row.JournalEntryID);
+            let data = {
+                entity: JournalEntry.EntityType,
+                entityID: event.row.JournalEntryID
+
+            };
+            this.modalService.open(ImageModal, { data: data });
         }
     }
 
@@ -655,7 +673,7 @@ export class TransqueryDetails implements OnInit {
                     EntityType: 'JournalEntryLine',
                     Property: 'JournalEntryNumberNumeric',
                     FieldType: FieldType.AUTOCOMPLETE,
-                    Label: 'Filtrer på bilagsnr',
+                    Label: 'Bilagsnr',
                     Options: {
                         search: (query: string) => {
                             const searchParams = this.searchParams$.getValue();
@@ -682,7 +700,7 @@ export class TransqueryDetails implements OnInit {
                     EntityType: 'JournalEntryLine',
                     Property: 'AccountID',
                     FieldType: FieldType.AUTOCOMPLETE,
-                    Label: 'Filtrer på konto',
+                    Label: 'Kontonr',
                     Options: {
                         getDefaultData: () => {
                             let searchParams = this.searchParams$.getValue();
@@ -712,7 +730,7 @@ export class TransqueryDetails implements OnInit {
                     EntityType: 'JournalEntryLine',
                     Property: 'AccountYear',
                     FieldType: FieldType.DROPDOWN,
-                    Label: 'Filtrer på regnskapsår',
+                    Label: 'Regnskapsår',
                     Options: {
                         source: this.financialYears,
                         valueProperty: 'Year',

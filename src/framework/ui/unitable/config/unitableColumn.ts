@@ -58,6 +58,7 @@ export interface IUniTableColumn {
     width?: string;
     filterable: boolean;
     filterOperator?: string;
+    selectConfig?: {options: Array<any>, dislayField: string, valueField: string};
     skipOnEnterKeyNavigation?: boolean;
     sortMode: UniTableColumnSortMode;
     jumpToColumn?: string;
@@ -91,6 +92,7 @@ export class UniTableColumn implements IUniTableColumn {
 
     public filterable: boolean;
     public filterOperator: string;
+    public selectConfig: {options: Array<any>, dislayField: string, valueField: string};
 
     public skipOnEnterKeyNavigation: boolean;
     public jumpToColumn: string;

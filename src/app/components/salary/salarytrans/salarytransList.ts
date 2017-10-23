@@ -52,7 +52,6 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges 
     @Output() public salarytransListReady: EventEmitter<any> = new EventEmitter<any>(true);
 
     @ViewChild(UniTable) public table: UniTable;
-    @ViewChild(ImageModal) public imageModal: ImageModal;
 
     private busy: boolean;
     private salaryTransactions: SalaryTransaction[];
@@ -368,7 +367,6 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges 
     }
 
     public onCellClick(event: ICellClickEvent) {
-        console.log(event);
         if (event.column.field === '_FileIDs') {
             this.openDocumentsOnRow(event.row);
         }
@@ -517,7 +515,7 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges 
             this.modalService
                 .open(SalaryTransSupplementsModal, {
                     data: row,
-                    modalConfig: { readOnly: !!this.payrollRun.StatusCode }
+                    modalConfig: {readOnly: !!this.payrollRun.StatusCode}
                 })
                 .onClose
                 .subscribe((trans: SalaryTransaction) => {
@@ -596,7 +594,15 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges 
 
     private openDocumentsOnRow(row: SalaryTransaction): void {
         if (row.ID) {
-            this.imageModal.open('SalaryTransaction', row.ID);
+            let data = {
+                entity: SalaryTransaction.EntityType,
+                entityID: row.ID,
+                fileIDs: row['_FileIDs'] || []
+            };
+
+            this.modalService.open(ImageModal, {data: data}).onClose.subscribe((list: UpdatedFileListEvent) => {
+                this.updateFileList(list);
+            });
         }
     }
 
@@ -613,17 +619,23 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges 
 
     public updateFileList(event: UpdatedFileListEvent) {
         let update: boolean;
-        //TODO: x is a shitty name and we need to figure out why Files is a string in SalaryTransaction...
-        this.salaryTransactions.forEach((x: any) => {
-            if (x.ID === event.entityID && x['_FileIDs'].length !== event.files.length) {
-                x['_FileIDs'] = event.files.map(file => file.ID);
-                this.table.updateRow(this.filteredTranses.find(trans => trans.ID === x.ID)['_originalIndex'], x);
-                if (this.payrollRun.JournalEntryNumber) {
-                    x['_newFiles'] = event.files
-                        .filter(file => !x['Files'].some(transFile => transFile.ID === file.ID));
-                    update = x['_newFiles'].length;
-                }
+        this.salaryTransactions.forEach((trans) => {
+            if (!event || trans.ID !== event.entityID || trans['_FileIDs'].length === event.files.length) {
+                return;
             }
+
+            trans['_FileIDs'] = event.files.map(file => file.ID);
+            this.table.updateRow(
+                this.filteredTranses.find(filteredTrans => filteredTrans.ID === trans.ID)['_originalIndex'],
+                trans);
+
+            if (!this.payrollRun.JournalEntryNumber) {
+                return;
+            }
+
+            trans['_newFiles'] = event.files
+                .filter(file => !trans['Files'].some(transFile => transFile.ID === file.ID));
+            update = trans['_newFiles'].length;
         });
 
         if (update) {

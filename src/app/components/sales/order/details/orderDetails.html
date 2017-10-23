@@ -12,7 +12,9 @@
               [projects]="projects"
               [paymentTerms]="paymentTerms"
               [deliveryTerms]="deliveryTerms"
-              (dataChange)="onOrderChange($event)">
+              [sellers]="sellers"
+              (dataChange)="onOrderChange($event)"
+              (sellerDelete)="onSellerDelete($event)">
 </uni-tof-head>
 
 <section class="application">

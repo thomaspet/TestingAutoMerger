@@ -153,7 +153,7 @@ export class AuthService {
      * Sets the current active company
      * @param {Object} activeCompany
      */
-    public setActiveCompany(activeCompany, redirectUrl?: string): Subject<IAuthDetails> {
+    public setActiveCompany(activeCompany: Company, redirectUrl?: string): Subject<IAuthDetails> {
         localStorage.setItem('activeCompany', JSON.stringify(activeCompany));
         localStorage.setItem('lastActiveCompanyKey', activeCompany.Key);
 

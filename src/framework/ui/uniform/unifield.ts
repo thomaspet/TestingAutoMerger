@@ -1,21 +1,39 @@
 import {
     Component, Input, Output, HostBinding, EventEmitter, ViewChild, ChangeDetectorRef, SimpleChange, HostListener,
-    ChangeDetectionStrategy, ElementRef
+    ChangeDetectionStrategy, ElementRef, PipeTransform, Pipe
 } from '@angular/core';
 import {UniFieldLayout} from './interfaces';
 import * as _ from 'lodash';
 import {KeyCodes} from '../../../app/services/common/keyCodes';
 
+export interface UniFormError {
+    errorMessage: string;
+    field: UniFieldLayout;
+    value: any;
+    isWarning: boolean;
+}
+@Pipe({
+    name: 'isRequired',
+    pure: false
+})
+export class IsRequiredPipe implements PipeTransform {
+    public transform(value: string, field: UniFieldLayout): string {
+        if (field.Required) {
+            return value + '*';
+        } else {
+            return value;
+        }
+    }
+}
 @Component({
     selector: 'uni-field',
     host: {'[class]': 'buildClassString()'},
     template: `
         <label
-            [class.error]="hasError()"
             *ngIf="field?.FieldType !== 1">
             <span [hidden]="!isInput(field?.FieldType)"
                   [title]="field?.Label">
-                  {{field?.Label}}
+                  {{field?.Label | isRequired:field}}
             </span>
             <uni-autocomplete-input #selectedComponent *ngIf="field?.FieldType === 0"
                 [field]="field"
@@ -178,7 +196,11 @@ import {KeyCodes} from '../../../app/services/common/keyCodes';
             ></uni-search-wrapper>
             <button class="helpTextToggle" tabindex="-1" type="button" *ngIf="field?.HelpText">Help</button>
             <aside [id]="asideGuid" class="helpText" *ngIf="field?.HelpText" [innerHTML]="field?.HelpText"></aside>
-            <show-error [control]="control" [messages]="messages"></show-error>
+            <ng-template ngFor let-error [ngForOf]="errorMessages" let-k="index">
+                <small role="alert" [class.bad]="!error?.isWarning" [class.warn]="error?.isWarning">
+                    {{error | uniformErrorTemplate}}
+                </small>
+            </ng-template>
         </label>
 
         <uni-button-input #selectedComponent *ngIf="field?.FieldType === 1"
@@ -196,6 +218,7 @@ import {KeyCodes} from '../../../app/services/common/keyCodes';
 export class UniField {
     @Input() public field: UniFieldLayout;
     @Input() public model: any;
+    @Input() public formConfig: any;
 
     @Output() public readyEvent: EventEmitter<UniField> = new EventEmitter<UniField>(true);
     @Output() public changeEvent: EventEmitter<any> = new EventEmitter<any>();
@@ -203,13 +226,16 @@ export class UniField {
     @Output() public focusEvent: EventEmitter<UniField> = new EventEmitter<UniField>(true);
     @Output() public moveForwardEvent: EventEmitter<Object> = new EventEmitter<Object>(true);
     @Output() public moveBackwardEvent: EventEmitter<Object> = new EventEmitter<Object>(true);
+    @Output() public errorEvent: EventEmitter<Object> = new EventEmitter<Object>(true);
+    @HostBinding('class.error') public hasError = 0;
+    @HostBinding('class.warn') public hasWarning = 0;
+    @ViewChild('selectedComponent') public component: any;
 
     public classes: (string | Function)[] = [];
-    private asideGuid: string = 'unifield-' + performance.now();
-
-    private componentResolver: any;
-    @ViewChild('selectedComponent')
-    public component: any;
+    public asideGuid: string = 'unifield-' + performance.now();
+    public touched = false;
+    public errorMessages = [];
+    public componentResolver: any;
     public get Component() {
         return new Promise(resolve => {
             if (this.component) {
@@ -228,7 +254,7 @@ export class UniField {
         this.ref.markForCheck();
     }
 
-    constructor(private ref: ChangeDetectorRef, private elementRef: ElementRef) {
+    constructor(public ref: ChangeDetectorRef, public elementRef: ElementRef) {
         this.readyEvent.subscribe(() => {
             const input = this.elementRef.nativeElement.querySelector('input');
             if (input) {
@@ -239,6 +265,7 @@ export class UniField {
     }
 
     public onFocusHandler(event) {
+        this.touched = true;
         this.focusEvent.emit(event);
     }
 
@@ -260,7 +287,7 @@ export class UniField {
             this.component.readMode();
             this.ref.markForCheck();
         }
-        //this.Component.then((cmp: any) => cmp.readMode());
+        // this.Component.then((cmp: any) => cmp.readMode());
     }
 
     public editMode() {
@@ -272,33 +299,80 @@ export class UniField {
         // this.Component.then((cmp: any) => cmp.editMode());
     }
 
-    private onReadyHandler() {
+    public onReadyHandler() {
         if (this.componentResolver) {
             this.componentResolver(this.component);
         }
         this.readyEvent.emit(this);
     }
 
-    private onChangeHandler(model) {
+    public validate(value, field, validators) {
+        const errors: UniFormError[] = [];
+        if (!validators) {
+            return errors;
+        }
+        validators.forEach(validator => {
+            const error: UniFormError = validator(value, field);
+            if (error) {
+                errors.push(error);
+            }
+        });
+        return errors;
+    }
+
+    public validateModel(value) {
+        let errorMessages = [];
+        if (this.field.Required) {
+            if (_.isNil(value) || value === '') {
+                const error: UniFormError = {
+                    errorMessage: 'Field \'' + this.field.Label + '\' is required',
+                    value: value,
+                    field: this.field,
+                    isWarning: false
+                };
+                errorMessages.push(error);
+            }
+        }
+        const validationResult = this.validate(value, this.field, this.field.Validations);
+        if (validationResult.length !== 0) {
+            errorMessages = errorMessages.concat(validationResult);
+        }
+        const errorEvent = {};
+        errorEvent[this.field.Property] = errorMessages;
+        this.hasWarning = 0;
+        this.hasError = 0;
+        this.errorEvent.emit(errorEvent);
+        if (this.formConfig.hideErrors !== true) {
+            errorMessages.forEach(x => {
+                if (x.isWarning) {
+                    this.hasWarning++;
+                } else {
+                    this.hasError++;
+                }
+            });
+            this.errorMessages = errorMessages;
+        }
+    }
+
+    public onChangeHandler(model: SimpleChange) {
+        const keys = Object.keys(model);
+        const value = model[keys[0]].currentValue;
+        this.validateModel(value);
         this.changeEvent.emit(model);
     }
 
-    private onInputHandler(model) {
+    public onInputHandler(model) {
         this.inputEvent.emit(model);
     }
 
-    private hasError() {
-        return this.component && this.component.control && !this.component.control.valid;
-    }
-
-    private buildClassString() {
+    public buildClassString() {
         if (this.field.Classes) {
             return this.field.Classes;
         }
         return '';
     }
 
-    private isInput(type) {
+    public isInput(type) {
         const notInputs = [1, 5, 7];
         return notInputs.indexOf(type) === -1;
     }
@@ -340,16 +414,19 @@ export class UniField {
                 event: event,
                 field: this.field
             });
+            this.validateModel(this.getSimpleChange());
+
         } else if (combination.length === 2 && (combination[0] === 'shift' && combination[0] === 'tab')) {
             this.moveBackwardEvent.emit({
                 event: event,
                 field: this.field
             });
+            this.validateModel(this.getSimpleChange());
         }
         return;
     }
 
-    private eventHandler(eventName, event) {
+    public eventHandler(eventName, event) {
         if (this.field.Options && this.field.Options.events) {
             var method = <any>this.field.Options.events[eventName];
             if (method) {
@@ -360,5 +437,16 @@ export class UniField {
             }
         }
         return false;
+    }
+
+    public getSimpleChange() {
+        const prop = this.field.Property;
+        let simplechange = {};
+        simplechange[prop] = new SimpleChange(null, this.getModelValue(), false);
+        return simplechange;
+    }
+
+    public getModelValue() {
+        return _.get(this.model, this.field.Property);
     }
 }

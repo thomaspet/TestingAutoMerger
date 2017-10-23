@@ -16,12 +16,12 @@
 
     <section class="uni-split-view-container">
         <section class="left-side">
-            <table class="uni-table unitable-main-table">
+            <table class="uni-table">
                 <thead>
                 <tr>
                     <th (click)="sortBy('Name')" >Selskaper <i>{{getSortArrow('Name')}}</i></th>
                     <th (click)="sortByKpi('Inbox')">Fakturainnboks <i>{{getSortArrow('Inbox')}}</i></th>
-                    <th (click)="sortByKpi('Approved')">Godkjente regninger <i>{{getSortArrow('Approved')}}</i></th>
+                    <th (click)="sortByKpi('Approved')">Godkjente faktura <i>{{getSortArrow('Approved')}}</i></th>
                 </tr>
                 </thead>
                 <tr *ngFor="let company of filteredCompanies"

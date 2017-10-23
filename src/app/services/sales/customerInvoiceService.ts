@@ -76,6 +76,21 @@ export class CustomerInvoiceService extends BizHttp<CustomerInvoice> {
         return super.PutAction(invoiceId, 'set-customer-invoice-printstatus', 'ID=' + invoiceId + '&printStatus=' + printStatus);
     }
 
+     public validateVippsCustomer(invoiceId: number): Observable<any> {
+        return super.GetAction(invoiceId, 'validate-vipps-user');
+    }
+
+    public SendInvoiceToVippsWithText(invoice: Object): Observable<any> {
+        super.invalidateCache();
+        return this.http
+            .asPOST()
+            .usingBusinessDomain()
+            .withBody(invoice)
+            .withEndPoint(this.relativeURL + '?action=send-invoice-to-vipps')
+            .send()
+            .map(response => response.json());
+    }
+
     public getInvoiceByInvoiceNumber(invoiceNumber: string): Observable<any> {
         return this.GetAll('filter=InvoiceNumber eq ' + invoiceNumber, ['JournalEntry', 'JournalEntry.Lines', 'JournalEntry.Lines.Account', 'JournalEntry.Lines.SubAccount']);
     }

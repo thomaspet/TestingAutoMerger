@@ -93,7 +93,15 @@ export class AccountDetails implements OnInit {
             valueProperty: 'ID',
             displayProperty: 'VatCode',
             debounceTime: 200,
-            search: (searchValue: string) => Observable.from([this.vattypes.filter((vt) => vt.VatCode === searchValue || vt.VatPercent.toString() === searchValue || vt.Name.toLowerCase().indexOf(searchValue.toLowerCase()) >= 0)]),
+            search: (searchValue: string = '') => {
+                if (!searchValue) {
+                    return [this.vattypes];
+                } else {
+                    return [this.vattypes.filter((vt) => vt.VatCode === searchValue
+                        || vt.VatPercent.toString() === searchValue
+                        || vt.Name.toLowerCase().indexOf(searchValue.toLowerCase()) >= 0)];
+                }
+            },
             template: (vt: VatType) => vt ? `${vt.VatCode}: ${vt.VatPercent}% – ${vt.Name}` : ''
         };
 

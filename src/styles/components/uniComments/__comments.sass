@@ -1,54 +1,39 @@
+uni-comments
+    position: relative
+    display: inline-block
+
 .comments_toggle
     @extend %toolbarButton
-    top: -0.4rem !important // meh
-    background-image: unicon-chat($uni-color-scale3)
+    background-image: unicon-chat($uni-color-negative) !important
     background-size: 1rem auto
-    &:hover,
-    &:focus
-        background: mix($uni-color-negative, $uni-color-c2a, 80%) no-repeat center
-        background-image: unicon-chat($uni-color-c2a)
-        background-size: 1rem auto
+    position: relative
 
 .comments_count
-    display: inline-block
-    background: $navbarBackground
-    height: pxToRem(26)
-    padding: 0 .3rem
-    border-radius: 0 pxToRem(3) pxToRem(3) 0
-    position: relative
-    top: pxToRem(-1)
-    margin-left: -.2rem
+    color: #fff
+    background: $uni-color-bad
+    position: absolute
+    top: -7px
+    right: -5px
+    text-align: center
+    font-size: .8rem
+    width: 1rem
+    height: 1rem
+    line-height: .9rem
+    border-radius: 50%
 
 .comments-view
-    @extend %mainNavDropdown // Consolidating a few styles
-    position: fixed
+    @extend %mainNavDropdown
+    position: absolute
     box-sizing: border-box
-    height: 60%
+    height: 30rem
     width: 30rem
-    margin-top: .3rem
-    right: calc(6.5vw + 1.6rem) // The gutter on desktop + padding on toolbar + elems
+    top: 2.25rem
+    right: 0
     z-index: #{map-get($zindex, toolbar) + 1}
 
     display: none
     &[aria-expanded]:not([aria-expanded=false])
         display: block
-
-    // Put an arrow on it
-    &:before
-        border: solid transparent
-        content: ''
-        height: 0
-        width: 0
-        position: absolute
-        pointer-events: none
-        display: block
-        border-color: rgba(255, 255, 255, 0)
-        border-bottom-color: #fff
-        border-width: .5rem
-        margin-left: -.5rem
-        top: -1rem
-        right: 1.5rem
-
 
     uni-comment-list
         height: calc(100% - 3rem)
@@ -170,7 +155,7 @@ uni-comment-input
     uni-comment-input
         padding: 1rem
         height: 5rem
-    
+
         ul
             bottom: 2.5rem
             left: 1rem

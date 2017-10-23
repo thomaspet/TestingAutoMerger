@@ -13,7 +13,7 @@ import {WidgetDataService} from '../widgetDataService';
                     <small>{{item.PubDate | date: 'dd.MM.yyyy'}}</small>
                 </header>
                 <article>{{item.Description}}</article>
-                <a target="_blank" href="item.Link">Les mer</a>
+                <a target="_blank" href="{{item.Link}}">Les mer</a>
             </li>
         </ul>
    `

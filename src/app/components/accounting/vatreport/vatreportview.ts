@@ -1,5 +1,6 @@
 import {Component, OnInit, OnDestroy, ViewChild} from '@angular/core';
 import {FormControl} from '@angular/forms';
+import {Router, ActivatedRoute} from '@angular/router';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {IUniSaveAction} from '../../../../framework/save/save';
 import {
@@ -64,7 +65,8 @@ export class VatReportView implements OnInit, OnDestroy {
         private toastService: ToastService,
         private altinnAuthenticationService: AltinnAuthenticationService,
         private errorService: ErrorService,
-        private modalService: UniModalService
+        private modalService: UniModalService,
+        private router: Router,
     ) {
         this.periodDateFormat = new PeriodDateFormatPipe(this.errorService);
         this.tabService.addTab({ name: 'MVA melding', url: '/accounting/vatreport', active: true, moduleID: UniModules.VatReport });
@@ -237,6 +239,19 @@ export class VatReportView implements OnInit, OnDestroy {
             action: (done) => this.approveManually(done),
             disabled: this.IsSendActionDisabled()
         });
+
+        this.actions.push({
+            label: 'Godkjenn manuelt',
+            action: (done) => this.approveManually(done),
+            disabled: this.IsSignActionDisabled ()
+        });
+
+        this.actions.push({
+            label: 'Angre kjøring',
+            action: (done) => this.UndoExecution(done),
+            disabled: this.IsSendActionDisabled()
+        })
+
 
     }
 
@@ -470,9 +485,20 @@ export class VatReportView implements OnInit, OnDestroy {
     }
 
 
+    public UndoExecution(done) {
+        this.vatReportService.Action(this.currentVatReport.ID, 'undo-execute')
+            .subscribe(() =>
+            this.router.navigateByUrl('#/accounting/vatreport'),
+            err => { done('Feil ved angring av kjøring.'); }
+        );
+    }
+
+
     public approveManually(done) {
         if (confirm('Er du sikker på at du vil godkjenne manuelt? Det er normalt bedre å bruke signering hvis mulig')) {
-            this.vatReportService.Transition(this.currentVatReport.ID, this.currentVatReport, 'approveManually')
+
+            const transName = this.currentVatReport.StatusCode === 32002 ? 'setToApproved' : 'approveManually';
+            this.vatReportService.Transition(this.currentVatReport.ID, this.currentVatReport, transName)
                 .subscribe(() => {
                     this.vatReportService.Get(this.currentVatReport.ID, ['TerminPeriod', 'JournalEntry', 'VatReportArchivedSummary'])
                         .subscribe(vatreport => {

@@ -5,16 +5,15 @@ import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {HttpModule} from '@angular/http';
 import {RouterModule} from '@angular/router';
 import {UniNavbar} from './navbar/navbar';
-import {HamburgerMenu} from './navbar/hamburgerMenu/hamburgerMenu';
-import {RemoveHidden} from './navbar/hamburgerMenu/hamburgerMenu';
+import {HamburgerMenu, RemoveHidden} from './navbar/hamburgerMenu/hamburgerMenu';
+import {UniShortcut} from './navbar/shortcut/shortcut';
 import {NavbarSearch} from './navbar/search/search';
 import {UniTabStrip} from './navbar/tabstrip/tabStrip';
 import {UniCompanyDropdown} from './navbar/userinfo/companyDropdown/companyDropdown';
 import {UniFrameworkModule} from '../../../framework/frameworkModule';
 import {UniTabs} from './uniTabs/uniTabs';
-import {UniFeedback} from '../common/feedback/feedback';
 import {UniNumberFormatPipe} from '../../pipes/uniNumberFormatPipe';
-import {YearModal, YearModalContent} from './navbar/userinfo/companyDropdown/modals/yearModal';
+import {YearModal} from './navbar/userinfo/companyDropdown/modals/yearModal';
 import {UniHelpText} from './helpText/helpText';
 
 @NgModule({
@@ -32,31 +31,29 @@ import {UniHelpText} from './helpText/helpText';
         UniNavbar,
         HamburgerMenu,
         RemoveHidden,
+        UniShortcut,
         NavbarSearch,
         UniTabStrip,
         UniCompanyDropdown,
         YearModal,
-        YearModalContent,
-        UniFeedback,
         UniHelpText
     ],
     providers: [
         UniNumberFormatPipe
     ],
     entryComponents: [
-        YearModalContent
+        YearModal
     ],
     exports: [
         UniTabs,
         UniNavbar,
         HamburgerMenu,
         RemoveHidden,
+        UniShortcut,
         NavbarSearch,
         UniTabStrip,
         UniCompanyDropdown,
         YearModal,
-        YearModalContent,
-        UniFeedback,
         UniHelpText
     ]
 })

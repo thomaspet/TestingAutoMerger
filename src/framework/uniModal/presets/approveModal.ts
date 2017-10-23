@@ -1,7 +1,15 @@
 import {Component, Output, Input, ChangeDetectionStrategy, ChangeDetectorRef
     , HostListener, EventEmitter} from '@angular/core';
 import {ErrorService, SupplierInvoiceService, UserService} from '../../../app/services/services';
-import {User, Team, Task, SupplierInvoice, ApprovalStatus, Approval} from '../../../app/unientities';
+import {
+    User,
+    Team,
+    Task,
+    SupplierInvoice,
+    ApprovalStatus,
+    Approval,
+    UserRole
+} from '../../../app/unientities';
 import {
     billViewLanguage as lang,
     approvalStatusLabels as statusLabels}
@@ -52,7 +60,7 @@ import {IModalOptions, IUniModal} from '../modalService';
                 </section>
             </article>
             <footer>
-                <button [disabled]="!canApprove" (click)="onCloseAction('ok')" class="good">{{okButtonLabel}}</button>
+                <button [disabled]="(!canApprove && !this.rejectTab) || (!canReject && this.rejectTab)" (click)="onCloseAction('ok')" class="good">{{okButtonLabel}}</button>
                 <button (click)="onCloseAction('cancel')" class="bad">Avbryt</button>
             </footer>
         </section>
@@ -75,6 +83,7 @@ export class UniApproveModal implements IUniModal {
         return <any>(this.invoice ? this.invoice['_task'] : undefined);
     }
     private canApprove: boolean = false;
+    private canReject: boolean = false;
     private myApproval: Approval;
     private myUser: User;
     public comment: string = '';
@@ -100,7 +109,6 @@ export class UniApproveModal implements IUniModal {
             return;
         }
         this.invoice = this.options.data.invoice;
-        this.canApprove = false;
         this.okButtonLabel = this.options.data.forApproval ? lang.task_approve : lang.task_reject;
         this.modalTitle = this.options.data.forApproval ? lang.task_approve : lang.task_reject;
         this.rejectTab = !this.options.data.forApproval;
@@ -108,13 +116,31 @@ export class UniApproveModal implements IUniModal {
         if (this.currentTask) {
             let approvals = this.currentTask.Approvals;
             if (approvals) {
-                approvals.forEach( x => {
-                    x['statusLabel'] = statusLabels[x.StatusCode];
-                    if (x.UserID === this.myUser.ID && x.StatusCode === ApprovalStatus.Active) {
-                        this.myApproval = x;
-                        this.canApprove = true;
+                this.userService.getRolesByUserId(this.myUser.ID).subscribe((roles: UserRole[]) => {
+                    let isAdmin = false;
+                    if (roles.find(x => x.SharedRoleName === 'Administrator' || x.SharedRoleName === 'Accounting.Admin')) {
+                        isAdmin = true;
                     }
-                 });
+
+                    if (this.currentTask.UserID === this.myUser.ID || isAdmin) {
+                        let approval: Approval = approvals.find(x => x.StatusCode === ApprovalStatus.Active);
+                        if (approval) {
+                            this.myApproval = approval;
+                            this.canReject = true;
+                            if (isAdmin) { this.canApprove = true; }
+                        }
+                    } else {
+                        let approval: Approval = approvals.find(x => x.UserID === this.myUser.ID && x.StatusCode === ApprovalStatus.Active);
+                        if (approval) {
+                            this.myApproval = approval;
+                            this.canApprove = true;
+                        }
+                    }
+
+                    approvals.forEach( x => {
+                        x['statusLabel'] = statusLabels[x.StatusCode];
+                    });
+                });
             }
         }
 

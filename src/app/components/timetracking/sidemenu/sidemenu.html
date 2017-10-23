@@ -7,7 +7,7 @@
             <p class="sidemenu_minified_to_from" style="margin: 0;">{{ template.Name }}</p>
             <p class="sidemenu_minified_to_from" style="margin-top: 0;">{{ template.StartTime }} - {{ template.EndTime }}</p>
         </section>
-        
+
     </section>
     <section class="sidemenu_calender_container"  [hidden]="sidemenuMinified">
             <unitable-calendar class="sidemenu_calender"
@@ -17,7 +17,7 @@
                                [date]="initDate"
                                [config]="calendarConfig"></unitable-calendar>
         <button (click)="setTodayAsCurrentDay()">Gå til idag</button>
-        
+
     </section>
 
     <section class="sidemenu_template_container"  [hidden]="sidemenuMinified">
@@ -34,9 +34,11 @@
             </section>
         </article>
         <h4 *ngIf="!timeTrackingTemplates.length">
-            Ingen maler lagret. Trykk på "Ny Mal" for å lage en ny. 
+            Ingen maler lagret. Trykk på "Ny Mal" for å lage en ny.
         </h4>
         <button (click)="createNewTemplate()">Ny mal...</button>
     </section>
-    <button class="sidemenu_hide_button" id="sidemeny_hide_show_button_id" (click)="hideShowSideMenu()"></button>
+    <div class="sidemenu_hide_button_container" id="sidemenu_hide_button_container_id">
+        <div class="sidemenu_hide_button" id="sidemeny_hide_show_button_id" (click)="hideShowSideMenu()"></div>
+    </div>
 </section>

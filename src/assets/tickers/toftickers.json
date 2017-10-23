@@ -20,6 +20,7 @@
             "Field": "Customer.CustomerNumber",
             "Type": "Link",
             "LinkNavigationProperty": "Customer.ID",
+            "ExternalModel": "Customer",
             "Width": "8rem",
             "FilterOperator": "startswith"
         }, {
@@ -190,16 +191,15 @@
             "DisplayInContextMenu": true,
             "DisplayInActionBar": false,
             "NeedsActionOverride": true
-            },
-            {
-                "Name": "Slett",
-                "Code": "invoice_delete",
-                "Type": "action",
-                "ExecuteWithMultipleSelections": false,
-                "DisplayInContextMenu": true,
-                "DisplayInActionBar": false,
-                "NeedsActionOverride": true
-                }
+        }, {
+            "Name": "Slett",
+            "Code": "invoice_delete",
+            "Type": "action",
+            "ExecuteWithMultipleSelections": false,
+            "DisplayInContextMenu": true,
+            "DisplayInActionBar": false,
+            "NeedsActionOverride": true
+            }
     ],
     "SubTickersCodes": ["invoice_details", "invoice_items"],
     "Filters": [{
@@ -468,6 +468,7 @@
             "FieldSetColumn": 1,
             "Header": "Fakturanr",
             "Field": "InvoiceNumber",
+            "Alias": "InvoiceNumber",
             "Type": "link"
         }, {
             "FieldSetColumn": 1,
@@ -476,7 +477,12 @@
         }, {
             "FieldSetColumn": 1,
             "Header": "Kundenummer",
-            "Field": "Customer.CustomerNumber"
+            "Field": "Customer.CustomerNumber",
+            "SubFields": [{
+                "Field": "CustomerID",
+                "Alias": "CustomerID",
+                "DefaultHidden": true
+            }]
         }, {
             "FieldSetColumn": 1,
             "Header": "Kundenavn",
@@ -579,6 +585,7 @@
             "Field": "Customer.CustomerNumber",
             "Type": "Link",
             "LinkNavigationProperty": "Customer.ID",
+            "ExternalModel": "Customer",
             "Width": "8rem",
             "FilterOperator": "startswith"
         }, {
@@ -874,6 +881,7 @@
             "FieldSetColumn": 1,
             "Header": "Tilbudsnr",
             "Field": "QuoteNumber",
+            "Alias": "QuoteNumber",
             "Type": "link"
         }, {
             "FieldSetColumn": 1,
@@ -882,7 +890,12 @@
         }, {
             "FieldSetColumn": 1,
             "Header": "Kundenummer",
-            "Field": "Customer.CustomerNumber"
+            "Field": "Customer.CustomerNumber",
+            "SubFields": [{
+                "Field": "Customer.ID",
+                "Alias": "CustomerID",
+                "DefaultHidden": true
+            }]
         }, {
             "FieldSetColumn": 1,
             "Header": "Kundenavn",
@@ -958,6 +971,7 @@
             "Field": "Customer.CustomerNumber",
             "Type": "Link",
             "LinkNavigationProperty": "Customer.ID",
+            "ExternalModel": "Customer",
             "Width": "8rem",
             "FilterOperator": "startswith"
         }, {
@@ -1240,6 +1254,7 @@
             "FieldSetColumn": 1,
             "Header": "Ordrenr",
             "Field": "OrderNumber",
+            "Alias": "OrderNumber",
             "Type": "link"
         }, {
             "FieldSetColumn": 1,
@@ -1248,7 +1263,12 @@
         }, {
             "FieldSetColumn": 1,
             "Header": "Kundenummer",
-            "Field": "Customer.CustomerNumber"
+            "Field": "Customer.CustomerNumber",
+            "SubFields": [{
+                "Field": "CustomerID",
+                "Alias": "CustomerID",
+                "DefaultHidden": true
+            }]
         }, {
             "FieldSetColumn": 1,
             "Header": "Kundenavn",

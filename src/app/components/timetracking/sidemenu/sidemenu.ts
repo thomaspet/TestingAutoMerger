@@ -148,24 +148,21 @@ export class SideMenu {
         this.sidemenuMinified = !this.sidemenuMinified;
 
         let element = document.getElementById('sidemenu_timetracking_component');
+        let buttonContainer = document.getElementById('sidemenu_hide_button_container_id');
         let button = document.getElementById('sidemeny_hide_show_button_id');
         let containter = document.getElementById('regtime_container_id');
 
         if (this.sidemenuMinified) {
             element.style.width = '80px';
-            button.style.left = '10px';
-            button.style.top = '180px';
+            buttonContainer.style.width = '80px';
             button.style.transform = 'rotate(-180deg)';
             containter.classList.add('sidemenu_minified_container_class');
         } else {
             element.style.width = '335px';
-            button.style.left = '280px';
-            button.style.top = '50vh';
+            buttonContainer.style.width = '335px';
             button.style.transform = 'rotate(0deg)';
             containter.classList.remove('sidemenu_minified_container_class');
         }
-
-
     }
 
     private dummyTemplates(): ITemplate[] {

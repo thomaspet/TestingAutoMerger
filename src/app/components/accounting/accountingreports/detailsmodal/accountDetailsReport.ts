@@ -12,6 +12,7 @@ import {
 import {DistributionPeriodReportPart} from '../reportparts/distributionPeriodReportPart';
 import {JournalEntry} from '../../../../unientities';
 import {ImageModal} from '../../../common/modals/ImageModal';
+import {UniModalService} from '../../../../../framework/uniModal/barrel';
 import {IToolbarConfig} from './../../../common/toolbar/toolbar';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {FieldType} from '../../../../../framework/ui/uniform/index';
@@ -37,10 +38,23 @@ declare var _;
     templateUrl: './accountDetailsReport.html',
 })
 export class AccountDetailsReport {
-    @Input() public config: { close: () => void, modalMode: boolean, accountID: number, subaccountID, accountNumber: number, accountName: string, dimensionType: number, dimensionId: number };
-    @ViewChild(ImageModal) private imageModal: ImageModal;
-    @ViewChild(UniTable) private transactionsTable: UniTable;
-    @ViewChild(DistributionPeriodReportPart) private distributionPeriodReportPart: DistributionPeriodReportPart;
+    @Input()
+    public config: {
+        close: () => void,
+        modalMode: boolean,
+        accountID: number,
+        subaccountID,
+        accountNumber: number,
+        accountName: string,
+        dimensionType: number,
+        dimensionId: number
+    };
+
+    @ViewChild(UniTable)
+    public transactionsTable: UniTable;
+
+    @ViewChild(DistributionPeriodReportPart)
+    public distributionPeriodReportPart: DistributionPeriodReportPart;
 
     private uniTableConfigTransactions$: BehaviorSubject<UniTableConfig> = new BehaviorSubject<UniTableConfig>(null);
 
@@ -63,13 +77,16 @@ export class AccountDetailsReport {
 
     private toolbarconfig: IToolbarConfig;
 
-    constructor(private statisticsService: StatisticsService,
-                private errorService: ErrorService,
-                private financialYearService: FinancialYearService,
-                private accountService: AccountService,
-                private toastService: ToastService,
-                private uniSearchAccountConfig: UniSearchAccountConfig,
-                private tabService: TabService) {
+    constructor(
+        private statisticsService: StatisticsService,
+        private errorService: ErrorService,
+        private financialYearService: FinancialYearService,
+        private accountService: AccountService,
+        private toastService: ToastService,
+        private uniSearchAccountConfig: UniSearchAccountConfig,
+        private tabService: TabService,
+        private modalService: UniModalService
+    ) {
 
        this.config = {
             close: () => {},
@@ -137,17 +154,20 @@ export class AccountDetailsReport {
             });
         } else {
             this.loadData();
-            this.doTurnAndInclude();
         }
     }
 
     public doTurnAndInclude() {
         // "turn" amounts for accountgroup 2 and 3, because it will be confusing for the users when these amounts are
         // displayed as negative numbers (which they will usually be)
-        this.doTurnDistributionAmounts$.next(this.config.accountNumber.toString().substring(0, 1) === '2' || this.config.accountNumber.toString().substring(0, 1) === '3');
+        this.doTurnDistributionAmounts$
+            .next(this.config.accountNumber.toString().substring(0, 1) === '2'
+                || this.config.accountNumber.toString().substring(0, 1) === '3');
 
         // include incoming balance for balance accounts
-        this.includeIncomingBalanceInDistributionReport$.next(this.config.accountNumber.toString().substring(0, 1) === '1' || this.config.accountNumber.toString().substring(0, 1) === '2');
+        this.includeIncomingBalanceInDistributionReport$
+            .next(this.config.accountNumber.toString().substring(0, 1) === '1'
+                || this.config.accountNumber.toString().substring(0, 1) === '2');
     }
 
     public updateToolbar() {
@@ -174,49 +194,55 @@ export class AccountDetailsReport {
     }
 
     public previous() {
-        this.accountService.searchAccounts('Visible eq 1 and AccountNumber lt ' + this.config.accountNumber, 1, 'AccountNumber desc').subscribe(data => {
-            if (data.length > 0) {
-                let account = data[0];
-                this.config.accountID = account.ID;
-                this.config.accountName = account.AccountName;
-                this.config.accountNumber = account.AccountNumber;
-                this.config.subaccountID = account.AccountID;
+        this.accountService
+            .searchAccounts('Visible eq 1 and AccountNumber lt ' + this.config.accountNumber, 1, 'AccountNumber desc')
+            .subscribe(data => {
+                if (data.length > 0) {
+                    let account = data[0];
+                    this.config.accountID = account.ID;
+                    this.config.accountName = account.AccountName;
+                    this.config.accountNumber = account.AccountNumber;
+                    this.config.subaccountID = account.AccountID;
 
-                var searchParams = this.searchParams$.getValue();
-                searchParams.AccountID = account.ID;
-                searchParams.AccountNumber = account.AccountNumber;
-                this.searchParams$.next(searchParams);
+                    var searchParams = this.searchParams$.getValue();
+                    searchParams.AccountID = account.ID;
+                    searchParams.AccountNumber = account.AccountNumber;
+                    this.searchParams$.next(searchParams);
 
-                this.loadData();
-            } else {
-                this.toastService.addToast('Første konto', ToastType.warn, 5, 'Du har nådd Første konto');
-            }
-        });
+                    this.loadData();
+                    this.setupLookupTransactions();
+                } else {
+                    this.toastService.addToast('Første konto', ToastType.warn, 5, 'Du har nådd Første konto');
+                }
+            });
     }
 
     public next() {
-        this.accountService.searchAccounts('Visible eq 1 and AccountNumber gt ' + this.config.accountNumber, 1).subscribe(data => {
-            if (data.length > 0) {
-                let account = data[0];
-                this.config.accountID = account.ID;
-                this.config.accountName = account.AccountName;
-                this.config.accountNumber = account.AccountNumber;
-                this.config.subaccountID = account.AccountID;
+        this.accountService
+            .searchAccounts('Visible eq 1 and AccountNumber gt ' + this.config.accountNumber, 1)
+            .subscribe(data => {
+                if (data.length > 0) {
+                    let account = data[0];
+                    this.config.accountID = account.ID;
+                    this.config.accountName = account.AccountName;
+                    this.config.accountNumber = account.AccountNumber;
+                    this.config.subaccountID = account.AccountID;
 
-                var searchParams = this.searchParams$.getValue();
-                searchParams.AccountID = account.ID;
-                searchParams.AccountNumber = account.AccountNumber;
-                this.searchParams$.next(searchParams);
+                    var searchParams = this.searchParams$.getValue();
+                    searchParams.AccountID = account.ID;
+                    searchParams.AccountNumber = account.AccountNumber;
+                    this.searchParams$.next(searchParams);
 
-                this.loadData();
-            } else {
-                this.toastService.addToast('Siste konto', ToastType.warn, 5, 'Du har nådd siste konto');
-            }
-        });
+                    this.loadData();
+                    this.setupLookupTransactions();
+                } else {
+                    this.toastService.addToast('Siste konto', ToastType.warn, 5, 'Du har nådd siste konto');
+                }
+            });
     }
 
-    // modal is reused if multiple accounts are viewed, and the loadData will be called from the accountDetailsReportModal
-    // when opening the modal
+    // modal is reused if multiple accounts are viewed, and the
+    // loadData will be called from the accountDetailsReportModal when opening the modal
     public loadData() {
         // get default period filters
         this.periodFilter1$.next(PeriodFilterHelper.getFilter(1, null));
@@ -239,7 +265,8 @@ export class AccountDetailsReport {
         const filtersFromUniTable = urlParams.get('filter');
         const filters = filtersFromUniTable ? [filtersFromUniTable] : [];
 
-        filters.push(`JournalEntryLine.AccountID eq ${this.config.subaccountID ? this.config.subaccountID : this.config.accountID}`);
+        filters.push(`JournalEntryLine.AccountID eq ${this.config.subaccountID
+            ? this.config.subaccountID : this.config.accountID}`);
         filters.push(`Period.AccountYear eq ${this.periodFilter3$.getValue().year}`);
         filters.push(`Period.No ge ${this.periodFilter3$.getValue().fromPeriodNo}`);
         filters.push(`Period.No le ${this.periodFilter3$.getValue().toPeriodNo}`);
@@ -254,6 +281,7 @@ export class AccountDetailsReport {
             'ID as ID,' +
             'JournalEntryNumber as JournalEntryNumber,' +
             'FinancialDate,' +
+            'AmountCurrency as AmountCurrency,' +
             'Description as Description,' +
             'VatType.VatCode,' +
             'Amount as Amount,' +
@@ -280,7 +308,7 @@ export class AccountDetailsReport {
                 .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
     }
 
-    private switchPeriods() {
+    public switchPeriods() {
         let tmp = this.periodFilter1$.getValue();
         this.periodFilter1$.next(this.periodFilter2$.getValue());
         this.periodFilter2$.next(tmp);
@@ -290,14 +318,22 @@ export class AccountDetailsReport {
 
     public onCellClick(event: ICellClickEvent) {
         if (event.column.field === 'ID') {
-            this.imageModal.open(JournalEntry.EntityType, event.row.JournalEntryID);
+            let data = {
+                entity: JournalEntry.EntityType,
+                entityID: event.row.JournalEntryID
+
+            };
+            this.modalService.open(ImageModal, { data: data });
         }
     }
 
     private setupTransactionsTable() {
         let columns = [
             new UniTableColumn('JournalEntryNumber', 'Bilagsnr')
-                    .setFilterOperator('contains'),
+                    .setFilterOperator('contains')
+                    .setTemplate(line => {
+                        return this.config.modalMode ? line.JournalEntryNumber : `<a href="#/accounting/transquery/details;journalEntryNumber=${line.JournalEntryNumber}">${line.JournalEntryNumber}</a>`;
+                    }),
                 new UniTableColumn('FinancialDate', 'Regnskapsdato', UniTableColumnType.LocalDate)
                     .setFilterOperator('contains')
                     .setFormat('DD.MM.YYYY')
@@ -310,10 +346,17 @@ export class AccountDetailsReport {
                 new UniTableColumn('Amount', 'Beløp', UniTableColumnType.Money)
                     .setCls('column-align-right')
                     .setFilterOperator('eq'),
-                new UniTableColumn('Department.Name', 'Avdeling', UniTableColumnType.Text).setFilterOperator('contains')
-                    .setTemplate(line => { return line.DepartmentDepartmentNumber ? line.DepartmentDepartmentNumber + ': ' + line.DepartmentName : ''; }),
-                new UniTableColumn('Project.Name', 'Prosjekt', UniTableColumnType.Text).setFilterOperator('contains')
-                    .setTemplate(line => { return line.ProjectProjectNumber ? line.ProjectProjectNumber + ': ' + line.ProjectName : ''; }),
+                new UniTableColumn('AmountCurrency', 'Valutabeløp', UniTableColumnType.Money)
+                .setCls('column-align-right')
+                .setFilterOperator('eq'),
+                new UniTableColumn('Department.Name', 'Avdeling', UniTableColumnType.Text)
+                    .setFilterOperator('contains')
+                    .setTemplate(line => { return line.DepartmentDepartmentNumber
+                        ? line.DepartmentDepartmentNumber + ': ' + line.DepartmentName : ''; }),
+                new UniTableColumn('Project.Name', 'Prosjekt', UniTableColumnType.Text)
+                    .setFilterOperator('contains')
+                    .setTemplate(line => { return line.ProjectProjectNumber
+                        ? line.ProjectProjectNumber + ': ' + line.ProjectName : ''; }),
                 new UniTableColumn('ID', PAPERCLIP, UniTableColumnType.Text)
                     .setTemplate(line => line.Attachments ? PAPERCLIP : '')
                     .setWidth('40px')
@@ -339,17 +382,30 @@ export class AccountDetailsReport {
             .setColumns(columns));
     }
 
-    private periodSelected(row) {
+    public periodSelected(row) {
         var filter = new PeriodFilter();
-        if (row.periodNo == 0) {
-            this.toastService.addToast('Ikke støttet', ToastType.warn, 3, 'Drilldown på inngående balanse ikke støttet');
+        if (row.periodNo === 0) {
+            this.toastService.addToast(
+                'Ikke støttet',
+                ToastType.warn,
+                3,
+                'Drilldown på inngående balanse ikke støttet');
             return;
         } else if (row.periodNo < 13) {
             filter.fromPeriodNo = row.periodNo;
             filter.toPeriodNo = row.periodNo;
+        } else if (row.periodNo > 13 && row.periodNo <= 1113) {
+            // FORMULA FOR PERIODE SELECTION:
+            // (FROMMONTH * 100) + TOMONTH => Febuary till November = (2 * 100) + 11 = 211
+            filter.toPeriodNo = row.periodNo % 100;
+            filter.fromPeriodNo = (row.periodNo - filter.toPeriodNo) / 100;
         } else { // Default filter if clicking on total
             if (this.includeIncomingBalanceInDistributionReport$.getValue()) {
-                this.toastService.addToast('Ikke støttet', ToastType.warn, 3, 'Drilldown på utgående balanse ikke støttet');
+                this.toastService.addToast(
+                    'Ikke støttet',
+                    ToastType.warn,
+                    3,
+                    'Drilldown på utgående balanse ikke støttet');
                 return;
             } else {
                 filter.fromPeriodNo = 1;
@@ -364,7 +420,15 @@ export class AccountDetailsReport {
         this.setupLookupTransactions();
     }
 
-    private onFormFilterChange(event) {
+    public onYearSelected(event) {
+        let tmp = this.periodFilter1$.getValue();
+        this.periodFilter1$.next(this.periodFilter2$.getValue());
+        this.periodFilter2$.next(tmp);
+        this.periodFilter3$.next(this.periodFilter2$.getValue());
+        this.setupLookupTransactions();
+    }
+
+    public onFormFilterChange(event) {
         let search = this.searchParams$.getValue();
         if (search.AccountID) {
             this.accountService.Get(search.AccountID).subscribe((account: Account) => {
@@ -374,6 +438,7 @@ export class AccountDetailsReport {
                 this.config.subaccountID = account.AccountID;
 
                 this.loadData();
+                this.setupLookupTransactions();
             });
         }
     }

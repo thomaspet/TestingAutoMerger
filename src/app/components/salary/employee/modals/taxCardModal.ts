@@ -29,4 +29,8 @@ export class TaxCardModal implements OnInit, IUniModal, AfterViewInit {
         this.taxCardRequest.close();
         this.onClose.next();
     }
+
+    public triggerUpdate() {
+        this.options.modalConfig.update();
+    }
 }

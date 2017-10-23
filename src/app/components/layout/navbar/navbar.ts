@@ -6,11 +6,11 @@ import {Component, ChangeDetectionStrategy} from '@angular/core';
         <section class="navbar">
             <div class="navbar_content">
                 <uni-hamburger-menu></uni-hamburger-menu>
+                <uni-shortcut></uni-shortcut>
                 <uni-tabstrip></uni-tabstrip>
                 <uni-navbar-search></uni-navbar-search>
                 <uni-company-dropdown></uni-company-dropdown>
                 <uni-notifications></uni-notifications>
-                <uni-feedback></uni-feedback>
             </div>
         </section>
     `,

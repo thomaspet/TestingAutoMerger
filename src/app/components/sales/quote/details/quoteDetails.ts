@@ -12,6 +12,8 @@ import {
     Dimensions,
     LocalDate,
     Project,
+    Seller,
+    SellerLink,
     StatusCodeCustomerQuote,
     Terms,
     NumberSeriesTask,
@@ -34,7 +36,9 @@ import {
     UserService,
     NumberSeriesTypeService,
     NumberSeriesService,
-    EmailService
+    EmailService,
+    SellerService,
+    SellerLinkService
 } from '../../../../services/services';
 
 import {
@@ -95,6 +99,9 @@ export class QuoteDetails {
     private deliveryTerms: Terms[];
     private paymentTerms: Terms[];
     private projects: Project[];
+    private currentDefaultProjectID: number;
+    private sellers: Seller[];
+    private deletables: SellerLink[] = [];
 
     private toolbarconfig: IToolbarConfig;
     private contextMenuItems: IContextMenuItem[] = [];
@@ -119,7 +126,9 @@ export class QuoteDetails {
         'PaymentTerms',
         'DeliveryTerms',
         'Sellers',
-        'Sellers.Seller'
+        'Sellers.Seller',
+        'DefaultSeller',
+        'DefaultSeller.Seller'
     ];
     private expandOptions: Array<string> = [
         'Items',
@@ -133,6 +142,8 @@ export class QuoteDetails {
         'DefaultDimensions',
         'Sellers',
         'Sellers.Seller',
+        'DefaultSeller',
+        'DefaultSeller.Seller',
         'PaymentTerms',
         'DeliveryTerms'
     ].concat(this.customerExpandOptions.map(option => 'Customer.' + option));
@@ -162,7 +173,9 @@ export class QuoteDetails {
         private termsService: TermsService,
         private numberSeriesTypeService: NumberSeriesTypeService,
         private numberSeriesService: NumberSeriesService,
-        private emailService: EmailService
+        private emailService: EmailService,
+        private sellerService: SellerService,
+        private sellerLinkService: SellerLinkService
     ) { }
 
     public ngOnInit() {
@@ -206,7 +219,8 @@ export class QuoteDetails {
                     this.currencyCodeService.GetAll(null),
                     this.termsService.GetAction(null, 'get-payment-terms'),
                     this.termsService.GetAction(null, 'get-delivery-terms'),
-                    this.projectService.GetAll(null)
+                    this.projectService.GetAll(null),
+                    this.sellerService.GetAll(null)
                 ).subscribe((res) => {
                     let quote = res[0];
                     this.companySettings = res[1];
@@ -214,6 +228,7 @@ export class QuoteDetails {
                     this.paymentTerms = res[3];
                     this.deliveryTerms = res[4];
                     this.projects = res[5];
+                    this.sellers = res[6];
 
                     if (!quote.CurrencyCodeID) {
                         quote.CurrencyCodeID = this.companySettings.BaseCurrencyCodeID;
@@ -245,7 +260,8 @@ export class QuoteDetails {
                     this.numberSeriesService.GetAll(`filter=NumberSeriesType.Name eq 'Customer Quote number `
                     + `series' and Empty eq false and Disabled eq false`,
                     ['NumberSeriesType']),
-                    this.projectService.GetAll(null)
+                    this.projectService.GetAll(null),
+                    this.sellerService.GetAll(null)
                 ).subscribe(
                     (res) => {
                         let quote = <CustomerQuote>res[0];
@@ -273,6 +289,7 @@ export class QuoteDetails {
                             this.quoteID, this.numberSeries, 'Customer Quote number series'
                         );
                         this.projects = res[9];
+                        this.sellers = res[10];
 
                         quote.QuoteDate = new LocalDate(Date());
                         quote.ValidUntilDate = new LocalDate(moment(quote.QuoteDate).add(1, 'month').toDate());
@@ -328,33 +345,40 @@ export class QuoteDetails {
         this.quote.QuoteNumberSeriesID = selectedSerie.ID;
     }
 
-    private refreshQuote(quote?: CustomerQuote) {
-        if (!quote) {
-            this.customerQuoteService.Get(this.quoteID, this.expandOptions).subscribe(
-                res => this.refreshQuote(res),
-                err => this.errorService.handle(err)
-            );
-            return;
-        }
+    private refreshQuote(quote?: CustomerQuote): Promise<boolean> {
+        return new Promise((resolve) => {
+            const orderObservable = !!quote 
+                ? Observable.of(quote) 
+                : this.customerQuoteService.Get(this.quoteID, this.expandOptions);
 
-        this.readonly = quote.StatusCode && (
-            quote.StatusCode === StatusCodeCustomerQuote.CustomerAccepted
-            || quote.StatusCode === StatusCodeCustomerQuote.TransferredToOrder
-            || quote.StatusCode === StatusCodeCustomerQuote.TransferredToInvoice
-        );
+            orderObservable.subscribe(res => {
+                if (!quote) { quote = res; }
+                
+                this.readonly = quote.StatusCode && (
+                    quote.StatusCode === StatusCodeCustomerQuote.CustomerAccepted
+                    || quote.StatusCode === StatusCodeCustomerQuote.TransferredToOrder
+                    || quote.StatusCode === StatusCodeCustomerQuote.TransferredToInvoice
+                  );
 
-        this.newQuoteItem = <any>this.tradeItemHelper.getDefaultTradeItemData(quote);
-        this.isDirty = false;
-        this.quoteItems = quote.Items.sort(function(itemA, itemB) { return itemA.SortIndex - itemB.SortIndex; });
+                this.newQuoteItem = <any>this.tradeItemHelper.getDefaultTradeItemData(quote);
+                this.isDirty = false;
+                this.quoteItems = quote.Items.sort(function(itemA, itemB) { return itemA.SortIndex - itemB.SortIndex; });
 
-        this.currentCustomer = quote.Customer;
-        this.currentDeliveryTerm = quote.DeliveryTerms;
+                this.currentCustomer = quote.Customer;
+                this.currentDeliveryTerm = quote.DeliveryTerms;
 
-        this.quote = _.cloneDeep(quote);
-        this.recalcItemSums(quote.Items);
-        this.setTabTitle();
-        this.updateToolbar();
-        this.updateSaveActions();
+                quote.DefaultSeller = quote.DefaultSeller || new SellerLink();
+                this.currentDefaultProjectID = quote.DefaultDimensions.ProjectID;
+
+                this.quote = _.cloneDeep(quote);
+                this.recalcItemSums(quote.Items);
+                this.setTabTitle();
+                this.updateToolbar();
+                this.updateSaveActions();
+
+                resolve(true);
+            });
+        }); 
     }
 
     public onQuoteChange(quote: CustomerQuote) {
@@ -377,11 +401,10 @@ export class QuoteDetails {
         }
 
         // refresh items if project changed
-        if (quote.DefaultDimensions
-                && quote.DefaultDimensions.ProjectID !== this.projectID
-                && this.quoteItems.length) {
-
-            if (this.projectID) {
+        if (quote.DefaultDimensions && quote.DefaultDimensions.ProjectID !== this.projectID) {
+            this.projectID = quote.DefaultDimensions.ProjectID;
+            
+            if (this.quoteItems.length) {
                 this.modalService.confirm({
                     header: `Endre prosjekt på alle varelinjer?`,
                     message: `Vil du endre til dette prosjektet på alle eksisterende varelinjer?`,
@@ -397,7 +420,6 @@ export class QuoteDetails {
             } else {
                 this.tradeItemTable.setDefaultProjectAndRefreshItems(quote.DefaultDimensions.ProjectID, true);
             }
-            this.projectID = quote.DefaultDimensions.ProjectID;
         }
 
         // update currency code in detailsForm and tradeItemTable to selected currency code if selected
@@ -549,6 +571,10 @@ export class QuoteDetails {
         }
     }
 
+    public onSellerDelete(sellerLink: SellerLink) {
+        this.deletables.push(sellerLink);
+    }
+
     private didCustomerChange(quote: CustomerQuote): boolean {
         let change: boolean;
 
@@ -556,7 +582,7 @@ export class QuoteDetails {
             return false;
         }
 
-        if (this.currentCustomer) {
+        if (quote.Customer && this.currentCustomer) {
             change = quote.Customer.ID !== this.currentCustomer.ID;
         } else if (quote.Customer && quote.Customer.ID) {
             change = true;
@@ -876,6 +902,25 @@ export class QuoteDetails {
 
         if (this.quote.DefaultDimensions && !this.quote.DefaultDimensions.ID) {
             this.quote.DefaultDimensions._createguid = this.customerQuoteService.getNewGuid();
+        } else if (this.quote.DefaultDimensions 
+            && this.quote.DefaultDimensions.ProjectID === this.currentDefaultProjectID) {
+                this.quote.DefaultDimensions = undefined;
+        }
+
+        // if main seller does not exist in 'Sellers', create and add it
+        if (this.quote.DefaultSeller && this.quote.DefaultSeller.SellerID 
+            && !this.quote.DefaultSeller._createguid && !this.quote.Sellers.find(sellerLink => 
+                sellerLink.SellerID === this.quote.DefaultSeller.SellerID
+            )) {
+                this.quote.DefaultSeller._createguid = this.sellerLinkService.getNewGuid();
+                this.quote.Sellers.push(this.quote.DefaultSeller);
+        } else if (this.quote.DefaultSeller && !this.quote.DefaultSeller.SellerID) {
+            this.quote.DefaultSeller = null;
+        }
+
+        // add deleted sellers back to 'Sellers' to delete with 'Deleted' property, was sliced locally/in view
+        if (this.deletables) {
+            this.deletables.forEach(sellerLink => this.quote.Sellers.push(sellerLink));
         }
 
         return new Promise((resolve, reject) => {
@@ -965,14 +1010,16 @@ export class QuoteDetails {
             this.customerQuoteService.Transition(this.quote.ID, this.quote, transition).subscribe(
                 (res) => {
                     this.selectConfig = undefined;
-                    done(doneText);
                     if (transition === 'toOrder') {
-                        this.router.navigateByUrl('/sales/orders/' + res.CustomerOrderID);
+                        this.router.navigateByUrl('/sales/orders/' + res.CustomerOrderID)
+                            .then(() => done(doneText));
                     } else if (transition === 'toInvoice') {
-                        this.router.navigateByUrl('/sales/invoices/' + res.CustomerInvoiceID);
+                        this.router.navigateByUrl('/sales/invoices/' + res.CustomerInvoiceID)
+                            .then(() => done(doneText));
                     } else {
                         this.quoteID = quote.ID;
-                        this.refreshQuote();
+                        this.refreshQuote()
+                            .then(() => done(doneText));
                     }
                 }
             );

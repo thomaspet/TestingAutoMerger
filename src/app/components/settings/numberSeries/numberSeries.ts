@@ -558,12 +558,14 @@ export class NumberSeries {
         return this.accountService.searchAccounts(filter, searchValue !== '' ? 100 : 500);
     }
 
-    private onRowSelectionChange(event) {
-        if (event == null) {
-            var all = this.uniTables.last.getTableData();
-            this.current = all.map(chosen => {
-                return this.setPredefinedOrNot(chosen);
-            });
+    public onRowSelectionChange(event) {
+        if (!event) {
+            let tableRows = this.uniTables && this.uniTables.last.getTableData();
+            if (tableRows) {
+                this.current = tableRows.map(chosen => {
+                    return this.setPredefinedOrNot(chosen);
+                });
+            }
         } else {
             var chosen = this.setPredefinedOrNot(event.rowModel);
             this.current[chosen._originalIndex] = chosen;

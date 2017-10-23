@@ -1,7 +1,8 @@
 import {Component, Input, ViewChild, OnChanges} from '@angular/core';
 import {Observable} from 'rxjs/Observable';
 import {PeriodFilter} from '../periodFilter/periodFilter';
-import {AccountDetailsReportModal} from '../detailsmodal/accountDetailsReportModal';
+import {AccountDetailsReportModal, IDetailsModalInput} from '../detailsmodal/accountDetailsReportModal';
+import {UniModalService} from '../../../../../framework/uniModal/barrel';
 import {INumberOptions} from '../../../../../framework/ui/uniform/index';
 
 import {
@@ -34,8 +35,6 @@ export class BalanceSummaryData {
     templateUrl: './drilldownBalanceReportPart.html',
 })
 export class DrilldownBalanceReportPart implements OnChanges {
-
-    @ViewChild(AccountDetailsReportModal) private accountDetailsReportModal: AccountDetailsReportModal;
     @Input() private periodFilter1: PeriodFilter;
     @Input() private periodFilter2: PeriodFilter;
     @Input() private filter: any;
@@ -53,7 +52,8 @@ export class DrilldownBalanceReportPart implements OnChanges {
         private statisticsService: StatisticsService,
         private accountGroupService: AccountGroupService,
         private errorService: ErrorService,
-        private numberFormatService: NumberFormat
+        private numberFormatService: NumberFormat,
+        private modalService: UniModalService
     ) {
     }
 
@@ -71,7 +71,19 @@ export class DrilldownBalanceReportPart implements OnChanges {
     private expandRow(summaryData: BalanceSummaryData) {
 
         if (summaryData.isAccount) {
-            this.accountDetailsReportModal.open(summaryData.id, summaryData.number, summaryData.name, null, null);
+            let data: IDetailsModalInput = {
+                modalMode: true,
+                accountID: summaryData.id,
+                subaccountID: null,
+                accountName: summaryData.name,
+                accountNumber: summaryData.number,
+                dimensionType: null,
+                dimensionId: null,
+                close: null
+            };
+
+            this.modalService.open(AccountDetailsReportModal, { data: data });
+
         } else {
             summaryData.expanded = !summaryData.expanded;
 

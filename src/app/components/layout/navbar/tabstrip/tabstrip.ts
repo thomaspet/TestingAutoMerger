@@ -2,7 +2,8 @@ import {Component, ChangeDetectorRef, ChangeDetectionStrategy} from '@angular/co
 import {Router, NavigationEnd} from '@angular/router';
 import {TabService, UniModules} from './tabService';
 import {AuthService} from '../../../../authService';
-import {Subscription} from 'rxjs/Subscription';
+import {Observable} from 'rxjs/Observable';
+import {Subject} from 'rxjs/Subject';
 
 export interface IUniTab {
     url: string;
@@ -19,12 +20,34 @@ export interface IUniTab {
                 (click)="activateHomeTab()"
                 [ngClass]="{'router-tab-active': homeTabActive}">
             </li>
-            <ng-template ngFor let-tab let-idx="index" [ngForOf]="tabs">
-                <li
+
+            <!-- Collapsed tabs -->
+            <li *ngIf="collapseTabs; else tabsExpanded"
+                class="collapsed-tab-container"
+                [ngClass]="{'router-tab-active': lastActiveTab?.active}"
+                (click)="collapsedTab">
+
+                {{lastActiveTab?.name}}
+
+                <ul class="collapsed-tab-list">
+                    <li *ngFor="let tab of tabs; let idx = index"
+                        (click)="activateTab(idx)"
+                        [ngClass]="{'active': tab.active}">
+
+                        {{tab?.name}}
+                        <span class="close" (click)="closeTab(idx, $event)"></span>
+                    </li>
+                </ul>
+            </li>
+
+            <!-- Expanded tabs (ng else) -->
+            <ng-template #tabsExpanded>
+                <li *ngFor="let tab of tabs; let idx = index"
                     (click)="activateTab(idx)"
                     (mousedown)="possiblyCloseTab(idx, $event)"
                     [ngClass]="{'router-tab-active': tab.active}"
                     [title]="tab.name">
+
                     {{tab.name}}
                     <span class="close" (click)="closeTab(idx, $event)"></span>
                 </li>
@@ -35,9 +58,11 @@ export interface IUniTab {
 })
 export class UniTabStrip {
     private tabs: IUniTab[] = [];
-    private tabSubscription: Subscription;
-    private navigationSubscription: Subscription;
     private homeTabActive: boolean;
+    private lastActiveTab: IUniTab;
+
+    private collapseTabs: boolean;
+    private componentDestroyedSubject: Subject<any> = new Subject();
 
     constructor(
         private router: Router,
@@ -45,39 +70,64 @@ export class UniTabStrip {
         private authService: AuthService,
         private cdr: ChangeDetectorRef
     ) {
-        window.addEventListener('keydown', (event) => {
-            if (event.keyCode === 87 && event.altKey) {
-                this.tabService.closeTab();
-            } else if (event.keyCode === 37 && event.altKey) {
-                this.tabService.activatePrevTab();
-            } else if (event.keyCode === 39 && event.altKey) {
-                this.tabService.activateNextTab();
-            }
-        });
-
         this.authService.companyChange.subscribe((change) => {
             this.tabService.removeAllTabs();
         });
 
-        this.navigationSubscription = this.router.events
+        this.router.events
+            .takeUntil(this.componentDestroyedSubject)
             .filter(event => event instanceof NavigationEnd)
             .subscribe((navigationEvent: NavigationEnd) => {
                 this.homeTabActive = navigationEvent.url === '/';
                 this.cdr.detectChanges();
             });
 
+        Observable.fromEvent(window, 'keydown')
+            .takeUntil(this.componentDestroyedSubject)
+            .subscribe((event: KeyboardEvent) => {
+                if (event.keyCode === 87 && event.altKey) {
+                    this.tabService.closeTab();
+                } else if (event.keyCode === 37 && event.altKey) {
+                    this.tabService.activatePrevTab();
+                } else if (event.keyCode === 39 && event.altKey) {
+                    this.tabService.activateNextTab();
+                }
+            });
+
+        this.collapseTabs = window.innerWidth <= 1250;
+        Observable.fromEvent(window, 'resize')
+            .takeUntil(this.componentDestroyedSubject)
+            .throttleTime(200)
+            .subscribe(event => {
+                let collapseTabs = window.innerWidth <= 1250;
+
+                // Only run change detection when layout changes
+                if (collapseTabs !== this.collapseTabs) {
+                    this.collapseTabs = collapseTabs;
+                    this.cdr.detectChanges();
+                }
+            });
     }
 
     public ngAfterViewInit() {
-        this.tabSubscription = this.tabService.tabs$.subscribe((tabs) => {
-            this.tabs = tabs;
-            this.cdr.detectChanges();
-        });
+        this.tabService.tabs$
+            .asObservable()
+            .takeUntil(this.componentDestroyedSubject)
+            .subscribe((tabs) => {
+                this.tabs = tabs;
+                let activeTab = tabs.find(tab => tab.active);
+                if (activeTab) {
+                    this.lastActiveTab = activeTab;
+                } else if (!this.lastActiveTab) {
+                    this.lastActiveTab = tabs && tabs[0];
+                }
+
+                this.cdr.detectChanges();
+            });
     }
 
     public ngOnDestroy() {
-        this.tabSubscription.unsubscribe();
-        this.navigationSubscription.unsubscribe();
+        this.componentDestroyedSubject.next();
     }
 
     public possiblyCloseTab(index: number, event: MouseEvent) {

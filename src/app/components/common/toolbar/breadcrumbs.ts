@@ -6,7 +6,6 @@ import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
     selector: 'uni-breadcrumbs',
     template: `
         <ol class="breadcrumbs" role="navigation">
-            <li><a class="home" href="/#/">Dashboard</a></li>
             <li *ngFor="let crumb of crumbs"><a [href]="crumb.url">{{crumb.title}}</a></li>
         </ol>
     `

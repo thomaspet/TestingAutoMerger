@@ -28,6 +28,8 @@ export interface ITableFilter {
     operator: string;
     value: string | number;
     group: number;
+    searchValue: string;
+    selectConfig: {options: Array<any>, valueField: string, displayField: string};
 }
 
 export interface IExpressionFilterValue {
@@ -67,7 +69,7 @@ enum Direction { UP, DOWN, LEFT, RIGHT }
 
             <thead>
                 <tr>
-                    <th *ngIf="config.multiRowSelect" class="select-column"><input type="checkbox" #allRowSelector (change)="onSelectAllRowsChanged(allRowSelector.checked)"  /></th>
+                    <th *ngIf="config.multiRowSelect" class="select-column"><input type="checkbox" #allRowSelector (change)="onSelectAllRowsChanged(allRowSelector.checked)" checked="config.multiRowSelectDefaultValue" /></th>
                     <th *ngFor="let column of tableColumns"
                         [ngStyle]="{
                             'width': column.get('width'),
@@ -217,22 +219,35 @@ export class UniTable implements OnChanges {
             }
 
             if (customColumnSetup && customColumnSetup.length) {
-                // Extend the default column config with the custom one.
-                // Extending because localStorage can't hold functions/components etc
-                // So only a set of pre-defined fields are saved
                 let columns = [];
-                for (let customColumn of customColumnSetup) {
-                    let originalCol = this.config.columns.find(c => c.field === customColumn.field);
-                    if (originalCol) {
-                        columns.push(Object.assign({}, originalCol, customColumn));
-                    } else {
-                        // If we can't find an original column with the same field
-                        // it means either the default config changed or a table with the
-                        // same name and different config exists somewhere in the app.
-                        // At this point we need to reset in order to avoid crashing
-                        this.onResetColumnConfig();
-                        columns = this.config.columns;
-                        break;
+
+                // First check if config contains columns that does not exist
+                // custom setup. This means that default config has changed
+                // and we need to invalidate the user's config
+                const configChanged = !this.config.columns.every(col => {
+                    return customColumnSetup.some(customCol => customCol.field === col.field);
+                });
+
+                if (configChanged) {
+                    this.onResetColumnConfig();
+                    columns = this.config.columns;
+                } else {
+                    // Extend the default column config with the custom one.
+                    // Extending because localStorage can't hold functions/components etc
+                    // So only a set of pre-defined fields are saved
+                    for (let customColumn of customColumnSetup) {
+                        let originalCol = this.config.columns.find(c => c.field === customColumn.field);
+                        if (originalCol) {
+                            columns.push(Object.assign({}, originalCol, customColumn));
+                        } else {
+                            // If we can't find an original column with the same field
+                            // it means either the default config changed or a table with the
+                            // same name and different config exists somewhere in the app.
+                            // At this point we need to reset in order to avoid crashing
+                            this.onResetColumnConfig();
+                            columns = this.config.columns;
+                            break;
+                        }
                     }
                 }
 
@@ -698,7 +713,9 @@ export class UniTable implements OnChanges {
             let advancedFilter = this.utils.getFilterString(this.advancedSearchFilters, this.config.expressionFilterValues);
 
             if (basicFilter.length && advancedFilter.length) {
-                filterString = `(${basicFilter}) and (${advancedFilter})`;
+                // extra spaces before/after filters is intentional, missing spaces sometimes causes
+                // problems in the api when using functions in filters in parentheses
+                filterString = `( ${basicFilter} ) and ( ${advancedFilter} )`;
             } else {
                 filterString = (basicFilter.length) ? basicFilter : advancedFilter;
             }
@@ -867,7 +884,7 @@ export class UniTable implements OnChanges {
 
             // allow user to send a default value to specify if the row should be selected when loaded
             if (!item._rowSelected) {
-                item._rowSelected = false;
+                item._rowSelected = this.config.multiRowSelectDefaultValue || false;
             }
         });
         let immutable = Immutable.fromJS(data);

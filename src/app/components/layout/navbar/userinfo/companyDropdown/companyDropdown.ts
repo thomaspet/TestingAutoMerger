@@ -3,6 +3,7 @@ import {Router} from '@angular/router';
 import {Observable} from 'rxjs/Observable';
 import {CompanySettings, FinancialYear} from '../../../../../unientities';
 import {UniSelect, ISelectConfig} from '../../../../../../framework/ui/uniform/index';
+import {UniModalService} from '../../../../../../framework/uniModal/barrel';
 import {AuthService} from '../../../../../authService';
 import {
     CompanySettingsService,
@@ -61,9 +62,6 @@ import {YearModal, ChangeYear} from "./modals/yearModal";
                         [value]="activeYear"
                         (valueChange)="yearIsSelected($event)">
                     </uni-select>
-
-                    <select-year-modal></select-year-modal>
-
                 </p>
 
                 <p>
@@ -84,9 +82,6 @@ import {YearModal, ChangeYear} from "./modals/yearModal";
 export class UniCompanyDropdown {
     @ViewChildren(UniSelect)
     private dropdowns: QueryList<UniSelect>;
-
-    @ViewChild(YearModal) private yearModal: YearModal;
-
 
     private activeCompany: any;
     private companyDropdownActive: Boolean;
@@ -112,7 +107,8 @@ export class UniCompanyDropdown {
         private financialYearService: FinancialYearService,
         private errorService: ErrorService,
         private cdr: ChangeDetectorRef,
-        private yearService: YearService
+        private yearService: YearService,
+        private modalService: UniModalService
     ) {
         this.userService.getCurrentUser().subscribe((user) => {
             this.username = user.DisplayName;
@@ -149,34 +145,30 @@ export class UniCompanyDropdown {
     }
 
     public openYearModal()  {
-        this.yearModal.changeYear.subscribe((val: ChangeYear) => {
+        this.modalService.open(YearModal, { data: { year: this.activeYear }}).onClose.subscribe((val: ChangeYear) => {
             if (val && val.year && (typeof val.year === 'number')) {
                 this.yearService.setSelectedYear(val.year);
                 let found = this.financialYears.find(v => v.Year === val.year);
                 if (found) {
                     this.financialYearService.setActiveYear(found);
-                }else {
+                } else {
                     let fin = new FinancialYear();
                     fin.Year = val.year;
                     this.financialYearService.setActiveYear(fin);
                 }
-                if(val.checkStandard) {
+                if (val.checkStandard) {
                     this.companySettingsService.Get(1).subscribe((res) => {
                         res.CurrentAccountingYear = this.activeYear;
                     });
                 }
+                this.close();
             }   else {
                 this.yearService.setSelectedYear(this.activeYear);
             }
-
         },
         (err) => {
             this.yearService.setSelectedYear(this.activeYear);
-            this.yearModal.close();
-        }
-        );
-
-        this.yearModal.openModal();
+        });
     }
 
     private loadCompanyData() {

@@ -11,9 +11,12 @@ import {UniBreadcrumbs} from './toolbar/breadcrumbs';
 import {UniStatusTrack} from './toolbar/statustrack';
 import {UniTags} from './toolbar/tags';
 import {UniToolbar} from './toolbar/toolbar';
+import {UniToolbarHelp} from './toolbar/help';
+import {UniToolbarShare} from './toolbar/share';
+import {UniToolbarSearch} from './toolbar/toolbarSearch';
 import {UniQueryReadOnly} from './uniQuery/UniQueryReadOnly';
 import {UniSummary} from './summary/summary';
-import {ImageModal, ImageModalContent} from './modals/ImageModal';
+import {ImageModal} from './modals/ImageModal';
 import {UniAttachments} from './attacments/uniAttachements';
 import {UniUploadFileButton} from './attacments/uploadFileButton';
 import {UniPoster, TextWidget, ContactWidget, TableWidget, AlertsWidget, ImageWidget} from './poster/poster';
@@ -59,10 +62,12 @@ import {routes as AppCommonRoutes} from './appCommonRoutes';
         UniBreadcrumbs,
         UniStatusTrack.StatusTrack,
         UniToolbar,
+        UniToolbarHelp,
+        UniToolbarShare,
+        UniToolbarSearch,
         UniQueryReadOnly,
         UniSummary,
         ImageModal,
-        ImageModalContent,
         UniAttachments,
         UniPoster,
         TextWidget,
@@ -99,10 +104,10 @@ import {routes as AppCommonRoutes} from './appCommonRoutes';
     entryComponents: [
         AccrualForm,
         AltinnAuthenticationModal,
-        ImageModalContent,
         UniReminderSettingsModal,
         ReminderSettings,
-        AddPaymentForm
+        AddPaymentForm,
+        ImageModal
     ],
     exports: [
         PredefinedDescriptionList,
@@ -117,7 +122,6 @@ import {routes as AppCommonRoutes} from './appCommonRoutes';
         UniQueryReadOnly,
         UniSummary,
         ImageModal,
-        ImageModalContent,
         UniAttachments,
         UniPoster,
         TextWidget,

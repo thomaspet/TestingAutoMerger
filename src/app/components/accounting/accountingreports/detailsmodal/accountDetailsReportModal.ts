@@ -1,54 +1,59 @@
-import {Component, Type, ViewChild} from '@angular/core';
+import {Component, Type, ViewChild, Output, EventEmitter, Input} from '@angular/core';
 import {UniModal} from '../../../../../framework/modals/modal';
 import {AccountDetailsReport} from './accountDetailsReport';
-import {ConfirmActions} from '../../../../../framework/uniModal/barrel';
+import {IUniModal, IModalOptions} from '../../../../../framework/uniModal/barrel';
+
+export interface IDetailsModalInput {
+    modalMode: boolean;
+    accountID: number;
+    accountNumber: number;
+    accountName: string;
+    subaccountID: number;
+    dimensionType: number;
+    dimensionId: number;
+    close: any;
+}
 
 @Component({
     selector: 'account-details-report-modal',
-    template: '<uni-modal [type]="type" [config]="config" (close)="onClose()"></uni-modal>'
+    template: `
+        <section role="dialog" class="uni-modal account_detail_modal_size">
+            <header><h1>Forespørsel konto: {{ config?.accountNumber }}</h1></header>
+            <article>
+                <accounting-details-report [config]="config"></accounting-details-report>
+            </article>
+            <footer>
+
+            </footer>
+        </section>
+    `
 })
-export class AccountDetailsReportModal {
-    public config: { close: () => void, modalMode: boolean, accountID: number, subaccountID: number, accountNumber: number, accountName: string, dimensionType: number, dimensionId: number };
+export class AccountDetailsReportModal implements IUniModal {
+    public config: IDetailsModalInput;
     public type: Type<any> = AccountDetailsReport;
 
-    @ViewChild(UniModal) private modal: UniModal;
+    @Input()
+    public options: IModalOptions;
+
+    @Output()
+    public onClose: EventEmitter<any> = new EventEmitter();
 
     public ngOnInit() {
         this.config = {
             close: () => {
-                this.onClose();
+                this.close();
             },
-            modalMode: false,
-            accountID: null,
+            modalMode: true,
+            accountID: this.options.data.accountID,
             subaccountID: null,
-            accountNumber: null,
-            accountName: null,
-            dimensionId: null,
-            dimensionType: null,
+            accountNumber: this.options.data.accountNumber,
+            accountName: this.options.data.accountName,
+            dimensionId: this.options.data.dimensionId,
+            dimensionType: this.options.data.dimensionType,
         };
     }
 
-    private onClose: () => void = () => {};
-
-    public open(accountID: number, accountNumber: number, accountName: string, dimensionType: number, dimensionId: number): Promise<number>  {
-        return new Promise((resolve) => {
-            this.config.accountID = accountID;
-            this.config.subaccountID = null;
-            this.config.accountNumber = accountNumber;
-            this.config.accountName = accountName;
-            this.config.dimensionId = dimensionId;
-            this.config.dimensionType = dimensionType;
-            this.config.modalMode = true;
-
-            this.modal.getContent().then((component: AccountDetailsReport) => {
-                component.loadData();
-            });
-
-            this.onClose = () => {
-                resolve(ConfirmActions.CANCEL);
-            };
-
-            this.modal.open();
-        });
+    public close() {
+        this.onClose.emit(true);
     }
 }

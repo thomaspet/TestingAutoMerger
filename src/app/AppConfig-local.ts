@@ -46,14 +46,14 @@ export const AppConfig = ({
     FRAMEWORK_SRC: '/framework/',
 
     STIMULSOFT_LICENSE:
-        '6vJhGtLLLz2GNviWmUTrhSqnOItdDwjBylQzQcAOiHm9kIr/LY1/iXB4ilMpkOOkd68HwR5Y+vdLYUNEgsC45Zw6Pj' +
-        'USH8tF8fpePU0iT3wt8cVZLUguU/riltt8+RZXSTYNTuP85llBt+vEOlO1ulT8QkpApUAxEWklMWmBiAOPwNupy8N1' +
-        '7NGa3ambPSrXDQzZy2DnWwDRF8u9KmH7P+Sh3nbMBf9QYGEcCc9f9Uiw4eayiCxaAycqFgQEK/GseGJdo7zcoglKoT' +
-        'uSB1CNC6agtAfsEkS32quBJuDWM2wffezK8whbE62wweUL5o5ipZ+LlHGi0ouyzqyJo6EJtjKlEjShXnZfAeA8uSMy' +
-        'mUJ1/Q9pXiV+8rsx2TPuscs7RQGN426KFUpYP2AanRvMuaBbzQv2hT0f4VDWqodLDg9bJ6rqsLRVsXq1VcJBn06pXz' +
-        'ltVT7ixgwOymCVNSLqLQQ5G6Zqlqcn94V3PgmDfDFQMVkvkmvrWx0FYt09FrYD6xfxCAh6Zw+KvidjOYE4tf3avff/' +
-        'mrAa++1T6S0tlIcQv5t3RyqRriWjJsPASVOv0fT9MxILiZwGJrJ1f2o9NDe+Z7oEkfnl3vcYm2MIy+XQQL8cI1pEhW' +
-        'vwAmH0CibEPnMyS2MEy02lKd2e1t+6GLGDlv1E63NFeeH3SN28yYnhTHL+nWn71biAi9rhcKRJu3gAhfWBthrrr//H' +
-        'ilNRSaFizgl/t2VKNEqNaHiG7goduv8kGCYbEZXnha7yjVnqS/bvqkS97UxhIyP7JI/CHjD/7uyjRRe8hNEptMf0wi' +
-        'k='
+    "6vJhGtLLLz2GNviWmUTrhSqnOItdDwjBylQzQcAOiHlQ9nKHW5xxs/tCjGsgWb6rWj7uUX3wCSckA495fAQHHkM8hO" + 
+    "+uFiXxRz+4NUYE2gKuBss/plBZutOtsinTBHyJQeXyv4BUK1Zn6BNv/nahgb+IyNQTTIuPeptIs83z6auntAOO0Y2+" + 
+    "0Fqi3RR8tP9UxKLcxqIvqgaBZc0zSHe1oho22a0Jw5J7c39OasrRo34cWAnnwAzV9PVCJdn3ZOuq2g9/8vUPXMJ4d5" + 
+    "rNPBt0ecy4574bbFadNGYxiuYPlhZJqC2gcdXSKLk4dfPPyxOrLw4jrXcATnkwUZIl6+QJA4gA5OC6w7oXfuKTrYjB" + 
+    "47cq1s2GuBfAjg0i9/GQvosPwPwr1KjELc8TGJflBD59Ls0YEYCRx3VNCWkoPiJny8TwBbhVWXlMPkCac/xkqojKoI" + 
+    "3PgKoHZNTPA7cwEV5eFBV7rIogCVaAf/yrDYSspoaS77Xa99qv0oWIPvKZpta/x59Y47bqzZ5SGYestTSxmxlfvSGa" + 
+    "yXbhqZkmPRK07NnOKmeuxknE+/RywyCQZS9svfkZT1Jn0m0xdX4+rwma2fTSCluY4fUEF38fhNFj/keKeLIwIMwSOh" + 
+    "Ypv0Eu/SeTn6DSEWgBGcW2jbWadOO+CmGAOg1XfM82jGlN68wfGjsNNswAez71QNSnBvMrFVsRFGDq+K/zAYRavq23" + 
+    "xzCJ9QnukzFeuN1Juxtg3y2tRiJYPJyyrwHGhTY550oa1AP/trUev/gvk4gpFyGpAoFR8jca5GAGEDyTf2pi44J/S7" + 
+    "8="
 });

@@ -1442,7 +1442,6 @@ export class EmployeeTaxCard extends UniEntity {
     public ForeignOfficialPercent: number;
     public ForeignOfficialTable: string;
     public ID: number;
-    public MunicipalityNo: string;
     public NonTaxableAmount: number;
     public NotMainEmployer: boolean;
     public NumberOfDrawMonths: number;
@@ -2002,6 +2001,7 @@ export class Employee extends UniEntity {
     public InternasjonalIDCountry: string;
     public InternasjonalIDType: InternationalIDType;
     public InternationalID: string;
+    public MunicipalityNo: string;
     public PaymentInterval: PaymentInterval;
     public PhotoID: number;
     public Sex: GenderEnum;
@@ -3803,6 +3803,7 @@ export class ReportDefinition extends UniEntity {
     public ID: number;
     public Md5: string;
     public Name: string;
+    public ReportSource: string;
     public TemplateLinkId: string;
     public UpdatedAt: Date;
     public UpdatedBy: string;
@@ -4898,6 +4899,32 @@ export class VatType extends UniEntity {
 }
 
 
+export class VippsInvoice extends UniEntity {
+    public static RelativeUrl = 'vipps-invoices';
+    public static EntityType = 'VippsInvoice';
+
+    public _createguid: string;
+    public Amount: number;
+    public CreatedAt: Date;
+    public CreatedBy: string;
+    public Deleted: boolean;
+    public DueDate: string;
+    public ID: number;
+    public InvoiceHotelID: string;
+    public InvoiceID: string;
+    public MerchantSerialNumber: string;
+    public MobileNumber: string;
+    public Receipt: string;
+    public RequestID: string;
+    public StatusCode: number;
+    public Text: string;
+    public TimeStamp: string;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public CustomFields: any;
+}
+
+
 export class EntityValidationRule extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'EntityValidationRule';
@@ -5497,6 +5524,30 @@ export class Fradrag extends UniEntity {
 
 
 export class Forskuddstrekk extends UniEntity {
+}
+
+
+export class TaxCardReadStatus extends UniEntity {
+    public mainStatus: string;
+    public Text: string;
+    public Title: string;
+    public employeestatus: Array<EmployeeStatus>;
+}
+
+
+export class EmployeeStatus extends UniEntity {
+    public employeeID: number;
+    public info: string;
+    public status: string;
+    public year: number;
+    public changedFields: Array<FieldsChanged>;
+}
+
+
+export class FieldsChanged extends UniEntity {
+    public fieldName: string;
+    public valFrom: string;
+    public valTo: string;
 }
 
 
@@ -6374,6 +6425,14 @@ export enum StatusCodeSupplierInvoice{
     PartlyPayed = 30106,
     Payed = 30107,
     Rejected = 30108,
+}
+
+
+export enum VippsProcessStatus{
+    Pending = 45000,
+    Processed = 46000,
+    Failed = 47000,
+    Paid = 48000,
 }
 
 

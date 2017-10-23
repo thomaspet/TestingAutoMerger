@@ -309,9 +309,9 @@ export class UniRegisterPaymentModal implements IUniModal {
             <any> {
                 EntityType: 'InvoicePaymentData',
                 Property: 'AmountCurrency',
-                Hidden: this.isMainCurrency,
                 FieldType: FieldType.NUMERIC,
-                Label: 'Valutabeløp [' + this.config.currencyCode.Code + ']',
+                Hidden: this.isMainCurrency,
+                Label: 'Valutabeløp [' + this.config.currencyCode + ']',
                 Options: {
                     decimalLength: 2,
                     decimalSeparator: ','

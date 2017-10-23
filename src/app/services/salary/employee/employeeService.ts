@@ -1,9 +1,10 @@
 import {Injectable} from '@angular/core';
 import {BizHttp} from '../../../../framework/core/http/BizHttp';
 import {UniHttp} from '../../../../framework/core/http/http';
-import {Employee, Operator, EmployeeCategory} from '../../../unientities';
+import {Employee, Operator, EmployeeCategory, Municipal} from '../../../unientities';
 import {Observable} from 'rxjs/Observable';
 import {ErrorService} from '../../common/errorService';
+import {MunicipalService} from '../../common/municipalsService';
 import {ITag} from '../../../components/common/toolbar/tags';
 import {FieldType} from '../../../../framework/ui/uniform/index';
 import {UserService} from '../../common/userService';
@@ -26,7 +27,9 @@ export class EmployeeService extends BizHttp<Employee> {
     constructor(
         http: UniHttp,
         private errorService: ErrorService,
-        private userService: UserService) {
+        private userService: UserService,
+        private municipalService: MunicipalService
+    ) {
         super(http);
         this.relativeURL = Employee.RelativeUrl;
         this.entityType = Employee.EntityType;
@@ -128,7 +131,30 @@ export class EmployeeService extends BizHttp<Employee> {
             .map(resultSet => resultSet[0]);
     }
 
-    public layout(layoutID: string) {
+    private queryMunicipals(query: string): Observable<Municipal> {
+        return this.municipalService
+            .GetAll(`filter=startswith(MunicipalityNo,'${query}') or contains(MunicipalityName,'${query}')`);
+    }
+
+    private getMunicipalityOptions(employee: Employee) {
+        let defaultValue = Observable
+            .of(employee)
+            .switchMap(emp => emp && emp.MunicipalityNo
+                ? this.municipalService.GetAll(`filter=MunicipalityNo eq ${emp.MunicipalityNo}&top=1`)
+                : Observable.of([{MunicipalityNo: '', MunicipalityName: ''}]))
+            .take(1);
+
+        return {
+            getDefaultData: () => defaultValue,
+            template: (obj: Municipal) => obj && obj.MunicipalityNo ? `${obj.MunicipalityNo} - ${obj.MunicipalityName}` : '',
+            search: (query: string) => this.queryMunicipals(query),
+            valueProperty: 'MunicipalityNo',
+            displayProperty: 'MunicipalityName',
+            debounceTime: 200
+        };
+    }
+
+    public layout(layoutID: string, employee: Employee) {
         return Observable.from([{
             Name: layoutID,
             BaseEntity: 'Employee',
@@ -140,14 +166,7 @@ export class EmployeeService extends BizHttp<Employee> {
                     Label: 'Navn',
                     FieldSet: 1,
                     Legend: 'Ansatt',
-                    Section: 0,
-                    Validations: [
-                        {
-                            ErrorMessage: 'Required field',
-                            Level: 3,
-                            Operator: 7 // required
-                        }
-                    ]
+                    Section: 0
                 },
                 {
                     EntityType: 'Employee',
@@ -164,14 +183,7 @@ export class EmployeeService extends BizHttp<Employee> {
                     FieldType: FieldType.AUTOCOMPLETE,
                     Label: 'Virksomhet',
                     FieldSet: 1,
-                    Section: 0,
-                    Validations: [
-                        {
-                            ErrorMessage: 'Required field',
-                            Level: 3,
-                            Operator: 7 // required
-                        }
-                    ]
+                    Section: 0
                 },
                 {
                     EntityType: 'Employee',
@@ -220,6 +232,15 @@ export class EmployeeService extends BizHttp<Employee> {
                 },
                 {
                     EntityType: 'Employee',
+                    Property: 'MunicipalityNo',
+                    FieldType: FieldType.AUTOCOMPLETE,
+                    Options: this.getMunicipalityOptions(employee),
+                    Label: 'Kommunenummer',
+                    FieldSet: 2,
+                    Section: 0
+                },
+                {
+                    EntityType: 'Employee',
                     Property: 'SocialSecurityNumber',
                     FieldType: FieldType.TEXT,
                     Label: 'Fødselsnummer',
@@ -228,14 +249,7 @@ export class EmployeeService extends BizHttp<Employee> {
                     Section: 0,
                     Options: {
                         mask: '000000 00000'
-                    },
-                    Validations: [
-                        {
-                            ErrorMessage: 'Required field',
-                            Level: 3,
-                            Operator: 7 // required
-                        }
-                    ]
+                    }
                 },
                 {
                     EntityType: 'Employee',
@@ -243,14 +257,7 @@ export class EmployeeService extends BizHttp<Employee> {
                     FieldType: FieldType.LOCAL_DATE_PICKER,
                     Label: 'Fødselsdato',
                     FieldSet: 3,
-                    Section: 0,
-                    Validations: [
-                        {
-                            ErrorMessage: 'Required field',
-                            Level: 3,
-                            Operator: 7 // required
-                        }
-                    ]
+                    Section: 0
                 },
                 {
                     EntityType: 'Employee',
@@ -267,14 +274,7 @@ export class EmployeeService extends BizHttp<Employee> {
                         template: (obj) => `${obj.id} - ${obj.name}`,
                         valueProperty: 'id',
                         displayProperty: 'name'
-                    },
-                    Validations: [
-                        {
-                            ErrorMessage: 'Required field',
-                            Level: 3,
-                            Operator: Operator.Required
-                        }
-                    ]
+                    }
                 },
 
                 // {

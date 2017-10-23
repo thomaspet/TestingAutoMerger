@@ -1,6 +1,6 @@
 <article class="application" [attr.aria-busy]="busy">
     <uni-form [config]="config$"
-              [fields]="fields$"
+              [fields]="fields$ | async"
               [model]="employee$"
               (changeEvent)="onFormChange($event)"
               (readyEvent)="onFormReady($event)">

@@ -50,7 +50,7 @@ export class ModulusService {
         if (KID) {
             return !KID
             .split('')
-            .some(x => isNaN(+x)) && this.modulus10(KID);
+            .some(x => isNaN(+x)) && (this.modulus10(KID) || this.modulus11(KID));
         }
         return true;
     }
@@ -79,6 +79,9 @@ export class ModulusService {
         return cleaned;
     }
 
+
+    // algoritms to check if last digit in KID/SSN (the control digit) is valid against the rest
+
     private modulus10(value: string): boolean {
         let sum = value
             .split('')
@@ -89,5 +92,21 @@ export class ModulusService {
         return !(sum % 10);
     }
 
+    private modulus11(value: string): boolean {
+        let sum: number = 0;
+        let multiplier: number = 2;
+        let checkSum: number;
+
+        for (let i: number = value.length - 2; i >= 0; i--) {
+            sum += Number(value[i]) * multiplier;
+            multiplier++;
+            if (multiplier > 7) { multiplier = 2; }
+        }
+
+        let mod: number = (sum % 11);
+        if (mod === 0 || mod === 1) { checkSum = 0; }
+
+        return 11 - mod === Number(value.charAt(value.length - 1));
+    }
 
 }

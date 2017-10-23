@@ -15,11 +15,10 @@ import {GuidService} from '../../../../app/services/services';
         </button>
 
         <ul role="menu"
-           class="contextmenu_menu"
+           class="toolbar-dropdown-list"
            [attr.aria-labelledby]="guid + '-btn'"
            [attr.aria-expanded]="expanded">
            <li *ngFor="let action of actions"
-               class="contextmenu_item"
                (click)="runAction(action)"
                role="menuitem"
                [attr.aria-disabled]="isActionDisabled(action)"

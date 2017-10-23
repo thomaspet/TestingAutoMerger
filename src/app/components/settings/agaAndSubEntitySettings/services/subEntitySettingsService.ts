@@ -2,7 +2,7 @@ import {Injectable} from '@angular/core';
 import {SubEntityService, ErrorService} from '../../../../services/services';
 import {UniModalService, ConfirmActions} from '../../../../../framework/uniModal/barrel';
 import {ToastService, ToastTime, ToastType} from '../../../../../framework/uniToast/toastService';
-import {SubEntity} from '../../../../unientities';
+import {SubEntity, CompanySettings} from '../../../../unientities';
 import {Observable} from 'rxjs/Observable';
 
 @Injectable()
@@ -18,8 +18,11 @@ export class SubEntitySettingsService {
     public addSubEntitiesFromExternal(
         orgno: string,
         showToast: boolean = false,
-        subEntities: SubEntity[] = null): Observable<SubEntity[]> {
-        let subEntities$ = subEntities
+        subEntities: SubEntity[] = []): Observable<SubEntity[]> {
+        if (!orgno || orgno === '-') {
+            return Observable.of([]);
+        }
+        let subEntities$ = subEntities.length
             ? Observable.of(subEntities)
             : this.subEntityService.GetAll('');
 
@@ -58,8 +61,17 @@ export class SubEntitySettingsService {
             .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
     }
 
+    public getSubEntitiesFromBrregAndSaveAll(orgno: string) {
+        return this.subEntityService
+            .getFromEnhetsRegister(orgno)
+            .switchMap(subEntities => this.subEntityService
+                .GetAll('')
+                .switchMap(origSubEntities => this.saveAll(subEntities, origSubEntities)))
+            .subscribe();
+    }
+
     private saveAll(subEntites: SubEntity[], existingSubEntities: SubEntity[] = []): Observable<SubEntity[]> {
-        let subEntities$ = subEntites.map(subEntity => {
+        let subEntities$: Observable<SubEntity>[] = subEntites.map(subEntity => {
             let entity = existingSubEntities.find(x => x.OrgNumber === subEntity.OrgNumber);
             if (entity) {
                 subEntity.ID = entity.ID;

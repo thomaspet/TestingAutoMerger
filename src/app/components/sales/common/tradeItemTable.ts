@@ -94,6 +94,10 @@ export class TradeItemTable {
         }
     }
 
+    public ngOnDestroy() {
+        console.log('destroy');
+    }
+
     public blurTable() {
         this.table.blur();
     }
@@ -113,7 +117,9 @@ export class TradeItemTable {
     }
 
     public setDefaultProjectAndRefreshItems(projectID: number, replaceItemsProject: boolean) {
-        this.defaultProject = this.projects.find(project => project.ID === projectID);
+        if (this.projects) {
+            this.defaultProject = this.projects.find(project => project.ID === projectID);
+        }
         this.defaultTradeItem.Dimensions.ProjectID = projectID;
         this.defaultTradeItem.Dimensions.Project = this.defaultProject;
         this.tableConfig = this.tableConfig.setDefaultRowData(this.defaultTradeItem);
@@ -194,6 +200,25 @@ export class TradeItemTable {
                     });
 
                     return filtered;
+                },
+                groupConfig:  {
+                    groupKey: 'VatCodeGroupingValue',
+                    visibleValueKey: 'Visible',
+                    groups: [
+                        {
+                            key: 4,
+                            header: 'Salg/inntekter'
+                        },
+                        {
+                            key: 5,
+                            header: 'Salg uten mva.'
+                        },
+                        {
+                            key: 7,
+                            header: 'Egendefinerte koder'
+                        }
+
+                    ]
                 }
             });
 

@@ -79,6 +79,8 @@ export class TofCustomerCard {
         'Info.InvoiceAddress',
         'Info.DefaultContact.Info',
         'Info.DefaultEmail',
+        'DefaultSeller',
+        'DefaultSeller.Seller',
         'Dimensions.Project',
         'Dimensions.Department',
         'Sellers',
@@ -194,6 +196,7 @@ export class TofCustomerCard {
         this.entity.EmailAddress = customer.Info.DefaultEmail && customer.Info.DefaultEmail.EmailAddress
             ? customer.Info.DefaultEmail.EmailAddress : this.entity.EmailAddress;
 
+        // map sellers to entity
         let sellers = [];
         if (this.entity.Sellers.length === 0 && customer.ID > 0) {
             customer.Sellers.forEach((seller: SellerLink) => {
@@ -202,10 +205,17 @@ export class TofCustomerCard {
                     SellerID: seller.SellerID,
                     Seller: seller.Seller,
                     _createguid: this.sellerLinkService.getNewGuid(),
-                    _mainseller: seller.ID === customer.DefaultSellerLinkID
                 });
             });
             this.entity.Sellers = sellers;
+
+            // map main seller to entity
+            if (customer.DefaultSellerLinkID) {
+                this.entity.DefaultSeller = Object.assign({}, customer.DefaultSeller 
+                    || customer.Sellers.find(sellerLink => sellerLink.ID === customer.DefaultSellerLinkID));
+                this.entity.DefaultSeller.ID = undefined;
+                this.entity.DefaultSeller.CustomerID = undefined;
+            }
         }
 
         this.entity.Customer = customer;

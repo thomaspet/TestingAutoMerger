@@ -1,5 +1,16 @@
 import {Component, Input, ChangeDetectionStrategy} from '@angular/core';
 import {KpiCompany} from '../kpiCompanyModel';
+import {BureauAccountingTab} from './bureauAccountingTab';
+import {BureauSalarTab} from './bureauSalaryTab';
+import {BureauSalesTab} from './bureauSalesTab';
+import {BureauHoursTab} from './bureauHoursTab';
+
+export const TABS = [
+    BureauAccountingTab,
+    BureauSalarTab,
+    BureauSalesTab,
+    BureauHoursTab
+];
 
 @Component({
     selector: 'uni-dashboard-detail-view',
@@ -17,6 +28,16 @@ import {KpiCompany} from '../kpiCompanyModel';
                     Salg
                 </a>
             </li>
+            <li class="horizontal_nav" (click)="activateTab(SALARY)">
+                <a [class.router-link-active]="activeTab === SALARY">
+                    Lønn
+                </a>
+            </li>
+            <li class="horizontal_nav" (click)="activateTab(HOURS)">
+                <a [class.router-link-active]="activeTab === HOURS">
+                    Time
+                </a>
+            </li>
         </ul>
     </header>
     <uni-bureau-accounting-tab
@@ -27,6 +48,14 @@ import {KpiCompany} from '../kpiCompanyModel';
         *ngIf="activeTab === SALES"
         [company]="company">
     </uni-bureau-sales-tab>
+    <uni-bureau-salary-tab
+        *ngIf="activeTab === SALARY"
+        [company]="company">
+    </uni-bureau-salary-tab>
+    <uni-bureau-hours-tab
+        *ngIf="activeTab === HOURS"
+        [company]="company">
+    </uni-bureau-hours-tab>
 `
 })
 export class BureauDetails {
@@ -34,6 +63,8 @@ export class BureauDetails {
 
     public SALES = 'sales';
     public ACCOUNTING = 'accounting';
+    public SALARY = 'salary';
+    public HOURS = 'hours';
 
     public activeTab: string = this.ACCOUNTING;
 

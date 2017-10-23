@@ -117,6 +117,12 @@ export class UniHttp {
         return this;
     }
 
+    public usingIntegrationDomain() {
+        this.baseUrl = AppConfig.BASE_URL_INTEGRATION;
+        this.apiDomain = '';
+        return this;
+    }
+
     public usingEmptyDomain() {
         this.apiDomain = '';
         return this;

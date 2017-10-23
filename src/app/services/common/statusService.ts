@@ -4,33 +4,76 @@ import {StatisticsService} from './statisticsService';
 import {ErrorService} from './errorService';
 import {UserService} from './userService';
 import {User} from '../../unientities';
+import {CustomerInvoiceService} from '../sales/customerInvoiceService';
+import {CustomerOrderService} from '../sales/customerOrderService';
+import {CustomerQuoteService} from '../sales/customerQuoteService';
 
 @Injectable()
 export class StatusService {
-    private statusDictionary: {[StatusCode: number]: string};
+    private statusDictionary: {[StatusCode: number]: {name: string, entityType: string}};
 
-    constructor(private statisticsService: StatisticsService, private userService: UserService, private errorService: ErrorService) {
-
-    }
+    constructor(
+        private statisticsService: StatisticsService,
+        private userService: UserService,
+        private errorService: ErrorService,
+        private customerInvoiceService: CustomerInvoiceService
+        private customerOrderService: CustomerOrderService,
+        private customerQuoteService: CustomerQuoteService
+    ) {}
 
     public getStatusText(statusCode: number): string {
         if (this.statusDictionary) {
-            return this.statusDictionary[statusCode];
+            let status = this.statusDictionary[statusCode];
+            return status ? status.name : '';
         }
 
         return null;
     }
 
+    public getStatusCodesForEntity(entityType: string): Array<StatusCode> {
+        let statusCodes: Array<StatusCode> = [];
+        if (this.statusDictionary) {
+            Object.keys(this.statusDictionary).forEach(x => {
+                let status = this.statusDictionary[x];
+                if (status.entityType === entityType) {
+                    statusCodes.push({
+                        statusCode: +x,
+                        name: status.name,
+                        entityType: status.entityType
+                    });
+                }
+            });
+        }
+        return statusCodes;
+    }
+
+
     public loadStatusCache(): Promise<any> {
         return new Promise((resolve, reject) => {
             if (!this.statusDictionary) {
                 // get statuses from API and add it to the cache
-                this.statisticsService.GetAll('model=Status&select=StatusCode,Description')
+                this.statisticsService.GetAll('model=Status&select=StatusCode,Description,EntityType')
                     .subscribe(data => {
                         if (data.Data) {
                             this.statusDictionary = {};
                             data.Data.forEach(item => {
-                                this.statusDictionary[item.StatusStatusCode] = item.StatusDescription;
+                                let name: string = item.StatusDescription;
+                                switch (item.StatusEntityType) {
+                                    case 'CustomerInvoice':
+                                        name = this.customerInvoiceService.getStatusText(item.StatusStatusCode, 0);
+                                        break;
+                                    case 'CustomerOrder':
+                                        name = this.customerOrderService.getStatusText(item.StatusStatusCode);
+                                        break;
+                                    case 'CustomerQuote':
+                                        name = this.customerQuoteService.getStatusText(item.StatusStatusCode);
+                                        break;
+                                }
+
+                                this.statusDictionary[item.StatusStatusCode] = {
+                                    name: name,
+                                    entityType: item.StatusEntityType
+                                };
                             });
 
                             resolve(true);
@@ -61,4 +104,10 @@ export class StatusService {
                 return data;
             });
     }
+}
+
+export class StatusCode {
+    public statusCode: number;
+    public name: string;
+    public entityType: string;
 }

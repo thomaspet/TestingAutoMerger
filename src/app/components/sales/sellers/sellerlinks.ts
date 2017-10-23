@@ -38,12 +38,6 @@ export class SellerLinks implements AfterViewInit {
     public ngOnChanges(changes: SimpleChanges) {
         if (changes['parent'] && changes['parent'].currentValue) {
             this.sellers = this.parent.Sellers;
-            this.sellers.forEach(x => {
-                if (!x.hasOwnProperty('_mainseller')) {
-                    x['_mainseller'] = x.ID === this.parent.DefaultSellerLinkID;
-                }
-            });
-
             this.setupTable();
         }
     }
@@ -53,7 +47,7 @@ export class SellerLinks implements AfterViewInit {
         if (!seller) { return; }
 
         seller.Deleted = true;
-        this.sellers[seller._originalIndex] = seller;
+        this.sellers.splice(seller._originalIndex, 1);
 
         this.deleted.emit(seller);
     }
@@ -111,9 +105,10 @@ export class SellerLinks implements AfterViewInit {
                 }
             });
 
-        let isMainSellerCol = new UniTableColumn('_mainseller', 'Hovedselger',  UniTableColumnType.Text)
-            .setTemplate((item) => {
-                if (typeof item._mainseller === 'boolean' && item._mainseller ) {
+        let isMainSellerCol = new UniTableColumn('ID', 'Hovedselger',  UniTableColumnType.Text)
+            .setTemplate((sellerLink) => {
+                if (sellerLink.ID && sellerLink.ID === this.parent.DefaultSellerLinkID 
+                    || (this.parent.DefaultSeller && sellerLink.SellerID === this.parent.DefaultSeller.SellerID)) {
                     return 'Ja';
                 }
                 return '';
@@ -156,16 +151,9 @@ export class SellerLinks implements AfterViewInit {
                 } else {
                     // set main seller on parent model
                     this.parent.DefaultSellerLinkID = rowModel.ID;
-                    this.sellers.forEach(x => {
-                        if (x.ID === this.parent.DefaultSellerLinkID && !x['_mainseller']) {
-                            x['_mainseller'] = true;
-                            this.table.updateRow(x['_originalIndex'], x);
-                        } else if (x['_mainseller']) {
-                            x['_mainseller'] = false;
-                            this.table.updateRow(x['_originalIndex'], x);
-                        }
+                    this.sellers.forEach(sellerLink => {
+                        this.table.updateRow(sellerLink['_originalIndex'], sellerLink);
                     });
-
                     this.mainSellerSet.emit(rowModel);
                 }
             },

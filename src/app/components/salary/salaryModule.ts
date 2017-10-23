@@ -30,6 +30,7 @@ import {EmploymentDetails} from './employee/employments/employmentDetails';
 import {Employments} from './employee/employments/employments';
 import {TaxCardModal} from './employee/modals/taxCardModal';
 import {TaxResponseModal} from './employee/modals/taxResponseModal';
+import {TaxCardReadStatusComponent} from './employee/modals/taxCardReadStatus';
 import {ReadTaxCard} from './employee/modals/readTaxCard';
 import {TaxCardRequest} from './employee/modals/taxCardRequest';
 import {PersonalDetails} from './employee/personalDetails/personalDetails';
@@ -41,6 +42,7 @@ import {VacationPaySettingsModal} from './payrollrun/modals/vacationpay/vacation
 import {ControlModal} from './payrollrun/modals/controlModal';
 import {PayrollrunDetails} from './payrollrun/payrollrunDetails';
 import {PayrollrunList} from './payrollrun/payrollrunList';
+import {PayrollRunDetailsService} from './payrollrun/services/payrollRunDetailsService';
 import {PostingSummaryModal} from './payrollrun/modals/postingSummaryModal';
 import {PaycheckSending} from './payrollrun/sending/paycheckSending';
 import {PaycheckSenderModal} from './payrollrun/sending/paycheckSenderModal';
@@ -59,6 +61,7 @@ import {WageTypeView} from './wagetype/wagetypeView';
 import {WagetypeDetail} from './wagetype/views/wagetypeDetails';
 import {WageTypeSettings} from './wagetype/views/wagetypeSettings';
 import {WagetypeList} from './wagetype/wagetypeList';
+import {WageTypeViewService} from './wagetype/services/wageTypeViewService'
 
 import {CategoryList} from './category/categoryList';
 import {CategoryView} from './category/categoryView';
@@ -116,6 +119,7 @@ import {CanDeactivateGuard} from '../../canDeactivateGuard';
         ReadTaxCard,
         TaxCardRequest,
         TaxResponseModal,
+        TaxCardReadStatusComponent,
         PersonalDetails,
         RecurringPost,
         EmployeeTax,
@@ -173,7 +177,9 @@ import {CanDeactivateGuard} from '../../canDeactivateGuard';
         SalaryBalanceLineModal
     ],
     providers: [
-        CanDeactivateGuard
+        CanDeactivateGuard,
+        PayrollRunDetailsService,
+        WageTypeViewService
     ],
     exports: [
         UniSalary,
@@ -199,6 +205,7 @@ import {CanDeactivateGuard} from '../../canDeactivateGuard';
         TaxCardModal,
         ReadTaxCard,
         TaxCardRequest,
+        TaxCardReadStatusComponent,
         TaxResponseModal,
         PersonalDetails,
         RecurringPost,

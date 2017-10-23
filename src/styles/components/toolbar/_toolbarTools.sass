@@ -1,0 +1,62 @@
+%toolbarButton
+    display: inline-block
+    height: 1.75rem !important
+    width: 2.1rem
+    margin: 0 .2rem 0 0
+    font-size: 0
+    box-shadow: none
+    background-color: transparent
+    background-repeat: no-repeat
+    background-position: center
+    background-size: 1rem auto
+    position: relative
+    border-radius: 0
+    padding: 0
+    border: pxToRem(1) solid transparentize($uni-color-negative, .5)
+    box-sizing: border-box
+
+    &[type=button]
+        top: -2px
+
+    &:hover,
+    &:focus
+        border-color: $uni-color-negative
+
+.toolbar_tools
+    color: $uni-color-positive
+
+    > button,
+    .comments_toggle,
+    .toolbar-share,
+    .contextmenu_button[type=button]
+        @extend %toolbarButton
+        cursor: pointer
+        background-size: auto .8rem
+
+    .previous
+        background-image: unicon-prev($uni-color-negative)
+
+    .info
+        background-image: unicon-info($uni-color-negative)
+    .next
+        background-image: unicon-next($uni-color-negative)
+    .new
+        background-image: unicon-new($uni-color-negative)
+
+    .contextmenu_button[type=button]
+        background-size: auto .25rem
+        background-image: unicon-more($uni-color-negative) !important
+
+    uni-toolbar-share
+        position: relative
+        .toolbar-share
+            background-image: unicon-share($uni-color-negative)
+
+            &[aria-busy]:not([aria-busy=false])
+                background-image: none
+
+                &:before
+                    border: 1px solid $uni-color-negative
+                    border-top: 1px solid $uni-color-scale7
+                    position: absolute
+                    top: 25%

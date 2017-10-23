@@ -30,10 +30,13 @@ import {
     YearService, ErrorService, EmployeeCategoryService, FileService,
     JournalEntryService, PayrollRunPaymentStatus
 } from '../../../services/services';
+import {PayrollRunDetailsService} from './services/payrollRunDetailsService';
 import {PaycheckSenderModal} from './sending/paycheckSenderModal';
 
 declare var _;
 import * as moment from 'moment';
+
+const PAYROLL_RUN_KEY: string = 'payrollRun';
 
 @Component({
     selector: 'payrollrun-details',
@@ -104,7 +107,8 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
         private employeeCategoryService: EmployeeCategoryService,
         private fileService: FileService,
         private journalEntryService: JournalEntryService,
-        private modalService: UniModalService
+        private modalService: UniModalService,
+        private payrollRunDetailsService: PayrollRunDetailsService
     ) {
         super(router.url, cacheService);
         this.getLayout();
@@ -126,7 +130,7 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
             this.categoryFilter = [];
             this.categories = [];
 
-            const payrollRunSubject = super.getStateSubject('payrollRun');
+            const payrollRunSubject = super.getStateSubject(PAYROLL_RUN_KEY);
             const employeesSubject = super.getStateSubject('employees');
 
             payrollRunSubject
@@ -147,7 +151,7 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
                     }
                 })
                 .do(payrollRun => {
-                    if (!super.isDirty('payrollRun')) {
+                    if (!super.isDirty(PAYROLL_RUN_KEY)) {
                         this.posterPayrollRun$.next(payrollRun);
                     }
                 })
@@ -163,19 +167,13 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
 
                     this.toolbarconfig = {
                         title: payrollRun && payrollRun.ID
-                            ? (payrollRun.Description
-                                ? payrollRun.Description
-                                : 'Lønnsavregning ' + this.payrollrunID)
+                            ? payrollRun.ID + ' - ' + (payrollRun.Description || 'Lønnsavregning')
                             : 'Ny lønnsavregning',
-                        subheads: [{
-                            title: payrollRun && payrollRun.ID ?
-                                (payrollRun.Description ? 'Lønnsavregning ' + this.payrollrunID : '')
-                                : ''
-                        },
+                        subheads: [
                         {
                             title: payrollRun.JournalEntryNumber ?
                                 'Bilag ' + payrollRun.JournalEntryNumber
-                                : 'Ikke bokført',
+                                : '',
                             link: payrollRun.JournalEntryNumber
                                 ? '#/accounting/transquery/details;journalEntryNumber=' + payrollRun.JournalEntryNumber
                                 : ''
@@ -202,7 +200,7 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
                             this.toggleDetailsView();
                         }
                     }
-                    if (!super.isDirty('payrollRun')) {
+                    if (!super.isDirty(PAYROLL_RUN_KEY)) {
                         this.setEditMode(payrollRun);
                     }
                     changedPayroll = false;
@@ -305,11 +303,7 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
             },
             {
                 label: 'Slett lønnsavregning',
-                action: () => {
-                    this.payrollrunService
-                        .Remove(this.payrollrunID)
-                        .subscribe(() => this.router.navigateByUrl(this.url + 0));
-                },
+                action: () => this.payrollRunDetailsService.deletePayrollRun(this.payrollrunID),
                 disabled: () => {
                     return this.payrollrun$.getValue() && !!this.payrollrun$.getValue().StatusCode;
                 }
@@ -355,7 +349,7 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
                 action: this.SendIfNotAlreadySent.bind(this),
                 main: payrollRun
                     ? payrollRun.StatusCode > 1
-                        && (!this.paymentStatus || this.paymentStatus < PayrollRunPaymentStatus.SentToPayment)
+                    && (!this.paymentStatus || this.paymentStatus < PayrollRunPaymentStatus.SentToPayment)
                     : false,
                 disabled: payrollRun ? payrollRun.StatusCode < 1 : true
             },
@@ -364,7 +358,7 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
                 action: this.sendPaychecks.bind(this),
                 main: payrollRun
                     ? payrollRun.StatusCode > 1
-                        && this.paymentStatus && this.paymentStatus >= PayrollRunPaymentStatus.SentToPayment
+                    && this.paymentStatus && this.paymentStatus >= PayrollRunPaymentStatus.SentToPayment
                     : false,
                 disabled: payrollRun ? payrollRun.StatusCode < 1 : true
             },
@@ -428,7 +422,7 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
             return;
         }
 
-        if (this.detailsActive && this.isDirty('payrollRun')) {
+        if (this.detailsActive && this.isDirty(PAYROLL_RUN_KEY)) {
             this.modalService.confirm({
                 header: 'Ulagrede endringer',
                 message: 'Ønsker du å lagre endringene på lønnsavregningen?',
@@ -442,7 +436,7 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
                     this.payrollrunService.Put(entity.ID, entity).subscribe(
                         res => {
                             this.getSalaryTransactions();
-                            super.updateState('payrollRun', res, false);
+                            super.updateState(PAYROLL_RUN_KEY, res, false);
                         },
                         err => this.errorService.handle(err)
                     );
@@ -581,7 +575,6 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
                             trans['_Project'] = projects ? projects
                                 .find(x => x.ID === trans.Dimensions.ProjectID) : undefined;
                         }
-
                         trans['_FileIDs'] = trans['Files'].map(x => x.ID);
 
                         let account = new Account();
@@ -601,7 +594,7 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
                     if (payroll) {
                         payroll.StatusCode < 1 ? this.disableFilter = false : this.disableFilter = true;
                     }
-                    this.updateState('payrollRun', payroll, false);
+                    this.updateState(PAYROLL_RUN_KEY, payroll, false);
                 }, err => {
                     this.payrollrunID = 0;
                     this._toastService.addToast('Lønnsavregning finnes ikke', ToastType.warn, 5);
@@ -629,7 +622,7 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
                     payroll.StatusCode < 1 ? this.disableFilter = false : this.disableFilter = true;
                 }
                 this.payrollrun$.next(payroll);
-                this.updateState('payrollRun', payroll, false);
+                this.updateState(PAYROLL_RUN_KEY, payroll, false);
 
             }, err => {
                 if (err.status === 404) {
@@ -812,13 +805,13 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
             .subscribe(run => {
                 this.modalService
                     .open(
-                        PostingSummaryModal,
-                        {
-                            data: run,
-                            modalConfig: {
-                                update: () => this.getPayrollRun()
-                            }
-                        })
+                    PostingSummaryModal,
+                    {
+                        data: run,
+                        modalConfig: {
+                            update: () => this.getPayrollRun()
+                        }
+                    })
             });
 
         done('');
@@ -844,14 +837,14 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
             .switchMap(run =>
                 this.modalService
                     .open(
-                        VacationPayModal,
+                    VacationPayModal,
+                    {
+                        modalConfig:
                         {
-                            modalConfig:
-                            {
-                                update: () => this.getSalaryTransactions()
-                            },
-                            data: run
-                        })
+                            update: () => this.getSalaryTransactions()
+                        },
+                        data: run
+                    })
                     .onClose)
             .subscribe(needUpdate => {
                 if (needUpdate) {
@@ -951,12 +944,12 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
 
     public sendPaymentList() {
         this.payrollrunService.sendPaymentList(this.payrollrunID)
-        .subscribe((response: boolean) => {
-            this.router.navigateByUrl('/bank/payments');
-        },
-        (err) => {
-            this.errorService.handle(err);
-        });
+            .subscribe((response: boolean) => {
+                this.router.navigateByUrl('/bank/payments');
+            },
+            (err) => {
+                this.errorService.handle(err);
+            });
     }
 
     public sendPaychecks(done) {
@@ -985,7 +978,7 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
         this.fields$.next(this.fields$.getValue());
     }
 
-    public ready(value) { }
+    public ready(value) {}
 
     private saveAll(done: (message: string) => void, updateView = true) {
 
@@ -998,13 +991,15 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
         }
 
         this.setEditableOnChildren(false);
-
-        this.savePayrollrun()
+        super.getStateSubject(PAYROLL_RUN_KEY)
+            .asObservable()
+            .take(1)
+            .switchMap(run => this.savePayrollrun(run))
             .do(() => this._salaryTransactionService.invalidateCache())
             .filter(() => updateView)
             .switchMap((payrollRun: PayrollRun) => {
                 this.payrollrun$.next(payrollRun);
-                super.updateState('payrollRun', payrollRun, false);
+                super.updateState(PAYROLL_RUN_KEY, payrollRun, false);
                 if (!this.payrollrunID) {
                     this.router.navigateByUrl(this.url + payrollRun.ID);
                     return Observable.of(undefined);
@@ -1040,12 +1035,12 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
                 payrollRun.ExcludeRecurringPosts = !payrollRun['_IncludeRecurringPosts'];
                 return payrollRun;
             })
-            .subscribe(payrollRun => super.updateState('payrollRun', payrollRun, true));
+            .subscribe(payrollRun => super.updateState(PAYROLL_RUN_KEY, payrollRun, true));
     }
 
     private populateCategoryFilters() {
         this.categoryFilter = [];
-        this.categories.map(x => this.categoryFilter.push({ linkID: x.ID, title: x.Name }));
+        this.categories.map(x => this.categoryFilter.push({linkID: x.ID, title: x.Name}));
         this.tagConfig.description = this.categoryFilter.length ? 'Utvalg: ' : 'Utvalg';
     }
 
@@ -1055,16 +1050,15 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
         }
     }
 
-    public savePayrollrun(): Observable<PayrollRun> {
-        let retObs = null;
-        if (!this.payrollrun$.getValue().ID) {
-            this.payrollrun$.getValue().ID = 0;
+    public savePayrollrun(payrollRun: PayrollRun): Observable<PayrollRun> {
+        if (!payrollRun.ID) {
+            payrollRun.ID = 0;
         }
 
-        if (this.payrollrun$.getValue().ID > 0) {
-            this.payrollrun$.getValue().transactions = _.cloneDeep(this.salaryTransactions
+        if (payrollRun.ID) {
+            payrollRun.transactions = _.cloneDeep(this.salaryTransactions
                 .filter(x => x['_isDirty'] || x.Deleted));
-            this.payrollrun$.getValue().transactions.map((trans: SalaryTransaction) => {
+            payrollRun.transactions.map((trans: SalaryTransaction) => {
                 if (!trans.Deleted) {
                     if (!trans.ID) {
                         trans['_createguid'] = this._salaryTransactionService.getNewGuid();
@@ -1090,12 +1084,9 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
                 trans.Employee = null;
                 return trans;
             });
-            retObs = this.payrollrunService.Put(this.payrollrun$.getValue().ID, this.payrollrun$.getValue());
-        } else {
-            retObs = this.payrollrunService.Post(this.payrollrun$.getValue());
         }
 
-        return retObs;
+        return this.payrollrunService.savePayrollRun(payrollRun);
     }
 
     public updatePayrollRun() {
@@ -1104,7 +1095,10 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
 
     public updateTranses() {
         this.busy = true;
-        this.savePayrollrun()
+        super.getStateSubject(PAYROLL_RUN_KEY)
+            .asObservable()
+            .take(1)
+            .switchMap(run => this.savePayrollrun(run))
             .finally(() => this.busy = false)
             .subscribe(response => {
                 this.getSalaryTransactions();

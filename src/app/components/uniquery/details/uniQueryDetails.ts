@@ -174,6 +174,17 @@ export class UniQueryDetails {
                        f.index = field.Index;
                        f.type = field.FieldType;
 
+                       if (f.field.toLowerCase().endsWith('statuscode')) {
+                           let statusCodes = this.statusService.getStatusCodesForEntity(this.queryDefinition.MainModelName);
+                           if (statusCodes && statusCodes.length > 0) {
+                               f.selectConfig = {
+                                   options: statusCodes,
+                                   dislayField: 'name',
+                                   valueField: 'statusCode'
+                               };
+                           }
+                       }
+
                        this.fields.push(f);
                     });
 
@@ -182,7 +193,9 @@ export class UniQueryDetails {
                            field: field.Field,
                            operator: field.Operator,
                            value: field.Value,
-                           group: field.Group
+                           group: field.Group,
+                           searchValue: '',
+                           selectConfig: null
                        };
 
                        this.filters.push(f);
@@ -263,6 +276,8 @@ export class UniQueryDetails {
             if (selectableColName.toLowerCase().endsWith('statuscode')) {
                 col.template = (rowModel) => this.statusCodeToText(rowModel[aliasColName]);
             }
+
+            col.selectConfig = field.selectConfig;
 
             columns.push(col);
 
@@ -472,6 +487,17 @@ export class UniQueryDetails {
             // assume user wants % width if nothing else is specified (i.e. allow also)
             if (column.width != null && !isNaN(Number(column.width))) {
                 column.width = column.width + '%';
+            }
+
+            if (column.field.toLowerCase().endsWith('statuscode')) {
+                let statusCodes = this.statusService.getStatusCodesForEntity(this.queryDefinition.MainModelName);
+                if (statusCodes && statusCodes.length > 0) {
+                    newCol.selectConfig = {
+                        options: statusCodes,
+                        dislayField: 'name',
+                        valueField: 'statusCode'
+                    };
+                }
             }
 
             newColumnSetup.push(newCol);
@@ -697,8 +723,18 @@ Hvis du vil hente felter som ligger under ${model.Name} må dette enten hentes u
         let newCol = new UniTableColumn(field.Publicname, field.Publicname, colType);
         newCol.path = path;
 
-        this.fields.push(newCol);
+        if (newCol.field.toLowerCase().endsWith('statuscode')) {
+            let statusCodes = this.statusService.getStatusCodesForEntity(this.queryDefinition.MainModelName);
+            if (statusCodes && statusCodes.length > 0) {
+                newCol.selectConfig = {
+                    options: statusCodes,
+                    dislayField: 'name',
+                    valueField: 'statusCode'
+                };
+            }
+        }
 
+        this.fields.push(newCol);
         this.setupTableConfig();
     }
 

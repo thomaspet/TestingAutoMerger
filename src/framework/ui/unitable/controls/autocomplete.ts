@@ -10,10 +10,22 @@ import 'rxjs/add/operator/filter';
 export interface IAutoCompleteOptions {
     lookupFunction: (searchValue: string) => Observable<any> | any[];
     itemTemplate: (selectedItem: any) => string;
+    groupConfig?: IGroupConfig;
     debounceTime?: number;
     addNewButtonVisible?: boolean;
     addNewButtonText?: string;
     addNewButtonCallback?: (searchText: string) => Promise<any>;
+}
+
+export interface IGroupInfo {
+    key: number | string; // Match value in group
+    header: string; // Group header
+}
+
+export interface IGroupConfig {
+    groupKey: string; // Key to value that items in group match with
+    visibleValueKey?: string; // Key to a boolean value in the item that if true, item is added to a group
+    groups: Array<IGroupInfo>;  // All the groups with key and header
 }
 
 @Component({
@@ -44,12 +56,17 @@ export interface IAutoCompleteOptions {
                 <li *ngFor="let item of lookupResults; let idx = index"
                     class="uniTable_dropdown_item"
                     role="option"
-                    (mouseover)="selectedIndex = idx"
-                    (click)="itemClicked(idx)"
+                    (mouseover)="selectedIndex = item.isHeader ? selectedIndex : idx"
+                    (click)="itemClicked(idx, item.isHeader)"
+                    [ngClass]="{ 'group_list_header' : item.isHeader }"
                     [attr.aria-selected]="selectedIndex === idx">
-                    {{editorOptions.itemTemplate(item)}}
+                    {{ item.isHeader ? item.header : editorOptions.itemTemplate(item) }}
                 </li>
-                <li *ngIf="!busy && editorOptions.addNewButtonVisible" class="autocomplete-add-button"><button (click)="addNewItem()">{{ editorOptions.addNewButtonText ? editorOptions.addNewButtonText : 'Legg til' }}</button></li>
+                <li *ngIf="!busy && editorOptions.addNewButtonVisible" class="autocomplete-add-button">
+                    <button (click)="addNewItem()">
+                        {{ editorOptions.addNewButtonText ? editorOptions.addNewButtonText : 'Legg til' }}
+                    </button>
+                </li>
             </ul>
         </article>
     `,
@@ -64,6 +81,7 @@ export class UnitableAutocomplete {
 
     @Input()
     private inputControl: FormControl;
+    private groupConfig: IGroupConfig;
 
     private editorOptions: IAutoCompleteOptions;
     public busy: boolean = false;
@@ -77,6 +95,9 @@ export class UnitableAutocomplete {
     public ngOnInit() {
         if (this.column) {
             this.editorOptions = this.column.get('editorOptions');
+            if (this.editorOptions['groupConfig']) {
+                this.groupConfig = this.editorOptions['groupConfig'];
+            }
 
             // If itemTemplate is not defined, use displayField or field
             if (!this.editorOptions.itemTemplate) {
@@ -108,6 +129,9 @@ export class UnitableAutocomplete {
         .subscribe((query) => {
             this.performLookup(query).subscribe((results) => {
                 this.lookupResults = results;
+                if (this.groupConfig) {
+                    this.formatGrouping();
+                }
                 this.expanded = true;
                 this.busy = false;
                 this.cdr.markForCheck();
@@ -126,6 +150,39 @@ export class UnitableAutocomplete {
 
             this.inputElement.nativeElement.focus();
         }
+    }
+
+    private formatGrouping() {
+        let groupedArray = [];
+
+        // Add subarrays with header for each group in config
+        this.groupConfig.groups.forEach((group: any) => {
+            group.isHeader = true;
+            groupedArray.push([group]);
+        });
+
+        // Add all elements into the different groups if the groupkey matches
+        this.lookupResults.forEach((item) => {
+            if (this.groupConfig.visibleValueKey ? item[this.groupConfig.visibleValueKey] : true) {
+                for (var i = 0; i < this.groupConfig.groups.length; i++) {
+                    if (item[this.groupConfig.groupKey] === this.groupConfig.groups[i].key) {
+                        groupedArray[i].push(item);
+                    }
+                }
+            }
+        });
+
+        // Check to see that no EMPTY groups are added with just the header
+        for (let groupIndex = 0; groupIndex < groupedArray.length; groupIndex++) {
+            if (groupedArray[groupIndex].length === 1) {
+                groupedArray.splice(groupIndex, 1);
+                if (groupIndex < groupedArray.length) {
+                    groupIndex--;
+                }
+            }
+        }
+
+        this.lookupResults = [].concat.apply([], groupedArray);
     }
 
     public getValue() {
@@ -163,6 +220,9 @@ export class UnitableAutocomplete {
         this.performLookup('').subscribe((res) => {
             this.selectedIndex = -1;
             this.lookupResults = res;
+            if (this.groupConfig) {
+                this.formatGrouping();
+            }
             this.expanded = true;
             this.cdr.markForCheck();
         });
@@ -182,14 +242,18 @@ export class UnitableAutocomplete {
     }
 
     private confirmSelection() {
-        const item = this.lookupResults[this.selectedIndex];
+        let item = this.lookupResults[this.selectedIndex];
+
         if (item) {
             const displayValue = this.editorOptions.itemTemplate(item);
             this.inputControl.setValue(displayValue, {emitEvent: false});
         }
     }
 
-    private itemClicked(index) {
+    public itemClicked(index: number, isHeader = false) {
+        if (isHeader) {
+            return;
+        }
         this.confirmSelection();
         this.expanded = false;
         setTimeout(() => {
@@ -218,6 +282,9 @@ export class UnitableAutocomplete {
         // Arrow up
         } else if (key === 38 && this.selectedIndex > 0) {
             event.preventDefault();
+            if (this.lookupResults[this.selectedIndex - 1].isHeader) {
+                this.selectedIndex--;
+            }
             this.selectedIndex--;
             this.scrollToListItem();
         // Arrow down
@@ -230,6 +297,9 @@ export class UnitableAutocomplete {
             }
 
             if (this.selectedIndex < (this.lookupResults.length - 1)) {
+                if (this.lookupResults[this.selectedIndex + 1].isHeader) {
+                    this.selectedIndex++;
+                }
                 this.selectedIndex++;
                 this.scrollToListItem();
             }
@@ -242,11 +312,12 @@ export class UnitableAutocomplete {
     private scrollToListItem() {
         const list = this.list.nativeElement;
         const currItem = list.children[this.selectedIndex];
-        const bottom = list.scrollTop + (list.offsetHeight) - currItem.offsetHeight;
 
         if (!currItem) {
             return;
         }
+
+        const bottom = list.scrollTop + (list.offsetHeight) - currItem.offsetHeight;
 
         if (currItem.offsetTop <= list.scrollTop) {
             list.scrollTop = currItem.offsetTop;

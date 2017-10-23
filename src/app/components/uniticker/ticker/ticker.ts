@@ -60,7 +60,6 @@ export class UniTicker {
     @Output() public contextMenuItemsChange: EventEmitter<any[]> = new EventEmitter();
 
     @ViewChild(UniTable) public unitable: UniTable;
-    @ViewChild(ImageModal) private imageModal: ImageModal;
 
     private model: any;
 
@@ -452,8 +451,10 @@ export class UniTicker {
 
                 this.reportDefinitionService.getReportByName(action.Options.ReportName).subscribe((report) => {
                     if (report) {
-                        let id = this.selectedRow ? this.selectedRow.rowIdentifier : selectedRows[0].rowIdentifier;
-                        report.parameters = [{Name: 'Id', id}];
+                        let id = this.ticker.Type === 'details'
+                            ? this.selectedRow[rowIdentifier]
+                            : selectedRows[0][rowIdentifier];
+                        report.parameters = [{Name: 'Id', value: id}];
 
                         this.modalService.open(UniPreviewModal, {
                             data: report
@@ -628,8 +629,15 @@ export class UniTicker {
                         } else if (field.Type === 'attachment') {
                             col.setTemplate(line => line.Attachments ? PAPERCLIP : '');
                             col.setOnCellClick(row => {
-                                const entity = field.ExternalModel ? field.ExternalModel : this.ticker.Model;
-                                this.imageModal.open(entity, row.JournalEntryID);
+                                if (row.Attachments) {
+                                    const entity = field.ExternalModel ? field.ExternalModel : this.ticker.Model;
+                                    let data = {
+                                        entity: entity,
+                                        entityID: row.JournalEntryID
+                                    };
+
+                                    this.modalService.open(ImageModal, { data: data });
+                                }
                             });
                         }
 
@@ -671,6 +679,18 @@ export class UniTicker {
                         } else {
                             col.filterable = false;
                         }
+
+                        if (field.SelectableFieldName.toLowerCase().endsWith('statuscode')) {
+                            let statusCodes = this.statusService.getStatusCodesForEntity(this.ticker.Model);
+                            if (statusCodes && statusCodes.length > 0) {
+                                col.selectConfig = {
+                                    options: statusCodes,
+                                    dislayField: 'name',
+                                    valueField: 'statusCode'
+                                };
+                            }
+                        }
+
                         columns.push(col);
                     }
                 }

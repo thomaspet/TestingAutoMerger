@@ -9,7 +9,7 @@ import {
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
 import {IUniSaveAction} from '../../../../framework/save/save';
-import {IToolbarConfig, IAutoCompleteConfig} from '../../common/toolbar/toolbar';
+import {IToolbarConfig, IAutoCompleteConfig, IToolbarSearchConfig} from '../../common/toolbar/toolbar';
 import {IUniTagsConfig, ITag} from '../../common/toolbar/tags';
 import {IPosterWidget} from '../../common/poster/poster';
 import {UniHttp} from '../../../../framework/core/http/http';
@@ -62,6 +62,7 @@ export class EmployeeDetails extends UniView implements OnDestroy {
     private departments: Department[];
     private saveActions: IUniSaveAction[];
     private toolbarConfig: IToolbarConfig;
+    private toolbarSearchConfig: IToolbarSearchConfig;
     private employeeTaxCard: EmployeeTaxCard;
     private wageTypes: WageType[] = [];
     private activeYear: number;
@@ -72,8 +73,7 @@ export class EmployeeDetails extends UniView implements OnDestroy {
 
     public categoryFilter: ITag[] = [];
     public tagConfig: IUniTagsConfig = {
-        description: 'Utvalg ',
-        helpText: 'Kategorier på ansatt: ',
+        helpText: 'Kategorier på ansatt',
         truncate: 20,
         autoCompleteConfig: {
             template: (obj: EmployeeCategory) => obj ? obj.Name : '',
@@ -164,6 +164,7 @@ export class EmployeeDetails extends UniView implements OnDestroy {
             { name: 'Permisjon', path: 'employee-leave' }
         ];
 
+        // TODO: remove me!
         this.employeeSearch = {
             events: {
                 select: (model, value: Employee) => {
@@ -280,8 +281,10 @@ export class EmployeeDetails extends UniView implements OnDestroy {
                     this.employee = employee;
                     this.posterEmployee.employee = employee;
                     this.posterEmployee = _.cloneDeep(this.posterEmployee);
+
+                    const info = employee && employee.BusinessRelationInfo;
                     this.toolbarConfig = {
-                        title: employee.BusinessRelationInfo ? employee.BusinessRelationInfo.Name || 'Ny ansatt' : 'Ny ansatt',
+                        title: (info && info.Name) || 'Ny ansatt',
                         subheads: [{
                             title: this.employee.EmployeeNumber ? 'Ansattnr. ' + this.employee.EmployeeNumber : ''
                         }],
@@ -290,6 +293,20 @@ export class EmployeeDetails extends UniView implements OnDestroy {
                             next: this.nextEmployee.bind(this),
                             add: this.newEmployee.bind(this)
                         }
+                    };
+
+                    this.toolbarSearchConfig = {
+                        lookupFunction: (query) => this.employeeService.GetAll(
+                            `filter=startswith(EmployeeNumber, '${query}') `
+                                + `or (BusinessRelationID gt 0 and contains(BusinessRelationInfo.Name, '${query}'))`
+                                + `&top50&hateoas=false`,
+                            ['BusinessrelationInfo']
+                        ),
+                        itemTemplate: (item) => `${item.EmployeeNumber} - `
+                            + `${item.BusinessRelationInfo && item.BusinessRelationInfo.Name}`,
+
+                        initValue: (info && info.Name) || 'Ny ansatt',
+                        onSelect: selected => this.router.navigate(['salary/employees/' + selected.ID])
                     };
 
                     this.saveActions = [{
@@ -376,22 +393,17 @@ export class EmployeeDetails extends UniView implements OnDestroy {
                     }
 
                     if (!this.taxOptions) {
-                        let changeEvent: EventEmitter<any> = new EventEmitter<any>();
                         super.updateState('taxCardModalCallback',
                             { openModal: () => this.modalService.open(
                                 TaxCardModal,
                                 {
                                     data: this.employeeID,
                                     modalConfig: {
-                                        update: this.getTax,
-                                        changeEvent: changeEvent
+                                        update: () => this.getTax()
                                     }
                                 })
                             },
                             false);
-                        changeEvent
-                            .take(1)
-                            .subscribe(change => this.getTax());
                     }
 
                     if (!this.employments) {
@@ -1287,7 +1299,6 @@ export class EmployeeDetails extends UniView implements OnDestroy {
         this.categoryFilter = categories.map(x => {
             return { linkID: x.ID, title: x.Name };
         });
-        this.tagConfig.description = this.categoryFilter.length ? 'Utvalg: ' : 'Utvalg';
     }
 
 }

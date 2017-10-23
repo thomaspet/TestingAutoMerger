@@ -343,7 +343,6 @@ export class JournalEntries {
         });
     }
 
-
     private onDataCleared() {
 
         this.journalEntryService.setSessionData(this.journalEntryManual.mode, []);

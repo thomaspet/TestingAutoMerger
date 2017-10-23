@@ -190,8 +190,13 @@ export class UniSearchCustomerConfig {
         };
     }
 
-    public customStatisticsObjToCustomer(statObj: CustomStatisticsResultItem, setDefaults: boolean = true): Customer {
-        const customer = new Customer();
+    public customStatisticsObjToCustomer(
+        statObj: CustomStatisticsResultItem,
+        setDefaults: boolean = true,
+        cust: Customer = new Customer()
+    ): Customer {
+
+        const customer = cust;
         customer.ID = 0;
         customer.OrgNumber = statObj.OrgNumber;
         customer.WebUrl = statObj.WebUrl;

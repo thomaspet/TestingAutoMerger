@@ -1,6 +1,7 @@
 .navbar_search
     position: relative
     text-align: center
+    margin-left: .5rem
 
     .search_input
         background-color: #fff
@@ -45,23 +46,35 @@
                 background: $uni-color-c2a
                 color: $uni-color-negative
 
-@include media(large, max-width)
+@media screen and (max-width: 1515px)
     uni-navbar-search
         flex-grow: 0
         flex-shrink: 0
+        flex-basis: 2rem !important
+        height: 2.5rem
 
-        .navbar_search .search_input
-            background-color: transparent
-            max-width: 2rem
-            position: relative
-            transition: all 300ms ease
-            padding: 0
-            text-indent: 3rem
-            border-color: transparent
 
-            &:focus
-                background-color: #fff
-                padding-left: .5rem
-                max-width: 15rem
-                min-width: 15rem
-                text-indent: 0
+        .navbar_search
+            margin-left: 0
+
+            div
+                position: absolute
+                top: .35rem
+                right: 0
+
+            .search_input
+                background-color: transparent
+                max-width: 2rem
+                position: relative
+                transition: all 300ms ease
+                padding: 0
+                text-indent: 3rem
+                border-color: transparent
+
+                &:focus,
+                &:hover
+                    background-color: #fff
+                    padding-left: .5rem
+                    max-width: 15rem
+                    min-width: 15rem
+                    text-indent: 0

@@ -36,7 +36,7 @@ export interface ITagAutoComplete {
             class="tags_toggle"
             (click)="isOpen = !isOpen">
             {{config?.description || ''}}
-            {{summary(tags)}}
+            {{tagsSummary()}}
         </button>
 
         <article class="tags_control"
@@ -45,7 +45,7 @@ export interface ITagAutoComplete {
 
             <small *ngIf="config?.helpText">{{config.helpText}}</small>
 
-            <ul class="tags_list" 
+            <ul class="tags_list"
                 [attr.aria-readonly]="config?.readOnly"
                 [attr.aria-busy]="listBusy">
                 <li class="tags_tag"
@@ -96,9 +96,7 @@ export class UniTags implements OnChanges {
 
     constructor(
         private errorService: ErrorService
-    ) {
-
-    }
+    ) {}
 
     public ngOnChanges(change) {
         if (change['config']
@@ -121,29 +119,9 @@ export class UniTags implements OnChanges {
         }
     }
 
-    private summary(tags: ITag[]): string {
-        let _tags: string[] = [];
-        let _skipped: number = 0;
-        let _truncate: number = 20;
-        if (this.config && this.config.truncate) {
-            _truncate = this.config.truncate;
-        }
-
-        this.tags.forEach((tagObj, i) => {
-            let tag: string = tagObj.title;
-            let currentString: string = _tags.join(', ');
-            if (currentString.length + tag.length >= _truncate) {
-                _skipped++;
-            } else {
-                _tags.push(tag);
-            }
-        });
-
-        if (!_skipped) {
-            return _tags.join(', ');
-        } else {
-            return _tags.join(', ') + ' og ' + _skipped + ' til…';
-        }
+    public tagsSummary(tags: ITag[]): string {
+        const tagCount = (this.tags && this.tags.length) || 0;
+        return tagCount === 1 ? tagCount + ' kategori' : tagCount + ' kategorier';
     }
 
     public remove(tag: ITag): void {

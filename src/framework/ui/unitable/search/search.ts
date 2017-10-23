@@ -49,7 +49,13 @@ interface IUniTableSearchOperator {
                 </select>
 
                 <!-- Query -->
-                <input type="text" [(ngModel)]="filter.value" name="filterValue" (ngModelChange)="emitFilters()">
+                <input type="text" *ngIf="!filter.selectConfig" [(ngModel)]="filter.value" name="filterValue" (ngModelChange)="emitFilters()">
+
+                <select *ngIf="filter.selectConfig?.options" (ngModelChange)="emitFilters()" [(ngModel)]="filter.value" class="large_select">
+                    <option *ngFor="let option of filter.selectConfig.options" [value]="option[filter.selectConfig.valueField]">
+                        {{option[filter.selectConfig.dislayField]}}
+                    </option>
+                </select>
 
                 <button type="button" (click)="removeFilter(filter)">Fjern</button>
             </li>
@@ -193,7 +199,22 @@ export class UniTableSearch implements OnChanges {
 
         if (changes['columns']) {
             if (changes['columns'].currentValue) {
-                this.filterableColumns = this.columns.filter(x => x.get('sumFunction') == null || x.get('sumFunction') === '').toList();
+                let cols = this.columns.filter(x => x.get('sumFunction') == null || x.get('sumFunction') === '').toList();
+
+                if (this.configFilters && this.configFilters.length > 0) {
+                    let filtersWithoutColumns = this.configFilters.filter(x => !cols.find(y => y.get('field') === x.field));
+
+                    filtersWithoutColumns.forEach(f => {
+                        cols = cols.push(
+                            Immutable.fromJS({
+                                header: f.field,
+                                field: f.field
+                            })
+                        );
+                    });
+                }
+
+                this.filterableColumns = cols;
             }
         }
 
@@ -210,7 +231,7 @@ export class UniTableSearch implements OnChanges {
         if (!this.advancedSearchFilters) {
             this.advancedSearchFilters = [];
         }
-        this.advancedSearchFilters.push({field: '', operator: 'contains', value: '', group: 0});
+        this.advancedSearchFilters.push({field: '', operator: 'contains', value: '', group: 0, searchValue: '', selectConfig: null});
     }
 
     private removeFilter(filter) {
@@ -219,6 +240,17 @@ export class UniTableSearch implements OnChanges {
     }
 
     private filterFieldChange(filter: ITableFilter) {
+        // some columns are use selects instead of text, e.g. statuscodes, so
+        // for those filters, add some options
+        let column = this.columns.find(c => c.get('field') === filter.field);
+
+        if (column && column.get('selectConfig') && column.get('selectConfig').options) {
+            filter.selectConfig = column.get('selectConfig');
+            filter.operator = 'eq';
+        } else {
+            filter.selectConfig = null;
+        }
+
         this.emitFilters();
     }
 
@@ -264,6 +296,25 @@ export class UniTableSearch implements OnChanges {
     private getAdvancedFilters() {
         var filters = [];
         this.advancedSearchFilters.forEach((filter) => {
+
+            filter.searchValue = filter.value.toString();
+
+            let cols = this.columns.filter(c => c.get('field') === filter.field);
+
+            cols.forEach(col => {
+                if (col.get('type') === UniTableColumnType.DateTime || col.get('type') === UniTableColumnType.LocalDate) {
+                    if (filter.value.toString().includes('.')) {
+
+                        let dateParts = filter.value.toString().split('.', 3);
+                        if (dateParts.length === 3) {
+                            filter.searchValue = dateParts[2] + '-' + dateParts[1] + '-' + dateParts[0];
+                        }
+                        if (dateParts.length === 2) {
+                            filter.searchValue = dateParts[1] + '-' + dateParts[0];
+                        }
+                    }
+                }
+            });
             filters.push(filter);
         });
 

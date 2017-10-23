@@ -244,7 +244,7 @@ export class TimeEntry {
         })
     }
 
-    private onTemplateSelected(event: ITemplate) {
+    public onTemplateSelected(event: ITemplate) {
         event.Items.forEach((item: ITimeTrackingTemplate) => {
             this.timeSheet.addItem(this.mapTemplateToWorkItem({}, item));
             if (item && item.Project && item.Project.ID) {
@@ -256,7 +256,7 @@ export class TimeEntry {
                 }
                 this.timeSheet.setItemValue(value);
             }
-        })
+        });
 
         this.timeSheet.recalc();
         this.flagUnsavedChanged();
@@ -380,7 +380,7 @@ export class TimeEntry {
         });
     }
 
-    private getFlexDataForCurrentMonth() {    
+    private getFlexDataForCurrentMonth() {
         let endpoint = 'workrelations/' + this.workRelations[0].ID + '?action=timesheet&fromdate='
             + moment().startOf('month').startOf('week').format().slice(0, 10)
             + '&todate=' + moment().format().slice(0, 10);
@@ -516,6 +516,8 @@ export class TimeEntry {
                 this.flagUnsavedChanged(true);
                 if (done) { done(counter + ' poster ble lagret.'); }
                 this.refreshViewItems(this.customDateSelected || this.currentFilter.date);
+                // Update the sidemenu calendar
+                this.onMonthChanged(moment(this.customDateSelected || this.currentFilter.date));
                 this.loadFlex(this.timeSheet.currentRelation);
                 resolve(true);
                 this.showProgress(this.customDateSelected);

@@ -16,6 +16,7 @@ import {JournalEntryAccountCalculationSummary} from '../../../../models/accounti
 import {AccountBalanceInfo} from '../../../../models/accounting/AccountBalanceInfo';
 import {IUniSaveAction} from '../../../../../framework/save/save';
 import {ISummaryConfig} from '../../../common/summary/summary';
+import {UniAddFileModal} from '../../bill/detail/addFileModal';
 import {Observable} from 'rxjs/Observable';
 import {
     ToastService,
@@ -245,6 +246,14 @@ export class JournalEntryManual implements OnChanges, OnInit {
                 this.setJournalEntryData([]);
             }
         }
+    }
+
+    public openAddFileModal() {
+        this.modalService.open(UniAddFileModal).onClose.subscribe((element) => {
+            if (element) {
+                this.currentJournalEntryImages = [element.ID];
+            }
+        });
     }
 
     private onShowImageChanged(showImage: boolean) {

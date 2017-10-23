@@ -3,28 +3,33 @@ import {BizHttp} from '../../../../framework/core/http/BizHttp';
 import {UniHttp} from '../../../../framework/core/http/http';
 import {SalaryBalance, WageType, Employee, Supplier, SalBalType, SalBalDrawType} from '../../../unientities';
 import {Observable} from 'rxjs/Observable';
-import {FieldType, UniValidationOperators} from '../../../../framework/ui/uniform/index';
+import {FieldType, UniValidationOperators, UniFieldLayout} from '../../../../framework/ui/uniform/index';
 import {UniTableColumnType} from '../../../../framework/ui/unitable/index';
 import {SalaryBalanceLineService} from './salaryBalanceLineService';
 import {ErrorService} from '../../commonServicesModule';
 import {URLSearchParams} from '@angular/http';
+
+interface IFieldFunc {
+    prop: string;
+    func: (field: UniFieldLayout) => any;
+};
 
 @Injectable()
 export class SalarybalanceService extends BizHttp<SalaryBalance> {
 
     private defaultExpands: string[] = [];
 
-    private instalmentTypes: { ID: SalBalType, Name: string }[] = [
-        { ID: SalBalType.Advance, Name: 'Forskudd' },
-        { ID: SalBalType.Contribution, Name: 'Bidragstrekk' },
-        { ID: SalBalType.Outlay, Name: 'Utleggstrekk' },
-        { ID: SalBalType.Garnishment, Name: 'Påleggstrekk' },
-        { ID: SalBalType.Other, Name: 'Andre' }
+    private instalmentTypes: {ID: SalBalType, Name: string}[] = [
+        {ID: SalBalType.Advance, Name: 'Forskudd'},
+        {ID: SalBalType.Contribution, Name: 'Bidragstrekk'},
+        {ID: SalBalType.Outlay, Name: 'Utleggstrekk'},
+        {ID: SalBalType.Garnishment, Name: 'Påleggstrekk'},
+        {ID: SalBalType.Other, Name: 'Andre'}
     ];
 
-    private standardNames: { Type: SalBalType, Name: string }[] = [
-        { Type: SalBalType.Advance, Name: 'Forskudd' },
-        { Type: SalBalType.Contribution, Name: 'Trekk i lønn' }
+    private standardNames: {Type: SalBalType, Name: string}[] = [
+        {Type: SalBalType.Advance, Name: 'Forskudd'},
+        {Type: SalBalType.Contribution, Name: 'Trekk i lønn'}
     ];
 
     constructor(
@@ -82,8 +87,8 @@ export class SalarybalanceService extends BizHttp<SalaryBalance> {
         }
     }
 
-    public getSalarybalance(id: number | string, expand: string[] = null): Observable<any> {
-        if (id === 0) {
+    public getSalarybalance(id: number | string, expand: string[] = null): Observable<SalaryBalance> {
+        if (!id) {
             if (expand) {
                 return this.GetNewEntity(expand, 'salarybalance');
             }
@@ -143,7 +148,32 @@ export class SalarybalanceService extends BizHttp<SalaryBalance> {
         return salaryBalance;
     }
 
-    public layout(layoutID: string) {
+    public isHiddenByInstalmentType(salaryBalance: SalaryBalance) {
+        return (salaryBalance.InstalmentType !== SalBalType.Contribution)
+            && (salaryBalance.InstalmentType !== SalBalType.Outlay)
+            && (salaryBalance.InstalmentType !== SalBalType.Other);
+    }
+
+    public GetFieldFuncs(salaryBalance: SalaryBalance): IFieldFunc[] {
+        return [
+            {
+                prop: 'Instalment',
+                func: instalmentField => instalmentField.ReadOnly = !!salaryBalance.InstalmentPercent
+            },
+            {
+                prop: 'InstalmentPercent',
+                func: percentField => percentField.ReadOnly = !!salaryBalance.Instalment
+            }
+        ];
+    }
+
+    public layout(
+        layoutID: string,
+        salaryBalance: SalaryBalance,
+        wageTypes: WageType[],
+        employees: Employee[],
+        suppliers: Supplier[]
+    ) {
         return Observable.from([
             {
                 Name: layoutID,
@@ -156,6 +186,14 @@ export class SalarybalanceService extends BizHttp<SalaryBalance> {
                         Label: 'Type',
                         FieldSet: 0,
                         Section: 0,
+                        Placement: 0,
+                        ReadOnly: !!salaryBalance.ID,
+                        Options: {
+                            source: this.getInstalmentTypes(),
+                            displayProperty: 'Name',
+                            valueProperty: 'ID',
+                            debounceTime: 500
+                        }
                     },
                     {
                         EntityType: 'salarybalance',
@@ -164,6 +202,7 @@ export class SalarybalanceService extends BizHttp<SalaryBalance> {
                         Label: 'Tekst til lønnspost',
                         FieldSet: 0,
                         Section: 0,
+                        Placement: 1,
                         LineBreak: true,
                     },
                     {
@@ -173,7 +212,10 @@ export class SalarybalanceService extends BizHttp<SalaryBalance> {
                         Label: 'Ansatt',
                         FieldSet: 0,
                         Section: 0,
+                        Placement: 2,
+                        ReadOnly: !!salaryBalance.ID,
                         Options: {
+                            source: employees,
                             valueProperty: 'ID',
                             template: (employee: Employee) => employee
                                 ? `${employee.EmployeeNumber} - ${employee.BusinessRelationInfo.Name}`
@@ -187,7 +229,10 @@ export class SalarybalanceService extends BizHttp<SalaryBalance> {
                         Label: 'Lønnsart',
                         FieldSet: 0,
                         Section: 0,
+                        Placement: 3,
+                        ReadOnly: !!salaryBalance.ID,
                         Options: {
+                            source: wageTypes,
                             valueProperty: 'WageTypeNumber',
                             template: (wagetype: WageType) => wagetype
                                 ? `${wagetype.WageTypeNumber} - ${wagetype.WageTypeName}`
@@ -200,7 +245,8 @@ export class SalarybalanceService extends BizHttp<SalaryBalance> {
                         FieldType: FieldType.LOCAL_DATE_PICKER,
                         Label: 'Fra dato',
                         FieldSet: 0,
-                        Section: 0
+                        Section: 0,
+                        Placement: 4
                     },
                     {
                         EntityType: 'salarybalance',
@@ -208,15 +254,18 @@ export class SalarybalanceService extends BizHttp<SalaryBalance> {
                         FieldType: FieldType.LOCAL_DATE_PICKER,
                         Label: 'Til dato',
                         FieldSet: 0,
-                        Section: 0
+                        Section: 0,
+                        Placement: 5
                     },
                     {
                         EntityType: 'salarybalance',
                         Property: 'Amount',
                         FieldType: FieldType.NUMERIC,
-                        Label: 'Beløp',
+                        Label: salaryBalance.InstalmentType === SalBalType.Advance ? 'Beløp' : 'Saldo',
                         FieldSet: 0,
                         Section: 0,
+                        Placement: 6,
+                        Hidden: !!salaryBalance.ID || salaryBalance.InstalmentType === SalBalType.Contribution,
                         Options: {
                             format: 'money',
                             decimalLength: 2
@@ -229,6 +278,8 @@ export class SalarybalanceService extends BizHttp<SalaryBalance> {
                         Label: 'Avdrag',
                         FieldSet: 0,
                         Section: 0,
+                        Placement: 7,
+                        ReadOnly: !!salaryBalance.Instalment,
                         Options: {
                             format: 'money',
                             decimalLength: 2
@@ -237,10 +288,17 @@ export class SalarybalanceService extends BizHttp<SalaryBalance> {
                     {
                         EntityType: 'salarybalance',
                         Property: 'InstalmentPercent',
-                        FieldType: FieldType.TEXT,
+                        FieldType: FieldType.NUMERIC,
                         Label: 'Avdrag prosent',
                         FieldSet: 0,
-                        Section: 0
+                        Section: 0,
+                        Placement: 8,
+                        Options: {
+                            format: 'money',
+                            decimalLength: 2
+                        },
+                        ReadOnly: !!salaryBalance.Instalment,
+                        Hidden: salaryBalance.InstalmentType === SalBalType.Advance
                     },
                     {
                         EntityType: 'salarybalance',
@@ -249,7 +307,10 @@ export class SalarybalanceService extends BizHttp<SalaryBalance> {
                         Label: 'Leverandør',
                         FieldSet: 0,
                         Section: 0,
+                        Placement: 9,
+                        Hidden: this.isHiddenByInstalmentType(salaryBalance),
                         Options: {
+                            source: suppliers,
                             valueProperty: 'ID',
                             template: (supplier: Supplier) => supplier
                                 ? `${supplier.SupplierNumber} - ${supplier.Info.Name}`
@@ -262,7 +323,10 @@ export class SalarybalanceService extends BizHttp<SalaryBalance> {
                         FieldType: FieldType.TEXT,
                         Label: 'Kid',
                         FieldSet: 0,
-                        Section: 0
+                        Section: 0,
+                        Placement: 10,
+                        Options: {},
+                        Hidden: this.isHiddenByInstalmentType(salaryBalance)
                     },
                     {
                         EntityType: 'salarybalance',
@@ -271,7 +335,10 @@ export class SalarybalanceService extends BizHttp<SalaryBalance> {
                         ReadOnly: true,
                         Label: 'Kontonummer',
                         FieldSet: 0,
-                        Section: 0
+                        Section: 0,
+                        Placement: 11,
+                        Options: {},
+                        Hidden: this.isHiddenByInstalmentType(salaryBalance)
                     },
                     {
                         EntityType: 'salarybalance',
@@ -281,11 +348,13 @@ export class SalarybalanceService extends BizHttp<SalaryBalance> {
                         HelpText: 'Lag utbetalingspost til leverandør ved utbetaling av lønnsavregning',
                         Label: 'Lag utbetaling',
                         FieldSet: 0,
-                        Section: 0
+                        Section: 0,
+                        Placement: 12,
+                        Options: {},
+                        Hidden: this.isHiddenByInstalmentType(salaryBalance)
                     }
                 ]
             }
         ]);
     }
-
 }

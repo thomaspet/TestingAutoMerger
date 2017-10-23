@@ -1,6 +1,12 @@
 uni-bureau-dashboard
     text-align: left
 
+    .align-right
+        text-align: right
+
+    .align-center
+        text-align: center
+
     .list-content
         background: $uni-color-negative
         color: $uni-color-positive
@@ -41,20 +47,26 @@ uni-bureau-dashboard
             i
                 font-style: normal
                 float: right
+
+            a
+                text-decoration: underline !important
+
     .right-side
         background-color: $uni-color-legend
 
         table
+            white-space: nowrap
             width: 100%
+            padding: .25rem 2rem
+            border-spacing: .5rem
+            line-height: 1rem
         th, td
             width: 50%
 
         td:nth-child(2)
-            background-color: $uni-color-negative
-            border-radius: 2px
-            border-bottom-width: 2px
-            border-color: $uni-color-scale7
-            border-style: solid
+            padding: 0 1rem
+            background: mix($uni-color-negative, $uni-color-c2a, 98%)
+            border-radius: pxToRem(3)
 
         th ~ th
             border-top: 2px solid $uni-color-positive
@@ -62,4 +74,3 @@ uni-bureau-dashboard
 
         hr
             border-color: $uni-color-positive
-            height: 35px

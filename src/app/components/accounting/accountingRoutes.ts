@@ -26,38 +26,46 @@ export const accountingRoutes: Routes = [
     {
         path: '',
         pathMatch: 'full',
-        component: UniAccounting
+        component: UniAccounting,
+        canDeactivate: [CanDeactivateGuard]
     },
     {
         path: 'journalentry',
         component: JournalEntry,
-        children: JournalEntryRoutes
+        children: JournalEntryRoutes,
+        canDeactivate: [CanDeactivateGuard]
     },
     {
         path: 'transquery',
         component: Transquery,
-        children: TransqueryRoutes
+        children: TransqueryRoutes,
+        canDeactivate: [CanDeactivateGuard]
     },
     {
         path: 'accountsettings',
-        component: AccountSettings
+        component: AccountSettings,
+        canDeactivate: [CanDeactivateGuard]
     },
     {
         path: 'vatsettings',
-        component: VatSettings
+        component: VatSettings,
+        canDeactivate: [CanDeactivateGuard]
     },
     {
         path: 'vatreport',
-        component: VatReportView
+        component: VatReportView,
+        canDeactivate: [CanDeactivateGuard]
     },
     {
         path: 'accountingreports',
         component: AccountingReports,
-        children: AccountintReportsRoutes
+        children: AccountintReportsRoutes,
+        canDeactivate: [CanDeactivateGuard]
     },
     {
         path: 'bills',
-        component: BillsView
+        component: BillsView,
+        canDeactivate: [CanDeactivateGuard]
     },
     {
         path: 'bills/:id',
@@ -66,7 +74,8 @@ export const accountingRoutes: Routes = [
     },
     {
         path: 'suppliers',
-        component: SupplierList
+        component: SupplierList,
+        canDeactivate: [CanDeactivateGuard]
     },
     {
         path: 'suppliers/:id',

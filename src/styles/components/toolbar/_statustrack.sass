@@ -1,16 +1,15 @@
 $statustrack-background: #fff
-$statustrack-height: 1.7rem
+$statustrack-height: 1.5rem
 $statustrack-border: .0625rem
 
 .poster_statustrack,
 uni-statustrack > ol
     display: flex
-    border: pxToRem(1) solid $uni-color-scale7
     border-radius: pxToRem(3)
     background: $statustrack-background
     box-sizing: border-box
     height: $statustrack-height + $statustrack-border
-    margin: .5rem 0 0
+    margin: 0
 
     & > li
         position: relative
@@ -18,6 +17,15 @@ uni-statustrack > ol
         line-height: $statustrack-height
         color: $uni-color-positive
         cursor: pointer
+
+        &:first-of-type
+            border-radius: pxToRem(3) 0 0 pxToRem(3)
+
+        &:last-of-type
+            border-radius: 0 pxToRem(3) pxToRem(3) 0
+
+        &.completed
+            background: mix($uni-color-c2a, #fff, 20%)
 
         &.future
             color: $uni-color-scale5
@@ -29,12 +37,6 @@ uni-statustrack > ol
             color: $uni-color-negative
             font-weight: 600
 
-            &:first-of-type
-                border-radius: pxToRem(2) 0 0 pxToRem(2)
-
-            &:last-of-type
-                border-radius: 0 pxToRem(2) pxToRem(2) 0
-
         &.obsolete
             background: $uni-color-warn
 
@@ -44,6 +46,9 @@ uni-statustrack > ol
 
             &:before
                 border-left-color: $uni-color-scale7
+
+            &.completed:after
+                border-left-color: mix($uni-color-c2a, #fff, 20%)
 
             &.active:after
                 border-left-color: $uni-color-c2a
@@ -62,10 +67,10 @@ uni-statustrack > ol
             display: block
             height: 0
             width: 0
-            top: -#{$statustrack-border}
+            top: 0
             border-color: transparent
             border-style: solid
-            border-width: (($statustrack-height/2) + $statustrack-border) 0 (($statustrack-height/2)+$statustrack-border) .5rem
+            border-width: (($statustrack-height/2) + ($statustrack-border/2)) 0 (($statustrack-height/2) + ($statustrack-border/2)) .5rem
 
         &:before
             z-index: #{map-get($zindex, toolbar) + 1}
@@ -79,9 +84,10 @@ uni-statustrack > ol
     content: attr(data-badge)
     display: block
     position: absolute
-    top: -.7rem
-    right: -1rem
-    background: $uni-color-scale2
+    top: -.5rem
+    right: -.5rem
+    background: $uni-color-negative
+    color: $uni-color-c2a
     border-radius: 99rem
     min-width: 1.2rem
     line-height: 1.2rem
@@ -92,6 +98,8 @@ uni-statustrack > ol
 .statustrack_substati
     @extend %popover
     padding: 0 1rem
+    top: 1.65rem
+    left: 0
 
     li:hover &,
     li:focus &

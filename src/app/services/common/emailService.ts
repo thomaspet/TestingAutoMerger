@@ -12,9 +12,11 @@ import {AppConfig} from '../../AppConfig';
 export class EmailService extends BizHttp<Email> {
     private emailtoast: number;
 
-    constructor(http: UniHttp,
+    constructor(
+        http: UniHttp,
         private toastService: ToastService,
-        private errorService: ErrorService) {
+        private errorService: ErrorService
+    ) {
         super(http);
 
         this.relativeURL = 'emails'; // TODO: missing Email.RelativeUrl;
@@ -34,11 +36,21 @@ export class EmailService extends BizHttp<Email> {
                 doneHandler('Sending feilet');
             }
         } else {
-            this.emailtoast = this.toastService.addToast('Sender epost til ' + sendemail.EmailAddress, ToastType.warn, 0, sendemail.Subject);
+            this.emailtoast = this.toastService.addToast(
+                'Sender epost til ' + sendemail.EmailAddress,
+                ToastType.warn, 0,
+                sendemail.Subject
+            );
 
-            if (parameters == null) { parameters = []; }
-            parameters.push({ Name: 'Id', value: sendemail.EntityID }); }
-            parameters.push({ Name: 'LogoUrl', value: AppConfig.BASE_URL_FILES + 'api/image/?key=' + this.http.authService.getCompanyKey() + '&id=logo'})
+            if (!parameters) { parameters = []; }
+            parameters.push({ Name: 'Id', value: sendemail.EntityID });
+
+            parameters.push({
+                Name: 'LogoUrl',
+                value: AppConfig.BASE_URL_FILES
+                    + 'api/image/?key='
+                    + this.http.authService.getCompanyKey() + '&id=logo'
+            });
 
             let email = {
                 ToAddresses: [sendemail.EmailAddress],

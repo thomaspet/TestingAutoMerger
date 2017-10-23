@@ -27,6 +27,7 @@ import 'rxjs/add/operator/share';
 
 import * as _ from 'lodash';
 import {KeyCodes} from '../../../../app/services/common/keyCodes';
+import {IGroupConfig} from '../../unitable/controls/autocomplete';
 
 
 export class UniAutocompleteConfig {
@@ -82,12 +83,13 @@ interface IAutocompleteCache {
                 [attr.aria-expanded]="isExpanded$ | async">
 
                 <li *ngFor="let item of lookupResults; let idx = index"
-                    class="autocomplete_result"
+                    class="autocomplete_result uniTable_dropdown_item"
                     role="option"
-                    (mouseover)="selectedIndex = idx; selectedItem = item"
+                    (mouseover)="onMouseOver(item.isHeader, item, idx)"
                     (click)="confirmSelection(item)"
-                    [attr.aria-selected]="selectedIndex === idx">
-                    {{template(item)}}
+                    [attr.aria-selected]="selectedIndex === idx"
+                    [ngClass]="{ 'group_list_header' : item.isHeader }">
+                    {{ item.isHeader ? item.header : template(item) }}
                 </li>
                 <li class="poster_tags_addNew" *ngIf="field?.Options?.editor"
                     (click)="openEditor()"
@@ -132,6 +134,7 @@ export class UniAutocompleteInput extends BaseControl {
     private focusPositionTop: number = 0;
     private preventSearch: boolean = false;
     private subscriptions = [];
+    private groupConfig: IGroupConfig;
     private cache: IAutocompleteCache = {
         search: [],
         templates: []
@@ -149,6 +152,7 @@ export class UniAutocompleteInput extends BaseControl {
     }
 
     public ngOnChanges(changes) {
+
         if (changes['field']) {
             this.readOnly$.next(this.field && this.field.ReadOnly);
         }
@@ -157,6 +161,11 @@ export class UniAutocompleteInput extends BaseControl {
             this.options = this.field.Options || {};
             this.source = this.options.source || [];
         }
+
+        if (this.options && this.options['groupConfig']) {
+            this.groupConfig = this.options['groupConfig'];
+        }
+
         // Perform initial lookup to get display value
         if (this.control.value === null) {
             this.control.setValue('');
@@ -218,6 +227,9 @@ export class UniAutocompleteInput extends BaseControl {
                 .subscribe((value) => {
                     this.busy$.next(false);
                     this.lookupResults = value;
+                    if (this.groupConfig) {
+                        this.formatGrouping();
+                    }
                     this.cache.search[this.control.value] = value;
                 });
             let eventSubscription = Observable.fromEvent(this.el.nativeElement, 'keydown').subscribe(this.onKeyDown.bind(this));
@@ -263,6 +275,39 @@ export class UniAutocompleteInput extends BaseControl {
         }
     }
 
+    private formatGrouping() {
+        let groupedArray = [];
+
+        // Add subarrays with header for each group in config
+        this.groupConfig.groups.forEach((group: any) => {
+            group.isHeader = true;
+            groupedArray.push([group]);
+        });
+
+        // Add all elements into the different groups if the groupkey matches
+        this.lookupResults.forEach((item) => {
+            if (this.groupConfig.visibleValueKey ? item[this.groupConfig.visibleValueKey] : true) {
+                for (var i = 0; i < this.groupConfig.groups.length; i++) {
+                    if (item[this.groupConfig.groupKey] === this.groupConfig.groups[i].key) {
+                        groupedArray[i].push(item);
+                    }
+                }
+            }
+        });
+
+        // Check to see that no EMPTY groups are added with just the header
+        for (let groupIndex = 0; groupIndex < groupedArray.length; groupIndex++) {
+            if (groupedArray[groupIndex].length === 1) {
+                groupedArray.splice(groupIndex, 1);
+                if (groupIndex < groupedArray.length) {
+                    groupIndex--;
+                }
+            }
+        }
+
+        this.lookupResults = [].concat.apply([], groupedArray);
+    }
+
     private search(query: string): Observable<any> {
         // Commenting this out because of bug https://github.com/unimicro/UniForm/issues/57
         // if (this.cache.search[query]) {
@@ -277,6 +322,7 @@ export class UniAutocompleteInput extends BaseControl {
         if (!this.source) {
             return Observable.of([]);
         }
+
         // Local search
         if (Array.isArray(this.source)) {
             let filteredResults;
@@ -292,6 +338,9 @@ export class UniAutocompleteInput extends BaseControl {
     }
 
     private confirmSelection(item) {
+        if (item.isHeader) {
+            return;
+        }
         const undefinedToNull = val => val === undefined ? null : val;
         let previousValue = this.currentValue;
         this.isExpanded$.next(false); // = false;
@@ -339,6 +388,14 @@ export class UniAutocompleteInput extends BaseControl {
         this.isExpanded$.next(false);
     }
 
+    public onMouseOver(isHeader: boolean = false, item: any, index: number) {
+        if (isHeader) {
+            return;
+        }
+        this.selectedIndex = index;
+        this.selectedItem = item;
+    }
+
     private findIndex(value) {
         let result = -1;
         if (Array.isArray(this.options.source)) {
@@ -363,6 +420,9 @@ export class UniAutocompleteInput extends BaseControl {
                 if (!this.lookupResults.length) {
                     if (Array.isArray(this.options.source)) {
                         this.lookupResults = this.options.source;
+                        if (this.groupConfig) {
+                            this.formatGrouping();
+                        }
                     }
                 }
                 this.selectedItem = this.lookupResults[this.selectedIndex];
@@ -380,6 +440,9 @@ export class UniAutocompleteInput extends BaseControl {
                     if (!this.lookupResults.length) {
                         if (Array.isArray(this.options.source)) {
                             this.lookupResults = this.options.source;
+                            if (this.groupConfig) {
+                                this.formatGrouping();
+                            }
                         }
                     }
                     this.selectedItem = this.lookupResults[this.selectedIndex];

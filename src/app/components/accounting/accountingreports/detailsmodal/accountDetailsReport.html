@@ -23,11 +23,12 @@
                                         [includeIncomingBalance]="includeIncomingBalanceInDistributionReport$ | async"
                                         [dimensionType]="config.dimensionType"
                                         [dimensionId]="config.dimensionId"
-                                        (periodSelected)="periodSelected($event)">
+                                        (periodSelected)="periodSelected($event)"
+                                        (yearChange)="onYearSelected($event)">
         </distribution-period-report-part>
 
         <section class="dimension-result">
-            <h2>Transaksjoner i perioden {{(periodFilter3$ | async).name}}</h2> <button class="toggle-period-button" (click)="switchPeriods()">Vis tall for {{(periodFilter2$ | async).name}}</button>
+            <h2>Transaksjoner i perioden {{(periodFilter3$ | async).name}}</h2>
 
             <uni-table
                 [resource]="transactionsLookupFunction"
@@ -37,5 +38,3 @@
         </section>
     </section>
 </article>
-
-<image-modal></image-modal>

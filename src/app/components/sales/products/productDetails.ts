@@ -83,8 +83,7 @@ export class ProductDetails {
 
     public categoryFilter: ITag[] = [];
     public tagConfig: IUniTagsConfig = {
-        description: 'Kategori ',
-        helpText: 'Produktkategorier: ',
+        helpText: 'Produktkategorier',
         truncate: 20,
         autoCompleteConfig: {
             template: (obj: ProductCategory) => obj ? obj.Name : '',
@@ -352,13 +351,42 @@ export class ProductDetails {
             valueProperty: 'ID',
             displayProperty: 'VatCode',
             debounceTime: 100,
-            search: (searchValue: string) => Observable.from([this.vatTypes.filter((vt) => vt.VatCode === searchValue || vt.VatPercent.toString() === searchValue || vt.Name.toLowerCase().indexOf(searchValue.toLowerCase()) >= 0 || `${vt.VatCode}: ${vt.VatPercent}% – ${vt.Name}` === searchValue)]),
+            search: (searchValue: string) => {
+                if (!searchValue) {
+                    return [this.vatTypes];
+                } else {
+                    return [this.vatTypes.filter((vt) => vt.VatCode === searchValue
+                        || vt.VatPercent.toString() === searchValue
+                        || vt.Name.toLowerCase().indexOf(searchValue.toLowerCase()) >= 0
+                        || `${vt.VatCode}: ${vt.VatPercent}% – ${vt.Name}` === searchValue
+                    )];
+                }
+            },
             template: (vt: VatType) => vt ? `${vt.VatCode}: ${vt.VatPercent}% – ${vt.Name}` : '',
             events: {
                     select: (model: Product) => {
                         this.updateVatType(model);
                     }
-                }
+                },
+            groupConfig: {
+                groupKey: 'VatCodeGroupingValue',
+                visibleValueKey: 'Visible',
+                groups: [
+                    {
+                        key: 4,
+                        header: 'Salg/inntekter'
+                    },
+                    {
+                        key: 5,
+                        header: 'Salg uten mva.'
+                    },
+                    {
+                        key: 7,
+                        header: 'Egendefinerte koder'
+                    }
+
+                ]
+            }
         };
 
         let accountField: UniFieldLayout = this.fields$.getValue().find(x => x.Property === 'AccountID');
@@ -472,7 +500,6 @@ export class ProductDetails {
         this.categoryFilter = categories.map(x => {
             return { linkID: x.ProductCategoryLinkID, title: x.ProductCategoryName };
         });
-        this.tagConfig.description = this.categoryFilter.length ? 'Kategori: ' : 'Kategori';
     }
 
     // TODO: return ComponentLayout when the object respects the interface

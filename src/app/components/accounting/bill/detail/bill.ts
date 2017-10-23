@@ -126,7 +126,6 @@ export class BillView {
     @ViewChild(UniForm) public uniForm: UniForm;
     @ViewChild(BillSimpleJournalEntryView) private simpleJournalentry: BillSimpleJournalEntryView;
     @ViewChild(BillHistoryView) private historyView: BillHistoryView;
-    @ViewChild(ImageModal) public imageModal: ImageModal;
     @ViewChild(UniImage) public uniImage: UniImage;
 
     private supplierExpandOptions: Array<string> = [
@@ -147,14 +146,30 @@ export class BillView {
     public actions: IUniSaveAction[];
 
     private rootActions: IUniSaveAction[] = [
-        { label: lang.tool_save, action:
-            (done) => this.save(done), main: true, disabled: true },
-        { label: lang.tool_save_and_new, action:
-            (done) => this.saveAndGetNewDocument(done), main: true, disabled: true },
-        { label: lang.tool_delete, action:
-            (done) => this.tryDelete(done), main: false, disabled: true },
-        { label: lang.converter, action:
-            (done) => this.runConverter(this.files).then(() => done()), main: false, disabled: false },
+        {
+            label: lang.tool_save,
+            action: (done) => this.save(done),
+            main: true,
+            disabled: true
+        },
+        {
+            label: lang.tool_save_and_new,
+            action: (done) => this.saveAndGetNewDocument(done),
+            main: true,
+            disabled: true
+        },
+        {
+            label: lang.tool_delete,
+            action: (done) => this.tryDelete(done),
+            main: false,
+            disabled: true
+        },
+        {
+            label: lang.converter,
+            action: (done) => { this.runConverter(this.files); done(); },
+            main: false,
+            disabled: false
+        },
     ];
 
     private projects: Project[];
@@ -338,11 +353,16 @@ export class BillView {
         ];
 
 
-        this.uniSearchConfig = this.uniSearchSupplierConfig
-            .generateDoNotCreateNew(
-                this.supplierExpandOptions,
-                () => this.modalService.open(UniNewSupplierModal, { data: {} }).onClose
-            );
+        this.uniSearchConfig = this.uniSearchSupplierConfig.generateDoNotCreateNew(
+            this.supplierExpandOptions,
+            (currentInputValue) => {
+                return this.modalService.open(UniNewSupplierModal, {
+                    data: currentInputValue
+                }).onClose.asObservable().map((returnValue) => {
+                    this.uniForm.field('Supplier').focus();
+                    return returnValue;
+                });
+            });
 
         // Extend config with stuff that can't come from layout system
         let supplierField = fields.find(f => f.Property === 'Supplier');
@@ -515,17 +535,15 @@ export class BillView {
 
     /// =============================
 
-    private runConverter(files: Array<any>): Promise<boolean> {
-        return new Promise((resolve, reject) => {
-            if (files && files.length > 0) {
-                let file = this.uniImage.getCurrentFile() || files[0];
-                if (this.isOCR(file)) {
-                    return this.runOcr(file);
-                } else if (this.isEHF(file)) {
-                    return this.runEHF(file);
-                }
+    private runConverter(files: Array<any>) {
+        if (files && files.length > 0) {
+            let file = this.uniImage.getCurrentFile() || files[0];
+            if (this.isOCR(file)) {
+                this.runOcr(file);
+            } else if (this.isEHF(file)) {
+                this.runEHF(file);
             }
-        });
+        }
     }
 
     /// =============================
@@ -613,14 +631,19 @@ export class BillView {
 
     public onImageClicked(file: any) {
         let current = this.current.getValue();
-        let entityID = current.ID || 0;
+        let data = {
+            entity: 'SupplierInvoice',
+            entityID: current.ID || 0,
+            fileIDs: null,
+            showFileID: file.ID,
+            readonly: false,
+            size: UniImageSize.large
+        };
 
-        if (entityID > 0) {
-            this.imageModal.openReadOnly('SupplierInvoice', entityID, file.ID, UniImageSize.large);
-        } else {
-            let fileIds = this.files.map(file => file.ID);
-            this.imageModal.openReadOnlyFileIds('SupplierInvoice', fileIds, file.ID, UniImageSize.large);
+        if (data.entityID <= 0) {
+            data.fileIDs = this.files.map(f => f.ID);
         }
+        this.modalService.open(ImageModal, { data: data });
     }
 
     public onImageDeleted(file: any) {
@@ -896,14 +919,11 @@ export class BillView {
 
         let model = this.current.getValue();
 
-
-
         if (change['SupplierID']) {
             this.fetchNewSupplier(model.SupplierID);
         }
 
         if (change['Supplier'])  {
-            console.log(change['Supplier'].currentValue.ID);
             model.SupplierID = change['Supplier'].currentValue.ID;
         }
 
@@ -1820,22 +1840,51 @@ export class BillView {
                 });
             };
 
+            let isValidKID: boolean = this.modulusService.isValidKID(current.PaymentID);
             if (current.ID) {
-                saveFunc();
+                if (isValidKID) {
+                    saveFunc();
+                } else {
+                    this.modalService.open(UniConfirmModalV2,
+                        {
+                            buttonLabels: {
+                                accept: 'Lagre',
+                                cancel: 'Avbryt'
+                            },
+                            header: 'Vil du lagre?',
+                            message: `<li>KID-nr. er ikke gyldig.</li><br>Du kan ignorere dette og lagre om ønskelig.`
+                        }).onClose.subscribe((res) => {
+                            if (res === ConfirmActions.ACCEPT) {
+                                saveFunc();
+                            } else {
+                                resolve({ success: false });
+                                if (done) {
+                                    done('Lagring avbrutt');
+                                }
+                            }
+                        });
+                }
             } else {
                 // Query to see if invoiceID/supplierID combo has been used before
                 this.supplierInvoiceService.checkInvoiceData(current.InvoiceNumber, current.SupplierID)
                 .subscribe((data: any) => {
-                    if (data && data.Data && data.Data[0].countid > 0) {
+                    if ((data && data.Data && data.Data[0].countid > 0) || !isValidKID) {
+                        let message: string = '';
+                        if (!isValidKID) {
+                            message += `<li>KID-nr. er ikke gyldig.</li>`;
+                        }
+                        if (data && data.Data && data.Data[0].countid > 0) {
+                            message += `<li>Faktura med samme fakturanr. og leverandør er allerede lagret.</li>`;
+                        }
+                        message += `<br>Du kan ignorere dette og lagre om ønskelig.`;
                         this.modalService.open(UniConfirmModalV2,
                             {
                                 buttonLabels: {
-                                    accept: 'Fortsett',
+                                    accept: 'Lagre',
                                     cancel: 'Avbryt'
                                 },
-                                header: 'Vil du lagre? ',
-                                message: `En faktura med dette fakturanr og samme leverandør er allerede lagret.
-                                Er  du sikker på at du vil fortsette?`
+                                header: 'Vil du lagre?',
+                                message: message
                             }).onClose.subscribe((res) => {
                                 if (res === ConfirmActions.ACCEPT) {
                                     saveFunc();

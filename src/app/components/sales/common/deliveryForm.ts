@@ -78,22 +78,31 @@ export class TofDeliveryForm {
     public onFormChange(changes) {
         const model = this.model$.getValue();
 
-        if (changes['PaymentTermsID'] && changes['PaymentTermsID'].currentValue) {
-            model.PaymentTerms = this.paymentTerms.find((term) => {
-                return term.ID ===  changes['PaymentTermsID'].currentValue;
-            });
+        if (changes['PaymentTermsID']) {
+            if (changes['PaymentTermsID'].currentValue) {
+                model.PaymentTerms = this.paymentTerms.find((term) => {
+                    return term.ID ===  changes['PaymentTermsID'].currentValue;
+                });
 
-            if (this.entityType === 'CustomerInvoice') {
-                this.setPaymentDueDate(this.entity);
+                if (this.entityType === 'CustomerInvoice') {
+                    this.setPaymentDueDate(this.entity);
+                }
+            } else {
+                // runs if delivery term dropdown is reset/chosen as empty value, to empty the entity
+                model.PaymentTerms = null;
             }
         }
 
-        if (changes['DeliveryTermsID'] && changes['DeliveryTermsID'].currentValue) {
-            model.DeliveryTerms = this.deliveryTerms.find((term) => {
-                return term.ID ===  changes['DeliveryTermsID'].currentValue;
-            });
-
-            this.setDeliveryDate(this.entity);
+        if (changes['DeliveryTermsID']) {
+            if (changes['DeliveryTermsID'].currentValue) {
+                model.DeliveryTerms = this.deliveryTerms.find((term) => {
+                    return term.ID ===  changes['DeliveryTermsID'].currentValue;
+                });
+                this.setDeliveryDate(this.entity);
+            } else {
+                // runs if delivery term dropdown is reset/chosen as empty value, to empty the entity
+                model.DeliveryTerms = null;
+            }
         }
 
         let shippingAddress = changes['_shippingAddress'];
@@ -164,6 +173,20 @@ export class TofDeliveryForm {
             {
                 FieldSet: 1,
                 FieldSetColumn: 1,
+                EntityType: this.entityType,
+                Property: 'Requisition',
+                Placement: 1,
+                FieldType: FieldType.TEXT,
+                Label: 'Rekvisisjon',
+                Description: '',
+                HelpText: '',
+                Section: 0,
+                StatusCode: 0,
+                ID: 6
+            },
+            {
+                FieldSet: 1,
+                FieldSetColumn: 1,
                 Legend: 'Betingelser og levering',
                 EntityType: this.entityType,
                 Property: 'PaymentTermsID',
@@ -179,7 +202,8 @@ export class TofDeliveryForm {
                     template: (item) => {
                         return item !== null ? (item.CreditDays + ' kredittdager (' + item.Name + ')') : '';
                     },
-                    debounceTime: 200
+                    debounceTime: 200,
+                    addEmptyValue: true
                 }
             },
             {
@@ -199,12 +223,13 @@ export class TofDeliveryForm {
                     template: (item) => {
                         return item !== null ? (item.CreditDays + ' leveringsdager (' + item.Name + ')') : '';
                     },
-                    debounceTime: 200
+                    debounceTime: 200,
+                    addEmptyValue: true
                 }
             },
             {
                 FieldSet: 1,
-                FieldSetColumn: 1,
+                FieldSetColumn: 2,
                 EntityType: this.entityType,
                 Property: 'DeliveryDate',
                 Placement: 1,

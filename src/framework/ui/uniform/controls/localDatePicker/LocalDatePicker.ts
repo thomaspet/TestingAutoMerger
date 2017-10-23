@@ -42,8 +42,8 @@ import {LocalDate} from '../../../../../app/unientities';
     `
 })
 export class LocalDatePickerInput extends BaseControl{
-    @ViewChild('input') private inputElement: ElementRef;
-    @ViewChild(UniCalendar) private calendar: UniCalendar;
+    @ViewChild('input') public inputElement: ElementRef;
+    @ViewChild(UniCalendar) public calendar: UniCalendar;
 
     @Input() public field: UniFieldLayout;
     @Input() public model: any;
@@ -54,11 +54,11 @@ export class LocalDatePickerInput extends BaseControl{
     @Output() public inputEvent: EventEmitter<SimpleChanges> = new EventEmitter<SimpleChanges>();
     @Output() public focusEvent: EventEmitter<LocalDatePickerInput> = new EventEmitter<LocalDatePickerInput>();
 
-    private calendarOpen: boolean;
-    private selectedDate: Date;
-    private options: any;
+    public calendarOpen: boolean;
+    public selectedDate: Date;
+    public options: any;
 
-    constructor(private cd: ChangeDetectorRef) {
+    constructor(public cd: ChangeDetectorRef) {
         super();
     }
 
@@ -85,7 +85,7 @@ export class LocalDatePickerInput extends BaseControl{
         this.createCalendarEvents();
     }
 
-    private createOpenCloseListeners() {
+    public createOpenCloseListeners() {
         const keyDownEvent = Observable.fromEvent(this.inputElement.nativeElement, 'keydown');
         const f4AndSpaceEvent = keyDownEvent.filter((event: KeyboardEvent) => {
             return event.keyCode === KeyCodes.F4 || event.keyCode === KeyCodes.SPACE;
@@ -156,22 +156,25 @@ export class LocalDatePickerInput extends BaseControl{
         this.dateSelected(date);
     }
 
-    private dateSelected(date) {
+    public dateSelected(date) {
         this.selectedDate = date;
         this.control.setValue(date ? moment(date).format('L') : '');
         let previousValue = _.get(this.model, this.field.Property) || null;
+        if (typeof previousValue === 'string') {
+            previousValue = new LocalDate(previousValue);
+        }
         _.set(this.model, this.field.Property, date && new LocalDate(date));
         this.emitChange(previousValue, date && new LocalDate(date));
         this.emitInstantChange(previousValue, date && new LocalDate(date), !!date);
     }
 
-    private selectAndMove(date) {
+    public selectAndMove(date) {
         this.dateSelected(date);
         this.close();
         this.setFocusOnNextField();
     }
 
-    private setFocusOnNextField() {
+    public setFocusOnNextField() {
         const uniFieldParent = this.findAncestor(this.inputElement.nativeElement, 'uni-field');
         if (!uniFieldParent) {
             return;
@@ -194,7 +197,7 @@ export class LocalDatePickerInput extends BaseControl{
         }
     }
 
-    private findAncestor(element: HTMLElement, selector: string): HTMLElement {
+    public findAncestor(element: HTMLElement, selector: string): HTMLElement {
         element = element.parentElement;
         while (element) {
             if (element.matches(selector)) {
@@ -204,7 +207,7 @@ export class LocalDatePickerInput extends BaseControl{
         }
     }
 
-    private createCalendarEvents() {
+    public createCalendarEvents() {
         const keyDownEvent = Observable.fromEvent(this.inputElement.nativeElement, 'keydown')
         .filter(() => this.calendarOpen)
         .filter((event: KeyboardEvent) => !event.altKey);
