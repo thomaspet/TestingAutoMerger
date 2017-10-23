@@ -131,19 +131,5 @@ body.half .employee-personal-details form
   min-width: 12rem
   z-index: map-get($zindex, hamburger)
 
-  &:before
-    $size: .5rem
-    $color: $uni-color-negative
-    content: ''
-    display: block
-    position: absolute
-    height: 0
-    width: 0
-    top: -#{$size}
-    right: calc(50% - (#{$size} / 2))
-    border-bottom: $size solid $color
-    border-left: $size solid transparent
-    border-right: $size solid transparent
-
 %popover-active
   display: block
