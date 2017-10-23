@@ -604,7 +604,7 @@ export class BillsView {
             .setSearchable(false)
             .setMultiRowSelect(false)
             .setColumns(cols)
-            .setPageSize(12)
+            .setPageSize(this.calculatePagesize())
             .setColumnMenuVisible(true)
             .setDeleteButton(true);
         this.tableConfig = cfg;
@@ -680,7 +680,7 @@ export class BillsView {
             .setSearchable(false)
             .setMultiRowSelect(true)
             .setColumns(cols)
-            .setPageSize(12)
+            .setPageSize(this.calculatePagesize())
             .setColumnMenuVisible(true);
     }
 
@@ -837,6 +837,18 @@ export class BillsView {
 
             this.router.navigateByUrl('/accounting/journalentry/manual');
         }
+    }
+
+    private calculatePagesize(): number {
+        let pageSize = window.innerHeight // Window size
+        - 76 // Navbar + margin
+        - 208 // Body margin and padding
+        - 32 // Application class margin
+        - 88; // Unitable pagination and sum
+
+        pageSize = pageSize <= 33 ? 10 : Math.floor(pageSize / 34); // 34 = heigth of a single row
+
+        return pageSize;
     }
 
     private getLayout() {
