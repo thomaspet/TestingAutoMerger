@@ -24,7 +24,7 @@ export const initRoutes = [
         component: ConfirmInvite
     },
     {
-        path: 'signup',
+        path: 'sign-up',
         component: Signup
     }
 ];
