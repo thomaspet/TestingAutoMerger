@@ -54,13 +54,13 @@ export interface IUploadConfig {
             </picture>
 
             <section class="uni-image-pager">
-                <a *ngIf="files.length > 1" class="prev" (click)="previous()"></a>
+                <a *ngIf="files.length > 1 || (files[currentFileIndex] && files[currentFileIndex].Pages > 1)" class="prev" (click)="previous()"></a>
                 <label>{{fileInfo}}</label>
 
                 <a *ngIf="this.printOut" class="print" (click)="print()"></a>
 
                 <a class="trash" (click)="deleteImage()" *ngIf="!readonly"></a>
-                <a *ngIf="files.length > 1" class="next" (click)="next()"></a>
+                <a *ngIf="files.length > 1 || (files[currentFileIndex] && files[currentFileIndex].Pages > 1)" class="next" (click)="next()"></a>
             </section>
 
             <span id="span-area-highlighter" class="span-area-highlight-class" [ngStyle]="highlightStyle"></span>
