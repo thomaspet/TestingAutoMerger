@@ -325,6 +325,7 @@ export class PostPost {
         this.postpost.showHideEntries(filter.name);
         this.currentFilter = filter.name;
         this.setupSaveActions();
+        this.reloadRegister();
     }
 
     private onAllSelectedLocked(allLocked) {
@@ -337,12 +338,23 @@ export class PostPost {
         return date ? `and FinancialDate le '${date}'` : '';
     }
 
+    private getStatusFilter(): string {
+        switch (this.currentFilter) {
+            case 'OPEN':
+                return ` and (StatusCode eq ${StatusCodeJournalEntryLine.Open} or StatusCode eq ${StatusCodeJournalEntryLine.PartlyMarked})`;
+            case 'MARKED':
+                return ` and StatusCode eq ${StatusCodeJournalEntryLine.Marked}`;
+        }
+
+        return '';
+    }
+
     private loadCustomers() {
         this.statisticsService
             .GetAllUnwrapped(`model=JournalEntryLine&` +
                              `select=Customer.ID as ID,Customer.CustomerNumber as AccountNumber,Info.Name as AccountName,sum(RestAmount) as SumAmount&` +
                              `expand=SubAccount,SubAccount.Customer,SubAccount.Customer.Info&` +
-                             `filter=SubAccount.CustomerID gt 0 and (StatusCode eq ${StatusCodeJournalEntryLine.Open} or StatusCode eq ${StatusCodeJournalEntryLine.PartlyMarked}) ${this.getDateFilter()}&` +
+                             `filter=SubAccount.CustomerID gt 0 ${this.getStatusFilter()} ${this.getDateFilter()}&` +
                              `orderby=Customer.CustomerNumber`)
             .subscribe(accounts => {
                 this.accounts$.next(accounts);
@@ -354,7 +366,7 @@ export class PostPost {
             .GetAllUnwrapped(`model=JournalEntryLine&` +
                              `select=Supplier.ID as ID,Supplier.SupplierNumber as AccountNumber,Info.Name as AccountName,sum(RestAmount) as SumAmount&` +
                              `expand=SubAccount,SubAccount.Supplier,SubAccount.Supplier.Info&` +
-                             `filter=SubAccount.SupplierID gt 0 and (StatusCode eq ${StatusCodeJournalEntryLine.Open} or StatusCode eq ${StatusCodeJournalEntryLine.PartlyMarked}) ${this.getDateFilter()}&` +
+                             `filter=SubAccount.SupplierID gt 0 ${this.getStatusFilter()} ${this.getDateFilter()}&` +
                              `orderby=Supplier.SupplierNumber`)
             .subscribe(accounts => {
                 this.accounts$.next(accounts);
@@ -366,11 +378,25 @@ export class PostPost {
             .GetAllUnwrapped(`model=JournalEntryLine&` +
                              `select=Account.ID as ID,Account.AccountNumber as AccountNumber,Account.AccountName as AccountName,sum(RestAmount) as SumAmount&` +
                              `expand=Account&` +
-                             `filter=Account.UsePostPost eq 1 and (StatusCode eq ${StatusCodeJournalEntryLine.Open} or StatusCode eq ${StatusCodeJournalEntryLine.PartlyMarked}) ${this.getDateFilter()}&` +
+                             `filter=Account.UsePostPost eq 1 ${this.getStatusFilter()} ${this.getDateFilter()}&` +
                              `orderby=Account.AccountNumber`)
             .subscribe(accounts => {
                 this.accounts$.next(accounts);
             });
+    }
+
+    private reloadRegister() {
+        switch(this.register) {
+            case 'customer':
+                this.loadCustomers();
+                break;
+            case 'supplier':
+                this.loadSuppliers();
+                break;
+            case 'account':
+                this.loadAccounts();
+                break;
+        };
     }
 
     private changeRegister(register) {
