@@ -1,16 +1,56 @@
 <section class="init-container">
+    <section id="marketing-content" *ngIf="!marketingContentHidden">
+        <section class="marketing-content-wrapper">
+            <img src="../../../assets/ue-logo.png" alt="UE logo">
+            <h1>
+                Nysgjerrig på fremtidens økonomisystem?
+                <br>Prøv gratis i 30 dager
+            </h1>
 
-    <section class="marketing-content">
-        <h1>Velkommen som bruker av Uni&nbsp;Economy</h1>
-        <p>Uni&nbsp;Economy er et webbasert økonomisystem, utviklet og levert av Uni&nbsp;Micro&nbsp;AS.</p>
-        <p>Vi ønsker deg en god arbeidsdag.</p>
-        <p>Mvh Uni&nbsp;Micro&nbsp;AS</p>
+            <p>Vi gleder oss til å vise dere vår skybaserte løsning, Uni Economy.</p>
+            <p>
+                Uni Economy er utviklet spesielt med tanke på tjenestebedrifter og regnskapsbyråer,
+                <br>og inneholder moduler for salg, regnskap, lønn og timefangst.
+            </p>
+
+            <form class="registration-form" (submit)="register()">
+                <input #registrationInput
+                    [(ngModel)]="emailInput"
+                    [ngModelOptions]="{standalone: true}"
+                    [disabled]="working"
+                    placeholder="E-post"
+                />
+
+                <button type="button"
+                    [routerLink]="['./signup']"
+                    [attr.aria-busy]="working"
+                    [disabled]="working">
+
+                    {{registrationFormExpanded ? 'Start' : 'Prøv gratis'}}
+                </button>
+
+            </form>
+            <!-- Embedded video -->
+            <div id="ue-video" class="wistia_responsive_padding" style="padding:56.25% 0 0 0;position:relative;"><div class="wistia_responsive_wrapper" style="height:100%;left:0;position:absolute;top:0;width:100%;"><iframe src="https://fast.wistia.net/embed/iframe/qpu2ffuxm0?videoFoam=true" title="Wistia video player" allowtransparency="true" frameborder="0" scrolling="no" class="wistia_embed" name="wistia_embed" allowfullscreen mozallowfullscreen webkitallowfullscreen oallowfullscreen msallowfullscreen width="100%" height="100%"></iframe></div></div>
+        </section>
     </section>
 
-    <section class="view-content">
-        <img src="../../../assets/ue-logo.png" alt="Uni Economy logo">
+    <section id="init-content">
+        <button class="marketing-toggle-btn"
+            [ngClass]="{'expand-content': marketingContentHidden}"
+            (click)="toggleMarketingContent()">
 
-        <router-outlet></router-outlet>
+            Vis/skjul markedsinnhold
+        </button>
+
+        <section class="view-container">
+            <img src="../../../assets/economy-logo.png" alt="Uni Economy logo">
+            <router-outlet></router-outlet>
+        </section>
+
+        <!-- <footer>
+            <span>Uni Micro AS &#169; 2017</span>
+        </footer> -->
     </section>
 
 </section>

@@ -5,14 +5,14 @@ $uni-placeholder-text-color: $uni-color-scale5
 // warning and success states of our inputs
 @mixin uniTextInputVariants($color)
     border-color: $color
-    background: transparentize($color, .9)
+    background-color: transparentize($color, .9)
 
     &:focus
         border-color: $color
         box-shadow: 0 0 pxToRem(5) transparentize($color, .5)
 
     &[disabled]
-        background: transparentize($uni-color-scale9, .4)
+        background-color: transparentize($uni-color-scale9, .4)
 
 // Styling all our text-based inputs. Should you need to style something as a
 // text input, you should probably consider either putting it in here, or

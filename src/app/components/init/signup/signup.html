@@ -1,0 +1,91 @@
+<article class="authentication-component">
+    <p *ngIf="!verificationCode && !successMessage">Vennligst registrer deg her for å prøve Uni Economy gratis i 30 dager.</p>
+    <p *ngIf="verificationCode && !successMessage">Selskapet ditt er klart for oppretting. Vennligst fyll ut ønsket brukernavn og passord for å komme i gang.</p>
+
+    <small class="validation error" *ngIf="errorMessage">{{errorMessage}}</small>
+    <small class="validation good" *ngIf="successMessage">{{successMessage}}</small>
+
+    <form #step1="ngForm" [formGroup]="step1Form" (ngSubmit)="submitStep1Form()">
+        <label for="companyNameInput">Selskapsnavn</label>
+        <input id="companyNameInput"
+            type="text"
+            placeholder="Selskapsnavn"
+            autofocus
+            formControlName="CompanyName"
+        />
+
+        <label for="displayNameInput">Ditt navn</label>
+        <input id="displayNameInput"
+            type="text"
+            placeholder="Ditt navn"
+            formControlName="DisplayName"
+        />
+
+        <label for="emailInput">Epost</label>
+        <input id="emailInput"
+            type="email"
+            placeholder="Epost"
+            formControlName="Email"
+        />
+
+        <label for="phoneInput">Telefonnummer</label>
+        <input id="phoneInput"
+            type="phone"
+            placeholder="Telefonnummer"
+            formControlName="PhoneNumber"
+        />
+
+        <button class="bad"
+            *ngIf="!verificationCode"
+            [attr.aria-busy]="busy"
+            [disabled]="busy || !step1.form.valid"
+            (click)="submitStep1Form()">
+            START REGISTRERING
+        </button>
+    </form>
+
+    <form #step2="ngForm" *ngIf="verificationCode" [formGroup]="step2Form" (ngSubmit)="notImplemented()">
+        <label for="usernameInput">Brukernavn</label>
+        <input id="usernameInput"
+            type="text"
+            autofocus
+            placeholder="Brukernavn"
+            formControlName="UserName"
+        />
+
+        <label for="passwordInput">Passord</label>
+        <input id="passwordInput"
+            type="password"
+            placeholder="Passord"
+            formControlName="Password"
+        />
+
+        <label for="confirmPasswordInput">Bekreft passord</label>
+        <input id="confirmPasswordInput"
+            type="password"
+            placeholder="Bekreft passord"
+            formControlName="ConfirmPassword"
+        />
+
+        <ul class="password-validation">
+            <li [ngClass]="{'completed': passwordRules.length}">8-16 tegn</li>
+            <li [ngClass]="{'completed': passwordRules.upperCase}">Stor bokstav</li>
+            <li [ngClass]="{'completed': passwordRules.lowerCase}">Liten bokstav</li>
+            <li [ngClass]="{'completed': passwordRules.numOrSymbol}">Tall eller symbol</li>
+        </ul>
+
+        <button class="bad"
+            [attr.aria-busy]="busy"
+            [disabled]="busy || !step2.form.valid"
+            (click)="submitStep2Form()">
+            FULLFØR REGISTRERING
+        </button>
+    </form>
+
+    <!-- <button class="c2a" (click)="submitStep1Form()">
+        {{verificationCode ? 'FULLFØR REGISTRERING' : 'START REGISTRERING'}}
+    </button> -->
+
+    <a [routerLink]="['../login']">Tilbake til innlogging</a>
+
+</article>

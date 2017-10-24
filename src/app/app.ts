@@ -54,7 +54,7 @@ export class App {
         });
 
         authService.authentication$.subscribe((authDetails) => {
-            this.isAuthenticated = authDetails.token && authDetails.activeCompany;
+            this.isAuthenticated = !!authDetails.user;
             if (this.isAuthenticated) {
                 this.toastService.clear();
                 this.initialize();

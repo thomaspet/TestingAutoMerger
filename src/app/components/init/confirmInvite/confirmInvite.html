@@ -4,21 +4,38 @@
     <small class="validation bad" *ngIf="passwordMismatch">Passord må være like</small>
 
     <form *ngIf="validInvite" [formGroup]="confirmInviteForm" (ngSubmit)="submitUser()" #f="ngForm">
-        <label>Navn
-            <input type="text" formControlName="displayName" [disabled]="!validInvite">
-        </label>
+        <label for="nameInput">Navn</label>
+        <input id="nameInput"
+            type="text"
+            placeholder="Navn"
+            autofocus
+            formControlName="displayName"
+            [disabled]="!validInvite"
+        />
 
-        <label>Brukernavn
-            <input type="text" formControlName="username" [disabled]="!validInvite">
-        </label>
+        <label for="usernameInput">Brukernavn</label>
+        <input id="usernameInput"
+            type="text"
+            placeholder="Brukernavn"
+            formControlName="username"
+            [disabled]="!validInvite"
+        />
 
-        <label>Passord
-            <input type="password" formControlName="password" [disabled]="!validInvite">
-        </label>
+        <label for="passwordInput">Passord</label>
+        <input id="passwordInput"
+            type="password"
+            placeholder="Passord"
+            formControlName="password"
+            [disabled]="!validInvite"
+        />
 
-        <label>Bekreft passord
-            <input type="password" formControlName="confirmPassword" [disabled]="!validInvite">
-        </label>
+        <label for="confirmPasswordInput">Bekreft passord</label>
+        <input id="confirmPasswordInput"
+            type="password"
+            placeholder="Bekreft passord"
+            formControlName="confirmPassword"
+            [disabled]="!validInvite"
+        />
 
         <button type="submit" class="c2a"
                 [attr.aria-busy]="busy"
