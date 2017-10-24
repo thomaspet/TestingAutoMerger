@@ -1,5 +1,4 @@
 import {Component, ChangeDetectionStrategy, ChangeDetectorRef} from '@angular/core';
-import {WidgetDataService} from '../widgetDataService';
 import {IUniWidget} from '../uniWidget';
 import {Router} from '@angular/router';
 import {AuthService} from '../../../authService';
@@ -27,7 +26,6 @@ export class UniFlexWidget {
     private negative: boolean;
 
     constructor(
-        private widgetDataService: WidgetDataService,
         private router: Router,
         private authService: AuthService,
         private workerService: WorkerService,
@@ -66,7 +64,8 @@ export class UniFlexWidget {
                 this.displayValue = hours.toFixed(1) + ' timer';
                 this.negative = hours < 0;
                 this.cdr.markForCheck();
-            }
+            },
+            err => {}
         );
     }
 

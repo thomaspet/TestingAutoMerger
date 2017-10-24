@@ -31,19 +31,21 @@ export class UniOverdueInvoiceWidget {
 
     public ngAfterViewInit() {
         this.widgetDataService.getData("/api/statistics?skip=0&top=50&model=CustomerInvoice&select=sum(CustomerInvoice.RestAmount) as sum&filter=(CustomerInvoice.PaymentDueDate le 'getdate()' )")
-            .subscribe((res) => {
-                if (!res || !res.Data) {
-                    return;
-                }
+            .subscribe(
+                (res) => {
+                    if (!res || !res.Data) {
+                        return;
+                    }
 
-                const sum = res.Data[0] && (res.Data[0].sum || 0);
-                this.positive = sum <= 0;
-                this.displayValue = sum.toFixed(2)
-                    .replace(/\B(?=(\d{3})+(?!\d))/g, ' ')
-                    .replace('.', ',');
+                    const sum = res.Data[0] && (res.Data[0].sum || 0);
+                    this.positive = sum <= 0;
+                    this.displayValue = sum.toFixed(2)
+                        .replace(/\B(?=(\d{3})+(?!\d))/g, ' ')
+                        .replace('.', ',');
 
-                this.cdr.markForCheck();
-            });
+                    this.cdr.markForCheck();
+                }, err => {}
+            );
     }
 
     public onClickNavigate() {
