@@ -418,10 +418,17 @@ export class OrderDetails {
             }
         }
 
+        this.updateCurrency(order, shouldGetCurrencyRate);
+
+        this.order = _.cloneDeep(order);
+    }
+
+    private updateCurrency(order: CustomerOrder, getCurrencyRate: boolean) {
+        let shouldGetCurrencyRate = getCurrencyRate;
+
         // update currency code in detailsForm and tradeItemTable to selected currency code if selected
         // or from customer
-        if ((!this.currencyCodeID && order.CurrencyCodeID)
-            || this.currencyCodeID !== order.CurrencyCodeID) {
+        if ((!this.currencyCodeID && order.CurrencyCodeID) || this.currencyCodeID !== order.CurrencyCodeID) {
             this.currencyCodeID = order.CurrencyCodeID;
             this.tradeItemTable.updateAllItemVatCodes(this.currencyCodeID);
             shouldGetCurrencyRate = true;
@@ -434,8 +441,6 @@ export class OrderDetails {
         if (this.order && order.CurrencyCodeID !== this.order.CurrencyCodeID) {
             shouldGetCurrencyRate = true;
         }
-
-        this.order = _.cloneDeep(order);
 
         if (shouldGetCurrencyRate) {
             this.getUpdatedCurrencyExchangeRate(order)
@@ -587,6 +592,8 @@ export class OrderDetails {
 
                 order.DefaultSeller = order.DefaultSeller || new SellerLink();
                 this.currentDefaultProjectID = order.DefaultDimensions.ProjectID;
+
+                this.updateCurrency(order, true);
         
                 this.setTabTitle();
                 this.updateToolbar();

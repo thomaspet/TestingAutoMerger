@@ -502,14 +502,21 @@ export class InvoiceDetails {
             }
         }
 
+        this.updateCurrency(invoice, shouldGetCurrencyRate);
+
+        this.invoice = _.cloneDeep(invoice);
+    }
+
+    private updateCurrency(invoice: CustomerInvoice, getCurrencyRate: boolean) {
+        let shouldGetCurrencyRate = getCurrencyRate;
+
         if (this.invoice && this.invoice.InvoiceDate.toString() !== invoice.InvoiceDate.toString()) {
             shouldGetCurrencyRate = true;
         }
 
         // update currency code in detailsForm and tradeItemTable to selected currency code if selected
         // or from customer
-        if ((!this.currencyCodeID && invoice.CurrencyCodeID)
-            || this.currencyCodeID !== invoice.CurrencyCodeID) {
+        if ((!this.currencyCodeID && invoice.CurrencyCodeID) || this.currencyCodeID !== invoice.CurrencyCodeID) {
             this.currencyCodeID = invoice.CurrencyCodeID;
             this.tradeItemTable.updateAllItemVatCodes(this.currencyCodeID);
             shouldGetCurrencyRate = true;
@@ -518,8 +525,6 @@ export class InvoiceDetails {
         if (this.invoice && invoice.CurrencyCodeID !== this.invoice.CurrencyCodeID) {
             shouldGetCurrencyRate = true;
         }
-
-        this.invoice = _.cloneDeep(invoice);
 
         // If not getting currencyrate, we're done
         if (!shouldGetCurrencyRate) {
@@ -969,6 +974,8 @@ export class InvoiceDetails {
 
                 invoice.DefaultSeller = invoice.DefaultSeller || new SellerLink();
                 this.currentDefaultProjectID = invoice.DefaultDimensions.ProjectID;
+
+                this.updateCurrency(invoice, true);
 
                 this.invoice = _.cloneDeep(invoice);
                 this.recalcDebouncer.next(invoice.Items);

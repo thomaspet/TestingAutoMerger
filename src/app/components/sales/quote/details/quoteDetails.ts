@@ -370,6 +370,8 @@ export class QuoteDetails {
                 quote.DefaultSeller = quote.DefaultSeller || new SellerLink();
                 this.currentDefaultProjectID = quote.DefaultDimensions.ProjectID;
 
+                this.updateCurrency(quote, true);
+
                 this.quote = _.cloneDeep(quote);
                 this.recalcItemSums(quote.Items);
                 this.setTabTitle();
@@ -422,13 +424,24 @@ export class QuoteDetails {
             }
         }
 
+        if (quote.QuoteDate && !quote.ValidUntilDate) {
+            quote.ValidUntilDate = new LocalDate(moment(quote.QuoteDate).add(1, 'month').toDate());
+        }
+
+        this.updateCurrency(quote, shouldGetCurrencyRate);
+
+        this.quote = _.cloneDeep(quote);
+    }
+
+    private updateCurrency(quote: CustomerQuote, getCurrencyRate: boolean) {
+        let shouldGetCurrencyRate = getCurrencyRate;
+
         // update currency code in detailsForm and tradeItemTable to selected currency code if selected
         // or from customer
-        if ((!this.currencyCodeID && quote.CurrencyCodeID)
-            || this.currencyCodeID !== quote.CurrencyCodeID) {
-            this.currencyCodeID = quote.CurrencyCodeID;
-            this.tradeItemTable.updateAllItemVatCodes(this.currencyCodeID);
-            shouldGetCurrencyRate = true;
+        if ((!this.currencyCodeID && quote.CurrencyCodeID) || this.currencyCodeID !== quote.CurrencyCodeID) {
+        this.currencyCodeID = quote.CurrencyCodeID;
+        this.tradeItemTable.updateAllItemVatCodes(this.currencyCodeID);
+        shouldGetCurrencyRate = true;
         }
 
         if (this.quote && this.quote.QuoteDate.toString() !== quote.QuoteDate.toString()) {
@@ -438,12 +451,6 @@ export class QuoteDetails {
         if (this.quote && quote.CurrencyCodeID !== this.quote.CurrencyCodeID) {
             shouldGetCurrencyRate = true;
         }
-
-        if (quote.QuoteDate && !quote.ValidUntilDate) {
-            quote.ValidUntilDate = new LocalDate(moment(quote.QuoteDate).add(1, 'month').toDate());
-        }
-
-        this.quote = _.cloneDeep(quote);
 
         if (shouldGetCurrencyRate) {
             this.getUpdatedCurrencyExchangeRate(quote)
