@@ -3,24 +3,24 @@
         display: none
 
     uni-init
-        #marketing-content,
+        #marketing-content
+            margin: 2rem 10%
+            padding-top: 2rem !important
+            img
+                display: none
+
         #init-content
-            flex-basis: 100%
             margin: 2rem 10% 0 10%
-
-        #init-content
             padding-top: 0 !important
-
+            img
+                padding: 1rem 0 0 0 !important
             .view-container
                 width: 100% !important
-                margin-top: 0 !important
+                padding-top: 1rem
                 background: $uni-color-negative
-
-            img
-                padding-bottom: 0 !important
-
             .authentication-component
                 box-shadow: none
+
 
 @media screen and (max-width: 950px)
     uni-init
@@ -54,33 +54,29 @@ uni-init
         min-height: 100%
         padding: 0
 
-    #marketing-content, #init-content
-        // Vertical align
-        display: flex
-        flex-flow: column
-        justify-content: center
-
+    #marketing-content,
+    #init-content
+        padding-top: 6rem
 
     #marketing-content
         order: 1
         flex: 1 1 57%
-        min-height: 100%
-        padding: 2rem
         box-sizing: border-box
         background: $uni-color-negative
         color: $uni-color-positive
-        text-align: center // center wrapper element
 
-        .marketing-content-wrapper
-            display: inline-block
-            margin: 0 auto
-            text-align: left
+        display: flex
+        flex-flow: row
+        justify-content: center
 
         img
             width: 3rem
+            position: absolute
+            top: 1rem
 
         h1
             font-size: 2.5rem
+            margin-top: 0
 
         p
             font-size: 1.25rem
@@ -98,7 +94,7 @@ uni-init
             button
                 min-width: 10rem
                 margin-left: 0
-                background: $uni-color-bad // #c53012
+                background: $uni-color-bad
                 color: $uni-color-negative
 
                 &[aria-busy]:not([aria-busy=false]):before
@@ -123,18 +119,17 @@ uni-init
     #init-content
         order: 2
         flex: 1 1 43%
-        min-height: 100%
         position: relative
         box-sizing: border-box
 
         .view-container
             width: 30rem
-            margin: -2rem auto 0 auto
+            margin: 0 auto
 
         img
             display: block
             margin: 0 auto
-            padding: 1rem 0 2rem 0
+            padding: 0 0 2rem 0
             width: 18rem
 
         .marketing-toggle-btn
@@ -212,24 +207,16 @@ uni-init
         font-size: .9rem
 
         li
-            color: $uni-color-scale7 // lighten($uni-color-c2a, 5%)
+            color: $uni-color-scale7
 
             &:before
-                content: '🞩' //'✓'
-                // width: .35rem
-                // height: .35rem
-                // float: left
+                content: '🞩'
                 margin-right: .5rem
-                // margin: .6rem .5rem 0 0
-                // border-radius: 50%
-                // background: lighten($uni-color-c2a, 5%)
-
 
             &.completed
-                color: $uni-color-c2a //$uni-color-scale7
+                color: $uni-color-c2a
                 &:before
                     content: '✓'
-                    // background: $uni-color-scale7
 
     .uniSelect_input
         height: 2.5rem
