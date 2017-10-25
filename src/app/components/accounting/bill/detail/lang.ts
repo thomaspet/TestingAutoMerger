@@ -31,7 +31,9 @@ export const billViewLanguage = {
     tool_save_and_new: 'Lagre og start ny',
     tool_delete: 'Slett',
     save_error: 'Feil ved lagring',
-    save_success: 'Lagret ok',
+    save_success: 'Lagret',
+    assign_success: 'Tildelt',
+    reAssign_success: 'Klar til å tildele på nytt',
 
     delete_nothing_todo: 'Ingenting å slette',
     delete_error: 'Feil ved sletting',

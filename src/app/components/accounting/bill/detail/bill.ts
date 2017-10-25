@@ -14,7 +14,8 @@ import {
     Supplier, SupplierInvoice, JournalEntryLineDraft,
     StatusCodeSupplierInvoice, BankAccount, LocalDate,
     InvoicePaymentData, CurrencyCode, CompanySettings, Task,
-    Project, Department, User, ApprovalStatus, Approval
+    Project, Department, User, ApprovalStatus, Approval,
+    UserRole
 } from '../../../../unientities';
 import {UniStatusTrack} from '../../../common/toolbar/statustrack';
 import {IUniSaveAction} from '../../../../../framework/save/save';
@@ -112,6 +113,7 @@ export class BillView {
     private numberOfDocuments: number = 0;
 
     private myUser: User;
+    private myUserRoles: UserRole[] = [];
     private files: Array<any> = [];
     private unlinkedFiles: Array<number> = [];
     private documentsInUse: number[] = [];
@@ -203,6 +205,9 @@ export class BillView {
         this.actions = this.rootActions;
         userService.getCurrentUser().subscribe( usr => {
             this.myUser = usr;
+            this.userService.getRolesByUserId(this.myUser.ID).subscribe(roles => {
+                this.myUserRoles = roles;
+            })
         });
     }
 
@@ -1153,6 +1158,16 @@ export class BillView {
             let filter = ((it.StatusCode === StatusCodeSupplierInvoice.ToPayment
                 && hasJournalEntry) ? ['journal'] : undefined);
             this.addActions(it._links.transitions, list, true, ['assign', 'approve', 'journal', 'pay'], filter);
+
+            // Reassign as admin
+            if (!it._links.transitions.hasOwnProperty('reAssign') && it.StatusCode === StatusCodeSupplierInvoice.ForApproval) {
+                if (this.myUserRoles.find(x => x.SharedRoleName === 'Accounting.Admin' || x.SharedRoleName === 'Administrator')) {
+                    let reassign = this.newAction(workflowLabels.reAssign, 'reAssign',
+                        `api/biz/supplierinvoices?action=reAssign`, false);
+                    list.push(reassign);
+                }
+            }
+
             /* todo: add smartbooking whenever it works properly..
             if (it._links.actions && it._links.actions.smartbooking) {
                 if (it.StatusCode < StatusCodeSupplierInvoice.Journaled) {
@@ -1275,6 +1290,20 @@ export class BillView {
         }
     }
 
+    public onReAssignClickOk(details: AssignDetails) {
+        let id = this.currentID;
+        if (!id || !details) { return; }
+        this.supplierInvoiceService.reAssign(id, details)
+            .subscribe( x => {
+                this.fetchInvoice(id, true);
+                if (details.Message && details.Message !== '') {
+                    this.addComment(details.Message);
+                }
+            }, (err) => {
+                this.errorService.handle(err);
+            });
+    }
+
     public onAssignClickOk(details: AssignDetails) {
         let id = this.currentID;
         if (!id || !details) { return; }
@@ -1306,10 +1335,16 @@ export class BillView {
     private handleActionAfterCheckSave(key: string, label: string, href: string, done: any): boolean {
         let current = this.current.getValue();
         switch (key) {
+            case 'reAssign':
+                this.modalService.open(UniAssignModal, {closeOnClickOutside: false})
+                    .onClose.subscribe(details => this.onReAssignClickOk(details));
+                done(lang.reAssign_success);
+                break;
+
             case 'assign':
                 this.modalService.open(UniAssignModal, {closeOnClickOutside: false})
                     .onClose.subscribe(details => this.onAssignClickOk(details));
-                done();
+                done(lang.assign_success);
                 break;
 
             case 'journal':
