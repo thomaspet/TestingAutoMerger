@@ -487,6 +487,11 @@ export class UniImage {
     }
 
     public uploadFileChange(event) {
+        // reset reauth flag it might be needed to reauthenticate if the
+        // user has not left the view containing the uniimage components
+        // for a while (and it has already authenticated)
+        this.didTryReAuthenticate = false;
+
         const source = event.srcElement || event.target;
 
         if (!this.uploadWithoutEntity && (!this.entity || !this.isDefined(this.entityID))) {
