@@ -120,6 +120,7 @@ export class OrderDetails {
     private projectID: number;
     private sellers: Seller[];
     private deletables: SellerLink[] = [];
+    private currentOrderDate: LocalDate;
 
     private customerExpandOptions: string[] = [
         'DeliveryTerms',
@@ -420,6 +421,8 @@ export class OrderDetails {
 
         this.updateCurrency(order, shouldGetCurrencyRate);
 
+        this.currentOrderDate = order.OrderDate;
+
         this.order = _.cloneDeep(order);
     }
 
@@ -434,7 +437,7 @@ export class OrderDetails {
             shouldGetCurrencyRate = true;
         }
 
-        if (this.order && this.order.OrderDate.toString() !== order.OrderDate.toString()) {
+        if (this.currentOrderDate.toString() !== order.OrderDate.toString()) {
             shouldGetCurrencyRate = true;
         }
 
@@ -592,6 +595,8 @@ export class OrderDetails {
 
                 order.DefaultSeller = order.DefaultSeller || new SellerLink();
                 this.currentDefaultProjectID = order.DefaultDimensions.ProjectID;
+
+                this.currentOrderDate = order.OrderDate;
 
                 this.updateCurrency(order, true);
         

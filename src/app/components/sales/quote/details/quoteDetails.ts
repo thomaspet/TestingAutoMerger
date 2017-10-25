@@ -102,6 +102,7 @@ export class QuoteDetails {
     private currentDefaultProjectID: number;
     private sellers: Seller[];
     private deletables: SellerLink[] = [];
+    private currentQuoteDate: LocalDate;
 
     private toolbarconfig: IToolbarConfig;
     private contextMenuItems: IContextMenuItem[] = [];
@@ -370,6 +371,8 @@ export class QuoteDetails {
                 quote.DefaultSeller = quote.DefaultSeller || new SellerLink();
                 this.currentDefaultProjectID = quote.DefaultDimensions.ProjectID;
 
+                this.currentQuoteDate = quote.QuoteDate;
+
                 this.updateCurrency(quote, true);
 
                 this.quote = _.cloneDeep(quote);
@@ -430,6 +433,8 @@ export class QuoteDetails {
 
         this.updateCurrency(quote, shouldGetCurrencyRate);
 
+        this.currentQuoteDate = quote.QuoteDate;
+
         this.quote = _.cloneDeep(quote);
     }
 
@@ -444,7 +449,7 @@ export class QuoteDetails {
         shouldGetCurrencyRate = true;
         }
 
-        if (this.quote && this.quote.QuoteDate.toString() !== quote.QuoteDate.toString()) {
+        if (this.currentQuoteDate.toString() !== quote.QuoteDate.toString()) {
             shouldGetCurrencyRate = true;
         }
 

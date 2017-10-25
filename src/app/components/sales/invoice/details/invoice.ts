@@ -132,6 +132,7 @@ export class InvoiceDetails {
     private ehfEnabled: boolean = false;
     private sellers: Seller[];
     private deletables: SellerLink[] = [];
+    private currentInvoiceDate: LocalDate;
 
     private customerExpandOptions: string[] = [
         'DeliveryTerms',
@@ -504,13 +505,15 @@ export class InvoiceDetails {
 
         this.updateCurrency(invoice, shouldGetCurrencyRate);
 
+        this.currentInvoiceDate = invoice.InvoiceDate;
+
         this.invoice = _.cloneDeep(invoice);
     }
 
     private updateCurrency(invoice: CustomerInvoice, getCurrencyRate: boolean) {
         let shouldGetCurrencyRate = getCurrencyRate;
 
-        if (this.invoice && this.invoice.InvoiceDate.toString() !== invoice.InvoiceDate.toString()) {
+        if (this.currentInvoiceDate.toString() !== invoice.InvoiceDate.toString()) {
             shouldGetCurrencyRate = true;
         }
 
@@ -974,6 +977,8 @@ export class InvoiceDetails {
 
                 invoice.DefaultSeller = invoice.DefaultSeller || new SellerLink();
                 this.currentDefaultProjectID = invoice.DefaultDimensions.ProjectID;
+
+                this.currentInvoiceDate = invoice.InvoiceDate;
 
                 this.updateCurrency(invoice, true);
 
