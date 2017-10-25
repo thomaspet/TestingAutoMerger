@@ -42,7 +42,7 @@ export class App {
 
         // Open login modal if authService requests re-authentication during runtime
         authService.requestAuthentication$.subscribe((event) => {
-            if (!this.loginModalOpen && (location.href.indexOf('login') === -1)) {
+            if (!this.loginModalOpen && (location.href.indexOf('init') === -1)) {
                 this.loginModalOpen = true;
                 this.modalService.open(LoginModal, {
                     closeOnEscape: false,
