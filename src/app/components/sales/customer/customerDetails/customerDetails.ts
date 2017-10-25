@@ -290,6 +290,7 @@ export class CustomerDetails {
                 return;
             }
 
+            this.showTab('details');
             this.router.navigateByUrl('/sales/customer/new');
             this.isDisabled = true;
             this.setupSaveActions();
