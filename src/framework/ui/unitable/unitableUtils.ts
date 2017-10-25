@@ -171,7 +171,7 @@ export class UniTableUtils {
 
                 // close last filtergroup (if any)
                 if (lastFilterGroup.toString() !== filter.group.toString() && lastFilterGroup > 0) {
-                    filterString += ')';
+                    filterString += ' )';
                     isInGroup = false;
                 }
 
@@ -201,7 +201,7 @@ export class UniTableUtils {
 
         // close last group if we are in a group
         if (isInGroup) {
-            filterString += ')';
+            filterString += ' )';
         }
 
         return filterString;
