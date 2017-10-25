@@ -483,7 +483,8 @@ export class CompanySettingsComponent implements OnInit {
             storeIdInProperty: 'DefaultAddressID',
             editor: (value) => {
                 const modal = this.modalService.open(UniAddressModal, {
-                    data: value || new Address()
+                    data: value || new Address(),
+                    closeOnClickOutside: false
                 });
 
                 return modal.onClose.take(1).toPromise();
@@ -506,7 +507,8 @@ export class CompanySettingsComponent implements OnInit {
             storeIdInProperty: 'DefaultPhoneID',
             editor: (value) => {
                 const modal = this.modalService.open(UniPhoneModal, {
-                    data: value || new Phone()
+                    data: value || new Phone(),
+                    closeOnClickOutside: false
                 });
 
                 return modal.onClose.take(1).toPromise();
@@ -526,7 +528,8 @@ export class CompanySettingsComponent implements OnInit {
             storeIdInProperty: 'DefaultEmailID',
             editor: (value) => {
                 const modal = this.modalService.open(UniEmailModal, {
-                    data: value || new Email()
+                    data: value || new Email(),
+                    closeOnClickOutside: false
                 });
 
                 return modal.onClose.take(1).toPromise();
@@ -652,7 +655,8 @@ export class CompanySettingsComponent implements OnInit {
                     data: bankaccount,
                     modalConfig: {
                         ledgerAccountVisible: true
-                    }
+                    },
+                    closeOnClickOutside: false
                 });
 
                 return modal.onClose.take(1).toPromise();

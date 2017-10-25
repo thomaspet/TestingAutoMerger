@@ -323,7 +323,8 @@ export class PersonalDetails extends UniView {
                 }
 
                 const modal = this.modalService.open(UniBankAccountModal, {
-                    data: bankaccount
+                    data: bankaccount,
+                    closeOnClickOutside: false
                 });
 
                 return modal.onClose.take(1).toPromise();
