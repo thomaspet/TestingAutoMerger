@@ -74,6 +74,8 @@ export class UniTicker {
     private contextMenuItems: any[];
     private openAction: TickerAction;
 
+    private unitableFilter: string;
+
     constructor(
         private uniHttpService: UniHttp,
         private router: Router,
@@ -351,6 +353,10 @@ export class UniTicker {
     private onRowSelected(rowSelectEvent) {
         this.selectedRow = rowSelectEvent.rowModel;
         this.rowSelected.emit(this.selectedRow);
+    }
+
+    private onFilterChange(filterChangeEvent) {
+        this.unitableFilter = filterChangeEvent.filter;
     }
 
     public onExecuteAction(action: TickerAction) {
@@ -846,8 +852,15 @@ export class UniTicker {
     // fields are already initialized and configured correctly
     public exportToExcel(completeEvent) {
         let headers = this.ticker.Columns.map(x => x.Header !== PAPERCLIP ? x.Header : 'Vedlegg').join(',');
-        let params = this.getSearchParams(new URLSearchParams());
 
+        // use both predefined filters and additional unitable filters if applicable
+        let params = new URLSearchParams();
+        if (this.unitableFilter) {
+            params.set('filter', this.unitableFilter);
+        }
+
+        params = this.getSearchParams(params);
+        console.log('filter:', params.get('filter'));
         // execute request to create Excel file
         this.statisticsService
             .GetExportedExcelFile(this.ticker.Model, this.selects, params.get('filter'), this.ticker.Expand, headers, this.ticker.Joins)

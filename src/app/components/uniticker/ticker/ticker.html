@@ -34,7 +34,8 @@
                 *ngIf="ticker.Type === 'table'"
                 [resource]="lookupFunction"
                 [config]="tableConfig"
-                (rowSelected)="onRowSelected($event)">
+                (rowSelected)="onRowSelected($event)"
+                (filtersChange)="onFilterChange($event)">
             </uni-table>
 
             <div *ngIf="ticker.Type !== 'table'">
