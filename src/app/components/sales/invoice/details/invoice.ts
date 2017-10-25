@@ -980,9 +980,8 @@ export class InvoiceDetails {
 
                 this.currentInvoiceDate = invoice.InvoiceDate;
 
-                this.updateCurrency(invoice, true);
-
                 this.invoice = _.cloneDeep(invoice);
+                this.updateCurrency(invoice, true);
                 this.recalcDebouncer.next(invoice.Items);
                 this.updateTabTitle();
                 this.updateToolbar();

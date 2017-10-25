@@ -373,9 +373,8 @@ export class QuoteDetails {
 
                 this.currentQuoteDate = quote.QuoteDate;
 
-                this.updateCurrency(quote, true);
-
                 this.quote = _.cloneDeep(quote);
+                this.updateCurrency(quote, true);
                 this.recalcItemSums(quote.Items);
                 this.setTabTitle();
                 this.updateToolbar();

@@ -587,7 +587,6 @@ export class OrderDetails {
                 this.orderItems = res.Items.sort(
                     function(itemA, itemB) { return itemA.SortIndex - itemB.SortIndex; }
                 );
-                this.order = <any>_.cloneDeep(order);
                 this.isDirty = false;
         
                 this.currentCustomer = res.Customer;
@@ -598,8 +597,8 @@ export class OrderDetails {
 
                 this.currentOrderDate = order.OrderDate;
 
+                this.order = _.cloneDeep(order);
                 this.updateCurrency(order, true);
-        
                 this.setTabTitle();
                 this.updateToolbar();
                 this.updateSaveActions();
