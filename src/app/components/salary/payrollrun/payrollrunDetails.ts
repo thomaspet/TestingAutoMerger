@@ -849,6 +849,7 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
             .subscribe(needUpdate => {
                 if (needUpdate) {
                     this.getPayrollRun();
+                    this.getSalaryTransactions();
                 }
             });
     }

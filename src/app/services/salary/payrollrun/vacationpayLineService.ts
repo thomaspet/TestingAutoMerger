@@ -3,10 +3,14 @@ import {BizHttp} from '../../../../framework/core/http/BizHttp';
 import {UniHttp} from '../../../../framework/core/http/http';
 import {VacationPayLine, WageDeductionDueToHolidayType} from '../../../unientities';
 import {Observable} from 'rxjs/Observable';
+import {SalaryTransactionService} from '../salarytransaction/salaryTransactionService';
 
 @Injectable()
 export class VacationpayLineService extends BizHttp<VacationPayLine> {
-    constructor(http: UniHttp) {
+    constructor(
+        protected http: UniHttp,
+        private salaryTransactionService: SalaryTransactionService
+    ) {
         super(http);
         this.relativeURL = VacationPayLine.RelativeUrl;
         this.entityType = VacationPayLine.EntityType;
@@ -20,16 +24,12 @@ export class VacationpayLineService extends BizHttp<VacationPayLine> {
     ];
 
     public getVacationpayBasis(year: number, payrun: number): Observable<VacationPayLine[]> {
-        return this.http
-            .asGET()
-            .usingBusinessDomain()
-            .withEndPoint(this.relativeURL + `?action=lines&payrunID=${payrun}&year=${year}`)
-            .send()
-            .map(response => response.json())
-            .do(lines => console.log('response from vacationpaylist action: ', lines));
+        return super.GetAction(null, 'lines', `payrunID=${payrun}&year=${year}`);
     }
 
     public createVacationPay(year: number, payrun: number, payList: VacationPayLine[]) {
+        super.invalidateCache();
+        this.salaryTransactionService.invalidateCache();
         return this.http
             .asPUT()
             .usingBusinessDomain()
