@@ -13,6 +13,7 @@ import {ResetPassword} from './resetPassword/resetPassword';
 import {Login} from './login/login';
 import {ConfirmInvite} from './confirmInvite/confirmInvite';
 import {Signup} from './signup/signup';
+import {UniPasswordGuide} from './password-guide';
 
 @NgModule({
     imports: [
@@ -27,6 +28,7 @@ import {Signup} from './signup/signup';
         AppCommonModule,
     ],
     declarations: [
+        UniPasswordGuide,
         LoginModal,
         UniInit,
         CompanySyncModal,

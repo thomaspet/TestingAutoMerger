@@ -1,15 +1,14 @@
 ﻿<article class="authentication-component">
-    <small *ngIf="errorMessage.length" class="validation error">{{errorMessage}}</small>
-    <small class="validation bad" *ngIf="invalidUsernameMsg?.length">{{invalidUsernameMsg}}</small>
-    <small class="validation bad" *ngIf="passwordMismatch">Passord må være like</small>
+    <p *ngIf="!errorMessage" class="registration-step-info">Vennligst registrer deg som bruker av Uni Economy</p>
+    <small class="validation error" *ngIf="errorMessage">{{errorMessage}}</small>
 
-    <form *ngIf="validInvite" [formGroup]="confirmInviteForm" (ngSubmit)="submitUser()" #f="ngForm">
+    <form #f="ngForm" [formGroup]="confirmInviteForm" (ngSubmit)="submitUser()">
         <label for="nameInput">Navn</label>
         <input id="nameInput"
             type="text"
             placeholder="Navn"
             autofocus
-            formControlName="displayName"
+            formControlName="Name"
             [disabled]="!validInvite"
         />
 
@@ -17,7 +16,7 @@
         <input id="usernameInput"
             type="text"
             placeholder="Brukernavn"
-            formControlName="username"
+            formControlName="UserName"
             [disabled]="!validInvite"
         />
 
@@ -25,7 +24,7 @@
         <input id="passwordInput"
             type="password"
             placeholder="Passord"
-            formControlName="password"
+            formControlName="Password"
             [disabled]="!validInvite"
         />
 
@@ -33,20 +32,22 @@
         <input id="confirmPasswordInput"
             type="password"
             placeholder="Bekreft passord"
-            formControlName="confirmPassword"
+            formControlName="ConfirmPassword"
             [disabled]="!validInvite"
         />
 
-        <button type="submit" class="c2a"
+        <uni-password-guide *ngIf="confirmInviteForm?.controls"
+            [passwordControl]="confirmInviteForm.controls.Password">
+        </uni-password-guide>
+
+        <button class="bad"
                 [attr.aria-busy]="busy"
-                [disabled]="!f.form.valid || passwordMismatch || busy || !validInvite">
+                [disabled]="busy || !f.form.valid || !validInvite">
             Opprett bruker
         </button>
-
-        <p>Passord må bestå av mellom 8 og 16 tegn</p>
-        <p>
-            Passord må inneholde 3 av 4 av<br>
-            <small>stor bokstav, liten bokstav, nummer, symbol</small>
-        </p>
     </form>
+
+    <section class="links">
+        <a [routerLink]="['/init/login']">Tilbake til innlogging</a>
+    </section>
 </article>

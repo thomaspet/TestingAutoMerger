@@ -1,15 +1,8 @@
 import {Component} from '@angular/core';
-import {Router, ActivatedRoute} from '@angular/router';
+import {ActivatedRoute} from '@angular/router';
 import {FormBuilder, FormControl, Validators, FormGroup} from '@angular/forms';
 import {UniHttp} from '../../../../framework/core/http/http';
 import {passwordValidator, passwordMatchValidator, usernameValidator} from '../authValidators';
-
-interface IPasswordRules {
-    length: boolean;
-    upperCase: boolean;
-    lowerCase: boolean;
-    numOrSymbol: boolean;
-}
 
 @Component({
     selector: 'uni-signup',
@@ -21,16 +14,8 @@ export class Signup {
     private busy: boolean;
 
     private successMessage: string;
-    private errorMessage: string;
+    private errorMessage: string = 'Test av feilmelding';
 
-    public passwordRules: IPasswordRules = {
-        length: false,
-        upperCase: false,
-        lowerCase: false,
-        numOrSymbol: false
-    };
-
-    // TODO: naming
     private step1Form: FormGroup;
     private step2Form: FormGroup;
 
@@ -56,7 +41,6 @@ export class Signup {
 
         this.step2Form.controls['Password'].valueChanges.subscribe(value => {
             this.checkForPasswordMismatch();
-            this.checkPasswordRules(value);
         });
 
         this.step2Form.controls['ConfirmPassword'].valueChanges.subscribe(value => {
@@ -150,14 +134,6 @@ export class Signup {
         //     );
     }
 
-    private checkPasswordRules(input: string) {
-        this.passwordRules.length = input.length >= 8 && input.length <= 16;
-        this.passwordRules.upperCase = /[A-Z]/.test(input);
-        this.passwordRules.lowerCase = /[a-z]/.test(input);
-        this.passwordRules.numOrSymbol =
-            /[\d\@\#\$\%\^\&\*\-_\\+\=\[\]\{\}\|\\\:\‘\,\.\?\/\`\~\“\(\)\;]/.test(input);
-    }
-
     public checkForPasswordMismatch() {
         const password = this.step2Form.controls['Password'];
         const confirmPassword = this.step2Form.controls['ConfirmPassword'];
@@ -166,9 +142,4 @@ export class Signup {
         this.passwordMismatch = password.valid && confirmPassword.valid
             && password.value !== confirmPassword.value;
     }
-
-    public notImplemented() {
-        console.log('wtf do we do here?');
-    }
-
 }

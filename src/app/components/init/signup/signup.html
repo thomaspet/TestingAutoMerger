@@ -1,6 +1,6 @@
 <article class="authentication-component">
-    <p *ngIf="!verificationCode && !successMessage">Vennligst registrer deg her for å prøve Uni Economy gratis i 30 dager.</p>
-    <p *ngIf="verificationCode && !successMessage">Selskapet ditt er klart for oppretting. Vennligst fyll ut ønsket brukernavn og passord for å komme i gang.</p>
+    <p class="registration-step-info" *ngIf="!verificationCode && !successMessage">Vennligst registrer deg her for å prøve Uni Economy gratis i 30 dager.</p>
+    <p class="registration-step-info" *ngIf="verificationCode && !successMessage">Selskapet ditt er klart for oppretting. Vennligst fyll ut ønsket brukernavn og passord for å komme i gang.</p>
 
     <small class="validation error" *ngIf="errorMessage">{{errorMessage}}</small>
     <small class="validation good" *ngIf="successMessage">{{successMessage}}</small>
@@ -35,6 +35,11 @@
             formControlName="PhoneNumber"
         />
 
+        <small class="privacy-info" *ngIf="!verificationCode">
+            Når du registrerer deg her bekrefter du at du godtar lagring og bruk
+            av dine personlige data. <!--  i henhold til vår <a href="">personvernpolicy</a> -->
+        </small>
+
         <button class="bad"
             *ngIf="!verificationCode"
             [attr.aria-busy]="busy"
@@ -67,12 +72,9 @@
             formControlName="ConfirmPassword"
         />
 
-        <ul class="password-validation">
-            <li [ngClass]="{'completed': passwordRules.length}">8-16 tegn</li>
-            <li [ngClass]="{'completed': passwordRules.upperCase}">Stor bokstav</li>
-            <li [ngClass]="{'completed': passwordRules.lowerCase}">Liten bokstav</li>
-            <li [ngClass]="{'completed': passwordRules.numOrSymbol}">Tall eller symbol</li>
-        </ul>
+        <uni-password-guide *ngIf="step2Form?.controls"
+            [passwordControl]="step2Form.controls.Password">
+        </uni-password-guide>
 
         <button class="bad"
             [attr.aria-busy]="busy"
@@ -82,10 +84,7 @@
         </button>
     </form>
 
-    <!-- <button class="c2a" (click)="submitStep1Form()">
-        {{verificationCode ? 'FULLFØR REGISTRERING' : 'START REGISTRERING'}}
-    </button> -->
-
-    <a [routerLink]="['../login']">Tilbake til innlogging</a>
-
+    <section class="links">
+        <a [routerLink]="['/init/login']">Tilbake til innlogging</a>
+    </section>
 </article>
