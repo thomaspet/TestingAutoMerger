@@ -90,7 +90,7 @@ export class UniSalary {
                 widgetType: 'clock',
                 config: {
                     dateColor: '#7698bd',
-                    showSeconds: true
+                    showSeconds: false
                 }
             },
 

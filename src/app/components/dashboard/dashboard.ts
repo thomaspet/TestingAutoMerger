@@ -103,7 +103,7 @@ export class Dashboard {
                 y: 0,
                 widgetType: 'shortcut',
                 config: {
-                    label: 'TIMER',
+                    label: 'Timer',
                     description: 'Timeføring',
                     icon: 'hourreg',
                     link: '/timetracking/timeentry'
@@ -130,7 +130,7 @@ export class Dashboard {
                 widgetType: 'clock',
                 config: {
                     dateColor: '#7698bd',
-                    showSeconds: true
+                    showSeconds: false
                 }
             },
             {

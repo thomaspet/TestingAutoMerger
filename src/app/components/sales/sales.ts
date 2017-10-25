@@ -147,16 +147,16 @@ export class UniSales {
             },
 
             {
-                width: 4,
+                width: 6,
                 height: 3,
                 x: 0,
-                y: 1,
+                y: 4,
                 widgetType: 'chart',
                 config: {
                     header: 'Driftsresultater',
                     chartType: 'line',
                     labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
-                    colors: ['#ab6857'],
+                    colors: ['#396bb1'],
                     dataEndpoint: ['/api/statistics?model=JournalEntryLine&select=month(financialdate),sum(amount)&join=journalentryline.accountid eq account.id&filter=account.accountnumber ge 3000 and account.accountnumber le 9999 &range=monthfinancialdate'],
                     dataKey: ['sumamount'],
                     multiplyValue: -1,
@@ -177,7 +177,7 @@ export class UniSales {
             {
                 width: 4,
                 height: 3,
-                x: 4,
+                x: 8,
                 y: 1,
                 widgetType: 'chart',
                 config: {
@@ -202,6 +202,16 @@ export class UniSales {
                             position: 'bottom'
                         }
                     }
+                }
+            },
+            {
+                width: 8,
+                height: 3,
+                x: 0,
+                y: 1,
+                widgetType: 'transaction', // TODO: enum
+                config: {
+                    header: 'Siste hendelser'
                 }
             }
         ];

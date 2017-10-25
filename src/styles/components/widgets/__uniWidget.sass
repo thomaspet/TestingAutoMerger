@@ -269,6 +269,17 @@ uni-clock,
     width: 33.33333%
     border-top-left-radius: inherit
     border-bottom-left-radius: inherit
+    display: flex
+    flex-flow: column
+    justify-content: center
+
+    h3
+        margin: 0
+        font-size: 1.4rem
+        font-weight: 300
+
+        &:last-of-type
+            margin-top: .4rem
 
 
 .uni-widget-clock-time
@@ -277,17 +288,19 @@ uni-clock,
 
     span
         font-size: 4rem
+        font-weight: 300
+        letter-spacing: .2rem
         display: inline
         vertical-align: middle
         position: relative
-        top: 38%
+        top: 35%
         transform: translateY(-50%)
-
-        &:first-of-type
-            color: $uni-color-scale4
 
         &:last-of-type
             color: $uni-color-scale6
+
+        &:first-of-type
+            color: $uni-color-scale4
 
     &.long-time span
         font-size: 2.8rem
@@ -425,6 +438,82 @@ uni-rss
         margin-top: 6%
         color: #fefefe
         font-size: 2em
+
+.transaction-list
+    list-style: none
+    color: $uni-color-scale2
+    background: #fff
+    flex: 1
+
+    li
+        line-height: 2rem
+        padding: .1rem 1rem
+
+        &:hover,&.is-active
+            cursor: pointer
+            background-color: $uni-color-negative
+            color: $navbarBackground
+            font-weight: 600
+
+.transaction_table
+    flex: 5
+    border-left: 1px solid $uni-color-scale8
+    height: calc(100% - 32px)
+    padding: 16px
+
+    table
+        width: 100%
+        height: 100%
+        display: flex
+        flex-flow: column
+        color: black
+        border-spacing: 0
+        font-size: small
+
+        thead
+            width: calc(100% - 0.9em)
+            flex: 0 0 auto
+            display: table
+            table-layout: fixed
+            tr
+                th
+                    border-bottom: 1px solid $uni-color-scale8
+
+        tbody
+            flex 1 1 auto
+            display: block
+            overflow-y: scroll
+            height: 100%
+            tr
+                height: 30px
+                width: 100%
+                display: table
+                table-layout: fixed
+                &:nth-of-type(odd)
+                    background-color: #f8f9fd
+
+                td
+                    overflow: hidden
+                    white-space: nowrap
+                    text-overflow: ellipsis
+                    padding: 0 .125rem
+
+                &:hover
+                    cursor: pointer
+                    background-color: #d4dfee
+
+.transaction_table_align_right
+    text-align: right
+    padding-right: 1rem !important
+
+.transaction_table_ten_percent
+    width: 10%
+
+.transaction_table_fifteen_percent
+    width: 15%
+
+.transaction_table_forty_percent
+    width: 45%
 
 // Icons
 .dashboard-shortcut-icon-fallback
