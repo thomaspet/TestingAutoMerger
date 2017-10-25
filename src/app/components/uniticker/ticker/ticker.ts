@@ -825,6 +825,7 @@ export class UniTicker {
                     .setColumnMenuVisible(true)
                     .setSearchable(this.unitableSearchVisible)
                     .setMultiRowSelect(false)
+                    .setSearchListVisible(true)
                     .setDataMapper((data) => {
                         if (this.ticker.Model) {
                             let tmp = data !== null ? data.Data : [];

@@ -4,24 +4,36 @@ import {UniTableColumn, UniTableColumnType, UniTableColumnSortMode} from './conf
 import * as Immutable from 'immutable';
 import * as moment from 'moment';
 
-// Savable config. Only columns for now. Might be expanded later.
 interface IColumnSetupMap {
     [key: string]: UniTableColumn[];
 }
 
+interface ITableFilterMap {
+    [key: string]: ISavedFilter[];
+}
+
+export interface ISavedFilter {
+    name: string;
+    filters: ITableFilter[];
+}
+
 const CONFIG_STORAGE_KEY: string = 'uniTable_column_configs';
+const FILTER_STORAGE_KEY: string = 'uniTable_filters';
 
 @Injectable()
 export class UniTableUtils {
     private columnSetupMap: IColumnSetupMap = {};
+    private tableFilterMap: ITableFilterMap = {};
 
     constructor() {
         try {
             this.columnSetupMap = JSON.parse(localStorage.getItem(CONFIG_STORAGE_KEY)) || {};
+            this.tableFilterMap = JSON.parse(localStorage.getItem(FILTER_STORAGE_KEY)) || {};
         } catch (e) {
-            console.log('Error trying to get column setup (constructor)');
+            console.log('Error trying to get column setup or filters (unitableUtils constructor)');
             console.log(e);
             this.columnSetupMap = {};
+            this.tableFilterMap = {};
         }
     }
 
@@ -61,6 +73,24 @@ export class UniTableUtils {
         } catch (e) {
             console.log(e);
         }
+    }
+
+    // REVISIT: Everything about saving filters is messy pre-release code with bad naming
+    // Sorry :(
+    public getFilters(tableName: string): ISavedFilter[] {
+        return this.tableFilterMap[tableName] || [];
+    }
+
+    public saveFilters(tableName: string, filters: ISavedFilter[]) {
+        if (filters && filters.length) {
+            // Make sure all filters have names
+            // (this is mostly to stop us from saving invalid filter objects)
+            this.tableFilterMap[tableName] = filters.filter(filter => !!filter.name);
+        } else {
+            delete this.tableFilterMap[tableName];
+        }
+
+        localStorage.setItem(FILTER_STORAGE_KEY, JSON.stringify(this.tableFilterMap));
     }
 
     /**
