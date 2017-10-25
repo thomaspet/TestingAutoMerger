@@ -1354,7 +1354,6 @@ export class InvoiceDetails {
         });
     }
 
-
     private printAction(id): Observable<any> {
         const savedInvoice = this.isDirty
             ? Observable.fromPromise(this.saveInvoice())
@@ -1368,7 +1367,7 @@ export class InvoiceDetails {
                     data: report
                 }).onClose.switchMap(() => {
                     return this.customerInvoiceService.setPrintStatus(
-                        invoice.ID,
+                        id,
                         this.printStatusPrinted
                     ).finally(() => {
                         this.invoice.PrintStatus = +this.printStatusPrinted;

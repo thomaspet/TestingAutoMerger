@@ -55,7 +55,7 @@ import {SendEmail} from '../../../../models/sendEmail';
 import {TradeHeaderCalculationSummary} from '../../../../models/sales/TradeHeaderCalculationSummary';
 
 import {ISummaryConfig} from '../../../common/summary/summary';
-import {IToolbarConfig} from '../../../common/toolbar/toolbar';
+import {IToolbarConfig, ICommentsConfig, IShareAction} from '../../../common/toolbar/toolbar';
 import {UniStatusTrack} from '../../../common/toolbar/statustrack';
 
 import {UniPreviewModal} from '../../../reports/modals/preview/previewModal';
@@ -89,6 +89,7 @@ export class QuoteDetails {
     private quoteItems: CustomerQuoteItem[];
     private readonly: boolean;
     private recalcDebouncer: EventEmitter<CustomerQuoteItem[]> = new EventEmitter<CustomerQuoteItem[]>();
+    private shareActions: IShareAction[];
     private saveActions: IUniSaveAction[] = [];
 
     private currencyCodeID: number;
@@ -149,7 +150,7 @@ export class QuoteDetails {
         'DeliveryTerms'
     ].concat(this.customerExpandOptions.map(option => 'Customer.' + option));
 
-    private commentsConfig: any;
+    private commentsConfig: ICommentsConfig;
 
     constructor(
         private customerService: CustomerService,
@@ -209,7 +210,7 @@ export class QuoteDetails {
             const projectID = +params['projectID'];
 
             this.commentsConfig = {
-                entityType: 'CustomerQuote',
+                entityName: 'CustomerQuote',
                 entityID: this.quoteID
             };
 
@@ -348,13 +349,13 @@ export class QuoteDetails {
 
     private refreshQuote(quote?: CustomerQuote): Promise<boolean> {
         return new Promise((resolve) => {
-            const orderObservable = !!quote 
-                ? Observable.of(quote) 
+            const orderObservable = !!quote
+                ? Observable.of(quote)
                 : this.customerQuoteService.Get(this.quoteID, this.expandOptions);
 
             orderObservable.subscribe(res => {
                 if (!quote) { quote = res; }
-                
+
                 this.readonly = quote.StatusCode && (
                     quote.StatusCode === StatusCodeCustomerQuote.CustomerAccepted
                     || quote.StatusCode === StatusCodeCustomerQuote.TransferredToOrder
@@ -382,7 +383,7 @@ export class QuoteDetails {
 
                 resolve(true);
             });
-        }); 
+        });
     }
 
     public onQuoteChange(quote: CustomerQuote) {
@@ -407,7 +408,7 @@ export class QuoteDetails {
         // refresh items if project changed
         if (quote.DefaultDimensions && quote.DefaultDimensions.ProjectID !== this.projectID) {
             this.projectID = quote.DefaultDimensions.ProjectID;
-            
+
             if (this.quoteItems.length) {
                 this.modalService.confirm({
                     header: `Endre prosjekt på alle varelinjer?`,
@@ -780,6 +781,8 @@ export class QuoteDetails {
             entityID: this.quoteID,
             entityType: 'CustomerQuote'
         };
+
+        this.updateShareActions();
     }
 
     public recalcItemSums(quoteItems: any) {
@@ -808,6 +811,74 @@ export class QuoteDetails {
         }
     }
 
+    private printAction(id): Observable<any> {
+        const savedQuote = this.isDirty
+            ? Observable.fromPromise(this.saveQuote())
+            : Observable.of(this.quote);
+
+        return savedQuote.switchMap((order) => {
+            return this.reportDefinitionService.getReportByName('Tilbud id').switchMap((report) => {
+                report.parameters = [{ Name: 'Id', value: id }];
+
+                return this.modalService.open(UniPreviewModal, {
+                    data: report
+                }).onClose.switchMap(() => {
+                    return this.customerQuoteService.setPrintStatus(
+                        id,
+                        this.printStatusPrinted
+                    ).finally(() => {
+                        this.quote.PrintStatus = +this.printStatusPrinted;
+                        this.updateToolbar();
+                    });
+                });
+            });
+        });
+    }
+
+    private sendEmailAction(): Observable<any> {
+        const savedOrder = this.isDirty
+            ? Observable.fromPromise(this.saveQuote())
+            : Observable.of(this.quote);
+
+        return savedOrder.switchMap(order => {
+            let model = new SendEmail();
+            model.EntityType = 'CustomerOrder';
+            model.EntityID = this.quote.ID;
+            model.CustomerID = this.quote.CustomerID;
+            model.EmailAddress = this.quote.EmailAddress;
+
+            const quoteNumber = this.quote.QuoteNumber
+                ? ` nr. ${this.quote.QuoteNumber}`
+                : 'kladd';
+
+            model.Subject = 'Tilbud' + quoteNumber;
+            model.Message = 'Vedlagt finner du tilbud' + quoteNumber;
+
+            return this.modalService.open(UniSendEmailModal, {
+                data: model
+            }).onClose.map(email => {
+                if (email) {
+                    this.emailService.sendEmailWithReportAttachment('Tilbud id', email, null);
+                }
+            });
+        });
+    }
+
+    private updateShareActions() {
+        this.shareActions = [
+            {
+                label: 'Skriv ut',
+                action: () => this.printAction(this.quoteID),
+                disabled: () => false
+            },
+            {
+                label: 'Send på epost',
+                action: () => this.sendEmailAction(),
+                disabled: () => false
+            }
+        ];
+    }
+
     private updateSaveActions() {
         const transitions = (this.quote['_links'] || {}).transitions;
         const printStatus = this.quote.PrintStatus;
@@ -819,40 +890,6 @@ export class QuoteDetails {
             action: (done) => this.saveQuoteAsRegistered(done),
             disabled: transitions && !transitions['register'],
             main: !transitions || transitions['register']
-        });
-
-        this.saveActions.push({
-            label: 'Skriv ut',
-            action: (done) => this.saveAndPrint(done),
-            main: this.quote.QuoteNumber > 0 && !printStatus && !this.isDirty,
-            disabled: false
-        });
-
-        this.saveActions.push({
-            label: 'Send på epost',
-            action: (done) => {
-                let model = new SendEmail();
-                model.EntityType = 'CustomerQuote';
-                model.EntityID = this.quote.ID;
-                model.CustomerID = this.quote.CustomerID;
-                model.EmailAddress = this.quote.EmailAddress;
-
-                const quoteNumber = this.quote.QuoteNumber ? ` nr. ${this.quote.QuoteNumber}` : 'kladd';
-                model.Subject = 'Tilbud' + quoteNumber;
-                model.Message = 'Vedlagt finner du tilbud' + quoteNumber;
-
-                this.modalService.open(UniSendEmailModal, {
-                    data: model
-                }).onClose.subscribe(email => {
-                    if (email) {
-                        this.emailService.sendEmailWithReportAttachment('Tilbud id', email, null, done);
-                    } else {
-                        done();
-                    }
-                });
-            },
-            main: printStatus === 200 && !this.isDirty,
-            disabled: false
         });
 
         this.saveActions.push({
@@ -913,14 +950,14 @@ export class QuoteDetails {
 
         if (this.quote.DefaultDimensions && !this.quote.DefaultDimensions.ID) {
             this.quote.DefaultDimensions._createguid = this.customerQuoteService.getNewGuid();
-        } else if (this.quote.DefaultDimensions 
+        } else if (this.quote.DefaultDimensions
             && this.quote.DefaultDimensions.ProjectID === this.currentDefaultProjectID) {
                 this.quote.DefaultDimensions = undefined;
         }
 
         // if main seller does not exist in 'Sellers', create and add it
-        if (this.quote.DefaultSeller && this.quote.DefaultSeller.SellerID 
-            && !this.quote.DefaultSeller._createguid && !this.quote.Sellers.find(sellerLink => 
+        if (this.quote.DefaultSeller && this.quote.DefaultSeller.SellerID
+            && !this.quote.DefaultSeller._createguid && !this.quote.Sellers.find(sellerLink =>
                 sellerLink.SellerID === this.quote.DefaultSeller.SellerID
             )) {
                 this.quote.DefaultSeller._createguid = this.sellerLinkService.getNewGuid();
