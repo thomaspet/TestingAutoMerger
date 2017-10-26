@@ -145,35 +145,6 @@ export class UniSales {
                 widgetType: 'overdue',
                 config: {}
             },
-
-            {
-                width: 6,
-                height: 3,
-                x: 0,
-                y: 4,
-                widgetType: 'chart',
-                config: {
-                    header: 'Driftsresultater',
-                    chartType: 'line',
-                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
-                    colors: ['#396bb1'],
-                    dataEndpoint: ['/api/statistics?model=JournalEntryLine&select=month(financialdate),sum(amount)&join=journalentryline.accountid eq account.id&filter=account.accountnumber ge 3000 and account.accountnumber le 9999 &range=monthfinancialdate'],
-                    dataKey: ['sumamount'],
-                    multiplyValue: -1,
-                    dataset: [],
-                    options: {
-                        showLines: true,
-                        animation: {
-                            animateScale: true
-                        },
-                        legend: {
-                            position: 'top'
-                        }
-                    },
-                    title: ['Driftsresultat']
-                }
-            },
-
             {
                 width: 4,
                 height: 3,
@@ -211,7 +182,7 @@ export class UniSales {
                 y: 1,
                 widgetType: 'transaction', // TODO: enum
                 config: {
-                    header: 'Siste hendelser'
+                    dashboard: 'Sale' // Identifyer for which fields to show.. fix while not dynamic
                 }
             }
         ];

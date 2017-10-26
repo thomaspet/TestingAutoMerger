@@ -192,7 +192,7 @@ export class UniAccounting {
                     header: 'Driftsresultater',
                     chartType: 'line',
                     labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
-                    colors: ['#ab6857'],
+                    colors: ['#396bb1'],
                     dataEndpoint: ['/api/statistics?model=JournalEntryLine&select=month(financialdate),sum(amount)&join=journalentryline.accountid eq account.id&filter=account.accountnumber ge 3000 and account.accountnumber le 9999 &range=monthfinancialdate'],
                     dataKey: ['sumamount'],
                     multiplyValue: -1,
@@ -213,11 +213,21 @@ export class UniAccounting {
             {
                 width: 4,
                 height: 3,
-                x: 4,
-                y: 1,
+                x: 0,
+                y: 4,
                 widgetType: 'kpi',
                 config: {
                     header: 'Nøkkeltall'
+                }
+            },
+            {
+                width: 8,
+                height: 3,
+                x: 4,
+                y: 1,
+                widgetType: 'transaction', // TODO: enum
+                config: {
+                    dashboard: 'Accounting' // Identifyer for which fields to show.. fix while not dynamic
                 }
             }
         ];

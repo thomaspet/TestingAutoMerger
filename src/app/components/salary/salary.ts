@@ -153,6 +153,16 @@ export class UniSalary {
                     title: ['Driftsresultat']
                 }
             },
+            {
+                width: 8,
+                height: 3,
+                x: 0,
+                y: 1,
+                widgetType: 'transaction', // TODO: enum
+                config: {
+                    dashboard: 'Salary' // Identifyer for which fields to show.. FIX while not dynamic
+                }
+            }
         ];
     }
 }
