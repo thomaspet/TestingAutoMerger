@@ -215,7 +215,7 @@ export class OrderDetails {
             const projectID = +params['projectID'];
 
             this.commentsConfig = {
-                entityName: 'CustomerOrder',
+                entityType: 'CustomerOrder',
                 entityID: this.orderID
             };
 

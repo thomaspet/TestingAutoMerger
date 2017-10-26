@@ -3,6 +3,7 @@ import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService
 import {ToastService, ToastType} from '../../../../../framework/uniToast/toastService';
 import {Router, ActivatedRoute} from '@angular/router';
 import {Observable} from 'rxjs/Observable';
+import {ICommentsConfig} from '../../../common/toolbar/toolbar';
 import {
     safeInt,
     roundTo,
@@ -117,7 +118,7 @@ export class BillView {
     private unlinkedFiles: Array<number> = [];
     private documentsInUse: number[] = [];
     private supplierIsReadOnly: boolean = false;
-    private commentsConfig: any;
+    private commentsConfig: ICommentsConfig;
     private formReady: boolean;
 
     private currencyCodes: Array<CurrencyCode>;
