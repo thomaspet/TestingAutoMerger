@@ -2,10 +2,14 @@ import {Component, SimpleChange, Input, Output, EventEmitter, OnChanges, Element
 import {FormControl} from '@angular/forms';
 import {UniTableColumnType} from '../config/unitableColumn';
 import {ITableFilter} from '../unitable';
-import * as Immutable from 'immutable';
+import {KeyCodes} from '../../../../app/services/common/keyCodes';
+import {UniTableUtils, ISavedFilter} from '../unitableUtils';
+import {IUniTableConfig} from '../config/unitableConfig';
+
 import {Observable} from 'rxjs/Observable';
 import {Subject} from 'rxjs/Subject';
-import {KeyCodes} from '../../../../app/services/common/keyCodes';
+import * as Immutable from 'immutable';
+
 
 interface IUniTableSearchOperator {
     verb: string;
@@ -16,14 +20,31 @@ interface IUniTableSearchOperator {
 @Component({
     selector: 'unitable-search',
     template: `
-        <input class="unitableSearch_input" type="search" placeholder="Filter" [formControl]="basicSearchControl" />
-        <button class="unitableSearch_advancedBtn" (click)="toggleAdvancedSearch()">Avansert…</button>
+        <input class="unitableSearch_input"
+            type="search"
+            placeholder="Filter"
+            [formControl]="basicSearchControl"
+        />
+        <button class="unitableSearch_advancedBtn"
+            (click)="toggleAdvancedSearch()">
+            Avansert
+        </button>
 
-        <ul class="unitableSearch_advanced" [hidden]="!advancedSearch">
+        <section class="unitable-saved-filters" *ngIf="tableConfig?.searchListVisible" (click)="toggleSavedSearchesList()">
+            Lagrede søk
+            <ul [attr.aria-expanded]="savedSearchesVisible">
+                <li *ngFor="let search of savedSearches; let idx = index" (click)="activateSavedSearch(search)">
+                    {{search.name}}
+                </li>
+            </ul>
+        </section>
+
+        <ul class="unitableSearch_advanced" [hidden]="!advancedSearchVisible">
+            <li class="section-header">Aktivt søk {{searchName ? '(' + searchName + ')' : ''}}</li>
             <li class="unitableSearch_advanced_filter" *ngFor="let filter of advancedSearchFilters">
 
                 <!-- Column select -->
-                <select [(ngModel)]="filter.field" (ngModelChange)="filterFieldChange(filter)">
+                <select [(ngModel)]="filter.field" placeholder="Ikke valgt" (ngModelChange)="filterFieldChange(filter)">
                     <option *ngFor="let col of filterableColumns" [value]="col.get('displayField') || col.get('field')">
                         {{col.get('header')}}
                     </option>
@@ -60,23 +81,32 @@ interface IUniTableSearchOperator {
                 <button type="button" (click)="removeFilter(filter)">Fjern</button>
             </li>
 
-            <button type="button" (click)="newFilter()">Legg til</button>
+            <li class="advanced-filter-options">
+                <button class="add-filter" type="button" (click)="newFilter()">Legg til</button>
+
+                <input type="text" [(ngModel)]="searchName" placeholder="Navn på søk" />
+                <button class="good" (click)="saveSearch()">
+                    Lagre
+                </button>
+            </li>
+
+            <li class="section-header section-search" *ngIf="savedSearches?.length">Lagrede søk</li>
+            <li class="unitable-saved-searches" *ngIf="savedSearches?.length">
+                <ul class="saved-search-list">
+                    <li *ngFor="let search of savedSearches" (click)="activateSavedSearch(search)">
+                        {{search.name}}
+                        <span class="delete-search" (click)="removeSavedSearch(search, $event)"></span>
+                    </li>
+                </ul>
+            </li>
         </ul>
     `
 })
 export class UniTableSearch implements OnChanges {
-    constructor(
-        private elementRef: ElementRef
-    ) {}
+    @Input() public columns: Immutable.List<any>;
+    @Input() public tableConfig: IUniTableConfig;
+    @Input() public configFilters: ITableFilter[];
 
-    @Input()
-    private columns: Immutable.List<any>;
-
-    @Input()
-    private configFilters: ITableFilter[];
-
-    @Input()
-    private allowGroupFilter: boolean;
 
     @Output()
     public filtersChange: EventEmitter<any> = new EventEmitter();
@@ -84,16 +114,24 @@ export class UniTableSearch implements OnChanges {
     @Output()
     public upOrDownArrows: Subject<KeyboardEvent> = new Subject<KeyboardEvent>();
 
+    public allowGroupFilter: boolean;
     private filterableColumns: Immutable.List<any>;
 
     private basicSearchControl: FormControl = new FormControl('');
-    private advancedSearch: boolean = false;
 
     private basicSearchFilters: ITableFilter[];
     private advancedSearchFilters: ITableFilter[];
     private emitFiltersTimeout: any;
 
-    private operators: IUniTableSearchOperator[] = [
+    private tableName: string;
+
+    private savedSearches: ISavedFilter[] = [];
+    public searchName: string;
+
+    public advancedSearchVisible: boolean;
+    public savedSearchesVisible: boolean;
+
+    public operators: IUniTableSearchOperator[] = [
         {
             'verb': 'inneholder',
             'operator': 'contains',
@@ -177,6 +215,11 @@ export class UniTableSearch implements OnChanges {
         }
     ];
 
+    constructor(
+        private elementRef: ElementRef,
+        private utils: UniTableUtils
+    ) {}
+
     public ngAfterViewInit() {
         this.basicSearchControl.valueChanges
             .debounceTime(250)
@@ -192,29 +235,36 @@ export class UniTableSearch implements OnChanges {
             .subscribe((event: KeyboardEvent) => this.upOrDownArrows.next(event));
     }
 
-    public ngOnChanges(changes: {[propName: string]: SimpleChange}) {
+    public ngOnChanges(changes) {
         if (changes['configFilters']) {
             this.advancedSearchFilters = this.configFilters;
         }
 
-        if (changes['columns']) {
-            if (changes['columns'].currentValue) {
-                let cols = this.columns.filter(x => x.get('sumFunction') == null || x.get('sumFunction') === '').toList();
+        if (changes['columns'] && this.columns) {
+            let cols = this.columns.filter(x => x.get('sumFunction') == null || x.get('sumFunction') === '').toList();
 
-                if (this.configFilters && this.configFilters.length > 0) {
-                    let filtersWithoutColumns = this.configFilters.filter(x => !cols.find(y => y.get('field') === x.field));
+            if (this.configFilters && this.configFilters.length > 0) {
+                let filtersWithoutColumns = this.configFilters.filter(x => !cols.find(y => y.get('field') === x.field));
 
-                    filtersWithoutColumns.forEach(f => {
-                        cols = cols.push(
-                            Immutable.fromJS({
-                                header: f.field,
-                                field: f.field
-                            })
-                        );
-                    });
-                }
+                filtersWithoutColumns.forEach(f => {
+                    cols = cols.push(
+                        Immutable.fromJS({
+                            header: f.field,
+                            field: f.field
+                        })
+                    );
+                });
+            }
 
-                this.filterableColumns = cols;
+            this.filterableColumns = cols;
+        }
+
+        if (changes['tableConfig'] && this.tableConfig) {
+            this.allowGroupFilter = this.tableConfig.allowGroupFilter;
+
+            this.tableName = this.tableConfig.configStoreKey;
+            if (this.tableName) {
+                this.savedSearches = this.utils.getFilters(this.tableName);
             }
         }
 
@@ -223,23 +273,87 @@ export class UniTableSearch implements OnChanges {
         }
     }
 
-    private toggleAdvancedSearch() {
-        this.advancedSearch = !this.advancedSearch;
+    public toggleAdvancedSearch() {
+        this.advancedSearchVisible = !this.advancedSearchVisible;
+        this.savedSearchesVisible = false;
+    }
+
+    public toggleSavedSearchesList() {
+        if (!this.savedSearches.length) {
+            return;
+        }
+
+        this.savedSearchesVisible = !this.savedSearchesVisible;
+    }
+
+    public saveSearch() {
+        if (!this.tableName || !this.savedSearches) {
+            return;
+        }
+
+        let filters = this.advancedSearchFilters.filter(f => !!f.field && !!f.operator && !!f.value);
+
+        if (!this.advancedSearchFilters || !this.advancedSearchFilters.length) {
+            this.searchName = '';
+            return;
+        }
+
+        // If a filter with this name has already been saved
+        // update it. If not push a new one to savedFilters
+        let existingFilterIndex = this.savedSearches.findIndex(f => f.name === this.searchName);
+        if (existingFilterIndex >= 0) {
+            this.savedSearches[existingFilterIndex].filters = filters;
+        } else {
+            this.savedSearches.push({
+                name: this.searchName,
+                filters: filters
+            });
+        }
+
+        this.utils.saveFilters(this.tableName, this.savedSearches);
+    }
+
+    public activateSavedSearch(search: ISavedFilter) {
+        if (search && search.filters) {
+            this.advancedSearchFilters = search.filters;
+            this.emitFilters();
+
+            this.searchName = search.name;
+            setTimeout(() => this.savedSearchesVisible = false);
+        }
+    }
+
+    public removeSavedSearch(search: ISavedFilter, event: MouseEvent) {
+        event.stopPropagation();
+
+        if (this.tableName) {
+            const index = this.savedSearches.findIndex(f => f.name === search.name);
+            this.savedSearches.splice(index, 1);
+            this.utils.saveFilters(this.tableName, this.savedSearches);
+            this.searchName = '';
+        }
     }
 
     private newFilter() {
         if (!this.advancedSearchFilters) {
             this.advancedSearchFilters = [];
         }
-        this.advancedSearchFilters.push({field: '', operator: 'contains', value: '', group: 0, searchValue: '', selectConfig: null});
+        this.advancedSearchFilters.push({
+            field: '',
+            operator: 'contains',
+            value: '',
+            group: 0,
+            searchValue: '',
+            selectConfig: null
+        });
     }
 
-    private removeFilter(filter) {
+    public removeFilter(filter) {
         this.advancedSearchFilters.splice(this.advancedSearchFilters.indexOf(filter), 1);
         this.emitFilters();
     }
 
-    private filterFieldChange(filter: ITableFilter) {
+    public filterFieldChange(filter: ITableFilter) {
         // some columns are use selects instead of text, e.g. statuscodes, so
         // for those filters, add some options
         let column = this.columns.find(c => c.get('field') === filter.field);
@@ -260,11 +374,12 @@ export class UniTableSearch implements OnChanges {
         this.columns.forEach((column) => {
             let type = column.get('type');
 
-            if (column.get('filterable') && !(type === UniTableColumnType.Number && isNaN(value))
-                                         && !(type === UniTableColumnType.Money && isNaN(value))
-                                         && !(type === UniTableColumnType.Percent && isNaN(value))
-                                         && !(type === UniTableColumnType.DateTime && !Date.parse(value))) {
-
+            if (column.get('filterable')
+                && !(type === UniTableColumnType.Number && isNaN(value))
+                && !(type === UniTableColumnType.Money && isNaN(value))
+                && !(type === UniTableColumnType.Percent && isNaN(value))
+                && !(type === UniTableColumnType.DateTime && !Date.parse(value))
+            ) {
                 filters.push({
                     field: column.get('displayField') || column.get('field'),
                     operator: column.get('filterOperator'),
@@ -275,12 +390,10 @@ export class UniTableSearch implements OnChanges {
         });
 
         this.basicSearchFilters = filters;
-
         this.emitFilters();
     }
 
     public emitFilters() {
-
         if (this.emitFiltersTimeout) {
             clearTimeout(this.emitFiltersTimeout);
         }

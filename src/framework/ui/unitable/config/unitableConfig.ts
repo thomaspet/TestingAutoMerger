@@ -50,6 +50,7 @@ export interface IUniTableConfig {
     autoScrollIfNewCellCloseToBottom?: boolean;
     beforeEdit?: (editorData: IEditorData) => IEditorData;
     insertRowHandler?: (index: number) => void;
+    searchListVisible?: boolean;
 }
 
 export interface IRowChangeEvent {
@@ -76,6 +77,7 @@ export class UniTableConfig implements IUniTableConfig {
     public columnMenuVisible: boolean;
     public autoScrollIfNewCellCloseToBottom: boolean;
     public deleteButton: boolean | IDeleteButton;
+    public searchListVisible: boolean;
     public conditionalRowCls: (rowModel: any) => string;
     public contextMenu: {
         items: IContextMenuItem[],
@@ -263,6 +265,11 @@ export class UniTableConfig implements IUniTableConfig {
         return this;
     }
 
+    public setSearchListVisible(visible: boolean) {
+        this.searchListVisible = visible;
+        return this;
+    }
+
     public static fromObject(obj: IUniTableConfig, configStoreKey: string) {
         let config = new UniTableConfig(configStoreKey);
 
@@ -281,5 +288,4 @@ export class UniTableConfig implements IUniTableConfig {
 
         return config;
     }
-
 }

@@ -50,8 +50,8 @@ enum Direction { UP, DOWN, LEFT, RIGHT }
         <unitable-search
             *ngIf="config?.searchable"
             [columns]="tableColumns"
+            [tableConfig]="config"
             [configFilters]="advancedSearchFilters"
-            [allowGroupFilter]="config.allowGroupFilter"
             (filtersChange)="onFiltersChange($event)"
             (upOrDownArrows)="onFilterInputUpOrDownArrows($event)">
         </unitable-search>
@@ -540,6 +540,7 @@ export class UniTable implements OnChanges {
     public onFiltersChange(event) {
         this.basicSearchFilters = event.basicSearchFilters;
         this.advancedSearchFilters = event.advancedSearchFilters;
+
         this.lastFocusPosition = undefined;
         this.filterAndSortTable(true);
     }

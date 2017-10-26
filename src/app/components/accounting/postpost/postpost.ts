@@ -4,7 +4,7 @@ import {UniFieldLayout, FieldType} from '../../../../framework/ui/uniform/index'
 import {UniTableColumn, UniTableColumnType, UniTableConfig, UniTable} from '../../../../framework/ui/unitable/index';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {UniModalService, ConfirmActions} from '../../../../framework/uniModal/barrel';
-import {IToolbarConfig, IAutoCompleteConfig} from './../../common/toolbar/toolbar';
+import {IToolbarConfig, IAutoCompleteConfig, IShareAction} from './../../common/toolbar/toolbar';
 import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
 import {IUniSaveAction} from '../../../../framework/save/save';
 import {LedgerAccountReconciliation} from '../../common/reconciliation/ledgeraccounts/ledgeraccountreconciliation';
@@ -46,6 +46,7 @@ export class PostPost {
     private postpost: LedgerAccountReconciliation
 
     //Save
+    private shareActions: IShareAction[];
     private saveActions: IUniSaveAction[];
 
     //Filter
@@ -94,6 +95,7 @@ export class PostPost {
     ) {
         this.setupFilter();
         this.setupAccountsTable();
+        this.setupShareActions();
         this.setupSaveActions();
         this.setupToolbarConfig();
         this.setupRegisterConfig();
@@ -133,6 +135,21 @@ export class PostPost {
         }
     }
 
+    //Share actions
+    private setupShareActions() {
+        this.shareActions = [
+            {
+                action: () => this.exportAccounts(),
+                disabled: () => false,
+                label: 'Eksport kontoliste'
+            },{
+                action: () => this.exportOpenPosts(),
+                disabled: () => false,
+                label: 'Eksport åpne poster'
+            }
+        ]
+    }
+
     //Save actions
 
     private setupSaveActions() {
@@ -160,14 +177,6 @@ export class PostPost {
             action: this.cancel.bind(this),
             disabled: false,
             label: 'Angre'
-        },{
-            action: this.exportAccounts.bind(this),
-            disabled: false,
-            label: 'Eksport kontoliste'
-        },{
-            action: this.exportOpenPosts.bind(this),
-            disabled: false,
-            label: 'Eksport åpne poster'
         },{
             action: this.autolock.bind(this),
             disabled: false,
@@ -206,27 +215,26 @@ export class PostPost {
         done('Angret');
     }
 
-    private exportAccounts(done: (message: string) => void) {
-        let accounts = this.accounts$.getValue();
-
-        var list = [];
-        accounts.forEach((account) => {
-            var row = {
-                AccountNumber: account.AccountNumber,
-                AccountName: account.AccountName,
-                SumAmount: account.SumAmount.toFixed(2)
-            };
-            list.push(row);
+    private exportAccounts(): Observable<any> {
+        return Observable.of(this.accounts$.getValue()).map((accounts) => {
+            var list = [];
+            accounts.forEach((account) => {
+                var row = {
+                    AccountNumber: account.AccountNumber,
+                    AccountName: account.AccountName,
+                    SumAmount: account.SumAmount.toFixed(2)
+                };
+                list.push(row);
+            });
+    
+            exportToFile(arrayToCsv(list), `OpenPostAccounts.csv`);            
         });
-
-        exportToFile(arrayToCsv(list), `OpenPostAccounts.csv`);
-        done('Fil eksportert');
     }
 
-    private exportOpenPosts(done: (message: string) => void) {
-        this.postpost.export();
-
-        done('Fil eksportert');
+    private exportOpenPosts(): Observable<any> {
+        return Observable.of(true).map(() => {
+            this.postpost.export();
+        });
     }
 
     //
