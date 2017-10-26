@@ -14,6 +14,7 @@ export class UniInit {
     private emailInput: string;
     private registrationFormExpanded: boolean;
     private marketingContentHidden: boolean;
+    public currentYear: number = new Date().getFullYear(); // used in copyright footer
 
     constructor(private toastService: ToastService) {
         // Try/catch to avoid crashing the app when localstorage has no entry

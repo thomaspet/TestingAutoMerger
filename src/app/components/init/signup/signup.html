@@ -1,11 +1,16 @@
 <article class="authentication-component">
-    <p class="registration-step-info" *ngIf="!verificationCode && !successMessage">Vennligst registrer deg her for å prøve Uni Economy gratis i 30 dager.</p>
-    <p class="registration-step-info" *ngIf="verificationCode && !successMessage">Selskapet ditt er klart for oppretting. Vennligst fyll ut ønsket brukernavn og passord for å komme i gang.</p>
+    <p class="registration-step-info" *ngIf="!confirmationCode && !successMessage && !errorMessage">
+        Vennligst registrer deg her for å prøve Uni Economy gratis i 30 dager.
+    </p>
+
+    <p class="registration-step-info" *ngIf="confirmationCode && !successMessage && !errorMessage">
+        Selskapet ditt er klart for oppretting. Vennligst fyll ut ønsket brukernavn og passord for å komme i gang.
+    </p>
 
     <small class="validation error" *ngIf="errorMessage">{{errorMessage}}</small>
     <small class="validation good" *ngIf="successMessage">{{successMessage}}</small>
 
-    <form #step1="ngForm" [formGroup]="step1Form" (ngSubmit)="submitStep1Form()">
+    <form #step1="ngForm" *ngIf="!confirmationCode" [formGroup]="step1Form" (ngSubmit)="submitStep1Form()">
         <label for="companyNameInput">Selskapsnavn</label>
         <input id="companyNameInput"
             type="text"
@@ -35,13 +40,13 @@
             formControlName="PhoneNumber"
         />
 
-        <small class="privacy-info" *ngIf="!verificationCode">
+        <small class="privacy-info" *ngIf="!confirmationCode">
             Når du registrerer deg her bekrefter du at du godtar lagring og bruk
             av dine personlige data. <!--  i henhold til vår <a href="">personvernpolicy</a> -->
         </small>
 
         <button class="bad"
-            *ngIf="!verificationCode"
+            *ngIf="!confirmationCode"
             [attr.aria-busy]="busy"
             [disabled]="busy || !step1.form.valid"
             (click)="submitStep1Form()">
@@ -49,7 +54,7 @@
         </button>
     </form>
 
-    <form #step2="ngForm" *ngIf="verificationCode" [formGroup]="step2Form" (ngSubmit)="notImplemented()">
+    <form #step2="ngForm" *ngIf="confirmationCode" [formGroup]="step2Form" (ngSubmit)="notImplemented()">
         <label for="usernameInput">Brukernavn</label>
         <input id="usernameInput"
             type="text"

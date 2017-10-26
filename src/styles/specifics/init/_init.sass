@@ -82,36 +82,24 @@ uni-init
             font-size: 1.25rem
             font-weight: 300
 
-        .registration-form
-            margin: 2.5rem 0
 
-            button, input
-                height: 4rem
-                font-size: 1.5rem
-                font-weight: 300
-                border-radius: 0
+        button.signup-link
+            height: 4rem
+            font-size: 1.5rem
+            font-weight: 300
+            border-radius: 0
+            min-width: 10rem
+            margin: 2rem 0 2.5rem 0
+            background: #c43012
+            color: $uni-color-negative
 
-            button
-                min-width: 10rem
-                margin-left: 0
-                background: $uni-color-bad
-                color: $uni-color-negative
+            &[aria-busy]:not([aria-busy=false]):before
+                height: 15px !important
+                width: 15px !important
+                border-top: 1px solid $uni-color-negative !important
 
-                &[aria-busy]:not([aria-busy=false]):before
-                    height: 15px !important
-                    width: 15px !important
-                    border-top: 1px solid $uni-color-negative !important
-
-                &:hover, &:focus
-                    background: darken($uni-color-bad, 10%)
-
-            input
-                display: none
-                width: 0
-                color: $uni-color-positive
-
-                &.ng-invalid.ng-touched
-                    @extend input[type=text].error
+            &:hover, &:focus
+                background: darken(#c43012, 5%)
 
         #ue-video
             width: 90%
@@ -149,6 +137,15 @@ uni-init
 
             &.expand-content
                 transform: rotate(180deg)
+
+        footer
+            position: absolute
+            bottom: 1rem
+            left: 0
+            width: 100%
+            text-align: center
+            color: $uni-color-scale5
+            font-size: .9rem
 
 
 .authentication-component
@@ -270,6 +267,20 @@ uni-confirm-invite
 
         button.bad
             height: 3rem
+            background: #c43012
+
+            &:hover,
+            &:focus
+                background-color: darken(#c43012, 5%)
+                outline: none
+
+            &[disabled],
+            &[aria-disabled]
+                background-color: desaturate(mix(#c43012, $uni-color-negative, 50%), 10%)
+
+                &:hover,
+                &:focus
+                    background-color: desaturate(mix(#c43012, $uni-color-negative, 80%), 10%)
 
         input.ng-invalid.ng-touched
             @extend input[type=text].error
