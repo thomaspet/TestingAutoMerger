@@ -184,7 +184,49 @@ export class UniSales {
                 config: {
                     dashboard: 'Sale' // Identifyer for which fields to show.. fix while not dynamic
                 }
-            }
+            },
+            {
+                width: 2,
+                height: 3,
+                x: 0,
+                y: 4,
+                widgetType: 'shortcutlist',
+                config: {
+                    header: 'Snarveier',
+                    shortcuts: [
+                        {
+                            label: 'Kunder',
+                            link: '/sales/customer',
+                            urlToNew: '/sales/customer/0'
+                        },
+                        {
+                            label: 'Produkter',
+                            link: '/sales/products',
+                            urlToNew: '/sales/products/0'
+                        },
+                        {
+                            label: 'Purring',
+                            link: '/sales/reminders/ready',
+                            urlToNew: ''
+                        },
+                        {
+                            label: 'Tilbud',
+                            link: '/sales/quotes',
+                            urlToNew: '/sales/quotes/0'
+                        },
+                        {
+                            label: 'Ordre',
+                            link: '/sales/orders',
+                            urlToNew: '/sales/orders/0'
+                        },
+                        {
+                            label: 'Faktura',
+                            link: '/sales/invoices',
+                            urlToNew: '/sales/invoices/0'
+                        },
+                    ]
+                }
+            },
         ];
     }
 }

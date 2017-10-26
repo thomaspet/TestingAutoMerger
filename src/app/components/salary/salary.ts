@@ -97,7 +97,7 @@ export class UniSalary {
             {
                 width: 4,
                 height: 3,
-                x: 0,
+                x: 8,
                 y: 1,
                 widgetType: 'chart',
                 config: {
@@ -120,37 +120,9 @@ export class UniSalary {
                             animateScale: true
                         },
                         legend: {
-                            position: 'left'
+                            position: 'bottom'
                         },
                     }
-                }
-            },
-
-            {
-                width: 4,
-                height: 3,
-                x: 4,
-                y: 1,
-                widgetType: 'chart',
-                config: {
-                    header: 'Driftsresultater',
-                    chartType: 'line',
-                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
-                    colors: ['#ab6857'],
-                    dataEndpoint: ['/api/statistics?model=JournalEntryLine&select=month(financialdate),sum(amount)&join=journalentryline.accountid eq account.id&filter=account.accountnumber ge 3000 and account.accountnumber le 9999 &range=monthfinancialdate'],
-                    dataKey: ['sumamount'],
-                    multiplyValue: -1,
-                    dataset: [],
-                    options: {
-                        showLines: true,
-                        animation: {
-                            animateScale: true
-                        },
-                        legend: {
-                            position: 'top'
-                        }
-                    },
-                    title: ['Driftsresultat']
                 }
             },
             {

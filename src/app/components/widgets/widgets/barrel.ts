@@ -8,6 +8,7 @@ import {UniOverdueInvoiceWidget} from './overdueInvoice';
 import {UniKPIWidget} from './kpi';
 import {UniFlexWidget} from './flex';
 import {UniTransactionsWidget} from './transactions';
+import {UniShortcutListWidget} from './shortcutList';
 
 export const UNI_WIDGETS = [
     UniShortcutWidget,
@@ -19,7 +20,8 @@ export const UNI_WIDGETS = [
     UniOverdueInvoiceWidget,
     UniKPIWidget,
     UniFlexWidget,
-    UniTransactionsWidget
+    UniTransactionsWidget,
+    UniShortcutListWidget
 ];
 
 export * from './shortcut';
@@ -32,4 +34,5 @@ export * from './companyLogo';
 export * from './overdueInvoice';
 export * from './flex';
 export * from './transactions';
+export * from './shortcutList';
 

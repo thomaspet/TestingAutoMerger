@@ -521,6 +521,44 @@ uni-rss
 .transaction_table_forty_percent
     width: 40%
 
+.shortcut-list
+    padding: 0
+    margin: 0
+    text-align: left
+    color: $uni-color-scale2
+    background: #fff
+    flex: 1
+
+    ul
+        list-style: none
+        margin: 0
+
+        li
+            line-height: 2rem
+            padding: .1rem 1rem
+
+            a
+                &:first-of-type
+                    &:hover
+                        cursor: pointer
+                        text-decoration: underline
+
+.uni-shortcutlist-newicon
+    float: right
+    margin: 0
+    padding: 0
+    background: $uni-color-good unicon-plus($uni-color-negative) no-repeat center center
+    background-size: .8rem
+    border-radius: 50%
+    width: 1.4rem
+    height: 1.4rem
+    display: block
+    margin-top: .3rem
+
+    &:hover,&:focus,&.is-opened
+        cursor: pointer
+        background-color: darken($uni-color-good, 10%)
+
 // Icons
 .dashboard-shortcut-icon-fallback
     background-image: unicon-plus($uni-color-negative)
@@ -618,3 +656,6 @@ uni-rss
 
 .kpi-widget-level5
     background-image: unicon-arrow(rgba(119,182,85, 1))
+
+@function unicon-plus-green($fill)
+  @return url('data:image/svg+xml,<svg id%3D"Layer_1" xmlns%3D"http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg" viewBox%3D"0 0 205.1 205.1"><style>.st0{fill%3A%2377b653}.st1{fill%3A%23fff}<%2Fstyle><path class%3D"st0" d%3D"M102.5 0C45.9 0 0 45.9 0 102.5S45.9 205 102.5 205 205 159.1 205 102.5C205.1 45.9 159.2 0 102.5 0zm56.8 112.7h-46v48.4H91.8v-48.4h-46V92h46V44h21.6v48h46v20.7z"%2F><path class%3D"st1" d%3D"M113.3 44H91.8v48h-46v20.7h46v48.4h21.5v-48.4h46V92h-46z"><%2Fpath><%2Fsvg>')

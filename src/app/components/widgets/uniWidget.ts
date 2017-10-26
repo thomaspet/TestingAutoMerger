@@ -24,7 +24,8 @@ import {
     UniOverdueInvoiceWidget,
     UniKPIWidget,
     UniFlexWidget,
-    UniTransactionsWidget
+    UniTransactionsWidget,
+    UniShortcutListWidget
 } from './widgets/barrel';
 
 export interface IUniWidget {
@@ -53,7 +54,8 @@ export const WIDGET_MAP = {
     kpi: UniKPIWidget,
     companyLogo: UniCompanyLogoWidget,
     flex: UniFlexWidget,
-    transaction: UniTransactionsWidget
+    transaction: UniTransactionsWidget,
+    shortcutlist: UniShortcutListWidget
 };
 
 @Directive({
