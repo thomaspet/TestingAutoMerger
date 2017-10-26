@@ -1,6 +1,5 @@
 import {Component, Input, ChangeDetectionStrategy} from '@angular/core';
 import {Router} from '@angular/router';
-import {UniModalService, UniFeedbackModal} from '../../../../framework/uniModal/barrel';
 
 @Component({
     selector: 'uni-toolbar-help',
@@ -11,7 +10,6 @@ import {UniModalService, UniFeedbackModal} from '../../../../framework/uniModal/
             <li *ngIf="videoURL?.length" (click)="goToVideo()">Opplæringsvideo for skjermbilde</li>
             <li (click)="goToServiceDesk()">Kundesenter</li>
             <li (click)="goToAbout()">Systeminfo</li>
-            <li (click)="openFeedbackModal()">Gi tilbakemelding</li>
         </ul>
     `,
     changeDetection: ChangeDetectionStrategy.OnPush
@@ -21,7 +19,7 @@ export class UniToolbarHelp {
 
     public isExpanded: boolean;
 
-    constructor(private router: Router, private modalService: UniModalService) {}
+    constructor(private router: Router) {}
 
     public goToVideo() {
         window.open(this.videoURL, '_blank');
@@ -33,9 +31,5 @@ export class UniToolbarHelp {
 
     public goToAbout() {
         this.router.navigateByUrl('/about/versions');
-    }
-
-    public openFeedbackModal() {
-        this.modalService.open(UniFeedbackModal);
     }
 }

@@ -11,7 +11,6 @@ import {UniUnsavedChangesModal} from './presets/unsavedChangesModal';
 import {UniRegisterPaymentModal} from './presets/registerPaymentModal';
 import {UniActivateAPModal} from './presets/activateAPModal';
 import {UniApproveModal} from './presets/approveModal';
-import {UniFeedbackModal} from './presets/feedbackModal';
 
 export * from './modalService';
 export * from './presets/confirmModal';
@@ -27,7 +26,6 @@ export * from './presets/unsavedChangesModal';
 export * from './presets/registerPaymentModal';
 export * from './presets/activateAPModal';
 export * from './presets/approveModal';
-export * from './presets/feedbackModal';
 
 export const MODALS = [
     UniConfirmModalV2,
@@ -43,6 +41,5 @@ export const MODALS = [
     UniRegisterPaymentModal,
     UniActivateAPModal,
     UniApproveModal,
-    UniFeedbackModal
 ];
 
