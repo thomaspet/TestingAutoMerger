@@ -550,7 +550,7 @@ export class ProductDetails {
                     Section: 0,
                     EntityType: 'Product',
                     Property: 'CostPrice',
-                    FieldType: FieldType.TEXT,
+                    FieldType: FieldType.NUMERIC,
                     Label: 'Innpris eks. mva'
                 },
                 {
@@ -558,7 +558,7 @@ export class ProductDetails {
                     Section: 0,
                     EntityType: 'Product',
                     Property: 'PriceExVat',
-                    FieldType: FieldType.TEXT,
+                    FieldType: FieldType.NUMERIC,
                     Label: 'Utpris eks. mva'
                 },
                 {
@@ -566,7 +566,7 @@ export class ProductDetails {
                     Section: 0,
                     EntityType: 'Product',
                     Property: 'PriceIncVat',
-                    FieldType: FieldType.TEXT,
+                    FieldType: FieldType.NUMERIC,
                     Label: 'Utpris inkl. mva'
                 },
                 {
