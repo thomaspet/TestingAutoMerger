@@ -867,7 +867,7 @@ export class UniTicker {
             .GetExportedExcelFile(this.ticker.Model, this.selects, params.get('filter'), this.ticker.Expand, headers, this.ticker.Joins)
                 .subscribe((blob) => {
                     // download file so the user can open it
-                    saveAs(blob, 'export.csv');
+                    saveAs(blob, 'export.xlsx');
                 },
                 err => this.errorService.handle(err));
 
