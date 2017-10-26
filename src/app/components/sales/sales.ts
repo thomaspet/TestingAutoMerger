@@ -52,7 +52,7 @@ export class UniSales {
                 config: {
                     label: 'Kunder',
                     description: 'Kundeoversikt',
-                    icon: '',
+                    icon: 'customer',
                     link: '/sales/customer'
                 }
             },
@@ -65,7 +65,7 @@ export class UniSales {
                 config: {
                     label: 'Produkter',
                     description: 'Produktoversikt',
-                    icon: '',
+                    icon: 'product',
                     link: '/sales/products'
                 }
             },
@@ -108,25 +108,10 @@ export class UniSales {
                     link: '/sales/invoices'
                 }
             },
-
             {
                 width: 1,
                 height: 1,
                 x: 5,
-                y: 0,
-                widgetType: 'shortcut',
-                config: {
-                    label: 'Prosjekt',
-                    description: 'Prosjektmodul',
-                    icon: '',
-                    link: '/dimensions/projects/overview'
-                }
-            },
-
-            {
-                width: 1,
-                height: 1,
-                x: 6,
                 y: 0,
                 widgetType: 'shortcut',
                 config: {
@@ -140,10 +125,21 @@ export class UniSales {
             {
                 width: 2,
                 height: 1,
-                x: 7,
+                x: 6,
                 y: 0,
                 widgetType: 'overdue',
                 config: {}
+            },
+            {
+                width: 3,
+                height: 1,
+                x: 8,
+                y: 0,
+                widgetType: 'clock',
+                config: {
+                    showSeconds: false,
+                    dateColor: '#7698bd',
+                }
             },
             {
                 width: 4,
@@ -227,6 +223,36 @@ export class UniSales {
                     ]
                 }
             },
+            {
+                width: 2,
+                height: 2,
+                x: 2,
+                y: 4,
+                widgetType: 'infoshortcut', // TODO: enum
+                config: {
+                    header: 'Oversikt',
+                    text: 'Alle dine data er kun et tastetrykk unna. Kraftig søk med filtreringsmuligheter',
+                    link: '/overview',
+                    externalLink: '',
+                    imageLink: '../../../assets/info_shortcut_ticker_img.jpg',
+                    title: 'Gå til oversikt'
+                }
+            },
+            {
+                width: 2,
+                height: 2,
+                x: 4,
+                y: 4,
+                widgetType: 'infoshortcut', // TODO: enum
+                config: {
+                    header: 'Opplæringsvideoer',
+                    text: 'Se våre opplæringsvideoer slik at du blir god og trygg på Uni Economy',
+                    link: '',
+                    externalLink: 'http://app.cimple.no/unimicro/',
+                    imageLink: '../../../assets/info_shortcut_movie_img.jpg',
+                    title: ''
+                }
+            }
         ];
     }
 }

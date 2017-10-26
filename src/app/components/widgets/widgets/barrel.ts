@@ -9,6 +9,7 @@ import {UniKPIWidget} from './kpi';
 import {UniFlexWidget} from './flex';
 import {UniTransactionsWidget} from './transactions';
 import {UniShortcutListWidget} from './shortcutList';
+import {UniInfoShortcutWidget} from './infoShortcut';
 
 export const UNI_WIDGETS = [
     UniShortcutWidget,
@@ -21,7 +22,8 @@ export const UNI_WIDGETS = [
     UniKPIWidget,
     UniFlexWidget,
     UniTransactionsWidget,
-    UniShortcutListWidget
+    UniShortcutListWidget,
+    UniInfoShortcutWidget
 ];
 
 export * from './shortcut';
@@ -35,4 +37,5 @@ export * from './overdueInvoice';
 export * from './flex';
 export * from './transactions';
 export * from './shortcutList';
+export * from './infoShortcut';
 

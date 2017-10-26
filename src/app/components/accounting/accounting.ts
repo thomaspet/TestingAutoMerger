@@ -185,8 +185,8 @@ export class UniAccounting {
             {
                 width: 4,
                 height: 3,
-                x: 0,
-                y: 1,
+                x: 4,
+                y: 4,
                 widgetType: 'chart',
                 config: {
                     header: 'Driftsresultater',
@@ -223,13 +223,65 @@ export class UniAccounting {
             {
                 width: 8,
                 height: 3,
-                x: 4,
+                x: 2,
                 y: 1,
                 widgetType: 'transaction', // TODO: enum
                 config: {
                     dashboard: 'Accounting' // Identifyer for which fields to show.. fix while not dynamic
                 }
-            }
+            },
+            {
+                width: 2,
+                height: 3,
+                x: 0,
+                y: 1,
+                widgetType: 'shortcutlist',
+                config: {
+                    header: 'Snarveier',
+                    shortcuts: [
+                        {
+                            label: 'Bilagsføring',
+                            link: '/accounting/journalentry/manual',
+                            urlToNew: ''
+                        },
+                        {
+                            label: 'Fakturamottak',
+                            link: '/accounting/bills',
+                            urlToNew: '/accounting/bills/0'
+                        },
+                        {
+                            label: 'Åpne poster',
+                            link: '/accounting/postpost',
+                            urlToNew: ''
+                        },
+                        {
+                            label: 'Forespørsel bilg',
+                            link: '/accounting/transquery/details',
+                            urlToNew: ''
+                        },
+                        {
+                            label: 'Regnskapsoversikt',
+                            link: '/accounting/accountingreports/result',
+                            urlToNew: ''
+                        },
+                        {
+                            label: 'MVA-melding',
+                            link: '/accounting/vatreport',
+                            urlToNew: ''
+                        },
+                        {
+                            label: 'Kontoplan',
+                            link: '/accounting/accountsettings',
+                            urlToNew: ''
+                        },
+                        {
+                            label: 'Leverandør',
+                            link: '/accounting/suppliers',
+                            urlToNew: '/accounting/suppliers/0'
+                        },
+                    ]
+                }
+            },
         ];
     }
 

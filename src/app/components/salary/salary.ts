@@ -35,7 +35,7 @@ export class UniSalary {
                 config: {
                     label: 'Ansatte',
                     description: 'Ansatte',
-                    icon: '',
+                    icon: 'employee',
                     link: '/salary/employees'
                 }
             },
@@ -49,7 +49,7 @@ export class UniSalary {
                 config: {
                     label: 'Lønnsarter',
                     description: 'Lønnsarter',
-                    icon: '',
+                    icon: 'wagetype',
                     link: '/salary/wagetypes'
                 }
             },
@@ -63,7 +63,7 @@ export class UniSalary {
                 config: {
                     label: 'Lønnsavregninger',
                     description: 'Lønnsavregninger',
-                    icon: '',
+                    icon: 'payrollrun',
                     link: '/salary/payrollrun'
                 }
             },
@@ -77,7 +77,7 @@ export class UniSalary {
                 config: {
                     label: 'A-melding',
                     description: 'A-melding',
-                    icon: '',
+                    icon: 'amelding',
                     link: '/salary/amelding'
                 }
             },
@@ -97,8 +97,8 @@ export class UniSalary {
             {
                 width: 4,
                 height: 3,
-                x: 8,
-                y: 1,
+                x: 0,
+                y: 4,
                 widgetType: 'chart',
                 config: {
                     header: 'Ansatte per stillingskode',
@@ -128,11 +128,88 @@ export class UniSalary {
             {
                 width: 8,
                 height: 3,
-                x: 0,
+                x: 2,
                 y: 1,
                 widgetType: 'transaction', // TODO: enum
                 config: {
                     dashboard: 'Salary' // Identifyer for which fields to show.. FIX while not dynamic
+                }
+            },
+            {
+                width: 2,
+                height: 3,
+                x: 0,
+                y: 1,
+                widgetType: 'shortcutlist',
+                config: {
+                    header: 'Snarveier',
+                    shortcuts: [
+                        {
+                            label: 'Ansatte',
+                            link: '/salary/employees',
+                            urlToNew: '/salary/employees/0'
+                        },
+                        {
+                            label: 'Lønnsarter',
+                            link: '/salary/wagetypes',
+                            urlToNew: '/salary/wagetypes/0/details'
+                        },
+                        {
+                            label: 'Kategories',
+                            link: '/salary/employeecategories',
+                            urlToNew: '/salary/employeecategories/0/details'
+                        },
+                        {
+                            label: 'Lønnsavregning',
+                            link: '/salary/payrollrun',
+                            urlToNew: '/salary/payrollrun/0'
+                        },
+                        {
+                            label: 'A-melding',
+                            link: '/salary/amelding',
+                            urlToNew: ''
+                        },
+                        {
+                            label: 'Saldo',
+                            link: '/salary/salarybalances',
+                            urlToNew: '/salary/salarybalances/0/details'
+                        },
+                        {
+                            label: 'Tillegsopplysninger',
+                            link: '/salary/supplements',
+                            urlToNew: ''
+                        }
+                    ]
+                }
+            },
+            {
+                width: 2,
+                height: 2,
+                x: 4,
+                y: 4,
+                widgetType: 'infoshortcut', // TODO: enum
+                config: {
+                    header: 'Oversikt',
+                    text: 'Alle dine data er kun et tastetrykk unna. Kraftig søk med filtreringsmuligheter',
+                    link: '/overview',
+                    externalLink: '',
+                    imageLink: '../../../assets/info_shortcut_ticker_img.jpg',
+                    title: 'Gå til oversikt'
+                }
+            },
+            {
+                width: 2,
+                height: 2,
+                x: 6,
+                y: 4,
+                widgetType: 'infoshortcut', // TODO: enum
+                config: {
+                    header: 'Opplæringsvideoer',
+                    text: 'Se våre opplæringsvideoer slik at du blir god og trygg på Uni Economy',
+                    link: '',
+                    externalLink: 'http://app.cimple.no/unimicro/',
+                    imageLink: '../../../assets/info_shortcut_movie_img.jpg',
+                    title: ''
                 }
             }
         ];
