@@ -19,7 +19,7 @@ import {
 } from '../../../../unientities';
 import {UniStatusTrack} from '../../../common/toolbar/statustrack';
 import {IUniSaveAction} from '../../../../../framework/save/save';
-import {UniForm, FieldType} from '../../../../../framework/ui/uniform/index';
+import {UniForm, FieldType, UniFieldLayout, UniFormError} from '../../../../../framework/ui/uniform/index';
 import {Location} from '@angular/common';
 import {BillSimpleJournalEntryView} from './journal/simple';
 import {IOcrServiceResult, OcrValuables, OcrPropertyType} from './ocr';
@@ -64,7 +64,6 @@ import {
     UserService
 } from '../../../../services/services';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
-import {UniFieldLayout} from '../../../../../framework/ui/uniform/index';
 import * as moment from 'moment';
 import {UniNewSupplierModal} from '../../supplier/details/newSupplierModal';
 declare var _;
@@ -331,7 +330,8 @@ export class BillView {
             <any> {
                 Property: 'PaymentID',
                 FieldType: FieldType.TEXT,
-                Label: 'KID'
+                Label: 'KID',
+                Validations: [this.modulusService.formValidationKID]
             },
             <any> {
                 Property: 'TaxInclusiveAmountCurrency',
