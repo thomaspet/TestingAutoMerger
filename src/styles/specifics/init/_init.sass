@@ -21,6 +21,10 @@
             .authentication-component
                 box-shadow: none
 
+        footer
+            position: fixed
+            bottom: 0
+
 
 @media screen and (max-width: 950px)
     uni-init
@@ -149,13 +153,16 @@ uni-init
 
 
 .authentication-component
-    min-height: 13rem
+    min-height: 10rem
     max-width: 25rem
     margin: 0 auto
-    padding: 2rem 3rem 1rem 3rem
+    padding: 2rem 3rem 3rem 3rem
     background: $uni-color-negative
     position: relative
     box-shadow: 0 0 30px #d9dee9
+
+    small.validation
+        margin: 0 0 1rem 0
 
     form
         label
@@ -257,9 +264,6 @@ uni-confirm-invite
             font-size: 17px
             &.registration-step-info
                 margin-bottom: 2rem
-
-        small.validation
-            margin: 0 0 1rem 0
 
         .links
             position: static

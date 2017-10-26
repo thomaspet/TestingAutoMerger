@@ -60,7 +60,7 @@ export class ResetPassword {
 
     }
 
-    private sendResetEmail() {
+    public sendResetEmail() {
         this.busy = true;
         this.errorMessage = '';
         this.successMessage = '';
@@ -72,15 +72,15 @@ export class ResetPassword {
             .send()
             .subscribe(
                 (response) => {
-                    if (response.status === 200) {
-                        this.successMessage = 'Vennligst sjekk epost innboksen din for videre instrukser';
-                        this.busy = false;
-                        this.emailSent = true;
-                    }
+                    this.successMessage = 'Vennligst sjekk epost innboksen din for videre instrukser';
+                    this.busy = false;
+                    this.emailSent = true;
                 },
                 (error) => {
                     if (error.status === 404) {
                         this.errorMessage = 'Vi klarte ikke finne en aktiv bruker. Er epost korrekt?';
+                    } else {
+                        this.errorMessage = 'Noe gikk galt, vennligst prøv igjen';
                     }
                     this.busy = false;
                     this.logger.exception(error);
