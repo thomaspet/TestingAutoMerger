@@ -51,6 +51,7 @@ import {AssignmentServicesModule} from './services/assignmentServicesModule';
 import {CanDeactivateGuard} from './canDeactivateGuard';
 import {RoutePermissionGuard} from './routePermissionGuard';
 import {AboutModule} from './components/about/aboutModule';
+import {MarketplaceModule} from './components/marketplace/marketplaceModule';
 
 // Set moment locale
 // TODO: Allow users to change this during runtime
@@ -97,6 +98,7 @@ if (window.ENV === 'production') {
         TranslationsModule,
         DashboardModule,
         BureauModule,
+        MarketplaceModule,
         AboutModule,
         AssignmentsModule
     ],

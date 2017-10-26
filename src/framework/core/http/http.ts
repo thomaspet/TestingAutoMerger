@@ -123,6 +123,12 @@ export class UniHttp {
         return this;
     }
 
+    public usingAdminDomain() {
+        this.baseUrl = AppConfig.ADMIN_SERVER_URL;
+        this.apiDomain = '';
+        return this;
+    }
+
     public usingEmptyDomain() {
         this.apiDomain = '';
         return this;

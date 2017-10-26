@@ -1,0 +1,83 @@
+<section class="marketplace-add-ons-details" [attr.aria-busy]="false" *ngIf="product$ | async as product">
+    <section class="buy-section">
+        <section class="icon-section">
+            <img src="{{product.iconReference}}" />
+        </section>
+        <section class="text-section">
+            <p>UniEconomy</p>
+            <p>{{product.label}}</p>
+        </section>
+        <section class="button-section">
+            <button (click)="buy(product)">Prøv gratis demo</button>
+            <a (click)="buy(product)">Kjøp nå</a>
+        </section>
+    </section>
+    <section class="header">
+        <section class="background add-on-details-background-image"></section>
+        <section class="inner-container">
+            <img src="../../../../assets/marketplace/addOnsDetails/laptop.png" />
+            <section>
+                <h1>{{product.label}}</h1>
+                <p>{{product.description}}</p>
+            </section>
+        </section>
+    </section>
+    <h1 class="price-containers-header">Pris</h1>
+    <section class="price-containers">
+        <section class="price-container">
+            <section class="price-header">
+                <span *ngIf="product.isPerUser">{{'per bruker'}}</span>
+                <span *ngIf="!product.isPerUser">{{'per firma'}}</span>
+            </section>
+            <section class="price-body">
+                <h3>{{product.price}}kr</h3>
+                <ul>
+                    <li *ngIf="product.isPerTransaction">{{'pr transaksjon'}}</li>
+                    <li *ngIf="product.isMonthly">{{'pr måned'}}</li>
+                </ul>
+            </section>
+        </section>
+    </section>
+
+    <h1 *ngIf="product.subProducts" class="sub-apps-heading">
+        Utvidelser
+    </h1>
+    <section class="app-containers sub-app-containers">
+        <section *ngFor="let subProduct of product.subProducts"
+                 class="app-container"
+                 (click)="navigateTo('/marketplace/add-ons/' + subProduct.id)">
+            <section class="app-header">
+                <img *ngIf="!!subProduct.imageReference" src="{{subProduct.imageReference}}" />
+                <img *ngIf="!subProduct.imageReference" src="//public-files.unieconomy.no/files/marketplace/sale.png" />
+            </section>
+            <section class="app-body">
+                <h3>{{subProduct.label}}</h3>
+                <p>{{subProduct.description}}</p>
+            </section>
+            <section class="app-footer">
+                <a>les mer</a>
+            </section>
+        </section>
+    </section>
+
+    <h1 class="suggested-products-heading">
+        Forslag til andre moduler
+    </h1>
+    <section class="app-containers">
+        <section *ngFor="let product of suggestedProducts$ | async"
+                 class="app-container"
+                 (click)="navigateTo('/marketplace/add-ons/' + product.id)">
+            <section class="app-header">
+                <img *ngIf="!!product.imageReference" src="{{product.imageReference}}" />
+                <img *ngIf="!product.imageReference" src="//public-files.unieconomy.no/files/marketplace/sale.png" />
+            </section>
+            <section class="app-body">
+                <h3>{{product.label}}</h3>
+                <p>{{product.description}}</p>
+            </section>
+            <section class="app-footer">
+                <a>les mer</a>
+            </section>
+        </section>
+    </section>
+</section>
