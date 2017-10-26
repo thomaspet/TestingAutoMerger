@@ -293,6 +293,24 @@ export class HamburgerMenu {
                 ]
             },
             {
+                componentListName: 'Prosjekt [BETA]',
+                componentListHeader: 'Prosjekt [BETA]',
+                componentListUrl: '/dimensions/projects',
+                componentList: [
+                    {componentName: 'Oversikt', componentUrl: '/dimensions/projects/overview', moduleID: UniModules.Projects},
+                    {componentName: 'Timer', componentUrl: '/dimensions/projects/hours', moduleID: UniModules.Projects},
+                    // TODO: add more when necessary
+/*                     {componentName: 'Oppgaver', componentUrl: '/dimensions/projects/tasks', moduleID: UniModules.Projects},
+                    {componentName: 'Faktura', componentUrl: '/dimensions/projects/invoices', moduleID: UniModules.Projects},
+                    {componentName: 'Ordre', componentUrl: '/dimensions/projects/orders', moduleID: UniModules.Projects},
+                    {componentName: 'Tilbud', componentUrl: '/dimensions/projects/quotes', moduleID: UniModules.Projects},
+                    ,
+                    {componentName: 'Inng. faktura', componentUrl: '/dimensions/projects/supplierinvoices', moduleID: UniModules.Projects},
+                    {componentName: 'Dokumenter', componentUrl: '/dimensions/projects/documents', moduleID: UniModules.Projects},
+                    {componentName: 'Redigering', componentUrl: '/dimensions/projects/editmode', moduleID: UniModules.Projects} */
+                ]
+            },
+            {
                 componentListName: 'Innstillinger',
                 componentListHeader: 'Innstillinger',
                 componentListUrl: '/admin',

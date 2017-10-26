@@ -92,7 +92,7 @@ export class Project {
             { name: 'Ordre', path: 'orders' },
             { name: 'Tilbud', path: 'quotes' },
             { name: 'Timer', path: 'hours' },
-            { name: 'Inng.faktura', path: 'supplierinvoices'},
+            { name: 'Inng. faktura', path: 'supplierinvoices'},
             { name: 'Dokumenter', path: 'documents' },
             // { name: 'Budsjett', path: 'budget' },     // TODO: uncomment when available
             // { name: 'Ordre', path: 'orders' },        // TODO: uncomment when available
