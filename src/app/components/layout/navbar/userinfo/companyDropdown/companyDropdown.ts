@@ -140,9 +140,11 @@ export class UniCompanyDropdown {
 
         this.loadCompanyData();
         this.authService.authentication$.subscribe(auth => {
-            this.activeCompany = auth.activeCompany;
-            this.loadCompanyData();
-            this.cdr.markForCheck();
+            if (auth && auth.user) {
+                this.activeCompany = auth.activeCompany;
+                this.loadCompanyData();
+                this.cdr.markForCheck();
+            }
         });
 
         this.yearService.selectedYear$.subscribe(val => {
