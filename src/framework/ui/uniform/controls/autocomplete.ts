@@ -133,7 +133,7 @@ export class UniAutocompleteInput extends BaseControl {
     private items$: Observable<any> = new Observable<any>();
     private focusPositionTop: number = 0;
     private preventSearch: boolean = false;
-    private subscriptions = [];
+    private subscriptions: any[] = [];
     private groupConfig: IGroupConfig;
     private cache: IAutocompleteCache = {
         search: [],
@@ -338,9 +338,10 @@ export class UniAutocompleteInput extends BaseControl {
     }
 
     private confirmSelection(item) {
-        if (item.isHeader) {
+        if (!item || item.isHeader) {
             return;
         }
+
         const undefinedToNull = val => val === undefined ? null : val;
         let previousValue = this.currentValue;
         this.isExpanded$.next(false); // = false;

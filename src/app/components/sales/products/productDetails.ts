@@ -390,7 +390,7 @@ export class ProductDetails {
         };
 
         let accountField: UniFieldLayout = this.fields$.getValue().find(x => x.Property === 'AccountID');
-        if(this.defaultSalesAccount) {
+        if (this.defaultSalesAccount) {
             accountField.Placeholder =
                 this.defaultSalesAccount.AccountNumber + ' - ' + this.defaultSalesAccount.AccountName;
         }
@@ -399,7 +399,12 @@ export class ProductDetails {
             displayProperty: 'AccountNumber',
             valueProperty: 'ID',
             debounceTime: 200,
-            search: (searchValue: string) => this.accountSearch(searchValue),
+            search: (searchValue: string) => {
+                if (!searchValue) {
+                    return this.accountSearch('');
+                }
+                this.accountSearch(searchValue);
+            },
             template: (account: Account) => {
                 return account && account.ID !== 0 ? `${account.AccountNumber} ${account.AccountName }` : '';
             },
@@ -551,7 +556,11 @@ export class ProductDetails {
                     EntityType: 'Product',
                     Property: 'CostPrice',
                     FieldType: FieldType.NUMERIC,
-                    Label: 'Innpris eks. mva'
+                    Label: 'Innpris eks. mva',
+                    Options: {
+                        decimalLength: 2,
+                        decimalSeparator: ','
+                    }
                 },
                 {
                     FieldSet: 2,
@@ -559,7 +568,11 @@ export class ProductDetails {
                     EntityType: 'Product',
                     Property: 'PriceExVat',
                     FieldType: FieldType.NUMERIC,
-                    Label: 'Utpris eks. mva'
+                    Label: 'Utpris eks. mva',
+                    Options: {
+                        decimalLength: 2,
+                        decimalSeparator: ','
+                    }
                 },
                 {
                     FieldSet: 2,
@@ -567,7 +580,11 @@ export class ProductDetails {
                     EntityType: 'Product',
                     Property: 'PriceIncVat',
                     FieldType: FieldType.NUMERIC,
-                    Label: 'Utpris inkl. mva'
+                    Label: 'Utpris inkl. mva',
+                    Options: {
+                        decimalLength: 2,
+                        decimalSeparator: ','
+                    }
                 },
                 {
                     FieldSet: 2,

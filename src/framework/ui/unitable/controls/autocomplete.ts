@@ -32,7 +32,9 @@ export interface IGroupConfig {
     selector: 'unitable-autocomplete',
     template: `
         <article class="autocomplete">
-            <input type="text" #input
+            <input
+                type="text"
+                #input
                 class="uniAutocomplete_input"
                 [formControl]="inputControl"
                 (keypress)="busy = true"
@@ -45,7 +47,8 @@ export interface IGroupConfig {
             <button class="uni-autocomplete-searchBtn"
                     (click)="toggle()"
                     (keydown)="onKeyDown($event)"
-                    tabIndex="-1">Søk</button>
+                    tabIndex="-1">Søk
+            </button>
 
             <ul #list class="uniTable_dropdown_list"
                 id="autocomplete-results"
@@ -89,6 +92,7 @@ export class UnitableAutocomplete {
 
     private lookupResults: any[] = [];
     private selectedIndex: any;
+    private addValuePromise: Promise<any>;
 
     constructor(private cdr: ChangeDetectorRef) {}
 
@@ -139,11 +143,9 @@ export class UnitableAutocomplete {
         });
     }
 
-    private addValuePromise: Promise<any>;
-
     private addNewItem() {
         if (this.editorOptions.addNewButtonCallback) {
-            this.addValuePromise = this.editorOptions.addNewButtonCallback(this.inputControl.value)
+            this.addValuePromise = this.editorOptions.addNewButtonCallback(this.inputControl.value);
 
             this.expanded = false;
             this.cdr.markForCheck();
