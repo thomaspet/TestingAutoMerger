@@ -84,6 +84,7 @@ export class Signup {
     }
 
     public submitStep2Form() {
+        this.errorMessage = '';
         this.busy = true;
         const formValues = this.step2Form.value;
 
@@ -104,8 +105,16 @@ export class Signup {
                     this.busy = false;
                 },
                 err => {
-                    if (err.status === 404) {
-                        this.errorMessage = 'Registrering er ikke tilgjengelig på nåværende tidspunkt. Vennligst prøv igjen senere';
+                    let usernameExists;
+
+                    // Try catch to avoid having to null check everything
+                    try {
+                        const errorBody = err.json();
+                        usernameExists = errorBody.Messages[0].Message.indexOf('Username') >= 0;
+                    } catch (e) {}
+
+                    if (usernameExists) {
+                        this.errorMessage = 'Brukernavnet er allerede i bruk';
                     } else {
                         this.errorMessage = 'Noe gikk galt under registrering, vennligst prøv igjen';
                     }
