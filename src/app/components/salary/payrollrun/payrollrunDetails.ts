@@ -14,7 +14,7 @@ import {PostingSummaryModal} from './modals/postingSummaryModal';
 import {VacationPayModal} from './modals/vacationpay/vacationPayModal';
 import {UniForm} from '../../../../framework/ui/uniform/index';
 import {IContextMenuItem} from '../../../../framework/ui/unitable/index';
-import {IToolbarConfig} from '../../common/toolbar/toolbar';
+import {IToolbarConfig, IToolbarSearchConfig} from '../../common/toolbar/toolbar';
 import {IUniTagsConfig, ITag} from '../../common/toolbar/tags';
 import {UniStatusTrack} from '../../common/toolbar/statustrack';
 import {ToastService, ToastType, ToastTime} from '../../../../framework/uniToast/toastService';
@@ -46,6 +46,7 @@ const PAYROLL_RUN_KEY: string = 'payrollRun';
 export class PayrollrunDetails extends UniView implements OnDestroy {
     public config$: BehaviorSubject<any> = new BehaviorSubject({});
     public fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
+    public searchConfig$: BehaviorSubject<IToolbarSearchConfig> = new BehaviorSubject(null);
     @ViewChild(UniForm) public uniform: UniForm;
     private payrollrun$: BehaviorSubject<PayrollRun> = new BehaviorSubject(undefined);
     private payrollrunID: number;
@@ -154,6 +155,7 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
                     if (!super.isDirty(PAYROLL_RUN_KEY)) {
                         this.posterPayrollRun$.next(payrollRun);
                     }
+                    this.searchConfig$.next(this.payrollRunDetailsService.setupSearchConfig(payrollRun));
                 })
                 .subscribe((payrollRun: PayrollRun) => {
                     if (payrollRun['_IncludeRecurringPosts'] === undefined) {
@@ -166,9 +168,6 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
                     this.payStatus = this.payrollrunService.getStatus(payrollRun).text;
 
                     this.toolbarconfig = {
-                        title: payrollRun && payrollRun.ID
-                            ? payrollRun.ID + ' - ' + (payrollRun.Description || 'Lønnsavregning')
-                            : 'Ny lønnsavregning',
                         subheads: [
                         {
                             title: payrollRun.JournalEntryNumber ?

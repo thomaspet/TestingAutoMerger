@@ -5,6 +5,7 @@
     [statustrack]="getStatustrackConfig()"
     [tags]="categoryFilter"
     [tagConfig]="tagConfig"
+    [searchConfig]="searchConfig$ | async"
     (tagsChange)="filterChange($event)">
 </uni-toolbar>
 

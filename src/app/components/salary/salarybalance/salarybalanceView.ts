@@ -2,15 +2,17 @@ import {Component, OnDestroy} from '@angular/core';
 import {UniView} from '../../../../framework/core/uniView';
 import {ActivatedRoute, Router, NavigationEnd} from '@angular/router';
 import {IUniSaveAction} from '../../../../framework/save/save';
-import {IToolbarConfig} from '../../common/toolbar/toolbar';
+import {IToolbarConfig, IToolbarSearchConfig} from '../../common/toolbar/toolbar';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {Observable} from 'rxjs/Observable';
 import {Subscription} from 'rxjs/Subscription';
+import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {SalaryBalance, SalBalType, CompanySalary, WageType, Employee, Supplier} from '../../../unientities';
 import {UniModalService, ConfirmActions} from '../../../../framework/uniModal/barrel';
 import {IContextMenuItem} from '../../../../framework/ui/unitable/index';
 import {SalaryBalanceLineModal} from './modals/salBalLineModal';
 import {UniPreviewModal} from '../../reports/modals/preview/previewModal';
+import {SalaryBalanceViewService} from './services/salaryBalanceViewService';
 import {
     UniCacheService,
     ErrorService,
@@ -37,6 +39,7 @@ export class SalarybalanceView extends UniView implements OnDestroy {
     private toolbarConfig: IToolbarConfig;
     private childRoutes: any[];
     private contextMenuItems: IContextMenuItem[] = [];
+    public searchConfig$: BehaviorSubject<IToolbarSearchConfig> = new BehaviorSubject(null);
     private subscriptions: Subscription[] = [];
 
     public busy: boolean;
@@ -54,7 +57,8 @@ export class SalarybalanceView extends UniView implements OnDestroy {
         private modalService: UniModalService,
         private wageTypeService: WageTypeService,
         private employeeService: EmployeeService,
-        private supplierService: SupplierService
+        private supplierService: SupplierService,
+        private salaryBalanceViewService: SalaryBalanceViewService
     ) {
         super(router.url, cacheService);
 
@@ -112,7 +116,6 @@ export class SalarybalanceView extends UniView implements OnDestroy {
             .map(canDeactivate => {
                 if (canDeactivate) {
                     this.cacheService.clearPageCache(this.cacheKey);
-                    this.salarybalance = undefined;
                     if (!this.salarybalanceID) {
                         this.salarybalanceService.invalidateCache();
                     }
@@ -144,15 +147,13 @@ export class SalarybalanceView extends UniView implements OnDestroy {
                             || !this.salarybalanceService.hasBalance(salaryBalance)
                     }
                 ];
+
+                this.searchConfig$.next(this.salaryBalanceViewService.setupSearchConfig(salaryBalance));
             })
             .do((salbal) => this.salarybalance = salbal)
             .catch((err, obs) => this.errorService.handleRxCatch(err, obs))
             .do((salarybalance: SalaryBalance) => {
                 this.toolbarConfig = {
-                    title: salarybalance.ID ? salarybalance.Name : 'Nytt forskudd/trekk',
-                    subheads: [{
-                        title: salarybalance.ID ? 'Saldo nr. ' + salarybalance.ID : null
-                    }],
                     navigation: {
                         prev: this.previousSalarybalance.bind(this),
                         next: this.nextSalarybalance.bind(this),

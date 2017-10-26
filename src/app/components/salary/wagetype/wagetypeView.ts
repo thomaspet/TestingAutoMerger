@@ -9,7 +9,7 @@ import {WageTypeService, UniCacheService, ErrorService, YearService} from '../..
 import {WageTypeViewService} from './services/wageTypeViewService';
 import {ToastService} from '../../../../framework/uniToast/toastService';
 import {IUniSaveAction} from '../../../../framework/save/save';
-import {IToolbarConfig} from '../../common/toolbar/toolbar';
+import {IToolbarConfig, IToolbarSearchConfig} from '../../common/toolbar/toolbar';
 
 import {UniView} from '../../../../framework/core/uniView';
 import {UniModalService, ConfirmActions} from '../../../../framework/uniModal/barrel';
@@ -17,6 +17,7 @@ import {IContextMenuItem} from '../../../../framework/ui/unitable/index';
 
 import {Observable} from 'rxjs/Observable';
 import {ReplaySubject} from 'rxjs/ReplaySubject';
+import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 
 const WAGETYPE_KEY = 'wagetype';
 
@@ -32,6 +33,7 @@ export class WageTypeView extends UniView {
     private wageType: WageType;
     private saveActions: IUniSaveAction[];
     private toolbarConfig: IToolbarConfig;
+    private searchConfig$: BehaviorSubject<IToolbarSearchConfig> = new BehaviorSubject(null);
 
     private childRoutes: any[];
     private contextMenuItems$: ReplaySubject<IContextMenuItem[]> = new ReplaySubject<IContextMenuItem[]>(1);
@@ -73,15 +75,15 @@ export class WageTypeView extends UniView {
 
             super.updateCacheKey(this.router.url);
 
-            super.getStateSubject(WAGETYPE_KEY).subscribe((wageType: WageType) => {
+            super.getStateSubject(WAGETYPE_KEY)
+                .do(wt => this.searchConfig$.next(this.wageTypeViewService.setupSearchConfig(wt)))
+                .subscribe((wageType: WageType) => {
                 this.wageType = wageType;
                 this.toolbarConfig = {
                     title: this.wageType.ID ? this.wageType.WageTypeName : 'Ny lønnsart',
                     subheads: [{
                         title: this.wageType.ID
-                            ? 'Lønnsartnr. '
-                            + this.wageType.WageTypeNumber
-                            + (this.wageType.ValidYear ? ` - ${this.wageType.ValidYear}` : '')
+                            ? (this.wageType.ValidYear ? ` - ${this.wageType.ValidYear}` : '')
                             : ''
                     }],
                     navigation: {

@@ -24,6 +24,7 @@ import {ReportsModule} from '../reports/reportsModule';
 import {UniEmployee} from './employee/employee';
 import {EmployeeCategoryButtons} from './employee/employeeCategoryButtons';
 import {EmployeeDetails} from './employee/employeeDetails';
+import {EmployeeDetailsService} from './employee/services/employeeDetailsService';
 import {EmployeeList} from './employee/employeeList';
 import {EmployeeLeaves} from './employee/employeeLeave/employeeLeave';
 import {EmploymentDetails} from './employee/employments/employmentDetails';
@@ -65,10 +66,12 @@ import {WageTypeViewService} from './wagetype/services/wageTypeViewService'
 
 import {CategoryList} from './category/categoryList';
 import {CategoryView} from './category/categoryView';
+import {CategoryViewService} from "./category/services/categoryViewService";
 import {CategoryDetail} from './category/views/categoryDetails';
 
 import {SalarybalanceList} from './salarybalance/salarybalanceList';
 import {SalarybalanceView} from './salarybalance/salarybalanceView';
+import {SalaryBalanceViewService} from './salarybalance/services/salaryBalanceViewService';
 import {SalarybalanceDetail} from './salarybalance/views/salarybalanceDetails';
 import {SalaryBalanceSummary} from './salarybalance/summary/salaryBalanceSummary';
 import {SalarybalanceLine} from './salarybalance/salarybalanceLine';
@@ -179,7 +182,10 @@ import {CanDeactivateGuard} from '../../canDeactivateGuard';
     providers: [
         CanDeactivateGuard,
         PayrollRunDetailsService,
-        WageTypeViewService
+        WageTypeViewService,
+        EmployeeDetailsService,
+        SalaryBalanceViewService,
+        CategoryViewService
     ],
     exports: [
         UniSalary,

@@ -1,7 +1,8 @@
 <uni-toolbar
     [config]="toolbarConfig"
     [saveactions]="saveActions"
-    [contextmenu]="contextMenuItems$ | async"></uni-toolbar>
+    [contextmenu]="contextMenuItems$ | async"
+    [searchConfig]="searchConfig$ | async"></uni-toolbar>
 <article [attr.aria-busy]="busy">
     <!-- Child component navigation and outlet -->
     <uni-tabs [routes]="childRoutes" class="horizontal_nav"></uni-tabs>
