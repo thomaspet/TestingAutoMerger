@@ -22,7 +22,6 @@ export class RemoveHidden {
                 <li class="hamburger_item"
                     *ngFor="let componentList of availableComponents; let idx = index"
                     (mouseenter)="mouseEnterHandler($event, idx)"
-                    (click)="navigate(componentList.componentListUrl)"
                     [ngClass]="{'is-active': idx === selectionIndex}">
 
                     {{componentList.componentListName}}
