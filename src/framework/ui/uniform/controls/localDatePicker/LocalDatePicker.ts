@@ -142,12 +142,12 @@ export class LocalDatePickerInput extends BaseControl{
     public inputChange() {
         const value = this.control.value;
         let date;
-
+        
         if ((value && value.length) || this.options.autocompleteEmptyValue) {
             if (value === '*') {
                 date = new Date();
             } else {
-                date = autocompleteDate(value) || null;
+                date = autocompleteDate(value, !!this.options.denyYearInFuture) || null;
             }
         } else {
             date = null;
