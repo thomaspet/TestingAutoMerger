@@ -338,12 +338,6 @@ export class UniTicker {
             });
     }
 
-    private letUniTableHandleIsOwnClicks(event) {
-        if (event) {
-            event.stopPropagation();
-        }
-    }
-
     private getTickerActions(): Array<TickerAction> {
         return this.ticker.UseParentTickerActions && this.parentTicker && this.parentTicker.Actions ?
             this.parentTicker.Actions :

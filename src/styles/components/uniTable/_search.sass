@@ -3,6 +3,12 @@ unitable-search
     margin-bottom: .5rem
     position: relative
 
+
+// Everything in this file needs a serious revisit
+// Last minute release stuff..
+.advanced-search-wrapper
+    display: inline-block
+
 .unitableSearch_advanced
     list-style: none
     padding: .5rem 1rem 1rem 1rem
@@ -11,18 +17,16 @@ unitable-search
     border: 1px solid $uni-color-scale8
     border-radius: 2px
     position: absolute
+    left: 0
+    min-width: 40rem
     z-index: #{map-get($zindex, toolbar) - 2}
     box-shadow: 0 8px 6px -6px #d9dee9
 
-    // NEW SHIT
     padding: .5rem 0 1rem 0
     li
         padding: 0 1rem
 
     li.unitable-saved-searches
-        // margin-top: 2rem
-        // border-top: 1px solid $uni-color-scale8
-        // padding-top: 1rem
 
         ul
             list-style: none
@@ -156,21 +160,29 @@ unitable-search
     display: inline-block
     position: absolute
     top: .5rem
-    left: 16rem
-    width: 6.15rem
+    left: 15rem
     color: $uni-color-c2a
     cursor: pointer
     user-select: none
 
-    &:after
-        content: ''
-        background: unicon-chevron-down($uni-color-c2a) center no-repeat
-        background-size: .45rem
-        height: 1rem
-        width: 1rem
-        display: block
-        float: right
-        margin: .35rem .2rem
+    section
+        max-width: 8rem
+        padding-right: 1.25rem
+        overflow: hidden
+        white-space: nowrap
+        text-overflow: ellipsis
+
+        &:after
+            content: ''
+            background: unicon-chevron-down($uni-color-c2a) center no-repeat
+            background-size: .45rem
+            position: absolute
+            right: 0
+            top: 0
+            height: 1rem
+            width: 1rem
+            display: block
+            margin: .35rem .2rem
 
     ul
         @extend %contextMenu

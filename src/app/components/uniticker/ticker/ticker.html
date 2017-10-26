@@ -29,7 +29,7 @@
     </ng-template>
 
     <section class="ticker-data">
-        <section class="data-container" (click)="letUniTableHandleIsOwnClicks($event)">
+        <section class="data-container">
             <uni-table
                 *ngIf="ticker.Type === 'table'"
                 [resource]="lookupFunction"
