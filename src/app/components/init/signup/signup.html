@@ -54,7 +54,7 @@
         </button>
     </form>
 
-    <form #step2="ngForm" *ngIf="confirmationCode" [formGroup]="step2Form" (ngSubmit)="notImplemented()">
+    <form #step2="ngForm" *ngIf="confirmationCode" [formGroup]="step2Form" (ngSubmit)="submitStep2Form()">
         <label for="usernameInput">Brukernavn</label>
         <input id="usernameInput"
             type="text"
