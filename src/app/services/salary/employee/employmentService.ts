@@ -100,14 +100,7 @@ export class EmploymentService extends BizHttp<Employment> {
                     FieldType: FieldType.NUMERIC,
                     Label: 'Stillingsprosent',
                     FieldSet: 1,
-                    Section: 0,
-                    Validations: [
-                        {
-                            ErrorMessage: 'Required field',
-                            Level: 3,
-                            Operator: 7 // required
-                        }
-                    ]
+                    Section: 0
                 },
                 {
                     EntityType: 'Employment',
@@ -154,14 +147,7 @@ export class EmploymentService extends BizHttp<Employment> {
                         valueProperty: 'ID',
                         displayProperty: 'Name'
                     },
-                    hasLineBreak: true,
-                    Validations: [
-                        {
-                            ErrorMessage: 'Required field',
-                            Level: 3,
-                            Operator: 7 // required
-                        }
-                    ]
+                    hasLineBreak: true
                 },
                 {
                     EntityType: 'Employment',
@@ -174,14 +160,7 @@ export class EmploymentService extends BizHttp<Employment> {
                         source: this.remunerationType,
                         valueProperty: 'ID',
                         displayProperty: 'Name'
-                    },
-                    Validations: [
-                        {
-                            ErrorMessage: 'Required field',
-                            Level: 3,
-                            Operator: 7 // required
-                        }
-                    ]
+                    }
                 },
                 {
                     EntityType: 'Employment',
@@ -195,14 +174,7 @@ export class EmploymentService extends BizHttp<Employment> {
                         valueProperty: 'ID',
                         displayProperty: 'Name'
                     },
-                    hasLineBreak: true,
-                    Validations: [
-                        {
-                            ErrorMessage: 'Required field',
-                            Level: 3,
-                            Operator: 7 // required
-                        }
-                    ]
+                    hasLineBreak: true
                 },
                 {
                     EntityType: 'Employment',
@@ -213,14 +185,7 @@ export class EmploymentService extends BizHttp<Employment> {
                     Section: 0,
                     Options: {
                         decimalLength: 1
-                    },
-                    /*Validations: [
-                        {
-                            ErrorMessage: 'Required field',
-                            Level: 3,
-                            Operator: 7 // required
-                        }
-                    ]*/
+                    }
                 },
                 {
                     EntityType: 'Employment',
@@ -228,14 +193,7 @@ export class EmploymentService extends BizHttp<Employment> {
                     FieldType: FieldType.LOCAL_DATE_PICKER,
                     Label: 'Ansiennitet',
                     FieldSet: 2,
-                    Section: 0,
-                    // Validations: [
-                    //     {
-                    //         ErrorMessage: 'Required field',
-                    //         Level: 3,
-                    //         Operator: 7 // required
-                    //     }
-                    // ]
+                    Section: 0
                 },
                 {
                     EntityType: 'Employment',
@@ -243,14 +201,7 @@ export class EmploymentService extends BizHttp<Employment> {
                     FieldType: FieldType.LOCAL_DATE_PICKER,
                     Label: 'Lønnsjustering',
                     FieldSet: 2,
-                    Section: 0,
-                    /*Validations: [
-                        {
-                            ErrorMessage: 'Required field',
-                            Level: 3,
-                            Operator: 7 // required
-                        }
-                    ]*/
+                    Section: 0
                 },
                 {
                     EntityType: 'Employment',
@@ -259,14 +210,7 @@ export class EmploymentService extends BizHttp<Employment> {
                     Label: 'Sist endret %',
                     FieldSet: 2,
                     Section: 0,
-                    openByDefault: true,
-                    // Validations: [
-                    //     {
-                    //         ErrorMessage: 'Required field',
-                    //         Level: 3,
-                    //         Operator: 7 // required
-                    //     }
-                    // ]
+                    openByDefault: true
                 },
                 {
                     EntityType: 'Employment',
