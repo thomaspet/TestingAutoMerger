@@ -84,7 +84,7 @@ export class AdminProductService {
         return this.uniHttp
             .asPOST()
             .usingAdminDomain()
-            .withEndPoint(`/api/products/${product.id}`)
+            .withEndPoint(`/api/products/${product.id}/purchase`)
             .send()
             .map(() => true)
             .catch(() => Observable.of(false));
