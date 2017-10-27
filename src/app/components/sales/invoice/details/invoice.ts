@@ -230,7 +230,7 @@ export class InvoiceDetails {
             const projectID = +params['projectID'];
 
             this.commentsConfig = {
-                entityName: 'CustomerInvoice',
+                entityType: 'CustomerInvoice',
                 entityID: this.invoiceID
             };
 

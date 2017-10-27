@@ -14,7 +14,7 @@ import {
     UniTableColumnType,
     UniTableConfig
 } from '../../../../framework/ui/unitable/index';
-import {IToolbarConfig} from '../../common/toolbar/toolbar';
+import {IToolbarConfig, ICommentsConfig} from '../../common/toolbar/toolbar';
 import {IUniSaveAction} from '../../../../framework/save/save';
 import {UniStatusTrack} from '../../common/toolbar/statustrack';
 
@@ -61,7 +61,7 @@ export class Project {
             disabled: false
         }        
     ];
-    private commentsConfig: any;
+    private commentsConfig: ICommentsConfig;
 
     constructor(
         private tabService: TabService,

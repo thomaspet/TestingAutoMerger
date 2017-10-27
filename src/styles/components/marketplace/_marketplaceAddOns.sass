@@ -1,0 +1,106 @@
+uni-marketplace
+    .marketplace-add-ons
+        // Hide the 80px high margin on the bottom of all pages
+        &:after
+            height: 80px
+            background-color: white
+            position: absolute
+            overflow: hidden
+            left: 0
+            right: 0
+            content: ' '
+
+    .package-deal-container
+        display: flex
+        flex-direction: column
+        flex-wrap: nowrap
+        justify-content: center
+        align-items: center
+        padding-bottom: 5rem
+        > h1
+            margin: 0
+            font-weight: 700
+            font-size: 2.1rem
+            line-height: 4rem
+
+        > p
+            font-size: 2rem
+            margin-top: 0
+            margin-bottom: 1rem
+            color: $uni-color-c2a
+        > img
+            width: 20rem
+            padding: 2rem
+        > button
+            background-color: $uni-color-c2a
+            color: white
+            border-radius: 0
+            margin-top: 1rem
+            font-weight: 400
+            font-size: 1.5rem
+            text-shadow: none
+
+    .app-containers-heading
+        display: block
+        width: 100%
+        background-color: white
+        padding-top: 3rem
+        padding-bottom: 1rem
+        text-align: center
+        margin: 0
+        font-weight: bold
+
+    .app-containers
+        width: 80%
+        padding-bottom: 4rem
+        padding-left: 10%
+        padding-right: 10%
+        display: flex
+        flex-direction: row
+        flex-wrap: wrap
+        justify-content: center
+        align-items: stretch
+        background-color: white
+
+    .app-container
+        margin-top: 2.5rem
+        margin-left: 1rem
+        margin-right: 1rem
+        width: 16rem
+        order: 0
+        flex: 0 1 auto
+        align-self: auto
+        border: 0.3rem solid $uni-color-scale9
+        cursor: pointer
+
+    .app-header
+        img
+            width: 100%
+            height: 50%
+
+    .app-body
+        h3
+            padding: 0.7rem 1rem
+            margin: 0
+            color: $uni-color-c2a
+            font-weight: 600
+            font-size: 1.5rem
+            text-align: center
+
+        p
+            text-align: center
+            margin: 0
+            padding: 0 1rem
+            font-size: medium
+            line-height: 110%
+            color: $uni-color-c2a
+
+    .app-footer
+        text-align: right
+
+        a
+            display: block
+            color: $uni-color-warn
+            font-weight: bold
+            text-decoration: none
+            padding: 0.5rem 2rem

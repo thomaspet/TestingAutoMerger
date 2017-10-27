@@ -20,6 +20,7 @@ export enum UniModules {
     UniQuery        = 104,
     UniTicker       = 105,
     Assignments     = 106,
+    Marketplace     = 107,
 
     Sales           = 200,
     Customers       = 201,

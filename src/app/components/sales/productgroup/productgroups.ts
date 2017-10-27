@@ -3,7 +3,7 @@ import {Router, ActivatedRoute} from '@angular/router';
 import {Observable} from 'rxjs/Observable';
 import {IUniSaveAction} from '../../../../framework/save/save';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
-import {IToolbarConfig} from './../../common/toolbar/toolbar';
+import {IToolbarConfig, ICommentsConfig} from './../../common/toolbar/toolbar';
 import {UniModalService, ConfirmActions} from '../../../../framework/uniModal/barrel';
 import {IUniTabsRoute} from '../../layout/uniTabs/uniTabs';
 import {ProductCategory} from '../../../unientities';
@@ -30,7 +30,7 @@ export class ProductGroups implements OnInit {
     private activeProductGroupID: any = '';
 
     private toolbarconfig: IToolbarConfig;
-    private commentsConfig: any;
+    private commentsConfig: ICommentsConfig;
     private contextMenuItems: any;
     private childRoutes: IUniTabsRoute[];
 
@@ -139,7 +139,7 @@ export class ProductGroups implements OnInit {
         this.treeComponent.treeModel.setFocusedNode(null);
         this.toolbarconfig.title = 'Ny produktgruppe';
         this.toolbarconfig.subheads = [];
-        this.commentsConfig = {};
+        this.commentsConfig = null;
         this.productCategoryService.setNew();
         this.productCategoryService.currentProductGroup.next(null);
     }

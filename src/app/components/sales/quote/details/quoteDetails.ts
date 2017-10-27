@@ -210,7 +210,7 @@ export class QuoteDetails {
             const projectID = +params['projectID'];
 
             this.commentsConfig = {
-                entityName: 'CustomerQuote',
+                entityType: 'CustomerQuote',
                 entityID: this.quoteID
             };
 

@@ -220,7 +220,7 @@ export class CustomerDetails {
                 }
 
                 this.commentsConfig = {
-                    entityName: 'Customer',
+                    entityType: 'Customer',
                     entityID: this.customerID
                 };
 

@@ -11,6 +11,8 @@ export const AppConfig = ({
 
     UNI_JOB_SERVER_URL: 'https://testapi-unijobserver.azurewebsites.net/api/',
 
+    ADMIN_SERVER_URL: 'https://test-elsa.azurewebsites.net',
+
     API_DOMAINS: {
         INIT: '/api/init/',
         BUSINESS: '/api/biz/',

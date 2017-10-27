@@ -1,0 +1,45 @@
+<section class="marketplace-add-ons" [attr.aria-busy]="false" *ngIf="products$ | async as products">
+    <section class="header">
+        <section class="background add-on-background-image"></section>
+        <section class="inner-container">
+            <img src="../../../../assets/marketplace/addOns/laptop.png" />
+            <section>
+                <h1>Uni Economy<br />
+                    Fremtidens økonomisystem i dag</h1>
+                <p>
+                    Uni Economy er bygget på nyeste tilgjengelig teknologi. Med et tilpasningsdyktig og fleksibelt
+                    rammeverk kan du være sikker på at denne 100% skybaserte løsningen takler utfordringer som
+                    kommer. Med Uni Economy er du rustet for fremtiden.
+                </p>
+            </section>
+        </section>
+    </section>
+
+    <section *ngFor="let product of products | onlyBundles"
+             (click)="navigateTo('/marketplace/add-ons/' + product.id)"
+             class="package-deal-container">
+        <h1>Kjøp vårt nye skybaserte økonomisystem!</h1>
+        <p>Regnskap, Salg, Lønn og Time</p>
+        <img src="../../../../assets/marketplace/addOns/package-deal.png" />
+        <button>Prøv gratis</button>
+    </section>
+
+    <h1 class="app-containers-heading">Eller velg en eller flere pakker</h1>
+    <section class="app-containers">
+        <section *ngFor="let product of products | filterOutBundles"
+                 (click)="navigateTo('/marketplace/add-ons/' + product.id)"
+                 class="app-container">
+            <section class="app-header">
+                <img *ngIf="!!product.imageReference" src="{{product.imageReference}}" />
+                <img *ngIf="!product.imageReference" src="//public-files.unieconomy.no/files/marketplace/sale.png" />
+            </section>
+            <section class="app-body">
+                <h3>{{product.label}}</h3>
+                <p>{{product.description}}</p>
+            </section>
+            <section class="app-footer">
+                <a>les mer</a>
+            </section>
+        </section>
+    </section>
+</section>

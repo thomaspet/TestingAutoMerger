@@ -36,7 +36,7 @@ export interface IToolbarConfig {
 }
 
 export interface ICommentsConfig {
-    entityName: string;
+    entityType: string;
     entityID: number;
     // more?
 }
