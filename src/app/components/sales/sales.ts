@@ -46,7 +46,7 @@ export class UniSales {
             {
                 width: 1,
                 height: 1,
-                x: 0,
+                x: 3,
                 y: 0,
                 widgetType: 'shortcut',
                 config: {
@@ -59,7 +59,7 @@ export class UniSales {
             {
                 width: 1,
                 height: 1,
-                x: 1,
+                x: 4,
                 y: 0,
                 widgetType: 'shortcut',
                 config: {
@@ -72,60 +72,52 @@ export class UniSales {
             {
                 width: 1,
                 height: 1,
-                x: 2,
+                x: 0,
                 y: 0,
                 widgetType: 'shortcut',
                 config: {
                     label: 'Tilbud',
                     description: 'Tilbudsoversikt',
                     icon: '',
-                    link: '/sales/quotes'
+                    link: '/sales/quotes',
+                    letterForIcon: 'T',
+                    letterIconClass: 'letterIconStyling'
                 }
             },
             {
                 width: 1,
                 height: 1,
-                x: 3,
+                x: 1,
                 y: 0,
                 widgetType: 'shortcut',
                 config: {
                     label: 'Ordre',
                     description: 'Ordreoversikt',
                     icon: '',
-                    link: '/sales/orders'
+                    link: '/sales/orders',
+                    letterForIcon: 'O',
+                    letterIconClass: 'letterIconStyling'
                 }
             },
             {
                 width: 1,
                 height: 1,
-                x: 4,
+                x: 2,
                 y: 0,
                 widgetType: 'shortcut',
                 config: {
                     label: 'Faktura',
                     description: 'Fakturaoversikt',
                     icon: '',
-                    link: '/sales/invoices'
+                    link: '/sales/invoices',
+                    letterForIcon: 'F',
+                    letterIconClass: 'letterIconStyling'
                 }
             },
-            {
-                width: 1,
-                height: 1,
-                x: 5,
-                y: 0,
-                widgetType: 'shortcut',
-                config: {
-                    label: 'Purring',
-                    description: 'Purring',
-                    icon: '',
-                    link: '/sales/reminders/ready'
-                }
-            },
-
             {
                 width: 2,
                 height: 1,
-                x: 6,
+                x: 5,
                 y: 0,
                 widgetType: 'overdue',
                 config: {}
@@ -133,7 +125,7 @@ export class UniSales {
             {
                 width: 3,
                 height: 1,
-                x: 8,
+                x: 9,
                 y: 0,
                 widgetType: 'clock',
                 config: {
@@ -144,8 +136,8 @@ export class UniSales {
             {
                 width: 4,
                 height: 3,
-                x: 8,
-                y: 1,
+                x: 0,
+                y: 4,
                 widgetType: 'chart',
                 config: {
                     header: 'Utestående per kunde',
@@ -184,8 +176,8 @@ export class UniSales {
             {
                 width: 2,
                 height: 3,
-                x: 0,
-                y: 4,
+                x: 8,
+                y: 1,
                 widgetType: 'shortcutlist',
                 config: {
                     header: 'Snarveier',
@@ -226,8 +218,8 @@ export class UniSales {
             {
                 width: 2,
                 height: 2,
-                x: 2,
-                y: 4,
+                x: 10,
+                y: 1,
                 widgetType: 'infoshortcut', // TODO: enum
                 config: {
                     header: 'Oversikt',
@@ -241,8 +233,8 @@ export class UniSales {
             {
                 width: 2,
                 height: 2,
-                x: 4,
-                y: 4,
+                x: 10,
+                y: 3,
                 widgetType: 'infoshortcut', // TODO: enum
                 config: {
                     header: 'Opplæringsvideoer',
@@ -250,6 +242,23 @@ export class UniSales {
                     link: '',
                     externalLink: 'http://app.cimple.no/unimicro/',
                     imageLink: '../../../assets/info_shortcut_movie_img.jpg',
+                    title: ''
+                }
+            },
+            {
+                width: 2,
+                height: 2,
+                x: 10,
+                y: 5,
+                widgetType: 'infoshortcut', // TODO: enum
+                config: {
+                    header: 'Kundersenteret',
+                    text: 'Besøk vårt kundesenter for tips og triks, nyttige datoer og annen info.',
+                    link: '',
+                    externalLink: 'http://support.unimicro.no/?_ga=2.96685528.676968774.1509090839-164083888'
+                        + '.1505815175&_gac=1.82445668.1506512206.CjwKCAjwmK3OBRBKEiwAOL6t1JQUOpBqP9bSF-'
+                        + 'sHI3WVrIFA2KEBFrgpy1EdKWDa1KqJSn9D0kJ6ExoC7_8QAvD_BwE',
+                    imageLink: '../../../assets/info_shortcut_bell_img.jpg',
                     title: ''
                 }
             }

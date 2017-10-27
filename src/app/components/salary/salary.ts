@@ -211,6 +211,23 @@ export class UniSalary {
                     imageLink: '../../../assets/info_shortcut_movie_img.jpg',
                     title: ''
                 }
+            },
+            {
+                width: 2,
+                height: 2,
+                x: 8,
+                y: 4,
+                widgetType: 'infoshortcut', // TODO: enum
+                config: {
+                    header: 'Kundersenteret',
+                    text: 'Besøk vårt kundesenter for tips og triks, nyttige datoer og annen info.',
+                    link: '',
+                    externalLink: 'http://support.unimicro.no/?_ga=2.96685528.676968774.1509090839-164083888'
+                        + '.1505815175&_gac=1.82445668.1506512206.CjwKCAjwmK3OBRBKEiwAOL6t1JQUOpBqP9bSF-'
+                        + 'sHI3WVrIFA2KEBFrgpy1EdKWDa1KqJSn9D0kJ6ExoC7_8QAvD_BwE',
+                    imageLink: '../../../assets/info_shortcut_bell_img.jpg',
+                    title: ''
+                }
             }
         ];
     }
