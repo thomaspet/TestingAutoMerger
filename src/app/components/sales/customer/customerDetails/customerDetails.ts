@@ -878,7 +878,7 @@ export class CustomerDetails {
             .asObservable()
             .take(1)
             .map(customer => {
-                customer.Info.Name = val.toString();
+                customer.Info.Name = val;
                 return customer;
             });
 
