@@ -31,7 +31,7 @@ export interface ISelectConfig {
         [attr.aria-activedescendant]="activeDescendantId"
         tabindex="0"
         [value]="getDisplayValue(selectedItem)"
-        [placeholder]="config?.Placeholder || ''"
+        [placeholder]="config?.placeholder || ''"
         [attr.aria-readonly]="readonly"
         (click)="toggle()"
         [title]="getTitle()"

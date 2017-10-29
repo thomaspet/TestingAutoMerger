@@ -13,7 +13,7 @@ import * as moment from 'moment';
 
             <div class="uni-widget-clock-time" [ngClass]="{'long-time': widget?.config?.showSeconds}">
                 <span>{{time}}</span>
-                <span>{{sec}}</span>
+                <span *ngIf="widget?.config?.showSeconds">{{sec}}</span>
             </div>
         </div>
     `,

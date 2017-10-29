@@ -212,6 +212,7 @@ export class HamburgerMenu {
                 componentList: [
                     {componentName: 'Skrivebord', componentUrl: '/', moduleID: UniModules.Dashboard},
                     {componentName: 'Selskaper', componentUrl: '/bureau', moduleID: UniModules.BureauDashboard},
+                    {componentName: 'Markedsplass', componentUrl: '/marketplace', moduleID: UniModules.Marketplace},
                     {componentName: 'Oversikt', componentUrl: '/overview', moduleID: UniModules.UniTicker},
                     {componentName: 'Resultat og balanse', componentUrl: '/accounting/accountingreports', moduleID: UniModules.AccountingReports},
                     {componentName: 'Rapporter', componentUrl: '/reports', moduleID: UniModules.Reports},
@@ -228,7 +229,6 @@ export class HamburgerMenu {
                     {componentName: 'Ordre', componentUrl: '/sales/orders', moduleID: UniModules.Orders},
                     {componentName: 'Tilbud', componentUrl: '/sales/quotes', moduleID: UniModules.Quotes},
                     {componentName: 'Purring', componentUrl: '/sales/reminders', moduleID: UniModules.Reminders},
-                    {componentName: 'Prosjekt', componentUrl: '/dimensions/projects', moduleID: UniModules.Projects},
                     {componentName: 'Kunder', componentUrl: '/sales/customer', moduleID: UniModules.Customers, groupHeader: 'Register'},
                     {componentName: 'Produkter', componentUrl: '/sales/products', moduleID: UniModules.Products},
                     {componentName: 'Produktgrupper', componentUrl: '/sales/productgroups', moduleID: UniModules.ProductGroup},
@@ -290,6 +290,24 @@ export class HamburgerMenu {
                     {componentName: 'Personer', componentUrl: '/timetracking/workers', moduleID: UniModules.Workers, groupHeader: 'Register'},
                     {componentName: 'Timearter', componentUrl: '/timetracking/worktypes', moduleID: UniModules.WorkTypes},
                     {componentName: 'Stillingsmaler', componentUrl: '/timetracking/workprofiles', moduleID: UniModules.WorkProfiles},
+                ]
+            },
+            {
+                componentListName: 'Prosjekt [BETA]',
+                componentListHeader: 'Prosjekt [BETA]',
+                componentListUrl: '/dimensions/projects',
+                componentList: [
+                    {componentName: 'Oversikt', componentUrl: '/dimensions/projects/overview', moduleID: UniModules.Projects},
+                    {componentName: 'Timer', componentUrl: '/dimensions/projects/hours', moduleID: UniModules.Projects},
+                    // TODO: add more when necessary
+/*                     {componentName: 'Oppgaver', componentUrl: '/dimensions/projects/tasks', moduleID: UniModules.Projects},
+                    {componentName: 'Faktura', componentUrl: '/dimensions/projects/invoices', moduleID: UniModules.Projects},
+                    {componentName: 'Ordre', componentUrl: '/dimensions/projects/orders', moduleID: UniModules.Projects},
+                    {componentName: 'Tilbud', componentUrl: '/dimensions/projects/quotes', moduleID: UniModules.Projects},
+                    ,
+                    {componentName: 'Inng. faktura', componentUrl: '/dimensions/projects/supplierinvoices', moduleID: UniModules.Projects},
+                    {componentName: 'Dokumenter', componentUrl: '/dimensions/projects/documents', moduleID: UniModules.Projects},
+                    {componentName: 'Redigering', componentUrl: '/dimensions/projects/editmode', moduleID: UniModules.Projects} */
                 ]
             },
             {

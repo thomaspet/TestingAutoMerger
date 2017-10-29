@@ -163,6 +163,9 @@ uni-widget-canvas
     width: 100%
     overflow: hidden
     text-overflow: ellipsis
+    letter-spacing: .04rem
+    font-size: 14px
+    font-weight: 400
 
     color: #fff
     text-decoration: none
@@ -172,10 +175,11 @@ uni-widget-canvas
         text-decoration: none
 
 .uni-widget-header
-    font-size: 1rem
+    font-size: 14px
+    font-weight: 400
+    letter-spacing: .04rem
     color: #fff
     margin: 0
-    font-weight: 400
     width: 100%
     background-color: #06457a
     border-top-left-radius: pxToRem(2)
@@ -217,9 +221,9 @@ uni-widget-canvas
     position: relative
 
 .dashboard-shortcut-icon,
-    height: 2.5rem
-    width: 2.5rem
-    top: .9rem
+    height: 2.8rem
+    width: 2.8rem
+    top: 1rem
 
 .dashboard-notification-icon
     height: 6.5rem
@@ -227,6 +231,18 @@ uni-widget-canvas
     top: -1.9rem
     left: -2rem
 
+.letterForIconStyling
+    top: calc(52% - 2.8rem)
+
+.letterIconStyling
+    font-size: 3.6rem
+    position: relative
+    color: $uni-color-negative
+    font-family: serif
+    top: .1rem
+
+    &:hover
+        color: $uni-color-negative
 
 .uni-widget-notification-tile
     position: relative
@@ -234,6 +250,8 @@ uni-widget-canvas
         position: absolute
         left: 2rem
         bottom: 1.5rem
+        font-size: 15px
+        letter-spacing: .04rem
 
 .uni-widget-notification-orange
     background-color: #dc9346
@@ -269,6 +287,17 @@ uni-clock,
     width: 33.33333%
     border-top-left-radius: inherit
     border-bottom-left-radius: inherit
+    display: flex
+    flex-flow: column
+    justify-content: center
+
+    h3
+        margin: 0
+        font-size: 1.4rem
+        font-weight: 300
+
+        &:last-of-type
+            margin-top: .4rem
 
 
 .uni-widget-clock-time
@@ -277,17 +306,19 @@ uni-clock,
 
     span
         font-size: 4rem
+        font-weight: 300
+        letter-spacing: .2rem
         display: inline
         vertical-align: middle
         position: relative
-        top: 38%
+        top: 35%
         transform: translateY(-50%)
-
-        &:first-of-type
-            color: $uni-color-scale4
 
         &:last-of-type
             color: $uni-color-scale6
+
+        &:first-of-type
+            color: $uni-color-scale4
 
     &.long-time span
         font-size: 2.8rem
@@ -426,6 +457,141 @@ uni-rss
         color: #fefefe
         font-size: 2em
 
+.transaction-list
+    list-style: none
+    color: $uni-color-scale2
+    background: #fff
+    flex: 1
+
+    li
+        line-height: 2rem
+        padding: .1rem 1rem
+
+        &:hover,&.is-active
+            cursor: pointer
+            background-color: $uni-color-negative
+            color: $navbarBackground
+            font-weight: 600
+
+.transaction_table
+    flex: 5
+    border-left: 1px solid $uni-color-scale8
+    height: calc(100% - 32px)
+    padding: 16px
+
+    table
+        width: 100%
+        height: 100%
+        display: flex
+        flex-flow: column
+        color: black
+        border-spacing: 0
+        font-size: small
+
+        thead
+            width: calc(100% - 0.9em)
+            flex: 0 0 auto
+            display: table
+            table-layout: fixed
+            tr
+                th
+                    border-bottom: 1px solid $uni-color-scale8
+
+        tbody
+            flex 1 1 auto
+            display: block
+            overflow-y: scroll
+            height: 100%
+            tr
+                height: 30px
+                width: 100%
+                display: table
+                table-layout: fixed
+                &:nth-of-type(odd)
+                    background-color: #f8f9fd
+
+                td
+                    overflow: hidden
+                    white-space: nowrap
+                    text-overflow: ellipsis
+                    padding: 0 .125rem
+
+                &:hover
+                    cursor: pointer
+                    background-color: #d4dfee
+
+.transaction_table_align_right
+    text-align: right
+    padding-right: 1rem !important
+
+.transaction_table_ten_percent
+    width: 10%
+
+.transaction_table_fifteen_percent
+    width: 15%
+
+.transaction_table_forty_percent
+    width: 40%
+
+.shortcut-list
+    padding: 0
+    margin: 0
+    text-align: left
+    color: $uni-color-scale2
+    background: #fff
+    flex: 1
+
+    ul
+        list-style: none
+        margin: 0
+
+        li
+            line-height: 2rem
+            padding: .1rem 1rem
+
+            a
+                &:first-of-type
+                    &:hover
+                        cursor: pointer
+                        text-decoration: underline
+
+.uni-shortcutlist-newicon
+    float: right
+    margin: 0
+    padding: 0
+    background: $uni-color-good unicon-plus($uni-color-negative) no-repeat center center
+    background-size: .8rem
+    border-radius: 50%
+    width: 1.4rem
+    height: 1.4rem
+    display: block
+    margin-top: .3rem
+
+    &:hover,&:focus,&.is-opened
+        cursor: pointer
+        background-color: darken($uni-color-good, 10%)
+
+.info_shortcut_section
+    padding: 0
+    cursor: pointer
+
+    img
+        width: 100%
+        height: 50%
+        opacity: 0.5
+
+    div
+        display: flex
+        flex-flow: column
+        justify-content: center
+        height: 50%
+        margin-top: -7px
+        padding: 0 1rem
+
+        p
+            font-size: small
+            line-height: 1.2rem
+
 // Icons
 .dashboard-shortcut-icon-fallback
     background-image: unicon-plus($uni-color-negative)
@@ -449,7 +615,7 @@ uni-rss
     background-image: unicon-paperclip($uni-color-negative)
 
 .dashboard-shortcut-icon-hourreg
-    background-image: unicon-hourreg($uni-color-negative)
+    background-image: unicon-clock-filler($uni-color-negative)
 
 .dashboard-shortcut-icon-accounting
     background-image: unicon-accounting($uni-color-negative)
@@ -474,6 +640,24 @@ uni-rss
 
 .dashboard-shortcut-icon-search
     background-image: unicon-search($uni-color-negative)
+
+.dashboard-shortcut-icon-amelding
+    background-image: unicon-amelding($uni-color-negative)
+
+.dashboard-shortcut-icon-employee
+    background-image: unicon-employee($uni-color-negative)
+
+.dashboard-shortcut-icon-payrollrun
+    background-image: unicon-payrollrun($uni-color-negative)
+
+.dashboard-shortcut-icon-wagetype
+    background-image: unicon-wagetype($uni-color-negative)
+
+.dashboard-shortcut-icon-customer
+    background-image: unicon-customer($uni-color-negative)
+
+.dashboard-shortcut-icon-product
+    background-image: unicon-product($uni-color-negative)
 
 .dashboard-notification-icon-paperclip
     background-image: unicon-paperclip(rgba(255,255,255,.3))

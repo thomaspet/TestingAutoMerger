@@ -1,0 +1,81 @@
+uni-marketplace
+
+    .webinars-main
+        background-color: white
+
+        // Hide the 80px high margin on the bottom of all pages
+        &:after
+            height: 80px
+            background-color: white
+            position: absolute
+            overflow: hidden
+            left: 0
+            right: 0
+            content: ' '
+
+        & > h1
+            margin: 0
+            display: block
+            text-align: center
+            padding: 3rem 0
+            font-weight: 900
+            width: 100%
+
+        .header
+            background-color: white
+            .inner-container
+                margin: -11rem auto 1.3rem
+
+    .webinar-date
+        font-size: 1.3rem
+        padding-top: 0.5rem
+        padding-bottom: 1.5rem
+        color: $uni-color-legend2
+
+    .webinar-items
+        display: flex
+        flex-direction: column
+        justify-content: center
+        align-items: center
+
+    .webinar-item
+        display: flex
+        flex-direction: row
+        justify-content: center
+        align-items: center
+        margin: 2rem 0
+        border: solid 0.3rem $uni-color-scale9
+
+        &.img-left-side
+            & > img
+                order: 0
+            & > .text-section
+        &.img-right-side
+            & > img
+                order: 1
+            & > .text-section
+
+        img
+            width: 20rem
+
+        .text-section
+            width: 40rem
+            padding: 1rem 2.7rem
+
+            h1
+                margin: 0
+                font-weight: bold
+                line-height: 2rem
+            p
+                text-align: justify
+                font-size: 1.2rem
+                padding-bottom: 0.7rem
+                margin: 0
+                color: $uni-color-c2a
+            a
+                display: block
+                width: 100%
+                text-align: right
+                color: $uni-color-warn
+                text-decoration: none
+                font-weight: bold

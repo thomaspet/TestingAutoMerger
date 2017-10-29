@@ -4,7 +4,7 @@ import {UniFieldLayout, FieldType} from '../../../../framework/ui/uniform/index'
 import {UniTableColumn, UniTableColumnType, UniTableConfig, UniTable} from '../../../../framework/ui/unitable/index';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {UniModalService, ConfirmActions} from '../../../../framework/uniModal/barrel';
-import {IToolbarConfig, IAutoCompleteConfig} from './../../common/toolbar/toolbar';
+import {IToolbarConfig, IAutoCompleteConfig, IShareAction} from './../../common/toolbar/toolbar';
 import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
 import {IUniSaveAction} from '../../../../framework/save/save';
 import {LedgerAccountReconciliation} from '../../common/reconciliation/ledgeraccounts/ledgeraccountreconciliation';
@@ -46,6 +46,7 @@ export class PostPost {
     private postpost: LedgerAccountReconciliation
 
     //Save
+    private shareActions: IShareAction[];
     private saveActions: IUniSaveAction[];
 
     //Filter
@@ -94,6 +95,7 @@ export class PostPost {
     ) {
         this.setupFilter();
         this.setupAccountsTable();
+        this.setupShareActions();
         this.setupSaveActions();
         this.setupToolbarConfig();
         this.setupRegisterConfig();
@@ -133,6 +135,21 @@ export class PostPost {
         }
     }
 
+    //Share actions
+    private setupShareActions() {
+        this.shareActions = [
+            {
+                action: () => this.exportAccounts(),
+                disabled: () => false,
+                label: 'Eksport kontoliste'
+            },{
+                action: () => this.exportOpenPosts(),
+                disabled: () => false,
+                label: 'Eksport åpne poster'
+            }
+        ]
+    }
+
     //Save actions
 
     private setupSaveActions() {
@@ -160,14 +177,6 @@ export class PostPost {
             action: this.cancel.bind(this),
             disabled: false,
             label: 'Angre'
-        },{
-            action: this.exportAccounts.bind(this),
-            disabled: false,
-            label: 'Eksport kontoliste'
-        },{
-            action: this.exportOpenPosts.bind(this),
-            disabled: false,
-            label: 'Eksport åpne poster'
         },{
             action: this.autolock.bind(this),
             disabled: false,
@@ -206,27 +215,26 @@ export class PostPost {
         done('Angret');
     }
 
-    private exportAccounts(done: (message: string) => void) {
-        let accounts = this.accounts$.getValue();
-
-        var list = [];
-        accounts.forEach((account) => {
-            var row = {
-                AccountNumber: account.AccountNumber,
-                AccountName: account.AccountName,
-                SumAmount: account.SumAmount.toFixed(2)
-            };
-            list.push(row);
+    private exportAccounts(): Observable<any> {
+        return Observable.of(this.accounts$.getValue()).map((accounts) => {
+            var list = [];
+            accounts.forEach((account) => {
+                var row = {
+                    AccountNumber: account.AccountNumber,
+                    AccountName: account.AccountName,
+                    SumAmount: account.SumAmount.toFixed(2)
+                };
+                list.push(row);
+            });
+    
+            exportToFile(arrayToCsv(list), `OpenPostAccounts.csv`);            
         });
-
-        exportToFile(arrayToCsv(list), `OpenPostAccounts.csv`);
-        done('Fil eksportert');
     }
 
-    private exportOpenPosts(done: (message: string) => void) {
-        this.postpost.export();
-
-        done('Fil eksportert');
+    private exportOpenPosts(): Observable<any> {
+        return Observable.of(true).map(() => {
+            this.postpost.export();
+        });
     }
 
     //
@@ -325,6 +333,7 @@ export class PostPost {
         this.postpost.showHideEntries(filter.name);
         this.currentFilter = filter.name;
         this.setupSaveActions();
+        this.reloadRegister();
     }
 
     private onAllSelectedLocked(allLocked) {
@@ -337,12 +346,23 @@ export class PostPost {
         return date ? `and FinancialDate le '${date}'` : '';
     }
 
+    private getStatusFilter(): string {
+        switch (this.currentFilter) {
+            case 'OPEN':
+                return ` and (StatusCode eq ${StatusCodeJournalEntryLine.Open} or StatusCode eq ${StatusCodeJournalEntryLine.PartlyMarked})`;
+            case 'MARKED':
+                return ` and StatusCode eq ${StatusCodeJournalEntryLine.Marked}`;
+        }
+
+        return '';
+    }
+
     private loadCustomers() {
         this.statisticsService
             .GetAllUnwrapped(`model=JournalEntryLine&` +
                              `select=Customer.ID as ID,Customer.CustomerNumber as AccountNumber,Info.Name as AccountName,sum(RestAmount) as SumAmount&` +
                              `expand=SubAccount,SubAccount.Customer,SubAccount.Customer.Info&` +
-                             `filter=SubAccount.CustomerID gt 0 and (StatusCode eq ${StatusCodeJournalEntryLine.Open} or StatusCode eq ${StatusCodeJournalEntryLine.PartlyMarked}) ${this.getDateFilter()}&` +
+                             `filter=SubAccount.CustomerID gt 0 ${this.getStatusFilter()} ${this.getDateFilter()}&` +
                              `orderby=Customer.CustomerNumber`)
             .subscribe(accounts => {
                 this.accounts$.next(accounts);
@@ -354,7 +374,7 @@ export class PostPost {
             .GetAllUnwrapped(`model=JournalEntryLine&` +
                              `select=Supplier.ID as ID,Supplier.SupplierNumber as AccountNumber,Info.Name as AccountName,sum(RestAmount) as SumAmount&` +
                              `expand=SubAccount,SubAccount.Supplier,SubAccount.Supplier.Info&` +
-                             `filter=SubAccount.SupplierID gt 0 and (StatusCode eq ${StatusCodeJournalEntryLine.Open} or StatusCode eq ${StatusCodeJournalEntryLine.PartlyMarked}) ${this.getDateFilter()}&` +
+                             `filter=SubAccount.SupplierID gt 0 ${this.getStatusFilter()} ${this.getDateFilter()}&` +
                              `orderby=Supplier.SupplierNumber`)
             .subscribe(accounts => {
                 this.accounts$.next(accounts);
@@ -366,11 +386,25 @@ export class PostPost {
             .GetAllUnwrapped(`model=JournalEntryLine&` +
                              `select=Account.ID as ID,Account.AccountNumber as AccountNumber,Account.AccountName as AccountName,sum(RestAmount) as SumAmount&` +
                              `expand=Account&` +
-                             `filter=Account.UsePostPost eq 1 and (StatusCode eq ${StatusCodeJournalEntryLine.Open} or StatusCode eq ${StatusCodeJournalEntryLine.PartlyMarked}) ${this.getDateFilter()}&` +
+                             `filter=Account.UsePostPost eq 1 ${this.getStatusFilter()} ${this.getDateFilter()}&` +
                              `orderby=Account.AccountNumber`)
             .subscribe(accounts => {
                 this.accounts$.next(accounts);
             });
+    }
+
+    private reloadRegister() {
+        switch(this.register) {
+            case 'customer':
+                this.loadCustomers();
+                break;
+            case 'supplier':
+                this.loadSuppliers();
+                break;
+            case 'account':
+                this.loadAccounts();
+                break;
+        };
     }
 
     private changeRegister(register) {

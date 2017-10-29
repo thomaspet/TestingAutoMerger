@@ -14,7 +14,7 @@ import {
     UniTableColumnType,
     UniTableConfig
 } from '../../../../framework/ui/unitable/index';
-import {IToolbarConfig} from '../../common/toolbar/toolbar';
+import {IToolbarConfig, ICommentsConfig} from '../../common/toolbar/toolbar';
 import {IUniSaveAction} from '../../../../framework/save/save';
 import {UniStatusTrack} from '../../common/toolbar/statustrack';
 
@@ -61,7 +61,7 @@ export class Project {
             disabled: false
         }        
     ];
-    private commentsConfig: any;
+    private commentsConfig: ICommentsConfig;
 
     constructor(
         private tabService: TabService,
@@ -92,7 +92,7 @@ export class Project {
             { name: 'Ordre', path: 'orders' },
             { name: 'Tilbud', path: 'quotes' },
             { name: 'Timer', path: 'hours' },
-            { name: 'Inng.faktura', path: 'supplierinvoices'},
+            { name: 'Inng. faktura', path: 'supplierinvoices'},
             { name: 'Dokumenter', path: 'documents' },
             // { name: 'Budsjett', path: 'budget' },     // TODO: uncomment when available
             // { name: 'Ordre', path: 'orders' },        // TODO: uncomment when available

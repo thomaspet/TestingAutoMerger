@@ -168,7 +168,7 @@ export class SupplierDetails implements OnInit {
                 this.supplier$.getValue().ID = 0;
 
                 this.commentsConfig = {
-                    entityName: 'Supplier',
+                    entityType: 'Supplier',
                     entityID: this.supplierID
                 }
 

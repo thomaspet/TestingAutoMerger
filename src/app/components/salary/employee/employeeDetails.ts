@@ -25,6 +25,7 @@ import {
     NumberFormat, WageTypeService, SalarySumsService, YearService, BankAccountService, EmployeeCategoryService,
     ModulusService
 } from '../../../services/services';
+import {EmployeeDetailsService} from './services/employeeDetailsService';
 import {Subscription} from 'rxjs/Subscription';
 declare var _;
 const EMPLOYEE_TAX_KEY = 'employeeTaxCard';
@@ -153,7 +154,8 @@ export class EmployeeDetails extends UniView implements OnDestroy {
         private bankaccountService: BankAccountService,
         private employeeCategoryService: EmployeeCategoryService,
         private modulusService: ModulusService,
-        private modalService: UniModalService
+        private modalService: UniModalService,
+        private employeeDetailsService: EmployeeDetailsService
     ) {
         super(router.url, cacheService);
 
@@ -285,9 +287,6 @@ export class EmployeeDetails extends UniView implements OnDestroy {
                     const info = employee && employee.BusinessRelationInfo;
                     this.toolbarConfig = {
                         title: (info && info.Name) || 'Ny ansatt',
-                        subheads: [{
-                            title: this.employee.EmployeeNumber ? 'Ansattnr. ' + this.employee.EmployeeNumber : ''
-                        }],
                         navigation: {
                             prev: this.previousEmployee.bind(this),
                             next: this.nextEmployee.bind(this),
@@ -295,19 +294,7 @@ export class EmployeeDetails extends UniView implements OnDestroy {
                         }
                     };
 
-                    this.toolbarSearchConfig = {
-                        lookupFunction: (query) => this.employeeService.GetAll(
-                            `filter=startswith(EmployeeNumber, '${query}') `
-                                + `or (BusinessRelationID gt 0 and contains(BusinessRelationInfo.Name, '${query}'))`
-                                + `&top50&hateoas=false`,
-                            ['BusinessrelationInfo']
-                        ),
-                        itemTemplate: (item) => `${item.EmployeeNumber} - `
-                            + `${item.BusinessRelationInfo && item.BusinessRelationInfo.Name}`,
-
-                        initValue: (info && info.Name) || 'Ny ansatt',
-                        onSelect: selected => this.router.navigate(['salary/employees/' + selected.ID])
-                    };
+                    this.toolbarSearchConfig = this.employeeDetailsService.setupToolbarSearchConfig(employee);
 
                     this.saveActions = [{
                         label: 'Lagre',

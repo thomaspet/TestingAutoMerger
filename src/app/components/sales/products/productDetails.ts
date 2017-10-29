@@ -390,7 +390,7 @@ export class ProductDetails {
         };
 
         let accountField: UniFieldLayout = this.fields$.getValue().find(x => x.Property === 'AccountID');
-        if(this.defaultSalesAccount) {
+        if (this.defaultSalesAccount) {
             accountField.Placeholder =
                 this.defaultSalesAccount.AccountNumber + ' - ' + this.defaultSalesAccount.AccountName;
         }
@@ -399,7 +399,12 @@ export class ProductDetails {
             displayProperty: 'AccountNumber',
             valueProperty: 'ID',
             debounceTime: 200,
-            search: (searchValue: string) => this.accountSearch(searchValue),
+            search: (searchValue: string) => {
+                if (!searchValue) {
+                    return this.accountSearch('');
+                }
+                this.accountSearch(searchValue);
+            },
             template: (account: Account) => {
                 return account && account.ID !== 0 ? `${account.AccountNumber} ${account.AccountName }` : '';
             },
@@ -550,24 +555,36 @@ export class ProductDetails {
                     Section: 0,
                     EntityType: 'Product',
                     Property: 'CostPrice',
-                    FieldType: FieldType.TEXT,
-                    Label: 'Innpris eks. mva'
+                    FieldType: FieldType.NUMERIC,
+                    Label: 'Innpris eks. mva',
+                    Options: {
+                        decimalLength: 2,
+                        decimalSeparator: ','
+                    }
                 },
                 {
                     FieldSet: 2,
                     Section: 0,
                     EntityType: 'Product',
                     Property: 'PriceExVat',
-                    FieldType: FieldType.TEXT,
-                    Label: 'Utpris eks. mva'
+                    FieldType: FieldType.NUMERIC,
+                    Label: 'Utpris eks. mva',
+                    Options: {
+                        decimalLength: 2,
+                        decimalSeparator: ','
+                    }
                 },
                 {
                     FieldSet: 2,
                     Section: 0,
                     EntityType: 'Product',
                     Property: 'PriceIncVat',
-                    FieldType: FieldType.TEXT,
-                    Label: 'Utpris inkl. mva'
+                    FieldType: FieldType.NUMERIC,
+                    Label: 'Utpris inkl. mva',
+                    Options: {
+                        decimalLength: 2,
+                        decimalSeparator: ','
+                    }
                 },
                 {
                     FieldSet: 2,

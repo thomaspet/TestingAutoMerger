@@ -61,6 +61,17 @@ export class SupplierInvoiceService extends BizHttp<SupplierInvoice> {
             });
     }
 
+    public reAssign(supplierInvoiceId: number, details: IAssignDetails): Observable<boolean> {
+        super.invalidateCache();
+        return this.http
+            .asPOST()
+            .usingBusinessDomain()
+            .withBody(details)
+            .withEndPoint(`${this.relativeURL}/${supplierInvoiceId}?action=reAssign-to`)
+            .send()
+            .map(response => response.json());
+    }
+
     public assign(supplierInvoiceId: number, details: IAssignDetails): Observable<boolean> {
         super.invalidateCache();
         return this.http

@@ -216,8 +216,7 @@ export class UniModalService {
         let backdrop = document.createElement('section');
         backdrop.classList.add('uni-modal-backdrop');
 
-        // Check specifically for false because we want this on by default
-        if (options.closeOnClickOutside !== false) {
+        if (options.closeOnClickOutside) {
             backdrop.addEventListener('click', (event: MouseEvent) => {
                 event.stopPropagation();
                 let target = event.target || event.srcElement;

@@ -3,7 +3,7 @@ import {RouterModule} from '@angular/router';
 import {Login} from './login/login';
 import {ResetPassword} from './resetPassword/resetPassword';
 import {ConfirmInvite} from './confirmInvite/confirmInvite';
-
+import {Signup} from './signup/signup';
 
 export const initRoutes = [
     {
@@ -23,6 +23,10 @@ export const initRoutes = [
         path: 'confirm/:guid',
         component: ConfirmInvite
     },
+    {
+        path: 'sign-up',
+        component: Signup
+    }
 ];
 
 // const initRoutes: Routes = [

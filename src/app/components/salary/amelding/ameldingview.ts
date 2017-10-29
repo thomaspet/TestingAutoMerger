@@ -278,11 +278,7 @@ export class AMeldingView implements OnInit {
     private updateToolbar() {
         this.toolbarConfig = {
             title: `Periode ${this.currentPeriod}`,
-            subheads: [{
-                title: (this.currentMonth ?
-                    this.currentMonth.charAt(0).toUpperCase() + this.currentMonth.slice(1) : '?')
-                    + ' ' + this.activeYear
-            },
+            subheads: [
             {
                 title: this.currentAMelding ? 'A-melding ' + this.currentAMelding.ID : null
             }],
@@ -293,7 +289,7 @@ export class AMeldingView implements OnInit {
         };
 
         this.toolbarSearchConfig = {
-            initValue: `Periode ${this.currentPeriod}`,
+            initValue: `${this.currentPeriod} - ${this.currentMonth}`,
             lookupFunction: (searchVal) => {
                 const filtered = this._ameldingService.periodsInYear().filter(period => {
                     return period.period === +searchVal

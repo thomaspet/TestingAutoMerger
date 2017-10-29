@@ -185,14 +185,14 @@ export class UniAccounting {
             {
                 width: 4,
                 height: 3,
-                x: 0,
-                y: 1,
+                x: 4,
+                y: 4,
                 widgetType: 'chart',
                 config: {
                     header: 'Driftsresultater',
                     chartType: 'line',
                     labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
-                    colors: ['#ab6857'],
+                    colors: ['#396bb1'],
                     dataEndpoint: ['/api/statistics?model=JournalEntryLine&select=month(financialdate),sum(amount)&join=journalentryline.accountid eq account.id&filter=account.accountnumber ge 3000 and account.accountnumber le 9999 &range=monthfinancialdate'],
                     dataKey: ['sumamount'],
                     multiplyValue: -1,
@@ -213,13 +213,75 @@ export class UniAccounting {
             {
                 width: 4,
                 height: 3,
-                x: 4,
-                y: 1,
+                x: 0,
+                y: 4,
                 widgetType: 'kpi',
                 config: {
                     header: 'Nøkkeltall'
                 }
-            }
+            },
+            {
+                width: 8,
+                height: 3,
+                x: 2,
+                y: 1,
+                widgetType: 'transaction', // TODO: enum
+                config: {
+                    dashboard: 'Accounting' // Identifyer for which fields to show.. fix while not dynamic
+                }
+            },
+            {
+                width: 2,
+                height: 3,
+                x: 0,
+                y: 1,
+                widgetType: 'shortcutlist',
+                config: {
+                    header: 'Snarveier',
+                    shortcuts: [
+                        {
+                            label: 'Bilagsføring',
+                            link: '/accounting/journalentry/manual',
+                            urlToNew: ''
+                        },
+                        {
+                            label: 'Fakturamottak',
+                            link: '/accounting/bills',
+                            urlToNew: '/accounting/bills/0'
+                        },
+                        {
+                            label: 'Åpne poster',
+                            link: '/accounting/postpost',
+                            urlToNew: ''
+                        },
+                        {
+                            label: 'Forespørsel bilg',
+                            link: '/accounting/transquery/details',
+                            urlToNew: ''
+                        },
+                        {
+                            label: 'Regnskapsoversikt',
+                            link: '/accounting/accountingreports/result',
+                            urlToNew: ''
+                        },
+                        {
+                            label: 'MVA-melding',
+                            link: '/accounting/vatreport',
+                            urlToNew: ''
+                        },
+                        {
+                            label: 'Kontoplan',
+                            link: '/accounting/accountsettings',
+                            urlToNew: ''
+                        },
+                        {
+                            label: 'Leverandør',
+                            link: '/accounting/suppliers',
+                            urlToNew: '/accounting/suppliers/0'
+                        },
+                    ]
+                }
+            },
         ];
     }
 

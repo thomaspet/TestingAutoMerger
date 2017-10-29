@@ -81,6 +81,7 @@ export class VacationPaySettingsModal implements OnInit, IUniModal {
                     this.done('Firmalønn oppdatert');
                     if (this.originalDeduction !== formresponse.WageDeductionDueToHoliday) {
                         this.dueToHolidayChanged = true;
+                        this.options.cancelValue = true;
                     }
                     this.saveStatus.completeCount++;
                 }, (err) => {

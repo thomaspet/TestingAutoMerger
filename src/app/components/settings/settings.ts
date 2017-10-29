@@ -105,7 +105,7 @@ export class Settings {
             type: 'image',
             config: {
                 fileID: file ? file.ID : null,
-                placeholderSrc: 'http://celebrityhockeyclassics.com/wp-content/uploads/Logo-Placeholder.png',
+                placeholderSrc: '/assets/Logo-Placeholder.png',
                 altText: 'firmalogo'
             }
         };

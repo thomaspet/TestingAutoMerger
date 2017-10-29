@@ -16,7 +16,7 @@ export class StatusService {
         private statisticsService: StatisticsService,
         private userService: UserService,
         private errorService: ErrorService,
-        private customerInvoiceService: CustomerInvoiceService
+        private customerInvoiceService: CustomerInvoiceService,
         private customerOrderService: CustomerOrderService,
         private customerQuoteService: CustomerQuoteService
     ) {}

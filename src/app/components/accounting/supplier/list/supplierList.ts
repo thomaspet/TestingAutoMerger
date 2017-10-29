@@ -50,7 +50,7 @@ export class SupplierList {
         // Define columns to use in the table
         let numberCol = new UniTableColumn('SupplierNumber', 'Leverandørnr', UniTableColumnType.Text).setWidth('15%').setFilterOperator('contains');
         let nameCol = new UniTableColumn('Info.Name', 'Navn', UniTableColumnType.Text).setFilterOperator('contains');
-        let orgNoCol = new UniTableColumn('Orgnumber', 'Orgnr', UniTableColumnType.Text).setWidth('15%').setFilterOperator('contains');
+        let orgNoCol = new UniTableColumn('OrgNumber', 'Orgnr', UniTableColumnType.Text).setWidth('15%').setFilterOperator('contains');
         let glnCol = new UniTableColumn('GLN', 'GLN', UniTableColumnType.Text).setFilterOperator('contains').setVisible(false);
         let peppolCol = new UniTableColumn('PeppolAddress', 'Peppoladresse', UniTableColumnType.Text).setFilterOperator('contains').setVisible(false);
         let departmentCol = new UniTableColumn('Dimensions.Department.DepartmentNumber', 'Avdeling', UniTableColumnType.Text).setWidth('15%').setFilterOperator('contains')

@@ -132,6 +132,7 @@ export class InvoiceDetails {
     private ehfEnabled: boolean = false;
     private sellers: Seller[];
     private deletables: SellerLink[] = [];
+    private currentInvoiceDate: LocalDate;
 
     private customerExpandOptions: string[] = [
         'DeliveryTerms',
@@ -229,7 +230,7 @@ export class InvoiceDetails {
             const projectID = +params['projectID'];
 
             this.commentsConfig = {
-                entityName: 'CustomerInvoice',
+                entityType: 'CustomerInvoice',
                 entityID: this.invoiceID
             };
 
@@ -502,14 +503,23 @@ export class InvoiceDetails {
             }
         }
 
-        if (this.invoice && this.invoice.InvoiceDate.toString() !== invoice.InvoiceDate.toString()) {
+        this.updateCurrency(invoice, shouldGetCurrencyRate);
+
+        this.currentInvoiceDate = invoice.InvoiceDate;
+
+        this.invoice = _.cloneDeep(invoice);
+    }
+
+    private updateCurrency(invoice: CustomerInvoice, getCurrencyRate: boolean) {
+        let shouldGetCurrencyRate = getCurrencyRate;
+
+        if (this.currentInvoiceDate.toString() !== invoice.InvoiceDate.toString()) {
             shouldGetCurrencyRate = true;
         }
 
         // update currency code in detailsForm and tradeItemTable to selected currency code if selected
         // or from customer
-        if ((!this.currencyCodeID && invoice.CurrencyCodeID)
-            || this.currencyCodeID !== invoice.CurrencyCodeID) {
+        if ((!this.currencyCodeID && invoice.CurrencyCodeID) || this.currencyCodeID !== invoice.CurrencyCodeID) {
             this.currencyCodeID = invoice.CurrencyCodeID;
             this.tradeItemTable.updateAllItemVatCodes(this.currencyCodeID);
             shouldGetCurrencyRate = true;
@@ -518,8 +528,6 @@ export class InvoiceDetails {
         if (this.invoice && invoice.CurrencyCodeID !== this.invoice.CurrencyCodeID) {
             shouldGetCurrencyRate = true;
         }
-
-        this.invoice = _.cloneDeep(invoice);
 
         // If not getting currencyrate, we're done
         if (!shouldGetCurrencyRate) {
@@ -970,7 +978,10 @@ export class InvoiceDetails {
                 invoice.DefaultSeller = invoice.DefaultSeller || new SellerLink();
                 this.currentDefaultProjectID = invoice.DefaultDimensions.ProjectID;
 
+                this.currentInvoiceDate = invoice.InvoiceDate;
+
                 this.invoice = _.cloneDeep(invoice);
+                this.updateCurrency(invoice, true);
                 this.recalcDebouncer.next(invoice.Items);
                 this.updateTabTitle();
                 this.updateToolbar();
@@ -1343,7 +1354,6 @@ export class InvoiceDetails {
         });
     }
 
-
     private printAction(id): Observable<any> {
         const savedInvoice = this.isDirty
             ? Observable.fromPromise(this.saveInvoice())
@@ -1357,7 +1367,7 @@ export class InvoiceDetails {
                     data: report
                 }).onClose.switchMap(() => {
                     return this.customerInvoiceService.setPrintStatus(
-                        invoice.ID,
+                        id,
                         this.printStatusPrinted
                     ).finally(() => {
                         this.invoice.PrintStatus = +this.printStatusPrinted;

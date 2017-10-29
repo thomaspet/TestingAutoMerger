@@ -40,6 +40,7 @@ export class PageStateService {
 
     private mapIntoUrl(url: string, parameterName: string, value: string, allowUndefined = true): string {
         let parameters: string[] = [];
+        let hasChanged: boolean = false;
         const queryDelimiterIndex = url.indexOf('?');
         if (queryDelimiterIndex > 0) {
             const query = url.substr(queryDelimiterIndex + 1);
@@ -49,12 +50,16 @@ export class PageStateService {
                 for (let i = 0; i < parameters.length; i++) {
                     if (parameters[i].indexOf(parameterName + '=') === 0) {
                         parameters[i] = parameterName + '=' + value;
+                        hasChanged = true;
                         break;
                     }
                 }
             }
         }
-        parameters.push(`${parameterName}=${value}`);
+        if (!hasChanged) {
+            parameters.push(`${parameterName}=${value}`);
+        }
+
         if (!allowUndefined) {
             parameters = parameters.filter(parameter => !parameter.endsWith('undefined') )
         }

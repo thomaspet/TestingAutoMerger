@@ -12,6 +12,8 @@ import {CompanySyncModal} from './companySyncModal';
 import {ResetPassword} from './resetPassword/resetPassword';
 import {Login} from './login/login';
 import {ConfirmInvite} from './confirmInvite/confirmInvite';
+import {Signup} from './signup/signup';
+import {UniPasswordGuide} from './password-guide';
 
 @NgModule({
     imports: [
@@ -26,12 +28,14 @@ import {ConfirmInvite} from './confirmInvite/confirmInvite';
         AppCommonModule,
     ],
     declarations: [
+        UniPasswordGuide,
         LoginModal,
         UniInit,
         CompanySyncModal,
         ResetPassword,
         Login,
-        ConfirmInvite
+        ConfirmInvite,
+        Signup
     ],
     entryComponents: [
         LoginModal

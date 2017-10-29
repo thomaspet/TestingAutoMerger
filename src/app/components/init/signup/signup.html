@@ -1,0 +1,95 @@
+<article class="authentication-component">
+    <p class="registration-step-info" *ngIf="!confirmationCode && !successMessage && !errorMessage">
+        Vennligst registrer deg her for å prøve Uni Economy gratis i 30 dager.
+    </p>
+
+    <p class="registration-step-info" *ngIf="confirmationCode && !successMessage && !errorMessage">
+        Selskapet ditt er klart for oppretting. Vennligst fyll ut ønsket brukernavn og passord for å komme i gang.
+    </p>
+
+    <small class="validation error" *ngIf="errorMessage">{{errorMessage}}</small>
+    <small class="validation good" *ngIf="successMessage">{{successMessage}}</small>
+
+    <form #step1="ngForm" *ngIf="!confirmationCode" [formGroup]="step1Form" (ngSubmit)="submitStep1Form()">
+        <label for="companyNameInput">Selskapsnavn</label>
+        <input id="companyNameInput"
+            type="text"
+            placeholder="Selskapsnavn"
+            autofocus
+            formControlName="CompanyName"
+        />
+
+        <label for="displayNameInput">Ditt navn</label>
+        <input id="displayNameInput"
+            type="text"
+            placeholder="Ditt navn"
+            formControlName="DisplayName"
+        />
+
+        <label for="emailInput">Epost</label>
+        <input id="emailInput"
+            type="email"
+            placeholder="Epost"
+            formControlName="Email"
+        />
+
+        <label for="phoneInput">Telefonnummer</label>
+        <input id="phoneInput"
+            type="phone"
+            placeholder="Telefonnummer"
+            formControlName="PhoneNumber"
+        />
+
+        <small class="privacy-info" *ngIf="!confirmationCode">
+            Når du registrerer deg her bekrefter du at du godtar lagring og bruk
+            av dine personlige data. <!--  i henhold til vår <a href="">personvernpolicy</a> -->
+        </small>
+
+        <button class="bad"
+            *ngIf="!confirmationCode"
+            [attr.aria-busy]="busy"
+            [disabled]="busy || !step1.form.valid"
+            (click)="submitStep1Form()">
+            START REGISTRERING
+        </button>
+    </form>
+
+    <form #step2="ngForm" *ngIf="confirmationCode" [formGroup]="step2Form" (ngSubmit)="submitStep2Form()">
+        <label for="usernameInput">Brukernavn</label>
+        <input id="usernameInput"
+            type="text"
+            autofocus
+            placeholder="Brukernavn"
+            formControlName="UserName"
+        />
+
+        <label for="passwordInput">Passord</label>
+        <input id="passwordInput"
+            type="password"
+            placeholder="Passord"
+            formControlName="Password"
+        />
+
+        <label for="confirmPasswordInput">Bekreft passord</label>
+        <input id="confirmPasswordInput"
+            type="password"
+            placeholder="Bekreft passord"
+            formControlName="ConfirmPassword"
+        />
+
+        <uni-password-guide *ngIf="step2Form?.controls"
+            [passwordControl]="step2Form.controls.Password">
+        </uni-password-guide>
+
+        <button class="bad"
+            [attr.aria-busy]="busy"
+            [disabled]="busy || !step2.form.valid"
+            (click)="submitStep2Form()">
+            FULLFØR REGISTRERING
+        </button>
+    </form>
+
+    <section class="links">
+        <a [routerLink]="['/init/login']">Tilbake til innlogging</a>
+    </section>
+</article>

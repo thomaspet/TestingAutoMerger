@@ -1,4 +1,6 @@
 import {Injectable} from '@angular/core';
+import {UniFieldLayout, UniFormError} from '../../../framework/ui/uniform/index';
+
 
 export interface ICheckSums {
     checkSum1: number;
@@ -53,6 +55,18 @@ export class ModulusService {
             .some(x => isNaN(+x)) && (this.modulus10(KID) || this.modulus11(KID));
         }
         return true;
+    }
+
+    public formValidationKID = (KID: string, field: UniFieldLayout): UniFormError | null => {
+        if (KID && !KID.split('').some(x => isNaN(+x)) && (this.modulus10(KID) || this.modulus11(KID))) {
+            return null;
+        }
+        return {
+            value: KID,
+            errorMessage: 'KID-nr. er ikke gyldig',
+            field: field,
+            isWarning: true
+        };
     }
 
     private checkSSNCheckSums(ssn: string) {

@@ -1,7 +1,7 @@
 .vacationPay
     @extend .uni-modal
-    @extend .medium
-    main
+    width: 75vw
+    article
         h1
             text-align: left
 
@@ -10,9 +10,6 @@
 
         uni-field
             text-align: left
-
-        uni-field:first-of-type
-            flex-grow: 1
 
         uni-radiogroup-input input[type=radio]+label
             display: block
@@ -43,12 +40,17 @@
             th:nth-child(3),
             td:nth-child(3)
                 border-left: none
+
     footer
         display: flex
         justify-content: flex-end
 
 .vacationpay_Flexheader
     display: flex
+    justify-content: space-between
+
+    @include media(large, max-width)
+        flex-direction: column
 
     .vacationpay_sixthWeek label
         @extend label.toggle
@@ -56,35 +58,28 @@
     .vacationpay_percentPayout
         white-space: nowrap
 
-.vacationpay_settings_left
-    min-width: 40%
-    max-width: 40%
+    .infoNote
+        background-color: lightgrey
 
-.infoNote
-    display: inline-block
-    float: right
-    background-color: lightgrey
-    margin-left: 5rem
+        .information_sheet
+            padding: .5rem 1rem 2rem
 
-    .information_sheet
-        padding: .5rem 1rem 2rem
+        table
+            white-space: nowrap
 
-    table
-        white-space: nowrap
+        h3
+            margin: 0
+            font-weight: 600
 
-    h3
-        margin: 0
-        font-weight: 600
+        td:empty
+            width: 1rem
 
-    td:empty
-        width: 1rem
+        .vacationpay_settingValues
+            font-weight: 600
+            text-align: right
 
-    .vacationpay_settingValues
-        font-weight: 600
-        text-align: right
-
-    .vacationPay_settingsLink
-        @extend a:link
-        float: right
-        cursor: pointer
+        .vacationPay_settingsLink
+            @extend a:link
+            float: right
+            cursor: pointer
 

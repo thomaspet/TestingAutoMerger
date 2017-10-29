@@ -2,31 +2,46 @@
     <section #loginForm>
         <form (submit)="login($event)">
             <small class="validation error" *ngIf="errorMessage.length">{{errorMessage}}</small>
-            <label>
-                Brukernavn
-                <input type="text" autofocus [disabled]="working" [formControl]="usernameControl" placeholder="Brukernavn">
-            </label>
 
-            <label>
-                Passord
-                <input type="password" [disabled]="working" [formControl]="passwordControl" placeholder="Passord">
-            </label>
+            <section class="input-with-icon">
+                <label for="username">Brukernavn</label>
+                <span class="user-icon"></span>
+                <input id="username"
+                    type="text"
+                    placeholder="Brukernavn"
+                    autofocus
+                    [disabled]="working"
+                    [formControl]="usernameControl"
+                />
+            </section>
+
+            <section class="input-with-icon">
+                <label for="password">Passord</label>
+                <span class="password-icon"></span>
+                <input id="password"
+                    type="password"
+                    placeholder="Passord"
+                    [disabled]="working"
+                    [formControl]="passwordControl"
+                />
+            </section>
 
             <button class="c2a" [attr.aria-busy]="working" [disabled]="working">
-                LOGG INN
+                Logg inn
             </button>
         </form>
-        <p><a [routerLink]="['../reset-password']">Glemt passord?</a></p>
+
+        <section class="links">
+            <a [routerLink]="['../reset-password']">Glemt passord?</a>
+        </section>
     </section>
 
     <section #companySelector style="display: none">
         <p class='validation info' *ngIf="infoMessage.length">{{infoMessage}}</p>
-        <label *ngIf="loginSuccess" class="company-select">
-            Velg selskap
-            <uni-select [config]="selectConfig"
-                        [items]="availableCompanies"
-                        (valueChange)="onCompanySelected($event)">
-            </uni-select>
-        </label>
+        <uni-select
+            [config]="selectConfig"
+            [items]="availableCompanies"
+            (valueChange)="onCompanySelected($event)">
+        </uni-select>
     </section>
 </article>

@@ -73,6 +73,7 @@ export class LedgerAccountReconciliation {
     private busy: boolean = false;
 
     private displayPostsOption: string = 'OPEN';
+    private displayPostsOptionHeaders = { OPEN: 'Åpne poster', MARKED: 'Lukkede poster', ALL: 'Alle poster'};
 
     private summaryData = {
         SumOpen: 0,

@@ -3217,6 +3217,28 @@ export class Agreement extends UniEntity {
 }
 
 
+export class Confirmation extends UniEntity {
+    public static RelativeUrl = '';
+    public static EntityType = 'Confirmation';
+
+    public _createguid: string;
+    public Code: string;
+    public CompanyName: string;
+    public CreatedAt: Date;
+    public CreatedBy: string;
+    public Deleted: boolean;
+    public DisplayName: string;
+    public Email: string;
+    public ExpirationDate: Date;
+    public ID: number;
+    public Phone: string;
+    public StatusCode: number;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public CustomFields: any;
+}
+
+
 export class CurrencyCode extends UniEntity {
     public static RelativeUrl = 'currencycodes';
     public static EntityType = 'CurrencyCode';
@@ -4888,6 +4910,7 @@ export class VatType extends UniEntity {
     public ValidTo: Date;
     public VatCode: string;
     public VatCodeGroupID: number;
+    public VatCodeGroupingValue: VatCodeGroupingValueEnum;
     public VatPercent: number;
     public VatTypeSetupID: number;
     public Visible: boolean;
@@ -5203,9 +5226,9 @@ export class WorkBalanceDto extends UniEntity {
     public ValidFrom: Date;
     public ValidTimeOff: number;
     public WorkRelationID: number;
+    public WorkRelation: WorkRelation;
     public Previous: BalanceInfo;
     public Details: Array<FlexDetail>;
-    public WorkRelation: WorkRelation;
     public CustomFields: any;
 }
 
@@ -6253,6 +6276,17 @@ export enum KpiValueStatus{
     StatusInProgress = 1,
     StatusError = 2,
     StatusReady = 3,
+}
+
+
+export enum VatCodeGroupingValueEnum{
+    Costs = 1,
+    Invoice = 2,
+    Calculation = 3,
+    Income = 4,
+    NoTax = 5,
+    Special = 6,
+    Custom = 7,
 }
 
 

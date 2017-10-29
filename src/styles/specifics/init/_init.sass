@@ -1,124 +1,226 @@
+@media screen and (max-width: 1350px)
+    .marketing-toggle-btn
+        display: none
+
+    uni-init
+        #marketing-content
+            margin: 2rem 10%
+            padding-top: 2rem !important
+            img
+                display: none
+
+        #init-content
+            margin: 2rem 10% 0 10%
+            padding-top: 0 !important
+            img
+                padding: 1rem 0 0 0 !important
+            .view-container
+                width: 100% !important
+                padding-top: 1rem
+                background: $uni-color-negative
+            .authentication-component
+                box-shadow: none
+
+        footer
+            position: fixed
+            bottom: 0
+
+
+@media screen and (max-width: 950px)
+    uni-init
+        #marketing-content,
+        #init-content
+            margin: 2rem 2.5% 0 2.5%
+
+@media screen and (max-width: 450px)
+    #marketing-content
+        h1
+            font-size: 2rem !important
+        input, #ue-video
+            width: 100% !important
+
+
 uni-init
     display: block
     position: absolute
     top: 0
+    bottom: 0
     left: 0
     right: 0
-    bottom: 0
     overflow: auto
-    padding-top: 2rem
     background-size: cover
-    background-attachment: fixed
-    background-image: url('assets/dashboard.jpg')
+    background-image: url('assets/init_bg.jpg')
 
     .init-container
         display: flex
         flex-flow: row wrap-reverse
-        max-width: 870px
-        min-height: 30rem
-        margin: 10vh auto
+        width: 100%
+        min-height: 100%
         padding: 0
 
-        @media (max-height: 700px)
-            margin: 0 auto
+    #marketing-content,
+    #init-content
+        padding-top: 6rem
 
-        @media (max-width: 767px)
-            margin: 0 2rem
-
-            .marketing-content
-                flex: 1 0 100%
-                h1
-                    font-size: 2rem
-                    padding-bottom: .5rem
-                p
-                    font-size: 1rem
-                    padding: 0
-
-            .view-content
-                flex: 1 0 100%
-                margin-bottom: 1rem
-
-
-    .marketing-content
+    #marketing-content
         order: 1
-        flex: 1 0 60%
-        display: block
+        flex: 1 1 57%
         box-sizing: border-box
-        height: auto
-        background-color: $uni-color-c2a
-        color: $uni-color-negative
-        padding: 2rem 3.5rem
-        border-top-left-radius: 3px
-        border-bottom-left-radius: 3px
+        background: $uni-color-negative
+        color: $uni-color-positive
+
+        display: flex
+        flex-flow: row
+        justify-content: center
+
+        img
+            width: 3rem
+            position: absolute
+            top: 1rem
 
         h1
             font-size: 2.5rem
-            padding-bottom: 1rem
+            margin-top: 0
 
         p
-            padding: .5rem 0
-            color: $uni-color-negative
-            font-size: 1.2rem
-            font-weight: 200
+            font-size: 1.25rem
+            font-weight: 300
 
-    .view-content
+
+        button.signup-link
+            height: 4rem
+            font-size: 1.5rem
+            font-weight: 300
+            border-radius: 0
+            min-width: 10rem
+            margin: 2rem 0 2.5rem 0
+            background: #c43012
+            color: $uni-color-negative
+
+            &[aria-busy]:not([aria-busy=false]):before
+                height: 15px !important
+                width: 15px !important
+                border-top: 1px solid $uni-color-negative !important
+
+            &:hover, &:focus
+                background: darken(#c43012, 5%)
+
+        #ue-video
+            width: 90%
+
+    #init-content
         order: 2
-        flex: 1 0 40%
-        display: block
+        flex: 1 1 43%
+        position: relative
         box-sizing: border-box
-        height: auto
-        background-color: transparentize(#fff, .25)
-        border-top-right-radius: 3px
-        border-bottom-right-radius: 3px
-        padding: 0 3rem .5rem 3rem
+
+        .view-container
+            width: 30rem
+            margin: 0 auto
 
         img
             display: block
-            margin: 1rem auto
+            margin: 0 auto
+            padding: 0 0 2rem 0
+            width: 18rem
 
-        input
-            height: 2.5rem
+        .marketing-toggle-btn
+            @extend %hideText
+            position: absolute
+            top: .5rem
+            left: .5rem
+            width: 2rem
+            height: 2rem
+            border-radius: 50%
+            background: $uni-color-negative unicon-chevron-left($uni-color-scale6) center no-repeat
+            background-size: .65rem
 
-        button
-            height: 2.5rem
-            margin-top: 2rem
+            &:hover
+                background: $uni-color-negative unicon-chevron-left($uni-color-scale3) center no-repeat
+                background-size: .65rem
 
-        .company-select
-            display: block
-            margin-top:  4rem
+            &.expand-content
+                transform: rotate(180deg)
 
-            input
-                margin-top: .5rem
+        footer
+            position: absolute
+            bottom: 1rem
+            left: 0
+            width: 100%
+            text-align: center
+            color: $uni-color-scale5
+            font-size: .9rem
 
 
 .authentication-component
+    min-height: 10rem
+    max-width: 25rem
+    margin: 0 auto
+    padding: 2rem 3rem 3rem 3rem
+    background: $uni-color-negative
+    position: relative
+    box-shadow: 0 0 30px #d9dee9
+
+    small.validation
+        margin: 0 0 1rem 0
+
     form
         label
+            @extend %visuallyHidden
+
+        input
+            display: block
             width: 100%
-            display: inline-block
-            margin: .5rem 0
+            margin: .75rem 0
+            color: $uni-color-positive
+            height: 2.5rem
+
+        .input-with-icon
+            position: relative
+            width: 100%
 
             input
-                display: block
-
-                &.ng-invalid.ng-touched
-                    @extend input[type=text].error
-
-            input[type=checkbox]
-                display: inline-block
+                padding-left: 2.25rem
+            span
+                position: absolute
+                top: 0
+                left: 0
+                height: 2.5rem
                 width: 2rem
 
-        button
-            width: 100%
-            padding: 0
-            margin: 1rem 0 .5rem 0
+                &.user-icon
+                    background: unicon-user($uni-color-scale6) center no-repeat
+                    background-size: .9rem
+                &.password-icon
+                    background: unicon-lock($uni-color-scale6) center no-repeat
+                    background-size: .8rem
 
-        .company_select
-            margin: .5rem auto
+        input[type=checkbox]
+            display: inline-block
+            width: 2rem
+
+        small.privacy-info
+            color: $uni-color-scale5
             display: block
+            margin: 1rem 0
 
-    p
+    button
+        width: 100%
+        height: 2.5rem
+        padding: 0
+        margin: .25rem 0 .5rem 0
+
+    .uniSelect_input
+        height: 2.5rem
+        margin-top: 1rem
+
+
+    .links
+        position: absolute
+        width: 100%
         text-align: center
+        bottom: 1rem
+        left: 0
 
 ul.progress-list
     list-style: none
@@ -152,20 +254,60 @@ ul.progress-list
             border-right: .1rem solid transparent
             animation: spinner 600ms linear infinite
 
-.invite_users_form
-    label
-        display: inline-block
-        margin-right: .5rem
+uni-signup,
+uni-confirm-invite
+    .authentication-component
+        padding: 1rem 3rem
 
-    button
-        margin-left: 0
+        p
+            color: $uni-color-scale3
+            font-size: 17px
+            &.registration-step-info
+                margin-bottom: 2rem
 
-uni-select
-    & .uniSelect
-        width: 100%
-        & input
-            width: 100%
+        .links
+            position: static
+            margin-top: 1rem
 
-uni-signup h1
-    text-align: center
-    margin-bottom: 0
+        button.bad
+            height: 3rem
+            background: #c43012
+
+            &:hover,
+            &:focus
+                background-color: darken(#c43012, 5%)
+                outline: none
+
+            &[disabled],
+            &[aria-disabled]
+                background-color: desaturate(mix(#c43012, $uni-color-negative, 50%), 10%)
+
+                &:hover,
+                &:focus
+                    background-color: desaturate(mix(#c43012, $uni-color-negative, 80%), 10%)
+
+        input.ng-invalid.ng-touched
+            @extend input[type=text].error
+
+
+uni-password-guide
+    ul.password-validation
+        list-style: none
+        margin-left: .5rem
+        font-size: .9rem
+
+        li
+            display: inline-block
+            width: 40%
+            color: $uni-color-scale5
+
+            &:before
+                content: '🞩'
+                margin-right: .5rem
+
+            &.completed
+                color: $uni-color-scale7
+                &:before
+                    color: $uni-color-good
+                    content: '✓'
+

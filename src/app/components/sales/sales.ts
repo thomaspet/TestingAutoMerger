@@ -46,14 +46,42 @@ export class UniSales {
             {
                 width: 1,
                 height: 1,
-                x: 0,
+                x: 3,
                 y: 0,
                 widgetType: 'shortcut',
                 config: {
                     label: 'Kunder',
                     description: 'Kundeoversikt',
-                    icon: '',
+                    icon: 'customer',
                     link: '/sales/customer'
+                }
+            },
+            {
+                width: 1,
+                height: 1,
+                x: 4,
+                y: 0,
+                widgetType: 'shortcut',
+                config: {
+                    label: 'Produkter',
+                    description: 'Produktoversikt',
+                    icon: 'product',
+                    link: '/sales/products'
+                }
+            },
+            {
+                width: 1,
+                height: 1,
+                x: 0,
+                y: 0,
+                widgetType: 'shortcut',
+                config: {
+                    label: 'Tilbud',
+                    description: 'Tilbudsoversikt',
+                    icon: '',
+                    link: '/sales/quotes',
+                    letterForIcon: 'T',
+                    letterIconClass: 'letterIconStyling'
                 }
             },
             {
@@ -63,10 +91,12 @@ export class UniSales {
                 y: 0,
                 widgetType: 'shortcut',
                 config: {
-                    label: 'Produkter',
-                    description: 'Produktoversikt',
+                    label: 'Ordre',
+                    description: 'Ordreoversikt',
                     icon: '',
-                    link: '/sales/products'
+                    link: '/sales/orders',
+                    letterForIcon: 'O',
+                    letterIconClass: 'letterIconStyling'
                 }
             },
             {
@@ -76,109 +106,38 @@ export class UniSales {
                 y: 0,
                 widgetType: 'shortcut',
                 config: {
-                    label: 'Tilbud',
-                    description: 'Tilbudsoversikt',
-                    icon: '',
-                    link: '/sales/quotes'
-                }
-            },
-            {
-                width: 1,
-                height: 1,
-                x: 3,
-                y: 0,
-                widgetType: 'shortcut',
-                config: {
-                    label: 'Ordre',
-                    description: 'Ordreoversikt',
-                    icon: '',
-                    link: '/sales/orders'
-                }
-            },
-            {
-                width: 1,
-                height: 1,
-                x: 4,
-                y: 0,
-                widgetType: 'shortcut',
-                config: {
                     label: 'Faktura',
                     description: 'Fakturaoversikt',
                     icon: '',
-                    link: '/sales/invoices'
+                    link: '/sales/invoices',
+                    letterForIcon: 'F',
+                    letterIconClass: 'letterIconStyling'
                 }
             },
-
-            {
-                width: 1,
-                height: 1,
-                x: 5,
-                y: 0,
-                widgetType: 'shortcut',
-                config: {
-                    label: 'Prosjekt',
-                    description: 'Prosjektmodul',
-                    icon: '',
-                    link: '/dimensions/projects/overview'
-                }
-            },
-
-            {
-                width: 1,
-                height: 1,
-                x: 6,
-                y: 0,
-                widgetType: 'shortcut',
-                config: {
-                    label: 'Purring',
-                    description: 'Purring',
-                    icon: '',
-                    link: '/sales/reminders/ready'
-                }
-            },
-
             {
                 width: 2,
                 height: 1,
-                x: 7,
+                x: 5,
                 y: 0,
                 widgetType: 'overdue',
                 config: {}
             },
-
+            {
+                width: 3,
+                height: 1,
+                x: 9,
+                y: 0,
+                widgetType: 'clock',
+                config: {
+                    showSeconds: false,
+                    dateColor: '#7698bd',
+                }
+            },
             {
                 width: 4,
                 height: 3,
                 x: 0,
-                y: 1,
-                widgetType: 'chart',
-                config: {
-                    header: 'Driftsresultater',
-                    chartType: 'line',
-                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
-                    colors: ['#ab6857'],
-                    dataEndpoint: ['/api/statistics?model=JournalEntryLine&select=month(financialdate),sum(amount)&join=journalentryline.accountid eq account.id&filter=account.accountnumber ge 3000 and account.accountnumber le 9999 &range=monthfinancialdate'],
-                    dataKey: ['sumamount'],
-                    multiplyValue: -1,
-                    dataset: [],
-                    options: {
-                        showLines: true,
-                        animation: {
-                            animateScale: true
-                        },
-                        legend: {
-                            position: 'top'
-                        }
-                    },
-                    title: ['Driftsresultat']
-                }
-            },
-
-            {
-                width: 4,
-                height: 3,
-                x: 4,
-                y: 1,
+                y: 4,
                 widgetType: 'chart',
                 config: {
                     header: 'Utestående per kunde',
@@ -202,6 +161,105 @@ export class UniSales {
                             position: 'bottom'
                         }
                     }
+                }
+            },
+            {
+                width: 8,
+                height: 3,
+                x: 0,
+                y: 1,
+                widgetType: 'transaction', // TODO: enum
+                config: {
+                    dashboard: 'Sale' // Identifyer for which fields to show.. fix while not dynamic
+                }
+            },
+            {
+                width: 2,
+                height: 3,
+                x: 8,
+                y: 1,
+                widgetType: 'shortcutlist',
+                config: {
+                    header: 'Snarveier',
+                    shortcuts: [
+                        {
+                            label: 'Kunder',
+                            link: '/sales/customer',
+                            urlToNew: '/sales/customer/0'
+                        },
+                        {
+                            label: 'Produkter',
+                            link: '/sales/products',
+                            urlToNew: '/sales/products/0'
+                        },
+                        {
+                            label: 'Purring',
+                            link: '/sales/reminders/ready',
+                            urlToNew: ''
+                        },
+                        {
+                            label: 'Tilbud',
+                            link: '/sales/quotes',
+                            urlToNew: '/sales/quotes/0'
+                        },
+                        {
+                            label: 'Ordre',
+                            link: '/sales/orders',
+                            urlToNew: '/sales/orders/0'
+                        },
+                        {
+                            label: 'Faktura',
+                            link: '/sales/invoices',
+                            urlToNew: '/sales/invoices/0'
+                        },
+                    ]
+                }
+            },
+            {
+                width: 2,
+                height: 2,
+                x: 10,
+                y: 1,
+                widgetType: 'infoshortcut', // TODO: enum
+                config: {
+                    header: 'Oversikt',
+                    text: 'Alle dine data er kun et tastetrykk unna. Kraftig søk med filtreringsmuligheter',
+                    link: '/overview',
+                    externalLink: '',
+                    imageLink: '../../../assets/info_shortcut_ticker_img.jpg',
+                    title: 'Gå til oversikt'
+                }
+            },
+            {
+                width: 2,
+                height: 2,
+                x: 10,
+                y: 3,
+                widgetType: 'infoshortcut', // TODO: enum
+                config: {
+                    header: 'Opplæringsvideoer',
+                    text: 'Se våre opplæringsvideoer slik at du blir god og trygg på Uni Economy',
+                    link: '',
+                    externalLink: 'http://app.cimple.no/unimicro/',
+                    imageLink: '../../../assets/info_shortcut_movie_img.jpg',
+                    title: ''
+                }
+            },
+            {
+                width: 2,
+                height: 2,
+                x: 10,
+                y: 5,
+                widgetType: 'infoshortcut', // TODO: enum
+                config: {
+                    header: 'Kundersenteret',
+                    text: 'Besøk vårt kundesenter for tips og triks, nyttige datoer og annen info.',
+                    link: '',
+                    externalLink: 'http://support.unimicro.no/?_ga=2.96685528.676968774.1509090839-164083888'
+                        + '.1505815175&_gac=1.82445668.1506512206.CjwKCAjwmK3OBRBKEiwAOL6t1JQUOpBqP9bSF-'
+                        + 'sHI3WVrIFA2KEBFrgpy1EdKWDa1KqJSn9D0kJ6ExoC7_8QAvD_BwE',
+                    imageLink: '../../../assets/info_shortcut_bell_img.jpg',
+                    title: ''
                 }
             }
         ];

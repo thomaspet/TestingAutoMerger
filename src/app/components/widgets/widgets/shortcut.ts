@@ -15,7 +15,14 @@ import {AuthService} from '../../../authService';
                 class="dashboard-shortcut-icon"
                 [ngClass]="'dashboard-shortcut-icon-' + widget.config.icon">
             </a><br>
-            <a class="uni-shortcut-link">{{ widget.config.label }}</a>
+            <a *ngIf="widget?.config?.letterForIcon" [ngClass]="widget?.config?.letterIconClass">
+                {{ widget?.config?.letterForIcon }}
+            </a>
+            <a class="uni-shortcut-link"
+                [ngClass]="{ 'letterForIconStyling' : widget?.config?.letterForIcon }">
+
+                {{ widget.config.label }}
+            </a>
         </div>
     `,
     changeDetection: ChangeDetectionStrategy.OnPush

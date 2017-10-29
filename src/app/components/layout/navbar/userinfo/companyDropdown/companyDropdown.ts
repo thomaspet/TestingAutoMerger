@@ -1,7 +1,7 @@
-﻿import {Component, ViewChildren, QueryList, ChangeDetectorRef, ViewChild} from '@angular/core';
+﻿import {Component, ViewChildren, QueryList, ChangeDetectorRef} from '@angular/core';
 import {Router} from '@angular/router';
 import {Observable} from 'rxjs/Observable';
-import {CompanySettings, FinancialYear} from '../../../../../unientities';
+import {CompanySettings, FinancialYear, User} from '../../../../../unientities';
 import {UniSelect, ISelectConfig} from '../../../../../../framework/ui/uniform/index';
 import {UniModalService} from '../../../../../../framework/uniModal/barrel';
 import {AuthService} from '../../../../../authService';
@@ -15,8 +15,7 @@ import {
     YearService
 } from '../../../../../services/services';
 
-import {YearModal, ChangeYear} from "./modals/yearModal";
-
+import {YearModal, ChangeYear} from './modals/yearModal';
 
 @Component({
     selector: 'uni-company-dropdown',
@@ -33,25 +32,37 @@ import {YearModal, ChangeYear} from "./modals/yearModal";
             <section class="navbar_company_dropdown"
                 [attr.aria-expanded]="companyDropdownActive">
 
-                <h2> {{username}} </h2>
+                <h2> {{currentUser?.DisplayName}} </h2>
 
                 <dl>
+                    <uni-select *ngIf="availableCompanies"
+                        class="navbar_company_select"
+                        [config]="selectCompanyConfig"
+                        [items]="availableCompanies"
+                        [value]="activeCompany"
+                        (valueChange)="companySelected($event)">
+                    </uni-select>
 
-                <uni-select class="navbar_company_select"
-                            *ngIf="availableCompanies"
-                            [config]="selectCompanyConfig"
-                            [items]="availableCompanies"
-                            [value]="activeCompany"
-                            (valueChange)="companySelected($event)">
-                </uni-select>
+                    <ng-template [ngIf]="currentUser?.License?.ContractType?.TypeName">
+                        <dt>Lisens</dt>
+                        <dd>{{currentUser.License.ContractType.TypeName}}</dd>
+                    </ng-template>
 
+                    <ng-template [ngIf]="currentUser?.License?.UserType?.TypeName">
+                        <dt>Rolle</dt>
+                        <dd>{{currentUser.License.UserType.TypeName}}</dd>
+                    </ng-template>
 
                     <dt *ngIf="companySettings?.OrganizationNumber">Org.nr</dt>
-                    <dd *ngIf="companySettings?.OrganizationNumber" itemprop="taxID">{{companySettings.OrganizationNumber | uninumberformat:'orgno'}}</dd>
+                    <dd *ngIf="companySettings?.OrganizationNumber" itemprop="taxID">
+                        {{companySettings.OrganizationNumber | uninumberformat:'orgno'}}
+                    </dd>
 
                     <dt *ngIf="companySettings?.DefaultPhone?.Number">Telefon</dt>
                     <dd itemprop="phone" *ngIf="companySettings?.DefaultPhone?.Number">
-                        <a href="tel:{{companySettings.DefaultPhone.Number}}">{{companySettings.DefaultPhone.Number}}</a>
+                        <a href="tel:{{companySettings.DefaultPhone.Number}}">
+                            {{companySettings.DefaultPhone.Number}}
+                        </a>
                     </dd>
                 </dl>
 
@@ -65,8 +76,9 @@ import {YearModal, ChangeYear} from "./modals/yearModal";
                 </p>
 
                 <p>
-                    <!--<a href="/#/settings/company" class="navbar_company_settings" (click)="close()">Innstillinger</a>-->
-                    <a routerLink="settings/company" class="navbar_company_settings" (click)="close()">Innstillinger</a>
+                    <a routerLink="settings/company" class="navbar_company_settings" (click)="close()">
+                        Innstillinger
+                    </a>
                     <button (click)="logOut()" class="navbar_company_logout">Logg ut</button>
                 </p>
 
@@ -74,11 +86,6 @@ import {YearModal, ChangeYear} from "./modals/yearModal";
         </article>
     `
 })
-
-
-
-// TODO: Should be decided if such as companies and financialYears should be retrieved during dialog opening, and not only during application load.
-// A company may get a new account year during a session, and a user may get access to new companies during the session.
 export class UniCompanyDropdown {
     @ViewChildren(UniSelect)
     private dropdowns: QueryList<UniSelect>;
@@ -87,7 +94,7 @@ export class UniCompanyDropdown {
     private companyDropdownActive: Boolean;
     private companySettings: CompanySettings;
 
-    private username: string;
+    private currentUser: User;
 
     private selectYear: string[];
     private financialYears: Array<FinancialYear> = [];
@@ -110,8 +117,8 @@ export class UniCompanyDropdown {
         private yearService: YearService,
         private modalService: UniModalService
     ) {
-        this.userService.getCurrentUser().subscribe((user) => {
-            this.username = user.DisplayName;
+        this.userService.getCurrentUser().subscribe((user: User) => {
+            this.currentUser = user;
         }, err => this.errorService.handle(err));
 
         this.companyService.GetAll(null).subscribe(
@@ -133,9 +140,11 @@ export class UniCompanyDropdown {
 
         this.loadCompanyData();
         this.authService.authentication$.subscribe(auth => {
-            this.activeCompany = auth.activeCompany;
-            this.loadCompanyData();
-            this.cdr.markForCheck();
+            if (auth && auth.user) {
+                this.activeCompany = auth.activeCompany;
+                this.loadCompanyData();
+                this.cdr.markForCheck();
+            }
         });
 
         this.yearService.selectedYear$.subscribe(val => {

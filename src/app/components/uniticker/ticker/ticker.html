@@ -29,12 +29,13 @@
     </ng-template>
 
     <section class="ticker-data">
-        <section class="data-container" (click)="letUniTableHandleIsOwnClicks($event)">
+        <section class="data-container">
             <uni-table
                 *ngIf="ticker.Type === 'table'"
                 [resource]="lookupFunction"
                 [config]="tableConfig"
-                (rowSelected)="onRowSelected($event)">
+                (rowSelected)="onRowSelected($event)"
+                (filtersChange)="onFilterChange($event)">
             </uni-table>
 
             <div *ngIf="ticker.Type !== 'table'">

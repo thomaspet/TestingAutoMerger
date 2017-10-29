@@ -369,12 +369,12 @@ export class PaymentList {
                 'Vennligst velg hvilke linjer du vil utbetale, eller kryss av for alle'
             );
 
-            doneHandler('Lagring/utbetaling avbrutt');
+            doneHandler('Lagring og utbetaling avbrutt');
             return;
         }
 
         if (!this.validateBeforePay(selectedRows)) {
-            doneHandler('Feil ved validering, lagring avbrutt');
+            doneHandler('Feil ved validering, lagring og utbetaling avbrutt');
             return;
         }
 
@@ -383,8 +383,11 @@ export class PaymentList {
         if (rowsWithOldDates.length > 0) {
             const modal = this.modalService.open(UniConfirmModalV2, {
                 header: 'Ugyldig betalingsdato',
-                message: `Det er ${rowsWithOldDates.length} rader som har betalingsdato tilbake i tid. Vil du sette dagens dato autmatisk?`,
-                buttonLabels: {accept: 'Sett dagens dato', reject: 'Avbryt og sett dato manuelt'}
+                message: `Det er ${rowsWithOldDates.length} rader som har betalingsdato tidligere enn dagens dato. Vil du sette dagens dato?`,
+                buttonLabels: {
+                    accept: 'Lagre med dagens dato og send til utbetaling', 
+                    reject: 'Avbryt og sett dato manuelt'
+                }
             });
 
             modal.onClose.subscribe((result) => {
@@ -394,86 +397,86 @@ export class PaymentList {
                         row._isDirty = true;
                         this.table.updateRow(row._originalIndex, row);
                     });
+                    this.saveAndPayInternal(selectedRows, doneHandler);
                 } else {
-                    doneHandler('Lagring avbrutt');
+                    doneHandler('Lagring og utbetaling avbrutt');
                 }
             });
         } else {
-            this.saveAndPayInternal(selectedRows, doneHandler);
+            const modal = this.modalService.open(UniConfirmModalV2, {
+                header: 'Bekreft utbetaling',
+                message: `Er du sikker på at du vil utbetale de valgte ${selectedRows.length} radene?`,
+                buttonLabels: {accept: 'Lagre og send til utbetaling', reject: 'Avbryt'}
+            });
+
+            modal.onClose.subscribe((response) => {
+                if (response === ConfirmActions.REJECT) {
+                    doneHandler('Lagring og utbetaling avbrutt');
+                    return;
+                }
+                this.saveAndPayInternal(selectedRows, doneHandler);
+            });
         }
     }
 
     private saveAndPayInternal(selectedRows: Array<Payment>, doneHandler: (status: string) => any) {
         // save first, then run action
         this.save(doneHandler, () => {
-            const modal = this.modalService.open(UniConfirmModalV2, {
-                header: 'Bekreft utbetaling',
-                message: `Er du sikker på at du vil utbetale de valgte ${selectedRows.length} radene?`,
-                buttonLabels: {accept: 'Send til betaling', cancel: 'Avbryt'}
+            let paymentIDs: number[] = [];
+            selectedRows.forEach(x => {
+                paymentIDs.push(x.ID);
             });
 
-            modal.onClose.subscribe((response) => {
-                if (response === ConfirmActions.REJECT) {
-                    doneHandler('Utbetaling avbrutt');
-                    return;
-                }
+            // lag action for å generer batch for X betalinger
+            this.paymentService.createPaymentBatch(paymentIDs)
+                .subscribe((paymentBatch: PaymentBatch) => {
+                    this.toastService.addToast(
+                        `Betalingsbunt ${paymentBatch.ID} opprettet, genererer utbetalingsfil...`,
+                        ToastType.good, 5
+                    );
 
-                let paymentIDs: number[] = [];
-                selectedRows.forEach(x => {
-                    paymentIDs.push(x.ID);
+                    // refresh list after paymentbatch has been generated
+                    this.loadData();
+
+                    // kjør action for å generere utbetalingsfil basert på batch
+                    this.paymentBatchService.generatePaymentFile(paymentBatch.ID)
+                        .subscribe((updatedPaymentBatch: PaymentBatch) => {
+                            if (updatedPaymentBatch.PaymentFileID) {
+                                this.toastService.addToast(
+                                    'Utbetalingsfil laget, henter fil...',
+                                    ToastType.good, 5
+                                );
+
+                                this.fileService
+                                    .downloadFile(updatedPaymentBatch.PaymentFileID, 'application/xml')
+                                    .subscribe((blob) => {
+                                        doneHandler('Utbetalingsfil hentet');
+
+                                        // download file so the user can open it
+                                        saveAs(blob, `payments_${updatedPaymentBatch.ID}.xml`);
+                                    },
+                                    err => {
+                                        doneHandler('Feil ved henting av utbetalingsfil');
+                                        this.errorService.handle(err);
+                                    });
+                            } else {
+                                this.toastService.addToast(
+                                    'Fant ikke utbetalingsfil, ingen PaymentFileID definert',
+                                    ToastType.bad
+                                );
+
+                                doneHandler('Feil ved henting av utbetalingsfil');
+                            }
+                        },
+                        err => {
+                            doneHandler('Feil ved generering av utbetalingsfil');
+                            this.errorService.handle(err);
+                        });
+                },
+                err => {
+                    doneHandler('Feil ved opprettelse av betalingsbunt');
+                    this.errorService.handle(err);
                 });
-
-                // lag action for å generer batch for X betalinger
-                this.paymentService.createPaymentBatch(paymentIDs)
-                    .subscribe((paymentBatch: PaymentBatch) => {
-                        this.toastService.addToast(
-                            `Betalingsbunt ${paymentBatch.ID} opprettet, genererer utbetalingsfil...`,
-                            ToastType.good, 5
-                        );
-
-                        // refresh list after paymentbatch has been generated
-                        this.loadData();
-
-                        // kjør action for å generere utbetalingsfil basert på batch
-                        this.paymentBatchService.generatePaymentFile(paymentBatch.ID)
-                            .subscribe((updatedPaymentBatch: PaymentBatch) => {
-                                if (updatedPaymentBatch.PaymentFileID) {
-                                    this.toastService.addToast(
-                                        'Utbetalingsfil laget, henter fil...',
-                                        ToastType.good, 5
-                                    );
-
-                                    this.fileService
-                                        .downloadFile(updatedPaymentBatch.PaymentFileID, 'application/xml')
-                                        .subscribe((blob) => {
-                                            doneHandler('Utbetalingsfil hentet');
-
-                                            // download file so the user can open it
-                                            saveAs(blob, `payments_${updatedPaymentBatch.ID}.xml`);
-                                        },
-                                        err => {
-                                            doneHandler('Feil ved henting av utbetalingsfil');
-                                            this.errorService.handle(err);
-                                        });
-                                } else {
-                                    this.toastService.addToast(
-                                        'Fant ikke utbetalingsfil, ingen PaymentFileID definert',
-                                        ToastType.bad
-                                    );
-
-                                    doneHandler('Feil ved henting av utbetalingsfil');
-                                }
-                            },
-                            err => {
-                                doneHandler('Feil ved generering av utbetalingsfil');
-                                this.errorService.handle(err);
-                            });
-                    },
-                    err => {
-                        doneHandler('Feil ved opprettelse av betalingsbunt');
-                        this.errorService.handle(err);
-                    });
-            });
         });
     }
 

@@ -1,5 +1,5 @@
 import * as moment from 'moment';
-export function autocompleteDate(inputValue: string): Date {
+export function autocompleteDate(inputValue: string, denyYearInFuture: boolean = false): Date {
     'use strict';
     let day, month, year;
     let date = new Date();
@@ -56,6 +56,13 @@ export function autocompleteDate(inputValue: string): Date {
                 break;
             default:
                 return null;
+        }
+    }
+
+
+    if (denyYearInFuture === true) {
+        if (year > date.getFullYear()) {
+            year -= 100;
         }
     }
 

@@ -65,7 +65,7 @@ export class DateTimePickerInput extends BaseControl {
             this.createControl();
             this.options = this.field.Options || {};
             let value = _.get(this.model, this.field.Property, '');
-
+            
             if (value) {
                 if (value === '*') {
                     this.selectedDate = new Date();
@@ -140,7 +140,7 @@ export class DateTimePickerInput extends BaseControl {
     public inputChange() {
         const value = this.control.value;
         let date;
-
+        
         if ((value && value.length) || this.options.autocompleteEmptyValue) {
             if (value === '*') {
                 date = new Date();
@@ -150,7 +150,7 @@ export class DateTimePickerInput extends BaseControl {
         } else {
             date = null;
         }
-
+        
         this.dateSelected(date);
     }
 

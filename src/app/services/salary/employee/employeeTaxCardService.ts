@@ -44,13 +44,13 @@ export class EmployeeTaxCardService extends BizHttp<EmployeeTaxCard> {
                     FieldSet: 1,
                     Section: 0,
                     openByDefault: true,
-                    Validations: [
-                        {
-                            ErrorMessage: 'Required field',
-                            Level: 3,
-                            Operator: 7 // required
-                        }
-                    ]
+                    // Validations: [
+                    //     {
+                    //         ErrorMessage: 'Required field',
+                    //         Level: 3,
+                    //         Operator: 7 // required
+                    //     }
+                    // ]
                 },
                 {
                     EntityType: 'EmployeeTaxCard',
@@ -62,14 +62,14 @@ export class EmployeeTaxCardService extends BizHttp<EmployeeTaxCard> {
                     Options: {
                         format: 'Money',
                         decimalLength: 2
-                    },
-                    Validations: [
-                        {
-                            ErrorMessage: 'Required field',
-                            Level: 3,
-                            Operator: 7 // required
-                        }
-                    ]
+                    }
+                    // Validations: [
+                    //     {
+                    //         ErrorMessage: 'Required field',
+                    //         Level: 3,
+                    //         Operator: 7 // required
+                    //     }
+                    // ]
                 },
                 {
                     EntityType: 'EmployeeTaxCard',
@@ -82,14 +82,14 @@ export class EmployeeTaxCardService extends BizHttp<EmployeeTaxCard> {
                         format: 'Money',
                         decimalLength: 2
                     },
-                    openByDefault: true,
-                    Validations: [
-                        {
-                            ErrorMessage: 'Required field',
-                            Level: 3,
-                            Operator: 7 // required
-                        }
-                    ]
+                    openByDefault: true
+                    // Validations: [
+                    //     {
+                    //         ErrorMessage: 'Required field',
+                    //         Level: 3,
+                    //         Operator: 7 // required
+                    //     }
+                    // ]
                 },
                 {
                     EntityType: 'EmployeeTaxCard',
@@ -101,14 +101,14 @@ export class EmployeeTaxCardService extends BizHttp<EmployeeTaxCard> {
                     Options: {
                         format: 'Money',
                         decimalLength: 2
-                    },
-                    Validations: [
-                        {
-                            ErrorMessage: 'Required field',
-                            Level: 3,
-                            Operator: 7 // required
-                        }
-                    ]
+                    }
+                    // Validations: [
+                    //     {
+                    //         ErrorMessage: 'Required field',
+                    //         Level: 3,
+                    //         Operator: 7 // required
+                    //     }
+                    // ]
                 },
                 {
                     EntityType: 'EmployeeTaxCard',
@@ -138,14 +138,14 @@ export class EmployeeTaxCardService extends BizHttp<EmployeeTaxCard> {
                     Options: {
                         format: 'Money',
                         decimalLength: 2
-                    },
-                    Validations: [
-                        {
-                            ErrorMessage: 'Required field',
-                            Level: 3,
-                            Operator: 7 // required
-                        }
-                    ]
+                    }
+                    // Validations: [
+                    //     {
+                    //         ErrorMessage: 'Required field',
+                    //         Level: 3,
+                    //         Operator: 7 // required
+                    //     }
+                    // ]
                 },
                 {
                     EntityType: 'EmployeeTaxCard',
@@ -158,14 +158,14 @@ export class EmployeeTaxCardService extends BizHttp<EmployeeTaxCard> {
                     Options: {
                         format: 'Money',
                         decimalLength: 2
-                    },
-                    Validations: [
-                        {
-                            ErrorMessage: 'Required field',
-                            Level: 3,
-                            Operator: 7 // required
-                        }
-                    ]
+                    }
+                    // Validations: [
+                    //     {
+                    //         ErrorMessage: 'Required field',
+                    //         Level: 3,
+                    //         Operator: 7 // required
+                    //     }
+                    // ]
                 },
                 {
                     EntityType: 'EmployeeTaxCard',
@@ -175,14 +175,14 @@ export class EmployeeTaxCardService extends BizHttp<EmployeeTaxCard> {
                     FieldSet: 2,
                     Legend: 'Spesielle skattekort',
                     Section: 0,
-                    openByDefault: true,
-                    Validations: [
-                        {
-                            ErrorMessage: 'Required field',
-                            Level: 3,
-                            Operator: 7 // required
-                        }
-                    ]
+                    openByDefault: true
+                    // Validations: [
+                    //     {
+                    //         ErrorMessage: 'Required field',
+                    //         Level: 3,
+                    //         Operator: 7 // required
+                    //     }
+                    // ]
                 },
                 {
                     EntityType: 'EmployeeTaxCard',
@@ -194,14 +194,14 @@ export class EmployeeTaxCardService extends BizHttp<EmployeeTaxCard> {
                     Options: {
                         format: 'Money',
                         decimalLength: 2
-                    },
-                    Validations: [
-                        {
-                            ErrorMessage: 'Required field',
-                            Level: 3,
-                            Operator: 7 // required
-                        }
-                    ]
+                    }
+                    // Validations: [
+                    //     {
+                    //         ErrorMessage: 'Required field',
+                    //         Level: 3,
+                    //         Operator: 7 // required
+                    //     }
+                    // ]
                 },
                 {
                     EntityType: 'EmployeeTaxCard',
@@ -210,14 +210,14 @@ export class EmployeeTaxCardService extends BizHttp<EmployeeTaxCard> {
                     Label: 'Trygdeavgift utenlandsk borger tabell',
                     FieldSet: 2,
                     Section: 0,
-                    openByDefault: true,
-                    Validations: [
-                        {
-                            ErrorMessage: 'Required field',
-                            Level: 3,
-                            Operator: 7 // required
-                        }
-                    ]
+                    openByDefault: true
+                    // Validations: [
+                    //     {
+                    //         ErrorMessage: 'Required field',
+                    //         Level: 3,
+                    //         Operator: 7 // required
+                    //     }
+                    // ]
                 },
                 {
                     EntityType: 'EmployeeTaxCard',
@@ -229,14 +229,14 @@ export class EmployeeTaxCardService extends BizHttp<EmployeeTaxCard> {
                     Options: {
                         format: 'Money',
                         decimalLength: 2
-                    },
-                    Validations: [
-                        {
-                            ErrorMessage: 'Required field',
-                            Level: 3,
-                            Operator: 7 // required
-                        }
-                    ]
+                    }
+                    // Validations: [
+                    //     {
+                    //         ErrorMessage: 'Required field',
+                    //         Level: 3,
+                    //         Operator: 7 // required
+                    //     }
+                    // ]
                 },
                 {
                     EntityType: 'EmployeeTaxCard',
@@ -245,14 +245,14 @@ export class EmployeeTaxCardService extends BizHttp<EmployeeTaxCard> {
                     Label: 'Trygdeavgift utenlandsk borger grensegjenger tabell',
                     FieldSet: 2,
                     Section: 0,
-                    openByDefault: true,
-                    Validations: [
-                        {
-                            ErrorMessage: 'Required field',
-                            Level: 3,
-                            Operator: 7 // required
-                        }
-                    ]
+                    openByDefault: true
+                    // Validations: [
+                    //     {
+                    //         ErrorMessage: 'Required field',
+                    //         Level: 3,
+                    //         Operator: 7 // required
+                    //     }
+                    // ]
                 },
                 {
                     EntityType: 'EmployeeTaxCard',
@@ -264,14 +264,14 @@ export class EmployeeTaxCardService extends BizHttp<EmployeeTaxCard> {
                     Options: {
                         format: 'Money',
                         decimalLength: 2
-                    },
-                    Validations: [
-                        {
-                            ErrorMessage: 'Required field',
-                            Level: 3,
-                            Operator: 7 // required
-                        }
-                    ]
+                    }
+                    // Validations: [
+                    //     {
+                    //         ErrorMessage: 'Required field',
+                    //         Level: 3,
+                    //         Operator: 7 // required
+                    //     }
+                    // ]
                 }]
         }]);
     }

@@ -55,7 +55,7 @@ import {SendEmail} from '../../../../models/sendEmail';
 import {TradeHeaderCalculationSummary} from '../../../../models/sales/TradeHeaderCalculationSummary';
 
 import {ISummaryConfig} from '../../../common/summary/summary';
-import {IToolbarConfig} from '../../../common/toolbar/toolbar';
+import {IToolbarConfig, ICommentsConfig, IShareAction} from '../../../common/toolbar/toolbar';
 import {UniStatusTrack} from '../../../common/toolbar/statustrack';
 
 import {UniPreviewModal} from '../../../reports/modals/preview/previewModal';
@@ -72,17 +72,6 @@ import {UniOrderToInvoiceModal} from '../orderToInvoiceModal';
 import * as moment from 'moment';
 declare var _;
 
-// TODO: this can be removed when refactor is complete
-class CustomerOrderExt extends CustomerOrder {
-    public _InvoiceAddress: Address;
-    public _InvoiceAddresses: Array<Address>;
-    public _InvoiceAddressesID: number;
-
-    public _ShippingAddress: Address;
-    public _ShippingAddresses: Array<Address>;
-    public _ShippingAddressesID: number;
-}
-
 @Component({
     selector: 'order-details',
     templateUrl: './orderDetails.html'
@@ -97,10 +86,11 @@ export class OrderDetails {
     private itemsSummaryData: TradeHeaderCalculationSummary;
     private isDirty: boolean;
     private newOrderItem: CustomerOrderItem;
-    private order: CustomerOrderExt;
+    private order: CustomerOrder;
     private orderItems: CustomerOrderItem[];
 
     private contextMenuItems: IContextMenuItem[] = [];
+    private shareActions: IShareAction[];
     private saveActions: IUniSaveAction[] = [];
     public summary: ISummaryConfig[] = [];
     private toolbarconfig: IToolbarConfig;
@@ -120,6 +110,7 @@ export class OrderDetails {
     private projectID: number;
     private sellers: Seller[];
     private deletables: SellerLink[] = [];
+    private currentOrderDate: LocalDate;
 
     private customerExpandOptions: string[] = [
         'DeliveryTerms',
@@ -165,7 +156,7 @@ export class OrderDetails {
     ];
 
     // New
-    private commentsConfig: any;
+    private commentsConfig: ICommentsConfig;
     private readonly: boolean;
     private recalcDebouncer: EventEmitter<any> = new EventEmitter();
 
@@ -418,24 +409,31 @@ export class OrderDetails {
             }
         }
 
+        this.updateCurrency(order, shouldGetCurrencyRate);
+
+        this.currentOrderDate = order.OrderDate;
+
+        this.order = _.cloneDeep(order);
+    }
+
+    private updateCurrency(order: CustomerOrder, getCurrencyRate: boolean) {
+        let shouldGetCurrencyRate = getCurrencyRate;
+
         // update currency code in detailsForm and tradeItemTable to selected currency code if selected
         // or from customer
-        if ((!this.currencyCodeID && order.CurrencyCodeID)
-            || this.currencyCodeID !== order.CurrencyCodeID) {
+        if ((!this.currencyCodeID && order.CurrencyCodeID) || this.currencyCodeID !== order.CurrencyCodeID) {
             this.currencyCodeID = order.CurrencyCodeID;
             this.tradeItemTable.updateAllItemVatCodes(this.currencyCodeID);
             shouldGetCurrencyRate = true;
         }
 
-        if (this.order && this.order.OrderDate.toString() !== order.OrderDate.toString()) {
+        if (this.currentOrderDate.toString() !== order.OrderDate.toString()) {
             shouldGetCurrencyRate = true;
         }
 
         if (this.order && order.CurrencyCodeID !== this.order.CurrencyCodeID) {
             shouldGetCurrencyRate = true;
         }
-
-        this.order = _.cloneDeep(order);
 
         if (shouldGetCurrencyRate) {
             this.getUpdatedCurrencyExchangeRate(order)
@@ -567,8 +565,8 @@ export class OrderDetails {
 
     private refreshOrder(order?: CustomerOrder): Promise<boolean> {
         return new Promise((resolve) => {
-            const orderObservable = !!order 
-                ? Observable.of(order) 
+            const orderObservable = !!order
+                ? Observable.of(order)
                 : this.customerOrderService.Get(this.orderID, this.expandOptions);
 
             orderObservable.subscribe(res => {
@@ -579,15 +577,18 @@ export class OrderDetails {
                 this.orderItems = res.Items.sort(
                     function(itemA, itemB) { return itemA.SortIndex - itemB.SortIndex; }
                 );
-                this.order = <any>_.cloneDeep(order);
                 this.isDirty = false;
-        
+
                 this.currentCustomer = res.Customer;
                 this.currentDeliveryTerm = res.DeliveryTerms;
 
                 order.DefaultSeller = order.DefaultSeller || new SellerLink();
                 this.currentDefaultProjectID = order.DefaultDimensions.ProjectID;
-        
+
+                this.currentOrderDate = order.OrderDate;
+
+                this.order = _.cloneDeep(order);
+                this.updateCurrency(order, true);
                 this.setTabTitle();
                 this.updateToolbar();
                 this.updateSaveActions();
@@ -595,7 +596,7 @@ export class OrderDetails {
 
                 resolve(true);
             });
-        });        
+        });
     }
 
     private didCustomerChange(order: CustomerOrder): boolean {
@@ -802,6 +803,76 @@ export class OrderDetails {
             entityID: this.orderID,
             entityType: 'CustomerOrder'
         };
+
+        this.updateShareActions();
+    }
+
+    private printAction(id): Observable<any> {
+        const savedOrder = this.isDirty
+            ? Observable.fromPromise(this.saveOrder())
+            : Observable.of(this.order);
+
+        return savedOrder.switchMap((order) => {
+            return this.reportDefinitionService.getReportByName('Ordre id').switchMap((report) => {
+                report.parameters = [{ Name: 'Id', value: id }];
+
+                return this.modalService.open(UniPreviewModal, {
+                    data: report
+                }).onClose.switchMap(() => {
+                    return this.customerOrderService.setPrintStatus(
+                        id,
+                        this.printStatusPrinted
+                    ).finally(() => {
+                        this.order.PrintStatus = +this.printStatusPrinted;
+                        this.updateToolbar();
+                    });
+                });
+            });
+        });
+    }
+
+    private sendEmailAction(): Observable<any> {
+        const savedOrder = this.isDirty
+            ? Observable.fromPromise(this.saveOrder())
+            : Observable.of(this.order);
+
+        return savedOrder.switchMap(order => {
+            let model = new SendEmail();
+            model.EntityType = 'CustomerOrder';
+            model.EntityID = this.order.ID;
+            model.CustomerID = this.order.CustomerID;
+            model.EmailAddress = this.order.EmailAddress;
+
+            const orderNumber = this.order.OrderNumber
+                ? ` nr. ${this.order.OrderNumber}`
+                : 'kladd';
+
+            model.Subject = 'Ordre' + orderNumber;
+            model.Message = 'Vedlagt finner du ordre' + orderNumber;
+
+            return this.modalService.open(UniSendEmailModal, {
+                data: model
+            }).onClose.map(email => {
+                if (email) {
+                    this.emailService.sendEmailWithReportAttachment('Ordre id', email, null);
+                }
+            });
+        });
+    }
+
+    private updateShareActions() {
+        this.shareActions = [
+            {
+                label: 'Skriv ut',
+                action: () => this.printAction(this.orderID),
+                disabled: () => false
+            },
+            {
+                label: 'Send på epost',
+                action: () => this.sendEmailAction(),
+                disabled: () => false
+            }
+        ];
     }
 
     private updateSaveActions() {
@@ -827,43 +898,6 @@ export class OrderDetails {
             },
             disabled: transitions && !transitions['register'],
             main: (!transitions || transitions['register']) && !printStatus
-        });
-
-
-
-        this.saveActions.push({
-            label: 'Skriv ut',
-            action: (done) => this.saveAndPrint(done),
-            main: this.order.OrderNumber > 0 && !printStatus && !this.isDirty,
-            disabled: false
-        });
-
-        this.saveActions.push({
-            label: 'Send på epost',
-            action: (done) => {
-                let model = new SendEmail();
-                model.EntityType = 'CustomerOrder';
-                model.EntityID = this.order.ID;
-                model.CustomerID = this.order.CustomerID;
-                model.EmailAddress = this.order.EmailAddress;
-
-                const orderNumber = this.order.OrderNumber ? ` nr. ${this.order.OrderNumber}` : 'kladd';
-                model.Subject = 'Ordre' + orderNumber;
-                model.Message = 'Vedlagt finner du ordre' + orderNumber;
-
-                this.modalService.open(UniSendEmailModal, {
-                    data: model
-                }).onClose.subscribe(email => {
-                    if (email) {
-                        this.emailService.sendEmailWithReportAttachment('Ordre id', email, null, done);
-                    } else {
-                        done();
-                    }
-                });
-            },
-            main: printStatus === 200 && !this.isDirty,
-            disabled: false
-
         });
 
         if (!this.order.ID) {
@@ -934,14 +968,14 @@ export class OrderDetails {
 
         if (this.order.DefaultDimensions && !this.order.DefaultDimensions.ID) {
             this.order.DefaultDimensions._createguid = this.customerOrderService.getNewGuid();
-        } else if (this.order.DefaultDimensions 
+        } else if (this.order.DefaultDimensions
             && this.order.DefaultDimensions.ProjectID === this.currentDefaultProjectID) {
                 this.order.DefaultDimensions = undefined;
         }
 
         // if main seller does not exist in 'Sellers', create and add it
-        if (this.order.DefaultSeller && this.order.DefaultSeller.SellerID 
-            && !this.order.DefaultSeller._createguid && !this.order.Sellers.find(sellerLink => 
+        if (this.order.DefaultSeller && this.order.DefaultSeller.SellerID
+            && !this.order.DefaultSeller._createguid && !this.order.Sellers.find(sellerLink =>
                 sellerLink.SellerID === this.order.DefaultSeller.SellerID
             )) {
             this.order.DefaultSeller._createguid = this.sellerLinkService.getNewGuid();
@@ -1044,41 +1078,6 @@ export class OrderDetails {
             );
         }).catch(error => {
             this.handleSaveError(error, done);
-        });
-    }
-
-    private saveAndPrint(doneHandler: (msg: string) => void = null) {
-        if (this.isDirty) {
-            this.saveOrder().then(order => {
-                this.isDirty = false;
-                this.print(order.ID, doneHandler);
-            }).catch(error => {
-                if (doneHandler) { doneHandler('En feil oppstod ved utskrift av ordre!'); }
-                this.errorService.handle(error);
-            });
-        } else {
-            this.print(this.order.ID, doneHandler);
-        }
-    }
-
-    private print(id, doneHandler: (msg?: string) => void = () => { }) {
-        this.reportDefinitionService.getReportByName('Ordre id').subscribe((report) => {
-            report.parameters = [{ Name: 'Id', value: id }];
-            this.modalService.open(UniPreviewModal, {
-                data: report
-            }).onClose.subscribe(() => {
-                doneHandler();
-
-                this.customerOrderService.setPrintStatus(this.orderID, this.printStatusPrinted).subscribe(
-                    (printStatus) => {
-                        this.order.PrintStatus = +this.printStatusPrinted;
-                        this.updateToolbar();
-                    },
-                    err => this.errorService.handle(err)
-                );
-            });
-        }, (err) => {
-            doneHandler('En feil oppstod ved utskrift av ordre');
         });
     }
 
