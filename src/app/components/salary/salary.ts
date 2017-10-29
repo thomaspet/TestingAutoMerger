@@ -155,7 +155,7 @@ export class UniSalary {
                             urlToNew: '/salary/wagetypes/0/details'
                         },
                         {
-                            label: 'Kategories',
+                            label: 'Kategorier',
                             link: '/salary/employeecategories',
                             urlToNew: '/salary/employeecategories/0/details'
                         },
