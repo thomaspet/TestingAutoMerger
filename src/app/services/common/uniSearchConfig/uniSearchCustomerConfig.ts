@@ -213,6 +213,7 @@ export class UniSearchCustomerConfig {
             address.CountryCode = statObj.CountryCode;
             customer.Info.InvoiceAddress = address;
             customer.Info.ShippingAddress = address;
+            customer.Info.Addresses.push(address);
         }
 
         if (statObj.PhoneNumber) {
