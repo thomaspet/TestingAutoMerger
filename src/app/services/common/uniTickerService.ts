@@ -905,6 +905,7 @@ export class Ticker {
     public OrderBy?: string;
     public ApiModel?: ApiModel;
     public Expand?: string;
+    public CountExpand?: string;
     public Joins?: string;
     public ApiUrl?: string;
     public ListObject?: string;
