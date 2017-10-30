@@ -33,30 +33,6 @@ export class CompanySyncModal {
     constructor(private http: UniHttp) {
         this.actions = [
             {
-                label: 'Synkroniserer kontoplan',
-                request: () => {
-                    return this.http.asPUT()
-                        .usingBusinessDomain()
-                        .withEndPoint('accounts?action=synchronize-ns4102-as')
-                        .send()
-                        .map(response => response.json());
-                },
-                busy: false,
-                finished: false
-            },
-            {
-                label: 'Synkroniserer mva',
-                request: () => {
-                    return this.http.asPUT()
-                        .usingBusinessDomain()
-                        .withEndPoint('vattypes?action=synchronize')
-                        .send()
-                        .map(response => response.json());
-                },
-                busy: false,
-                finished: false
-            },
-            {
                 label: 'Oppretter regnskapsår med perioder',
                 request: () => {
                     return this.http.asGET()
