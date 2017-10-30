@@ -1,16 +1,27 @@
 @media screen and (max-width: 1350px)
+    #marketing-content
+        padding: 0 1rem
+
+    #init-content
+        .view-container
+            width: 27rem !important
+
+        .authentication-component
+            max-width: 20rem
+
+@media screen and (max-width: 1025px)
     .marketing-toggle-btn
         display: none
 
     uni-init
         #marketing-content
-            margin: 2rem 10%
+            margin: 1rem 2.5% 2rem 2.5%
             padding-top: 2rem !important
             img
                 display: none
 
         #init-content
-            margin: 2rem 10% 0 10%
+            margin: 1rem 2.5% 0 2.5%
             padding-top: 0 !important
             img
                 padding: 1rem 0 0 0 !important
@@ -22,15 +33,7 @@
                 box-shadow: none
 
         footer
-            position: fixed
-            bottom: 0
-
-
-@media screen and (max-width: 950px)
-    uni-init
-        #marketing-content,
-        #init-content
-            margin: 2rem 2.5% 0 2.5%
+            display: none
 
 @media screen and (max-width: 450px)
     #marketing-content
