@@ -33,9 +33,9 @@ export class UniAccounting {
                 y: 0,
                 widgetType: 'shortcut',
                 config: {
-                    label: 'Bilagsføring',
+                    label: 'Føre bilag',
                     description: 'Bilagsføring',
-                    icon: '',
+                    icon: 'journalentry',
                     link: '/accounting/journalentry/manual'
                 }
             },
@@ -48,7 +48,7 @@ export class UniAccounting {
                 config: {
                     label: 'Fakturamottak',
                     description: 'Fakturamottak',
-                    icon: '',
+                    icon: 'supplierinvoice',
                     link: '/accounting/bills'
                 }
             },
@@ -59,10 +59,10 @@ export class UniAccounting {
                 y: 0,
                 widgetType: 'shortcut',
                 config: {
-                    label: 'Åpne poster',
-                    description: 'Åpne poster',
-                    icon: '',
-                    link: '/accounting/postpost'
+                    label: 'Søk bilag',
+                    description: 'Forespørsel på bilag',
+                    icon: 'magnifying',
+                    link: '/accounting/transquery/details'
                 }
             },
             {
@@ -72,10 +72,10 @@ export class UniAccounting {
                 y: 0,
                 widgetType: 'shortcut',
                 config: {
-                    label: 'Forespørsel bilag',
-                    description: 'Forespørsel bilag',
-                    icon: '',
-                    link: '/accounting/transquery/details'
+                    label: 'Oversikt',
+                    description: 'Regnskapsoversikt',
+                    icon: 'accountingreport',
+                    link: '/accounting/accountingreports/result'
                 }
             },
             {
@@ -85,55 +85,16 @@ export class UniAccounting {
                 y: 0,
                 widgetType: 'shortcut',
                 config: {
-                    label: 'Regnskaps- oversikt',
-                    description: 'Regnskaps- oversikt',
-                    icon: '',
-                    link: '/accounting/accountingreports/result'
-                }
-            },
-            {
-                width: 1,
-                height: 1,
-                x: 5,
-                y: 0,
-                widgetType: 'shortcut',
-                config: {
                     label: 'MVA-melding',
                     description: 'MVA-melding',
-                    icon: '',
+                    icon: 'mva',
                     link: '/accounting/vatreport'
                 }
             },
             {
                 width: 1,
                 height: 1,
-                x: 6,
-                y: 0,
-                widgetType: 'shortcut',
-                config: {
-                    label: 'Kontoplan',
-                    description: 'Kontoplan',
-                    icon: '',
-                    link: '/accounting/accountsettings'
-                }
-            },
-            {
-                width: 1,
-                height: 1,
-                x: 7,
-                y: 0,
-                widgetType: 'shortcut',
-                config: {
-                    label: 'Leverandører',
-                    description: 'Leverandører',
-                    icon: '',
-                    link: '/accounting/suppliers'
-                }
-            },
-            {
-                width: 1,
-                height: 1,
-                x: 8,
+                x: 5,
                 y: 0,
                 widgetType: 'counter', // TODO: enum
                 config: {
@@ -150,7 +111,7 @@ export class UniAccounting {
             {
                 width: 1,
                 height: 1,
-                x: 9,
+                x: 6,
                 y: 0,
                 widgetType: 'counter', // TODO: enum
                 config: {
@@ -167,7 +128,7 @@ export class UniAccounting {
             {
                 width: 1,
                 height: 1,
-                x: 10,
+                x: 7,
                 y: 0,
                 widgetType: 'counter', // TODO: enum
                 config: {
@@ -181,7 +142,22 @@ export class UniAccounting {
                     class: 'uni-widget-notification-orange'
                 }
             },
-
+            {
+                width: 1,
+                height: 1,
+                x: 8,
+                y: 0,
+                widgetType: 'counter', // TODO: enum
+                config: {
+                    label: 'Varsler',
+                    description: 'Uleste varlser',
+                    icon: 'notification',
+                    link: '/',
+                    dataEndpoint: '/api/biz/notifications?action=count',
+                    valueKey: 'Count',
+                    class: 'uni-widget-notification-lite-blue'
+                }
+            },
             {
                 width: 4,
                 height: 3,
@@ -223,7 +199,7 @@ export class UniAccounting {
             {
                 width: 8,
                 height: 3,
-                x: 2,
+                x: 0,
                 y: 1,
                 widgetType: 'transaction', // TODO: enum
                 config: {
@@ -233,7 +209,7 @@ export class UniAccounting {
             {
                 width: 2,
                 height: 3,
-                x: 0,
+                x: 8,
                 y: 1,
                 widgetType: 'shortcutlist',
                 config: {
@@ -282,6 +258,53 @@ export class UniAccounting {
                     ]
                 }
             },
+            {
+                width: 2,
+                height: 2,
+                x: 10,
+                y: 0,
+                widgetType: 'infoshortcut', // TODO: enum
+                config: {
+                    header: 'Oversikt',
+                    text: 'Alle dine data er kun et tastetrykk unna. Kraftig søk med filtreringsmuligheter',
+                    link: '/overview',
+                    externalLink: '',
+                    imageLink: '../../../assets/info_shortcut_ticker_img.jpg',
+                    title: 'Gå til oversikt'
+                }
+            },
+            {
+                width: 2,
+                height: 2,
+                x: 10,
+                y: 2,
+                widgetType: 'infoshortcut', // TODO: enum
+                config: {
+                    header: 'Opplæringsvideoer',
+                    text: 'Se våre opplæringsvideoer slik at du blir god og trygg på Uni Economy',
+                    link: '',
+                    externalLink: 'http://app.cimple.no/unimicro/',
+                    imageLink: '../../../assets/info_shortcut_movie_img.jpg',
+                    title: ''
+                }
+            },
+            {
+                width: 2,
+                height: 2,
+                x: 10,
+                y: 4,
+                widgetType: 'infoshortcut', // TODO: enum
+                config: {
+                    header: 'Kundersenteret',
+                    text: 'Besøk vårt kundesenter for tips og triks, nyttige datoer og annen info.',
+                    link: '',
+                    externalLink: 'http://support.unimicro.no/?_ga=2.96685528.676968774.1509090839-164083888'
+                        + '.1505815175&_gac=1.82445668.1506512206.CjwKCAjwmK3OBRBKEiwAOL6t1JQUOpBqP9bSF-'
+                        + 'sHI3WVrIFA2KEBFrgpy1EdKWDa1KqJSn9D0kJ6ExoC7_8QAvD_BwE',
+                    imageLink: '../../../assets/info_shortcut_bell_img.jpg',
+                    title: ''
+                }
+            }
         ];
     }
 
