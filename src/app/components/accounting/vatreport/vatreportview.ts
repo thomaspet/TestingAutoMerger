@@ -33,7 +33,6 @@ import {
 })
 export class VatReportView implements OnInit, OnDestroy {
     @ViewChild(CreateCorrectedVatReportModal) private createCorrectedVatReportModal: CreateCorrectedVatReportModal;
-    @ViewChild(HistoricVatReportModal) private historicVatReportModal: HistoricVatReportModal;
     @ViewChild(ReceiptVat) private receiptVat: ReceiptVat;
 
     public internalComment: FormControl = new FormControl();
@@ -379,11 +378,14 @@ export class VatReportView implements OnInit, OnDestroy {
     }
 
     private showList() {
-        this.historicVatReportModal.openModal();
+        this.modalService.open(HistoricVatReportModal, {}).onClose
+            .subscribe(vatReport => this.historicVatReportSelected(vatReport));
     }
 
     public historicVatReportSelected(vatReport: VatReport) {
-        this.setVatreport(vatReport);
+        if (vatReport) {
+            this.setVatreport(vatReport);
+        }
     }
 
     public vatReportDidChange(vatReport: VatReport) {

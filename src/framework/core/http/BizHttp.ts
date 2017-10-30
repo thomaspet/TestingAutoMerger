@@ -125,14 +125,13 @@ export class BizHttp<T> {
                 .asGET()
                 .withEndPoint(this.relativeURL + '/' + ID)
                 .send({expand: expandStr})
-                .map((res) => res.json())
                 .publishReplay(1)
                 .refCount();
 
             this.storeInCache(hash, request);
         }
 
-        return request;
+        return request.map((res) => res.json());
     }
 
     public GetOneByQuery(query: string, expand?: string[]): Observable<any> {
@@ -188,14 +187,13 @@ export class BizHttp<T> {
                 .asGET()
                 .withEndPoint(this.relativeURL + (query ? '?' + query : ''))
                 .send({expand: expandStr})
-                .map((res) => res.json())
                 .publishReplay(1)
                 .refCount();
 
             this.storeInCache(hash, request);
         }
 
-        return request;
+        return request.map((res) => res.json());
     }
 
     public Post<T>(entity: T): Observable<any> {
@@ -302,14 +300,13 @@ export class BizHttp<T> {
                 .asGET()
                 .withEndPoint(endpoint)
                 .send({expand: expandStr})
-                .map((res) => res.json())
                 .publishReplay(1)
                 .refCount();
 
             this.storeInCache(hash, request, false);
         }
 
-        return request;
+        return request.map((res) => res.json());
     }
 
     public GetLayout(ID: string) {

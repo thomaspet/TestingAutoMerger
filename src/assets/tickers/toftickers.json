@@ -957,6 +957,7 @@
     "Group": "Salg",
     "Model": "CustomerOrder",
     "Expand": "Customer.Info,CurrencyCode,DefaultSeller.Seller,Items",
+    "CountExpand": "Customer.Info,CurrencyCode,DefaultSeller.Seller",
     "OrderBy": "ID DESC",
     "Columns": [{
             "Header": "Ordrenr",

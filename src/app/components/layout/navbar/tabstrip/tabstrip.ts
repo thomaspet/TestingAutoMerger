@@ -22,23 +22,25 @@ export interface IUniTab {
             </li>
 
             <!-- Collapsed tabs -->
-            <li *ngIf="collapseTabs; else tabsExpanded"
-                class="collapsed-tab-container"
-                [ngClass]="{'router-tab-active': lastActiveTab?.active}"
-                (click)="collapsedTab">
+            <ng-template [ngIf]="collapseTabs" [ngIfElse]="tabsExpanded">
+                <li *ngIf="tabs?.length"
+                    class="collapsed-tab-container"
+                    [ngClass]="{'router-tab-active': lastActiveTab?.active}"
+                    (click)="collapsedTab">
 
-                {{lastActiveTab?.name}}
+                    {{lastActiveTab?.name}}
 
-                <ul class="collapsed-tab-list">
-                    <li *ngFor="let tab of tabs; let idx = index"
-                        (click)="activateTab(idx)"
-                        [ngClass]="{'active': tab.active}">
+                    <ul class="collapsed-tab-list">
+                        <li *ngFor="let tab of tabs; let idx = index"
+                            (click)="activateTab(idx)"
+                            [ngClass]="{'active': tab.active}">
 
-                        {{tab?.name}}
-                        <span class="close" (click)="closeTab(idx, $event)"></span>
-                    </li>
-                </ul>
-            </li>
+                            {{tab?.name}}
+                            <span class="close" (click)="closeTab(idx, $event)"></span>
+                        </li>
+                    </ul>
+                </li>
+            </ng-template>
 
             <!-- Expanded tabs (ng else) -->
             <ng-template #tabsExpanded>

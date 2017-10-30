@@ -76,7 +76,8 @@ export class UniTickerPredefinedFilters implements OnChanges {
 
 
         if (selectQueries.length) {
-            let query = `model=${this.ticker.Model}&select=${selectQueries.join(',')}&expand=${this.ticker.Expand}`;
+            let query = `model=${this.ticker.Model}&select=${selectQueries.join(',')}`
+                + `&expand=${this.ticker.CountExpand || this.ticker.Expand}`;
             this.statisticsService.GetAll(query).subscribe(
                 res => {
                     if (res.Data && res.Data.length > 0) {

@@ -23,7 +23,6 @@ import {CheckListVat} from './vatreport/checkList/checkList';
 import {VatReportJournalEntry} from './vatreport/JournalEntry/vatReportJournalEntry';
 import {CreateCorrectedVatReportForm} from './vatreport/modals/createCorrectedVatReport';
 import {SelectJournalEntryLineModal, SelectJournalEntryLineTable} from './journalentry/components/selectJournalEntryLineModal';
-import {HistoricVatReportTable} from './vatreport/modals/historicVatReports';
 import {ReceiptVat} from './vatreport/receipt/receipt';
 import {VatSummaryPerPost} from './vatreport/reportSummary/reportSummary';
 import {TransqueryDetails} from './transquery/details/transqueryDetails';
@@ -122,7 +121,6 @@ import {SupplierList} from './supplier/list/supplierList';
         CheckListVat,
         VatReportJournalEntry,
         CreateCorrectedVatReportForm,
-        HistoricVatReportTable,
         ReceiptVat,
         VatSummaryPerPost,
         VatReportView,
@@ -150,7 +148,7 @@ import {SupplierList} from './supplier/list/supplierList';
         PostPost
     ],
     entryComponents: [
-        HistoricVatReportTable,
+        HistoricVatReportModal,
         CreateCorrectedVatReportForm,
         AccountDetailsReport,
         SelectJournalEntryLineTable,
@@ -187,7 +185,6 @@ import {SupplierList} from './supplier/list/supplierList';
         CheckListVat,
         VatReportJournalEntry,
         CreateCorrectedVatReportForm,
-        HistoricVatReportTable,
         ReceiptVat,
         VatSummaryPerPost,
         VatReportView,
