@@ -1185,7 +1185,7 @@ export class InvoiceDetails {
         });
     }
 
-    private saveInvoice(doneHandler: (msg: string) => void = null): Promise<any> {
+    private saveInvoice(done = (msg: string) => {}): Promise<any> {
         this.invoice.Items = this.tradeItemHelper.prepareItemsForSave(this.invoiceItems);
 
         if (this.invoice.DefaultDimensions && !this.invoice.DefaultDimensions.ID) {
@@ -1254,18 +1254,18 @@ export class InvoiceDetails {
                     request.subscribe(res => {
                         if (res.InvoiceNumber) { this.selectConfig = undefined; }
                         resolve(res);
-                        if (doneHandler) { doneHandler('Lagring fullført'); }
+                        done('Lagring fullført');
                     }, err => reject(err));
                 }
             } else {
                 request.subscribe(res => {
                     resolve(res);
-                    if (doneHandler) { doneHandler('Lagring fullført'); }
+                    done('Lagring fullført');
                 }, err => reject(err));
             }
         }).catch(err => {
             this.errorService.handle(err);
-            if (doneHandler) { doneHandler('Lagring feilet'); }
+            done('Lagring feilet');
         });
     }
 
@@ -1276,7 +1276,7 @@ export class InvoiceDetails {
         const doneText = isCreditNote ? 'Faktura kreditert' : 'Faktura fakturert';
         const errText = isCreditNote ? 'Kreditering feiler' : 'Fakturering feilet';
 
-        this.saveInvoice().then((invoice) => {
+        this.saveInvoice(done).then((invoice) => {
             if (invoice) {
                 this.isDirty = false;
 
@@ -1313,7 +1313,7 @@ export class InvoiceDetails {
     private reminderStop(done) {
         this.invoice.DontSendReminders = !this.invoice.DontSendReminders;
 
-        this.saveInvoice().then((invoice) => {
+        this.saveInvoice(done).then((invoice) => {
             if (invoice) {
                 this.isDirty = false;
                 this.updateToolbar();
@@ -1333,7 +1333,7 @@ export class InvoiceDetails {
             this.invoice.StatusCode = StatusCode.Draft; // TODO: replace with enum from salesEnums.ts!
         }
 
-        this.saveInvoice().then((invoice) => {
+        this.saveInvoice(done).then((invoice) => {
             if (invoice) {
                 this.isDirty = false;
                 if (requiresPageRefresh) {
