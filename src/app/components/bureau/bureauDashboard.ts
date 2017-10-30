@@ -1,5 +1,4 @@
 import {Component} from '@angular/core';
-import {Router} from '@angular/router';
 import {FormControl} from '@angular/forms';
 import {User, LocalDate} from '../../unientities';
 import {ErrorService} from '../../services/common/errorService';
@@ -9,8 +8,11 @@ import {UniHttp} from '../../../framework/core/http/http';
 import {UserService} from '../../services/common/userService';
 import {ToastService, ToastType, ToastTime} from '../../../framework/uniToast/toastService';
 import {UniNewCompanyModal} from './newCompanyModal';
-import {Observable} from 'rxjs';
 import {TabService, UniModules} from '../layout/navbar/tabstrip/tabService';
+import {IToolbarConfig} from '../common/toolbar/toolbar';
+import {IUniSaveAction} from '../../../framework/save/save';
+
+import {Observable} from 'rxjs/Observable';
 
 enum KPI_STATUS {
     StatusUnknown = 0,
@@ -35,42 +37,63 @@ type KpiCompany = {
         ValueStatus: KPI_STATUS;
         LastUpdated: LocalDate;
     }[]
-}
+};
 
 @Component({
     selector: 'uni-bureau-dashboard',
     templateUrl: './bureauDashboard.html'
 })
 export class BureauDashboard {
+    public toolbarConfig: IToolbarConfig;
+    public saveActions: IUniSaveAction[];
+
     private companies: KpiCompany[];
     private filteredCompanies: KpiCompany[];
-    private searchControl: FormControl = new FormControl('');
+    public highlightedCompany: KpiCompany;
+
+    private searchControl: FormControl;
     public busy: boolean = false;
     public currentSortField: string;
     public sortIsDesc: boolean = true;
-    public highlightedCompany: KpiCompany;
 
     constructor(
         private errorService: ErrorService,
         private authService: AuthService,
-        private router: Router,
         private uniModalService: UniModalService,
         private uniHttp: UniHttp,
         private userService: UserService,
         private toastService: ToastService,
         tabService: TabService
     ) {
-        tabService.addTab({ name: 'Selskaper', url: '/bureau', moduleID: UniModules.BureauDashboard, active: true });
+        tabService.addTab({
+            name: 'Selskaper',
+            url: '/bureau',
+            moduleID: UniModules.BureauDashboard,
+            active: true
+        });
+
+        this.toolbarConfig = {
+            title: 'Mine selskaper',
+        };
+
+        this.saveActions = [{
+            label : 'Opprett nytt selskap',
+            action: (done) => {
+                this.openNewCompanyModal();
+                done();
+            }
+        }];
     }
 
     public ngOnInit() {
-        this.searchControl.valueChanges
-            .subscribe((searchValue) => {
-                this.filteredCompanies = this.companies.filter(company => {
-                    const companyName = (company.Name && company.Name.toLowerCase()) || '';
-                    return companyName.includes(searchValue);
-                });
-            });
+        let userPreferences = this.getUserPreferences();
+        this.searchControl = new FormControl(userPreferences.filterString || '');
+        this.sortIsDesc = userPreferences.sortIsDesc;
+        this.currentSortField = userPreferences.sortField;
+
+        this.searchControl.valueChanges.subscribe((searchValue: string) => {
+            this.filterCompanies(searchValue);
+        });
 
         this.busy = true;
         this.uniHttp
@@ -81,9 +104,46 @@ export class BureauDashboard {
             .map(res => res.json())
             .do(() => this.busy = false)
             .subscribe(
-                res => this.filteredCompanies = this.companies = res,
+                res => {
+                    this.companies = this.mapKpiCounts(res);
+                    this.filterCompanies(this.searchControl.value || '');
+                    this.sortBy(this.currentSortField);
+                },
                 err => this.errorService.handle(err)
             );
+    }
+
+    public ngOnDestroy() {
+        // Store filter string and sort info
+        try {
+            localStorage.setItem('bureau_list_user_preferences', JSON.stringify({
+                filterString: this.searchControl.value || '',
+                sortField: this.currentSortField,
+                sortIsDesc: this.sortIsDesc
+            }));
+        } catch (e) {}
+    }
+
+    private filterCompanies(filterString): void {
+        if (filterString && filterString.length) {
+            this.filteredCompanies = this.companies.filter(company => {
+                const companyName = (company.Name && company.Name.toLowerCase()) || '';
+                return companyName.includes((filterString || '').toLowerCase());
+            });
+        } else {
+            this.filteredCompanies = this.companies;
+        }
+
+        this.sortBy(this.currentSortField);
+    }
+
+    private mapKpiCounts(companies: KpiCompany[]): KpiCompany[] {
+        return companies.map(company => {
+            company['_inboxCount'] = this.getKpiCount(company, 'Inbox');
+            company['_approvedCount'] = this.getKpiCount(company, 'Approved');
+
+            return company;
+        });
     }
 
     public getKpiCount(company, kpiName): string {
@@ -103,7 +163,7 @@ export class BureauDashboard {
         return '';
     }
 
-    public onNewCompanyClick() {
+    public openNewCompanyModal() {
         let companyName: string;
         let user: User;
         this.uniModalService.open(UniNewCompanyModal).onClose.asObservable()
@@ -133,45 +193,34 @@ export class BureauDashboard {
             .send();
     }
 
-    public sortByKpi(key) {
-        if (this.currentSortField === key) {
-            this.sortIsDesc = !this.sortIsDesc;
+    public sortBy(key, toggleDirection?: boolean) {
+        if (!key || !key.length) {
+            return;
         }
-        this.currentSortField = key;
-        this.filteredCompanies.sort((companyA, companyB) => {
-            const a = this.getKpiCount(companyA, key);
-            const b = this.getKpiCount(companyB, key);
-            if (a > b) {
-                return this.sortIsDesc ? -1 : 1;
-            }
-            if (a < b) {
-                return this.sortIsDesc ? 1 : -1;
-            }
-            return 0;
-        })
-    }
 
-    public sortBy(key) {
-        if (this.currentSortField === key) {
+        if (toggleDirection && this.currentSortField === key) {
             this.sortIsDesc = !this.sortIsDesc;
         }
+
         this.currentSortField = key;
         this.filteredCompanies.sort((a, b) => {
-            a = typeof a[key] === "string" ? a[key].toLowerCase() : a[key];
-            b = typeof b[key] === "string" ? b[key].toLowerCase() : b[key];
+            a = typeof a[key] === 'string' ? a[key].toLowerCase() : a[key];
+            b = typeof b[key] === 'string' ? b[key].toLowerCase() : b[key];
+
             if (a > b) {
                 return this.sortIsDesc ? -1 : 1;
             }
             if (a < b) {
                 return this.sortIsDesc ? 1 : -1;
             }
+
             return 0;
-        })
+        });
     }
 
     public getSortArrow(key) {
         if (this.currentSortField === key) {
-            return this.sortIsDesc ? '▲' : '▼';
+            return this.sortIsDesc ? '▼' : '▲';
         }
     }
 
@@ -194,5 +243,14 @@ export class BureauDashboard {
 
     public onRowClick(company: KpiCompany) {
         this.highlightedCompany = company;
+    }
+
+    private getUserPreferences() {
+        let preferences;
+        try {
+            preferences = JSON.parse(localStorage.getItem('bureau_list_user_preferences'));
+        } catch (e) {}
+
+        return preferences || {};
     }
 }

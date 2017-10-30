@@ -1,42 +1,52 @@
-<section class="uni-widget-header">
-    Mine selskaper
-</section>
+<uni-toolbar
+    [config]="toolbarConfig"
+    [saveactions]="saveActions">
+</uni-toolbar>
 
-<section class="list-content application"
-         [attr.aria-busy]="busy">
+<section class="list-content application" [attr.aria-busy]="busy">
     <input class="table-filter"
-           type="search"
-           placeholder="Filtrer selskaper"
-           [formControl]="searchControl" />
-
-    <button
-        type="button"
-        (click)="onNewCompanyClick($event)"
-    >Lag ny bedrift</button>
+        [formControl]="searchControl"
+        type="search"
+        placeholder="Filtrer selskaper"
+    />
 
     <section class="uni-split-view-container">
         <section class="left-side">
             <table class="uni-table">
                 <thead>
-                <tr>
-                    <th (click)="sortBy('Name')" >Selskaper <i>{{getSortArrow('Name')}}</i></th>
-                    <th (click)="sortByKpi('Inbox')">Fakturainnboks <i>{{getSortArrow('Inbox')}}</i></th>
-                    <th (click)="sortByKpi('Approved')">Godkjente faktura <i>{{getSortArrow('Approved')}}</i></th>
-                </tr>
+                    <tr>
+                        <th (click)="sortBy('Name', true)" >
+                            Selskaper <i>{{getSortArrow('Name')}}</i>
+                        </th>
+                        <th class="bureau-count-col" (click)="sortBy('_inboxCount', true)">
+                            Fakturainnboks <i>{{getSortArrow('_inboxCount')}}</i>
+                        </th>
+                        <th class="bureau-count-col" (click)="sortBy('_approvedCount', true)">
+                            Godkjente faktura <i>{{getSortArrow('_approvedCount')}}</i>
+                        </th>
+                    </tr>
                 </thead>
                 <tr *ngFor="let company of filteredCompanies"
                     (click)="onRowClick(company)"
                     [attr.aria-selected]="company === highlightedCompany">
                     <td><a (click)="onCompanyNameClick(company)">{{company.Name}}</a></td>
-                    <td><a (click)="onCompanyInboxClick(company)">{{getKpiCount(company, 'Inbox')}}</a></td>
-                    <td><a (click)="onCompanyApprovalsClick(company)">{{getKpiCount(company, 'Approved')}}</a></td>
+                    <td class="bureau-count-col">
+                        <a *ngIf="company._inboxCount" (click)="onCompanyInboxClick(company)">
+                            {{company._inboxCount}}
+                        </a>
+                    </td>
+                    <td class="bureau-count-col">
+                        <a *ngIf="company._approvedCount" (click)="onCompanyApprovalsClick(company)">
+                            {{company._approvedCount}}
+                        </a>
+                    </td>
                 </tr>
             </table>
         </section>
         <section class="right-side" *ngIf="!!highlightedCompany">
             <uni-dashboard-detail-view
-                [company]="highlightedCompany"
-            ></uni-dashboard-detail-view>
+                [company]="highlightedCompany">
+            </uni-dashboard-detail-view>
         </section>
     </section>
 </section>

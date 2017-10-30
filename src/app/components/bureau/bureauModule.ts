@@ -2,6 +2,7 @@ import {NgModule} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {ReactiveFormsModule} from '@angular/forms';
 import {UniFrameworkModule} from '../../../framework/frameworkModule';
+import {AppCommonModule} from '../common/appCommonModule';
 
 import {BureauDashboard} from './bureauDashboard';
 import {UniNewCompanyModal} from './newCompanyModal';
@@ -11,9 +12,10 @@ import {AppPipesModule} from '../../pipes/appPipesModule';
 
 @NgModule({
     imports: [
+        ReactiveFormsModule,
         CommonModule,
         UniFrameworkModule,
-        ReactiveFormsModule,
+        AppCommonModule,
         AppPipesModule
     ],
     declarations: [

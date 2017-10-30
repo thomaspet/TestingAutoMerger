@@ -14,8 +14,9 @@ uni-bureau-dashboard
         box-sizing: border-box
 
         input.table-filter
-            margin: 1rem 2rem
+            margin: 0 1rem
             width: 20rem
+            height: 2.5rem
 
         .uni-table
             position: relative
@@ -41,8 +42,12 @@ uni-bureau-dashboard
             th
                 background: lighten($uni-color-toolbar, 20%)
 
-            td:hover
-                background: darken(mix($uni-color-c2a, $uni-color-negative, 15%), 5%)
+            .bureau-count-col
+                text-align: center
+                a
+                    padding: 0.1rem 3rem
+                    &:hover
+                        background: darken(mix($uni-color-c2a, $uni-color-negative, 15%), 5%)
 
             i
                 font-style: normal
@@ -71,6 +76,9 @@ uni-bureau-dashboard
         th ~ th
             border-top: 2px solid $uni-color-positive
             padding-top: 8px
+
+        tr
+            height: 1.75rem
 
         hr
             border-color: $uni-color-positive
