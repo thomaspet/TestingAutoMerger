@@ -170,7 +170,11 @@ export class UniWidgetCanvas {
             }
         });
 
-        this.cdr.markForCheck();
+        // Timeout to make sure we trigger change detection when loading data from cache
+        // (cache messes with change detection timing because its "too quick")
+        setTimeout(() => {
+            this.cdr.markForCheck();
+        });
     }
 
     public addWidget(configPath) {
