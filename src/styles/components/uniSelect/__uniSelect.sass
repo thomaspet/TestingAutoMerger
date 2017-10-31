@@ -50,3 +50,26 @@
         width: 100%
         height: 100%
 
+.uniSelect
+    input:hover + .closeBtn,
+    input:focus + .closeBtn
+        visibility: visible
+    .closeBtn
+        @extend %hideText
+        position: absolute
+        top: 2rem
+        right: 1.5rem
+        height: 2rem
+        width: 2rem
+        padding: 0
+        box-shadow: none
+        border: none
+        background: transparent unicon-close($uni-color-scale5) center no-repeat
+        background-size: .7rem
+        margin-top: -2rem
+        float: right
+        visibility: hidden
+        &:hover
+            visibility: visible
+            background: unicon-close($uni-color-bad) center no-repeat
+            background-size: .7rem
