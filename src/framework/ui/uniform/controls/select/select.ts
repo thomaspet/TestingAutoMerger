@@ -19,60 +19,68 @@ export interface ISelectConfig {
 @Component({
     selector: 'uni-select',
     template: `
-    <article class="uniSelect"
-        *ngIf="config && items" (clickOutside)="close()">
+        <article class="uniSelect"
+                 *ngIf="config && items" (clickOutside)="close()">
 
-    <input type="text" #valueInput
-       [attr.aria-describedby]="config?.asideGuid"
-        class="uniSelect_input"
-        role="combobox"
-        aria-autocomplete="none"
-        [attr.aria-owns]="guid"
-        [attr.aria-activedescendant]="activeDescendantId"
-        tabindex="0"
-        [value]="getDisplayValue(selectedItem)"
-        [placeholder]="config?.placeholder || ''"
-        [attr.aria-readonly]="readonly"
-        (click)="toggle()"
-        [title]="getTitle()"
-        readonly />
+            <input type="text" #valueInput
+                   [attr.aria-describedby]="config?.asideGuid"
+                   class="uniSelect_input"
+                   role="combobox"
+                   aria-autocomplete="none"
+                   [attr.aria-owns]="guid"
+                   [attr.aria-activedescendant]="activeDescendantId"
+                   tabindex="0"
+                   [value]="getDisplayValue(selectedItem)"
+                   [placeholder]="config?.placeholder || ''"
+                   [attr.aria-readonly]="readonly"
+                   (click)="toggle()"
+                   [title]="getTitle()"
+                   (mouseenter)="isMouseOverInput = true"
+                   (mouseleave)="isMouseOverInput = false"
+                   (keydown)="clearByKey($event)"
+                   readonly/>
+            <button
+                (click)="clear($event)"
+                class="closeBtn"
+                [class.hidden]="!inputHasValue()"
+                (mouseenter)="isMouseOverInput = true"
+            ></button>
+            <article class="uniSelect_dropdown" [hidden]="!expanded">
+                <section class="uniSelect_search" *ngIf="searchable">
+                    <input #searchInput type="search"
+                           [placeholder]="config?.searchPlaceholder || 'Filtrer elementer'"
+                           [formControl]="searchControl"
+                    />
+                </section>
 
-    <article class="uniSelect_dropdown" [hidden]="!expanded">
-        <section class="uniSelect_search" *ngIf="searchable">
-            <input #searchInput type="search"
-                [placeholder]="config?.searchPlaceholder || 'Filtrer elementer'"
-                [formControl]="searchControl"
-            />
-        </section>
+                <ul #itemDropdown
+                    [id]="guid"
+                    [attr.aria-expanded]="true"
+                    class="uniSelect_dropdown_list"
+                    role="listbox"
+                    tabindex="-1">
 
-        <ul #itemDropdown
-            [id]="guid"
-            [attr.aria-expanded]="true"
-            class="uniSelect_dropdown_list"
-            role="listbox"
-            tabindex="-1">
-
-            <li *ngFor="let item of filteredItems; let idx = index"
-                class="uniSelect_dropdown_item"
-                role="item"
-                tabindex="-1"
-                [id]="guid + '-item-' + idx"
-                [attr.aria-selected]="idx === focusedIndex"
-                (mouseover)="focusedIndex = idx"
-                (click)="confirmSelection($event)">
-                {{getDisplayValue(item)}}
-            </li>
-            <li *ngIf="newButtonAction"
-                class="uniSelect_dropdown_new_button_item">
-                <button
-                    type="button"
-                    (click)="onNewItemClick()">
-                    Ny
-                </button>
-            </li>
-        </ul>
-    </article>
-</article>
+                    <li *ngFor="let item of filteredItems; let idx = index"
+                        class="uniSelect_dropdown_item"
+                        role="item"
+                        tabindex="-1"
+                        [id]="guid + '-item-' + idx"
+                        [attr.aria-selected]="idx === focusedIndex"
+                        (mouseover)="focusedIndex = idx"
+                        (click)="confirmSelection($event)">
+                        {{getDisplayValue(item)}}
+                    </li>
+                    <li *ngIf="newButtonAction"
+                        class="uniSelect_dropdown_new_button_item">
+                        <button
+                            type="button"
+                            (click)="onNewItemClick()">
+                            Ny
+                        </button>
+                    </li>
+                </ul>
+            </article>
+        </article>
 
     `,
     changeDetection: ChangeDetectionStrategy.OnPush
@@ -103,6 +111,7 @@ export class UniSelect {
     public focusedIndex: any = -1;
     public initialItem: any;
     public activeDecentantId: string;
+    public isMouseOverInput: boolean = false;
 
     constructor(public renderer: Renderer, public cd: ChangeDetectorRef, public el: ElementRef) {
         // Set a guid for DOM elements, etc.
@@ -306,6 +315,32 @@ export class UniSelect {
         this.activeDecentantId = this.guid + '-item-' + this.focusedIndex;
         this.close();
         this.focus();
+    }
+
+    public clear(event: MouseEvent | KeyboardEvent) {
+        if (event) {
+            event.stopPropagation();
+            event.preventDefault();
+        }
+        this.searchControl.setValue('');
+        this.selectedItem = null;
+        this.focusedIndex = -1;
+        this.initialItem = null;
+        this.activeDecentantId = '';
+        this.valueChange.emit(null);
+        this.close();
+        this.focus();
+    }
+
+    public clearByKey(event: KeyboardEvent) {
+        if (event.which !== KeyCodes.DELETE) {
+            return;
+        }
+        this.clear(event);
+    }
+
+    public inputHasValue() {
+        return !!this.selectedItem && this.isMouseOverInput;
     }
 
     public open() {
