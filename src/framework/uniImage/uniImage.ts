@@ -186,6 +186,9 @@ export class UniImage {
 
     public ngOnChanges(changes: SimpleChanges) {
         this.imgUrl = this.imgUrl2x = '';
+        this.removeHighlight();
+        this.currentPage = 1;
+
         this.thumbnails = [];
         if (this.activeCompany) {
             if ((changes['entity'] || changes['entityID']) && this.entity && this.isDefined(this.entityID)) {
@@ -453,6 +456,8 @@ export class UniImage {
 
         this.imageIsLoading = true;
 
+        this.removeHighlight();
+
         this.imgUrl2x = this.generateImageUrl(file, size * 2);
         this.imgUrl = this.generateImageUrl(file, size);
         this.cdr.markForCheck();
@@ -545,6 +550,8 @@ export class UniImage {
                         this.fileIDs.push(newFile.ID);
                         this.fileListReady.emit(this.files);
                         this.currentFileIndex = this.files.length - 1;
+                        this.currentPage = 1;
+                        this.removeHighlight();
                         this.loadImage();
 
                         if (!this.singleImage) {
@@ -584,8 +591,8 @@ export class UniImage {
         } else {
             this.highlightStyle = {
                 display: 'block',
-                height: coordinates[3] + 'px',
-                width: coordinates[2] + 'px',
+                height: coordinates[3] * heightRatio + 'px',
+                width: coordinates[2] * widthRatio + 'px',
                 left: (coordinates[0]) * widthRatio + 'px',
                 top: (coordinates[1]) * heightRatio + 'px'
             };
