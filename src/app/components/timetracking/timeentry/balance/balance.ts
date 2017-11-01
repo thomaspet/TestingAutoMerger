@@ -1,9 +1,10 @@
-import {Component, Input, Output, EventEmitter, ViewChild} from '@angular/core';
+import {Component, Input, Output, EventEmitter} from '@angular/core';
 import {TimesheetService} from '../../../../services/timetracking/timesheetService';
 import {WorkRelation, WorkBalance} from '../../../../unientities';
 import {ErrorService} from '../../../../services/services';
 import {roundTo} from '../../../common/utils/utils';
 import {UniTimeModal} from '../../components/popupeditor';
+import {UniModalService} from '../../../../../framework/uniModal/barrel';
 import {IPreSaveConfig} from '../timeentry';
 import * as moment from 'moment';
 
@@ -12,27 +13,31 @@ import * as moment from 'moment';
     templateUrl: './balance.html'
 })
 export class RegtimeBalance {
-    @Input() public set workrelation(value: WorkRelation ) {
+    @Input()
+    public set workrelation(value: WorkRelation ) {
         this.current = value;
         this.reloadBalance(value);
     }
-    @Input() public eventcfg: IPreSaveConfig;
-    @Output() public valueChange: EventEmitter<any> = new EventEmitter();
-    @ViewChild(UniTimeModal) private timeModal: UniTimeModal;
+
+    @Input()
+    public eventcfg: IPreSaveConfig;
+
+    @Output()
+    public valueChange: EventEmitter<any> = new EventEmitter();
+
     public busy: boolean = true;
-    private current: WorkRelation;
     public currentBalance: WorkBalanceDto;
     public incomingBalance: WorkBalance;
     public isDetailView: boolean = false;
+    private current: WorkRelation;
     private hasDetails: boolean = false;
     private groupedWeeks: IDetails = { weeks: [], sum: 0 };
 
     constructor(
         private timesheetService: TimesheetService,
-        private errorService: ErrorService
-    ) {
-
-    }
+        private errorService: ErrorService,
+        private modalService: UniModalService
+    ) {}
 
     public refresh(rel?: WorkRelation) {
         if (rel) { this.current = rel; }
@@ -41,6 +46,7 @@ export class RegtimeBalance {
 
     public onShowDetails(details: boolean = true) {
         this.busy = true;
+        this.isDetailView = details;
         this.reloadBalance(this.current, details);
     }
 
@@ -52,10 +58,18 @@ export class RegtimeBalance {
             });
             return;
         }
-        this.timeModal.open(this.current, item.Date).then( x => {
-            if (x) {
-                this.onShowDetails(this.hasDetails);
-                if (this.eventcfg && this.eventcfg.askReload) { this.eventcfg.askReload(); }
+
+        let data = {
+            date: item.Date,
+            relation: this.current
+        };
+
+        this.modalService.open(UniTimeModal, { data: data }).onClose.subscribe((res: any) => {
+            if (res) {
+                this.onShowDetails(true);
+                if (this.eventcfg && this.eventcfg.askReload) {
+                    this.eventcfg.askReload();
+                }
             }
         });
     }
@@ -72,7 +86,6 @@ export class RegtimeBalance {
                 let prevBalance = this.currentBalance;
                 this.currentBalance = x;
                 this.hasDetails = details;
-                this.isDetailView = details;
 
                 if (details) {
                     this.groupedWeeks = this.groupIntoWeeks(x.Details);
@@ -140,8 +153,6 @@ export class RegtimeBalance {
         return { weeks: weeks, sum: tsum };
     }
 
-
-
     private WeekFromDate(dt: Date): Week {
         var md = moment(dt);
         var wk = new Week();
@@ -150,8 +161,6 @@ export class RegtimeBalance {
         wk.key = wk.year + '-' + wk.week;
         return wk;
     }
-
-
 }
 
 interface IDetails {
@@ -177,8 +186,7 @@ class Week {
     public sum: number = 0;
     private todayChecked: boolean = false;
 
-    constructor() {
-    }
+    constructor() {}
 
     private initDays(date: Date) {
 
@@ -196,7 +204,6 @@ class Week {
             }
             this.todayChecked = true;
         }
-
     }
 
     public addItem(item: IDetail) {
@@ -220,7 +227,7 @@ class Week {
 }
 
 // tslint:disable:variable-name
-class WorkBalanceDto extends WorkBalance {    
+class WorkBalanceDto extends WorkBalance {
     public LastDayExpected: number;
     public LastDayActual: number;
     public expectedHours: number;

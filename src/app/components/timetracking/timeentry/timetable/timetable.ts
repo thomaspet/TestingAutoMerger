@@ -22,11 +22,10 @@ import {UniApproveTaskModal} from './approvetaskmodal';
     providers: [ReportWorkflow, WorkitemGroupService, PopupMenu, UniApproveTaskModal]
 })
 export class TimeTableReport {
-    @ViewChild(UniTimeModal) private timeModal: UniTimeModal;
     @Input() public set workrelation(value: WorkRelation ) {
         this.currentRelation = value;
         this.refreshReport(true);
-    }    
+    }
     @Input() public eventcfg: IPreSaveConfig;
     @Input() public lazy: boolean;
     @ViewChild(PopupMenu) private popup: PopupMenu;
@@ -58,14 +57,14 @@ export class TimeTableReport {
             { name: 'months', label: 'Siste 2 måneder', interval: ItemInterval.lastTwoMonths},
             { name: 'months2', label: 'Siste 3 måneder', interval: ItemInterval.lastThreeMonths},
             { name: 'year', label: 'Dette år', interval: ItemInterval.thisYear}
-        ];        
+        ];
         this.currentFilter = this.filters[0];
         this.currentFilter.isSelected = true;
     }
 
     private get CurrentRelationID(): number {
         return this.currentRelation ? this.currentRelation.ID : 0;
-    } 
+    }
 
     public activate() {
         if (!this.isActivated) {
@@ -85,8 +84,13 @@ export class TimeTableReport {
                 return;
             }
 
-            this.timeModal.open(this.currentRelation, day).then( x => {
-                if (x) {
+            let data = {
+                date: day,
+                relation: this.currentRelation
+            };
+
+            this.modalService.open(UniTimeModal, { data: data }).onClose.subscribe((res) => {
+                if (res) {
                     this.onFilterClick( this.currentFilter );
                     this.publishReloadEvent();
                 }
@@ -105,40 +109,40 @@ export class TimeTableReport {
         switch (week.Sums.Workflow) {
 
             case ReportFlow.Rejected:
-                this.popup.clear();                
+                this.popup.clear();
                 this.popup.addItem('comments', 'Vis årsak/kommentar', week);
                 this.popup.addItem('reset', 'Lås opp denne uken for redigering', week);
                 this.popup.activate(src, week.WeekNumber);
                 break;
 
             case ReportFlow.Draft:
-                this.popup.clear();                
+                this.popup.clear();
                 this.popup.addItem('assign', 'Send til godkjenning', week);
                 this.popup.activate(src, week.WeekNumber);
                 break;
 
             case ReportFlow.PartialAssign:
-                this.popup.clear();                
+                this.popup.clear();
                 this.popup.addItem('assign', 'Send resterende poster til godkjenning', week);
                 this.popup.addItem('reset', 'Nullstill innsending for denne uken', week);
                 this.popup.activate(src, week.WeekNumber);
                 break;
-            
+
             case ReportFlow.Approved:
-                this.popup.clear();                
+                this.popup.clear();
                 this.popup.addItem('reset', 'Lås opp denne uken for redigering', week);
                 this.popup.activate(src, week.WeekNumber);
                 break;
 
             case ReportFlow.AwaitingApproval:
-                this.popup.clear();                
+                this.popup.clear();
                 this.popup.addItem('approve', 'Godkjenn', week);
                 this.popup.addItem('reject', 'Avvis', week);
                 this.popup.addItem('status', 'Vis tildelingsstatus', week);
                 this.popup.addItem('reset', 'Nullstill innsending for denne uken', week);
-                this.popup.activate(src, week.WeekNumber);                
+                this.popup.activate(src, week.WeekNumber);
                 break;
-                
+
             case ReportFlow.NotSet:
                 this.popup.clear();
                 this.popup.addItem('autofill', 'Registrer normaltid for hele uken', week);
@@ -146,7 +150,7 @@ export class TimeTableReport {
                 break;
 
             default:
-                this.popup.clear();                
+                this.popup.clear();
                 this.popup.addItem('assign', 'Send inn nye timeføringer for perioden', week);
                 this.popup.addItem('reset', 'Nullstill innsending for perioden', week);
                 this.popup.addItem('regroup', 'Send hele uken inn på nytt', week);
@@ -182,7 +186,7 @@ export class TimeTableReport {
                 this.showComments(event.cargo);
                 break;
         }
-    }    
+    }
 
     private reSendWeek(week: Week) {
         this.api.GetGroups(this.CurrentRelationID, week.FirstDay, week.LastDay)
@@ -197,7 +201,7 @@ export class TimeTableReport {
         }, err => {
             this.errorService.handle(err);
             this.busy = false;
-        });         
+        });
     }
 
     private deleteAllGroupsForWeek(week: Week) {
@@ -214,7 +218,7 @@ export class TimeTableReport {
         }, err => {
             this.errorService.handle(err);
             week.isBusy = false;
-        });         
+        });
     }
 
     private approveOrRejectWeek(week: Week, approve: boolean) {
@@ -226,8 +230,8 @@ export class TimeTableReport {
         week.isBusy = true;
 
         this.api.GetGroups(rel, d1, d2, StatusCode.AwaitingApproval)
-            .subscribe( (list: Array<{ID, StatusCode, TaskID}>) => {   
-                
+            .subscribe( (list: Array<{ID, StatusCode, TaskID}>) => {
+
                 // Tasks (approve via dialog) ?
                 var tasks = list.filter( x => !!x.TaskID);
                 if (tasks && tasks.length > 0) {
@@ -245,8 +249,8 @@ export class TimeTableReport {
 
                 // Direct approval via 'transitions'
                 Observable.forkJoin(
-                    list.map( x => { 
-                        return approve ? this.api.Approve(x.ID) : this.api.Reject(x.ID); 
+                    list.map( x => {
+                        return approve ? this.api.Approve(x.ID) : this.api.Reject(x.ID);
                     })
                 )
                 .finally( () => week.isBusy = false )
@@ -264,7 +268,7 @@ export class TimeTableReport {
             }, err => {
                 this.errorService.handle(err);
                 week.isBusy = false;
-            });        
+            });
     }
 
     private showApprovers(week: Week, asToast: boolean = false) {
@@ -278,7 +282,7 @@ export class TimeTableReport {
                     const approvalStatusActive = 50120;
                     results.forEach( nameList => {
                         nameList.forEach( (y, index) => {
-                            group += ((!group) ? '' : ( index === nameList.length - 1 ? ' og ' : ', ')) 
+                            group += ((!group) ? '' : ( index === nameList.length - 1 ? ' og ' : ', '))
                             + (y.name ? y.name.trim() : '?') + (y.email ? ` (${y.email})` : '');
                             activeCount += (y.statuscode === approvalStatusActive) ? 1 : 0;
                         });
@@ -318,7 +322,7 @@ export class TimeTableReport {
                 .subscribe( (list: Array<{ id: number}>) => {
                     if (list && list.length > 0 && list[0].id) {
                         this.autoFillWeek(week, list[0].id);
-                        return;                 
+                        return;
                     }
                     // Not found... ok, lets fetch the first normal worktype:
                     this.api.get('worktypes?filter=systemtype eq 1&top=1&orderby=ID&select=ID,Name&hateoas=false')
@@ -329,7 +333,7 @@ export class TimeTableReport {
                         });
                 });
             return;
-        } 
+        }
 
         this.defaultWorkTypeID = workTypeId;
 
@@ -341,7 +345,7 @@ export class TimeTableReport {
                 var offset = moment().utcOffset();
                 var startTime = moment(x.Date).add(-offset, 'minutes').add(8, 'hours');
                 var endTime = moment(startTime).add(x.ExpectedTime, 'hours');
-                ts.addItem( <any>{ Date: x.Date, Minutes: x.ExpectedTime * 60, 
+                ts.addItem( <any>{ Date: x.Date, Minutes: x.ExpectedTime * 60,
                     Description: 'Normaltid', WorkTypeID: workTypeId, LunchInMinutes: 0,
                     StartTime: toIso(startTime.toDate(), true), EndTime: toIso(endTime.toDate(), true) });
             }
@@ -356,11 +360,11 @@ export class TimeTableReport {
     }
 
     private assignWeek(week: Week) {
-        
+
         var rel = this.report.Relation.ID;
         var d1 = week.FirstDay;
         var d2 = week.LastDay;
-        
+
         week.isBusy = true;
 
         // Locate any open drafts inside this week
@@ -376,8 +380,8 @@ export class TimeTableReport {
                     .subscribe( x => {
                         this.showApprovers(week, true);
                         this.refreshReport(false);
-                    }, err => { 
-                        this.errorService.handle(err); 
+                    }, err => {
+                        this.errorService.handle(err);
                     });
                 } else {
                     // No, lets create a new one
@@ -388,11 +392,11 @@ export class TimeTableReport {
                         .subscribe( (x: WorkItemGroup) => {
                             this.showApprovers(week, true);
                             this.refreshReport(false);
-                        }, err => { 
-                            this.errorService.handle(err); 
+                        }, err => {
+                            this.errorService.handle(err);
                         });
                     },
-                    err => { 
+                    err => {
                         week.isBusy = false;
                         this.errorService.handle(err);
                     });
@@ -420,7 +424,7 @@ export class TimeTableReport {
                 });
         });
     }
-    
+
     private onFilterClick(filter: IFilter) {
         var f: IFilter;
         this.filters.forEach( value => {
@@ -520,7 +524,7 @@ export class TimeTableReport {
         sum.ValidTime += day.ValidTime || 0;
         sum.Invoicable += day.Invoicable || 0;
         sum.ProjectPrc = this.minValue(100, (sum.Projecttime || 0) / (sum.ExpectedTime || 1) * 100);
-        sum.InvoicePrc = this.minValue(100, (sum.Invoicable || 0) / (sum.ExpectedTime || 1) * 100);    
+        sum.InvoicePrc = this.minValue(100, (sum.Invoicable || 0) / (sum.ExpectedTime || 1) * 100);
         sum.combineFlow(day.Workflow);
     }
 

@@ -86,7 +86,8 @@ import {UniApproveTaskModal} from './timeentry/timetable/approvetaskmodal';
         ReportWorkflow
     ],
     entryComponents: [
-        UniTemplateModal
+        UniTemplateModal,
+        UniTimeModal
     ],
     exports: [
         UniTimetracking,

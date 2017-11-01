@@ -3,9 +3,9 @@
 <aside class="regtime_filters no-print">
     <ul>
         <li *ngFor="let filter of filters">
-            <a (click)="onFilterClick(filter)" [ngClass]="{'router-link-active': filter.isSelected}" >{{filter.label}}</a> 
+            <a (click)="onFilterClick(filter)" [ngClass]="{'router-link-active': filter.isSelected}" >{{filter.label}}</a>
         </li>
-    </ul>    
+    </ul>
 </aside>
 
 <section *ngIf="report" [attr.aria-busy]="busy">
@@ -32,14 +32,14 @@
             <th class="s1 center">Faktura%</th>
             <th>&nbsp;</th>
         </tr></thead>
-        <tbody>           
+        <tbody>
             <tr *ngFor="let week of month.Weeks; let i=index" >
                 <td class="center">Uke {{week.WeekNumber}}</td>
                 <td class="center">{{week.FirstDay | isotime:'DD.MM'}} - {{week?.Items[6]?.Date | isotime:'DD.MM'}}</td>
                 <td class="center" [class.bad]="week.Sums.Workflow === 9" [class.good]="week.Sums.Workflow === 10" >{{week.Sums.Workflow | ReportWorkflow}}</td>
                 <td class="center actions" ><button [attr.aria-busy]="week.isBusy" [class.locked]="week.Sums.Workflow>8" [class.assign]="week.Sums.Workflow==1" [class.approve]="week.Sums.Workflow>=4 && week.Sums.Workflow<=8"
                     (click)="onRowActionClicked(week, $event)"></button></td>
-                <td (click)="onDayClick(item.Date)" class="timecell" [class.weekend]="item.IsWeekend" 
+                <td (click)="onDayClick(item.Date)" class="timecell" [class.weekend]="item.IsWeekend"
                     *ngFor="let item of week?.Items">
                     <div title="{{item?.Date|isotime:'D.MMMM'}}" [class.flexplus]="item.Flextime > 0" [class.flexminus]="item.Flextime < 0" >
                         <span *ngIf="item.ValidTime && !item.ValidTimeOff" >{{item.ValidTime | hours}}</span>
@@ -64,13 +64,13 @@
 
             <tr class="sum">
                 <td colspan="2"></td>
-                <td class="s2 center">{{month.Sums.Workflow | ReportWorkflow}}</td>                        
+                <td class="s2 center">{{month.Sums.Workflow | ReportWorkflow}}</td>
                 <td colspan="7" class="right">Sum: </td>
                 <td class="s1 timecell">
                     <div [class.flexplus]="month.Sums.Flextime > 0" [class.flexminus]="month.Sums.Flextime < 0" >
                         <span >{{month.Sums.ValidTime | hours}}</span>
                     </div>
-                </td>                
+                </td>
                 <td class="s1 timecell">
                     <div [class.good]="month.Sums.Flextime > 0" [class.bad]="month.Sums.Flextime < 0" >
                         <span >{{month.Sums.Flextime | hours}}</span>
@@ -79,14 +79,12 @@
                 <td></td>
                 <td class="s1 timecell">{{month.Sums.ProjectPrc|uninumberformat:'percentage'}}</td>
                 <td class="s1 timecell">{{month.Sums.InvoicePrc|uninumberformat:'percentage'}}</td>
-                <td>&nbsp;</td>                    
+                <td>&nbsp;</td>
             </tr>
 
         </tbody>
     </table>
     </div>
-
-    <uni-time-modal></uni-time-modal>
 
     <popup-menu (menuclick)="onPopupMenuClick($event)"></popup-menu>
 
