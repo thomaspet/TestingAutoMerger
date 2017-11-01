@@ -252,7 +252,7 @@ export class HamburgerMenu {
                     {componentName: 'Kontoplan', componentUrl: '/accounting/accountsettings', moduleID: UniModules.Accountsettings},
                     {componentName: 'MVA-innstillinger', componentUrl: '/accounting/vatsettings', moduleID: UniModules.Vatsettings},
                     {componentName: 'Valuta', componentUrl: '/currency/exchange', moduleID: UniModules.CurrencyExchange},
-                    {componentName: 'Prosjekt', componentUrl: '/dimensions/projects', moduleID: UniModules.Projects, groupHeader: 'Dimensjoner'},
+                    {componentName: 'Prosjekt LITE', componentUrl: '/dimensions/projectslite', moduleID: UniModules.Projects, groupHeader: 'Dimensjoner'},
                     {componentName: 'Avdeling', componentUrl: '/dimensions/departments', moduleID: UniModules.Departments},
                     {componentName: 'Betaling', componentUrl: '/accounting/journalentry/payments', hidden: true}
                 ]

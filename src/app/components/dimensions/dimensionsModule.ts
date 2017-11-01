@@ -21,6 +21,9 @@ import {ProjectQueryList} from './project/lists/querylist';
 import {ProjectHours} from './project/hours/hours';
 import {ProjectHourTotals} from './project/hours/hourtotals';
 
+import {ProjectLite} from './projectLite/projectLite';
+import {ProjectLiteDetails} from './projectLite/projectLiteDetails';
+
 export * from './uniDimensions';
 export * from './dimensionsRoutes';
 
@@ -50,7 +53,9 @@ export * from './dimensionsRoutes';
         ProjectDocument,
         ProjectQueryList,
         ProjectHours,
-        ProjectHourTotals
+        ProjectHourTotals,
+        ProjectLite,
+        ProjectLiteDetails
     ]
 })
 export class DimensionsModule {}
