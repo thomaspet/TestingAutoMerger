@@ -78,6 +78,15 @@ export class VatReportService extends BizHttp<VatReport> {
             .map(response => response.json());
     }
 
+    public undoReport(vatReportId: number): Observable<VatReport> {
+        return this.http
+            .asPOST()
+            .usingBusinessDomain()
+            .withEndPoint(this.relativeURL + `/${vatReportId}?action=undo-execute&vatReportId=${vatReportId}`)
+            .send()
+            .map(response => response.json());
+    }
+
     public sendReport(vatReportId: number): Observable<VatReport> {
         return this.http
             .asPOST()
