@@ -14,6 +14,7 @@ export interface ISelectConfig {
     template?: (item) => string;
     placeholder?: string;
     searchable?: boolean;
+    hideDeleteButton?: boolean;
 }
 
 @Component({
@@ -38,9 +39,10 @@ export interface ISelectConfig {
                    (keydown.delete)="clear($event)"
                    readonly/>
             <button
-                (click)="clear($event)"
+                type="button"
                 class="closeBtn"
-                *ngIf="selectedItem"
+                (click)="clear($event)"
+                *ngIf="selectedItem && !readonly && !config?.hideDeleteButton"
             ></button>
             <article class="uniSelect_dropdown" [hidden]="!expanded">
                 <section class="uniSelect_search" *ngIf="searchable">
@@ -143,7 +145,6 @@ export class UniSelect {
         this.createNavigationListener();
         this.createSearchListener();
         this.readyEvent.emit(this);
-
     }
 
     private createOpenCloseListeners() {
@@ -161,6 +162,7 @@ export class UniSelect {
             .subscribe((event: KeyboardEvent) => {
                 event.preventDefault();
                 event.stopPropagation();
+
                 this.toggle();
             });
 
@@ -224,7 +226,7 @@ export class UniSelect {
 
     private createNavigationListener() {
         const arrowsEvents = Observable.fromEvent(this.el.nativeElement, 'keydown')
-            .filter((event: KeyboardEvent) => !(event.altKey || event.shiftKey || event.ctrlKey))
+            .filter((event: KeyboardEvent) => !this.readonly && !(event.altKey || event.shiftKey || event.ctrlKey))
             .filter((event: KeyboardEvent) => {
                 return event.keyCode === KeyCodes.UP_ARROW
                     || event.keyCode === KeyCodes.DOWN_ARROW
@@ -313,11 +315,16 @@ export class UniSelect {
         this.focus();
     }
 
-    public clear(event: MouseEvent | KeyboardEvent) {
+    public clear(event?: MouseEvent | KeyboardEvent) {
         if (event) {
             event.stopPropagation();
             event.preventDefault();
         }
+
+        if (this.readonly || this.config.hideDeleteButton) {
+            return;
+        }
+
         this.searchControl.setValue('');
         this.selectedItem = null;
         this.focusedIndex = -1;

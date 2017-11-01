@@ -130,12 +130,14 @@ export class UniCompanyDropdown {
         this.companyDropdownActive = false;
 
         this.selectCompanyConfig = {
-            displayProperty: 'Name'
+            displayProperty: 'Name',
+            hideDeleteButton: true
         };
 
         this.selectYearConfig = {
             template: (item) => typeof item === 'number' ? item.toString() : item,
-            searchable: false
+            searchable: false,
+            hideDeleteButton: true
         };
 
         this.loadCompanyData();
