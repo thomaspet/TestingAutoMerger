@@ -815,11 +815,13 @@ export class UniTicker {
                 // Setup table
                 const configStoreKey = `uniTicker.${this.ticker.Code}`;
                 this.tableConfig = new UniTableConfig(configStoreKey, false, true, 20)
+                    .setColumns(columns)
                     .setAllowGroupFilter(true)
                     .setColumnMenuVisible(true)
                     .setSearchable(this.unitableSearchVisible)
                     .setMultiRowSelect(false)
                     .setSearchListVisible(true)
+                    .setContextMenu(contextMenuItems, true, false)
                     .setDataMapper((data) => {
                         if (this.ticker.Model) {
                             let tmp = data !== null ? data.Data : [];
@@ -837,9 +839,26 @@ export class UniTicker {
                             return data;
                         }
                     })
-                    .setContextMenu(contextMenuItems, true, false)
-                    .setColumns(columns);
+                    .setSumFunction((urlParams: URLSearchParams) => {
+                        let sumSelects = [];
 
+                        if (this.ticker && this.ticker.Columns) {
+                            this.ticker.Columns.forEach(col => {
+                                if (col.SumColumn) {
+                                    sumSelects.push(`sum(${col.Alias || col.Field}) as ${col.Alias || col.Field}`);
+                                }
+                            });
+                        }
+
+                        let odata = `model=${this.ticker.Model}&select=${sumSelects.join(',')}`;
+                        if (urlParams.get('filter')) {
+                            odata += '&filter=' + urlParams.get('filter');
+                        }
+
+                        return this.statisticsService.GetAll(odata).map(res => {
+                            return res.Data && res.Data[0];
+                        });
+                    });
         });
     }
 

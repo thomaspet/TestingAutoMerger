@@ -47,7 +47,7 @@
             "DefaultHidden": true
         },{
             "Header": "Vår ref",
-            "Field": "OurReference"            
+            "Field": "OurReference"
         },{
             "Header": "Deres ref",
             "Field": "YourReference",
@@ -61,37 +61,49 @@
         }, {
             "Header": "Sum inkl mva",
             "Field": "TaxInclusiveAmountCurrency",
+            "Alias": "TaxInclusiveAmountCurrency",
             "Format": "NumberPositiveNegative",
             "Width": "150px",
-            "FilterOperator": "gt"
+            "FilterOperator": "gt",
+            "SumColumn": true
         }, {
             "Header": "Rest",
             "Field": "RestAmountCurrency",
+            "Alias": "RestAmountCurrency",
             "Format": "NumberPositiveNegative",
             "Width": "150px",
-            "FilterOperator": "gt"
+            "FilterOperator": "gt",
+            "SumColumn": true
         }, {
             "Header": "Kreditert",
             "Field": "CreditedAmountCurrency",
+            "Alias": "CreditedAmountCurrency",
             "Format": "NumberPositiveNegative",
             "Width": "150px",
-            "DefaultHidden": true
+            "DefaultHidden": true,
+            "SumColumn": true
         }, {
             "Header": "Sum inkl mva [BASECURRENCY]",
             "Field": "TaxInclusiveAmount",
+            "Alias": "TaxInclusiveAmount",
             "Format": "NumberPositiveNegative",
-            "DefaultHidden": true
+            "DefaultHidden": true,
+            "SumColumn": true
         }, {
             "Header": "Restsum [BASECURRENCY]",
             "Field": "RestAmount",
+            "Alias": "RestAmount",
             "Format": "NumberPositiveNegative",
-            "DefaultHidden": true
+            "DefaultHidden": true,
+            "SumColumn": true
         }, {
             "Header": "Kreditert [BASECURRENCY]",
             "Field": "CreditedAmount",
+            "Alias": "CreditedAmount",
             "Format": "NumberPositiveNegative",
             "Width": "150px",
-            "DefaultHidden": true
+            "DefaultHidden": true,
+            "SumColumn": true
         }, {
             "Header": "Fakturaref.",
             "Field": "InvoiceReference.InvoiceNumber",

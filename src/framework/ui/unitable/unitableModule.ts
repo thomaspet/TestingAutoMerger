@@ -2,6 +2,8 @@ import {NgModule} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {COMPILER_PROVIDERS} from '@angular/compiler';
+import {AppPipesModule} from '../../../app/pipes/appPipesModule';
+
 import {UniTable} from './unitable';
 import {UniTableUtils} from './unitableUtils';
 import {UniTableRow} from './unitableRow';
@@ -31,6 +33,7 @@ import {ColumnMenuModal} from './columnMenu/columnMenuModal';
         CommonModule,
         FormsModule,
         ReactiveFormsModule,
+        AppPipesModule,
         UniSearchModule
     ],
     declarations: [
