@@ -16,6 +16,7 @@ import {UniTableUtils} from './unitableUtils';
 import * as Immutable from 'immutable';
 import {List} from 'immutable';
 import {KeyCodes} from '../../../app/services/common/keyCodes';
+import {StatisticsService} from '../../../app/services/services';
 
 export interface IContextMenuItem {
     label: string;
@@ -92,7 +93,12 @@ export class UniTable implements OnChanges {
 
     public columnSums: {[key: string]: number};
 
-    constructor(private utils: UniTableUtils, public el: ElementRef, private cdr: ChangeDetectorRef) {}
+    constructor(
+        private utils: UniTableUtils,
+        public el: ElementRef,
+        private cdr: ChangeDetectorRef,
+        private statisticsService: StatisticsService
+    ) {}
 
     // Life-cycle hooks
     public ngOnInit() {
@@ -778,35 +784,40 @@ export class UniTable implements OnChanges {
             err => console.error(message, err, '\n', message)
         );
 
-        if (this.config.sumFunction) {
-            const sumsObservable = this.config.sumFunction(this.urlSearchParams);
-            if (!sumsObservable || !sumsObservable.subscribe) {
-                return;
-            }
+        this.getColumnSums();
+    }
 
-            sumsObservable.subscribe(
-                res => {
-                    if (typeof res !== 'object') {
-                        return;
-                    }
+    private getColumnSums() {
+        let sumColumns = this.tableColumns.filter(col => col.get('isSumColumn')).toJS();
 
-                    // Make sure we only draw up the summary footer
-                    // if we have counts (that are not 0)
-                    let hasCount: boolean;
-                    Object.keys(res).forEach((key) => {
-                        if (res[key] > 0 || res[key] < 0) {
-                            hasCount = true;
-                        } else {
-                            delete res[key];
-                        }
-                    });
-
-                    this.columnSums = res;
-                    this.cdr.markForCheck();
-                },
-                err => console.log(err)
-            );
+        if (!this.config.entityType || !sumColumns || !sumColumns.length) {
+            return;
         }
+
+        let sumSelects = [];
+        sumColumns.forEach((col: UniTableColumn, index: number) => {
+            col['_selectAlias'] = 'sum' + index;
+            sumSelects.push(`sum(${col.field}) as ${col['_selectAlias']}`);
+        });
+
+        let odata = `model=${this.config.entityType}&select=${sumSelects.join(',')}`;
+        if (this.urlSearchParams.get('filter')) {
+            odata += `&filter=` + this.urlSearchParams.get('filter');
+        }
+
+        this.statisticsService.GetAll(odata)
+            .map(res => (res && res.Data && res.Data[0]) || {})
+            .catch(err => Observable.empty())
+            .subscribe(sums => {
+                let columnSums = {};
+
+                sumColumns.forEach(col => {
+                    columnSums[col.field] = sums[col._selectAlias];
+                });
+
+                this.columnSums = columnSums;
+                this.cdr.markForCheck();
+            });
     }
 
     private makeColumnsImmutable(columns): Immutable.List<any> {
