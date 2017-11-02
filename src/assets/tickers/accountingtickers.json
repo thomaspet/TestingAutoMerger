@@ -51,11 +51,13 @@
             {
                 "Header": "Beløp",
                 "Field": "Amount",
-                "Width": "120px"
+                "Width": "120px",
+                "Format": "NumberPositiveNegative"
             },
             {
                 "Header": "Valutabeløp",
                 "Field": "AmountCurrency",
+                "Format": "NumberPositiveNegative",
                 "DefaultHidden": true
             },
             {
@@ -190,7 +192,8 @@
                 "Header": "Beløp",
                 "Field": "TaxInclusiveAmount",
                 "Format": "NumberPositiveNegative",
-                "Width": "150px"
+                "Width": "150px",
+                "SumColumn": true
             },
             {
                 "Header": "Status",
@@ -266,7 +269,17 @@
             }
         ],
         "SubTickersCodes": ["supplierinvoice_details", "journalentryline_list"],
-        "Filters": [{
+        "Filters": [
+            {
+                "Name": "Alle",
+                "Code": "all_supplierinvoices",
+                "UseAllCriterias": true,
+                "FilterGroups": [{
+                    "UseAllCriterias": true,
+                    "FieldFilters": []
+                }]
+            },
+            {
                 "Name": "Kladd",
                 "Code": "draft_supplierinvoices",
                 "UseAllCriterias": true,
@@ -359,15 +372,6 @@
                             "Value": "30107"
                         }
                     ]
-                }]
-            },
-            {
-                "Name": "Alle",
-                "Code": "all_supplierinvoices",
-                "UseAllCriterias": true,
-                "FilterGroups": [{
-                    "UseAllCriterias": true,
-                    "FieldFilters": []
                 }]
             }
         ]
