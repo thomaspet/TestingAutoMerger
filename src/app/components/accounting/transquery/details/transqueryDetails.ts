@@ -674,6 +674,7 @@ export class TransqueryDetails implements OnInit {
                     Property: 'JournalEntryNumberNumeric',
                     FieldType: FieldType.AUTOCOMPLETE,
                     Label: 'Bilagsnr',
+                    Placeholder: 'Bilagsnr',
                     Options: {
                         search: (query: string) => {
                             const searchParams = this.searchParams$.getValue();
@@ -701,6 +702,7 @@ export class TransqueryDetails implements OnInit {
                     Property: 'AccountID',
                     FieldType: FieldType.AUTOCOMPLETE,
                     Label: 'Kontonr',
+                    Placeholder: 'Kontonr',
                     Options: {
                         getDefaultData: () => {
                             let searchParams = this.searchParams$.getValue();
@@ -731,13 +733,16 @@ export class TransqueryDetails implements OnInit {
                     Property: 'AccountYear',
                     FieldType: FieldType.DROPDOWN,
                     Label: 'Regnskapsår',
+                    Placeholder: 'Regnskapsår',
                     Options: {
                         source: this.financialYears,
                         valueProperty: 'Year',
                         debounceTime: 200,
                         template: (item) => {
                             return item ? item.Year.toString() : '';
-                        }
+                        },
+                        searchable: false,
+                        hideDeleteButton: true
                     }
                 }
             ]
