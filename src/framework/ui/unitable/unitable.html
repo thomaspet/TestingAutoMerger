@@ -85,8 +85,8 @@
             <ng-template ngFor let-column [ngForOf]="tableColumns">
                 <td *ngIf="column.get('visible')"
                     [ngStyle]="{'text-align': column.get('alignment') || 'left'}"
-                    [ngClass]="columnSums[column.get('alias') || column.get('field')] >= 0 ? 'number-good': 'number-bad'">
-                    {{(columnSums[column.get('alias') || column.get('field')]) | uninumberformat: 'money'}}
+                    [ngClass]="columnSums[column.get('field')] >= 0 ? 'number-good': 'number-bad'">
+                    {{(columnSums[column.get('field')]) | uninumberformat: 'money'}}
                 </td>
             </ng-template>
         </tr>

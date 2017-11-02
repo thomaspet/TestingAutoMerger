@@ -596,6 +596,7 @@ export class UniTicker {
                         let col = new UniTableColumn(field.SelectableFieldName, field.Header, colType);
                         col.alias = field.Alias;
                         col.width = field.Width;
+                        col.isSumColumn = field.SumColumn;
                         col.sumFunction = field.SumFunction;
 
                         if (field.Type === 'link') {
@@ -816,6 +817,7 @@ export class UniTicker {
                 const configStoreKey = `uniTicker.${this.ticker.Code}`;
                 this.tableConfig = new UniTableConfig(configStoreKey, false, true, 20)
                     .setColumns(columns)
+                    .setEntityType(this.ticker.Model)
                     .setAllowGroupFilter(true)
                     .setColumnMenuVisible(true)
                     .setSearchable(this.unitableSearchVisible)
@@ -838,26 +840,6 @@ export class UniTicker {
 
                             return data;
                         }
-                    })
-                    .setSumFunction((urlParams: URLSearchParams) => {
-                        let sumSelects = [];
-
-                        if (this.ticker && this.ticker.Columns) {
-                            this.ticker.Columns.forEach(col => {
-                                if (col.SumColumn) {
-                                    sumSelects.push(`sum(${col.Alias || col.Field}) as ${col.Alias || col.Field}`);
-                                }
-                            });
-                        }
-
-                        let odata = `model=${this.ticker.Model}&select=${sumSelects.join(',')}`;
-                        if (urlParams.get('filter')) {
-                            odata += '&filter=' + urlParams.get('filter');
-                        }
-
-                        return this.statisticsService.GetAll(odata).map(res => {
-                            return res.Data && res.Data[0];
-                        });
                     });
         });
     }

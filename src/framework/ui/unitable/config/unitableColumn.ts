@@ -63,6 +63,7 @@ export interface IUniTableColumn {
     sortMode: UniTableColumnSortMode;
     jumpToColumn?: string;
     onCellClick?: (rowModel) => void;
+    isSumColumn?: boolean;
 }
 
 export class UniTableColumn implements IUniTableColumn {
@@ -89,6 +90,7 @@ export class UniTableColumn implements IUniTableColumn {
     public editor: any;
     public width: string;
     public sortMode: UniTableColumnSortMode;
+    public isSumColumn: boolean;
 
     public filterable: boolean;
     public filterOperator: string;
@@ -272,6 +274,12 @@ export class UniTableColumn implements IUniTableColumn {
 
     public setOnCellClick(handler: (rowModel) => void) {
         this.onCellClick = handler;
+        return this;
+    }
+
+    public setIsSumColumn(isSumColumn: boolean) {
+        this.isSumColumn = isSumColumn;
+        return this;
     }
 
     public static fromObject(obj: IUniTableColumn) {
