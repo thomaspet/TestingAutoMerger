@@ -4,6 +4,7 @@ import {ActivatedRoute, Router} from '@angular/router';
 import {AdminProductService, AdminProduct} from '../../../services/admin/adminProductService';
 import {Observable} from 'rxjs/Observable';
 import {ErrorService} from '../../../services/common/errorService';
+import {ToastService, ToastType, ToastTime} from '../../../../framework/uniToast/toastService';
 
 @Component({
     selector: 'uni-marketplace-add-ons-details',
@@ -18,7 +19,8 @@ export class MarketplaceAddOnsDetails implements AfterViewInit {
         private errorService: ErrorService,
         private adminProductService: AdminProductService,
         private route: ActivatedRoute,
-        private router: Router
+        private router: Router,
+        private toastService: ToastService
     ) {}
 
     ngAfterViewInit() {
@@ -67,8 +69,8 @@ export class MarketplaceAddOnsDetails implements AfterViewInit {
             .PurchaseProduct(product)
             .subscribe(
                 result => result
-                    ? alert(`Kjøpte produktet: ${product.label}`)
-                    : alert(`Fikk ikke kjøpt produktet pga en feil oppstod`)
+                    ? this.toastService.addToast(`Kjøpte produktet: ${product.label}`, ToastType.good, ToastTime.short)
+                    : this.toastService.addToast(`Fikk ikke kjøpt produktet pga en feil oppstod`, ToastType.bad, ToastTime.short)
             );
     }
 }
