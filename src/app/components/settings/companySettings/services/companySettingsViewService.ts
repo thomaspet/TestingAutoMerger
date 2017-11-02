@@ -33,7 +33,7 @@ export class CompanySettingsViewService {
 
         return this.modalService
             .confirm({
-                header: 'importer fra brreg',
+                header: 'Importer fra brreg',
                 message: this.generateModalText(brreg),
                 buttonLabels: {
                     accept: 'Ja',
