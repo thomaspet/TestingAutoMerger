@@ -959,7 +959,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                     return (item.ProjectNumber + ' - ' + item.Name);
                 },
                 lookupFunction: (searchValue) => {
-                    return Observable.from([this.projects.filter((project) => project.ProjectNumber.toString().startsWith(searchValue) || project.Name.toLowerCase().indexOf(searchValue) >= 0)]);
+                    return Observable.from([this.projects.filter((project) => project.ProjectNumber.toString().startsWith(searchValue) || (project.Name || '').toLowerCase().indexOf(searchValue) >= 0)]);
                 }
             });
 
