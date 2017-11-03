@@ -91,7 +91,6 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
     @Input() public selectedNumberSeriesTaskID: number;
 
     @ViewChild(UniTable) private table: UniTable;
-    @ViewChild(AccrualModal) private accrualModal: AccrualModal;
     @ViewChild(NewAccountModal) private newAccountModal: NewAccountModal;
     @ViewChild(AddPaymentModal) private addPaymentModal: AddPaymentModal;
     @ViewChild(SelectJournalEntryLineModal) private selectJournalEntryLineModal: SelectJournalEntryLineModal;
@@ -1662,7 +1661,9 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
     private openAccrual(item: JournalEntryData) {
 
         let title: string = 'Periodisering av bilag ' + item.JournalEntryNo;
-        if (item.Description) title = title + ' - ' + item.Description;
+        if (item.Description) {
+            title = title + ' - ' + item.Description;
+        }
 
         let isDebitResultAccount = (item.DebitAccount && item.DebitAccount.TopLevelAccountGroup
             && item.DebitAccount.TopLevelAccountGroup.GroupNumber >= 3);
@@ -1683,48 +1684,65 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
         } else {
 
             if (item.JournalEntryDataAccrual) {
-                this.accrualModal.openModal(null, null, null, item.JournalEntryDataAccrual, title);
+                let data = {
+                    accrualAmount: null,
+                    accrualStartDate: null,
+                    journalEntryLineDraft: null,
+                    accrual: item.JournalEntryDataAccrual,
+                    title: title
+                };
+                this.openAccrualModal(data, item);
+
             } else if (item.AmountCurrency && item.AmountCurrency !== 0 && item.FinancialDate) {
-                this.accrualModal.openModal(item['NetAmountCurrency'],
-                    new LocalDate(item.FinancialDate.toString()), null, null, title);
+                let data = {
+                    accrualAmount: item['NetAmountCurrency'],
+                    accrualStartDate: new LocalDate(item.FinancialDate.toString()),
+                    journalEntryLineDraft: null,
+                    accrual: null,
+                    title: title
+                };
+                this.openAccrualModal(data, item);
             } else {
                 this.toastService.addToast('Periodisering', ToastType.warn, 5,
                     'Mangler nødvendig informasjon om dato og beløp for å kunne periodisere.');
             }
-
-            if (this.accrualModalValueChanged) {
-                this.accrualModalValueChanged.unsubscribe();
-            }
-
-            if (this.accrualModalValueDeleted) {
-                this.accrualModalValueDeleted.unsubscribe();
-            }
-
-            this.accrualModalValueChanged = this.accrualModal.Changed.subscribe(modalval => {
-                item.JournalEntryDataAccrual = modalval;
-                // if the item is already booked, just add the payment through the API now
-                /* if (item.StatusCode) {
-                    this.journalEntryService.LEGGTILBETALING()
-                    DETTE GJØRES MÅ GJØRES I NESTE SPRINT, TAS SAMTIDIG SOM FUNKSJON FOR Å REGISTRERE MER PÅ ET EKSISTERENDE BILAG
-                    https://github.com/unimicro/AppFrontend/issues/2432
-                }
-                */
-                this.table.updateRow(item['_originalIndex'], item);
-                setTimeout(() => {
-                    var tableData = this.table.getTableData();
-                    this.dataChanged.emit(tableData);
-                });
-            });
-
-            this.accrualModalValueDeleted = this.accrualModal.Deleted.subscribe(modalval => {
-                item.JournalEntryDataAccrual = null;
-                this.table.updateRow(item['_originalIndex'], item);
-                setTimeout(() => {
-                    var tableData = this.table.getTableData();
-                    this.dataChanged.emit(tableData);
-                });
-            });
         }
+    }
+
+    private openAccrualModal(data: any, item) {
+        this.modalService.open(AccrualModal, {data: data}).onClose.subscribe((res: any) => {
+            if (res && res.action === 'ok') {
+                this.onModalChanged(item, res.model);
+            } else if (res && res.action === 'deleted') {
+                this.onModalDeleted(item);
+            }
+        })
+    }
+
+    private onModalChanged(item, modalval) {
+        item.JournalEntryDataAccrual = modalval;
+        // if the item is already booked, just add the payment through the API now
+        /* if (item.StatusCode) {
+            this.journalEntryService.LEGGTILBETALING()
+            DETTE GJØRES MÅ GJØRES I NESTE SPRINT,
+            TAS SAMTIDIG SOM FUNKSJON FOR Å REGISTRERE MER PÅ ET EKSISTERENDE BILAG
+            https://github.com/unimicro/AppFrontend/issues/2432
+        }
+        */
+        this.table.updateRow(item['_originalIndex'], item);
+        setTimeout(() => {
+            var tableData = this.table.getTableData();
+            this.dataChanged.emit(tableData);
+        });
+    }
+
+    private onModalDeleted(item) {
+        item.JournalEntryDataAccrual = null;
+        this.table.updateRow(item['_originalIndex'], item);
+        setTimeout(() => {
+            var tableData = this.table.getTableData();
+            this.dataChanged.emit(tableData);
+        });
     }
 
     private addPayment(item: JournalEntryData) {
