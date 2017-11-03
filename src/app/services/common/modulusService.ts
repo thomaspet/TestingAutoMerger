@@ -58,6 +58,10 @@ export class ModulusService {
     }
 
     public formValidationKID = (KID: string, field: UniFieldLayout): UniFormError | null => {
+        if (!KID || typeof KID !== 'string') {
+            return null;
+        }
+
         if (KID && !KID.split('').some(x => isNaN(+x)) && (this.modulus10(KID) || this.modulus11(KID))) {
             return null;
         }
