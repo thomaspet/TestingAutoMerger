@@ -7,7 +7,12 @@ const THINSPACE = '\u2009';
 @Injectable()
 export class NumberFormat {
     public asPercentage(value: number, options?: INumberOptions): string {
-        return value.toFixed(0) + HAIRSPACE + '%';
+        options = {
+            thousandSeparator: options.thousandSeparator || THINSPACE,
+            decimalSeparator: options.decimalSeparator || ',',
+            decimalLength: options.decimalLength === undefined ? 0 : options.decimalLength
+        };
+        return this.formatter(value, options) + HAIRSPACE + '%';
     }
 
     public asNumber(value: number, options?: INumberOptions): string {

@@ -9,14 +9,14 @@
                 <table *ngIf="companysalary">
                     <tr>
                         <td>Feriepengesats</td>
-                        <td class="vacationpay_settingValues">{{companysalary._Rate | uninumberformat:'percentage'}}</td>
+                        <td class="vacationpay_settingValues">{{companysalary._Rate | uninumberformat:'percentagewithdecimal'}}</td>
                         <td></td>
                         <td>Trekk i lønn for ferie</td>
                         <td class="vacationpay_settingValues">{{companysalary._wagedeductionText}}</td>
                     </tr>
                     <tr>
                         <td>Sats over 60 år</td>
-                        <td class="vacationpay_settingValues">{{companysalary._Rate60 | uninumberformat:'percentage'}}</td>
+                        <td class="vacationpay_settingValues">{{companysalary._Rate60 | uninumberformat:'percentagewithdecimal'}}</td>
                         <td></td>
                         <td>Konto kostnader feriepenger</td>
                         <td class="vacationpay_settingValues">{{companysalary.MainAccountCostVacation}}</td>

@@ -29,10 +29,15 @@ export class UniNumberFormatPipe implements PipeTransform {
                     decimalLength: this.settings.ShowNumberOfDecimals
                 };
             }
-
+            
             switch (format) {
                 case 'percentage':
                     return this.numberFormat.asPercentage(value);
+                case 'percentagewithdecimal':
+                    numberFormatOptions = {
+                        decimalLength: 1
+                    }
+                    return this.numberFormat.asPercentage(value, numberFormatOptions);
                 case 'money':
                     return this.numberFormat.asMoney(value, numberFormatOptions);
                 case 'orgno':
