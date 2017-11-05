@@ -2,7 +2,6 @@ import {Component, ViewChild} from '@angular/core';
 import {AuthService} from './authService';
 import {UniHttp} from '../framework/core/http/http';
 import {LoginModal} from './components/init/loginModal';
-import {CompanySyncModal} from './components/init/companySyncModal';
 import {ErrorService} from './services/services';
 import {UniModalService} from '../framework/uniModal/barrel';
 import {ToastService} from '../framework/uniToast/toastService';
@@ -12,9 +11,6 @@ import {ToastService} from '../framework/uniToast/toastService';
     templateUrl: './app.html',
 })
 export class App {
-    @ViewChild(CompanySyncModal)
-    private companySyncModal: CompanySyncModal;
-
     private isAuthenticated: boolean = false;
     private loginModalOpen: boolean;
 
@@ -57,23 +53,7 @@ export class App {
             this.isAuthenticated = !!authDetails.user;
             if (this.isAuthenticated) {
                 this.toastService.clear();
-                this.initialize();
             }
         } /* don't need error handling */);
-    }
-
-    private initialize() {
-        // Check if company needs to be initialized
-        this.http.asGET()
-            .usingBusinessDomain()
-            .withEndPoint('companysettings?action=exists')
-            .send()
-            .map(response => response.json())
-            .subscribe((isActive: boolean) => {
-                if (!isActive) {
-                    this.companySyncModal.open();
-                }
-            }, err => this.errorService.handle(err));
-
     }
 }

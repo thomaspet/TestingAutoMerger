@@ -596,6 +596,7 @@ export class UniTicker {
                         let col = new UniTableColumn(field.SelectableFieldName, field.Header, colType);
                         col.alias = field.Alias;
                         col.width = field.Width;
+                        col.isSumColumn = field.SumColumn;
                         col.sumFunction = field.SumFunction;
 
                         if (field.Type === 'link') {
@@ -815,11 +816,14 @@ export class UniTicker {
                 // Setup table
                 const configStoreKey = `uniTicker.${this.ticker.Code}`;
                 this.tableConfig = new UniTableConfig(configStoreKey, false, true, 20)
+                    .setColumns(columns)
+                    .setEntityType(this.ticker.Model)
                     .setAllowGroupFilter(true)
                     .setColumnMenuVisible(true)
                     .setSearchable(this.unitableSearchVisible)
                     .setMultiRowSelect(false)
                     .setSearchListVisible(true)
+                    .setContextMenu(contextMenuItems, true, false)
                     .setDataMapper((data) => {
                         if (this.ticker.Model) {
                             let tmp = data !== null ? data.Data : [];
@@ -836,10 +840,7 @@ export class UniTicker {
 
                             return data;
                         }
-                    })
-                    .setContextMenu(contextMenuItems, true, false)
-                    .setColumns(columns);
-
+                    });
         });
     }
 

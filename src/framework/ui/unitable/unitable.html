@@ -1,0 +1,101 @@
+<unitable-search
+    *ngIf="config?.searchable"
+    [columns]="tableColumns"
+    [tableConfig]="config"
+    [configFilters]="advancedSearchFilters"
+    (filtersChange)="onFiltersChange($event)"
+    (upOrDownArrows)="onFilterInputUpOrDownArrows($event)">
+</unitable-search>
+
+<table *ngIf="tableData && config?.columns" class="unitable-main-table"
+   [ngClass]="{'editable-table': config.editable}"
+   (keydown)="onKeyDown($event)">
+
+    <unitable-editor
+        (valueChange)="onEditorChange($event)"
+        (copyFromAbove)="copyFromCellAbove()">
+    </unitable-editor>
+
+    <unitable-contextmenu [items]="config.contextMenu.items"></unitable-contextmenu>
+
+    <thead>
+        <tr>
+            <th *ngIf="config.multiRowSelect" class="select-column"><input type="checkbox" #allRowSelector (change)="onSelectAllRowsChanged(allRowSelector.checked)" checked="config.multiRowSelectDefaultValue" /></th>
+            <th *ngFor="let column of tableColumns"
+                [ngStyle]="{
+                    'width': column.get('width'),
+                    'text-align': column.get('alignment') || 'left'
+                }"
+                [ngClass]="{
+                    isSortedAsc: ((column.get('displayField') || column.get('field')) === sortInfo?.field) && (sortInfo?.direction === 1),
+                    isSortedDesc: ((column.get('displayField') || column.get('field')) === sortInfo?.field) && (sortInfo?.direction === -1)
+                }"
+                bind-class="column.get('headerCls')"
+                [hidden]="!column.get('visible')"
+                (click)="onSort(column)"
+                [attr.title]="column.get('header')">
+
+                {{column.get('header')}}
+            </th>
+
+            <th *ngIf="config.deleteButton" class="select-column">
+                <unitable-column-menu
+                    *ngIf="config?.columnMenuVisible && !config?.contextMenu?.items?.length"
+                    [columns]="tableColumns"
+                    (columnsChange)="onColumnsChange($event)"
+                    (resetAll)="onResetColumnConfig()">
+                </unitable-column-menu>
+            </th>
+
+            <th *ngIf="config?.contextMenu?.items?.length || (config?.columnMenuVisible && !config?.deleteButton)"
+                class="context-menu-column"
+                [ngClass]="{
+                    'select-column': config?.contextMenu?.items?.length > 1 || config?.contextMenu?.showDropdownOnSingleItem
+                }">
+
+                <unitable-column-menu
+                    *ngIf="config?.columnMenuVisible"
+                    [columns]="tableColumns"
+                    (columnsChange)="onColumnsChange($event)"
+                    (resetAll)="onResetColumnConfig()">
+                </unitable-column-menu>
+            </th>
+        </tr>
+    </thead>
+    <tbody #tbody>
+        <tr unitable-row
+            *ngFor="let row of getPageData()"
+            [ngClass]="config.conditionalRowCls(row.toJS())"
+            [attr.aria-readonly]="config?.isRowReadOnly(row.toJS())"
+            [attr.aria-selected]="(config.multiRowSelect && row.get('_rowSelected')) || (!config.multiRowSelect && row == lastFocusedRowModel)"
+            [columns]="tableColumns"
+            [rowModel]="row"
+            [config]="config"
+            (rowDeleted)="onDeleteRow($event)"
+            (cellFocused)="onCellFocused($event)"
+            (cellClicked)="onCellClicked($event)"
+            (rowSelectionChanged)="onRowSelected($event)"
+            (contextMenuClicked)="updateContextMenu($event)">
+        </tr>
+    </tbody>
+
+    <tfoot *ngIf="columnSums">
+        <tr>
+            <td *ngIf="config?.multiRowSelect"></td>
+            <ng-template ngFor let-column [ngForOf]="tableColumns">
+                <td *ngIf="column.get('visible')"
+                    [ngStyle]="{'text-align': column.get('alignment') || 'left'}"
+                    [ngClass]="columnSums[column.get('field')] >= 0 ? 'number-good': 'number-bad'">
+                    {{(columnSums[column.get('field')]) | uninumberformat: 'money'}}
+                </td>
+            </ng-template>
+        </tr>
+    </tfoot>
+</table>
+
+<unitable-pagination #pager
+    *ngIf="config?.pageable && rowCount > config?.pageSize"
+    [pageSize]="config.pageSize"
+    [rowCount]="rowCount"
+    (pageChange)="onPageChange($event)">
+</unitable-pagination>

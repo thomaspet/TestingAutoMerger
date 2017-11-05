@@ -488,10 +488,16 @@ export class VatReportView implements OnInit, OnDestroy {
 
 
     public UndoExecution(done) {
-        this.vatReportService.Action(this.currentVatReport.ID, 'undo-execute')
-            .subscribe(() =>
-            this.router.navigateByUrl('#/accounting/vatreport'),
-            err => { done('Feil ved angring av kjøring.'); }
+        this.vatReportService.undoReport(this.currentVatReport.ID)
+        .subscribe(res => {
+            this.spinner(this.vatReportService.getCurrentPeriod())
+            .subscribe(vatReport => this.setVatreport(vatReport), err => this.errorService.handle(err));
+            done();
+        },
+        err => {
+            this.errorService.handle(err);
+            done('Det skjedde en feil, forsøk igjen senere');
+        }
         );
     }
 

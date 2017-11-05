@@ -47,7 +47,7 @@
             "DefaultHidden": true
         },{
             "Header": "Vår ref",
-            "Field": "OurReference"            
+            "Field": "OurReference"
         },{
             "Header": "Deres ref",
             "Field": "YourReference",
@@ -63,35 +63,41 @@
             "Field": "TaxInclusiveAmountCurrency",
             "Format": "NumberPositiveNegative",
             "Width": "150px",
-            "FilterOperator": "gt"
+            "FilterOperator": "gt",
+            "SumColumn": true
         }, {
             "Header": "Rest",
             "Field": "RestAmountCurrency",
             "Format": "NumberPositiveNegative",
             "Width": "150px",
-            "FilterOperator": "gt"
+            "FilterOperator": "gt",
+            "SumColumn": true
         }, {
             "Header": "Kreditert",
             "Field": "CreditedAmountCurrency",
             "Format": "NumberPositiveNegative",
             "Width": "150px",
-            "DefaultHidden": true
+            "DefaultHidden": true,
+            "SumColumn": true
         }, {
             "Header": "Sum inkl mva [BASECURRENCY]",
             "Field": "TaxInclusiveAmount",
             "Format": "NumberPositiveNegative",
-            "DefaultHidden": true
+            "DefaultHidden": true,
+            "SumColumn": true
         }, {
             "Header": "Restsum [BASECURRENCY]",
             "Field": "RestAmount",
             "Format": "NumberPositiveNegative",
-            "DefaultHidden": true
+            "DefaultHidden": true,
+            "SumColumn": true
         }, {
             "Header": "Kreditert [BASECURRENCY]",
             "Field": "CreditedAmount",
             "Format": "NumberPositiveNegative",
             "Width": "150px",
-            "DefaultHidden": true
+            "DefaultHidden": true,
+            "SumColumn": true
         }, {
             "Header": "Fakturaref.",
             "Field": "InvoiceReference.InvoiceNumber",
@@ -202,7 +208,23 @@
             }
     ],
     "SubTickersCodes": ["invoice_details", "invoice_items"],
-    "Filters": [{
+    "Filters": [
+        {
+            "Name": "Alle",
+            "Code": "all_invoices",
+            "UseAllCriterias": true,
+            "FilterGroups": [{
+                    "UseAllCriterias": false,
+                    "FieldFilters": [{
+                            "Field": "StatusCode",
+                            "Operator": "ne",
+                            "Value": "42001"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
             "Name": "Mine",
             "Code": "my_invoices",
             "UseAllCriterias": true,
@@ -216,7 +238,8 @@
                     ]
                 }
             ]
-        }, {
+        },
+        {
             "Name": "Kladd",
             "Code": "my_draft_invoices",
             "UseAllCriterias": false,
@@ -234,21 +257,8 @@
                     ]
                 }
             ]
-        }, {
-            "Name": "Alle",
-            "Code": "all_invoices",
-            "UseAllCriterias": true,
-            "FilterGroups": [{
-                    "UseAllCriterias": false,
-                    "FieldFilters": [{
-                            "Field": "StatusCode",
-                            "Operator": "ne",
-                            "Value": "42001"
-                        }
-                    ]
-                }
-            ]
-        }, {
+        },
+        {
             "Name": "Fakturert",
             "Code": "invoiced_invoices",
             "UseAllCriterias": true,
@@ -436,7 +446,8 @@
             "Header": "Sum inkl mva",
             "Field": "SumTotalIncVat",
             "Format": "NumberPositiveNegative",
-            "Width": "150px"
+            "Width": "150px",
+            "SumColumn": true
         }
     ],
     "Action": [{
@@ -620,12 +631,14 @@
             "Header": "Sum inkl mva",
             "Field": "TaxInclusiveAmountCurrency",
             "Format": "NumberPositiveNegative",
-            "Width": "120px"
+            "Width": "120px",
+            "SumColumn": true
         }, {
             "Header": "Sum inkl mva [BASECURRENCY]",
             "Field": "TaxInclusiveAmount",
             "Format": "NumberPositiveNegative",
-            "DefaultHidden": true
+            "DefaultHidden": true,
+            "SumColumn": true
         }, {
             "Header": "Hovedselger",
             "Field": "DefaultSeller.Seller.Name",
@@ -715,7 +728,22 @@
         }
     ],
     "SubTickersCodes": ["quote_details", "quote_items"],
-    "Filters": [{
+    "Filters": [
+        {
+            "Name": "Alle",
+            "Code": "all_quotes",
+            "FilterGroups": [{
+                    "UseAllCriterias": false,
+                    "FieldFilters": [{
+                            "Field": "StatusCode",
+                            "Operator": "ne",
+                            "Value": "40101"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
             "Name": "Mine",
             "Code": "my_quotes",
             "UseAllCriterias": true,
@@ -737,19 +765,6 @@
                     "FieldFilters": [{
                             "Field": "StatusCode",
                             "Operator": "eq",
-                            "Value": "40101"
-                        }
-                    ]
-                }
-            ]
-        }, {
-            "Name": "Alle",
-            "Code": "all_quotes",
-            "FilterGroups": [{
-                    "UseAllCriterias": false,
-                    "FieldFilters": [{
-                            "Field": "StatusCode",
-                            "Operator": "ne",
                             "Value": "40101"
                         }
                     ]
@@ -858,7 +873,8 @@
             "Header": "Sum inkl mva",
             "Field": "SumTotalIncVat",
             "Format": "NumberPositiveNegative",
-            "Width": "150px"
+            "Width": "150px",
+            "SumColumn": true
         }
     ]
 }, {
@@ -1002,12 +1018,14 @@
             "Field": "TaxInclusiveAmountCurrency",
             "Format": "NumberPositiveNegative",
             "Width": "125px",
-            "FilterOperator": "gt"
+            "FilterOperator": "gt",
+            "SumColumn": true
         },{
             "Header": "Sum inkl mva [BASECURRENCY]",
             "Field": "TaxInclusiveAmount",
             "Format": "NumberPositiveNegative",
-            "DefaultHidden": true
+            "DefaultHidden": true,
+            "SumColumn": true
         },{
             "Header": "Restsum",
             "Field": "sum(casewhen(items.statuscode eq 41102\\,items.SumTotalExVat\\,0))",
@@ -1015,7 +1033,6 @@
             "Format": "NumberPositiveNegative",
             "Width": "125px",
             "FilterOperator": "gt"
-
         },{
             "Header": "Vår ref",
             "Field": "OurReference",
@@ -1094,7 +1111,22 @@
         }
     ],
     "SubTickersCodes": ["order_details", "order_items"],
-    "Filters": [{
+    "Filters": [
+        {
+            "Name": "Alle",
+            "Code": "all_orders",
+            "FilterGroups": [{
+                    "UseAllCriterias": false,
+                    "FieldFilters": [{
+                            "Field": "StatusCode",
+                            "Operator": "ne",
+                            "Value": "41001"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
             "Name": "Mine",
             "Code": "my_orders",
             "UseAllCriterias": true,
@@ -1117,19 +1149,6 @@
                     "FieldFilters": [{
                             "Field": "StatusCode",
                             "Operator": "eq",
-                            "Value": "41001"
-                        }
-                    ]
-                }
-            ]
-        }, {
-            "Name": "Alle",
-            "Code": "all_orders",
-            "FilterGroups": [{
-                    "UseAllCriterias": false,
-                    "FieldFilters": [{
-                            "Field": "StatusCode",
-                            "Operator": "ne",
                             "Value": "41001"
                         }
                     ]

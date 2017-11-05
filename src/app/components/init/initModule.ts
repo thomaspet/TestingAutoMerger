@@ -8,7 +8,6 @@ import {LayoutModule} from '../layout/layoutModule';
 import {AppCommonModule} from '../common/appCommonModule';
 import {LoginModal} from './loginModal';
 import {UniInit} from './init';
-import {CompanySyncModal} from './companySyncModal';
 import {ResetPassword} from './resetPassword/resetPassword';
 import {Login} from './login/login';
 import {ConfirmInvite} from './confirmInvite/confirmInvite';
@@ -31,7 +30,6 @@ import {UniPasswordGuide} from './password-guide';
         UniPasswordGuide,
         LoginModal,
         UniInit,
-        CompanySyncModal,
         ResetPassword,
         Login,
         ConfirmInvite,
@@ -43,7 +41,6 @@ import {UniPasswordGuide} from './password-guide';
     exports: [
         LoginModal,
         UniInit,
-        CompanySyncModal,
         ResetPassword,
         Login,
         ConfirmInvite

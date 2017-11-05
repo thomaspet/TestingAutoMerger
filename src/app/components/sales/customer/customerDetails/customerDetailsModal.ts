@@ -1,26 +1,33 @@
-import {Component, Output, EventEmitter, ViewChild} from '@angular/core';
+import {Component, Input, Output, EventEmitter, ViewChild} from '@angular/core';
 import {CustomerDetails} from './customerDetails';
 import {Customer} from '../../../../unientities';
+import {IUniModal, IModalOptions} from '../../../../../framework/uniModal/barrel';
 
 @Component({
     selector: 'customer-details-modal',
     template: `
-        <dialog class="uniModal" [attr.open]="isOpen">
-            <button (click)="close()" class="closeBtn"></button>
-            <article class="modal-content" *ngIf="isOpen">
-                <customer-details [modalMode]="true" (customerUpdated)="onCustomerUpdated($event)"></customer-details>
+        <section role="dialog" class="uni-modal" style="width: 80vw">
+            <header><h1>Rediger kunde</h1></header>
+
+            <article>
+                <customer-details [modalMode]="true" (customerUpdated)="close($event)"></customer-details>
             </article>
-        </dialog>
+
+            <footer>
+            </footer>
+        </section>
     `
 })
-export class CustomerDetailsModal {
+export class CustomerDetailsModal implements IUniModal {
     @ViewChild(CustomerDetails)
     private customerDetails: CustomerDetails;
 
-    @Output() public customerUpdated: EventEmitter<Customer> = new EventEmitter<Customer>();
-    @Output() public cancel: EventEmitter<boolean> = new EventEmitter<boolean>();
+    @Input()
+    public options: IModalOptions;
 
-    public isOpen: boolean = false;
+    @Output()
+    public onClose: EventEmitter<any> = new EventEmitter();
+
     private keyListener: any;
 
     constructor() {
@@ -28,25 +35,21 @@ export class CustomerDetailsModal {
             const key = event.which || event.keyCode;
             if (key === 27) {
                 this.close();
-                document.removeEventListener('keydown', this.keyListener);
             }
         });
     }
 
-    public onCustomerUpdated(customer: Customer) {
-        this.customerUpdated.emit(customer);
-        this.isOpen = false;
+    public ngOnInit() {
+        if (this.options) {
+            let that = this;
+            setTimeout(function() {
+                that.customerDetails.openInModalMode(that.options.data.ID);
+            });
+        }
     }
 
-    public open(customerID: number) {
-        this.isOpen = true;
-        setTimeout(() => {
-            this.customerDetails.openInModalMode(customerID);
-        });
-    }
-
-    public close() {
-        this.cancel.emit(true);
-        this.isOpen = false;
+    public close(customer?: Customer) {
+        document.removeEventListener('keydown', this.keyListener);
+        this.onClose.emit(customer || null);
     }
 }

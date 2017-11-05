@@ -12,34 +12,26 @@ transquery-details
     .transquery-filter-form
         position: absolute
         top: .4rem
-        left: 15rem
+        left: 20rem
         z-index: #{map-get($zindex, toolbar) - 2}
 
         uni-field
             width: auto
             padding: 0
-            padding-left: 2rem
+            padding-right: 1.5rem
 
             label span
-                width: auto
-                padding-right: 1rem
+                @extend %visuallyHidden
 
             label span+*
                 width: auto
+
+            .uniSelect
+                width: 9.375rem
 
         .collapsable.-is-open > .collapsable-content
             justify-content: left
 
-@media screen and (max-width: 1240px)
+@media screen and (max-width: 1000px)
     transquery-details .transquery-filter-form
         position: static
-        @include labelLength(7rem)
-
-        uni-field
-            width: 25rem
-
-            label span
-                width: 7rem
-
-            label span+*
-                width: calc(100% - 7rem)

@@ -11,7 +11,7 @@
 </h3>
 
 <section [attr.aria-busy]="busy" >
-    
+
     <article [hidden]="!isDetailView">
         <button class="normal good" (click)="onShowDetails(false)">Vis oppsummering</button>
         <table class="flex-detail">
@@ -46,12 +46,10 @@
                 </tr>
                 <tr *ngIf="currentBalance?.Previous">
                     <td colspan="8">Sum totalt (inklusiv i dag)</td>
-                    <td class="sum" [class.minus]="currentBalance.Minutes<0">{{currentBalance.Minutes|min2hours:'decimal'}}</td>                    
+                    <td class="sum" [class.minus]="currentBalance.Minutes<0">{{currentBalance.Minutes|min2hours:'decimal'}}</td>
                 </tr>
             </tbody>
         </table>
-
-        <uni-time-modal></uni-time-modal>
 
     </article>
 
@@ -70,7 +68,7 @@
                 <tr *ngIf="currentBalance?.Previous">
                     <td class="label">+ {{currentBalance?.Previous.Description}} (pr.{{currentBalance?.Previous.BalanceDate|date:'dd.MM.yy'}})</td><td class="sum" [class.minus]="currentBalance?.Previous.Minutes<0" [class.plus]="currentBalance?.Previous.Minutes>0">{{currentBalance?.Previous.Minutes|min2hours:'decimal'}}</td>
                     <td class="spacer"></td>
-                    <td class="label"></td><td class="sum"></td>                            
+                    <td class="label"></td><td class="sum"></td>
                     <td class="spacer"></td>
                     <td class="label"></td><td class="sum" [class.minus]="currentBalance?.Previous.Minutes<0" [class.plus]="currentBalance?.Previous.Minutes>0">{{currentBalance?.Previous.Minutes|min2hours:'decimal'}}</td>
                 </tr>
@@ -78,7 +76,7 @@
                 <tr>
                     <td class="label">- forventet antall timer</td><td class="sum">{{currentBalance.PreExpected|min2hours:'decimal'}}</td>
                     <td class="spacer"></td>
-                    <td class="label">- forventet i dag</td><td class="sum">{{currentBalance.LastDayExpected|min2hours:'decimal'}}</td>                            
+                    <td class="label">- forventet i dag</td><td class="sum">{{currentBalance.LastDayExpected|min2hours:'decimal'}}</td>
                     <td class="spacer"></td>
                     <td class="label">- forventet totalt</td><td class="sum">{{currentBalance.ExpectedMinutes|min2hours:'decimal'}}</td>
                 </tr>
@@ -106,7 +104,7 @@
                     <td>{{currentBalance.Description}}</td>
                 </tr>
             </tbody>
-        </table>                
+        </table>
     </article>
 
 </section>

@@ -100,8 +100,8 @@ export class UniActivateAPModal implements IUniModal {
 
                 model.orgnumber = settings.OrganizationNumber;
                 model.orgname = settings.CompanyName;
-                model.orgphone = settings.DefaultPhone.Number;
-                model.orgemail = settings.DefaultEmail.EmailAddress;
+                model.orgphone = settings.DefaultPhone && settings.DefaultPhone.Number;
+                model.orgemail = settings.DefaultEmail && settings.DefaultEmail.EmailAddress;
                 model.contactname = apContactInfo ? apContactInfo.Name : user.DisplayName;
 
                 model.contactemail = (apContactInfo && apContactInfo.DefaultEmail)

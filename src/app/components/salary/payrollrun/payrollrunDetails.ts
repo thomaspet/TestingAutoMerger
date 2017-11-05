@@ -642,8 +642,9 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
         if (!latest) {
             // First payrollrun for the year
             let todate: LocalDate;
-            let fromdate: LocalDate = new LocalDate(new Date(this.activeYear, 0, 1));
+            let fromdate: LocalDate = new LocalDate(this.activeYear + '-01-01');
             payrollRun.FromDate = fromdate.toDate();
+
             if (companysalary) {
                 switch (companysalary.PaymentInterval) {
                     case CompanySalaryPaymentInterval.Pr14Days:

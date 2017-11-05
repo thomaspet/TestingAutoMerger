@@ -14,6 +14,7 @@ import {
     ErrorService,
     YearService
 } from '../../../../../services/services';
+import {ToastService, ToastType} from '../../../../../../framework/uniToast/toastService';
 
 import {YearModal, ChangeYear} from './modals/yearModal';
 
@@ -115,7 +116,8 @@ export class UniCompanyDropdown {
         private errorService: ErrorService,
         private cdr: ChangeDetectorRef,
         private yearService: YearService,
-        private modalService: UniModalService
+        private modalService: UniModalService,
+        private toastService: ToastService
     ) {
         this.userService.getCurrentUser().subscribe((user: User) => {
             this.currentUser = user;
@@ -130,12 +132,14 @@ export class UniCompanyDropdown {
         this.companyDropdownActive = false;
 
         this.selectCompanyConfig = {
-            displayProperty: 'Name'
+            displayProperty: 'Name',
+            hideDeleteButton: true
         };
 
         this.selectYearConfig = {
             template: (item) => typeof item === 'number' ? item.toString() : item,
-            searchable: false
+            searchable: false,
+            hideDeleteButton: true
         };
 
         this.loadCompanyData();
@@ -145,12 +149,24 @@ export class UniCompanyDropdown {
                 this.loadCompanyData();
                 this.cdr.markForCheck();
             }
-        });
+        },
+        err => this.errorService.handle(err));
 
-        this.yearService.selectedYear$.subscribe(val => {
-            this.selectYear = this.getYearComboSelection(val);
-            this.activeYear = val;
-        });
+        this.yearService.selectedYear$
+            .subscribe(val => {
+                this.selectYear = this.getYearComboSelection(val);
+                this.activeYear = val;
+            },
+            err => this.errorService.handle(err));
+
+        this.financialYearService.lastSelectedFinancialYear$
+            .subscribe(res => {
+                let found = this.financialYears.find(v => v.Year === res.Year);
+                if (found && this.activeYear && found.Year !== this.activeYear) {
+                    return this.yearIsSelected(found.Year.toString());
+                }
+            },
+            err => this.errorService.handle(err));
     }
 
     public openYearModal()  {
@@ -165,10 +181,21 @@ export class UniCompanyDropdown {
                     fin.Year = val.year;
                     this.financialYearService.setActiveYear(fin);
                 }
-                if (val.checkStandard) {
-                    this.companySettingsService.Get(1).subscribe((res) => {
-                        res.CurrentAccountingYear = this.activeYear;
-                    });
+
+                if (found && val.checkStandard) {
+                    this.companySettings.CurrentAccountingYear = val.year;
+                    this.companySettingsService.Put(this.companySettings.ID, this.companySettings)
+                        .subscribe(
+                            res => res,
+                            err => this.errorService.handle(err)
+                        );
+                } else if (!found && val.checkStandard) {
+                    this.toastService.addToast(
+                        'Kan ikke endre standard',
+                         ToastType.warn,
+                         5,
+                         'Regnskapsår eksisterer ikke. Endret kun nåværende sessjon.'
+                    );
                 }
                 this.close();
             }   else {
@@ -207,7 +234,6 @@ export class UniCompanyDropdown {
             );
     }
 
-
     public companySelected(selectedCompany): void {
         this.close();
         if (selectedCompany && selectedCompany !== this.activeCompany) {
@@ -218,44 +244,42 @@ export class UniCompanyDropdown {
 
     private selectDefaultYear(financialYears: FinancialYear[], companySettings: CompanySettings): void {
         let selYr = this.yearService.getSavedYear();
-        if (!selYr){
-            if (companySettings){
-                selYr = companySettings.CurrentAccountingYear;
-            }
 
-            if (!selYr){
-                selYr = new Date().getFullYear();
-            }
+        if (companySettings) {
+            selYr = companySettings.CurrentAccountingYear;
         }
-        let localStorageYear = this.financialYearService.getYearInLocalStorage();
 
-        if (localStorageYear)
-        {
+        if (!selYr) {
+            selYr = new Date().getFullYear();
+        }
+
+        let localStorageYear = this.financialYearService.getYearInLocalStorage();
+        if (localStorageYear) {
             if (selYr !== localStorageYear.Year)  {
                 let fin = financialYears.find(finyear => finyear.Year === selYr);
-                if (fin){
+                if (fin) {
                     this.yearSelected(fin);
-                }else {
+                } else {
                     fin = new FinancialYear();
                     fin.Year = selYr;
                     this.yearSelected(fin);
                 }
             } else {
-            this.yearSelected(localStorageYear);
+                this.yearSelected(localStorageYear);
             }
         } else {
-                let fin = financialYears.find(finyear => finyear.Year == selYr);
-                if (fin){
-                    this.yearSelected(fin);
-                }else {
-                    fin = new FinancialYear();
-                    fin.Year = selYr;
-                    this.yearSelected(fin);
-                }
+            let fin = financialYears.find(finyear => finyear.Year === selYr);
+            if (fin) {
+                this.yearSelected(fin);
+            } else {
+                fin = new FinancialYear();
+                fin.Year = selYr;
+                this.yearSelected(fin);
+            }
         }
     }
 
-    private yearIsSelected(selYear: string): void{
+    private yearIsSelected(selYear: string): void {
         let yr = parseInt(selYear);
         if (yr) {
             this.yearService.setSelectedYear(yr);
@@ -271,14 +295,17 @@ export class UniCompanyDropdown {
         } else {
             this.openYearModal();
         }
-
     }
 
-
     private yearSelected(selectedYear: FinancialYear): void {
-        this.close();
-        this.financialYearService.setActiveYear(selectedYear);
-        this.yearService.setSelectedYear(selectedYear.Year);
+        let localStorageYear = this.financialYearService.getYearInLocalStorage();
+
+        if (localStorageYear && selectedYear.Year !== localStorageYear.Year) {
+            this.financialYearService.setActiveYear(selectedYear);
+            this.yearService.setSelectedYear(selectedYear.Year);
+            this.close();
+        }
+
     }
 
     private close() {

@@ -138,6 +138,8 @@ export class CompanySettingsComponent implements OnInit {
         // {Decimals: 4, Label: '4 desimaler'}
     ];
 
+    private currentYear: number;
+
     constructor(
         private companySettingsService: CompanySettingsService,
         private accountService: AccountService,
@@ -165,7 +167,12 @@ export class CompanySettingsComponent implements OnInit {
         private uniFilesService: UniFilesService,
         private subEntitySettingsService: SubEntitySettingsService,
         private companySettingsViewService: CompanySettingsViewService
-    ) {}
+    ) {
+        this.financialYearService.lastSelectedFinancialYear$.subscribe(
+            res => this.currentYear = res.Year,
+            err => this.errorService.handle(err)
+        );
+    }
 
     public ngOnInit() {
         this.getDataAndSetupForm();
@@ -348,7 +355,10 @@ export class CompanySettingsComponent implements OnInit {
                 this.company$
                     .asObservable()
                     .take(1)
-                    .subscribe(compSettings => this.promptImportFromBrregIfNeeded(compSettings));
+                    .subscribe(
+                        compSettings => this.promptImportFromBrregIfNeeded(compSettings),
+                        err => this.errorService.handle(err)
+                    );
             }
         }
     }
@@ -403,7 +413,7 @@ export class CompanySettingsComponent implements OnInit {
             .Put(company.ID, company)
             .do((companySettings: CompanySettings) => this.promptUpdateOfSubEntitiesIfNeeded(companySettings))
             .subscribe(
-            (reponse) => {
+            (response) => {
                 this.companySettingsService.Get(1).subscribe(retrievedCompany => {
                     this.company$.next(this.setupCompanySettingsData(retrievedCompany));
                     this.showExternalSearch = retrievedCompany.OrganizationNumber === '';
@@ -417,6 +427,13 @@ export class CompanySettingsComponent implements OnInit {
                         // fails, so the service will fail silently if the updated settings
                         // cant be synced
                         this.uniFilesService.syncUniEconomyCompanySettings();
+
+                        let currentFinancialYear = new FinancialYear();
+                        currentFinancialYear.Year = response.CurrentAccountingYear;
+                        // setting currentAccountingYear in dropdown as well, this triggers route change to '/'
+                        if (company.CurrentAccountingYear !== this.currentYear) {
+                            this.financialYearService.setActiveYear(currentFinancialYear);
+                        }
                     }).catch((err) => {
                         this.errorService.handle(err);
                         complete('Purreinnstillinger feilet i lagring');
@@ -434,7 +451,10 @@ export class CompanySettingsComponent implements OnInit {
         if (companySettings.OrganizationNumber !== this.savedCompanyOrgValue) {
             this.subEntitySettingsService
                 .addSubEntitiesFromExternal(companySettings.OrganizationNumber)
-                .subscribe(subEntities => this.savedCompanyOrgValue = companySettings.OrganizationNumber);
+                .subscribe(
+                    subEntities => this.savedCompanyOrgValue = companySettings.OrganizationNumber,
+                    err => this.errorService.handle(err)
+                );
         }
     }
 
@@ -455,7 +475,7 @@ export class CompanySettingsComponent implements OnInit {
                 this.savedCompanyOrgValue = compSettings.OrganizationNumber;
                 this.company$.next(compSettings);
                 this.saveSettings(() => {});
-            });
+            }, err => this.errorService.handle(err));
     }
 
     private updateMunicipalityName() {
@@ -589,7 +609,6 @@ export class CompanySettingsComponent implements OnInit {
             debounceTime: 200
         };
 
-
         let officeMunicipality: UniFieldLayout = fields.find(x => x.Property === 'OfficeMunicipalityNo');
         officeMunicipality.Options = {
             source: this.municipalities,
@@ -671,9 +690,7 @@ export class CompanySettingsComponent implements OnInit {
                 let data = this.company$.getValue();
                 data['_FileFlowEmail'] = company['FileFlowEmail'];
                 this.company$.next(data);
-            },
-            err => this.errorService.handle(err)
-            );
+            }, err => this.errorService.handle(err));
     }
 
     private getFormLayout() {
@@ -1089,7 +1106,7 @@ export class CompanySettingsComponent implements OnInit {
 
     private activateAP() {
         this.modalService.open(UniActivateAPModal)
-            .onClose.subscribe((status) => {});
+            .onClose.subscribe((status) => {}, err => this.errorService.handle(err));
     }
 
     //#region Test data

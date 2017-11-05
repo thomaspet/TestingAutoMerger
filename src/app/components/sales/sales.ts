@@ -255,9 +255,7 @@ export class UniSales {
                     header: 'Kundersenteret',
                     text: 'Besøk vårt kundesenter for tips og triks, nyttige datoer og annen info.',
                     link: '',
-                    externalLink: 'http://support.unimicro.no/?_ga=2.96685528.676968774.1509090839-164083888'
-                        + '.1505815175&_gac=1.82445668.1506512206.CjwKCAjwmK3OBRBKEiwAOL6t1JQUOpBqP9bSF-'
-                        + 'sHI3WVrIFA2KEBFrgpy1EdKWDa1KqJSn9D0kJ6ExoC7_8QAvD_BwE',
+                    externalLink: 'https://unimicro.atlassian.net/servicedesk/customer/portal/3',
                     imageLink: '../../../assets/info_shortcut_bell_img.jpg',
                     title: ''
                 }

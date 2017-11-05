@@ -3,7 +3,7 @@ uni-ticker-wrapper uni-ticker
         display: inline-block
         position: absolute
         top: .55rem
-        left: 24rem
+        left: 25rem
         z-index: map-get($zindex, toolbar)
 
         a
@@ -22,30 +22,6 @@ uni-ticker
 
     uni-table
         font-size: .9rem
-
-        unitable-search
-            display: inline-block
-
-        th, td
-            border-left: none
-        th
-            border-bottom: none
-            background: mix($uni-color-scale9, $uni-color-negative, 60%)
-
-        tr:nth-of-type(even)
-            background: $uni-color-negative
-
-        tr:nth-of-type(odd)
-            background: #fff
-
-        tr[aria-selected]:not([aria-selected=false]),
-        tr:focus,
-        tr:hover
-            background: #d4dfee !important
-            color: $uni-color-positive !important
-            .contextMenu button
-                background-image: unicon-more($uni-color-scale5)
-                background-size: 1rem
 
         th.ticker-link-col
             text-align: center !important

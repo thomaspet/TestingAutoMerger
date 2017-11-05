@@ -245,9 +245,13 @@ export class UniTickerService { //extends BizHttp<UniQueryDefinition> {
         }
 
         if (c.Header.indexOf('[BASECURRENCY]') !== -1) {
-            let baseCurrencyCode =
-                this.companySettings.BaseCurrencyCode ?
-                    this.companySettings.BaseCurrencyCode.Code : 'Hovedvaluta';
+            let baseCurrencyCode;
+
+            if (this.companySettings && this.companySettings.BaseCurrencyCode) {
+                baseCurrencyCode = this.companySettings.BaseCurrencyCode.Code || 'Hovedvaluta';
+            } else {
+                baseCurrencyCode = 'Hovedvaluta';
+            }
 
             c.Header = c.Header.replace('[BASECURRENCY]', baseCurrencyCode);
         }
@@ -952,6 +956,7 @@ export class TickerColumn {
     public SubFields?: Array<TickerColumn>;
     public Placeholder?: string;
     public FieldSetColumn?: number;
+    public SumColumn?: boolean;
 }
 
 export interface ITickerColumnOverride {

@@ -12,6 +12,7 @@ import {
 } from '../../../services/services';
 import {Observable} from 'rxjs/Observable';
 import {IUniSearchConfig} from '../../../../framework/ui/unisearch/index';
+import {UniModalService} from '../../../../framework/uniModal/barrel';
 
 @Component({
     selector: 'tof-customer-card',
@@ -28,7 +29,7 @@ import {IUniSearchConfig} from '../../../../framework/ui/unisearch/index';
                 </uni-search>
 
                 <section class="addressCard" [attr.aria-readonly]="readonly">
-                    <span class="edit-btn" (click)="openCustomerModal()"></span>
+                    <span *ngIf="!readonly" class="edit-btn" (click)="openCustomerModal(entity.CustomerID)"></span>
                     <span *ngIf="ehfEnabled" class="ehf">EHF</span>
                     <strong>{{entity?.Customer?.Info?.Name}}</strong>
                     <br><span *ngIf="entity?.InvoiceAddressLine1">
@@ -49,14 +50,10 @@ import {IUniSearchConfig} from '../../../../framework/ui/unisearch/index';
                 </section>
             </label>
         </fieldset>
-
-        <customer-details-modal></customer-details-modal>
     `
 })
 export class TofCustomerCard {
     private searchInput: HTMLElement;
-
-    @ViewChild(CustomerDetailsModal) public customerDetailsModal: CustomerDetailsModal;
 
     @Input() private readonly: boolean;
     @Input() private entity: any;
@@ -96,11 +93,12 @@ export class TofCustomerCard {
         private uniSearchCustomerConfig: UniSearchCustomerConfig,
         private customerService: CustomerService,
         private errorService: ErrorService,
-        private sellerLinkService: SellerLinkService
+        private sellerLinkService: SellerLinkService,
+        private modalService: UniModalService
     ) {
         this.uniSearchConfig = this.uniSearchCustomerConfig.generateDoNotCreate(
             this.customerExpands,
-            () => this.openCustomerModal()
+            () => this.openCustomerModal(null)
         );
     }
 
@@ -162,11 +160,14 @@ export class TofCustomerCard {
         }
     }
 
-    public openCustomerModal(): Observable<Customer> {
-        if (!this.readonly) {
-            this.customerDetailsModal.open(this.entity.CustomerID);
-            return this.customerDetailsModal.customerUpdated;
-        }
+    public openCustomerModal(id) {
+        let returnValue = this.modalService.open(CustomerDetailsModal, { data: { ID: id }}).onClose;
+        returnValue.subscribe((res: Customer) => {
+            if (res) {
+                this.customerSelected(res);
+            }
+        });
+        return returnValue;
     }
 
     public formFieldChange() {
@@ -211,7 +212,7 @@ export class TofCustomerCard {
 
             // map main seller to entity
             if (customer.DefaultSellerLinkID) {
-                this.entity.DefaultSeller = Object.assign({}, customer.DefaultSeller 
+                this.entity.DefaultSeller = Object.assign({}, customer.DefaultSeller
                     || customer.Sellers.find(sellerLink => sellerLink.ID === customer.DefaultSellerLinkID));
                 this.entity.DefaultSeller.ID = undefined;
                 this.entity.DefaultSeller.CustomerID = undefined;

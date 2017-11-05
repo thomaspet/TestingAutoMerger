@@ -10,4 +10,14 @@ journal-entry-professional
         th
             padding: pxToRem(0) pxToRem(7)
 
+.validation_messages_container
+    max-height: 0
+    transition: max-height 1s ease-out
+    overflow: hidden
 
+    &[aria-visible=true]
+        max-height: 500px
+        transition: max-height 1s ease-in
+
+    strong
+        margin: .8rem 0

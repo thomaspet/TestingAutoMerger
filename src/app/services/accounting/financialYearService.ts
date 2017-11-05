@@ -11,9 +11,7 @@ import 'rxjs/add/observable/of';
 @Injectable()
 export class FinancialYearService extends BizHttp<FinancialYear> {
     private ACTIVE_FINANCIAL_YEAR_LOCALSTORAGE_KEY: string = 'activeFinancialYear';
-    private lastSelectedYear: ReplaySubject<FinancialYear>;
-    public lastSelectedFinancialYear$: Observable<FinancialYear>;
-    public lastSelectedYear$: Observable<number>;
+    public lastSelectedFinancialYear$: ReplaySubject<FinancialYear> = new ReplaySubject<FinancialYear>(1);
 
     constructor(
         http: UniHttp,
@@ -24,26 +22,15 @@ export class FinancialYearService extends BizHttp<FinancialYear> {
         this.relativeURL = FinancialYear.RelativeUrl;
         this.entityType = FinancialYear.EntityType;
         this.DefaultOrderBy = null;
-        this.lastSelectedYear = new ReplaySubject<FinancialYear>(1);
-
-        this.lastSelectedFinancialYear$ = this.lastSelectedYear.asObservable().map(financialYear => {
-                if (!financialYear) {
-                    financialYear = new FinancialYear();
-                    financialYear.Year = new Date().getFullYear();
-                }
-                return financialYear;
-            });
-
-        this.lastSelectedYear$ = this.lastSelectedFinancialYear$
-            .map(financialYear => financialYear.Year);
 
         this.lastSelectedFinancialYear$
             .subscribe(financialYear =>
-            localStorage.setItem(this.ACTIVE_FINANCIAL_YEAR_LOCALSTORAGE_KEY, JSON.stringify(financialYear)));
+                localStorage.setItem(this.ACTIVE_FINANCIAL_YEAR_LOCALSTORAGE_KEY, JSON.stringify(financialYear))
+            );
     }
 
     public setActiveYear(financialYear: FinancialYear) {
-        this.lastSelectedYear.next(financialYear);
+        this.lastSelectedFinancialYear$.next(financialYear);
     }
 
     public getYearInLocalStorage(): FinancialYear {

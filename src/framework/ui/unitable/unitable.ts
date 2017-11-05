@@ -16,6 +16,7 @@ import {UniTableUtils} from './unitableUtils';
 import * as Immutable from 'immutable';
 import {List} from 'immutable';
 import {KeyCodes} from '../../../app/services/common/keyCodes';
+import {StatisticsService} from '../../../app/services/services';
 
 export interface IContextMenuItem {
     label: string;
@@ -46,98 +47,7 @@ enum Direction { UP, DOWN, LEFT, RIGHT }
 
 @Component({
     selector: 'uni-table',
-    template: `
-        <unitable-search
-            *ngIf="config?.searchable"
-            [columns]="tableColumns"
-            [tableConfig]="config"
-            [configFilters]="advancedSearchFilters"
-            (filtersChange)="onFiltersChange($event)"
-            (upOrDownArrows)="onFilterInputUpOrDownArrows($event)">
-        </unitable-search>
-
-        <table *ngIf="tableData && config?.columns"
-               [ngClass]="{'editable-table': config.editable}"
-               class="unitable-main-table"
-               (keydown)="onKeyDown($event)">
-
-            <unitable-editor (valueChange)="onEditorChange($event)"
-                             (copyFromAbove)="copyFromCellAbove()">
-            </unitable-editor>
-
-            <unitable-contextmenu [items]="config.contextMenu.items"></unitable-contextmenu>
-
-            <thead>
-                <tr>
-                    <th *ngIf="config.multiRowSelect" class="select-column"><input type="checkbox" #allRowSelector (change)="onSelectAllRowsChanged(allRowSelector.checked)" checked="config.multiRowSelectDefaultValue" /></th>
-                    <th *ngFor="let column of tableColumns"
-                        [ngStyle]="{
-                            'width': column.get('width'),
-                            'text-align': column.get('alignment') || 'left'
-                        }"
-                        bind-class="column.get('headerCls')"
-                        [ngClass]="{
-                            isSortedAsc: ((column.get('displayField') || column.get('field')) === sortInfo?.field) && (sortInfo?.direction === 1),
-                            isSortedDesc: ((column.get('displayField') || column.get('field')) === sortInfo?.field) && (sortInfo?.direction === -1)
-                        }"
-
-                        [hidden]="!column.get('visible')"
-                        (click)="onSort(column)"
-                        [attr.title]="column.get('header')"
-                    >
-                        {{column.get('header')}}
-                    </th>
-
-                    <th *ngIf="config.deleteButton" class="select-column">
-                        <unitable-column-menu
-                            *ngIf="config?.columnMenuVisible && !config?.contextMenu?.items?.length"
-                            [columns]="tableColumns"
-                            (columnsChange)="onColumnsChange($event)"
-                            (resetAll)="onResetColumnConfig()">
-                        </unitable-column-menu>
-                    </th>
-
-                    <th *ngIf="config?.contextMenu?.items?.length || (config?.columnMenuVisible && !config?.deleteButton)"
-                        class="context-menu-column"
-                        [ngClass]="{
-                            'select-column': config?.contextMenu?.items?.length > 1 || config?.contextMenu?.showDropdownOnSingleItem
-                        }">
-
-                        <unitable-column-menu
-                            *ngIf="config?.columnMenuVisible"
-                            [columns]="tableColumns"
-                            (columnsChange)="onColumnsChange($event)"
-                            (resetAll)="onResetColumnConfig()">
-                        </unitable-column-menu>
-
-                    </th>
-                </tr>
-            </thead>
-            <tbody #tbody>
-                <tr unitable-row
-                    *ngFor="let row of getPageData()"
-                    [ngClass]="config.conditionalRowCls(row.toJS())"
-                    [attr.aria-readonly]="config?.isRowReadOnly(row.toJS())"
-                    [attr.aria-selected]="(config.multiRowSelect && row.get('_rowSelected')) || (!config.multiRowSelect && row == lastFocusedRowModel)"
-                    [columns]="tableColumns"
-                    [rowModel]="row"
-                    [config]="config"
-                    (rowDeleted)="onDeleteRow($event)"
-                    (cellFocused)="onCellFocused($event)"
-                    (cellClicked)="onCellClicked($event)"
-                    (rowSelectionChanged)="onRowSelected($event)"
-                    (contextMenuClicked)="updateContextMenu($event)">
-                </tr>
-            </tbody>
-        </table>
-
-        <unitable-pagination #pager
-            *ngIf="config?.pageable && rowCount > config?.pageSize"
-            [pageSize]="config.pageSize"
-            [rowCount]="rowCount"
-            (pageChange)="onPageChange($event)">
-        </unitable-pagination>
-    `,
+    templateUrl: './unitable.html',
     changeDetection: ChangeDetectionStrategy.OnPush,
     encapsulation: ViewEncapsulation.None,
 })
@@ -181,7 +91,14 @@ export class UniTable implements OnChanges {
     private sortInfo: ISortInfo;
     private resize$: any;
 
-    constructor(private utils: UniTableUtils, public el: ElementRef, private cdr: ChangeDetectorRef) {}
+    public columnSums: {[key: string]: number};
+
+    constructor(
+        private utils: UniTableUtils,
+        public el: ElementRef,
+        private cdr: ChangeDetectorRef,
+        private statisticsService: StatisticsService
+    ) {}
 
     // Life-cycle hooks
     public ngOnInit() {
@@ -838,35 +755,69 @@ export class UniTable implements OnChanges {
             this.urlSearchParams.set('top', this.config.pageSize.toString());
         }
 
-        this.resource(this.urlSearchParams)
-            .subscribe(
-                (response) => {
-                    this.rowCount = parseInt(response.headers.getAll('count'));
-                    let numPages = Math.ceil(this.rowCount / this.config.pageSize) || 1;
+        this.resource(this.urlSearchParams).subscribe(
+            (response) => {
+                this.rowCount = parseInt(response.headers.getAll('count'));
+                let numPages = Math.ceil(this.rowCount / this.config.pageSize) || 1;
 
-                    if (this.pager && this.pager.currentPage > numPages) {
-                        this.pager.goToPage(1);
-                    }
+                if (this.pager && this.pager.currentPage > numPages) {
+                    this.pager.goToPage(1);
+                }
 
-                    let data = response.json();
+                let data = response.json();
 
-                    if (this.config.dataMapper) {
-                        data = this.config.dataMapper(data);
-                    }
+                if (this.config.dataMapper) {
+                    data = this.config.dataMapper(data);
+                }
 
-                    this.makeDataImmutable(data);
+                this.makeDataImmutable(data);
 
-                    // after data is filtered, emit event to notify parent that the data has changed
-                    setTimeout(() => {
-                        this.dataLoaded.emit();
-                    });
+                // after data is filtered, emit event to notify parent that the data has changed
+                setTimeout(() => {
+                    this.dataLoaded.emit();
+                });
 
-                    if (this.config.editable && this.lastFocusPosition) {
-                        this.resetFocusedCell();
-                    }
-                },
-                err => console.error(message, err, '\n', message)
-            );
+                if (this.config.editable && this.lastFocusPosition) {
+                    this.resetFocusedCell();
+                }
+            },
+            err => console.error(message, err, '\n', message)
+        );
+
+        this.getColumnSums();
+    }
+
+    private getColumnSums() {
+        let sumColumns = this.tableColumns.filter(col => col.get('isSumColumn')).toJS();
+
+        if (!this.config.entityType || !sumColumns || !sumColumns.length) {
+            return;
+        }
+
+        let sumSelects = [];
+        sumColumns.forEach((col: UniTableColumn, index: number) => {
+            col['_selectAlias'] = 'sum' + index;
+            sumSelects.push(`sum(${col.field}) as ${col['_selectAlias']}`);
+        });
+
+        let odata = `model=${this.config.entityType}&select=${sumSelects.join(',')}`;
+        if (this.urlSearchParams.get('filter')) {
+            odata += `&filter=` + this.urlSearchParams.get('filter');
+        }
+
+        this.statisticsService.GetAll(odata)
+            .map(res => (res && res.Data && res.Data[0]) || {})
+            .catch(err => Observable.empty())
+            .subscribe(sums => {
+                let columnSums = {};
+
+                sumColumns.forEach(col => {
+                    columnSums[col.field] = sums[col._selectAlias];
+                });
+
+                this.columnSums = columnSums;
+                this.cdr.markForCheck();
+            });
     }
 
     private makeColumnsImmutable(columns): Immutable.List<any> {

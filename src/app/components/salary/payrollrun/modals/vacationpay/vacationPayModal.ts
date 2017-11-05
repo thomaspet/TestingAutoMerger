@@ -1,6 +1,6 @@
 import {Component, OnInit, Input, Output, EventEmitter, ViewChild, SimpleChanges} from '@angular/core';
 import {IUniModal, IModalOptions} from '../../../../../../framework/uniModal/barrel';
-import {BasicAmount, VacationPayLine, CompanySalary} from '../../../../../unientities';
+import {BasicAmount, VacationPayLine, CompanySalary, CompanyVacationRate} from '../../../../../unientities';
 import {UniFieldLayout, FieldType} from '../../../../../../framework/ui/uniform/index';
 import {
     UniTable, UniTableConfig, UniTableColumnType, UniTableColumn, IRowChangeEvent
@@ -18,6 +18,12 @@ import {UniModalService, ConfirmActions} from '../../../../../../framework/uniMo
 import {IUniSaveAction} from '../../../../../../framework/save/save';
 import {IUniInfoConfig} from '../../../../common/uniInfo/uniInfo';
 
+interface IVacationPayHeader {
+    VacationpayYear?: number;
+    BasicAmount?: number;
+    SixthWeek?: boolean;
+    PercentPayout?: number;
+}
 
 @Component({
     selector: 'vacation-pay-modal',
@@ -34,7 +40,12 @@ export class VacationPayModal implements OnInit, IUniModal {
 
     private busy: boolean;
     private basicamountBusy: boolean;
-    private vacationHeaderModel$: BehaviorSubject<any> = new BehaviorSubject({});
+    private vacationHeaderModel$: BehaviorSubject<IVacationPayHeader> = new BehaviorSubject({
+        BasicAmount: 0,
+        VacationpayYear: 1,
+        SixthWeek: true,
+        PercentPayout: 100
+    });
     private fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
     public config$: BehaviorSubject<any> = new BehaviorSubject({});
     private basicamounts: BasicAmount[] = [];
@@ -43,10 +54,8 @@ export class VacationPayModal implements OnInit, IUniModal {
     @ViewChild(UniTable) private table: UniTable;
     private vacationpayBasis: VacationPayLine[];
     private vacationBaseYear: number;
-    private financialYearEntity: number;
-    private percentPayout: number = 100;
+    private currentYear: number;
     private companysalary: CompanySalary;
-    private rates: any[] = [];
     private saveactions: IUniSaveAction[] = [];
     private mainAction: IUniSaveAction;
     private saveIsActive: boolean;
@@ -72,30 +81,24 @@ export class VacationPayModal implements OnInit, IUniModal {
 
         Observable
             .forkJoin(
-            this.companyVacationrateService.GetAll(''),
             this.companysalaryService.getCompanySalary(),
             this._basicamountService.getBasicAmounts(),
             this.yearService.getActiveYear())
-            .subscribe((response: any) => {
-                let [rates, comp, basics, financial] = response;
+            .finally(() => this.busy = false)
+            .catch((err, obs) => this.errorService.handleRxCatch(err, obs))
+            .do((response: any) => {
+                let [comp, basics, financial] = response;
                 this.basicamounts = basics;
-                this.financialYearEntity = financial;
+                this.currentYear = financial;
                 this.companysalary = comp;
                 this.companysalary['_wagedeductionText'] = this._vacationpaylineService.WageDeductionDueToHolidayArray[this.companysalary.WageDeductionDueToHoliday].name;
-                this.rates = rates;
-                let vacationHeaderModel = this.vacationHeaderModel$.getValue();
-                vacationHeaderModel.VacationpayYear = 1;
-                vacationHeaderModel.SixthWeek = true;
-                vacationHeaderModel.PercentPayout = this.percentPayout;
-                this.vacationHeaderModel$.next(vacationHeaderModel);
-                this.setCurrentBasicAmountAndYear();
-
+            })
+            .switchMap(() => this.vacationHeaderModel$.asObservable().take(1))
+            .do(model => this.vacationHeaderModel$.next(this.setCurrentBasicAmountAndYear(model)))
+            .subscribe(() => {
                 this.createFormConfig();
                 this.createTableConfig();
-
-
-                this.busy = false;
-            }, err => this.errorService.handle(err));
+            });
     }
 
     public saveVacationpayLines() {
@@ -118,7 +121,8 @@ export class VacationPayModal implements OnInit, IUniModal {
             })
             .do(() => this._toastService.addToast('Feriepengelinjer lagret', ToastType.good, 4))
             .catch((err, obs) => this.errorService.handleRxCatch(err, obs))
-            .subscribe(allSavedResponse => this.getVacationpayData());
+            .switchMap(() => this.vacationHeaderModel$.asObservable().take(1))
+            .subscribe(model => this.getVacationpayData(model));
     }
 
     public createVacationPayments() {
@@ -161,26 +165,36 @@ export class VacationPayModal implements OnInit, IUniModal {
     }
 
     public change(value: SimpleChanges) {
-        if (value['SixthWeek']) {
-            this.vacationpayBasis.forEach((vacationPay: VacationPayLine) => {
-                if (value['SixthWeek'].currentValue === true) {
-                    vacationPay['_IncludeSixthWeek'] = 'Ja';
-                } else {
-                    vacationPay['_IncludeSixthWeek'] = 'Nei';
+        this.vacationHeaderModel$
+            .asObservable()
+            .take(1)
+            .map(model => {
+                if (value['SixthWeek']) {
+                    this.vacationpayBasis.forEach((vacationPay: VacationPayLine) => {
+                        if (value['SixthWeek'].currentValue) {
+                            vacationPay['_IncludeSixthWeek'] = 'Ja';
+                        } else {
+                            vacationPay['_IncludeSixthWeek'] = 'Nei';
+                        }
+                        this.calcVacationPayAndUpdateWithdrawal(vacationPay, model);
+                    });
                 }
-                this.calcVacationPayAndUpdateWithdrawal(vacationPay);
-            });
-        }
 
-        if (value['PercentPayout']) {
-            let percent: number = parseFloat(value['PercentPayout'].currentValue);
-            if (isNaN(percent) || percent > 100 || percent < 1) {
-                percent = 100;
-            }
-            this.percentPayout = this.vacationHeaderModel$.getValue().PercentPayout = percent;
-        }
+                if (value['PercentPayout']) {
+                    let percent: number = parseFloat(value['PercentPayout'].currentValue);
+                    if (isNaN(percent) || percent > 100 || percent < 1) {
+                        percent = 100;
+                    }
+                    model.PercentPayout = percent;
+                    this.calcAllWithdrawals(model);
+                }
 
-        this.setCurrentBasicAmountAndYear();
+                if (value['VacationpayYear']) {
+                    model = this.setCurrentBasicAmountAndYear(model);
+                }
+                return model;
+            })
+            .subscribe(model => this.vacationHeaderModel$.next(model));
     }
 
     public rowChanged(event: IRowChangeEvent) {
@@ -199,16 +213,19 @@ export class VacationPayModal implements OnInit, IUniModal {
 
     public recalc(event) {
         this.options.cancelValue = event;
+        this.setUpRates(this.vacationBaseYear);
     }
 
-    private getVacationpayData() {
+    private getVacationpayData(vacationHeaderModel: IVacationPayHeader) {
         this.basicamountBusy = true;
         this._vacationpaylineService
             .getVacationpayBasis(this.vacationBaseYear, this.options.data.ID)
+            .finally(() => this.basicamountBusy = false)
+            .catch((err, obs) => this.errorService.handleRxCatch(err, obs))
             .subscribe((vpBasis) => {
                 if (vpBasis) {
                     this.vacationpayBasis = vpBasis.map(x => {
-                        if (this.empOver60(x) === true && this.vacationHeaderModel$.getValue().SixthWeek === true) {
+                        if (this.empOver60(x) && vacationHeaderModel.SixthWeek) {
                             x['_IncludeSixthWeek'] = 'Ja';
                             x['_Rate'] = x.Rate60;
                             x['_VacationPay'] = x.VacationPay60;
@@ -218,13 +235,11 @@ export class VacationPayModal implements OnInit, IUniModal {
                             x['_VacationPay'] = x.VacationPay;
                         }
                         this.setVacationPay(x, x.VacationPay60);
-                        this.calcWithdrawal(x);
+                        this.calcWithdrawal(x, vacationHeaderModel);
                         return x;
                     });
                 }
-                this.basicamountBusy = false;
-                this.vacationHeaderModel$.next(this.vacationHeaderModel$.getValue());
-            }, err => this.errorService.handle(err));
+            });
 
     }
 
@@ -257,13 +272,13 @@ export class VacationPayModal implements OnInit, IUniModal {
         }
     }
 
-    private setCurrentBasicAmountAndYear() {
-        switch (this.vacationHeaderModel$.getValue().VacationpayYear) {
+    private setCurrentBasicAmountAndYear(headerModel: IVacationPayHeader): IVacationPayHeader {
+        switch (headerModel.VacationpayYear) {
             case 1:
-                this.vacationBaseYear = this.financialYearEntity - 1;
+                this.vacationBaseYear = this.currentYear - 1;
                 break;
             case 2:
-                this.vacationBaseYear = this.financialYearEntity;
+                this.vacationBaseYear = this.currentYear;
                 break;
             default:
                 break;
@@ -274,23 +289,23 @@ export class VacationPayModal implements OnInit, IUniModal {
         });
 
         if (tmp) {
-            this.vacationHeaderModel$.getValue().BasicAmount = this.companysalary['_BasicAmount'] = tmp.BasicAmountPrYear;
+            headerModel.BasicAmount = tmp.BasicAmountPrYear;
+            this.companysalary['_BasicAmount'] = tmp.BasicAmountPrYear;
         }
-        this.setRates();
-        this.getVacationpayData();
 
+        this.getVacationpayData(headerModel);
+        this.setUpRates(this.vacationBaseYear);
+        return headerModel;
     }
 
-    private setRates() {
-        let rateOfTheYear = this.rates.find((rate: any) => {
-            rate.FromDate = new Date(rate.FromDate.toString());
-            return rate.FromDate.getFullYear() === this.vacationBaseYear;
-        });
-
-        if (rateOfTheYear) {
-            this.companysalary['_Rate'] = rateOfTheYear.Rate;
-            this.companysalary['_Rate60'] = rateOfTheYear.Rate60;
-        }
+    private setUpRates(year: number) {
+        this.companyVacationrateService
+            .getRatesForYear(year)
+            .filter(res => !!res)
+            .subscribe(res => {
+                this.companysalary['_Rate'] = res.Rate;
+                this.companysalary['_Rate60'] = res.Rate60;
+            });
     }
 
     private createFormConfig() {
@@ -412,7 +427,7 @@ export class VacationPayModal implements OnInit, IUniModal {
                 let row: VacationPayLine = event.rowModel;
                 if (event.field === 'ManualVacationPayBase' || event.field === '_IncludeSixthWeek') {
                     this.updateRow(row);
-                    this.calcVacationPayAndUpdateWithdrawal(row);
+                    this.calcVacationPayAndUpdateWithdrawal(row, this.vacationHeaderModel$.getValue());
                 }
                 if (event.field === 'Withdrawal') {
                     row['_rowSelected'] = true;
@@ -422,14 +437,19 @@ export class VacationPayModal implements OnInit, IUniModal {
             });
     }
 
-    private calcVacationPayAndUpdateWithdrawal(line: VacationPayLine) {
+    private calcVacationPayAndUpdateWithdrawal(line: VacationPayLine, model: IVacationPayHeader) {
         this.calcVacationPay(line);
-        this.calcWithdrawal(line);
+        this.calcWithdrawal(line, model);
     }
 
-    private calcWithdrawal(rowModel: VacationPayLine) {
+    private calcAllWithdrawals(model: IVacationPayHeader) {
+        this.vacationpayBasis = this.vacationpayBasis.map(row => this.calcWithdrawal(row, model));
+    }
+
+    private calcWithdrawal(rowModel: VacationPayLine, model: IVacationPayHeader): VacationPayLine {
         let widthdrawal = (rowModel['_VacationPay'] - rowModel['PaidVacationPay']);
-        rowModel['Withdrawal'] = Math.round(widthdrawal * this.percentPayout / 100);
+        rowModel['Withdrawal'] = Math.round(widthdrawal * model.PercentPayout / 100);
+        return rowModel;
     }
 
     private calcVacationPay(rowModel: VacationPayLine) {

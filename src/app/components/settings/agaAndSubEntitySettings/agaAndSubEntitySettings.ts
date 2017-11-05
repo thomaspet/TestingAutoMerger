@@ -164,7 +164,7 @@ export class AgaAndSubEntitySettings implements OnInit {
             source: this.agaRules,
             valueProperty: 'SectorID',
             displayProperty: 'Sector',
-            debounceTime: 500,
+            debounceTime: 500
         };
 
         var agaSoneLink = new UniFieldLayout();
@@ -435,6 +435,13 @@ export class AgaAndSubEntitySettings implements OnInit {
 
     public mainOrgChange(event) {
         let value = this.mainOrganization$.getValue();
+
+        if (event['AgaRule']) {
+            if (value['freeAmount'] === null && event['AgaRule'].currentValue === 1) {
+                value['freeAmount'] = 500000;
+            }
+        }
+
         value['_isDirty'] = true;
         this.isDirty = true;
         this.mainOrganization$.next(value);

@@ -1,4 +1,4 @@
-import {Component, ViewChild} from '@angular/core';
+import {Component, ViewChild, AfterViewInit} from '@angular/core';
 import {Router, ActivatedRoute} from '@angular/router';
 import {UniView} from '../../../../../framework/core/uniView';
 import {EmploymentService} from '../../../../services/services';
@@ -13,9 +13,10 @@ import {ReplaySubject} from 'rxjs/ReplaySubject';
     selector: 'employments',
     templateUrl: './employments.html'
 })
-export class Employments extends UniView {
+export class Employments extends UniView implements AfterViewInit {
     @ViewChild(UniTable)
     private table: UniTable;
+    private table$: ReplaySubject<UniTable> = new ReplaySubject(1);
 
     private employee: Employee;
     private employments: Employment[] = [];
@@ -76,11 +77,15 @@ export class Employments extends UniView {
                 .do(employments => setTimeout(() => this.focusRow(+paramsChange['EmploymentID'])))
                 .subscribe(employments => {
                     this.employments = employments || [];
-                    if (employments && employments.length === 0 && this.employeeID) {
+                    if (employments && !employments.length && this.employeeID) {
                         this.newEmployment();
                     }
                 });
         });
+    }
+
+    public ngAfterViewInit() {
+        this.table$.next(this.table);
     }
 
     public ngOnDestroy() {
@@ -134,9 +139,21 @@ export class Employments extends UniView {
             newEmployment['_createguid'] = this.employmentService.getNewGuid();
 
             this.employments.push(newEmployment);
-            this.table.addRow(newEmployment);
-            this.table.focusRow(this.employments.length - 1);
+            this.addAndFocusRow(newEmployment, this.employments);
         }, err => this.errorService.handle(err));
+    }
+
+    private addAndFocusRow(employment: Employment, employments: Employment[]) {
+        setTimeout(() => this.table$
+            .asObservable()
+            .filter(table => !!table)
+            .take(1)
+            .subscribe(table => {
+                if (table.getTableData().length !== employments.length) {
+                    table.addRow(employment);
+                }
+                table.focusRow(employments.length - 1);
+            }));
     }
 
     private onEmploymentChange(employment: Employment) {

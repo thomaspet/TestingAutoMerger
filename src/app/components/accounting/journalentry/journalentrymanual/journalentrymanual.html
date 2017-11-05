@@ -1,16 +1,4 @@
 <section [ngClass]="{'journalentry-input-area-full': !journalEntrySettings.AttachmentsVisible, 'journalentry-input-area': journalEntrySettings.AttachmentsVisible}">
-    <div class="validation_messages_container" *ngIf="validationResult && validationResult.Messages.length > 0">
-        <strong
-            *ngFor="let message of validationResult.Messages"
-            class="journalEntry_validation validation {{getValidationLevelCss(message.Level)}}"
-            [ngClass]="{
-                simplemode: journalEntryMode === 'SIMPLE',
-                promode: journalEntryMode != 'SIMPLE',
-                runassubcomponent: runAsSubComponent
-            }">
-            {{message.Message}}
-        </strong>
-    </div>
 
     <div class="journalentry-input-components">
         <journal-entry-professional
@@ -30,7 +18,20 @@
             [vatDeductions]="vatDeductions"
             [selectedNumberSeriesTaskID]="selectedNumberSeriesTaskID">
         </journal-entry-professional>
-
+        <div class="validation_messages_container"
+            [attr.aria-visible]="validationResult && validationResult.Messages.length > 0">
+            <strong
+                *ngFor="let message of validationResult?.Messages"
+                class="journalEntry_validation validation {{getValidationLevelCss(message.Level)}}"
+                [attr.aria-visible]="true"
+                [ngClass]="{
+                    simplemode: journalEntryMode === 'SIMPLE',
+                    promode: journalEntryMode != 'SIMPLE',
+                    runassubcomponent: runAsSubComponent
+                }">
+                {{message.Message}}
+            </strong>
+        </div>
         <uni-summary [configs]="summary" *ngIf="itemsSummaryData" [attr.aria-busy]="busy"></uni-summary>
 
         <section class="account_summary_container">

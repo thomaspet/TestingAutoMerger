@@ -119,7 +119,8 @@ import {SellerDetailsComponent} from './sellers/sellerDetailsComponent';
         ReminderConfirmForm,
         UniReminderSendingModal,
         ReminderSending,
-        InvoiceReminders
+        InvoiceReminders,
+        CustomerDetailsModal
     ],
     providers: [
         TradeItemHelper,

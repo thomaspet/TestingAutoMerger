@@ -21,7 +21,6 @@ import {UniAttachments} from './attacments/uniAttachements';
 import {UniUploadFileButton} from './attacments/uploadFileButton';
 import {UniPoster, TextWidget, ContactWidget, TableWidget, AlertsWidget, ImageWidget} from './poster/poster';
 import {LedgerAccountReconciliation} from './reconciliation/ledgeraccounts/ledgeraccountreconciliation';
-import {AccrualForm} from './modals/accrualModal';
 import {AccrualModal} from './modals/accrualModal';
 import {UniReminderSettingsModal} from './reminder/settings/reminderSettingsModal';
 import {ReminderSettings} from './reminder/settings/reminderSettings';
@@ -56,7 +55,6 @@ import {routes as AppCommonRoutes} from './appCommonRoutes';
         PredefinedDescriptionList,
         ContextMenu,
         ExternalSearch,
-        AccrualForm,
         AccrualModal,
         AltinnAuthenticationModal,
         UniBreadcrumbs,
@@ -102,18 +100,17 @@ import {routes as AppCommonRoutes} from './appCommonRoutes';
         BrowserWarning
     ],
     entryComponents: [
-        AccrualForm,
         AltinnAuthenticationModal,
         UniReminderSettingsModal,
         ReminderSettings,
         AddPaymentForm,
+        AccrualModal,
         ImageModal
     ],
     exports: [
         PredefinedDescriptionList,
         ContextMenu,
         ExternalSearch,
-        AccrualForm,
         AccrualModal,
         AltinnAuthenticationModal,
         UniBreadcrumbs,

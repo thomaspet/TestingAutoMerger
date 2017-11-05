@@ -17,7 +17,7 @@ export class Marketplace {
     constructor() {
         this.childRoutes = [
             {name: 'MODULER', path: 'add-ons'},
-            {name: 'WEBINARS', path: 'webinars'},
+            {name: 'WEBINARER', path: 'webinars'},
             {name: 'INTEGRASJONER', path: 'integrations'}
         ];
     }

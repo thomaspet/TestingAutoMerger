@@ -126,7 +126,13 @@ export class SubEntityDetails {
     }
 
     public change(event) {
+        if (event['AgaRule']) {
+            if (this.currentSubEntity['freeAmount'] === null && event['AgaRule'].currentValue === 1) {
+                this.currentSubEntity['freeAmount'] = 500000;
+            }
+        }
         this.currentSubEntity['_isDirty'] = true;
+        this.currentSubEntity$.next(this.currentSubEntity);
     }
 
     public saveSubentities() {

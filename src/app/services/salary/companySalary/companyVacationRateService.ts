@@ -2,6 +2,7 @@ import {Injectable} from '@angular/core';
 import {BizHttp} from '../../../../framework/core/http/BizHttp';
 import {UniHttp} from '../../../../framework/core/http/http';
 import {CompanyVacationRate} from '../../../unientities';
+import {Observable} from 'rxjs/Observable';
 
 @Injectable()
 export class CompanyVacationRateService extends BizHttp<CompanyVacationRate> {
@@ -9,5 +10,9 @@ export class CompanyVacationRateService extends BizHttp<CompanyVacationRate> {
         super(http);
         this.relativeURL = CompanyVacationRate.RelativeUrl;
         this.entityType = CompanyVacationRate.EntityType;
+    }
+
+    public getRatesForYear(year: number): Observable<CompanyVacationRate> {
+        return super.GetAll(`filter=year(FromDate) le ${year}&orderby=FromDate desc&top=1`).map(res => res[0]);
     }
 }

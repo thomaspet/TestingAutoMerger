@@ -1,5 +1,6 @@
 import {UniTableColumn, IUniTableColumn, UniTableColumnType, UniTableColumnSortMode} from './unitableColumn';
 import {IContextMenuItem, ITableFilter, IExpressionFilterValue} from '../unitable';
+import {Observable} from 'rxjs/Observable';
 
 export interface IDeleteButton {
     deleteHandler: (rowModel?: any) => any;
@@ -23,6 +24,7 @@ export interface IEditorData {
 
 export interface IUniTableConfig {
     configStoreKey?: string;
+    entityType?: string;
     columns: IUniTableColumn[];
     editable?: boolean;
     searchable?: boolean;
@@ -64,6 +66,7 @@ export interface IRowChangeEvent {
 
 export class UniTableConfig implements IUniTableConfig {
     public configStoreKey: string;
+    public entityType: string;
     public columns: IUniTableColumn[];
     public editable: boolean;
     public searchable: boolean;
@@ -127,6 +130,11 @@ export class UniTableConfig implements IUniTableConfig {
             return '';
         };
         this.copyFromCellAbove = true;
+    }
+
+    public setEntityType(entityType: string) {
+        this.entityType = entityType;
+        return this;
     }
 
     public setEditable(editable: boolean) {

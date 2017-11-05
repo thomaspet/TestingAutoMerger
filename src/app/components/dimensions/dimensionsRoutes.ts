@@ -10,6 +10,9 @@ import {ProjectQueryList} from './project/lists/querylist';
 import {ProjectHours} from './project/hours/hours';
 import {ProjectHourTotals} from './project/hours/hourtotals';
 
+import {ProjectLite} from './projectLite/projectLite';
+import {ProjectLiteDetails} from './projectLite/projectLiteDetails';
+
 export const dimensionsRoutes = [
     {
         path: '',
@@ -58,5 +61,13 @@ export const dimensionsRoutes = [
                 component: ProjectQueryList
             }
         ]
+    },
+    {
+        path: 'projectslite',
+        component: ProjectLite
+    },
+    {
+        path: 'projectslite/:id',
+        component: ProjectLiteDetails
     }
 ];

@@ -62,7 +62,7 @@ export class YearModal implements IUniModal {
 
         let fieldcheck = new UniFieldLayout();
         fieldcheck.EntityType =  'config';
-        fieldcheck.Label = 'Standard for klient';
+        fieldcheck.Label = 'Standard regnskapsår';
         fieldcheck.FieldType = FieldType.CHECKBOX;
         fieldcheck.ReadOnly = false;
         fieldcheck.LookupField = false;
