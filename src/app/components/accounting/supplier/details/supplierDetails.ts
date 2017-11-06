@@ -213,53 +213,42 @@ export class SupplierDetails implements OnInit {
     }
 
     public nextSupplier() {
-        this.canDeactivate().subscribe(canDeactivate => {
-            if (!canDeactivate) {
-                return;
-            }
-
-            this.supplierService.getNextID(this.supplier$.getValue().ID)
-                .subscribe((ID) => {
-                        if (ID) {
-                            this.router.navigateByUrl('/accounting/suppliers/' + ID);
-                        } else {
-                            this.toastService.addToast('Warning', ToastType.warn, 0, 'Ikke flere leverandører etter denne');
-                        }
-                    },
-                    err => this.errorService.handle(err));
-        });
+        this.supplierService.getNextID(this.supplier$.getValue().ID)
+            .subscribe((ID) => {
+                    if (ID) {
+                        this.router.navigateByUrl('/accounting/suppliers/' + ID);
+                    } else {
+                        this.toastService.addToast(
+                            'Warning',
+                            ToastType.warn,
+                            0,
+                            'Ikke flere leverandører etter denne'
+                        );
+                    }
+                },
+                err => this.errorService.handle(err)
+            );
     }
 
     public previousSupplier() {
-        this.canDeactivate().subscribe(canDeactivate => {
-            if (!canDeactivate) {
-                return;
-            }
-
-            this.supplierService.getPreviousID(this.supplier$.getValue().ID)
-                .subscribe((ID) => {
-                        if (ID) {
-                            this.router.navigateByUrl('/accounting/suppliers/' + ID);
-                        } else {
-                            this.toastService.addToast('Warning', ToastType.warn, 0, 'Ikke flere leverandører før denne');
-                        }
-                    },
-                    err => this.errorService.handle(err));
-        });
+        this.supplierService.getPreviousID(this.supplier$.getValue().ID)
+            .subscribe((ID) => {
+                    if (ID) {
+                        this.router.navigateByUrl('/accounting/suppliers/' + ID);
+                    } else {
+                        this.toastService.addToast('Warning', ToastType.warn, 0, 'Ikke flere leverandører før denne');
+                    }
+                },
+                err => this.errorService.handle(err)
+            );
     }
 
     public addSupplier() {
-        this.canDeactivate().subscribe(canDeactivate => {
-            if (!canDeactivate) {
-                return;
-            }
-
-            this.router.navigateByUrl('/accounting/suppliers/0');
-        });
+        this.router.navigateByUrl('/accounting/suppliers/0');
     }
 
     private deleteSupplier(id: number) {
-        if(confirm('Vil du slette denne leverandøren?')) {
+        if (confirm('Vil du slette denne leverandøren?')) {
             this.supplierService.deleteSupplier(id).subscribe(res => {
                 this.router.navigateByUrl('/accounting/suppliers');
             }, err => this.errorService.handle(err));
@@ -294,16 +283,8 @@ export class SupplierDetails implements OnInit {
             && this.ledgerAccountReconciliation
             && this.ledgerAccountReconciliation.isDirty) {
 
-            this.canDeactivate().subscribe(canDeactivate => {
-                if (!canDeactivate) {
-                    return;
-                }
-
-                this.activeTab = tab;
-                this.showReportWithID = reportid;
-            });
-
-
+            this.activeTab = tab;
+            this.showReportWithID = reportid;
         } else {
             this.activeTab = tab;
             this.showReportWithID = reportid;
@@ -319,6 +300,11 @@ export class SupplierDetails implements OnInit {
                 .map(result => {
                     if (result === ConfirmActions.ACCEPT) {
                         this.saveSupplier(() => {});
+                    } else if (result === ConfirmActions.REJECT) {
+                        this.isDirty = false;
+                        if (this.ledgerAccountReconciliation) {
+                            this.ledgerAccountReconciliation.isDirty = false;
+                        }
                     }
 
                     return result !== ConfirmActions.CANCEL;

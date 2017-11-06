@@ -157,6 +157,7 @@ export class CustomerDetails {
             }
         }
     ];
+
     private customerStatisticsData: any;
 
     private expandOptions: Array<string> = [
@@ -177,8 +178,7 @@ export class CustomerDetails {
         'Sellers',
         'Sellers.Seller',
         'DefaultSeller'
-        ];
-
+    ];
 
     private formIsInitialized: boolean = false;
 
@@ -247,54 +247,36 @@ export class CustomerDetails {
     }
 
     public nextCustomer() {
-        this.canDeactivate().subscribe(canDeactivate => {
-            if (!canDeactivate) {
-                return;
-            }
-
-            this.customerService.getNextID(this.customerID ? this.customerID : 0)
-                .subscribe(id => {
-                        if (id) {
-                            this.router.navigateByUrl('/sales/customer/' + id);
-                        } else {
-                            this.toastService.addToast('Warning', ToastType.warn, 0, 'Ikke flere kunder etter denne');
-                        }
-                    },
-                    err => this.errorService.handle(err)
-                );
-        });
+        this.customerService.getNextID(this.customerID ? this.customerID : 0)
+            .subscribe(id => {
+                    if (id) {
+                        this.router.navigateByUrl('/sales/customer/' + id);
+                    } else {
+                        this.toastService.addToast('Warning', ToastType.warn, 0, 'Ikke flere kunder etter denne');
+                    }
+                },
+                err => this.errorService.handle(err)
+            );
     }
 
     public previousCustomer() {
-        this.canDeactivate().subscribe(canDeactivate => {
-            if (!canDeactivate) {
-                return;
-            }
-
-            this.customerService.getPreviousID(this.customerID ? this.customerID : 0)
-                .subscribe(id => {
-                        if (id) {
-                            this.router.navigateByUrl('/sales/customer/' + id);
-                        } else {
-                            this.toastService.addToast('Warning', ToastType.warn, 0, 'Ikke flere kunder før denne');
-                        }
-                    },
-                    err => this.errorService.handle(err)
-                );
-        });
+        this.customerService.getPreviousID(this.customerID ? this.customerID : 0)
+            .subscribe(id => {
+                    if (id) {
+                        this.router.navigateByUrl('/sales/customer/' + id);
+                    } else {
+                        this.toastService.addToast('Warning', ToastType.warn, 0, 'Ikke flere kunder før denne');
+                    }
+                },
+                err => this.errorService.handle(err)
+            );
     }
 
     public addCustomer() {
-        this.canDeactivate().subscribe(canDeactivate => {
-            if (!canDeactivate) {
-                return;
-            }
-
-            this.showTab('details');
-            this.router.navigateByUrl('/sales/customer/new');
-            this.isDisabled = true;
-            this.setupSaveActions();
-        });
+        this.showTab('details');
+        this.router.navigateByUrl('/sales/customer/new');
+        this.isDisabled = true;
+        this.setupSaveActions();
     }
 
     private deleteCustomer(id: number) {
@@ -331,6 +313,11 @@ export class CustomerDetails {
                 .map(result => {
                     if (result === ConfirmActions.ACCEPT) {
                         this.saveCustomer(() => {});
+                    } else if (result === ConfirmActions.REJECT) {
+                        this.isDirty = false;
+                        if (this.ledgerAccountReconciliation) {
+                            this.ledgerAccountReconciliation.isDirty = false;
+                        }
                     }
 
                     return result !== ConfirmActions.CANCEL;
@@ -342,14 +329,8 @@ export class CustomerDetails {
             && this.ledgerAccountReconciliation
             && this.ledgerAccountReconciliation.isDirty) {
 
-            this.canDeactivate().subscribe(canDeactivate => {
-                if (!canDeactivate) {
-                    return;
-                }
-
-                this.activeTab = tab;
-                this.showReportWithID = reportid;
-            });
+            this.activeTab = tab;
+            this.showReportWithID = reportid;
         } else {
             this.activeTab = tab;
             this.showReportWithID = reportid;

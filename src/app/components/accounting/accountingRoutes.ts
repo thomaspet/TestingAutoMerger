@@ -84,7 +84,8 @@ export const accountingRoutes: Routes = [
     },
     {
         path: 'accountquery',
-        component: AccountDetailsReport
+        component: AccountDetailsReport,
+        canDeactivate: [CanDeactivateGuard]
     },
     {
         path: 'postpost',
