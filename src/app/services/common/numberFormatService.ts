@@ -6,7 +6,7 @@ const THINSPACE = '\u2009';
 
 @Injectable()
 export class NumberFormat {
-    public asPercentage(value: number, options?: INumberOptions): string {
+    public asPercentage(value: number, options: INumberOptions = {}): string {
         options = {
             thousandSeparator: options.thousandSeparator || THINSPACE,
             decimalSeparator: options.decimalSeparator || ',',
