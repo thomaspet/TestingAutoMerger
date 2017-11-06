@@ -21,8 +21,8 @@ type ModalConfig = {
 };
 
 type InputModel = {
-    FromEmpNo: number,
-    ToEmpNo: number,
+    EmpFrom: number,
+    EmpTo: number,
     RunID: number
 };
 
@@ -39,12 +39,11 @@ export class PaycheckReportFilterModalContent implements OnInit, OnDestroy {
     private currentYear: number;
     public config$: BehaviorSubject<any> = new BehaviorSubject({});
     public fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
-    public model$: BehaviorSubject<InputModel> = new BehaviorSubject({ FromEmpNo: 0, ToEmpNo: 0, RunID: 0 });
+    public model$: BehaviorSubject<InputModel> = new BehaviorSubject({ EmpFrom: 0, EmpTo: 0, RunID: 0 });
     private selectedPayrollRun: PayrollRun;
 
     private subscriptions: any[] = [];
     public params$: BehaviorSubject<Hash> = new BehaviorSubject<Hash>([]);
-    private employees: Employee[];
 
     constructor(
         private payrollRunService: PayrollrunService,
@@ -56,6 +55,7 @@ export class PaycheckReportFilterModalContent implements OnInit, OnDestroy {
         this.config$.next(this.config);
         this.subscriptions.push(this.yearService
             .selectedYear$
+            .asObservable()
             .do(year => this.currentYear = year)
             .switchMap(year => {
                 return Observable.forkJoin(
@@ -73,11 +73,10 @@ export class PaycheckReportFilterModalContent implements OnInit, OnDestroy {
 
                 this.model$
                     .next({
-                        FromEmpNo: 1,
-                        ToEmpNo: employee.EmployeeNumber || 1,
+                        EmpFrom: 1,
+                        EmpTo: employee.EmployeeNumber || 1,
                         RunID: payrollRun.ID
                     });
-                this.updateParams(this.model$.getValue());
             }));
     }
 
@@ -85,58 +84,8 @@ export class PaycheckReportFilterModalContent implements OnInit, OnDestroy {
         this.subscriptions.map(subscription => subscription.unsubscribe());
     }
 
-    public formChange(change) {
-        this.updateParams(this.model$.getValue());
-    }
-
-    private updateParams(inputModel: InputModel) {
-        let params = this.params$.getValue();
-        Observable
-            .of(inputModel && inputModel.RunID !== params['RunID'])
-            .do(hasChanged => {
-                if (this.currentYear && this.currentYear !== params['ThisYear']) {
-                    params['ThisYear'] = this.currentYear;
-                    params['LastYear'] = this.currentYear - 1;
-                    this.params$.next(params);
-                }
-            })
-            .filter((hasChanged) => hasChanged)
-            .do((hasChanged) => params['PayDate'] = this.selectedPayrollRun.PayDate)
-            .switchMap((hasChanged) => Observable
-                .forkJoin(
-                Observable.of(inputModel),
-                this.payrollRunService
-                    .getEmployeesOnPayroll(inputModel.RunID, [])
-                    .map(emps => {
-                        this.employees = emps;
-                        return emps;
-                    })
-                    .catch((err, obs) => this.errorService.handleRxCatch(err, obs))
-                ))
-            .map((result: [InputModel, Employee[]]) => {
-                let [model, employees] = result;
-                if (employees) {
-                    let filteredEmployees = employees
-                        .filter(emp => emp.EmployeeNumber <= model.ToEmpNo && emp.EmployeeNumber >= model.FromEmpNo);
-
-                    params['TransFilter'] = `PayrollRunID eq ${model.RunID} `
-                        + (filteredEmployees.length
-                            ? 'and (' + filteredEmployees.map(emp => 'EmployeeID eq ' + emp.ID).join(' or ') + ')'
-                            : '');
-                    params['EmployeeFilter'] = filteredEmployees.map(emp => 'ID eq ' + emp.ID).join(' or ');
-
-                    params['EmpFrom'] = model.FromEmpNo;
-                    params['EmpTo'] = model.ToEmpNo;
-                }
-                return model;
-            })
-            .map((model: InputModel) => {
-                Object.keys(model).forEach(key => {
-                    params[key] = model[key];
-                });
-                return params;
-            })
-            .subscribe((newParams) => this.params$.next(newParams));
+    public GetParams() {
+        return this.model$.getValue();
     }
 
     private getLayout(defaultRun: PayrollRun): UniFieldLayout[] {
@@ -144,12 +93,12 @@ export class PaycheckReportFilterModalContent implements OnInit, OnDestroy {
             <UniFieldLayout>{
                 FieldType: FieldType.NUMERIC,
                 Label: 'Fra ansatt nummer',
-                Property: 'FromEmpNo'
+                Property: 'EmpFrom'
             },
             <UniFieldLayout>{
                 FieldType: FieldType.NUMERIC,
                 Label: 'Til ansatt nummer',
-                Property: 'ToEmpNo'
+                Property: 'EmpTo'
             },
             <UniFieldLayout>{
                 FieldType: FieldType.AUTOCOMPLETE,
@@ -157,7 +106,12 @@ export class PaycheckReportFilterModalContent implements OnInit, OnDestroy {
                 Property: 'RunID',
                 Options: {
                     getDefaultData: () => Observable.of([defaultRun]),
-                    search: (query) => this.payrollRunService.GetAll(`filter=year(PayDate) eq ${this.currentYear} and (startswith(ID, '${query}') or contains(Description, '${query}'))&top=50&orderby=PayDate DESC`),
+                    search: (query) => this.payrollRunService
+                        .GetAll(
+                            `filter=year(PayDate) eq ${this.currentYear} `
+                            + `and (startswith(ID, '${query}') `
+                            + `or contains(Description, '${query}'))`
+                            + `&top=50&orderby=PayDate DESC`),
                     valueProperty: 'ID',
                     template: (obj: PayrollRun) => obj ? `${obj.ID} - ${obj.Description}` : '',
                     events: {
@@ -171,7 +125,7 @@ export class PaycheckReportFilterModalContent implements OnInit, OnDestroy {
 
 @Component({
     selector: 'paycheck-report-filter-modal',
-    template: `<uni-modal [type]='type' [config]='modalConfig'></uni-modal>`
+    template: `<uni-modal *ngIf="!inActive" [type]='type' [config]='modalConfig'></uni-modal>`
 })
 export class PayCheckReportFilterModal implements OnInit {
     @ViewChild(UniModal)
@@ -179,6 +133,7 @@ export class PayCheckReportFilterModal implements OnInit {
 
     private modalConfig: ModalConfig;
     public type: Type<any> = PaycheckReportFilterModalContent;
+    private inActive: boolean;
 
     constructor(
         private reportDefinitionParameterService: ReportDefinitionParameterService,
@@ -198,13 +153,13 @@ export class PayCheckReportFilterModal implements OnInit {
                         Observable
                             .fromPromise(this.modal.getContent())
                             .map((component: PaycheckReportFilterModalContent) => {
-                                let params = component.params$.getValue();
+                                let params = component.GetParams();
                                 component.config.report.parameters.map(param => {
                                     param.value = params[param.Name];
                                 });
                                 return component;
                             })
-                            .do(() => this.modal.close())
+                            .do(() => this.close())
                             .subscribe((component: PaycheckReportFilterModalContent) => {
                                 this.modalService.open(UniPreviewModal, {
                                     data: component.config.report
@@ -214,7 +169,7 @@ export class PayCheckReportFilterModal implements OnInit {
                 },
                 {
                     text: 'Avbryt',
-                    method: () => this.modal.close()
+                    method: () => this.close()
                 }
             ]
         };
@@ -230,5 +185,15 @@ export class PayCheckReportFilterModal implements OnInit {
                 this.modalConfig.report.parameters = params;
                 this.modal.open();
             }, err => this.errorService.handle(err));
+    }
+
+    private close() {
+        this.modal.close();
+        this.refresh();
+    }
+
+    private refresh(): void {
+        this.inActive = true;
+        setTimeout(() => this.inActive = false, 1000);
     }
 }

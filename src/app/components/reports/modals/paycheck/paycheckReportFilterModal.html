@@ -4,8 +4,7 @@
         <uni-form
                 [config]="config$"
                 [fields]="fields$"
-                [model]="model$"
-                (changeEvent)="formChange($event)">
+                [model]="model$">
         </uni-form>
         <footer>
             <button *ngFor="let action of config.actions" (click)="action.method()" [ngClass]="action.class" type="button">
