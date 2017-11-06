@@ -92,15 +92,11 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
 
     @ViewChild(UniTable) private table: UniTable;
     @ViewChild(NewAccountModal) private newAccountModal: NewAccountModal;
-    @ViewChild(AddPaymentModal) private addPaymentModal: AddPaymentModal;
     @ViewChild(SelectJournalEntryLineModal) private selectJournalEntryLineModal: SelectJournalEntryLineModal;
 
     private companySettings: CompanySettings;
     private columnsThatMustAlwaysShow: string[] = ['AmountCurrency'];
     private journalEntryTableConfig: UniTableConfig;
-    private paymentModalValueChanged: any;
-    private accrualModalValueChanged: any;
-    private accrualModalValueDeleted: any;
     private createdNewAccount: any;
 
     @Output() public dataChanged: EventEmitter<JournalEntryData[]> = new EventEmitter<JournalEntryData[]>();
@@ -1751,13 +1747,15 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
         if (item.JournalEntryPaymentData && item.JournalEntryPaymentData.PaymentData) {
             payment = item.JournalEntryPaymentData.PaymentData;
             title = 'Endre betaling';
-            this.addPaymentModal.openModal(payment, title);
 
-            this.paymentModalValueChanged = this.addPaymentModal.Changed.subscribe(modalval => {
-                item.JournalEntryPaymentData.PaymentData = modalval;
-                this.table.updateRow(item['_originalIndex'], item);
-                this.rowChanged();
+            this.modalService.open(AddPaymentModal, { data: { payment: payment} }).onClose.subscribe((res: any) => {
+                if (payment) {
+                    item.JournalEntryPaymentData.PaymentData = res;
+                    this.table.updateRow(item['_originalIndex'], item);
+                    this.rowChanged();
+                }
             });
+
         } else {
             // generate suggestion for payment based on accounts used in item
             payment = new Payment();
@@ -1773,7 +1771,11 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                                         : item.CreditAccount.CustomerID;
 
                     // get businessrelation and default account based on customerid
-                    this.statisticsService.GetAll(`model=Customer&expand=Info.DefaultBankAccount&filter=Customer.ID eq ${customerID}&select=DefaultBankAccount.ID as DefaultBankAccountID,DefaultBankAccount.AccountNumber as DefaultBankAccountAccountNumber,Info.Name as BusinessRelationName,Info.ID as BusinessRelationID`)
+                    this.statisticsService.GetAll(
+                        `model=Customer&expand=Info.DefaultBankAccount&filter=Customer.ID eq
+                        ${customerID}&select=DefaultBankAccount.ID as DefaultBankAccountID,
+                        DefaultBankAccount.AccountNumber as DefaultBankAccountAccountNumber,Info.Name
+                        as BusinessRelationName,Info.ID as BusinessRelationID`)
                         .map(data => data.Data ? data.Data : [])
                         .subscribe(brdata => {
                             if (brdata && brdata.length > 0) {
@@ -1849,31 +1851,28 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 // passing in InvoiceNumber from journalentry if it has one
                 payment.InvoiceNumber = item.InvoiceNumber ? item.InvoiceNumber : '';
 
-                this.addPaymentModal.openModal(payment, title);
+                this.modalService.open(AddPaymentModal, {data: { payment: payment }}).onClose.subscribe((res) => {
+                    if (res) {
+                        if (!item.JournalEntryPaymentData) {
+                            item.JournalEntryPaymentData = {
+                                PaymentData: res
+                            };
+                        } else {
+                            item.JournalEntryPaymentData.PaymentData = res;
+                        }
 
-                if (this.paymentModalValueChanged) {
-                    this.paymentModalValueChanged.unsubscribe();
-                }
-
-                this.paymentModalValueChanged = this.addPaymentModal.Changed.subscribe(modalval => {
-                    if (!item.JournalEntryPaymentData) {
-                        item.JournalEntryPaymentData = {
-                            PaymentData: modalval
-                        };
-                    } else {
-                        item.JournalEntryPaymentData.PaymentData = modalval;
+                        // if the item is already booked, just add the payment through the API now
+                        /* if (item.StatusCode) {
+                            this.journalEntryService.LEGGTILBETALING()
+                            DETTE GJØRES MÅ GJØRES I NESTE SPRINT,
+                            TAS SAMTIDIG SOM FUNKSJON FOR Å REGISTRERE MER PÅ ET EKSISTERENDE BILAG
+                            https://github.com/unimicro/AppFramework/issues/2536
+                        }
+                        */
+                        this.table.updateRow(item['_originalIndex'], item);
+                        this.rowChanged();
                     }
-
-                    // if the item is already booked, just add the payment through the API now
-                    /* if (item.StatusCode) {
-                        this.journalEntryService.LEGGTILBETALING()
-                        DETTE GJØRES MÅ GJØRES I NESTE SPRINT, TAS SAMTIDIG SOM FUNKSJON FOR Å REGISTRERE MER PÅ ET EKSISTERENDE BILAG
-                        https://github.com/unimicro/AppFramework/issues/2536
-                    }
-                    */
-                    this.table.updateRow(item['_originalIndex'], item);
-                    this.rowChanged();
-                });
+                })
             });
         }
     }

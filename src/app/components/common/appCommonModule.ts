@@ -27,7 +27,7 @@ import {ReminderSettings} from './reminder/settings/reminderSettings';
 import {ReminderRules} from './reminder/settings/reminderRules';
 import {ContactDetails} from './contact/contactDetails';
 import {Contacts} from './contact/contacts';
-import {AddPaymentModal, AddPaymentForm} from './modals/addPaymentModal';
+import {AddPaymentModal} from './modals/addPaymentModal';
 import {ModelTreeView} from './modeltreeview/modeltreeview';
 import {ModelTreeRelationNode} from './modeltreeview/relationNode';
 import {Editable} from './utils/editable/editable';
@@ -76,7 +76,6 @@ import {routes as AppCommonRoutes} from './appCommonRoutes';
         UniUploadFileButton,
         UniTags,
         AddPaymentModal,
-        AddPaymentForm,
         ModelTreeView,
         ModelTreeRelationNode,
         LedgerAccountReconciliation,
@@ -103,7 +102,7 @@ import {routes as AppCommonRoutes} from './appCommonRoutes';
         AltinnAuthenticationModal,
         UniReminderSettingsModal,
         ReminderSettings,
-        AddPaymentForm,
+        AddPaymentModal,
         AccrualModal,
         ImageModal
     ],
@@ -129,7 +128,6 @@ import {routes as AppCommonRoutes} from './appCommonRoutes';
         UniUploadFileButton,
         UniTags,
         AddPaymentModal,
-        AddPaymentForm,
         ModelTreeView,
         ModelTreeRelationNode,
         LedgerAccountReconciliation,

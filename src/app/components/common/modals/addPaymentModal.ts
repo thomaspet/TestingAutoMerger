@@ -1,5 +1,5 @@
-import {Component, Type, Input, Output, ViewChild, EventEmitter, OnInit} from '@angular/core';
-import {UniModal} from '../../../../framework/modals/modal';
+import {Component, Input, Output, ViewChild, EventEmitter} from '@angular/core';
+import {IUniModal, IModalOptions} from '../../../../framework/uniModal/barrel';
 import {
     UniForm,
     FieldType
@@ -8,8 +8,7 @@ import {
     UniEntity,
     Payment,
     BankAccount,
-    BusinessRelation,
-    CustomerInvoice
+    BusinessRelation
 } from '../../../unientities';
 import {
     PaymentService,
@@ -28,40 +27,49 @@ import {UniSearchAccountConfig} from '../../../services/common/uniSearchConfig/u
 
 declare const _; // lodash
 
-// Reusable address form
+// address modal
 @Component({
-    selector: 'add-payment-form',
-
+    selector: 'add-payment-modal',
     template: `
-        <article class="modal-content add-payment-modal">
-            <h1 *ngIf="config.title">{{config.title}}</h1>
-            <uni-form [config]="formConfig$" [fields]="fields$" [model]="model$"></uni-form>
-            <footer>
-                <button
-                    *ngFor="let action of config.actions; let i=index"
-                    (click)="action.method()"
-                    [ngClass]="action.class"
-                    type="button">
-                        {{action.text}}
-                </button>
-            </footer>
-        </article>
+        <section role="dialog" class="uni-modal">
+            <header><h1>Legg til betaling</h1></header>
+
+            <article>
+                <uni-form
+                    [config]="formConfig$"
+                    [fields]="fields$"
+                    [model]="model$">
+                </uni-form>
+
+                <footer>
+                    <button (click)="close('ok')" class="good">Legg til betaling</button>
+                    <button (click)="close('cancel')" class="bad">Avbryt</button>
+                </footer>
+            </article>
+        </section>
     `
 })
-export class AddPaymentForm implements OnInit {
-    @ViewChild(UniForm) public form: UniForm;
+export class AddPaymentModal implements IUniModal {
+
+    @ViewChild(UniForm)
+    public form: UniForm;
+
+    @Input()
+    public options: IModalOptions;
+
+    @Output()
+    public onClose: EventEmitter<any> = new EventEmitter();
+
 
     public config: any = {};
-    private model$: BehaviorSubject<any>= new BehaviorSubject(null);
-    private fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
-    private formConfig$: BehaviorSubject<any> = new BehaviorSubject({});
-
-    private enableSave: boolean;
-    private save: boolean;
+    public model$: BehaviorSubject<any>= new BehaviorSubject(null);
+    public fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
+    public formConfig$: BehaviorSubject<any> = new BehaviorSubject({});
 
     private accountType: string;
 
     constructor(
+        private paymentService: PaymentService,
         private errorService: ErrorService,
         private statisticsService: StatisticsService,
         private modalService: UniModalService,
@@ -70,9 +78,17 @@ export class AddPaymentForm implements OnInit {
     ) {}
 
     public ngOnInit() {
-        this.model$.next(this.config.model);
+        if (this.options) {
+            this.config = {
+                title: 'Legg til betaling',
+                mode: null,
+                model: this.options.data.model
+            };
 
-        this.setupForm();
+            this.model$.next(this.config.model);
+
+            this.setupForm();
+        }
     }
 
     private setupForm() {
@@ -354,62 +370,12 @@ export class AddPaymentForm implements OnInit {
             }
         ];
     }
-}
 
-// address modal
-@Component({
-    selector: 'add-payment-modal',
-    template: `
-        <uni-modal [type]="type" [config]="modalConfig" ></uni-modal>
-    `
-})
-export class AddPaymentModal {
-    @Input() public payment: Payment;
-    @ViewChild(UniModal) public modal: UniModal;
-
-    @Output() public Changed = new EventEmitter<Payment>();
-    @Output() public Canceled = new EventEmitter<boolean>();
-
-    private modalConfig: any = {};
-    private type: Type<any> = AddPaymentForm;
-
-    constructor(private paymentService: PaymentService) {
-    }
-
-    public ngOnInit() {
-        this.modalConfig = {
-            title: 'Legg til betaling',
-            mode: null,
-            actions: [
-                {
-                    text: 'Legg til betaling',
-                    class: 'good',
-                    method: () => {
-                        this.modal.close();
-                        this.Changed.emit(this.modalConfig.model);
-                        return false;
-                    }
-                },
-                {
-                    text: 'Avbryt',
-                    class: 'bad',
-                    method: () => {
-                        this.modal.close();
-                        this.Canceled.emit(true);
-                        return false;
-                    }
-                }
-            ]
-        };
-    }
-
-    public openModal(payment: Payment, title?: string) {
-        if (title) {
-            this.modalConfig.title = title;
+    public close(action: string) {
+        if (action === 'ok') {
+            this.onClose.emit(this.config.model);
+        } else {
+            this.onClose.emit(false);
         }
-
-        this.modalConfig.model = payment;
-
-        this.modal.open();
     }
 }
