@@ -13,13 +13,19 @@
                 <br>og inneholder moduler for salg, regnskap, lønn og timefangst.
             </p>
 
+            <!-- Anders 06.11 
+                Changing this from signup to contant for now, 
+                because sign-up flow on backend has issues.
+                Wil re-implement once everything is good to go there
+            -->
+            <!-- [routerLink]="['./sign-up']" -->
             <button class="signup-link"
                 type="button"
-                [routerLink]="['./sign-up']"
+                (click)="onRegisterClick()"
                 [attr.aria-busy]="working"
                 [disabled]="working">
 
-                {{registrationFormExpanded ? 'Start' : 'Prøv gratis'}}
+                Kontakt oss
             </button>
 
             <!-- Embedded video -->
