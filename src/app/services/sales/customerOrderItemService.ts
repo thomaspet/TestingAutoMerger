@@ -1,7 +1,6 @@
 import {Injectable} from '@angular/core';
 import {BizHttp} from '../../../framework/core/http/BizHttp';
-import {CustomerOrderItem} from '../../unientities';
-import {StatusCodeCustomerOrderItem} from '../../unientities';
+import {CustomerOrderItem, StatusCodeCustomerOrderItem} from '../../unientities';
 import {UniHttp} from '../../../framework/core/http/http';
 
 @Injectable()
@@ -26,5 +25,5 @@ export class CustomerOrderItemService extends BizHttp<CustomerOrderItem> {
     public getStatusText = (statusCode: string) => {
         let statusType = this.statusTypes.find(x => x.Code === statusCode);
         return statusType ? statusType.Text : '';
-    };
+    }
 }

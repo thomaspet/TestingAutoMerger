@@ -479,6 +479,13 @@ export class UniTickerService { //extends BizHttp<UniQueryDefinition> {
 
         let columnType = column.Type;
 
+        switch (column.Type) {
+            case 'number':
+            case 'money':
+            case 'percent':
+                fieldValue = fieldValue || 0;
+        }
+
         if (fieldValue !== '') {
             switch (columnType) {
                 case 'number':
@@ -488,7 +495,7 @@ export class UniTickerService { //extends BizHttp<UniQueryDefinition> {
                     formattedFieldValue = this.numberFormatService.asMoney(fieldValue);
                     break;
                 case 'percent':
-                    formattedFieldValue = this.numberFormatService.asPercentage(fieldValue) + '%';
+                    formattedFieldValue = this.numberFormatService.asPercentage(fieldValue);
                     break;
                 case 'date':
                 case 'datetime':
@@ -922,6 +929,7 @@ export class Ticker {
     public UseParentTickerActions?: boolean;
     public Actions?: Array<TickerAction>;
     public IsActive?: boolean;
+    public ReadOnlyCases?: {Key: string, Value: any}[];
 }
 
 export class TickerFieldFilter {
@@ -957,6 +965,7 @@ export class TickerColumn {
     public Placeholder?: string;
     public FieldSetColumn?: number;
     public SumColumn?: boolean;
+    public ReadOnlyCases?: {Key: string, Value: any}[];
 }
 
 export interface ITickerColumnOverride {

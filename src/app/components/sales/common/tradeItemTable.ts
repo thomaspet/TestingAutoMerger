@@ -152,22 +152,26 @@ export class TradeItemTable {
                 }
             });
 
-        const itemTextCol = new UniTableColumn('ItemText', 'Tekst').setWidth('20%');
+        const itemTextCol = new UniTableColumn('ItemText', 'Tekst')
+            .setWidth('20%');
+
         const numItemsCol = new UniTableColumn('NumberOfItems', 'Antall', UniTableColumnType.Number)
-                .setNumberFormat({
-                    thousandSeparator: ' ',
-                    decimalSeparator: ',',
-                    decimalLength: this.settings.ShowNumberOfDecimals,
-                    postfix: undefined
-                });
+            .setNumberFormat({
+                thousandSeparator: ' ',
+                decimalSeparator: ',',
+                decimalLength: this.settings.ShowNumberOfDecimals,
+                postfix: undefined
+            });
+
         const unitCol = new UniTableColumn('Unit', 'Enhet');
+
         const exVatCol = new UniTableColumn('PriceExVatCurrency', 'Pris', UniTableColumnType.Money)
-                .setNumberFormat({
-                    thousandSeparator: ' ',
-                    decimalSeparator: ',',
-                    decimalLength: this.settings.ShowNumberOfDecimals,
-                    postfix: undefined
-                });
+            .setNumberFormat({
+                thousandSeparator: ' ',
+                decimalSeparator: ',',
+                decimalLength: this.settings.ShowNumberOfDecimals,
+                postfix: undefined
+            });
 
         const accountCol = new UniTableColumn('Account', 'Konto', UniTableColumnType.Lookup)
             .setWidth('15%')
@@ -248,6 +252,7 @@ export class TradeItemTable {
             });
 
         const discountPercentCol = new UniTableColumn('DiscountPercent', 'Rabatt %', UniTableColumnType.Percent);
+
         const discountCol = new UniTableColumn('DiscountCurrency', 'Rabatt', UniTableColumnType.Money, false)
             .setVisible(false);
 

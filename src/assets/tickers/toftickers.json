@@ -433,7 +433,7 @@
         }, {
             "Header": "Mvakode",
             "Field": "VatType.VatPercent",
-            "Format": "percent",
+            "Type": "percent",
             "SubFields": [{
                     "Field": "VatType.Name"
                 }
@@ -441,7 +441,7 @@
         }, {
             "Header": "Rabatt %",
             "Field": "DiscountPercent",
-            "Format": "percent"
+            "Type": "percent"
         }, {
             "Header": "Sum inkl mva",
             "Field": "SumTotalIncVat",
@@ -860,7 +860,7 @@
         }, {
             "Header": "Mvakode",
             "Field": "VatType.VatPercent",
-            "Format": "percent",
+            "Type": "percent",
             "SubFields": [{
                     "Field": "VatType.Name"
                 }
@@ -868,7 +868,7 @@
         }, {
             "Header": "Rabatt %",
             "Field": "DiscountPercent",
-            "Format": "percent"
+            "Type": "percent"
         }, {
             "Header": "Sum inkl mva",
             "Field": "SumTotalIncVat",
@@ -1221,6 +1221,7 @@
         "Value": "ID"
     },
     "Filters": [],
+    "ReadOnlyCases": [{"Key": "CustomerOrderItemStatusCode", "Value": 41103}],
     "Columns": [{
             "Header": "Produkt/tekst",
             "Field": "Product.PartName",
@@ -1238,7 +1239,7 @@
         }, {
             "Header": "Mvakode",
             "Field": "VatType.VatPercent",
-            "Format": "percent",
+            "Type": "percent",
             "SubFields": [{
                     "Field": "VatType.Name"
                 }
@@ -1246,12 +1247,15 @@
         }, {
             "Header": "Rabatt %",
             "Field": "DiscountPercent",
-            "Format": "percent"
+            "Type": "percent"
         }, {
             "Header": "Sum inkl mva",
             "Field": "SumTotalIncVat",
             "Format": "NumberPositiveNegative",
             "Width": "150px"
+        }, {
+            "Header": "Status",
+            "Field": "StatusCode"
         }
     ]
 }, {
