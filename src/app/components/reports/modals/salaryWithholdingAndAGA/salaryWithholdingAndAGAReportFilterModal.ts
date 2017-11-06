@@ -17,8 +17,14 @@ import * as moment from 'moment';
 type ModalConfig = {
     report: any,
     title: string,
-    actions: { text: string, class?: string, method: () => void }[]
+    actions: {text: string, class?: string, method: () => void}[]
 };
+
+interface IWitholdingAndAGAReportModel {
+    FromPeriod: number;
+    ToPeriod: number;
+    Year: number;
+}
 
 @Component({
     selector: 'salary-withholding-and-aga-report-filter-modal-content',
@@ -28,11 +34,8 @@ export class SalaryWithholdingAndAGAReportFilterModalContent implements OnInit {
     @Input() public config: ModalConfig;
     public config$: BehaviorSubject<any> = new BehaviorSubject({});
     public fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
-    public model$: BehaviorSubject<{
-        FromPeriod: number,
-        ToPeriod: number,
-        Year: number
-    }> = new BehaviorSubject({ FromPeriod: 1, ToPeriod: 2, Year: new Date().getFullYear() });
+    public model$: BehaviorSubject<IWitholdingAndAGAReportModel> =
+    new BehaviorSubject({FromPeriod: 1, ToPeriod: 2, Year: new Date().getFullYear()});
     constructor(
         private payrollRunService: PayrollrunService,
         private yearService: YearService
@@ -57,12 +60,16 @@ export class SalaryWithholdingAndAGAReportFilterModalContent implements OnInit {
             Property: param.Name,
         });
     }
+
+    public getParams() {
+        return this.model$.getValue();
+    }
 }
 
 @Component({
     selector: 'salary-withholding-and-aga-report-filter-modal',
     template: `
-        <uni-modal [type]='type' [config]='modalConfig'></uni-modal>
+        <uni-modal *ngIf="!inActive" [type]='type' [config]='modalConfig'></uni-modal>
     `
 })
 export class SalaryWithholdingAndAGAReportFilterModal implements OnInit, OnDestroy {
@@ -72,6 +79,7 @@ export class SalaryWithholdingAndAGAReportFilterModal implements OnInit, OnDestr
     private modalConfig: ModalConfig;
     public type: Type<any> = SalaryWithholdingAndAGAReportFilterModalContent;
     private subscriptions: any[] = [];
+    private inActive: boolean;
 
     constructor(
         private reportDefinitionParameterService: ReportDefinitionParameterService,
@@ -89,27 +97,23 @@ export class SalaryWithholdingAndAGAReportFilterModal implements OnInit, OnDestr
                     class: 'good',
                     method: () => {
                         this.subscriptions.push(
-                            Observable.fromPromise(this.modal.getContent())
-                                .switchMap((component: SalaryWithholdingAndAGAReportFilterModalContent) =>
-                                    component.model$.map(model => {
-                                        component.config.report.parameters.map(param => {
-                                            param.value = model[param.Name];
-                                        });
-                                        return component;
-                                    })
-                                )
-                                .do(() => this.modal.close())
+                            Observable
+                                .fromPromise(this.modal.getContent())
+                                .do(() => this.close())
                                 .subscribe((component: SalaryWithholdingAndAGAReportFilterModalContent) => {
-                                    this.modalService.open(UniPreviewModal, {
-                                        data: component.config.report
-                                    });
+                                    this.modalService
+                                        .open(UniPreviewModal, {
+                                            data: this.updateParamsOnReport(
+                                                component.config.report,
+                                                component.getParams())
+                                        });
                                 })
                         );
                     }
                 },
                 {
                     text: 'Avbryt',
-                    method: () => this.modal.close()
+                    method: () => this.close()
                 }
             ]
         };
@@ -128,5 +132,23 @@ export class SalaryWithholdingAndAGAReportFilterModal implements OnInit, OnDestr
                 this.modalConfig.report.parameters = params;
                 this.modal.open();
             }, err => this.errorService.handle(err));
+    }
+
+    private close() {
+        this.modal.close();
+        this.refresh();
+    }
+
+    private refresh() {
+        this.inActive = true;
+        setTimeout(() => this.inActive = false, 1000);
+    }
+
+    private updateParamsOnReport(report: any, params: IWitholdingAndAGAReportModel): any {
+        report.parameters.forEach(param => {
+            param.value = params[param.Name];
+        });
+
+        return report;
     }
 }
