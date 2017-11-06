@@ -1208,6 +1208,17 @@ export class BillView {
                 }
             }
 
+            if (it.StatusCode === StatusCodeSupplierInvoice.Journaled) {
+                list.push(
+                    {
+                        label: 'Krediter',
+                        action: (done) => setTimeout(this.creditSupplierInvoice(done)),
+                        main: false,
+                        disabled: false
+                    }
+                );
+            }
+
             // Bokfør og Til betaling
             if (it.StatusCode === StatusCodeSupplierInvoice.Approved) {
                 let toPaymentAction =
@@ -1223,6 +1234,31 @@ export class BillView {
 
     private initDefaultActions() {
         this.actions = this.rootActions;
+    }
+
+    public creditSupplierInvoice(done: any) {
+
+        const modal = this.modalService.open(UniConfirmModalV2, {
+            header: 'Kreditere faktura?',
+            message: 'Vil du kreditere bokføringen for fakturaen? Fakturaen vil settes tilbake til forrige status. '
+        });
+
+        modal.onClose.subscribe(response => {
+            if (response === ConfirmActions.ACCEPT) {
+                    this.supplierInvoiceService.creditInvoiceJournalEntry(this.currentID)
+                    .subscribe(
+                        res => {
+                            this.fetchInvoice(this.currentID, (!!done))
+                            .then(() => {
+                                done();
+                            },
+                        err => this.errorService.handle(err)
+                        )}
+                    );
+            } else {
+                done();
+            }
+        });
     }
 
     private newAction(label: string, itemKey: string, href: string, asMain = false): any {

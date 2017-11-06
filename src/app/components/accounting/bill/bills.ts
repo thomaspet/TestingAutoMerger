@@ -266,6 +266,15 @@ export class BillsView {
                 disabled: false
             });
         }
+
+        if (supplierInvoiceStatusCode === StatusCodeSupplierInvoice.Journaled) {
+            this.saveActions.push({
+                label: 'Krediter',
+                action: (done) => setTimeout(this.creditSupplierInvoice(done)),
+                main: false,
+                disabled: false
+            });
+        }
     }
 
     public assignSupplierInvoices(done: any) {
@@ -404,6 +413,48 @@ export class BillsView {
                     );
                 done();
             }
+
+
+    public creditSupplierInvoice(done: any) {
+
+        const modal = this.modalService.open(UniConfirmModalV2, {
+            header: 'Kreditere faktura?',
+            message: 'Vil du kreditere bokføringen for fakturaen(e)? Fakturaen(e) vil settes tilbake til forrige status. '
+        });
+
+        modal.onClose.subscribe(response => {
+            if (response === ConfirmActions.ACCEPT) {
+                const creditRequests = this.selectedItems.map(invoice =>
+                    this.supplierInvoiceService.creditInvoiceJournalEntry(invoice.ID)
+                    .map(res => ({ ID: invoice.ID, success: true}))
+                    .catch(err => Observable.of({ID: invoice.ID, success: false}))
+                );
+
+                Observable.forkJoin(creditRequests).subscribe(
+                    res => {
+                        this.refreshList(this.currentFilter, true, null, this.currentUserFilter);
+                        let numberOfFailed = res.filter(r => !r.success).length;
+                        if (numberOfFailed > 0) {
+                            this.toast.addToast(this.selectedItems.length - numberOfFailed + ' fakturaer ble kreditert.' + '<BR/>' + numberOfFailed + ' fakturaer feilet.', ToastType.bad, 3);
+                        } else {
+                            this.toast.addToast(this.selectedItems.length - numberOfFailed + ' fakturaer ble kreditert.', ToastType.good, 3);
+                        }
+                        this.selectedItems = null;
+                        this.updateSaveActions(0);
+                        done();
+                    },
+                    err => {
+                        this.errorService.handle(err);
+                        this.updateSaveActions(0);
+                        done();
+                    }
+                );
+            } else {
+                this.refreshList(this.currentFilter);
+                done();
+            }
+        });
+    }
 
     public sendForPaymentSupplierInvoices(done: any) {
         const payRequests = this.selectedItems.map(invoice =>
