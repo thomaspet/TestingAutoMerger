@@ -47,7 +47,7 @@ import {DimensionsOverviewReportPart}  from './accountingreports/reportparts/dim
 import {DrilldownBalanceReportPart}  from './accountingreports/reportparts/drilldownBalanceReportPart';
 import {CreateCorrectedVatReportModal} from './vatreport/modals/createCorrectedVatReport';
 import {HistoricVatReportModal} from './vatreport/modals/historicVatReports';
-import {NewAccountModal, NewAccountForm} from './NewAccountModal';
+import {NewAccountModal} from './NewAccountModal';
 import {BillsView} from './bill/bills';
 import {BillView} from './bill/detail/bill';
 import {BillSimpleJournalEntryView, AccountPipe, VatCodePipe, TrimTextPipe} from './bill/detail/journal/simple';
@@ -97,7 +97,6 @@ import {SupplierList} from './supplier/list/supplierList';
         VatDeductionSettings,
 
         NewAccountModal,
-        NewAccountForm,
 
         SupplierList,
         SupplierDetails,
@@ -152,7 +151,7 @@ import {SupplierList} from './supplier/list/supplierList';
         CreateCorrectedVatReportForm,
         AccountDetailsReport,
         SelectJournalEntryLineTable,
-        NewAccountForm,
+        NewAccountModal,
         UniAssignModal,
         UniAddFileModal,
         UniNewSupplierModal,

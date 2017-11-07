@@ -91,7 +91,6 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
     @Input() public selectedNumberSeriesTaskID: number;
 
     @ViewChild(UniTable) private table: UniTable;
-    @ViewChild(NewAccountModal) private newAccountModal: NewAccountModal;
     @ViewChild(SelectJournalEntryLineModal) private selectJournalEntryLineModal: SelectJournalEntryLineModal;
 
     private companySettings: CompanySettings;
@@ -1640,17 +1639,13 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
 
     private openNewAccountModal(item: any, searchCritera: string): Promise<Account> {
         return new Promise((resolve, reject) => {
-
-            if (this.createdNewAccount) {
-                this.createdNewAccount.unsubscribe();
-            }
-
-            this.createdNewAccount = this.newAccountModal.CreatedAccount.subscribe(acc => {
-                resolve(acc);
-            });
-
-            this.newAccountModal.searchCriteria = searchCritera;
-            this.newAccountModal.openModal();
+            this.modalService.open(NewAccountModal, { data: { searchCritera: searchCritera } })
+                .onClose
+                .subscribe((account) => {
+                    if (account) {
+                        resolve(account);
+                    }
+                });
         });
     }
 

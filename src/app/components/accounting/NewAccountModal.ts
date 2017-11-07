@@ -1,8 +1,7 @@
-import {Component, Type, Output, ViewChild, EventEmitter, OnChanges, SimpleChange} from '@angular/core';
-import {UniModal} from '../../../framework/modals/modal';
-import {Observable} from 'rxjs/Observable';
+import {Component, Input, Output, ViewChild, EventEmitter, SimpleChange} from '@angular/core';
+import {IUniModal, IModalOptions} from '../../../framework/uniModal/barrel';
 import {UniForm} from '../../../framework/ui/uniform/index';
-import {Account, BusinessRelation, Email, Phone, Address, Customer, Supplier} from '../../unientities';
+import {BusinessRelation, Email, Phone, Address, Customer, Supplier} from '../../unientities';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {IUniSearchConfig} from '../../../framework/ui/unisearch/index';
 import {AccountService, CustomerService, SupplierService} from '../../services/services';
@@ -10,165 +9,88 @@ import {UniSearchCustomerConfig} from '../../services/common/uniSearchConfig/uni
 
 declare const _; // lodash
 
-// Reusable address form
 @Component({
-    selector: 'new-account-form',
-
+    selector: 'new-account-modal',
     template: `
+        <section role="dialog" class="uni-modal" style="width: 50vw;">
+            <header><h1>Opprett ny konto</h1></header>
 
-        <article class="modal-content new-account-modal">
-            <h1 *ngIf="config.title">{{config.title}}</h1>
+            <article class="new-account-form" [attr.aria-busy]="busy">
 
-                <section class="new-account-form">
+                <span>Søk etter kunde eller leverandør 1880</span>
+                <div>
+                    <uni-search [config]="uniSearchConfig" (changeEvent)="selectItem($event)"></uni-search>
+                </div>
 
-                    <span>Søk etter kunde eller leverandør 1880</span>
-                    <div>
-                        <uni-search [config]="uniSearchConfig" (changeEvent)="selectItem($event)"></uni-search>
-                    </div>
+                <div *ngIf="selectedItem" class="business-relation-preview">
+                    <strong>Du har valgt:</strong>
+                    <label *ngIf="selectedItem.Name">{{selectedItem.Name}}</label>
+                    <label *ngIf="selectedItem.AddressLine1">{{selectedItem.AddressLine1}}</label>
+                    <label *ngIf="selectedItem.PostalCode || selectedItem.City">{{selectedItem.PostalCode}}
+                        {{selectedItem.City}}
+                     </label>
+                    <label *ngIf="selectedItem.EmailAddress">E-post: {{selectedItem.Country}}</label>
+                    <label *ngIf="selectedItem.PhoneNumber"><I>Telefon</I>: {{selectedItem.PhoneNumber}}</label>
+                    <label *ngIf="selectedItem.OrgNumber"><I>Org.Nummer</I>: {{selectedItem.OrgNumber}}</label>
+                </div>
 
-                    <div *ngIf="selectedItem" class="business-relation-preview">
-                        <strong>Du har valgt:</strong>
-                        <label *ngIf="selectedItem.Name">{{selectedItem.Name}}</label>
-                        <label *ngIf="selectedItem.AddressLine1">{{selectedItem.AddressLine1}}</label>
-                        <label *ngIf="selectedItem.PostalCode || selectedItem.City">{{selectedItem.PostalCode}} {{selectedItem.City}}</label>
-                        <label *ngIf="selectedItem.EmailAddress">E-post: {{selectedItem.Country}}</label>
-                        <label *ngIf="selectedItem.PhoneNumber"><I>Telefon</I>: {{selectedItem.PhoneNumber}}</label>
-                        <label *ngIf="selectedItem.OrgNumber"><I>Org.Nummer</I>: {{selectedItem.OrgNumber}}</label>
-                    </div>
-
-                </section>
+            </article>
             <footer>
-                <button
-                    *ngFor="let action of config.actions; let i=index"
-                    (click)="action.method()"
-                    [ngClass]="action.class"
-                    type="button"
-                    [disabled]="action.isDisabled()">
-                    {{action.text}}
+                <button (click)="createNewAccountAndCloseModal('Customer')" class="good" [disabled]="!selectedItem">
+                    Opprett som kunde
                 </button>
+                <button (click)="createNewAccountAndCloseModal('Supplier')" class="good" [disabled]="!selectedItem">
+                    Opprett som leverandør
+                </button>
+                <button (click)="close()" class="bad">Avbryt</button>
             </footer>
-        </article>
+        </section>
     `
 })
-export class NewAccountForm implements OnChanges {
+
+export class NewAccountModal implements IUniModal {
+    @Input()
+    public options: IModalOptions;
+
+    @Output()
+    public onClose: EventEmitter<any> = new EventEmitter();
+
     @ViewChild(UniForm) public form: UniForm;
 
     public config: any = {};
     public uniSearchConfig: IUniSearchConfig;
     private model$: BehaviorSubject<any>= new BehaviorSubject(null);
     public selectedItem: any;
+    private busy: boolean = false;
 
-
-
-    constructor(
-        private uniSearchCustomerConfig: UniSearchCustomerConfig
-    ) {
-        this.uniSearchConfig = this.uniSearchCustomerConfig.generateOnlyExternalSearch();
-
-    }
-
-    public openCustomerModal(): Observable<Customer> {
-        return null;
-    }
-
-    public ngOnInit() {
-        this.model$.next(this.config.model);
-        const searchCriteria = {Name: this.config.initSearchCriteria };
-        this.uniSearchConfig.initialItem$.next(searchCriteria);
-    }
-
-    public selectItem(selectedItem: any) {
-        if (selectedItem) {
-            this.selectedItem = selectedItem;
-            this.config.selectedItem = selectedItem;
-        }
-    }
-
-    public ngOnChanges(changes: {[propName: string]: SimpleChange}) {
-        this.model$.next(this.config.model);
-    }
-}
-
-// newAccount modal
-@Component({
-    selector: 'new-account-modal',
-    template: `<uni-modal [type]="type" [config]="modalConfig" [destroyOnClose]="'true'"></uni-modal>`
-})
-
-export class NewAccountModal {
-    @ViewChild(UniModal) public modal: UniModal;
-    @Output() public CreatedAccount = new EventEmitter<Account>();
-    @Output() public Cancelled = new EventEmitter<boolean>();
-
-
-
-    private modalConfig: any = {};
-    public type: Type<any> = NewAccountForm;
     public searchCriteria: string = '';
     constructor(
         private supplierService: SupplierService,
         private customerService: CustomerService,
-        private accountService: AccountService
-    ) { }
+        private accountService: AccountService,
+        private uniSearchCustomerConfig: UniSearchCustomerConfig
+    ) {
+        this.uniSearchConfig = this.uniSearchCustomerConfig.generateOnlyExternalSearch();
+    }
 
     public ngOnInit() {
-        this.modalConfig = {
+        this.config = {
             title: 'Ny konto',
-            initSearchCriteria: this.searchCriteria,
+            initSearchCriteria: this.options.data.searchCriteria,
             mode: null,
             question: 'Opprette ny konto',
             disableQuestion: false,
-
-            actions: [
-                {
-                    text: 'Opprett som kunde',
-                    class: 'good',
-                    method: () => {
-                        this.createNewCustomer();
-                    },
-                    isDisabled: () =>  false
-                },
-                {
-                    text: 'Opprett som leverandør',
-                    class: 'good',
-                    method: () => {
-                        this.createNewSupplier();
-                    },
-                    isDisabled: () => false
-                },
-                {
-                    text: ' Avbryt ' ,
-                    class: 'bad',
-                    method: () => {
-                        this.modalConfig.selectedItem = null;
-                        this.Cancelled.emit(true);
-                        this.modal.close();
-                        return false;
-                    },
-                    isDisabled: () => false
-                },
-            ]
         };
+
+        this.model$.next(this.config.model);
+        this.uniSearchConfig.initialItem$.next(this.options.data.searchCriteria);
     }
 
+    public createNewAccountAndCloseModal(accountType: string) {
 
-    private createNewCustomer() {
-        this.createNewAccountAndCloseModal('Customer');
-    }
+        if (this.config.selectedItem) {
 
-    private createNewSupplier() {
-        this.createNewAccountAndCloseModal('Supplier');
-    }
-
-    private createNewMainAccount() {
-        this.createNewAccountAndCloseModal('MainAccount');
-    }
-
-    private createNewAccountAndCloseModal(accountType: string) {
-
-        if (this.modalConfig.selectedItem) {
-
-            const selectedItem = this.modalConfig.selectedItem;
+            const selectedItem = this.config.selectedItem;
             let newAccount: any = null;
 
             if (accountType === 'Customer') { newAccount = new Customer(); }
@@ -206,33 +128,42 @@ export class NewAccountModal {
             newAccount.Info = br;
 
             if (accountType === 'Customer') {
+                this.busy = true;
                 this.customerService.Post(newAccount).subscribe(res => {
                     this.accountService.GetAll(`filter=AccountNumber eq ` + res.CustomerNumber).subscribe(resAcc => {
-                            this.CreatedAccount.emit(resAcc[0]);
-                            this.modal.close();
+                            this.busy = false;
+                            this.close(resAcc[0]);
                         }, err => err.handleError(err));
-                    }, err => err.handleError(err));
+                    }, err => { err.handleError(err); this.busy = false; });
                 }
 
 
             if (accountType === 'Supplier') {
+                this.busy = true;
                 this.supplierService.Post(newAccount).subscribe(res => {
                     this.accountService.GetAll(`filter=AccountNumber eq ` + res.SupplierNumber).subscribe(resAcc => {
-                            this.CreatedAccount.emit(resAcc[0]);
-                            this.modal.close();
+                        this.busy = false;
+                        this.close(resAcc[0]);
                         }, err => err.handleError(err));
-                    }, err => err.handleError(err));
+                    }, err => { err.handleError(err); this.busy = false; });
                 }
             }
         }
     }
 
+    public selectItem(selectedItem: any) {
+        if (selectedItem) {
+            this.selectedItem = selectedItem;
+            this.config.selectedItem = selectedItem;
+        }
+    }
 
+    public ngOnChanges(changes: {[propName: string]: SimpleChange}) {
+        this.model$.next(this.config.model);
+    }
 
-    public openModal() {
-        this.modalConfig.title = 'Opprett ny konto:';
-        this.modalConfig.initSearchCriteria = this.searchCriteria;
-        this.modal.open();
+    public close(params: any = false) {
+        this.onClose.emit(params);
     }
 }
 
