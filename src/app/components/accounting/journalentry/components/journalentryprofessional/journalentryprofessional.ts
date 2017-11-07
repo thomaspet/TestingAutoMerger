@@ -91,7 +91,6 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
     @Input() public selectedNumberSeriesTaskID: number;
 
     @ViewChild(UniTable) private table: UniTable;
-    @ViewChild(SelectJournalEntryLineModal) private selectJournalEntryLineModal: SelectJournalEntryLineModal;
 
     private companySettings: CompanySettings;
     private columnsThatMustAlwaysShow: string[] = ['AmountCurrency'];
@@ -697,23 +696,27 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                         }
                     } else if (rows.length > 1) {
                         // if multiple lines are found: show modal with lines that can be selected
-                        this.selectJournalEntryLineModal
-                            .openModal(rows)
-                            .then((selectedLine) => {
-                                this.setRowValuesBasedOnExistingJournalEntryLine(row, selectedLine);
-                                this.updateJournalEntryLine(row);
 
-                                if (row.CurrencyID !== this.companySettings.BaseCurrencyCodeID) {
-                                    this.showAgioDialogPostPost(row)
-                                        .then((res) => {
-                                            // reset focus after modal closes
-                                            this.table.focusRow(row['_originalIndex']);
-                                        });
-                                } else {
-                                    // reset focus after modal closes
-                                    this.table.focusRow(row['_originalIndex']);
-                                }
-                            });
+                        this.modalService.open(SelectJournalEntryLineModal, { data: { journalentrylines: rows } })
+                        .onClose
+                        .subscribe((selectedLine) => {
+                            if (!selectedLine) {
+                                return;
+                            }
+                            this.setRowValuesBasedOnExistingJournalEntryLine(row, selectedLine);
+                            this.updateJournalEntryLine(row);
+
+                            if (row.CurrencyID !== this.companySettings.BaseCurrencyCodeID) {
+                                this.showAgioDialogPostPost(row)
+                                    .then((res) => {
+                                        // reset focus after modal closes
+                                        this.table.focusRow(row['_originalIndex']);
+                                    });
+                            } else {
+                                // reset focus after modal closes
+                                this.table.focusRow(row['_originalIndex']);
+                            }
+                        });
                     }
                 }, err => {
                     this.errorService.handle(err);

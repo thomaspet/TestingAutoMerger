@@ -22,7 +22,7 @@ import {JournalEntryManual} from './journalentry/journalentrymanual/journalentry
 import {CheckListVat} from './vatreport/checkList/checkList';
 import {VatReportJournalEntry} from './vatreport/JournalEntry/vatReportJournalEntry';
 import {CreateCorrectedVatReportForm} from './vatreport/modals/createCorrectedVatReport';
-import {SelectJournalEntryLineModal, SelectJournalEntryLineTable} from './journalentry/components/selectJournalEntryLineModal';
+import {SelectJournalEntryLineModal} from './journalentry/components/selectJournalEntryLineModal';
 import {ReceiptVat} from './vatreport/receipt/receipt';
 import {VatSummaryPerPost} from './vatreport/reportSummary/reportSummary';
 import {TransqueryDetails} from './transquery/details/transqueryDetails';
@@ -112,7 +112,7 @@ import {SupplierList} from './supplier/list/supplierList';
         BillView,
         BillSimpleJournalEntryView, BillHistoryView,
         AccountPipe, VatCodePipe, TrimTextPipe,
-        SelectJournalEntryLineModal, SelectJournalEntryLineTable,
+        SelectJournalEntryLineModal,
         UniAssignModal, MyStringFilterPipe,
         UniAddFileModal, NumberAsMoneyPipe,
 
@@ -150,7 +150,7 @@ import {SupplierList} from './supplier/list/supplierList';
         HistoricVatReportModal,
         CreateCorrectedVatReportForm,
         AccountDetailsReport,
-        SelectJournalEntryLineTable,
+        SelectJournalEntryLineModal,
         NewAccountModal,
         UniAssignModal,
         UniAddFileModal,
@@ -178,7 +178,6 @@ import {SupplierList} from './supplier/list/supplierList';
         Payments,
         BillsView,
         SelectJournalEntryLineModal,
-        SelectJournalEntryLineTable,
 
         // vatreport
         CheckListVat,
