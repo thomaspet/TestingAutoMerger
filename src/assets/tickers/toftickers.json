@@ -120,6 +120,11 @@
             "Header": "Status",
             "Field": "StatusCode",
             "Width": "125px"
+        }, {
+            "Header": "Utskrift",
+            "Field": "PrintStatus",
+            "Width": "125px",
+            "DefaultHidden": true
         }
     ],
     "ParentFilter": {

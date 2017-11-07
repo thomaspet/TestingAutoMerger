@@ -35,6 +35,7 @@ import {ImageModal} from '../../common/modals/ImageModal';
 import {BrowserStorageService} from '../../../services/common/browserStorageService';
 import {UniModalService} from '../../../../framework/uniModal/barrel';
 import {UniPreviewModal} from '../../reports/modals/preview/previewModal';
+import {GetPrintStatusText} from '../../../models/printStatus';
 
 import * as moment from 'moment';
 import {saveAs} from 'file-saver';
@@ -617,6 +618,10 @@ export class UniTicker {
                             // set up templates based on rules for e.g. fieldname
                             if (field.SelectableFieldName.toLowerCase().endsWith('statuscode')) {
                                 col.template = (rowModel) => this.statusCodeToText(rowModel[field.Alias]);
+                            }
+
+                            if (field.SelectableFieldName.toLowerCase().endsWith('printstatus')) {
+                                col.template = (rowModel) => GetPrintStatusText(rowModel[field.Alias]);
                             }
                         }
 
