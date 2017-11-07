@@ -9,7 +9,9 @@ import {
     ITableFilter,
     ICellClickEvent
 } from '../../../../../framework/ui/unitable/index';
-import {TransqueryDetailsCalculationsSummary} from '../../../../models/accounting/TransqueryDetailsCalculationsSummary';
+import {
+    TransqueryDetailsCalculationsSummary
+} from '../../../../models/accounting/TransqueryDetailsCalculationsSummary';
 import {URLSearchParams, Response} from '@angular/http';
 import {Observable} from 'rxjs/Observable';
 import {JournalEntry, Account, FinancialYear} from '../../../../unientities';
@@ -38,7 +40,7 @@ import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 
 const PAPERCLIP = '📎'; // It might look empty in your editor, but this is the unicode paperclip
 
-interface SearchParams {
+interface ISearchParams {
     JournalEntryNumberNumeric?: number;
     AccountID?: number;
     AccountNumber?: number;
@@ -64,7 +66,7 @@ export class TransqueryDetails implements OnInit {
     public summary: ISummaryConfig[] = [];
     private lastFilterString: string;
 
-    private searchParams$: BehaviorSubject<SearchParams> = new BehaviorSubject({});
+    private searchParams$: BehaviorSubject<ISearchParams> = new BehaviorSubject({});
     private config$: BehaviorSubject<any> = new BehaviorSubject({autofocus: true});
     private fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
 
@@ -110,7 +112,7 @@ export class TransqueryDetails implements OnInit {
             this.activeFinancialYear = data[1];
 
             // set default value for filtering
-            let searchParams: SearchParams = {
+            let searchParams: ISearchParams = {
                 JournalEntryNumberNumeric: null,
                 AccountID: null,
                 AccountNumber: null,
@@ -225,7 +227,11 @@ export class TransqueryDetails implements OnInit {
             'JournalEntry.JournalEntryAccrualID,' +
             'sum(casewhen(FileEntityLink.EntityType eq \'JournalEntry\'\\,1\\,0)) as Attachments'
         );
-        urlParams.set('expand', 'Account,SubAccount,JournalEntry,VatType,Dimensions.Department,Dimensions.Project,Period,VatReport.TerminPeriod,CurrencyCode');
+        urlParams.set(
+            'expand',
+            'Account,SubAccount,JournalEntry,VatType,Dimensions.Department'
+                + ',Dimensions.Project,Period,VatReport.TerminPeriod,CurrencyCode'
+        );
         urlParams.set('join', 'JournalEntryLine.JournalEntryID eq FileEntityLink.EntityID');
         urlParams.set('filter', filters.join(' and '));
         urlParams.set('orderby', urlParams.get('orderby') || 'JournalEntryID desc');
@@ -241,8 +247,19 @@ export class TransqueryDetails implements OnInit {
             var urlParams = new URLSearchParams();
             urlParams.set('model', 'JournalEntryLine');
             urlParams.set('filter', f);
-            urlParams.set('select', 'sum(casewhen(JournalEntryLine.Amount gt 0\\,JournalEntryLine.Amount\\,0)) as SumDebit,sum(casewhen(JournalEntryLine.Amount lt 0\\,JournalEntryLine.Amount\\,0)) as SumCredit,sum(casewhen(JournalEntryLine.AccountID gt 0\\,JournalEntryLine.Amount\\,0)) as SumLedger,sum(JournalEntryLine.TaxBasisAmount) as SumTaxBasisAmount,sum(JournalEntryLine.Amount) as SumBalance');
-            urlParams.set('expand', 'Account,SubAccount,JournalEntry,VatType,Dimensions.Department,Dimensions.Project,Period,VatReport.TerminPeriod,CurrencyCode');
+            urlParams.set(
+                'select',
+                'sum(casewhen(JournalEntryLine.Amount gt 0\\,JournalEntryLine.Amount\\,0)) as SumDebit,'
+                    + 'sum(casewhen(JournalEntryLine.Amount lt 0\\,JournalEntryLine.Amount\\,0)) as SumCredit,'
+                    + 'sum(casewhen(JournalEntryLine.AccountID gt 0\\,JournalEntryLine.Amount\\,0)) as SumLedger,'
+                    + 'sum(JournalEntryLine.TaxBasisAmount) as SumTaxBasisAmount,'
+                    + 'sum(JournalEntryLine.Amount) as SumBalance'
+            );
+            urlParams.set(
+                'expand',
+                'Account,SubAccount,JournalEntry,VatType,Dimensions.Department,'
+                    + 'Dimensions.Project,Period,VatReport.TerminPeriod,CurrencyCode'
+            );
             this.statisticsService.GetDataByUrlSearchParams(urlParams).subscribe(summary => {
                 this.summaryData = summary.Data[0];
                 this.summaryData.SumCredit *= -1;
@@ -299,21 +316,72 @@ export class TransqueryDetails implements OnInit {
         ) {
             const accountYear = `01.01.${routeParams['year']}`;
             const nextAccountYear = `01.01.${parseInt(routeParams['year']) + 1}`;
-            filter.push({field: 'Account.AccountNumber', operator: 'eq', searchValue: routeParams['Account_AccountNumber'], value: routeParams['Account_AccountNumber'], group: 0, selectConfig: null});
+            filter.push({
+                field: 'Account.AccountNumber',
+                operator: 'eq',
+                searchValue: routeParams['Account_AccountNumber'],
+                value: routeParams['Account_AccountNumber'],
+                group: 0,
+                selectConfig: null
+            });
+
             if (+routeParams['period'] === 0) {
-                filter.push({field: 'FinancialDate', operator: 'lt', searchValue: accountYear, value: accountYear, group: 0, selectConfig: null});
+                filter.push({
+                    field: 'FinancialDate',
+                    operator: 'lt',
+                    searchValue: accountYear,
+                    value: accountYear,
+                    group: 0,
+                    selectConfig: null
+                });
             } else if (+routeParams['period'] === 13) {
                 if (routeParams['isIncomingBalance'] === 'true') {
-                    filter.push({field: 'FinancialDate', operator: 'lt',searchValue: nextAccountYear, value: nextAccountYear, group: 0, selectConfig: null});
+                    filter.push({
+                        field: 'FinancialDate',
+                        operator: 'lt',
+                        searchValue: nextAccountYear,
+                        value: nextAccountYear,
+                        group: 0,
+                        selectConfig: null
+                    });
                 } else {
-                    filter.push({field: 'FinancialDate', operator: 'ge', searchValue: accountYear ,value: accountYear, group: 0, selectConfig: null});
-                    filter.push({field: 'FinancialDate', operator: 'lt', searchValue: nextAccountYear ,value: nextAccountYear, group: 0, selectConfig: null});
+                    filter.push({
+                        field: 'FinancialDate',
+                        operator: 'ge',
+                        searchValue: accountYear,
+                        value: accountYear,
+                        group: 0,
+                        selectConfig: null
+                    });
+
+                    filter.push({
+                        field: 'FinancialDate',
+                        operator: 'lt',
+                        searchValue: nextAccountYear,
+                        value: nextAccountYear,
+                        group: 0,
+                        selectConfig: null
+                    });
                 }
             } else {
                 const periodDates = this.journalEntryLineService
                     .periodNumberToPeriodDates(routeParams['period'], routeParams['year']);
-                filter.push({field: 'FinancialDate', operator: 'ge', searchValue: periodDates.firstDayOfPeriod, value: periodDates.firstDayOfPeriod, group: 0, selectConfig: null});
-                filter.push({field: 'FinancialDate', operator: 'le', searchValue: periodDates.lastDayOfPeriod, value: periodDates.lastDayOfPeriod, group: 0, selectConfig: null});
+                filter.push({
+                    field: 'FinancialDate',
+                    operator: 'ge',
+                    searchValue: periodDates.firstDayOfPeriod,
+                    value: periodDates.firstDayOfPeriod,
+                    group: 0,
+                    selectConfig: null
+                });
+
+                filter.push({
+                    field: 'FinancialDate',
+                    operator: 'le',
+                    searchValue: periodDates.lastDayOfPeriod,
+                    value: periodDates.lastDayOfPeriod,
+                    group: 0, selectConfig: null
+                });
             }
         } else if (routeParams['Account_AccountNumber']) {
             searchParams.AccountID = null;
@@ -329,12 +397,14 @@ export class TransqueryDetails implements OnInit {
             let vatCodesAndAccountNumbers: Array<string> = routeParams['vatCodesAndAccountNumbers'].split(',');
 
             this.configuredFilter = '';
-            this.configuredFilter += `VatDate ge '${routeParams['vatFromDate']}' and VatDate le '${routeParams['vatToDate']}' and TaxBasisAmount ne 0 ` ;
+            this.configuredFilter += `VatDate ge '${routeParams['vatFromDate']}' `
+                + `and VatDate le '${routeParams['vatToDate']}' `
+                + `and TaxBasisAmount ne 0 `;
 
             if (vatCodesAndAccountNumbers && vatCodesAndAccountNumbers.length > 0) {
                 if (vatCodesAndAccountNumbers.length > 1) {
-                    this.configuredFilter += ' and ('; }
-                else {
+                    this.configuredFilter += ' and (';
+                } else {
                     this.configuredFilter += ' and ';
                 }
 
@@ -346,7 +416,8 @@ export class TransqueryDetails implements OnInit {
                     if (index > 0) {
                         this.configuredFilter += ' or ';
                     }
-                    this.configuredFilter += `( VatType.VatCode eq '${vatCode}' and Account.AccountNumber eq ${accountNo} )`;
+                    this.configuredFilter += `( VatType.VatCode eq '${vatCode}' `
+                        + `and Account.AccountNumber eq ${accountNo} )`;
                 }
 
                 if (vatCodesAndAccountNumbers.length > 1) { this.configuredFilter += ') '; }
@@ -441,7 +512,8 @@ export class TransqueryDetails implements OnInit {
         let columns = [
                 new UniTableColumn('JournalEntryNumberNumeric', 'Bnr')
                     .setTemplate(line => {
-                        return `<a href="/#/accounting/transquery/details;journalEntryNumber=${line.JournalEntryLineJournalEntryNumber}">
+                        return `<a href="/#/accounting/transquery/details;`
+                            + `journalEntryNumber=${line.JournalEntryLineJournalEntryNumber}">
                                 ${line.JournalEntryLineJournalEntryNumberNumeric}
                             </a>`;
                     })
@@ -449,7 +521,8 @@ export class TransqueryDetails implements OnInit {
                     .setWidth('65px'),
                 new UniTableColumn('JournalEntryNumber', 'Bilagsnr med år')
                     .setTemplate(line => {
-                        return `<a href="/#/accounting/transquery/details;journalEntryNumber=${line.JournalEntryLineJournalEntryNumber}">
+                        return `<a href="/#/accounting/transquery/details;`
+                            + `journalEntryNumber=${line.JournalEntryLineJournalEntryNumber}">
                                 ${line.JournalEntryLineJournalEntryNumber}
                             </a>`;
                     })
@@ -457,7 +530,8 @@ export class TransqueryDetails implements OnInit {
                     .setVisible(false),
                 new UniTableColumn('Account.AccountNumber', 'Kontonr')
                     .setTemplate(line => {
-                        return `<a href="/#/accounting/transquery/details;Account_AccountNumber=${line.AccountAccountNumber}">
+                        return `<a href="/#/accounting/transquery/`
+                            + `details;Account_AccountNumber=${line.AccountAccountNumber}">
                                 ${line.AccountAccountNumber}
                             </a>`;
                     })
@@ -468,7 +542,8 @@ export class TransqueryDetails implements OnInit {
                     .setTemplate(line => line.AccountAccountName),
                 new UniTableColumn('SubAccount.AccountNumber', 'Reskontronr')
                     .setTemplate(line => {
-                        return `<a href="/#/accounting/transquery/details;SubAccount_AccountNumber=${line.SubAccountAccountNumber}">
+                        return `<a href="/#/accounting/transquery/details;`
+                            + `SubAccount_AccountNumber=${line.SubAccountAccountNumber}">
                                 ${line.SubAccountAccountNumber}
                             </a>`;
                     })
@@ -492,7 +567,11 @@ export class TransqueryDetails implements OnInit {
                 new UniTableColumn('Description', 'Beskrivelse', UniTableColumnType.Text)
                     .setWidth('20%')
                     .setFilterOperator('contains')
-                    .setTemplate(line => `<span title="${line.JournalEntryLineDescription}">${line.JournalEntryLineDescription}</span>`),
+                    .setTemplate(line => {
+                        return `<span title="${line.JournalEntryLineDescription}">
+                                ${line.JournalEntryLineDescription}
+                            </span>`;
+                    }),
                 new UniTableColumn('VatType.VatCode', 'Mvakode', UniTableColumnType.Text)
                     .setFilterOperator('startswith')
                     .setWidth('60px')
@@ -525,7 +604,10 @@ export class TransqueryDetails implements OnInit {
                     .setVisible(showTaxBasisAmount)
                     .setTemplate(line => line.JournalEntryLineTaxBasisAmountCurrency),
                 new UniTableColumn('TerminPeriod.No', 'MVA rapportert', UniTableColumnType.Text)
-                    .setTemplate(line => line.VatReportTerminPeriodNo ? line.VatReportTerminPeriodNo + '-' + line.VatReportTerminPeriodAccountYear : '')
+                    .setTemplate(line => line.VatReportTerminPeriodNo
+                        ? line.VatReportTerminPeriodNo + '-' + line.VatReportTerminPeriodAccountYear
+                        : ''
+                    )
                     .setFilterable(false)
                     .setVisible(false),
                 new UniTableColumn('InvoiceNumber', 'Fakturanr', UniTableColumnType.Text)
@@ -549,18 +631,26 @@ export class TransqueryDetails implements OnInit {
                     .setFilterable(false)
                     .setTemplate(line => this.journalEntryLineService.getStatusText(line.JournalEntryLineStatusCode))
                     .setVisible(false),
-                new UniTableColumn('Department.Name', 'Avdeling', UniTableColumnType.Text).setFilterOperator('contains')
-                    .setTemplate(line => { return line.DepartmentDepartmentNumber ? line.DepartmentDepartmentNumber + ': ' + line.DepartmentName : ''; })
+                new UniTableColumn('Department.Name', 'Avdeling', UniTableColumnType.Text)
+                    .setFilterOperator('contains')
+                    .setTemplate(line => {
+                        return line.DepartmentDepartmentNumber
+                            ? line.DepartmentDepartmentNumber + ': ' + line.DepartmentName
+                            : '';
+                    })
                     .setVisible(false),
                 new UniTableColumn('Project.Name', 'Prosjekt', UniTableColumnType.Text).setFilterOperator('contains')
-                    .setTemplate(line => { return line.ProjectProjectNumber ? line.ProjectProjectNumber + ': ' + line.ProjectName : ''; })
+                    .setTemplate(line => {
+                        return line.ProjectProjectNumber ? line.ProjectProjectNumber + ': ' + line.ProjectName : '';
+                    })
                     .setVisible(false),
                 new UniTableColumn('JournalEntry.JournalEntryAccrualID', 'Periodisering', UniTableColumnType.Text)
                     .setFilterOperator('eq')
                     .setWidth('60px')
                     .setVisible(false)
                     .setTemplate(line => {
-                        return `<a href="/#/accounting/transquery/details;JournalEntry_JournalEntryAccrualID=${line.JournalEntryJournalEntryAccrualID}">
+                        return `<a href="/#/accounting/transquery/details;`
+                            + `JournalEntry_JournalEntryAccrualID=${line.JournalEntryJournalEntryAccrualID}">
                                 ${line.JournalEntryJournalEntryAccrualID}
                             </a>`;
                     }),
@@ -617,7 +707,10 @@ export class TransqueryDetails implements OnInit {
                     label: 'Krediter bilag'
                 },
                 {
-                    action: (item) => this.editJournalEntry(item.JournalEntryID, item.JournalEntryLineJournalEntryNumber),
+                    action: (item) => this.editJournalEntry(
+                        item.JournalEntryID,
+                        item.JournalEntryLineJournalEntryNumber
+                    ),
                     disabled: (item) => false,
                     label: 'Rediger bilag'
                 }
@@ -684,7 +777,8 @@ export class TransqueryDetails implements OnInit {
                                     .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
                             } else if (isNumber) {
                                 return this.journalEntryService.GetAll(
-                                    `filter=startswith(JournalEntryNumberNumeric, '${query}') and FinancialYear.Year eq '${searchParams.AccountYear}'&top=20`,
+                                    `filter=startswith(JournalEntryNumberNumeric, '${query}') `
+                                    + `and FinancialYear.Year eq '${searchParams.AccountYear}'&top=20`,
                                     ['FinancialYear']
                                 ).catch((err, obs) => this.errorService.handleRxCatch(err, obs));
                             } else {
@@ -709,21 +803,33 @@ export class TransqueryDetails implements OnInit {
                             if (searchParams.AccountID) {
                                 return this.accountService.searchAccounts(`ID eq ${searchParams.AccountID}`);
                             } else if (searchParams.AccountNumber) {
-                                return this.accountService.searchAccounts(`AccountNumber eq ${searchParams.AccountNumber}`);
+                                return this.accountService.searchAccounts(
+                                    `AccountNumber eq ${searchParams.AccountNumber}`
+                                );
                             }
                             return Observable.of([]);
                         },
                         search: (query: string) => {
                             const isNumber = !isNaN(<any>query);
                             if (isNumber) {
-                                return this.accountService.searchAccounts(`( ( AccountNumber eq '${query}') or (Visible eq 'true' and (startswith(AccountNumber,'${query}') ) ) ) and isnull(AccountID,0) eq 0`);
+                                return this.accountService.searchAccounts(
+                                    `( ( AccountNumber eq '${query}') or (Visible eq 'true' `
+                                    + `and (startswith(AccountNumber,'${query}') ) ) ) `
+                                    + `and isnull(AccountID,0) eq 0`
+                                );
                             } else {
-                                return this.accountService.searchAccounts(`( Visible eq 'true' and contains(AccountName,'${query}') ) and isnull(AccountID,0) eq 0`);
+                                return this.accountService.searchAccounts(
+                                    `( Visible eq 'true' `
+                                    + `and contains(AccountName,'${query}') ) `
+                                    + `and isnull(AccountID,0) eq 0`
+                                );
                             }
                         },
                         displayProperty: 'AccountName',
                         valueProperty: 'ID',
-                        template: (account: Account) => account ? `${account.AccountNumber}: ${account.AccountName}` : '',
+                        template: (account: Account) => {
+                            return account ? `${account.AccountNumber}: ${account.AccountName}` : '';
+                        },
                         minLength: 0,
                         debounceTime: 200
                     }
