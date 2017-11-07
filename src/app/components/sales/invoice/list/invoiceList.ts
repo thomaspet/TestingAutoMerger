@@ -200,7 +200,7 @@ export class InvoiceList implements OnInit {
                     modalConfig: {
                         currencyExchangeRate: rowModel.CurrencyExchangeRate,
                         entityName: 'CustomerInvoice',
-                        currencyCode: rowModel.CurrencyCode
+                        currencyCode: rowModel.CurrencyCode.Code
                     }
                 });
 

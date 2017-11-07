@@ -1301,7 +1301,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 data: journalEntryPaymentData,
                 modalConfig: {
                     entityName: JournalEntryLine.EntityType,
-                    currencyCode: postPostJournalEntryLine.CurrencyCode,
+                    currencyCode: postPostJournalEntryLine.CurrencyCode.Code,
                     currencyExchangeRate: postPostJournalEntryLine.CurrencyExchangeRate
                 }
             });
@@ -1450,7 +1450,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 data: paymentData,
                 modalConfig: {
                     entityName: CustomerInvoice.EntityType,
-                    currencyCode: customerInvoice.CurrencyCode,
+                    currencyCode: customerInvoice.CurrencyCode.Code,
                     currencyExchangeRate: customerInvoice.CurrencyExchangeRate
                 }
             });

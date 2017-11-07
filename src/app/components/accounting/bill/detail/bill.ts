@@ -2102,7 +2102,7 @@ export class BillView {
             data: paymentData,
             modalConfig: {
                 entityName: 'SupplierInvoice',
-                currencyCode: bill.CurrencyCode,
+                currencyCode: bill.CurrencyCode.Code,
                 currencyExchangeRate: bill.CurrencyExchangeRate
             }
         });
