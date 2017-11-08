@@ -36,6 +36,17 @@ export class CompanySettingsService extends BizHttp<CompanySettings> {
         return super.GetAction(null, 'fill-in-from-brreg', `orgNumber=${orgNumber}`);
     }
 
+    public changeCompanySettingsPeriodSeriesSettings(periodSeriesID: number, accountYear: number) {
+        super.invalidateCache();
+        return this.http
+            .asPOST()
+            .usingBusinessDomain()
+            .withEndPoint(`${this.relativeURL}?action=change-period-series&periodSeriesID=${periodSeriesID}&accountYear=${accountYear}`)
+            .send()
+            .map(response => response.json());
+    }
+
+
     public fillInCompanySettings(
         companySettings: CompanySettings,
         brreg: CompanySettings): CompanySettings {
