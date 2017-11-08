@@ -23,6 +23,7 @@ import {SalaryTransSupplementsModal} from '../modals/salaryTransSupplementsModal
 import {UniView} from '../../../../framework/core/uniView';
 import {ImageModal, UpdatedFileListEvent} from '../../common/modals/ImageModal';
 import {UniModalService} from '../../../../framework/uniModal/barrel';
+import {SalaryTransViewService} from '../sharedServices/salaryTransViewService';
 declare var _;
 const PAPERCLIP = '📎'; // It might look empty in your editor, but this is the unicode paperclip
 
@@ -68,7 +69,8 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges 
         private _accountService: AccountService,
         protected cacheService: UniCacheService,
         private errorService: ErrorService,
-        private _reportDefinitionService: ReportDefinitionService
+        private _reportDefinitionService: ReportDefinitionService,
+        private salaryTransViewService: SalaryTransViewService
     ) {
         super(router.url, cacheService);
 
@@ -295,11 +297,20 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges 
             .setWidth('2rem')
             .setSkipOnEnterKeyNavigation(true);
 
+        let supplementCol = this.salaryTransViewService
+            .createSupplementsColumn(
+                (trans) => this.onSupplementModalClose(trans),
+                () => this.payrollRun && !!this.payrollRun.StatusCode);
+
         const editable = this.payrollRun ? this.payrollRun.StatusCode < 1 : true;
         this.salarytransEmployeeTableConfig = new UniTableConfig('salary.salarytrans.list', editable)
             .setContextMenu([{
                 label: 'Tilleggsopplysninger', action: (row) => {
-                    this.openSuplementaryInformationModal(row);
+                    this.salaryTransViewService
+                        .openSupplements(
+                            row,
+                            (trans) => this.onSupplementModalClose(trans),
+                            this.payrollRun && !!this.payrollRun.StatusCode);
                 }
             },
             {
@@ -309,7 +320,7 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges 
             }])
             .setColumns([
                 wageTypeCol, wagetypenameCol, employmentidCol, fromdateCol, toDateCol, accountCol,
-                amountCol, rateCol, sumCol, payoutCol, projectCol, departmentCol, fileCol
+                amountCol, rateCol, sumCol, payoutCol, projectCol, departmentCol, supplementCol, fileCol
             ])
             .setColumnMenuVisible(true)
             .setDeleteButton(this.payrollRun ? (this.payrollRun.StatusCode < 1 ? this.deleteButton : false) : false)
@@ -510,19 +521,9 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges 
         return null;
     }
 
-    public openSuplementaryInformationModal(row: SalaryTransaction) {
-        if (this.payrollRun) {
-            this.modalService
-                .open(SalaryTransSupplementsModal, {
-                    data: row,
-                    modalConfig: {readOnly: !!this.payrollRun.StatusCode}
-                })
-                .onClose
-                .subscribe((trans: SalaryTransaction) => {
-                    if (trans && trans.Supplements && trans.Supplements.length) {
-                        this.updateSalaryChanged(trans, true);
-                    }
-                });
+    private onSupplementModalClose(trans: SalaryTransaction) {
+        if (trans && trans.Supplements && trans.Supplements.length) {
+            this.updateSalaryChanged(trans, true);
         }
     }
 

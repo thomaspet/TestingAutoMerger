@@ -53,6 +53,7 @@ import {SalaryTransactionSelectionList} from './salarytrans/salarytransactionSel
 import {SalarytransFilterContent} from './salarytrans/salarytransFilter';
 import {SalarytransFilter} from './salarytrans/salarytransFilter';
 import {SalaryTransactionEmployeeList} from './salarytrans/salarytransList';
+import {SalaryTransViewService} from './sharedServices/salaryTransViewService';
 
 import {
     SalaryTransSupplementsModal
@@ -185,7 +186,8 @@ import {CanDeactivateGuard} from '../../canDeactivateGuard';
         WageTypeViewService,
         EmployeeDetailsService,
         SalaryBalanceViewService,
-        CategoryViewService
+        CategoryViewService,
+        SalaryTransViewService
     ],
     exports: [
         UniSalary,

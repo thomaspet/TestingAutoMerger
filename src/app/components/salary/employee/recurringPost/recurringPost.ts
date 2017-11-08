@@ -4,6 +4,7 @@ import {
     WageTypeService, UniCacheService, AccountService,
     ErrorService, SalaryTransactionSuggestedValuesService
 } from '../../../../services/services';
+import {SalaryTransViewService} from '../../sharedServices/salaryTransViewService';
 import {UniTableColumn, UniTableColumnType, UniTableConfig, UniTable} from '../../../../../framework/ui/unitable/index';
 import {
     Employment, SalaryTransaction, WageType, Dimensions, Department, Project,
@@ -19,7 +20,6 @@ import {BehaviorSubject} from 'rxjs/BehaviorSubject';
     selector: 'reccuringpost-list',
     templateUrl: './recurringPost.html'
 })
-
 export class RecurringPost extends UniView {
     private employeeID: number;
     private tableConfig: UniTableConfig;
@@ -41,7 +41,8 @@ export class RecurringPost extends UniView {
         private _accountService: AccountService,
         private errorService: ErrorService,
         private sugestedValuesService: SalaryTransactionSuggestedValuesService,
-        private modalService: UniModalService
+        private modalService: UniModalService,
+        private salaryTransViewService: SalaryTransViewService
     ) {
 
         super(router.url, cacheService);
@@ -259,19 +260,21 @@ export class RecurringPost extends UniView {
                 }
             });
 
-
+        const supplementsCol = this.salaryTransViewService
+            .createSupplementsColumn((trans) => this.onSupplementsClose(trans), () => false);
 
         this.tableConfig = new UniTableConfig('salary.employee.recurringPost', this.employeeID ? true : false)
             .setDeleteButton(true)
             .setContextMenu([{
                 label: 'Tilleggsopplysninger', action: (row) => {
-                    this.openSuplementaryInformationModal(row);
+                    this.salaryTransViewService
+                        .openSupplements(row, (trans) => this.onSupplementsClose(trans), false);
                 }
             }])
             .setColumnMenuVisible(true)
             .setColumns([
                 wagetypeCol, descriptionCol, employmentIDCol, fromdateCol, todateCol, accountCol,
-                amountCol, rateCol, sumCol, payoutCol, projectCol, departmentCol
+                amountCol, rateCol, sumCol, payoutCol, projectCol, departmentCol, supplementsCol
             ])
             .setChangeCallback((event) => {
                 let row = event.rowModel;
@@ -444,17 +447,10 @@ export class RecurringPost extends UniView {
         return rowModel;
     }
 
-    public openSuplementaryInformationModal(row: SalaryTransaction) {
-        this.modalService
-            .open(SalaryTransSupplementsModal, {
-                data: row
-            })
-            .onClose
-            .subscribe((trans: SalaryTransaction) => {
-                if (trans && trans.Supplements && trans.Supplements.length) {
-                    this.updateSupplementsOnTransaction(trans);
-                }
-            })
+    public onSupplementsClose(trans: SalaryTransaction) {
+        if (trans && trans.Supplements && trans.Supplements.length) {
+            this.updateSupplementsOnTransaction(trans);
+        }
     }
 
     public navigateToNewAdvance() {
