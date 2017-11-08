@@ -28,4 +28,17 @@ export class CurrencyService extends BizHttp<Currency> {
             'get-currency-exchange-rate',
             `fromCurrencyCodeID=${fromCurrencyCodeID}&toCurrencyCodeID=${toCurrencyCodeID}&currencyDate=${currencyDate.toString()}`);
     }
+
+    public downloadCurrency(): Observable<any> {
+        return this.GetAction(null, 'download-from-norgesbank', null);
+    }
+
+    public getLatestCurrencyDownloadDate(downloadSource: number = 0): Observable<any> {
+        return this.GetAction(
+            null,
+            'get-latest-currency-downloaded-date',
+            `downloadSource=${downloadSource > 0 ? downloadSource : null}`
+        );
+    }
+
 }

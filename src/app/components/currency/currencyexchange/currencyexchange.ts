@@ -111,6 +111,10 @@ export class CurrencyExchange {
                 {
                     label: 'Neste uke',
                     action: this.nextWeek.bind(this)
+                },
+                {
+                    label: 'Oppdater valutakurser nå',
+                    action: this.downLoadCurrency.bind(this)
                 }
             ]
         };
@@ -172,6 +176,13 @@ export class CurrencyExchange {
         this.loadData();
     }
 
+    private downLoadCurrency(done) {
+        this.currencyService.downloadCurrency().subscribe(res => {
+            this.onFormFilterChange(null);
+            this.toastService.addToast('Nedlasting av valuta er fullført!', ToastType.good, 5);
+        }, err => err.handleError(err));
+    }
+
     private setupForm() {
         let currencyDate = new UniFieldLayout();
         currencyDate.EntityType = 'ExchangeRates';
@@ -212,7 +223,8 @@ export class CurrencyExchange {
             .setDisplayField('FromCurrencyCode.Name')
             .setEditable(false)
             .setWidth('10%');
-        let overridedCol = new UniTableColumn('IsOverrideRate', 'Overstyrt', UniTableColumnType.Text, false).setFilterOperator('contains')
+        let overridedCol = new UniTableColumn('IsOverrideRate', 'Overstyrt', UniTableColumnType.Text, false)
+            .setFilterOperator('contains')
             .setTemplate(line => '')
             .setConditionalCls(line => {
                 return line.IsOverrideRate ? 'override-column' : '';
@@ -221,6 +233,10 @@ export class CurrencyExchange {
             .setFilterable(false)
             .setEditable(false)
             .setSkipOnEnterKeyNavigation(true);
+            let currenyDateDownloadedCol = new UniTableColumn('CurrencyDate', 'Nedlastet', UniTableColumnType.Text)
+            .setEditable(false)
+            .setFilterOperator('contains')
+            .setWidth('50px');
 
         let contextMenu = {
             label: 'Overstyr',
