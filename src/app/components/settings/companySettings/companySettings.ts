@@ -1,4 +1,5 @@
 ﻿import {Component, OnInit, SimpleChanges, ViewChild} from '@angular/core';
+import {Router} from '@angular/router';
 import {IUniSaveAction} from '../../../../framework/save/save';
 import {FieldType, UniForm} from '../../../../framework/ui/uniform/index';
 import {UniFieldLayout} from '../../../../framework/ui/uniform/index';
@@ -47,6 +48,7 @@ import {
 } from '../../../services/services';
 import {SubEntitySettingsService} from '../agaAndSubEntitySettings/services/subEntitySettingsService';
 import {CompanySettingsViewService} from './services/companySettingsViewService';
+import {ChangeCompanySettingsPeriodSeriesModal} from '../companySettings/ChangeCompanyPeriodSeriesModal';
 import {
     UniActivateAPModal,
     UniAddressModal,
@@ -166,7 +168,8 @@ export class CompanySettingsComponent implements OnInit {
         private modalService: UniModalService,
         private uniFilesService: UniFilesService,
         private subEntitySettingsService: SubEntitySettingsService,
-        private companySettingsViewService: CompanySettingsViewService
+        private companySettingsViewService: CompanySettingsViewService,
+        private router: Router
     ) {
         this.financialYearService.lastSelectedFinancialYear$.subscribe(
             res => this.currentYear = res.Year,
@@ -278,7 +281,6 @@ export class CompanySettingsComponent implements OnInit {
         if (companyType) {
             company.CompanyTypeID = companyType.ID;
         }
-
         this.company$.next(company);
     }
 
@@ -292,13 +294,21 @@ export class CompanySettingsComponent implements OnInit {
                     if (result === ConfirmActions.ACCEPT) {
                         this.saveSettings(() => {});
                     }
-
                     return result !== ConfirmActions.CANCEL;
                 });
     }
 
     public companySettingsChange(changes: SimpleChanges) {
         this.isDirty = true;
+
+
+        if (changes['PeriodSeriesAccountID'] || changes['PeriodSeriesVatID']) {
+            this.modalService.open(ChangeCompanySettingsPeriodSeriesModal).onClose.subscribe(
+                result => {
+                    this.router.navigateByUrl('/settings/company');
+            }, err => this.errorService.handle
+        );
+        }
 
         if (changes['CompanyBankAccount']) {
             this.bankaccountService.deleteRemovedBankAccounts(changes['CompanyBankAccount'])
@@ -625,7 +635,8 @@ export class CompanySettingsComponent implements OnInit {
             source: this.periodSeries.filter((value) => value.SeriesType.toString() === '1'),
             valueProperty: 'ID',
             displayProperty: 'Name',
-            debounceTime: 200
+            debounceTime: 200,
+            ReadOnly: true
         };
 
         let periodSeriesVatID: UniFieldLayout = fields.find(x => x.Property === 'PeriodSeriesVatID');
@@ -633,7 +644,9 @@ export class CompanySettingsComponent implements OnInit {
             source: this.periodSeries.filter((value) => value.SeriesType.toString() === '0'),
             valueProperty: 'ID',
             displayProperty: 'Name',
-            debounceTime: 200
+            debounceTime: 200,
+            ReadOnly: true
+
         };
 
         let companyBankAccount: UniFieldLayout = fields.find(x => x.Property === 'CompanyBankAccount');
