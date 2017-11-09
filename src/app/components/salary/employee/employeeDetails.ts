@@ -386,7 +386,10 @@ export class EmployeeDetails extends UniView implements OnDestroy {
                                 {
                                     data: this.employeeID,
                                     modalConfig: {
-                                        update: () => this.getTax()
+                                        update: () => {
+                                            this.employeeTaxCardService.invalidateCache();
+                                            this.getTax();
+                                        }
                                     }
                                 })
                             },

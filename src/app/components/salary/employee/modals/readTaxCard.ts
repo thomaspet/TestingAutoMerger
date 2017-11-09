@@ -83,6 +83,7 @@ export class ReadTaxCard implements OnInit {
     }
 
     public getReceipts() {
+        this._altinnReceiptService.invalidateCache();
         this.altinnReceipts$ = this._altinnReceiptService.GetAll(`orderby=ID DESC&filter=Form eq 'RF-1211'`)
             .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
     }
