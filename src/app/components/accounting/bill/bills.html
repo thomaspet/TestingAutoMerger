@@ -19,23 +19,21 @@
 
     <header class="application">
         <table class='toolbar' style="float: left">
-        <tr>
-            <td>
-                <input type="search" placeholder="Søk" [formControl]="searchControl" ><button class="good" (click)="onAddNew()">Nytt fakturamottak</button>
-            </td>
-            <td>
-                <uni-form *ngIf="!(filters[0].isSelected || filters[1].isSelected)" [config]="config$"
-                    [fields]="fields$"
-                    [model]="searchParams$"
-                    (changeEvent)="onFormFilterChange($event)">
-                </uni-form>
-            </td>
-            <td>
-            </td>
-        </tr>
-    </table>
-    <a *ngIf="fileID" class="accounting_preview_links" (click)="documentSelected(true)">Bruk i fakturamottak</a>
-    <a *ngIf="fileID" class="accounting_preview_links" (click)="documentSelected(false)">Bruk i bilagsregistrering</a>
+            <tr>
+                <td>
+                    <input type="search" placeholder="Søk" [formControl]="searchControl" ><button class="good" (click)="onAddNew()">Nytt fakturamottak</button>
+                </td>
+                <td>
+                    <uni-form *ngIf="!(filters[0].isSelected || filters[1].isSelected)" [config]="config$"
+                        [fields]="fields$"
+                        [model]="searchParams$"
+                        (changeEvent)="onFormFilterChange($event)">
+                    </uni-form>
+                </td>
+            </tr>
+        </table>
+        <a *ngIf="fileID" class="accounting_preview_links" (click)="documentSelected(true)">Bruk i fakturamottak</a>
+        <a *ngIf="fileID" class="accounting_preview_links" (click)="documentSelected(false)">Bruk i bilagsregistrering</a>
     </header>
 
     <article class="application accounting_inbox_container" [attr.aria-busy]="busy">
@@ -65,6 +63,7 @@
                 [readonly]="true"
                 [uploadWithoutEntity]="true"
                 [fileIDs]="fileID"
+                (imageClicked)="onImageClicked($event)"
                 (fileListReady)="onFileListReady($event)">
             </uni-image>
         </article>

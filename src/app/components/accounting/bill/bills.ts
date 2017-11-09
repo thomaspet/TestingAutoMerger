@@ -7,7 +7,13 @@ import {URLSearchParams} from '@angular/http';
 import {ActivatedRoute} from '@angular/router';
 import {Router} from '@angular/router';
 import {JournalEntryData, JournalEntryExtended} from '../../../models/models';
-import { SupplierInvoice, StatusCodeSupplierInvoice, CompanySettings, JournalEntryLineDraft, ApprovalStatus } from '../../../unientities';
+import {
+    SupplierInvoice,
+    StatusCodeSupplierInvoice,
+    CompanySettings,
+    JournalEntryLineDraft,
+    ApprovalStatus
+} from '../../../unientities';
 import {safeInt} from '../../common/utils/utils';
 import {UniAssignModal, AssignDetails} from './detail/assignmodal';
 import {UniModalService, UniConfirmModalV2, ConfirmActions} from '../../../../framework/uniModal/barrel';
@@ -23,13 +29,17 @@ import {
     UserService,
     JournalEntryService
 } from '../../../services/services';
-
+import {ImageModal} from '../../common/modals/ImageModal';
+import {
+  UniImageSize,
+  UniImage
+} from '../../../../framework/uniImage/uniImage';
 import * as moment from 'moment';
-import { FieldType } from "../../../../framework/ui/uniform/fieldTypes";
-import { BehaviorSubject } from "rxjs/BehaviorSubject";
+import { FieldType } from '../../../../framework/ui/uniform/fieldTypes';
+import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import {IToolbarConfig} from '../../common/toolbar/toolbar';
 import {IUniSaveAction} from '../../../../framework/save/save';
-import { Observable } from "rxjs/Observable";
+import { Observable } from 'rxjs/Observable';
 
 interface ILocalValidation {
     success: boolean;
@@ -51,7 +61,7 @@ interface IFilter {
     hotCounter?: boolean;
 }
 
-interface SearchParams {
+interface ISearchParams {
     userID?: number;
 }
 
@@ -60,8 +70,8 @@ interface SearchParams {
     templateUrl: './bills.html'
 })
 export class BillsView {
-    @ViewChild(UniTable)
-    private unitable: UniTable;
+    @ViewChild(UniTable) private unitable: UniTable;
+    @ViewChild(UniImage) public uniImage: UniImage;
 
     private searchControl: FormControl = new FormControl('');
 
@@ -80,7 +90,7 @@ export class BillsView {
     private hasQueriedTotals: boolean = false;
     private startupPage: number = 0;
 
-    private searchParams$: BehaviorSubject<SearchParams> = new BehaviorSubject({});
+    private searchParams$: BehaviorSubject<ISearchParams> = new BehaviorSubject({});
     private fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
     private config$: BehaviorSubject<any> = new BehaviorSubject({autofocus: true});
 
@@ -88,18 +98,80 @@ export class BillsView {
     private baseCurrencyCode: string;
     private currentUserFilter: string;
     public selectedItems: SupplierInvoice[];
-    private fileID;
+    private fileID: any;
+    private currentFiles: any;
 
     public filters: Array<IFilter> = [
-        { label: 'Innboks', name: 'Inbox', route: 'filetags/IncomingMail|IncomingEHF/0', onDataReady: (data) => this.onInboxDataReady(data), isSelected: true, hotCounter: true },
-        { label: 'Kladd', name: 'Draft', filter: 'isnull(statuscode,' + StatusCodeSupplierInvoice.Draft + ') eq ' + StatusCodeSupplierInvoice.Draft, isSelected: false, passiveCounter: true },
-        { label: 'Avvist', name: 'Rejected', filter: 'isnull(statuscode,' + StatusCodeSupplierInvoice.Rejected + ') eq ' + StatusCodeSupplierInvoice.Rejected, isSelected: false, passiveCounter: true },
-        { label: 'Tildelt', name: 'ForApproval', filter: 'statuscode eq ' + StatusCodeSupplierInvoice.ForApproval, passiveCounter: true },
-        { label: 'Godkjent', name: 'Approved', filter: 'statuscode eq ' + StatusCodeSupplierInvoice.Approved, passiveCounter: true },
-        { label: 'Bokført', name: 'Journaled', filter: 'statuscode eq ' + StatusCodeSupplierInvoice.Journaled, showJournalID: true, passiveCounter: true },
-        { label: 'Betalingsliste', name: 'ToPayment', filter: 'statuscode eq ' + StatusCodeSupplierInvoice.ToPayment, showJournalID: true, passiveCounter: true },
-        { label: 'Betalt', name: 'Paid', filter: 'statuscode eq ' + StatusCodeSupplierInvoice.Payed + ' or statuscode eq ' + StatusCodeSupplierInvoice.PartlyPayed, showStatus: true, showJournalID: true, passiveCounter: true },
-        { label: 'Alle', name: 'All', filter: '', showStatus: true, showJournalID: true, passiveCounter: true }
+        {
+            label: 'Innboks',
+            name: 'Inbox',
+            route: 'filetags/IncomingMail|IncomingEHF/0',
+            onDataReady: (data) => this.onInboxDataReady(data),
+            isSelected: true,
+            hotCounter: true
+        },
+        {
+            label: 'Kladd', name: 'Draft',
+            filter: 'isnull(statuscode,'
+                + StatusCodeSupplierInvoice.Draft
+                + ') eq '
+                + StatusCodeSupplierInvoice.Draft,
+            isSelected: false, passiveCounter: true
+        },
+        {
+            label: 'Avvist',
+            name: 'Rejected',
+            filter: 'isnull(statuscode,' +
+            StatusCodeSupplierInvoice.Rejected + ') eq ' +
+            StatusCodeSupplierInvoice.Rejected, isSelected: false,
+            passiveCounter: true
+        },
+        {
+            label: 'Tildelt',
+            name: 'ForApproval',
+            filter: 'statuscode eq ' +
+            StatusCodeSupplierInvoice.ForApproval,
+            passiveCounter: true
+        },
+        {
+            label: 'Godkjent',
+            name: 'Approved',
+            filter: 'statuscode eq ' + StatusCodeSupplierInvoice.Approved,
+            passiveCounter: true
+        },
+        {
+            label: 'Bokført',
+            name: 'Journaled',
+            filter: 'statuscode eq ' + StatusCodeSupplierInvoice.Journaled,
+            showJournalID: true,
+            passiveCounter: true
+        },
+        {
+            label: 'Betalingsliste',
+            name: 'ToPayment',
+            filter: 'statuscode eq ' + StatusCodeSupplierInvoice.ToPayment,
+            showJournalID: true,
+            passiveCounter: true
+        },
+        {
+            label: 'Betalt',
+            name: 'Paid',
+            filter: 'statuscode eq '
+                + StatusCodeSupplierInvoice.Payed
+                + ' or statuscode eq '
+                + StatusCodeSupplierInvoice.PartlyPayed,
+            showStatus: true,
+            showJournalID: true,
+            passiveCounter: true
+        },
+        {
+            label: 'Alle',
+            name: 'All',
+            filter: '',
+            showStatus: true,
+            showJournalID: true,
+            passiveCounter: true
+        }
     ];
 
     public saveActions: IUniSaveAction[] = [{
@@ -109,7 +181,7 @@ export class BillsView {
         disabled: false
     }];
 
-    public toolbarConfig: any = {
+    public toolbarConfig: IToolbarConfig = {
         title: 'Fakturamottak'
     };
 
@@ -152,7 +224,7 @@ export class BillsView {
                     this.refreshList(this.currentFilter, true);
                 }
                 this.updateSaveActions(0);
-                let searchParams: SearchParams = {
+                let searchParams: ISearchParams = {
                     userID: null
                 };
 
@@ -277,10 +349,26 @@ export class BillsView {
         }
     }
 
+    private onImageClicked(file: any) {
+        let data = {
+            entity: 'SupplierInvoice',
+            entityID: this.currentFiles[0].ID || 0,
+            fileIDs: null,
+            showFileID: file.ID,
+            readonly: true,
+            size: UniImageSize.large
+        };
+
+        if (this.currentFiles) {
+            data.fileIDs = this.currentFiles.map(f => f.FileID);
+        }
+        this.modalService.open(ImageModal, { data: data });
+    }
+
     public assignSupplierInvoices(done: any) {
         this.modalService.open(UniAssignModal).onClose.subscribe(details => {
             this.onAssignSupplierInvoicesClickOk(details);
-        })
+        });
         done();
     }
 
@@ -296,10 +384,18 @@ export class BillsView {
                 this.refreshList(this.currentFilter, true, null, this.currentUserFilter);
                 let numberOfFailed = res.filter(r => !r.success).length;
                 if (numberOfFailed > 0) {
-                    this.toast.addToast(this.selectedItems.length - numberOfFailed + ' fakturaer ble tildelt' + '<BR/>' + numberOfFailed + ' fakturaer feilet ved tildeling.', ToastType.bad, 3);
+                    this.toast.addToast(
+                        this.selectedItems.length
+                            - numberOfFailed + ' fakturaer ble tildelt'
+                            + '<BR/>' + numberOfFailed + ' fakturaer feilet ved tildeling.',
+                        ToastType.bad,
+                        3
+                    );
                     this.selectedItems = null;
                 } else {
-                    this.toast.addToast(this.selectedItems.length - numberOfFailed + ' fakturaer ble tildelt', ToastType.good, 3);
+                    this.toast.addToast(
+                        this.selectedItems.length - numberOfFailed + ' fakturaer ble tildelt', ToastType.good, 3
+                    );
                 }
                 this.updateSaveActions(0);
             },
@@ -339,12 +435,24 @@ export class BillsView {
                         Observable.forkJoin(approvalsRequests).subscribe(
                             approvalResponses => {
                                 this.refreshList(this.currentFilter, true, null, this.currentUserFilter);
-                                let numberOfFailed = approvalResponses.filter((response: any) => !response.success).length;
+                                let numberOfFailed = approvalResponses
+                                    .filter((response: any) => !response.success).length;
                                 if (numberOfFailed > 0) {
-                                    this.toast.addToast(this.selectedItems.length - numberOfFailed + ' fakturaer ble godkjent. ' +  numberOfFailed + ' fakturaer feilet ved godkjenning. Merk også at fakturaer du ikke var tildelt ble ignorert.', ToastType.bad, 3);
+                                    this.toast.addToast(
+                                        this.selectedItems.length
+                                            - numberOfFailed + ' fakturaer ble godkjent. '
+                                            +  numberOfFailed + ' fakturaer feilet ved godkjenning. '
+                                            + 'Merk også at fakturaer du ikke var tildelt ble ignorert.',
+                                        ToastType.bad,
+                                        3
+                                    );
                                     this.selectedItems = null;
                                 } else {
-                                    this.toast.addToast(this.selectedItems.length - numberOfFailed + ' fakturaer ble godkjent', ToastType.good, 3);
+                                    this.toast.addToast(
+                                        this.selectedItems.length - numberOfFailed + ' fakturaer ble godkjent',
+                                        ToastType.good,
+                                        3
+                                    );
                                 }
                                 this.updateSaveActions(0);
                             },
@@ -393,12 +501,24 @@ export class BillsView {
                                 Observable.forkJoin(approvalRequests).subscribe(
                                     approvalResponses => {
                                         this.refreshList(this.currentFilter, true, null, this.currentUserFilter);
-                                        let numberOfFailed = approvalResponses.filter((response: any) => !response.success).length;
+                                        let numberOfFailed = approvalResponses
+                                           .filter((response: any) => !response.success).length;
                                         if (numberOfFailed > 0) {
-                                            this.toast.addToast(this.selectedItems.length - numberOfFailed + ' fakturaer ble avvist. ' +  numberOfFailed + ' fakturaer feilet ved avvising. Merk også at fakturaer du ikke var tildelt ble ignorert.', ToastType.bad, 3);
+                                            this.toast.addToast(
+                                                this.selectedItems.length
+                                                    - numberOfFailed + ' fakturaer ble avvist. '
+                                                    +  numberOfFailed + ' fakturaer feilet ved avvising. '
+                                                    + 'Merk også at fakturaer du ikke var tildelt ble ignorert.',
+                                                ToastType.bad,
+                                                3
+                                            );
                                             this.selectedItems = null;
                                         } else {
-                                            this.toast.addToast(this.selectedItems.length - numberOfFailed + ' fakturaer ble avsist', ToastType.good, 3);
+                                            this.toast.addToast(
+                                                this.selectedItems.length - numberOfFailed + ' fakturaer ble avsist',
+                                                ToastType.good,
+                                                3
+                                            );
                                         }
                                         this.updateSaveActions(0);
                                     },
@@ -419,7 +539,8 @@ export class BillsView {
 
         const modal = this.modalService.open(UniConfirmModalV2, {
             header: 'Kreditere faktura?',
-            message: 'Vil du kreditere bokføringen for fakturaen(e)? Fakturaen(e) vil settes tilbake til forrige status. '
+            message: 'Vil du kreditere bokføringen for fakturaen(e)? '
+                + 'Fakturaen(e) vil settes tilbake til forrige status. '
         });
 
         modal.onClose.subscribe(response => {
@@ -435,9 +556,19 @@ export class BillsView {
                         this.refreshList(this.currentFilter, true, null, this.currentUserFilter);
                         let numberOfFailed = res.filter(r => !r.success).length;
                         if (numberOfFailed > 0) {
-                            this.toast.addToast(this.selectedItems.length - numberOfFailed + ' fakturaer ble kreditert.' + '<BR/>' + numberOfFailed + ' fakturaer feilet.', ToastType.bad, 3);
+                            this.toast.addToast(
+                                this.selectedItems.length
+                                    - numberOfFailed + ' fakturaer ble kreditert.'
+                                    + '<BR/>' + numberOfFailed + ' fakturaer feilet.',
+                                ToastType.bad,
+                                3
+                            );
                         } else {
-                            this.toast.addToast(this.selectedItems.length - numberOfFailed + ' fakturaer ble kreditert.', ToastType.good, 3);
+                            this.toast.addToast(
+                                this.selectedItems.length - numberOfFailed + ' fakturaer ble kreditert.',
+                                ToastType.good,
+                                3
+                            );
                         }
                         this.selectedItems = null;
                         this.updateSaveActions(0);
@@ -468,9 +599,19 @@ export class BillsView {
                 this.refreshList(this.currentFilter, true, null, this.currentUserFilter);
                 let numberOfFailed = res.filter(r => !r.success).length;
                 if (numberOfFailed > 0) {
-                    this.toast.addToast(this.selectedItems.length - numberOfFailed + ' fakturaer ble sendt til betalingsliste.' + '<BR/>' + numberOfFailed + ' fakturaer feilet.', ToastType.bad, 3);
+                    this.toast.addToast(
+                        this.selectedItems.length
+                            - numberOfFailed + ' fakturaer ble sendt til betalingsliste.'
+                            + '<BR/>' + numberOfFailed + ' fakturaer feilet.',
+                        ToastType.bad,
+                        3
+                    );
                 } else {
-                    this.toast.addToast(this.selectedItems.length - numberOfFailed + ' fakturaer ble sendt til betalingsliste.', ToastType.good, 3);
+                    this.toast.addToast(
+                        this.selectedItems.length - numberOfFailed + ' fakturaer ble sendt til betalingsliste.',
+                        ToastType.good,
+                        3
+                    );
                 }
                 this.selectedItems = null;
                 this.updateSaveActions(0);
@@ -496,10 +637,18 @@ export class BillsView {
                 this.refreshList(this.currentFilter, true, null, this.currentUserFilter);
                 let numberOfFailed = res.filter(r => !r.success).length;
                 if (numberOfFailed > 0) {
-                    this.toast.addToast(this.selectedItems.length - numberOfFailed + ' fakturaer ble bokført.' + '<BR/>' + numberOfFailed + ' fakturaer feilet ved bokføring.', ToastType.bad, 3);
+                    this.toast.addToast(
+                        this.selectedItems.length
+                            - numberOfFailed + ' fakturaer ble bokført.' + '<BR/>'
+                            + numberOfFailed + ' fakturaer feilet ved bokføring.',
+                        ToastType.bad,
+                        3
+                    );
                     this.selectedItems = null;
                 } else {
-                    this.toast.addToast(this.selectedItems.length - numberOfFailed + ' fakturaer ble bokført.', ToastType.good, 3);
+                    this.toast.addToast(
+                        this.selectedItems.length - numberOfFailed + ' fakturaer ble bokført.', ToastType.good, 3
+                    );
                 }
                 this.selectedItems = null;
                 this.updateSaveActions(0);
@@ -538,7 +687,12 @@ export class BillsView {
         return v.replace(/[`~!@#$%^&*()_|+\=?;:'",.<>\{\}\[\]\\\/]/gi, '');
     }
 
-    private refreshList(filter?: IFilter, refreshTotals: boolean = false, searchFilter?: string, filterOnUserID?: string) {
+    private refreshList(
+        filter?: IFilter,
+        refreshTotals: boolean = false,
+        searchFilter?: string,
+        filterOnUserID?: string
+    ) {
         this.busy = true;
         var params = new URLSearchParams();
         if (filter && filter.filter) {
@@ -550,7 +704,9 @@ export class BillsView {
         if (filter.route) {
             this.hasQueriedInboxCount = filter.name === 'Inbox';
         }
-        let obs = filter.route ?  this.supplierInvoiceService.fetch(filter.route) : this.supplierInvoiceService.getInvoiceList(params, this.currentUserFilter);
+        let obs = filter.route
+            ?  this.supplierInvoiceService.fetch(filter.route)
+            : this.supplierInvoiceService.getInvoiceList(params, this.currentUserFilter);
         obs.subscribe((result) => {
             if (filter.onDataReady) {
                 filter.onDataReady(result);
@@ -596,7 +752,9 @@ export class BillsView {
             return false;
         }
         this.hasQueriedInboxCount = true;
-        var route = '?model=filetag&select=count(id)&filter=(tagname eq \'IncomingMail\' or tagname eq \'IncomingEHF\') and status eq 0 and deleted eq 0 and file.deleted eq 0&join=filetag.fileid eq file.id';
+        var route = '?model=filetag&select=count(id)&filter=(tagname eq \'IncomingMail\' '
+            + 'or tagname eq \'IncomingEHF\') and status eq 0 '
+            + 'and deleted eq 0 and file.deleted eq 0&join=filetag.fileid eq file.id';
         this.supplierInvoiceService.getStatQuery(route).subscribe(data => {
             var filter = this.getInboxFilter();
             if (filter && data && data.length > 0) {
@@ -612,7 +770,11 @@ export class BillsView {
     private removeNullItems(data: Array<any>) {
         var n = data ? data.length : 0;
         if (n > 0) {
-            for (var i = n - 1; i--; i >= 0) { if (data[i] === null) { data.splice(i, 1); console.log('Fjerner null-item pga.deleted file vs filetags i backend'); } }
+            for (var i = n - 1; i--; i >= 0) {
+                if (data[i] === null) {
+                    data.splice(i, 1);
+                }
+            }
         }
     }
 
@@ -662,36 +824,41 @@ export class BillsView {
     }
 
     private refreshTotals() {
-        this.supplierInvoiceService.getInvoiceListGroupedTotals(this.currentUserFilter).subscribe((result: Array<IStatTotal>) => {
-            this.hasQueriedTotals = true;
-            this.filters.forEach(x => { if (x.name !== 'Inbox') { x.count = 0; x.total = 0; } });
-            var count = 0;
-            var total = 0;
-            if (result) {
-                result.forEach(x => {
-                    count += x.countid;
-                    total += x.sumTaxInclusiveAmount;
-                    var statusCode = x.SupplierInvoiceStatusCode ? x.SupplierInvoiceStatusCode.toString() : '0';
-                    var ix = this.filters.findIndex(y => y.filter ? y.filter.indexOf(statusCode) > 0 : false);
-                    if (ix >= 0) {
-                        this.filters[ix].count += x.countid;
-                        this.filters[ix].total += x.sumTaxInclusiveAmount;
-                    }
-                });
-            }
-            let ixAll = this.filters.findIndex(x => x.name === 'All');
-            this.filters[ixAll].count = count;
-            this.filters[ixAll].total = total;
-            this.totals.grandTotal = this.filters.find(x => x.isSelected).total;
-        }, err => this.errorService.handle(err));
+        this.supplierInvoiceService.getInvoiceListGroupedTotals(this.currentUserFilter)
+            .subscribe((result: Array<IStatTotal>) => {
+                this.hasQueriedTotals = true;
+                this.filters.forEach(x => { if (x.name !== 'Inbox') { x.count = 0; x.total = 0; } });
+                var count = 0;
+                var total = 0;
+                if (result) {
+                    result.forEach(x => {
+                        count += x.countid;
+                        total += x.sumTaxInclusiveAmount;
+                        var statusCode = x.SupplierInvoiceStatusCode ? x.SupplierInvoiceStatusCode.toString() : '0';
+                        var ix = this.filters.findIndex(y => y.filter ? y.filter.indexOf(statusCode) > 0 : false);
+                        if (ix >= 0) {
+                            this.filters[ix].count += x.countid;
+                            this.filters[ix].total += x.sumTaxInclusiveAmount;
+                        }
+                    });
+                }
+                let ixAll = this.filters.findIndex(x => x.name === 'All');
+                this.filters[ixAll].count = count;
+                this.filters[ixAll].total = total;
+                this.totals.grandTotal = this.filters.find(x => x.isSelected).total;
+            }, err => this.errorService.handle(err));
     }
 
     private createTableConfig(filter: IFilter): UniTableConfig {
         const cols = [
             new UniTableColumn('InvoiceNumber', 'Fakturanr').setWidth('8%'),
             new UniTableColumn('SupplierSupplierNumber', 'Lev.nr.').setVisible(false).setWidth('4em'),
-            new UniTableColumn('InfoName', 'Leverandør', UniTableColumnType.Text).setFilterOperator('startswith').setWidth('15em'),
-            new UniTableColumn('InvoiceDate', 'Fakturadato', UniTableColumnType.LocalDate).setWidth('10%').setFilterOperator('eq'),
+            new UniTableColumn('InfoName', 'Leverandør', UniTableColumnType.Text)
+                .setFilterOperator('startswith')
+                .setWidth('15em'),
+            new UniTableColumn('InvoiceDate', 'Fakturadato', UniTableColumnType.LocalDate)
+                .setWidth('10%')
+                .setFilterOperator('eq'),
             new UniTableColumn('PaymentDueDate', 'Forfall', UniTableColumnType.LocalDate).setWidth('10%')
                 .setFilterOperator('eq')
                 .setConditionalCls((item) => {
@@ -702,11 +869,15 @@ export class BillsView {
             new UniTableColumn('BankAccountAccountNumber', 'Bankgiro').setWidth('10%'),
             new UniTableColumn('PaymentID', 'KID/Melding').setWidth('10%')
                 .setTemplate((item) => item.PaymentInformation || item.PaymentID),
-            new UniTableColumn('JournalEntryJournalEntryNumber', 'Bilagsnr.').setWidth('8%').setVisible(!!filter.showJournalID)
+            new UniTableColumn('JournalEntryJournalEntryNumber', 'Bilagsnr.')
+                .setWidth('8%')
+                .setVisible(!!filter.showJournalID)
                 .setFilterOperator('startswith')
                 .setTemplate(item => {
                     var key = item.JournalEntryJournalEntryNumber;
-                    if (key) { return `<a href="#/accounting/transquery/details;JournalEntryNumber=${key}">${key}</a>`; }
+                    if (key) {
+                        return `<a href="#/accounting/transquery/details;JournalEntryNumber=${key}">${key}</a>`;
+                    }
                 }),
             new UniTableColumn('CurrencyCodeCode', 'Valuta', UniTableColumnType.Text)
                 .setWidth('5%')
@@ -715,14 +886,18 @@ export class BillsView {
             new UniTableColumn('TaxInclusiveAmountCurrency', 'Beløp', UniTableColumnType.Money).setWidth('7em')
                 .setFilterOperator('contains')
                 .setConditionalCls(item =>
-                    item.TaxInclusiveAmountCurrency >= 0 ? 'supplier-invoice-table-plus' : 'supplier-invoice-table-minus'
+                    item.TaxInclusiveAmountCurrency >= 0
+                        ? 'supplier-invoice-table-plus'
+                        : 'supplier-invoice-table-minus'
                 ),
-            new UniTableColumn('Assignees', "Tildelt / Godkjent av").setVisible(true),
+            new UniTableColumn('Assignees', 'Tildelt / Godkjent av').setVisible(true),
             new UniTableColumn('ProjectName', 'Prosjektnavn').setVisible(false),
             new UniTableColumn('ProjectProjectNumber', 'ProsjektNr.').setVisible(false),
             new UniTableColumn('DepartmentName', 'Avdelingsnavn').setVisible(false),
             new UniTableColumn('DepartmentDepartmentNumber', 'Avd.nr.').setVisible(false),
-            new UniTableColumn('StatusCode', 'Status', UniTableColumnType.Number).setVisible(!!filter.showStatus).setAlignment('center')
+            new UniTableColumn('StatusCode', 'Status', UniTableColumnType.Number)
+                .setVisible(!!filter.showStatus)
+                .setAlignment('center')
                 .setTemplate((dataItem) => {
                     return this.supplierInvoiceService.getStatusText(dataItem.StatusCode);
                 }).setWidth('8%'),
@@ -736,7 +911,8 @@ export class BillsView {
     }
 
     public onRowSelected(event) {
-        var item = event.rowModel;
+        let item = event.rowModel;
+        this.currentFiles = item.FileTags ? item.FileTags : null;
         if (item) {
             if (this.currentFilter.name === 'Inbox') {
                 this.previewDocument(item);
@@ -819,7 +995,7 @@ export class BillsView {
             }
         }
 
-        if (params.assignee){
+        if (params.assignee) {
 
             if (params.assigneename) {
 
