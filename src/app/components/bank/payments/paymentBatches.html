@@ -3,6 +3,7 @@
     <section class="splitview">
         <nav class="splitview_list">
             <uni-upload-file-button class="receipt-file-upload-button" [buttonText]="'Registrer kvitteringsfil'" (fileUploaded)="fileUploaded($event)"></uni-upload-file-button>
+            <button class="download-button" (click)="downloadBankFiles()">Hent bankfiler</button>
             <uni-table
                 [resource]="lookupFunction"
                 [config]="paymentBatchTableConfig"

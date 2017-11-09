@@ -6,6 +6,7 @@ import {IToolbarConfig} from '../../common/toolbar/toolbar';
 import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig} from '../../../../framework/ui/unitable/index';
 import {URLSearchParams} from '@angular/http';
 import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
+import {UniModalService, UniDownloadPaymentsModal} from '../../../../framework/uniModal/barrel';
 import {
     ErrorService,
     StatisticsService,
@@ -32,7 +33,8 @@ export class PaymentBatches {
         private errorService: ErrorService,
         private tabService: TabService,
         private toastService: ToastService,
-        private fileService: FileService) {
+        private fileService: FileService,
+        private modalService: UniModalService) {
 
         this.tabService.addTab({
             name: 'Utbetalinger',
@@ -151,5 +153,9 @@ export class PaymentBatches {
         this.paymentBatchTableConfig = new UniTableConfig(configStoreKey, false, true, 25)
             .setSearchable(true)
             .setColumns([dateCol, totalAmountCol, numberOfPaymentsCol, statusCodeCol]);
+    }
+
+    public downloadBankFiles() {
+        this.modalService.open(UniDownloadPaymentsModal, {});
     }
 }
