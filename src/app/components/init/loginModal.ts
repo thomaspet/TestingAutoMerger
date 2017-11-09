@@ -84,17 +84,7 @@ export class LoginModal implements IUniModal {
             <any> {
                 Property: 'password',
                 FieldType: FieldType.PASSWORD,
-                Label: 'Passord',
-                Options: {
-                    events: {
-                        'enter': () => {
-                            let focus: any = document.activeElement;
-                            focus.blur();
-                            this.authenticate();
-                            focus.focus();
-                        }
-                    }
-                }
+                Label: 'Passord'
             }
         ];
     }
