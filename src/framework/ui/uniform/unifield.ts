@@ -313,7 +313,7 @@ export class UniField {
             return errors;
         }
         validators.forEach(validator => {
-            let error: UniFormError | Observable<UniFormError> = validator(value, field);
+            const error: UniFormError | Observable<UniFormError> = validator(value, field);
             errors.push(
                 error instanceof Observable ? error : Observable.of(error)
             );
@@ -343,7 +343,7 @@ export class UniField {
         this.hasWarning = 0;
         this.hasError = 0;
         this.errorMessages = [];
-        let numErrors = errorMessages.length;
+        const numErrors = errorMessages.length;
         let i = 0;
         if (this.formConfig.hideErrors !== true) {
             errorMessages.forEach((errorMessage: Observable<UniFormError>) => {
