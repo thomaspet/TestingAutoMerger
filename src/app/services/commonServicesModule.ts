@@ -30,6 +30,7 @@ import {PageStateService} from './common/pageStateService';
 import {FileService} from './common/fileService';
 import {EHFService} from './common/EHFService';
 import {AgaZoneService} from './common/agaZoneService';
+import {AgaSumService} from './common/agaSumService';
 import {MunicipalService} from './common/municipalsService';
 import {BrowserStorageService} from './common/browserStorageService';
 import {UniCacheService} from './common/cacheService';
@@ -90,6 +91,7 @@ export * from './common/pageStateService';
 export * from './common/fileService';
 export * from './common/EHFService';
 export * from './common/agaZoneService';
+export * from './common/agaSumService'
 export * from './common/municipalsService';
 export * from './common/browserStorageService';
 export * from './common/cacheService';
@@ -153,6 +155,7 @@ export class CommonServicesModule {
                 FileService,
                 EHFService,
                 AgaZoneService,
+                AgaSumService,
                 MunicipalService,
                 BrowserStorageService,
                 UniCacheService,

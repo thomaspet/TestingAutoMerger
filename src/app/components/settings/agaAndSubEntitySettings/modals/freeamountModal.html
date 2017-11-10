@@ -3,7 +3,7 @@
         <h1>Fribeløp pr virksomhet</h1>
     </header>
     <article>
-        <uni-table [config]="freeamountTableConfig" [resource]="freeamountData"></uni-table>
+        <uni-table [config]="freeamountTableConfig" [resource]="freeamountData$ | async"></uni-table>
         <uni-form [config]="formConfig$" [fields]="fields$" [model]="freeamountModel$"></uni-form>
     </article>
     <footer>
