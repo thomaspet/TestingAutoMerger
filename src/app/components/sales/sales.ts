@@ -259,6 +259,16 @@ export class UniSales {
                     imageLink: '../../../assets/info_shortcut_bell_img.jpg',
                     title: ''
                 }
+            },
+            {
+                width: 2,
+                height: 1,
+                x: 7,
+                y: 0,
+                widgetType: 'currency', // TODO: enum
+                config: {
+                    dataEndpoint: '/api/biz/currencies?action=get-latest-currency-downloaded-date&downloadSource=1'
+                }
             }
         ];
     }
