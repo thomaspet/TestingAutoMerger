@@ -22,7 +22,6 @@ import {AmeldingTypePickerModal} from './amelding/modals/ameldingTypePickerModal
 import {ReportsModule} from '../reports/reportsModule';
 
 import {UniEmployee} from './employee/employee';
-import {EmployeeCategoryButtons} from './employee/employeeCategoryButtons';
 import {EmployeeDetails} from './employee/employeeDetails';
 import {EmployeeDetailsService} from './employee/services/employeeDetailsService';
 import {EmployeeList} from './employee/employeeList';
@@ -115,7 +114,6 @@ import {CanDeactivateGuard} from '../../canDeactivateGuard';
 
         // Employee
         UniEmployee,
-        EmployeeCategoryButtons,
         EmployeeList,
         EmployeeDetails,
         EmployeeLeaves,
@@ -208,7 +206,6 @@ import {CanDeactivateGuard} from '../../canDeactivateGuard';
 
         // Employee
         UniEmployee,
-        EmployeeCategoryButtons,
         EmployeeList,
         EmployeeDetails,
         EmployeeLeaves,

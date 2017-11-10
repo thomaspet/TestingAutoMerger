@@ -240,7 +240,6 @@ bill-simple-journalentry
             position: relative
             top: -2px
 
-.selectedSection
 
 .selectedAssigneeUsersList
     list-style: none
@@ -256,16 +255,14 @@ bill-simple-journalentry
         margin: 0 pxToRem(16) pxToRem(16) 0
 
 .multiselectADropdown
-    cursor: pointer
-    display: inline-block
-    width: 100%
-    background-color: $uni-color-negative
-    border: 1px solid $uni-color-scale5
-    padding-left: 5px
-    @extend input
-    @extend %selectChevron
-    &:last-of-type
-        margin-top: 1rem
+	cursor: pointer
+	display: inline-block
+	width: 100%
+	background-color: $uni-color-negative
+	border: 1px solid $uni-color-scale5
+	padding-left: 5px
+	@extend input[type=text]
+	@extend %selectChevron
 
 .currentTeamText
     width: 50%

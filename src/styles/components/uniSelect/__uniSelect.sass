@@ -19,7 +19,10 @@
     @extend %selectChevron
 
 .uniSelect input[aria-readonly]:not([aria-readonly=false]).uniSelect_input
-    @extend input[disabled]
+    background-color: mix($uni-color-scale9, $uni-color-negative, 50%)
+    cursor: normal
+    border-radius: pxToRem(3)
+    border-right: pxToRem(1) solid $uni-color-scale8
 
 .uniSelect_dropdown
     position: absolute

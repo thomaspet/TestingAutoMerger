@@ -41,15 +41,3 @@ $tooltip-color: transparentize($uni-color-positive, .1)
             border-width: .75rem .75rem 0 .75rem
             border-color: $tooltip-color transparent transparent transparent
             backdrop-filter: blur(.2rem)
-
-.tooltip-below
-    &:hover,
-    &:focus
-        &:after
-            border-width: 0 .75rem .75rem .75rem
-            border-color: transparent transparent $tooltip-color transparent
-            top: 100%
-
-        &:before
-            top: 100%
-            margin-top: .75rem

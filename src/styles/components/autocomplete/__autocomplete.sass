@@ -11,24 +11,6 @@
         @extend %inputButton
         background-image: unicon-search($uni-color-scale4)
 
-.autocomplete_results
-    @extend .uni-multivalue-values
-    display: block
-    position: absolute
-    width: 100%
-    min-width: pxToRem(150)
-    max-height: 15rem
-    overflow-x: auto
-    list-style: none
-    z-index: map-get($zindex, picker)
-    border-width: 0
-
-    &[aria-expanded=true]
-        border-width: pxToRem(1)
-
-    &[aria-expanded=false]
-        display: none
-
 .autocomplete_result
     padding: .2rem 1rem
 

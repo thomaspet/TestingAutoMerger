@@ -99,7 +99,7 @@ import {KeyCodes} from '../../../../app/services/common/keyCodes';
                 </ng-template>
 
                 <li *ngIf="field.Options.allowAddValue !== false">
-                    <button class="uni-multivalue-addBtn"
+                    <button class="good uni-multivalue-addBtn"
                             #addButton
                             type="button"
                             (click)="addNew(filter)">
