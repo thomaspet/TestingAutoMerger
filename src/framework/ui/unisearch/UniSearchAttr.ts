@@ -353,8 +353,8 @@ export class UniSearchAttr implements OnInit, OnChanges {
         }
     }
 
-    private handleUnfinishedValue(val) {
-        if (val && this.config.unfinishedValueFn) {
+    private handleUnfinishedValue(val: string) {
+        if (val && this.config.unfinishedValueFn && this.expanded) {
             this.config
                 .unfinishedValueFn(val)
                 .subscribe(entity => this.changeEvent.next(entity));
