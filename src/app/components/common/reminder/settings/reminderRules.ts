@@ -1,6 +1,12 @@
 import {Component, ViewChild, Input, Output, EventEmitter, AfterViewInit, SimpleChanges} from '@angular/core';
 import {Router} from '@angular/router';
-import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig, IContextMenuItem} from '../../../../../framework/ui/unitable/index';
+import {
+    UniTable,
+    UniTableColumn,
+    UniTableColumnType,
+    UniTableConfig,
+    IContextMenuItem
+} from '../../../../../framework/ui/unitable/index';
 import {ToastService} from '../../../../../framework/uniToast/toastService';
 import {FieldType} from '../../../../../framework/ui/uniform/index';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
@@ -26,7 +32,7 @@ export class ReminderRules implements AfterViewInit {
     private selectedIndex: number;
 
     private rule$: BehaviorSubject<CustomerInvoiceReminderRule> = new BehaviorSubject(null);
-    private config$: BehaviorSubject<any> = new BehaviorSubject({});
+    public config$: BehaviorSubject<any> = new BehaviorSubject({});
     private fields$: BehaviorSubject<FieldLayout[]> = new BehaviorSubject([]);
 
     constructor(
@@ -53,13 +59,13 @@ export class ReminderRules implements AfterViewInit {
         this.focusRow(0);
     }
 
-    private onRowSelected(event) {
+    public onRowSelected(event) {
         this.selectedIndex = event.rowModel['_originalIndex'];
         this.rule = this.settings.CustomerInvoiceReminderRules[this.selectedIndex];
         this.rule$.next(this.rule);
     }
 
-    private onRuleChange() {
+    public onRuleChange() {
         this.settings.CustomerInvoiceReminderRules[this.selectedIndex] = this.rule$.getValue();
         this.change.emit(this.settings);
     }
@@ -70,7 +76,7 @@ export class ReminderRules implements AfterViewInit {
         }
     }
 
-    private onNewRule() {
+    public onNewRule() {
         this.customerInvoiceReminderRuleService.GetNewEntity(null, CustomerInvoiceReminderRule.EntityType)
             .subscribe((rule) => {
                 rule['_createguid'] = this.customerInvoiceReminderRuleService.getNewGuid();

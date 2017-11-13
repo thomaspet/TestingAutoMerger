@@ -15,7 +15,10 @@ export interface IUploadConfig {
 @Component({
     selector: 'uni-upload-file-button',
     template: `
-        <label class="uni-upload-file-button" [attr.aria-disabled]="uploadConfig?.isDisabled || uploading" [attr.aria-busy]="uploading">
+        <label
+            class="uni-upload-file-button"
+            [attr.aria-disabled]="uploadConfig?.isDisabled || uploading"
+            [attr.aria-busy]="uploading">
             <span *ngIf="!uploading">{{buttonText}}</span>
             <input type="file"
                 (change)="uploadFileChange($event)"
@@ -74,7 +77,7 @@ export class UniUploadFileButton {
         data.append('Token', this.token);
         data.append('Key', this.activeCompany.Key);
         data.append('Caption', ''); // where should we get this from the user?
-        data.append('File', file);
+        data.append('File', file); // TODO: check if this can be .toString()
 
         this.ngHttp.post(this.baseUrl + '/api/file', data)
             .map(res => res.json())

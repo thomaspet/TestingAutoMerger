@@ -318,7 +318,7 @@ export function exportToFile(text: string, fileName: string) {
     document.body.removeChild(link);
 }
 
-export function arrayToCsv(data: Array<any>, columnAsFormula: Array<string> = [], 
+export function arrayToCsv(data: Array<any>, columnAsFormula: Array<string> = [],
                            columnDelimiter = ';', lineDelimiter = '\r\n', includeHeader = true) {
     var result, ctr, keys;
 
@@ -346,7 +346,7 @@ export function arrayToCsv(data: Array<any>, columnAsFormula: Array<string> = []
                 if (prop.indexOf(columnDelimiter) > 0) {
                     prop = prop.replace(new RegExp(columnDelimiter, 'g'), '.');
                 }
-                if (columnAsFormula.indexOf(key) != -1) { result += '='; }
+                if (columnAsFormula.indexOf(key) !== -1) { result += '='; }
                 result += '"' + prop + '"';
             }
             ctr++;
@@ -381,7 +381,7 @@ export function capitalizeSentence(value: string, limitWords = 5) {
     return output.join(' ');
 }
 
-export function addContextMenu(toolbarConfig: any, name: string, label: string, 
+export function addContextMenu(toolbarConfig: any, name: string, label: string,
                                action: (done) => void, disabled?: () => boolean ) {
     toolbarConfig.contextmenu = toolbarConfig.contextmenu || [];
     if (!toolbarConfig.contextmenu.find( x => x.name === name)) {

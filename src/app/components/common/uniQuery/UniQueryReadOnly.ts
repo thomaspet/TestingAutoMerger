@@ -1,12 +1,17 @@
 import {Component, Input, OnChanges, SimpleChanges, ViewChild} from '@angular/core';
-import {UniTable, UniTableColumn, UniTableConfig, ITableFilter, IExpressionFilterValue} from '../../../../framework/ui/unitable/index';
+import {
+    UniTable,
+    UniTableColumn,
+    UniTableConfig,
+    ITableFilter,
+    IExpressionFilterValue
+} from '../../../../framework/ui/unitable/index';
 import {Router} from '@angular/router';
 import {URLSearchParams} from '@angular/http';
 import {StatisticsService, UniQueryDefinitionService, StatusService, ErrorService} from '../../../services/services';
 import {AuthService} from '../../../authService';
 import {UniQueryDefinition, UniQueryField, UniQueryFilter} from '../../../../app/unientities';
 import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
-import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 
 declare var _;
 
@@ -129,7 +134,8 @@ export class UniQueryReadOnly implements OnChanges {
                             f.index = field.Index;
 
                             if (f.field.toLowerCase().endsWith('statuscode')) {
-                                let statusCodes = this.statusService.getStatusCodesForEntity(this.queryDefinition.MainModelName);
+                                let statusCodes = this.statusService
+                                    .getStatusCodesForEntity(this.queryDefinition.MainModelName);
                                 if (statusCodes && statusCodes.length > 0) {
                                     f.selectConfig = {
                                         options: statusCodes,

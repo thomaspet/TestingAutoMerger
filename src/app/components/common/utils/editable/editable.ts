@@ -5,7 +5,13 @@ import {Editor} from './editor';
 import {debounce} from '../utils';
 import * as jQuery from 'jquery';
 
-export interface ICopyEventDetails { event: any; columnDefinition: ICol; position: IPos; copyAbove?: boolean; valueToSet?: any; };
+export interface ICopyEventDetails {
+    event: any;
+    columnDefinition: ICol;
+    position: IPos;
+    copyAbove?: boolean;
+    valueToSet?: any;
+};
 
 export interface IConfig {
     columns?: Array<ICol>;
@@ -97,7 +103,9 @@ export class Editable implements AfterViewInit, OnDestroy {
 
     public editRow(rowIndex: number, colIndex?: number) {
         var tb: IJQItem = this.jqRoot;
-        var query = 'tr:nth-child(' + (rowIndex + 1) + ') ' + (colIndex === undefined ? 'td:first' : 'td:nth(' + (colIndex) + ')') ;
+        var query = 'tr:nth-child(' + (rowIndex + 1) + ') ' + (colIndex === undefined
+            ? 'td:first'
+            : 'td:nth(' + (colIndex) + ')') ;
         var cell = tb.find(query);
         if (cell) {
             this.startEdit({target: cell});
@@ -134,7 +142,14 @@ export class Editable implements AfterViewInit, OnDestroy {
         var flagAsChanged = false;
 
         if (this.config && this.config.events && this.config.events.onStartEdit) {
-            let startDetails: IStartEdit = { col: pos.col, row: pos.row, cancel: false, columnDefinition: col, value: txt, flagChanged: flagAsChanged };
+            let startDetails: IStartEdit = {
+                col: pos.col,
+                row: pos.row,
+                cancel: false,
+                columnDefinition: col,
+                value: txt,
+                flagChanged: flagAsChanged
+            };
             this.raiseEvent('onStartEdit', startDetails);
             if (startDetails.cancel) {
                 return;
@@ -554,7 +569,9 @@ function caretPosition(input: any): { index: number; isAtStart: boolean; isAtEnd
             hasSelection = true;
         }
     }
-    caretDetails.index = 'selectionStart' in input ? input.selectionStart : '' || Math.abs(doc.selection.createRange().moveStart('character', -input.value.length));
+    caretDetails.index = 'selectionStart' in input
+        ? input.selectionStart
+        : '' || Math.abs(doc.selection.createRange().moveStart('character', -input.value.length));
     if (!hasSelection) {
         caretDetails.isAtStart = caretDetails.index <= 0;
         caretDetails.isAtEnd = caretDetails.index === input.value.length;

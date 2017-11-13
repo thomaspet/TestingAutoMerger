@@ -1,4 +1,4 @@
-import {Component, Input, SimpleChanges, ViewChild, Output, EventEmitter} from '@angular/core';
+import {Component, Input, SimpleChanges, Output, EventEmitter} from '@angular/core';
 import {Http} from '@angular/http';
 import {File} from '../../../unientities';
 import {UniHttp} from '../../../../framework/core/http/http';
@@ -105,7 +105,13 @@ export class UniAttachments {
     }
 
     public ngOnChanges(changes: SimpleChanges) {
-        if (this.showFileList && (changes['entity'] || changes['entityID']) && this.entity && this.isDefined(this.entityID)) {
+        if (
+            this.showFileList
+            && (changes['entity']
+            || changes['entityID'])
+            && this.entity
+            && this.isDefined(this.entityID)
+        ) {
             this.getFiles();
         } else {
             this.files = [];
@@ -169,7 +175,7 @@ export class UniAttachments {
         }
     }
 
-    private onDrop(event, dropData) {
+    public onDrop(event, dropData) {
         let transfer = this.getTransfer(event);
         if (!transfer) {
             return;
@@ -192,10 +198,10 @@ export class UniAttachments {
             data.append('EntityType', this.entity);
         }
         if (this.entityID) {
-            data.append('EntityID', this.entityID);
+            data.append('EntityID', this.entityID.toString());
         }
         data.append('Caption', ''); // where should we get this from the user?
-        data.append('File', file);
+        data.append('File', file); // TODO: check if this can be .toString()
 
         this.ngHttp.post(this.baseUrl + '/api/file', data)
             .map(res => res.json())
@@ -246,7 +252,7 @@ export class UniAttachments {
         }
     }
 
-    private removeDocument(fileID: number) {
+    public removeDocument(fileID: number) {
         this.fileService.deleteOnEntity(this.entity, this.entityID, fileID)
             .subscribe(
                 res => this.getFiles(),

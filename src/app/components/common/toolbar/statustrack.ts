@@ -69,7 +69,7 @@ export module UniStatusTrack {
         `
     })
     export class StatusTrack {
-        @Input() private config: IStatus[];
+        @Input() public config: IStatus[];
         @Input() private entityType: string;
         @Input() private entityID: number;
 
@@ -79,7 +79,7 @@ export module UniStatusTrack {
 
         }
 
-        private getStatusClass(state: States) {
+        public getStatusClass(state: States) {
             return States[state].toLowerCase();
         }
 

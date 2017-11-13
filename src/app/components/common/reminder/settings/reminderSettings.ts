@@ -18,7 +18,7 @@ export class ReminderSettings {
 
     public isDirty: boolean = false;
     private settings$: BehaviorSubject<CustomerInvoiceReminderSettings> = new BehaviorSubject(null);
-    private config$: BehaviorSubject<any> = new BehaviorSubject({});
+    public config$: BehaviorSubject<any> = new BehaviorSubject({});
     private fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
 
     constructor(private companySettingsService: CompanySettingsService,
@@ -52,7 +52,9 @@ export class ReminderSettings {
 
     private setupForm() {
         if (!this.settings) {
-            this.companySettingsService.Get(1, ['CustomerInvoiceReminderSettings','CustomerInvoiceReminderSettings.CustomerInvoiceReminderRules'])
+            this.companySettingsService.Get(
+                1, ['CustomerInvoiceReminderSettings', 'CustomerInvoiceReminderSettings.CustomerInvoiceReminderRules']
+            )
                 .subscribe((settings) => {
                     this.settings = settings.CustomerInvoiceReminderSettings;
                     this.settings$.next(this.settings);

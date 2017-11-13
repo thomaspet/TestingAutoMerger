@@ -5,7 +5,7 @@ import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {IToolbarConfig} from './../../common/toolbar/toolbar';
 import {IUniSaveAction} from '../../../../framework/save/save';
 import {UniForm, UniFieldLayout, FieldType} from '../../../../framework/ui/uniform/index';
-import {ComponentLayout, Contact, Email, Phone, Address, BusinessRelation} from '../../../unientities';
+import {ComponentLayout, Contact, Email, Phone, Address} from '../../../unientities';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
 
@@ -39,11 +39,11 @@ export class ContactDetails {
     @Output() public contactUpdated: EventEmitter<Contact> = new EventEmitter<Contact>();
     @ViewChild(UniForm) public form: UniForm;
 
-    private config$: BehaviorSubject<any> = new BehaviorSubject({autofocus: true});
+    public config$: BehaviorSubject<any> = new BehaviorSubject({autofocus: true});
     private fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
-    private addressChanged: any;
-    private emailChanged: any;
-    private phoneChanged: any;
+    public addressChanged: any;
+    public emailChanged: any;
+    public phoneChanged: any;
 
     public contact$: BehaviorSubject<Contact> = new BehaviorSubject(null);
     public emptyPhone: Phone;
@@ -88,7 +88,7 @@ export class ContactDetails {
     private formIsInitialized: boolean = false;
     private isDirty: boolean = false;
 
-    private saveactions: IUniSaveAction[] = [
+    public saveactions: IUniSaveAction[] = [
          {
              label: 'Lagre',
              action: (completeEvent) => this.saveContact(completeEvent),
@@ -286,9 +286,9 @@ export class ContactDetails {
                 });
 
                 return new Promise((resolve, reject) => {
-                    modal.onClose.subscribe((value) => {
-                        if (value) {
-                            resolve(value);
+                    modal.onClose.subscribe((val) => {
+                        if (val) {
+                            resolve(val);
                         } else {
                             reject();
                         }
@@ -363,7 +363,7 @@ export class ContactDetails {
 
     public saveContact(completeEvent: any) {
         let contact = this.contact$.getValue();
-        //add createGuid for new entities and remove duplicate entities
+        // add createGuid for new entities and remove duplicate entities
         contact.Info.Emails.forEach(email => {
             if (email.ID === 0) {
                 email['_createguid'] = this.contactService.getNewGuid();
@@ -469,7 +469,11 @@ export class ContactDetails {
 
     private businessRelationSearch(query: string): Observable<any> {
          return this.statisticsService.GetAll(
-            `model=BusinessRelation&select=BusinessRelation.ID as ID,BusinessRelation.Name as Name,Customer.ID,Supplier.ID&join=Customer on BusinessRelation.ID eq Customer.BusinessRelationID Supplier on BusinessRelation.ID eq Supplier.BusinessRelationID&filter=contains(BusinessRelation.Name,'${query}') and (isnull(Customer.ID,0) ne 0 or isnull(Supplier.ID,0) ne 0)&top=20&orderby=BusinessRelation.Name`
+            `model=BusinessRelation&select=BusinessRelation.ID as ID,BusinessRelation.Name as Name,`
+            + `Customer.ID,Supplier.ID&join=Customer on BusinessRelation.ID eq Customer.BusinessRelationID `
+            + `Supplier on BusinessRelation.ID eq Supplier.BusinessRelationID`
+            + `&filter=contains(BusinessRelation.Name,'${query}') and (isnull(Customer.ID,0) ne 0 `
+            + `or isnull(Supplier.ID,0) ne 0)&top=20&orderby=BusinessRelation.Name`
         ).map(x => x.Data ? x.Data : []);
     }
 

@@ -682,5 +682,5 @@ export class AccrualModal implements IUniModal {
 
  export class AccrualJournalEntryMode {
     public ID: number;
-    public Name: string;
+    public Name: string; // tslint:disable-line
 }

@@ -28,11 +28,14 @@ export class ModelTreeRelationNode implements OnChanges {
     }
 
     private getRelatedEntity(): {Relations: any, Fields: any[], fieldArray: string[]} {
-        let relatedModel: {Relations: any, Fields: any[], fieldArray: string[]} =  this.models.find(model => model.Name === this.relation.RelatedModel);
+        let relatedModel: {Relations: any, Fields: any[], fieldArray: string[]} =
+            this.models.find(model => model.Name === this.relation.RelatedModel);
 
         if (relatedModel) {
             relatedModel = _.cloneDeep(relatedModel);
-            relatedModel.fieldArray = Object.keys(relatedModel.Fields).filter(x => this.showAllFields || this.statisticsService.checkShouldShowField(x));
+            relatedModel.fieldArray = Object.keys(relatedModel.Fields).filter(
+                x => this.showAllFields || this.statisticsService.checkShouldShowField(x)
+            );
 
             // clear selection, this could be for the same model in another path
             relatedModel.fieldArray.forEach((x: string) => {
@@ -65,11 +68,11 @@ export class ModelTreeRelationNode implements OnChanges {
         return relatedModel;
     }
 
-    private getFields(fields: any): Array<any> {
+    public getFields(fields: any): Array<any> {
         return Object.keys(fields).filter(x => this.showAllFields || this.statisticsService.checkShouldShowField(x));
     }
 
-    private expandRelation(relation) {
+    public expandRelation(relation) {
         if (relation.Expanded === null) {
             relation.Expanded = true;
         } else {
@@ -77,11 +80,11 @@ export class ModelTreeRelationNode implements OnChanges {
         }
     }
 
-    private getPath(path: string, relationName: string): string {
+    public getPath(path: string, relationName: string): string {
         return path + '.' + relationName;
     }
 
-    private addOrRemoveField(field, fieldname) {
+    public addOrRemoveField(field, fieldname) {
         this.fieldAdded.emit({
             fieldname: fieldname,
             field: field,
@@ -89,7 +92,7 @@ export class ModelTreeRelationNode implements OnChanges {
         });
     }
 
-    private addOrRemoveFieldFromChild(event) {
+    public addOrRemoveFieldFromChild(event) {
         this.fieldAdded.emit(event);
     }
 }
