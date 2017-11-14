@@ -54,7 +54,10 @@ export class SalaryPaymentListReportFilterModalContent implements OnInit {
             Property: 'RunID',
             Options: {
                 getDefaultData: () => Observable.of([defaultRun]),
-                search: (query) => this.payrollRunService.GetAll(`filter=year(PayDate) eq ${this.currentYear} and (startswith(ID, '${query}') or contains(Description, '${query}'))&top=50`),
+                search: (query) => this.payrollRunService.GetAll(
+                    `filter=year(PayDate) eq ${this.currentYear} `
+                    + `and (startswith(ID, '${query}') or contains(Description, '${query}'))&top=50`
+                ),
                 valueProperty: 'ID',
                 template: (obj: PayrollRun) => obj ? `${obj.ID} - ${obj.Description}` : ''
             }

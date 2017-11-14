@@ -14,7 +14,7 @@ import {UniPreviewModal} from '../preview/previewModal';
 })
 export class ReportparameterModalType {
     @Input('config')
-    private config;
+    public config: any;
 
     constructor() {
 
@@ -75,9 +75,13 @@ export class ParameterModal {
         this.modalConfig.title = report.Name;
         this.modalConfig.report = report;
 
-        this.reportDefinitionParameterService.GetAll('filter=ReportDefinitionId eq ' + report.ID).subscribe(params => {
+        this.reportDefinitionParameterService.GetAll(
+            'filter=ReportDefinitionId eq ' + report.ID
+        ).subscribe(params => {
             // Find param value to be replaced
-            let param: CustomReportDefinitionParameter = params.find(x => ['InvoiceNumber', 'OrderNumber', 'QuoteNumber'].indexOf(x.Name) >= 0);
+            let param: CustomReportDefinitionParameter = params.find(
+                x => ['InvoiceNumber', 'OrderNumber', 'QuoteNumber'].indexOf(x.Name) >= 0
+            );
             if (param) {
                 let statparams = new URLSearchParams();
                 statparams.set('model', 'NumberSeries');

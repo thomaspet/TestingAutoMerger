@@ -63,7 +63,7 @@ export class CustomerAccountReportFilterForm implements OnInit {
             model.PeriodAccountYear = res;
             this.model$.next(model);
         });
-        if (this.model$.getValue().PeriodAccountYear){
+        if (this.model$.getValue().PeriodAccountYear) {
             let model = this.model$.getValue();
             model.PeriodAccountLastYear = model.PeriodAccountYear - 1;
             this.model$.next(model);
@@ -147,7 +147,9 @@ export class CustomerAccountReportFilterModal {
                     text: 'Ok',
                     class: 'good',
                     method: (model$) => {
-                        for (const parameter of <CustomReportDefinitionParameter[]>this.modalConfig.report.parameters) {
+                        for (
+                            const parameter of <CustomReportDefinitionParameter[]>this.modalConfig.report.parameters
+                        ) {
                             switch (parameter.Name) {
                                 case 'ShowLastYear':
                                 case 'ShowFilter':
@@ -210,7 +212,9 @@ export class CustomerAccountReportFilterModal {
         this.modalConfig.title = report.Name;
         this.modalConfig.report = report;
 
-        this.reportDefinitionParameterService.GetAll('filter=ReportDefinitionId eq ' + report.ID).subscribe(params => {
+        this.reportDefinitionParameterService.GetAll(
+            'filter=ReportDefinitionId eq ' + report.ID
+        ).subscribe(params => {
             this.modalConfig.report.parameters = params;
             this.modal.open();
         }, err => this.errorService.handle(err));

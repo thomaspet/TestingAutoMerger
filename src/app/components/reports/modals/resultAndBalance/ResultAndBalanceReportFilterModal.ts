@@ -164,16 +164,21 @@ export class ResultAndBalanceReportFilterModal {
                     text: 'Ok',
                     class: 'good',
                     method: (model$) => {
-                        for (const parameter of <CustomReportDefinitionParameter[]>this.modalConfig.report.parameters) {
+                        for (
+                            const parameter of <CustomReportDefinitionParameter[]>this.modalConfig.report.parameters
+                        ) {
                             switch (parameter.Name) {
                                 case 'odatafilter':
                                     parameter.value = `Period.AccountYear eq '${model$.getValue().ReportYear}'`
                                         + ` and Period.No ge ${model$.getValue().fromPeriod}`
                                         + ` and Period.No le ${model$.getValue().toPeriod}`
-                                        + ` and isnull(Project.ProjectNumber\,0) ge ${model$.getValue().fromProjectNo}`
+                                        + ` and isnull(Project.ProjectNumber\,0) ge`
+                                        + ` ${model$.getValue().fromProjectNo}`
                                         + ` and isnull(Project.ProjectNumber\,0) le ${model$.getValue().toProjectNo}`
-                                        + ` and isnull(Department.DepartmentNumber\,0) ge ${model$.getValue().fromDepartmentNo}`
-                                        + ` and isnull(Department.DepartmentNumber\,0) le ${model$.getValue().toDepartmentNo}`;
+                                        + ` and isnull(Department.DepartmentNumber\,0) ge`
+                                        + ` ${model$.getValue().fromDepartmentNo}`
+                                        + ` and isnull(Department.DepartmentNumber\,0) le`
+                                        + ` ${model$.getValue().toDepartmentNo}`;
                                     break;
                                 case 'ReportYear':
                                 case 'showLastYear':
@@ -200,7 +205,7 @@ export class ResultAndBalanceReportFilterModal {
                         periodToParam.Name = 'PeriodTo';
                         periodToParam.value = model$.getValue().toPeriod;
 
-                        //Project
+                        // Project
                         let projectNoFromParam = new CustomReportDefinitionParameter();
                         projectNoFromParam.Name = 'ProjectNoFrom';
                         projectNoFromParam.value = model$.getValue().fromProjectNo;
@@ -252,7 +257,9 @@ export class ResultAndBalanceReportFilterModal {
         this.modalConfig.title = report.Name;
         this.modalConfig.report = report;
 
-        this.reportDefinitionParameterService.GetAll('filter=ReportDefinitionId eq ' + report.ID).subscribe(params => {
+        this.reportDefinitionParameterService.GetAll(
+            'filter=ReportDefinitionId eq ' + report.ID
+        ).subscribe(params => {
             this.modalConfig.report.parameters = params;
             this.modal.open();
         }, err => this.errorService.handle(err));

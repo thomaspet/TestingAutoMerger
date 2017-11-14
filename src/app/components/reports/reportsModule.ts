@@ -21,7 +21,8 @@ import {BalanceGeneralLedgerFilterModal} from './modals/balanceGeneralLedgerFilt
 import {BalanceReportFilterForm} from './modals/balanceList/BalanceReportFilterModal';
 import {BalanceReportFilterModal} from './modals/balanceList/BalanceReportFilterModal';
 import {CustomerAccountReportFilterForm} from './modals/customerAccountReportFilter/CustomerAccountReportFilterModal';
-import {CustomerAccountReportFilterModal} from './modals/customerAccountReportFilter/CustomerAccountReportFilterModal';
+import {CustomerAccountReportFilterModal}
+    from './modals/customerAccountReportFilter/CustomerAccountReportFilterModal';
 import {ParameterModal, ReportparameterModalType} from './modals/parameter/parameterModal';
 import {PostingJournalReportFilterForm} from './modals/postingJournal/PostingJournalReportFilterModal';
 import {PostingJournalReportFilterModal} from './modals/postingJournal/PostingJournalReportFilterModal';
@@ -31,7 +32,8 @@ import {UniPrintModal} from './modals/print/printModal';
 
 import {ResultAndBalanceReportFilterForm} from './modals/resultAndBalance/ResultAndBalanceReportFilterModal';
 import {ResultAndBalanceReportFilterModal} from './modals/resultAndBalance/ResultAndBalanceReportFilterModal';
-import {SupplierAccountReportFilterModal} from './modals/supplierAccountReportFilter/SupplierAccountReportFilterModal';
+import {SupplierAccountReportFilterModal}
+    from './modals/supplierAccountReportFilter/SupplierAccountReportFilterModal';
 import {SupplierAccountReportFilterForm} from './modals/supplierAccountReportFilter/SupplierAccountReportFilterModal';
 import {
     SalaryPaymentListReportFilterModal,

@@ -147,7 +147,9 @@ export class PostingJournalReportFilterModal {
                     text: 'Ok',
                     class: 'good',
                     method: (model$) => {
-                        for (const parameter of <CustomReportDefinitionParameter[]>this.modalConfig.report.parameters) {
+                        for (
+                            const parameter of <CustomReportDefinitionParameter[]>this.modalConfig.report.parameters
+                        ) {
                             switch (parameter.Name) {
                                 case 'PeriodAccountYear':
                                 case 'FromJournalEntryNumber':
@@ -192,7 +194,9 @@ export class PostingJournalReportFilterModal {
         this.modalConfig.title = report.Name;
         this.modalConfig.report = report;
 
-        this.reportDefinitionParameterService.GetAll('filter=ReportDefinitionId eq ' + report.ID).subscribe(params => {
+        this.reportDefinitionParameterService.GetAll(
+            'filter=ReportDefinitionId eq ' + report.ID
+        ).subscribe(params => {
             this.modalConfig.report.parameters = params;
             this.modal.open();
         }, err => this.errorService.handle(err));
