@@ -118,16 +118,16 @@ export class UniRoles {
             this.selectedRole.RolePermissions[permission['_originalIndex']].Deleted = true;
         }
 
-        this.displayRolePermisssions = this.selectedRole.RolePermissions.filter((permission) => {
-            return !permission.Deleted;
+        this.displayRolePermisssions = this.selectedRole.RolePermissions.filter((perm) => {
+            return !perm.Deleted;
         });
    }
 
     public onFormChange(changes) {
         this.roles[this.selectedIndex] = this.formModel$.getValue();
         this.table.updateRow(this.selectedIndex, this.roles[this.selectedIndex]);
-       // this.permissions[this.selectedIndex] = this.formModel$.getValue();
-        //this.table.updateRow(this.onPermissionAdded, this.permissions[this.selectedIndex]);
+        // this.permissions[this.selectedIndex] = this.formModel$.getValue();
+        // this.table.updateRow(this.onPermissionAdded, this.permissions[this.selectedIndex]);
         this.hasUnsavedChanges = true;
     }
 
