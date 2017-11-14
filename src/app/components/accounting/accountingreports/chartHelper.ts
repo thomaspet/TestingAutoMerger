@@ -10,7 +10,7 @@ export class ChartHelper {
 
     private static generateBarChart(elementID: string, data: IChartDataSet) {
         let element = document.getElementById(elementID);
-        let chart = Chart.Bar(<any> element, {
+        let chart = Chart.Bar(<any> element, { // tslint:disable-line
             data: {
                 labels: data.labels,
                 datasets: data.datasets ? data.datasets : [
@@ -32,7 +32,7 @@ export class ChartHelper {
 
     private static generateLineChart(elementID: string, data: IChartDataSet) {
         let element = document.getElementById(elementID);
-        let chart = Chart.Line(<any> element, {
+        let chart = Chart.Line(<any> element, { // tslint:disable-line
             data: {
                 labels: data.labels,
                 datasets: data.datasets ? data.datasets : [
@@ -58,7 +58,7 @@ export interface IChartDataSet {
     labels: string[];
     chartType: string;
     backgroundColor: string[] | string;
-    borderColor: any; // String or null
+    borderColor: string | null; // String or null
     data: number[];
     datasets: any[];
 }

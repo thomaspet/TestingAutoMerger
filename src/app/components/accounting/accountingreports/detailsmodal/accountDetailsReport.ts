@@ -27,7 +27,6 @@ import {
     FinancialYearService,
     AccountService,
 } from '../../../../services/services';
-import * as moment from 'moment';
 
 const PAPERCLIP = '📎'; // It might look empty in your editor, but this is the unicode paperclip
 
@@ -59,7 +58,7 @@ export class AccountDetailsReport {
     private uniTableConfigTransactions$: BehaviorSubject<UniTableConfig> = new BehaviorSubject<UniTableConfig>(null);
 
     private searchParams$: BehaviorSubject<any> = new BehaviorSubject({});
-    private config$: BehaviorSubject<any> = new BehaviorSubject({autofocus: true});
+    private config$: BehaviorSubject<any> = new BehaviorSubject({autofocus: true}); // tslint:disable-line
     private fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
     private financialYears: Array<FinancialYear> = null;
     private activeFinancialYear: FinancialYear;
@@ -88,7 +87,7 @@ export class AccountDetailsReport {
         private modalService: UniModalService
     ) {
 
-       this.config = {
+        this.config = {
             close: () => {},
             modalMode: false,
             accountID: 0,
@@ -148,7 +147,7 @@ export class AccountDetailsReport {
 
                 var searchparams = this.searchParams$.getValue();
                 searchparams.AccountID = account.ID;
-                searchparams.AccountNumber= account.AccountNumber;
+                searchparams.AccountNumber = account.AccountNumber;
                 this.searchParams$.next(searchparams);
                 this.loadData();
             });
@@ -332,7 +331,12 @@ export class AccountDetailsReport {
             new UniTableColumn('JournalEntryNumber', 'Bilagsnr')
                     .setFilterOperator('contains')
                     .setTemplate(line => {
-                        return this.config.modalMode ? line.JournalEntryNumber : `<a href="#/accounting/transquery/details;journalEntryNumber=${line.JournalEntryNumber}">${line.JournalEntryNumber}</a>`;
+                        return this.config.modalMode
+                            ? line.JournalEntryNumber
+                            : `<a href="#/accounting/transquery/details;`
+                                + `journalEntryNumber=${line.JournalEntryNumber}">
+                                    ${line.JournalEntryNumber}
+                                </a>`;
                     }),
                 new UniTableColumn('FinancialDate', 'Regnskapsdato', UniTableColumnType.LocalDate)
                     .setFilterOperator('contains')

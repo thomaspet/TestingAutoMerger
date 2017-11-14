@@ -40,7 +40,7 @@ export class ResultSummaryData {
     templateUrl: './resultreport.html',
 })
 export class ResultReport {
-    @ViewChild(DrilldownResultReportPart) private drilldownResultReportPart: DrilldownResultReportPart;
+    @ViewChild(DrilldownResultReportPart) public drilldownResultReportPart: DrilldownResultReportPart;
 
     public filterVisible: boolean = false;
 
@@ -50,32 +50,43 @@ export class ResultReport {
     private yearSelectConfig: ISelectConfig;
     private yearItems: any[];
 
-    private treeSummaryList: ResultSummaryData[] = [];
-    private flattenedTreeSummaryList: ResultSummaryData[] = [];
+    public treeSummaryList: ResultSummaryData[] = [];
+    public flattenedTreeSummaryList: ResultSummaryData[] = [];
 
-    private dimensionTypeProject: DimensionTypes = DimensionTypes.Project;
-    private dimensionTypeDepartment: DimensionTypes = DimensionTypes.Department;
+    public dimensionTypeProject: DimensionTypes = DimensionTypes.Project;
+    public dimensionTypeDepartment: DimensionTypes = DimensionTypes.Department;
 
-    private activeDistributionElement: string = 'Resultat';
-    private distributionPeriodAccountIDs: Array<number> = [];
+    public activeDistributionElement: string = 'Resultat';
+    public distributionPeriodAccountIDs: Array<number> = [];
 
-    private toolbarconfig: IToolbarConfig = {
+    public toolbarconfig: IToolbarConfig = {
         title: 'Resultat'
     };
 
-    private filter$: BehaviorSubject<any> = new BehaviorSubject({ShowPreviousAccountYear: true, Decimals: 2, ShowPercent: true});
-    private config$: BehaviorSubject<any> = new BehaviorSubject({});
+    private filter$: BehaviorSubject<any> = new BehaviorSubject({
+        ShowPreviousAccountYear: true,
+        Decimals: 2,
+        ShowPercent: true
+    });
+    public config$: BehaviorSubject<any> = new BehaviorSubject({});
     private fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
 
     private projects: Project[];
     private departments: Department[];
 
-    constructor(private router: Router,
-                private statisticsService: StatisticsService,
-                private tabService: TabService,
-                private projectService: ProjectService,
-                private departmentService: DepartmentService) {
-        this.tabService.addTab({ name: 'Resultat - oversikt', url: '/accounting/accountingreports/result', moduleID: UniModules.AccountingReports, active: true });
+    constructor(
+        private router: Router,
+        private statisticsService: StatisticsService,
+        private tabService: TabService,
+        private projectService: ProjectService,
+        private departmentService: DepartmentService
+    ) {
+        this.tabService.addTab({
+            name: 'Resultat - oversikt',
+            url: '/accounting/accountingreports/result',
+            moduleID: UniModules.AccountingReports,
+            active: true
+        });
     }
 
     public ngOnInit() {
@@ -113,7 +124,7 @@ export class ResultReport {
             curYear + 1];
     }
 
-    private onYearSelect(year) {
+    public onYearSelect(year) {
         let periodFilter1 = _.cloneDeep(this.periodFilter1);
         periodFilter1.year = year.toString();
         periodFilter1.name = PeriodFilterHelper.getFilterName(periodFilter1);
@@ -127,7 +138,7 @@ export class ResultReport {
         this.yearItems = this.getYearComboSelection(year);
     }
 
-    private toggleFilter() {
+    public toggleFilter() {
         if (this.filterVisible) {
             this.hideFilter();
         } else {
@@ -163,7 +174,7 @@ export class ResultReport {
         project.Property = 'ProjectID';
         project.FieldType = FieldType.DROPDOWN;
         project.Label = 'Prosjekt';
-        project.Legend = 'Filter',
+        project.Legend = 'Filter';
         project.FieldSet = 1;
         project.Placeholder = 'Projekt';
         project.Options = {
@@ -179,7 +190,7 @@ export class ResultReport {
         department.Property = 'DepartmentID';
         department.FieldType = FieldType.DROPDOWN;
         department.Label = 'Avdeling';
-        department.Legend = 'Filter',
+        department.Legend = 'Filter';
         department.FieldSet = 1;
         department.Options = {
             source: this.departments,
@@ -195,7 +206,7 @@ export class ResultReport {
         decimals.Property = 'Decimals';
         decimals.FieldType = FieldType.DROPDOWN;
         decimals.Label = 'Antall desimaler';
-        decimals.Legend = 'Visning',
+        decimals.Legend = 'Visning';
         decimals.FieldSet = 2;
         decimals.Options = {
             source: [{Decimals: 0}, {Decimals: 2}],

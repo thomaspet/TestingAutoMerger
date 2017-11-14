@@ -1,9 +1,14 @@
-import {Component, Input, ViewChild, OnChanges} from '@angular/core';
+import {Component, Input, OnChanges} from '@angular/core';
 import {Observable} from 'rxjs/Observable';
 import {PeriodFilter} from '../periodFilter/periodFilter';
 import {AccountDetailsReportModal, IDetailsModalInput} from '../detailsmodal/accountDetailsReportModal';
 import {UniModalService} from '../../../../../framework/uniModal/barrel';
-import {UniTableColumn, UniTableConfig, UniTableColumnType, INumberFormat} from '../../../../../framework/ui/unitable/index';
+import {
+    UniTableColumn,
+    UniTableConfig,
+    UniTableColumnType,
+    INumberFormat
+} from '../../../../../framework/ui/unitable/index';
 import {ChartHelper} from '../chartHelper';
 import {
     AccountGroupService,
@@ -83,7 +88,7 @@ export class DrilldownResultReportPart implements OnChanges {
         this.loadData();
     }
 
-    private toggleShowAll() {
+    public toggleShowAll() {
         this.showall = !this.showall;
         if (this.showall) {
             this.flattenedTreeSummaryList.forEach(child => {
@@ -102,7 +107,10 @@ export class DrilldownResultReportPart implements OnChanges {
             child.expanded = true;
             let index = this.flattenedTreeSummaryList.indexOf(child);
             let childrenWithData = child.children.filter(x => x.rowCount > 0);
-            this.flattenedTreeSummaryList = this.flattenedTreeSummaryList.slice( 0, index + 1 ).concat( childrenWithData ).concat( this.flattenedTreeSummaryList.slice( index + 1 ) );
+            this.flattenedTreeSummaryList = this.flattenedTreeSummaryList
+                .slice( 0, index + 1 )
+                .concat( childrenWithData )
+                .concat( this.flattenedTreeSummaryList.slice( index + 1 ) );
             child.children.forEach(subchild => {
                 this.expandChildren(subchild);
             });
@@ -121,7 +129,7 @@ export class DrilldownResultReportPart implements OnChanges {
                 dimensionId: this.dimensionId,
                 close: null
             };
-            this.modalService.open(AccountDetailsReportModal,{ data: data });
+            this.modalService.open(AccountDetailsReportModal, { data: data });
         } else {
             summaryData.expanded = !summaryData.expanded;
 
@@ -129,12 +137,17 @@ export class DrilldownResultReportPart implements OnChanges {
                 let index = this.flattenedTreeSummaryList.indexOf(summaryData);
                 if (summaryData.children.length > 0) {
                     let childrenWithData = summaryData.children.filter(x => x.rowCount > 0);
-                    this.flattenedTreeSummaryList = this.flattenedTreeSummaryList.slice( 0, index + 1 ).concat( childrenWithData ).concat( this.flattenedTreeSummaryList.slice( index + 1 ) );
+                    this.flattenedTreeSummaryList = this.flattenedTreeSummaryList
+                        .slice( 0, index + 1 )
+                        .concat( childrenWithData )
+                        .concat( this.flattenedTreeSummaryList.slice( index + 1 ) );
                 }
             } else {
                 // hide child and subchildren if multiple levels are expanded
                 let childrenWithData = this.getChildrenWithDataDeep(summaryData);
-                this.flattenedTreeSummaryList = this.flattenedTreeSummaryList.filter(x => !childrenWithData.find(y => x === y));
+                this.flattenedTreeSummaryList = this.flattenedTreeSummaryList.filter(
+                    x => !childrenWithData.find(y => x === y)
+                );
             }
         }
     }
@@ -150,16 +163,39 @@ export class DrilldownResultReportPart implements OnChanges {
     }
 
     private loadData() {
-        let period1FilterExpression = `Period.AccountYear eq ${this.periodFilter1.year} and Period.No ge ${this.periodFilter1.fromPeriodNo} and Period.No le ${this.periodFilter1.toPeriodNo}`
-        let period2FilterExpression = `Period.AccountYear eq ${this.periodFilter2.year} and Period.No ge ${this.periodFilter2.fromPeriodNo} and Period.No le ${this.periodFilter2.toPeriodNo}`
-        let dimensionFilter = this.dimensionEntityName ? ` and isnull(Dimensions.${this.dimensionEntityName}ID,0) eq ${this.dimensionId}` : '';
-        let projectFilter = this.filter && this.filter.ProjectID ? ` and isnull(Dimensions.ProjectID,0) eq ${this.filter.ProjectID}` : '';
-        let departmentFilter = this.filter && this.filter.DepartmentID ? ` and isnull(Dimensions.DepartmentID,0) eq ${this.filter.DepartmentID}` : '';
+        let period1FilterExpression = `Period.AccountYear eq ${this.periodFilter1.year} `
+            + `and Period.No ge ${this.periodFilter1.fromPeriodNo} and Period.No le ${this.periodFilter1.toPeriodNo}`;
+        let period2FilterExpression = `Period.AccountYear eq ${this.periodFilter2.year} `
+            + `and Period.No ge ${this.periodFilter2.fromPeriodNo} and Period.No le ${this.periodFilter2.toPeriodNo}`;
+        let dimensionFilter = this.dimensionEntityName
+            ? ` and isnull(Dimensions.${this.dimensionEntityName}ID,0) eq ${this.dimensionId}`
+            : '';
+        let projectFilter = this.filter && this.filter.ProjectID
+            ? ` and isnull(Dimensions.ProjectID,0) eq ${this.filter.ProjectID}`
+            : '';
+        let departmentFilter = this.filter && this.filter.DepartmentID
+            ? ` and isnull(Dimensions.DepartmentID,0) eq ${this.filter.DepartmentID}`
+            : '';
 
         Observable.forkJoin(
-            this.statisticsService.GetAll('model=AccountGroup&select=AccountGroup.ID as ID,AccountGroup.GroupNumber as GroupNumber,AccountGroup.Name as Name,AccountGroup.MainGroupID as MainGroupID&orderby=AccountGroup.MainGroupID asc'),
-            this.statisticsService.GetAll('model=Account&expand=TopLevelAccountGroup&filter=TopLevelAccountGroup.GroupNumber ge 3&select=Account.ID as ID,Account.AccountNumber as AccountNumber,Account.AccountName as AccountName,Account.AccountGroupID as AccountGroupID'),
-            this.statisticsService.GetAll(`model=JournalEntryLine&expand=Period,Account.TopLevelAccountGroup,Dimensions&filter=TopLevelAccountGroup.GroupNumber ge 3${dimensionFilter}${projectFilter}${departmentFilter}&select=JournalEntryLine.AccountID as AccountID,sum(casewhen((${period1FilterExpression}) or (${period2FilterExpression})\\,1\\,0)) as CountEntries,sum(casewhen(${period1FilterExpression}\\,JournalEntryLine.Amount\\,0)) as SumAmountPeriod1,sum(casewhen(${period2FilterExpression}\\,JournalEntryLine.Amount\\,0)) as SumAmountPeriod2`)
+            this.statisticsService.GetAll(
+                'model=AccountGroup&select=AccountGroup.ID as ID,AccountGroup.GroupNumber as GroupNumber'
+                + ',AccountGroup.Name as Name,AccountGroup.MainGroupID as MainGroupID'
+                + '&orderby=AccountGroup.MainGroupID asc'
+            ),
+            this.statisticsService.GetAll(
+                'model=Account&expand=TopLevelAccountGroup&filter=TopLevelAccountGroup.GroupNumber ge 3'
+                + '&select=Account.ID as ID,Account.AccountNumber as AccountNumber,'
+                + 'Account.AccountName as AccountName,Account.AccountGroupID as AccountGroupID'
+            ),
+            this.statisticsService.GetAll(
+                `model=JournalEntryLine&expand=Period,Account.TopLevelAccountGroup,Dimensions`
+                + `&filter=TopLevelAccountGroup.GroupNumber ge 3${dimensionFilter}${projectFilter}${departmentFilter}`
+                + `&select=JournalEntryLine.AccountID as AccountID,sum(casewhen((${period1FilterExpression}) `
+                + `or (${period2FilterExpression})\\,1\\,0)) as CountEntries,`
+                + `sum(casewhen(${period1FilterExpression}\\,JournalEntryLine.Amount\\,0)) as SumAmountPeriod1,`
+                + `sum(casewhen(${period2FilterExpression}\\,JournalEntryLine.Amount\\,0)) as SumAmountPeriod2`
+            )
         ).subscribe(data => {
             let accountGroups = data[0].Data;
             let accounts = data[1].Data;
@@ -181,7 +217,9 @@ export class DrilldownResultReportPart implements OnChanges {
                     summaryData.turned = this.shouldTurnAmount(summaryData.number);
 
                     if (group.MainGroupID) {
-                        let mainGroupSummaryData: ResultSummaryData = summaryDataList.find(x => !x.isAccount && x.id === group.MainGroupID);
+                        let mainGroupSummaryData: ResultSummaryData = summaryDataList.find(
+                            x => !x.isAccount && x.id === group.MainGroupID
+                        );
 
                         if (mainGroupSummaryData) {
                             summaryData.parent = mainGroupSummaryData;
@@ -207,8 +245,12 @@ export class DrilldownResultReportPart implements OnChanges {
 
                         let accountJournalEntryData = journalEntries.find(x => x.AccountID === account.ID);
                         if (accountJournalEntryData) {
-                            accountSummaryData.amountPeriod1 = this.shouldTurnAmount(accountSummaryData.number) ? accountJournalEntryData.SumAmountPeriod1 * -1 : accountJournalEntryData.SumAmountPeriod1;
-                            accountSummaryData.amountPeriod2 = this.shouldTurnAmount(accountSummaryData.number) ? accountJournalEntryData.SumAmountPeriod2 * -1 : accountJournalEntryData.SumAmountPeriod2;
+                            accountSummaryData.amountPeriod1 = this.shouldTurnAmount(accountSummaryData.number)
+                                ? accountJournalEntryData.SumAmountPeriod1 * -1
+                                : accountJournalEntryData.SumAmountPeriod1;
+                            accountSummaryData.amountPeriod2 = this.shouldTurnAmount(accountSummaryData.number)
+                                ? accountJournalEntryData.SumAmountPeriod2 * -1
+                                : accountJournalEntryData.SumAmountPeriod2;
                             accountSummaryData.rowCount = accountJournalEntryData.CountEntries;
                         }
 
@@ -268,7 +310,7 @@ export class DrilldownResultReportPart implements OnChanges {
 
             // iterate and calculate percentages for groups based on total income
             this.calculateTreePercentages(treeSummaryList, null, null);
-            this.percentagePeriod1 = treeSummaryList.find(x => x.number == 9).percentagePeriod1;
+            this.percentagePeriod1 = treeSummaryList.find(x => x.number === 9).percentagePeriod1;
 
             // filter out rows that are not interesting to show. Set both the full tree and a copy we can
             // manipulate to show drilldown data
@@ -301,9 +343,13 @@ export class DrilldownResultReportPart implements OnChanges {
         });
     }
 
-    private calculateTreePercentages(treeList: ResultSummaryData[], totalAmountPeriod1: number, totalAmountPeriod2: number) {
+    private calculateTreePercentages(
+        treeList: ResultSummaryData[],
+        totalAmountPeriod1: number,
+        totalAmountPeriod2: number
+    ) {
 
-        if (totalAmountPeriod1 == null || totalAmountPeriod2 == null) {
+        if (totalAmountPeriod1 === null || totalAmountPeriod2 === null) {
             let totalIncomeNode = treeList.find(x => x.number === 3);
 
             totalAmountPeriod1 = totalIncomeNode.amountPeriod1;
@@ -311,8 +357,12 @@ export class DrilldownResultReportPart implements OnChanges {
         }
 
         treeList.forEach(treeNode => {
-            treeNode.percentagePeriod1 = totalAmountPeriod1 !== 0 ? Math.round((treeNode.amountPeriod1 * 100) / totalAmountPeriod1) : 0;
-            treeNode.percentagePeriod2 = totalAmountPeriod2 !== 0 ? Math.round((treeNode.amountPeriod2 * 100) / totalAmountPeriod2) : 0;
+            treeNode.percentagePeriod1 = totalAmountPeriod1 !== 0
+                ? Math.round((treeNode.amountPeriod1 * 100) / totalAmountPeriod1)
+                : 0;
+            treeNode.percentagePeriod2 = totalAmountPeriod2 !== 0
+                ? Math.round((treeNode.amountPeriod2 * 100) / totalAmountPeriod2)
+                : 0;
 
             if (treeNode.children.length > 0) {
                 this.calculateTreePercentages(treeNode.children, totalAmountPeriod1, totalAmountPeriod2);
@@ -336,7 +386,7 @@ export class DrilldownResultReportPart implements OnChanges {
         return false;
     }
 
-    private getPaddingLeft(level) {
+    public getPaddingLeft(level) {
         if (level > 0) {
             return (level * 15).toString() + 'px';
         }
@@ -346,16 +396,25 @@ export class DrilldownResultReportPart implements OnChanges {
         this.uniTableConfig = new UniTableConfig('accounting.drilldownResultReportPart', false, false)
             .setColumnMenuVisible(true)
             .setColumns([
-                new UniTableColumn('number', 'Konto/kontogruppe', UniTableColumnType.Text).setWidth('50%').setTemplate(item => item.number + ': ' + item.name),
-                new UniTableColumn('amountPeriod1', this.periodFilter1.name, UniTableColumnType.Money).setWidth('20%').setCls('amount').setNumberFormat(this.numberFormat),
-                new UniTableColumn('percentagePeriod1', '%', UniTableColumnType.Number).setWidth('5%').setCls('percentage'),
-                new UniTableColumn('amountPeriod2', this.periodFilter2.name, UniTableColumnType.Money).setWidth('20%').setCls('percentage').setNumberFormat(this.numberFormat),
-                new UniTableColumn('percentagePeriod2', '%', UniTableColumnType.Number).setWidth('5%').setCls('percentage'),
+                new UniTableColumn('number', 'Konto/kontogruppe', UniTableColumnType.Text)
+                    .setWidth('50%')
+                    .setTemplate(item => item.number + ': ' + item.name),
+                new UniTableColumn('amountPeriod1', this.periodFilter1.name, UniTableColumnType.Money)
+                    .setWidth('20%').setCls('amount')
+                    .setNumberFormat(this.numberFormat),
+                new UniTableColumn('percentagePeriod1', '%', UniTableColumnType.Number)
+                    .setWidth('5%')
+                    .setCls('percentage'),
+                new UniTableColumn('amountPeriod2', this.periodFilter2.name, UniTableColumnType.Money)
+                    .setWidth('20%').setCls('percentage')
+                    .setNumberFormat(this.numberFormat),
+                new UniTableColumn('percentagePeriod2', '%', UniTableColumnType.Number)
+                    .setWidth('5%')
+                    .setCls('percentage'),
             ]);
     }
 
     private setupChart() {
-        let labels = [];
         let dataSets = [];
 
         let sales = this.flattenedTreeSummaryList.find(x => x.number === 3);
@@ -401,7 +460,9 @@ export class DrilldownResultReportPart implements OnChanges {
         }
 
         // Result
-        let resulttext = result.amountPeriod1 > 0 ? 'Overskudd' : (result.amountPeriod1 < 0 ? 'Underskudd' : 'Resultat');
+        let resulttext = result.amountPeriod1 > 0
+            ? 'Overskudd'
+            : (result.amountPeriod1 < 0 ? 'Underskudd' : 'Resultat');
 
         let chartConfig = {
             label: '',
@@ -416,8 +477,9 @@ export class DrilldownResultReportPart implements OnChanges {
         ChartHelper.generateChart('accountingReportDrilldownChart', chartConfig);
     }
 
-    private profitMarginText() {
-        // feks 20% og oppover gir visning av prosent og kommentaren: Best, 10-20%: Svært godt, 5-10% Godt, 0-5% Bra, og under: Svak
+    public profitMarginText() {
+        // feks 20% og oppover gir visning av prosent og kommentaren:
+        // Best, 10-20%: Svært godt, 5-10% Godt, 0-5% Bra, og under: Svak
         if (this.percentagePeriod1 >= 20) {
             return this.percentagePeriod1  + '% Best';
         } else if (this.percentagePeriod1 > 10) {

@@ -16,13 +16,13 @@ import {
     templateUrl: './dimensionresultreport.html',
 })
 export class DimensionResultReport {
-    @ViewChild(DrilldownResultReportPart) private drilldownResultReportPart: DrilldownResultReportPart;
+    @ViewChild(DrilldownResultReportPart) public drilldownResultReportPart: DrilldownResultReportPart;
 
     private periodFilter1: PeriodFilter;
     private periodFilter2: PeriodFilter;
 
-    private treeSummaryList: ResultSummaryData[] = [];
-    private flattenedTreeSummaryList: ResultSummaryData[] = [];
+    public treeSummaryList: ResultSummaryData[] = [];
+    public flattenedTreeSummaryList: ResultSummaryData[] = [];
 
     private dimensionType: number;
     private dimensionEntityName: string = '';
@@ -32,8 +32,8 @@ export class DimensionResultReport {
     private filterDimensionName: string = '';
     private pageTitle: string = '';
 
-    private activeDistributionElement: string = 'Resultat';
-    private distributionPeriodAccountIDs: Array<number> = [];
+    public activeDistributionElement: string = 'Resultat';
+    public distributionPeriodAccountIDs: Array<number> = [];
 
     private toolbarconfig: IToolbarConfig;
 
@@ -62,7 +62,8 @@ export class DimensionResultReport {
 
     private setPageTitle() {
         if (this.filterDimensionID && this.filterDimensionID > 0) {
-            this.pageTitle += `${this.dimensionDisplayName} ${this.filterDimensionNumber}: ${this.filterDimensionName}`;
+            this.pageTitle += `${this.dimensionDisplayName} `
+                + `${this.filterDimensionNumber}: ${this.filterDimensionName}`;
         } else {
             this.pageTitle += `Posteringer uten definert ${this.dimensionDisplayName.toLowerCase()}`;
         }
@@ -78,12 +79,12 @@ export class DimensionResultReport {
         this.periodFilter2 = PeriodFilterHelper.getFilter(2, this.periodFilter1);
     }
 
-    private onPeriodFilter1Changed(event) {
+    public onPeriodFilter1Changed(event) {
         this.periodFilter1 = event;
         PeriodFilterHelper.saveFilterSettings(1, this.periodFilter1);
     }
 
-    private onPeriodFilter2Changed(event) {
+    public onPeriodFilter2Changed(event) {
         this.periodFilter2 = event;
         PeriodFilterHelper.saveFilterSettings(2, this.periodFilter2);
     }

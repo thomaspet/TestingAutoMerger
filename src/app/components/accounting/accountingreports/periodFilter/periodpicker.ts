@@ -23,7 +23,7 @@ export class PeriodPicker {
 
     }
 
-    private togglePicker() {
+    private togglePicker() { // tslint:disable-line
         if (this.pickerAreaVisible) {
             this.hidePicker();
         } else {
@@ -40,7 +40,7 @@ export class PeriodPicker {
         this.pickerAreaVisible = true;
     }
 
-    private update() {
+    private update() { // tslint:disable-line
         this.periodFilterData.name = PeriodFilterHelper.getFilterName(this.periodFilterData);
         this.periodFilter = _.cloneDeep(this.periodFilterData);
 

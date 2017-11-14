@@ -10,7 +10,11 @@ export class PeriodFilter {
 export class PeriodFilterHelper {
     private static PERIOD_LOCAL_STORAGE_KEY: string = 'ACCOUNTING_REPORTS_PERIOD_FILTER';
 
-    public static getFilter(periodNumber: number, otherFilter: PeriodFilter, override: boolean = false): PeriodFilter {
+    public static getFilter(
+        periodNumber: number,
+        otherFilter: PeriodFilter,
+        override: boolean = false
+    ): PeriodFilter {
         let filter: PeriodFilter = null;
 
         let localStorageKey = this.PERIOD_LOCAL_STORAGE_KEY + periodNumber;
@@ -29,7 +33,6 @@ export class PeriodFilterHelper {
                 filter.toPeriodNo = periodNumber;
             } else if (otherFilter) {
                 // if the otherFilter parameter is specified, set default value for filter according to this
-                let today = moment(new Date());
                 filter.year = otherFilter.year - 1;
                 filter.fromPeriodNo = otherFilter.fromPeriodNo;
                 filter.toPeriodNo = otherFilter.toPeriodNo;
