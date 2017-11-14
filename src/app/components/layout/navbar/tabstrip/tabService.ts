@@ -1,4 +1,4 @@
-import {Injectable, EventEmitter, TRANSLATIONS} from '@angular/core';
+import {Injectable} from '@angular/core';
 import {IUniTab} from './tabStrip';
 import {Router, NavigationEnd} from '@angular/router';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';

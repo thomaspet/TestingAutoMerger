@@ -16,7 +16,7 @@ import {
 } from '../../../../../services/services';
 import {ToastService, ToastType} from '../../../../../../framework/uniToast/toastService';
 
-import {YearModal, ChangeYear} from './modals/yearModal';
+import {YearModal, IChangeYear} from './modals/yearModal';
 
 @Component({
     selector: 'uni-company-dropdown',
@@ -170,7 +170,9 @@ export class UniCompanyDropdown {
     }
 
     public openYearModal()  {
-        this.modalService.open(YearModal, { data: { year: this.activeYear }}).onClose.subscribe((val: ChangeYear) => {
+        this.modalService.open(
+            YearModal, { data: { year: this.activeYear }}
+        ).onClose.subscribe((val: IChangeYear) => {
             if (val && val.year && (typeof val.year === 'number')) {
                 this.yearService.setSelectedYear(val.year);
                 let found = this.financialYears.find(v => v.Year === val.year);
@@ -317,7 +319,7 @@ export class UniCompanyDropdown {
         this.companyDropdownActive = false;
     }
 
-    private logOut() {
+    public logOut() {
         this.authService.clearAuthAndGotoLogin();
     }
 }
