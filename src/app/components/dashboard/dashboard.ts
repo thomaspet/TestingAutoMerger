@@ -21,7 +21,7 @@ export interface IChartDataSet {
 })
 export class Dashboard {
     @ViewChild(UniWidgetCanvas)
-    private widgetCanvas: UniWidgetCanvas;
+    public widgetCanvas: UniWidgetCanvas;
 
     public welcomeHidden: boolean = JSON.parse(localStorage.getItem('welcomeHidden'));
     private layout: any[] = [];
@@ -152,7 +152,8 @@ export class Dashboard {
                     description: 'Antall eposter i innboks',
                     icon: 'letter',
                     link: '/accounting/bills?filter=Inbox',
-                    dataEndpoint: "/api/statistics?skip=0&model=FileTag&select=count(ID) as count&expand=File&filter=FileTag.Status eq 0 and FileTag.TagName eq 'IncomingMail' and File.Deleted eq 0",
+                    dataEndpoint: '/api/statistics?skip=0&model=FileTag&select=count(ID) as count&expand=File'
+                        + '&filter=FileTag.Status eq 0 and FileTag.TagName eq "IncomingMail" and File.Deleted eq 0',
                     valueKey: 'Data[0].count',
                     amount: 0,
                     class: 'uni-widget-notification-orange'
@@ -169,7 +170,8 @@ export class Dashboard {
                     description: 'Antall EHFer i innboks',
                     icon: 'ehf',
                     link: '/accounting/bills?filter=Inbox',
-                    dataEndpoint: "/api/statistics?skip=0&model=FileTag&select=count(ID) as count&expand=File&filter=FileTag.Status eq 0 and FileTag.TagName eq 'IncomingEHF' and File.Deleted eq 0",
+                    dataEndpoint: '/api/statistics?skip=0&model=FileTag&select=count(ID) as count&expand=File'
+                        + '&filter=FileTag.Status eq 0 and FileTag.TagName eq "IncomingEHF" and File.Deleted eq 0',
                     valueKey: 'Data[0].count',
                     amount: 0,
                     class: 'uni-widget-notification-orange'
@@ -186,7 +188,8 @@ export class Dashboard {
                     description: 'Tildelte faktura',
                     icon: 'pdf',
                     link: '/accounting/bills?filter=ForApproval&page=1',
-                    dataEndpoint: "/api/statistics/?model=SupplierInvoice&select=count(ID) as count&filter=( isnull(deleted,0) eq 0 ) and ( statuscode eq 30102 )",
+                    dataEndpoint: '/api/statistics/?model=SupplierInvoice&select=count(ID) as '
+                        + 'count&filter=( isnull(deleted,0) eq 0 ) and ( statuscode eq 30102 )',
                     valueKey: 'Data[0].count',
                     amount: 0,
                     class: 'uni-widget-notification-orange'
@@ -236,7 +239,11 @@ export class Dashboard {
                     labels: ['Jan', '', '', 'Apr', '', '', 'Jul', '', 'Sep', '', '', 'Dec'],
                     colors: ['#7293cb'],
                     backgroundColors: ['transparent'],
-                    dataEndpoint: ['/api/statistics?model=JournalEntryLine&select=month(financialdate),sum(amount)&join=journalentryline.accountid eq account.id&filter=year(financialdate) eq <year> and account.accountnumber ge 3000 and account.accountnumber le 9999 &range=monthfinancialdate'],
+                    dataEndpoint: ['/api/statistics?model=JournalEntryLine&select=month(financialdate),'
+                        + 'sum(amount)&join=journalentryline.accountid eq account.id&filter=year(financialdate) '
+                        + 'eq <year> and account.accountnumber ge 3000 and account.accountnumber le 9999 '
+                        + '&range=monthfinancialdate'
+                    ],
                     dataKey: ['sumamount'],
                     multiplyValue: -1,
                     dataset: [],
@@ -270,7 +277,8 @@ export class Dashboard {
                     labels: [],
                     colors: [],
                     dataEndpoint: [
-                        '/api/statistics?model=Employee&select=count(ID) as Count,Employments.JobName as JobName&expand=Employments'
+                        '/api/statistics?model=Employee&select=count(ID) as '
+                        + 'Count,Employments.JobName as JobName&expand=Employments'
                     ],
                     labelKey: 'JobName',
                     valueKey: 'Count',
@@ -302,7 +310,9 @@ export class Dashboard {
                     labels: [],
                     colors: [],
                     dataEndpoint: [
-                        '/api/statistics?model=Customer&select=Info.Name as Name,isnull(sum(CustomerInvoices.RestAmount),0) as RestAmount&expand=Info,CustomerInvoices&having=sum(CustomerInvoices.RestAmount) gt 0'
+                        '/api/statistics?model=Customer&select=Info.Name as Name,'
+                        + 'isnull(sum(CustomerInvoices.RestAmount),0) as RestAmount'
+                        + '&expand=Info,CustomerInvoices&having=sum(CustomerInvoices.RestAmount) gt 0'
                     ],
                     valueKey: 'RestAmount',
                     labelKey: 'Name',
