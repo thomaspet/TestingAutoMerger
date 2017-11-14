@@ -23,7 +23,7 @@ export class MarketplaceAddOnsDetails implements AfterViewInit {
         private toastService: ToastService
     ) {}
 
-    ngAfterViewInit() {
+    public ngAfterViewInit() {
         this.route.params.subscribe(params => {
             const productID = +params['id'];
 
@@ -69,8 +69,12 @@ export class MarketplaceAddOnsDetails implements AfterViewInit {
             .PurchaseProduct(product)
             .subscribe(
                 result => result
-                    ? this.toastService.addToast(`Kjøpte produktet: ${product.label}`, ToastType.good, ToastTime.short)
-                    : this.toastService.addToast(`Fikk ikke kjøpt produktet pga en feil oppstod`, ToastType.bad, ToastTime.short)
+                    ? this.toastService.addToast(
+                        `Kjøpte produktet: ${product.label}`, ToastType.good, ToastTime.short
+                    )
+                    : this.toastService.addToast(
+                        `Fikk ikke kjøpt produktet pga en feil oppstod`, ToastType.bad, ToastTime.short
+                    )
             );
     }
 }

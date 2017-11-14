@@ -9,6 +9,8 @@ export class MarketplaceWebinars {
     constructor(
         tabService: TabService
     ) {
-        tabService.addTab({ name: 'Markedsplass', url: '/marketplace/webinars', moduleID: UniModules.Marketplace, active: true });
+        tabService.addTab({
+            name: 'Markedsplass', url: '/marketplace/webinars', moduleID: UniModules.Marketplace, active: true
+        });
     }
 }

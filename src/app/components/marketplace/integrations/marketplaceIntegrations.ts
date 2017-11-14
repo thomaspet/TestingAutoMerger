@@ -9,7 +9,9 @@ export class MarketplaceIntegrations {
     constructor(
         tabService: TabService
     ) {
-        tabService.addTab({ name: 'Markedsplass', url: '/marketplace/integrations', moduleID: UniModules.Marketplace, active: true });
+        tabService.addTab({
+            name: 'Markedsplass', url: '/marketplace/integrations', moduleID: UniModules.Marketplace, active: true
+        });
     }
 
     public navigateToExternalUrl(url: string) {
