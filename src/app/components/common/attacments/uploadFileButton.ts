@@ -72,12 +72,11 @@ export class UniUploadFileButton {
     }
 
     private uploadFile(file: File) {
-
         let data = new FormData();
         data.append('Token', this.token);
         data.append('Key', this.activeCompany.Key);
         data.append('Caption', ''); // where should we get this from the user?
-        data.append('File', file); // TODO: check if this can be .toString()
+        data.append('File', file);
 
         this.ngHttp.post(this.baseUrl + '/api/file', data)
             .map(res => res.json())
