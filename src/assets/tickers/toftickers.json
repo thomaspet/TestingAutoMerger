@@ -652,6 +652,11 @@
             "Header": "Status",
             "Field": "StatusCode",
             "Width": "155px"
+        }, {
+            "Header": "Utskrift",
+            "Field": "PrintStatus",
+            "Width": "125px",
+            "DefaultHidden": true
         }
     ],
     "ParentFilter": {
@@ -1006,14 +1011,13 @@
             "Field": "OrderDate",
             "FilterOperator": "gt",
             "Width": "100px"
-        },{
+        }, {
             "Header": "Leveringsdato",
             "Field": "DeliveryDate",
             "FilterOperator": "gt",
             "Width": "100px",
             "DefaultHidden": true
-        },
-         {
+        }, {
             "Header": "Valuta",
             "Field": "CurrencyCode.Code",
             "Width": "70px",
@@ -1025,24 +1029,24 @@
             "Width": "125px",
             "FilterOperator": "gt",
             "SumColumn": true
-        },{
+        }, {
             "Header": "Sum inkl mva [BASECURRENCY]",
             "Field": "TaxInclusiveAmount",
             "Format": "NumberPositiveNegative",
             "DefaultHidden": true,
             "SumColumn": true
-        },{
+        }, {
             "Header": "Restsum",
             "Field": "sum(casewhen(items.statuscode eq 41102\\,items.SumTotalExVat\\,0))",
             "Alias": "Restsum",
             "Format": "NumberPositiveNegative",
             "Width": "125px",
             "FilterOperator": "gt"
-        },{
+        }, {
             "Header": "Vår ref",
             "Field": "OurReference",
             "DefaultHidden": true
-        },{
+        }, {
             "Header": "Deres ref",
             "Field": "YourReference",
             "DefaultHidden": true
@@ -1054,6 +1058,11 @@
             "Header": "Status",
             "Field": "StatusCode",
             "Width": "155px"
+        }, {
+            "Header": "Utskrift",
+            "Field": "PrintStatus",
+            "Width": "125px",
+            "DefaultHidden": true
         }
     ],
     "ParentFilter": {
