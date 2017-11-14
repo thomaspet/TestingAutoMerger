@@ -52,7 +52,7 @@ export class CustomerPaymentBatches {
         }, 100);
     }
 
-    private fileUploaded(file: File) {
+    public fileUploaded(file: File) {
         this.toastService.addToast('Laster opp innbetalingsfil..', ToastType.good, 10,
             'Dette kan ta litt tid, vennligst vent...');
 
@@ -68,13 +68,13 @@ export class CustomerPaymentBatches {
         );
     }
 
-    private paymentBatchUpdated(paymentBatch: PaymentBatch) {
+    public paymentBatchUpdated(paymentBatch: PaymentBatch) {
         if (this.table) {
             this.table.refreshTableData();
         }
     }
 
-    private paymentBatchNavigate(direction: number) {
+    public paymentBatchNavigate(direction: number) {
         if (this.table) {
             try {
                 // use try catch here, in case we navigate past the last item
@@ -90,7 +90,7 @@ export class CustomerPaymentBatches {
         }
     }
 
-    private deletePaymentBatch(paymentBatch: PaymentBatch) {
+    public deletePaymentBatch(paymentBatch: PaymentBatch) {
         this.selectedPaymentBatchID = null;
         this.currentRow = null;
 
@@ -102,7 +102,7 @@ export class CustomerPaymentBatches {
         );
     }
 
-    private onRowSelected(row) {
+    public onRowSelected(row) {
         this.selectedPaymentBatchID = row.rowModel.ID;
         this.currentRow = row.rowModel;
     }

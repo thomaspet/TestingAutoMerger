@@ -41,7 +41,11 @@ export class PaymentRelationsTable implements OnInit {
 
         urlParams.set('model', 'Tracelink');
         urlParams.set('select', 'ID,SourceEntityName,DestinationEntityName,SourceInstanceID,DestinationInstanceID');
-        urlParams.set('filter', `TraceLink.Deleted eq 'false' and DestinationEntityName eq 'Payment' and DestinationInstanceID eq ${this.config.paymentID}`);
+        urlParams.set(
+            'filter',
+            `TraceLink.Deleted eq 'false' and DestinationEntityName `
+                + `eq 'Payment' and DestinationInstanceID eq ${this.config.paymentID}`
+        );
 
         return this.statisticsService.GetAllByUrlSearchParams(urlParams);
     }
@@ -55,13 +59,21 @@ export class PaymentRelationsTable implements OnInit {
                 new UniTableColumn('TracelinkSourceEntityName', 'Entitet', UniTableColumnType.Text)
                     .setTemplate(data => {
                         if (data.TracelinkSourceEntityName === 'SupplierInvoice') {
-                            return `<a href='/#/accounting/bills/${data.TracelinkSourceInstanceID}' target='_blank'>${data.TracelinkSourceEntityName}</a>`;
+                            return `<a href='/#/accounting/bills/${data.TracelinkSourceInstanceID}' target='_blank'>
+                                    ${data.TracelinkSourceEntityName}
+                                </a>`;
                         } else if (data.TracelinkSourceEntityName === 'CustomerInvoice') {
-                            return `<a href='/#/sales/invoices/${data.TracelinkSourceInstanceID}' target='_blank'>${data.TracelinkSourceEntityName}</a>`;
+                            return `<a href='/#/sales/invoices/${data.TracelinkSourceInstanceID}' target='_blank'>
+                                    ${data.TracelinkSourceEntityName}
+                                 </a>`;
                         } else if (data.TracelinkSourceEntityName === 'Employee') {
-                            return `<a href='/#/salary/employees/${data.TracelinkSourceInstanceID}' target='_blank'>${data.TracelinkSourceEntityName}</a>`;
-                        } else if(data.TracelinkSourceEntityName === 'PayrollRun') {
-                            return `<a href='/#/salary/payrollrun/${data.TracelinkSourceInstanceID}' target='_blank'>${data.TracelinkSourceEntityName}</a>`;
+                            return `<a href='/#/salary/employees/${data.TracelinkSourceInstanceID}' target='_blank'>
+                                    ${data.TracelinkSourceEntityName}
+                                </a>`;
+                        } else if (data.TracelinkSourceEntityName === 'PayrollRun') {
+                            return `<a href='/#/salary/payrollrun/${data.TracelinkSourceInstanceID}' target='_blank'>
+                                    ${data.TracelinkSourceEntityName}
+                                </a>`;
                         } else {
                             return data.TracelinkSourceEntityName;
                         }
