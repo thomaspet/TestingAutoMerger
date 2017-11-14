@@ -1,4 +1,4 @@
-﻿import {Component, ViewChild} from '@angular/core';
+﻿import {Component} from '@angular/core';
 import {UniModalService, UniAddressModal} from '../../../../../framework/uniModal/barrel';
 import {UniFieldLayout} from '../../../../../framework/ui/uniform/index';
 import {FieldType} from '../../../../../framework/ui/uniform/index';
@@ -8,13 +8,10 @@ import {ProjectResponsibility} from '../../../../models/models';
 import {Observable} from 'rxjs/Observable';
 import {
     Project,
-    Customer,
     Address,
-    ProjectResource,
     User
 } from '../../../../unientities';
 import {
-    UniTable,
     UniTableColumn,
     UniTableColumnType,
     UniTableConfig
@@ -40,9 +37,9 @@ export class ProjectEditmode {
     private project$: BehaviorSubject<Project> = new BehaviorSubject(null);
     private actionLabel: string = '';
     private uniSearchConfig: IUniSearchConfig;
-    private addressChanged: any;
+    public addressChanged: any;
     private customerExpandOptions: Array<string> = ['Info.Name'];
-    private STATUS = [
+    private STATUS: any = [
         { ID: 42201, Name: 'Registrert' },
         { ID: 42202, Name: 'Tilbudsfase' },
         { ID: 42203, Name: 'Pågår' },
@@ -180,24 +177,30 @@ export class ProjectEditmode {
                     new UniTableColumn('Name', 'Ressurs', UniTableColumnType.Text),
                     new UniTableColumn('User', 'Bruker', UniTableColumnType.Lookup)
                         .setTemplate((row) => {
-                            let user = row['User'] ? row['User'] : this.users.find(x => x.ID == row['UserID']);
+                            let user = row['User'] ? row['User'] : this.users.find(x => x.ID === row['UserID']);
                             return user ? user.DisplayName : '';
                         })
                         .setEditorOptions({
                             itemTemplate: (item) => item.DisplayName || item.Email,
                             lookupFunction: (searchValue) => {
-                                return Observable.from([this.users.filter(x => x.DisplayName.startsWith(searchValue))]);
+                                return Observable.from(
+                                    [this.users.filter(x => x.DisplayName.startsWith(searchValue))]
+                                );
                             }
                         }),
                     new UniTableColumn('_Responsibility', 'Ansvar', UniTableColumnType.Lookup)
                         .setTemplate((row) => {
-                            let responsibility = row['_Responsibility'] ? row['_Responsibility'] : ProjectResponsibility.find(x => x.ID == row['Responsibility']);
+                            let responsibility = row['_Responsibility']
+                                ? row['_Responsibility']
+                                : ProjectResponsibility.find(x => x.ID === row['Responsibility']);
                             return responsibility ? responsibility.Title : '';
                         })
                         .setEditorOptions({
                             itemTemplate: (item) => item.Title,
                             lookupFunction: (searchValue) => {
-                                return Observable.from([ProjectResponsibility.filter((x => x.Title.startsWith(searchValue)))]);
+                                return Observable.from(
+                                    [ProjectResponsibility.filter((x => x.Title.startsWith(searchValue)))]
+                                );
                             }
                         })
                 ]);
