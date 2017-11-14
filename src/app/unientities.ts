@@ -663,7 +663,7 @@ export class CustomerInvoice extends UniEntity {
     public CustomerOrgNumber: string;
     public CustomerPerson: string;
     public DefaultDimensionsID: number;
-    public DefaultSellerLinkID: number;
+    public DefaultSellerID: number;
     public Deleted: boolean;
     public DeliveryDate: LocalDate;
     public DeliveryMethod: string;
@@ -731,7 +731,7 @@ export class CustomerInvoice extends UniEntity {
     public Items: Array<CustomerInvoiceItem>;
     public InvoiceReference: CustomerInvoice;
     public DefaultDimensions: Dimensions;
-    public DefaultSeller: SellerLink;
+    public DefaultSeller: Seller;
     public Sellers: Array<SellerLink>;
     public CustomFields: any;
 }
@@ -802,7 +802,7 @@ export class CustomerOrder extends UniEntity {
     public CustomerOrgNumber: string;
     public CustomerPerson: string;
     public DefaultDimensionsID: number;
-    public DefaultSellerLinkID: number;
+    public DefaultSellerID: number;
     public Deleted: boolean;
     public DeliveryDate: LocalDate;
     public DeliveryMethod: string;
@@ -857,7 +857,7 @@ export class CustomerOrder extends UniEntity {
     public CurrencyCode: CurrencyCode;
     public OrderNumberNumberSeries: NumberSeries;
     public Items: Array<CustomerOrderItem>;
-    public DefaultSeller: SellerLink;
+    public DefaultSeller: Seller;
     public Sellers: Array<SellerLink>;
     public CustomFields: any;
 }
@@ -928,7 +928,7 @@ export class CustomerQuote extends UniEntity {
     public CustomerOrgNumber: string;
     public CustomerPerson: string;
     public DefaultDimensionsID: number;
-    public DefaultSellerLinkID: number;
+    public DefaultSellerID: number;
     public Deleted: boolean;
     public DeliveryDate: LocalDate;
     public DeliveryMethod: string;
@@ -985,7 +985,7 @@ export class CustomerQuote extends UniEntity {
     public DefaultDimensions: Dimensions;
     public QuoteNumberNumberSeries: NumberSeries;
     public Items: Array<CustomerQuoteItem>;
-    public DefaultSeller: SellerLink;
+    public DefaultSeller: Seller;
     public Sellers: Array<SellerLink>;
     public CustomFields: any;
 }

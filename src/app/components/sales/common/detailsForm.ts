@@ -120,18 +120,18 @@ export class TofDetailsForm {
             this.setDates(changes['InvoiceDate'].currentValue);
         }
 
-         // if selected default SellerLink exists on customer, set new DefaultSeller and DefaultSellerLinkId 
+         // if selected default SellerLink exists on customer, set new DefaultSeller and DefaultSellerLinkId
         // - if not, set new DefaultSeller.Seller and clear DefaultSellerLinkId
         if (changes['DefaultSeller.SellerID']) {
             if (changes['DefaultSeller.SellerID'].currentValue) {
-                let defaultSeller = this.entity.Sellers.find(sellerLink => 
+                let defaultSeller = this.entity.Sellers.find(sellerLink =>
                     sellerLink.SellerID === changes['DefaultSeller.SellerID'].currentValue
                 ) || new SellerLink();
 
                 if (defaultSeller.ID) {
                     this.entity.DefaultSellerLinkID = defaultSeller.ID;
                 } else {
-                    defaultSeller.Seller = this.sellers.find(seller => 
+                    defaultSeller.Seller = this.sellers.find(seller =>
                         seller.ID === changes['DefaultSeller.SellerID'].currentValue
                     );
                     defaultSeller.SellerID = defaultSeller.Seller.ID;
@@ -250,7 +250,7 @@ export class TofDetailsForm {
                     FieldSet: 1,
                     FieldSetColumn: 2,
                     EntityType: this.entityType,
-                    Property: 'DefaultSeller.SellerID',
+                    Property: 'DefaultSeller.ID',
                     FieldType: FieldType.DROPDOWN,
                     Label: 'Hovedselger',
                     Section: 0,

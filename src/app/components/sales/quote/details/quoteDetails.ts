@@ -1018,15 +1018,9 @@ export class QuoteDetails {
                 this.quote.DefaultDimensions = undefined;
         }
 
-        // if main seller does not exist in 'Sellers', create and add it
-        if (this.quote.DefaultSeller && this.quote.DefaultSeller.SellerID
-            && !this.quote.DefaultSeller._createguid && !this.quote.Sellers.find(sellerLink =>
-                sellerLink.SellerID === this.quote.DefaultSeller.SellerID
-            )) {
-                this.quote.DefaultSeller._createguid = this.sellerLinkService.getNewGuid();
-                this.quote.Sellers.push(this.quote.DefaultSeller);
-        } else if (this.quote.DefaultSeller && !this.quote.DefaultSeller.SellerID) {
-            this.quote.DefaultSeller = null;
+
+        if (this.quote.DefaultSeller && this.quote.DefaultSeller.ID > 0) {
+            this.quote.DefaultSellerID = this.quote.DefaultSeller.ID;
         }
 
         // add deleted sellers back to 'Sellers' to delete with 'Deleted' property, was sliced locally/in view

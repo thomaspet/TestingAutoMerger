@@ -1036,15 +1036,8 @@ export class OrderDetails {
                 this.order.DefaultDimensions = undefined;
         }
 
-        // if main seller does not exist in 'Sellers', create and add it
-        if (this.order.DefaultSeller && this.order.DefaultSeller.SellerID
-            && !this.order.DefaultSeller._createguid && !this.order.Sellers.find(sellerLink =>
-                sellerLink.SellerID === this.order.DefaultSeller.SellerID
-            )) {
-            this.order.DefaultSeller._createguid = this.sellerLinkService.getNewGuid();
-            this.order.Sellers.push(this.order.DefaultSeller);
-        } else if (this.order.DefaultSeller && !this.order.DefaultSeller.SellerID) {
-            this.order.DefaultSeller = null;
+        if (this.order.DefaultSeller && this.order.DefaultSeller.ID > 0) {
+            this.order.DefaultSellerID = this.order.DefaultSeller.ID;
         }
 
         // add deleted sellers back to 'Sellers' to delete with 'Deleted' property, was sliced locally/in view

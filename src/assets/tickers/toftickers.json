@@ -5,7 +5,7 @@
     "IsTopLevelTicker": true,
     "Group": "Salg",
     "Model": "CustomerInvoice",
-    "Expand": "Customer.Info,CurrencyCode,InvoiceReference,DefaultDimensions.Project,DefaultSeller.Seller",
+    "Expand": "Customer.Info,CurrencyCode,InvoiceReference,DefaultDimensions.Project,DefaultSeller",
     "OrderBy": "ID DESC",
     "Columns": [{
             "Header": "Fakturanr",
@@ -110,8 +110,8 @@
             "Type": "dontdisplay"
         }, {
             "Header": "Hovedselger",
-            "Field": "DefaultSeller.Seller.Name",
-            "DefaultHidden": true
+            "Field": "DefaultSeller.Name",
+            "DefaultHidden": false
         }, {
             "Header": "Purrestatus",
             "Field": "CustomerInvoice.CollectorStatusCode",
@@ -586,7 +586,7 @@
     "IsTopLevelTicker": true,
     "Group": "Salg",
     "Model": "CustomerQuote",
-    "Expand": "Customer.Info,CurrencyCode,DefaultSeller.Seller",
+    "Expand": "Customer.Info,CurrencyCode,DefaultSeller",
     "OrderBy": "ID DESC",
     "Columns": [{
             "Header": "Tilbudnr",
@@ -646,7 +646,7 @@
             "SumColumn": true
         }, {
             "Header": "Hovedselger",
-            "Field": "DefaultSeller.Seller.Name",
+            "Field": "DefaultSeller.Name",
             "DefaultHidden": true
         }, {
             "Header": "Status",
@@ -982,8 +982,8 @@
     "IsTopLevelTicker": true,
     "Group": "Salg",
     "Model": "CustomerOrder",
-    "Expand": "Customer.Info,CurrencyCode,DefaultSeller.Seller,Items",
-    "CountExpand": "Customer.Info,CurrencyCode,DefaultSeller.Seller",
+    "Expand": "Customer.Info,CurrencyCode,DefaultSeller,Items",
+    "CountExpand": "Customer.Info,CurrencyCode,DefaultSeller",
     "OrderBy": "ID DESC",
     "Columns": [{
             "Header": "Ordrenr",
@@ -1052,7 +1052,7 @@
             "DefaultHidden": true
         },{
             "Header": "Hovedselger",
-            "Field": "DefaultSeller.Seller.Name",
+            "Field": "DefaultSeller.Name",
             "DefaultHidden": true
         }, {
             "Header": "Status",

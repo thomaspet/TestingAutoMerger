@@ -167,8 +167,7 @@ export class InvoiceDetails {
         'PaymentTerms',
         'Sellers',
         'Sellers.Seller',
-        'DefaultSeller',
-        'DefaultSeller.Seller'
+        'DefaultSeller'
     ].concat(this.customerExpandOptions.map(option => 'Customer.' + option));
 
     private commentsConfig: ICommentsConfig;
@@ -981,7 +980,7 @@ export class InvoiceDetails {
                 this.currentPaymentTerm = invoice.PaymentTerms;
                 this.currentDeliveryTerm = invoice.DeliveryTerms;
 
-                invoice.DefaultSeller = invoice.DefaultSeller || new SellerLink();
+                invoice.DefaultSeller = invoice.DefaultSeller; //|| new SellerLink();
                 this.currentDefaultProjectID = invoice.DefaultDimensions.ProjectID;
 
                 this.currentInvoiceDate = invoice.InvoiceDate;
@@ -1206,22 +1205,15 @@ export class InvoiceDetails {
     private saveInvoice(done = (msg: string) => {}): Promise<any> {
         this.invoice.Items = this.tradeItemHelper.prepareItemsForSave(this.invoiceItems);
 
+        if (this.invoice.DefaultSeller && this.invoice.DefaultSeller.ID > 0) {
+            this.invoice.DefaultSellerID = this.invoice.DefaultSeller.ID;
+        }
+
         if (this.invoice.DefaultDimensions && !this.invoice.DefaultDimensions.ID) {
             this.invoice.DefaultDimensions._createguid = this.customerInvoiceService.getNewGuid();
         } else if (this.invoice.DefaultDimensions
             && this.invoice.DefaultDimensions.ProjectID === this.currentDefaultProjectID) {
                 this.invoice.DefaultDimensions = undefined;
-        }
-
-        // if main seller does not exist in 'Sellers', create and add it
-        if (this.invoice.DefaultSeller && this.invoice.DefaultSeller.SellerID
-            && !this.invoice.DefaultSeller._createguid && !this.invoice.Sellers.find(sellerLink =>
-                sellerLink.SellerID === this.invoice.DefaultSeller.SellerID
-            )) {
-            this.invoice.DefaultSeller._createguid = this.sellerLinkService.getNewGuid();
-            this.invoice.Sellers.push(this.invoice.DefaultSeller);
-        } else if (this.invoice.DefaultSeller && !this.invoice.DefaultSeller.SellerID) {
-            this.invoice.DefaultSeller = null;
         }
 
         // add deleted sellers back to 'Sellers' to delete with 'Deleted' property, was sliced locally/in view
