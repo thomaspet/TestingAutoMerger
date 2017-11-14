@@ -2,7 +2,13 @@ import {Component, ViewChild} from '@angular/core';
 import {Router} from '@angular/router';
 import {IToolbarConfig} from '../../common/toolbar/toolbar';
 import {UniFieldLayout, FieldType} from '../../../../framework/ui/uniform/index';
-import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig, INumberFormat} from '../../../../framework/ui/unitable/index';
+import {
+    UniTable,
+    UniTableColumn,
+    UniTableColumnType,
+    UniTableConfig,
+    INumberFormat
+} from '../../../../framework/ui/unitable/index';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {Observable} from 'rxjs/Observable';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
@@ -28,7 +34,7 @@ declare const _;
 })
 export class CurrencyExchange {
     @ViewChild(UniTable)
-    private table: UniTable;
+    public table: UniTable;
 
     private isBusy: boolean = true;
     private exchangeTable: UniTableConfig;
@@ -36,7 +42,7 @@ export class CurrencyExchange {
     private inthefuturetoast: number;
 
     private filter$: BehaviorSubject<any> = new BehaviorSubject({CurrencyDate: new LocalDate(), ShortCode: 'NOK'});
-    private config$: BehaviorSubject<any> = new BehaviorSubject({});
+    public config$: BehaviorSubject<any> = new BehaviorSubject({});
     private fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
 
     private toolbarconfig: IToolbarConfig = {
@@ -157,7 +163,10 @@ export class CurrencyExchange {
         this.updateToolbar();
         if (filter.CurrencyDate > new LocalDate()) {
             if (this.inthefuturetoast) { this.toastService.removeToast(this.inthefuturetoast); }
-            this.inthefuturetoast = this.toastService.addToast('Du har valgt en fremtidig dato', ToastType.warn, 5, 'Valutakurser som ikke er overstyrt vil være siste tilgjengelige kurs.');
+            this.inthefuturetoast = this.toastService.addToast(
+                'Du har valgt en fremtidig dato', ToastType.warn,
+                5, 'Valutakurser som ikke er overstyrt vil være siste tilgjengelige kurs.'
+            );
         } else if (this.inthefuturetoast) {
             this.toastService.removeToast(this.inthefuturetoast);
             this.inthefuturetoast = null;
@@ -215,7 +224,9 @@ export class CurrencyExchange {
             .setDisplayField('FromCurrencyCode.Code')
             .setWidth('60px')
             .setEditable(false);
-        let fromCurrencyShortCodeCol = new UniTableColumn('FromCurrencyCode.ShortCode', '$', UniTableColumnType.Lookup)
+        let fromCurrencyShortCodeCol = new UniTableColumn(
+            'FromCurrencyCode.ShortCode', '$', UniTableColumnType.Lookup
+        )
             .setDisplayField('FromCurrencyCode.ShortCode')
             .setWidth('30px')
             .setEditable(false);
@@ -233,7 +244,7 @@ export class CurrencyExchange {
             .setFilterable(false)
             .setEditable(false)
             .setSkipOnEnterKeyNavigation(true);
-            let currenyDateDownloadedCol = new UniTableColumn('CurrencyDate', 'Nedlastet', UniTableColumnType.Text)
+        let currenyDateDownloadedCol = new UniTableColumn('CurrencyDate', 'Nedlastet', UniTableColumnType.Text)
             .setEditable(false)
             .setFilterOperator('contains')
             .setWidth('50px');
@@ -241,8 +252,13 @@ export class CurrencyExchange {
         let contextMenu = {
             label: 'Overstyr',
             action: (line) => {
-                let exchangerate = this.numberFormat.asMoney(line.ExchangeRate * line.Factor, this.exchangerateUrlFormat);
-                this.router.navigateByUrl(`/currency/overrides;ExchangeRate=${exchangerate};Factor=${line.Factor};FromCurrencyCode=${line.FromCurrencyCode.Code}`);
+                let exchangerate = this.numberFormat.asMoney(
+                    line.ExchangeRate * line.Factor, this.exchangerateUrlFormat
+                );
+                this.router.navigateByUrl(
+                    `/currency/overrides;ExchangeRate=${exchangerate};`
+                    + `Factor=${line.Factor};FromCurrencyCode=${line.FromCurrencyCode.Code}`
+                );
             }
         };
 
@@ -253,6 +269,9 @@ export class CurrencyExchange {
             .setMultiRowSelect(false)
             .setAutoAddNewRow(false)
             .setContextMenu([contextMenu])
-            .setColumns([fromCurrencyCodeCol, fromCurrencyNameCol, fromCurrencyShortCodeCol, factorCol, exchangeRateCol, overridedCol]);
+            .setColumns([
+                fromCurrencyCodeCol, fromCurrencyNameCol, fromCurrencyShortCodeCol,
+                factorCol, exchangeRateCol, overridedCol, currenyDateDownloadedCol
+            ]);
     }
 }
