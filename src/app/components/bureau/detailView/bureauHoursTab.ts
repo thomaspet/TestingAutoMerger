@@ -25,7 +25,11 @@ const BASE = AppConfig.BASE_URL;
     <tr><th>Timeføring</th></tr>
     <tr>
         <td>Sum i {{accountingYear}} (Antall timeføringer)</td>
-        <td><a href="#" (click)="navigateToCompanyUrl('/timetracking/timeentry')">{{round(viewData[0].sum/60, 1)}} timer ({{viewData[0].counter}})</a></td>
+        <td>
+            <a href="#" (click)="navigateToCompanyUrl('/timetracking/timeentry')">
+                {{round(viewData[0].sum/60, 1)}} timer ({{viewData[0].counter}})
+            </a>
+        </td>
     </tr>
     <tr><td colspan="2"><hr/></td></tr>
     <tr><th>Fakturering</th></tr>
@@ -44,7 +48,7 @@ export class BureauHoursTab implements OnChanges {
 
     public accountingYear: number;
     public viewData: any[];
-    public round = UniMath.round;
+    public round: any = UniMath.round;
 
     constructor(
         private element: ElementRef,
@@ -73,7 +77,9 @@ export class BureauHoursTab implements OnChanges {
     public getNumberOfTimeTracings(): Observable<number> {
         const year = this.accountingYear;
         return this.customHttpService.get(
-            `${BASE}/api/statistics?model=workitem&select=sum(minutes) as sum,count(id) as counter&filter=(worktype.systemtype le 10 or worktype.systemtype eq 12) and year(date) eq ${year}&join=&expand=worktype&top=50`,
+            `${BASE}/api/statistics?model=workitem&select=sum(minutes) as sum,`
+                + `count(id) as counter&filter=(worktype.systemtype le 10 or worktype.systemtype eq 12) `
+                + `and year(date) eq ${year}&join=&expand=worktype&top=50`,
             this.company.Key
         )
             .map(this.customHttpService.singleStatisticsExtractor);
@@ -81,7 +87,10 @@ export class BureauHoursTab implements OnChanges {
 
     public getUnInvoicedHours(): Observable<string> {
         return this.customHttpService.get(
-            `${BASE}/api/statistics?model=workitem&select=sum(casewhen(minutestoorder eq 0\,minutes\,minutestoorder)) as SumMinutes&filter=(Invoiceable eq 1 or minutestoorder gt 0 or customerorderid gt 0) and transferedtoorder eq 0`,
+            `${BASE}/api/statistics?model=workitem`
+                + `&select=sum(casewhen(minutestoorder eq 0\,minutes\,minutestoorder)) as SumMinutes`
+                + `&filter=(Invoiceable eq 1 or minutestoorder gt 0 or customerorderid gt 0) `
+                + `and transferedtoorder eq 0`,
             this.company.Key
         )
             .map(this.customHttpService.singleStatisticsExtractor)
@@ -92,7 +101,10 @@ export class BureauHoursTab implements OnChanges {
     public getInvoicedHours() {
         const year = this.accountingYear;
         return this.customHttpService.get(
-            `${BASE}/api/statistics?model=workitem&select=sum(casewhen(minutestoorder eq 0\,minutes\,minutestoorder)) as SumMinutes&filter=(Invoiceable eq 1 or minutestoorder gt 0 or customerorderid gt 0) and transferedtoorder eq 1 and year(date) eq ${year}`,
+            `${BASE}/api/statistics?model=workitem`
+                + `&select=sum(casewhen(minutestoorder eq 0\,minutes\,minutestoorder)) as SumMinutes`
+                + `&filter=(Invoiceable eq 1 or minutestoorder gt 0 or customerorderid gt 0) `
+                + `and transferedtoorder eq 1 and year(date) eq ${year}`,
             this.company.Key
         )
             .map(this.customHttpService.singleStatisticsExtractor)

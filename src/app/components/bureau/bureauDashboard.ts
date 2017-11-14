@@ -147,11 +147,11 @@ export class BureauDashboard {
     }
 
     public getKpiCount(company, kpiName): string {
-        const kpi = company.Kpi.find(kpi => kpi.Name === kpiName);
+        const kpi = company.Kpi.find(k => k.Name === kpiName);
         if (kpi) {
             switch (kpi.ValueStatus) {
                 case KPI_STATUS.StatusReady:
-                    return kpi.Counter != 0 ? kpi.Counter : '';
+                    return kpi.Counter !== 0 ? kpi.Counter : '';
                 case KPI_STATUS.StatusError:
                     return 'Feil';
                 case KPI_STATUS.StatusInProgress:
@@ -177,7 +177,8 @@ export class BureauDashboard {
                 'Suksess',
                 ToastType.good,
                 ToastTime.medium,
-                `${companyName} blir nå laget, en mail vil bli sendt til ${user.Email} når du kan begynne å bruke det.`
+                `${companyName} blir nå laget, en mail vil bli sendt til `
+                    + `${user.Email} når du kan begynne å bruke det.`
             ));
     }
 

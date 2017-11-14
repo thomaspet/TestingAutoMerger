@@ -61,10 +61,10 @@ export const TABS = [
 export class BureauDetails {
     @Input() public company: KpiCompany;
 
-    public SALES = 'sales';
-    public ACCOUNTING = 'accounting';
-    public SALARY = 'salary';
-    public HOURS = 'hours';
+    public SALES: string = 'sales';
+    public ACCOUNTING: string = 'accounting';
+    public SALARY: string = 'salary';
+    public HOURS: string = 'hours';
 
     public activeTab: string = this.ACCOUNTING;
 

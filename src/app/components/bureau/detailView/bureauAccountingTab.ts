@@ -80,7 +80,9 @@ export class BureauAccountingTab implements OnChanges {
     public getNumberOfJournalEntryTransactions() {
         const year = this.accountingYear;
         return this.customHttpService.get(
-            `${BASE}/api/statistics?model=supplierinvoice&select=count(id)&filter=FinancialYear.Year eq ${year} and JournalEntry.JournalEntryNumber gt 0&join=&expand=journalentry,journalentry.financialyear`,
+            `${BASE}/api/statistics?model=supplierinvoice&select=count(id)`
+                + `&filter=FinancialYear.Year eq ${year} `
+                + `and JournalEntry.JournalEntryNumber gt 0&join=&expand=journalentry,journalentry.financialyear`,
             this.company.Key
         )
             .map(this.customHttpService.singleStatisticsExtractor)
@@ -90,7 +92,8 @@ export class BureauAccountingTab implements OnChanges {
     public getNumberOfJournalEntries() {
         const year = this.accountingYear;
         return this.customHttpService.get(
-            `${BASE}/api/statistics?model=journalentry&select=count(id)&filter=FinancialYear.Year eq ${year} and JournalEntryNumber gt 0&join=&expand=financialyear`,
+            `${BASE}/api/statistics?model=journalentry&select=count(id)`
+                + `&filter=FinancialYear.Year eq ${year} and JournalEntryNumber gt 0&join=&expand=financialyear`,
             this.company.Key
         )
             .map(this.customHttpService.singleStatisticsExtractor)

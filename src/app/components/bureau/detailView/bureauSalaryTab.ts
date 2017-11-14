@@ -76,7 +76,8 @@ export class BureauSalarTab implements OnChanges {
     public getLastPayroll(): Observable<string> {
         const year = this.yearService.getSavedYear();
         return this.customHttpService.get(
-            `${BASE}/api/statistics?model=payrollrun&select=id as id,description as name,paydate as paydate&filter=year(paydate) eq ${year}&orderby=paydate desc&top=1`,
+            `${BASE}/api/statistics?model=payrollrun&select=id as id,description as name,`
+            + `paydate as paydate&filter=year(paydate) eq ${year}&orderby=paydate desc&top=1`,
             this.company.Key
         )
             .map(this.customHttpService.statisticsExtractor)
@@ -86,7 +87,8 @@ export class BureauSalarTab implements OnChanges {
     public getPayrollPaymentDate(): Observable<string> {
         const year = this.yearService.getSavedYear();
         return this.customHttpService.get(
-            `${BASE}/api/statistics?model=payrollrun&select=paydate as paydate&filter=year(paydate) eq ${year}&orderby=paydate desc&top=1`,
+            `${BASE}/api/statistics?model=payrollrun&select=paydate as paydate`
+            + `&filter=year(paydate) eq ${year}&orderby=paydate desc&top=1`,
             this.company.Key
         )
             .map(this.customHttpService.statisticsExtractor)
@@ -96,7 +98,8 @@ export class BureauSalarTab implements OnChanges {
     public getLastPeriodOfAMelding() {
         const year = this.yearService.getSavedYear();
         return this.customHttpService.get(
-            `${BASE}/api/statistics?model=ameldingdata&select=period as period,sent as sent,year as year&filter=year eq ${year}&orderby=period desc,sent desc&top=1`,
+            `${BASE}/api/statistics?model=ameldingdata&select=period as period,sent as sent,year as year`
+            + `&filter=year eq ${year}&orderby=period desc,sent desc&top=1`,
             this.company.Key
         )
             .map(this.customHttpService.statisticsExtractor)
