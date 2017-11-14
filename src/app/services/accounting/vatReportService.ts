@@ -96,6 +96,24 @@ export class VatReportService extends BizHttp<VatReport> {
             .map(response => response.json());
     }
 
+
+    public getSigningText(vatReportId: number, authenticationData: AltinnAuthenticationData): Observable<any> {
+        const headers = {
+            'x-altinn-userid': authenticationData.userID,
+            'x-altinn-password': authenticationData.password,
+            'x-altinn-pinmethod': authenticationData.preferredLogin,
+            'x-altinn-pin': authenticationData.pin
+        };
+
+        return this.http
+            .asPOST()
+            .usingBusinessDomain()
+            .withHeaders(headers)
+            .withEndPoint(this.relativeURL + `?action=get-signing-text-altinn&vatReportID=${vatReportId}`)
+            .send()
+            .map(response => response.json());
+    }
+
     public signReport(vatReportId: number, authenticationData: AltinnAuthenticationData): Observable<AltinnSigning> {
         const headers = {
             'x-altinn-userid': authenticationData.userID,

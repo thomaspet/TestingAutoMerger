@@ -22,7 +22,7 @@ enum LoginState {
             <header>
                 <h1>{{atLogin ? "Personlig pålogging Altinn" : "Resultat"}}</h1>
             </header>
-            <p [innerHTML]="userMessage"></p>
+            <p [innerHTML]="userMessage" class="altinn-user-message"></p>
             <div *ngIf="formState === LOGIN_STATE_ENUM.UsernameAndPasswordAndPinType" [attr.aria-busy]="busy">
                 <article>
                     <uni-form
@@ -32,7 +32,7 @@ enum LoginState {
                     ></uni-form>
                 </article>
                 <footer>
-                    <button (click)="submitUsernameAndPasswordAndPinType()">OK</button>
+                    <button (click)="submitUsernameAndPasswordAndPinType()" class="good">OK</button>
                     <button (click)="close()">Avbryt</button>
                 </footer>
             </div>
@@ -45,8 +45,8 @@ enum LoginState {
                     ></uni-form>
                 </article>
                 <footer>
-                    <button (click)="close()">Avbryt</button>
                     <button (click)="submitPin()" class="good">OK</button>
+                    <button (click)="close()">Avbryt</button>
                 </footer>
             </div>
             <div *ngIf="formState === LOGIN_STATE_ENUM.LoggedIn" [attr.aria-busy]="busy">

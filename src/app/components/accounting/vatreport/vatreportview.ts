@@ -10,7 +10,7 @@ import {
 import {Observable} from 'rxjs/Observable';
 import {Subscription} from 'rxjs/Subscription';
 import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
-import {UniModalService} from '../../../../framework/uniModal/barrel';
+import {UniModalService, UniConfirmModalV2, ConfirmActions} from '../../../../framework/uniModal/barrel';
 import {CreateCorrectedVatReportModal} from './modals/createCorrectedVatReport';
 import {HistoricVatReportModal} from './modals/historicVatReports';
 import {IContextMenuItem} from '../../../../framework/ui/unitable/index';
@@ -470,36 +470,51 @@ export class VatReportView implements OnInit, OnDestroy {
             .onClose
             .filter(auth => !!auth)
             .do(auth => authData = auth)
-            .switchMap(() => this.vatReportService.signReport(this.currentVatReport.ID, authData))
-            .subscribe((signing: AltinnSigning) => {
-                if (signing.StatusCode === StatusCodeAltinnSigning.Failed) {
-                    // error occured while signing - not technical error
-                    this.toastService.addToast('Feil oppsto', ToastType.bad, 0, signing.StatusText);
-                    done('Feil ved signering');
-                } else {
-                    this.vatReportService.Get(
-                        this.currentVatReport.ID,
-                        ['TerminPeriod', 'JournalEntry', 'VatReportArchivedSummary']
-                    )
-                        .subscribe(vatreport => {
-                            this.setVatreport(vatreport);
-                            this.showView = 'receipt';
+            .switchMap(() => this.vatReportService.getSigningText(this.currentVatReport.ID, authData))
+            .subscribe(text => {
+                this.modalService.open(UniConfirmModalV2, {
+                    header: 'Vennligst bekreft',
+                    message: text.SigningText,
+                    buttonLabels: {
+                        accept: 'Bekreft',
+                        cancel: 'Avbryt'
+                    }
+                }).onClose.subscribe(response => {
+                    if (response === ConfirmActions.ACCEPT) {
+                        this.vatReportService.signReport(this.currentVatReport.ID, authData)
+                            .subscribe((signing: AltinnSigning) => {
+                                if (signing.StatusCode === StatusCodeAltinnSigning.Failed) {
+                                    // error occured while signing - not technical error
+                                    this.toastService.addToast('Feil oppsto', ToastType.bad, 0, signing.StatusText);
+                                    done('Feil ved signering');
+                                } else {
+                                    this.vatReportService.Get(
+                                        this.currentVatReport.ID,
+                                        ['TerminPeriod', 'JournalEntry', 'VatReportArchivedSummary'])
+                                        .subscribe(vatreport => {
+                                            this.setVatreport(vatreport);
+                                            this.showView = 'receipt';
 
-                            this.toastService.addToast('Signert OK', ToastType.good);
-                            done('Signert OK');
+                                            this.toastService.addToast('Signert OK', ToastType.good);
+                                            done('Signert OK');
 
-                            // check for receipt, this should be ready now
-                            // - but use setTimeout to allow angular to switch views first
-                            setTimeout(() => {
-                                this.receiptVat.checkForReceipt();
+                                            // check for receipt, this should be ready now, but
+                                            // use setTimeout to allow angular to switch views first
+                                            setTimeout(() => {
+                                                this.receiptVat.checkForReceipt();
+                                            });
+                                        },
+                                        err => {
+                                            this.errorService.handle(err);
+                                            done('Det skjedde en feil, forsøk igjen senere');
+                                        }
+                                    );
+                                }
                             });
-                        },
-                        err => {
-                            this.errorService.handle(err);
-                            done('Det skjedde en feil, forsøk igjen senere');
-                        }
-                        );
-                }
+                    } else {
+                        done('Signering avbrutt');
+                    }
+                });
             },
             err => {
                 // something is not working with the altinnauthentication it seems, clear the pincode to make
