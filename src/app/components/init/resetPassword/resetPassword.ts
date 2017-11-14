@@ -88,7 +88,7 @@ export class ResetPassword {
             );
     }
 
-    private resetPassword() {
+    public resetPassword() {
         this.busy = true;
         this.errorMessage = '';
         this.successMessage = '';

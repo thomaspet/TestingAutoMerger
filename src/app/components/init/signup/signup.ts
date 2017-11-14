@@ -63,7 +63,8 @@ export class Signup {
             .subscribe(
                 res => {
                     this.busy = false;
-                    this.successMessage = 'Vi vil nå verifisere eposten din. Vennligst sjekk innboks for videre informasjon.';
+                    this.successMessage = 'Vi vil nå verifisere eposten din. '
+                        + 'Vennligst sjekk innboks for videre informasjon.';
                 },
                 err => {
                     this.busy = false;
@@ -77,7 +78,8 @@ export class Signup {
                     } catch (e) {}
 
                     if (!this.errorMessage) {
-                        this.errorMessage = 'Noe gikk galt under verifisering. Vennligst sjekk detaljer og prøv igjen.';
+                        this.errorMessage = 'Noe gikk galt under verifisering. '
+                            + 'Vennligst sjekk detaljer og prøv igjen.';
                     }
                 }
             );
@@ -101,7 +103,8 @@ export class Signup {
             .send()
             .subscribe(
                 res => {
-                    this.successMessage = 'Vi setter nå opp selskapet ditt. En epost blir automatisk sendt ut når kontoen er klar for bruk.'
+                    this.successMessage = 'Vi setter nå opp selskapet ditt. '
+                        + 'En epost blir automatisk sendt ut når kontoen er klar for bruk.';
                     this.busy = false;
                 },
                 err => {

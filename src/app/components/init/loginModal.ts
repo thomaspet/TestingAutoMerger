@@ -56,7 +56,7 @@ export class LoginModal implements IUniModal {
         this.formFields$.next(this.getFormFields());
     }
 
-    private authenticate() {
+    public authenticate() {
         const authDetails = this.formModel$.getValue();
         if (!authDetails.username || !authDetails.password) {
             return;
