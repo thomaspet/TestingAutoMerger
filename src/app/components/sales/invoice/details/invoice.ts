@@ -72,6 +72,7 @@ import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService
 
 import {TofHead} from '../../common/tofHead';
 import {TradeItemTable} from '../../common/tradeItemTable';
+import {UniTofSelectModal} from '../../common/tofSelectModal';
 
 import {StatusCode} from '../../salesHelper/salesEnums';
 import {TofHelper} from '../../salesHelper/tofHelper';
@@ -228,6 +229,7 @@ export class InvoiceDetails {
             this.invoiceID = +params['id'];
             const customerID = +params['customerID'];
             const projectID = +params['projectID'];
+            const hasCopyParam = params['copy'];
 
             this.commentsConfig = {
                 entityType: 'CustomerInvoice',
@@ -344,7 +346,11 @@ export class InvoiceDetails {
                     }
                     invoice.DefaultDimensions.Project = this.projects.find(project => project.ID === this.projectID);
 
-                    this.refreshInvoice(invoice);
+                    if (hasCopyParam) {
+                        this.refreshInvoice(this.copyInvoice(invoice));
+                    } else {
+                        this.refreshInvoice(invoice);
+                    }
                     this.tofHead.focus();
                 }, err => this.errorService.handle(err));
             }
@@ -985,8 +991,8 @@ export class InvoiceDetails {
                 this.recalcDebouncer.next(invoice.Items);
                 this.updateTabTitle();
                 this.updateToolbar();
+                this.updateSaveActions();
                 this.ehfReadyUpdateSaveActions();
-
 
                 resolve(true);
             });
@@ -1153,6 +1159,18 @@ export class InvoiceDetails {
         });
 
         this.saveActions.push({
+            label: 'Ny basert på',
+            action: (done) => {
+                this.newBasedOn().then(res => {
+                    done('Faktura kopiert');
+                }).catch(error => {
+                    done(error);
+                });
+            },
+            disabled: false
+        });
+
+        this.saveActions.push({
             label: 'Send EHF',
             action: (done) => this.sendEHFAction(done),
             disabled: status < StatusCodeCustomerInvoice.Invoiced,
@@ -1267,6 +1285,64 @@ export class InvoiceDetails {
             this.errorService.handle(err);
             done('Lagring feilet');
         });
+    }
+
+    private newBasedOn(): Promise<any> {
+        return new Promise((resolve, reject) => {
+            if (this.invoice.ID) {
+                this.router.navigateByUrl('sales/invoices/' + this.invoice.ID + ';copy=true');
+                resolve(true);
+            } else {
+                let config = {
+                    service: this.customerInvoiceService,
+                    moduleName: 'Invoice',
+                    label: 'Fakturanr'
+                };
+
+                this.modalService.open(UniTofSelectModal, { data: config }).onClose.subscribe((id: number) => {
+                    if (id) {
+                        resolve(id);
+                        this.router.navigateByUrl('sales/invoices/' + id + ';copy=true');
+                    } else {
+                        reject('Kopiering avbrutt');
+                    }
+
+                });
+            }
+        });
+    }
+
+    private copyInvoice(invoice: CustomerInvoice): CustomerInvoice {
+        invoice.ID = 0;
+        invoice.InvoiceNumber = null;
+        invoice.InvoiceNumberSeriesID = null;
+        invoice.StatusCode = null;
+        invoice.PrintStatus = null;
+        invoice.DontSendReminders = false;
+        invoice.InvoiceDate = new LocalDate();
+        invoice.JournalEntry = null;
+        invoice.JournalEntryID = null;
+        invoice.Payment = null;
+        invoice.PaymentID = null;
+        if (!invoice.PaymentTerms && !invoice.PaymentDueDate) {
+            invoice.PaymentDueDate = new LocalDate(
+                moment(invoice.InvoiceDate).add(this.companySettings.CustomerCreditDays, 'days').toDate()
+            );
+        } else if (!invoice.PaymentDueDate) {
+            this.setPaymentDueDate(invoice);
+        }
+        invoice.InvoiceReferenceID = null;
+        invoice.Comment = null;
+        delete invoice['_links'];
+
+        invoice.Items = invoice.Items.map((item: CustomerInvoiceItem) => {
+            item.CustomerInvoiceID = 0;
+            item.ID = 0;
+            item.StatusCode = null;
+            return item;
+        });
+
+        return invoice;
     }
 
     private transition(done: any) {

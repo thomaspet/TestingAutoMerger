@@ -63,6 +63,7 @@ import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService
 
 import {TofHead} from '../../common/tofHead';
 import {TradeItemTable} from '../../common/tradeItemTable';
+import {UniTofSelectModal} from '../../common/tofSelectModal';
 
 import {StatusCode} from '../../salesHelper/salesEnums';
 import {TofHelper} from '../../salesHelper/tofHelper';
@@ -208,6 +209,7 @@ export class QuoteDetails {
             this.quoteID = +params['id'];
             const customerID = +params['customerID'];
             const projectID = +params['projectID'];
+            const hasCopyParam = params['copy'];
 
             this.commentsConfig = {
                 entityType: 'CustomerQuote',
@@ -245,7 +247,11 @@ export class QuoteDetails {
                     }
                     quote.DefaultDimensions.Project = this.projects.find(project => project.ID === this.projectID);
 
-                    this.refreshQuote(quote);
+                    if (hasCopyParam) {
+                        this.refreshQuote(this.copyQuote(quote));
+                    } else {
+                        this.refreshQuote(quote);
+                    }
                 });
             } else {
                 Observable.forkJoin(
@@ -634,6 +640,50 @@ export class QuoteDetails {
         }
     }
 
+    private newBasedOn(): Promise<any> {
+        return new Promise((resolve, reject) => {
+            if (this.quote.ID) {
+                resolve(true);
+                this.router.navigateByUrl('sales/quotes/' + this.quote.ID + ';copy=true');
+            } else {
+                let config = {
+                    service: this.customerQuoteService,
+                    moduleName: 'Quote',
+                    label: 'Tilbudsnr'
+                };
+
+                this.modalService.open(UniTofSelectModal, { data: config }).onClose.subscribe((id: number) => {
+                    if (id) {
+                        resolve(id);
+                        this.router.navigateByUrl('sales/quotes/' + id + ';copy=true');
+                    } else {
+                        reject('Kopiering avbrutt');
+                    }
+
+                });
+            }
+        });
+    }
+
+    private copyQuote(quote: CustomerQuote): CustomerQuote {
+        quote.ID = 0;
+        quote.QuoteNumber = null;
+        quote.QuoteNumberNumberSeries = null;
+        quote.StatusCode = null;
+        quote.PrintStatus = null;
+        quote.Comment = null;
+        delete quote['_links'];
+
+        quote.Items = quote.Items.map((item: CustomerQuoteItem) => {
+            item.CustomerQuoteID = 0;
+            item.ID = 0;
+            item.StatusCode = null;
+            return item;
+        });
+
+        return quote;
+    }
+
     private recalcPriceAndSumsBasedOnSetPrices(item, newCurrencyRate) {
         item.PriceExVat = this.tradeItemHelper.round(item.PriceExVatCurrency * newCurrencyRate, 4);
 
@@ -932,6 +982,19 @@ export class QuoteDetails {
             disabled: !transitions || !transitions['toInvoice']
 
         });
+
+        this.saveActions.push({
+            label: 'Ny basert på',
+            action: (done) => {
+                this.newBasedOn().then(res => {
+                    done('Tilbud kopiert');
+                }).catch(error => {
+                    done(error);
+                });
+            },
+            disabled: false
+        });
+
         this.saveActions.push({
             label: 'Avslutt tilbud',
             action: (done) => this.saveQuoteTransition(done, 'complete', 'Tilbud avsluttet'),

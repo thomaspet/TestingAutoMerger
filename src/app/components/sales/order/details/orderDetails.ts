@@ -63,6 +63,7 @@ import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService
 
 import {TofHead} from '../../common/tofHead';
 import {TradeItemTable} from '../../common/tradeItemTable';
+import {UniTofSelectModal} from '../../common/tofSelectModal';
 
 import {StatusCode} from '../../salesHelper/salesEnums';
 import {TofHelper} from '../../salesHelper/tofHelper';
@@ -213,6 +214,7 @@ export class OrderDetails {
             this.orderID = +params['id'];
             const customerID = +params['customerID'];
             const projectID = +params['projectID'];
+            const hasCopyParam = params['copy'];
 
             this.commentsConfig = {
                 entityType: 'CustomerOrder',
@@ -250,7 +252,12 @@ export class OrderDetails {
                     }
                     order.DefaultDimensions.Project = this.projects.find(project => project.ID === this.projectID);
 
-                    this.refreshOrder(order);
+                    if (hasCopyParam) {
+                        this.refreshOrder(this.copyOrder(order));
+                    } else {
+                        this.refreshOrder(order);
+                    }
+
                     this.tofHead.focus();
                 },
                     err => this.errorService.handle(err));
@@ -933,6 +940,18 @@ export class OrderDetails {
         });
 
         this.saveActions.push({
+            label: 'Ny basert på',
+            action: (done) => {
+                this.newBasedOn().then(res => {
+                    done('Ordre kopiert');
+                }).catch(error => {
+                    done(error);
+                });
+            },
+            disabled: false
+        });
+
+        this.saveActions.push({
             label: 'Lagre og overfør til faktura',
             action: (done) => this.saveAndTransferToInvoice(done),
             disabled: !transitions || !transitions['transferToInvoice']
@@ -961,6 +980,50 @@ export class OrderDetails {
             .calculateTradeItemSummaryLocal(orderItems, this.companySettings.RoundingNumberOfDecimals);
         this.updateToolbar();
         this.setSums();
+    }
+
+    private newBasedOn(): Promise<any> {
+        return new Promise((resolve, reject) => {
+            if (this.order.ID) {
+                resolve(true);
+                this.router.navigateByUrl('sales/orders/' + this.order.ID + ';copy=true');
+            } else {
+                let config = {
+                    service: this.customerOrderService,
+                    moduleName: 'Order',
+                    label: 'Ordrenr'
+                };
+
+                this.modalService.open(UniTofSelectModal, { data: config }).onClose.subscribe((id: number) => {
+                    if (id) {
+                        resolve(id);
+                        this.router.navigateByUrl('sales/orders/' + id + ';copy=true');
+                    } else {
+                        reject('Kopiering avbrutt');
+                    }
+
+                });
+            }
+        });
+    }
+
+    private copyOrder(order: CustomerOrder): CustomerOrder {
+        order.ID = 0;
+        order.OrderNumber = null;
+        order.OrderNumberSeriesID = null;
+        order.StatusCode = null;
+        order.PrintStatus = null;
+        order.Comment = null;
+        delete order['_links'];
+
+        order.Items = order.Items.map((item: CustomerOrderItem) => {
+            item.CustomerOrderID = 0;
+            item.ID = 0;
+            item.StatusCode = null;
+            return item;
+        });
+
+        return order;
     }
 
     private saveOrder(): Promise<CustomerOrder> {
