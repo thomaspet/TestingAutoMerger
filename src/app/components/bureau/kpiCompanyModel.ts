@@ -23,4 +23,4 @@ export type KpiCompany = {
         ValueStatus: KPI_STATUS;
         LastUpdated: LocalDate;
     }[]
-}
+};
