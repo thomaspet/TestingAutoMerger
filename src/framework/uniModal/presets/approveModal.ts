@@ -127,7 +127,7 @@ export class UniApproveModal implements IUniModal {
                         if (approval) {
                             this.myApproval = approval;
                             this.canReject = true;
-                            if (isAdmin) { this.canApprove = true; }
+                            this.canApprove = true;
                         }
                     } else {
                         let approval: Approval = approvals.find(x => x.UserID === this.myUser.ID && x.StatusCode === ApprovalStatus.Active);
