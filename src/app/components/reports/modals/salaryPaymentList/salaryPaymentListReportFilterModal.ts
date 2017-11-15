@@ -16,7 +16,7 @@ import {
 type ModalConfig = {
     report: any,
     title: string,
-    actions: { text: string, class?: string, method: (any) => void }[]
+    actions: { text: string, class?: string, method: (a: any) => void }[]
 };
 
 @Component({
