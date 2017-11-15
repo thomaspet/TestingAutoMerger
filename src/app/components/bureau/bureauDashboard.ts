@@ -184,14 +184,15 @@ export class BureauDashboard {
 
     private createCompany(name: string, email: string) {
         return this.uniHttp
-            .usingInitDomain()
             .asPOST()
-            .withEndPoint('sign-up')
-            .withBody({
-                CompanyName: name,
-                Email: email
-            })
-            .send();
+            .withEndPoint('companies?action=create-company')
+            .withBody(name)
+            .send().subscribe((response:Response)=>{
+                let company = response.json();
+                if(company){
+                    this.companies.push(<any>company);
+                }
+            });
     }
 
     public sortBy(key, toggleDirection?: boolean) {
