@@ -1,6 +1,6 @@
 ﻿import {Component, ViewChild} from '@angular/core';
 import {View} from '../../../models/view/view';
-import {createFormField, FieldSize, ControlTypes} from '../../common/utils/utils';
+import {createFormField, ControlTypes} from '../../common/utils/utils';
 import {IViewConfig} from '../genericview/list';
 import {WorkProfile} from '../../../unientities';
 import {GenericDetailview} from '../genericview/detail';
@@ -39,8 +39,12 @@ export class WorkprofileDetailview {
             },
             formFields: [
                 createFormField('Name', 'Navn',  ControlTypes.TextInput, undefined, undefined, 1, 'Stillingsmal'),
-                createFormField('MinutesPerWeek', 'Minutter pr. uke', ControlTypes.NumericInput, 0, false, 1, 'Stillingsmal'),
-                createFormField('LunchIncluded', 'Inkludert lunsj', ControlTypes.CheckboxInput, 0, false, 1, 'Stillingsmal')
+                createFormField(
+                    'MinutesPerWeek', 'Minutter pr. uke', ControlTypes.NumericInput, 0, false, 1, 'Stillingsmal'
+                ),
+                createFormField(
+                    'LunchIncluded', 'Inkludert lunsj', ControlTypes.CheckboxInput, 0, false, 1, 'Stillingsmal'
+                )
             ],
         };
 

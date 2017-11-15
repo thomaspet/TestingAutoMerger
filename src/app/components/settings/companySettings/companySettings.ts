@@ -75,7 +75,7 @@ export class CompanySettingsComponent implements OnInit {
     @ViewChild(ReminderSettings)
     public reminderSettings: ReminderSettings;
 
-    private defaultExpands: any = [
+    public defaultExpands: any = [
         'DefaultAddress',
         'DefaultEmail',
         'DefaultPhone',
@@ -104,9 +104,9 @@ export class CompanySettingsComponent implements OnInit {
     public showReminderSection: boolean = false;
     public imageUploadOptions: IUploadConfig;
 
-    private addressChanged: any;
-    private emailChanged: any;
-    private phoneChanged: any;
+    public addressChanged: any;
+    public emailChanged: any;
+    public phoneChanged: any;
     public emptyPhone: Phone;
     public emptyEmail: Email;
     public emptyAddress: Address;
@@ -126,7 +126,7 @@ export class CompanySettingsComponent implements OnInit {
         disabled: false
     }];
 
-    private roundingTypes: {ID: number, Label: string}[] = [
+    public roundingTypes: {ID: number, Label: string}[] = [
         {ID: 0, Label: 'Opp'},
     //    {ID: 1, Label: 'Ned'},
     //    {ID: 2, Label: 'Hele'},
@@ -265,7 +265,7 @@ export class CompanySettingsComponent implements OnInit {
         return companySettings;
     }
 
-    private addSearchInfo(searchInfo: SearchResultItem) {
+    public addSearchInfo(searchInfo: SearchResultItem) {
         let company = this.company$.getValue();
 
         company.OrganizationNumber = searchInfo.orgnr;
@@ -488,7 +488,7 @@ export class CompanySettingsComponent implements OnInit {
             }, err => this.errorService.handle(err));
     }
 
-    private updateMunicipalityName() {
+    public updateMunicipalityName() {
         let company = this.company$.getValue();
         this.municipalService.GetAll(`filter=MunicipalityNo eq '${company.OfficeMunicipalityNo}'`)
             .subscribe((data) => {

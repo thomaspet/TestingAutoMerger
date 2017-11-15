@@ -7,7 +7,7 @@ import {
 import {Observable} from 'rxjs/Observable';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {UniFieldLayout, FieldType} from '../../../../../framework/ui/uniform/index';
-import {SubEntity, Grant, PayrollRun, SubEntityAgaSums, FreeAmountSummary, AGASums} from './../../../../unientities';
+import {FreeAmountSummary, AGASums} from './../../../../unientities';
 interface IFreeAmountData {
     name?: string;
     grant?: number;

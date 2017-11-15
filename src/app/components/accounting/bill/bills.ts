@@ -105,7 +105,7 @@ export class BillsView {
         {
             label: 'Innboks',
             name: 'Inbox',
-            route: 'filetags/IncomingMail|IncomingEHF/0',
+            route: 'filetags/IncomingMail|IncomingEHF/0?action=get-supplierInvoice-inbox',
             onDataReady: (data) => this.onInboxDataReady(data),
             isSelected: true,
             hotCounter: true

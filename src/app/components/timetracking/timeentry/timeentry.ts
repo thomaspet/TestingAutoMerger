@@ -2,7 +2,7 @@
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {View} from '../../../models/view/view';
 import {WorkRelation, WorkItem, Worker, WorkBalance, LocalDate} from '../../../unientities';
-import {WorkerService, IFilter, ItemInterval, IFilterInterval} from '../../../services/timetracking/workerService';
+import {WorkerService, IFilter, IFilterInterval} from '../../../services/timetracking/workerService';
 import { exportToFile, arrayToCsv, safeInt, trimLength, parseTime } from '../../common/utils/utils';
 import { TimesheetService, TimeSheet, ValueItem } from '../../../services/timetracking/timesheetService';
 import {IsoTimePipe} from '../../common/utils/pipes';
@@ -188,7 +188,7 @@ export class TimeEntry {
         });
     }
 
-    private onDateSelected(event) {
+    public onDateSelected(event) {
         this.checkSave().then(() => {
             if (event.date) {
                 this.currentDate = event.date;
@@ -202,8 +202,9 @@ export class TimeEntry {
                     toDate = event.date;
                     fromDate = event.firstDate;
                 }
-                //this.currentFilter.isSelected = false;
-                this.currentFilter.bigLabel = moment(fromDate).format('DD.MM.YYYY') + '  -  ' + moment(toDate).format('DD.MM.YYYY');
+                // this.currentFilter.isSelected = false;
+                this.currentFilter.bigLabel = moment(fromDate).format('DD.MM.YYYY')
+                    + '  -  ' + moment(toDate).format('DD.MM.YYYY');
                 this.customDateSelected = new Date(fromDate);
                 this.loadItems(fromDate, toDate);
                 this.showProgress(fromDate, toDate);
@@ -234,14 +235,16 @@ export class TimeEntry {
             return;
         } else {
             endpoint = 'workrelations/' + this.workRelations[0].ID + '?action=timesheet&fromdate='
-                + moment().year(event.year()).month(event.month()).startOf('month').startOf('week').format().slice(0, 10)
-                + '&todate=' + moment().year(event.year()).month(event.month()).endOf('month').add(1, 'week').endOf('week').format().slice(0, 10);
+                + moment().year(event.year()).month(event.month())
+                    .startOf('month').startOf('week').format().slice(0, 10)
+                + '&todate=' + moment().year(event.year()).month(event.month())
+                    .endOf('month').add(1, 'week').endOf('week').format().slice(0, 10);
         }
 
 
         this.getProgressData(endpoint).subscribe((data: any) => {
             this.prepFlexData(data);
-        })
+        });
     }
 
     public onTemplateSelected(event: ITemplate) {
@@ -253,7 +256,7 @@ export class TimeEntry {
                     value: item.Project,
                     isParsed: false,
                     rowIndex: this.timeSheet.items.length - 1
-                }
+                };
                 this.timeSheet.setItemValue(value);
             }
         });
@@ -286,7 +289,7 @@ export class TimeEntry {
         return workItem;
     }
 
-    private refresh() {
+    public refresh() {
         this.changeDetectorRef.markForCheck();
     }
 
@@ -388,7 +391,7 @@ export class TimeEntry {
 
         this.getProgressData(endpoint).subscribe((data: any) => {
             this.prepFlexData(data);
-        })
+        });
     }
 
     private updateToolbar(name?: string, workRelations?: Array<WorkRelation>) {
@@ -437,7 +440,9 @@ export class TimeEntry {
                 dt = date;
             } else {
                 obs = this.timeSheet.loadItems(this.currentFilter.interval, this.currentDate);
-                dt = this.timesheetService.workerService.getFilterIntervalDate(this.currentFilter.interval, this.currentDate);
+                dt = this.timesheetService.workerService.getFilterIntervalDate(
+                    this.currentFilter.interval, this.currentDate
+                );
             }
             obs.subscribe((itemCount: number) => {
                 if (this.workEditor) { this.workEditor.closeEditor(); }
@@ -486,7 +491,7 @@ export class TimeEntry {
         }
 
         for (let i = 0; i <= 5; i++) {
-            flexWeeks.push(flexDays.splice(0, 7))
+            flexWeeks.push(flexDays.splice(0, 7));
         }
 
         this.sideMenu.calendarConfig.dailyProgress = flexWeeks;
@@ -593,7 +598,7 @@ export class TimeEntry {
     //     });
     // }
 
-    private saveSettings() {
+    public saveSettings() {
         this.localStore.save('timeentry.settings', JSON.stringify(this.settings), false );
     }
 
@@ -744,7 +749,7 @@ export class TimeEntry {
             this.currentFilter = filter;
             this.busy = true;
             this.sideMenu.calendar.onFilterChange(this.currentFilter);
-            //If customer date is selected, use this to show filter
+            // If customer date is selected, use this to show filter
             this.loadItems();
             this.customDateSelected = null;
             this.showProgress();
@@ -755,20 +760,22 @@ export class TimeEntry {
         let endpoint = 'workrelations/' + this.workRelations[0].ID + '?action=timesheet&fromdate=';
 
         if (toDate) {
-            endpoint += moment(new Date(date)).format().slice(0, 10) + '&todate=' + moment(new Date(toDate)).format().slice(0, 10);
+            endpoint += moment(new Date(date)).format().slice(0, 10)
+                + '&todate=' + moment(new Date(toDate)).format().slice(0, 10);
         } else if (date) {
-            endpoint += moment(new Date(date)).format().slice(0, 10) + '&todate=' + moment(new Date(date)).format().slice(0, 10);
+            endpoint += moment(new Date(date)).format().slice(0, 10)
+                + '&todate=' + moment(new Date(date)).format().slice(0, 10);
         } else {
             switch (this.currentFilter.interval) {
                 case IFilterInterval.day:
-                    endpoint += moment(this.currentDate).format().slice(0, 10) + '&todate=' + moment(this.currentDate).format().slice(0, 10);;
+                    endpoint += moment(this.currentDate).format().slice(0, 10)
+                        + '&todate=' + moment(this.currentDate).format().slice(0, 10);
                     break;
                 case IFilterInterval.week:
                     endpoint += moment(this.currentDate).startOf('week').format().slice(0, 10)
                         + '&todate=' + moment(this.currentDate).endOf('week').format().slice(0, 10);
                     break;
                 case IFilterInterval.twoweeks:
-                    let diff = new Date().getDay() - 1;
                     endpoint += moment(this.currentDate).subtract(1, 'week').startOf('week').format().slice(0, 10)
                         + '&todate=' + moment(this.currentDate).endOf('week').format().slice(0, 10);
                     break;
@@ -793,11 +800,11 @@ export class TimeEntry {
         let totalTime = 0;
 
         this.getProgressData(endpoint).subscribe((data) => {
-            //Loop data and sum up expected time and total time worked
+            // Loop data and sum up expected time and total time worked
             data.Items.forEach((item) => {
                 expectedTime += item.ExpectedTime;
                 totalTime += item.TotalTime;
-            })
+            });
             this.workedToday = totalTime + ' timer';
 
             // Find percentage of hours worked (Max 100)

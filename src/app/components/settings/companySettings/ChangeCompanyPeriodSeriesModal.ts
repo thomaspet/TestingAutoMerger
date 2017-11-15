@@ -1,13 +1,11 @@
-import {Component, Type, OnInit, Input, Output, ViewChild, EventEmitter, OnChanges, SimpleChange} from '@angular/core';
-import {UniModal} from '../../../../framework/modals/modal';
+import {
+    Component, OnInit, Input, Output, EventEmitter
+} from '@angular/core';
 import {Observable} from 'rxjs/Observable';
-import {UniForm} from '../../../../framework/ui/uniform/index';
-import {Period, PeriodSeries, CompanySettings} from '../../../unientities';
-import {BehaviorSubject} from 'rxjs/BehaviorSubject';
-import {UniSelect, ISelectConfig } from '../../../../framework/ui/uniform/index';
+import {PeriodSeries, CompanySettings} from '../../../unientities';
+import {ISelectConfig} from '../../../../framework/ui/uniform/index';
 import {CompanySettingsService, ErrorService} from '../../../services/services';
-import {UniSearchCustomerConfig} from '../../../services/common/uniSearchConfig/uniSearchCustomerConfig';
-import {IUniModal, IModalOptions, ConfirmActions} from '../../../../framework/uniModal/modalService';
+import {IUniModal, IModalOptions} from '../../../../framework/uniModal/modalService';
 import {PeriodSeriesService, FinancialYearService} from '../../../services/services';
 
 declare const _; // lodash
@@ -23,9 +21,13 @@ declare const _; // lodash
         <article class="change-companysettings-periodseries-form">
 
             <span>
-                Endringer i periodeoppsett kan ha omfattende konsekvenser i regnskapet. Alle bilag som faller inn under endringene vil bli endret til å peke mot de nye periodene som opprettes.
+                Endringer i periodeoppsett kan ha omfattende konsekvenser i regnskapet.
+                Alle bilag som faller inn under endringene vil bli
+                endret til å peke mot de nye periodene som opprettes.
                 <BR/><BR/>
-                Det er ikke mulig å endre på periode oppsett for mva dersom det er opprettet mva meldinger innenfor regnskapsåret som velges. Disse må da fjernes før endringer i periodeoppsettet kan gjøres.
+                Det er ikke mulig å endre på periode oppsett for mva dersom det er
+                opprettet mva meldinger innenfor regnskapsåret som velges.
+                Disse må da fjernes før endringer i periodeoppsettet kan gjøres.
                 <BR/><BR/>
                 Det gjøres endringer fra og med aktive regnskapsåret.
             </span><BR/><BR/>
@@ -92,7 +94,7 @@ export class ChangeCompanySettingsPeriodSeriesModal implements OnInit, IUniModal
     private getData() {
         this.financialYearService.lastSelectedFinancialYear$.subscribe(
             res => {
-                res.Year ? this.currentAccountYear = res.Year : res;
+                return res.Year ? this.currentAccountYear = res.Year : res;
             },
             err => this.errorService.handle(err)
         );
@@ -106,23 +108,25 @@ export class ChangeCompanySettingsPeriodSeriesModal implements OnInit, IUniModal
                 this.companySettings = dataset[0];
                 this.periodSeriesAccountList = dataset[1].filter(x => x.SeriesType === '1');
                 this.periodSeriesVatList = dataset[1].filter(x => x.SeriesType === '0');
-                this.periodSeriesAccount = dataset[1].filter(x => x.ID ===  this.companySettings.PeriodSeriesAccountID)[0];
+                this.periodSeriesAccount = dataset[1].filter(
+                    x => x.ID ===  this.companySettings.PeriodSeriesAccountID
+                )[0];
                 this.periodSeriesVat = dataset[1].filter(x => x.ID === this.companySettings.PeriodSeriesVatID)[0];
             },
             err => this.errorService.handle(err)
         );
     }
 
-    private close(action: any) {
+    public close(action: any) {
         if (action === 'cancel') {
             this.CancelAndClose();
         }
-        if(action === 'save') {
-            this.changeCompanySettingsPeriodSeriesAndClose()
+        if (action === 'save') {
+            this.changeCompanySettingsPeriodSeriesAndClose();
         }
     }
 
-    private periodSeriesChanged(changed) {
+    public periodSeriesChanged(changed) {
         if (changed.SeriesType === '0') {
             this.periodSeriesVat = changed;
         }

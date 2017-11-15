@@ -43,7 +43,9 @@ export class SubEntityDetails {
         this._subEntityService.getLayout('subEntities').subscribe((layout: any) => {
             let agaZoneField: UniFieldLayout = this.findByProperty(layout.Fields, 'AgaZone');
             let agaRuleField: UniFieldLayout = this.findByProperty(layout.Fields, 'AgaRule');
-            let postalCode: UniFieldLayout = this.findByProperty(layout.Fields, 'BusinessRelationInfo.InvoiceAddress.PostalCode');
+            let postalCode: UniFieldLayout = this.findByProperty(
+                layout.Fields, 'BusinessRelationInfo.InvoiceAddress.PostalCode'
+            );
             let municipality: UniFieldLayout = this.findByProperty(layout.Fields, 'MunicipalityNo');
 
             this._agaZoneService.GetAll('').subscribe(agazones => {
@@ -67,11 +69,16 @@ export class SubEntityDetails {
 
             postalCode.Options = {
                 getDefaultData: () => this.getDefaultPostalCodeData(),
-                search: (text: string) => this._statisticsService.GetAll(`filter=startswith(Code,'${text}') or contains(City,'${text}')&top=50&orderby=Code&model=PostalCode&select=Code as Code,City as City`).map(x => x.Data),
+                search: (text: string) => this._statisticsService.GetAll(
+                    `filter=startswith(Code,'${text}') or contains(City,'${text}')`
+                    + `&top=50&orderby=Code&model=PostalCode&select=Code as Code,City as City`
+                ).map(x => x.Data),
                 valueProperty: 'Code',
                 displayProperty: 'Code',
                 debounceTime: 200,
-                template: (obj: PostalCode) => obj && obj.City ? `${obj.Code} - ${obj.City.slice(0, 1).toUpperCase() + obj.City.slice(1).toLowerCase()}` : '',
+                template: (obj: PostalCode) => obj && obj.City
+                    ? `${obj.Code} - ${obj.City.slice(0, 1).toUpperCase() + obj.City.slice(1).toLowerCase()}`
+                    : '',
                 events: {
                     select: (model: SubEntity) => {
                         this.updateCity();
@@ -84,7 +91,10 @@ export class SubEntityDetails {
                     valueProperty: 'MunicipalityNo',
                     displayProperty: 'MunicipalityNo',
                     debounceTime: 200,
-                    template: (obj: Municipal) => obj && obj.MunicipalityName ? `${obj.MunicipalityNo} - ${obj.MunicipalityName.slice(0, 1).toUpperCase() + obj.MunicipalityName.slice(1).toLowerCase()}` : ''
+                    template: (obj: Municipal) => obj && obj.MunicipalityName
+                        ? `${obj.MunicipalityNo} - ${obj.MunicipalityName.slice(0, 1).toUpperCase()
+                            + obj.MunicipalityName.slice(1).toLowerCase()}`
+                        : ''
                 };
                 this.fields$.next(layout.Fields);
             }, err => this.errorService.handle(err));
@@ -98,18 +108,29 @@ export class SubEntityDetails {
     }
 
     private getDefaultPostalCodeData() {
-        if (this.currentSubEntity && this.currentSubEntity.BusinessRelationInfo && this.currentSubEntity.BusinessRelationInfo.InvoiceAddress) {
-            return Observable.of([{ Code: this.currentSubEntity.BusinessRelationInfo.InvoiceAddress.PostalCode, City: this.currentSubEntity.BusinessRelationInfo.InvoiceAddress.City }]);
+        if (this.currentSubEntity
+            && this.currentSubEntity.BusinessRelationInfo
+            && this.currentSubEntity.BusinessRelationInfo.InvoiceAddress
+        ) {
+            return Observable.of([{
+                Code: this.currentSubEntity.BusinessRelationInfo.InvoiceAddress.PostalCode,
+                City: this.currentSubEntity.BusinessRelationInfo.InvoiceAddress.City
+            }]);
         } else {
             return Observable.of([]);
         }
     }
 
     private updateCity() {
-        if (this.currentSubEntity && this.currentSubEntity.BusinessRelationInfo && this.currentSubEntity.BusinessRelationInfo.InvoiceAddress) {
+        if (this.currentSubEntity
+            && this.currentSubEntity.BusinessRelationInfo
+            && this.currentSubEntity.BusinessRelationInfo.InvoiceAddress
+        ) {
             if (this.currentSubEntity.BusinessRelationInfo.InvoiceAddress.PostalCode) {
                 let code = this.currentSubEntity.BusinessRelationInfo.InvoiceAddress.PostalCode;
-                this._statisticsService.GetAll(`filter=Code eq '${code}'&top=1&orderby=Code&model=PostalCode&select=Code as Code,City as City`)
+                this._statisticsService.GetAll(
+                    `filter=Code eq '${code}'&top=1&orderby=Code&model=PostalCode&select=Code as Code,City as City`
+                )
                     .map(x => x.Data)
                     .subscribe(postalCodeArr => {
                         if (postalCodeArr && postalCodeArr.length > 0) {
@@ -141,8 +162,11 @@ export class SubEntityDetails {
                 if (!this.currentSubEntity.BusinessRelationID) {
                     this.currentSubEntity.BusinessRelationInfo['_createguid'] = this._subEntityService.getNewGuid();
                 }
-                if (this.currentSubEntity.BusinessRelationInfo.InvoiceAddress && !this.currentSubEntity.BusinessRelationInfo.InvoiceAddressID) {
-                    this.currentSubEntity.BusinessRelationInfo.InvoiceAddress['_createguid'] = this._subEntityService.getNewGuid();
+                if (this.currentSubEntity.BusinessRelationInfo.InvoiceAddress
+                    && !this.currentSubEntity.BusinessRelationInfo.InvoiceAddressID
+                ) {
+                    this.currentSubEntity.BusinessRelationInfo.InvoiceAddress['_createguid'] = this._subEntityService
+                        .getNewGuid();
                 }
             }
             let saveObservable = this.currentSubEntity.ID ?

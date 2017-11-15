@@ -37,6 +37,7 @@ import {TaxCardRequest} from './employee/modals/taxCardRequest';
 import {PersonalDetails} from './employee/personalDetails/personalDetails';
 import {RecurringPost} from './employee/recurringPost/recurringPost';
 import {EmployeeTax} from './employee/employeeTax/employeeTax';
+import {EmployeeSalarybalance} from './employee/employeeSalarybalances/employeeSalarybalance';
 
 import {VacationPayModal} from './payrollrun/modals/vacationpay/vacationPayModal';
 import {VacationPaySettingsModal} from './payrollrun/modals/vacationpay/vacationPaySettingsModal';
@@ -127,6 +128,7 @@ import {CanDeactivateGuard} from '../../canDeactivateGuard';
         PersonalDetails,
         RecurringPost,
         EmployeeTax,
+        EmployeeSalarybalance,
 
         // Payrollrun
         VacationPayModal,
@@ -218,6 +220,7 @@ import {CanDeactivateGuard} from '../../canDeactivateGuard';
         PersonalDetails,
         RecurringPost,
         EmployeeTax,
+        EmployeeSalarybalance,
 
         // Payrollrun
         VacationPayModal,

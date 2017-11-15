@@ -1,4 +1,4 @@
-import {Component, OnInit} from '@angular/core';
+import {Component} from '@angular/core';
 import {TabService} from '../layout/navbar/tabstrip/tabService';
 import {UniModules} from '../layout/navbar/tabstrip/tabService';
 import {IPosterWidget} from '../common/poster/poster';
@@ -7,7 +7,6 @@ import {Observable} from 'rxjs/Observable';
 import {CompanySettingsService, SubEntityService, UserService, ErrorService} from '../../services/services';
 import {UniHttp} from '../../../framework/core/http/http';
 import {IToolbarConfig} from '../common/toolbar/toolbar';
-import {CanDeactivateGuard} from '../../canDeactivateGuard';
 
 @Component({
     selector: 'settings',

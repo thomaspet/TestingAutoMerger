@@ -56,18 +56,6 @@ export class EmployeeLeaves extends UniView {
         });
     }
 
-    // REVISIT (remove)!
-    // This (and the canDeactivate in employeeRoutes.ts) is a dummy-fix
-    // until we are able to locate a problem with detecting changes of
-    // destroyed view in unitable.
-    public canDeactivate() {
-        return new Promise((resolve) => {
-            setTimeout(() => {
-                resolve(true);
-            });
-        });
-    }
-
     public buildTableConfig() {
         const fromDateCol = new UniTableColumn('FromDate', 'Startdato', UniTableColumnType.LocalDate);
         const toDateCol = new UniTableColumn('ToDate', 'Sluttdato', UniTableColumnType.LocalDate);

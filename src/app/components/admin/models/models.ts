@@ -1,4 +1,4 @@
-import {Component, ViewChildren, QueryList, ViewChild} from '@angular/core';
+import {Component, ViewChildren, QueryList} from '@angular/core';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {UniTable, UniTableColumn, UniTableConfig, UniTableColumnType} from '../../../../framework/ui/unitable/index';
 import {Model} from '../../../unientities';
@@ -60,7 +60,7 @@ export class UniModels {
         this.initFormConfigs();
     }
 
-    private saveCurrentModel() {
+    public saveCurrentModel() {
         this.modelService.Put(this.selectedModel.ID, this.selectedModel)
             .subscribe(
                 res => console.log('save success!'),
@@ -104,14 +104,13 @@ export class UniModels {
     private initToolbar() {
         this.toolbarConfig = {
             title: 'Modeller',
-
-        }
+        };
         this.saveActions = [{
             label: 'Lagre',
             main: true,
-            disabled:false,
+            disabled: false,
             action: (completeCallback) => {
-                if(this.selectedModel.ID){
+                if (this.selectedModel.ID) {
 
                     this.modelService.Put(this.selectedModel.ID, this.selectedModel).subscribe(
                         (res) => {
@@ -127,10 +126,10 @@ export class UniModels {
                         }
                     );
 
-                } else{
+                } else {
 
                     this.modelService.Post(this.selectedModel).subscribe(
-                        (res) =>{
+                        (res) => {
                             this.hasUnsavedChanges = false;
                             this.selectedModel = res;
                             completeCallback('model saved');
@@ -143,7 +142,7 @@ export class UniModels {
                 }
             }
 
-        }]
+        }];
 
 
     }

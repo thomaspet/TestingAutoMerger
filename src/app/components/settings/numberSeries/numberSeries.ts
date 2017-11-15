@@ -1,4 +1,3 @@
-// tslint:disable:max-line-length
 import {Component, ViewChildren, QueryList} from '@angular/core';
 import {TabService} from '../../layout/navbar/tabstrip/tabService';
 import {UniHttp} from '../../../../framework/core/http/http';
@@ -11,7 +10,6 @@ import {
     UniTableColumn,
     UniTableColumnType,
     UniTable,
-    IContextMenuItem
 } from '../../../../framework/ui/unitable/index';
 import {
     ErrorService,
@@ -44,7 +42,7 @@ export class NumberSeries {
     private types: any[] = [];
     private tasks: any[] = [];
     private currentYear: number;
-    private currentSerie: any = this.numberSeriesService.series.find(x => x.ID == 'JournalEntry');
+    private currentSerie: any = this.numberSeriesService.series.find(x => x.ID === 'JournalEntry');
     private asinvoicenumberserie: number = null;
     private customerAccount: Account = null;
     private supplierAccount: Account = null;
@@ -122,40 +120,51 @@ export class NumberSeries {
 
         let current = [];
 
-        switch(t.ID) {
+        switch (t.ID) {
             case 'JournalEntry':
-                current = this.numberseries.filter(x => x.NumberSeriesType.EntityType == 'JournalEntry' && (this.allYears || x.AccountYear == this.currentYear || !x.AccountYear));
+                current = this.numberseries.filter(
+                    x => x.NumberSeriesType.EntityType === 'JournalEntry'
+                    && (this.allYears || x.AccountYear === this.currentYear || !x.AccountYear)
+                );
                 // filter ions first, remove allready added to db
-                let journalEntryType = this.types.find(x => x.Name == 'JournalEntry number series type yearly');
+                let journalEntryType = this.types.find(x => x.Name === 'JournalEntry number series type yearly');
                 current = current.concat(this.numberSeriesService.suggestions.map(x => {
                     x.AccountYear = this.currentYear;
 
-                    x.NumberSeriesTask = this.tasks.find(y => y.Name == x._Task);
+                    x.NumberSeriesTask = this.tasks.find(y => y.Name === x._Task);
                     x.NumberSeriesTaskID = x.NumberSeriesTask.ID;
 
                     x.NumberSeriesType = journalEntryType;
                     x.NumberSeriesTypeID = x.NumberSeriesType.ID;
 
                     x._AsInvoiceNumber = this.numberSeriesService.asinvoicenumber[0];
-                    x._Register = this.numberSeriesService.registers.find(x => x.EntityType == 'JournalEntry');
+                    x._Register = this.numberSeriesService.registers.find(a => a.EntityType === 'JournalEntry');
 
                     return x;
                 }).filter(x => { // filter allready added suggestions
-                    return !current.find(y => x.NumberSeriesTaskID == y.NumberSeriesTaskID);
+                    return !current.find(y => x.NumberSeriesTaskID === y.NumberSeriesTaskID);
                 }));
 
                 this.initAccountingTableConfig();
                 break;
             case 'Sale':
-                current = this.numberseries.filter(x => ['CustomerQuote', 'CustomerOrder', 'CustomerInvoice', 'CustomerInvoiceReminder'].indexOf(x.NumberSeriesType.EntityType) >= 0);
+                current = this.numberseries.filter(
+                    x => ['CustomerQuote', 'CustomerOrder', 'CustomerInvoice', 'CustomerInvoiceReminder']
+                        .indexOf(x.NumberSeriesType.EntityType) >= 0
+                );
                 this.initSaleTableConfig();
                 break;
             case 'Accounts':
-                current = this.numberseries.filter(x => ['Customer', 'Supplier'].indexOf(x.NumberSeriesType.EntityType) >= 0);
+                current = this.numberseries.filter(
+                    x => ['Customer', 'Supplier'].indexOf(x.NumberSeriesType.EntityType) >= 0
+                );
                 this.initAccountsTableConfig();
                 break;
             case 'Others':
-                current = this.numberseries.filter(x => ['JournalEntry', 'CustomerQuote', 'CustomerOrder', 'CustomerInvoice', 'Customer', 'Supplier'].indexOf(x.NumberSeriesType.EntityType) < 0)
+                current = this.numberseries.filter(
+                    x => ['JournalEntry', 'CustomerQuote', 'CustomerOrder', 'CustomerInvoice', 'Customer', 'Supplier']
+                        .indexOf(x.NumberSeriesType.EntityType) < 0
+                );
                 this.initOtherSeriesTableConfig();
                 break;
         }
@@ -214,12 +223,16 @@ export class NumberSeries {
     private Save(): Promise<boolean> {
         return new Promise((resolve, reject) => {
             var all = this.uniTables.last.getVisibleTableData();
-            let saveObserveables: Observable<any>[] = all.filter(x => (x._isDirty && this.currentSerie.ID == 'JournalEntry' && x._rowSelected) || (x._isDirty && this.currentSerie.ID != 'JournalEntry')).map(x => {
+            let saveObserveables: Observable<any>[] = all.filter(
+                x => (x._isDirty && this.currentSerie.ID === 'JournalEntry' && x._rowSelected)
+                    || (x._isDirty && this.currentSerie.ID !== 'JournalEntry')
+            ).map(x => {
                 delete x.MainAccount;
                 return this.numberSeriesService.save(x);
             });
-            if (saveObserveables.length == 0) { resolve(true); }
-            else {
+            if (saveObserveables.length === 0) {
+                resolve(true);
+            } else {
                 Observable.forkJoin(saveObserveables).subscribe(allSaved => {
                     this.toastService.addToast('Lagret', ToastType.good, 7, 'Nummerserier lagret.');
                     this.requestNumberSerie(); // Reload all
@@ -240,7 +253,7 @@ export class NumberSeries {
         this.hasUnsavedChanges = true;
 
         let row = event.rowModel;
-        let index = this.current.findIndex(x => x._originalIndex == row._originalIndex);
+        let index = this.current.findIndex(x => x._originalIndex === row._originalIndex);
 
         row._isDirty = true;
 
@@ -261,14 +274,18 @@ export class NumberSeries {
                 row.AccountYear = row._Yearly.ID ? this.currentYear : 0;
             }
 
-            if (row._AsInvoiceNumber.ID && (row.UseNumbersFromNumberSeriesID === null || row.UseNumbersFromNumberSeriesID == 0)) {
+            if (row._AsInvoiceNumber.ID
+                && (row.UseNumbersFromNumberSeriesID === null || row.UseNumbersFromNumberSeriesID === 0)
+            ) {
                 this.modalService.confirm({
                     header: 'Vennligst bekreft',
                     message: 'Vennligst bekreft operasjon. Endring kan ikke omgjøres etter lagring'
                 }).onClose.subscribe(response => {
                     if (response === ConfirmActions.ACCEPT) {
                         row.UseNumbersFromNumberSeriesID = this.asinvoicenumberserie;
-                        row.NumberSeriesType = this.types.find(x => x.Name == 'JournalEntry number series type NOT yearly');
+                        row.NumberSeriesType = this.types.find(
+                            x => x.Name === 'JournalEntry number series type NOT yearly'
+                        );
                         row.AccountYear = 0;
 
                         row.FromNumber = MININVOICENUMBER;
@@ -276,7 +293,9 @@ export class NumberSeries {
                         row.ToNumber = MAXNUMBER;
                     } else {
                         row.UseNumbersFromNumberSerieID = null;
-                        row.NumberSeriesType = this.types.find(x => x.Name == 'JournalEntry number series type yearly');
+                        row.NumberSeriesType = this.types.find(
+                            x => x.Name === 'JournalEntry number series type yearly'
+                        );
 
                         row._AsInvoiceNumber = this.numberSeriesService.asinvoicenumber.find(x => !x.ID);
                     }
@@ -292,7 +311,11 @@ export class NumberSeries {
                         row.NumberSeriesType = this.types.find(x => x.EntityType === row._Register.EntityType);
                         row.NumberSeriesTypeID = row.NumberSeriesType ? row.NumberSeriesType.ID : 0;
                     } else {
-                        row.NumberSeriesType = this.types.find(x => x.Name == (row._Yearly && row._Yearly.ID ? 'JournalEntry number series type yearly' : 'JournalEntry number series type NOT yearly'));
+                        row.NumberSeriesType = this.types.find(
+                            x => x.Name === (row._Yearly && row._Yearly.ID
+                                ? 'JournalEntry number series type yearly'
+                                : 'JournalEntry number series type NOT yearly')
+                        );
                         row.NumberSeriesTypeID = row.NumberSeriesType ? row.NumberSeriesType.ID : 0;
                         if (!row.NumberSeriesType.Yearly) {
                             row.AccountYear = 0;
@@ -338,11 +361,13 @@ export class NumberSeries {
                     .setEditable(row => !row.ID && row._rowSelected),
                 new UniTableColumn('ToNumber', 'Til nr', UniTableColumnType.Number)
                     .setEditable(row => row._rowSelected)
-                    .setTemplate(row => `${row.ToNumber == MAXNUMBER ? 'max' : row.ToNumber ? row.ToNumber : ''}`),
+                    .setTemplate(row => `${row.ToNumber === MAXNUMBER ? 'max' : row.ToNumber ? row.ToNumber : ''}`),
                 new UniTableColumn('NextNumber', 'Neste nr', UniTableColumnType.Number)
                     .setEditable(row => row._rowSelected),
                 new UniTableColumn('_Yearly', 'Årlig?', UniTableColumnType.Select)
-                    .setTemplate(row => row.NumberSeriesType ? row.NumberSeriesType.Yearly ? 'Årlig' : 'Fortløpende' : '')
+                    .setTemplate(row => row.NumberSeriesType
+                        ? row.NumberSeriesType.Yearly ? 'Årlig' : 'Fortløpende'
+                        : '')
                     .setEditable(row => !row.ID && row._rowSelected)
                     .setEditorOptions({
                         hideNotChosenOption: false,
@@ -352,7 +377,7 @@ export class NumberSeries {
                 new UniTableColumn('NumberSeriesTask', 'Oppgave', UniTableColumnType.Select)
                     .setEditable(x => !x.row)
                     .setTemplate(row => {
-                        if (row.NumberSeriesTask == null) {
+                        if (row.NumberSeriesTask === null) {
                             return 'Bokføring'; // Missing NumberSeriesTask
                         }
 
@@ -362,11 +387,18 @@ export class NumberSeries {
                         hideNotChosenOption: true,
                         field: 'ID',
                         displayField: '_DisplayName',
-                        resource: this.tasks.filter(x => x.EntityType == 'JournalEntry')
+                        resource: this.tasks.filter(x => x.EntityType === 'JournalEntry')
                     }),
                 new UniTableColumn('_AsInvoiceNumber', 'Lik fakturanr.', UniTableColumnType.Select)
-                    .setEditable(row => !row.ID && row._rowSelected && row.Name == 'JournalEntry invoice number series type')
-                    .setTemplate(row => row.Name == 'JournalEntry invoice number series type' ? row._AsInvoiceNumber.DisplayName : '')
+                    .setEditable(row => {
+                        return !row.ID && row._rowSelected
+                        && row.Name === 'JournalEntry invoice number series type';
+                    })
+                    .setTemplate(row => {
+                        return row.Name === 'JournalEntry invoice number series type'
+                            ? row._AsInvoiceNumber.DisplayName
+                            : '';
+                    })
                     .setEditorOptions({
                         hideNotChosenOption: true,
                         field: 'ID',
@@ -380,7 +412,10 @@ export class NumberSeries {
                     label: 'Sett som standard for angitt oppgave',
                     disabled: (serie) => !serie.NumberSeriesTask || serie.IsDefaultForTask,
                     action: (serie) => {
-                        this.current.filter(x => x.IsDefaultForTask && x.AccountYear == serie.AccountYear && x.NumberSeriesTaskID == serie.NumberSeriesTaskID).map(x => {
+                        this.current.filter(
+                            x => x.IsDefaultForTask && x.AccountYear === serie.AccountYear
+                            && x.NumberSeriesTaskID === serie.NumberSeriesTaskID
+                        ).map(x => {
                             x.IsDefaultForTask = false;
                         });
 
@@ -394,8 +429,8 @@ export class NumberSeries {
             ])
             .setConditionalRowCls((serie) => serie.IsDefaultForTask ? 'numberseries-isdefaultfortask-row' : '')
             .setDefaultRowData({
-                NumberSeriesTask: this.tasks.find(x => x.Name == 'Journal'),
-                _Register: this.numberSeriesService.registers.find(x => x.EntityType == 'JournalEntry'),
+                NumberSeriesTask: this.tasks.find(x => x.Name === 'Journal'),
+                _Register: this.numberSeriesService.registers.find(x => x.EntityType === 'JournalEntry'),
                 _AsInvoiceNumber: this.numberSeriesService.asinvoicenumber[0],
                 _rowSelected: false
             });
@@ -416,7 +451,7 @@ export class NumberSeries {
                     .setEditable(row => !row.ID),
                 new UniTableColumn('ToNumber', 'Til nr', UniTableColumnType.Number)
                     .setEditable(true)
-                    .setTemplate(row => `${row.ToNumber == MAXNUMBER ? 'max' : row.ToNumber ? row.ToNumber : ''}`),
+                    .setTemplate(row => `${row.ToNumber === MAXNUMBER ? 'max' : row.ToNumber ? row.ToNumber : ''}`),
                 new UniTableColumn('NextNumber', 'Neste nr', UniTableColumnType.Number)
                     .setEditable(true),
                 new UniTableColumn('NumberSeriesTask', 'Oppgave', UniTableColumnType.Select)
@@ -427,7 +462,7 @@ export class NumberSeries {
                         hideNotChosenOption: false,
                         field: 'ID',
                         displayField: '_DisplayName',
-                        resource: this.tasks.filter(x => x.EntityType != 'JournalEntry')
+                        resource: this.tasks.filter(x => x.EntityType !== 'JournalEntry')
                     }),
                 new UniTableColumn('_Register', 'Register', UniTableColumnType.Select)
                     .setEditable(row => !row.ID)
@@ -462,7 +497,7 @@ export class NumberSeries {
                     .setEditable(row => !row.ID),
                 new UniTableColumn('ToNumber', 'Til nr', UniTableColumnType.Number)
                     .setEditable(true)
-                    .setTemplate(row => `${row.ToNumber == MAXNUMBER ? 'max' : row.ToNumber ? row.ToNumber : ''}`),
+                    .setTemplate(row => `${row.ToNumber === MAXNUMBER ? 'max' : row.ToNumber ? row.ToNumber : ''}`),
                 new UniTableColumn('NextNumber', 'Neste nr', UniTableColumnType.Number)
                     .setEditable(true),
                 new UniTableColumn('_Register', 'Register', UniTableColumnType.Select)
@@ -471,7 +506,9 @@ export class NumberSeries {
                     .setEditorOptions({
                         hideNotChosenOption: true,
                         displayField: 'DisplayName',
-                        resource: this.numberSeriesService.registers.filter(x => x.EntityType === 'Customer' || x.EntityType === 'Supplier')
+                        resource: this.numberSeriesService.registers.filter(
+                            x => x.EntityType === 'Customer' || x.EntityType === 'Supplier'
+                        )
                     }),
                 new UniTableColumn('MainAccount', 'Samlekonto', UniTableColumnType.Lookup)
                     .setEditable(row => !row.ID)
@@ -483,6 +520,7 @@ export class NumberSeries {
                             switch (row._Register.EntityType) {
                                 case 'Customer':
                                     account = this.customerAccount;
+                                    break;
                                 case 'Supplier':
                                     account = this.supplierAccount;
                             }
@@ -503,7 +541,7 @@ export class NumberSeries {
                 ])
             .setChangeCallback(event => this.onRowChanged(event))
             .setDefaultRowData({
-                _Register: this.numberSeriesService.registers.find(x => x.EntityType == 'Customer'),
+                _Register: this.numberSeriesService.registers.find(x => x.EntityType === 'Customer'),
                 _AsInvoiceNumber: this.numberSeriesService.asinvoicenumber[0],
                 _rowSelected: false
             });
@@ -549,10 +587,12 @@ export class NumberSeries {
                 let accountNumberPart = searchValue.split(':')[0].trim();
                 let accountNamePart = searchValue.split(':')[1].trim();
 
-                copyPasteFilter = ` or (AccountNumber eq '${accountNumberPart}' and AccountName eq '${accountNamePart}')`;
+                copyPasteFilter = ` or (AccountNumber eq '${accountNumberPart}' `
+                    + `and AccountName eq '${accountNamePart}')`;
             }
 
-            filter = `Visible eq 'true' and (startswith(AccountNumber\,'${searchValue}') or contains(AccountName\,'${searchValue}')${copyPasteFilter} )`;
+            filter = `Visible eq 'true' and (startswith(AccountNumber\,'${searchValue}') `
+                + `or contains(AccountName\,'${searchValue}')${copyPasteFilter} )`;
         }
 
         return this.accountService.searchAccounts(filter, searchValue !== '' ? 100 : 500);
@@ -592,8 +632,7 @@ export class NumberSeries {
         return chosen;
     }
 
-    private onEditChange(event) {
-        var rowIndex = event.originalIndex;
+    public onEditChange(event) {
         var value = event.rowModel[event.field];
 
         if (!value) {
@@ -627,25 +666,29 @@ export class NumberSeries {
             this.customerAccount = settings.CustomerAccount;
             this.supplierAccount = settings.SupplierAccount;
 
-            this.asinvoicenumberserie = numberseries.find(x => x.Name == 'Customer Invoice number series').ID
+            this.asinvoicenumberserie = numberseries.find(x => x.Name === 'Customer Invoice number series').ID;
             this.numberseries = this.addCustomFields(numberseries).map(x => {
                 if (x.NumberSeriesTask && x.NumberSeriesTask.Name) {
                     x.NumberSeriesTask = this.numberSeriesTaskService.translateTask(x.NumberSeriesTask);
                 }
 
                 if (x.NumberSeriesType && x.NumberSeriesType.EntityType !== 'JournalEntry') {
-                    x._Register = this.numberSeriesService.registers.find(r => r.EntityType === x.NumberSeriesType.EntityType);
+                    x._Register = this.numberSeriesService.registers.find(
+                        r => r.EntityType === x.NumberSeriesType.EntityType
+                    );
                 }
 
-                x._AsInvoiceNumber = this.numberSeriesService.asinvoicenumber[this.asinvoicenumberserie == x.UseNumbersFromNumberSeriesID ? 1 : 0];
+                x._AsInvoiceNumber = this.numberSeriesService.asinvoicenumber[
+                    this.asinvoicenumberserie === x.UseNumbersFromNumberSeriesID ? 1 : 0
+                ];
 
                 return x;
             });
 
             // Remove system series from UI
             this.numberseries = this.numberseries.filter(x =>
-                ['JournalEntry batch number series', 'Integration test order number series'].indexOf(x.Name) == -1
-            )
+                ['JournalEntry batch number series', 'Integration test order number series'].indexOf(x.Name) === -1
+            );
 
             this.setCurrent(this.currentSerie);
         }, error => this.errorService.handle(error));
@@ -654,10 +697,10 @@ export class NumberSeries {
     private addCustomFields(result) {
         return result.map(x => {
             x = this.numberSeriesService.translateSerie(x);
-            x._Register = this.numberSeriesService.registers.find(x => x.EntityType == 'JournalEntry');
-            x._Yearly = this.numberSeriesService.yearly.find(y => y.ID == x.NumberSeriesType.Yearly);
+            x._Register = this.numberSeriesService.registers.find(a => a.EntityType === 'JournalEntry');
+            x._Yearly = this.numberSeriesService.yearly.find(y => y.ID === x.NumberSeriesType.Yearly);
 
-            switch(x.Name) {
+            switch (x.Name) {
                 case 'JournalEntry number series Yearly':
                 case 'JournalEntry number series type yearly':
                     x._Task = 'Journal';
@@ -682,39 +725,41 @@ export class NumberSeries {
                     break;
                 case 'Customer Invoice number series':
                     x._Task = 'CustomerInvoice';
-                    x._Register = this.numberSeriesService.registers.find(x => x.EntityType == 'CustomerInvoice');
+                    x._Register = this.numberSeriesService.registers.find(a => a.EntityType === 'CustomerInvoice');
                     break;
                 case 'Customer Order number series':
                     x._Task = 'Order';
-                    x._Register = this.numberSeriesService.registers.find(x => x.EntityType == 'CustomerOrder');
+                    x._Register = this.numberSeriesService.registers.find(a => a.EntityType === 'CustomerOrder');
                     break;
                 case 'Customer Quote number series':
                     x._Task = 'Quote';
-                    x._Register = this.numberSeriesService.registers.find(x => x.EntityType == 'CustomerQuote');
+                    x._Register = this.numberSeriesService.registers.find(a => a.EntityType === 'CustomerQuote');
                     break;
                 case 'Customer Invoice Reminder number series':
                     x._Task = 'Reminder';
-                    x._Register = this.numberSeriesService.registers.find(x => x.EntityType == 'Reminder');
+                    x._Register = this.numberSeriesService.registers.find(a => a.EntityType === 'Reminder');
                     break;
                 case 'Department number series':
-                    x._Register = this.numberSeriesService.registers.find(x => x.EntityType == 'Department');
+                    x._Register = this.numberSeriesService.registers.find(a => a.EntityType === 'Department');
                     break;
                 case 'Employee number series':
-                    x._Register = this.numberSeriesService.registers.find(x => x.EntityType == 'Employee');
+                    x._Register = this.numberSeriesService.registers.find(a => a.EntityType === 'Employee');
                     break;
                 case 'Project number series':
-                    x._Register = this.numberSeriesService.registers.find(x => x.EntityType == 'Project');
+                    x._Register = this.numberSeriesService.registers.find(a => a.EntityType === 'Project');
                     break;
                 case 'Customer number series':
-                    x._Register = this.numberSeriesService.registers.find(x => x.EntityType == 'Customer');
+                    x._Register = this.numberSeriesService.registers.find(a => a.EntityType === 'Customer');
                     break;
                 case 'Supplier number series':
-                    x._Register = this.numberSeriesService.registers.find(x => x.EntityType == 'Supplier');
+                    x._Register = this.numberSeriesService.registers.find(a => a.EntityType === 'Supplier');
                     break;
             }
 
             x._rowSelected = true;
-            if (!x.Name) x.Name = x._DisplayName;
+            if (!x.Name) {
+                x.Name = x._DisplayName;
+            }
 
             return x;
         });

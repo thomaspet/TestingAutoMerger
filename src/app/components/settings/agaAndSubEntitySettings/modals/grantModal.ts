@@ -1,6 +1,11 @@
 import {Component, OnInit, Input, Output, EventEmitter, ViewChild} from '@angular/core';
 import {IUniModal, IModalOptions} from '../../../../../framework/uniModal/barrel';
-import {UniTable, UniTableConfig, UniTableColumn, UniTableColumnType} from '../../../../../framework/ui/unitable/index';
+import {
+    UniTable,
+    UniTableConfig,
+    UniTableColumn,
+    UniTableColumnType
+} from '../../../../../framework/ui/unitable/index';
 import {GrantService, SubEntityService, ErrorService} from '../../../../services/services';
 import {Grant, SubEntity} from '../../../../unientities';
 import {Observable} from 'rxjs/Observable';
@@ -28,7 +33,9 @@ export class GrantModal implements OnInit, IUniModal {
     public ngOnInit() {
         Observable.forkJoin(
             this._grantService.GetAll(''),
-            this._subentityService.GetAll('filter=SuperiorOrganizationID gt 0', ['BusinessRelationInfo.InvoiceAddress'])
+            this._subentityService.GetAll(
+                'filter=SuperiorOrganizationID gt 0', ['BusinessRelationInfo.InvoiceAddress']
+            )
         ).subscribe((response: any) => {
             let [grants, subs] = response;
             this.grantData = grants;
