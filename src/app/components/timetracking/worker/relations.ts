@@ -2,7 +2,7 @@ import {Component, Input, Output, EventEmitter} from '@angular/core';
 import {WorkerService} from '../../../services/timetracking/workerService';
 import {WorkRelation} from '../../../unientities';
 import {Router} from '@angular/router';
-import {createFormField, FieldSize, ControlTypes} from '../../common/utils/utils';
+import {createFormField, ControlTypes} from '../../common/utils/utils';
 import {ChangeMap} from '../../common/utils/changeMap';
 import {Observable} from 'rxjs/Observable';
 import {IResult} from '../genericview/detail';

@@ -57,11 +57,14 @@ export class GenericListView {
         if (this.viewconfig) {
             this.label = this.viewconfig.tab.label;
             this.lookupFunction = (urlParams) => {
-                return this.workerService.queryWithUrlParams(urlParams, this.viewconfig.data.route, this.viewconfig.data.expand)
-                    .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
+                return this.workerService.queryWithUrlParams(
+                    urlParams, this.viewconfig.data.route, this.viewconfig.data.expand
+                ).catch((err, obs) => this.errorService.handleRxCatch(err, obs));
             };
             var tab = this.viewconfig.tab;
-            this.tabService.addTab({ name: tab.label, url: tab.url, moduleID: this.viewconfig.moduleID, active: true });
+            this.tabService.addTab({
+                name: tab.label, url: tab.url, moduleID: this.viewconfig.moduleID, active: true
+            });
             this.toolbarConfig = { title: this.label };
         }
     }

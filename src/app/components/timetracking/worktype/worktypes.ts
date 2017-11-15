@@ -33,8 +33,12 @@ export class WorktypeListview {
     private createTableConfig(): UniTableConfig {
         var systemTypePipe = new WorkTypeSystemTypePipe();
         var cols = [
-            new UniTableColumn('ID', 'Nr.', UniTableColumnType.Number).setWidth('10%').setFilterOperator('startswith'),
-            new UniTableColumn('Name', 'Navn', UniTableColumnType.Text).setWidth('40%').setFilterOperator('startswith'),
+            new UniTableColumn(
+                'ID', 'Nr.', UniTableColumnType.Number
+            ).setWidth('10%').setFilterOperator('startswith'),
+            new UniTableColumn(
+                'Name', 'Navn', UniTableColumnType.Text
+            ).setWidth('40%').setFilterOperator('startswith'),
             new UniTableColumn('SystemType', 'Type', UniTableColumnType.Number).setFilterOperator('eq')
                 .setTemplate((rowModel: any) => systemTypePipe.transform(rowModel.SystemType, '')  ).setWidth('20%'),
             new UniTableColumn('Description', 'Beskrivelse', UniTableColumnType.Text).setFilterOperator('startswith')
