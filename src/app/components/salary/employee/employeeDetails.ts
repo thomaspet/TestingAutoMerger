@@ -4,7 +4,7 @@ import {Router, ActivatedRoute, NavigationEnd} from '@angular/router';
 import {
     Employee, Employment, EmployeeLeave, SalaryTransaction, Project, Dimensions,
     Department, SubEntity, SalaryTransactionSupplement, EmployeeTaxCard,
-    WageType, EmployeeCategory, BusinessRelation
+    WageType, EmployeeCategory, BusinessRelation, SalaryBalance
 } from '../../../unientities';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
@@ -23,7 +23,7 @@ import {
     EmployeeService, EmploymentService, EmployeeLeaveService, DepartmentService, ProjectService,
     SalaryTransactionService, UniCacheService, SubEntityService, EmployeeTaxCardService, ErrorService,
     NumberFormat, WageTypeService, SalarySumsService, YearService, BankAccountService, EmployeeCategoryService,
-    ModulusService
+    ModulusService, SalarybalanceService
 } from '../../../services/services';
 import {EmployeeDetailsService} from './services/employeeDetailsService';
 import {Subscription} from 'rxjs/Subscription';
@@ -31,6 +31,7 @@ declare var _;
 const EMPLOYEE_TAX_KEY = 'employeeTaxCard';
 const EMPLOYMENTS_KEY = 'employments';
 const RECURRING_POSTS_KEY = 'recurringPosts';
+const SALARYBALANCES_KEY = 'salarybalances';
 const EMPLOYEE_LEAVE_KEY = 'employeeLeave';
 const EMPLOYEE_KEY = 'employee';
 const SUB_ENTITIES_KEY = 'subEntities';
@@ -39,7 +40,8 @@ type DirtyStatuses = {
     employeeTaxCard?: boolean,
     employments?: boolean,
     employeeLeave?: boolean,
-    recurringPosts?: boolean
+    recurringPosts?: boolean,
+    salarybalances?: boolean
 };
 @Component({
     selector: 'uni-employee-details',
@@ -57,6 +59,7 @@ export class EmployeeDetails extends UniView implements OnDestroy {
     private posterEmployee: any = {};
     private employments: Employment[];
     private recurringPosts: SalaryTransaction[];
+    private salarybalances: SalaryBalance[];
     private employeeLeave: EmployeeLeave[];
     private subEntities: SubEntity[];
     private projects: Project[];
@@ -155,7 +158,8 @@ export class EmployeeDetails extends UniView implements OnDestroy {
         private employeeCategoryService: EmployeeCategoryService,
         private modulusService: ModulusService,
         private modalService: UniModalService,
-        private employeeDetailsService: EmployeeDetailsService
+        private employeeDetailsService: EmployeeDetailsService,
+        private salarybalanceService: SalarybalanceService
     ) {
         super(router.url, cacheService);
 
@@ -163,6 +167,7 @@ export class EmployeeDetails extends UniView implements OnDestroy {
             { name: 'Detaljer', path: 'personal-details' },
             { name: 'Arbeidsforhold', path: 'employments' },
             { name: 'Faste poster', path: 'recurring-post' },
+            { name: 'Forskudd/trekk', path: 'employee-salarybalances' },
             { name: 'Permisjon', path: 'employee-leave' }
         ];
 
@@ -275,6 +280,7 @@ export class EmployeeDetails extends UniView implements OnDestroy {
             this.employeeTaxCard = undefined;
             this.categories = undefined;
             this.taxOptions = undefined;
+            this.salarybalances = undefined;
 
             // (Re)subscribe to state var updates
             super.getStateSubject(EMPLOYEE_KEY)
@@ -314,6 +320,12 @@ export class EmployeeDetails extends UniView implements OnDestroy {
                 if (this.employeeID) {
                     this.updatePosterEmployments(employments);
                 }
+            }, err => this.errorService.handle(err));
+
+            super.getStateSubject(SALARYBALANCES_KEY)
+                .subscribe((salarybalances) => {
+                    this.salarybalances = salarybalances;
+                    this.checkDirty();
             }, err => this.errorService.handle(err));
 
             super.getStateSubject(RECURRING_POSTS_KEY).subscribe((recurringPosts) => {
@@ -405,6 +417,12 @@ export class EmployeeDetails extends UniView implements OnDestroy {
                     if (childRoute === 'recurring-post') {
                         if (!this.recurringPosts) {
                             this.getRecurringPosts();
+                        }
+                    }
+
+                    if (childRoute === 'employee-salarybalances') {
+                        if (!this.salarybalances) {
+                            this.getSalarybalances();
                         }
                     }
 
@@ -756,6 +774,20 @@ export class EmployeeDetails extends UniView implements OnDestroy {
                 });
     }
 
+    private getSalarybalances() {
+        this.getSalarybalancesObservable()
+            .catch((err,obs) => this.errorService.handleRxCatch(err,obs))
+            .subscribe((salarybalances) => {
+                super.updateState(SALARYBALANCES_KEY, salarybalances, false);
+            });
+    }
+
+    private getSalarybalancesObservable(cacheFirst: boolean = false): Observable<SalaryBalance[]> {
+        return cacheFirst && this.salarybalances
+            ? Observable.of(this.salarybalances)
+            : this.salarybalanceService.GetAll('filter=EmployeeID eq ' + this.employeeID);
+    }
+
     private getRecurringPosts() {
         let filter = `EmployeeID eq ${this.employeeID} and IsRecurringPost eq true and PayrollRunID eq 0`;
         Observable.forkJoin(
@@ -917,6 +949,11 @@ export class EmployeeDetails extends UniView implements OnDestroy {
 
                         if (super.isDirty(RECURRING_POSTS_KEY)) {
                             obsList.push(this.saveRecurringPostsObs(done, refreshEmp));
+                            this.saveStatus.numberOfRequests++;
+                        }
+                        
+                        if (super.isDirty(SALARYBALANCES_KEY)) {
+                            obsList.push(this.saveSalarybalancesObs(done, refreshEmp));
                             this.saveStatus.numberOfRequests++;
                         }
 
@@ -1122,6 +1159,66 @@ export class EmployeeDetails extends UniView implements OnDestroy {
                         return emp.Employments;
                     });
             });
+    }
+
+    private saveSalarybalancesObs(done, updateSalarybalances: boolean = true): Observable<SalaryBalance[]> {
+        return super.getStateSubject(SALARYBALANCES_KEY)
+        .take(1)
+        .switchMap((salarybalances: SalaryBalance[]) => {
+            let obsList: Observable<SalaryBalance>[] = [];
+            let changeCount = 0;
+            let saveCount = 0;
+            let hasErrors = false;
+
+            salarybalances
+                .forEach((salarybalance, index) => {
+                    if (salarybalance['_isDirty'] || salarybalance.Deleted) {
+                        changeCount++;
+
+                        salarybalance.EmployeeID = this.employee.ID;
+
+                        let source = (salarybalance.ID > 0)
+                            ? this.salarybalanceService.Put(salarybalance.ID, salarybalance)
+                            : this.salarybalanceService.Post(salarybalance);
+
+                        let newObs: Observable<SalaryBalance> = <Observable<SalaryBalance>>source
+                            .finally(() => {
+                                saveCount++;
+                                if (saveCount === changeCount) {
+                                    this.saveStatus.completeCount++;
+                                    if (hasErrors) {
+                                        this.saveStatus.hasErrors = true;
+                                    }
+                                    if (updateSalarybalances) {
+                                        super.updateState(SALARYBALANCES_KEY,
+                                            salarybalances.filter(x => !x.Deleted),
+                                            salarybalances.some(salbal => salbal['_isDirty']));
+                                    }
+
+                                    this.checkForSaveDone(done);
+                                }
+                            })
+                            .catch((err, obs) => {
+                                hasErrors = true;
+                                salarybalances[index].Deleted = false;
+                                let toastHeader =
+                                    `Feil ved lagring av trekk linje ${salarybalance['_originalIndex'] + 1}`;
+                                let toastBody = (err.json().Messages) ? err.json().Messages[0].Message : '';
+                                this.toastService.addToast(toastHeader, ToastType.bad, 0, toastBody);
+                                this.errorService.handle(err);
+                                return Observable.empty();
+                            })
+                            .map(
+                            (res: SalaryBalance) => {
+                                salarybalances[index] = res;
+                                return res;
+                            });
+
+                        obsList.push(newObs);
+                    }
+                });
+            return Observable.forkJoin(obsList);
+        });
     }
 
     private saveRecurringPostsObs(done, updatePosts: boolean = true): Observable<SalaryTransaction[]> {

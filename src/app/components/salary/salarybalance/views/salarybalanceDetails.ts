@@ -1,4 +1,4 @@
-import {Component, SimpleChanges, ViewChild} from '@angular/core';
+import {Component, SimpleChanges, ViewChild, Input, OnInit, Output, EventEmitter} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
 import {UniView} from '../../../../../framework/core/uniView';
 import {
@@ -34,7 +34,7 @@ export class SalarybalanceDetail extends UniView {
     private wagetypes: WageType[];
     private employees: Employee[];
     private suppliers: Supplier[];
-
+    
     private invalidKID: boolean;
     private cachedSalaryBalance$: ReplaySubject<SalaryBalance> = new ReplaySubject<SalaryBalance>(1);
     private lastChanges$: BehaviorSubject<SimpleChanges> = new BehaviorSubject({});
@@ -48,6 +48,10 @@ export class SalarybalanceDetail extends UniView {
 
     @ViewChild(UniImage) public uniImage: UniImage;
     @ViewChild(UniForm) public form: UniForm;
+
+    @Input() public salarybalance: SalaryBalance;
+    @Input() public useExternalChangeDetection: boolean = false;
+    @Output() private salarybalanceChange: EventEmitter<SalaryBalance> = new EventEmitter<SalaryBalance>();
 
     constructor(
         private route: ActivatedRoute,
@@ -64,9 +68,7 @@ export class SalarybalanceDetail extends UniView {
     ) {
         super(router.url, cacheService);
 
-        this.route
-            .parent
-            .params
+        this.route.parent.params
             .do(params => {
                 this.subscriptions.forEach(sub => sub.unsubscribe());
                 super.updateCacheKey(router.url);
@@ -75,43 +77,47 @@ export class SalarybalanceDetail extends UniView {
             .switchMap(params => this.getStateSubject('salarybalance'))
             .subscribe(salaryBalance => this.cachedSalaryBalance$.next(salaryBalance));
 
-        this.route.params.switchMap(params => {
-            let employeeID: number = +params['employeeID'] || undefined;
-            let type: SalBalType = +params['instalmentType'] || undefined;
-            return this.cachedSalaryBalance$
-                .asObservable()
-                .map(salaryBalance => {
-                    if (salaryBalance.ID) {
-                        return salaryBalance;
-                    }
-                    if (employeeID) {
-                        salaryBalance.EmployeeID = employeeID;
-                    }
-                    if (type) {
-                        salaryBalance.InstalmentType = type;
-                    }
+        this.route.params
+            .switchMap(params => {
+                let employeeID: number = +params['employeeID'] || undefined;
+                let type: SalBalType = +params['instalmentType'] || undefined;
+                return this.cachedSalaryBalance$
+                    .asObservable()
+                    .map(salaryBalance => {
+                        if (salaryBalance.ID) {
+                            return salaryBalance;
+                        }
+                        if (employeeID) {
+                            salaryBalance.EmployeeID = employeeID;
+                        }
+                        if (type) {
+                            salaryBalance.InstalmentType = type;
+                        }
 
-                    return salaryBalance;
-                })
-                .switchMap((salarybalance: SalaryBalance) => (salarybalance.ID === this.salarybalanceID)
-                    ? Observable.of(salarybalance)
-                    : this.setup(salarybalance))
-                .map(salarybalance => {
-                    if (!salarybalance.FromDate) {
-                        salarybalance.FromDate = new Date();
-                    }
-                    return salarybalance;
-                })
-                .switchMap(salarybalance => {
-                    return this.updateFields(salarybalance, this.salarybalanceID !== salarybalance.ID);
-                })
-                .do(salarybalance => this.salarybalanceID = salarybalance.ID)
-                .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
-        })
+                        return salaryBalance;
+                    })
+                    .switchMap((salarybalance: SalaryBalance) => (salarybalance.ID === this.salarybalanceID)
+                        ? Observable.of(salarybalance)
+                        : this.setup(salarybalance))
+                    .map(salarybalance => {
+                        if (!salarybalance.FromDate) {
+                            salarybalance.FromDate = new Date();
+                        }
+                        return salarybalance;
+                    })
+                    .switchMap(salarybalance => this.updateFields(salarybalance, this.salarybalanceID !== salarybalance.ID))
+                    .do(salarybalance => this.salarybalanceID = salarybalance.ID)
+                    .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
+            })
             .subscribe(salaryBalance => this.salarybalance$.next(salaryBalance));
     }
 
-
+    public ngOnChanges() {
+        if (this.salarybalance) {
+            this.setup(this.salarybalance)
+                .subscribe(salbal => this.salarybalance$.next(salbal));
+        }
+    }
 
     public change(changes: SimpleChanges) {
         this.salarybalance$
@@ -154,7 +160,12 @@ export class SalarybalanceDetail extends UniView {
                 return model;
             })
             .do(() => this.lastChanges$.next(changes))
-            .subscribe(model => super.updateState('salarybalance', model, true));
+            .subscribe((model: SalaryBalance) => {
+                this.salarybalanceChange.emit(model);
+                if (this.useExternalChangeDetection === false) {
+                    super.updateState('salarybalance', model, true);
+                }
+            });
     }
 
     public onImageClicked(file) {
