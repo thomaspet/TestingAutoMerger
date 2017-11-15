@@ -45,7 +45,7 @@ export class AgaAndSubEntitySettings implements OnInit {
     public accountformConfig$: BehaviorSubject<any> = new BehaviorSubject({});
 
     private companySalary$: BehaviorSubject<CompanySalary> = new BehaviorSubject(null);
-    private accounts: Account[] = [];
+    public accounts: Account[] = [];
     private mainOrganization$: BehaviorSubject<SubEntity> = new BehaviorSubject(null);
     private agaZones: AGAZone[] = [];
     private agaRules: AGASector[] = [];
@@ -264,7 +264,7 @@ export class AgaAndSubEntitySettings implements OnInit {
         mainAccountCostAgaVacation.Property = 'MainAccountCostAGAVacation';
         mainAccountCostAgaVacation.FieldType = FieldType.UNI_SEARCH;
         mainAccountCostAgaVacation.Section = 2;
-        mainAccountCostAgaVacation.FieldSet =1;
+        mainAccountCostAgaVacation.FieldSet = 1;
         mainAccountCostAgaVacation.Options = {
             valueProperty: 'AccountNumber',
             source: model => this.accountService
@@ -408,7 +408,7 @@ export class AgaAndSubEntitySettings implements OnInit {
             err => {
                 this.errorService.handle(err);
                 done('');
-            })
+            });
     }
 
     public toggleShowSubEntities() {

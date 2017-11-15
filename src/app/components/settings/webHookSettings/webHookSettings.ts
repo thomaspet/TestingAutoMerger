@@ -1,6 +1,6 @@
-import {Component, ViewChild, ChangeDetectorRef} from '@angular/core';
+import {Component, ChangeDetectorRef} from '@angular/core';
 import {Observable} from 'rxjs/Observable';
-import {UniSelect, ISelectConfig} from '../../../../framework/ui/uniform/index';
+import {ISelectConfig} from '../../../../framework/ui/uniform/index';
 import {AuthService} from '../../../authService';
 import {UniModalService} from '../../../../framework/uniModal/barrel';
 import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
@@ -12,7 +12,6 @@ import {
     IUmhAction,
     IUmhObjective,
     IUmhSubscription,
-    IUmhSubscriber,
     SubscriptionState
 } from '../../../services/common/UmhService';
 
@@ -21,9 +20,6 @@ import {
     templateUrl: './webHookSettings.html',
 })
 export class WebHookSettings {
-    @ViewChild(UniSelect)
-    private select: UniSelect;
-
     private noFilter: string = 'ffffffff-ffff-ffff-ffff-ffffffffffff';
 
     private actionSelectConfig: ISelectConfig;
@@ -187,13 +183,13 @@ export class WebHookSettings {
         }
     }
 
-    private onSubmit() {
+    public onSubmit() {
         this.subscriptions.push(this.subscription);
         this.initSubscription();
         this.saveactions[0].disabled = false;
     }
 
-    private enableWebHooks() {
+    public enableWebHooks() {
         this.isBusy = true;
 
         this.umhSerivce.enableWebhooks().subscribe(
@@ -204,15 +200,15 @@ export class WebHookSettings {
         );
     }
 
-    private urlChange(event) {
+    public urlChange(event) {
 
     }
 
-    private descriptionChange(event) {
+    public descriptionChange(event) {
 
     }
 
-    private onObjectiveSelectForNewSubscription(event: IUmhObjective) {
+    public onObjectiveSelectForNewSubscription(event: IUmhObjective) {
         if (event !== undefined) {
             this.subscription.ObjectiveId = event.id;
          } else {
@@ -220,7 +216,7 @@ export class WebHookSettings {
         }
     }
 
-    private onActionSelectForNewSubscription(event: IUmhAction) {
+    public onActionSelectForNewSubscription(event: IUmhAction) {
         if (event !== undefined) {
             this.subscription.ActionId = event.id;
          } else {
@@ -228,7 +224,7 @@ export class WebHookSettings {
         }
     }
 
-    private onObjectiveSelectForExistingSubscription(subscription: IUmhSubscription, event: IUmhObjective) {
+    public onObjectiveSelectForExistingSubscription(subscription: IUmhSubscription, event: IUmhObjective) {
         if (event !== undefined) {
             subscription.ObjectiveId = event.id;
          } else {
@@ -238,7 +234,7 @@ export class WebHookSettings {
         this.updateSubscription(subscription);
     }
 
-    private onActionSelectForExistingSubscription(subscription: IUmhSubscription, event: IUmhAction) {
+    public onActionSelectForExistingSubscription(subscription: IUmhSubscription, event: IUmhAction) {
         if (event !== undefined) {
             subscription.ActionId = event.id;
          } else {
@@ -249,12 +245,12 @@ export class WebHookSettings {
     }
 
 
-    private onToggle(subscription: IUmhSubscription) {
+    public onToggle(subscription: IUmhSubscription) {
         subscription.Enabled = !subscription.Enabled;
         this.updateSubscription(subscription);
     }
 
-    private onDeleteSubscription(subscription: IUmhSubscription) {
+    public onDeleteSubscription(subscription: IUmhSubscription) {
         if (subscription.State === SubscriptionState.New) {
             var idx = this.subscriptions.indexOf(subscription);
 
@@ -276,12 +272,12 @@ export class WebHookSettings {
         }
     }
 
-    private isSubmitDisabled(): boolean {
+    public isSubmitDisabled(): boolean {
         return this.subscription.Url === ''
                 || this.subscription.Name === '';
     }
 
-    private getObjectiveName(id: string): string {
+    public getObjectiveName(id: string): string {
         if (this.objectives !== undefined) {
             var objective =  this.objectives.find(o => o.id === id);
 
@@ -291,7 +287,7 @@ export class WebHookSettings {
         }
     }
 
-    private getActionName(id: string): string {
+    public getActionName(id: string): string {
         if (this.actions !== undefined) {
             var action = this.actions.find(o => o.id === id);
 

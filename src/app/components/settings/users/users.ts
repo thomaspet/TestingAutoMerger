@@ -230,9 +230,8 @@ export class Users {
                 .send({action: 'activate'})
                 .map(response => response.json())
                 .subscribe(response => this.getUsers(), err => this.errorService.handle(err));
-        }
-        // If user has not responded to invite
-        else {
+        } else {
+            // If user has not responded to invite
             this.sendInvite(user);
         }
     }
@@ -256,7 +255,7 @@ export class Users {
         }
     }
 
-    private isInvalidEmail(control: FormControl) {
+    private isInvalidEmail(control: FormControl) { // tslint:disable-next-line
         let testResult = /^[-a-z0-9~!$%^&*_=+}{\'?]+(\.[-a-z0-9~!$%^&*_=+}{\'?]+)*@([a-z0-9_][-a-z0-9_]*(\.[-a-z0-9_]+)*\.(aero|arpa|biz|com|coop|edu|gov|info|int|mil|museum|name|net|org|pro|travel|mobi|[a-z][a-z])|([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}))(:[0-9]{1,5})?$/i.test(control.value);
 
         if (!testResult) {
