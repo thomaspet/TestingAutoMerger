@@ -9,8 +9,8 @@ import {
 } from '../../../services/services';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {
-    PayrollRun, SalaryTransaction, Employee, SalaryTransactionSupplement,
-    Valuetype
+    PayrollRun, SalaryTransaction, Employee,
+     SalaryTransactionSupplement, Valuetype
 } from '../../../unientities';
 import {Observable} from 'rxjs/Observable';
 import {ReplaySubject} from 'rxjs/ReplaySubject';
@@ -18,7 +18,7 @@ import {UniModalService, ConfirmActions} from '../../../../framework/uniModal/ba
 
 type HashMap<T> = {
     [key: string]: T;
-}
+};
 @Component({
     selector: 'salary-transaction-supplement-list',
     templateUrl: './salaryTransactionSupplementsList.html'
@@ -37,7 +37,7 @@ export class SalaryTransactionSupplementList implements OnInit {
         main: true
     }];
 
-    private toolbarConfig: IToolbarConfig = {
+    public toolbarConfig: IToolbarConfig = {
         title: 'Tilleggsopplysninger'
     };
 
@@ -63,7 +63,7 @@ export class SalaryTransactionSupplementList implements OnInit {
         this.route.params.subscribe(params => {
             let payrollRunID = +params['runID'] || undefined;
             this.yearService.selectedYear$.subscribe( year => {
-                if ((!this.model$ || !payrollRunID)){
+                if ((!this.model$ || !payrollRunID)) {
                     this.model$ = this.getModel(payrollRunID, year);
                 }
             });

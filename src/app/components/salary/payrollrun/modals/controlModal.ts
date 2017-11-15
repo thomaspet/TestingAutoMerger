@@ -7,7 +7,8 @@ import {
     SalaryTransactionService, PayrollrunService, ErrorService, SalarySumsService
 } from '../../../../services/services';
 import {
-    SalaryTransactionPay, SalaryTransactionPayLine, SalaryTransactionSums, SalaryTransaction, StdSystemType, PayrollRun
+    SalaryTransactionPay, SalaryTransactionPayLine,
+    SalaryTransactionSums, SalaryTransaction, StdSystemType, PayrollRun
 } from '../../../../unientities';
 import {Observable} from 'rxjs/Observable';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
@@ -45,7 +46,7 @@ export class ControlModal implements OnInit, IUniModal {
         salaryTransactionPay: SalaryTransactionPay
     }> = new BehaviorSubject({ sums: null, salaryTransactionPay: null });
     public tableConfig: UniTableConfig;
-    public fields$: BehaviorSubject<UniFieldLayout[]> = new BehaviorSubject([])
+    public fields$: BehaviorSubject<UniFieldLayout[]> = new BehaviorSubject([]);
     public payrollrunIsSettled: boolean;
     constructor(
         private _salaryTransactionService: SalaryTransactionService,
@@ -68,7 +69,9 @@ export class ControlModal implements OnInit, IUniModal {
             .subscribe(data => this.setData(data));
     }
 
-    public getData(runID: number): Observable<[SalaryTransaction[], SalaryTransactionSums, SalaryTransactionPay, PayrollRun]> {
+    public getData(
+        runID: number
+    ): Observable<[SalaryTransaction[], SalaryTransactionSums, SalaryTransactionPay, PayrollRun]> {
         this.busy = true;
         return Observable.forkJoin(
             this._salaryTransactionService
@@ -169,7 +172,9 @@ export class ControlModal implements OnInit, IUniModal {
     private generateTableConfigs(runID: number) {
 
         this.payList = [];
-        let wagetypeNumberCol = new UniTableColumn('WageTypeNumber', 'Lønnsart', UniTableColumnType.Number).setWidth('6rem');
+        let wagetypeNumberCol = new UniTableColumn(
+            'WageTypeNumber', 'Lønnsart', UniTableColumnType.Number).setWidth('6rem'
+        );
         let wagetypenameCol = new UniTableColumn('Text', 'Navn', UniTableColumnType.Text);
         let fromdateCol = new UniTableColumn('FromDate', 'Fra dato', UniTableColumnType.LocalDate).setWidth('6rem');
         let toDateCol = new UniTableColumn('ToDate', 'Til dato', UniTableColumnType.LocalDate).setWidth('6rem');

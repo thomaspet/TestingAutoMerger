@@ -163,7 +163,9 @@ export class PaycheckSending implements OnInit {
     private setupPaycheckTable() {
         let employeenumberCol = new UniTableColumn('EmployeeNumber', 'Ansattnummer', UniTableColumnType.Text);
         let employeenameCol = new UniTableColumn('BusinessRelationInfo.Name', 'Navn', UniTableColumnType.Text);
-        let emailCol = new UniTableColumn('BusinessRelationInfo.DefaultEmail.EmailAddress', 'Epost', UniTableColumnType.Text);
+        let emailCol = new UniTableColumn(
+            'BusinessRelationInfo.DefaultEmail.EmailAddress', 'Epost', UniTableColumnType.Text
+        );
 
         this.paycheckTableConfig = new UniTableConfig('salary.payrollrun.sending.paycheck', true, true, 25)
             .setSearchable(false)

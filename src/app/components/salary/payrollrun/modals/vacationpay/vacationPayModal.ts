@@ -1,6 +1,6 @@
 import {Component, OnInit, Input, Output, EventEmitter, ViewChild, SimpleChanges} from '@angular/core';
 import {IUniModal, IModalOptions} from '../../../../../../framework/uniModal/barrel';
-import {BasicAmount, VacationPayLine, CompanySalary, CompanyVacationRate} from '../../../../../unientities';
+import {BasicAmount, VacationPayLine, CompanySalary} from '../../../../../unientities';
 import {UniFieldLayout, FieldType} from '../../../../../../framework/ui/uniform/index';
 import {
     UniTable, UniTableConfig, UniTableColumnType, UniTableColumn, IRowChangeEvent
@@ -91,7 +91,8 @@ export class VacationPayModal implements OnInit, IUniModal {
                 this.basicamounts = basics;
                 this.currentYear = financial;
                 this.companysalary = comp;
-                this.companysalary['_wagedeductionText'] = this._vacationpaylineService.WageDeductionDueToHolidayArray[this.companysalary.WageDeductionDueToHoliday].name;
+                this.companysalary['_wagedeductionText'] = this._vacationpaylineService
+                    .WageDeductionDueToHolidayArray[this.companysalary.WageDeductionDueToHoliday].name;
             })
             .switchMap(() => this.vacationHeaderModel$.asObservable().take(1))
             .do(model => this.vacationHeaderModel$.next(this.setCurrentBasicAmountAndYear(model)))

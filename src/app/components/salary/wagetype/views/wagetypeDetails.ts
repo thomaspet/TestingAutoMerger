@@ -43,7 +43,8 @@ type UniFormTabEvent = {
     templateUrl: './wagetypeDetails.html'
 })
 export class WagetypeDetail extends UniView {
-    private aMeldingHelp: string = 'http://veiledning-amelding.smartlearn.no/Veiledn_Generell/index.html#!Documents/lnnsinntekterrapportering.htm';
+    private aMeldingHelp: string = 'http://veiledning-amelding.smartlearn.no/Veiledn_Generell'
+        + '/index.html#!Documents/lnnsinntekterrapportering.htm';
     private wageType$: BehaviorSubject<WageType> = new BehaviorSubject(new WageType());
     private wagetypeID: number;
     private incomeTypeDatasource: IncomeType[] = [];
@@ -416,7 +417,7 @@ export class WagetypeDetail extends UniView {
             IncomeType: wageType.IncomeType,
             Benefit: wageType.Benefit,
             Description: wageType.Description
-        }
+        };
 
         let incometypeChild: any;
         if (filter.IncomeType) {
@@ -732,7 +733,7 @@ export class WagetypeDetail extends UniView {
         }
     }
 
-    private tabForward(event: UniFormTabEvent) {
+    public tabForward(event: UniFormTabEvent) {
         this.fields$
             .take(1)
             .filter(fields => event.prev.Placement > event.next.Placement)
@@ -749,7 +750,7 @@ export class WagetypeDetail extends UniView {
             });
     }
 
-    private tabBackward(event: UniFormTabEvent) {
+    public tabBackward(event: UniFormTabEvent) {
         this.fields$
             .take(1)
             .map(fields => {

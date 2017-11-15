@@ -75,7 +75,10 @@ export class SalaryBalanceSummary implements OnInit, OnChanges {
 
             empObs.subscribe(
                 (emp: Employee) => this.description$
-                    .next(`SaldoId nr ${this.salaryBalance.ID}, Ansattnr ${emp.EmployeeNumber} - ${emp.BusinessRelationInfo.Name}`),
+                    .next(
+                        `SaldoId nr ${this.salaryBalance.ID}, `
+                        + `Ansattnr ${emp.EmployeeNumber} - ${emp.BusinessRelationInfo.Name}`
+                    ),
                 err => this.errorService.handle(err));
         } else {
             this.salarybalanceLinesModel$.next([]);

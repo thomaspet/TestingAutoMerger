@@ -1,5 +1,7 @@
 import {Injectable} from '@angular/core';
-import {SalaryTransaction, SalaryTransactionSupplement, WageTypeSupplement, Valuetype, PayrollRun} from '../../../unientities';
+import {
+    SalaryTransaction, SalaryTransactionSupplement, Valuetype
+} from '../../../unientities';
 import {SupplementService} from '../../../services/services';
 import {SalaryTransSupplementsModal} from '../modals/salaryTransSupplementsModal';
 import {UniModalService} from '../../../../framework/uniModal/barrel';

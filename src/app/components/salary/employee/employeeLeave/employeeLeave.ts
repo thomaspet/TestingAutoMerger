@@ -1,6 +1,6 @@
 import {Component} from '@angular/core';
 import {Router, ActivatedRoute} from '@angular/router';
-import {Employment, Employee, EmployeeLeave} from '../../../../unientities';
+import {Employment, EmployeeLeave} from '../../../../unientities';
 import {UniTableConfig, UniTableColumnType, UniTableColumn} from '../../../../../framework/ui/unitable/index';
 import {UniCacheService, ErrorService} from '../../../../services/services';
 import {UniView} from '../../../../../framework/core/uniView';

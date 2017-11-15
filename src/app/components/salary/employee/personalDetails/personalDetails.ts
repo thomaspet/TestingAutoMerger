@@ -3,7 +3,7 @@ import {Router, ActivatedRoute} from '@angular/router';
 import {UniForm, UniFieldLayout} from '../../../../../framework/ui/uniform/index';
 import {UniView} from '../../../../../framework/core/uniView';
 import {
-    OperationType, Operator, ValidationLevel, Employee, Email, Phone,
+    Employee, Email, Phone,
     Address, SubEntity, BankAccount, User
 } from '../../../../unientities';
 import {
@@ -55,7 +55,7 @@ export class PersonalDetails extends UniView {
     private employee$: BehaviorSubject<Employee> = new BehaviorSubject(new Employee());
 
     private employeeID: number;
-    private collapseTax: boolean;
+    public collapseTax: boolean;
 
     constructor(
         private employeeService: EmployeeService,
@@ -174,7 +174,9 @@ export class PersonalDetails extends UniView {
             .subscribe(employee => super.updateState('employee', employee, true));
     }
 
-    public showHideNameProperties(doUpdateFocus: boolean = false, employee: Employee = undefined, fields: any[] = undefined) {
+    public showHideNameProperties(
+        doUpdateFocus: boolean = false, employee: Employee = undefined, fields: any[] = undefined
+    ) {
         let refresh = !fields;
         fields = fields || this.fields$.getValue();
         employee = employee || this.employee$.getValue();
@@ -182,7 +184,11 @@ export class PersonalDetails extends UniView {
         let employeeSearchResult: UniFieldLayout = fields.find(x => x.Property === '_EmployeeSearchResult');
         let employeeName: UniFieldLayout = fields.find(x => x.Property === 'BusinessRelationInfo.Name');
 
-        if (this.employeeID > 0 || (employee && employee.BusinessRelationInfo && employee.BusinessRelationInfo.Name !== null && employee.BusinessRelationInfo.Name !== '')) {
+        if (this.employeeID > 0
+            || (employee && employee.BusinessRelationInfo
+                && employee.BusinessRelationInfo.Name !== null
+                && employee.BusinessRelationInfo.Name !== '')
+        ) {
             if (employeeSearchResult) {
                 employeeSearchResult.Hidden = true;
             }
@@ -426,7 +432,8 @@ export class PersonalDetails extends UniView {
             let yearToday = +new Date().getFullYear().toString().substring(2, 4);
 
             if (year < yearToday) {
-                let fullYear: string = new Date().getFullYear().toString().substring(0, 2) + (year < 10 ? '0' + year.toString() : year.toString());
+                let fullYear: string = new Date().getFullYear().toString().substring(0, 2)
+                    + (year < 10 ? '0' + year.toString() : year.toString());
                 year = +fullYear;
             }
 

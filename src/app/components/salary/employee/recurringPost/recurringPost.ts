@@ -5,13 +5,17 @@ import {
     ErrorService, SalaryTransactionSuggestedValuesService
 } from '../../../../services/services';
 import {SalaryTransViewService} from '../../sharedServices/salaryTransViewService';
-import {UniTableColumn, UniTableColumnType, UniTableConfig, UniTable} from '../../../../../framework/ui/unitable/index';
+import {
+    UniTableColumn,
+    UniTableColumnType,
+    UniTableConfig,
+    UniTable
+} from '../../../../../framework/ui/unitable/index';
 import {
     Employment, SalaryTransaction, WageType, Dimensions, Department, Project,
     SalaryTransactionSupplement, WageTypeSupplement, Account, SalBalType
 } from '../../../../unientities';
 import {UniView} from '../../../../../framework/core/uniView';
-import {SalaryTransSupplementsModal} from '../../modals/salaryTransSupplementsModal';
 import {UniModalService} from '../../../../../framework/uniModal/barrel';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 
@@ -108,12 +112,14 @@ export class RecurringPost extends UniView {
             });
         });
     }
-    private onRowDeleted(event) {
+    public onRowDeleted(event) {
         if (event.rowModel['_isEmpty']) {
             return;
         }
 
-        let deletedIndex = this.recurringPosts.findIndex(x => x['_originalIndex'] === event.rowModel['_originalIndex']);
+        let deletedIndex = this.recurringPosts.findIndex(
+            x => x['_originalIndex'] === event.rowModel['_originalIndex']
+        );
         let hasDirtyRow: boolean = true;
 
         if (this.recurringPosts[deletedIndex].ID) {
@@ -205,7 +211,10 @@ export class RecurringPost extends UniView {
                 },
                 lookupFunction: (searchValue) => {
                     return this._accountService
-                        .GetAll(`filter=contains(AccountName, '${searchValue}') or startswith(AccountNumber, '${searchValue}')&top50`)
+                        .GetAll(
+                            `filter=contains(AccountName, '${searchValue}') `
+                            + `or startswith(AccountNumber, '${searchValue}')&top50`
+                        )
                         .debounceTime(200);
                 }
             });
@@ -442,7 +451,8 @@ export class RecurringPost extends UniView {
         let amountPrecision = Math.pow(10, decimals ? decimals.length : 1);
         decimals = rowModel['Rate'] ? rowModel['Rate'].toString().split('.')[1] : null;
         let ratePrecision = Math.pow(10, decimals ? decimals.length : 1);
-        let sum = (Math.round((amountPrecision * rowModel['Amount'])) * Math.round((ratePrecision * rowModel['Rate']))) / (amountPrecision * ratePrecision);
+        let sum = (Math.round((amountPrecision * rowModel['Amount']))
+            * Math.round((ratePrecision * rowModel['Rate']))) / (amountPrecision * ratePrecision);
         rowModel['Sum'] = sum;
         return rowModel;
     }

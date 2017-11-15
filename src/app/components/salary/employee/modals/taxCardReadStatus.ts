@@ -1,4 +1,4 @@
-import {Component, OnInit, Input} from '@angular/core';
+import {Component, Input} from '@angular/core';
 import {TaxCardReadStatus} from '../../../../unientities';
 
 @Component({
@@ -6,11 +6,9 @@ import {TaxCardReadStatus} from '../../../../unientities';
     templateUrl: './taxCardReadStatus.html'
 })
 
-export class TaxCardReadStatusComponent implements OnInit {
+export class TaxCardReadStatusComponent {
 
     @Input() public status: TaxCardReadStatus;
 
     constructor() {}
-
-    ngOnInit() {}
 }

@@ -1,5 +1,9 @@
 import {Component, Input} from '@angular/core';
-import {UniTableConfig, UniTableColumnType, UniTableColumn, ISortInfo} from '../../../../../framework/ui/unitable/index';
+import {
+    UniTableConfig,
+    UniTableColumnType,
+    UniTableColumn,
+} from '../../../../../framework/ui/unitable/index';
 import {AmeldingData} from '../../../../unientities';
 import * as moment from 'moment';
 
@@ -171,7 +175,9 @@ export class AmeldingReceiptView {
             .setTemplate((dataItem) => {
                 return moment(dataItem.tidsstempelFraAltinn).format('DD.MM.YYYY HH:mm');
             });
-        let antallCol = new UniTableColumn('antallInntektsmottakere', 'Antall inntektsmottakere', UniTableColumnType.Text);
+        let antallCol = new UniTableColumn(
+            'antallInntektsmottakere', 'Antall inntektsmottakere', UniTableColumnType.Text
+        );
         let replaceCol = new UniTableColumn('erstatterMeldingsId', 'Erstatter ID', UniTableColumnType.Text)
             .setTemplate((dataItem) => {
                 let replID = 0;
@@ -182,8 +188,12 @@ export class AmeldingReceiptView {
                 });
                 return replID === 0 ? dataItem.erstatterMeldingsId : replID;
             });
-        let agaCol = new UniTableColumn('mottattAvgiftOgTrekkTotalt.sumArbeidsgiveravgift', 'Aga', UniTableColumnType.Money);
-        let ftrekkCol = new UniTableColumn('mottattAvgiftOgTrekkTotalt.sumForskuddstrekk', 'Forskuddstrekk', UniTableColumnType.Money);
+        let agaCol = new UniTableColumn(
+            'mottattAvgiftOgTrekkTotalt.sumArbeidsgiveravgift', 'Aga', UniTableColumnType.Money
+        );
+        let ftrekkCol = new UniTableColumn(
+            'mottattAvgiftOgTrekkTotalt.sumForskuddstrekk', 'Forskuddstrekk', UniTableColumnType.Money
+        );
         let periodeCol = new UniTableColumn('periode', 'Periode', UniTableColumnType.Text);
 
         this.mottattLeveranserIPeriodenConfig = new UniTableConfig('salary.amelding.ameldingReceipt', false, false)

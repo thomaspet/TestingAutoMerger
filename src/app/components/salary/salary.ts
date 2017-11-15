@@ -106,7 +106,8 @@ export class UniSalary {
                     labels: [],
                     colors: [],
                     dataEndpoint: [
-                        '/api/statistics?model=Employee&select=count(ID) as Count,Employments.JobName as JobName&expand=Employments'
+                        '/api/statistics?model=Employee&select=count(ID) as Count,'
+                        + 'Employments.JobName as JobName&expand=Employments'
                     ],
                     labelKey: 'JobName',
                     valueKey: 'Count',

@@ -102,7 +102,9 @@ export class SalarybalanceDetail extends UniView {
                     }
                     return salarybalance;
                 })
-                .switchMap(salarybalance => this.updateFields(salarybalance, this.salarybalanceID !== salarybalance.ID))
+                .switchMap(salarybalance => {
+                    return this.updateFields(salarybalance, this.salarybalanceID !== salarybalance.ID);
+                })
                 .do(salarybalance => this.salarybalanceID = salarybalance.ID)
                 .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
         })

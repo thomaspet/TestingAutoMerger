@@ -156,7 +156,7 @@ export class Employments extends UniView implements AfterViewInit {
             }));
     }
 
-    private onEmploymentChange(employment: Employment) {
+    public onEmploymentChange(employment: Employment) {
         employment['_isDirty'] = true;
 
         // Update employments array and table row
@@ -172,7 +172,7 @@ export class Employments extends UniView implements AfterViewInit {
         super.updateState('employments', this.employments, true);
     }
 
-    private onRowSelected(event) {
+    public onRowSelected(event) {
         this.table.updateRow(this.selectedIndex, this.employments[this.selectedIndex]);
         this.selectedIndex = event.rowModel['_originalIndex'];
     }

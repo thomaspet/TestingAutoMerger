@@ -1,4 +1,4 @@
-import {Component, ViewChild, OnDestroy, EventEmitter} from '@angular/core';
+import {Component, ViewChild, OnDestroy} from '@angular/core';
 import {Observable} from 'rxjs/Observable';
 import {Router, ActivatedRoute, NavigationEnd} from '@angular/router';
 import {
@@ -40,7 +40,7 @@ type DirtyStatuses = {
     employments?: boolean,
     employeeLeave?: boolean,
     recurringPosts?: boolean
-}
+};
 @Component({
     selector: 'uni-employee-details',
     templateUrl: './employeeDetails.html'
@@ -949,13 +949,18 @@ export class EmployeeDetails extends UniView implements OnDestroy {
             return Observable.of(this.employee);
         }
 
-        if (brInfo.DefaultBankAccount && (!brInfo.DefaultBankAccount.AccountNumber || brInfo.DefaultBankAccount.AccountNumber === '')) {
-            brInfo.DefaultBankAccount = null;
-            brInfo.DefaultBankAccountID = null;
+        if (brInfo.DefaultBankAccount
+            && (!brInfo.DefaultBankAccount.AccountNumber
+                || brInfo.DefaultBankAccount.AccountNumber === '')
+            ) {
+                brInfo.DefaultBankAccount = null;
+                brInfo.DefaultBankAccountID = null;
         }
 
-        if (brInfo.DefaultBankAccount !== null && brInfo.DefaultBankAccount !== undefined && (!brInfo.DefaultBankAccount.ID || brInfo.DefaultBankAccount.ID === 0)) {
-            brInfo.DefaultBankAccount['_createguid'] = this.employeeService.getNewGuid();
+        if (brInfo.DefaultBankAccount !== null
+            && brInfo.DefaultBankAccount !== undefined
+            && (!brInfo.DefaultBankAccount.ID || brInfo.DefaultBankAccount.ID === 0)) {
+                brInfo.DefaultBankAccount['_createguid'] = this.employeeService.getNewGuid();
         }
 
         if (brInfo.BankAccounts) {
@@ -1168,7 +1173,9 @@ export class EmployeeDetails extends UniView implements OnDestroy {
                                         this.getDimension(trans),
                                         this.getWageTypesObservable());
                                 })
-                                .map((response: [SalaryTransaction, Project[], Department[], Dimensions, WageType[]]) => {
+                                .map((
+                                    response: [SalaryTransaction, Project[], Department[], Dimensions, WageType[]]
+                                ) => {
                                     let [trans, projects, departments, dimensions, wageTypes] = response;
                                     trans.Dimensions = dimensions;
                                     if (trans.Dimensions) {

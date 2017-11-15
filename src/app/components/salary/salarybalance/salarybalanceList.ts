@@ -1,4 +1,4 @@
-import {Component, OnInit, ViewChild} from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 import {Router, ActivatedRoute} from '@angular/router';
 import {UniTableConfig, UniTableColumnType, UniTableColumn} from '../../../../framework/ui/unitable/index';
 import {SalarybalanceService, ErrorService, NumberFormat} from '../../../services/services';
@@ -68,7 +68,7 @@ export class SalarybalanceList implements OnInit {
         const idCol = new UniTableColumn('ID', 'Nr', UniTableColumnType.Number);
         idCol.setWidth('5rem');
 
-        const nameCol = new UniTableColumn('Name', 'Navn', UniTableColumnType.Text)
+        const nameCol = new UniTableColumn('Name', 'Navn', UniTableColumnType.Text);
         const employeeCol = new UniTableColumn('Employee', 'Ansatt', UniTableColumnType.Text)
             .setWidth('15rem')
             .setTemplate((rowModel: SalaryBalance) => {

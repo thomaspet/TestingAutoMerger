@@ -63,11 +63,11 @@ import {WageTypeView} from './wagetype/wagetypeView';
 import {WagetypeDetail} from './wagetype/views/wagetypeDetails';
 import {WageTypeSettings} from './wagetype/views/wagetypeSettings';
 import {WagetypeList} from './wagetype/wagetypeList';
-import {WageTypeViewService} from './wagetype/services/wageTypeViewService'
+import {WageTypeViewService} from './wagetype/services/wageTypeViewService';
 
 import {CategoryList} from './category/categoryList';
 import {CategoryView} from './category/categoryView';
-import {CategoryViewService} from "./category/services/categoryViewService";
+import {CategoryViewService} from './category/services/categoryViewService';
 import {CategoryDetail} from './category/views/categoryDetails';
 
 import {SalarybalanceList} from './salarybalance/salarybalanceList';

@@ -76,20 +76,27 @@ export class AmeldingPeriodSummaryView {
                     alleMottak.forEach(mottak => {
                         const pr = mottak.kalendermaaned;
                         const period = parseInt(pr.split('-').pop());
-                        if ((period === this.currentAMelding.period) && (parseInt(pr.substring(0, pr.indexOf('-'))) === this.currentAMelding.year)) {
-                            this.forfallsdato = moment(mottak.innbetalingsinformasjon.forfallsdato).format('DD.MM.YYYY');
-                            this.checkLeveranser(mottak.mottattLeveranse, period);
-                            this.checkMottattPeriode(mottak);
+                        if ((period === this.currentAMelding.period)
+                            && (parseInt(pr.substring(0, pr.indexOf('-')))
+                            === this.currentAMelding.year)) {
+                                this.forfallsdato = moment(
+                                    mottak.innbetalingsinformasjon.forfallsdato).format('DD.MM.YYYY'
+                                );
+                                this.checkLeveranser(mottak.mottattLeveranse, period);
+                                this.checkMottattPeriode(mottak);
                         }
                     });
                 } else {
                     if (alleMottak.hasOwnProperty('kalendermaaned')) {
                         const pr = alleMottak.kalendermaaned;
                         const period = parseInt(pr.split('-').pop());
-                        if ((period === this.currentAMelding.period) && (parseInt(pr.substring(0, pr.indexOf('-'))) === this.currentAMelding.year)) {
-                            this.forfallsdato = moment(alleMottak.innbetalingsinformasjon.forfallsdato).format('DD.MM.YYYY');
-                            this.checkLeveranser(alleMottak.mottattLeveranse, period);
-                            this.checkMottattPeriode(alleMottak);
+                        if ((period === this.currentAMelding.period)
+                            && (parseInt(pr.substring(0, pr.indexOf('-'))) === this.currentAMelding.year)) {
+                                this.forfallsdato = moment(
+                                    alleMottak.innbetalingsinformasjon.forfallsdato).format('DD.MM.YYYY'
+                                );
+                                this.checkLeveranser(alleMottak.mottattLeveranse, period);
+                                this.checkMottattPeriode(alleMottak);
                         }
                     }
                 }
@@ -102,7 +109,9 @@ export class AmeldingPeriodSummaryView {
                     value: this.sumAmldAga ? this.numberFormat.asMoney(this.sumAmldAga, {decimalLength: 0}) : null
                 }, {
                     title: 'Sum forskuddstrekk',
-                    value: this.sumAmldFtrekk ? this.numberFormat.asMoney(this.sumAmldFtrekk, {decimalLength: 0}) : null
+                    value: this.sumAmldFtrekk
+                        ? this.numberFormat.asMoney(this.sumAmldFtrekk, {decimalLength: 0})
+                        : null
                 }];
             }
         }

@@ -6,7 +6,7 @@ import {ToastService, ToastType} from '../../../../framework/uniToast/toastServi
 import {AmeldingData} from '../../../unientities';
 import {IContextMenuItem} from '../../../../framework/ui/unitable/index';
 import {IUniSaveAction} from '../../../../framework/save/save';
-import {IToolbarConfig, IAutoCompleteConfig, IToolbarSearchConfig} from '../../common/toolbar/toolbar';
+import {IToolbarConfig, IToolbarSearchConfig} from '../../common/toolbar/toolbar';
 import {UniStatusTrack} from '../../common/toolbar/statustrack';
 import {
     PayrollrunService,
@@ -174,11 +174,16 @@ export class AMeldingView implements OnInit {
                     var a = document.createElement('a');
                     var dataURI = 'data:text/xml;base64,' + btoa(amldfile);
                     a.href = dataURI;
-                    let prd: string = this.currentPeriod < 10 ? '0' + this.currentPeriod.toString() : this.currentPeriod.toString();
+                    let prd: string = this.currentPeriod < 10
+                        ? '0' + this.currentPeriod.toString()
+                        : this.currentPeriod.toString();
                     a['download'] = `amelding_${prd}_${this.currentAMelding.ID}.xml`;
 
                     var e = document.createEvent('MouseEvents');
-                    e.initMouseEvent('click', true, false, document.defaultView, 0, 0, 0, 0, 0, false, false, false, false, 0 , null);
+                    e.initMouseEvent(
+                        'click', true, false, document.defaultView,
+                        0, 0, 0, 0, 0, false, false, false, false, 0 , null
+                    );
 
                     a.dispatchEvent(e);
                     a.remove();
@@ -194,11 +199,16 @@ export class AMeldingView implements OnInit {
                     var a = document.createElement('a');
                     var dataURI = 'data:text/xml;base64,' + btoa(feedbackfile);
                     a.href = dataURI;
-                    let prd: string = this.currentPeriod < 10 ? '0' + this.currentPeriod.toString() : this.currentPeriod.toString();
+                    let prd: string = this.currentPeriod < 10
+                        ? '0' + this.currentPeriod.toString()
+                        : this.currentPeriod.toString();
                     a['download'] = `tilbakemelding_${prd}_${this.currentAMelding.ID}.xml`;
 
                     var e = document.createEvent('MouseEvents');
-                    e.initMouseEvent('click', true, false, document.defaultView, 0, 0, 0, 0, 0, false, false, false, false, 0 , null);
+                    e.initMouseEvent(
+                        'click', true, false, document.defaultView,
+                        0, 0, 0, 0, 0, false, false, false, false, 0 , null
+                    );
 
                     a.dispatchEvent(e);
                     a.remove();
@@ -325,8 +335,12 @@ export class AMeldingView implements OnInit {
                 this.aMeldingerInPeriod.forEach(amelding => {
                     _substatuses.push({
                         title: 'A-melding ' + amelding.ID,
-                        state: amelding.ID === this.currentAMelding.ID ? UniStatusTrack.States.Active : UniStatusTrack.States.Obsolete,
-                        timestamp: amelding.UpdatedAt ? new Date(<any> amelding.UpdatedAt) : new Date(<any> amelding.CreatedAt),
+                        state: amelding.ID === this.currentAMelding.ID
+                            ? UniStatusTrack.States.Active
+                            : UniStatusTrack.States.Obsolete,
+                        timestamp: amelding.UpdatedAt
+                            ? new Date(<any> amelding.UpdatedAt)
+                            : new Date(<any> amelding.CreatedAt),
                         data: amelding
                     });
                 });
@@ -336,7 +350,8 @@ export class AMeldingView implements OnInit {
             statustrack[indx] = {
                 title: amldStatus.Text,
                 state: _state,
-                badge: (_state === UniStatusTrack.States.Active || _state === UniStatusTrack.States.Obsolete) && this.aMeldingerInPeriod.length > 1 ? this.aMeldingerInPeriod.length + '' : null,
+                badge: (_state === UniStatusTrack.States.Active || _state === UniStatusTrack.States.Obsolete)
+                    && this.aMeldingerInPeriod.length > 1 ? this.aMeldingerInPeriod.length + '' : null,
                 substatusList: _substatuses
             };
         });
@@ -393,16 +408,18 @@ export class AMeldingView implements OnInit {
                     alleMottak.forEach(mottak => {
                         const pr = mottak.kalendermaaned;
                         const period = parseInt(pr.split('-').pop());
-                        if ((period === amelding.period) && (parseInt(pr.substring(0, pr.indexOf('-'))) === amelding.year)) {
-                            mottakObject = this.checkMottattPeriode(mottak, typeData);
+                        if ((period === amelding.period)
+                            && (parseInt(pr.substring(0, pr.indexOf('-'))) === amelding.year)) {
+                                mottakObject = this.checkMottattPeriode(mottak, typeData);
                         }
                     });
                 } else {
                     if (alleMottak.hasOwnProperty('kalendermaaned')) {
                         const pr = alleMottak.kalendermaaned;
                         const period = parseInt(pr.split('-').pop());
-                        if ((period === amelding.period) && (parseInt(pr.substring(0, pr.indexOf('-'))) === amelding.year)) {
-                            mottakObject = this.checkMottattPeriode(alleMottak, typeData);
+                        if ((period === amelding.period)
+                            && (parseInt(pr.substring(0, pr.indexOf('-'))) === amelding.year)) {
+                                mottakObject = this.checkMottattPeriode(alleMottak, typeData);
                         }
                     }
                 }

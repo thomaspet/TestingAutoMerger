@@ -18,7 +18,6 @@ import {
     ErrorService, NumberFormat, WageTypeService
 } from '../../../services/services';
 import {UniForm} from '../../../../framework/ui/uniform/index';
-import {SalaryTransSupplementsModal} from '../modals/salaryTransSupplementsModal';
 
 import {UniView} from '../../../../framework/core/uniView';
 import {ImageModal, UpdatedFileListEvent} from '../../common/modals/ImageModal';
@@ -201,7 +200,10 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges 
                     return (selectedItem.AccountNumber + ' - ' + selectedItem.AccountName);
                 },
                 lookupFunction: (searchValue) => {
-                    return this._accountService.GetAll(`filter=contains(AccountName, '${searchValue}') or startswith(AccountNumber, '${searchValue}')&top50`).debounceTime(200);
+                    return this._accountService.GetAll(
+                        `filter=contains(AccountName, '${searchValue}') `
+                        + `or startswith(AccountNumber, '${searchValue}')&top50`
+                    ).debounceTime(200);
                 }
             })
             .setWidth('4rem');
@@ -374,7 +376,9 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges 
 
                 return row;
             })
-            .setIsRowReadOnly((rowModel: SalaryTransaction) => rowModel.IsRecurringPost || !!rowModel.SalaryBalanceID);
+            .setIsRowReadOnly(
+                (rowModel: SalaryTransaction) => rowModel.IsRecurringPost || !!rowModel.SalaryBalanceID
+            );
     }
 
     public onCellClick(event: ICellClickEvent) {
@@ -587,7 +591,9 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges 
             row['EmployeeID'] = this.employeeID;
             row['PayrollRunID'] = this.payrollRunID;
             row['IsRecurringPost'] = false;
-            transIndex = this.salaryTransactions.findIndex(x => x['_guid'] === row['_guid'] && x.EmployeeID === this.employeeID);
+            transIndex = this.salaryTransactions.findIndex(
+                x => x['_guid'] === row['_guid'] && x.EmployeeID === this.employeeID
+            );
         }
 
         return transIndex;

@@ -42,7 +42,7 @@ export class SalarytransFilterContent {
         ];
     }
 
-    private onSelectFilter(filter) {
+    public onSelectFilter(filter) {
         var selectedItem = filter;
         this.removeOldFilters();
         this.activeFieldFilters = [];
