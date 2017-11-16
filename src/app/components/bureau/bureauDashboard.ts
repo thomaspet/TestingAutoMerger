@@ -166,20 +166,30 @@ export class BureauDashboard {
     public openNewCompanyModal() {
         let companyName: string;
         let user: User;
-        this.uniModalService.open(UniNewCompanyModal).onClose.asObservable()
+        this.uniModalService.open(UniNewCompanyModal)
+            .onClose.asObservable()
             .filter(modalResult => !!modalResult)
             .do(modalResult => companyName = modalResult.CompanyName)
             .flatMap(() => companyName ? this.userService.getCurrentUser() : Observable.empty())
             .do((currentUser: User) => user = currentUser)
             .flatMap(() => this.createCompany(companyName, user.Email))
-            .catch((err, obs) => this.errorService.handleRxCatch(err, obs))
-            .subscribe(() => this.toastService.addToast(
-                'Suksess',
-                ToastType.good,
-                ToastTime.medium,
-                `${companyName} blir nå laget, en mail vil bli sendt til `
-                    + `${user.Email} når du kan begynne å bruke det.`
-            ));
+            .subscribe(
+                (res) => {
+                    let company = res.json();
+                    if (company) {
+                        this.companies.push(company);
+                    }
+
+                    this.toastService.addToast(
+                        'Suksess',
+                        ToastType.good,
+                        ToastTime.medium,
+                        `${companyName} blir nå laget, en mail vil bli sendt til `
+                            + `${user.Email} når du kan begynne å bruke det.`
+                    );
+                },
+                err => this.errorService.handle(err)
+            );
     }
 
     private createCompany(name: string, email: string) {
@@ -187,12 +197,7 @@ export class BureauDashboard {
             .asPOST()
             .withEndPoint('companies?action=create-company')
             .withBody(name)
-            .send().subscribe((response:Response)=>{
-                let company = response.json();
-                if(company){
-                    this.companies.push(<any>company);
-                }
-            });
+            .send();
     }
 
     public sortBy(key, toggleDirection?: boolean) {
