@@ -166,6 +166,7 @@ export class SubEntityList implements OnInit {
             let subEntity = response;
             subEntity.AgaRule = 1;
             subEntity.AgaZone = 1;
+            subEntity.freeAmount = 500000;
             subEntity['_isDirty'] = true;
 
             this.allSubEntities.push(subEntity);
