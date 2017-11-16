@@ -5,7 +5,7 @@
     "IsTopLevelTicker": true,
     "Group": "Salg",
     "Model": "CustomerInvoice",
-    "Expand": "Customer.Info,CurrencyCode,InvoiceReference,DefaultDimensions.Project,DefaultSeller",
+    "Expand": "",
     "OrderBy": "ID DESC",
     "Columns": [{
             "Header": "Fakturanr",
@@ -413,7 +413,6 @@
     "IsTopLevelTicker": false,
     "Group": "Salg",
     "Model": "CustomerInvoiceItem",
-    "Expand": "Product,VatType",
     "SubTickers": [],
     "ParentFilter": {
         "Field": "CustomerInvoiceID",
@@ -422,13 +421,16 @@
     },
     "Filters": [],
     "Columns": [{
-            "Header": "Produkt/tekst",
+            "Header": "Nr",
+            "Field": "SortIndex",
+            "DefaultHidden": true
+        }, {
+            "Header": "Vare",
             "Field": "Product.PartName",
             "Width": "250px",
             "SubFields": [{
-                    "Field": "ItemText"
-                }
-            ]
+                "Field": "ItemText"
+            }]
         }, {
             "Header": "Antall",
             "Field": "NumberOfItems"
@@ -436,20 +438,61 @@
             "Header": "Enhet",
             "Field": "Unit"
         }, {
-            "Header": "Mvakode",
+            "Header": "Pris",
+            "Field": "PriceExVatCurrency",
+            "DefaultHidden": true
+        }, {
+            "Header": "Konto",
+            "Field": "Account.AccountNumber",
+            "SubFields": [{
+                "Field": "Account.AccountName"
+            }],
+            "DefaultHidden": true
+        }, {
+            "Header": "Momskode",
             "Field": "VatType.VatPercent",
             "Type": "percent",
             "SubFields": [{
-                    "Field": "VatType.Name"
-                }
-            ]
+                "Field": "VatType.Name"
+            }],
+            "DefaultHidden": true
+        }, {
+            "Header": "Oppgave",
+            "Field": "Dimensions.ProjectTask.Name",
+            "DefaultHidden": true
         }, {
             "Header": "Rabatt %",
             "Field": "DiscountPercent",
             "Type": "percent"
         }, {
-            "Header": "Sum inkl mva",
-            "Field": "SumTotalIncVat",
+            "Header": "Rabatt",
+            "Field": "DiscountCurrency",
+            "DefaultHidden": true
+        }, {
+            "Header": "Prosjekt",
+            "Field": "Dimensions.Project.ProjectNumber",
+            "SubFields": [{
+                "Field": "Dimensions.Project.Name"
+            }],
+            "DefaultHidden": true
+        }, {
+            "Header": "Avdeling",
+            "Field": "Dimensions.Department.DepartmentNumber",
+            "SubFields": [{
+                "Field": "Dimensions.Department.Name"
+            }],
+            "DefaultHidden": true
+        }, {
+            "Header": "Netto",
+            "Field": "SumTotalExVatCurrency",
+            "DefaultHidden": true
+        }, {
+            "Header": "Mva",
+            "Field": "SumVatCurrency",
+            "DefaultHidden": true
+        }, {
+            "Header": "Sum",
+            "Field": "SumTotalIncVatCurrency",
             "Format": "NumberPositiveNegative",
             "Width": "150px",
             "SumColumn": true
@@ -586,7 +629,7 @@
     "IsTopLevelTicker": true,
     "Group": "Salg",
     "Model": "CustomerQuote",
-    "Expand": "Customer.Info,CurrencyCode,DefaultSeller",
+    "Expand": "",
     "OrderBy": "ID DESC",
     "Columns": [{
             "Header": "Tilbudnr",
@@ -845,7 +888,7 @@
     "IsTopLevelTicker": false,
     "Group": "Salg",
     "Model": "CustomerQuoteItem",
-    "Expand": "Product,VatType",
+    "Expand": "",
     "SubTickers": [],
     "ParentFilter": {
         "Field": "CustomerQuoteID",
@@ -982,7 +1025,7 @@
     "IsTopLevelTicker": true,
     "Group": "Salg",
     "Model": "CustomerOrder",
-    "Expand": "Customer.Info,CurrencyCode,DefaultSeller,Items",
+    "Expand": "Items",
     "CountExpand": "Customer.Info,CurrencyCode,DefaultSeller",
     "OrderBy": "ID DESC",
     "Columns": [{
@@ -1227,7 +1270,7 @@
     "IsTopLevelTicker": false,
     "Group": "Salg",
     "Model": "CustomerOrderItem",
-    "Expand": "Product,VatType",
+    "Expand": "",
     "SubTickers": [],
     "ParentFilter": {
         "Field": "CustomerOrderID",

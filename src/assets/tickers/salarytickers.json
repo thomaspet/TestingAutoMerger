@@ -5,7 +5,7 @@
         "IsTopLevelTicker": true,
         "Group": "Lønn",
         "Model": "Employee",
-        "Expand": "BusinessRelationInfo.InvoiceAddress,BusinessrelationInfo.DefaultPhone,BusinessRelationInfo.DefaultEmail,BusinessRelationInfo.DefaultBankAccount",
+        "Expand": "",
         "Columns": [{
                 "Header": "Ansattnr",
                 "Field": "EmployeeNumber",
@@ -81,7 +81,7 @@
         "Group": "Lønn",
         "Model": "Employee",
         "UseParentTickerActions": true,
-        "Expand": "Employment,BusinessRelationInfo.InvoiceAddress,BusinessrelationInfo.DefaultPhone,BusinessRelationInfo.DefaultEmail,BusinessRelationInfo.DefaultBankAccount",
+        "Expand": "",
         "Columns": [{
                 "Header": "Ansattnr",
                 "Field": "EmployeeNumber",
@@ -131,7 +131,7 @@
         "Type": "Table",
         "Group": "Lønn",
         "Model": "Employment",
-        "Expand": "SubEntity.BusinessRelationInfo,Dimensions.Department,Dimensions.Project,Employee",
+        "Expand": "",
         "Columns": [{
                 "Header": "Stillingskode",
                 "Field": "JobCode",
@@ -202,7 +202,7 @@
         "Type": "Details",
         "Group": "Lønn",
         "Model": "Employment",
-        "Expand": "SubEntity.BusinessRelationInfo,Dimensions.Department,Dimensions.Project,Employee",
+        "Expand": "",
         "Columns": [{
                 "Header": "Stillingskode",
                 "Field": "JobCode",
@@ -317,7 +317,7 @@
         "IsTopLevelTicker": true,
         "Group": "Lønn",
         "Model": "EmployeeLeave",
-        "Expand": "Employment",
+        "Expand": "",
         "Filters": [],
         "Columns": [{
                 "Header": "Kommentar",
@@ -694,7 +694,7 @@
         "IsTopLevelTicker": true,
         "Group": "Lønn",
         "Model": "SalaryTransaction",
-        "Expand": "Wagetype,Employment,Dimensions.Project,Dimensions.Department",
+        "Expand": "",
         "Columns": [{
                 "Header": "Lønnsart",
                 "Field": "WageTypeNumber",
@@ -780,7 +780,7 @@
         "Type": "Details",
         "Group": "Lønn",
         "Model": "SalaryTransaction",
-        "Expand": "Wagetype,Employment,Dimensions.Project,Dimensions.Department",
+        "Expand": "",
         "Joins": "SalaryTransaction.ID eq FileEntityLink.EntityID",
         "Columns": [{
                 "Header": "Lønnsart",

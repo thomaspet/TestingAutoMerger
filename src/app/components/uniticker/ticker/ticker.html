@@ -35,7 +35,8 @@
                 [resource]="lookupFunction"
                 [config]="tableConfig"
                 (rowSelected)="onRowSelected($event)"
-                (filtersChange)="onFilterChange($event)">
+                (filtersChange)="onFilterChange($event)"
+                (columnsChange)="onColumnsChange($event)">
             </uni-table>
 
             <div *ngIf="ticker.Type !== 'table'">

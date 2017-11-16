@@ -426,6 +426,8 @@ export class UniTable implements OnChanges {
         if (this.lastFocusPosition) {
             this.resetFocusedCell();
         }
+
+        this.columnsChange.emit(this.tableColumns.toJS());
     }
 
     private onSort(column) {

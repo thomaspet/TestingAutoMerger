@@ -6,7 +6,7 @@
         "IsTopLevelTicker": true,
         "Group": "Regnskap",
         "Model": "JournalEntryLine",
-        "Expand": "VatType,Account,Period",
+        "Expand": "",
         "Joins": "JournalEntryLine.JournalEntryID eq FileEntityLink.EntityID",
         "Columns": [
             {
@@ -102,7 +102,7 @@
         "IsTopLevelTicker": false,
         "Group": "Regnskap",
         "Model": "JournalEntryLineDraft",
-        "Expand": "VatType,Account,Period",
+        "Expand": "",
         "Columns": [
             {
                 "Header": "Bilagsnr",
@@ -148,7 +148,7 @@
         "IsTopLevelTicker": true,
         "Group": "Regnskap",
         "Model": "SupplierInvoice",
-        "Expand": "Supplier.Info,BankAccount,JournalEntry",
+        "Expand": "",
         "Columns": [
             {
                 "Header": "Nr",
@@ -383,7 +383,7 @@
         "IsTopLevelTicker": false,
         "Group": "Regnskap",
         "Model": "SupplierInvoice",
-        "Expand": "Supplier.Info,BankAccount,JournalEntry",
+        "Expand": "",
         "UseParentTickerActions": true,
         "SubTickers": [],
         "Filters": [],
@@ -453,18 +453,18 @@
         "IsTopLevelTicker": true,
         "Group": "Regnskap",
         "Model": "Supplier",
-        "Expand": "Info,Info.DefaultEmail,Info.DefaultPhone,Info.InvoiceAddress,Info.DefaultBankAccount",
+        "Expand": "",
         "Columns": [
             {
                 "Header": "Leverandørnr",
-                "Field": "Supplier.SupplierNumber",
+                "Field": "SupplierNumber",
                 "Type": "Link",
-                "LinkNavigationProperty": "Supplier.ID",
+                "LinkNavigationProperty": "ID",
                 "Width": "120px"
             },
             {
                 "Header": "Navn",
-                "Field": "Supplier.Info.Name",
+                "Field": "Info.Name",
                 "Width": "250px"
             },
             {
@@ -553,7 +553,7 @@
         "IsTopLevelTicker": false,
         "Group": "Regnskap",
         "Model": "Supplier",
-        "Expand": "Info.ShippingAddress,Info.InvoiceAddress,Info.DefaultPhone,Info.DefaultEmail,CurrencyCode",
+        "Expand": "",
         "SubTickers": [],
         "Filters": [],
         "UseParentTickerActions": true,
@@ -565,7 +565,7 @@
         "Columns": [
             {
                 "Header": "Leverandørnr",
-                "Field": "Supplier.SupplierNumber",
+                "Field": "SupplierNumber",
                 "Type": "text",
                 "Width": "120px"
             },
