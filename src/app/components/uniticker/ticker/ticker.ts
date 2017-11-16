@@ -38,11 +38,20 @@ import {BrowserStorageService} from '../../../services/common/browserStorageServ
 import {UniModalService} from '../../../../framework/uniModal/barrel';
 import {UniPreviewModal} from '../../reports/modals/preview/previewModal';
 import {GetPrintStatusText} from '../../../models/printStatus';
+import {SharingType, StatusCodeSharing} from '../../../unientities'
 
 import * as moment from 'moment';
 import {saveAs} from 'file-saver';
 
 const PAPERCLIP = '📎'; // It might look empty in your editor, but this is the unicode paperclip
+
+export var SharingTypeText = [
+    {ID: SharingType.AP, Title: 'Aksesspunkt'},
+    {ID: SharingType.Email, Title: 'Epost'},
+    {ID: SharingType.Export, Title: 'Eksport'},
+    {ID: SharingType.Print, Title: 'Utskrift'},
+    {ID: SharingType.Vipps, Title: 'Vipps'},
+];
 
 @Component({
     selector: 'uni-ticker',
@@ -537,6 +546,10 @@ export class UniTicker {
         return text || (statusCode ? statusCode.toString() : '');
     }
 
+    private sharingTypeToText(type: SharingType): string {
+        return SharingTypeText.find(sharingType => sharingType.ID === type).Title || '';
+    }
+
     private getFilterText() {
         if (this.selectedFilter) {
             if (this.selectedFilter.FilterGroups && this.selectedFilter.FilterGroups.length > 0) {
@@ -583,7 +596,7 @@ export class UniTicker {
                 let columns: UniTableColumn[] = [];
                 let selects: string[] = [];
                 const customColumnSetup = this.utils.getColumnSetup(configStoreKey) || [];
-                
+
                 for (let i = 0; i < this.ticker.Columns.length; i++) {
                     const column = this.ticker.Columns[i];
 
@@ -670,6 +683,10 @@ export class UniTicker {
                             if (column.SelectableFieldName.toLowerCase().endsWith('printstatus')) {
                                 col.template = (rowModel) => GetPrintStatusText(rowModel[column.Alias]);
                             }
+
+                            if (field.SelectableFieldName.toLocaleLowerCase().endsWith('sharing.type')) {
+                                col.template = (rowModel) => this.sharingTypeToText(rowModel[field.Alias]);
+                            }
                         }
 
                         if (column.Type === 'external-link') {
@@ -694,7 +711,7 @@ export class UniTicker {
                             });
                         }
 
-                        if (column.Type === 'link' || column.Type === 'mailto' 
+                        if (column.Type === 'link' || column.Type === 'mailto'
                             || (column.SubFields && column.SubFields.length > 0)) {
                                 col.setTemplate(row => {
                                     // use the tickerservice to get and format value and subfield values
@@ -719,6 +736,18 @@ export class UniTicker {
                                             : 'date-good';
                                     });
                                     break;
+                                case 'SharingStatus':
+                                    col.setConditionalCls(row => {
+                                        switch (row[field.Alias]) {
+                                            case StatusCodeSharing.Completed:
+                                                return 'status-good';
+                                            case StatusCodeSharing.Failed:
+                                                return 'status-bad';
+                                            case StatusCodeSharing.InProgress:
+                                                return 'status-waiting';
+                                        }
+                                    })
+                                    break;
                                 case 'json':
                                     col.setTemplate(row => JSON.stringify(row));
                                     break;
@@ -729,7 +758,7 @@ export class UniTicker {
                             col.setVisible(false);
                         }
 
-                        if (column.FilterOperator === 'startswith' || column.FilterOperator === 'eq' 
+                        if (column.FilterOperator === 'startswith' || column.FilterOperator === 'eq'
                             || column.FilterOperator === 'contains') {
                                 col.setFilterOperator(column.FilterOperator);
                         } else {
@@ -883,7 +912,7 @@ export class UniTicker {
                             let tmp = data !== null ? data.Data : [];
 
                             if (data !== null && data.Message !== null && data.Message !== '') {
-                                this.toastService.addToast('Feil ved henting av data, ' + data.Message, 
+                                this.toastService.addToast('Feil ved henting av data, ' + data.Message,
                                     ToastType.bad);
                             }
 
@@ -922,7 +951,7 @@ export class UniTicker {
         if (!field) {
             return;
         }
-        
+
         // if field is a function with fields as params, run through all its fields
         if (field.includes('(')) {
             let fields = field.slice(field.lastIndexOf('(') + 1, field.indexOf(')') - 1).split(',');
@@ -932,13 +961,13 @@ export class UniTicker {
             });
             return;
         }
-        
+
         // if field includes '.' it needs to expand something
         if (field.includes('.')) {
             const fieldSplit = field.split('.');
             this.ticker.Expand = this.ticker.Expand || '';
             let expandField = '';
-            
+
             // if field is nested/has parents, expand all parents too
             for (let k = 0; k < fieldSplit.length - 1; k++) {
                 if (k === 0) {
@@ -958,7 +987,7 @@ export class UniTicker {
                 if (column.Expand) {
                     expandField = column.Expand;
                 }
-                
+
                 // if field uses a join, don't expand
                 if (this.ticker.Joins && this.ticker.Joins.includes(expandField)) {
                     return;
@@ -973,7 +1002,7 @@ export class UniTicker {
                     }
                 }
             }
-        } 
+        }
     }
 
     // this function assumes that the unitablesetup has already been run, so that all needed
@@ -994,7 +1023,7 @@ export class UniTicker {
 
         this.selects = selectSplit.join(',');
 
-        this.headers = this.headers 
+        this.headers = this.headers
             || this.ticker.Columns.map(x => x.Header !== PAPERCLIP ? x.Header : 'Vedlegg').join(',');
 
         // use both predefined filters and additional unitable filters if applicable
@@ -1007,7 +1036,7 @@ export class UniTicker {
         console.log('filter:', params.get('filter'));
         // execute request to create Excel file
         this.statisticsService
-            .GetExportedExcelFile(this.ticker.Model, this.selects, params.get('filter'), 
+            .GetExportedExcelFile(this.ticker.Model, this.selects, params.get('filter'),
                 this.ticker.Expand, this.headers, this.ticker.Joins)
                     .subscribe((blob) => {
                         // download file so the user can open it

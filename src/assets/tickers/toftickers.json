@@ -5,6 +5,7 @@
     "IsTopLevelTicker": true,
     "Group": "Salg",
     "Model": "CustomerInvoice",
+    "Joins": "CustomerInvoice.ID eq Sharing.EntityID",
     "Expand": "",
     "OrderBy": "ID DESC",
     "Columns": [{
@@ -125,6 +126,11 @@
             "Field": "PrintStatus",
             "Width": "125px",
             "DefaultHidden": true
+        }, {
+            "Header": "Deling",
+            "Field": "count(Sharing.ID)",
+            "Alias": "SharingCount",
+            "width": "125px"
         }
     ],
     "ParentFilter": {
@@ -212,7 +218,7 @@
             "NeedsActionOverride": true
             }
     ],
-    "SubTickersCodes": ["invoice_details", "invoice_items"],
+    "SubTickersCodes": ["invoice_details", "invoice_items", "sharing_list"],
     "Filters": [
         {
             "Name": "Alle",

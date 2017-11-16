@@ -251,8 +251,8 @@ export class WorkRelation extends UniEntity {
     public WorkerID: number;
     public WorkPercentage: number;
     public WorkProfileID: number;
-    public Worker: Worker;
     public WorkProfile: WorkProfile;
+    public Worker: Worker;
     public Employment: Employment;
     public Items: Array<WorkItem>;
     public Team: Team;
@@ -732,6 +732,7 @@ export class CustomerInvoice extends UniEntity {
     public InvoiceReference: CustomerInvoice;
     public DefaultDimensions: Dimensions;
     public DefaultSeller: Seller;
+    public CustomerInvoiceReminders: Array<CustomerInvoiceReminder>;
     public Sellers: Array<SellerLink>;
     public CustomFields: any;
 }
@@ -1459,6 +1460,31 @@ export class EmployeeTaxCard extends UniEntity {
 }
 
 
+export class TaxBasis extends UniEntity {
+    public static RelativeUrl = '';
+    public static EntityType = 'TaxBasis';
+
+    public _createguid: string;
+    public CreatedAt: Date;
+    public CreatedBy: string;
+    public Deleted: boolean;
+    public ForeignBorderCommuterBasis: number;
+    public ForeignCitizenInsuranceBasis: number;
+    public ID: number;
+    public JanMayenBasis: number;
+    public PensionBasis: number;
+    public PensionSourcetaxBasis: number;
+    public PercentBasis: number;
+    public SalaryTransactionID: number;
+    public StatusCode: number;
+    public SvalbardBasis: number;
+    public TableBasis: number;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public CustomFields: any;
+}
+
+
 export class PayrollRunCategoryLink extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'PayrollRunCategoryLink';
@@ -1861,8 +1887,8 @@ export class PayrollRun extends UniEntity {
     public ToDate: Date;
     public UpdatedAt: Date;
     public UpdatedBy: string;
-    public agacalculation: Array<AGACalculation>;
     public transactions: Array<SalaryTransaction>;
+    public agacalculation: Array<AGACalculation>;
     public CustomFields: any;
 }
 
@@ -1978,6 +2004,7 @@ export class SalaryTransaction extends UniEntity {
     public employment: Employment;
     public Dimensions: Dimensions;
     public Supplements: Array<SalaryTransactionSupplement>;
+    public Taxbasis: Array<TaxBasis>;
     public CustomFields: any;
 }
 
@@ -2822,9 +2849,9 @@ export class Notification extends UniEntity {
 }
 
 
-export class EHFLog extends UniEntity {
-    public static RelativeUrl = 'ehf';
-    public static EntityType = 'EHFLog';
+export class EmailLog extends UniEntity {
+    public static RelativeUrl = 'emails';
+    public static EntityType = 'EmailLog';
 
     public _createguid: string;
     public CreatedAt: Date;
@@ -2832,9 +2859,38 @@ export class EHFLog extends UniEntity {
     public Deleted: boolean;
     public EntityID: number;
     public EntityType: string;
-    public Guid: string;
+    public ExternalMessage: string;
+    public ExternalReference: string;
+    public From: string;
     public ID: number;
     public StatusCode: number;
+    public Subject: string;
+    public To: string;
+    public Type: SharingType;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public CustomFields: any;
+}
+
+
+export class Sharing extends UniEntity {
+    public static RelativeUrl = '';
+    public static EntityType = 'Sharing';
+
+    public _createguid: string;
+    public CreatedAt: Date;
+    public CreatedBy: string;
+    public Deleted: boolean;
+    public EntityID: number;
+    public EntityType: string;
+    public ExternalMessage: string;
+    public ExternalReference: string;
+    public From: string;
+    public ID: number;
+    public StatusCode: number;
+    public Subject: string;
+    public To: string;
+    public Type: SharingType;
     public UpdatedAt: Date;
     public UpdatedBy: string;
     public CustomFields: any;
@@ -2854,27 +2910,6 @@ export class StatusLog extends UniEntity {
     public FromStatus: number;
     public ID: number;
     public ToStatus: number;
-    public UpdatedAt: Date;
-    public UpdatedBy: string;
-    public CustomFields: any;
-}
-
-
-export class EmailLog extends UniEntity {
-    public static RelativeUrl = 'emails';
-    public static EntityType = 'EmailLog';
-
-    public _createguid: string;
-    public CreatedAt: Date;
-    public CreatedBy: string;
-    public Deleted: boolean;
-    public EntityID: number;
-    public EntityType: string;
-    public From: string;
-    public ID: number;
-    public StatusCode: number;
-    public Subject: string;
-    public To: string;
     public UpdatedAt: Date;
     public UpdatedBy: string;
     public CustomFields: any;
@@ -3522,72 +3557,6 @@ export class TeamPosition extends UniEntity {
 }
 
 
-export class File extends UniEntity {
-    public static RelativeUrl = 'files/{entitytype}/{entityid}';
-    public static EntityType = 'File';
-
-    public _createguid: string;
-    public ContentType: string;
-    public CreatedAt: Date;
-    public CreatedBy: string;
-    public Deleted: boolean;
-    public Description: string;
-    public ID: number;
-    public Md5: string;
-    public Name: string;
-    public OCRData: string;
-    public Pages: number;
-    public PermaLink: string;
-    public Size: string;
-    public StatusCode: number;
-    public StorageReference: string;
-    public UpdatedAt: Date;
-    public UpdatedBy: string;
-    public UploadSlot: string;
-    public FileTags: Array<FileTag>;
-    public CustomFields: any;
-}
-
-
-export class FileTag extends UniEntity {
-    public static RelativeUrl = 'filetags';
-    public static EntityType = 'FileTag';
-
-    public _createguid: string;
-    public CreatedAt: Date;
-    public CreatedBy: string;
-    public Deleted: boolean;
-    public FileID: number;
-    public ID: number;
-    public Status: number;
-    public TagName: string;
-    public UpdatedAt: Date;
-    public UpdatedBy: string;
-    public File: File;
-    public CustomFields: any;
-}
-
-
-export class FileEntityLink extends UniEntity {
-    public static RelativeUrl = '';
-    public static EntityType = 'FileEntityLink';
-
-    public _createguid: string;
-    public CreatedAt: Date;
-    public CreatedBy: string;
-    public Deleted: boolean;
-    public EntityID: number;
-    public EntityType: string;
-    public FileID: number;
-    public ID: number;
-    public StatusCode: number;
-    public UpdatedAt: Date;
-    public UpdatedBy: string;
-    public File: File;
-    public CustomFields: any;
-}
-
-
 export class Comment extends UniEntity {
     public static RelativeUrl = 'comments';
     public static EntityType = 'Comment';
@@ -3919,6 +3888,91 @@ export class NumberSeriesType extends UniEntity {
 }
 
 
+export class EncryptionInfo extends UniEntity {
+    public static RelativeUrl = '';
+    public static EntityType = 'EncryptionInfo';
+
+    public _createguid: string;
+    public CreatedAt: Date;
+    public CreatedBy: string;
+    public Deleted: boolean;
+    public description: string;
+    public ID: number;
+    public password: string;
+    public type: Type;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public CustomFields: any;
+}
+
+
+export class File extends UniEntity {
+    public static RelativeUrl = 'files/{entitytype}/{entityid}';
+    public static EntityType = 'File';
+
+    public _createguid: string;
+    public ContentType: string;
+    public CreatedAt: Date;
+    public CreatedBy: string;
+    public Deleted: boolean;
+    public Description: string;
+    public encryptionID: number;
+    public ID: number;
+    public Md5: string;
+    public Name: string;
+    public OCRData: string;
+    public Pages: number;
+    public PermaLink: string;
+    public Size: string;
+    public StatusCode: number;
+    public StorageReference: string;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public UploadSlot: string;
+    public FileTags: Array<FileTag>;
+    public CustomFields: any;
+}
+
+
+export class FileTag extends UniEntity {
+    public static RelativeUrl = 'filetags';
+    public static EntityType = 'FileTag';
+
+    public _createguid: string;
+    public CreatedAt: Date;
+    public CreatedBy: string;
+    public Deleted: boolean;
+    public FileID: number;
+    public ID: number;
+    public Status: number;
+    public TagName: string;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public File: File;
+    public CustomFields: any;
+}
+
+
+export class FileEntityLink extends UniEntity {
+    public static RelativeUrl = '';
+    public static EntityType = 'FileEntityLink';
+
+    public _createguid: string;
+    public CreatedAt: Date;
+    public CreatedBy: string;
+    public Deleted: boolean;
+    public EntityID: number;
+    public EntityType: string;
+    public FileID: number;
+    public ID: number;
+    public StatusCode: number;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public File: File;
+    public CustomFields: any;
+}
+
+
 export class AccessPointFormat extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'AccessPointFormat';
@@ -3940,6 +3994,30 @@ export class AccessPointFormat extends UniEntity {
 }
 
 
+export class EHFLog extends UniEntity {
+    public static RelativeUrl = 'ehf';
+    public static EntityType = 'EHFLog';
+
+    public _createguid: string;
+    public CreatedAt: Date;
+    public CreatedBy: string;
+    public Deleted: boolean;
+    public EntityID: number;
+    public EntityType: string;
+    public ExternalMessage: string;
+    public ExternalReference: string;
+    public From: string;
+    public ID: number;
+    public StatusCode: number;
+    public Subject: string;
+    public To: string;
+    public Type: SharingType;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public CustomFields: any;
+}
+
+
 export class Company extends UniEntity {
     public static RelativeUrl = 'companies';
     public static EntityType = 'Company';
@@ -3954,6 +4032,7 @@ export class Company extends UniEntity {
     public IsTest: boolean;
     public Key: string;
     public Name: string;
+    public OrganizationNumber: string;
     public SchemaName: string;
     public UpdatedAt: Date;
     public UpdatedBy: string;
@@ -5226,9 +5305,9 @@ export class WorkBalanceDto extends UniEntity {
     public ValidFrom: Date;
     public ValidTimeOff: number;
     public WorkRelationID: number;
+    public WorkRelation: WorkRelation;
     public Previous: BalanceInfo;
     public Details: Array<FlexDetail>;
-    public WorkRelation: WorkRelation;
     public CustomFields: any;
 }
 
@@ -5592,7 +5671,43 @@ export class UserDto extends UniEntity {
     public UpdatedAt: Date;
     public UpdatedBy: string;
     public UserName: string;
+    public License: UserLicense;
     public CustomFields: any;
+}
+
+
+export class UserLicense extends UniEntity {
+    public Comment: string;
+    public GlobalIdentity: string;
+    public Name: string;
+    public Roles: string;
+    public UserLicenseKey: string;
+    public UserType: UserLicenseType;
+    public Company: CompanyLicense;
+    public ContractType: ContractLicenseType;
+    public Roles: IEnumerable`1;
+}
+
+
+export class UserLicenseType extends UniEntity {
+    public TypeID: number;
+    public TypeName: string;
+}
+
+
+export class CompanyLicense extends UniEntity {
+    public Key: string;
+    public Name: string;
+}
+
+
+export class ContractLicenseType extends UniEntity {
+    public TypeID: number;
+    public TypeName: string;
+}
+
+
+export class IEnumerable`1 extends UniEntity {
 }
 
 
@@ -5638,9 +5753,9 @@ export class AltinnAuthRequest extends UniEntity {
 
 export class SendEmail extends UniEntity {
     public CopyAddress: string;
-    public EmailLogID: number;
     public EntityID: number;
     public EntityType: string;
+    public ExternalReference: string;
     public FromAddress: string;
     public Message: string;
     public ReportName: string;
@@ -5797,6 +5912,11 @@ export class VatReportNotReportedJournalEntryData extends UniEntity {
     public SumTaxBasisAmount: number;
     public SumVatAmount: number;
     public TerminPeriodID: number;
+}
+
+
+export class AltinnSigningTextResponse extends UniEntity {
+    public SigningText: string;
 }
 
 
@@ -6197,6 +6317,15 @@ export enum PeriodSeriesType{
 }
 
 
+export enum SharingType{
+    Print = 1,
+    Email = 2,
+    AP = 3,
+    Vipps = 4,
+    Export = 5,
+}
+
+
 export enum PredefinedDescriptionType{
     JournalEntryText = 1,
 }
@@ -6273,6 +6402,11 @@ export enum TypeOfLogin{
     AltinnPin = 1,
     SMSPin = 2,
     TaxPin = 3,
+}
+
+
+export enum Type{
+    Payroll = 0,
 }
 
 
@@ -6414,6 +6548,13 @@ export enum NotificationStatus{
     New = 900010,
     Read = 900020,
     Marked = 900030,
+}
+
+
+export enum StatusCodeSharing{
+    InProgress = 70001,
+    Failed = 70002,
+    Completed = 70003,
 }
 
 
