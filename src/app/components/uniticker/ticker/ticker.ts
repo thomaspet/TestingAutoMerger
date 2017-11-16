@@ -685,8 +685,8 @@ export class UniTicker {
                                 col.template = (rowModel) => GetPrintStatusText(rowModel[column.Alias]);
                             }
 
-                            if (field.SelectableFieldName.toLocaleLowerCase().endsWith('sharing.type')) {
-                                col.template = (rowModel) => this.sharingTypeToText(rowModel[field.Alias]);
+                            if (column.SelectableFieldName.toLocaleLowerCase().endsWith('sharing.type')) {
+                                col.template = (rowModel) => this.sharingTypeToText(rowModel[column.Alias]);
                             }
                         }
 
@@ -739,7 +739,7 @@ export class UniTicker {
                                     break;
                                 case 'SharingStatus':
                                     col.setConditionalCls(row => {
-                                        switch (row[field.Alias]) {
+                                        switch (row[column.Alias]) {
                                             case StatusCodeSharing.Completed:
                                                 return 'status-good';
                                             case StatusCodeSharing.Failed:
