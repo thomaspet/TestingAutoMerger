@@ -44,14 +44,9 @@ import {YearModal, IChangeYear} from './modals/yearModal';
                         (valueChange)="companySelected($event)">
                     </uni-select>
 
-                    <ng-template [ngIf]="currentUser?.License?.ContractType?.TypeName">
+                    <ng-template [ngIf]="licenseRole">
                         <dt>Lisens</dt>
-                        <dd>{{currentUser.License.ContractType.TypeName}}</dd>
-                    </ng-template>
-
-                    <ng-template [ngIf]="currentUser?.License?.UserType?.TypeName">
-                        <dt>Rolle</dt>
-                        <dd>{{currentUser.License.UserType.TypeName}}</dd>
+                        <dd>{{licenseRole}}</dd>
                     </ng-template>
 
                     <dt *ngIf="companySettings?.OrganizationNumber">Org.nr</dt>
@@ -96,6 +91,7 @@ export class UniCompanyDropdown {
     private companySettings: CompanySettings;
 
     private currentUser: User;
+    private licenseRole: string;
 
     private selectYear: string[];
     private financialYears: Array<FinancialYear> = [];
@@ -121,6 +117,19 @@ export class UniCompanyDropdown {
     ) {
         this.userService.getCurrentUser().subscribe((user: User) => {
             this.currentUser = user;
+
+            const licenseRoles: string[] = [];
+            if (user['License'] && user['License'].ContractType) {
+                if (user['License'].ContractType.TypeName) {
+                    licenseRoles.push(user['License'].ContractType.TypeName);
+                }
+            }
+            if (user['License'] && user['License'].UserType) {
+                if (user['License'].UserType.TypeName) {
+                    licenseRoles.push(user['License'].UserType.TypeName);
+                }
+            }
+            this.licenseRole = licenseRoles.join('/');
         }, err => this.errorService.handle(err));
 
         this.companyService.GetAll(null).subscribe(
