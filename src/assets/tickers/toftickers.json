@@ -6,7 +6,7 @@
     "Group": "Salg",
     "Model": "CustomerInvoice",
     "Joins": "CustomerInvoice.ID eq Sharing.EntityID",
-    "Expand": "",
+    "Expand": "Customer,Customer.Info",
     "OrderBy": "ID DESC",
     "Columns": [{
             "Header": "Fakturanr",
