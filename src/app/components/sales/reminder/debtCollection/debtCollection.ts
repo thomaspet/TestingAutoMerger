@@ -35,23 +35,23 @@ export class DebtCollection implements OnInit {
 
     private remindersToDebtCollect: any;
 
-    private remindersAll: any;
+    public remindersAll: any;
     private reminderToDebtCollectTable: UniTableConfig;
 
     private showInvoicesWithReminderStop: boolean = false;
 
     private summaryFields: ISummaryConfig[] = [];
-    private summaryData = {
+    private summaryData: any = {
         restSumReadyForDebtCollection: 0,
         restSumChecked: 0
     };
 
 
-    private toolbarconfig: IToolbarConfig = {
+    public toolbarconfig: IToolbarConfig = {
         title: 'Inkasso',
     };
 
-    private saveactions: IUniSaveAction[] = [
+    public saveactions: IUniSaveAction[] = [
         {
             label: 'Send purringer til inkasso',
             action: (done) => this.sendRemindersToDebtCollect(done),
@@ -73,7 +73,7 @@ export class DebtCollection implements OnInit {
         this.setupRemindersToDebtCollectTable();
     }
 
-    private onRowSelected(data) {
+    public onRowSelected(data) {
         this.summaryData.restSumChecked = 0;
         let selectedRows = this.table.getSelectedRows();
 
@@ -83,7 +83,7 @@ export class DebtCollection implements OnInit {
         this.setSums();
     }
 
-    private sendRemindersToDebtCollect(donehandler: (string) => any): void {
+    private sendRemindersToDebtCollect(donehandler: (str: string) => any): void {
         var selected = this.table.getSelectedRows().map((ci) => ci.CustomerInvoiceID);
         if (selected.length === 0) {
             this.toastService.addToast(
@@ -129,7 +129,9 @@ export class DebtCollection implements OnInit {
             if (response === ConfirmActions.ACCEPT) {
                 let selectedToDebtCollect = this.table.getSelectedRows().map(x => x.CustomerInvoiceID);
                 this.customerInvoiceReminderService.sendToDebtCollection(selectedToDebtCollect).subscribe(s => {
-                    this.toastService.addToast('Inkasso', ToastType.good, 5, 'Merkede fakturaer ble sendt til inkasso');
+                    this.toastService.addToast(
+                        'Inkasso', ToastType.good, 5, 'Merkede fakturaer ble sendt til inkasso'
+                    );
                     this.setupRemindersToDebtCollectTable();
                     donehandler('Merkede fakturaer sendt til inkasso');
                 }, err => {
@@ -156,10 +158,14 @@ export class DebtCollection implements OnInit {
     }
 
     public updateReminderTable() {
-        this.customerInvoiceReminderService.getCustomerInvoicesReadyForDebtCollection(this.showInvoicesWithReminderStop).subscribe((reminders) => {
+        this.customerInvoiceReminderService.getCustomerInvoicesReadyForDebtCollection(
+            this.showInvoicesWithReminderStop
+        ).subscribe((reminders) => {
             if (reminders.length > 0) {
                 this.remindersToDebtCollect = reminders;
-                this.summaryData.restSumReadyForDebtCollection = _.sumBy(this.remindersToDebtCollect, x => x.RestAmount);
+                this.summaryData.restSumReadyForDebtCollection = _.sumBy(
+                    this.remindersToDebtCollect, x => x.RestAmount
+                );
                 this.summaryData.restSumChecked = 0;
                 this.setSums();
             } else {
@@ -175,8 +181,12 @@ export class DebtCollection implements OnInit {
     private setupRemindersToDebtCollectTable() {
         this.updateReminderTable();
 
-        let reminderNumberCol = new UniTableColumn('ReminderNumber', 'Purring nr', UniTableColumnType.Text).setWidth('100px').setFilterOperator('contains');
-        let invoiceNumberCol = new UniTableColumn('InvoiceNumber', 'Fakturanr.', UniTableColumnType.Text).setWidth('100px').setFilterOperator('contains');
+        let reminderNumberCol = new UniTableColumn(
+            'ReminderNumber', 'Purring nr', UniTableColumnType.Text
+        ).setWidth('100px').setFilterOperator('contains');
+        let invoiceNumberCol = new UniTableColumn(
+            'InvoiceNumber', 'Fakturanr.', UniTableColumnType.Text
+        ).setWidth('100px').setFilterOperator('contains');
 
         invoiceNumberCol.setTemplate((reminders) => {
             return `<a href='/#/sales/invoices/${reminders.CustomerInvoiceID}'>${reminders.InvoiceNumber}</a>`;
@@ -185,22 +195,34 @@ export class DebtCollection implements OnInit {
         let customerNumberCol = new UniTableColumn('CustomerNumber', 'Kundenr', UniTableColumnType.Text, false)
             .setWidth('100px').setFilterOperator('startswith')
             .setTemplate((reminder) => {
-                return reminder.CustomerID ? `<a href='/#/sales/customer/${reminder.CustomerID}'>${reminder.CustomerNumber}</a>` : ``;
+                return reminder.CustomerID
+                    ? `<a href='/#/sales/customer/${reminder.CustomerID}'>${reminder.CustomerNumber}</a>`
+                    : ``;
             });
 
-        let customerNameCol = new UniTableColumn('CustomerName', 'Kunde', UniTableColumnType.Text).setFilterOperator('contains');
+        let customerNameCol = new UniTableColumn(
+            'CustomerName', 'Kunde', UniTableColumnType.Text
+        ).setFilterOperator('contains');
         customerNameCol.setTemplate((reminders) => {
-            return `<a href='/#/sales/customer/${reminders.CustomerID}'>${reminders.CustomerNumber} - ${reminders.CustomerName}</a>`;
-        })
+            return `<a href='/#/sales/customer/${reminders.CustomerID}'>
+                ${reminders.CustomerNumber} - ${reminders.CustomerName}
+            </a>`;
+        });
 
-        let invoiceDateCol = new UniTableColumn('InvoiceDate', 'Dato', UniTableColumnType.DateTime).setWidth('120px').setFilterOperator('contains');
-        let invoiceDueDateCol = new UniTableColumn('DueDate', 'Forfallsdato', UniTableColumnType.DateTime).setWidth('120px').setFilterOperator('contains');
+        let invoiceDateCol = new UniTableColumn(
+            'InvoiceDate', 'Dato', UniTableColumnType.DateTime
+        ).setWidth('120px').setFilterOperator('contains');
+        let invoiceDueDateCol = new UniTableColumn(
+            'DueDate', 'Forfallsdato', UniTableColumnType.DateTime
+        ).setWidth('120px').setFilterOperator('contains');
 
         var currencyCodeCol = new UniTableColumn('CurrencyCodeCode', 'Valuta', UniTableColumnType.Text, false)
             .setFilterOperator('contains')
             .setWidth('5%');
 
-        var taxInclusiveAmountCurrencyCol = new UniTableColumn('TaxInclusiveAmountCurrency', 'Fakturasum', UniTableColumnType.Number, false)
+        var taxInclusiveAmountCurrencyCol = new UniTableColumn(
+            'TaxInclusiveAmountCurrency', 'Fakturasum', UniTableColumnType.Number, false
+        )
             .setWidth('8%')
             .setFilterOperator('eq')
             .setFormat('{0:n}')
@@ -210,7 +232,9 @@ export class DebtCollection implements OnInit {
             })
             .setCls('column-align-right');
 
-        var restAmountCurrencyCol = new UniTableColumn('RestAmountCurrency', 'Restsum', UniTableColumnType.Number, false)
+        var restAmountCurrencyCol = new UniTableColumn(
+            'RestAmountCurrency', 'Restsum', UniTableColumnType.Number, false
+        )
             .setWidth('10%')
             .setFilterOperator('eq')
             .setFormat('{0:n}')
@@ -228,7 +252,9 @@ export class DebtCollection implements OnInit {
             label: 'Inverter purrestopp',
             action: (rowModel) => {
                 const warnToastID = this.toastService.addToast('Purrestopp', ToastType.warn);
-                this.customerInvoiceService.ActionWithBody(rowModel.CustomerInvoiceID, rowModel, 'toggle-reminder-stop').subscribe(() => {
+                this.customerInvoiceService.ActionWithBody(
+                    rowModel.CustomerInvoiceID, rowModel, 'toggle-reminder-stop'
+                ).subscribe(() => {
                     this.toastService.removeToast(warnToastID);
                     this.toastService.addToast('Purrestopp invertert', ToastType.good, 10);
                     this.updateReminderTable();
@@ -247,8 +273,11 @@ export class DebtCollection implements OnInit {
             .setAutoAddNewRow(false)
             .setMultiRowSelect(true)
             .setDeleteButton(false)
-            .setColumns([reminderNumberCol, invoiceNumberCol, customerNumberCol, customerNameCol, currencyCodeCol,
-                taxInclusiveAmountCurrencyCol, restAmountCurrencyCol, invoiceDateCol, invoiceDueDateCol, reminderStoppCol])
+            .setColumns([
+                reminderNumberCol, invoiceNumberCol, customerNumberCol, customerNameCol,
+                currencyCodeCol, taxInclusiveAmountCurrencyCol, restAmountCurrencyCol,
+                invoiceDateCol, invoiceDueDateCol, reminderStoppCol
+            ])
             .setContextMenu(contextMenuItems);
     }
 }

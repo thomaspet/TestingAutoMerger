@@ -8,7 +8,6 @@ import {
     ConfirmActions
 } from '../../../../../framework/uniModal/barrel';
 import {
-    Address,
     CompanySettings,
     CurrencyCode,
     Customer,
@@ -342,7 +341,7 @@ export class OrderDetails {
         }
     }
 
-    private numberSeriesChange(selectedSerie) {
+    public numberSeriesChange(selectedSerie) {
         this.order.OrderNumberSeriesID = selectedSerie.ID;
     }
 

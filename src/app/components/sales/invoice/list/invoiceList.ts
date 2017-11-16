@@ -1,11 +1,15 @@
 import {Component, OnInit, ViewChild} from '@angular/core';
 import {Router} from '@angular/router';
 import {UniHttp} from '../../../../../framework/core/http/http';
-import {StatusCodeCustomerInvoice, CustomerInvoice, LocalDate, CompanySettings, InvoicePaymentData} from '../../../../unientities';
+import {
+    StatusCodeCustomerInvoice, LocalDate, CompanySettings, InvoicePaymentData
+} from '../../../../unientities';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
 import {SendEmail} from '../../../../models/sendEmail';
 import {ToastService, ToastType} from '../../../../../framework/uniToast/toastService';
-import {ITickerActionOverride, TickerAction, ITickerColumnOverride} from '../../../../services/common/uniTickerService';
+import {
+    ITickerActionOverride, ITickerColumnOverride
+} from '../../../../services/common/uniTickerService';
 import {UniTickerWrapper} from '../../../uniticker/tickerWrapper/tickerWrapper';
 import {
     CustomerInvoiceService,
@@ -178,7 +182,8 @@ export class InvoiceList implements OnInit {
             // get invoice from API - the data from the ticker may only be partial
             this.customerInvoiceService.Get(row.ID, ['CurrencyCode']).subscribe(invoice => {
                 let rowModel = invoice;
-                const title = `Register betaling, Faktura ${rowModel.InvoiceNumber || ''}, ${rowModel.CustomerName || ''}`;
+                const title = `Register betaling, Faktura ${rowModel.InvoiceNumber || ''},`
+                    + ` ${rowModel.CustomerName || ''}`;
 
                 const paymentData: InvoicePaymentData = {
                     Amount: rowModel.RestAmount,

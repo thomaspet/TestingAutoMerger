@@ -80,7 +80,10 @@ export class TradeItemHelper  {
         };
     }
 
-    public tradeItemChangeCallback(event, currencyCodeID: number, currencyExchangeRate: number, companySettings: CompanySettings, foreignVatType: VatType) {
+    public tradeItemChangeCallback(
+        event, currencyCodeID: number, currencyExchangeRate: number,
+        companySettings: CompanySettings, foreignVatType: VatType
+    ) {
         var newRow = event.rowModel;
 
         newRow.SumVat = newRow.SumVat || 0;
@@ -120,7 +123,10 @@ export class TradeItemHelper  {
         }
 
         if (event.field === 'Account') {
-            this.mapAccountToQuoteItem(newRow, currencyCodeID !== companySettings.BaseCurrencyCodeID? foreignVatType: null);
+            this.mapAccountToQuoteItem(
+                newRow,
+                currencyCodeID !== companySettings.BaseCurrencyCodeID ? foreignVatType : null
+            );
         }
 
         if (event.field === 'Dimensions.Project') {
@@ -220,14 +226,14 @@ export class TradeItemHelper  {
         }
     }
 
-    public mapAccountToQuoteItem(rowModel, overrideWithVatType:VatType) {
+    public mapAccountToQuoteItem(rowModel, overrideWithVatType: VatType) {
         let account = rowModel['Account'];
 
         if (!account) {
             rowModel.AccountID = null;
         } else {
             rowModel.AccountID = account.ID;
-            if(!overrideWithVatType) {
+            if (!overrideWithVatType) {
                 rowModel.VatTypeID = account.VatTypeID;
                 rowModel.VatType = account.VatType;
             } else {
@@ -298,8 +304,12 @@ export class TradeItemHelper  {
     }
 
     public calculateDiscount(rowModel, currencyExchangeRate) {
-        const discountExVat  = this.round((rowModel['NumberOfItems'] * rowModel['PriceExVat'] * rowModel['DiscountPercent']) / 100, 4);
-        const discountIncVat = this.round((rowModel['NumberOfItems'] * rowModel['PriceIncVat'] * rowModel['DiscountPercent']) / 100, 4);
+        const discountExVat  = this.round(
+            (rowModel['NumberOfItems'] * rowModel['PriceExVat'] * rowModel['DiscountPercent']) / 100, 4
+        );
+        const discountIncVat = this.round(
+            (rowModel['NumberOfItems'] * rowModel['PriceIncVat'] * rowModel['DiscountPercent']) / 100, 4
+        );
 
         rowModel.Discount = discountExVat || 0;
         rowModel.SumTotalExVat = (rowModel.NumberOfItems * rowModel.PriceExVat) - discountExVat;
@@ -309,8 +319,15 @@ export class TradeItemHelper  {
         let discountExVatCurrency = discountExVat / currencyExchangeRate;
         let discountIncVatCurrency = discountIncVat / currencyExchangeRate;
         rowModel.DiscountCurrency = discountExVatCurrency || 0;
-        rowModel.SumTotalExVatCurrency = ((rowModel.NumberOfItems * rowModel.PriceExVatCurrency) - discountExVatCurrency) ;
-        rowModel.SumTotalIncVatCurrency = ((rowModel.NumberOfItems * rowModel.PriceIncVatCurrency) - discountIncVatCurrency);
+        rowModel.SumTotalExVatCurrency = ((
+            rowModel.NumberOfItems
+            * rowModel.PriceExVatCurrency)
+            - discountExVatCurrency
+        ) ;
+        rowModel.SumTotalIncVatCurrency = (
+            (rowModel.NumberOfItems * rowModel.PriceIncVatCurrency)
+            - discountIncVatCurrency
+        );
         rowModel.SumVatCurrency = (rowModel.SumTotalIncVatCurrency - rowModel.SumTotalExVatCurrency) || 0;
     }
 

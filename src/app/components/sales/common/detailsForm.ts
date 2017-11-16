@@ -2,7 +2,6 @@ import {Component, Input, Output, ViewChild, EventEmitter, SimpleChanges} from '
 import {UniForm, FieldType, UniFieldLayout} from '../../../../framework/ui/uniform/index';
 import {CompanySettings, CurrencyCode, LocalDate, Project, Seller, SellerLink} from '../../../unientities';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
-import {Dimension} from '../../../services/common/dimensionService';
 import * as moment from 'moment';
 
 declare const _;
@@ -32,7 +31,7 @@ export class TofDetailsForm {
 
     public tabbedPastLastField: EventEmitter<any> = new EventEmitter();
     private entity$: BehaviorSubject<any> = new BehaviorSubject({});
-    private formConfig$: BehaviorSubject<any> = new BehaviorSubject({autofocus: false});
+    public formConfig$: BehaviorSubject<any> = new BehaviorSubject({autofocus: false});
     private fields$: BehaviorSubject<UniFieldLayout[]> = new BehaviorSubject([]);
 
     public ngOnInit() {
@@ -82,8 +81,8 @@ export class TofDetailsForm {
 
                     }
                 } else {
-                    if (this.readonly) { this.form.readMode(); }
-                    else { this.form.editMode(); }
+                    if (this.readonly) { this.form.readMode();
+                    } else { this.form.editMode(); }
 
                 }
             }

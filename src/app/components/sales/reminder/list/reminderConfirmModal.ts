@@ -23,7 +23,7 @@ export interface IReminderConfirmModalConfig {
 })
 export class ReminderConfirmForm implements OnInit {
     @Input() public config: any = {};
-    private formConfig$: BehaviorSubject<any> = new BehaviorSubject({});
+    public formConfig$: BehaviorSubject<any> = new BehaviorSubject({});
     private fields$: BehaviorSubject<UniFieldLayout[]> = new BehaviorSubject([]);
     private model$: BehaviorSubject<any> = new BehaviorSubject(null);
 

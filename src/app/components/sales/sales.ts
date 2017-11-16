@@ -145,7 +145,9 @@ export class UniSales {
                     labels: [],
                     colors: [],
                     dataEndpoint: [
-                        '/api/statistics?model=Customer&select=Info.Name as Name,isnull(sum(CustomerInvoices.RestAmount),0) as RestAmount&expand=Info,CustomerInvoices&having=sum(CustomerInvoices.RestAmount) gt 0'
+                        '/api/statistics?model=Customer&select=Info.Name as Name,'
+                        + 'isnull(sum(CustomerInvoices.RestAmount),0) as RestAmount'
+                        + '&expand=Info,CustomerInvoices&having=sum(CustomerInvoices.RestAmount) gt 0'
                     ],
                     valueKey: 'RestAmount',
                     labelKey: 'Name',

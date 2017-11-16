@@ -1,7 +1,9 @@
 import {Component, ViewChild, Input, Output, EventEmitter, AfterViewInit, SimpleChanges} from '@angular/core';
 import {Router} from '@angular/router';
 import {SellerLink} from '../../../unientities';
-import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig, IContextMenuItem} from '../../../../framework/ui/unitable/index';
+import {
+    UniTable, UniTableColumn, UniTableColumnType, UniTableConfig, IContextMenuItem
+} from '../../../../framework/ui/unitable/index';
 import {ToastService, ToastTime, ToastType} from '../../../../framework/uniToast/toastService';
 import {
     ErrorService,
@@ -100,14 +102,15 @@ export class SellerLinks implements AfterViewInit {
                 },
                 searchPlaceholder: 'Velg selger',
                 lookupFunction: (query) => {
-                    return this.sellerService.GetAll(`filter=startswith(ID,'${query}') or contains(Name,'${query}')&top=30`)
-                        .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
+                    return this.sellerService.GetAll(
+                        `filter=startswith(ID,'${query}') or contains(Name,'${query}')&top=30`
+                    ).catch((err, obs) => this.errorService.handleRxCatch(err, obs));
                 }
             });
 
         let isMainSellerCol = new UniTableColumn('ID', 'Hovedselger',  UniTableColumnType.Text)
             .setTemplate((sellerLink) => {
-                if (sellerLink.ID && sellerLink.ID === this.parent.DefaultSellerLinkID 
+                if (sellerLink.ID && sellerLink.ID === this.parent.DefaultSellerLinkID
                     || (this.parent.DefaultSeller && sellerLink.SellerID === this.parent.DefaultSeller.SellerID)) {
                     return 'Ja';
                 }

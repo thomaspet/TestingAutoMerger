@@ -16,7 +16,6 @@ import {
     SellerLink,
     StatusCodeCustomerQuote,
     Terms,
-    NumberSeriesTask,
     NumberSeries
 } from '../../../../unientities';
 
@@ -48,7 +47,7 @@ import {
 } from '../../../../../framework/uniModal/barrel';
 import {IContextMenuItem} from '../../../../../framework/ui/unitable/index';
 import {IUniSaveAction} from '../../../../../framework/save/save';
-import {ToastService, ToastTime, ToastType} from '../../../../../framework/uniToast/toastService';
+import {ToastService, ToastType} from '../../../../../framework/uniToast/toastService';
 
 import {GetPrintStatusText} from '../../../../models/printStatus';
 import {SendEmail} from '../../../../models/sendEmail';
@@ -110,8 +109,8 @@ export class QuoteDetails {
     private contextMenuItems: IContextMenuItem[] = [];
     public summary: ISummaryConfig[] = [];
 
-    private selectedNumberSeries: NumberSeries;
-    private selectedNumberSeriesTaskID: number;
+    public selectedNumberSeries: NumberSeries;
+    public selectedNumberSeriesTaskID: number;
     private selectConfig: any;
     private numberSeries: NumberSeries[];
     private projectID: number;
@@ -349,7 +348,7 @@ export class QuoteDetails {
                 });
     }
 
-    private numberSeriesChange(selectedSerie) {
+    public numberSeriesChange(selectedSerie) {
         this.quote.QuoteNumberSeriesID = selectedSerie.ID;
     }
 
@@ -370,7 +369,9 @@ export class QuoteDetails {
 
                 this.newQuoteItem = <any>this.tradeItemHelper.getDefaultTradeItemData(quote);
                 this.isDirty = false;
-                this.quoteItems = quote.Items.sort(function(itemA, itemB) { return itemA.SortIndex - itemB.SortIndex; });
+                this.quoteItems = quote.Items.sort(
+                    function(itemA, itemB) { return itemA.SortIndex - itemB.SortIndex; }
+                );
 
                 this.currentCustomer = quote.Customer;
                 this.currentDeliveryTerm = quote.DeliveryTerms;
@@ -492,7 +493,9 @@ export class QuoteDetails {
                             // if it doesnt cause a change larger than 5%, don't bother asking the user what
                             // to do, just use the set prices
                             newTotalExVatBaseCurrency = this.itemsSummaryData.SumTotalExVatCurrency * newCurrencyRate;
-                            diffBaseCurrency = Math.abs(newTotalExVatBaseCurrency - this.itemsSummaryData.SumTotalExVat);
+                            diffBaseCurrency = Math.abs(
+                                newTotalExVatBaseCurrency - this.itemsSummaryData.SumTotalExVat
+                            );
 
                             diffBaseCurrencyPercent = this.tradeItemHelper.round(
                                 (diffBaseCurrency * 100) / Math.abs(this.itemsSummaryData.SumTotalExVat), 1
@@ -1133,7 +1136,7 @@ export class QuoteDetails {
         });
     }
 
-    private saveAndPrint(doneHandler: (msg: string) => void = null) {
+    public saveAndPrint(doneHandler: (msg: string) => void = null) {
         if (this.isDirty) {
             this.saveQuote().then(quote => {
                 this.isDirty = false;

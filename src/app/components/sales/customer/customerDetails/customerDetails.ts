@@ -2,7 +2,6 @@ import {Component, Input, ViewChild, Output, EventEmitter, SimpleChanges} from '
 import {Router, ActivatedRoute} from '@angular/router';
 import {Observable} from 'rxjs/Observable';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
-import {SearchResultItem} from '../../../common/externalSearch/externalSearch';
 import {IUniSaveAction} from '../../../../../framework/save/save';
 import {UniForm, UniFieldLayout, FieldType} from '../../../../../framework/ui/uniform/index';
 import {

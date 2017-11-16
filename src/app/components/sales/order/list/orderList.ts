@@ -29,7 +29,7 @@ import {
 })
 export class OrderList implements OnInit {
     @ViewChild(UniTickerWrapper) private tickerWrapper: UniTickerWrapper;
-    private actionOverrides: Array<ITickerActionOverride> = [
+    public actionOverrides: Array<ITickerActionOverride> = [
         {
             Code: 'order_sendemail',
             ExecuteActionHandler: (selectedRows) => this.onSendEmail(selectedRows)
@@ -41,7 +41,7 @@ export class OrderList implements OnInit {
         }
     ];
 
-    private columnOverrides: Array<ITickerColumnOverride> = [
+    public columnOverrides: Array<ITickerColumnOverride> = [
     {
             Field: 'StatusCode',
             Template: (dataItem) => {
@@ -51,11 +51,11 @@ export class OrderList implements OnInit {
         }
      ];
 
-    private tickercode: string = 'order_list';
+    public tickercode: string = 'order_list';
 
     private companySettings: CompanySettings;
     private baseCurrencyCode: string;
-    private printStatusPrinted: string = '200';
+    public printStatusPrinted: string = '200';
 
     constructor(
         private uniHttpService: UniHttp,

@@ -55,7 +55,7 @@ import {
 } from '../../../../../framework/uniModal/barrel';
 import {IUniSaveAction} from '../../../../../framework/save/save';
 import {IContextMenuItem} from '../../../../../framework/ui/unitable/index';
-import {ToastService, ToastTime, ToastType} from '../../../../../framework/uniToast/toastService';
+import {ToastService, ToastType} from '../../../../../framework/uniToast/toastService';
 
 import {ActivationEnum} from '../../../../models/activationEnum';
 import {GetPrintStatusText} from '../../../../models/printStatus';
@@ -66,7 +66,7 @@ import {TradeHeaderCalculationSummary} from '../../../../models/sales/TradeHeade
 import {ISummaryConfig} from '../../../common/summary/summary';
 import {IToolbarConfig, ICommentsConfig, IShareAction} from '../../../common/toolbar/toolbar';
 import {UniStatusTrack} from '../../../common/toolbar/statustrack';
-import {roundTo, safeDec, safeInt, trimLength, capitalizeSentence} from '../../../common/utils/utils';
+import {roundTo} from '../../../common/utils/utils';
 
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
 
@@ -356,18 +356,20 @@ export class InvoiceDetails {
         }, err => this.errorService.handle(err));
     }
 
-    private ngAfterViewInit() {
+    public ngAfterViewInit() {
          this.tofHead.detailsForm.tabbedPastLastField.subscribe((event) => this.tradeItemTable.focusFirstRow());
     }
 
     private ehfReadyUpdateSaveActions() {
         if (!this.invoice || !!!this.invoice.Customer) {
-            this.ehfEnabled = false
+            this.ehfEnabled = false;
             return;
         }
 
         // Possible to receive EHF for this customer?
-        let peppoladdress = this.invoice.Customer.PeppolAddress ? this.invoice.Customer.PeppolAddress : '9908:' + this.invoice.Customer.OrgNumber;
+        let peppoladdress = this.invoice.Customer.PeppolAddress
+            ? this.invoice.Customer.PeppolAddress
+            : '9908:' + this.invoice.Customer.OrgNumber;
         this.ehfService.GetAction(
             null, 'is-ehf-receiver',
             'peppoladdress=' + peppoladdress + '&entitytype=CustomerInvoice'
@@ -377,7 +379,7 @@ export class InvoiceDetails {
         }, err => this.errorService.handle(err));
     }
 
-    private numberSeriesChange(selectedSerie) {
+    public numberSeriesChange(selectedSerie) {
         this.invoice.InvoiceNumberSeriesID = selectedSerie.ID;
     }
 
@@ -428,8 +430,8 @@ export class InvoiceDetails {
 
     private sendToVipps(id, doneHandler: (msg?: string) => void = null) {
         this.modalService.open(UniSendVippsInvoiceModal, {
-            data:new Object({InvoiceID: id})
-        }).onClose.subscribe(Text => {
+            data: new Object({InvoiceID: id})
+        }).onClose.subscribe(text => {
             doneHandler();
         });
      }
@@ -463,7 +465,6 @@ export class InvoiceDetails {
     }
 
     public onInvoiceChange(invoice: CustomerInvoice) {
-        const isDifferent = (a, b) => a.toString() !== b.toString();
         this.isDirty = true;
         this.updateSaveActions();
         let shouldGetCurrencyRate: boolean = false;
@@ -840,7 +841,7 @@ export class InvoiceDetails {
                     .map(data => data.Data ? data.Data : [])
                     .subscribe(brdata => {
                         if (brdata && brdata.length > 0) {
-                                brdata.forEach(element => {
+                            brdata.forEach(element => {
                                 let pastDue: boolean = new Date(element['DueDate']) < new Date();
                                 let pastDueText = pastDue ? 'forfalt for' : 'forfall om';
                                 statusText = `${element['ReminderNumber']}. purring, `
@@ -891,9 +892,7 @@ export class InvoiceDetails {
 
     private getStatustrackConfig() {
         let statustrack: UniStatusTrack.IStatus[] = [];
-        let substatuses: UniStatusTrack.IStatus[] = [];
         let activeStatus = 0;
-        let testStatus = 2;
         if (this.invoice) {
             activeStatus = this.invoice.StatusCode || 1;
         }
@@ -974,13 +973,15 @@ export class InvoiceDetails {
 
                 this.newInvoiceItem = <any>this.tradeItemHelper.getDefaultTradeItemData(invoice);
                 this.readonly = invoice.StatusCode && invoice.StatusCode !== StatusCodeCustomerInvoice.Draft;
-                this.invoiceItems = invoice.Items.sort(function(itemA, itemB) { return itemA.SortIndex - itemB.SortIndex; });
+                this.invoiceItems = invoice.Items.sort(
+                    function(itemA, itemB) { return itemA.SortIndex - itemB.SortIndex; }
+                );
 
                 this.currentCustomer = invoice.Customer;
                 this.currentPaymentTerm = invoice.PaymentTerms;
                 this.currentDeliveryTerm = invoice.DeliveryTerms;
 
-                invoice.DefaultSeller = invoice.DefaultSeller; //|| new SellerLink();
+                invoice.DefaultSeller = invoice.DefaultSeller; // || new SellerLink();
                 this.currentDefaultProjectID = invoice.DefaultDimensions.ProjectID;
 
                 this.currentInvoiceDate = invoice.InvoiceDate;
@@ -1173,7 +1174,8 @@ export class InvoiceDetails {
             label: 'Send EHF',
             action: (done) => this.sendEHFAction(done),
             disabled: status < StatusCodeCustomerInvoice.Invoiced,
-            main: printStatus !== 300 && this.ehfEnabled && status === StatusCodeCustomerInvoice.Invoiced && !this.isDirty
+            main: printStatus !== 300 && this.ehfEnabled
+                && status === StatusCodeCustomerInvoice.Invoiced && !this.isDirty
         });
 
         this.saveActions.push({
@@ -1342,7 +1344,6 @@ export class InvoiceDetails {
 
         const isCreditNote = this.invoice.InvoiceType === InvoiceTypes.CreditNote;
         const doneText = isCreditNote ? 'Faktura kreditert' : 'Faktura fakturert';
-        const errText = isCreditNote ? 'Kreditering feiler' : 'Fakturering feilet';
 
         this.saveInvoice(done).then((invoice) => {
             if (invoice) {
@@ -1552,11 +1553,14 @@ export class InvoiceDetails {
             }
         });
 
-        // this.registerPaymentModal.confirm(this.invoice.ID, title, this.invoice.CurrencyCode, this.invoice.CurrencyExchangeRate,
+        // this.registerPaymentModal.confirm(
+        //    this.invoice.ID, title, this.invoice.CurrencyCode, this.invoice.CurrencyExchangeRate,
         //     'CustomerInvoice', invoicePaymentData).then(res => {
         //     if (res.status === ConfirmActions.ACCEPT) {
-        //         this.customerInvoiceService.ActionWithBody(res.id, <any>res.model, 'payInvoice').subscribe((journalEntry) => {
-        //             this.toastService.addToast('Faktura er betalt. Bilagsnummer: ' + journalEntry.JournalEntryNumber, ToastType.good, 5);
+        //         this.customerInvoiceService.ActionWithBody(
+        //    res.id, <any>res.model, 'payInvoice').subscribe((journalEntry) => {
+        //             this.toastService.addToast(
+        //    'Faktura er betalt. Bilagsnummer: ' + journalEntry.JournalEntryNumber, ToastType.good, 5);
         //             done('Betaling registrert');
         //             this.customerInvoiceService.Get(this.invoice.ID, this.expandOptions).subscribe((invoice) => {
         //                 this.refreshInvoice(invoice);

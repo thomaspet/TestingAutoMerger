@@ -1,6 +1,6 @@
 import {Component, Input} from '@angular/core';
 import {UniTableColumn, UniTableColumnType, UniTableConfig} from '../../../../../framework/ui/unitable/index';
-import {UniFieldLayout, FieldType} from '../../../../../framework/ui/uniform/index';
+import {UniFieldLayout} from '../../../../../framework/ui/uniform/index';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {
     StatusCodeCustomerInvoiceItem,
@@ -8,7 +8,6 @@ import {
 } from '../../../../unientities';
 import {
     StatisticsService,
-    ErrorService
 } from '../../../../services/services';
 
 @Component({
@@ -18,13 +17,13 @@ import {
 export class CustomerProductsSold {
     @Input() public customerID: number;
 
-    //Filter
+    // Filter
     private datefieldFrom: UniFieldLayout = new UniFieldLayout();
     private datefieldTo: UniFieldLayout = new UniFieldLayout();
     private filterFrom: LocalDate;
     private filterTo: LocalDate;
 
-    //Table
+    // Table
     private tableConfig: UniTableConfig;
     private products$: BehaviorSubject<any> = new BehaviorSubject(null);
 
@@ -46,12 +45,12 @@ export class CustomerProductsSold {
         this.datefieldTo.Placeholder = 'Til dato';
     }
 
-    private onDateFromChanged(model) {
+    public onDateFromChanged(model) {
         this.filterFrom = model.From.currentValue;
         this.loadProducts();
     }
 
-    private onDateToChanged(model) {
+    public onDateToChanged(model) {
         this.filterTo = model.To.currentValue;
         this.loadProducts();
     }
@@ -62,14 +61,17 @@ export class CustomerProductsSold {
         datefilter += (this.filterTo || '') && ` and CustomerInvoice.InvoiceDate le '${this.filterTo}'`;
 
         this.statisticsService
-            .GetAllUnwrapped(`model=Product&` +
-                             `select=ID,PartName,Name,sum(CustomerInvoiceItem.SumTotalExVat) as TotalExVat,` +
-                                `sum(CustomerInvoiceItem.SumTotalIncVat) as TotalIncVat,` +
-                                `sum(CustomerInvoiceItem.NumberOfItems) as NumberOfItems&` +
-                             `join=Product.ID eq CustomerInvoiceItem.ProductID and CustomerInvoiceItem.CustomerInvoiceID eq CustomerInvoice.ID&` +
-                             `filter=CustomerInvoice.CustomerID eq ${this.customerID} and CustomerInvoiceItem.StatusCode eq ${StatusCodeCustomerInvoiceItem.Invoiced}${datefilter}&` +
-                             `orderby=sum(CustomerInvoiceItem.NumberOfItems) desc`)
-                             .subscribe(products => {
+            .GetAllUnwrapped(
+                `model=Product&`
+                + `select=ID,PartName,Name,sum(CustomerInvoiceItem.SumTotalExVat) as TotalExVat,`
+                + `sum(CustomerInvoiceItem.SumTotalIncVat) as TotalIncVat,`
+                + `sum(CustomerInvoiceItem.NumberOfItems) as NumberOfItems&`
+                + `join=Product.ID eq CustomerInvoiceItem.ProductID `
+                + `and CustomerInvoiceItem.CustomerInvoiceID eq CustomerInvoice.ID&`
+                + `filter=CustomerInvoice.CustomerID eq ${this.customerID} `
+                + `and CustomerInvoiceItem.StatusCode eq ${StatusCodeCustomerInvoiceItem.Invoiced}${datefilter}&`
+                + `orderby=sum(CustomerInvoiceItem.NumberOfItems) desc`
+            ).subscribe(products => {
                 this.products$.next(products);
             });
     }

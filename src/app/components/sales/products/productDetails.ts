@@ -72,7 +72,7 @@ export class ProductDetails {
     private expandOptions: Array<string> = ['Dimensions', 'Account', 'VatType'];
     private toolbarconfig: IToolbarConfig;
 
-    private saveactions: IUniSaveAction[] = [
+    public saveactions: IUniSaveAction[] = [
          {
              label: 'Lagre',
              action: (completeEvent) => this.saveProduct(completeEvent),
@@ -88,7 +88,8 @@ export class ProductDetails {
         autoCompleteConfig: {
             template: (obj: ProductCategory) => obj ? obj.Name : '',
             valueProperty: 'Name',
-            saveCallback: (category: ProductCategory) => this.productCategoryService.saveCategoryTag(this.productId, category),
+            saveCallback: (category: ProductCategory) => this.productCategoryService
+                .saveCategoryTag(this.productId, category),
             deleteCallback: (tag) => this.productCategoryService.deleteCategoryTag(this.productId, tag),
             search: (query, ignoreFilter) => this.productCategoryService.searchCategories(query, ignoreFilter)
         }
@@ -173,7 +174,9 @@ export class ProductDetails {
         if (this.productId > 0) {
             subject = Observable.forkJoin(this.productService.Get(this.productId, this.expandOptions));
         } else {
-            subject = Observable.forkJoin(this.productService.GetNewEntity(this.expandOptions), this.productService.getNewPartname());
+            subject = Observable.forkJoin(
+                this.productService.GetNewEntity(this.expandOptions), this.productService.getNewPartname()
+            );
         }
 
         subject.subscribe(response => {
@@ -198,11 +201,16 @@ export class ProductDetails {
     }
 
     private setTabTitle() {
-        let tabTitle = this.product$.getValue().PartName ? 'Produktnr. ' + this.product$.getValue().PartName : 'Produkt (kladd)';
-        this.tabService.addTab({ url: '/sales/products/' + this.product$.getValue().ID, name: tabTitle, active: true, moduleID: UniModules.Products });
+        let tabTitle = this.product$.getValue().PartName
+            ? 'Produktnr. ' + this.product$.getValue().PartName
+            : 'Produkt (kladd)';
+        this.tabService.addTab({
+            url: '/sales/products/' + this.product$.getValue().ID,
+            name: tabTitle, active: true, moduleID: UniModules.Products
+        });
     }
 
-    private textareaChange() {
+    public textareaChange() {
         let description = this.descriptionControl.value;
         let product = this.product$.getValue();
         if (description && product) {
@@ -211,7 +219,7 @@ export class ProductDetails {
         }
     }
 
-    private change(changes: SimpleChanges) {
+    public change(changes: SimpleChanges) {
         if (changes['CalculateGrossPriceBasedOnNetPrice']) {
             this.showHidePriceFields(changes['CalculateGrossPriceBasedOnNetPrice'].currentValue);
         }
@@ -342,7 +350,7 @@ export class ProductDetails {
         };
 
         let vattype: UniFieldLayout = this.fields$.getValue().find(x => x.Property === 'VatTypeID');
-        if(this.defaultSalesAccount && this.defaultSalesAccount.VatType) {
+        if (this.defaultSalesAccount && this.defaultSalesAccount.VatType) {
             vattype.Placeholder =
                 this.defaultSalesAccount.VatType.VatCode + ' - ' + this.defaultSalesAccount.VatType.Name;
         }
@@ -425,7 +433,9 @@ export class ProductDetails {
         this.priceExVat =  this.fields$.getValue().find(x => x.Property === 'PriceExVat');
         this.priceIncVat = this.fields$.getValue().find(x => x.Property === 'PriceIncVat');
         this.vatTypeField = this.fields$.getValue().find(x => x.Property === 'VatTypeID');
-        this.calculateGrossPriceBasedOnNetPriceField = this.fields$.getValue().find(x => x.Property === 'CalculateGrossPriceBasedOnNetPrice');
+        this.calculateGrossPriceBasedOnNetPriceField = this.fields$.getValue().find(
+            x => x.Property === 'CalculateGrossPriceBasedOnNetPrice'
+        );
     }
 
     private getDefaultAccountData() {
@@ -482,10 +492,12 @@ export class ProductDetails {
                 let accountNumberPart = searchValue.split(':')[0].trim();
                 let accountNamePart =  searchValue.split(':')[1].trim();
 
-                copyPasteFilter = ` or (AccountNumber eq '${accountNumberPart}' and AccountName eq '${accountNamePart}')`;
+                copyPasteFilter = ` or (AccountNumber eq '${accountNumberPart}' `
+                    + `and AccountName eq '${accountNamePart}')`;
             }
 
-            filter += ` and (startswith(AccountNumber\,'${searchValue}') or contains(AccountName\,'${searchValue}')${copyPasteFilter} )`;
+            filter += ` and (startswith(AccountNumber\,'${searchValue}') `
+                + `or contains(AccountName\,'${searchValue}')${copyPasteFilter} )`;
         }
 
         return this.accountService.searchAccounts(filter, searchValue !== '' ? 100 : 500);

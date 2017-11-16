@@ -1,11 +1,11 @@
-import {Component, ViewChild, Input, Output, EventEmitter, SimpleChanges} from '@angular/core';
+import {Component, ViewChild} from '@angular/core';
 import {Router} from '@angular/router';
 import {URLSearchParams} from '@angular/http';
-import {Project, Department} from '../../../unientities';
-import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig, IContextMenuItem} from '../../../../framework/ui/unitable/index';
-import {ToastService, ToastTime, ToastType} from '../../../../framework/uniToast/toastService';
+import {
+    UniTable, UniTableColumn, UniTableColumnType, UniTableConfig
+} from '../../../../framework/ui/unitable/index';
+import {ToastService} from '../../../../framework/uniToast/toastService';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
-import {IUniSaveAction} from '../../../../framework/save/save';
 import {
     ErrorService,
     ProjectService,
@@ -21,7 +21,7 @@ declare const _;
     templateUrl: './sellerList.html',
 })
 export class SellerList {
-    @ViewChild(UniTable) private table: UniTable;
+    @ViewChild(UniTable) public table: UniTable;
 
     private sellerTableConfig: UniTableConfig;
     private lookupFunction: (urlParams: URLSearchParams) => any;
@@ -44,11 +44,11 @@ export class SellerList {
         });
     }
 
-    private createSeller() {
+    public createSeller() {
         this.router.navigateByUrl('/sales/sellers/0');
     }
 
-    private onRowSelected(event) {
+    public onRowSelected(event) {
         this.router.navigateByUrl('/sales/sellers/' + event.rowModel.ID);
     }
 
@@ -60,9 +60,14 @@ export class SellerList {
                 params = new URLSearchParams();
             }
 
-            params.set('expand', 'DefaultDimensions,DefaultDimensions.Project,DefaultDimensions.Department,User,Team,Employee,Employee.BusinessRelationInfo');
+            params.set(
+                'expand',
+                'DefaultDimensions,DefaultDimensions.Project,'
+                    + 'DefaultDimensions.Department,User,Team,Employee,Employee.BusinessRelationInfo'
+            );
 
-            return this.sellerService.GetAllByUrlSearchParams(params).catch((err, obs) => this.errorService.handleRxCatch(err, obs));
+            return this.sellerService.GetAllByUrlSearchParams(params)
+                .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
         };
 
         // Define columns to use in the table
@@ -75,7 +80,9 @@ export class SellerList {
 
         let employeeCol = new UniTableColumn('Employee', 'Ansatt', UniTableColumnType.Text)
             .setTemplate((row) => {
-                return row.EmployeeID ? `${row.Employee.EmployeeNumber} - ${row.Employee.BusinessRelationInfo.Name}` : '';
+                return row.EmployeeID
+                    ? `${row.Employee.EmployeeNumber} - ${row.Employee.BusinessRelationInfo.Name}`
+                    : '';
             });
 
         let teamCol = new UniTableColumn('Team', 'Team', UniTableColumnType.Text)
@@ -85,12 +92,16 @@ export class SellerList {
 
         let projectCol = new UniTableColumn('DefaultDimenions.Project', 'Prosjekt', UniTableColumnType.Text)
             .setTemplate((row) => {
-                return row.DefaultDimensionsID && row.DefaultDimensions.ProjectID ? row.DefaultDimensions.Project.Name : '';
+                return row.DefaultDimensionsID && row.DefaultDimensions.ProjectID
+                    ? row.DefaultDimensions.Project.Name
+                    : '';
             });
 
         let departmentCol = new UniTableColumn('DefaultDimensions.Department', 'Avdeling', UniTableColumnType.Text)
             .setTemplate((row) => {
-                return row.DefaultDimensionsID && row.DefaultDimensions.DepartmentID ? row.DefaultDimensions.Department.Name : '';
+                return row.DefaultDimensionsID && row.DefaultDimensions.DepartmentID
+                    ? row.DefaultDimensions.Department.Name
+                    : '';
             });
 
         // Setup table

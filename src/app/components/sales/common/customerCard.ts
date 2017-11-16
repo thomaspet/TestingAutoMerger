@@ -1,4 +1,4 @@
-import {Component, Input, Output, EventEmitter, ViewChild, ElementRef} from '@angular/core';
+import {Component, Input, Output, EventEmitter, ElementRef} from '@angular/core';
 import {FormControl} from '@angular/forms';
 import {Customer, SellerLink} from '../../../unientities';
 import {CustomerDetailsModal} from '../customer/customerDetails/customerDetailsModal';
@@ -10,7 +10,6 @@ import {
     ErrorService,
     SellerLinkService
 } from '../../../services/services';
-import {Observable} from 'rxjs/Observable';
 import {IUniSearchConfig} from '../../../../framework/ui/unisearch/index';
 import {UniModalService} from '../../../../framework/uniModal/barrel';
 
@@ -45,7 +44,11 @@ import {UniModalService} from '../../../../framework/uniModal/barrel';
                         {{entity?.Customer?.Info?.Emails[0]?.EmailAddress}}
                     </span>
                     <div class="unpaid-invoices" *ngIf="customerDueInvoiceData?.NumberOfDueInvoices > 0">
-                        <a href="#/sales/customer/{{entity?.Customer?.ID}}">Kunden har {{customerDueInvoiceData.NumberOfDueInvoices}} forfalt{{customerDueInvoiceData.NumberOfDueInvoices > 1 ? 'e' : ''}} faktura{{customerDueInvoiceData.NumberOfDueInvoices > 1 ? 'er' : ''}}</a>
+                        <a href="#/sales/customer/{{entity?.Customer?.ID}}">
+                            Kunden har {{customerDueInvoiceData.NumberOfDueInvoices}}
+                            forfalt{{customerDueInvoiceData.NumberOfDueInvoices > 1 ? 'e' : ''}}
+                            faktura{{customerDueInvoiceData.NumberOfDueInvoices > 1 ? 'er' : ''}}
+                        </a>
                     </div>
                 </section>
             </label>
@@ -55,7 +58,7 @@ import {UniModalService} from '../../../../framework/uniModal/barrel';
 export class TofCustomerCard {
     private searchInput: HTMLElement;
 
-    @Input() private readonly: boolean;
+    @Input() public readonly: boolean;
     @Input() private entity: any;
     @Input() private entityType: string;
 

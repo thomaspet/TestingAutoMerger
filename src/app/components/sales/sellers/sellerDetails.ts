@@ -1,9 +1,9 @@
-import {Component, ViewChild, Input, Output, EventEmitter, SimpleChanges} from '@angular/core';
+import {Component, ViewChild, Input} from '@angular/core';
 import {Router, ActivatedRoute} from '@angular/router';
 import {Project, Department, Team, User, Employee, Seller} from '../../../unientities';
-import {UniForm, UniField, UniFieldLayout, FieldType} from '../../../../framework/ui/uniform/index';
+import {UniForm, UniFieldLayout, FieldType} from '../../../../framework/ui/uniform/index';
 import {ToastService, ToastTime, ToastType} from '../../../../framework/uniToast/toastService';
-import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
+import {TabService} from '../../layout/navbar/tabstrip/tabService';
 import {IUniSaveAction} from '../../../../framework/save/save';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {IToolbarConfig} from './../../common/toolbar/toolbar';
@@ -48,7 +48,7 @@ export class SellerDetails {
 
     private formIsInitialized: boolean = false;
 
-    private saveactions: IUniSaveAction[] = [
+    public saveactions: IUniSaveAction[] = [
          {
              label: 'Lagre',
              action: (completeEvent) => this.saveSeller(completeEvent),
@@ -185,7 +185,9 @@ export class SellerDetails {
                 if (ID) {
                     this.router.navigateByUrl('/sales/sellers/' + ID);
                 } else {
-                    this.toastService.addToast('Ingen flere selgere før denne selgeren!', ToastType.warn, ToastTime.short);
+                    this.toastService.addToast(
+                        'Ingen flere selgere før denne selgeren!', ToastType.warn, ToastTime.short
+                    );
                 }
             }, err => this.errorService.handle(err));
     }
@@ -196,7 +198,9 @@ export class SellerDetails {
                 if (ID) {
                     this.router.navigateByUrl('/sales/sellers/' + ID);
                 } else {
-                    this.toastService.addToast('Ingen flere selgere etter denne selgeren!', ToastType.warn, ToastTime.short);
+                    this.toastService.addToast(
+                        'Ingen flere selgere etter denne selgeren!', ToastType.warn, ToastTime.short
+                    );
                 }
             }, err => this.errorService.handle(err));
     }
@@ -205,7 +209,7 @@ export class SellerDetails {
         this.router.navigateByUrl('/sales/sellers/0');
     }
 
-    private onFormChange(event) {
+    public onFormChange(event) {
         this.isDirty = true;
     }
 
@@ -222,7 +226,9 @@ export class SellerDetails {
             debounceTime: 200
         };
 
-        let department: UniFieldLayout = this.fields$.getValue().find(x => x.Property === 'DefaultDimensions.DepartmentID');
+        let department: UniFieldLayout = this.fields$.getValue().find(
+            x => x.Property === 'DefaultDimensions.DepartmentID'
+        );
         department.Options = {
             source: this.departments,
             valueProperty: 'ID',
