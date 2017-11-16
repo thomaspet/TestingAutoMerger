@@ -168,6 +168,7 @@ export class UniTicker {
 
             // locally store the default expand from .json to revert to it when user changes column setup
             this.defaultExpand = this.ticker.Expand;
+            this.headers = '';
 
             // run this even if it is not a table, because it prepares the query as well.
             // Consider splitting this function to avoid this later
