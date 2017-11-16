@@ -1,6 +1,5 @@
-import {Component, Input, OnInit} from '@angular/core';
+import {Component, Input} from '@angular/core';
 import {JournalEntryService} from '../../../../services/services';
-import {JournalEntryManual} from '../../journalentry/journalentrymanual/journalentrymanual';
 import {VatReport} from '../../../../unientities';
 
 

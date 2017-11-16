@@ -1,4 +1,4 @@
-import {Component, Input, ViewChild, Output, EventEmitter} from '@angular/core';
+import {Component, Input, Output, EventEmitter} from '@angular/core';
 import {VatReport, AltinnGetVatReportDataFromAltinnStatus, VatReportSummaryPerPost} from '../../../../unientities';
 import {AltinnAuthenticationModal} from '../../../common/modals/AltinnAuthenticationModal';
 import {ToastService, ToastType, ToastTime} from '../../../../../framework/uniToast/toastService';
@@ -27,7 +27,7 @@ export class ReceiptVat {
     ) {}
 
     public checkForReceipt() {
-        
+
         this.modalService
             .open(AltinnAuthenticationModal)
             .onClose
@@ -40,7 +40,8 @@ export class ReceiptVat {
                         'Info',
                         ToastType.warn,
                         ToastTime.medium,
-                        'Du må signere MVA meldingen i Altinn før du kan hente kvitteringen. Dette kan gjøres direkte i Altinn eller med knappen nederst i skjermbildet'
+                        'Du må signere MVA meldingen i Altinn før du kan hente kvitteringen. '
+                            + 'Dette kan gjøres direkte i Altinn eller med knappen nederst i skjermbildet'
                     );
 
                     this.busy = false;
@@ -54,16 +55,16 @@ export class ReceiptVat {
 
                     this.busy = false;
                 } else {
-                    this.vatReportService.Get(this.vatReport.ID, ['TerminPeriod', 'VatReportType','VatReportArchivedSummary'])
-                        .subscribe(updatedVatReport => {
-                                this.vatReport = updatedVatReport;
-                                this.vatReportDidChange.emit(updatedVatReport);
+                    this.vatReportService.Get(
+                        this.vatReport.ID, ['TerminPeriod', 'VatReportType', 'VatReportArchivedSummary']
+                    ).subscribe(updatedVatReport => {
+                        this.vatReport = updatedVatReport;
+                        this.vatReportDidChange.emit(updatedVatReport);
 
-                                this.toastService.addToast('Kvitteringsdata hentet fra Altinn', ToastType.good);
-                                this.busy = false;
-                            },
-                            err => this.errorService.handle(err)
-                        );
+                        this.toastService.addToast('Kvitteringsdata hentet fra Altinn', ToastType.good);
+                        this.busy = false;
+                    },
+                    err => this.errorService.handle(err));
                 }
             },
             err => this.errorService.handle(err));

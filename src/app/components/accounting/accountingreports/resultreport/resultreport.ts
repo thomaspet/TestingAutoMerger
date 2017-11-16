@@ -1,8 +1,7 @@
-import {Component, ViewChild} from '@angular/core';
+import {Component} from '@angular/core';
 import {Router} from '@angular/router';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
 import {PeriodFilter, PeriodFilterHelper} from '../periodFilter/periodFilter';
-import {DrilldownResultReportPart} from '../reportparts/drilldownResultReportPart';
 import {IToolbarConfig} from '../../../common/toolbar/toolbar';
 import {ISelectConfig, UniFieldLayout, FieldType} from '../../../../../framework/ui/uniform/index';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
@@ -40,8 +39,6 @@ export class ResultSummaryData {
     templateUrl: './resultreport.html',
 })
 export class ResultReport {
-    @ViewChild(DrilldownResultReportPart) public drilldownResultReportPart: DrilldownResultReportPart;
-
     public filterVisible: boolean = false;
 
     private periodFilter1: PeriodFilter;

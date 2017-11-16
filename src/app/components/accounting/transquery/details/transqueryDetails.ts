@@ -55,9 +55,6 @@ export class TransqueryDetails implements OnInit {
     @ViewChild(UniTable)
     private table: UniTable;
 
-    @ViewChild(ImageModal)
-    private imageModal: ImageModal;
-
     private summaryData: TransqueryDetailsCalculationsSummary;
     private uniTableConfig: UniTableConfig;
     private lookupFunction: (urlParams: URLSearchParams) => any;
@@ -67,17 +64,17 @@ export class TransqueryDetails implements OnInit {
     private lastFilterString: string;
 
     private searchParams$: BehaviorSubject<ISearchParams> = new BehaviorSubject({});
-    private config$: BehaviorSubject<any> = new BehaviorSubject({autofocus: true});
+    public config$: BehaviorSubject<any> = new BehaviorSubject({autofocus: true});
     private fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
 
     private financialYears: Array<FinancialYear> = null;
     private activeFinancialYear: FinancialYear;
 
-    private toolbarconfig: IToolbarConfig = {
+    public toolbarconfig: IToolbarConfig = {
         title: 'Forespørsel på bilag'
     };
 
-    private COLUMN_VISIBILITY_LOCALSTORAGE_KEY = 'TransqueryDetailsColumnVisibility';
+    private COLUMN_VISIBILITY_LOCALSTORAGE_KEY: string = 'TransqueryDetailsColumnVisibility';
 
     constructor(
         private route: ActivatedRoute,
@@ -753,7 +750,7 @@ export class TransqueryDetails implements OnInit {
         return cssClasses.trim();
     }
 
-    private onFormFilterChange(event) {
+    public onFormFilterChange(event) {
         this.table.refreshTableData();
     }
 

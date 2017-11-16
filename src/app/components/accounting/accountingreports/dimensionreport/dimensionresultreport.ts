@@ -1,8 +1,7 @@
-import {Component, ViewChild} from '@angular/core';
+import {Component} from '@angular/core';
 import {Router, ActivatedRoute} from '@angular/router';
 import {TabService} from '../../../layout/navbar/tabstrip/tabService';
 import {PeriodFilter, PeriodFilterHelper} from '../periodFilter/periodFilter';
-import {DrilldownResultReportPart} from '../reportparts/drilldownResultReportPart';
 import {ResultSummaryData} from '../resultreport/resultreport';
 import {IToolbarConfig} from '../../../common/toolbar/toolbar';
 import {
@@ -16,8 +15,6 @@ import {
     templateUrl: './dimensionresultreport.html',
 })
 export class DimensionResultReport {
-    @ViewChild(DrilldownResultReportPart) public drilldownResultReportPart: DrilldownResultReportPart;
-
     private periodFilter1: PeriodFilter;
     private periodFilter2: PeriodFilter;
 

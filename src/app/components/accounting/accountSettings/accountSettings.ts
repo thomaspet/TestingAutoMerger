@@ -33,7 +33,10 @@ export class AccountSettings {
     ];
 
     constructor(private tabService: TabService) {
-        this.tabService.addTab({ name: 'Kontoplan', url: '/accounting/accountsettings', moduleID: UniModules.Accountsettings, active: true });
+        this.tabService.addTab({
+            name: 'Kontoplan', url: '/accounting/accountsettings',
+            moduleID: UniModules.Accountsettings, active: true
+        });
     }
 
     public changeAccount(account: Account) {

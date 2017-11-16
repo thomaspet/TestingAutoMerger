@@ -17,13 +17,6 @@ export class VatSettings {
     @ViewChild(VatTypeDetails) private vatTypeDetails: VatTypeDetails;
     @ViewChild(VatDeductionSettings) private vatDeductionSettings: VatDeductionSettings;
 
-
-    constructor(private tabService: TabService) {
-        this.tabService.addTab({ name: 'MVA-innstillinger', url: '/accounting/vatsettings', moduleID: UniModules.Vatsettings, active: true });
-
-        this.showTab('vatsettings');
-    }
-
     private vatType: VatType;
     private hasChanges: boolean = false;
     private activeTab: string = '';
@@ -31,6 +24,14 @@ export class VatSettings {
     private toolbarconfig: IToolbarConfig;
 
     private saveactions: IUniSaveAction[];
+
+    constructor(private tabService: TabService) {
+        this.tabService.addTab({
+            name: 'MVA-innstillinger', url: '/accounting/vatsettings', moduleID: UniModules.Vatsettings, active: true
+        });
+
+        this.showTab('vatsettings');
+    }
 
     private showTab(newTab: string) {
         this.activeTab = newTab;
@@ -84,12 +85,12 @@ export class VatSettings {
         }, 100);
     }
 
-    private vatTypeSaved(vatType: VatType) {
+    public vatTypeSaved(vatType: VatType) {
         this.vatTypeList.refresh();
         this.hasChanges = false;
     }
 
-    private onChange(vatType: VatType) {
+    public onChange(vatType: VatType) {
         this.hasChanges = true;
     }
 

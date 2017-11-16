@@ -50,13 +50,17 @@ export class JournalEntries {
         private journalEntryLineService: JournalEntryLineService,
         private modalService: UniModalService
     ) {
-        this.tabService.addTab({ name: 'Bilagsregistrering', url: '/accounting/journalentry/manual', moduleID: UniModules.Accounting, active: true });
+        this.tabService.addTab({
+            name: 'Bilagsregistrering', url: '/accounting/journalentry/manual',
+            moduleID: UniModules.Accounting, active: true
+        });
 
         this.route.params.subscribe(params => {
             if (params['journalEntryNumber'] && params['journalEntryID']) {
                 this.tabService.addTab({
                     name: 'Bilagsregistrering',
-                    url: `/accounting/journalentry/manual;journalEntryNumber=${params['journalEntryNumber']};journalEntryID=${params['journalEntryID']}`,
+                    url: `/accounting/journalentry/manual;journalEntryNumber=${params['journalEntryNumber']};`
+                        + `journalEntryID=${params['journalEntryID']}`,
                     moduleID: UniModules.Accounting,
                     active: true
                 });
@@ -74,7 +78,8 @@ export class JournalEntries {
                         let journalEntryNumber = journalEntry.JournalEntryNumber;
                         this.tabService.addTab({
                             name: 'Bilagsregistrering',
-                            url: `/accounting/journalentry/manual;journalEntryNumber=${journalEntryNumber};journalEntryID=${params['journalEntryID']}`,
+                            url: `/accounting/journalentry/manual;journalEntryNumber=${journalEntryNumber};`
+                                + `journalEntryID=${params['journalEntryID']}`,
                             moduleID: UniModules.Accounting,
                             active: true
                         });
@@ -93,7 +98,8 @@ export class JournalEntries {
                         let journalEntryNumber = journalEntryLine.JournalEntryNumber;
                         this.tabService.addTab({
                             name: 'Bilagsregistrering',
-                            url: `/accounting/journalentry/manual;journalEntryNumber=${journalEntryNumber};journalEntryID=${params['journalEntryLineID']}`,
+                            url: `/accounting/journalentry/manual;journalEntryNumber=${journalEntryNumber};`
+                                + `journalEntryID=${params['journalEntryLineID']}`,
                             moduleID: UniModules.Accounting,
                             active: true
                         });
@@ -122,7 +128,7 @@ export class JournalEntries {
         });
     }
 
-    private journalEntryManualInitialized() {
+    public journalEntryManualInitialized() {
         // set selected numberseriestask to 1 by default (Journal)
         this.selectedNumberSeriesTaskID = 1;
         this.selectedNumberSeriesTask =
@@ -166,19 +172,21 @@ export class JournalEntries {
             contextmenu: this.contextMenuItems
         };
 
-        let selectConfig = this.journalEntryManual && !this.currentJournalEntryID && this.journalEntryManual.numberSeriesTasks.length > 1 ?
-            {
-                items: this.journalEntryManual.numberSeriesTasks,
-                selectedItem: this.selectedNumberSeriesTask,
-                label: 'Nummerserie:'
-            }
-            : null;
+        let selectConfig = this.journalEntryManual
+            && !this.currentJournalEntryID
+            && this.journalEntryManual.numberSeriesTasks.length > 1 ?
+                {
+                    items: this.journalEntryManual.numberSeriesTasks,
+                    selectedItem: this.selectedNumberSeriesTask,
+                    label: 'Nummerserie:'
+                }
+                : null;
 
         this.selectConfig = selectConfig;
         this.toolbarConfig = toolbarConfig;
     }
 
-    private numberSeriesTaskChanged(selectedTask) {
+    public numberSeriesTaskChanged(selectedTask) {
         if (this.journalEntryManual) {
             if (selectedTask && selectedTask.ID !== this.selectedNumberSeriesTaskID) {
                 let currentData = this.journalEntryManual.getJournalEntryData();
@@ -343,7 +351,7 @@ export class JournalEntries {
         });
     }
 
-    private onDataCleared() {
+    public onDataCleared() {
 
         this.journalEntryService.setSessionData(this.journalEntryManual.mode, []);
 

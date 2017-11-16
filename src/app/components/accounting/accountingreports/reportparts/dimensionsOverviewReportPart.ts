@@ -1,7 +1,9 @@
 import {Component, Input} from '@angular/core';
 import {Router} from '@angular/router';
 import {PeriodFilter} from '../periodFilter/periodFilter';
-import {UniTableColumn, UniTableConfig, UniTableColumnType, INumberFormat} from '../../../../../framework/ui/unitable/index';
+import {
+    UniTableColumn, UniTableConfig, UniTableColumnType, INumberFormat
+} from '../../../../../framework/ui/unitable/index';
 import {
     StatisticsService,
     ErrorService,

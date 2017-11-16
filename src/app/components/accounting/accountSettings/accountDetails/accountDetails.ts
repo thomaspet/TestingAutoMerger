@@ -1,8 +1,8 @@
-import {Component, Input, ViewChild, Output, EventEmitter, SimpleChange, OnInit} from '@angular/core';
+import {Component, Input, Output, EventEmitter, SimpleChange, OnInit} from '@angular/core';
 import {Observable} from 'rxjs/Observable';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import 'rxjs/add/observable/forkJoin';
-import {UniForm, UniFieldLayout, FieldType} from '../../../../../framework/ui/uniform/index';
+import {UniFieldLayout, FieldType} from '../../../../../framework/ui/uniform/index';
 import {Account, VatType, AccountGroup} from '../../../../unientities';
 import {ToastService, ToastType, ToastTime} from '../../../../../framework/uniToast/toastService';
 
@@ -23,7 +23,6 @@ export class AccountDetails implements OnInit {
     @Input() public inputAccount: Account;
     @Output() public accountSaved: EventEmitter<Account> = new EventEmitter<Account>();
     @Output() public changeEvent: EventEmitter<Account> = new EventEmitter<Account>();
-    @ViewChild(UniForm) public form: UniForm;
 
     private account$: BehaviorSubject<Account> = new BehaviorSubject(null);
     private currencyCodes: Array<any> = [];
@@ -55,7 +54,9 @@ export class AccountDetails implements OnInit {
             (dataset) => {
                 this.currencyCodes = dataset[0];
                 this.vattypes = dataset[1];
-                this.accountGroups = dataset[2].filter(x => x.GroupNumber != null && x.GroupNumber.toString().length === 3);
+                this.accountGroups = dataset[2].filter(
+                    x => x.GroupNumber !== null && x.GroupNumber.toString().length === 3
+                );
                 this.extendFormConfig();
             },
             err => this.errorService.handle(err)
@@ -117,21 +118,26 @@ export class AccountDetails implements OnInit {
             events: {
                 blur: () => {
                     let account = this.account$.getValue();
-                    if ((!account.ID || account.ID === 0 || !account.AccountGroupID) && account.AccountNumber && account.AccountNumber.toString().length > 3) {
+                    if (
+                        (!account.ID || account.ID === 0 || !account.AccountGroupID)
+                        && account.AccountNumber && account.AccountNumber.toString().length > 3
+                    ) {
                         let expectedAccountGroupNo =  account.AccountNumber.toString().substring(0, 3);
 
-                        let defaultAccountGroup = this.accountGroups.find(x => x.GroupNumber === expectedAccountGroupNo);
+                        let defaultAccountGroup = this.accountGroups.find(
+                            x => x.GroupNumber === expectedAccountGroupNo
+                        );
 
                         if (defaultAccountGroup) {
                             account.AccountGroupID = defaultAccountGroup.ID;
                         } else {
-                            let defaultAccountGroup =
+                            let defAccountGroup =
                                 this.accountGroups
                                     .concat()
                                     .sort((a, b) => b.GroupNumber.localeCompare(a.GroupNumber))
                                     .find(x => x.GroupNumber < expectedAccountGroupNo);
-                            if (defaultAccountGroup) {
-                                account.AccountGroupID = defaultAccountGroup.ID;
+                            if (defAccountGroup) {
+                                account.AccountGroupID = defAccountGroup.ID;
                             }
                         }
 

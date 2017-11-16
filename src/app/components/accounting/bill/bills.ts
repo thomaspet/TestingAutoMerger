@@ -6,12 +6,11 @@ import {ToastService, ToastType} from '../../../../framework/uniToast/toastServi
 import {URLSearchParams} from '@angular/http';
 import {ActivatedRoute} from '@angular/router';
 import {Router} from '@angular/router';
-import {JournalEntryData, JournalEntryExtended} from '../../../models/models';
+import {JournalEntryData} from '../../../models/models';
 import {
     SupplierInvoice,
     StatusCodeSupplierInvoice,
     CompanySettings,
-    JournalEntryLineDraft,
     ApprovalStatus
 } from '../../../unientities';
 import {safeInt} from '../../common/utils/utils';
@@ -90,9 +89,9 @@ export class BillsView {
     private hasQueriedTotals: boolean = false;
     private startupPage: number = 0;
 
-    private searchParams$: BehaviorSubject<ISearchParams> = new BehaviorSubject({});
+    public searchParams$: BehaviorSubject<ISearchParams> = new BehaviorSubject({});
     private fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
-    private config$: BehaviorSubject<any> = new BehaviorSubject({autofocus: true});
+    public config$: BehaviorSubject<any> = new BehaviorSubject({autofocus: true});
 
     private companySettings: CompanySettings;
     private baseCurrencyCode: string;
@@ -224,9 +223,6 @@ export class BillsView {
                     this.refreshList(this.currentFilter, true);
                 }
                 this.updateSaveActions(0);
-                let searchParams: ISearchParams = {
-                    userID: null
-                };
 
                 this.fields$.next(this.getLayout().Fields);
 
@@ -243,7 +239,7 @@ export class BillsView {
         }
 
 
-    private onFormFilterChange(event) {
+    public onFormFilterChange(event) {
         this.currentUserFilter = event.ID.currentValue;
         this.refreshList(this.currentFilter, true, null, this.currentUserFilter);
 
@@ -255,7 +251,7 @@ export class BillsView {
 
     }
 
-    private onRowSelectionChanged() {
+    public onRowSelectionChanged() {
         this.selectedItems = this.unitable.getSelectedRows();
         if (this.selectedItems && this.selectedItems.length > 0) {
             let status = this.selectedItems[0].StatusCode;
@@ -349,7 +345,7 @@ export class BillsView {
         }
     }
 
-    private onImageClicked(file: any) {
+    public onImageClicked(file: any) {
         let data = {
             entity: 'SupplierInvoice',
             entityID: this.currentFiles[0].ID || 0,

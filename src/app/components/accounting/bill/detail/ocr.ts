@@ -41,7 +41,7 @@ export interface IOcrValuables {
 }
 
 export class OcrValuables {
-
+    // tslint:disable
     public Orgno: string = '';
     public PaymentID: string = '';
     public BankAccount: string = '';
@@ -52,6 +52,7 @@ export class OcrValuables {
     public InvoiceNumber: string = '';
     public Amount: number = 0;
     public SupplierID: number = 0;
+    // tslint:enable
 
     private _report: IOcrServiceResult;
 
@@ -65,7 +66,7 @@ export class OcrValuables {
             let props = result.InterpretedProperties;
 
             this.Orgno = this.getProposedValue(props, OcrPropertyType.OfficialNumber)
-                .replace('MVA', '').replace('N0','').replace('NO', '');
+                .replace('MVA', '').replace('N0', '').replace('NO', '');
             this.PaymentID = this.getProposedValue(props, OcrPropertyType.CustomerIdentificationNumber);
             this.BankAccount =  this.getProposedValue(props, OcrPropertyType.BankAccountNumber);
             this.BankAccountCandidates = this.BankAccount && this.BankAccount !== '' ? [this.BankAccount] : [];

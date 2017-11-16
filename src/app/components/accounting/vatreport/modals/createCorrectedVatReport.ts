@@ -4,7 +4,6 @@ import {UniForm} from '../../../../../framework/ui/uniform/index';
 import {FieldLayout, Period, VatReport} from '../../../../../app/unientities';
 import {FieldType} from '../../../../../framework/ui/uniform/index';
 import {PeriodDateFormatPipe} from '../../../../pipes/periodDateFormatPipe';
-import {ToastService, ToastType} from '../../../../../framework/uniToast/toastService';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 
 import {
@@ -18,7 +17,12 @@ import {
     template: `
         <article class='modal-content' *ngIf="config">
             <h1>{{title}}</h1>
-            <uni-form [config]="formConfig$" [fields]="fields$" [model]="model$" (submitEvent)="onSubmit($event)"></uni-form>
+            <uni-form
+                [config]="formConfig$"
+                [fields]="fields$"
+                [model]="model$"
+                (submitEvent)="onSubmit($event)">
+            </uni-form>
             <p>{{error}}</p>
             <footer>
                 <button *ngIf="createButtonVisible" (click)="submit()">Opprett endringsmelding</button>
@@ -218,7 +222,8 @@ export class CreateCorrectedVatReportModal {
                     modalContent.vatReportID = this.vatReportID;
                     modalContent.period = this.period;
                     modalContent.model$.next({ correctionChoice: 1 });
-                    modalContent.title = 'Opprett endringsmelding for termin: ' + this.period.No + ' (' + this.periodDateFormat.transform(this.period) + ')';
+                    modalContent.title = 'Opprett endringsmelding for termin: '
+                        + this.period.No + ' (' + this.periodDateFormat.transform(this.period) + ')';
                 });
             },
             err => this.errorService.handle(err));

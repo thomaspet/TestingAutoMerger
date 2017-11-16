@@ -1,7 +1,6 @@
 import {JournalEntries} from './journalentries/journalentries';
 import {Payments} from './payments/payments';
 import {BillsView} from './../bill/bills';
-import {CanDeactivateGuard} from '../../../canDeactivateGuard';
 
 export const routes = [
     {

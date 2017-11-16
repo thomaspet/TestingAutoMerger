@@ -1,6 +1,6 @@
 import {Component, OnInit, OnDestroy, ViewChild} from '@angular/core';
 import {FormControl} from '@angular/forms';
-import {Router, ActivatedRoute} from '@angular/router';
+import {Router} from '@angular/router';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {IUniSaveAction} from '../../../../framework/save/save';
 import {
@@ -289,7 +289,7 @@ export class VatReportView implements OnInit, OnDestroy {
         }
         return true;
     }
-    private IsApproveActionDisabled() {
+    public IsApproveActionDisabled() {
         if (this.currentVatReport.StatusCode === StatusCodeVatReport.Submitted) {
             return false;
         }
