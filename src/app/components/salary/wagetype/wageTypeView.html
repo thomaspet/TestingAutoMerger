@@ -2,7 +2,8 @@
     [config]="toolbarConfig"
     [saveactions]="saveActions"
     [contextmenu]="contextMenuItems$ | async"
-    [searchConfig]="searchConfig$ | async"></uni-toolbar>
+    [searchConfig]="searchConfig$ | async"
+    class="wageTypeToolbar"></uni-toolbar>
 <article [attr.aria-busy]="busy">
     <!-- Child component navigation and outlet -->
     <uni-tabs [routes]="childRoutes" class="horizontal_nav"></uni-tabs>
