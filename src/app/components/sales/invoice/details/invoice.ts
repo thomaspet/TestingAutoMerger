@@ -147,8 +147,7 @@ export class InvoiceDetails {
         'PaymentTerms',
         'Sellers',
         'Sellers.Seller',
-        'DefaultSeller',
-        'DefaultSeller.Seller'
+        'DefaultSeller'
     ];
 
     private expandOptions: Array<string> = [
@@ -981,7 +980,7 @@ export class InvoiceDetails {
                 this.currentPaymentTerm = invoice.PaymentTerms;
                 this.currentDeliveryTerm = invoice.DeliveryTerms;
 
-                invoice.DefaultSeller = invoice.DefaultSeller; // || new SellerLink();
+                invoice.DefaultSeller = invoice.DefaultSeller;
                 this.currentDefaultProjectID = invoice.DefaultDimensions.ProjectID;
 
                 this.currentInvoiceDate = invoice.InvoiceDate;
@@ -1209,6 +1208,11 @@ export class InvoiceDetails {
 
         if (this.invoice.DefaultSeller && this.invoice.DefaultSeller.ID > 0) {
             this.invoice.DefaultSellerID = this.invoice.DefaultSeller.ID;
+        }
+
+        if (this.invoice.DefaultSeller && this.invoice.DefaultSeller.ID === null) {
+            this.invoice.DefaultSeller = null;
+            this.invoice.DefaultSellerID = null;
         }
 
         if (this.invoice.DefaultDimensions && !this.invoice.DefaultDimensions.ID) {

@@ -214,11 +214,8 @@ export class TofCustomerCard {
             this.entity.Sellers = sellers;
 
             // map main seller to entity
-            if (customer.DefaultSellerLinkID) {
-                this.entity.DefaultSeller = Object.assign({}, customer.DefaultSeller
-                    || customer.Sellers.find(sellerLink => sellerLink.ID === customer.DefaultSellerLinkID));
-                this.entity.DefaultSeller.ID = undefined;
-                this.entity.DefaultSeller.CustomerID = undefined;
+            if (customer.DefaultSellerID) {
+                this.entity.DefaultSeller = Object.assign({}, customer.DefaultSeller);
             }
         }
 

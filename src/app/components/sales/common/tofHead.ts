@@ -49,16 +49,9 @@ export class TofHead implements OnChanges {
         this.data = _.cloneDeep(updatedEntity);
     }
 
-    public onMainSellerSet(sellerLink: SellerLink) {
-        this.data.DefaultSellerLinkID = sellerLink.ID;
-        this.data.DefaultSeller = sellerLink;
-        this.dataChange.emit(this.data);
-    }
-
     public onSellerLinkDeleted(sellerLink: SellerLink) {
         if (this.data.DefaultSeller && sellerLink.SellerID === this.data.DefaultSeller.SellerID) {
-            this.data.DefaultSeller = new SellerLink();
-            this.data.DefaultSellerLinkID = null;
+            this.data.DefaultSeller = new Seller();
         }
         this.sellerDelete.emit(sellerLink);
         this.dataChange.emit(this.data);

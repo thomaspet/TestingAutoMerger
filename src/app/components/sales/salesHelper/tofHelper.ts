@@ -6,7 +6,7 @@ import {Customer} from '../../../unientities';
 export class TofHelper {
     constructor(private addressService: AddressService, private sellerLinkService: SellerLinkService) {}
 
-    // Without mapping the customer to entity here, creating a new TOF from customer 
+    // Without mapping the customer to entity here, creating a new TOF from customer
     // will not bring along all the attributes that are needed in the TOF
     public mapCustomerToEntity(customer: Customer, entity: any): any {
         entity.Customer = customer;
@@ -17,7 +17,7 @@ export class TofHelper {
             const emails = customer.Info.Emails || [];
             const addresses = customer.Info.Addresses || [];
 
-            entity.EmailAddress = customer.Info.DefaultEmailID 
+            entity.EmailAddress = customer.Info.DefaultEmailID
                 && emails.find(email => email.ID === customer.Info.DefaultEmailID).EmailAddress;
 
             if (customer.Info.InvoiceAddressID) {
@@ -42,7 +42,7 @@ export class TofHelper {
             entity.DefaultDimensions.ProjectID = customer.Dimensions.ProjectID;
             entity.DefaultDimensions.Project = customer.Dimensions.Project;
         }
-        
+
         if (customer.PaymentTermsID) {
             entity.PaymentTermsID = customer.PaymentTermsID;
             entity.PaymentTerms = customer.PaymentTerms;
@@ -66,17 +66,6 @@ export class TofHelper {
             entity.Sellers = sellers;
         }
 
-        // map main seller to entity
-        if (customer.DefaultSellerLinkID) {
-            entity.DefaultSeller = Object.assign({}, customer.DefaultSeller 
-                || customer.Sellers.find(sellerLink => sellerLink.ID === customer.DefaultSellerLinkID));
-            entity.DefaultSeller.ID = undefined;
-            entity.DefaultSeller.CustomerID = undefined;
-            entity.DefaultSeller.CustomerInvoiceID = undefined;
-            entity.DefaultSeller.CustomerOrderID = undefined;
-            entity.DefaultSeller.CustomerQuoteID = undefined;
-        }
-
-        return entity;
+               return entity;
     }
 }

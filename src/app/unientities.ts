@@ -609,7 +609,7 @@ export class Customer extends UniEntity {
     public CurrencyCodeID: number;
     public CustomerInvoiceReminderSettingsID: number;
     public CustomerNumber: number;
-    public DefaultSellerLinkID: number;
+    public DefaultSellerID: number;
     public Deleted: boolean;
     public DeliveryTermsID: number;
     public DimensionsID: number;
@@ -635,7 +635,7 @@ export class Customer extends UniEntity {
     public CurrencyCode: CurrencyCode;
     public AcceptableDelta4CustomerPaymentAccount: Account;
     public SubAccountNumberSeries: NumberSeries;
-    public DefaultSeller: SellerLink;
+    public DefaultSeller: Seller;
     public Sellers: Array<SellerLink>;
     public CustomFields: any;
 }

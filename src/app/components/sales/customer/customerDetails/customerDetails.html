@@ -60,7 +60,6 @@
             <seller-links
                 [parent]="(customer$ | async)"
                 (sellerChanged)="onChange($event)"
-                (mainSellerSet)="onMainSellerSet($event)"
                 (deleted)="onSellerLinkDeleted($event)">
             </seller-links>
         </div>

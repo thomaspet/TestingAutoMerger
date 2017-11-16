@@ -376,7 +376,7 @@ export class QuoteDetails {
                 this.currentCustomer = quote.Customer;
                 this.currentDeliveryTerm = quote.DeliveryTerms;
 
-                quote.DefaultSeller = quote.DefaultSeller || new SellerLink();
+                quote.DefaultSeller = quote.DefaultSeller;
                 this.currentDefaultProjectID = quote.DefaultDimensions.ProjectID;
 
                 this.currentQuoteDate = quote.QuoteDate;
@@ -1024,6 +1024,11 @@ export class QuoteDetails {
 
         if (this.quote.DefaultSeller && this.quote.DefaultSeller.ID > 0) {
             this.quote.DefaultSellerID = this.quote.DefaultSeller.ID;
+        }
+
+        if(this.quote.DefaultSeller && this.quote.DefaultSeller.ID === null) {
+            this.quote.DefaultSeller = null;
+            this.quote.DefaultSellerID = null;
         }
 
         // add deleted sellers back to 'Sellers' to delete with 'Deleted' property, was sliced locally/in view

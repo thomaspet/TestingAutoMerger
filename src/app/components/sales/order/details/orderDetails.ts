@@ -588,7 +588,7 @@ export class OrderDetails {
                 this.currentCustomer = res.Customer;
                 this.currentDeliveryTerm = res.DeliveryTerms;
 
-                order.DefaultSeller = order.DefaultSeller || new SellerLink();
+                order.DefaultSeller = order.DefaultSeller;
                 this.currentDefaultProjectID = order.DefaultDimensions.ProjectID;
 
                 this.currentOrderDate = order.OrderDate;
@@ -1037,6 +1037,11 @@ export class OrderDetails {
 
         if (this.order.DefaultSeller && this.order.DefaultSeller.ID > 0) {
             this.order.DefaultSellerID = this.order.DefaultSeller.ID;
+        }
+
+        if (this.order.DefaultSeller && this.order.DefaultSeller.ID === null) {
+            this.order.DefaultSeller = null;
+            this.order.DefaultSellerID = null;
         }
 
         // add deleted sellers back to 'Sellers' to delete with 'Deleted' property, was sliced locally/in view

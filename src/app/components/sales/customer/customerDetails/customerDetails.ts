@@ -15,6 +15,7 @@ import {
     CurrencyCode,
     Terms,
     NumberSeries,
+    Seller,
     SellerLink
 } from '../../../../unientities';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
@@ -40,7 +41,8 @@ import {
     TermsService,
     UniSearchCustomerConfig,
     NumberSeriesService,
-    SellerLinkService
+    SellerLinkService,
+    SellerService
 } from '../../../../services/services';
 import {
     UniModalService,
@@ -89,6 +91,7 @@ export class CustomerDetails {
     private isDirty: boolean = false;
     private selectConfig: any;
     private deletables: SellerLink[] = [];
+    private sellers: Seller[];
 
     private toolbarconfig: IToolbarConfig = {
         title: 'Kunde',
@@ -205,7 +208,8 @@ export class CustomerDetails {
         private http: UniHttp,
         private termsService: TermsService,
         private numberSeriesService: NumberSeriesService,
-        private sellerLinkService: SellerLinkService
+        private sellerLinkService: SellerLinkService,
+        private sellerService: SellerService
     ) {}
 
     public ngOnInit() {
@@ -381,7 +385,8 @@ export class CustomerDetails {
                     `filter=NumberSeriesType.Name eq 'Customer Account number series'
                     and Empty eq false and Disabled eq false`,
                     ['NumberSeriesType']
-                )
+                ),
+                this.sellerService.GetAll(null)
             ).subscribe(response => {
                 this.dropdownData = [response[0], response[1]];
                 this.emptyPhone = response[3];
@@ -392,6 +397,7 @@ export class CustomerDetails {
                 this.paymentTerms = response[8];
                 this.deliveryTerms = response[9];
                 this.numberSeries = response[10].map(x => this.numberSeriesService.translateSerie(x));
+                this.sellers = response[11];
 
                 let customer: Customer = response[2];
                 customer.SubAccountNumberSeriesID =
@@ -407,7 +413,7 @@ export class CustomerDetails {
                         this.customerInvoiceReminderSettingsService.getNewGuid();
                 }
 
-                customer.DefaultSeller = customer.DefaultSeller || new SellerLink();
+                customer.DefaultSeller = customer.DefaultSeller || new Seller();
 
                 this.selectConfig = this.numberSeriesService.getSelectConfig(
                     this.customerID, this.numberSeries, 'Customer number series'
@@ -525,6 +531,15 @@ export class CustomerDetails {
             template: (item) => {
                 return item !== null ? (item.ProjectNumber + ' - ' + item.Name) : '';
             },
+            debounceTime: 200,
+            addEmptyValue: true
+        };
+
+        let defaultSeller: UniFieldLayout = fields.find(field => field.Property === 'DefaultSeller.ID');
+        defaultSeller.Options = {
+            source: this.sellers,
+            valueProperty: 'ID',
+            displayProperty: 'Name',
             debounceTime: 200,
             addEmptyValue: true
         };
@@ -761,14 +776,13 @@ export class CustomerDetails {
             customer['_CustomerSearchResult'] = undefined;
 
             // if main seller does not exist in 'Sellers', create and add it
-            if (customer.DefaultSeller && customer.DefaultSeller.SellerID
-                && !customer.DefaultSeller._createguid && !customer.Sellers.find(sellerLink =>
-                    sellerLink.SellerID === customer.DefaultSeller.SellerID
-            )) {
-                customer.DefaultSeller._createguid = this.sellerLinkService.getNewGuid();
-                customer.Sellers.push(customer.DefaultSeller);
-            } else if (customer.DefaultSeller && !customer.DefaultSeller.SellerID) {
+            if (customer.DefaultSeller && customer.DefaultSeller.ID > 0) {
+                customer.DefaultSellerID = customer.DefaultSeller.ID;
+            }
+
+            if (customer.DefaultSeller && customer.DefaultSeller.ID === null) {
                 customer.DefaultSeller = null;
+                customer.DefaultSellerID = null;
             }
 
             // add deleted sellers back to 'Sellers' to delete with 'Deleted' property, was sliced locally/in view
@@ -911,19 +925,12 @@ export class CustomerDetails {
         }
     }
 
-    public onMainSellerSet(sellerLink: SellerLink) {
-        let customer = this.customer$.getValue();
-        customer.DefaultSellerLinkID = sellerLink.ID;
-        customer.DefaultSeller = sellerLink;
-        this.customer$.next(customer);
-    }
-
     public onSellerLinkDeleted(sellerLink: SellerLink) {
         let customer = this.customer$.getValue();
         this.deletables.push(sellerLink);
-        if (customer.DefaultSeller && sellerLink.SellerID === customer.DefaultSeller.SellerID) {
-            customer.DefaultSeller = new SellerLink();
-            customer.DefaultSellerLinkID = null;
+        if (customer.DefaultSeller && sellerLink.SellerID === customer.DefaultSeller.ID) {
+            customer.DefaultSeller = new Seller();
+            customer.DefaultSellerID = null;
         }
         this.customer$.next(customer);
     }
@@ -1058,6 +1065,14 @@ export class CustomerDetails {
                     Label: 'Avdeling',
                     Section: 0
                 },
+                {
+                    FieldSet: 4,
+                    EntityType: 'Seller',
+                    Property: 'DefaultSeller.ID',
+                    FieldType: FieldType.DROPDOWN,
+                    Label: 'Hovedselger',
+                    Section: 0
+                }
 
                 // Fieldset 5 (EHF)
                 {
