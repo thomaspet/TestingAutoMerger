@@ -1,6 +1,7 @@
-import {Component, OnInit, Input, ViewChildren, QueryList, Output, EventEmitter} from '@angular/core';
+import {Component, OnInit, Input, ViewChildren, ViewChild, QueryList, Output, EventEmitter, ChangeDetectionStrategy} from '@angular/core';
 import {Employee, PayrollRun} from '../../../../unientities';
 import {Observable} from 'rxjs/Observable';
+import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {UniPreviewModal} from '../../../reports/modals/preview/previewModal';
 import {UniModalService} from '../../../../../framework/uniModal/barrel';
 import {
@@ -14,24 +15,30 @@ import {
     ErrorService,
     PayrollrunService,
     ReportDefinitionService,
+    ReportNames,
     FinancialYearService
 } from '../../../../services/services';
 
+export enum PaycheckFormat {
+    E_MAIL = 'Epost',
+    PRINT = 'Utskrift'
+}
+
 @Component({
     selector: 'paycheck-sending',
-    templateUrl: './paycheckSending.html'
+    templateUrl: './paycheckSending.html',
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class PaycheckSending implements OnInit {
     @Input() public runID: number;
     @Output() public busy: EventEmitter<boolean> = new EventEmitter();
-    @Output() public selectedEmails: EventEmitter<number> = new EventEmitter();
-    @Output() public selectedPrints: EventEmitter<number> = new EventEmitter();
-    @ViewChildren(UniTable) private tables: QueryList<UniTable>;
+    @Output() public selectedEmps: EventEmitter<number> = new EventEmitter();
+    @ViewChild(UniTable) public table: UniTable;
 
     private paychecksEmail: Employee[] = [];
     private paychecksPrint: Employee[] = [];
-    private paycheckTableConfig: UniTableConfig;
-    private paycheckPrintTableConfig: UniTableConfig;
+    private employees$: BehaviorSubject<Employee[]> = new BehaviorSubject([]);
+    private tableConfig$: BehaviorSubject<UniTableConfig> = new BehaviorSubject(null);
 
     constructor(
         private payrollrunService: PayrollrunService,
@@ -47,23 +54,35 @@ export class PaycheckSending implements OnInit {
         this.setupPaycheckTable();
     }
 
-    public emailPaychecks() {
-        Observable
-            .of(this.getSelectedEmail())
+    public handlePaychecks(printAll: boolean = false) {
+        let emps = this.getSelected();
+        let selectedPrints = emps.filter(emp => emp['_paycheckFormat'] === PaycheckFormat.PRINT);
+        let selectedEmails = emps.filter(emp => emp['_paycheckFormat'] === PaycheckFormat.E_MAIL);
+        this.printPaychecks(printAll ? emps : selectedPrints);
+
+        if (printAll) {
+            this.resetRows();
+            return;
+        }
+
+        this.emailPaychecks(selectedEmails)
+            .subscribe(response => {
+                if (!response) {
+                    return;
+                }
+                this.resetRows();
+            });
+    }
+
+    private emailPaychecks(employees: Employee[]): Observable<boolean> {
+        return Observable
+            .of(employees)
             .filter(emps => !!emps.length)
             .do(() => this.busy.next(true))
             .switchMap(emps => this.payrollrunService.emailPaychecks(emps, this.runID))
             .catch((err, obs) => this.errorService.handleRxCatch(err, obs))
             .finally(() => this.busy.next(false))
             .do((response: boolean) => {
-                if (!response) {
-                    return;
-                }
-
-                this.resetRowSelection(this.tables.toArray()[0]);
-                this.emailRowSelectionChanged();
-            })
-            .subscribe((response: boolean) => {
                 response
                     ? this.toastService
                         .addToast(
@@ -80,62 +99,38 @@ export class PaycheckSending implements OnInit {
             });
     }
 
-    public printPaychecks(all) {
-        let prints = all ? this.getSelected() : this.getSelectedPrint();
-        if (!prints) {
-            return;
-        }
-        Observable.forkJoin(
-            this.reportdefinitionService.getReportByName('Lønnslipp'),
-            this.payrollrunService.get(this.runID),
-            this.financialYearService.getActiveYear())
-            .subscribe((response: [any, PayrollRun, number]) => {
-                let [report, payrollRun, thisYear] = response;
-                if (report) {
-                    let employeeTransFilter = '(' + prints
-                        .map((emp: Employee) => 'EmployeeID eq ' + emp.ID)
-                        .join(' or ') + ')';
-                    let transFilter = employeeTransFilter + ` and (PayrollRunID eq ${this.runID})`;
-                    let employeeFilter = prints
-                        .map(emp => 'ID eq ' + emp.ID)
-                        .join(' or ');
-
-
-                    report.parameters = [
-                        {Name: 'TransFilter', value: transFilter},
-                        {Name: 'ThisYear', value: thisYear},
-                        {Name: 'LastYear', value: thisYear - 1},
-                        {Name: 'PayDate', value: payrollRun.PayDate},
-                        {Name: 'EmployeeFilter', value: employeeFilter},
-                        {Name: 'RunID', value: this.runID}
-                    ];
-
-                    this.modalService.open(UniPreviewModal, {data: report});
+    private printPaychecks(employees: Employee[]) {
+        this.reportdefinitionService
+            .getReportByName(ReportNames.PAYCHECK_EMP_FILTER)
+            .catch((err, obs) => this.errorService.handleRxCatch(err, obs))
+            .subscribe((report) => {
+                if (!report) {
+                    return;
                 }
-            }, err => this.errorService.handle(err));
+                let employeeFilter = employees
+                    .map(emp => emp.EmployeeNumber)
+                    .join(',');
+
+                report.parameters = [
+                    {Name: 'EmployeeFilter', value: employeeFilter},
+                    {Name: 'RunID', value: this.runID}
+                ];
+
+                this.modalService.open(UniPreviewModal, {data: report});
+            });
     }
 
-    private resetRowSelection(table: UniTable) {
-        table.getSelectedRows()
+    private resetRowSelection() {
+        this.table
+            .getSelectedRows()
             .forEach(row => {
                 row['_rowSelected'] = false;
-                table.updateRow(row['_originalIndex'], row);
+                this.table.updateRow(row['_originalIndex'], row);
             });
     }
 
     private getSelected(): Employee[] {
-        var emails = this.tables.toArray()[0].getSelectedRows();
-        var print = this.tables.toArray()[1].getSelectedRows();
-
-        return emails.concat(print);
-    }
-
-    private getSelectedEmail(): Employee[] {
-        return this.tables.toArray()[0].getSelectedRows();
-    }
-
-    private getSelectedPrint(): Employee[] {
-        return this.tables.toArray()[1].getSelectedRows();
+        return this.table.getSelectedRows();
     }
 
     private loadEmployeesInPayrollrun() {
@@ -149,47 +144,65 @@ export class PaycheckSending implements OnInit {
                     if (employee.BusinessRelationInfo &&
                         employee.BusinessRelationInfo.DefaultEmail &&
                         employee.BusinessRelationInfo.DefaultEmail.EmailAddress) {
-
+                        employee['_paycheckFormat'] = PaycheckFormat.E_MAIL;
                         tmpEmail.push(employee);
                     } else {
+                        employee['_paycheckFormat'] = PaycheckFormat.PRINT;
                         tmpPrint.push(employee);
                     }
                 });
+                this.employees$.next(emps);
                 this.paychecksEmail = tmpEmail;
                 this.paychecksPrint = tmpPrint;
             });
     }
 
     private setupPaycheckTable() {
-        let employeenumberCol = new UniTableColumn('EmployeeNumber', 'Ansattnummer', UniTableColumnType.Text);
-        let employeenameCol = new UniTableColumn('BusinessRelationInfo.Name', 'Navn', UniTableColumnType.Text);
+        let employeenumberCol = new UniTableColumn('EmployeeNumber', 'Ansattnummer', UniTableColumnType.Text, false);
+        let employeenameCol = new UniTableColumn('BusinessRelationInfo.Name', 'Navn', UniTableColumnType.Text, false);
         let emailCol = new UniTableColumn(
-            'BusinessRelationInfo.DefaultEmail.EmailAddress', 'Epost', UniTableColumnType.Text
-        );
+            'BusinessRelationInfo.DefaultEmail.EmailAddress',
+            'Epost',
+            UniTableColumnType.Text,
+            false);
 
-        this.paycheckTableConfig = new UniTableConfig('salary.payrollrun.sending.paycheck', true, true, 25)
+        let typeCol = new UniTableColumn(
+            '_paycheckFormat',
+            'Type',
+            UniTableColumnType.Select,
+            (row) => this.typeColIsEditable(row))
+            .setEditorOptions({
+                resource: [
+                    PaycheckFormat.E_MAIL,
+                    PaycheckFormat.PRINT
+                ],
+                itemTemplate: item => item
+            });
+
+        let config = new UniTableConfig('salary.payrollrun.sending.paychecks', true, true, 25)
             .setSearchable(false)
             .setColumnMenuVisible(false)
             .setAutoAddNewRow(false)
             .setMultiRowSelect(true)
             .setDeleteButton(false)
-            .setColumns([employeenumberCol, employeenameCol, emailCol]);
+            .setColumns([employeenumberCol, employeenameCol, emailCol, typeCol]);
 
-        this.paycheckPrintTableConfig = new UniTableConfig('salary.payrollrun.sending.print', true, true, 25)
-            .setSearchable(false)
-            .setColumnMenuVisible(false)
-            .setAutoAddNewRow(false)
-            .setMultiRowSelect(true)
-            .setDeleteButton(false)
-            .setColumns([employeenumberCol, employeenameCol]);
+        this.tableConfig$.next(config);
     }
 
-    public emailRowSelectionChanged() {
-        this.selectedEmails.next(this.getSelectedEmail().length);
+    private typeColIsEditable(row: Employee): boolean {
+        return !!(row.BusinessRelationInfo
+            && row.BusinessRelationInfo.DefaultEmail
+            && row.BusinessRelationInfo.DefaultEmail.EmailAddress);
     }
 
-    public printRowSelectionChanged() {
-        this.selectedPrints.next(this.getSelectedPrint().length);
+    private resetRows() {
+        this.resetRowSelection();
+        this.rowSelectionChange();
+    }
+
+    public rowSelectionChange() {
+        this.selectedEmps.next(this.getSelected().length);
     }
 
 }

@@ -1,4 +1,4 @@
-<section role="dialog" class="uni-modal"
+<section role="dialog" class="paycheckSenderModal uni-modal medium"
         (clickOutside)="close(false)"
         (keydown.esc)="close(false)">
     <header>
@@ -9,30 +9,35 @@
         <paycheck-sending
             [runID]="options.data"
             (busy)="setBusy($event)"
-            (selectedEmails)="checkedEmails($event)"
-            (selectedPrints)="checkedPrints($event)">
+            (selectedEmps)="onSelectedEmps($event)">
         </paycheck-sending>
     </article>
 
     <footer>
-        <button
-            (click)="emailPaychecks()"
-            [disabled]="!checkedEmailEmps"
-            [attr.aria-busy]="busy"
-            class="good">
-            Send
-        </button>
-        <button
-            (click)="printPaychecks(false)"
-            [disabled]="!checkedPrintEmps"
-            class="good">
-            Skriv ut valgte
-        </button>
-        <button (click)="printPaychecks(true)" class="good">
-            Skriv ut alle
-        </button>
-        <button (click)="close()" class="bad">
-            Lukk
-        </button>
+        <section role="group" class="comboButton" *ngIf="saveActions.length">
+            <button
+                class="comboButton_btn good"
+                type="button"
+                (click)="saveActions[0].action()"
+                [attr.aria-busy]="busy"
+                [disabled]="saveActions[0].disabled">{{saveActions[0].label}}</button>
+            <button
+                class="comboButton_more good"
+                type="button"
+                (click)="open = !open"
+                (clickOutside)="open = false"
+                aria-owns="saveActionMenu"
+                [attr.aria-expanded]="open"
+                [disabled]="saveActions[0].disabled">More options</button>
+
+            <ul class="comboButton_moreList" [attr.aria-expanded]="open" role="menu">
+                <li *ngFor="let action of saveActions" (click)="action.action()" role="menuitem" [attr.aria-disabled]="action.disabled">{{action.label}}</li>
+            </ul>
+        </section>
+        <section>
+            <button (click)="close()" class="bad">
+                Lukk
+            </button>
+        </section>
     </footer>
 </section>

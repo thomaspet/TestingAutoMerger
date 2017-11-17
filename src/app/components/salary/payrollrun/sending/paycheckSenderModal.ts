@@ -1,6 +1,7 @@
 import {Component, OnInit, Input, Output, EventEmitter, ViewChild} from '@angular/core';
 import {PaycheckSending} from './paycheckSending';
 import {IUniModal, IModalOptions} from '../../../../../framework/uniModal/barrel';
+import {IUniSaveAction} from '../../../../../framework/save/save';
 
 @Component({
     selector: 'paycheck-sender-modal',
@@ -11,32 +12,50 @@ export class PaycheckSenderModal implements OnInit, IUniModal {
     @ViewChild(PaycheckSending) private paycheckSending: PaycheckSending;
     @Input() public options: IModalOptions;
     @Output() public onClose: EventEmitter<any> = new EventEmitter<any>();
-    public checkedEmailEmps: number;
-    public checkedPrintEmps: number;
+    public saveActions: IUniSaveAction[] = [];
+    public checkedEmps: number;
     public busy: boolean;
 
     constructor() { }
 
-    public ngOnInit() { }
-
-    public emailPaychecks() {
-        this.paycheckSending.emailPaychecks();
+    public ngOnInit() {
+        this.updateSaveActions();
     }
 
-    public printPaychecks(all: boolean) {
-        this.paycheckSending.printPaychecks(all);
+    private updateSaveActions() {
+        this.saveActions = this.getSaveActions(!!this.checkedEmps);
+    }
+
+    private getSaveActions(isActive: boolean): IUniSaveAction[] {
+        return [
+            {
+                label: 'Send epost/Skriv ut',
+                action: this.handlePaychecks.bind(this),
+                disabled: !isActive
+            },
+            {
+                label: 'Skriv ut alle valgte',
+                action: this.printAllPaychecks.bind(this),
+                disabled: !isActive
+            }
+        ];
+    }
+
+    public printAllPaychecks() {
+        this.paycheckSending.handlePaychecks(true);
+    }
+
+    public handlePaychecks() {
+        this.paycheckSending.handlePaychecks();
     }
 
     public close() {
         this.onClose.next(true);
     }
 
-    public checkedEmails(event: number) {
-        this.checkedEmailEmps = event;
-    }
-
-    public checkedPrints(event: number) {
-        this.checkedPrintEmps = event;
+    public onSelectedEmps(event: number) {
+        this.checkedEmps = event;
+        this.updateSaveActions();
     }
 
     public setBusy(event: boolean) {
