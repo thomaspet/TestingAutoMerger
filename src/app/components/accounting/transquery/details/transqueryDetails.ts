@@ -138,12 +138,7 @@ export class TransqueryDetails implements OnInit {
     private getTableData(urlParams: URLSearchParams): Observable<Response> {
         urlParams = urlParams || new URLSearchParams();
         const filtersFromUniTable = urlParams.get('filter');
-        const filters = filtersFromUniTable ? [filtersFromUniTable] : [];
-
-        if (this.configuredFilter) {
-            filters.push(this.configuredFilter);
-        }
-
+        const filters = filtersFromUniTable ? [filtersFromUniTable] : [this.configuredFilter];
 
         if (filters && filters.length > 0) {
             let newFilters = [];
@@ -159,6 +154,7 @@ export class TransqueryDetails implements OnInit {
 
             filters[0] = newFilters.join(' and ');
         }
+
         let searchParams = this.searchParams$.getValue();
         if (this.allowManualSearch) {
             if (searchParams.AccountYear) {
