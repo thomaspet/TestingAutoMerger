@@ -452,22 +452,6 @@ export class RecurringPost extends UniView {
         }
     }
 
-    public navigateToNewAdvance() {
-        this.router
-            .navigate([`salary/salarybalances/0/details`,
-                {employeeID: this.employeeID, instalmentType: SalBalType.Advance}]);
-    }
-
-    public navigateToNewDraw() {
-        this.router
-            .navigate([`salary/salarybalances/0/details`, {employeeID: this.employeeID}]);
-    }
-
-    public navigateToSalaryBalanceList() {
-        this.router
-            .navigate(['salary/salarybalances', {empID: this.employeeID}]);
-    }
-
     public updateSupplementsOnTransaction(trans: SalaryTransaction) {
         if (trans) {
             let row: SalaryTransaction = this.recurringPosts.find(x => x.ID === trans.ID && !x.Deleted);
