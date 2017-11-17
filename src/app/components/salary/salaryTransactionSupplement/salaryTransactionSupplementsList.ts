@@ -62,7 +62,11 @@ export class SalaryTransactionSupplementList implements OnInit {
 
         this.route.params.subscribe(params => {
             let payrollRunID = +params['runID'] || undefined;
-            this.yearService.selectedYear$.subscribe( year => {
+            this.yearService
+                .selectedYear$
+                .asObservable()
+                .filter(year => !!year)
+                .subscribe( year => {
                 if ((!this.model$ || !payrollRunID)) {
                     this.model$ = this.getModel(payrollRunID, year);
                 }

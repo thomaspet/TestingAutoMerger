@@ -38,6 +38,8 @@ export class SalaryPaymentListReportFilterModalContent implements OnInit {
         this.config$.next(this.config);
         let subscription = this.yearService
             .selectedYear$
+            .asObservable()
+            .filter(year => !!year)
             .do(year => this.currentYear = year)
             .switchMap(year => this.payrollRunService.getLatestSettledRun(year))
             .finally(() => subscription.unsubscribe())

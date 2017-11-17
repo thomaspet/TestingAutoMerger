@@ -201,6 +201,7 @@ export class WageTypeView extends UniView {
         return this.yearService
             .selectedYear$
             .asObservable()
+            .filter(year => !!year)
             .take(1)
             .map((year: number) => {
                 if (wageType.ValidYear !== year) {

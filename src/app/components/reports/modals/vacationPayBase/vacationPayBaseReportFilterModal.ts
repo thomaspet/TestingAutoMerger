@@ -36,6 +36,8 @@ export class VacationPayBaseReportFilterModalContent implements OnInit {
         this.fields$.next(this.getLayout(this.config.report.parameters));
         let subscription = this.yearService
             .selectedYear$
+            .asObservable()
+            .filter(year => !!year)
             .finally(() => subscription.unsubscribe())
             .subscribe(year => {
                 this.model$.next({ Yer: year - 1 });

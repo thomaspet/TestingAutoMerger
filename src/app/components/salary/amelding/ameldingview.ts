@@ -118,7 +118,10 @@ export class AMeldingView implements OnInit {
 
     private loadYearData() {
         this.yearService
-            .getActiveYear()
+            .selectedYear$
+            .asObservable()
+            .filter(year => !!year)
+            .take(1)
             .do(year => this.activeYear = year)
             .switchMap(financialYear => this._payrollService.getLatestSettledPeriod(1, financialYear))
             .subscribe(
