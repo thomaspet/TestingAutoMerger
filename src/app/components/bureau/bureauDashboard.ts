@@ -196,7 +196,9 @@ export class BureauDashboard {
         return this.uniHttp
             .asPOST()
             .withEndPoint('companies?action=create-company')
-            .withBody(name)
+            .withBody({
+                CompanyName : name
+            })
             .send();
     }
 
