@@ -803,17 +803,18 @@ export class TransqueryDetails implements OnInit {
                             return Observable.of([]);
                         },
                         search: (query: string) => {
-                            const isNumber = !isNaN(<any>query);
+                            const isNumber = !isNaN(parseInt(query, 10));
+
                             if (isNumber) {
                                 return this.accountService.searchAccounts(
-                                    `( ( AccountNumber eq '${query}') or (Visible eq 'true' `
-                                    + `and (startswith(AccountNumber,'${query}') ) ) ) `
+                                    `( ( AccountNumber eq '${+query}') or (Visible eq 'true' `
+                                    + `and (startswith(AccountNumber,'${+query}') ) ) ) `
                                     + `and isnull(AccountID,0) eq 0`
                                 );
                             } else {
                                 return this.accountService.searchAccounts(
                                     `( Visible eq 'true' `
-                                    + `and contains(AccountName,'${query}') ) `
+                                    + `and contains(AccountName,'${query || ''}') ) `
                                     + `and isnull(AccountID,0) eq 0`
                                 );
                             }
