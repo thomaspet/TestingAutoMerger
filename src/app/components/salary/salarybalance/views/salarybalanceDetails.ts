@@ -164,6 +164,12 @@ export class SalarybalanceDetail extends UniView {
                 this.salarybalanceChange.emit(model);
                 if (this.useExternalChangeDetection === false) {
                     super.updateState('salarybalance', model, true);
+                } 
+                else {
+                    if (changes['InstalmentType']) {
+                        this.refreshLayout(model)
+                            .subscribe();
+                    }
                 }
             });
     }
