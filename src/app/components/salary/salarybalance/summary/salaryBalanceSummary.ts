@@ -4,8 +4,13 @@ import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {UniTableConfig, UniTableColumn, UniTableColumnType} from '../../../../../framework/ui/unitable/index';
 import {SalaryBalance, Employee, SalaryBalanceLine, SalaryTransaction, PayrollRun} from '../../../../unientities';
 import {
-    SalaryBalanceLineService, ErrorService, EmployeeService, SalaryTransactionService
+    SalaryBalanceLineService, ErrorService, EmployeeService, SalaryTransactionService, PayrollrunService
 } from '../../../../services/services';
+import { SalarybalanceLine } from '../salarybalanceLine';
+import { PayrollrunDetails } from '../../payrollrun/payrollrunDetails';
+import {ISummaryConfig} from '../../../common/summary/summary';
+import { DecimalPipe } from '@angular/common/src/pipes';
+import { JournalEntryAccountCalculationSummary } from '../../../../models/accounting/JournalEntryAccountCalculationSummary';
 
 @Component({
     selector: 'salary-balance-summary',
@@ -19,12 +24,14 @@ export class SalaryBalanceSummary implements OnInit, OnChanges {
     private description$: BehaviorSubject<string>;
     private tableConfig: UniTableConfig;
     public showDescriptionText: boolean = false;
+    private summary: ISummaryConfig[] = [];
 
     constructor(
         private salaryBalanceLineService: SalaryBalanceLineService,
         private errorService: ErrorService,
         private salarytransactionService: SalaryTransactionService,
-        private employeeService: EmployeeService
+        private employeeService: EmployeeService,
+        private payrollrunService: PayrollrunService
     ) {
         this.salarybalanceLinesModel$ = new BehaviorSubject<SalaryBalanceLine[]>([]);
         this.description$ = new BehaviorSubject<string>('');
@@ -66,6 +73,7 @@ export class SalaryBalanceSummary implements OnInit, OnChanges {
             })
                 .subscribe((transes: SalaryBalanceLine[]) => {
                     this.salarybalanceLinesModel$.next(transes);
+                    this.setTotals();
                 }, err => this.errorService.handle(err));
 
             let empObs = this.salaryBalance.Employee && this.salaryBalance.Employee.BusinessRelationInfo
@@ -86,20 +94,40 @@ export class SalaryBalanceSummary implements OnInit, OnChanges {
         }
     }
 
+    private setTotals() {
+        this.summary = [
+            {
+                value: this.salaryBalance.CalculatedBalance,
+                title: 'Avregnet beløp',
+                description: 'Beløp for alle trekk som er med i en avregnet lønnsavregning'
+            },
+            {
+                value: this.salaryBalance.Balance,
+                title: 'Estimert beløp',
+                description: 'Beløp som tar med alle planlagte trekk, også på lønnsavregninger som ikke er avregnet enda'
+            }
+        ];
+    }
+
     private createConfig() {
         const nameCol = new UniTableColumn('Description', 'Beskrivelse', UniTableColumnType.Text);
         const startDateCol = new UniTableColumn('Date', 'Dato', UniTableColumnType.LocalDate)
             .setWidth('7rem');
-        const sumCol = new UniTableColumn('Amount', 'Beløp', UniTableColumnType.Money)
-            .setWidth('12rem');
+        const sumCol = new UniTableColumn('Amount', 'Beløp', UniTableColumnType.Money);
         const payRunCol = new UniTableColumn('_payrollrun', 'Lønnsavregning', UniTableColumnType.Number)
             .setTemplate((row: SalaryBalanceLine) => {
                 let run: PayrollRun = row['_payrollrun'];
                 return run ? `${run.ID} - ${run.Description}` : 'manuelt trekk';
             })
             .setWidth('9rem');
+        const statusCol = new UniTableColumn('_payrollrun', 'Status', UniTableColumnType.Text)
+            .setTemplate((row: SalarybalanceLine) => {
+                let run: PayrollRun = row['_payrollrun'];
+                let status = this.payrollrunService.getStatus(run);
+                return run ? `${status.text}` : '';
+            })
 
-        let columnList = [nameCol, startDateCol, sumCol, payRunCol];
+        let columnList = [nameCol, startDateCol, sumCol, payRunCol, statusCol];
 
         this.tableConfig = new UniTableConfig('salary.salarybalance.summary', false, false)
             .setColumns(columnList);
