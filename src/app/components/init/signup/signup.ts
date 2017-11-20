@@ -2,7 +2,9 @@ import {Component} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
 import {FormBuilder, FormControl, Validators, FormGroup} from '@angular/forms';
 import {UniHttp} from '../../../../framework/core/http/http';
+import {AuthService} from '../../../authService';
 import {passwordValidator, passwordMatchValidator, usernameValidator} from '../authValidators';
+import {Company} from '../../../unientities';
 
 @Component({
     selector: 'uni-signup',
@@ -21,6 +23,7 @@ export class Signup {
     constructor(
         private http: UniHttp,
         private route: ActivatedRoute,
+        private authService: AuthService,
         formBuilder: FormBuilder
     ) {
         this.step1Form = formBuilder.group({
@@ -90,7 +93,7 @@ export class Signup {
         this.busy = true;
         const formValues = this.step2Form.value;
 
-        let requestBody = {
+        const requestBody = {
             UserName: formValues.UserName,
             Password: formValues.Password,
             ConfirmationCode: this.confirmationCode
@@ -103,9 +106,8 @@ export class Signup {
             .send()
             .subscribe(
                 res => {
-                    this.successMessage = 'Vi setter nå opp selskapet ditt. '
-                        + 'En epost blir automatisk sendt ut når kontoen er klar for bruk.';
-                    this.busy = false;
+                    console.log('Register response: ' + res && res.json());
+                    this.attemptLogin(requestBody.UserName, requestBody.Password, res.json());
                 },
                 err => {
                     let usernameExists;
@@ -126,4 +128,29 @@ export class Signup {
                 }
             );
     }
+
+    public attemptLogin(
+        username: string,
+        password: string,
+        company: Company
+    ) {
+        if (!company) {
+            console.log('Didnt get company from register');
+            return;
+        }
+
+        this.authService.authenticate({
+            username: username,
+            password: password
+        }).subscribe(
+            success => {
+                console.log('Authenticated, setting active company');
+                this.authService.setActiveCompany(company);
+            },
+            err => {
+                console.log(err);
+            }
+        );
+    }
+
 }
