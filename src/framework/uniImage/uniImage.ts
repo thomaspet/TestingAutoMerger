@@ -34,7 +34,7 @@ export interface IUploadConfig {
     selector: 'uni-image',
     template: `
         <article class="uniImage" (click)="onClick()" (clickOutside)="offClick()">
-            <section class="uni-image-pager" *ngIf="files.length > 0">
+            <section class="uni-image-pager" *ngIf="files.length > 0 && !singleImage">
                 <a *ngIf="files.length > 1 || (files[currentFileIndex] && files[currentFileIndex].Pages > 1)" class="prev" (click)="previous()"></a>
                 <label>{{fileInfo}}</label>
 
@@ -494,7 +494,10 @@ export class UniImage {
 
             this.uniFilesService.checkAuthentication()
                 .then(res => {
-                    // authentication is ok - something else caused the problem
+                    // authentication is ok - something else caused the problem,
+                    // assume it was just a glitch and retry whatever was supposed
+                    // to be done
+                    runAfterReauth();
                 }).catch(err => {
                     // authentication failed, try to reauthenticated
                     this.authService.authenticateUniFiles()
@@ -635,6 +638,11 @@ export class UniImage {
                         this.currentPage = 1;
                         this.removeHighlight();
                         this.loadImage();
+
+                        // reset reauth flag after uploading, because sometimes getting new
+                        // images will fail right after upload, and we need to retry to get
+                        // it if it fails the first time
+                        this.didTryReAuthenticate = false;
 
                         if (!this.singleImage) {
                             this.loadThumbnails();
