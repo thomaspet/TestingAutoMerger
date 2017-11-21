@@ -32,6 +32,7 @@ export interface IUniTableConfig {
     pageSize?: number;
     multiRowSelect?: boolean;
     columnMenuVisible?: boolean;
+    advancedColumnMenu?: boolean;
     changeCallback?: (event: IRowChangeEvent) => any | Promise<any>;
     dataMapper?: (data) => Array<any>;
     autoAddNewRow?: boolean;
@@ -78,6 +79,7 @@ export class UniTableConfig implements IUniTableConfig {
     public multiRowSelect: boolean;
     public multiRowSelectDefaultValue: boolean;
     public columnMenuVisible: boolean;
+    public advancedColumnMenu: boolean;
     public autoScrollIfNewCellCloseToBottom: boolean;
     public deleteButton: boolean | IDeleteButton;
     public searchListVisible: boolean;
@@ -142,8 +144,9 @@ export class UniTableConfig implements IUniTableConfig {
         return this;
     }
 
-    public setColumnMenuVisible(columnMenuVisible: boolean) {
+    public setColumnMenuVisible(columnMenuVisible: boolean, advancedColumnMenu: boolean = false) {
         this.columnMenuVisible = columnMenuVisible;
+        this.advancedColumnMenu = advancedColumnMenu;
         return this;
     }
 

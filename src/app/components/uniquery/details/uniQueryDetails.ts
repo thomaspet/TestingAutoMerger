@@ -355,7 +355,7 @@ export class UniQueryDetails {
         this.tableConfig = new UniTableConfig(configStoreKey, false, true, 50)
             .setSearchable(true)
             .setAllowGroupFilter(true)
-            .setColumnMenuVisible(true)
+            .setColumnMenuVisible(true, true)
             .setExpressionFilterValues(expressionFilterValues)
             .setFilters(this.filters)
             .setDataMapper((data) => {

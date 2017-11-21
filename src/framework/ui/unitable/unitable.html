@@ -41,6 +41,7 @@
             <th *ngIf="config.deleteButton" class="select-column">
                 <unitable-column-menu
                     *ngIf="config?.columnMenuVisible && !config?.contextMenu?.items?.length"
+                    [tableConfig]="config"
                     [columns]="tableColumns"
                     (columnsChange)="onColumnsChange($event)"
                     (resetAll)="onResetColumnConfig()">
@@ -55,6 +56,7 @@
 
                 <unitable-column-menu
                     *ngIf="config?.columnMenuVisible"
+                    [tableConfig]="config"
                     [columns]="tableColumns"
                     (columnsChange)="onColumnsChange($event)"
                     (resetAll)="onResetColumnConfig()">

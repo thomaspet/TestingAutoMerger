@@ -54,7 +54,10 @@ export class UniTableUtils {
                 field: col.field,
                 visible: col.visible,
                 header: col.header,
-                jumpToColumn: col.jumpToColumn
+                jumpToColumn: col.jumpToColumn,
+                _originalField: col['_originalField'],
+                sumFunction: col.sumFunction,
+                alias: col.alias
             });
         });
 

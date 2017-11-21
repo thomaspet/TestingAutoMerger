@@ -1,6 +1,7 @@
 import {Component, Input, Output, EventEmitter} from '@angular/core';
 import {UniModalService} from '../../../uniModal/barrel';
 import {ColumnMenuModal} from './columnMenuModal';
+import {UniTableConfig} from '../config/unitableConfig';
 import * as Immutable from 'immutable';
 
 @Component({
@@ -15,6 +16,9 @@ export class UniTableColumnMenu {
     @Input()
     public columns: Immutable.List<any>;
 
+    @Input()
+    public tableConfig: UniTableConfig;
+
     @Output()
     public columnsChange: EventEmitter<Immutable.List<any>> = new EventEmitter();
 
@@ -25,7 +29,10 @@ export class UniTableColumnMenu {
 
     public openMenu() {
         this.modalService.open(ColumnMenuModal, {
-            data: this.columns
+            data: {
+                columns: this.columns,
+                tableConfig: this.tableConfig
+            }
         }).onClose.subscribe(res => {
             if (!res) {
                 return;
