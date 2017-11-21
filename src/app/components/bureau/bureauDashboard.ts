@@ -78,10 +78,7 @@ export class BureauDashboard {
 
         this.saveActions = [{
             label : 'Opprett nytt selskap',
-            action: (done) => {
-                this.openNewCompanyModal();
-                done();
-            }
+            action: (doneCallback) => this.startCompanyCreation(doneCallback)
         }];
     }
 
@@ -163,43 +160,35 @@ export class BureauDashboard {
         return '';
     }
 
-    public openNewCompanyModal() {
-        let companyName: string;
-        let user: User;
-        this.uniModalService.open(UniNewCompanyModal)
-            .onClose.asObservable()
-            .filter(modalResult => !!modalResult)
-            .do(modalResult => companyName = modalResult.CompanyName)
-            .flatMap(() => companyName ? this.userService.getCurrentUser() : Observable.empty())
-            .do((currentUser: User) => user = currentUser)
-            .flatMap(() => this.createCompany(companyName, user.Email))
-            .subscribe(
-                (res) => {
-                    let company = res.json();
-                    if (company) {
-                        this.companies.push(company);
-                    }
+    public startCompanyCreation(doneCallback) {
+        this.uniModalService.open(UniNewCompanyModal).onClose.subscribe(modalResult => {
+            if (!modalResult || !modalResult.CompanyName) {
+                doneCallback('Oppretting av selskap avbrutt');
+                return;
+            }
 
-                    this.toastService.addToast(
-                        'Suksess',
-                        ToastType.good,
-                        ToastTime.medium,
-                        `${companyName} blir nå laget, en mail vil bli sendt til `
-                            + `${user.Email} når du kan begynne å bruke det.`
-                    );
+            this.userService.getCurrentUser().switchMap(user => {
+                return this.createCompany(modalResult.CompanyName, user.Email);
+            }).subscribe(
+                res => {
+                    this.companies.unshift(res.json());
+                    doneCallback(`Selskap ${modalResult.CompanyName} opprettet`);
                 },
                 err => {
                     if (err.status === 403) {
                         this.toastService.addToast(
-                            'Du har ikke tilgang til å opprette selskaper',
+                            'Du har ikke tilgang til å opprette nye selskaper',
                             ToastType.bad,
                             3000
                         );
                     } else {
                         this.errorService.handle(err);
                     }
+
+                    doneCallback('Oppretting av selskap feilet');
                 }
             );
+        });
     }
 
     private createCompany(name: string, email: string) {
