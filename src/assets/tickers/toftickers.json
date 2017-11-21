@@ -1086,7 +1086,7 @@
             "SumColumn": true
         }, {
             "Header": "Restsum",
-            "Field": "sum(casewhen(items.statuscode eq 41102\\,items.SumTotalExVat\\,0))",
+            "Field": "sum(casewhen(items.statuscode eq 41102\\,items.SumTotalIncVatCurrency\\,0))",
             "Alias": "Restsum",
             "Format": "NumberPositiveNegative",
             "Width": "125px",
