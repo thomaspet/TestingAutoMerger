@@ -889,13 +889,13 @@ export class QuoteDetails {
     }
 
     private sendEmailAction(): Observable<any> {
-        const savedOrder = this.isDirty
+        const savedQuote = this.isDirty
             ? Observable.fromPromise(this.saveQuote())
             : Observable.of(this.quote);
 
-        return savedOrder.switchMap(order => {
+        return savedQuote.switchMap(order => {
             let model = new SendEmail();
-            model.EntityType = 'CustomerOrder';
+            model.EntityType = 'CustomerQuote';
             model.EntityID = this.quote.ID;
             model.CustomerID = this.quote.CustomerID;
             model.EmailAddress = this.quote.EmailAddress;
