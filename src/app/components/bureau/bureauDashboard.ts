@@ -188,13 +188,23 @@ export class BureauDashboard {
                             + `${user.Email} når du kan begynne å bruke det.`
                     );
                 },
-                err => this.errorService.handle(err)
+                err => {
+                    if (err.status === 403) {
+                        this.toastService.addToast(
+                            'Du har ikke tilgang til å opprette selskaper',
+                            ToastType.bad,
+                            3000
+                        );
+                    } else {
+                        this.errorService.handle(err);
+                    }
+                }
             );
     }
 
     private createCompany(name: string, email: string) {
         return this.uniHttp
-            .asPOST()
+            .asPUT()
             .withEndPoint('companies?action=create-company')
             .withBody({
                 CompanyName : name

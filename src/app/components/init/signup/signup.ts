@@ -1,5 +1,5 @@
 import {Component} from '@angular/core';
-import {ActivatedRoute} from '@angular/router';
+import {ActivatedRoute, Router} from '@angular/router';
 import {FormBuilder, FormControl, Validators, FormGroup} from '@angular/forms';
 import {UniHttp} from '../../../../framework/core/http/http';
 import {AuthService} from '../../../authService';
@@ -24,6 +24,7 @@ export class Signup {
         private http: UniHttp,
         private route: ActivatedRoute,
         private authService: AuthService,
+        private router: Router,
         formBuilder: FormBuilder
     ) {
         this.step1Form = formBuilder.group({
@@ -106,7 +107,6 @@ export class Signup {
             .send()
             .subscribe(
                 res => {
-                    console.log('Register response: ' + res && res.json());
                     this.attemptLogin(requestBody.UserName, requestBody.Password, res.json());
                 },
                 err => {
@@ -115,7 +115,7 @@ export class Signup {
                     // Try catch to avoid having to null check everything
                     try {
                         const errorBody = err.json();
-                        usernameExists = errorBody.Messages[0].Message.indexOf('Username') >= 0;
+                        usernameExists = errorBody.Messages[0].Message.toLowerCase().indexOf('username') >= 0;
                     } catch (e) {}
 
                     if (usernameExists) {
@@ -135,7 +135,7 @@ export class Signup {
         company: Company
     ) {
         if (!company) {
-            console.log('Didnt get company from register');
+            this.router.navigateByUrl('/init/login');
             return;
         }
 
@@ -144,11 +144,10 @@ export class Signup {
             password: password
         }).subscribe(
             success => {
-                console.log('Authenticated, setting active company');
                 this.authService.setActiveCompany(company);
             },
             err => {
-                console.log(err);
+                this.router.navigateByUrl('/init/login');
             }
         );
     }
