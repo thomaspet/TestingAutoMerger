@@ -50,7 +50,8 @@
                 [fileIDs]="startUpFileID"
                 (fileListReady)="onFileListReady($event)"
                 (imageClicked)="onImageClicked($event)"
-                (imageDeleted)="onImageDeleted($event)">
+                (imageDeleted)="onImageDeleted($event)"
+                (useWord)="onUseWord($event)">
             </uni-image>
         </div>
 
@@ -61,7 +62,8 @@
             [entityID]="(current | async)?.ID"
             (fileListReady)="onFileListReady($event)"
             (imageDeleted)="onImageDeleted($event)"
-            (imageClicked)="onImageClicked($event)">
+            (imageClicked)="onImageClicked($event)"
+            (wordClicked)="onWordClicked($event)">
         </uni-image>
         <button *ngIf="!(current | async)?.ID" class="document_from_flow_button" (click)="openAddFileModal()"> Hent fra innboks</button>
     </fieldset>

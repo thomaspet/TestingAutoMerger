@@ -58,6 +58,7 @@ import {ProductCategoryService} from './common/productCategoryService';
 import {TeamService} from './common/teamService';
 import {TermsService} from './common/termsService';
 import {UniFilesService} from './common/uniFilesService';
+import {ValidationService} from './common/validationService';
 import {VideoMappingService} from './common/videoMappingService';
 
 export * from './common/altinnAuthenticationService';
@@ -113,6 +114,7 @@ export * from './common/productCategoryService';
 export * from './common/teamService';
 export * from './common/termsService';
 export * from './common/uniFilesService';
+export * from './common/validationService';
 export * from './common/videoMappingService';
 export * from './common/uniSearchConfig/uniSearchAccountConfig';
 export * from './common/uniSearchConfig/uniSearchCustomerConfig';
@@ -185,6 +187,7 @@ export class CommonServicesModule {
                 TeamService,
                 TermsService,
                 UniFilesService,
+                ValidationService,
                 VideoMappingService
             ]
         };

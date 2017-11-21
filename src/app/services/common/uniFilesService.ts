@@ -2,6 +2,7 @@ import {Injectable} from '@angular/core';
 import {Http, Headers, RequestOptions} from '@angular/http';
 import {AppConfig} from '../../AppConfig';
 import {AuthService} from '../../authService';
+import {Observable} from 'rxjs/Observable';
 
 @Injectable()
 export class UniFilesService {
@@ -9,7 +10,7 @@ export class UniFilesService {
     private uniFilesToken: string;
     private activeCompany: any;
 
-    constructor(private http: Http, authService: AuthService) {
+    constructor(private http: Http, private authService: AuthService) {
         authService.authentication$.subscribe((authDetails) => {
             this.activeCompany = authDetails.activeCompany;
         });
@@ -54,6 +55,34 @@ export class UniFilesService {
                     reject('Not authenticated');
                 });
         });
+    }
+
+    public trainOcrEngine(ocrInterpretation, reauthOnFailure: boolean = true) {
+        var options = new RequestOptions({
+            headers: new Headers({
+                'Accept': 'application/json',
+                'Token': this.uniFilesToken,
+                'Key': this.activeCompany.Key
+            })
+        });
+
+        this.http
+            .post(
+                this.uniFilesBaseUrl + '/api/ocr/train-engine',
+                ocrInterpretation,
+                options)
+            .subscribe(res => {
+                    // dont show any updates about this, just let it finish silently
+                },
+                err => {
+                    // if error occurred, try to reauth and retry once
+                    if (reauthOnFailure) {
+                        this.authService.authenticateUniFiles()
+                            .then(() => {
+                                this.trainOcrEngine(ocrInterpretation, false);
+                            });
+                    }
+                });
     }
 }
 

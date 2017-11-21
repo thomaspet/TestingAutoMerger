@@ -27,6 +27,7 @@ export interface IOcrServiceResult {
     regions: Array<any>;
     MaxTop: number;
     MaxWidth: number;
+    OcrRawData: string;
 }
 
 export interface IOcrValuables {

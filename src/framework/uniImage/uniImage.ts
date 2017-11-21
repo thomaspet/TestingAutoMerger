@@ -34,6 +34,15 @@ export interface IUploadConfig {
     selector: 'uni-image',
     template: `
         <article class="uniImage" (click)="onClick()" (clickOutside)="offClick()">
+            <section class="uni-image-pager" *ngIf="files.length > 0">
+                <a *ngIf="files.length > 1 || (files[currentFileIndex] && files[currentFileIndex].Pages > 1)" class="prev" (click)="previous()"></a>
+                <label>{{fileInfo}}</label>
+
+                <a *ngIf="this.printOut" class="print" (click)="print()"></a>
+
+                <a class="trash" (click)="deleteImage()" *ngIf="!readonly"></a>
+                <a *ngIf="files.length > 1 || (files[currentFileIndex] && files[currentFileIndex].Pages > 1)" class="next" (click)="next()"></a>
+            </section>
             <picture
                 #imageContainer
                 *ngIf="imgUrl.length"
@@ -51,19 +60,24 @@ export interface IUploadConfig {
                     (error)="onLoadImageError($event)"
                     (load)="finishedLoadingImage()"
                     *ngIf="currentFileIndex >= 0">
+
+                <span *ngIf="!imageIsLoading">
+                    <span *ngFor="let word of ocrWords" class="image-word" title="{{word.text}}" [ngStyle]="word._style" (click)="onWordClicked($event, word)"></span>
+
+                    <div *ngIf="wordPickerAreaVisible" class="word-picker-area" [ngStyle]="currentClickedWordStyle" (clickOutside)="abortUseWord()">
+                        <p>Valgt verdi: {{currentClickedWord.text}}</p>
+                        <h3>Bruk verdi som:</h3>
+                        <button (click)="selectWordUsage(7)">Fakturadato</button>
+                        <button (click)="selectWordUsage(8)">Forfallsdato</button>
+                        <button (click)="selectWordUsage(5)">Fakturanummer</button>
+                        <button (click)="selectWordUsage(3)">Bankkonto</button>
+                        <button (click)="selectWordUsage(4)">KID</button>
+                        <button (click)="selectWordUsage(6)">Fakturabeløp</button>
+                    </div>
+
+                    <span id="span-area-highlighter" class="span-area-highlight-class" [ngStyle]="highlightStyle"></span>
+                </span>
             </picture>
-
-            <section class="uni-image-pager">
-                <a *ngIf="files.length > 1 || (files[currentFileIndex] && files[currentFileIndex].Pages > 1)" class="prev" (click)="previous()"></a>
-                <label>{{fileInfo}}</label>
-
-                <a *ngIf="this.printOut" class="print" (click)="print()"></a>
-
-                <a class="trash" (click)="deleteImage()" *ngIf="!readonly"></a>
-                <a *ngIf="files.length > 1 || (files[currentFileIndex] && files[currentFileIndex].Pages > 1)" class="next" (click)="next()"></a>
-            </section>
-
-            <span id="span-area-highlighter" class="span-area-highlight-class" [ngStyle]="highlightStyle"></span>
 
             <ul class="uni-thumbnail-list" [ngClass]="{'-has-thumbnails': this.thumbnails.length > 0}">
                 <li *ngFor="let thumbnail of thumbnails; let idx = index">
@@ -141,6 +155,9 @@ export class UniImage {
     @Output()
     public imageClicked: EventEmitter<File> = new EventEmitter<File>();
 
+    @Output()
+    public useWord: EventEmitter<any> = new EventEmitter<any>();
+
     public imageIsLoading: boolean = true;
 
     private baseUrl: string = AppConfig.BASE_URL_FILES;
@@ -162,6 +179,12 @@ export class UniImage {
     private imgUrl: string = '';
     private imgUrl2x: string = '';
     private highlightStyle: any;
+
+    private wordPickerAreaVisible: boolean = false;
+    private currentClickedWordStyle: any;
+    private currentClickedWord: any;
+
+    private ocrWords: Array<any> = [];
 
     constructor(
         private ngHttp: Http,
@@ -203,6 +226,65 @@ export class UniImage {
                 }
             }
         }
+    }
+
+    public setOcrData(ocrResult) {
+        if (ocrResult.OcrRawData) {
+            let rawData = JSON.parse(ocrResult.OcrRawData);
+            let words = rawData.AllWords;
+
+            if (words && ocrResult.ImageWidth && ocrResult.ImageHeight) {
+                words.forEach(word => {
+                    if (!word._style) {
+                        word._style = {
+                            height: (word.Height * 100 / ocrResult.ImageHeight) + '%',
+                            width: (word.Width * 100 / ocrResult.ImageWidth) + '%',
+                            left: (word.Left * 100 / ocrResult.ImageWidth) + '%',
+                            top: 'calc(' + (word.Top * 100 / ocrResult.ImageHeight) + '% - 4.5px)'
+                        };
+                    }
+                });
+            }
+
+            this.ocrWords = words;
+        } else {
+            this.ocrWords = [];
+        }
+
+        this.cdr.markForCheck();
+    }
+
+    public onWordClicked(event, word) {
+        this.wordPickerAreaVisible = true;
+        this.currentClickedWord = word;
+
+        this.currentClickedWordStyle = {
+            top: 'calc(' + word._style.top + ' + 1.5rem)',
+            left: 'calc(' + word._style.left + ' - 6rem)'
+        };
+
+        event.stopPropagation();
+    }
+
+    public selectWordUsage(useWordAs) {
+        this.useWord.emit({
+            word: this.currentClickedWord,
+            propertyType: useWordAs
+        });
+
+        this.currentClickedWord = null;
+        this.currentClickedWordStyle = null;
+        this.wordPickerAreaVisible = false;
+
+        event.stopPropagation();
+    }
+
+    public abortUseWord() {
+        this.currentClickedWord = null;
+        this.currentClickedWordStyle = null;
+        this.wordPickerAreaVisible = false;
+
+        event.stopPropagation();
     }
 
     public refreshFiles() {
@@ -591,10 +673,10 @@ export class UniImage {
         } else {
             this.highlightStyle = {
                 display: 'block',
-                height: coordinates[3] * heightRatio + 'px',
-                width: coordinates[2] * widthRatio + 'px',
-                left: (coordinates[0]) * widthRatio + 'px',
-                top: (coordinates[1]) * heightRatio + 'px'
+                height: (coordinates[3] * 100 / height) + '%',
+                width: (coordinates[2] * 100 / width) + '%',
+                left: (coordinates[0] * 100 / width) + '%',
+                top: 'calc(' + (coordinates[1] * 100 / height) + '% - 4.5px)'
             };
         }
     }
