@@ -11,8 +11,11 @@ import {UniNewCompanyModal} from './newCompanyModal';
 import {TabService, UniModules} from '../layout/navbar/tabstrip/tabService';
 import {IToolbarConfig} from '../common/toolbar/toolbar';
 import {IUniSaveAction} from '../../../framework/save/save';
-
 import {Observable} from 'rxjs/Observable';
+import {Subscription} from 'rxjs/Subscription';
+import {CompanyService} from '../../services/common/companyService';
+import {BureauCurrentCompanyService} from './bureauCurrentCompanyService';
+import {KpiCompany} from './kpiCompanyModel';
 
 enum KPI_STATUS {
     StatusUnknown = 0,
@@ -20,24 +23,6 @@ enum KPI_STATUS {
     StatusError = 2,
     StatusReady = 3
 }
-
-type KpiCompany = {
-    FileFlowEmail: string;
-    ID: number;
-    Name: string;
-    IsTest: boolean;
-    Key: string;
-    Kpi: {
-        ID: number;
-        KpiDefinitionID: number;
-        Name: string;
-        Application: string;
-        CompanyID: number;
-        Counter: number;
-        ValueStatus: KPI_STATUS;
-        LastUpdated: LocalDate;
-    }[]
-};
 
 @Component({
     selector: 'uni-bureau-dashboard',
@@ -51,6 +36,7 @@ export class BureauDashboard {
     private filteredCompanies: KpiCompany[];
     public highlightedCompany: KpiCompany;
 
+    private subscription: Subscription;
     private searchControl: FormControl;
     public busy: boolean = false;
     public currentSortField: string;
@@ -63,7 +49,9 @@ export class BureauDashboard {
         private uniHttp: UniHttp,
         private userService: UserService,
         private toastService: ToastService,
-        tabService: TabService
+        private companyService: CompanyService,
+        tabService: TabService,
+        private currentCompanyService: BureauCurrentCompanyService
     ) {
         tabService.addTab({
             name: 'Selskaper',
@@ -85,7 +73,7 @@ export class BureauDashboard {
     public ngOnInit() {
         let userPreferences = this.getUserPreferences();
         this.searchControl = new FormControl(userPreferences.filterString || '');
-        this.sortIsDesc = userPreferences.sortIsDesc;
+        this.sortIsDesc = userPreferences.sortIsDesc || true;
         this.currentSortField = userPreferences.sortField;
 
         this.searchControl.valueChanges.subscribe((searchValue: string) => {
@@ -93,7 +81,7 @@ export class BureauDashboard {
         });
 
         this.busy = true;
-        this.uniHttp
+        this.subscription = this.uniHttp
             .asGET()
             .usingRootDomain()
             .withEndPoint('kpi/companies')
@@ -103,6 +91,9 @@ export class BureauDashboard {
             .subscribe(
                 res => {
                     this.companies = this.mapKpiCounts(res);
+                    if (this.companies.length > 0) {
+                        this.setCurrentCompany(this.companies[0]);
+                    }
                     this.filterCompanies(this.searchControl.value || '');
                     this.sortBy(this.currentSortField);
                 },
@@ -111,6 +102,9 @@ export class BureauDashboard {
     }
 
     public ngOnDestroy() {
+        if (this.subscription) {
+            this.subscription.unsubscribe();
+        }
         // Store filter string and sort info
         try {
             localStorage.setItem('bureau_list_user_preferences', JSON.stringify({
@@ -138,7 +132,6 @@ export class BureauDashboard {
         return companies.map(company => {
             company['_inboxCount'] = this.getKpiCount(company, 'Inbox');
             company['_approvedCount'] = this.getKpiCount(company, 'Approved');
-
             return company;
         });
     }
@@ -210,6 +203,7 @@ export class BureauDashboard {
             this.sortIsDesc = !this.sortIsDesc;
         }
 
+        console.log("this.sortIsDesc:", this.sortIsDesc)
         this.currentSortField = key;
         this.filteredCompanies.sort((a, b) => {
             a = typeof a[key] === 'string' ? a[key].toLowerCase() : a[key];
@@ -233,24 +227,36 @@ export class BureauDashboard {
     }
 
     public onCompanyNameClick(company: KpiCompany) {
-        this.authService.setActiveCompany(<any>company);
+        this.redirectToCompanyUrl(company);
         this.busy = true;
     }
 
     public onCompanyInboxClick(company: KpiCompany) {
         const redirectUrl = '/accounting/bills?filter=Inbox';
-        this.authService.setActiveCompany(<any>company, redirectUrl);
+        this.redirectToCompanyUrl(company, redirectUrl);
         this.busy = true;
     }
 
     public onCompanyApprovalsClick(company: KpiCompany) {
         const redirectUrl = '/accounting/bills?filter=Approved';
-        this.authService.setActiveCompany(<any>company, redirectUrl);
+        this.redirectToCompanyUrl(company, redirectUrl);
         this.busy = true;
     }
 
+    private redirectToCompanyUrl(kpi: KpiCompany, redirectUrl?: string) {
+        this.companyService.Get(kpi.ID).subscribe(
+            company => this.authService.setActiveCompany(company, redirectUrl),
+            err => this.errorService.handle(err)
+        );
+    }
+
     public onRowClick(company: KpiCompany) {
+        this.setCurrentCompany(company);
+    }
+
+    private setCurrentCompany(company: KpiCompany) {
         this.highlightedCompany = company;
+        this.currentCompanyService.setCurrentCompany(company);
     }
 
     private getUserPreferences() {

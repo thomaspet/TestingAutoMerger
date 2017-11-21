@@ -9,6 +9,8 @@ import {UniNewCompanyModal} from './newCompanyModal';
 import {BureauDetails, TABS} from './detailView/bureauDetails';
 import {BureauCustomHttpService} from './bureauCustomHttpService';
 import {AppPipesModule} from '../../pipes/appPipesModule';
+import {RouterModule} from '@angular/router';
+import {BureauCurrentCompanyService} from './bureauCurrentCompanyService';
 
 @NgModule({
     imports: [
@@ -16,19 +18,21 @@ import {AppPipesModule} from '../../pipes/appPipesModule';
         CommonModule,
         UniFrameworkModule,
         AppCommonModule,
-        AppPipesModule
+        AppPipesModule,
+        RouterModule,
     ],
     declarations: [
         BureauDashboard,
         BureauDetails,
         ...TABS,
-        UniNewCompanyModal
+        UniNewCompanyModal,
     ],
     providers: [
-        BureauCustomHttpService
+        BureauCustomHttpService,
+        BureauCurrentCompanyService,
     ],
     entryComponents: [
-        UniNewCompanyModal
+        UniNewCompanyModal,
     ]
 })
 export class BureauModule {}

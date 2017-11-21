@@ -6,6 +6,7 @@ import {UniDimensions, dimensionsRoutes} from './components/dimensions/dimension
 import {RoutePermissionGuard} from './routePermissionGuard';
 import {UniInit} from './components/init/init';
 import {initRoutes} from './components/init/init.routes';
+import {bureauRoutes} from './components/bureau/bureauRoutes';
 
 // Anything in this const will not be permission checked in route guard
 // see authService.canActivateRoute()
@@ -26,7 +27,8 @@ const routes = [
     },
     {
         path: 'bureau',
-        component: BureauDashboard
+        component: BureauDashboard,
+        children: bureauRoutes
     },
     {
         path: 'dimensions',
