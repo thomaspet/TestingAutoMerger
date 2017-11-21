@@ -619,6 +619,7 @@ export class UniImage {
         if (this.entityID) {
             data.append('EntityID', this.entityID.toString());
         }
+        data.append('CacheOnUpload', 'true');
         data.append('Caption', ''); // where should we get this from the user?
         data.append('File', file);
 
