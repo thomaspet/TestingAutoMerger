@@ -35,15 +35,16 @@ export class SalarybalanceList implements OnInit {
         private errorService: ErrorService,
         private numberService: NumberFormat
     ) {
-        route.params.subscribe(params => {
-            let empID: number = +params['empID'] || (this.employeeID ? this.employeeID : 0);
-            this.empID = empID;
-            this.selectedIndex = undefined;
-            this.setData(empID);
-        });
+        
     }
 
     public ngOnInit() {
+        this.route.params.subscribe(params => {
+            let empID: number = +params['empID'] || (this.employeeID !== undefined ? this.employeeID : 0);
+            this.empID = empID;
+            this.selectedIndex = undefined;
+        });
+
         if (this.empID === 0 && this.employeeID === undefined) {
             this.tabSer
                 .addTab({
@@ -54,6 +55,7 @@ export class SalarybalanceList implements OnInit {
                 });
         }
         this.createConfig();
+        this.loadData(this.empID);
     }
 
     public ngOnChanges() {
@@ -61,7 +63,7 @@ export class SalarybalanceList implements OnInit {
             this.empID = this.employeeID;
         }
         this.busy = true;
-        this.setData(this.empID);
+        this.loadData(this.empID);
     }
 
     public ngAfterViewInit() {
@@ -92,7 +94,7 @@ export class SalarybalanceList implements OnInit {
         }
     }
 
-    public setData(empID: number = this.empID) {
+    public loadData(empID: number = this.empID) {
         this._salarybalanceService
             .getAll(empID, ['Employee.BusinessRelationInfo'])
             .map(salaryBalances => this.sortList(salaryBalances))
