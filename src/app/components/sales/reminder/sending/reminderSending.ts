@@ -44,7 +44,16 @@ export class ReminderSending implements OnInit {
     private remindersPrint: any;
     private remindersAll: any;
     private reminderTable: UniTableConfig;
-    private reminderQuery = 'model=CustomerInvoiceReminder&select=ID as ID,StatusCode as StatusCode,DueDate as DueDate,ReminderNumber as ReminderNumber,ReminderFeeCurrency as ReminderFeeCurrency,CustomerInvoice.ID as InvoiceID,CustomerInvoice.InvoiceNumber as InvoiceNumber,CustomerInvoice.PaymentDueDate as InvoiceDueDate,CustomerInvoice.InvoiceDate as InvoiceDate,CustomerInvoice.CustomerID as CustomerID,CustomerInvoice.CustomerName as CustomerName,CustomerInvoiceReminder.EmailAddress as EmailAddress,CustomerInvoice.RestAmountCurrency as RestAmountCurrency,CustomerInvoice.TaxInclusiveAmountCurrency as TaxInclusiveAmountCurrency,Customer.CustomerNumber as CustomerNumber,CurrencyCode.Code as _CurrencyCode&expand=CustomerInvoice,CustomerInvoice.Customer.Info.DefaultEmail,CurrencyCode&filter=';
+    private reminderQuery: string = 'model=CustomerInvoiceReminder&select=ID as ID,StatusCode as StatusCode,'
+        + 'DueDate as DueDate,ReminderNumber as ReminderNumber,ReminderFeeCurrency as ReminderFeeCurrency'
+        + ',CustomerInvoice.ID as InvoiceID,CustomerInvoice.InvoiceNumber as InvoiceNumber,'
+        + 'CustomerInvoice.PaymentDueDate as InvoiceDueDate,CustomerInvoice.InvoiceDate as InvoiceDate,'
+        + 'CustomerInvoice.CustomerID as CustomerID,CustomerInvoice.CustomerName as CustomerName,'
+        + 'CustomerInvoiceReminder.EmailAddress as EmailAddress,'
+        + 'CustomerInvoice.RestAmountCurrency as RestAmountCurrency,'
+        + 'CustomerInvoice.TaxInclusiveAmountCurrency as TaxInclusiveAmountCurrency,'
+        + 'Customer.CustomerNumber as CustomerNumber,CurrencyCode.Code as _CurrencyCode&expand=CustomerInvoice,'
+        + 'CustomerInvoice.Customer.Info.DefaultEmail,CurrencyCode&filter=';
 
     private currentRunNumber: number = 0;
     private currentRunNumberData: IRunNumberData;
@@ -54,8 +63,8 @@ export class ReminderSending implements OnInit {
     private isWarnedAboutRememberToSaveChanges: Boolean = false;
     private changedReminders: CustomerInvoiceReminder[] = [];
 
-    private searchParams$: BehaviorSubject<any> = new BehaviorSubject({});
-    private config$: BehaviorSubject<any> = new BehaviorSubject({});
+    public searchParams$: BehaviorSubject<any> = new BehaviorSubject({});
+    public config$: BehaviorSubject<any> = new BehaviorSubject({});
     private fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
 
     private saveactions: IUniSaveAction[] = [
@@ -101,16 +110,21 @@ export class ReminderSending implements OnInit {
     public ngOnInit() {
         this.loadLastRunNumber();
         this.setupReminderTable();
-        this.statisticsService.GetAllUnwrapped('model=CustomerInvoiceReminder&select=RunNumber as RunNumber,User.DisplayName%20as%20CreatedBy,RemindedDate%20as%20RemindedDate&orderby=RunNumber%20desc&join=CustomerInvoiceReminder.CreatedBy%20eq%20User.GlobalIdentity')
+        this.statisticsService.GetAllUnwrapped(
+            'model=CustomerInvoiceReminder'
+            + '&select=RunNumber as RunNumber,User.DisplayName%20as%20CreatedBy,RemindedDate%20as%20RemindedDate'
+            + '&orderby=RunNumber%20desc'
+            + '&join=CustomerInvoiceReminder.CreatedBy%20eq%20User.GlobalIdentity'
+        )
             .subscribe((data) => {
                 this.runNumbers = data;
                 this.fields$.next(this.getLayout().Fields);
             });
     }
 
-    private onRowChanged(data) {
-        if(!this.isWarnedAboutRememberToSaveChanges) {
-         this.toastService.addToast(
+    public onRowChanged(data) {
+        if (!this.isWarnedAboutRememberToSaveChanges) {
+            this.toastService.addToast(
                 'Lagre purringer',
                 ToastType.warn,
                 5,
@@ -123,22 +137,22 @@ export class ReminderSending implements OnInit {
         }
 
         var rowExists = false;
-        for(var i = 0;i<this.changedReminders.length;i++) {
-            if(this.changedReminders[i].ID === data.rowModel.ID) {
+        for (var i = 0; i < this.changedReminders.length; i++) {
+            if (this.changedReminders[i].ID === data.rowModel.ID) {
                 this.changedReminders[i] = data.rowModel;
                 rowExists = true;
             }
         }
-        if(!rowExists) {
+        if (!rowExists) {
             this.changedReminders.push(data.rowModel);
         }
     }
 
     public saveReminders(done: (msg: string) => void = () => {}) {
         let requests = [];
-        for(var i = 0;i<this.changedReminders.length;i++) {
+        for (var i = 0; i < this.changedReminders.length; i++) {
 
-            if(typeof this.changedReminders[i].DueDate === 'string') {
+            if (typeof this.changedReminders[i].DueDate === 'string') {
                 this.changedReminders[i].DueDate = new LocalDate(this.changedReminders[i].DueDate.toString());
             }
 
@@ -268,11 +282,12 @@ export class ReminderSending implements OnInit {
     }
 
     public loadLastRunNumber() {
-        this.statisticsService.GetAllUnwrapped('model=CustomerInvoiceReminder&select=RunNumber%20as%20RunNumber&orderby=RunNumber%20desc&top=1')
-            .subscribe((data) => {
-                let reminder = data[0];
-                if (reminder) { this.loadRunNumber(reminder.RunNumber); }
-            });
+        this.statisticsService.GetAllUnwrapped(
+            'model=CustomerInvoiceReminder&select=RunNumber%20as%20RunNumber&orderby=RunNumber%20desc&top=1'
+        ).subscribe((data) => {
+            let reminder = data[0];
+            if (reminder) { this.loadRunNumber(reminder.RunNumber); }
+        });
     }
 
     public loadRunNumber(runNumber): Promise<any> {
@@ -281,8 +296,17 @@ export class ReminderSending implements OnInit {
                 resolve(false);
             } else {
                 Observable.forkJoin([
-                    this.reminderService.GetAll('orderby=CustomerInvoiceID desc,ReminderNumber desc&filter=RunNumber eq ' + runNumber),
-                    this.statisticsService.GetAllUnwrapped('model=CustomerInvoiceReminder&select=User.DisplayName%20as%20CreatedBy,RemindedDate%20as%20RemindedDate&join=CustomerInvoiceReminder.CreatedBy%20eq%20User.GlobalIdentity&top=1&filter=RunNumber%20eq%20' + runNumber)
+                    this.reminderService.GetAll(
+                        'orderby=CustomerInvoiceID desc,ReminderNumber desc&filter=RunNumber eq '
+                        + runNumber
+                    ),
+                    this.statisticsService.GetAllUnwrapped(
+                        'model=CustomerInvoiceReminder'
+                        + '&select=User.DisplayName%20as%20CreatedBy,RemindedDate%20as%20RemindedDate'
+                        + '&join=CustomerInvoiceReminder.CreatedBy%20eq%20User.GlobalIdentity&top=1'
+                        + '&filter=RunNumber%20eq%20'
+                        + runNumber
+                    )
                 ]).subscribe((res) => {
                     let reminders = res[0];
                     let extra = res[1][0];
@@ -305,13 +329,17 @@ export class ReminderSending implements OnInit {
 
     public previousRunNumber() {
         this.loadRunNumber(this.currentRunNumber - 1).then((ok) => {
-           if (!ok) { this.toastService.addToast('Første purrejobb!', ToastType.warn, 5, 'Du har nådd første purrejobb.'); }
+            if (!ok) {
+               this.toastService.addToast('Første purrejobb!', ToastType.warn, 5, 'Du har nådd første purrejobb.');
+            }
         });
     }
 
     public nextRunNumber() {
         this.loadRunNumber(this.currentRunNumber + 1).then((ok) => {
-            if (!ok) { this.toastService.addToast('Siste purrejobb!', ToastType.warn, 5, 'Du har nådd siste purrejobb.'); }
+            if (!ok) {
+                this.toastService.addToast('Siste purrejobb!', ToastType.warn, 5, 'Du har nådd siste purrejobb.');
+            }
         });
     }
 
@@ -321,19 +349,21 @@ export class ReminderSending implements OnInit {
         this.statisticsService.GetAllUnwrapped(this.reminderQuery + filter)
             .subscribe((remindersAll) => {
                 let cfilter = remindersAll.map((r) => `SubAccount.CustomerID eq ${r.CustomerID}`).join(' or ');
-                this.statisticsService.GetAllUnwrapped('model=JournalEntryLine&expand=SubAccount&select=SubAccount.CustomerID,sum(Amount)&filter=' + cfilter)
-                    .subscribe((customersums) => {
-                        this.customerSums = customersums;
+                this.statisticsService.GetAllUnwrapped(
+                    'model=JournalEntryLine&expand=SubAccount&select=SubAccount.CustomerID,sum(Amount)&filter='
+                    + cfilter
+                ).subscribe((customersums) => {
+                    this.customerSums = customersums;
 
-                        this.remindersAll = remindersAll;
-                        this.remindersAll = remindersAll.map((r) => {
-                            r._rowSelected = true;
-                            return r;
-                        });
-
-                        this.remindersEmail = this.remindersAll.filter((r) => !!r.EmailAddress);
-                        this.remindersPrint = this.remindersAll.filter((r) => this.remindersEmail.indexOf(r) < 0);
+                    this.remindersAll = remindersAll;
+                    this.remindersAll = remindersAll.map((r) => {
+                        r._rowSelected = true;
+                        return r;
                     });
+
+                    this.remindersEmail = this.remindersAll.filter((r) => !!r.EmailAddress);
+                    this.remindersPrint = this.remindersAll.filter((r) => this.remindersEmail.indexOf(r) < 0);
+                });
             });
     }
 
@@ -405,10 +435,13 @@ export class ReminderSending implements OnInit {
             .setEditable(false)
             .setFilterOperator('contains')
             .setTemplate((reminder) => {
-                let title = `Fakturadato: ${moment(reminder.InvoiceDate).format('DD.MM.YYYY')}\nForfallsdato: ${moment(reminder.InvoiceDueDate).format('DD.MM.YYYY')}`;
+                let title = `Fakturadato: ${moment(reminder.InvoiceDate).format('DD.MM.YYYY')}\n`
+                    + `Forfallsdato: ${moment(reminder.InvoiceDueDate).format('DD.MM.YYYY')}`;
                 return this.modalMode
                     ? `<span' title='${title}'>${reminder.InvoiceNumber}</span>`
-                    : `<a href='/#/sales/invoices/${reminder.InvoiceID}' title='${title}'>${reminder.InvoiceNumber}</a>`;
+                    : `<a href='/#/sales/invoices/${reminder.InvoiceID}' title='${title}'>
+                        ${reminder.InvoiceNumber}
+                    </a>`;
             });
         let dueDateCol = new UniTableColumn('DueDate', 'Forfallsdato', UniTableColumnType.LocalDate);
 
@@ -416,7 +449,9 @@ export class ReminderSending implements OnInit {
             .setWidth('100px').setFilterOperator('startswith')
             .setEditable(false)
             .setTemplate((reminder) => {
-                return reminder.CustomerID ? `<a href='/#/sales/customer/${reminder.CustomerID}'>${reminder.CustomerNumber}</a>` : ``;
+                return reminder.CustomerID
+                    ? `<a href='/#/sales/customer/${reminder.CustomerID}'>${reminder.CustomerNumber}</a>`
+                    : ``;
             });
         let customerNameCol = new UniTableColumn('CustomerName', 'Kunde')
             .setWidth('20%')
@@ -427,7 +462,9 @@ export class ReminderSending implements OnInit {
                 let title = `Kundereskontro: ${this.numberFormat.asMoney(customersum ? customersum.sumAmount : 0)}`;
                 return this.modalMode
                     ? `<span title='${title}'>${reminder.CustomerName}</span>`
-                    : `<a href='/#/sales/customer/${reminder.CustomerID}' title='${title}'>${reminder.CustomerName}</a>`;
+                    : `<a href='/#/sales/customer/${reminder.CustomerID}' title='${title}'>
+                        ${reminder.CustomerName}
+                    </a>`;
             });
         let emailCol = new UniTableColumn('EmailAddress', 'Epost', UniTableColumnType.Text)
             .setFilterOperator('contains');
@@ -445,7 +482,9 @@ export class ReminderSending implements OnInit {
             .setEditable(false)
             .setWidth('5%');
 
-        var taxInclusiveAmountCol = new UniTableColumn('TaxInclusiveAmountCurrency', 'Fakturasum', UniTableColumnType.Number)
+        var taxInclusiveAmountCol = new UniTableColumn(
+            'TaxInclusiveAmountCurrency', 'Fakturasum', UniTableColumnType.Number
+        )
             .setWidth('8%')
             .setFilterOperator('eq')
             .setFormat('{0:n}')
@@ -481,8 +520,11 @@ export class ReminderSending implements OnInit {
             .setMultiRowSelect(true)
             .setDeleteButton(false)
             .setChangeCallback( x => this.onEditChange(x) )
-            .setColumns([reminderNumberCol, invoiceNumberCol, customerNumberCol,
-                         customerNameCol, emailCol, currencyCodeCol, taxInclusiveAmountCol, restAmountCol, feeAmountCol, dueDateCol, statusCol]);
+            .setColumns([
+                reminderNumberCol, invoiceNumberCol, customerNumberCol, customerNameCol,
+                emailCol, currencyCodeCol, taxInclusiveAmountCol, restAmountCol,
+                feeAmountCol, dueDateCol, statusCol
+            ]);
     }
 
     public onEditChange(event) {
@@ -510,7 +552,10 @@ export class ReminderSending implements OnInit {
                         source: this.runNumbers,
                         valueProperty: 'RunNumber',
                         template: (run: IRunNumberData) => {
-                            return run ? `Purrejobbnr. ${run.RunNumber}: ${moment(run.RemindedDate).format('lll')} - ${run.CreatedBy}` : '';
+                            return run
+                            ? `Purrejobbnr. ${run.RunNumber}: `
+                                + `${moment(run.RemindedDate).format('lll')} - ${run.CreatedBy}`
+                            : '';
                         },
                         debounceTime: 200
                     }

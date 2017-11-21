@@ -592,6 +592,66 @@ uni-rss
             font-size: small
             line-height: 1.2rem
 
+.currency_widget
+    height: 100%;
+    background-color: #fff;
+    border-bottom-left-radius: .125rem;
+    border-bottom-right-radius: .125rem;
+    position: relative;
+    box-sizing: border-box;
+    color: black;
+    font-family: $uni-stack
+    padding: .25rem
+    color: $uni-color-negative
+
+    .currency_widget_number
+        font-size: 1.4rem
+        color: $uni-color-negative
+        margin: 5px 0
+
+    .currency_widget_bank
+        font-size: 1rem
+        color: $uni-color-negative
+        position: relative
+        bottom: 15%
+
+    .currency_refresh_icon
+        @extend %hideText
+        display: inline-block
+        background-size: contain
+        background-position: center center
+        background-repeat: no-repeat
+        background-image: unicon-info($uni-color-negative)
+        border-bottom-color: transparent
+        position: absolute
+        width: 1rem
+        height: 1rem
+        bottom: calc(50% - .5rem)
+        left: 85%
+
+    &:hover
+        cursor: pointer
+
+    label
+        font-size: .9rem
+
+    &.red
+        background-color: #d65f63
+        &:hover
+            background-color: $uni-color-bad
+    &.orange
+        background-color: #e28e27
+        &:hover
+            background-color: $uni-color-warn
+    &.green
+        background-color: #77b655
+        &:hover
+            background-color: $uni-color-good
+
+
+
+
+
 // Icons
 .dashboard-shortcut-icon-fallback
     background-image: unicon-plus($uni-color-negative)

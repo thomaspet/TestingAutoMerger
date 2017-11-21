@@ -5,6 +5,5 @@ import {Component} from '@angular/core';
     selector: 'uni-employee',
 })
 export class UniEmployee {
-    constructor(){
-    }
+    constructor() {}
 }

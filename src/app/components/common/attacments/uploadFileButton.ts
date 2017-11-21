@@ -15,7 +15,10 @@ export interface IUploadConfig {
 @Component({
     selector: 'uni-upload-file-button',
     template: `
-        <label class="uni-upload-file-button" [attr.aria-disabled]="uploadConfig?.isDisabled || uploading" [attr.aria-busy]="uploading">
+        <label
+            class="uni-upload-file-button"
+            [attr.aria-disabled]="uploadConfig?.isDisabled || uploading"
+            [attr.aria-busy]="uploading">
             <span *ngIf="!uploading">{{buttonText}}</span>
             <input type="file"
                 (change)="uploadFileChange($event)"
@@ -69,7 +72,6 @@ export class UniUploadFileButton {
     }
 
     private uploadFile(file: File) {
-
         let data = new FormData();
         data.append('Token', this.token);
         data.append('Key', this.activeCompany.Key);

@@ -34,7 +34,7 @@ export class ProductGroups implements OnInit {
     private contextMenuItems: any;
     private childRoutes: IUniTabsRoute[];
 
-    private saveactions: IUniSaveAction[] = [
+    public saveactions: IUniSaveAction[] = [
          {
              label: 'Lagre',
              action: (completeEvent) => this.saveProductGroup(completeEvent),
@@ -43,7 +43,7 @@ export class ProductGroups implements OnInit {
          }
     ];
 
-    private treeoptions = {
+    public treeoptions: any = {
         // allowDrag: true, // TODO activate later when functionality is available
         displayField: 'Name',
         childrenField: '_children',
@@ -144,7 +144,7 @@ export class ProductGroups implements OnInit {
         this.productCategoryService.currentProductGroup.next(null);
     }
 
-    private nodeActive(event: any) {
+    public nodeActive(event: any) {
         let node = event.node;
 
         this.parentId = node.parent.data.ID;

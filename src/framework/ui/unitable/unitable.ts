@@ -426,6 +426,8 @@ export class UniTable implements OnChanges {
         if (this.lastFocusPosition) {
             this.resetFocusedCell();
         }
+
+        this.columnsChange.emit(this.tableColumns.toJS());
     }
 
     private onSort(column) {
@@ -694,6 +696,7 @@ export class UniTable implements OnChanges {
             }
 
             this.tableData = (hadEmptyRow) ? data.push(this.tableDataOriginal.last()) : data;
+            this.getLocalDataColumnSums();
 
             // after data is filtered, emit event to notify parent that the data has changed
             setTimeout(() => {
@@ -780,11 +783,25 @@ export class UniTable implements OnChanges {
                 if (this.config.editable && this.lastFocusPosition) {
                     this.resetFocusedCell();
                 }
+
+                this.getColumnSums();
             },
             err => console.error(message, err, '\n', message)
         );
+    }
 
-        this.getColumnSums();
+    private getLocalDataColumnSums() {
+        const sumColumns = this.tableColumns.filter(col => col.get('isSumColumn')).toJS() || [];
+        const sums = {};
+
+        sumColumns.forEach((col: UniTableColumn, index: number) => {
+            sums[col.field] = this.tableData.reduce((sum, row) => {
+                return sum += parseInt(row.get(col.field), 10) || 0;
+            }, 0);
+        });
+
+        this.columnSums = sums;
+        this.cdr.markForCheck();
     }
 
     private getColumnSums() {

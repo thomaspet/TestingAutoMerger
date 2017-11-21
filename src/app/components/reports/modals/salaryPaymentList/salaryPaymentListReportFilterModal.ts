@@ -16,7 +16,7 @@ import {
 type ModalConfig = {
     report: any,
     title: string,
-    actions: { text: string, class?: string, method: (any) => void }[]
+    actions: { text: string, class?: string, method: (a: any) => void }[]
 };
 
 @Component({
@@ -38,6 +38,8 @@ export class SalaryPaymentListReportFilterModalContent implements OnInit {
         this.config$.next(this.config);
         let subscription = this.yearService
             .selectedYear$
+            .asObservable()
+            .filter(year => !!year)
             .do(year => this.currentYear = year)
             .switchMap(year => this.payrollRunService.getLatestSettledRun(year))
             .finally(() => subscription.unsubscribe())
@@ -54,7 +56,10 @@ export class SalaryPaymentListReportFilterModalContent implements OnInit {
             Property: 'RunID',
             Options: {
                 getDefaultData: () => Observable.of([defaultRun]),
-                search: (query) => this.payrollRunService.GetAll(`filter=year(PayDate) eq ${this.currentYear} and (startswith(ID, '${query}') or contains(Description, '${query}'))&top=50`),
+                search: (query) => this.payrollRunService.GetAll(
+                    `filter=year(PayDate) eq ${this.currentYear} `
+                    + `and (startswith(ID, '${query}') or contains(Description, '${query}'))&top=50`
+                ),
                 valueProperty: 'ID',
                 template: (obj: PayrollRun) => obj ? `${obj.ID} - ${obj.Description}` : ''
             }

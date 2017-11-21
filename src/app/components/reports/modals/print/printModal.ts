@@ -25,7 +25,7 @@ import {DomSanitizer} from '@angular/platform-browser';
     </section>`
 })
 
-export class UniPrintModal implements IUniModal{
+export class UniPrintModal implements IUniModal {
     @Input()
     public options: IModalOptions = {};
 
@@ -34,11 +34,11 @@ export class UniPrintModal implements IUniModal{
 
     constructor(public sanitizer: DomSanitizer) {}
 
-    private onCloseAction() {
+    public onCloseAction() {
         this.onClose.emit(false);
     }
 
-    private returnUrl() {
+    public returnUrl() {
         return this.sanitizer.bypassSecurityTrustResourceUrl(this.options.data.url);
     }
 }

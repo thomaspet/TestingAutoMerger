@@ -1,13 +1,12 @@
-import {Component, ViewChild, Input, Output, EventEmitter, SimpleChanges} from '@angular/core';
+import {Component, ViewChild} from '@angular/core';
 import {Router, ActivatedRoute} from '@angular/router';
-import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig, IContextMenuItem, ITableFilter} from '../../../../framework/ui/unitable/index';
+import {
+    UniTable, UniTableColumn, UniTableColumnType, UniTableConfig
+} from '../../../../framework/ui/unitable/index';
 import {ToastService, ToastTime, ToastType} from '../../../../framework/uniToast/toastService';
-import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
-import {IUniSaveAction} from '../../../../framework/save/save';
+import {TabService} from '../../layout/navbar/tabstrip/tabService';
 import {IToolbarConfig} from './../../common/toolbar/toolbar';
 import {StatusCodeCustomerInvoice, StatusCodeCustomerOrder, StatusCodeCustomerQuote} from '../../../unientities';
-import {IPosterWidget} from '../../common/poster/poster';
-import {Observable} from 'rxjs/Observable';
 import {
     ErrorService,
     StatisticsService,
@@ -24,7 +23,7 @@ declare const _;
     templateUrl: './sellerSalesList.html',
 })
 export class SellerSalesList {
-    @ViewChild(UniTable) private table: UniTable;
+    @ViewChild(UniTable) public table: UniTable;
 
     private salesTableConfig: UniTableConfig;
     private toolbarconfig: IToolbarConfig;
@@ -47,19 +46,19 @@ export class SellerSalesList {
     ) {
     }
 
-    private ngOnInit() {
+    public ngOnInit() {
         this.route.params.subscribe(params => {
             this.mode = params['mode'];
             this.route.parent.params.subscribe(parent => {
                 this.sellerId = +parent['id'];
-            
-                this.setupTable();                
+
+                this.setupTable();
                 this.loadSales();
                 this.sellerService.Get(this.sellerId).subscribe(seller => {
                     this.setupToolbar(seller.Name);
-                });    
+                });
             });
-        })
+        });
     }
 
     private loadSales() {
@@ -97,7 +96,7 @@ export class SellerSalesList {
                 switch (this.mode) {
                     case 'orders':
                         row.StatusCode = this.orderService.getStatusText(row.StatusCode);
-                        break;                
+                        break;
                     case 'quotes':
                         row.StatusCode = this.quoteService.getStatusText(row.StatusCode);
                         break;
@@ -127,7 +126,9 @@ export class SellerSalesList {
                 if (id) {
                     this.router.navigateByUrl('/sales/sellers/' + id + '/sales');
                 } else {
-                    this.toastService.addToast('Ingen flere selgere før denne selgeren!', ToastType.warn, ToastTime.short);
+                    this.toastService.addToast(
+                        'Ingen flere selgere før denne selgeren!', ToastType.warn, ToastTime.short
+                    );
                 }
             });
     }
@@ -138,7 +139,9 @@ export class SellerSalesList {
                 if (id) {
                     this.router.navigateByUrl('/sales/sellers/' + id + '/sales');
                 } else {
-                    this.toastService.addToast('Ingen flere selgere etter denne selgeren!', ToastType.warn, ToastTime.short);
+                    this.toastService.addToast(
+                        'Ingen flere selgere etter denne selgeren!', ToastType.warn, ToastTime.short
+                    );
                 }
             });
     }
@@ -147,7 +150,7 @@ export class SellerSalesList {
         this.router.navigateByUrl('/sales/sellers/0');
     }
 
-    private onRowSelected(event) {
+    public onRowSelected(event) {
         this.router.navigateByUrl('/sales/invoices/' + event.rowModel.ID);
     }
 
@@ -179,8 +182,8 @@ export class SellerSalesList {
             });
 
         let customerNameCol = new UniTableColumn('CustomerName', 'Kundenavn', UniTableColumnType.Number);
-        let totalExAmountCol = new UniTableColumn('TaxExclusiveAmount', 'Sum eks. mva', UniTableColumnType.Money)
-        let totalIncAmountCol = new UniTableColumn('TaxInclusiveAmount', 'Sum inkl. mva', UniTableColumnType.Money)
+        let totalExAmountCol = new UniTableColumn('TaxExclusiveAmount', 'Sum eks. mva', UniTableColumnType.Money);
+        let totalIncAmountCol = new UniTableColumn('TaxInclusiveAmount', 'Sum inkl. mva', UniTableColumnType.Money);
 
         let sellerPercentCol = new UniTableColumn('SellerLinkPercent', '%', UniTableColumnType.Percent)
             .setWidth('4rem')

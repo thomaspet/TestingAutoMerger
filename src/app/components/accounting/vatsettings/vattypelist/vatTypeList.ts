@@ -2,7 +2,9 @@ import {Component, ViewChild, Output, EventEmitter, ElementRef} from '@angular/c
 import {URLSearchParams} from '@angular/http';
 import {VatType} from '../../../../unientities';
 import {VatTypeService, ErrorService} from '../../../../services/services';
-import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig} from '../../../../../framework/ui/unitable/index';
+import {
+    UniTable, UniTableColumn, UniTableColumnType, UniTableConfig
+} from '../../../../../framework/ui/unitable/index';
 
 @Component({
     selector: 'vattype-list',
@@ -30,7 +32,7 @@ export class VatTypeList {
         input.focus();
     }
 
-    private onRowSelected (event) {
+    public onRowSelected (event) {
         this.uniVatTypeChange.emit(event.rowModel);
     };
 
@@ -51,9 +53,14 @@ export class VatTypeList {
                 params.set('orderby', 'VatCode');
             }
 
-            params.set('expand', 'VatCodeGroup,IncomingAccount,OutgoingAccount,VatReportReferences,VatReportReferences.VatPost,VatReportReferences.Account');
+            params.set(
+                'expand',
+                'VatCodeGroup,IncomingAccount,OutgoingAccount,VatReportReferences,'
+                    + 'VatReportReferences.VatPost,VatReportReferences.Account'
+            );
 
-            return this.vatTypeService.GetAllByUrlSearchParams(params).catch((err, obs) => this.errorService.handleRxCatch(err, obs));
+            return this.vatTypeService.GetAllByUrlSearchParams(params)
+                .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
         };
 
 
@@ -61,8 +68,12 @@ export class VatTypeList {
         let codeCol = new UniTableColumn('VatCode', 'Kode', UniTableColumnType.Text).setWidth('10%');
         let aliasCol = new UniTableColumn('Alias', 'Alias', UniTableColumnType.Text).setWidth('10%');
         let nameCol = new UniTableColumn('Name', 'Navn', UniTableColumnType.Text).setWidth('30%');
-        let incomingAccountCol = new UniTableColumn('IncomingAccount.AccountNumber', 'Inng. konto', UniTableColumnType.Text).setWidth('10%');
-        let outgoingAccountCol = new UniTableColumn('OutgoingAccount.AccountNumber', 'Utg. konto', UniTableColumnType.Text).setWidth('10%');
+        let incomingAccountCol = new UniTableColumn(
+            'IncomingAccount.AccountNumber', 'Inng. konto', UniTableColumnType.Text
+        ).setWidth('10%');
+        let outgoingAccountCol = new UniTableColumn(
+            'OutgoingAccount.AccountNumber', 'Utg. konto', UniTableColumnType.Text
+        ).setWidth('10%');
         let percentCol = new UniTableColumn('VatPercent', 'Prosent', UniTableColumnType.Number)
             .setWidth('10%')
             .setTemplate((data) => data.VatPercent + '%')

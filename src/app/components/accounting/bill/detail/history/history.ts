@@ -48,7 +48,8 @@ export class BillHistoryView {
     }
 
     public getNumberOfInvoices(supplierId: number, excludeCurrentId?: number) {
-        let query = `?model=supplierinvoice&select=count(id)&filter=isnull(deleted,0) eq 0 and supplierId eq ${supplierId}`;
+        let query = `?model=supplierinvoice&select=count(id)&filter=isnull`
+            + `(deleted,0) eq 0 and supplierId eq ${supplierId}`;
         if (excludeCurrentId) {
             query += ` and ( not id eq ${excludeCurrentId} )`;
         }
@@ -116,14 +117,24 @@ export class BillHistoryView {
             new UniTableColumn('InvoiceDate', 'Dato', UniTableColumnType.LocalDate).setWidth('5.5em')
                 .setFilterOperator('eq')
                 .setFormat('DD.MM.YY'),
-            new UniTableColumn('PaymentDueDate', 'Forfall', UniTableColumnType.LocalDate).setWidth('4em').setVisible(false)
+            new UniTableColumn(
+                'PaymentDueDate', 'Forfall', UniTableColumnType.LocalDate
+            )
+                .setWidth('4em')
+                .setVisible(false)
                 .setFilterOperator('eq')
                 .setConditionalCls(item =>
-                    moment(item.PaymentDueDate).isBefore(moment()) ? 'supplier-invoice-table-payment-overdue' : 'supplier-invoice-table-payment-ok'
+                    moment(item.PaymentDueDate).isBefore(moment())
+                        ? 'supplier-invoice-table-payment-overdue'
+                        : 'supplier-invoice-table-payment-ok'
                 )
-                .setFormat('DD.MM.YY'),            new UniTableColumn('ID', 'Nr.', UniTableColumnType.Number).setVisible(false).setWidth('3em').setFilterOperator('startswith'),
-            new UniTableColumn('StatusCode', 'Status', UniTableColumnType.Number).setVisible(true).setAlignment('center')
-            .setTemplate((dataItem) => {
+                .setFormat('DD.MM.YY'),
+            new UniTableColumn(
+                'ID', 'Nr.', UniTableColumnType.Number
+            ).setVisible(false).setWidth('3em').setFilterOperator('startswith'),
+            new UniTableColumn(
+                'StatusCode', 'Status', UniTableColumnType.Number
+            ).setVisible(true).setAlignment('center').setTemplate((dataItem) => {
                 return this.supplierInvoiceService.getStatusText(dataItem.StatusCode);
             }).setWidth('6em'),
 
@@ -135,7 +146,9 @@ export class BillHistoryView {
                 .setFilterOperator('startswith')
                 .setTemplate(item => {
                     var key = item.JournalEntryJournalEntryNumber;
-                    if (key) { return `<a href="#/accounting/transquery/details;JournalEntryNumber=${key}">${key}</a>`; }
+                    if (key) {
+                        return `<a href="#/accounting/transquery/details;JournalEntryNumber=${key}">${key}</a>`;
+                    }
                 }),
             new UniTableColumn('TaxInclusiveAmount', 'Beløp', UniTableColumnType.Money).setWidth('6em')
                 .setFilterOperator('contains')

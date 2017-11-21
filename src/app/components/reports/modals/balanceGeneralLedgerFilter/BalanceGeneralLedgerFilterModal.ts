@@ -102,13 +102,13 @@ export class BalanceGeneralLedgerFilterForm implements OnInit {
                 Label: 'Vis med korrigeringer',
                 Property: 'IncludeCorrections'
             }
-            //TODO? Trenger vi dette? Bør vel løses generelt for alle rapporter?
-            //,
-            //<any>{
+            // TODO? Trenger vi dette? Bør vel løses generelt for alle rapporter?
+            // ,
+            // <any>{
             //    FieldType: FieldType.MULTISELECT,
             //    Label: 'Bruk farger',
             //    Property: 'UseColors'
-            //}
+            // }
         ];
     }
 }
@@ -142,7 +142,9 @@ export class BalanceGeneralLedgerFilterModal {
                     class: 'good',
                     method: (model$) => {
                         // set parametervalues
-                        for (const parameter of <AttilasCustomReportDefinitionParameter[]>this.modalConfig.report.parameters) {
+                        for (const parameter of
+                            <AttilasCustomReportDefinitionParameter[] > this.modalConfig.report.parameters
+                        ) {
                             parameter.value = model$.getValue()[parameter.Name];
                         }
 
@@ -154,7 +156,9 @@ export class BalanceGeneralLedgerFilterModal {
 
                         let filterCorrectionsParam = new AttilasCustomReportDefinitionParameter();
                         filterCorrectionsParam.Name = 'FilterCorrections';
-                        filterCorrectionsParam.value = model$.getValue().IncludeCorrections ? '' : ' and isnull(OriginalReferencePostID,0) eq 0 and isnull(ReferenceCreditPostID,0) eq 0 ';
+                        filterCorrectionsParam.value = model$.getValue().IncludeCorrections
+                            ? ''
+                            : ' and isnull(OriginalReferencePostID,0) eq 0 and isnull(ReferenceCreditPostID,0) eq 0 ';
                         this.modalConfig.report.parameters.push(filterCorrectionsParam);
 
                         this.modal.close();

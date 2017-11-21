@@ -33,7 +33,7 @@ export class PaymentBatchDetails implements OnChanges {
     @ViewChild(UniTable)
     private table: UniTable;
 
-    private downloadFilesAsAttachments: boolean = true;
+    public downloadFilesAsAttachments: boolean = true;
     private paymentBatch: PaymentBatch;
     private paymentTableConfig: UniTableConfig;
     private lookupFunction: (urlParams: URLSearchParams) => any;
@@ -71,15 +71,15 @@ export class PaymentBatchDetails implements OnChanges {
         }
     }
 
-    private goToPreviousBatch() {
+    public goToPreviousBatch() {
         this.paymentBatchNavigate.emit(-1);
     }
 
-    private goToNextBatch() {
+    public goToNextBatch() {
         this.paymentBatchNavigate.emit(1);
     }
 
-    private deleteBatch() {
+    public deleteBatch() {
         if (!this.paymentBatch.PaymentFileID) {
             this.deletePaymentBatch.emit(this.paymentBatch);
         } else {
@@ -98,7 +98,7 @@ export class PaymentBatchDetails implements OnChanges {
         }
     }
 
-    private receiptFileUploaded(file) {
+    public receiptFileUploaded(file) {
         this.toastService.addToast('Kvitteringsfil lastet opp, tolker fil..', ToastType.good, 10,
             'Dette kan ta litt tid, vennligst vent...');
 
@@ -115,7 +115,7 @@ export class PaymentBatchDetails implements OnChanges {
             );
     }
 
-    private createPaymentFile() {
+    public createPaymentFile() {
         // kjør action for å generere utbetalingsfil basert på batch
         this.paymentBatchService.generatePaymentFile(this.paymentBatch.ID)
             .subscribe((updatedPaymentBatch: PaymentBatch) => {
@@ -138,7 +138,9 @@ export class PaymentBatchDetails implements OnChanges {
                         }
                         );
                 } else {
-                    this.toastService.addToast('Fant ikke utbetalingsfil, ingen PaymentFileID definert', ToastType.bad, 0);
+                    this.toastService.addToast(
+                        'Fant ikke utbetalingsfil, ingen PaymentFileID definert', ToastType.bad, 0
+                    );
                 }
             },
             err => {
@@ -146,13 +148,18 @@ export class PaymentBatchDetails implements OnChanges {
             });
     }
 
-    private getFormattedDate(date) {
+    public getFormattedDate(date) {
         return moment(date).format('DD.MM.YYYY');
     }
 
-    private downloadPaymentFile() {
+    public downloadPaymentFile() {
         if (!this.paymentBatch.PaymentFileID) {
-            this.toastService.addToast('Fil ikke generert', ToastType.bad, 15, 'Fant ingen betalingsfil, generering pågår kanskje fortsatt, vennligst prøv igjen om noen minutter');
+            this.toastService.addToast(
+                'Fil ikke generert',
+                ToastType.bad,
+                15,
+                'Fant ingen betalingsfil, generering pågår kanskje fortsatt, vennligst prøv igjen om noen minutter'
+            );
         } else {
             this.fileService
                 .downloadFile(this.paymentBatch.PaymentFileID, 'application/xml')
@@ -168,14 +175,14 @@ export class PaymentBatchDetails implements OnChanges {
         }
     }
 
-    private toggleReceiptFilesVisible() {
+    public toggleReceiptFilesVisible() {
         this.receiptFilesVisible = !this.receiptFilesVisible;
     }
 
-    private togglesendtopaymentModal(){
+    public togglesendtopaymentModal() {
         this.modalService.open(UniSendPaymentModal, {
-            data: { PaymentBatchID:this.paymentBatchID }
-        })
+            data: { PaymentBatchID: this.paymentBatchID }
+        });
     }
 
     private loadPaymentBatchData() {
@@ -214,7 +221,11 @@ export class PaymentBatchDetails implements OnChanges {
             .setVisible(false);
         let amountCurrencyCol = new UniTableColumn('AmountCurrency', 'Beløp', UniTableColumnType.Money);
 
-        let amountCol = new UniTableColumn('Amount', `Beløp (${this.companySettings.BaseCurrencyCode.Code})`, UniTableColumnType.Money)
+        let amountCol = new UniTableColumn(
+            'Amount',
+            `Beløp (${this.companySettings.BaseCurrencyCode.Code})`,
+            UniTableColumnType.Money
+        )
             .setVisible(false)
             .setEditable(false);
 
@@ -227,7 +238,12 @@ export class PaymentBatchDetails implements OnChanges {
             .setConditionalCls(payment => moment(payment.DueDate).isBefore(moment()) ? 'payment-due' : '');
         let paymentCodeCol = new UniTableColumn('PaymentCode', 'Type', UniTableColumnType.Lookup)
             .setDisplayField('PaymentCode.Name').setVisible(false);
-        let descriptionCol = new UniTableColumn('Description', 'Beskrivelse', UniTableColumnType.Text).setVisible(false);
+        let descriptionCol = new UniTableColumn(
+            'Description',
+            'Beskrivelse',
+            UniTableColumnType.Text
+        )
+            .setVisible(false);
         let statusCol = new UniTableColumn('StatusCode', 'Status', UniTableColumnType.Number)
             .setEditable(false)
             .setVisible(false)

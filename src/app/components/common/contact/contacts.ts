@@ -1,7 +1,12 @@
 import {Component, ViewChild, Input, Output, EventEmitter, AfterViewInit, SimpleChanges} from '@angular/core';
 import {Router} from '@angular/router';
 import {Contact, BusinessRelation} from '../../../unientities';
-import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig, IContextMenuItem} from '../../../../framework/ui/unitable/index';
+import {
+    UniTable,
+    UniTableColumn,
+    UniTableColumnType,
+    UniTableConfig, IContextMenuItem
+} from '../../../../framework/ui/unitable/index';
 import {ToastService, ToastTime, ToastType} from '../../../../framework/uniToast/toastService';
 import {
     ErrorService,
@@ -43,12 +48,12 @@ export class Contacts implements AfterViewInit {
         }
     }
 
-    private onRowSelected(event) {
+    public onRowSelected(event) {
         this.selectedContact = event.rowModel;
         this.selected.emit(this.selectedContact);
     }
 
-    private onRowChanged(event) {
+    public onRowChanged(event) {
         let contact = event.rowModel;
         this.parentBusinessRelation.Contacts[contact._originalIndex] = contact;
 
@@ -126,7 +131,7 @@ export class Contacts implements AfterViewInit {
         contextMenuItems.push({
             label: 'Vis kontaktdetaljer',
             action: (rowModel) => {
-                this.router.navigateByUrl('/contacts/' + rowModel.ID)
+                this.router.navigateByUrl('/contacts/' + rowModel.ID);
             },
             disabled: (rowModel) => {
                 if (!rowModel || !rowModel.ID || rowModel.ID === 0) {

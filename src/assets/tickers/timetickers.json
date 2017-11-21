@@ -28,11 +28,13 @@
             {
                 "Header": "Føringer",
                 "Alias": "AllMinutes",
+                "Expand": "Relations.Items",
                 "Field": "count(items.minutes)"
             },
             {
                 "Header": "Til godkjenning",
                 "Alias": "AccMinutes",
+                "Expand": "Relations.Items",
                 "Field": "sum(casewhen(items.StatusCode eq ''\\,1\\,0))"
             }            
         ],

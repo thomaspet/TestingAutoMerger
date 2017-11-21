@@ -52,7 +52,7 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
     private payrollrunID: number;
     private payDate: Date = null;
     private payStatus: string;
-    @ViewChild(ControlModal) private controlModal: ControlModal;
+    @ViewChild(ControlModal) public controlModal: ControlModal;
     @ViewChild(SalaryTransactionSelectionList) private selectionList: SalaryTransactionSelectionList;
     private busy: boolean = false;
     private url: string = '/salary/payrollrun/';
@@ -174,7 +174,8 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
                                 'Bilag ' + payrollRun.JournalEntryNumber
                                 : '',
                             link: payrollRun.JournalEntryNumber
-                                ? '#/accounting/transquery/details;journalEntryNumber=' + payrollRun.JournalEntryNumber
+                                ? '#/accounting/transquery/details;journalEntryNumber='
+                                    + payrollRun.JournalEntryNumber
                                 : ''
                         },
                         {
@@ -256,7 +257,9 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
                     this.openVacationPayModal();
                 },
                 disabled: (rowModel) => {
-                    return this.payrollrun$.getValue() && this.payrollrunID ? this.payrollrun$.getValue().StatusCode > 0 : false;
+                    return this.payrollrun$.getValue() && this.payrollrunID
+                        ? this.payrollrun$.getValue().StatusCode > 0
+                        : false;
                 }
             },
             {
@@ -265,9 +268,14 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
                     let payrollrun = this.payrollrun$.getValue();
                     if (payrollrun) {
                         if (!payrollrun.StatusCode) {
-                            this._toastService.addToast('Kan ikke nullstille', ToastType.warn, 4, 'Lønnsavregningen må være avregnet før du kan nullstille den');
+                            this._toastService.addToast(
+                                'Kan ikke nullstille', ToastType.warn, 4,
+                                'Lønnsavregningen må være avregnet før du kan nullstille den'
+                            );
                         } else {
-                            if (payrollrun.StatusCode < 2 || confirm('Denne lønnsavregningen er bokført, er du sikker på at du vil nullstille?')) {
+                            if (payrollrun.StatusCode < 2
+                                || confirm('Denne lønnsavregningen er bokført, er du sikker på at du vil nullstille?')
+                            ) {
                                 this.busy = true;
                                 this.payrollrunService.resetSettling(this.payrollrunID)
                                     .finally(() => this.busy = false)
@@ -275,7 +283,9 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
                                         if (response) {
                                             this.getData();
                                         } else {
-                                            this.errorService.handleWithMessage(response, 'Fikk ikke nullstilt lønnsavregning');
+                                            this.errorService.handleWithMessage(
+                                                response, 'Fikk ikke nullstilt lønnsavregning'
+                                            );
                                         }
                                     }, err => this.errorService.handle(err));
                             }
@@ -297,7 +307,9 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
                     this.showPaymentList();
                 },
                 disabled: (rowModel) => {
-                    return this.payrollrun$.getValue() && this.payrollrunID ? this.payrollrun$.getValue().StatusCode < 1 : true;
+                    return this.payrollrun$.getValue() && this.payrollrunID
+                        ? this.payrollrun$.getValue().StatusCode < 1
+                        : true;
                 }
             },
             {
@@ -700,8 +712,9 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
         this.payrollrunID
             ? this.payrollrunService
                 .getEmployeesOnPayroll(this.payrollrunID,
-                ['Employments.Dimensions', 'BusinessRelationInfo', 'SubEntity.BusinessRelationInfo', 'BusinessRelationInfo.BankAccounts'])
-                .subscribe((employees: Employee[]) => {
+                    ['Employments.Dimensions', 'BusinessRelationInfo',
+                    'SubEntity.BusinessRelationInfo', 'BusinessRelationInfo.BankAccounts']
+                ).subscribe((employees: Employee[]) => {
                     this.updateTax(employees);
                     this.updateState('employees', employees, false);
                 }, err => this.errorService.handle(err))
@@ -732,7 +745,9 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
 
     private checkDirty() {
         let saveActions = _.cloneDeep(this.saveActions);
-        if (saveActions && saveActions.length && this.payrollrun$.getValue() && !this.payrollrun$.getValue().StatusCode) {
+        if (saveActions && saveActions.length
+            && this.payrollrun$.getValue() && !this.payrollrun$.getValue().StatusCode
+        ) {
             let saveButton = saveActions.find(x => x.label === 'Lagre');
             let calculateButton = saveActions.find(x => x.label === 'Avregn');
             if (super.isDirty() || (this.payrollrun$.getValue() && !this.payrollrun$.getValue().Description)) {
@@ -750,7 +765,7 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
         }
     }
 
-    private getStatustrackConfig() {
+    public getStatustrackConfig() {
         let statuses: string[] = ['Opprettet', 'Avregnet', 'Bokført'];
         let statustrack: UniStatusTrack.IStatus[] = [];
         let activeIndex = statuses.indexOf(this.payStatus);
@@ -811,7 +826,7 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
                         modalConfig: {
                             update: () => this.getPayrollRun()
                         }
-                    })
+                    });
             });
 
         done('');
@@ -925,8 +940,9 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
     private SendIfNotAlreadySent(done) {
         if (this.paymentStatus && this.paymentStatus >= PayrollRunPaymentStatus.SentToPayment) {
             this.modalService.confirm({
-                header: "Utbetale en gang til",
-                message: 'Denne lønnsavregningen er allerede sendt til utbetaling, vennligst bekreft at du vil sende lønnsavregningen til utbetaling igjen',
+                header: 'Utbetale en gang til',
+                message: 'Denne lønnsavregningen er allerede sendt til utbetaling, '
+                    + 'vennligst bekreft at du vil sende lønnsavregningen til utbetaling igjen',
                 buttonLabels: {
                     accept: 'Utbetal',
                     cancel: 'Avbryt'
@@ -1022,7 +1038,7 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
             });
     }
 
-    private change(changes: SimpleChanges) {
+    public change(changes: SimpleChanges) {
         this.payrollrun$
             .asObservable()
             .take(1)

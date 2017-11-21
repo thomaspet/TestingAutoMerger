@@ -20,7 +20,7 @@ import {
 } from '../../../../unientities';
 import {UniStatusTrack} from '../../../common/toolbar/statustrack';
 import {IUniSaveAction} from '../../../../../framework/save/save';
-import {UniForm, FieldType, UniFieldLayout, UniFormError} from '../../../../../framework/ui/uniform/index';
+import {UniForm, FieldType, UniFieldLayout} from '../../../../../framework/ui/uniform/index';
 import {Location} from '@angular/common';
 import {BillSimpleJournalEntryView} from './journal/simple';
 import {IOcrServiceResult, OcrValuables, OcrPropertyType} from './ocr';
@@ -207,7 +207,7 @@ export class BillView {
             this.myUser = usr;
             this.userService.getRolesByUserId(this.myUser.ID).subscribe(roles => {
                 this.myUserRoles = roles;
-            })
+            });
         });
     }
 
@@ -452,7 +452,8 @@ export class BillView {
         // };
 
         // todo: use NumericInput when it works properly
-        // var sumCol = createFormField('TaxInclusiveAmountCurrency', lang.col_total, ControlTypes.TextInput, FieldSize.Double);
+        // var sumCol = createFormField('TaxInclusiveAmountCurrency',
+        // lang.col_total, ControlTypes.TextInput, FieldSize.Double);
         // sumCol.Classes += ' combofield';
         // sumCol.Options = {
         //     events: {
@@ -464,7 +465,8 @@ export class BillView {
         //     decimalSeparator: ','
         // };
 
-        // var currencyCodeCol = createFormField('CurrencyCodeID', lang.col_currency_code, FieldType.DROPDOWN, FieldSize.Double);
+        // var currencyCodeCol = createFormField('CurrencyCodeID',
+        // lang.col_currency_code, FieldType.DROPDOWN, FieldSize.Double);
         // currencyCodeCol.Classes += ' combofield';
         // currencyCodeCol.Options = {
         //     source: this.currencyCodes,
@@ -473,7 +475,8 @@ export class BillView {
         //     debounceTime: 200,
         // };
 
-        // let bankAccountCol = createFormField('BankAccountID', lang.col_bank, ControlTypes.MultivalueInput, FieldSize.Double);
+        // let bankAccountCol = createFormField('BankAccountID',
+        // lang.col_bank, ControlTypes.MultivalueInput, FieldSize.Double);
         // bankAccountCol.Options = {
         //     entity: BankAccount,
         //     listProperty: 'Supplier.Info.BankAccounts',
@@ -575,7 +578,8 @@ export class BillView {
         // Supplier
         if (!invoice.SupplierID && invoice.Supplier) {
             let title = `${lang.create_supplier} '${invoice.InvoiceReceiverName}' ?`;
-            let msg = `${invoice.InvoiceAddressLine1 || ''} ${invoice.InvoicePostalCode || ''}. ${lang.org_number}: ${invoice.Supplier.OrgNumber}`;
+            let msg = `${invoice.InvoiceAddressLine1 || ''} ${invoice.InvoicePostalCode || ''}.`
+                + ` ${lang.org_number}: ${invoice.Supplier.OrgNumber}`;
             this.toast.clear();
 
             const modal = this.modalService.open(UniConfirmModalV2, {
@@ -813,11 +817,14 @@ export class BillView {
     }
 
     private findSupplierViaPhonebook(orgNo: string, askUser: boolean, bankAccount?: string) {
-        this.supplierInvoiceService.fetch('business-relations/?action=search-data-hotel&searchText=' + orgNo).subscribe(x => {
+        this.supplierInvoiceService.fetch(
+            'business-relations/?action=search-data-hotel&searchText=' + orgNo
+        ).subscribe(x => {
             if (x.Data && x.Data.entries && x.Data.entries.length > 0) {
                 var item = x.Data.entries[0];
                 var title = `${lang.create_supplier} '${item.navn}' ?`;
-                var msg = `${item.foretningsadr || ''} ${item.forradrpostnr || ''} ${item.forradrpoststed || ''}. ${lang.org_number}: ${item.orgnr}`;
+                var msg = `${item.foretningsadr || ''} ${item.forradrpostnr || ''} `
+                    + `${item.forradrpoststed || ''}. ${lang.org_number}: ${item.orgnr}`;
                 this.toast.clear();
                 if (askUser) {
                     const modal = this.modalService.open(UniConfirmModalV2, {
@@ -842,13 +849,18 @@ export class BillView {
                         }
                     });
                 } else {
-                    this.createSupplier(item.orgnr, item.navn, item.foretningsadr, item.forradrpostnr, item.forradrpoststed, bankAccount);
+                    this.createSupplier(
+                        item.orgnr, item.navn, item.foretningsadr,
+                        item.forradrpostnr, item.forradrpoststed, bankAccount
+                    );
                 }
             }
         }, err => this.errorService.handle(err));
     }
 
-    private createSupplier(orgNo: string, name: string, address: string, postalCode: string, city: string, bankAccount?: string) {
+    private createSupplier(
+        orgNo: string, name: string, address: string, postalCode: string, city: string, bankAccount?: string
+    ) {
         var sup = new Supplier();
         sup.OrgNumber = orgNo;
         sup.Info = <any>{
@@ -891,22 +903,34 @@ export class BillView {
 
         switch (event.field.Property) {
             case 'InvoiceDate':
-                property = this.ocrData.InterpretedProperties.find(x => x.OcrProperty.PropertyType === OcrPropertyType.InvoiceDate);
+                property = this.ocrData.InterpretedProperties.find(
+                    x => x.OcrProperty.PropertyType === OcrPropertyType.InvoiceDate
+                );
                 break;
             case 'PaymentDueDate':
-                property = this.ocrData.InterpretedProperties.find(x => x.OcrProperty.PropertyType === OcrPropertyType.DueDate);
+                property = this.ocrData.InterpretedProperties.find(
+                    x => x.OcrProperty.PropertyType === OcrPropertyType.DueDate
+                );
                 break;
             case 'InvoiceNumber':
-                property = this.ocrData.InterpretedProperties.find(x => x.OcrProperty.PropertyType === OcrPropertyType.InvoiceNumber);
+                property = this.ocrData.InterpretedProperties.find(
+                    x => x.OcrProperty.PropertyType === OcrPropertyType.InvoiceNumber
+                );
                 break;
             case 'BankAccountID':
-                property = this.ocrData.InterpretedProperties.find(x => x.OcrProperty.PropertyType === OcrPropertyType.BankAccountNumber);
+                property = this.ocrData.InterpretedProperties.find(
+                    x => x.OcrProperty.PropertyType === OcrPropertyType.BankAccountNumber
+                );
                 break;
             case 'PaymentID':
-                property = this.ocrData.InterpretedProperties.find(x => x.OcrProperty.PropertyType === OcrPropertyType.CustomerIdentificationNumber);
+                property = this.ocrData.InterpretedProperties.find(
+                    x => x.OcrProperty.PropertyType === OcrPropertyType.CustomerIdentificationNumber
+                );
                 break;
             case 'TaxInclusiveAmountCurrency':
-                property = this.ocrData.InterpretedProperties.find(x => x.OcrProperty.PropertyType === OcrPropertyType.TotalAmount);
+                property = this.ocrData.InterpretedProperties.find(
+                    x => x.OcrProperty.PropertyType === OcrPropertyType.TotalAmount
+                );
                 break;
         }
 
@@ -971,15 +995,15 @@ export class BillView {
             }
 
             if (model.InvoiceDate) {
-                this.currencyService.getCurrencyExchangeRate(model.CurrencyCodeID, this.companySettings.BaseCurrencyCodeID, model.InvoiceDate)
-                    .subscribe(res => {
-                        model.CurrencyExchangeRate = res.ExchangeRate;
-                        this.updateJournalEntryAmountsWhenCurrencyChanges(model);
+                this.currencyService.getCurrencyExchangeRate(
+                    model.CurrencyCodeID, this.companySettings.BaseCurrencyCodeID, model.InvoiceDate
+                ).subscribe(res => {
+                    model.CurrencyExchangeRate = res.ExchangeRate;
+                    this.updateJournalEntryAmountsWhenCurrencyChanges(model);
 
-                        this.current.next(model);
-                        this.flagUnsavedChanged();
-                    }, err => this.errorService.handle(err)
-                );
+                    this.current.next(model);
+                    this.flagUnsavedChanged();
+                }, err => this.errorService.handle(err));
             } else {
                 this.updateJournalEntryAmountsWhenCurrencyChanges(model);
                 this.current.next(model);
@@ -987,9 +1011,13 @@ export class BillView {
         }
 
         // need to push an update if other fields changes to make the journal entry grid update itself
-        if (change['TaxInclusiveAmountCurrency'] || change['InvoiceNumber'] || change['PaymentID'] || change['BankAccount']) {
+        if (change['TaxInclusiveAmountCurrency'] || change['InvoiceNumber']
+            || change['PaymentID'] || change['BankAccount']
+        ) {
             if (change['TaxInclusiveAmountCurrency']) {
-                model.TaxInclusiveAmountCurrency = roundTo(safeDec(change['TaxInclusiveAmountCurrency'].currentValue), 2);
+                model.TaxInclusiveAmountCurrency = roundTo(
+                    safeDec(change['TaxInclusiveAmountCurrency'].currentValue), 2
+                );
                 change['TaxInclusiveAmountCurrency'].currentValue = model.TaxInclusiveAmountCurrency;
             }
             this.current.next(model);
@@ -1161,8 +1189,12 @@ export class BillView {
             this.addActions(it._links.transitions, list, true, ['assign', 'approve', 'journal', 'pay'], filter);
 
             // Reassign as admin
-            if (!it._links.transitions.hasOwnProperty('reAssign') && it.StatusCode === StatusCodeSupplierInvoice.ForApproval) {
-                if (this.myUserRoles.find(x => x.SharedRoleName === 'Accounting.Admin' || x.SharedRoleName === 'Administrator')) {
+            if (!it._links.transitions.hasOwnProperty('reAssign')
+                && it.StatusCode === StatusCodeSupplierInvoice.ForApproval
+            ) {
+                if (this.myUserRoles.find(
+                    x => x.SharedRoleName === 'Accounting.Admin' || x.SharedRoleName === 'Administrator')
+                ) {
                     let reassign = this.newAction(workflowLabels.reAssign, 'reAssign',
                         `api/biz/supplierinvoices?action=reAssign`, false);
                     list.push(reassign);
@@ -1208,6 +1240,17 @@ export class BillView {
                 }
             }
 
+            if (it.StatusCode === StatusCodeSupplierInvoice.Journaled) {
+                list.push(
+                    {
+                        label: 'Krediter',
+                        action: (done) => setTimeout(this.creditSupplierInvoice(done)),
+                        main: false,
+                        disabled: false
+                    }
+                );
+            }
+
             // Bokfør og Til betaling
             if (it.StatusCode === StatusCodeSupplierInvoice.Approved) {
                 let toPaymentAction =
@@ -1223,6 +1266,29 @@ export class BillView {
 
     private initDefaultActions() {
         this.actions = this.rootActions;
+    }
+
+    public creditSupplierInvoice(done: any) {
+
+        const modal = this.modalService.open(UniConfirmModalV2, {
+            header: 'Kreditere faktura?',
+            message: 'Vil du kreditere bokføringen for fakturaen? Fakturaen vil settes tilbake til forrige status. '
+        });
+
+        modal.onClose.subscribe(response => {
+            if (response === ConfirmActions.ACCEPT) {
+                    this.supplierInvoiceService.creditInvoiceJournalEntry(this.currentID)
+                    .subscribe(
+                        res => {
+                            this.fetchInvoice(this.currentID, (!!done)).then(() => {
+                                done();
+                            });
+                        },
+                        err => this.errorService.handle(err));
+            } else {
+                done();
+            }
+        });
     }
 
     private newAction(label: string, itemKey: string, href: string, asMain = false): any {
@@ -1425,7 +1491,7 @@ export class BillView {
                             .switchMap(approved => {
                                 return approved
                                     ? this.journal(false, href)
-                                    : Observable.of(false)
+                                    : Observable.of(false);
                             })
                             .subscribe(result => {
                                 this.fetchInvoice(current.ID, false);
@@ -1572,7 +1638,7 @@ export class BillView {
         }).onClose;
     }
 
-    private readyToApprove() : Observable<any> {
+    private readyToApprove(): Observable<any> {
         if (this.CurrentTask) {
             let approvals = this.CurrentTask.Approvals;
             if (approvals) {
@@ -1590,7 +1656,6 @@ export class BillView {
     }
 
     private approve(myApproval: Approval): Observable<boolean> {
-        let current = this.current.getValue();
         return this.supplierInvoiceService.send(`approvals/${myApproval.ID}?action=approve`)
             .switchMap(result => {
                 return Observable.of(true);
@@ -1755,7 +1820,7 @@ export class BillView {
         });
     }
 
-    private getSupplierName(): string {
+    public getSupplierName(): string {
         let current = this.current.getValue();
         return current
             && current.Supplier
@@ -2008,7 +2073,8 @@ export class BillView {
                 if (item.AmountCurrency !== current.TaxInclusiveAmountCurrency * -1) {
                     item.FinancialDate = item.FinancialDate || current.DeliveryDate || current.InvoiceDate;
                     item.AmountCurrency = current.TaxInclusiveAmountCurrency * -1;
-                    item.Description = item.Description || (lang.headliner_invoice.toLowerCase() + ' ' + current.InvoiceNumber);
+                    item.Description = item.Description
+                        || (lang.headliner_invoice.toLowerCase() + ' ' + current.InvoiceNumber);
                     if (addToList) {
                         current.JournalEntry.DraftLines.push(item);
                     }
@@ -2022,7 +2088,9 @@ export class BillView {
                 var supplierId = safeInt(current.Supplier.SupplierNumber);
                 var item: JournalEntryLineDraft;
                 let items = current.JournalEntry.DraftLines;
-                item = items.find(x => x.Account ? x.Account.AccountNumber === current.Supplier.SupplierNumber : false);
+                item = items.find(
+                    x => x.Account ? x.Account.AccountNumber === current.Supplier.SupplierNumber : false
+                );
                 if (!item) {
                     item = new JournalEntryLineDraft();
                     checkGuid(item);
@@ -2066,7 +2134,7 @@ export class BillView {
             data: paymentData,
             modalConfig: {
                 entityName: 'SupplierInvoice',
-                currencyCode: bill.CurrencyCode,
+                currencyCode: bill.CurrencyCode.Code,
                 currencyExchangeRate: bill.CurrencyExchangeRate
             }
         });
@@ -2243,13 +2311,17 @@ export class BillView {
     private setupToolbar() {
         var doc: SupplierInvoice = this.current.getValue();
         var stConfig = this.getStatustrackConfig();
-        var jnr = doc && doc.JournalEntry && doc.JournalEntry.JournalEntryNumber ? doc.JournalEntry.JournalEntryNumber : undefined;
+        var jnr = doc && doc.JournalEntry && doc.JournalEntry.JournalEntryNumber
+            ? doc.JournalEntry.JournalEntryNumber
+            : undefined;
         this.commentsConfig = {
             entityID: doc.ID || 0,
             entityType: SupplierInvoice.EntityType
-        }
+        };
         this.toolbarConfig = {
-            title: doc && doc.Supplier && doc.Supplier.Info ? `${trimLength(doc.Supplier.Info.Name, 20)}` : lang.headliner_new,
+            title: doc && doc.Supplier && doc.Supplier.Info
+                ? `${trimLength(doc.Supplier.Info.Name, 20)}`
+                : lang.headliner_new,
             subheads: [
                 { title: doc && doc.InvoiceNumber ? `${lang.headliner_invoice} ${doc.InvoiceNumber}` : '' },
                 { title: doc && doc.Supplier ? `${lang.headliner_supplier} ${doc.Supplier.SupplierNumber}` : '' },

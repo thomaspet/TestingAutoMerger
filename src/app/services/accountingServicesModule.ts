@@ -23,6 +23,7 @@ import {PaymentCodeService} from './accounting/paymentCodeService';
 import {PaymentService} from './accounting/paymentService';
 import {PaymentBatchService} from './accounting/paymentBatchService';
 import {PostPostService} from './accounting/postPostService';
+import {BankFileDownloadService} from './accounting/bankFileDownloadService';
 
 export * from './accounting/accountGroupService';
 export * from './accounting/accountGroupSetService';
@@ -48,35 +49,9 @@ export * from './accounting/paymentCodeService';
 export * from './accounting/paymentService';
 export * from './accounting/paymentBatchService';
 export * from './accounting/postPostService';
+export * from './accounting/bankFileDownloadService';
 
-@NgModule({
-    // providers: [
-    //     AccountGroupService,
-    //     AccountGroupSetService,
-    //     AccountService,
-    //     BankAccountService,
-    //     BankService,
-    //     JournalEntryLineDraftService,
-    //     JournalEntryLineService,
-    //     JournalEntryService,
-    //     PeriodSeriesService,
-    //     PeriodService,
-    //     SupplierInvoiceItemService,
-    //     SupplierInvoiceService,
-    //     SupplierService,
-    //     VatDeductionService,
-    //     VatCodeGroupService,
-    //     VatPostService,
-    //     VatReportService,
-    //     VatTypeService,
-    //     AccountVisibilityGroupService,
-    //     FinancialYearService,
-    //     PaymentCodeService,
-    //     PaymentService,
-    //     PaymentBatchService,
-    //     PostPostService
-    // ]
-})
+@NgModule()
 export class AccountingServicesModule {
     static forRoot(): ModuleWithProviders {
         return {
@@ -105,7 +80,8 @@ export class AccountingServicesModule {
                 PaymentCodeService,
                 PaymentService,
                 PaymentBatchService,
-                PostPostService
+                PostPostService,
+                BankFileDownloadService
             ]
         };
     }

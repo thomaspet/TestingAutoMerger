@@ -45,7 +45,7 @@ export class ContextMenu {
         return action.disabled && action.disabled();
     }
 
-    private runAction(action: IContextMenuItem) {
+    public runAction(action: IContextMenuItem) {
        if (!this.isActionDisabled(action)) {
            this.close();
            action.action();

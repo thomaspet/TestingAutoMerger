@@ -145,7 +145,9 @@ export class UniSales {
                     labels: [],
                     colors: [],
                     dataEndpoint: [
-                        '/api/statistics?model=Customer&select=Info.Name as Name,isnull(sum(CustomerInvoices.RestAmount),0) as RestAmount&expand=Info,CustomerInvoices&having=sum(CustomerInvoices.RestAmount) gt 0'
+                        '/api/statistics?model=Customer&select=Info.Name as Name,'
+                        + 'isnull(sum(CustomerInvoices.RestAmount),0) as RestAmount'
+                        + '&expand=Info,CustomerInvoices&having=sum(CustomerInvoices.RestAmount) gt 0'
                     ],
                     valueKey: 'RestAmount',
                     labelKey: 'Name',
@@ -258,6 +260,16 @@ export class UniSales {
                     externalLink: 'https://unimicro.atlassian.net/servicedesk/customer/portal/3',
                     imageLink: '../../../assets/info_shortcut_bell_img.jpg',
                     title: ''
+                }
+            },
+            {
+                width: 2,
+                height: 1,
+                x: 7,
+                y: 0,
+                widgetType: 'currency', // TODO: enum
+                config: {
+                    dataEndpoint: '/api/biz/currencies?action=get-latest-currency-downloaded-date&downloadSource=1'
                 }
             }
         ];

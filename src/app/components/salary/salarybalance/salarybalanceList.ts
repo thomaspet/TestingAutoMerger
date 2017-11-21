@@ -1,9 +1,10 @@
-import {Component, OnInit, ViewChild} from '@angular/core';
+import {Component, OnInit, ViewChild, Input, Output, EventEmitter} from '@angular/core';
 import {Router, ActivatedRoute} from '@angular/router';
-import {UniTableConfig, UniTableColumnType, UniTableColumn} from '../../../../framework/ui/unitable/index';
+import {UniTableConfig, UniTableColumnType, UniTableColumn, UniTable} from '../../../../framework/ui/unitable/index';
 import {SalarybalanceService, ErrorService, NumberFormat} from '../../../services/services';
 import {SalaryBalance, SalBalDrawType} from '../../../unientities';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
+import {ReplaySubject} from 'rxjs/ReplaySubject';
 
 type BalanceActionFormattedType = {
     salaryBalanceID: number,
@@ -19,6 +20,12 @@ export class SalarybalanceList implements OnInit {
     private tableConfig: UniTableConfig;
     private salarybalances: SalaryBalance[] = [];
     private empID: number;
+    @Input() public employeeID: number;
+    @Output() public selectedSalarybalance: EventEmitter<SalaryBalance> = new EventEmitter();
+    @ViewChild(UniTable) private table: UniTable;
+    private table$: ReplaySubject<UniTable> = new ReplaySubject(1);
+    private selectedIndex: number;
+    private busy: boolean;
 
     constructor(
         private _router: Router,
@@ -28,47 +35,130 @@ export class SalarybalanceList implements OnInit {
         private errorService: ErrorService,
         private numberService: NumberFormat
     ) {
-        route.params.subscribe(params => {
-            let empID: number = +params['empID'] || 0;
-            this.empID = empID;
-            this.tabSer
-                .addTab({
-                    name: 'Saldo',
-                    url: 'salary/salarybalances' + (empID ? `;empID=${empID}` : ''),
-                    moduleID: UniModules.Salarybalances,
-                    active: true
-                });
-
-            this.setData(empID);
-        });
+        
     }
 
     public ngOnInit() {
+        this.route.params.subscribe(params => {
+            let empID: number = +params['empID'] || (this.employeeID !== undefined ? this.employeeID : 0);
+            this.empID = empID;
+            this.selectedIndex = undefined;
+        });
+
+        if (this.empID === 0 && this.employeeID === undefined) {
+            this.tabSer
+                .addTab({
+                    name: 'Saldo',
+                    url: 'salary/salarybalances' + (this.empID ? `;empID=${this.empID}` : ''),
+                    moduleID: UniModules.Salarybalances,
+                    active: true
+                });
+        }
         this.createConfig();
+        this.loadData(this.empID);
+    }
+
+    public ngOnChanges() {
+        if (this.employeeID) {
+            this.empID = this.employeeID;
+        }
+        this.busy = true;
+        this.loadData(this.empID);
+    }
+
+    public ngAfterViewInit() {
+        this.table$.next(this.table);
     }
 
     public rowSelected(event) {
+        this.employeeID ?
+        this.selectedSalarybalance.emit(event.rowModel) : 
         this._router.navigateByUrl('/salary/salarybalances/' + event.rowModel.ID);
     }
 
     public createSalarybalance() {
-        this._router.navigateByUrl('/salary/salarybalances/0');
+        if (this.employeeID) {
+            this._salarybalanceService.GetNewEntity()
+                .catch((err, obs) => this.errorService.handleRxCatch(err,obs))
+                .subscribe((salarybalance: SalaryBalance) => {
+                    let newSalarybalance = salarybalance;
+                    newSalarybalance.EmployeeID = this.empID;
+                    newSalarybalance['_createguid'] = this._salarybalanceService.getNewGuid();
+                    this.salarybalances.push(newSalarybalance);
+                    this.addAndFocusRow(newSalarybalance, this.salarybalances);
+                    this.selectedSalarybalance.emit(newSalarybalance)
+                });
+        }
+        else {
+            this._router.navigateByUrl('/salary/salarybalances/0');
+        }
     }
 
-    public setData(empID: number = this.empID) {
+    public loadData(empID: number = this.empID) {
         this._salarybalanceService
             .getAll(empID, ['Employee.BusinessRelationInfo'])
             .map(salaryBalances => this.sortList(salaryBalances))
+            .do(salarybalances => {
+                if (this.employeeID !== undefined)
+                    this.focusRow(empID);
+            })
+            .finally(() => this.busy = false)
             .subscribe((salarybalances: SalaryBalance[]) => {
                 this.salarybalances = salarybalances;
+                if (this.employeeID) {
+                    let salbal: SalaryBalance = new SalaryBalance();
+                    salbal.EmployeeID = this.employeeID;
+                    if (this.salarybalances.length > 0) {
+                        salbal = this.salarybalances[0];
+                    }
+                    this.selectedSalarybalance.emit(salbal);
+                }
             });
     }
 
+    private focusRow(salarybalanceID: number) {
+        if (isNaN(salarybalanceID)) {
+            salarybalanceID = undefined;
+        }
+
+        if (this.selectedIndex === undefined && this.salarybalances.length) {
+
+            let focusIndex = this.salarybalances
+                .findIndex(salarybalance => 
+                    salarybalanceID !== undefined
+                    ? salarybalance.ID === salarybalanceID
+                    : false);
+
+            if (focusIndex === -1) {
+                focusIndex = 0;
+            }
+
+            if (this.table) {
+                this.table.focusRow(focusIndex);
+            }
+        }
+    }
+
+    private addAndFocusRow(salarybalance: SalaryBalance, salarybalances: SalaryBalance[]) {
+        this.table$
+        .asObservable()
+        .filter(table => !!table)
+        .take(1)
+        .subscribe(table => {
+            if (table.getTableData().length !== salarybalances.length) {
+                table.addRow(salarybalance);
+            }
+            table.focusRow(salarybalances.length - 1);
+        });
+    }
+
     private createConfig() {
+        let activeColumns: UniTableColumn[] = [];
+
         const idCol = new UniTableColumn('ID', 'Nr', UniTableColumnType.Number);
         idCol.setWidth('5rem');
 
-        const nameCol = new UniTableColumn('Name', 'Navn', UniTableColumnType.Text)
+        const nameCol = new UniTableColumn('Name', 'Navn', UniTableColumnType.Text);
         const employeeCol = new UniTableColumn('Employee', 'Ansatt', UniTableColumnType.Text)
             .setWidth('15rem')
             .setTemplate((rowModel: SalaryBalance) => {
@@ -80,7 +170,7 @@ export class SalarybalanceList implements OnInit {
 
         const typeCol = new UniTableColumn('InstalmentType', 'Type')
             .setTemplate((salarybalance: SalaryBalance) => {
-                return this._salarybalanceService.getInstalment(salarybalance).Name;
+                return salarybalance.InstalmentType ? this._salarybalanceService.getInstalment(salarybalance).Name : '';
             }).setWidth('7rem');
 
         const balanceCol = new UniTableColumn('CalculatedBalance', 'Saldo', UniTableColumnType.Text)
@@ -91,8 +181,12 @@ export class SalarybalanceList implements OnInit {
                     : '')
             .setWidth('14rem');
 
+        this.employeeID ?
+            activeColumns = [idCol, typeCol, balanceCol] :
+            activeColumns = [idCol, nameCol, employeeCol, typeCol, balanceCol];
+        
         this.tableConfig = new UniTableConfig('salary.salarybalance.list', false, true, 15)
-            .setColumns([idCol, nameCol, employeeCol, typeCol, balanceCol])
+            .setColumns(activeColumns)
             .setSearchable(true);
     }
 

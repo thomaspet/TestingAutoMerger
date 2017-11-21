@@ -23,7 +23,6 @@ export class UniInit {
         localStorage.setItem('marketingContent_hidden', JSON.stringify(this.marketingContentHidden));
         this.registrationFormExpanded = false;
     }
-
     public onRegisterClick() {
         window.open('https://www.unimicro.no/kontakt', '_blank');
     }

@@ -30,7 +30,7 @@ export class TofDeliveryForm {
     @Output() public entityChange: EventEmitter<any> = new EventEmitter();
 
     private model$: BehaviorSubject<any> = new BehaviorSubject({});
-    private formConfig$: BehaviorSubject<any> = new BehaviorSubject({});
+    public formConfig$: BehaviorSubject<any> = new BehaviorSubject({});
     private fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
 
     constructor(

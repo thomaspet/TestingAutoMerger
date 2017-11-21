@@ -55,5 +55,67 @@
                 "ExecuteWithoutSelection": true
             }
         ]
+    },
+    {
+        "Name": "Delinger",
+        "Code": "sharing_list",
+        "Type": "Table",
+        "IsTopLevelTicker": false,
+        "Group": "Salg",
+        "Model": "Sharing",
+        "Joins": "Sharing.CreatedBy eq User.GlobalIdentity",
+        "OrderBy": "ID DESC",
+        "Columns": [
+            {
+                "Header": "Dato",
+                "Field": "CreatedAt",
+                "Width": "120px",
+                "Type": "datetime"
+            },
+            {
+                "Header": "Deling",
+                "Field": "Type",
+                "Width": "100px"
+            },
+            {
+                "Header": "Delt av",
+                "Field": "User.DisplayName",
+                "Width": "150px"
+            },
+            {
+                "Header": "Tittel",
+                "Field": "Subject",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "Fra",
+                "Field": "From",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "Til",
+                "Field": "To"
+            },
+            {
+                "Header": "Melding",
+                "Field": "ExternalMessage"
+            },
+            {
+                "Header": "Ekstern refereanse",
+                "Field": "ExternalReference",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "Forløp",
+                "Field": "StatusCode",
+                "Alias": "ShareStatus",
+                "Format": "SharingStatus"
+            }
+        ],
+        "ParentFilter": {
+            "Field": "EntityID",
+            "Operator": "eq",
+            "Value": "ID"
+        }
     }
 ]

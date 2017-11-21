@@ -15,9 +15,8 @@ import {
 type ModalConfig = {
     report: any,
     title: string,
-    actions: { text: string, class?: string, method: (any) => void }[]
+    actions: { text: string, class?: string, method: (a: any) => void }[]
 };
-
 @Component({
     selector: 'vacation-pay-base-report-filter-modal-content',
     templateUrl: './vacationPayBaseReportFilterModal.html'
@@ -37,6 +36,8 @@ export class VacationPayBaseReportFilterModalContent implements OnInit {
         this.fields$.next(this.getLayout(this.config.report.parameters));
         let subscription = this.yearService
             .selectedYear$
+            .asObservable()
+            .filter(year => !!year)
             .finally(() => subscription.unsubscribe())
             .subscribe(year => {
                 this.model$.next({ Yer: year - 1 });

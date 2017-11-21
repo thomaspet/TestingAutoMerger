@@ -21,7 +21,7 @@ export class PredefinedDescriptionList {
     private table: UniTable;
 
     private hasUnsavedChanges: boolean;
-    private predefinedDescriptionTypes: Array<any> =  [ {ID: 1, Name: 'Bilagsføring'} ];
+    public predefinedDescriptionTypes: Array<any> =  [ {ID: 1, Name: 'Bilagsføring'} ];
     private predefinedDescriptions: PredefinedDescription [] = [];
     private selectedType: number = 0;
     private predefinedDescriptionTypeTableConfig: UniTableConfig;

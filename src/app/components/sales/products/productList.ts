@@ -81,7 +81,9 @@ export class ProductList {
             .setIsSumColumn(true)
             .setCls('column-align-right');
 
-        let departmentCol = new UniTableColumn('Dimensions.Department.DepartmentNumber', 'Avdeling', UniTableColumnType.Text)
+        let departmentCol = new UniTableColumn(
+            'Dimensions.Department.DepartmentNumber', 'Avdeling', UniTableColumnType.Text
+        )
             .setWidth('15%')
             .setFilterOperator('contains')
             .setTemplate((data: Product) => {

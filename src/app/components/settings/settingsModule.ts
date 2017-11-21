@@ -10,12 +10,14 @@ import {settingsRoutes} from './settingsRoutes';
 import {Settings} from './settings';
 
 import {AgaAndSubEntitySettings} from './agaAndSubEntitySettings/agaAndSubEntitySettings';
-import {SubEntitySettingsService} from './agaAndSubEntitySettings/services/subEntitySettingsService'
+import {SubEntitySettingsService} from './agaAndSubEntitySettings/services/subEntitySettingsService';
 import {SubEntityDetails} from './agaAndSubEntitySettings/subEntityDetails';
 import {SubEntityList} from './agaAndSubEntitySettings/subEntityList';
 import {AltinnSettings} from './altinnSettings/altinnSettings';
 import {CompanySettingsComponent} from './companySettings/companySettings';
 import {CompanySettingsViewService} from './companySettings/services/companySettingsViewService';
+import {ChangeCompanySettingsPeriodSeriesModal} from './companySettings/ChangeCompanyPeriodSeriesModal';
+
 import {Users} from './users/users';
 import {Teams} from './teams/teams';
 import {UserSettings} from './userSettings/userSettings';
@@ -35,11 +37,8 @@ import {RoleSelector} from './users/roleSelector';
         FormsModule,
         ReactiveFormsModule,
         HttpModule,
-
         RouterModule.forChild(settingsRoutes),
-
         UniFrameworkModule,
-
         CommonServicesModule,
         LayoutModule,
         AppCommonModule,
@@ -56,15 +55,16 @@ import {RoleSelector} from './users/roleSelector';
         UserSettings,
         NumberSeries,
         UniTerms,
-
         GrantModal,
         FreeAmountModal,
+        ChangeCompanySettingsPeriodSeriesModal,
         WebHookSettings,
         RoleSelector
     ],
     entryComponents: [
         GrantModal,
-        FreeAmountModal
+        FreeAmountModal,
+        ChangeCompanySettingsPeriodSeriesModal
     ],
     exports: [
         RouterModule,
@@ -78,7 +78,7 @@ import {RoleSelector} from './users/roleSelector';
         Users,
         UserSettings,
         UniTerms,
-
+        ChangeCompanySettingsPeriodSeriesModal,
         GrantModal,
         FreeAmountModal,
         RoleSelector

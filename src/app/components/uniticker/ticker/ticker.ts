@@ -14,6 +14,7 @@ import {Router, ActivatedRoute} from '@angular/router';
 import {
     Ticker,
     TickerAction,
+    TickerColumn,
     TickerFilter,
     IExpressionFilterValue,
     ITickerActionOverride,
@@ -26,6 +27,7 @@ import {
     UniTableColumnType,
     UniTableConfig
 } from '../../../../framework/ui/unitable/index';
+import {UniTableUtils} from '../../../../framework/ui/unitable/unitableUtils';
 import {StatisticsService, StatusService} from '../../../services/services';
 import {UniHttp} from '../../../../framework/core/http/http';
 import {ToastService, ToastType, ToastTime} from '../../../../framework/uniToast/toastService';
@@ -35,11 +37,21 @@ import {ImageModal} from '../../common/modals/ImageModal';
 import {BrowserStorageService} from '../../../services/common/browserStorageService';
 import {UniModalService} from '../../../../framework/uniModal/barrel';
 import {UniPreviewModal} from '../../reports/modals/preview/previewModal';
+import {GetPrintStatusText} from '../../../models/printStatus';
+import {SharingType, StatusCodeSharing} from '../../../unientities'
 
 import * as moment from 'moment';
 import {saveAs} from 'file-saver';
 
 const PAPERCLIP = '📎'; // It might look empty in your editor, but this is the unicode paperclip
+
+export var SharingTypeText = [
+    {ID: SharingType.AP, Title: 'Aksesspunkt'},
+    {ID: SharingType.Email, Title: 'Epost'},
+    {ID: SharingType.Export, Title: 'Eksport'},
+    {ID: SharingType.Print, Title: 'Utskrift'},
+    {ID: SharingType.Vipps, Title: 'Vipps'},
+];
 
 @Component({
     selector: 'uni-ticker',
@@ -64,6 +76,8 @@ export class UniTicker {
     private model: any;
 
     private selects: string;
+    private headers: string;
+    private defaultExpand: string;
     private tableConfig: UniTableConfig;
     private lookupFunction: (urlParams: URLSearchParams) => Observable<any>;
     private prefetchDataLoaded: boolean = false;
@@ -91,9 +105,9 @@ export class UniTicker {
         private reportDefinitionService: ReportDefinitionService,
         private storageService: BrowserStorageService,
         private cdr: ChangeDetectorRef,
-        private modalService: UniModalService
+        private modalService: UniModalService,
+        private utils: UniTableUtils
     ) {
-
         this.statusService
             .loadStatusCache()
             .then(() => {
@@ -102,16 +116,16 @@ export class UniTicker {
             });
 
         this.lookupFunction = (urlParams: URLSearchParams) => {
-                let params = this.getSearchParams(urlParams);
-                if (this.ticker.Model) {
-                    return this.statisticsService
-                        .GetAllByUrlSearchParams(params)
-                        .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
-                } else if (this.ticker.ApiUrl) {
-                    return this.http
-                        .get(this.ticker.ApiUrl);
-                }
-            };
+            let params = this.getSearchParams(urlParams);
+            if (this.ticker.Model) {
+                return this.statisticsService
+                    .GetAllByUrlSearchParams(params)
+                    .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
+            } else if (this.ticker.ApiUrl) {
+                return this.http
+                    .get(this.ticker.ApiUrl);
+            }
+        };
     }
 
     public ngOnChanges(changes: SimpleChanges) {
@@ -151,6 +165,10 @@ export class UniTicker {
             this.openAction = actions && actions.find(action => {
                 return action.Type === 'details' && action.ExecuteWithoutSelection;
             });
+
+            // locally store the default expand from .json to revert to it when user changes column setup
+            this.defaultExpand = this.ticker.Expand;
+            this.headers = '';
 
             // run this even if it is not a table, because it prepares the query as well.
             // Consider splitting this function to avoid this later
@@ -353,6 +371,23 @@ export class UniTicker {
         this.unitableFilter = filterChangeEvent.filter;
     }
 
+    private onColumnsChange(columnsChangeEvent) {
+        this.ticker.Expand = this.defaultExpand;
+        this.setupTableConfig();
+
+        this.lookupFunction = (urlParams: URLSearchParams) => {
+            let params = this.getSearchParams(urlParams);
+            if (this.ticker.Model) {
+                return this.statisticsService
+                    .GetAllByUrlSearchParams(params)
+                    .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
+            } else if (this.ticker.ApiUrl) {
+                return this.http
+                    .get(this.ticker.ApiUrl);
+            }
+        };
+    }
+
     public onExecuteAction(action: TickerAction) {
         let selectedRows = [];
         if (this.unitable) {
@@ -512,6 +547,10 @@ export class UniTicker {
         return text || (statusCode ? statusCode.toString() : '');
     }
 
+    private sharingTypeToText(type: SharingType): string {
+        return SharingTypeText.find(sharingType => sharingType.ID === type).Title || '';
+    }
+
     private getFilterText() {
         if (this.selectedFilter) {
             if (this.selectedFilter.FilterGroups && this.selectedFilter.FilterGroups.length > 0) {
@@ -551,26 +590,48 @@ export class UniTicker {
                     });
                 }
 
+                // Define configStoreKey
+                const configStoreKey = `uniTicker.${this.ticker.Code}`;
+
                 // Define columns to use in the table
                 let columns: UniTableColumn[] = [];
                 let selects: string[] = [];
+                const customColumnSetup = this.utils.getColumnSetup(configStoreKey) || [];
 
                 for (let i = 0; i < this.ticker.Columns.length; i++) {
-                    let field = this.ticker.Columns[i];
+                    const column = this.ticker.Columns[i];
 
-                    selects.push(field.SelectableFieldName + ' as ' + field.Alias);
+                    // If field/column is hidden in the table, don't expand it
+                    const tableColumn = customColumnSetup.find(customField => {
+                        return customField.field === column.SelectableFieldName;
+                    });
+                    if (this.shouldAddColumnToQuery(column, tableColumn)) {
+                        // Set the expand needed for selected columns
+                        this.setExpand(column);
 
-                    if (field.SubFields) {
-                        field.SubFields.forEach(subField => {
-                            selects.push(subField.SelectableFieldName + ' as ' + subField.Alias);
-                        });
+                        selects.push(column.SelectableFieldName + ' as ' + column.Alias);
+
+                        if (column.SubFields) {
+                            column.SubFields.forEach(subColumn => {
+                                if (this.shouldAddColumnToQuery(subColumn, tableColumn)) {
+                                    this.setExpand(subColumn);
+                                    selects.push(subColumn.SelectableFieldName + ' as ' + subColumn.Alias);
+                                }
+                            });
+                        }
+
+                        if (!this.headers || this.headers === '') {
+                            this.headers = column.Header;
+                        } else {
+                            this.headers = this.headers.concat(',', column.Header);
+                        }
                     }
 
-                    if (field.Type !== 'dontdisplay') {
+                    if (column.Type !== 'dontdisplay') {
                         let colType = UniTableColumnType.Text;
 
-                        if (field.Type !== '') {
-                            switch (field.Type) {
+                        if (column.Type !== '') {
+                            switch (column.Type) {
                                 case 'number':
                                     colType = UniTableColumnType.Number;
                                     break;
@@ -593,45 +654,54 @@ export class UniTicker {
                             }
                         }
 
-                        let col = new UniTableColumn(field.SelectableFieldName, field.Header, colType);
-                        col.alias = field.Alias;
-                        col.width = field.Width;
-                        col.isSumColumn = field.SumColumn;
-                        col.sumFunction = field.SumFunction;
+                        let col = new UniTableColumn(column.SelectableFieldName, column.Header, colType);
+                        col.alias = column.Alias;
+                        col.width = column.Width;
+                        col.isSumColumn = column.SumColumn;
+                        col.sumFunction = column.SumFunction;
 
-                        if (field.Type === 'link') {
+                        if (column.Type === 'link') {
                             col.headerCls = 'ticker-link-col';
                         }
 
-                        if (field.CssClass) {
-                            col.cls = field.CssClass;
+                        if (column.CssClass) {
+                            col.cls = column.CssClass;
                         }
 
-                        let columnOverride = this.columnOverrides.find(x => x.Field === field.Field);
+                        let columnOverride = this.columnOverrides.find(x => x.Field === column.Field);
                         if (columnOverride) {
                             col.setTemplate(row => {
                                 // use the tickerservice to get and format value based on override template
-                                return this.uniTickerService.getFieldValue(field, row, this.ticker, this.columnOverrides);
+                                return this.uniTickerService
+                                    .getFieldValue(column, row, this.ticker, this.columnOverrides);
                             });
                         } else {
                             // set up templates based on rules for e.g. fieldname
-                            if (field.SelectableFieldName.toLowerCase().endsWith('statuscode')) {
-                                col.template = (rowModel) => this.statusCodeToText(rowModel[field.Alias]);
+                            if (column.SelectableFieldName.toLowerCase().endsWith('statuscode')) {
+                                col.template = (rowModel) => this.statusCodeToText(rowModel[column.Alias]);
+                            }
+
+                            if (column.SelectableFieldName.toLowerCase().endsWith('printstatus')) {
+                                col.template = (rowModel) => GetPrintStatusText(rowModel[column.Alias]);
+                            }
+
+                            if (column.SelectableFieldName.toLocaleLowerCase().endsWith('sharing.type')) {
+                                col.template = (rowModel) => this.sharingTypeToText(rowModel[column.Alias]);
                             }
                         }
 
-                        if (field.Type === 'external-link') {
+                        if (column.Type === 'external-link') {
                             col.setTemplate(row => {
                                 if (row[col.alias] && row[col.alias] !== '') {
                                     return `<a href="${row[col.alias]}" target="_blank">${row[col.alias]}</a>`;
                                 }
                                 return '';
                             });
-                        } else if (field.Type === 'attachment') {
+                        } else if (column.Type === 'attachment') {
                             col.setTemplate(line => line.Attachments ? PAPERCLIP : '');
                             col.setOnCellClick(row => {
                                 if (row.Attachments) {
-                                    const entity = field.ExternalModel ? field.ExternalModel : this.ticker.Model;
+                                    const entity = column.ExternalModel ? column.ExternalModel : this.ticker.Model;
                                     let data = {
                                         entity: entity,
                                         entityID: row.JournalEntryID
@@ -642,28 +712,42 @@ export class UniTicker {
                             });
                         }
 
-                        if (field.Type === 'link' || field.Type === 'mailto' || (field.SubFields && field.SubFields.length > 0)) {
-                            col.setTemplate(row => {
-                                // use the tickerservice to get and format value and subfield values
-                                return this.uniTickerService.getFieldValue(field, row, this.ticker, this.columnOverrides);
-                            });
+                        if (column.Type === 'link' || column.Type === 'mailto'
+                            || (column.SubFields && column.SubFields.length > 0)) {
+                                col.setTemplate(row => {
+                                    // use the tickerservice to get and format value and subfield values
+                                    return this.uniTickerService
+                                        .getFieldValue(column, row, this.ticker, this.columnOverrides);
+                                });
                         }
 
-                        if (field.Format && field.Format !== '') {
-                            // TODO Sett opp flere fornuftige ferdigformater her - f.eks. "NumberPositiveNegative", etc
-                            switch (field.Format) {
+                        if (column.Format && column.Format !== '') {
+                            // TODO Sett opp flere fornuftige ferdigformater her - f.eks. "NumberPositiveNegative" etc
+                            switch (column.Format) {
                                 case 'NumberPositiveNegative':
-                                    col.setConditionalCls(row => row[field.Alias] >= 0 ?
+                                    col.setConditionalCls(row => row[column.Alias] >= 0 ?
                                         'number-good'
                                         : 'number-bad'
                                     );
                                     break;
                                 case 'DatePassed':
                                     col.setConditionalCls(row => {
-                                        return moment(row[field.Alias]).isBefore(moment())
+                                        return moment(row[column.Alias]).isBefore(moment())
                                             ? 'date-bad'
                                             : 'date-good';
                                     });
+                                    break;
+                                case 'SharingStatus':
+                                    col.setConditionalCls(row => {
+                                        switch (row[column.Alias]) {
+                                            case StatusCodeSharing.Completed:
+                                                return 'status-good';
+                                            case StatusCodeSharing.Failed:
+                                                return 'status-bad';
+                                            case StatusCodeSharing.InProgress:
+                                                return 'status-waiting';
+                                        }
+                                    })
                                     break;
                                 case 'json':
                                     col.setTemplate(row => JSON.stringify(row));
@@ -671,17 +755,18 @@ export class UniTicker {
                             }
                         }
 
-                        if (field.DefaultHidden) {
+                        if (column.DefaultHidden) {
                             col.setVisible(false);
                         }
 
-                        if(field.FilterOperator === 'startswith' || field.FilterOperator === 'eq' || field.FilterOperator ==='contains') {
-                            col.setFilterOperator(field.FilterOperator);
+                        if (column.FilterOperator === 'startswith' || column.FilterOperator === 'eq'
+                            || column.FilterOperator === 'contains') {
+                                col.setFilterOperator(column.FilterOperator);
                         } else {
                             col.filterable = false;
                         }
 
-                        if (field.SelectableFieldName.toLowerCase().endsWith('statuscode')) {
+                        if (column.SelectableFieldName.toLowerCase().endsWith('statuscode')) {
                             let statusCodes = this.statusService.getStatusCodesForEntity(this.ticker.Model);
                             if (statusCodes && statusCodes.length > 0) {
                                 col.selectConfig = {
@@ -814,7 +899,6 @@ export class UniTicker {
                 }
 
                 // Setup table
-                const configStoreKey = `uniTicker.${this.ticker.Code}`;
                 this.tableConfig = new UniTableConfig(configStoreKey, false, true, 20)
                     .setColumns(columns)
                     .setEntityType(this.ticker.Model)
@@ -829,7 +913,8 @@ export class UniTicker {
                             let tmp = data !== null ? data.Data : [];
 
                             if (data !== null && data.Message !== null && data.Message !== '') {
-                                this.toastService.addToast('Feil ved henting av data, ' + data.Message, ToastType.bad);
+                                this.toastService.addToast('Feil ved henting av data, ' + data.Message,
+                                    ToastType.bad);
                             }
 
                             return tmp;
@@ -840,14 +925,107 @@ export class UniTicker {
 
                             return data;
                         }
+                    })
+                    .setIsRowReadOnly(row => {
+                        if (!this.ticker.ReadOnlyCases) {
+                            return false;
+                        }
+                        return this.ticker.ReadOnlyCases
+                            .some(readOnlyField => row[readOnlyField.Key] === readOnlyField.Value);
                     });
         });
+    }
+
+    private shouldAddColumnToQuery(column: TickerColumn, userColumnSetup: UniTableColumn): boolean {
+        if (column.Field === 'ID' || column.Field === 'StatusCode') {
+            return true;
+        }
+        if (userColumnSetup) {
+            return userColumnSetup.visible;
+        }
+        return !column.DefaultHidden;
+    }
+
+    private setExpand(column: TickerColumn) {
+        let field = column.Field;
+
+        if (!field) {
+            return;
+        }
+
+        // if field is a function with fields as params, run through all its fields
+        if (field.includes('(')) {
+            let fields = field.slice(field.lastIndexOf('(') + 1, field.indexOf(')') - 1).split(',');
+            fields.forEach(x => {
+                column.Field = x;
+                this.setExpand(column);
+            });
+            return;
+        }
+
+        // if field includes '.' it needs to expand something
+        if (field.includes('.')) {
+            const fieldSplit = field.split('.');
+            this.ticker.Expand = this.ticker.Expand || '';
+            let expandField = '';
+
+            // if field is nested/has parents, expand all parents too
+            for (let k = 0; k < fieldSplit.length - 1; k++) {
+                if (k === 0) {
+                    // if first part of field is the model name, don't expand it
+                    if (fieldSplit[k] === this.ticker.Model) {
+                        k++;
+                        if (fieldSplit.length < 3) {
+                            return;
+                        }
+                    }
+                    expandField = expandField.concat(fieldSplit[k]);
+                } else {
+                    expandField = expandField.concat('.', fieldSplit[k]);
+                }
+
+                // check if column has an own expand that should override parent's expand
+                if (column.Expand) {
+                    expandField = column.Expand;
+                }
+
+                // if field uses a join, don't expand
+                if (this.ticker.Joins && this.ticker.Joins.includes(expandField)) {
+                    return;
+                }
+
+                // check if the expand field don't already exists in ticker.expand
+                if (!this.ticker.Expand.includes(expandField)) {
+                    if (!this.ticker.Expand || this.ticker.Expand === '') {
+                        this.ticker.Expand = expandField;
+                    } else {
+                        this.ticker.Expand = this.ticker.Expand.concat(',', expandField);
+                    }
+                }
+            }
+        }
     }
 
     // this function assumes that the unitablesetup has already been run, so that all needed
     // fields are already initialized and configured correctly
     public exportToExcel(completeEvent) {
-        let headers = this.ticker.Columns.map(x => x.Header !== PAPERCLIP ? x.Header : 'Vedlegg').join(',');
+        // Remove ID and CustomerID from select if they exist, so it doesn't create columns for them
+        let selectSplit = this.selects.split(',');
+
+        const idIndex = selectSplit.indexOf('ID as ID');
+        if (idIndex >= 0) {
+            selectSplit.splice(idIndex, 1);
+        }
+
+        const customerIDIndex = selectSplit.indexOf('Customer.ID as CustomerID');
+        if (customerIDIndex >= 0) {
+            selectSplit.splice(customerIDIndex, 1);
+        }
+
+        this.selects = selectSplit.join(',');
+
+        this.headers = this.headers
+            || this.ticker.Columns.map(x => x.Header !== PAPERCLIP ? x.Header : 'Vedlegg').join(',');
 
         // use both predefined filters and additional unitable filters if applicable
         let params = new URLSearchParams();
@@ -859,12 +1037,13 @@ export class UniTicker {
         console.log('filter:', params.get('filter'));
         // execute request to create Excel file
         this.statisticsService
-            .GetExportedExcelFile(this.ticker.Model, this.selects, params.get('filter'), this.ticker.Expand, headers, this.ticker.Joins)
-                .subscribe((blob) => {
-                    // download file so the user can open it
-                    saveAs(blob, 'export.xlsx');
-                },
-                err => this.errorService.handle(err));
+            .GetExportedExcelFile(this.ticker.Model, this.selects, params.get('filter'),
+                this.ticker.Expand, this.headers, this.ticker.Joins)
+                    .subscribe((blob) => {
+                        // download file so the user can open it
+                        saveAs(blob, 'export.xlsx');
+                    },
+                    err => this.errorService.handle(err));
 
         completeEvent('Eksport kjørt');
     }

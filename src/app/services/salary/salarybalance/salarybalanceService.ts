@@ -41,6 +41,58 @@ export class SalarybalanceService extends BizHttp<SalaryBalance> {
         this.entityType = SalaryBalance.EntityType;
     }
 
+    private getName(salarybalance: SalaryBalance): string {
+        let standardName = this.standardNames.find(x => x.Type === salarybalance.InstalmentType);
+        if (standardName) {
+            return standardName.Name;
+        } else {
+            return this.instalmentTypes.find(x => x.ID === salarybalance.InstalmentType).Name;
+        }
+    }
+
+    private getHelpText(colname: string) {
+        let helpText: string = '';
+        switch (colname.toLowerCase()) {
+            case 'instalmenttype':
+                helpText = 'Velg hvilken type trekk du skal legge inn her.  Feltene under vil forandre seg for å tilpasse seg behov for det enkelte trekk.  Er det et trekk som ikke passer inn i forhåndsdefinerte valg, så bruk valget Andre. Feltet låses for redigering når lagret';
+                break;
+            case 'name':
+                helpText = 'Teksten i dette feltet vises på lønnsavregning, rapporter og lønnsslipp';
+                break;
+            case 'wagetypenumber':
+                helpText = 'Hentes automatisk lønnsart som samsvarer me type som er valgt.  Er det blankt så må det fylles ut med lønnsart.  Lønnsarten bestemmer hvordan trekket skal håndteres på lønnsavregning.  Feltet er påkrevd for å få et trekk til å fungere. Feltet låses for redigering når lagret.';
+                break;
+            case 'fromdate':
+                helpText = 'Bestemmer når trekket blir med på lønnsavregning.  Så lenge startdato er innenfor perioden som lønnsavregning, blir den med med et trekk for en periode.  Datoen tar ikke hensyn til datoen i måneden og vil ikke avkorte trekket hvis trekket har startdato midt i perioden som det avregnes lønn for.  Datoen kan også brukes til å stoppe trekket for en periode.  Da settes startdato lik startdato i den lønnsavregningen en ønsker at neste avdrag skal være med i.';
+                break;
+            case 'todate':
+                helpText = 'Her kan eg stoppe et trekk for en periode eller totalt, uten at saldo blir endret.  Saldo vil stå på den ansatte som saldo inntil trekket startes igjen eller til trekket avsluttes med manuell føring.';
+                break;
+            case 'amount':
+                helpText = 'Her legges det inn beløpet som skal utbetales hvis det er ett forskudd, saldo på påleggstrekk. Når avdragene som er trukket når saldo, stoppes trekket automatisk.  Er det ingen saldo på trekket, så trekkes det inntil det stoppes med dato. Feltet låses for redigering når lagret.';
+                break;
+            case 'instalment':
+                helpText = 'Her legges en inn avdrag pr lønnsavregning som fast beløp. Feltet låses for redigering når lagret.';
+                break;
+            case 'instalmentpercent':
+                helpText = 'Er trekket et prosenttrekk legges prosenten for trekket inn her.  Feltet låses for redigering når lagret.';
+                break;
+            case 'supplierid':
+                helpText = 'Koble mot leverandør for automatisk remittering av trekk når lønnsutbetaling sendes bank.  Kontonr og anna betalingsinfo hentes fra leverandør';
+                break;
+            case 'kid':
+                helpText = 'For trekk som må ha kidnr ved betaling, legges kidnr inn som en fast opplysing her. ';
+                break;
+            case 'createpayment':
+                helpText = 'Lag utbetalingspost til leverandør ved utbetaling av lønnsavregning';
+                break;
+            default:
+                break;
+        }
+
+        return helpText;
+    }
+
     public getInstalmentTypes() {
         return this.instalmentTypes;
     }
@@ -124,15 +176,6 @@ export class SalarybalanceService extends BizHttp<SalaryBalance> {
             .map(response => response.json());
     }
 
-    private getName(salarybalance: SalaryBalance): string {
-        let standardName = this.standardNames.find(x => x.Type === salarybalance.InstalmentType);
-        if (standardName) {
-            return standardName.Name;
-        } else {
-            return this.instalmentTypes.find(x => x.ID === salarybalance.InstalmentType).Name;
-        }
-    }
-
     public hasBalance(salaryBalance: SalaryBalance): boolean {
         return salaryBalance.InstalmentType === SalBalType.Advance || salaryBalance.Type !== SalBalDrawType.FixedAmount;
     }
@@ -184,6 +227,7 @@ export class SalarybalanceService extends BizHttp<SalaryBalance> {
                         Property: 'InstalmentType',
                         FieldType: FieldType.DROPDOWN,
                         Label: 'Type',
+                        HelpText: this.getHelpText('instalmenttype'),
                         FieldSet: 0,
                         Section: 0,
                         Placement: 0,
@@ -200,6 +244,7 @@ export class SalarybalanceService extends BizHttp<SalaryBalance> {
                         Property: 'Name',
                         FieldType: FieldType.TEXT,
                         Label: 'Tekst til lønnspost',
+                        HelpText: this.getHelpText('name'),
                         FieldSet: 0,
                         Section: 0,
                         Placement: 1,
@@ -227,6 +272,7 @@ export class SalarybalanceService extends BizHttp<SalaryBalance> {
                         Property: 'WageTypeNumber',
                         FieldType: FieldType.AUTOCOMPLETE,
                         Label: 'Lønnsart',
+                        HelpText: this.getHelpText('wagetypenumber'),
                         FieldSet: 0,
                         Section: 0,
                         Placement: 3,
@@ -244,6 +290,7 @@ export class SalarybalanceService extends BizHttp<SalaryBalance> {
                         Property: 'FromDate',
                         FieldType: FieldType.LOCAL_DATE_PICKER,
                         Label: 'Fra dato',
+                        HelpText: this.getHelpText('fromdate'),
                         FieldSet: 0,
                         Section: 0,
                         Placement: 4
@@ -253,6 +300,7 @@ export class SalarybalanceService extends BizHttp<SalaryBalance> {
                         Property: 'ToDate',
                         FieldType: FieldType.LOCAL_DATE_PICKER,
                         Label: 'Til dato',
+                        HelpText: this.getHelpText('todate'),
                         FieldSet: 0,
                         Section: 0,
                         Placement: 5
@@ -262,6 +310,7 @@ export class SalarybalanceService extends BizHttp<SalaryBalance> {
                         Property: 'Amount',
                         FieldType: FieldType.NUMERIC,
                         Label: salaryBalance.InstalmentType === SalBalType.Advance ? 'Beløp' : 'Saldo',
+                        HelpText: this.getHelpText('amount'),
                         FieldSet: 0,
                         Section: 0,
                         Placement: 6,
@@ -276,6 +325,7 @@ export class SalarybalanceService extends BizHttp<SalaryBalance> {
                         Property: 'Instalment',
                         FieldType: FieldType.NUMERIC,
                         Label: 'Avdrag',
+                        HelpText: this.getHelpText('instalment'),
                         FieldSet: 0,
                         Section: 0,
                         Placement: 7,
@@ -290,6 +340,7 @@ export class SalarybalanceService extends BizHttp<SalaryBalance> {
                         Property: 'InstalmentPercent',
                         FieldType: FieldType.NUMERIC,
                         Label: 'Avdrag prosent',
+                        HelpText: this.getHelpText('instalmentpercent'),
                         FieldSet: 0,
                         Section: 0,
                         Placement: 8,
@@ -305,6 +356,7 @@ export class SalarybalanceService extends BizHttp<SalaryBalance> {
                         Property: 'SupplierID',
                         FieldType: FieldType.AUTOCOMPLETE,
                         Label: 'Leverandør',
+                        HelpText: this.getHelpText('supplierid'),
                         FieldSet: 0,
                         Section: 0,
                         Placement: 9,
@@ -322,6 +374,7 @@ export class SalarybalanceService extends BizHttp<SalaryBalance> {
                         Property: 'KID',
                         FieldType: FieldType.TEXT,
                         Label: 'Kid',
+                        HelpText: this.getHelpText('kid'),
                         FieldSet: 0,
                         Section: 0,
                         Placement: 10,
@@ -345,7 +398,7 @@ export class SalarybalanceService extends BizHttp<SalaryBalance> {
                         Property: 'CreatePayment',
                         FieldType: FieldType.CHECKBOX,
                         ReadOnly: true,
-                        HelpText: 'Lag utbetalingspost til leverandør ved utbetaling av lønnsavregning',
+                        HelpText: this.getHelpText('createpayment'),
                         Label: 'Lag utbetaling',
                         FieldSet: 0,
                         Section: 0,

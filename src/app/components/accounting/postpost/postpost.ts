@@ -1,6 +1,6 @@
 import {ViewChild, Component} from '@angular/core';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
-import {UniFieldLayout, FieldType} from '../../../../framework/ui/uniform/index';
+import {UniFieldLayout} from '../../../../framework/ui/uniform/index';
 import {UniTableColumn, UniTableColumnType, UniTableConfig, UniTable} from '../../../../framework/ui/unitable/index';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {UniModalService, ConfirmActions} from '../../../../framework/uniModal/barrel';
@@ -43,16 +43,16 @@ export class PostPost {
     private table: UniTable;
 
     @ViewChild(LedgerAccountReconciliation)
-    private postpost: LedgerAccountReconciliation
+    private postpost: LedgerAccountReconciliation;
 
-    //Save
+    // Save
     private shareActions: IShareAction[];
     private saveActions: IUniSaveAction[];
 
-    //Filter
+    // Filter
     private datefield: UniFieldLayout = new UniFieldLayout();
 
-    private registers = [
+    private registers: any[] = [
         {Register: 'customer', _DisplayName: 'Kunde'},
         {Register: 'supplier', _DisplayName: 'Leverandør'},
         {Register: 'account', _DisplayName: 'Hovedbok'}
@@ -65,18 +65,18 @@ export class PostPost {
         { label: 'Alle poster', name: 'ALL', isSelected: false }
     ];
 
-    //List table
+    // List table
     public accounts$: BehaviorSubject<any> = new BehaviorSubject(null);
     public accountsTableConfig: UniTableConfig;
 
-    //Detail view
+    // Detail view
     public pointInTime$: BehaviorSubject<LocalDate> = new BehaviorSubject(null);
     public customer$: BehaviorSubject<Customer> = new BehaviorSubject(null);
     public supplier$: BehaviorSubject<Supplier> = new BehaviorSubject(null);
     public account$: BehaviorSubject<Account> = new BehaviorSubject(null);
 
     private toolbarconfig: IToolbarConfig;
-    private accountSearch: IAutoCompleteConfig;
+    public accountSearch: IAutoCompleteConfig;
     private registerConfig: any;
     private register: string = 'customer';
     private selectedIndex: number = 0;
@@ -135,53 +135,54 @@ export class PostPost {
         }
     }
 
-    //Share actions
+    // Share actions
     private setupShareActions() {
         this.shareActions = [
             {
                 action: () => this.exportAccounts(),
                 disabled: () => false,
                 label: 'Eksport kontoliste'
-            },{
+            }, {
                 action: () => this.exportOpenPosts(),
                 disabled: () => false,
                 label: 'Eksport åpne poster'
             }
-        ]
+        ];
     }
 
-    //Save actions
+    // Save actions
 
     private setupSaveActions() {
-        this.saveActions =
-            [{
-            action: this.save.bind(this),
-            disabled: false,
-            label: 'Lagre',
-            main: this.autolocking && this.currentFilter !== 'MARKED' && !this.allSelectedLocked
-        },{
-            action: this.lock.bind(this),
-            disabled: false,
-            label: 'Lukk valgte',
-            main: !this.autolocking && this.currentFilter !== 'MARKED' && !this.allSelectedLocked
-        },{
-            action: this.unlock.bind(this),
-            disabled: false,
-            label: 'Gjenåpne valgte',
-            main: this.currentFilter === 'MARKED' || this.allSelectedLocked
-        },{
-            action: this.automark.bind(this),
-            disabled: false,
-            label: 'Automerk'
-        },{
-            action: this.cancel.bind(this),
-            disabled: false,
-            label: 'Angre'
-        },{
-            action: this.autolock.bind(this),
-            disabled: false,
-            label: this.autolocking ? 'Deaktiver autolukking' : 'Aktiver autolukking'
-        }];
+        this.saveActions = [
+            {
+                action: this.save.bind(this),
+                disabled: false,
+                label: 'Lagre',
+                main: this.autolocking && this.currentFilter !== 'MARKED' && !this.allSelectedLocked
+            }, {
+                action: this.lock.bind(this),
+                disabled: false,
+                label: 'Lukk valgte',
+                main: !this.autolocking && this.currentFilter !== 'MARKED' && !this.allSelectedLocked
+            }, {
+                action: this.unlock.bind(this),
+                disabled: false,
+                label: 'Gjenåpne valgte',
+                main: this.currentFilter === 'MARKED' || this.allSelectedLocked
+            }, {
+                action: this.automark.bind(this),
+                disabled: false,
+                label: 'Automerk'
+            }, {
+                action: this.cancel.bind(this),
+                disabled: false,
+                label: 'Angre'
+            }, {
+                action: this.autolock.bind(this),
+                disabled: false,
+                label: this.autolocking ? 'Deaktiver autolukking' : 'Aktiver autolukking'
+            }
+        ];
     }
 
     private autolock(done: (message: string) => void) {
@@ -226,8 +227,8 @@ export class PostPost {
                 };
                 list.push(row);
             });
-    
-            exportToFile(arrayToCsv(list), `OpenPostAccounts.csv`);            
+
+            exportToFile(arrayToCsv(list), `OpenPostAccounts.csv`);
         });
     }
 
@@ -237,15 +238,12 @@ export class PostPost {
         });
     }
 
-    //
-
     private setupFilter() {
         this.datefield.Property = 'PointInTime';
         this.datefield.Placeholder = 'Til og med dato';
     }
 
     private setupToolbarConfig() {
-        let r = this.registers.find(x => x.Register == this.register);
         this.toolbarconfig = {
             navigation: {
                 prev: this.previousAccount.bind(this),
@@ -258,9 +256,9 @@ export class PostPost {
     private setupRegisterConfig() {
         this.registerConfig = {
             items: this.registers,
-            selectedItem: this.registers.find(x => x.Register == this.register),
+            selectedItem: this.registers.find(x => x.Register === this.register),
             placeholder: 'Register'
-        }
+        };
     }
 
     private setTabTitle() {
@@ -284,7 +282,6 @@ export class PostPost {
     }
 
     public previousAccount() {
-        let accounts = this.accounts$.getValue();
         if (this.selectedIndex <= 0) {
             this.selectedIndex = 0;
             this.toastService.addToast('Warning', ToastType.warn, 0, 'Ikke flere kontoer før denne');
@@ -294,7 +291,7 @@ export class PostPost {
         }
     }
 
-    private onRowSelected(event) {
+    public onRowSelected(event) {
         if (this.canceled) {
             this.canceled = false;
             return;
@@ -324,19 +321,19 @@ export class PostPost {
         });
     }
 
-    private onPointInTimeChanged(model) {
+    public onPointInTimeChanged(model) {
         this.pointInTime$.next(model.PointInTime.currentValue);
     }
 
-    private onFilterClick(filter: IFilter, searchFilter?: string) {
-        this.showoptions.forEach(f => f.isSelected = f == filter);
+    public onFilterClick(filter: IFilter, searchFilter?: string) {
+        this.showoptions.forEach(f => f.isSelected = f === filter);
         this.postpost.showHideEntries(filter.name);
         this.currentFilter = filter.name;
         this.setupSaveActions();
         this.reloadRegister();
     }
 
-    private onAllSelectedLocked(allLocked) {
+    public onAllSelectedLocked(allLocked) {
         this.allSelectedLocked = allLocked;
         this.setupSaveActions();
     }
@@ -349,7 +346,8 @@ export class PostPost {
     private getStatusFilter(): string {
         switch (this.currentFilter) {
             case 'OPEN':
-                return ` and (StatusCode eq ${StatusCodeJournalEntryLine.Open} or StatusCode eq ${StatusCodeJournalEntryLine.PartlyMarked})`;
+                return ` and (StatusCode eq ${StatusCodeJournalEntryLine.Open} `
+                    + `or StatusCode eq ${StatusCodeJournalEntryLine.PartlyMarked})`;
             case 'MARKED':
                 return ` and StatusCode eq ${StatusCodeJournalEntryLine.Marked}`;
         }
@@ -360,7 +358,8 @@ export class PostPost {
     private loadCustomers() {
         this.statisticsService
             .GetAllUnwrapped(`model=JournalEntryLine&` +
-                             `select=Customer.ID as ID,Customer.CustomerNumber as AccountNumber,Info.Name as AccountName,sum(RestAmount) as SumAmount&` +
+                             `select=Customer.ID as ID,Customer.CustomerNumber as AccountNumber,` +
+                             `Info.Name as AccountName,sum(RestAmount) as SumAmount&` +
                              `expand=SubAccount,SubAccount.Customer,SubAccount.Customer.Info&` +
                              `filter=SubAccount.CustomerID gt 0 ${this.getStatusFilter()} ${this.getDateFilter()}&` +
                              `orderby=Customer.CustomerNumber`)
@@ -372,7 +371,8 @@ export class PostPost {
     private loadSuppliers() {
         this.statisticsService
             .GetAllUnwrapped(`model=JournalEntryLine&` +
-                             `select=Supplier.ID as ID,Supplier.SupplierNumber as AccountNumber,Info.Name as AccountName,sum(RestAmount) as SumAmount&` +
+                             `select=Supplier.ID as ID,Supplier.SupplierNumber as AccountNumber,` +
+                             `Info.Name as AccountName,sum(RestAmount) as SumAmount&` +
                              `expand=SubAccount,SubAccount.Supplier,SubAccount.Supplier.Info&` +
                              `filter=SubAccount.SupplierID gt 0 ${this.getStatusFilter()} ${this.getDateFilter()}&` +
                              `orderby=Supplier.SupplierNumber`)
@@ -384,7 +384,8 @@ export class PostPost {
     private loadAccounts() {
         this.statisticsService
             .GetAllUnwrapped(`model=JournalEntryLine&` +
-                             `select=Account.ID as ID,Account.AccountNumber as AccountNumber,Account.AccountName as AccountName,sum(RestAmount) as SumAmount&` +
+                             `select=Account.ID as ID,Account.AccountNumber as AccountNumber,` +
+                             `Account.AccountName as AccountName,sum(RestAmount) as SumAmount&` +
                              `expand=Account&` +
                              `filter=Account.UsePostPost eq 1 ${this.getStatusFilter()} ${this.getDateFilter()}&` +
                              `orderby=Account.AccountNumber`)
@@ -394,7 +395,7 @@ export class PostPost {
     }
 
     private reloadRegister() {
-        switch(this.register) {
+        switch (this.register) {
             case 'customer':
                 this.loadCustomers();
                 break;
@@ -404,10 +405,10 @@ export class PostPost {
             case 'account':
                 this.loadAccounts();
                 break;
-        };
+        }
     }
 
-    private changeRegister(register) {
+    public changeRegister(register) {
             this.register = register;
             switch (this.register) {
                 case 'customer':
@@ -428,11 +429,11 @@ export class PostPost {
             }
     }
 
-    private onFiltersChange(filter) {
+    public onFiltersChange(filter) {
         setTimeout(() => {
-            if (filter != '') {
+            if (filter !== '') {
                 let row = this.table.getTableData()[0];
-                if (this.table.getRowCount() === 1 && row._originalIndex != this.selectedIndex) {
+                if (this.table.getRowCount() === 1 && row._originalIndex !== this.selectedIndex) {
                     this.selectedIndex = row._originalIndex;
                     this.table.focusRow(this.selectedIndex);
                 }

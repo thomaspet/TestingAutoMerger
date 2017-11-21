@@ -1,10 +1,10 @@
 // angular
-import {Component, Input, ViewChild, OnInit, SimpleChanges} from '@angular/core';
+import {Component, Input, OnInit} from '@angular/core';
 
 // app
-import {UniSelect, ISelectConfig} from '../../../../../framework/ui/uniform/index';
-import {Transition, TransitionThreshold, Operator} from '../../../../unientities';
-import {ThresholdService, RoleService, ErrorService, ApiModelService, ApiModel} from '../../../../services/services';
+import {ISelectConfig} from '../../../../../framework/ui/uniform/index';
+import {TransitionThreshold, Operator} from '../../../../unientities';
+import {ThresholdService, RoleService, ErrorService, ApiModelService} from '../../../../services/services';
 
 @Component({
     selector: 'approval-threshold-rules',
@@ -123,7 +123,7 @@ export class ApprovalThresholdRules implements OnInit {
         );
     }
 
-    private onFieldSelect(event, item?: TransitionThreshold) {
+    public onFieldSelect(event, item?: TransitionThreshold) {
         if (item === undefined) {
             this.newThreshold.PropertyName = event;
         } else {
@@ -132,18 +132,18 @@ export class ApprovalThresholdRules implements OnInit {
         }
     }
 
-    private onOperatorSelect(event, item?: TransitionThreshold) {
+    public onOperatorSelect(event, item?: TransitionThreshold) {
         this.newThreshold.Operator = event.operator;
 
         if (item === undefined) {
-            this.newThreshold.Operator = event.operator;;
+            this.newThreshold.Operator = event.operator;
         } else {
             item.Operator = event.operator;
             this.onModifyRule(item);
         }
     }
 
-    private onApproverSelect(event, item?: TransitionThreshold) {
+    public onApproverSelect(event, item?: TransitionThreshold) {
         this.newThreshold.SharedRoleId = event.ID;
 
         if (item === undefined) {
@@ -161,7 +161,7 @@ export class ApprovalThresholdRules implements OnInit {
         );
     }
 
-    private onAddRule() {
+    public onAddRule() {
         this.newThreshold.SharedApproveTransitionId = this.selectedTransition.ID;
 
         this.thresholdService.Post(this.newThreshold).subscribe(
@@ -173,7 +173,7 @@ export class ApprovalThresholdRules implements OnInit {
         );
     }
 
-    private onDeleteRule(threshold: TransitionThreshold) {
+    public onDeleteRule(threshold: TransitionThreshold) {
         this.thresholdService.Remove(threshold.ID, threshold).subscribe(
             x => {
                 this.initThresholds();
@@ -182,19 +182,19 @@ export class ApprovalThresholdRules implements OnInit {
         );
     }
 
-    private getField(threshold: TransitionThreshold): string {
+    public getField(threshold: TransitionThreshold): string {
         return threshold.PropertyName;
     }
 
-    private getOperator(threshold: TransitionThreshold): any {
+    public getOperator(threshold: TransitionThreshold): any {
         return this.operators.filter(o => o.operator === threshold.Operator)[0];
     }
 
-    private getApprover(threshold: TransitionThreshold): any {
+    public getApprover(threshold: TransitionThreshold): any {
         return this.approvers.filter(a => a.ID === threshold.SharedRoleId)[0];
     }
 
-    private isValid(): boolean {
+    public isValid(): boolean {
         return this.isValidField() && this.isValidOperator() && this.isValidValue() && this.isValidApprover();
     }
 

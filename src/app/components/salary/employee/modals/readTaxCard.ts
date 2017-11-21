@@ -31,7 +31,9 @@ export class ReadTaxCard implements OnInit {
         private modalService: UniModalService
     ) {
 
-        let dateSendtColumn = new UniTableColumn('TimeStamp', 'Dato sendt', UniTableColumnType.LocalDate).setFormat('DD.MM.YYYY HH:mm');
+        let dateSendtColumn = new UniTableColumn(
+            'TimeStamp', 'Dato sendt', UniTableColumnType.LocalDate).setFormat('DD.MM.YYYY HH:mm'
+        );
         let receiptIDColumn = new UniTableColumn('ReceiptID', 'ID', UniTableColumnType.Number);
         let signatureColumn = new UniTableColumn('UserSign', 'Signatur', UniTableColumnType.Text);
         let isReadColumn = new UniTableColumn('HasBeenRegistered', 'Innlest', UniTableColumnType.Text)
@@ -83,6 +85,7 @@ export class ReadTaxCard implements OnInit {
     }
 
     public getReceipts() {
+        this._altinnReceiptService.invalidateCache();
         this.altinnReceipts$ = this._altinnReceiptService.GetAll(`orderby=ID DESC&filter=Form eq 'RF-1211'`)
             .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
     }

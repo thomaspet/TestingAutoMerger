@@ -14,7 +14,7 @@ const VERSION_DATE_FORMAT = 'DD.MM.YYYY HH:mm';
     templateUrl: './versionsView.html'
 })
 export class UniVersionsView {
-    private frontend = {
+    public frontend: any = {
         fullVersion: APP_VERSION,
         minVersion: APP_VERSION.substr(0, 6),
         buildDate: moment(APP_BUILD_DATE).format(VERSION_DATE_FORMAT),
@@ -24,7 +24,7 @@ export class UniVersionsView {
         minVersion: string
         buildDate: string
     };
-    private toolbarConfig: IToolbarConfig = {title: 'Versjoner'};
+    public toolbarConfig: IToolbarConfig = {title: 'Versjoner'};
 
 
     constructor(

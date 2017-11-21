@@ -1,15 +1,14 @@
 salarybalance-details
 	fieldset
-		width: calc(50% - 4rem)
+		width: calc(50% - 1rem)
 		float: right
 		&:first-of-type
 			float: left
 		label span
-			width: 9rem
+			width: 12rem
 
 		label span+*
-			width: calc(100% - 9rem)
-
+			width: calc(100% - 12rem)
 	uni-field
 		max-width: 100%
 
@@ -20,3 +19,28 @@ salarybalance-details
 
 .salaryBalanceSummaryTable
     max-width: 50rem
+
+employee-salarybalance
+	.splitview_detail
+		fieldset
+			width: 100%
+			float: right
+		&:first-of-type
+			float: left
+		label span
+			width: 12rem
+
+		label span+*
+			width: calc(100% - 12rem)
+
+		legend
+			padding: 0
+			background: $uni-color-toolbar
+
+	uni-field
+		max-width: 100%
+
+	uni-form,
+	article.collapsable
+		display: block
+		margin: 0 .25rem

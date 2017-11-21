@@ -5,7 +5,7 @@ import {Component} from '@angular/core';
     templateUrl: './accountingreports.html'
 })
 export class AccountingReports {
-    private childRoutes = [
+    public childRoutes: Object[] = [
             { name: 'Resultat', path: '/accounting/accountingreports/result' },
             { name: 'Balanse', path: '/accounting/accountingreports/balance' }/*,
             //KE: Wait with these, need input from BA - but should be easy to implement

@@ -16,7 +16,6 @@ import {
     SellerLink,
     StatusCodeCustomerQuote,
     Terms,
-    NumberSeriesTask,
     NumberSeries
 } from '../../../../unientities';
 
@@ -48,7 +47,7 @@ import {
 } from '../../../../../framework/uniModal/barrel';
 import {IContextMenuItem} from '../../../../../framework/ui/unitable/index';
 import {IUniSaveAction} from '../../../../../framework/save/save';
-import {ToastService, ToastTime, ToastType} from '../../../../../framework/uniToast/toastService';
+import {ToastService, ToastType} from '../../../../../framework/uniToast/toastService';
 
 import {GetPrintStatusText} from '../../../../models/printStatus';
 import {SendEmail} from '../../../../models/sendEmail';
@@ -63,6 +62,7 @@ import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService
 
 import {TofHead} from '../../common/tofHead';
 import {TradeItemTable} from '../../common/tradeItemTable';
+import {UniTofSelectModal} from '../../common/tofSelectModal';
 
 import {StatusCode} from '../../salesHelper/salesEnums';
 import {TofHelper} from '../../salesHelper/tofHelper';
@@ -109,8 +109,8 @@ export class QuoteDetails {
     private contextMenuItems: IContextMenuItem[] = [];
     public summary: ISummaryConfig[] = [];
 
-    private selectedNumberSeries: NumberSeries;
-    private selectedNumberSeriesTaskID: number;
+    public selectedNumberSeries: NumberSeries;
+    public selectedNumberSeriesTaskID: number;
     private selectConfig: any;
     private numberSeries: NumberSeries[];
     private projectID: number;
@@ -208,6 +208,7 @@ export class QuoteDetails {
             this.quoteID = +params['id'];
             const customerID = +params['customerID'];
             const projectID = +params['projectID'];
+            const hasCopyParam = params['copy'];
 
             this.commentsConfig = {
                 entityType: 'CustomerQuote',
@@ -245,7 +246,11 @@ export class QuoteDetails {
                     }
                     quote.DefaultDimensions.Project = this.projects.find(project => project.ID === this.projectID);
 
-                    this.refreshQuote(quote);
+                    if (hasCopyParam) {
+                        this.refreshQuote(this.copyQuote(quote));
+                    } else {
+                        this.refreshQuote(quote);
+                    }
                 });
             } else {
                 Observable.forkJoin(
@@ -343,7 +348,7 @@ export class QuoteDetails {
                 });
     }
 
-    private numberSeriesChange(selectedSerie) {
+    public numberSeriesChange(selectedSerie) {
         this.quote.QuoteNumberSeriesID = selectedSerie.ID;
     }
 
@@ -364,12 +369,14 @@ export class QuoteDetails {
 
                 this.newQuoteItem = <any>this.tradeItemHelper.getDefaultTradeItemData(quote);
                 this.isDirty = false;
-                this.quoteItems = quote.Items.sort(function(itemA, itemB) { return itemA.SortIndex - itemB.SortIndex; });
+                this.quoteItems = quote.Items.sort(
+                    function(itemA, itemB) { return itemA.SortIndex - itemB.SortIndex; }
+                );
 
                 this.currentCustomer = quote.Customer;
                 this.currentDeliveryTerm = quote.DeliveryTerms;
 
-                quote.DefaultSeller = quote.DefaultSeller || new SellerLink();
+                quote.DefaultSeller = quote.DefaultSeller;
                 this.currentDefaultProjectID = quote.DefaultDimensions.ProjectID;
 
                 this.currentQuoteDate = quote.QuoteDate;
@@ -486,7 +493,9 @@ export class QuoteDetails {
                             // if it doesnt cause a change larger than 5%, don't bother asking the user what
                             // to do, just use the set prices
                             newTotalExVatBaseCurrency = this.itemsSummaryData.SumTotalExVatCurrency * newCurrencyRate;
-                            diffBaseCurrency = Math.abs(newTotalExVatBaseCurrency - this.itemsSummaryData.SumTotalExVat);
+                            diffBaseCurrency = Math.abs(
+                                newTotalExVatBaseCurrency - this.itemsSummaryData.SumTotalExVat
+                            );
 
                             diffBaseCurrencyPercent = this.tradeItemHelper.round(
                                 (diffBaseCurrency * 100) / Math.abs(this.itemsSummaryData.SumTotalExVat), 1
@@ -632,6 +641,50 @@ export class QuoteDetails {
                 currencyDate
             ).map(x => x.ExchangeRate);
         }
+    }
+
+    private newBasedOn(): Promise<any> {
+        return new Promise((resolve, reject) => {
+            if (this.quote.ID) {
+                resolve(true);
+                this.router.navigateByUrl('sales/quotes/' + this.quote.ID + ';copy=true');
+            } else {
+                let config = {
+                    service: this.customerQuoteService,
+                    moduleName: 'Quote',
+                    label: 'Tilbudsnr'
+                };
+
+                this.modalService.open(UniTofSelectModal, { data: config }).onClose.subscribe((id: number) => {
+                    if (id) {
+                        resolve(id);
+                        this.router.navigateByUrl('sales/quotes/' + id + ';copy=true');
+                    } else {
+                        reject('Kopiering avbrutt');
+                    }
+
+                });
+            }
+        });
+    }
+
+    private copyQuote(quote: CustomerQuote): CustomerQuote {
+        quote.ID = 0;
+        quote.QuoteNumber = null;
+        quote.QuoteNumberNumberSeries = null;
+        quote.StatusCode = null;
+        quote.PrintStatus = null;
+        quote.Comment = null;
+        delete quote['_links'];
+
+        quote.Items = quote.Items.map((item: CustomerQuoteItem) => {
+            item.CustomerQuoteID = 0;
+            item.ID = 0;
+            item.StatusCode = null;
+            return item;
+        });
+
+        return quote;
     }
 
     private recalcPriceAndSumsBasedOnSetPrices(item, newCurrencyRate) {
@@ -932,6 +985,19 @@ export class QuoteDetails {
             disabled: !transitions || !transitions['toInvoice']
 
         });
+
+        this.saveActions.push({
+            label: 'Ny basert på',
+            action: (done) => {
+                this.newBasedOn().then(res => {
+                    done('Tilbud kopiert');
+                }).catch(error => {
+                    done(error);
+                });
+            },
+            disabled: false
+        });
+
         this.saveActions.push({
             label: 'Avslutt tilbud',
             action: (done) => this.saveQuoteTransition(done, 'complete', 'Tilbud avsluttet'),
@@ -955,15 +1021,14 @@ export class QuoteDetails {
                 this.quote.DefaultDimensions = undefined;
         }
 
-        // if main seller does not exist in 'Sellers', create and add it
-        if (this.quote.DefaultSeller && this.quote.DefaultSeller.SellerID
-            && !this.quote.DefaultSeller._createguid && !this.quote.Sellers.find(sellerLink =>
-                sellerLink.SellerID === this.quote.DefaultSeller.SellerID
-            )) {
-                this.quote.DefaultSeller._createguid = this.sellerLinkService.getNewGuid();
-                this.quote.Sellers.push(this.quote.DefaultSeller);
-        } else if (this.quote.DefaultSeller && !this.quote.DefaultSeller.SellerID) {
+
+        if (this.quote.DefaultSeller && this.quote.DefaultSeller.ID > 0) {
+            this.quote.DefaultSellerID = this.quote.DefaultSeller.ID;
+        }
+
+        if(this.quote.DefaultSeller && this.quote.DefaultSeller.ID === null) {
             this.quote.DefaultSeller = null;
+            this.quote.DefaultSellerID = null;
         }
 
         // add deleted sellers back to 'Sellers' to delete with 'Deleted' property, was sliced locally/in view
@@ -1076,7 +1141,7 @@ export class QuoteDetails {
         });
     }
 
-    private saveAndPrint(doneHandler: (msg: string) => void = null) {
+    public saveAndPrint(doneHandler: (msg: string) => void = null) {
         if (this.isDirty) {
             this.saveQuote().then(quote => {
                 this.isDirty = false;

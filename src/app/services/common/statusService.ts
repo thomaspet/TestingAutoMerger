@@ -7,6 +7,9 @@ import {User} from '../../unientities';
 import {CustomerInvoiceService} from '../sales/customerInvoiceService';
 import {CustomerOrderService} from '../sales/customerOrderService';
 import {CustomerQuoteService} from '../sales/customerQuoteService';
+import {CustomerInvoiceItemService} from '../sales/customerInvoiceItemService';
+import {CustomerOrderItemService} from '../sales/customerOrderItemService';
+import {CustomerQuoteItemService} from '../sales/customerQuoteItemService';
 
 @Injectable()
 export class StatusService {
@@ -18,7 +21,10 @@ export class StatusService {
         private errorService: ErrorService,
         private customerInvoiceService: CustomerInvoiceService,
         private customerOrderService: CustomerOrderService,
-        private customerQuoteService: CustomerQuoteService
+        private customerQuoteService: CustomerQuoteService,
+        private customerInvoiceItemService: CustomerInvoiceItemService,
+        private customerOrderItemService: CustomerOrderItemService,
+        private customerQuoteItemService: CustomerQuoteItemService
     ) {}
 
     public getStatusText(statusCode: number): string {
@@ -68,6 +74,16 @@ export class StatusService {
                                     case 'CustomerQuote':
                                         name = this.customerQuoteService.getStatusText(item.StatusStatusCode);
                                         break;
+                                    case 'CustomerInvoiceItem':
+                                        name = this.customerInvoiceItemService.getStatusText(item.StatusStatusCode, 0);
+                                        break;
+                                    case 'CustomerOrderItem':
+                                        name = this.customerOrderItemService.getStatusText(item.StatusStatusCode);
+                                        break;
+                                    // TODO: Add when Quote Item status flow is implemented in back-end
+                                    // case 'CustomerQuoteItem':
+                                    //     name = this.customerQuoteItemService.getStatusText(item.StatusStatusCode);
+                                    //     break;
                                 }
 
                                 this.statusDictionary[item.StatusStatusCode] = {

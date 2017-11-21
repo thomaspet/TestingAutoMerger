@@ -6,7 +6,8 @@ import {CanDeactivateGuard} from '../../../canDeactivateGuard';
 export const routes = [
     {
         path: '',
-        component: CustomerList
+        component: CustomerList,
+        canDeactivate: [CanDeactivateGuard]
     },
     {
         path: ':id',

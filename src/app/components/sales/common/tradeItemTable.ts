@@ -10,7 +10,6 @@ import {
 } from '../../../../framework/ui/unitable/index';
 import {
     VatType,
-    Account,
     CompanySettings,
     Project,
     Dimensions
@@ -152,22 +151,26 @@ export class TradeItemTable {
                 }
             });
 
-        const itemTextCol = new UniTableColumn('ItemText', 'Tekst').setWidth('20%');
+        const itemTextCol = new UniTableColumn('ItemText', 'Tekst')
+            .setWidth('20%');
+
         const numItemsCol = new UniTableColumn('NumberOfItems', 'Antall', UniTableColumnType.Number)
-                .setNumberFormat({
-                    thousandSeparator: ' ',
-                    decimalSeparator: ',',
-                    decimalLength: this.settings.ShowNumberOfDecimals,
-                    postfix: undefined
-                });
+            .setNumberFormat({
+                thousandSeparator: ' ',
+                decimalSeparator: ',',
+                decimalLength: this.settings.ShowNumberOfDecimals,
+                postfix: undefined
+            });
+
         const unitCol = new UniTableColumn('Unit', 'Enhet');
+
         const exVatCol = new UniTableColumn('PriceExVatCurrency', 'Pris', UniTableColumnType.Money)
-                .setNumberFormat({
-                    thousandSeparator: ' ',
-                    decimalSeparator: ',',
-                    decimalLength: this.settings.ShowNumberOfDecimals,
-                    postfix: undefined
-                });
+            .setNumberFormat({
+                thousandSeparator: ' ',
+                decimalSeparator: ',',
+                decimalLength: this.settings.ShowNumberOfDecimals,
+                postfix: undefined
+            });
 
         const accountCol = new UniTableColumn('Account', 'Konto', UniTableColumnType.Lookup)
             .setWidth('15%')
@@ -227,7 +230,7 @@ export class TradeItemTable {
             .setVisible(false)
             .setEditorOptions({
                 itemTemplate: (item) => {
-                    return (item.Number + ': ' + item.Name)
+                    return (item.Number + ': ' + item.Name);
                 },
                 lookupFunction: (query) => {
                     let filter = `filter=contains(Name,'${query}') or contains(ID,'${query}') `
@@ -248,6 +251,7 @@ export class TradeItemTable {
             });
 
         const discountPercentCol = new UniTableColumn('DiscountPercent', 'Rabatt %', UniTableColumnType.Percent);
+
         const discountCol = new UniTableColumn('DiscountCurrency', 'Rabatt', UniTableColumnType.Money, false)
             .setVisible(false);
 
@@ -304,7 +308,9 @@ export class TradeItemTable {
         const sumVatCol = new UniTableColumn('SumVatCurrency', 'Mva', UniTableColumnType.Money, false)
             .setVisible(false);
 
-        const sumTotalIncVatCol = new UniTableColumn('SumTotalIncVatCurrency', 'Sum', UniTableColumnType.Money, false);
+        const sumTotalIncVatCol = new UniTableColumn(
+            'SumTotalIncVatCurrency', 'Sum', UniTableColumnType.Money, false
+        );
 
 
         this.tableConfig = new UniTableConfig(this.configStoreKey, !this.readonly)
@@ -433,9 +439,11 @@ export class TradeItemTable {
             if (searchValue.indexOf(':') > 0) {
                 let accountNumberPart = searchValue.split(':')[0].trim();
                 let accountNamePart =  searchValue.split(':')[1].trim();
-                copyPasteFilter = ` or (AccountNumber eq '${accountNumberPart}' and AccountName eq '${accountNamePart}')`;
+                copyPasteFilter = ` or (AccountNumber eq '${accountNumberPart}' `
+                    + `and AccountName eq '${accountNamePart}')`;
             }
-            filter = `Visible eq 'true' and (startswith(AccountNumber\,'${searchValue}') or contains(AccountName\,'${searchValue}')${copyPasteFilter} )`;
+            filter = `Visible eq 'true' and (startswith(AccountNumber\,'${searchValue}') `
+                + `or contains(AccountName\,'${searchValue}')${copyPasteFilter} )`;
         }
 
         return this.accountService.searchAccounts(filter, searchValue !== '' ? 100 : 500);

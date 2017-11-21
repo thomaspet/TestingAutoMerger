@@ -8,7 +8,7 @@ import {
     CompanySalaryService, CompanyVacationRateService, AccountService, ErrorService, VacationpayLineService
 } from '../../../../../services/services';
 import {
-    CompanyVacationRate, Account, LocalDate, WageDeductionDueToHolidayType
+    CompanyVacationRate, Account, LocalDate
 } from '../../../../../unientities';
 import {Observable} from 'rxjs/Observable';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
@@ -39,7 +39,7 @@ export class VacationPaySettingsModal implements OnInit, IUniModal {
         private _companyvacationRateService: CompanyVacationRateService,
         private _accountService: AccountService,
         private errorService: ErrorService,
-        private m_vacationpaylineService: VacationpayLineService
+        private vacationPayLineService: VacationpayLineService
     ) { }
 
     public ngOnInit() {
@@ -75,7 +75,9 @@ export class VacationPaySettingsModal implements OnInit, IUniModal {
         // save uniform
         if (this.companysalaryModel$.getValue().ID > 0) {
             this.saveStatus.numberOfRequests++;
-            this._companysalaryService.Put(this.companysalaryModel$.getValue().ID, this.companysalaryModel$.getValue())
+            this._companysalaryService.Put(
+                this.companysalaryModel$.getValue().ID, this.companysalaryModel$.getValue()
+            )
                 .finally(() => this.checkForSaveDone())
                 .subscribe((formresponse) => {
                     this.done('Firmalønn oppdatert');
@@ -129,7 +131,6 @@ export class VacationPaySettingsModal implements OnInit, IUniModal {
             if (this.saveStatus.hasErrors) {
                 this.done('Feil ved lagring');
             } else {
-                let config = this.options.modalConfig;
                 this.done('Lagring fullført');
                 this.close();
             }
@@ -144,29 +145,38 @@ export class VacationPaySettingsModal implements OnInit, IUniModal {
         var mainAccountCostVacation = new UniFieldLayout();
         const companysalaryModel = this.companysalaryModel$.getValue();
         let cosVacAccountObs: Observable<Account> = companysalaryModel && companysalaryModel.MainAccountCostVacation
-            ? this._accountService.GetAll(`filter=AccountNumber eq ${companysalaryModel.MainAccountCostVacation}` + '&top=1')
+            ? this._accountService.GetAll(
+                `filter=AccountNumber eq ${companysalaryModel.MainAccountCostVacation}` + '&top=1'
+            )
             : Observable.of([{ AccountName: '', AccountNumber: null }]);
         mainAccountCostVacation.Label = 'Kostnad feriepenger';
         mainAccountCostVacation.Property = 'MainAccountCostVacation';
         mainAccountCostVacation.FieldType = FieldType.AUTOCOMPLETE;
         mainAccountCostVacation.Options = {
             getDefaultData: () => cosVacAccountObs,
-            search: (query: string) => this._accountService.GetAll(`filter=startswith(AccountNumber,'${query}') or contains(AccountName,'${query}')`),
+            search: (query: string) => this._accountService.GetAll(
+                `filter=startswith(AccountNumber,'${query}') or contains(AccountName,'${query}')`
+            ),
             displayProperty: 'AccountName',
             valueProperty: 'AccountNumber',
             template: (account: Account) => account ? `${account.AccountNumber} - ${account.AccountName}` : '',
         };
 
         var mainAccountAllocatedVacation = new UniFieldLayout();
-        let allVacAccountObs: Observable<Account> = companysalaryModel && companysalaryModel.MainAccountAllocatedVacation
-            ? this._accountService.GetAll(`filter=AccountNumber eq ${companysalaryModel.MainAccountAllocatedVacation}` + '&top=1')
-            : Observable.of([{ AccountName: '', AccountNumber: null }]);
+        let allVacAccountObs: Observable<Account> = companysalaryModel
+            && companysalaryModel.MainAccountAllocatedVacation
+                ? this._accountService.GetAll(
+                    `filter=AccountNumber eq ${companysalaryModel.MainAccountAllocatedVacation}` + '&top=1'
+                )
+                : Observable.of([{ AccountName: '', AccountNumber: null }]);
         mainAccountAllocatedVacation.Label = 'Avsatt feriepenger';
         mainAccountAllocatedVacation.Property = 'MainAccountAllocatedVacation';
         mainAccountAllocatedVacation.FieldType = FieldType.AUTOCOMPLETE;
         mainAccountAllocatedVacation.Options = {
             getDefaultData: () => allVacAccountObs,
-            search: (query: string) => this._accountService.GetAll(`filter=startswith(AccountNumber,'${query}') or contains(AccountName,'${query}')`),
+            search: (query: string) => this._accountService.GetAll(
+                `filter=startswith(AccountNumber,'${query}') or contains(AccountName,'${query}')`
+            ),
             displayProperty: 'AccountName',
             valueProperty: 'AccountNumber',
             template: (account: Account) => account ? `${account.AccountNumber} - ${account.AccountName}` : '',
@@ -178,7 +188,7 @@ export class VacationPaySettingsModal implements OnInit, IUniModal {
         payInHoliday.FieldType = FieldType.DROPDOWN;
         payInHoliday.Options = {
             source:
-            this.m_vacationpaylineService.WageDeductionDueToHolidayArray,
+            this.vacationPayLineService.WageDeductionDueToHolidayArray,
             displayProperty: 'name',
             valueProperty: 'id'
         };

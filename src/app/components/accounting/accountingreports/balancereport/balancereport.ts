@@ -29,12 +29,16 @@ export class BalanceReport {
     private yearSelectConfig: ISelectConfig;
     private yearItems: any[];
 
-    private toolbarconfig: IToolbarConfig = {
+    public toolbarconfig: IToolbarConfig = {
         title: 'Balanse'
     };
 
-    private filter$: BehaviorSubject<any> = new BehaviorSubject({ShowPreviousAccountYear: false, Decimals: 2, ShowPercent: true});
-    private config$: BehaviorSubject<any> = new BehaviorSubject({});
+    private filter$: BehaviorSubject<any> = new BehaviorSubject({
+        ShowPreviousAccountYear: false,
+        Decimals: 2,
+        ShowPercent: true
+    });
+    public config$: BehaviorSubject<any> = new BehaviorSubject({});
     private fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
 
     private projects: Project[];
@@ -89,7 +93,7 @@ export class BalanceReport {
             curYear + 1];
     }
 
-    private onYearSelect(year) {
+    public onYearSelect(year) {
         let periodFilter1 = _.cloneDeep(this.periodFilter1);
         periodFilter1.year = year.toString();
         periodFilter1.name = PeriodFilterHelper.getFilterName(periodFilter1);
@@ -103,7 +107,7 @@ export class BalanceReport {
         this.yearItems = this.getYearComboSelection(year);
     }
 
-    private toggleFilter() {
+    public toggleFilter() {
         if (this.filterVisible) {
             this.hideFilter();
         } else {
@@ -139,7 +143,7 @@ export class BalanceReport {
         project.Property = 'ProjectID';
         project.FieldType = FieldType.DROPDOWN;
         project.Label = 'Prosjekt';
-        project.Legend = 'Filter',
+        project.Legend = 'Filter';
         project.FieldSet = 1;
         project.Placeholder = 'Projekt';
         project.Options = {
@@ -155,7 +159,7 @@ export class BalanceReport {
         department.Property = 'DepartmentID';
         department.FieldType = FieldType.DROPDOWN;
         department.Label = 'Avdeling';
-        department.Legend = 'Filter',
+        department.Legend = 'Filter';
         department.FieldSet = 1;
         department.Options = {
             source: this.departments,
@@ -171,7 +175,7 @@ export class BalanceReport {
         decimals.Property = 'Decimals';
         decimals.FieldType = FieldType.DROPDOWN;
         decimals.Label = 'Antall desimaler';
-        decimals.Legend = 'Visning',
+        decimals.Legend = 'Visning';
         decimals.FieldSet = 2;
         decimals.Options = {
             source: [{Decimals: 0}, {Decimals: 2}],

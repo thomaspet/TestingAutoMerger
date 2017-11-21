@@ -7,9 +7,13 @@ import {VatReportReference} from '../../../../unientities';
 import {FieldType, UniForm, UniFieldLayout} from '../../../../../framework/ui/uniform/index';
 
 import {VatType, VatCodeGroup, Account, VatPost} from '../../../../unientities';
-import {VatTypeService, VatCodeGroupService, AccountService, VatPostService, ErrorService} from '../../../../services/services';
+import {
+    VatTypeService, VatCodeGroupService, AccountService, VatPostService, ErrorService
+} from '../../../../services/services';
 
-import {UniTable, UniTableColumn, UniTableConfig, UniTableColumnType} from '../../../../../framework/ui/unitable/index';
+import {
+    UniTable, UniTableColumn, UniTableConfig, UniTableColumnType
+} from '../../../../../framework/ui/unitable/index';
 
 
 @Component({
@@ -81,7 +85,13 @@ export class VatTypeDetails implements OnChanges, OnInit {
                 .subscribe(
                     data => {
                         completeEvent('Lagret');
-                        this.vatTypeService.Get(data.ID, ['VatCodeGroup', 'IncomingAccount', 'OutgoingAccount', 'VatReportReferences', 'VatReportReferences.VatPost', 'VatReportReferences.Account'])
+                        this.vatTypeService.Get(
+                            data.ID,
+                            [
+                                'VatCodeGroup', 'IncomingAccount', 'OutgoingAccount', 'VatReportReferences',
+                                'VatReportReferences.VatPost', 'VatReportReferences.Account'
+                            ]
+                        )
                             .subscribe(vatType => {
                                 this.vatType = vatType;
                                 this.vatType$.next(this.vatType);
@@ -155,7 +165,10 @@ export class VatTypeDetails implements OnChanges, OnInit {
                             return account.AccountNumber + ' ' + account.AccountName;
                         },
                         lookupFunction: (searchValue) => {
-                            return this.accountService.GetAll(`filter=AccountNumber ge 2700 and AccountNumber lt 2800 and (contains(AccountNumber, '${searchValue}') or contains(AccountName, '${searchValue}'))`);
+                            return this.accountService.GetAll(
+                                `filter=AccountNumber ge 2700 and AccountNumber lt 2800 and (contains(AccountNumber, `
+                                    + `'${searchValue}') or contains(AccountName, '${searchValue}'))`
+                            );
                         }
                     }),
                 new UniTableColumn('VatPost', 'Oppgavepost ', UniTableColumnType.Lookup)
@@ -168,7 +181,9 @@ export class VatTypeDetails implements OnChanges, OnInit {
                             return vatPost.No + ' ' + vatPost.Name;
                         },
                         lookupFunction: (searchValue) => {
-                            return this.vatPostService.GetAll(`filter=contains(No,'${searchValue}') or contains(Name,'${searchValue}')`);
+                            return this.vatPostService.GetAll(
+                                `filter=contains(No,'${searchValue}') or contains(Name,'${searchValue}')`
+                            );
                         }
                     })
             ])

@@ -16,7 +16,9 @@ export class AmeldingAgaView {
     }
 
     public ngOnChanges() {
-        this.showTable = this.currentSumUp && this.currentSumUp.agadetails && (this.currentSumUp.agadetails.length > 0);
+        this.showTable = this.currentSumUp
+            && this.currentSumUp.agadetails
+            && (this.currentSumUp.agadetails.length > 0);
     }
 
     private setupTableConfig() {

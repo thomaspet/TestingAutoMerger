@@ -19,8 +19,8 @@ import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 })
 
 export class PostingSummaryModal implements OnInit, IUniModal {
-    @Input() options: IModalOptions;
-    @Output() onClose: EventEmitter<boolean> = new EventEmitter<boolean>();
+    @Input() public options: IModalOptions;
+    @Output() public onClose: EventEmitter<boolean> = new EventEmitter<boolean>();
     public busy: boolean;
     public config$: BehaviorSubject<any> = new BehaviorSubject({});
     public fields$: BehaviorSubject<UniFieldLayout[]> = new BehaviorSubject([]);

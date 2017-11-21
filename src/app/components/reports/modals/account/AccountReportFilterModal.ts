@@ -118,18 +118,18 @@ export class AccountReportFilterForm implements OnInit {
                     displayProperty: 'Label'
                 }
             }
-            //TODO. These controls to be included?
-            //,
-            //<any>{
+            // TODO. These controls to be included?
+            // ,
+            // <any>{
             //    FieldType: FieldType.RADIO,
             //    Label: 'Vis kontoer uten bevegelse',
             //    Property: 'ShowAccountsWithoutDetails',
-            //},
-            //<any>{
+            // },
+            // <any>{
             //    FieldType: FieldType.RADIO,
             //    Label: 'Vis kontoer uten saldo',
             //    Property: 'ShowAccountsWithoutBalance',
-            //}
+            // }
         ];
     }
 }
@@ -163,7 +163,9 @@ export class AccountReportFilterModal {
                     class: 'good',
                     method: (model$) => {
                         // set parametervalues
-                        for (const parameter of <CustomReportDefinitionParameter[]>this.modalConfig.report.parameters) {
+                        for (
+                            const parameter of <CustomReportDefinitionParameter[]>this.modalConfig.report.parameters
+                        ) {
                             switch (parameter.Name) {
                                 case 'OrderBy':
                                     switch (model$.getValue()['OrderBy']) {
@@ -237,7 +239,9 @@ export class AccountReportFilterModal {
         this.modalConfig.title = report.Name;
         this.modalConfig.report = report;
 
-        this.reportDefinitionParameterService.GetAll('filter=ReportDefinitionId eq ' + report.ID).subscribe(params => {
+        this.reportDefinitionParameterService.GetAll(
+            'filter=ReportDefinitionId eq ' + report.ID
+        ).subscribe(params => {
             this.modalConfig.report.parameters = params;
             this.modal.open();
         }, err => this.errorService.handle(err));

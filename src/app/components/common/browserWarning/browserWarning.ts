@@ -37,7 +37,7 @@ export class BrowserWarning {
         }
     }
 
-    private hide() {
+    public hide() {
         if (window.confirm('Er du sikker? Uni Economy vil kanskje ikke virke som forventet i denne nettleseren.')) {
             this.showBrowserWarning = false;
             sessionStorage.setItem('hideBrowserWarning', 'true');

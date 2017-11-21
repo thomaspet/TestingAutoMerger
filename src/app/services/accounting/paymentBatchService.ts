@@ -56,6 +56,8 @@ export class PaymentBatchService extends BizHttp<PaymentBatch> {
             return 'Delvis fullført';
         } else if (statusCode === 45009) {
             return 'Fullført';
+        } else if (statusCode === 45010) {
+            return 'Transit til bank';
         }
 
         return 'Ukjent status: ' + statusCode;

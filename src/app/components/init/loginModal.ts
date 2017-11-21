@@ -56,7 +56,7 @@ export class LoginModal implements IUniModal {
         this.formFields$.next(this.getFormFields());
     }
 
-    private authenticate() {
+    public authenticate() {
         const authDetails = this.formModel$.getValue();
         if (!authDetails.username || !authDetails.password) {
             return;
@@ -84,17 +84,7 @@ export class LoginModal implements IUniModal {
             <any> {
                 Property: 'password',
                 FieldType: FieldType.PASSWORD,
-                Label: 'Passord',
-                Options: {
-                    events: {
-                        'enter': () => {
-                            let focus: any = document.activeElement;
-                            focus.blur();
-                            this.authenticate();
-                            focus.focus();
-                        }
-                    }
-                }
+                Label: 'Passord'
             }
         ];
     }

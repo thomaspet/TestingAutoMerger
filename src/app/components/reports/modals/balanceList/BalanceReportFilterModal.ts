@@ -68,7 +68,7 @@ export class BalanceReportFilterForm implements OnInit {
                 Label: 'Inkluder kontoer med saldo = 0',
                 Property: 'includeZeroBalance'
             }
-        ]
+        ];
     }
 }
 
@@ -100,7 +100,9 @@ export class BalanceReportFilterModal {
                     text: 'Ok',
                     class: 'good',
                     method: (model$) => {
-                        for (const parameter of <AttilasCustomReportDefinitionParameter[]>this.modalConfig.report.parameters) {
+                        for (const parameter of
+                            < AttilasCustomReportDefinitionParameter[] > this.modalConfig.report.parameters
+                        ) {
                             if (parameter.Name === 'odatafilter') {
                                 parameter.value = `Period.AccountYear eq '${model$.getValue().journalYear}'`
                                     + ` and Period.No ge ${model$.getValue().fromPeriod}`

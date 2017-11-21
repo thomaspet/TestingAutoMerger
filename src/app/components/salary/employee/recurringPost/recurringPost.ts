@@ -4,13 +4,18 @@ import {
     WageTypeService, UniCacheService, AccountService,
     ErrorService, SalaryTransactionSuggestedValuesService
 } from '../../../../services/services';
-import {UniTableColumn, UniTableColumnType, UniTableConfig, UniTable} from '../../../../../framework/ui/unitable/index';
+import {SalaryTransViewService} from '../../sharedServices/salaryTransViewService';
+import {
+    UniTableColumn,
+    UniTableColumnType,
+    UniTableConfig,
+    UniTable
+} from '../../../../../framework/ui/unitable/index';
 import {
     Employment, SalaryTransaction, WageType, Dimensions, Department, Project,
     SalaryTransactionSupplement, WageTypeSupplement, Account, SalBalType
 } from '../../../../unientities';
 import {UniView} from '../../../../../framework/core/uniView';
-import {SalaryTransSupplementsModal} from '../../modals/salaryTransSupplementsModal';
 import {UniModalService} from '../../../../../framework/uniModal/barrel';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 
@@ -19,7 +24,6 @@ import {BehaviorSubject} from 'rxjs/BehaviorSubject';
     selector: 'reccuringpost-list',
     templateUrl: './recurringPost.html'
 })
-
 export class RecurringPost extends UniView {
     private employeeID: number;
     private tableConfig: UniTableConfig;
@@ -41,7 +45,8 @@ export class RecurringPost extends UniView {
         private _accountService: AccountService,
         private errorService: ErrorService,
         private sugestedValuesService: SalaryTransactionSuggestedValuesService,
-        private modalService: UniModalService
+        private modalService: UniModalService,
+        private salaryTransViewService: SalaryTransViewService
     ) {
 
         super(router.url, cacheService);
@@ -96,23 +101,14 @@ export class RecurringPost extends UniView {
         });
     }
 
-    // REVISIT (remove)!
-    // This (and the canDeactivate in employeeRoutes.ts) is a dummy-fix
-    // until we are able to locate a problem with detecting changes of
-    // destroyed view in unitable.
-    public canDeactivate() {
-        return new Promise((resolve) => {
-            setTimeout(() => {
-                resolve(true);
-            });
-        });
-    }
-    private onRowDeleted(event) {
+    public onRowDeleted(event) {
         if (event.rowModel['_isEmpty']) {
             return;
         }
 
-        let deletedIndex = this.recurringPosts.findIndex(x => x['_originalIndex'] === event.rowModel['_originalIndex']);
+        let deletedIndex = this.recurringPosts.findIndex(
+            x => x['_originalIndex'] === event.rowModel['_originalIndex']
+        );
         let hasDirtyRow: boolean = true;
 
         if (this.recurringPosts[deletedIndex].ID) {
@@ -204,7 +200,10 @@ export class RecurringPost extends UniView {
                 },
                 lookupFunction: (searchValue) => {
                     return this._accountService
-                        .GetAll(`filter=contains(AccountName, '${searchValue}') or startswith(AccountNumber, '${searchValue}')&top50`)
+                        .GetAll(
+                            `filter=contains(AccountName, '${searchValue}') `
+                            + `or startswith(AccountNumber, '${searchValue}')&top50`
+                        )
                         .debounceTime(200);
                 }
             });
@@ -259,19 +258,21 @@ export class RecurringPost extends UniView {
                 }
             });
 
-
+        const supplementsCol = this.salaryTransViewService
+            .createSupplementsColumn((trans) => this.onSupplementsClose(trans), () => false);
 
         this.tableConfig = new UniTableConfig('salary.employee.recurringPost', this.employeeID ? true : false)
             .setDeleteButton(true)
             .setContextMenu([{
                 label: 'Tilleggsopplysninger', action: (row) => {
-                    this.openSuplementaryInformationModal(row);
+                    this.salaryTransViewService
+                        .openSupplements(row, (trans) => this.onSupplementsClose(trans), false);
                 }
             }])
             .setColumnMenuVisible(true)
             .setColumns([
                 wagetypeCol, descriptionCol, employmentIDCol, fromdateCol, todateCol, accountCol,
-                amountCol, rateCol, sumCol, payoutCol, projectCol, departmentCol
+                amountCol, rateCol, sumCol, payoutCol, projectCol, departmentCol, supplementsCol
             ])
             .setChangeCallback((event) => {
                 let row = event.rowModel;
@@ -439,38 +440,16 @@ export class RecurringPost extends UniView {
         let amountPrecision = Math.pow(10, decimals ? decimals.length : 1);
         decimals = rowModel['Rate'] ? rowModel['Rate'].toString().split('.')[1] : null;
         let ratePrecision = Math.pow(10, decimals ? decimals.length : 1);
-        let sum = (Math.round((amountPrecision * rowModel['Amount'])) * Math.round((ratePrecision * rowModel['Rate']))) / (amountPrecision * ratePrecision);
+        let sum = (Math.round((amountPrecision * rowModel['Amount']))
+            * Math.round((ratePrecision * rowModel['Rate']))) / (amountPrecision * ratePrecision);
         rowModel['Sum'] = sum;
         return rowModel;
     }
 
-    public openSuplementaryInformationModal(row: SalaryTransaction) {
-        this.modalService
-            .open(SalaryTransSupplementsModal, {
-                data: row
-            })
-            .onClose
-            .subscribe((trans: SalaryTransaction) => {
-                if (trans && trans.Supplements && trans.Supplements.length) {
-                    this.updateSupplementsOnTransaction(trans);
-                }
-            })
-    }
-
-    public navigateToNewAdvance() {
-        this.router
-            .navigate([`salary/salarybalances/0/details`,
-                {employeeID: this.employeeID, instalmentType: SalBalType.Advance}]);
-    }
-
-    public navigateToNewDraw() {
-        this.router
-            .navigate([`salary/salarybalances/0/details`, {employeeID: this.employeeID}]);
-    }
-
-    public navigateToSalaryBalanceList() {
-        this.router
-            .navigate(['salary/salarybalances', {empID: this.employeeID}]);
+    public onSupplementsClose(trans: SalaryTransaction) {
+        if (trans && trans.Supplements && trans.Supplements.length) {
+            this.updateSupplementsOnTransaction(trans);
+        }
     }
 
     public updateSupplementsOnTransaction(trans: SalaryTransaction) {

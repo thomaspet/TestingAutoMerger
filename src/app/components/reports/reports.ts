@@ -8,12 +8,15 @@ import {BalanceReportFilterModal} from './modals/balanceList/BalanceReportFilter
 import {PostingJournalReportFilterModal} from './modals/postingJournal/PostingJournalReportFilterModal';
 import {ResultAndBalanceReportFilterModal} from './modals/resultAndBalance/ResultAndBalanceReportFilterModal';
 import {BalanceGeneralLedgerFilterModal} from './modals/balanceGeneralLedgerFilter/BalanceGeneralLedgerFilterModal';
-import {CustomerAccountReportFilterModal} from './modals/customerAccountReportFilter/CustomerAccountReportFilterModal';
-import {SupplierAccountReportFilterModal} from './modals/supplierAccountReportFilter/SupplierAccountReportFilterModal';
+import {CustomerAccountReportFilterModal}
+    from './modals/customerAccountReportFilter/CustomerAccountReportFilterModal';
+import {SupplierAccountReportFilterModal}
+    from './modals/supplierAccountReportFilter/SupplierAccountReportFilterModal';
 import {AccountReportFilterModal} from './modals/account/AccountReportFilterModal';
 import {SalaryPaymentListReportFilterModal} from './modals/salaryPaymentList/salaryPaymentListReportFilterModal';
 import {VacationPayBaseReportFilterModal} from './modals/vacationPayBase/vacationPayBaseReportFilterModal';
-import {SalaryWithholdingAndAGAReportFilterModal} from './modals/salaryWithholdingAndAGA/salaryWithholdingAndAGAReportFilterModal';
+import {SalaryWithholdingAndAGAReportFilterModal}
+    from './modals/salaryWithholdingAndAGA/salaryWithholdingAndAGAReportFilterModal';
 import {PayCheckReportFilterModal} from './modals/paycheck/paycheckReportFilterModal';
 import {Router} from '@angular/router';
 import {Observable} from 'rxjs/Observable';
@@ -34,37 +37,37 @@ export class UniReports {
     @ViewChild(ParameterModal)
     private parameterModal: ParameterModal;
 
-    @ViewChild(BalanceReportFilterModal) 
+    @ViewChild(BalanceReportFilterModal)
     private balanceListModal: BalanceReportFilterModal;
 
-    @ViewChild(AccountReportFilterModal) 
+    @ViewChild(AccountReportFilterModal)
     private accountReportFilterModal: AccountReportFilterModal;
-    
-    @ViewChild(PostingJournalReportFilterModal) 
+
+    @ViewChild(PostingJournalReportFilterModal)
     private postingJournalModal: PostingJournalReportFilterModal;
-    
-    @ViewChild(ResultAndBalanceReportFilterModal) 
+
+    @ViewChild(ResultAndBalanceReportFilterModal)
     private resultAndBalanceModal: ResultAndBalanceReportFilterModal;
-    
-    @ViewChild(BalanceGeneralLedgerFilterModal) 
+
+    @ViewChild(BalanceGeneralLedgerFilterModal)
     private balanceGeneralLedgerFilterModal: BalanceGeneralLedgerFilterModal;
-    
-    @ViewChild(CustomerAccountReportFilterModal) 
+
+    @ViewChild(CustomerAccountReportFilterModal)
     private customerAccountModal: CustomerAccountReportFilterModal;
-    
-    @ViewChild(SupplierAccountReportFilterModal) 
+
+    @ViewChild(SupplierAccountReportFilterModal)
     private supplierAccountModal: SupplierAccountReportFilterModal;
-    
-    @ViewChild(SalaryPaymentListReportFilterModal) 
+
+    @ViewChild(SalaryPaymentListReportFilterModal)
     private salaryPaymentListFilterModal: SalaryPaymentListReportFilterModal;
-    
-    @ViewChild(VacationPayBaseReportFilterModal) 
+
+    @ViewChild(VacationPayBaseReportFilterModal)
     private vacationBaseFilterModal: VacationPayBaseReportFilterModal;
-    
-    @ViewChild(SalaryWithholdingAndAGAReportFilterModal) 
+
+    @ViewChild(SalaryWithholdingAndAGAReportFilterModal)
     private salaryWithholdingAndAGAReportFilterModal: SalaryWithholdingAndAGAReportFilterModal;
-    
-    @ViewChild(PayCheckReportFilterModal) 
+
+    @ViewChild(PayCheckReportFilterModal)
     private paycheckReportFilterModal: PayCheckReportFilterModal;
 
     public reportCategories: ReportCategories = new ReportCategories();
@@ -153,21 +156,21 @@ export class UniReports {
                 if (report.Visible || report.IsQuery) {
                     // If the custom report category == a regular category, placing this code outside the switch adds
                     // the report to both the custom AND the according regular category
-                    if (report.Category === null 
-                        || ((report.Category.search('Sales') 
-                            && report.Category.search('Accounting') 
+                    if (report.Category === null
+                        || ((report.Category.search('Sales')
+                            && report.Category.search('Accounting')
                             && report.Category.search('Salary')) === -1)) {
                                 if (report.Category === null) {
                                     report.Category = 'Ukategorisert';
                                 }
                                 if (!customCategories.find(category => category === report.Category)) {
-                                    
+
                                     customCategories.push(report.Category);
                                     this.reportCategories.custom.push([]);
                                 }
                                 this.reportCategories.custom[customCategories.indexOf(report.Category)].push(report);
                     }
-                    switch (report.Category) {            
+                    switch (report.Category) {
                         case 'Sales.Quote':
                         case 'Tilbud':
                             report.Category = 'Tilbud';
@@ -203,7 +206,7 @@ export class UniReports {
                             report.Category = 'Lønn';
                             this.reportCategories.salary[0].push(report);
                             break;
-                        
+
                     }
                 }
             }
@@ -211,7 +214,7 @@ export class UniReports {
         }, err => this.errorService.handle(err));
     }
 
-    private onTabSelection() {
+    public onTabSelection() {
         switch (this.activeTabIndex) {
             case 0:
                 return this.activeCategory = this.reportCategories.sale;

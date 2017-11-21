@@ -5,7 +5,8 @@
     "IsTopLevelTicker": true,
     "Group": "Salg",
     "Model": "CustomerInvoice",
-    "Expand": "Customer.Info,CurrencyCode,InvoiceReference,DefaultDimensions.Project,DefaultSeller.Seller",
+    "Joins": "CustomerInvoice.ID eq Sharing.EntityID",
+    "Expand": "Customer,Customer.Info",
     "OrderBy": "ID DESC",
     "Columns": [{
             "Header": "Fakturanr",
@@ -110,8 +111,8 @@
             "Type": "dontdisplay"
         }, {
             "Header": "Hovedselger",
-            "Field": "DefaultSeller.Seller.Name",
-            "DefaultHidden": true
+            "Field": "DefaultSeller.Name",
+            "DefaultHidden": false
         }, {
             "Header": "Purrestatus",
             "Field": "CustomerInvoice.CollectorStatusCode",
@@ -120,6 +121,16 @@
             "Header": "Status",
             "Field": "StatusCode",
             "Width": "125px"
+        }, {
+            "Header": "Utskrift",
+            "Field": "PrintStatus",
+            "Width": "125px",
+            "DefaultHidden": true
+        }, {
+            "Header": "Deling",
+            "Field": "count(Sharing.ID)",
+            "Alias": "SharingCount",
+            "width": "125px"
         }
     ],
     "ParentFilter": {
@@ -207,7 +218,7 @@
             "NeedsActionOverride": true
             }
     ],
-    "SubTickersCodes": ["invoice_details", "invoice_items"],
+    "SubTickersCodes": ["invoice_details", "invoice_items", "sharing_list"],
     "Filters": [
         {
             "Name": "Alle",
@@ -408,7 +419,6 @@
     "IsTopLevelTicker": false,
     "Group": "Salg",
     "Model": "CustomerInvoiceItem",
-    "Expand": "Product,VatType",
     "SubTickers": [],
     "ParentFilter": {
         "Field": "CustomerInvoiceID",
@@ -417,13 +427,16 @@
     },
     "Filters": [],
     "Columns": [{
-            "Header": "Produkt/tekst",
+            "Header": "Nr",
+            "Field": "SortIndex",
+            "DefaultHidden": true
+        }, {
+            "Header": "Vare",
             "Field": "Product.PartName",
             "Width": "250px",
             "SubFields": [{
-                    "Field": "ItemText"
-                }
-            ]
+                "Field": "ItemText"
+            }]
         }, {
             "Header": "Antall",
             "Field": "NumberOfItems"
@@ -431,20 +444,61 @@
             "Header": "Enhet",
             "Field": "Unit"
         }, {
-            "Header": "Mvakode",
-            "Field": "VatType.VatPercent",
-            "Format": "percent",
+            "Header": "Pris",
+            "Field": "PriceExVatCurrency",
+            "DefaultHidden": true
+        }, {
+            "Header": "Konto",
+            "Field": "Account.AccountNumber",
             "SubFields": [{
-                    "Field": "VatType.Name"
-                }
-            ]
+                "Field": "Account.AccountName"
+            }],
+            "DefaultHidden": true
+        }, {
+            "Header": "Momskode",
+            "Field": "VatType.VatPercent",
+            "Type": "percent",
+            "SubFields": [{
+                "Field": "VatType.Name"
+            }],
+            "DefaultHidden": true
+        }, {
+            "Header": "Oppgave",
+            "Field": "Dimensions.ProjectTask.Name",
+            "DefaultHidden": true
         }, {
             "Header": "Rabatt %",
             "Field": "DiscountPercent",
-            "Format": "percent"
+            "Type": "percent"
         }, {
-            "Header": "Sum inkl mva",
-            "Field": "SumTotalIncVat",
+            "Header": "Rabatt",
+            "Field": "DiscountCurrency",
+            "DefaultHidden": true
+        }, {
+            "Header": "Prosjekt",
+            "Field": "Dimensions.Project.ProjectNumber",
+            "SubFields": [{
+                "Field": "Dimensions.Project.Name"
+            }],
+            "DefaultHidden": true
+        }, {
+            "Header": "Avdeling",
+            "Field": "Dimensions.Department.DepartmentNumber",
+            "SubFields": [{
+                "Field": "Dimensions.Department.Name"
+            }],
+            "DefaultHidden": true
+        }, {
+            "Header": "Netto",
+            "Field": "SumTotalExVatCurrency",
+            "DefaultHidden": true
+        }, {
+            "Header": "Mva",
+            "Field": "SumVatCurrency",
+            "DefaultHidden": true
+        }, {
+            "Header": "Sum",
+            "Field": "SumTotalIncVatCurrency",
             "Format": "NumberPositiveNegative",
             "Width": "150px",
             "SumColumn": true
@@ -581,7 +635,7 @@
     "IsTopLevelTicker": true,
     "Group": "Salg",
     "Model": "CustomerQuote",
-    "Expand": "Customer.Info,CurrencyCode,DefaultSeller.Seller",
+    "Expand": "",
     "OrderBy": "ID DESC",
     "Columns": [{
             "Header": "Tilbudnr",
@@ -641,12 +695,17 @@
             "SumColumn": true
         }, {
             "Header": "Hovedselger",
-            "Field": "DefaultSeller.Seller.Name",
+            "Field": "DefaultSeller.Name",
             "DefaultHidden": true
         }, {
             "Header": "Status",
             "Field": "StatusCode",
             "Width": "155px"
+        }, {
+            "Header": "Utskrift",
+            "Field": "PrintStatus",
+            "Width": "125px",
+            "DefaultHidden": true
         }
     ],
     "ParentFilter": {
@@ -835,7 +894,7 @@
     "IsTopLevelTicker": false,
     "Group": "Salg",
     "Model": "CustomerQuoteItem",
-    "Expand": "Product,VatType",
+    "Expand": "",
     "SubTickers": [],
     "ParentFilter": {
         "Field": "CustomerQuoteID",
@@ -860,7 +919,7 @@
         }, {
             "Header": "Mvakode",
             "Field": "VatType.VatPercent",
-            "Format": "percent",
+            "Type": "percent",
             "SubFields": [{
                     "Field": "VatType.Name"
                 }
@@ -868,7 +927,7 @@
         }, {
             "Header": "Rabatt %",
             "Field": "DiscountPercent",
-            "Format": "percent"
+            "Type": "percent"
         }, {
             "Header": "Sum inkl mva",
             "Field": "SumTotalIncVat",
@@ -972,8 +1031,8 @@
     "IsTopLevelTicker": true,
     "Group": "Salg",
     "Model": "CustomerOrder",
-    "Expand": "Customer.Info,CurrencyCode,DefaultSeller.Seller,Items",
-    "CountExpand": "Customer.Info,CurrencyCode,DefaultSeller.Seller",
+    "Expand": "Items",
+    "CountExpand": "Customer.Info,CurrencyCode,DefaultSeller",
     "OrderBy": "ID DESC",
     "Columns": [{
             "Header": "Ordrenr",
@@ -1001,14 +1060,13 @@
             "Field": "OrderDate",
             "FilterOperator": "gt",
             "Width": "100px"
-        },{
+        }, {
             "Header": "Leveringsdato",
             "Field": "DeliveryDate",
             "FilterOperator": "gt",
             "Width": "100px",
             "DefaultHidden": true
-        },
-         {
+        }, {
             "Header": "Valuta",
             "Field": "CurrencyCode.Code",
             "Width": "70px",
@@ -1020,35 +1078,40 @@
             "Width": "125px",
             "FilterOperator": "gt",
             "SumColumn": true
-        },{
+        }, {
             "Header": "Sum inkl mva [BASECURRENCY]",
             "Field": "TaxInclusiveAmount",
             "Format": "NumberPositiveNegative",
             "DefaultHidden": true,
             "SumColumn": true
-        },{
+        }, {
             "Header": "Restsum",
             "Field": "sum(casewhen(items.statuscode eq 41102\\,items.SumTotalExVat\\,0))",
             "Alias": "Restsum",
             "Format": "NumberPositiveNegative",
             "Width": "125px",
             "FilterOperator": "gt"
-        },{
+        }, {
             "Header": "Vår ref",
             "Field": "OurReference",
             "DefaultHidden": true
-        },{
+        }, {
             "Header": "Deres ref",
             "Field": "YourReference",
             "DefaultHidden": true
         },{
             "Header": "Hovedselger",
-            "Field": "DefaultSeller.Seller.Name",
+            "Field": "DefaultSeller.Name",
             "DefaultHidden": true
         }, {
             "Header": "Status",
             "Field": "StatusCode",
             "Width": "155px"
+        }, {
+            "Header": "Utskrift",
+            "Field": "PrintStatus",
+            "Width": "125px",
+            "DefaultHidden": true
         }
     ],
     "ParentFilter": {
@@ -1213,7 +1276,7 @@
     "IsTopLevelTicker": false,
     "Group": "Salg",
     "Model": "CustomerOrderItem",
-    "Expand": "Product,VatType",
+    "Expand": "",
     "SubTickers": [],
     "ParentFilter": {
         "Field": "CustomerOrderID",
@@ -1221,6 +1284,7 @@
         "Value": "ID"
     },
     "Filters": [],
+    "ReadOnlyCases": [{"Key": "CustomerOrderItemStatusCode", "Value": 41103}],
     "Columns": [{
             "Header": "Produkt/tekst",
             "Field": "Product.PartName",
@@ -1238,7 +1302,7 @@
         }, {
             "Header": "Mvakode",
             "Field": "VatType.VatPercent",
-            "Format": "percent",
+            "Type": "percent",
             "SubFields": [{
                     "Field": "VatType.Name"
                 }
@@ -1246,12 +1310,15 @@
         }, {
             "Header": "Rabatt %",
             "Field": "DiscountPercent",
-            "Format": "percent"
+            "Type": "percent"
         }, {
             "Header": "Sum inkl mva",
             "Field": "SumTotalIncVat",
             "Format": "NumberPositiveNegative",
             "Width": "150px"
+        }, {
+            "Header": "Status",
+            "Field": "StatusCode"
         }
     ]
 }, {

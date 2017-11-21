@@ -2,7 +2,13 @@ import {Component, ViewChild, Input, SimpleChanges, Output, EventEmitter} from '
 import {DomSanitizer} from '@angular/platform-browser';
 import {Router} from '@angular/router';
 import {StatusCodeJournalEntryLine, LocalDate} from '../../../../unientities';
-import {UniTable, UniTableColumn, UniTableConfig, UniTableColumnType, ITableFilter, UniTableColumnSortMode} from '../../../../../framework/ui/unitable/index';
+import {
+    UniTable,
+    UniTableColumn,
+    UniTableConfig,
+    UniTableColumnType,
+    UniTableColumnSortMode
+} from '../../../../../framework/ui/unitable/index';
 import {ISummaryConfig} from '../../../common/summary/summary';
 import {ToastService, ToastType, ToastTime} from '../../../../../framework/uniToast/toastService';
 import {UniModalService, ConfirmActions} from '../../../../../framework/uniModal/barrel';
@@ -20,8 +26,8 @@ import * as moment from 'moment';
 declare var _;
 
 class JournalEntryLineCouple {
-    public JournalEntryLineId1: number;
-    public JournalEntryLineId2: number;
+    public JournalEntryLineId1: number; // tslint:disable-line
+    public JournalEntryLineId2: number; // tslint:disable-line
 }
 
 @Component({
@@ -60,7 +66,7 @@ export class LedgerAccountReconciliation {
     private uniTableConfig: UniTableConfig;
     private journalEntryLines: Array<any> = [];
 
-    private itemsSummaryData: any = {};
+    public itemsSummaryData: any = {};
 
     public validationResult: any;
     public summary: ISummaryConfig[];
@@ -73,9 +79,9 @@ export class LedgerAccountReconciliation {
     private busy: boolean = false;
 
     private displayPostsOption: string = 'OPEN';
-    private displayPostsOptionHeaders = { OPEN: 'Åpne poster', MARKED: 'Lukkede poster', ALL: 'Alle poster'};
+    public displayPostsOptionHeaders: any = { OPEN: 'Åpne poster', MARKED: 'Lukkede poster', ALL: 'Alle poster'};
 
-    private summaryData = {
+    private summaryData: any = {
         SumOpen: 0,
         SumOpenDue: 0,
         SumChecked: 0
@@ -143,7 +149,7 @@ export class LedgerAccountReconciliation {
         });
     }
 
-    private onRowSelected(data) {
+    public onRowSelected(data) {
         if (data) {
             let rowModel = data.rowModel;
             if (!rowModel.Markings) {
@@ -161,7 +167,8 @@ export class LedgerAccountReconciliation {
                         'Kan ikke markere rader med forskjellig valuta',
                         ToastType.bad,
                         ToastTime.medium,
-                        'Du kan bare markere rader som har samme valuta. Lag eventuelt motposteringer for å få riktig valuta og agiopostering'
+                        'Du kan bare markere rader som har samme valuta. '
+                        + 'Lag eventuelt motposteringer for å få riktig valuta og agiopostering'
                     );
 
                     rowModel._rowSelected = false;
@@ -177,15 +184,21 @@ export class LedgerAccountReconciliation {
 
                 currentSessionSum += rowModel.RestAmount;
 
-                let sumPositive = _.sumBy(this.currentMarkingSession.filter(x => x.RestAmount > 0), x => x.RestAmount);
-                let sumNegative = _.sumBy(this.currentMarkingSession.filter(x => x.RestAmount < 0), x => x.RestAmount);
+                let sumPositive = _.sumBy(this.currentMarkingSession
+                    .filter(x => x.RestAmount > 0), x => x.RestAmount);
+                let sumNegative = _.sumBy(this.currentMarkingSession
+                    .filter(x => x.RestAmount < 0), x => x.RestAmount);
                 let countPositive = this.currentMarkingSession.filter(x => x.RestAmount > 0).length;
                 let countNegative = this.currentMarkingSession.filter(x => x.RestAmount < 0).length;
 
                 let didSwitchAfterLastSelection: boolean = false;
 
-                if ((sumPositive < Math.abs(sumNegative) && (sumPositive + rowModel.RestAmount) > Math.abs(sumNegative))
-                    || (sumPositive > Math.abs(sumNegative) && (sumPositive + rowModel.RestAmount) < Math.abs(sumNegative))) {
+                if (
+                    (sumPositive < Math.abs(sumNegative)
+                    && (sumPositive + rowModel.RestAmount) > Math.abs(sumNegative))
+                    || (sumPositive > Math.abs(sumNegative)
+                    && (sumPositive + rowModel.RestAmount) < Math.abs(sumNegative))
+                ) {
                     didSwitchAfterLastSelection = true;
                 }
 
@@ -224,8 +237,12 @@ export class LedgerAccountReconciliation {
                     // cause a restamount on one of the selected lines
                     this.addToCurrentMarkingSession(rowModel);
                     this.closeMarkingSession();
-                } else if (((countPositive === 0 && rowModel.RestAmount > 0) || (countPositive === 1 && rowModel.RestAmount < 0))
-                            && ((countNegative === 0 && rowModel.RestAmount < 0) || (countNegative === 1 && rowModel.RestAmount > 0))) {
+                } else if (
+                    ((countPositive === 0 && rowModel.RestAmount > 0)
+                    || (countPositive === 1 && rowModel.RestAmount < 0))
+                    && ((countNegative === 0 && rowModel.RestAmount < 0)
+                    || (countNegative === 1 && rowModel.RestAmount > 0))
+                ) {
                     // One positive and one negative amount are crossed, but the don't balance.
                     // Just add the item to the list and wait for next input from user
                     this.addToCurrentMarkingSession(rowModel);
@@ -391,15 +408,22 @@ export class LedgerAccountReconciliation {
         // remove existing markings if this journalentry has been in a closed marking session
         if (this.currentMarkingSession.find(x => x.ID === rowModel.ID)) {
             this.currentMarkingSession = this.currentMarkingSession.filter(x => x.ID !== rowModel.ID);
-        } else if (this.allMarkingSessions.find(x => x.JournalEntryLineId1 === rowModel.ID || x.JournalEntryLineId2 === rowModel.ID)) {
-            let affectedMarkings = this.allMarkingSessions.filter(x => x.JournalEntryLineId1 === rowModel.ID || x.JournalEntryLineId2 === rowModel.ID);
+        } else if (
+            this.allMarkingSessions.find(x => x.JournalEntryLineId1 === rowModel.ID
+            || x.JournalEntryLineId2 === rowModel.ID)
+        ) {
+            let affectedMarkings = this.allMarkingSessions.filter(
+                x => x.JournalEntryLineId1 === rowModel.ID || x.JournalEntryLineId2 === rowModel.ID
+            );
 
             // update unitable to remove bindings
             let tableData = this.table.getTableData();
 
             affectedMarkings.forEach(marking => {
                 tableData.forEach(row => {
-                    if (row.Markings && row.Markings.find(x => x.ID === marking.JournalEntryLineId1 || x.ID === marking.JournalEntryLineId2)) {
+                    if (row.Markings && row.Markings.find(
+                        x => x.ID === marking.JournalEntryLineId1 || x.ID === marking.JournalEntryLineId2
+                    )) {
                         row.Markings = [];
                         if (row._originalStatusCode) {
                             row.StatusCode = row._originalStatusCode;
@@ -425,7 +449,9 @@ export class LedgerAccountReconciliation {
                 this.table.updateRow(rowModel._originalIndex, rowModel);
             });
 
-            this.allMarkingSessions = this.allMarkingSessions.filter(x => x.JournalEntryLineId1 !== rowModel.ID && x.JournalEntryLineId2 !== rowModel.ID);
+            this.allMarkingSessions = this.allMarkingSessions.filter(
+                x => x.JournalEntryLineId1 !== rowModel.ID && x.JournalEntryLineId2 !== rowModel.ID
+            );
 
             if (this.allMarkingSessions.length === 0) {
                 this.isDirty = false;
@@ -443,10 +469,18 @@ export class LedgerAccountReconciliation {
             // if only one item has been added, and that has 0 as RestAmount, just mark it against itself
             // as a dummy - the API will handle this gracefully
         } else if (this.currentMarkingSession.length < 2) {
-            this.toastService.addToast('Kan ikke merke postene', ToastType.bad, 10, 'Du må velge minst to poster som skal markeres');
+            this.toastService.addToast(
+                'Kan ikke merke postene', ToastType.bad, 10, 'Du må velge minst to poster som skal markeres'
+            );
             return false;
-        } else if (this.currentMarkingSession.filter(x => x.RestAmount > 0).length === 0 || this.currentMarkingSession.filter(x => x.RestAmount < 0).length === 0) {
-            this.toastService.addToast('Kan ikke merke postene', ToastType.bad, ToastTime.medium, 'Du må velge både positive og negative beløp');
+        } else if (this.currentMarkingSession.filter(
+            x => x.RestAmount > 0).length === 0
+            || this.currentMarkingSession.filter(x => x.RestAmount < 0).length === 0
+        ) {
+            this.toastService.addToast(
+                'Kan ikke merke postene', ToastType.bad,
+                ToastTime.medium, 'Du må velge både positive og negative beløp'
+            );
             return false;
         }
 
@@ -689,13 +723,18 @@ export class LedgerAccountReconciliation {
         // close them before saving
         if (this.currentMarkingSession.length > 1) {
             if (!this.closeMarkingSession()) {
-                this.toastService.addToast('Lagring avbrutt', ToastType.bad, ToastTime.medium, 'Fjern markeringene det er problemer med og forsøk igjen');
+                this.toastService.addToast(
+                    'Lagring avbrutt', ToastType.bad, ToastTime.medium,
+                    'Fjern markeringene det er problemer med og forsøk igjen'
+                );
                 return;
             }
         }
 
         if (this.allMarkingSessions.length === 0) {
-            this.toastService.addToast('Lagring avbrutt', ToastType.warn, ToastTime.medium, 'Du har ikke gjort noen endringer som kan lagres');
+            this.toastService.addToast(
+                'Lagring avbrutt', ToastType.warn, ToastTime.medium, 'Du har ikke gjort noen endringer som kan lagres'
+            );
             return;
         }
 
@@ -800,7 +839,11 @@ export class LedgerAccountReconciliation {
                 .setTemplate(x => this.journalEntryLineService.getStatusText(x.StatusCode)),
             new UniTableColumn('NumberOfPayments', 'Bet.', UniTableColumnType.Text)
                 .setWidth('60px')
-                .setTemplate(x => x.NumberOfPayments > 0 ? `<span title="${x.NumberOfPayments} relaterte betalinger finnes">1</span>` : ''),
+                .setTemplate(
+                    x => x.NumberOfPayments > 0
+                        ? `<span title="${x.NumberOfPayments} relaterte betalinger finnes">1</span>`
+                        : ''
+                ),
             new UniTableColumn('Markings', 'Motpost', UniTableColumnType.Text)
                 .setTemplate(item => {
                     return this.getMarkingsText(item);

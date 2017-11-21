@@ -1,7 +1,9 @@
 import {Component, ViewChild, Input, Output, EventEmitter, AfterViewInit, SimpleChanges} from '@angular/core';
 import {Router} from '@angular/router';
 import {SellerLink} from '../../../unientities';
-import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig, IContextMenuItem} from '../../../../framework/ui/unitable/index';
+import {
+    UniTable, UniTableColumn, UniTableColumnType, UniTableConfig, IContextMenuItem
+} from '../../../../framework/ui/unitable/index';
 import {ToastService, ToastTime, ToastType} from '../../../../framework/uniToast/toastService';
 import {
     ErrorService,
@@ -100,20 +102,11 @@ export class SellerLinks implements AfterViewInit {
                 },
                 searchPlaceholder: 'Velg selger',
                 lookupFunction: (query) => {
-                    return this.sellerService.GetAll(`filter=startswith(ID,'${query}') or contains(Name,'${query}')&top=30`)
-                        .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
+                    return this.sellerService.GetAll(
+                        `filter=startswith(ID,'${query}') or contains(Name,'${query}')&top=30`
+                    ).catch((err, obs) => this.errorService.handleRxCatch(err, obs));
                 }
             });
-
-        let isMainSellerCol = new UniTableColumn('ID', 'Hovedselger',  UniTableColumnType.Text)
-            .setTemplate((sellerLink) => {
-                if (sellerLink.ID && sellerLink.ID === this.parent.DefaultSellerLinkID 
-                    || (this.parent.DefaultSeller && sellerLink.SellerID === this.parent.DefaultSeller.SellerID)) {
-                    return 'Ja';
-                }
-                return '';
-            })
-            .setEditable(false);
 
         let percentCol = new UniTableColumn('Percent', 'Prosent', UniTableColumnType.Number);
         let amountCol = new UniTableColumn('Amount', 'Beløp', UniTableColumnType.Number)
@@ -137,29 +130,6 @@ export class SellerLinks implements AfterViewInit {
                 this.router.navigateByUrl('/sales/sellers/' + rowModel.Seller.ID + '/sales');
             },
             disabled: (rowModel) => !rowModel.SellerID
-        },
-        {
-            label: 'Sett som hovedselger',
-            action: (rowModel) => {
-                if (!rowModel.ID || rowModel.ID === 0) {
-                    this.toastService.addToast(
-                        'Lagre endringene dine først',
-                        ToastType.warn,
-                        ToastTime.medium,
-                        'Du må lagre endringene før du setter hovedselger'
-                    );
-                } else {
-                    // set main seller on parent model
-                    this.parent.DefaultSellerLinkID = rowModel.ID;
-                    this.sellers.forEach(sellerLink => {
-                        this.table.updateRow(sellerLink['_originalIndex'], sellerLink);
-                    });
-                    this.mainSellerSet.emit(rowModel);
-                }
-            },
-            disabled: (rowModel) => {
-                return false;
-            }
         });
 
         // Setup table
@@ -170,6 +140,6 @@ export class SellerLinks implements AfterViewInit {
             .setDeleteButton(true)
             .setContextMenu(contextMenuItems)
             .setChangeCallback(event => this.changeCallback(event))
-            .setColumns([sellerCol, isMainSellerCol, percentCol, amountCol]);
+            .setColumns([sellerCol, percentCol, amountCol]);
     }
 }

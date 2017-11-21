@@ -25,7 +25,11 @@ export class EmployeeList {
         this.busy = true;
         this.employees$ =
             _employeeService
-                .GetAll('orderby=EmployeeNumber ASC', ['BusinessRelationInfo.DefaultEmail', 'SubEntity.BusinessRelationInfo'])
+                .GetAll(
+                    'orderby=EmployeeNumber ASC',
+                    ['BusinessRelationInfo.DefaultEmail',
+                    'SubEntity.BusinessRelationInfo']
+                )
                 .finally(() => this.busy = false)
                 .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
 
@@ -33,24 +37,34 @@ export class EmployeeList {
 
         var nameCol = new UniTableColumn('BusinessRelationInfo.Name', 'Navn', UniTableColumnType.Text);
 
-        var emailCol = new UniTableColumn('BusinessRelationInfo.DefaultEmail', 'Epost').setTemplate((employee: Employee) => {
+        var emailCol = new UniTableColumn(
+            'BusinessRelationInfo.DefaultEmail', 'Epost'
+        ).setTemplate((employee: Employee) => {
 
-            if (!employee.BusinessRelationInfo || !employee.BusinessRelationInfo.DefaultEmail || !employee.BusinessRelationInfo.DefaultEmail.EmailAddress) {
-                return '';
+            if (!employee.BusinessRelationInfo
+                || !employee.BusinessRelationInfo.DefaultEmail
+                || !employee.BusinessRelationInfo.DefaultEmail.EmailAddress) {
+                    return '';
             }
 
-            return `<a href="mailto:${employee.BusinessRelationInfo.DefaultEmail.EmailAddress}" >${employee.BusinessRelationInfo.DefaultEmail.EmailAddress}</a>`;
+            return `<a href="mailto:${employee.BusinessRelationInfo.DefaultEmail.EmailAddress}" >
+                ${employee.BusinessRelationInfo.DefaultEmail.EmailAddress}
+            </a>`;
         });
 
         var birthDateCol = new UniTableColumn('BirthDate', 'Fødselsdato', UniTableColumnType.LocalDate);
 
-        var subEntityCol = new UniTableColumn('SubEntity.BusinessRelationInfo.Name', 'Virksomhet', UniTableColumnType.Text);
+        var subEntityCol = new UniTableColumn(
+            'SubEntity.BusinessRelationInfo.Name', 'Virksomhet', UniTableColumnType.Text
+        );
 
         this.employeeTableConfig = new UniTableConfig('salary.employee.employeeList', false)
             .setColumns([idCol, nameCol, emailCol, birthDateCol, subEntityCol])
             .setSearchable(true);
 
-        this.tabService.addTab({ name: 'Ansatte', url: '/salary/employees', moduleID: UniModules.Employees, active: true });
+        this.tabService.addTab(
+            { name: 'Ansatte', url: '/salary/employees', moduleID: UniModules.Employees, active: true }
+        );
     }
 
     public rowSelected(event) {

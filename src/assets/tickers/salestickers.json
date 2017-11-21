@@ -6,7 +6,7 @@
         "IsTopLevelTicker": true,
         "Group": "Salg",
         "Model": "Customer",
-        "Expand": "Info,Info.DefaultEmail,Info.DefaultPhone,Info.InvoiceAddress",
+        "Expand": "",
         "Columns": [
             {
                 "Header": "Kundenr",
@@ -86,7 +86,7 @@
         "IsTopLevelTicker": false,
         "Group": "Salg",
         "Model": "Customer",
-        "Expand": "Info.ShippingAddress,Info.InvoiceAddress,Info.DefaultPhone,Info.DefaultEmail,CurrencyCode",
+        "Expand": "",
         "SubTickers": [],
         "Filters": [],
         "UseParentTickerActions": true,

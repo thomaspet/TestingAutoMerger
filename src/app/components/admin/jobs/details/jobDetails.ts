@@ -39,7 +39,7 @@ class ScheduleHelper {
 export class JobDetails {
     @ViewChild(UniSelect)
 
-    private saveActions: IUniSaveAction[] = [];
+    public saveActions: IUniSaveAction[] = [];
     private toolbarconfig: IToolbarConfig;
     private delayTimeUnitSelectConfig: ISelectConfig;
     private scheduleTimeUnitSelectConfig: ISelectConfig;
@@ -52,19 +52,19 @@ export class JobDetails {
     // job start
     private jobStartModes: any[];
     private jobStartMode: JobStartMode = JobStartMode.Now;
-    
+
     // delayed start
     private delayTimeUnits: any[];
     private delayTimeUnit: TimeUnit = TimeUnit.Min;
     private delay: string = '';
-    
+
 
     // schedules
     private scheduleTimeUnits: any[];
     private newSchedule: ScheduleHelper = new ScheduleHelper();
     private schedules: ScheduleHelper[] = [];
 
-    private lastExecutionTime: string = "Aldri kjørt";
+    public lastExecutionTime: string = 'Aldri kjørt';
 
     constructor(
         private tabService: TabService,
@@ -98,7 +98,7 @@ export class JobDetails {
         this.jobStartModes = [
             {name: 'Nå', mode: JobStartMode.Now },
             // 'Date' will be supported later.
-            //{name: 'I et tidspunkt', mode: JobStartMode.Date },
+            // {name: 'I et tidspunkt', mode: JobStartMode.Date },
             {name: 'Med utsettelse', mode: JobStartMode.Delay }
         ];
 
@@ -154,9 +154,9 @@ export class JobDetails {
 
         this.tabService.addTab(
             {
-                url: '/admin/job-details/' + this.job.Name, 
-                name: tabTitle, 
-                active: true, 
+                url: '/admin/job-details/' + this.job.Name,
+                name: tabTitle,
+                active: true,
                 moduleID: UniModules.Jobs,
             });
     }
@@ -175,11 +175,11 @@ export class JobDetails {
         }
     }
 
-    private toggleJob() {
+    public toggleJob() {
         this.job.IsEnabled = !this.job.IsEnabled;
     }
 
-    private startJob() {
+    public startJob() {
         switch (this.jobStartMode) {
             case JobStartMode.Now:
                 this.startJobNow();
@@ -195,7 +195,7 @@ export class JobDetails {
                 break;
         }
     }
-            
+
     private startJobNow() {
         this.jobService.startJob(this.job.Name).subscribe(
             result => {},
@@ -223,36 +223,36 @@ export class JobDetails {
                 err => this.errorService.handle(err));
         }
     }
-    
-    private onJobStartModeChanged(event) {
+
+    public onJobStartModeChanged(event) {
         this.jobStartMode = event.mode;
     }
 
-    private onDelayTimeUnitChanged(event) {
+    public onDelayTimeUnitChanged(event) {
         this.delayTimeUnit = event.unit;
     }
 
-    private onNewScheduleTimeUnitChanged(event) {
+    public onNewScheduleTimeUnitChanged(event) {
         this.newSchedule.unit = event.unit;
     }
 
-    private onScheduleTimeUnitChanged(event, item: ScheduleHelper) {
+    public onScheduleTimeUnitChanged(event, item: ScheduleHelper) {
         item.unit = event.unit;
         this.updateSchedule(item);
     }
 
-    private isJobStartDisabled(): Boolean {
-        return this.isNewJob 
-            || 
+    public isJobStartDisabled(): Boolean {
+        return this.isNewJob
+            ||
                 (
-                    this.jobStartMode === JobStartMode.Delay 
+                    this.jobStartMode === JobStartMode.Delay
                     && !this.isNumber(this.delay)
                 );
             // 'Date' will be supported later.
-            //|| (this.jobStartMode === JobStartMode.Date && )
+            // || (this.jobStartMode === JobStartMode.Date && )
     }
 
-    private addNewSchedule() {
+    public addNewSchedule() {
         this.jobService.createSchedule(this.job.Name, this.convertObjectToCronExp(this.newSchedule)).subscribe(
             result => {
                 this.newSchedule = new ScheduleHelper();
@@ -262,7 +262,7 @@ export class JobDetails {
         );
     }
 
-    private deleteSchedule(id: string) {
+    public deleteSchedule(id: string) {
         this.jobService.deleteSchedule(id).subscribe(
             result => {
                 this.getSchedules();
@@ -270,7 +270,7 @@ export class JobDetails {
             err => {
                 // @TODO: fix ret value on backend first and then remove this line and uncomment the error handler
                 this.getSchedules();
-                //this.errorService.handle(err)
+                // this.errorService.handle(err)
             }
         );
     }
@@ -287,7 +287,7 @@ export class JobDetails {
             schedules => {
                 let tmpArray = [];
                 let tmp: ScheduleHelper;
-
+                // tslint:disable-next-line:forin
                 for (let key in schedules) {
                     tmp = this.convertCronExpToObject(schedules[key]);
                     tmp.id = key;
@@ -296,7 +296,7 @@ export class JobDetails {
                 }
                 this.schedules = tmpArray;
             },
-            err => this.errorService.handle(err)        
+            err => this.errorService.handle(err)
         );
     }
 
@@ -331,8 +331,7 @@ export class JobDetails {
         return scheduleHelper;
     }
 
-    private getScheduleTimeUnit(schedule: any)
-    {
+    public getScheduleTimeUnit(schedule: any) {
         let length: number = this.scheduleTimeUnits.length;
         let obj: any;
 

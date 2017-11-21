@@ -1,8 +1,10 @@
 import {Component} from '@angular/core';
-import {ActivatedRoute} from '@angular/router';
+import {ActivatedRoute, Router} from '@angular/router';
 import {FormBuilder, FormControl, Validators, FormGroup} from '@angular/forms';
 import {UniHttp} from '../../../../framework/core/http/http';
+import {AuthService} from '../../../authService';
 import {passwordValidator, passwordMatchValidator, usernameValidator} from '../authValidators';
+import {Company} from '../../../unientities';
 
 @Component({
     selector: 'uni-signup',
@@ -21,6 +23,8 @@ export class Signup {
     constructor(
         private http: UniHttp,
         private route: ActivatedRoute,
+        private authService: AuthService,
+        private router: Router,
         formBuilder: FormBuilder
     ) {
         this.step1Form = formBuilder.group({
@@ -63,7 +67,8 @@ export class Signup {
             .subscribe(
                 res => {
                     this.busy = false;
-                    this.successMessage = 'Vi vil nå verifisere eposten din. Vennligst sjekk innboks for videre informasjon.';
+                    this.successMessage = 'Vi vil nå verifisere eposten din. '
+                        + 'Vennligst sjekk innboks for videre informasjon.';
                 },
                 err => {
                     this.busy = false;
@@ -77,7 +82,8 @@ export class Signup {
                     } catch (e) {}
 
                     if (!this.errorMessage) {
-                        this.errorMessage = 'Noe gikk galt under verifisering. Vennligst sjekk detaljer og prøv igjen.';
+                        this.errorMessage = 'Noe gikk galt under verifisering. '
+                            + 'Vennligst sjekk detaljer og prøv igjen.';
                     }
                 }
             );
@@ -88,7 +94,7 @@ export class Signup {
         this.busy = true;
         const formValues = this.step2Form.value;
 
-        let requestBody = {
+        const requestBody = {
             UserName: formValues.UserName,
             Password: formValues.Password,
             ConfirmationCode: this.confirmationCode
@@ -101,8 +107,7 @@ export class Signup {
             .send()
             .subscribe(
                 res => {
-                    this.successMessage = 'Vi setter nå opp selskapet ditt. En epost blir automatisk sendt ut når kontoen er klar for bruk.'
-                    this.busy = false;
+                    this.attemptLogin(requestBody.UserName, requestBody.Password, res.json());
                 },
                 err => {
                     let usernameExists;
@@ -110,7 +115,7 @@ export class Signup {
                     // Try catch to avoid having to null check everything
                     try {
                         const errorBody = err.json();
-                        usernameExists = errorBody.Messages[0].Message.indexOf('Username') >= 0;
+                        usernameExists = errorBody.Messages[0].Message.toLowerCase().indexOf('username') >= 0;
                     } catch (e) {}
 
                     if (usernameExists) {
@@ -123,4 +128,28 @@ export class Signup {
                 }
             );
     }
+
+    public attemptLogin(
+        username: string,
+        password: string,
+        company: Company
+    ) {
+        if (!company) {
+            this.router.navigateByUrl('/init/login');
+            return;
+        }
+
+        this.authService.authenticate({
+            username: username,
+            password: password
+        }).subscribe(
+            success => {
+                this.authService.setActiveCompany(company);
+            },
+            err => {
+                this.router.navigateByUrl('/init/login');
+            }
+        );
+    }
+
 }

@@ -18,7 +18,7 @@ import {UniModalService} from '../../../../framework/uniModal/barrel';
 
 })
 export class AltinnSettings implements OnInit {
-    private formConfig$: BehaviorSubject<any>= new BehaviorSubject({});
+    public formConfig$: BehaviorSubject<any>= new BehaviorSubject({});
     private fields$: BehaviorSubject<UniFieldLayout[]> = new BehaviorSubject([]);
     private altinn$: BehaviorSubject<Altinn> = new BehaviorSubject(null);
     private busy: boolean;

@@ -47,15 +47,19 @@ export class ConfirmInvite {
                     .map(response => response.json())
                     .subscribe(
                         (response) => {
-                            if (response.StatusCode === 0 && response.ExpirationDate && Date.parse(response.ExpirationDate) > Date.now()) {
-                                this.validInvite = true;
+                            if (response.StatusCode === 0
+                                && response.ExpirationDate
+                                && Date.parse(response.ExpirationDate) > Date.now()) {
+                                    this.validInvite = true;
                             } else {
-                                this.errorMessage = 'Invitasjonen har utgått eller er ikke gyldig. Vennligst be administrator invitere deg på nytt.'
+                                this.errorMessage = 'Invitasjonen har utgått eller er ikke gyldig. '
+                                    + 'Vennligst be administrator invitere deg på nytt.';
                                 this.confirmInviteForm.disable();
                             }
                         },
                         (error) => {
-                            this.errorMessage = 'Invitasjonen er ikke gyldig. Vennligst be administrator invitere deg på nytt.'
+                            this.errorMessage = 'Invitasjonen er ikke gyldig. '
+                                + 'Vennligst be administrator invitere deg på nytt.';
                             this.confirmInviteForm.disable();
                         }
                     );

@@ -223,3 +223,29 @@ payrollrun-details .entityDetails
 
 .journalEntryNumber
     @extend .application
+
+.salaryTransTable
+    .icon-column
+        font-size: 0
+        height: 1
+        display: flex
+        justify-content: center
+        align-content: center
+
+    .info-base
+        display: inline-block
+        height: 1rem
+        width: 1rem
+        border-radius: 99rem
+        background-size: 1rem 1rem
+        background-image: unicon-info($uni-color-negative)
+        background-position: center center
+        background-repeat: no-repeat
+
+    .info-warn
+        @extend .info-base
+        background-color: $uni-color-warn
+
+    .info-ok
+        @extend .info-base
+        background-color: $uni-color-good

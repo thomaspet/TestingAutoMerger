@@ -4,7 +4,7 @@ import {AdminProduct} from '../../../services/admin/adminProductService';
     name: 'onlyBundles'
 })
 export class OnlyBundlesPipe implements PipeTransform {
-    transform(items: Array<AdminProduct>): Array<AdminProduct> {
+    public transform(items: Array<AdminProduct>): Array<AdminProduct> {
         return items.filter(item => item.isBundle === true);
     }
 }

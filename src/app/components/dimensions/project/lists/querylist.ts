@@ -1,9 +1,7 @@
-import {Component, ViewChild} from '@angular/core';
-import {IReference} from '../../../../models/iReference';
-import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
+import {Component} from '@angular/core';
+import {UniModules} from '../../../layout/navbar/tabstrip/tabService';
 import {ActivatedRoute} from '@angular/router';
 import {ISummaryConfig} from '../../../common/summary/summary';
-import {Project} from '../../../../unientities';
 import {
     ProjectService,
     ErrorService,
@@ -30,7 +28,7 @@ export class ProjectQueryList {
     public ngOnInit() {
         this.uniQueryDefinitionService.getReferenceByModuleId(UniModules.Projects).subscribe((links) => {
             this.route.url.subscribe((url) => {
-                let link = links.find(x => x.name == url[0].path);
+                let link = links.find(x => x.name === url[0].path);
                 if (link) {
                     this.reportID = link.id;
                 }
@@ -46,7 +44,7 @@ export class ProjectQueryList {
             }
         );
 
-        //this.setSums(); // TODO: need to get the sums for each status from Statistics
+        // this.setSums(); // TODO: need to get the sums for each status from Statistics
     }
 
     public setSums() {

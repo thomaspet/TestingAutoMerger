@@ -254,7 +254,8 @@ export function scrollToView(element: IJQItem, parent: IJQItem) {
         ul.scrollTop = li.offsetTop - fudge;
     } else if (li.offsetTop >= bottom) {
         // move to bottom position if LI below it
-        // use algebra to subtract ((ul.offsetHeight - fudge) - li.offsetHeight) from both sides to solve for ul.scrollTop
+        // use algebra to subtract ((ul.offsetHeight - fudge) - li.offsetHeight)
+        // from both sides to solve for ul.scrollTop
         ul.scrollTop = li.offsetTop - ((ul.offsetHeight - fudge) - li.offsetHeight);
     }
 

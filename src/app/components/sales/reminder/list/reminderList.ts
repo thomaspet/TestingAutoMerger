@@ -46,7 +46,7 @@ export class ReminderList {
     };
 
     private summaryFields: ISummaryConfig[] = [];
-    private summaryData = {
+    private summaryData: any = {
         restSumInvoicesToRemind: 0,
         restSumChecked: 0,
         SumFee: 0,
@@ -83,7 +83,7 @@ export class ReminderList {
 
     }
 
-    private defaultTableFilter(): ITableFilter[] {
+    public defaultTableFilter(): ITableFilter[] {
         const filters: ITableFilter[] = [];
 
         // Minimum amount to remind
@@ -171,9 +171,10 @@ export class ReminderList {
             this.customerInvoiceReminderService.createInvoiceRemindersForInvoicelist(selected);
 
         method.subscribe((reminders) => {
-            this.router.navigateByUrl("/sales/reminders/reminded");
+            this.router.navigateByUrl('/sales/reminders/reminded');
             /*
-            TODO:   discarded modal view of sending av printing, completely remove modal view if BA approves of this simplified prosess
+            TODO:   discarded modal view of sending av printing,
+            completely remove modal view if BA approves of this simplified prosess
                     Using
             this.reminderSendingModal.confirm(reminders).then((action) => {
                 this.updateReminderTable();
@@ -199,7 +200,7 @@ export class ReminderList {
             .onClose.subscribe(() => done());
     }
 
-    private onRowSelected(data) {
+    public onRowSelected(data) {
         this.summaryData.restSumChecked = 0;
         this.summaryData.SumFee = 0;
 
@@ -215,7 +216,9 @@ export class ReminderList {
 
     private setSums() {
         this.summaryFields = [{
-            value: this.summaryData ? this.numberFormatService.asMoney(this.summaryData.restSumInvoicesToRemind) : null,
+            value: this.summaryData
+                ? this.numberFormatService.asMoney(this.summaryData.restSumInvoicesToRemind)
+                : null,
             title: 'Totalt restsum',
         }, {
                 value: this.summaryData ? this.numberFormatService.asMoney(this.summaryData.restSumChecked) : null,
@@ -228,7 +231,9 @@ export class ReminderList {
     }
 
     public updateReminderTable(init: boolean = false) {
-        this.customerInvoiceReminderService.getCustomerInvoicesReadyForReminding(this.showInvoicesWithReminderStop).subscribe((invoicesAndReminderslist) => {
+        this.customerInvoiceReminderService.getCustomerInvoicesReadyForReminding(
+            this.showInvoicesWithReminderStop
+        ).subscribe((invoicesAndReminderslist) => {
             this.reminderList = invoicesAndReminderslist;
             if (init) {
                 this.reminderList = this.reminderList.map((r) => {
@@ -250,17 +255,23 @@ export class ReminderList {
         let invoiceNumberCol = new UniTableColumn('InvoiceNumber', 'Fakturanr.', UniTableColumnType.Text, false)
             .setWidth('100px').setFilterOperator('contains')
             .setTemplate((reminder) => {
-                return reminder.CustomerInvoiceID ? `<a href='/#/sales/invoices/${reminder.CustomerInvoiceID}'>${reminder.InvoiceNumber}</a>` : ``;
+                return reminder.CustomerInvoiceID
+                    ? `<a href='/#/sales/invoices/${reminder.CustomerInvoiceID}'>${reminder.InvoiceNumber}</a>`
+                    : ``;
             });
         let customerNumberCol = new UniTableColumn('CustomerNumber', 'Kundenr', UniTableColumnType.Text, false)
             .setWidth('100px').setFilterOperator('startswith')
             .setTemplate((reminder) => {
-                return reminder.CustomerID ? `<a href='/#/sales/customer/${reminder.CustomerID}'>${reminder.CustomerNumber}</a>` : ``;
+                return reminder.CustomerID
+                    ? `<a href='/#/sales/customer/${reminder.CustomerID}'>${reminder.CustomerNumber}</a>`
+                    : ``;
             });
         let customerNameCol = new UniTableColumn('CustomerName', 'Kunde', UniTableColumnType.Text, false)
             .setFilterOperator('contains')
             .setTemplate((reminder) => {
-                return reminder.CustomerID ? `<a href='/#/sales/customer/${reminder.CustomerID}'>${reminder.CustomerName}</a>` : ``;
+                return reminder.CustomerID
+                    ? `<a href='/#/sales/customer/${reminder.CustomerID}'>${reminder.CustomerName}</a>`
+                    : ``;
             });
         let emailCol = new UniTableColumn('EmailAddress', 'Epost', UniTableColumnType.Text, true)
             .setFilterOperator('contains');
@@ -269,7 +280,9 @@ export class ReminderList {
             .setFilterOperator('contains')
             .setWidth('5%');
 
-        var taxInclusiveAmountCurrencyCol = new UniTableColumn('TaxInclusiveAmountCurrency', 'Fakturasum', UniTableColumnType.Number, false)
+        var taxInclusiveAmountCurrencyCol = new UniTableColumn(
+            'TaxInclusiveAmountCurrency', 'Fakturasum', UniTableColumnType.Number, false
+        )
             .setWidth('8%')
             .setFilterOperator('eq')
             .setFormat('{0:n}')
@@ -279,7 +292,9 @@ export class ReminderList {
             })
             .setCls('column-align-right');
 
-        var restAmountCurrencyCol = new UniTableColumn('RestAmountCurrency', 'Restsum', UniTableColumnType.Number, false)
+        var restAmountCurrencyCol = new UniTableColumn(
+                'RestAmountCurrency', 'Restsum', UniTableColumnType.Number, false
+            )
             .setWidth('10%')
             .setFilterOperator('eq')
             .setFormat('{0:n}')
@@ -309,7 +324,9 @@ export class ReminderList {
             label: 'Inverter purrestopp',
             action: (rowModel) => {
                 const warnToastID = this.toastService.addToast('Purrestopp', ToastType.warn);
-                this.customerInvoiceService.ActionWithBody(rowModel.CustomerInvoiceID, rowModel, 'toggle-reminder-stop').subscribe(() => {
+                this.customerInvoiceService.ActionWithBody(
+                    rowModel.CustomerInvoiceID, rowModel, 'toggle-reminder-stop'
+                ).subscribe(() => {
                     this.toastService.removeToast(warnToastID);
                     this.toastService.addToast('Purrestopp invertert', ToastType.good, 10);
                     this.updateReminderTable();
@@ -328,9 +345,12 @@ export class ReminderList {
             .setMultiRowSelect(true)
             .setDeleteButton(false)
             .setAutoAddNewRow(false)
-            //.setFilters(this.defaultTableFilter()) // TODO: later on
-            .setColumns([reminderNumberCol, invoiceNumberCol, customerNumberCol, customerNameCol, emailCol, currencyCodeCol,
-                taxInclusiveAmountCurrencyCol, restAmountCurrencyCol, feeAmountCol, invoiceDateCol, dueDateCol, reminderStoppCol])
+            // .setFilters(this.defaultTableFilter()) // TODO: later on
+            .setColumns([
+                reminderNumberCol, invoiceNumberCol, customerNumberCol, customerNameCol, emailCol,
+                currencyCodeCol, taxInclusiveAmountCurrencyCol, restAmountCurrencyCol,
+                feeAmountCol, invoiceDateCol, dueDateCol, reminderStoppCol
+            ])
             .setContextMenu(contextMenuItems);
     }
 }

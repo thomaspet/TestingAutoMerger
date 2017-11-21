@@ -2,7 +2,6 @@ import {Component, Input, ViewChild, Output, EventEmitter, SimpleChanges} from '
 import {Router, ActivatedRoute} from '@angular/router';
 import {Observable} from 'rxjs/Observable';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
-import {SearchResultItem} from '../../../common/externalSearch/externalSearch';
 import {IUniSaveAction} from '../../../../../framework/save/save';
 import {UniForm, UniFieldLayout, FieldType} from '../../../../../framework/ui/uniform/index';
 import {
@@ -16,6 +15,7 @@ import {
     CurrencyCode,
     Terms,
     NumberSeries,
+    Seller,
     SellerLink
 } from '../../../../unientities';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
@@ -41,7 +41,8 @@ import {
     TermsService,
     UniSearchCustomerConfig,
     NumberSeriesService,
-    SellerLinkService
+    SellerLinkService,
+    SellerService
 } from '../../../../services/services';
 import {
     UniModalService,
@@ -90,6 +91,7 @@ export class CustomerDetails {
     private isDirty: boolean = false;
     private selectConfig: any;
     private deletables: SellerLink[] = [];
+    private sellers: Seller[];
 
     private toolbarconfig: IToolbarConfig = {
         title: 'Kunde',
@@ -157,6 +159,7 @@ export class CustomerDetails {
             }
         }
     ];
+
     private customerStatisticsData: any;
 
     private expandOptions: Array<string> = [
@@ -177,8 +180,7 @@ export class CustomerDetails {
         'Sellers',
         'Sellers.Seller',
         'DefaultSeller'
-        ];
-
+    ];
 
     private formIsInitialized: boolean = false;
 
@@ -206,7 +208,8 @@ export class CustomerDetails {
         private http: UniHttp,
         private termsService: TermsService,
         private numberSeriesService: NumberSeriesService,
-        private sellerLinkService: SellerLinkService
+        private sellerLinkService: SellerLinkService,
+        private sellerService: SellerService
     ) {}
 
     public ngOnInit() {
@@ -247,54 +250,36 @@ export class CustomerDetails {
     }
 
     public nextCustomer() {
-        this.canDeactivate().subscribe(canDeactivate => {
-            if (!canDeactivate) {
-                return;
-            }
-
-            this.customerService.getNextID(this.customerID ? this.customerID : 0)
-                .subscribe(id => {
-                        if (id) {
-                            this.router.navigateByUrl('/sales/customer/' + id);
-                        } else {
-                            this.toastService.addToast('Warning', ToastType.warn, 0, 'Ikke flere kunder etter denne');
-                        }
-                    },
-                    err => this.errorService.handle(err)
-                );
-        });
+        this.customerService.getNextID(this.customerID ? this.customerID : 0)
+            .subscribe(id => {
+                    if (id) {
+                        this.router.navigateByUrl('/sales/customer/' + id);
+                    } else {
+                        this.toastService.addToast('Warning', ToastType.warn, 0, 'Ikke flere kunder etter denne');
+                    }
+                },
+                err => this.errorService.handle(err)
+            );
     }
 
     public previousCustomer() {
-        this.canDeactivate().subscribe(canDeactivate => {
-            if (!canDeactivate) {
-                return;
-            }
-
-            this.customerService.getPreviousID(this.customerID ? this.customerID : 0)
-                .subscribe(id => {
-                        if (id) {
-                            this.router.navigateByUrl('/sales/customer/' + id);
-                        } else {
-                            this.toastService.addToast('Warning', ToastType.warn, 0, 'Ikke flere kunder før denne');
-                        }
-                    },
-                    err => this.errorService.handle(err)
-                );
-        });
+        this.customerService.getPreviousID(this.customerID ? this.customerID : 0)
+            .subscribe(id => {
+                    if (id) {
+                        this.router.navigateByUrl('/sales/customer/' + id);
+                    } else {
+                        this.toastService.addToast('Warning', ToastType.warn, 0, 'Ikke flere kunder før denne');
+                    }
+                },
+                err => this.errorService.handle(err)
+            );
     }
 
     public addCustomer() {
-        this.canDeactivate().subscribe(canDeactivate => {
-            if (!canDeactivate) {
-                return;
-            }
-
-            this.showTab('details');
-            this.router.navigateByUrl('/sales/customer/new');
-            this.isDisabled = true;
-            this.setupSaveActions();
-        });
+        this.showTab('details');
+        this.router.navigateByUrl('/sales/customer/new');
+        this.isDisabled = true;
+        this.setupSaveActions();
     }
 
     private deleteCustomer(id: number) {
@@ -331,6 +316,11 @@ export class CustomerDetails {
                 .map(result => {
                     if (result === ConfirmActions.ACCEPT) {
                         this.saveCustomer(() => {});
+                    } else if (result === ConfirmActions.REJECT) {
+                        this.isDirty = false;
+                        if (this.ledgerAccountReconciliation) {
+                            this.ledgerAccountReconciliation.isDirty = false;
+                        }
                     }
 
                     return result !== ConfirmActions.CANCEL;
@@ -342,14 +332,8 @@ export class CustomerDetails {
             && this.ledgerAccountReconciliation
             && this.ledgerAccountReconciliation.isDirty) {
 
-            this.canDeactivate().subscribe(canDeactivate => {
-                if (!canDeactivate) {
-                    return;
-                }
-
-                this.activeTab = tab;
-                this.showReportWithID = reportid;
-            });
+            this.activeTab = tab;
+            this.showReportWithID = reportid;
         } else {
             this.activeTab = tab;
             this.showReportWithID = reportid;
@@ -401,7 +385,8 @@ export class CustomerDetails {
                     `filter=NumberSeriesType.Name eq 'Customer Account number series'
                     and Empty eq false and Disabled eq false`,
                     ['NumberSeriesType']
-                )
+                ),
+                this.sellerService.GetAll(null)
             ).subscribe(response => {
                 this.dropdownData = [response[0], response[1]];
                 this.emptyPhone = response[3];
@@ -412,6 +397,7 @@ export class CustomerDetails {
                 this.paymentTerms = response[8];
                 this.deliveryTerms = response[9];
                 this.numberSeries = response[10].map(x => this.numberSeriesService.translateSerie(x));
+                this.sellers = response[11];
 
                 let customer: Customer = response[2];
                 customer.SubAccountNumberSeriesID =
@@ -427,7 +413,7 @@ export class CustomerDetails {
                         this.customerInvoiceReminderSettingsService.getNewGuid();
                 }
 
-                customer.DefaultSeller = customer.DefaultSeller || new SellerLink();
+                customer.DefaultSeller = customer.DefaultSeller || new Seller();
 
                 this.selectConfig = this.numberSeriesService.getSelectConfig(
                     this.customerID, this.numberSeries, 'Customer number series'
@@ -545,6 +531,15 @@ export class CustomerDetails {
             template: (item) => {
                 return item !== null ? (item.ProjectNumber + ' - ' + item.Name) : '';
             },
+            debounceTime: 200,
+            addEmptyValue: true
+        };
+
+        let defaultSeller: UniFieldLayout = fields.find(field => field.Property === 'DefaultSeller.ID');
+        defaultSeller.Options = {
+            source: this.sellers,
+            valueProperty: 'ID',
+            displayProperty: 'Name',
             debounceTime: 200,
             addEmptyValue: true
         };
@@ -781,14 +776,13 @@ export class CustomerDetails {
             customer['_CustomerSearchResult'] = undefined;
 
             // if main seller does not exist in 'Sellers', create and add it
-            if (customer.DefaultSeller && customer.DefaultSeller.SellerID
-                && !customer.DefaultSeller._createguid && !customer.Sellers.find(sellerLink =>
-                    sellerLink.SellerID === customer.DefaultSeller.SellerID
-            )) {
-                customer.DefaultSeller._createguid = this.sellerLinkService.getNewGuid();
-                customer.Sellers.push(customer.DefaultSeller);
-            } else if (customer.DefaultSeller && !customer.DefaultSeller.SellerID) {
+            if (customer.DefaultSeller && customer.DefaultSeller.ID > 0) {
+                customer.DefaultSellerID = customer.DefaultSeller.ID;
+            }
+
+            if (customer.DefaultSeller && customer.DefaultSeller.ID === null) {
                 customer.DefaultSeller = null;
+                customer.DefaultSellerID = null;
             }
 
             // add deleted sellers back to 'Sellers' to delete with 'Deleted' property, was sliced locally/in view
@@ -931,19 +925,12 @@ export class CustomerDetails {
         }
     }
 
-    public onMainSellerSet(sellerLink: SellerLink) {
-        let customer = this.customer$.getValue();
-        customer.DefaultSellerLinkID = sellerLink.ID;
-        customer.DefaultSeller = sellerLink;
-        this.customer$.next(customer);
-    }
-
     public onSellerLinkDeleted(sellerLink: SellerLink) {
         let customer = this.customer$.getValue();
         this.deletables.push(sellerLink);
-        if (customer.DefaultSeller && sellerLink.SellerID === customer.DefaultSeller.SellerID) {
-            customer.DefaultSeller = new SellerLink();
-            customer.DefaultSellerLinkID = null;
+        if (customer.DefaultSeller && sellerLink.SellerID === customer.DefaultSeller.ID) {
+            customer.DefaultSeller = new Seller();
+            customer.DefaultSellerID = null;
         }
         this.customer$.next(customer);
     }
@@ -1078,6 +1065,14 @@ export class CustomerDetails {
                     Label: 'Avdeling',
                     Section: 0
                 },
+                {
+                    FieldSet: 4,
+                    EntityType: 'Seller',
+                    Property: 'DefaultSeller.ID',
+                    FieldType: FieldType.DROPDOWN,
+                    Label: 'Hovedselger',
+                    Section: 0
+                }
 
                 // Fieldset 5 (EHF)
                 {

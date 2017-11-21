@@ -5,6 +5,7 @@ import {
 import {UniFieldLayout} from './interfaces';
 import * as _ from 'lodash';
 import {KeyCodes} from '../../../app/services/common/keyCodes';
+import { Observable } from 'rxjs/Observable';
 
 export interface UniFormError {
     errorMessage: string;
@@ -307,15 +308,15 @@ export class UniField {
     }
 
     public validate(value, field, validators) {
-        const errors: UniFormError[] = [];
+        const errors: Observable<UniFormError>[] = [];
         if (!validators) {
             return errors;
         }
         validators.forEach(validator => {
-            const error: UniFormError = validator(value, field);
-            if (error) {
-                errors.push(error);
-            }
+            const error: UniFormError | Observable<UniFormError> = validator(value, field);
+            errors.push(
+                error instanceof Observable ? error : Observable.of(error)
+            );
         });
         return errors;
     }
@@ -324,12 +325,12 @@ export class UniField {
         let errorMessages = [];
         if (this.field.Required) {
             if (_.isNil(value) || value === '') {
-                const error: UniFormError = {
+                const error: Observable<UniFormError> = Observable.of({
                     errorMessage: 'Field \'' + this.field.Label + '\' is required',
                     value: value,
                     field: this.field,
                     isWarning: false
-                };
+                });
                 errorMessages.push(error);
             }
         }
@@ -337,20 +338,36 @@ export class UniField {
         if (validationResult.length !== 0) {
             errorMessages = errorMessages.concat(validationResult);
         }
-        const errorEvent = {};
-        errorEvent[this.field.Property] = errorMessages;
+        const errorsList = {};
+        errorsList[this.field.Property] = [];
         this.hasWarning = 0;
         this.hasError = 0;
-        this.errorEvent.emit(errorEvent);
+        this.errorMessages = [];
+        const numErrors = errorMessages.length;
+        let i = 0;
         if (this.formConfig.hideErrors !== true) {
-            errorMessages.forEach(x => {
-                if (x.isWarning) {
-                    this.hasWarning++;
-                } else {
-                    this.hasError++;
-                }
+            errorMessages.forEach((errorMessage: Observable<UniFormError>) => {
+                errorMessage.subscribe(error => {
+                    i++;
+                    if (!error) {
+                        if (i === numErrors) {
+                            errorsList[this.field.Property] = this.errorMessages;
+                            this.errorEvent.emit(errorsList);
+                        }
+                        return;
+                    }
+                    if (error.isWarning) {
+                        this.hasWarning++;
+                    } else {
+                        this.hasError++;
+                    }
+                    this.errorMessages.push(error);
+                    if (i === numErrors) {
+                        errorsList[this.field.Property] = this.errorMessages;
+                        this.errorEvent.emit(errorsList);
+                    }
+                });
             });
-            this.errorMessages = errorMessages;
         }
     }
 

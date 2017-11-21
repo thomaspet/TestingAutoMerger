@@ -94,7 +94,7 @@ export class SalaryTransactionSelectionList extends UniView implements AfterView
     }
 
     private generateLinkMenu(payrollRun: PayrollRun, employee: Employee): ILinkMenuItem[] {
-        let items: ILinkMenuItem[] = []
+        let items: ILinkMenuItem[] = [];
         if (employee) {
             items = [
                 ...items,
@@ -104,7 +104,9 @@ export class SalaryTransactionSelectionList extends UniView implements AfterView
             ];
             if (this.hasError(employee)) {
                 const error = this.generateEmployeeError(employee);
-                items.unshift({ label: error, link: this.createEmployeeLink(employee.ID), validation: ValidationLevel.Error });
+                items.unshift(
+                    { label: error, link: this.createEmployeeLink(employee.ID), validation: ValidationLevel.Error }
+                );
             }
         }
 
@@ -301,7 +303,9 @@ export class SalaryTransactionSelectionList extends UniView implements AfterView
 
             if (!this.hasError(employee)) {
                 let name = `${employee.BusinessRelationInfo ? employee.BusinessRelationInfo.Name : '...'}`;
-                ret += ` Gå til <a href="/#/salary/employees/${employee.ID}"> ${name}</a> for å oppdatere skattekort.`;
+                ret += ` Gå til <a href="/#/salary/employees/${employee.ID}">
+                        ${name}
+                    </a> for å oppdatere skattekort.`;
             }
         }
         return ret;

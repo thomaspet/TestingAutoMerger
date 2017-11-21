@@ -2,7 +2,6 @@ import {Component, Input, Output, ViewChild, EventEmitter, SimpleChanges} from '
 import {UniForm, FieldType, UniFieldLayout} from '../../../../framework/ui/uniform/index';
 import {CompanySettings, CurrencyCode, LocalDate, Project, Seller, SellerLink} from '../../../unientities';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
-import {Dimension} from '../../../services/common/dimensionService';
 import * as moment from 'moment';
 
 declare const _;
@@ -32,7 +31,7 @@ export class TofDetailsForm {
 
     public tabbedPastLastField: EventEmitter<any> = new EventEmitter();
     private entity$: BehaviorSubject<any> = new BehaviorSubject({});
-    private formConfig$: BehaviorSubject<any> = new BehaviorSubject({autofocus: false});
+    public formConfig$: BehaviorSubject<any> = new BehaviorSubject({autofocus: false});
     private fields$: BehaviorSubject<UniFieldLayout[]> = new BehaviorSubject([]);
 
     public ngOnInit() {
@@ -82,8 +81,8 @@ export class TofDetailsForm {
 
                     }
                 } else {
-                    if (this.readonly) { this.form.readMode(); }
-                    else { this.form.editMode(); }
+                    if (this.readonly) { this.form.readMode();
+                    } else { this.form.editMode(); }
 
                 }
             }
@@ -120,30 +119,7 @@ export class TofDetailsForm {
             this.setDates(changes['InvoiceDate'].currentValue);
         }
 
-         // if selected default SellerLink exists on customer, set new DefaultSeller and DefaultSellerLinkId 
-        // - if not, set new DefaultSeller.Seller and clear DefaultSellerLinkId
-        if (changes['DefaultSeller.SellerID']) {
-            if (changes['DefaultSeller.SellerID'].currentValue) {
-                let defaultSeller = this.entity.Sellers.find(sellerLink => 
-                    sellerLink.SellerID === changes['DefaultSeller.SellerID'].currentValue
-                ) || new SellerLink();
 
-                if (defaultSeller.ID) {
-                    this.entity.DefaultSellerLinkID = defaultSeller.ID;
-                } else {
-                    defaultSeller.Seller = this.sellers.find(seller => 
-                        seller.ID === changes['DefaultSeller.SellerID'].currentValue
-                    );
-                    defaultSeller.SellerID = defaultSeller.Seller.ID;
-                    this.entity.DefaultSellerLinkID = null;
-                }
-                this.entity.DefaultSeller = _.cloneDeep(defaultSeller);
-            } else {
-                // runs if main seller dropdown is reset/chosen as empty value, to empty the entity
-                this.entity.DefaultSeller = null;
-                this.entity.DefaultSellerLinkID = null;
-            }
-        }
 
         this.entityChange.emit(this.entity);
     }
@@ -250,7 +226,7 @@ export class TofDetailsForm {
                     FieldSet: 1,
                     FieldSetColumn: 2,
                     EntityType: this.entityType,
-                    Property: 'DefaultSeller.SellerID',
+                    Property: 'DefaultSeller.ID',
                     FieldType: FieldType.DROPDOWN,
                     Label: 'Hovedselger',
                     Section: 0,

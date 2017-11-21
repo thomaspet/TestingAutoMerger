@@ -28,7 +28,9 @@ export class WagetypeList implements OnInit {
         private errorService: ErrorService,
         private _toastService: ToastService
     ) {
-        this.tabSer.addTab({ name: 'Lønnsarter', url: 'salary/wagetypes', moduleID: UniModules.Wagetypes, active: true });
+        this.tabSer.addTab(
+            { name: 'Lønnsarter', url: 'salary/wagetypes', moduleID: UniModules.Wagetypes, active: true }
+        );
 
         this.contextMenuItems = [
             {
@@ -52,7 +54,9 @@ export class WagetypeList implements OnInit {
         idCol.setWidth('5rem');
 
         const nameCol = new UniTableColumn('WageTypeName', 'Navn', UniTableColumnType.Text);
-        const accountNumberCol = new UniTableColumn('AccountNumber', 'Hovedbokskonto', UniTableColumnType.Text).setWidth('10rem').setAlignment('right');
+        const accountNumberCol = new UniTableColumn(
+            'AccountNumber', 'Hovedbokskonto', UniTableColumnType.Text
+        ).setWidth('10rem').setAlignment('right');
 
         const rateCol = new UniTableColumn('Rate', 'Sats', UniTableColumnType.Money);
 

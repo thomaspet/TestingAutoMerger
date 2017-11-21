@@ -102,7 +102,8 @@ export class UniAccounting {
                     description: 'Antall eposter i innboks',
                     icon: 'home',
                     link: '/accounting/bills?filter=Inbox',
-                    dataEndpoint: "/api/statistics?skip=0&model=FileTag&select=count(ID) as count&expand=File&filter=FileTag.Status eq 0 and FileTag.TagName eq 'IncomingMail' and File.Deleted eq 0",
+                    dataEndpoint: '/api/statistics?skip=0&model=FileTag&select=count(ID) as count&expand=File'
+                        + '&filter=FileTag.Status eq 0 and FileTag.TagName eq "IncomingMail" and File.Deleted eq 0',
                     valueKey: 'Data[0].count',
                     amount: 0,
                     class: 'uni-widget-notification-orange'
@@ -119,7 +120,8 @@ export class UniAccounting {
                     description: 'Antall EHFer i innboks',
                     icon: 'globe',
                     link: '/accounting/bills?filter=Inbox',
-                    dataEndpoint: "/api/statistics?skip=0&model=FileTag&select=count(ID) as count&expand=File&filter=FileTag.Status eq 0 and FileTag.TagName eq 'IncomingEHF' and File.Deleted eq 0",
+                    dataEndpoint: '/api/statistics?skip=0&model=FileTag&select=count(ID) as count&expand=File'
+                        + '&filter=FileTag.Status eq 0 and FileTag.TagName eq "IncomingEHF" and File.Deleted eq 0',
                     valueKey: 'Data[0].count',
                     amount: 0,
                     class: 'uni-widget-notification-orange'
@@ -136,7 +138,8 @@ export class UniAccounting {
                     description: 'Tildelte faktura',
                     icon: 'paperclip',
                     link: '/accounting/bills?filter=ForApproval&page=1',
-                    dataEndpoint: "/api/statistics/?model=SupplierInvoice&select=count(ID) as count&filter=( isnull(deleted,0) eq 0 ) and ( statuscode eq 30102 )",
+                    dataEndpoint: '/api/statistics/?model=SupplierInvoice&select=count(ID) as count'
+                        + '&filter=( isnull(deleted,0) eq 0 ) and ( statuscode eq 30102 )',
                     valueKey: 'Data[0].count',
                     amount: 0,
                     class: 'uni-widget-notification-orange'
@@ -169,7 +172,11 @@ export class UniAccounting {
                     chartType: 'line',
                     labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
                     colors: ['#396bb1'],
-                    dataEndpoint: ['/api/statistics?model=JournalEntryLine&select=month(financialdate),sum(amount)&join=journalentryline.accountid eq account.id&filter=account.accountnumber ge 3000 and account.accountnumber le 9999 &range=monthfinancialdate'],
+                    dataEndpoint: [
+                        '/api/statistics?model=JournalEntryLine&select=month(financialdate),sum(amount)'
+                        + '&join=journalentryline.accountid eq account.id&filter=account.accountnumber ge 3000 '
+                        + 'and account.accountnumber le 9999 &range=monthfinancialdate'
+                    ],
                     dataKey: ['sumamount'],
                     multiplyValue: -1,
                     dataset: [],

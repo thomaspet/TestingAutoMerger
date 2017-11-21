@@ -117,7 +117,8 @@ export class UniToolbar {
             if (this.config.saveactions) {
                 console.warn(`
                     ATTN. DEVELOPERS
-                    For change detection reasons some fields has been moved out of toolbar config and into separate inputs.
+                    For change detection reasons some fields has been moved out `
+                    + `of toolbar config and into separate inputs.
                     See example below. Ask Anders or Jørgen if you have any questions.
                     <uni-toolbar [saveactions]="foo"
                                  [contextmenu]="bar"

@@ -40,7 +40,7 @@ export class CurrencyOverrides {
     private isBusy: boolean = true;
     private isDirty: boolean = false;
 
-    private toolbarconfig: IToolbarConfig = {
+    public toolbarconfig: IToolbarConfig = {
         title: 'Valutaoverstyring',
         omitFinalCrumb: true
     };
@@ -105,7 +105,7 @@ export class CurrencyOverrides {
                 });
     }
 
-    private rowChanged(event) {
+    public rowChanged(event) {
         this.isDirty = true;
     }
 
@@ -115,7 +115,7 @@ export class CurrencyOverrides {
         this.saveActions.push({
             label: 'Lagre',
             action: (done) => {
-                if(!this.table.getTableData().find(x => x._isDirty)) {
+                if (!this.table.getTableData().find(x => x._isDirty)) {
                     done('Ingen endringer');
                 } else {
                     this.save().subscribe(savedOk => {
@@ -177,7 +177,9 @@ export class CurrencyOverrides {
                             data.unshift({
                                 ID: 0,
                                 FromDate: new LocalDate(),
-                                FromCurrencyCode: this.currencycodes.find(x => x.Code === routeparams['FromCurrencyCode']),
+                                FromCurrencyCode: this.currencycodes.find(
+                                    x => x.Code === routeparams['FromCurrencyCode']
+                                ),
                                 ToCurrencyCode: this.currencycodes.find(x => x.Code === 'NOK'),
                                 Factor: routeparams['Factor'],
                                 ExchangeRate: routeparams['ExchangeRate'],
@@ -199,7 +201,9 @@ export class CurrencyOverrides {
             .setWidth('8%').setFilterOperator('eq')
             .setEditable(false)
             .setTemplate((row: CurrencyOverride) => {
-                return row.ID ? moment(new LocalDate(!!row.UpdatedAt ? row.UpdatedAt : row.CreatedAt)).format('DD.MM.YYYY') : 'ny';
+                return row.ID
+                    ? moment(new LocalDate(!!row.UpdatedAt ? row.UpdatedAt : row.CreatedAt)).format('DD.MM.YYYY')
+                    : 'ny';
             });
         let exchangeRateCol = new UniTableColumn('ExchangeRate', 'Kurs', UniTableColumnType.Money)
             .setWidth('100px').setFilterOperator('contains')
@@ -229,7 +233,9 @@ export class CurrencyOverrides {
                     return this.currencycodes;
                 }
             });
-        let fromCurrencyShortCodeCol = new UniTableColumn('FromCurrencyCode.ShortCode', '$', UniTableColumnType.Lookup)
+        let fromCurrencyShortCodeCol = new UniTableColumn(
+            'FromCurrencyCode.ShortCode', '$', UniTableColumnType.Lookup
+        )
             .setDisplayField('FromCurrencyCode.ShortCode')
             .setWidth('30px')
             .setEditable(false);

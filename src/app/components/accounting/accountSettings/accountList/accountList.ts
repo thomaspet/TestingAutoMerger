@@ -1,5 +1,7 @@
 import {Component, Output, EventEmitter, ViewChild, ElementRef} from '@angular/core';
-import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig} from '../../../../../framework/ui/unitable/index';
+import {
+    UniTable, UniTableColumn, UniTableColumnType, UniTableConfig
+} from '../../../../../framework/ui/unitable/index';
 import {URLSearchParams} from '@angular/http';
 import {Account} from '../../../../unientities';
 import {AccountService, ErrorService} from '../../../../services/services';
@@ -30,7 +32,7 @@ export class AccountList {
         input.focus();
     }
 
-    private onRowSelected (event) {
+    public onRowSelected (event) {
         this.uniAccountChange.emit(event.rowModel);
     };
 
@@ -59,7 +61,8 @@ export class AccountList {
 
             params.set('expand', 'AccountGroup,VatType');
 
-            return this.accountService.GetAllByUrlSearchParams(params).catch((err, obs) => this.errorService.handleRxCatch(err, obs));
+            return this.accountService.GetAllByUrlSearchParams(params)
+                .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
         };
 
         // Define columns to use in the table

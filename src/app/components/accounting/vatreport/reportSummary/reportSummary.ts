@@ -13,7 +13,7 @@ export class VatSummaryPerPost implements OnChanges {
     @Input() public period: Period;
     @Input() private vatTypes: VatType[] = [];
     @Input() private reportSummaryPerPost: VatReportSummaryPerPost[];
-    @Input() private isHistoricData: boolean = false;
+    @Input() public isHistoricData: boolean = false;
 
     public ngOnChanges() {
         this.postGroups = this.groupVatReportsByVatCodeGroupID(this.reportSummaryPerPost || []);
@@ -58,8 +58,12 @@ export class VatSummaryPerPost implements OnChanges {
         let vatCodesAndAccountNos: Array<string> = [];
         if (vatTypes) {
             vatTypes.forEach(vt => {
-                let vatReportReferences = vt.VatReportReferences.filter(vatReport => vatReport.VatPostID === vatReportSummaryPerPost.VatPostID)
-                vatReportReferences.forEach(vrr => vatCodesAndAccountNos.push(`${vt.VatCode}|${vrr.Account.AccountNumber}`));
+                let vatReportReferences = vt.VatReportReferences.filter(
+                    vatReport => vatReport.VatPostID === vatReportSummaryPerPost.VatPostID
+                );
+                vatReportReferences.forEach(
+                    vrr => vatCodesAndAccountNos.push(`${vt.VatCode}|${vrr.Account.AccountNumber}`)
+                );
             });
         }
 

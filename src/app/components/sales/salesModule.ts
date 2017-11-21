@@ -36,6 +36,7 @@ import {TofHead} from './common/tofHead';
 import {TofCustomerCard} from './common/customerCard';
 import {TofDetailsForm} from './common/detailsForm';
 import {TofDeliveryForm} from './common/deliveryForm';
+import {UniTofSelectModal} from './common/tofSelectModal';
 import {TofHelper} from './salesHelper/tofHelper';
 import {TradeItemTable} from './common/tradeItemTable';
 import {CanDeactivateGuard} from '../../canDeactivateGuard';
@@ -82,6 +83,7 @@ import {SellerDetailsComponent} from './sellers/sellerDetailsComponent';
         TofDetailsForm,
         TofDeliveryForm,
         TradeItemTable,
+        UniTofSelectModal,
 
         InvoiceList,
         InvoiceDetails,
@@ -120,7 +122,8 @@ import {SellerDetailsComponent} from './sellers/sellerDetailsComponent';
         UniReminderSendingModal,
         ReminderSending,
         InvoiceReminders,
-        CustomerDetailsModal
+        CustomerDetailsModal,
+        UniTofSelectModal
     ],
     providers: [
         TradeItemHelper,

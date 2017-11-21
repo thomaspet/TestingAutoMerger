@@ -3,7 +3,7 @@ import {UniFieldLayout, FieldType} from '../../../../../../../framework/ui/unifo
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {IUniModal, IModalOptions} from '../../../../../../../framework/uniModal/barrel';
 
-export interface ChangeYear {
+export interface IChangeYear {
     year: number;
     checkStandard: boolean;
 }
@@ -41,7 +41,7 @@ export class YearModal implements IUniModal {
     public options: IModalOptions;
 
     @Output()
-    public onClose: EventEmitter<any> = new EventEmitter<ChangeYear>();
+    public onClose: EventEmitter<any> = new EventEmitter<IChangeYear>();
 
     constructor() { }
 
@@ -78,7 +78,7 @@ export class YearModal implements IUniModal {
         });
     }
 
-    public close(chYr: ChangeYear = null): void {
+    public close(chYr: IChangeYear = null): void {
         this.onClose.emit(chYr);
     }
 

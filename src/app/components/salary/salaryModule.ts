@@ -37,6 +37,7 @@ import {TaxCardRequest} from './employee/modals/taxCardRequest';
 import {PersonalDetails} from './employee/personalDetails/personalDetails';
 import {RecurringPost} from './employee/recurringPost/recurringPost';
 import {EmployeeTax} from './employee/employeeTax/employeeTax';
+import {EmployeeSalarybalance} from './employee/employeeSalarybalances/employeeSalarybalance';
 
 import {VacationPayModal} from './payrollrun/modals/vacationpay/vacationPayModal';
 import {VacationPaySettingsModal} from './payrollrun/modals/vacationpay/vacationPaySettingsModal';
@@ -53,6 +54,7 @@ import {SalaryTransactionSelectionList} from './salarytrans/salarytransactionSel
 import {SalarytransFilterContent} from './salarytrans/salarytransFilter';
 import {SalarytransFilter} from './salarytrans/salarytransFilter';
 import {SalaryTransactionEmployeeList} from './salarytrans/salarytransList';
+import {SalaryTransViewService} from './sharedServices/salaryTransViewService';
 
 import {
     SalaryTransSupplementsModal
@@ -62,11 +64,11 @@ import {WageTypeView} from './wagetype/wagetypeView';
 import {WagetypeDetail} from './wagetype/views/wagetypeDetails';
 import {WageTypeSettings} from './wagetype/views/wagetypeSettings';
 import {WagetypeList} from './wagetype/wagetypeList';
-import {WageTypeViewService} from './wagetype/services/wageTypeViewService'
+import {WageTypeViewService} from './wagetype/services/wageTypeViewService';
 
 import {CategoryList} from './category/categoryList';
 import {CategoryView} from './category/categoryView';
-import {CategoryViewService} from "./category/services/categoryViewService";
+import {CategoryViewService} from './category/services/categoryViewService';
 import {CategoryDetail} from './category/views/categoryDetails';
 
 import {SalarybalanceList} from './salarybalance/salarybalanceList';
@@ -126,6 +128,7 @@ import {CanDeactivateGuard} from '../../canDeactivateGuard';
         PersonalDetails,
         RecurringPost,
         EmployeeTax,
+        EmployeeSalarybalance,
 
         // Payrollrun
         VacationPayModal,
@@ -185,7 +188,8 @@ import {CanDeactivateGuard} from '../../canDeactivateGuard';
         WageTypeViewService,
         EmployeeDetailsService,
         SalaryBalanceViewService,
-        CategoryViewService
+        CategoryViewService,
+        SalaryTransViewService
     ],
     exports: [
         UniSalary,
@@ -216,6 +220,7 @@ import {CanDeactivateGuard} from '../../canDeactivateGuard';
         PersonalDetails,
         RecurringPost,
         EmployeeTax,
+        EmployeeSalarybalance,
 
         // Payrollrun
         VacationPayModal,

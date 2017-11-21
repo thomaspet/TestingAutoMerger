@@ -121,7 +121,10 @@ export class DepartmentDetails implements OnInit {
                     },
                     err => {
                         if (err.status === 400) {
-                            this.toastService.addToast('Warning', ToastType.warn, 0, 'Avdelingsnummer allerede brukt, venligst bruk et annet nummer');
+                            this.toastService.addToast(
+                                'Warning', ToastType.warn, 0,
+                                'Avdelingsnummer allerede brukt, venligst bruk et annet nummer'
+                            );
                         } else {
                             this.errorService.handle(err);
                         }

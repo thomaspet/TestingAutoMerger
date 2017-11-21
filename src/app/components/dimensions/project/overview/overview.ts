@@ -1,12 +1,11 @@
 ﻿import {Component, ViewChild, ElementRef} from '@angular/core';
-import {Http} from '@angular/http';
 import {Router, ActivatedRoute} from '@angular/router';
 import {Project, Customer, ProjectTask} from '../../../../unientities';
 import {ProjectService, CustomerService, PageStateService} from '../../../../services/services';
 import * as Chart from 'chart.js';
 import * as moment from 'moment';
 
-export interface myProject extends Project {
+export interface IMyProject extends Project {
     ProjectCustomerID: number;
 }
 
@@ -28,23 +27,23 @@ export class ProjectOverview {
     @ViewChild('chartElement2')
     private chartElement2: ElementRef;
 
-    private MONTHS = [
+    private MONTHS: string[] = [
         'Januar', 'Februar', 'Mars', 'April',
         'Mai', 'Juni', 'Juli', 'August',
         'September', 'Oktober', 'November', 'Desember'
     ];
-    private MONTHS_SHORT = [
+    public MONTHS_SHORT: string[] = [
         'Jan', 'Feb', 'Mar', 'Apr',
         'May', 'Jun', 'Jul', 'Aug',
         'Sep', 'Oct', 'Nov', 'Dec'
     ];
-    private QUARTERS = [
+    public QUARTERS: string[] = [
         '1. Kvartal',
         '2. Kvartal',
         '3. Kvartal',
         '4. Kvartal'
     ];
-    private QUARTERS_SHORT = ['Q1', 'Q2', 'Q3', 'Q4'];
+    public QUARTERS_SHORT: string[] = ['Q1', 'Q2', 'Q3', 'Q4'];
 
     private myChart: any;
     private myChart2: any;
@@ -57,8 +56,8 @@ export class ProjectOverview {
     private customerName: string;
     private monthAndYearDataInBarChart: IMonthAndYear[] = [];
 
-    private project: myProject;
-    private chart = {
+    private project: IMyProject;
+    private chart: any = {
         type: 'bar',
         data: {
             labels: [],
@@ -78,7 +77,7 @@ export class ProjectOverview {
         },
         options: {}
     };
-    private chart2 = {
+    private chart2: any = {
         type: 'pie',
         data: {
             labels: [],
@@ -120,7 +119,7 @@ export class ProjectOverview {
             } else {
                 this.projectChanged(this.projectService.currentProject.getValue());
             }
-        })
+        });
     }
 
     public ngAfterViewInit() {
@@ -135,14 +134,14 @@ export class ProjectOverview {
                     year: this.monthAndYearDataInBarChart[temp[0]._index].year
                 }
             });
-        }
+        };
     }
 
-    private navigateToEditmode() {
+    public navigateToEditmode() {
         this.router.navigateByUrl('/dimensions/projects/editmode');
     }
 
-    private projectChanged(project: myProject) {
+    private projectChanged(project: IMyProject) {
         if (project && project.ID) {
             this.project = project;
             this.getDataAndDrawChart();
@@ -160,7 +159,7 @@ export class ProjectOverview {
                     } else {
                         this.customerName = '';
                     }
-                })
+                });
             } else {
                 this.customerName = '';
             }
@@ -179,15 +178,18 @@ export class ProjectOverview {
             });
 
             if (this.project.ProjectTasks.length) {
-                let currentPercentCompleted = (((this.project.ProjectTasks.length - this.remainingTasks) || this.project.ProjectTasks.length) / this.project.ProjectTasks.length) * 100;
+                let currentPercentCompleted = (
+                    ((this.project.ProjectTasks.length - this.remainingTasks)
+                    || this.project.ProjectTasks.length) / this.project.ProjectTasks.length
+                ) * 100;
                 let currentPercentRemaining = (this.remainingTasks / this.project.ProjectTasks.length) * 100;
 
                 this.chart2.data.datasets[0].data.push(this.project.ProjectTasks.length - this.remainingTasks);
-                this.chart2.data.labels.push(currentPercentCompleted + "% av oppgavene er ferdig");
+                this.chart2.data.labels.push(currentPercentCompleted + '% av oppgavene er ferdig');
 
                 if (currentPercentRemaining) {
                     this.chart2.data.datasets[0].data.push(this.remainingTasks);
-                    this.chart2.data.labels.push(currentPercentRemaining + "% gjennstår");
+                    this.chart2.data.labels.push(currentPercentRemaining + '% gjennstår');
                 }
             } else {
                 this.chart2.data.datasets[0].data.push(0);
@@ -209,7 +211,7 @@ export class ProjectOverview {
                     this.chart.data.datasets[1].data.push(data.WorkItemMinutesToOrder / 60);
                     this.projectHoursTotal += data.summinutes;
                     this.projectHoursInvoiced += data.WorkItemMinutesToOrder || 0;
-                })
+                });
 
                 this.projectHoursTotal /= 60;
                 this.projectHoursInvoiced /= 60;

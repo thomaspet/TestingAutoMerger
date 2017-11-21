@@ -66,7 +66,7 @@ export class UniSearchCustomerConfig {
                 `${item.PostalCode || ''} ${item.City || ''}`,
                 item.OrgNumber
             ],
-            inputTemplateFn: item => `${item.CustomerNumber || ''}${item.Info && item.Info.Name ? ' ' + item.Info.Name : ''}`,
+            inputTemplateFn: item => `${item.Info && item.Info.Name ? item.Info.Name : ''}`,
             newItemModalFn: newItemModalFn,
             externalLookupFn: query =>
                 this.integrationServerCaller

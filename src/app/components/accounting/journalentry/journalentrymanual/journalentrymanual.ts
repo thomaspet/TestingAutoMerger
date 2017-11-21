@@ -9,10 +9,12 @@ import {
     JournalEntryLine,
     NumberSeriesTask
 } from '../../../../unientities';
-import {ValidationResult, ValidationMessage} from '../../../../models/validationResult';
+import {ValidationResult} from '../../../../models/validationResult';
 import {JournalEntryData} from '../../../../models/models';
-import {JournalEntrySimpleCalculationSummary} from '../../../../models/accounting/JournalEntrySimpleCalculationSummary';
-import {JournalEntryAccountCalculationSummary} from '../../../../models/accounting/JournalEntryAccountCalculationSummary';
+import {JournalEntrySimpleCalculationSummary}
+    from '../../../../models/accounting/JournalEntrySimpleCalculationSummary';
+import {JournalEntryAccountCalculationSummary}
+    from '../../../../models/accounting/JournalEntryAccountCalculationSummary';
 import {AccountBalanceInfo} from '../../../../models/accounting/AccountBalanceInfo';
 import {IUniSaveAction} from '../../../../../framework/save/save';
 import {ISummaryConfig} from '../../../common/summary/summary';
@@ -128,7 +130,9 @@ export class JournalEntryManual implements OnChanges, OnInit {
                 this.vatDeductions = data[2];
                 this.companySettings = data[3];
 
-                this.numberSeriesTaskService.getActiveNumberSeriesTasks('JournalEntry', this.currentFinancialYear.Year).subscribe((tasks) => {
+                this.numberSeriesTaskService.getActiveNumberSeriesTasks(
+                    'JournalEntry', this.currentFinancialYear.Year
+                ).subscribe((tasks) => {
                     tasks.forEach(x => {
                         var task = this.numberSeriesTaskService.translateTask(x.NumberSeriesTask);
                         var serie = this.numberSeriesService.translateSerie(x.DefaultNumberSeries);
@@ -213,7 +217,9 @@ export class JournalEntryManual implements OnChanges, OnInit {
         }
 
         if (this.journalEntryID > 0) {
-            if (data && data.length > 0 && data[0].JournalEntryID && data[0].JournalEntryID.toString() === this.journalEntryID.toString()) {
+            if (data && data.length > 0 && data[0].JournalEntryID
+                && data[0].JournalEntryID.toString() === this.journalEntryID.toString()
+            ) {
                 // this means we have started adding data to this journalentry and then
                 // navigated to another component and back again - so the data is already
                 // dirty and we are in edit mode
@@ -256,7 +262,7 @@ export class JournalEntryManual implements OnChanges, OnInit {
         });
     }
 
-    private onShowImageChanged(showImage: boolean) {
+    public onShowImageChanged(showImage: boolean) {
         this.journalEntrySettings.AttachmentsVisible = showImage;
         this.journalEntryService.setJournalEntrySettings(this.journalEntrySettings, this.mode);
     }
@@ -273,7 +279,7 @@ export class JournalEntryManual implements OnChanges, OnInit {
         }
     }
 
-    private onFileListReady(files) {
+    public onFileListReady(files) {
         if (this.journalEntryID > 0) {
             // don't look for changes if this is a presaved journalentry - we wont
             // persist the changes anyway, it this analysis could cause incorrect
@@ -437,7 +443,7 @@ export class JournalEntryManual implements OnChanges, OnInit {
         if (this.journalEntryProfessional) {
             let data = this.journalEntryProfessional.getTableData();
 
-            if (this.currentFinancialYear){
+            if (this.currentFinancialYear) {
                 this.journalEntryService.getAccountBalanceInfo(
                     data,
                     this.accountBalanceInfoData,
@@ -514,7 +520,8 @@ export class JournalEntryManual implements OnChanges, OnInit {
                 'Du kan bare velge en rad',
                 ToastType.warn,
                 ToastTime.medium,
-                'Det er ikke mulig å velge flere rader, lag heller flere bilagslinjer og koble hver rad til en åpen post'
+                'Det er ikke mulig å velge flere rader, '
+                    + 'lag heller flere bilagslinjer og koble hver rad til en åpen post'
             );
         }
     }
@@ -547,28 +554,32 @@ export class JournalEntryManual implements OnChanges, OnInit {
                     this.openPostsForSelectedRow = null;
 
                     this.journalEntryLineService.GetAll(
-                        `expand=CurrencyCode&orderby=ID desc&filter=SubAccountID eq ${ledgerAccountID} and RestAmountCurrency ${expectPositiveAmount ? 'gt' : 'lt'} 0`)
-                        .subscribe(lines => {
-                            let line: JournalEntryLine = null;
-                            if (this.currentJournalEntryData.PostPostJournalEntryLineID) {
-                                line = lines.find(x => x.ID === this.currentJournalEntryData.PostPostJournalEntryLineID);
-                            } else if (this.currentJournalEntryData.CustomerInvoiceID) {
-                                line = lines.find(x => x.CustomerInvoiceID === this.currentJournalEntryData.CustomerInvoiceID);
-                            } else if (this.currentJournalEntryData.SupplierInvoiceID) {
-                                line = lines.find(x => x.SupplierInvoiceID === this.currentJournalEntryData.SupplierInvoiceID);
-                            }
-
-                            if (line) {
-                                line['_rowSelected'] = true;
-                            }
-
-                            this.openPostsForSelectedRow = lines;
-                            this.openPostRetrievingDataInProgress = false;
-                        }, err => {
-                            this.openPostRetrievingDataInProgress = false;
-                            this.errorService.handle(err);
+                        `expand=CurrencyCode&orderby=ID desc&filter=SubAccountID eq ${ledgerAccountID} `
+                        + `and RestAmountCurrency ${expectPositiveAmount ? 'gt' : 'lt'} 0`
+                    ).subscribe(lines => {
+                        let line: JournalEntryLine = null;
+                        if (this.currentJournalEntryData.PostPostJournalEntryLineID) {
+                            line = lines.find(x => x.ID === this.currentJournalEntryData.PostPostJournalEntryLineID);
+                        } else if (this.currentJournalEntryData.CustomerInvoiceID) {
+                            line = lines.find(
+                                x => x.CustomerInvoiceID === this.currentJournalEntryData.CustomerInvoiceID
+                            );
+                        } else if (this.currentJournalEntryData.SupplierInvoiceID) {
+                            line = lines.find(
+                                x => x.SupplierInvoiceID === this.currentJournalEntryData.SupplierInvoiceID
+                            );
                         }
-                    );
+
+                        if (line) {
+                            line['_rowSelected'] = true;
+                        }
+
+                        this.openPostsForSelectedRow = lines;
+                        this.openPostRetrievingDataInProgress = false;
+                    }, err => {
+                        this.openPostRetrievingDataInProgress = false;
+                        this.errorService.handle(err);
+                    });
                 }
             } else {
                 this.openPostsForSelectedRow = null;
@@ -586,11 +597,13 @@ export class JournalEntryManual implements OnChanges, OnInit {
         this.itemsSummaryData = this.journalEntryService.calculateJournalEntrySummaryLocal(data, this.vatDeductions);
 
         if (this.currentJournalEntryData) {
-            this.journalEntryService.getAccountBalanceInfo(data, this.accountBalanceInfoData, this.currentFinancialYear)
-                .subscribe(accountBalanceData => {
-                    this.accountBalanceInfoData = accountBalanceData;
-                    this.itemAccountInfoData =
-                        this.journalEntryService.calculateJournalEntryAccountSummaryLocal(data, this.accountBalanceInfoData, this.vatDeductions, this.currentJournalEntryData);
+            this.journalEntryService.getAccountBalanceInfo(
+                data, this.accountBalanceInfoData, this.currentFinancialYear
+            ).subscribe(accountBalanceData => {
+                this.accountBalanceInfoData = accountBalanceData;
+                this.itemAccountInfoData = this.journalEntryService.calculateJournalEntryAccountSummaryLocal(
+                        data, this.accountBalanceInfoData, this.vatDeductions, this.currentJournalEntryData
+                    );
                 });
 
         }
@@ -707,7 +720,7 @@ export class JournalEntryManual implements OnChanges, OnInit {
         }
     }
 
-    private unlockJournalEntry(completeCallback) {
+    public unlockJournalEntry(completeCallback) {
         this.disabled = false;
         completeCallback('Låst opp bilag');
     }
@@ -737,7 +750,7 @@ export class JournalEntryManual implements OnChanges, OnInit {
         }];
     }
 
-    private getValidationLevelCss(validationLevel) {
+    public getValidationLevelCss(validationLevel) {
         if (validationLevel === ValidationLevel.Error) {
             return 'error';
         } else if (validationLevel === ValidationLevel.Warning) {
@@ -746,9 +759,9 @@ export class JournalEntryManual implements OnChanges, OnInit {
         return 'good';
     }
 
-    private getFormattedNumber(number): string {
-        if (number) {
-            return this.numberFormat.asMoney(number);
+    public getFormattedNumber(num): string {
+        if (num) {
+            return this.numberFormat.asMoney(num);
         }
 
         return '';

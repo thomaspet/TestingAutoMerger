@@ -1,13 +1,13 @@
 import {Component, OnDestroy} from '@angular/core';
 import {UniView} from '../../../../framework/core/uniView';
-import {ActivatedRoute, Router, NavigationEnd} from '@angular/router';
+import {ActivatedRoute, Router} from '@angular/router';
 import {IUniSaveAction} from '../../../../framework/save/save';
 import {IToolbarConfig, IToolbarSearchConfig} from '../../common/toolbar/toolbar';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {Observable} from 'rxjs/Observable';
 import {Subscription} from 'rxjs/Subscription';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
-import {SalaryBalance, SalBalType, CompanySalary, WageType, Employee, Supplier} from '../../../unientities';
+import {SalaryBalance, SalBalType} from '../../../unientities';
 import {UniModalService, ConfirmActions} from '../../../../framework/uniModal/barrel';
 import {IContextMenuItem} from '../../../../framework/ui/unitable/index';
 import {SalaryBalanceLineModal} from './modals/salBalLineModal';

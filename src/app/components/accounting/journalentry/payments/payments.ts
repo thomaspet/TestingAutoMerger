@@ -1,6 +1,8 @@
 import {Component, ViewChild} from '@angular/core';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
-import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig} from '../../../../../framework/ui/unitable/index';
+import {
+    UniTable, UniTableColumn, UniTableColumnType, UniTableConfig
+} from '../../../../../framework/ui/unitable/index';
 import {URLSearchParams} from '@angular/http';
 import {CustomerInvoice, Account, CompanySettings, LocalDate} from '../../../../unientities';
 import {JournalEntryManual} from  '../journalentrymanual/journalentrymanual';
@@ -22,8 +24,8 @@ import {JournalEntryData} from '../../../../models/models';
     templateUrl: './payments.html'
 })
 export class Payments {
-    @ViewChild(UniTable) private table;
-    @ViewChild(JournalEntryManual) private journalEntryManual;
+    @ViewChild(UniTable) private table: UniTable;
+    @ViewChild(JournalEntryManual) private journalEntryManual: JournalEntryManual;
 
     private contextMenuItems: IContextMenuItem[] = [];
     private invoiceTable: UniTableConfig;
@@ -40,7 +42,10 @@ export class Payments {
         private errorService: ErrorService,
         private router: Router
     ) {
-        this.tabService.addTab({ name: 'Innbetalinger', url: '/accounting/journalentry/payments', moduleID: UniModules.Payments, active: true });
+        this.tabService.addTab({
+            name: 'Innbetalinger', url: '/accounting/journalentry/payments',
+            moduleID: UniModules.Payments, active: true
+        });
 
         this.companySettingsService.Get(1, ['BaseCurrencyCode', 'CompanyBankAccount', 'CompanyBankAccount.Account'])
             .subscribe((data: CompanySettings) => {
@@ -87,7 +92,7 @@ export class Payments {
         this.router.navigate(['./predefined-descriptions']);
     }
 
-    private onRowSelectionChanged(invoice: CustomerInvoice) {
+    public onRowSelectionChanged(invoice: CustomerInvoice) {
         if (!invoice) {
             alert('Vennligst velg bare en faktura om gangen');
         } else {
@@ -131,7 +136,8 @@ export class Payments {
                 // add new journalentry data for the payment
                 this.journalEntryManual.addJournalEntryData(newJournalEntry);
 
-                // hide invoice form table if it is added to the journalentry list, to avoid adding the same invoice multiple times
+                // hide invoice form table if it is added to the journalentry list,
+                // to avoid adding the same invoice multiple times
                 this.ignoreInvoiceIdList.push(invoice.ID);
                 this.table.refreshTableData();
             }
@@ -141,7 +147,11 @@ export class Payments {
     private setupInvoiceTable() {
         this.lookupFunction = (urlParams: URLSearchParams) => {
             urlParams = urlParams || new URLSearchParams();
-            urlParams.set('expand', 'Customer,JournalEntry,JournalEntry.Lines,JournalEntry.Lines.Account,JournalEntry.Lines.SubAccount,CurrencyCode');
+            urlParams.set(
+                'expand',
+                'Customer,JournalEntry,JournalEntry.Lines,JournalEntry.Lines.Account,'
+                    + 'JournalEntry.Lines.SubAccount,CurrencyCode'
+            );
 
             if (urlParams.get('orderby') === null) {
                 urlParams.set('orderby', 'PaymentDueDate');
@@ -179,7 +189,9 @@ export class Payments {
         var dueDateCol = new UniTableColumn('PaymentDueDate', 'Forfallsdato', UniTableColumnType.LocalDate)
             .setWidth('8%').setFilterOperator('eq');
 
-        var taxInclusiveAmountCurrencyCol = new UniTableColumn('TaxInclusiveAmountCurrency', 'Totalsum', UniTableColumnType.Number)
+        var taxInclusiveAmountCurrencyCol = new UniTableColumn(
+            'TaxInclusiveAmountCurrency', 'Totalsum', UniTableColumnType.Number
+        )
             .setWidth('8%')
             .setFilterOperator('eq')
             .setFormat('{0:n}')

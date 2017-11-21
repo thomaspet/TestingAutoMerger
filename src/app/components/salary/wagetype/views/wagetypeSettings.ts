@@ -1,4 +1,4 @@
-import {Component,ViewChild} from '@angular/core';
+import {Component, ViewChild} from '@angular/core';
 import {UniForm} from '../../../../../framework/ui/uniform/index';
 import {ActivatedRoute, Router} from '@angular/router';
 import {WageType, LimitType, StdWageType, SpecialAgaRule} from '../../../../unientities';
@@ -14,7 +14,7 @@ import {Observable} from 'rxjs/Observable';
 export class WageTypeSettings extends UniView {
     private wageType$: BehaviorSubject<WageType> = new BehaviorSubject(new WageType());
     private fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
-    private config$: BehaviorSubject<any> = new BehaviorSubject({});
+    public config$: BehaviorSubject<any> = new BehaviorSubject({});
 
     @ViewChild(UniForm) public uniform: UniForm;
 
@@ -66,7 +66,7 @@ export class WageTypeSettings extends UniView {
         });
     }
 
-    private change(event) {
+    public change(event) {
         let wagetype = this.wageType$.getValue();
         this.updateFields(wagetype);
         super.updateState('wagetype', wagetype, true);

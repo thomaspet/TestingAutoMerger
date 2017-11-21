@@ -3,7 +3,6 @@ import {Router, ActivatedRoute} from '@angular/router';
 import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/observable/forkJoin';
 import {FieldType} from '../../../../../framework/ui/uniform/index';
-import {SearchResultItem} from '../../../common/externalSearch/externalSearch';
 import {IReference} from '../../../../models/iReference';
 import {IUniSaveAction} from '../../../../../framework/save/save';
 import {UniForm, UniFieldLayout} from '../../../../../framework/ui/uniform/index';
@@ -47,7 +46,6 @@ import {
     UniBankAccountModal,
     ConfirmActions
 } from '../../../../../framework/uniModal/barrel';
-import {UniNewSupplierModal} from './newSupplierModal';
 
 declare const _; // lodash
 
@@ -71,19 +69,19 @@ export class SupplierDetails implements OnInit {
     public supplierID: number;
     public supplierNameFromUniSearch: string;
     public allowSearchSupplier: boolean = true;
-    private config$: BehaviorSubject<any> = new BehaviorSubject({autofocus: true});
+    public config$: BehaviorSubject<any> = new BehaviorSubject({autofocus: true});
     private fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
-    private addressChanged: any;
-    private phoneChanged: any;
-    private emailChanged: any;
-    private bankAccountChanged: any;
-    private bankAccountCanceled: any;
+    public addressChanged: any;
+    public phoneChanged: any;
+    public emailChanged: any;
+    public bankAccountChanged: any;
+    public bankAccountCanceled: any;
 
     private currencyCodes: Array<CurrencyCode>;
     private numberSeries: NumberSeries[];
     private dropdownData: any;
     private supplier$: BehaviorSubject<Supplier> = new BehaviorSubject(new Supplier());
-    private searchText: string;
+    public searchText: string;
 
     private emptyPhone: Phone;
     private emptyEmail: Email;
@@ -92,7 +90,7 @@ export class SupplierDetails implements OnInit {
     public reportLinks: IReference[];
     private activeTab: string = 'details';
     public showReportWithID: number;
-    private showContactSection: boolean = true; // used in template
+    public showContactSection: boolean = true; // used in template
     private commentsConfig: ICommentsConfig;
     private isDirty: boolean = false;
     private selectConfig: any;
@@ -117,7 +115,7 @@ export class SupplierDetails implements OnInit {
 
     private formIsInitialized: boolean = false;
 
-    private saveactions: IUniSaveAction[] = [
+    public saveactions: IUniSaveAction[] = [
         {
             label: 'Lagre',
             action: (completeEvent) => this.saveSupplier(completeEvent),
@@ -170,7 +168,7 @@ export class SupplierDetails implements OnInit {
                 this.commentsConfig = {
                     entityType: 'Supplier',
                     entityID: this.supplierID
-                }
+                };
 
                 this.selectConfig = this.numberSeriesService.getSelectConfig(
                     this.supplierID, this.numberSeries, 'Supplier number series'
@@ -213,60 +211,49 @@ export class SupplierDetails implements OnInit {
     }
 
     public nextSupplier() {
-        this.canDeactivate().subscribe(canDeactivate => {
-            if (!canDeactivate) {
-                return;
-            }
-
-            this.supplierService.getNextID(this.supplier$.getValue().ID)
-                .subscribe((ID) => {
-                        if (ID) {
-                            this.router.navigateByUrl('/accounting/suppliers/' + ID);
-                        } else {
-                            this.toastService.addToast('Warning', ToastType.warn, 0, 'Ikke flere leverandører etter denne');
-                        }
-                    },
-                    err => this.errorService.handle(err));
-        });
+        this.supplierService.getNextID(this.supplier$.getValue().ID)
+            .subscribe((ID) => {
+                    if (ID) {
+                        this.router.navigateByUrl('/accounting/suppliers/' + ID);
+                    } else {
+                        this.toastService.addToast(
+                            'Warning',
+                            ToastType.warn,
+                            0,
+                            'Ikke flere leverandører etter denne'
+                        );
+                    }
+                },
+                err => this.errorService.handle(err)
+            );
     }
 
     public previousSupplier() {
-        this.canDeactivate().subscribe(canDeactivate => {
-            if (!canDeactivate) {
-                return;
-            }
-
-            this.supplierService.getPreviousID(this.supplier$.getValue().ID)
-                .subscribe((ID) => {
-                        if (ID) {
-                            this.router.navigateByUrl('/accounting/suppliers/' + ID);
-                        } else {
-                            this.toastService.addToast('Warning', ToastType.warn, 0, 'Ikke flere leverandører før denne');
-                        }
-                    },
-                    err => this.errorService.handle(err));
-        });
+        this.supplierService.getPreviousID(this.supplier$.getValue().ID)
+            .subscribe((ID) => {
+                    if (ID) {
+                        this.router.navigateByUrl('/accounting/suppliers/' + ID);
+                    } else {
+                        this.toastService.addToast('Warning', ToastType.warn, 0, 'Ikke flere leverandører før denne');
+                    }
+                },
+                err => this.errorService.handle(err)
+            );
     }
 
     public addSupplier() {
-        this.canDeactivate().subscribe(canDeactivate => {
-            if (!canDeactivate) {
-                return;
-            }
-
-            this.router.navigateByUrl('/accounting/suppliers/0');
-        });
+        this.router.navigateByUrl('/accounting/suppliers/0');
     }
 
     private deleteSupplier(id: number) {
-        if(confirm('Vil du slette denne leverandøren?')) {
+        if (confirm('Vil du slette denne leverandøren?')) {
             this.supplierService.deleteSupplier(id).subscribe(res => {
                 this.router.navigateByUrl('/accounting/suppliers');
             }, err => this.errorService.handle(err));
         }
     }
 
-    private numberSeriesChange(selectedSerie) {
+    public numberSeriesChange(selectedSerie) {
         let supplier = this.supplier$.getValue();
         supplier.SubAccountNumberSeriesID = selectedSerie.ID;
         this.supplier$.next(supplier);
@@ -294,16 +281,8 @@ export class SupplierDetails implements OnInit {
             && this.ledgerAccountReconciliation
             && this.ledgerAccountReconciliation.isDirty) {
 
-            this.canDeactivate().subscribe(canDeactivate => {
-                if (!canDeactivate) {
-                    return;
-                }
-
-                this.activeTab = tab;
-                this.showReportWithID = reportid;
-            });
-
-
+            this.activeTab = tab;
+            this.showReportWithID = reportid;
         } else {
             this.activeTab = tab;
             this.showReportWithID = reportid;
@@ -319,6 +298,11 @@ export class SupplierDetails implements OnInit {
                 .map(result => {
                     if (result === ConfirmActions.ACCEPT) {
                         this.saveSupplier(() => {});
+                    } else if (result === ConfirmActions.REJECT) {
+                        this.isDirty = false;
+                        if (this.ledgerAccountReconciliation) {
+                            this.ledgerAccountReconciliation.isDirty = false;
+                        }
                     }
 
                     return result !== ConfirmActions.CANCEL;
@@ -352,7 +336,8 @@ export class SupplierDetails implements OnInit {
                 this.bankaccountService.GetNewEntity(),
                 this.currencyCodeService.GetAll(null),
                 this.numberSeriesService.GetAll(
-                    `filter=NumberSeriesType.Name eq 'Supplier Account number series' and Empty eq false and Disabled eq false`,
+                    `filter=NumberSeriesType.Name eq 'Supplier Account number series' `
+                        + `and Empty eq false and Disabled eq false`,
                     ['NumberSeriesType']
                 )
             ).subscribe(response => {
@@ -373,7 +358,9 @@ export class SupplierDetails implements OnInit {
                     supplier.Info = <BusinessRelation>{'Name': this.supplierNameFromUniSearch};
                 }
 
-                supplier.SubAccountNumberSeriesID = this.numberSeries.find(x => x.Name === 'Supplier number series').ID;
+                supplier.SubAccountNumberSeriesID = this.numberSeries.find(
+                    x => x.Name === 'Supplier number series'
+                ).ID;
                 this.setDefaultContact(supplier);
                 this.supplier$.next(supplier);
 
@@ -418,7 +405,10 @@ export class SupplierDetails implements OnInit {
         let supplierSearchResult: UniFieldLayout = fields.find(x => x.Property === '_SupplierSearchResult');
         let supplierName: UniFieldLayout = fields.find(x => x.Property === 'Info.Name');
 
-        if (!this.allowSearchSupplier || this.supplierID > 0 || (supplier && supplier.Info && supplier.Info.Name !== null && supplier.Info.Name !== '')) {
+        if (!this.allowSearchSupplier
+            || this.supplierID > 0
+            || (supplier && supplier.Info && supplier.Info.Name !== null && supplier.Info.Name !== '')
+        ) {
             supplierSearchResult.Hidden = true;
             supplierName.Hidden = false;
             this.fields$.next(fields);
@@ -662,11 +652,16 @@ export class SupplierDetails implements OnInit {
             supplier.Dimensions['_createguid'] = this.supplierService.getNewGuid();
         }
 
-        if (supplier.Info.DefaultBankAccount && (!supplier.Info.DefaultBankAccount.AccountNumber || supplier.Info.DefaultBankAccount.AccountNumber === '')) {
+        if (supplier.Info.DefaultBankAccount
+            && (!supplier.Info.DefaultBankAccount.AccountNumber
+                || supplier.Info.DefaultBankAccount.AccountNumber === '')
+        ) {
             supplier.Info.DefaultBankAccount = null;
         }
 
-        if (supplier.Info.DefaultBankAccount && (!supplier.Info.DefaultBankAccount.ID || supplier.Info.DefaultBankAccount.ID === 0)) {
+        if (supplier.Info.DefaultBankAccount
+            && (!supplier.Info.DefaultBankAccount.ID || supplier.Info.DefaultBankAccount.ID === 0)
+        ) {
             supplier.Info.DefaultBankAccount['_createguid'] = this.supplierService.getNewGuid();
         }
 

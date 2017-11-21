@@ -20,10 +20,12 @@ export class MarketplaceAddOns implements AfterViewInit {
         private errorService: ErrorService,
         private router: Router
     ) {
-        tabService.addTab({ name: 'Markedsplass', url: '/marketplace/add-ons', moduleID: UniModules.Marketplace, active: true });
+        tabService.addTab({
+            name: 'Markedsplass', url: '/marketplace/add-ons', moduleID: UniModules.Marketplace, active: true
+        });
     }
 
-    ngAfterViewInit() {
+    public ngAfterViewInit() {
         this.products$ = this.adminProductService
             .GetAll()
             .map(products => this.adminProductService.maxChar(products, 100))

@@ -1,6 +1,6 @@
 import {Component, OnInit, OnDestroy, ViewChild} from '@angular/core';
 import {FormControl} from '@angular/forms';
-import {Router, ActivatedRoute} from '@angular/router';
+import {Router} from '@angular/router';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {IUniSaveAction} from '../../../../framework/save/save';
 import {
@@ -10,7 +10,7 @@ import {
 import {Observable} from 'rxjs/Observable';
 import {Subscription} from 'rxjs/Subscription';
 import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
-import {UniModalService} from '../../../../framework/uniModal/barrel';
+import {UniModalService, UniConfirmModalV2, ConfirmActions} from '../../../../framework/uniModal/barrel';
 import {CreateCorrectedVatReportModal} from './modals/createCorrectedVatReport';
 import {HistoricVatReportModal} from './modals/historicVatReports';
 import {IContextMenuItem} from '../../../../framework/ui/unitable/index';
@@ -68,7 +68,12 @@ export class VatReportView implements OnInit, OnDestroy {
         private router: Router,
     ) {
         this.periodDateFormat = new PeriodDateFormatPipe(this.errorService);
-        this.tabService.addTab({ name: 'MVA melding', url: '/accounting/vatreport', active: true, moduleID: UniModules.VatReport });
+        this.tabService.addTab({
+            name: 'MVA melding',
+            url: '/accounting/vatreport',
+            active: true,
+            moduleID: UniModules.VatReport
+        });
 
         this.contextMenuItems = [
             {
@@ -93,19 +98,24 @@ export class VatReportView implements OnInit, OnDestroy {
         if (this.vatReportsInPeriod && this.vatReportsInPeriod[0]) {
 
             journalEntryNumber = this.vatReportsInPeriod[0].JournalEntry
-            ? this.vatReportsInPeriod[0].JournalEntry.JournalEntryNumber : null;
-            journalEntryID = this.vatReportsInPeriod[0].JournalEntryID;
+                ? this.vatReportsInPeriod[0].JournalEntry.JournalEntryNumber
+                : null;
 
+            journalEntryID = this.vatReportsInPeriod[0].JournalEntryID;
         }
+
         const journalEntryLink = journalEntryNumber && journalEntryID
-            ? `/#/accounting/transquery/details;JournalEntryNumber=${journalEntryNumber};journalEntryID=${journalEntryID}`
+            ? `/#/accounting/transquery/details;JournalEntryNumber=`
+                + `${journalEntryNumber};`
+                + `journalEntryID=${journalEntryID}`
             : undefined;
 
         this.toolbarconfig = {
             title: this.currentVatReport.TerminPeriod ? 'Termin ' + this.currentVatReport.TerminPeriod.No : '',
             subheads: [
                 {
-                    title: this.currentVatReport.Title + ', ' + this.periodDateFormat.transform(this.currentVatReport.TerminPeriod)
+                    title: this.currentVatReport.Title
+                        + ', ' + this.periodDateFormat.transform(this.currentVatReport.TerminPeriod)
                 },
                 {
                     title: journalEntryID ? 'Bokført på bilagnr: ' + journalEntryNumber : 'Ikke Bokført',
@@ -198,7 +208,11 @@ export class VatReportView implements OnInit, OnDestroy {
                 .subscribe(null, err => this.errorService.handle(err))
         );
 
-        this.vatTypeService.GetVatTypesWithVatReportReferencesAndVatCodeGroup().subscribe(vatTypes => this.vatTypes = vatTypes, err => this.errorService.handle(err));
+        this.vatTypeService.GetVatTypesWithVatReportReferencesAndVatCodeGroup()
+            .subscribe(
+                vatTypes => this.vatTypes = vatTypes,
+                err => this.errorService.handle(err)
+            );
     }
 
     private updateSaveActions() {
@@ -249,7 +263,7 @@ export class VatReportView implements OnInit, OnDestroy {
             label: 'Angre kjøring',
             action: (done) => this.UndoExecution(done),
             disabled: this.IsSendActionDisabled()
-        })
+        });
 
 
     }
@@ -275,7 +289,7 @@ export class VatReportView implements OnInit, OnDestroy {
         }
         return true;
     }
-    private IsApproveActionDisabled() {
+    public IsApproveActionDisabled() {
         if (this.currentVatReport.StatusCode === StatusCodeVatReport.Submitted) {
             return false;
         }
@@ -303,10 +317,10 @@ export class VatReportView implements OnInit, OnDestroy {
                         dataPrevious => {
                             this.vatReportSummaryFromPreviousPeriods = dataPrevious;
                             if (this.vatReportSummaryFromPreviousPeriods.length > 0) {
-                                this.previousPeriodsHelpText = "Akkmulert fra tidligere perioder: "
+                                this.previousPeriodsHelpText = 'Akkumulert fra tidligere perioder: '
                                 +  (dataPrevious[0].SumTaxBasisAmount * -1).toFixed(2);
                             } else {
-                                this.previousPeriodsHelpText = "";
+                                this.previousPeriodsHelpText = '';
                             }
                         },
                         errPrevious => this.errorService.handle(errPrevious)
@@ -338,7 +352,9 @@ export class VatReportView implements OnInit, OnDestroy {
 
     private getVatReportsInPeriod() {
         // Get list of credit notes for an invoice
-        this.vatReportService.GetAll(`filter=TerminPeriodID eq ${this.currentVatReport.TerminPeriodID}&expand=JournalEntry`)
+        this.vatReportService.GetAll(
+            `filter=TerminPeriodID eq ${this.currentVatReport.TerminPeriodID}&expand=JournalEntry`
+        )
             .subscribe((response: VatReport[]) => {
                 this.vatReportsInPeriod = response;
                 if (this.currentVatReport) {
@@ -411,11 +427,20 @@ export class VatReportView implements OnInit, OnDestroy {
             .subscribe((data: VatReportNotReportedJournalEntryData) => {
                 if ((data.SumVatAmount === 0 && data.SumTaxBasisAmount === 0)
                     || ((data.SumVatAmount > 0 || data.SumTaxBasisAmount > 0)
-                        && confirm(`Det er ført bilag i perioden som ikke er med i noen MVA meldinger. Dette gjelder ${data.NumberOfJournalEntryLines} bilag (totalt kr. ${data.SumVatAmount} i MVA).` +
-                            '\n\nTrykk avbryt og kjør rapporten på ny hvis du vil ha med disse bilagene'))) {
+                        && confirm(
+                            `Det er ført bilag i perioden som ikke er med i noen MVA meldinger.`
+                            + ` Dette gjelder ${data.NumberOfJournalEntryLines} `
+                            + `bilag (totalt kr. ${data.SumVatAmount} i MVA).`
+                            + '\n\nTrykk avbryt og kjør rapporten på ny hvis du vil ha med disse bilagene'
+                        )
+                    )
+                ) {
                     this.vatReportService.sendReport(this.currentVatReport.ID)
                         .subscribe(() => {
-                            this.vatReportService.Get(this.currentVatReport.ID, ['TerminPeriod', 'JournalEntry', 'VatReportArchivedSummary'])
+                            this.vatReportService.Get(
+                                this.currentVatReport.ID,
+                                ['TerminPeriod', 'JournalEntry', 'VatReportArchivedSummary']
+                            )
                                 .subscribe(vatreport => {
                                     this.setVatreport(vatreport);
                                     done();
@@ -445,32 +470,51 @@ export class VatReportView implements OnInit, OnDestroy {
             .onClose
             .filter(auth => !!auth)
             .do(auth => authData = auth)
-            .switchMap(() => this.vatReportService.signReport(this.currentVatReport.ID, authData))
-            .subscribe((signing: AltinnSigning) => {
-                if (signing.StatusCode === StatusCodeAltinnSigning.Failed) {
-                    // error occured while signing - not technical error
-                    this.toastService.addToast('Feil oppsto', ToastType.bad, 0, signing.StatusText);
-                    done('Feil ved signering');
-                } else {
-                    this.vatReportService.Get(this.currentVatReport.ID, ['TerminPeriod', 'JournalEntry', 'VatReportArchivedSummary'])
-                        .subscribe(vatreport => {
-                            this.setVatreport(vatreport);
-                            this.showView = 'receipt';
+            .switchMap(() => this.vatReportService.getSigningText(this.currentVatReport.ID, authData))
+            .subscribe(text => {
+                this.modalService.open(UniConfirmModalV2, {
+                    header: 'Vennligst bekreft',
+                    message: text.SigningText,
+                    buttonLabels: {
+                        accept: 'Bekreft',
+                        cancel: 'Avbryt'
+                    }
+                }).onClose.subscribe(response => {
+                    if (response === ConfirmActions.ACCEPT) {
+                        this.vatReportService.signReport(this.currentVatReport.ID, authData)
+                            .subscribe((signing: AltinnSigning) => {
+                                if (signing.StatusCode === StatusCodeAltinnSigning.Failed) {
+                                    // error occured while signing - not technical error
+                                    this.toastService.addToast('Feil oppsto', ToastType.bad, 0, signing.StatusText);
+                                    done('Feil ved signering');
+                                } else {
+                                    this.vatReportService.Get(
+                                        this.currentVatReport.ID,
+                                        ['TerminPeriod', 'JournalEntry', 'VatReportArchivedSummary'])
+                                        .subscribe(vatreport => {
+                                            this.setVatreport(vatreport);
+                                            this.showView = 'receipt';
 
-                            this.toastService.addToast('Signert OK', ToastType.good);
-                            done('Signert OK');
+                                            this.toastService.addToast('Signert OK', ToastType.good);
+                                            done('Signert OK');
 
-                            // check for receipt, this should be ready now - but use setTimeout to allow angular to switch views first
-                            setTimeout(() => {
-                                this.receiptVat.checkForReceipt();
+                                            // check for receipt, this should be ready now, but
+                                            // use setTimeout to allow angular to switch views first
+                                            setTimeout(() => {
+                                                this.receiptVat.checkForReceipt();
+                                            });
+                                        },
+                                        err => {
+                                            this.errorService.handle(err);
+                                            done('Det skjedde en feil, forsøk igjen senere');
+                                        }
+                                    );
+                                }
                             });
-                        },
-                        err => {
-                            this.errorService.handle(err);
-                            done('Det skjedde en feil, forsøk igjen senere');
-                        }
-                        );
-                }
+                    } else {
+                        done('Signering avbrutt');
+                    }
+                });
             },
             err => {
                 // something is not working with the altinnauthentication it seems, clear the pincode to make
@@ -481,7 +525,7 @@ export class VatReportView implements OnInit, OnDestroy {
                     this.altinnAuthenticationService.storeAltinnAuthenticationDataInLocalstorage(authData);
                 }
 
-                this.errorService.handle(err)
+                this.errorService.handle(err);
                 done('Det skjedde en feil, forsøk igjen senere');
             });
     }
@@ -503,12 +547,17 @@ export class VatReportView implements OnInit, OnDestroy {
 
 
     public approveManually(done) {
-        if (confirm('Er du sikker på at du vil godkjenne manuelt? Det er normalt bedre å bruke signering hvis mulig')) {
+        if (confirm(
+            'Er du sikker på at du vil godkjenne manuelt? Det er normalt bedre å bruke signering hvis mulig'
+        )) {
 
             const transName = this.currentVatReport.StatusCode === 32002 ? 'setToApproved' : 'approveManually';
             this.vatReportService.Transition(this.currentVatReport.ID, this.currentVatReport, transName)
                 .subscribe(() => {
-                    this.vatReportService.Get(this.currentVatReport.ID, ['TerminPeriod', 'JournalEntry', 'VatReportArchivedSummary'])
+                    this.vatReportService.Get(
+                        this.currentVatReport.ID,
+                        ['TerminPeriod', 'JournalEntry', 'VatReportArchivedSummary']
+                    )
                         .subscribe(vatreport => {
                             this.setVatreport(vatreport);
                             done('Godkjent manuelt');
@@ -573,7 +622,10 @@ export class VatReportView implements OnInit, OnDestroy {
 
                 // Load the newly created report
                 if (modalData.id > 0) {
-                    this.vatReportService.Get(modalData.id, ['TerminPeriod', 'JournalEntry', 'VatReportArchivedSummary'])
+                    this.vatReportService.Get(
+                        modalData.id,
+                        ['TerminPeriod', 'JournalEntry', 'VatReportArchivedSummary']
+                    )
                         .subscribe(vatreport => {
                             this.setVatreport(vatreport);
                         },
@@ -603,8 +655,10 @@ export class VatReportView implements OnInit, OnDestroy {
         let vatCodesAndAccountNos: Array<string> = [];
         if (vatTypes) {
             vatTypes.forEach(vt => {
-                let vatReportReferences = vt.VatReportReferences.filter(vatReport => vatReport.VatPost.VatCodeGroupID === vatReportSummary.VatCodeGroupID);
-                vatReportReferences.forEach(vrr => vatCodesAndAccountNos.push(`${vt.VatCode}|${vrr.Account.AccountNumber}`));
+                let vatReportReferences = vt.VatReportReferences
+                    .filter(vatReport => vatReport.VatPost.VatCodeGroupID === vatReportSummary.VatCodeGroupID);
+                vatReportReferences
+                    .forEach(vrr => vatCodesAndAccountNos.push(`${vt.VatCode}|${vrr.Account.AccountNumber}`));
             });
         }
 

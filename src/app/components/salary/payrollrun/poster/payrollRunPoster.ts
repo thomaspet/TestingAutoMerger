@@ -1,4 +1,6 @@
-import {Component, OnInit, OnChanges, Input, ChangeDetectionStrategy, SimpleChanges, Output, EventEmitter} from '@angular/core';
+import {
+    Component, OnInit, OnChanges, Input, ChangeDetectionStrategy, SimpleChanges, Output, EventEmitter
+} from '@angular/core';
 import {IPosterWidget} from '../../../common/poster/poster';
 import {PayrollRun, Employee, SalaryTransactionSums} from '../../../../unientities';
 import {

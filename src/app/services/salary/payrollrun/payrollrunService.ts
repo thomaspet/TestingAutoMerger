@@ -249,6 +249,7 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
         return this.yearService
             .selectedYear$
             .asObservable()
+            .filter(year => !!year)
             .take(1)
             .switchMap(year => {
                 let queryList = queryString.split('&');

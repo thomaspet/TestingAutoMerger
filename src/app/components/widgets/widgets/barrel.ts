@@ -10,6 +10,7 @@ import {UniFlexWidget} from './flex';
 import {UniTransactionsWidget} from './transactions';
 import {UniShortcutListWidget} from './shortcutList';
 import {UniInfoShortcutWidget} from './infoShortcut';
+import {UniCurrencyWidget} from './currency';
 
 export const UNI_WIDGETS = [
     UniShortcutWidget,
@@ -23,7 +24,8 @@ export const UNI_WIDGETS = [
     UniFlexWidget,
     UniTransactionsWidget,
     UniShortcutListWidget,
-    UniInfoShortcutWidget
+    UniInfoShortcutWidget,
+    UniCurrencyWidget
 ];
 
 export * from './shortcut';
@@ -38,4 +40,5 @@ export * from './flex';
 export * from './transactions';
 export * from './shortcutList';
 export * from './infoShortcut';
+export * from './currency';
 

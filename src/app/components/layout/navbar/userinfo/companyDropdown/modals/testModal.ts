@@ -1,5 +1,4 @@
-//import {Component, Type, ViewChild, Input, Output, EventEmitter, SimpleChanges} from '@angular/core';
-import {Component, ViewChild, Input, Output, EventEmitter, SimpleChanges, Type} from '@angular/core';
+import {Component, ViewChild, Type} from '@angular/core';
 import {UniModal} from '../../../../../../../framework/modals/modal';
 
 
@@ -28,7 +27,7 @@ export class TestModal {
     public type: Type<any> = TestModalContent;
 
 
-    constructor(){
+    constructor() {
         this.modalConfig = {
             hasCancelButton: true,
             cancel: () => {
@@ -37,10 +36,10 @@ export class TestModal {
             submit: () => {
                 this.modal.close();
             }
-        }
+        };
     }
 
-    public openModal(){
+    public openModal() {
         this.modal.open();
     }
 }

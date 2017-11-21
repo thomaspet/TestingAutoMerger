@@ -55,7 +55,7 @@ import {
 } from '../../../../../framework/uniModal/barrel';
 import {IUniSaveAction} from '../../../../../framework/save/save';
 import {IContextMenuItem} from '../../../../../framework/ui/unitable/index';
-import {ToastService, ToastTime, ToastType} from '../../../../../framework/uniToast/toastService';
+import {ToastService, ToastType} from '../../../../../framework/uniToast/toastService';
 
 import {ActivationEnum} from '../../../../models/activationEnum';
 import {GetPrintStatusText} from '../../../../models/printStatus';
@@ -66,12 +66,13 @@ import {TradeHeaderCalculationSummary} from '../../../../models/sales/TradeHeade
 import {ISummaryConfig} from '../../../common/summary/summary';
 import {IToolbarConfig, ICommentsConfig, IShareAction} from '../../../common/toolbar/toolbar';
 import {UniStatusTrack} from '../../../common/toolbar/statustrack';
-import {roundTo, safeDec, safeInt, trimLength, capitalizeSentence} from '../../../common/utils/utils';
+import {roundTo} from '../../../common/utils/utils';
 
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
 
 import {TofHead} from '../../common/tofHead';
 import {TradeItemTable} from '../../common/tradeItemTable';
+import {UniTofSelectModal} from '../../common/tofSelectModal';
 
 import {StatusCode} from '../../salesHelper/salesEnums';
 import {TofHelper} from '../../salesHelper/tofHelper';
@@ -146,8 +147,7 @@ export class InvoiceDetails {
         'PaymentTerms',
         'Sellers',
         'Sellers.Seller',
-        'DefaultSeller',
-        'DefaultSeller.Seller'
+        'DefaultSeller'
     ];
 
     private expandOptions: Array<string> = [
@@ -166,8 +166,7 @@ export class InvoiceDetails {
         'PaymentTerms',
         'Sellers',
         'Sellers.Seller',
-        'DefaultSeller',
-        'DefaultSeller.Seller'
+        'DefaultSeller'
     ].concat(this.customerExpandOptions.map(option => 'Customer.' + option));
 
     private commentsConfig: ICommentsConfig;
@@ -228,6 +227,7 @@ export class InvoiceDetails {
             this.invoiceID = +params['id'];
             const customerID = +params['customerID'];
             const projectID = +params['projectID'];
+            const hasCopyParam = params['copy'];
 
             this.commentsConfig = {
                 entityType: 'CustomerInvoice',
@@ -344,25 +344,31 @@ export class InvoiceDetails {
                     }
                     invoice.DefaultDimensions.Project = this.projects.find(project => project.ID === this.projectID);
 
-                    this.refreshInvoice(invoice);
+                    if (hasCopyParam) {
+                        this.refreshInvoice(this.copyInvoice(invoice));
+                    } else {
+                        this.refreshInvoice(invoice);
+                    }
                     this.tofHead.focus();
                 }, err => this.errorService.handle(err));
             }
         }, err => this.errorService.handle(err));
     }
 
-    private ngAfterViewInit() {
+    public ngAfterViewInit() {
          this.tofHead.detailsForm.tabbedPastLastField.subscribe((event) => this.tradeItemTable.focusFirstRow());
     }
 
     private ehfReadyUpdateSaveActions() {
         if (!this.invoice || !!!this.invoice.Customer) {
-            this.ehfEnabled = false
+            this.ehfEnabled = false;
             return;
         }
 
         // Possible to receive EHF for this customer?
-        let peppoladdress = this.invoice.Customer.PeppolAddress ? this.invoice.Customer.PeppolAddress : '9908:' + this.invoice.Customer.OrgNumber;
+        let peppoladdress = this.invoice.Customer.PeppolAddress
+            ? this.invoice.Customer.PeppolAddress
+            : '9908:' + this.invoice.Customer.OrgNumber;
         this.ehfService.GetAction(
             null, 'is-ehf-receiver',
             'peppoladdress=' + peppoladdress + '&entitytype=CustomerInvoice'
@@ -372,7 +378,7 @@ export class InvoiceDetails {
         }, err => this.errorService.handle(err));
     }
 
-    private numberSeriesChange(selectedSerie) {
+    public numberSeriesChange(selectedSerie) {
         this.invoice.InvoiceNumberSeriesID = selectedSerie.ID;
     }
 
@@ -423,8 +429,8 @@ export class InvoiceDetails {
 
     private sendToVipps(id, doneHandler: (msg?: string) => void = null) {
         this.modalService.open(UniSendVippsInvoiceModal, {
-            data:new Object({InvoiceID: id})
-        }).onClose.subscribe(Text => {
+            data: new Object({InvoiceID: id})
+        }).onClose.subscribe(text => {
             doneHandler();
         });
      }
@@ -458,7 +464,6 @@ export class InvoiceDetails {
     }
 
     public onInvoiceChange(invoice: CustomerInvoice) {
-        const isDifferent = (a, b) => a.toString() !== b.toString();
         this.isDirty = true;
         this.updateSaveActions();
         let shouldGetCurrencyRate: boolean = false;
@@ -835,7 +840,7 @@ export class InvoiceDetails {
                     .map(data => data.Data ? data.Data : [])
                     .subscribe(brdata => {
                         if (brdata && brdata.length > 0) {
-                                brdata.forEach(element => {
+                            brdata.forEach(element => {
                                 let pastDue: boolean = new Date(element['DueDate']) < new Date();
                                 let pastDueText = pastDue ? 'forfalt for' : 'forfall om';
                                 statusText = `${element['ReminderNumber']}. purring, `
@@ -886,9 +891,7 @@ export class InvoiceDetails {
 
     private getStatustrackConfig() {
         let statustrack: UniStatusTrack.IStatus[] = [];
-        let substatuses: UniStatusTrack.IStatus[] = [];
         let activeStatus = 0;
-        let testStatus = 2;
         if (this.invoice) {
             activeStatus = this.invoice.StatusCode || 1;
         }
@@ -969,13 +972,15 @@ export class InvoiceDetails {
 
                 this.newInvoiceItem = <any>this.tradeItemHelper.getDefaultTradeItemData(invoice);
                 this.readonly = invoice.StatusCode && invoice.StatusCode !== StatusCodeCustomerInvoice.Draft;
-                this.invoiceItems = invoice.Items.sort(function(itemA, itemB) { return itemA.SortIndex - itemB.SortIndex; });
+                this.invoiceItems = invoice.Items.sort(
+                    function(itemA, itemB) { return itemA.SortIndex - itemB.SortIndex; }
+                );
 
                 this.currentCustomer = invoice.Customer;
                 this.currentPaymentTerm = invoice.PaymentTerms;
                 this.currentDeliveryTerm = invoice.DeliveryTerms;
 
-                invoice.DefaultSeller = invoice.DefaultSeller || new SellerLink();
+                invoice.DefaultSeller = invoice.DefaultSeller;
                 this.currentDefaultProjectID = invoice.DefaultDimensions.ProjectID;
 
                 this.currentInvoiceDate = invoice.InvoiceDate;
@@ -985,8 +990,8 @@ export class InvoiceDetails {
                 this.recalcDebouncer.next(invoice.Items);
                 this.updateTabTitle();
                 this.updateToolbar();
+                this.updateSaveActions();
                 this.ehfReadyUpdateSaveActions();
-
 
                 resolve(true);
             });
@@ -1153,10 +1158,23 @@ export class InvoiceDetails {
         });
 
         this.saveActions.push({
+            label: 'Ny basert på',
+            action: (done) => {
+                this.newBasedOn().then(res => {
+                    done('Faktura kopiert');
+                }).catch(error => {
+                    done(error);
+                });
+            },
+            disabled: false
+        });
+
+        this.saveActions.push({
             label: 'Send EHF',
             action: (done) => this.sendEHFAction(done),
             disabled: status < StatusCodeCustomerInvoice.Invoiced,
-            main: printStatus !== 300 && this.ehfEnabled && status === StatusCodeCustomerInvoice.Invoiced && !this.isDirty
+            main: printStatus !== 300 && this.ehfEnabled
+                && status === StatusCodeCustomerInvoice.Invoiced && !this.isDirty
         });
 
         this.saveActions.push({
@@ -1188,22 +1206,20 @@ export class InvoiceDetails {
     private saveInvoice(done = (msg: string) => {}): Promise<any> {
         this.invoice.Items = this.tradeItemHelper.prepareItemsForSave(this.invoiceItems);
 
+        if (this.invoice.DefaultSeller && this.invoice.DefaultSeller.ID > 0) {
+            this.invoice.DefaultSellerID = this.invoice.DefaultSeller.ID;
+        }
+
+        if (this.invoice.DefaultSeller && this.invoice.DefaultSeller.ID === null) {
+            this.invoice.DefaultSeller = null;
+            this.invoice.DefaultSellerID = null;
+        }
+
         if (this.invoice.DefaultDimensions && !this.invoice.DefaultDimensions.ID) {
             this.invoice.DefaultDimensions._createguid = this.customerInvoiceService.getNewGuid();
         } else if (this.invoice.DefaultDimensions
             && this.invoice.DefaultDimensions.ProjectID === this.currentDefaultProjectID) {
                 this.invoice.DefaultDimensions = undefined;
-        }
-
-        // if main seller does not exist in 'Sellers', create and add it
-        if (this.invoice.DefaultSeller && this.invoice.DefaultSeller.SellerID
-            && !this.invoice.DefaultSeller._createguid && !this.invoice.Sellers.find(sellerLink =>
-                sellerLink.SellerID === this.invoice.DefaultSeller.SellerID
-            )) {
-            this.invoice.DefaultSeller._createguid = this.sellerLinkService.getNewGuid();
-            this.invoice.Sellers.push(this.invoice.DefaultSeller);
-        } else if (this.invoice.DefaultSeller && !this.invoice.DefaultSeller.SellerID) {
-            this.invoice.DefaultSeller = null;
         }
 
         // add deleted sellers back to 'Sellers' to delete with 'Deleted' property, was sliced locally/in view
@@ -1269,12 +1285,69 @@ export class InvoiceDetails {
         });
     }
 
+    private newBasedOn(): Promise<any> {
+        return new Promise((resolve, reject) => {
+            if (this.invoice.ID) {
+                this.router.navigateByUrl('sales/invoices/' + this.invoice.ID + ';copy=true');
+                resolve(true);
+            } else {
+                let config = {
+                    service: this.customerInvoiceService,
+                    moduleName: 'Invoice',
+                    label: 'Fakturanr'
+                };
+
+                this.modalService.open(UniTofSelectModal, { data: config }).onClose.subscribe((id: number) => {
+                    if (id) {
+                        resolve(id);
+                        this.router.navigateByUrl('sales/invoices/' + id + ';copy=true');
+                    } else {
+                        reject('Kopiering avbrutt');
+                    }
+
+                });
+            }
+        });
+    }
+
+    private copyInvoice(invoice: CustomerInvoice): CustomerInvoice {
+        invoice.ID = 0;
+        invoice.InvoiceNumber = null;
+        invoice.InvoiceNumberSeriesID = null;
+        invoice.StatusCode = null;
+        invoice.PrintStatus = null;
+        invoice.DontSendReminders = false;
+        invoice.InvoiceDate = new LocalDate();
+        invoice.JournalEntry = null;
+        invoice.JournalEntryID = null;
+        invoice.Payment = null;
+        invoice.PaymentID = null;
+        if (!invoice.PaymentTerms && !invoice.PaymentDueDate) {
+            invoice.PaymentDueDate = new LocalDate(
+                moment(invoice.InvoiceDate).add(this.companySettings.CustomerCreditDays, 'days').toDate()
+            );
+        } else if (!invoice.PaymentDueDate) {
+            this.setPaymentDueDate(invoice);
+        }
+        invoice.InvoiceReferenceID = null;
+        invoice.Comment = null;
+        delete invoice['_links'];
+
+        invoice.Items = invoice.Items.map((item: CustomerInvoiceItem) => {
+            item.CustomerInvoiceID = 0;
+            item.ID = 0;
+            item.StatusCode = null;
+            return item;
+        });
+
+        return invoice;
+    }
+
     private transition(done: any) {
         const isDraft = this.invoice.ID >= 1;
 
         const isCreditNote = this.invoice.InvoiceType === InvoiceTypes.CreditNote;
         const doneText = isCreditNote ? 'Faktura kreditert' : 'Faktura fakturert';
-        const errText = isCreditNote ? 'Kreditering feiler' : 'Fakturering feilet';
 
         this.saveInvoice(done).then((invoice) => {
             if (invoice) {
@@ -1484,11 +1557,14 @@ export class InvoiceDetails {
             }
         });
 
-        // this.registerPaymentModal.confirm(this.invoice.ID, title, this.invoice.CurrencyCode, this.invoice.CurrencyExchangeRate,
+        // this.registerPaymentModal.confirm(
+        //    this.invoice.ID, title, this.invoice.CurrencyCode, this.invoice.CurrencyExchangeRate,
         //     'CustomerInvoice', invoicePaymentData).then(res => {
         //     if (res.status === ConfirmActions.ACCEPT) {
-        //         this.customerInvoiceService.ActionWithBody(res.id, <any>res.model, 'payInvoice').subscribe((journalEntry) => {
-        //             this.toastService.addToast('Faktura er betalt. Bilagsnummer: ' + journalEntry.JournalEntryNumber, ToastType.good, 5);
+        //         this.customerInvoiceService.ActionWithBody(
+        //    res.id, <any>res.model, 'payInvoice').subscribe((journalEntry) => {
+        //             this.toastService.addToast(
+        //    'Faktura er betalt. Bilagsnummer: ' + journalEntry.JournalEntryNumber, ToastType.good, 5);
         //             done('Betaling registrert');
         //             this.customerInvoiceService.Get(this.invoice.ID, this.expandOptions).subscribe((invoice) => {
         //                 this.refreshInvoice(invoice);

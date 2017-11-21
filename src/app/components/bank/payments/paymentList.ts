@@ -129,7 +129,7 @@ export class PaymentList {
                 data.BusinessRelation.ID = data.BusinessRelation.BusinessRelationID;
                 data.BusinessRelationID = data.BusinessRelation.BusinessRelationID;
 
-                //Empty the toBank control if new business is selected
+                // Empty the toBank control if new business is selected
                 if (data.BusinessRelation.BusinessRelationID === null ||
                     data.BusinessRelationID !== previousId) {
                     data.ToBankAccountID = null;
@@ -157,13 +157,11 @@ export class PaymentList {
                 (data.CurrencyExchangeRate === null || data.CurrencyExchangeRate === 0)) {
                 data.CurrencyExchangeRate = 1;
                 data.Amount = data.AmountCurrency * data.CurrencyExchangeRate;
-            }
-            else if (data.CurrencyCodeID !== this.companySettings.BaseCurrencyCodeID &&
+            } else if (data.CurrencyCodeID !== this.companySettings.BaseCurrencyCodeID &&
                 (data.CurrencyExchangeRate === null || data.CurrencyExchangeRate === 0)) {
                 rowOrPromise = this.getExternalCurrencyExchangeRate(data)
                     .then(row => this.calculateAmount(row));
-            }
-            else {
+            } else {
                 data.Amount = data.AmountCurrency * data.CurrencyExchangeRate;
 
             }
@@ -223,14 +221,14 @@ export class PaymentList {
                     .map(e => e.ExchangeRate)
                     .finally(() => done(rowModel))
                     .subscribe(
-                    newExchangeRate => rowModel.CurrencyExchangeRate = newExchangeRate,
-                    err => this.errorService.handle(err)
-                    )
+                        newExchangeRate => rowModel.CurrencyExchangeRate = newExchangeRate,
+                        err => this.errorService.handle(err)
+                    );
             }
         });
     }
 
-    private onPaymentCodeFilterChange(newValue: number) {
+    public onPaymentCodeFilterChange(newValue: number) {
         // find dirty elements - check that there are no changes before applying filter
         let tableData = this.table.getTableData();
         let dirtyRows = [];
@@ -274,18 +272,20 @@ export class PaymentList {
         let paymentCodeFilter = this.paymentCodeFilterValue.toString() !== '0' ?
             ` and PaymentCodeID eq ${this.paymentCodeFilterValue}` : '';
 
-        this.paymentService.GetAll(`filter=IsCustomerPayment eq false and StatusCode eq 44001${paymentCodeFilter}&orderby=DueDate ASC`,
+        this.paymentService.GetAll(
+            `filter=IsCustomerPayment eq false and StatusCode eq 44001${paymentCodeFilter}&orderby=DueDate ASC`,
             ['ToBankAccount', 'ToBankAccount.CompanySettings', 'FromBankAccount',
-                'BusinessRelation', 'PaymentCode', 'CurrencyCode'])
-            .subscribe(data => {
-                this.pendingPayments = data;
-                setTimeout(() => {
-                    this.calculateSums();
-                });
+                'BusinessRelation', 'PaymentCode', 'CurrencyCode']
+        )
+        .subscribe(data => {
+            this.pendingPayments = data;
+            setTimeout(() => {
+                this.calculateSums();
+            });
 
-            },
+        },
             err => this.errorService.handle(err)
-            );
+        );
     }
 
     private save(doneHandler: (status: string) => any, nextAction: () => any) {
@@ -378,14 +378,17 @@ export class PaymentList {
             return;
         }
 
-        let rowsWithOldDates: any[] = selectedRows.filter(x => moment(x.PaymentDate).isBefore(moment().startOf('day')));
+        let rowsWithOldDates: any[] = selectedRows.filter(
+            x => moment(x.PaymentDate).isBefore(moment().startOf('day'))
+        );
 
         if (rowsWithOldDates.length > 0) {
             const modal = this.modalService.open(UniConfirmModalV2, {
                 header: 'Ugyldig betalingsdato',
-                message: `Det er ${rowsWithOldDates.length} rader som har betalingsdato tidligere enn dagens dato. Vil du sette dagens dato?`,
+                message: `Det er ${rowsWithOldDates.length} rader som har betalingsdato `
+                    + `tidligere enn dagens dato. Vil du sette dagens dato?`,
                 buttonLabels: {
-                    accept: 'Lagre med dagens dato og send til utbetaling', 
+                    accept: 'Lagre med dagens dato og send til utbetaling',
                     reject: 'Avbryt og sett dato manuelt'
                 }
             });
@@ -484,7 +487,9 @@ export class PaymentList {
         let selectedRows = this.table.getSelectedRows();
 
         if (selectedRows.length === 0) {
-            this.toastService.addToast('Ingen rader', ToastType.warn, 5, 'Ingen rader er valgt - kan ikke slette noe');
+            this.toastService.addToast(
+                'Ingen rader', ToastType.warn, 5, 'Ingen rader er valgt - kan ikke slette noe'
+            );
             doneHandler('Sletting avbrutt');
             return;
         }
@@ -506,7 +511,10 @@ export class PaymentList {
         });
 
         if (changedNotMarkedRows.length > 0) {
-            if (!confirm(`Du har gjort endringer i ${changedNotMarkedRows.length} rader som ikke er merket for sletting, disse endringene vil forkastes\nVil du fortsette?`)) {
+            if (!confirm(
+                `Du har gjort endringer i ${changedNotMarkedRows.length} rader som `
+                + `ikke er merket for sletting, disse endringene vil forkastes\nVil du fortsette?`
+            )) {
                 doneHandler('Sletting avbrutt');
                 return;
             }
@@ -572,7 +580,7 @@ export class PaymentList {
         this.setSums();
     }
 
-    private onRowSelected(data) {
+    public onRowSelected(data) {
         this.summaryData.SumChecked = 0;
         let selectedRows = this.table.getSelectedRows();
 
@@ -583,7 +591,7 @@ export class PaymentList {
         this.setSums();
     }
 
-    private onRowChanged(event) {
+    public onRowChanged(event) {
         this.calculateSums();
     }
 
@@ -591,16 +599,28 @@ export class PaymentList {
         let paymentDateCol = new UniTableColumn('PaymentDate', 'Betalingsdato', UniTableColumnType.LocalDate);
         let payToCol = new UniTableColumn('BusinessRelation', 'Betales til', UniTableColumnType.Lookup)
             .setTemplate(data => {
-                return data.BusinessRelationID === null && data.ToBankAccount ? data.ToBankAccount.CompanySettings.CompanyName : data.BusinessRelation.Name;
+                return data.BusinessRelationID === null && data.ToBankAccount
+                    ? data.ToBankAccount.CompanySettings.CompanyName
+                    : data.BusinessRelation.Name;
             })
             .setEditorOptions({
                 itemTemplate: (selectedItem) => {
-                    return (selectedItem.CustomerID ? 'Kunde: ' : selectedItem.SupplierID ? 'Leverandør: ' : selectedItem.EmployeeID ? 'Ansatt: ' : '')
+                    return (selectedItem.CustomerID
+                        ? 'Kunde: '
+                        : selectedItem.SupplierID ? 'Leverandør: ' : selectedItem.EmployeeID ? 'Ansatt: ' : ''
+                    )
                         + selectedItem.BusinessRelationName;
                 },
                 lookupFunction: (query: string) => {
                     return this.statisticsService.GetAll(
-                        `model=BusinessRelation&select=BusinessRelation.ID,BusinessRelation.Name,Customer.ID,Supplier.ID,Employee.ID&join=Customer on BusinessRelation.ID eq Customer.BusinessRelationID Supplier on BusinessRelation.ID eq Supplier.BusinessRelationID Employee on BusinessRelation.ID eq Employee.BusinessRelationID&filter=BusinessRelation.Deleted eq 'false' and contains(BusinessRelation.Name,'${query}') and (isnull(Customer.ID,0) ne 0 or isnull(Supplier.ID,0) ne 0 or isnull(Employee.ID,0) ne 0)&top=20`
+                        `model=BusinessRelation&select=BusinessRelation.ID,BusinessRelation.Name`
+                        + `,Customer.ID,Supplier.ID,Employee.ID&join=Customer on BusinessRelation.ID `
+                        + `eq Customer.BusinessRelationID Supplier on BusinessRelation.ID `
+                        + `eq Supplier.BusinessRelationID Employee on BusinessRelation.ID `
+                        + `eq Employee.BusinessRelationID&filter=BusinessRelation.Deleted `
+                        + `eq 'false' and contains(BusinessRelation.Name,'${query}') `
+                        + `and (isnull(Customer.ID,0) ne 0 or isnull(Supplier.ID,0) ne 0 `
+                        + `or isnull(Employee.ID,0) ne 0)&top=20`
                     ).map(x => x.Data ? x.Data : []);
                 }
             });
@@ -612,7 +632,9 @@ export class PaymentList {
 
         let amountCurrencyCol = new UniTableColumn('AmountCurrency', 'Beløp', UniTableColumnType.Money);
 
-        let amountCol = new UniTableColumn('Amount', `Beløp (${this.companySettings.BaseCurrencyCode.Code})`, UniTableColumnType.Money)
+        let amountCol = new UniTableColumn(
+            'Amount', `Beløp (${this.companySettings.BaseCurrencyCode.Code})`, UniTableColumnType.Money
+        )
             .setSkipOnEnterKeyNavigation(true)
             .setVisible(false)
             .setEditable(false);
@@ -639,7 +661,8 @@ export class PaymentList {
                     let currentRow = this.table.getCurrentRow();
 
                     return this.bankAccountService.GetAll(
-                        `filter=BusinessRelationID eq ${currentRow.BusinessRelationID} and contains(AccountNumber,'${query}')&top=20`
+                        `filter=BusinessRelationID eq ${currentRow.BusinessRelationID} `
+                        + `and contains(AccountNumber,'${query}')&top=20`
                     );
                 },
                 addNewButtonVisible: true,
@@ -689,7 +712,9 @@ export class PaymentList {
                 }
             });
 
-        let descriptionCol = new UniTableColumn('Description', 'Beskrivelse', UniTableColumnType.Text).setVisible(false);
+        let descriptionCol = new UniTableColumn(
+            'Description', 'Beskrivelse', UniTableColumnType.Text
+        ).setVisible(false);
 
         // Setup table
         this.paymentTableConfig = new UniTableConfig('bank.payments.paymentList', true, true, 25)
@@ -760,7 +785,7 @@ export class PaymentList {
                 dirtyRows.push(x);
             }
         });
-        
+
         if (!dirtyRows.length) {
             return true;
         }

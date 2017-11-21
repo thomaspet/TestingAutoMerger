@@ -1,6 +1,5 @@
-import {Component, ViewChildren, Input, Output, SimpleChange, EventEmitter} from '@angular/core';
+import {Component, Input, Output, SimpleChange, EventEmitter} from '@angular/core';
 import {UniHttp} from '../../../../framework/core/http/http';
-import {Observable} from 'rxjs/Observable';
 import {BusinessRelationService, ErrorService} from '../../../services/services';
 
 @Component({
@@ -8,15 +7,15 @@ import {BusinessRelationService, ErrorService} from '../../../services/services'
     templateUrl: './externalSearch.html'
 })
 export class ExternalSearch {
-    @Input() private searchText;
+    @Input() private searchText: any;
     @Input() private useInternalSearchBox: boolean;
-    @Input() private helpText: string;
-    @Output() private selectEvent = new EventEmitter<SearchResultItem>();
+    @Input() public helpText: string;
+    @Output() private selectEvent: EventEmitter<SearchResultItem> = new EventEmitter<SearchResultItem>();
 
     private lastClickedName: string;
     private showAllResults: boolean;
 
-    private MINIMUMHITS = 6;
+    private MINIMUMHITS: number = 6;
 
     private searchResult: any[];
     private fullSearchResult: any[];
@@ -40,18 +39,18 @@ export class ExternalSearch {
     }
 
     public ngOnChanges(changes: {[propName: string]: SimpleChange}) {
-        if (changes['searchText'] != null && this.lastClickedName != this.searchText && this.searchText !== '') {
+        if (changes['searchText'] !== null && this.lastClickedName !== this.searchText && this.searchText !== '') {
             this.businessRelationService
                     .search(this.searchText)
                     .subscribe(
                         (result) => {
-                            if (result != null && result.Data != null) {
+                            if (result !== null && result.Data !== null) {
                                 this.fullSearchResult = result.Data.entries;
 
                                 if (this.showAllResults) {
                                     this.searchResult = this.fullSearchResult;
                                 } else {
-                                    //default display only first 6 searchresults
+                                    // default display only first 6 searchresults
                                     this.searchResult = this.fullSearchResult.slice(0, this.MINIMUMHITS);
                                 }
                             } else {
@@ -64,19 +63,19 @@ export class ExternalSearch {
         }
     }
 
-    private doShowAllResults() {
+    public doShowAllResults() {
         this.searchResult = this.fullSearchResult;
         this.showAllResults = true;
         return false;
     }
 
-    private doHideAllResults() {
+    public doHideAllResults() {
         this.searchResult = this.fullSearchResult.slice(0, this.MINIMUMHITS);
         this.showAllResults = false;
         return false;
     }
 
-    private selectItem(item: any) {
+    public selectItem(item: any) {
         this.lastClickedName = item.navn;
 
         this.selectEvent.emit(item);
@@ -95,7 +94,7 @@ export class SearchResultItem {
     public ppostnr: string;
     public ppoststed: string;
     public ppostland: string;
-    public tlf_mobil: string;
+    public tlf_mobil: string; //tslint:disable-line
     public tlf: string;
     public url: string;
     public forradrkommnavn: string;

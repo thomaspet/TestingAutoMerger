@@ -41,7 +41,7 @@ export interface IOcrValuables {
 }
 
 export class OcrValuables {
-
+    // tslint:disable
     public Orgno: string = '';
     public PaymentID: string = '';
     public BankAccount: string = '';
@@ -52,6 +52,7 @@ export class OcrValuables {
     public InvoiceNumber: string = '';
     public Amount: number = 0;
     public SupplierID: number = 0;
+    // tslint:enable
 
     private _report: IOcrServiceResult;
 

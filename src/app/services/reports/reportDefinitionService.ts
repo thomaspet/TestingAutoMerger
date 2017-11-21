@@ -5,6 +5,11 @@ import {BizHttp} from '../../../framework/core/http/BizHttp';
 import {ReportDefinition} from '../../unientities';
 import {Observable} from 'rxjs/Observable';
 
+export enum ReportNames {
+    PAYCHECK_FROM_TO = 'Lønnslipp',
+    PAYCHECK_EMP_FILTER = 'Lønnslipp_emp_filter'
+}
+
 @Injectable()
 export class ReportDefinitionService extends BizHttp<ReportDefinition>{
     private baseHttp: Http;

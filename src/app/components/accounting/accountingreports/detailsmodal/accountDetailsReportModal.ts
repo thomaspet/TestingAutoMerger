@@ -1,5 +1,4 @@
-import {Component, Type, ViewChild, Output, EventEmitter, Input} from '@angular/core';
-import {UniModal} from '../../../../../framework/modals/modal';
+import {Component, Type, Output, EventEmitter, Input} from '@angular/core';
 import {AccountDetailsReport} from './accountDetailsReport';
 import {IUniModal, IModalOptions} from '../../../../../framework/uniModal/barrel';
 

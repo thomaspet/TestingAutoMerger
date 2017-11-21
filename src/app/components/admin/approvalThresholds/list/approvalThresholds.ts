@@ -1,7 +1,5 @@
 // angular
 import {Component, OnInit, ViewChild} from '@angular/core';
-import {Router} from '@angular/router';
-import {URLSearchParams} from '@angular/http';
 // app
 import {IToolbarConfig} from './../../../common/toolbar/toolbar';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
@@ -17,12 +15,12 @@ export class ApprovalThresholds implements OnInit {
     @ViewChild(UniTable)
     @ViewChild(UniSelect)
 
-    private table: UniTable;
+    public table: UniTable;
 
     private toolbarConfig: IToolbarConfig;
     private transitionTableConfig: UniTableConfig;
 
-    private fieldSelectConfig: ISelectConfig;
+    public fieldSelectConfig: ISelectConfig;
 
     private transitions: any[] = [];
 

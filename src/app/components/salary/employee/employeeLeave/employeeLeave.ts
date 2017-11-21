@@ -1,6 +1,6 @@
 import {Component} from '@angular/core';
 import {Router, ActivatedRoute} from '@angular/router';
-import {Employment, Employee, EmployeeLeave} from '../../../../unientities';
+import {Employment, EmployeeLeave} from '../../../../unientities';
 import {UniTableConfig, UniTableColumnType, UniTableColumn} from '../../../../../framework/ui/unitable/index';
 import {UniCacheService, ErrorService} from '../../../../services/services';
 import {UniView} from '../../../../../framework/core/uniView';
@@ -53,18 +53,6 @@ export class EmployeeLeaves extends UniView {
                     this.employments = (employments || []).filter(emp => emp.ID > 0);
                     this.buildTableConfig();
                 }, err => this.errorService.handle(err));
-        });
-    }
-
-    // REVISIT (remove)!
-    // This (and the canDeactivate in employeeRoutes.ts) is a dummy-fix
-    // until we are able to locate a problem with detecting changes of
-    // destroyed view in unitable.
-    public canDeactivate() {
-        return new Promise((resolve) => {
-            setTimeout(() => {
-                resolve(true);
-            });
         });
     }
 

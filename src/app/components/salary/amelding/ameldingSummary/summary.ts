@@ -48,8 +48,7 @@ export class AmeldingSummaryView {
 
         if (this.currentSumUp && this.currentAMelding) {
             this.mapData();
-        }
-        else{
+        } else {
             this.entitiesWithData = [];
         }
 
@@ -130,7 +129,9 @@ export class AmeldingSummaryView {
     private setupEmployees() {
         let empNoCol = new UniTableColumn('employeeNumber', 'Nr', UniTableColumnType.Number).setWidth('4rem');
         let nameCol = new UniTableColumn('name', 'Navn', UniTableColumnType.Text);
-        let emplmntCol = new UniTableColumn('arbeidsforholdId', 'ID arbeidsforhold', UniTableColumnType.Number).setWidth('10rem');
+        let emplmntCol = new UniTableColumn(
+            'arbeidsforholdId', 'ID arbeidsforhold', UniTableColumnType.Number
+        ).setWidth('10rem');
         let startCol = new UniTableColumn('startDate', 'Startdato', UniTableColumnType.LocalDate).setWidth('8rem');
         let endCol = new UniTableColumn('endDate', 'Sluttdato', UniTableColumnType.LocalDate).setWidth('8rem');
 

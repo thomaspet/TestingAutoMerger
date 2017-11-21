@@ -258,7 +258,9 @@ export class GenericDetailview {
     private updateTitle(fallbackTitle?: string) {
         if (this.viewconfig) {
             var nameProp = this.viewconfig.detail.nameProperty || 'Name';
-            this.title = this.ID && this.current$.getValue() ? getDeepValue(this.current$.getValue(), nameProp) : fallbackTitle || '';
+            this.title = this.ID && this.current$.getValue()
+                ? getDeepValue(this.current$.getValue(), nameProp)
+                : fallbackTitle || '';
             this.subTitle = this.ID ? ` (nr. ${this.ID})` : this.viewconfig.labels.createNew;
             var tabTitle = trimLength(this.title, 12);
             var url = this.viewconfig.tab.url + '/' + this.ID;

@@ -1,4 +1,4 @@
-import {Component, ChangeDetectionStrategy, ChangeDetectorRef} from '@angular/core';
+import {Component, ChangeDetectorRef} from '@angular/core';
 import {Router} from '@angular/router';
 import {UniModules} from '../../../layout/navbar/tabstrip/tabService';
 import {AuthService} from '../../../../authService';

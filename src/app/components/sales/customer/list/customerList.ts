@@ -1,11 +1,12 @@
-import {Component, ViewChild, OnInit} from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 import {Router} from '@angular/router';
 import {UniHttp} from '../../../../../framework/core/http/http';
-import {Customer, LocalDate, CompanySettings} from '../../../../unientities';
-import {URLSearchParams} from '@angular/http';
+import {CompanySettings} from '../../../../unientities';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
-import {ToastService, ToastType} from '../../../../../framework/uniToast/toastService';
-import {ITickerActionOverride, TickerAction, ITickerColumnOverride} from '../../../../services/common/uniTickerService';
+import {ToastService} from '../../../../../framework/uniToast/toastService';
+import {
+    ITickerActionOverride, ITickerColumnOverride
+} from '../../../../services/common/uniTickerService';
 import {
     CustomerService,
     ErrorService,
@@ -18,15 +19,15 @@ import {
 })
 export class CustomerList implements OnInit {
 
-    private actionOverrides: Array<ITickerActionOverride> = [
+    public actionOverrides: Array<ITickerActionOverride> = [
 
     ];
 
     private companySettings: CompanySettings;
 
-    private columnOverrides: Array<ITickerColumnOverride> = [ ];
+    public columnOverrides: Array<ITickerColumnOverride> = [ ];
 
-    private tickercode: string = 'customer_list';
+    public tickercode: string = 'customer_list';
 
 
     constructor(

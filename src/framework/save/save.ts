@@ -76,9 +76,11 @@ export class UniSave {
 
     public onSaveCompleted(statusMessage?: string) {
         this.statusMessage = statusMessage || '';
-        this.busy = false;
-
         setTimeout(() => this.statusMessage = undefined, 5000);
+
+        // Add a small timeout to allow views to refresh before we make the
+        // save button available again (avoid duplicate posts on double click)
+        setTimeout(() => { this.busy = false; }, 500);
     }
 
     public close() {

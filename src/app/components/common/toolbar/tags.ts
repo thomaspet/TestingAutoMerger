@@ -86,9 +86,9 @@ export class UniTags implements OnChanges {
     @Output() public tagsChange: EventEmitter<any> = new EventEmitter();
     @ViewChild(UniAutocompleteInput) public autoComplete: UniAutocompleteInput;
 
-    private isOpen: boolean = false;
+    public isOpen: boolean = false;
     private newTag: string = '';
-    private autoCompleteModel: any = null;
+    public autoCompleteModel: any = null;
     private autoCompleteField: UniFieldLayout;
     private searchBusy: boolean;
     private listBusy: boolean;
@@ -139,7 +139,9 @@ export class UniTags implements OnChanges {
                 .filter(isDeleted => isDeleted)
                 .finally(() => this.listBusy = false)
                 .subscribe(isDeleted => {
-                    this.tags.splice(this.tags.findIndex(tg => tg.linkID ? tg.linkID === tag.linkID : tg.title === tag.title), 1);
+                    this.tags.splice(
+                        this.tags.findIndex(tg => tg.linkID ? tg.linkID === tag.linkID : tg.title === tag.title), 1
+                    );
                     this.tagsChange.emit(this.tags);
                     this.buildNewIgnoreFilter(this.tags);
                 });

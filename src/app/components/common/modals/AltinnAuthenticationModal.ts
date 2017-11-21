@@ -1,4 +1,4 @@
-import {Component, Type, ViewChild, Input, Output, EventEmitter, ElementRef, OnInit} from '@angular/core';
+import {Component, Input, Output, EventEmitter, ElementRef, OnInit} from '@angular/core';
 import {IUniModal, IModalOptions} from '../../../../framework/uniModal/barrel';
 import {UniFieldLayout} from '../../../../framework/ui/uniform/index';
 import {AltinnAuthRequest} from '../../../unientities';
@@ -22,7 +22,7 @@ enum LoginState {
             <header>
                 <h1>{{atLogin ? "Personlig pålogging Altinn" : "Resultat"}}</h1>
             </header>
-            <p [innerHTML]="userMessage"></p>
+            <p [innerHTML]="userMessage" class="altinn-user-message"></p>
             <div *ngIf="formState === LOGIN_STATE_ENUM.UsernameAndPasswordAndPinType" [attr.aria-busy]="busy">
                 <article>
                     <uni-form
@@ -32,7 +32,7 @@ enum LoginState {
                     ></uni-form>
                 </article>
                 <footer>
-                    <button (click)="submitUsernameAndPasswordAndPinType()">OK</button>
+                    <button (click)="submitUsernameAndPasswordAndPinType()" class="good">OK</button>
                     <button (click)="close()">Avbryt</button>
                 </footer>
             </div>
@@ -45,8 +45,8 @@ enum LoginState {
                     ></uni-form>
                 </article>
                 <footer>
-                    <button (click)="close()">Avbryt</button>
                     <button (click)="submitPin()" class="good">OK</button>
+                    <button (click)="close()">Avbryt</button>
                 </footer>
             </div>
             <div *ngIf="formState === LOGIN_STATE_ENUM.LoggedIn" [attr.aria-busy]="busy">
@@ -62,13 +62,15 @@ export class AltinnAuthenticationModal implements OnInit, IUniModal {
     @Input() public options: IModalOptions;
     // Done so that angular template can access the enum
     public LOGIN_STATE_ENUM: any = LoginState;
-    public userLoginData$: BehaviorSubject<AltinnAuthenticationData> = new BehaviorSubject(new AltinnAuthenticationData());
+    public userLoginData$: BehaviorSubject<AltinnAuthenticationData>
+        = new BehaviorSubject(new AltinnAuthenticationData());
 
     public busy: boolean = true;
     public userMessage: string;
     public emptyConfig$: BehaviorSubject<any> = new BehaviorSubject({});
     public formState: LoginState = LoginState.UsernameAndPasswordAndPinType;
-    public usernameAndPasswordFormFields$: BehaviorSubject<UniFieldLayout[]> = new BehaviorSubject(this.createUsernameAndPasswordForm());
+    public usernameAndPasswordFormFields$: BehaviorSubject<UniFieldLayout[]>
+        = new BehaviorSubject(this.createUsernameAndPasswordForm());
     public pinFormFields$: BehaviorSubject<UniFieldLayout[]> = new BehaviorSubject(this.createPinForm());
 
     private userSubmittedUsernameAndPasswordAndPinType: EventEmitter<AltinnAuthenticationData> =
@@ -82,7 +84,7 @@ export class AltinnAuthenticationModal implements OnInit, IUniModal {
         authData => {
             this.altinnAuthService.storeAltinnAuthenticationDataInLocalstorage(authData);
             return authData;
-        };
+        }
 
     constructor(
         private altinnAuthService: AltinnAuthenticationService,
@@ -211,8 +213,13 @@ export class AltinnAuthenticationModal implements OnInit, IUniModal {
                             this.userLoginData$.next(userLoginData);
                             this.formState = LoginState.Pin;
                         }, error => {
-                            // TODO: add proper wrong user/pass handling when we know what the service/altinn returns on bad user/pass
-                            this.errorService.handleWithMessage(error, 'Got an error back from Altinn, it might be bad ID/password or Altinn crashed, nobody knows');
+                            // TODO: add proper wrong user/pass handling when
+                            // we know what the service/altinn returns on bad user/pass
+                            this.errorService.handleWithMessage(
+                                error,
+                                'Got an error back from Altinn, '
+                                    + 'it might be bad ID/password or Altinn crashed, nobody knows'
+                            );
                         });
                 }, err => this.errorService.handle(err));
         }

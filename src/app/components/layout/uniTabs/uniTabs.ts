@@ -11,8 +11,11 @@ export interface IUniTabsRoute {
     template: `
         <ul>
             <li *ngFor="let route of routes">
-                <a [routerLink]="[route.path]" [queryParamsHandling]="queryParamsHandling" routerLinkActive="router-link-active">
-                    {{route.name}} <!-- TODO: i18n -->
+                <a
+                    [routerLink]="[route.path]"
+                    [queryParamsHandling]="queryParamsHandling"
+                    routerLinkActive="router-link-active">
+                        {{route.name}} <!-- TODO: i18n -->
                 </a>
             </li>
         </ul>

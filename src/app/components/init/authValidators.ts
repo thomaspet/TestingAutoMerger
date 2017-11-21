@@ -9,10 +9,18 @@ export function passwordValidator(control) {
     let hasSymbol    = /[\@\#\$\%\^\&\*\-_\\+\=\[\]\{\}\|\\\:\‘\,\.\?\/\`\~\“\(\)\;]/.test(password);
 
     let counter = 0;
-    if (hasLowerCase) counter++;
-    if (hasUpperCase) counter++;
-    if (hasNumber) counter++;
-    if (hasSymbol) counter++;
+    if (hasLowerCase) {
+        counter++;
+    }
+    if (hasUpperCase) {
+        counter++;
+    }
+    if (hasNumber) {
+        counter++;
+    }
+    if (hasSymbol) {
+        counter++;
+    }
 
     if (counter < 3) {
         return {'passwordValidator': true};

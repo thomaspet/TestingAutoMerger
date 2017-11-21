@@ -71,7 +71,11 @@ export class EmploymentDetails implements OnChanges {
 
             if (this.employment.JobCode) {
                 this.jobCodeInitValue = this.statisticsService
-                    .GetAll('model=STYRKCode&select=styrk as styrk,tittel as tittel&filter=styrk eq ' + this.employment.JobCode)
+                    .GetAll(
+                        'model=STYRKCode&select=styrk as styrk,'
+                        + 'tittel as tittel&filter=styrk eq '
+                        + this.employment.JobCode
+                    )
                     .map(res => res.Data)
                     .share();
             } else {
@@ -125,7 +129,10 @@ export class EmploymentDetails implements OnChanges {
                         return this.searchCache[query];
                     }
                     return this.statisticsService
-                        .GetAll(`top=50&model=STYRKCode&select=styrk as styrk,tittel as tittel&filter=startswith(styrk,'${query}') or contains(tittel,'${query}')`)
+                        .GetAll(
+                            `top=50&model=STYRKCode&select=styrk as styrk,tittel as tittel`
+                            + `&filter=startswith(styrk,'${query}') or contains(tittel,'${query}')`
+                        )
                         .do(x => this.searchCache[query] = Observable.of(x.Data))
                         .map(x => x.Data);
                 },

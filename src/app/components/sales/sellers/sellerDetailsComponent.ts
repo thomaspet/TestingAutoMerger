@@ -1,11 +1,9 @@
 import {Component} from '@angular/core';
-import {Router, ActivatedRoute} from '@angular/router';
+import {ActivatedRoute} from '@angular/router';
 import {IUniTabsRoute} from '../../layout/uniTabs/uniTabs';
-import {SellerDetails} from './sellerDetails';
 import {StatusCodeCustomerInvoice} from '../../../unientities';
 import {IPosterWidget} from '../../common/poster/poster';
 import {
-    ErrorService,
     StatisticsService,
     NumberFormat
 } from '../../../services/services';
@@ -90,14 +88,14 @@ export class SellerDetailsComponent {
 
     private loadSalesSums() {
        this.statisticsService.GetAllUnwrapped(
-            `model=CustomerInvoice&` +
-            `select=sum(TaxInclusiveAmount) as TotalAmount,` +
-                   `sum(TaxInclusiveAmount mul casewhen(SellerLink.Percent gt 0,SellerLink.Percent,100) div 100) as SellerTotalAmount,` +
-                   `count(ID) as TotalCount&` +
-            `join=CustomerInvoice.ID eq SellerLink.CustomerInvoiceID&` +
-            `filter=SellerLink.SellerID eq ${this.sellerId} and StatusCode ne ${StatusCodeCustomerInvoice.Draft} ` +
-                   `and year(InvoiceDate) eq thisyear()`
+            `model=CustomerInvoice&select=sum(TaxInclusiveAmount) as TotalAmount,`
+            + `sum(TaxInclusiveAmount mul casewhen(SellerLink.Percent gt 0,`
+            + `SellerLink.Percent,100) div 100) as SellerTotalAmount,count(ID) as TotalCount`
+            + `&join=CustomerInvoice.ID eq SellerLink.CustomerInvoiceID`
+            + `&filter=SellerLink.SellerID eq ${this.sellerId} and StatusCode ne ${StatusCodeCustomerInvoice.Draft} `
+            + `and year(InvoiceDate) eq thisyear()`
         ).subscribe(response => {
+            /* tslint:disable */
             let sums = response[0];
             this.salesWidgets[0].config.mainText.text = this.numberformat.asMoney(sums.TotalAmount | 0);
             this.salesWidgets[1].config.mainText.text = this.numberformat.asMoney(sums.SellerTotalAmount | 0);

@@ -16,7 +16,7 @@ export class SalarybalanceLine implements OnInit {
 
     private layout$: BehaviorSubject<UniComponentLayout> = new BehaviorSubject(new UniComponentLayout());
     private salaryBalanceLine$: BehaviorSubject<SalaryBalanceLine> = new BehaviorSubject(new SalaryBalanceLine());
-    private config$: BehaviorSubject<any> = new BehaviorSubject({});
+    public config$: BehaviorSubject<any> = new BehaviorSubject({});
 
 
     constructor(

@@ -18,11 +18,11 @@ import {
     ErrorService, NumberFormat, WageTypeService
 } from '../../../services/services';
 import {UniForm} from '../../../../framework/ui/uniform/index';
-import {SalaryTransSupplementsModal} from '../modals/salaryTransSupplementsModal';
 
 import {UniView} from '../../../../framework/core/uniView';
 import {ImageModal, UpdatedFileListEvent} from '../../common/modals/ImageModal';
 import {UniModalService} from '../../../../framework/uniModal/barrel';
+import {SalaryTransViewService} from '../sharedServices/salaryTransViewService';
 declare var _;
 const PAPERCLIP = '📎'; // It might look empty in your editor, but this is the unicode paperclip
 
@@ -68,7 +68,8 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges 
         private _accountService: AccountService,
         protected cacheService: UniCacheService,
         private errorService: ErrorService,
-        private _reportDefinitionService: ReportDefinitionService
+        private _reportDefinitionService: ReportDefinitionService,
+        private salaryTransViewService: SalaryTransViewService
     ) {
         super(router.url, cacheService);
 
@@ -199,7 +200,10 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges 
                     return (selectedItem.AccountNumber + ' - ' + selectedItem.AccountName);
                 },
                 lookupFunction: (searchValue) => {
-                    return this._accountService.GetAll(`filter=contains(AccountName, '${searchValue}') or startswith(AccountNumber, '${searchValue}')&top50`).debounceTime(200);
+                    return this._accountService.GetAll(
+                        `filter=contains(AccountName, '${searchValue}') `
+                        + `or startswith(AccountNumber, '${searchValue}')&top50`
+                    ).debounceTime(200);
                 }
             })
             .setWidth('4rem');
@@ -295,11 +299,20 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges 
             .setWidth('2rem')
             .setSkipOnEnterKeyNavigation(true);
 
+        let supplementCol = this.salaryTransViewService
+            .createSupplementsColumn(
+                (trans) => this.onSupplementModalClose(trans),
+                () => this.payrollRun && !!this.payrollRun.StatusCode);
+
         const editable = this.payrollRun ? this.payrollRun.StatusCode < 1 : true;
         this.salarytransEmployeeTableConfig = new UniTableConfig('salary.salarytrans.list', editable)
             .setContextMenu([{
                 label: 'Tilleggsopplysninger', action: (row) => {
-                    this.openSuplementaryInformationModal(row);
+                    this.salaryTransViewService
+                        .openSupplements(
+                            row,
+                            (trans) => this.onSupplementModalClose(trans),
+                            this.payrollRun && !!this.payrollRun.StatusCode);
                 }
             },
             {
@@ -309,7 +322,7 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges 
             }])
             .setColumns([
                 wageTypeCol, wagetypenameCol, employmentidCol, fromdateCol, toDateCol, accountCol,
-                amountCol, rateCol, sumCol, payoutCol, projectCol, departmentCol, fileCol
+                amountCol, rateCol, sumCol, payoutCol, projectCol, departmentCol, supplementCol, fileCol
             ])
             .setColumnMenuVisible(true)
             .setDeleteButton(this.payrollRun ? (this.payrollRun.StatusCode < 1 ? this.deleteButton : false) : false)
@@ -363,7 +376,9 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges 
 
                 return row;
             })
-            .setIsRowReadOnly((rowModel: SalaryTransaction) => rowModel.IsRecurringPost || !!rowModel.SalaryBalanceID);
+            .setIsRowReadOnly(
+                (rowModel: SalaryTransaction) => rowModel.IsRecurringPost || !!rowModel.SalaryBalanceID
+            );
     }
 
     public onCellClick(event: ICellClickEvent) {
@@ -510,19 +525,9 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges 
         return null;
     }
 
-    public openSuplementaryInformationModal(row: SalaryTransaction) {
-        if (this.payrollRun) {
-            this.modalService
-                .open(SalaryTransSupplementsModal, {
-                    data: row,
-                    modalConfig: {readOnly: !!this.payrollRun.StatusCode}
-                })
-                .onClose
-                .subscribe((trans: SalaryTransaction) => {
-                    if (trans && trans.Supplements && trans.Supplements.length) {
-                        this.updateSalaryChanged(trans, true);
-                    }
-                });
+    private onSupplementModalClose(trans: SalaryTransaction) {
+        if (trans && trans.Supplements && trans.Supplements.length) {
+            this.updateSalaryChanged(trans, true);
         }
     }
 
@@ -586,7 +591,9 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges 
             row['EmployeeID'] = this.employeeID;
             row['PayrollRunID'] = this.payrollRunID;
             row['IsRecurringPost'] = false;
-            transIndex = this.salaryTransactions.findIndex(x => x['_guid'] === row['_guid'] && x.EmployeeID === this.employeeID);
+            transIndex = this.salaryTransactions.findIndex(
+                x => x['_guid'] === row['_guid'] && x.EmployeeID === this.employeeID
+            );
         }
 
         return transIndex;

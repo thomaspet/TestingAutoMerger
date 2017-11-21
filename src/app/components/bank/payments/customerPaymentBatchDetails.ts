@@ -31,7 +31,7 @@ export class CustomerPaymentBatchDetails implements OnChanges {
     @ViewChild(PaymentRelationsModal) private paymentRelationsModal: PaymentRelationsModal;
     @ViewChild(UniTable) private table: UniTable;
 
-    private downloadFilesAsAttachments: boolean = true;
+    public downloadFilesAsAttachments: boolean = true;
     private paymentBatch: PaymentBatch;
     private paymentTableConfig: UniTableConfig;
     private lookupFunction: (urlParams: URLSearchParams) => any;
@@ -70,15 +70,15 @@ export class CustomerPaymentBatchDetails implements OnChanges {
         }
     }
 
-    private goToPreviousBatch() {
+    public goToPreviousBatch() {
         this.paymentBatchNavigate.emit(-1);
     }
 
-    private goToNextBatch() {
+    public goToNextBatch() {
         this.paymentBatchNavigate.emit(1);
     }
 
-    private deleteBatch() {
+    public deleteBatch() {
         if (!this.paymentBatch.PaymentFileID) {
             this.deletePaymentBatch.emit(this.paymentBatch);
         } else {
@@ -97,11 +97,11 @@ export class CustomerPaymentBatchDetails implements OnChanges {
         }
     }
 
-    private updatetest() {
+    public updatetest() {
         this.paymentBatchUpdated.emit(this.paymentBatch);
     }
 
-    private completeCustomerPayment() {
+    public completeCustomerPayment() {
         this.modalService.confirm({
             header: 'Bekreft fullføring',
             message: 'Vennligst bekreft at du ønsker å fullføre innbetaling på denne innbetalingsfilen',
@@ -120,11 +120,11 @@ export class CustomerPaymentBatchDetails implements OnChanges {
         });
     }
 
-    private getFormattedDate(date) {
+    public getFormattedDate(date) {
         return moment(date).format('DD.MM.YYYY');
     }
 
-    private downloadPaymentFile() {
+    public downloadPaymentFile() {
         if (!this.paymentBatch.PaymentFileID) {
             this.toastService.addToast('Fil ikke generert', ToastType.bad, 15, 'Fant ingen betalingsfil.');
         } else {
@@ -144,7 +144,13 @@ export class CustomerPaymentBatchDetails implements OnChanges {
 
     private loadRestAmounts(done) {
         this.statisticsService.GetAll(
-            `model=Tracelink&filter=DestinationEntityName%20eq%20'Payment'%20and%20SourceEntityName%20eq%20'CustomerInvoice'%20and%20Payment.PaymentBatchId%20eq%20${this.paymentBatchID}&join=Tracelink.SourceInstanceId%20eq%20CustomerInvoice.ID%20as%20CustomerInvoice%20and%20Tracelink.DestinationInstanceId%20eq%20Payment.ID&select=Tracelink.DestinationInstanceId%20as%20PaymentId,CustomerInvoice.RestAmountCurrency%20as%20RestAmountCurrency`
+            `model=Tracelink&filter=DestinationEntityName%20eq%20'Payment'%20`
+            + `and%20SourceEntityName%20eq%20'CustomerInvoice'%20`
+            + `and%20Payment.PaymentBatchId%20eq%20${this.paymentBatchID}`
+            + `&join=Tracelink.SourceInstanceId%20eq%20CustomerInvoice.ID%20as%20CustomerInvoice%20`
+            + `and%20Tracelink.DestinationInstanceId%20eq%20Payment.ID`
+            + `&select=Tracelink.DestinationInstanceId%20as%20PaymentId,`
+            + `CustomerInvoice.RestAmountCurrency%20as%20RestAmountCurrency`
         ).map(x => x.Data ? x.Data : []).subscribe((restamountsCurrency) => {
             this.restAmountsCurrency = restamountsCurrency;
 
@@ -162,7 +168,7 @@ export class CustomerPaymentBatchDetails implements OnChanges {
             );
     }
 
-    private save() {
+    public save() {
         let tableData = this.table.getTableData();
 
         // set up observables (requests)
@@ -182,7 +188,12 @@ export class CustomerPaymentBatchDetails implements OnChanges {
                     this.errorService.handle(err);
                 });
         } else {
-            this.toastService.addToast('Ingen endringer', ToastType.warn, 10, 'Ingen endringer funnet eller ikke tillatt å endre fullførte.');
+            this.toastService.addToast(
+                'Ingen endringer',
+                ToastType.warn,
+                10,
+                'Ingen endringer funnet eller ikke tillatt å endre fullførte.'
+            );
         }
     }
 
@@ -209,12 +220,27 @@ export class CustomerPaymentBatchDetails implements OnChanges {
             .setTemplate(data => data.BusinessRelation ? data.BusinessRelation.Name : '')
             .setEditorOptions({
                 itemTemplate: (selectedItem) => {
-                    return (selectedItem.CustomerID ? 'Kunde: ' : selectedItem.SupplierID ? 'Leverandør: ' : selectedItem.EmployeeID ? 'Ansatt: ' : '')
+                    return (
+                        selectedItem.CustomerID
+                        ? 'Kunde: '
+                        : selectedItem.SupplierID
+                            ? 'Leverandør: '
+                            : selectedItem.EmployeeID
+                                ? 'Ansatt: '
+                                : ''
+                            )
                         + selectedItem.BusinessRelationName;
                 },
                 lookupFunction: (query: string) => {
                     return this.statisticsService.GetAll(
-                        `model=BusinessRelation&select=BusinessRelation.ID,BusinessRelation.Name,Customer.ID,Supplier.ID,Employee.ID&join=Customer on BusinessRelation.ID eq Customer.BusinessRelationID Supplier on BusinessRelation.ID eq Supplier.BusinessRelationID Employee on BusinessRelation.ID eq Employee.BusinessRelationID&filter=BusinessRelation.Deleted eq 'false' and contains(BusinessRelation.Name,'${query}') and (isnull(Customer.ID,0) ne 0 or isnull(Supplier.ID,0) ne 0 or isnull(Employee.ID,0) ne 0)&top=20`
+                        `model=BusinessRelation&select=BusinessRelation.ID,BusinessRelation.Name,`
+                        + `Customer.ID,Supplier.ID,Employee.ID&join=Customer on BusinessRelation.ID `
+                        + `eq Customer.BusinessRelationID Supplier on BusinessRelation.ID `
+                        + `eq Supplier.BusinessRelationID Employee on BusinessRelation.ID `
+                        + `eq Employee.BusinessRelationID&filter=BusinessRelation.Deleted `
+                        + `eq 'false' and contains(BusinessRelation.Name,'${query}') `
+                        + `and (isnull(Customer.ID,0) ne 0 or isnull(Supplier.ID,0) ne 0 `
+                        + `or isnull(Employee.ID,0) ne 0)&top=20`
                     ).map(x => x.Data ? x.Data : []);
                 }
             });
@@ -225,7 +251,11 @@ export class CustomerPaymentBatchDetails implements OnChanges {
             .setVisible(false);
         let amountCurrencyCol = new UniTableColumn('AmountCurrency', 'Beløp', UniTableColumnType.Money);
 
-        let amountCol = new UniTableColumn('Amount', `Beløp (${this.companySettings.BaseCurrencyCode.Code})`, UniTableColumnType.Money)
+        let amountCol = new UniTableColumn(
+            'Amount',
+            `Beløp (${this.companySettings.BaseCurrencyCode.Code})`,
+            UniTableColumnType.Money
+        )
             .setVisible(false)
             .setEditable(false);
 
@@ -233,7 +263,9 @@ export class CustomerPaymentBatchDetails implements OnChanges {
         let restAmountCurrencyCol = new UniTableColumn('RestAmountCurrency', 'Restbeløp', UniTableColumnType.Money)
             .setTemplate((payment) => {
                 if (this.restAmountsCurrency === null) { return 0; }
-                let restamountCurrency = this.restAmountsCurrency.find((restamountCurrency) => restamountCurrency.PaymentId === payment.ID);
+                let restamountCurrency = this.restAmountsCurrency.find(
+                    (restamountCur) => restamountCur.PaymentId === payment.ID
+                );
                 return restamountCurrency ? restamountCurrency.RestAmountCurrency : 0;
             });
         let fromAccountCol = new UniTableColumn('FromBankAccount', 'Konto fra', UniTableColumnType.Lookup)
@@ -242,8 +274,16 @@ export class CustomerPaymentBatchDetails implements OnChanges {
             .setDisplayField('ToBankAccount.AccountNumber');
         let paymentIDCol = new UniTableColumn('PaymentID', 'KID', UniTableColumnType.Text).setWidth('12%');
         let dueDateCol = new UniTableColumn('DueDate', 'Forfall', UniTableColumnType.LocalDate)
-            .setConditionalCls(payment => moment(payment.DueDate).isBefore(moment()) ? 'payment-due' : '').setVisible(false);
-        let descriptionCol = new UniTableColumn('Description', 'Beskrivelse', UniTableColumnType.Text).setVisible(false);
+            .setConditionalCls(
+                payment => moment(payment.DueDate).isBefore(moment()) ? 'payment-due' : ''
+            )
+            .setVisible(false);
+        let descriptionCol = new UniTableColumn(
+            'Description',
+            'Beskrivelse',
+            UniTableColumnType.Text
+        )
+            .setVisible(false);
 
         let statusCodeCol = new UniTableColumn('StatusCode', 'Status', UniTableColumnType.Text)
             .setTemplate(data => this.paymentService.getStatusText(data.StatusCode))

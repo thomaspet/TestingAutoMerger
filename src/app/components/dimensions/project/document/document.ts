@@ -1,10 +1,10 @@
-import {Component, ViewChild} from '@angular/core';
+import {Component} from '@angular/core';
 import {Project} from '../../../../unientities';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {Observable} from 'rxjs/Observable';
 import {UniTableColumn, UniTableColumnType, UniTableConfig} from '../../../../../framework/ui/unitable/index';
 import {ImageModal} from '../../../common/modals/ImageModal';
-import {UniImage, UniImageSize} from '../../../../../framework/uniImage/uniImage';
+import {UniImageSize} from '../../../../../framework/uniImage/uniImage';
 import {UniModalService} from '../../../../../framework/uniModal/barrel';
 import {ToastService, ToastTime, ToastType} from '../../../../../framework/uniToast/toastService';
 import {
@@ -24,7 +24,7 @@ export class ProjectDocument {
 
     private project: Project;
 
-    //Table
+    // Table
     private tableConfig: UniTableConfig;
     private documents$: BehaviorSubject<any> = new BehaviorSubject(null);
 
@@ -54,9 +54,13 @@ export class ProjectDocument {
         return this.statisticsService
             .GetAllUnwrapped(
                 `model=File&` +
-                `select=ID,Name,FileEntityLink.EntityID as EntityID,FileEntityLink.EntityType as EntityType,FileEntityLink.EntityID as Customer${register}ID,Customer${register}.${register}Number as Customer${register}Number&` +
-                `join=File.ID eq FileEntityLink.FileID and FileEntityLink.EntityID eq Customer${register}.ID and Customer${register}.DefaultDimensionsID eq Dimensions.ID&` +
-                `filter=FileEntityLink.EntityType eq 'Customer${register}' and Dimensions.ProjectID eq ${this.project.ID}&` +
+                `select=ID,Name,FileEntityLink.EntityID as EntityID,FileEntityLink.EntityType as EntityType`
+                + `,FileEntityLink.EntityID as Customer${register}ID,Customer${register}.${register}Number `
+                + `as Customer${register}Number&` +
+                `join=File.ID eq FileEntityLink.FileID and FileEntityLink.EntityID eq Customer${register}.ID `
+                + `and Customer${register}.DefaultDimensionsID eq Dimensions.ID&` +
+                `filter=FileEntityLink.EntityType eq 'Customer${register}' and Dimensions.ProjectID `
+                + `eq ${this.project.ID}&` +
                 `orderby=Name desc`);
     }
 
@@ -89,21 +93,27 @@ export class ProjectDocument {
             .setWidth('6rem')
             .setTemplate((document) => {
                 return document.CustomerInvoiceID ?
-                    `<a href='/#/sales/invoices/${document.CustomerInvoiceID}'>${document.CustomerInvoiceNumber || 'kladd'}</a>`
+                    `<a href='/#/sales/invoices/${document.CustomerInvoiceID}'>
+                        ${document.CustomerInvoiceNumber || 'kladd'}
+                      </a>`
                     : '';
             });
         let orderCol = new UniTableColumn('CustomerOrderNumber', 'Ordre', UniTableColumnType.Text)
             .setWidth('6rem')
             .setTemplate((document) => {
                 return document.CustomerOrderID ?
-                    `<a href='/#/sales/orders/${document.CustomerOrderID}'>${document.CustomerOrderNumber || 'kladd'}</a>`
+                    `<a href='/#/sales/orders/${document.CustomerOrderID}'>
+                        ${document.CustomerOrderNumber || 'kladd'}
+                    </a>`
                     : '';
             });
         let quoteCol = new UniTableColumn('CustomerQuoteNumber', 'Tilbud', UniTableColumnType.Text)
             .setWidth('6rem')
             .setTemplate((document) => {
                 return document.CustomerQuoteID ?
-                    `<a href='/#/sales/quotes/${document.CustomerQuoteID}'>${document.CustomerQuoteNumber || 'kladd'}</a>`
+                    `<a href='/#/sales/quotes/${document.CustomerQuoteID}'>
+                        ${document.CustomerQuoteNumber || 'kladd'}
+                    </a>`
                     : '';
             });
 
@@ -114,7 +124,7 @@ export class ProjectDocument {
             .setColumns([nameCol, invoiceCol, orderCol, quoteCol]);
     }
 
-    //Handlers
+    // Handlers
     public onRowDeleted(file) {
         this.fileService.deleteOnEntity(file.EntityType, file.EntityID, file.FileID)
             .subscribe(

@@ -1,4 +1,4 @@
-﻿import {NgModule, forwardRef} from '@angular/core';
+﻿import {NgModule} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {Dashboard} from './dashboard';
 import {UniFrameworkModule} from '../../../framework/frameworkModule';

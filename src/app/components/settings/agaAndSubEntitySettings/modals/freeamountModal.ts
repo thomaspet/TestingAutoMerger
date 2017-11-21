@@ -1,11 +1,19 @@
 import {Component, OnInit, Input, Output, EventEmitter} from '@angular/core';
 import {IUniModal, IModalOptions} from '../../../../../framework/uniModal/barrel';
 import {UniTableConfig, UniTableColumn, UniTableColumnType} from '../../../../../framework/ui/unitable/index';
-import {GrantService, SubEntityService, ErrorService} from '../../../../services/services';
+import {
+    GrantService, SubEntityService, ErrorService, YearService, PayrollrunService, AgaSumService
+} from '../../../../services/services';
 import {Observable} from 'rxjs/Observable';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {UniFieldLayout, FieldType} from '../../../../../framework/ui/uniform/index';
-import {SubEntity} from './../../../../unientities';
+import {FreeAmountSummary, AGASums} from './../../../../unientities';
+interface IFreeAmountData {
+    name?: string;
+    grant?: number;
+    maxFreeAmount?: number;
+    usedFreeAmount?: number;
+}
 
 @Component({
     selector: 'free-amount-modal',
@@ -15,75 +23,78 @@ import {SubEntity} from './../../../../unientities';
 export class FreeAmountModal implements OnInit, IUniModal {
     @Input() public options: IModalOptions;
     @Output() public onClose: EventEmitter<boolean> = new EventEmitter<boolean>();
-    private freeamountTableConfig: UniTableConfig;
-    private freeamountData: any[] = [];
+    public freeamountTableConfig: UniTableConfig;
+    public freeamountData$: BehaviorSubject<AGASums[]> = new BehaviorSubject([]);
 
     //
     // Jorge: can't understand why model is not used. Which is then the point of the form?
-    private freeamountModel$: BehaviorSubject<any> = new BehaviorSubject({});
-    private fields$: BehaviorSubject<UniFieldLayout[]> = new BehaviorSubject([]);
-    private formConfig$: BehaviorSubject<any>= new BehaviorSubject({submitText: ''});
+    public freeamountModel$: BehaviorSubject<number> = new BehaviorSubject(0);
+    public fields$: BehaviorSubject<UniFieldLayout[]> = new BehaviorSubject([]);
+    public formConfig$: BehaviorSubject<any> = new BehaviorSubject({submitText: ''});
 
     constructor(
         private _subentityService: SubEntityService,
         private _grantService: GrantService,
-        private errorService: ErrorService) { }
+        private errorService: ErrorService,
+        private yearService: YearService,
+        private payrollRunService: PayrollrunService,
+        private agaSumService: AgaSumService
+    ) {}
 
-        public ngOnInit() {
-            Observable.forkJoin(
-                this._subentityService.GetAll('filter=SuperiorOrganizationID gt 0', ['BusinessRelationInfo.InvoiceAddress']),
-                this._grantService.GetAll('')
-            ).subscribe((response) => {
-                let [subs, grants] = response;
-                this.freeamountData = subs;
-
-                // remove this section when we get data from issue #2041 (backend)
-                this.freeamountData.forEach(freeamount => {
-                    let grantAmount: number = 0;
-                    grants.forEach(grant => {
-                        if (freeamount.ID === grant.SubentityID) {
-                            grantAmount += grant.Amount;
-                        }
-                    });
-                    freeamount.Grants = grantAmount;
-                });
-
+    public ngOnInit() {
+        this.getData()
+            .subscribe(() => {
                 this.setTableConfig();
                 this.setFormConfig();
-            }, err => this.errorService.handle(err));
-        }
-
-        private setTableConfig() {
-            let subentityCol = new UniTableColumn('ID', 'Virksomhet', UniTableColumnType.Text)
-            .setTemplate((dataItem: SubEntity) => {
-                    let info = dataItem.BusinessRelationInfo;
-                    return info ? `${dataItem.OrgNumber} - ${info.Name}` : dataItem.OrgNumber;
             });
-            let maxCol = new UniTableColumn('AgaRule', 'Maks fribeløp', UniTableColumnType.Money);
-            let usedCol = new UniTableColumn('AgaZone', 'Brukt fribeløp', UniTableColumnType.Money);
-            let grantCol = new UniTableColumn('Grants', 'Tilskudd', UniTableColumnType.Money);
+    }
 
-            const configStoreKey = 'settings.agaAndSubEntitySettings.freeAmountModal';
-            this.freeamountTableConfig = new UniTableConfig(configStoreKey, false, true, 10)
-                .setColumns([subentityCol, maxCol, usedCol, grantCol]);
-        }
+    private getData(): Observable<FreeAmountSummary> {
+        return this.agaSumService
+            .getFreeAmountSummary()
+            .do(summary => {
+                this.freeamountData$.next(summary.SubEntitiesSums.map(data => {
+                    if (!data.SubEntity) {
+                        return;
+                    }
 
-        private setFormConfig() {
-            let totalFreeamountField = new UniFieldLayout();
-            totalFreeamountField.FieldSet = 0;
-            totalFreeamountField.Section = 0;
-            totalFreeamountField.Combo = 0;
-            totalFreeamountField.FieldType = FieldType.TEXT;
-            totalFreeamountField.EntityType = 'freeamountModel';
-            totalFreeamountField.Property = 'TotalFreeamount';
-            totalFreeamountField.Label = 'Rest fribeløp';
-            totalFreeamountField.Options = null;
-            totalFreeamountField.ReadOnly = true;
+                    data.Sums['_name'] = data.SubEntity.BusinessRelationInfo
+                        ? `${data.SubEntity.OrgNumber} - ${data.SubEntity.BusinessRelationInfo.Name}`
+                        : data.SubEntity.OrgNumber || data.SubEntity.ID;
+                    return data.Sums;
+                }));
+                this.freeamountModel$.next(summary.RestFreeAmount);
+            })
+            .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
+    }
 
-            this.fields$.next([totalFreeamountField]);
-        }
+    private setTableConfig() {
+        let subentityCol = new UniTableColumn('_name', 'Virksomhet', UniTableColumnType.Text);
+        let maxCol = new UniTableColumn('MaxFreeAmount', 'Maks fribeløp', UniTableColumnType.Money);
+        let usedCol = new UniTableColumn('UsedFreeAmount', 'Brukt fribeløp', UniTableColumnType.Money);
+        let grantCol = new UniTableColumn('GrantSum', 'Tilskudd', UniTableColumnType.Money);
 
-        public close() {
-            this.onClose.next(true);
-        }
+        const configStoreKey = 'settings.agaAndSubEntitySettings.freeAmountModal';
+        this.freeamountTableConfig = new UniTableConfig(configStoreKey, false, true, 10)
+            .setColumns([subentityCol, maxCol, usedCol, grantCol]);
+    }
+
+    private setFormConfig() {
+        let totalFreeamountField = new UniFieldLayout();
+        totalFreeamountField.FieldSet = 0;
+        totalFreeamountField.Section = 0;
+        totalFreeamountField.Combo = 0;
+        totalFreeamountField.FieldType = FieldType.TEXT;
+        totalFreeamountField.EntityType = 'freeamountModel';
+        totalFreeamountField.Property = 'TotalFreeamount';
+        totalFreeamountField.Label = 'Rest fribeløp';
+        totalFreeamountField.Options = null;
+        totalFreeamountField.ReadOnly = true;
+
+        this.fields$.next([totalFreeamountField]);
+    }
+
+    public close() {
+        this.onClose.next(true);
+    }
 }

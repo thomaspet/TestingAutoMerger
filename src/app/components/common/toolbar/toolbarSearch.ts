@@ -3,6 +3,8 @@ import {
     Input,
     ChangeDetectionStrategy,
     ChangeDetectorRef,
+    ElementRef,
+    ViewChild
 } from '@angular/core';
 import {FormControl} from '@angular/forms';
 import {Observable} from 'rxjs/Observable';
@@ -20,7 +22,8 @@ export interface IToolbarSearchConfig {
     template: `
         <input type="search" #inputElement
             (keydown)="onKeyDown($event)"
-            [formControl]="searchControl" />
+            [formControl]="searchControl"
+            (focus)="markText()" />
 
         <ul class="toolbar-dropdown-list"
             [attr.aria-expanded]="expanded"
@@ -39,6 +42,7 @@ export interface IToolbarSearchConfig {
 })
 export class UniToolbarSearch {
     @Input() public config: IToolbarSearchConfig;
+    @ViewChild('inputElement') private input: ElementRef;
 
     private searchControl: FormControl = new FormControl('');
     private searchResults: any[];
@@ -107,5 +111,13 @@ export class UniToolbarSearch {
             this.config.onSelect(this.searchResults[index]);
             this.close();
         }
+    }
+
+    public markText() {
+        if (!this.input || !this.input.nativeElement){
+            return;
+        }
+
+        this.input.nativeElement.select();
     }
 }

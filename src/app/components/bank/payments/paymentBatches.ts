@@ -6,6 +6,7 @@ import {IToolbarConfig} from '../../common/toolbar/toolbar';
 import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig} from '../../../../framework/ui/unitable/index';
 import {URLSearchParams} from '@angular/http';
 import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
+import {UniModalService, UniDownloadPaymentsModal} from '../../../../framework/uniModal/barrel';
 import {
     ErrorService,
     StatisticsService,
@@ -32,7 +33,8 @@ export class PaymentBatches {
         private errorService: ErrorService,
         private tabService: TabService,
         private toastService: ToastService,
-        private fileService: FileService) {
+        private fileService: FileService,
+        private modalService: UniModalService) {
 
         this.tabService.addTab({
             name: 'Utbetalinger',
@@ -59,7 +61,7 @@ export class PaymentBatches {
         }, 100);
     }
 
-    private fileUploaded(file: File) {
+    public fileUploaded(file: File) {
         this.toastService.addToast('Laster opp kvitteringsfil..', ToastType.good, 10,
             'Dette kan ta litt tid, vennligst vent...');
 
@@ -79,7 +81,7 @@ export class PaymentBatches {
         }
     }
 
-    private paymentBatchNavigate(direction: number) {
+    public paymentBatchNavigate(direction: number) {
         if (this.table) {
             try {
                 // use try catch here, in case we navigate past the last item
@@ -95,7 +97,7 @@ export class PaymentBatches {
         }
     }
 
-    private deletePaymentBatch(paymentBatch: PaymentBatch) {
+    public deletePaymentBatch(paymentBatch: PaymentBatch) {
         this.selectedPaymentBatchID = null;
         this.currentRow = null;
 
@@ -107,7 +109,7 @@ export class PaymentBatches {
             );
     }
 
-    private onRowSelected(row) {
+    public onRowSelected(row) {
         this.selectedPaymentBatchID = row.rowModel.ID;
         this.currentRow = row.rowModel;
     }
@@ -151,5 +153,9 @@ export class PaymentBatches {
         this.paymentBatchTableConfig = new UniTableConfig(configStoreKey, false, true, 25)
             .setSearchable(true)
             .setColumns([dateCol, totalAmountCol, numberOfPaymentsCol, statusCodeCol]);
+    }
+
+    public downloadBankFiles() {
+        this.modalService.open(UniDownloadPaymentsModal, {});
     }
 }

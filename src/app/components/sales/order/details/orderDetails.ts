@@ -8,7 +8,6 @@ import {
     ConfirmActions
 } from '../../../../../framework/uniModal/barrel';
 import {
-    Address,
     CompanySettings,
     CurrencyCode,
     Customer,
@@ -63,6 +62,7 @@ import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService
 
 import {TofHead} from '../../common/tofHead';
 import {TradeItemTable} from '../../common/tradeItemTable';
+import {UniTofSelectModal} from '../../common/tofSelectModal';
 
 import {StatusCode} from '../../salesHelper/salesEnums';
 import {TofHelper} from '../../salesHelper/tofHelper';
@@ -213,6 +213,7 @@ export class OrderDetails {
             this.orderID = +params['id'];
             const customerID = +params['customerID'];
             const projectID = +params['projectID'];
+            const hasCopyParam = params['copy'];
 
             this.commentsConfig = {
                 entityType: 'CustomerOrder',
@@ -250,7 +251,12 @@ export class OrderDetails {
                     }
                     order.DefaultDimensions.Project = this.projects.find(project => project.ID === this.projectID);
 
-                    this.refreshOrder(order);
+                    if (hasCopyParam) {
+                        this.refreshOrder(this.copyOrder(order));
+                    } else {
+                        this.refreshOrder(order);
+                    }
+
                     this.tofHead.focus();
                 },
                     err => this.errorService.handle(err));
@@ -335,7 +341,7 @@ export class OrderDetails {
         }
     }
 
-    private numberSeriesChange(selectedSerie) {
+    public numberSeriesChange(selectedSerie) {
         this.order.OrderNumberSeriesID = selectedSerie.ID;
     }
 
@@ -582,7 +588,7 @@ export class OrderDetails {
                 this.currentCustomer = res.Customer;
                 this.currentDeliveryTerm = res.DeliveryTerms;
 
-                order.DefaultSeller = order.DefaultSeller || new SellerLink();
+                order.DefaultSeller = order.DefaultSeller;
                 this.currentDefaultProjectID = order.DefaultDimensions.ProjectID;
 
                 this.currentOrderDate = order.OrderDate;
@@ -933,6 +939,18 @@ export class OrderDetails {
         });
 
         this.saveActions.push({
+            label: 'Ny basert på',
+            action: (done) => {
+                this.newBasedOn().then(res => {
+                    done('Ordre kopiert');
+                }).catch(error => {
+                    done(error);
+                });
+            },
+            disabled: false
+        });
+
+        this.saveActions.push({
             label: 'Lagre og overfør til faktura',
             action: (done) => this.saveAndTransferToInvoice(done),
             disabled: !transitions || !transitions['transferToInvoice']
@@ -963,6 +981,50 @@ export class OrderDetails {
         this.setSums();
     }
 
+    private newBasedOn(): Promise<any> {
+        return new Promise((resolve, reject) => {
+            if (this.order.ID) {
+                resolve(true);
+                this.router.navigateByUrl('sales/orders/' + this.order.ID + ';copy=true');
+            } else {
+                let config = {
+                    service: this.customerOrderService,
+                    moduleName: 'Order',
+                    label: 'Ordrenr'
+                };
+
+                this.modalService.open(UniTofSelectModal, { data: config }).onClose.subscribe((id: number) => {
+                    if (id) {
+                        resolve(id);
+                        this.router.navigateByUrl('sales/orders/' + id + ';copy=true');
+                    } else {
+                        reject('Kopiering avbrutt');
+                    }
+
+                });
+            }
+        });
+    }
+
+    private copyOrder(order: CustomerOrder): CustomerOrder {
+        order.ID = 0;
+        order.OrderNumber = null;
+        order.OrderNumberSeriesID = null;
+        order.StatusCode = null;
+        order.PrintStatus = null;
+        order.Comment = null;
+        delete order['_links'];
+
+        order.Items = order.Items.map((item: CustomerOrderItem) => {
+            item.CustomerOrderID = 0;
+            item.ID = 0;
+            item.StatusCode = null;
+            return item;
+        });
+
+        return order;
+    }
+
     private saveOrder(): Promise<CustomerOrder> {
         this.order.Items = this.tradeItemHelper.prepareItemsForSave(this.orderItems);
 
@@ -973,15 +1035,13 @@ export class OrderDetails {
                 this.order.DefaultDimensions = undefined;
         }
 
-        // if main seller does not exist in 'Sellers', create and add it
-        if (this.order.DefaultSeller && this.order.DefaultSeller.SellerID
-            && !this.order.DefaultSeller._createguid && !this.order.Sellers.find(sellerLink =>
-                sellerLink.SellerID === this.order.DefaultSeller.SellerID
-            )) {
-            this.order.DefaultSeller._createguid = this.sellerLinkService.getNewGuid();
-            this.order.Sellers.push(this.order.DefaultSeller);
-        } else if (this.order.DefaultSeller && !this.order.DefaultSeller.SellerID) {
+        if (this.order.DefaultSeller && this.order.DefaultSeller.ID > 0) {
+            this.order.DefaultSellerID = this.order.DefaultSeller.ID;
+        }
+
+        if (this.order.DefaultSeller && this.order.DefaultSeller.ID === null) {
             this.order.DefaultSeller = null;
+            this.order.DefaultSellerID = null;
         }
 
         // add deleted sellers back to 'Sellers' to delete with 'Deleted' property, was sliced locally/in view

@@ -4,7 +4,7 @@ import {IUniModal, IModalOptions} from '../../../framework/uniModal/modalService
 import {UniFieldLayout} from '../../../framework/ui/uniform/interfaces';
 import {FieldType} from '../../unientities';
 
-type FormModel = {CompanyName: string}
+type FormModel = {CompanyName: string};
 
 @Component({
     selector: 'uni-new-company-modal',

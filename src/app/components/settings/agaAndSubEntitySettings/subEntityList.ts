@@ -27,8 +27,8 @@ export class SubEntityList implements OnInit {
     @ViewChild(SubEntityDetails) private subEntityDetails: SubEntityDetails;
     @Output() public saveIsDisabled: EventEmitter<boolean> = new EventEmitter<boolean>(true);
 
-    private actions: any[] = [];
-    private open: boolean = false;
+    public actions: any[] = [];
+    public open: boolean = false;
 
     constructor(
         private _subEntityService: SubEntityService,
@@ -68,7 +68,9 @@ export class SubEntityList implements OnInit {
             return row.BusinessRelationInfo.Name;
         });
         let orgnr = new UniTableColumn('OrgNumber', 'Orgnr', UniTableColumnType.Text);
-        let municipal = new UniTableColumn('MunicipalityNo', 'Kommune', UniTableColumnType.Text).setTemplate((rowModel) => {
+        let municipal = new UniTableColumn(
+            'MunicipalityNo', 'Kommune', UniTableColumnType.Text
+        ).setTemplate((rowModel) => {
             let municipalObj = this.municipalities.find(x => x.MunicipalityNo === rowModel['MunicipalityNo']);
             return municipalObj ? municipalObj.MunicipalityName : '';
         });
@@ -136,7 +138,10 @@ export class SubEntityList implements OnInit {
     }
 
     public refreshList(update: boolean = false) {
-        this._subEntityService.GetAll('filter=SuperiorOrganizationID gt 0', ['BusinessRelationInfo.InvoiceAddress']).subscribe((response: SubEntity[]) => {
+        this._subEntityService.GetAll(
+            'filter=SuperiorOrganizationID gt 0',
+            ['BusinessRelationInfo.InvoiceAddress']
+        ).subscribe((response: SubEntity[]) => {
             this.allSubEntities = response;
             if (!update && this.allSubEntities) {
                 this.currentSubEntity = this.allSubEntities[0];
@@ -161,6 +166,7 @@ export class SubEntityList implements OnInit {
             let subEntity = response;
             subEntity.AgaRule = 1;
             subEntity.AgaZone = 1;
+            subEntity.freeAmount = 500000;
             subEntity['_isDirty'] = true;
 
             this.allSubEntities.push(subEntity);

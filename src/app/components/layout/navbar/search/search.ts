@@ -96,7 +96,7 @@ export class NavbarSearch implements AfterViewInit {
         });
     }
 
-    private onMouseover(index) {
+    public onMouseover(index) {
         if (index < this.selectedIndex) {
             for (let i = index; i < this.selectedIndex; i++) {
                 this.focusPositionTop -= this.listElement.nativeElement.children[i].clientHeight;
@@ -109,7 +109,7 @@ export class NavbarSearch implements AfterViewInit {
         this.selectedIndex = index;
     }
 
-    private onKeyDown(event) {
+    public onKeyDown(event) {
         var prevItem = undefined;
         var currItem = undefined;
         var overflow = 0;
