@@ -1,12 +1,36 @@
 uni-marketplace
     .marketplace-add-ons-details
-        .app-containers
-            background-color: $uni-color-negative
+        .add-on-details-background-image.regnskap_header
+            background: url('assets/marketplace/modules_details/regnskap_header.png') no-repeat center center
+            background-size: cover
+            background-position: 0 0
+        .add-on-details-background-image.salg_header
+            background: url('assets/marketplace/modules_details/salg_header.png') no-repeat center center
+            background-size: cover
+            background-position: 0 0
+        .add-on-details-background-image.lonn_header
+            background: url('assets/marketplace/modules_details/lonn_header.png') no-repeat center center
+            background-size: cover
+            background-position: 0 0
+        .add-on-details-background-image.time_header
+            background: url('assets/marketplace/modules_details/time_header.png') no-repeat center center
+            background-size: cover
+            background-position: 0 0
 
-        .app-container
+        .app-containers
+            background-color: $uni-color-c2a
+
+        .sub-apps-heading
             background-color: white
-            border: none
-            box-shadow: 0 4px 4px 0 rgba(0, 0, 0, 0.2), 0 1px 2px 0 rgba(0, 0, 0, 0.19)
+            margin: 0
+            padding: 1rem
+
+        .app-containers.sub-app-containers
+            background-color: white
+
+        .app-containers.sub-app-containers
+            .app-container
+                margin-top: 2rem
 
     .price-containers-header
         display: block
@@ -15,11 +39,11 @@ uni-marketplace
         font-size: 2rem
         line-height: 2.4rem
         margin: 0
-        background-color: white
         padding-top: 3rem
         padding-bottom: 1rem
         font-weight: bold
-
+        color: $uni-color-positive
+        background-color: transparent
 
     .price-containers
         text-align: center
@@ -32,7 +56,7 @@ uni-marketplace
         flex-wrap: wrap
         justify-content: space-around
         align-items: stretch
-        background-color: white
+        background-color: transparent
 
     .price-container
         margin-top: 2.5rem
@@ -43,7 +67,7 @@ uni-marketplace
         flex: 0 1 auto
         align-self: auto
         cursor: pointer
-        box-shadow: -0.4em 0.4rem 0 0 $uni-color-scale9
+        box-shadow: -0.6rem 0.6rem 0 0 $uni-color-scale9
 
     .price-header
         text-align: center
@@ -54,13 +78,13 @@ uni-marketplace
 
     .price-body
         text-align: center
-        background-color: $uni-color-negative
+        background-color: white
         h3
             padding-top: 3rem
             font-size: 3rem
             line-height: 3rem
             margin: 0
-            color: $uni-color-c2a
+            color: $uni-color-positive
             font-weight: 600
 
         ul
@@ -72,7 +96,7 @@ uni-marketplace
             padding-bottom: 4rem
 
     .sub-app-containers
-        background-color: $uni-color-negative
+        background-color: $uni-color-positive
 
     .sub-apps-heading
         text-align: center
@@ -84,14 +108,19 @@ uni-marketplace
         width: 100%
         line-height: 3rem
         font-weight: bold
+        background: $uni-color-c2a
+        color: white
+        margin: 0
+        padding-top: 2rem
 
 
     .buy-section
         display: flex
+        flex-wrap: wrap
         flex-direction: row
         justify-content: center
         padding: 2rem 0
-        background-color: $uni-color-toolbar
+        background-color: $uni-color-c2a
 
         .button-section
             display: flex
@@ -103,6 +132,15 @@ uni-marketplace
                 font-weight: 600
                 color: white
                 text-decoration: none
+            button
+                background-color: transparent
+                color: white
+                border-radius: 0
+                margin-top: 1rem
+                font-weight: 400
+                font-size: 1.5rem
+                text-shadow: none
+                border: 0.01rem solid
 
         .icon-section
             margin-right: 1rem
@@ -115,7 +153,7 @@ uni-marketplace
             justify-content: center
             margin-right: 6rem
 
-            p
+            span
                 font-size: 2.5rem
                 line-height: 3rem
                 color: white
@@ -123,6 +161,6 @@ uni-marketplace
                 padding: 0
                 font-weight: 300
 
-            p:nth-child(2)
+            span:nth-child(2)
                 font-weight: 700
 
