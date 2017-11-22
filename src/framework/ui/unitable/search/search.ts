@@ -39,6 +39,7 @@ interface IUniTableSearchOperator {
         <section #savedSearchesElem class="unitable-saved-filters" *ngIf="tableConfig?.searchListVisible" (click)="toggleSavedSearchesList()">
             <section>{{activeSearchName || 'Lagrede søk'}}</section>
             <ul [attr.aria-expanded]="savedSearchesVisible">
+                <li (click)="activateSavedSearch(null)">Ikke valgt</li>
                 <li *ngFor="let search of savedSearches; let idx = index" (click)="activateSavedSearch(search)">
                     {{search.name}}
                 </li>
@@ -125,7 +126,6 @@ export class UniTableSearch implements OnChanges {
     @Input() public columns: Immutable.List<any>;
     @Input() public tableConfig: IUniTableConfig;
     @Input() public configFilters: ITableFilter[];
-
 
     @Output()
     public filtersChange: EventEmitter<any> = new EventEmitter();
@@ -281,9 +281,19 @@ export class UniTableSearch implements OnChanges {
         }
 
         if (changes['tableConfig'] && this.tableConfig) {
-            this.allowGroupFilter = this.tableConfig.allowGroupFilter;
+            // Table config changed completely (most likely in ticker changed)
+            // Reset everything to make sure we dont have for example
+            // invoice filters on a timetracking ticker table
+            if (this.tableName && this.tableName !== this.tableConfig.configStoreKey) {
+                this.advancedSearchFilters = [];
+                this.basicSearchFilters = [];
+                this.activeSearchName = undefined;
+                this.newSearchName = '';
+            }
 
             this.tableName = this.tableConfig.configStoreKey;
+            this.allowGroupFilter = this.tableConfig.allowGroupFilter;
+
             if (this.tableName) {
                 this.savedSearches = this.utils.getFilters(this.tableName);
             }
@@ -371,6 +381,12 @@ export class UniTableSearch implements OnChanges {
             this.activeSearchName = search.name;
             this.newSearchName = search.name;
             setTimeout(() => this.savedSearchesVisible = false);
+        } else {
+            this.advancedSearchFilters = [];
+            this.basicSearchFilters = [];
+            this.activeSearchName = undefined;
+            this.newSearchName = '';
+            this.emitFilters();
         }
     }
 

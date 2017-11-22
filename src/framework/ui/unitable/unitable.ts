@@ -71,6 +71,7 @@ export class UniTable implements OnChanges {
     @ViewChild('tbody') private tbody: any;
     @ViewChild('pager') private pager: UniTablePagination;
 
+    private configStoreKey: string;
     private remoteData: boolean = false;
     private urlSearchParams: URLSearchParams;
 
@@ -116,6 +117,18 @@ export class UniTable implements OnChanges {
     }
 
     public ngOnChanges(changes: {[propName: string]: SimpleChange}) {
+        if (changes['config'] && this.config) {
+            // Check if config store key changed (most likely ticker model changed)
+            // and reset filters if it did, to avoid having for example invoice
+            // filters on a timetracking table
+            if (this.configStoreKey && this.configStoreKey !== this.config.configStoreKey) {
+                this.advancedSearchFilters = [];
+                this.basicSearchFilters = [];
+            }
+
+            this.configStoreKey = this.config.configStoreKey;
+        }
+
         if (this.resource && this.config) {
 
             // if index is specified for any columns, order columns by index
