@@ -6,11 +6,7 @@ import {SalaryBalance, Employee, SalaryBalanceLine, SalaryTransaction, PayrollRu
 import {
     SalaryBalanceLineService, ErrorService, EmployeeService, SalaryTransactionService, PayrollrunService
 } from '../../../../services/services';
-import { SalarybalanceLine } from '../salarybalanceLine';
-import { PayrollrunDetails } from '../../payrollrun/payrollrunDetails';
-import {ISummaryConfig} from '../../../common/summary/summary';
-import { DecimalPipe } from '@angular/common/src/pipes';
-import { JournalEntryAccountCalculationSummary } from '../../../../models/accounting/JournalEntryAccountCalculationSummary';
+import {SalarybalanceLine} from '../salarybalanceLine';
 
 @Component({
     selector: 'salary-balance-summary',
@@ -21,10 +17,11 @@ export class SalaryBalanceSummary implements OnInit, OnChanges {
 
     @Input() private salaryBalance: SalaryBalance;
     private salarybalanceLinesModel$: BehaviorSubject<SalaryBalanceLine[]>;
+    private tableModel$: BehaviorSubject<SalaryBalanceLine[]>;
     private description$: BehaviorSubject<string>;
     private tableConfig: UniTableConfig;
     public showDescriptionText: boolean = false;
-    private summary: ISummaryConfig[] = [];
+    public showAllLines: boolean;
 
     constructor(
         private salaryBalanceLineService: SalaryBalanceLineService,
@@ -34,6 +31,7 @@ export class SalaryBalanceSummary implements OnInit, OnChanges {
         private payrollrunService: PayrollrunService
     ) {
         this.salarybalanceLinesModel$ = new BehaviorSubject<SalaryBalanceLine[]>([]);
+        this.tableModel$ = new BehaviorSubject<SalaryBalanceLine[]>([]);
         this.description$ = new BehaviorSubject<string>('');
     }
 
@@ -49,31 +47,30 @@ export class SalaryBalanceSummary implements OnInit, OnChanges {
                 : this.salaryBalanceLineService
                     .GetAll(`filter=SalaryBalanceID eq ${this.salaryBalance.ID}`);
             transObs
-            .switchMap((response: SalaryBalanceLine[]) => {
-                let filter = [];
-                response.forEach(balanceline => {
-                    if (balanceline.SalaryTransactionID) {
-                        filter.push(`ID eq ${balanceline.SalaryTransactionID}`);
-                    }
-                });
-
-                return !filter.length ?
-                    Observable.of(response)
-                    : this.salarytransactionService.GetAll(`filter=${filter.join(' or ')}`, ['payrollrun'])
-                    .map((transes: SalaryTransaction[]) => {
-                        response.forEach(salarybalanceline => {
-                            transes.forEach(salarytransaction => {
-                                if (salarybalanceline.SalaryTransactionID === salarytransaction.ID) {
-                                    salarybalanceline['_payrollrun'] = salarytransaction.payrollrun;
-                                }
-                            });
-                        });
-                        return response;
+                .switchMap((response: SalaryBalanceLine[]) => {
+                    let filter = [];
+                    response.forEach(balanceline => {
+                        if (balanceline.SalaryTransactionID) {
+                            filter.push(`ID eq ${balanceline.SalaryTransactionID}`);
+                        }
                     });
-            })
+
+                    return !filter.length ?
+                        Observable.of(response)
+                        : this.salarytransactionService.GetAll(`filter=${filter.join(' or ')}`, ['payrollrun'])
+                            .map((transes: SalaryTransaction[]) => {
+                                response.forEach(salarybalanceline => {
+                                    transes.forEach(salarytransaction => {
+                                        if (salarybalanceline.SalaryTransactionID === salarytransaction.ID) {
+                                            salarybalanceline['_payrollrun'] = salarytransaction.payrollrun;
+                                        }
+                                    });
+                                });
+                                return response;
+                            });
+                })
                 .subscribe((transes: SalaryBalanceLine[]) => {
-                    this.salarybalanceLinesModel$.next(transes);
-                    this.setTotals();
+                    this.updateModel(transes);
                 }, err => this.errorService.handle(err));
 
             let empObs = this.salaryBalance.Employee && this.salaryBalance.Employee.BusinessRelationInfo
@@ -84,36 +81,45 @@ export class SalaryBalanceSummary implements OnInit, OnChanges {
             empObs.subscribe(
                 (emp: Employee) => this.description$
                     .next(
-                        `SaldoId nr ${this.salaryBalance.ID}, `
-                        + `Ansattnr ${emp.EmployeeNumber} - ${emp.BusinessRelationInfo.Name}`
+                    `SaldoId nr ${this.salaryBalance.ID}, `
+                    + `Ansattnr ${emp.EmployeeNumber} - ${emp.BusinessRelationInfo.Name}`
                     ),
                 err => this.errorService.handle(err));
         } else {
-            this.salarybalanceLinesModel$.next([]);
+            this.updateModel([]);
             this.description$.next('');
         }
     }
 
-    private setTotals() {
-        this.summary = [
-            {
-                value: this.salaryBalance.CalculatedBalance,
-                title: 'Avregnet beløp',
-                description: 'Beløp for alle trekk som er med i en avregnet lønnsavregning'
-            },
-            {
-                value: this.salaryBalance.Balance,
-                title: 'Estimert beløp',
-                description: 'Beløp som tar med alle planlagte trekk, også på lønnsavregninger som ikke er avregnet enda'
-            }
-        ];
+    private updateModel(salaryBalanceLines: SalaryBalanceLine[]) {
+        this.salarybalanceLinesModel$.next(salaryBalanceLines);
+        this.tableModel$.next(this.getTableLines(salaryBalanceLines));
+    }
+
+    public toggleShowAllLines() {
+        this.showAllLines = !this.showAllLines;
+        this.salarybalanceLinesModel$
+            .asObservable()
+            .take(1)
+            .subscribe(lines => this.tableModel$.next(this.getTableLines(lines)));
+    }
+
+    private getTableLines(salaryBalanceLines: SalaryBalanceLine[]) {
+        return this.showAllLines
+            ? salaryBalanceLines
+            : salaryBalanceLines.filter(line => {
+                let run = line['_payrollrun'];
+                let status = run && run['StatusCode'];
+                return !line.SalaryTransactionID || !!status;
+            });
     }
 
     private createConfig() {
         const nameCol = new UniTableColumn('Description', 'Beskrivelse', UniTableColumnType.Text);
         const startDateCol = new UniTableColumn('Date', 'Dato', UniTableColumnType.LocalDate)
             .setWidth('7rem');
-        const sumCol = new UniTableColumn('Amount', 'Beløp', UniTableColumnType.Money);
+        const sumCol = new UniTableColumn('Amount', 'Beløp', UniTableColumnType.Money)
+            .setIsSumColumn(true);
         const payRunCol = new UniTableColumn('_payrollrun', 'Lønnsavregning', UniTableColumnType.Number)
             .setTemplate((row: SalaryBalanceLine) => {
                 let run: PayrollRun = row['_payrollrun'];
@@ -125,7 +131,7 @@ export class SalaryBalanceSummary implements OnInit, OnChanges {
                 let run: PayrollRun = row['_payrollrun'];
                 let status = this.payrollrunService.getStatus(run);
                 return run ? `${status.text}` : '';
-            })
+            });
 
         let columnList = [nameCol, startDateCol, sumCol, payRunCol, statusCol];
 
