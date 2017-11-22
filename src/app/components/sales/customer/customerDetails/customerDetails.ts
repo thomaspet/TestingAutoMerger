@@ -1,5 +1,5 @@
-import {Component, Input, ViewChild, Output, EventEmitter, SimpleChanges} from '@angular/core';
 import {Router, ActivatedRoute} from '@angular/router';
+import {Component, Input, ViewChild, Output, EventEmitter, SimpleChanges} from '@angular/core';
 import {Observable} from 'rxjs/Observable';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {IUniSaveAction} from '../../../../../framework/save/save';
@@ -413,7 +413,7 @@ export class CustomerDetails {
                         this.customerInvoiceReminderSettingsService.getNewGuid();
                 }
 
-                customer.DefaultSeller = customer.DefaultSeller || new Seller();
+                customer.DefaultSeller = customer.DefaultSeller;
 
                 this.selectConfig = this.numberSeriesService.getSelectConfig(
                     this.customerID, this.numberSeries, 'Customer number series'
@@ -775,15 +775,6 @@ export class CustomerDetails {
 
             customer['_CustomerSearchResult'] = undefined;
 
-            // if main seller does not exist in 'Sellers', create and add it
-            if (customer.DefaultSeller && customer.DefaultSeller.ID > 0) {
-                customer.DefaultSellerID = customer.DefaultSeller.ID;
-            }
-
-            if (customer.DefaultSeller && customer.DefaultSeller.ID === null) {
-                customer.DefaultSeller = null;
-                customer.DefaultSellerID = null;
-            }
 
             // add deleted sellers back to 'Sellers' to delete with 'Deleted' property, was sliced locally/in view
             if (this.deletables) {
@@ -907,6 +898,22 @@ export class CustomerDetails {
                 this.setupSaveActions();
             }
         }
+        let customer = this.customer$.getValue();
+
+        if (changes['DefaultSellerID']) {
+            if (customer.DefaultSellerID) {
+                customer.DefaultSeller = this.sellers.find(seller => seller.ID === customer.DefaultSellerID);
+            } else {
+                customer.DefaultSeller = null;
+                customer.DefaultSellerID = 0;
+            }
+        }
+
+        if (changes['DefaultSeller.ID'] && customer.DefaultSeller.ID === null) {
+           customer.DefaultSeller = null;
+           customer.DefaultSellerID = 0;
+        }
+
         if (changes['_CustomerSearchResult']) {
             let searchResult = changes['_CustomerSearchResult'].currentValue;
 
@@ -927,10 +934,9 @@ export class CustomerDetails {
 
     public onSellerLinkDeleted(sellerLink: SellerLink) {
         let customer = this.customer$.getValue();
-        this.deletables.push(sellerLink);
         if (customer.DefaultSeller && sellerLink.SellerID === customer.DefaultSeller.ID) {
-            customer.DefaultSeller = new Seller();
-            customer.DefaultSellerID = null;
+            customer.DefaultSeller = null;
+            customer.DefaultSellerID = 0;
         }
         this.customer$.next(customer);
     }
@@ -1072,8 +1078,7 @@ export class CustomerDetails {
                     FieldType: FieldType.DROPDOWN,
                     Label: 'Hovedselger',
                     Section: 0
-                }
-
+                },
                 // Fieldset 5 (EHF)
                 {
                     FieldSet: 5,
