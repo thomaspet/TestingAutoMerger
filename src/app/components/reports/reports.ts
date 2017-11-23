@@ -21,11 +21,17 @@ import {PayCheckReportFilterModal} from './modals/paycheck/paycheckReportFilterM
 import {Router} from '@angular/router';
 import {Observable} from 'rxjs/Observable';
 
-class ReportCategories {
-    public sale: Array<Array<Report>> = [[], [], []];
-    public accounting: Array<Array<Report>> = [[], [], []];
-    public salary: Array<Array<Report>> = [[]];
-    public custom: Array<Array<Report>> = [];
+interface IMainGroup { 
+    name: string;
+    label: string;
+    groups: Array<ISubGroup>;
+}
+
+interface ISubGroup {
+    name: string;
+    label: string; 
+    reports: Array<Report>;
+    keywords?: Array<string>;
 }
 
 @Component({
@@ -70,10 +76,30 @@ export class UniReports {
     @ViewChild(PayCheckReportFilterModal)
     private paycheckReportFilterModal: PayCheckReportFilterModal;
 
-    public reportCategories: ReportCategories = new ReportCategories();
-    public tabs: string[] = ['Salg', 'Regnskap', 'Lønn', 'Egendefinert'];
     public activeTabIndex: number = 0;
-    public activeCategory: Array<any>;
+
+    public mainGroups: Array<IMainGroup> = [
+        { name: 'Sales', label: 'Salg', groups: [ 
+            { name: 'Quote', label: 'Tilbud', reports: [], keywords: ['Sales.Quote'] },
+            { name: 'Order', label: 'Ordre', reports: [], keywords: ['Sales.Order'] },
+            { name: 'Invoice', label: 'Faktura', reports: [], keywords: ['Sales.Invoice'] },
+        ] },
+        { name: 'Accounting', label: 'Regnskap', groups: [ 
+            { name: 'AccountStatement', label: 'Kontoutskrifter', reports: [], 
+                keywords: ['Accounting.AccountStatement'] },
+            { name: 'Balance', label: 'Saldolister', reports: [], keywords: ['Accounting.Balance'] },
+            { name: 'Result', label: 'Resultat', reports: [], keywords: ['Accounting.Result'] },
+        ] },
+        { name: 'Payroll', label: 'Lønn', groups:  [ 
+            { name: 'Payroll', label: 'Lønn', reports: [], keywords: ['Salary', 'Payroll'] },
+        ] },
+        { name: 'Timeracking', label: 'Timer', groups: [ 
+            { name: 'Timeracking', label: 'Timeregistrering', reports: [], keywords: ['Timer'] },
+        ] },
+        { name: 'Custom', label: 'Egendefinert', groups: [ 
+            { name: 'Custom', label: 'Ukategorisert', reports: [], keywords: [] },
+        ] },        
+    ];
 
     constructor(
         private tabService: TabService,
@@ -90,51 +116,47 @@ export class UniReports {
         });
     }
 
-    public showModalReportParameters(report: ReportDefinition) {
-        this.parameterModal.open(report);
-    }
-
-    public showBalanceListModalReportParameters(report: ReportDefinition) {
-        this.balanceListModal.open(report);
-    }
-
-    public showModalAccountReportFilterModal(report: ReportDefinition) {
-        this.accountReportFilterModal.open(report);
-    }
-    public showPostingJournalModalReportParameters(report: ReportDefinition) {
-        this.postingJournalModal.open(report);
-    }
-
-    public showResultAndBalanceModalReportParameters(report: ReportDefinition) {
-        this.resultAndBalanceModal.open(report);
-    }
-
-    public showBalanceGeneralLedgerFilterModal(report: ReportDefinition) {
-        this.balanceGeneralLedgerFilterModal.open(report);
-    }
-
-    public showCustomerAccountModalReportParameters(report: ReportDefinition) {
-        this.customerAccountModal.open(report);
-    }
-
-    public showSupplierAccountModalReportParameters(report: ReportDefinition) {
-        this.supplierAccountModal.open(report);
-    }
-
-    public showSalaryPaymentListOrPostingSummaryModalReportParameters(report: ReportDefinition) {
-        this.salaryPaymentListFilterModal.open(report);
-    }
-
-    public showVacationBaseFilterModalReportParameters(report: ReportDefinition) {
-        this.vacationBaseFilterModal.open(report);
-    }
-
-    public showSalaryWithholdingAndAgaFilterModalReportParameters(report: ReportDefinition) {
-        this.salaryWithholdingAndAGAReportFilterModal.open(report);
-    }
-
-    public showPaycheckFilterModalReportParameters(report: ReportDefinition) {
-        this.paycheckReportFilterModal.open(report);
+    public showReportParams(report: ReportDefinition) {
+        switch (report.ID) {
+            case 7:
+            case 8:
+                this.salaryPaymentListFilterModal.open(report);
+                break;
+            case 9:
+                this.vacationBaseFilterModal.open(report);
+                break;
+            case 10:
+                this.paycheckReportFilterModal.open(report);
+                break;
+            case 11:
+                this.salaryWithholdingAndAGAReportFilterModal.open(report);
+                break;
+            case 12:
+            case 13:
+                this.balanceListModal.open(report);
+                break;
+            case 14:
+                this.resultAndBalanceModal.open(report);
+                break;
+            case 15:
+                this.balanceGeneralLedgerFilterModal.open(report);
+                break;
+            case 16:
+                this.postingJournalModal.open(report);
+                break;
+            case 17:
+                this.accountReportFilterModal.open(report);
+                break;
+            case 18:
+                this.customerAccountModal.open(report);
+                break;        
+            case 19:
+                this.supplierAccountModal.open(report);
+                break;                  
+            default:
+                this.parameterModal.open(report);
+                break;                                                                           
+        }
     }
 
     public showUniQuery(report: UniQueryDefinition) {
@@ -144,86 +166,44 @@ export class UniReports {
     public ngOnInit() {
         Observable.forkJoin(
             this.reportDefinitionService.GetAll<ReportDefinition>(null),
-            this.uniQueryDefinitionService.GetAll<UniQueryDefinition>(null)
-        ).subscribe(response => {
-            response[0].forEach(x => x.IsReport = true);
-            response[1].forEach(x => x.IsQuery = true);
-            let reportAndQueries = response[0].concat(response[1]);
-
-            let customCategories: Array<string> = [];
-
-            for (const report of reportAndQueries) {
-                if (report.Visible || report.IsQuery) {
-                    // If the custom report category == a regular category, placing this code outside the switch adds
-                    // the report to both the custom AND the according regular category
-                    if (report.Category === null
-                        || ((report.Category.search('Sales')
-                            && report.Category.search('Accounting')
-                            && report.Category.search('Salary')) === -1)) {
-                                if (report.Category === null) {
-                                    report.Category = 'Ukategorisert';
-                                }
-                                if (!customCategories.find(category => category === report.Category)) {
-
-                                    customCategories.push(report.Category);
-                                    this.reportCategories.custom.push([]);
-                                }
-                                this.reportCategories.custom[customCategories.indexOf(report.Category)].push(report);
-                    }
-                    switch (report.Category) {
-                        case 'Sales.Quote':
-                        case 'Tilbud':
-                            report.Category = 'Tilbud';
-                            this.reportCategories.sale[0].push(report);
-                            break;
-                        case 'Sales.Order':
-                        case 'Ordre':
-                            report.Category = 'Ordre';
-                            this.reportCategories.sale[1].push(report);
-                            break;
-                        case 'Sales.Invoice':
-                        case 'Faktura':
-                            report.Category = 'Faktura';
-                            this.reportCategories.sale[2].push(report);
-                            break;
-                        case 'Accounting.AccountStatement':
-                        case 'Kontoutskrifter':
-                            report.Category = 'Kontoutskrifter';
-                            this.reportCategories.accounting[0].push(report);
-                            break;
-                        case 'Accounting.Balance':
-                        case 'Saldolister':
-                            report.Category = 'Saldolister';
-                            this.reportCategories.accounting[1].push(report);
-                            break;
-                        case 'Accounting.Result':
-                        case 'Resultat':
-                            report.Category = 'Resultat';
-                            this.reportCategories.accounting[2].push(report);
-                            break;
-                        case 'Salary':
-                        case 'Lønn':
-                            report.Category = 'Lønn';
-                            this.reportCategories.salary[0].push(report);
-                            break;
-
-                    }
-                }
-            }
-            this.activeCategory = this.reportCategories.sale;
-        }, err => this.errorService.handle(err));
+            this.uniQueryDefinitionService.GetAll<UniQueryDefinition>(null))
+            .subscribe( result => this.showReportsEx(result)
+            , err => this.errorService.handle(err));
     }
 
-    public onTabSelection() {
-        switch (this.activeTabIndex) {
-            case 0:
-                return this.activeCategory = this.reportCategories.sale;
-            case 1:
-                return this.activeCategory = this.reportCategories.accounting;
-            case 2:
-                return this.activeCategory = this.reportCategories.salary;
-            case 3:
-                return this.activeCategory = this.reportCategories.custom;
+    private showReportsEx(response) {
+        response[0].forEach(x => x.IsReport = true);
+        response[1].forEach(x => x.IsQuery = true);
+        let reportAndQueries = response[0].concat(response[1]);
+        reportAndQueries.forEach(element => {
+            if (element.Visible || element.IsQuery) {
+                this.placeReport(<Report>element);
+            }
+        });        
+    }
+
+    private placeReport(report: Report) {
+
+        for (let i = 0; i < this.mainGroups.length; i++) {
+            let match = this.mainGroups[i].groups.find( x => x.label === report.Category 
+                || (x.keywords && x.keywords.indexOf(report.Category) >= 0));
+            if (match) {
+                match.reports.push(report);
+                return;
+            }
+        }
+
+        let main = this.mainGroups.find( x => x.name === 'Custom');
+        if (report.Category) {
+            let grp = main.groups.find( g => g.label === report.Category || g.name === report.Category);
+            if (grp) {
+                grp.reports.push(report);
+            } else {
+                main.groups.push( { name: report.Category, label: report.Category, reports: [ report ] });
+            }
+        } else {
+            main.groups.find( x => x.name === 'Custom').reports.push(report);
         }
     }
+
 }
