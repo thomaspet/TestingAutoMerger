@@ -3,7 +3,6 @@ import {TabService, UniModules} from '../layout/navbar/tabstrip/tabService';
 import {ReportDefinition, UniQueryDefinition} from '../../unientities';
 import {ReportDefinitionService, UniQueryDefinitionService, ErrorService} from '../../services/services';
 import {Report} from '../../models/reports/report';
-import {ParameterModal} from './modals/parameter/parameterModal';
 import {BalanceReportFilterModal} from './modals/balanceList/BalanceReportFilterModal';
 import {PostingJournalReportFilterModal} from './modals/postingJournal/PostingJournalReportFilterModal';
 import {ResultAndBalanceReportFilterModal} from './modals/resultAndBalance/ResultAndBalanceReportFilterModal';
@@ -20,6 +19,9 @@ import {SalaryWithholdingAndAGAReportFilterModal}
 import {PayCheckReportFilterModal} from './modals/paycheck/paycheckReportFilterModal';
 import {Router} from '@angular/router';
 import {Observable} from 'rxjs/Observable';
+import {UniModalService, ConfirmActions} from '../../../framework/uniModal/barrel';
+import {UniReportParamsModal} from './modals/parameter/reportParamModal';
+import {UniPreviewModal} from './modals/preview/previewModal';
 
 interface IMainGroup { 
     name: string;
@@ -39,10 +41,8 @@ interface ISubGroup {
     templateUrl: './reports.html'
 })
 export class UniReports {
+    
     // TODO: rewrite old modals..
-    @ViewChild(ParameterModal)
-    private parameterModal: ParameterModal;
-
     @ViewChild(BalanceReportFilterModal)
     private balanceListModal: BalanceReportFilterModal;
 
@@ -77,6 +77,7 @@ export class UniReports {
     private paycheckReportFilterModal: PayCheckReportFilterModal;
 
     public activeTabIndex: number = 0;
+    public busy: boolean = true;
 
     public mainGroups: Array<IMainGroup> = [
         { name: 'Sales', label: 'Salg', groups: [ 
@@ -106,7 +107,8 @@ export class UniReports {
         private reportDefinitionService: ReportDefinitionService,
         private uniQueryDefinitionService: UniQueryDefinitionService,
         private router: Router,
-        private errorService: ErrorService
+        private errorService: ErrorService,
+        private uniModalService: UniModalService
     ) {
         this.tabService.addTab({
             name: 'Rapportoversikt',
@@ -154,12 +156,23 @@ export class UniReports {
                 this.supplierAccountModal.open(report);
                 break;                  
             default:
-                (<any>report).busy = true;
-                this.parameterModal.open(report).then( () => {
-                    (<any>report).busy = false;
-                });
+                this.defaultRunReport(report);
                 break;                                                                           
         }
+    }
+
+    private defaultRunReport(report: ReportDefinition) {
+        this.uniModalService.open(UniReportParamsModal,
+            {   data: report, 
+                header: report.Name, 
+                message: report.Description 
+            }).onClose.subscribe(modalResult => {
+                if (modalResult === ConfirmActions.ACCEPT) {
+                    this.uniModalService.open(UniPreviewModal, {
+                        data: report
+                    });
+                }
+            });
     }
 
     public showUniQuery(report: UniQueryDefinition) {
@@ -167,9 +180,11 @@ export class UniReports {
     }
 
     public ngOnInit() {
+        this.busy = true;
         Observable.forkJoin(
             this.reportDefinitionService.GetAll<ReportDefinition>(null),
             this.uniQueryDefinitionService.GetAll<UniQueryDefinition>(null))
+            .finally( () => this.busy = false )
             .subscribe( result => this.showReportsEx(result)
             , err => this.errorService.handle(err));
     }
@@ -186,7 +201,6 @@ export class UniReports {
     }
 
     private placeReport(report: Report) {
-
         for (let i = 0; i < this.mainGroups.length; i++) {
             let match = this.mainGroups[i].groups.find( x => x.label === report.Category 
                 || (x.keywords && x.keywords.indexOf(report.Category) >= 0));

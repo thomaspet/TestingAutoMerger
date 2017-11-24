@@ -11,7 +11,7 @@
 </section>
 
 <div class="report_overview_page application">
-    <figure class="report_group_card" *ngFor="let group of mainGroups[activeTabIndex].groups">
+    <figure [attr.aria-busy]="busy" class="report_group_card" *ngFor="let group of mainGroups[activeTabIndex].groups">
         <h1>{{ group.label }}</h1>
         <div *ngFor="let report of group.reports">
             <!-- Uni Query -->
@@ -32,7 +32,6 @@
     </figure>
 </div>
 
-<report-parameter-modal></report-parameter-modal>
 <balance-report-filter-modal></balance-report-filter-modal>
 <account-report-filter-modal></account-report-filter-modal>
 <postingjournal-report-filter-modal></postingjournal-report-filter-modal>

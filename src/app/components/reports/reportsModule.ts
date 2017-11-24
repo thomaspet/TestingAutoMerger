@@ -23,7 +23,6 @@ import {BalanceReportFilterModal} from './modals/balanceList/BalanceReportFilter
 import {CustomerAccountReportFilterForm} from './modals/customerAccountReportFilter/CustomerAccountReportFilterModal';
 import {CustomerAccountReportFilterModal}
     from './modals/customerAccountReportFilter/CustomerAccountReportFilterModal';
-import {ParameterModal, ReportparameterModalType} from './modals/parameter/parameterModal';
 import {PostingJournalReportFilterForm} from './modals/postingJournal/PostingJournalReportFilterModal';
 import {PostingJournalReportFilterModal} from './modals/postingJournal/PostingJournalReportFilterModal';
 
@@ -55,6 +54,7 @@ import {
     PaycheckReportFilterModalContent
 } from './modals/paycheck/paycheckReportFilterModal';
 import {UniReports} from './reports';
+import {UniReportParamsModal} from './modals/parameter/reportParamModal';
 
 @NgModule({
     imports: [
@@ -81,7 +81,6 @@ import {UniReports} from './reports';
         BalanceReportFilterModal,
         CustomerAccountReportFilterForm,
         CustomerAccountReportFilterModal,
-        ParameterModal,
         PostingJournalReportFilterForm,
         PostingJournalReportFilterModal,
         UniPreviewModal,
@@ -97,8 +96,8 @@ import {UniReports} from './reports';
         SalaryWithholdingAndAGAReportFilterModalContent,
         PayCheckReportFilterModal,
         PaycheckReportFilterModalContent,
-        ReportparameterModalType,
-        UniPrintModal
+        UniPrintModal,
+        UniReportParamsModal
     ],
     entryComponents: [
         BalanceReportFilterForm,
@@ -112,7 +111,7 @@ import {UniReports} from './reports';
         VacationPayBaseReportFilterModalContent,
         SalaryWithholdingAndAGAReportFilterModalContent,
         PaycheckReportFilterModalContent,
-        ReportparameterModalType,
+        UniReportParamsModal,
         UniPreviewModal,
         UniPrintModal
     ],
@@ -126,7 +125,6 @@ import {UniReports} from './reports';
         BalanceReportFilterModal,
         CustomerAccountReportFilterForm,
         CustomerAccountReportFilterModal,
-        ParameterModal,
         PostingJournalReportFilterForm,
         PostingJournalReportFilterModal,
         UniPreviewModal,
@@ -142,7 +140,7 @@ import {UniReports} from './reports';
         SalaryWithholdingAndAGAReportFilterModalContent,
         PayCheckReportFilterModal,
         PaycheckReportFilterModalContent,
-        ReportparameterModalType
+        UniReportParamsModal
     ]
 })
 export class ReportsModule {}

@@ -17,7 +17,7 @@ interface IDownloadAction {
             <header>
                 <h1>{{options.header || 'Forhåndsvisning'}}</h1>
             </header>
-            <article>
+            <article [attr.aria-busy]="busy">
                 <section id="reportContainer" [innerHtml]="modalConfig?.report | safehtml"></section>
             </article>
             <footer>
@@ -46,6 +46,7 @@ export class UniPreviewModal implements IUniModal {
     public showActionList: boolean;
     private actions: IDownloadAction[];
     private modalConfig: any;
+    public busy: boolean = true;
 
     constructor(
         private reportService: ReportService,
@@ -84,8 +85,9 @@ export class UniPreviewModal implements IUniModal {
                 report: null,
                 reportDefinition: reportDefinition
             };
-
+            
             this.reportService.generateReportHtml(this.options.data, this.modalConfig, () => {
+                this.busy = false;
                 this.cdr.markForCheck();
             });
         }
