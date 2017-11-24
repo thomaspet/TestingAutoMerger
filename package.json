@@ -9,6 +9,7 @@
     "lint": "ng lint",
     "e2e": "ng e2e",
 
+    "video-mapping": "node ./scripts/video-mapping.js",
     "entities": "set SERVER_URL=https://devapi.unieconomy.no&&node ./scripts/entities.js",
     "prebuild": "node ./scripts/prebuild.js",
     "zip-dist": "node ./scripts/zip.js",
