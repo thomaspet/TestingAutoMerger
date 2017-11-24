@@ -60,31 +60,31 @@ export class SalarybalanceService extends BizHttp<SalaryBalance> {
                 helpText = 'Teksten i dette feltet vises på lønnsavregning, rapporter og lønnsslipp';
                 break;
             case 'wagetypenumber':
-                helpText = 'Hentes automatisk lønnsart som samsvarer me type som er valgt.  Er det blankt så må det fylles ut med lønnsart.  Lønnsarten bestemmer hvordan trekket skal håndteres på lønnsavregning.  Feltet er påkrevd for å få et trekk til å fungere. Feltet låses for redigering når lagret.';
+                helpText = 'Bestemmer når trekket blir med på lønnsavregning.  Så lenge startdato er innenfor perioden som lønnsavregningen, blir den med med et trekk for en periode.  Datoen tar ikke hensyn til datoen i måneden og vil ikke avkorte trekket hvis trekket har startdato midt i perioden som det avregnes lønn for.  Datoen kan også brukes til å stoppe trekket for en periode.  Da settes startdato lik startdato i den lønnsavregningen en ønsker at neste avdrag skal være med i.  Feltet er påkrevd for å lagre trekk.';
                 break;
             case 'fromdate':
                 helpText = 'Bestemmer når trekket blir med på lønnsavregning.  Så lenge startdato er innenfor perioden som lønnsavregning, blir den med med et trekk for en periode.  Datoen tar ikke hensyn til datoen i måneden og vil ikke avkorte trekket hvis trekket har startdato midt i perioden som det avregnes lønn for.  Datoen kan også brukes til å stoppe trekket for en periode.  Da settes startdato lik startdato i den lønnsavregningen en ønsker at neste avdrag skal være med i.';
                 break;
             case 'todate':
-                helpText = 'Her kan eg stoppe et trekk for en periode eller totalt, uten at saldo blir endret.  Saldo vil stå på den ansatte som saldo inntil trekket startes igjen eller til trekket avsluttes med manuell føring.';
+                helpText = 'Her kan en stoppe et trekk, uten at saldo blir endret.  Saldo vil stå på den ansatte som saldo inntil trekket startes igjen eller til trekket avsluttes med manuell føring.';
                 break;
             case 'amount':
-                helpText = 'Her legges det inn beløpet som skal utbetales hvis det er ett forskudd, saldo på påleggstrekk. Når avdragene som er trukket når saldo, stoppes trekket automatisk.  Er det ingen saldo på trekket, så trekkes det inntil det stoppes med dato. Feltet låses for redigering når lagret.';
+                helpText = 'Her legges det inn beløpet som skal utbetales hvis det er ett forskudd. Er det et trekkpålegg med saldo, legges saldoen for hele trekket her. Når avdragene som er trukket når saldo, stoppes trekket automatisk.  Er det ingen saldo på trekket, så trekkes det inntil det stoppes med dato. Feltet låses for redigering når lagret.';
                 break;
             case 'instalment':
-                helpText = 'Her legges en inn avdrag pr lønnsavregning som fast beløp. Feltet låses for redigering når lagret.';
+                helpText = 'Her legges det inn avdrag pr lønnsavregning som fast beløp. Avdrag kan redigeres så lenge trekket er aktivt.  Er feltet blankt trekkes hele saldoen på neste lønnsavregning.';
                 break;
             case 'instalmentpercent':
-                helpText = 'Er trekket et prosenttrekk legges prosenten for trekket inn her.  Feltet låses for redigering når lagret.';
+                helpText = 'Er trekket et prosenttrekk legges prosenten for trekket inn her.  Feltet kan redigeres så lenge trekket er aktivt.';
                 break;
             case 'supplierid':
-                helpText = 'Koble mot leverandør for automatisk remittering av trekk når lønnsutbetaling sendes bank.  Kontonr og anna betalingsinfo hentes fra leverandør';
+                helpText = 'Kobles mot leverandør for automatisk remittering av trekk når lønnsutbetaling sendes bank.  Bankkonto og annen betalingsinfo hentes fra leverandør.  For at remittering skal skje må det være krysset for at trekket skal betales automatisk.  Firmainnstillinger må også være satt opp med Lag utbetaling av faste trekk (i firmainnstillinger, lønn)';
                 break;
             case 'kid':
-                helpText = 'For trekk som må ha kidnr ved betaling, legges kidnr inn som en fast opplysing her. ';
+                helpText = 'For trekk som må ha kidnr ved betaling, legges kidnr inn som en fast opplysning her.';
                 break;
             case 'createpayment':
-                helpText = 'Lag utbetalingspost til leverandør ved utbetaling av lønnsavregning';
+                helpText = 'Lag utbetalingspost til leverandør ved utbetaling av lønnsavregning.  Vil bare fungere viss Firmainnstillinger er satt opp med lag utbetaling av faste trekk (i firmainnstillinger, lønn)';
                 break;
             default:
                 break;
