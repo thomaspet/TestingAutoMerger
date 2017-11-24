@@ -154,7 +154,10 @@ export class UniReports {
                 this.supplierAccountModal.open(report);
                 break;                  
             default:
-                this.parameterModal.open(report);
+                (<any>report).busy = true;
+                this.parameterModal.open(report).then( () => {
+                    (<any>report).busy = false;
+                });
                 break;                                                                           
         }
     }
@@ -193,6 +196,7 @@ export class UniReports {
             }
         }
 
+        // Category not found (put into "custom")
         let main = this.mainGroups.find( x => x.name === 'Custom');
         if (report.Category) {
             let grp = main.groups.find( g => g.label === report.Category || g.name === report.Category);

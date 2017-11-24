@@ -71,47 +71,53 @@ export class ParameterModal {
         };
     }
 
-    public open(report: ReportDefinition) {
+    public open(report: ReportDefinition): Promise<boolean> {
+
         this.modalConfig.title = report.Name;
         this.modalConfig.report = report;
 
-        this.reportDefinitionParameterService.GetAll(
-            'filter=ReportDefinitionId eq ' + report.ID
-        ).subscribe(params => {
-            // Find param value to be replaced
-            let param: CustomReportDefinitionParameter = params.find(
-                x => ['InvoiceNumber', 'OrderNumber', 'QuoteNumber'].indexOf(x.Name) >= 0
-            );
-            if (param) {
-                let statparams = new URLSearchParams();
-                statparams.set('model', 'NumberSeries');
-                statparams.set('select', 'NextNumber');
+        return new Promise( (resolve, rejest) => {
 
-                switch (param.Name) {
-                    case 'InvoiceNumber':
-                        statparams.set('filter', 'Name eq \'Customer Invoice number series\'');
-                        break;
-                    case 'OrderNumber':
-                        statparams.set('filter', 'Name eq \'Customer Order number series\'');
-                        break;
-                    case 'QuoteNumber':
-                        statparams.set('filter', 'Name eq \'Customer Quote number series\'');
-                        break;
-                }
+            this.reportDefinitionParameterService.GetAll(
+                'filter=ReportDefinitionId eq ' + report.ID
+            )
+            .finally( () => resolve(true) )
+            .subscribe(params => {
+                // Find param value to be replaced
+                let param: CustomReportDefinitionParameter = params.find(
+                    x => ['InvoiceNumber', 'OrderNumber', 'QuoteNumber'].indexOf(x.Name) >= 0
+                );
+                if (param) {
+                    let statparams = new URLSearchParams();
+                    statparams.set('model', 'NumberSeries');
+                    statparams.set('select', 'NextNumber');
 
-                // Get param value
-                this.statisticsService.GetDataByUrlSearchParams(statparams).subscribe(stat => {
-                    let val = stat.Data[0].NumberSeriesNextNumber - 1;
-                    if (val > 0) { param.value = val; }
+                    switch (param.Name) {
+                        case 'InvoiceNumber':
+                            statparams.set('filter', 'Name eq \'Customer Invoice number series\'');
+                            break;
+                        case 'OrderNumber':
+                            statparams.set('filter', 'Name eq \'Customer Order number series\'');
+                            break;
+                        case 'QuoteNumber':
+                            statparams.set('filter', 'Name eq \'Customer Quote number series\'');
+                            break;
+                    }
 
+                    // Get param value
+                    this.statisticsService.GetDataByUrlSearchParams(statparams).subscribe(stat => {
+                        let val = stat.Data[0].NumberSeriesNextNumber - 1;
+                        if (val > 0) { param.value = val; }
+
+                        this.modalConfig.report.parameters = params;
+                        this.modal.open();
+                    }, err => this.errorService.handle(err));
+                } else {
                     this.modalConfig.report.parameters = params;
                     this.modal.open();
-                }, err => this.errorService.handle(err));
-            } else {
-                this.modalConfig.report.parameters = params;
-                this.modal.open();
-            }
-        }, err => this.errorService.handle(err));
+                }
+            }, err => this.errorService.handle(err));
+        });
     }
 }
 

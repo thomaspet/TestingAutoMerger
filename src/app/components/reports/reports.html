@@ -22,10 +22,10 @@
                 </a>
             </div>
             <!-- Reports -->
-            <div *ngIf="report.IsReport">
+            <div [class.waiting]="report.busy" *ngIf="report.IsReport">
                 <a (click)="showReportParams(report)">
-                    <h4 class="report_name">{{report.Name}}</h4>
-                    <p>{{report.Description}}</p>
+                    <h4 [class.waiting]="report.busy" class="report_name">{{report.Name}}</h4>
+                    <p>{{report.Description}}</p>                    
                 </a>
             </div>
         </div>
