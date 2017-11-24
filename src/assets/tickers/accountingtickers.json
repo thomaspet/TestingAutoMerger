@@ -10,43 +10,63 @@
         "Joins": "JournalEntryLine.JournalEntryID eq FileEntityLink.EntityID",
         "Columns": [
             {
-                "Header": "Bilagsnr",
+                "Header": "Bnr.",
                 "Field": "JournalEntryNumberNumeric",
                 "Width": "100px",
                 "Type": "link"
             },
             {
-                "Header": "Kontonr",
+                "Header": "Bnr. med år",
+                "Field": "JournalEntryNumber",
+                "Type": "link",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "Kontonr.",
                 "Field": "Account.AccountNumber",
                 "Width": "100px",
                 "Type": "text"
             },
             {
-                "Header": "Konto",
+                "Header": "Kontonavn",
                 "Field": "Account.AccountName",
                 "Width": "100px",
                 "Type": "text"
+            },
+            {
+                "Header": "Reskontronr.",
+                "Field": "SubAccount.AccountNumber",
+                "Type": "link",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "Reskontro",
+                "Field": "SubAccount.AccountName",
+                "Type": "text",
+                "DefaultHidden": true
             },
             {
                 "Header": "Regnskapsdato",
                 "Field": "FinancialDate"
             },
             {
-                "Header": "År",
-                "Field": "Period.AccountYear"
-            },
-            {
-                "Header": "Periode",
-                "Field": "Period.No"
-            },
-            {
-                "Header": "Mvakode",
-                "Field": "VatType.VatCode",
-                "Type": "text"
+                "Header": "Mva-dato",
+                "Field": "VatDate",
+                "DefaultHidden": true
             },
             {
                 "Header": "Beskrivelse",
                 "Field": "Description"
+            },
+            {
+                "Header": "Mva-kode",
+                "Field": "VatType.VatCode",
+                "Type": "text"
+            }, 
+            {
+                "Header": "Fradrag %",
+                "Field": "VatDeductionPercent",
+                "DefaultHidden": true
             },
             {
                 "Header": "Beløp",
@@ -55,9 +75,89 @@
                 "Format": "NumberPositiveNegative"
             },
             {
-                "Header": "Valutabeløp",
+                "Header": "V-beløp",
                 "Field": "AmountCurrency",
                 "Format": "NumberPositiveNegative",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "Valuta",
+                "Field": "CurrencyCode.Code",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "V-kurs",
+                "Field": "CurrencyExchangeRate",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "Grunnlag mva",
+                "Field": "TaxBasisAmount",
+                "Format": "NumberPositiveNegative",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "V-grunnlag mva",
+                "Field": "TaxBasisAmountCurrency",
+                "Format": "NumberPositiveNegative",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "Mva rapportert",
+                "Field": "VatReport.TerminPeriod.No",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "Fakturanr.",
+                "Field": "InvoiceNumber",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "Forfall",
+                "Field": "DueDate",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "Restbeløp",
+                "Field": "RestAmountCurrency",
+                "Format": "NumberPositiveNegative",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "V-restbeløp",
+                "Field": "RestAmount",
+                "Format": "NumberPositiveNegative",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "Status",
+                "Field": "StatusCode",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "Avdeling",
+                "Field": "Dimensions.Department.Name",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "Prosjekt",
+                "Field": "Dimensions.Project.Name",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "Periodisering",
+                "Field": "JournalEntry.JournalEntryAccrualID",
+                "Type": "link",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "År",
+                "Field": "Period.AccountYear",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "Periode",
+                "Field": "Period.No",
                 "DefaultHidden": true
             },
             {
@@ -103,36 +203,151 @@
         "Group": "Regnskap",
         "Model": "JournalEntryLineDraft",
         "Expand": "",
+        "Joins": "JournalEntryLineDraft.JournalEntryID eq JournalEntry.ID and JournalEntryLineDraft.JournalEntryID eq FileEntityLink.EntityID",        
         "Columns": [
             {
-                "Header": "Bilagsnr",
+                "Header": "Bnr.",
                 "Field": "JournalEntryNumberNumeric",
                 "Width": "100px",
                 "Type": "text"
             },
             {
-                "Header": "Konto",
+                "Header": "Bnr. med år",
+                "Field": "JournalEntryNumber",
+                "Type": "link",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "Kontonr.",
                 "Field": "Account.AccountNumber",
                 "Width": "100px",
                 "Type": "text"
             },
             {
-                "Header": "Regnskapsdato",
-                "Field": "FinancialDate"
+                "Header": "Kontonavn",
+                "Field": "Account.AccountName"
             },
             {
-                "Header": "Mvakode",
-                "Field": "VatType.VatCode",
-                "Type": "text"
+                "Header": "Reskontronr.",
+                "Field": "SubAccount.AccountNumber",
+                "Type": "link",
+                "Width": "90px",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "Reskontro",
+                "Field": "SubAccount.AccountName",
+                "Type": "text",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "Regnskapsdato",
+                "Field": "FinancialDate",
+                "Width": "110px"
+            },
+            {
+                "Header": "Mva-dato",
+                "Field": "VatDate",
+                "Width": "110px",
+                "DefaultHidden": true
             },
             {
                 "Header": "Beskrivelse",
-                "Field": "Description"
+                "Field": "Description",
+                "Width": "20%"
+            },
+            {
+                "Header": "Mva-kode",
+                "Field": "VatType.VatCode",
+                "Type": "text"
+            }, 
+            {
+                "Header": "Fradrag %",
+                "Field": "VatDeductionPercent",
+                "DefaultHidden": true
             },
             {
                 "Header": "Beløp",
                 "Field": "Amount",
-                "Width": "120px"
+                "Format": "NumberPositiveNegative"
+            },
+            {
+                "Header": "V-beløp",
+                "Field": "AmountCurrency",
+                "Format": "NumberPositiveNegative",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "Valuta",
+                "Field": "CurrencyCode.Code",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "V-kurs",
+                "Field": "CurrencyExchangeRate",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "Grunnlag mva",
+                "Field": "TaxBasisAmount",
+                "Format": "NumberPositiveNegative",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "V-grunnlag mva",
+                "Field": "TaxBasisAmountCurrency",
+                "Format": "NumberPositiveNegative",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "Fakturanr.",
+                "Field": "InvoiceNumber",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "Forfall",
+                "Field": "DueDate",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "Status",
+                "Field": "StatusCode",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "Avdeling",
+                "Field": "Dimensions.Department.Name",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "Prosjekt",
+                "Field": "Dimensions.Project.Name",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "Periodisering",
+                "Field": "JournalEntry.JournalEntryAccrualID",
+                "Type": "link",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "År",
+                "Field": "Period.AccountYear",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "Periode",
+                "Field": "Period.No",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "📎",
+                "Field": "sum(casewhen(FileEntityLink.EntityType eq 'JournalEntry'\\,1\\,0))",
+                "Alias": "Attachments",
+                "Type": "attachment",
+                "Width": "40px",
+                "ExternalModel": "JournalEntry",
+                "DefaultHidden": true
             }
         ],
         "ParentFilter": {
@@ -149,29 +364,42 @@
         "Group": "Regnskap",
         "Model": "SupplierInvoice",
         "Expand": "",
+        "Joins": "SupplierInvoice.ID eq Task.EntityID and Task.ID eq Approval.TaskID and Approval.UserID eq User.ID",
         "Columns": [
             {
-                "Header": "Nr",
+                "Header": "Nr.",
                 "Field": "ID",
                 "Width": "100px",
                 "Type": "Link"
+            },
+            {
+                "Header": "Fakturanr.",
+                "Field": "InvoiceNumber",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "Lev.nr.",
+                "Field": "Supplier.SupplierNumber",
+                "ExternalModel": "Supplier",
+                "LinkNavigationProperty": "Supplier.ID",
+                "DefaultHidden": true
             },
             {
                 "Header": "Leverandør",
                 "Field": "Supplier.Info.Name",
                 "Type": "link",
                 "Width": "200px",
-                "ExternalModel": "Supplier",
-                "LinkNavigationProperty": "Supplier.ID"
+                "ExternalModel": "Supplier"
+            },
+            {
+                "Header": "Fakturadato",
+                "Field": "InvoiceDate",
+                "DefaultHidden": true
             },
             {
                 "Header": "Forfall",
                 "Field": "PaymentDueDate",
                 "Format": "DatePassed"
-            },
-            {
-                "Header": "Fakturanr",
-                "Field": "InvoiceNumber"
             },
             {
                 "Header": "Bankgiro",
@@ -182,18 +410,50 @@
                 "Field": "PaymentID"
             },
             {
-                "Header": "Bilagsnr",
+                "Header": "Bilagsnr.",
                 "Field": "JournalEntry.JournalEntryNumber",
                 "Type": "link",
                 "ExternalModel": "JournalEntry",
                 "LinkNavigationProperty": "JournalEntryID"
             },
             {
+                "Header": "Valuta",
+                "Field": "CurrencyCode.Code",
+                "DefaultHidden": true
+            },
+            {
                 "Header": "Beløp",
-                "Field": "TaxInclusiveAmount",
+                "Field": "TaxInclusiveAmountCurrency",
                 "Format": "NumberPositiveNegative",
                 "Width": "150px",
                 "SumColumn": true
+            },
+            {
+                "Header": "Tildelt/godkjent av",
+                "Field": "stuff(user.displayname)",
+                "Alias": "Assignees",
+                "Expand": "",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "Prosjektnavn",
+                "Field": "Dimensions.Project.Name",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "Prosjektnr.",
+                "Field": "Dimensions.Project.ProjectNumber",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "Avdelingsnavn",
+                "Field": "Dimensions.Department.Name",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "Avd.nr.",
+                "Field": "Dimensions.Department.DepartmentNumber",
+                "DefaultHidden": true
             },
             {
                 "Header": "Status",
@@ -394,7 +654,7 @@
         },
         "Columns": [
             {
-                "Header": "Nr",
+                "Header": "Nr.",
                 "Field": "ID",
                 "Type": "text"
             },
@@ -417,7 +677,7 @@
                 "Format": "DatePassed"
             },
             {
-                "Header": "Fakturanr",
+                "Header": "Fakturanr.",
                 "Field": "InvoiceNumber"
             },
             {
@@ -429,7 +689,7 @@
                 "Field": "PaymentID"
             },
             {
-                "Header": "Bilagsnr",
+                "Header": "Bnr.",
                 "Field": "JournalEntry.JournalEntryNumber",
                 "Type": "link",
                 "ExternalModel": "JournalEntry",
@@ -456,15 +716,15 @@
         "Expand": "",
         "Columns": [
             {
-                "Header": "Leverandørnr",
-                "Field": "SupplierNumber",
+                "Header": "Lev.nr.",
+                "Field": "Supplier.SupplierNumber",
                 "Type": "Link",
-                "LinkNavigationProperty": "ID",
+                "LinkNavigationProperty": "Supplier.ID",
                 "Width": "120px"
             },
             {
                 "Header": "Navn",
-                "Field": "Info.Name",
+                "Field": "Supplier.Info.Name",
                 "Width": "250px"
             },
             {
@@ -472,7 +732,7 @@
                 "Field": "Info.DefaultPhone.Number"
             },
             {
-                "Header": "Epost",
+                "Header": "E-post",
                 "Field": "Info.DefaultEmail.EmailAddress",
                 "Type": "mailto"
             },
@@ -481,7 +741,7 @@
                 "Field": "Info.InvoiceAddress.AddressLine1"
             },
             {
-                "Header": "Postnr",
+                "Header": "Postnr.",
                 "Field": "Info.InvoiceAddress.PostalCode"
             },
             {
@@ -564,8 +824,8 @@
         },
         "Columns": [
             {
-                "Header": "Leverandørnr",
-                "Field": "SupplierNumber",
+                "Header": "Lev.nr.",
+                "Field": "Supplier.SupplierNumber",
                 "Type": "text",
                 "Width": "120px"
             },
@@ -580,7 +840,7 @@
                 "Field": "Info.DefaultPhone.Number"
             },
             {
-                "Header": "Epost",
+                "Header": "E-post",
                 "Field": "Info.DefaultEmail.EmailAddress",
                 "Type": "mailto"
             },
@@ -618,6 +878,10 @@
             {
                 "Header": "Kredittdager",
                 "Field": "CreditDays"
+            },
+            {
+                "Header": "Bankkonto",
+                "Field": "Info.DefaultBankAccount.AccountNumber"
             },
             {
                 "Header": "Foretrukket valuta",

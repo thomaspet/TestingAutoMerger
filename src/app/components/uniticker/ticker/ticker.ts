@@ -47,7 +47,7 @@ const PAPERCLIP = '📎'; // It might look empty in your editor, but this is the
 
 export var SharingTypeText = [
     {ID: SharingType.AP, Title: 'Aksesspunkt'},
-    {ID: SharingType.Email, Title: 'Epost'},
+    {ID: SharingType.Email, Title: 'E-post'},
     {ID: SharingType.Export, Title: 'Eksport'},
     {ID: SharingType.Print, Title: 'Utskrift'},
     {ID: SharingType.Vipps, Title: 'Vipps'},
@@ -937,19 +937,16 @@ export class UniTicker {
     }
 
     private shouldAddColumnToQuery(column: TickerColumn, userColumnSetup: UniTableColumn): boolean {
-        if (column.Field === 'ID' || column.Field === 'StatusCode') {
-            return true;
-        }
-        if (userColumnSetup) {
-            return userColumnSetup.visible;
-        }
+        if (column.Field === 'ID' || column.Field === 'StatusCode') { return true; }
+        if (userColumnSetup) { return userColumnSetup.visible; }
         return !column.DefaultHidden;
     }
 
     private setExpand(column: TickerColumn) {
         let field = column.Field;
 
-        if (!field) {
+        // if no field, or column is overwritten to not expand, don't expand
+        if (!field || column.Expand === '') {
             return;
         }
 
@@ -966,8 +963,11 @@ export class UniTicker {
         // if field includes '.' it needs to expand something
         if (field.includes('.')) {
             const fieldSplit = field.split('.');
+            const expandSplit = this.ticker.Expand && this.ticker.Expand.split(',');
             this.ticker.Expand = this.ticker.Expand || '';
-            let expandField = '';
+            let expand = '';
+            let isExpandExisting: boolean;
+            const joinSplit = this.ticker.Joins && this.ticker.Joins.split(/[\s.]+/);
 
             // if field is nested/has parents, expand all parents too
             for (let k = 0; k < fieldSplit.length - 1; k++) {
@@ -975,33 +975,40 @@ export class UniTicker {
                     // if first part of field is the model name, don't expand it
                     if (fieldSplit[k] === this.ticker.Model) {
                         k++;
-                        if (fieldSplit.length < 3) {
-                            return;
-                        }
+                        if (fieldSplit.length < 3) { return; }
                     }
-                    expandField = expandField.concat(fieldSplit[k]);
+                    expand = expand.concat(fieldSplit[k]);
                 } else {
-                    expandField = expandField.concat('.', fieldSplit[k]);
+                    expand = expand.concat('.', fieldSplit[k]);
                 }
 
                 // check if column has an own expand that should override parent's expand
-                if (column.Expand) {
-                    expandField = column.Expand;
-                }
+                if (column.Expand && column.Expand !== '') { expand = column.Expand; }
 
-                // if field uses a join, don't expand
-                if (this.ticker.Joins && this.ticker.Joins.includes(expandField)) {
-                    return;
+                // don't expand joined fields, check if any parts of field is equal to any parts of join
+                if (joinSplit) {
+                    const fieldHasJoin = fieldSplit.some(fieldPart => 
+                        joinSplit.some(joinPart => joinPart === fieldPart)
+                    );
+                    if (fieldHasJoin) { return; }
                 }
+            }
 
-                // check if the expand field don't already exists in ticker.expand
-                if (!this.ticker.Expand.includes(expandField)) {
-                    if (!this.ticker.Expand || this.ticker.Expand === '') {
-                        this.ticker.Expand = expandField;
-                    } else {
-                        this.ticker.Expand = this.ticker.Expand.concat(',', expandField);
-                    }
+            // check if the expand don't already exists in ticker.expand
+            if (expandSplit) {
+                isExpandExisting = expandSplit.some(existingExpand => existingExpand === expand);
+            }
+            if (!isExpandExisting) {
+                if (!this.ticker.Expand || this.ticker.Expand === '') {
+                    this.ticker.Expand = expand;
+                } else {
+                    this.ticker.Expand = this.ticker.Expand.concat(',', expand);
                 }
+            }
+
+            // Query can only include 1 '.' (2 chained properties) and must therefore be shortened
+            if (fieldSplit.length > 2) {
+                field = fieldSplit[fieldSplit.length - 2] + fieldSplit[fieldSplit.length - 1];
             }
         }
     }

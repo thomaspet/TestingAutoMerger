@@ -7,7 +7,7 @@
         "Model": "Employee",
         "Expand": "",
         "Columns": [{
-                "Header": "Ansattnr",
+                "Header": "Ansattnr.",
                 "Field": "EmployeeNumber",
                 "Width": "5rem"
             },
@@ -19,7 +19,7 @@
                 "Width": "10rem"
             },
             {
-                "Header": "Fødselsnummer",
+                "Header": "Fødselsnr.",
                 "Field": "SocialSecurityNumber",
                 "Type": "text"
             },
@@ -28,7 +28,7 @@
                 "Field": "BirthDate"
             },
             {
-                "Header": "Kontonummer",
+                "Header": "Kontonr.",
                 "Field": "BusinessRelationInfo.DefaultBankAccount.AccountNumber",
                 "Width": "8rem"
             },
@@ -38,7 +38,7 @@
                 "DefaultHidden": true
             },
             {
-                "Header": "Epost",
+                "Header": "E-post",
                 "Field": "BusinessRelationInfo.DefaultEmail.EmailAddress",
                 "DefaultHidden": true
             },
@@ -83,7 +83,7 @@
         "UseParentTickerActions": true,
         "Expand": "",
         "Columns": [{
-                "Header": "Ansattnr",
+                "Header": "Ansattnr.",
                 "Field": "EmployeeNumber",
                 "Type": "text"
             },
@@ -93,7 +93,7 @@
                 "Type": "text"
             },
             {
-                "Header": "Fødselsnummer",
+                "Header": "Fødselsnr.",
                 "Field": "SocialSecurityNumber",
                 "Type": "text"
             },
@@ -102,7 +102,7 @@
                 "Field": "BirthDate"
             },
             {
-                "Header": "Kontonummer",
+                "Header": "Kontonr.",
                 "Field": "BusinessRelationInfo.DefaultBankAccount.AccountNumber"
             },
             {
@@ -110,7 +110,7 @@
                 "Field": "BusinessRelationInfo.InvoiceAddress.AddressLine1"
             },
             {
-                "Header": "Epost",
+                "Header": "E-post",
                 "Field": "BusinessRelationInfo.DefaultEmail.EmailAddress"
             },
             {
@@ -149,7 +149,7 @@
                 "Width": "14rem"
             },
             {
-                "Header": "Ansattnr",
+                "Header": "Ansattnr.",
                 "Field": "Employee.EmployeeNumber",
                 "Type": "link",
                 "ExternalModel": "Employee",
@@ -218,7 +218,7 @@
                 ]
             },
             {
-                "Header": "Ansattnr",
+                "Header": "Ansattnr.",
                 "Field": "Employee.EmployeeNumber",
                 "Type": "link",
                 "ExternalModel": "Employee",
@@ -379,7 +379,7 @@
         "OrderBy": "WageTypeNumber",
         "SubTickersCodes": ["wagetype_details"],
         "Columns": [{
-                "Header": "Nr",
+                "Header": "Nr.",
                 "Field": "WageTypeNumber",
                 "Format": "text",
                 "Width": "5rem"
@@ -461,7 +461,7 @@
         "Model": "WageType",
         "Expand": "",
         "Columns": [{
-                "Header": "Nr",
+                "Header": "Nr.",
                 "Field": "WageTypeNumber",
                 "Format": "text"
             },
@@ -535,7 +535,7 @@
         "Model": "PayrollRun",
         "Expand": "",
         "Columns": [{
-                "Header": "Nr",
+                "Header": "Nr.",
                 "Field": "ID",
                 "Width": "8rem",
                 "Type": "link",
@@ -652,7 +652,7 @@
         "UseParentTickerActions": true,
         "Expand": "",
         "Columns": [{
-                "Header": "Nr",
+                "Header": "Nr.",
                 "Field": "ID",
                 "Type": "text"
             },
@@ -705,7 +705,7 @@
                 "Field": "PayrollRunID"
             },
             {
-                "Header": "Ansattnr",
+                "Header": "Ansattnr.",
                 "Field": "EmployeeNumber",
                 "Width": "5rem"
             },
@@ -793,7 +793,7 @@
                 "Type": "text"
             },
             {
-                "Header": "Ansattnr",
+                "Header": "Ansattnr.",
                 "Field": "EmployeeNumber",
                 "Type": "text"
             },

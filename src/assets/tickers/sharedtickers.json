@@ -6,7 +6,7 @@
         "IsTopLevelTicker": false,
         "Group": "Salg",
         "Model": "Contact",
-        "Expand": "Info,Info.DefaultEmail,Info.DefaultPhone,Info.InvoiceAddress",
+        "Expand": "",
         "Columns": [
             {
                 "Header": "Navn",
@@ -23,7 +23,7 @@
                 "Field": "Info.DefaultPhone.Number"
             },
             {
-                "Header": "Epost",
+                "Header": "E-post",
                 "Field": "Info.DefaultEmail.EmailAddress",
                 "Type": "mailto"
             }

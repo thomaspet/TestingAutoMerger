@@ -847,8 +847,8 @@ export class BillsView {
 
     private createTableConfig(filter: IFilter): UniTableConfig {
         const cols = [
-            new UniTableColumn('InvoiceNumber', 'Fakturanr').setWidth('8%'),
-            new UniTableColumn('SupplierSupplierNumber', 'Lev.nr.').setVisible(false).setWidth('4em'),
+            new UniTableColumn('InvoiceNumber', 'Fakturanr.').setWidth('8%'),
+            new UniTableColumn('SupplierSupplierNumber', 'Lev.nr.').setVisible(false).setWidth('5em'),
             new UniTableColumn('InfoName', 'Leverandør', UniTableColumnType.Text)
                 .setFilterOperator('startswith')
                 .setWidth('15em'),
@@ -886,9 +886,9 @@ export class BillsView {
                         ? 'supplier-invoice-table-plus'
                         : 'supplier-invoice-table-minus'
                 ),
-            new UniTableColumn('Assignees', 'Tildelt / Godkjent av').setVisible(true),
+            new UniTableColumn('Assignees', 'Tildelt/Godkjent av').setVisible(true),
             new UniTableColumn('ProjectName', 'Prosjektnavn').setVisible(false),
-            new UniTableColumn('ProjectProjectNumber', 'ProsjektNr.').setVisible(false),
+            new UniTableColumn('ProjectProjectNumber', 'Prosjektnr.').setVisible(false),
             new UniTableColumn('DepartmentName', 'Avdelingsnavn').setVisible(false),
             new UniTableColumn('DepartmentDepartmentNumber', 'Avd.nr.').setVisible(false),
             new UniTableColumn('StatusCode', 'Status', UniTableColumnType.Number)

@@ -6,9 +6,8 @@
         "IsTopLevelTicker": true,
         "Group": "Time",
         "Model": "Worker",
-        "Expand": "Info,Relations,Relations.Items",
+        "Expand": "",
         "Columns": [
-
             {
                 "Header": "Navn",
                 "Field": "Worker.Info.Name",

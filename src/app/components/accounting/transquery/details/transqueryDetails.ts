@@ -503,7 +503,7 @@ export class TransqueryDetails implements OnInit {
         }
 
         let columns = [
-                new UniTableColumn('JournalEntryNumberNumeric', 'Bnr')
+                new UniTableColumn('JournalEntryNumberNumeric', 'Bnr.')
                     .setTemplate(line => {
                         return `<a href="/#/accounting/transquery/details;`
                             + `journalEntryNumber=${line.JournalEntryLineJournalEntryNumber}">
@@ -512,7 +512,7 @@ export class TransqueryDetails implements OnInit {
                     })
                     .setFilterOperator('startswith')
                     .setWidth('65px'),
-                new UniTableColumn('JournalEntryNumber', 'Bilagsnr med år')
+                new UniTableColumn('JournalEntryNumber', 'Bnr. med år')
                     .setTemplate(line => {
                         return `<a href="/#/accounting/transquery/details;`
                             + `journalEntryNumber=${line.JournalEntryLineJournalEntryNumber}">
@@ -521,7 +521,7 @@ export class TransqueryDetails implements OnInit {
                     })
                     .setFilterOperator('startswith')
                     .setVisible(false),
-                new UniTableColumn('Account.AccountNumber', 'Kontonr')
+                new UniTableColumn('Account.AccountNumber', 'Kontonr.')
                     .setTemplate(line => {
                         return `<a href="/#/accounting/transquery/`
                             + `details;Account_AccountNumber=${line.AccountAccountNumber}">
@@ -533,7 +533,7 @@ export class TransqueryDetails implements OnInit {
                 new UniTableColumn('Account.AccountName', 'Kontonavn', UniTableColumnType.Text)
                     .setFilterOperator('contains')
                     .setTemplate(line => line.AccountAccountName),
-                new UniTableColumn('SubAccount.AccountNumber', 'Reskontronr')
+                new UniTableColumn('SubAccount.AccountNumber', 'Reskontronr.')
                     .setTemplate(line => {
                         return `<a href="/#/accounting/transquery/details;`
                             + `SubAccount_AccountNumber=${line.SubAccountAccountNumber}">
@@ -552,7 +552,7 @@ export class TransqueryDetails implements OnInit {
                     .setFormat('DD.MM.YYYY')
                     .setWidth('110px')
                     .setTemplate(line => line.JournalEntryLineFinancialDate),
-                new UniTableColumn('VatDate', 'MVA-dato', UniTableColumnType.LocalDate)
+                new UniTableColumn('VatDate', 'Mva-dato', UniTableColumnType.LocalDate)
                     .setFilterOperator('contains')
                     .setFormat('DD.MM.YYYY')
                     .setWidth('110px')
@@ -565,7 +565,7 @@ export class TransqueryDetails implements OnInit {
                                 ${line.JournalEntryLineDescription}
                             </span>`;
                     }),
-                new UniTableColumn('VatType.VatCode', 'Mvakode', UniTableColumnType.Text)
+                new UniTableColumn('VatType.VatCode', 'Mva-kode', UniTableColumnType.Text)
                     .setFilterOperator('startswith')
                     .setWidth('60px')
                     .setTemplate(line => line.VatTypeVatCode),
@@ -584,26 +584,26 @@ export class TransqueryDetails implements OnInit {
                     .setFilterOperator('contains')
                     .setTemplate(line => line.CurrencyCodeCode)
                     .setVisible(false),
-                new UniTableColumn('CurrencyExchangeRate', 'V-Kurs', UniTableColumnType.Number)
+                new UniTableColumn('CurrencyExchangeRate', 'V-kurs', UniTableColumnType.Number)
                     .setFilterOperator('startswith')
                     .setTemplate(line => line.JournalEntryLineCurrencyExchangeRate)
                     .setVisible(false),
-                new UniTableColumn('TaxBasisAmount', 'Grunnlag MVA', UniTableColumnType.Money)
+                new UniTableColumn('TaxBasisAmount', 'Grunnlag mva', UniTableColumnType.Money)
                     .setFilterOperator('eq')
                     .setVisible(showTaxBasisAmount)
                     .setTemplate(line => line.JournalEntryLineTaxBasisAmount),
-                new UniTableColumn('TaxBasisAmountCurrency', 'V-Grunnlag MVA', UniTableColumnType.Money)
+                new UniTableColumn('TaxBasisAmountCurrency', 'V-grunnlag mva', UniTableColumnType.Money)
                     .setFilterOperator('eq')
                     .setVisible(showTaxBasisAmount)
                     .setTemplate(line => line.JournalEntryLineTaxBasisAmountCurrency),
-                new UniTableColumn('TerminPeriod.No', 'MVA rapportert', UniTableColumnType.Text)
+                new UniTableColumn('TerminPeriod.No', 'Mva rapportert', UniTableColumnType.Text)
                     .setTemplate(line => line.VatReportTerminPeriodNo
                         ? line.VatReportTerminPeriodNo + '-' + line.VatReportTerminPeriodAccountYear
                         : ''
                     )
                     .setFilterable(false)
                     .setVisible(false),
-                new UniTableColumn('InvoiceNumber', 'Fakturanr', UniTableColumnType.Text)
+                new UniTableColumn('InvoiceNumber', 'Fakturanr.', UniTableColumnType.Text)
                     .setCls('column-align-right')
                     .setFilterOperator('startswith')
                     .setVisible(false)
@@ -616,7 +616,7 @@ export class TransqueryDetails implements OnInit {
                     .setFilterOperator('eq')
                     .setTemplate(line => line.JournalEntryLineRestAmount)
                     .setVisible(false),
-                new UniTableColumn('RestAmountCurrency', 'V-Restbeløp', UniTableColumnType.Money)
+                new UniTableColumn('RestAmountCurrency', 'V-restbeløp', UniTableColumnType.Money)
                     .setFilterOperator('eq')
                     .setTemplate(line => line.JournalEntryLineRestAmountCurrency)
                     .setVisible(false),
@@ -759,8 +759,8 @@ export class TransqueryDetails implements OnInit {
                     EntityType: 'JournalEntryLine',
                     Property: 'JournalEntryNumberNumeric',
                     FieldType: FieldType.AUTOCOMPLETE,
-                    Label: 'Bilagsnr',
-                    Placeholder: 'Bilagsnr',
+                    Label: 'Bnr.',
+                    Placeholder: 'Bnr.',
                     Options: {
                         search: (query: string) => {
                             const searchParams = this.searchParams$.getValue();
@@ -788,8 +788,8 @@ export class TransqueryDetails implements OnInit {
                     EntityType: 'JournalEntryLine',
                     Property: 'AccountID',
                     FieldType: FieldType.AUTOCOMPLETE,
-                    Label: 'Kontonr',
-                    Placeholder: 'Kontonr',
+                    Label: 'Kontonr.',
+                    Placeholder: 'Kontonr.',
                     Options: {
                         getDefaultData: () => {
                             let searchParams = this.searchParams$.getValue();

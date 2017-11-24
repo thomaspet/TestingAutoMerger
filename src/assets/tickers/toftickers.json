@@ -6,23 +6,23 @@
     "Group": "Salg",
     "Model": "CustomerInvoice",
     "Joins": "CustomerInvoice.ID eq Sharing.EntityID",
-    "Expand": "Customer,Customer.Info",
+    "Expand": "",
     "OrderBy": "ID DESC",
     "Columns": [{
-            "Header": "Fakturanr",
+            "Header": "Fakturanr.",
             "Field": "InvoiceNumber",
             "Alias": "InvoiceNumber",
             "Placeholder": "Kladd",
-            "Width": "8rem",
+            "Width": "6rem",
             "Type": "link",
             "FilterOperator": "startswith"
         }, {
-            "Header": "Kundenr",
+            "Header": "Kundenr.",
             "Field": "Customer.CustomerNumber",
             "Type": "Link",
             "LinkNavigationProperty": "Customer.ID",
             "ExternalModel": "Customer",
-            "Width": "8rem",
+            "Width": "6rem",
             "FilterOperator": "startswith"
         }, {
             "Header": "Kundenavn",
@@ -33,13 +33,13 @@
             "Header": "Fakturadato",
             "Field": "InvoiceDate",
             "FilterOperator": "gt",
-            "Width": "103px"
+            "Width": "100px"
         }, {
             "Header": "Forfallsdato",
             "Field": "PaymentDueDate",
             "Format": "DatePassed",
             "FilterOperator": "gt",
-            "Width": "103px"
+            "Width": "100px"
         },{
             "Header": "Leveringsdato",
             "Field": "DeliveryDate",
@@ -47,41 +47,41 @@
             "Width": "100px",
             "DefaultHidden": true
         },{
-            "Header": "Vår ref",
+            "Header": "Vår referanse",
             "Field": "OurReference"
         },{
-            "Header": "Deres ref",
+            "Header": "Deres referanse",
             "Field": "YourReference",
             "DefaultHidden": true
         },
          {
             "Header": "Valuta",
             "Field": "CurrencyCode.Code",
-            "Width": "70px",
+            "Width": "65px",
             "DefaultHidden": true
         }, {
-            "Header": "Sum inkl mva",
+            "Header": "Sum inkl. mva",
             "Field": "TaxInclusiveAmountCurrency",
             "Format": "NumberPositiveNegative",
-            "Width": "150px",
+            "Width": "120px",
             "FilterOperator": "gt",
             "SumColumn": true
         }, {
             "Header": "Rest",
             "Field": "RestAmountCurrency",
             "Format": "NumberPositiveNegative",
-            "Width": "150px",
+            "Width": "120px",
             "FilterOperator": "gt",
             "SumColumn": true
         }, {
             "Header": "Kreditert",
             "Field": "CreditedAmountCurrency",
             "Format": "NumberPositiveNegative",
-            "Width": "150px",
+            "Width": "120px",
             "DefaultHidden": true,
             "SumColumn": true
         }, {
-            "Header": "Sum inkl mva [BASECURRENCY]",
+            "Header": "Sum inkl. mva [BASECURRENCY]",
             "Field": "TaxInclusiveAmount",
             "Format": "NumberPositiveNegative",
             "DefaultHidden": true,
@@ -96,7 +96,7 @@
             "Header": "Kreditert [BASECURRENCY]",
             "Field": "CreditedAmount",
             "Format": "NumberPositiveNegative",
-            "Width": "150px",
+            "Width": "120px",
             "DefaultHidden": true,
             "SumColumn": true
         }, {
@@ -427,7 +427,7 @@
     },
     "Filters": [],
     "Columns": [{
-            "Header": "Nr",
+            "Header": "Nr.",
             "Field": "SortIndex",
             "DefaultHidden": true
         }, {
@@ -455,13 +455,12 @@
             }],
             "DefaultHidden": true
         }, {
-            "Header": "Momskode",
+            "Header": "Mva-kode",
             "Field": "VatType.VatPercent",
             "Type": "percent",
             "SubFields": [{
                 "Field": "VatType.Name"
-            }],
-            "DefaultHidden": true
+            }]
         }, {
             "Header": "Oppgave",
             "Field": "Dimensions.ProjectTask.Name",
@@ -497,10 +496,10 @@
             "Field": "SumVatCurrency",
             "DefaultHidden": true
         }, {
-            "Header": "Sum",
+            "Header": "Sum inkl. mva",
             "Field": "SumTotalIncVatCurrency",
             "Format": "NumberPositiveNegative",
-            "Width": "150px",
+            "Width": "120px",
             "SumColumn": true
         }
     ],
@@ -520,7 +519,7 @@
     "IsTopLevelTicker": false,
     "Group": "Salg",
     "Model": "CustomerInvoice",
-    "Expand": "Customer.Info,JournalEntry,CurrencyCode",
+    "Expand": "",
     "SubTickers": [],
     "Filters": [],
     "UseParentTickerActions": true,
@@ -531,89 +530,103 @@
     },
     "Columns": [{
             "FieldSetColumn": 1,
-            "Header": "Fakturanr",
+            "Header": "Fakturanr.",
             "Field": "InvoiceNumber",
             "Alias": "InvoiceNumber",
             "Type": "link"
-        }, {
+        },
+        {
             "FieldSetColumn": 1,
             "Header": "Status",
             "Field": "StatusCode"
-        }, {
+        },
+        {
             "FieldSetColumn": 1,
-            "Header": "Kundenummer",
+            "Header": "Kundenr.",
             "Field": "Customer.CustomerNumber",
             "SubFields": [{
                 "Field": "CustomerID",
                 "Alias": "CustomerID",
                 "DefaultHidden": true
             }]
-        }, {
+        },
+        {
             "FieldSetColumn": 1,
             "Header": "Kundenavn",
             "Field": "Customer.Info.Name"
-        }, {
+        },
+        {
             "FieldSetColumn": 1,
             "Header": "Fakturaadresse",
             "Type": "address",
             "Field": "InvoiceAddressLine1",
             "SubFields": [{
                     "Field": "InvoicePostalCode"
-                }, {
+                },
+                {
                     "Field": "InvoiceCity"
                 }
             ]
-        }, {
+        },
+        {
             "FieldSetColumn": 1,
             "Header": "Leveringsadresse",
             "Type": "address",
             "Field": "ShippingAddressLine1",
             "SubFields": [{
                     "Field": "ShippingPostalCode"
-                }, {
+                },
+                {
                     "Field": "ShippingCity"
                 }
             ]
-        }, {
+        },
+        {
             "FieldSetColumn": 1,
             "Header": "Vår referanse",
             "Field": "OurReference"
         },
         {
             "FieldSetColumn": 1,
-            "Header": "Deres ref",
+            "Header": "Deres referanse",
             "Field": "YourReference"
         },
         {
             "FieldSetColumn": 2,
             "Header": "Fakturadato",
             "Field": "InvoiceDate"
-        }, {
+        },
+        {
             "FieldSetColumn": 2,
             "Header": "Forfallsdato",
             "Field": "PaymentDueDate",
             "Alias": "PaymentDueDate",
             "Format": "DatePassed"
-        }, {
+        },
+        {
             "FieldSetColumn": 2,
             "Header": "Totalsum",
             "Field": "TaxInclusiveAmountCurrency"
-        }, {
+        },
+        {
             "FieldSetColumn": 2,
             "Header": "Restsum",
             "Field": "RestAmountCurrency"
-        }, {
+        },
+        {
             "FieldSetColumn": 2,
             "Header": "Valuta",
             "Field": "CurrencyCode.Code"
-        }, {
+        },
+        {
             "FieldSetColumn": 2,
-            "Header": "Bilagsnummer",
+            "Header": "Bilagsnr.",
             "Field": "JournalEntry.JournalEntryNumber",
             "Type": "link",
             "ExternalModel": "JournalEntry",
             "LinkNavigationProperty": "JournalEntryID"
-        }, {
+        },
+        {
             "FieldSetColumn": 2,
             "Header": "Kommentar",
             "Field": "Comment"
@@ -622,7 +635,8 @@
             "Header": "Fakturatype",
             "Field": "CustomerInvoice.InvoiceType",
             "Type": "dontdisplay"
-        }, {
+        },
+        {
             "Header": "Purrestatus",
             "Field": "CustomerInvoice.CollectorStatusCode",
             "Type": "dontdisplay"
@@ -638,20 +652,20 @@
     "Expand": "",
     "OrderBy": "ID DESC",
     "Columns": [{
-            "Header": "Tilbudnr",
+            "Header": "Tilbudsnr.",
             "Field": "QuoteNumber",
             "Alias": "QuoteNumber",
             "Placeholder": "Kladd",
             "Type": "Link",
-            "Width": "8rem",
+            "Width": "6rem",
             "FilterOperator": "startswith"
         }, {
-            "Header": "Kundenr",
+            "Header": "Kundenr.",
             "Field": "Customer.CustomerNumber",
             "Type": "Link",
             "LinkNavigationProperty": "Customer.ID",
             "ExternalModel": "Customer",
-            "Width": "8rem",
+            "Width": "6rem",
             "FilterOperator": "startswith"
         }, {
             "Header": "Kundenavn",
@@ -675,20 +689,27 @@
             "FilterOperator": "gt",
             "Width": "100px",
             "DefaultHidden": true
+        },{
+            "Header": "Vår referanse",
+            "Field": "OurReference"
+        },{
+            "Header": "Deres referanse",
+            "Field": "YourReference",
+            "DefaultHidden": true
         },
         {
             "Header": "Valuta",
             "Field": "CurrencyCode.Code",
-            "Width": "70px",
+            "Width": "65px",
             "DefaultHidden": true
         }, {
-            "Header": "Sum inkl mva",
+            "Header": "Sum inkl. mva",
             "Field": "TaxInclusiveAmountCurrency",
             "Format": "NumberPositiveNegative",
             "Width": "120px",
             "SumColumn": true
         }, {
-            "Header": "Sum inkl mva [BASECURRENCY]",
+            "Header": "Sum inkl. mva [BASECURRENCY]",
             "Field": "TaxInclusiveAmount",
             "Format": "NumberPositiveNegative",
             "DefaultHidden": true,
@@ -700,7 +721,7 @@
         }, {
             "Header": "Status",
             "Field": "StatusCode",
-            "Width": "155px"
+            "Width": "140px"
         }, {
             "Header": "Utskrift",
             "Field": "PrintStatus",
@@ -742,7 +763,7 @@
                 "ReportName": "Tilbud id"
             }
         }, {
-            "Name": "Send på epost",
+            "Name": "Send på e-post",
             "Code": "quote_sendemail",
             "Type": "details",
             "DisplayInContextMenu": true,
@@ -903,13 +924,16 @@
     },
     "Filters": [],
     "Columns": [{
-            "Header": "Produkt/tekst",
+            "Header": "Nr.",
+            "Field": "SortIndex",
+            "DefaultHidden": true
+        }, {
+            "Header": "Vare",
             "Field": "Product.PartName",
             "Width": "250px",
             "SubFields": [{
-                    "Field": "ItemText"
-                }
-            ]
+                "Field": "ItemText"
+            }]
         }, {
             "Header": "Antall",
             "Field": "NumberOfItems"
@@ -917,7 +941,18 @@
             "Header": "Enhet",
             "Field": "Unit"
         }, {
-            "Header": "Mvakode",
+            "Header": "Pris",
+            "Field": "PriceExVatCurrency",
+            "DefaultHidden": true
+        }, {
+            "Header": "Konto",
+            "Field": "Account.AccountNumber",
+            "SubFields": [{
+                "Field": "Account.AccountName"
+            }],
+            "DefaultHidden": true
+        }, {
+            "Header": "Mva-kode",
             "Field": "VatType.VatPercent",
             "Type": "percent",
             "SubFields": [{
@@ -925,14 +960,44 @@
                 }
             ]
         }, {
+            "Header": "Oppgave",
+            "Field": "Dimensions.ProjectTask.Name",
+            "DefaultHidden": true
+        }, {
             "Header": "Rabatt %",
             "Field": "DiscountPercent",
             "Type": "percent"
         }, {
-            "Header": "Sum inkl mva",
-            "Field": "SumTotalIncVat",
+            "Header": "Rabatt",
+            "Field": "DiscountCurrency",
+            "DefaultHidden": true
+        }, {
+            "Header": "Prosjekt",
+            "Field": "Dimensions.Project.ProjectNumber",
+            "SubFields": [{
+                "Field": "Dimensions.Project.Name"
+            }],
+            "DefaultHidden": true
+        }, {
+            "Header": "Avdeling",
+            "Field": "Dimensions.Department.DepartmentNumber",
+            "SubFields": [{
+                "Field": "Dimensions.Department.Name"
+            }],
+            "DefaultHidden": true
+        }, {
+            "Header": "Netto",
+            "Field": "SumTotalExVatCurrency",
+            "DefaultHidden": true
+        }, {
+            "Header": "Mva",
+            "Field": "SumVatCurrency",
+            "DefaultHidden": true
+        }, {
+            "Header": "Sum inkl. mva",
+            "Field": "SumTotalIncVatCurrency",
             "Format": "NumberPositiveNegative",
-            "Width": "150px",
+            "Width": "120px",
             "SumColumn": true
         }
     ]
@@ -943,7 +1008,7 @@
     "IsTopLevelTicker": false,
     "Group": "Salg",
     "Model": "CustomerQuote",
-    "Expand": "Customer.Info,CurrencyCode",
+    "Expand": "",
     "SubTickers": [],
     "Filters": [],
     "UseParentTickerActions": true,
@@ -954,7 +1019,7 @@
     },
     "Columns": [{
             "FieldSetColumn": 1,
-            "Header": "Tilbudsnr",
+            "Header": "Tilbudsnr.",
             "Field": "QuoteNumber",
             "Alias": "QuoteNumber",
             "Type": "link"
@@ -964,7 +1029,7 @@
             "Field": "StatusCode"
         }, {
             "FieldSetColumn": 1,
-            "Header": "Kundenummer",
+            "Header": "Kundenr.",
             "Field": "Customer.CustomerNumber",
             "SubFields": [{
                 "Field": "Customer.ID",
@@ -1004,7 +1069,7 @@
             "Format": "DatePassed"
         }, {
             "FieldSetColumn": 2,
-            "Header": "Sum inkl mva",
+            "Header": "Sum inkl. mva",
             "Field": "TaxInclusiveAmountCurrency"
         }, {
             "FieldSetColumn": 2,
@@ -1016,7 +1081,7 @@
             "Field": "OurReference"
         }, {
             "FieldSetColumn": 2,
-            "Header": "Deres ref",
+            "Header": "Deres referanse",
             "Field": "YourReference"
         }, {
             "FieldSetColumn": 2,
@@ -1035,20 +1100,20 @@
     "CountExpand": "Customer.Info,CurrencyCode,DefaultSeller",
     "OrderBy": "ID DESC",
     "Columns": [{
-            "Header": "Ordrenr",
+            "Header": "Ordrenr.",
             "Field": "OrderNumber",
             "Alias": "OrderNumber",
             "Placeholder": "Kladd",
-            "Width": "8rem",
+            "Width": "6rem",
             "Type": "Link",
             "FilterOperator": "startswith"
         }, {
-            "Header": "Kundenr",
+            "Header": "Kundenr.",
             "Field": "Customer.CustomerNumber",
             "Type": "Link",
             "LinkNavigationProperty": "Customer.ID",
             "ExternalModel": "Customer",
-            "Width": "8rem",
+            "Width": "6rem",
             "FilterOperator": "startswith"
         }, {
             "Header": "Kundenavn",
@@ -1067,19 +1132,26 @@
             "Width": "100px",
             "DefaultHidden": true
         }, {
-            "Header": "Valuta",
-            "Field": "CurrencyCode.Code",
-            "Width": "70px",
+            "Header": "Vår referanse",
+            "Field": "OurReference"
+        }, {
+            "Header": "Deres referanse",
+            "Field": "YourReference",
             "DefaultHidden": true
         }, {
-            "Header": "Sum inkl mva",
+            "Header": "Valuta",
+            "Field": "CurrencyCode.Code",
+            "Width": "65px",
+            "DefaultHidden": true
+        }, {
+            "Header": "Sum inkl. mva",
             "Field": "TaxInclusiveAmountCurrency",
             "Format": "NumberPositiveNegative",
-            "Width": "125px",
+            "Width": "120px",
             "FilterOperator": "gt",
             "SumColumn": true
         }, {
-            "Header": "Sum inkl mva [BASECURRENCY]",
+            "Header": "Sum inkl. mva [BASECURRENCY]",
             "Field": "TaxInclusiveAmount",
             "Format": "NumberPositiveNegative",
             "DefaultHidden": true,
@@ -1089,24 +1161,16 @@
             "Field": "sum(casewhen(items.statuscode eq 41102\\,items.SumTotalIncVatCurrency\\,0))",
             "Alias": "Restsum",
             "Format": "NumberPositiveNegative",
-            "Width": "125px",
+            "Width": "120px",
             "FilterOperator": "gt"
         }, {
-            "Header": "Vår ref",
-            "Field": "OurReference",
-            "DefaultHidden": true
-        }, {
-            "Header": "Deres ref",
-            "Field": "YourReference",
-            "DefaultHidden": true
-        },{
             "Header": "Hovedselger",
             "Field": "DefaultSeller.Name",
             "DefaultHidden": true
         }, {
             "Header": "Status",
             "Field": "StatusCode",
-            "Width": "155px"
+            "Width": "125px"
         }, {
             "Header": "Utskrift",
             "Field": "PrintStatus",
@@ -1147,7 +1211,7 @@
                 "Transition": "complete"
             }
         }, {
-            "Name": "Send på epost",
+            "Name": "Send på e-post",
             "Code": "order_sendemail",
             "Type": "details",
             "DisplayInContextMenu": true,
@@ -1286,13 +1350,16 @@
     "Filters": [],
     "ReadOnlyCases": [{"Key": "CustomerOrderItemStatusCode", "Value": 41103}],
     "Columns": [{
-            "Header": "Produkt/tekst",
+            "Header": "Nr.",
+            "Field": "SortIndex",
+            "DefaultHidden": true
+        }, {
+            "Header": "Vare",
             "Field": "Product.PartName",
             "Width": "250px",
             "SubFields": [{
-                    "Field": "ItemText"
-                }
-            ]
+                "Field": "ItemText"
+            }]
         }, {
             "Header": "Antall",
             "Field": "NumberOfItems"
@@ -1300,7 +1367,18 @@
             "Header": "Enhet",
             "Field": "Unit"
         }, {
-            "Header": "Mvakode",
+            "Header": "Pris",
+            "Field": "PriceExVatCurrency",
+            "DefaultHidden": true
+        }, {
+            "Header": "Konto",
+            "Field": "Account.AccountNumber",
+            "SubFields": [{
+                "Field": "Account.AccountName"
+            }],
+            "DefaultHidden": true
+        }, {
+            "Header": "Mva-kode",
             "Field": "VatType.VatPercent",
             "Type": "percent",
             "SubFields": [{
@@ -1308,17 +1386,45 @@
                 }
             ]
         }, {
+            "Header": "Oppgave",
+            "Field": "Dimensions.ProjectTask.Name",
+            "DefaultHidden": true
+        }, {
             "Header": "Rabatt %",
             "Field": "DiscountPercent",
             "Type": "percent"
         }, {
-            "Header": "Sum inkl mva",
-            "Field": "SumTotalIncVat",
-            "Format": "NumberPositiveNegative",
-            "Width": "150px"
+            "Header": "Rabatt",
+            "Field": "DiscountCurrency",
+            "DefaultHidden": true
         }, {
-            "Header": "Status",
-            "Field": "StatusCode"
+            "Header": "Prosjekt",
+            "Field": "Dimensions.Project.ProjectNumber",
+            "SubFields": [{
+                "Field": "Dimensions.Project.Name"
+            }],
+            "DefaultHidden": true
+        }, {
+            "Header": "Avdeling",
+            "Field": "Dimensions.Department.DepartmentNumber",
+            "SubFields": [{
+                "Field": "Dimensions.Department.Name"
+            }],
+            "DefaultHidden": true
+        }, {
+            "Header": "Netto",
+            "Field": "SumTotalExVatCurrency",
+            "DefaultHidden": true
+        }, {
+            "Header": "Mva",
+            "Field": "SumVatCurrency",
+            "DefaultHidden": true
+        }, {
+            "Header": "Sum inkl. mva",
+            "Field": "SumTotalIncVatCurrency",
+            "Format": "NumberPositiveNegative",
+            "Width": "120px",
+            "SumColumn": true
         }
     ]
 }, {
@@ -1328,7 +1434,7 @@
     "IsTopLevelTicker": false,
     "Group": "Salg",
     "Model": "CustomerOrder",
-    "Expand": "Customer.Info,CurrencyCode",
+    "Expand": "",
     "SubTickers": [],
     "Filters": [],
     "UseParentTickerActions": true,
@@ -1339,7 +1445,7 @@
     },
     "Columns": [{
             "FieldSetColumn": 1,
-            "Header": "Ordrenr",
+            "Header": "Ordrenr.",
             "Field": "OrderNumber",
             "Alias": "OrderNumber",
             "Type": "link"
@@ -1349,7 +1455,7 @@
             "Field": "StatusCode"
         }, {
             "FieldSetColumn": 1,
-            "Header": "Kundenummer",
+            "Header": "Kundenr.",
             "Field": "Customer.CustomerNumber",
             "SubFields": [{
                 "Field": "CustomerID",
@@ -1389,7 +1495,7 @@
             "Format": "DatePassed"
         }, {
             "FieldSetColumn": 2,
-            "Header": "Sum inkl mva",
+            "Header": "Sum inkl. mva",
             "Field": "TaxInclusiveAmountCurrency"
         }, {
             "FieldSetColumn": 2,
