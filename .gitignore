@@ -243,8 +243,8 @@ fabric.properties
 
 ./typings
 dll/
-src/**/*.js
 src/**/*.map
+src/raygun-setup.js
 node_modules/
 dist/
 jspm_packages

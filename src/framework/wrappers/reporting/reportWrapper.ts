@@ -19,7 +19,7 @@ export class StimulsoftReportWrapper {
             return new Promise(resolve => {
                 const script: any = document.createElement('script');
                 script.type = 'text/javascript';
-                script.src = 'stimulsoft.reports.js?v=' + APP_METADATA.APP_VERSION;
+                script.src = 'assets/stimulsoft.reports.js?v=' + APP_METADATA.APP_VERSION;
 
                 if (script.readyState) { // IE
                     script.onreadystatechange = () => {
