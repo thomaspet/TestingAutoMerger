@@ -107,13 +107,12 @@ export class BureauCompanyTab implements AfterViewInit, OnDestroy {
         }
     }
 
-    public getCompanySettings(companyKey: string): Observable<Company> {
+    public getCompanySettings(companyKey: string): Observable<CompanySettings> {
         return this.customHttpService.get(
             `${BASE}/api/biz/${CompanySettings.EntityType}/1`
             + `?expand=DefaultAddress,DefaultEmail,DefaultPhone,CompanyBankAccount`,
             companyKey
-        )
-            .map(response => response.json());
+        ).map(response => response.json());
     }
 
     public getNumberOfUsersInCompany(companyKey: string): Observable<number> {
