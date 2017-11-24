@@ -251,8 +251,8 @@ export class WorkRelation extends UniEntity {
     public WorkerID: number;
     public WorkPercentage: number;
     public WorkProfileID: number;
-    public Worker: Worker;
     public WorkProfile: WorkProfile;
+    public Worker: Worker;
     public Employment: Employment;
     public Items: Array<WorkItem>;
     public Team: Team;
@@ -5305,9 +5305,9 @@ export class WorkBalanceDto extends UniEntity {
     public ValidFrom: Date;
     public ValidTimeOff: number;
     public WorkRelationID: number;
+    public WorkRelation: WorkRelation;
     public Previous: BalanceInfo;
     public Details: Array<FlexDetail>;
-    public WorkRelation: WorkRelation;
     public CustomFields: any;
 }
 
@@ -5653,6 +5653,12 @@ export class FieldsChanged extends UniEntity {
 }
 
 
+export class CreateCompanyDetails extends UniEntity {
+    public CompanyName: string;
+    public LicenseKey: string;
+}
+
+
 export class UserDto extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'UserDto';
@@ -5704,6 +5710,7 @@ export class ContractLicenseType extends UniEntity {
     public TypeID: number;
     public TypeName: string;
 }
+
 
 export class ActiveNumberSeriesTask extends UniEntity {
     public NumberSeriesTask: NumberSeriesTask;
