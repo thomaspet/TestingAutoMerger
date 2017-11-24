@@ -36,6 +36,7 @@ const SALARYBALANCES_KEY = 'salarybalances';
 const EMPLOYEE_LEAVE_KEY = 'employeeLeave';
 const EMPLOYEE_KEY = 'employee';
 const SUB_ENTITIES_KEY = 'subEntities';
+const SAVING_KEY = 'viewSaving';
 type DirtyStatuses = {
     employee?: boolean,
     employeeTaxCard?: boolean,
@@ -897,11 +898,13 @@ export class EmployeeDetails extends UniView implements OnDestroy {
     }
 
     private saveAllObs(done: (message: string) => void, refreshEmp: boolean = true): Observable<any[]> {
+        super.updateState(SAVING_KEY, true, false);
         return this.saveEmployee()
             .catch((error, obs) => {
                 done('Feil ved lagring');
                 return this.errorService.handleRxCatch(error, obs);
             })
+            .finally(() => super.updateState(SAVING_KEY, false, false))
             .switchMap(
             (employee) => {
 
@@ -1212,6 +1215,7 @@ export class EmployeeDetails extends UniView implements OnDestroy {
                                 })
                                 .map(
                                 (res: SalaryBalance) => {
+                                    res.Transactions = [];
                                     salarybalances[index] = res;
                                     return res;
                                 });

@@ -1,11 +1,11 @@
 <article *ngIf="salaryBalance">
     <small *ngIf="showDescriptionText">{{ description$ | async }}</small>
-    <input type="checkbox" class="toggle"
-        [placeholder]="'Vis alle poster'"
-        [checked]="showAllLines"
-    />
-    <label (click)="toggleShowAllLines()" class="toggle" tabindex="-1">
-        Vis alle poster
-    </label>
-    <uni-table [resource]="tableModel$ | async" [config]="tableConfig" class="salaryBalanceSummaryTable"></uni-table>
+    <header>
+        <input type="checkbox" class="toggle" [placeholder]="'Vis alle poster'" [checked]="showAllLines" />
+        <label (click)="toggleShowAllLines()" class="toggle" tabindex="-1">
+            Vis alle poster
+        </label>
+        <button (click)="activateEditMode()">Legg til manuell post</button>
+    </header>
+    <uni-table [attr.aria-busy]="busy && !!editMode" [resource]="tableModel$ | async" [config]="tableConfig" class="salaryBalanceSummaryTable"></uni-table>
 </article>

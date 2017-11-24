@@ -10,7 +10,7 @@ import {ReplaySubject} from 'rxjs/ReplaySubject';
 import {Observable} from 'rxjs/Observable';
 import {UniFieldLayout, UniForm} from '../../../../../framework/ui/uniform/index';
 import {
-    SalaryBalance, SalBalType, WageType, Employee, Supplier, StdWageType
+    SalaryBalance, SalBalType, WageType, Employee, Supplier, StdWageType, SalaryBalanceLine
 } from '../../../../unientities';
 import {
     ToastService, ToastType, ToastTime
@@ -25,6 +25,8 @@ type UniFormTabEvent = {
     next: UniFieldLayout
 };
 
+const SAVING_KEY = 'viewSaving';
+
 @Component({
     selector: 'salarybalance-details',
     templateUrl: './salarybalanceDetails.html'
@@ -34,7 +36,7 @@ export class SalarybalanceDetail extends UniView {
     private wagetypes: WageType[];
     private employees: Employee[];
     private suppliers: Supplier[];
-    
+
     private invalidKID: boolean;
     private cachedSalaryBalance$: ReplaySubject<SalaryBalance> = new ReplaySubject<SalaryBalance>(1);
     private lastChanges$: BehaviorSubject<SimpleChanges> = new BehaviorSubject({});
@@ -45,6 +47,7 @@ export class SalarybalanceDetail extends UniView {
     public fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
     public unlinkedFiles: Array<number> = [];
     public collapseSummary: boolean = false;
+    public summaryBusy$: BehaviorSubject<boolean> = new BehaviorSubject(false);
 
     @ViewChild(UniImage) public uniImage: UniImage;
     @ViewChild(UniForm) public form: UniForm;
@@ -73,6 +76,8 @@ export class SalarybalanceDetail extends UniView {
                 this.subscriptions.forEach(sub => sub.unsubscribe());
                 super.updateCacheKey(router.url);
                 this.invalidKID = false;
+                super.getStateSubject(SAVING_KEY)
+                    .subscribe(isSaving => this.summaryBusy$.next(isSaving));
             })
             .switchMap(params => this.getStateSubject('salarybalance'))
             .subscribe(salaryBalance => this.cachedSalaryBalance$.next(salaryBalance));
@@ -161,17 +166,21 @@ export class SalarybalanceDetail extends UniView {
             })
             .do(() => this.lastChanges$.next(changes))
             .subscribe((model: SalaryBalance) => {
-                this.salarybalanceChange.emit(model);
-                if (this.useExternalChangeDetection === false) {
-                    super.updateState('salarybalance', model, true);
-                } 
-                else {
+                this.updateSalaryBalance(model);
+                if (this.useExternalChangeDetection) {
                     if (changes['InstalmentType']) {
                         this.refreshLayout(model)
                             .subscribe();
                     }
                 }
             });
+    }
+
+    private updateSalaryBalance(model: SalaryBalance) {
+        this.salarybalanceChange.emit(model);
+        if (this.useExternalChangeDetection === false) {
+            super.updateState('salarybalance', model, true);
+        }
     }
 
     public onImageClicked(file) {
@@ -310,5 +319,21 @@ export class SalarybalanceDetail extends UniView {
         }
 
         return salarybalance;
+    }
+
+    public onSummaryChanges(salaryBalanceLines: SalaryBalanceLine[]) {
+        let obs = this.useExternalChangeDetection ? this.salarybalance$ : this.cachedSalaryBalance$;
+        obs
+            .asObservable()
+            .take(1)
+            .map(salaryBalance => {
+                salaryBalance.Transactions = salaryBalance.Transactions || [];
+                salaryBalance.Transactions = [
+                    ...salaryBalance.Transactions.filter(line => !!line.ID),
+                    ...salaryBalanceLines, ];
+
+                return salaryBalance;
+            })
+            .subscribe(salaryBalance => this.updateSalaryBalance(salaryBalance));
     }
 }

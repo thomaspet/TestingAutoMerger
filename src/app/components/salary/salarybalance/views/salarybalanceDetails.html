@@ -11,7 +11,7 @@
             <article class="collapsable" [ngClass]="{'-is-open': !collapseSummary}">
             <h4 (click)="collapseSummary = !collapseSummary">Poster</h4>
             <div class="collapsable-content">
-                <salary-balance-summary [salaryBalance]="salarybalance$ | async"></salary-balance-summary>
+                <salary-balance-summary [salaryBalance]="salarybalance$ | async" [busy]="summaryBusy$ | async" (changeEvent)="onSummaryChanges($event)"></salary-balance-summary>
             </div>
         </article>
         </aside>

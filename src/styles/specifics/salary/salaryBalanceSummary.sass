@@ -1,0 +1,29 @@
+salary-balance-summary
+    header
+        display: flex
+        align-items: center
+        margin-bottom: .3rem
+        $salaryBalanceFilterOffset: 5.7rem
+
+        input[type=checkbox]
+            & + label
+                &:before
+                    left: calc(#{$labelLength} - #{$salaryBalanceFilterOffset} - .3rem)
+                &:after
+                    left: calc(#{$labelLength} - #{$salaryBalanceFilterOffset} + .3rem)
+
+            & + label.toggle
+                width: 12rem
+                &:after
+                    left: calc(#{$labelLength} - #{$salaryBalanceFilterOffset})
+
+            &:checked + label.toggle
+                &:after
+                    left: calc(#{$labelLength} - #{$salaryBalanceFilterOffset} + 1.6rem)
+
+        input[type=checkbox]+label
+            padding-top: 0
+            padding-bottom: 0
+            padding-right: 0
+            margin-left: 0
+
