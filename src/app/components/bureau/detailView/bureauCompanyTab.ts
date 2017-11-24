@@ -7,7 +7,7 @@ import {
     OnDestroy
 } from '@angular/core';
 import {KpiCompany} from '../kpiCompanyModel';
-import {AppConfig} from '../../../AppConfig';
+import {environment} from 'src/environments/environment';
 import {BureauCustomHttpService} from '../bureauCustomHttpService';
 import {YearService} from '../../../services/common/yearService';
 import {Observable} from 'rxjs/Observable';
@@ -18,8 +18,8 @@ import {UniFilesService} from '../../../services/common/uniFilesService';
 import {ErrorService} from '../../../services/common/errorService';
 import {BureauCurrentCompanyService} from '../bureauCurrentCompanyService';
 
-const BASE = AppConfig.BASE_URL;
-const FILE_BASE = AppConfig.BASE_URL_FILES;
+const BASE = environment.BASE_URL;
+const FILE_BASE = environment.BASE_URL_FILES;
 
 @Component({
     selector: 'uni-bureau-company-tab',

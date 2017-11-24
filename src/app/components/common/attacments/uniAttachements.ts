@@ -5,7 +5,7 @@ import {UniHttp} from '../../../../framework/core/http/http';
 import {AuthService} from '../../../authService';
 import {FileService, ErrorService, UniFilesService} from '../../../services/services';
 import {ImageUploader} from '../../../../framework/uniImage/imageUploader';
-import {AppConfig} from '../../../AppConfig';
+import {environment} from 'src/environments/environment';
 import {ImageModal} from '../modals/ImageModal';
 import {UniImageSize} from '../../../../framework/uniImage/uniImage';
 import {UniModalService} from '../../../../framework/uniModal/barrel';
@@ -77,7 +77,7 @@ export class UniAttachments {
     @Output()
     public fileUploaded: EventEmitter<File> = new EventEmitter<File>();
 
-    private baseUrl: string = AppConfig.BASE_URL_FILES;
+    private baseUrl: string = environment.BASE_URL_FILES;
 
     private token: any;
     private activeCompany: any;

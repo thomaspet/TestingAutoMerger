@@ -6,7 +6,7 @@ import {UniHttp} from '../../../framework/core/http/http';
 import {SendEmail} from '../../models/sendEmail';
 import {ToastService, ToastType} from '../../../framework/uniToast/toastService';
 import {ErrorService} from '../common/errorService';
-import {AppConfig} from '../../AppConfig';
+import {environment} from 'src/environments/environment';
 
 @Injectable()
 export class EmailService extends BizHttp<Email> {
@@ -47,7 +47,7 @@ export class EmailService extends BizHttp<Email> {
 
             parameters.push({
                 Name: 'LogoUrl',
-                value: AppConfig.BASE_URL_FILES
+                value: environment.BASE_URL_FILES
                     + 'api/image/?key='
                     + this.http.authService.getCompanyKey() + '&id=logo'
             });

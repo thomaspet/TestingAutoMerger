@@ -7,7 +7,7 @@ import {
     OnDestroy
 } from '@angular/core';
 import {KpiCompany} from '../kpiCompanyModel';
-import {AppConfig} from '../../../AppConfig';
+import {environment} from 'src/environments/environment';
 import {BureauCustomHttpService} from '../bureauCustomHttpService';
 import {YearService} from '../../../services/common/yearService';
 import {Observable} from 'rxjs/Observable';
@@ -18,7 +18,7 @@ import {ErrorService} from '../../../services/common/errorService';
 import {UserService} from '../../../services/common/userService';
 import {BureauCurrentCompanyService} from '../bureauCurrentCompanyService';
 
-const BASE = AppConfig.BASE_URL;
+const BASE = environment.BASE_URL;
 
 @Component({
     selector: 'uni-bureau-task-tab',
@@ -33,7 +33,7 @@ const BASE = AppConfig.BASE_URL;
                 Faktura
                 <a href="#" (click)="navigateToCompanyUrl('/assignments/approvals')">{{viewData[2]}}</a>
             </p>
-            
+
             <p>
                 Timer
                 <a href="#" (click)="navigateToCompanyUrl('/assignments/approvals')">{{viewData[3]}}</a>
@@ -48,7 +48,7 @@ const BASE = AppConfig.BASE_URL;
                 Fakturainnboks
                 <a href="#" (click)="navigateToCompanyUrl('/accounting/bills?filter=ForApproval')">{{viewData[0]}}</a>
             </p>
-            
+
             <p>
                 Godkjente faktura
                 <a href="#" (click)="navigateToCompanyUrl('/accounting/bills?filter=Approved')">{{viewData[1]}}</a>

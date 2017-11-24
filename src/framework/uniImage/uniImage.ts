@@ -14,7 +14,7 @@ import {File} from '../../app/unientities';
 import {UniHttp} from '../core/http/http';
 import {AuthService} from '../../app/authService';
 import {Observable} from 'rxjs/Observable';
-import {AppConfig} from '../../app/AppConfig';
+import {environment} from 'src/environments/environment';
 import {ErrorService, FileService, UniFilesService} from '../../app/services/services';
 import {UniModalService, ConfirmActions} from '../uniModal/barrel';
 import {UniPrintModal} from '../../app/components/reports/modals/print/printModal';
@@ -160,7 +160,7 @@ export class UniImage {
 
     public imageIsLoading: boolean = true;
 
-    private baseUrl: string = AppConfig.BASE_URL_FILES;
+    private baseUrl: string = environment.BASE_URL_FILES;
 
     private token: any;
     private activeCompany: any;

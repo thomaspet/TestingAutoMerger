@@ -1,12 +1,12 @@
 import {Injectable} from '@angular/core';
 import {Http, Headers, RequestOptions} from '@angular/http';
-import {AppConfig} from '../../AppConfig';
+import {environment} from 'src/environments/environment';
 import {AuthService} from '../../authService';
 import {Observable} from 'rxjs/Observable';
 
 @Injectable()
 export class UniFilesService {
-    private uniFilesBaseUrl: string = AppConfig.BASE_URL_FILES;
+    private uniFilesBaseUrl: string = environment.BASE_URL_FILES;
     private uniFilesToken: string;
     private activeCompany: any;
 

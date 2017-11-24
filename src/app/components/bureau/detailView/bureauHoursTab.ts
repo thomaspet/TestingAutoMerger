@@ -7,7 +7,7 @@ import {
     AfterViewInit
 } from '@angular/core';
 import {KpiCompany} from '../kpiCompanyModel';
-import {AppConfig} from '../../../AppConfig';
+import {environment} from 'src/environments/environment';
 import {BureauCustomHttpService} from '../bureauCustomHttpService';
 import {YearService} from '../../../services/common/yearService';
 import {Observable} from 'rxjs/Observable';
@@ -17,7 +17,7 @@ import {AuthService} from '../../../authService';
 import {BureauCurrentCompanyService} from '../bureauCurrentCompanyService';
 import {ErrorService} from '../../../services/common/errorService';
 
-const BASE = AppConfig.BASE_URL;
+const BASE = environment.BASE_URL;
 
 @Component({
     selector: 'uni-bureau-hours-tab',
