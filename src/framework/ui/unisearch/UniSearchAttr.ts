@@ -11,8 +11,8 @@ import {
     ChangeDetectorRef,
     SimpleChanges
 } from '@angular/core';
-import html from './UniSearchAttrHtml';
-import css from './UniSearchAttrCss';
+// import html from './UniSearchAttrHtml';
+// import css from './UniSearchAttrCss';
 import {IUniSearchConfig} from './IUniSearchConfig';
 import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/observable/fromEvent';
@@ -35,8 +35,8 @@ declare const module;
 
 @Component({
     selector: '[uni-search-attr]',
-    template: html,
-    styles: [css],
+    templateUrl: './uniSearchAttr.html',
+    styleUrls: ['./uniSearchAttr.sass'],
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class UniSearchAttr implements OnInit, OnChanges {

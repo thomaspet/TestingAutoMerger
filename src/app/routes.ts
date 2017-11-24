@@ -8,17 +8,6 @@ import {UniInit} from './components/init/init';
 import {initRoutes} from './components/init/init.routes';
 import {bureauRoutes} from './components/bureau/bureauRoutes';
 
-// Anything in this const will not be permission checked in route guard
-// see authService.canActivateRoute()
-export const PUBLIC_ROUTES = [
-    'init',
-    'bureau',
-    'about',
-    'assignments',
-    'tickers',
-    'uniqueries'
-];
-
 const routes = [
     {
         path: '',
@@ -39,7 +28,7 @@ const routes = [
     // Lazy loaded modules
     {
         path: 'accounting',
-        loadChildren: './components/accounting/AccountingModule#AccountingModule',
+        loadChildren: './components/accounting/accountingModule#AccountingModule',
     },
     {
         path: 'salary',

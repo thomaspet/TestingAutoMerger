@@ -8,7 +8,7 @@ import {View as RelationsSubView} from './relations';
 import {View as BalancesSubView} from './balances';
 import {UniModules} from '../../layout/navbar/tabstrip/tabService';
 
-export var view = new View('workers', 'Person', 'WorkerDetailview', true, '', WorkerDetailview);
+export var view = new View('workers', 'Person', 'WorkerDetailview', true, '');
 
 @Component({
     selector: view.name,
@@ -116,5 +116,6 @@ export class WorkerDetailview {
             ]
         };
     }
-
 }
+
+view.component = WorkerDetailview;

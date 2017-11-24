@@ -1,7 +1,6 @@
 import {NgModule} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
-import {COMPILER_PROVIDERS} from '@angular/compiler';
 import {AppPipesModule} from '../../../app/pipes/appPipesModule';
 
 import {UniTable} from './unitable';
@@ -72,7 +71,6 @@ import {ColumnMenuModal} from './columnMenu/columnMenuModal';
         ColumnMenuModal
     ],
     providers: [
-        COMPILER_PROVIDERS,
         UniTableUtils,
         DateUtil,
         UniTablePipe

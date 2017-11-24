@@ -7,7 +7,7 @@ import {GenericDetailview} from '../genericview/detail';
 import {SYSTEMTYPES} from '../../common/utils/pipes';
 import {UniModules} from '../../layout/navbar/tabstrip/tabService';
 
-export var view = new View('worktypes', 'Timeart', 'WorktypeDetailview', true, '', WorktypeDetailview);
+export var view = new View('worktypes', 'Timeart', 'WorktypeDetailview', true, '');
 
 var defaultSystemType = 1; // 1 - Hours (default)
 
@@ -61,5 +61,6 @@ export class WorktypeDetailview {
 
         return layout;
     }
-
 }
+
+view.component = WorktypeDetailview;

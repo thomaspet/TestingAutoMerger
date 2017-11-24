@@ -16,7 +16,7 @@ import {UniForm} from '../../../../framework/ui/uniform/index';
 import {IContextMenuItem} from '../../../../framework/ui/unitable/index';
 import {IToolbarConfig, IToolbarSearchConfig} from '../../common/toolbar/toolbar';
 import {IUniTagsConfig, ITag} from '../../common/toolbar/tags';
-import {UniStatusTrack} from '../../common/toolbar/statustrack';
+import {IStatus, STATUSTRACK_STATES} from '../../common/toolbar/statustrack';
 import {ToastService, ToastType, ToastTime} from '../../../../framework/uniToast/toastService';
 import {SalaryTransactionSelectionList} from '../salarytrans/salarytransactionSelectionList';
 import {UniView} from '../../../../framework/core/uniView';
@@ -767,18 +767,18 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
 
     public getStatustrackConfig() {
         let statuses: string[] = ['Opprettet', 'Avregnet', 'Bokført'];
-        let statustrack: UniStatusTrack.IStatus[] = [];
+        let statustrack: IStatus[] = [];
         let activeIndex = statuses.indexOf(this.payStatus);
 
         statuses.forEach((status, i) => {
-            let _state: UniStatusTrack.States;
+            let _state: STATUSTRACK_STATES;
 
             if (i > activeIndex) {
-                _state = UniStatusTrack.States.Future;
+                _state = STATUSTRACK_STATES.Future;
             } else if (i < activeIndex) {
-                _state = UniStatusTrack.States.Completed;
+                _state = STATUSTRACK_STATES.Completed;
             } else if (i === activeIndex) {
-                _state = UniStatusTrack.States.Active;
+                _state = STATUSTRACK_STATES.Active;
             }
 
             statustrack[i] = {

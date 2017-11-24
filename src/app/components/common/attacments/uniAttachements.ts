@@ -201,7 +201,7 @@ export class UniAttachments {
             data.append('EntityID', this.entityID.toString());
         }
         data.append('Caption', ''); // where should we get this from the user?
-        data.append('File', file);
+        data.append('File', <any> file);
 
         this.ngHttp.post(this.baseUrl + '/api/file', data)
             .map(res => res.json())

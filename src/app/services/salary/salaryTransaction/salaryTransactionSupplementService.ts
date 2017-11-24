@@ -2,7 +2,7 @@ import {Injectable} from '@angular/core';
 import {BizHttp} from '../../../../framework/core/http/BizHttp';
 import {UniHttp} from '../../../../framework/core/http/http';
 import {SalaryTransactionSupplement, WageTypeSupplement, Valuetype} from '../../../unientities';
-import moment from 'moment';
+import * as moment from 'moment';
 
 @Injectable()
 export class SupplementService extends BizHttp<SalaryTransactionSupplement> {

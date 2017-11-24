@@ -8,8 +8,6 @@ import {ReplaySubject} from 'rxjs/ReplaySubject';
 import {Subject} from 'rxjs/Subject';
 import 'rxjs/add/operator/map';
 
-import {PUBLIC_ROUTES} from './routes';
-
 import * as $ from 'jquery';
 import * as jwt_decode from 'jwt-decode';
 
@@ -18,6 +16,15 @@ export interface IAuthDetails {
     activeCompany: any;
     user: User;
 }
+
+const PUBLIC_ROUTES = [
+    'init',
+    'bureau',
+    'about',
+    'assignments',
+    'tickers',
+    'uniqueries'
+];
 
 @Injectable()
 export class AuthService {

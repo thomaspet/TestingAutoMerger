@@ -1,35 +1,26 @@
 {
-    "compilerOptions": {
-        "target": "es5",
-        "module": "commonjs",
-        "moduleResolution": "node",
-        "emitDecoratorMetadata": true,
-        "experimentalDecorators": true,
-        "allowSyntheticDefaultImports": true,
-        "sourceMap": true,
-        "noEmit": true,
-        "strictNullChecks": false,
-        "lib": [
-            "dom",
-            "es6"
-        ],
-        "typeRoots": [
-            "node_modules/@types"
-        ]
-    },
-    "exclude": [
-        "node_modules",
-        "node_modules/@types/jquery/**",
-        "dist"
+  "compileOnSave": false,
+  "compilerOptions": {
+    "outDir": "./dist/out-tsc",
+    "sourceMap": true,
+    "declaration": false,
+    "moduleResolution": "node",
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "target": "es5",
+    "typeRoots": [
+      "node_modules/@types"
     ],
-    "awesomeTypescriptLoaderOptions": {
-        "forkChecker": true,
-        "useWebpackText": true,
-        "transpileOnly": true
-    },
-    "compileOnSave": false,
-    "buildOnSave": false,
-    "atom": {
-        "rewriteTsconfig": false
+    "lib": [
+      "es2017",
+      "dom"
+    ],
+    "baseUrl": "./",
+    "paths": {
+      "@uni-entities": ["src/unientities", "@uni-entities"],
+      "@app/*": ["src/app/*", "app/*"],
+      "@uni-framework/*": ["src/app/framework/*", "app/framework/*"],
+      "@uni-models/*": ["src/app/models/*", "app/models/*"]
     }
+  }
 }

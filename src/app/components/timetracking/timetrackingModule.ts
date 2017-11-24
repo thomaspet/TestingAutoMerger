@@ -33,7 +33,7 @@ import {DayBrowser} from './components/daybrowser';
 import {UniTimeModal} from './components/popupeditor';
 import {UniTemplateModal} from './components/newtemplatemodal';
 import {TeamworkReport} from './components/teamworkreport';
-import {ApproveDetails} from './components/approvedetails';
+// import {ApproveDetails} from './components/approvedetails';
 import {TimeApproveModal} from './components/popupapprove';
 import {UniFileImport} from './components/popupfileimport';
 import {PopupMenu} from './timeentry/timetable/popupmenu';
@@ -76,7 +76,9 @@ import {UniApproveTaskModal} from './timeentry/timetable/approvetaskmodal';
         UniTimeModal,
         UniTemplateModal,
         TeamworkReport,
-        ApproveDetails, TimeApproveModal, UniFileImport,
+        // ApproveDetails,
+        TimeApproveModal,
+        UniFileImport,
         ReportWorkflow,
         PopupMenu,
         UniApproveTaskModal

@@ -46,7 +46,7 @@ export enum TimeTrackingPeriodes {
     Everything
 }
 
-export var view = new View('timeentry', 'Timer', 'TimeEntry', false, '', TimeEntry);
+export var view = new View('timeentry', 'Timer', 'TimeEntry', false, '');
 
 @Component({
     selector: view.name,

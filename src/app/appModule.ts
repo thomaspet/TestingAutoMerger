@@ -1,6 +1,5 @@
-/// <reference path="../../typings/index.d.ts" />
 /// <reference path='../../node_modules/immutable/dist/immutable.d.ts' />
-
+import './rxjs.imports';
 import {enableProdMode, NgModule, ErrorHandler} from '@angular/core';
 import {HashLocationStrategy, LocationStrategy} from '@angular/common';
 import {platformBrowserDynamic} from '@angular/platform-browser-dynamic';
@@ -8,7 +7,6 @@ import {BrowserModule} from '@angular/platform-browser';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {HttpModule} from '@angular/http';
 import {RouterModule} from '@angular/router';
-import {COMPILER_PROVIDERS} from '@angular/compiler';
 import {APP_ROUTES} from './routes';
 import {App} from './app';
 
@@ -33,7 +31,7 @@ import {AdminModule} from './components/admin/adminModule';
 import {CurrencyModule} from './components/currency/currencyModule';
 import {DimensionsModule} from './components/dimensions/dimensionsModule';
 import {UniTickerModule} from './components/uniticker/uniTickerModule';
-import {TranslationsModule} from './components/translations/module';
+// import {TranslationsModule} from './components/translations/module';
 import {WidgetModule} from './components/widgets/widgetModule';
 
 import {AssignmentsModule} from './components/assignments/assignmentsModule';
@@ -95,7 +93,7 @@ if (window.ENV === 'production') {
         CurrencyModule,
         DimensionsModule,
         UniTickerModule,
-        TranslationsModule,
+        // TranslationsModule,
         DashboardModule,
         BureauModule,
         MarketplaceModule,
@@ -112,7 +110,6 @@ if (window.ENV === 'production') {
         RoutePermissionGuard,
         CanDeactivateGuard,
         TabService,
-        COMPILER_PROVIDERS,
         ToastService,
         {provide: LocationStrategy, useClass: HashLocationStrategy},
         {provide: ErrorHandler, useClass: UniMicroAngularInternalErrorHandlerOverride}

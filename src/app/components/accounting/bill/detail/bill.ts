@@ -18,7 +18,7 @@ import {
     Project, Department, User, ApprovalStatus, Approval,
     UserRole
 } from '../../../../unientities';
-import {UniStatusTrack} from '../../../common/toolbar/statustrack';
+import {IStatus, STATUSTRACK_STATES} from '../../../common/toolbar/statustrack';
 import {IUniSaveAction} from '../../../../../framework/save/save';
 import {UniForm, FieldType, UniFieldLayout} from '../../../../../framework/ui/uniform/index';
 import {Location} from '@angular/common';
@@ -2438,20 +2438,20 @@ export class BillView {
 
     private getStatustrackConfig() {
         let current = this.current.getValue();
-        let statustrack: UniStatusTrack.IStatus[] = [];
+        let statustrack: IStatus[] = [];
         let activeStatus = current.StatusCode;
 
         this.supplierInvoiceService.statusTypes.forEach((status) => {
-            let _state: UniStatusTrack.States;
+            let _state: STATUSTRACK_STATES;
             let _addIt = status.isPrimary;
             if (status.Code > activeStatus) {
-                _state = UniStatusTrack.States.Future;
+                _state = STATUSTRACK_STATES.Future;
             } else if (status.Code < activeStatus) {
-                _state = UniStatusTrack.States.Completed;
+                _state = STATUSTRACK_STATES.Completed;
             } else if (status.Code === activeStatus) {
-                _state = UniStatusTrack.States.Active;
+                _state = STATUSTRACK_STATES.Active;
                 if (this.CurrentTask) {
-                    _state = UniStatusTrack.States.Obsolete;
+                    _state = STATUSTRACK_STATES.Obsolete;
                 }
                 _addIt = true;
             }

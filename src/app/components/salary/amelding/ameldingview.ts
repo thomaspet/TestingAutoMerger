@@ -7,7 +7,7 @@ import {AmeldingData} from '../../../unientities';
 import {IContextMenuItem} from '../../../../framework/ui/unitable/index';
 import {IUniSaveAction} from '../../../../framework/save/save';
 import {IToolbarConfig, IToolbarSearchConfig} from '../../common/toolbar/toolbar';
-import {UniStatusTrack} from '../../common/toolbar/statustrack';
+import {IStatus, STATUSTRACK_STATES} from '../../common/toolbar/statustrack';
 import {
     PayrollrunService,
     AMeldingService,
@@ -317,30 +317,30 @@ export class AMeldingView implements OnInit {
     }
 
     public getStatusTrackConfig() {
-        let statustrack: UniStatusTrack.IStatus[] = [];
+        let statustrack: IStatus[] = [];
         let activeStatus = this.currentAMelding ? (this.currentAMelding.status ? this.currentAMelding.status : 1) : 0;
         this._ameldingService.internalAmeldingStatus.forEach((amldStatus, indx) => {
-            let _state: UniStatusTrack.States;
-            let _substatuses: UniStatusTrack.IStatus[] = [];
+            let _state: STATUSTRACK_STATES;
+            let _substatuses: IStatus[] = [];
             if (amldStatus.Code > activeStatus) {
-                _state = UniStatusTrack.States.Future;
+                _state = STATUSTRACK_STATES.Future;
             } else if (amldStatus.Code < activeStatus) {
-                _state = UniStatusTrack.States.Completed;
+                _state = STATUSTRACK_STATES.Completed;
             } else if (amldStatus.Code === activeStatus) {
 
                 if (this.currentAMelding.ID === this.aMeldingerInPeriod[this.aMeldingerInPeriod.length - 1].ID) {
-                    _state = UniStatusTrack.States.Active;
+                    _state = STATUSTRACK_STATES.Active;
                 } else {
                     // If we're not on the last of the A-meldings in the period, we'll assume the data is obsolete.
-                    _state = UniStatusTrack.States.Obsolete;
+                    _state = STATUSTRACK_STATES.Obsolete;
                 }
 
                 this.aMeldingerInPeriod.forEach(amelding => {
                     _substatuses.push({
                         title: 'A-melding ' + amelding.ID,
                         state: amelding.ID === this.currentAMelding.ID
-                            ? UniStatusTrack.States.Active
-                            : UniStatusTrack.States.Obsolete,
+                            ? STATUSTRACK_STATES.Active
+                            : STATUSTRACK_STATES.Obsolete,
                         timestamp: amelding.UpdatedAt
                             ? new Date(<any> amelding.UpdatedAt)
                             : new Date(<any> amelding.CreatedAt),
@@ -353,7 +353,7 @@ export class AMeldingView implements OnInit {
             statustrack[indx] = {
                 title: amldStatus.Text,
                 state: _state,
-                badge: (_state === UniStatusTrack.States.Active || _state === UniStatusTrack.States.Obsolete)
+                badge: (_state === STATUSTRACK_STATES.Active || _state === STATUSTRACK_STATES.Obsolete)
                     && this.aMeldingerInPeriod.length > 1 ? this.aMeldingerInPeriod.length + '' : null,
                 substatusList: _substatuses
             };

@@ -126,7 +126,7 @@ export class UniSelect {
             }
             this.initialItem = this.selectedItem;
             this.searchable = (this.config.searchable || this.config.searchable === undefined);
-            this.searchControl.updateValueAndValidity('');
+            this.searchControl.setValue('');
             this.filteredItems = this.items;
             this.focusedIndex = this.filteredItems.indexOf(this.selectedItem);
 

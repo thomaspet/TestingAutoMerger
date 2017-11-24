@@ -5,7 +5,7 @@ import {UniTableColumn, UniTableColumnType, UniTableConfig} from '../../../../fr
 import {WorkTypeSystemTypePipe} from '../../common/utils/pipes';
 import {IViewConfig} from '../genericview/list';
 
-export var view = new View('worktypes', 'Timearter', 'WorktypeListview', false, 'worktype', WorktypeListview);
+export var view = new View('worktypes', 'Timearter', 'WorktypeListview', false, 'worktype');
 
 @Component({
     selector: view.name,
@@ -47,7 +47,6 @@ export class WorktypeListview {
             .setSearchable(true)
             .setColumns(cols);
     }
-
-
-
 }
+
+view.component = WorktypeListview;

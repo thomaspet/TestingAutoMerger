@@ -1,4 +1,3 @@
-/// <reference path="../../../../typings/modules/chart.js/index.d.ts" />
 import {Component, ViewChild} from '@angular/core';
 import {UniHttp} from '../../../framework/core/http/http';
 import {YearService} from '../../services/services';

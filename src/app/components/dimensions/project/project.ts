@@ -16,7 +16,7 @@ import {
 } from '../../../../framework/ui/unitable/index';
 import {IToolbarConfig, ICommentsConfig} from '../../common/toolbar/toolbar';
 import {IUniSaveAction} from '../../../../framework/save/save';
-import {UniStatusTrack} from '../../common/toolbar/statustrack';
+import {IStatus, STATUSTRACK_STATES} from '../../common/toolbar/statustrack';
 
 declare var _;
 
@@ -59,7 +59,7 @@ export class Project {
             action: (completeEvent) => setTimeout(this.saveProject(completeEvent)),
             main: true,
             disabled: false
-        }        
+        }
     ];
     private commentsConfig: ICommentsConfig;
 
@@ -71,7 +71,7 @@ export class Project {
         private route: ActivatedRoute,
         private toast: ToastService,
         private user: UserService,
-        private modalService: UniModalService) { 
+        private modalService: UniModalService) {
 
         this.init();
     }
@@ -103,10 +103,10 @@ export class Project {
         ];
         this.setUpTable();
 
-        this.user.getCurrentUser().subscribe( user => { 
-            this.currentUser = user; 
-            this.initFilters(user); 
-        });        
+        this.user.getCurrentUser().subscribe( user => {
+            this.currentUser = user;
+            this.initFilters(user);
+        });
 
         this.initDefaultActions();
 
@@ -117,9 +117,9 @@ export class Project {
                     .Get(this.activeProjectID, ['ProjectTasks.ProjectTaskSchedules', 'ProjectResources'])
                     .subscribe(project => {
                         this.toolbarconfig.title = trimLength(project.Name, 40, true);
-                        this.toolbarconfig.subheads = [ 
+                        this.toolbarconfig.subheads = [
                             { title: project.ProjectNumber ? `prosjekt nr. ${project.ProjectNumber}` : '' },
-                        ]; 
+                        ];
                         this.projectService.currentProject.next(project);
                         this.updateToolbar();
                     }, error => this.newProject());
@@ -148,18 +148,18 @@ export class Project {
         });
     }
 
-    private buildStatusTrack(current: ProjectModel): Array<UniStatusTrack.IStatus> {
-        var track: UniStatusTrack.IStatus[] = [];
+    private buildStatusTrack(current: ProjectModel): IStatus[] {
+        var track: IStatus[] = [];
         var defaultStatus = this.projectService.statusTypes[0].Code;
         var activeStatus = current ? current.StatusCode || defaultStatus : defaultStatus;
         this.projectService.statusTypes.forEach( status => {
-            var _state: UniStatusTrack.States;
+            var _state: STATUSTRACK_STATES;
             if (status.Code > activeStatus) {
-                _state = UniStatusTrack.States.Future;
+                _state = STATUSTRACK_STATES.Future;
             } else if (status.Code < activeStatus) {
-                _state = UniStatusTrack.States.Completed;
+                _state = STATUSTRACK_STATES.Completed;
             } else if (status.Code === activeStatus) {
-                _state = UniStatusTrack.States.Active;
+                _state = STATUSTRACK_STATES.Active;
             }
             if (status.isPrimary || status.Code === activeStatus) {
                 track.push({
@@ -174,7 +174,7 @@ export class Project {
 
     private initDefaultActions() {
         this.saveActions = this.rootActions;
-    }    
+    }
 
     private initFilters(user: { GlobalIdentity: string }) {
         this.filters.forEach( x => {
@@ -183,7 +183,7 @@ export class Project {
                     x.filter = `( StatusCode lt 42204 and ( CreatedBy eq '${user.GlobalIdentity}'`
                         + ` or UpdatedBy eq '${user.GlobalIdentity}' ))`;
                     break;
-            }            
+            }
         });
     }
 
@@ -225,7 +225,7 @@ export class Project {
     private setUpTable() {
         this.lookupFunction = (urlParams: URLSearchParams) => {
             urlParams = urlParams || new URLSearchParams();
-            urlParams.set('expand', 'ProjectTasks.ProjectTaskSchedules,ProjectResources');            
+            urlParams.set('expand', 'ProjectTasks.ProjectTaskSchedules,ProjectResources');
             return this.projectService.FindProjects(urlParams, this.currentFilter.filter)
                 .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
         };
@@ -316,9 +316,9 @@ export class Project {
         }
     }
 
-    private handleAction(key: string, label: string, href: string, 
+    private handleAction(key: string, label: string, href: string,
                          done?: (value?: string) => void, confirmed?: boolean) {
-                                 
+
         switch (key) {
             case 'DiscardProject':
             case 'CompleteProject':
@@ -332,13 +332,13 @@ export class Project {
                             }
                         });
                     return;
-                }            
+                }
         }
 
         this.busy = true;
         this.projectService.PostAction(this.activeProjectID, key)
             .finally( () => {
-                this.busy = false; 
+                this.busy = false;
                 done();
             })
             .subscribe( result => {
@@ -363,11 +363,11 @@ export class Project {
     }
 
     private mapActionLabel(name: string) {
-        var labels = { 
-            InitiateProject: 'Sett i tilbudsfase', 
-            StartProject: 'Sett som pågående', 
+        var labels = {
+            InitiateProject: 'Sett i tilbudsfase',
+            StartProject: 'Sett som pågående',
             CompleteProject: 'Avslutt prosjekt',
-            DiscardProject: 'Slett prosjekt' 
+            DiscardProject: 'Slett prosjekt'
         };
         return labels[name] || name;
     }
@@ -408,6 +408,6 @@ export class Project {
                 }
             }
         }
-    }    
+    }
 
 }

@@ -55,7 +55,7 @@ import {TradeHeaderCalculationSummary} from '../../../../models/sales/TradeHeade
 
 import {ISummaryConfig} from '../../../common/summary/summary';
 import {IToolbarConfig, ICommentsConfig, IShareAction} from '../../../common/toolbar/toolbar';
-import {UniStatusTrack} from '../../../common/toolbar/statustrack';
+import {IStatus, STATUSTRACK_STATES} from '../../../common/toolbar/statustrack';
 
 import {UniPreviewModal} from '../../../reports/modals/preview/previewModal';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
@@ -718,18 +718,18 @@ export class QuoteDetails {
     }
 
     private getStatustrackConfig() {
-        let statustrack: UniStatusTrack.IStatus[] = [];
+        let statustrack: IStatus[] = [];
         let activeStatus = this.quote ? (this.quote.StatusCode ? this.quote.StatusCode : 1) : 0;
 
         this.customerQuoteService.getFilteredStatusTypes(this.quote.StatusCode).forEach((status) => {
-            let _state: UniStatusTrack.States;
+            let _state: STATUSTRACK_STATES;
 
             if (status.Code > activeStatus) {
-                _state = UniStatusTrack.States.Future;
+                _state = STATUSTRACK_STATES.Future;
             } else if (status.Code < activeStatus) {
-                _state = UniStatusTrack.States.Completed;
+                _state = STATUSTRACK_STATES.Completed;
             } else if (status.Code === activeStatus) {
-                _state = UniStatusTrack.States.Active;
+                _state = STATUSTRACK_STATES.Active;
             }
 
             statustrack.push({

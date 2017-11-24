@@ -251,8 +251,8 @@ export class WorkRelation extends UniEntity {
     public WorkerID: number;
     public WorkPercentage: number;
     public WorkProfileID: number;
-    public WorkProfile: WorkProfile;
     public Worker: Worker;
+    public WorkProfile: WorkProfile;
     public Employment: Employment;
     public Items: Array<WorkItem>;
     public Team: Team;
@@ -2873,30 +2873,6 @@ export class EmailLog extends UniEntity {
 }
 
 
-export class Sharing extends UniEntity {
-    public static RelativeUrl = '';
-    public static EntityType = 'Sharing';
-
-    public _createguid: string;
-    public CreatedAt: Date;
-    public CreatedBy: string;
-    public Deleted: boolean;
-    public EntityID: number;
-    public EntityType: string;
-    public ExternalMessage: string;
-    public ExternalReference: string;
-    public From: string;
-    public ID: number;
-    public StatusCode: number;
-    public Subject: string;
-    public To: string;
-    public Type: SharingType;
-    public UpdatedAt: Date;
-    public UpdatedBy: string;
-    public CustomFields: any;
-}
-
-
 export class StatusLog extends UniEntity {
     public static RelativeUrl = 'statuslogs';
     public static EntityType = 'StatusLog';
@@ -3125,6 +3101,30 @@ export class Tracelink extends UniEntity {
     public SourceEntityName: string;
     public SourceInstanceID: number;
     public StatusCode: number;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public CustomFields: any;
+}
+
+
+export class Sharing extends UniEntity {
+    public static RelativeUrl = '';
+    public static EntityType = 'Sharing';
+
+    public _createguid: string;
+    public CreatedAt: Date;
+    public CreatedBy: string;
+    public Deleted: boolean;
+    public EntityID: number;
+    public EntityType: string;
+    public ExternalMessage: string;
+    public ExternalReference: string;
+    public From: string;
+    public ID: number;
+    public StatusCode: number;
+    public Subject: string;
+    public To: string;
+    public Type: SharingType;
     public UpdatedAt: Date;
     public UpdatedBy: string;
     public CustomFields: any;
@@ -5305,9 +5305,9 @@ export class WorkBalanceDto extends UniEntity {
     public ValidFrom: Date;
     public ValidTimeOff: number;
     public WorkRelationID: number;
-    public WorkRelation: WorkRelation;
     public Previous: BalanceInfo;
     public Details: Array<FlexDetail>;
+    public WorkRelation: WorkRelation;
     public CustomFields: any;
 }
 
@@ -5680,12 +5680,11 @@ export class UserLicense extends UniEntity {
     public Comment: string;
     public GlobalIdentity: string;
     public Name: string;
-    public Roles: string;
     public UserLicenseKey: string;
     public UserType: UserLicenseType;
     public Company: CompanyLicense;
     public ContractType: ContractLicenseType;
-    public Roles: IEnumerable`1;
+    public Roles: IEnumerable;
 }
 
 
@@ -5705,11 +5704,6 @@ export class ContractLicenseType extends UniEntity {
     public TypeID: number;
     public TypeName: string;
 }
-
-
-export class IEnumerable`1 extends UniEntity {
-}
-
 
 export class ActiveNumberSeriesTask extends UniEntity {
     public NumberSeriesTask: NumberSeriesTask;

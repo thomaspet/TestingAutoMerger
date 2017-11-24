@@ -8,7 +8,7 @@ import {ExternalSearch} from './externalSearch/externalSearch';
 import {UniFrameworkModule} from '../../../framework/frameworkModule';
 import {AltinnAuthenticationModal} from './modals/AltinnAuthenticationModal';
 import {UniBreadcrumbs} from './toolbar/breadcrumbs';
-import {UniStatusTrack} from './toolbar/statustrack';
+import {StatusTrack} from './toolbar/statustrack';
 import {UniTags} from './toolbar/tags';
 import {UniToolbar} from './toolbar/toolbar';
 import {UniToolbarHelp} from './toolbar/help';
@@ -58,7 +58,7 @@ import {routes as AppCommonRoutes} from './appCommonRoutes';
         AccrualModal,
         AltinnAuthenticationModal,
         UniBreadcrumbs,
-        UniStatusTrack.StatusTrack,
+        StatusTrack,
         UniToolbar,
         UniToolbarHelp,
         UniToolbarShare,
@@ -113,7 +113,7 @@ import {routes as AppCommonRoutes} from './appCommonRoutes';
         AccrualModal,
         AltinnAuthenticationModal,
         UniBreadcrumbs,
-        UniStatusTrack.StatusTrack,
+        StatusTrack,
         UniToolbar,
         UniQueryReadOnly,
         UniSummary,
