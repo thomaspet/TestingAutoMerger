@@ -20,10 +20,10 @@
     "build.prod": "npm run prebuild && ng build --env=prod --no-aot",
 
     "start": "npm run start.dev",
-    "start.dev": "npm run prebuild && ng serve --env=dev --proxy-config proxy/dev.proxy.json",
-    "start.test": "npm run prebuild && ng serve --env=test --proxy-config proxy/test.proxy.json",
-    "start.local": "npm run prebuild && ng serve --env=local --proxy-config proxy/local.proxy.json",
-    "start.pilot": "npm run prebuild && ng serve --env=pilot --proxy-config proxy/pilot.proxy.json"
+    "start.dev": "npm run prebuild && ng serve --port=3000 --env=dev --proxy-config proxy/dev.proxy.json",
+    "start.test": "npm run prebuild && ng serve --port=3000 --env=test --proxy-config proxy/test.proxy.json",
+    "start.local": "npm run prebuild && ng serve --port=3000 --env=local --proxy-config proxy/local.proxy.json",
+    "start.pilot": "npm run prebuild && ng serve --port=3000 --env=pilot --proxy-config proxy/pilot.proxy.json"
   },
 
   "private": true,
