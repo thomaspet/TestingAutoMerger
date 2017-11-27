@@ -39,7 +39,7 @@ export class UniSearchCustomerConfig {
 
     public generate(
         expands: string[] = ['Info.Addresses'],
-        newItemModalFn?: () => Observable<UniEntity>
+        newItemModalFn?: (supplierName?: string) => Observable<UniEntity>
     ): IUniSearchConfig {
         return <IUniSearchConfig>{
             lookupFn: searchTerm => this
@@ -47,6 +47,10 @@ export class UniSearchCustomerConfig {
                 .GetAllUnwrapped(this.generateCustomerStatisticsQuery(searchTerm))
                 .catch((err, obs) => this.errorService.handleRxCatch(err, obs)),
             onSelect: (selectedItem: CustomStatisticsResultItem) => {
+                if (!selectedItem) {
+                    return Observable.empty();
+                }
+
                 if (selectedItem.ID) {
                     return this.customerService.Get(selectedItem.ID, expands)
                         .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
@@ -82,7 +86,7 @@ export class UniSearchCustomerConfig {
 
     public generateDoNotCreate(
         expands: string[] = ['Info.Addresses'],
-        newItemModalFn?: () => Observable<UniEntity>
+        newItemModalFn?: (supplierName?: string) => Observable<UniEntity>
     ): IUniSearchConfig {
         return <IUniSearchConfig>{
             lookupFn: searchTerm => this

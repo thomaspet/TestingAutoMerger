@@ -263,6 +263,9 @@ export class CustomerDetails {
     }
 
     public previousCustomer() {
+        if (!this.customer$.value.ID) {
+            return this.toastService.addToast('Warning', ToastType.warn, 0, 'Ikke flere kunder før denne');
+        }
         this.customerService.getPreviousID(this.customerID ? this.customerID : 0)
             .subscribe(id => {
                     if (id) {
@@ -497,13 +500,6 @@ export class CustomerDetails {
 
     public extendFormConfig() {
         let fields: UniFieldLayout[] = this.fields$.getValue();
-
-        let customerSearchResult: UniFieldLayout = fields.find(x => x.Property === '_CustomerSearchResult');
-        customerSearchResult.Hidden = this.customerID > 0;
-
-
-        let customerName: UniFieldLayout = fields.find(x => x.Property === 'Info.Name');
-        customerName.Hidden = this.customerID === 0;
 
         let currencyCode: UniFieldLayout = fields.find(x => x.Property === 'CurrencyCodeID');
         currencyCode.Options = {
@@ -847,23 +843,23 @@ export class CustomerDetails {
     private getCustomerLookupOptions() {
         let uniSearchConfig = this.uniSearchCustomerConfig.generate(
             this.expandOptions,
-            () => {
+            (inputVal: string) => {
                 let customer = this.customer$.getValue();
-                const searchInfo = this.form.field('_CustomerSearchResult');
-                const cmp = searchInfo.component;
-                customer.Info.Name = cmp.input.value;
+                customer.Info.Name = inputVal;
                 if (!customer.Info.Name) {
                     customer.Info.Name = '';
                 }
                 this.customer$.next(customer);
                 this.showHideNameProperties();
-                return Observable.from([customer]);
+                return Observable.empty();
             });
+
         uniSearchConfig.unfinishedValueFn = (val: string) => this.customer$
             .asObservable()
             .take(1)
             .map(customer => {
                 customer.Info.Name = val;
+                this.showHideNameProperties();
                 return customer;
             });
 
@@ -921,8 +917,8 @@ export class CustomerDetails {
                 this.toastService.addToast('Navn er påkrevd', ToastType.warn, ToastTime.short);
             }
 
-            if (searchResult) {
-                let customer = this.customer$.getValue();
+            if (searchResult && searchResult.Info.Name) {
+                let customer = this.customer$.value;
                 customer = searchResult;
                 this.customer$.next(customer);
                 this.isDisabled = false;
@@ -962,7 +958,6 @@ export class CustomerDetails {
                     Legend: 'Kunde',
                     EntityType: 'Customer',
                     Property: '_CustomerSearchResult',
-                    Hidden: true,
                     FieldType: FieldType.UNI_SEARCH,
                     Label: 'Navn',
                     Section: 0,
@@ -1079,6 +1074,7 @@ export class CustomerDetails {
                     Label: 'Hovedselger',
                     Section: 0
                 },
+
                 // Fieldset 5 (EHF)
                 {
                     FieldSet: 5,
