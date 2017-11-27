@@ -21,6 +21,8 @@
                 "Header": "Bnr. med år",
                 "Field": "JournalEntryNumber",
                 "Type": "link",
+                "LinkNavigationProperty": "JournalEntryID",
+                "ExternalModel": "JournalEntry",
                 "DefaultHidden": true
             },
             {
