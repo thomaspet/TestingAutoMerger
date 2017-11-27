@@ -1,3 +1,6 @@
 <article *ngIf="status">
-    <p class="preformatted" *ngIf="status.mainStatus"> {{status.mainStatus || status.Text}} </p>
+    <p *ngIf="status.Text">{{status?.Text}}</p>
+    <p class="preformatted" *ngIf="preformattedMainStatus">{{preformattedMainStatus}}</p>
+    <p *ngIf="mainStatus">{{mainStatus}}</p>
+    <uni-table *ngIf="(tableModel$ | async).length" [resource]="tableModel$ | async" [config]="tableConfig"></uni-table>
 </article>
