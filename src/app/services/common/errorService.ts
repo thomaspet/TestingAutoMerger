@@ -37,7 +37,17 @@ export class ErrorService {
     }
 
     public extractMessage(err: any): string {
-        const errBody = err.json ? err.json() : err;
+        let errBody;
+        if (this.isHttpResponse(err)) {
+            if (err.headers.get('content-type') === 'application/json') {
+                errBody = err.json();
+            } else {
+                errBody = err.text();
+            }
+        } else {
+            errBody = err;
+        }
+
         if (errBody.message) {
             return errBody.message;
         } else if (errBody.Message) {
@@ -55,6 +65,10 @@ export class ErrorService {
         } else {
             return errBody.toString();
         }
+    }
+
+    private isHttpResponse(obj: any) {
+        return obj.headers && obj.headers.get && obj.status;
     }
 
     public extractValidationResults(error: any): string[] {
