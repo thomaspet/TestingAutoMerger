@@ -64,6 +64,7 @@
         "Group": "Salg",
         "Model": "Sharing",
         "Joins": "Sharing.CreatedBy eq User.GlobalIdentity",
+        "Filter": "Sharing.EntityType eq 'CustomerInvoice'",
         "OrderBy": "ID DESC",
         "Columns": [
             {

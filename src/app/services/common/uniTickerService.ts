@@ -925,6 +925,7 @@ export class Ticker {
     public ParentFilter?: TickerFieldFilter;
     public SubTickers?: Array<Ticker>;
     public SubTickersCodes?: Array<string>;
+    public Filter?: string;
     public Filters?: Array<TickerFilter>;
     public UseParentTickerActions?: boolean;
     public Actions?: Array<TickerAction>;

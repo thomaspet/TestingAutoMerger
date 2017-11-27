@@ -6,7 +6,7 @@
     "Group": "Salg",
     "Model": "CustomerInvoice",
     "Joins": "CustomerInvoice.ID eq Sharing.EntityID",
-    "Expand": "",
+    "Expand": "Customer,Customer.Info",
     "OrderBy": "ID DESC",
     "Columns": [{
             "Header": "Fakturanr.",
@@ -128,8 +128,8 @@
             "DefaultHidden": true
         }, {
             "Header": "Deling",
-            "Field": "count(Sharing.ID)",
-            "Alias": "SharingCount",
+            "Field": "sum(casewhen(isnull(Sharing.EntityType,'') eq 'CustomerInvoice',1,0))",
+            "Alias": "SharingInvoiceCount",
             "width": "125px"
         }
     ],
@@ -649,7 +649,7 @@
     "IsTopLevelTicker": true,
     "Group": "Salg",
     "Model": "CustomerQuote",
-    "Expand": "",
+    "Expand": "Customer,Customer.Info",
     "OrderBy": "ID DESC",
     "Columns": [{
             "Header": "Tilbudsnr.",
@@ -1096,7 +1096,7 @@
     "IsTopLevelTicker": true,
     "Group": "Salg",
     "Model": "CustomerOrder",
-    "Expand": "Items",
+    "Expand": "Customer,Customer.Info",
     "CountExpand": "Customer.Info,CurrencyCode,DefaultSeller",
     "OrderBy": "ID DESC",
     "Columns": [{
