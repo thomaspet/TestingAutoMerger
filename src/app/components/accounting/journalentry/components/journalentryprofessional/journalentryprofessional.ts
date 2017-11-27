@@ -2007,14 +2007,12 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
     }
 
     private setupJournalEntryNumbers(doUpdateExistingLines: boolean): Promise<any> {
-
         if (!this.currentFinancialYear) {
             return Promise.resolve();
         }
 
         return new Promise((resolve, reject) => {
-            let journalentrytoday: JournalEntryData = new JournalEntryData();
-
+            const journalentrytoday: JournalEntryData = new JournalEntryData();
             journalentrytoday.FinancialDate = this.currentFinancialYear.ValidFrom;
             journalentrytoday.NumberSeriesTaskID = this.selectedNumberSeriesTaskID;
 
@@ -2026,35 +2024,34 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                         let tableData = this.table.getTableData();
 
                         if (tableData.length > 0) {
-                            let shouldUpdateData = false;
-                            tableData.forEach(row => {
-                                if (row.NumberSeriesTaskID !== this.selectedNumberSeriesTaskID) {
-                                    shouldUpdateData = true;
-                                }
-                            });
-
+                            // Split readonly and editable rows (using the readonly check from table config (StatusCode))
+                            // This is done because we don't want to update readonly rows here
+                            const readonlyRows = tableData.filter(row => !!row.StatusCode);
+                            const editableRows = tableData.filter(row => !row.StatusCode);
+    
+                            // Check if readonly rows contains one or more lines with the wrong numberseries
+                            const shouldUpdateData = editableRows.some(row => row.NumberSeriesTaskID !== this.selectedNumberSeriesTaskID);
                             if (shouldUpdateData) {
-                                let uniqueNumbers =
-                                    _.uniq(tableData.map(item => item.JournalEntryNo));
-
-                                uniqueNumbers.forEach(uniqueNumber => {
-                                    let lines = tableData.filter(x => x.JournalEntryNo === uniqueNumber);
-
-                                    lines.forEach((x: JournalEntryData) => {
-                                        x.JournalEntryNo = this.firstAvailableJournalEntryNumber;
-                                        x.SameOrNew = x.JournalEntryNo;
-                                        x.SameOrNewDetails = {ID: x.JournalEntryNo, Name: x.JournalEntryNo};
-                                        x.NumberSeriesTaskID = this.selectedNumberSeriesTaskID;
+                                const uniQueNumbers = _.uniq(editableRows.map(item => item.JournalEntryNo));
+                                uniQueNumbers.forEach(uniQueNumber => {
+                                    const lines = editableRows.filter(line => line.JournalEntryNo === uniQueNumber);
+    
+                                    lines.forEach(line => {
+                                        line.JournalEntryNo = this.firstAvailableJournalEntryNumber;
+                                        line.SameOrNew = line.JournalEntryNo;
+                                        line.SameOrNewDetails = {ID: line.JournalEntryNo, Name: line.JournalEntryNo};
+                                        line.NumberSeriesTaskID = this.selectedNumberSeriesTaskID;
                                     });
-
-                                    let nextNumberData = this.firstAvailableJournalEntryNumber.split('-');
-
-                                    this.firstAvailableJournalEntryNumber =
-                                        nextNumberData.length > 1 ?
-                                            (+nextNumberData[0] + 1) + '-' + nextNumberData[1]
-                                            : (+nextNumberData[0] + 1).toString();
+    
+                                    // Update next available number
+                                    const nextNumberData = this.firstAvailableJournalEntryNumber.split('-');
+                                    this.firstAvailableJournalEntryNumber = nextNumberData.length > 1
+                                        ? (+nextNumberData[0] + 1) + '-' + nextNumberData[1]
+                                        : (+nextNumberData[0] + 1).toString();
                                 });
-
+    
+                                // Join readonly and editable rows before updating table
+                                tableData = readonlyRows.concat(editableRows);
                                 this.setJournalEntryData(tableData);
                                 this.dataChanged.emit(tableData);
                             }

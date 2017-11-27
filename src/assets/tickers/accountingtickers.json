@@ -13,7 +13,9 @@
                 "Header": "Bnr.",
                 "Field": "JournalEntryNumberNumeric",
                 "Width": "100px",
-                "Type": "link"
+                "Type": "link",
+                "LinkNavigationProperty": "JournalEntryID",
+                "ExternalModel": "JournalEntry"
             },
             {
                 "Header": "Bnr. med år",
