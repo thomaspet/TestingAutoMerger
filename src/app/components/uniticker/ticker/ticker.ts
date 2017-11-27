@@ -274,6 +274,16 @@ export class UniTicker {
             params.set('join', this.ticker.Joins);
         }
 
+        if (this.ticker.Filter) {
+            let filter = urlParams.get('filter');
+            if (filter && filter !== '') {
+                filter += ' and ' + this.ticker.Filter;
+            } else {
+                filter = this.ticker.Filter;
+            }
+            params.set('filter', filter);
+        }
+
         if (this.selectedFilter) {
             let uniTableFilter = urlParams.get('filter');
             let newFilter = '';
