@@ -70,13 +70,13 @@ export class SalaryBalanceSummary implements OnInit, OnChanges {
     private onSalaryBalanceChange(salaryBalance: SalaryBalance) {
         if (salaryBalance && salaryBalance.ID) {
 
-            let transObs = salaryBalance.Transactions && salaryBalance.Transactions.length
+            const transObs = salaryBalance.Transactions && salaryBalance.Transactions.length
                 ? Observable.of(salaryBalance.Transactions)
                 : this.salaryBalanceLineService
                     .GetAll(`filter=SalaryBalanceID eq ${salaryBalance.ID}`);
             transObs
                 .switchMap((response: SalaryBalanceLine[]) => {
-                    let filter = [];
+                    const filter = [];
                     response.forEach(balanceline => {
                         if (balanceline.SalaryTransactionID) {
                             filter.push(`ID eq ${balanceline.SalaryTransactionID}`);
@@ -93,7 +93,7 @@ export class SalaryBalanceSummary implements OnInit, OnChanges {
                     this.updateModel(transes);
                 }, err => this.errorService.handle(err));
 
-            let empObs = salaryBalance.Employee && salaryBalance.Employee.BusinessRelationInfo
+            const empObs = salaryBalance.Employee && salaryBalance.Employee.BusinessRelationInfo
                 ? Observable.of(salaryBalance.Employee)
                 : this.employeeService
                     .Get(salaryBalance.EmployeeID, ['BusinessRelationInfo']);
@@ -129,6 +129,7 @@ export class SalaryBalanceSummary implements OnInit, OnChanges {
 
     private updateModel(salaryBalanceLines: SalaryBalanceLine[]) {
         this.salarybalanceLinesModel$.next(salaryBalanceLines);
+        this.tableModel$.next([]);
         this.tableModel$.next(this.getTableLines(salaryBalanceLines));
     }
 
@@ -147,8 +148,8 @@ export class SalaryBalanceSummary implements OnInit, OnChanges {
         return this.showAllLines
             ? salaryBalanceLines
             : salaryBalanceLines.filter(line => {
-                let run = line['_payrollrun'];
-                let status = run && run['StatusCode'];
+                const run = line['_payrollrun'];
+                const status = run && run['StatusCode'];
                 return !line.SalaryTransactionID || !!status;
             });
     }
@@ -164,18 +165,18 @@ export class SalaryBalanceSummary implements OnInit, OnChanges {
                 if (row['_isEmpty']) {
                     return;
                 }
-                let run: PayrollRun = row['_payrollrun'];
+                const run: PayrollRun = row['_payrollrun'];
                 return run ? `${run.ID} - ${run.Description}` : 'manuelt trekk';
             })
             .setWidth('9rem');
         const statusCol = new UniTableColumn('_payrollrun', 'Status', UniTableColumnType.Text, false)
             .setTemplate((row: SalarybalanceLine) => {
-                let run: PayrollRun = row['_payrollrun'];
-                let status = this.payrollrunService.getStatus(run);
+                const run: PayrollRun = row['_payrollrun'];
+                const status = this.payrollrunService.getStatus(run);
                 return run ? `${status.text}` : '';
             });
 
-        let columnList = [nameCol, startDateCol, sumCol, payRunCol, statusCol];
+        const columnList = [nameCol, startDateCol, sumCol, payRunCol, statusCol];
 
         this.tableConfig = new UniTableConfig('salary.salarybalance.summary', !!editMode, false)
             .setColumns(columnList)
@@ -183,17 +184,17 @@ export class SalaryBalanceSummary implements OnInit, OnChanges {
     }
 
     private emitChanges(event: IRowChangeEvent) {
-        let tableData = [
+        const tableData = [
             ...this.table.getTableData().filter(x => x['_originalIndex'] === event.rowModel['_originalIndex']),
-            event.rowModel,];
+            event.rowModel, ];
 
-        let lines = this.salarybalanceLinesModel$.getValue();
+        const lines = this.salarybalanceLinesModel$.getValue();
         this.salarybalanceLinesModel$.next([
             ...lines.filter(line => line['_originalIndex'] !== event.rowModel['_originalIndex']),
             event.rowModel,
         ]);
 
-        let rows: SalaryBalanceLine[] = tableData
+        const rows: SalaryBalanceLine[] = tableData
             .filter((row: SalaryBalanceLine) => !row.ID && !!row.Amount && !!row.Date);
 
         if (!rows.length) {
@@ -205,6 +206,7 @@ export class SalaryBalanceSummary implements OnInit, OnChanges {
                 return;
             }
             row._createguid = this.salaryBalanceLineService.getNewGuid();
+            row.SalaryBalanceID = this.salaryBalance && this.salaryBalance.ID;
         });
 
         this.changeEvent.next(rows);
