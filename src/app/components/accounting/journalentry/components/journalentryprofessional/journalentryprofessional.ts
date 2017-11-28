@@ -15,7 +15,8 @@ import {
     UniTableColumn,
     UniTableColumnType,
     UniTableConfig,
-    ICellClickEvent
+    ICellClickEvent,
+    IContextMenuItem
 } from '../../../../../../framework/ui/unitable/index';
 import {IGroupConfig} from '../../../../../../framework/ui/unitable/controls/autocomplete';
 import {UniHttp} from '../../../../../../framework/core/http/http';
@@ -179,7 +180,6 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
 
     public ngOnInit() {
         this.setupJournalEntryTable();
-
         this.selectedNumberSeriesTaskID = NumberSeriesTaskIds.Journal;
     }
 
@@ -1087,6 +1087,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
         };
 
         let columns: UniTableColumn[] = [];
+        let contextMenuItems: IContextMenuItem[] = [];
         let tableName: string;
 
         if (this.mode === JournalEntryMode.Payment) {
@@ -1097,6 +1098,15 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
             creditAccountCol.setSkipOnEnterKeyNavigation(true);
             creditVatTypeCol.setSkipOnEnterKeyNavigation(true);
             descriptionCol.setSkipOnEnterKeyNavigation(true);
+
+            contextMenuItems = [
+                {
+                    action: (item) => this.deleteLine(item),
+                    disabled: (item) => { return (this.disabled || item.StatusCode); },
+                    label: 'Slett linje'
+                }
+            ];
+
 
             defaultRowData.Description = 'Innbetaling';
 
@@ -1119,6 +1129,32 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
         } else {
             // Manual == "Bilagsregistrering"
             tableName = 'accounting.journalEntry.manual';
+
+            contextMenuItems = [
+                {
+                    action: (item) => this.deleteLine(item),
+                    disabled: (item) => { return (this.disabled || item.StatusCode); },
+                    label: 'Slett linje'
+                },
+                {
+                    action: (item: JournalEntryData) => this.openAccrual(item),
+                    disabled: (item) => { return (this.disabled); },
+                    label: 'Periodisering'
+                },
+                {
+                    action: (item) => this.addPayment(item),
+                    disabled: (item) => { return item.StatusCode ? true : false; },
+                    label: 'Registrer utbetaling',
+
+                },
+                {
+                    action: (item: JournalEntryData) => this.showAgioDialog(item),
+                    disabled: (item: JournalEntryData) => !item.CustomerInvoiceID,
+                    label: 'Agio'
+                }
+            ];
+
+
             columns = [
                 sameOrNewCol,
                 vatDateCol,
@@ -1159,28 +1195,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
             .setAutoAddNewRow(!this.disabled)
             .setMultiRowSelect(false)
             .setIsRowReadOnly((rowModel) => rowModel.StatusCode)
-            .setContextMenu([
-                {
-                    action: (item) => this.deleteLine(item),
-                    disabled: (item) => { return (this.disabled || item.StatusCode); },
-                    label: 'Slett linje'
-                },
-                {
-                    action: (item: JournalEntryData) => this.openAccrual(item),
-                    disabled: (item) => { return (this.disabled); },
-                    label: 'Periodisering'
-                },
-                {
-                    action: (item) => this.addPayment(item),
-                    disabled: (item) => { return item.StatusCode ? true : false; },
-                    label: 'Registrer utbetaling'
-                },
-                {
-                    action: (item: JournalEntryData) => this.showAgioDialog(item),
-                    disabled: (item: JournalEntryData) => !item.CustomerInvoiceID,
-                    label: 'Agio'
-                }
-            ])
+            .setContextMenu(contextMenuItems)
             .setDefaultRowData(defaultRowData)
             .setColumnMenuVisible(true)
             .setAutoScrollIfNewCellCloseToBottom(true)
