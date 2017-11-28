@@ -35,7 +35,7 @@ export class SalarybalanceList implements OnInit {
         private errorService: ErrorService,
         private numberService: NumberFormat
     ) {
-        
+
     }
 
     public ngOnInit() {
@@ -72,7 +72,7 @@ export class SalarybalanceList implements OnInit {
 
     public rowSelected(event) {
         this.employeeID ?
-        this.selectedSalarybalance.emit(event.rowModel) : 
+        this.selectedSalarybalance.emit(event.rowModel) :
         this._router.navigateByUrl('/salary/salarybalances/' + event.rowModel.ID);
     }
 
@@ -124,7 +124,7 @@ export class SalarybalanceList implements OnInit {
         if (this.selectedIndex === undefined && this.salarybalances.length) {
 
             let focusIndex = this.salarybalances
-                .findIndex(salarybalance => 
+                .findIndex(salarybalance =>
                     salarybalanceID !== undefined
                     ? salarybalance.ID === salarybalanceID
                     : false);
@@ -181,10 +181,13 @@ export class SalarybalanceList implements OnInit {
                     : '')
             .setWidth('14rem');
 
-        this.employeeID ?
-            activeColumns = [idCol, typeCol, balanceCol] :
+        if (!this.employeeID) {
             activeColumns = [idCol, nameCol, employeeCol, typeCol, balanceCol];
-        
+        } else {
+            balanceCol.setWidth('');
+            activeColumns = [idCol, typeCol, balanceCol];
+        }
+
         this.tableConfig = new UniTableConfig('salary.salarybalance.list', false, true, 15)
             .setColumns(activeColumns)
             .setSearchable(true);
