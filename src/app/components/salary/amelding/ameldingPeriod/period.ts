@@ -29,6 +29,11 @@ export class AmeldingPeriodSummaryView {
     @Input() private currentAMelding: any;
     @Input() public aMeldingerInPeriod: AmeldingData[];
 
+    public collapsePaymentInfo: boolean = false;
+    private kidAGA: string;
+    private kidTrekk: string;
+    private accountNumber: string;
+
     constructor(private numberFormat: NumberFormat) {
         this.setupSystemTableConfig();
         this.setupAmeldingTableConfig();
@@ -84,6 +89,7 @@ export class AmeldingPeriodSummaryView {
                                 );
                                 this.checkLeveranser(mottak.mottattLeveranse, period);
                                 this.checkMottattPeriode(mottak);
+                                this.checkInnbetalingsinformsajon(mottak);
                         }
                     });
                 } else {
@@ -97,6 +103,7 @@ export class AmeldingPeriodSummaryView {
                                 );
                                 this.checkLeveranser(alleMottak.mottattLeveranse, period);
                                 this.checkMottattPeriode(alleMottak);
+                                this.checkInnbetalingsinformsajon(alleMottak);
                         }
                     }
                 }
@@ -106,12 +113,10 @@ export class AmeldingPeriodSummaryView {
                     value: this.forfallsdato
                 }, {
                     title: 'Sum aga',
-                    value: this.sumAmldAga ? this.numberFormat.asMoney(this.sumAmldAga, {decimalLength: 0}) : null
+                    value: this.numberFormat.asMoney(this.sumAmldAga || 0, {decimalLength: 0}) 
                 }, {
                     title: 'Sum forskuddstrekk',
-                    value: this.sumAmldFtrekk
-                        ? this.numberFormat.asMoney(this.sumAmldFtrekk, {decimalLength: 0})
-                        : null
+                    value: this.numberFormat.asMoney(this.sumAmldFtrekk || 0, {decimalLength: 0})
                 }];
             }
         }
@@ -132,6 +137,22 @@ export class AmeldingPeriodSummaryView {
             if (!!mottak.mottattPeriode && mottak.mottattPeriode.hasOwnProperty('mottattAvgiftOgTrekkTotalt')) {
                 this.sumAmldAga = mottak.mottattPeriode.mottattAvgiftOgTrekkTotalt.sumArbeidsgiveravgift;
                 this.sumAmldFtrekk = mottak.mottattPeriode.mottattAvgiftOgTrekkTotalt.sumForskuddstrekk;
+            }
+        }
+    }
+
+    private checkInnbetalingsinformsajon(mottak) {
+        if (mottak.hasOwnProperty('innbetalingsinformasjon')) {
+            if (!!mottak.innbetalingsinformasjon) {
+                if (mottak.innbetalingsinformasjon.hasOwnProperty('kidForArbeidsgiveravgift')) {
+                    this.kidAGA = mottak.innbetalingsinformasjon.kidForArbeidsgiveravgift;
+                }
+                if (mottak.innbetalingsinformasjon.hasOwnProperty('kidForForskuddstrekk')) {
+                    this.kidTrekk = mottak.innbetalingsinformasjon.kidForForskuddstrekk;
+                }
+                if (mottak.innbetalingsinformasjon.hasOwnProperty('kontonummer')) {
+                    this.accountNumber = mottak.innbetalingsinformasjon.kontonummer;
+                }
             }
         }
     }

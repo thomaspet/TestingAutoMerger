@@ -11,7 +11,7 @@
     <section class="amelding_poster">
 
         <article class="amelding_poster_widget">
-            <dl class="amelding_poster_details">
+            <dl class="amelding_poster_details" [ngClass]="{'no_avvik': periodStatus === 'Mottatt'}">
                 <dt>Juridisk enhet</dt>
                 <dd>{{legalEntityNo | uninumberformat:'orgno'}}</dd>
 

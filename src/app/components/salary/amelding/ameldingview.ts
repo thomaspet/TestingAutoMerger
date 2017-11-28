@@ -14,9 +14,11 @@ import {
     ErrorService,
     NumberFormat,
     SalarySumsService,
-    YearService
+    YearService,
+    ReportDefinitionService
 } from '../../../services/services';
 import {UniModalService} from '../../../../framework/uniModal/barrel';
+import {UniPreviewModal} from '../../reports/modals/preview/previewModal';
 import {AmeldingTypePickerModal, IAmeldingTypeEvent} from './modals/ameldingTypePickerModal';
 import {AltinnAuthenticationModal} from '../../common/modals/AltinnAuthenticationModal';
 import * as moment from 'moment';
@@ -69,7 +71,8 @@ export class AMeldingView implements OnInit {
         private numberformat: NumberFormat,
         private router: Router,
         private errorService: ErrorService,
-        private modalService: UniModalService
+        private modalService: UniModalService,
+        private reportDefinitionService: ReportDefinitionService
     ) {
         this._tabService.addTab({
             name: 'A-Melding',
@@ -104,6 +107,10 @@ export class AMeldingView implements OnInit {
             {
                 label: 'Tilleggsopplysninger',
                 action: () => this.router.navigate(['salary/supplements'])
+            },
+            {
+                label: 'Trekk og AGA rapport',
+                action: () => this.openReport()
             }
         ];
     }
@@ -113,6 +120,32 @@ export class AMeldingView implements OnInit {
         this.yearService.selectedYear$.subscribe(year => {
             this.clearAMelding();
             this.loadYearData();
+        });
+    }
+
+    private openReport() {
+        this.reportDefinitionService
+            .getReportByName('Forskuddstrekk og arbeidsgiveravgift')
+            .catch((err,obs) => this.errorService.handleRxCatch(err, obs))
+            .subscribe((report) => {
+                report.parameters = [
+                    {
+                        Name: 'FromPeriod', 
+                        value: this.currentPeriod
+                    },
+                    {
+                        Name: 'ToPeriod',
+                        value: this.currentPeriod
+                    },
+                    {
+                        Name: 'Year',
+                        value: this.activeYear
+                    }
+                ];
+            
+                this.modalService.open(UniPreviewModal, {
+                    data: report
+                });
         });
     }
 

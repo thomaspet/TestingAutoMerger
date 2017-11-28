@@ -8,6 +8,25 @@
     <h1>Fra tilbakemelding</h1>
     <section class="unitableWidthAuto">
         <uni-table [config]="amldTableConfig" [resource]="amldData"></uni-table>
+        <article  class="collapsable" [ngClass]="{'-is-open': !collapsePaymentInfo}" *ngIf="amldData.length">
+            <h4 (click)="collapsePaymentInfo = !collapsePaymentInfo">Betalingsinformasjon</h4>
+            <div class="collapsable-content">
+                <table>
+                    <tr>
+                        <td>KID Arbeidsgiveravgift</td>
+                        <td>{{kidAGA}}</td>
+                    </tr>
+                    <tr>
+                        <td>KID Forskuddstrekk</td>
+                        <td>{{kidTrekk}}</td>
+                    </tr>
+                    <tr>
+                        <td>Kontonummer</td>
+                        <td>{{accountNumber}}</td>
+                    </tr>
+                </table>
+            </div>
+        </article>
         <uni-summary [configs]="ameldingPeriodSums"></uni-summary>
     </section>
 </section>
