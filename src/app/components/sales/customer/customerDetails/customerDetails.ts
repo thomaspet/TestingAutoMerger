@@ -162,7 +162,7 @@ export class CustomerDetails {
 
     private customerStatisticsData: any;
 
-    private expandOptions: Array<string> = [
+    private expandOptions: string[] = [
         'Info',
         'Info.Phones',
         'Info.DefaultPhone',
@@ -180,6 +180,17 @@ export class CustomerDetails {
         'Sellers',
         'Sellers.Seller',
         'DefaultSeller'
+    ];
+
+    private newEntityExpandOptions: string[] = [
+        'Info',
+        'Info.Phones',
+        'Info.Addresses',
+        'Info.Emails',
+        'Info.Contacts',
+        'Dimensions',
+        'CustomerInvoiceReminderSettings.CustomerInvoiceReminderRules',
+        'Sellers'
     ];
 
     private formIsInitialized: boolean = false;
@@ -371,7 +382,7 @@ export class CustomerDetails {
                 (
                     this.customerID > 0 ?
                         this.customerService.Get(this.customerID, this.expandOptions)
-                        : this.customerService.GetNewEntity(this.expandOptions)
+                        : this.customerService.GetNewEntity(this.newEntityExpandOptions)
                 ),
                 this.phoneService.GetNewEntity(),
                 this.emailService.GetNewEntity(),
@@ -433,7 +444,7 @@ export class CustomerDetails {
                 (
                     this.customerID > 0 ?
                         this.customerService.Get(this.customerID, this.expandOptions) :
-                        this.customerService.GetNewEntity(this.expandOptions)
+                        this.customerService.GetNewEntity(this.newEntityExpandOptions)
                 ),
                 (
                     this.customerID > 0 ?
@@ -531,7 +542,7 @@ export class CustomerDetails {
             addEmptyValue: true
         };
 
-        let defaultSeller: UniFieldLayout = fields.find(field => field.Property === 'DefaultSeller.ID');
+        let defaultSeller: UniFieldLayout = fields.find(field => field.Property === 'DefaultSellerID');
         defaultSeller.Options = {
             source: this.sellers,
             valueProperty: 'ID',
@@ -883,6 +894,7 @@ export class CustomerDetails {
 
     public onChange(changes: SimpleChanges) {
         this.isDirty = true;
+        let customer = this.customer$.getValue();
 
         if (changes['Info.Name']) {
             if (this.isDisabled === true && changes['Info.Name'].currentValue !== '') {
@@ -894,46 +906,41 @@ export class CustomerDetails {
                 this.setupSaveActions();
             }
         }
-        let customer = this.customer$.getValue();
 
         if (changes['DefaultSellerID']) {
-            if (customer.DefaultSellerID) {
-                customer.DefaultSeller = this.sellers.find(seller => seller.ID === customer.DefaultSellerID);
+            if (customer.DefaultSellerID > 0) {
+                customer.DefaultSeller = this.sellers.find(seller => seller.ID === customer.DefaultSellerID) || null;
             } else {
                 customer.DefaultSeller = null;
                 customer.DefaultSellerID = 0;
             }
         }
 
-        if (changes['DefaultSeller.ID'] && customer.DefaultSeller.ID === null) {
-           customer.DefaultSeller = null;
-           customer.DefaultSellerID = 0;
-        }
-
         if (changes['_CustomerSearchResult']) {
-            let searchResult = changes['_CustomerSearchResult'].currentValue;
+            const searchResult = changes['_CustomerSearchResult'].currentValue;
 
             if (searchResult === '') {
                 this.toastService.addToast('Navn er påkrevd', ToastType.warn, ToastTime.short);
             }
 
             if (searchResult && searchResult.Info.Name) {
-                let customer = this.customer$.value;
                 customer = searchResult;
-                this.customer$.next(customer);
                 this.isDisabled = false;
                 this.setupSaveActions();
                 this.showHideNameProperties();
             }
         }
+
+        this.customer$.next(customer);
     }
 
     public onSellerLinkDeleted(sellerLink: SellerLink) {
-        let customer = this.customer$.getValue();
-        if (customer.DefaultSeller && sellerLink.SellerID === customer.DefaultSeller.ID) {
+        const customer = this.customer$.getValue();
+        if (customer.DefaultSellerID === sellerLink.SellerID) {
             customer.DefaultSeller = null;
             customer.DefaultSellerID = 0;
         }
+
         this.customer$.next(customer);
     }
 
@@ -1069,7 +1076,7 @@ export class CustomerDetails {
                 {
                     FieldSet: 4,
                     EntityType: 'Seller',
-                    Property: 'DefaultSeller.ID',
+                    Property: 'DefaultSellerID',
                     FieldType: FieldType.DROPDOWN,
                     Label: 'Hovedselger',
                     Section: 0
