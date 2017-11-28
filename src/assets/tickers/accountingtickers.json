@@ -40,7 +40,6 @@
             {
                 "Header": "Reskontronr.",
                 "Field": "SubAccount.AccountNumber",
-                "Type": "link",
                 "DefaultHidden": true
             },
             {
@@ -151,7 +150,6 @@
             {
                 "Header": "Periodisering",
                 "Field": "JournalEntry.JournalEntryAccrualID",
-                "Type": "link",
                 "DefaultHidden": true
             },
             {
@@ -234,7 +232,6 @@
             {
                 "Header": "Reskontronr.",
                 "Field": "SubAccount.AccountNumber",
-                "Type": "link",
                 "Width": "90px",
                 "DefaultHidden": true
             },
@@ -331,7 +328,6 @@
             {
                 "Header": "Periodisering",
                 "Field": "JournalEntry.JournalEntryAccrualID",
-                "Type": "link",
                 "DefaultHidden": true
             },
             {
@@ -384,6 +380,7 @@
             {
                 "Header": "Lev.nr.",
                 "Field": "Supplier.SupplierNumber",
+                "Type": "link",
                 "ExternalModel": "Supplier",
                 "LinkNavigationProperty": "Supplier.ID",
                 "DefaultHidden": true
@@ -393,7 +390,8 @@
                 "Field": "Supplier.Info.Name",
                 "Type": "link",
                 "Width": "200px",
-                "ExternalModel": "Supplier"
+                "ExternalModel": "Supplier",
+                "LinkNavigationProperty": "Supplier.ID"
             },
             {
                 "Header": "Fakturadato",
