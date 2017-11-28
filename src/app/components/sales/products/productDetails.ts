@@ -407,23 +407,18 @@ export class ProductDetails {
             displayProperty: 'AccountNumber',
             valueProperty: 'ID',
             debounceTime: 200,
-            search: (searchValue: string) => {
-                if (!searchValue) {
-                    return this.accountSearch('');
-                }
-                this.accountSearch(searchValue);
-            },
+            search: (searchValue: string) => this.accountSearch(searchValue || ''),
             template: (account: Account) => {
                 return account && account.ID !== 0 ? `${account.AccountNumber} ${account.AccountName }` : '';
             },
             events: {
-                    select: (model: Product) => {
-                        this.updateAccount(model);
-                    }
+                select: (model: Product) => {
+                    this.updateAccount(model);
                 }
+            }
         };
 
-        let typeField: UniFieldLayout = this.fields$.getValue().find(x => x.Property === 'Type');
+        const typeField: UniFieldLayout = this.fields$.getValue().find(x => x.Property === 'Type');
         typeField.Options = {
             displayProperty: 'TypeName',
             valueProperty: 'ID',
