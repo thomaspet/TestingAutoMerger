@@ -121,11 +121,15 @@ export class UniSearchWrapper extends BaseControl implements OnInit, AfterViewIn
         }
     }
 
-    public onChange(change: any) {
+    public onChange(model) {
+        // Clone the model to avoid circular references
+        const modelCopy = lodash.cloneDeep(model);
+
         this.previousModelValue = this.currentModelValue;
         this.currentModelValue = this.field.Options.valueProperty
-            ? lodash.get(change, this.field.Options.valueProperty)
-            : change;
+            ? lodash.get(modelCopy, this.field.Options.valueProperty)
+            : modelCopy;
+
         lodash.set(this.model, this.field.Property, this.currentModelValue);
         this.emitChange(this.previousModelValue, this.currentModelValue);
         this.emitInstantChange(this.previousModelValue, this.currentModelValue);
