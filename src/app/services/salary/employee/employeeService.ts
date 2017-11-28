@@ -11,8 +11,8 @@ import {UserService} from '../../common/userService';
 
 @Injectable()
 export class EmployeeService extends BizHttp<Employee> {
-
-    private defaultExpands: any = [
+    public debounceTime: number = 500;
+    private defaultExpands: string[] = [
         'BusinessRelationInfo.Addresses',
         'BusinessRelationInfo.InvoiceAddress',
         'BusinessRelationInfo.Emails',
@@ -22,7 +22,13 @@ export class EmployeeService extends BizHttp<Employee> {
         'BusinessRelationInfo.BankAccounts',
         'BusinessRelationInfo.DefaultBankAccount'
     ];
-    public debounceTime: number = 500;
+
+    private newEntityExpands: string[] = [
+        'BusinessRelationInfo.Addresses',
+        'BusinessRelationInfo.Emails',
+        'BusinessRelationInfo.Phones',
+        'BusinessRelationInfo.BankAccounts',
+    ];
 
     constructor(
         http: UniHttp,
@@ -101,7 +107,7 @@ export class EmployeeService extends BizHttp<Employee> {
             if (expand) {
                 return super.GetNewEntity(expand);
             }
-            return super.GetNewEntity(this.defaultExpands);
+            return super.GetNewEntity(this.newEntityExpands);
         } else {
             if (expand) {
                 return super.Get(id, expand);
