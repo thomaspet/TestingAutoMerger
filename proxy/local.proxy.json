@@ -1,6 +1,6 @@
 {
     "/api": {
-        "target": "http://does_not_matter:1234",
+        "target": "http://localhost:82",
         "secure": false,
         "changeOrigin": true
     }

@@ -1,14 +1,15 @@
 import {Component, Input, Output, EventEmitter} from '@angular/core';
 import {
-    IUniModal, 
-    IModalOptions, 
-    ConfirmActions, 
+    IUniModal,
+    IModalOptions,
+    ConfirmActions,
     UniModalService
 } from '../../../../../framework/uniModal/modalService';
 import {ReportDefinitionParameterService, ErrorService} from '../../../../services/services';
 import {StatisticsService} from '../../../../services/services';
 import {Http, URLSearchParams} from '@angular/http';
-import { ReportDefinitionParameter, ReportDefinition } from '../../../../unientities';
+import {ReportDefinitionParameter, ReportDefinition} from '../../../../unientities';
+import {Observable} from 'rxjs/Observable';
 
 @Component({
     selector: 'uni-report-params-modal',
@@ -69,7 +70,7 @@ export class UniReportParamsModal implements IUniModal {
         private errorService: ErrorService,
         private modalService: UniModalService
     ) {
-        
+
     }
 
     public ngOnInit() {
@@ -108,49 +109,109 @@ export class UniReportParamsModal implements IUniModal {
 
             this.reportDefinitionParameterService.GetAll(
                 'filter=ReportDefinitionId eq ' + report.ID
-            )            
+            )
             .subscribe(params => {
-                // Find param value to be replaced
-                let param: CustomReportDefinitionParameter = params.find(
-                    x => ['InvoiceNumber', 'OrderNumber', 'QuoteNumber'].indexOf(x.Name) >= 0
-                );
-                if (param) {
-                    let statparams = new URLSearchParams();
-                    statparams.set('model', 'NumberSeries');
-                    statparams.set('select', 'NextNumber');
-
-                    switch (param.Name) {
-                        case 'InvoiceNumber':
-                            statparams.set('filter', 'Name eq \'Customer Invoice number series\'');
-                            break;
-                        case 'OrderNumber':
-                            statparams.set('filter', 'Name eq \'Customer Order number series\'');
-                            break;
-                        case 'QuoteNumber':
-                            statparams.set('filter', 'Name eq \'Customer Quote number series\'');
-                            break;
-                    }
-
-                    // Get param value
-                    this.statisticsService.GetDataByUrlSearchParams(statparams).subscribe(stat => {
-                        let val = stat.Data[0].NumberSeriesNextNumber - 1;
-                        if (val > 0) { param.value = val; }
-
-                        report.parameters = params;
+                if (params && params.length > 0) {
+                    this.fetchDefaultValues(params).then( updatedParams => {
+                        report.parameters = <any>updatedParams;
                         resolve(true);
-                    }, err => this.errorService.handle(err));
+                    });
                 } else {
-                    report.parameters = params;
                     resolve(true);
                 }
             }, err => { this.errorService.handle(err); resolve(false); });
-        });        
+        });
     }
-    
+
+    private fetchDefaultValues(params: Array<IParameterDto >): Promise<Array<IParameterDto >> {
+        return new Promise( (resolve, reject) => {
+
+            // Defaultvalue-parameter-queries defined in report?
+            const chunkOfQuerys = [];
+            for (let i = 0; i < params.length; i++) {
+                const par = params[i];
+                if (par.DefaultValueSource) {
+                    const qIndex = par.DefaultValueSource.indexOf('?');
+                    const query = qIndex >= 0 ? par.DefaultValueSource.substr(qIndex + 1) : par.DefaultValueSource;
+                    chunkOfQuerys.push(this.statisticsService.GetAll(`${query}`));
+                }
+            }
+            if (chunkOfQuerys.length > 0) {
+                Observable.forkJoin(...chunkOfQuerys).subscribe( results => {
+                    for (let i = 0; i < params.length; i++) {
+                        const dataset: { Success: boolean, Data: Array<any> } = <any>( i >= results.length + 1 ? results[i] : results[0]);
+                        if (dataset.Success && dataset.Data.length > 0) {
+                            params[i].value = this.pickValueFromResult(params[i], dataset.Data[0] );
+                        }
+                    }
+                    resolve(params);
+                });
+                return;
+            }
+
+            // Auto-detect default-value:
+            const param: CustomReportDefinitionParameter = <any>params.find(
+                x => ['InvoiceNumber', 'OrderNumber', 'QuoteNumber'].indexOf(x.Name) >= 0
+            );
+            if (param) {
+                const statparams = new URLSearchParams();
+                statparams.set('model', 'NumberSeries');
+                statparams.set('select', 'NextNumber');
+
+                switch (param.Name) {
+                    case 'InvoiceNumber':
+                        statparams.set('filter', 'Name eq \'Customer Invoice number series\'');
+                        break;
+                    case 'OrderNumber':
+                        statparams.set('filter', 'Name eq \'Customer Order number series\'');
+                        break;
+                    case 'QuoteNumber':
+                        statparams.set('filter', 'Name eq \'Customer Quote number series\'');
+                        break;
+                }
+
+                // Get param value
+                this.statisticsService.GetDataByUrlSearchParams(statparams).subscribe(stat => {
+                    const val = stat.Data[0].NumberSeriesNextNumber - 1;
+                    if (val > 0) { param.value = val; }
+                    resolve(params);
+                }, err => this.errorService.handle(err));
+            } else {
+                resolve(params);
+            }
+        });
+    }
+
+    pickValueFromResult(param: IParameterDto, result: any): any {
+        if (param.DefaultValue) {
+            return result[param.DefaultValue];
+        } else {
+            for (const key in result) {
+                if (result.hasOwnProperty(key)) {
+                    return result[key];
+                }
+            }
+        }
+    }
+
 }
+
+
 
 class CustomReportDefinitionParameter extends ReportDefinitionParameter {
     public value: any;
+}
+
+interface IParameterDto {
+    ID: number;
+    Name: string;
+    Label: string;
+    Type: string;
+    value?: string;
+    DefaultValue?: string;
+    DefaultValueSource?: string;
+    DefaultValueList?: string;
+    DefaultValueLookupType?: string;
 }
 
 interface IExtendedReportDefinition extends ReportDefinition {
