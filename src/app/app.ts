@@ -1,7 +1,7 @@
 import {Component, ViewChild} from '@angular/core';
 import {AuthService} from './authService';
 import {UniHttp} from '../framework/core/http/http';
-import {LoginModal} from './components/init/loginModal';
+import {LoginModal} from './components/init';
 import {ErrorService} from './services/services';
 import {UniModalService} from '../framework/uniModal/barrel';
 import {ToastService} from '../framework/uniToast/toastService';

@@ -26,7 +26,7 @@ import {AppCommonModule} from './components/common/appCommonModule';
 import {DashboardModule} from './components/dashboard/dashboardModule';
 import {BureauModule} from './components/bureau/bureauModule';
 import {ReportsModule} from './components/reports/reportsModule';
-import {InitModule} from './components/init/initModule';
+import {InitModule} from './components/init/init.module';
 import {AdminModule} from './components/admin/adminModule';
 import {CurrencyModule} from './components/currency/currencyModule';
 import {DimensionsModule} from './components/dimensions/dimensionsModule';

@@ -1,7 +1,8 @@
-import {Component, Input, Output, EventEmitter} from '@angular/core';
-import {AuthService} from '../../authService';
-import {IModalOptions, IUniModal} from '../../../framework/uniModal/barrel';
-import {UniFieldLayout, FieldType} from '../../../framework/ui/uniform/index';
+import {Component, Input, Output, EventEmitter, OnInit} from '@angular/core';
+import {Router, NavigationEnd} from '@angular/router';
+import {AuthService} from '@app/authService';
+import {IModalOptions, IUniModal} from '@uni-framework/uniModal/barrel';
+import {UniFieldLayout, FieldType} from '@uni-framework/ui/uniform/index';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 
 @Component({
@@ -34,9 +35,10 @@ import {BehaviorSubject} from 'rxjs/BehaviorSubject';
                 </button>
             </footer>
         </section>
-    `
+    `,
+    styleUrls: ['./login-modal.sass']
 })
-export class LoginModal implements IUniModal {
+export class LoginModal implements IUniModal, OnInit {
     @Input()
     public options: IModalOptions = {};
 
@@ -50,10 +52,21 @@ export class LoginModal implements IUniModal {
     private working: boolean = false;
     private errorMessage: string = '';
 
-    constructor(private authService: AuthService) {}
+    constructor(
+        private authService: AuthService,
+        private router: Router
+    ) {}
 
     public ngOnInit() {
         this.formFields$.next(this.getFormFields());
+
+        // Hide modal on navigation, because when modal is open this generally
+        // means that user has been thrown to /login for some reason
+        this.router.events.subscribe(routerEvent => {
+            if (routerEvent instanceof NavigationEnd) {
+                this.onClose.emit(false);
+            }
+        });
     }
 
     public authenticate() {

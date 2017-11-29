@@ -109,11 +109,6 @@ export class AuthService {
         const url = environment.BASE_URL_INIT + environment.API_DOMAINS.INIT + 'sign-in';
 
         return this.http.post(url, JSON.stringify(credentials), {headers: this.headers})
-            .finally(() => {
-                if (this.jwt) {
-                    this.authenticateUniFiles();
-                }
-            })
             .switchMap((apiAuth) => {
                 if (apiAuth.status !== 200) {
                     return Observable.of(apiAuth.json());
@@ -125,6 +120,8 @@ export class AuthService {
                 if (!this.jwtDecoded) {
                     return Observable.throw('Something went wrong when decoding token. Please re-authenticate.');
                 }
+
+                this.authenticateUniFiles();
 
                 localStorage.setItem('jwt', this.jwt);
                 return Observable.of(true);
