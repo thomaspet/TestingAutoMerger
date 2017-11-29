@@ -328,7 +328,7 @@ export class SupplierDetails implements OnInit {
                 (
                     this.supplierID > 0 ?
                         this.supplierService.Get(this.supplierID, this.expandOptions)
-                        : this.supplierService.GetNewEntity()
+                        : this.supplierService.GetNewEntity(['Info'])
                 ),
                 this.phoneService.GetNewEntity(),
                 this.emailService.GetNewEntity(),
