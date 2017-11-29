@@ -17,7 +17,7 @@
     ],
     "baseUrl": "./",
     "paths": {
-      "@uni-entities": ["src/unientities", "@uni-entities"],
+      "@uni-entities": ["src/app/unientities", "app/unientities"],
       "@app/*": ["src/app/*", "app/*"],
       "@uni-framework/*": ["src/framework/*", "../framework/*"],
       "@uni-models/*": ["src/app/models/*", "app/models/*"]
