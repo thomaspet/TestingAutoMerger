@@ -41,6 +41,10 @@ export class AccountSettings {
 
     public changeAccount(account: Account) {
         setTimeout(() => {
+            if (this.account && this.account.ID === account.ID) {
+                return;
+            }
+
             let doChange: boolean = true;
 
             if (this.hasChanges) {
