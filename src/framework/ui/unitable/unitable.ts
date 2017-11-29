@@ -214,44 +214,6 @@ export class UniTable implements OnChanges {
     }
 
     // Event hooks
-    public onCellFocused(event) {
-        const cell = event.target;
-        const rowIndex = cell.parentElement.rowIndex - 1;
-
-        if (this.config.autoScrollIfNewCellCloseToBottom) {
-            var box = cell.getBoundingClientRect();
-
-            if (box.top + cell.clientHeight + 75 > window.innerHeight) {
-                window.scrollTo(0, window.scrollY + 75);
-            }
-        }
-
-        this.lastFocusedCellColumn = event.column;
-        this.lastFocusedRowModel = event.rowModel;
-
-        if (!this.lastFocusPosition || this.lastFocusPosition.rowIndex !== rowIndex) {
-            this.rowSelected.emit({rowModel: this.lastFocusedRowModel.toJS()});
-        }
-
-        this.lastFocusPosition = {
-            rowIndex: rowIndex,
-            cellIndex: cell.cellIndex
-        };
-
-        // check if the table is editable first
-        if (this.config.editable) {
-            let rowModel = event.rowModel;
-
-            // if the existing editor is open, close it before continuing
-            if (this.editor && this.editor.isOpen) {
-                this.editor.emitAndClose();
-                rowModel = this.tableDataOriginal.find(x => x.get('_originalIndex') === rowModel.get('_originalIndex'));
-            }
-
-            this.openEditor(cell, event.column, rowModel);
-        }
-    }
-
     private openEditor(cell: HTMLTableElement, column, rowModel) {
         this.currentRowModel = rowModel;
         let rowReadonly = this.config.isRowReadOnly(rowModel.toJS());
@@ -297,9 +259,45 @@ export class UniTable implements OnChanges {
         }
     }
 
+    public onCellFocused(event) {
+        const cell = event.target;
+        const rowIndex = cell.parentElement.rowIndex - 1;
+
+        if (this.config.autoScrollIfNewCellCloseToBottom) {
+            var box = cell.getBoundingClientRect();
+
+            if (box.top + cell.clientHeight + 75 > window.innerHeight) {
+                window.scrollTo(0, window.scrollY + 75);
+            }
+        }
+
+        this.lastFocusedCellColumn = event.column;
+        this.lastFocusedRowModel = event.rowModel;
+
+        this.lastFocusPosition = {
+            rowIndex: rowIndex,
+            cellIndex: cell.cellIndex
+        };
+
+        // check if the table is editable first
+        if (this.config.editable) {
+            let rowModel = event.rowModel;
+
+            // if the existing editor is open, close it before continuing
+            if (this.editor && this.editor.isOpen) {
+                this.editor.emitAndClose();
+                rowModel = this.tableDataOriginal.find(x => x.get('_originalIndex') === rowModel.get('_originalIndex'));
+            }
+
+            this.openEditor(cell, event.column, rowModel);
+        }
+    }
+
     public onCellClicked(event) {
         const row = event.rowModel.toJS();
         const col: UniTableColumn = event.column.toJS();
+
+        this.rowSelected.emit({rowModel: row});
 
         this.cellClick.next({
             row: row,
