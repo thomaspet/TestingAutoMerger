@@ -83,9 +83,6 @@ export class SupplierDetails implements OnInit {
     private supplier$: BehaviorSubject<Supplier> = new BehaviorSubject(new Supplier());
     public searchText: string;
 
-    private emptyPhone: Phone;
-    private emptyEmail: Email;
-    private emptyAddress: Address;
     private emptyBankAccount: BankAccount;
     public reportLinks: IReference[];
     private activeTab: string = 'details';
@@ -320,20 +317,17 @@ export class SupplierDetails implements OnInit {
     private setup() {
         this.showReportWithID = null;
 
+        const supplierRequest = this.supplierID > 0
+            ? this.supplierService.Get(this.supplierID, this.expandOptions)
+            : this.supplierService.GetNewEntity(['Info']);
+
         if (!this.formIsInitialized) {
             this.fields$.next(this.getComponentLayout().Fields);
 
             Observable.forkJoin(
+                supplierRequest
                 this.departmentService.GetAll(null),
                 this.projectService.GetAll(null),
-                (
-                    this.supplierID > 0 ?
-                        this.supplierService.Get(this.supplierID, this.expandOptions)
-                        : this.supplierService.GetNewEntity(['Info'])
-                ),
-                this.phoneService.GetNewEntity(),
-                this.emailService.GetNewEntity(),
-                this.addressService.GetNewEntity(null, 'Address'),
                 this.bankaccountService.GetNewEntity(),
                 this.currencyCodeService.GetAll(null),
                 this.numberSeriesService.GetAll(
@@ -342,17 +336,12 @@ export class SupplierDetails implements OnInit {
                     ['NumberSeriesType']
                 )
             ).subscribe(response => {
-                this.dropdownData = [response[0], response[1]];
+                const supplier: Supplier = response[0];
 
-                this.emptyPhone = response[3];
-                this.emptyEmail = response[4];
-                this.emptyAddress = response[5];
-                this.emptyBankAccount = response[6];
-
-                this.currencyCodes = response[7];
-                this.numberSeries = response[8].map(x => this.numberSeriesService.translateSerie(x));
-
-                let supplier: Supplier = response[2];
+                this.dropdownData = [response[1], response[2]];
+                this.emptyBankAccount = response[3];
+                this.currencyCodes = response[4];
+                this.numberSeries = response[5].map(x => this.numberSeriesService.translateSerie(x));
 
                 // to pass value to newSupplierModal - Supplier.Info.Name field from unisearch
                 if (this.supplierNameFromUniSearch) {
@@ -375,14 +364,7 @@ export class SupplierDetails implements OnInit {
             }, err => this.errorService.handle(err));
 
         } else {
-            Observable.forkJoin(
-                (
-                    this.supplierID > 0 ?
-                        this.supplierService.Get(this.supplierID, this.expandOptions)
-                        : this.supplierService.GetNewEntity(['Info'])
-                )
-            ).subscribe(response => {
-                let supplier = response[0];
+            supplierRequest.subscribe(supplier => {
                 this.setDefaultContact(supplier);
                 this.supplier$.next(supplier);
                 this.setTabTitle();
