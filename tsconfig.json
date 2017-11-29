@@ -19,7 +19,7 @@
     "paths": {
       "@uni-entities": ["src/unientities", "@uni-entities"],
       "@app/*": ["src/app/*", "app/*"],
-      "@uni-framework/*": ["src/app/framework/*", "app/framework/*"],
+      "@uni-framework/*": ["src/framework/*", "../framework/*"],
       "@uni-models/*": ["src/app/models/*", "app/models/*"]
     }
   }
