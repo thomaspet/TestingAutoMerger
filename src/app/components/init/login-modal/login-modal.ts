@@ -2,7 +2,8 @@ import {Component, Input, Output, EventEmitter, OnInit} from '@angular/core';
 import {Router, NavigationEnd} from '@angular/router';
 import {AuthService} from '@app/authService';
 import {IModalOptions, IUniModal} from '@uni-framework/uniModal/barrel';
-import {UniFieldLayout, FieldType} from '@uni-framework/ui/uniform/index';
+import {UniFieldLayout, FieldType} from '@uni-framework/ui/uniform';
+import {User} from '@uni-entities';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 
 @Component({
@@ -30,6 +31,7 @@ import {BehaviorSubject} from 'rxjs/BehaviorSubject';
             </article>
 
             <footer>
+                <button class="cancel" (click)="goToLogin()">Avbryt og gå til login</button>
                 <button class="good" (click)="authenticate()" [attr.aria-busy]="working">
                     Logg inn
                 </button>
@@ -45,10 +47,11 @@ export class LoginModal implements IUniModal, OnInit {
     @Output()
     public onClose: EventEmitter<any> = new EventEmitter();
 
-    public formConfig$: BehaviorSubject<any> = new BehaviorSubject({autofocus: true});
+    public formConfig$: BehaviorSubject<any> = new BehaviorSubject({autofocus: false});
     public formModel$: BehaviorSubject<any> = new BehaviorSubject({});
     public formFields$: BehaviorSubject<UniFieldLayout[]> = new BehaviorSubject([]);
 
+    private usernamePreFilled: boolean;
     private working: boolean = false;
     private errorMessage: string = '';
 
@@ -58,7 +61,17 @@ export class LoginModal implements IUniModal, OnInit {
     ) {}
 
     public ngOnInit() {
-        this.formFields$.next(this.getFormFields());
+        this.authService.authentication$.subscribe(auth => {
+            const email = auth && auth.user && auth.user.Email;
+            this.usernamePreFilled = email && email.length > 0;
+
+            this.formModel$.next({
+                username: email || '',
+                passord: ''
+            });
+
+            this.formFields$.next(this.getFormFields());
+        });
 
         // Hide modal on navigation, because when modal is open this generally
         // means that user has been thrown to /login for some reason
@@ -87,12 +100,17 @@ export class LoginModal implements IUniModal, OnInit {
         );
     }
 
+    public goToLogin() {
+        this.authService.clearAuthAndGotoLogin();
+    }
+
     private getFormFields(): UniFieldLayout[] {
         return [
             <any> {
                 Property: 'username',
                 FieldType: FieldType.TEXT,
                 Label: 'Brukernavn',
+                ReadOnly: this.usernamePreFilled
             },
             <any> {
                 Property: 'password',
