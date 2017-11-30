@@ -6,7 +6,7 @@
     "Group": "Salg",
     "Model": "CustomerInvoice",
     "Joins": "CustomerInvoice.ID eq Sharing.EntityID",
-    "Expand": "Customer,Customer.Info",
+    "Expand": "",
     "OrderBy": "ID DESC",
     "Columns": [{
             "Header": "Fakturanr.",
@@ -649,7 +649,7 @@
     "IsTopLevelTicker": true,
     "Group": "Salg",
     "Model": "CustomerQuote",
-    "Expand": "Customer,Customer.Info",
+    "Expand": "",
     "OrderBy": "ID DESC",
     "Columns": [{
             "Header": "Tilbudsnr.",
@@ -1096,7 +1096,7 @@
     "IsTopLevelTicker": true,
     "Group": "Salg",
     "Model": "CustomerOrder",
-    "Expand": "Customer,Customer.Info",
+    "Expand": "Items",
     "CountExpand": "Customer.Info,CurrencyCode,DefaultSeller",
     "OrderBy": "ID DESC",
     "Columns": [{

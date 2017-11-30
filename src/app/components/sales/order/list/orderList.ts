@@ -37,7 +37,10 @@ export class OrderList implements OnInit {
         {
             Code: 'order_delete',
             ExecuteActionHandler: (selectedRows) => this.deleteOrders(selectedRows)
-
+        },
+        {
+            Code: 'order_print',
+            AfterExecuteActionHandler: (selectedRows) => this.onAfterPrintOrder(selectedRows)
         }
     ];
 
@@ -92,7 +95,20 @@ export class OrderList implements OnInit {
         this.router.navigateByUrl('/sales/order/0');
     }
 
-
+    private onAfterPrintOrder(selectedRows: Array<any>): Promise<any> {
+        return new Promise((resolve, reject) => {
+            let invoice = selectedRows[0];
+            this.customerOrderService
+                .setPrintStatus(invoice.ID, this.printStatusPrinted)
+                    .subscribe((printStatus) => {
+                        resolve();
+                    }, err => {
+                        reject(err);
+                        this.errorService.handle(err);
+                    }
+                );
+        });
+    }
 
     private deleteOrders(selectedRows: Array<any>): Promise<any> {
         let order = selectedRows[0];
