@@ -1,21 +1,21 @@
-import {Component, OnInit, ViewChild, Input, Output, EventEmitter} from '@angular/core';
+import {Component, OnInit, ViewChild, Input, Output, EventEmitter, OnChanges, AfterViewInit} from '@angular/core';
 import {Router, ActivatedRoute} from '@angular/router';
-import {UniTableConfig, UniTableColumnType, UniTableColumn, UniTable} from '../../../../framework/ui/unitable/index';
-import {SalarybalanceService, ErrorService, NumberFormat} from '../../../services/services';
-import {SalaryBalance, SalBalDrawType} from '../../../unientities';
-import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
+import {UniTableConfig, UniTableColumnType, UniTableColumn, UniTable} from '../../../../../framework/ui/unitable/index';
+import {SalarybalanceService, ErrorService, NumberFormat} from '../../../../services/services';
+import {SalaryBalance, SalBalDrawType} from '../../../../unientities';
+import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
 import {ReplaySubject} from 'rxjs/ReplaySubject';
 
-type BalanceActionFormattedType = {
-    salaryBalanceID: number,
-    balance: number
-};
+interface BalanceActionFormattedType {
+    salaryBalanceID: number;
+    balance: number;
+}
 
 @Component({
     selector: 'salarybalances',
     templateUrl: './salarybalanceList.html',
 })
-export class SalarybalanceList implements OnInit {
+export class SalarybalanceList implements OnInit, OnChanges, AfterViewInit {
 
     private tableConfig: UniTableConfig;
     private salarybalances: SalaryBalance[] = [];
@@ -40,7 +40,7 @@ export class SalarybalanceList implements OnInit {
 
     public ngOnInit() {
         this.route.params.subscribe(params => {
-            let empID: number = +params['empID'] || (this.employeeID !== undefined ? this.employeeID : 0);
+            const empID: number = +params['empID'] || (this.employeeID !== undefined ? this.employeeID : 0);
             this.empID = empID;
             this.selectedIndex = undefined;
         });
@@ -79,17 +79,16 @@ export class SalarybalanceList implements OnInit {
     public createSalarybalance() {
         if (this.employeeID) {
             this._salarybalanceService.GetNewEntity()
-                .catch((err, obs) => this.errorService.handleRxCatch(err,obs))
+                .catch((err, obs) => this.errorService.handleRxCatch(err, obs))
                 .subscribe((salarybalance: SalaryBalance) => {
-                    let newSalarybalance = salarybalance;
+                    const newSalarybalance = salarybalance;
                     newSalarybalance.EmployeeID = this.empID;
                     newSalarybalance['_createguid'] = this._salarybalanceService.getNewGuid();
                     this.salarybalances.push(newSalarybalance);
                     this.addAndFocusRow(newSalarybalance, this.salarybalances);
-                    this.selectedSalarybalance.emit(newSalarybalance)
+                    this.selectedSalarybalance.emit(newSalarybalance);
                 });
-        }
-        else {
+        } else {
             this._router.navigateByUrl('/salary/salarybalances/0');
         }
     }
@@ -99,8 +98,9 @@ export class SalarybalanceList implements OnInit {
             .getAll(empID, ['Employee.BusinessRelationInfo'])
             .map(salaryBalances => this.sortList(salaryBalances))
             .do(salarybalances => {
-                if (this.employeeID !== undefined)
+                if (this.employeeID !== undefined) {
                     this.focusRow(empID);
+                }
             })
             .finally(() => this.busy = false)
             .subscribe((salarybalances: SalaryBalance[]) => {

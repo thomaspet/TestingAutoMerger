@@ -59,8 +59,8 @@ export class EmploymentDetails implements OnChanges {
         }
 
         if (change['employment'] && change['employment'].currentValue) {
-            let currEmployment: Employment = change['employment'].currentValue;
-            let prevEmployment: Employment = change['employment'].previousValue;
+            const currEmployment: Employment = change['employment'].currentValue;
+            const prevEmployment: Employment = change['employment'].previousValue;
             if (!currEmployment.ID && ( !prevEmployment || currEmployment.ID !== prevEmployment.ID)) {
                 if (this.form) {
                     this.form.field('JobCode').focus();
@@ -120,7 +120,7 @@ export class EmploymentDetails implements OnChanges {
                     : ''
             };
 
-            let jobCodeField = layout.Fields.find(field => field.Property === 'JobCode');
+            const jobCodeField = layout.Fields.find(field => field.Property === 'JobCode');
             jobCodeField.Options = {
                 getDefaultData: () => this.jobCodeInitValue,
                 template: (obj) => obj && obj.styrk ? `${obj.styrk} - ${obj.tittel}` : '',
@@ -148,8 +148,8 @@ export class EmploymentDetails implements OnChanges {
                     }
                 }
             };
-            let ledgerAccountField = layout.Fields.find(field => field.Property === 'LedgerAccount');
-            let accountObs: Observable<Account> = this.employment && this.employment.LedgerAccount
+            const ledgerAccountField = layout.Fields.find(field => field.Property === 'LedgerAccount');
+            const accountObs: Observable<Account> = this.employment && this.employment.LedgerAccount
                 ? this.accountService.GetAll(`filter=AccountNumber eq ${this.employment.LedgerAccount}` + '&top=1')
                 : Observable.of([undefined]);
             ledgerAccountField.Options = {
@@ -168,8 +168,8 @@ export class EmploymentDetails implements OnChanges {
     }
 
     public setSourceOn(searchField: string, source: any) {
-        let fields = this.fields$.getValue();
-        let currentField = fields.find(field => field.Property === searchField);
+        const fields = this.fields$.getValue();
+        const currentField = fields.find(field => field.Property === searchField);
         if (currentField) {
             currentField.Options.source = source;
         }
@@ -183,7 +183,7 @@ export class EmploymentDetails implements OnChanges {
                 .map(x => x.Data)
                 .subscribe(styrkObjArray => {
                     if (styrkObjArray && styrkObjArray.length > 0) {
-                        let employment = this.employment$.getValue();
+                        const employment = this.employment$.getValue();
                         employment.JobName = styrkObjArray[0].tittel;
                         this.employment$.next(employment);
 

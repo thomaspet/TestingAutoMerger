@@ -1,4 +1,3 @@
-<uni-toolbar [config]="{title: 'Saldoliste'}"></uni-toolbar>
 <article class="salarybalance application" [attr.aria-busy]="busy">
     <button (click)="createSalarybalance()" class="new-button">Nytt forskudd/trekk</button>
     <uni-table [resource]="salarybalances" [config]="tableConfig" (rowSelected)="rowSelected($event)"></uni-table>

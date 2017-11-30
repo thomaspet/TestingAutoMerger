@@ -1,6 +1,6 @@
 employee-salarybalance
     .splitview
-        margin-top: 0
+        margin-top: .5rem
     .splitview_list
         salarybalances
             article
@@ -11,28 +11,44 @@ employee-salarybalance
     .splitview_detail
         margin-top: 3rem
         padding-top: 2rem
+
         salarybalance-details
+            display: flex
+            flex-direction: row
+
             salary-balance-summary
                 width: 100%
                 section
                     width: 100%
             fieldset
-                width: 100%
-                max-width: 100%
-                aside, uni-image
-                    margin-top: 0
-                    width: 80%
-                    max-width: 80%
-                    margin: 0 10%
+                &:nth-of-type(even)
+                    padding-left: .2rem
+                &:neth-of-type(odd)
+                    padding-right: .2rem
+
+                width: 50%
+                max-width: 50%
+                min-width: 0
+                aside:not(.helpText)
+                    width: 100%
+                    max-width: 100%
+                    margin: 0
+
+            @include media(pxToRem(900px))
+                flex-direction: column
+                padding: 0
+                fieldset
+                    float: none
+                    width: 100%
+                    max-width: 100%
 
             legend
-                justify-self: center
-                padding: 0
                 width: 100%
-                background: $uni-color-toolbar
-                color: $uni-color-negative
                 padding-left: 1rem
                 margin-bottom: 0
+                background: $uni-color-toolbar
+                color: $uni-color-negative
+
 
             uni-field
                 max-width: 100%

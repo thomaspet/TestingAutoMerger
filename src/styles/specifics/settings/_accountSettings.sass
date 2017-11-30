@@ -25,6 +25,10 @@ account-details
         width: 100%
         margin-top: .25rem
 
+    @media only screen and (min-width: pxToRem(1400px))
+        uni-form fieldset:nth-child(odd), uni-form fieldset:nth-of-type(even)
+            min-width: 100%
+
 
 .icon-column
     span
@@ -55,7 +59,3 @@ account-details
     background: transparent unicon-plus($uni-color-positive) no-repeat
     background-size: 0.8rem
     background-position: 0.3rem 0.4rem
-
-@media only screen and (min-width: pxToRem(1400px))
-    main .splitview_detail uni-form fieldset:nth-child(odd), .splitview_detail uni-form fieldset:nth-of-type(even)
-        min-width: 100%
