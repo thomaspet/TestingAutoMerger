@@ -251,8 +251,8 @@ export class WorkRelation extends UniEntity {
     public WorkerID: number;
     public WorkPercentage: number;
     public WorkProfileID: number;
-    public WorkProfile: WorkProfile;
     public Worker: Worker;
+    public WorkProfile: WorkProfile;
     public Employment: Employment;
     public Items: Array<WorkItem>;
     public Team: Team;
@@ -3965,6 +3965,7 @@ export class FileEntityLink extends UniEntity {
     public EntityType: string;
     public FileID: number;
     public ID: number;
+    public IsAttachment: boolean;
     public StatusCode: number;
     public UpdatedAt: Date;
     public UpdatedBy: string;
@@ -5640,6 +5641,7 @@ export class TaxCardReadStatus extends UniEntity {
 export class EmployeeStatus extends UniEntity {
     public employeeID: number;
     public info: string;
+    public ssn: string;
     public status: string;
     public year: number;
     public changedFields: Array<FieldsChanged>;
@@ -5690,7 +5692,6 @@ export class UserLicense extends UniEntity {
     public UserType: UserLicenseType;
     public Company: CompanyLicense;
     public ContractType: ContractLicenseType;
-    public Roles: IEnumerable;
 }
 
 

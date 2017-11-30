@@ -54,6 +54,7 @@ export interface IUniTableConfig {
     beforeEdit?: (editorData: IEditorData) => IEditorData;
     insertRowHandler?: (index: number) => void;
     searchListVisible?: boolean;
+    headerVisible?: boolean;
 }
 
 export interface IRowChangeEvent {
@@ -101,6 +102,7 @@ export class UniTableConfig implements IUniTableConfig {
     public defaultOrderBy: ISortInfo;
 
     public beforeEdit: (event: IEditorData) => IEditorData;
+    public headerVisible: boolean;
 
     /**
      * @constructor
@@ -132,6 +134,12 @@ export class UniTableConfig implements IUniTableConfig {
             return '';
         };
         this.copyFromCellAbove = true;
+        this.headerVisible = true;
+    }
+
+    public setHeaderVisible(visible: boolean) {
+        this.headerVisible = visible;
+        return this;
     }
 
     public setEntityType(entityType: string) {
