@@ -7,15 +7,12 @@ import {BalanceReportFilterModal} from './modals/balanceList/BalanceReportFilter
 import {PostingJournalReportFilterModal} from './modals/postingJournal/PostingJournalReportFilterModal';
 import {ResultAndBalanceReportFilterModal} from './modals/resultAndBalance/ResultAndBalanceReportFilterModal';
 import {BalanceGeneralLedgerFilterModal} from './modals/balanceGeneralLedgerFilter/BalanceGeneralLedgerFilterModal';
-import {CustomerAccountReportFilterModal}
-    from './modals/customerAccountReportFilter/CustomerAccountReportFilterModal';
-import {SupplierAccountReportFilterModal}
-    from './modals/supplierAccountReportFilter/SupplierAccountReportFilterModal';
+import {CustomerAccountReportFilterModal} from './modals/customerAccountReportFilter/CustomerAccountReportFilterModal';
+import {SupplierAccountReportFilterModal} from './modals/supplierAccountReportFilter/SupplierAccountReportFilterModal';
 import {AccountReportFilterModal} from './modals/account/AccountReportFilterModal';
 import {SalaryPaymentListReportFilterModal} from './modals/salaryPaymentList/salaryPaymentListReportFilterModal';
 import {VacationPayBaseReportFilterModal} from './modals/vacationPayBase/vacationPayBaseReportFilterModal';
-import {SalaryWithholdingAndAGAReportFilterModal}
-    from './modals/salaryWithholdingAndAGA/salaryWithholdingAndAGAReportFilterModal';
+import {SalaryWithholdingAndAGAReportFilterModal} from './modals/salaryWithholdingAndAGA/salaryWithholdingAndAGAReportFilterModal';
 import {PayCheckReportFilterModal} from './modals/paycheck/paycheckReportFilterModal';
 import {Router} from '@angular/router';
 import {Observable} from 'rxjs/Observable';
@@ -23,7 +20,7 @@ import {UniModalService, ConfirmActions} from '../../../framework/uniModal/barre
 import {UniReportParamsModal} from './modals/parameter/reportParamModal';
 import {UniPreviewModal} from './modals/preview/previewModal';
 
-interface IMainGroup { 
+interface IMainGroup {
     name: string;
     label: string;
     groups: Array<ISubGroup>;
@@ -31,7 +28,7 @@ interface IMainGroup {
 
 interface ISubGroup {
     name: string;
-    label: string; 
+    label: string;
     reports: Array<Report>;
     keywords?: Array<string>;
 }
@@ -41,7 +38,7 @@ interface ISubGroup {
     templateUrl: './reports.html'
 })
 export class UniReports {
-    
+
     // TODO: rewrite old modals..
     @ViewChild(BalanceReportFilterModal)
     private balanceListModal: BalanceReportFilterModal;
@@ -80,26 +77,26 @@ export class UniReports {
     public busy: boolean = true;
 
     public mainGroups: Array<IMainGroup> = [
-        { name: 'Sales', label: 'Salg', groups: [ 
+        { name: 'Sales', label: 'Salg', groups: [
             { name: 'Quote', label: 'Tilbud', reports: [], keywords: ['Sales.Quote'] },
             { name: 'Order', label: 'Ordre', reports: [], keywords: ['Sales.Order'] },
             { name: 'Invoice', label: 'Faktura', reports: [], keywords: ['Sales.Invoice'] },
         ] },
-        { name: 'Accounting', label: 'Regnskap', groups: [ 
-            { name: 'AccountStatement', label: 'Kontoutskrifter', reports: [], 
+        { name: 'Accounting', label: 'Regnskap', groups: [
+            { name: 'AccountStatement', label: 'Kontoutskrifter', reports: [],
                 keywords: ['Accounting.AccountStatement'] },
             { name: 'Balance', label: 'Saldolister', reports: [], keywords: ['Accounting.Balance'] },
             { name: 'Result', label: 'Resultat', reports: [], keywords: ['Accounting.Result'] },
         ] },
-        { name: 'Payroll', label: 'Lønn', groups:  [ 
+        { name: 'Payroll', label: 'Lønn', groups:  [
             { name: 'Payroll', label: 'Lønn', reports: [], keywords: ['Salary', 'Payroll'] },
         ] },
-        { name: 'Timeracking', label: 'Timer', groups: [ 
+        { name: 'Timeracking', label: 'Timer', groups: [
             { name: 'Timeracking', label: 'Timeregistrering', reports: [], keywords: ['Timer'] },
         ] },
-        { name: 'Custom', label: 'Egendefinert', groups: [ 
+        { name: 'Custom', label: 'Egendefinert', groups: [
             { name: 'Custom', label: 'Ukategorisert', reports: [], keywords: [] },
-        ] },        
+        ] },
     ];
 
     constructor(
@@ -151,21 +148,21 @@ export class UniReports {
                 break;
             case 18:
                 this.customerAccountModal.open(report);
-                break;        
+                break;
             case 19:
                 this.supplierAccountModal.open(report);
-                break;                  
+                break;
             default:
                 this.defaultRunReport(report);
-                break;                                                                           
+                break;
         }
     }
 
     private defaultRunReport(report: ReportDefinition) {
         this.uniModalService.open(UniReportParamsModal,
-            {   data: report, 
-                header: report.Name, 
-                message: report.Description 
+            {   data: report,
+                header: report.Name,
+                message: report.Description
             }).onClose.subscribe(modalResult => {
                 if (modalResult === ConfirmActions.ACCEPT) {
                     this.uniModalService.open(UniPreviewModal, {
@@ -192,17 +189,17 @@ export class UniReports {
     private showReportsEx(response) {
         response[0].forEach(x => x.IsReport = true);
         response[1].forEach(x => x.IsQuery = true);
-        let reportAndQueries = response[0].concat(response[1]);
+        const reportAndQueries = response[0].concat(response[1]);
         reportAndQueries.forEach(element => {
             if (element.Visible || element.IsQuery) {
                 this.placeReport(<Report>element);
             }
-        });        
+        });
     }
 
     private placeReport(report: Report) {
         for (let i = 0; i < this.mainGroups.length; i++) {
-            let match = this.mainGroups[i].groups.find( x => x.label === report.Category 
+            const match = this.mainGroups[i].groups.find( x => x.label === report.Category
                 || (x.keywords && x.keywords.indexOf(report.Category) >= 0));
             if (match) {
                 match.reports.push(report);
@@ -211,9 +208,9 @@ export class UniReports {
         }
 
         // Category not found (put into "custom")
-        let main = this.mainGroups.find( x => x.name === 'Custom');
+        const main = this.mainGroups.find( x => x.name === 'Custom');
         if (report.Category) {
-            let grp = main.groups.find( g => g.label === report.Category || g.name === report.Category);
+            const grp = main.groups.find( g => g.label === report.Category || g.name === report.Category);
             if (grp) {
                 grp.reports.push(report);
             } else {
