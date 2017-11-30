@@ -325,7 +325,7 @@ export class SupplierDetails implements OnInit {
             this.fields$.next(this.getComponentLayout().Fields);
 
             Observable.forkJoin(
-                supplierRequest
+                supplierRequest,
                 this.departmentService.GetAll(null),
                 this.projectService.GetAll(null),
                 this.bankaccountService.GetNewEntity(),
