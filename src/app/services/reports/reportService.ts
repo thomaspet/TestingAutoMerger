@@ -203,13 +203,12 @@ export class ReportService extends BizHttp<string> {
     }
 
     private addLogoUrl() {
-        const logoKeyParam = new CustomReportDefinitionParameter();
-        logoKeyParam.Name = 'LogoUrl';
-        logoKeyParam.value = environment.BASE_URL_FILES + 'api/image/?key=' + this.http.authService.getCompanyKey() + '&id=logo';
-        if (!this.report.parameters) {
-            this.report.parameters = [];
+        if (this.report.parameters) {
+            const logoKeyParam = new CustomReportDefinitionParameter();
+            logoKeyParam.Name = 'LogoUrl';
+            logoKeyParam.value = environment.BASE_URL_FILES + 'api/image/?key=' + this.http.authService.getCompanyKey() + '&id=logo';
+            this.report.parameters.push(logoKeyParam);
         }
-        this.report.parameters.push(logoKeyParam);
     }
 }
 
