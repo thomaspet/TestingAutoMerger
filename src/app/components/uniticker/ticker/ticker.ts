@@ -327,6 +327,7 @@ export class UniTicker {
         if (this.ticker.ParentFilter && this.parentModel) {
             let currentFilter = params.get('filter');
 
+            // Parent filter
             let parentFilter =
                 `${this.ticker.ParentFilter.Field} ` +
                 `${this.ticker.ParentFilter.Operator} ` +
@@ -1051,7 +1052,6 @@ export class UniTicker {
         }
 
         params = this.getSearchParams(params);
-        console.log('filter:', params.get('filter'));
         // execute request to create Excel file
         this.statisticsService
             .GetExportedExcelFile(this.ticker.Model, this.selects, params.get('filter'),

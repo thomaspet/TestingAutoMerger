@@ -58,13 +58,139 @@
     },
     {
         "Name": "Delinger",
-        "Code": "sharing_list",
+        "Code": "invoice_sharing",
         "Type": "Table",
         "IsTopLevelTicker": false,
         "Group": "Salg",
         "Model": "Sharing",
         "Joins": "Sharing.CreatedBy eq User.GlobalIdentity",
         "Filter": "Sharing.EntityType eq 'CustomerInvoice'",
+        "OrderBy": "ID DESC",
+        "Columns": [
+            {
+                "Header": "Dato",
+                "Field": "CreatedAt",
+                "Width": "120px",
+                "Type": "datetime"
+            },
+            {
+                "Header": "Deling",
+                "Field": "Type",
+                "Width": "100px"
+            },
+            {
+                "Header": "Delt av",
+                "Field": "User.DisplayName",
+                "Width": "150px"
+            },
+            {
+                "Header": "Tittel",
+                "Field": "Subject",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "Fra",
+                "Field": "From",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "Til",
+                "Field": "To"
+            },
+            {
+                "Header": "Melding",
+                "Field": "ExternalMessage"
+            },
+            {
+                "Header": "Ekstern refereanse",
+                "Field": "ExternalReference",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "Forløp",
+                "Field": "StatusCode",
+                "Alias": "ShareStatus",
+                "Format": "SharingStatus"
+            }
+        ],
+        "ParentFilter": {
+            "Field": "EntityID",
+            "Operator": "eq",
+            "Value": "ID"
+        }
+    },
+    {
+        "Name": "Delinger",
+        "Code": "order_sharing",
+        "Type": "Table",
+        "IsTopLevelTicker": false,
+        "Group": "Salg",
+        "Model": "Sharing",
+        "Joins": "Sharing.CreatedBy eq User.GlobalIdentity",
+        "Filter": "Sharing.EntityType eq 'CustomerOrder'",
+        "OrderBy": "ID DESC",
+        "Columns": [
+            {
+                "Header": "Dato",
+                "Field": "CreatedAt",
+                "Width": "120px",
+                "Type": "datetime"
+            },
+            {
+                "Header": "Deling",
+                "Field": "Type",
+                "Width": "100px"
+            },
+            {
+                "Header": "Delt av",
+                "Field": "User.DisplayName",
+                "Width": "150px"
+            },
+            {
+                "Header": "Tittel",
+                "Field": "Subject",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "Fra",
+                "Field": "From",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "Til",
+                "Field": "To"
+            },
+            {
+                "Header": "Melding",
+                "Field": "ExternalMessage"
+            },
+            {
+                "Header": "Ekstern refereanse",
+                "Field": "ExternalReference",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "Forløp",
+                "Field": "StatusCode",
+                "Alias": "ShareStatus",
+                "Format": "SharingStatus"
+            }
+        ],
+        "ParentFilter": {
+            "Field": "EntityID",
+            "Operator": "eq",
+            "Value": "ID"
+        }
+    },
+    {
+        "Name": "Delinger",
+        "Code": "quote_sharing",
+        "Type": "Table",
+        "IsTopLevelTicker": false,
+        "Group": "Salg",
+        "Model": "Sharing",
+        "Joins": "Sharing.CreatedBy eq User.GlobalIdentity",
+        "Filter": "Sharing.EntityType eq 'CustomerQuote'",
         "OrderBy": "ID DESC",
         "Columns": [
             {

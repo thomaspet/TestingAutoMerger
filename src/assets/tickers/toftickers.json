@@ -218,7 +218,7 @@
             "NeedsActionOverride": true
             }
     ],
-    "SubTickersCodes": ["invoice_details", "invoice_items", "sharing_list"],
+    "SubTickersCodes": ["invoice_details", "invoice_items", "invoice_sharing"],
     "Filters": [
         {
             "Name": "Alle",
@@ -807,7 +807,7 @@
             "NeedsActionOverride": true
         }
     ],
-    "SubTickersCodes": ["quote_details", "quote_items"],
+    "SubTickersCodes": ["quote_details", "quote_items", "quote_sharing"],
     "Filters": [
         {
             "Name": "Alle",
@@ -1237,7 +1237,7 @@
             "NeedsActionOverride": true
         }
     ],
-    "SubTickersCodes": ["order_details", "order_items"],
+    "SubTickersCodes": ["order_details", "order_items", "order_sharing"],
     "Filters": [
         {
             "Name": "Alle",
