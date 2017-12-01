@@ -14,8 +14,7 @@ export class NumberSeriesTypeService extends BizHttp<NumberSeriesType> {
         this.entityType = NumberSeriesType.EntityType;
         this.DefaultOrderBy = null;
     }
-
-    public save<T>(numberSeriesType: T): Observable<T> {
+    public save<T>(numberSeriesType: NumberSeriesType): Observable<NumberSeriesType> {
         let nst: NumberSeriesType = numberSeriesType;
         if (nst && nst.ID) {
             return this.Put(nst.ID, nst);
