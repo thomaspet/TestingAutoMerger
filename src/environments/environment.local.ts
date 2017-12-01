@@ -1,8 +1,8 @@
 export const environment = {
     production: false,
 
-    BASE_URL_INIT: '',
-    BASE_URL: '',
+    BASE_URL_INIT: 'https://devapi-unieconomy.azurewebsites.net',
+    BASE_URL: 'http://localhost:29077/',
     BASE_URL_INTEGRATION: 'https://devintegrations-unieconomy.azurewebsites.net/',
     BASE_URL_FILES: 'https://unifiles.azurewebsites.net/',
     UNI_PUSH_ADAPTER_URL: 'https://devapi-unipushadapter.azurewebsites.net',

@@ -3885,6 +3885,7 @@ export class NumberSeriesType extends UniEntity {
     public UpdatedBy: string;
     public Yearly: boolean;
     public CustomFields: any;
+    public Series: Array<NumberSeries>;
 }
 
 
@@ -5306,9 +5307,9 @@ export class WorkBalanceDto extends UniEntity {
     public ValidFrom: Date;
     public ValidTimeOff: number;
     public WorkRelationID: number;
-    public WorkRelation: WorkRelation;
     public Previous: BalanceInfo;
     public Details: Array<FlexDetail>;
+    public WorkRelation: WorkRelation;
     public CustomFields: any;
 }
 

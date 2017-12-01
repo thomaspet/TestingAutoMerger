@@ -21,7 +21,7 @@ import {
     NumberSeriesTaskService,
     AccountService
 } from '../../../services/services';
-import {Account} from '../../../unientities';
+import {Account, NumberSeriesType} from '../../../unientities';
 
 declare var _;
 const MAXNUMBER = 2147483647;
@@ -37,6 +37,7 @@ export class NumberSeries {
 
     private series: any[] = [];
     private current: any[] = [];
+    private currentNumberSeriesType: NumberSeriesType;
 
     private numberseries: any[] = [];
     private types: any[] = [];
@@ -85,7 +86,6 @@ export class NumberSeries {
 
     public onSerieSelected(event) {
         if (!(event && event.rowModel)) { return; }
-
         this.currentSerie = event.rowModel;
 
         this.checkSave(true).then( ok => { if (ok) {
@@ -109,7 +109,12 @@ export class NumberSeries {
             this.Save().then(x => {
                 this.busy = false;
                 done('Lagret');
-            }).catch(reason => done(reason));
+            })
+            .catch(err => {
+                this.errorService.handle(err);
+                done('En feil oppstod!');
+            });
+
         }, 50);
     }
 
@@ -202,7 +207,9 @@ export class NumberSeries {
                     }).onClose.subscribe(response => {
                         switch (response) {
                             case ConfirmActions.ACCEPT:
-                                this.Save().then(saveResult => resolve(saveResult));
+                                this.Save()
+                                    .then(saveResult => resolve(saveResult))
+                                    .catch(err => this.errorService.handle(err));
                             break;
                             case ConfirmActions.REJECT:
                                 resolve(true);
@@ -214,7 +221,9 @@ export class NumberSeries {
                     });
 
                 } else {
-                    this.Save().then(x => resolve(x));
+                    this.Save()
+                        .then(x => resolve(x))
+                        .catch(err => this.errorService.handle(err));
                 }
             });
         });
@@ -222,18 +231,53 @@ export class NumberSeries {
 
     private Save(): Promise<boolean> {
         return new Promise((resolve, reject) => {
-            var all = this.uniTables.last.getVisibleTableData();
-            let saveObserveables: Observable<any>[] = all.filter(
-                x => (x._isDirty && this.currentSerie.ID === 'JournalEntry' && x._rowSelected)
-                    || (x._isDirty && this.currentSerie.ID !== 'JournalEntry')
-            ).map(x => {
-                delete x.MainAccount;
-                return this.numberSeriesService.save(x);
+            const all = this.uniTables.last.getVisibleTableData();
+            let numberSeriesTypeToPUTToServer: NumberSeriesType [] = [];
+
+            all.filter(uniTableNumberSeriesRow => uniTableNumberSeriesRow._isDirty).forEach(uniTableNumberSeriesDirtyRow => {
+                if (!numberSeriesTypeToPUTToServer
+                    .some(nstype => nstype.ID === uniTableNumberSeriesDirtyRow.numberSeriesTypeID)) {
+                    numberSeriesTypeToPUTToServer.push(uniTableNumberSeriesDirtyRow.NumberSeriesType);
+                }
             });
-            if (saveObserveables.length === 0) {
+
+            // add numberseries to type
+            all.forEach(uniTableNumberSeriesRow => {
+                numberSeriesTypeToPUTToServer.forEach(numberSeriesType => {
+
+                    if (numberSeriesType.ID === uniTableNumberSeriesRow.NumberSeriesTypeID) {
+
+                        if (this.currentSerie &&
+                            this.currentSerie.ID === 'JournalEntry' &&
+                            !uniTableNumberSeriesRow._rowSelected) {
+                            return;
+                        }
+
+                        numberSeriesType.Series = numberSeriesType.Series || [];
+                        if (uniTableNumberSeriesRow._isDirty) {
+                            uniTableNumberSeriesRow.NumberSeriesType = null;
+                            if (this.currentSerie.ID === 'JournalEntry') {
+                                uniTableNumberSeriesRow.MainAccount = null;
+                            }
+                        }
+
+                        if(!uniTableNumberSeriesRow.ID) {
+                            uniTableNumberSeriesRow['_createguid'] = this.numberSeriesService.getNewGuid();
+                        }
+
+                        numberSeriesType.Series.push(uniTableNumberSeriesRow);
+                    }
+                });
+            });
+
+            let saveTypeObservables: Observable<any>[] = numberSeriesTypeToPUTToServer.map(numberSeriesType => {
+                return this.numberSeriesTypeService.save(numberSeriesType);
+            });
+            if (saveTypeObservables.length === 0) {
                 resolve(true);
             } else {
-                Observable.forkJoin(saveObserveables).subscribe(allSaved => {
+
+                Observable.forkJoin(saveTypeObservables).subscribe(allSaved => {
                     this.toastService.addToast('Lagret', ToastType.good, 7, 'Nummerserier lagret.');
                     this.requestNumberSerie(); // Reload all
                     resolve(true);
@@ -358,7 +402,7 @@ export class NumberSeries {
                     .setEditable(row => row._rowSelected)
                     .setWidth('16rem'),
                 new UniTableColumn('FromNumber', 'Fra nr', UniTableColumnType.Number)
-                    .setEditable(row => !row.ID && row._rowSelected),
+                    .setEditable(row => row._rowSelected),
                 new UniTableColumn('ToNumber', 'Til nr', UniTableColumnType.Number)
                     .setEditable(row => row._rowSelected)
                     .setTemplate(row => `${row.ToNumber === MAXNUMBER ? 'max' : row.ToNumber ? row.ToNumber : ''}`),
@@ -377,7 +421,7 @@ export class NumberSeries {
                 new UniTableColumn('NumberSeriesTask', 'Oppgave', UniTableColumnType.Select)
                     .setEditable(x => !x.row)
                     .setTemplate(row => {
-                        if (row.NumberSeriesTask === null) {
+                        if (!row.NumberSeriesTask) {
                             return 'Bokføring'; // Missing NumberSeriesTask
                         }
 
@@ -448,7 +492,7 @@ export class NumberSeries {
                     .setEditable(true)
                     .setWidth('16rem'),
                 new UniTableColumn('FromNumber', 'Fra nr', UniTableColumnType.Number)
-                    .setEditable(row => !row.ID),
+                    .setEditable(true),
                 new UniTableColumn('ToNumber', 'Til nr', UniTableColumnType.Number)
                     .setEditable(true)
                     .setTemplate(row => `${row.ToNumber === MAXNUMBER ? 'max' : row.ToNumber ? row.ToNumber : ''}`),
@@ -494,7 +538,7 @@ export class NumberSeries {
                     .setEditable(true)
                     .setWidth('16rem'),
                 new UniTableColumn('FromNumber', 'Fra nr', UniTableColumnType.Number)
-                    .setEditable(row => !row.ID),
+                    .setEditable(true),
                 new UniTableColumn('ToNumber', 'Til nr', UniTableColumnType.Number)
                     .setEditable(true)
                     .setTemplate(row => `${row.ToNumber === MAXNUMBER ? 'max' : row.ToNumber ? row.ToNumber : ''}`),
