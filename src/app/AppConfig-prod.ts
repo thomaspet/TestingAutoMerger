@@ -13,13 +13,13 @@ export const AppConfig = ({
     // BASE_URL_INTEGRATION: 'http://localhost:17100/',
     BASE_URL_INTEGRATION: 'https://integration.unieconomy.no/',
 
-    BASE_URL_FILES: 'https://unifiles.unieconomy.no/',
+    BASE_URL_FILES: 'https://files.unieconomy.no/',
 
-    UNI_PUSH_ADAPTER_URL: 'https://unipushadapter.azurewebsites.net',
+    UNI_PUSH_ADAPTER_URL: 'https://pushadapter.unieconomy.no',
 
-    UNI_JOB_SERVER_URL: 'https://devapi-unijobserver.azurewebsites.net/api/',
+    UNI_JOB_SERVER_URL: 'https://api.unieconomy.no/api/',
 
-    ADMIN_SERVER_URL: 'https://admin.unieconomy.no',
+    ADMIN_SERVER_URL: 'https://elsa.unieconomy.no',
 
     API_DOMAINS: {
         INIT: '/api/init/',
