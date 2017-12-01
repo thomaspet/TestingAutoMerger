@@ -26,7 +26,7 @@ import {BehaviorSubject} from 'rxjs/BehaviorSubject';
                 <uni-form
                     [config]="formConfig$"
                     [fields]="formFields$"
-                    [model]="formModel$">
+                    [model]="authDetails">
                 </uni-form>
             </article>
 
@@ -48,8 +48,8 @@ export class LoginModal implements IUniModal, OnInit {
     public onClose: EventEmitter<any> = new EventEmitter();
 
     public formConfig$: BehaviorSubject<any> = new BehaviorSubject({autofocus: false});
-    public formModel$: BehaviorSubject<any> = new BehaviorSubject({});
     public formFields$: BehaviorSubject<UniFieldLayout[]> = new BehaviorSubject([]);
+    public authDetails: {username: string; password: string};
 
     private usernamePreFilled: boolean;
     private working: boolean = false;
@@ -65,10 +65,10 @@ export class LoginModal implements IUniModal, OnInit {
             const email = auth && auth.user && auth.user.Email;
             this.usernamePreFilled = email && email.length > 0;
 
-            this.formModel$.next({
+            this.authDetails = {
                 username: email || '',
-                passord: ''
-            });
+                password: ''
+            };
 
             this.formFields$.next(this.getFormFields());
         });
@@ -83,13 +83,12 @@ export class LoginModal implements IUniModal, OnInit {
     }
 
     public authenticate() {
-        const authDetails = this.formModel$.getValue();
-        if (!authDetails.username || !authDetails.password) {
+        if (!this.authDetails.username || !this.authDetails.password) {
             return;
         }
 
         this.working = true;
-        this.authService.authenticate(authDetails).subscribe(
+        this.authService.authenticate(this.authDetails).subscribe(
             (response) => {
                 this.onClose.emit(true);
             },
