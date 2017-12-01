@@ -72,8 +72,8 @@ export class SalaryBalanceSummary implements OnInit, OnChanges {
 
             const transObs = salaryBalance.Transactions && salaryBalance.Transactions.length
                 ? Observable.of(salaryBalance.Transactions)
-                : this.salaryBalanceLineService
-                    .GetAll(`filter=SalaryBalanceID eq ${salaryBalance.ID}`);
+                : this.handleCache(salaryBalance);
+
             transObs
                 .switchMap((response: SalaryBalanceLine[]) => {
                     const filter = [];
@@ -95,8 +95,7 @@ export class SalaryBalanceSummary implements OnInit, OnChanges {
 
             const empObs = salaryBalance.Employee && salaryBalance.Employee.BusinessRelationInfo
                 ? Observable.of(salaryBalance.Employee)
-                : this.employeeService
-                    .Get(salaryBalance.EmployeeID, ['BusinessRelationInfo']);
+                : this.employeeService.Get(salaryBalance.EmployeeID, ['BusinessRelationInfo']);
 
             empObs.subscribe(
                 (emp: Employee) => this.description$
@@ -109,6 +108,16 @@ export class SalaryBalanceSummary implements OnInit, OnChanges {
             this.updateModel([]);
             this.description$.next('');
         }
+    }
+
+    private handleCache(salaryBalance: SalaryBalance) {
+        const lines = this.salarybalanceLinesModel$.getValue();
+        if ((lines && lines.length && !lines.some(x => !!x._createguid))
+            || (salaryBalance.Transactions && salaryBalance.Transactions.length)) {
+            return Observable.of(lines);
+        }
+        this.salaryBalanceLineService.invalidateCache();
+        return this.salaryBalanceLineService.GetAll(`filter=SalaryBalanceID eq ${salaryBalance.ID}`);
     }
 
     private mapRunToBalanceLines(
@@ -185,10 +194,11 @@ export class SalaryBalanceSummary implements OnInit, OnChanges {
 
     private emitChanges(event: IRowChangeEvent) {
         const tableData = [
-            ...this.table.getTableData().filter(x => x['_originalIndex'] === event.rowModel['_originalIndex']),
+            ...this.table.getTableData().filter(x => x['_originalIndex'] !== event.rowModel['_originalIndex']),
             event.rowModel, ];
 
         const lines = this.salarybalanceLinesModel$.getValue();
+
         this.salarybalanceLinesModel$.next([
             ...lines.filter(line => line['_originalIndex'] !== event.rowModel['_originalIndex']),
             event.rowModel,

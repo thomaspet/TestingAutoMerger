@@ -894,17 +894,20 @@ export class EmployeeDetails extends UniView implements OnDestroy {
     }
 
     private saveAll(done: (message: string) => void, refreshEmp: boolean = true) {
-        this.saveAllObs(done, refreshEmp).subscribe();
+        super.updateState(SAVING_KEY, true, false);
+        this.saveAllObs(done, refreshEmp)
+            .finally(() => {
+                super.updateState(SAVING_KEY, false, false);
+            })
+            .subscribe();
     }
 
     private saveAllObs(done: (message: string) => void, refreshEmp: boolean = true): Observable<any[]> {
-        super.updateState(SAVING_KEY, true, false);
         return this.saveEmployee()
             .catch((error, obs) => {
                 done('Feil ved lagring');
                 return this.errorService.handleRxCatch(error, obs);
             })
-            .finally(() => super.updateState(SAVING_KEY, false, false))
             .switchMap(
             (employee) => {
 
@@ -1170,7 +1173,7 @@ export class EmployeeDetails extends UniView implements OnDestroy {
         return super.getStateSubject(SALARYBALANCES_KEY)
             .take(1)
             .switchMap((salarybalances: SalaryBalance[]) => {
-                let obsList: Observable<SalaryBalance>[] = [];
+                const obsList: Observable<SalaryBalance>[] = [];
                 let changeCount = 0;
                 let saveCount = 0;
                 let hasErrors = false;
@@ -1179,14 +1182,13 @@ export class EmployeeDetails extends UniView implements OnDestroy {
                     .forEach((salarybalance, index) => {
                         if (salarybalance['_isDirty'] || salarybalance.Deleted) {
                             changeCount++;
-
                             salarybalance.EmployeeID = this.employee.ID;
 
-                            let source = (salarybalance.ID > 0)
+                            const source = (salarybalance.ID > 0)
                                 ? this.salarybalanceService.Put(salarybalance.ID, salarybalance)
                                 : this.salarybalanceService.Post(salarybalance);
 
-                            let newObs: Observable<SalaryBalance> = <Observable<SalaryBalance>>source
+                            const newObs: Observable<SalaryBalance> = <Observable<SalaryBalance>>source
                                 .finally(() => {
                                     saveCount++;
                                     if (saveCount === changeCount) {
@@ -1206,12 +1208,11 @@ export class EmployeeDetails extends UniView implements OnDestroy {
                                 .catch((err, obs) => {
                                     hasErrors = true;
                                     salarybalances[index].Deleted = false;
-                                    let toastHeader =
+                                    const toastHeader =
                                         `Feil ved lagring av trekk linje ${salarybalance['_originalIndex'] + 1}`;
-                                    let toastBody = (err.json().Messages) ? err.json().Messages[0].Message : '';
+                                    const toastBody = (err.json().Messages) ? err.json().Messages[0].Message : '';
                                     this.toastService.addToast(toastHeader, ToastType.bad, 0, toastBody);
-                                    this.errorService.handle(err);
-                                    return Observable.empty();
+                                    return this.errorService.handleRxCatch(err, obs);
                                 })
                                 .map(
                                 (res: SalaryBalance) => {
