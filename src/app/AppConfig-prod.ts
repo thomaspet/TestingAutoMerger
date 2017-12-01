@@ -17,7 +17,7 @@ export const AppConfig = ({
 
     UNI_PUSH_ADAPTER_URL: 'https://pushadapter.unieconomy.no',
 
-    UNI_JOB_SERVER_URL: 'https://api.unieconomy.no/api/',
+    UNI_JOB_SERVER_URL: 'https://jobserver.unieconomy.no/api/',
 
     ADMIN_SERVER_URL: 'https://elsa.unieconomy.no',
 
