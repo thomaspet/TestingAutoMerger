@@ -281,7 +281,6 @@ export class UniAttachments {
         files.map(file => {
             let link = this.fileLinks.find(link => link.FileID === file.ID);
             if (file._rowSelected !== link.IsAttachment) {
-                console.log("FILE", file);
                 // Save is attachment flag
                 this.fileService.setIsAttachment(this.entity, this.entityID, file.ID, link.IsAttachment).subscribe(() => {
                     link.IsAttachment = !link.IsAttachment;
