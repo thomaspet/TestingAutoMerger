@@ -219,6 +219,7 @@ export class HamburgerMenu {
                     {componentName: 'Rapporter', componentUrl: '/reports', moduleID: UniModules.Reports},
                     {componentName: 'Uttrekk', componentUrl: '/uniqueries', moduleID: UniModules.UniQuery},
                     {componentName: 'Mine oppgaver', componentUrl: '/assignments', moduleID: UniModules.Assignments},
+                    {componentName: 'Delinger', componentUrl: '/sharings', moduleID: UniModules.Sharings}
                 ]
             },
             {

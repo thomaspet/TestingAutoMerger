@@ -3,7 +3,7 @@ import {Observable} from 'rxjs/Observable';
 import {StatisticsService} from './statisticsService';
 import {ErrorService} from './errorService';
 import {UserService} from './userService';
-import {User} from '../../unientities';
+import {User, StatusCodeSharing} from '../../unientities';
 import {CustomerInvoiceService} from '../sales/customerInvoiceService';
 import {CustomerOrderService} from '../sales/customerOrderService';
 import {CustomerQuoteService} from '../sales/customerQuoteService';
@@ -80,6 +80,8 @@ export class StatusService {
                                     case 'CustomerOrderItem':
                                         name = this.customerOrderItemService.getStatusText(item.StatusStatusCode);
                                         break;
+                                    case 'Sharing':
+                                        name = this.getSharingStatusText(item.StatusStatusCode);
                                     // TODO: Add when Quote Item status flow is implemented in back-end
                                     // case 'CustomerQuoteItem':
                                     //     name = this.customerQuoteItemService.getStatusText(item.StatusStatusCode);
@@ -101,6 +103,17 @@ export class StatusService {
 
             resolve(true);
         });
+    }
+
+    public getSharingStatusText(statusCode: number): string {
+        switch (statusCode) {
+            case StatusCodeSharing.Completed:
+                return 'Fullført';
+            case StatusCodeSharing.Failed:
+                return 'Feilet';
+            default:
+                return 'Behandles';
+        }
     }
 
     public getStatusLogEntries(entityType: string, entityID: number, toStatus: number): Observable<any> {

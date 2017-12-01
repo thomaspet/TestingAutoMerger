@@ -735,6 +735,10 @@ export class UniTicker {
                         if (column.Format && column.Format !== '') {
                             // TODO Sett opp flere fornuftige ferdigformater her - f.eks. "NumberPositiveNegative" etc
                             switch (column.Format) {
+                                case 'DateWithTime':
+                                    col.setType(UniTableColumnType.Text);
+                                    col.setTemplate(row => row[col.alias] ? moment(row[col.alias]).format('DD.MM.YYYY HH:mm') : '');
+                                    break;
                                 case 'NumberPositiveNegative':
                                     col.setConditionalCls(row => row[column.Alias] >= 0 ?
                                         'number-good'

@@ -505,6 +505,12 @@ export class UniTickerService { //extends BizHttp<UniQueryDefinition> {
             }
         }
 
+        if (column.SelectableFieldName.toLocaleLowerCase().endsWith('entitytype')) {
+            let model = this.modelService.getModel(data[column.Alias]);
+            let linkNavigationPropertyAlias = column.LinkNavigationProperty.replace('.', '');
+            formattedFieldValue = `${model.TranslatedName} #${data[linkNavigationPropertyAlias]}`;
+        }
+
         if (column.SelectableFieldName.toLowerCase().endsWith('statuscode')) {
             formattedFieldValue = this.statusCodeToText(data[column.Alias]);
         }
@@ -521,7 +527,7 @@ export class UniTickerService { //extends BizHttp<UniQueryDefinition> {
         if (columnType === 'link') {
             let url = '';
             if (column.ExternalModel) {
-                let externalModel = this.modelService.getModel(column.ExternalModel);
+                let externalModel = this.modelService.getModel(column.ExternalModel.startsWith(':field') ? data[column.Alias] : column.ExternalModel);
 
                 if (externalModel && externalModel.DetailsUrl) {
                     url = externalModel.DetailsUrl;
@@ -577,15 +583,15 @@ export class UniTickerService { //extends BizHttp<UniQueryDefinition> {
             }
 
             if (url !== '' && formattedFieldValue !== '') {
-                formattedFieldValue = `<a class="ticker-link" href="/#${url}">${formattedFieldValue}</a>`;
+                formattedFieldValue = `<a class="ticker-link" title="/#${url}" href="/#${url}">${formattedFieldValue}</a>`;
             }
         } else if (columnType === 'external-link') {
             if (formattedFieldValue !== '' && fieldValue && fieldValue !== '') {
-                formattedFieldValue = `<a href="${fieldValue}" target="_blank">${formattedFieldValue}</a>`;
+                formattedFieldValue = `<a href="${fieldValue}" title="${fieldValue}" target="_blank">${formattedFieldValue}</a>`;
             }
         } else if (columnType === 'mailto') {
             if (formattedFieldValue !== '' && fieldValue && fieldValue !== '') {
-                formattedFieldValue = `<a href="mailto:${fieldValue}">${formattedFieldValue}</a>`;
+                formattedFieldValue = `<a href="mailto:${fieldValue}" title="${fieldValue}">${formattedFieldValue}</a>`;
             }
         }
 

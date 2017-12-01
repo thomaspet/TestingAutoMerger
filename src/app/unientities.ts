@@ -251,8 +251,8 @@ export class WorkRelation extends UniEntity {
     public WorkerID: number;
     public WorkPercentage: number;
     public WorkProfileID: number;
-    public Worker: Worker;
     public WorkProfile: WorkProfile;
+    public Worker: Worker;
     public Employment: Employment;
     public Items: Array<WorkItem>;
     public Team: Team;
@@ -2721,23 +2721,43 @@ export class PeriodTemplate extends UniEntity {
 }
 
 
+export class CompanyReport extends UniEntity {
+    public static RelativeUrl = 'company-report';
+    public static EntityType = 'CompanyReport';
+
+    public _createguid: string;
+    public CompanyKey: string;
+    public CreatedAt: Date;
+    public CreatedBy: string;
+    public Deleted: boolean;
+    public ID: number;
+    public ReportDefinitionID: number;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public CustomFields: any;
+}
+
+
 export class ReportDefinition extends UniEntity {
     public static RelativeUrl = 'report-definitions';
     public static EntityType = 'ReportDefinition';
 
     public _createguid: string;
     public Category: string;
+    public CategoryLabel: string;
     public CreatedAt: Date;
     public CreatedBy: string;
     public Deleted: boolean;
     public Description: string;
     public ID: number;
+    public IsStandard: boolean;
     public Md5: string;
     public Name: string;
     public ReportSource: string;
     public TemplateLinkId: string;
     public UpdatedAt: Date;
     public UpdatedBy: string;
+    public Version: string;
     public Visible: boolean;
     public CustomFields: any;
 }
@@ -2768,6 +2788,10 @@ export class ReportDefinitionParameter extends UniEntity {
     public _createguid: string;
     public CreatedAt: Date;
     public CreatedBy: string;
+    public DefaultValue: string;
+    public DefaultValueList: string;
+    public DefaultValueLookupType: string;
+    public DefaultValueSource: string;
     public Deleted: boolean;
     public ID: number;
     public Label: string;
@@ -4231,9 +4255,9 @@ export class JournalEntry extends UniEntity {
     public StatusCode: number;
     public UpdatedAt: Date;
     public UpdatedBy: string;
+    public DraftLines: Array<JournalEntryLineDraft>;
     public FinancialYear: FinancialYear;
     public Lines: Array<JournalEntryLine>;
-    public DraftLines: Array<JournalEntryLineDraft>;
     public NumberSeriesTask: NumberSeriesTask;
     public JournalEntryAccrual: Accrual;
     public CustomFields: any;

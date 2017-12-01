@@ -23,7 +23,8 @@ const PUBLIC_ROUTES = [
     'about',
     'assignments',
     'tickers',
-    'uniqueries'
+    'uniqueries',
+    'sharings'
 ];
 
 @Injectable()
