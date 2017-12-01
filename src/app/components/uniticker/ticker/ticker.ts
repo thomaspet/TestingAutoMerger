@@ -204,8 +204,8 @@ export class UniTicker {
             return {
                 label: action.Name,
                 disabled: () => {
-                    if (this.model && override && override.CheckActionIsDisabled !== undefined) {
-                        return override.CheckActionIsDisabled([this.model]);
+                    if (this.model && override && override.CheckActionIsDisabled) {
+                        return override.CheckActionIsDisabled(this.model);
                     }
 
                     if (action.Type === 'transition' && this.model) {
@@ -470,7 +470,6 @@ export class UniTicker {
     }
 
     private executeAction (action: TickerAction, actionOverride: ITickerActionOverride, selectedRows: Array<any> ) {
-
         if (actionOverride && actionOverride.ExecuteActionHandler !== undefined) {
             // execute overridden executionhandler instead of the standard actionhandling
             actionOverride.ExecuteActionHandler(selectedRows)
@@ -891,8 +890,8 @@ export class UniTicker {
                                     },
                                     disabled: (rowModel) => {
 
-                                        if (actionOverride && actionOverride.CheckActionIsDisabled !== undefined) {
-                                            return actionOverride.CheckActionIsDisabled([rowModel]);
+                                        if (actionOverride && actionOverride.CheckActionIsDisabled) {
+                                            return actionOverride.CheckActionIsDisabled(rowModel);
                                         }
 
                                         if (action.Type === 'transition') {

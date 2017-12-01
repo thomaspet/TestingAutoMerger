@@ -1,12 +1,13 @@
 import {Component, ViewChild, ChangeDetectionStrategy, ChangeDetectorRef} from '@angular/core';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
-import {UniTickerService} from '../../../services/services';
+import {UniTickerService, CustomerInvoiceService} from '../../../services/services';
 import {Ticker, TickerGroup} from '../../../services/common/uniTickerService';
 import {Router, ActivatedRoute} from '@angular/router';
 import {Location} from '@angular/common';
 import {IToolbarConfig} from '../../common/toolbar/toolbar';
 import {IUniSaveAction} from '../../../../framework/save/save';
 import {UniTickerContainer} from '../tickerContainer/tickerContainer';
+import { ITickerActionOverride } from '../../../services/common/uniTickerService';
 
 declare const _; // lodash
 
@@ -23,6 +24,7 @@ export class UniTickerOverview {
     private tickerGroups: TickerGroup[];
     private selectedTicker: Ticker;
 
+    private actionOverrides: Array<ITickerActionOverride>;
 
     private toolbarConfig: IToolbarConfig = {
         title: 'Oversikt',
@@ -43,7 +45,8 @@ export class UniTickerOverview {
         private router: Router,
         private route: ActivatedRoute,
         private location: Location,
-        private cdr: ChangeDetectorRef
+        private cdr: ChangeDetectorRef,
+        private customerInvoiceService: CustomerInvoiceService
     ) {
         this.tabService.addTab({
             name: 'Oversikt',
@@ -64,6 +67,11 @@ export class UniTickerOverview {
                     this.selectTicker(tickerCode);
                 } else {
                     this.navigateToTicker(this.tickerGroups[0].Tickers[0]);
+                }
+
+                switch (tickerCode || this.tickerGroups[0].Tickers[0].Code) {
+                    case 'invoice_list':
+                        this.actionOverrides = this.customerInvoiceService.actionOverrides;
                 }
             });
         });

@@ -17,13 +17,13 @@ import {SellerLinkService} from './sales/sellerLinkService';
 
 export * from './sales/addressService';
 export * from './sales/businessRelationService';
+export * from './sales/customerService';
 export * from './sales/customerInvoiceService';
 export * from './sales/customerOrderItemService';
 export * from './sales/customerOrderService';
 export * from './sales/customerInvoiceItemService';
 export * from './sales/customerQuoteItemService';
 export * from './sales/customerQuoteService';
-export * from './sales/customerService';
 export * from './sales/phoneService';
 export * from './sales/customerInvoiceReminderService';
 export * from './sales/customerInvoiceReminderSettingsService';

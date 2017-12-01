@@ -1,30 +1,9 @@
 import {Component, OnInit, ViewChild} from '@angular/core';
-import {Router} from '@angular/router';
-import {UniHttp} from '../../../../../framework/core/http/http';
-import {
-    StatusCodeCustomerInvoice, LocalDate, CompanySettings, InvoicePaymentData
-} from '../../../../unientities';
+import {CompanySettings} from '../../../../unientities';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
-import {SendEmail} from '../../../../models/sendEmail';
-import {ToastService, ToastType} from '../../../../../framework/uniToast/toastService';
-import {
-    ITickerActionOverride, ITickerColumnOverride
-} from '../../../../services/common/uniTickerService';
+import {ITickerActionOverride, ITickerColumnOverride} from '../../../../services/common/uniTickerService';
 import {UniTickerWrapper} from '../../../uniticker/tickerWrapper/tickerWrapper';
-import {
-    CustomerInvoiceService,
-    ReportDefinitionService,
-    ErrorService,
-    CompanySettingsService,
-    ReportService,
-    EmailService
-} from '../../../../services/services';
-import {
-    UniModalService,
-    UniSendEmailModal,
-    ConfirmActions,
-    UniRegisterPaymentModal
-} from '../../../../../framework/uniModal/barrel';
+import {CustomerInvoiceService, ErrorService, CompanySettingsService} from '../../../../services/services';
 
 @Component({
     selector: 'invoice-list',
@@ -35,34 +14,7 @@ export class InvoiceList implements OnInit {
     @ViewChild(UniTickerWrapper) private tickerWrapper: UniTickerWrapper;
 
     public tickercode: string = 'invoice_list';
-    public actionOverrides: Array<ITickerActionOverride> = [
-        {
-            Code: 'invoice_registerpayment',
-            ExecuteActionHandler: (selectedRows) => this.onRegisterPayment(selectedRows),
-            CheckActionIsDisabled: (selectedRows) => this.onCheckRegisterPaymentDisabled(selectedRows)
-        },
-        {
-            Code: 'invoice_print',
-            AfterExecuteActionHandler: (selectedRows) => this.onAfterPrintInvoice(selectedRows)
-        },
-        {
-            Code: 'invoice_createcreditnote',
-            CheckActionIsDisabled: (selectedRows) => this.onCheckCreateCreditNoteDisabled(selectedRows),
-            ExecuteActionHandler: (selectedRows) => this.onCreateCreditNote(selectedRows)
-        },
-        {
-            Code: 'invoice_creditcreditnote',
-            CheckActionIsDisabled: (selectedRows) => this.onCheckCreditCreditNoteDisabled(selectedRows)
-        },
-        {
-            Code: 'invoice_sendemail',
-            ExecuteActionHandler: (selectedRows) => this.onSendEmail(selectedRows)
-        },
-        {
-            Code: 'invoice_delete',
-            ExecuteActionHandler: (selectedRows) => this.deleteInvoices(selectedRows)
-        }
-    ];
+    public actionOverrides: Array<ITickerActionOverride> = this.customerInvoiceService.actionOverrides;
 
     public columnOverrides: Array<ITickerColumnOverride> = [
         {
@@ -97,20 +49,12 @@ export class InvoiceList implements OnInit {
 
     private companySettings: CompanySettings;
     private baseCurrencyCode: string;
-    private printStatusPrinted: string = '200';
 
     constructor(
-        private uniHttpService: UniHttp,
-        private router: Router,
         private customerInvoiceService: CustomerInvoiceService,
-        private reportDefinitionService: ReportDefinitionService,
         private tabService: TabService,
-        private toastService: ToastService,
         private errorService: ErrorService,
         private companySettingsService: CompanySettingsService,
-        private reportService: ReportService,
-        private modalService: UniModalService,
-        private emailService: EmailService
     ) { }
 
     public ngOnInit() {
@@ -131,203 +75,4 @@ export class InvoiceList implements OnInit {
         });
     }
 
-    public createInvoice() {
-        this.router.navigateByUrl('/sales/invoices/0');
-    }
-
-    public onReminder() {
-        // TODO: Legg inn mulighet for eksterne linker i filtre? Litt sært..
-
-        this.router.navigateByUrl('/sales/reminders');
-    }
-
-    private onAfterPrintInvoice(selectedRows: Array<any>): Promise<any> {
-        return new Promise((resolve, reject) => {
-            let invoice = selectedRows[0];
-            this.customerInvoiceService
-                .setPrintStatus(invoice.ID, this.printStatusPrinted)
-                    .subscribe((printStatus) => {
-                        resolve();
-                    }, err => {
-                        reject(err);
-                        this.errorService.handle(err);
-                    }
-                );
-        });
-    }
-
-    public onCheckRegisterPaymentDisabled(selectedRows: Array<any>): boolean {
-        if (!selectedRows || selectedRows.length !== 1) {
-            return true;
-        }
-
-        let row = selectedRows[0];
-
-        if (row.CustomerInvoiceStatusCode === StatusCodeCustomerInvoice.Invoiced ||
-            row.CustomerInvoiceStatusCode === StatusCodeCustomerInvoice.PartlyPaid) {
-            return false;
-        } else {
-            return true;
-        }
-    }
-
-    public onRegisterPayment(selectedRows: Array<any>): Promise<any> {
-        let row = selectedRows[0];
-
-        if (!row) {
-            return Promise.resolve();
-        }
-
-        return new Promise((resolve, reject) => {
-            // get invoice from API - the data from the ticker may only be partial
-            this.customerInvoiceService.Get(row.ID, ['CurrencyCode']).subscribe(invoice => {
-                let rowModel = invoice;
-                const title = `Register betaling, Faktura ${rowModel.InvoiceNumber || ''},`
-                    + ` ${rowModel.CustomerName || ''}`;
-
-                const paymentData: InvoicePaymentData = {
-                    Amount: rowModel.RestAmount,
-                    AmountCurrency: rowModel.CurrencyCodeID === this.companySettings.BaseCurrencyCodeID
-                        ? rowModel.RestAmount
-                        : rowModel.RestAmountCurrency,
-                    BankChargeAmount: 0,
-                    CurrencyCodeID: rowModel.CurrencyCodeID,
-                    CurrencyExchangeRate: 0,
-                    PaymentDate: new LocalDate(new Date()),
-                    AgioAccountID: null,
-                    BankChargeAccountID: 0,
-                    AgioAmount: 0
-                };
-
-                const modal = this.modalService.open(UniRegisterPaymentModal, {
-                    data: paymentData,
-                    header: title,
-                    modalConfig: {
-                        currencyExchangeRate: rowModel.CurrencyExchangeRate,
-                        entityName: 'CustomerInvoice',
-                        currencyCode: rowModel.CurrencyCode.Code
-                    }
-                });
-
-                modal.onClose.subscribe((payment) => {
-                    if (!payment) {
-                        resolve();
-                        return;
-                    }
-
-                    this.customerInvoiceService.ActionWithBody(rowModel.ID, payment, 'payInvoice').subscribe(
-                        res => {
-                            this.toastService.addToast(
-                                'Faktura er betalt. Bilagsnummer: ' + res.JournalEntryNumber,
-                                ToastType.good,
-                                5
-                            );
-                            resolve();
-                        },
-                        err => {
-                            this.errorService.handle(err);
-                            resolve();
-                        }
-                    );
-                });
-            });
-        });
-    }
-
-    private onCheckCreateCreditNoteDisabled(selectedRows: Array<any>): boolean {
-        let rowModel = selectedRows[0];
-
-        if (rowModel.CustomerInvoiceInvoiceType === 1) {
-            return true;
-        }
-
-        if (rowModel.CustomerInvoiceStatusCode === StatusCodeCustomerInvoice.Invoiced ||
-            rowModel.CustomerInvoiceStatusCode === StatusCodeCustomerInvoice.PartlyPaid ||
-            rowModel.CustomerInvoiceStatusCode === StatusCodeCustomerInvoice.Paid) {
-            return false;
-        } else {
-            return true;
-        }
-    }
-
-    private onCreateCreditNote(selectedRows: Array<any>): Promise<any> {
-        let rowModel = selectedRows[0];
-
-        return new Promise((resolve, reject) => {
-        this.customerInvoiceService.createCreditNoteFromInvoice(rowModel.ID)
-            .subscribe((data) => {
-                resolve();
-
-                setTimeout(() => {
-                    this.router.navigateByUrl('/sales/invoices/' + data.ID);
-                });
-            },
-            err => {
-                this.errorService.handle(err);
-                reject(err);
-            });
-        });
-    }
-
-    private onCheckCreditCreditNoteDisabled(selectedRows: Array<any>): boolean {
-        let rowModel = selectedRows[0];
-
-        if (rowModel.CustomerInvoiceTaxInclusiveAmount === 0 || rowModel.CustomerInvoiceInvoiceType === 0) {
-            // Must have saved at minimum 1 item related to the invoice
-            return true;
-        }
-
-        return !rowModel._links.transitions.invoice;
-    }
-
-    private deleteInvoices(selectedRows: Array<any>): Promise<any> {
-        let invoice = selectedRows[0];
-        return new Promise((resolve, reject) => {
-            this.modalService.confirm({
-                header: 'Slette faktura',
-                message: 'Vil du slette denne fakturaen?',
-                buttonLabels: {
-                    accept: 'Slett',
-                    cancel: 'Avbryt'
-                }
-            }).onClose.subscribe(answer => {
-                if (answer === ConfirmActions.ACCEPT) {
-                    resolve(
-                        this.customerInvoiceService.Remove(invoice.ID, null)
-                            .toPromise()
-                            .then(() => this.tickerWrapper.refreshTicker())
-                            .catch(err => this.errorService.handle(err))
-                    );
-                }
-                resolve();
-            });
-        });
-    }
-
-    private onSendEmail(selectedRows: Array<any>): Promise<any> {
-        let invoice = selectedRows[0];
-
-        return new Promise((resolve, reject) => {
-            let model = new SendEmail();
-            model.EntityType = 'CustomerInvoice';
-            model.EntityID = invoice.ID;
-            model.CustomerID = invoice.CustomerID;
-
-            const invoiceNumber = (invoice.InvoiceNumber)
-                ? ` nr. ${invoice.InvoiceNumber}`
-                : 'kladd';
-
-            model.Subject = 'Faktura' + invoiceNumber;
-            model.Message = 'Vedlagt finner du faktura' + invoiceNumber;
-
-            this.modalService.open(UniSendEmailModal, {
-                data: model
-            }).onClose.subscribe(email => {
-                if (email) {
-                    this.emailService.sendEmailWithReportAttachment('Faktura id', email);
-                }
-                resolve();
-            });
-        });
-    }
 }

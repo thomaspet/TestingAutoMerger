@@ -1022,7 +1022,7 @@ export class TickerActionOptions {
 
 export interface ITickerActionOverride {
     Code: string;
-    CheckActionIsDisabled?: (selectedRows: Array<any>) => boolean;
+    CheckActionIsDisabled?: (selectedRow: any) => boolean;
     BeforeExecuteActionHandler?: (selectedRows: Array<any>) => Promise<boolean> | boolean;
     ExecuteActionHandler?: (selectedRows: Array<any>) => Promise<any>;
     AfterExecuteActionHandler?: (selectedRows: Array<any>) => Promise<any>;
