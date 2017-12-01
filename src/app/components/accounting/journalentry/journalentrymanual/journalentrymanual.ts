@@ -136,8 +136,8 @@ export class JournalEntryManual implements OnChanges, OnInit {
                     tasks.forEach(x => {
                         var task = this.numberSeriesTaskService.translateTask(x.NumberSeriesTask);
                         var serie = this.numberSeriesService.translateSerie(x.DefaultNumberSeries);
-                        var name = serie !== null ? serie._DisplayName : task._DisplayName;
-                        task._DisplayName =  name + ' ' + this.currentFinancialYear.Year;
+                        var name = serie !== null ? task._DisplayName + ' | ' + serie._DisplayName  : task._DisplayName;
+                        task._DisplayName =  name
                     });
                     this.numberSeriesTasks = tasks.map(x => x.NumberSeriesTask);
 
