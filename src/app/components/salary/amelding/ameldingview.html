@@ -63,17 +63,21 @@
             <!--<li>
                 <a (click)="showView = 'control'" [class.router-link-active]="showView == 'control'">Kontroll</a>
             </li>-->
-            <li>
-                <a (click)="showView = ''" [class.router-link-active]="showView == ''">Oppsummering</a>
+            <li (click)="showView = ''" [class.router-link-active]="showView == ''">
+                <a>Oppsummering</a>
+                <uni-helptext [text]="summaryHelptext">{{summaryHelptext}}</uni-helptext>
             </li>
-            <li>
-                <a (click)="showView = 'aga'" [class.router-link-active]="showView == 'aga'">Arbeidsgiveravgift</a>
+            <li (click)="showView = 'aga'" [class.router-link-active]="showView == 'aga'">
+                <a>Arbeidsgiveravgift</a>
+                <uni-helptext [text]="agaHelptext"></uni-helptext>
             </li>
-            <li>
-                <a (click)="showView = 'receipt'" [class.router-link-active]="showView == 'receipt'">Tilbakemelding</a>
+            <li (click)="showView = 'receipt'" [class.router-link-active]="showView == 'receipt'">
+                <a>Tilbakemelding</a>
+                <uni-helptext [text]="receiptHelptext"></uni-helptext>
             </li>
-            <li>
-                <a (click)="showView = 'periodsummary'" [class.router-link-active]="showView == 'periodsummary'">Periodeoppsummering</a>
+            <li (click)="showView = 'periodsummary'" [class.router-link-active]="showView == 'periodsummary'">
+                <a>Periodeoppsummering</a>
+                <uni-helptext [text]="periodHelptext"></uni-helptext>
             </li>
             <!--<li>
                 <a (click)="showView = 'avstem'" [class.router-link-active]="showView == 'avstem'">Avstemming</a>

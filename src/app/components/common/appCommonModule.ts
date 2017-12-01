@@ -96,7 +96,7 @@ import {routes as AppCommonRoutes} from './appCommonRoutes';
 
         LinkMenu,
         UniInfo,
-        BrowserWarning
+        BrowserWarning,
     ],
     entryComponents: [
         AltinnAuthenticationModal,
@@ -148,7 +148,7 @@ import {routes as AppCommonRoutes} from './appCommonRoutes';
         LinkMenu,
 
         UniInfo,
-        BrowserWarning
+        BrowserWarning,
     ]
 })
 export class AppCommonModule {}
