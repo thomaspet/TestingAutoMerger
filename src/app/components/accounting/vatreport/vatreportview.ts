@@ -94,8 +94,10 @@ export class VatReportView implements OnInit, OnDestroy {
     private updateToolbar() {
         let journalEntryNumber;
         let journalEntryID;
+        let year;
 
-        if (this.vatReportsInPeriod && this.vatReportsInPeriod[0]) {
+        if (this.vatReportsInPeriod && this.vatReportsInPeriod[0] && this.vatReportsInPeriod[0].JournalEntry) {
+            year = this.vatReportsInPeriod[0].JournalEntry.JournalEntryNumber.split('-')[1];
 
             journalEntryNumber = this.vatReportsInPeriod[0].JournalEntry
                 ? this.vatReportsInPeriod[0].JournalEntry.JournalEntryNumber
@@ -107,7 +109,8 @@ export class VatReportView implements OnInit, OnDestroy {
         const journalEntryLink = journalEntryNumber && journalEntryID
             ? `/#/accounting/transquery/details;JournalEntryNumber=`
                 + `${journalEntryNumber};`
-                + `journalEntryID=${journalEntryID}`
+                + `journalEntryID=${journalEntryID};`
+                + `Period.AccountYear=${year};`
             : undefined;
 
         this.toolbarconfig = {

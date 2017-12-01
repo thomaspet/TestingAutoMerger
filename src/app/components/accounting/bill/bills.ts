@@ -211,32 +211,30 @@ export class BillsView {
     }
 
     public ngOnInit() {
-        this.companySettingsService.Get(1)
-            .subscribe(settings => {
-                this.companySettings = settings;
-                if (this.companySettings && this.companySettings.BaseCurrencyCode) {
-                    this.baseCurrencyCode = this.companySettings.BaseCurrencyCode.Code;
-                }
-                if (this.startupWithSearchText) {
-                    this.refreshWihtSearchText(this.filterInput(this.startupWithSearchText));
-                } else {
-                    this.refreshList(this.currentFilter, true);
-                }
-                this.updateSaveActions(0);
+        this.companySettingsService.Get(1).subscribe(settings => {
+            this.companySettings = settings;
+            if (this.companySettings && this.companySettings.BaseCurrencyCode) {
+                this.baseCurrencyCode = this.companySettings.BaseCurrencyCode.Code;
+            }
+            if (this.startupWithSearchText) {
+                this.refreshWihtSearchText(this.filterInput(this.startupWithSearchText));
+            } else {
+                this.refreshList(this.currentFilter, true);
+            }
+            this.updateSaveActions(0);
 
-                this.fields$.next(this.getLayout().Fields);
+            this.fields$.next(this.getLayout().Fields);
 
-                this.searchControl.valueChanges
-                    .debounceTime(300)
-                    .subscribe((value: string) => {
-                        var v = this.filterInput(value);
-                        this.startupWithSearchText = v;
-                        this.refreshWihtSearchText(v);
-                    });
+            this.searchControl.valueChanges
+                .debounceTime(300)
+                .subscribe((value: string) => {
+                    var v = this.filterInput(value);
+                    this.startupWithSearchText = v;
+                    this.refreshWihtSearchText(v);
+                });
 
-            }, err => this.errorService.handle(err)
-            );
-        }
+        }, err => this.errorService.handle(err));
+    }
 
 
     public onFormFilterChange(event) {
