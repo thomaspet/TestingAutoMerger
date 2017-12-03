@@ -230,15 +230,9 @@ export class UniAttachments {
         this.ngHttp.post(this.baseUrl + '/api/file', data)
             .map(res => res.json())
             .subscribe((res) => {
-                // files are uploaded to unifiles, and will get an externalid that
-                // references the file in UE - get the UE file and add that to the
-                // collection
-                this.fileService.Get(res.ExternalId)
-                    .subscribe(newFile => {
-                        this.uploading = false;
-                        this.fileUploaded.emit(res);
-                        this.files.push(newFile);
-                    }, err => this.errorService.handle(err));
+                this.uploading = false;
+                this.fileUploaded.emit(res);
+                this.getFiles();
             }, err => {
                 if (!this.didTryReAuthenticate) {
                     // run reauthentication and try to upload the file once more
