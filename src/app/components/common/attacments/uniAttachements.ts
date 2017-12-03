@@ -155,7 +155,7 @@ export class UniAttachments {
     }
 
     private isDefined(value: any) {
-        return (value !== undefined && value !== null);
+        return (value !== undefined && value !== null && value !== 0);
     }
 
     public attachmentClicked(attachment: File) {
@@ -187,7 +187,7 @@ export class UniAttachments {
         const source = event.srcElement || event.target;
 
         if (!this.uploadWithoutEntity && (!this.entity || !this.isDefined(this.entityID))) {
-            throw new Error(`Tried to upload a feil with either entity (${this.entity})`
+            throw new Error(`Tried to upload failed with either entity (${this.entity})`
                  + ` or entityID (${this.entityID}) being null, and uploadWithoutEntity being false`);
         }
 
@@ -214,7 +214,6 @@ export class UniAttachments {
     }
 
     private uploadFile(file: File) {
-
         let data = new FormData();
         data.append('Token', this.token);
         data.append('Key', this.activeCompany.Key);
