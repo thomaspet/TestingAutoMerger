@@ -79,7 +79,7 @@ export class UniUploadFileSaveAction {
         data.append('Token', this.token);
         data.append('Key', this.activeCompany.Key);
         data.append('Caption', ''); // Where should we get this from the user?
-        data.append('File', file);
+        data.append('File', <any>file);
 
         this.ngHttp.post(this.baseUrl + '/api/file', data)
             .map(res => res.json())
