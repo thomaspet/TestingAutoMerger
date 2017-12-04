@@ -204,7 +204,7 @@ export class UniTicker {
         }
 
         let contextMenuItems = actions.map(action => {
-            let override = this.actionOverrides.find(x => action.Code === x.Code);
+            let override = this.actionOverrides && this.actionOverrides.find(x => action.Code === x.Code);
             if ((action.NeedsActionOverride || action.Type === 'action') && !override) {
                 console.warn(`Ticker action ${action.Code} not available because of missing action override`);
                 return;
