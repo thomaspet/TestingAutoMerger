@@ -19,7 +19,9 @@
         [actionOverrides]="actionOverrides"
         [columnOverrides]="columnOverrides"
         [unitableSearchVisible]="true"
-        (rowSelected)="onRowSelected($event)">
+        (rowSelected)="onRowSelected($event)"
+        (editModeToggled)="editModeChanged($event)"
+        (rowSelectionChanged)="onRowSelectionChanged($event)">
     </uni-ticker>
 
     <uni-sub-ticker-container

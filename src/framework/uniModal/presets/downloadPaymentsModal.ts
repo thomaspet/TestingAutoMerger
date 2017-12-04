@@ -35,7 +35,7 @@ export class UniDownloadPaymentsModal implements IUniModal {
     public options: IModalOptions = {};
 
     @Output()
-    public onClose: EventEmitter<any> = new EventEmitter();
+    public onClose: EventEmitter<string> = new EventEmitter();
 
     public formConfig$: BehaviorSubject<any> = new BehaviorSubject({autofocus: true});
     private formModel$: BehaviorSubject<Object> = new BehaviorSubject(null);
@@ -66,21 +66,21 @@ export class UniDownloadPaymentsModal implements IUniModal {
             this.isLoading = true;
             this.bankFileDownloadService.DownloadBankFiles(model['Password']).subscribe((res) => {
                 this.isLoading = false;
-                this.toastService.addToast(
-                    'Bankfilene er hentet.',
-                    ToastType.good,
-                    5
-                );
-                this.onClose.emit();
+                // this.toastService.addToast(
+                //     'Bankfilene er hentet.',
+                //     ToastType.good,
+                //     5
+                // );
+                this.onClose.emit('Bankfilene er hentet.');
             }, err => {
                 this.isLoading = false;
-                this.toastService.addToast(
-                    'Kunne ikke hente bankfiler',
-                    ToastType.bad,
-                    5
-                );
-                this.errorService.handle(err);
-                this.onClose.emit();
+                // this.toastService.addToast(
+                //     'Kunne ikke hente bankfiler',
+                //     ToastType.bad,
+                //     5
+                // );
+                // this.errorService.handle(err);
+                this.onClose.emit('Kunne ikke hente bankfiler',);
             });
         } else {
             this.isEmpty  = true;
@@ -88,7 +88,7 @@ export class UniDownloadPaymentsModal implements IUniModal {
     }
 
     public onBadClick() {
-        this.onClose.emit();
+        this.onClose.emit('Henting av bankfiler avbrutt.');
     }
 
     private getFormFields(): UniFieldLayout[] {

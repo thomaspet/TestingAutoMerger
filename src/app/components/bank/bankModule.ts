@@ -10,6 +10,7 @@ import {LayoutModule} from '../layout/layoutModule';
 import {UniFrameworkModule} from '../../../framework/frameworkModule';
 import {AppCommonModule} from '../common/appCommonModule';
 import {AppPipesModule} from '../../pipes/appPipesModule';
+import {UniTickerModule} from '../uniticker/uniTickerModule';
 
 // routes
 import {bankRoutes} from './bankRoutes';
@@ -23,6 +24,7 @@ import {PaymentRelationsModal, PaymentRelationsTable} from './payments/relationM
 import {CustomerPaymentBatches} from './payments/customerPaymentBatches';
 import {CustomerPaymentBatchDetails} from './payments/customerPaymentBatchDetails';
 import {CanDeactivateGuard} from '../../canDeactivateGuard';
+import {UniPaymentEditModal} from './modals/paymentEditModal';
 
 @NgModule({
     imports: [
@@ -39,6 +41,7 @@ import {CanDeactivateGuard} from '../../canDeactivateGuard';
         LayoutModule,
         AppCommonModule,
         AppPipesModule,
+        UniTickerModule
     ],
     declarations: [
         BankComponent,
@@ -48,10 +51,12 @@ import {CanDeactivateGuard} from '../../canDeactivateGuard';
         PaymentRelationsTable,
         PaymentBatchDetails,
         CustomerPaymentBatches,
-        CustomerPaymentBatchDetails
+        CustomerPaymentBatchDetails,
+        UniPaymentEditModal
     ],
     entryComponents: [
-        PaymentRelationsTable
+        PaymentRelationsTable,
+        UniPaymentEditModal
     ],
     providers: [
         CanDeactivateGuard

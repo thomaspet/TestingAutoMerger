@@ -6,9 +6,10 @@ import {
 
 export interface IUniSaveAction {
     label: string;
-    action: (done: (statusMessage?: string) => any) => void;
+    action: (done: (statusMessage?: string) => any, file?: any) => void;
     main?: boolean;
     disabled?: boolean;
+    isUpload?: boolean;
 }
 
 @Component({
@@ -65,13 +66,20 @@ export class UniSave {
 
     private onSave(action) {
         // don't call save again if its still working on saving or is disabled
-        if (this.busy || action.disabled) { return; }
+        if (this.busy || action.disabled || action.isUpload) { return; }
 
         this.open = false;
         this.busy = true;
         this.statusMessage = undefined;
 
         setTimeout(() => action.action(this.onSaveCompleted.bind(this)));
+    }
+
+    public onFileUpload(file, action) {
+        this.open = false;
+        this.busy = true;
+        this.statusMessage = undefined;
+        action.action(this.onSaveCompleted.bind(this), file);
     }
 
     public onSaveCompleted(statusMessage?: string) {

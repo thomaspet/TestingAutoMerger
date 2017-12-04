@@ -1,0 +1,465 @@
+[
+    {
+        "Name": "Innbetaling",
+        "Code": "bank_list",
+        "Type": "Table",
+        "IsTopLevelTicker": true,
+        "Group": "Bank",
+        "Model": "Payment",
+        "Expand": "BusinessRelation,ToBankAccount,FromBankAccount",
+        "Columns": [
+            {
+                "Header": "Fakturanr",
+                "Field": "InvoiceNumber",
+                "Width": "10%",
+                "LinkNavigationProperty": "InvoiceNumber",
+                "FilterOperator": "startswith"
+            },
+            {
+                "Header": "Kunde",
+                "Field": "BusinessRelation.Name",
+                "Width": "20%",
+                "FilterOperator": "contains"
+            },
+            {
+                "Header": "Konto fra",
+                "Field": "FromBankAccount.AccountNumber",
+                "Width": "15%",
+                "FilterOperator": "contains"
+            },
+            {
+                "Header": "Konto til",
+                "Field": "ToBankAccount.AccountNumber",
+                "Width": "15%",
+                "FilterOperator": "contains"
+            },
+            {
+                "Header": "KID",
+                "Field": "PaymentID",
+                "Width": "15%",
+                "FilterOperator": "contains"
+            },
+            {
+                "Header": "Innbetaling",
+                "Field": "IsCustomerPayment",
+                "Width": "15%",
+                "FilterOperator": "contains",
+                "DefaultHidden": false
+            },
+            {
+                "Header": "Beløp",
+                "Field": "Amount",
+                "Width": "10%",
+                "FilterOperator": "contains",
+                "SumColumn": true
+            },
+            {
+                "Header": "Status",
+                "Field": "StatusCode",
+                "Width": "15%",
+                "FilterOperator": "contains"
+            }
+        ],
+        "Filters": [
+            {
+                "Name": "Alle",
+                "Code": "bank_list",
+                "UseAllCriterias": true,
+                "FilterGroups": [{
+                    "UseAllCriterias": true,
+                    "FieldFilters": [
+                        {
+                            "Field": "IsCustomerPayment",
+                            "Operator": "eq",
+                            "Value": "true"
+                        }
+                    ]
+                }]
+            },
+            {
+                "Name": "Innbetalt ikke bokført",
+                "Code": "incomming_not_journaled",
+                "UseAllCriterias": true,
+                "FilterGroups": [{
+                    "UseAllCriterias": true,
+                    "FieldFilters": [
+                        {
+                            "Field": "IsCustomerPayment",
+                            "Operator": "eq",
+                            "Value": "true"
+                        },
+                        {
+                            "Field": "StatusCode",
+                            "Operator": "eq",
+                            "Value": "44001"
+                        }
+                    ]
+                }]
+            },
+            {
+                "Name": "Innbetalt og bokført",
+                "Code": "incomming_and_journaled",
+                "UseAllCriterias": true,
+                "FilterGroups": [{
+                    "UseAllCriterias": true,
+                    "FieldFilters": [
+                        {
+                            "Field": "IsCustomerPayment",
+                            "Operator": "eq",
+                            "Value": "true"
+                        },
+                        {
+                            "Field": "StatusCode",
+                            "Operator": "eq",
+                            "Value": "44004"
+                        }
+                    ]
+                }]
+            }
+        ],
+        "Actions": [
+            {
+                "Name": "Last ned betalingsfil",
+                "Code": "download_file",
+                "Type": "action",
+                "ExecuteWithMultipleSelections": false,
+                "DisplayInContextMenu": true,
+                "DisplayInActionBar": false,
+                "NeedsActionOverride": true
+            }
+        ],
+        "SubTickersCodes": ["payment_details", "post_in_file"]
+    },
+    {
+        "Name": "Utbetaling",
+        "Code": "payment_list",
+        "Type": "Table",
+        "IsTopLevelTicker": true,
+        "EditToggle": false,
+        "MultiRowSelect": true,
+        "Group": "Bank",
+        "Model": "Payment",
+        "Expand": "BusinessRelation,ToBankAccount,FromBankAccount,PaymentCode",
+        "Columns": [
+            {
+                "Header": "Betales til",
+                "Field": "BusinessRelation.Name",
+                "Width": "15%",
+                "LinkNavigationProperty": "InvoiceNumber",
+                "FilterOperator": "startswith"
+            },
+            {
+                "Header": "Konto fra",
+                "Field": "FromBankAccount.AccountNumber",
+                "Width": "15%",
+                "FilterOperator": "contains"
+            },
+            {
+                "Header": "Konto til",
+                "Field": "ToBankAccount.AccountNumber",
+                "Width": "15%",
+                "FilterOperator": "contains"
+            },
+            {
+                "Header": "KID",
+                "Field": "PaymentID",
+                "Width": "15%",
+                "FilterOperator": "contains",
+                "Alias": "PaymentID",
+                "DisplayField": "PaymentID"
+            },
+            {
+                "Header": "Kode",
+                "Field": "PaymentCode.Code",
+                "Width": "15%",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "Type",
+                "Field": "PaymentCode.Name",
+                "Width": "15%",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "Beløp",
+                "Field": "AmountCurrency",
+                "Width": "10%",
+                "FilterOperator": "contains",
+                "SumColumn": true
+            },
+            {
+                "Header": "Beløp",
+                "Field": "Amount",
+                "Width": "10%",
+                "FilterOperator": "contains",
+                "Alias": "Amount",
+                "DisplayField": "Amount"
+            },
+            {
+                "Header": "Betalingsdato",
+                "Field": "PaymentDate",
+                "Type": "date",
+                "Width": "15%",
+                "FilterOperator": "contains",
+                "Alias": "PaymentDate",
+                "DisplayField": "PaymentDate"
+            },
+            {
+                "Header": "Status",
+                "Field": "StatusCode",
+                "Width": "15%",
+                "FilterOperator": "contains"
+            }
+        ],
+        "Filters": [
+            {
+                "Name": "Ubetalt",
+                "Code": "not_payed",
+                "UseAllCriterias": true,
+                "IsMultiRowSelect": true,
+                "FilterGroups": [{
+                    "UseAllCriterias": true,
+                    "FieldFilters": [
+                        {
+                            "Field": "IsCustomerPayment",
+                            "Operator": "eq",
+                            "Value": "false"
+                        },
+                        {
+                            "Field": "StatusCode",
+                            "Operator": "eq",
+                            "Value": "44001"
+                        }
+                    ]
+                }]
+            },
+            {
+                "Name": "Overført bank",
+                "Code": "transferred_bank",
+                "UseAllCriterias": true,
+                "FilterGroups": [{
+                    "UseAllCriterias": true,
+                    "FieldFilters": [
+                        {
+                            "Field": "IsCustomerPayment",
+                            "Operator": "eq",
+                            "Value": "false"
+                        },
+                        {
+                            "Field": "StatusCode",
+                            "Operator": "ne",
+                            "Value": "44001"
+                        },
+                        {
+                            "Field": "StatusCode",
+                            "Operator": "ne",
+                            "Value": "44003"
+                        },
+                        {
+                            "Field": "StatusCode",
+                            "Operator": "ne",
+                            "Value": "44004"
+                        },
+                        {
+                            "Field": "StatusCode",
+                            "Operator": "ne",
+                            "Value": "44006"
+                        },
+                        {
+                            "Field": "StatusCode",
+                            "Operator": "ne",
+                            "Value": "44007"
+                        }
+                    ]
+                }]
+            },
+            {
+                "Name": "Betalt ikke bokført",
+                "Code": "payed_not_journaled",
+                "UseAllCriterias": true,
+                "FilterGroups": [{
+                    "UseAllCriterias": true,
+                    "FieldFilters": [
+                        {
+                            "Field": "IsCustomerPayment",
+                            "Operator": "eq",
+                            "Value": "false"
+                        },
+                        {
+                            "Field": "StatusCode",
+                            "Operator": "eq",
+                            "Value": "44006"
+                        }
+                    ]
+                }]
+            },
+            {
+                "Name": "Betalt og bokført",
+                "Code": "payed_and_journaled",
+                "UseAllCriterias": true,
+                "FilterGroups": [{
+                    "UseAllCriterias": true,
+                    "FieldFilters": [
+                        {
+                            "Field": "IsCustomerPayment",
+                            "Operator": "eq",
+                            "Value": "false"
+                        },
+                        {
+                            "Field": "StatusCode",
+                            "Operator": "eq",
+                            "Value": "44004"
+                        }
+                    ]
+                }]
+            },
+            {
+                "Name": "Alle",
+                "Code": "payment_list",
+                "UseAllCriterias": true,
+                "FilterGroups": [{
+                    "UseAllCriterias": true,
+                    "FieldFilters": [
+                        {
+                            "Field": "IsCustomerPayment",
+                            "Operator": "eq",
+                            "Value": "false"
+                        }
+                    ]
+                }]
+            }
+        ],
+        "SubTickersCodes": ["tracelink_table"]
+    },
+    {
+        "Name": "Detaljer",
+        "Type": "Details",
+        "Code": "payment_details",
+        "IsTopLevelTicker": false,
+        "Group": "Bank",
+        "Model": "PaymentBatch",
+        "Expand": "",
+        "SubTickers": [],
+        "Filters": [],
+        "UseParentTickerActions": true,
+        "ParentFilter": {
+            "Field": "ID",
+            "Operator": "eq",
+            "Value": "PaymentBatchID"
+        },
+        "Columns": [
+            {
+                "FieldSetColumn": 1,
+                "Header": "Bilagsdato",
+                "Field": "CreatedAt",
+                "Type": "date"
+            },
+            {
+                "FieldSetColumn": 2,
+                "Header": "Mottatt fil",
+                "Field": "ReceiptDate",
+                "Type": "date"
+            },
+            {
+                "FieldSetColumn": 2,
+                "Header": "Sum fil",
+                "Field": "TotalAmount",
+                "Type": "number"
+            },
+            {
+                "FieldSetColumn": 2,
+                "Header": "Antall poster",
+                "Field": "NumberOfPayments",
+                "Type": "text"
+            }
+        ]
+    },
+    {
+        "Name": "Poster i filen",
+        "Type": "Table",
+        "Code": "post_in_file",
+        "IsTopLevelTicker": false,
+        "Group": "Bank",
+        "Model": "Payment",
+        "Expand": "BusinessRelation,ToBankAccount,FromBankAccount",
+        "UseParentTickerActions": true,
+        "ParentFilter": {
+            "Field": "PaymentBatchID",
+            "Operator": "eq",
+            "Value": "PaymentBatchID"
+        },
+        "Columns": [
+            {
+                "Header": "Fakturanr",
+                "Field": "InvoiceNumber",
+                "Width": "10%",
+                "FilterOperator": "startswith"
+            },
+            {
+                "Header": "Kunde",
+                "Field": "BusinessRelation.Name",
+                "Width": "20%",
+                "FilterOperator": "contains"
+            },
+            {
+                "Header": "Beløp",
+                "Field": "Amount",
+                "Width": "15%",
+                "FilterOperator": "contains",
+                "SumColumn": true
+            },
+            {
+                "Header": "KID",
+                "Field": "PaymentID",
+                "Width": "15%",
+                "FilterOperator": "contains"
+            }
+        ]
+    },
+    {
+        "Name": "Koblinger",
+        "Type": "Table",
+        "Code": "tracelink_table",
+        "IsTopLevelTicker": false,
+        "Group": "Bank",
+        "Model": "Tracelink",
+        "Expand": "",
+        "SubTickers": [],
+        "UseParentTickerActions": false,
+        "ParentFilter": {
+            "Field": "DestinationInstanceID",
+            "Operator": "eq",
+            "Value": "ID"
+        },
+        "Columns": [
+            {
+                "FieldSetColumn": 1,
+                "Header": "Entitet",
+                "Field": "SourceEntityName"
+            },
+            {
+                "FieldSetColumn": 1,
+                "Header": "ID",
+                "Field": "SourceInstanceID",
+                "Type": "id"
+            }
+        ],
+        "Filters": [
+            {
+                "Name": "tracelinkfilter",
+                "Code": "tracelink_table",
+                "UseAllCriterias": true,
+                "FilterGroups": [{
+                    "UseAllCriterias": true,
+                    "FieldFilters": [
+                        {
+                            "Field": "DestinationEntityName",
+                            "Operator": "eq",
+                            "Value": "'Payment'"
+                        }
+                    ]
+                }]
+            }
+        ]
+    }
+]

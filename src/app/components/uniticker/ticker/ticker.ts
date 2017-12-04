@@ -69,7 +69,9 @@ export class UniTicker {
     @Input() public unitableSearchVisible: boolean;
 
     @Output() public rowSelected: EventEmitter<any> = new EventEmitter<any>();
+    @Output() public rowSelectionChanged: EventEmitter<any> = new EventEmitter();
     @Output() public contextMenuItemsChange: EventEmitter<any[]> = new EventEmitter();
+    @Output() public editModeToggled: EventEmitter<boolean> = new EventEmitter();
 
     @ViewChild(UniTable) public unitable: UniTable;
 
@@ -89,6 +91,8 @@ export class UniTicker {
     private openAction: TickerAction;
 
     private unitableFilter: string;
+
+    private busy: boolean = false;
 
     constructor(
         private uniHttpService: UniHttp,
@@ -172,6 +176,7 @@ export class UniTicker {
 
             // run this even if it is not a table, because it prepares the query as well.
             // Consider splitting this function to avoid this later
+            this.busy = true;
             this.setupTableConfig().then(() => {
                 let tickerType = this.ticker.Type;
                 if (tickerType === 'table') {
@@ -187,6 +192,10 @@ export class UniTicker {
 
             this.cdr.markForCheck();
         }
+    }
+
+    private onTableReady() {
+        this.busy = false;
     }
 
     private actionsToContextMenuItems(actions) {
@@ -362,7 +371,7 @@ export class UniTicker {
                 } else {
                     this.model = null;
                 }
-
+                this.busy = false;
                 this.cdr.markForCheck();
             });
     }
@@ -375,11 +384,16 @@ export class UniTicker {
 
     private onRowSelected(rowSelectEvent) {
         this.selectedRow = rowSelectEvent.rowModel;
+        this.selectedRow._editable = this.tableConfig.editable;
         this.rowSelected.emit(this.selectedRow);
     }
 
     private onFilterChange(filterChangeEvent) {
         this.unitableFilter = filterChangeEvent.filter;
+    }
+
+    public editModeChanged(event) {
+        this.editModeToggled.emit(event);
     }
 
     private onColumnsChange(columnsChangeEvent) {
@@ -538,7 +552,7 @@ export class UniTicker {
         }
     }
 
-    private reloadData() {
+    public reloadData() {
         if (this.unitable) {
             this.unitable.refreshTableData();
         } else {
@@ -676,6 +690,10 @@ export class UniTicker {
 
                         if (column.CssClass) {
                             col.cls = column.CssClass;
+                        }
+
+                        if (column.DisplayField) {
+                            col.displayField = column.DisplayField;
                         }
 
                         let columnOverride = this.columnOverrides.find(x => x.Field === column.Field);
@@ -919,8 +937,9 @@ export class UniTicker {
                     .setAllowGroupFilter(true)
                     .setColumnMenuVisible(true)
                     .setSearchable(this.unitableSearchVisible)
-                    .setMultiRowSelect(false)
+                    .setMultiRowSelect(this.isMultiRowSelect())
                     .setSearchListVisible(true)
+                    .setAllowEditToggle(this.ticker.EditToggle)
                     .setContextMenu(contextMenuItems, true, false)
                     .setDataMapper((data) => {
                         if (this.ticker.Model) {
@@ -948,6 +967,14 @@ export class UniTicker {
                             .some(readOnlyField => row[readOnlyField.Key] === readOnlyField.Value);
                     });
         });
+    }
+
+    public onRowSelectionChanged(event) {
+        this.rowSelectionChanged.emit(event);
+    }
+
+    private isMultiRowSelect(): boolean {
+        return this.ticker.MultiRowSelect && this.selectedFilter && this.selectedFilter.IsMultiRowSelect;
     }
 
     private shouldAddColumnToQuery(column: TickerColumn, userColumnSetup: UniTableColumn): boolean {

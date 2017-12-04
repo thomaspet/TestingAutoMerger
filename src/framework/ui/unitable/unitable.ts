@@ -65,6 +65,7 @@ export class UniTable implements OnChanges {
     @Output() public columnsChange: EventEmitter<any> = new EventEmitter();
     @Output() public pageChange: EventEmitter<any> = new EventEmitter();
     @Output() public dataLoaded: EventEmitter<any> = new EventEmitter();
+    @Output() public editModeChange: EventEmitter<boolean> = new EventEmitter();
 
     @ViewChild(UnitableEditor) private editor: UnitableEditor;
     @ViewChild(UnitableContextMenu) private contextMenu: UnitableContextMenu;
@@ -441,6 +442,11 @@ export class UniTable implements OnChanges {
         this.columnsChange.emit(this.tableColumns.toJS());
     }
 
+    public toggleEditmode() {
+        this.config.editable = !this.config.editable;
+        this.editModeChange.emit(this.config.editable);
+    }
+
     private onSort(column) {
         if (!this.config.sortable) {
             return;
@@ -524,7 +530,7 @@ export class UniTable implements OnChanges {
 
         // Add new row if we're at the last one as we might need to navigate to it
         let rowIndex = this.lastFocusedRowModel && this.lastFocusedRowModel.get('_originalIndex');
-        if (this.config.editable && key !== KeyCodes.ESCAPE && rowIndex === (this.tableData.size - 1)) {
+        if (this.config.autoAddNewRow && this.config.editable && key !== KeyCodes.ESCAPE && rowIndex === (this.tableData.size - 1)) {
             this.addNewRow();
         }
 

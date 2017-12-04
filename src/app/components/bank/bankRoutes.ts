@@ -9,27 +9,10 @@ export const bankRoutes: Routes = [
     {
         path: '',
         component: BankComponent,
-        children: [
-            {
-                path: '',
-                pathMatch: 'full',
-                redirectTo: 'payments'
-            },
-            {
-                path: 'payments',
-                component: PaymentList,
-                canDeactivate: [CanDeactivateGuard]
-            },
-            {
-                path: 'batches',
-                component: PaymentBatches
-            },
-            {
-                path: 'customerbatches',
-                component: CustomerPaymentBatches
-            }
-        ],
-
+    },
+    {
+        path: '/:code',
+        component: BankComponent,
     }
 ];
 

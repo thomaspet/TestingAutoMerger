@@ -10,6 +10,7 @@ import {CustomerQuoteService} from '../sales/customerQuoteService';
 import {CustomerInvoiceItemService} from '../sales/customerInvoiceItemService';
 import {CustomerOrderItemService} from '../sales/customerOrderItemService';
 import {CustomerQuoteItemService} from '../sales/customerQuoteItemService';
+import {PaymentService} from '../accounting/paymentService';
 
 @Injectable()
 export class StatusService {
@@ -24,7 +25,8 @@ export class StatusService {
         private customerQuoteService: CustomerQuoteService,
         private customerInvoiceItemService: CustomerInvoiceItemService,
         private customerOrderItemService: CustomerOrderItemService,
-        private customerQuoteItemService: CustomerQuoteItemService
+        private customerQuoteItemService: CustomerQuoteItemService,
+        private paymentService: PaymentService
     ) {}
 
     public getStatusText(statusCode: number): string {
@@ -79,6 +81,9 @@ export class StatusService {
                                         break;
                                     case 'CustomerOrderItem':
                                         name = this.customerOrderItemService.getStatusText(item.StatusStatusCode);
+                                        break;
+                                    case 'Payment':
+                                        name = this.paymentService.getStatusText(item.StatusStatusCode);
                                         break;
                                     case 'Sharing':
                                         name = this.getSharingStatusText(item.StatusStatusCode);

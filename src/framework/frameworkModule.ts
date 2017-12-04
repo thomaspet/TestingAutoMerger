@@ -5,6 +5,7 @@ import {UniModal} from './modals/modal';
 import {UniDocumentList} from './documents/list';
 import {UniDocumentUploader} from './documents/uploader';
 import {UniSave} from './save/save';
+import {UniUploadFileSaveAction} from './save/upload';
 import {UniImage} from './uniImage/uniImage';
 import {UniToast} from './uniToast/toast';
 import {UniToastList} from './uniToast/toastList';
@@ -52,6 +53,7 @@ import {UniModalService, MODALS} from './uniModal/barrel';
         UniDocumentList,
         UniDocumentUploader,
         UniSave,
+        UniUploadFileSaveAction,
         UniImage,
         UniToast,
         UniToastList,
@@ -87,6 +89,7 @@ import {UniModalService, MODALS} from './uniModal/barrel';
         UniDocumentList,
         UniDocumentUploader,
         UniSave,
+        UniUploadFileSaveAction,
         UniImage,
         UniToast,
         UniToastList,

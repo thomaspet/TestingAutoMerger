@@ -1,11 +1,19 @@
 <section class="save-buttons">
-    <button type="button" *ngIf="main"
+    <button type="button" *ngIf="main && !main.isUpload"
         class="toolbar-save"
         (click)="onSave(main)"
         [attr.aria-busy]="busy"
         [disabled]="main.disabled">
         {{main.label}}
     </button>
+
+    <uni-upload-file-save
+        *ngIf="main && main.isUpload"
+        class="toolbar-save-button-upload"
+        [buttonText]="main.label"
+        [attr.aria-busy]="busy"
+        (fileUploaded)="onFileUpload($event, main)">
+    </uni-upload-file-save>
 
     <button class="toolbar-save-toggle" *ngIf="actions?.length > 1"
         (click)="open = !open"
@@ -21,7 +29,17 @@
             role="menuitem"
             [attr.aria-disabled]="action.disabled"
             [title]="action.label">
-            {{action.label}}
+
+            <span *ngIf="!action.isUpload"> {{ action.label }} </span>
+
+            <uni-upload-file-save
+                *ngIf="action.isUpload"
+                class="toolbar-save-list"
+                [buttonText]="action.label"
+                [attr.aria-busy]="busy"
+                (fileUploaded)="onFileUpload($event, action)">
+            </uni-upload-file-save>
+
         </li>
     </ul>
 </section>

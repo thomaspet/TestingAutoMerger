@@ -3,7 +3,6 @@
 <section class=" application">
     <section class="splitview">
         <nav class="splitview_list">
-            <uni-upload-file-button class="receipt-file-upload-button" [buttonText]="'Registrer innbetalingsfil'" (fileUploaded)="fileUploaded($event)"></uni-upload-file-button>
             <uni-table
                 [resource]="lookupFunction"
                 [config]="paymentBatchTableConfig"
@@ -22,7 +21,7 @@
                 <h2>Opplasting av innbetalingsfil</h2>
                 <p>
                     For å laste opp en fil med innbetalinger kan du klikke på knappen 'Registrer innbetalingsfil'.
-                    Dette kan være fil av type OCR-Giro (Nets) eller Camt054C (ISO20022). 
+                    Dette kan være fil av type OCR-Giro (Nets) eller Camt054C (ISO20022).
                 </p>
             </div>
         </main>

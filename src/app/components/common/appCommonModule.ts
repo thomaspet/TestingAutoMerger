@@ -18,7 +18,6 @@ import {UniQueryReadOnly} from './uniQuery/UniQueryReadOnly';
 import {UniSummary} from './summary/summary';
 import {ImageModal} from './modals/ImageModal';
 import {UniAttachments} from './attacments/uniAttachements';
-import {UniUploadFileButton} from './attacments/uploadFileButton';
 import {UniPoster, TextWidget, ContactWidget, TableWidget, AlertsWidget, ImageWidget} from './poster/poster';
 import {LedgerAccountReconciliation} from './reconciliation/ledgeraccounts/ledgeraccountreconciliation';
 import {AccrualModal} from './modals/accrualModal';
@@ -73,7 +72,6 @@ import {routes as AppCommonRoutes} from './appCommonRoutes';
         TableWidget,
         AlertsWidget,
         ImageWidget,
-        UniUploadFileButton,
         UniTags,
         AddPaymentModal,
         ModelTreeView,
@@ -125,7 +123,6 @@ import {routes as AppCommonRoutes} from './appCommonRoutes';
         TableWidget,
         AlertsWidget,
         ImageWidget,
-        UniUploadFileButton,
         UniTags,
         AddPaymentModal,
         ModelTreeView,

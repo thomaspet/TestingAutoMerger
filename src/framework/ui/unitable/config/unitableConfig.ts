@@ -54,6 +54,7 @@ export interface IUniTableConfig {
     beforeEdit?: (editorData: IEditorData) => IEditorData;
     insertRowHandler?: (index: number) => void;
     searchListVisible?: boolean;
+    allowEditToggle?: boolean;
     headerVisible?: boolean;
 }
 
@@ -100,6 +101,7 @@ export class UniTableConfig implements IUniTableConfig {
     public defaultRowData: Object;
     public isRowReadOnly: (rowModel) => boolean;
     public defaultOrderBy: ISortInfo;
+    public allowEditToggle: boolean = false;
 
     public beforeEdit: (event: IEditorData) => IEditorData;
     public headerVisible: boolean;
@@ -185,6 +187,11 @@ export class UniTableConfig implements IUniTableConfig {
 
     public setAllowGroupFilter(allowGroupFilter: boolean) {
         this.allowGroupFilter = allowGroupFilter;
+        return this;
+    }
+
+    public setAllowEditToggle(allowEditToggle: boolean) {
+        this.allowEditToggle = allowEditToggle;
         return this;
     }
 

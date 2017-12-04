@@ -55,7 +55,7 @@ export class UniTickerPredefinedFilters implements OnChanges {
         }
     }
 
-    private getFilterCounts() {
+    public getFilterCounts() {
         let selectQueries = this.filters.map((filter, index) => {
             let filterString;
             if (filter.FilterGroups && filter.FilterGroups.length) {

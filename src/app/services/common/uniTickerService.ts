@@ -74,7 +74,8 @@ export class UniTickerService { //extends BizHttp<UniQueryDefinition> {
                                 this.http.get('assets/tickers/toftickers.json').map(x => x.json()),
                                 this.http.get('assets/tickers/timetickers.json').map(x => x.json()),
                                 this.http.get('assets/tickers/salarytickers.json').map(x => x.json()),
-                                this.http.get('assets/tickers/sharedtickers.json').map(x => x.json())
+                                this.http.get('assets/tickers/sharedtickers.json').map(x => x.json()),
+                                this.http.get('assets/tickers/banktickers.json').map(x => x.json())
                             ).map(tickerfiles => {
                                 let allTickers: Array<Ticker> = [];
 
@@ -937,6 +938,8 @@ export class Ticker {
     public Actions?: Array<TickerAction>;
     public IsActive?: boolean;
     public ReadOnlyCases?: {Key: string, Value: any}[];
+    public EditToggle?: boolean;
+    public MultiRowSelect?: boolean;
 }
 
 export class TickerFieldFilter {
@@ -973,6 +976,7 @@ export class TickerColumn {
     public FieldSetColumn?: number;
     public SumColumn?: boolean;
     public ReadOnlyCases?: {Key: string, Value: any}[];
+    public DisplayField?: string;
     public Expand?: string;
 }
 
@@ -996,6 +1000,7 @@ export class TickerFilter {
     public FilterGroups: Array<TickerFilterGroup>;
     public UseAllCriterias: boolean = true;
     public CurrentCount?: number;
+    public IsMultiRowSelect: boolean = false;
 }
 
 export class TickerAction {

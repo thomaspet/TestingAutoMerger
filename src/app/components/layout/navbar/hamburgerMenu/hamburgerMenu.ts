@@ -286,12 +286,7 @@ export class HamburgerMenu {
                 componentListHeader: 'Bank',
                 componentListUrl: '/bank',
                 componentList: [
-                    {componentName: 'Utbetalingsliste', componentUrl: '/bank/payments',
-                        moduleID: UniModules.Payment},
-                    {componentName: 'Utbetalinger', componentUrl: '/bank/batches',
-                        moduleID: UniModules.Payment},
-                    {componentName: 'Innbetalinger', componentUrl: '/bank/customerbatches',
-                        moduleID: UniModules.Payment}
+                    {componentName: 'Betalinger', componentUrl: '/bank', moduleID: UniModules.Payment}
                 ]
             },
             {
