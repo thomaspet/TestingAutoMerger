@@ -16,7 +16,7 @@ enum IAction {
     Delete = 1
 }
 
-var labels = {
+const labels = {
     'action_save': 'Lagre',
     'action_delete': 'Slett',
     'deleted_ok': 'Sletting ok',
@@ -134,8 +134,8 @@ export class GenericDetailview {
 
         this.busy = true;
 
-        var params = 'model=' + this.viewconfig.data.model;
-        var resultFld = 'minid';
+        let params = 'model=' + this.viewconfig.data.model;
+        let resultFld = 'minid';
 
         if (direction === 'next') {
             params += '&select=min(id)&filter=deleted eq \'false\'' + (this.ID ? ' and id gt ' + this.ID : '');
@@ -148,9 +148,9 @@ export class GenericDetailview {
             this.workerService.getStatistics(params)
                 .finally( () => this.busy = false )
                 .subscribe((data) => {
-                var items = data.Data;
+                const items = data.Data;
                 if (items && items.length > 0) {
-                    var key = items[0][resultFld];
+                    const key = items[0][resultFld];
                     if (key) {
                         this.loadCurrent(key);
                         resolve(true);
@@ -257,13 +257,13 @@ export class GenericDetailview {
 
     private updateTitle(fallbackTitle?: string) {
         if (this.viewconfig) {
-            var nameProp = this.viewconfig.detail.nameProperty || 'Name';
+            const nameProp = this.viewconfig.detail.nameProperty || 'Name';
             this.title = this.ID && this.current$.getValue()
                 ? getDeepValue(this.current$.getValue(), nameProp)
                 : fallbackTitle || '';
             this.subTitle = this.ID ? ` (nr. ${this.ID})` : this.viewconfig.labels.createNew;
-            var tabTitle = trimLength(this.title, 12);
-            var url = this.viewconfig.tab.url + '/' + this.ID;
+            const tabTitle = trimLength(this.title, 12);
+            const url = this.viewconfig.tab.url + '/' + this.ID;
             this.tabService.addTab({ name: tabTitle, url: url, moduleID: this.viewconfig.moduleID, active: true });
         }
     }
@@ -280,10 +280,10 @@ export class GenericDetailview {
                     this.updateTitle();
                     this.flagDirty(false);
 
-                    var details: IAfterSaveInfo = { entity: item, promise: undefined };
+                    const details: IAfterSaveInfo = { entity: item, promise: undefined };
                     this.afterSave.emit(details);
 
-                    var postActions = () => {
+                    const postActions = () => {
                         this.itemChanged.emit(this.current$.getValue());
                         if (done) { done(labels.msg_saved); }
                         this.enableAction(IAction.Delete, true);
@@ -310,7 +310,7 @@ export class GenericDetailview {
     }
 
     private ensureEditCompleted() {
-        var el: any = document.activeElement;
+        const el: any = document.activeElement;
         if (el && el.blur) {
             el.blur();
             if (el.focus) {
