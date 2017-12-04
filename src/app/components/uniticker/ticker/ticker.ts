@@ -463,7 +463,7 @@ export class UniTicker {
 
     private startExecuteAction(action: TickerAction, selectedRows: Array<any> ) {
 
-        let actionOverride = this.actionOverrides.find(x => x.Code === action.Code);
+        let actionOverride = this.actionOverrides && this.actionOverrides.find(x => x.Code === action.Code);
 
         if (actionOverride) {
             if (actionOverride.BeforeExecuteActionHandler !== undefined) {
@@ -895,7 +895,7 @@ export class UniTicker {
                                 throw Error('Cannot add action with Type = transition without specifying which Transition to execute, action: ' + action.Code);
                             }
 
-                            let actionOverride = this.actionOverrides.find(x => action.Code === x.Code);
+                            let actionOverride = this.actionOverrides && this.actionOverrides.find(x => action.Code === x.Code);
                             if (action.NeedsActionOverride && !actionOverride) {
                                 // console.log(`Action ${action.Code} needs an ActionOverride to function correctly, and that is not specified`);
                             } else if (action.Type === 'action' && !actionOverride) {
