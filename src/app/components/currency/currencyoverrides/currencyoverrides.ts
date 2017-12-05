@@ -214,7 +214,7 @@ export class CurrencyOverrides {
         let fromCurrencyCodeCol = new UniTableColumn('FromCurrencyCode', 'Fra kode', UniTableColumnType.Lookup)
             .setDisplayField('FromCurrencyCode.Code')
             .setWidth('60px')
-            .setEditorOptions({
+            .setOptions({
                 itemTemplate: (currencycode: CurrencyCode) => {
                     return `${currencycode.Code} - ${currencycode.Name}`;
                 },
@@ -225,7 +225,7 @@ export class CurrencyOverrides {
         let toCurrencyCodeCol = new UniTableColumn('ToCurrencyCode', 'Til kode', UniTableColumnType.Lookup)
             .setDisplayField('ToCurrencyCode.Code')
             .setWidth('60px')
-            .setEditorOptions({
+            .setOptions({
                 itemTemplate: (currencycode: CurrencyCode) => {
                     return `${currencycode.Code} - ${currencycode.Name}`;
                 },

@@ -1,4 +1,12 @@
-import {Component, Input, ViewChild, ElementRef, ChangeDetectionStrategy, ChangeDetectorRef} from '@angular/core';
+import {
+    Component,
+    Input,
+    ViewChild,
+    ElementRef,
+    ChangeDetectionStrategy,
+    ChangeDetectorRef,
+    OnInit
+} from '@angular/core';
 import {FormControl} from '@angular/forms';
 import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/observable/of';
@@ -63,11 +71,11 @@ export interface IGroupConfig {
                     (click)="itemClicked(idx, item.isHeader)"
                     [ngClass]="{ 'group_list_header' : item.isHeader }"
                     [attr.aria-selected]="selectedIndex === idx">
-                    {{ item.isHeader ? item.header : editorOptions.itemTemplate(item) }}
+                    {{ item.isHeader ? item.header : options.itemTemplate(item) }}
                 </li>
-                <li *ngIf="!busy && editorOptions.addNewButtonVisible" class="autocomplete-add-button">
+                <li *ngIf="!busy && options.addNewButtonVisible" class="autocomplete-add-button">
                     <button (click)="addNewItem()">
-                        {{ editorOptions.addNewButtonText ? editorOptions.addNewButtonText : 'Legg til' }}
+                        {{ options.addNewButtonText ? options.addNewButtonText : 'Legg til' }}
                     </button>
                 </li>
             </ul>
@@ -75,7 +83,7 @@ export interface IGroupConfig {
     `,
     changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class UnitableAutocomplete {
+export class UnitableAutocomplete implements OnInit {
     @ViewChild('input') public inputElement: ElementRef;
     @ViewChild('list')  private list: ElementRef;
 
@@ -86,7 +94,7 @@ export class UnitableAutocomplete {
     private inputControl: FormControl;
     private groupConfig: IGroupConfig;
 
-    private editorOptions: IAutoCompleteOptions;
+    private options: IAutoCompleteOptions;
     public busy: boolean = false;
     public expanded: boolean;
 
@@ -98,20 +106,20 @@ export class UnitableAutocomplete {
 
     public ngOnInit() {
         if (this.column) {
-            this.editorOptions = this.column.get('editorOptions');
-            if (this.editorOptions['groupConfig']) {
-                this.groupConfig = this.editorOptions['groupConfig'];
+            this.options = this.column.get('options');
+            if (this.options['groupConfig']) {
+                this.groupConfig = this.options['groupConfig'];
             }
 
             // If itemTemplate is not defined, use displayField or field
-            if (!this.editorOptions.itemTemplate) {
-                var field = this.column.get('field');
+            if (!this.options.itemTemplate) {
+                let field = this.column.get('field');
                 const displayField = this.column.get('displayField');
                 if (displayField) {
                     field = displayField.split('.').slice(1).join('.');
                 }
 
-                this.editorOptions.itemTemplate = (selectedItem) => {
+                this.options.itemTemplate = (selectedItem) => {
                     return selectedItem[field];
                 };
             }
@@ -144,8 +152,8 @@ export class UnitableAutocomplete {
     }
 
     private addNewItem() {
-        if (this.editorOptions.addNewButtonCallback) {
-            this.addValuePromise = this.editorOptions.addNewButtonCallback(this.inputControl.value);
+        if (this.options.addNewButtonCallback) {
+            this.addValuePromise = this.options.addNewButtonCallback(this.inputControl.value);
 
             this.expanded = false;
             this.cdr.markForCheck();
@@ -155,7 +163,7 @@ export class UnitableAutocomplete {
     }
 
     private formatGrouping() {
-        let groupedArray = [];
+        const groupedArray = [];
 
         // Add subarrays with header for each group in config
         this.groupConfig.groups.forEach((group: any) => {
@@ -166,7 +174,7 @@ export class UnitableAutocomplete {
         // Add all elements into the different groups if the groupkey matches
         this.lookupResults.forEach((item) => {
             if (this.groupConfig.visibleValueKey ? item[this.groupConfig.visibleValueKey] : true) {
-                for (var i = 0; i < this.groupConfig.groups.length; i++) {
+                for (let i = 0; i < this.groupConfig.groups.length; i++) {
                     if (item[this.groupConfig.groupKey] === this.groupConfig.groups[i].key) {
                         groupedArray[i].push(item);
                     }
@@ -231,7 +239,7 @@ export class UnitableAutocomplete {
     }
 
     private performLookup(search: string): Observable<any> {
-        let lookupResult = this.editorOptions.lookupFunction(search);
+        const lookupResult = this.options.lookupFunction(search);
         let observable: Observable<any>;
 
         if (Array.isArray(lookupResult)) {
@@ -244,10 +252,10 @@ export class UnitableAutocomplete {
     }
 
     private confirmSelection() {
-        let item = this.lookupResults[this.selectedIndex];
+        const item = this.lookupResults[this.selectedIndex];
 
         if (item) {
-            const displayValue = this.editorOptions.itemTemplate(item);
+            const displayValue = this.options.itemTemplate(item);
             this.inputControl.setValue(displayValue, {emitEvent: false});
         }
     }
@@ -266,7 +274,13 @@ export class UnitableAutocomplete {
     private onKeyDown(event: KeyboardEvent) {
         const key = event.which || event.keyCode || 0;
 
-        if (key === 13 && this.inputControl.value && this.inputControl.value.length > 0 && this.lookupResults.length === 0 && !this.busy && this.expanded && this.editorOptions.addNewButtonVisible) {
+        if (key === 13
+            && this.inputControl.value
+            && this.inputControl.value.length > 0
+            && this.lookupResults.length === 0
+            && !this.busy && this.expanded
+            && this.options.addNewButtonVisible
+        ) {
             // enter, no element available and add button exists
             this.addNewItem();
         } else if (key === 13 && this.selectedIndex >= 0) {

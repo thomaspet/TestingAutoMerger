@@ -785,7 +785,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
             'SameOrNewDetails', 'Bilagsnr', UniTableColumnType.Lookup
         )
             .setWidth('100px')
-            .setEditorOptions({
+            .setOptions({
                 displayField: 'Name',
                 lookupFunction: (searchValue) => {
                     return Observable.from([this.journalEntryNumberAlternatives.filter(
@@ -811,7 +811,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
         let invoiceNoCol = new UniTableColumn('CustomerInvoice', 'Faktura', UniTableColumnType.Lookup)
             .setDisplayField('InvoiceNumber')
             .setWidth('10%')
-            .setEditorOptions({
+            .setOptions({
                 itemTemplate: (selectedItem: CustomerInvoice) => {
                     return selectedItem
                     ? (`Fakturanr: ${selectedItem.InvoiceNumber}. `
@@ -848,7 +848,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 return '';
             })
             .setWidth('10%')
-            .setEditorOptions({
+            .setOptions({
                 itemTemplate: (selectedItem) => {
                     return (selectedItem.AccountNumber + ' - ' + selectedItem.AccountName);
                 },
@@ -873,7 +873,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 }
                 return '';
             })
-            .setEditorOptions({
+            .setOptions({
                 itemTemplate: (item) => {
                     return `${item.VatCode}: ${item.Name} - ${item.VatPercent}%`;
                 },
@@ -901,7 +901,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 return '';
             })
             .setWidth('10%')
-            .setEditorOptions({
+            .setOptions({
                 itemTemplate: (selectedItem) => {
                     return (selectedItem.AccountNumber + ' - ' + selectedItem.AccountName);
                 },
@@ -925,7 +925,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 }
                 return '';
             })
-            .setEditorOptions({
+            .setOptions({
                 itemTemplate: (item) => {
                     return `${item.VatCode}: ${item.Name} - ${item.VatPercent}%`;
                 },
@@ -984,7 +984,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
             .setTemplate(row => row && row.CurrencyCode && row.CurrencyCode.Code)
             .setVisible(false)
             .setSkipOnEnterKeyNavigation(true)
-            .setEditorOptions({
+            .setOptions({
                 itemTemplate: rowModel => rowModel.Code,
                 resource: this.currencyCodeService.GetAll(null)
             });
@@ -1009,7 +1009,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 }
                 return '';
             })
-            .setEditorOptions({
+            .setOptions({
                 itemTemplate: (item) => {
                     return (item.ProjectNumber + ' - ' + item.Name);
                 },
@@ -1030,7 +1030,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 }
                 return '';
             })
-            .setEditorOptions({
+            .setOptions({
                 itemTemplate: (item) => {
                     return (item.DepartmentNumber + ' - ' + item.Name);
                 },
@@ -1043,7 +1043,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
             });
 
         let descriptionCol = new UniTableColumn('Description', 'Beskrivelse', UniTableColumnType.Typeahead)
-            .setEditorOptions({
+            .setOptions({
                 lookupFunction: (searchValue) => {
                     return Observable.of(this.predefinedDescriptions.filter(
                         x => x.Code.toString().indexOf(searchValue) === 0)
@@ -2043,28 +2043,28 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                             // This is done because we don't want to update readonly rows here
                             const readonlyRows = tableData.filter(row => !!row.StatusCode);
                             const editableRows = tableData.filter(row => !row.StatusCode);
-    
+
                             // Check if readonly rows contains one or more lines with the wrong numberseries
                             const shouldUpdateData = editableRows.some(row => row.NumberSeriesTaskID !== this.selectedNumberSeriesTaskID);
                             if (shouldUpdateData) {
                                 const uniQueNumbers = _.uniq(editableRows.map(item => item.JournalEntryNo));
                                 uniQueNumbers.forEach(uniQueNumber => {
                                     const lines = editableRows.filter(line => line.JournalEntryNo === uniQueNumber);
-    
+
                                     lines.forEach(line => {
                                         line.JournalEntryNo = this.firstAvailableJournalEntryNumber;
                                         line.SameOrNew = line.JournalEntryNo;
                                         line.SameOrNewDetails = {ID: line.JournalEntryNo, Name: line.JournalEntryNo};
                                         line.NumberSeriesTaskID = this.selectedNumberSeriesTaskID;
                                     });
-    
+
                                     // Update next available number
                                     const nextNumberData = this.firstAvailableJournalEntryNumber.split('-');
                                     this.firstAvailableJournalEntryNumber = nextNumberData.length > 1
                                         ? (+nextNumberData[0] + 1) + '-' + nextNumberData[1]
                                         : (+nextNumberData[0] + 1).toString();
                                 });
-    
+
                                 // Join readonly and editable rows before updating table
                                 tableData = readonlyRows.concat(editableRows);
                                 this.setJournalEntryData(tableData);
@@ -2135,7 +2135,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
             }
 
             // update editor with new options
-            this.journalEntryTableConfig.columns[0].editorOptions.resource = this.journalEntryNumberAlternatives;
+            this.journalEntryTableConfig.columns[0].options.resource = this.journalEntryNumberAlternatives;
         }
     }
 

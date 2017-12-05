@@ -396,7 +396,7 @@ export class VacationPayModal implements OnInit, IUniModal {
             });
         var sixthCol = new UniTableColumn('_IncludeSixthWeek', '6.ferieuke', UniTableColumnType.Select, true)
             .setWidth('4rem')
-            .setEditorOptions({
+            .setOptions({
                 resource: ['Ja', 'Nei']
             });
         var vacationPayCol = new UniTableColumn('_VacationPay', 'Feriepenger', UniTableColumnType.Money, false)

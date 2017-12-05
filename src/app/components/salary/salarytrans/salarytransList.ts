@@ -149,7 +149,7 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges 
                     .filter(x => !x.Deleted && x.EmployeeID === this.employee.ID);
             }
             if (this.salarytransEmployeeTableConfig) {
-                this.salarytransEmployeeTableConfig.columns.find(x => x.field === 'employment').editorOptions = {
+                this.salarytransEmployeeTableConfig.columns.find(x => x.field === 'employment').options = {
                     resource: this.employee.Employments,
                     itemTemplate: (item) => {
                         return item ? item.ID + ' - ' + item.JobName : '';
@@ -184,7 +184,7 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges 
 
                 return employment ? employment.ID + ' - ' + employment.JobName : '';
             })
-            .setEditorOptions({
+            .setOptions({
                 resource: this.employee ? this.employee.Employments : null,
                 itemTemplate: (item) => {
                     return item ? item.ID + ' - ' + item.JobName : '';
@@ -195,7 +195,7 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges 
             .setTemplate((dataItem) => {
                 return dataItem['Account'] || '';
             })
-            .setEditorOptions({
+            .setOptions({
                 itemTemplate: (selectedItem: Account) => {
                     return (selectedItem.AccountNumber + ' - ' + selectedItem.AccountName);
                 },
@@ -218,7 +218,7 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges 
 
                 return '';
             })
-            .setEditorOptions({
+            .setOptions({
                 itemTemplate: (selectedItem: Project) => {
                     return (selectedItem.ProjectNumber + ' - ' + selectedItem.Name);
                 },
@@ -243,7 +243,7 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges 
 
                 return '';
             })
-            .setEditorOptions({
+            .setOptions({
                 itemTemplate: (selectedItem: Department) => {
                     return (selectedItem.DepartmentNumber + ' - ' + selectedItem.Name);
                 },
@@ -278,7 +278,7 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges 
 
         let wageTypeCol = new UniTableColumn('Wagetype', 'Lønnsart', UniTableColumnType.Lookup)
             .setDisplayField('WageTypeNumber')
-            .setEditorOptions({
+            .setOptions({
                 itemTemplate: (selectedItem: WageType) => {
                     return (selectedItem.WageTypeNumber + ' - ' + selectedItem.WageTypeName);
                 },

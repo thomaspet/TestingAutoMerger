@@ -69,7 +69,7 @@ export class EmployeeLeaves extends UniView {
                 const leaveType = this.leaveTypes.find(lt => +lt.typeID === +dataItem.LeaveType);
                 return (leaveType) ? leaveType.text : '';
             })
-            .setEditorOptions({
+            .setOptions({
                 itemTemplate: selectedItem => selectedItem.text,
                 lookupFunction: (searchValue) => {
                     return this.leaveTypes.filter(lt => lt.text.toLowerCase().indexOf(searchValue) > -1);
@@ -84,7 +84,7 @@ export class EmployeeLeaves extends UniView {
                     ? employment.JobName ? `${employment.ID} - ${employment.JobName}` : employment.ID.toString()
                     : '';
             })
-            .setEditorOptions({
+            .setOptions({
                 itemTemplate: (selectedItem) => {
                     return (selectedItem.ID + ' - ' + selectedItem.JobName);
                 },

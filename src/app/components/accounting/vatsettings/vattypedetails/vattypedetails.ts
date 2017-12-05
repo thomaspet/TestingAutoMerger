@@ -160,7 +160,7 @@ export class VatTypeDetails implements OnChanges, OnInit {
                 new UniTableColumn('Account', 'Konto ', UniTableColumnType.Lookup)
                     .setDisplayField('Account.AccountNumber')
                     .setWidth('5rem')
-                    .setEditorOptions({
+                    .setOptions({
                         itemTemplate: (account: Account) => {
                             return account.AccountNumber + ' ' + account.AccountName;
                         },
@@ -176,7 +176,7 @@ export class VatTypeDetails implements OnChanges, OnInit {
                     .setTemplate(rowModel => {
                         return rowModel.VatPost ? rowModel.VatPost.No + ' ' + rowModel.VatPost.Name : '';
                     })
-                    .setEditorOptions({
+                    .setOptions({
                         itemTemplate: (vatPost: VatPost) => {
                             return vatPost.No + ' ' + vatPost.Name;
                         },

@@ -83,7 +83,7 @@ export class GrantModal implements OnInit, IUniModal {
             return (subEntity) ? `${subEntity.OrgNumber} - ${subEntity._Name}` : '';
 
         })
-        .setEditorOptions({
+        .setOptions({
             itemTemplate: (selectedItem) => {
                 return (selectedItem.ID + ' - ' + selectedItem._Name);
             },
@@ -111,7 +111,7 @@ export class GrantModal implements OnInit, IUniModal {
             }
             return '';
         })
-        .setEditorOptions({
+        .setOptions({
             lookupFunction: (searchValue: string) => {
                 return yesNo.filter((affect) => {
                     let text = (affect.Text || '').toLowerCase();

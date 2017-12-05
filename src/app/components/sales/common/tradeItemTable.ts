@@ -139,7 +139,7 @@ export class TradeItemTable {
         // Columns
         const productCol = new UniTableColumn('Product', 'Varenr', UniTableColumnType.Lookup)
             .setDisplayField('Product.PartName')
-            .setEditorOptions({
+            .setOptions({
                 itemTemplate: item => item.Name ? `${item.PartName} - ${item.Name}` : item.PartName,
                 lookupFunction: (query: string) => {
                     return this.productService.GetAll(
@@ -179,7 +179,7 @@ export class TradeItemTable {
                 return (account) ? `${account.AccountNumber} : ${account.AccountName}` : '';
             })
             .setVisible(false)
-            .setEditorOptions({
+            .setOptions({
                 itemTemplate: item => `${item.AccountNumber} : ${item.AccountName}`,
                lookupFunction: (searchValue) => {
                     return this.accountSearch(searchValue);
@@ -192,7 +192,7 @@ export class TradeItemTable {
                 const vatType = row['VatType'];
                 return (vatType) ? `${vatType.VatPercent}% - ${vatType.Name}` : '';
             })
-            .setEditorOptions({
+            .setOptions({
                 itemTemplate: item => `${item.VatCode}: ${item.VatPercent}% - ${item.Name}`,
                 lookupFunction: (searchValue) => {
                     const query = searchValue.toLowerCase();
@@ -228,7 +228,7 @@ export class TradeItemTable {
         const projectTaskCol = new UniTableColumn('Dimensions.ProjectTask', 'Oppgave', UniTableColumnType.Lookup)
             .setDisplayField('Dimensions.ProjectTask.Name')
             .setVisible(false)
-            .setEditorOptions({
+            .setOptions({
                 itemTemplate: (item) => {
                     return (item.Number + ': ' + item.Name);
                 },
@@ -266,7 +266,7 @@ export class TradeItemTable {
                 return '';
             })
             .setDisplayField('Dimensions.Project.Name')
-            .setEditorOptions({
+            .setOptions({
                 itemTemplate: (item) => {
                     return (item.ProjectNumber + ': ' + item.Name);
                 },
@@ -289,7 +289,7 @@ export class TradeItemTable {
                 return '';
             })
             .setDisplayField('Dimensions.Department.Name')
-            .setEditorOptions({
+            .setOptions({
                 itemTemplate: (item) => {
                     return (item.DepartmentNumber + ': ' + item.Name);
                 },

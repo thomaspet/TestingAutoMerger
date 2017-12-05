@@ -127,7 +127,7 @@ export class RecurringPost extends UniView {
     private buildTableConfig() {
         const wagetypeCol = new UniTableColumn('_Wagetype', 'Lønnsart', UniTableColumnType.Lookup)
             .setDisplayField('WageTypeNumber')
-            .setEditorOptions({
+            .setOptions({
                 itemTemplate: (selectedItem: WageType) => {
                     return (selectedItem.WageTypeNumber + ' - ' + selectedItem.WageTypeName);
                 },
@@ -156,7 +156,7 @@ export class RecurringPost extends UniView {
 
                 return (employment) ? employment.ID + ' - ' + employment.JobName : '';
             })
-            .setEditorOptions({
+            .setOptions({
                 lookupFunction: (searchValue: string) => {
                     return this.employments.filter((employment) => {
                         let jobName = (employment.JobName || '').toLowerCase();
@@ -194,7 +194,7 @@ export class RecurringPost extends UniView {
             .setTemplate((dataItem) => {
                 return dataItem['Account'] || '';
             })
-            .setEditorOptions({
+            .setOptions({
                 itemTemplate: (selectedItem: Account) => {
                     return (selectedItem.AccountNumber + ' - ' + selectedItem.AccountName);
                 },
@@ -218,7 +218,7 @@ export class RecurringPost extends UniView {
 
                 return '';
             })
-            .setEditorOptions({
+            .setOptions({
                 itemTemplate: (selectedItem: Project) => {
                     return (selectedItem.ProjectNumber + ' - ' + selectedItem.Name);
                 },
@@ -243,7 +243,7 @@ export class RecurringPost extends UniView {
 
                 return '';
             })
-            .setEditorOptions({
+            .setOptions({
                 itemTemplate: (selectedItem: Department) => {
                     return (selectedItem.DepartmentNumber + ' - ' + selectedItem.Name);
                 },

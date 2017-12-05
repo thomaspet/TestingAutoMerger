@@ -413,7 +413,7 @@ export class NumberSeries {
                         ? row.NumberSeriesType.Yearly ? 'Årlig' : 'Fortløpende'
                         : '')
                     .setEditable(row => !row.ID && row._rowSelected)
-                    .setEditorOptions({
+                    .setOptions({
                         hideNotChosenOption: false,
                         displayField: 'DisplayName',
                         resource: this.numberSeriesService.yearly
@@ -427,7 +427,7 @@ export class NumberSeries {
 
                         return row.NumberSeriesTask._DisplayName;
                     })
-                    .setEditorOptions({
+                    .setOptions({
                         hideNotChosenOption: true,
                         field: 'ID',
                         displayField: '_DisplayName',
@@ -443,7 +443,7 @@ export class NumberSeries {
                             ? row._AsInvoiceNumber.DisplayName
                             : '';
                     })
-                    .setEditorOptions({
+                    .setOptions({
                         hideNotChosenOption: true,
                         field: 'ID',
                         displayField: 'DisplayName',
@@ -502,7 +502,7 @@ export class NumberSeries {
                     .setVisible(false) // Hidden because we haven't defined any tasks for sales numberseries yet
                     .setEditable(row => !row.ID)
                     .setTemplate(row => row.NumberSeriesTask ? row.NumberSeriesTask._DisplayName : '')
-                    .setEditorOptions({
+                    .setOptions({
                         hideNotChosenOption: false,
                         field: 'ID',
                         displayField: '_DisplayName',
@@ -511,7 +511,7 @@ export class NumberSeries {
                 new UniTableColumn('_Register', 'Register', UniTableColumnType.Select)
                     .setEditable(row => !row.ID)
                     .setTemplate(row => row._Register ? row._Register.DisplayName : '')
-                    .setEditorOptions({
+                    .setOptions({
                         hideNotChosenOption: true,
                         displayField: 'DisplayName',
                         resource: this.numberSeriesService.registers.filter(x => x.Sale)
@@ -547,7 +547,7 @@ export class NumberSeries {
                 new UniTableColumn('_Register', 'Register', UniTableColumnType.Select)
                     .setEditable(row => !row.ID)
                     .setTemplate(row => row._Register ? row._Register.DisplayName : '')
-                    .setEditorOptions({
+                    .setOptions({
                         hideNotChosenOption: true,
                         displayField: 'DisplayName',
                         resource: this.numberSeriesService.registers.filter(
@@ -574,7 +574,7 @@ export class NumberSeries {
                             ? account.AccountNumber + ': ' + account.AccountName
                             : '';
                     })
-                    .setEditorOptions({
+                    .setOptions({
                         itemTemplate: (selectedItem) => {
                             return (selectedItem.AccountNumber + ' - ' + selectedItem.AccountName);
                         },
@@ -607,7 +607,7 @@ export class NumberSeries {
                 new UniTableColumn('_Register', 'Register', UniTableColumnType.Select)
                     .setEditable(false)
                     .setTemplate(row => row._Register && row._Register.DisplayName)
-                    .setEditorOptions({
+                    .setOptions({
                         hideNotChosenOption: true,
                         displayField: 'DisplayName',
                         resource: this.numberSeriesService.registers

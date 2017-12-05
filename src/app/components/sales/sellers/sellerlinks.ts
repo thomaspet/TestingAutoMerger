@@ -96,7 +96,7 @@ export class SellerLinks implements AfterViewInit {
                 return row.Seller ? row.Seller.Name : '';
             })
             .setDisplayField('Seller.Name')
-            .setEditorOptions({
+            .setOptions({
                 itemTemplate: (item) => {
                     return `${item.ID}: ${item.Name}`;
                 },

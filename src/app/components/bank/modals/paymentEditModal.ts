@@ -131,7 +131,7 @@ export class UniPaymentEditModal implements IUniModal {
                 ? data.ToBankAccount.CompanySettings.CompanyName
                 : data.BusinessRelation.Name;
             })
-            .setEditorOptions({
+            .setOptions({
                 itemTemplate: (selectedItem) => {
                     return (selectedItem.CustomerID
                         ? 'Kunde: '
@@ -170,7 +170,7 @@ export class UniPaymentEditModal implements IUniModal {
 
         let fromAccountCol = new UniTableColumn('FromBankAccount', 'Konto fra', UniTableColumnType.Lookup)
             .setDisplayField('FromBankAccount.AccountNumber')
-            .setEditorOptions({
+            .setOptions({
                 itemTemplate: (selectedItem) => {
                     return (selectedItem.AccountNumber);
                 },
@@ -182,7 +182,7 @@ export class UniPaymentEditModal implements IUniModal {
             });
         let toAccountCol = new UniTableColumn('ToBankAccount', 'Konto til', UniTableColumnType.Lookup)
             .setDisplayField('ToBankAccount.AccountNumber')
-            .setEditorOptions({
+            .setOptions({
                 itemTemplate: (selectedItem) => {
                     return (selectedItem.AccountNumber);
                 },
@@ -230,7 +230,7 @@ export class UniPaymentEditModal implements IUniModal {
         let paymentCodeCol = new UniTableColumn('PaymentCode', 'Type', UniTableColumnType.Lookup)
             .setDisplayField('PaymentCode.Name')
             .setVisible(false)
-            .setEditorOptions({
+            .setOptions({
                 itemTemplate: (selectedItem) => {
                     return (selectedItem.Name);
                 },
