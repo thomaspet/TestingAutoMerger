@@ -46,7 +46,7 @@ export enum TimeTrackingPeriodes {
     Everything
 }
 
-export var view = new View('timeentry', 'Timer', 'TimeEntry', false, '');
+export const view = new View('timeentry', 'Timer', 'TimeEntry', false, '');
 
 @Component({
     selector: view.name,
@@ -108,8 +108,7 @@ export class TimeEntry {
     public tabPositions: Array<number> = [0, 1, 2, 3, 4];
 
     public toolbarConfig: any = {
-        title: 'Registrering av timer',
-        omitFinalCrumb: true
+        title: 'Registrere timer', omitFinalCrumb: true
     };
 
     private initialContextMenu: Array<any> = [
