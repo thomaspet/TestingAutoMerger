@@ -2,7 +2,7 @@ import {Component, Input, Output, EventEmitter} from '@angular/core';
 import {Http} from '@angular/http';
 import {File} from '../../app/unientities';
 import {UniHttp} from '../core/http/http';
-import {AppConfig} from '../../app/AppConfig';
+import {environment} from 'src/environments/environment';
 import {ErrorService, FileService, UniFilesService} from '../../app/services/services';
 import {AuthService} from '../../app/authService';
 
@@ -37,7 +37,7 @@ export class UniUploadFileSaveAction {
 
     private didTryReAuthenticate: boolean = false;
 
-    private baseUrl: string = AppConfig.BASE_URL_FILES;
+    private baseUrl: string = environment.BASE_URL_FILES;
     private token: any;
     private activeCompany: any;
     private uploading: boolean;
