@@ -138,7 +138,7 @@ export class AddPaymentModal implements IUniModal {
 
     public generate(
         expands: string[],
-        newItemModalFn?: (inputValue?: string) => Observable<UniEntity>
+        createNewFn?: (inputValue?: string) => Observable<UniEntity>
     ): IUniSearchConfig {
         return <IUniSearchConfig>{
             lookupFn: searchTerm => {
@@ -174,7 +174,7 @@ export class AddPaymentModal implements IUniModal {
                 item.AccountNumber
             ],
             inputTemplateFn: item => `${item.AccountNumber || ''}`,
-            newItemModalFn: newItemModalFn,
+            createNewFn: createNewFn,
             maxResultsLength: 20
         };
     }

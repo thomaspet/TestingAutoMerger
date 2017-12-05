@@ -29,21 +29,21 @@ export class UniSearchAccountConfig {
 
     public generateOnlyMainAccountsConfig(
         expands: string[] = <string[]>[],
-        newItemModalFn?: () => Observable<UniEntity>
+        createNewFn?: () => Observable<UniEntity>
     ): IUniSearchConfig {
-        return this.generateAccountsConfig(expands, newItemModalFn, false);
+        return this.generateAccountsConfig(expands, createNewFn, false);
     }
 
     public generateAllAccountsConfig(
         expands: string[] = <string[]>[],
-        newItemModalFn?: () => Observable<UniEntity>
+        createNewFn?: () => Observable<UniEntity>
     ): IUniSearchConfig {
-        return this.generateAccountsConfig(expands, newItemModalFn, true);
+        return this.generateAccountsConfig(expands, createNewFn, true);
     }
 
     private generateAccountsConfig(
         expands: string[] = <string[]>[],
-        newItemModalFn?: () => Observable<UniEntity>,
+        createNewFn?: () => Observable<UniEntity>,
         all: boolean = false
     ): IUniSearchConfig {
         return <IUniSearchConfig>{
@@ -67,9 +67,8 @@ export class UniSearchAccountConfig {
                 item.AccountNumber,
                 item.AccountName
             ],
-            inputTemplateFn: item =>
-                `${item.AccountNumber} - ${item.AccountName}`,
-            newItemModalFn: newItemModalFn,
+            inputTemplateFn: item => `${item.AccountNumber} - ${item.AccountName}`,
+            createNewFn: createNewFn,
             maxResultsLength: MAX_RESULTS
         };
     }
@@ -79,7 +78,7 @@ export class UniSearchAccountConfig {
 
         all: boolean = false,
         expands: string[] = [],
-        newItemModalFn?: () => Observable<UniEntity>
+        createNewFn?: () => Observable<UniEntity>
     ): IUniSearchConfig {
         return <IUniSearchConfig>{
 
@@ -107,9 +106,8 @@ export class UniSearchAccountConfig {
                 item.AccountNumber,
                 item.AccountName
             ],
-            inputTemplateFn: item =>
-                `${item.AccountNumber} - ${item.AccountName}`,
-            newItemModalFn: newItemModalFn,
+            inputTemplateFn: item => `${item.AccountNumber} - ${item.AccountName}`,
+            createNewFn: createNewFn,
             maxResultsLength: MAX_RESULTS
         };
     }

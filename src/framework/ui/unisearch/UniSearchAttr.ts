@@ -114,7 +114,7 @@ export class UniSearchAttr implements OnInit, OnChanges {
     public ngOnChanges(changes: SimpleChanges) {
         if (changes['config'] && changes['config'].currentValue) {
             this.hasExternalSearch = !!this.config.externalLookupFn;
-            this.hasCreateNewButton = !!this.config.newItemModalFn;
+            this.hasCreateNewButton = !!this.config.createNewFn;
             const showButtons = !!(this.hasCreateNewButton || this.hasExternalSearch);
             this.heightOfNewButtonPadding = showButtons ? HEIGHT_OF_NEW_BUTTON_PADDING : 0;
         }
@@ -186,7 +186,7 @@ export class UniSearchAttr implements OnInit, OnChanges {
 
     private createNewItem() {
         this.closeSearchResult();
-        this.config.newItemModalFn(this.currentInputValue).subscribe(
+        this.config.createNewFn(this.currentInputValue).subscribe(
             item => {
                 this.componentElement.nativeElement.value = this.inputTemplate(item);
                 this.changeEvent.next(item);

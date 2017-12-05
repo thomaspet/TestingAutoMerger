@@ -28,7 +28,7 @@ export class UniSearchProductConfig {
     public generateProductsConfig(
         all: boolean = false,
         expands: string[] = [],
-        newItemModalFn?: () => Observable<UniEntity>
+        createNewFn?: () => Observable<UniEntity>
     ): IUniSearchConfig {
         return {
             lookupFn: searchTerm => this.statisticsService
@@ -46,9 +46,8 @@ export class UniSearchProductConfig {
                 item.PartName,
                 item.Name
             ],
-            inputTemplateFn: item =>
-                `${item.PartName} - ${item.Name}`,
-            newItemModalFn: newItemModalFn,
+            inputTemplateFn: item => `${item.PartName} - ${item.Name}`,
+            createNewFn: createNewFn,
             maxResultsLength: MAX_RESULTS
         };
     }

@@ -35,7 +35,7 @@ export class UniSearchEmployeeConfig {
 
     public generate(
         expands: string[] = ['BusinessRelationInfo.Addresses','BusinessRelationInfo.Phones'],
-        newItemModalFn?: () => Observable<UniEntity>
+        createNewFn?: () => Observable<UniEntity>
     ): IUniSearchConfig {
         return <IUniSearchConfig>{
             lookupFn: searchTerm => this
@@ -62,7 +62,7 @@ export class UniSearchEmployeeConfig {
                 `${item.PostalCode || ''} ${item.City || ''}`
             ],
             inputTemplateFn: item => `${item.EmployeeNumber || ''}${item.BusinessRelationInfo && item.BusinessRelationInfo.Name ? ' ' + item.BusinessRelationInfo.Name : ''}`,
-            newItemModalFn: newItemModalFn,
+            createNewFn: createNewFn,
             externalLookupFn: query =>
                 this.integrationServerCaller
                     .businessRelationSearch(query, MAX_RESULTS)

@@ -8,7 +8,7 @@ export interface IUniSearchConfig {
     inputTemplateFn: (item: any) => string;
     tableHeader?: string[];
     rowTemplateFn: (item: any) => string[]|number[];
-    newItemModalFn?: (currentInputValue?: string) => Observable<any>;
+    createNewFn?: (currentInputValue?: string) => Observable<any>;
     externalLookupFn?: (searchTerm: string) => Observable<any[]>;
     maxResultsLength?: number;
     unfinishedValueFn?: (val: any) => Observable<any>;

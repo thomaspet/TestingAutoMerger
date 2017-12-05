@@ -39,7 +39,7 @@ export class UniSearchCustomerConfig {
 
     public generate(
         expands: string[] = ['Info.Addresses'],
-        newItemModalFn?: (supplierName?: string) => Observable<UniEntity>
+        createNewFn?: (supplierName?: string) => Observable<UniEntity>
     ): IUniSearchConfig {
         return <IUniSearchConfig>{
             lookupFn: searchTerm => this
@@ -71,7 +71,7 @@ export class UniSearchCustomerConfig {
                 item.OrgNumber
             ],
             inputTemplateFn: item => `${item.Info && item.Info.Name ? item.Info.Name : ''}`,
-            newItemModalFn: newItemModalFn,
+            createNewFn: createNewFn,
             externalLookupFn: query =>
                 this.integrationServerCaller
                     .businessRelationSearch(query, MAX_RESULTS)
@@ -86,7 +86,7 @@ export class UniSearchCustomerConfig {
 
     public generateDoNotCreate(
         expands: string[] = ['Info.Addresses'],
-        newItemModalFn?: (supplierName?: string) => Observable<UniEntity>
+        createNewFn?: (supplierName?: string) => Observable<UniEntity>
     ): IUniSearchConfig {
         return <IUniSearchConfig>{
             lookupFn: searchTerm => this
@@ -128,7 +128,7 @@ export class UniSearchCustomerConfig {
                 item.OrgNumber
             ],
             inputTemplateFn: item => `${item.CustomerNumber || ''}${item.Info && item.Info.Name ? ' ' + item.Info.Name : ''}`,
-            newItemModalFn: newItemModalFn,
+            createNewFn: createNewFn,
             externalLookupFn: query =>
                 this.integrationServerCaller
                     .businessRelationSearch(query, MAX_RESULTS)
