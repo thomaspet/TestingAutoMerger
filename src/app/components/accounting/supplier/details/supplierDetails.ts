@@ -188,12 +188,10 @@ export class SupplierDetails implements OnInit {
         }
 
         if (changes['_SupplierSearchResult']) {
-            let searchResult = changes['_SupplierSearchResult'].currentValue;
-            if (searchResult && searchResult.Info.Name) {
-                let supplier = this.supplier$.value;
-                supplier = searchResult;
+            const supplier = changes['_SupplierSearchResult'].currentValue;
+            if (supplier && supplier.Info && supplier.Info.Name) {
                 this.supplier$.next(supplier);
-                this.showHideNameProperties();
+                this.showHideNameProperties(supplier);
             }
         }
     }
@@ -381,12 +379,11 @@ export class SupplierDetails implements OnInit {
         }
     }
 
-    public showHideNameProperties() {
-        let fields: UniFieldLayout[] = this.fields$.getValue();
-
-        let supplier = this.supplier$.getValue();
-        let supplierSearchResult: UniFieldLayout = fields.find(x => x.Property === '_SupplierSearchResult');
-        let supplierName: UniFieldLayout = fields.find(x => x.Property === 'Info.Name');
+    public showHideNameProperties(supplier?: Supplier) {
+        supplier = supplier || this.supplier$.getValue();
+        const fields: UniFieldLayout[] = this.fields$.getValue();
+        const supplierSearchResult: UniFieldLayout = fields.find(x => x.Property === '_SupplierSearchResult');
+        const supplierName: UniFieldLayout = fields.find(x => x.Property === 'Info.Name');
 
         if (!this.allowSearchSupplier
             || this.supplierID > 0
@@ -746,17 +743,13 @@ export class SupplierDetails implements OnInit {
     }
 
     private getSupplierLookupOptions() {
-        let uniSearchConfig = this.uniSearchSupplierConfig.generate(
+        const uniSearchConfig = this.uniSearchSupplierConfig.generate(
             this.expandOptions,
             (supplierName: string) => {
                 const supplier = this.supplier$.getValue();
-                supplier.Info.Name = supplierName;
-                if (!supplier.Info.Name) {
-                    supplier.Info.Name = '';
-                }
-                this.supplier$.next(supplier);
-                this.showHideNameProperties();
-                return Observable.from([supplier]);
+                supplier.Info.Name = supplierName || '';
+
+                return Observable.of(supplier);
             });
 
         uniSearchConfig.unfinishedValueFn = (val: string) => this.supplier$
@@ -764,7 +757,6 @@ export class SupplierDetails implements OnInit {
             .take(1)
             .map(supplier => {
                 supplier.Info.Name = val;
-                this.showHideNameProperties();
                 return supplier;
             });
 
@@ -775,10 +767,10 @@ export class SupplierDetails implements OnInit {
                 this.router.navigateByUrl(`/accounting/suppliers/${selectedItem.ID}`);
                 return Observable.empty();
             } else {
-                let supplierData = this.uniSearchSupplierConfig
-                            .customStatisticsObjToSupplier(selectedItem);
+                const supplierData = this.uniSearchSupplierConfig
+                    .customStatisticsObjToSupplier(selectedItem);
 
-                return Observable.from([supplierData]);
+                return Observable.of(supplierData);
             }
         };
 

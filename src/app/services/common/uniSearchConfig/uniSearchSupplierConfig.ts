@@ -215,7 +215,7 @@ export class UniSearchSupplierConfig {
             address.CountryCode = statObj.CountryCode;
             supplier.Info.InvoiceAddress = address;
             supplier.Info.ShippingAddress = address;
-
+            supplier.Info.Addresses.push(address);
         }
 
         if (statObj.PhoneNumber) {

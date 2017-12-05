@@ -655,12 +655,11 @@ export class CustomerDetails {
         this.fields$.next(fields);
     }
 
-    public showHideNameProperties() {
-        let fields: UniFieldLayout[] = this.fields$.getValue();
-
-        let customer = this.customer$.getValue();
-        let customerSearchResult: UniFieldLayout = fields.find(x => x.Property === '_CustomerSearchResult');
-        let customerName: UniFieldLayout = fields.find(x => x.Property === 'Info.Name');
+    public showHideNameProperties(customer?: Customer) {
+        customer = customer || this.customer$.getValue();
+        const fields: UniFieldLayout[] = this.fields$.getValue();
+        const customerSearchResult: UniFieldLayout = fields.find(x => x.Property === '_CustomerSearchResult');
+        const customerName: UniFieldLayout = fields.find(x => x.Property === 'Info.Name');
 
         if (
             !this.allowSearchCustomer ||
@@ -674,7 +673,7 @@ export class CustomerDetails {
                 if (this.form.field('Info.Name')) {
                     this.form.field('Info.Name').focus();
                 }
-            }, 200);
+            });
         } else {
             customerSearchResult.Hidden = false;
             customerName.Hidden = true;
@@ -683,7 +682,7 @@ export class CustomerDetails {
                 if (this.form.field('_CustomerSearchResult')) {
                     this.form.field('_CustomerSearchResult').focus();
                 }
-            }, 200);
+            });
         }
     }
 
@@ -852,17 +851,12 @@ export class CustomerDetails {
     }
 
     private getCustomerLookupOptions() {
-        let uniSearchConfig = this.uniSearchCustomerConfig.generate(
+        const uniSearchConfig = this.uniSearchCustomerConfig.generate(
             this.expandOptions,
             (inputVal: string) => {
-                let customer = this.customer$.getValue();
+                const customer = this.customer$.getValue();
                 customer.Info.Name = inputVal;
-                if (!customer.Info.Name) {
-                    customer.Info.Name = '';
-                }
-                this.customer$.next(customer);
-                this.showHideNameProperties();
-                return Observable.empty();
+                return Observable.of(customer);
             });
 
         uniSearchConfig.unfinishedValueFn = (val: string) => this.customer$
@@ -870,7 +864,6 @@ export class CustomerDetails {
             .take(1)
             .map(customer => {
                 customer.Info.Name = val;
-                this.showHideNameProperties();
                 return customer;
             });
 
@@ -881,11 +874,10 @@ export class CustomerDetails {
                 this.router.navigateByUrl(`/sales/customer/${selectedItem.ID}`);
                 return Observable.empty();
             } else {
-                let customerData =
-                this.uniSearchCustomerConfig
-                    .customStatisticsObjToCustomer(selectedItem, true, this.customer$.getValue());
+                const customerData = this.uniSearchCustomerConfig
+                    .customStatisticsObjToCustomer(selectedItem, true, selectedItem);
 
-                return Observable.from([customerData]);
+                return Observable.of(customerData);
             }
         };
 
@@ -927,7 +919,7 @@ export class CustomerDetails {
                 customer = searchResult;
                 this.isDisabled = false;
                 this.setupSaveActions();
-                this.showHideNameProperties();
+                this.showHideNameProperties(customer);
             }
         }
 

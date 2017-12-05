@@ -186,16 +186,15 @@ export class UniSearchAttr implements OnInit, OnChanges {
 
     private createNewItem() {
         this.closeSearchResult();
-        this.config.newItemModalFn(this.currentInputValue)
-            .do(() => this.busy = true)
-            .switchMap(item => this.config.onSelect(item))
-            .do(() => this.busy = false)
-            .subscribe(expandedItem => {
-                this.componentElement.nativeElement.value = this.inputTemplate(expandedItem);
-                this.changeEvent.next(expandedItem);
-            }, err => console.error(
+        this.config.newItemModalFn(this.currentInputValue).subscribe(
+            item => {
+                this.componentElement.nativeElement.value = this.inputTemplate(item);
+                this.changeEvent.next(item);
+            },
+            err => console.error(
                 'Uncaught error in UniSearch! Add a .catch() on the observable before passing it to UniSearch!'
-            ));
+            )
+        );
     }
 
     private toggleSearchType() {
@@ -291,6 +290,7 @@ export class UniSearchAttr implements OnInit, OnChanges {
                 }
                 break;
             case KeyCodes.F3:
+                event.preventDefault();
                 this.createNewItem();
                 break;
             case KeyCodes.PAGE_DOWN:
