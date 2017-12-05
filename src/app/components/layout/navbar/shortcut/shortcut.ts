@@ -103,8 +103,8 @@ export class UniShortcut {
             },
             {
                 componentName: 'Ny timeføring',
-                componentUrl: '/timetracking',
-                navigationUrl: '/timetracking',
+                componentUrl: '/timetracking/timeentry',
+                navigationUrl: '/timetracking/timeentry',
                 moduleID: UniModules.Timesheets
             },
             {

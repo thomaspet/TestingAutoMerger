@@ -12,12 +12,17 @@ import {WorkprofileDetailview} from './workprofile/workprofile';
 import {TimeEntry} from './timeentry/timeentry';
 
 import {CanDeactivateGuard} from '../../canDeactivateGuard';
+import {TimetrackingDashboard} from './timetracking-dashboard';
 
 export const timetrackingRoutes: Routes = [
     {
         path: '',
         pathMatch: 'full',
-        redirectTo: 'timeentry'
+        redirectTo: 'dashboard'
+    },
+    {
+        path: 'dashboard',
+        component: TimetrackingDashboard
     },
     {
         path: 'workprofiles',

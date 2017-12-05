@@ -1,7 +1,7 @@
-import {Component, ViewChild} from '@angular/core';
+import {Component, ViewChild, OnInit} from '@angular/core';
 import {TabService, UniModules} from '../layout/navbar/tabstrip/tabService';
 import {ReportDefinition, UniQueryDefinition} from '../../unientities';
-import {ReportDefinitionService, UniQueryDefinitionService, ErrorService} from '../../services/services';
+import {ReportDefinitionService, UniQueryDefinitionService, ErrorService, PageStateService} from '../../services/services';
 import {Report} from '../../models/reports/report';
 import {BalanceReportFilterModal} from './modals/balanceList/BalanceReportFilterModal';
 import {PostingJournalReportFilterModal} from './modals/postingJournal/PostingJournalReportFilterModal';
@@ -37,7 +37,7 @@ interface ISubGroup {
     selector: 'uni-reports',
     templateUrl: './reports.html'
 })
-export class UniReports {
+export class UniReports implements OnInit {
 
     // TODO: rewrite old modals..
     @ViewChild(BalanceReportFilterModal)
@@ -91,7 +91,7 @@ export class UniReports {
         { name: 'Payroll', label: 'Lønn', groups:  [
             { name: 'Payroll', label: 'Lønn', reports: [], keywords: ['Salary', 'Payroll'] },
         ] },
-        { name: 'Timeracking', label: 'Timer', groups: [
+        { name: 'Timetracking', label: 'Timer', groups: [
             { name: 'Timeracking', label: 'Timeregistrering', reports: [], keywords: ['Timer'] },
         ] },
         { name: 'Custom', label: 'Egendefinert', groups: [
@@ -105,7 +105,8 @@ export class UniReports {
         private uniQueryDefinitionService: UniQueryDefinitionService,
         private router: Router,
         private errorService: ErrorService,
-        private uniModalService: UniModalService
+        private uniModalService: UniModalService,
+        private pageStateService: PageStateService
     ) {
         this.tabService.addTab({
             name: 'Rapportoversikt',
@@ -178,6 +179,7 @@ export class UniReports {
 
     public ngOnInit() {
         this.busy = true;
+        this.checkPageState();
         Observable.forkJoin(
             this.reportDefinitionService.GetAll<ReportDefinition>(null),
             this.uniQueryDefinitionService.GetAll<UniQueryDefinition>(null))
@@ -195,6 +197,20 @@ export class UniReports {
                 this.placeReport(<Report>element);
             }
         });
+    }
+
+    private checkPageState() {
+        const state = this.pageStateService.getPageState();
+        if (state.category) {
+            const index = this.mainGroups.findIndex(x => x.name.toLowerCase() === state.category);
+            if (index >= 0) {
+                this.activeTabIndex = index;
+            }
+        }
+    }
+
+    private onTabChange(tab: IMainGroup, idx: number) {
+        this.pageStateService.setPageState('category', tab.name.toLowerCase());
     }
 
     private placeReport(report: Report) {

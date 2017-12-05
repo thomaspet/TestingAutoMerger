@@ -105,7 +105,7 @@ export class Dashboard {
                     label: 'Timer',
                     description: 'Timeføring',
                     icon: 'hourreg',
-                    link: '/timetracking/timeentry'
+                    link: '/timetracking/dashboard'
                 }
             },
             {

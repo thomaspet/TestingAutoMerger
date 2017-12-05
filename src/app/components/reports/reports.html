@@ -3,7 +3,7 @@
 <section class="horizontal_nav">
     <ul>
         <li *ngFor="let tab of mainGroups, let idx = index">
-            <a (click)="activeTabIndex = idx" [ngClass]="{'router-link-active': activeTabIndex === idx}">
+            <a (click)="activeTabIndex = idx; onTabChange(tab, idx)" [ngClass]="{'router-link-active': activeTabIndex === idx}">
                 {{tab.label}}
             </a>
         </li>
