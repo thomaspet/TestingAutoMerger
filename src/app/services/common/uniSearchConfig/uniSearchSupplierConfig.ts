@@ -115,8 +115,6 @@ export class UniSearchSupplierConfig {
                     if (it.Info.DefaultEmail) {
                         it.Info.DefaultEmail._createguid = this.guidService.guid();
                     }
-
-
                     return Observable.of(it);
                 }
             },

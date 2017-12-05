@@ -43,8 +43,8 @@ import {
     DistributionPeriodReportPart,
     NumberAsMoneyPipe
 } from './accountingreports/reportparts/distributionPeriodReportPart';
-import {DimensionsOverviewReportPart}  from './accountingreports/reportparts/dimensionsOverviewReportPart';
-import {DrilldownBalanceReportPart}  from './accountingreports/reportparts/drilldownBalanceReportPart';
+import {DimensionsOverviewReportPart} from './accountingreports/reportparts/dimensionsOverviewReportPart';
+import {DrilldownBalanceReportPart} from './accountingreports/reportparts/drilldownBalanceReportPart';
 import {CreateCorrectedVatReportModal} from './vatreport/modals/createCorrectedVatReport';
 import {HistoricVatReportModal} from './vatreport/modals/historicVatReports';
 import {NewAccountModal} from './NewAccountModal';
