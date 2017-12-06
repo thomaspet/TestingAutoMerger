@@ -66,6 +66,7 @@ export class UniTable implements OnChanges {
     @Output() public pageChange: EventEmitter<any> = new EventEmitter();
     @Output() public dataLoaded: EventEmitter<any> = new EventEmitter();
     @Output() public editModeChange: EventEmitter<boolean> = new EventEmitter();
+    @Output() public cellFocus: EventEmitter<any> = new EventEmitter();
 
     @ViewChild(UnitableEditor) private editor: UnitableEditor;
     @ViewChild(UnitableContextMenu) private contextMenu: UnitableContextMenu;
@@ -292,6 +293,11 @@ export class UniTable implements OnChanges {
 
             this.openEditor(cell, event.column, rowModel);
         }
+
+        this.cellFocus.emit({
+            cell: cell,
+            rowIndex: rowIndex
+        });
     }
 
     public onCellClicked(event) {
