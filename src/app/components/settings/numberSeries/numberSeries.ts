@@ -232,14 +232,17 @@ export class NumberSeries {
     private Save(): Promise<boolean> {
         return new Promise((resolve, reject) => {
             const all = this.uniTables.last.getVisibleTableData();
+
             let numberSeriesTypeToPUTToServer: NumberSeriesType [] = [];
 
-            all.filter(uniTableNumberSeriesRow => uniTableNumberSeriesRow._isDirty).forEach(uniTableNumberSeriesDirtyRow => {
-                if (!numberSeriesTypeToPUTToServer
-                    .some(nstype => nstype.ID === uniTableNumberSeriesDirtyRow.numberSeriesTypeID)) {
-                    numberSeriesTypeToPUTToServer.push(uniTableNumberSeriesDirtyRow.NumberSeriesType);
-                }
-            });
+            all
+                .filter(uniTableNumberSeriesRow => uniTableNumberSeriesRow._isDirty)
+                .forEach(uniTableNumberSeriesDirtyRow => {
+                    if (!numberSeriesTypeToPUTToServer
+                        .some(nstype => nstype.ID === uniTableNumberSeriesDirtyRow.NumberSeriesTypeID)) {
+                            numberSeriesTypeToPUTToServer.push(uniTableNumberSeriesDirtyRow.NumberSeriesType);
+                    }
+                });
 
             // add numberseries to type
             all.forEach(uniTableNumberSeriesRow => {
@@ -272,6 +275,7 @@ export class NumberSeries {
 
             let saveTypeObservables: Observable<any>[] = numberSeriesTypeToPUTToServer.map(numberSeriesType => {
                 return this.numberSeriesTypeService.save(numberSeriesType);
+
             });
             if (saveTypeObservables.length === 0) {
                 resolve(true);
