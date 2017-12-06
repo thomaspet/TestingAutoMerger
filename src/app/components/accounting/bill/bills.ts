@@ -211,32 +211,30 @@ export class BillsView {
     }
 
     public ngOnInit() {
-        this.companySettingsService.Get(1)
-            .subscribe(settings => {
-                this.companySettings = settings;
-                if (this.companySettings && this.companySettings.BaseCurrencyCode) {
-                    this.baseCurrencyCode = this.companySettings.BaseCurrencyCode.Code;
-                }
-                if (this.startupWithSearchText) {
-                    this.refreshWihtSearchText(this.filterInput(this.startupWithSearchText));
-                } else {
-                    this.refreshList(this.currentFilter, true);
-                }
-                this.updateSaveActions(0);
+        this.companySettingsService.Get(1).subscribe(settings => {
+            this.companySettings = settings;
+            if (this.companySettings && this.companySettings.BaseCurrencyCode) {
+                this.baseCurrencyCode = this.companySettings.BaseCurrencyCode.Code;
+            }
+            if (this.startupWithSearchText) {
+                this.refreshWihtSearchText(this.filterInput(this.startupWithSearchText));
+            } else {
+                this.refreshList(this.currentFilter, true);
+            }
+            this.updateSaveActions(0);
 
-                this.fields$.next(this.getLayout().Fields);
+            this.fields$.next(this.getLayout().Fields);
 
-                this.searchControl.valueChanges
-                    .debounceTime(300)
-                    .subscribe((value: string) => {
-                        var v = this.filterInput(value);
-                        this.startupWithSearchText = v;
-                        this.refreshWihtSearchText(v);
-                    });
+            this.searchControl.valueChanges
+                .debounceTime(300)
+                .subscribe((value: string) => {
+                    var v = this.filterInput(value);
+                    this.startupWithSearchText = v;
+                    this.refreshWihtSearchText(v);
+                });
 
-            }, err => this.errorService.handle(err)
-            );
-        }
+        }, err => this.errorService.handle(err));
+    }
 
 
     public onFormFilterChange(event) {
@@ -847,8 +845,8 @@ export class BillsView {
 
     private createTableConfig(filter: IFilter): UniTableConfig {
         const cols = [
-            new UniTableColumn('InvoiceNumber', 'Fakturanr').setWidth('8%'),
-            new UniTableColumn('SupplierSupplierNumber', 'Lev.nr.').setVisible(false).setWidth('4em'),
+            new UniTableColumn('InvoiceNumber', 'Fakturanr.').setWidth('8%'),
+            new UniTableColumn('SupplierSupplierNumber', 'Lev.nr.').setVisible(false).setWidth('5em'),
             new UniTableColumn('InfoName', 'Leverandør', UniTableColumnType.Text)
                 .setFilterOperator('startswith')
                 .setWidth('15em'),
@@ -886,9 +884,9 @@ export class BillsView {
                         ? 'supplier-invoice-table-plus'
                         : 'supplier-invoice-table-minus'
                 ),
-            new UniTableColumn('Assignees', 'Tildelt / Godkjent av').setVisible(true),
+            new UniTableColumn('Assignees', 'Tildelt/Godkjent av').setVisible(true),
             new UniTableColumn('ProjectName', 'Prosjektnavn').setVisible(false),
-            new UniTableColumn('ProjectProjectNumber', 'ProsjektNr.').setVisible(false),
+            new UniTableColumn('ProjectProjectNumber', 'Prosjektnr.').setVisible(false),
             new UniTableColumn('DepartmentName', 'Avdelingsnavn').setVisible(false),
             new UniTableColumn('DepartmentDepartmentNumber', 'Avd.nr.').setVisible(false),
             new UniTableColumn('StatusCode', 'Status', UniTableColumnType.Number)

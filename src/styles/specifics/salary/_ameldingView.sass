@@ -1,3 +1,36 @@
+amelding-view
+    .horizontal_nav
+        uni-helptext
+            .helpText
+                white-space: normal
+            .helpTextToggle
+                position: static
+
+        li:nth-of-type(1)
+            .helpText
+                width: 26rem
+        li:nth-of-type(3)
+            .helpText
+                width: 30rem
+        li:nth-of-type(4)
+            .helpText
+                width: 35rem
+
+        li
+            @extend %clickable
+            display: flex
+            padding: 0 1rem
+
+            a
+                padding: 0
+                margin-right: .2rem
+
+            &:hover,
+            &.-is-active,
+            &.router-link-active
+                background: $navbarActive
+
+
 .amelding_poster
     box-sizing: border-box
     width: 100%
@@ -36,6 +69,10 @@
     dd:not(:last-of-type)
         margin: 0 0 1rem 0
         font-size: 1.5rem
+
+.no_avvik
+    dd
+        color: $uni-color-good
 
 .amelding_poster_figures
     width: 100%

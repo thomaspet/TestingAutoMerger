@@ -1,5 +1,5 @@
 import {Router, ActivatedRoute} from '@angular/router';
-import {Component, Input, ViewChild, Output, EventEmitter, SimpleChanges} from '@angular/core';
+import {Component, Input, ViewChild, Output, EventEmitter, SimpleChanges, OnInit} from '@angular/core';
 import {Observable} from 'rxjs/Observable';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {IUniSaveAction} from '../../../../../framework/save/save';
@@ -52,13 +52,12 @@ import {
     ConfirmActions
 } from '../../../../../framework/uniModal/barrel';
 import {UniHttp} from '../../../../../framework/core/http/http';
-declare var _;
 
 @Component({
     selector: 'customer-details',
     templateUrl: './customerDetails.html'
 })
-export class CustomerDetails {
+export class CustomerDetails implements OnInit {
     @Input() public modalMode: boolean;
     @Output() public customerUpdated: EventEmitter<Customer> = new EventEmitter<Customer>();
     @ViewChild(UniForm) public form: UniForm;
@@ -162,7 +161,7 @@ export class CustomerDetails {
 
     private customerStatisticsData: any;
 
-    private expandOptions: Array<string> = [
+    private expandOptions: string[] = [
         'Info',
         'Info.Phones',
         'Info.DefaultPhone',
@@ -180,6 +179,17 @@ export class CustomerDetails {
         'Sellers',
         'Sellers.Seller',
         'DefaultSeller'
+    ];
+
+    private newEntityExpandOptions: string[] = [
+        'Info',
+        'Info.Phones',
+        'Info.Addresses',
+        'Info.Emails',
+        'Info.Contacts',
+        'Dimensions',
+        'CustomerInvoiceReminderSettings.CustomerInvoiceReminderRules',
+        'Sellers'
     ];
 
     private formIsInitialized: boolean = false;
@@ -216,11 +226,7 @@ export class CustomerDetails {
         this.setupSaveActions();
         if (!this.modalMode) {
             this.route.params.subscribe((params) => {
-                if (params['id'] === 'new') {
-                    this.customerID = 0;
-                } else {
-                    this.customerID = +params['id'];
-                }
+                this.customerID = +params['id'];
 
                 this.commentsConfig = {
                     entityType: 'Customer',
@@ -263,6 +269,9 @@ export class CustomerDetails {
     }
 
     public previousCustomer() {
+        if (!this.customer$.value.ID) {
+            return this.toastService.addToast('Warning', ToastType.warn, 0, 'Ikke flere kunder før denne');
+        }
         this.customerService.getPreviousID(this.customerID ? this.customerID : 0)
             .subscribe(id => {
                     if (id) {
@@ -276,16 +285,16 @@ export class CustomerDetails {
     }
 
     public addCustomer() {
+        this.formIsInitialized = false;
         this.showTab('details');
-        this.router.navigateByUrl('/sales/customer/new');
-        this.isDisabled = true;
-        this.setupSaveActions();
+        this.router.navigateByUrl('/sales/customer/0');
+        this.reset();
     }
 
     private deleteCustomer(id: number) {
         if (confirm('Vil du slette denne kunden?')) {
             this.customerService.deleteCustomer(id).subscribe(res => {
-                this.router.navigateByUrl('/sales/customers/');
+                this.router.navigateByUrl('/sales/customer/');
             }, err => this.errorService.handle(err));
         }
     }
@@ -295,9 +304,9 @@ export class CustomerDetails {
             return;
         }
         const customer = this.customer$.getValue();
-        let tabTitle = customer.CustomerNumber ? 'Kundenr. ' + customer.CustomerNumber : 'Ny kunde';
+        const tabTitle = customer.CustomerNumber ? 'Kundenr. ' + customer.CustomerNumber : 'Ny kunde';
         this.tabService.addTab({
-            url: '/sales/customer/' + (customer.ID || 'new'),
+            url: '/sales/customer/' + (customer.ID || 0),
             name: tabTitle,
             active: true,
             moduleID: UniModules.Customers
@@ -307,24 +316,29 @@ export class CustomerDetails {
         this.toolbarconfig.subheads = customer.ID ? [{title: 'Kundenr. ' + customer.CustomerNumber}] : [];
     }
 
-    public canDeactivate(): Observable<boolean> {
-        return !this.isDirty && !(this.ledgerAccountReconciliation && this.ledgerAccountReconciliation.isDirty)
-            ? Observable.of(true)
-            : this.modalService
-                .openUnsavedChangesModal()
-                .onClose
-                .map(result => {
-                    if (result === ConfirmActions.ACCEPT) {
-                        this.saveCustomer(() => {});
-                    } else if (result === ConfirmActions.REJECT) {
-                        this.isDirty = false;
-                        if (this.ledgerAccountReconciliation) {
-                            this.ledgerAccountReconciliation.isDirty = false;
-                        }
-                    }
+    public canDeactivate(): boolean | Observable<boolean> {
+        if (!this.isDirty && !(this.ledgerAccountReconciliation && this.ledgerAccountReconciliation.isDirty)) {
+            return true;
+        }
 
-                    return result !== ConfirmActions.CANCEL;
-                });
+        return Observable.create(observer => {
+            this.modalService.openUnsavedChangesModal().onClose.subscribe(res => {
+                if (res === ConfirmActions.ACCEPT) {
+                    this.saveCustomer((done) => {
+                        observer.next(true);
+                        observer.complete();
+                    });
+                } else {
+                    observer.next(res !== ConfirmActions.CANCEL);
+                    if (res === ConfirmActions.REJECT) {
+                        this.isDirty = false;
+                        this.isDisabled = true;
+                        this.setupSaveActions();
+                    }
+                    observer.complete();
+                }
+            });
+        });
     }
 
     public showTab(tab: string, reportid: number = null) {
@@ -341,8 +355,11 @@ export class CustomerDetails {
     }
 
     public reset() {
-        this.customerID = null;
+        this.customerID = 0;
+        this.isDirty = false;
+        this.isDisabled = true;
         this.setup();
+        this.formIsInitialized = true;
     }
 
     public openInModalMode(id?: number) {
@@ -359,7 +376,7 @@ export class CustomerDetails {
         this.showReportWithID = null;
 
         if (!this.formIsInitialized) {
-            var layout: ComponentLayout = this.getComponentLayout(); // results
+            const layout: ComponentLayout = this.getComponentLayout(); // results
             this.fields$.next(layout.Fields);
 
             Observable.forkJoin(
@@ -368,7 +385,7 @@ export class CustomerDetails {
                 (
                     this.customerID > 0 ?
                         this.customerService.Get(this.customerID, this.expandOptions)
-                        : this.customerService.GetNewEntity(this.expandOptions)
+                        : this.customerService.GetNewEntity(this.newEntityExpandOptions)
                 ),
                 this.phoneService.GetNewEntity(),
                 this.emailService.GetNewEntity(),
@@ -399,11 +416,9 @@ export class CustomerDetails {
                 this.numberSeries = response[10].map(x => this.numberSeriesService.translateSerie(x));
                 this.sellers = response[11];
 
-                let customer: Customer = response[2];
+                const customer: Customer = response[2];
                 customer.SubAccountNumberSeriesID =
                     this.numberSeries.find(x => x.Name === 'Customer number series').ID;
-                this.isDisabled = !customer.Info.Name;
-                this.setupSaveActions();
                 this.setMainContact(customer);
                 this.customer$.next(customer);
 
@@ -430,7 +445,7 @@ export class CustomerDetails {
                 (
                     this.customerID > 0 ?
                         this.customerService.Get(this.customerID, this.expandOptions) :
-                        this.customerService.GetNewEntity(this.expandOptions)
+                        this.customerService.GetNewEntity(this.newEntityExpandOptions)
                 ),
                 (
                     this.customerID > 0 ?
@@ -438,10 +453,8 @@ export class CustomerDetails {
                         Observable.of(null)
                 )
             ).subscribe(response => {
-                let customer = response[0];
+                const customer = response[0];
                 this.setMainContact(customer);
-
-                this.customer$.next(customer);
 
                 this.customerStatisticsData = response[1];
 
@@ -451,6 +464,7 @@ export class CustomerDetails {
                         this.customerInvoiceReminderSettingsService.getNewGuid();
                 }
 
+                this.customer$.next(customer);
                 this.setTabTitle();
                 this.showHideNameProperties();
                 this.updateCustomerWidgets();
@@ -459,7 +473,7 @@ export class CustomerDetails {
     }
 
     public numberSeriesChange(selectedSerie) {
-        let customer = this.customer$.getValue();
+        const customer = this.customer$.getValue();
         customer.SubAccountNumberSeriesID = selectedSerie.ID;
         this.customer$.next(customer);
     }
@@ -496,16 +510,9 @@ export class CustomerDetails {
     }
 
     public extendFormConfig() {
-        let fields: UniFieldLayout[] = this.fields$.getValue();
+        const fields: UniFieldLayout[] = this.fields$.getValue();
 
-        let customerSearchResult: UniFieldLayout = fields.find(x => x.Property === '_CustomerSearchResult');
-        customerSearchResult.Hidden = this.customerID > 0;
-
-
-        let customerName: UniFieldLayout = fields.find(x => x.Property === 'Info.Name');
-        customerName.Hidden = this.customerID === 0;
-
-        let currencyCode: UniFieldLayout = fields.find(x => x.Property === 'CurrencyCodeID');
+        const currencyCode: UniFieldLayout = fields.find(x => x.Property === 'CurrencyCodeID');
         currencyCode.Options = {
             source: this.currencyCodes,
             valueProperty: 'ID',
@@ -513,7 +520,7 @@ export class CustomerDetails {
             debounceTime: 200
         };
 
-        let department: UniFieldLayout = fields.find(x => x.Property === 'Dimensions.DepartmentID');
+        const department: UniFieldLayout = fields.find(x => x.Property === 'Dimensions.DepartmentID');
         department.Options = {
             source: this.dropdownData[0],
             valueProperty: 'ID',
@@ -524,7 +531,7 @@ export class CustomerDetails {
             addEmptyValue: true
         };
 
-        let project: UniFieldLayout = fields.find(x => x.Property === 'Dimensions.ProjectID');
+        const project: UniFieldLayout = fields.find(x => x.Property === 'Dimensions.ProjectID');
         project.Options = {
             source: this.dropdownData[1],
             valueProperty: 'ID',
@@ -535,7 +542,7 @@ export class CustomerDetails {
             addEmptyValue: true
         };
 
-        let defaultSeller: UniFieldLayout = fields.find(field => field.Property === 'DefaultSeller.ID');
+        const defaultSeller: UniFieldLayout = fields.find(field => field.Property === 'DefaultSellerID');
         defaultSeller.Options = {
             source: this.sellers,
             valueProperty: 'ID',
@@ -544,7 +551,7 @@ export class CustomerDetails {
             addEmptyValue: true
         };
 
-        let paymentTerm: UniFieldLayout = fields.find(x => x.Property === 'PaymentTermsID');
+        const paymentTerm: UniFieldLayout = fields.find(x => x.Property === 'PaymentTermsID');
         paymentTerm.Options = {
             source: this.paymentTerms,
             valueProperty: 'ID',
@@ -555,7 +562,7 @@ export class CustomerDetails {
             addEmptyValue: true
         };
 
-        let deliveryTerm: UniFieldLayout = fields.find(x => x.Property === 'DeliveryTermsID');
+        const deliveryTerm: UniFieldLayout = fields.find(x => x.Property === 'DeliveryTermsID');
         deliveryTerm.Options = {
             source: this.deliveryTerms,
             valueProperty: 'ID',
@@ -567,7 +574,7 @@ export class CustomerDetails {
         };
 
         // MultiValue
-        let phones: UniFieldLayout = fields.find(x => x.Property === 'Info.DefaultPhone');
+        const phones: UniFieldLayout = fields.find(x => x.Property === 'Info.DefaultPhone');
 
         phones.Options = {
             entity: Phone,
@@ -585,7 +592,7 @@ export class CustomerDetails {
             }
         };
 
-        let invoiceaddress: UniFieldLayout = fields.find(x => x.Property === 'Info.InvoiceAddress');
+        const invoiceaddress: UniFieldLayout = fields.find(x => x.Property === 'Info.InvoiceAddress');
 
         invoiceaddress.Options = {
             entity: Address,
@@ -607,7 +614,7 @@ export class CustomerDetails {
             }
         };
 
-        let emails: UniFieldLayout = fields.find(x => x.Property === 'Info.DefaultEmail');
+        const emails: UniFieldLayout = fields.find(x => x.Property === 'Info.DefaultEmail');
         emails.Options = {
             entity: Email,
             listProperty: 'Info.Emails',
@@ -624,7 +631,7 @@ export class CustomerDetails {
             }
         };
 
-        let shippingaddress: UniFieldLayout = fields.find(x => x.Property === 'Info.ShippingAddress');
+        const shippingaddress: UniFieldLayout = fields.find(x => x.Property === 'Info.ShippingAddress');
         shippingaddress.Options = {
             entity: Address,
             listProperty: 'Info.Addresses',
@@ -648,12 +655,11 @@ export class CustomerDetails {
         this.fields$.next(fields);
     }
 
-    public showHideNameProperties() {
-        let fields: UniFieldLayout[] = this.fields$.getValue();
-
-        let customer = this.customer$.getValue();
-        let customerSearchResult: UniFieldLayout = fields.find(x => x.Property === '_CustomerSearchResult');
-        let customerName: UniFieldLayout = fields.find(x => x.Property === 'Info.Name');
+    public showHideNameProperties(customer?: Customer) {
+        customer = customer || this.customer$.getValue();
+        const fields: UniFieldLayout[] = this.fields$.getValue();
+        const customerSearchResult: UniFieldLayout = fields.find(x => x.Property === '_CustomerSearchResult');
+        const customerName: UniFieldLayout = fields.find(x => x.Property === 'Info.Name');
 
         if (
             !this.allowSearchCustomer ||
@@ -667,7 +673,7 @@ export class CustomerDetails {
                 if (this.form.field('Info.Name')) {
                     this.form.field('Info.Name').focus();
                 }
-            }, 200);
+            });
         } else {
             customerSearchResult.Hidden = false;
             customerName.Hidden = true;
@@ -676,14 +682,14 @@ export class CustomerDetails {
                 if (this.form.field('_CustomerSearchResult')) {
                     this.form.field('_CustomerSearchResult').focus();
                 }
-            }, 200);
+            });
         }
     }
 
     public saveCustomer(completeEvent: any) {
         // small timeout to allow uniform and unitable to update the sources before saving
         setTimeout(() => {
-            let customer = this.customer$.getValue();
+            const customer = this.customer$.getValue();
 
             // add createGuid for new entities and remove duplicate entities
             if (!customer.Info.Emails) {
@@ -845,20 +851,14 @@ export class CustomerDetails {
     }
 
     private getCustomerLookupOptions() {
-        let uniSearchConfig = this.uniSearchCustomerConfig.generate(
+        const uniSearchConfig = this.uniSearchCustomerConfig.generate(
             this.expandOptions,
-            () => {
-                let customer = this.customer$.getValue();
-                const searchInfo = this.form.field('_CustomerSearchResult');
-                const cmp = searchInfo.component;
-                customer.Info.Name = cmp.input.value;
-                if (!customer.Info.Name) {
-                    customer.Info.Name = '';
-                }
-                this.customer$.next(customer);
-                this.showHideNameProperties();
-                return Observable.from([customer]);
+            (inputVal: string) => {
+                const customer = this.customer$.getValue();
+                customer.Info.Name = inputVal;
+                return Observable.of(customer);
             });
+
         uniSearchConfig.unfinishedValueFn = (val: string) => this.customer$
             .asObservable()
             .take(1)
@@ -874,11 +874,10 @@ export class CustomerDetails {
                 this.router.navigateByUrl(`/sales/customer/${selectedItem.ID}`);
                 return Observable.empty();
             } else {
-                let customerData =
-                this.uniSearchCustomerConfig
-                    .customStatisticsObjToCustomer(selectedItem, true, this.customer$.getValue());
+                const customerData = this.uniSearchCustomerConfig
+                    .customStatisticsObjToCustomer(selectedItem, true, selectedItem);
 
-                return Observable.from([customerData]);
+                return Observable.of(customerData);
             }
         };
 
@@ -887,6 +886,7 @@ export class CustomerDetails {
 
     public onChange(changes: SimpleChanges) {
         this.isDirty = true;
+        let customer = this.customer$.getValue();
 
         if (changes['Info.Name']) {
             if (this.isDisabled === true && changes['Info.Name'].currentValue !== '') {
@@ -898,46 +898,40 @@ export class CustomerDetails {
                 this.setupSaveActions();
             }
         }
-        let customer = this.customer$.getValue();
 
         if (changes['DefaultSellerID']) {
-            if (customer.DefaultSellerID) {
-                customer.DefaultSeller = this.sellers.find(seller => seller.ID === customer.DefaultSellerID);
+            if (customer.DefaultSellerID > 0) {
+                customer.DefaultSeller = this.sellers.find(seller => seller.ID === customer.DefaultSellerID) || null;
             } else {
                 customer.DefaultSeller = null;
                 customer.DefaultSellerID = 0;
             }
         }
 
-        if (changes['DefaultSeller.ID'] && customer.DefaultSeller.ID === null) {
-           customer.DefaultSeller = null;
-           customer.DefaultSellerID = 0;
-        }
-
         if (changes['_CustomerSearchResult']) {
-            let searchResult = changes['_CustomerSearchResult'].currentValue;
+            const searchResult = changes['_CustomerSearchResult'].currentValue;
 
             if (searchResult === '') {
                 this.toastService.addToast('Navn er påkrevd', ToastType.warn, ToastTime.short);
             }
 
-            if (searchResult) {
-                let customer = this.customer$.getValue();
+            if (searchResult && searchResult.Info.Name) {
                 customer = searchResult;
-                this.customer$.next(customer);
                 this.isDisabled = false;
                 this.setupSaveActions();
-                this.showHideNameProperties();
+                this.showHideNameProperties(customer);
             }
         }
+        this.customer$.next(customer);
     }
 
     public onSellerLinkDeleted(sellerLink: SellerLink) {
-        let customer = this.customer$.getValue();
-        if (customer.DefaultSeller && sellerLink.SellerID === customer.DefaultSeller.ID) {
+        const customer = this.customer$.getValue();
+        if (customer.DefaultSellerID === sellerLink.SellerID) {
             customer.DefaultSeller = null;
             customer.DefaultSellerID = 0;
         }
+
         this.customer$.next(customer);
     }
 
@@ -962,7 +956,6 @@ export class CustomerDetails {
                     Legend: 'Kunde',
                     EntityType: 'Customer',
                     Property: '_CustomerSearchResult',
-                    Hidden: true,
                     FieldType: FieldType.UNI_SEARCH,
                     Label: 'Navn',
                     Section: 0,
@@ -1074,7 +1067,7 @@ export class CustomerDetails {
                 {
                     FieldSet: 4,
                     EntityType: 'Seller',
-                    Property: 'DefaultSeller.ID',
+                    Property: 'DefaultSellerID',
                     FieldType: FieldType.DROPDOWN,
                     Label: 'Hovedselger',
                     Section: 0

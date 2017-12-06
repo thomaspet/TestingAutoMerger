@@ -3,7 +3,7 @@ import {Injectable} from '@angular/core';
 import {Observable} from 'rxjs/Observable';
 
 // app
-import {AppConfig} from '../../../AppConfig';
+import {environment} from 'src/environments/environment';
 import {UniHttp} from '../../../../framework/core/http/http';
 
 // model
@@ -19,23 +19,23 @@ export class JobService {
     // job runs
     public getLatestJobRuns(num: number): Observable<any> {
         return this.uniHttp.asGET()
-            .sendToUrl(AppConfig.UNI_JOB_SERVER_URL + 'jobruns/latest?num=' + num);
+            .sendToUrl(environment.UNI_JOB_SERVER_URL + 'jobruns/latest?num=' + num);
     }
 
     public getJobRun(jobName: string, hangfireJobId: string, loglimit: number = 50): Observable<any> {
         return this.uniHttp.asGET()
-            .sendToUrl(AppConfig.UNI_JOB_SERVER_URL + 'jobruns?job=' + jobName + '&run=' + hangfireJobId
+            .sendToUrl(environment.UNI_JOB_SERVER_URL + 'jobruns?job=' + jobName + '&run=' + hangfireJobId
             + '&loglimit=' + loglimit);
     }
 
     // jobs
     public getJobs(): Observable<any> {
         return this.uniHttp.asGET()
-            .sendToUrl(AppConfig.UNI_JOB_SERVER_URL + 'jobs');
+            .sendToUrl(environment.UNI_JOB_SERVER_URL + 'jobs');
     }
 
     public startJob(name: string, minutes?: number, body?): Observable<any> {
-        let url: string = AppConfig.UNI_JOB_SERVER_URL + 'jobs?job=' + name;
+        let url: string = environment.UNI_JOB_SERVER_URL + 'jobs?job=' + name;
 
         if (minutes) {
             url += '&minutes=' + minutes;
@@ -49,22 +49,22 @@ export class JobService {
     // schedules
     public createSchedule(jobName: string, cronExp: string): Observable<any> {
         return this.uniHttp.asPOST()
-            .sendToUrl(AppConfig.UNI_JOB_SERVER_URL + 'job-schedules?job=' + jobName + '&cronExpression=' + cronExp);
+            .sendToUrl(environment.UNI_JOB_SERVER_URL + 'job-schedules?job=' + jobName + '&cronExpression=' + cronExp);
     }
 
     public deleteSchedule(id: string): Observable<any> {
         return this.uniHttp.asDELETE()
-            .sendToUrl(AppConfig.UNI_JOB_SERVER_URL + 'job-schedules?scheduleId=' + id);
+            .sendToUrl(environment.UNI_JOB_SERVER_URL + 'job-schedules?scheduleId=' + id);
     }
 
     public getSchedules(jobName: string): Observable<any> {
         return this.uniHttp.asGET()
-            .sendToUrl(AppConfig.UNI_JOB_SERVER_URL + 'job-schedules?job=' + jobName);
+            .sendToUrl(environment.UNI_JOB_SERVER_URL + 'job-schedules?job=' + jobName);
     }
 
     public modifySchedule(jobName: string, id: string, cronExp: string): Observable<any> {
         return this.uniHttp.asPUT()
-            .sendToUrl(AppConfig.UNI_JOB_SERVER_URL
+            .sendToUrl(environment.UNI_JOB_SERVER_URL
                 + 'job-schedules?job=' + jobName + '&scheduleId=' + id  + '&cronExpression=' + cronExp);
     }
 

@@ -3,6 +3,7 @@ import {UniView} from '../../../../../framework/core/uniView';
 import {Router, ActivatedRoute} from '@angular/router';
 import {UniCacheService} from '../../../../services/services';
 import {SalaryBalance} from '../../../../unientities';
+import * as _ from 'lodash';
 
 const SALARYBALANCES_KEY = 'salarybalances';
 
@@ -26,11 +27,29 @@ export class EmployeeSalarybalance extends UniView {
             super.updateCacheKey(router.url);
             this.salarybalances = [];
             this.employeeID = +paramsChange['id'];
+            super.getStateSubject(SALARYBALANCES_KEY)
+                .filter((salBal: SalaryBalance[]) => !salBal.some(x => {
+                    if (!x.Transactions) {
+                        return false;
+                    }
+                    return x.Transactions.some(trans => !!trans._createguid);
+                }))
+                .subscribe(model => this.refreshSalaryBalances(model));
         });
     }
 
+    private refreshSalaryBalances(salaryBalances: SalaryBalance[]) {
+        if (!this.salarybalance || !this.salarybalances) {
+            return;
+        }
+
+        this.setSalarybalance(salaryBalances
+            .find(salBal => salBal['_originalIndex'] === this.salarybalance['_originalIndex']));
+        this.salarybalances = _.cloneDeep(salaryBalances);
+    }
+
     public setSalarybalance(salaryBal: SalaryBalance) {
-        this.salarybalance = salaryBal;
+        this.salarybalance = _.cloneDeep(salaryBal);
     }
 
     private onSalarybalanceChange(salarybalance: SalaryBalance) {
@@ -41,7 +60,7 @@ export class EmployeeSalarybalance extends UniView {
                 if (!salbal.ID) {
                     return salbal['_createguid'] === salarybalance['_createguid'];
                 }
-    
+
                 return salbal.ID === salarybalance.ID;
             });
         }

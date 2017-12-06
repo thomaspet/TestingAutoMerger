@@ -20,7 +20,7 @@ export enum UniTableColumnType {
     Boolean = 10,
     UniSearch = 11,
     Typeahead = 12
-};
+}
 
 export enum UniTableColumnSortMode {
     Normal = 0,
@@ -50,7 +50,7 @@ export interface IUniTableColumn {
     cls?: string;
     headerCls?: string;
     template?: (rowModel: any) => string;
-    editorOptions?: any;
+    options?: any;
     editor?: any;
     format?: string;
     numberFormat?: INumberFormat;
@@ -86,7 +86,7 @@ export class UniTableColumn implements IUniTableColumn {
     public format: string;
     public numberFormat: INumberFormat;
     public alignment: string;
-    public editorOptions: any;
+    public options: any;
     public editor: any;
     public width: string;
     public sortMode: UniTableColumnSortMode;
@@ -99,6 +99,15 @@ export class UniTableColumn implements IUniTableColumn {
     public skipOnEnterKeyNavigation: boolean;
     public jumpToColumn: string;
     public onCellClick: (rowModel) => void;
+
+    public static fromObject(obj: IUniTableColumn) {
+        const column = new UniTableColumn();
+        Object.keys(obj).forEach((key) => {
+            column[key] = obj[key];
+        });
+
+        return column;
+    }
 
     constructor(field?: string, header?: string, type?: UniTableColumnType, editable: boolean | ((rowModel) => boolean) = true) {
         this.header = header || '';
@@ -222,8 +231,8 @@ export class UniTableColumn implements IUniTableColumn {
         return this;
     }
 
-    public setEditorOptions(editorOptions: any) {
-        this.editorOptions = editorOptions;
+    public setOptions(options: any) {
+        this.options = options;
         return this;
     }
 
@@ -281,14 +290,4 @@ export class UniTableColumn implements IUniTableColumn {
         this.isSumColumn = isSumColumn;
         return this;
     }
-
-    public static fromObject(obj: IUniTableColumn) {
-        let column = new UniTableColumn();
-        Object.keys(obj).forEach((key) => {
-            column[key] = obj[key];
-        });
-
-        return column;
-    }
-
 }

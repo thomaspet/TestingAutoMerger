@@ -1,7 +1,6 @@
 import {Component, Input, Output, EventEmitter, ViewChild, ChangeDetectionStrategy, ElementRef} from '@angular/core';
 import {UniSearchAttr} from './UniSearchAttr';
 import html from './UniSearchHtml';
-import css from './UniSearchCss';
 import {IUniSearchConfig} from './IUniSearchConfig';
 
 declare const module;
@@ -9,13 +8,12 @@ declare const module;
 @Component({
     selector: 'uni-search',
     template: html,
-    styles: [css],
+    styleUrls: ['./uniSearch.sass'],
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class UniSearch {
     @ViewChild(UniSearchAttr)
     private uniSearchAttr: UniSearchAttr;
-    private onBtnClick = () => this.uniSearchAttr.onSearchButtonClick();
 
     @Input()
     private config: IUniSearchConfig;
@@ -25,6 +23,8 @@ export class UniSearch {
 
     @Output()
     private changeEvent: EventEmitter<any> = new EventEmitter<any>();
+
+    private onBtnClick = () => this.uniSearchAttr.onSearchButtonClick();
 
     private onChangeEvent(event) {
         this.changeEvent.emit(event);

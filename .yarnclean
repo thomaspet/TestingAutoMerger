@@ -1,6 +1,6 @@
 # test directories
 __tests__
-#test #Removed because ts-lint doesn't work if yarn removes test dir
+test
 tests
 powered-test
 
@@ -34,8 +34,6 @@ Gruntfile.js
 .flowconfig
 .documentup.json
 .yarn-metadata.json
-.*.yml
-*.yml
 
 # misc
 *.gz

@@ -33,9 +33,13 @@ export function filterInput(v) {
     return v.replace(/[`~!@#$%^&*()_|+\=?;:'",.<>\{\}\[\]\\\/]/gi, '');
 }
 
+export function isObject (item) {
+    return (typeof item === 'object' && !Array.isArray(item) && item !== null);
+}
+
 export function safeInt(value: any) {
     if (value === undefined) { return 0; }
-    var tmp = parseInt(value, 10);
+    const tmp = parseInt(value, 10);
     if (isNaN(tmp)) {
         return 0;
     }
@@ -43,7 +47,7 @@ export function safeInt(value: any) {
 }
 
 export function roundTo(value: number, decimals = 2): number {
-    var dVal = value;
+    let dVal = value;
     if (typeof(dVal) !== 'number') {
         dVal = safeDec(value);
     }
@@ -54,14 +58,14 @@ export function safeDec(value: any) {
     if (value === undefined) { return 0; }
     if (typeof(value) === 'number') { return value; }
     if (typeof(value) === 'string') {
-        var ixDot = value.indexOf('.');
-        var ixComma = value.indexOf(',');
+        const ixDot = value.indexOf('.');
+        const ixComma = value.indexOf(',');
         if (ixDot && ixComma && ixComma > ixDot) {
             value = value.replace(new RegExp('[.]', 'g'), '');
             value = value.replace(new RegExp('[,]', 'g'), '.');
         }
     }
-    var tmp = parseFloat(value);
+    const tmp = parseFloat(value);
     if (isNaN(tmp)) {
         return 0;
     }
@@ -83,7 +87,7 @@ export function createFormField(
 }
 
 function combineClasses(size = FieldSize.Normal, hideLabel = false) {
-    var classes = [];
+    const classes = [];
     switch (size) {
         case FieldSize.Double:
             classes.push('half-width');
@@ -105,15 +109,15 @@ function combineClasses(size = FieldSize.Normal, hideLabel = false) {
 // example: setDeepValue(row, 'dimension.projectid', 123)
 // </summary>
 export function setDeepValue(item: any, name: string, value: any) {
-    var parts = name.split('.');
+    const parts = name.split('.');
     if (parts.length === 1) {
         item[name] = value.ID ? value.ID : value;
         return;
     }
-    for (var i = 0; i < parts.length; i++) {
-        var subName = parts[i];
-        var sub = parts.join('.').substr(subName.length + 1);
-        var subItem = item[subName] || {};
+    for (let i = 0; i < parts.length; i++) {
+        const subName = parts[i];
+        const sub = parts.join('.').substr(subName.length + 1);
+        const subItem = item[subName] || {};
         if (!item[subName]) {
             item[subName] = subItem;
         }
@@ -125,14 +129,14 @@ export function setDeepValue(item: any, name: string, value: any) {
 // example: getDeepValue(row, 'dimension.projectid')
 // </summary>
 export function getDeepValue(item: any, name: string) {
-    var parts = name.split('.');
+    const parts = name.split('.');
     if (parts.length === 1) {
         return item[name];
     }
-    for (var i = 0; i < parts.length; i++) {
-        var subName = parts[i];
-        var sub = parts.join('.').substr(subName.length + 1);
-        var subItem = item[subName] || {};
+    for (let i = 0; i < parts.length; i++) {
+        const subName = parts[i];
+        const sub = parts.join('.').substr(subName.length + 1);
+        const subItem = item[subName] || {};
         if (!item[subName]) {
             item[subName] = subItem;
         }
@@ -145,28 +149,28 @@ export function getDeepValue(item: any, name: string) {
 // N milliseconds. If `immediate` is passed, trigger the function on the
 // leading edge, instead of the trailing.
 export function debounce(func: any, wait: number, immediate?: any) {
-    var timeout;
+    let timeout;
     return function () {
-        var context = this, args = arguments;
-        var later = () => {
+        const context = this, args = arguments;
+        const later = () => {
             timeout = null;
             if (!immediate) {
                 func.apply(context, args);
             }
         };
-        var callNow = immediate && !timeout;
+        const callNow = immediate && !timeout;
         clearTimeout(timeout);
         timeout = setTimeout(later, wait);
         if (callNow) {
             func.apply(context, args);
         }
     };
-};
+}
 
 export function parseDate(value: any, allowMacros = true): Date {
-    var d = 0;
-    var m = 0;
-    var y = 0;
+    let d = 0;
+    let m = 0;
+    const y = 0;
 
     if (value === null) { return moment().toDate(); }
 
@@ -185,7 +189,7 @@ export function parseDate(value: any, allowMacros = true): Date {
     }
 
     if (value.indexOf('/') > 0) {
-        var parts = value.split('/');
+        const parts = value.split('/');
         if (parts.length === 3) {
             return moment(value, 'MM/DD/YY').toDate();
         }
@@ -200,7 +204,7 @@ export function parseDate(value: any, allowMacros = true): Date {
         }
     }
 
-    d = parseInt(value);
+    d = parseInt(value, 2);
     if (d > 0) {
         switch (value.length) {
             case 1:
@@ -216,7 +220,6 @@ export function parseDate(value: any, allowMacros = true): Date {
                 }
                 break;
             case 4:
-                debugger;
                 d = safeInt(value.substr(0, 2));
                 m = safeInt(value.substr(2, 2));
                 break;
@@ -229,7 +232,7 @@ export function parseDate(value: any, allowMacros = true): Date {
 }
 
 export function toIso(date: Date, includeTime = false, nullTime = false): string {
-    var value: string = moment(date).format();
+    const value: string = moment(date).format();
     if (includeTime) {
         if (nullTime) { return value.substr(0, 10) + 'T00:00:00'; }
         return value;
@@ -238,14 +241,14 @@ export function toIso(date: Date, includeTime = false, nullTime = false): string
 }
 
 export function parseTime(value: string, allowMacros = true, date?: Date): Date {
-    var h = 0;
-    var m = 0;
+    let h = 0;
+    let m = 0;
 
     if (allowMacros) {
         if (value === '*') { return moment().toDate(); }
     }
     if (value.indexOf(':') > 0) {
-        var parts = value.split(':');
+        const parts = value.split(':');
         h = safeInt(parts[0]);
         m = safeInt(parts[1]);
     } else {
@@ -288,20 +291,20 @@ function timeSerial(hour: number, minute: number, date?: Date): Date {
 }
 
 function dateSerial(day: number, month = 0, year = 0): Date {
-    var d = new Date;
-    var x = moment().date(day).month(month ? month - 1 : d.getMonth()).year( year || d.getFullYear() );
-    var y = x.toDate();
+    const d = new Date;
+    const x = moment().date(day).month(month ? month - 1 : d.getMonth()).year( year || d.getFullYear() );
+    const y = x.toDate();
     return y;
 }
 
 export function exportToFile(text: string, fileName: string) {
-    var link: any = document.createElement('a');
+    const link: any = document.createElement('a');
 
-    var blob = new Blob(['\uFEFF' + text], { type: 'text/csv;charset=utf-8;' });
+    const blob = new Blob(['\uFEFF' + text], { type: 'text/csv;charset=utf-8;' });
 
     if (link.download !== undefined) {
 
-        var url = URL.createObjectURL(blob);
+        const url = URL.createObjectURL(blob);
         link.setAttribute('href', url);
         link.setAttribute('download', fileName);
         link.style = 'visibility:hidden';
@@ -320,7 +323,7 @@ export function exportToFile(text: string, fileName: string) {
 
 export function arrayToCsv(data: Array<any>, columnAsFormula: Array<string> = [],
                            columnDelimiter = ';', lineDelimiter = '\r\n', includeHeader = true) {
-    var result, ctr, keys;
+    let result, ctr, keys;
 
     if (data === null || !data.length) {
         return null;
@@ -337,7 +340,7 @@ export function arrayToCsv(data: Array<any>, columnAsFormula: Array<string> = []
     }
 
     data.forEach(function(item) {
-        var prop: string;
+        let prop: string;
         ctr = 0;
         keys.forEach(function(key) {
             if (ctr > 0) { result += columnDelimiter; }
@@ -369,10 +372,10 @@ export function capitalizeFirstLetter(value: string) {
 }
 
 export function capitalizeSentence(value: string, limitWords = 5) {
-    if (!value) { return ''; };
-    var words = value.split(' ');
-    var output = [];
-    for (var i = 0; i < words.length; i++) {
+    if (!value) { return ''; }
+    const words = value.split(' ');
+    const output = [];
+    for (let i = 0; i < words.length; i++) {
         output.push(capitalizeFirstLetter(words[i]));
         if (i >= limitWords - 1) {
             break;
@@ -395,9 +398,9 @@ export function addContextMenu(toolbarConfig: any, name: string, label: string,
 }
 
 export function removeContextMenu(toolbarConfig: any, name: string) {
-    var list = (<Array<any>>toolbarConfig.contextmenu);
+    const list = (<Array<any>>toolbarConfig.contextmenu);
     if (list && list.length > 0) {
-        var index = list.findIndex( x => x.name === name);
+        const index = list.findIndex( x => x.name === name);
         if (index >= 0) {
             list.splice(index, 1);
         }
@@ -406,11 +409,11 @@ export function removeContextMenu(toolbarConfig: any, name: string) {
 
 
 export function createRow(cells: number, emptyValue: any, ...values: any[]) {
-    var row = [];
+    const row = [];
     values.forEach( item => {
         row.push(item);
     });
-    for (var i = row.length; i < cells; i++) {
+    for (let i = row.length; i < cells; i++) {
         if (typeof emptyValue === 'function') {
             row.push(emptyValue());
         } else {

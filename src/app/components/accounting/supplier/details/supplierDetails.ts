@@ -83,9 +83,6 @@ export class SupplierDetails implements OnInit {
     private supplier$: BehaviorSubject<Supplier> = new BehaviorSubject(new Supplier());
     public searchText: string;
 
-    private emptyPhone: Phone;
-    private emptyEmail: Email;
-    private emptyAddress: Address;
     private emptyBankAccount: BankAccount;
     public reportLinks: IReference[];
     private activeTab: string = 'details';
@@ -191,14 +188,10 @@ export class SupplierDetails implements OnInit {
         }
 
         if (changes['_SupplierSearchResult']) {
-            let searchResult = changes['_SupplierSearchResult'].currentValue;
-
-            if (searchResult) {
-                let supplier = this.supplier$.getValue();
-                supplier = searchResult;
+            const supplier = changes['_SupplierSearchResult'].currentValue;
+            if (supplier && supplier.Info && supplier.Info.Name) {
                 this.supplier$.next(supplier);
-
-                this.showHideNameProperties();
+                this.showHideNameProperties(supplier);
             }
         }
     }
@@ -229,6 +222,9 @@ export class SupplierDetails implements OnInit {
     }
 
     public previousSupplier() {
+        if (!this.supplier$.value.ID) {
+            return this.toastService.addToast('Warning', ToastType.warn, 0, 'Ikke flere leverandører før denne');
+        }
         this.supplierService.getPreviousID(this.supplier$.getValue().ID)
             .subscribe((ID) => {
                     if (ID) {
@@ -319,20 +315,17 @@ export class SupplierDetails implements OnInit {
     private setup() {
         this.showReportWithID = null;
 
+        const supplierRequest = this.supplierID > 0
+            ? this.supplierService.Get(this.supplierID, this.expandOptions)
+            : this.supplierService.GetNewEntity(['Info']);
+
         if (!this.formIsInitialized) {
             this.fields$.next(this.getComponentLayout().Fields);
 
             Observable.forkJoin(
+                supplierRequest,
                 this.departmentService.GetAll(null),
                 this.projectService.GetAll(null),
-                (
-                    this.supplierID > 0 ?
-                        this.supplierService.Get(this.supplierID, this.expandOptions)
-                        : this.supplierService.GetNewEntity(['Info'])
-                ),
-                this.phoneService.GetNewEntity(),
-                this.emailService.GetNewEntity(),
-                this.addressService.GetNewEntity(null, 'Address'),
                 this.bankaccountService.GetNewEntity(),
                 this.currencyCodeService.GetAll(null),
                 this.numberSeriesService.GetAll(
@@ -341,17 +334,12 @@ export class SupplierDetails implements OnInit {
                     ['NumberSeriesType']
                 )
             ).subscribe(response => {
-                this.dropdownData = [response[0], response[1]];
+                const supplier: Supplier = response[0];
 
-                this.emptyPhone = response[3];
-                this.emptyEmail = response[4];
-                this.emptyAddress = response[5];
-                this.emptyBankAccount = response[6];
-
-                this.currencyCodes = response[7];
-                this.numberSeries = response[8].map(x => this.numberSeriesService.translateSerie(x));
-
-                let supplier: Supplier = response[2];
+                this.dropdownData = [response[1], response[2]];
+                this.emptyBankAccount = response[3];
+                this.currencyCodes = response[4];
+                this.numberSeries = response[5].map(x => this.numberSeriesService.translateSerie(x));
 
                 // to pass value to newSupplierModal - Supplier.Info.Name field from unisearch
                 if (this.supplierNameFromUniSearch) {
@@ -374,14 +362,7 @@ export class SupplierDetails implements OnInit {
             }, err => this.errorService.handle(err));
 
         } else {
-            Observable.forkJoin(
-                (
-                    this.supplierID > 0 ?
-                        this.supplierService.Get(this.supplierID, this.expandOptions)
-                        : this.supplierService.GetNewEntity()
-                )
-            ).subscribe(response => {
-                let supplier = response[0];
+            supplierRequest.subscribe(supplier => {
                 this.setDefaultContact(supplier);
                 this.supplier$.next(supplier);
                 this.setTabTitle();
@@ -398,12 +379,11 @@ export class SupplierDetails implements OnInit {
         }
     }
 
-    public showHideNameProperties() {
-        let fields: UniFieldLayout[] = this.fields$.getValue();
-
-        let supplier = this.supplier$.getValue();
-        let supplierSearchResult: UniFieldLayout = fields.find(x => x.Property === '_SupplierSearchResult');
-        let supplierName: UniFieldLayout = fields.find(x => x.Property === 'Info.Name');
+    public showHideNameProperties(supplier?: Supplier) {
+        supplier = supplier || this.supplier$.getValue();
+        const fields: UniFieldLayout[] = this.fields$.getValue();
+        const supplierSearchResult: UniFieldLayout = fields.find(x => x.Property === '_SupplierSearchResult');
+        const supplierName: UniFieldLayout = fields.find(x => x.Property === 'Info.Name');
 
         if (!this.allowSearchSupplier
             || this.supplierID > 0
@@ -763,23 +743,21 @@ export class SupplierDetails implements OnInit {
     }
 
     private getSupplierLookupOptions() {
-        let uniSearchConfig = this.uniSearchSupplierConfig.generate(
+        const uniSearchConfig = this.uniSearchSupplierConfig.generate(
             this.expandOptions,
-            () => {
-                let supplier = this.supplier$.getValue();
-                let searchInfo = <any>this.form.field('_SupplierSearchResult');
-                if (searchInfo) {
-                    if (searchInfo.component && searchInfo.component.input) {
-                        supplier.Info.Name = searchInfo.component.input.value;
-                    }
-                }
+            (supplierName: string) => {
+                const supplier = this.supplier$.getValue();
+                supplier.Info.Name = supplierName || '';
 
-                if (!supplier.Info.Name) {
-                   supplier.Info.Name = '';
-                }
-                this.supplier$.next(supplier);
-                this.showHideNameProperties();
-                return Observable.from([supplier]);
+                return Observable.of(supplier);
+            });
+
+        uniSearchConfig.unfinishedValueFn = (val: string) => this.supplier$
+            .asObservable()
+            .take(1)
+            .map(supplier => {
+                supplier.Info.Name = val;
+                return supplier;
             });
 
         uniSearchConfig.onSelect = (selectedItem: any) => {
@@ -789,10 +767,10 @@ export class SupplierDetails implements OnInit {
                 this.router.navigateByUrl(`/accounting/suppliers/${selectedItem.ID}`);
                 return Observable.empty();
             } else {
-                let supplierData = this.uniSearchSupplierConfig
-                            .customStatisticsObjToSupplier(selectedItem);
+                const supplierData = this.uniSearchSupplierConfig
+                    .customStatisticsObjToSupplier(selectedItem);
 
-                return Observable.from([supplierData]);
+                return Observable.of(supplierData);
             }
         };
 

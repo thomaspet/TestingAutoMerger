@@ -7,16 +7,18 @@ import {AmeldingData} from '../../../unientities';
 import {IContextMenuItem} from '../../../../framework/ui/unitable/index';
 import {IUniSaveAction} from '../../../../framework/save/save';
 import {IToolbarConfig, IToolbarSearchConfig} from '../../common/toolbar/toolbar';
-import {UniStatusTrack} from '../../common/toolbar/statustrack';
+import {IStatus, STATUSTRACK_STATES} from '../../common/toolbar/statustrack';
 import {
     PayrollrunService,
     AMeldingService,
     ErrorService,
     NumberFormat,
     SalarySumsService,
-    YearService
+    YearService,
+    ReportDefinitionService
 } from '../../../services/services';
 import {UniModalService} from '../../../../framework/uniModal/barrel';
+import {UniPreviewModal} from '../../reports/modals/preview/previewModal';
 import {AmeldingTypePickerModal, IAmeldingTypeEvent} from './modals/ameldingTypePickerModal';
 import {AltinnAuthenticationModal} from '../../common/modals/AltinnAuthenticationModal';
 import * as moment from 'moment';
@@ -58,6 +60,10 @@ export class AMeldingView implements OnInit {
     private periodStatus: string;
     private alleAvvikStatuser: any[] = [];
     private activeYear: number;
+    private summaryHelptext: string;
+    private agaHelptext: string;
+    private receiptHelptext: string;
+    private periodHelptext: string;
 
     constructor(
         private _tabService: TabService,
@@ -69,7 +75,8 @@ export class AMeldingView implements OnInit {
         private numberformat: NumberFormat,
         private router: Router,
         private errorService: ErrorService,
-        private modalService: UniModalService
+        private modalService: UniModalService,
+        private reportDefinitionService: ReportDefinitionService
     ) {
         this._tabService.addTab({
             name: 'A-Melding',
@@ -104,6 +111,10 @@ export class AMeldingView implements OnInit {
             {
                 label: 'Tilleggsopplysninger',
                 action: () => this.router.navigate(['salary/supplements'])
+            },
+            {
+                label: 'Trekk og AGA rapport',
+                action: () => this.openReport()
             }
         ];
     }
@@ -113,6 +124,32 @@ export class AMeldingView implements OnInit {
         this.yearService.selectedYear$.subscribe(year => {
             this.clearAMelding();
             this.loadYearData();
+        });
+    }
+
+    private openReport() {
+        this.reportDefinitionService
+            .getReportByName('Forskuddstrekk og arbeidsgiveravgift')
+            .catch((err,obs) => this.errorService.handleRxCatch(err, obs))
+            .subscribe((report) => {
+                report.parameters = [
+                    {
+                        Name: 'FromPeriod',
+                        value: this.currentPeriod
+                    },
+                    {
+                        Name: 'ToPeriod',
+                        value: this.currentPeriod
+                    },
+                    {
+                        Name: 'Year',
+                        value: this.activeYear
+                    }
+                ];
+
+                this.modalService.open(UniPreviewModal, {
+                    data: report
+                });
         });
     }
 
@@ -257,6 +294,7 @@ export class AMeldingView implements OnInit {
             } else {
                 this.feedbackObtained = false;
             }
+            this.setHelptext();
             this.updateToolbar();
             this.updateSaveActions();
             this.setStatusForPeriod();
@@ -317,30 +355,30 @@ export class AMeldingView implements OnInit {
     }
 
     public getStatusTrackConfig() {
-        let statustrack: UniStatusTrack.IStatus[] = [];
+        let statustrack: IStatus[] = [];
         let activeStatus = this.currentAMelding ? (this.currentAMelding.status ? this.currentAMelding.status : 1) : 0;
         this._ameldingService.internalAmeldingStatus.forEach((amldStatus, indx) => {
-            let _state: UniStatusTrack.States;
-            let _substatuses: UniStatusTrack.IStatus[] = [];
+            let _state: STATUSTRACK_STATES;
+            let _substatuses: IStatus[] = [];
             if (amldStatus.Code > activeStatus) {
-                _state = UniStatusTrack.States.Future;
+                _state = STATUSTRACK_STATES.Future;
             } else if (amldStatus.Code < activeStatus) {
-                _state = UniStatusTrack.States.Completed;
+                _state = STATUSTRACK_STATES.Completed;
             } else if (amldStatus.Code === activeStatus) {
 
                 if (this.currentAMelding.ID === this.aMeldingerInPeriod[this.aMeldingerInPeriod.length - 1].ID) {
-                    _state = UniStatusTrack.States.Active;
+                    _state = STATUSTRACK_STATES.Active;
                 } else {
                     // If we're not on the last of the A-meldings in the period, we'll assume the data is obsolete.
-                    _state = UniStatusTrack.States.Obsolete;
+                    _state = STATUSTRACK_STATES.Obsolete;
                 }
 
                 this.aMeldingerInPeriod.forEach(amelding => {
                     _substatuses.push({
                         title: 'A-melding ' + amelding.ID,
                         state: amelding.ID === this.currentAMelding.ID
-                            ? UniStatusTrack.States.Active
-                            : UniStatusTrack.States.Obsolete,
+                            ? STATUSTRACK_STATES.Active
+                            : STATUSTRACK_STATES.Obsolete,
                         timestamp: amelding.UpdatedAt
                             ? new Date(<any> amelding.UpdatedAt)
                             : new Date(<any> amelding.CreatedAt),
@@ -353,7 +391,7 @@ export class AMeldingView implements OnInit {
             statustrack[indx] = {
                 title: amldStatus.Text,
                 state: _state,
-                badge: (_state === UniStatusTrack.States.Active || _state === UniStatusTrack.States.Obsolete)
+                badge: (_state === STATUSTRACK_STATES.Active || _state === STATUSTRACK_STATES.Obsolete)
                     && this.aMeldingerInPeriod.length > 1 ? this.aMeldingerInPeriod.length + '' : null,
                 substatusList: _substatuses
             };
@@ -510,6 +548,7 @@ export class AMeldingView implements OnInit {
                         this.setAMelding(this.aMeldingerInPeriod[this.aMeldingerInPeriod.length - 1]);
                     } else {
                         this.initialized = true;
+                        this.setHelptext();
                         this.updateToolbar();
                         this.updateSaveActions();
                     }
@@ -547,6 +586,13 @@ export class AMeldingView implements OnInit {
                     break;
             }
         }
+    }
+
+    private setHelptext() {
+        this.summaryHelptext = this._ameldingService.getHelptext('summary');
+        this.agaHelptext = this._ameldingService.getHelptext('aga');
+        this.receiptHelptext = this._ameldingService.getHelptext('receipt');
+        this.periodHelptext = this._ameldingService.getHelptext('period');
     }
 
     private getAvvikRec(obj) {

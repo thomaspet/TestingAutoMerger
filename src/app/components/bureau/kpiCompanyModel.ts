@@ -11,6 +11,7 @@ export type KpiCompany = {
     FileFlowEmail: string;
     ID: number;
     Name: string;
+    OrganizationNumber: number;
     IsTest: boolean;
     Key: string;
     Kpi: {

@@ -1,15 +1,15 @@
 model-tree-view
     .modeltreeview
         ul
-            list-style-type: none;
-            padding-left: pxToRem(10);
+            list-style-type: none
+            padding-left: pxToRem(10)
 
         a
             font-weight: 300
             padding: 0 0 .2em 1rem
             cursor: pointer
 
-            :not(.expandable)
+            &:not(.expandable)
                 padding: 0 0 .2em 1rem
 
         .selectable[aria-selected=true]

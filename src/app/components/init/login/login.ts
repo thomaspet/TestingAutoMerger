@@ -25,7 +25,6 @@ export class Login {
     private passwordControl: FormControl = new FormControl('', Validators.required);
 
     private working: boolean;
-    private loginSuccess: boolean  = false;
     private errorMessage: string = '';
     private infoMessage: string = '';
 
@@ -55,9 +54,7 @@ export class Login {
             username: this.usernameControl.value,
             password: this.passwordControl.value
         }).subscribe(
-            (response) => {
-                this.onAuthSuccess();
-            },
+            (response) => this.selectCompany(),
             (error) => {
                 this.working = false;
                 this.usernameControl.enable();
@@ -69,10 +66,7 @@ export class Login {
         );
     }
 
-    private onAuthSuccess() {
-        this.working = false;
-        this.loginSuccess = true;
-
+    private selectCompany() {
         this.http.asGET()
             .usingInitDomain()
             .withEndPoint('companies')
@@ -85,7 +79,6 @@ export class Login {
                 });
 
                 if (response.status !== 200) {
-                    this.loginSuccess = false;
                     this.infoMessage =
                      'Du har ikke tilgang til noen selskaper. Kontakt din administrator.';
                     return;

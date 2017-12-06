@@ -47,7 +47,7 @@ const PAPERCLIP = '📎'; // It might look empty in your editor, but this is the
 
 export var SharingTypeText = [
     {ID: SharingType.AP, Title: 'Aksesspunkt'},
-    {ID: SharingType.Email, Title: 'Epost'},
+    {ID: SharingType.Email, Title: 'E-post'},
     {ID: SharingType.Export, Title: 'Eksport'},
     {ID: SharingType.Print, Title: 'Utskrift'},
     {ID: SharingType.Vipps, Title: 'Vipps'},
@@ -69,7 +69,9 @@ export class UniTicker {
     @Input() public unitableSearchVisible: boolean;
 
     @Output() public rowSelected: EventEmitter<any> = new EventEmitter<any>();
+    @Output() public rowSelectionChanged: EventEmitter<any> = new EventEmitter();
     @Output() public contextMenuItemsChange: EventEmitter<any[]> = new EventEmitter();
+    @Output() public editModeToggled: EventEmitter<boolean> = new EventEmitter();
 
     @ViewChild(UniTable) public unitable: UniTable;
 
@@ -89,6 +91,8 @@ export class UniTicker {
     private openAction: TickerAction;
 
     private unitableFilter: string;
+
+    private busy: boolean = false;
 
     constructor(
         private uniHttpService: UniHttp,
@@ -172,6 +176,7 @@ export class UniTicker {
 
             // run this even if it is not a table, because it prepares the query as well.
             // Consider splitting this function to avoid this later
+            this.busy = true;
             this.setupTableConfig().then(() => {
                 let tickerType = this.ticker.Type;
                 if (tickerType === 'table') {
@@ -189,13 +194,17 @@ export class UniTicker {
         }
     }
 
+    private onTableReady() {
+        this.busy = false;
+    }
+
     private actionsToContextMenuItems(actions) {
         if (!actions || !actions.length) {
             return;
         }
 
         let contextMenuItems = actions.map(action => {
-            let override = this.actionOverrides.find(x => action.Code === x.Code);
+            let override = this.actionOverrides && this.actionOverrides.find(x => action.Code === x.Code);
             if ((action.NeedsActionOverride || action.Type === 'action') && !override) {
                 console.warn(`Ticker action ${action.Code} not available because of missing action override`);
                 return;
@@ -204,8 +213,8 @@ export class UniTicker {
             return {
                 label: action.Name,
                 disabled: () => {
-                    if (this.model && override && override.CheckActionIsDisabled !== undefined) {
-                        return override.CheckActionIsDisabled([this.model]);
+                    if (this.model && override && override.CheckActionIsDisabled) {
+                        return override.CheckActionIsDisabled(this.model);
                     }
 
                     if (action.Type === 'transition' && this.model) {
@@ -327,6 +336,7 @@ export class UniTicker {
         if (this.ticker.ParentFilter && this.parentModel) {
             let currentFilter = params.get('filter');
 
+            // Parent filter
             let parentFilter =
                 `${this.ticker.ParentFilter.Field} ` +
                 `${this.ticker.ParentFilter.Operator} ` +
@@ -361,7 +371,7 @@ export class UniTicker {
                 } else {
                     this.model = null;
                 }
-
+                this.busy = false;
                 this.cdr.markForCheck();
             });
     }
@@ -374,11 +384,16 @@ export class UniTicker {
 
     private onRowSelected(rowSelectEvent) {
         this.selectedRow = rowSelectEvent.rowModel;
+        this.selectedRow._editable = this.tableConfig.editable;
         this.rowSelected.emit(this.selectedRow);
     }
 
     private onFilterChange(filterChangeEvent) {
         this.unitableFilter = filterChangeEvent.filter;
+    }
+
+    public editModeChanged(event) {
+        this.editModeToggled.emit(event);
     }
 
     private onColumnsChange(columnsChangeEvent) {
@@ -448,7 +463,7 @@ export class UniTicker {
 
     private startExecuteAction(action: TickerAction, selectedRows: Array<any> ) {
 
-        let actionOverride = this.actionOverrides.find(x => x.Code === action.Code);
+        let actionOverride = this.actionOverrides && this.actionOverrides.find(x => x.Code === action.Code);
 
         if (actionOverride) {
             if (actionOverride.BeforeExecuteActionHandler !== undefined) {
@@ -469,7 +484,6 @@ export class UniTicker {
     }
 
     private executeAction (action: TickerAction, actionOverride: ITickerActionOverride, selectedRows: Array<any> ) {
-
         if (actionOverride && actionOverride.ExecuteActionHandler !== undefined) {
             // execute overridden executionhandler instead of the standard actionhandling
             actionOverride.ExecuteActionHandler(selectedRows)
@@ -538,7 +552,7 @@ export class UniTicker {
         }
     }
 
-    private reloadData() {
+    public reloadData() {
         if (this.unitable) {
             this.unitable.refreshTableData();
         } else {
@@ -678,6 +692,10 @@ export class UniTicker {
                             col.cls = column.CssClass;
                         }
 
+                        if (column.DisplayField) {
+                            col.displayField = column.DisplayField;
+                        }
+
                         let columnOverride = this.columnOverrides.find(x => x.Field === column.Field);
                         if (columnOverride) {
                             col.setTemplate(row => {
@@ -734,6 +752,10 @@ export class UniTicker {
                         if (column.Format && column.Format !== '') {
                             // TODO Sett opp flere fornuftige ferdigformater her - f.eks. "NumberPositiveNegative" etc
                             switch (column.Format) {
+                                case 'DateWithTime':
+                                    col.setType(UniTableColumnType.Text);
+                                    col.setTemplate(row => row[col.alias] ? moment(row[col.alias]).format('DD.MM.YYYY HH:mm') : '');
+                                    break;
                                 case 'NumberPositiveNegative':
                                     col.setConditionalCls(row => row[column.Alias] >= 0 ?
                                         'number-good'
@@ -873,7 +895,7 @@ export class UniTicker {
                                 throw Error('Cannot add action with Type = transition without specifying which Transition to execute, action: ' + action.Code);
                             }
 
-                            let actionOverride = this.actionOverrides.find(x => action.Code === x.Code);
+                            let actionOverride = this.actionOverrides && this.actionOverrides.find(x => action.Code === x.Code);
                             if (action.NeedsActionOverride && !actionOverride) {
                                 // console.log(`Action ${action.Code} needs an ActionOverride to function correctly, and that is not specified`);
                             } else if (action.Type === 'action' && !actionOverride) {
@@ -886,8 +908,8 @@ export class UniTicker {
                                     },
                                     disabled: (rowModel) => {
 
-                                        if (actionOverride && actionOverride.CheckActionIsDisabled !== undefined) {
-                                            return actionOverride.CheckActionIsDisabled([rowModel]);
+                                        if (actionOverride && actionOverride.CheckActionIsDisabled) {
+                                            return actionOverride.CheckActionIsDisabled(rowModel);
                                         }
 
                                         if (action.Type === 'transition') {
@@ -915,8 +937,9 @@ export class UniTicker {
                     .setAllowGroupFilter(true)
                     .setColumnMenuVisible(true)
                     .setSearchable(this.unitableSearchVisible)
-                    .setMultiRowSelect(false)
+                    .setMultiRowSelect(this.isMultiRowSelect())
                     .setSearchListVisible(true)
+                    .setAllowEditToggle(this.ticker.EditToggle)
                     .setContextMenu(contextMenuItems, true, false)
                     .setDataMapper((data) => {
                         if (this.ticker.Model) {
@@ -946,20 +969,25 @@ export class UniTicker {
         });
     }
 
+    public onRowSelectionChanged(event) {
+        this.rowSelectionChanged.emit(event);
+    }
+
+    private isMultiRowSelect(): boolean {
+        return this.ticker.MultiRowSelect && this.selectedFilter && this.selectedFilter.IsMultiRowSelect;
+    }
+
     private shouldAddColumnToQuery(column: TickerColumn, userColumnSetup: UniTableColumn): boolean {
-        if (column.Field === 'ID' || column.Field === 'StatusCode') {
-            return true;
-        }
-        if (userColumnSetup) {
-            return userColumnSetup.visible;
-        }
+        if (column.Field === 'ID' || column.Field === 'StatusCode') { return true; }
+        if (userColumnSetup) { return userColumnSetup.visible; }
         return !column.DefaultHidden;
     }
 
     private setExpand(column: TickerColumn) {
         let field = column.Field;
 
-        if (!field) {
+        // if no field, or column is overwritten to not expand, don't expand
+        if (!field || column.Expand === '') {
             return;
         }
 
@@ -976,8 +1004,11 @@ export class UniTicker {
         // if field includes '.' it needs to expand something
         if (field.includes('.')) {
             const fieldSplit = field.split('.');
+            const expandSplit = this.ticker.Expand && this.ticker.Expand.split(',');
             this.ticker.Expand = this.ticker.Expand || '';
-            let expandField = '';
+            let expand = '';
+            let isExpandExisting: boolean;
+            const joinSplit = this.ticker.Joins && this.ticker.Joins.split(/[\s.]+/);
 
             // if field is nested/has parents, expand all parents too
             for (let k = 0; k < fieldSplit.length - 1; k++) {
@@ -985,33 +1016,40 @@ export class UniTicker {
                     // if first part of field is the model name, don't expand it
                     if (fieldSplit[k] === this.ticker.Model) {
                         k++;
-                        if (fieldSplit.length < 3) {
-                            return;
-                        }
+                        if (fieldSplit.length < 3) { return; }
                     }
-                    expandField = expandField.concat(fieldSplit[k]);
+                    expand = expand.concat(fieldSplit[k]);
                 } else {
-                    expandField = expandField.concat('.', fieldSplit[k]);
+                    expand = expand.concat('.', fieldSplit[k]);
                 }
 
                 // check if column has an own expand that should override parent's expand
-                if (column.Expand) {
-                    expandField = column.Expand;
-                }
+                if (column.Expand && column.Expand !== '') { expand = column.Expand; }
 
-                // if field uses a join, don't expand
-                if (this.ticker.Joins && this.ticker.Joins.includes(expandField)) {
-                    return;
+                // don't expand joined fields, check if any parts of field is equal to any parts of join
+                if (joinSplit) {
+                    const fieldHasJoin = fieldSplit.some(fieldPart =>
+                        joinSplit.some(joinPart => joinPart === fieldPart)
+                    );
+                    if (fieldHasJoin) { return; }
                 }
+            }
 
-                // check if the expand field don't already exists in ticker.expand
-                if (!this.ticker.Expand.includes(expandField)) {
-                    if (!this.ticker.Expand || this.ticker.Expand === '') {
-                        this.ticker.Expand = expandField;
-                    } else {
-                        this.ticker.Expand = this.ticker.Expand.concat(',', expandField);
-                    }
+            // check if the expand don't already exists in ticker.expand
+            if (expandSplit) {
+                isExpandExisting = expandSplit.some(existingExpand => existingExpand === expand);
+            }
+            if (!isExpandExisting) {
+                if (!this.ticker.Expand || this.ticker.Expand === '') {
+                    this.ticker.Expand = expand;
+                } else {
+                    this.ticker.Expand = this.ticker.Expand.concat(',', expand);
                 }
+            }
+
+            // Query can only include 1 '.' (2 chained properties) and must therefore be shortened
+            if (fieldSplit.length > 2) {
+                field = fieldSplit[fieldSplit.length - 2] + fieldSplit[fieldSplit.length - 1];
             }
         }
     }
@@ -1044,7 +1082,6 @@ export class UniTicker {
         }
 
         params = this.getSearchParams(params);
-        console.log('filter:', params.get('filter'));
         // execute request to create Excel file
         this.statisticsService
             .GetExportedExcelFile(this.ticker.Model, this.selects, params.get('filter'),

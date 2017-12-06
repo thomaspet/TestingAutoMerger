@@ -1,4 +1,3 @@
-/// <reference path="../../../../typings/modules/chart.js/index.d.ts" />
 import {Component, ViewChild} from '@angular/core';
 import {UniHttp} from '../../../framework/core/http/http';
 import {YearService} from '../../services/services';
@@ -106,7 +105,7 @@ export class Dashboard {
                     label: 'Timer',
                     description: 'Timeføring',
                     icon: 'hourreg',
-                    link: '/timetracking/timeentry'
+                    link: '/timetracking/dashboard'
                 }
             },
             {

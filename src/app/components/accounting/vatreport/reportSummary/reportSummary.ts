@@ -14,6 +14,7 @@ export class VatSummaryPerPost implements OnChanges {
     @Input() private vatTypes: VatType[] = [];
     @Input() private reportSummaryPerPost: VatReportSummaryPerPost[];
     @Input() public isHistoricData: boolean = false;
+    @Input() private vatReportID: number = 0;
 
     public ngOnChanges() {
         this.postGroups = this.groupVatReportsByVatCodeGroupID(this.reportSummaryPerPost || []);
@@ -55,10 +56,10 @@ export class VatSummaryPerPost implements OnChanges {
         // build string containing combination of vatcode and accountnumber for this vatpost, the result
         // will e.g. be "1|2711,3|2710,5|2702,..."
 
-        let vatCodesAndAccountNos: Array<string> = [];
+        const vatCodesAndAccountNos: Array<string> = [];
         if (vatTypes) {
             vatTypes.forEach(vt => {
-                let vatReportReferences = vt.VatReportReferences.filter(
+                const vatReportReferences = vt.VatReportReferences.filter(
                     vatReport => vatReport.VatPostID === vatReportSummaryPerPost.VatPostID
                 );
                 vatReportReferences.forEach(

@@ -65,7 +65,7 @@ import {TradeHeaderCalculationSummary} from '../../../../models/sales/TradeHeade
 
 import {ISummaryConfig} from '../../../common/summary/summary';
 import {IToolbarConfig, ICommentsConfig, IShareAction} from '../../../common/toolbar/toolbar';
-import {UniStatusTrack} from '../../../common/toolbar/statustrack';
+import {StatusTrack, IStatus, STATUSTRACK_STATES} from '../../../common/toolbar/statustrack';
 import {roundTo} from '../../../common/utils/utils';
 
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
@@ -812,7 +812,7 @@ export class InvoiceDetails {
 
                     reminderStopSubStatus = {
                         title: reminderStoppedByText,
-                        state: UniStatusTrack.States.Active,
+                        state: STATUSTRACK_STATES.Active,
                         timestamp: reminderStoppedTimeStamp
                     };
                     resolve(reminderStopSubStatus);
@@ -826,7 +826,7 @@ export class InvoiceDetails {
         let subStatux: any = null;
         let statusText = '';
         let statusTimeStamp: Date = null;
-        let subStatuses: Array<UniStatusTrack.StatusTrack> = [];
+        let subStatuses: StatusTrack[] = [];
 
         switch (colStatus) {
             case CollectorStatus.Reminded: {
@@ -848,7 +848,7 @@ export class InvoiceDetails {
                                 statusTimeStamp = new Date(element['Date']);
                                 subStatux = {
                                     title: statusText,
-                                    state: UniStatusTrack.States.Active,
+                                    state: STATUSTRACK_STATES.Active,
                                     timestamp: statusTimeStamp
                                 };
                                 subStatuses.push(subStatux);
@@ -876,7 +876,7 @@ export class InvoiceDetails {
                                 statusTimeStamp = new Date(element['Date']);
                                 subStatux = {
                                     title: statusText,
-                                    state: UniStatusTrack.States.Active,
+                                    state: STATUSTRACK_STATES.Active,
                                     timestamp: statusTimeStamp
                                 };
                                 subStatuses.push(subStatux);
@@ -890,7 +890,7 @@ export class InvoiceDetails {
     }
 
     private getStatustrackConfig() {
-        let statustrack: UniStatusTrack.IStatus[] = [];
+        let statustrack: IStatus[] = [];
         let activeStatus = 0;
         if (this.invoice) {
             activeStatus = this.invoice.StatusCode || 1;
@@ -906,14 +906,14 @@ export class InvoiceDetails {
         }
 
         statuses.forEach((status) => {
-            let _state: UniStatusTrack.States;
+            let _state: STATUSTRACK_STATES;
 
             if (status.Code > activeStatus) {
-                _state = UniStatusTrack.States.Future;
+                _state = STATUSTRACK_STATES.Future;
             } else if (status.Code < activeStatus) {
-                _state = UniStatusTrack.States.Completed;
+                _state = STATUSTRACK_STATES.Completed;
             } else if (status.Code === activeStatus) {
-                _state = UniStatusTrack.States.Active;
+                _state = STATUSTRACK_STATES.Active;
             }
 
             statustrack.push({
@@ -928,7 +928,7 @@ export class InvoiceDetails {
             this.getReminderStoppedSubStatus().then(substatus => {
                 statustrack.push({
                     title: 'Purrestoppet',
-                    state: UniStatusTrack.States.Obsolete,
+                    state: STATUSTRACK_STATES.Obsolete,
                     code: 0,
                     forceSubstatus: true,
                     substatusList: substatus ? [substatus] : []
@@ -947,7 +947,7 @@ export class InvoiceDetails {
                 this.getCollectionSubStatus(this.invoice.CollectorStatusCode).then(substatus => {
                     statustrack.push({
                         title: statusText,
-                        state: UniStatusTrack.States.Obsolete,
+                        state: STATUSTRACK_STATES.Obsolete,
                         code: 0,
                         forceSubstatus: true,
                         substatusList: substatus ? substatus : []

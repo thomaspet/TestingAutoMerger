@@ -219,6 +219,7 @@ export class HamburgerMenu {
                     {componentName: 'Rapporter', componentUrl: '/reports', moduleID: UniModules.Reports},
                     {componentName: 'Uttrekk', componentUrl: '/uniqueries', moduleID: UniModules.UniQuery},
                     {componentName: 'Mine oppgaver', componentUrl: '/assignments', moduleID: UniModules.Assignments},
+                    {componentName: 'Delinger', componentUrl: '/sharings', moduleID: UniModules.Sharings}
                 ]
             },
             {
@@ -285,12 +286,7 @@ export class HamburgerMenu {
                 componentListHeader: 'Bank',
                 componentListUrl: '/bank',
                 componentList: [
-                    {componentName: 'Utbetalingsliste', componentUrl: '/bank/payments',
-                        moduleID: UniModules.Payment},
-                    {componentName: 'Utbetalinger', componentUrl: '/bank/batches',
-                        moduleID: UniModules.Payment},
-                    {componentName: 'Innbetalinger', componentUrl: '/bank/customerbatches',
-                        moduleID: UniModules.Payment}
+                    {componentName: 'Betalinger', componentUrl: '/bank', moduleID: UniModules.Payment}
                 ]
             },
             {
@@ -319,7 +315,9 @@ export class HamburgerMenu {
                 componentListHeader: 'Timer',
                 componentListUrl: '/timetracking',
                 componentList: [
-                    {componentName: 'Timer', componentUrl: '/timetracking',
+                    {componentName: 'Timemodul', componentUrl: '/timetracking/dashboard',
+                        moduleID: UniModules.Timesheets},
+                    {componentName: 'Timeregistrering', componentUrl: '/timetracking/timeentry',
                         moduleID: UniModules.Timesheets},
                     {componentName: 'Personer', componentUrl: '/timetracking/workers',
                         moduleID: UniModules.Workers, groupHeader: 'Register'},

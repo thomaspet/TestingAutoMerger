@@ -5,6 +5,6 @@ import {AdminProduct} from '../../../services/admin/adminProductService';
 })
 export class FilterOutBundlesPipe implements PipeTransform {
     public transform(items: Array<AdminProduct>): Array<AdminProduct> {
-        return items.filter(item => item.isBundle === false);
+        return items.filter(item => item.isBundle === false && item.label !== 'Festbillett');
     }
 }

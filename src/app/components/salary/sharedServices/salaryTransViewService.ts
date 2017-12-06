@@ -1,6 +1,6 @@
 import {Injectable} from '@angular/core';
 import {
-    SalaryTransaction, SalaryTransactionSupplement, Valuetype
+    SalaryTransaction, SalaryTransactionSupplement, Valuetype, WageTypeSupplement
 } from '../../../unientities';
 import {SupplementService} from '../../../services/services';
 import {SalaryTransSupplementsModal} from '../modals/salaryTransSupplementsModal';
@@ -34,8 +34,17 @@ export class SalaryTransViewService {
                 if (!rowModel.Supplements || !rowModel.Supplements.length || this.isOnlyAmountField(rowModel)) {
                     return '';
                 }
-                let title = this.generateSupplementsTitle(rowModel);
-                return `{#<em class="${this.supplementService.anyUnfinished(rowModel.Supplements)
+                let transWtSupps = rowModel.Supplements
+                    .map(supp => supp.WageTypeSupplement)
+                    .filter(wtSupp => !!wtSupp) || [];
+                let wtSupps = transWtSupps.length
+                    ? transWtSupps
+                    : rowModel.Wagetype && rowModel.Wagetype.SupplementaryInformations;
+                wtSupps = wtSupps || [];
+
+                let title = this.generateSupplementsTitle(rowModel, wtSupps);
+                return `{#<em class="${this.supplementService
+                    .anyUnfinished(rowModel.Supplements, wtSupps)
                     ? 'info-warn'
                     : 'info-ok'}" `
                     + `title="${title}" `
@@ -48,16 +57,16 @@ export class SalaryTransViewService {
         let supplement = row.Supplements[0];
         let wtSupp = supplement.WageTypeSupplement
             || (row.Wagetype && row.Wagetype.SupplementaryInformations
-            ? row.Wagetype.SupplementaryInformations.find(x => x.ID === supplement.WageTypeSupplementID)
-            : null);
+                ? row.Wagetype.SupplementaryInformations.find(x => x.ID === supplement.WageTypeSupplementID)
+                : null);
         return row.Supplements.length === 1
             && wtSupp
             && wtSupp.ValueType === Valuetype.IsMoney
             && wtSupp.Description.toLowerCase().startsWith('antall');
     }
 
-    private generateSupplementsTitle(trans: SalaryTransaction): string {
-        if (this.supplementService.anyUnfinished(trans.Supplements)) {
+    private generateSupplementsTitle(trans: SalaryTransaction, wtSupps: WageTypeSupplement[]): string {
+        if (this.supplementService.anyUnfinished(trans.Supplements, wtSupps)) {
             return 'Tilleggsopplysninger mangler';
         }
         let supplements = _.cloneDeep(trans.Supplements);

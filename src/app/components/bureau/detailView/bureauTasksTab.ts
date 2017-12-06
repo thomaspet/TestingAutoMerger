@@ -1,0 +1,163 @@
+import {
+    Component,
+    ChangeDetectionStrategy,
+    ElementRef,
+    ChangeDetectorRef,
+    AfterViewInit,
+    OnDestroy
+} from '@angular/core';
+import {KpiCompany} from '../kpiCompanyModel';
+import {environment} from 'src/environments/environment';
+import {BureauCustomHttpService} from '../bureauCustomHttpService';
+import {YearService} from '../../../services/common/yearService';
+import {Observable} from 'rxjs/Observable';
+import {Subscription} from 'rxjs/Subscription';
+import {AuthService} from '../../../authService';
+import {Company} from '../../../unientities';
+import {ErrorService} from '../../../services/common/errorService';
+import {UserService} from '../../../services/common/userService';
+import {BureauCurrentCompanyService} from '../bureauCurrentCompanyService';
+
+const BASE = environment.BASE_URL;
+
+@Component({
+    selector: 'uni-bureau-task-tab',
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    template: `
+<section class="tasks" *ngIf="!!viewData">
+    <section class="for-approval">
+        <i class="material-icons">check_circle</i>
+        <a class="company_name">Til godkjenning</a>
+        <section class="text-container">
+            <p>
+                Faktura
+                <a href="#" (click)="navigateToCompanyUrl('/assignments/approvals')">{{viewData[2]}}</a>
+            </p>
+
+            <p>
+                Timer
+                <a href="#" (click)="navigateToCompanyUrl('/assignments/approvals')">{{viewData[3]}}</a>
+            </p>
+        </section>
+    </section>
+    <section class="for-processing">
+        <i class="material-icons">autorenew</i>
+        <a class="company_name">Til behandling</a>
+        <section class="text-container">
+            <p>
+                Fakturainnboks
+                <a href="#" (click)="navigateToCompanyUrl('/accounting/bills?filter=ForApproval')">{{viewData[0]}}</a>
+            </p>
+
+            <p>
+                Godkjente faktura
+                <a href="#" (click)="navigateToCompanyUrl('/accounting/bills?filter=Approved')">{{viewData[1]}}</a>
+            </p>
+        </section>
+    </section>
+</section>
+`
+})
+export class BureauTaskTab implements AfterViewInit, OnDestroy {
+    public company: KpiCompany;
+    public accountingYear: number;
+    public viewData: any[];
+    private subscription: Subscription;
+
+    constructor(
+        private element: ElementRef,
+        private cd: ChangeDetectorRef,
+        private customHttpService: BureauCustomHttpService,
+        private yearService: YearService,
+        private authService: AuthService,
+        private errorService: ErrorService,
+        private userService: UserService,
+        private currentCompanyService: BureauCurrentCompanyService,
+    ) {
+        this.accountingYear = this.yearService.getSavedYear();
+    }
+
+    public ngAfterViewInit() {
+        this.element.nativeElement.setAttribute('aria-busy', true);
+        this.subscription = this.currentCompanyService
+            .getCurrentCompany()
+            .do(() => this.element.nativeElement.setAttribute('aria-busy', true))
+            .do(company => this.company = company)
+            .switchMap(company => Observable.forkJoin(
+                this.getNumberOfItemsInInbox(company.Key),
+                this.getApprovedSupplierInvoices(company.Key),
+                this.getSupplierInvoiceApprovals(company.Key),
+                this.getHoursApprovals(company.Key),
+            ))
+            .do(() => this.element.nativeElement.setAttribute('aria-busy', false))
+            .do(() => this.cd.markForCheck())
+            .subscribe(
+                result => this.viewData = result,
+                err => this.errorService.handle(err),
+            );
+    }
+
+    public ngOnDestroy() {
+        if (this.subscription) {
+            this.subscription.unsubscribe();
+        }
+    }
+
+    public getNumberOfItemsInInbox(companyKey: string): Observable<Company> {
+        return this.customHttpService.get(
+            `${BASE}/api/biz/filetags/IncomingMail%7CIncomingEHF/0?action=get-supplierInvoice-inbox`,
+            companyKey
+        )
+            .map(response => response.json())
+            .map(result => result.length);
+    }
+
+    public getApprovedSupplierInvoices(companyKey: string): Observable<Company> {
+        return this.customHttpService.get(
+            `${BASE}/api/statistics/?model=SupplierInvoice`
+            +`&select=count(id)`
+            +`&filter=( isnull(deleted,0) eq 0 ) and ( statuscode eq 30103 )`,
+            companyKey
+        )
+            .map(this.customHttpService.singleStatisticsExtractor)
+            .map(result => result.countid);
+    }
+
+    public getSupplierInvoiceApprovals(companyKey: string): Observable<number> {
+        const supplierInvoiceModelId = 162;
+        return this.userService.getCurrentUser()
+            .switchMap(
+                user => this.customHttpService.get(
+                    `${BASE}/api/statistics/?model=approval`
+                    +`&select=count(id)`
+                    +`&expand=Task.Model`
+                    +`&filter=UserID eq ${user.ID} and StatusCode eq 50120 and Model.ID eq ${supplierInvoiceModelId}`,
+                    companyKey
+                )
+            )
+            .map(this.customHttpService.singleStatisticsExtractor)
+            .map(result => result.countid);
+    }
+
+    public getHoursApprovals(companyKey: string): Observable<number> {
+        const hoursModelId = 196;
+        return this.userService.getCurrentUser()
+            .switchMap(
+                user => this.customHttpService.get(
+                    `${BASE}/api/statistics/?model=approval`
+                    +`&select=count(id)`
+                    +`&expand=Task.Model`
+                    +`&filter=UserID eq ${user.ID} and StatusCode eq 50120 and Model.ID eq ${hoursModelId}`,
+                    companyKey
+                )
+            )
+            .map(this.customHttpService.singleStatisticsExtractor)
+            .map(result => result.countid);
+    }
+
+
+    public navigateToCompanyUrl(url: string) {
+        this.authService.setActiveCompany(<any>this.company, url);
+        this.element.nativeElement.setAttribute('aria-busy', true);
+    }
+}

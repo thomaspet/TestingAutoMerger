@@ -1,10 +1,10 @@
 import {Injectable} from '@angular/core';
 import {fromByteArray} from 'base64-js';
-import {AppConfig} from '../../../app/AppConfig';
+import {environment} from 'src/environments/environment';
 import {saveAs} from 'file-saver';
 import {ErrorService} from '../../../app/services/services';
+import {APP_METADATA} from 'src/environments/metadata';
 declare var Stimulsoft;
-declare var APP_VERSION;
 
 @Injectable()
 export class StimulsoftReportWrapper {
@@ -19,7 +19,7 @@ export class StimulsoftReportWrapper {
             return new Promise(resolve => {
                 const script: any = document.createElement('script');
                 script.type = 'text/javascript';
-                script.src = 'stimulsoft.reports.js?v=' + APP_VERSION;
+                script.src = 'assets/stimulsoft.reports.js?v=' + APP_METADATA.APP_VERSION;
 
                 if (script.readyState) { // IE
                     script.onreadystatechange = () => {
@@ -73,7 +73,7 @@ export class StimulsoftReportWrapper {
         }
 
         this.loadStimulsoft().then(() => {
-             Stimulsoft.Base.StiLicense.key = AppConfig.STIMULSOFT_LICENSE; // Needed for newer versions
+             Stimulsoft.Base.StiLicense.key = environment.STIMULSOFT_LICENSE; // Needed for newer versions
             let report = this.generateReport(template, reportData, parameters)
             if (report) {
                 // Create a text writer objects.
@@ -99,18 +99,18 @@ export class StimulsoftReportWrapper {
                 reject();
             } else {
                 return this.loadStimulsoft().then(() => {
-                    // Stimulsoft.Base.StiLicense.key = AppConfig.STIMULSOFT_LICENSE; // Needed for newer versions
+                    // Stimulsoft.Base.StiLicense.key = environment.STIMULSOFT_LICENSE; // Needed for newer versions
                     Stimulsoft.Base.StiFontCollection.addOpentypeFontFile(
                         'assets/SourceSansPro-Regular.ttf',
                         'Source Sans Pro'
                     );
-        
+
                     const report = this.generateReport(template, reportData, parameters);
                     let mimetype: string;
-        
+
                     if (report) {
                         var settings, service;
-        
+
                         switch (format) {
                             case 'html':
                                 mimetype = 'text/html';
@@ -139,13 +139,13 @@ export class StimulsoftReportWrapper {
                                 service = new Stimulsoft.Report.Export.StiPdfExportService();
                                 break;
                         }
-        
+
                         const fileName = (!report.reportAlias || !report.reportAlias.length)
                             ? report.reportName
                             : report.reportAlias;
-        
+
                         var data: any;
-        
+
                         // Export
                         if (format === 'html') {
                             const textWriter = new Stimulsoft.System.IO.TextWriter();
@@ -157,7 +157,7 @@ export class StimulsoftReportWrapper {
                             service.exportTo(report, stream, settings);
                             data = stream.toArray();
                         }
-        
+
                         // Save or return
                         if (saveReport) {
                             if (format == 'html') {
@@ -174,7 +174,7 @@ export class StimulsoftReportWrapper {
                         }
                     }
                 });
-            }    
+            }
         });
     }
 }

@@ -141,7 +141,7 @@ export class ProductDetails {
     }
 
     private setupToolbar() {
-        let subheads = [];
+        const subheads = [];
         if (this.productId > 0) {
             subheads.push({title: 'Produktnr. ' + this.product$.getValue().PartName});
         }
@@ -194,14 +194,14 @@ export class ProductDetails {
             this.getProductCategories();
 
             this.imageUploadConfig = {
-                isDisabled: (!this.productId || parseInt(this.productId) === 0),
+                isDisabled: (!this.productId || parseInt(this.productId, 10) === 0),
                 disableMessage: 'Produkt må lagres før bilde kan lastes opp'
             };
         } , err => this.errorService.handle(err));
     }
 
     private setTabTitle() {
-        let tabTitle = this.product$.getValue().PartName
+        const tabTitle = this.product$.getValue().PartName
             ? 'Produktnr. ' + this.product$.getValue().PartName
             : 'Produkt (kladd)';
         this.tabService.addTab({
@@ -211,8 +211,8 @@ export class ProductDetails {
     }
 
     public textareaChange() {
-        let description = this.descriptionControl.value;
-        let product = this.product$.getValue();
+        const description = this.descriptionControl.value;
+        const product = this.product$.getValue();
         if (description && product) {
             product.Description = description;
             this.product$.next(product);
@@ -236,7 +236,7 @@ export class ProductDetails {
     }
 
     private saveProduct(completeEvent) {
-        let product = this.product$.getValue();
+        const product = this.product$.getValue();
         if (product.Dimensions && (!product.Dimensions.ID || product.Dimensions.ID === 0)) {
             product.Dimensions['_createguid'] = this.productService.getNewGuid();
         }
@@ -245,7 +245,7 @@ export class ProductDetails {
         product.Account = null;
         product.VatType = null;
 
-        let description = this.descriptionControl.value;
+        const description = this.descriptionControl.value;
         if (description && description.length) {
             product.Description = description;
         }
@@ -278,16 +278,16 @@ export class ProductDetails {
     }
 
     private calculateAndUpdatePrice() {
-        let product = this.productService.calculatePriceLocal(this.product$.getValue());
+        const product = this.productService.calculatePriceLocal(this.product$.getValue());
         this.product$.next(product);
         this.setupToolbar();
     }
 
     private showHidePriceFields(value: boolean) {
         // show/hide price fields based on checkbox - this currenctly does not work, Jorge is working on a fix
-        let fields = this.fields$.getValue();
-        let priceExVat =  fields.find(x => x.Property === 'PriceExVat');
-        let priceIncVat = fields.find(x => x.Property === 'PriceIncVat');
+        const fields = this.fields$.getValue();
+        const priceExVat =  fields.find(x => x.Property === 'PriceExVat');
+        const priceIncVat = fields.find(x => x.Property === 'PriceIncVat');
         priceIncVat.Hidden = !value;
         priceExVat.Hidden = value;
         this.fields$.next(fields);
@@ -324,7 +324,7 @@ export class ProductDetails {
 
     private extendFormConfig() {
         const self = this;
-        let department: UniFieldLayout = this.fields$.getValue().find(x => x.Property === 'Dimensions.DepartmentID');
+        const department: UniFieldLayout = this.fields$.getValue().find(x => x.Property === 'Dimensions.DepartmentID');
         department.Options = {
             source: this.departments,
             valueProperty: 'ID',
@@ -339,7 +339,7 @@ export class ProductDetails {
             debounceTime: 200
         };
 
-        let project: UniFieldLayout = this.fields$.getValue().find(x => x.Property === 'Dimensions.ProjectID');
+        const project: UniFieldLayout = this.fields$.getValue().find(x => x.Property === 'Dimensions.ProjectID');
         project.Options = {
             source: this.projects,
             valueProperty: 'ID',
@@ -349,7 +349,7 @@ export class ProductDetails {
             debounceTime: 200
         };
 
-        let vattype: UniFieldLayout = this.fields$.getValue().find(x => x.Property === 'VatTypeID');
+        const vattype: UniFieldLayout = this.fields$.getValue().find(x => x.Property === 'VatTypeID');
         if (this.defaultSalesAccount && this.defaultSalesAccount.VatType) {
             vattype.Placeholder =
                 this.defaultSalesAccount.VatType.VatCode + ' - ' + this.defaultSalesAccount.VatType.Name;
@@ -397,7 +397,7 @@ export class ProductDetails {
             }
         };
 
-        let accountField: UniFieldLayout = this.fields$.getValue().find(x => x.Property === 'AccountID');
+        const accountField: UniFieldLayout = this.fields$.getValue().find(x => x.Property === 'AccountID');
         if (this.defaultSalesAccount) {
             accountField.Placeholder =
                 this.defaultSalesAccount.AccountNumber + ' - ' + this.defaultSalesAccount.AccountName;
@@ -476,7 +476,6 @@ export class ProductDetails {
     }
 
     private accountSearch(searchValue: string): Observable<any> {
-
         let filter = `Visible eq 'true' and isnull(AccountID,0) eq 0`;
         if (searchValue === '') {
             filter += ' and AccountNumber ge 3000';
@@ -484,8 +483,8 @@ export class ProductDetails {
             let copyPasteFilter = '';
 
             if (searchValue.indexOf(':') > 0) {
-                let accountNumberPart = searchValue.split(':')[0].trim();
-                let accountNamePart =  searchValue.split(':')[1].trim();
+                const accountNumberPart = searchValue.split(':')[0].trim();
+                const accountNamePart =  searchValue.split(':')[1].trim();
 
                 copyPasteFilter = ` or (AccountNumber eq '${accountNumberPart}' `
                     + `and AccountName eq '${accountNamePart}')`;

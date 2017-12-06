@@ -54,7 +54,10 @@ export class UniTableUtils {
                 field: col.field,
                 visible: col.visible,
                 header: col.header,
-                jumpToColumn: col.jumpToColumn
+                jumpToColumn: col.jumpToColumn,
+                _originalField: col['_originalField'],
+                sumFunction: col.sumFunction,
+                alias: col.alias
             });
         });
 
@@ -100,11 +103,10 @@ export class UniTableUtils {
      *
      * @returns {string} init value
      */
-    public getInitValue(rowModel, column): string {
+    public getInitValue(rowModel: Immutable.Map<any, any>, column): string {
         if (!rowModel) {
             return '';
         }
-
         let columnType = column.get('type');
         let field = column.get('displayField') || column.get('field');
         let initValue;

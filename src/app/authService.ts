@@ -2,13 +2,11 @@ import {Injectable, EventEmitter} from '@angular/core';
 import {Router} from '@angular/router';
 import {Http, Headers} from '@angular/http';
 import {Observable} from 'rxjs/Observable';
-import {AppConfig} from './AppConfig';
+import {environment} from 'src/environments/environment';
 import {Company, User} from './unientities';
 import {ReplaySubject} from 'rxjs/ReplaySubject';
 import {Subject} from 'rxjs/Subject';
 import 'rxjs/add/operator/map';
-
-import {PUBLIC_ROUTES} from './routes';
 
 import * as $ from 'jquery';
 import * as jwt_decode from 'jwt-decode';
@@ -18,6 +16,16 @@ export interface IAuthDetails {
     activeCompany: any;
     user: User;
 }
+
+const PUBLIC_ROUTES = [
+    'init',
+    'bureau',
+    'about',
+    'assignments',
+    'tickers',
+    'uniqueries',
+    'sharings'
+];
 
 @Injectable()
 export class AuthService {
@@ -99,14 +107,9 @@ export class AuthService {
      * @returns Observable
      */
     public authenticate(credentials: {username: string, password: string}): Observable<boolean> {
-        let url = AppConfig.BASE_URL_INIT + AppConfig.API_DOMAINS.INIT + 'sign-in';
+        const url = environment.BASE_URL_INIT + environment.API_DOMAINS.INIT + 'sign-in';
 
         return this.http.post(url, JSON.stringify(credentials), {headers: this.headers})
-            .finally(() => {
-                if (this.jwt) {
-                    this.authenticateUniFiles();
-                }
-            })
             .switchMap((apiAuth) => {
                 if (apiAuth.status !== 200) {
                     return Observable.of(apiAuth.json());
@@ -119,6 +122,8 @@ export class AuthService {
                     return Observable.throw('Something went wrong when decoding token. Please re-authenticate.');
                 }
 
+                this.authenticateUniFiles();
+
                 localStorage.setItem('jwt', this.jwt);
                 return Observable.of(true);
             });
@@ -130,7 +135,7 @@ export class AuthService {
                 reject('No jwt set');
             }
 
-            const uniFilesUrl = AppConfig.BASE_URL_FILES + '/api/init/sign-in';
+            const uniFilesUrl = environment.BASE_URL_FILES + '/api/init/sign-in';
             this.http.post(uniFilesUrl, JSON.stringify(this.jwt), {headers: this.headers}).subscribe(
                 res => {
                     if (res && res.status === 200) {
@@ -166,7 +171,7 @@ export class AuthService {
         // are cold, and would require a subscribe to run.
         // By returning a subject instead we have the option to not subscribe,
         // without screwing up something in the authentication flow
-        let authSubject = new Subject<IAuthDetails>();
+        const authSubject = new Subject<IAuthDetails>();
 
         this.verifyAuthentication().subscribe(authDetails => {
             this.authentication$.next(authDetails);
@@ -189,8 +194,8 @@ export class AuthService {
             'CompanyKey': this.activeCompany.Key
         });
 
-        const url = AppConfig.BASE_URL
-            + AppConfig.API_DOMAINS.BUSINESS
+        const url = environment.BASE_URL
+            + environment.API_DOMAINS.BUSINESS
             + 'users?action=current-session';
 
         return this.http.get(url, {headers: headers}).map(res => {
@@ -230,9 +235,9 @@ export class AuthService {
      * @returns {Boolean}
      */
     public isAuthenticated(): boolean {
-        let hasToken: boolean = !!this.jwt;
-        let isTokenDecoded: boolean = !!this.jwtDecoded;
-        let isExpired: boolean = this.isTokenExpired(this.jwtDecoded);
+        const hasToken: boolean = !!this.jwt;
+        const isTokenDecoded: boolean = !!this.jwtDecoded;
+        const isExpired: boolean = this.isTokenExpired(this.jwtDecoded);
 
         return hasToken && isTokenDecoded && !isExpired;
     }
@@ -253,8 +258,8 @@ export class AuthService {
             this.authentication$.next({token: undefined, activeCompany: undefined, user: undefined});
             this.filesToken$.next(undefined);
 
-            let url = AppConfig.BASE_URL_INIT + AppConfig.API_DOMAINS.INIT + 'log-out';
-            let headers = new Headers({
+            const url = environment.BASE_URL_INIT + environment.API_DOMAINS.INIT + 'log-out';
+            const headers = new Headers({
                 'Content-Type': 'application/json',
                 'Authorization': 'Bearer ' + this.jwt,
                 'CompanyKey': this.activeCompany
@@ -299,7 +304,7 @@ export class AuthService {
             return true;
         }
 
-        let expires = new Date(0);
+        const expires = new Date(0);
         expires.setUTCSeconds(this.jwtDecoded.exp);
         return (expires.valueOf() < new Date().valueOf() + (offsetMinutes * 60000));
     }
@@ -320,7 +325,7 @@ export class AuthService {
             return true;
         }
 
-        let permissionKey: string = this.getPermissionKey(url);
+        const permissionKey: string = this.getPermissionKey(url);
 
         // Check for direct match
         let hasPermission = user['Permissions'].some(permission => permission === permissionKey);
@@ -330,7 +335,7 @@ export class AuthService {
         // E.g no permission for 'ui_salary_employees_employments
         // but permission for 'ui_salary_employees' and therefore employments
         if (!hasPermission) {
-            let permissionParts = permissionKey.split('_');
+            const permissionParts = permissionKey.split('_');
             while (permissionParts.length) {
                 permissionParts.pop();
                 if (user['Permissions'].some(p => p === permissionParts.join('_'))) {
@@ -363,7 +368,7 @@ export class AuthService {
         let urlParts = noQueryParams.split('/');
         urlParts = urlParts.filter(part => {
             // Remove empty url parts and numeric url parts (ID params)
-            return part !== '' && isNaN(parseInt(part));
+            return part !== '' && isNaN(parseInt(part, 10));
         });
 
         return 'ui_' + urlParts.join('_');

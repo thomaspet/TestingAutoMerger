@@ -11,8 +11,8 @@ import {
     ChangeDetectorRef,
     SimpleChanges
 } from '@angular/core';
-import html from './UniSearchAttrHtml';
-import css from './UniSearchAttrCss';
+// import html from './UniSearchAttrHtml';
+// import css from './UniSearchAttrCss';
 import {IUniSearchConfig} from './IUniSearchConfig';
 import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/observable/fromEvent';
@@ -35,8 +35,8 @@ declare const module;
 
 @Component({
     selector: '[uni-search-attr]',
-    template: html,
-    styles: [css],
+    templateUrl: './uniSearchAttr.html',
+    styleUrls: ['./uniSearchAttr.sass'],
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class UniSearchAttr implements OnInit, OnChanges {
@@ -114,7 +114,7 @@ export class UniSearchAttr implements OnInit, OnChanges {
     public ngOnChanges(changes: SimpleChanges) {
         if (changes['config'] && changes['config'].currentValue) {
             this.hasExternalSearch = !!this.config.externalLookupFn;
-            this.hasCreateNewButton = !!this.config.newItemModalFn;
+            this.hasCreateNewButton = !!this.config.createNewFn;
             const showButtons = !!(this.hasCreateNewButton || this.hasExternalSearch);
             this.heightOfNewButtonPadding = showButtons ? HEIGHT_OF_NEW_BUTTON_PADDING : 0;
         }
@@ -186,16 +186,15 @@ export class UniSearchAttr implements OnInit, OnChanges {
 
     private createNewItem() {
         this.closeSearchResult();
-        this.config.newItemModalFn(this.currentInputValue)
-            .do(() => this.busy = true)
-            .switchMap(item => this.config.onSelect(item))
-            .do(() => this.busy = false)
-            .subscribe(expandedItem => {
-                this.componentElement.nativeElement.value = this.inputTemplate(expandedItem);
-                this.changeEvent.next(expandedItem);
-            }, err => console.error(
+        this.config.createNewFn(this.currentInputValue).subscribe(
+            item => {
+                this.componentElement.nativeElement.value = this.inputTemplate(item);
+                this.changeEvent.next(item);
+            },
+            err => console.error(
                 'Uncaught error in UniSearch! Add a .catch() on the observable before passing it to UniSearch!'
-            ));
+            )
+        );
     }
 
     private toggleSearchType() {
@@ -291,6 +290,7 @@ export class UniSearchAttr implements OnInit, OnChanges {
                 }
                 break;
             case KeyCodes.F3:
+                event.preventDefault();
                 this.createNewItem();
                 break;
             case KeyCodes.PAGE_DOWN:

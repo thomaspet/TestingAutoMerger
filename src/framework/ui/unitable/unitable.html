@@ -7,6 +7,8 @@
     (upOrDownArrows)="onFilterInputUpOrDownArrows($event)">
 </unitable-search>
 
+<a *ngIf="config?.allowEditToggle" class="unitable_edit_toggle_button" (click)="toggleEditmode()">T</a>
+
 <table *ngIf="tableData && config?.columns" class="unitable-main-table"
    [ngClass]="{'editable-table': config.editable}"
    (keydown)="onKeyDown($event)">
@@ -18,7 +20,7 @@
 
     <unitable-contextmenu [items]="config.contextMenu.items"></unitable-contextmenu>
 
-    <thead>
+    <thead *ngIf="config.headerVisible">
         <tr>
             <th *ngIf="config.multiRowSelect" class="select-column"><input type="checkbox" #allRowSelector (change)="onSelectAllRowsChanged(allRowSelector.checked)" checked="config.multiRowSelectDefaultValue" /></th>
             <th *ngFor="let column of tableColumns"
@@ -41,6 +43,7 @@
             <th *ngIf="config.deleteButton" class="select-column">
                 <unitable-column-menu
                     *ngIf="config?.columnMenuVisible && !config?.contextMenu?.items?.length"
+                    [tableConfig]="config"
                     [columns]="tableColumns"
                     (columnsChange)="onColumnsChange($event)"
                     (resetAll)="onResetColumnConfig()">
@@ -55,6 +58,7 @@
 
                 <unitable-column-menu
                     *ngIf="config?.columnMenuVisible"
+                    [tableConfig]="config"
                     [columns]="tableColumns"
                     (columnsChange)="onColumnsChange($event)"
                     (resetAll)="onResetColumnConfig()">

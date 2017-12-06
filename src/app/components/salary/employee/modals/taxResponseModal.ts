@@ -20,6 +20,7 @@ export class TaxResponseModal implements OnInit, IUniModal {
     @Input() public options: IModalOptions;
     @Output() public onClose: EventEmitter<any> = new EventEmitter<any>();
     private taxStatus$: BehaviorSubject<TaxCardReadStatus> = new BehaviorSubject(new TaxCardReadStatus());
+    private header: string;
     public busy: boolean;
     constructor(
         private altinnService: AltinnIntegrationService,
@@ -27,6 +28,10 @@ export class TaxResponseModal implements OnInit, IUniModal {
     ) { }
 
     public ngOnInit() {
+
+        this.taxStatus$
+            .subscribe(status => this.header = status.Title || 'Resultat');
+
         Observable
             .of(<TaxInfo>this.options.data)
             .do(() => this.busy = true)
@@ -34,8 +39,8 @@ export class TaxResponseModal implements OnInit, IUniModal {
             .catch((err, obs) => this.errorService.handleRxCatch(err, obs))
             .do(() => {
                 let config = this.options.modalConfig;
-                if (config.changeEvent) {
-                    config.changeEvent.next(true);
+                if (config.update) {
+                    config.update();
                 }
             })
             .finally(() => this.busy = false)

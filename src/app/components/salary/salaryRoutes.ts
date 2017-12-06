@@ -15,7 +15,7 @@ import {AMeldingView} from './amelding/ameldingview';
 import {CategoryList} from './category/categoryList';
 import {CategoryView} from './category/categoryView';
 import {routes as CategoryRoutes} from './category/categoryRoutes';
-import {SalarybalanceList} from './salarybalance/salarybalanceList';
+import {SalaryBalanceListContainer} from './salarybalance/salaryBalanceList/salaryBalanceListContainer';
 import {SalarybalanceView} from './salarybalance/salarybalanceView';
 import {routes as SalarybalanceRoutes} from './salarybalance/salarybalanceRoutes';
 import {SalaryTransactionSupplementList} from './salaryTransactionSupplement/salaryTransactionSupplementsList';
@@ -71,7 +71,7 @@ export const salaryRoutes: Routes = [
     },
     {
         path: 'salarybalances',
-        component: SalarybalanceList
+        component: SalaryBalanceListContainer
     },
     {
         path: 'salarybalances/:id',

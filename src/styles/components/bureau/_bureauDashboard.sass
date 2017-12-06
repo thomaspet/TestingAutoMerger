@@ -1,6 +1,9 @@
 uni-bureau-dashboard
     text-align: left
 
+    .left-side
+        height: 1px
+
     .align-right
         text-align: right
 
@@ -39,8 +42,12 @@ uni-bureau-dashboard
             td:first-of-type
                 padding-left: 2rem
 
+            tr, th, td, td:last-of-type
+                border: none
+
             th
-                background: lighten($uni-color-toolbar, 20%)
+                background-color: $uni-color-c2a
+                color: $uni-color-negative
 
             .bureau-count-col
                 text-align: center
@@ -56,29 +63,27 @@ uni-bureau-dashboard
             a
                 text-decoration: underline !important
 
-    .right-side
-        background-color: $uni-color-legend
+    .bureau-predefined-filters
+        display: inline-block
+        list-style: none
+        border-bottom: 1px solid $uni-color-scale8
+        width: 100%
 
-        table
-            white-space: nowrap
-            width: 100%
-            padding: .25rem 2rem
-            border-spacing: .5rem
-            line-height: 1rem
-        th, td
-            width: 50%
 
-        td:nth-child(2)
-            padding: 0 1rem
-            background: mix($uni-color-negative, $uni-color-c2a, 98%)
-            border-radius: pxToRem(3)
+        li
+            @extend h3
+            display: inline-block
+            margin-right: 1.25rem
+            padding: 0 .25rem
+            color: $uni-color-scale5
+            cursor: pointer
 
-        th ~ th
-            border-top: 2px solid $uni-color-positive
-            padding-top: 8px
+            &[aria-selected]:not([aria-selected=false])
+                border-bottom: pxToRem(3) solid $uni-color-c2a
 
-        tr
-            height: 1.75rem
+            &:last-of-type
+                margin-right: 0
 
-        hr
-            border-color: $uni-color-positive
+            .ticker-filter-count
+                font-size: 1.15rem
+                color: $uni-color-c2a

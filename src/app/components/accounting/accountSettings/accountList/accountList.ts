@@ -1,7 +1,18 @@
-import {Component, Output, EventEmitter, ViewChild, ElementRef} from '@angular/core';
 import {
-    UniTable, UniTableColumn, UniTableColumnType, UniTableConfig
-} from '../../../../../framework/ui/unitable/index';
+    Component,
+    Output,
+    EventEmitter,
+    ViewChild,
+    ElementRef,
+    OnInit,
+    AfterViewInit
+} from '@angular/core';
+import {
+    UniTable,
+    UniTableColumn,
+    UniTableColumnType,
+    UniTableConfig
+} from '@uni-framework/ui/unitable/index';
 import {URLSearchParams} from '@angular/http';
 import {Account} from '../../../../unientities';
 import {AccountService, ErrorService} from '../../../../services/services';
@@ -11,7 +22,7 @@ import {AccountService, ErrorService} from '../../../../services/services';
     selector: 'account-list',
     templateUrl: './accountList.html'
 })
-export class AccountList {
+export class AccountList implements OnInit, AfterViewInit {
     @Output() public uniAccountChange: EventEmitter<Account> = new EventEmitter<Account>();
     @ViewChild(UniTable) private table: UniTable;
     private accountTable: UniTableConfig;
@@ -34,7 +45,7 @@ export class AccountList {
 
     public onRowSelected (event) {
         this.uniAccountChange.emit(event.rowModel);
-    };
+    }
 
     public refresh() {
         this.table.refreshTableData();
@@ -66,18 +77,18 @@ export class AccountList {
         };
 
         // Define columns to use in the table
-        let accountNumberCol = new UniTableColumn('AccountNumber', 'Kontonr',  UniTableColumnType.Text)
+        const accountNumberCol = new UniTableColumn('AccountNumber', 'Kontonr',  UniTableColumnType.Text)
             .setWidth('5rem')
             .setFilterOperator('startswith');
 
-        let accountNameCol = new UniTableColumn('AccountName', 'Kontonavn',  UniTableColumnType.Text)
+        const accountNameCol = new UniTableColumn('AccountName', 'Kontonavn',  UniTableColumnType.Text)
             .setFilterOperator('contains');
 
-        let accountGroupNameCol = new UniTableColumn('AccountGroup.Name', 'Gruppe',  UniTableColumnType.Text)
+        const accountGroupNameCol = new UniTableColumn('AccountGroup.Name', 'Gruppe',  UniTableColumnType.Text)
             .setFilterOperator('contains');
 
 
-        let vatTypeCol = new UniTableColumn('VatType.VatCode', 'Mva', UniTableColumnType.Text)
+        const vatTypeCol = new UniTableColumn('VatType.VatCode', 'Mva', UniTableColumnType.Text)
             .setWidth('7rem')
             .setTemplate((account: Account) => {
                 if (account.VatType !== null) {
@@ -88,7 +99,7 @@ export class AccountList {
             })
             .setFilterable(false);
 
-        let lockedCol = new UniTableColumn('Visible', 'Synlig/låst',  UniTableColumnType.Text)
+        const lockedCol = new UniTableColumn('Visible', 'Synlig/låst',  UniTableColumnType.Text)
             .setFilterable(false)
             .setCls('icon-column')
             .setTemplate((rowModel: Account) => {

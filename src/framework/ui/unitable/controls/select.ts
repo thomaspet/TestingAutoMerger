@@ -57,7 +57,7 @@ export class UnitableSelect {
     public inputControl: FormControl;
 
     public expanded: boolean = false;
-    private editorOptions: ISelectOptions;
+    private options: ISelectOptions;
 
     private items: any[];
     private focusedIndex: number;
@@ -67,12 +67,12 @@ export class UnitableSelect {
 
     public ngOnInit() {
         if (this.column) {
-            this.editorOptions = this.column.get('editorOptions') || {};
+            this.options = this.column.get('options') || {};
 
-            if (Array.isArray(this.editorOptions.resource)) {
-                this.items = [...<any[]> this.editorOptions.resource];
+            if (Array.isArray(this.options.resource)) {
+                this.items = [...<any[]> this.options.resource];
             } else {
-                (<Observable<any>> this.editorOptions.resource).subscribe((res) => {
+                (<Observable<any>> this.options.resource).subscribe((res) => {
                     this.items = res;
                 });
             }
@@ -106,16 +106,16 @@ export class UnitableSelect {
             return 'Ikke valgt';
         }
 
-        if (!this.editorOptions) {
+        if (!this.options) {
             return '';
         }
 
         if (typeof item === 'string') {
             return item;
-        } else if (this.editorOptions.itemTemplate) {
-            return this.editorOptions.itemTemplate(item);
-        } else if (this.editorOptions.displayField) {
-            return item[this.editorOptions.displayField];
+        } else if (this.options.itemTemplate) {
+            return this.options.itemTemplate(item);
+        } else if (this.options.displayField) {
+            return item[this.options.displayField];
         } else {
             return '';
         }
@@ -130,7 +130,7 @@ export class UnitableSelect {
         const character = String.fromCharCode(event.charCode || event.which);
         const focusIndex = this.items.findIndex((item) => {
             try {
-                return item[this.editorOptions.displayField][0].toLowerCase() === character;
+                return item[this.options.displayField][0].toLowerCase() === character;
             } catch (e) {}
 
             return false;

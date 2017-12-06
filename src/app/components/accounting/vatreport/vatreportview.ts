@@ -17,7 +17,7 @@ import {IContextMenuItem} from '../../../../framework/ui/unitable/index';
 import {AltinnAuthenticationModal} from '../../common/modals/AltinnAuthenticationModal';
 import {ReceiptVat} from './receipt/receipt';
 import {IToolbarConfig} from '../../common/toolbar/toolbar';
-import {UniStatusTrack} from '../../common/toolbar/statustrack';
+import {IStatus, STATUSTRACK_STATES} from '../../common/toolbar/statustrack';
 import {PeriodDateFormatPipe} from '../../../pipes/periodDateFormatPipe';
 import {
     ErrorService,
@@ -94,8 +94,10 @@ export class VatReportView implements OnInit, OnDestroy {
     private updateToolbar() {
         let journalEntryNumber;
         let journalEntryID;
+        let year;
 
-        if (this.vatReportsInPeriod && this.vatReportsInPeriod[0]) {
+        if (this.vatReportsInPeriod && this.vatReportsInPeriod[0] && this.vatReportsInPeriod[0].JournalEntry) {
+            year = this.vatReportsInPeriod[0].JournalEntry.JournalEntryNumber.split('-')[1];
 
             journalEntryNumber = this.vatReportsInPeriod[0].JournalEntry
                 ? this.vatReportsInPeriod[0].JournalEntry.JournalEntryNumber
@@ -107,7 +109,8 @@ export class VatReportView implements OnInit, OnDestroy {
         const journalEntryLink = journalEntryNumber && journalEntryID
             ? `/#/accounting/transquery/details;JournalEntryNumber=`
                 + `${journalEntryNumber};`
-                + `journalEntryID=${journalEntryID}`
+                + `journalEntryID=${journalEntryID};`
+                + `Period.AccountYear=${year};`
             : undefined;
 
         this.toolbarconfig = {
@@ -135,18 +138,18 @@ export class VatReportView implements OnInit, OnDestroy {
     }
 
     private getStatustrackConfig() {
-        let statustrack: UniStatusTrack.IStatus[] = [];
-        let activeStatus = this.currentVatReport.StatusCode;
+        const statustrack: IStatus[] = [];
+        const activeStatus = this.currentVatReport.StatusCode;
 
         this.vatReportService.statusTypes.forEach((status) => {
-            let _state: UniStatusTrack.States;
+            let _state: STATUSTRACK_STATES;
 
             if (status.Code > activeStatus) {
-                _state = UniStatusTrack.States.Future;
+                _state = STATUSTRACK_STATES.Future;
             } else if (status.Code < activeStatus) {
-                _state = UniStatusTrack.States.Completed;
+                _state = STATUSTRACK_STATES.Completed;
             } else if (status.Code === activeStatus) {
-                _state = UniStatusTrack.States.Active;
+                _state = STATUSTRACK_STATES.Active;
             }
 
             let addStatus: boolean = true;

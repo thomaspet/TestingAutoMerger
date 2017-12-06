@@ -1,0 +1,59 @@
+employee-salarybalance
+    .splitview
+        margin-top: .5rem
+    .splitview_list
+        salarybalances
+            article
+                margin: 0
+                padding: 0
+                width: 100%
+
+    .splitview_detail
+        margin-top: 3rem
+        padding-top: 2rem
+
+        salarybalance-details
+            display: flex
+            flex-direction: row
+
+            salary-balance-summary
+                width: 100%
+                section
+                    width: 100%
+            fieldset
+                &:nth-of-type(even)
+                    padding-left: .2rem
+                &:neth-of-type(odd)
+                    padding-right: .2rem
+
+                width: 50%
+                max-width: 50%
+                min-width: 0
+                aside:not(.helpText)
+                    width: 100%
+                    max-width: 100%
+                    margin: 0
+
+            @include media(pxToRem(900px))
+                flex-direction: column
+                padding: 0
+                fieldset
+                    float: none
+                    width: 100%
+                    max-width: 100%
+
+            legend
+                width: 100%
+                padding-left: 1rem
+                margin-bottom: 0
+                background: $uni-color-toolbar
+                color: $uni-color-negative
+
+
+            uni-field
+                max-width: 100%
+
+            uni-form,
+            article.collapsable
+                display: block
+                margin: 0 .25rem

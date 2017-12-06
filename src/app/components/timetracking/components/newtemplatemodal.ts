@@ -258,7 +258,7 @@ export class UniTemplateModal implements IUniModal {
     ): UniTableColumn {
         return new UniTableColumn(name, label, UniTableColumnType.Lookup)
             .setDisplayField(`${expandCol}.${expandLabel}`)
-            .setEditorOptions({
+            .setOptions({
                 itemTemplate: (item) => {
                     return item[expandKey] + ' - ' + getDeepValue(item, expandLabel);
                 },

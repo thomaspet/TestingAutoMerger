@@ -1,69 +1,91 @@
 import {
     Component,
-    Input,
     ChangeDetectionStrategy,
     ElementRef,
     ChangeDetectorRef,
-    SimpleChanges,
-    OnChanges
+    OnDestroy,
+    AfterViewInit
 } from '@angular/core';
 import {KpiCompany} from '../kpiCompanyModel';
-import {AppConfig} from '../../../AppConfig';
+import {environment} from 'src/environments/environment';
 import {BureauCustomHttpService} from '../bureauCustomHttpService';
 import {YearService} from '../../../services/common/yearService';
 import {Observable} from 'rxjs/Observable';
+import {Subscription} from 'rxjs/Subscription';
 import * as moment from 'moment';
 import {AuthService} from '../../../authService';
+import {ErrorService} from '../../../services/common/errorService';
+import {BureauCurrentCompanyService} from '../bureauCurrentCompanyService';
 
-const BASE = AppConfig.BASE_URL;
+const BASE = environment.BASE_URL;
 
 @Component({
     selector: 'uni-bureau-salary-tab',
     changeDetection: ChangeDetectionStrategy.OnPush,
     template: `
-<table *ngIf="!!viewData">
-    <tr><th>Lønnsavregning</th></tr>
-    <tr>
-        <td>Siste lønnsavregning</td>
-        <td><a href="#" (click)="navigateToCompanyUrl('/salary/payrollrun')">{{viewData[0]}}</a></td>
-    </tr>
-    <tr>
-        <td>Utbetalingsdato</td>
-        <td><a href="#" (click)="navigateToCompanyUrl('/salary/payrollrun')">{{viewData[1]}}</a></td>
-    </tr>
-    <tr><td colspan="2"><hr/></td></tr>
-    <tr><th>A-Melding</th></tr>
-    <tr>
-        <td>Siste leverte periode (A-melding)</td>
-        <td><a href="#" (click)="navigateToCompanyUrl('/salary/amelding')">{{viewData[2]}}</a></td>
-    </tr>
-</table>`
+<section *ngIf="!!viewData" class="tab-parts">
+    <section class="tab-part">
+        <section class="image-container">
+            <img class="payrollrun-icon">
+            <span>Lønns-<br />avregning</span>
+        </section>
+        <section class="text-container">
+            <p>Siste lønnsavregning</p>
+            <a href="#" (click)="navigateToCompanyUrl('/salary/payrollrun')">{{viewData[0]}}</a>
+            <p>Utbetalingsdato</p>
+            <a href="#" (click)="navigateToCompanyUrl('/salary/payrollrun')">{{viewData[1]}}</a>
+        </section>
+    </section>
+    <section class="tab-part">
+        <section class="image-container">
+            <img class="amelding-icon">
+            <span>A-Melding</span>
+        </section>
+        <section class="text-container">
+            <p>Siste leverte periode (A-melding)</p>
+            <a href="#" (click)="navigateToCompanyUrl('/salary/amelding')">{{viewData[2]}}</a>
+        </section>
+    </section>
+</section>`
 })
-export class BureauSalarTab implements OnChanges {
-    @Input() public company: KpiCompany;
-
+export class BureauSalaryTab implements AfterViewInit, OnDestroy {
+    public company: KpiCompany;
     public viewData: any[];
+    private subscription: Subscription;
 
     constructor(
         private element: ElementRef,
         private cd: ChangeDetectorRef,
         private customHttpService: BureauCustomHttpService,
         private yearService: YearService,
-        private authService: AuthService
+        private authService: AuthService,
+        private errorService: ErrorService,
+        private currentCompanyService: BureauCurrentCompanyService,
     ) {}
 
-    public ngOnChanges(changes: SimpleChanges) {
+    public ngAfterViewInit() {
         this.element.nativeElement.setAttribute('aria-busy', true);
-        Observable.forkJoin(
-            this.getLastPayroll(),
-            this.getPayrollPaymentDate(),
-            this.getLastPeriodOfAMelding()
-        )
+        this.subscription = this.currentCompanyService
+            .getCurrentCompany()
+            .do(() => this.element.nativeElement.setAttribute('aria-busy', true))
+            .do(company => this.company = company)
+            .switchMap(company => Observable.forkJoin(
+                this.getLastPayroll(company.Key),
+                this.getPayrollPaymentDate(company.Key),
+                this.getLastPeriodOfAMelding(company.Key),
+            ))
             .do(() => this.element.nativeElement.setAttribute('aria-busy', false))
             .do(() => this.cd.markForCheck())
             .subscribe(
-                result => this.viewData = result
+                result => this.viewData = result,
+                err => this.errorService.handle(err),
             );
+    }
+
+    public ngOnDestroy() {
+        if (this.subscription) {
+            this.subscription.unsubscribe();
+        }
     }
 
     private formatDate(date: string|Date): string {
@@ -73,37 +95,37 @@ export class BureauSalarTab implements OnChanges {
         return moment(date).format('DD.MM.YYYY');
     }
 
-    public getLastPayroll(): Observable<string> {
+    public getLastPayroll(companyKey: string): Observable<string> {
         const year = this.yearService.getSavedYear();
         return this.customHttpService.get(
             `${BASE}/api/statistics?model=payrollrun&select=id as id,description as name,`
             + `paydate as paydate&filter=year(paydate) eq ${year}&orderby=paydate desc&top=1`,
-            this.company.Key
+            companyKey
         )
             .map(this.customHttpService.statisticsExtractor)
-            .map(results => results.length ? this.formatDate(results[0].paydate) : '');
+            .map(results => results.length ? this.formatDate(results[0].paydate) : 'N/A');
     }
 
-    public getPayrollPaymentDate(): Observable<string> {
+    public getPayrollPaymentDate(companyKey: string): Observable<string> {
         const year = this.yearService.getSavedYear();
         return this.customHttpService.get(
             `${BASE}/api/statistics?model=payrollrun&select=paydate as paydate`
             + `&filter=year(paydate) eq ${year}&orderby=paydate desc&top=1`,
-            this.company.Key
+            companyKey
         )
             .map(this.customHttpService.statisticsExtractor)
-            .map(results => results.length ? this.formatDate(results[0].paydate) : '');
+            .map(results => results.length ? this.formatDate(results[0].paydate) : 'N/A');
     }
 
-    public getLastPeriodOfAMelding() {
+    public getLastPeriodOfAMelding(companyKey: string): Observable<string> {
         const year = this.yearService.getSavedYear();
         return this.customHttpService.get(
             `${BASE}/api/statistics?model=ameldingdata&select=period as period,sent as sent,year as year`
             + `&filter=year eq ${year}&orderby=period desc,sent desc&top=1`,
-            this.company.Key
+            companyKey
         )
             .map(this.customHttpService.statisticsExtractor)
-            .map(results => results.length ? this.formatDate(results[0].sent) : '');
+            .map(results => results.length ? this.formatDate(results[0].sent) : 'N/A');
     }
 
     public navigateToCompanyUrl(url: string) {

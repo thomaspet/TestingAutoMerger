@@ -16,6 +16,7 @@ import {
     ITickerColumnOverride
 } from '../../../services/common/uniTickerService';
 import {UniTicker} from '../ticker/ticker';
+import {UniTickerPredefinedFilters} from '../filters/predefinedFilters';
 import {YearService} from '../../../services/services';
 import {AuthService} from '../../../authService';
 
@@ -25,7 +26,8 @@ import {AuthService} from '../../../authService';
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class UniTickerContainer {
-    @ViewChild(UniTicker) private mainTicker: UniTicker;
+    @ViewChild(UniTicker) public mainTicker: UniTicker;
+    @ViewChild(UniTickerPredefinedFilters) public tickerFilters: UniTickerPredefinedFilters;
 
     @Input() public ticker: Ticker;
     @Input() public showActions: boolean;
@@ -35,6 +37,7 @@ export class UniTickerContainer {
     @Input() public columnOverrides: Array<ITickerColumnOverride> = [];
 
     @Output() public urlParamsChange: EventEmitter<ParamMap> = new EventEmitter();
+    @Output() public rowSelectionChanged: EventEmitter<any> = new EventEmitter();
 
     public showSubTickers: boolean;
     public selectedFilter: TickerFilter;
@@ -76,7 +79,7 @@ export class UniTickerContainer {
         if (changes['ticker'] && this.ticker) {
             this.selectedRow = undefined;
             this.showSubTickers = false;
-            if (!this.selectedFilter && this.ticker.Filters) {
+            if (this.ticker.Filters) {
                 this.selectedFilter = this.ticker.Filters[0];
             }
         }
@@ -105,7 +108,7 @@ export class UniTickerContainer {
         }
     }
 
-    private updateQueryParams() {
+    public updateQueryParams() {
         const url = this.router.url.split('?')[0];
 
         this.router.navigate([url], {
@@ -119,7 +122,17 @@ export class UniTickerContainer {
 
     public onRowSelected(row) {
         this.selectedRow = row;
-        this.showSubTickers = true;
+        this.showSubTickers = !row._editable;
+    }
+
+    public onRowSelectionChanged(row) {
+        this.rowSelectionChanged.emit(row);
+    }
+
+    public editModeChanged(event) {
+        if (event) {
+            this.showSubTickers = false;
+        }
     }
 
     public onFilterSelected(filter: TickerFilter) {

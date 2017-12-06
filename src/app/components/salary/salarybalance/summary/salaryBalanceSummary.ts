@@ -1,16 +1,17 @@
-import {Component, OnInit, Input, OnChanges, ChangeDetectionStrategy} from '@angular/core';
+import {
+    Component, OnInit, ViewChild, Input, Output, OnChanges,
+    ChangeDetectionStrategy, EventEmitter, SimpleChanges
+} from '@angular/core';
 import {Observable} from 'rxjs/Observable';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
-import {UniTableConfig, UniTableColumn, UniTableColumnType} from '../../../../../framework/ui/unitable/index';
+import {
+    UniTableConfig, UniTableColumn, UniTableColumnType, UniTable, IRowChangeEvent
+} from '../../../../../framework/ui/unitable';
 import {SalaryBalance, Employee, SalaryBalanceLine, SalaryTransaction, PayrollRun} from '../../../../unientities';
 import {
     SalaryBalanceLineService, ErrorService, EmployeeService, SalaryTransactionService, PayrollrunService
 } from '../../../../services/services';
-import { SalarybalanceLine } from '../salarybalanceLine';
-import { PayrollrunDetails } from '../../payrollrun/payrollrunDetails';
-import {ISummaryConfig} from '../../../common/summary/summary';
-import { DecimalPipe } from '@angular/common/src/pipes';
-import { JournalEntryAccountCalculationSummary } from '../../../../models/accounting/JournalEntryAccountCalculationSummary';
+import {SalarybalanceLine} from '../salarybalanceLine';
 
 @Component({
     selector: 'salary-balance-summary',
@@ -19,12 +20,18 @@ import { JournalEntryAccountCalculationSummary } from '../../../../models/accoun
 })
 export class SalaryBalanceSummary implements OnInit, OnChanges {
 
-    @Input() private salaryBalance: SalaryBalance;
+    @Input() public salaryBalance: SalaryBalance;
+    @Input() public busy: boolean;
+    @Output() public changeEvent: EventEmitter<SalaryBalanceLine[]> = new EventEmitter();
+    @ViewChild(UniTable) private table: UniTable;
+    public editMode: boolean;
     private salarybalanceLinesModel$: BehaviorSubject<SalaryBalanceLine[]>;
+    private tableModel$: BehaviorSubject<SalaryBalanceLine[]>;
     private description$: BehaviorSubject<string>;
     private tableConfig: UniTableConfig;
     public showDescriptionText: boolean = false;
-    private summary: ISummaryConfig[] = [];
+    public showAllLines: boolean;
+    public showAllLinesModel: {showAll: boolean} = {showAll: false};
 
     constructor(
         private salaryBalanceLineService: SalaryBalanceLineService,
@@ -34,102 +41,195 @@ export class SalaryBalanceSummary implements OnInit, OnChanges {
         private payrollrunService: PayrollrunService
     ) {
         this.salarybalanceLinesModel$ = new BehaviorSubject<SalaryBalanceLine[]>([]);
+        this.tableModel$ = new BehaviorSubject<SalaryBalanceLine[]>([]);
         this.description$ = new BehaviorSubject<string>('');
     }
 
     public ngOnInit() {
-        this.createConfig();
+        this.createConfig(this.editMode);
     }
 
-    public ngOnChanges() {
-        if (this.salaryBalance && this.salaryBalance.ID) {
+    public ngOnChanges(change: SimpleChanges) {
+        if (change['salaryBalance']) {
+            this.onSalaryBalanceChange(change['salaryBalance'].currentValue);
+        }
+        if (change['busy'] && !change['busy'].firstChange) {
+            this.onBusychange(change['busy'].currentValue);
+        }
+    }
 
-            let transObs = this.salaryBalance.Transactions && this.salaryBalance.Transactions.length
-                ? Observable.of(this.salaryBalance.Transactions)
-                : this.salaryBalanceLineService
-                    .GetAll(`filter=SalaryBalanceID eq ${this.salaryBalance.ID}`);
+    private onBusychange(busy: boolean) {
+        if (busy) {
+            return;
+        }
+        this.editMode = false;
+        this.createConfig(this.editMode);
+        this.table.blur();
+    }
+
+    private onSalaryBalanceChange(salaryBalance: SalaryBalance) {
+        if (salaryBalance && salaryBalance.ID) {
+
+            const transObs = salaryBalance.Transactions && salaryBalance.Transactions.length
+                ? Observable.of(salaryBalance.Transactions)
+                : this.handleCache(salaryBalance);
+
             transObs
-            .switchMap((response: SalaryBalanceLine[]) => {
-                let filter = [];
-                response.forEach(balanceline => {
-                    if (balanceline.SalaryTransactionID) {
-                        filter.push(`ID eq ${balanceline.SalaryTransactionID}`);
-                    }
-                });
-
-                return !filter.length ?
-                    Observable.of(response)
-                    : this.salarytransactionService.GetAll(`filter=${filter.join(' or ')}`, ['payrollrun'])
-                    .map((transes: SalaryTransaction[]) => {
-                        response.forEach(salarybalanceline => {
-                            transes.forEach(salarytransaction => {
-                                if (salarybalanceline.SalaryTransactionID === salarytransaction.ID) {
-                                    salarybalanceline['_payrollrun'] = salarytransaction.payrollrun;
-                                }
-                            });
-                        });
-                        return response;
+                .switchMap((response: SalaryBalanceLine[]) => {
+                    const filter = [];
+                    response.forEach(balanceline => {
+                        if (balanceline.SalaryTransactionID) {
+                            filter.push(`ID eq ${balanceline.SalaryTransactionID}`);
+                        }
                     });
-            })
+
+                    return !filter.length ?
+                        Observable.of(response)
+                        : this.salarytransactionService
+                            .GetAll(`filter=${filter.join(' or ')}`, ['payrollrun'])
+                            .map((transes: SalaryTransaction[]) => this.mapRunToBalanceLines(response, transes));
+                })
                 .subscribe((transes: SalaryBalanceLine[]) => {
-                    this.salarybalanceLinesModel$.next(transes);
-                    this.setTotals();
+                    this.updateModel(transes);
                 }, err => this.errorService.handle(err));
 
-            let empObs = this.salaryBalance.Employee && this.salaryBalance.Employee.BusinessRelationInfo
-                ? Observable.of(this.salaryBalance.Employee)
-                : this.employeeService
-                    .Get(this.salaryBalance.EmployeeID, ['BusinessRelationInfo']);
+            const empObs = salaryBalance.Employee && salaryBalance.Employee.BusinessRelationInfo
+                ? Observable.of(salaryBalance.Employee)
+                : this.employeeService.Get(salaryBalance.EmployeeID, ['BusinessRelationInfo']);
 
             empObs.subscribe(
                 (emp: Employee) => this.description$
                     .next(
-                        `SaldoId nr ${this.salaryBalance.ID}, `
-                        + `Ansattnr ${emp.EmployeeNumber} - ${emp.BusinessRelationInfo.Name}`
+                    `SaldoId nr ${salaryBalance.ID}, `
+                    + `Ansattnr ${emp.EmployeeNumber} - ${emp.BusinessRelationInfo.Name}`
                     ),
                 err => this.errorService.handle(err));
         } else {
-            this.salarybalanceLinesModel$.next([]);
+            this.updateModel([]);
             this.description$.next('');
         }
     }
 
-    private setTotals() {
-        this.summary = [
-            {
-                value: this.salaryBalance.CalculatedBalance,
-                title: 'Avregnet beløp',
-                description: 'Beløp for alle trekk som er med i en avregnet lønnsavregning'
-            },
-            {
-                value: this.salaryBalance.Balance,
-                title: 'Estimert beløp',
-                description: 'Beløp som tar med alle planlagte trekk, også på lønnsavregninger som ikke er avregnet enda'
-            }
-        ];
+    private handleCache(salaryBalance: SalaryBalance) {
+        const lines = this.salarybalanceLinesModel$.getValue();
+        if ((lines && lines.length && !lines.some(x => !!x._createguid))
+            || (salaryBalance.Transactions && salaryBalance.Transactions.length)) {
+            return Observable.of(lines);
+        }
+        this.salaryBalanceLineService.invalidateCache();
+        return this.salaryBalanceLineService.GetAll(`filter=SalaryBalanceID eq ${salaryBalance.ID}`);
     }
 
-    private createConfig() {
-        const nameCol = new UniTableColumn('Description', 'Beskrivelse', UniTableColumnType.Text);
-        const startDateCol = new UniTableColumn('Date', 'Dato', UniTableColumnType.LocalDate)
+    private mapRunToBalanceLines(
+        salaryBalanceLines: SalaryBalanceLine[],
+        transes: SalaryTransaction[]): SalaryBalanceLine[] {
+
+        salaryBalanceLines.forEach(salarybalanceline => {
+            transes.forEach(salarytransaction => {
+                if (salarybalanceline.SalaryTransactionID !== salarytransaction.ID) {
+                    return;
+                }
+                salarybalanceline['_payrollrun'] = salarytransaction.payrollrun;
+            });
+        });
+
+        return salaryBalanceLines;
+    }
+
+    private updateModel(salaryBalanceLines: SalaryBalanceLine[]) {
+        this.salarybalanceLinesModel$.next(salaryBalanceLines);
+        this.tableModel$.next([]);
+        this.tableModel$.next(this.getTableLines(salaryBalanceLines));
+    }
+
+    public toggleShowAllLines() {
+        this.showAllLines = !this.showAllLines;
+        this.showAllLinesModel = {
+            showAll: this.showAllLines
+        };
+        this.salarybalanceLinesModel$
+            .asObservable()
+            .take(1)
+            .subscribe(lines => this.tableModel$.next(this.getTableLines(lines)));
+    }
+
+    private getTableLines(salaryBalanceLines: SalaryBalanceLine[]) {
+        return this.showAllLines
+            ? salaryBalanceLines
+            : salaryBalanceLines.filter(line => {
+                const run = line['_payrollrun'];
+                const status = run && run['StatusCode'];
+                return !line.SalaryTransactionID || !!status;
+            });
+    }
+
+    private createConfig(editMode: boolean) {
+        const nameCol = new UniTableColumn('Description', 'Beskrivelse', UniTableColumnType.Text, row => !row.ID);
+        const startDateCol = new UniTableColumn('Date', 'Dato', UniTableColumnType.LocalDate, row => !row.ID)
             .setWidth('7rem');
-        const sumCol = new UniTableColumn('Amount', 'Beløp', UniTableColumnType.Money);
-        const payRunCol = new UniTableColumn('_payrollrun', 'Lønnsavregning', UniTableColumnType.Number)
+        const sumCol = new UniTableColumn('Amount', 'Beløp', UniTableColumnType.Money, row => !row.ID)
+            .setIsSumColumn(true);
+        const payRunCol = new UniTableColumn('_payrollrun', 'Lønnsavregning', UniTableColumnType.Number, false)
             .setTemplate((row: SalaryBalanceLine) => {
-                let run: PayrollRun = row['_payrollrun'];
+                if (row['_isEmpty']) {
+                    return;
+                }
+                const run: PayrollRun = row['_payrollrun'];
                 return run ? `${run.ID} - ${run.Description}` : 'manuelt trekk';
             })
             .setWidth('9rem');
-        const statusCol = new UniTableColumn('_payrollrun', 'Status', UniTableColumnType.Text)
+        const statusCol = new UniTableColumn('_payrollrun', 'Status', UniTableColumnType.Text, false)
             .setTemplate((row: SalarybalanceLine) => {
-                let run: PayrollRun = row['_payrollrun'];
-                let status = this.payrollrunService.getStatus(run);
+                const run: PayrollRun = row['_payrollrun'];
+                const status = this.payrollrunService.getStatus(run);
                 return run ? `${status.text}` : '';
-            })
+            });
 
-        let columnList = [nameCol, startDateCol, sumCol, payRunCol, statusCol];
+        const columnList = [nameCol, startDateCol, sumCol, payRunCol, statusCol];
 
-        this.tableConfig = new UniTableConfig('salary.salarybalance.summary', false, false)
-            .setColumns(columnList);
+        this.tableConfig = new UniTableConfig('salary.salarybalance.summary', !!editMode, false)
+            .setColumns(columnList)
+            .setChangeCallback((event) => this.emitChanges(event));
+    }
+
+    private emitChanges(event: IRowChangeEvent) {
+        const tableData = [
+            ...this.table.getTableData().filter(x => x['_originalIndex'] !== event.rowModel['_originalIndex']),
+            event.rowModel, ];
+
+        const lines = this.salarybalanceLinesModel$.getValue();
+
+        this.salarybalanceLinesModel$.next([
+            ...lines.filter(line => line['_originalIndex'] !== event.rowModel['_originalIndex']),
+            event.rowModel,
+        ]);
+
+        const rows: SalaryBalanceLine[] = tableData
+            .filter((row: SalaryBalanceLine) => !row.ID && !!row.Amount && !!row.Date);
+
+        if (!rows.length) {
+            return;
+        }
+
+        rows.forEach(row => {
+            if (!!row._createguid) {
+                return;
+            }
+            row._createguid = this.salaryBalanceLineService.getNewGuid();
+            row.SalaryBalanceID = this.salaryBalance && this.salaryBalance.ID;
+        });
+
+        this.changeEvent.next(rows);
+        return event.rowModel;
+    }
+
+    public activateEditMode() {
+        this.editMode = true;
+        this.createConfig(this.editMode);
+        if (!this.table || !this.table.getTableData().length) {
+            return;
+        }
+
+        this.table.focusRow(this.table.getTableData().length);
     }
 }

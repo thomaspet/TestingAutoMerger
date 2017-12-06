@@ -6,7 +6,7 @@ import {WorkProfile} from '../../../unientities';
 import {GenericDetailview} from '../genericview/detail';
 import {UniModules} from '../../layout/navbar/tabstrip/tabService';
 
-export var view = new View('workprofiles', 'Stillingsmal', 'WorkprofileDetailview', true, '', WorkprofileDetailview);
+export var view = new View('workprofiles', 'Stillingsmal', 'WorkprofileDetailview', true, '');
 
 @Component({
     selector: view.name,
@@ -55,3 +55,5 @@ export class WorkprofileDetailview {
         return this.genericDetail.canDeactivate();
     }
 }
+
+view.component = WorkprofileDetailview;

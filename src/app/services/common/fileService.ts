@@ -41,6 +41,20 @@ export class FileService extends BizHttp<File> {
             .map(res => new Blob([res['_body']], { type: contentType }));
     }
 
+    public setIsAttachment(entityType: string, entityID: number, fileID: number, isAttachment: boolean) {
+        return this.http
+            .asPUT()
+            .withDefaultHeaders()
+            .usingBusinessDomain()
+            .withEndPoint(`files/${fileID}?action=set-is-attachment`
+                + `&entityType=${entityType}`
+                + `&entityID=${entityID}`
+                + `&isAttachment=${isAttachment}`
+            )
+            .send()
+            .map(response => response.json());
+    }
+
     public linkFile(entityType: string, entityID: number, fileID: number) {
         return this.http
             .asPOST()

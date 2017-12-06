@@ -115,7 +115,7 @@ export class UniNotifications {
     }
 
     private routeToNotification(notification: Notification) {
-        const entityType = notification.EntityType;
+        const entityType = notification.EntityType.toLowerCase();
         let route = '';
 
         if (accountingRouteMap[entityType]) {

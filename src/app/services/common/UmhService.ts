@@ -1,6 +1,6 @@
 import {Injectable} from '@angular/core';
 import {Observable} from 'rxjs/Observable';
-import {AppConfig} from '../../AppConfig';
+import {environment} from 'src/environments/environment';
 import {UniHttp} from '../../../framework/core/http/http';
 
 export enum SubscriptionState {

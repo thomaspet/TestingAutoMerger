@@ -26,6 +26,7 @@ import {
 } from '../../../services/services';
 
 const SALARY_BALANCE_KEY = 'salarybalance';
+const SAVING_KEY = 'viewSaving';
 
 @Component({
     selector: 'uni-salarybalance-view',
@@ -258,6 +259,7 @@ export class SalarybalanceView extends UniView implements OnDestroy {
     }
 
     private saveSalarybalance(done: (message: string) => void, updateView = true) {
+        super.updateState(SAVING_KEY, true, false);
         this.handlePaymentCreation(this.salarybalance)
             .switchMap(salaryBalance => this.salarybalanceService.save(salaryBalance))
             .do(salaryBalance => {
@@ -265,10 +267,11 @@ export class SalarybalanceView extends UniView implements OnDestroy {
                     this.linkNewFiles(salaryBalance.ID, this.salarybalance['_newFiles'], 'SalaryBalance');
                 }
 
-                if (!salaryBalance['CreatePayment'] && this.salarybalance.InstalmentType === SalBalType.Advance) {
+                if (!salaryBalance['CreatePayment'] && this.salarybalance.InstalmentType === SalBalType.Advance && !this.salarybalance.ID) {
                     this.showAdvanceReport(salaryBalance.ID);
                 }
             })
+            .finally(() => super.updateState(SAVING_KEY, false, false))
             .subscribe((salbal: SalaryBalance) => {
                 if (updateView) {
                     super.updateState(SALARY_BALANCE_KEY, salbal, false);

@@ -1,0 +1,7 @@
+{
+    "/api": {
+        "target": "https://devapi.unieconomy.no",
+        "secure": false,
+        "changeOrigin": true
+    }
+}

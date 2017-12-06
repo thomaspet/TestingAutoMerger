@@ -218,7 +218,7 @@ export class CustomerPaymentBatchDetails implements OnChanges {
         let invoiceNoCol = new UniTableColumn('InvoiceNumber', 'Fakturanr', UniTableColumnType.Text);
         let payToCol = new UniTableColumn('BusinessRelation', 'Kunde', UniTableColumnType.Lookup)
             .setTemplate(data => data.BusinessRelation ? data.BusinessRelation.Name : '')
-            .setEditorOptions({
+            .setOptions({
                 itemTemplate: (selectedItem) => {
                     return (
                         selectedItem.CustomerID

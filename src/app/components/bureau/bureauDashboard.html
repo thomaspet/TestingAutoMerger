@@ -4,6 +4,21 @@
 </uni-toolbar>
 
 <section class="list-content application" [attr.aria-busy]="busy">
+    <ul class="bureau-predefined-filters">
+        <li aria-selected="true">
+            Alle
+            <span class="ticker-filter-count">
+                {{filteredCompanies?.length || 0}}
+            </span>
+        </li>
+        <li>
+            Mine
+            <span class="ticker-filter-count">
+                0
+            </span>
+        </li>
+    </ul>
+
     <input class="table-filter"
         [formControl]="searchControl"
         type="search"
@@ -18,6 +33,9 @@
                         <th (click)="sortBy('Name', true)" >
                             Selskaper <i>{{getSortArrow('Name')}}</i>
                         </th>
+                        <th (click)="sortBy('OrganizationNumber', true)" >
+                            Organisasjonsnr <i>{{getSortArrow('OrganizationNumber')}}</i>
+                        </th>
                         <th class="bureau-count-col" (click)="sortBy('_inboxCount', true)">
                             Fakturainnboks <i>{{getSortArrow('_inboxCount')}}</i>
                         </th>
@@ -30,6 +48,7 @@
                     (click)="onRowClick(company)"
                     [attr.aria-selected]="company === highlightedCompany">
                     <td><a (click)="onCompanyNameClick(company)">{{company.Name}}</a></td>
+                    <td>{{company.OrganizationNumber}}</td>
                     <td class="bureau-count-col">
                         <a *ngIf="company._inboxCount" (click)="onCompanyInboxClick(company)">
                             {{company._inboxCount}}
@@ -44,8 +63,8 @@
             </table>
         </section>
         <section class="right-side" *ngIf="!!highlightedCompany">
-            <uni-dashboard-detail-view
-                [company]="highlightedCompany">
+            <uni-dashboard-detail-view>
+                <router-outlet></router-outlet>
             </uni-dashboard-detail-view>
         </section>
     </section>

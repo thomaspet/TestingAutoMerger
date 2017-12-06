@@ -10,7 +10,7 @@ import {ReportDefinitionService} from '../reports/reportDefinitionService';
 import {SendEmail} from '../../models/sendEmail';
 import {ToastService, ToastType} from '../../../framework/uniToast/toastService';
 import {ReportDefinition, ReportDefinitionParameter, ReportDefinitionDataSource} from '../../unientities';
-import {AppConfig} from '../../AppConfig';
+import {environment} from 'src/environments/environment';
 import {AuthService} from '../../authService';
 
 @Injectable()
@@ -111,7 +111,7 @@ export class ReportService extends BizHttp<string> {
                 )
             );
     }
-    
+
     public generateReportSendEmail(name: string, sendemail: SendEmail, parameters = null, doneHandler: (msg: string) => void = null) {
         if (!sendemail.EmailAddress || sendemail.EmailAddress.indexOf('@') <= 0) {
             this.toastService.addToast(
@@ -188,7 +188,7 @@ export class ReportService extends BizHttp<string> {
                         EntityType: this.sendemail.EntityType,
                         EntityID: this.sendemail.EntityID
                     };
-    
+
                     this.emailService.ActionWithBody(null, body, 'send', RequestMethod.Post).subscribe(() => {
                         this.toastService.removeToast(this.emailtoast);
                         this.toastService.addToast('Epost sendt', ToastType.good, 3);
@@ -197,16 +197,18 @@ export class ReportService extends BizHttp<string> {
                         if (doneHandler) { doneHandler('Feil oppstod ved sending av epost'); }
                         this.errorService.handle(err);
                     });
-                }    
+                }
             });
         }
     }
 
     private addLogoUrl() {
-        let logoKeyParam = new CustomReportDefinitionParameter();
-        logoKeyParam.Name = 'LogoUrl';
-        logoKeyParam.value = AppConfig.BASE_URL_FILES + 'api/image/?key=' + this.http.authService.getCompanyKey() + '&id=logo';
-        this.report.parameters.push(logoKeyParam);
+        if (this.report.parameters) {
+            const logoKeyParam = new CustomReportDefinitionParameter();
+            logoKeyParam.Name = 'LogoUrl';
+            logoKeyParam.value = environment.BASE_URL_FILES + 'api/image/?key=' + this.http.authService.getCompanyKey() + '&id=logo';
+            this.report.parameters.push(logoKeyParam);
+        }
     }
 }
 

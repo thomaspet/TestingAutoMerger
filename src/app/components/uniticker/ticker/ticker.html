@@ -34,8 +34,12 @@
                 *ngIf="ticker.Type === 'table'"
                 [resource]="lookupFunction"
                 [config]="tableConfig"
+                [attr.aria-busy]="busy"
                 (rowSelected)="onRowSelected($event)"
+                (editModeChange)="editModeChanged($event)"
+                (rowSelectionChanged)="onRowSelectionChanged($event)"
                 (filtersChange)="onFilterChange($event)"
+                (dataLoaded)="onTableReady()"
                 (columnsChange)="onColumnsChange($event)">
             </uni-table>
 

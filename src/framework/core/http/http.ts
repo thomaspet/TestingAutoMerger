@@ -1,6 +1,6 @@
 ﻿import {Injectable, EventEmitter} from '@angular/core';
 import {Http, Headers, URLSearchParams, Request, RequestMethod} from '@angular/http';
-import {AppConfig} from '../../../app/AppConfig';
+import {environment} from 'src/environments/environment';
 import {AuthService} from '../../../app/authService';
 import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/operator/catch';
@@ -23,8 +23,8 @@ export interface IUniHttpRequest {
 
 @Injectable()
 export class UniHttp {
-    private baseUrl: string = AppConfig.BASE_URL;
-    private apiDomain: string = AppConfig.API_DOMAINS.BUSINESS;
+    private baseUrl: string = environment.BASE_URL;
+    private apiDomain: string = environment.API_DOMAINS.BUSINESS;
     private headers: Headers;
     private method: number;
     private body: any;
@@ -35,13 +35,13 @@ export class UniHttp {
 
     // AuthService is used by BizHttp for caching, don't remove!
     constructor(public http: Http, public authService: AuthService) {
-        var headers = AppConfig.DEFAULT_HEADERS;
+        const headers = environment.DEFAULT_HEADERS;
         this.headers = new Headers();
         this.appendHeaders(headers);
     }
 
     public appendHeaders(headers: any) {
-        for (var key in headers) {
+        for (let key in headers) {
             this.headers.set(key, headers[key])
         }
         return this;
@@ -58,7 +58,7 @@ export class UniHttp {
 
     public withDefaultHeaders() {
         this.headers = new Headers();
-        this.appendHeaders(AppConfig.DEFAULT_HEADERS);
+        this.appendHeaders(environment.DEFAULT_HEADERS);
         return this;
     }
 
@@ -82,49 +82,49 @@ export class UniHttp {
     }
 
     public usingMetadataDomain() {
-        this.baseUrl = AppConfig.BASE_URL;
-        this.apiDomain = AppConfig.API_DOMAINS.METADATA;
+        this.baseUrl = environment.BASE_URL;
+        this.apiDomain = environment.API_DOMAINS.METADATA;
         return this;
     }
 
     public usingBusinessDomain() {
-        this.baseUrl = AppConfig.BASE_URL;
-        this.apiDomain = AppConfig.API_DOMAINS.BUSINESS;
+        this.baseUrl = environment.BASE_URL;
+        this.apiDomain = environment.API_DOMAINS.BUSINESS;
         return this;
     }
 
     public usingRootDomain() {
-        this.baseUrl = AppConfig.BASE_URL;
-        this.apiDomain = AppConfig.API_DOMAINS.ROOT;
+        this.baseUrl = environment.BASE_URL;
+        this.apiDomain = environment.API_DOMAINS.ROOT;
         return this;
     }
 
     public usingInitDomain() {
-        this.baseUrl = AppConfig.BASE_URL_INIT;
-        this.apiDomain = AppConfig.API_DOMAINS.INIT;
+        this.baseUrl = environment.BASE_URL_INIT;
+        this.apiDomain = environment.API_DOMAINS.INIT;
         return this;
     }
 
     public usingStatisticsDomain() {
-        this.baseUrl = AppConfig.BASE_URL;
-        this.apiDomain = AppConfig.API_DOMAINS.STATISTICS;
+        this.baseUrl = environment.BASE_URL;
+        this.apiDomain = environment.API_DOMAINS.STATISTICS;
         return this;
     }
 
     public usingUmhDomain() {
-        this.baseUrl = AppConfig.BASE_URL;
-        this.apiDomain = AppConfig.API_DOMAINS.UMH;
+        this.baseUrl = environment.BASE_URL;
+        this.apiDomain = environment.API_DOMAINS.UMH;
         return this;
     }
 
     public usingIntegrationDomain() {
-        this.baseUrl = AppConfig.BASE_URL_INTEGRATION;
+        this.baseUrl = environment.BASE_URL_INTEGRATION;
         this.apiDomain = '';
         return this;
     }
 
     public usingAdminDomain() {
-        this.baseUrl = AppConfig.ADMIN_SERVER_URL;
+        this.baseUrl = environment.ADMIN_SERVER_URL;
         this.apiDomain = '';
         return this;
     }
@@ -180,12 +180,13 @@ export class UniHttp {
     }
 
     public sendToUrl(url: any) {
-        var options: any = {
+        const options: any = {
             method: this.method,
             url: url,
             headers: this.headers,
             body: ''
         };
+
         if (this.body) {
             options.body = (this.body instanceof FormData) ? this.body : JSON.stringify(this.body);
         }
@@ -197,8 +198,8 @@ export class UniHttp {
     }
 
     public send(request: IUniHttpRequest = {}, searchParams: URLSearchParams = null): Observable<any> {
-        let token = this.authService.getToken();
-        let companyKey = this.authService.getCompanyKey();
+        const token = this.authService.getToken();
+        const companyKey = this.authService.getCompanyKey();
         const year = localStorage.getItem('activeFinancialYear');
 
         if (token) {
@@ -221,11 +222,11 @@ export class UniHttp {
         const endpoint = request.endPoint || this.endPoint;
 
         const url = baseurl + apidomain + endpoint;
-        this.baseUrl = AppConfig.BASE_URL;
-        this.apiDomain = AppConfig.API_DOMAINS.BUSINESS;
+        this.baseUrl = environment.BASE_URL;
+        this.apiDomain = environment.API_DOMAINS.BUSINESS;
         this.endPoint = undefined;
 
-        var options: any = {
+        const options: any = {
             method: request.method || this.method,
             url: url,
             headers: this.headers,
@@ -247,7 +248,7 @@ export class UniHttp {
         if (searchParams) {
             options.params = searchParams;
         } else if (request) {
-            options.params = UniHttp.buildUrlParams(request);
+            options.params = this.buildUrlParams(request);
         }
 
         return this.http.request(new Request(options)).catch((err) => {
@@ -261,7 +262,7 @@ export class UniHttp {
     }
 
     public multipleRequests(requests: IUniHttpRequest[]) {
-        var uniHttpCalls = [];
+        const uniHttpCalls = [];
         requests.forEach((request: IUniHttpRequest) => {
             uniHttpCalls.push(
                 this.send(request)
@@ -270,9 +271,9 @@ export class UniHttp {
         return Observable.forkJoin(uniHttpCalls);
     }
 
-    private static buildUrlParams(request: IUniHttpRequest) {
-        var urlParams = new URLSearchParams();
-        var filters = ['expand', 'filter', 'orderBy', 'action', 'top', 'skip', 'hateoas'];
+    private buildUrlParams(request: IUniHttpRequest) {
+        const urlParams = new URLSearchParams();
+        const filters = ['expand', 'filter', 'orderBy', 'action', 'top', 'skip', 'hateoas'];
         filters.forEach((filter: string) => {
             if (request[filter]) {
                 urlParams.append(filter, request[filter]);

@@ -254,7 +254,7 @@ export class UniSales {
                 y: 5,
                 widgetType: 'infoshortcut', // TODO: enum
                 config: {
-                    header: 'Kundersenteret',
+                    header: 'Kundesenteret',
                     text: 'Besøk vårt kundesenter for tips og triks, nyttige datoer og annen info.',
                     link: '',
                     externalLink: 'https://unimicro.atlassian.net/servicedesk/customer/portal/3',

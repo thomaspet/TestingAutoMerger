@@ -8,7 +8,7 @@ import {ExternalSearch} from './externalSearch/externalSearch';
 import {UniFrameworkModule} from '../../../framework/frameworkModule';
 import {AltinnAuthenticationModal} from './modals/AltinnAuthenticationModal';
 import {UniBreadcrumbs} from './toolbar/breadcrumbs';
-import {UniStatusTrack} from './toolbar/statustrack';
+import {StatusTrack} from './toolbar/statustrack';
 import {UniTags} from './toolbar/tags';
 import {UniToolbar} from './toolbar/toolbar';
 import {UniToolbarHelp} from './toolbar/help';
@@ -18,7 +18,6 @@ import {UniQueryReadOnly} from './uniQuery/UniQueryReadOnly';
 import {UniSummary} from './summary/summary';
 import {ImageModal} from './modals/ImageModal';
 import {UniAttachments} from './attacments/uniAttachements';
-import {UniUploadFileButton} from './attacments/uploadFileButton';
 import {UniPoster, TextWidget, ContactWidget, TableWidget, AlertsWidget, ImageWidget} from './poster/poster';
 import {LedgerAccountReconciliation} from './reconciliation/ledgeraccounts/ledgeraccountreconciliation';
 import {AccrualModal} from './modals/accrualModal';
@@ -58,7 +57,7 @@ import {routes as AppCommonRoutes} from './appCommonRoutes';
         AccrualModal,
         AltinnAuthenticationModal,
         UniBreadcrumbs,
-        UniStatusTrack.StatusTrack,
+        StatusTrack,
         UniToolbar,
         UniToolbarHelp,
         UniToolbarShare,
@@ -73,7 +72,6 @@ import {routes as AppCommonRoutes} from './appCommonRoutes';
         TableWidget,
         AlertsWidget,
         ImageWidget,
-        UniUploadFileButton,
         UniTags,
         AddPaymentModal,
         ModelTreeView,
@@ -96,7 +94,7 @@ import {routes as AppCommonRoutes} from './appCommonRoutes';
 
         LinkMenu,
         UniInfo,
-        BrowserWarning
+        BrowserWarning,
     ],
     entryComponents: [
         AltinnAuthenticationModal,
@@ -113,7 +111,7 @@ import {routes as AppCommonRoutes} from './appCommonRoutes';
         AccrualModal,
         AltinnAuthenticationModal,
         UniBreadcrumbs,
-        UniStatusTrack.StatusTrack,
+        StatusTrack,
         UniToolbar,
         UniQueryReadOnly,
         UniSummary,
@@ -125,7 +123,6 @@ import {routes as AppCommonRoutes} from './appCommonRoutes';
         TableWidget,
         AlertsWidget,
         ImageWidget,
-        UniUploadFileButton,
         UniTags,
         AddPaymentModal,
         ModelTreeView,
@@ -148,7 +145,7 @@ import {routes as AppCommonRoutes} from './appCommonRoutes';
         LinkMenu,
 
         UniInfo,
-        BrowserWarning
+        BrowserWarning,
     ]
 })
 export class AppCommonModule {}

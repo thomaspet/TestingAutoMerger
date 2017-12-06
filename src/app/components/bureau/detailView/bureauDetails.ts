@@ -1,15 +1,18 @@
-import {Component, Input, ChangeDetectionStrategy} from '@angular/core';
-import {KpiCompany} from '../kpiCompanyModel';
+import {Component, ChangeDetectionStrategy} from '@angular/core';
 import {BureauAccountingTab} from './bureauAccountingTab';
-import {BureauSalarTab} from './bureauSalaryTab';
+import {BureauSalaryTab} from './bureauSalaryTab';
 import {BureauSalesTab} from './bureauSalesTab';
 import {BureauHoursTab} from './bureauHoursTab';
+import {BureauCompanyTab} from './bureauCompanyTab';
+import {BureauTaskTab} from './bureauTasksTab';
 
 export const TABS = [
+    BureauTaskTab,
+    BureauCompanyTab,
     BureauAccountingTab,
-    BureauSalarTab,
+    BureauSalaryTab,
     BureauSalesTab,
-    BureauHoursTab
+    BureauHoursTab,
 ];
 
 @Component({
@@ -18,57 +21,39 @@ export const TABS = [
     template: `
     <header class="horizontal_nav no-print">
         <ul>
-            <li class="horizontal_nav" (click)="activateTab(ACCOUNTING)">
-                <a [class.router-link-active]="activeTab === ACCOUNTING">
+            <li class="horizontal_nav">
+                <a routerLink="tasks" routerLinkActive="router-link-active">
+                    Oppgaver
+                </a>
+            </li>
+            <li class="horizontal_nav">
+                <a routerLink="company" routerLinkActive="router-link-active">
+                    Firma
+                </a>
+            </li>
+            <li class="horizontal_nav">
+                <a routerLink="accounting" routerLinkActive="router-link-active">
                     Regnskap
                 </a>
             </li>
-            <li class="horizontal_nav" (click)="activateTab(SALES)">
-                <a [class.router-link-active]="activeTab === SALES">
+            <li class="horizontal_nav">
+                <a routerLink="sales" routerLinkActive="router-link-active">
                     Salg
                 </a>
             </li>
-            <li class="horizontal_nav" (click)="activateTab(SALARY)">
-                <a [class.router-link-active]="activeTab === SALARY">
+            <li class="horizontal_nav">
+                <a routerLink="salary" routerLinkActive="router-link-active">
                     Lønn
                 </a>
             </li>
-            <li class="horizontal_nav" (click)="activateTab(HOURS)">
-                <a [class.router-link-active]="activeTab === HOURS">
+            <li class="horizontal_nav">
+                <a routerLink="hours" routerLinkActive="router-link-active">
                     Time
                 </a>
             </li>
         </ul>
     </header>
-    <uni-bureau-accounting-tab
-        *ngIf="activeTab === ACCOUNTING"
-        [company]="company">
-    </uni-bureau-accounting-tab>
-    <uni-bureau-sales-tab
-        *ngIf="activeTab === SALES"
-        [company]="company">
-    </uni-bureau-sales-tab>
-    <uni-bureau-salary-tab
-        *ngIf="activeTab === SALARY"
-        [company]="company">
-    </uni-bureau-salary-tab>
-    <uni-bureau-hours-tab
-        *ngIf="activeTab === HOURS"
-        [company]="company">
-    </uni-bureau-hours-tab>
+    <ng-content></ng-content>
 `
 })
-export class BureauDetails {
-    @Input() public company: KpiCompany;
-
-    public SALES: string = 'sales';
-    public ACCOUNTING: string = 'accounting';
-    public SALARY: string = 'salary';
-    public HOURS: string = 'hours';
-
-    public activeTab: string = this.ACCOUNTING;
-
-    public activateTab(tab: string) {
-        this.activeTab = tab;
-    }
-}
+export class BureauDetails {}

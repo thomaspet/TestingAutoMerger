@@ -1,6 +1,5 @@
 uni-image
     position: relative
-    display: inline-block
     min-width: 100%
 
     span.span-area-highlight-class
@@ -10,14 +9,74 @@ uni-image
         position: absolute
         background-color: rgba(255, 216, 0, 0.4)
 
+    picture
+        position: relative
+
     picture img
-        display: inline-block
         width: auto
         max-width: 100%
         cursor: pointer
 
     picture:hover.clickable
         cursor: zoom-in
+
+    .image-word
+        display: block
+        cursor: pointer
+        position: absolute
+
+    .image-word:hover
+        border: 1px solid gray
+
+    .word-picker-area
+            display: block
+            position: absolute
+            width: 12rem
+            color: $uni-color-positive
+            padding: 1rem
+            background: $uni-color-negative
+            border: pxToRem(1) solid $uni-color-scale8
+            box-shadow: 0 0 .6rem transparentize($uni-color-scale1, .7)
+            border-radius: pxToRem(5)
+            z-index: map-get($zindex, picker)
+            left: pxToRem(-50)
+
+            button
+                @extend a:link
+                display: block
+                background: 0 0
+                box-shadow: none
+                text-shadow: none
+                border: none
+                padding: 0
+                margin-left: .3rem
+                margin-right: .3rem
+                margin-top: 0.1rem
+                margin-bottom: 0.1rem
+                text-decoration: underline
+
+            p
+                margin-top: 0rem
+                margin-bottom: 0.5rem
+
+            h3
+                margin-top: 0.1rem
+                margin-bottom: 0.1rem
+
+            &:before
+                $size: .5rem
+                $color: $uni-color-negative
+                content: ''
+                display: block
+                position: absolute
+                height: 0
+                width: 0
+                top: -#{$size}
+                right: calc(50% - (#{$size} / 2))
+                border-bottom: $size solid $color
+                border-left: $size solid transparent
+                border-right: $size solid transparent
+
 
     .uni-thumbnail-list
         display: block
@@ -69,17 +128,15 @@ uni-image
                     // "visible" only for screen readers
                     @extend %visuallyHidden
 
-    &:focus,
-    picture:hover + .uni-image-pager,
-    .uni-image-pager:hover
+    .uni-image-pager
         width: 100%
         height: 3rem
         clip: initial
 
     .uni-image-pager
         @extend %visuallyHidden
-        position: absolute
         top: 0
+        position: relative
         background: transparentize(#000, 0.5)
 
         label

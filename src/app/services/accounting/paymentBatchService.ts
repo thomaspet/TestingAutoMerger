@@ -24,11 +24,15 @@ export class PaymentBatchService extends BizHttp<PaymentBatch> {
     public registerReceiptFileCamt054(file: File): Observable<any> {
         return super.PutAction(null, 'register-receipt-file-camt054', `fileID=${file.ID}`);
     }
-
+    // OLD
     public registerCustomerPaymentFile(file: File): Observable<any> {
         return super.PutAction(null, 'register-customer-payment-file', `fileID=${file.ID}`);
     }
 
+    public registerAndCompleteCustomerPayment(fileID: number) {
+        return super.PutAction(null, 'register-and-complete-customer-payment', `fileID=${fileID}`);
+    }
+    // OLD
     public completeCustomerPayment(paymentBatchID: number) {
         return super.PutAction(null, 'complete-customer-payment-registration', `ID=${paymentBatchID}`);
     }

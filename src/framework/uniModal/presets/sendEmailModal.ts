@@ -4,12 +4,10 @@ import {UniFieldLayout, FieldType} from '../../ui/uniform/index';
 import {CompanySettings} from '../../../app/unientities';
 import {SendEmail} from '../../../../src/app/models/sendEmail';
 import {ToastService, ToastType} from '../../uniToast/toastService';
-import {
-    CustomerService,
-    UserService,
-    ErrorService,
-    CompanySettingsService
-} from '../../../../src/app/services/services';
+import { CustomerService } from '@app/services/sales/customerService';
+import { UserService } from '@app/services/common/userService';
+import { CompanySettingsService } from '@app/services/common/companySettingsService';
+import { ErrorService } from '@app/services/common/errorService';
 
 import {Observable} from 'rxjs/Observable';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';

@@ -1,4 +1,12 @@
-import {Component, Input, ViewChild, ElementRef, ChangeDetectionStrategy, ChangeDetectorRef} from '@angular/core';
+import {
+    Component,
+    Input,
+    ViewChild,
+    ElementRef,
+    ChangeDetectionStrategy,
+    ChangeDetectorRef,
+    OnInit
+} from '@angular/core';
 import {FormControl} from '@angular/forms';
 import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/observable/of';
@@ -45,14 +53,14 @@ export interface ITypeaheadOptions {
                     (mouseover)="selectedIndex = idx"
                     (click)="itemClicked(idx)"
                     [attr.aria-selected]="selectedIndex === idx">
-                    {{editorOptions.itemTemplate(item)}}
+                    {{options.itemTemplate(item)}}
                 </li>
             </ul>
         </article>
     `,
     changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class UnitableTypeahead {
+export class UnitableTypeahead implements OnInit {
     @ViewChild('input') public inputElement: ElementRef;
     @ViewChild('list')  private list: ElementRef;
 
@@ -62,7 +70,7 @@ export class UnitableTypeahead {
     @Input()
     private inputControl: FormControl;
 
-    private editorOptions: ITypeaheadOptions;
+    private options: ITypeaheadOptions;
     public busy: boolean = false;
     public expanded: boolean;
 
@@ -73,17 +81,17 @@ export class UnitableTypeahead {
 
     public ngOnInit() {
         if (this.column) {
-            this.editorOptions = this.column.get('editorOptions');
+            this.options = this.column.get('options');
 
             // If itemTemplate is not defined, use displayField or field
-            if (!this.editorOptions.itemTemplate) {
-                var field = this.column.get('field');
+            if (!this.options.itemTemplate) {
+                let field = this.column.get('field');
                 const displayField = this.column.get('displayField');
                 if (displayField) {
                     field = displayField.split('.').slice(1).join('.');
                 }
 
-                this.editorOptions.itemTemplate = (selectedItem) => {
+                this.options.itemTemplate = (selectedItem) => {
                     return selectedItem[field];
                 };
             }
@@ -123,18 +131,18 @@ export class UnitableTypeahead {
             return this.performLookup(this.inputControl.value).switchMap((res) => {
                 return Observable.of(res[0])
                     .map(item => {
-                        if (this.editorOptions.itemValue) {
-                            return this.editorOptions.itemValue(item);
+                        if (this.options.itemValue) {
+                            return this.options.itemValue(item);
 
                         } else {
-                            return this.editorOptions.itemTemplate(item);
+                            return this.options.itemTemplate(item);
                         }
                     });
             });
         }
 
         if (this.selectedIndex >= 0) {
-            let item = this.lookupResults[this.selectedIndex];
+            const item = this.lookupResults[this.selectedIndex];
 
             if (!item && this.inputControl.value) {
                 return this.inputControl.value;
@@ -143,10 +151,10 @@ export class UnitableTypeahead {
             // sometimes we want a value function, but other times we'll just use the template
             // function (e.g. itemTemplate could show  "<code>: <name>", but the value should only
             // be "<name>")
-            if (this.editorOptions.itemValue) {
-                return this.editorOptions.itemValue(item);
+            if (this.options.itemValue) {
+                return this.options.itemValue(item);
             } else {
-                return this.editorOptions.itemTemplate(item);
+                return this.options.itemTemplate(item);
             }
         }
 
@@ -171,16 +179,10 @@ export class UnitableTypeahead {
     }
 
     private performLookup(search: string): Observable<any> {
-        let lookupResult = this.editorOptions.lookupFunction(search);
-        let observable: Observable<any>;
-
-        if (Array.isArray(lookupResult)) {
-            observable = Observable.of(lookupResult);
-        } else {
-            observable = <Observable<any>>lookupResult;
-        }
-
-        return observable;
+        const lookupResult = this.options.lookupFunction(search);
+        return Array.isArray(lookupResult)
+            ? Observable.of(lookupResult)
+            : <Observable<any>> lookupResult;
     }
 
     private confirmSelection() {
@@ -189,11 +191,11 @@ export class UnitableTypeahead {
         console.log('confirmSelection', item);
 
         if (item) {
-            if (this.editorOptions.itemValue) {
-                const value = this.editorOptions.itemValue(item);
+            if (this.options.itemValue) {
+                const value = this.options.itemValue(item);
                 this.inputControl.setValue(value, {emitEvent: false});
             } else {
-                const value = this.editorOptions.itemTemplate(item);
+                const value = this.options.itemTemplate(item);
                 this.inputControl.setValue(value, {emitEvent: false});
             }
         }

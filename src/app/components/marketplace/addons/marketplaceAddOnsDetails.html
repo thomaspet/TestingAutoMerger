@@ -4,18 +4,19 @@
             <img src="{{product.iconReference}}" />
         </section>
         <section class="text-section">
-            <p>UniEconomy</p>
-            <p>{{product.label}}</p>
+            <span>UniEconomy</span>
+            <span>{{product.label}}</span>
         </section>
         <section class="button-section">
-            <button (click)="buy(product)">Prøv gratis demo</button>
-            <a (click)="buy(product)">Kjøp nå</a>
+            <button (click)="buy(product)">Kjøp nå</button>
         </section>
     </section>
+    <section class="background add-on-background-image">
+    </section>
     <section class="header">
-        <section class="background add-on-details-background-image"></section>
+        <section class="background add-on-details-background-image {{product?._backgroundClass}}"></section>
         <section class="inner-container">
-            <img src="../../../../assets/marketplace/addOnsDetails/laptop.png" />
+            <img [src]="product._laptopImage" />
             <section>
                 <h1>{{product.label}}</h1>
                 <p>{{product.description}}</p>
@@ -63,7 +64,7 @@
     <h1 class="suggested-products-heading">
         Forslag til andre moduler
     </h1>
-    <section class="app-containers">
+    <section class="app-containers other-modules">
         <section *ngFor="let product of suggestedProducts$ | async"
                  class="app-container"
                  (click)="navigateTo('/marketplace/add-ons/' + product.id)">
@@ -73,10 +74,6 @@
             </section>
             <section class="app-body">
                 <h3>{{product.label}}</h3>
-                <p>{{product.description}}</p>
-            </section>
-            <section class="app-footer">
-                <a>les mer</a>
             </section>
         </section>
     </section>

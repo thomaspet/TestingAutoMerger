@@ -1,4 +1,16 @@
 uni-marketplace
+    uni-tabs.horizontal_nav
+        ul
+            background-color: transparent
+
+        li a
+            color: $uni-color-c2a
+
+        li a.router-link-active
+            font-weight: bold
+            background-color: transparent
+            border-bottom: 0.2rem solid $uni-color-warn
+
     color: $uni-color-c2a
 
     a
@@ -37,9 +49,18 @@ uni-marketplace
             color: $uni-color-c2a
 
     .header
-        padding-bottom: 3rem
-        background-color: $uni-color-negative
+        padding-bottom: 9rem
+        background-color: white
 
+        .add-on-background-image
+            text-align: center
+        h1
+            padding-top: 3rem
+        h1,h2
+            margin: 0
+            color: white
+            font-weight: 400
+            font-size: 2rem
         p
             color: $uni-color-c2a
         a
@@ -53,15 +74,7 @@ uni-marketplace
 
         .background
             width: 100%
-            height: 25rem
-
-        .add-on-background-image
-            background: url('assets/marketplace/addOns/bg_banner.png') no-repeat center center
-            background-size: cover
-
-        .add-on-details-background-image
-            background: url('assets/marketplace/addOnsDetails/bg_banner.png') no-repeat center center
-            background-size: cover
+            height: 27rem
 
         .inner-container
             display: flex
@@ -73,20 +86,23 @@ uni-marketplace
             width: 76rem
             margin: -15rem auto 1.3rem
             background: white
-            box-shadow: 0 4px 4px 0 rgba(0, 0, 0, 0.2), 0 1px 2px 0 rgba(0, 0, 0, 0.19)
 
-            h1
+            h1,h2
                 font-weight: bold
-                line-height: 2.4rem
-                margin: 0 0 2rem
+                line-height: 2rem
+                color: $uni-color-positive
+            h2
+                padding-bottom: 1rem
+                font-size: 1.8rem
 
             p
                 font-size: 1.2rem
                 margin: 0
+                color: $uni-color-positive
 
             img
                 width: 50%
-                padding: 2rem 1rem 2rem 3rem
+                padding: 5rem 1rem 2rem 3rem
 
             section
                 padding: 3rem

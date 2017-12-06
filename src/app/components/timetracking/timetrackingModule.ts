@@ -33,11 +33,12 @@ import {DayBrowser} from './components/daybrowser';
 import {UniTimeModal} from './components/popupeditor';
 import {UniTemplateModal} from './components/newtemplatemodal';
 import {TeamworkReport} from './components/teamworkreport';
-import {ApproveDetails} from './components/approvedetails';
 import {TimeApproveModal} from './components/popupapprove';
 import {UniFileImport} from './components/popupfileimport';
 import {PopupMenu} from './timeentry/timetable/popupmenu';
 import {UniApproveTaskModal} from './timeentry/timetable/approvetaskmodal';
+import {TimetrackingDashboard} from './timetracking-dashboard';
+import {WidgetModule} from '../widgets/widgetModule';
 
 @NgModule({
     imports: [
@@ -52,6 +53,7 @@ import {UniApproveTaskModal} from './timeentry/timetable/approvetaskmodal';
         UniFrameworkModule,
         LayoutModule,
         AppCommonModule,
+        WidgetModule
     ],
     declarations: [
         UniTimetracking,
@@ -76,10 +78,13 @@ import {UniApproveTaskModal} from './timeentry/timetable/approvetaskmodal';
         UniTimeModal,
         UniTemplateModal,
         TeamworkReport,
-        ApproveDetails, TimeApproveModal, UniFileImport,
+        // ApproveDetails,
+        TimeApproveModal,
+        UniFileImport,
         ReportWorkflow,
         PopupMenu,
-        UniApproveTaskModal
+        UniApproveTaskModal,
+        TimetrackingDashboard
     ],
     providers: [
         CanDeactivateGuard,
@@ -87,7 +92,8 @@ import {UniApproveTaskModal} from './timeentry/timetable/approvetaskmodal';
     ],
     entryComponents: [
         UniTemplateModal,
-        UniTimeModal
+        UniTimeModal,
+        TimetrackingDashboard
     ],
     exports: [
         UniTimetracking,
@@ -103,7 +109,8 @@ import {UniApproveTaskModal} from './timeentry/timetable/approvetaskmodal';
         WorkprofileListview,
         WorktypeDetailview,
         WorktypeListview,
-        VacationView
+        VacationView,
+        TimetrackingDashboard
     ]
 })
 export class TimetrackingModule {

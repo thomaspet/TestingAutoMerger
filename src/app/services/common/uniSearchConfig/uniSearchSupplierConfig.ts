@@ -39,7 +39,7 @@ export class UniSearchSupplierConfig {
 
     public generate(
         expands: string[] = ['Info.Addresses'],
-        newItemModalFn?: (inputValue?: string) => Observable<UniEntity>
+        createNewFn?: (inputValue?: string) => Observable<UniEntity>
     ): IUniSearchConfig {
         return <IUniSearchConfig>{
             lookupFn: searchTerm => this.statisticsService
@@ -70,7 +70,7 @@ export class UniSearchSupplierConfig {
                 item.OrgNumber
             ],
             inputTemplateFn: item => `${item.SupplierNumber || ''}${item.Info && item.Info.Name ? ' ' + item.Info.Name : ''}`,
-            newItemModalFn: newItemModalFn,
+            createNewFn: createNewFn,
             externalLookupFn: query =>
                 this.integrationServerCaller
                     .businessRelationSearch(query, MAX_RESULTS)
@@ -85,7 +85,7 @@ export class UniSearchSupplierConfig {
 
     public generateDoNotCreateNew(
         expands: string[] = ['Info.Addresses'],
-        newItemModalFn?: (inputValue?: string) => Observable<UniEntity>
+        createNewFn?: (inputValue?: string) => Observable<UniEntity>
     ): IUniSearchConfig {
         return <IUniSearchConfig> {
             lookupFn: searchTerm => this.statisticsService
@@ -115,8 +115,6 @@ export class UniSearchSupplierConfig {
                     if (it.Info.DefaultEmail) {
                         it.Info.DefaultEmail._createguid = this.guidService.guid();
                     }
-
-
                     return Observable.of(it);
                 }
             },
@@ -131,7 +129,7 @@ export class UniSearchSupplierConfig {
                 item.OrgNumber
             ],
             inputTemplateFn: item => `${item.SupplierNumber || ''}${item.Info && item.Info.Name ? ' ' + item.Info.Name : ''}`,
-            newItemModalFn: newItemModalFn,
+            createNewFn: createNewFn,
             externalLookupFn: query =>
                 this.integrationServerCaller
                     .businessRelationSearch(query, MAX_RESULTS)
@@ -215,7 +213,7 @@ export class UniSearchSupplierConfig {
             address.CountryCode = statObj.CountryCode;
             supplier.Info.InvoiceAddress = address;
             supplier.Info.ShippingAddress = address;
-
+            supplier.Info.Addresses.push(address);
         }
 
         if (statObj.PhoneNumber) {

@@ -31,6 +31,10 @@ export class QuoteList implements OnInit {
     {
         Code: 'quote_delete',
         ExecuteActionHandler: (selectedRows) => this.deleteQuotes(selectedRows)
+    },
+    {
+        Code: 'quote_print',
+        AfterExecuteActionHandler: (selectedRows) => this.onAfterPrintQuote(selectedRows)
     }
 ];
 
@@ -81,6 +85,21 @@ export class QuoteList implements OnInit {
 
     public createQuote() {
         this.router.navigateByUrl('/sales/quotes/0');
+    }
+
+    private onAfterPrintQuote(selectedRows: Array<any>): Promise<any> {
+        return new Promise((resolve, reject) => {
+            let invoice = selectedRows[0];
+            this.customerQuoteService
+                .setPrintStatus(invoice.ID, this.printStatusPrinted)
+                    .subscribe((printStatus) => {
+                        resolve();
+                    }, err => {
+                        reject(err);
+                        this.errorService.handle(err);
+                    }
+                );
+        });
     }
 
     private deleteQuotes(selectedRows: Array<any>): Promise<any> {

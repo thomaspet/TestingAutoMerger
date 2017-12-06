@@ -2721,23 +2721,43 @@ export class PeriodTemplate extends UniEntity {
 }
 
 
+export class CompanyReport extends UniEntity {
+    public static RelativeUrl = 'company-report';
+    public static EntityType = 'CompanyReport';
+
+    public _createguid: string;
+    public CompanyKey: string;
+    public CreatedAt: Date;
+    public CreatedBy: string;
+    public Deleted: boolean;
+    public ID: number;
+    public ReportDefinitionID: number;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public CustomFields: any;
+}
+
+
 export class ReportDefinition extends UniEntity {
     public static RelativeUrl = 'report-definitions';
     public static EntityType = 'ReportDefinition';
 
     public _createguid: string;
     public Category: string;
+    public CategoryLabel: string;
     public CreatedAt: Date;
     public CreatedBy: string;
     public Deleted: boolean;
     public Description: string;
     public ID: number;
+    public IsStandard: boolean;
     public Md5: string;
     public Name: string;
     public ReportSource: string;
     public TemplateLinkId: string;
     public UpdatedAt: Date;
     public UpdatedBy: string;
+    public Version: string;
     public Visible: boolean;
     public CustomFields: any;
 }
@@ -2768,6 +2788,10 @@ export class ReportDefinitionParameter extends UniEntity {
     public _createguid: string;
     public CreatedAt: Date;
     public CreatedBy: string;
+    public DefaultValue: string;
+    public DefaultValueList: string;
+    public DefaultValueLookupType: string;
+    public DefaultValueSource: string;
     public Deleted: boolean;
     public ID: number;
     public Label: string;
@@ -2852,30 +2876,6 @@ export class Notification extends UniEntity {
 export class EmailLog extends UniEntity {
     public static RelativeUrl = 'emails';
     public static EntityType = 'EmailLog';
-
-    public _createguid: string;
-    public CreatedAt: Date;
-    public CreatedBy: string;
-    public Deleted: boolean;
-    public EntityID: number;
-    public EntityType: string;
-    public ExternalMessage: string;
-    public ExternalReference: string;
-    public From: string;
-    public ID: number;
-    public StatusCode: number;
-    public Subject: string;
-    public To: string;
-    public Type: SharingType;
-    public UpdatedAt: Date;
-    public UpdatedBy: string;
-    public CustomFields: any;
-}
-
-
-export class Sharing extends UniEntity {
-    public static RelativeUrl = '';
-    public static EntityType = 'Sharing';
 
     public _createguid: string;
     public CreatedAt: Date;
@@ -3125,6 +3125,30 @@ export class Tracelink extends UniEntity {
     public SourceEntityName: string;
     public SourceInstanceID: number;
     public StatusCode: number;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public CustomFields: any;
+}
+
+
+export class Sharing extends UniEntity {
+    public static RelativeUrl = '';
+    public static EntityType = 'Sharing';
+
+    public _createguid: string;
+    public CreatedAt: Date;
+    public CreatedBy: string;
+    public Deleted: boolean;
+    public EntityID: number;
+    public EntityType: string;
+    public ExternalMessage: string;
+    public ExternalReference: string;
+    public From: string;
+    public ID: number;
+    public StatusCode: number;
+    public Subject: string;
+    public To: string;
+    public Type: SharingType;
     public UpdatedAt: Date;
     public UpdatedBy: string;
     public CustomFields: any;
@@ -3885,6 +3909,7 @@ export class NumberSeriesType extends UniEntity {
     public UpdatedBy: string;
     public Yearly: boolean;
     public CustomFields: any;
+    public Series: Array<NumberSeries>;
 }
 
 
@@ -3965,6 +3990,7 @@ export class FileEntityLink extends UniEntity {
     public EntityType: string;
     public FileID: number;
     public ID: number;
+    public IsAttachment: boolean;
     public StatusCode: number;
     public UpdatedAt: Date;
     public UpdatedBy: string;
@@ -4229,9 +4255,9 @@ export class JournalEntry extends UniEntity {
     public StatusCode: number;
     public UpdatedAt: Date;
     public UpdatedBy: string;
+    public DraftLines: Array<JournalEntryLineDraft>;
     public FinancialYear: FinancialYear;
     public Lines: Array<JournalEntryLine>;
-    public DraftLines: Array<JournalEntryLineDraft>;
     public NumberSeriesTask: NumberSeriesTask;
     public JournalEntryAccrual: Accrual;
     public CustomFields: any;
@@ -5305,9 +5331,9 @@ export class WorkBalanceDto extends UniEntity {
     public ValidFrom: Date;
     public ValidTimeOff: number;
     public WorkRelationID: number;
-    public WorkRelation: WorkRelation;
     public Previous: BalanceInfo;
     public Details: Array<FlexDetail>;
+    public WorkRelation: WorkRelation;
     public CustomFields: any;
 }
 
@@ -5640,6 +5666,7 @@ export class TaxCardReadStatus extends UniEntity {
 export class EmployeeStatus extends UniEntity {
     public employeeID: number;
     public info: string;
+    public ssn: string;
     public status: string;
     public year: number;
     public changedFields: Array<FieldsChanged>;
@@ -5650,6 +5677,12 @@ export class FieldsChanged extends UniEntity {
     public fieldName: string;
     public valFrom: string;
     public valTo: string;
+}
+
+
+export class CreateCompanyDetails extends UniEntity {
+    public CompanyName: string;
+    public LicenseKey: string;
 }
 
 
@@ -5680,12 +5713,10 @@ export class UserLicense extends UniEntity {
     public Comment: string;
     public GlobalIdentity: string;
     public Name: string;
-    public Roles: string;
     public UserLicenseKey: string;
     public UserType: UserLicenseType;
     public Company: CompanyLicense;
     public ContractType: ContractLicenseType;
-    public Roles: IEnumerable`1;
 }
 
 
@@ -5704,10 +5735,6 @@ export class CompanyLicense extends UniEntity {
 export class ContractLicenseType extends UniEntity {
     public TypeID: number;
     public TypeName: string;
-}
-
-
-export class IEnumerable`1 extends UniEntity {
 }
 
 

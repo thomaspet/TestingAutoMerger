@@ -15,7 +15,8 @@ import {
     UniTableColumn,
     UniTableColumnType,
     UniTableConfig,
-    ICellClickEvent
+    ICellClickEvent,
+    IContextMenuItem
 } from '../../../../../../framework/ui/unitable/index';
 import {IGroupConfig} from '../../../../../../framework/ui/unitable/controls/autocomplete';
 import {UniHttp} from '../../../../../../framework/core/http/http';
@@ -179,7 +180,6 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
 
     public ngOnInit() {
         this.setupJournalEntryTable();
-
         this.selectedNumberSeriesTaskID = NumberSeriesTaskIds.Journal;
     }
 
@@ -785,7 +785,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
             'SameOrNewDetails', 'Bilagsnr', UniTableColumnType.Lookup
         )
             .setWidth('100px')
-            .setEditorOptions({
+            .setOptions({
                 displayField: 'Name',
                 lookupFunction: (searchValue) => {
                     return Observable.from([this.journalEntryNumberAlternatives.filter(
@@ -811,7 +811,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
         let invoiceNoCol = new UniTableColumn('CustomerInvoice', 'Faktura', UniTableColumnType.Lookup)
             .setDisplayField('InvoiceNumber')
             .setWidth('10%')
-            .setEditorOptions({
+            .setOptions({
                 itemTemplate: (selectedItem: CustomerInvoice) => {
                     return selectedItem
                     ? (`Fakturanr: ${selectedItem.InvoiceNumber}. `
@@ -848,7 +848,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 return '';
             })
             .setWidth('10%')
-            .setEditorOptions({
+            .setOptions({
                 itemTemplate: (selectedItem) => {
                     return (selectedItem.AccountNumber + ' - ' + selectedItem.AccountName);
                 },
@@ -873,7 +873,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 }
                 return '';
             })
-            .setEditorOptions({
+            .setOptions({
                 itemTemplate: (item) => {
                     return `${item.VatCode}: ${item.Name} - ${item.VatPercent}%`;
                 },
@@ -901,7 +901,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 return '';
             })
             .setWidth('10%')
-            .setEditorOptions({
+            .setOptions({
                 itemTemplate: (selectedItem) => {
                     return (selectedItem.AccountNumber + ' - ' + selectedItem.AccountName);
                 },
@@ -925,7 +925,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 }
                 return '';
             })
-            .setEditorOptions({
+            .setOptions({
                 itemTemplate: (item) => {
                     return `${item.VatCode}: ${item.Name} - ${item.VatPercent}%`;
                 },
@@ -984,7 +984,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
             .setTemplate(row => row && row.CurrencyCode && row.CurrencyCode.Code)
             .setVisible(false)
             .setSkipOnEnterKeyNavigation(true)
-            .setEditorOptions({
+            .setOptions({
                 itemTemplate: rowModel => rowModel.Code,
                 resource: this.currencyCodeService.GetAll(null)
             });
@@ -1009,7 +1009,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 }
                 return '';
             })
-            .setEditorOptions({
+            .setOptions({
                 itemTemplate: (item) => {
                     return (item.ProjectNumber + ' - ' + item.Name);
                 },
@@ -1030,7 +1030,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 }
                 return '';
             })
-            .setEditorOptions({
+            .setOptions({
                 itemTemplate: (item) => {
                     return (item.DepartmentNumber + ' - ' + item.Name);
                 },
@@ -1043,7 +1043,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
             });
 
         let descriptionCol = new UniTableColumn('Description', 'Beskrivelse', UniTableColumnType.Typeahead)
-            .setEditorOptions({
+            .setOptions({
                 lookupFunction: (searchValue) => {
                     return Observable.of(this.predefinedDescriptions.filter(
                         x => x.Code.toString().indexOf(searchValue) === 0)
@@ -1087,6 +1087,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
         };
 
         let columns: UniTableColumn[] = [];
+        let contextMenuItems: IContextMenuItem[] = [];
         let tableName: string;
 
         if (this.mode === JournalEntryMode.Payment) {
@@ -1097,6 +1098,15 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
             creditAccountCol.setSkipOnEnterKeyNavigation(true);
             creditVatTypeCol.setSkipOnEnterKeyNavigation(true);
             descriptionCol.setSkipOnEnterKeyNavigation(true);
+
+            contextMenuItems = [
+                {
+                    action: (item) => this.deleteLine(item),
+                    disabled: (item) => { return (this.disabled || item.StatusCode); },
+                    label: 'Slett linje'
+                }
+            ];
+
 
             defaultRowData.Description = 'Innbetaling';
 
@@ -1119,6 +1129,32 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
         } else {
             // Manual == "Bilagsregistrering"
             tableName = 'accounting.journalEntry.manual';
+
+            contextMenuItems = [
+                {
+                    action: (item) => this.deleteLine(item),
+                    disabled: (item) => { return (this.disabled || item.StatusCode); },
+                    label: 'Slett linje'
+                },
+                {
+                    action: (item: JournalEntryData) => this.openAccrual(item),
+                    disabled: (item) => { return (this.disabled); },
+                    label: 'Periodisering'
+                },
+                {
+                    action: (item) => this.addPayment(item),
+                    disabled: (item) => { return item.StatusCode ? true : false; },
+                    label: 'Registrer utbetaling',
+
+                },
+                {
+                    action: (item: JournalEntryData) => this.showAgioDialog(item),
+                    disabled: (item: JournalEntryData) => !item.CustomerInvoiceID,
+                    label: 'Agio'
+                }
+            ];
+
+
             columns = [
                 sameOrNewCol,
                 vatDateCol,
@@ -1159,28 +1195,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
             .setAutoAddNewRow(!this.disabled)
             .setMultiRowSelect(false)
             .setIsRowReadOnly((rowModel) => rowModel.StatusCode)
-            .setContextMenu([
-                {
-                    action: (item) => this.deleteLine(item),
-                    disabled: (item) => { return (this.disabled || item.StatusCode); },
-                    label: 'Slett linje'
-                },
-                {
-                    action: (item: JournalEntryData) => this.openAccrual(item),
-                    disabled: (item) => { return (this.disabled); },
-                    label: 'Periodisering'
-                },
-                {
-                    action: (item) => this.addPayment(item),
-                    disabled: (item) => { return item.StatusCode ? true : false; },
-                    label: 'Registrer utbetaling'
-                },
-                {
-                    action: (item: JournalEntryData) => this.showAgioDialog(item),
-                    disabled: (item: JournalEntryData) => !item.CustomerInvoiceID,
-                    label: 'Agio'
-                }
-            ])
+            .setContextMenu(contextMenuItems)
             .setDefaultRowData(defaultRowData)
             .setColumnMenuVisible(true)
             .setAutoScrollIfNewCellCloseToBottom(true)
@@ -2007,14 +2022,12 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
     }
 
     private setupJournalEntryNumbers(doUpdateExistingLines: boolean): Promise<any> {
-
         if (!this.currentFinancialYear) {
             return Promise.resolve();
         }
 
         return new Promise((resolve, reject) => {
-            let journalentrytoday: JournalEntryData = new JournalEntryData();
-
+            const journalentrytoday: JournalEntryData = new JournalEntryData();
             journalentrytoday.FinancialDate = this.currentFinancialYear.ValidFrom;
             journalentrytoday.NumberSeriesTaskID = this.selectedNumberSeriesTaskID;
 
@@ -2026,35 +2039,34 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                         let tableData = this.table.getTableData();
 
                         if (tableData.length > 0) {
-                            let shouldUpdateData = false;
-                            tableData.forEach(row => {
-                                if (row.NumberSeriesTaskID !== this.selectedNumberSeriesTaskID) {
-                                    shouldUpdateData = true;
-                                }
-                            });
+                            // Split readonly and editable rows (using the readonly check from table config (StatusCode))
+                            // This is done because we don't want to update readonly rows here
+                            const readonlyRows = tableData.filter(row => !!row.StatusCode);
+                            const editableRows = tableData.filter(row => !row.StatusCode);
 
+                            // Check if readonly rows contains one or more lines with the wrong numberseries
+                            const shouldUpdateData = editableRows.some(row => row.NumberSeriesTaskID !== this.selectedNumberSeriesTaskID);
                             if (shouldUpdateData) {
-                                let uniqueNumbers =
-                                    _.uniq(tableData.map(item => item.JournalEntryNo));
+                                const uniQueNumbers = _.uniq(editableRows.map(item => item.JournalEntryNo));
+                                uniQueNumbers.forEach(uniQueNumber => {
+                                    const lines = editableRows.filter(line => line.JournalEntryNo === uniQueNumber);
 
-                                uniqueNumbers.forEach(uniqueNumber => {
-                                    let lines = tableData.filter(x => x.JournalEntryNo === uniqueNumber);
-
-                                    lines.forEach((x: JournalEntryData) => {
-                                        x.JournalEntryNo = this.firstAvailableJournalEntryNumber;
-                                        x.SameOrNew = x.JournalEntryNo;
-                                        x.SameOrNewDetails = {ID: x.JournalEntryNo, Name: x.JournalEntryNo};
-                                        x.NumberSeriesTaskID = this.selectedNumberSeriesTaskID;
+                                    lines.forEach(line => {
+                                        line.JournalEntryNo = this.firstAvailableJournalEntryNumber;
+                                        line.SameOrNew = line.JournalEntryNo;
+                                        line.SameOrNewDetails = {ID: line.JournalEntryNo, Name: line.JournalEntryNo};
+                                        line.NumberSeriesTaskID = this.selectedNumberSeriesTaskID;
                                     });
 
-                                    let nextNumberData = this.firstAvailableJournalEntryNumber.split('-');
-
-                                    this.firstAvailableJournalEntryNumber =
-                                        nextNumberData.length > 1 ?
-                                            (+nextNumberData[0] + 1) + '-' + nextNumberData[1]
-                                            : (+nextNumberData[0] + 1).toString();
+                                    // Update next available number
+                                    const nextNumberData = this.firstAvailableJournalEntryNumber.split('-');
+                                    this.firstAvailableJournalEntryNumber = nextNumberData.length > 1
+                                        ? (+nextNumberData[0] + 1) + '-' + nextNumberData[1]
+                                        : (+nextNumberData[0] + 1).toString();
                                 });
 
+                                // Join readonly and editable rows before updating table
+                                tableData = readonlyRows.concat(editableRows);
                                 this.setJournalEntryData(tableData);
                                 this.dataChanged.emit(tableData);
                             }
@@ -2123,7 +2135,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
             }
 
             // update editor with new options
-            this.journalEntryTableConfig.columns[0].editorOptions.resource = this.journalEntryNumberAlternatives;
+            this.journalEntryTableConfig.columns[0].options.resource = this.journalEntryNumberAlternatives;
         }
     }
 

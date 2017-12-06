@@ -32,6 +32,7 @@ export interface IUniTableConfig {
     pageSize?: number;
     multiRowSelect?: boolean;
     columnMenuVisible?: boolean;
+    advancedColumnMenu?: boolean;
     changeCallback?: (event: IRowChangeEvent) => any | Promise<any>;
     dataMapper?: (data) => Array<any>;
     autoAddNewRow?: boolean;
@@ -53,6 +54,8 @@ export interface IUniTableConfig {
     beforeEdit?: (editorData: IEditorData) => IEditorData;
     insertRowHandler?: (index: number) => void;
     searchListVisible?: boolean;
+    allowEditToggle?: boolean;
+    headerVisible?: boolean;
 }
 
 export interface IRowChangeEvent {
@@ -78,6 +81,7 @@ export class UniTableConfig implements IUniTableConfig {
     public multiRowSelect: boolean;
     public multiRowSelectDefaultValue: boolean;
     public columnMenuVisible: boolean;
+    public advancedColumnMenu: boolean;
     public autoScrollIfNewCellCloseToBottom: boolean;
     public deleteButton: boolean | IDeleteButton;
     public searchListVisible: boolean;
@@ -97,8 +101,10 @@ export class UniTableConfig implements IUniTableConfig {
     public defaultRowData: Object;
     public isRowReadOnly: (rowModel) => boolean;
     public defaultOrderBy: ISortInfo;
+    public allowEditToggle: boolean = false;
 
     public beforeEdit: (event: IEditorData) => IEditorData;
+    public headerVisible: boolean;
 
     /**
      * @constructor
@@ -130,6 +136,12 @@ export class UniTableConfig implements IUniTableConfig {
             return '';
         };
         this.copyFromCellAbove = true;
+        this.headerVisible = true;
+    }
+
+    public setHeaderVisible(visible: boolean) {
+        this.headerVisible = visible;
+        return this;
     }
 
     public setEntityType(entityType: string) {
@@ -142,8 +154,9 @@ export class UniTableConfig implements IUniTableConfig {
         return this;
     }
 
-    public setColumnMenuVisible(columnMenuVisible: boolean) {
+    public setColumnMenuVisible(columnMenuVisible: boolean, advancedColumnMenu: boolean = false) {
         this.columnMenuVisible = columnMenuVisible;
+        this.advancedColumnMenu = advancedColumnMenu;
         return this;
     }
 
@@ -174,6 +187,11 @@ export class UniTableConfig implements IUniTableConfig {
 
     public setAllowGroupFilter(allowGroupFilter: boolean) {
         this.allowGroupFilter = allowGroupFilter;
+        return this;
+    }
+
+    public setAllowEditToggle(allowEditToggle: boolean) {
+        this.allowEditToggle = allowEditToggle;
         return this;
     }
 

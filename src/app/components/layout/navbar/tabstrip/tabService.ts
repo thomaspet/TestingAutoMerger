@@ -21,6 +21,7 @@ export enum UniModules {
     UniTicker       = 105,
     Assignments     = 106,
     Marketplace     = 107,
+    Sharings        = 108,
 
     Sales           = 200,
     Customers       = 201,

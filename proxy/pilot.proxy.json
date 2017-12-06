@@ -1,0 +1,7 @@
+{
+    "/api": {
+        "target": "https://pilot-api.unieconomy.no",
+        "secure": false,
+        "changeOrigin": true
+    }
+}

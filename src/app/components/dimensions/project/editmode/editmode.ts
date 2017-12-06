@@ -180,7 +180,7 @@ export class ProjectEditmode {
                             let user = row['User'] ? row['User'] : this.users.find(x => x.ID === row['UserID']);
                             return user ? user.DisplayName : '';
                         })
-                        .setEditorOptions({
+                        .setOptions({
                             itemTemplate: (item) => item.DisplayName || item.Email,
                             lookupFunction: (searchValue) => {
                                 return Observable.from(
@@ -195,7 +195,7 @@ export class ProjectEditmode {
                                 : ProjectResponsibility.find(x => x.ID === row['Responsibility']);
                             return responsibility ? responsibility.Title : '';
                         })
-                        .setEditorOptions({
+                        .setOptions({
                             itemTemplate: (item) => item.Title,
                             lookupFunction: (searchValue) => {
                                 return Observable.from(

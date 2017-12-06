@@ -26,14 +26,15 @@ export class BureauCustomHttpService {
         options.url = url;
         options.headers = headers;
         options.body = '';
-        return this.http.request(new Request(options)).catch((err) => {
-            if (err.status === 401) {
-                this.authService.clearAuthAndGotoLogin();
-                return Observable.throw('Sesjonen din er utløpt, vennligst logg inn på ny');
-            }
+        return this.http.request(new Request(options))
+            .catch((err) => {
+                if (err.status === 401) {
+                    this.authService.clearAuthAndGotoLogin();
+                    return Observable.throw('Sesjonen din er utløpt, vennligst logg inn på ny');
+                }
 
-            return Observable.throw(err);
-        })
+                return Observable.throw(err);
+            })
             .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
     }
 

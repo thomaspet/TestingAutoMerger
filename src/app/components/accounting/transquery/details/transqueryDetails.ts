@@ -36,6 +36,7 @@ import {
 } from '../../../../../framework/uniModal/barrel';
 
 import {FieldType} from '../../../../../framework/ui/uniform/index';
+import * as moment from 'moment';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 
 const PAPERCLIP = '📎'; // It might look empty in your editor, but this is the unicode paperclip
@@ -139,12 +140,19 @@ export class TransqueryDetails implements OnInit {
         urlParams = urlParams || new URLSearchParams();
         const filtersFromUniTable = urlParams.get('filter');
         const filters = filtersFromUniTable ? [filtersFromUniTable] : [this.configuredFilter];
+        let searchParams = this.searchParams$.getValue();
 
         if (filters && filters.length > 0) {
             let newFilters = [];
             let splitFilters = filters[0].split(' and ');
 
             splitFilters.forEach(x => {
+                if (x.startsWith('Period.AccountYear eq ')) {
+                    // get correct year in uniform accountyear filter
+                    let year = parseInt(x.split("'")[1]);
+                    searchParams.AccountYear = year;
+                }
+
                 if (!x.startsWith('Period.AccountYear eq ') &&
                     !x.startsWith('Account.ID eq ') &&
                     !x.startsWith('JournalEntryNumberNumeric eq ')) {
@@ -155,7 +163,6 @@ export class TransqueryDetails implements OnInit {
             filters[0] = newFilters.join(' and ');
         }
 
-        let searchParams = this.searchParams$.getValue();
         if (this.allowManualSearch) {
             if (searchParams.AccountYear) {
                 filters.push(`Period.AccountYear eq ${searchParams.AccountYear}`);
@@ -172,7 +179,6 @@ export class TransqueryDetails implements OnInit {
             if (searchParams.JournalEntryNumberNumeric) {
                 filters.push(`JournalEntryNumberNumeric eq ${searchParams.JournalEntryNumberNumeric}`);
             }
-
         }
 
         // remove empty first filter - this is done if we have multiple filters but the first one is
@@ -237,7 +243,7 @@ export class TransqueryDetails implements OnInit {
         let f = this.configuredFilter || filter;
         if (f) {
             f = f.split('Dimensions.').join('');
-            var urlParams = new URLSearchParams();
+            let urlParams = new URLSearchParams();
             urlParams.set('model', 'JournalEntryLine');
             urlParams.set('filter', f);
             urlParams.set(
@@ -387,12 +393,27 @@ export class TransqueryDetails implements OnInit {
             && routeParams['showTaxBasisAmount']
         ) {
             // this is a two-dimensional array, "vatcode1|accountno1,vatcode2|accountno2,etc"
-            let vatCodesAndAccountNumbers: Array<string> = routeParams['vatCodesAndAccountNumbers'].split(',');
+            const vatCodesAndAccountNumbers: Array<string> = routeParams['vatCodesAndAccountNumbers'].split(',');
+
 
             this.configuredFilter = '';
-            this.configuredFilter += `VatDate ge '${routeParams['vatFromDate']}' `
-                + `and VatDate le '${routeParams['vatToDate']}' `
-                + `and TaxBasisAmount ne 0 `;
+
+            if (routeParams['vatReportID'] && routeParams['vatReportID'] !== '0') {
+                this.configuredFilter += `VatReportID eq '${routeParams['vatReportID']}' `
+                    + `and TaxBasisAmount ne 0 `;
+            } else if (routeParams['vatReportID'] === '0') {
+                const threeYearsAgo = moment(routeParams['vatFromDate']).subtract(3, 'year');
+                const vatFromDate = threeYearsAgo.format('YYYY.MM.DD');
+
+                this.configuredFilter += `VatDate le '${routeParams['vatToDate']}' `
+                    + `and VatDate ge '${vatFromDate}' `
+                    + `and isnull(VatReportID,0) eq 0 `
+                    + `and TaxBasisAmount ne 0 `;
+            } else {
+                this.configuredFilter += `VatDate ge '${routeParams['vatFromDate']}' `
+                    + `and VatDate le '${routeParams['vatToDate']}' `
+                    + `and TaxBasisAmount ne 0 `;
+            }
 
             if (vatCodesAndAccountNumbers && vatCodesAndAccountNumbers.length > 0) {
                 if (vatCodesAndAccountNumbers.length > 1) {
@@ -402,10 +423,10 @@ export class TransqueryDetails implements OnInit {
                 }
 
                 for (let index = 0; index < vatCodesAndAccountNumbers.length; index++) {
-                    let vatCodeAndAccountNumber = vatCodesAndAccountNumbers[index].split('|');
+                    const vatCodeAndAccountNumber = vatCodesAndAccountNumbers[index].split('|');
 
-                    let vatCode = vatCodeAndAccountNumber[0];
-                    let accountNo = vatCodeAndAccountNumber[1];
+                    const vatCode = vatCodeAndAccountNumber[0];
+                    const accountNo = vatCodeAndAccountNumber[1];
                     if (index > 0) {
                         this.configuredFilter += ' or ';
                     }
@@ -499,11 +520,11 @@ export class TransqueryDetails implements OnInit {
         let visibleColumnsString = this.storageService.get(this.COLUMN_VISIBILITY_LOCALSTORAGE_KEY, true);
         let visibleColumns = [];
         if (visibleColumnsString) {
-          visibleColumns = JSON.parse(visibleColumnsString);
+            visibleColumns = JSON.parse(visibleColumnsString);
         }
 
         let columns = [
-                new UniTableColumn('JournalEntryNumberNumeric', 'Bnr')
+                new UniTableColumn('JournalEntryNumberNumeric', 'Bnr.')
                     .setTemplate(line => {
                         return `<a href="/#/accounting/transquery/details;`
                             + `journalEntryNumber=${line.JournalEntryLineJournalEntryNumber}">
@@ -512,7 +533,7 @@ export class TransqueryDetails implements OnInit {
                     })
                     .setFilterOperator('startswith')
                     .setWidth('65px'),
-                new UniTableColumn('JournalEntryNumber', 'Bilagsnr med år')
+                new UniTableColumn('JournalEntryNumber', 'Bnr. med år')
                     .setTemplate(line => {
                         return `<a href="/#/accounting/transquery/details;`
                             + `journalEntryNumber=${line.JournalEntryLineJournalEntryNumber}">
@@ -521,7 +542,7 @@ export class TransqueryDetails implements OnInit {
                     })
                     .setFilterOperator('startswith')
                     .setVisible(false),
-                new UniTableColumn('Account.AccountNumber', 'Kontonr')
+                new UniTableColumn('Account.AccountNumber', 'Kontonr.')
                     .setTemplate(line => {
                         return `<a href="/#/accounting/transquery/`
                             + `details;Account_AccountNumber=${line.AccountAccountNumber}">
@@ -533,7 +554,7 @@ export class TransqueryDetails implements OnInit {
                 new UniTableColumn('Account.AccountName', 'Kontonavn', UniTableColumnType.Text)
                     .setFilterOperator('contains')
                     .setTemplate(line => line.AccountAccountName),
-                new UniTableColumn('SubAccount.AccountNumber', 'Reskontronr')
+                new UniTableColumn('SubAccount.AccountNumber', 'Reskontronr.')
                     .setTemplate(line => {
                         return `<a href="/#/accounting/transquery/details;`
                             + `SubAccount_AccountNumber=${line.SubAccountAccountNumber}">
@@ -552,7 +573,7 @@ export class TransqueryDetails implements OnInit {
                     .setFormat('DD.MM.YYYY')
                     .setWidth('110px')
                     .setTemplate(line => line.JournalEntryLineFinancialDate),
-                new UniTableColumn('VatDate', 'MVA-dato', UniTableColumnType.LocalDate)
+                new UniTableColumn('VatDate', 'Mva-dato', UniTableColumnType.LocalDate)
                     .setFilterOperator('contains')
                     .setFormat('DD.MM.YYYY')
                     .setWidth('110px')
@@ -565,7 +586,7 @@ export class TransqueryDetails implements OnInit {
                                 ${line.JournalEntryLineDescription}
                             </span>`;
                     }),
-                new UniTableColumn('VatType.VatCode', 'Mvakode', UniTableColumnType.Text)
+                new UniTableColumn('VatType.VatCode', 'Mva-kode', UniTableColumnType.Text)
                     .setFilterOperator('startswith')
                     .setWidth('60px')
                     .setTemplate(line => line.VatTypeVatCode),
@@ -584,26 +605,23 @@ export class TransqueryDetails implements OnInit {
                     .setFilterOperator('contains')
                     .setTemplate(line => line.CurrencyCodeCode)
                     .setVisible(false),
-                new UniTableColumn('CurrencyExchangeRate', 'V-Kurs', UniTableColumnType.Number)
+                new UniTableColumn('CurrencyExchangeRate', 'V-kurs', UniTableColumnType.Number)
                     .setFilterOperator('startswith')
                     .setTemplate(line => line.JournalEntryLineCurrencyExchangeRate)
                     .setVisible(false),
-                new UniTableColumn('TaxBasisAmount', 'Grunnlag MVA', UniTableColumnType.Money)
+                new UniTableColumn('TaxBasisAmount', 'Grunnlag mva', UniTableColumnType.Money)
                     .setFilterOperator('eq')
                     .setVisible(showTaxBasisAmount)
                     .setTemplate(line => line.JournalEntryLineTaxBasisAmount),
-                new UniTableColumn('TaxBasisAmountCurrency', 'V-Grunnlag MVA', UniTableColumnType.Money)
+                new UniTableColumn('TaxBasisAmountCurrency', 'V-grunnlag mva', UniTableColumnType.Money)
                     .setFilterOperator('eq')
                     .setVisible(showTaxBasisAmount)
                     .setTemplate(line => line.JournalEntryLineTaxBasisAmountCurrency),
                 new UniTableColumn('TerminPeriod.No', 'MVA rapportert', UniTableColumnType.Text)
-                    .setTemplate(line => line.VatReportTerminPeriodNo
-                        ? line.VatReportTerminPeriodNo + '-' + line.VatReportTerminPeriodAccountYear
-                        : ''
-                    )
+                    .setTemplate(line => line.JournalEntryLineVatReportID ? line.JournalEntryLineVatReportID : 'Nei')
                     .setFilterable(false)
                     .setVisible(false),
-                new UniTableColumn('InvoiceNumber', 'Fakturanr', UniTableColumnType.Text)
+                new UniTableColumn('InvoiceNumber', 'Fakturanr.', UniTableColumnType.Text)
                     .setCls('column-align-right')
                     .setFilterOperator('startswith')
                     .setVisible(false)
@@ -616,7 +634,7 @@ export class TransqueryDetails implements OnInit {
                     .setFilterOperator('eq')
                     .setTemplate(line => line.JournalEntryLineRestAmount)
                     .setVisible(false),
-                new UniTableColumn('RestAmountCurrency', 'V-Restbeløp', UniTableColumnType.Money)
+                new UniTableColumn('RestAmountCurrency', 'V-restbeløp', UniTableColumnType.Money)
                     .setFilterOperator('eq')
                     .setTemplate(line => line.JournalEntryLineRestAmountCurrency)
                     .setVisible(false),
@@ -759,8 +777,8 @@ export class TransqueryDetails implements OnInit {
                     EntityType: 'JournalEntryLine',
                     Property: 'JournalEntryNumberNumeric',
                     FieldType: FieldType.AUTOCOMPLETE,
-                    Label: 'Bilagsnr',
-                    Placeholder: 'Bilagsnr',
+                    Label: 'Bnr.',
+                    Placeholder: 'Bnr.',
                     Options: {
                         search: (query: string) => {
                             const searchParams = this.searchParams$.getValue();
@@ -788,8 +806,8 @@ export class TransqueryDetails implements OnInit {
                     EntityType: 'JournalEntryLine',
                     Property: 'AccountID',
                     FieldType: FieldType.AUTOCOMPLETE,
-                    Label: 'Kontonr',
-                    Placeholder: 'Kontonr',
+                    Label: 'Kontonr.',
+                    Placeholder: 'Kontonr.',
                     Options: {
                         getDefaultData: () => {
                             let searchParams = this.searchParams$.getValue();

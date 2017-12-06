@@ -6,12 +6,10 @@ import {
     LocalDate,
     InvoicePaymentData
 } from '../../../app/unientities';
-import {
-    CompanySettingsService,
-    ErrorService,
-    UniSearchAccountConfig,
-    CurrencyService,
-} from '../../../app/services/services';
+import { CompanySettingsService } from '@app/services/common/companySettingsService';
+import { ErrorService } from '@app/services/common/errorService';
+import { CurrencyService } from '@app/services/common/currencyService';
+import { UniSearchAccountConfig } from '@app/services/common/uniSearchConfig/uniSearchAccountConfig';
 import {
     IModalOptions,
     IUniModal,

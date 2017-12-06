@@ -71,7 +71,8 @@ import {CategoryView} from './category/categoryView';
 import {CategoryViewService} from './category/services/categoryViewService';
 import {CategoryDetail} from './category/views/categoryDetails';
 
-import {SalarybalanceList} from './salarybalance/salarybalanceList';
+import {SalaryBalanceListContainer} from './salarybalance/salaryBalanceList/salaryBalanceListContainer';
+import {SalarybalanceList} from './salarybalance/salaryBalanceList/salaryBalanceList';
 import {SalarybalanceView} from './salarybalance/salarybalanceView';
 import {SalaryBalanceViewService} from './salarybalance/services/salaryBalanceViewService';
 import {SalarybalanceDetail} from './salarybalance/views/salarybalanceDetails';
@@ -161,6 +162,7 @@ import {CanDeactivateGuard} from '../../canDeactivateGuard';
         CategoryDetail,
 
         // Salarybalance
+        SalaryBalanceListContainer,
         SalarybalanceList,
         SalarybalanceView,
         SalarybalanceDetail,
@@ -253,6 +255,7 @@ import {CanDeactivateGuard} from '../../canDeactivateGuard';
         CategoryDetail,
 
         // Salarybalance
+        SalaryBalanceListContainer,
         SalarybalanceList,
         SalarybalanceView,
         SalarybalanceDetail,

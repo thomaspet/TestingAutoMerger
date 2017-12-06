@@ -1,12 +1,32 @@
-uni-upload-file-button
-    .uni-upload-file-button
-        @extend button.good
-        padding-top: pxToRem(3)
-        padding-bottom: pxToRem(3)
-        padding-left: 1.5rem
-        padding-right: 1.5rem
-        white-space: nowrap
+.toolbar-save-button-upload
+    display: inline-block
+    height: calc(1.75rem + 1px)
+
+    label
+        color: #f8f9fD
+        background-color: #009a00
+        text-shadow: none
+        border: 1px solid rgba(248,249,253,.5)
+        font-size: 1rem
+        cursor: pointer
+        -webkit-appearance: none
+        min-width: 8rem
+        box-sizing: border-box
+        height: calc(1.75rem + 1px)
+        padding: 4px 16px
+
+        &:hover
+            border-color: #f8f9fD
+            background: #009a00
 
         input[type=file]
-            // "visible" only for screen readers
+            @extend %visuallyHidden
+
+.toolbar-save-list
+    label
+        -webkit-appearance: none
+        width: 14rem
+        cursor: pointer
+
+        input[type=file]
             @extend %visuallyHidden

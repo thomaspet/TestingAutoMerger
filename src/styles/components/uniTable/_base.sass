@@ -77,3 +77,22 @@ button.table-button
     &:focus
         @extend button.table-button
         text-decoration: underline
+
+.unitable_edit_toggle_button
+    margin: 1rem
+    padding: 0
+    position: absolute
+    top: 0
+    right: 0
+    height: 1rem
+    width: 1rem
+    @extend %hideText
+    display: inline-block
+    background-size: contain
+    background-position: center center
+    background-repeat: no-repeat
+    border-bottom-color: transparent
+    background-image: unicon-edit($uni-color-c2a)
+
+    &:hover
+        cursor: pointer

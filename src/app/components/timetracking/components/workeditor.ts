@@ -337,7 +337,7 @@ export class WorkEditor {
         expandKey = 'ID', expandLabel = 'Name'): UniTableColumn {
         return new UniTableColumn(name, label, UniTableColumnType.Lookup)
             .setDisplayField(`${expandCol}.${expandLabel}`)
-            .setEditorOptions({
+            .setOptions({
                 itemTemplate: (item) => {
                     return item[expandKey] + ' - ' + getDeepValue(item, expandLabel);
                 },

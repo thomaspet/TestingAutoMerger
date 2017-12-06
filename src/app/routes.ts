@@ -6,17 +6,7 @@ import {UniDimensions, dimensionsRoutes} from './components/dimensions/dimension
 import {RoutePermissionGuard} from './routePermissionGuard';
 import {UniInit} from './components/init/init';
 import {initRoutes} from './components/init/init.routes';
-
-// Anything in this const will not be permission checked in route guard
-// see authService.canActivateRoute()
-export const PUBLIC_ROUTES = [
-    'init',
-    'bureau',
-    'about',
-    'assignments',
-    'tickers',
-    'uniqueries'
-];
+import {bureauRoutes} from './components/bureau/bureauRoutes';
 
 const routes = [
     {
@@ -26,7 +16,8 @@ const routes = [
     },
     {
         path: 'bureau',
-        component: BureauDashboard
+        component: BureauDashboard,
+        children: bureauRoutes
     },
     {
         path: 'dimensions',
@@ -37,7 +28,7 @@ const routes = [
     // Lazy loaded modules
     {
         path: 'accounting',
-        loadChildren: './components/accounting/AccountingModule#AccountingModule',
+        loadChildren: './components/accounting/accountingModule#AccountingModule',
     },
     {
         path: 'salary',

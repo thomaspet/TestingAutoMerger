@@ -293,6 +293,11 @@
         {
             "Name": "SalaryTransaction",
             "Translated": "Lønnsposter"
+        },
+        {
+            "Name": "CustomerInvoiceReminder",
+            "Translated": "Purring",
+            "Url": "/sales/reminders"
         }
     ]
 }

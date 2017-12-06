@@ -82,6 +82,7 @@ export class PaymentList {
         });
     }
 
+    // Copied
     public ngOnInit() {
         this.toolbarconfig = {
             title: 'Utbetalingsliste',
@@ -268,6 +269,7 @@ export class PaymentList {
         }
     }
 
+    // Copied
     private loadData() {
         let paymentCodeFilter = this.paymentCodeFilterValue.toString() !== '0' ?
             ` and PaymentCodeID eq ${this.paymentCodeFilterValue}` : '';
@@ -550,6 +552,7 @@ export class PaymentList {
         });
     }
 
+    // Copied
     private setSums() {
         this.summary = [{
             value: this.summaryData ? this.numberFormatService.asMoney(this.summaryData.SumPayments) : null,
@@ -595,6 +598,7 @@ export class PaymentList {
         this.calculateSums();
     }
 
+    // Copied
     private setupPaymentTable() {
         let paymentDateCol = new UniTableColumn('PaymentDate', 'Betalingsdato', UniTableColumnType.LocalDate);
         let payToCol = new UniTableColumn('BusinessRelation', 'Betales til', UniTableColumnType.Lookup)
@@ -603,7 +607,7 @@ export class PaymentList {
                     ? data.ToBankAccount.CompanySettings.CompanyName
                     : data.BusinessRelation.Name;
             })
-            .setEditorOptions({
+            .setOptions({
                 itemTemplate: (selectedItem) => {
                     return (selectedItem.CustomerID
                         ? 'Kunde: '
@@ -641,7 +645,7 @@ export class PaymentList {
 
         let fromAccountCol = new UniTableColumn('FromBankAccount', 'Konto fra', UniTableColumnType.Lookup)
             .setDisplayField('FromBankAccount.AccountNumber')
-            .setEditorOptions({
+            .setOptions({
                 itemTemplate: (selectedItem) => {
                     return (selectedItem.AccountNumber);
                 },
@@ -653,7 +657,7 @@ export class PaymentList {
             });
         let toAccountCol = new UniTableColumn('ToBankAccount', 'Konto til', UniTableColumnType.Lookup)
             .setDisplayField('ToBankAccount.AccountNumber')
-            .setEditorOptions({
+            .setOptions({
                 itemTemplate: (selectedItem) => {
                     return (selectedItem.AccountNumber);
                 },
@@ -701,7 +705,7 @@ export class PaymentList {
         let paymentCodeCol = new UniTableColumn('PaymentCode', 'Type', UniTableColumnType.Lookup)
             .setDisplayField('PaymentCode.Name')
             .setVisible(false)
-            .setEditorOptions({
+            .setOptions({
                 itemTemplate: (selectedItem) => {
                     return (selectedItem.Name);
                 },
@@ -748,6 +752,7 @@ export class PaymentList {
             .setSearchable(true);
     }
 
+    // Copied
     private updateSaveActions() {
         this.actions = [];
 
@@ -776,6 +781,7 @@ export class PaymentList {
         });
     }
 
+    // Not relevant
     public canDeactivate(): boolean | Promise<boolean> {
         // find dirty elements
         let tableData = this.table.getTableData();

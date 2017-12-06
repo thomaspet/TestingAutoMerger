@@ -2,18 +2,18 @@
 
 <section class="horizontal_nav">
     <ul>
-        <li *ngFor="let tab of tabs; let idx = index">
-            <a (click)="activeTabIndex = idx; onTabSelection()" [ngClass]="{'router-link-active': activeTabIndex === idx}">
-                {{tab}}
+        <li *ngFor="let tab of mainGroups, let idx = index">
+            <a (click)="activeTabIndex = idx; onTabChange(tab, idx)" [ngClass]="{'router-link-active': activeTabIndex === idx}">
+                {{tab.label}}
             </a>
         </li>
     </ul>
 </section>
 
 <div class="report_overview_page application">
-    <figure class="report_group_card" *ngFor="let reportCategory of activeCategory">
-        <h1>{{ reportCategory[0].Category }}</h1>
-        <div *ngFor="let report of reportCategory">
+    <figure [attr.aria-busy]="busy" class="report_group_card" *ngFor="let group of mainGroups[activeTabIndex].groups">
+        <h1>{{ group.label }}</h1>
+        <div *ngFor="let report of group.reports">
             <!-- Uni Query -->
             <div *ngIf="report.IsQuery">
                 <a (click)="showUniQuery(report)">
@@ -22,83 +22,16 @@
                 </a>
             </div>
             <!-- Reports -->
-            <div *ngIf="report.IsReport" [ngSwitch]="report.ID">
-                <a *ngSwitchCase="7"
-                        (click)="showSalaryPaymentListOrPostingSummaryModalReportParameters(report)">
-                    <h4 class="report_name">{{report.Name}}</h4>
-                    <p>{{report.Description}}</p>
-                </a>
-                <a *ngSwitchCase="8"
-                        (click)="showSalaryPaymentListOrPostingSummaryModalReportParameters(report)">
-                    <h4 class="report_name">{{report.Name}}</h4>
-                    <p>{{report.Description}}</p>
-                </a>
-                <a *ngSwitchCase="9"
-                        (click)="showVacationBaseFilterModalReportParameters(report)">
-                    <h4 class="report_name">{{report.Name}}</h4>
-                    <p>{{report.Description}}</p>
-                </a>
-                <a *ngSwitchCase="10"
-                        (click)="showPaycheckFilterModalReportParameters(report)">
-                    <h4 class="report_name">{{report.Name}}</h4>
-                    <p>{{report.Description}}</p>
-                </a>
-                <a *ngSwitchCase="11"
-                        (click)="showSalaryWithholdingAndAgaFilterModalReportParameters(report)">
-                    <h4 class="report_name">{{report.Name}}</h4>
-                    <p>{{report.Description}}</p>
-                </a>
-                <a *ngSwitchCase="12"
-                        (click)="showBalanceListModalReportParameters(report)">
-                    <h4 class="report_name">{{report.Name}}</h4>
-                    <p>{{report.Description}}</p>
-                </a>
-                <a *ngSwitchCase="13"
-                        (click)="showBalanceListModalReportParameters(report)">
-                    <h4 class="report_name">{{report.Name}}</h4>
-                    <p>{{report.Description}}</p>
-                </a>
-                <a *ngSwitchCase="14"
-                        (click)="showResultAndBalanceModalReportParameters(report)">
-                    <h4 class="report_name">{{report.Name}}</h4>
-                    <p>{{report.Description}}</p>
-                </a>
-                <a *ngSwitchCase="15"
-                        (click)="showBalanceGeneralLedgerFilterModal(report)">
-                    <h4 class="report_name">{{report.Name}}</h4>
-                    <p>{{report.Description}}</p>
-                </a>
-                <a *ngSwitchCase="16"
-                        (click)="showPostingJournalModalReportParameters(report)">
-                    <h4 class="report_name">{{report.Name}}</h4>
-                    <p>{{report.Description}}</p>
-                </a>
-                <a *ngSwitchCase="17"
-                        (click)="showModalAccountReportFilterModal(report)">
-                    <h4 class="report_name">{{report.Name}}</h4>
-                    <p>{{report.Description}}</p>
-                </a>
-                <a *ngSwitchCase="18"
-                        (click)="showCustomerAccountModalReportParameters(report)">
-                    <h4 class="report_name">{{report.Name}}</h4>
-                    <p>{{report.Description}}</p>
-                </a>
-                <a *ngSwitchCase="19"
-                        (click)="showSupplierAccountModalReportParameters(report)">
-                    <h4 class="report_name">{{report.Name}}</h4>
-                    <p>{{report.Description}}</p>
-                </a>
-                <a *ngSwitchDefault
-                        (click)="showModalReportParameters(report)">
-                    <h4 class="report_name">{{report.Name}}</h4>
-                    <p>{{report.Description}}</p>
+            <div [class.waiting]="report.busy" *ngIf="report.IsReport">
+                <a (click)="showReportParams(report)">
+                    <h4 [class.waiting]="report.busy" class="report_name">{{report.Name}}</h4>
+                    <p>{{report.Description}}</p>                    
                 </a>
             </div>
         </div>
     </figure>
 </div>
 
-<report-parameter-modal></report-parameter-modal>
 <balance-report-filter-modal></balance-report-filter-modal>
 <account-report-filter-modal></account-report-filter-modal>
 <postingjournal-report-filter-modal></postingjournal-report-filter-modal>

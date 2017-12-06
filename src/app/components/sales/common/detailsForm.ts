@@ -196,7 +196,7 @@ export class TofDetailsForm {
                     EntityType: this.entityType,
                     Property: 'EmailAddress',
                     FieldType: FieldType.TEXT,
-                    Label: 'Epost adresse',
+                    Label: 'E-postadresse',
                     Section: 0,
                     StatusCode: 0,
                     ID: 4,

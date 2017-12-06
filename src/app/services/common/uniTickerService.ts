@@ -74,7 +74,8 @@ export class UniTickerService { //extends BizHttp<UniQueryDefinition> {
                                 this.http.get('assets/tickers/toftickers.json').map(x => x.json()),
                                 this.http.get('assets/tickers/timetickers.json').map(x => x.json()),
                                 this.http.get('assets/tickers/salarytickers.json').map(x => x.json()),
-                                this.http.get('assets/tickers/sharedtickers.json').map(x => x.json())
+                                this.http.get('assets/tickers/sharedtickers.json').map(x => x.json()),
+                                this.http.get('assets/tickers/banktickers.json').map(x => x.json())
                             ).map(tickerfiles => {
                                 let allTickers: Array<Ticker> = [];
 
@@ -505,6 +506,12 @@ export class UniTickerService { //extends BizHttp<UniQueryDefinition> {
             }
         }
 
+        if (column.SelectableFieldName.toLocaleLowerCase().endsWith('entitytype')) {
+            let model = this.modelService.getModel(data[column.Alias]);
+            let linkNavigationPropertyAlias = column.LinkNavigationProperty.replace('.', '');
+            formattedFieldValue = `${model.TranslatedName} #${data[linkNavigationPropertyAlias]}`;
+        }
+
         if (column.SelectableFieldName.toLowerCase().endsWith('statuscode')) {
             formattedFieldValue = this.statusCodeToText(data[column.Alias]);
         }
@@ -521,7 +528,7 @@ export class UniTickerService { //extends BizHttp<UniQueryDefinition> {
         if (columnType === 'link') {
             let url = '';
             if (column.ExternalModel) {
-                let externalModel = this.modelService.getModel(column.ExternalModel);
+                let externalModel = this.modelService.getModel(column.ExternalModel.startsWith(':field') ? data[column.Alias] : column.ExternalModel);
 
                 if (externalModel && externalModel.DetailsUrl) {
                     url = externalModel.DetailsUrl;
@@ -577,15 +584,15 @@ export class UniTickerService { //extends BizHttp<UniQueryDefinition> {
             }
 
             if (url !== '' && formattedFieldValue !== '') {
-                formattedFieldValue = `<a class="ticker-link" href="/#${url}">${formattedFieldValue}</a>`;
+                formattedFieldValue = `<a class="ticker-link" title="/#${url}" href="/#${url}">${formattedFieldValue}</a>`;
             }
         } else if (columnType === 'external-link') {
             if (formattedFieldValue !== '' && fieldValue && fieldValue !== '') {
-                formattedFieldValue = `<a href="${fieldValue}" target="_blank">${formattedFieldValue}</a>`;
+                formattedFieldValue = `<a href="${fieldValue}" title="${fieldValue}" target="_blank">${formattedFieldValue}</a>`;
             }
         } else if (columnType === 'mailto') {
             if (formattedFieldValue !== '' && fieldValue && fieldValue !== '') {
-                formattedFieldValue = `<a href="mailto:${fieldValue}">${formattedFieldValue}</a>`;
+                formattedFieldValue = `<a href="mailto:${fieldValue}" title="${fieldValue}">${formattedFieldValue}</a>`;
             }
         }
 
@@ -931,6 +938,8 @@ export class Ticker {
     public Actions?: Array<TickerAction>;
     public IsActive?: boolean;
     public ReadOnlyCases?: {Key: string, Value: any}[];
+    public EditToggle?: boolean;
+    public MultiRowSelect?: boolean;
 }
 
 export class TickerFieldFilter {
@@ -967,6 +976,7 @@ export class TickerColumn {
     public FieldSetColumn?: number;
     public SumColumn?: boolean;
     public ReadOnlyCases?: {Key: string, Value: any}[];
+    public DisplayField?: string;
     public Expand?: string;
 }
 
@@ -990,6 +1000,7 @@ export class TickerFilter {
     public FilterGroups: Array<TickerFilterGroup>;
     public UseAllCriterias: boolean = true;
     public CurrentCount?: number;
+    public IsMultiRowSelect: boolean = false;
 }
 
 export class TickerAction {
@@ -1016,7 +1027,7 @@ export class TickerActionOptions {
 
 export interface ITickerActionOverride {
     Code: string;
-    CheckActionIsDisabled?: (selectedRows: Array<any>) => boolean;
+    CheckActionIsDisabled?: (selectedRow: any) => boolean;
     BeforeExecuteActionHandler?: (selectedRows: Array<any>) => Promise<boolean> | boolean;
     ExecuteActionHandler?: (selectedRows: Array<any>) => Promise<any>;
     AfterExecuteActionHandler?: (selectedRows: Array<any>) => Promise<any>;

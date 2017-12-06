@@ -3,7 +3,7 @@ import {ErrorService, JobService, FileService} from '../../../../services/servic
 import {Http} from '@angular/http';
 import {AuthService} from '../../../../authService';
 import {TimerObservable} from 'rxjs/observable/TimerObservable';
-import {AppConfig} from '../../../../AppConfig';
+import {environment} from 'src/environments/environment';
 import {
     UniModalService,
     ConfirmActions
@@ -28,7 +28,7 @@ export class SaftExportView implements OnInit {
     private token: string;
     private subscription: any;
     public jobName: string = JOBNAME;
-    private baseUrl: string = AppConfig.BASE_URL_FILES;
+    private baseUrl: string = environment.BASE_URL_FILES;
 
     constructor(
         private errorService: ErrorService,

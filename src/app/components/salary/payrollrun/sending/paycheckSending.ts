@@ -171,7 +171,7 @@ export class PaycheckSending implements OnInit {
             'Type',
             UniTableColumnType.Select,
             (row) => this.typeColIsEditable(row))
-            .setEditorOptions({
+            .setOptions({
                 resource: [
                     PaycheckFormat.E_MAIL,
                     PaycheckFormat.PRINT

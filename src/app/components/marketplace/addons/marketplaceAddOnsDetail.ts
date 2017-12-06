@@ -23,6 +23,37 @@ export class MarketplaceAddOnsDetails implements AfterViewInit {
         private toastService: ToastService
     ) {}
 
+    public mapHeaderBackmapHeaderBackgroundClass(product) {
+        switch (product.id) {
+            case 15:
+                return 'regnskap_header';
+            case 16:
+                return 'salg_header';
+            case 17:
+                return 'lonn_header';
+            case 18:
+                return 'time_header';
+            default:
+                return 'regnskap_header';
+        }
+    }
+
+    public mapLaptopImage(product) {
+        const path = '../../../../assets/marketplace/modules_details/';
+        switch (product.id) {
+            case 15:
+                return path + 'laptop_regn.png';
+            case 16:
+                return path + 'laptop_salg.png';
+            case 17:
+                return path + 'laptop_lonn.png';
+            case 18:
+                return path + 'laptop_time.png';
+            default:
+                return path + 'laptop_regn.png';
+        }
+    }
+
     public ngAfterViewInit() {
         this.route.params.subscribe(params => {
             const productID = +params['id'];
@@ -40,10 +71,14 @@ export class MarketplaceAddOnsDetails implements AfterViewInit {
                 .map(products => {
                     for (const product of products) {
                         if (product.id === productID) {
+                            product._backgroundClass = this.mapHeaderBackmapHeaderBackgroundClass(product);
+                            product._laptopImage = this.mapLaptopImage(product);
                             return product;
                         }
                         for (const subProduct of product.subProducts || []) {
                             if (subProduct.id === productID) {
+                                subProduct._backgroundClass = this.mapHeaderBackmapHeaderBackgroundClass(subProduct);
+                                subProduct._laptopImage = this.mapLaptopImage(subProduct);
                                 return subProduct;
                             }
                         }

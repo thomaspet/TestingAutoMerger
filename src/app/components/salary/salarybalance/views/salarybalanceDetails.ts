@@ -1,4 +1,4 @@
-import {Component, SimpleChanges, ViewChild, Input, OnInit, Output, EventEmitter} from '@angular/core';
+import {Component, SimpleChanges, ViewChild, Input, OnInit, Output, EventEmitter, OnChanges} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
 import {UniView} from '../../../../../framework/core/uniView';
 import {
@@ -10,7 +10,7 @@ import {ReplaySubject} from 'rxjs/ReplaySubject';
 import {Observable} from 'rxjs/Observable';
 import {UniFieldLayout, UniForm} from '../../../../../framework/ui/uniform/index';
 import {
-    SalaryBalance, SalBalType, WageType, Employee, Supplier, StdWageType
+    SalaryBalance, SalBalType, WageType, Employee, Supplier, StdWageType, SalaryBalanceLine
 } from '../../../../unientities';
 import {
     ToastService, ToastType, ToastTime
@@ -19,22 +19,20 @@ import {UniImage, UniImageSize} from '../../../../../framework/uniImage/uniImage
 import {UniModalService} from '../../../../../framework/uniModal/barrel';
 import {ImageModal} from '../../../common/modals/ImageModal';
 import {Subscription} from 'rxjs/Subscription';
-type UniFormTabEvent = {
-    event: KeyboardEvent,
-    prev: UniFieldLayout,
-    next: UniFieldLayout
-};
+import {SimpleChange} from '@angular/core/src/change_detection/change_detection_util';
+
+const SAVING_KEY = 'viewSaving';
 
 @Component({
     selector: 'salarybalance-details',
     templateUrl: './salarybalanceDetails.html'
 })
-export class SalarybalanceDetail extends UniView {
+export class SalarybalanceDetail extends UniView implements OnChanges {
     private salarybalanceID: number;
     private wagetypes: WageType[];
     private employees: Employee[];
     private suppliers: Supplier[];
-    
+
     private invalidKID: boolean;
     private cachedSalaryBalance$: ReplaySubject<SalaryBalance> = new ReplaySubject<SalaryBalance>(1);
     private lastChanges$: BehaviorSubject<SimpleChanges> = new BehaviorSubject({});
@@ -45,6 +43,7 @@ export class SalarybalanceDetail extends UniView {
     public fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
     public unlinkedFiles: Array<number> = [];
     public collapseSummary: boolean = false;
+    public summaryBusy$: BehaviorSubject<boolean> = new BehaviorSubject(false);
 
     @ViewChild(UniImage) public uniImage: UniImage;
     @ViewChild(UniForm) public form: UniForm;
@@ -73,14 +72,16 @@ export class SalarybalanceDetail extends UniView {
                 this.subscriptions.forEach(sub => sub.unsubscribe());
                 super.updateCacheKey(router.url);
                 this.invalidKID = false;
+                super.getStateSubject(SAVING_KEY)
+                    .subscribe(isSaving => this.summaryBusy$.next(isSaving));
             })
             .switchMap(params => this.getStateSubject('salarybalance'))
             .subscribe(salaryBalance => this.cachedSalaryBalance$.next(salaryBalance));
 
         this.route.params
             .switchMap(params => {
-                let employeeID: number = +params['employeeID'] || undefined;
-                let type: SalBalType = +params['instalmentType'] || undefined;
+                const employeeID: number = +params['employeeID'] || undefined;
+                const type: SalBalType = +params['instalmentType'] || undefined;
                 return this.cachedSalaryBalance$
                     .asObservable()
                     .map(salaryBalance => {
@@ -112,11 +113,15 @@ export class SalarybalanceDetail extends UniView {
             .subscribe(salaryBalance => this.salarybalance$.next(salaryBalance));
     }
 
-    public ngOnChanges() {
-        if (this.salarybalance) {
-            this.setup(this.salarybalance)
-                .subscribe(salbal => this.salarybalance$.next(salbal));
-        }
+    public ngOnChanges(changes: SimpleChanges) {
+        Observable
+            .of(changes)
+            .filter(change => !!change['salarybalance'] && !!change['salarybalance'].currentValue)
+            .map(change => change['salarybalance'])
+            .switchMap(salBalChange => !salBalChange.previousValue || salBalChange.previousValue.ID !== salBalChange.currentValue.ID
+                ? this.setup(salBalChange.currentValue)
+                : Observable.of(salBalChange.currentValue))
+            .subscribe(salbal => this.salarybalance$.next(salbal));
     }
 
     public change(changes: SimpleChanges) {
@@ -161,22 +166,28 @@ export class SalarybalanceDetail extends UniView {
             })
             .do(() => this.lastChanges$.next(changes))
             .subscribe((model: SalaryBalance) => {
-                this.salarybalanceChange.emit(model);
-                if (this.useExternalChangeDetection === false) {
-                    super.updateState('salarybalance', model, true);
-                } 
-                else {
+                this.updateSalaryBalance(model);
+                if (this.useExternalChangeDetection) {
                     if (changes['InstalmentType']) {
                         this.refreshLayout(model)
                             .subscribe();
+                    } else {
+                        this.updateFormFields(model, changes);
                     }
                 }
             });
     }
 
+    private updateSalaryBalance(model: SalaryBalance) {
+        this.salarybalanceChange.emit(model);
+        if (this.useExternalChangeDetection === false) {
+            super.updateState('salarybalance', model, true);
+        }
+    }
+
     public onImageClicked(file) {
         if (this.salarybalanceID > 0) {
-            let data = {
+            const data = {
                 entity: 'SalaryBalance',
                 entityID: this.salarybalanceID,
                 fileIDs: null,
@@ -185,7 +196,7 @@ export class SalarybalanceDetail extends UniView {
                 size: UniImageSize.large
             };
 
-            this.modalService.open(ImageModal, { data: data });
+            this.modalService.open(ImageModal, {data: data});
         }
     }
 
@@ -200,7 +211,7 @@ export class SalarybalanceDetail extends UniView {
         if ((!files) || files.length === 0) {
             return;
         }
-        let firstFile = files[0];
+        const firstFile = files[0];
         const current = this.salarybalance$.getValue();
         if (!current.ID) {
             if (this.unlinkedFiles.findIndex(x => x === firstFile.ID) < 0) {
@@ -223,7 +234,7 @@ export class SalarybalanceDetail extends UniView {
             this.employeesObs(),
             this.suppliersObs())
             .switchMap((result: [WageType[], Employee[], Supplier[]]) => {
-                let [wagetypes, employees, suppliers] = result;
+                const [wagetypes, employees, suppliers] = result;
                 return this.salarybalanceService
                     .layout('SalarybalanceDetails', salaryBalance, wagetypes, employees, suppliers);
             })
@@ -254,16 +265,22 @@ export class SalarybalanceDetail extends UniView {
             : this.supplierService.GetAll('', ['Info', 'Info.DefaultBankAccount']).do(sup => this.suppliers = sup);
     }
 
-    private updateFields(salaryBalance: SalaryBalance, updateLayout: boolean = false): Observable<SalaryBalance> {
-        return this.lastChanges$
-            .asObservable()
+    private updateFields(
+        salaryBalance: SalaryBalance,
+        updateLayout: boolean = false,
+        changes: SimpleChanges = null): Observable<SalaryBalance> {
+        const changesObs = changes ? Observable.of(changes) : null;
+        const obs = changesObs || this.lastChanges$.asObservable();
+
+        return obs
             .take(1)
-            .map(changes => Object.keys(changes))
+            .map(change => {
+                const keys = Object.keys(change);
+                return keys;
+            })
             .do((changesKey) => {
                 if (!updateLayout && this.form && !changesKey.some(x => x === 'InstalmentType')) {
-                    this.salarybalanceService
-                        .GetFieldFuncs(salaryBalance)
-                        .forEach(fieldfunc => this.editFormField(this.form, fieldfunc.prop, fieldfunc.func));
+                    this.updateFormFields(salaryBalance);
                 } else {
                     this.refreshLayout(salaryBalance)
                         .subscribe();
@@ -272,11 +289,30 @@ export class SalarybalanceDetail extends UniView {
             .map(() => salaryBalance);
     }
 
+    private updateFormFields(salaryBalance: SalaryBalance, changes: SimpleChanges = null) {
+        if (!this.form) {
+            return;
+        }
+        const fieldFuncs = this.salarybalanceService
+        .GetFieldFuncs(salaryBalance);
+
+        if (changes) {
+            const changesKeys = Object.keys(changes);
+            const update = changesKeys.some(change => fieldFuncs.some(func => func.prop === change));
+            if (!update) {
+                return;
+            }
+        }
+
+        fieldFuncs
+            .forEach(fieldfunc => this.editFormField(this.form, fieldfunc.prop, fieldfunc.func));
+    }
+
     private editFormField(
         form: UniForm,
         prop: string,
         edit: (field: UniFieldLayout) => UniFieldLayout): UniFieldLayout {
-        let field = form ? form.field(prop) : null;
+        const field = form ? form.field(prop) : null;
         if (field && field.field) {
             return edit(field.field);
         }
@@ -310,5 +346,21 @@ export class SalarybalanceDetail extends UniView {
         }
 
         return salarybalance;
+    }
+
+    public onSummaryChanges(salaryBalanceLines: SalaryBalanceLine[]) {
+        const obs = this.useExternalChangeDetection ? this.salarybalance$ : this.cachedSalaryBalance$;
+        obs
+            .asObservable()
+            .take(1)
+            .map(salaryBalance => {
+                salaryBalance.Transactions = salaryBalance.Transactions || [];
+                salaryBalance.Transactions = [
+                    ...salaryBalance.Transactions.filter(line => !!line.ID),
+                    ...salaryBalanceLines, ];
+
+                return salaryBalance;
+            })
+            .subscribe(salaryBalance => this.updateSalaryBalance(salaryBalance));
     }
 }

@@ -1,15 +1,20 @@
-import {Component, Input, SimpleChanges, Output, EventEmitter} from '@angular/core';
+import {Component, Input, SimpleChanges, Output, EventEmitter, ViewChild} from '@angular/core';
+import {UniTableConfig, UniTableColumn, UniTableColumnType, UniTable} from '../../../../framework/ui/unitable/index';
 import {Http} from '@angular/http';
-import {File} from '../../../unientities';
+import {File, FileEntityLink} from '../../../unientities';
 import {UniHttp} from '../../../../framework/core/http/http';
 import {AuthService} from '../../../authService';
-import {FileService, ErrorService, UniFilesService} from '../../../services/services';
+import {FileService, ErrorService, UniFilesService, StatisticsService} from '../../../services/services';
 import {ImageUploader} from '../../../../framework/uniImage/imageUploader';
-import {AppConfig} from '../../../AppConfig';
+import {environment} from 'src/environments/environment';
 import {ImageModal} from '../modals/ImageModal';
 import {UniImageSize} from '../../../../framework/uniImage/uniImage';
 import {UniModalService} from '../../../../framework/uniModal/barrel';
 import {saveAs} from 'file-saver';
+import {ReplaySubject} from 'rxjs/ReplaySubject';
+import {Observable} from 'rxjs/Observable';
+
+const PAPERCLIP = '📎';
 
 export interface IUploadConfig {
     isDisabled?: boolean;
@@ -21,13 +26,14 @@ export interface IUploadConfig {
     template: `
         <label *ngIf="!hideLabel">{{headerText}}</label>
         <article>
-             <section class="file-name-list" *ngIf="showFileList">
-                <ul>
-                    <li *ngFor="let file of files">
-                        <a (click)="attachmentClicked(file)">{{file?.Name}}</a>
-                        <button class="removeDocumentButton" (click)="removeDocument(file?.ID)"></button>
-                    </li>
-                </ul>
+            <section class="file-name-list" *ngIf="showFileList">
+                <uni-table
+                    [resource]="files"
+                    [config]="tableConfig$ | async"
+                    (rowDeleted)="onRowDeleted($event)"
+                    (rowSelected)="onRowSelected($event)"
+                    (rowSelectionChanged)="onRowSelectionChanged($event)">
+                </uni-table>
             </section>
             <section class="upload" *ngIf="!readonly && !uploadConfig?.isDisabled" [attr.aria-busy]="uploading">
                 <label class="uni-image-upload"
@@ -43,41 +49,22 @@ export interface IUploadConfig {
     `,
 })
 export class UniAttachments {
+    @ViewChild(UniTable) private table: UniTable;
 
-    @Input()
-    public entity: string;
+    @Input() public entity: string;
+    @Input() public entityID: number;
+    @Input() public size: UniImageSize;
+    @Input() public readonly: boolean;
+    @Input() public uploadConfig: IUploadConfig;
+    @Input() public showFileList: boolean = true;
+    @Input() public uploadWithoutEntity: boolean = false;
+    @Input() public downloadAsAttachment: boolean = false;
+    @Input() public headerText: string = 'Vedlegg';
+    @Input() public hideLabel: boolean;
 
-    @Input()
-    public entityID: number;
+    @Output() public fileUploaded: EventEmitter<File> = new EventEmitter<File>();
 
-    @Input()
-    public size: UniImageSize;
-
-    @Input()
-    public readonly: boolean;
-
-    @Input()
-    public uploadConfig: IUploadConfig;
-
-    @Input()
-    public showFileList: boolean = true;
-
-    @Input()
-    public uploadWithoutEntity: boolean = false;
-
-    @Input()
-    public downloadAsAttachment: boolean = false;
-
-    @Input()
-    public headerText: string = 'Vedlegg';
-
-    @Input()
-    public hideLabel: boolean;
-
-    @Output()
-    public fileUploaded: EventEmitter<File> = new EventEmitter<File>();
-
-    private baseUrl: string = AppConfig.BASE_URL_FILES;
+    private baseUrl: string = environment.BASE_URL_FILES;
 
     private token: any;
     private activeCompany: any;
@@ -86,6 +73,8 @@ export class UniAttachments {
     private uploading: boolean;
 
     private files: File[] = [];
+    private fileLinks: FileEntityLink[] = [];
+    private tableConfig$: ReplaySubject<UniTableConfig>;
 
     constructor(
         private ngHttp: Http,
@@ -95,13 +84,37 @@ export class UniAttachments {
         private fileService: FileService,
         private uniFilesService: UniFilesService,
         private authService: AuthService,
-        private modalService: UniModalService
+        private modalService: UniModalService,
+        private statisticsService: StatisticsService
     ) {
         authService.authentication$.subscribe((authDetails) => {
             this.activeCompany = authDetails.activeCompany;
         });
 
         authService.filesToken$.subscribe(token => this.token = token);
+
+        this.tableConfig$ = new ReplaySubject<UniTableConfig>(1);
+    }
+
+    public ngOnInit() {
+        this.tableConfig$.next(this.getConfig());
+    }
+
+    private getConfig(): UniTableConfig {
+        let fileNameCol = new UniTableColumn('Name', 'Filnavn', UniTableColumnType.Text, false);
+        let fileSizeCol = new UniTableColumn('Size', 'Størrelse', UniTableColumnType.Text, false)
+            .setTemplate(file => {
+                return `${Math.ceil(file.Size / 1024)} KB`;
+            })
+            .setWidth('7rem')
+            .setAlignment('right');
+
+        return new UniTableConfig('attachments')
+            .setAutoAddNewRow(false)
+            .setColumns([fileNameCol, fileSizeCol])
+            .setDeleteButton(true)
+            .setSearchable(false)
+            .setMultiRowSelect(true);
     }
 
     public ngOnChanges(changes: SimpleChanges) {
@@ -119,19 +132,30 @@ export class UniAttachments {
     }
 
     private getFiles() {
-        this.http.asGET()
-            .usingBusinessDomain()
-            .withEndPoint(`files/${this.entity}/${this.entityID}`)
-            .send()
-            .map(res => res.json())
-            .subscribe(
-                files => this.files = files,
-                err => this.errorService.handle(err)
-            );
+        Observable.forkJoin([
+            this.statisticsService.GetAllUnwrapped(`model=FileEntityLink`
+                + `&select=ID as ID,FileID as FileID,IsAttachment as IsAttachment`
+                + `&filter=EntityType eq '${this.entity}' and EntityID eq ${this.entityID}`
+            ),
+            this.http.asGET()
+                .usingBusinessDomain()
+                .withEndPoint(`files/${this.entity}/${this.entityID}`)
+                .send()
+                .map(res => res.json())
+        ]).subscribe(res => {
+            this.fileLinks = res[0];
+            let files = res[1];
+
+            this.files = files.map(file => {
+                let link: FileEntityLink = this.fileLinks.find(link => link.FileID === file.ID);
+                if (link) { file._rowSelected = link.IsAttachment; }
+                return file;
+            });
+        }, err => this.errorService.handle(err));
     }
 
     private isDefined(value: any) {
-        return (value !== undefined && value !== null);
+        return (value !== undefined && value !== null && value !== 0);
     }
 
     public attachmentClicked(attachment: File) {
@@ -163,7 +187,7 @@ export class UniAttachments {
         const source = event.srcElement || event.target;
 
         if (!this.uploadWithoutEntity && (!this.entity || !this.isDefined(this.entityID))) {
-            throw new Error(`Tried to upload a feil with either entity (${this.entity})`
+            throw new Error(`Tried to upload failed with either entity (${this.entity})`
                  + ` or entityID (${this.entityID}) being null, and uploadWithoutEntity being false`);
         }
 
@@ -190,7 +214,6 @@ export class UniAttachments {
     }
 
     private uploadFile(file: File) {
-
         let data = new FormData();
         data.append('Token', this.token);
         data.append('Key', this.activeCompany.Key);
@@ -201,20 +224,14 @@ export class UniAttachments {
             data.append('EntityID', this.entityID.toString());
         }
         data.append('Caption', ''); // where should we get this from the user?
-        data.append('File', file);
+        data.append('File', <any> file);
 
         this.ngHttp.post(this.baseUrl + '/api/file', data)
             .map(res => res.json())
             .subscribe((res) => {
-                // files are uploaded to unifiles, and will get an externalid that
-                // references the file in UE - get the UE file and add that to the
-                // collection
-                this.fileService.Get(res.ExternalId)
-                    .subscribe(newFile => {
-                        this.uploading = false;
-                        this.fileUploaded.emit(res);
-                        this.files.push(newFile);
-                    }, err => this.errorService.handle(err));
+                this.uploading = false;
+                this.fileUploaded.emit(res);
+                this.getFiles();
             }, err => {
                 if (!this.didTryReAuthenticate) {
                     // run reauthentication and try to upload the file once more
@@ -252,8 +269,32 @@ export class UniAttachments {
         }
     }
 
-    public removeDocument(fileID: number) {
-        this.fileService.deleteOnEntity(this.entity, this.entityID, fileID)
+    public onRowSelectionChanged(event) {
+        let files = !event ? this.table.getTableData() : [event.rowModel];
+        files.map(file => {
+            let link = this.fileLinks.find(link => link.FileID === file.ID);
+            if (file._rowSelected !== link.IsAttachment) {
+                // Save is attachment flag
+                this.fileService.setIsAttachment(this.entity, this.entityID, file.ID, !link.IsAttachment).subscribe(() => {
+                    link.IsAttachment = !link.IsAttachment;
+                }, err => {
+                    file._rowSelected = !file._rowSelected;
+                    this.table.updateRow(file._originalIndex, file);
+                    this.errorService.handle(err);
+                });
+            }
+        });
+    }
+
+    public onRowSelected(event) {
+        let file = event.rowModel;
+        this.attachmentClicked(file);
+    }
+
+    public onRowDeleted(event) {
+        let file = event.rowModel;
+
+        this.fileService.deleteOnEntity(this.entity, this.entityID, file.ID)
             .subscribe(
                 res => this.getFiles(),
                 err => this.errorService.handle(err)

@@ -294,7 +294,7 @@ export class Teams {
             .setColumns([
                 new UniTableColumn('UserID', 'Bruker', UniTableColumnType.Lookup)
                     .setDisplayField('User.DisplayName')
-                    .setEditorOptions({
+                    .setOptions({
                         itemTemplate: (item) => {
                             return item.ID + ' - ' + item.DisplayName;
                         },
@@ -306,7 +306,7 @@ export class Teams {
                     .setConditionalCls( row => {
                         return row.Deleted ? 'deleted-row' : '';
                     })
-                    .setEditorOptions({
+                    .setOptions({
                         itemTemplate: (item) => {
                             return item.ID + ' - ' + item.Name;
                         },

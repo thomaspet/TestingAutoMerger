@@ -1,6 +1,6 @@
 import {ViewChild, Component, SimpleChanges} from '@angular/core';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
-import {ToastService, ToastType} from '../../../../../framework/uniToast/toastService';
+import {ToastService, ToastType, ToastTime} from '../../../../../framework/uniToast/toastService';
 import {Router, ActivatedRoute} from '@angular/router';
 import {Observable} from 'rxjs/Observable';
 import {ICommentsConfig} from '../../../common/toolbar/toolbar';
@@ -18,7 +18,7 @@ import {
     Project, Department, User, ApprovalStatus, Approval,
     UserRole
 } from '../../../../unientities';
-import {UniStatusTrack} from '../../../common/toolbar/statustrack';
+import {IStatus, STATUSTRACK_STATES} from '../../../common/toolbar/statustrack';
 import {IUniSaveAction} from '../../../../../framework/save/save';
 import {UniForm, FieldType, UniFieldLayout} from '../../../../../framework/ui/uniform/index';
 import {Location} from '@angular/common';
@@ -62,7 +62,9 @@ import {
     ModulusService,
     ProjectService,
     DepartmentService,
-    UserService
+    UserService,
+    ValidationService,
+    UniFilesService
 } from '../../../../services/services';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import * as moment from 'moment';
@@ -107,6 +109,7 @@ export class BillView {
     public hasStartupFileID: boolean = false;
     public historyCount: number = 0;
     public ocrData: any;
+    public ocrWords: Array<any>;
     public startUpFileID: Array<number> = [];
     // Stores a boolean value per document, true if document is from client pc, not inbox
     private hasUploaded: boolean = false;
@@ -200,7 +203,9 @@ export class BillView {
         private departmentService: DepartmentService,
         private modalService: UniModalService,
         private userService: UserService,
-        private commentService: CommentService
+        private commentService: CommentService,
+        private validationService: ValidationService,
+        private uniFilesService: UniFilesService
     ) {
         this.actions = this.rootActions;
         userService.getCurrentUser().subscribe( usr => {
@@ -711,7 +716,7 @@ export class BillView {
                 this.handleOcrResult(new OcrValuables(result));
                 this.flagUnsavedChanged();
                 this.ocrData = result;
-
+                this.uniImage.setOcrData(this.ocrData);
             }, (err) => {
                 this.errorService.handle(err);
             });
@@ -752,44 +757,7 @@ export class BillView {
                                 }
                             }
 
-                            if (bankAccount) {
-                                let current = this.current.getValue();
-                                current.BankAccountID = bankAccount.ID;
-                                current.BankAccount = bankAccount;
-                                this.current.next(current);
-                            } else {
-                                const modal = this.modalService.open(UniConfirmModalV2, {
-                                    header: `${lang.create_bankaccount_title} ${ocr.BankAccount}?`,
-                                    message: `${lang.create_bankaccount_info} ${supplier.Info.Name}`,
-                                    buttonLabels: {
-                                        accept: lang.create_bankaccount_accept,
-                                        cancel: lang.create_bankaccount_reject
-                                    }
-                                });
-
-                                modal.onClose.subscribe(response => {
-                                    if (response === ConfirmActions.ACCEPT) {
-                                        let newBankAccount = new BankAccount();
-                                        newBankAccount.AccountNumber = ocr.BankAccount;
-                                        newBankAccount.BusinessRelationID = supplier.BusinessRelationID;
-                                        newBankAccount.BankAccountType = 'supplier';
-
-                                        this.bankAccountService.Post(newBankAccount).subscribe(
-                                            (res: BankAccount) => {
-                                                supplier.Info.BankAccounts.push(res);
-
-                                                let current = this.current.getValue();
-                                                current.BankAccountID = res.ID;
-                                                current.BankAccount = res;
-                                                this.current.next(current);
-
-                                                this.setSupplier(supplier);
-                                            },
-                                            err => this.errorService.handle(err)
-                                        );
-                                    }
-                                });
-                            }
+                            this.setOrCreateBankAccount(bankAccount, supplier, ocr.BankAccount);
                         }
 
                         this.setSupplier(supplier);
@@ -797,7 +765,6 @@ export class BillView {
                     err => this.errorService.handle(err));
             }
         }
-
 
         let current = this.current.getValue();
 
@@ -815,6 +782,50 @@ export class BillView {
 
         // TODO: Implement OCR currency
     }
+
+    private setOrCreateBankAccount(bankAccount: BankAccount, supplier: Supplier, bankAccountNumber: string) {
+        if (bankAccount) {
+            let current = this.current.getValue();
+            current.BankAccountID = bankAccount.ID;
+            current.BankAccount = bankAccount;
+            this.current.next(current);
+        } else {
+
+
+            const modal = this.modalService.open(UniConfirmModalV2, {
+                header: `${lang.create_bankaccount_title} ${bankAccountNumber}?`,
+                message: `${lang.create_bankaccount_info} ${supplier.Info.Name}`,
+                buttonLabels: {
+                    accept: lang.create_bankaccount_accept,
+                    cancel: lang.create_bankaccount_reject
+                }
+            });
+
+            modal.onClose.subscribe(response => {
+                if (response === ConfirmActions.ACCEPT) {
+                    let newBankAccount = new BankAccount();
+                    newBankAccount.AccountNumber = bankAccountNumber;
+                    newBankAccount.BusinessRelationID = supplier.BusinessRelationID;
+                    newBankAccount.BankAccountType = 'supplier';
+
+                    this.bankAccountService.Post(newBankAccount).subscribe(
+                        (res: BankAccount) => {
+                            supplier.Info.BankAccounts.push(res);
+
+                            let current = this.current.getValue();
+                            current.BankAccountID = res.ID;
+                            current.BankAccount = res;
+                            this.current.next(current);
+
+                            this.setSupplier(supplier);
+                        },
+                        err => this.errorService.handle(err)
+                    );
+                }
+            });
+        }
+    }
+
 
     private findSupplierViaPhonebook(orgNo: string, askUser: boolean, bankAccount?: string) {
         this.supplierInvoiceService.fetch(
@@ -934,7 +945,13 @@ export class BillView {
                 break;
         }
 
-        let candidate = property ? property.ProposedCandidate : null;
+        let candidate =
+            property ?
+                property.SelectedCandidate ?
+                    property.SelectedCandidate :
+                        property.ProposedCandidate ?
+                            property.ProposedCandidate : null
+                    : null;
 
         if (candidate) {
             this.uniImage.highlight(
@@ -942,6 +959,121 @@ export class BillView {
                 this.ocrData.ImageWidth,
                 this.ocrData.ImageHeight
             );
+        }
+    }
+
+    public onUseWord(event) {
+        let property = this.ocrData.InterpretedProperties.find(x => x.OcrProperty.PropertyType === event.propertyType);
+
+        if (!property) {
+            property = {
+                OcrProperty: {
+                    PropertyType: event.propertyType
+                },
+                ActualValue: event.word.text
+            };
+
+            this.ocrData.InterpretedProperties.push(property);
+        }
+
+        let current = this.current.getValue();
+        let isValid = true;
+        let value = event.word.text;
+
+        switch (event.propertyType) {
+            case OcrPropertyType.CustomerIdentificationNumber:
+                if (this.validationService.isKidNumber(value)) {
+                    current.PaymentID = value;
+                } else {
+                    isValid = false;
+                }
+                break;
+            case OcrPropertyType.InvoiceNumber:
+                current.InvoiceNumber = value;
+                break;
+            case OcrPropertyType.TotalAmount:
+                if (this.validationService.isNumber(value)) {
+                    value = this.validationService.getSanitizedNumber(value);
+                    current.TaxInclusiveAmountCurrency = value;
+                } else {
+                    isValid = false;
+                }
+                break;
+            case OcrPropertyType.InvoiceDate:
+                if (this.validationService.isDate(value)) {
+                    value = this.validationService.getSanitizedDate(value);
+                    current.InvoiceDate = new LocalDate(value);
+                } else {
+                    isValid = false;
+                }
+                break;
+            case OcrPropertyType.DueDate:
+                if (this.validationService.isDate(value)) {
+                    value = this.validationService.getSanitizedDate(value);
+                    current.PaymentDueDate = new LocalDate(value);
+                } else {
+                    isValid = false;
+                }
+                break;
+            case OcrPropertyType.BankAccountNumber:
+                if (this.validationService.isBankAccountNumber(value)) {
+                    value = this.validationService.getSanitizedBankAccount(value);
+                    let supplier = current.Supplier;
+                    let bankAccount = supplier.Info.BankAccounts.find(x => x.AccountNumber === value);
+                    this.setOrCreateBankAccount(bankAccount, supplier, value);
+                } else {
+                    isValid = false;
+                }
+                break;
+        }
+
+        if (isValid) {
+            this.current.next(current);
+            if (property.InterpretationCandidates) {
+                let existingCandiate =
+                    property.InterpretationCandidates.find(x =>
+                        x.Top === event.word.Top
+                        && x.Left === event.word.Left
+                        && x.Width === event.word.Width
+                        && x.Height === event.word.Height);
+
+                if (existingCandiate) {
+                    property.SelectedCandidate = existingCandiate;
+                } else {
+                    property.SelectedCandidate = null;
+                }
+            }
+
+            if (!property.SelectedCandidate) {
+                let newCandidate = {
+                    Height: event.word.Height,
+                    Left: event.word.Left,
+                    Top: event.word.Top,
+                    Width: event.word.Width,
+                    Value: value.toString(),
+                    HitWord: null,
+                    HitWordId: null,
+                    Id: 0,
+                    InterpretedPropertyId: property.Id,
+                    ProbabilityFactor: 1
+                };
+
+                property.SelectedCandidate = newCandidate;
+            }
+
+            // highlight the word that was used
+            this.uniImage.highlight(
+                [
+                    property.SelectedCandidate.Left,
+                    property.SelectedCandidate.Top,
+                    property.SelectedCandidate.Width,
+                    property.SelectedCandidate.Height
+                ],
+                this.ocrData.ImageWidth,
+                this.ocrData.ImageHeight
+            );
+        } else {
+            this.toast.addToast('Ugyldig verdi', ToastType.warn, ToastTime.short);
         }
     }
 
@@ -956,7 +1088,6 @@ export class BillView {
         if (change['Supplier'])  {
             model.SupplierID = change['Supplier'].currentValue.ID;
         }
-
 
         if (change['InvoiceDate']) {
             let creditdays = model.Supplier ? model.Supplier.CreditDays : null;
@@ -1908,7 +2039,6 @@ export class BillView {
             let current = this.current.getValue();
 
             let saveFunc = () => {
-
                 if (current.ID) {
                     obs = this.supplierInvoiceService.Put(current.ID, current);
                 } else {
@@ -2004,11 +2134,48 @@ export class BillView {
         });
     }
 
+    private updateOcrDataActualValue() {
+        if (this.ocrData) {
+            let current = this.current.getValue();
+
+            this.setActualValueOnOcrProp(OcrPropertyType.InvoiceDate, current.InvoiceDate);
+            this.setActualValueOnOcrProp(OcrPropertyType.DueDate, current.PaymentDueDate);
+            this.setActualValueOnOcrProp(OcrPropertyType.InvoiceNumber, current.InvoiceNumber);
+            this.setActualValueOnOcrProp(
+                OcrPropertyType.BankAccountNumber,
+                current.BankAccount ? current.BankAccount.AccountNumber : null
+            );
+            this.setActualValueOnOcrProp(OcrPropertyType.CustomerIdentificationNumber, current.PaymentID);
+            this.setActualValueOnOcrProp(OcrPropertyType.TotalAmount, current.TaxInclusiveAmountCurrency);
+            this.setActualValueOnOcrProp(
+                OcrPropertyType.OfficialNumber,
+                current.Supplier ? current.Supplier.OrgNumber : null
+            );
+        }
+    }
+
+    private setActualValueOnOcrProp(propertyType: OcrPropertyType, value) {
+        let prop =
+            this.ocrData.InterpretedProperties.find(x => x.OcrProperty.PropertyType === propertyType);
+
+        if (prop) {
+            prop.ActualValue = value;
+        }
+    }
+
     private preSave(): boolean {
 
         var changesMade = false;
         let current = this.current.getValue();
         current.InvoiceDate = current.InvoiceDate || new LocalDate();
+
+        // Clean up the ocrData, e.g. if the user has changed the values manually,
+        // the ActualValue should be updated. UniFiles will handle the rest
+        this.updateOcrDataActualValue();
+
+        // start training - dont wait for result, this will run in the background
+        // and handle reauthentication if needed
+        this.uniFilesService.trainOcrEngine(this.ocrData);
 
         if (current.JournalEntry) {
             if (!current.JournalEntry.NumberSeriesTaskID) {
@@ -2271,20 +2438,20 @@ export class BillView {
 
     private getStatustrackConfig() {
         let current = this.current.getValue();
-        let statustrack: UniStatusTrack.IStatus[] = [];
+        let statustrack: IStatus[] = [];
         let activeStatus = current.StatusCode;
 
         this.supplierInvoiceService.statusTypes.forEach((status) => {
-            let _state: UniStatusTrack.States;
+            let _state: STATUSTRACK_STATES;
             let _addIt = status.isPrimary;
             if (status.Code > activeStatus) {
-                _state = UniStatusTrack.States.Future;
+                _state = STATUSTRACK_STATES.Future;
             } else if (status.Code < activeStatus) {
-                _state = UniStatusTrack.States.Completed;
+                _state = STATUSTRACK_STATES.Completed;
             } else if (status.Code === activeStatus) {
-                _state = UniStatusTrack.States.Active;
+                _state = STATUSTRACK_STATES.Active;
                 if (this.CurrentTask) {
-                    _state = UniStatusTrack.States.Obsolete;
+                    _state = STATUSTRACK_STATES.Obsolete;
                 }
                 _addIt = true;
             }

@@ -1,0 +1,118 @@
+uni-bureau-dashboard
+    .right-side
+        height: 28rem
+        background-color: $uni-color-legend
+
+        table
+            white-space: nowrap
+            width: 100%
+            padding: .25rem 2rem
+            border-spacing: .5rem
+            line-height: 1rem
+
+        th, td
+            width: 50%
+
+        td:nth-child(2)
+            padding: 0 1rem
+            background: mix($uni-color-negative, $uni-color-c2a, 98%)
+            border-radius: pxToRem(3)
+
+        th ~ th
+            border-top: 2px solid $uni-color-positive
+            padding-top: 8px
+
+        tr
+            height: 1.75rem
+
+        hr
+            border-color: $uni-color-positive
+
+uni-dashboard-detail-view
+    .horizontal_nav ul
+        justify-content: flex-start
+    .detail-tab
+        display: block
+        height: 100%
+        border: solid $uni-color-legend 0.5rem
+        background-color: white
+
+    .tab-parts
+        display: flex
+        flex-direction: row
+        justify-content: center
+        align-items: center
+        flex-wrap: wrap
+        padding-top: 0.5rem
+
+
+    .tab-part
+        margin: 0.5rem
+        width: 45%
+        min-width: 15rem
+        height: 9rem
+        display: flex
+        flex-direction: row
+        align-items: center
+        background-color: white
+        justify-content: flex-start
+
+        .image-container
+            width: 6rem
+            display: flex
+            flex-direction: column
+            justify-content: center
+            align-items: center
+            margin: 0 0.8rem
+            color: $uni-color-legend2
+
+            img
+                display: block
+                max-width: 50%
+                max-height: 50%
+                width: auto
+                height: auto
+                margin-bottom: 0.3rem
+
+        .text-container
+            font-size: 0.9rem
+            p
+                margin: 0
+                white-space: normal
+                padding-right: 0.5rem
+            a
+                font-weight: bold
+                color: $uni-color-legend2
+
+    .invoice-icon
+        content: unicon-supplierinvoice($uni-color-legend2)
+
+    .journalentry-icon
+        content: unicon-journalentry($uni-color-legend2)
+
+    .hours-icon
+        content: unicon-hourreg($uni-color-legend2)
+
+    .amelding-icon
+        content: unicon-amelding($uni-color-legend2)
+
+    .payrollrun-icon
+        content: unicon-payrollrun($uni-color-legend2)
+
+    .sale-icon
+        content: unicon-sale($uni-color-legend2)
+
+    .material-icons
+        vertical-align: bottom
+        color: $uni-color-legend2
+
+    .address-icon::before
+        background-image: unicon-info($uni-color-legend2)
+    .email-icon::before
+        background-image: unicon-info($uni-color-legend2)
+    .phone-icon::before
+        background-image: unicon-info($uni-color-legend2)
+    .bank-card-icon::before
+        background-image: unicon-info($uni-color-legend2)
+    .question-mark-icon::before
+        background-image: unicon-info($uni-color-legend2)

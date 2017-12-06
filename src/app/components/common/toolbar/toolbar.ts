@@ -1,6 +1,6 @@
 import {Component, Input, Output, EventEmitter, ViewChild, ElementRef} from '@angular/core';
 import {IUniSaveAction} from './../../../../framework/save/save';
-import {UniStatusTrack} from '../../common/toolbar/statustrack';
+import {IStatus} from '../../common/toolbar/statustrack';
 import {IContextMenuItem} from '../../../../framework/ui/unitable/index';
 import {UniFieldLayout, FieldType} from '../../../../framework/ui/uniform/index';
 import {Observable} from 'rxjs/Observable';
@@ -19,7 +19,7 @@ export interface IToolbarConfig {
         link?: string;
         event?: () => void;
     }[];
-    statustrack?: UniStatusTrack.IStatus[];
+    statustrack?: IStatus[];
     navigation?: {
         find?: (query: string) => void;
         prev?: () => void;
@@ -71,7 +71,7 @@ export class UniToolbar {
     @Input() public shareActions: IShareAction[];
     @Input() public saveactions: IUniSaveAction[];
     @Input() public contextmenu: IContextMenuItem[];
-    @Input() public statustrack: UniStatusTrack.IStatus[];
+    @Input() public statustrack: IStatus[];
     @Input() public commentsConfig: ICommentsConfig;
     @Input() public autocompleteConfig: IAutoCompleteConfig;
     @Input() public autocompleteModel: any = {};

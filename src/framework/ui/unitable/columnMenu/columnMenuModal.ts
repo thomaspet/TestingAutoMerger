@@ -1,11 +1,12 @@
 import {Component, Input, Output, EventEmitter, ChangeDetectionStrategy} from '@angular/core';
 import {IModalOptions, IUniModal} from '../../../uniModal/modalService';
+import {UniTableConfig} from '../config/unitableConfig';
 import * as Immutable from 'immutable';
 
 @Component({
     selector: 'column-menu-modal',
     template: `
-        <section role="dialog" class="uni-modal">
+        <section role="dialog" class="uni-modal" [ngClass]="{'advanced': tableConfig?.advancedColumnMenu}">
             <header>
                 <h1>{{'Kolonneoppsett'}}</h1>
             </header>
@@ -19,7 +20,12 @@ import * as Immutable from 'immutable';
                             <th class="visibility-col">Synlig</th>
                             <th class="title-col">Tittel</th>
                             <th class="jump-col">Hopp til kolonne</th>
-                            <th></th>
+                            <ng-container *ngIf="tableConfig?.advancedColumnMenu">
+                                <th>Felt eller spørring</th>
+                                <th>Summeringsfunksjon</th>
+                                <th>Alias</th>
+                            </ng-container>
+                            <th><!-- columnMenu toggle icon --></th>
                         </tr>
                     </thead>
 
@@ -43,13 +49,14 @@ import * as Immutable from 'immutable';
                             <td>
                                 <input type="text"
                                     [value]="column.get('header')"
-                                    (change)="columnHeaderChange($event, column, idx)"
+                                    (change)="inputChange($event, 'header', column, idx)"
                                     placeholder="Kolonnetittel"
                                 />
                             </td>
 
                             <td>
-                                <select [value]="column.get('jumpToColumn') || ''" (change)="jumpToColumnChange($event, column, idx)">
+                                <select [value]="column.get('jumpToColumn') || ''"
+                                        (change)="inputChange($event, 'jumpToColumn', column, idx)">
                                     <option value=""></option>
                                     <option *ngFor="let col of columns"
                                             value="{{col.get('field')}}">
@@ -57,6 +64,34 @@ import * as Immutable from 'immutable';
                                     </option>
                                 </select>
                             </td>
+
+                            <ng-container *ngIf="tableConfig?.advancedColumnMenu">
+                                <td>
+                                    <input type="text"
+                                        [value]="column.get('field')"
+                                        (change)="inputChange($event, 'field', column, idx)"
+                                        placeholder="Feltnavn eller formel"
+                                    />
+                                </td>
+
+                                <td>
+                                    <select [value]="column.get('sumFunction') || ''"
+                                            (change)="inputChange($event, 'sumFunction', column, idx)">
+                                        <option value=""></option>
+                                        <option value="sum">Sum</option>
+                                        <option value="avg">Gjennomsnitt</option>
+                                        <option value="min">Laveste</option>
+                                        <option value="max">Høyeste</option>
+                                    </select>
+                                </td>
+
+                                <td>
+                                    <input type="text"
+                                        [value]="column.get('alias') || ''"
+                                        (change)="inputChange($event, 'alias', column, idx)"
+                                    />
+                                </td>
+                            </ng-container>
 
                             <td class="move-icon"></td>
                         </tr>
@@ -81,13 +116,15 @@ export class ColumnMenuModal implements IUniModal {
     public onClose: EventEmitter<any> = new EventEmitter();
 
     private columns: Immutable.List<any>;
+    private tableConfig: UniTableConfig;
 
     // Drag and drop
     private dragElement: any;
     private dragElementIndex: any;
 
     public ngOnInit() {
-        this.columns = this.options.data;
+        this.columns = this.options.data.columns;
+        this.tableConfig = this.options.data.tableConfig;
     }
 
     public resetAll() {
@@ -108,15 +145,13 @@ export class ColumnMenuModal implements IUniModal {
         });
     }
 
-    public columnHeaderChange(event, column, index) {
+    public inputChange(event, property, column, index) {
         this.columns = this.columns.update(index, () => {
-            return column.set('header', event.target.value || '');
-        });
-    }
+            if (property === 'field' && !column.get('_originalField')) {
+                column = column.set('_originalField', column.get('field'));
+            }
 
-    public jumpToColumnChange(event, column, index) {
-        this.columns = this.columns.update(index, () => {
-            return column.set('jumpToColumn', event.target.value || '');
+            return column.set(property, event.target.value || '');
         });
     }
 

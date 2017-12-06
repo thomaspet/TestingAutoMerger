@@ -4,9 +4,8 @@ import {IToolbarConfig} from '../../common/toolbar/toolbar';
 import * as moment from 'moment';
 import {UniHttp} from '../../../../framework/core/http/http';
 import {ErrorService} from '../../../services/common/errorService';
+import {APP_METADATA} from 'src/environments/metadata';
 
-declare const APP_VERSION: string;
-declare const APP_BUILD_DATE: string;
 const VERSION_DATE_FORMAT = 'DD.MM.YYYY HH:mm';
 
 @Component({
@@ -15,9 +14,9 @@ const VERSION_DATE_FORMAT = 'DD.MM.YYYY HH:mm';
 })
 export class UniVersionsView {
     public frontend: any = {
-        fullVersion: APP_VERSION,
-        minVersion: APP_VERSION.substr(0, 6),
-        buildDate: moment(APP_BUILD_DATE).format(VERSION_DATE_FORMAT),
+        fullVersion: APP_METADATA.APP_VERSION,
+        minVersion: APP_METADATA.APP_VERSION.substr(0, 6),
+        buildDate: moment(APP_METADATA.APP_BUILD_DATE).format(VERSION_DATE_FORMAT),
     };
     private backend: {
         fullVersion: string

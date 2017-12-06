@@ -243,8 +243,8 @@ fabric.properties
 
 ./typings
 dll/
-src/**/*.js
 src/**/*.map
+src/raygun-setup.js
 node_modules/
 dist/
 jspm_packages
@@ -267,3 +267,6 @@ dist.zip
 
 # destination AppConfig file (ignored because it's generated on build)
 src/app/AppConfig.ts
+
+# auto generated metadata about the app
+src/environments/metadata.ts

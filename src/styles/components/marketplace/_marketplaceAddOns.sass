@@ -1,22 +1,27 @@
 uni-marketplace
-    .marketplace-add-ons
-        // Hide the 80px high margin on the bottom of all pages
-        &:after
-            height: 80px
-            background-color: white
-            position: absolute
-            overflow: hidden
-            left: 0
-            right: 0
-            content: ' '
 
+    uni-marketplace-add-ons .add-on-background-image
+        background: url('assets/marketplace/modules/header_moduler.png') no-repeat center center
+        background-size: cover
+        background-position: 0 0
+
+    uni-marketplace-add-ons .add-on-details-background-image
+        background: url('assets/marketplace/modules/header_moduler.png') no-repeat center center
+        background-size: cover
+        background-position: 0 0
+
+    .marketplace-add-ons
+        p
+            color: $uni-color-positive
     .package-deal-container
         display: flex
         flex-direction: column
         flex-wrap: nowrap
         justify-content: center
         align-items: center
-        padding-bottom: 5rem
+        padding: 5rem
+        color: white
+        background: $uni-color-c2a
         > h1
             margin: 0
             font-weight: 700
@@ -29,26 +34,28 @@ uni-marketplace
             margin-bottom: 1rem
             color: $uni-color-c2a
         > img
-            width: 20rem
+            width: 32rem
             padding: 2rem
         > button
-            background-color: $uni-color-c2a
+            background-color: transparent
             color: white
             border-radius: 0
             margin-top: 1rem
             font-weight: 400
             font-size: 1.5rem
             text-shadow: none
+            border: 0.01rem solid
 
     .app-containers-heading
         display: block
         width: 100%
         background-color: white
-        padding-top: 3rem
-        padding-bottom: 1rem
+        padding-top: 7rem
+        padding-bottom: 18rem
         text-align: center
         margin: 0
         font-weight: bold
+        color: $uni-color-positive
 
     .app-containers
         width: 80%
@@ -60,47 +67,56 @@ uni-marketplace
         flex-wrap: wrap
         justify-content: center
         align-items: stretch
-        background-color: white
+        background-color: #f8f9fD
 
     .app-container
-        margin-top: 2.5rem
+        margin-top: -7.5rem
         margin-left: 1rem
         margin-right: 1rem
+        margin-bottom: 10rem
         width: 16rem
         order: 0
         flex: 0 1 auto
         align-self: auto
-        border: 0.3rem solid $uni-color-scale9
         cursor: pointer
+
+    .other-modules .app-container
+        margin-top: 4.5rem
 
     .app-header
         img
-            width: 100%
-            height: 50%
+            width: 70%
+    .other-modules .app-header
+        text-align: center
 
     .app-body
         h3
             padding: 0.7rem 1rem
             margin: 0
-            color: $uni-color-c2a
+            color: $uni-color-positive
             font-weight: 600
             font-size: 1.5rem
-            text-align: center
+            text-align: left
 
         p
-            text-align: center
+            text-align: left
             margin: 0
             padding: 0 1rem
             font-size: medium
             line-height: 110%
-            color: $uni-color-c2a
+            color: $uni-color-positive
+
+    .other-modules .app-body
+        h3
+            color: white
+            text-align: center
 
     .app-footer
-        text-align: right
+        text-align: left
 
         a
             display: block
-            color: $uni-color-warn
+            color: $uni-color-link
             font-weight: bold
             text-decoration: none
-            padding: 0.5rem 2rem
+            padding: 0.7rem 1rem

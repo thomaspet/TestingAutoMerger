@@ -4,7 +4,7 @@ import {IViewConfig} from '../genericview/list';
 import {UniTableColumn, UniTableColumnType, UniTableConfig} from '../../../../framework/ui/unitable/index';
 import {UniModules} from '../../layout/navbar/tabstrip/tabService';
 
-export var view = new View('workprofiles', 'Stillingsmaler', 'WorkprofileListview', false, 'workprofile', WorkprofileListview);
+export var view = new View('workprofiles', 'Stillingsmaler', 'WorkprofileListview', false, 'workprofile');
 
 @Component({
     selector: view.name,
@@ -42,5 +42,6 @@ export class WorkprofileListview {
 
         return new UniTableConfig('timetracking.workprofiles.list', false, true).setSearchable(true).setColumns(cols);
     }
-
 }
+
+view.component = WorkprofileListview;

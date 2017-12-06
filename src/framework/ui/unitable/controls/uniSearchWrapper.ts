@@ -22,7 +22,7 @@ export interface IUniSearchWrapperOptions {
                    aria-autocomplete="inline"
                    [formControl]="inputControl"
                    uni-search-attr
-                   [config]="editorOptions.uniSearchConfig"
+                   [config]="options.uniSearchConfig"
                    (changeEvent)="onChange($event)"
             />
             <button class="uni-autocomplete-searchBtn"
@@ -54,28 +54,26 @@ export class UniSearchWrapper implements OnInit {
     @Output()
     private close: EventEmitter<any> = new EventEmitter();
 
-    private onButtonClick = () => this.uniSearchComponent.onSearchButtonClick();
-
-    private editorOptions: IUniSearchWrapperOptions;
-
+    private options: IUniSearchWrapperOptions;
     private selectedItem: any;
+    private onButtonClick = () => this.uniSearchComponent.onSearchButtonClick();
 
     constructor(private elementRef: ElementRef) {}
 
     public ngOnInit() {
         this.inputElement = new ElementRef(this.elementRef.nativeElement.querySelector('input'));
 
-        this.editorOptions = this.column.get('editorOptions');
+        this.options = this.column.get('options');
 
-        if (!this.editorOptions.uniSearchConfig) {
-            throw new Error('Tried to initialize UniSearchTableColumn without editorOptions.uniSearchConfig!');
+        if (!this.options.uniSearchConfig) {
+            throw new Error('Tried to initialize UniSearchTableColumn without options.uniSearchConfig!');
         }
 
         const model = this.rowModel.get(this.column.get('field'));
         if (model) {
-            this.editorOptions.uniSearchConfig.initialItem$.next(model.toJS());
+            this.options.uniSearchConfig.initialItem$.next(model.toJS());
         } else {
-            this.editorOptions.uniSearchConfig.initialItem$.next(null);
+            this.options.uniSearchConfig.initialItem$.next(null);
         }
     }
 

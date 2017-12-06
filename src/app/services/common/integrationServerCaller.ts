@@ -1,7 +1,7 @@
 import {Injectable} from '@angular/core';
 import {UniHttp} from '../../../framework/core/http/http';
 import {Observable} from 'rxjs/Observable';
-import {AppConfig} from '../../AppConfig';
+import {environment} from 'src/environments/environment';
 import {Altinn} from '../../unientities';
 import {BusinessRelationSearch} from '../../models/Integration/BusinessRelationSearch';
 
@@ -20,8 +20,8 @@ export class IntegrationServerCaller {
             })
             .asGET()
             .send({
-                baseUrl: AppConfig.BASE_URL_INTEGRATION,
-                apiDomain: AppConfig.INTEGRATION_DOMAINS.ALTINN,
+                baseUrl: environment.BASE_URL_INTEGRATION,
+                apiDomain: environment.INTEGRATION_DOMAINS.ALTINN,
                 endPoint: '/testsystem'
             })
             .map(response => response.json());
@@ -49,8 +49,8 @@ export class IntegrationServerCaller {
             })
             .asGET()
             .send({
-                baseUrl: AppConfig.BASE_URL_INTEGRATION,
-                apiDomain: AppConfig.INTEGRATION_DOMAINS.ALTINN,
+                baseUrl: environment.BASE_URL_INTEGRATION,
+                apiDomain: environment.INTEGRATION_DOMAINS.ALTINN,
                 endPoint: 'receipt/' + receiptID + '/correspondence'
             })
             .map(response => response.json());
@@ -62,7 +62,7 @@ export class IntegrationServerCaller {
         searchInBrreg: boolean = true
     ): Observable<[BusinessRelationSearch]> {
         return this.http
-            .withBaseUrl(AppConfig.BASE_URL_INTEGRATION)
+            .withBaseUrl(environment.BASE_URL_INTEGRATION)
             .withDomain('api/businessrelationsearch')
             .withEndPoint(`?searchCriteria=${query}&limit=${limit}&datahotel=${searchInBrreg}`)
             .asGET()
