@@ -156,6 +156,8 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
         ]
     };
 
+    private currentRowIndex: number = 0;
+
     constructor(
         private changeDetector: ChangeDetectorRef,
         private uniHttpService: UniHttp,
@@ -232,12 +234,12 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
         setTimeout(() => {
             if (this.table) {
                 this.table.blur();
-                this.table.focusRow(0);
+                this.table.focusRow(this.currentRowIndex);
             } else {
                 setTimeout(() => {
                     if (this.table) {
                         this.table.blur();
-                        this.table.focusRow(0);
+                        this.table.focusRow(this.currentRowIndex);
                     }
                 }, 500);
             }
@@ -2292,6 +2294,10 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
         }
 
         this.rowSelected.emit(event.rowModel);
+    }
+
+    public onCellFocus(event) {
+        this.currentRowIndex = event.rowIndex;
     }
 
     private rowChanged(event?) {
