@@ -514,162 +514,150 @@ export class TransqueryDetails implements OnInit {
     }
 
     private generateUniTableConfig(unitableFilter: ITableFilter[], routeParams: any): UniTableConfig {
+        const showTaxBasisAmount = routeParams && routeParams['showTaxBasisAmount'] === 'true';
+        const visibleColumnsString = this.storageService.get(this.COLUMN_VISIBILITY_LOCALSTORAGE_KEY, true);
 
-        let showTaxBasisAmount = routeParams && routeParams['showTaxBasisAmount'] === 'true';
-
-        let visibleColumnsString = this.storageService.get(this.COLUMN_VISIBILITY_LOCALSTORAGE_KEY, true);
         let visibleColumns = [];
         if (visibleColumnsString) {
             visibleColumns = JSON.parse(visibleColumnsString);
         }
 
-        let columns = [
-                new UniTableColumn('JournalEntryNumberNumeric', 'Bnr.')
-                    .setTemplate(line => {
-                        return `<a href="/#/accounting/transquery/details;`
-                            + `journalEntryNumber=${line.JournalEntryLineJournalEntryNumber}">
-                                ${line.JournalEntryLineJournalEntryNumberNumeric}
-                            </a>`;
-                    })
-                    .setFilterOperator('startswith')
-                    .setWidth('65px'),
-                new UniTableColumn('JournalEntryNumber', 'Bnr. med år')
-                    .setTemplate(line => {
-                        return `<a href="/#/accounting/transquery/details;`
-                            + `journalEntryNumber=${line.JournalEntryLineJournalEntryNumber}">
-                                ${line.JournalEntryLineJournalEntryNumber}
-                            </a>`;
-                    })
-                    .setFilterOperator('startswith')
-                    .setVisible(false),
-                new UniTableColumn('Account.AccountNumber', 'Kontonr.')
-                    .setTemplate(line => {
-                        return `<a href="/#/accounting/transquery/`
-                            + `details;Account_AccountNumber=${line.AccountAccountNumber}">
-                                ${line.AccountAccountNumber}
-                            </a>`;
-                    })
-                        .setWidth('85px')
-                    .setFilterOperator('startswith'),
-                new UniTableColumn('Account.AccountName', 'Kontonavn', UniTableColumnType.Text)
-                    .setFilterOperator('contains')
-                    .setTemplate(line => line.AccountAccountName),
-                new UniTableColumn('SubAccount.AccountNumber', 'Reskontronr.')
-                    .setTemplate(line => {
-                        return `<a href="/#/accounting/transquery/details;`
-                            + `SubAccount_AccountNumber=${line.SubAccountAccountNumber}">
-                                ${line.SubAccountAccountNumber}
-                            </a>`;
-                    })
-                    .setVisible(false)
-                    .setWidth('90px')
-                    .setFilterOperator('startswith'),
-                new UniTableColumn('SubAccount.AccountName', 'Reskontro', UniTableColumnType.Text)
-                    .setFilterOperator('contains')
-                    .setTemplate(line => line.SubAccountAccountName)
-                    .setVisible(false),
-                new UniTableColumn('FinancialDate', 'Regnskapsdato', UniTableColumnType.LocalDate)
-                    .setFilterOperator('contains')
-                    .setFormat('DD.MM.YYYY')
-                    .setWidth('110px')
-                    .setTemplate(line => line.JournalEntryLineFinancialDate),
-                new UniTableColumn('VatDate', 'Mva-dato', UniTableColumnType.LocalDate)
-                    .setFilterOperator('contains')
-                    .setFormat('DD.MM.YYYY')
-                    .setWidth('110px')
-                    .setTemplate(line => line.JournalEntryLineVatDate),
-                new UniTableColumn('Description', 'Beskrivelse', UniTableColumnType.Text)
-                    .setWidth('20%')
-                    .setFilterOperator('contains')
-                    .setTemplate(line => {
-                        return `<span title="${line.JournalEntryLineDescription}">
-                                ${line.JournalEntryLineDescription}
-                            </span>`;
-                    }),
-                new UniTableColumn('VatType.VatCode', 'Mva-kode', UniTableColumnType.Text)
-                    .setFilterOperator('startswith')
-                    .setWidth('60px')
-                    .setTemplate(line => line.VatTypeVatCode),
-                new UniTableColumn('VatDeductionPercent', 'Fradrag %', UniTableColumnType.Number)
-                    .setFilterOperator('startswith')
-                    .setTemplate(line => line.VatDeductionPercent)
-                    .setVisible(false),
-                new UniTableColumn('Amount', 'Beløp', UniTableColumnType.Money)
-                    .setFilterOperator('eq')
-                    .setTemplate(line => line.JournalEntryLineAmount),
-                new UniTableColumn('AmountCurrency', 'V-beløp', UniTableColumnType.Money)
-                    .setFilterOperator('eq')
-                    .setTemplate(line => line.JournalEntryLineAmountCurrency)
-                    .setVisible(false),
-                new UniTableColumn('CurrencyCode.Code', 'Valuta', UniTableColumnType.Text)
-                    .setFilterOperator('contains')
-                    .setTemplate(line => line.CurrencyCodeCode)
-                    .setVisible(false),
-                new UniTableColumn('CurrencyExchangeRate', 'V-kurs', UniTableColumnType.Number)
-                    .setFilterOperator('startswith')
-                    .setTemplate(line => line.JournalEntryLineCurrencyExchangeRate)
-                    .setVisible(false),
-                new UniTableColumn('TaxBasisAmount', 'Grunnlag mva', UniTableColumnType.Money)
-                    .setFilterOperator('eq')
-                    .setVisible(showTaxBasisAmount)
-                    .setTemplate(line => line.JournalEntryLineTaxBasisAmount),
-                new UniTableColumn('TaxBasisAmountCurrency', 'V-grunnlag mva', UniTableColumnType.Money)
-                    .setFilterOperator('eq')
-                    .setVisible(showTaxBasisAmount)
-                    .setTemplate(line => line.JournalEntryLineTaxBasisAmountCurrency),
-                new UniTableColumn('TerminPeriod.No', 'MVA rapportert', UniTableColumnType.Text)
-                    .setTemplate(line => line.JournalEntryLineVatReportID ? line.JournalEntryLineVatReportID : 'Nei')
-                    .setFilterable(false)
-                    .setVisible(false),
-                new UniTableColumn('InvoiceNumber', 'Fakturanr.', UniTableColumnType.Text)
-                    .setCls('column-align-right')
-                    .setFilterOperator('startswith')
-                    .setVisible(false)
-                    .setTemplate(line => line.JournalEntryLineInvoiceNumber),
-                new UniTableColumn('DueDate', 'Forfall', UniTableColumnType.LocalDate)
-                    .setTemplate(line => line.JournalEntryLineDueDate)
-                    .setFilterOperator('contains')
-                    .setVisible(false),
-                new UniTableColumn('RestAmount', 'Restbeløp', UniTableColumnType.Money)
-                    .setFilterOperator('eq')
-                    .setTemplate(line => line.JournalEntryLineRestAmount)
-                    .setVisible(false),
-                new UniTableColumn('RestAmountCurrency', 'V-restbeløp', UniTableColumnType.Money)
-                    .setFilterOperator('eq')
-                    .setTemplate(line => line.JournalEntryLineRestAmountCurrency)
-                    .setVisible(false),
-                new UniTableColumn('StatusCode', 'Status', UniTableColumnType.Text)
-                    .setFilterable(false)
-                    .setTemplate(line => this.journalEntryLineService.getStatusText(line.JournalEntryLineStatusCode))
-                    .setVisible(false),
-                new UniTableColumn('Department.Name', 'Avdeling', UniTableColumnType.Text)
-                    .setFilterOperator('contains')
-                    .setTemplate(line => {
-                        return line.DepartmentDepartmentNumber
-                            ? line.DepartmentDepartmentNumber + ': ' + line.DepartmentName
-                            : '';
-                    })
-                    .setVisible(false),
-                new UniTableColumn('Project.Name', 'Prosjekt', UniTableColumnType.Text).setFilterOperator('contains')
-                    .setTemplate(line => {
-                        return line.ProjectProjectNumber ? line.ProjectProjectNumber + ': ' + line.ProjectName : '';
-                    })
-                    .setVisible(false),
-                new UniTableColumn('JournalEntry.JournalEntryAccrualID', 'Periodisering', UniTableColumnType.Text)
-                    .setFilterOperator('eq')
-                    .setWidth('60px')
-                    .setVisible(false)
-                    .setTemplate(line => {
-                        return `<a href="/#/accounting/transquery/details;`
-                            + `JournalEntry_JournalEntryAccrualID=${line.JournalEntryJournalEntryAccrualID}">
-                                ${line.JournalEntryJournalEntryAccrualID}
-                            </a>`;
-                    }),
-                new UniTableColumn('ID', PAPERCLIP, UniTableColumnType.Text).setFilterOperator('contains')
-                    .setTemplate(line => line.Attachments ? PAPERCLIP : '')
-                    .setWidth('40px')
-                    .setFilterable(false)
-            ];
+        const columns = [
+            new UniTableColumn('JournalEntryNumberNumeric', 'Bnr.', UniTableColumnType.Link)
+                .setTemplate(row => row.JournalEntryLineJournalEntryNumberNumeric || 'null')
+                .setOptions({
+                    urlResolver: (row) => `/accounting/transquery/details;journalEntryNumber=${row.JournalEntryLineJournalEntryNumber}`
+                })
+                .setFilterOperator('startswith')
+                .setWidth('65px'),
+            new UniTableColumn('JournalEntryNumber', 'Bnr. med år', UniTableColumnType.Link)
+                .setDisplayField('JournalEntryLineJournalEntryNumber')
+                .setOptions({
+                    urlResolver: (row) => `/accounting/transquery/details;journalEntryNumber=${row.JournalEntryLineJournalEntryNumber}`
+                })
+                .setFilterOperator('startswith')
+                .setVisible(false),
+            new UniTableColumn('Account.AccountNumber', 'Kontonr.', UniTableColumnType.Link)
+                .setDisplayField('AccountAccountNumber')
+                .setOptions({
+                    urlResolver: (row) => `/accounting/transquery/details;Account_AccountNumber=${row.AccountAccountNumber}`
+                })
+                .setWidth('85px')
+                .setFilterOperator('startswith'),
+            new UniTableColumn('Account.AccountName', 'Kontonavn', UniTableColumnType.Text)
+                .setFilterOperator('contains')
+                .setTemplate(line => line.AccountAccountName),
+            new UniTableColumn('SubAccount.AccountNumber', 'Reskontronr.', UniTableColumnType.Link)
+                .setDisplayField('SubAccountAccountNumber')
+                .setOptions({
+                    urlResolver: (row) => `/accounting/transquery/details;SubAccount_AccountNumber=${row.SubAccountAccountNumber}`
+                })
+                .setVisible(false)
+                .setWidth('90px')
+                .setFilterOperator('startswith'),
+            new UniTableColumn('SubAccount.AccountName', 'Reskontro', UniTableColumnType.Text)
+                .setFilterOperator('contains')
+                .setTemplate(line => line.SubAccountAccountName)
+                .setVisible(false),
+            new UniTableColumn('FinancialDate', 'Regnskapsdato', UniTableColumnType.LocalDate)
+                .setFilterOperator('contains')
+                .setFormat('DD.MM.YYYY')
+                .setWidth('110px')
+                .setTemplate(line => line.JournalEntryLineFinancialDate),
+            new UniTableColumn('VatDate', 'Mva-dato', UniTableColumnType.LocalDate)
+                .setFilterOperator('contains')
+                .setFormat('DD.MM.YYYY')
+                .setWidth('110px')
+                .setTemplate(line => line.JournalEntryLineVatDate),
+            new UniTableColumn('Description', 'Beskrivelse', UniTableColumnType.Text)
+                .setWidth('20%')
+                .setFilterOperator('contains')
+                .setDisplayField('JournalEntryLineDescription'),
+            new UniTableColumn('VatType.VatCode', 'Mva-kode', UniTableColumnType.Text)
+                .setFilterOperator('startswith')
+                .setWidth('60px')
+                .setDisplayField('VatTypeVatCode'),
+            new UniTableColumn('VatDeductionPercent', 'Fradrag %', UniTableColumnType.Number)
+                .setFilterOperator('startswith')
+                .setDisplayField('VatDeductionPercent')
+                .setVisible(false),
+            new UniTableColumn('Amount', 'Beløp', UniTableColumnType.Money)
+                .setFilterOperator('eq')
+                .setTemplate(line => line.JournalEntryLineAmount),
+            new UniTableColumn('AmountCurrency', 'V-beløp', UniTableColumnType.Money)
+                .setFilterOperator('eq')
+                .setDisplayField('JournalEntryLineAmountCurrency')
+                .setVisible(false),
+            new UniTableColumn('CurrencyCode.Code', 'Valuta', UniTableColumnType.Text)
+                .setFilterOperator('contains')
+                .setDisplayField('CurrencyCodeCode')
+                .setVisible(false),
+            new UniTableColumn('CurrencyExchangeRate', 'V-kurs', UniTableColumnType.Number)
+                .setFilterOperator('startswith')
+                .setDisplayField('JournalEntryLineCurrencyExchangeRate')
+                .setVisible(false),
+            new UniTableColumn('TaxBasisAmount', 'Grunnlag mva', UniTableColumnType.Money)
+                .setFilterOperator('eq')
+                .setVisible(showTaxBasisAmount)
+                .setDisplayField('JournalEntryLineTaxBasisAmount'),
+            new UniTableColumn('TaxBasisAmountCurrency', 'V-grunnlag mva', UniTableColumnType.Money)
+                .setFilterOperator('eq')
+                .setVisible(showTaxBasisAmount)
+                .setTemplate(line => line.JournalEntryLineTaxBasisAmountCurrency),
+            new UniTableColumn('TerminPeriod.No', 'MVA rapportert', UniTableColumnType.Text)
+                .setTemplate(line => line.JournalEntryLineVatReportID ? line.JournalEntryLineVatReportID : 'Nei')
+                .setFilterable(false)
+                .setVisible(false),
+            new UniTableColumn('InvoiceNumber', 'Fakturanr.', UniTableColumnType.Text)
+                .setCls('column-align-right')
+                .setFilterOperator('startswith')
+                .setVisible(false)
+                .setDisplayField('JournalEntryLineInvoiceNumber'),
+            new UniTableColumn('DueDate', 'Forfall', UniTableColumnType.LocalDate)
+                .setDisplayField('JournalEntryLineDueDate')
+                .setFilterOperator('contains')
+                .setVisible(false),
+            new UniTableColumn('RestAmount', 'Restbeløp', UniTableColumnType.Money)
+                .setFilterOperator('eq')
+                .setDisplayField('JournalEntryLineRestAmount')
+                .setVisible(false),
+            new UniTableColumn('RestAmountCurrency', 'V-restbeløp', UniTableColumnType.Money)
+                .setFilterOperator('eq')
+                .setDisplayField('JournalEntryLineRestAmountCurrency')
+                .setVisible(false),
+            new UniTableColumn('StatusCode', 'Status', UniTableColumnType.Text)
+                .setFilterable(false)
+                .setTemplate(line => this.journalEntryLineService.getStatusText(line.JournalEntryLineStatusCode))
+                .setVisible(false),
+            new UniTableColumn('Department.Name', 'Avdeling', UniTableColumnType.Text)
+                .setFilterOperator('contains')
+                .setTemplate(line => {
+                    return line.DepartmentDepartmentNumber
+                        ? line.DepartmentDepartmentNumber + ': ' + line.DepartmentName
+                        : '';
+                })
+                .setVisible(false),
+            new UniTableColumn('Project.Name', 'Prosjekt', UniTableColumnType.Text)
+                .setFilterOperator('contains')
+                .setTemplate(line => {
+                    return line.ProjectProjectNumber ? line.ProjectProjectNumber + ': ' + line.ProjectName : '';
+                })
+                .setVisible(false),
+            new UniTableColumn('JournalEntry.JournalEntryAccrualID', 'Periodisering', UniTableColumnType.Link)
+                .setFilterOperator('eq')
+                .setWidth('60px')
+                .setVisible(false)
+                .setDisplayField('JournalEntryJournalEntryAccrualID')
+                .setOptions({
+                    urlResolver: (row) => `/accounting/transquery/details;`
+                        + `JournalEntry_JournalEntryAccrualID=${row.JournalEntryJournalEntryAccrualID}`
+                }),
+            new UniTableColumn('ID', PAPERCLIP, UniTableColumnType.Text)
+                .setFilterOperator('contains')
+                .setTemplate(line => line.Attachments ? PAPERCLIP : '')
+                .setWidth('40px')
+                .setFilterable(false)
+        ];
 
         columns.forEach(x => {
             x.conditionalCls = (data) => this.getCssClasses(data, x.field);

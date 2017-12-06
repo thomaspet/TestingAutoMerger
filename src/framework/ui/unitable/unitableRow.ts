@@ -1,5 +1,19 @@
-import {Component, Input, Output, EventEmitter, Renderer, ViewChildren, ElementRef, QueryList, ChangeDetectionStrategy} from '@angular/core';
+import {
+    Component,
+    Input,
+    Output,
+    EventEmitter,
+    Renderer,
+    ViewChildren,
+    ElementRef,
+    QueryList,
+    ChangeDetectionStrategy,
+    OnChanges
+} from '@angular/core';
+import {Router} from '@angular/router';
 import {IContextMenuItem} from './unitable';
+import {UniTableColumn, UniTableColumnType} from './config/unitableColumn';
+import {UniTableConfig} from './config/unitableConfig';
 import {UniTablePipe} from './unitablePipe';
 import * as Immutable from 'immutable';
 
@@ -14,7 +28,13 @@ export interface IRowModelChangeEvent {
 @Component({
     selector: '[unitable-row]',
     template: `
-        <td *ngIf="config?.multiRowSelect" tabindex="-1"><input [checked]="rowModel.get('_rowSelected')" type="checkbox" #rowSelector (change)="onRowSelectionChanged(rowSelector.checked)"/></td>
+        <td *ngIf="config?.multiRowSelect" tabindex="-1">
+            <input type="checkbox" #rowSelector
+                [checked]="rowModel.get('_rowSelected')"
+                (change)="onRowSelectionChanged(rowSelector.checked)"
+            />
+        </td>
+
         <td #rowColumn *ngFor="let column of columns"
             bind-hidden="!column.get('visible')"
             bind-class="column.get('cls')"
@@ -23,14 +43,27 @@ export interface IRowModelChangeEvent {
             (focus)="onCellFocus($event, column)"
             (click)="onCellClick($event, column)"
             [tabindex]="getTabIndex(column)"
-            [innerHtml]="uniTablePipe.transform(rowModel, column)"
             [attr.title]="uniTablePipe.transform(rowModel, column)">
+
+            <span role="link" class="unitable-link"
+                [ngClass]="column.get('options')?.cls"
+                *ngIf="column.get('type') === 13; else nonLink"
+                (click)="onLinkClick(column)">
+
+                {{uniTablePipe.transform(rowModel, column)}}
+            </span>
+
+            <ng-template #nonLink>
+                {{uniTablePipe.transform(rowModel, column)}}
+            </ng-template>
+
         </td>
 
         <td *ngIf="config?.deleteButton" tabindex="-1" class="unitable-delete-btn">
             <button class="table-button"
-                    [disabled]="config.readonly && config.deleteButton.disableOnReadonlyRows"
-                    (click)="onDeleteRow()"> </button>
+                [disabled]="config.readonly && config.deleteButton.disableOnReadonlyRows"
+                (click)="onDeleteRow()">
+            </button>
         </td>
 
         <td *ngIf="rowMenuItem" [ngClass]="{'contextMenu': !singleItemMenu}" tabindex="-1">
@@ -46,10 +79,10 @@ export interface IRowModelChangeEvent {
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 
-export class UniTableRow {
-    @Input() public rowModel: any;
-    @Input() public columns: any;
-    @Input() public config: any;
+export class UniTableRow implements OnChanges {
+    @Input() public rowModel: Immutable.Map<any, any>;
+    @Input() public columns: Immutable.List<UniTableColumn>;
+    @Input() public config: UniTableConfig;
 
     @Output()
     private rowDeleted: EventEmitter<any> = new EventEmitter(false);
@@ -74,7 +107,10 @@ export class UniTableRow {
     private singleItemMenu: boolean = true;
     private rowMenuItem: IContextMenuItem = undefined;
 
-    public constructor(private renderer: Renderer) {}
+    public constructor(
+        private renderer: Renderer,
+        private router: Router
+    ) {}
 
     public ngOnChanges(changes) {
         if (changes['config'] && this.config) {
@@ -94,6 +130,25 @@ export class UniTableRow {
                 }
             }
         }
+    }
+
+    public onLinkClick(column: Immutable.Map<any, any>) {
+        const options = column && column.get('options');
+        if (options && options.urlResolver) {
+            const url: string = options.urlResolver(this.rowModel.toJS());
+            if (url.includes('mailto:')) {
+                window.location.href = url;
+            } else if (url.includes('http') || url.includes('www')) {
+                if (window.confirm('Du forlater nå Uni Economy')) {
+                    window.open(url, '_blank');
+                }
+            } else {
+                this.router.navigateByUrl(url);
+            }
+        } else {
+            console.log('Missing url resolver in column config');
+        }
+
     }
 
     public onCellFocus(event, column) {

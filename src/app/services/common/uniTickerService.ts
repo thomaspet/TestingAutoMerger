@@ -525,16 +525,36 @@ export class UniTickerService { //extends BizHttp<UniQueryDefinition> {
             });
         }
 
-        if (columnType === 'link') {
+        return formattedFieldValue;
+    }
+
+    public linkColUrlResolver(column: TickerColumn, data: any, ticker: Ticker): string {
+        let fieldValue: any = this.getFieldValueInternal(column, data);
+        // if (columnOverrides) {
+        //     let columnOverride = columnOverrides.find(x => x.Field === column.Field);
+        //     if (columnOverride) {
+        //         fieldValue = columnOverride.Template(data);
+        //     }
+        // }
+
+        if (!fieldValue) {
+            fieldValue = column.Placeholder || '';
+        }
+
+        if (column.Type === 'link') {
             let url = '';
             if (column.ExternalModel) {
-                let externalModel = this.modelService.getModel(column.ExternalModel.startsWith(':field') ? data[column.Alias] : column.ExternalModel);
+                const modelName = column.ExternalModel.startsWith(':field')
+                    ? data[column.Alias]
+                    : column.ExternalModel;
+
+                const externalModel = this.modelService.getModel(modelName);
 
                 if (externalModel && externalModel.DetailsUrl) {
                     url = externalModel.DetailsUrl;
 
                     if (column.LinkNavigationProperty) {
-                        let linkNavigationPropertyAlias = column.LinkNavigationProperty.replace('.', '');
+                        const linkNavigationPropertyAlias = column.LinkNavigationProperty.replace('.', '');
                         if (data[linkNavigationPropertyAlias]) {
                             url = url.replace(':ID', data[linkNavigationPropertyAlias]);
                         } else {
@@ -555,13 +575,13 @@ export class UniTickerService { //extends BizHttp<UniQueryDefinition> {
                     console.error(`${column.ExternalModel} not found, or no details url specified for model`);
                 }
             } else {
-                let model = ticker.ApiModel ? ticker.ApiModel : this.modelService.getModel(ticker.Model);
+                const model = ticker.ApiModel || this.modelService.getModel(ticker.Model);
 
                 if (model && model.DetailsUrl) {
                     url = model.DetailsUrl;
 
                     if (column.LinkNavigationProperty) {
-                        let linkNavigationPropertyAlias = column.LinkNavigationProperty.replace('.', '');
+                        const linkNavigationPropertyAlias = column.LinkNavigationProperty.replace('.', '');
                         if (data[linkNavigationPropertyAlias]) {
                             url = url.replace(':ID', data[linkNavigationPropertyAlias]);
                         } else {
@@ -583,20 +603,13 @@ export class UniTickerService { //extends BizHttp<UniQueryDefinition> {
                 }
             }
 
-            if (url !== '' && formattedFieldValue !== '') {
-                formattedFieldValue = `<a class="ticker-link" title="/#${url}" href="/#${url}">${formattedFieldValue}</a>`;
-            }
-        } else if (columnType === 'external-link') {
-            if (formattedFieldValue !== '' && fieldValue && fieldValue !== '') {
-                formattedFieldValue = `<a href="${fieldValue}" title="${fieldValue}" target="_blank">${formattedFieldValue}</a>`;
-            }
-        } else if (columnType === 'mailto') {
-            if (formattedFieldValue !== '' && fieldValue && fieldValue !== '') {
-                formattedFieldValue = `<a href="mailto:${fieldValue}" title="${fieldValue}">${formattedFieldValue}</a>`;
-            }
-        }
+            return url;
 
-        return formattedFieldValue;
+        } else if (column.Type === 'external-link') {
+            return fieldValue;
+        } else if (column.Type === 'mailto') {
+            return 'mailto:' + fieldValue;
+        }
     }
 
     private statusCodeToText(statusCode: number): string {

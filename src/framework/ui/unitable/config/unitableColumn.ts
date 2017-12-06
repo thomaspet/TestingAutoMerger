@@ -19,7 +19,8 @@ export enum UniTableColumnType {
     LocalDate = 9,
     Boolean = 10,
     UniSearch = 11,
-    Typeahead = 12
+    Typeahead = 12,
+    Link = 13
 }
 
 export enum UniTableColumnSortMode {
@@ -136,6 +137,8 @@ export class UniTableColumn implements IUniTableColumn {
                 decimalLength: (type === UniTableColumnType.Money) ? 2 : undefined,
                 postfix: (type === UniTableColumnType.Percent) ? '%' : undefined
             };
+        } else if (type === UniTableColumnType.Link) {
+            this.editable = false;
         }
     }
 

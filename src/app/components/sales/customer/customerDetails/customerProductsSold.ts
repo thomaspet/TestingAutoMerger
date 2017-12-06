@@ -78,20 +78,18 @@ export class CustomerProductsSold {
 
     private setupProductTable() {
         // Define columns to use in the table
-        let numberOfItemsCol = new UniTableColumn('NumberOfItems', 'Antall', UniTableColumnType.Number)
+        const numberOfItemsCol = new UniTableColumn('NumberOfItems', 'Antall', UniTableColumnType.Number)
             .setWidth('5rem');
-        let partNameCol = new UniTableColumn('ProductPartName', 'Produktnr',  UniTableColumnType.Text)
+        const partNameCol = new UniTableColumn('ProductPartName', 'Produktnr',  UniTableColumnType.Link)
             .setWidth('15%')
             .setFilterOperator('contains')
-            .setTemplate((product) => {
-                return `<a href='/#/sales/products/${product.ProductID}'>${product.ProductPartName}</a>`;
-            });
-        let nameCol = new UniTableColumn('ProductName', 'Navn',  UniTableColumnType.Text)
+            .setOptions({ urlResolver: (row) => `/sales/products/${row.ProductID}` });
+        const nameCol = new UniTableColumn('ProductName', 'Navn',  UniTableColumnType.Text)
             .setFilterOperator('contains');
-        let priceExVatCol = new UniTableColumn('TotalExVat', 'Totalpris eks. mva',  UniTableColumnType.Money)
+        const priceExVatCol = new UniTableColumn('TotalExVat', 'Totalpris eks. mva',  UniTableColumnType.Money)
             .setFilterOperator('eq')
             .setWidth('15%');
-        let priceIncVatCol = new UniTableColumn('TotalIncVat', 'Totalpris inkl. mva',  UniTableColumnType.Money)
+        const priceIncVatCol = new UniTableColumn('TotalIncVat', 'Totalpris inkl. mva',  UniTableColumnType.Money)
             .setFilterOperator('eq')
             .setWidth('15%');
 

@@ -684,12 +684,13 @@ export class UniTicker {
                         col.isSumColumn = column.SumColumn;
                         col.sumFunction = column.SumFunction;
 
-                        if (column.Type === 'link') {
-                            col.headerCls = 'ticker-link-col';
-                        }
-
                         if (column.CssClass) {
                             col.cls = column.CssClass;
+                        }
+
+                        if (column.Type === 'link') {
+                            col.headerCls = 'ticker-link-col';
+                            col.cls = 'ticker-link-col';
                         }
 
                         if (column.DisplayField) {
@@ -718,35 +719,31 @@ export class UniTicker {
                             }
                         }
 
-                        if (column.Type === 'external-link') {
-                            col.setTemplate(row => {
-                                if (row[col.alias] && row[col.alias] !== '') {
-                                    return `<a href="${row[col.alias]}" target="_blank">${row[col.alias]}</a>`;
-                                }
-                                return '';
-                            });
-                        } else if (column.Type === 'attachment') {
+                        if (column.Type === 'attachment') {
                             col.setTemplate(line => line.Attachments ? PAPERCLIP : '');
                             col.setOnCellClick(row => {
                                 if (row.Attachments) {
                                     const entity = column.ExternalModel ? column.ExternalModel : this.ticker.Model;
-                                    let data = {
+                                    this.modalService.open(ImageModal, { data: {
                                         entity: entity,
                                         entityID: row.JournalEntryID
-                                    };
-
-                                    this.modalService.open(ImageModal, { data: data });
+                                    }});
                                 }
                             });
-                        }
+                        } else if (column.Type === 'link' || column.Type === 'external-link' || column.Type === 'mailto') {
+                            col.setType(13);
+                            col.setOptions({
+                                cls: column.Type === 'mailto' ? 'mailto' : '',
+                                urlResolver: (row) => this.uniTickerService.linkColUrlResolver(column, row, this.ticker)
+                            });
+                            col.setTemplate(row => this.uniTickerService.getFieldValue(column, row, this.ticker, this.columnOverrides));
 
-                        if (column.Type === 'link' || column.Type === 'mailto'
-                            || (column.SubFields && column.SubFields.length > 0)) {
-                                col.setTemplate(row => {
-                                    // use the tickerservice to get and format value and subfield values
-                                    return this.uniTickerService
-                                        .getFieldValue(column, row, this.ticker, this.columnOverrides);
-                                });
+                        } else if (column.SubFields && column.SubFields.length > 0) {
+                            col.setTemplate(row => {
+                                return this.uniTickerService.getFieldValue(
+                                    column, row, this.ticker, this.columnOverrides
+                                );
+                            });
                         }
 
                         if (column.Format && column.Format !== '') {
