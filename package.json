@@ -15,6 +15,7 @@
     "zip-dist": "node ./scripts/zip.js",
     "build.dev": "npm run prebuild && ng build --env=dev --output-hashing=all --no-aot",
     "build.test": "npm run prebuild && ng build --env=test --output-hashing=all --no-aot",
+    "build.test.prodmode": "npm run prebuild && ng build --env=test --prod --no-aot",
     "build.pilot": "npm run prebuild && ng build --env=pilot --prod --no-aot",
     "build.prod": "npm run prebuild && ng build --env=prod --prod --no-aot",
     "start": "npm run start.dev",
