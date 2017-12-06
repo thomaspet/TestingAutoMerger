@@ -11,6 +11,8 @@ import {
     SupplierInvoiceService,
     ErrorService
 } from '../../../../services/services';
+import {UniImageSize} from '../../../../../framework/uniImage/uniImage';
+import {ImageModal} from '../../../common/modals/ImageModal';
 
 @Component({
     selector: 'add-file-modal',
@@ -18,16 +20,30 @@ import {
         <section role="dialog" class="uni-modal uni-approve-modal-class large">
             <header><h1>Legg til fil fra innboks</h1></header>
 
-            <section style="padding: 2rem">
-                <uni-table
-                    [resource]="list"
-                    [config]="tableConfig"
-                    (rowSelected)="onRowSelected($event)"
-                    (rowDeleted)="onRowDeleted($event.rowModel)">
-                </uni-table>
-            </section>
+            <article class="application accounting_inbox_container">
+                <article class="accounting_inbox_list_container">
+                    <uni-table
+                        [resource]="list"
+                        [config]="tableConfig"
+                        (rowSelected)="onRowSelected($event)"
+                        (rowDeleted)="onRowDeleted($event.rowModel)">
+                    </uni-table>
+                </article>
+
+                <article class="preview_container" id="preview_container_id" [attr.aria-busy]="loadingPreview">
+                    <uni-image
+                        [singleImage]="true"
+                        [readonly]="true"
+                        [uploadWithoutEntity]="true"
+                        [fileIDs]="fileID"
+                        (imageClicked)="onImageClicked($event)"
+                        (fileListReady)="onFileListReady($event)">
+                    </uni-image>
+                </article>
+            </article>
 
             <footer>
+                <button (click)="this.onClose.emit(this.file)" class="good">Hent</button>
                 <button (click)="onCloseAction()" class="bad">Avbryt</button>
             </footer>
         </section>
@@ -38,6 +54,11 @@ export class UniAddFileModal implements IUniModal {
 
     private tableConfig: UniTableConfig;
     private list: any[] = [];
+
+    public loadingPreview: boolean = false;
+    private fileID: any;
+    private currentFiles: any;
+    private file: any;
 
     @Input()
     public options: IModalOptions;
@@ -103,13 +124,18 @@ export class UniAddFileModal implements IUniModal {
     }
 
     public onRowSelected(row: any) {
-        // When selecting a single row and not others are selected, emit it
-        row.rowModel._rowSelected = !row.rowModel._rowSelected;
-        this.onClose.emit(row.rowModel);
+        const item = row.rowModel;
+        item._rowSelected = !item._rowSelected;
+        this.currentFiles = item.FileTags ? item.FileTags : null;
+        if (item) {
+            this.previewDocument(item);
+        }
+        this.file = item;
     }
 
     public onRowDeleted(row: any) {
-        if (row.ID) {
+        const fileId = row.ID;
+        if (fileId) {
             const modal = this.modalService.open(UniConfirmModalV2, {
                 header: 'Bekreft sletting',
                 message: 'Slett aktuell fil: ' + row.Name
@@ -117,7 +143,11 @@ export class UniAddFileModal implements IUniModal {
 
             modal.onClose.subscribe(response => {
                 if (response === ConfirmActions.ACCEPT) {
-                    this.supplierInvoiceService.send('files/' + row.ID, undefined, 'DELETE').subscribe(
+                    if (fileId === this.fileID[0]) {
+                        this.fileID = null;
+                        this.hidePreview();
+                    }
+                    this.supplierInvoiceService.send('files/' + fileId, undefined, 'DELETE').subscribe(
                         res => {
                             this.toast.addToast('Filen er slettet', ToastType.good, 2);
                         },
@@ -137,5 +167,35 @@ export class UniAddFileModal implements IUniModal {
 
     public onCloseAction() {
         this.onClose.emit(null);
+    }
+
+    public onImageClicked(file: any) {
+        let data = {
+            entity: 'SupplierInvoice',
+            entityID: this.currentFiles[0].ID || 0,
+            fileIDs: null,
+            showFileID: file.ID,
+            readonly: true,
+            size: UniImageSize.large
+        };
+
+        if (this.currentFiles) {
+            data.fileIDs = this.currentFiles.map(f => f.FileID);
+        }
+        this.modalService.open(ImageModal, { data: data });
+    }
+
+    private previewDocument(item) {
+        document.getElementById('preview_container_id').style.display = 'block';
+        this.loadingPreview = true;
+        this.fileID = [item.ID];
+    }
+
+    private hidePreview() {
+        document.getElementById('preview_container_id').style.display = 'none';
+    }
+
+    public onFileListReady(event) {
+        this.loadingPreview = false;
     }
 }
