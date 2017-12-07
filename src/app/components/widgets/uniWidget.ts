@@ -27,7 +27,8 @@ import {
     UniTransactionsWidget,
     UniShortcutListWidget,
     UniInfoShortcutWidget,
-    UniCurrencyWidget
+    UniCurrencyWidget,
+    UniTopTenWidget
 } from './widgets/barrel';
 
 export interface IUniWidget {
@@ -59,7 +60,8 @@ export const WIDGET_MAP = {
     transaction: UniTransactionsWidget,
     shortcutlist: UniShortcutListWidget,
     infoshortcut: UniInfoShortcutWidget,
-    currency: UniCurrencyWidget
+    currency: UniCurrencyWidget,
+    topten: UniTopTenWidget
 };
 
 @Directive({

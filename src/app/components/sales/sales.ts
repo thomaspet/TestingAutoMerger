@@ -166,6 +166,33 @@ export class UniSales {
                 }
             },
             {
+                width: 4,
+                height: 3,
+                x: 4,
+                y: 4,
+                widgetType: 'topten',
+                config: {
+                    header: 'Kunder, 10 største',
+                    contextMenuItems: [
+                        {
+                            label: 'Ny faktura',
+                            link: '/sales/invoices/0;customerID=',
+                            needsID: true
+                        },
+                        {
+                            label: 'Ny ordre',
+                            link: '/sales/orders/0;customerID=',
+                            needsID: true
+                        },
+                        {
+                            label: 'Nytt tilbud',
+                            link: '/sales/quotes/0;customerID=',
+                            needsID: true
+                        }
+                    ]
+                }
+            },
+            {
                 width: 8,
                 height: 3,
                 x: 0,

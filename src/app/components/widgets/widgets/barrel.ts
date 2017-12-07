@@ -11,6 +11,7 @@ import {UniTransactionsWidget} from './transactions';
 import {UniShortcutListWidget} from './shortcutList';
 import {UniInfoShortcutWidget} from './infoShortcut';
 import {UniCurrencyWidget} from './currency';
+import {UniTopTenWidget} from './topten';
 
 export const UNI_WIDGETS = [
     UniShortcutWidget,
@@ -25,7 +26,8 @@ export const UNI_WIDGETS = [
     UniTransactionsWidget,
     UniShortcutListWidget,
     UniInfoShortcutWidget,
-    UniCurrencyWidget
+    UniCurrencyWidget,
+    UniTopTenWidget
 ];
 
 export * from './shortcut';
@@ -41,4 +43,5 @@ export * from './transactions';
 export * from './shortcutList';
 export * from './infoShortcut';
 export * from './currency';
+export * from './topten';
 
