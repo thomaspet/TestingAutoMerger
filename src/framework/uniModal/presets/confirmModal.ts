@@ -51,7 +51,9 @@ export class UniConfirmModalV2 implements IUniModal {
 
     public ngAfterViewInit() {
         setTimeout(function() {
-            document.getElementById('good_button_ok').focus();
+            if (document.getElementById('good_button_ok')) {
+                document.getElementById('good_button_ok').focus();                
+            }
         });
     }
 
