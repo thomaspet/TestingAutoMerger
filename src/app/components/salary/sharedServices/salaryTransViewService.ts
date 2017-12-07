@@ -30,25 +30,28 @@ export class SalaryTransViewService {
 
                 this.openSupplements(rowModel, onSupplementsClose, isReadOnly());
             })
-            .setTemplate((rowModel: SalaryTransaction) => {
-                if (!rowModel.Supplements || !rowModel.Supplements.length || this.isOnlyAmountField(rowModel)) {
-                    return '';
+            .setTooltip((row: SalaryTransaction) => {
+                if (!row.Supplements || !row.Supplements.length || this.isOnlyAmountField(row)) {
+                    return;
                 }
-                let transWtSupps = rowModel.Supplements
+
+                const transWtSupps = row.Supplements
                     .map(supp => supp.WageTypeSupplement)
                     .filter(wtSupp => !!wtSupp) || [];
                 let wtSupps = transWtSupps.length
                     ? transWtSupps
-                    : rowModel.Wagetype && rowModel.Wagetype.SupplementaryInformations;
+                    : row.Wagetype && row.Wagetype.SupplementaryInformations;
                 wtSupps = wtSupps || [];
 
-                let title = this.generateSupplementsTitle(rowModel, wtSupps);
-                return `{#<em class="${this.supplementService
-                    .anyUnfinished(rowModel.Supplements, wtSupps)
-                    ? 'info-warn'
-                    : 'info-ok'}" `
-                    + `title="${title}" `
-                    + `role="presentation">${title}</em>#}#`;
+                const text = this.generateSupplementsTitle(row, wtSupps);
+                const type = this.supplementService.anyUnfinished(row.Supplements, wtSupps)
+                    ? 'warn' : 'good';
+
+                return {
+                    type: type,
+                    text: text,
+                    alignment: 'center'
+                };
             })
             .setWidth('2.5rem');
     }

@@ -367,22 +367,23 @@ export class VacationPayModal implements OnInit, IUniModal {
     }
 
     private createTableConfig() {
-        var nrCol = new UniTableColumn(
-            'Employee.EmployeeNumber', 'Nr', UniTableColumnType.Text, false).setWidth('4rem');
-        var over60Col = new UniTableColumn('', '', UniTableColumnType.Custom, false)
-            .setCls('icon-column')
-            .setTemplate((rowModel: VacationPayLine) => (rowModel.Age < 60)
-                ? ''
-                : `{#<em class="over-sixty" title="Ansatt er over 60 år" role="presentation"></em>#}#`
-            )
-            .setWidth('2rem');
-        var nameCol = new UniTableColumn(
+        const nrCol = new UniTableColumn('Employee.EmployeeNumber', 'Nr', UniTableColumnType.Text, false)
+            .setWidth('4rem')
+            .setTooltip((rowModel: VacationPayLine) => {
+                if (rowModel.Age > 60) {
+                    return {
+                        type: 'warn',
+                        text: 'Ansatt er over 60 år'
+                    };
+                }
+            });
+        const nameCol = new UniTableColumn(
             'Employee.BusinessRelationInfo.Name', 'Navn', UniTableColumnType.Text, false).setWidth('9rem');
-        var systemGrunnlagCol = new UniTableColumn(
+        const systemGrunnlagCol = new UniTableColumn(
             'SystemVacationPayBase', 'Gr.lag system', UniTableColumnType.Money, false).setWidth('8rem');
-        var manuellGrunnlagCol = new UniTableColumn(
+        const manuellGrunnlagCol = new UniTableColumn(
             'ManualVacationPayBase', 'Gr.lag manuelt', UniTableColumnType.Money).setWidth('8rem');
-        var rateCol = new UniTableColumn('_Rate', 'Sats', UniTableColumnType.Money, false)
+        const rateCol = new UniTableColumn('_Rate', 'Sats', UniTableColumnType.Money, false)
             .setWidth('4rem')
             .setTemplate((row: VacationPayLine) => {
                 if (row['_isEmpty']) {
@@ -394,12 +395,12 @@ export class VacationPayModal implements OnInit, IUniModal {
                     return '' + row.Rate;
                 }
             });
-        var sixthCol = new UniTableColumn('_IncludeSixthWeek', '6.ferieuke', UniTableColumnType.Select, true)
+        const sixthCol = new UniTableColumn('_IncludeSixthWeek', '6.ferieuke', UniTableColumnType.Select, true)
             .setWidth('4rem')
             .setOptions({
                 resource: ['Ja', 'Nei']
             });
-        var vacationPayCol = new UniTableColumn('_VacationPay', 'Feriepenger', UniTableColumnType.Money, false)
+        const vacationPayCol = new UniTableColumn('_VacationPay', 'Feriepenger', UniTableColumnType.Money, false)
             .setWidth('7rem')
             .setTemplate((row: VacationPayLine) => {
                 if (row['_isEmpty']) {
@@ -411,14 +412,14 @@ export class VacationPayModal implements OnInit, IUniModal {
                     return '' + row.VacationPay;
                 }
             });
-        var earlierPayCol = new UniTableColumn('PaidVacationPay', 'Tidl utbetalt', UniTableColumnType.Money, false)
+        const earlierPayCol = new UniTableColumn('PaidVacationPay', 'Tidl utbetalt', UniTableColumnType.Money, false)
             .setWidth('7rem');
-        var payoutCol = new UniTableColumn('Withdrawal', 'Utbetales', UniTableColumnType.Money).setWidth('6rem');
+        const payoutCol = new UniTableColumn('Withdrawal', 'Utbetales', UniTableColumnType.Money).setWidth('6rem');
 
 
         this.tableConfig = new UniTableConfig('salary.payrollrun.vacationpayModalContent')
             .setColumns([
-                nrCol, over60Col, nameCol, systemGrunnlagCol, manuellGrunnlagCol,
+                nrCol, nameCol, systemGrunnlagCol, manuellGrunnlagCol,
                 rateCol, sixthCol, vacationPayCol, earlierPayCol, payoutCol])
             .setPageable(false)
             .setMultiRowSelect(true)

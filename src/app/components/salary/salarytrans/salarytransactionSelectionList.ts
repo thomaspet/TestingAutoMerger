@@ -119,29 +119,25 @@ export class SalaryTransactionSelectionList extends UniView implements AfterView
         return items;
     }
 
-    public focusRow(index = undefined) {
+    public focusRow(index?) {
         if (this.table) {
             this.table.focusRow(index === undefined ? this.selectedIndex : index);
         }
     }
 
     private tableConfig() {
-
-        var employeenumberCol = new UniTableColumn('EmployeeNumber', '#', UniTableColumnType.Number).setWidth('3rem');
-        var nameCol = new UniTableColumn('BusinessRelationInfo.Name', 'Navn', UniTableColumnType.Text);
-        var lockedCol = new UniTableColumn('', '', UniTableColumnType.Custom)
-            .setCls('icon-column')
-            .setTemplate((rowModel: Employee) => {
-                let error = this.generateEmployeeError(rowModel);
-                return error
-                    ? '{#<em class="missing-info" title="'
-                    + error
-                    + '" role="presentation">'
-                    + error
-                    + '</em>#}'
-                    : "{#<em role='presentation'></em>#}# ";
-            })
-            .setWidth('2rem');
+        const employeenumberCol = new UniTableColumn('EmployeeNumber', '#')
+            .setWidth('3rem');
+        const nameCol = new UniTableColumn('BusinessRelationInfo.Name', 'Navn')
+            .setTooltip(rowModel => {
+                const error = this.generateEmployeeError(rowModel);
+                if (error) {
+                    return {
+                        type: 'bad',
+                        text: error
+                    };
+                }
+            });
 
         this.salarytransSelectionTableConfig = new UniTableConfig('salary.salarytrans.selectionList', false)
             .setColumnMenuVisible(false)
@@ -149,7 +145,6 @@ export class SalaryTransactionSelectionList extends UniView implements AfterView
             .setColumns([
                 employeenumberCol,
                 nameCol,
-                lockedCol
             ]);
     }
 
