@@ -7,8 +7,6 @@ import {RoutePermissionGuard} from './routePermissionGuard';
 import {UniInit} from './components/init/init';
 import {initRoutes} from './components/init/init.routes';
 import {bureauRoutes} from './components/bureau/bureauRoutes';
-import {routes as uniTickerRoutes} from './components/uniticker/uniTickerRoutes';
-import {UniTickerComponent} from './components/uniticker/uniTickerComponent';
 import {UniTickerOverview} from './components/uniticker/overview/overview';
 
 const routes = [
