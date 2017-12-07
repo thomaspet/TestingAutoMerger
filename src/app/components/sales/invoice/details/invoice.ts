@@ -144,6 +144,7 @@ export class InvoiceDetails {
         'Info.Addresses',
         'Info.DefaultContact.Info',
         'Info.Emails',
+        'Info.DefaultEmail',
         'PaymentTerms',
         'Sellers',
         'Sellers.Seller',
