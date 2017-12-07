@@ -26,6 +26,7 @@ import {UniSearchWrapper} from './controls/uniSearchWrapper';
 import {UniSearchModule} from '../unisearch/index';
 
 import {ColumnMenuModal} from './columnMenu/columnMenuModal';
+import {ColumnTooltipPipe} from './columnTooltipPipe';
 
 @NgModule({
     imports: [
@@ -53,9 +54,8 @@ import {ColumnMenuModal} from './columnMenu/columnMenuModal';
         UnitableSelect,
         LocalDatePicker,
 
-        // UniTableUtils,
-        // DateUtil,
         UniTablePipe,
+        ColumnTooltipPipe,
         UniSearchWrapper,
         ColumnMenuModal
     ],
@@ -72,8 +72,7 @@ import {ColumnMenuModal} from './columnMenu/columnMenuModal';
     ],
     providers: [
         UniTableUtils,
-        DateUtil,
-        UniTablePipe
+        DateUtil
     ],
     exports: [
         UniTable,
@@ -93,9 +92,8 @@ import {ColumnMenuModal} from './columnMenu/columnMenuModal';
         UnitableSelect,
         LocalDatePicker,
 
-        // UniTableUtils,
-        // DateUtil,
         UniTablePipe,
+        ColumnTooltipPipe,
         UniSearchWrapper,
     ]
 })

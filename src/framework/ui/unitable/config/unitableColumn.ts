@@ -36,6 +36,12 @@ export interface INumberFormat {
     postfix?: string;
 }
 
+export interface IColumnTooltip {
+    text: string;
+    type: 'good'|'warn'|'bad';
+    alignment?: 'left'|'right'|'center';
+}
+
 export interface IUniTableColumn {
     header: string;
     field: string;
@@ -65,6 +71,7 @@ export interface IUniTableColumn {
     jumpToColumn?: string;
     onCellClick?: (rowModel) => void;
     isSumColumn?: boolean;
+    tooltip?: (rowModel) => IColumnTooltip;
 }
 
 export class UniTableColumn implements IUniTableColumn {
@@ -83,6 +90,7 @@ export class UniTableColumn implements IUniTableColumn {
     public cls: string;
     public headerCls: string;
 
+    public tooltip: (rowModel) => IColumnTooltip;
     public template: (rowModel: any) => string;
     public format: string;
     public numberFormat: INumberFormat;
@@ -231,6 +239,11 @@ export class UniTableColumn implements IUniTableColumn {
 
     public setTemplate(template: (rowModel: any) => string) {
         this.template = template;
+        return this;
+    }
+
+    public setTooltip(tooltip: (rowModel) => IColumnTooltip) {
+        this.tooltip = tooltip;
         return this;
     }
 

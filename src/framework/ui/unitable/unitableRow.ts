@@ -46,8 +46,8 @@ export interface IRowModelChangeEvent {
             [attr.title]="uniTablePipe.transform(rowModel, column)">
 
             <span role="link" class="unitable-link"
-                [ngClass]="column.get('options')?.cls"
                 *ngIf="column.get('type') === 13; else nonLink"
+                [ngClass]="column.get('options')?.cls"
                 (click)="onLinkClick(column)">
 
                 {{uniTablePipe.transform(rowModel, column)}}
@@ -55,6 +55,13 @@ export interface IRowModelChangeEvent {
 
             <ng-template #nonLink>
                 {{uniTablePipe.transform(rowModel, column)}}
+
+                <em *ngIf="column.get('tooltip')"
+                    class="unitable-tooltip"
+                    role="presentation"
+                    [ngClass]="column | columnTooltipPipe: rowModel : 'cssClass'"
+                    [title]="column | columnTooltipPipe: rowModel : 'text'">
+                </em>
             </ng-template>
 
         </td>
