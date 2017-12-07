@@ -1095,6 +1095,15 @@ export class CompanySettingsComponent implements OnInit {
                 }
             },
             {
+                EntityType: 'CompanySettings',
+                Property: 'APIncludeAttachment',
+                FieldType: FieldType.CHECKBOX,
+                Label: 'Inkluder standard vedlegg',
+                FieldSet: 7,
+                Section: 1,
+                Legend: 'Elektronisk Faktura'
+            },
+            {
                 FieldType: FieldType.TEXT,
                 Label: 'Faktura e-mail',
                 Property: '_FileFlowEmail',
