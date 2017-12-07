@@ -885,14 +885,12 @@ export class CustomerDetails implements OnInit {
     }
 
     public onChange(changes: SimpleChanges) {
-        this.isDirty = true;
         let customer = this.customer$.getValue();
+        this.isDirty = true;
 
         if (changes['Info.Name']) {
             if (this.isDisabled === false && changes['Info.Name'].currentValue === '') {
                 this.toastService.addToast('Navn er påkrevd', ToastType.warn, ToastTime.short);
-                this.isDisabled = true;
-                this.setupSaveActions();
             }
         }
 
@@ -917,6 +915,9 @@ export class CustomerDetails implements OnInit {
                 this.showHideNameProperties(customer);
             }
         }
+
+        this.isDisabled = false;
+        this.setupSaveActions();
         this.customer$.next(customer);
     }
 
