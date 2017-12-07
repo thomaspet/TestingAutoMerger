@@ -889,10 +889,7 @@ export class CustomerDetails implements OnInit {
         let customer = this.customer$.getValue();
 
         if (changes['Info.Name']) {
-            if (this.isDisabled === true && changes['Info.Name'].currentValue !== '') {
-                this.isDisabled = false;
-                this.setupSaveActions();
-            } else if (this.isDisabled === false && changes['Info.Name'].currentValue === '') {
+            if (this.isDisabled === false && changes['Info.Name'].currentValue === '') {
                 this.toastService.addToast('Navn er påkrevd', ToastType.warn, ToastTime.short);
                 this.isDisabled = true;
                 this.setupSaveActions();
@@ -917,8 +914,6 @@ export class CustomerDetails implements OnInit {
 
             if (searchResult && searchResult.Info.Name) {
                 customer = searchResult;
-                this.isDisabled = false;
-                this.setupSaveActions();
                 this.showHideNameProperties(customer);
             }
         }
