@@ -372,7 +372,9 @@ export class UniTable implements OnChanges {
             ));
     }
 
-    private onSelectAllRowsChanged(selected) {
+    private onSelectAllRowsChanged(event) {
+        const selected = event && event.target.checked;
+
         this.tableData = this.tableData.map((row) => row.set('_rowSelected', selected)).toList();
         this.tableDataOriginal = this.tableDataOriginal.map(row => row.set('_rowSelected', selected)).toList();
 

@@ -22,7 +22,12 @@
 
     <thead *ngIf="config.headerVisible">
         <tr>
-            <th *ngIf="config.multiRowSelect" class="select-column"><input type="checkbox" #allRowSelector (change)="onSelectAllRowsChanged(allRowSelector.checked)" checked="config.multiRowSelectDefaultValue" /></th>
+            <th *ngIf="config.multiRowSelect" class="select-column">
+                    <input type="checkbox"
+                        [checked]="config.multiRowSelectDefaultValue"
+                        (change)="onSelectAllRowsChanged($event)"
+                    />
+            </th>
             <th *ngFor="let column of tableColumns"
                 [ngStyle]="{
                     'width': column.get('width'),
