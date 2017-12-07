@@ -12,8 +12,6 @@ import {AppCommonModule} from '../common/appCommonModule';
 import {AppPipesModule} from '../../pipes/appPipesModule';
 import {ReportsModule} from '../reports/reportsModule';
 
-
-import {routes as UniTickerRoutes} from './uniTickerRoutes';
 import {UniTickerOverview} from './overview/overview';
 import {UniTicker} from './ticker/ticker';
 import {UniTickerWrapper} from './tickerWrapper/tickerWrapper';
@@ -31,13 +29,11 @@ import {UniTickerDetailView} from './components/tickerDetailView';
         RouterModule,
 
         UniFrameworkModule,
-
         LayoutModule,
+
         AppCommonModule,
         AppPipesModule,
-        ReportsModule,
-
-        UniTickerRoutes
+        ReportsModule
     ],
     declarations: [
         UniTickerOverview,
@@ -46,7 +42,7 @@ import {UniTickerDetailView} from './components/tickerDetailView';
         UniTickerWrapper,
         UniSubTickerContainer,
         UniTickerPredefinedFilters,
-        UniTickerDetailView,
+        UniTickerDetailView
     ],
     entryComponents: [
 
