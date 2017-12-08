@@ -38,7 +38,7 @@ export class SupplementService extends BizHttp<SalaryTransactionSupplement> {
             return '';
         }
         wtSupp = wtSupp || supp.WageTypeSupplement;
-        return `${wtSupp.Description} ${this.displayValue(supp, wtSupp)}`;
+        return `${wtSupp.Description || wtSupp.Name} ${this.displayValue(supp, wtSupp)}`;
     }
 
     private getDate(date: Date) {
@@ -48,7 +48,7 @@ export class SupplementService extends BizHttp<SalaryTransactionSupplement> {
     public anyUnfinished(supps: SalaryTransactionSupplement[], wtSupps: WageTypeSupplement[] = []) {
         return supps
             .some(supp => {
-                let wtSupplement = wtSupps
+                const wtSupplement = wtSupps
                     .find(wtSupp => wtSupp.ID === supp.WageTypeSupplementID) || supp.WageTypeSupplement;
                 return this.isUnfinished(supp, wtSupplement);
             });
