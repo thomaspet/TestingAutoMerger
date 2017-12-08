@@ -47,7 +47,7 @@ export interface IRowModelChangeEvent {
 
             <span role="link" class="unitable-link"
                 *ngIf="column.get('linkResolver'); else nonLink"
-                (click)="onLinkClick(column)">
+                (click)="onLinkClick($event, column)">
 
                 {{uniTablePipe.transform(rowModel, column)}}
             </span>
@@ -138,15 +138,19 @@ export class UniTableRow implements OnChanges {
         }
     }
 
-    public onLinkClick(column: Immutable.Map<any, any>) {
+    public onLinkClick(event: MouseEvent, column: Immutable.Map<any, any>) {
         const linkResolver = column && column.get('linkResolver');
-        const url = linkResolver && linkResolver(this.rowModel.toJS());
+        let url = linkResolver && linkResolver(this.rowModel.toJS());
 
         if (url && url.length) {
+            event.stopPropagation();
             if (url.includes('mailto:')) {
                 window.location.href = url;
             } else if (url.includes('http') || url.includes('www')) {
                 if (window.confirm('Du forlater nå Uni Economy')) {
+                    if (!url.includes('http')) {
+                        url = 'http://' + url;
+                    }
                     window.open(url, '_blank');
                 }
             } else {
