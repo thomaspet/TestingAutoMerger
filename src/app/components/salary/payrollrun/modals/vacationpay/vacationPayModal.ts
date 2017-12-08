@@ -369,7 +369,7 @@ export class VacationPayModal implements OnInit, IUniModal {
     private createTableConfig() {
         const nrCol = new UniTableColumn('Employee.EmployeeNumber', 'Nr', UniTableColumnType.Text, false)
             .setWidth('4rem')
-            .setTooltip((rowModel: VacationPayLine) => {
+            .setTooltipResolver((rowModel: VacationPayLine) => {
                 if (rowModel.Age > 60) {
                     return {
                         type: 'warn',

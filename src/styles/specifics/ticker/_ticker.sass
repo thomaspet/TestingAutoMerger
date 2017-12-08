@@ -26,11 +26,13 @@ uni-ticker
         .unitable-link
             text-align: center
             display: block
-            &.mailto
-                text-align: left
-
-            &:hover:not(.mailto)
+            &:hover
                 background: darken(#d4dfee, 5%)
+
+        .ticker-mailto-col .unitable-link
+            text-align: left
+            &:hover
+                background: none
 
 
         th.ticker-link-col

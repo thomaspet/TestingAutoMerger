@@ -71,7 +71,8 @@ export interface IUniTableColumn {
     jumpToColumn?: string;
     onCellClick?: (rowModel) => void;
     isSumColumn?: boolean;
-    tooltip?: (rowModel) => IColumnTooltip;
+    tooltipResolver?: (rowModel) => IColumnTooltip;
+    linkResolver?: (rowModel) => string;
 }
 
 export class UniTableColumn implements IUniTableColumn {
@@ -90,7 +91,8 @@ export class UniTableColumn implements IUniTableColumn {
     public cls: string;
     public headerCls: string;
 
-    public tooltip: (rowModel) => IColumnTooltip;
+    public linkResolver: (rowModel) => string;
+    public tooltipResolver: (rowModel) => IColumnTooltip;
     public template: (rowModel: any) => string;
     public format: string;
     public numberFormat: INumberFormat;
@@ -242,8 +244,13 @@ export class UniTableColumn implements IUniTableColumn {
         return this;
     }
 
-    public setTooltip(tooltip: (rowModel) => IColumnTooltip) {
-        this.tooltip = tooltip;
+    public setTooltipResolver(tooltipResolver: (rowModel) => IColumnTooltip) {
+        this.tooltipResolver = tooltipResolver;
+        return this;
+    }
+
+    public setLinkResolver(linkResolver: (rowModel) => string) {
+        this.linkResolver = linkResolver;
         return this;
     }
 

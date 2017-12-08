@@ -732,11 +732,12 @@ export class UniTicker {
                             });
                         } else if (column.Type === 'link' || column.Type === 'external-link' || column.Type === 'mailto') {
                             col.setType(13);
-                            col.setOptions({
-                                cls: column.Type === 'mailto' ? 'mailto' : '',
-                                urlResolver: (row) => this.uniTickerService.linkColUrlResolver(column, row, this.ticker)
-                            });
+                            col.setLinkResolver(row => this.uniTickerService.linkColUrlResolver(column, row, this.ticker));
                             col.setTemplate(row => this.uniTickerService.getFieldValue(column, row, this.ticker, this.columnOverrides));
+
+                            if (column.Type === 'mailto') {
+                                col.cls = (col.cls || '') + ' ticker-mailto-col';
+                            }
 
                         } else if (column.SubFields && column.SubFields.length > 0) {
                             col.setTemplate(row => {

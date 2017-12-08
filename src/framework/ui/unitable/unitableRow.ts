@@ -46,8 +46,7 @@ export interface IRowModelChangeEvent {
             [attr.title]="uniTablePipe.transform(rowModel, column)">
 
             <span role="link" class="unitable-link"
-                *ngIf="column.get('type') === 13; else nonLink"
-                [ngClass]="column.get('options')?.cls"
+                *ngIf="column.get('linkResolver'); else nonLink"
                 (click)="onLinkClick(column)">
 
                 {{uniTablePipe.transform(rowModel, column)}}
@@ -140,9 +139,10 @@ export class UniTableRow implements OnChanges {
     }
 
     public onLinkClick(column: Immutable.Map<any, any>) {
-        const options = column && column.get('options');
-        if (options && options.urlResolver) {
-            const url: string = options.urlResolver(this.rowModel.toJS());
+        const linkResolver = column && column.get('linkResolver');
+        const url = linkResolver && linkResolver(this.rowModel.toJS());
+
+        if (url && url.length) {
             if (url.includes('mailto:')) {
                 window.location.href = url;
             } else if (url.includes('http') || url.includes('www')) {
@@ -153,7 +153,7 @@ export class UniTableRow implements OnChanges {
                 this.router.navigateByUrl(url);
             }
         } else {
-            console.log('Missing url resolver in column config');
+            console.log('Missing link resolver in column config');
         }
 
     }

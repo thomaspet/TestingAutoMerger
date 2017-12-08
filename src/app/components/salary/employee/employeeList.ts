@@ -33,28 +33,25 @@ export class EmployeeList {
                 .finally(() => this.busy = false)
                 .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
 
-        var idCol = new UniTableColumn('EmployeeNumber', 'Nr', UniTableColumnType.Number).setWidth('5rem');
+        const idCol = new UniTableColumn('EmployeeNumber', 'Nr', UniTableColumnType.Number).setWidth('5rem');
 
-        var nameCol = new UniTableColumn('BusinessRelationInfo.Name', 'Navn', UniTableColumnType.Text);
+        const nameCol = new UniTableColumn('BusinessRelationInfo.Name', 'Navn', UniTableColumnType.Text);
 
-        var emailCol = new UniTableColumn(
-            'BusinessRelationInfo.DefaultEmail', 'Epost'
-        ).setTemplate((employee: Employee) => {
-
-            if (!employee.BusinessRelationInfo
-                || !employee.BusinessRelationInfo.DefaultEmail
-                || !employee.BusinessRelationInfo.DefaultEmail.EmailAddress) {
+        const emailCol = new UniTableColumn('BusinessRelationInfo.DefaultEmail.EmailAddress', 'Epost', UniTableColumnType.Link)
+            .setLinkResolver(employee => {
+                if (!employee.BusinessRelationInfo
+                    || !employee.BusinessRelationInfo.DefaultEmail
+                    || !employee.BusinessRelationInfo.DefaultEmail.EmailAddress
+                ) {
                     return '';
-            }
+                }
 
-            return `<a href="mailto:${employee.BusinessRelationInfo.DefaultEmail.EmailAddress}" >
-                ${employee.BusinessRelationInfo.DefaultEmail.EmailAddress}
-            </a>`;
-        });
+                return `mailto:${employee.BusinessRelationInfo.DefaultEmail.EmailAddress}`;
+            });
 
-        var birthDateCol = new UniTableColumn('BirthDate', 'Fødselsdato', UniTableColumnType.LocalDate);
+        const birthDateCol = new UniTableColumn('BirthDate', 'Fødselsdato', UniTableColumnType.LocalDate);
 
-        var subEntityCol = new UniTableColumn(
+        const subEntityCol = new UniTableColumn(
             'SubEntity.BusinessRelationInfo.Name', 'Virksomhet', UniTableColumnType.Text
         );
 

@@ -129,7 +129,7 @@ export class SalaryTransactionSelectionList extends UniView implements AfterView
         const employeenumberCol = new UniTableColumn('EmployeeNumber', '#')
             .setWidth('3rem');
         const nameCol = new UniTableColumn('BusinessRelationInfo.Name', 'Navn')
-            .setTooltip(rowModel => {
+            .setTooltipResolver(rowModel => {
                 const error = this.generateEmployeeError(rowModel);
                 if (error) {
                     return {

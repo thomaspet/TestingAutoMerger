@@ -83,7 +83,7 @@ export class CustomerProductsSold {
         const partNameCol = new UniTableColumn('ProductPartName', 'Produktnr',  UniTableColumnType.Link)
             .setWidth('15%')
             .setFilterOperator('contains')
-            .setOptions({ urlResolver: (row) => `/sales/products/${row.ProductID}` });
+            .setLinkResolver(row => `/sales/products/${row.ProductID}`);
         const nameCol = new UniTableColumn('ProductName', 'Navn',  UniTableColumnType.Text)
             .setFilterOperator('contains');
         const priceExVatCol = new UniTableColumn('TotalExVat', 'Totalpris eks. mva',  UniTableColumnType.Money)

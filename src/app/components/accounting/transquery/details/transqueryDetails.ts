@@ -525,23 +525,17 @@ export class TransqueryDetails implements OnInit {
         const columns = [
             new UniTableColumn('JournalEntryNumberNumeric', 'Bnr.', UniTableColumnType.Link)
                 .setTemplate(row => row.JournalEntryLineJournalEntryNumberNumeric || 'null')
-                .setOptions({
-                    urlResolver: (row) => `/accounting/transquery/details;journalEntryNumber=${row.JournalEntryLineJournalEntryNumber}`
-                })
+                .setLinkResolver(row => `/accounting/transquery/details;journalEntryNumber=${row.JournalEntryLineJournalEntryNumber}`)
                 .setFilterOperator('startswith')
                 .setWidth('65px'),
-            new UniTableColumn('JournalEntryNumber', 'Bnr. med år', UniTableColumnType.Link)
+                new UniTableColumn('JournalEntryNumber', 'Bnr. med år', UniTableColumnType.Link)
                 .setDisplayField('JournalEntryLineJournalEntryNumber')
-                .setOptions({
-                    urlResolver: (row) => `/accounting/transquery/details;journalEntryNumber=${row.JournalEntryLineJournalEntryNumber}`
-                })
+                .setLinkResolver(row => `/accounting/transquery/details;journalEntryNumber=${row.JournalEntryLineJournalEntryNumber}`)
                 .setFilterOperator('startswith')
                 .setVisible(false),
             new UniTableColumn('Account.AccountNumber', 'Kontonr.', UniTableColumnType.Link)
                 .setDisplayField('AccountAccountNumber')
-                .setOptions({
-                    urlResolver: (row) => `/accounting/transquery/details;Account_AccountNumber=${row.AccountAccountNumber}`
-                })
+                .setLinkResolver(row => `/accounting/transquery/details;Account_AccountNumber=${row.AccountAccountNumber}`)
                 .setWidth('85px')
                 .setFilterOperator('startswith'),
             new UniTableColumn('Account.AccountName', 'Kontonavn', UniTableColumnType.Text)
@@ -549,9 +543,7 @@ export class TransqueryDetails implements OnInit {
                 .setTemplate(line => line.AccountAccountName),
             new UniTableColumn('SubAccount.AccountNumber', 'Reskontronr.', UniTableColumnType.Link)
                 .setDisplayField('SubAccountAccountNumber')
-                .setOptions({
-                    urlResolver: (row) => `/accounting/transquery/details;SubAccount_AccountNumber=${row.SubAccountAccountNumber}`
-                })
+                .setLinkResolver(row => `/accounting/transquery/details;SubAccount_AccountNumber=${row.SubAccountAccountNumber}`)
                 .setVisible(false)
                 .setWidth('90px')
                 .setFilterOperator('startswith'),
@@ -648,10 +640,9 @@ export class TransqueryDetails implements OnInit {
                 .setWidth('60px')
                 .setVisible(false)
                 .setDisplayField('JournalEntryJournalEntryAccrualID')
-                .setOptions({
-                    urlResolver: (row) => `/accounting/transquery/details;`
-                        + `JournalEntry_JournalEntryAccrualID=${row.JournalEntryJournalEntryAccrualID}`
-                }),
+                .setLinkResolver(row => `/accounting/transquery/details;`
+                    + `JournalEntry_JournalEntryAccrualID=${row.JournalEntryJournalEntryAccrualID}`
+                ),
             new UniTableColumn('ID', PAPERCLIP, UniTableColumnType.Text)
                 .setFilterOperator('contains')
                 .setTemplate(line => line.Attachments ? PAPERCLIP : '')
