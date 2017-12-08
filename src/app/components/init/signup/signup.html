@@ -45,7 +45,7 @@
             av dine personlige data. <!--  i henhold til vår <a href="">personvernpolicy</a> -->
         </small>
 
-        <button class="bad"
+        <button class="auth-button bad"
             *ngIf="!confirmationCode"
             [attr.aria-busy]="busy"
             [disabled]="busy || !step1.form.valid"
@@ -55,6 +55,19 @@
     </form>
 
     <form #step2="ngForm" *ngIf="confirmationCode" [formGroup]="step2Form" (ngSubmit)="submitStep2Form()">
+        <uni-helptext>
+            <ng-template>
+                Brukernavn kan inneholde
+                <ul>
+                    <li>Bokstaver</li>
+                    <li>Tall</li>
+                    <li>Bindestrek</li>
+                    <li>Understrek</li>
+                    <li>Punktom</li>
+                </ul>
+            </ng-template>
+        </uni-helptext>
+
         <label for="usernameInput">Brukernavn</label>
         <input id="usernameInput"
             type="text"
@@ -81,7 +94,7 @@
             [passwordControl]="step2Form.controls.Password">
         </uni-password-guide>
 
-        <button class="bad"
+        <button class="auth-button bad"
             [attr.aria-busy]="busy"
             [disabled]="busy || !step2.form.valid"
             (click)="submitStep2Form()">

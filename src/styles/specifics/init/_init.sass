@@ -207,7 +207,7 @@ uni-init
             display: block
             margin: 1rem 0
 
-    button
+    button.auth-button
         width: 100%
         height: 2.5rem
         padding: 0
@@ -292,6 +292,24 @@ uni-confirm-invite
         input.ng-invalid.ng-touched
             @extend input[type=text].error
 
+    form
+        position: relative
+
+    uni-helptext
+        position: absolute
+        top: .5rem
+        right: 0
+        .helpTextToggle
+            background-color: $uni-color-negative
+        .helpText
+            color: $uni-color-negative
+            left: unset
+            right: 0
+            width: 22rem
+            transparentize($uni-color-scale1, .05)
+
+            &:after
+                display: none
 
 uni-password-guide
     ul.password-validation
