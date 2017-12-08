@@ -37,6 +37,15 @@ export class PaymentBatchService extends BizHttp<PaymentBatch> {
         return super.PutAction(null, 'complete-customer-payment-registration', `ID=${paymentBatchID}`);
     }
 
+    public checkAutoBankAgreement() {
+        return this.http
+            .asGET()
+            .usingBusinessDomain()
+            .withEndPoint('/bank-agreements')
+            .send()
+            .map(response => response.json());
+    }
+
     public getStatusText(statusCode: number, isCustomerPayment: boolean): string {
         let word = isCustomerPayment ? 'Innbetaling' : 'Kvittering';
 
@@ -73,7 +82,7 @@ export class PaymentBatchService extends BizHttp<PaymentBatch> {
             .asPUT()
             .usingBusinessDomain()
             .withBody(password)
-            .withEndPoint(this.relativeURL + '?action=send-to-payment&fileId='+ paymentBatchID)
+            .withEndPoint(this.relativeURL + '?action=send-to-payment&fileId=' + paymentBatchID)
             .send()
             .map(response => response.json());
     }

@@ -1,4 +1,4 @@
-import {Component, Input, Output, EventEmitter} from '@angular/core';
+import {Component, Input, Output, EventEmitter, OnInit} from '@angular/core';
 import {IModalOptions, IUniModal} from '../modalService';
 import {UniFieldLayout, FieldType} from '../../ui/uniform/index';
 import {ToastService, ToastType} from '../../uniToast/toastService';
@@ -14,7 +14,7 @@ import {BehaviorSubject} from 'rxjs/BehaviorSubject';
     template: `
         <section role="dialog" class="uni-modal">
             <header>
-                <h1>{{options.header || 'Send'}}</h1>
+                <h1>{{options.header || 'Send med autobank'}}</h1>
             </header>
             <article>
                 <uni-form
@@ -32,12 +32,12 @@ import {BehaviorSubject} from 'rxjs/BehaviorSubject';
         </section>
     `
 })
-export class UniSendPaymentModal implements IUniModal {
+export class UniSendPaymentModal implements IUniModal, OnInit {
     @Input()
     public options: IModalOptions = {};
 
     @Output()
-    public onClose: EventEmitter<any> = new EventEmitter();
+    public onClose: EventEmitter<string> = new EventEmitter();
 
     public formConfig$: BehaviorSubject<any> = new BehaviorSubject({autofocus: true});
     private formModel$: BehaviorSubject<Object> = new BehaviorSubject(null);
@@ -57,36 +57,26 @@ export class UniSendPaymentModal implements IUniModal {
     }
 
     public initFormModel() {
-        let model: Object = this.options.data || { Password:"", PaymentBatchID:"" };
+        const model: Object = this.options.data || { Password: '', PaymentBatchID: '' };
         this.formModel$.next(model);
     }
 
     public onGoodClick() {
         const model = this.formModel$.getValue();
-        if (model["Password"]) {
-            this.paymentBatchService.SendToPayment(model["Password"], model["PaymentBatchID"]).subscribe((res) => {
-                this.toastService.addToast(
-                    'Sendingen er fullført',
-                    ToastType.good,
-                    5
-                );
-                this.onClose.emit();
+        if (model['Password']) {
+            this.paymentBatchService.SendToPayment(model['Password'], model['PaymentBatchID']).subscribe((res) => {
+                this.onClose.emit('Sendingen er fullført');
             }, err => {
-                this.toastService.addToast(
-                    'Mislykket sending',
-                    ToastType.bad,
-                    5
-                );
                 this.errorService.handle(err);
-                this.onClose.emit();
+                this.onClose.emit('Mislykket sending');
             });
         } else {
-            this.isEmpty  = true
+            this.isEmpty = true;
         }
     }
 
     public onBadClick() {
-        this.onClose.emit();
+        this.onClose.emit('Sending avbrutt');
     }
 
     private getFormFields(): UniFieldLayout[] {

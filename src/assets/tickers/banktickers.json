@@ -172,13 +172,13 @@
                 "Header": "Kode",
                 "Field": "PaymentCode.Code",
                 "Width": "15%",
-                "DefaultHidden": true
+                "DefaultHidden": false
             },
             {
                 "Header": "Type",
                 "Field": "PaymentCode.Name",
                 "Width": "15%",
-                "DefaultHidden": true
+                "DefaultHidden": false
             },
             {
                 "Header": "Beløp",
@@ -209,6 +209,17 @@
                 "Field": "StatusCode",
                 "Width": "15%",
                 "FilterOperator": "contains"
+            }
+        ],
+        "Actions": [
+            {
+                "Name": "Last ned betalingsfil",
+                "Code": "download_payment_file",
+                "Type": "action",
+                "ExecuteWithMultipleSelections": false,
+                "DisplayInContextMenu": true,
+                "DisplayInActionBar": false,
+                "NeedsActionOverride": true
             }
         ],
         "Filters": [
@@ -329,7 +340,7 @@
                 }]
             }
         ],
-        "SubTickersCodes": ["tracelink_table"]
+        "SubTickersCodes": ["tracelink_table", "payment_details"]
     },
     {
         "Name": "Detaljer",

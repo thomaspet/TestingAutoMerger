@@ -1,4 +1,4 @@
-import {Component, ChangeDetectorRef, ChangeDetectionStrategy, ViewChild} from '@angular/core';
+import {Component, ChangeDetectorRef, ChangeDetectionStrategy, ViewChild, AfterContentInit} from '@angular/core';
 import {Observable} from 'rxjs/Observable';
 import {IToolbarConfig} from '../common/toolbar/toolbar';
 import {IUniSaveAction} from '../../../framework/save/save';
@@ -32,6 +32,7 @@ import {
 } from '../../services/services';
 import {ToastService, ToastType} from '../../../framework/uniToast/toastService';
 import * as moment from 'moment';
+import { AfterViewInit } from '@angular/core/src/metadata/lifecycle_hooks';
 
 @Component({
     selector: 'uni-bank-component',
@@ -61,7 +62,7 @@ import * as moment from 'moment';
     `,
     changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class BankComponent {
+export class BankComponent implements AfterViewInit {
 
     @ViewChild(UniTickerContainer) public tickerContainer: UniTickerContainer;
 
@@ -70,7 +71,7 @@ export class BankComponent {
     private selectedTicker: Ticker;
     private actions: IUniSaveAction[];
     private rows: Array<any> = [];
-    private canEdit: boolean = false;
+    private canEdit: boolean = true;
 
     public toolbarconfig: IToolbarConfig = {
         title: '',
@@ -85,6 +86,10 @@ export class BankComponent {
         },
         {
             Code: 'download_file',
+            ExecuteActionHandler: (selectedRows) => this.downloadIncommingPaymentFile(selectedRows)
+        },
+        {
+            Code: 'download_payment_file',
             ExecuteActionHandler: (selectedRows) => this.downloadPaymentFiles(selectedRows)
         }
     ];
@@ -138,7 +143,7 @@ export class BankComponent {
     }
 
     public onTickerParamsChange(event) {
-        this.canEdit = event.params.filter === 'not_payed';
+        this.canEdit = !event.params.filter || event.params.filter === 'not_payed';
         this.rows = [];
         if (this.selectedTicker) {
             this.updateSaveActions(this.selectedTicker.Code);
@@ -154,12 +159,6 @@ export class BankComponent {
         this.actions = [];
 
         if (selectedTickerCode === 'payment_list') {
-            this.actions.push({
-                label: 'Send til betaling',
-                action: (done) => this.pay(done),
-                main: this.rows.length > 0,
-                disabled: this.rows.length === 0
-            });
 
             this.actions.push({
                 label: 'Rediger',
@@ -173,8 +172,15 @@ export class BankComponent {
                         }
                     });
                 },
-                main: this.canEdit,
+                main: this.canEdit && !this.rows.length,
                 disabled: !this.canEdit
+            });
+
+            this.actions.push({
+                label: 'Send til betaling',
+                action: (done) => this.pay(done),
+                main: this.rows.length > 0,
+                disabled: this.rows.length === 0
             });
 
             this.actions.push({
@@ -183,6 +189,14 @@ export class BankComponent {
                 main: false,
                 disabled: this.rows.length === 0
             });
+
+            this.actions.push({
+                label: 'Hent autobankfiler',
+                action: (done) => this.downloadBankFiles(done),
+                main: false,
+                disabled: false
+            });
+
 
             this.actions.push({
                 label: 'Hent bankfiler og bokfør',
@@ -207,36 +221,62 @@ export class BankComponent {
         }
     }
 
-    public downloadBankFiles() {
-        return this.modalService.open(UniDownloadPaymentsModal, {}).onClose;
+    public downloadBankFiles(done) {
+        this.modalService.open(UniDownloadPaymentsModal, {}).onClose
+            .subscribe(res => done(res));
     }
 
-    public downloadPaymentFiles(rows) {
-        let row = rows[0];
+    public downloadPaymentFiles(rows): Promise<any> {
+        const row = rows[0];
         return new Promise((resolve, reject) => {
             resolve();
-            if (row.ID) {
-                this.fileService
-                    .downloadFile(row.ID, 'application/xml')
-                    .subscribe((blob) => {
-                        this.toastService.addToast('Utbetalingsfil hentet', ToastType.good, 5);
-                        saveAs(blob, `payments_${row.ID}.xml`);
-                        resolve();
-                    },
-                    err => {
-                        this.errorService.handleWithMessage(err, 'Feil ved henting av utbetalingsfil');
-                        reject('Feil ved henting av utbetalingsfil');
-                    });
-            } else {
-                this.toastService.addToast(
-                    'Fil ikke generert',
-                    ToastType.bad,
-                    15,
-                    'Fant ingen betalingsfil, generering pågår kanskje fortsatt, '
-                    + 'vennligst prøv igjen om noen minutter'
-                );
-                reject('Feil ved henting av utbetalingsfil');
-            }
+            this.paymentBatchService.Get(row.PaymentBatchID).subscribe((paymentBatch) => {
+                if (paymentBatch.PaymentFileID) {
+                    this.fileService
+                        .downloadFile(paymentBatch.PaymentFileID, 'application/xml')
+                        .subscribe((blob) => {
+                            this.toastService.addToast('Utbetalingsfil hentet', ToastType.good, 5);
+                            saveAs(blob, `payments_${row.ID}.xml`);
+                            resolve();
+                        },
+                        err => {
+                            this.errorService.handleWithMessage(err, 'Feil ved henting av utbetalingsfil');
+                            reject('Feil ved henting av utbetalingsfil');
+                        });
+                } else {
+                    this.toastService.addToast(
+                        'Fil ikke generert',
+                        ToastType.bad,
+                        15,
+                        'Fant ingen betalingsfil, generering pågår kanskje fortsatt, '
+                        + 'vennligst prøv igjen om noen minutter'
+                    );
+                    reject('Feil ved henting av utbetalingsfil');
+                }
+            });
+        });
+    }
+
+    public downloadIncommingPaymentFile(rows): Promise<any> {
+        const row = rows[0];
+        return new Promise(() => {
+            this.paymentBatchService.Get(row.PaymentBatchID).subscribe((paymentBatch) => {
+                if (!paymentBatch.PaymentFileID) {
+                    this.toastService.addToast('Fil ikke generert', ToastType.bad, 15, 'Fant ingen betalingsfil.');
+                } else {
+                    this.fileService
+                        .downloadFile(paymentBatch.PaymentFileID, 'application/xml')
+                        .subscribe((blob) => {
+                            this.toastService.addToast('Innbetalingsfil hentet', ToastType.good, 5);
+                            // download file so the user can open it
+                            saveAs(blob, `payments_${paymentBatch.ID}.xml`);
+                        },
+                        err => {
+                            this.errorService.handleWithMessage(err, 'Feil ved henting av innbetalingsfil');
+                        }
+                        );
+                }
+            });
         });
     }
 
@@ -270,7 +310,7 @@ export class BankComponent {
             );
     }
 
-    private openSendToPaymentModal(row) {
+    private openSendToPaymentModal(row): Promise<any> {
         return new Promise((resolve, reject) => {
             this.modalService.open(UniSendPaymentModal, {
                 data: {
@@ -303,7 +343,7 @@ export class BankComponent {
             return;
         }
 
-        let rowsWithOldDates: any[] =
+        const rowsWithOldDates: any[] =
         this.rows.filter(x => moment(x.PaymentDate).isBefore(moment().startOf('day')));
 
         if (rowsWithOldDates.length > 0) {
@@ -347,7 +387,7 @@ export class BankComponent {
     }
 
     private payInternal(selectedRows: Array<Payment>, doneHandler: (status: string) => any) {
-        let paymentIDs: number[] = [];
+        const paymentIDs: number[] = [];
         selectedRows.forEach(x => {
             paymentIDs.push(x.ID);
         });
@@ -365,14 +405,28 @@ export class BankComponent {
 
                 // Run action to generate paymentfile based on batch
                 this.paymentBatchService.generatePaymentFile(paymentBatch.ID)
-                    .subscribe((updatedPaymentBatch: PaymentBatch) => {
-                        if (updatedPaymentBatch.PaymentFileID) {
-                            this.toastService.addToast(
-                                'Utbetalingsfil laget, henter fil...',
-                                ToastType.good, 5
-                            );
-                            this.updateSaveActions(this.selectedTicker.Code);
-                            this.fileService
+                .subscribe((updatedPaymentBatch: PaymentBatch) => {
+                    if (updatedPaymentBatch.PaymentFileID) {
+                        this.toastService.addToast(
+                            'Utbetalingsfil laget, henter fil...',
+                            ToastType.good, 5
+                        );
+                        this.updateSaveActions(this.selectedTicker.Code);
+
+                        // Check to see if the customer has Autobank ??
+                        this.paymentBatchService.checkAutoBankAgreement().subscribe((agreements) => {
+                            if (agreements.length) {
+                                this.modalService.open(UniSendPaymentModal, {
+                                    data: { PaymentBatchID: updatedPaymentBatch.ID }
+                                }).onClose.subscribe(
+                                    res => {
+                                    doneHandler(res);
+                                    this.tickerContainer.tickerFilters.getFilterCounts();
+                                    this.tickerContainer.mainTicker.reloadData();
+                                },
+                                err => doneHandler('Feil ved sending av autobank'));
+                            } else {
+                                this.fileService
                                 .downloadFile(updatedPaymentBatch.PaymentFileID, 'application/xml')
                                 .subscribe((blob) => {
                                     doneHandler('Utbetalingsfil hentet');
@@ -386,19 +440,21 @@ export class BankComponent {
                                     doneHandler('Feil ved henting av utbetalingsfil');
                                     this.errorService.handle(err);
                                 });
-                        } else {
-                            this.toastService.addToast(
-                                'Fant ikke utbetalingsfil, ingen PaymentFileID definert',
-                                ToastType.bad
-                            );
-                            this.updateSaveActions(this.selectedTicker.Code);
-                            doneHandler('Feil ved henting av utbetalingsfil');
-                        }
-                    },
-                    err => {
-                        doneHandler('Feil ved generering av utbetalingsfil');
-                        this.errorService.handle(err);
-                    });
+                            }
+                        });
+                    } else {
+                        this.toastService.addToast(
+                            'Fant ikke utbetalingsfil, ingen PaymentFileID definert',
+                            ToastType.bad
+                        );
+                        this.updateSaveActions(this.selectedTicker.Code);
+                        doneHandler('Feil ved henting av utbetalingsfil');
+                    }
+                },
+                err => {
+                    doneHandler('Feil ved generering av utbetalingsfil');
+                    this.errorService.handle(err);
+                });
             },
             err => {
                 doneHandler('Feil ved opprettelse av betalingsbunt');
@@ -407,19 +463,19 @@ export class BankComponent {
     }
 
     private validateBeforePay(selectedRows: Array<any>): boolean {
-        let errorMessages: string[] = [];
+        const errorMessages: string[] = [];
 
-        let paymentsWithoutFromAccount = selectedRows.filter(x => !x.FromBankAccountAccountNumber);
+        const paymentsWithoutFromAccount = selectedRows.filter(x => !x.FromBankAccountAccountNumber);
         if (paymentsWithoutFromAccount.length > 0) {
             errorMessages.push(`Det er ${paymentsWithoutFromAccount.length} rader som mangler fra-konto`);
         }
 
-        let paymentsWithoutToAccount = selectedRows.filter(x => !x.ToBankAccountAccountNumber);
+        const paymentsWithoutToAccount = selectedRows.filter(x => !x.ToBankAccountAccountNumber);
         if (paymentsWithoutToAccount.length > 0) {
             errorMessages.push(`Det er ${paymentsWithoutToAccount.length} rader som mangler til-konto`);
         }
 
-        let paymentsWithoutPaymentCode = selectedRows.filter(x => !x.PaymentCodeCode);
+        const paymentsWithoutPaymentCode = selectedRows.filter(x => !x.PaymentCodeCode);
         if (paymentsWithoutPaymentCode.length > 0) {
             errorMessages.push(`Det er ${paymentsWithoutPaymentCode.length} rader som mangler type`);
         }
@@ -432,7 +488,6 @@ export class BankComponent {
         return true;
     }
 
-    // Not needed here?
     private deleteSelected(doneHandler: (status: string) => any) {
         this.rows = this.tickerContainer.mainTicker.unitable.getSelectedRows();
         if (this.rows.length === 0) {
@@ -458,7 +513,7 @@ export class BankComponent {
                 return;
             }
 
-            let requests = [];
+            const requests = [];
             this.rows.forEach(x => {
                 requests.push(this.paymentService.Remove(x.ID, x));
             });
