@@ -747,7 +747,8 @@ export class BillsView {
         }
         this.hasQueriedInboxCount = true;
         var route = '?model=filetag&select=count(id)&filter=(tagname eq \'IncomingMail\' '
-            + 'or tagname eq \'IncomingEHF\') and status eq 0 '
+            + 'or tagname eq \'IncomingEHF\' or tagname eq \'IncomingTravel\' '
+            + 'or tagname eq \'IncomingExpence\') and status eq 0 '
             + 'and deleted eq 0 and file.deleted eq 0&join=filetag.fileid eq file.id';
         this.supplierInvoiceService.getStatQuery(route).subscribe(data => {
             var filter = this.getInboxFilter();
@@ -802,6 +803,8 @@ export class BillsView {
                         switch (rowModel.FileTags[0].TagName) {
                             case 'IncomingMail': return 'Epost';
                             case 'IncomingEHF': return 'EHF';
+                            case 'IncomingTravel': return 'Reise';
+                            case 'IncomingExpence': return 'Utlegg';
                         }
                     }
                     return '';
