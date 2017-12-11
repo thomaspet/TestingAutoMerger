@@ -78,7 +78,7 @@ uni-bureau-dashboard
             color: $uni-color-scale5
             cursor: pointer
 
-            &[aria-selected]:not([aria-selected=false])
+            &.router-link-active
                 border-bottom: pxToRem(3) solid $uni-color-c2a
 
             &:last-of-type
@@ -87,3 +87,12 @@ uni-bureau-dashboard
             .ticker-filter-count
                 font-size: 1.15rem
                 color: $uni-color-c2a
+
+    .bureau-context-menu
+        position: absolute
+        background-color: white
+        right: 0
+        z-index: 99
+
+        ul
+            margin: 0

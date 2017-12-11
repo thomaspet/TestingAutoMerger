@@ -5,16 +5,21 @@
 
 <section class="list-content application" [attr.aria-busy]="busy">
     <ul class="bureau-predefined-filters">
-        <li aria-selected="true">
+        <li [routerLink]="[]"
+            routerLinkActive="router-link-active"
+            [queryParams]="{noTag: true}">
             Alle
             <span class="ticker-filter-count">
                 {{filteredCompanies?.length || 0}}
             </span>
         </li>
-        <li>
-            Mine
+        <li *ngFor="let tag of allTags"
+            [routerLink]="[]"
+            routerLinkActive="router-link-active"
+            [queryParams]="{tag: tag.name}">
+            {{tag.name}}
             <span class="ticker-filter-count">
-                0
+                {{tag.count}}
             </span>
         </li>
     </ul>
@@ -28,6 +33,11 @@
     <section class="uni-split-view-container">
         <section class="left-side">
             <table class="uni-table">
+                <section [ngClass]="{hidden: !contextMenuCompany}" #contextMenu class="unitable-contextmenu bureau-context-menu">
+                    <ul>
+                        <li (click)="addLabel(contextMenuCompany)">Editer filter</li>
+                    </ul>
+                </section>
                 <thead>
                     <tr>
                         <th (click)="sortBy('Name', true)" >
@@ -42,24 +52,32 @@
                         <th class="bureau-count-col" (click)="sortBy('_approvedCount', true)">
                             Godkjente faktura <i>{{getSortArrow('_approvedCount')}}</i>
                         </th>
+                        <th class="select-column"></th>
                     </tr>
                 </thead>
-                <tr *ngFor="let company of filteredCompanies"
-                    (click)="onRowClick(company)"
-                    [attr.aria-selected]="company === highlightedCompany">
-                    <td><a (click)="onCompanyNameClick(company)">{{company.Name}}</a></td>
-                    <td>{{company.OrganizationNumber}}</td>
-                    <td class="bureau-count-col">
-                        <a *ngIf="company._inboxCount" (click)="onCompanyInboxClick(company)">
-                            {{company._inboxCount}}
-                        </a>
-                    </td>
-                    <td class="bureau-count-col">
-                        <a *ngIf="company._approvedCount" (click)="onCompanyApprovalsClick(company)">
-                            {{company._approvedCount}}
-                        </a>
-                    </td>
-                </tr>
+                <ng-container *ngFor="let company of filteredCompanies">
+                    <tr *ngIf="companyHasTag(company, activeTag)"
+                        (click)="onRowClick(company)"
+                        [attr.aria-selected]="company === highlightedCompany">
+                        <td><a (click)="onCompanyNameClick(company)">{{company.Name}}</a></td>
+                        <td>{{company.OrganizationNumber}}</td>
+                        <td class="bureau-count-col">
+                            <a *ngIf="company._inboxCount" (click)="onCompanyInboxClick(company)">
+                                {{company._inboxCount}}
+                            </a>
+                        </td>
+                        <td class="bureau-count-col">
+                            <a *ngIf="company._approvedCount" (click)="onCompanyApprovalsClick(company)">
+                                {{company._approvedCount}}
+                            </a>
+                        </td>
+                        <td tabindex="-1" class="contextMenu">
+                            <button class="table-button" (click)="openContextMenu($event, company)">
+                                ...
+                            </button>
+                        </td>
+                    </tr>
+                </ng-container>
             </table>
         </section>
         <section class="right-side" *ngIf="!!highlightedCompany">

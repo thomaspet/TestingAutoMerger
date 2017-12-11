@@ -13,7 +13,7 @@ import {YearService} from '../../../services/common/yearService';
 import {Observable} from 'rxjs/Observable';
 import {Subscription} from 'rxjs/Subscription';
 import {AuthService} from '../../../authService';
-import {Company, CompanySettings} from '../../../unientities';
+import {CompanySettings} from '../../../unientities';
 import {UniFilesService} from '../../../services/common/uniFilesService';
 import {ErrorService} from '../../../services/common/errorService';
 import {BureauCurrentCompanyService} from '../bureauCurrentCompanyService';
@@ -26,8 +26,12 @@ const FILE_BASE = environment.BASE_URL_FILES;
     changeDetection: ChangeDetectionStrategy.OnPush,
     template: `
 <section class="company-overview" *ngIf="!!viewData && !!company">
-    <img class="logo" [src]="logoUrl" [attr.aria-busy]="!logoUrl" />
-    <a class="company_name">{{company.Name}}</a>
+    <section class="logo" [attr.aria-busy]="!logoUrl">
+        <img *ngIf="!!logoUrl" [src]="logoUrl" />
+    </section>
+    <a href="#" (click)="navigateToCompanyUrl('/')" class="company_name">
+        {{company.Name}}
+    </a>
     <section class="highlighted-bar">
         <section>
             <span>Virksomheter</span>
@@ -72,7 +76,7 @@ export class BureauCompanyTab implements AfterViewInit, OnDestroy {
         private errorService: ErrorService,
         private currentCompanyService: BureauCurrentCompanyService
     ) {
-        this.accountingYear = this.yearService.getSavedYear();
+        this.accountingYear = this.yearService.selectedYear$.getValue();
         this.authService.filesToken$.subscribe(token => this.authToken = token);
     }
 
@@ -134,16 +138,20 @@ export class BureauCompanyTab implements AfterViewInit, OnDestroy {
     }
 
     private getLogoUrl(companySettings: CompanySettings, companyKey: string): Observable<string> {
-        if (!companySettings.LogoFileID) {
-            return Observable.of('/assets/Logo-Placeholder.png');
-        }
+        console.log("companySettings:", companySettings)
+        // if (!companySettings.LogoFileID) {
+        //     return Observable.of('/assets/Logo-Placeholder.png');
+        // }
 
         const logoUrlObservable = this.customHttpService
             .get(`/api/biz/files/${CompanySettings.EntityType}/1`, companyKey)
             .map(response => response.json())
-            .map(files => files.length ? files[0] : Observable.empty())
-            .map(file =>
-                `${FILE_BASE}/api/image/?key=${companyKey}&token=${this.authToken}&id=${file.StorageReference}`
+            // .map(files => files.length ? files[0] : Observable.empty())
+            // .do(file => console.log("file:", file))
+            .map(files =>
+                files.length
+                    ? `${FILE_BASE}/api/image/?key=${companyKey}&token=${this.authToken}&id=${files[0].StorageReference}`
+                    : '/assets/Logo-Placeholder.png'
             );
 
         return Observable.fromPromise(

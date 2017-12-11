@@ -1,27 +1,34 @@
-import {Component} from '@angular/core';
+import {Component, ViewChild, ElementRef} from '@angular/core';
 import {FormControl} from '@angular/forms';
-import {User, LocalDate} from '../../unientities';
 import {ErrorService} from '../../services/common/errorService';
 import {AuthService} from '../../authService';
 import {UniModalService} from '../../../framework/uniModal/modalService';
 import {UniHttp} from '../../../framework/core/http/http';
 import {UserService} from '../../services/common/userService';
-import {ToastService, ToastType, ToastTime} from '../../../framework/uniToast/toastService';
+import {ToastService, ToastType} from '../../../framework/uniToast/toastService';
 import {UniNewCompanyModal} from './newCompanyModal';
 import {TabService, UniModules} from '../layout/navbar/tabstrip/tabService';
 import {IToolbarConfig} from '../common/toolbar/toolbar';
 import {IUniSaveAction} from '../../../framework/save/save';
-import {Observable} from 'rxjs/Observable';
 import {Subscription} from 'rxjs/Subscription';
 import {CompanyService} from '../../services/common/companyService';
 import {BureauCurrentCompanyService} from './bureauCurrentCompanyService';
 import {KpiCompany} from './kpiCompanyModel';
+import {BureauPreferences, BureauTagsDictionary} from '@app/components/bureau/bureauPreferencesModel';
+import {SingleTextFieldModal} from '../../../framework/uniModal/presets/singleTextFieldModal';
+import {isNullOrUndefined} from 'util';
+import {Router, ActivationEnd} from '@angular/router';
 
 enum KPI_STATUS {
     StatusUnknown = 0,
     StatusInProgress = 1,
     StatusError = 2,
     StatusReady = 3
+}
+
+export type AllTagsType = {
+    name: string,
+    count: number,
 }
 
 @Component({
@@ -41,6 +48,11 @@ export class BureauDashboard {
     public busy: boolean = false;
     public currentSortField: string;
     public sortIsDesc: boolean = true;
+    public companyTags: BureauTagsDictionary = {};
+    public allTags: AllTagsType[];
+    public activeTag: string;
+    public contextMenuCompany: KpiCompany;
+    @ViewChild('contextMenu') private contextMenu: ElementRef;
 
     constructor(
         private errorService: ErrorService,
@@ -51,7 +63,10 @@ export class BureauDashboard {
         private toastService: ToastService,
         private companyService: CompanyService,
         tabService: TabService,
-        private currentCompanyService: BureauCurrentCompanyService
+        private currentCompanyService: BureauCurrentCompanyService,
+        private modalService: UniModalService,
+        private elementRef: ElementRef,
+        private router: Router
     ) {
         tabService.addTab({
             name: 'Selskaper',
@@ -75,6 +90,8 @@ export class BureauDashboard {
         this.searchControl = new FormControl(userPreferences.filterString || '');
         this.sortIsDesc = userPreferences.sortIsDesc || true;
         this.currentSortField = userPreferences.sortField;
+        this.companyTags = userPreferences.tagsForCompany || {};
+        this.allTags = this.generateAllTags(this.companyTags);
 
         this.searchControl.valueChanges.subscribe((searchValue: string) => {
             this.filterCompanies(searchValue);
@@ -99,6 +116,29 @@ export class BureauDashboard {
                 },
                 err => this.errorService.handle(err)
             );
+        this.router.events
+            .filter((event) => event instanceof ActivationEnd)
+            .subscribe((change: ActivationEnd) => this.activeTag = change.snapshot.queryParams['tag'])
+    }
+
+    public generateAllTags(companyTags: BureauTagsDictionary): AllTagsType[] {
+        const tags = Object.keys(companyTags)
+            .map(key => this.companyTags[key])
+            .reduce(
+                (allTags, tags) => {
+                    for (const tag of tags) {
+                        allTags[tag] = (allTags[tag] || []);
+                        allTags[tag].push(tag);
+                    }
+                    return allTags;
+                }
+                ,{}
+            );
+        return Object.keys(tags)
+            .map(key => <AllTagsType>{
+                name: key,
+                count: tags[key].length,
+            });
     }
 
     public ngOnDestroy() {
@@ -107,11 +147,13 @@ export class BureauDashboard {
         }
         // Store filter string and sort info
         try {
-            localStorage.setItem('bureau_list_user_preferences', JSON.stringify({
-                filterString: this.searchControl.value || '',
+            const preferences: BureauPreferences = {
+                filterString: <string>(this.searchControl.value || ''),
+                sortIsDesc: this.sortIsDesc,
                 sortField: this.currentSortField,
-                sortIsDesc: this.sortIsDesc
-            }));
+                tagsForCompany: this.companyTags
+            };
+            localStorage.setItem('bureau_list_user_preferences', JSON.stringify(preferences));
         } catch (e) {}
     }
 
@@ -203,7 +245,6 @@ export class BureauDashboard {
             this.sortIsDesc = !this.sortIsDesc;
         }
 
-        console.log("this.sortIsDesc:", this.sortIsDesc)
         this.currentSortField = key;
         this.filteredCompanies.sort((a, b) => {
             a = typeof a[key] === 'string' ? a[key].toLowerCase() : a[key];
@@ -259,12 +300,62 @@ export class BureauDashboard {
         this.currentCompanyService.setCurrentCompany(company);
     }
 
-    private getUserPreferences() {
-        let preferences;
+    private getUserPreferences(): BureauPreferences {
+        let preferences: BureauPreferences;
         try {
             preferences = JSON.parse(localStorage.getItem('bureau_list_user_preferences'));
         } catch (e) {}
 
-        return preferences || {};
+        return preferences || <BureauPreferences>{};
+    }
+
+    public openContextMenu(event, company: KpiCompany) {
+        event.preventDefault();
+        event.stopPropagation();
+        this.contextMenuCompany = company;
+        const offsetTop = (event.target.parentElement.offsetTop + event.target.parentElement.offsetHeight) + 'px';
+        this.contextMenu.nativeElement.style = `top: ${offsetTop}`;
+        const that = this;
+        this.elementRef.nativeElement.addEventListener('click', function listener(event) {
+            if (!that.contextMenu.nativeElement.contains(event.target)) {
+                that.closeContextMenu();
+                that.elementRef.nativeElement.removeEventListener(event.type, listener);
+            }
+        });
+    }
+
+    private closeContextMenu() {
+        this.contextMenuCompany = null;
+    }
+
+    public addLabel(company: KpiCompany) {
+        const tags = this.companyTags[company.ID] || [];
+        this.modalService
+            .open(SingleTextFieldModal, {
+                header: `Legg til filter som ${company.Name} skal vises i`,
+                data: tags.join(', '),
+                modalConfig: {label: 'Filter (kommaseparert)'},
+            })
+            .onClose
+            .subscribe(
+                newTagString => {
+                    this.closeContextMenu();
+                    if (!isNullOrUndefined(newTagString)) {
+                        const newLabels = newTagString.split(',')
+                            .map(tag => tag.trim())
+                            .filter(tag => !!tag);
+                        this.companyTags[company.ID] = newLabels || undefined;
+                        this.allTags = this.generateAllTags(this.companyTags);
+                    }
+                }
+            )
+    }
+
+    public companyHasTag(company: KpiCompany, tag: string): boolean {
+        if (!tag) {
+            return true; // show everything if there is no active tag
+        }
+        return (this.companyTags[company.ID] || [])
+                .some(tag => tag === this.activeTag);
     }
 }

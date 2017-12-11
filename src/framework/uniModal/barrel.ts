@@ -12,6 +12,7 @@ import {UniRegisterPaymentModal} from './presets/registerPaymentModal';
 import {UniActivateAPModal} from './presets/activateAPModal';
 import {UniApproveModal} from './presets/approveModal';
 import {UniDownloadPaymentsModal} from './presets/downloadPaymentsModal';
+import {SingleTextFieldModal} from './presets/singleTextFieldModal';
 
 export * from './modalService';
 export * from './presets/confirmModal';
@@ -28,6 +29,7 @@ export * from './presets/registerPaymentModal';
 export * from './presets/activateAPModal';
 export * from './presets/approveModal';
 export * from './presets/downloadPaymentsModal';
+export * from './presets/singleTextFieldModal';
 
 export const MODALS = [
     UniConfirmModalV2,
@@ -44,5 +46,6 @@ export const MODALS = [
     UniActivateAPModal,
     UniApproveModal,
     UniDownloadPaymentsModal,
+    SingleTextFieldModal,
 ];
 
