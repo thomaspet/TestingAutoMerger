@@ -52,6 +52,7 @@ export class BureauSalaryTab implements AfterViewInit, OnDestroy {
     public company: KpiCompany;
     public viewData: any[];
     private subscription: Subscription;
+    public accountingYear: number;
 
     constructor(
         private element: ElementRef,
@@ -61,7 +62,9 @@ export class BureauSalaryTab implements AfterViewInit, OnDestroy {
         private authService: AuthService,
         private errorService: ErrorService,
         private currentCompanyService: BureauCurrentCompanyService,
-    ) {}
+    ) {
+        this.accountingYear = this.yearService.selectedYear$.getValue();
+    }
 
     public ngAfterViewInit() {
         this.element.nativeElement.setAttribute('aria-busy', true);
@@ -96,10 +99,9 @@ export class BureauSalaryTab implements AfterViewInit, OnDestroy {
     }
 
     public getLastPayroll(companyKey: string): Observable<string> {
-        const year = this.yearService.getSavedYear();
         return this.customHttpService.get(
             `${BASE}/api/statistics?model=payrollrun&select=id as id,description as name,`
-            + `paydate as paydate&filter=year(paydate) eq ${year}&orderby=paydate desc&top=1`,
+            + `paydate as paydate&filter=year(paydate) eq ${this.accountingYear}&orderby=paydate desc&top=1`,
             companyKey
         )
             .map(this.customHttpService.statisticsExtractor)
@@ -107,10 +109,9 @@ export class BureauSalaryTab implements AfterViewInit, OnDestroy {
     }
 
     public getPayrollPaymentDate(companyKey: string): Observable<string> {
-        const year = this.yearService.getSavedYear();
         return this.customHttpService.get(
             `${BASE}/api/statistics?model=payrollrun&select=paydate as paydate`
-            + `&filter=year(paydate) eq ${year}&orderby=paydate desc&top=1`,
+            + `&filter=year(paydate) eq ${this.accountingYear}&orderby=paydate desc&top=1`,
             companyKey
         )
             .map(this.customHttpService.statisticsExtractor)
@@ -118,10 +119,9 @@ export class BureauSalaryTab implements AfterViewInit, OnDestroy {
     }
 
     public getLastPeriodOfAMelding(companyKey: string): Observable<string> {
-        const year = this.yearService.getSavedYear();
         return this.customHttpService.get(
             `${BASE}/api/statistics?model=ameldingdata&select=period as period,sent as sent,year as year`
-            + `&filter=year eq ${year}&orderby=period desc,sent desc&top=1`,
+            + `&filter=year eq ${this.accountingYear}&orderby=period desc,sent desc&top=1`,
             companyKey
         )
             .map(this.customHttpService.statisticsExtractor)

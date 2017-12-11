@@ -67,7 +67,7 @@ export class BureauHoursTab implements AfterViewInit, OnDestroy {
         private currentCompanyService: BureauCurrentCompanyService,
         private errorService: ErrorService,
     ) {
-        this.accountingYear = this.yearService.getSavedYear();
+        this.accountingYear = this.yearService.selectedYear$.getValue();
     }
 
     public ngAfterViewInit() {
