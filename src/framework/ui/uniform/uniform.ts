@@ -197,7 +197,7 @@ export class UniForm {
                     this._layout.Fields[index] = _.cloneDeep(item);
                 }
             });
-            this.lastLayout = _.cloneDeep(this.lastLayout);
+            this.lastLayout = _.cloneDeep(this._layout);
         }
         setTimeout(() => {
             if (this.currentComponent) {
@@ -225,6 +225,24 @@ export class UniForm {
                 }, 200);
             }
         });
+    }
+
+    public updateField(name: string, field: any) {
+        let indexToUpdate: number;
+        const fieldToUpdate = this._layout.Fields.find((item: UniFieldLayout, index: number) => {
+            if (item.Property === name) {
+                indexToUpdate = index;
+                return true;
+            }
+            return false;
+        });
+        if (fieldToUpdate) {
+           this._layout.Fields[indexToUpdate] = _.cloneDeep(_.assign({}, this._layout.Fields[indexToUpdate], field));
+           this.lastLayout = _.cloneDeep(this._layout);
+        } else {
+            console.warn(`Uniform warning: there is no field with property: ${name}`);
+        }
+        return this;
     }
 
     public ngAfterViewInit() {
