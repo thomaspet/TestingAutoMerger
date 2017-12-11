@@ -201,7 +201,7 @@ export class TofCustomerCard {
     }
 
     private setSharingBadges() {
-        this.statisticsService.GetAllUnwrapped(`model=Sharing&filter=EntityType eq '${this.entityType}' and EntityID eq ${this.entity.ID}&select=ID,Type,StatusCode,ExternalMessage,UpdatedAt,CreatedAt&orderby=ID desc`).subscribe(sharings => {
+        this.statisticsService.GetAllUnwrapped(`model=Sharing&filter=EntityType eq '${this.entityType}' and EntityID eq ${this.entity.ID}&select=ID,Type,StatusCode,ExternalMessage,UpdatedAt,CreatedAt,To&orderby=ID desc`).subscribe(sharings => {
             [SharingType.AP, SharingType.Email, SharingType.Vipps].forEach(type => {
                 let cls = '';
                 let title = '';
@@ -209,6 +209,10 @@ export class TofCustomerCard {
                 if (firstOfType) {
                     cls = this.toBadgeClass(firstOfType.SharingStatusCode);
                     title = this.statusService.getSharingStatusText(firstOfType.SharingStatusCode);
+
+                    if (firstOfType.SharingStatusCode === StatusCodeSharing.Completed) {
+                        title += ' til ' + firstOfType.SharingTo;
+                    }
 
                     if (firstOfType.SharingExternalMessage) {
                         if (firstOfType.SharingExternalMessage === 'Opened by receiver') {
