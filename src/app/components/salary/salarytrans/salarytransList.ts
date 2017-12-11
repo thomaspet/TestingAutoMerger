@@ -377,11 +377,7 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges 
                 return row;
             })
             .setIsRowReadOnly(
-                (rowModel: SalaryTransaction) => {
-                    return rowModel.IsRecurringPost
-                        || !!rowModel.SalaryBalanceID
-                        || !this.salarytransEmployeeTableConfig.editable;
-                }
+                (rowModel: SalaryTransaction) => rowModel.IsRecurringPost || !!rowModel.SalaryBalanceID
             );
     }
 
