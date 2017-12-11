@@ -1,0 +1,31 @@
+
+<th *ngIf="config.multiRowSelect" class="select-column">
+    <input type="checkbox" [checked]="config.multiRowSelectDefaultValue" (change)="multiRowSelectChange($event)"/>
+</th>
+
+<th *ngFor="let column of columns"
+    [ngStyle]="{
+        'width': column.get('width'),
+        'text-align': column.get('alignment') || 'left'
+    }"
+    [ngClass]="{
+        isSortedAsc: ((column.get('displayField') || column.get('field')) === sortInfo?.field) && (sortInfo?.direction === 1),
+        isSortedDesc: ((column.get('displayField') || column.get('field')) === sortInfo?.field) && (sortInfo?.direction === -1)
+    }"
+    bind-class="column.get('headerCls')"
+    [hidden]="!column.get('visible')"
+    (click)="sortByColumn(column)"
+    [attr.title]="column.get('header')">
+
+    {{column.get('header')}}
+</th>
+
+<th class="context-menu-column" *ngIf="config?.columnMenuVisible || config?.contextMenu || config.deleteButton">
+    <unitable-column-menu
+        *ngIf="config?.columnMenuVisible"
+        [tableConfig]="config"
+        [columns]="columns"
+        (columnsChange)="columnSetupChange($event)"
+        (resetAll)="resetColumnSetup()">
+    </unitable-column-menu>
+</th>

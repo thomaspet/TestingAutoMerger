@@ -25,7 +25,7 @@ export interface IEditorData {
 export interface IUniTableConfig {
     configStoreKey?: string;
     entityType?: string;
-    columns: IUniTableColumn[];
+    columns: UniTableColumn[];
     editable?: boolean;
     searchable?: boolean;
     pageable?: boolean;
@@ -70,7 +70,7 @@ export interface IRowChangeEvent {
 export class UniTableConfig implements IUniTableConfig {
     public configStoreKey: string;
     public entityType: string;
-    public columns: IUniTableColumn[];
+    public columns: UniTableColumn[];
     public editable: boolean;
     public searchable: boolean;
     public pageable: boolean;
@@ -226,7 +226,7 @@ export class UniTableConfig implements IUniTableConfig {
         return this;
     }
 
-    public setColumns(columns: IUniTableColumn[]) {
+    public setColumns(columns: UniTableColumn[]) {
         this.columns = columns;
         return this;
     }

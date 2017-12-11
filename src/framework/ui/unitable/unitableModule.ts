@@ -27,6 +27,7 @@ import {UniSearchModule} from '../unisearch/index';
 
 import {ColumnMenuModal} from './columnMenu/columnMenuModal';
 import {ColumnTooltipPipe} from './columnTooltipPipe';
+import {UniTableHeader} from './header/unitable-header';
 
 @NgModule({
     imports: [
@@ -57,7 +58,9 @@ import {ColumnTooltipPipe} from './columnTooltipPipe';
         UniTablePipe,
         ColumnTooltipPipe,
         UniSearchWrapper,
-        ColumnMenuModal
+        ColumnMenuModal,
+
+        UniTableHeader
     ],
     entryComponents: [
         UnitableTextInput,

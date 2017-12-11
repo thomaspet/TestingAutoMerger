@@ -21,56 +21,17 @@
     <unitable-contextmenu [items]="config.contextMenu.items"></unitable-contextmenu>
 
     <thead *ngIf="config.headerVisible">
-        <tr>
-            <th *ngIf="config.multiRowSelect" class="select-column">
-                    <input type="checkbox"
-                        [checked]="config.multiRowSelectDefaultValue"
-                        (change)="onSelectAllRowsChanged($event)"
-                    />
-            </th>
-            <th *ngFor="let column of tableColumns"
-                [ngStyle]="{
-                    'width': column.get('width'),
-                    'text-align': column.get('alignment') || 'left'
-                }"
-                [ngClass]="{
-                    isSortedAsc: ((column.get('displayField') || column.get('field')) === sortInfo?.field) && (sortInfo?.direction === 1),
-                    isSortedDesc: ((column.get('displayField') || column.get('field')) === sortInfo?.field) && (sortInfo?.direction === -1)
-                }"
-                bind-class="column.get('headerCls')"
-                [hidden]="!column.get('visible')"
-                (click)="onSort(column)"
-                [attr.title]="column.get('header')">
-
-                {{column.get('header')}}
-            </th>
-
-            <th *ngIf="config.deleteButton" class="select-column">
-                <unitable-column-menu
-                    *ngIf="config?.columnMenuVisible && !config?.contextMenu?.items?.length"
-                    [tableConfig]="config"
-                    [columns]="tableColumns"
-                    (columnsChange)="onColumnsChange($event)"
-                    (resetAll)="onResetColumnConfig()">
-                </unitable-column-menu>
-            </th>
-
-            <th *ngIf="config?.contextMenu?.items?.length || (config?.columnMenuVisible && !config?.deleteButton)"
-                class="context-menu-column"
-                [ngClass]="{
-                    'select-column': config?.contextMenu?.items?.length > 1 || config?.contextMenu?.showDropdownOnSingleItem
-                }">
-
-                <unitable-column-menu
-                    *ngIf="config?.columnMenuVisible"
-                    [tableConfig]="config"
-                    [columns]="tableColumns"
-                    (columnsChange)="onColumnsChange($event)"
-                    (resetAll)="onResetColumnConfig()">
-                </unitable-column-menu>
-            </th>
+        <tr unitable-header
+            *ngIf="config && tableColumns"
+            [config]="config"
+            [columns]="tableColumns"
+            [(sortInfo)]="sortInfo"
+            (sortInfoChange)="filterAndSortTable()"
+            (columnsChange)="onColumnSetupChange($event)"
+            (selectAllRows)="onSelectAllRowsChange($event)">
         </tr>
     </thead>
+
     <tbody #tbody>
         <tr unitable-row
             *ngFor="let row of getPageData()"

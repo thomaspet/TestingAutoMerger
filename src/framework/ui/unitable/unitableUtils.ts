@@ -37,12 +37,24 @@ export class UniTableUtils {
         }
     }
 
+    public makeColumnsImmutable(columns: UniTableColumn[]): Immutable.List<any> {
+        let immutableColumns = Immutable.List();
+        columns.forEach((col) => {
+            // REVISIT: do we really need a list of maps?
+            // Maybe remove the map? Added benefit of not having to do column.get('..')
+            const map = Immutable.Map(col);
+            immutableColumns = immutableColumns.push(map);
+        });
+
+        return immutableColumns;
+    }
+
     public getColumnSetup(key: string): UniTableColumn[] {
         return this.columnSetupMap[key];
     }
 
     public saveColumnSetup(key: string, columns: UniTableColumn[]): void {
-        if (!columns) {
+        if (!key || !columns) {
             return;
         }
 
@@ -70,6 +82,10 @@ export class UniTableUtils {
     }
 
     public removeColumnSetup(key: string): void {
+        if (!key) {
+            return;
+        }
+
         try {
             delete this.columnSetupMap[key];
             localStorage.setItem(CONFIG_STORAGE_KEY, JSON.stringify(this.columnSetupMap));

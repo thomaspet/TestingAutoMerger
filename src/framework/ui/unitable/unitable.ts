@@ -156,19 +156,16 @@ export class UniTable implements OnChanges {
                 // First check if config contains columns that does not exist
                 // custom setup. This means that default config has changed
                 // and we need to invalidate the user's config
-                const configChanged = !this.config.columns.every(col => {
+                let resetColumnConfig = !this.config.columns.every(col => {
                     return customColumnSetup.some(customCol => customCol.field === col.field);
                 });
 
-                if (configChanged) {
-                    this.onResetColumnConfig();
-                    columns = this.config.columns;
-                } else {
+                if (!resetColumnConfig) {
                     // Extend the default column config with the custom one.
                     // Extending because localStorage can't hold functions/components etc
                     // So only a set of pre-defined fields are saved
-                    for (let customColumn of customColumnSetup) {
-                        let originalCol = this.config.columns.find(c => c.field === customColumn.field);
+                    for (const customColumn of customColumnSetup) {
+                        const originalCol = this.config.columns.find(c => c.field === customColumn.field);
                         if (originalCol) {
                             columns.push(Object.assign({}, originalCol, customColumn));
                         } else {
@@ -176,16 +173,20 @@ export class UniTable implements OnChanges {
                             // it means either the default config changed or a table with the
                             // same name and different config exists somewhere in the app.
                             // At this point we need to reset in order to avoid crashing
-                            this.onResetColumnConfig();
-                            columns = this.config.columns;
+                            resetColumnConfig = true;
                             break;
                         }
                     }
                 }
 
-                this.tableColumns = this.makeColumnsImmutable(columns);
+                if (resetColumnConfig) {
+                    columns = this.config.columns;
+                    this.utils.removeColumnSetup(this.config.configStoreKey);
+                }
+
+                this.tableColumns = this.utils.makeColumnsImmutable(columns);
             } else {
-                this.tableColumns = this.makeColumnsImmutable(this.config.columns);
+                this.tableColumns = this.utils.makeColumnsImmutable(this.config.columns);
             }
 
             if (this.config.filters) {
@@ -372,11 +373,9 @@ export class UniTable implements OnChanges {
             ));
     }
 
-    private onSelectAllRowsChanged(event) {
-        const selected = event && event.target.checked;
-
-        this.tableData = this.tableData.map((row) => row.set('_rowSelected', selected)).toList();
-        this.tableDataOriginal = this.tableDataOriginal.map(row => row.set('_rowSelected', selected)).toList();
+    private onSelectAllRowsChanged(checked: boolean) {
+        this.tableData = this.tableData.map((row) => row.set('_rowSelected', checked)).toList();
+        this.tableDataOriginal = this.tableDataOriginal.map(row => row.set('_rowSelected', checked)).toList();
 
         this.rowSelectionChanged.emit(null);
     }
@@ -419,66 +418,15 @@ export class UniTable implements OnChanges {
         }
     }
 
-    public onColumnsChange(columns) {
+    public onColumnSetupChange(columns) {
+        // Save and reset handled in unitable-header.ts
         this.tableColumns = columns;
-
-        if (this.lastFocusPosition) {
-            this.resetFocusedCell();
-        }
-
-        if (this.config.configStoreKey) {
-            this.utils.saveColumnSetup(
-                this.config.configStoreKey,
-                this.tableColumns.toJS()
-            );
-        }
-
-        this.columnsChange.emit(this.tableColumns.toJS());
-    }
-
-    public onResetColumnConfig() {
-        if (this.config.configStoreKey) {
-            this.utils.removeColumnSetup(this.config.configStoreKey);
-        }
-
-        this.tableColumns = this.makeColumnsImmutable(this.config.columns);
-
-        if (this.lastFocusPosition) {
-            this.resetFocusedCell();
-        }
-
         this.columnsChange.emit(this.tableColumns.toJS());
     }
 
     public toggleEditmode() {
         this.config.editable = !this.config.editable;
         this.editModeChange.emit(this.config.editable);
-    }
-
-    private onSort(column) {
-        if (!this.config.sortable) {
-            return;
-        }
-
-        var newDirection = 1;
-        let field = column.get('displayField') || column.get('field');
-
-        if (field === this.sortInfo.field) {
-            if (this.sortInfo.direction === -1) {
-                newDirection = 0;
-            } else if (this.sortInfo.direction === 1) {
-                newDirection = -1;
-            }
-        }
-
-        this.sortInfo = {
-            field: field,
-            direction: newDirection,
-            type: column.get('type'),
-            mode: column.get('sortMode')
-        };
-
-        this.filterAndSortTable();
     }
 
     public onFiltersChange(event) {
@@ -860,16 +808,6 @@ export class UniTable implements OnChanges {
                 this.columnSums = columnSums;
                 this.cdr.markForCheck();
             });
-    }
-
-    private makeColumnsImmutable(columns): Immutable.List<any> {
-        let immutableColumns = Immutable.List();
-        columns.forEach((col) => {
-            let map = Immutable.Map(col);
-            immutableColumns = immutableColumns.push(map);
-        });
-
-        return immutableColumns;
     }
 
     private makeDataImmutable(data) {
