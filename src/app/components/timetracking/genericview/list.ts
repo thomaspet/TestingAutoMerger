@@ -1,4 +1,4 @@
-import {Component, Input} from '@angular/core';
+import {Component, Input, OnInit} from '@angular/core';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {View} from '../../../models/view/view';
 import {UniTableConfig} from '../../../../framework/ui/unitable/index';
@@ -6,7 +6,6 @@ import {Router} from '@angular/router';
 import {ToastService} from '../../../../framework/uniToast/toastService';
 import {WorkerService} from '../../../services/timetracking/workerService';
 import {ErrorService} from '../../../services/services';
-import {OnInit} from '@angular/core/src/metadata/lifecycle_hooks';
 
 
 export interface IViewConfig {
