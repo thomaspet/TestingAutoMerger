@@ -2001,7 +2001,7 @@ export class BillView {
 
     private saveAndGetNewDocument(done?) {
         return this.save(done).then(() => {
-            this.supplierInvoiceService.fetch('filetags/IncomingMail|IncomingEHF/0').subscribe((res) => {
+            this.supplierInvoiceService.fetch('filetags/IncomingMail|IncomingEHF|IncomingTravel|IncomingExpense/0').subscribe((res) => {
                 if (res && res.length > 0) {
                     this.newInvoice(false);
                     this.hasStartupFileID = true;
