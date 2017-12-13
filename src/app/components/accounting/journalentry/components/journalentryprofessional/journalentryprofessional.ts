@@ -2297,14 +2297,8 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
         this.currentRowIndex = event.rowIndex;
 
         if (this.doShowImage) {
-            let updateImage = false;
             const rowFileIDs = event.rowModel.FileIDs;
-
-            if (rowFileIDs.length !== this.currentFileIDs.length) {
-                updateImage = true;
-            } else if (!this.isEqualArrays(rowFileIDs, this.currentFileIDs)) {
-                updateImage = true;
-            }
+            const updateImage = !this.isEqualArrays(rowFileIDs, this.currentFileIDs);
 
             if (updateImage) {
                 this.currentFileIDs = rowFileIDs || [];
@@ -2314,6 +2308,9 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
     }
 
     private isEqualArrays(arr1: any[], arr2: any[]): boolean {
+        if (arr1.length !== arr2.length) {
+            return false;
+        }
         for (let i = 0 ; i < arr1.length; i++ ) {
             if (arr1[i] !== arr2[i]) {
                 return false;
