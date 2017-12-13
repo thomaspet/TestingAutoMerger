@@ -8,8 +8,8 @@ import * as _ from 'lodash';
 })
 export class ColumnTooltipPipe implements PipeTransform {
     private getTooltip = _.memoize((rowModel, column) => {
-        if (column.get('tooltip')) {
-            return column.get('tooltip')(rowModel.toJS());
+        if (column.get('tooltipResolver')) {
+            return column.get('tooltipResolver')(rowModel.toJS());
         }
     });
 

@@ -55,7 +55,7 @@ export interface IRowModelChangeEvent {
             <ng-template #nonLink>
                 {{uniTablePipe.transform(rowModel, column)}}
 
-                <em *ngIf="column.get('tooltip')"
+                <em *ngIf="column.get('tooltipResolver')"
                     class="unitable-tooltip"
                     role="presentation"
                     [ngClass]="column | columnTooltipPipe: rowModel : 'cssClass'"

@@ -20,7 +20,7 @@
     {{column.get('header')}}
 </th>
 
-<th class="context-menu-column" *ngIf="config?.columnMenuVisible || config?.contextMenu || config.deleteButton">
+<th class="context-menu-column" *ngIf="config?.columnMenuVisible || config?.contextMenu?.items?.length || config.deleteButton">
     <unitable-column-menu
         *ngIf="config?.columnMenuVisible"
         [tableConfig]="config"
