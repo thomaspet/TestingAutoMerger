@@ -157,6 +157,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
     };
 
     private currentRowIndex: number = 0;
+    private currentFileIDs = [];
 
     constructor(
         private changeDetector: ChangeDetectorRef,
@@ -2289,19 +2290,40 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
     }
 
     public onRowSelected(event) {
-        if (this.doShowImage) {
-            this.showImageForJournalEntry.emit(event.rowModel);
-        }
-
         this.rowSelected.emit(event.rowModel);
     }
 
     public onCellFocus(event) {
         this.currentRowIndex = event.rowIndex;
+
+        if (this.doShowImage) {
+            let updateImage = false;
+            const rowFileIDs = event.rowModel.FileIDs;
+
+            if (rowFileIDs.length !== this.currentFileIDs.length) {
+                updateImage = true;
+            } else if (!this.isEqualArrays(rowFileIDs, this.currentFileIDs)) {
+                updateImage = true;
+            }
+
+            if (updateImage) {
+                this.currentFileIDs = rowFileIDs || [];
+                this.showImageForJournalEntry.emit(event.rowModel);
+            }
+        }
+    }
+
+    private isEqualArrays(arr1: any[], arr2: any[]): boolean {
+        for (let i = 0 ; i < arr1.length; i++ ) {
+            if (arr1[i] !== arr2[i]) {
+                return false;
+            }
+        }
+        return true;
     }
 
     private rowChanged(event?) {
-        var tableData = this.table.getTableData();
+        const tableData = this.table.getTableData();
         this.dataChanged.emit(tableData);
     }
 

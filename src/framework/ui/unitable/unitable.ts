@@ -297,7 +297,9 @@ export class UniTable implements OnChanges {
 
         this.cellFocus.emit({
             cell: cell,
-            rowIndex: rowIndex
+            rowIndex: rowIndex,
+            rowModel: this.lastFocusedRowModel.toJS(),
+            column: this.lastFocusedCellColumn.toJS()
         });
     }
 
