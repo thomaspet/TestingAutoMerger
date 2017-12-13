@@ -30,6 +30,7 @@ export class SalaryTransViewService {
 
                 this.openSupplements(rowModel, onSupplementsClose, isReadOnly());
             })
+            .setTemplate(row => '')
             .setTooltipResolver((row: SalaryTransaction) => {
                 if (!row.Supplements || !row.Supplements.length || this.isOnlyAmountField(row)) {
                     return;

@@ -55,7 +55,6 @@ table.uni-table
         white-space: nowrap
         overflow: hidden
         text-overflow: ellipsis
-        position: relative
 
         &:last-of-type
             border-right: pxToRem(1) solid $uni-color-scale9
@@ -316,15 +315,12 @@ uni-table .uni-datepicker
     display: block
     width: 2rem
     height: 100%
-    position: absolute
-    top: 0
-    right: 0
+    float: right
 
     &.left
-        left: 0
+        float: left
     &.center
-        left: 50%
-        transform: translateX(-50%)
+        float: none
 
     &.good
         background: $uni-color-good unicon-info($uni-color-negative) no-repeat center
