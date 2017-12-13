@@ -44,8 +44,8 @@ export class InvoiceHours implements OnInit {
     public busy = true;
     public working = false;
     public filters: Array<{ label: string, name: string, isActive: boolean}> = [
-        { label: 'Siste time-ordrer', name: 'orders', isActive: true },
-        { label: 'Historikk', name: 'history', isActive: false }
+        { label: 'Siste ordrer', name: 'orders', isActive: true },
+        { label: 'Siste faktura', name: 'invoices', isActive: false }
     ];
 
     constructor(

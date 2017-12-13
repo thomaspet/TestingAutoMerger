@@ -1,9 +1,9 @@
-import {Component, Input, Output, EventEmitter} from '@angular/core';
+import {Component, Input, Output, OnInit, AfterViewInit, EventEmitter} from '@angular/core';
 import {
     IUniModal,
     IModalOptions,
     ConfirmActions,
-    UniModalService
+    UniModalService,
 } from '../../../../../framework/uniModal/modalService';
 import {ReportDefinitionParameterService, ErrorService} from '../../../../services/services';
 import {StatisticsService} from '../../../../services/services';
@@ -54,7 +54,7 @@ import {Observable} from 'rxjs/Observable';
         </section>
     `
 })
-export class UniReportParamsModal implements IUniModal {
+export class UniReportParamsModal implements IUniModal, OnInit, AfterViewInit {
     @Input()
     public options: IModalOptions = {};
 
@@ -139,8 +139,9 @@ export class UniReportParamsModal implements IUniModal {
             if (chunkOfQuerys.length > 0) {
                 Observable.forkJoin(...chunkOfQuerys).subscribe( results => {
                     for (let i = 0; i < params.length; i++) {
-                        const dataset: { Success: boolean, Data: Array<any> } = <any>( i >= results.length + 1 ? results[i] : results[0]);
-                        if (dataset.Success && dataset.Data.length > 0) {
+                        const dataset: { Success: boolean, Data: Array<any> } =
+                            <any>( i + 1 >= results.length ? results[results.length - 1] : results[i]);
+                        if (dataset && dataset.Success && dataset.Data.length > 0) {
                             params[i].value = this.pickValueFromResult(params[i], dataset.Data[0] );
                         }
                     }
