@@ -22,6 +22,7 @@ export class TimetrackingDashboard {
     private allWidgets: IUniWidget[] = [];
     private companySettings: CompanySettings;
     private localTesting = true;
+    public currentYear: number = new Date().getFullYear();
 
     constructor(
         private tabService: TabService,
@@ -37,7 +38,7 @@ export class TimetrackingDashboard {
         });
 
         this.userService.getCurrentUser().subscribe( user => {
-            this.allWidgets = this.getDefaultLayout();
+            this.allWidgets = this.getDefaultLayout(user);
             this.switchUserRole(this.getPermissionLevel(user));
         });
     }
@@ -69,7 +70,7 @@ export class TimetrackingDashboard {
         return permissionLevel;
     }
 
-    private getDefaultLayout(): IUniWidget[] {
+    private getDefaultLayout(user: User): IUniWidget[] {
         const widgetList = [
             {
                 permissionLevel: PermissionLevel.Payroll,
@@ -100,17 +101,17 @@ export class TimetrackingDashboard {
                 }
             },
             {
-                permissionLevel: PermissionLevel.Manager,
+                permissionLevel: PermissionLevel.Worker,
                 width: 1,
                 height: 1,
                 x: 2,
                 y: 0,
                 widgetType: 'shortcut',
                 config: {
-                    label: 'Kunder',
-                    description: 'Kundeoversikt',
-                    icon: 'customer',
-                    link: '/sales/customer'
+                    label: 'Fakturere timer',
+                    description: 'Overføre/fakturere timer',
+                    icon: 'sale',
+                    link: '/timetracking/invoice-hours'
                 }
             },
             {
@@ -166,13 +167,18 @@ export class TimetrackingDashboard {
             {
                 permissionLevel: PermissionLevel.Payroll,
                 width: 2,
-                height: 2,
+                height: 3,
                 x: 3,
                 y: 1,
                 widgetType: 'shortcutlist',
                 config: {
                     header: 'Snarveier',
                     shortcuts: [
+                        {
+                            label: 'Fakturere timer',
+                            link: '/timetracking/invoice-hours',
+                            urlToNew: ''
+                        },
                         {
                             label: 'Personer',
                             link: '/timetracking/workers',
@@ -187,10 +193,16 @@ export class TimetrackingDashboard {
                             label: 'Stillingsmaler',
                             link: '/timetracking/workprofiles',
                             urlToNew: '/timetracking/workprofiles/0'
-                        },                        {
+                        },
+                        {
                             label: 'Kunder',
                             link: '/sales/customer',
                             urlToNew: '/sales/customer/0'
+                        },
+                        {
+                            label: 'Produkter',
+                            link: '/sales/products',
+                            urlToNew: '/sales/products/0'
                         },
                     ]
                 }
@@ -244,22 +256,23 @@ export class TimetrackingDashboard {
             {
                 permissionLevel: PermissionLevel.Reporting,
                 width: 3,
-                height: 2,
+                height: 3,
                 x: 0,
                 y: 1,
                 widgetType: 'chart',
                 config: {
-                    header: 'Fordeling pr. timeart',
+                    header: 'Fordeling pr. timeart ' + this.currentYear,
                     chartType: 'pie',
                     labels: [],
                     colors: [],
                     dataEndpoint: [
                         '/api/statistics?model=workitem&select=sum(minutes) as Sum,'
                         + 'worktype.Name as Name&expand=worktype'
+                        + '&filter=year(date) eq ' + this.currentYear
                     ],
                     labelKey: 'Name',
                     valueKey: 'Sum',
-                    maxNumberOfLabels: 7,
+                    maxNumberOfLabels: 4,
                     useIf: '',
                     addDataValueToLabel: false,
                     dataset: [],

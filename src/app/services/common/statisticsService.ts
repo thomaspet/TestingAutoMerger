@@ -46,7 +46,7 @@ export class StatisticsService extends BizHttp<string> {
             .map(response => response.Data);
     }
 
-    public GetAllByUrlSearchParams<T>(params: URLSearchParams): Observable<Response> {
+    public GetAllByUrlSearchParams<T>(params: URLSearchParams, distinct = false): Observable<Response> {
         // use default orderby for service if no orderby is specified
         if (!params.get('orderby') && this.DefaultOrderBy !== null) {
             params.set('orderby', this.DefaultOrderBy);
@@ -62,7 +62,7 @@ export class StatisticsService extends BizHttp<string> {
             params.delete('filter');
         }
 
-        params.set('distinct', 'false');
+        params.set('distinct', distinct ? 'true' : 'false');
 
         return this.http
             .usingRootDomain()

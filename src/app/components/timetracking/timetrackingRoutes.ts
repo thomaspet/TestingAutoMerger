@@ -13,6 +13,7 @@ import {TimeEntry} from './timeentry/timeentry';
 
 import {CanDeactivateGuard} from '../../canDeactivateGuard';
 import {TimetrackingDashboard} from './timetracking-dashboard';
+import { InvoiceHours } from '@app/components/timetracking/invoice-hours/invoice-hours';
 
 export const timetrackingRoutes: Routes = [
     {
@@ -54,6 +55,11 @@ export const timetrackingRoutes: Routes = [
     {
         path: 'timeentry',
         component: TimeEntry,
+        canDeactivate: [CanDeactivateGuard]
+    },
+    {
+        path: 'invoice-hours',
+        component: InvoiceHours,
         canDeactivate: [CanDeactivateGuard]
     }
 ];

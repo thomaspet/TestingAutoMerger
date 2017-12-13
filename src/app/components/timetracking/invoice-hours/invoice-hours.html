@@ -1,0 +1,37 @@
+<uni-toolbar [config]="toolbarConfig"></uni-toolbar>
+
+<section class='application less-margin'>
+
+    <table class='toolbar' style="float: left">
+        <tr>
+            <td>
+                <input type="search" placeholder="Søk" [formControl]="searchControl">
+            </td>
+            <td class="left-padding">
+                <header class="filter-nav">
+                    <ul>
+                        <li (click)="onFilterClick(item)" *ngFor="let item of filters" [class.is-active]="item.isActive">{{item.label}}</li>
+                    </ul>
+                </header>   
+            </td>             
+        </tr>
+    </table>
+
+    <article [attr.aria-busy]="busy" [class.wait-cursor]="working" >
+
+        <uni-table [resource]="dataSource"
+            [config]="tableConfig"
+            (rowSelected)="onRowSelected($event)">
+        </uni-table>
+
+        <footer *ngIf="limitRows>0 && limitRows<=rowCount">De {{rowCount}} første 
+            <button (click)="onShowAllClick(true)">Vis alle</button>        
+        </footer>
+
+        <footer *ngIf="limitRows===0">{{rowCount}} stk. 
+            <button (click)="onShowAllClick(false)">Vis de {{this.pageSize}} første</button>
+        </footer>
+
+    </article>
+
+</section>

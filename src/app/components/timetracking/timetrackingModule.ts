@@ -16,7 +16,6 @@ import {ReportWorkflow} from './timeentry/timetable/pipes';
 import {RegtimeTotals} from './timeentry/totals/totals';
 import {RegtimeBalance} from './timeentry/balance/balance';
 import {AppPipesModule} from '../../pipes/appPipesModule';
-
 import {View} from './worker/relations';
 import {WorkerDetailview} from './worker/worker';
 import {WorkerListview} from './worker/workers';
@@ -39,6 +38,8 @@ import {PopupMenu} from './timeentry/timetable/popupmenu';
 import {UniApproveTaskModal} from './timeentry/timetable/approvetaskmodal';
 import {TimetrackingDashboard} from './timetracking-dashboard';
 import {WidgetModule} from '../widgets/widgetModule';
+import {WorkitemTransferWizard} from './invoice-hours/transfer-wizard';
+import {InvoiceHours} from './invoice-hours/invoice-hours';
 
 @NgModule({
     imports: [
@@ -84,7 +85,9 @@ import {WidgetModule} from '../widgets/widgetModule';
         ReportWorkflow,
         PopupMenu,
         UniApproveTaskModal,
-        TimetrackingDashboard
+        TimetrackingDashboard,
+        WorkitemTransferWizard,
+        InvoiceHours
     ],
     providers: [
         CanDeactivateGuard,

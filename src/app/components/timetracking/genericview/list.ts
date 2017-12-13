@@ -6,6 +6,7 @@ import {Router} from '@angular/router';
 import {ToastService} from '../../../../framework/uniToast/toastService';
 import {WorkerService} from '../../../services/timetracking/workerService';
 import {ErrorService} from '../../../services/services';
+import {OnInit} from '@angular/core/src/metadata/lifecycle_hooks';
 
 
 export interface IViewConfig {
@@ -37,7 +38,7 @@ export interface IViewConfig {
     selector: 'genericlist',
     templateUrl: './list.html'
 })
-export class GenericListView {
+export class GenericListView implements OnInit {
     @Input() public viewconfig: IViewConfig;
     public label: string;
 
@@ -61,7 +62,7 @@ export class GenericListView {
                     urlParams, this.viewconfig.data.route, this.viewconfig.data.expand
                 ).catch((err, obs) => this.errorService.handleRxCatch(err, obs));
             };
-            var tab = this.viewconfig.tab;
+            const tab = this.viewconfig.tab;
             this.tabService.addTab({
                 name: tab.label, url: tab.url, moduleID: this.viewconfig.moduleID, active: true
             });
@@ -75,6 +76,6 @@ export class GenericListView {
 
     public onRowSelected(event) {
         this.router.navigateByUrl(this.viewconfig.detail.route + event.rowModel.ID);
-    };
+    }
 
 }
