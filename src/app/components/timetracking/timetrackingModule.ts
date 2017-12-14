@@ -96,7 +96,8 @@ import {InvoiceHours} from './invoice-hours/invoice-hours';
     entryComponents: [
         UniTemplateModal,
         UniTimeModal,
-        TimetrackingDashboard
+        TimetrackingDashboard,
+        WorkitemTransferWizard
     ],
     exports: [
         UniTimetracking,

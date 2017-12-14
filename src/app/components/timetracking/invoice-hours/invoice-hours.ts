@@ -1,7 +1,7 @@
 import {Component, ViewChild} from '@angular/core';
 import {View} from '../../../models/view/view';
 import {UniTableColumn, UniTableColumnType, UniTableConfig, IUniTableConfig, UniTable} from '../../../../framework/ui/unitable/index';
-import {UniModules} from '../../layout/navbar/tabstrip/tabService';
+import {UniModules, TabService} from '../../layout/navbar/tabstrip/tabService';
 import {IToolbarConfig} from '@app/components/common/toolbar/toolbar';
 import { StatisticsService, ErrorService } from '@app/services/services';
 import { URLSearchParams } from '@angular/http';
@@ -11,6 +11,8 @@ import { ToastService } from '@uni-framework/uniToast/toastService';
 import { Router } from '@angular/router';
 import { FormControl } from '@angular/forms';
 import { filterInput, safeInt } from '@app/components/common/utils/utils';
+import { UniModalService } from '@uni-framework/uniModal/barrel';
+import { WorkitemTransferWizard } from '@app/components/timetracking/invoice-hours/transfer-wizard';
 export const view = new View('invoice-hours', 'Fakturere timer', 'InvoiceHours', false, 'invoice-hours');
 
 @Component({
@@ -32,10 +34,10 @@ export class InvoiceHours implements OnInit {
     public rowCount: number = 0;
     public toolbarConfig: IToolbarConfig = {
         title: 'Fakturere/overføre timer',
-        omitFinalCrumb: true,
+        omitFinalCrumb: false,
         saveactions: [
             {
-                action: () => this.createNew(),
+                action: (done) => this.createNew(done),
                 label: 'Ny overføring'
             }
         ]
@@ -52,8 +54,12 @@ export class InvoiceHours implements OnInit {
         private statisticsService: StatisticsService,
         private toastService: ToastService,
         private navigator: Router,
-        private errorService: ErrorService) {
+        private errorService: ErrorService,
+        private tabService: TabService,
+        private uniModalService: UniModalService) {
             this.dataSource = (value) => this.queryInvoiceOrders(value);
+            tabService.addTab({ name: 'Overføring av timer', url: '/timetracking/invoice-hours',
+                moduleID: UniModules.Timesheets, active: true });
     }
 
     public ngOnInit() {
@@ -91,8 +97,19 @@ export class InvoiceHours implements OnInit {
             });
     }
 
-    public createNew() {
-
+    public createNew(done: () => {}) {
+        this.uniModalService.open(WorkitemTransferWizard,
+            {   data: {},
+                header: 'Overføring av timer',
+                message: 'Overføring av timer'
+            }).onClose.subscribe(modalResult => {
+                done();
+                // if (modalResult === ConfirmActions.ACCEPT) {
+                //     this.uniModalService.open(UniPreviewModal, {
+                //         data: report
+                //     });
+                // }
+            });
     }
 
     public onRowSelected(event) {

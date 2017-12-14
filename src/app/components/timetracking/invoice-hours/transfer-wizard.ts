@@ -12,44 +12,33 @@ import { OnInit, AfterViewInit } from '@angular/core/src/metadata/lifecycle_hook
 
 @Component({
     selector: 'workitem-transfer-wizard',
-    template: `
-        <section role="dialog" class="uni-modal">
-            <header>
-                <h1 class="new">Fakturering av timer</h1>
-            </header>
-
-            <article [attr.aria-busy]="busy">
-                <section [innerHtml]="options.message"></section>
-                <p class="warn" *ngIf="options.warning">
-                    {{options.warning}}
-                </p>
-
-            </article>
-
-            <footer (click)="busy = !busy" >
-                <button *ngIf="options.buttonLabels.accept" class="good" id="good_button_ok" (click)="accept()">
-                    {{options.buttonLabels.accept}}
-                </button>
-
-                <button *ngIf="options.buttonLabels.reject" class="bad" (click)="reject()">
-                    {{options.buttonLabels.reject}}
-                </button>
-
-                <button *ngIf="options.buttonLabels.cancel" class="cancel" (click)="cancel()">
-                    {{options.buttonLabels.cancel}}
-                </button>
-            </footer>
-        </section>
-    `
+    templateUrl: './transfer-wizard.html',
+    styles: [
+        `.container { padding: 1em 1em 0 1em; }
+         .wizard-step-container { min-height: 15em; }
+        `
+    ]
 })
 export class WorkitemTransferWizard implements IUniModal, OnInit, AfterViewInit {
     @Input()
     public options: IModalOptions = {};
-
     @Output()
     public onClose: EventEmitter<any> = new EventEmitter();
 
+    public step = 0;
+    public steps: Array<{label: string}> = [
+        { label: 'Utvalg' },
+        { label: 'Filtrer' },
+        { label: 'Produkt/pris' },
+        { label: 'Fullfør' }
+    ];
+
     public busy: boolean = false;
+    public choices: Array<{ label: string, checked?: boolean }> = [
+        { label: 'Kunde-timer', checked: true},
+        { label: 'Ordre-timer'},
+        { label: 'Prosjekt-timer'}
+    ];
 
     constructor(
         private http: Http,
@@ -68,7 +57,7 @@ export class WorkitemTransferWizard implements IUniModal, OnInit, AfterViewInit 
             };
         }
         if (this.options && this.options.data) {
-            this.busy = true;
+            // this.busy = true;
         }
     }
 
@@ -78,8 +67,18 @@ export class WorkitemTransferWizard implements IUniModal, OnInit, AfterViewInit 
         });
     }
 
+    public goBack() {
+        if (this.step > 0) {
+            this.step--;
+        }
+    }
+
     public accept() {
-        this.onClose.emit(ConfirmActions.ACCEPT);
+        if (this.step === this.steps.length - 1) {
+            this.onClose.emit(ConfirmActions.ACCEPT);
+            return;
+        }
+        this.step++;
     }
 
     public reject() {

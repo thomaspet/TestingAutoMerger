@@ -128,21 +128,24 @@ export class UniReportParamsModal implements IUniModal, OnInit, AfterViewInit {
 
             // Defaultvalue-parameter-queries defined in report?
             const chunkOfQuerys = [];
+            let topSourceIndex = -1;
             for (let i = 0; i < params.length; i++) {
-                const par = params[i];
+                const par: { DefaultValueSource?: string, SourceIndex?: number} = params[i];
                 if (par.DefaultValueSource) {
                     const qIndex = par.DefaultValueSource.indexOf('?');
                     const query = qIndex >= 0 ? par.DefaultValueSource.substr(qIndex + 1) : par.DefaultValueSource;
                     chunkOfQuerys.push(this.statisticsService.GetAll(`${query}`));
+                    topSourceIndex++;
                 }
+                par.SourceIndex = topSourceIndex;
             }
             if (chunkOfQuerys.length > 0) {
                 Observable.forkJoin(...chunkOfQuerys).subscribe( results => {
                     for (let i = 0; i < params.length; i++) {
-                        const dataset: { Success: boolean, Data: Array<any> } =
-                            <any>( i + 1 >= results.length ? results[results.length - 1] : results[i]);
+                        const reportParam: { SourceIndex?: number } = <any>params[i];
+                        const dataset: any = reportParam.SourceIndex !== undefined ? results[reportParam.SourceIndex] : undefined;
                         if (dataset && dataset.Success && dataset.Data.length > 0) {
-                            params[i].value = this.pickValueFromResult(params[i], dataset.Data[0] );
+                            params[i].value = this.pickValueFromResult(<any>reportParam, dataset.Data[0] );
                         }
                     }
                     resolve(params);

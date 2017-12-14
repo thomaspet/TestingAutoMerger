@@ -11,6 +11,7 @@ import {view as workProfileView} from './workprofile/workprofiles';
 import {view as workProfileDetailView} from './workprofile/workprofile';
 
 import {view as timeentryView} from './timeentry/timeentry';
+import {view as InvoiceHoursView } from './invoice-hours/invoice-hours';
 
 // Main view (meta)
 export const view = new View('timetracking', 'Timer', 'UniTimetracking', false, '');
@@ -23,6 +24,7 @@ view.addSubView(workTypeView);
 view.addSubView(workTypeDetailView);
 view.addSubView(workProfileView);
 view.addSubView(workProfileDetailView);
+view.addSubView(InvoiceHoursView);
 
 @Component({
     selector: 'uni-timetracking',
