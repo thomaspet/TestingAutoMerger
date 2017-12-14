@@ -39,6 +39,7 @@ import {UniApproveTaskModal} from './timeentry/timetable/approvetaskmodal';
 import {TimetrackingDashboard} from './timetracking-dashboard';
 import {WidgetModule} from '../widgets/widgetModule';
 import {WorkitemTransferWizard} from './invoice-hours/transfer-wizard';
+import {WorkitemTransferWizardFilter} from './invoice-hours/transfer-wizard-filter';
 import {InvoiceHours} from './invoice-hours/invoice-hours';
 
 @NgModule({
@@ -87,6 +88,7 @@ import {InvoiceHours} from './invoice-hours/invoice-hours';
         UniApproveTaskModal,
         TimetrackingDashboard,
         WorkitemTransferWizard,
+        WorkitemTransferWizardFilter,
         InvoiceHours
     ],
     providers: [

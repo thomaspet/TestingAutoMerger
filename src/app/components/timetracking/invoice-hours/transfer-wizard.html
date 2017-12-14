@@ -4,15 +4,15 @@
     </header>
 
     <article [attr.aria-busy]="busy">
-        <strong>{{steps[step].label}}</strong>
+        <div class="stepheader">{{steps[step].label}}</div>
         
         <section class="wizard-step-container" [hidden]="step !== 0">
             <form>
                 <div class="container">
                     <label>Medarbeidere:</label>
-                    <select>
-                        <option>Mine timer</option>
-                        <option>Alle medarbeidere</option>
+                    <select >
+                        <option value="0">Mine timer</option>
+                        <option value="1">Alle medarbeidere</option>
                     </select>
                 </div>
                 <div class="container">
@@ -24,11 +24,11 @@
         </section>
 
         <section class="wizard-step-container" [hidden]="step !== 1">
-
+            <workitem-transfer-wizard-filter [options]="filterOptions" ></workitem-transfer-wizard-filter>
         </section>
 
         <section class="wizard-step-container" [hidden]="step !== 2">
-
+            {{filterOptions.selectedCustomers?.length}} selected customers
         </section>
         
         <section class="wizard-step-container" [hidden]="step !== 3">
@@ -39,19 +39,8 @@
 
     <footer>
         <p style="float: left">Steg {{step+1}} av {{steps.length}}</p>
-
         <button *ngIf="step>0" class="bad" (click)="goBack()">Tilbake</button>
-
-        <button *ngIf="options.buttonLabels.accept" class="good" id="good_button_ok" (click)="accept()">
-            {{options.buttonLabels.accept}}
-        </button>
-
-        <button *ngIf="options.buttonLabels.reject" class="bad" (click)="reject()">
-            {{options.buttonLabels.reject}}
-        </button>
-
-        <button *ngIf="options.buttonLabels.cancel" class="cancel" (click)="cancel()">
-            {{options.buttonLabels.cancel}}
-        </button>
+        <button class="good" id="good_button_ok" (click)="accept()" [innerHtml]="step<steps.length-1 ? 'Videre': 'Fullfør'"></button>
+        <button class="cancel" (click)="cancel()">Avbryt</button>
     </footer>
 </section>
