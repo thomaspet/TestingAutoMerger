@@ -277,6 +277,12 @@ export class UniTable implements OnChanges {
         this.lastFocusedCellColumn = event.column;
         this.lastFocusedRowModel = event.rowModel;
 
+        if (!this.lastFocusPosition || this.lastFocusPosition.rowIndex !== rowIndex) {
+            setTimeout(() => {
+                this.rowSelected.emit({rowModel: this.lastFocusedRowModel.toJS()});
+            }, 200);
+        }
+
         this.lastFocusPosition = {
             rowIndex: rowIndex,
             cellIndex: cell.cellIndex
@@ -306,8 +312,6 @@ export class UniTable implements OnChanges {
     public onCellClicked(event) {
         const row = event.rowModel.toJS();
         const col: UniTableColumn = event.column.toJS();
-
-        this.rowSelected.emit({rowModel: row});
 
         this.cellClick.next({
             row: row,
