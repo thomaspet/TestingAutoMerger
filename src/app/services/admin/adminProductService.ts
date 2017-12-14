@@ -73,7 +73,7 @@ export class AdminProductService {
 
     public maxChar(products: AdminProduct[], maxLength: number): AdminProduct[] {
         for (let product of products) {
-            if (product.description.length > maxLength) {
+            if (product.description && product.description.length > maxLength) {
                 product.description = product.description.substr(0, maxLength - 3) + '...';
             }
         }
