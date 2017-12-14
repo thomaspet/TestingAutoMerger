@@ -1,7 +1,7 @@
 import {Component} from '@angular/core';
 import {Router, ActivatedRoute} from '@angular/router';
-import {Employment, EmployeeLeave} from '../../../../unientities';
-import {UniTableConfig, UniTableColumnType, UniTableColumn} from '../../../../../framework/ui/unitable/index';
+import {Employment, EmployeeLeave, Leavetype, LocalDate} from '../../../../unientities';
+import {UniTableConfig, UniTableColumnType, UniTableColumn, IRowChangeEvent, UniTable} from '../../../../../framework/ui/unitable/index';
 import {UniCacheService, ErrorService} from '../../../../services/services';
 import {UniView} from '../../../../../framework/core/uniView';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
@@ -19,8 +19,12 @@ export class EmployeeLeaves extends UniView {
     private unsavedEmployments$: BehaviorSubject<boolean> = new BehaviorSubject(false);
 
     private leaveTypes: any[] = [
-        {typeID: '1', text: 'Permisjon'},
-        {typeID: '2', text: 'Permittering'}
+        //{typeID: Leavetype.Leave, text: 'Permisjon'},
+        {typeID: Leavetype.LayOff, text: 'Permittering'},
+        {typeID: Leavetype.Leave_with_parental_benefit, text: 'Permisjon med foreldrepenger'},
+        {typeID: Leavetype.Military_service_leave, text: 'Permisjon ved militærtjeneste'},
+        {typeID: Leavetype.Educational_leave, text: 'Utdanningspermisjon'},
+        {typeID: Leavetype.Compassionate_leave, text: 'Velferdspermisjon'}
     ];
 
     constructor(
@@ -64,10 +68,10 @@ export class EmployeeLeaves extends UniView {
         const leaveTypeCol = new UniTableColumn('LeaveType', 'Type', UniTableColumnType.Lookup)
             .setTemplate((dataItem) => {
                 if (!dataItem.LeaveType && !dataItem['_isEmpty']) {
-                    dataItem.LeaveType = 1;
+                    dataItem.LeaveType = Leavetype.Leave;
                 }
                 const leaveType = this.leaveTypes.find(lt => +lt.typeID === +dataItem.LeaveType);
-                return (leaveType) ? leaveType.text : '';
+                return leaveType ? leaveType.text : leaveType === undefined && dataItem.ID > 0 ? 'Permisjon' : '';
             })
             .setOptions({
                 itemTemplate: selectedItem => selectedItem.text,
@@ -138,6 +142,14 @@ export class EmployeeLeaves extends UniView {
             return;
         }
         rowModel['LeaveType'] = leavetype.typeID;
+    }
+
+    public rowChanged(event: IRowChangeEvent) {
+        if (event.field === 'LeaveType') {
+            if (event['newValue'] === null) {
+                this.employeeleaveItems[event['originalIndex']].LeaveType = Leavetype.Leave;
+            }
+        }
     }
 
     private onRowDeleted(event) {
