@@ -62,18 +62,11 @@ export class BureauDashboard {
         private userService: UserService,
         private toastService: ToastService,
         private companyService: CompanyService,
-        tabService: TabService,
         private currentCompanyService: BureauCurrentCompanyService,
         private modalService: UniModalService,
         private elementRef: ElementRef,
         private router: Router
     ) {
-        tabService.addTab({
-            name: 'Selskaper',
-            url: '/bureau',
-            moduleID: UniModules.BureauDashboard,
-            active: true
-        });
 
         this.toolbarConfig = {
             title: 'Mine selskaper',
