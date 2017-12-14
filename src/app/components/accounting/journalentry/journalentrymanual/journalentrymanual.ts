@@ -1,4 +1,4 @@
-import {Component, Input, SimpleChange, ViewChild, OnInit, OnChanges, Output, EventEmitter} from '@angular/core';
+import {Component, Input, SimpleChange, ViewChild, OnInit, OnChanges, Output, EventEmitter, HostListener} from '@angular/core';
 import {JournalEntryProfessional} from '../components/journalentryprofessional/journalentryprofessional';
 import {
     Dimensions,
@@ -11,10 +11,8 @@ import {
 } from '../../../../unientities';
 import {ValidationResult} from '../../../../models/validationResult';
 import {JournalEntryData} from '../../../../models/models';
-import {JournalEntrySimpleCalculationSummary}
-    from '../../../../models/accounting/JournalEntrySimpleCalculationSummary';
-import {JournalEntryAccountCalculationSummary}
-    from '../../../../models/accounting/JournalEntryAccountCalculationSummary';
+import {JournalEntrySimpleCalculationSummary} from '../../../../models/accounting/JournalEntrySimpleCalculationSummary';
+import {JournalEntryAccountCalculationSummary} from '../../../../models/accounting/JournalEntryAccountCalculationSummary';
 import {AccountBalanceInfo} from '../../../../models/accounting/AccountBalanceInfo';
 import {IUniSaveAction} from '../../../../../framework/save/save';
 import {ISummaryConfig} from '../../../common/summary/summary';
@@ -102,6 +100,21 @@ export class JournalEntryManual implements OnChanges, OnInit {
     public saveactions: IUniSaveAction[];
     public isDirty: boolean = false;
 
+    @HostListener('keydown', ['$event'])
+    public onKeyDown(event: KeyboardEvent) {
+        const key = event.which || event.keyCode;
+
+        if (key === 73 && (navigator.platform.match('Mac') ? event.metaKey : event.ctrlKey)) {
+            event.preventDefault();
+
+            // Give components a chance to update disabled state
+            // because there might be changes triggered by ctrl+s (table blur etc)
+            setTimeout(() => {
+                this.openAddFileModal();
+            });
+        }
+    }
+
     constructor(
         private journalEntryService: JournalEntryService,
         private financialYearService: FinancialYearService,
@@ -134,10 +147,10 @@ export class JournalEntryManual implements OnChanges, OnInit {
                     'JournalEntry', this.currentFinancialYear.Year
                 ).subscribe((tasks) => {
                     tasks.forEach(x => {
-                        var task = this.numberSeriesTaskService.translateTask(x.NumberSeriesTask);
-                        var serie = this.numberSeriesService.translateSerie(x.DefaultNumberSeries);
-                        var name = serie !== null ? task._DisplayName + ' | ' + serie._DisplayName  : task._DisplayName;
-                        task._DisplayName =  name
+                        const task = this.numberSeriesTaskService.translateTask(x.NumberSeriesTask);
+                        const serie = this.numberSeriesService.translateSerie(x.DefaultNumberSeries);
+                        const name = serie !== null ? task._DisplayName + ' | ' + serie._DisplayName  : task._DisplayName;
+                        task._DisplayName =  name;
                     });
                     this.numberSeriesTasks = tasks.map(x => x.NumberSeriesTask);
 
@@ -189,7 +202,7 @@ export class JournalEntryManual implements OnChanges, OnInit {
 
     private setupSaveConfig() {
         if (!this.runAsSubComponent) {
-            let newActions = [
+            const newActions = [
                 {
                     label: 'Lagre og bokfør',
                     action: (completeEvent) => this.postJournalEntryData(completeEvent),
@@ -206,7 +219,7 @@ export class JournalEntryManual implements OnChanges, OnInit {
         this.clearJournalEntryInfo();
         this.hasLoadedData = true;
 
-        let data = this.journalEntryService.getSessionData(this.mode);
+        const data = this.journalEntryService.getSessionData(this.mode);
 
         // if data is present in the sessionStorage, but the journalEntryID is not set,
         // consider setting it. This will happen if the user starts editing a journalentry,
@@ -288,7 +301,7 @@ export class JournalEntryManual implements OnChanges, OnInit {
             return;
         }
 
-        let fileIds: number[] = [];
+        const fileIds: number[] = [];
 
         files.forEach(file => {
             fileIds.push(parseInt(file.ID));
@@ -296,7 +309,7 @@ export class JournalEntryManual implements OnChanges, OnInit {
 
         let didChangeAnything: boolean = false;
         let didFindJournalEntry: boolean = false;
-        let data = this.getJournalEntryData();
+        const data = this.getJournalEntryData();
 
         data.forEach(entry => {
             if (entry.JournalEntryNo === this.showImagesForJournalEntryNo) {
@@ -317,7 +330,7 @@ export class JournalEntryManual implements OnChanges, OnInit {
         });
 
         if (!didFindJournalEntry) {
-            let newJournalEntry = new JournalEntryData();
+            const newJournalEntry = new JournalEntryData();
             newJournalEntry.FileIDs = fileIds;
             newJournalEntry.Dimensions = new Dimensions();
             data.push(JSON.parse(JSON.stringify(newJournalEntry)));
@@ -411,7 +424,7 @@ export class JournalEntryManual implements OnChanges, OnInit {
         this.isDirty = true;
 
         if (this.currentJournalEntryData) {
-            let updatedCurrentJournalEntryData =
+            const updatedCurrentJournalEntryData =
                 data.find(x => x['_originalIndex'] === this.currentJournalEntryData['_originalIndex']);
 
             this.currentJournalEntryData = updatedCurrentJournalEntryData;
@@ -442,7 +455,7 @@ export class JournalEntryManual implements OnChanges, OnInit {
         this.currentJournalEntryData = selectedRow;
 
         if (this.journalEntryProfessional) {
-            let data = this.journalEntryProfessional.getTableData();
+            const data = this.journalEntryProfessional.getTableData();
 
             if (this.currentFinancialYear) {
                 this.journalEntryService.getAccountBalanceInfo(
@@ -466,7 +479,7 @@ export class JournalEntryManual implements OnChanges, OnInit {
 
     public openPostSelected(selectedRow: any) {
         if (selectedRow) {
-            let selectedLine: JournalEntryLine = selectedRow.rowModel;
+            const selectedLine: JournalEntryLine = selectedRow.rowModel;
 
             if (this.currentJournalEntryData) {
                 if (selectedLine['_rowSelected']) {
@@ -493,7 +506,7 @@ export class JournalEntryManual implements OnChanges, OnInit {
                     );
 
                     // unselect other rows if a new row is selected
-                    let allrows = this.openPostsTable.getTableData();
+                    const allrows = this.openPostsTable.getTableData();
                     allrows.forEach(row => {
                         if (row.ID !== selectedLine.ID && row['_rowSelected']) {
                             row['_rowSelected'] = false;
@@ -648,7 +661,7 @@ export class JournalEntryManual implements OnChanges, OnInit {
 
     private canPostData(): Observable<boolean> {
         let hasError, hasWarning;
-        let validationMessages = this.validationResult && this.validationResult.Messages;
+        const validationMessages = this.validationResult && this.validationResult.Messages;
         if (validationMessages.length) {
             hasError = validationMessages.some(msg => msg.Level === ValidationLevel.Error);
             hasWarning = validationMessages.some(msg => msg.Level === ValidationLevel.Warning);
@@ -769,7 +782,7 @@ export class JournalEntryManual implements OnChanges, OnInit {
     }
 
     private setupOpenPostUniTable() {
-        let columns = [
+        const columns = [
             new UniTableColumn('JournalEntryNumber', 'Bilagsnr', UniTableColumnType.Text),
             new UniTableColumn('JournalEntryType.Name', 'Type', UniTableColumnType.Text)
                 .setTemplate(x => x.JournalEntryTypeName)
@@ -792,7 +805,7 @@ export class JournalEntryManual implements OnChanges, OnInit {
                 .setTemplate(x => this.journalEntryLineService.getStatusText(x.StatusCode))
         ];
 
-        let tableConfigStoreKey = 'accounting.journalEntry.openPostTable';
+        const tableConfigStoreKey = 'accounting.journalEntry.openPostTable';
         this.openPostTableConfig = new UniTableConfig(tableConfigStoreKey, false, false, 100)
             .setColumns(columns)
             .setMultiRowSelect(true)

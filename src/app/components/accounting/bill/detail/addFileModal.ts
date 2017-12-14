@@ -1,4 +1,4 @@
-import {Component, Input, Output, EventEmitter} from '@angular/core';
+import {Component, Input, Output, EventEmitter, OnInit, ViewChild, HostListener} from '@angular/core';
 import {IUniModal, IModalOptions} from '../../../../../framework/uniModal/barrel';
 import {UniModalService, UniConfirmModalV2, ConfirmActions} from '../../../../../framework/uniModal/barrel';
 import {ToastService, ToastType} from '../../../../../framework/uniToast/toastService';
@@ -13,6 +13,8 @@ import {
 } from '../../../../services/services';
 import {UniImageSize} from '../../../../../framework/uniImage/uniImage';
 import {ImageModal} from '../../../common/modals/ImageModal';
+import {UniTable} from '../../../../../framework/ui/unitable/index';
+import {KeyCodes} from '../../../../../app/services/common/keyCodes';
 
 @Component({
     selector: 'add-file-modal',
@@ -25,8 +27,9 @@ import {ImageModal} from '../../../common/modals/ImageModal';
                     <uni-table
                         [resource]="list"
                         [config]="tableConfig"
-                        (rowSelected)="onRowSelected($event)"
-                        (rowDeleted)="onRowDeleted($event.rowModel)">
+                        (cellFocus)="onRowSelected($event)"
+                        (rowDeleted)="onRowDeleted($event.rowModel)"
+                        (dataLoaded)="focusRow()">
                     </uni-table>
                 </article>
 
@@ -50,7 +53,7 @@ import {ImageModal} from '../../../common/modals/ImageModal';
     `
 })
 
-export class UniAddFileModal implements IUniModal {
+export class UniAddFileModal implements OnInit, IUniModal {
 
     private tableConfig: UniTableConfig;
     private list: any[] = [];
@@ -60,11 +63,19 @@ export class UniAddFileModal implements IUniModal {
     private currentFiles: any;
     private file: any;
 
-    @Input()
-    public options: IModalOptions;
+    @Input() public options: IModalOptions;
+    @Output() public onClose: EventEmitter<any> = new EventEmitter();
+    @ViewChild(UniTable) private table: UniTable;
 
-    @Output()
-    public onClose: EventEmitter<any> = new EventEmitter();
+    @HostListener('keydown', ['$event'])
+    public onKeyDown(event: KeyboardEvent) {
+        const key = event.which || event.keyCode;
+
+        if (key === KeyCodes.ENTER) {
+            event.preventDefault();
+            this.onClose.emit(this.file);
+        }
+    }
 
     constructor(
         private supplierInvoiceService: SupplierInvoiceService,
@@ -88,7 +99,7 @@ export class UniAddFileModal implements IUniModal {
     }
 
     public setUpTable() {
-        var cols = [
+        const cols = [
             new UniTableColumn('ID', 'Nr.', UniTableColumnType.Number)
                 .setWidth('4rem')
                 .setFilterOperator('startswith'),
@@ -115,7 +126,7 @@ export class UniAddFileModal implements IUniModal {
                 return '';
             }),
         ];
-        var cfg = new UniTableConfig('accounting.bills.addfilemodal', false, true)
+        const cfg = new UniTableConfig('accounting.bills.addfilemodal', false, true)
             .setSearchable(false)
             .setColumns(cols)
             .setPageSize(12)
@@ -172,7 +183,7 @@ export class UniAddFileModal implements IUniModal {
     }
 
     public onImageClicked(file: any) {
-        let data = {
+        const data = {
             entity: 'SupplierInvoice',
             entityID: this.currentFiles[0].ID || 0,
             fileIDs: null,
@@ -199,5 +210,12 @@ export class UniAddFileModal implements IUniModal {
 
     public onFileListReady(event) {
         this.loadingPreview = false;
+    }
+
+    private focusRow() {
+        if (this.table) {
+            this.table.blur();
+            this.table.focusRow(0);
+        }
     }
 }
