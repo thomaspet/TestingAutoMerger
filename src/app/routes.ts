@@ -41,7 +41,7 @@ const routes = [
     },
     {
         path: 'salary',
-        loadChildren: './components/salary/salaryModule#SalaryModule',
+        loadChildren: './components/salary/salary.module#SalaryModule',
     },
     {
         path: 'sales',
