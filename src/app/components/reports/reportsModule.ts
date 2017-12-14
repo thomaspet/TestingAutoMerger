@@ -53,6 +53,8 @@ import {
     PayCheckReportFilterModal,
     PaycheckReportFilterModalContent
 } from './modals/paycheck/paycheckReportFilterModal';
+
+import {AnnualSatementReportFilterModalComponent} from './modals/anualStatement/anualStatementReportFilterModal';
 import {UniReports} from './reports';
 import {UniReportParamsModal} from './modals/parameter/reportParamModal';
 
@@ -97,7 +99,8 @@ import {UniReportParamsModal} from './modals/parameter/reportParamModal';
         PayCheckReportFilterModal,
         PaycheckReportFilterModalContent,
         UniPrintModal,
-        UniReportParamsModal
+        UniReportParamsModal,
+        AnnualSatementReportFilterModalComponent,
     ],
     entryComponents: [
         BalanceReportFilterForm,
@@ -111,6 +114,7 @@ import {UniReportParamsModal} from './modals/parameter/reportParamModal';
         VacationPayBaseReportFilterModalContent,
         SalaryWithholdingAndAGAReportFilterModalContent,
         PaycheckReportFilterModalContent,
+        AnnualSatementReportFilterModalComponent,
         UniReportParamsModal,
         UniPreviewModal,
         UniPrintModal
@@ -140,7 +144,8 @@ import {UniReportParamsModal} from './modals/parameter/reportParamModal';
         SalaryWithholdingAndAGAReportFilterModalContent,
         PayCheckReportFilterModal,
         PaycheckReportFilterModalContent,
-        UniReportParamsModal
+        UniReportParamsModal,
+        AnnualSatementReportFilterModalComponent,
     ]
 })
 export class ReportsModule {}
