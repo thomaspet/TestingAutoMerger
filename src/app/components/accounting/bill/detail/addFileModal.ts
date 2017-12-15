@@ -88,7 +88,7 @@ export class UniAddFileModal implements OnInit, IUniModal {
     }
 
     public getData() {
-        this.supplierInvoiceService.fetch('filetags/IncomingMail|IncomingEHF|IncomingTravel|IncomingExpence/0').subscribe((res) => {
+        this.supplierInvoiceService.fetch('filetags/IncomingMail|IncomingEHF|IncomingTravel|IncomingExpense/0').subscribe((res) => {
             this.list = res;
             this.setUpTable();
         }, (err) => {
@@ -120,7 +120,7 @@ export class UniAddFileModal implements OnInit, IUniModal {
                         case 'IncomingMail': return 'Epost';
                         case 'IncomingEHF': return 'EHF';
                         case 'IncomingTravel': return 'Reise';
-                        case 'IncomingExpence': return 'Utlegg';
+                        case 'IncomingExpense': return 'Utlegg';
                     }
                 }
                 return '';

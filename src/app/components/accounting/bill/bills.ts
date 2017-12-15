@@ -104,7 +104,7 @@ export class BillsView {
         {
             label: 'Innboks',
             name: 'Inbox',
-            route: 'filetags/IncomingMail|IncomingEHF|IncomingTravel|IncomingExpence/0?action=get-supplierInvoice-inbox',
+            route: 'filetags/IncomingMail|IncomingEHF|IncomingTravel|IncomingExpense/0?action=get-supplierInvoice-inbox',
             onDataReady: (data) => this.onInboxDataReady(data),
             isSelected: true,
             hotCounter: true
@@ -748,7 +748,7 @@ export class BillsView {
         this.hasQueriedInboxCount = true;
         var route = '?model=filetag&select=count(id)&filter=(tagname eq \'IncomingMail\' '
             + 'or tagname eq \'IncomingEHF\' or tagname eq \'IncomingTravel\' '
-            + 'or tagname eq \'IncomingExpence\') and status eq 0 '
+            + 'or tagname eq \'IncomingExpense\') and status eq 0 '
             + 'and deleted eq 0 and file.deleted eq 0&join=filetag.fileid eq file.id';
         this.supplierInvoiceService.getStatQuery(route).subscribe(data => {
             var filter = this.getInboxFilter();
@@ -804,7 +804,7 @@ export class BillsView {
                             case 'IncomingMail': return 'Epost';
                             case 'IncomingEHF': return 'EHF';
                             case 'IncomingTravel': return 'Reise';
-                            case 'IncomingExpence': return 'Utlegg';
+                            case 'IncomingExpense': return 'Utlegg';
                         }
                     }
                     return '';
